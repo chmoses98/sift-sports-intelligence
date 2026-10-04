@@ -26,6 +26,9 @@ jobs:
       - run: npx playwright install --with-deps chromium webkit
       - name: Check the live site (Chromium phone + WebKit iPhone)
         run: node scripts/production-check.mjs
+        env:
+          # When the owner has configured the Kalshi relay, production must prove it is the live source.
+          SIFT_EXPECT_RELAY: ${{ vars.SIFT_QUOTE_RELAY_URL != '' && '1' || '0' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

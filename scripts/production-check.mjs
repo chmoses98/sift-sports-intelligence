@@ -6,6 +6,24 @@ import { chromium, webkit } from '@playwright/test';
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
+const RELAY = (process.env.SIFT_QUOTE_RELAY_URL ?? '').trim().replace(/\/+$/, '');
+const ORIGIN = new URL(BASE).origin;
+
+// The relay as the browser sees it: Sift's Pages origin, a CORS preflight, then the real GET.
+// Logged on every run so a relay failure always says why (the app's fallback hides it from the UI).
+if (RELAY) {
+  console.log(`relay ${RELAY} (origin ${ORIGIN})`);
+  const q = `${RELAY}/markets?series_ticker=KXNFLGAME&status=open&limit=2`;
+  for (const [what, init] of [['OPTIONS', { method: 'OPTIONS', headers: { Origin: ORIGIN, 'Access-Control-Request-Method': 'GET' } }], ['GET', { headers: { Origin: ORIGIN } }]]) {
+    try {
+      const r = await fetch(q, { ...init, signal: AbortSignal.timeout(20_000) });
+      const body = what === 'GET' ? (await r.text()).replace(/\s+/g, ' ').slice(0, 300) : '';
+      console.log(`  ${what} ${r.status} acao=${r.headers.get('access-control-allow-origin')} observed=${r.headers.get('x-sift-observed-at')} ${body}`);
+    } catch (e) {
+      console.log(`  ${what} failed: ${String(e.cause ?? e)}`);
+    }
+  }
+}
 
 for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { width: 390, height: 844 } }], ['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]]) {
   console.log(`\n${name}`);
@@ -16,6 +34,11 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
   page.on('console', (m) => m.type() === 'error' && !/Failed to load resource|access control checks|net::ERR/.test(m.text()) && errs.push(m.text()));
   const feed = [];
   page.on('response', (r) => r.url().includes('/live-quotes/') && feed.push(r.status()));
+  const relay = [];
+  if (RELAY) {
+    page.on('response', (r) => r.url().startsWith(RELAY) && relay.push(`${r.request().method()} ${r.status()}`));
+    page.on('requestfailed', (r) => r.url().startsWith(RELAY) && relay.push(`${r.method()} failed: ${r.failure()?.errorText}`));
+  }
   try {
     await page.goto(BASE + '#/');
     await page.getByRole('heading', { name: 'Sift' }).waitFor({ timeout: 60_000 });
@@ -48,6 +71,7 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     const answered = await diag('Answered by');
     const diagMode = await diag('Mode');
     console.log(`  provider chain: ${provider}\n  answered by: ${answered} | mode: ${diagMode}`);
+    if (RELAY) console.log(`  relay requests from the page: ${relay.length} [${[...new Set(relay)].slice(0, 6).join('; ')}]`);
     if (process.env.SIFT_EXPECT_RELAY === '1') {
       check(/^Kalshi public market data via relay \(.+\), then Sift quote feed/.test(provider), 'relay is the primary provider, GitHub quote feed the fallback');
       check(answered === 'kalshi-relay', `live quotes answered by kalshi-relay (got ${answered})`);

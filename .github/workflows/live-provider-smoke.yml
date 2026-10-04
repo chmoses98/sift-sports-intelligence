@@ -1,0 +1,37 @@
+name: Live market provider smoke (non-blocking)
+
+# A real, read-only probe of Kalshi's public market-data API from a GitHub runner and from real
+# Chromium/WebKit pages on the production GitHub Pages origin. Deliberately NOT part of the gating CI:
+# a third-party outage must never block a Sift change. Deterministic quote behaviour is tested with
+# fixtures in CI; this job proves the real provider still behaves the way Sift assumes.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 */6 * * *'
+  push:
+    branches: [claude/sift-qa-live-market-mn7bzf]
+    paths: [scripts/kalshi-probe.mjs, .github/workflows/live-provider-smoke.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Probe Kalshi public market data (read-only)
+        run: node scripts/kalshi-probe.mjs --browsers
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kalshi-probe
+          path: kalshi-probe.json
+          retention-days: 14

@@ -1,0 +1,6 @@
+{
+  "name": "sift-quote-relay",
+  "private": true,
+  "description": "Read-only Kalshi public market-data relay for Sift (Vercel Function). No dependencies, no credentials.",
+  "engines": { "node": "22.x" }
+}

@@ -17,6 +17,7 @@ export function LiveDiagnostics() {
     ['Mode', liveMode(d, now)],
     ['Provider', d.providerLabel],
     ['Answered by', d.answeredBy ?? '—'],
+    ['Fallback reason', d.fallback ? `${d.fallback.provider} ${d.fallback.status ? `HTTP ${d.fallback.status}` : 'failed'} (${d.fallback.error}) at ${at(d.fallback.at)}` : '—'],
     ['Online / visible', `${d.online ? 'online' : 'offline'} / ${d.visible ? 'visible' : 'hidden'}`],
     ['Last request', at(d.lastRequestAt)],
     ['Last successful refresh', at(d.lastSuccessAt)],

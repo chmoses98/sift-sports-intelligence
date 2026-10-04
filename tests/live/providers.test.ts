@@ -149,3 +149,35 @@ describe('FallbackProvider', () => {
     await expect(new FallbackProvider([bad('relay', 'http'), bad('feed', 'network')]).fetchQuotes(['X'])).rejects.toMatchObject({ message: 'relay', kind: 'http' });
   });
 });
+
+describe('relay on a new host: Sift needs only the URL', () => {
+  it('labels the source with the relay host and the feed as fallback', () => {
+    const relay = new KalshiApiProvider({ baseUrl: 'https://sift-quote-relay.vercel.app/' });
+    const feed = new FeedQuoteProvider({ baseUrl: 'https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes' });
+    const chain = new FallbackProvider([relay, feed]);
+    expect(chain.id).toBe('kalshi-relay>quote-feed');
+    expect(chain.label).toMatch(/^Kalshi public market data via relay \(sift-quote-relay\.vercel\.app\), then Sift quote feed/);
+  });
+
+  it('turns a relay 429 into a rate-limit error that honours Retry-After', async () => {
+    const p = new KalshiApiProvider({ baseUrl: 'https://sift-quote-relay.vercel.app', fetchImpl: async () => new Response('{"error":{"code":"too_many_requests"}}', { status: 429, headers: { 'retry-after': '7' } }) });
+    await expect(p.fetchQuotes(['X'])).rejects.toMatchObject({ kind: 'rate_limited', status: 429, retryAfterMs: 7000 });
+  });
+});
+
+describe('FallbackProvider keeps the primary failure visible', () => {
+  const ok = { quotes: [], missing: [], requests: 1, latencyMs: 0 };
+  it('records the relay 429 behind a feed answer, and clears it once the relay answers again', async () => {
+    let relayDown = true;
+    const relay = { id: 'kalshi-relay', label: 'r', maxBatch: 100, fetchQuotes: async () => { if (relayDown) throw new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429, 7000); return ok; }, fetchEventMarkets: async () => ok };
+    const feed = { id: 'quote-feed', label: 'f', maxBatch: 100, fetchQuotes: async () => ok, fetchEventMarkets: async () => ok };
+    const p = new FallbackProvider([relay, feed]);
+    await p.fetchQuotes(['X']);
+    expect(p.lastAnswered).toBe('quote-feed');
+    expect(p.lastFallback).toMatchObject({ provider: 'kalshi-relay', status: 429, error: 'rate_limited: rate limited (HTTP 429)' });
+    relayDown = false;
+    await p.fetchQuotes(['X']);
+    expect(p.lastAnswered).toBe('kalshi-relay');
+    expect(p.lastFallback).toBeNull();
+  });
+});

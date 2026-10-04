@@ -48,7 +48,7 @@ function publication(): Map<string, PubMarket> {
 
 const dollars = (v: number | null | undefined) => (v == null ? undefined : v.toFixed(4));
 
-export type FailMode = null | { status: number } | 'abort' | 'hang';
+export type FailMode = null | { status: number; retryAfter?: number } | 'abort' | 'hang';
 
 export class MarketMock {
   /** YES bid overrides (dollars); the ask is bid + 2¢ unless set. */
@@ -108,11 +108,15 @@ export class MarketMock {
       const event = url.searchParams.get('event_ticker');
       const series = url.searchParams.get('series_ticker');
       this.requests.push({ url: req.url(), at: Date.now(), tickers, event: event ?? (series ? `series:${series}` : null) });
-      const cors = { 'access-control-allow-origin': '*', 'access-control-expose-headers': 'X-Sift-Observed-At', 'content-type': 'application/json' };
+      const cors = { 'access-control-allow-origin': '*', 'access-control-expose-headers': 'X-Sift-Observed-At, Retry-After', 'content-type': 'application/json' };
       const failing = this.fail ?? (tickers.some((t) => this.failTickers.has(t)) ? { status: 503 } : null);
       if (failing === 'abort') return route.abort('failed');
       if (failing === 'hang') return new Promise<void>((resolve) => this.hung.push(() => void route.abort('timedout').then(resolve, resolve)));
-      if (failing) return route.fulfill({ status: failing.status, headers: cors, body: '{"error":"mock failure"}' });
+      if (failing) {
+        const retry: Record<string, string> = failing.retryAfter != null ? { 'retry-after': String(failing.retryAfter) } : {};
+        const body = failing.status === 429 ? '{"error":{"code":"too_many_requests","message":"too many requests"}}' : '{"error":"mock failure"}';
+        return route.fulfill({ status: failing.status, headers: { ...cors, ...retry }, body });
+      }
       let markets: Record<string, unknown>[];
       if (event || series) {
         const inScope = (e: string | null | undefined) => (event ? e === event : (e ?? '').split('-')[0] === series);

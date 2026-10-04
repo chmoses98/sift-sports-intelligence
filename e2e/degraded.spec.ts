@@ -58,6 +58,40 @@ test.describe('with a fixed clock', () => {
     await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'FEED');
   });
 
+  test('relay rate-limited (Kalshi 429): the feed answers, Status names the 429, LIVE returns when the relay recovers', async ({ page, market }) => {
+    market.fail = { status: 429, retryAfter: 7 };
+    await page.route('**/live-quotes/games/26OCT04NEBUF.json', (r) =>
+      r.fulfill({
+        headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' },
+        body: JSON.stringify({
+          schema: 'sift.live_quotes.v1', game_key: '26OCT04NEBUF', generated_at: '2026-10-04T14:56:00Z', source: 'test feed',
+          tickers_checked: [ML], markets: [{ ticker: ML, event_ticker: 'KXNFLGAME-26OCT04NEBUF', status: 'active', yes_bid_dollars: '0.5800', yes_ask_dollars: '0.6000', observed_at: '2026-10-04T14:55:30Z' }],
+        }),
+      }),
+    );
+    await page.goto(marketUrl);
+    await expect.poll(() => marketPrice(page)).toBe('58¢ / 60¢');
+    await expect(chip(page)).toContainText('FRESH · 4m'); // the feed's real age
+    await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'FEED');
+    await page.goto('./#/status');
+    const diag = (k: string) => page.locator(`td[data-diag="${k}"]`);
+    await expect(diag('Answered by')).toHaveText('quote-feed');
+    await expect(diag('Mode')).toHaveText('FEED');
+    await expect(diag('Fallback reason')).toContainText('kalshi-relay HTTP 429');
+    await expect(diag('Fallback reason')).toContainText('rate limited');
+
+    market.fail = null;
+    market.set(ML, 0.61);
+    await page.goto(marketUrl);
+    await page.clock.fastForward(21_000); // past the 20 s detail cadence: the next refresh asks the relay first again
+    await expect.poll(() => marketPrice(page)).toBe('61¢ / 63¢');
+    await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'LIVE');
+    await page.goto('./#/status');
+    await expect(diag('Answered by')).toHaveText('kalshi-relay');
+    await expect(diag('Mode')).toHaveText('LIVE');
+    await expect(diag('Fallback reason')).toHaveText('—');
+  });
+
   test('one quote missing: that market keeps the publication quote; the packet names it', async ({ page, market }) => {
     market.hidden.add(ML);
     await page.goto(marketUrl);

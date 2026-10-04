@@ -452,8 +452,10 @@ export class QuoteStore {
     this.bump();
 
     const batches: { kind: 'tickers' | 'events'; ids: string[] }[] = [];
-    // Inventory first: an event listing also refreshes every ticker in it.
-    for (let i = 0; i < todoEvents.length; i += 10) batches.push({ kind: 'events', ids: todoEvents.slice(i, i + 10) });
+    // Inventory first (an event listing also refreshes every ticker in it), as ONE provider call: the
+    // provider groups events its own cheapest way (Kalshi: one listing per series; feed: one file per
+    // game), so splitting here would list the same series twice.
+    if (todoEvents.length) batches.push({ kind: 'events', ids: todoEvents });
     for (let i = 0; i < todoTickers.length; i += provider.maxBatch) batches.push({ kind: 'tickers', ids: todoTickers.slice(i, i + provider.maxBatch) });
 
     try {

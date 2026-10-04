@@ -106,16 +106,20 @@ export class MarketMock {
       const url = new URL(req.url());
       const tickers = (url.searchParams.get('tickers') ?? '').split(',').filter(Boolean);
       const event = url.searchParams.get('event_ticker');
-      this.requests.push({ url: req.url(), at: Date.now(), tickers, event });
+      const series = url.searchParams.get('series_ticker');
+      this.requests.push({ url: req.url(), at: Date.now(), tickers, event: event ?? (series ? `series:${series}` : null) });
       const cors = { 'access-control-allow-origin': '*', 'access-control-expose-headers': 'X-Sift-Observed-At', 'content-type': 'application/json' };
       const failing = this.fail ?? (tickers.some((t) => this.failTickers.has(t)) ? { status: 503 } : null);
       if (failing === 'abort') return route.abort('failed');
       if (failing === 'hang') return new Promise<void>((resolve) => this.hung.push(() => void route.abort('timedout').then(resolve, resolve)));
       if (failing) return route.fulfill({ status: failing.status, headers: cors, body: '{"error":"mock failure"}' });
       let markets: Record<string, unknown>[];
-      if (event) {
-        const all = [...publication().values()].filter((m) => m.kalshi_event_ticker === event).map((m) => m.kalshi_ticker);
-        markets = [...all.map((t) => this.marketJson(t)), ...this.extra.filter((e) => e.event_ticker === event).map((e) => this.marketJson(e.ticker as string))].filter((x): x is Record<string, unknown> => !!x);
+      if (event || series) {
+        const inScope = (e: string | null | undefined) => (event ? e === event : (e ?? '').split('-')[0] === series);
+        const all = [...publication().values()].filter((m) => inScope(m.kalshi_event_ticker)).map((m) => m.kalshi_ticker);
+        markets = [...all.map((t) => this.marketJson(t)), ...this.extra.filter((e) => inScope(e.event_ticker as string)).map((e) => this.marketJson(e.ticker as string))]
+          .filter((x): x is Record<string, unknown> => !!x)
+          .filter((m) => !series || url.searchParams.get('status') !== 'open' || m.status === 'active');
       } else {
         markets = tickers.map((t) => this.marketJson(t)).filter((x): x is Record<string, unknown> => !!x);
       }

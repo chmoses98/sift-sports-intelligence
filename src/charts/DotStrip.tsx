@@ -39,7 +39,8 @@ export function DotStrip({ entries, focusId, oppId, mean, median, format, hrefFo
   return (
     <figure className="dotstrip">
       <div ref={ref}>
-        <svg width={width} height={H} role="img" aria-label={caption}>
+        {/* A group, not an image: its dots are links (an img role may not contain interactive children). */}
+        <svg width={width} height={H} role="group" aria-label={caption}>
           <line x1={18} x2={width - 18} y1={30} y2={30} className="ax-grid" />
           {mean != null && <line x1={x(mean)} x2={x(mean)} y1={12} y2={48} className="dotstrip__mean" />}
           {median != null && <line x1={x(median)} x2={x(median)} y1={16} y2={44} className="dotstrip__median" />}

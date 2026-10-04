@@ -6,7 +6,9 @@ import { explorable, sportBySlug } from '../data/sports';
 import { SportProvider } from '../state/sport';
 import { SportOverview } from '../views/SportOverview';
 import { NotFound } from '../views/NotFound';
-import { ErrorState, Skeleton } from './ui';
+import { ErrorState, Notice, Skeleton } from './ui';
+import type { SportSource } from '../data/source';
+import type { SportConfig } from '../data/sports';
 import { SourceBanner } from './SourceBanner';
 
 export function SportLayout() {
@@ -33,7 +35,7 @@ export function SportLayout() {
     );
   }
   if (!repo.data) return <div className="page"><ErrorState error={repo.error} what={`${sport.label} data`} /></div>;
-  if (!repo.data.hasExplorer) return <SportOverview sport={sport} />;
+  if (!repo.data.hasExplorer) return explorable(sport) ? <ResearchUnavailable sport={sport} source={repo.data.source} /> : <SportOverview sport={sport} />;
   const caps = new Map((meta.data?.capDoc?.items ?? []).map((c) => [c.capability, c]));
   const metrics = meta.data?.metrics ?? new Map<string, MetricDef>();
   return (
@@ -43,5 +45,22 @@ export function SportLayout() {
         <Outlet />
       </Suspense>
     </SportProvider>
+  );
+}
+
+/** An explorable sport whose research could not be read: say so plainly; show nothing in its place. */
+function ResearchUnavailable({ sport, source }: { sport: SportConfig; source: SportSource }) {
+  const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+  return (
+    <div className="page">
+      <Notice tone="error" title={`${sport.label} research is unavailable right now`}>
+        <p>
+          {offline ? 'You are offline and this research has not been opened on this device before. ' : ''}
+          Sift could not read a research explorer for {sport.label} ({source.mode === 'live-v1' ? 'the live publication has only the v1 board' : source.reason}).
+          Nothing is shown in its place: no stale or invented research.
+        </p>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={() => window.location.reload()}>Try again</button>
+      </Notice>
+    </div>
   );
 }

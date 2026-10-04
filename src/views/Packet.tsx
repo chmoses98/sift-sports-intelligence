@@ -260,12 +260,13 @@ export function PreflightPanel({ s, now, builtAt, onRebuild }: { s: PreflightSum
         <button type="button" className="btn btn--ghost btn--sm" onClick={onRebuild}>Refresh &amp; rebuild</button>
       </div>
       <dl className="preflight__grid">
-        <div><dt>Refreshed</dt><dd>{exactTime(new Date(s.refreshedAt).toISOString())}</dd></div>
+        <div><dt>Refreshed</dt><dd title={exactTime(new Date(s.refreshedAt).toISOString())}>{new Date(s.refreshedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</dd></div>
         <div><dt>Markets</dt><dd>{s.refreshed.toLocaleString()} / {s.markets.toLocaleString()} refreshed</dd></div>
         <div><dt>Oldest relevant quote</dt><dd>{s.oldestAgeMs != null ? formatQuoteAge(s.oldestAgeMs) : '—'}</dd></div>
         <div><dt>Fresh / aging</dt><dd>{s.counts.FRESH.toLocaleString()} / {s.counts.AGING.toLocaleString()}</dd></div>
         <div><dt>Stale / unknown</dt><dd>{s.counts.STALE.toLocaleString()} / {s.counts.UNKNOWN.toLocaleString()}</dd></div>
         <div><dt>Not open</dt><dd>{(s.availability.SUSPENDED + s.availability.CLOSED + s.availability.SETTLED + s.availability.UNOPENED).toLocaleString()}</dd></div>
+        {s.missing > 0 && <div><dt>Not listed now</dt><dd>{s.missing.toLocaleString()}</dd></div>}
       </dl>
       {s.status !== 'PASS' && (
         <p className="muted small">

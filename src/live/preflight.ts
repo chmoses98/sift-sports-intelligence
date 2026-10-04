@@ -123,6 +123,9 @@ export function packetLiveInputs(markets: Market[], store: QuoteStore, summary: 
         ` (${summary.error ?? 'no answer'}); they show their last known quote with its real capture time`,
     );
   }
+  if (summary.missing > 0) {
+    notes.push(`live market refresh: ${summary.missing} markets are not listed by the provider now (delisted or replaced); they show the publication's capture`);
+  }
   if (summary.counts.STALE || summary.counts.UNKNOWN) {
     notes.push(
       `market quotes older than 30 minutes or without a capture time: ${summary.counts.STALE} STALE, ${summary.counts.UNKNOWN} UNKNOWN` +

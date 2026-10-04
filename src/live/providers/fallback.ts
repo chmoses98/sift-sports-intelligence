@@ -19,7 +19,7 @@ export class FallbackProvider implements QuoteProvider {
   }
 
   private async run(call: (p: QuoteProvider) => Promise<ProviderResult>, signal?: AbortSignal): Promise<ProviderResult> {
-    let last: unknown = null;
+    let first: unknown = null;
     for (const p of this.providers) {
       if (signal?.aborted) throw new ProviderError('aborted', 'request aborted');
       try {
@@ -28,10 +28,12 @@ export class FallbackProvider implements QuoteProvider {
         return r;
       } catch (e) {
         if (e instanceof ProviderError && e.kind === 'aborted') throw e;
-        last = e;
+        first ??= e;
       }
     }
-    throw last instanceof Error ? last : new ProviderError('network', String(last));
+    // Report the primary provider's failure: it is the one the scheduler's retry/backoff policy is
+    // about (a 503 for one batch must not read as "the network is down" because the fallback was).
+    throw first instanceof Error ? first : new ProviderError('network', String(first));
   }
 
   fetchQuotes(tickers: string[], signal?: AbortSignal) {

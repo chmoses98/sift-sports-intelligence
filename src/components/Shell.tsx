@@ -96,7 +96,8 @@ function Toast() {
     return () => clearTimeout(t);
   }, [tray.lastAdded]);
   const label = show ? tray.labels[show]?.label : null;
-  if (!show || !label) return null;
+  // Never over the open tray sheet: it would cover the sheet's build-packet button on phones.
+  if (!show || !label || tray.open) return null;
   return (
     <div className="toast" role="status">
       <Icon name="check" size={16} />

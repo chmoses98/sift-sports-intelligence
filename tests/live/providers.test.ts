@@ -70,17 +70,19 @@ describe('KalshiApiProvider (through the relay)', () => {
     expect(r.missing).toEqual(['KXNFLGAME-26OCT12BUFLAR-GONE']);
   });
 
-  it('follows the cursor for an event listing', async () => {
-    let n = 0;
+  it('lists inventory by series (one request per series, cursor followed), keeping only the asked events', async () => {
+    const urls: string[] = [];
+    const other = { ...real, ticker: 'KXNFLGAME-26OCT12KCDEN-KC', event_ticker: 'KXNFLGAME-26OCT12KCDEN' };
     const p = new KalshiApiProvider({
       baseUrl: 'https://relay.example/kalshi',
       fetchImpl: async (url) => {
-        n++;
-        return json(url.includes('cursor=') ? { markets: [{ ...real, ticker: 'KXNFLGAME-26OCT12BUFLAR-BUF' }], cursor: '' } : { markets: [real], cursor: 'abc' });
+        urls.push(url);
+        return json(url.includes('cursor=') ? { markets: [{ ...real, ticker: 'KXNFLGAME-26OCT12BUFLAR-BUF' }], cursor: '' } : { markets: [real, other], cursor: 'abc' });
       },
     });
-    const r = await p.fetchEventMarkets(['KXNFLGAME-26OCT12BUFLAR']);
-    expect(n).toBe(2);
+    const r = await p.fetchEventMarkets(['KXNFLGAME-26OCT12BUFLAR', 'KXNFLGAME-26OCT12BUFLAR']);
+    expect(urls[0]).toBe('https://relay.example/kalshi/markets?series_ticker=KXNFLGAME&status=open&limit=1000');
+    expect(urls).toHaveLength(2);
     expect(r.quotes.map((q) => q.ticker)).toEqual(['KXNFLGAME-26OCT12BUFLAR-LAR', 'KXNFLGAME-26OCT12BUFLAR-BUF']);
   });
 
@@ -142,8 +144,8 @@ describe('FallbackProvider', () => {
     expect(p.lastAnswered).toBe('relay');
   });
 
-  it('fails with the last error when every provider fails', async () => {
-    const bad = (id: string) => ({ id, label: id, maxBatch: 1, fetchQuotes: async () => { throw new ProviderError('network', id); }, fetchEventMarkets: async () => { throw new ProviderError('network', id); } });
-    await expect(new FallbackProvider([bad('a'), bad('b')]).fetchQuotes(['X'])).rejects.toMatchObject({ message: 'b' });
+  it('fails with the primary provider\'s error when every provider fails', async () => {
+    const bad = (id: string, kind: 'http' | 'network') => ({ id, label: id, maxBatch: 1, fetchQuotes: async () => { throw new ProviderError(kind, id); }, fetchEventMarkets: async () => { throw new ProviderError(kind, id); } });
+    await expect(new FallbackProvider([bad('relay', 'http'), bad('feed', 'network')]).fetchQuotes(['X'])).rejects.toMatchObject({ message: 'relay', kind: 'http' });
   });
 });

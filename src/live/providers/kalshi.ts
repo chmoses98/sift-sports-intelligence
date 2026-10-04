@@ -9,6 +9,11 @@
 //
 //   GET {base}/markets?tickers=A,B,...   up to 100 tickers (250 -> HTTP 414, URL too long)
 //   GET {base}/markets?event_ticker=E    one event per request (a comma list returns 0 markets)
+//   GET {base}/markets?series_ticker=S&status=open   every open contract of a series, all games
+//
+// Inventory uses the series form: one NFL game spans ~157 event tickers (player props are per-player
+// events) but only ~60 series, and a series listing is identical for every game and every user, so
+// the relay's edge cache shares it.
 import { isoSeconds } from '../freshness';
 import { normalizeKalshiMarket } from '../normalize';
 import { ProviderError, type LiveQuote, type ProviderResult, type QuoteProvider } from '../types';
@@ -130,11 +135,13 @@ export class KalshiApiProvider implements QuoteProvider {
 
   async fetchEventMarkets(eventTickers: string[], signal?: AbortSignal): Promise<ProviderResult> {
     const t0 = this.now();
+    const wanted = new Set(eventTickers);
+    const series = [...new Set(eventTickers.map((e) => e.split('-')[0]))];
     const quotes: LiveQuote[] = [];
     let requests = 0;
-    for (const e of [...new Set(eventTickers)]) {
-      const r = await this.list(`event_ticker=${encodeURIComponent(e)}`, signal);
-      quotes.push(...r.quotes);
+    for (const s of series) {
+      const r = await this.list(`series_ticker=${encodeURIComponent(s)}&status=open`, signal);
+      quotes.push(...r.quotes.filter((q) => q.eventTicker != null && wanted.has(q.eventTicker)));
       requests += r.requests;
     }
     return { quotes, missing: [], requests, latencyMs: this.now() - t0 };

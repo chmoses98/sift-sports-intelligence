@@ -111,26 +111,45 @@ test('9: the packet preflight uses the current quote, not the session memo @live
   expect(text).toMatch(/DATA QUALITY: markets FRESH/);
 });
 
+/** Wait until the fixture relay has been quiet for a moment (no request in flight being raced by the clock). */
+async function settle(market: import('./fixtures').MarketMock) {
+  let n = -1;
+  await expect.poll(async () => {
+    const was = n;
+    n = market.requests.length;
+    await new Promise((r) => setTimeout(r, 300));
+    return was === n && market.requests.length === n;
+  }, { intervals: [100] }).toBe(true);
+}
+
 test('10: shared, batched polling — no request storm from one screen', async ({ page, market }) => {
   await page.goto(gameUrl);
   await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
   await expect.poll(() => market.requests.length).toBeGreaterThan(0);
-  for (let i = 0; i < 4; i++) await page.clock.fastForward(45_000); // 3 minutes on the game
-  await page.clock.fastForward(1_000);
+  await settle(market);
+  for (let i = 0; i < 4; i++) {
+    await page.clock.fastForward(45_000); // 3 minutes on the game, one game-cadence step at a time
+    await settle(market);
+  }
   const tick = market.tickerRequests();
   const ev = market.eventRequests();
   // 796 tickers -> at most 8 batches of 100 per poll; the first poll is served by the inventory sweep.
+  const summary = `3 min on a 796-market game: ${tick.length} ticker batches, ${ev.length} inventory listings (${new Set(ev.map((r) => r.event)).size} series)`;
+  test.info().annotations.push({ type: 'requests', description: summary });
+  console.log(`[request budget] ${summary}`);
   expect(Math.max(...tick.map((r) => r.tickers.length))).toBeLessThanOrEqual(100);
   const perTicker = new Map<string, number>();
   for (const r of tick) for (const t of r.tickers) perTicker.set(t, (perTicker.get(t) ?? 0) + 1);
   expect(Math.max(...perTicker.values()), 'a ticker requested more often than its cadence allows').toBeLessThanOrEqual(5);
   const perEvent = new Map<string, number>();
   for (const r of ev) perEvent.set(r.event!, (perEvent.get(r.event!) ?? 0) + 1);
-  expect(Math.max(...perEvent.values()), 'inventory re-listed more often than every 3 minutes').toBeLessThanOrEqual(2);
+  expect(Math.max(...perEvent.values()), 'inventory re-listed more often than every 3 minutes').toBeLessThanOrEqual(2 * 3); // a big series may take 2-3 pages
   expect(tick.length).toBeLessThanOrEqual(40);
-  const summary = `3 min on a 796-market game: ${tick.length} ticker batches, ${ev.length} event listings (${perEvent.size} events)`;
-  test.info().annotations.push({ type: 'requests', description: summary });
-  console.log(`[request budget] ${summary}`);
+  expect(tick.length, 'the game cadence did not run').toBeGreaterThanOrEqual(24);
+  expect(perEvent.size, 'inventory did not cover the game\'s Kalshi series').toBeGreaterThan(30);
+  expect(ev.length, 'inventory costs more than one listing per series per sweep').toBeLessThanOrEqual(2 * perEvent.size);
+  expect(Math.max(...perEvent.values())).toBeLessThanOrEqual(2);
+
 
   // A market screen shows its ticker in two scopes (detail + ladder): one request, not two.
   market.requests = [];

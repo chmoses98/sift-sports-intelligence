@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint · typecheck · test · build · acceptance journey
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and integration tests (real NFL fixtures, golden packets)
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: GitHub Pages build check (base path, manifest, service worker, hash routing)
+        run: node scripts/check-dist.mjs
+      - name: Install Chromium for the acceptance journey
+        run: npx playwright install --with-deps chromium
+      - name: Acceptance journey (phone + desktop)
+        run: npx playwright test
+        env:
+          CI: 'true'
+      - name: Journey screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: journey-screenshots
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14

@@ -1,0 +1,86 @@
+{
+  "bet_authority": "MANUAL",
+  "commit_sha": "303c430bafef6c1bda2fc83135fe2211429abc4a",
+  "components": {
+    "export": {
+      "age_seconds": 0.0,
+      "as_of": "2026-10-04T00:44:37Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "market_data": {
+      "age_seconds": 1771.0,
+      "as_of": "2026-10-04T00:15:06Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "model": {
+      "age_seconds": 207.2,
+      "as_of": "2026-10-04T00:41:09Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "router": {
+      "age_seconds": 163004.0,
+      "as_of": "2026-10-02T03:27:53Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "settlement": {
+      "age_seconds": 160864.0,
+      "as_of": "2026-10-02T04:03:33Z",
+      "detail": null,
+      "status": "OK"
+    }
+  },
+  "data_age_seconds": 1771.0,
+  "errors": [],
+  "freshness_status": "FRESH",
+  "generated_at": "2026-10-04T00:44:37Z",
+  "kind": "health",
+  "last_export_attempt": "2026-10-04T00:44:37Z",
+  "last_market_capture": "2026-10-04T00:15:06Z",
+  "last_model_generated": "2026-10-04T00:41:09Z",
+  "last_successful_run": "2026-10-04T00:44:37Z",
+  "market_data_status": "OK",
+  "model_status": "OK",
+  "next_scheduled_run": "2026-10-04T07:30:00Z",
+  "overall_status": "HEALTHY",
+  "payload_run_id": "run_d33cb75da67eb0847a34",
+  "router_status": "OK",
+  "run_id": "run_d33cb75da67eb0847a34",
+  "schema_version": "edge_finder.app.v1",
+  "settlement_status": "OK",
+  "sport": "NFL",
+  "thresholds": {
+    "export": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 10800
+    },
+    "market_data": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 10800
+    },
+    "model": {
+      "fresh_after_seconds": 7200,
+      "stale_after_seconds": 86400
+    },
+    "recommendations": {
+      "fresh_after_seconds": 3600,
+      "stale_after_seconds": 21600
+    },
+    "router": {
+      "fresh_after_seconds": 604800,
+      "stale_after_seconds": 1209600
+    },
+    "schedule": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    },
+    "settlement": {
+      "fresh_after_seconds": 604800,
+      "stale_after_seconds": 1209600
+    }
+  },
+  "warnings": []
+}

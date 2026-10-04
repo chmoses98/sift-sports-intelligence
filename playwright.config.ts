@@ -9,7 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
 //   desktop    Chromium, 1280x900                               full journey, live market, degraded, visual, a11y
 //   iphone     WebKit, iPhone 15 Pro (393x852, touch, Safari)   full journey, live market core, visual, smoke
 //   iphone-se  WebKit, iPhone SE 3rd gen (375x667, smallest current iPhone)  smoke (layout, overflow, fixed controls)
-const iphoneOnly = /@(smoke|journey|live|visual)/;
+const iphoneOnly = /@(smoke|journey|live|visual|diag)/;
 export default defineConfig({
   testDir: './e2e',
   timeout: 120_000,

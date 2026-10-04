@@ -25,12 +25,13 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     await page.locator('.gcard__link').first().waitFor({ timeout: 60_000 });
     await page.locator('.gcard__link').first().click();
     await page.getByRole('heading', { name: 'How they match up' }).waitFor({ timeout: 60_000 });
-    await page.waitForFunction(() => document.querySelector('.mh__chips .qchip')?.getAttribute('data-quote-source') !== 'publication', null, { timeout: 90_000 }).catch(() => {});
+    // Wait for the game scope's own refresh (inventory + tickers), not just the slate's first quotes.
+    await page.waitForFunction(() => document.querySelector('.mh__chips .qchip')?.getAttribute('data-quote-source') === 'live', null, { timeout: 90_000 }).catch(() => {});
     const gameChip = page.locator('.mh__chips .qchip');
     const src = await gameChip.getAttribute('data-quote-source');
     const state = await gameChip.getAttribute('data-quote-state');
     console.log(`  game prices chip: source=${src} state=${state} "${(await gameChip.textContent())?.trim()}"`);
-    check(src === 'live' || src === 'mixed', 'game prices come from the live market clock (not only the publication)');
+    check(src === 'live', 'every game price comes from the live market clock');
     check(['FRESH', 'AGING'].includes(state ?? ''), `game quotes are FRESH or AGING (got ${state})`);
     check(feed.some((s) => s === 200 || s === 304), `live-quote feed answered (${feed.length} requests)`);
     const mode = await page.locator('[data-live-mode]').getAttribute('data-live-mode');

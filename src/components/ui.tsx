@@ -199,9 +199,12 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 
 export function Skeleton({ lines = 3, tall }: { lines?: number; tall?: boolean }) {
   return (
-    <div className={`skel${tall ? ' skel--tall' : ''}`} aria-busy="true" aria-label="Loading">
+    // A status message, not a labelled generic: ARIA prohibits aria-label on a role-less <div>
+    // (axe aria-prohibited-attr), and a busy status region would never be announced.
+    <div className={`skel${tall ? ' skel--tall' : ''}`} role="status">
+      <span className="sr-only">Loading…</span>
       {Array.from({ length: lines }, (_, i) => (
-        <span key={i} className="skel__line" style={{ width: `${92 - i * 13}%` }} />
+        <span key={i} className="skel__line" style={{ width: `${92 - i * 13}%` }} aria-hidden="true" />
       ))}
     </div>
   );

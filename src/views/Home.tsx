@@ -75,7 +75,7 @@ function Sports() {
                 <HealthPill status={h?.overall_status} />
                 {h && <FreshnessChip asOf={h.last_market_capture} component="market_data" thresholds={h.thresholds?.market_data} />}
               </div>
-              <div className="capbar" aria-label={`Capabilities: ${Object.entries(s.counts).map(([k, v]) => `${v} ${k}`).join(', ')}`}>
+              <div className="capbar" role="img" aria-label={`Capabilities: ${Object.entries(s.counts).map(([k, v]) => `${v} ${k}`).join(', ')}`}>
                 {(['VERIFIED', 'PARTIAL', 'RESEARCH', 'UNAVAILABLE'] as const).map((k) => (
                   <span key={k} className={`capbar__seg capbar__seg--${k.toLowerCase()}`} style={{ flexGrow: s.counts[k] ?? 0 }} title={`${s.counts[k] ?? 0} ${k}`} />
                 ))}

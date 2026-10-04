@@ -154,7 +154,8 @@ export function Shell({ children }: { children: ReactNode }) {
           <button type="button" className={`traybtn${count ? ' has-items' : ''}`} onClick={() => tray.setOpen(!tray.open)} aria-expanded={tray.open} aria-controls="tray-drawer">
             <Icon name="tray" size={18} />
             <span className="traybtn__label">Research tray</span>
-            <span className="traybtn__n" aria-label={`${count} items`}>{count}</span>
+            <span className="traybtn__n" aria-hidden="true">{count}</span>
+            <span className="sr-only">{count === 1 ? '1 item' : `${count} items`}</span>
           </button>
         </div>
       </header>
@@ -174,8 +175,9 @@ export function Shell({ children }: { children: ReactNode }) {
         <NavLink to={routes.sport('nfl')} className="bottombar__a"><Icon name="layers" /><span>NFL</span></NavLink>
         <NavLink to={routes.search()} className="bottombar__a"><Icon name="search" /><span>Search</span></NavLink>
         <button type="button" className={`bottombar__a${tray.open ? ' active' : ''}`} onClick={() => tray.setOpen(!tray.open)} aria-expanded={tray.open} aria-controls="tray-drawer">
-          <span className="bottombar__ic"><Icon name="tray" />{count > 0 && <span className="bottombar__n">{count}</span>}</span>
+          <span className="bottombar__ic"><Icon name="tray" />{count > 0 && <span className="bottombar__n" aria-hidden="true">{count}</span>}</span>
           <span>Tray</span>
+          {count > 0 && <span className="sr-only">{count === 1 ? '1 item' : `${count} items`}</span>}
         </button>
       </nav>
       <TrayDrawer />

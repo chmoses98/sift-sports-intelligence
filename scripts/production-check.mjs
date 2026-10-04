@@ -37,6 +37,23 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     const mode = await page.locator('[data-live-mode]').getAttribute('data-live-mode');
     console.log(`  live mode: ${mode}`);
     check(['FEED', 'LIVE'].includes(mode ?? ''), `source banner shows live quotes running (got ${mode})`);
+    // Which provider chain production runs, and which provider actually answered (Status diagnostics).
+    // With the relay configured (repo variable SIFT_QUOTE_RELAY_URL -> SIFT_EXPECT_RELAY=1) the chain must be
+    // relay first, GitHub quote feed as fallback, and the relay must be the one answering.
+    const gameUrl = page.url();
+    await page.goto(BASE + '#/status');
+    await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
+    const diag = async (k) => ((await page.locator(`td[data-diag="${k}"]`).textContent()) ?? '').trim();
+    const provider = await diag('Provider');
+    const answered = await diag('Answered by');
+    const diagMode = await diag('Mode');
+    console.log(`  provider chain: ${provider}\n  answered by: ${answered} | mode: ${diagMode}`);
+    if (process.env.SIFT_EXPECT_RELAY === '1') {
+      check(/^Kalshi public market data via relay \(.+\), then Sift quote feed/.test(provider), 'relay is the primary provider, GitHub quote feed the fallback');
+      check(answered === 'kalshi-relay', `live quotes answered by kalshi-relay (got ${answered})`);
+      check(diagMode === 'LIVE', `market clock mode LIVE (got ${diagMode})`);
+    }
+    await page.goto(gameUrl);
     const ev = page.url().split('/game/')[1]?.split('?')[0];
     await page.goto(`${BASE}#/packet?sport=nfl&scope=GAME&event=${ev}`);
     await page.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 120_000 });

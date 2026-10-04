@@ -52,3 +52,33 @@ test('axe: league ranking and the open research tray @a11y', async ({ page }) =>
   await expect(page.getByRole('complementary', { name: 'Research tray' })).toBeVisible();
   await scan(page, 'tray');
 });
+
+// Loading states are scanned on purpose, not by luck of timing. CI once caught the home screen
+// mid-load (two skeletons labelled with aria-label on a role-less <div>: serious
+// aria-prohibited-attr, reported against :root because the nodes unmounted during the scan). Holding
+// the research reads keeps every skeleton on screen for the whole scan, under the same gate.
+const LOADING: [string, string][] = [
+  ['home', './#/'],
+  ['slate', './#/nfl'],
+  ['game', `./#/nfl/game/${NEBUF}`],
+  ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`],
+];
+
+for (const [name, url] of LOADING) {
+  test(`axe: ${name} while loading @a11y`, async ({ page }) => {
+    let release!: () => void;
+    const held = new Promise<void>((r) => (release = r));
+    await page.route('**/data/nfl/**', async (route) => {
+      await held;
+      await route.fallback();
+    });
+    await page.goto(url);
+    const skeletons = page.locator('.skel');
+    await expect(skeletons.first()).toBeVisible();
+    await scan(page, `${name}-loading`);
+    await expect(skeletons.first()).toBeVisible(); // the scan really covered the loading state
+    // Each placeholder is announced as a status with text, never a labelled generic.
+    await expect(page.getByRole('status').filter({ hasText: 'Loading…' }).first()).toBeAttached();
+    release();
+  });
+}

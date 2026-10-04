@@ -7,7 +7,7 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, NOW, test } from './fixtures';
 
 async function ready(page: Page) {
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+  await expect(page.locator('.skel')).toHaveCount(0);
   await expect(page.locator('.gcard__hook--load')).toHaveCount(0);
   // Popovers/toasts are transient; make sure none is open.
   await page.mouse.move(0, 0);

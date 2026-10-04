@@ -41,6 +41,14 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {
+            // MARKET CLOCK: the live-quote feed is never cached by the service worker. A quote served
+            // from cached bytes could look current; previously seen quotes are kept by the app itself
+            // (src/live/store.ts, local storage) with their real observation time instead. The relay
+            // (a different host) has no route at all, so the service worker never intercepts it.
+            urlPattern: ({ url }) => url.hostname === 'raw.githubusercontent.com' && url.pathname.includes('/live-quotes/'),
+            handler: 'NetworkOnly',
+          },
+          {
             // Live sport publications: network first so freshness is real; the cache answers offline.
             urlPattern: ({ url }) => url.hostname === 'raw.githubusercontent.com',
             handler: 'NetworkFirst',

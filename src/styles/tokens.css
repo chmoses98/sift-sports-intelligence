@@ -24,7 +24,7 @@
   --text-hi: #f1f5ff;
   --text: #c6d0e8;
   --text-2: #93a0bf;
-  --text-3: #66718f;          /* labels on navy: 4.6:1 on --navy-1 */
+  --text-3: #8290ae;          /* labels: >= 4.5:1 (WCAG AA) on ink-1 and navy-1..3 (5.8:1 on navy-1); axe-verified */
 
   /* ---- energy */
   --cobalt: #3461ff;
@@ -54,7 +54,7 @@
   --q-verified: #2ee6f6;
   --q-partial: #6d8cff;
   --q-research: #f0a640;
-  --q-unavailable: #66718f;
+  --q-unavailable: #8290ae;
 
   /* ---- type */
   --font-display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;

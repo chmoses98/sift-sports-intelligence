@@ -32,6 +32,14 @@ const main = js.map((f) => [f, readFileSync(join(dist, 'assets', f), 'utf-8')]).
 must(main, 'no hash router in the bundle (deep links would break on Pages)');
 const sw = readFileSync(join(dist, 'sw.js'), 'utf-8');
 must(!sw.includes('data/nfl/app/latest/event_detail'), 'service worker precaches research data (it must not)');
+// Market clock: live quotes must never be answered from a service-worker cache.
+must(/live-quotes[\s\S]{0,400}NetworkOnly|NetworkOnly[\s\S]{0,400}live-quotes/.test(sw), 'service worker does not route the live-quote feed NetworkOnly');
+must(!/kalshi/i.test(sw), 'service worker references a Kalshi/relay host (live quotes must not be cached or intercepted)');
+// No credential may ever ship in the bundle (this pass is read-only market observation).
+for (const [f, t] of js.map((f) => [f, readFileSync(join(dist, 'assets', f), 'utf-8')])) {
+  must(!/(KALSHI[_-]?(API[_-]?)?(KEY|SECRET|PRIVATE)|BEGIN (RSA |EC )?PRIVATE KEY|KALSHI-ACCESS-(KEY|SIGNATURE))/i.test(t), `${f} contains something that looks like a trading credential`);
+  must(!/\/portfolio\/orders|\/portfolio\/balance|createOrder/i.test(t), `${f} references a Kalshi trading endpoint`);
+}
 
 if (fail.length) {
   console.error('dist check FAILED:\n- ' + fail.join('\n- '));

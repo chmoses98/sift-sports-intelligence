@@ -75,6 +75,10 @@ jobs:
             echo "using the committed snapshot"
           fi
       - run: npm run build
+        env:
+          # Optional read-only quote relay (relay/README.md). A public URL, not a secret; unset means
+          # Sift reads quotes from the GitHub Actions quote feed only.
+          VITE_SIFT_QUOTE_RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
       - run: node scripts/check-dist.mjs
       - uses: actions/configure-pages@v5
         with:

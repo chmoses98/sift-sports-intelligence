@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches-ignore: [main]
+    branches-ignore: [main, live-quotes]
   workflow_call:
 
 permissions:
@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   verify:
-    name: Lint · typecheck · test · build · acceptance journey
+    name: Lint · typecheck · test · build · acceptance (Chromium + WebKit)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,15 +30,15 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npm run typecheck
-      - name: Unit and integration tests (real NFL fixtures, golden packets)
+      - name: Unit and integration tests (real NFL fixtures, golden packets, live-quote layer, relay, feed)
         run: npm test
-      - name: Production build
-        run: npm run build
+      - name: Production build (relay pointed at the e2e stand-in https://relay.sift.invalid)
+        run: npm run build:e2e
       - name: GitHub Pages build check (base path, manifest, service worker, hash routing)
         run: node scripts/check-dist.mjs
-      - name: Install Chromium for the acceptance journey
-        run: npx playwright install --with-deps chromium
-      - name: Acceptance journey (phone + desktop)
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Acceptance suite — journey, live market, degraded states, visual, accessibility, smoke
         run: npx playwright test
         env:
           CI: 'true'
@@ -46,7 +46,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: journey-screenshots
+          name: acceptance-results
           path: |
             test-results/
             playwright-report/

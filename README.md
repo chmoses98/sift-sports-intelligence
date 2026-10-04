@@ -12,6 +12,11 @@ Sift is the consumer layer over the Edge Finder research infrastructure. It read
 `edge_finder.app.v1` contract (authored in `chmoses98/kalshi-bet-router`) straight from each sport repository —
 no server, no database, $0/month.
 
+Sift runs on **two clocks**: research (the sport publications, hours) and markets (current Kalshi quotes,
+seconds to minutes, refreshed without any redeploy). Every quote shows its availability, its real age
+(FRESH < 15 min ≤ AGING ≤ 30 min < STALE) and whether it is live or the publication's capture, and every
+packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *The market clock*.
+
 ## V1 scope
 
 * **NFL** — the complete vertical slice: slate, game, team, metric, league ranking, historical games, player,
@@ -25,8 +30,9 @@ no server, no database, $0/month.
 npm ci
 npm run dev            # http://localhost:5173/sift-sports-intelligence/
 npm run lint && npm run typecheck && npm test
-npm run build && node scripts/check-dist.mjs
-npx playwright test    # acceptance journey on the production build (phone + desktop)
+npm run build:e2e && node scripts/check-dist.mjs
+npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market gates, degraded, a11y, visual, smoke
+                       # (WebKit needs `npx playwright install webkit`; CI runs everything)
 ```
 
 ## Docs
@@ -44,3 +50,6 @@ npx playwright test    # acceptance journey on the production build (phone + des
 * `scripts/make_golden_packets.py` — regenerate the golden packets with the contract's Python builder after a
   snapshot refresh.
 * `scripts/make-icons.mjs` — render the PWA icons.
+* `scripts/publish-live-quotes.mjs` — the live-quote feed (run every 5 minutes by `live-quotes.yml`).
+* `scripts/kalshi-probe.mjs` — read-only real-provider probe (run by `live-provider-smoke.yml`).
+* `relay/` — the optional read-only Kalshi quote relay (Cloudflare Worker) for sub-minute quotes.

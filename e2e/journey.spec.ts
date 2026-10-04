@@ -1,22 +1,35 @@
 // The V1 acceptance journey (HOME → NFL → GAME → TEAM → METRIC → FULL RANKING → HISTORICAL GAME →
-// PLAYER → MARKET → TRAY → COPY FOR CHATGPT), on real NFL data. External hosts are blocked so the
-// run is deterministic: Sift falls back to the bundled same-run NFL research snapshot, exactly as it
-// does in production while NFL's live explorer is unpublished.
-import { expect, test, type Page } from '@playwright/test';
+// PLAYER → MARKET → TRAY → BUILD PACKET → COPY FOR CHATGPT), on real NFL data, in Chromium (phone,
+// desktop) and WebKit (iPhone). External hosts are blocked so the run is deterministic: Sift falls
+// back to the bundled same-run NFL research snapshot, exactly as it does in production while NFL's
+// live explorer is unpublished; live quotes come from the fixture relay (e2e/fixtures.ts).
+import type { BrowserContext, Page } from '@playwright/test';
+import { expect, noHorizontalOverflow, test } from './fixtures';
 
 async function shot(page: Page, name: string) {
-  // Mobile is not a squeezed desktop: no screen may scroll sideways.
-  const [sw, cw] = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
-  expect(sw, `${name} overflows horizontally`).toBeLessThanOrEqual(cw);
+  await noHorizontalOverflow(page, name);
   await page.screenshot({ path: `test-results/journey/${test.info().project.name}-${name}.png` });
 }
 
-test.beforeEach(async ({ context }) => {
-  await context.route(/^https:\/\/raw\.githubusercontent\.com\//, (r) => r.abort());
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://localhost:4173' });
-});
+/**
+ * Chromium grants clipboard permissions to the test; WebKit has no such permission, so the copy is
+ * captured from navigator.clipboard.writeText (the app's first choice) instead.
+ */
+async function clipboardFor(context: BrowserContext, browserName: string) {
+  if (browserName === 'chromium') {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://localhost:4173' });
+    return (page: Page) => page.evaluate(() => navigator.clipboard.readText());
+  }
+  await context.addInitScript(() => {
+    const w = window as unknown as { __copied?: string };
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (t: string) => void (w.__copied = t), readText: async () => w.__copied ?? '' } });
+  });
+  return (page: Page) => page.evaluate(() => (window as unknown as { __copied?: string }).__copied ?? '');
+}
 
-test('the full research journey ends in a real handicap packet on the clipboard', async ({ page, isMobile }) => {
+test('the full research journey ends in a real handicap packet on the clipboard @journey', async ({ page: first, context, isMobile, browserName }) => {
+  let page = first;
+  const readClipboard = await clipboardFor(context, browserName);
   // 1. Open Sift
   await page.goto('./#/');
   await expect(page.getByRole('heading', { name: 'Sift' })).toBeVisible();
@@ -80,9 +93,19 @@ test('the full research journey ends in a real handicap packet on the clipboard'
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
   await expect(page.getByRole('status').filter({ hasText: 'to the research tray' })).toBeVisible();
 
-  // 11. Go elsewhere; the tray survives navigation and a reload
+  // 11. Go elsewhere; the tray survives navigation and a fresh load of the app
   await page.goto('./#/nfl');
-  await page.reload();
+  if (browserName === 'webkit') {
+    // Playwright's WebKit build on Linux crashes ("Page crashed") on page.reload() at this point of the
+    // long journey only; isolated reloads after the same screens pass (e2e deep-link test, CI diagnostic
+    // 2026-10-04). A fresh page in the same context proves the same thing: the tray persists across loads.
+    const fresh = await context.newPage();
+    await page.close();
+    page = fresh;
+    await page.goto('./#/nfl');
+  } else {
+    await page.reload();
+  }
   const trayCount = isMobile ? page.locator('.bottombar__n') : page.locator('.traybtn__n');
   await expect(trayCount).toHaveText('1');
 
@@ -96,12 +119,18 @@ test('the full research journey ends in a real handicap packet on the clipboard'
   await drawer.getByRole('link', { name: /Build NFL handicap packet/ }).click();
   const copy = page.getByRole('button', { name: 'COPY FOR CHATGPT' });
   await expect(copy).toBeVisible({ timeout: 60_000 });
+  // The packet's markets were refreshed before it was built (preflight), and the user is told so.
+  const preflight = page.getByRole('region', { name: 'Market refresh preflight' });
+  await expect(preflight).toHaveAttribute('data-preflight', 'PASS');
+  await expect(preflight).toContainText('Oldest relevant quote');
+  // The copy button is never hidden behind the fixed bottom navigation.
+  await copy.click({ trial: true, timeout: 5_000 }); // fails if a fixed bar / sheet would take the tap
   await shot(page, '13-packet');
 
   // 14. Copy it for ChatGPT
   await copy.click();
   await expect(page.getByRole('button', { name: /Copied [\d,]+ characters/ })).toBeVisible();
-  const text = await page.evaluate(() => navigator.clipboard.readText());
+  const text = await readClipboard(page);
 
   // 15. The packet carries protocol, current evidence, markets, quality/freshness and the user's focus
   expect(text).toContain('EDGE FINDER HANDICAP PACKET pkt_');
@@ -117,16 +146,19 @@ test('the full research journey ends in a real handicap packet on the clipboard'
   expect(text).toContain('- PLAYER Josh Allen (Buffalo Bills), QB');
   expect(text).toMatch(/MARKETS \(796, all in scope\)/);
   expect(text).toContain('MODEL EVIDENCE:');
+  // Freshness was evaluated at build time on refreshed quotes: the tray market is FRESH and live.
+  expect(text).toMatch(/DATA QUALITY: markets FRESH, model /);
+  expect(text).toContain('kalshi live quotes (kalshi-relay');
 });
 
-test('deep links survive a refresh on the Pages base path', async ({ page }) => {
+test('deep links survive a refresh on the Pages base path @smoke', async ({ page }) => {
   await page.goto('./#/nfl/team/prt_38f80e30c7c786aaf5b4?tab=schedule');
   await expect(page.getByRole('heading', { name: /Baltimore Ravens/i, level: 1 })).toBeVisible();
   await page.reload();
   await expect(page.locator('.tabs').getByRole('tab', { name: 'Schedule' })).toHaveAttribute('aria-selected', 'true');
 });
 
-test('search answers entity + intent queries', async ({ page }) => {
+test('search answers entity + intent queries @journey', async ({ page }) => {
   await page.goto('./#/search?q=Baltimore%20pass%20defense');
   await expect(page.locator('.sres--intent').first()).toContainText('Baltimore Ravens');
   await expect(page.locator('.sres--intent').first()).toContainText(/of 32/);

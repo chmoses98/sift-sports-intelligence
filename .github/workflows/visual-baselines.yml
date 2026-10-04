@@ -1,0 +1,43 @@
+name: Visual baselines
+
+# Renders the visual-regression baselines on GitHub's Linux runners (the same image CI compares on)
+# and commits them to the branch. Run it when a screen is meant to change: push a commit whose message
+# contains [update-visual-baselines], or run it manually. Review the committed PNGs in the PR diff.
+on:
+  push:
+    branches-ignore: [main, live-quotes]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: visual-baselines-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baselines:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[update-visual-baselines]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:e2e
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Render baselines (phone, desktop, iPhone)
+        run: npx playwright test --grep @visual --project=phone --project=desktop --project=iphone --update-snapshots=all
+        env:
+          CI: 'true'
+      - name: Commit baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add e2e/__screenshots__
+          if git diff --cached --quiet; then echo "baselines unchanged"; exit 0; fi
+          git commit -m "Visual baselines rendered on CI (${GITHUB_SHA::7})"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

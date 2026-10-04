@@ -95,9 +95,19 @@ async function doResolve(sport: SportConfig, pref: SourcePreference): Promise<Sp
     return { ...base, mode: 'live', root: sport.rawBase, reason: `Live ${sport.label} publication from ${sport.repo}@${sport.branch}.` };
   }
   if (sport.snapshotBase) {
+    // The bundled snapshot is same-origin; one retry absorbs a transient failure (a reload racing the
+    // service worker, a flaky connection) before Sift declares the research unavailable.
+    const readSnapshot = async () => {
+      const info = await getJson<SnapshotInfo>(joinUrl(sport.snapshotBase!.replace(/\/app\/latest$/, ''), 'SNAPSHOT.json'));
+      await getJson<ExplorerIndexDoc>(joinUrl(sport.snapshotBase!, 'explorer/index.json'));
+      return info;
+    };
     try {
-      const info = await getJson<SnapshotInfo>(joinUrl(sport.snapshotBase.replace(/\/app\/latest$/, ''), 'SNAPSHOT.json'));
-      await getJson<ExplorerIndexDoc>(joinUrl(sport.snapshotBase, 'explorer/index.json'));
+      const info = await readSnapshot().catch(async (e) => {
+        if (e instanceof NotFoundError) throw e;
+        await new Promise((r) => setTimeout(r, 400));
+        return readSnapshot();
+      });
       const why =
         pref === 'snapshot'
           ? 'Snapshot selected in settings.'

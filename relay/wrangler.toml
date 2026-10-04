@@ -1,0 +1,10 @@
+# Cloudflare Worker for Sift's read-only Kalshi quote relay. Free tier (100k requests/day) is ample
+# for a private / friends-scale app. Deploy: `npx wrangler deploy` from this directory.
+name = "sift-quote-relay"
+main = "kalshi-quote-relay.ts"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+[vars]
+# Comma-separated browser origins allowed to read through the relay.
+ALLOWED_ORIGINS = "https://chmoses98.github.io,http://localhost:4173,http://localhost:5173"

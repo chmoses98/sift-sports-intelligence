@@ -58,3 +58,27 @@ game). No per-game EPA, no player lines.
 MLB is explorable as a beta through the same screens. CFB, NBA, NHL, Soccer and Tennis publish explorers
 and are shown with real health and capability manifests, but Sift V1 does not open explorer screens for
 them (their entity shapes — tennis players as participants, soccer clubs — were not validated in this pass).
+
+## 6. Live market data (market clock) — what remains impossible or limited
+
+* **No direct browser access to Kalshi.** Kalshi's public API refuses any browser `Origin` other than
+  kalshi.com (HTTP 403, no CORS headers; evidence in ARCHITECTURE.md → *The market clock*). Sift reads
+  quotes from the GitHub Actions quote feed (every ~5–15 minutes) and, once the owner deploys it, from the
+  read-only relay (15–60 s). Without the relay, quotes are near-live, not sub-minute; their real age is
+  always shown.
+* **No per-quote timestamp from Kalshi.** Market objects carry `updated_time`, which is a metadata time
+  (e.g. listing), not when the price last changed. Sift's quote time is when the provider answered
+  (Kalshi's `Date` minus `Age`, rounded down) — the time the price was known to be current.
+* **Newly listed contracts have no research.** A rung or alternate line listed after the research run
+  appears with Kalshi's own wording and live quote only. The publication has no `market_family`, subject
+  ids, model price or price history for it, so Sift shows none and does not put it in packets (the packet's
+  market rows require the publication's metadata). It becomes a full market at the next publication run.
+* **Inventory is bounded by the publication's series.** The feed sweeps the Kalshi series the publication
+  already uses; a brand-new series type is invisible until the sport repository maps it.
+* **Availability in the packet text.** The canonical packet text has no per-market status column, so
+  closed / suspended / not-listed contracts are named on the packet's MISSING line rather than per row.
+* **Feed cadence is GitHub's.** Scheduled workflows fire every ~5–15 minutes and raw.githubusercontent.com
+  caches for up to 5 minutes; neither can be tightened from Sift.
+* **The live NFL publication is ahead of the bundled snapshot.** The feed maps against the live NFL
+  publication (e.g. 801 markets on NE @ BUF) while research screens read the snapshot (796); the extra
+  live contracts appear as *Listed on Kalshi after this research run* until the NFL explorer is repaired.

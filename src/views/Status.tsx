@@ -11,6 +11,7 @@ import { routes } from '../lib/routes';
 import { ROUTER_HEALTH_URL, useAllSports } from '../state/allSports';
 import { useVisit } from '../state/trail';
 import { CapabilityTable } from './SportOverview';
+import { LiveDiagnostics } from '../components/LiveDiagnostics';
 
 interface RouterHealth { overall_status: string; generated_at: string; last_poll_at: string; errors: string[]; warnings: string[]; delivered: number; failed: number; thresholds: Record<string, { fresh_after_seconds: number; stale_after_seconds: number }> }
 
@@ -58,6 +59,9 @@ export function StatusView() {
           </tbody>
         </table>
         {open && all.data?.find((s) => s.sport.code === open)?.caps && <CapabilityTable items={all.data.find((s) => s.sport.code === open)!.caps!.items} />}
+      </Stratum>
+      <Stratum title="Live market quotes" sub="The market clock: current Kalshi quotes on their own refresh schedule, separate from the research publication. Fresh < 15 min, aging to 30 min, stale after.">
+        <LiveDiagnostics />
       </Stratum>
       <Stratum title="Kalshi bet router" sub="Wager delivery health (not research data).">
         {router.data ? (

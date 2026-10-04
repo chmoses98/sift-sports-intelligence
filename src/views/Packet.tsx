@@ -7,7 +7,11 @@ import { useRepo } from '../data/hooks';
 import { sportBySlug } from '../data/sports';
 import { Icon } from '../components/Icon';
 import { ErrorState, FreshnessChip, Notice, QualityBadge, Skeleton, Stratum } from '../components/ui';
-import { buildPacket, type HandicapPacket } from '../packet/build';
+import { buildPacket, packetScopeMarkets, type HandicapPacket } from '../packet/build';
+import { liveStore, useNow } from '../live/hooks';
+import { packetLiveInputs, preflightQuotes, type PreflightSummary } from '../live/preflight';
+import { formatQuoteAge } from '../live/freshness';
+import { exactTime } from '../lib/format';
 import { renderText } from '../packet/render';
 import { makeTray } from '../packet/tray';
 import { routes } from '../lib/routes';
@@ -58,6 +62,10 @@ export function PacketView() {
   const [error, setError] = useState<Error | null>(null);
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [full, setFull] = useState(false);
+  const [preflight, setPreflight] = useState<PreflightSummary | null>(null);
+  const [builtAt, setBuiltAt] = useState<number | null>(null);
+  const [rebuild, setRebuild] = useState(0);
+  const now = useNow(15_000);
   const pre = useRef<HTMLPreElement>(null);
   useVisit(`${scope === 'CUSTOM' ? 'Tray' : scope === 'SLATE' ? 'Slate' : 'Game'} packet`, 'packet');
 
@@ -67,24 +75,36 @@ export function PacketView() {
     setPacket(null);
     setError(null);
     setCopied('idle');
+    setPreflight(null);
     const req =
       scope === 'CUSTOM'
         ? { scope, tray: makeTray(trayItems, new Date()) }
         : scope === 'SLATE'
           ? { scope, windowStart: start, windowEnd: end }
           : { scope, eventId };
-    buildPacket(repo.data, { ...req, generatedAt: new Date().toISOString(), onProgress: (m) => alive && setProgress(m) }).then(
-      (p) => {
-        if (!alive) return;
-        setPacket(p);
-        setText(renderText(p));
-      },
-      (e: Error) => alive && setError(e),
-    );
+    const onProgress = (m: string) => alive && setProgress(m);
+    (async () => {
+      // Packet preflight: refresh exactly the packet's markets (bounded), THEN build, so no price is
+      // older merely because it was memoised earlier in the session. Freshness is evaluated now.
+      const r = repo.data!;
+      const store = liveStore();
+      onProgress('Finding the markets in scope');
+      const markets = await packetScopeMarkets(r, { ...req, onProgress });
+      onProgress(`Refreshing ${markets.length.toLocaleString()} market quotes`);
+      const summary = await preflightQuotes(markets, store);
+      if (!alive) return;
+      setPreflight(summary);
+      const live = packetLiveInputs(markets, store, summary);
+      const p = await buildPacket(r, { ...req, generatedAt: new Date().toISOString(), live, onProgress });
+      if (!alive) return;
+      setPacket(p);
+      setText(renderText(p));
+      setBuiltAt(Date.now());
+    })().catch((e: Error) => alive && setError(e));
     return () => {
       alive = false;
     };
-  }, [repo.data, sport, scope, eventId, start, end, trayKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [repo.data, sport, scope, eventId, start, end, trayKey, rebuild]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!sport) return <div className="page"><Notice tone="error" title="Unknown sport" /></div>;
   if (scope === 'CUSTOM' && !trayItems.length) {
@@ -148,6 +168,8 @@ export function PacketView() {
           <Skeleton lines={4} />
         </div>
       )}
+
+      {preflight && <PreflightPanel s={preflight} now={now} builtAt={builtAt} onRebuild={() => setRebuild((n) => n + 1)} />}
 
       {packet && (
         <>
@@ -216,5 +238,45 @@ export function PacketView() {
         </>
       )}
     </div>
+  );
+}
+
+const VERDICT_TEXT: Record<PreflightSummary['status'], string> = {
+  PASS: 'every market in scope was refreshed',
+  PARTIAL: 'some markets could not be refreshed',
+  FAIL: 'no market could be refreshed',
+  UNAVAILABLE: 'no live quote provider is available',
+};
+
+/** Market refresh preflight, shown before COPY FOR CHATGPT. */
+export function PreflightPanel({ s, now, builtAt, onRebuild }: { s: PreflightSummary; now: number; builtAt: number | null; onRebuild: () => void }) {
+  const builtAgo = builtAt != null ? now - builtAt : null;
+  return (
+    <section className="preflight" aria-label="Market refresh preflight" data-preflight={s.status}>
+      <div className="preflight__head">
+        <span className="summary__k">Market refresh</span>
+        <span className={`preflight__verdict preflight__verdict--${s.status.toLowerCase()}`}>{s.status}</span>
+        <span className="muted small">{VERDICT_TEXT[s.status]}{s.error && s.status !== 'PASS' ? ` — ${s.error}` : ''}</span>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={onRebuild}>Refresh &amp; rebuild</button>
+      </div>
+      <dl className="preflight__grid">
+        <div><dt>Refreshed</dt><dd title={exactTime(new Date(s.refreshedAt).toISOString())}>{new Date(s.refreshedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</dd></div>
+        <div><dt>Markets</dt><dd>{s.refreshed.toLocaleString()} / {s.markets.toLocaleString()} refreshed</dd></div>
+        <div><dt>Oldest relevant quote</dt><dd>{s.oldestAgeMs != null ? formatQuoteAge(s.oldestAgeMs) : '—'}</dd></div>
+        <div><dt>Fresh / aging</dt><dd>{s.counts.FRESH.toLocaleString()} / {s.counts.AGING.toLocaleString()}</dd></div>
+        <div><dt>Stale / unknown</dt><dd>{s.counts.STALE.toLocaleString()} / {s.counts.UNKNOWN.toLocaleString()}</dd></div>
+        <div><dt>Not open</dt><dd>{(s.availability.SUSPENDED + s.availability.CLOSED + s.availability.SETTLED + s.availability.UNOPENED).toLocaleString()}</dd></div>
+        {s.missing > 0 && <div><dt>Not listed now</dt><dd>{s.missing.toLocaleString()}</dd></div>}
+      </dl>
+      {s.status !== 'PASS' && (
+        <p className="muted small">
+          {s.failed > 0 ? `${s.failed.toLocaleString()} markets keep their last known quote with its real capture time. ` : ''}
+          The packet states this in its MISSING line; stale prices are references, not executable.
+        </p>
+      )}
+      {builtAgo != null && builtAgo > 5 * 60_000 && (
+        <Notice tone="warn" title={`Built ${formatQuoteAge(builtAgo)} ago`}>Quotes in this packet were refreshed when it was built. Refresh &amp; rebuild before copying for current prices.</Notice>
+      )}
+    </section>
   );
 }

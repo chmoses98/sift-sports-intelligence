@@ -5,6 +5,8 @@ import type { SportSource } from '../data/source';
 import { exactTime } from '../lib/format';
 import { routes } from '../lib/routes';
 import { FreshnessChip } from './ui';
+import { LiveStatusChip } from './LiveQuote';
+import { useNow } from '../live/hooks';
 
 const HEALTH_GLYPH: Record<string, string> = { HEALTHY: '●', RESEARCH_ONLY: '◐', DEGRADED: '◐', STALE: '○', UNAVAILABLE: '○' };
 
@@ -21,6 +23,7 @@ export function HealthPill({ status }: { status: string | null | undefined }) {
 /** Says, on every sport screen, where the numbers come from and how current the live publication is. */
 export function SourceBanner({ source, shown }: { source: SportSource; shown: HealthDoc | null }) {
   const [more, setMore] = useState(false);
+  const now = useNow(15_000);
   const live = source.liveHealth;
   // Freshness describes the data on screen: the snapshot's own health in snapshot mode.
   const h = shown ?? live;
@@ -33,8 +36,9 @@ export function SourceBanner({ source, shown }: { source: SportSource; shown: He
         </span>
         <span className="srcbar__txt">
           {source.sport.label} {h ? <HealthPill status={h.overall_status} /> : <span className="hpill hpill--unknown">live unreadable</span>}
-          {h && <FreshnessChip asOf={h.last_market_capture} component="market_data" thresholds={h.thresholds?.market_data} label="markets" />}
+          {h && <FreshnessChip asOf={h.last_market_capture} component="market_data" thresholds={h.thresholds?.market_data} label="market capture" />}
           {h && <FreshnessChip asOf={h.last_model_generated} component="model" thresholds={h.thresholds?.model} label="model" />}
+          <LiveStatusChip now={now} />
         </span>
         {moved && <span className="srcbar__moved">Live has a newer run</span>}
         <button type="button" className="linklike srcbar__more" aria-expanded={more} onClick={() => setMore((m) => !m)}>

@@ -12,6 +12,9 @@ import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { capShown, capStatus, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
+import { QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
+import { useLiveQuotes, useNow } from '../live/hooks';
+import { overlayMarket } from '../live/overlay';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -45,15 +48,20 @@ export function PlayerView() {
   const opp = useAsync(oppId ? `prof:${sport.code}:${oppId}` : null, () => repo.profile(oppId!));
   const [stat, setStat] = useState<string | null>(null);
 
+  // Market clock: this player's contracts refresh at game cadence while the screen is open.
+  const playerTickers = useMemo(() => (p?.markets ?? []).map((m) => m.kalshi_ticker), [p]);
+  const live = useLiveQuotes(playerTickers, 'game');
+  const quoteViews = useQuoteViews(p?.markets ?? []);
+  const now = useNow(15_000);
   const fair = useMemo(() => new Map((p?.projections ?? []).filter((x) => x.market_id).map((x) => [x.market_id!, x])), [p]);
   const byStat = useMemo(() => {
     const m = new Map<string, ResearchMarket[]>();
-    for (const mk of p?.markets ?? []) {
+    for (const mk of (p?.markets ?? []).map((x) => overlayMarket(x, live.quote(x.kalshi_ticker)))) {
       const s = statOf(mk) ?? mk.market_family;
       m.set(s, [...(m.get(s) ?? []), mk]);
     }
     return m;
-  }, [p]);
+  }, [p, live]);
 
   if (prof.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   if (!p) return <div className="page"><ErrorState error={prof.error} what="this player profile" /></div>;
@@ -116,7 +124,7 @@ export function PlayerView() {
       </header>
 
       {p.markets.length > 0 && capShown(caps, 'player_props') && (
-        <Stratum n="01" title="Markets vs projection" sub="Each ladder as a curve: the market's YES price at every line, the model's fair price, and the simulated distribution underneath. Tap a rung for the full contract.">
+        <Stratum n="01" title="Markets vs projection" sub="Each ladder as a curve: the market's YES price at every line, the model's fair price, and the simulated distribution underneath. Tap a rung for the full contract." actions={<QuoteSummaryChip views={quoteViews} now={now} />}>
           <div className="seg" role="tablist" aria-label="Stat">
             {stats.map((s) => (
               <button key={s} type="button" role="tab" aria-selected={activeStat === s} className={`seg__b${activeStat === s ? ' is-on' : ''}`} onClick={() => setStat(s)}>

@@ -96,7 +96,8 @@ function Toast() {
     return () => clearTimeout(t);
   }, [tray.lastAdded]);
   const label = show ? tray.labels[show]?.label : null;
-  if (!show || !label) return null;
+  // Never over the open tray sheet: it would cover the sheet's build-packet button on phones.
+  if (!show || !label || tray.open) return null;
   return (
     <div className="toast" role="status">
       <Icon name="check" size={16} />
@@ -157,7 +158,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </button>
         </div>
       </header>
-      {!online && <div className="offline" role="status">Offline — showing research you already opened. Prices may be old.</div>}
+      {!online && <div className="offline" role="status">Offline — showing research you already opened. Market quotes are not refreshing; each keeps its real age.</div>}
       <TrailBar />
       <main id="main" tabIndex={-1} className="main">
         {children}

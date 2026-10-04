@@ -5,6 +5,7 @@ import { explorable, sportByCode } from '../data/sports';
 import { Icon, SiftMark } from '../components/Icon';
 import { HealthPill } from '../components/SourceBanner';
 import { FreshnessChip, Skeleton, TeamMark } from '../components/ui';
+import { publicationView, QuoteChip } from '../components/LiveQuote';
 import { compact, dayLabel, timeLabel, until } from '../lib/format';
 import { routes } from '../lib/routes';
 import { useAllSports } from '../state/allSports';
@@ -14,9 +15,9 @@ import { useTray } from '../state/tray';
 function NflNow() {
   const nfl = sportByCode('NFL')!;
   const repo = useRepo(nfl);
-  const board = useAsync(repo.data ? `board:NFL:${repo.data.source.root}` : null, () => repo.data!.board());
+  const board = useAsync(repo.data?.source.root ? `board:NFL:${repo.data.source.root}` : null, () => repo.data!.board());
   if (repo.loading || board.loading) return <Skeleton lines={4} tall />;
-  if (!board.data) return <p className="muted">The NFL board could not be read.</p>;
+  if (!board.data) return <p className="muted">The NFL board could not be read{repo.data && !repo.data.source.root ? ` (${repo.data.source.reason})` : ''}.</p>;
   const now = Date.now();
   const up = board.data.items.filter((i) => i.status === 'SCHEDULED').sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc));
   const comp = up[0]?.competition ?? '';
@@ -31,7 +32,7 @@ function NflNow() {
           <div className="now__stats">
             <span><b className="num">{up.length}</b> games</span>
             <span><b className="num">{compact(markets)}</b> markets</span>
-            <FreshnessChip asOf={up.map((u) => u.market_captured_at).filter(Boolean).sort().pop() ?? null} component="market_data" label="prices" />
+            <QuoteChip view={publicationView(up.map((u) => u.market_captured_at).filter(Boolean).sort().pop() ?? null)} now={now} label="published prices" />
           </div>
         </div>
         <Link to={routes.sport('nfl')} className="btn btn--primary">Open the slate <Icon name="arrowRight" size={16} /></Link>

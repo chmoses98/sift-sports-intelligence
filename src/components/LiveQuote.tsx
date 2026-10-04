@@ -17,7 +17,7 @@ const GLYPH: Record<QuoteFreshness, string> = { FRESH: '●', AGING: '◐', STAL
 export function sourceLabel(source: string): string {
   if (source === 'publication') return 'research publication capture (not a live quote)';
   if (source.startsWith('kalshi-relay')) return 'Kalshi public market data via Sift relay (live)';
-  if (source.startsWith('quote-feed')) return 'Sift quote feed (Kalshi public data, refreshed every ~5-15 min)';
+  if (source.startsWith('quote-feed')) return 'Sift quote feed (Kalshi public data, published every 3 min)';
   return source;
 }
 

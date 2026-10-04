@@ -16,15 +16,17 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 })],
 ];
 
-/** Is the element at the centre of `sel` the element itself (not covered by a fixed layer)? */
+/**
+ * Can the user tap `sel`? Playwright's actionability check scrolls it into view and fails if another
+ * element (a fixed bar, a sheet, a toast) would receive the tap — the same in WebKit and Chromium.
+ */
 async function notCovered(page: Page, sel: string) {
-  const el = page.locator(sel).first();
-  await el.scrollIntoViewIfNeeded();
-  return el.evaluate((node) => {
-    const r = node.getBoundingClientRect();
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return !!hit && (hit === node || node.contains(hit));
-  });
+  try {
+    await page.locator(sel).first().click({ trial: true, timeout: 5_000 });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function bottomBarOnScreen(page: Page, isMobile: boolean) {

@@ -128,6 +128,26 @@ if (process.argv.includes('--browsers')) {
   }
 }
 
+// The quote feed Sift reads today: how old is it?
+try {
+  const r = await fetch('https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/index.json', { cache: 'no-store' });
+  const idx = r.ok ? await r.json() : null;
+  report.feed = idx ? { generated_at: idx.generated_at, age_min: Math.round((Date.now() - Date.parse(idx.generated_at)) / 60000), games: idx.games.length, errors: idx.errors.length } : { status: r.status };
+  console.log(`feed: ${JSON.stringify(report.feed)}`);
+} catch (e) {
+  report.feed = { error: String(e) };
+}
+
 writeFileSync('kalshi-probe.json', JSON.stringify(report, null, 2));
+// Fail (visibly; this workflow never gates a change) when the assumptions Sift relies on break.
+const problems = [];
+if (report.variants?.no_origin_default_ua?.status !== 200) problems.push('Kalshi no longer answers server-side public reads');
+if (report.variants?.origin_pages?.status === 200) problems.push('Kalshi now accepts the Pages origin: direct browser access may be possible (revisit the relay decision)');
+if (report.tickers_batch?.returned == null) problems.push('batched ticker read failed');
+if (report.feed?.age_min == null || report.feed.age_min > 30) problems.push(`quote feed is stale or missing (${JSON.stringify(report.feed)})`);
+if (problems.length) {
+  console.error('PROBE FINDINGS:\n- ' + problems.join('\n- '));
+  process.exitCode = 1;
+}
 console.log(JSON.stringify({ ...report, market_sample: undefined }, null, 2));
 console.log('MARKET SAMPLE', JSON.stringify(report.market_sample, null, 2));

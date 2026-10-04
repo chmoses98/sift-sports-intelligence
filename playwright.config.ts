@@ -8,7 +8,7 @@ import { defineConfig, devices } from '@playwright/test';
 //   phone      Chromium, 390x844 (Android-class phone)          full journey, live market, degraded, visual, a11y
 //   desktop    Chromium, 1280x900                               full journey, live market, degraded, visual, a11y
 //   iphone     WebKit, iPhone 15 Pro (393x852, touch, Safari)   full journey, live market core, visual, smoke
-//   iphone-se  WebKit, iPhone SE (375x667, smallest current)    smoke (layout, overflow, fixed controls)
+//   iphone-se  WebKit, iPhone SE 3rd gen (375x667, smallest current iPhone)  smoke (layout, overflow, fixed controls)
 const iphoneOnly = /@(smoke|journey|live|visual)/;
 export default defineConfig({
   testDir: './e2e',
@@ -36,6 +36,6 @@ export default defineConfig({
     { name: 'phone', use: { ...devices['Pixel 7'], browserName: 'chromium', viewport: { width: 390, height: 844 } } },
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 900 } } },
     { name: 'iphone', use: { ...devices['iPhone 15 Pro'] }, grep: iphoneOnly },
-    { name: 'iphone-se', use: { ...devices['iPhone SE'] }, grep: /@smoke/ },
+    { name: 'iphone-se', use: { ...devices['iPhone SE (3rd gen)'] }, grep: /@smoke/ },
   ],
 });

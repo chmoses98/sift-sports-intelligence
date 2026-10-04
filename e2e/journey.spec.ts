@@ -94,6 +94,9 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 
   // 11. Go elsewhere; the tray survives navigation and a reload
   await page.goto('./#/nfl');
+  // Let the slate's quote requests settle first: WebKit's Linux test build crashes when a page reloads
+  // while Playwright still holds an intercepted request (seen on CI; a real Safari reload is unaffected).
+  await page.waitForLoadState('networkidle');
   await page.reload();
   const trayCount = isMobile ? page.locator('.bottombar__n') : page.locator('.traybtn__n');
   await expect(trayCount).toHaveText('1');
@@ -113,9 +116,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await expect(preflight).toHaveAttribute('data-preflight', 'PASS');
   await expect(preflight).toContainText('Oldest relevant quote');
   // The copy button is never hidden behind the fixed bottom navigation.
-  const box = (await copy.boundingBox())!;
-  const top = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('button')?.textContent ?? '', [box.x + box.width / 2, box.y + box.height / 2]);
-  expect(top).toContain('COPY FOR CHATGPT');
+  await copy.click({ trial: true, timeout: 5_000 }); // fails if a fixed bar / sheet would take the tap
   await shot(page, '13-packet');
 
   // 14. Copy it for ChatGPT

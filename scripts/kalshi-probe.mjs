@@ -14,7 +14,7 @@ const pickHeaders = (h) => Object.fromEntries([...h.entries()].filter(([k]) => /
 async function get(name, path, init = {}) {
   const t0 = performance.now();
   try {
-    const res = await fetch(API + path, { headers: { Origin: ORIGIN, Accept: 'application/json' }, ...init });
+    const res = await fetch(API + path, { headers: { Accept: 'application/json', 'User-Agent': 'sift-probe/0.1 (+https://github.com/chmoses98/sift-sports-intelligence)' }, ...init });
     const ms = Math.round(performance.now() - t0);
     const text = await res.text();
     let body = null;
@@ -39,6 +39,25 @@ for (const f of readdirSync(dir)) {
 }
 report.published_tickers = pub.length;
 
+// Which request shapes does Kalshi accept? A browser always sends Origin (and a browser UA); a
+// server-side worker sends neither. Each variant hits the same tiny read.
+const UA_BROWSER = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+report.variants = {};
+for (const [name, headers] of [
+  ['no_origin_default_ua', {}],
+  ['no_origin_worker_ua', { 'User-Agent': 'sift-probe/0.1 (+https://github.com/chmoses98/sift-sports-intelligence)' }],
+  ['no_origin_browser_ua', { 'User-Agent': UA_BROWSER }],
+  ['origin_pages', { Origin: ORIGIN }],
+  ['origin_pages_browser_ua', { Origin: ORIGIN, 'User-Agent': UA_BROWSER }],
+  ['origin_kalshi', { Origin: 'https://kalshi.com' }],
+  ['origin_localhost', { Origin: 'http://localhost:4173' }],
+]) {
+  const r = await fetch(`${API}/markets?series_ticker=KXNFLGAME&limit=2`, { headers });
+  const text = await r.text();
+  report.variants[name] = { status: r.status, headers: pickHeaders(r.headers), body: text.slice(0, 160) };
+  console.log(`variant ${name}: ${r.status} ${JSON.stringify(pickHeaders(r.headers))} ${text.slice(0, 120)}`);
+}
+
 await get('exchange_status', '/exchange/status');
 const open = await get('markets_open_series', '/markets?series_ticker=KXNFLGAME&status=open&limit=20');
 const sample = open.body?.markets?.[0];
@@ -49,6 +68,7 @@ if (sample) {
 // Batch by ticker: the most current-looking published tickers first.
 const upcoming = pub.filter((p) => Date.parse(p.start) > Date.now() - 6 * 3600e3);
 const batch = (upcoming.length ? upcoming : pub).slice(0, 100).map((p) => p.t);
+const batch60 = batch.slice(0, 60);
 const b = await get('markets_by_tickers_100', `/markets?tickers=${encodeURIComponent(batch.join(','))}&limit=1000`);
 report.tickers_batch = { requested: batch.length, returned: b.body?.markets?.length ?? null, cursor: b.body?.cursor ?? null,
   statuses: Object.entries((b.body?.markets ?? []).reduce((a, m) => ((a[m.status] = (a[m.status] ?? 0) + 1), a), {})) };
@@ -70,11 +90,12 @@ if (batch[0]) {
 }
 // Preflight: Sift sends only simple GETs (no custom headers), but record what OPTIONS says.
 await get('preflight', '/markets?limit=1', { method: 'OPTIONS', headers: { Origin: ORIGIN, 'Access-Control-Request-Method': 'GET' } });
+await get('get_with_origin', '/markets?limit=1', { headers: { Origin: ORIGIN } });
 // Gentle burst: 20 sequential reads, record any 429.
 let n429 = 0;
 const t0 = performance.now();
 for (let i = 0; i < 20; i++) {
-  const r = await fetch(`${API}/markets?tickers=${batch.slice(0, 20).join(',')}`, { headers: { Origin: ORIGIN } });
+  const r = await fetch(`${API}/markets?tickers=${batch.slice(0, 20).join(',')}`);
   if (r.status === 429) n429++;
   await r.arrayBuffer();
 }

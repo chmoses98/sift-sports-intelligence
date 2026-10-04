@@ -1,16 +1,22 @@
 name: Live-quote feed
 
-# The market clock without a server: every 5 minutes a runner reads Kalshi's PUBLIC market data
-# (read-only, no credential; browsers cannot, Kalshi refuses their Origin) for the games the NFL
-# publication lists, and force-pushes one small JSON per game to the `live-quotes` branch. Sift reads
-# it from raw.githubusercontent.com. The app is never rebuilt or redeployed for a price move.
+# The market clock without a server: a runner reads Kalshi's PUBLIC market data (read-only, no
+# credential; browsers cannot, Kalshi refuses their Origin) for the games the NFL publication lists and
+# force-pushes one small JSON per game to the `live-quotes` branch every 3 minutes. Sift reads it from
+# raw.githubusercontent.com; the app is never rebuilt or redeployed for a price move.
+#
+# GitHub's scheduler is not dependable for this repository (measured 2026-10-04: the 15:17 deploy cron
+# never fired, and a new */5 cron did not start for 40+ minutes), so each run publishes for ~55 minutes
+# and then dispatches its successor (workflow_dispatch from GITHUB_TOKEN is allowed to start a run). The
+# cron only restarts the chain if it ever breaks; the concurrency group keeps exactly one loop alive.
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: live-quotes
@@ -18,9 +24,9 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish live quotes
+    name: Publish live quotes (~55 min loop)
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,16 +34,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Read Kalshi public market data (GET only)
-        run: node scripts/publish-live-quotes.mjs "$RUNNER_TEMP/feed"
-      - name: Force-push the feed (single commit, no history)
+      - name: Read Kalshi public market data (GET only) and publish every 3 minutes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd "$RUNNER_TEMP/feed"
-          git init -q -b live-quotes
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -qm "live quotes $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" live-quotes
+          publish() {
+            rm -rf "$RUNNER_TEMP/feed"
+            node scripts/publish-live-quotes.mjs "$RUNNER_TEMP/feed" || return 1
+            ( cd "$RUNNER_TEMP/feed" \
+              && git init -q -b live-quotes \
+              && git config user.name "github-actions[bot]" \
+              && git config user.email "41898282+github-actions[bot]@users.noreply.github.com" \
+              && git add -A \
+              && git commit -qm "live quotes $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              && git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" live-quotes )
+          }
+          end=$(( $(date +%s) + 55 * 60 ))
+          ok=0; fail=0
+          while [ "$(date +%s)" -lt "$end" ]; do
+            start=$(date +%s)
+            if publish; then ok=$((ok + 1)); else fail=$((fail + 1)); echo "::warning::publish failed"; fi
+            wait=$(( 180 - ($(date +%s) - start) ))
+            [ "$wait" -gt 0 ] && [ $(( $(date +%s) + wait )) -lt "$end" ] && sleep "$wait" || break
+          done
+          echo "published $ok times, $fail failures"
+          [ "$ok" -gt 0 ]
+      - name: Dispatch the next loop
+        if: always() && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run live-quotes.yml --ref main --repo "$GITHUB_REPOSITORY"

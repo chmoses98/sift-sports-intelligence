@@ -3,7 +3,7 @@
 Kalshi's public market-data API refuses browser requests from any origin except kalshi.com
 (`Origin: https://chmoses98.github.io` → HTTP 403, no CORS headers; evidence in
 `docs/ARCHITECTURE.md` → *Direct browser access vs relay*). Sift therefore reads live quotes either
-from the **quote feed** (GitHub Actions, every ~5–15 minutes, no setup) or, for the owner's
+from the **quote feed** (GitHub Actions, published every 3 minutes, no setup) or, for the owner's
 15–60-second targets, from this **read-only relay**.
 
 The relay:

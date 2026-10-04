@@ -1,8 +1,8 @@
-// The live-quote FEED: a GitHub Actions job (scripts/publish-live-quotes.mjs, every 5 minutes) reads
+// The live-quote FEED: a GitHub Actions job (scripts/publish-live-quotes.mjs, every 3 minutes) reads
 // Kalshi's public market data from a runner, where no browser Origin is involved, and force-pushes one
 // small JSON file per game to the `live-quotes` branch of this repository. The browser reads it from
 // raw.githubusercontent.com (CORS *). It needs no account, no secret and no server, but it is only
-// near-live: GitHub's cron fires every ~5-15 minutes and raw.githubusercontent.com caches for up to
+// near-live: it publishes every 3 minutes and raw.githubusercontent.com caches for up to
 // 5 minutes (a query string does not bypass it, measured 2026-10-04). Every quote carries the time
 // Kalshi answered the job, so its age — and freshness — is always the true one.
 //
@@ -39,7 +39,7 @@ export class FeedQuoteProvider implements QuoteProvider {
 
   constructor(o: { baseUrl: string; fetchImpl?: FetchFn; now?: () => number }) {
     this.base = o.baseUrl.replace(/\/+$/, '');
-    this.label = 'Sift quote feed (Kalshi public data via GitHub Actions, ~5-15 min)';
+    this.label = 'Sift quote feed (Kalshi public data via GitHub Actions, every 3 min)';
     this.fetchImpl = o.fetchImpl ?? ((u, i) => fetch(u, i));
     this.now = o.now ?? Date.now;
   }

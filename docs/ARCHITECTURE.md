@@ -99,12 +99,15 @@ access is impossible** from GitHub Pages. No credential is involved anywhere (th
 can leak. Two read-only paths remain, and Sift uses both behind one provider abstraction:
 
 1. **Quote feed** (`scripts/publish-live-quotes.mjs`, `.github/workflows/live-quotes.yml`, no setup, $0):
-   every 5 minutes a runner reads the publication's upcoming games, sweeps Kalshi's open markets for the
+   every 3 minutes a runner reads the publication's upcoming games, sweeps Kalshi's open markets for the
    publication's series (inventory) plus the publication's own tickers that are no longer open (closed /
    suspended), and force-pushes one small JSON per game (`games/<event-suffix>.json`, ~800 markets) to the
    `live-quotes` branch, read from raw.githubusercontent.com. Each market carries `observed_at` = Kalshi's
-   `Date` minus `Age`. Near-live only: GitHub cron fires every ~5–15 minutes and raw.githubusercontent.com
-   caches up to 5 minutes (a query string does not bypass it — measured). First real run: 15 games, 79
+   `Date` minus `Age`. Near-live only: publication every 3 minutes plus raw.githubusercontent.com's cache of
+   up to 5 minutes (a query string does not bypass it — measured), so quotes are typically 3–8 minutes old.
+   GitHub's scheduler proved undependable here (the 15:17 deploy cron never fired; a new cron did not
+   start for 40+ minutes), so each feed run loops for ~55 minutes and dispatches its successor; the cron
+   only restarts a broken chain. First real run: 15 games, 79
    requests, 0 errors, 28 contracts listed after the research run.
 2. **Relay** (`relay/kalshi-quote-relay.ts`, optional, needs the owner to deploy it — see *Owner action*):
    a Cloudflare Worker that forwards only `GET /markets` with allow-listed parameters (≤ 100 tickers,
@@ -291,7 +294,8 @@ Pages origin. The live-quote feed workflow is itself a real read every 5 minutes
 * `.github/workflows/ci.yml` — on every PR/branch push: install, lint, typecheck, unit/integration tests,
   production build (`build:e2e`), Pages build check (`scripts/check-dist.mjs`), the Playwright suite in
   Chromium and WebKit.
-* `.github/workflows/live-quotes.yml` — every 5 minutes: the market clock's quote feed (no deploy).
+* `.github/workflows/live-quotes.yml` — the market clock's quote feed: a ~55-minute loop publishing every
+  3 minutes that dispatches its successor (cron every 10 minutes restarts a broken chain). No deploy.
 * `.github/workflows/live-provider-smoke.yml` — every 6 hours: non-blocking real-provider probe.
 * `.github/workflows/visual-baselines.yml` — on demand: render visual baselines on CI runners.
 * `.github/workflows/production-check.yml` — after every deploy (and on demand): the **live** site in real

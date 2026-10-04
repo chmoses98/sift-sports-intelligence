@@ -63,7 +63,7 @@ them (their entity shapes — tennis players as participants, soccer clubs — w
 
 * **No direct browser access to Kalshi.** Kalshi's public API refuses any browser `Origin` other than
   kalshi.com (HTTP 403, no CORS headers; evidence in ARCHITECTURE.md → *The market clock*). Sift reads
-  quotes from the GitHub Actions quote feed (every ~5–15 minutes) and, once the owner deploys it, from the
+  quotes from the GitHub Actions quote feed (published every 3 minutes, typically 3–8 minutes old) and, once the owner deploys it, from the
   read-only relay (15–60 s). Without the relay, quotes are near-live, not sub-minute; their real age is
   always shown.
 * **No per-quote timestamp from Kalshi.** Market objects carry `updated_time`, which is a metadata time
@@ -77,8 +77,9 @@ them (their entity shapes — tennis players as participants, soccer clubs — w
   already uses; a brand-new series type is invisible until the sport repository maps it.
 * **Availability in the packet text.** The canonical packet text has no per-market status column, so
   closed / suspended / not-listed contracts are named on the packet's MISSING line rather than per row.
-* **Feed cadence is GitHub's.** Scheduled workflows fire every ~5–15 minutes and raw.githubusercontent.com
-  caches for up to 5 minutes; neither can be tightened from Sift.
+* **Feed cadence is bounded by GitHub.** The feed publishes every 3 minutes from a self-chaining workflow
+  loop (GitHub's cron is undependable here), and raw.githubusercontent.com caches for up to 5 minutes;
+  quotes from the feed are typically 3–8 minutes old. Sub-minute quotes need the relay.
 * **The live NFL publication is ahead of the bundled snapshot.** The feed maps against the live NFL
   publication (e.g. 801 markets on NE @ BUF) while research screens read the snapshot (796); the extra
   live contracts appear as *Listed on Kalshi after this research run* until the NFL explorer is repaired.

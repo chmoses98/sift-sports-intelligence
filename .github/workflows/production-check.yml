@@ -29,6 +29,8 @@ jobs:
         env:
           # When the owner has configured the Kalshi relay, production must prove it is the live source.
           SIFT_EXPECT_RELAY: ${{ vars.SIFT_QUOTE_RELAY_URL != '' && '1' || '0' }}
+          # Probed directly too, so a relay failure is reported with its HTTP status and CORS headers.
+          SIFT_QUOTE_RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

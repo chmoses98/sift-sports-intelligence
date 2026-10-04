@@ -57,9 +57,10 @@ Vercel is the only option that is free, never sleeps, deploys from GitHub with c
    ✏️ **Edit** → value `https://<the domain from step 4>` (no trailing path) → **Update variable**.
 6. In GitHub: **Actions → Deploy to GitHub Pages → Run workflow → Run workflow**.
 
-That deploy rebuilds Sift with the new relay and then runs **Production check** automatically, which
-proves the relay is answering (LIVE, FRESH, no fallback), proves the fallback with a forced 429, and
-measures the relay with the rate-limit smoke test. Vercel redeploys the relay by itself whenever
+That deploy rebuilds Sift with the new relay and then runs **Production check** automatically: it
+requires the relay to answer the main path (LIVE, FRESH, every relay request 200, no fallback), proves
+the fallback with a forced 429, and measures the relay with the rate-limit smoke test. It stays red,
+with the reason in its log, until all of that holds (see *Kalshi's own limit* below). Vercel redeploys the relay by itself whenever
 `relay/` changes on `main`; other branches (including `live-quotes`, which updates every 3 minutes)
 never deploy.
 
@@ -87,6 +88,34 @@ kalshi-relay* and *Mode LIVE*.
 * **Outbound IPs are shared and dynamic** (AWS). If Kalshi ever throttles them too, the production
   check and the smoke test will show 429s; a dedicated egress IP (Vercel Static IPs is $100/month, or a
   small VM) would be the next step.
+
+## Kalshi's own limit (measured 2026-10-04) — what a host move does and does not fix
+
+From a clean GitHub runner IP, unauthenticated, open-loop schedules (`scripts/kalshi-rate-probe.mjs`,
+run on demand with *Actions → Relay smoke → probe*):
+
+| pattern | result |
+|---|---|
+| 5 / s, 40 requests | 40 × 200 |
+| 8 / s | first 429 at request #22 |
+| 10 / 12 / 15 / 20 per s | first 429 at #18 / #17 / #15 / #14 |
+| as fast as one client can go | first 429 at #14 |
+| 30 at once | 12 × 200, 18 × 429 |
+| recovery after a burst | first 200 after 310 ms |
+
+That is a per-IP token bucket of roughly **14 requests, refilling about 3 per second**. The 429 comes
+from Kalshi's CloudFront edge with no `Retry-After`.
+
+* **Fixed by moving off Cloudflare:** from the Cloudflare Worker, even *slow sequential* requests were
+  refused (10 of 10 × 429, and 16 of 17 in production) while the same runner going directly to Kalshi
+  got 10 of 10 × 200. Workers share Cloudflare's outbound IPs with everyone else calling Kalshi; a host
+  with its own egress gets Sift's own budget back.
+* **Not fixed by any single host:** a game screen's *inventory* sweep lists ~57 Kalshi series one after
+  another (every 180 s). That exceeds the ~14-request burst from any one IP, so part of each sweep is
+  answered 429 and that sweep falls back to the quote feed (the relay passes the 429 through; the
+  feed answers; *Fallback reason* shows `kalshi-relay HTTP 429`). Quote polls (≤ 8 batches of 100
+  tickers per 45 s per game) fit the budget easily. Making the sweep fit is an app-side choice (see the
+  handoff), not a hosting one.
 
 ## Legacy: Cloudflare Worker
 

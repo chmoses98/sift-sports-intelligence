@@ -10,6 +10,12 @@ const RELAY = (process.env.SIFT_QUOTE_RELAY_URL ?? '').trim().replace(/\/+$/, ''
 const ORIGIN = new URL(BASE).origin;
 const EXPECT_RELAY = process.env.SIFT_EXPECT_RELAY === '1';
 
+/** A Status diagnostics cell; a row this build does not have reads as such (and fails its check). */
+async function diagCell(page, k) {
+  const cell = page.locator(`td[data-diag="${k}"]`);
+  return (await cell.count()) ? ((await cell.textContent()) ?? '').trim() : `(no "${k}" row)`;
+}
+
 // Fallback proof, on the live site: force the relay to answer Kalshi's 429 in this browser only, and
 // prove the feed answers (FEED, honest freshness, packet still builds, the 429 named with its status,
 // no crash). Then let the relay through again and prove LIVE returns. Production itself is untouched.
@@ -31,7 +37,7 @@ async function fallbackProof(browser, device, name, gameUrl) {
       body: '{"error":{"code":"too_many_requests","message":"too many requests (forced by the production check)"}}',
     });
   };
-  const diag = async (k) => ((await page.locator(`td[data-diag="${k}"]`).textContent()) ?? '').trim();
+  const diag = (k) => diagCell(page, k);
   try {
     await page.route(`${RELAY}/**`, block);
     await page.goto(gameUrl);
@@ -133,7 +139,7 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     const gameUrl = page.url();
     await page.goto(BASE + '#/status');
     await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
-    const diag = async (k) => ((await page.locator(`td[data-diag="${k}"]`).textContent()) ?? '').trim();
+    const diag = (k) => diagCell(page, k);
     const provider = await diag('Provider');
     const answered = await diag('Answered by');
     const diagMode = await diag('Mode');

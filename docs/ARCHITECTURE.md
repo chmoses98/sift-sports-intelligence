@@ -121,6 +121,10 @@ can leak. Two read-only paths remain, and Sift uses both behind one provider abs
      production requests from it on 2026-10-04 (Cloudflare's shared egress), so Sift ran on the feed.
      Kept deployable; unused once the Vercel relay is configured.
 
+   Kalshi's unauthenticated limit, measured from a clean IP (`scripts/kalshi-rate-probe.mjs`), is a
+   per-IP token bucket of ~14 requests refilling ~3/s; details and what it means for inventory sweeps
+   in `relay/README.md`.
+
    When the relay fails and the feed answers, `FallbackProvider` keeps the relay's failure (kind, HTTP
    status, time) and *Data & provenance* shows it as **Fallback reason**; the mode reads FEED. Nothing
    hides a 429.

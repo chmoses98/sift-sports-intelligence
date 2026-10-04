@@ -15,6 +15,10 @@ on:
         description: 'The URL is Kalshi itself (control run: no Origin header)'
         type: boolean
         default: false
+      probe:
+        description: 'Instead: measure Kalshi''s own per-IP rate limit from this runner (scripts/kalshi-rate-probe.mjs, ~3 min)'
+        type: boolean
+        default: false
       allow_fail:
         description: 'Record non-200 answers without failing (baseline of a host already known to be throttled)'
         type: boolean
@@ -32,7 +36,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Measure Kalshi's per-IP rate limit
+        if: inputs.probe
+        run: node scripts/kalshi-rate-probe.mjs
       - name: Measure the relay
+        if: ${{ !inputs.probe }}
         run: node scripts/relay-smoke.mjs
         env:
           RELAY_URL: ${{ inputs.url != '' && inputs.url || vars.SIFT_QUOTE_RELAY_URL }}

@@ -882,3 +882,25 @@ p { margin: 0 0 var(--s-3); }
   .rankbars__bar, .trend__col, .cmeter__dot { forced-color-adjust: none; }
   .qbadge, .chip, .hpill { border: 1px solid CanvasText; }
 }
+
+/* ---- live market quotes (market clock) ---- */
+.qchip .chip__dim { text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; }
+.rungcell__st { display: block; font-size: 9px; letter-spacing: 0.08em; color: var(--aging); font-weight: 700; }
+.rungcell.is-notopen, .mrow.is-notopen { opacity: 0.72; }
+.qrefresh { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.newlisted { margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px dashed var(--line-2); }
+.newlisted__h { font-size: var(--fs-sm); margin: 0 0 4px; color: var(--text-hi); }
+.mrow--static { cursor: default; }
+.mrow--static .mrow__d { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.ticker--sm { font-size: 10px; }
+.preflight { display: grid; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-2); background: var(--navy-1); margin-bottom: var(--s-3); }
+.preflight__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.preflight__verdict { font-weight: 800; letter-spacing: 0.12em; font-size: var(--fs-xs); padding: 3px 8px; border-radius: 4px; }
+.preflight__verdict--pass { color: var(--fresh); background: rgba(61, 220, 176, 0.12); }
+.preflight__verdict--partial { color: var(--aging); background: rgba(246, 185, 59, 0.12); }
+.preflight__verdict--fail, .preflight__verdict--unavailable { color: var(--stale); background: rgba(255, 111, 94, 0.1); }
+.preflight__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: var(--s-2); margin: 0; }
+.preflight__grid div { display: grid; gap: 2px; }
+.preflight__grid dt { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+.preflight__grid dd { margin: 0; font-family: var(--font-num); color: var(--text-hi); }
+.livediag { width: 100%; }

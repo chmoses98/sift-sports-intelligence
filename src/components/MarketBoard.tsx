@@ -22,6 +22,11 @@ export interface MarketGroup {
 }
 
 const rung = (m: AnyMarket) => (m.threshold != null ? m.threshold : m.line);
+/** Availability is shown only when a contract is NOT open, so an open board stays quiet. */
+const notOpen = (m: AnyMarket): string | null => {
+  const st = (m as { market_status?: string }).market_status;
+  return st && st !== 'OPEN' && st !== 'UNKNOWN' ? st : null;
+};
 
 export function humanize(desc: string): string {
   return desc
@@ -126,10 +131,12 @@ export function MarketBoard({
                 <ol className="ladderrow">
                   {g.rows.map((m) => {
                     const mp = prices.get(m.market_id);
+                    const st = notOpen(m);
                     return (
                       <li key={m.market_id}>
-                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className="rungcell" aria-label={`${humanize(m.yes_description)}: bid ${cents(m.yes_bid)}, ask ${cents(m.yes_ask)}${mp?.fair_probability != null ? `, model fair ${cents(mp.fair_probability)}` : ''}`}>
+                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`rungcell${st ? ' is-notopen' : ''}`} aria-label={`${humanize(m.yes_description)}: ${st ? `${st}, ` : ''}bid ${cents(m.yes_bid)}, ask ${cents(m.yes_ask)}${mp?.fair_probability != null ? `, model fair ${cents(mp.fair_probability)}` : ''}`}>
                           <span className="rungcell__x num">{rung(m)}</span>
+                          {st && <span className="rungcell__st">{st}</span>}
                           <span className="rungcell__p num">{cents(m.yes_bid)}<span className="rungcell__sl">/</span>{cents(m.yes_ask)}</span>
                           {mp?.fair_probability != null && <span className="rungcell__f num">◆ {cents(mp.fair_probability)}</span>}
                         </Link>
@@ -141,10 +148,11 @@ export function MarketBoard({
                 <ul className="mrows">
                   {g.rows.map((m) => {
                     const mp = prices.get(m.market_id);
+                    const st = notOpen(m);
                     return (
                       <li key={m.market_id}>
-                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className="mrow">
-                          <span className="mrow__d">{humanize(m.yes_description)}</span>
+                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`mrow${st ? ' is-notopen' : ''}`}>
+                          <span className="mrow__d">{humanize(m.yes_description)}{st && <span className="rungcell__st"> {st}</span>}</span>
                           <span className="mrow__p num">{cents(m.yes_bid)} / {cents(m.yes_ask)}</span>
                           <span className="mrow__f num">{mp?.fair_probability != null ? `◆ ${cents(mp.fair_probability)}` : ''}</span>
                         </Link>

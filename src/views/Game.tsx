@@ -15,6 +15,9 @@ import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { HistoricalGameView } from './HistoricalGame';
 import { metricFormatter } from '../lib/format';
+import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
+import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
+import { newlyListed, overlayMarket } from '../live/overlay';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -403,6 +406,19 @@ export function GameView({ eventId }: { eventId: string }) {
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
   const playerName = useMemo(() => (id: string | null) => (id ? dir.data?.player(id)?.label ?? null : null), [dir.data]);
 
+  // The market clock: every contract on this game is refreshed at game cadence while the screen is
+  // open, and the game's Kalshi events are re-listed at inventory cadence (new rungs, closed
+  // contracts). A finished game is only checked at the slow cadence.
+  const published = detail.data?.markets;
+  const settledGame = r?.event.status === 'FINAL' || (r ? Date.parse(r.event.start_time_utc) < Date.now() - 8 * 3600e3 : false);
+  const tickers = useMemo(() => (published ?? []).map((m) => m.kalshi_ticker), [published]);
+  const events = useMemo(() => (settledGame ? [] : [...new Set((published ?? []).map((m) => m.kalshi_event_ticker).filter((e): e is string => !!e))]), [published, settledGame]);
+  const live = useLiveQuotes(tickers, settledGame ? 'background' : 'game', events);
+  const quoted = useMemo(() => (published ?? []).map((m) => overlayMarket(m, live.quote(m.kalshi_ticker))), [published, live]);
+  const views = useQuoteViews(published ?? r?.markets ?? []);
+  const listedLater = useMemo(() => newlyListed(tickers, liveStore().eventQuotes(events)), [tickers, events, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
+  const now = useNow(15_000);
+
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   if (!r || !ev || !homeP || !awayP) return <div className="page"><ErrorState error={research.error} what="this game's research" /></div>;
   const ext = r.extensions as any;
@@ -410,9 +426,7 @@ export function GameView({ eventId }: { eventId: string }) {
   const awayAbbr = short(awayP.participant_id);
   const res = ext?.result;
   const final = ev.status === 'FINAL';
-  const now = Date.now();
   const passed = !final && Date.parse(ev.start_time_utc) <= now;
-  const capturedAt = r.markets.map((m) => m.captured_at).filter(Boolean).sort().pop() ?? null;
   const modelAt = r.projections.map((p) => p.generated_at).filter(Boolean).sort().pop() ?? null;
   const weather = r.context?.weather as any;
   const venue = r.context?.venue as any;
@@ -454,7 +468,7 @@ export function GameView({ eventId }: { eventId: string }) {
           {weather?.available && <span>{weather.short_forecast}, {weather.temperature_f}°F, wind {weather.wind}{weather.precipitation_probability != null ? `, ${weather.precipitation_probability}% precip` : ''}</span>}
         </div>
         <div className="mh__chips">
-          <FreshnessChip asOf={capturedAt} component="market_data" label="prices" />
+          <QuoteSummaryChip views={views} now={now} />
           {modelAt && <FreshnessChip asOf={modelAt} component="model" label="model" />}
           <span className="chip">{ext?.markets_in_event ?? detail.data?.markets.length ?? '…'} markets</span>
         </div>
@@ -505,10 +519,11 @@ export function GameView({ eventId }: { eventId: string }) {
         </Stratum>
       )}
 
-      <Stratum n="06" id="g-markets" title="Markets" sub={`Every Kalshi contract on this game (${detail.data?.markets.length ?? '…'}).`}>
+      <Stratum n="06" id="g-markets" title="Markets" sub={`Every Kalshi contract on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={tickers.length ? <RefreshQuotes tickers={tickers} /> : undefined}>
         {detail.loading && <Skeleton lines={6} />}
         {detail.error && <ErrorState error={detail.error} what="this game's markets" />}
-        {detail.data && <MarketBoard markets={detail.data.markets} prices={prices} sportSlug={slug} playerName={playerName} />}
+        {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}
+        <NewlyListed quotes={listedLater} now={now} />
       </Stratum>
 
       {shown.has('g-movement') && (

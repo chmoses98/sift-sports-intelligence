@@ -227,6 +227,11 @@ export class QuoteStore {
     return this.quotes.get(ticker);
   }
 
+  /** Every quote held (diagnostics). */
+  allQuotes(): LiveQuote[] {
+    return [...this.quotes.values()];
+  }
+
   ticker(ticker: string): TickerState | undefined {
     return this.tickerState.get(ticker);
   }

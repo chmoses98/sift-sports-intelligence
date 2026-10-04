@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
@@ -9,7 +9,9 @@ import { routes } from '../lib/routes';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { Icon } from '../components/Icon';
-import { ErrorState, FreshnessChip, Notice, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
+import { ErrorState, Notice, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
+import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
+import { useLiveQuotes, useNow } from '../live/hooks';
 
 function useVisible<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -69,6 +71,10 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
   const away = item.participants.find((p) => p.participant_id === item.away_participant);
   const home = item.participants.find((p) => p.participant_id === item.home_participant);
   const hooks = research.data ? researchHooks(research.data) : null;
+  // Slate-level market clock: the game-winner contracts of cards on screen, at slate cadence.
+  const winners = useMemo(() => (research.data?.markets ?? []).filter((m) => m.market_family === 'game_winner'), [research.data]);
+  useLiveQuotes(winners.map((m) => m.kalshi_ticker), 'slate');
+  const views = useQuoteViews(winners);
   const passed = Date.parse(item.start_time_utc) <= now && item.status === 'SCHEDULED';
   const label = `${away?.short_name ?? '?'} @ ${home?.short_name ?? '?'}`;
   return (
@@ -98,7 +104,7 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         </div>
       </Link>
       <div className="gcard__foot">
-        <FreshnessChip asOf={item.market_captured_at} component="market_data" label="prices" state={item.market_captured_at ? undefined : 'UNKNOWN'} />
+        {views.length ? <QuoteSummaryChip views={views} now={now} /> : <QuoteChip view={publicationView(item.market_captured_at)} now={now} label="prices" />}
         {item.health_flags.map((f) => (
           <span key={f} className="flag">{f.replace(/_/g, ' ').toLowerCase()}</span>
         ))}
@@ -141,7 +147,7 @@ export function SlateView() {
   const { sport, repo, slug, caps } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
   useVisit(`${sport.label} slate`, 'sport');
-  const now = Date.now();
+  const now = useNow(30_000);
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!board.data) return <div className="page"><ErrorState error={board.error} what={`${sport.label} board`} /></div>;
   const items = board.data.items;
@@ -164,7 +170,7 @@ export function SlateView() {
           <span><b className="num">{upcoming.length}</b> upcoming games</span>
           <span><b className="num">{compact(totalMarkets)}</b> Kalshi markets</span>
           <span><b className="num">{past.length}</b> earlier games with research</span>
-          <FreshnessChip asOf={lastCapture} component="market_data" label="last price capture" />
+          <QuoteChip view={publicationView(lastCapture)} now={now} label="published prices" />
         </div>
         <p className="lede">
           Open a game to see how the teams match up, where the evidence is unusual, and which markets the research touches.

@@ -12,6 +12,9 @@ import { routes } from '../lib/routes';
 import { capStatus, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { quantilesOf } from './Player';
+import { QuoteChip, RefreshQuotes, sourceLabel, useQuoteViews } from '../components/LiveQuote';
+import { useLiveQuotes, useNow } from '../live/hooks';
+import { overlayMarket } from '../live/overlay';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -33,7 +36,18 @@ export function MarketView() {
   const eventId = sp.get('event') ?? '';
   const { sport, repo, slug, caps, metrics } = useSport();
   const detail = useAsync(eventId ? `ed:${sport.code}:${eventId}` : null, () => repo.eventDetail(eventId));
-  const m = detail.data?.markets.find((x) => x.market_id === marketId);
+  const published = detail.data?.markets.find((x) => x.market_id === marketId);
+  const series0 = published?.kalshi_ticker.split('-')[0];
+  const siblingTickers = published
+    ? detail.data!.markets.filter((o) => o.kalshi_ticker.split('-')[0] === series0 && o.event_id === published.event_id).map((o) => o.kalshi_ticker)
+    : [];
+  // Two clocks: this contract refreshes at detail cadence, its ladder at game cadence; the research
+  // documents above stay memoised.
+  const live = useLiveQuotes(published ? [published.kalshi_ticker] : [], 'detail');
+  useLiveQuotes(siblingTickers, 'game');
+  const now = useNow(10_000);
+  const m = published ? overlayMarket(published, live.quote(published.kalshi_ticker)) : undefined;
+  const [view] = useQuoteViews(published ? [published] : []);
   const research = useAsync(eventId ? `er:${sport.code}:${eventId}` : null, () => repo.eventResearch(eventId));
   const hist = useAsync(research.data?.market_history_path ? `mh:${sport.code}:${eventId}` : null, () => repo.marketHistory(eventId));
   const player = useAsync(m?.player_id ? `prof:${sport.code}:${m.player_id}` : null, () => repo.profile(m!.player_id!));
@@ -62,6 +76,7 @@ export function MarketView() {
   const q = quantilesOf(simObs);
   const series = m.kalshi_ticker.split('-')[0];
   const siblings = detail.data.markets
+    .map((o) => overlayMarket(o, live.quote(o.kalshi_ticker)))
     .filter((o) => o.kalshi_ticker.split('-')[0] === series && o.period === m.period && (o.side ?? '') === (m.side ?? '') && (o.participant_id ?? '') === (m.participant_id ?? '') && (o.player_id ?? '') === (m.player_id ?? '') && rungOf(o) != null)
     .sort((a, b) => Number(rungOf(a)) - Number(rungOf(b)));
   const hseries = hist.data?.series.find((s) => s.market_id === m.market_id);
@@ -82,7 +97,7 @@ export function MarketView() {
             <EntityLink to={routes.game(slug, ev.event_id)} kind="game">{evLabel} · {kickoff(ev.start_time_utc)}</EntityLink>
             {player.data && <EntityLink to={routes.player(slug, player.data.entity.participant_id)} kind="player">{player.data.entity.display_name}</EntityLink>}
             {team.data && <EntityLink to={routes.team(slug, team.data.entity.participant_id)} kind="team">{team.data.entity.display_name}</EntityLink>}
-            <span className={`chip chip--status-${(m.market_status ?? 'unknown').toLowerCase()}`}>{m.market_status ?? 'UNKNOWN'}</span>
+            <span className={`chip chip--status-${(view?.availability ?? 'UNKNOWN').toLowerCase()}`}>{view?.availability ?? 'UNKNOWN'}</span>
           </div>
         </div>
         <div className="ehead__actions">
@@ -103,7 +118,7 @@ export function MarketView() {
         </div>
       </section>
 
-      <Stratum n="01" title="Price" sub="Kalshi quote at capture. A price older than the freshness threshold is a reference, not an executable price.">
+      <Stratum n="01" title="Price" sub="The current Kalshi quote when Sift has a live one, otherwise the publication's capture — always with its real age. A quote older than 30 minutes is a reference, not an executable price." actions={<RefreshQuotes tickers={[m.kalshi_ticker]} />}>
         <div className="pxgrid">
           <Px k="YES bid / ask" v={`${cents(m.yes_bid)} / ${cents(m.yes_ask)}`} sub={m.yes_bid != null && m.yes_ask != null ? `width ${cents(m.yes_ask - m.yes_bid)}` : undefined} />
           <Px k="NO bid / ask" v={`${cents(m.no_bid)} / ${cents(m.no_ask)}`} />
@@ -113,10 +128,10 @@ export function MarketView() {
           <Px k="Open interest" v={m.open_interest != null ? Math.round(m.open_interest).toLocaleString() : '—'} />
         </div>
         <div className="chips">
-          <FreshnessChip asOf={m.captured_at} component="market_data" label="captured" />
-          {x.minutes_since_price_change != null && <span className="chip">price unchanged {Math.round(x.minutes_since_price_change)} min</span>}
-          {x.executable === false && <span className="chip chip--warn">not executable at capture</span>}
-          {x.no_real_market && <span className="chip chip--warn">no real market</span>}
+          {view && <QuoteChip view={view} now={now} label="quote" />}
+          {!view?.live && x.minutes_since_price_change != null && <span className="chip">price unchanged {Math.round(x.minutes_since_price_change)} min at capture</span>}
+          {!view?.live && x.executable === false && <span className="chip chip--warn">not executable at capture</span>}
+          {x.no_real_market && <span className="chip chip--warn">no real market at publication</span>}
         </div>
       </Stratum>
 
@@ -184,8 +199,9 @@ export function MarketView() {
 
       <Stratum n="05" title="Data quality & research status">
         <dl className="facts facts--slim">
-          <div className="fact"><dt>Source</dt><dd>{m.source ?? '—'}</dd></div>
-          <div className="fact"><dt>Captured</dt><dd>{exactTime(m.captured_at)}</dd></div>
+          <div className="fact"><dt>Quote source</dt><dd>{view ? sourceLabel(view.source) : '—'}</dd></div>
+          <div className="fact"><dt>Quote observed</dt><dd>{exactTime(view?.observedAt)}</dd></div>
+          <div className="fact"><dt>Research row</dt><dd>{published?.source ?? '—'} · captured {exactTime(published?.captured_at)}</dd></div>
           <div className="fact"><dt>Analysis state</dt><dd>{String(x.analysis_state ?? '—').replace(/_/g, ' ').toLowerCase()}</dd></div>
           <div className="fact"><dt>Coverage bucket</dt><dd>{x.bucket ?? '—'}</dd></div>
           <div className="fact"><dt>Market prices</dt><dd><QualityBadge status={capStatus(caps, 'market_prices')} /></dd></div>

@@ -157,7 +157,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </button>
         </div>
       </header>
-      {!online && <div className="offline" role="status">Offline — showing research you already opened. Prices may be old.</div>}
+      {!online && <div className="offline" role="status">Offline — showing research you already opened. Market quotes are not refreshing; each keeps its real age.</div>}
       <TrailBar />
       <main id="main" tabIndex={-1} className="main">
         {children}

@@ -5,6 +5,7 @@ import { explorable, sportByCode } from '../data/sports';
 import { Icon, SiftMark } from '../components/Icon';
 import { HealthPill } from '../components/SourceBanner';
 import { FreshnessChip, Skeleton, TeamMark } from '../components/ui';
+import { publicationView, QuoteChip } from '../components/LiveQuote';
 import { compact, dayLabel, timeLabel, until } from '../lib/format';
 import { routes } from '../lib/routes';
 import { useAllSports } from '../state/allSports';
@@ -31,7 +32,7 @@ function NflNow() {
           <div className="now__stats">
             <span><b className="num">{up.length}</b> games</span>
             <span><b className="num">{compact(markets)}</b> markets</span>
-            <FreshnessChip asOf={up.map((u) => u.market_captured_at).filter(Boolean).sort().pop() ?? null} component="market_data" label="prices" />
+            <QuoteChip view={publicationView(up.map((u) => u.market_captured_at).filter(Boolean).sort().pop() ?? null)} now={now} label="published prices" />
           </div>
         </div>
         <Link to={routes.sport('nfl')} className="btn btn--primary">Open the slate <Icon name="arrowRight" size={16} /></Link>

@@ -52,4 +52,4 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * `scripts/make-icons.mjs` — render the PWA icons.
 * `scripts/publish-live-quotes.mjs` — the live-quote feed (run every 5 minutes by `live-quotes.yml`).
 * `scripts/kalshi-probe.mjs` — read-only real-provider probe (run by `live-provider-smoke.yml`).
-* `relay/` — the optional read-only Kalshi quote relay (Cloudflare Worker) for sub-minute quotes.
+* `relay/` — the read-only Kalshi quote relay for sub-minute quotes (Vercel Function; the earlier Cloudflare Worker is legacy). Deploy steps and limits: `relay/README.md`.

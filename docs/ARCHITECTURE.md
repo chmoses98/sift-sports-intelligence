@@ -7,7 +7,7 @@ Sift is a static, client-rendered research app. It has no database and no API ke
 RESEARCH CLOCK (hours)                                MARKET CLOCK (seconds to minutes)
 sport repos (nfl-edge-finder, …)                      Kalshi public market data (GET /markets, read-only)
   └─ edge_finder.app.v1 + explorer/ JSON                ├─ quote feed: GitHub Actions every 5 min → live-quotes branch
-       └─ raw.githubusercontent.com (CORS *)            └─ (optional) read-only relay: Cloudflare Worker, 15–60 s
+       └─ raw.githubusercontent.com (CORS *)            └─ read-only relay: Vercel Function, 15–60 s (preferred)
             └─ src/data/  memoised, revalidated              └─ src/live/  one shared store: batching, cadence,
                every 10 min in the background                   visibility/offline pause, backoff, last-known-good
                          └──────────── overlay by Kalshi ticker ─────────────┘
@@ -20,8 +20,8 @@ interest or market status comes from the market clock whenever it has a newer ob
 shown with its real age. The Pages deploy schedule (every 3 hours) is **not** the market refresh schedule:
 the app is never rebuilt for a price move.
 
-Monthly cost: $0 (GitHub Pages + GitHub Actions on a public repository; the optional relay fits the
-Cloudflare Workers free tier).
+Monthly cost: $0 (GitHub Pages + GitHub Actions on a public repository; the relay fits Vercel's Hobby
+tier at private / friends scale — limits in `relay/README.md`).
 
 ## Stack and why
 
@@ -109,11 +109,21 @@ can leak. Two read-only paths remain, and Sift uses both behind one provider abs
    start for 40+ minutes), so each feed run loops for ~55 minutes and dispatches its successor; the cron
    only restarts a broken chain. First real run: 15 games, 79
    requests, 0 errors, 28 contracts listed after the research run.
-2. **Relay** (`relay/kalshi-quote-relay.ts`, optional, needs the owner to deploy it — see *Owner action*):
-   a Cloudflare Worker that forwards only `GET /markets` with allow-listed parameters (≤ 100 tickers,
-   one event or series, status/limit/cursor) without an Origin, answers CORS for Sift's origins only (not an
-   open proxy), stamps `X-Sift-Observed-At`, passes 429 + `Retry-After` through, and shares identical reads
-   at the edge for 5 s. With it, Sift meets the 15–60 s targets.
+2. **Relay** (`relay/`, deployed by the owner once — see `relay/README.md`): forwards only `GET /markets`
+   with allow-listed parameters (≤ 100 tickers, one event or series, status/limit/cursor) without an
+   Origin, answers CORS for Sift's origins only (not an open proxy), stamps `X-Sift-Observed-At` (Kalshi's
+   `Date` minus `Age`), passes 429 + `Retry-After` through (exposed to the browser), answers 502/504 with
+   CORS when Kalshi is malformed, unreachable or slow, and shares identical reads for 5 s. With it, Sift
+   meets the 15–60 s targets. The behaviour lives in `relay/core.ts`; hosts are thin adapters:
+   * **Vercel Function** (`relay/api/markets.ts`, current host): runs on AWS (region `iad1`), so its
+     upstream calls leave from a different network than Cloudflare's.
+   * **Cloudflare Worker** (`relay/kalshi-quote-relay.ts`, legacy): Kalshi answered HTTP 429 to 16 of 17
+     production requests from it on 2026-10-04 (Cloudflare's shared egress), so Sift ran on the feed.
+     Kept deployable; unused once the Vercel relay is configured.
+
+   When the relay fails and the feed answers, `FallbackProvider` keeps the relay's failure (kind, HTTP
+   status, time) and *Data & provenance* shows it as **Fallback reason**; the mode reads FEED. Nothing
+   hides a 429.
 
 `src/live/config.ts` builds the provider chain: relay (if `VITE_SIFT_QUOTE_RELAY_URL` is set at build
 time, from the repository variable `SIFT_QUOTE_RELAY_URL`) then feed (`FallbackProvider`). Screens never
@@ -301,7 +311,14 @@ Pages origin. The live-quote feed workflow is itself a real read every 5 minutes
 * `.github/workflows/production-check.yml` — after every deploy (and on demand): the **live** site in real
   Chromium (phone) and WebKit (iPhone) with live quotes from the feed, no fixtures: game prices live and
   FRESH/AGING, live-quote status running, packet preflight PASS/PARTIAL, no page or console errors
-  (`scripts/production-check.mjs`).
+  (`scripts/production-check.mjs`). With `SIFT_QUOTE_RELAY_URL` set it also requires: relay first and
+  feed second in the chain, answered by `kalshi-relay`, mode LIVE, FRESH prices, every relay request 200,
+  no feed request on the main path, preflight PASS; then a forced relay 429 (in that browser only) must
+  give FEED with honest freshness, the 429 named in Status, a completed preflight and no errors, and LIVE
+  must return once the relay answers. A second job runs `scripts/relay-smoke.mjs` against the relay and,
+  as a control, against Kalshi directly from the same runner.
+* `.github/workflows/relay-smoke.yml` — on demand: the measured rate-limit smoke (1 · 10 sequential ·
+  20 burst · 100-ticker batches · a 3-game refresh cycle) for any relay URL, or Kalshi directly.
 * `.github/workflows/deploy.yml` — on push to `main`, every 3 hours and on demand: runs the full CI suite,
   rebuilds the NFL snapshot (no-op once NFL publishes its own explorer), builds with base
   `/sift-sports-intelligence/` (and `VITE_SIFT_QUOTE_RELAY_URL` from the optional repository variable),

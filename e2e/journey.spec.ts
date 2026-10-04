@@ -27,7 +27,8 @@ async function clipboardFor(context: BrowserContext, browserName: string) {
   return (page: Page) => page.evaluate(() => (window as unknown as { __copied?: string }).__copied ?? '');
 }
 
-test('the full research journey ends in a real handicap packet on the clipboard @journey', async ({ page, context, isMobile, browserName }) => {
+test('the full research journey ends in a real handicap packet on the clipboard @journey', async ({ page: first, context, isMobile, browserName }) => {
+  let page = first;
   const readClipboard = await clipboardFor(context, browserName);
   // 1. Open Sift
   await page.goto('./#/');
@@ -92,12 +93,19 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
   await expect(page.getByRole('status').filter({ hasText: 'to the research tray' })).toBeVisible();
 
-  // 11. Go elsewhere; the tray survives navigation and a reload
+  // 11. Go elsewhere; the tray survives navigation and a fresh load of the app
   await page.goto('./#/nfl');
-  // Let the slate's quote requests settle first: WebKit's Linux test build crashes when a page reloads
-  // while Playwright still holds an intercepted request (seen on CI; a real Safari reload is unaffected).
-  await page.waitForLoadState('networkidle');
-  await page.reload();
+  if (browserName === 'webkit') {
+    // Playwright's WebKit build on Linux crashes ("Page crashed") on page.reload() at this point of the
+    // long journey only; isolated reloads after the same screens pass (e2e deep-link test, CI diagnostic
+    // 2026-10-04). A fresh page in the same context proves the same thing: the tray persists across loads.
+    const fresh = await context.newPage();
+    await page.close();
+    page = fresh;
+    await page.goto('./#/nfl');
+  } else {
+    await page.reload();
+  }
   const trayCount = isMobile ? page.locator('.bottombar__n') : page.locator('.traybtn__n');
   await expect(trayCount).toHaveText('1');
 

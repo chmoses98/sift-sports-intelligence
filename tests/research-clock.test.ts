@@ -41,3 +41,14 @@ describe('research fetch cache', () => {
     await expect(getJson('x://bad')).rejects.toMatchObject({ name: 'SchemaVersionError' });
   });
 });
+
+describe('SportRepo without a readable root', () => {
+  it('rejects (never throws synchronously into a render or effect)', async () => {
+    const { SportRepo } = await import('../src/data/repo');
+    const { sportByCode } = await import('../src/data/sports');
+    const repo = new SportRepo({ sport: sportByCode('NFL')!, mode: 'unavailable', root: null, liveHealth: null, liveError: 'x', snapshot: null, reason: 'nothing could be read' });
+    let p: Promise<unknown> | null = null;
+    expect(() => (p = repo.board())).not.toThrow();
+    await expect(p).rejects.toMatchObject({ name: 'NotFoundError' });
+  });
+});

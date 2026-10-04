@@ -192,6 +192,8 @@ export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExt
       });
       page.on('pageerror', (err) => {
         if (extra.some((re) => re.test(err.message))) return;
+        // WebKit can surface a blocked cross-origin fetch as a page error; same narrow host rule as above.
+        if (/Fetch API cannot load|due to access control checks/.test(err.message) && EXPECTED_ERROR_HOSTS.some((h) => err.message.includes(h))) return;
         log.page.push(`${err.name}: ${err.message}`);
       });
       page.on('requestfailed', (req: Request) => {

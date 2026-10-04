@@ -42,8 +42,13 @@ export class SportRepo {
     return joinUrl(this.source.root, path);
   }
 
+  /** Always a promise: a missing root rejects (never throws synchronously into a render/effect). */
   doc<T>(path: string): Promise<T> {
-    return getJson<T>(this.url(path));
+    try {
+      return getJson<T>(this.url(path));
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   // ---- v1

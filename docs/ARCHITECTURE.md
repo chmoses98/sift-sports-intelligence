@@ -261,7 +261,11 @@ precached. Offline, every document you already opened still renders, with an off
 
 **Matrix** (`playwright.config.ts`): Chromium phone 390×844 and desktop 1280×900 run everything; WebKit
 iPhone 15 Pro (393×852, touch) runs the journey, market gates tagged `@live`, visual and smoke; WebKit
-iPhone SE (375×667) runs smoke. Chromium success is not taken as Safari success.
+iPhone SE 3rd gen (375×667) runs smoke. Chromium success is not taken as Safari success. Known
+harness limit: Playwright's Linux WebKit build crashes on `page.reload()` late in the long journey (isolated
+reloads after the same screens pass — the deep-link test reloads on WebKit), so the WebKit journey checks
+tray persistence with a fresh page load instead. 320 px (first-generation SE) is outside the matrix; it
+overflows by 2–12 px on slate/game/metric.
 
 **Determinism.** External hosts are blocked; the e2e build points the relay at
 `https://relay.sift.invalid/kalshi` (a reserved TLD) which `e2e/fixtures.ts` answers from the bundled NFL

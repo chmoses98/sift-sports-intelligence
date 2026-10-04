@@ -114,6 +114,15 @@ test('research source unavailable: an honest error, nothing invented', async ({ 
   await expect(page.getByText('is not explorable in Sift yet')).toHaveCount(0);
 });
 
+test('research unavailable on Home: the app stays up and says why (no error-boundary crash)', async ({ page, errors }) => {
+  errors.allow(/Failed to load resource: the server responded with a status of 404/); // injected below
+  await page.route('**/data/nfl/app/latest/explorer/index.json', (r) => r.fulfill({ status: 404, body: 'not found' }));
+  await page.goto('./#/');
+  await expect(page.getByRole('heading', { name: 'Sift' })).toBeVisible();
+  await expect(page.getByText(/The NFL board could not be read/)).toBeVisible();
+  await expect(page.getByText('Unexpected Application Error')).toHaveCount(0);
+});
+
 test('unsupported schema version: rejected with an explanation, never rendered', async ({ page }) => {
   await page.route('**/data/nfl/app/latest/board.json', async (r) => {
     const doc = await (await r.fetch()).json();

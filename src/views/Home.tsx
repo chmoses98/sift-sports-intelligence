@@ -15,9 +15,9 @@ import { useTray } from '../state/tray';
 function NflNow() {
   const nfl = sportByCode('NFL')!;
   const repo = useRepo(nfl);
-  const board = useAsync(repo.data ? `board:NFL:${repo.data.source.root}` : null, () => repo.data!.board());
+  const board = useAsync(repo.data?.source.root ? `board:NFL:${repo.data.source.root}` : null, () => repo.data!.board());
   if (repo.loading || board.loading) return <Skeleton lines={4} tall />;
-  if (!board.data) return <p className="muted">The NFL board could not be read.</p>;
+  if (!board.data) return <p className="muted">The NFL board could not be read{repo.data && !repo.data.source.root ? ` (${repo.data.source.reason})` : ''}.</p>;
   const now = Date.now();
   const up = board.data.items.filter((i) => i.status === 'SCHEDULED').sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc));
   const comp = up[0]?.competition ?? '';

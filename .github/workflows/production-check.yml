@@ -7,9 +7,6 @@ on:
     workflows: ['Deploy to GitHub Pages']
     types: [completed]
   workflow_dispatch:
-  push:
-    branches: [claude/sift-qa-live-market-mn7bzf]
-    paths: [scripts/production-check.mjs, .github/workflows/production-check.yml]
 
 permissions:
   contents: read

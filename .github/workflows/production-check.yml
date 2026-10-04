@@ -53,3 +53,12 @@ jobs:
         run: node scripts/relay-smoke.mjs
         env:
           RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
+      # Control: the same pattern straight to Kalshi from this runner (no Origin), so a 429 can be
+      # attributed to the relay's host network or to Kalshi itself. Recorded, never fails the run.
+      - name: Control — Kalshi directly from this runner
+        if: always()
+        run: node scripts/relay-smoke.mjs
+        env:
+          RELAY_URL: https://api.elections.kalshi.com/trade-api/v2
+          DIRECT: '1'
+          ALLOW_FAIL: '1'

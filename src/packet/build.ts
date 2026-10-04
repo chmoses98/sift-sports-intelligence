@@ -171,6 +171,20 @@ export interface PacketRequest {
   generatedAt?: string;
   maxChars?: number;
   onProgress?: (msg: string) => void;
+  /**
+   * Sift's live market layer (src/live/). It changes VALUES, never the packet format: market rows get
+   * the newest trustworthy quote (yes_bid/yes_ask/last/captured_at/market_status) and their freshness
+   * is classified with the market-quote policy; data-quality notes go to quality.missing and the live
+   * source to quality.sources. Without it the builder is exactly packet.py (the golden tests).
+   */
+  live?: LivePacketInputs;
+}
+
+export interface LivePacketInputs {
+  overlay: (m: Market) => Market;
+  marketFreshness: (capturedAt: string | null, now: string) => string;
+  notes: string[];
+  sources: string[];
 }
 
 export function eventLabel(ev: Pick<EventDoc, 'participants' | 'home_participant' | 'away_participant'>): string {
@@ -184,12 +198,12 @@ export function eventLabel(ev: Pick<EventDoc, 'participants' | 'home_participant
 const mid = (m: Market): number | null =>
   m.yes_bid != null && m.yes_ask != null ? pyRound((m.yes_bid + m.yes_ask) / 2, 6) : m.market_probability;
 
-function packetMarket(m: Market, now: string): PacketMarket {
+function packetMarket(m: Market, now: string, classify?: LivePacketInputs['marketFreshness']): PacketMarket {
   return {
     market_id: m.market_id, kalshi_ticker: m.kalshi_ticker, event_id: m.event_id ?? null,
     market_family: m.market_family, yes_description: m.yes_description, yes_bid: m.yes_bid ?? null,
     yes_ask: m.yes_ask ?? null, mid: mid(m), last_price: m.last_price ?? null, captured_at: m.captured_at ?? null,
-    freshness: m.captured_at ? statusFor(m.captured_at, 'market_data', now) : 'UNKNOWN',
+    freshness: classify ? classify(m.captured_at ?? null, now) : m.captured_at ? statusFor(m.captured_at, 'market_data', now) : 'UNKNOWN',
     market_status: m.market_status ?? 'UNKNOWN', participant_id: m.participant_id ?? null, player_id: m.player_id ?? null,
     period: m.period ?? null, side: m.side ?? null, line: m.line ?? null, threshold: m.threshold ?? null,
   };
@@ -332,21 +346,26 @@ export async function resolveTray(repo: SportRepo, tray: TrayDoc, metrics: Map<s
 const uniq = <T,>(xs: T[]) => [...new Set(xs)];
 const sortStr = (xs: string[]) => [...xs].sort(cmpStr);
 
-export async function buildPacket(repo: SportRepo, req: PacketRequest): Promise<HandicapPacket> {
-  const progress = req.onProgress ?? (() => {});
-  const manifest = await repo.manifest();
-  const sport = manifest.sport;
-  const now = req.generatedAt ? toIso(req.generatedAt) : manifest.generated_at;
-  const proto = protocolForSport(sport);
-  const [eventsDoc, recsDoc, thesesDoc, metrics] = await Promise.all([
-    repo.events(), repo.recommendations(), repo.theses(), repo.hasExplorer ? repo.metricMap() : Promise.resolve(new Map<string, MetricDef>()),
-  ]);
-  const eventsById = new Map(eventsDoc.items.map((e) => [e.event_id, e]));
-  const recs: Recommendation[] = recsDoc.items;
-  const theses = new Map(thesesDoc.items.map((t) => [t.event_id, t]));
-  const recAuthority = new Map<string, [boolean, string]>(recs.map((r) => [r.market_id, [Boolean(r.research_only), r.authority]]));
+interface ScopeInfo {
+  eventIds: string[];
+  label: string;
+  focus: PacketFocus[];
+  focusEntityIds: string[];
+  focusMarketIds: string[];
+  focusMarketEvents: string[];
+  focusMetricIds: Set<string>;
+  missing: string[];
+}
 
-  // 1. the scope -> event ids and focus
+/** Step 1 of packet.build: the scope -> event ids and the user's focus. */
+async function resolveScope(
+  repo: SportRepo,
+  req: PacketRequest,
+  eventsDoc: { items: EventDoc[] },
+  metrics: Map<string, MetricDef>,
+  progress: (m: string) => void,
+): Promise<ScopeInfo> {
+  const eventsById = new Map(eventsDoc.items.map((e) => [e.event_id, e]));
   const focus: PacketFocus[] = [];
   const focusEntityIds: string[] = [];
   const focusMarketIds: string[] = [];
@@ -381,7 +400,64 @@ export async function buildPacket(repo: SportRepo, req: PacketRequest): Promise<
     }
     label = `research tray (${req.tray.items.length} items)`;
   }
+  return { eventIds, label, focus, focusEntityIds, focusMarketIds, focusMarketEvents, focusMetricIds, missing };
+}
 
+/** Step 4 of packet.build: every market of the events in scope (+ focused markets), in packet order. */
+async function scopeMarkets(repo: SportRepo, scope: ScopeInfo): Promise<{ markets: Market[]; modelPrices: ModelPrice[] }> {
+  const inScope = new Set(scope.eventIds);
+  const marketEventIds = sortStr(uniq([...scope.eventIds, ...scope.focusMarketEvents]));
+  const all: Market[] = [];
+  const modelPrices: ModelPrice[] = [];
+  for (const eid of marketEventIds) {
+    const d = await tryGet(repo.eventDetail(eid));
+    if (!d) continue;
+    all.push(...d.markets);
+    modelPrices.push(...d.model_prices);
+  }
+  const focusMarkets = new Set(scope.focusMarketIds);
+  const markets: Market[] = [];
+  const seen = new Set<string>();
+  const sorted = [...all].sort((a, b) =>
+    cmpTuple([a.event_id ?? '', a.market_family, a.kalshi_ticker], [b.event_id ?? '', b.market_family, b.kalshi_ticker]),
+  );
+  for (const m of sorted) {
+    if ((inScope.has(m.event_id ?? '') || focusMarkets.has(m.market_id)) && !seen.has(m.market_id)) {
+      seen.add(m.market_id);
+      markets.push(m);
+    }
+  }
+  return { markets, modelPrices };
+}
+
+/**
+ * Exactly the markets a packet for this request will carry (same scope rules as buildPacket), so
+ * the live layer can refresh them BEFORE the packet is built (packet preflight).
+ */
+export async function packetScopeMarkets(repo: SportRepo, req: PacketRequest): Promise<Market[]> {
+  const [eventsDoc, metrics] = await Promise.all([repo.events(), repo.hasExplorer ? repo.metricMap() : Promise.resolve(new Map<string, MetricDef>())]);
+  const scope = await resolveScope(repo, req, eventsDoc, metrics, req.onProgress ?? (() => {}));
+  return (await scopeMarkets(repo, scope)).markets;
+}
+
+export async function buildPacket(repo: SportRepo, req: PacketRequest): Promise<HandicapPacket> {
+  const progress = req.onProgress ?? (() => {});
+  const manifest = await repo.manifest();
+  const sport = manifest.sport;
+  const now = req.generatedAt ? toIso(req.generatedAt) : manifest.generated_at;
+  const proto = protocolForSport(sport);
+  const [eventsDoc, recsDoc, thesesDoc, metrics] = await Promise.all([
+    repo.events(), repo.recommendations(), repo.theses(), repo.hasExplorer ? repo.metricMap() : Promise.resolve(new Map<string, MetricDef>()),
+  ]);
+  const eventsById = new Map(eventsDoc.items.map((e) => [e.event_id, e]));
+  const recs: Recommendation[] = recsDoc.items;
+  const theses = new Map(thesesDoc.items.map((t) => [t.event_id, t]));
+  const recAuthority = new Map<string, [boolean, string]>(recs.map((r) => [r.market_id, [Boolean(r.research_only), r.authority]]));
+
+  // 1. the scope -> event ids and focus
+  const scope = await resolveScope(repo, req, eventsDoc, metrics, progress);
+  const { eventIds, label, focus, focusEntityIds, focusMetricIds } = scope;
+  const missing = [...scope.missing];
   // 2. events + participants
   const packetEvents: HandicapPacket['events'] = [];
   const participantIds: string[] = [];
@@ -425,28 +501,10 @@ export async function buildPacket(repo: SportRepo, req: PacketRequest): Promise<
 
   // 4. markets: every market of the events in scope (+ focused markets), model evidence for those markets
   progress('Loading markets and model prices');
-  const inScope = new Set(eventIds);
-  const marketEventIds = sortStr(uniq([...eventIds, ...focusMarketEvents]));
-  const markets: Market[] = [];
-  const modelPrices: ModelPrice[] = [];
-  for (const eid of marketEventIds) {
-    const d = await tryGet(repo.eventDetail(eid));
-    if (!d) continue;
-    markets.push(...d.markets);
-    modelPrices.push(...d.model_prices);
-  }
-  const focusMarkets = new Set(focusMarketIds);
-  const packetMarkets: PacketMarket[] = [];
-  const seenM = new Set<string>();
-  const sortedMarkets = [...markets].sort((a, b) =>
-    cmpTuple([a.event_id ?? '', a.market_family, a.kalshi_ticker], [b.event_id ?? '', b.market_family, b.kalshi_ticker]),
-  );
-  for (const m of sortedMarkets) {
-    if ((inScope.has(m.event_id ?? '') || focusMarkets.has(m.market_id)) && !seenM.has(m.market_id)) {
-      seenM.add(m.market_id);
-      packetMarkets.push(packetMarket(m, now));
-    }
-  }
+  const { markets: scoped, modelPrices } = await scopeMarkets(repo, scope);
+  const live = req.live;
+  const packetMarkets: PacketMarket[] = scoped.map((m) => packetMarket(live ? live.overlay(m) : m, now, live?.marketFreshness));
+  const seenM = new Set(packetMarkets.map((m) => m.market_id));
   if (!packetMarkets.length) missing.push('no current markets for the scope');
   const packetModels: PacketModel[] = [];
   const seenMp = new Set<string>();
@@ -483,7 +541,7 @@ export async function buildPacket(repo: SportRepo, req: PacketRequest): Promise<
     missing.push('no capability manifest (no explorer published)');
   }
   const sources = sortStr(
-    uniq([...evidence.flatMap((e) => e.observations.map((o) => o.source)), 'kalshi markets', ...(packetModels.length ? ['model prices'] : [])]),
+    uniq([...evidence.flatMap((e) => e.observations.map((o) => o.source)), 'kalshi markets', ...(packetModels.length ? ['model prices'] : []), ...(live?.sources ?? [])]),
   );
   const marketFresh = packetMarkets.length ? worst(...packetMarkets.map((m) => m.freshness)) : 'UNKNOWN';
   const modelFresh = packetModels.length ? worst(...packetModels.map((m) => m.freshness)) : 'UNKNOWN';
@@ -519,7 +577,7 @@ export async function buildPacket(repo: SportRepo, req: PacketRequest): Promise<
     repo_recommendations: repoRecs,
     quality: {
       sources, market_freshness: marketFresh, model_freshness: modelFresh, research_only_items: researchOnlyItems,
-      missing: sortStr(uniq(missing)), capabilities: caps,
+      missing: sortStr(uniq([...missing, ...(live?.notes ?? [])])), capabilities: caps,
     },
     budget: { max_chars: req.maxChars ?? DEFAULT_MAX_CHARS, chars: 0, truncated: [] },
   };

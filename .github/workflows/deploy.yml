@@ -1,0 +1,95 @@
+name: Deploy to GitHub Pages
+
+# main is deployed only after the full CI suite passes on it. A schedule redeploys so the bundled NFL
+# research snapshot follows the live NFL publication while NFL's own explorer is unpublished.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+
+  nfl-snapshot:
+    name: Rebuild NFL research snapshot from the live publication
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    outputs:
+      skipped: ${{ steps.refresh.outputs.skipped }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - id: refresh
+        name: Refresh (no-op when the live NFL explorer exists)
+        run: scripts/refresh-nfl-snapshot.sh "$RUNNER_TEMP/nfl-snapshot" "$RUNNER_TEMP/nfl-work"
+      - name: Upload snapshot
+        if: steps.refresh.outputs.skipped == 'no'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfl-snapshot
+          path: ${{ runner.temp }}/nfl-snapshot
+          retention-days: 3
+
+  build:
+    name: Build Pages artifact
+    needs: [verify, nfl-snapshot]
+    if: ${{ !cancelled() && needs.verify.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Use the freshly rebuilt NFL snapshot (falls back to the committed one)
+        if: needs.nfl-snapshot.outputs.skipped == 'no'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: nfl-snapshot
+          path: ${{ runner.temp }}/nfl-snapshot
+      - name: Install snapshot
+        run: |
+          if [ -f "$RUNNER_TEMP/nfl-snapshot/app/latest/explorer/index.json" ]; then
+            rm -rf public/data/nfl && mkdir -p public/data/nfl
+            cp -r "$RUNNER_TEMP/nfl-snapshot/." public/data/nfl/
+            echo "using rebuilt snapshot: $(python3 -c "import json;print(json.load(open('public/data/nfl/SNAPSHOT.json'))['run_id'])")"
+          else
+            echo "using the committed snapshot"
+          fi
+      - run: npm run build
+      - run: node scripts/check-dist.mjs
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

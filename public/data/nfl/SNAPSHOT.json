@@ -1,0 +1,18 @@
+{
+  "kind": "sift_data_snapshot",
+  "sport": "NFL",
+  "reason": "NFL's production explorer (app/latest/explorer/) is not published: scripts/research_export.py in chmoses98/nfl-edge-finder raises TypeError in collect_players() when a game's game_script_inputs.player_opportunity is a status object ({\"state\": \"UNAVAILABLE\", ...}) instead of per-team lists (2026_04_PIT_CLE in the week-4 packet). The v1 payload publishes; the explorer step fails and is skipped.",
+  "run_id": "run_d33cb75da67eb0847a34",
+  "v1_generated_at": "2026-10-04T00:44:37Z",
+  "explorer_built_at": "2026-10-04T04:52:00Z",
+  "inputs": {
+    "app_v1": "chmoses98/nfl-edge-finder@handicap-reports 7e1fe86 app/latest (the live publication of this run, unchanged)",
+    "report": "chmoses98/nfl-edge-finder@handicap-reports 7e1fe86 latest/packet.json",
+    "market_data": "chmoses98/nfl-edge-finder@market-data 2d25c41 (schedule_cache.csv, Kalshi quote captures 2026-09-20..2026-10-04, shadow scorecard 20261002T132336Z, actual_wagers)",
+    "exporter": "chmoses98/nfl-edge-finder@main 303c430 scripts/research_export.py, unmodified except a two-line guard that skips a non-list player_opportunity value (the upstream bug above)"
+  },
+  "verification": "python -m edge_finder_contract verify-explorer <root> -> OK (kalshi-bet-router contract 1.1.1)",
+  "omitted": ["markets.json", "model_prices.json"],
+  "omitted_reason": "Sift reads per-event markets and model prices from event_detail/<evt>.json (the same rows), so the 20 MB whole-sport files are not shipped.",
+  "note": "Sift reads the live root first and uses this snapshot only while the live root has no explorer/index.json. Every number in it comes from the repository's committed production data; nothing is synthesized."
+}

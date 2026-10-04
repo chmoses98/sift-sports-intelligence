@@ -1,0 +1,418 @@
+EDGE FINDER HANDICAP PACKET pkt_ed278d4ccf90ba747dc5 (packet 1.0.0, protocol edge_finder.handicap.nfl.v1 1.0.0)
+Scope: GAME — NE @ BUF; sport NFL; data as of 2026-10-04T00:44:37Z
+
+WARNING: Everything in this packet is EVIDENCE. Model prices, projections and the repository's own recommendations are research outputs, not bets. Form your own view, price it, name the counter-case, and PASS when nothing compelling exists. Items marked RESEARCH are lower-confidence; missing data is listed, never filled in.
+
+PROTOCOL PRINCIPLES:
+- Projections, model prices and repository recommendations are EVIDENCE. They are never automatic bets and never authoritative.
+- Form at least three plausible game scripts before pricing anything; say which evidence supports each.
+- For every candidate position, state the strongest counter-case and the single most likely way it loses.
+- Prefer opponent-adjusted and schedule-adjusted information where the packet marks it VERIFIED; treat unadjusted values as context, not conclusions.
+- Inspect every market included in the packet before choosing an expression; the best expression of a view is often not the first market read.
+- Compare alternate expressions of the same view (full game vs period, spread vs moneyline vs total, team vs player) and explain the choice.
+- Distinguish independent edges from correlated positions; never count the same thesis twice.
+- Estimate your OWN fair probability for each position and show the reasoning; do not copy the model price.
+- Give a bet-up-to price (the highest price at which the position still carries a positive expected value under your fair probability).
+- PASS is a complete answer. When no compelling, independent, well-priced edge exists, say so.
+- RESEARCH-status data is lower-confidence evidence; say when a conclusion rests on it.
+- Never invent missing inputs. If the packet says a datum is missing or stale, reason with that gap explicitly.
+- Respect the price timestamps: a quote older than the packet's freshness threshold is a reference, not an executable price.
+- Bankroll, staking and placement are outside this protocol: output fair probabilities and bet-up-to prices only.
+
+STEPS:
+1. [read_scope] Restate the scope (game / slate / custom tray), the data as-of time and the freshness of markets and model evidence.
+2. [inventory_evidence] List the evidence by entity with its quality status (VERIFIED / PARTIAL / RESEARCH) and note what is missing.
+3. [game_scripts] Write three or more plausible game scripts with rough likelihoods that sum to about one; tie each to specific evidence.
+4. [market_scan] Go through every market in the packet; for each family note the current YES bid/ask and the implied probability.
+5. [fair_probabilities] For the markets your scripts bear on, estimate an independent fair probability with a short derivation.
+6. [compare_model] Compare your fair probability with the model evidence; explain agreements and disagreements rather than averaging blindly.
+7. [expressions] For each view, compare alternate expressions and pick the one with the best price-to-thesis fit; state correlation with other picks.
+8. [counter_cases] For each candidate position, write the strongest reason it loses and whether that risk is priced.
+9. [decide] Output RECOMMEND / LEAN / PASS per position with fair probability, bet-up-to price, confidence, and the evidence status it rests on.
+10. [user_focus] Address every item the user placed in the research tray explicitly, even when the verdict is PASS.
+
+REQUIRED OUTPUTS: scope and freshness summary; evidence inventory with quality statuses and gaps; three or more game scripts with likelihoods; per-position: fair probability, bet-up-to price, confidence, strongest counter-case, correlation note; explicit PASS where no edge exists; explicit treatment of each user-focus item
+FORBIDDEN: treating a model price or repository recommendation as a bet instruction; inventing injuries, lineups, weather, usage or prices absent from the packet; sizing bets or referencing bankroll; recommending a position without a fair probability and a bet-up-to price; omitting the counter-case
+
+EVIDENCE WEIGHTS: PARTIAL: real but limited (short history, gaps, snapshot only): weigh with the stated limitation; RESEARCH: non-production or experimental: lower-confidence evidence; never the sole basis of a recommendation; UNKNOWN: status not established: treat as context only; VERIFIED: production-generated, tested, historically covered: weigh fully
+
+DATA QUALITY: markets AGING, model FRESH; sources: kalshi markets, model prices, packet.game_script_inputs.player_opportunity, packet.simulation.player_projections, packet.team_profiles, packet.team_profiles.adjusted, schedule_cache.csv
+Capabilities: advanced_stats=PARTIAL, calibration=VERIFIED, clv=VERIFIED, comparisons=PARTIAL, event_research=PARTIAL, game_markets=VERIFIED, historical_accuracy=VERIFIED, historical_results=VERIFIED, injuries=VERIFIED, lineups=PARTIAL, market_price_history=VERIFIED, market_prices=VERIFIED, matchup_metrics=PARTIAL, opponent_adjustment=PARTIAL, opponents=VERIFIED, play_by_play=UNAVAILABLE, player_game_logs=RESEARCH, player_metrics=RESEARCH, player_profiles=PARTIAL, player_props=VERIFIED, projection_distributions=PARTIAL, rankings=PARTIAL, raw_projections=PARTIAL, recent_form_windows=PARTIAL, schedule_strength=UNAVAILABLE, search=VERIFIED, situational_splits=PARTIAL, team_game_logs=PARTIAL, team_metrics=PARTIAL, team_profiles=PARTIAL, team_props=VERIFIED, time_series=PARTIAL, usage=RESEARCH, venue_effects=UNAVAILABLE, wager_history=VERIFIED, weather=VERIFIED
+RESEARCH-only items: met_nfl.proj_carry_share, met_nfl.proj_target_share, met_nfl.sim_attempts, met_nfl.sim_carries, met_nfl.sim_completions, met_nfl.sim_passing_tds, met_nfl.sim_passing_yards, met_nfl.sim_receiving_yards, met_nfl.sim_receptions, met_nfl.sim_rushing_yards, met_nfl.sim_touchdowns, model prices on 432 markets
+
+EVENTS:
+- NE @ BUF (evt_0cb333291f580a201a70) 2026-10-04T17:00:00Z SCHEDULED
+    note: The model has been shown redundant to the closing market on player props and behind it on game outcomes. Treat it as structure, not as a superior forecast.
+    note: Adjusted rating differences. NOT a claim that the market has mispriced them.
+    note: Depth-chart order is a stated intention, not a measured snap share; where in-season usage exists it is in the player projections, and it outranks this order.
+    note: BUF offensive line: We capture no pass-block or run-block grades and no snap-level continuity, so no OL quality metric is reported. Team-level sack rate allowed and pressure proxies are in the team profile; they conflate line, quarterback and scheme.
+    note: packet key question: A.J. Brown (WR, NE) is ruled out. Is the market's price on his replacement's usage already reflecting the redistributed role, or still anchored to a committee?
+    note: packet key question: 2 skill players are Questionable (Ray Davis (RB), Eli Raridon (TE)). These resolve at the inactive release 90 minutes before kickoff — is any current price worth taking before that, or is the option value of waiting larger than the move you expect?
+    note: packet key question: KXNFL1HTEAMTOTAL-26OCT04NEBUF-BUF10 moved +0.225 since first capture. Is that move explained by public injury news already in this packet, or is it information we do not have?
+    note: packet key question: The model disagrees by -0.543 on KXNFLRSHATT-26OCT04NEBUF-BUFJALLEN17-5 (Josh Allen). Is that a mean disagreement the market has historically handled better, or a genuine shape difference? Note the model was shown redundant to the market on player props.
+    note: packet key question: The model disagrees by -0.542 on KXNFLREC-26OCT04NEBUF-BUFDKINCAID86-3 (Dalton Kincaid). Is that a mean disagreement the market has historically handled better, or a genuine shape difference? Note the model was shown redundant to the market on player props.
+    note: packet key question: KXNFLREC-26OCT04NEBUF-BUFDKINCAID86-2 sits at a market price of 0.92 — a tail rung. The tail of the model's distribution is the least validated part of it. Is this rung relying on shape the model is known to miscalibrate?
+
+EVIDENCE:
+- TEAM New England Patriots
+    availability: OUT — Channing Canada (CB, NE): Not Specified; return 2026-10-11; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: OUT — Christian Barmore (DT, NE): Not Specified; return 2026-10-11; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: OUT — Christian Gonzalez (CB, NE): Not Specified; return 2026-10-11; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Christian Elliss (LB, NE): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Craig Woodson (S, NE): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Dre'Mont Jones (DE, NE): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Eli Raridon (TE, NE): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Morgan Moses (OT, NE): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Reggie Gilliam (FB, NE): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: INJURED_RESERVE — A.J. Brown (WR, NE): Sprain; return 2026-11-01; impact: ruled out -- role redistributes to the depth chart behind him (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Andy Borregales (PK, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Behren Morton (QB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Dametrious Crownover (OT, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — DeMario Douglas (WR, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: INJURED_RESERVE — Dell Pettus (S, NE): Not Specified; return 2026-10-22; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Drake Maye (QB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: INJURED_RESERVE — Greg Van Roten (G, NE): Not Specified; return 2026-11-01; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Hunter Henry (TE, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Jaylen Reed (S, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Leonard Taylor III (DT, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Mack Hollins (WR, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: INJURED_RESERVE — Quintayvious Hutchins (LB, NE): Not Specified; return 2026-10-22; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Rhamondre Stevenson (RB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Romeo Doubs (WR, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — TreVeyon Henderson (RB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    Adjusted defensive EPA per dropback allowed [ADJ_RIDGE]: -0.088 rank 4/32, lg avg 0.004 [PARTIAL]
+    Adjusted defensive early-down EPA allowed [ADJ_RIDGE]: -0.042 rank 5/32, lg avg 0.003 [PARTIAL]
+    Adjusted defensive EPA per play allowed [ADJ_RIDGE]: -0.049 rank 4/32, lg avg 0.003 [PARTIAL]
+    Adjusted defensive EPA allowed, neutral script [ADJ_RIDGE]: -0.060 rank 5/32, lg avg 0.003 [PARTIAL]
+    Adjusted explosive play rate allowed [ADJ_RIDGE]: -0.014 rank 3/32, lg avg -0.001 [PARTIAL]
+    Adjusted opponent pass rate over expected allowed [ADJ_RIDGE]: -0.726 rank 20/32, lg avg -0.098 [PARTIAL]
+    Adjusted defensive EPA per rush allowed [ADJ_RIDGE]: 0.014 rank 21/32, lg avg -0.000 [PARTIAL]
+    Adjusted defensive sack rate [ADJ_RIDGE]: -0.002 rank 16/32, lg avg -0.001 [PARTIAL]
+    Adjusted defensive success rate allowed [ADJ_RIDGE]: -0.011 rank 7/32, lg avg 0.001 [PARTIAL]
+    Adjusted special-teams EPA allowed [ADJ_RIDGE]: -0.537 rank 2/32, lg avg 0.230 [PARTIAL]
+    Adjusted defensive takeaway rate [ADJ_RIDGE]: 0.000 rank 14/32, lg avg -0.000 [PARTIAL]
+    Adjusted offensive EPA per dropback [ADJ_RIDGE]: 0.032 rank 11/32, lg avg 0.004 [PARTIAL]
+- TEAM Buffalo Bills
+    availability: QUESTIONABLE — Christian Benford (CB, BUF): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Ray Davis (RB, BUF): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: QUESTIONABLE — Sam Franklin Jr. (S, BUF): Not Specified; return 2026-10-04; impact: uncertain -- resolves at the inactive release, 90 minutes before kickoff (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Ar'maj Reed-Adams (G, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — C.J. Gardner-Johnson (S, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — DJ Moore (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Dalton Kincaid (TE, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Damar Hamlin (S, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Dawson Knox (TE, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Deone Walker (DT, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Dorian Williams (LB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Ed Oliver (DT, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Greg Rousseau (LB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Jalon Kilgore (S, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — James Cook III (RB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Joe Andreessen (LB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: INJURED_RESERVE — Jordan Hancock (CB, BUF): Not Specified; return 2026-11-01; impact: ruled out (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Josh Allen (QB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Jude Bowry (OT, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Keon Coleman (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Khalil Shakir (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Mike Danna (DE, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Skyler Bell (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: DOUBTFUL — T.J. Sanders (DT, BUF): Surgery; return 2026-10-04; impact: unlikely to play (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — Tyler Bass (PK, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    Adjusted defensive EPA per dropback allowed [ADJ_RIDGE]: -0.015 rank 15/32, lg avg 0.004 [PARTIAL]
+    Adjusted defensive early-down EPA allowed [ADJ_RIDGE]: 0.015 rank 22/32, lg avg 0.003 [PARTIAL]
+    Adjusted defensive EPA per play allowed [ADJ_RIDGE]: 0.020 rank 19/32, lg avg 0.003 [PARTIAL]
+    Adjusted defensive EPA allowed, neutral script [ADJ_RIDGE]: -0.003 rank 15/32, lg avg 0.003 [PARTIAL]
+    Adjusted explosive play rate allowed [ADJ_RIDGE]: 0.006 rank 24/32, lg avg -0.001 [PARTIAL]
+    Adjusted opponent pass rate over expected allowed [ADJ_RIDGE]: -1.297 rank 23/32, lg avg -0.098 [PARTIAL]
+    Adjusted defensive EPA per rush allowed [ADJ_RIDGE]: 0.051 rank 31/32, lg avg -0.000 [PARTIAL]
+    Adjusted defensive sack rate [ADJ_RIDGE]: -0.005 rank 22/32, lg avg -0.001 [PARTIAL]
+    Adjusted defensive success rate allowed [ADJ_RIDGE]: 0.010 rank 22/32, lg avg 0.001 [PARTIAL]
+    Adjusted special-teams EPA allowed [ADJ_RIDGE]: 0.762 rank 29/32, lg avg 0.230 [PARTIAL]
+    Adjusted defensive takeaway rate [ADJ_RIDGE]: 0.000 rank 13/32, lg avg -0.000 [PARTIAL]
+    Adjusted offensive EPA per dropback [ADJ_RIDGE]: 0.134 rank 2/32, lg avg 0.004 [PARTIAL]
+- PLAYER Hunter Henry (New England Patriots), TE
+    availability: ACTIVE — Hunter Henry (TE, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart TE #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.000 [RESEARCH]
+    Projected target share [GAME]: 0.154 [RESEARCH]
+    Simulated receiving yards [GAME]: 34.712 [RESEARCH]
+    Simulated receptions [GAME]: 3.197 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.249 [RESEARCH]
+- PLAYER Mack Hollins (New England Patriots), WR
+    availability: ACTIVE — Mack Hollins (WR, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart RWR #2 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.002 [RESEARCH]
+    Projected target share [GAME]: 0.176 [RESEARCH]
+    Simulated receiving yards [GAME]: 43.322 [RESEARCH]
+    Simulated receptions [GAME]: 3.193 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.258 [RESEARCH]
+- PLAYER DJ Moore (Buffalo Bills), WR
+    availability: ACTIVE — DJ Moore (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart LWR #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.009 [RESEARCH]
+    Projected target share [GAME]: 0.174 [RESEARCH]
+    Simulated receiving yards [GAME]: 43.937 [RESEARCH]
+    Simulated receptions [GAME]: 3.273 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.355 [RESEARCH]
+- PLAYER Josh Allen (Buffalo Bills), QB
+    availability: ACTIVE — Josh Allen (QB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart QB #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.166 [RESEARCH]
+    Projected target share [GAME]: 0.010 [RESEARCH]
+    Simulated pass attempts [GAME]: 30.100 [RESEARCH]
+    Simulated carries [GAME]: 8.299 [RESEARCH]
+    Simulated completions [GAME]: 20.021 [RESEARCH]
+    Simulated passing touchdowns [GAME]: 1.767 [RESEARCH]
+    Simulated passing yards [GAME]: 222.227 [RESEARCH]
+    Simulated rushing yards [GAME]: 36.826 [RESEARCH]
+- PLAYER Ty Johnson (Buffalo Bills), RB
+    availability: ACTIVE — depth chart RB #2 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.097 [RESEARCH]
+    Projected target share [GAME]: 0.078 [RESEARCH]
+    Simulated receiving yards [GAME]: 14.824 [RESEARCH]
+    Simulated receptions [GAME]: 1.861 [RESEARCH]
+    Simulated rushing yards [GAME]: 10.689 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.226 [RESEARCH]
+- PLAYER Dawson Knox (Buffalo Bills), TE
+    availability: ACTIVE — Dawson Knox (TE, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart TE #2 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.015 [RESEARCH]
+    Projected target share [GAME]: 0.078 [RESEARCH]
+    Simulated receiving yards [GAME]: 17.164 [RESEARCH]
+    Simulated receptions [GAME]: 1.704 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.183 [RESEARCH]
+- PLAYER Rhamondre Stevenson (New England Patriots), RB
+    availability: ACTIVE — Rhamondre Stevenson (RB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart RB #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.391 [RESEARCH]
+    Projected target share [GAME]: 0.113 [RESEARCH]
+    Simulated carries [GAME]: 8.399 [RESEARCH]
+    Simulated receiving yards [GAME]: 20.449 [RESEARCH]
+    Simulated receptions [GAME]: 2.662 [RESEARCH]
+    Simulated rushing yards [GAME]: 35.406 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.405 [RESEARCH]
+- PLAYER Joshua Palmer (Buffalo Bills), WR
+    availability: ACTIVE — depth chart RWR #4 (as of 2026-10-04T00:21:12Z)
+    Simulated anytime touchdowns [GAME]: 0.122 [RESEARCH]
+- PLAYER James Cook III (Buffalo Bills), RB
+    availability: ACTIVE — James Cook III (RB, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart RB #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.659 [RESEARCH]
+    Projected target share [GAME]: 0.079 [RESEARCH]
+    Simulated carries [GAME]: 17.218 [RESEARCH]
+    Simulated receiving yards [GAME]: 14.618 [RESEARCH]
+    Simulated receptions [GAME]: 1.852 [RESEARCH]
+    Simulated rushing yards [GAME]: 84.863 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.713 [RESEARCH]
+- PLAYER Khalil Shakir (Buffalo Bills), WR
+    availability: ACTIVE — Khalil Shakir (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart SWR #2 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.003 [RESEARCH]
+    Projected target share [GAME]: 0.165 [RESEARCH]
+    Simulated receiving yards [GAME]: 37.231 [RESEARCH]
+    Simulated receptions [GAME]: 3.605 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.262 [RESEARCH]
+- PLAYER Romeo Doubs (New England Patriots), WR
+    availability: ACTIVE — Romeo Doubs (WR, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart RWR #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.001 [RESEARCH]
+    Projected target share [GAME]: 0.179 [RESEARCH]
+    Simulated receiving yards [GAME]: 45.765 [RESEARCH]
+    Simulated receptions [GAME]: 3.213 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.283 [RESEARCH]
+- PLAYER DeMario Douglas (New England Patriots), WR
+    availability: ACTIVE — DeMario Douglas (WR, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart SWR #3 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.006 [RESEARCH]
+    Projected target share [GAME]: 0.137 [RESEARCH]
+    Simulated receiving yards [GAME]: 31.111 [RESEARCH]
+    Simulated receptions [GAME]: 2.565 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.207 [RESEARCH]
+- PLAYER Dalton Kincaid (Buffalo Bills), TE
+    availability: ACTIVE — Dalton Kincaid (TE, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart TE #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.002 [RESEARCH]
+    Projected target share [GAME]: 0.153 [RESEARCH]
+    Simulated receiving yards [GAME]: 40.135 [RESEARCH]
+    Simulated receptions [GAME]: 3.225 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.317 [RESEARCH]
+- PLAYER Drake Maye (New England Patriots), QB
+    availability: ACTIVE — Drake Maye (QB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart QB #1 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.054 [RESEARCH]
+    Projected target share [GAME]: 0.002 [RESEARCH]
+    Simulated pass attempts [GAME]: 31.087 [RESEARCH]
+    Simulated carries [GAME]: 5.654 [RESEARCH]
+    Simulated completions [GAME]: 18.994 [RESEARCH]
+    Simulated passing touchdowns [GAME]: 1.463 [RESEARCH]
+    Simulated passing yards [GAME]: 215.435 [RESEARCH]
+    Simulated rushing yards [GAME]: 33.816 [RESEARCH]
+- PLAYER Keon Coleman (Buffalo Bills), WR
+    availability: ACTIVE — Keon Coleman (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart LWR #3 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.001 [RESEARCH]
+    Projected target share [GAME]: 0.095 [RESEARCH]
+    Simulated receiving yards [GAME]: 23.552 [RESEARCH]
+    Simulated receptions [GAME]: 1.805 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.180 [RESEARCH]
+- PLAYER Kyle Williams (New England Patriots), WR
+    availability: ACTIVE — depth chart SWR #4 (as of 2026-10-04T00:21:12Z)
+    Simulated receiving yards [GAME]: 13.865 [RESEARCH]
+    Simulated receptions [GAME]: 0.984 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.096 [RESEARCH]
+- PLAYER Jackson Hawes (Buffalo Bills), TE
+    availability: ACTIVE — depth chart TE #3 (as of 2026-10-04T00:21:12Z)
+    Simulated anytime touchdowns [GAME]: 0.049 [RESEARCH]
+- PLAYER Efton Chism III (New England Patriots), WR
+    availability: ACTIVE — depth chart SWR #5 (as of 2026-10-04T00:21:12Z)
+    Simulated anytime touchdowns [GAME]: 0.074 [RESEARCH]
+- PLAYER TreVeyon Henderson (New England Patriots), RB
+    availability: ACTIVE — TreVeyon Henderson (RB, NE): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart RB #2 (as of 2026-10-04T00:21:12Z)
+    Projected carry share [GAME]: 0.354 [RESEARCH]
+    Projected target share [GAME]: 0.057 [RESEARCH]
+    Simulated carries [GAME]: 7.604 [RESEARCH]
+    Simulated receiving yards [GAME]: 9.373 [RESEARCH]
+    Simulated receptions [GAME]: 1.334 [RESEARCH]
+    Simulated rushing yards [GAME]: 32.313 [RESEARCH]
+    Simulated anytime touchdowns [GAME]: 0.347 [RESEARCH]
+- PLAYER Skyler Bell (Buffalo Bills), WR
+    availability: ACTIVE — Skyler Bell (WR, BUF): impact: no expected impact (as of 2026-10-04T00:21:12Z)
+    availability: ACTIVE — depth chart SWR #6 (as of 2026-10-04T00:21:12Z)
+    Simulated anytime touchdowns [GAME]: 0.037 [RESEARCH]
+
+MARKETS (796, all in scope). Prices are YES bid/ask in cents; 'fair' is the model's P(YES) in cents (evidence, not a bet). A ladder line lists each rung as 'X [ticker suffix] bid/ask', where X is the line and the full ticker is the prefix before '*' plus the suffix (or X itself):
+(unless a line says otherwise, prices were captured at 2026-10-04T00:15:06Z, AGING)
+- KXNFL1QBTTS-26OCT04NEBUF-Y [both_teams_score 1Q] YES iff both teams score >= 1 point in the 1Q (1Q): 28/49
+- KXNFL2QBTTS-26OCT04NEBUF-Y [both_teams_score 2Q] YES iff BOTH_TEAMS_SCORE on 2Q points only (2Q): 54/73
+- KXNFL3QBTTS-26OCT04NEBUF-Y [both_teams_score 3Q] YES iff BOTH_TEAMS_SCORE on 3Q points only (3Q): 28/60
+- KXNFL4QBTTS-26OCT04NEBUF-Y [both_teams_score 4Q] YES iff BOTH_TEAMS_SCORE on 4Q points only; overtime EXCLUDED (4Q): 37/72
+- [both_teams_score_n FULL] YES iff min_team_points (FULL) >= X | KXNFLBOTH-26OCT04NEBUF-*: 14 73/80 fair 79.7; 21 40/47 fair 45.9; 28 13/17 fair 15.1; 35 1/7 fair 3.3
+- [first_td_scorer FULL] YES iff player scores the first TD; NONE leg iff no TD; active/no-snap fair-price clause (FULL) [subject: BUF Bills D/ST] (and like it) | KXNFLFIRSTTD-26OCT04NEBUF-*: BUFBUFDST BUF Bills D/ST] 2/3; BUFDKINCAID86 Dalton Kincaid] 7/8; BUFDKNOX88 Dawson Knox] 2/3; BUFDMOORE2 DJ Moore] 8/9; BUFGDORTCH19 Greg Dortch] 0/1; BUFJALLEN17 Josh Allen] 12/14; BUFJCOOK4 James Cook III] 14/15; BUFJHAWES85 Jackson Hawes] 0/2; BUFJPALMER5 Joshua Palmer] 2/3; BUFKCOLEMAN0 Keon Coleman] 3/4; BUFKSHAKIR10 Khalil Shakir] 5/7; BUFRDAVIS7 Ray Davis] 0/1; BUFSBELL13 Skyler Bell] 0/1; BUFTJOHNSON26 Ty Johnson] 2/4; NEDDOUGLAS3 DeMario Douglas] 2/3; NEDMAYE10 Drake Maye] 3/4; NEECHISM86 Efton Chism III] 0/1; NEHHENRY85 Hunter Henry] 3/4; NEKWILLIAMS18 Kyle Williams] 1/2; NEMHOLLINS13 Mack Hollins] 4/5; NENEDST NE Patriots D/ST] 2/3; NENO-TD No Touchdown] 0/1; NERDOUBS87 Romeo Doubs] 3/4; NERSTEVENSON38 Rhamondre Stevenson] 6/7; NETHENDERSON32 TreVeyon Henderson] 6/7
+- [first_td_team FULL] YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) [subject: BUF] (and like it) | KXNFLFIRSTTDTEAM-26OCT04NEBUF-*: BUF [subject: BUF] 58/65; NE [subject: NE] 32/36; NONE YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/1
+- [first_td_team FULL] YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) (and like it) | KXNFLTEAMFIRSTTD-26OCT04NEBUF-*: BUF-BUFDST YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/95; BUF-DKINCAID86 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/15; BUF-DKNOX88 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/6; BUF-DMOORE2 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/16; BUF-GDORTCH19 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/8; BUF-JALLEN17 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 3/23; BUF-JCOOK4 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 1/26; BUF-JHAWES85 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/4; BUF-JPALMER5 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/25; BUF-KCOLEMAN0 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/8; BUF-KSHAKIR10 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/12; BUF-NO-TD YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/95; BUF-RDAVIS7 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/2; BUF-SBELL13 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/4; BUF-TJOHNSON26 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/6; NE-DDOUGLAS3 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/11; NE-DMAYE10 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 3/10; NE-ECHISM86 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/3; NE-HHENRY85 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/14; NE-KWILLIAMS18 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/6; NE-MHOLLINS13 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 3/13; NE-NEDST YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/95; NE-NO-TD YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/95; NE-RDOUBS87 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/13; NE-RSTEVENSON38 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/22; NE-THENDERSON32 YES iff team scores the first touchdown (any kind, incl. OT); NONE leg iff no touchdown (FULL) 0/17
+- KXNFLDSTTD-26OCT04NEBUF-Y [game_event FULL] YES iff heterogeneous one-off events (FULL): 18/25
+- KXNFLEQBTTS-26OCT04NEBUF-Y [game_event FULL] YES iff heterogeneous one-off events (FULL): 5/11
+- KXNFLOT-26OCT04NEBUF-Y [game_event FULL] YES iff heterogeneous one-off events (FULL): 4/5
+- KXNFLSFTY-26OCT04NEBUF-Y [game_event FULL] YES iff heterogeneous one-off events (FULL): 4/5
+- [game_player_leader FULL] YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) (and like it) | KXNFLMOSTRECYDS-26OCT04NEBUF-*: BUFDKINCAID86 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 4/22; BUFDKNOX88 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/5; BUFDMOORE2 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/32; BUFJPALMER5 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/4; BUFKCOLEMAN0 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/8; BUFKSHAKIR10 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/12; BUFTJOHNSON26 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/6; NEDDOUGLAS3 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/12; NEHHENRY85 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/13; NEKWILLIAMS18 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/8; NEMHOLLINS13 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/19; NERDOUBS87 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/19; NERSTEVENSON38 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/5
+- [game_player_leader FULL] YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) (and like it) | KXNFLMOSTRSHYDS-26OCT04NEBUF-*: BUFJALLEN17 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/10; BUFJCOOK4 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 69/72; NEDMAYE10 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 0/8; NERSTEVENSON38 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 8/11; NETHENDERSON32 YES iff player records the strict maximum of the statistic among ALL players in the game; a tie of N players pays 1/N to each; a player who does not participate settles NO (FULL) 12/15
+- KXNFLGAME-26OCT04NEBUF-BUF [game_winner FULL] YES iff team margin > 0 (FULL) [subject: BUF]: 73/74 fair 74.3
+- KXNFLGAME-26OCT04NEBUF-NE [game_winner FULL] YES iff team margin > 0 (FULL) [subject: NE]: 25/26 fair 25.7
+- [half_full_result 1H] YES iff 1H result AND full-game result (incl. OT) both correct (1H) (and like it) | KXNFL1HFT-26OCT04NEBUF-*: BUFBUF YES iff 1H result AND full-game result (incl. OT) both correct (1H) 53/54; BUFNE YES iff 1H result AND full-game result (incl. OT) both correct (1H) 8/9; BUFTIE YES iff 1H result AND full-game result (incl. OT) both correct (1H) 0/1; NEBUF YES iff 1H result AND full-game result (incl. OT) both correct (1H) 11/12; NENE YES iff 1H result AND full-game result (incl. OT) both correct (1H) 14/16; NETIE YES iff 1H result AND full-game result (incl. OT) both correct (1H) 0/1; TIEBUF YES iff 1H result AND full-game result (incl. OT) both correct (1H) 5/6; TIENE YES iff 1H result AND full-game result (incl. OT) both correct (1H) 3/4; TIETIE YES iff 1H result AND full-game result (incl. OT) both correct (1H) 0/1
+- [period_winner 1H] YES iff team scores the most points in the 1H; TIE leg iff equal (1H) [subject: BUF] (and like it) | KXNFL1H-26OCT04NEBUF-*: BUF [subject: BUF] 63/64; NE [subject: NE] 27/28; TIE YES iff team scores the most points in the 1H; TIE leg iff equal (1H) 7/8
+- [period_winner 1Q] YES iff team scores the most points in the 1Q; TIE leg iff equal (1Q) [subject: BUF] (and like it) | KXNFL1Q-26OCT04NEBUF-*: BUF [subject: BUF] 49/50; NE [subject: NE] 28/29; TIE YES iff team scores the most points in the 1Q; TIE leg iff equal (1Q) 19/20
+- [period_winner 2H] YES iff PERIOD_WINNER on 2H points only; overtime EXCLUDED (2H) [subject: BUF] (and like it) | KXNFL2H-26OCT04NEBUF-*: BUF [subject: BUF] 58/60; NE [subject: NE] 31/35; TIE YES iff PERIOD_WINNER on 2H points only; overtime EXCLUDED (2H) 5/8
+- [period_winner 2Q] YES iff PERIOD_WINNER on 2Q points only (2Q) [subject: BUF] (and like it) | KXNFL2Q-26OCT04NEBUF-*: BUF [subject: BUF] 57/59; NE [subject: NE] 29/31; TIE YES iff PERIOD_WINNER on 2Q points only (2Q) 10/12
+- [period_winner 3Q] YES iff PERIOD_WINNER on 3Q points only (3Q) [subject: BUF] (and like it) | KXNFL3Q-26OCT04NEBUF-*: BUF [subject: BUF] 49/50; NE [subject: NE] 30/33; TIE YES iff PERIOD_WINNER on 3Q points only (3Q) 17/19
+- [period_winner 4Q] YES iff PERIOD_WINNER on 4Q points only; overtime EXCLUDED (4Q) [subject: BUF] (and like it) | KXNFL4Q-26OCT04NEBUF-*: BUF [subject: BUF] 50/52; NE [subject: NE] 34/36; TIE YES iff PERIOD_WINNER on 4Q points only; overtime EXCLUDED (4Q) 11/14
+- [player_stat FULL] YES iff BUF Bills D/ST fantasy_points (FULL) >= 8.0 (and like it) | KXNFLFFPTS-26OCT04NEBUF-*: BUFBUFDST-7P4 BUF Bills D/ST fantasy_points (FULL) >= 8.0 1/57; NENEDST-5P7 NE Patriots D/ST fantasy_points (FULL) >= 6.0 1/32; BUFDKINCAID86-12P2 Dalton Kincaid fantasy_points (FULL) >= 13.0 41/49; BUFJALLEN17-23P1 Josh Allen fantasy_points (FULL) >= 24.0 43/52; BUFJCOOK4-17P1 James Cook III fantasy_points (FULL) >= 18.0 38/50; BUFKSHAKIR10-8P3 Khalil Shakir fantasy_points (FULL) >= 9.0 49/61; BUFTBASS16-8 Tyler Bass fantasy_points (FULL) >= 9.0 12/58; NEABORREGALES8-6P9 Andy Borregales fantasy_points (FULL) >= 7.0 12/57; NEDMAYE10-18P3 Drake Maye fantasy_points (FULL) >= 19.0 38/43; NEHHENRY85-9P6 Hunter Henry fantasy_points (FULL) >= 10.0 34/47; NEMHOLLINS13-8P8 Mack Hollins fantasy_points (FULL) >= 9.0 46/60; NERDOUBS87-9 Romeo Doubs fantasy_points (FULL) >= 10.0 41/53; NERSTEVENSON38-12P6 Rhamondre Stevenson fantasy_points (FULL) >= 13.0 33/40; NETHENDERSON32-9P5 TreVeyon Henderson fantasy_points (FULL) >= 10.0 40/48
+- [player_stat FULL] YES iff Buffalo field_goals (FULL) >= 1.0 (and like it) | KXNFLFG-26OCT04NEBUF-*: BUF1 Buffalo field_goals (FULL) >= 1.0 52/89; BUF2 Buffalo field_goals (FULL) >= 2.0 40/57; BUF3 Buffalo field_goals (FULL) >= 3.0 29/30; BUF4 Buffalo field_goals (FULL) >= 4.0 0/38; NE1 New England field_goals (FULL) >= 1.0 0/89; NE2 New England field_goals (FULL) >= 2.0 16/52; NE3 New England field_goals (FULL) >= 3.0 0/28; NE4 New England field_goals (FULL) >= 4.0 0/39
+- [player_stat FULL] YES iff Dalton Kincaid longest_reception (FULL) >= 22.0 (and like it) | KXNFLLONGREC-26OCT04NEBUF-*: BUFDKINCAID86-22 Dalton Kincaid longest_reception (FULL) >= 22.0 48/52; BUFDMOORE2-22 DJ Moore longest_reception (FULL) >= 22.0 46/52; BUFJCOOK4-9 James Cook III longest_reception (FULL) >= 9.0 45/50; BUFKCOLEMAN0-11 Keon Coleman longest_reception (FULL) >= 11.0 49/54; BUFKSHAKIR10-18 Khalil Shakir longest_reception (FULL) >= 18.0 47/51; BUFTJOHNSON26-10 Ty Johnson longest_reception (FULL) >= 10.0 46/52; NEDDOUGLAS3-15 DeMario Douglas longest_reception (FULL) >= 15.0 52/69; NEHHENRY85-16 Hunter Henry longest_reception (FULL) >= 16.0 49/53; NEMHOLLINS13-20 Mack Hollins longest_reception (FULL) >= 20.0 49/52; NERDOUBS87-20 Romeo Doubs longest_reception (FULL) >= 20.0 50/52; NERSTEVENSON38-10 Rhamondre Stevenson longest_reception (FULL) >= 10.0 51/54; NETHENDERSON32-8 TreVeyon Henderson longest_reception (FULL) >= 8.0 48/53
+- [player_stat FULL] YES iff Josh Allen longest_rush (FULL) >= 15.0 (and like it) | KXNFLLONGRSH-26OCT04NEBUF-*: BUFJALLEN17-15 Josh Allen longest_rush (FULL) >= 15.0 46/49; BUFJCOOK4-19 James Cook III longest_rush (FULL) >= 19.0 43/49; NEDMAYE10-13 Drake Maye longest_rush (FULL) >= 13.0 49/50; NERSTEVENSON38-11 Rhamondre Stevenson longest_rush (FULL) >= 11.0 50/55; NETHENDERSON32-13 TreVeyon Henderson longest_rush (FULL) >= 13.0 47/50
+- [player_stat FULL] YES iff Josh Allen attempts (FULL) >= X | KXNFLPASSATT-26OCT04NEBUF-BUFJALLEN17-*: 25 77/79 fair 80; 30 49/50 fair 61.9; 35 20/22 fair 40.2
+- [player_stat FULL] YES iff Drake Maye attempts (FULL) >= X | KXNFLPASSATT-26OCT04NEBUF-NEDMAYE10-*: 26 78/80 fair 76.4; 31 51/52 fair 57; 36 21/23 fair 35.3
+- [player_stat FULL] YES iff Josh Allen completions (FULL) >= X | KXNFLPASSCOMP-26OCT04NEBUF-BUFJALLEN17-*: 15 87/94 fair 86.9; 20 53/54 fair 63.8; 25 20/21 fair 32.8
+- [player_stat FULL] YES iff Drake Maye completions (FULL) >= X | KXNFLPASSCOMP-26OCT04NEBUF-NEDMAYE10-*: 15 82/88 fair 84; 20 54/55 fair 58.9; 25 17/19 fair 28.4
+- [player_stat FULL] YES iff Josh Allen interceptions (FULL) >= X | KXNFLPASSINT-26OCT04NEBUF-BUFJALLEN17-*: 1 43/44 fair 46.6; 2 11/13 fair 14.5; 3 0/5 fair 3.4
+- [player_stat FULL] YES iff Drake Maye interceptions (FULL) >= X | KXNFLPASSINT-26OCT04NEBUF-NEDMAYE10-*: 1 52/53 fair 52.4; 2 20/21 fair 18.6; 3 7/8 fair 5
+- [player_stat FULL] YES iff Josh Allen passing_tds (FULL) >= X | KXNFLPASSTDS-26OCT04NEBUF-BUFJALLEN17-*: 1 87/88 fair 80.6; 2 57/58 fair 50.5; 3 27/28 fair 24.5; 4 9/10 fair 9.5; 5 0/5 fair 3.1
+- [player_stat FULL] YES iff Drake Maye passing_tds (FULL) >= X | KXNFLPASSTDS-26OCT04NEBUF-NEDMAYE10-*: 1 77/79 fair 71.2; 2 42/43 fair 36.4; 3 15/16 fair 13.9; 4 5/7 fair 4.2
+- [player_stat FULL] YES iff Josh Allen passing_yards (FULL) >= X | KXNFLPASSYDS-26OCT04NEBUF-BUFJALLEN17-*: 150 90/91 fair 90.4; 175 82/83 fair 84.4; 200 73/75 fair 75.8; 225 61/62 fair 64.7; 250 46/47 fair 52; 275 30/31 fair 39; 300 20/21 fair 27; 325 12/14 fair 17.2; 350 6/8 fair 10.1
+- [player_stat FULL] YES iff Drake Maye passing_yards (FULL) >= X | KXNFLPASSYDS-26OCT04NEBUF-NEDMAYE10-*: 150 89/90 fair 85.4; 175 79/80 fair 77.3; 200 66/67 fair 66.6; 225 53/54 fair 54.3; 250 39/40 fair 41.3; 275 26/27 fair 29.2; 300 17/18 fair 19; 325 10/12 fair 11.4; 350 5/8 fair 6.2
+- [player_stat FULL] YES iff Dalton Kincaid receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFDKINCAID86-*: 2 91/93 fair 42.4; 3 78/80 fair 24.8; 4 63/64 fair 14; 5 40/41 fair 7.6; 6 27/28 fair 4.1; 7 16/17 fair 2.2; 8 8/9 fair 1.1; 9 4/6 fair 0.6; 10 0/4 fair 0.3
+- [player_stat FULL] YES iff Dawson Knox receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFDKNOX88-*: 2 38/39 fair 38.5; 3 15/17 fair 22.2; 4 5/8 fair 12.6; 5 1/4 fair 7
+- [player_stat FULL] YES iff DJ Moore receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFDMOORE2-*: 2 88/90 fair 54.2; 3 74/76 fair 33.1; 4 58/59 fair 18.6; 5 38/39 fair 9.9; 6 24/25 fair 5; 7 14/15 fair 2.4; 8 8/9 fair 1.2; 9 5/6 fair 0.5; 10 0/4 fair 0.2
+- [player_stat FULL] YES iff James Cook III receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFJCOOK4-*: 2 49/50 fair 30.2; 3 24/25 fair 17.8; 4 11/12 fair 10.6; 5 4/5 fair 6.3; 6 0/4 fair 3.8
+- [player_stat FULL] YES iff Keon Coleman receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFKCOLEMAN0-*: 2 46/47 fair 48.1; 3 20/23 fair 28.3; 4 7/10 fair 15.7; 5 2/5 fair 8.3
+- [player_stat FULL] YES iff Khalil Shakir receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFKSHAKIR10-*: 2 88/89 fair 70.1; 3 73/74 fair 48.1; 4 53/55 fair 29.3; 5 35/36 fair 16.2; 6 21/23 fair 8.3; 7 11/14 fair 3.9; 8 5/8 fair 1.8; 9 2/5 fair 0.8; 10 0/4 fair 0.3
+- [player_stat FULL] YES iff Ty Johnson receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-BUFTJOHNSON26-*: 2 51/52 fair 30.8; 3 27/28 fair 17.9; 4 12/13 fair 10.4; 5 4/7 fair 6.1; 6 1/4 fair 3.6
+- [player_stat FULL] YES iff DeMario Douglas receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NEDDOUGLAS3-*: 2 76/78 fair 41.9; 3 54/55 fair 24.5; 4 31/33 fair 13.8; 5 16/19 fair 7.6; 6 7/11 fair 4.1; 7 3/6 fair 2.2; 8 0/4 fair 1.1
+- [player_stat FULL] YES iff Hunter Henry receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NEHHENRY85-*: 2 83/85 fair 51.1; 3 66/67 fair 30.7; 4 43/44 fair 17.1; 5 27/28 fair 9.1; 6 14/17 fair 4.6; 7 7/9 fair 2.3; 8 3/6 fair 1.1; 9 0/4 fair 0.5
+- [player_stat FULL] YES iff Kyle Williams receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NEKWILLIAMS18-*: 1 62/64 fair 56; 2 28/29 fair 31.9; 3 11/12 fair 18.3; 4 0/5 fair 10.5
+- [player_stat FULL] YES iff Mack Hollins receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NEMHOLLINS13-*: 2 86/88 fair 59.8; 3 69/71 fair 37.8; 4 49/50 fair 21.7; 5 32/33 fair 11.5; 6 17/20 fair 5.8; 7 9/11 fair 2.8; 8 4/7 fair 1.3; 9 0/5 fair 0.6
+- [player_stat FULL] YES iff Romeo Doubs receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NERDOUBS87-*: 2 82/84 fair 57; 3 62/64 fair 35.4; 4 42/43 fair 20; 5 26/27 fair 10.6; 6 12/16 fair 5.3; 7 6/9 fair 2.6; 8 2/6 fair 1.2
+- [player_stat FULL] YES iff Rhamondre Stevenson receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NERSTEVENSON38-*: 2 73/75 fair 33.9; 3 50/51 fair 19.8; 4 31/32 fair 11.5; 5 14/17 fair 6.6; 6 6/9 fair 3.8; 7 2/5 fair 2.2
+- [player_stat FULL] YES iff TreVeyon Henderson receptions (FULL) >= X | KXNFLREC-26OCT04NEBUF-NETHENDERSON32-*: 2 40/41 fair 30; 3 15/19 fair 17.6; 4 5/8 fair 10.5; 5 1/4 fair 6.3
+- [player_stat FULL] YES iff Dalton Kincaid receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFDKINCAID86-*: 25 80/81 fair 38.3; 40 62/63 fair 20.5; 50 51/52 fair 13; 60 39/40 fair 8; 70 28/29 fair 4.7; 80 19/20 fair 2.7; 90 14/15 fair 1.6; 100 8/11 fair 1; 110 4/8 fair 0.5; 120 3/6 fair 0.4; 130 2/4 fair 0.2; 140 2/4 fair 0.1
+- [player_stat FULL] YES iff Dawson Knox receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFDKNOX88-*: 15 35/37 fair 39.9; 25 20/21 fair 26.2; 40 6/9 fair 14.3; 50 3/5 fair 9.3
+- [player_stat FULL] YES iff DJ Moore receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFDMOORE2-*: 25 79/81 fair 50.4; 40 62/64 fair 33.4; 50 51/52 fair 24.4; 60 39/40 fair 18.1; 70 28/31 fair 13; 80 20/22 fair 9.1; 90 16/17 fair 6.6; 100 12/13 fair 4.5; 110 7/9 fair 3; 120 5/7 fair 2; 130 3/5 fair 1.4; 140 2/4 fair 0.9
+- [player_stat FULL] YES iff James Cook III receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFJCOOK4-*: 15 32/33 fair 23.3; 25 15/16 fair 13.1; 40 4/6 fair 5.9; 50 2/5 fair 3.6; 60 2/4 fair 2.1
+- [player_stat FULL] YES iff Keon Coleman receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFKCOLEMAN0-*: 15 46/47 fair 59.6; 25 28/29 fair 44; 40 12/13 fair 26; 50 7/9 fair 18.2; 60 3/7 fair 12.1; 70 3/5 fair 8.1
+- [player_stat FULL] YES iff Khalil Shakir receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFKSHAKIR10-*: 15 82/83 fair 80.8; 25 68/70 fair 65.5; 40 46/47 fair 41.9; 50 32/33 fair 29.2; 60 23/24 fair 19.5; 70 15/16 fair 12.3; 80 10/12 fair 7.7; 90 6/9 fair 4.7; 100 3/6 fair 2.6
+- [player_stat FULL] YES iff Ty Johnson receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-BUFTJOHNSON26-*: 15 43/44 fair 25.8; 25 23/24 fair 16.1; 40 10/12 fair 8.3; 50 5/7 fair 5.4; 60 3/5 fair 3.6
+- [player_stat FULL] YES iff DeMario Douglas receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NEDDOUGLAS3-*: 15 72/73 fair 54.9; 25 55/56 fair 37.2; 40 32/33 fair 19.3; 50 22/23 fair 11.9; 60 14/16 fair 7.2; 70 8/11 fair 4.2; 80 5/7 fair 2.4
+- [player_stat FULL] YES iff Hunter Henry receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NEHHENRY85-*: 15 78/79 fair 58.2; 25 60/61 fair 42; 40 36/37 fair 23.8; 50 26/27 fair 16.1; 60 17/18 fair 10.5; 70 11/12 fair 6.7; 80 5/8 fair 4.2; 90 3/6 fair 2.5
+- [player_stat FULL] YES iff Kyle Williams receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NEKWILLIAMS18-*: 15 42/43 fair 38.6; 25 28/29 fair 24.9; 40 13/15 fair 12.9; 50 8/10 fair 8.2; 60 5/8 fair 5.3
+- [player_stat FULL] YES iff Mack Hollins receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NEMHOLLINS13-*: 15 84/85 fair 63.7; 25 71/75 fair 49.9; 40 53/54 fair 32.9; 45 47/48 fair 28.2; 50 40/42 fair 24.1; 60 29/30 fair 17.7; 70 22/23 fair 12.7; 80 14/17 fair 8.8; 90 10/12 fair 6.3; 100 6/9 fair 4.3; 110 4/7 fair 2.9; 120 3/5 fair 2
+- [player_stat FULL] YES iff Romeo Doubs receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NERDOUBS87-*: 15 80/81 fair 63.8; 25 68/70 fair 50.1; 40 50/51 fair 33.1; 50 39/40 fair 24.2; 60 26/27 fair 17.8; 70 18/19 fair 12.8; 80 13/14 fair 8.9; 90 7/10 fair 6.4; 100 5/8 fair 4.3; 110 3/6 fair 2.9
+- [player_stat FULL] YES iff Rhamondre Stevenson receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NERSTEVENSON38-*: 15 56/59 fair 26; 25 35/36 fair 16; 40 15/17 fair 7.9; 50 7/10 fair 5.1; 60 4/7 fair 3.1
+- [player_stat FULL] YES iff TreVeyon Henderson receiving_yards (FULL) >= X | KXNFLRECYDS-26OCT04NEBUF-NETHENDERSON32-*: 5 58/60 fair 36; 15 32/33 fair 15.3; 25 16/17 fair 6.8
+- [player_stat FULL] YES iff James Cook III rush_rec_yards (FULL) >= X | KXNFLRRYDS-26OCT04NEBUF-BUFJCOOK4-*: 100 48/49; 125 27/28; 150 12/14
+- [player_stat FULL] YES iff Ty Johnson rush_rec_yards (FULL) >= X | KXNFLRRYDS-26OCT04NEBUF-BUFTJOHNSON26-*: 20 48/51; 45 0/35; 70 2/7
+- [player_stat FULL] YES iff Rhamondre Stevenson rush_rec_yards (FULL) >= X | KXNFLRRYDS-26OCT04NEBUF-NERSTEVENSON38-*: 50 56/57; 75 26/28; 100 9/12
+- [player_stat FULL] YES iff TreVeyon Henderson rush_rec_yards (FULL) >= X | KXNFLRRYDS-26OCT04NEBUF-NETHENDERSON32-*: 50 52/54; 75 22/26; 100 8/11
+- [player_stat FULL] YES iff Josh Allen carries (FULL) >= X | KXNFLRSHATT-26OCT04NEBUF-BUFJALLEN17-*: 5 84/85 fair 30.2; 8 54/55 fair 19.5; 11 22/23 fair 12.9
+- [player_stat FULL] YES iff James Cook III carries (FULL) >= X | KXNFLRSHATT-26OCT04NEBUF-BUFJCOOK4-*: 15 72/74 fair 24.4; 18 51/52 fair 12.6; 21 28/30 fair 6
+- [player_stat FULL] YES iff Drake Maye carries (FULL) >= X | KXNFLRSHATT-26OCT04NEBUF-NEDMAYE10-*: 3 87/88 fair 39.9; 6 46/47 fair 24.5; 9 13/14 fair 16.1
+- [player_stat FULL] YES iff Rhamondre Stevenson carries (FULL) >= X | KXNFLRSHATT-26OCT04NEBUF-NERSTEVENSON38-*: 6 79/81 fair 49.2; 9 48/49 fair 30.4; 12 19/23 fair 18.1
+- [player_stat FULL] YES iff TreVeyon Henderson carries (FULL) >= X | KXNFLRSHATT-26OCT04NEBUF-NETHENDERSON32-*: 8 70/71 fair 48.1; 11 37/41 fair 29.1; 14 14/17 fair 16.4
+- [player_stat FULL] YES iff Josh Allen rushing_yards (FULL) >= X | KXNFLRSHYDS-26OCT04NEBUF-BUFJALLEN17-*: 15 79/82 fair 69.4; 20 71/74 fair 58; 25 62/63 fair 47.4; 30 51/54 fair 37.4; 40 36/37 fair 21.4; 50 23/24 fair 12; 60 12/15 fair 5.9; 70 7/10 fair 3.2; 80 5/6 fair 2
+- [player_stat FULL] YES iff James Cook III rushing_yards (FULL) >= X | KXNFLRSHYDS-26OCT04NEBUF-BUFJCOOK4-*: 50 82/83 fair 56.9; 60 74/76 fair 44.7; 70 65/66 fair 34; 80 54/55 fair 25; 90 43/44 fair 17.6; 100 36/37 fair 12.1; 110 29/30 fair 8.3; 120 22/24 fair 5.9; 130 15/18 fair 4; 140 11/14 fair 2.6; 150 8/10 fair 1.7; 160 2/8 fair 1; 170 3/6 fair 0.6
+- [player_stat FULL] YES iff Ty Johnson rushing_yards (FULL) >= X | KXNFLRSHYDS-26OCT04NEBUF-BUFTJOHNSON26-*: 5 49/51 fair 53.6; 10 29/32 fair 42.8; 15 19/20 fair 35.3; 20 9/13 fair 28.3; 25 8/10 fair 23.1; 30 5/7 fair 19.3
+- [player_stat FULL] YES iff Drake Maye rushing_yards (FULL) >= X | KXNFLRSHYDS-26OCT04NEBUF-NEDMAYE10-*: 10 83/86 fair 77.3; 15 73/75 fair 65.2; 20 63/66 fair 53.5; 25 52/53 fair 41.3; 30 42/43 fair 31.3; 40 25/27 fair 16.1; 50 14/17 fair 7.9; 60 8/10 fair 4.2; 70 4/8 fair 2.1
+- [player_stat FULL] YES iff Rhamondre Stevenson rushing_yards (FULL) >= X | KXNFLRSHYDS-26OCT04NEBUF-NERSTEVENSON38-*: 15 79/82 fair 76.7; 20 71/76 fair 68.3; 25 61/65 fair 59.8; 30 54/55 fair 52.6; 40 36/39 fair 38.7; 50 25/27 fair 26; 60 15/17 fair 17.9; 70 8/12 fair 12.1; 80 6/8 fair 7.7; 90 5/6 fair 5.2
+- [player_stat FULL] YES iff TreVeyon Henderson rushing_yards (FULL) >= X | KXNFLRSHYDS-26OCT04NEBUF-NETHENDERSON32-*: 20 79/82 fair 75; 25 71/75 fair 68; 30 63/64 fair 60.8; 40 50/51 fair 49; 50 33/35 fair 38.2; 60 23/26 fair 27.7; 70 13/17 fair 20.5; 80 9/12 fair 15; 90 5/9 fair 10.7; 100 3/6 fair 7.5
+- [player_stat FULL] YES iff BUF Bills D/ST touchdowns (FULL) >= 1.0 (and like it) | KXNFLTD-26OCT04NEBUF-*: BUFBUFDST-1 BUF Bills D/ST 12/14; NENEDST-1 NE Patriots D/ST 12/13; BUFJHAWES85-1 Jackson Hawes 6/7 fair 7.7; BUFSBELL13-1 Skyler Bell 7/8 fair 8.4; NEECHISM86-1 Efton Chism III 4/5 fair 5.2
+- [player_stat FULL] YES iff Dalton Kincaid touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFDKINCAID86-*: 1 35/36 fair 15.4; 2 6/7 fair 1.1; 3 0/1 fair 0.1
+- [player_stat FULL] YES iff Dawson Knox touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFDKNOX88-*: 1 14/15 fair 13.9; 2 1/2 fair 1
+- [player_stat FULL] YES iff DJ Moore touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFDMOORE2-*: 1 36/37 fair 21; 2 7/8 fair 2; 3 1/2 fair 0.1
+- [player_stat FULL] YES iff Josh Allen touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFJALLEN17-*: 1 51/52 fair 44.3; 2 16/17 fair 4.4; 3 3/4 fair 0.3
+- [player_stat FULL] YES iff James Cook III touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFJCOOK4-*: 1 53/54 fair 39.9; 2 16/17 fair 10; 3 3/4 fair 1.8
+- [player_stat FULL] YES iff Joshua Palmer touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFJPALMER5-*: 1 11/12 fair 12.4; 2 1/2 fair 0.8
+- [player_stat FULL] YES iff Keon Coleman touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFKCOLEMAN0-*: 1 17/18 fair 16.2; 2 2/3 fair 1.3
+- [player_stat FULL] YES iff Khalil Shakir touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFKSHAKIR10-*: 1 26/27 fair 20.4; 2 3/5 fair 1.6; 3 0/1 fair 0.1
+- [player_stat FULL] YES iff Ty Johnson touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-BUFTJOHNSON26-*: 1 14/15 fair 17.8; 2 1/2 fair 2.2
+- [player_stat FULL] YES iff DeMario Douglas touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NEDDOUGLAS3-*: 1 17/19 fair 9.3; 2 2/3 fair 0.5
+- [player_stat FULL] YES iff Drake Maye touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NEDMAYE10-*: 1 15/16 fair 28.7; 2 1/2 fair 1.5
+- [player_stat FULL] YES iff Hunter Henry touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NEHHENRY85-*: 1 25/26 fair 14.4; 2 3/4 fair 0.8
+- [player_stat FULL] YES iff Kyle Williams touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NEKWILLIAMS18-*: 1 9/10 fair 7.7; 2 0/1 fair 0.4
+- [player_stat FULL] YES iff Mack Hollins touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NEMHOLLINS13-*: 1 23/24 fair 12.9; 2 3/4 fair 0.7
+- [player_stat FULL] YES iff Romeo Doubs touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NERDOUBS87-*: 1 22/23 fair 13.5; 2 3/4 fair 0.8
+- [player_stat FULL] YES iff Rhamondre Stevenson touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NERSTEVENSON38-*: 1 34/35 fair 22.1; 2 7/8 fair 3.1; 3 1/2 fair 0.3
+- [player_stat FULL] YES iff TreVeyon Henderson touchdowns (FULL) >= X | KXNFLTD-26OCT04NEBUF-NETHENDERSON32-*: 1 30/31 fair 25.2; 2 5/6 fair 3.8; 3 0/1 fair 0.4
+- [race_to_n FULL] YES iff BUF race (FULL) event X | KXNFLRACE-26OCT04NEBUF-*: 10 10-BUF 50/67; 14 14-BUF 33/74; 21 21-BUF 44/71; 28 28-BUF 13/55; 35 35-BUF 23/30
+- [race_to_n FULL] YES iff NE race (FULL) event X | KXNFLRACE-26OCT04NEBUF-*: 10 10-NE 25/39; 14 14-NE 16/43; 21 21-NE 10/37; 28 28-NE 13/25; 35 35-NE 5/12
+- [race_to_n FULL] YES iff race (FULL) event X | KXNFLRACE-26OCT04NEBUF-*: 10 10-NONE 0/7; 14 14-NONE 3/26; 21 21-NONE 1/35; 28 28-NONE 7/65; 35 35-NONE 50/76
+- [spread 1H] YES iff BUF margin (1H) > X | KXNFL1HSPREAD-26OCT04NEBUF-*: 2.5 BUF3 60/62; 3.5 BUF4 54/55; 4.5 BUF5 48/49; 6.5 BUF7 43/45; 7.5 BUF8 35/37; 9.5 BUF10 31/32; 10.5 BUF11 26/27; 13.5 BUF14 19/20
+- [spread 1H] YES iff NE margin (1H) > X | KXNFL1HSPREAD-26OCT04NEBUF-*: 2.5 NE3 24/25; 3.5 NE4 19/21; 4.5 NE5 16/17; 6.5 NE7 13/15; 7.5 NE8 10/12; 9.5 NE10 7/8; 10.5 NE11 6/8
+- [spread 1Q] YES iff BUF margin (1Q) > X | KXNFL1QSPREAD-26OCT04NEBUF-*: 1.5 BUF2 50/51; 2.5 BUF3 50/51; 3.5 BUF4 41/43; 6.5 BUF7 30/32; 7.5 BUF8 12/17; 10.5 BUF11 8/10
+- [spread 1Q] YES iff NE margin (1Q) > X | KXNFL1QSPREAD-26OCT04NEBUF-*: 2.5 NE3 25/27; 3.5 NE4 18/19; 6.5 NE7 12/15; 7.5 NE8 4/7; 10.5 NE11 1/5
+- [spread 2H] YES iff BUF margin (2H) > X | KXNFL2HSPREAD-26OCT04NEBUF-*: 2.5 BUF3 53/56; 3.5 BUF4 47/49; 4.5 BUF5 41/44; 6.5 BUF7 36/37; 7.5 BUF8 28/31; 9.5 BUF10 24/26; 10.5 BUF11 18/21; 13.5 BUF14 11/14
+- [spread 2H] YES iff NE margin (2H) > X | KXNFL2HSPREAD-26OCT04NEBUF-*: 2.5 NE3 26/28; 3.5 NE4 21/24; 4.5 NE5 18/21; 6.5 NE7 13/16; 7.5 NE8 9/13; 9.5 NE10 7/10; 10.5 NE11 5/7
+- [spread 2Q] YES iff BUF margin (2Q) > X | KXNFL2QSPREAD-26OCT04NEBUF-*: 2.5 BUF3 51/52; 3.5 BUF4 43/46; 6.5 BUF7 32/35; 7.5 BUF8 21/26; 10.5 BUF11 14/17
+- [spread 2Q] YES iff NE margin (2Q) > X | KXNFL2QSPREAD-26OCT04NEBUF-*: 2.5 NE3 26/28; 3.5 NE4 19/21; 6.5 NE7 13/16; 7.5 NE8 8/11; 10.5 NE11 3/7
+- [spread 3Q] YES iff BUF margin (3Q) > X | KXNFL3QSPREAD-26OCT04NEBUF-*: 1.5 BUF2 46/47; 2.5 BUF3 46/49; 3.5 BUF4 36/40; 6.5 BUF7 27/29; 7.5 BUF8 13/17; 10.5 BUF11 8/11
+- [spread 3Q] YES iff NE margin (3Q) > X | KXNFL3QSPREAD-26OCT04NEBUF-*: 2.5 NE3 26/30; 3.5 NE4 19/24; 6.5 NE7 13/15; 7.5 NE8 4/9; 10.5 NE11 1/6
+- [spread 4Q] YES iff BUF margin (4Q) > X | KXNFL4QSPREAD-26OCT04NEBUF-*: 1.5 BUF2 48/50; 2.5 BUF3 45/48; 3.5 BUF4 36/40; 6.5 BUF7 27/29; 7.5 BUF8 15/20; 10.5 BUF11 8/12
+- [spread 4Q] YES iff NE margin (4Q) > X | KXNFL4QSPREAD-26OCT04NEBUF-*: 2.5 NE3 28/32; 3.5 NE4 22/27; 6.5 NE7 14/16; 7.5 NE8 8/11; 10.5 NE11 3/7
+- [spread FULL] YES iff BUF margin (FULL) > X | KXNFLSPREAD-26OCT04NEBUF-*: 1.5 BUF2 71/72 fair 71.6; 2.5 BUF3 69/70 fair 67.7; 3.5 BUF4 61/62 fair 63.1; 4.5 BUF5 58/59 fair 59.1; 5.5 BUF6 56/57 fair 56.3; 6.5 BUF7 52/53 fair 52.6; 7.5 BUF8 44/45 fair 48; 9.5 BUF10 40/41 fair 39.7; 10.5 BUF11 36/37 fair 37.1; 13.5 BUF14 30/31 fair 27.9; 14.5 BUF15 26/27 fair 25.4; 16.5 BUF17 23/24 fair 20.9; 17.5 BUF18 20/21 fair 18.4; 20.5 BUF21 16/17 fair 12.9; 23.5 BUF24 11/12 fair 8.6; 27.5 BUF28 7/8 fair 5.7
+- [spread FULL] YES iff NE margin (FULL) > X | KXNFLSPREAD-26OCT04NEBUF-*: 1.5 NE2 22/24 fair 23.6; 2.5 NE3 21/22 fair 20.2; 3.5 NE4 17/18 fair 17.7; 4.5 NE5 15/16 fair 15.9; 5.5 NE6 14/15 fair 14.1; 6.5 NE7 11/12 fair 12.1; 7.5 NE8 9/10 fair 11.7; 9.5 NE10 7/8 fair 10.2; 10.5 NE11 5/7 fair 9.6; 13.5 NE14 4/5 fair 6.3; 14.5 NE15 3/4 fair 4.9
+- [team_stat FULL] YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) (and like it) | KXNFLTEAMSACK-26OCT04NEBUF-*: BUF2 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 20/97; BUF3 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 64/88; BUF4 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 36/95; BUF5 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 15/95; BUF6 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE2 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE3 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE4 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE5 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/20; NE6 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95
+- [team_stat FULL] YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) (and like it) | KXNFLTEAMYDS-26OCT04NEBUF-*: BUF250 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 3/95; BUF300 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; BUF350 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; BUF400 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; BUF450 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE250 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE300 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE350 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE400 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95; NE450 YES iff team stat >= K (touchdowns, field goals, sacks, yards) (FULL) 0/95
+- [team_total 1H] YES iff BUF team_points (1H) >= X | KXNFL1HTEAMTOTAL-26OCT04NEBUF-*: 3 BUF3 96/99; 7 BUF7 88/92; 10 BUF10 78/82; 14 BUF14 58/60; 15 BUF15 45/49; 17 BUF17 42/46; 20 BUF20 27/32; 21 BUF21 22/27; 24 BUF24 11/16; 28 BUF28 0/9; 31 BUF31 0/5
+- [team_total 1H] YES iff NE team_points (1H) >= X | KXNFL1HTEAMTOTAL-26OCT04NEBUF-*: 3 NE3 91/94; 7 NE7 72/77; 10 NE10 55/56; 14 NE14 29/34; 17 NE17 17/22; 20 NE20 8/13; 21 NE21 0/10; 24 NE24 0/6; 28 NE28 0/3; 31 NE31 0/3
+- [team_total FULL] YES iff BUF team_points (FULL) >= X | KXNFLTEAMTOTAL-26OCT04NEBUF-*: 4 BUF4 99/100 fair 100; 8 BUF8 97/99 fair 99.1; 11 BUF11 95/96 fair 98.7; 15 BUF15 93/94 fair 95.6; 18 BUF18 88/89 fair 90.4; 21 BUF21 80/82 fair 84.6; 22 BUF22 78/80 fair 80.1; 25 BUF25 66/67 fair 67.7; 28 BUF28 57/58 fair 54.8; 29 BUF29 51/52 fair 50.1; 32 BUF32 37/39 fair 37.7; 36 BUF36 23/24 fair 22.8; 39 BUF39 13/14 fair 12.9; 43 BUF43 5/9 fair 7.1
+- [team_total FULL] YES iff NE team_points (FULL) >= X | KXNFLTEAMTOTAL-26OCT04NEBUF-*: 4 NE4 96/97 fair 98.6; 8 NE8 92/93 fair 94.1; 11 NE11 86/88 fair 90.4; 15 NE15 75/78 fair 80.6; 18 NE18 62/65 fair 67.6; 21 NE21 53/54 fair 54.2; 22 NE22 46/47 fair 49.7; 25 NE25 34/35 fair 38.5; 29 NE29 20/22 fair 25.3; 32 NE32 12/15 fair 16.7; 36 NE36 5/9 fair 7.5; 39 NE39 2/5 fair 4.3; 43 NE43 0/4 fair 1.4
+- [total 1H] YES iff total_points (1H) >= X | KXNFL1HTOTAL-26OCT04NEBUF-*: 4 98/99; 8 97/98; 11 93/94; 15 88/89; 18 77/79; 21 66/67; 22 63/66; 24 56/57; 25 47/48; 29 35/36; 32 22/24; 36 13/14; 39 7/8; 43 3/6
+- [total 1Q] YES iff total_points (1Q) >= X | KXNFL1QTOTAL-26OCT04NEBUF-*: 4 81/82; 7 73/76; 8 55/57; 11 37/38; 14 30/32; 15 15/18; 18 8/9; 21 6/9; 22 2/5; 25 1/3
+- [total 2H] YES iff total_points (2H) >= X | KXNFL2HTOTAL-26OCT04NEBUF-*: 4 98/99; 8 96/97; 11 92/95; 15 85/86; 18 75/76; 21 65/66; 22 61/62; 24 54/55; 25 48/49; 29 33/34; 32 23/25; 36 13/14; 39 8/11; 43 4/7
+- [total 2Q] YES iff total_points (2Q) >= X | KXNFL2QTOTAL-26OCT04NEBUF-*: 4 93/96; 7 89/91; 8 84/87; 11 69/71; 14 57/58; 15 49/51; 18 31/34; 21 22/25; 22 16/20; 25 8/12
+- [total 3Q] YES iff total_points (3Q) >= X | KXNFL3QTOTAL-26OCT04NEBUF-*: 4 81/85; 7 75/77; 8 59/61; 11 41/43; 14 33/35; 15 20/22; 18 11/14; 21 7/11; 22 3/6; 25 1/4
+- [total 4Q] YES iff total_points (4Q) >= X | KXNFL4QTOTAL-26OCT04NEBUF-*: 4 85/93; 7 84/89; 8 76/80; 11 62/66; 14 53/54; 15 42/44; 18 28/32; 21 20/24; 22 15/19; 25 8/12
+- [total FULL] YES iff total_points (FULL) >= X | KXNFLTOTAL-26OCT04NEBUF-*: 28 95/97 fair 97.3; 31 93/95 fair 95.1; 34 89/90 fair 92.8; 37 86/87 fair 88.4; 40 80/81 fair 82.1; 43 72/73 fair 73.9; 46 63/64 fair 65.3; 47 61/62 fair 62.5; 48 58/59 fair 58.9; 49 55/56 fair 55.1; 50 52/53 fair 52.3; 51 48/49 fair 50; 52 44/45 fair 47.3; 55 37/38 fair 38.7; 58 29/30 fair 30.7; 61 21/22 fair 22.6; 64 15/17 fair 16.2; 67 12/13 fair 11.9; 70 8/9 fair 8.3
+- [win_margin_bucket FULL] YES iff lo <= team margin <= hi (inclusive; 15+ open above); TIE leg iff margin == 0 (FULL) [subject: BUF] (and like it) | KXNFLWINMARGIN-26OCT04NEBUF-*: BUF15PLUS [subject: BUF] 24/28; BUF1TO6 [subject: BUF] 18/22; BUF7TO14 [subject: BUF] 23/26; NE15PLUS [subject: NE] 3/5; NE1TO6 [subject: NE] 12/15; NE7TO14 [subject: NE] 8/9; TIE YES iff lo <= team margin <= hi (inclusive; 15+ open above); TIE leg iff margin == 0 (FULL) 0/1
+
+MODEL EVIDENCE: 432 model prices (432 from shadow-0.4.0 (RESEARCH/RESEARCH_ONLY)); newest 2026-10-04T00:41:09Z, FRESH. Shown as 'fair' on each market line.
+
+BUDGET: recent series points reduced to 3 per series; observations capped at 24 per entity; recent series points omitted; observations capped at 8 per player (tray items kept); observations capped at 12 per entity (tray items kept); over budget: every market in scope was kept

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sift</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // GitHub Pages serves this for any unknown path. Sift routes live in the hash, so a path-style link
+      // (…/sift-sports-intelligence/nfl/game/evt_x) is rewritten to …/sift-sports-intelligence/#/nfl/game/evt_x.
+      (function () {
+        var base = '/sift-sports-intelligence/';
+        var p = location.pathname;
+        var rest = p.indexOf(base) === 0 ? p.slice(base.length) : p.replace(/^\//, '');
+        location.replace(base + '#/' + rest + location.search);
+      })();
+    </script>
+    <style>body{background:#05070d;color:#c6d0e8;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}</style>
+  </head>
+  <body><p>Opening Sift…</p></body>
+</html>

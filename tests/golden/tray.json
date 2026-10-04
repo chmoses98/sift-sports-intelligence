@@ -1,0 +1,98 @@
+{
+ "items": [
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": null,
+   "id": "prt_38f80e30c7c786aaf5b4",
+   "item_id": "try_178f37e3b33838ca3716",
+   "note": null,
+   "ref_kind": "TEAM",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": null,
+   "id": "prt_06ec4b4943c66094d6f3",
+   "item_id": "try_0fdb834345b8676d8e0e",
+   "note": "QB1 volume",
+   "ref_kind": "PLAYER",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": null,
+   "id": "met_nfl.adj_def_db_epa",
+   "item_id": "try_31d8955ac7b6e3545ad2",
+   "note": null,
+   "ref_kind": "METRIC",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": null,
+   "id": "rnk_e3485aaecabb0ec363a8",
+   "item_id": "try_7fbafd128b90168c4c35",
+   "note": null,
+   "ref_kind": "RANKING",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": {
+    "event_id": "evt_780194e99af90d4591be",
+    "market_id": null,
+    "metric_id": "met_nfl.points_for",
+    "series_id": "ser_5d929caa6fd3007597f9",
+    "x": "2026_03_LAC_BUF"
+   },
+   "id": "ser_5d929caa6fd3007597f9",
+   "item_id": "try_6cbbf2278071912d2ea6",
+   "note": null,
+   "ref_kind": "CHART_POINT",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": {
+    "event_id": "evt_0cb333291f580a201a70",
+    "market_id": "mkt_kalshi_KXNFLPASSATT-26OCT04NEBUF-BUFJALLEN17-30",
+    "metric_id": null,
+    "series_id": null,
+    "x": null
+   },
+   "id": "mkt_kalshi_KXNFLPASSATT-26OCT04NEBUF-BUFJALLEN17-30",
+   "item_id": "try_8313cf5fcd0b0f7c30f4",
+   "note": null,
+   "ref_kind": "MARKET",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": {
+    "event_id": "evt_0cb333291f580a201a70",
+    "market_id": "mkt_kalshi_KXNFLPASSATT-26OCT04NEBUF-BUFJALLEN17-30",
+    "metric_id": null,
+    "series_id": null,
+    "x": null
+   },
+   "id": "mp_7912eb890de7758fc1de",
+   "item_id": "try_b273d867a1502a255ab1",
+   "note": null,
+   "ref_kind": "PROJECTION",
+   "sport": "NFL"
+  },
+  {
+   "added_at": "2026-10-04T00:50:00Z",
+   "extra": null,
+   "id": "evt_00000000000000000000",
+   "item_id": "try_3a35486f16c4acdfb9df",
+   "note": null,
+   "ref_kind": "EVENT",
+   "sport": "NFL"
+  }
+ ],
+ "kind": "research_tray",
+ "schema_version": "edge_finder.app.v1",
+ "tray_version": "1.0.0",
+ "updated_at": "2026-10-04T00:50:00Z"
+}

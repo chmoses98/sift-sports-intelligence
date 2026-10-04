@@ -49,6 +49,14 @@ export function worstQuote(states: QuoteFreshness[]): QuoteFreshness {
   return states.reduce<QuoteFreshness>((a, b) => (ORDER[b] > ORDER[a] ? b : a), states.length ? 'FRESH' : 'UNKNOWN');
 }
 
+/**
+ * An observation time as ISO 8601 to the second, rounded DOWN: a quote is never stamped younger than
+ * it is, and packet rows share the publication's timestamp style (no milliseconds).
+ */
+export function isoSeconds(ms: number): string {
+  return new Date(Math.floor(ms / 1000) * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
 /** "3m", "34m", "2h 05m": an age for a chip, never rounded down into a younger bucket. */
 export function formatQuoteAge(ageMs: number | null): string {
   if (ageMs == null) return 'no timestamp';

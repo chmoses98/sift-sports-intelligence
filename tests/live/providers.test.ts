@@ -66,7 +66,7 @@ describe('KalshiApiProvider (through the relay)', () => {
     expect(seen[0].url).toBe('https://relay.example/kalshi/markets?tickers=KXNFLGAME-26OCT12BUFLAR-LAR,KXNFLGAME-26OCT12BUFLAR-GONE&limit=1000');
     expect(seen[0].init?.cache).toBe('no-store');
     expect(seen[0].init?.headers).toBeUndefined();
-    expect(r.quotes[0].observedAt).toBe(OBS);
+    expect(r.quotes[0].observedAt).toBe('2026-10-04T15:21:32Z'); // second precision, rounded down
     expect(r.missing).toEqual(['KXNFLGAME-26OCT12BUFLAR-GONE']);
   });
 

@@ -9,6 +9,7 @@
 //
 //   GET {base}/markets?tickers=A,B,...   up to 100 tickers (250 -> HTTP 414, URL too long)
 //   GET {base}/markets?event_ticker=E    one event per request (a comma list returns 0 markets)
+import { isoSeconds } from '../freshness';
 import { normalizeKalshiMarket } from '../normalize';
 import { ProviderError, type LiveQuote, type ProviderResult, type QuoteProvider } from '../types';
 
@@ -91,7 +92,7 @@ export class KalshiApiProvider implements QuoteProvider {
     // The relay stamps Kalshi's own response time (Date minus Age) and exposes it; otherwise the
     // moment this device received the answer is the observation time.
     const stamped = res.headers.get('x-sift-observed-at');
-    const observedAt = stamped && !Number.isNaN(Date.parse(stamped)) ? new Date(stamped).toISOString() : new Date(this.now()).toISOString();
+    const observedAt = isoSeconds(stamped && !Number.isNaN(Date.parse(stamped)) ? Date.parse(stamped) : this.now());
     const cursor = (body as { cursor?: unknown }).cursor;
     return { markets: markets as Record<string, unknown>[], cursor: typeof cursor === 'string' && cursor ? cursor : null, observedAt };
   }

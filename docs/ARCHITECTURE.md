@@ -294,6 +294,10 @@ Pages origin. The live-quote feed workflow is itself a real read every 5 minutes
 * `.github/workflows/live-quotes.yml` — every 5 minutes: the market clock's quote feed (no deploy).
 * `.github/workflows/live-provider-smoke.yml` — every 6 hours: non-blocking real-provider probe.
 * `.github/workflows/visual-baselines.yml` — on demand: render visual baselines on CI runners.
+* `.github/workflows/production-check.yml` — after every deploy (and on demand): the **live** site in real
+  Chromium (phone) and WebKit (iPhone) with live quotes from the feed, no fixtures: game prices live and
+  FRESH/AGING, live-quote status running, packet preflight PASS/PARTIAL, no page or console errors
+  (`scripts/production-check.mjs`).
 * `.github/workflows/deploy.yml` — on push to `main`, every 3 hours and on demand: runs the full CI suite,
   rebuilds the NFL snapshot (no-op once NFL publishes its own explorer), builds with base
   `/sift-sports-intelligence/` (and `VITE_SIFT_QUOTE_RELAY_URL` from the optional repository variable),

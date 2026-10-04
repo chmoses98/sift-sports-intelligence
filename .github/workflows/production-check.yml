@@ -1,0 +1,34 @@
+name: Production check
+
+# After every Pages deploy (and on demand): the live site, in real Chromium and WebKit, with live quotes
+# from the feed — no fixtures. Read-only. A failure here means production differs from what CI proved.
+on:
+  workflow_run:
+    workflows: ['Deploy to GitHub Pages']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Check the live site (Chromium phone + WebKit iPhone)
+        run: node scripts/production-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-check
+          path: production-*.png
+          retention-days: 14

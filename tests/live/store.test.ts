@@ -290,3 +290,34 @@ describe('persistence', () => {
     expect(reloaded.quote(A)?.yesBid).toBe(0.46);
   });
 });
+
+describe('source mode: LIVE when the relay answers, FEED when the fallback does', () => {
+  it('reports the answering provider, the mode and the relay failure behind a feed answer', async () => {
+    const { FallbackProvider } = await import('../../src/live/providers/fallback');
+    const { liveMode } = await import('../../src/components/LiveQuote');
+    const clock = new FakeClock();
+    const relay = new FakeProvider(clock);
+    relay.prices.set(A, 0.51);
+    const feed = new FakeProvider(clock);
+    feed.prices.set(A, 0.5);
+    Object.defineProperty(relay, 'id', { value: 'kalshi-relay' });
+    Object.defineProperty(feed, 'id', { value: 'quote-feed' });
+    store = new QuoteStore({ provider: new FallbackProvider([relay, feed]), now: clock.now, timers: clock, env: new FakeEnv(), persistence: null, random: () => 0.5 });
+    store.addScope({ tickers: [A], cadence: 'detail' });
+    await clock.advance(0);
+    let d = store.diagnostics();
+    expect([d.answeredBy, liveMode(d, clock.now()), d.fallback]).toEqual(['kalshi-relay', 'LIVE', null]);
+
+    relay.failWith = new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429, 7000);
+    await clock.advance(CADENCE_MS.detail);
+    d = store.diagnostics();
+    expect([d.answeredBy, liveMode(d, clock.now())]).toEqual(['quote-feed', 'FEED']);
+    expect(d.fallback).toMatchObject({ provider: 'kalshi-relay', status: 429 });
+    expect(store.quote(A)?.yesBid).toBe(0.5);
+
+    relay.failWith = null;
+    await clock.advance(CADENCE_MS.detail);
+    d = store.diagnostics();
+    expect([d.answeredBy, liveMode(d, clock.now()), d.fallback]).toEqual(['kalshi-relay', 'LIVE', null]);
+  });
+});

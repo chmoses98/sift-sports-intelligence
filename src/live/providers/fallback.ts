@@ -2,6 +2,11 @@
 // per ticker, so a slower fallback can never overwrite a fresher quote.
 import { ProviderError, type ProviderResult, type QuoteProvider } from '../types';
 
+function describe(provider: string, e: unknown) {
+  const pe = e instanceof ProviderError ? e : null;
+  return { provider, error: pe ? `${pe.kind}: ${pe.message}` : String(e), status: pe?.status ?? null, at: Date.now() };
+}
+
 export class FallbackProvider implements QuoteProvider {
   readonly id: string;
   readonly label: string;
@@ -9,6 +14,8 @@ export class FallbackProvider implements QuoteProvider {
   readonly minIntervalMs: number;
   /** Which provider answered the last call (diagnostics). */
   lastAnswered: string | null = null;
+  /** Why the last call skipped the primary (e.g. its HTTP 429), or null when the primary answered. */
+  lastFallback: { provider: string; error: string; status: number | null; at: number } | null = null;
 
   constructor(private providers: (QuoteProvider & { minIntervalMs?: number })[]) {
     if (!providers.length) throw new Error('FallbackProvider needs at least one provider');
@@ -25,6 +32,8 @@ export class FallbackProvider implements QuoteProvider {
       try {
         const r = await call(p);
         this.lastAnswered = p.id;
+        // A fallback answer never hides the primary's failure: keep it, with its status, for diagnostics.
+        this.lastFallback = first === null ? null : describe(this.providers[0].id, first);
         return r;
       } catch (e) {
         if (e instanceof ProviderError && e.kind === 'aborted') throw e;

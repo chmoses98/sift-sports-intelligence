@@ -33,6 +33,17 @@ beforeEach(() => {
 afterEach(() => cleanup());
 afterAll(() => setLiveStore(new QuoteStore({ provider: null, persistence: null })));
 
+/**
+ * Wait for the market clock's first answer. The screen registers its quote scope in an effect that can
+ * land after a single clock.advance(0) on a slow runner, leaving the immediate fetch queued on the fake
+ * clock; so each retry runs the clock's due timers again (never moving time forward).
+ */
+const onClock = (assertion: () => void) =>
+  waitFor(async () => {
+    await act(() => clock.advance(0));
+    assertion();
+  });
+
 const priceCell = () => screen.getByText('YES bid / ask').parentElement!.querySelector('.px__v')!.textContent;
 
 describe('market detail on the market clock', () => {
@@ -40,8 +51,7 @@ describe('market detail on the market clock', () => {
     provider.prices.set(ML.kalshi_ticker, 0.46);
     const { router } = renderScreen(routes.market('nfl', ML.market_id, GAME), '/nfl/market/:marketId', <MarketView />);
     await screen.findByText('YES pays $1 if');
-    await act(() => clock.advance(0));
-    await waitFor(() => expect(priceCell()).toBe('46¢ / 48¢'));
+    await onClock(() => expect(priceCell()).toBe('46¢ / 48¢'));
     expect(document.querySelector('[data-quote-source="live"]')).not.toBeNull();
 
     provider.prices.set(ML.kalshi_ticker, 0.51);
@@ -75,8 +85,7 @@ describe('market detail on the market clock', () => {
     provider.status.set(ML.kalshi_ticker, 'SUSPENDED');
     renderScreen(routes.market('nfl', ML.market_id, GAME), '/nfl/market/:marketId', <MarketView />);
     await screen.findByText('YES pays $1 if');
-    await act(() => clock.advance(0));
-    await waitFor(() => expect(document.querySelector('.qchip')!.getAttribute('data-quote-state')).toBe('SUSPENDED:FRESH'));
+    await onClock(() => expect(document.querySelector('.qchip')!.getAttribute('data-quote-state')).toBe('SUSPENDED:FRESH'));
     expect(document.querySelector('.qchip')!.textContent).toMatch(/SUSPENDED · quote \d+s old/);
   });
 });

@@ -236,6 +236,7 @@ export function LiveStatusChip({ now }: { now: number }) {
         <span className="pv__row"><span>Provider</span><b>{d.providerLabel}</b></span>
         <span className="pv__row"><span>Last success</span><b>{d.lastSuccessAt ? `${formatQuoteAge(now - d.lastSuccessAt)} ago` : 'never'}</b></span>
         {d.lastError && <span className="pv__row"><span>Last error</span><b>{d.lastError}</b></span>}
+        {mode === 'FEED' && d.fallback && <span className="pv__row"><span>Relay skipped</span><b>{d.fallback.status ? `HTTP ${d.fallback.status}` : d.fallback.error}</b></span>}
         <span className="pv__note">Market quotes run on their own clock, separate from the research publication. Details: Data & provenance.</span>
       </span>
     </Popover>

@@ -15,7 +15,7 @@ jobs:
   check:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,3 +37,28 @@ jobs:
           name: production-check
           path: production-*.png
           retention-days: 14
+
+  # Measured rate-limit evidence from the configured relay, after the browser check (never overlapping it).
+  relay-smoke:
+    needs: check
+    if: always() && vars.SIFT_QUOTE_RELAY_URL != '' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Measure the relay (1 · 10 sequential · 20 burst · 100-ticker batches · 3-game cycle)
+        run: node scripts/relay-smoke.mjs
+        env:
+          RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
+      # Control: the same pattern straight to Kalshi from this runner (no Origin), so a 429 can be
+      # attributed to the relay's host network or to Kalshi itself. Recorded, never fails the run.
+      - name: Control — Kalshi directly from this runner
+        if: always()
+        run: node scripts/relay-smoke.mjs
+        env:
+          RELAY_URL: https://api.elections.kalshi.com/trade-api/v2
+          DIRECT: '1'
+          ALLOW_FAIL: '1'

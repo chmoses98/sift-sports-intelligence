@@ -1,0 +1,48 @@
+name: Relay smoke
+
+# Measured rate-limit evidence for a quote relay (or Kalshi directly, as a control), from a GitHub
+# runner: 1 request, 10 sequential, a 20-request burst, 100-ticker batches and a realistic 3-game
+# refresh cycle. Read-only public market data. Also runs after every production check (see
+# production-check.yml) against the configured SIFT_QUOTE_RELAY_URL.
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Relay base URL (empty = the SIFT_QUOTE_RELAY_URL repository variable)'
+        required: false
+        default: ''
+      direct:
+        description: 'The URL is Kalshi itself (control run: no Origin header)'
+        type: boolean
+        default: false
+      probe:
+        description: 'Instead: measure Kalshi''s own per-IP rate limit from this runner (scripts/kalshi-rate-probe.mjs, ~3 min)'
+        type: boolean
+        default: false
+      allow_fail:
+        description: 'Record non-200 answers without failing (baseline of a host already known to be throttled)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Measure Kalshi's per-IP rate limit
+        if: inputs.probe
+        run: node scripts/kalshi-rate-probe.mjs
+      - name: Measure the relay
+        if: ${{ !inputs.probe }}
+        run: node scripts/relay-smoke.mjs
+        env:
+          RELAY_URL: ${{ inputs.url != '' && inputs.url || vars.SIFT_QUOTE_RELAY_URL }}
+          DIRECT: ${{ inputs.direct && '1' || '0' }}
+          ALLOW_FAIL: ${{ inputs.allow_fail && '1' || '0' }}

@@ -90,6 +90,8 @@ export interface Diagnostics {
   provider: string;
   providerLabel: string;
   answeredBy: string | null;
+  /** The primary provider's failure when a fallback answered the last call (e.g. relay HTTP 429). */
+  fallback: { provider: string; error: string; status: number | null; at: number } | null;
   requests: number;
   batches: number;
   tickersRequested: number;
@@ -198,7 +200,7 @@ export class QuoteStore {
   private persistence: Persistence | null;
   private random: () => number;
   private backoff = { failures: 0, until: 0, reason: null as string | null, rateLimited: false };
-  private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'answeredBy'> = {
+  private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'answeredBy' | 'fallback'> = {
     requests: 0, batches: 0, tickersRequested: 0, tickersRefreshed: 0, tickersFailed: 0, tickersMissing: 0,
     lastRequestAt: null, lastSuccessAt: null, lastErrorAt: null, lastError: null, lastLatencyMs: null,
   };
@@ -263,12 +265,14 @@ export class QuoteStore {
       s.tickers.forEach((t) => tickers.add(t));
       s.events.forEach((e) => events.add(e));
     }
-    const answered = (this.provider as { lastAnswered?: string | null } | null)?.lastAnswered ?? null;
+    const chain = this.provider as { lastAnswered?: string | null; lastFallback?: Diagnostics['fallback'] } | null;
+    const answered = chain?.lastAnswered ?? null;
     return {
       ...this.diag,
       provider: this.provider?.id ?? 'none',
       providerLabel: this.provider?.label ?? 'No live provider configured',
       answeredBy: answered ?? (this.diag.lastSuccessAt ? this.provider?.id ?? null : null),
+      fallback: chain?.lastFallback ?? null,
       backoffUntil: this.backoff.until > this.now() ? this.backoff.until : null,
       backoffReason: this.backoff.until > this.now() ? this.backoff.reason : null,
       consecutiveFailures: this.backoff.failures,

@@ -1,3 +1,376 @@
 {
-  "venues": {}
+  "venues": {
+    "state-farm-stadium": {
+      "file": "File:State_Farm_Stadium_2022.jpg",
+      "page": "https://en.wikipedia.org/wiki/State_Farm_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:State_Farm_Stadium_2022.jpg",
+      "artist": "Troutfarm27",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 3586,
+      "original_height": 1849
+    },
+    "mercedes-benz-stadium": {
+      "file": "File:Mercedes_Benz_Stadium_time_lapse_capture_2017-08-13.jpg",
+      "page": "https://en.wikipedia.org/wiki/Mercedes-Benz_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Mercedes_Benz_Stadium_time_lapse_capture_2017-08-13.jpg",
+      "artist": "Atlanta Falcons",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "original_width": 2560,
+      "original_height": 1440
+    },
+    "mt-bank-stadium": {
+      "file": "File:M&T_Bank_Stadium_in_Baltimore.jpg",
+      "page": "https://en.wikipedia.org/wiki/M%26T_Bank_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:M%26T_Bank_Stadium_in_Baltimore.jpg",
+      "artist": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "original_width": 8064,
+      "original_height": 6048
+    },
+    "highmark-stadium": {
+      "file": "File:Bills_Stadium_May26.jpg",
+      "page": "https://en.wikipedia.org/wiki/Highmark_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Bills_Stadium_May26.jpg",
+      "artist": "Dekema",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "original_width": 5428,
+      "original_height": 4071
+    },
+    "bank-of-america-stadium": {
+      "file": "File:Aerial_view_of_Bank_of_America_Stadium_in_Charlotte.jpg",
+      "page": "https://en.wikipedia.org/wiki/Bank_of_America_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Bank_of_America_Stadium_in_Charlotte.jpg",
+      "artist": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "original_width": 7950,
+      "original_height": 5963
+    },
+    "soldier-field": {
+      "file": "File:Soldier_Field_S.jpg",
+      "page": "https://en.wikipedia.org/wiki/Soldier_Field",
+      "source": "https://commons.wikimedia.org/wiki/File:Soldier_Field_S.jpg",
+      "artist": "Sea Cow",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4000,
+      "original_height": 2250
+    },
+    "paycor-stadium": {
+      "file": "File:Paul_Brown_Stadium_interior_2017.jpg",
+      "page": "https://en.wikipedia.org/wiki/Paycor_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Paul_Brown_Stadium_interior_2017.jpg",
+      "artist": "JonRidinger",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 6478,
+      "original_height": 3766
+    },
+    "huntington-bank-field": {
+      "file": "File:FirstEnergy_Stadium_50_yardline_panorama.png",
+      "page": "https://en.wikipedia.org/wiki/Huntington_Bank_Field",
+      "source": "https://commons.wikimedia.org/wiki/File:FirstEnergy_Stadium_50_yardline_panorama.png",
+      "artist": "Cards84664",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 9778,
+      "original_height": 3878
+    },
+    "att-stadium": {
+      "file": "File:Arlington_June_2020_4_(AT&T_Stadium).jpg",
+      "page": "https://en.wikipedia.org/wiki/AT%26T_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Arlington_June_2020_4_(AT%26T_Stadium).jpg",
+      "artist": "Michael Barera",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 6000,
+      "original_height": 4000
+    },
+    "empower-field": {
+      "file": "File:Empower_Field_at_Mile_High_20241001.jpg",
+      "page": "https://en.wikipedia.org/wiki/Empower_Field_at_Mile_High",
+      "source": "https://commons.wikimedia.org/wiki/File:Empower_Field_at_Mile_High_20241001.jpg",
+      "artist": "Pdubs.94",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 3576,
+      "original_height": 2391
+    },
+    "ford-field": {
+      "file": "File:Detroit_December_2015_09_(Ford_Field).jpg",
+      "page": "https://en.wikipedia.org/wiki/Ford_Field",
+      "source": "https://commons.wikimedia.org/wiki/File:Detroit_December_2015_09_(Ford_Field).jpg",
+      "artist": "Michael Barera",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 6000,
+      "original_height": 4000
+    },
+    "lambeau-field": {
+      "file": "File:Lambeau_Field_-_Green_Bay_Packers_Football_Stadium_-_Wisconsin.jpg",
+      "page": "https://en.wikipedia.org/wiki/Lambeau_Field",
+      "source": "https://commons.wikimedia.org/wiki/File:Lambeau_Field_-_Green_Bay_Packers_Football_Stadium_-_Wisconsin.jpg",
+      "artist": "Tony Webster",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_width": 5709,
+      "original_height": 3840
+    },
+    "nrg-stadium": {
+      "file": "File:Nrg_stadium.jpg",
+      "page": "https://en.wikipedia.org/wiki/Reliant_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Nrg_stadium.jpg",
+      "artist": "Carlos.dkfi",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "original_width": 3760,
+      "original_height": 2506
+    },
+    "lucas-oil-stadium": {
+      "file": "File:Aerial_view_of_Indianapolis,_Indiana,_with_a_focus_on_Lucas_Oil_Stadium,_highsm.40934.jpg",
+      "page": "https://en.wikipedia.org/wiki/Lucas_Oil_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Indianapolis,_Indiana,_with_a_focus_on_Lucas_Oil_Stadium,_highsm.40934.jpg",
+      "artist": "Carol M. Highsmith",
+      "license": "Public domain",
+      "license_url": null,
+      "original_width": 8010,
+      "original_height": 5340
+    },
+    "everbank-stadium": {
+      "file": "File:EverBank_Stadium_aerial_view.jpg",
+      "page": "https://en.wikipedia.org/wiki/EverBank_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:EverBank_Stadium_aerial_view.jpg",
+      "artist": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "original_width": 10729,
+      "original_height": 7240
+    },
+    "arrowhead-stadium": {
+      "file": "File:Aerial_view_of_Arrowhead_Stadium_08-31-2013.jpg",
+      "page": "https://en.wikipedia.org/wiki/Arrowhead_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Arrowhead_Stadium_08-31-2013.jpg",
+      "artist": "Ichabod",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "original_width": 4928,
+      "original_height": 3264
+    },
+    "allegiant-stadium": {
+      "file": "File:Allegiant_Stadium_Street_View_on_Super_Bowl_LVIII.jpg",
+      "page": "https://en.wikipedia.org/wiki/Allegiant_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Allegiant_Stadium_Street_View_on_Super_Bowl_LVIII.jpg",
+      "artist": "U.S. Customs and Border Protection",
+      "license": "Public domain",
+      "license_url": null,
+      "original_width": 5259,
+      "original_height": 3506
+    },
+    "sofi-stadium": {
+      "file": "File:SoFi_Stadium_2023.jpg",
+      "page": "https://en.wikipedia.org/wiki/SoFi_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:SoFi_Stadium_2023.jpg",
+      "artist": "Troutfarm27",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4954,
+      "original_height": 2256
+    },
+    "hard-rock-stadium": {
+      "file": "File:Hard_Rock_Stadium_for_Super_Bowl_LIV_(49606710103).jpg",
+      "page": "https://en.wikipedia.org/wiki/Hard_Rock_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Hard_Rock_Stadium_for_Super_Bowl_LIV_(49606710103).jpg",
+      "artist": "elisfkc2",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "original_width": 4032,
+      "original_height": 3024
+    },
+    "us-bank-stadium": {
+      "file": "File:U.S._Bank_Stadium_(cropped).jpg",
+      "page": "https://en.wikipedia.org/wiki/U.S._Bank_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:U.S._Bank_Stadium_(cropped).jpg",
+      "artist": "Lectrician2",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 3001,
+      "original_height": 2250
+    },
+    "gillette-stadium": {
+      "file": "File:Gillette_Stadium_(Top_View).jpg",
+      "page": "https://en.wikipedia.org/wiki/Gillette_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Gillette_Stadium_(Top_View).jpg",
+      "artist": "Art N.",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_width": 2560,
+      "original_height": 1920
+    },
+    "caesars-superdome": {
+      "file": "File:DHS_Agencies_Support_Super_Bowl_LIX_Security_February_2025_-_108.jpg",
+      "page": "https://en.wikipedia.org/wiki/Caesars_Superdome",
+      "source": "https://commons.wikimedia.org/wiki/File:DHS_Agencies_Support_Super_Bowl_LIX_Security_February_2025_-_108.jpg",
+      "artist": "DHSgov",
+      "license": "Public domain",
+      "license_url": null,
+      "original_width": 4000,
+      "original_height": 2667
+    },
+    "metlife-stadium": {
+      "file": "File:Metlife_stadium_(Aerial_view).jpg",
+      "page": "https://en.wikipedia.org/wiki/MetLife_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Metlife_stadium_(Aerial_view).jpg",
+      "artist": "Anthony Quintano from Hillsborough, NJ, United States",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_width": 2955,
+      "original_height": 1812
+    },
+    "lincoln-financial-field": {
+      "file": "File:Lincoln_Financial_Field,_Philadelphia,_Pennsylvania,_United_States.jpg",
+      "page": "https://en.wikipedia.org/wiki/Lincoln_Financial_Field",
+      "source": "https://commons.wikimedia.org/wiki/File:Lincoln_Financial_Field,_Philadelphia,_Pennsylvania,_United_States.jpg",
+      "artist": "Dough4872",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 2776,
+      "original_height": 2082
+    },
+    "acrisure-stadium": {
+      "file": "File:Acrisure_Stadium_2024.jpg",
+      "page": "https://en.wikipedia.org/wiki/Acrisure_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Acrisure_Stadium_2024.jpg",
+      "artist": "Cramerwiki",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "original_width": 2674,
+      "original_height": 1105
+    },
+    "levis-stadium": {
+      "file": "File:Levi's_Stadium_in_February_2016_prior_to_Super_Bowl_50_(24398261729).jpg",
+      "page": "https://en.wikipedia.org/wiki/Levi's_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Levi%27s_Stadium_in_February_2016_prior_to_Super_Bowl_50_(24398261729).jpg",
+      "artist": "U.S. Customs and Border Protection",
+      "license": "Public domain",
+      "license_url": null,
+      "original_width": 5052,
+      "original_height": 2843
+    },
+    "lumen-field": {
+      "file": "File:2026_FIFA_World_Cup_-_Belgium_v._Egypt_in_Seattle_-_04.jpg",
+      "page": "https://en.wikipedia.org/wiki/Lumen_Field",
+      "source": "https://commons.wikimedia.org/wiki/File:2026_FIFA_World_Cup_-_Belgium_v._Egypt_in_Seattle_-_04.jpg",
+      "artist": "SounderBruce",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4080,
+      "original_height": 3072
+    },
+    "raymond-james-stadium": {
+      "file": "File:Raymond_James_Stadium_Aerial_(2).jpg",
+      "page": "https://en.wikipedia.org/wiki/Raymond_James_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Raymond_James_Stadium_Aerial_(2).jpg",
+      "artist": "Devin Morris",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 3139,
+      "original_height": 1666
+    },
+    "northwest-stadium": {
+      "file": "File:Commanders_vs_Giants_(53345178211).jpg",
+      "page": "https://en.wikipedia.org/wiki/Northwest_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:Commanders_vs_Giants_(53345178211).jpg",
+      "artist": "Maryland GovPics",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_width": 6016,
+      "original_height": 4016
+    },
+    "tottenham-hotspur-stadium": {
+      "file": "File:London_Tottenham_Hotspur_Stadium.jpg",
+      "page": "https://en.wikipedia.org/wiki/Tottenham_Hotspur_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:London_Tottenham_Hotspur_Stadium.jpg",
+      "artist": "Arne Müseler",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "original_width": 3906,
+      "original_height": 2925
+    },
+    "wembley-stadium": {
+      "file": "File:London_Wembley.jpg",
+      "page": "https://en.wikipedia.org/wiki/Wembley_Stadium",
+      "source": "https://commons.wikimedia.org/wiki/File:London_Wembley.jpg",
+      "artist": "Arne Müseler",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "original_width": 4756,
+      "original_height": 3562
+    },
+    "olympiastadion-berlin": {
+      "file": "File:Olympiastadion_Berlin-Marathontor-msu-2020-3139.jpg",
+      "page": "https://en.wikipedia.org/wiki/Olympiastadion_(Berlin)",
+      "source": "https://commons.wikimedia.org/wiki/File:Olympiastadion_Berlin-Marathontor-msu-2020-3139.jpg",
+      "artist": "Matthias Süßen",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4160,
+      "original_height": 2515
+    },
+    "allianz-arena": {
+      "file": "File:Allianz_Arena_2008-02-09.jpg",
+      "page": "https://en.wikipedia.org/wiki/Allianz_Arena",
+      "source": "https://commons.wikimedia.org/wiki/File:Allianz_Arena_2008-02-09.jpg",
+      "artist": "2015 Michael 2015",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 3840,
+      "original_height": 2160
+    },
+    "santiago-bernabeu": {
+      "file": "File:Estadio_Santiago_Bernabéu_Madrid.jpg",
+      "page": "https://en.wikipedia.org/wiki/Bernab%C3%A9u_(stadium)",
+      "source": "https://commons.wikimedia.org/wiki/File:Estadio_Santiago_Bernab%C3%A9u_Madrid.jpg",
+      "artist": "Zoser",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "original_width": 1920,
+      "original_height": 1080
+    },
+    "croke-park": {
+      "file": "File:Croke_Park_from_the_Hill_-_2004_All-Ireland_Football_Championship_Final.jpg",
+      "page": "https://en.wikipedia.org/wiki/Croke_Park",
+      "source": "https://commons.wikimedia.org/wiki/File:Croke_Park_from_the_Hill_-_2004_All-Ireland_Football_Championship_Final.jpg",
+      "artist": "Photograph by John H. Nolan; original uploader was Hetch at en.wikipedia",
+      "license": "Public domain",
+      "license_url": null,
+      "original_width": 1024,
+      "original_height": 337
+    },
+    "melbourne-cricket-ground": {
+      "file": "File:2017_AFL_Grand_Final_panorama_during_national_anthem.jpg",
+      "page": "https://en.wikipedia.org/wiki/Melbourne_Cricket_Ground",
+      "source": "https://commons.wikimedia.org/wiki/File:2017_AFL_Grand_Final_panorama_during_national_anthem.jpg",
+      "artist": "Flickerd",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 7386,
+      "original_height": 3918
+    },
+    "estadio-azteca": {
+      "file": "File:Vista_aérea_del_Estadio_Azteca_-_2026_-_02.jpg",
+      "page": "https://en.wikipedia.org/wiki/Estadio_Azteca",
+      "source": "https://commons.wikimedia.org/wiki/File:Vista_a%C3%A9rea_del_Estadio_Azteca_-_2026_-_02.jpg",
+      "artist": "ProtoplasmaKid",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "original_width": 8064,
+      "original_height": 4536
+    }
+  },
+  "generated_at": "2026-10-05T04:22:42.892Z",
+  "source": "Wikipedia lead image (free licence) via Wikimedia Commons; scripts/stadiums/fetch.mjs"
 }

@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-10-05T12:24:07.608Z",
+  "source": "ESPN team-logo CDN (a.espncdn.com/i/teamlogos/nfl)",
+  "teams": {
+    "ARI": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/ari.png"
+    },
+    "ATL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/atl.png"
+    },
+    "BAL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/bal.png"
+    },
+    "BUF": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/buf.png"
+    },
+    "CAR": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/car.png"
+    },
+    "CHI": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/chi.png"
+    },
+    "CIN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/cin.png"
+    },
+    "CLE": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/cle.png"
+    },
+    "DAL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/dal.png"
+    },
+    "DEN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/den.png"
+    },
+    "DET": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/det.png"
+    },
+    "GB": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/gb.png"
+    },
+    "HOU": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/hou.png"
+    },
+    "IND": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/ind.png"
+    },
+    "JAX": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/jax.png"
+    },
+    "KC": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/kc.png"
+    },
+    "LV": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/lv.png"
+    },
+    "LAC": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/lac.png"
+    },
+    "LA": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/lar.png"
+    },
+    "LAR": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/lar.png"
+    },
+    "MIA": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/mia.png"
+    },
+    "MIN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/min.png"
+    },
+    "NE": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/ne.png"
+    },
+    "NO": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/no.png"
+    },
+    "NYG": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png"
+    },
+    "NYJ": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyj.png"
+    },
+    "PHI": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/phi.png"
+    },
+    "PIT": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/pit.png"
+    },
+    "SF": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/sf.png"
+    },
+    "SEA": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/sea.png"
+    },
+    "TB": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/tb.png"
+    },
+    "TEN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/ten.png"
+    },
+    "WAS": {
+      "source": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/wsh.png"
+    }
+  }
+}

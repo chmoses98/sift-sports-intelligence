@@ -1,6 +1,7 @@
 {
   "venues": {
     "state-farm-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:State_Farm_Stadium_2022.jpg",
       "page": "https://en.wikipedia.org/wiki/State_Farm_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:State_Farm_Stadium_2022.jpg",
@@ -11,6 +12,7 @@
       "original_height": 1849
     },
     "mercedes-benz-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Mercedes_Benz_Stadium_time_lapse_capture_2017-08-13.jpg",
       "page": "https://en.wikipedia.org/wiki/Mercedes-Benz_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Mercedes_Benz_Stadium_time_lapse_capture_2017-08-13.jpg",
@@ -21,6 +23,7 @@
       "original_height": 1440
     },
     "mt-bank-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:M&T_Bank_Stadium_in_Baltimore.jpg",
       "page": "https://en.wikipedia.org/wiki/M%26T_Bank_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:M%26T_Bank_Stadium_in_Baltimore.jpg",
@@ -31,6 +34,7 @@
       "original_height": 6048
     },
     "highmark-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Bills_Stadium_May26.jpg",
       "page": "https://en.wikipedia.org/wiki/Highmark_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Bills_Stadium_May26.jpg",
@@ -41,6 +45,7 @@
       "original_height": 4071
     },
     "bank-of-america-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Aerial_view_of_Bank_of_America_Stadium_in_Charlotte.jpg",
       "page": "https://en.wikipedia.org/wiki/Bank_of_America_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Bank_of_America_Stadium_in_Charlotte.jpg",
@@ -51,6 +56,7 @@
       "original_height": 5963
     },
     "soldier-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Soldier_Field_S.jpg",
       "page": "https://en.wikipedia.org/wiki/Soldier_Field",
       "source": "https://commons.wikimedia.org/wiki/File:Soldier_Field_S.jpg",
@@ -61,6 +67,7 @@
       "original_height": 2250
     },
     "paycor-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Paul_Brown_Stadium_interior_2017.jpg",
       "page": "https://en.wikipedia.org/wiki/Paycor_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Paul_Brown_Stadium_interior_2017.jpg",
@@ -71,6 +78,7 @@
       "original_height": 3766
     },
     "huntington-bank-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:FirstEnergy_Stadium_50_yardline_panorama.png",
       "page": "https://en.wikipedia.org/wiki/Huntington_Bank_Field",
       "source": "https://commons.wikimedia.org/wiki/File:FirstEnergy_Stadium_50_yardline_panorama.png",
@@ -81,6 +89,7 @@
       "original_height": 3878
     },
     "att-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Arlington_June_2020_4_(AT&T_Stadium).jpg",
       "page": "https://en.wikipedia.org/wiki/AT%26T_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Arlington_June_2020_4_(AT%26T_Stadium).jpg",
@@ -91,6 +100,7 @@
       "original_height": 4000
     },
     "empower-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Empower_Field_at_Mile_High_20241001.jpg",
       "page": "https://en.wikipedia.org/wiki/Empower_Field_at_Mile_High",
       "source": "https://commons.wikimedia.org/wiki/File:Empower_Field_at_Mile_High_20241001.jpg",
@@ -101,6 +111,7 @@
       "original_height": 2391
     },
     "ford-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Detroit_December_2015_09_(Ford_Field).jpg",
       "page": "https://en.wikipedia.org/wiki/Ford_Field",
       "source": "https://commons.wikimedia.org/wiki/File:Detroit_December_2015_09_(Ford_Field).jpg",
@@ -111,6 +122,7 @@
       "original_height": 4000
     },
     "lambeau-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Lambeau_Field_-_Green_Bay_Packers_Football_Stadium_-_Wisconsin.jpg",
       "page": "https://en.wikipedia.org/wiki/Lambeau_Field",
       "source": "https://commons.wikimedia.org/wiki/File:Lambeau_Field_-_Green_Bay_Packers_Football_Stadium_-_Wisconsin.jpg",
@@ -121,6 +133,7 @@
       "original_height": 3840
     },
     "nrg-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Nrg_stadium.jpg",
       "page": "https://en.wikipedia.org/wiki/Reliant_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Nrg_stadium.jpg",
@@ -131,6 +144,7 @@
       "original_height": 2506
     },
     "lucas-oil-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Aerial_view_of_Indianapolis,_Indiana,_with_a_focus_on_Lucas_Oil_Stadium,_highsm.40934.jpg",
       "page": "https://en.wikipedia.org/wiki/Lucas_Oil_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Indianapolis,_Indiana,_with_a_focus_on_Lucas_Oil_Stadium,_highsm.40934.jpg",
@@ -141,6 +155,7 @@
       "original_height": 5340
     },
     "everbank-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:EverBank_Stadium_aerial_view.jpg",
       "page": "https://en.wikipedia.org/wiki/EverBank_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:EverBank_Stadium_aerial_view.jpg",
@@ -151,6 +166,7 @@
       "original_height": 7240
     },
     "arrowhead-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Aerial_view_of_Arrowhead_Stadium_08-31-2013.jpg",
       "page": "https://en.wikipedia.org/wiki/Arrowhead_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Arrowhead_Stadium_08-31-2013.jpg",
@@ -161,6 +177,7 @@
       "original_height": 3264
     },
     "allegiant-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Allegiant_Stadium_Street_View_on_Super_Bowl_LVIII.jpg",
       "page": "https://en.wikipedia.org/wiki/Allegiant_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Allegiant_Stadium_Street_View_on_Super_Bowl_LVIII.jpg",
@@ -171,6 +188,7 @@
       "original_height": 3506
     },
     "sofi-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:SoFi_Stadium_2023.jpg",
       "page": "https://en.wikipedia.org/wiki/SoFi_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:SoFi_Stadium_2023.jpg",
@@ -181,6 +199,7 @@
       "original_height": 2256
     },
     "hard-rock-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Hard_Rock_Stadium_for_Super_Bowl_LIV_(49606710103).jpg",
       "page": "https://en.wikipedia.org/wiki/Hard_Rock_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Hard_Rock_Stadium_for_Super_Bowl_LIV_(49606710103).jpg",
@@ -191,6 +210,7 @@
       "original_height": 3024
     },
     "us-bank-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:U.S._Bank_Stadium_(cropped).jpg",
       "page": "https://en.wikipedia.org/wiki/U.S._Bank_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:U.S._Bank_Stadium_(cropped).jpg",
@@ -201,6 +221,7 @@
       "original_height": 2250
     },
     "gillette-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Gillette_Stadium_(Top_View).jpg",
       "page": "https://en.wikipedia.org/wiki/Gillette_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Gillette_Stadium_(Top_View).jpg",
@@ -211,6 +232,7 @@
       "original_height": 1920
     },
     "caesars-superdome": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:DHS_Agencies_Support_Super_Bowl_LIX_Security_February_2025_-_108.jpg",
       "page": "https://en.wikipedia.org/wiki/Caesars_Superdome",
       "source": "https://commons.wikimedia.org/wiki/File:DHS_Agencies_Support_Super_Bowl_LIX_Security_February_2025_-_108.jpg",
@@ -221,6 +243,7 @@
       "original_height": 2667
     },
     "metlife-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Metlife_stadium_(Aerial_view).jpg",
       "page": "https://en.wikipedia.org/wiki/MetLife_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Metlife_stadium_(Aerial_view).jpg",
@@ -231,6 +254,7 @@
       "original_height": 1812
     },
     "lincoln-financial-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Lincoln_Financial_Field,_Philadelphia,_Pennsylvania,_United_States.jpg",
       "page": "https://en.wikipedia.org/wiki/Lincoln_Financial_Field",
       "source": "https://commons.wikimedia.org/wiki/File:Lincoln_Financial_Field,_Philadelphia,_Pennsylvania,_United_States.jpg",
@@ -241,6 +265,7 @@
       "original_height": 2082
     },
     "acrisure-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Acrisure_Stadium_2024.jpg",
       "page": "https://en.wikipedia.org/wiki/Acrisure_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Acrisure_Stadium_2024.jpg",
@@ -251,6 +276,7 @@
       "original_height": 1105
     },
     "levis-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Levi's_Stadium_in_February_2016_prior_to_Super_Bowl_50_(24398261729).jpg",
       "page": "https://en.wikipedia.org/wiki/Levi's_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Levi%27s_Stadium_in_February_2016_prior_to_Super_Bowl_50_(24398261729).jpg",
@@ -261,6 +287,7 @@
       "original_height": 2843
     },
     "lumen-field": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:2026_FIFA_World_Cup_-_Belgium_v._Egypt_in_Seattle_-_04.jpg",
       "page": "https://en.wikipedia.org/wiki/Lumen_Field",
       "source": "https://commons.wikimedia.org/wiki/File:2026_FIFA_World_Cup_-_Belgium_v._Egypt_in_Seattle_-_04.jpg",
@@ -271,6 +298,7 @@
       "original_height": 3072
     },
     "raymond-james-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Raymond_James_Stadium_Aerial_(2).jpg",
       "page": "https://en.wikipedia.org/wiki/Raymond_James_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Raymond_James_Stadium_Aerial_(2).jpg",
@@ -281,6 +309,7 @@
       "original_height": 1666
     },
     "northwest-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Commanders_vs_Giants_(53345178211).jpg",
       "page": "https://en.wikipedia.org/wiki/Northwest_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:Commanders_vs_Giants_(53345178211).jpg",
@@ -291,6 +320,7 @@
       "original_height": 4016
     },
     "tottenham-hotspur-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:London_Tottenham_Hotspur_Stadium.jpg",
       "page": "https://en.wikipedia.org/wiki/Tottenham_Hotspur_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:London_Tottenham_Hotspur_Stadium.jpg",
@@ -301,6 +331,7 @@
       "original_height": 2925
     },
     "wembley-stadium": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:London_Wembley.jpg",
       "page": "https://en.wikipedia.org/wiki/Wembley_Stadium",
       "source": "https://commons.wikimedia.org/wiki/File:London_Wembley.jpg",
@@ -311,6 +342,7 @@
       "original_height": 3562
     },
     "olympiastadion-berlin": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Olympiastadion_Berlin-Marathontor-msu-2020-3139.jpg",
       "page": "https://en.wikipedia.org/wiki/Olympiastadion_(Berlin)",
       "source": "https://commons.wikimedia.org/wiki/File:Olympiastadion_Berlin-Marathontor-msu-2020-3139.jpg",
@@ -321,6 +353,7 @@
       "original_height": 2515
     },
     "allianz-arena": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Allianz_Arena_2008-02-09.jpg",
       "page": "https://en.wikipedia.org/wiki/Allianz_Arena",
       "source": "https://commons.wikimedia.org/wiki/File:Allianz_Arena_2008-02-09.jpg",
@@ -331,6 +364,7 @@
       "original_height": 2160
     },
     "santiago-bernabeu": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Estadio_Santiago_Bernabéu_Madrid.jpg",
       "page": "https://en.wikipedia.org/wiki/Bernab%C3%A9u_(stadium)",
       "source": "https://commons.wikimedia.org/wiki/File:Estadio_Santiago_Bernab%C3%A9u_Madrid.jpg",
@@ -341,6 +375,7 @@
       "original_height": 1080
     },
     "croke-park": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Croke_Park_from_the_Hill_-_2004_All-Ireland_Football_Championship_Final.jpg",
       "page": "https://en.wikipedia.org/wiki/Croke_Park",
       "source": "https://commons.wikimedia.org/wiki/File:Croke_Park_from_the_Hill_-_2004_All-Ireland_Football_Championship_Final.jpg",
@@ -351,6 +386,7 @@
       "original_height": 337
     },
     "melbourne-cricket-ground": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:2017_AFL_Grand_Final_panorama_during_national_anthem.jpg",
       "page": "https://en.wikipedia.org/wiki/Melbourne_Cricket_Ground",
       "source": "https://commons.wikimedia.org/wiki/File:2017_AFL_Grand_Final_panorama_during_national_anthem.jpg",
@@ -361,6 +397,7 @@
       "original_height": 3918
     },
     "estadio-azteca": {
+      "variant": "hero1600q60-card720q58",
       "file": "File:Vista_aérea_del_Estadio_Azteca_-_2026_-_02.jpg",
       "page": "https://en.wikipedia.org/wiki/Estadio_Azteca",
       "source": "https://commons.wikimedia.org/wiki/File:Vista_a%C3%A9rea_del_Estadio_Azteca_-_2026_-_02.jpg",
@@ -369,8 +406,19 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0",
       "original_width": 8064,
       "original_height": 4536
+    },
+    "nissan-stadium": {
+      "variant": "hero1600q60-card720q58",
+      "file": "File:Aerial_view_of_Nissan_Stadium_(Tennessee_Titans).jpg",
+      "page": "https://en.wikipedia.org/wiki/Nissan_Stadium_(Nashville)",
+      "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Nissan_Stadium_(Tennessee_Titans).jpg",
+      "artist": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "original_width": 12171,
+      "original_height": 8114
     }
   },
-  "generated_at": "2026-10-05T04:22:42.892Z",
+  "generated_at": "2026-10-05T04:25:53.097Z",
   "source": "Wikipedia lead image (free licence) via Wikimedia Commons; scripts/stadiums/fetch.mjs"
 }

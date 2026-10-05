@@ -1,1 +1,18 @@
-{ "leagues": {} }
+{
+  "generated_at": "2026-10-05T19:25:01.009Z",
+  "source": "ESPN league-logo CDN (a.espncdn.com/i/teamlogos/leagues)",
+  "leagues": {
+    "nfl": {
+      "source": "https://a.espncdn.com/i/teamlogos/leagues/500-dark/nfl.png"
+    },
+    "mlb": {
+      "source": "https://a.espncdn.com/i/teamlogos/leagues/500-dark/mlb.png"
+    },
+    "nba": {
+      "source": "https://a.espncdn.com/i/teamlogos/leagues/500-dark/nba.png"
+    },
+    "nhl": {
+      "source": "https://a.espncdn.com/i/teamlogos/leagues/500-dark/nhl.png"
+    }
+  }
+}

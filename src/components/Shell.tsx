@@ -5,6 +5,7 @@ import { routes } from '../lib/routes';
 import { useSearch } from '../search/useSearch';
 import { useTrail, type TrailStep } from '../state/trail';
 import { useTray } from '../state/tray';
+import { SportMark } from './SportMark';
 import { Icon, SiftWordmark } from './Icon';
 import { SearchResults } from './SearchResults';
 import { TrayDrawer } from './TrayDrawer';
@@ -90,9 +91,9 @@ function TrailBar({ sport }: { sport: NavSport | undefined }) {
         {sport && (
           <li className={atRoot ? 'is-here' : undefined}>
             {atRoot ? (
-              <span aria-current="page" className="trail__root"><Icon name={sport.icon} size={15} /> {sport.label}</span>
+              <span aria-current="page" className="trail__root"><SportMark slug={sport.slug} icon={sport.icon} size={16} /> {sport.label}</span>
             ) : (
-              <Link to={routes.sport(sport.slug)} className="trail__root"><Icon name={sport.icon} size={15} /> {sport.label}</Link>
+              <Link to={routes.sport(sport.slug)} className="trail__root"><SportMark slug={sport.slug} icon={sport.icon} size={16} /> {sport.label}</Link>
             )}
           </li>
         )}
@@ -155,7 +156,7 @@ const WORKSPACE: { to: string; label: string; icon: string }[] = [
 function SportLink({ s, onPick }: { s: NavSport; onPick?: () => void }) {
   return (
     <NavLink to={routes.sport(s.slug)} className="side__a" style={{ ['--accent' as string]: s.accent }} onClick={onPick}>
-      <span className="side__ic"><Icon name={s.icon} size={19} /></span>
+      <span className="side__ic"><SportMark slug={s.slug} icon={s.icon} size={22} /></span>
       <span className="side__t">{s.label}</span>
       {s.status !== 'live' && <span className={`side__tag side__tag--${s.status}`}>{s.status === 'beta' ? 'beta' : s.status === 'planned' ? 'soon' : ''}</span>}
     </NavLink>
@@ -222,7 +223,7 @@ function SportsSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
           {NAV_SPORTS.map((s) => (
             <li key={s.slug}>
               <NavLink to={routes.sport(s.slug)} className="sheet__sport" style={{ ['--accent' as string]: s.accent }} onClick={onClose}>
-                <Icon name={s.icon} size={22} />
+                <SportMark slug={s.slug} icon={s.icon} size={24} />
                 <span className="sheet__l">{s.label}</span>
                 <span className="sheet__st">{STATUS_WORD[s.status]}</span>
               </NavLink>
@@ -296,7 +297,7 @@ export function Shell({ children }: { children: ReactNode }) {
       </div>
       <nav className="bottombar" aria-label="Primary">
         <NavLink to={routes.home()} end className="bottombar__a"><Icon name="home" /><span>Home</span></NavLink>
-        <NavLink to={routes.sport(tabSport.slug)} className="bottombar__a"><Icon name={tabSport.icon} /><span>{tabSport.label}</span></NavLink>
+        <NavLink to={routes.sport(tabSport.slug)} className="bottombar__a"><SportMark slug={tabSport.slug} icon={tabSport.icon} size={22} /><span>{tabSport.label}</span></NavLink>
         <button type="button" className={`bottombar__a bottombar__sports${sheet ? ' active' : ''}`} onClick={() => setSheet(!sheet)} aria-expanded={sheet} aria-haspopup="dialog">
           <Icon name="grid" /><span>Sports</span>
         </button>

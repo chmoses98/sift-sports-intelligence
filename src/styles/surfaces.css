@@ -221,3 +221,14 @@ a:hover { color: var(--ivory); }
 /* Quote status reads as quiet text with a state dot, not a pill; it is still a button (popover with the state). */
 .qchip { border-color: transparent !important; background: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding-left: 0; padding-right: 4px; }
 .qchip:hover, .qchip[aria-expanded='true'] { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-3); }
+
+/* ---- market symbol (components/MarketIcon.tsx): logo-first, a small type badge, one glyph set */
+.mkrow { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.mkrow__t { display: grid; min-width: 0; }
+.mkicon { position: relative; flex: 0 0 auto; display: inline-grid; place-items: center; width: 28px; height: 26px; }
+.mkicon .teammark--sm { width: 26px; height: 26px; }
+.mkicon__solo { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #12314d, #0a1d2f); color: var(--cyan-2); }
+.mkicon__solo .mkglyph { width: 16px; height: 16px; }
+.mkicon__badge { position: absolute; right: -7px; bottom: -6px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #031220; color: var(--cyan-2); box-shadow: 0 0 0 1.5px #010b13; }
+.mkicon__per { position: absolute; left: -4px; top: -6px; padding: 0 3px; border-radius: 3px; background: #0e3662; color: #d7ecff; font: 600 9px/13px var(--font-ui); letter-spacing: 0.02em; }
+.mgroup__title { display: flex; align-items: center; gap: 10px; }

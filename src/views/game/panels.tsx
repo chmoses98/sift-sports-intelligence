@@ -13,6 +13,7 @@ import { splitName } from './Hero';
 import { scriptArt, type ScriptArt as ScriptArtT } from '../../lib/players';
 import { teamColors, teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
+import { MarketIcon } from '../../components/MarketIcon';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -185,9 +186,6 @@ export function ScriptsPanel({ set, selected, hrefFor, title = 'Game Scripts', c
           );
         })}
       </ul>
-      <div className="sbar" aria-hidden="true">
-        {set.scripts.map((s) => <span key={s.id} className={`sbar__seg sbar__seg--s${s.index}${selected === s.id ? ' is-sel' : ''}`} style={{ flexGrow: s.share }} />)}
-      </div>
     </section>
   );
 }
@@ -249,7 +247,7 @@ export function SurvivorsPanel({ rows, set, selected, slug, eventId, now, to }: 
         <tbody>
           {shown.map((r) => (
             <tr key={r.m.market_id}>
-              <th scope="row"><Link to={routes.market(slug, r.m.market_id, eventId)} className="survt__m">{r.label}</Link>{r.similar > 0 && <span className="survt__sim">+{r.similar} similar {r.similar === 1 ? 'line' : 'lines'}</span>}</th>
+              <th scope="row"><span className="mkrow"><MarketIcon m={r.m} /><span className="mkrow__t"><Link to={routes.market(slug, r.m.market_id, eventId)} className="survt__m">{r.label}</Link>{r.similar > 0 && <span className="survt__sim">+{r.similar} similar {r.similar === 1 ? 'line' : 'lines'}</span>}</span></span></th>
               <td>
                 <FitCells fits={r.fit!.fits} set={set} selected={selected} />
                 <span className="sr-only">{fitText(r.fit!.fits, set)}</span>
@@ -320,7 +318,7 @@ export function MarketsPanel({ rows, set, selected, slug, eventId, now, allHref 
         <tbody>
           {shown.map((r) => (
             <tr key={r.m.market_id}>
-              <th scope="row"><Link to={routes.market(slug, r.m.market_id, eventId)} className="mtab__m">{r.label}</Link></th>
+              <th scope="row"><span className="mkrow"><MarketIcon m={r.m} /><Link to={routes.market(slug, r.m.market_id, eventId)} className="mtab__m">{r.label}</Link></span></th>
               <td className="r"><Price row={r} now={now} /></td>
               <td className="r num">{r.model != null ? `${Math.round(r.model * 100)}%` : '—'}</td>
               <td className="r"><Gap g={r.gap} /></td>

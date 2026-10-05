@@ -8,6 +8,7 @@ import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';
 import { Icon } from '../../components/Icon';
 import { StadiumFallback } from '../../components/StadiumFallback';
+import { MarketIcon, MarketIconProvider } from '../../components/MarketIcon';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../../components/LiveQuote';
 import { SaveButton, TeamMark } from '../../components/ui';
 import { gapText, modelRead } from '../../lib/gamedata';
@@ -176,7 +177,7 @@ export function SlateRow({ item, r, sportSlug, sportCode }: { item: BoardItem; r
 /** Game-line markets where the model and the market midpoint differ most (research evidence). */
 export function Disagreements({ items, research, slug, title = 'Model vs Market', n = 6 }: { items: BoardItem[]; research: Map<string, EventResearchDoc>; slug: string; title?: string; n?: number }) {
   const rows = useMemo(() => {
-    const out: { label: string; game: string; eventId: string; marketId: string; model: number; mkt: number; gap: number }[] = [];
+    const out: { label: string; game: string; eventId: string; marketId: string; model: number; mkt: number; gap: number; m: EventResearchDoc['markets'][number]; short: (pid: string | null) => string }[] = [];
     for (const i of items) {
       const r = research.get(i.event_id);
       if (!r) continue;
@@ -190,7 +191,7 @@ export function Disagreements({ items, research, slug, title = 'Model vs Market'
         if (p.market_probability < 0.1 || p.market_probability > 0.9) continue;
         const t = m.threshold;
         const label = m.market_family === 'game_winner' ? `${short(m.participant_id)} to win` : m.market_family === 'spread' ? `${short(m.participant_id)} −${t}` : `Over ${t != null && Number.isInteger(t) ? t - 0.5 : t}`;
-        out.push({ label, game: `${away?.short_name} at ${home?.short_name}`, eventId: i.event_id, marketId: m.market_id, model: p.fair_probability, mkt: p.market_probability, gap: p.fair_probability - p.market_probability });
+        out.push({ label, game: `${away?.short_name} at ${home?.short_name}`, eventId: i.event_id, marketId: m.market_id, model: p.fair_probability, mkt: p.market_probability, gap: p.fair_probability - p.market_probability, m, short });
       }
     }
     return out.sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap)).slice(0, n);
@@ -204,7 +205,7 @@ export function Disagreements({ items, research, slug, title = 'Model vs Market'
         <tbody>
           {rows.map((x) => (
             <tr key={x.marketId}>
-              <th scope="row"><Link to={routes.market(slug, x.marketId, x.eventId)} className="mtab__m">{x.label}</Link><span className="mtab__sub">{x.game}</span></th>
+              <th scope="row"><span className="mkrow"><MarketIconProvider value={{ abbrOf: (pid) => (pid ? x.short(pid) : null), playerTeam: () => null, sport: 'NFL' }}><MarketIcon m={x.m} /></MarketIconProvider><span className="mkrow__t"><Link to={routes.market(slug, x.marketId, x.eventId)} className="mtab__m">{x.label}</Link><span className="mtab__sub">{x.game}</span></span></span></th>
               <td className="r num">{Math.round(x.mkt * 100)}%</td>
               <td className="r num">{Math.round(x.model * 100)}%</td>
               <td className="r"><span className={`gap ${Math.round(x.gap * 100) > 0 ? 'gap--pos' : Math.round(x.gap * 100) < 0 ? 'gap--neg' : 'gap--flat'}`}>{gapText(x.gap)}</span></td>

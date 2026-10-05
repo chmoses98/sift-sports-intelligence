@@ -171,3 +171,9 @@
 @media (max-width: 719px) {
   .topbar, .bottombar, nav.gtabs, .gtabs.ptabs { background: #010b13; backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+
+/* sport marks: league logos / filled sport symbols, scannable before the label */
+.sportmark { display: inline-grid; place-items: center; flex: 0 0 auto; line-height: 0; }
+.sportmark img, .sportmark svg { width: 100%; height: 100%; object-fit: contain; }
+.side__ic .sportmark { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)); }
+.side__a:not(.active) .sportmark { opacity: 0.92; }

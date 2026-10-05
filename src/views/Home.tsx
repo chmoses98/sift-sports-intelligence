@@ -8,6 +8,7 @@ import { useAsync, useRepo } from '../data/hooks';
 import { NAV_SPORTS, STATUS_WORD } from '../data/nav';
 import { sportByCode } from '../data/sports';
 import { Icon } from '../components/Icon';
+import { SportMark } from '../components/SportMark';
 import { Skeleton } from '../components/ui';
 import { compact } from '../lib/format';
 import { routes } from '../lib/routes';
@@ -29,7 +30,7 @@ function SportsRow() {
     <nav className="sportsrow" aria-label="Sports on Sift">
       {NAV_SPORTS.map((n) => (
         <Link key={n.slug} to={routes.sport(n.slug)} className={`sportsrow__a sportsrow__a--${n.status}`} style={{ ['--accent' as string]: n.accent }}>
-          <Icon name={n.icon} size={20} />
+          <SportMark slug={n.slug} icon={n.icon} size={26} />
           <span className="sportsrow__n">{n.label}</span>
           <span className="sportsrow__s">{STATUS_WORD[n.status]}</span>
         </Link>

@@ -1,7 +1,7 @@
 // Every sport in Sift with what it can honestly open today.
 import { Link } from 'react-router';
 import { NAV_SPORTS, STATUS_WORD } from '../data/nav';
-import { Icon } from '../components/Icon';
+import { SportMark } from '../components/SportMark';
 import { HealthPill } from '../components/SourceBanner';
 import { routes } from '../lib/routes';
 import { useAllSports } from '../state/allSports';
@@ -20,7 +20,7 @@ export function SportsView() {
           return (
             <li key={n.slug}>
               <Link to={routes.sport(n.slug)} className="panel sportcard2" style={{ ['--accent' as string]: n.accent }}>
-                <Icon name={n.icon} size={26} />
+                <SportMark slug={n.slug} icon={n.icon} size={30} />
                 <span className="sportcard2__n">{n.label}</span>
                 <span className="sportcard2__f">{n.fullName}</span>
                 <span className={`sportl__st sportl__st--${n.status}`}>{STATUS_WORD[n.status]}</span>

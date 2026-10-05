@@ -11,6 +11,7 @@ import { kickoff, pct, signed } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER, MATCHUP_AREAS } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
+import { MarketIconProvider } from '../components/MarketIcon';
 import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { HistoricalGameView } from './HistoricalGame';
@@ -449,7 +450,14 @@ export function GameView({ eventId }: { eventId: string }) {
   const hasEnv = capShown(caps, 'projection_distributions') && Boolean(ext?.game_script_inputs?.game_environment);
   const notes = (r.context?.notes ?? []).filter((n) => !n.startsWith('packet key question:'));
 
+  const iconCtx = {
+    abbrOf: (id: string | null) => (id === homeP.participant_id ? homeAbbr : id === awayP.participant_id ? awayAbbr : null),
+    playerTeam: (id: string | null) => (id ? dir.data?.player(id)?.context.team ?? null : null),
+    sport: sport.code,
+  };
+
   return (
+    <MarketIconProvider value={iconCtx}>
     <div className="page page--hero game">
       <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} sportLabel={sport.label} views={views} now={now} label={label!} />
 
@@ -562,5 +570,6 @@ export function GameView({ eventId }: { eventId: string }) {
         {ext?.real_money_status && <p className="small muted">{ext.real_money_status}</p>}
       </details>
     </div>
+    </MarketIconProvider>
   );
 }

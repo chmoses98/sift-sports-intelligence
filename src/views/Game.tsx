@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { PriceHistory } from '../charts/PriceHistory';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
-import type { EntityProfileDoc, EventResearchDoc, MatchupRow, Observation } from '../contract/types';
+import type { EventResearchDoc, MatchupRow, Observation } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
 import { MarketBoard, latestPrices } from '../components/MarketBoard';
-import { ErrorState, EntityLink, FreshnessChip, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
-import { displayName, kickoff, ordinal, pct, signed, until } from '../lib/format';
+import { ErrorState, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../components/ui';
+import { kickoff, pct, signed } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER, MATCHUP_AREAS } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
@@ -15,7 +15,12 @@ import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { HistoricalGameView } from './HistoricalGame';
 import { metricFormatter } from '../lib/format';
-import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
+import { NewlyListed, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
+import { injuryRows, marketLabel, modelRead, priceRow } from '../lib/gamedata';
+import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
+import { GameHero, splitName } from './game/Hero';
+import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, MarketsPanel, ModelReadPanel, PanelHead, ScriptsPanel, SurvivorsPanel } from './game/panels';
+import { ScriptTab } from './game/ScriptTab';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { newlyListed, overlayMarket } from '../live/overlay';
 
@@ -30,25 +35,6 @@ export function GameRoute() {
   if (!dir.data) return <div className="page"><ErrorState error={dir.error} what="the explorer index" /></div>;
   if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} />;
   return <HistoricalGameView eventId={eventId} teamId={sp.get('team')} />;
-}
-
-function record(p: EntityProfileDoc | undefined): string | null {
-  const r = (p?.extensions as any)?.record;
-  if (!r) return null;
-  return `${r.wins}–${r.losses}${r.ties ? `–${r.ties}` : ''}`;
-}
-
-function TeamSide({ side, pid, name, abbr, prof, sportCode, slug, score }: { side: 'away' | 'home'; pid: string; name: string; abbr: string | null; prof?: EntityProfileDoc; sportCode: string; slug: string; score?: number | null }) {
-  return (
-    <div className={`mh__team mh__team--${side}`}>
-      <TeamMark sport={sportCode} abbr={abbr} size="lg" />
-      <div className="mh__tn">
-        <Link to={routes.team(slug, pid)} className="mh__name">{displayName(name)}</Link>
-        <span className="mh__rec">{record(prof) ?? ''}{record(prof) ? ` · ${(prof?.extensions as any)?.record?.season}` : ''} · {side === 'home' ? 'home' : 'away'}</span>
-      </div>
-      {score != null && <span className="mh__score num">{score}</span>}
-    </div>
-  );
 }
 
 /** Market-implied vs model view for the game, from the event research extensions. */
@@ -92,23 +78,29 @@ function MarketModel({ ext, homeAbbr, awayAbbr }: { ext: any; homeAbbr: string; 
   );
 }
 
-/** Each unit against the unit it faces, from the repository's matchup_pairs (opponent-adjusted ratings). */
-function MatchupBoard({ ext, r, slug, homeId, awayId, homeAbbr, awayAbbr }: { ext: any; r: EventResearchDoc; slug: string; homeId: string; awayId: string; homeAbbr: string; awayAbbr: string }) {
-  const pairs = (ext?.matchup_pairs ?? []) as { matchup: string; offense: string; defense: string; offense_rating: number; defense_rating: number; advantage_to_offense: number }[];
+/**
+ * Each offense against the defense it faces, from the publication's opponent-adjusted ratings. Every
+ * team's bar sits under its own label and grows with its strength (league rank, direction-aware), so
+ * the picture can never contradict the labels. No combined "advantage" number is drawn: the
+ * publication's advantage_to_offense subtracts a defensive rating that is already "allowed above
+ * average", which reverses the defense's effect (docs/MATCHUP_MATH.md). Ranks only, until it is fixed.
+ */
+function MatchupBoard({ ext, r, slug, homeId, awayId, homeAbbr, awayAbbr, sportCode }: { ext: any; r: EventResearchDoc; slug: string; homeId: string; awayId: string; homeAbbr: string; awayAbbr: string; sportCode: string }) {
+  const pairs = (ext?.matchup_pairs ?? []) as { matchup: string; offense: string; defense: string; offense_rating: number; defense_rating: number }[];
   if (!pairs.length) return null;
   const obs = new Map<string, Observation>();
   for (const m of r.matchup) {
     if (m.home) obs.set(`${m.metric_id}|${homeAbbr}`, m.home);
     if (m.away) obs.set(`${m.metric_id}|${awayAbbr}`, m.away);
   }
-  const maxAdv = Math.max(...pairs.map((p) => Math.abs(p.advantage_to_offense)), 0.0001);
   const idOf = (abbr: string) => (abbr === homeAbbr ? homeId : awayId);
+  const strength = (o: Observation | undefined) => (o?.context?.rank != null && o.context.universe_size ? (o.context.universe_size - o.context.rank + 1) / o.context.universe_size : 0);
   const block = (off: string, def: string) => (
     <div className="mb__block" key={off}>
       <div className="mb__bh">
-        <span className={`mb__side mb__side--${off === homeAbbr ? 'home' : 'away'}`}>{off} offense</span>
+        <span className={`mb__side mb__side--off mb__side--${off === homeAbbr ? 'home' : 'away'}`}><TeamMark sport={sportCode} abbr={off} size="sm" /> {off} offense</span>
         <span className="mb__vs">vs</span>
-        <span className={`mb__side mb__side--${def === homeAbbr ? 'home' : 'away'}`}>{def} defense</span>
+        <span className={`mb__side mb__side--def mb__side--${def === homeAbbr ? 'home' : 'away'}`}>{def} defense <TeamMark sport={sportCode} abbr={def} size="sm" /></span>
       </div>
       <ol className="mb__rows">
         {MATCHUP_AREAS.map((a) => {
@@ -116,23 +108,21 @@ function MatchupBoard({ ext, r, slug, homeId, awayId, homeAbbr, awayAbbr }: { ex
           if (!p) return null;
           const oo = obs.get(`${a.offense}|${off}`);
           const dd = obs.get(`${a.defense}|${def}`);
-          const w = (Math.abs(p.advantage_to_offense) / maxAdv) * 50;
-          const toOff = p.advantage_to_offense > 0;
+          const so = strength(oo);
+          const sd = strength(dd);
+          const rk = (o: Observation | undefined) => (o?.context?.rank != null ? `#${o.context.rank}` : '—');
           return (
             <li key={a.name} className="mb__row">
-              <Link className="mb__cell mb__cell--off" to={routes.metric(slug, a.offense, { team: idOf(off), opp: idOf(def), event: r.event.event_id })}>
-                <span className="mb__area">{a.label}</span>
+              <Link className="mb__cell mb__cell--off" to={routes.metric(slug, a.offense, { team: idOf(off), opp: idOf(def), event: r.event.event_id })} aria-label={`${off} ${a.label.toLowerCase()} offense: ranked ${rk(oo)} of 32, rating ${signed(p.offense_rating, 3)}`}>
+                <span className="mb__rank num">{rk(oo)}</span>
                 <span className="mb__val num">{signed(p.offense_rating, 3)}</span>
-                {oo?.context && <RankPill rank={oo.context.rank} size={oo.context.universe_size} hib={oo.context.higher_is_better} />}
+                <span className={`mb__bar mb__bar--off mb__bar--${off === homeAbbr ? 'home' : 'away'}`} aria-hidden="true"><span style={{ width: `${Math.round(so * 100)}%` }} /></span>
               </Link>
-              <span className="mb__bar" role="img" aria-label={`${a.label}: ${toOff ? 'edge to ' + off + ' offense' : 'edge to ' + def + ' defense'} ${signed(p.advantage_to_offense, 3)}`}>
-                <span className="mb__mid" />
-                <span className={`mb__fill mb__fill--${toOff ? (off === homeAbbr ? 'home' : 'away') : def === homeAbbr ? 'home' : 'away'}`} style={toOff ? { left: '50%', width: `${w}%` } : { right: '50%', width: `${w}%` }} />
-                <span className="mb__adv num">{signed(p.advantage_to_offense, 3)}</span>
-              </span>
-              <Link className="mb__cell mb__cell--def" to={routes.metric(slug, a.defense, { team: idOf(def), opp: idOf(off), event: r.event.event_id })}>
-                {dd?.context && <RankPill rank={dd.context.rank} size={dd.context.universe_size} hib={dd.context.higher_is_better} />}
+              <span className="mb__area">{a.label}</span>
+              <Link className="mb__cell mb__cell--def" to={routes.metric(slug, a.defense, { team: idOf(def), opp: idOf(off), event: r.event.event_id })} aria-label={`${def} ${a.label.toLowerCase()} defense: ranked ${rk(dd)} of 32, rating ${signed(p.defense_rating, 3)}`}>
+                <span className={`mb__bar mb__bar--def mb__bar--${def === homeAbbr ? 'home' : 'away'}`} aria-hidden="true"><span style={{ width: `${Math.round(sd * 100)}%` }} /></span>
                 <span className="mb__val num">{signed(p.defense_rating, 3)}</span>
+                <span className="mb__rank num">{rk(dd)}</span>
               </Link>
             </li>
           );
@@ -143,8 +133,14 @@ function MatchupBoard({ ext, r, slug, homeId, awayId, homeAbbr, awayAbbr }: { ex
   return (
     <div className="mb">
       <p className="mb__key">
-        Ratings are the repository's opponent-adjusted ridge coefficients (deviation from league mean). The bar is its offense-minus-defense gap:
-        right = edge to the offense, left = edge to the defense. {ext?.matchup_pairs && 'Adjusted rating differences — not a claim that the market has mispriced them.'}
+        League rank of 32 for each unit, opponent-adjusted. A longer bar is a stronger unit — on its own side.
+        Ratings are deviations from the league mean; for defenses they are what the unit allows, so lower is better.
+        <Info label="Why there is no single edge number">
+          The publication's <b>advantage_to_offense</b> is offense − defense. Its defensive ratings are already &ldquo;allowed above average&rdquo;
+          (lower is better), so subtracting them rewards the offense for facing a <i>good</i> defense. Under the rating model
+          (y = league mean + offense + defense allowed) the two would add. Sift shows the ranks and leaves the combined figure out until
+          the publication corrects it.
+        </Info>
       </p>
       <div className="mb__grid">
         {block(awayAbbr, homeAbbr)}
@@ -154,7 +150,7 @@ function MatchupBoard({ ext, r, slug, homeId, awayId, homeAbbr, awayAbbr }: { ex
   );
 }
 
-/** Both teams on every published matchup metric, side by side by percentile. */
+/** Both teams on every published matchup metric, side by side by league rank. */
 function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr, eventId }: { rows: MatchupRow[]; metrics: Map<string, any>; slug: string; homeId: string; awayId: string; homeAbbr: string; awayAbbr: string; eventId: string }) {
   const [cat, setCat] = useState<string>('all');
   const cats = [...new Set(rows.map((r) => metrics.get(r.metric_id)?.category ?? 'other'))].sort((a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b));
@@ -162,7 +158,7 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
   return (
     <div className="mt">
       <div className="seg" role="tablist" aria-label="Metric categories">
-        <button type="button" role="tab" aria-selected={cat === 'all'} className={`seg__b${cat === 'all' ? ' is-on' : ''}`} onClick={() => setCat('all')}>All {rows.length}</button>
+        <button type="button" role="tab" aria-selected={cat === 'all'} className={`seg__b${cat === 'all' ? ' is-on' : ''}`} onClick={() => setCat('all')}>All metrics <span className="seg__n">{rows.length}</span></button>
         {cats.map((c) => (
           <button key={c} type="button" role="tab" aria-selected={cat === c} className={`seg__b${cat === c ? ' is-on' : ''}`} onClick={() => setCat(c)}>
             {categoryLabel(c)}
@@ -171,7 +167,7 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
       </div>
       <div className="mt__head" aria-hidden="true">
         <span className="mt__ta">{awayAbbr}</span>
-        <span>percentile in league · tap a metric for its full comparison</span>
+        <span>league rank of 32 · longer bar = better · tap a metric for the full comparison</span>
         <span className="mt__th">{homeAbbr}</span>
       </div>
       <ul className="mt__rows">
@@ -179,14 +175,16 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
           const def = metrics.get(r.metric_id);
           const scale = Math.max(Math.abs(r.home?.context?.best_value ?? 0), Math.abs(r.home?.context?.worst_value ?? 0));
           const fmt = metricFormatter(def, scale);
-          const pa = r.away?.context?.percentile ?? null;
-          const ph = r.home?.context?.percentile ?? null;
+          const strength = (c: { rank: number | null; universe_size: number | null; higher_is_better: boolean | null } | null | undefined) =>
+            c?.rank != null && c.universe_size && c.higher_is_better !== null ? ((c.universe_size - c.rank + 1) / c.universe_size) * 100 : null;
+          const pa = strength(r.away?.context);
+          const ph = strength(r.home?.context);
           return (
             <li key={r.metric_id}>
               <Link to={routes.metric(slug, r.metric_id, { team: homeId, opp: awayId, event: eventId })} className="mt__row">
                 <span className="mt__v mt__v--away">
                   <span className="num">{fmt(r.away?.value)}</span>
-                  <span className="mt__rk">{r.away?.context?.rank != null ? ordinal(r.away.context.rank) : ''}</span>
+                  <span className="mt__rk">{r.away?.context?.rank != null ? `#${r.away.context.rank}` : ''}</span>
                 </span>
                 <span className="mt__bars">
                   <span className="mt__half mt__half--away"><span style={{ width: `${pa ?? 0}%` }} /></span>
@@ -194,7 +192,7 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
                   <span className="mt__half mt__half--home"><span style={{ width: `${ph ?? 0}%` }} /></span>
                 </span>
                 <span className="mt__v mt__v--home">
-                  <span className="mt__rk">{r.home?.context?.rank != null ? ordinal(r.home.context.rank) : ''}</span>
+                  <span className="mt__rk">{r.home?.context?.rank != null ? `#${r.home.context.rank}` : ''}</span>
                   <span className="num">{fmt(r.home?.value)}</span>
                 </span>
               </Link>
@@ -389,8 +387,17 @@ function Movement({ eventId, path, prices, kickoffIso }: { eventId: string; path
   );
 }
 
+const TABS: [GameTab, string][] = [
+  ['overview', 'Overview'], ['script', 'Game Script'], ['markets', 'Markets'], ['matchup', 'Matchup'], ['players', 'Players'], ['trends', 'Trends'], ['injuries', 'Injuries'],
+];
+type GameTab = 'overview' | 'script' | 'markets' | 'matchup' | 'players' | 'trends' | 'injuries';
+const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'dog'];
+
 export function GameView({ eventId }: { eventId: string }) {
   const { sport, repo, slug, metrics, caps } = useSport();
+  const [sp] = useSearchParams();
+  const tab = (TABS.find(([k]) => k === sp.get('tab'))?.[0] ?? 'overview') as GameTab;
+  const selected = (SCRIPT_IDS.find((x) => x === sp.get('script')) ?? null) as ScriptId | null;
   const research = useAsync(`er:${sport.code}:${eventId}`, () => repo.eventResearch(eventId));
   const detail = useAsync(`ed:${sport.code}:${eventId}`, () => repo.eventDetail(eventId));
   const dir = useDirectory(repo);
@@ -399,8 +406,10 @@ export function GameView({ eventId }: { eventId: string }) {
   const awayP = r?.participants.find((p) => p.home_away === 'AWAY');
   const homeProf = useAsync(homeP ? `prof:${sport.code}:${homeP.participant_id}` : null, () => repo.profile(homeP!.participant_id));
   const awayProf = useAsync(awayP ? `prof:${sport.code}:${awayP.participant_id}` : null, () => repo.profile(awayP!.participant_id));
+  const wantsHistory = tab === 'overview' || tab === 'trends';
+  const hist = useAsync(r?.market_history_path && wantsHistory ? `mh:${sport.code}:${eventId}` : null, () => repo.marketHistory(eventId));
   const ev = r?.event;
-  const short = (pid?: string) => ev?.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
+  const short = (pid?: string | null) => ev?.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
   const label = ev ? `${short(awayP?.participant_id)} @ ${short(homeP?.participant_id)}` : null;
   useVisit(label, 'game');
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
@@ -418,139 +427,140 @@ export function GameView({ eventId }: { eventId: string }) {
   const views = useQuoteViews(published ?? r?.markets ?? []);
   const listedLater = useMemo(() => newlyListed(tickers, liveStore().eventQuotes(events)), [tickers, events, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
   const now = useNow(15_000);
+  const set = useMemo(() => (r ? gameScripts(r) : null), [r]);
+  const rows = useMemo(() => {
+    if (!homeP || !awayP) return [];
+    const abbrOf = (pid: string | null) => (pid ? short(pid) : null);
+    return quoted.map((m) => priceRow(m, prices, marketLabel(m, abbrOf, playerName), set ? scriptFit(m, set, homeP.participant_id, awayP.participant_id) : null));
+  }, [quoted, prices, set, homeP, awayP, playerName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   if (!r || !ev || !homeP || !awayP) return <div className="page"><ErrorState error={research.error} what="this game's research" /></div>;
   const ext = r.extensions as any;
   const homeAbbr = short(homeP.participant_id);
   const awayAbbr = short(awayP.participant_id);
-  const res = ext?.result;
-  const final = ev.status === 'FINAL';
-  const passed = !final && Date.parse(ev.start_time_utc) <= now;
-  const modelAt = r.projections.map((p) => p.generated_at).filter(Boolean).sort().pop() ?? null;
-  const weather = r.context?.weather as any;
-  const venue = r.context?.venue as any;
-  const hasMarketModel = Boolean(ext?.market_implied || ext?.model_view);
-  const hasUnusual = (r.context?.notes ?? []).some((n) => n.startsWith('packet key question:')) || (ext?.game_script_inputs?.market_baseline?.game_line_moves ?? []).length > 0;
+  const href = (t: GameTab, script: ScriptId | null = selected) => routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
+  const hrefFor = (id: ScriptId | null) => href(tab, id);
+  const injuries = injuryRows(r);
+  const read = modelRead(r, splitName(homeP.display_name).nick, splitName(awayP.display_name).nick, homeProf.data, awayProf.data);
+  const favAbbr = set ? (set.fav === 'home' ? homeAbbr : awayAbbr) : homeAbbr;
+  const abbrOf = (id: string | null) => (id === homeP.participant_id ? homeAbbr : id === awayP.participant_id ? awayAbbr : '?');
+  const hasMatchup = capShown(caps, 'matchup_metrics') && (r.matchup.length > 0 || (ext?.matchup_pairs ?? []).length > 0);
   const hasEnv = capShown(caps, 'projection_distributions') && Boolean(ext?.game_script_inputs?.game_environment);
-  const sections: [string, string, boolean][] = [
-    ['g-market-vs-model', 'Market vs model', hasMarketModel],
-    ['g-matchup', 'Matchup', capShown(caps, 'matchup_metrics') && (r.matchup.length > 0 || (ext?.matchup_pairs ?? []).length > 0)],
-    ['g-unusual', 'Unusual', hasUnusual],
-    ['g-environment', 'Environment', hasEnv],
-    ['g-players', 'Players', r.players.length > 0],
-    ['g-markets', 'Markets', true],
-    ['g-movement', 'Movement', capShown(caps, 'market_price_history') && Boolean(r.market_history_path)],
-    ['g-availability', 'Availability', capShown(caps, 'injuries')],
-  ];
-  const shown = new Set(sections.filter((x) => x[2]).map((x) => x[0]));
+  const notes = (r.context?.notes ?? []).filter((n) => !n.startsWith('packet key question:'));
 
   return (
-    <div className="page game">
-      <header className="mh">
-        <div className="mh__eyebrow">
-          <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink>
-          <span>·</span>
-          <span>{ev.competition}</span>
-          <QualityBadge quality={r.quality} />
-        </div>
-        <div className="mh__teams">
-          <TeamSide side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf.data} sportCode={sport.code} slug={slug} score={final ? res?.away_score : null} />
-          <div className="mh__at">
-            {final ? <span className="mh__final">FINAL</span> : <span className="mh__vs">@</span>}
-          </div>
-          <TeamSide side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf.data} sportCode={sport.code} slug={slug} score={final ? res?.home_score : null} />
-        </div>
-        <div className="mh__meta">
-          <span><Icon name="clock" size={14} /> {kickoff(ev.start_time_utc)}{!final && !passed && <b> · {until(ev.start_time_utc, now)}</b>}</span>
-          {passed && <span className="warn">Kickoff has passed; this publication was built before it.</span>}
-          {venue?.name || venue?.stadium ? <span>{venue.name ?? venue.stadium}{venue.roof ? ` · ${venue.roof}` : ''}{venue.surface ? ` · ${String(venue.surface).replace('_', ' ')}` : ''}</span> : null}
-          {weather?.available && <span>{weather.short_forecast}, {weather.temperature_f}°F, wind {weather.wind}{weather.precipitation_probability != null ? `, ${weather.precipitation_probability}% precip` : ''}</span>}
-        </div>
-        <div className="mh__chips">
-          <QuoteSummaryChip views={views} now={now} />
-          {modelAt && <FreshnessChip asOf={modelAt} component="model" label="model" />}
-          <span className="chip">{ext?.markets_in_event ?? detail.data?.markets.length ?? '…'} markets</span>
-        </div>
-        <div className="mh__actions">
-          <SaveButton ref_kind="EVENT" sport={sport.code} id={eventId} label={{ label: label!, sub: kickoff(ev.start_time_utc), href: routes.game(slug, eventId) }} />
-          <Link to={routes.packet({ sport: slug, scope: 'GAME', event: eventId })} className="btn btn--primary">
-            <Icon name="copy" size={16} /> Copy for ChatGPT
-          </Link>
-        </div>
-      </header>
+    <div className="page page--hero game">
+      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} sportLabel={sport.label} views={views} now={now} label={label!} />
 
-      <nav className="jump" aria-label="On this page">
-        {sections.filter((x) => x[2]).map(([id, name]) => (
-          <a key={id} href={`#${id}`} onClick={(e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); }}>{name}</a>
+      <nav className="ptabs gtabs" aria-label="Game sections">
+        {TABS.map(([k, l]) => (
+          <Link key={k} to={href(k)} aria-current={tab === k ? 'page' : undefined}>{l}</Link>
         ))}
       </nav>
 
-      {final && (ext?.wager_outcomes?.length ?? 0) > 0 && (
-        <Notice title={`Final: ${awayAbbr} ${res?.away_score} — ${homeAbbr} ${res?.home_score}`}>
-          {ext.wager_outcomes.length} wagers on this game are in the owner's ledger (settled outcomes are in the wager history, not shown as picks).
-        </Notice>
+      {tab === 'overview' && (
+        <div className="ov">
+          <ModelReadPanel r={r} read={read} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={href('script')} />
+          {set ? <ScriptsPanel set={set} selected={selected} hrefFor={hrefFor} /> : <section className="panel ov-scripts"><PanelHead title="Game Scripts" /><p className="muted small">The publication attached no simulation script summary for this game.</p></section>}
+          {set ? <SurvivorsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} to={href('script')} /> : <section className="panel ov-surv"><PanelHead title="Bets That Survive Multiple Scripts" /><p className="muted small">Needs the simulation's script summary.</p></section>}
+          <MarketsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+          <FormPanel homeProf={homeProf.data} awayProf={awayProf.data} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={href('trends')} />
+          <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={favAbbr} to={href('trends')} />
+          <H2HPanel homeProf={homeProf.data} homeId={homeP.participant_id} awayId={awayP.participant_id} abbrOf={abbrOf} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={href('trends')} />
+          <InjuriesPanel rows={injuries} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} to={href('injuries')} />
+        </div>
       )}
 
-      {shown.has('g-market-vs-model') && <Stratum n="01" id="g-market-vs-model" title="Market vs model" sub="What the prices imply next to what the repository's model reconstructs — two pieces of evidence, neither a pick.">
-        <MarketModel ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
-      </Stratum>}
-
-      {shown.has('g-matchup') && (
-        <Stratum n="02" id="g-matchup" title="How they match up" sub="Each offense against the defense it faces, then every published metric side by side.">
-          <MatchupBoard ext={ext} r={r} slug={slug} homeId={homeP.participant_id} awayId={awayP.participant_id} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
-          {r.matchup.length > 0 && <MatchupTable rows={r.matchup} metrics={metrics} slug={slug} homeId={homeP.participant_id} awayId={awayP.participant_id} homeAbbr={homeAbbr} awayAbbr={awayAbbr} eventId={eventId} />}
-        </Stratum>
+      {tab === 'script' && (
+        <>
+          {set ? (
+            <ScriptTab r={r} set={set} selected={selected} hrefFor={hrefFor} rows={rows} slug={slug} eventId={eventId} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} />
+          ) : (
+            <Notice title="No script summary for this game">The publication attached no simulation script summary, so Sift shows no scripts rather than inventing them.</Notice>
+          )}
+          {hasEnv && (
+            <Stratum id="g-environment" title="Simulated game environment" sub="The simulation's range of outcomes against the market's centre.">
+              <Environment ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
+            </Stratum>
+          )}
+        </>
       )}
 
-      {shown.has('g-unusual') && <Stratum n="03" id="g-unusual" title="What is unusual here" sub="The repository's own open questions for this game, and where prices moved.">
-        <Unusual r={r} ext={ext} slug={slug} />
-      </Stratum>}
-
-      {shown.has('g-environment') && (
-        <Stratum n="04" id="g-environment" title="Game environment" sub="The coherent simulation's range of outcomes against the market's centre. RESEARCH.">
-          <Environment ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
-        </Stratum>
+      {tab === 'markets' && (
+        <>
+          {Boolean(ext?.market_implied || ext?.model_view) && (
+            <Stratum id="g-market-vs-model" title="Market vs model" sub="What the prices imply next to what the model reconstructs.">
+              <MarketModel ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
+            </Stratum>
+          )}
+          <Stratum id="g-markets" title="Markets" sub={`Every Kalshi contract on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={tickers.length ? <RefreshQuotes tickers={tickers} /> : undefined}>
+            {detail.loading && <Skeleton lines={6} />}
+            {detail.error && <ErrorState error={detail.error} what="this game's markets" />}
+            {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}
+            <NewlyListed quotes={listedLater} now={now} />
+          </Stratum>
+          {(ext?.game_script_inputs?.market_baseline?.game_line_moves?.length > 0 || (r.context?.notes ?? []).some((n) => n.startsWith('packet key question:'))) && (
+            <Stratum id="g-unusual" title="Open questions & price moves" sub="The publication's own questions for this game, and where prices moved.">
+              <Unusual r={r} ext={ext} slug={slug} />
+            </Stratum>
+          )}
+        </>
       )}
 
-      {r.players.length > 0 && (
-        <Stratum n="05" id="g-players" title="Players" sub="Everyone the simulation projected for this game. Open one for usage, distributions and markets.">
-          <Players r={r} slug={slug} sportCode={sport.code} homeAbbr={homeAbbr} awayAbbr={awayAbbr} homeId={homeP.participant_id} />
-        </Stratum>
+      {tab === 'matchup' && (
+        hasMatchup ? (
+          <Stratum id="g-matchup" title="How they match up" sub="Each offense against the defense it faces, then every published metric side by side.">
+            <MatchupBoard ext={ext} r={r} slug={slug} homeId={homeP.participant_id} awayId={awayP.participant_id} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} />
+            {r.matchup.length > 0 && <MatchupTable rows={r.matchup} metrics={metrics} slug={slug} homeId={homeP.participant_id} awayId={awayP.participant_id} homeAbbr={homeAbbr} awayAbbr={awayAbbr} eventId={eventId} />}
+          </Stratum>
+        ) : <Notice title="No matchup metrics published for this game" />
       )}
 
-      <Stratum n="06" id="g-markets" title="Markets" sub={`Every Kalshi contract on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={tickers.length ? <RefreshQuotes tickers={tickers} /> : undefined}>
-        {detail.loading && <Skeleton lines={6} />}
-        {detail.error && <ErrorState error={detail.error} what="this game's markets" />}
-        {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}
-        <NewlyListed quotes={listedLater} now={now} />
-      </Stratum>
-
-      {shown.has('g-movement') && (
-        <Stratum n="07" id="g-movement" title="Price movement" sub="Game-level tickers, every capture since listing.">
-          <Movement eventId={eventId} path={r.market_history_path} prices={prices} kickoffIso={ev.start_time_utc} />
-        </Stratum>
+      {tab === 'players' && (
+        r.players.length > 0 ? (
+          <Stratum id="g-players" title="Players" sub="Everyone the simulation projected for this game. Open one for usage, distributions and markets.">
+            <Players r={r} slug={slug} sportCode={sport.code} homeAbbr={homeAbbr} awayAbbr={awayAbbr} homeId={homeP.participant_id} />
+          </Stratum>
+        ) : <Notice title="No player projections published for this game" />
       )}
 
-      {shown.has('g-availability') && (
-        <Stratum n="08" id="g-availability" title="Availability" sub="Injury designations captured for this game.">
-          <Availability r={r} />
-        </Stratum>
+      {tab === 'trends' && (
+        <div className="trends">
+          <div className="trends__grid">
+            <FormPanel homeProf={homeProf.data} awayProf={awayProf.data} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={routes.team(slug, homeP.participant_id, 'results')} />
+            <H2HPanel homeProf={homeProf.data} homeId={homeP.participant_id} awayId={awayP.participant_id} abbrOf={abbrOf} sportCode={sport.code} before={ev.start_time_utc} slug={slug} n={10} />
+          </div>
+          <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={favAbbr} to={href('markets')} />
+          {capShown(caps, 'market_price_history') && r.market_history_path && (
+            <Stratum id="g-movement" title="Contract price history" sub="Game-level tickers, every capture since listing.">
+              <Movement eventId={eventId} path={r.market_history_path} prices={prices} kickoffIso={ev.start_time_utc} />
+            </Stratum>
+          )}
+        </div>
       )}
 
-      {(r.context?.notes ?? []).filter((n) => !n.startsWith('packet key question:')).length > 0 && (
-        <Stratum title="Repository notes" sub="Context the publication attaches to this game.">
-          <ul className="notes">
-            {r.context.notes.filter((n) => !n.startsWith('packet key question:')).map((n) => (
-              <li key={n}>{n}</li>
+      {tab === 'injuries' && (
+        <Stratum id="g-availability" title="Injuries & availability" sub="Every non-active designation captured for this game.">
+          <div className="injcols injcols--full">
+            {[awayAbbr, homeAbbr].map((t) => (
+              <div key={t} className="panel injcol">
+                <div className="injcol__h"><TeamMark sport={sport.code} abbr={t} size="sm" /> {t}</div>
+                <InjuryList rows={injuries.filter((x) => x.team === t)} />
+              </div>
             ))}
-          </ul>
+          </div>
+          {injuries.some((x) => !x.team) && <Availability r={r} />}
+          {injuries[0]?.asOf && <p className="muted small">Designations as of {kickoff(injuries[0].asOf)} (ESPN via the publication). They resolve at the inactive release, 90 minutes before kickoff.</p>}
         </Stratum>
       )}
 
-      <div className="provfoot">
-        <QualityBadge quality={r.quality} /> <span className="muted small">{r.quality.source} · generated {r.quality.generated_at} · {r.quality.limitations.join(' · ')}</span>
-      </div>
+      <details className="gnotes">
+        <summary>Publication notes & provenance</summary>
+        {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
+        <p className="small muted"><QualityBadge quality={r.quality} /> {r.quality.source} · generated {r.quality.generated_at} · {r.quality.limitations.join(' · ')}</p>
+        {ext?.real_money_status && <p className="small muted">{ext.real_money_status}</p>}
+      </details>
     </div>
   );
 }

@@ -83,3 +83,33 @@ them (their entity shapes — tennis players as participants, soccer clubs — w
 * **The live NFL publication is ahead of the bundled snapshot.** The feed maps against the live NFL
   publication (e.g. 801 markets on NE @ BUF) while research screens read the snapshot (796); the extra
   live contracts appear as *Listed on Kalshi after this research run* until the NFL explorer is repaired.
+
+## 7. Gaps found in the redesign (pass 1)
+
+* **Game scripts are final-margin only.** The simulation publishes five final-margin buckets per team
+  (`team_volume.by_final_margin`, with conditional plays / pass / rush volume). Sift's four scripts are
+  those buckets regrouped, weighted by **sim share** (not a calibrated probability). A "Shootout" script
+  and exact script fit for totals, team totals, props and period markets need a **joint** output
+  (margin × total × team points per simulated game, or per-script conditional distributions). The
+  simulator already writes `*.scripts.json.gz`; publishing per-script conditional point distributions in
+  `game_script_inputs` would unlock them.
+* **Matchup advantage is sign-inverted upstream** — see `docs/MATCHUP_MATH.md`.
+* **Weather / venue.** The publication carries `context.weather` (kickoff-period forecast) and
+  `context.venue` for some games only; others carry the roof alone. Sift shows the forecast when present,
+  "Indoor"/"Roof closed" for domes and closed roofs, and "Forecast not published yet" otherwise.
+  Retractable-roof status is published only as `open`/`closed` when known.
+* **Team form.** Points, EPA and success-rate ranks are published; total yards and yards per play are
+  not, so the form panel uses EPA/play and success rate instead.
+* **Model performance.** `performance.json` is the owner's wager ledger, not model calibration. It is not
+  shown (owner-specific betting history stays out of the app until accounts exist). A sport home "model
+  performance" panel needs a published calibration / closing-line report.
+* **Live score, clock, possession, live stats.** No publication or Kalshi endpoint carries them. The
+  publication already ingests ESPN for injuries; the lowest-risk architecture is to extend the existing
+  read-only Vercel relay (or the GitHub quote-feed loop) with a `scores` path that reads one public
+  scoreboard source server-side and stamps observation time, exactly like quotes. Provider choice and
+  terms are an owner decision (redesign phase 5); nothing is wired yet.
+* **News.** No news provider is connected; the News page is the availability wire from the publication's
+  injury designations.
+* **Teasers / parlays.** Kalshi lists no teaser product. The Parlays page lists Stafford Wong-eligible
+  legs from market-implied spreads only; combined prices and correlation need per-leg pricing and a
+  correlation model (phase 4).

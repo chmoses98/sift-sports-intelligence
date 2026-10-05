@@ -12,7 +12,6 @@ import type { Market } from '../contract/types';
 import { Icon } from './Icon';
 import { Popover } from './ui';
 
-const GLYPH: Record<QuoteFreshness, string> = { FRESH: '●', AGING: '◐', STALE: '○', UNKNOWN: '◌' };
 
 export function sourceLabel(source: string): string {
   if (source === 'publication') return 'research publication capture (not a live quote)';
@@ -28,6 +27,18 @@ function stateText(availability: Availability, fresh: QuoteFreshness, age: numbe
   return `${availability === 'UNKNOWN' ? '' : availability + ' · '}${fresh} · ${formatQuoteAge(age)}`;
 }
 
+/**
+ * What the chip SAYS: the true age, quietly ("Updated 4m ago"). The explicit backend state (FRESH /
+ * AGING / STALE / UNKNOWN, unchanged thresholds) stays in data-quote-state, the dot's tint, the
+ * accessible name and the popover — never hidden, just not shouted.
+ */
+export function quietText(availability: Availability, fresh: QuoteFreshness, age: number | null): string {
+  if (availability === 'CLOSED' || availability === 'SETTLED') return `${availability === 'SETTLED' ? 'Settled' : 'Closed'} · final ${formatQuoteAge(age)} ago`;
+  if (availability === 'SUSPENDED') return `Suspended · ${formatQuoteAge(age)} ago`;
+  if (fresh === 'UNKNOWN' || age == null) return 'Update time unknown';
+  return `Updated ${formatQuoteAge(age)} ago`;
+}
+
 /** One market's quote state. */
 export function QuoteChip({ view, now, label }: { view: QuoteView; now: number; label?: string }) {
   const fresh = quoteFreshness(view.observedAt, now);
@@ -39,9 +50,9 @@ export function QuoteChip({ view, now, label }: { view: QuoteView; now: number; 
       label={`${label ?? 'quote'}: ${stateText(view.availability, fresh, age)}${view.live ? '' : ', publication capture'}`}
       trigger={
         <span className={`chip chip--fresh qchip ${cls}`} data-quote-state={`${view.availability}:${fresh}`} data-quote-source={view.live ? 'live' : 'publication'}>
-          <span aria-hidden="true">{GLYPH[fresh]}</span>
+          <span className="qchip__dot" aria-hidden="true" />
           {label && <span className="chip__k">{label}</span>}
-          <span>{stateText(view.availability, fresh, age)}</span>
+          <span>{quietText(view.availability, fresh, age)}</span>
           <span className="chip__dim">{view.live ? 'live' : 'published'}</span>
         </span>
       }
@@ -102,14 +113,15 @@ export function QuoteSummaryChip({ views, now, label = 'prices' }: { views: Quot
       label={`${label}: ${s.worst}, ${src}`}
       trigger={
         <span className={`chip chip--fresh qchip chip--${s.worst.toLowerCase()}`} data-quote-state={s.worst} data-quote-source={s.live === 0 ? 'publication' : allLive ? 'live' : 'mixed'}>
-          <span aria-hidden="true">{GLYPH[s.worst]}</span>
-          <span className="chip__k">{label}</span>
-          <span>{s.worst}{s.oldestAgeMs != null ? ` · oldest ${formatQuoteAge(s.oldestAgeMs)}` : ''}</span>
-          <span className="chip__dim">{src}</span>
+          <span className="qchip__dot" aria-hidden="true" />
+          <span>{s.oldestAgeMs != null && s.worst !== 'UNKNOWN' ? `${label === 'prices' ? 'Prices' : label} updated ${formatQuoteAge(s.oldestAgeMs)} ago` : `${label === 'prices' ? 'Prices' : label}: update time unknown`}</span>
+          {!allLive && <span className="chip__dim">{src}</span>}
         </span>
       }
     >
       <span className="pv">
+        <span className="pv__row"><span>State</span><b>{s.worst}</b></span>
+        <span className="pv__row"><span>Oldest quote</span><b>{s.oldestAgeMs != null ? `${formatQuoteAge(s.oldestAgeMs)} old` : 'no timestamp'}</b></span>
         <span className="pv__row"><span>Markets</span><b>{s.total}</b></span>
         <span className="pv__row"><span>Live quotes</span><b>{s.live} of {s.total}</b></span>
         <span className="pv__row"><span>Fresh / aging</span><b>{s.counts.FRESH} / {s.counts.AGING}</b></span>

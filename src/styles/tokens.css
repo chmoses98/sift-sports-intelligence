@@ -1,74 +1,104 @@
 /* ==========================================================================
-   SIFT DESIGN TOKENS
-   Signal from noise: deep strata of ink and navy, muted context, one bright signal.
-   Documented in docs/DESIGN_SYSTEM.md. Sift is dark by design (a night-before-kickoff
-   research tool); the palette is validated for that surface.
+   SIFT DESIGN TOKENS — "Stadium night"
+   A premium dark sports surface: deep navy/graphite strata, layered glass panels over
+   real stadium imagery, restrained but vivid accents. Documented in docs/DESIGN_SYSTEM.md.
+   Token NAMES are stable (screens built before the redesign inherit the new values).
    ========================================================================== */
 :root {
   color-scheme: dark;
 
   /* ---- strata (surfaces, deepest first) */
-  --ink-0: #030509;
-  --ink-1: #05070d;          /* app background */
-  --navy-1: #0a1222;         /* stratum 1: sections */
-  --navy-2: #0e1830;         /* stratum 2: raised rows, cards */
-  --navy-3: #15223f;         /* stratum 3: hover / active */
-  --navy-4: #1d2d52;         /* stratum 4: pressed, selected */
+  --ink-0: #04070e;
+  --ink-1: #070b15;          /* app background */
+  --navy-1: #0c1322;         /* panels */
+  --navy-2: #111a2d;         /* raised rows, inputs */
+  --navy-3: #18233b;         /* hover */
+  --navy-4: #213052;         /* pressed / selected */
+  --rail: #080d18;           /* sidebar */
+
+  /* glass panels: translucent over the page (and over imagery), with a hairline and inner light */
+  --panel: rgba(14, 21, 37, 0.78);
+  --panel-solid: #0d1424;
+  --panel-hi: rgba(22, 32, 54, 0.82);
+  --panel-line: rgba(150, 172, 222, 0.13);
+  --panel-line-hi: rgba(150, 172, 222, 0.24);
+  --panel-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+  --shadow-2: 0 24px 60px -24px rgba(0, 0, 0, 0.85);
 
   /* ---- lines */
-  --line: rgba(132, 160, 220, 0.11);
-  --line-2: rgba(132, 160, 220, 0.2);
-  --line-3: rgba(132, 160, 220, 0.34);
+  --line: rgba(150, 172, 222, 0.1);
+  --line-2: rgba(150, 172, 222, 0.18);
+  --line-3: rgba(150, 172, 222, 0.32);
 
   /* ---- ink (text) */
-  --text-hi: #f1f5ff;
-  --text: #c6d0e8;
-  --text-2: #93a0bf;
-  --text-3: #8290ae;          /* labels: >= 4.5:1 (WCAG AA) on ink-1 and navy-1..3 (5.8:1 on navy-1); axe-verified */
+  --text-hi: #f3f6fd;
+  --text: #cdd5e8;
+  --text-2: #9aa6c2;
+  --text-3: #8592b0;          /* labels: >= 4.5:1 on ink-1, navy-1..3 and --panel over ink-1 */
 
-  /* ---- energy */
-  --cobalt: #3461ff;
-  --cobalt-hi: #6d8cff;
-  --cobalt-deep: #1a37b8;
-  --cyan: #2ee6f6;            /* UI signal (focus rings, active state, signal text) */
-  --cyan-2: #8ff3fb;
-  --gold: #f6b93b;            /* UI highlight (opponent, attention, "you are here") */
-  --gold-2: #ffd98a;
+  /* ---- energy (primary action, active navigation) */
+  --cobalt: #2f6bff;
+  --cobalt-hi: #6e98ff;
+  --cobalt-deep: #1b44c4;
+  --cobalt-glow: rgba(47, 107, 255, 0.28);
+  --cyan: #38c8f0;            /* focus rings, "you are here" */
+  --cyan-2: #93dcf6;
+  --gold: #f2b53c;            /* prices, the research tray, attention */
+  --gold-2: #ffd88a;
+  --gold-bg: rgba(242, 181, 60, 0.1);
+  --gold-line: rgba(242, 181, 60, 0.45);
 
-  /* ---- chart marks (validated: dataviz validate_palette --mode dark --surface #0A1222) */
-  --mark-focus: #0ea2b6;      /* the entity you are looking at */
-  --mark-opp: #c2881c;        /* its opponent */
-  --mark-compare: #5f7cf2;    /* pinned comparisons */
-  --mark-context: #2c3a58;    /* everyone else: muted context */
-  --mark-context-hi: #3f5079;
-  --mark-grid: rgba(132, 160, 220, 0.1);
-  --mark-axis: rgba(132, 160, 220, 0.28);
+  /* ---- signal (model vs market, positive/negative) — quiet, never casino green */
+  --pos: #3fcf9c;
+  --neg: #ff7a6b;
+  --pos-bg: rgba(63, 207, 156, 0.1);
+  --neg-bg: rgba(255, 122, 107, 0.1);
 
-  /* ---- states: freshness (icon + label always accompany the color) */
-  --fresh: #3ddcb0;
-  --aging: #f6b93b;
-  --stale: #ff6f5e;
+  /* ---- game scripts: four fixed roles, each with a glyph and a label (never color alone).
+     Validated (dataviz validate_palette --mode dark --surface #0d1424): all checks pass. */
+  --script-1: #d55181;        /* favourite pulls away (14+) */
+  --script-2: #c98500;        /* favourite controls (7–13) */
+  --script-3: #199e70;        /* one-score game */
+  --script-4: #9085e9;        /* underdog controls (7+) */
+
+  /* ---- chart marks */
+  /* validated together on #0d1424 (lightness band, CVD, contrast: all pass) */
+  --mark-focus: #2a8ad0;
+  --mark-opp: #c4841c;
+  --mark-compare: #7280f0;
+  --mark-context: #26324c;
+  --mark-context-hi: #3a4a6e;
+  --mark-grid: rgba(150, 172, 222, 0.09);
+  --mark-axis: rgba(150, 172, 222, 0.26);
+
+  /* ---- states: freshness (backend states unchanged; shown quietly as "Updated Xm ago") */
+  --fresh: #3fcf9c;
+  --aging: #f2b53c;
+  --stale: #ff7a6b;
   --unknown: #7d89a8;
 
-  /* ---- states: quality */
-  --q-verified: #2ee6f6;
-  --q-partial: #6d8cff;
+  /* ---- states: quality (diagnostics) */
+  --q-verified: #38c8f0;
+  --q-partial: #6e98ff;
   --q-research: #f0a640;
-  --q-unavailable: #8290ae;
+  --q-unavailable: #8592b0;
 
-  /* ---- type */
-  --font-display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;
-  --font-ui: 'Archivo Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-num: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* ---- type: self-hosted Barlow family (sports-broadcast DIN lineage) */
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;   /* matchup names, hero numbers */
+  --font-head: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; /* section titles, tabs, numbers */
+  --font-ui: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-num: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; /* tabular figures (tnum) */
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace; /* tickers, diagnostics */
 
   --fs-micro: 0.6875rem;   /* 11px: eyebrows, axis ticks */
-  --fs-xs: 0.75rem;        /* 12px */
-  --fs-sm: 0.8125rem;      /* 13px: dense rows */
-  --fs-md: 0.9375rem;      /* 15px: body */
-  --fs-lg: 1.125rem;       /* 18px */
+  --fs-xs: 0.78rem;        /* 12.5px */
+  --fs-sm: 0.875rem;       /* 14px: dense rows */
+  --fs-md: 0.96875rem;     /* 15.5px: body */
+  --fs-lg: 1.1875rem;      /* 19px: panel titles */
   --fs-xl: 1.5rem;         /* 24px */
   --fs-2xl: 2.25rem;       /* 36px: entity headers */
-  --fs-3xl: clamp(2.6rem, 7vw, 4.75rem); /* matchup display */
+  --fs-3xl: clamp(2.6rem, 6vw, 4.5rem); /* matchup display */
 
   /* ---- space (4px grid) */
   --s-1: 4px;
@@ -81,10 +111,10 @@
   --s-10: 40px;
   --s-12: 48px;
 
-  /* ---- shape */
+  /* ---- shape: crisp, not bubbly */
   --r-1: 4px;
-  --r-2: 8px;
-  --r-3: 14px;
+  --r-2: 6px;
+  --r-3: 10px;
   --r-pill: 999px;
 
   /* ---- motion */
@@ -93,8 +123,10 @@
   --t-med: 220ms;
 
   /* ---- layout */
-  --maxw: 1240px;
-  --topbar-h: 60px;
+  --maxw: 1480px;
+  --side-w: 216px;
+  --rail-w: 76px;
+  --topbar-h: 56px;
   --bottombar-h: 64px;
   --tap: 44px;
   --safe-b: env(safe-area-inset-bottom, 0px);

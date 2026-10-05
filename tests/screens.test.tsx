@@ -101,23 +101,49 @@ describe('capability-aware rendering', () => {
   });
 
   it('the game page drops sections whose capability is unavailable', async () => {
-    const { container } = renderScreen(routes.game('nfl', GAME), '/nfl/game/:eventId', <GameRoute />, { matchup_metrics: 'UNAVAILABLE', market_price_history: 'UNAVAILABLE' });
+    const off = { matchup_metrics: 'UNAVAILABLE', market_price_history: 'UNAVAILABLE' };
+    const markets = renderScreen(routes.game('nfl', GAME, { tab: 'markets' }), '/nfl/game/:eventId', <GameRoute />, off);
     await screen.findByRole('heading', { name: 'Market vs model' });
-    expect(container.querySelector('#g-matchup')).toBeNull();
-    expect(container.querySelector('#g-movement')).toBeNull();
-    expect(container.querySelector('#g-markets')).not.toBeNull();
+    expect(markets.container.querySelector('#g-markets')).not.toBeNull();
+    markets.unmount();
+    const matchup = renderScreen(routes.game('nfl', GAME, { tab: 'matchup' }), '/nfl/game/:eventId', <GameRoute />, off);
+    await screen.findByText('No matchup metrics published for this game');
+    expect(matchup.container.querySelector('#g-matchup')).toBeNull();
+    matchup.unmount();
+    const trends = renderScreen(routes.game('nfl', GAME, { tab: 'trends' }), '/nfl/game/:eventId', <GameRoute />, off);
+    await screen.findByRole('heading', { name: 'Recent Head to Head' });
+    expect(trends.container.querySelector('#g-movement')).toBeNull();
   });
 });
 
 describe('game page', () => {
   it('links every matchup cell into metric views with team, opponent and game context', async () => {
-    const { container } = renderScreen(routes.game('nfl', GAME), '/nfl/game/:eventId', <GameRoute />);
+    const { container } = renderScreen(routes.game('nfl', GAME, { tab: 'matchup' }), '/nfl/game/:eventId', <GameRoute />);
     await screen.findByText('How they match up');
     const cells = container.querySelectorAll('.mb__cell');
     expect(cells.length).toBe(28);
     for (const c of cells) expect(c.getAttribute('href')).toMatch(/^\/nfl\/metric\/met_nfl\.adj_(off|def)_\w+\?team=prt_\w+&opp=prt_\w+&event=evt_/);
+    // No combined "advantage" figure is drawn from the publication's sign-inverted advantage_to_offense.
+    expect(container.querySelector('.mb__adv')).toBeNull();
+    expect(screen.getAllByRole('link', { name: /Copy for ChatGPT/ })[0].getAttribute('href')).toBe(routes.packet({ sport: 'nfl', scope: 'GAME', event: GAME }));
+  });
+
+  it('the overview leads with the model read, the scripts and the markets that survive them', async () => {
+    const { container } = renderScreen(routes.game('nfl', GAME), '/nfl/game/:eventId', <GameRoute />);
+    await screen.findByRole('heading', { name: 'Model Read' });
+    expect(screen.getByText(/Bills projects as a 7-point favorite/)).toBeTruthy();
+    expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['Bills Pull Away', 'Bills Control', 'One-Score Game', 'Patriots Control']);
+    expect([...container.querySelectorAll('.scard__pct')].map((e) => e.textContent)).toEqual(['26%', '24%', '36%', '13%']);
+    await act(async () => {});
+    await screen.findByText('BUF to win', { selector: '.mtab__m' });
+    expect(container.querySelectorAll('.survt tbody tr').length).toBeGreaterThan(0);
+    // Selecting a script is a link (deep-linkable) that keeps the tab.
+    expect(container.querySelector('.scard--s2')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { script: 'fav' }));
+  });
+
+  it('the markets tab lists every contract on the game', async () => {
+    renderScreen(routes.game('nfl', GAME, { tab: 'markets' }), '/nfl/game/:eventId', <GameRoute />);
     await act(async () => {});
     expect((await screen.findAllByText(/796\)/)).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('link', { name: /Copy for ChatGPT/ })[0].getAttribute('href')).toBe(routes.packet({ sport: 'nfl', scope: 'GAME', event: GAME }));
   });
 });

@@ -41,7 +41,7 @@ async function fallbackProof(browser, device, name, gameUrl) {
   try {
     await page.route(`${RELAY}/**`, block);
     await page.goto(gameUrl);
-    await page.getByRole('heading', { name: 'How they match up' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: 'Model Read' }).waitFor({ timeout: 60_000 });
     await page.waitForFunction(() => document.querySelector('[data-live-mode]')?.getAttribute('data-live-mode') === 'FEED', null, { timeout: 90_000 }).catch(() => {});
     const chip = page.locator('.mh__chips .qchip');
     const state = await chip.getAttribute('data-quote-state');
@@ -114,13 +114,13 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
   }
   try {
     await page.goto(BASE + '#/');
-    await page.getByRole('heading', { name: 'Sift' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: 'Today on Sift' }).waitFor({ timeout: 60_000 });
     check(true, 'home renders');
     // Find an upcoming game from the board and open its moneyline market.
     await page.goto(BASE + '#/nfl');
     await page.locator('.gcard__link').first().waitFor({ timeout: 60_000 });
     await page.locator('.gcard__link').first().click();
-    await page.getByRole('heading', { name: 'How they match up' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: 'Model Read' }).waitFor({ timeout: 60_000 });
     // Wait for the game scope's own refresh (inventory + tickers), not just the slate's first quotes.
     await page.waitForFunction(() => document.querySelector('.mh__chips .qchip')?.getAttribute('data-quote-source') === 'live', null, { timeout: 90_000 }).catch(() => {});
     const gameChip = page.locator('.mh__chips .qchip');

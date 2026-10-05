@@ -207,7 +207,7 @@ export function TeamView() {
           {nxt && (
             <Stratum n="02" title={`This week: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${nxt.opponent_name}`} sub="The matchup board compares both units on every adjusted rating.">
               <div className="cta-row">
-                <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id)}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
+                <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id, { tab: 'matchup' })}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
                 {oppId && <Link className="btn btn--ghost" to={routes.team(slug, oppId)}>{nxt.opponent_name} profile</Link>}
               </div>
             </Stratum>

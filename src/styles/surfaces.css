@@ -1,0 +1,121 @@
+/* ==========================================================================
+   SURFACES & PRIMITIVES — glass panels, panel headers, page tabs, filters,
+   team crests, quiet freshness. Overrides the pre-redesign primitives in sift.css.
+   ========================================================================== */
+
+/* ---- type */
+.h-display { font-family: var(--font-display); font-weight: 800; letter-spacing: 0.01em; line-height: 0.9; }
+.eyebrow { font-family: var(--font-head); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; }
+.stratum__title { font-family: var(--font-head); font-weight: 700; font-size: 1.35rem; text-transform: none; letter-spacing: 0.005em; }
+.stratum__head::before { background: linear-gradient(90deg, var(--cobalt), transparent); }
+.stratum__n { color: var(--cobalt-hi); }
+
+/* ---- glass panel: the one card primitive */
+.panel {
+  position: relative; min-width: 0;
+  padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-3);
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  box-shadow: var(--shadow-1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.panel--flush { padding: 0; }
+.panel--flush > .phead { padding: var(--s-4) var(--s-5) 0; }
+.panel__big { font-family: var(--font-num); font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin: 6px 0; }
+.phead { display: flex; align-items: center; gap: 10px; min-height: 30px; margin-bottom: var(--s-3); }
+.phead__t { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); color: var(--text-hi); letter-spacing: 0.005em; line-height: 1.15; margin: 0; }
+.phead__t a { color: inherit; }
+.phead__t a:hover { color: var(--cobalt-hi); }
+.phead__sub { font-size: var(--fs-xs); color: var(--text-3); margin-top: 2px; }
+.phead__x { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.phead__more { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-head); font-weight: 600; font-size: 0.86rem; color: var(--cobalt-hi); min-height: 32px; }
+.phead__more:hover { color: var(--text-hi); }
+
+/* info tooltip (definitions) */
+.info { display: inline-flex; vertical-align: middle; }
+.info .popover__trigger { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: var(--text-3); }
+.info .popover__trigger:hover { color: var(--text-hi); background: var(--navy-3); }
+.info__body { display: grid; gap: 6px; color: var(--text); font-size: var(--fs-xs); line-height: 1.5; }
+.info__body b { color: var(--text-hi); }
+
+/* ---- page tabs (links; deep-linkable) */
+.ptabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+.ptabs::-webkit-scrollbar { display: none; }
+.ptabs a { position: relative; flex-shrink: 0; display: inline-flex; align-items: center; min-height: 46px; padding: 0 16px; font-family: var(--font-head); font-weight: 600; font-size: 1rem; color: var(--text-2); white-space: nowrap; }
+.ptabs a:hover { color: var(--text-hi); }
+.ptabs a[aria-current='page'] { color: var(--text-hi); }
+.ptabs a[aria-current='page']::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; border-radius: 2px 2px 0 0; background: var(--cobalt); box-shadow: 0 0 14px var(--cobalt-glow); }
+
+/* existing sticky tabs (team, player): same language */
+.tabs { background: rgba(7, 11, 21, 0.86); }
+.tabs__b { font-family: var(--font-head); font-size: 0.98rem; font-weight: 600; }
+.tabs__b.is-on { border-bottom-color: var(--cobalt); }
+
+/* ---- filters: crisp segmented chips (not pills) */
+.seg__b { border-radius: var(--r-2); background: rgba(17, 26, 45, 0.6); font-family: var(--font-head); font-size: 0.86rem; font-weight: 600; min-height: 34px; }
+.seg__b.is-on { background: rgba(47, 107, 255, 0.22); color: var(--text-hi); border-color: rgba(110, 152, 255, 0.6); box-shadow: inset 0 0 0 1px rgba(110, 152, 255, 0.25); }
+
+/* ---- buttons */
+.btn { border-radius: var(--r-2); font-family: var(--font-head); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.01em; }
+.btn--primary { background: linear-gradient(180deg, #3f78ff, var(--cobalt)); border-color: #5d8bff; box-shadow: 0 8px 22px -8px rgba(47, 107, 255, 0.55); }
+.btn--sm { font-size: 0.84rem; }
+.btn--glass { background: rgba(10, 16, 30, 0.55); border-color: rgba(220, 230, 255, 0.22); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.btn--glass:hover { background: rgba(20, 30, 54, 0.7); }
+.savebtn { border-radius: var(--r-2); font-family: var(--font-head); font-weight: 600; font-size: 0.84rem; border-color: var(--gold-line); color: var(--gold-2); }
+.savebtn.is-saved { background: var(--gold-bg); }
+
+/* ---- chips: quieter */
+.chip { border-radius: var(--r-1); background: rgba(17, 26, 45, 0.7); font-family: var(--font-head); font-size: 0.8rem; font-weight: 500; }
+
+/* ---- quiet price freshness: "Updated 4m ago" with a small tinted dot (state kept in data attributes) */
+.qchip { font-weight: 500; letter-spacing: 0.01em; }
+.qchip.chip--fresh, .qchip.chip--aging, .qchip.chip--stale, .qchip.chip--unknown { color: var(--text-2); background: rgba(17, 26, 45, 0.6); border-color: var(--line); }
+.qchip__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--unknown); flex-shrink: 0; }
+.qchip.chip--fresh .qchip__dot { background: var(--fresh); box-shadow: 0 0 0 3px rgba(63, 207, 156, 0.14); }
+.qchip.chip--aging .qchip__dot { background: var(--aging); }
+.qchip.chip--stale .qchip__dot { background: var(--stale); }
+.qchip.chip--aging { border-color: rgba(242, 181, 60, 0.22); }
+.qchip.chip--stale { border-color: rgba(255, 122, 107, 0.26); color: var(--text); }
+.qchip .chip__dim { font-family: var(--font-head); }
+
+/* ---- price token (the mockup's gold-framed live price) */
+.price { display: inline-flex; align-items: center; justify-content: center; min-width: 54px; height: 30px; padding: 0 8px; border-radius: var(--r-1); border: 1px solid var(--gold-line); background: linear-gradient(180deg, rgba(242, 181, 60, 0.16), rgba(242, 181, 60, 0.06)); color: var(--gold-2); font-family: var(--font-num); font-weight: 700; font-size: 0.98rem; font-variant-numeric: tabular-nums; }
+.price--none { border-color: var(--line-2); background: none; color: var(--text-3); font-weight: 500; }
+.price--aging { border-style: dashed; }
+.price--stale { opacity: 0.62; border-style: dashed; }
+.gap { font-family: var(--font-num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.gap--pos { color: var(--pos); }
+.gap--neg { color: var(--neg); }
+.gap--flat { color: var(--text-3); font-weight: 500; }
+
+/* ---- team crest (Sift's own shape: no league or club marks) */
+.teammark {
+  --team: var(--navy-4); --team2: var(--line-3);
+  position: relative; display: inline-grid; place-items: center; flex-shrink: 0;
+  font-family: var(--font-display); font-weight: 800; letter-spacing: 0.02em; color: #fff;
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgba(255, 255, 255, 0.22), transparent 55%),
+    linear-gradient(160deg, color-mix(in srgb, var(--team) 92%, #fff 8%) 0%, color-mix(in srgb, var(--team) 70%, #04070e) 100%);
+  border: 0;
+  border-radius: 22% 22% 46% 46% / 18% 18% 54% 54%;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--team2) 75%, transparent), 0 6px 18px -8px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+.teammark__t { transform: translateY(-4%); }
+.teammark--sm { width: 26px; height: 28px; font-size: 10.5px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--team2) 70%, transparent); }
+.teammark--md { width: 38px; height: 41px; font-size: 14.5px; }
+.teammark--lg { width: 60px; height: 65px; font-size: 22px; box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--team2) 75%, transparent), 0 10px 24px -10px rgba(0, 0, 0, 0.8); }
+.teammark--xl { width: 96px; height: 104px; font-size: 36px; box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--team2) 80%, transparent), 0 18px 40px -14px rgba(0, 0, 0, 0.9); }
+
+/* ---- source/status strip (sport pages, bottom): diagnostics live here, not in the hierarchy */
+.srcbar { margin-top: var(--s-6); border-top: 1px solid var(--line); border-bottom: 0; background: transparent; }
+.srcbar__in { max-width: var(--maxw); padding: 10px var(--s-4); }
+@media (min-width: 720px) { .srcbar__in { padding: 10px var(--s-6); } }
+
+/* ---- generic grids */
+.grid { display: grid; gap: var(--s-4); }
+.stack { display: grid; gap: var(--s-3); }
+.row { display: flex; align-items: center; gap: 8px; }
+.spacer { flex: 1; }

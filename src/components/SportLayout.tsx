@@ -10,6 +10,8 @@ import { ErrorState, Notice, Skeleton } from './ui';
 import type { SportSource } from '../data/source';
 import type { SportConfig } from '../data/sports';
 import { SourceBanner } from './SourceBanner';
+import { plannedSport } from '../data/nav';
+import { PlannedSportView } from '../views/PlannedSport';
 
 export function SportLayout() {
   const { sport: slug } = useParams();
@@ -25,7 +27,7 @@ export function SportLayout() {
     return { capDoc, metrics, health };
   });
 
-  if (!sport) return <NotFound />;
+  if (!sport) return plannedSport(slug) ? <PlannedSportView slug={slug!} /> : <NotFound />;
   if (!explorable(sport)) return <SportOverview sport={sport} />;
   if (repo.loading || (repo.data?.hasExplorer && meta.loading)) {
     return (
@@ -40,10 +42,10 @@ export function SportLayout() {
   const metrics = meta.data?.metrics ?? new Map<string, MetricDef>();
   return (
     <SportProvider value={{ sport, slug: sport.slug, repo: repo.data, caps, capDoc: meta.data?.capDoc ?? null, metrics }}>
-      <SourceBanner source={repo.data.source} shown={meta.data?.health ?? null} />
       <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}>
         <Outlet />
       </Suspense>
+      <SourceBanner source={repo.data.source} shown={meta.data?.health ?? null} />
     </SportProvider>
   );
 }

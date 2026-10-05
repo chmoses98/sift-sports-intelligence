@@ -19,9 +19,12 @@ test.beforeEach(async ({ page, market }) => {
 });
 
 const SCREENS: { name: string; url: string; wait: (p: Page) => Promise<unknown>; full?: boolean }[] = [
-  { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: 'Sift' }).waitFor(), full: true },
-  { name: 'slate', url: './#/nfl', wait: (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor() },
-  { name: 'game', url: `./#/nfl/game/${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor() },
+  { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor(), full: true },
+  { name: 'nfl-home', url: './#/nfl', wait: (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor(), full: true },
+  { name: 'slate', url: './#/nfl/slate', wait: (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor() },
+  { name: 'game', url: `./#/nfl/game/${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'Model Read' }).waitFor(), full: true },
+  { name: 'game-script', url: `./#/nfl/game/${NEBUF}?tab=script&script=fav`, wait: (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor(), full: true },
+  { name: 'game-matchup', url: `./#/nfl/game/${NEBUF}?tab=matchup`, wait: (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor() },
   { name: 'team', url: `./#/nfl/team/${BUF}`, wait: (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor() },
   { name: 'metric', url: `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`, wait: (p) => p.getByText('League median').waitFor() },
   { name: 'player', url: `./#/nfl/player/${ALLEN}`, wait: (p) => p.getByRole('heading', { name: 'Markets vs projection' }).waitFor() },
@@ -41,8 +44,8 @@ for (const s of SCREENS) {
 }
 
 test('game markets board @visual', async ({ page }) => {
-  await page.goto(`./#/nfl/game/${NEBUF}`);
-  await page.getByRole('heading', { name: 'How they match up' }).waitFor();
+  await page.goto(`./#/nfl/game/${NEBUF}?tab=markets`);
+  await page.getByRole('heading', { name: 'Markets', exact: true }).waitFor();
   const board = page.locator('#g-markets');
   await board.scrollIntoViewIfNeeded();
   await ready(page);
@@ -62,7 +65,7 @@ test('research tray @visual', async ({ page, isMobile }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
   await page.getByRole('heading', { name: 'Markets vs projection' }).waitFor();
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
-  await (isMobile ? page.locator('.bottombar button') : page.locator('.traybtn')).click();
+  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });
   await expect(drawer.locator('.tray__item')).toHaveCount(1);
   await expect.poll(async () => (await drawer.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(0);

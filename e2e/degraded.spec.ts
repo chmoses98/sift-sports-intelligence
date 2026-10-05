@@ -54,7 +54,7 @@ test.describe('with a fixed clock', () => {
     await page.goto(marketUrl);
     await expect.poll(() => marketPrice(page)).toBe('58¢ / 60¢');
     await expect(chip(page)).toHaveAttribute('data-quote-source', 'live');
-    await expect(chip(page)).toContainText('FRESH · 4m'); // its real age from the feed, not "now"
+    await expect(chip(page)).toContainText('Updated 4m ago'); // its real age from the feed, not "now"
     await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'FEED');
   });
 
@@ -71,7 +71,7 @@ test.describe('with a fixed clock', () => {
     );
     await page.goto(marketUrl);
     await expect.poll(() => marketPrice(page)).toBe('58¢ / 60¢');
-    await expect(chip(page)).toContainText('FRESH · 4m'); // the feed's real age
+    await expect(chip(page)).toContainText('Updated 4m ago'); // the feed's real age
     await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'FEED');
     await page.goto('./#/status');
     const diag = (k: string) => page.locator(`td[data-diag="${k}"]`);
@@ -107,7 +107,7 @@ test.describe('with a fixed clock', () => {
       }),
     );
     market.set(ML, 0.51);
-    await page.goto(`./#/nfl/game/${NEBUF}`);
+    await page.goto(`./#/nfl/game/${NEBUF}?tab=markets`);
     await expect(page.locator('.newlisted')).toContainText('Buffalo wins by over 9.5 points?');
     await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'LIVE');
     await expect.poll(() => market.tickerRequests().length).toBeGreaterThan(0);
@@ -196,7 +196,7 @@ test('research unavailable on Home: the app stays up and says why (no error-boun
   errors.allow(/Failed to load resource: the server responded with a status of 404/); // injected below
   await page.route('**/data/nfl/app/latest/explorer/index.json', (r) => r.fulfill({ status: 404, body: 'not found' }));
   await page.goto('./#/');
-  await expect(page.getByRole('heading', { name: 'Sift' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Today on Sift' })).toBeVisible();
   await expect(page.getByText(/The NFL board could not be read/)).toBeVisible();
   await expect(page.getByText('Unexpected Application Error')).toHaveCount(0);
 });
@@ -228,12 +228,12 @@ test('live vs snapshot: the live root\'s newer run is announced while the snapsh
 
 test('offline with previously loaded research: it still renders; the banner is accurate', async ({ page, context }) => {
   await page.goto(`./#/nfl/game/${NEBUF}`);
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Model Read' })).toBeVisible();
   await page.locator('.mh__team--home .mh__name').click();
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await context.setOffline(true);
   await page.goBack();
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Model Read' })).toBeVisible();
   await expect(page.getByRole('status').filter({ hasText: 'Offline' })).toBeVisible();
   await expect(page.locator('.mh__chips .qchip')).toBeVisible();
   await context.setOffline(false);

@@ -86,6 +86,8 @@ describe('market detail on the market clock', () => {
     renderScreen(routes.market('nfl', ML.market_id, GAME), '/nfl/market/:marketId', <MarketView />);
     await screen.findByText('YES pays $1 if');
     await onClock(() => expect(document.querySelector('.qchip')!.getAttribute('data-quote-state')).toBe('SUSPENDED:FRESH'));
-    expect(document.querySelector('.qchip')!.textContent).toMatch(/SUSPENDED · quote \d+s old/);
+    // The chip says it quietly; the explicit state stays in data-quote-state and the accessible name.
+    expect(document.querySelector('.qchip')!.textContent).toMatch(/Suspended · \d+s ago/);
+    expect(document.querySelector('.qchip')!.closest('button')!.getAttribute('aria-label')).toMatch(/SUSPENDED · quote \d+s old/);
   });
 });

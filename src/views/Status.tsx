@@ -12,6 +12,7 @@ import { ROUTER_HEALTH_URL, useAllSports } from '../state/allSports';
 import { useVisit } from '../state/trail';
 import { CapabilityTable } from './SportOverview';
 import { LiveDiagnostics } from '../components/LiveDiagnostics';
+import { allVenuePhotos } from '../lib/venues';
 
 interface RouterHealth { overall_status: string; generated_at: string; last_poll_at: string; errors: string[]; warnings: string[]; delivered: number; failed: number; thresholds: Record<string, { fresh_after_seconds: number; stale_after_seconds: number }> }
 
@@ -70,6 +71,20 @@ export function StatusView() {
             <p className="muted small">Generated {exactTime(router.data.generated_at)} · {router.data.delivered} delivered · {router.data.failed} failed · {router.data.errors.length} errors, {router.data.warnings.length} warnings.</p>
           </div>
         ) : router.loading ? <Skeleton lines={2} /> : <p className="muted">router_health.json could not be read.</p>}
+      </Stratum>
+      <Stratum id="photo-credits" title="Stadium photo credits" sub="Each venue's Wikipedia lead image (free licence, Wikimedia Commons), fetched once and served with the app — never fetched at runtime.">
+        <table className="dtable">
+          <thead><tr><th scope="col">Venue</th><th scope="col">Photo</th><th scope="col">Licence</th></tr></thead>
+          <tbody>
+            {allVenuePhotos().map(({ venue, photo }) => (
+              <tr key={venue.slug}>
+                <th scope="row">{venue.name}<span className="muted small"> · {venue.city}</span></th>
+                <td className="small">{photo.credit.source ? <a href={photo.credit.source} target="_blank" rel="noreferrer">{photo.credit.artist}</a> : photo.credit.artist}</td>
+                <td className="small">{photo.credit.licenseUrl ? <a href={photo.credit.licenseUrl} target="_blank" rel="noreferrer">{photo.credit.license}</a> : photo.credit.license}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Stratum>
       <Stratum title="Source preference" sub="Sift reads live roots first and falls back to a bundled same-run snapshot only where a live explorer is missing.">
         <div className="seg" role="radiogroup" aria-label="Data source">

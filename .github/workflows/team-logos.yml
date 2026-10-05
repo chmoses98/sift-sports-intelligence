@@ -28,12 +28,13 @@ jobs:
           node-version: 22
       - run: convert -list format | grep -i webp || (sudo apt-get update && sudo apt-get install -y webp imagemagick)
       - run: node scripts/teams/fetch-logos.mjs
+      - run: node scripts/teams/fetch-leagues.mjs
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/teams src/lib/team-logos.json
+          git add public/teams public/leagues src/lib/team-logos.json src/lib/league-logos.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          git commit -m "NFL team logos (fetched once from ESPN's logo CDN)"
+          git commit -m "Team and league logos (fetched once from ESPN's logo CDN)"
           git pull --rebase origin "${GITHUB_REF_NAME}" || true
           git push

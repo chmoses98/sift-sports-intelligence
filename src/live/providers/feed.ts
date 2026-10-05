@@ -100,7 +100,9 @@ export class FeedQuoteProvider implements QuoteProvider {
   async fetchEventMarkets(eventTickers: string[], signal?: AbortSignal): Promise<ProviderResult> {
     const t0 = this.now();
     const events = new Set(eventTickers);
-    const { quotes, requests } = await this.byGames(eventTickers.map(gameKeyOf).filter((k): k is string => !!k), signal);
-    return { quotes: quotes.filter((q) => q.eventTicker != null && events.has(q.eventTicker)), missing: [], requests, latencyMs: this.now() - t0 };
+    const { docs, quotes, requests } = await this.byGames(eventTickers.map(gameKeyOf).filter((k): k is string => !!k), signal);
+    // An event whose game has no feed file is unknown here, not empty: say so, so a chain can ask the relay.
+    const uncovered = eventTickers.filter((e) => { const k = gameKeyOf(e); return !k || !docs.get(k); });
+    return { quotes: quotes.filter((q) => q.eventTicker != null && events.has(q.eventTicker)), missing: [], requests, latencyMs: this.now() - t0, ...(uncovered.length ? { uncovered } : {}) };
   }
 }

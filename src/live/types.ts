@@ -36,6 +36,22 @@ export interface ProviderResult {
   missing: string[];
   requests: number;
   latencyMs: number;
+  /** Inventory only: event tickers this provider has no data for at all (unknown, not "no contracts"). */
+  uncovered?: string[];
+  /** Set by a provider chain: which provider answered this call. */
+  answeredBy?: string;
+  /** Set by a provider chain: why an earlier provider was skipped for this call (null = the first answered). */
+  fallback?: FallbackNote | null;
+  /** Set by a provider chain: false when an inventory listing came from a provider other than the quote primary. */
+  refreshesQuotes?: boolean;
+}
+
+/** Why a provider chain skipped its first provider for one call: provider, error, HTTP status, when. */
+export interface FallbackNote {
+  provider: string;
+  error: string;
+  status: number | null;
+  at: number;
 }
 
 export type ProviderErrorKind = 'rate_limited' | 'http' | 'network' | 'timeout' | 'schema' | 'blocked' | 'aborted';

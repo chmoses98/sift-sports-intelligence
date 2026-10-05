@@ -12,12 +12,16 @@ export function LiveDiagnostics() {
   const s = liveStore();
   const d = s.diagnostics();
   const at = (t: number | null) => (t ? `${exactTime(new Date(t).toISOString())} (${formatQuoteAge(now - t)} ago)` : '—');
+  const reason = (f: typeof d.fallback) => (f ? `${f.provider} ${f.status ? `HTTP ${f.status}` : 'failed'} (${f.error}) at ${at(f.at)}` : '—');
   const ages = s.allQuotes().map((q) => quoteAgeMs(q.observedAt, now) ?? 0);
   const rows: [string, string][] = [
     ['Mode', liveMode(d, now)],
-    ['Provider', d.providerLabel],
-    ['Answered by', d.answeredBy ?? '—'],
-    ['Fallback reason', d.fallback ? `${d.fallback.provider} ${d.fallback.status ? `HTTP ${d.fallback.status}` : 'failed'} (${d.fallback.error}) at ${at(d.fallback.at)}` : '—'],
+    ['Quote provider', d.providerLabel],
+    ['Quotes answered by', d.answeredBy ?? '—'],
+    ['Quote fallback reason', reason(d.fallback)],
+    ['Inventory provider', d.inventoryProviderLabel],
+    ['Inventory answered by', d.inventoryAnsweredBy ?? '—'],
+    ['Inventory fallback reason', reason(d.inventoryFallback)],
     ['Online / visible', `${d.online ? 'online' : 'offline'} / ${d.visible ? 'visible' : 'hidden'}`],
     ['Last request', at(d.lastRequestAt)],
     ['Last successful refresh', at(d.lastSuccessAt)],

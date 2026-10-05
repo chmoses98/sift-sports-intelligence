@@ -17,7 +17,7 @@ async function diagCell(page, k) {
 }
 
 // Fallback proof, on the live site: force the relay to answer Kalshi's 429 in this browser only, and
-// prove the feed answers (FEED, honest freshness, packet still builds, the 429 named with its status,
+// prove the feed answers the quotes (FEED, honest freshness, packet still builds, the 429 named with its status,
 // no crash). Then let the relay through again and prove LIVE returns. Production itself is untouched.
 async function fallbackProof(browser, device, name, gameUrl) {
   console.log(`  -- fallback proof (relay forced to HTTP 429 in this browser)`);
@@ -53,9 +53,9 @@ async function fallbackProof(browser, device, name, gameUrl) {
     check(['FRESH', 'AGING'].includes(state ?? ''), `fallback: freshness is the feed's real age (got ${state})`);
     await page.goto(BASE + '#/status');
     await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
-    const reason = await diag('Fallback reason');
-    console.log(`  status: answered by ${await diag('Answered by')} | mode ${await diag('Mode')} | fallback reason: ${reason}`);
-    check((await diag('Answered by')) === 'quote-feed', 'fallback: Status says the quote feed answered');
+    const reason = await diag('Quote fallback reason');
+    console.log(`  status: quotes answered by ${await diag('Quotes answered by')} | mode ${await diag('Mode')} | quote fallback reason: ${reason} | inventory answered by ${await diag('Inventory answered by')}`);
+    check((await diag('Quotes answered by')) === 'quote-feed', 'fallback: Status says the quote feed answered the quotes');
     check(/kalshi-relay HTTP 429/.test(reason), `fallback: the relay error is shown with its status code (${reason})`);
     const ev = gameUrl.split('/game/')[1]?.split('?')[0];
     await page.goto(`${BASE}#/packet?sport=nfl&scope=GAME&event=${ev}`);
@@ -72,8 +72,8 @@ async function fallbackProof(browser, device, name, gameUrl) {
     check((await page.locator('[data-live-mode]').getAttribute('data-live-mode')) === 'LIVE', 'restored: mode returns to LIVE when the relay answers');
     await page.goto(BASE + '#/status');
     await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
-    console.log(`  restored: answered by ${await diag('Answered by')} | mode ${await diag('Mode')} | fallback reason: ${await diag('Fallback reason')}`);
-    check((await diag('Answered by')) === 'kalshi-relay' && (await diag('Fallback reason')) === '—', 'restored: the relay answers and no fallback is reported');
+    console.log(`  restored: quotes answered by ${await diag('Quotes answered by')} | mode ${await diag('Mode')} | quote fallback reason: ${await diag('Quote fallback reason')}`);
+    check((await diag('Quotes answered by')) === 'kalshi-relay' && (await diag('Quote fallback reason')) === '—', 'restored: the relay answers the quotes and no quote fallback is reported');
   } catch (e) {
     check(false, `${name} fallback proof: ${String(e).split('\n')[0]}`);
     await page.screenshot({ path: `production-${name}-fallback-failure.png` }).catch(() => {});
@@ -140,21 +140,27 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     await page.goto(BASE + '#/status');
     await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
     const diag = (k) => diagCell(page, k);
-    const provider = await diag('Provider');
-    const answered = await diag('Answered by');
+    const provider = await diag('Quote provider');
+    const answered = await diag('Quotes answered by');
     const diagMode = await diag('Mode');
-    console.log(`  provider chain: ${provider}\n  answered by: ${answered} | mode: ${diagMode}`);
+    const invProvider = await diag('Inventory provider');
+    const invAnswered = await diag('Inventory answered by');
+    const invFallback = await diag('Inventory fallback reason');
+    console.log(`  quote chain: ${provider}\n  quotes answered by: ${answered} | mode: ${diagMode}`);
+    console.log(`  inventory chain: ${invProvider}\n  inventory answered by: ${invAnswered} | inventory fallback reason: ${invFallback}`);
     if (RELAY) console.log(`  relay requests from the page: ${relay.length} [${[...new Set(relay)].slice(0, 6).join('; ')}]`);
     if (EXPECT_RELAY) {
-      const fallback = await diag('Fallback reason');
-      console.log(`  fallback reason: ${fallback} | feed requests: ${feed.length}`);
-      check(/^Kalshi public market data via relay \(.+\), then Sift quote feed/.test(provider), 'relay is the primary provider, GitHub quote feed the fallback');
+      const fallback = await diag('Quote fallback reason');
+      console.log(`  quote fallback reason: ${fallback} | feed requests (inventory): ${feed.length}`);
+      check(/^Kalshi public market data via relay \(.+\), then Sift quote feed/.test(provider), 'quotes: relay first, GitHub quote feed the fallback');
+      check(/^Sift quote feed .*, then Kalshi public market data via relay \(.+\)/.test(invProvider), 'inventory: GitHub quote feed first, relay the fallback');
+      check(invAnswered === 'quote-feed' || (invAnswered === 'kalshi-relay' && invFallback.startsWith('quote-feed')), `inventory came from the feed, or from the relay after the feed was asked first (${invAnswered}; ${invFallback})`);
       check(provider.includes(`(${new URL(RELAY).host})`), `the configured relay host is the one Sift calls (${new URL(RELAY).host})`);
       check(answered === 'kalshi-relay', `live quotes answered by kalshi-relay (got ${answered})`);
       check(diagMode === 'LIVE', `market clock mode LIVE (got ${diagMode})`);
       check(state === 'FRESH', `current game prices are FRESH (got ${state})`);
       check(relay.length > 0 && relay.every((r) => r === 'GET 200'), `every relay request on the main path answered 200 (${relay.length}: ${[...new Set(relay)].join('; ')})`);
-      check(feed.length === 0 && fallback === '—', `no fallback to the quote feed on the main path (${feed.length} feed requests; fallback reason ${fallback})`);
+      check(fallback === '—', `no quote fallback to the feed on the main path (quote fallback reason ${fallback})`);
     }
     await page.goto(gameUrl);
     const ev = page.url().split('/game/')[1]?.split('?')[0];

@@ -209,7 +209,7 @@ export function liveMode(d: ReturnType<ReturnType<typeof liveStore>['diagnostics
   if (d.provider === 'none') return 'OFF';
   if (!d.online) return 'OFFLINE';
   if (d.backoffUntil && d.backoffUntil > now) return 'BACKOFF';
-  if (!d.lastSuccessAt) return 'CONNECTING';
+  if (!d.lastSuccessAt || !d.answeredBy) return 'CONNECTING'; // an inventory answer alone says nothing about quotes
   return d.answeredBy === 'quote-feed' ? 'FEED' : 'LIVE';
 }
 
@@ -233,7 +233,8 @@ export function LiveStatusChip({ now }: { now: number }) {
       }
     >
       <span className="pv">
-        <span className="pv__row"><span>Provider</span><b>{d.providerLabel}</b></span>
+        <span className="pv__row"><span>Quotes from</span><b>{d.answeredBy ?? '—'}</b></span>
+        <span className="pv__row"><span>Inventory from</span><b>{d.inventoryAnsweredBy ?? '—'}</b></span>
         <span className="pv__row"><span>Last success</span><b>{d.lastSuccessAt ? `${formatQuoteAge(now - d.lastSuccessAt)} ago` : 'never'}</b></span>
         {d.lastError && <span className="pv__row"><span>Last error</span><b>{d.lastError}</b></span>}
         {mode === 'FEED' && d.fallback && <span className="pv__row"><span>Relay skipped</span><b>{d.fallback.status ? `HTTP ${d.fallback.status}` : d.fallback.error}</b></span>}

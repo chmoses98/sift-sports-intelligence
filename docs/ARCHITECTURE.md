@@ -129,9 +129,21 @@ can leak. Two read-only paths remain, and Sift uses both behind one provider abs
    status, time) and *Data & provenance* shows it as **Fallback reason**; the mode reads FEED. Nothing
    hides a 429.
 
-`src/live/config.ts` builds the provider chain: relay (if `VITE_SIFT_QUOTE_RELAY_URL` is set at build
-time, from the repository variable `SIFT_QUOTE_RELAY_URL`) then feed (`FallbackProvider`). Screens never
-call a provider.
+`src/live/config.ts` builds the provider chain (`FallbackProvider`) when both are configured (the relay
+from `VITE_SIFT_QUOTE_RELAY_URL`, set at build time from the repository variable `SIFT_QUOTE_RELAY_URL`):
+
+| | first | fallback | why |
+|---|---|---|---|
+| quote batches (`fetchQuotes`) | relay | quote feed | 15–60 s quotes; ≤ 8 batches per 45 s per game fit Kalshi's per-IP budget |
+| inventory sweeps (`fetchEventMarkets`) | quote feed | relay | ~57 series listings per game exceed Kalshi's ~14-request per-IP burst; the feed publishes full listings every 3 min (the inventory cadence) |
+
+Every answer carries its provenance (`answeredBy`, the skipped provider's error and HTTP status), kept
+separately for quotes and inventory and shown on *Data & provenance*; the mode (LIVE / FEED) follows the
+quote source only. A feed that has no file for a game reports those events as *uncovered* (unknown, not
+"no contracts"), so the relay is asked. An inventory listing from a provider other than the quote
+primary updates inventory and, newer-wins, quotes, but does not count as the quote refresh: the relay
+batch for those tickers still runs. Freshness thresholds, cadences and packet semantics are unchanged.
+Screens never call a provider.
 
 ### Quote normalisation
 

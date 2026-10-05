@@ -70,15 +70,15 @@ kalshi-relay* and *Mode LIVE*.
 
 ### Limits that matter (Hobby, checked October 2026; not "free forever")
 
-* **Function invocations: 1,000,000 / month.** Sift makes about 46 relay requests per minute per person
-  with a game screen open (measured: 24 ticker batches + 114 series listings in 3 minutes), less on
-  other screens and none while the tab is hidden. That is roughly 360 hours of game-screen time a month
-  before sharing; identical reads within 5 s are shared, so several friends on the same game cost about
-  the same as one.
+* **Function invocations: 1,000,000 / month.** Since inventory sweeps go to the quote feed first, the
+  relay serves quote batches only: up to 8 batches of 100 tickers per 45 s on a game screen (about 11
+  a minute), less on other screens, none while the tab is hidden. That is roughly 1,500 hours of
+  game-screen time a month; identical reads within 5 s are shared, so friends on the same game cost
+  about the same as one.
 * **Active CPU: 4 hours / month.** The relay mostly waits on Kalshi, which is not counted as active CPU.
 * **Data transfer: 100 GB / month** (fast data transfer), with a smaller allowance for data leaving
-  functions (fast origin transfer). Series listings are the large answers; the rate-limit smoke reports
-  the average answer size per request so usage can be estimated.
+  functions (fast origin transfer). A 100-ticker answer is on the order of 100 KB uncompressed (about
+  65 MB per game-screen hour); the rate-limit smoke reports the measured average answer size.
 * **Duration:** each request is capped at 15 s (`vercel.json`); the relay itself gives up on Kalshi at
   8 s.
 * **Cold starts:** a few hundred milliseconds after idle; no sleeping.
@@ -110,12 +110,15 @@ from Kalshi's CloudFront edge with no `Retry-After`.
   refused (10 of 10 × 429, and 16 of 17 in production) while the same runner going directly to Kalshi
   got 10 of 10 × 200. Workers share Cloudflare's outbound IPs with everyone else calling Kalshi; a host
   with its own egress gets Sift's own budget back.
-* **Not fixed by any single host:** a game screen's *inventory* sweep lists ~57 Kalshi series one after
-  another (every 180 s). That exceeds the ~14-request burst from any one IP, so part of each sweep is
-  answered 429 and that sweep falls back to the quote feed (the relay passes the 429 through; the
-  feed answers; *Fallback reason* shows `kalshi-relay HTTP 429`). Quote polls (≤ 8 batches of 100
-  tickers per 45 s per game) fit the budget easily. Making the sweep fit is an app-side choice (see the
-  handoff), not a hosting one.
+* **Not fixable by any single host, so Sift routes around it:** a game screen's *inventory* sweep
+  lists ~57 Kalshi series one after another (every 180 s), more than the ~14-request burst any one IP
+  gets. Sift therefore asks the **quote feed first for inventory** (it publishes every game's full
+  listing every 3 minutes, the inventory cadence) and the relay only if the feed cannot answer, while
+  **quote batches go to the relay first** (≤ 8 batches of 100 tickers per 45 s per game, well inside the
+  budget) with the feed as fallback. *Data & provenance* shows each independently: *Quote provider /
+  Quotes answered by / Quote fallback reason* and *Inventory provider / Inventory answered by /
+  Inventory fallback reason*. A feed inventory listing never stands in for the relay's quote batch:
+  prices still come from the relay, each with its own observation time.
 
 ## Legacy: Cloudflare Worker
 

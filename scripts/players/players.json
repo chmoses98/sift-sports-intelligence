@@ -1,0 +1,9 @@
+{
+  "$comment": "Player imagery for Game Script cards (REVIEW ASSETS, temporary until a licensed player-image source is chosen). One entry per player: `team`, `role` (lead = QB, skill = RB/WR), the publication's `participant_id`, and the Wikimedia Commons `category` to search. Pin a reviewed frame as `commons_file` (+ `focus`); scripts/players/fetch.mjs then downloads pinned files only (free licences, credited). Unpinned players get a contact sheet under curation/players/.",
+  "players": [
+    { "name": "Josh Allen", "team": "BUF", "role": "lead", "participant_id": "prt_06ec4b4943c66094d6f3", "category": "Josh Allen (quarterback)" },
+    { "name": "James Cook", "team": "BUF", "role": "skill", "participant_id": "prt_c4d635de928fd38b27a7", "category": "James Cook (American football)" },
+    { "name": "Drake Maye", "team": "NE", "role": "lead", "participant_id": "prt_b23983bae524e670f6b8", "category": "Drake Maye" },
+    { "name": "Rhamondre Stevenson", "team": "NE", "role": "skill", "participant_id": "prt_da5c4fc5c73a925e6a56", "category": "Rhamondre Stevenson" }
+  ]
+}

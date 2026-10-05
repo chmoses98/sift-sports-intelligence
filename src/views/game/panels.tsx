@@ -10,6 +10,9 @@ import { routes } from '../../lib/routes';
 import { sharePct, type Fit, type GameScript, type ScriptId, type ScriptSet } from '../../lib/scripts';
 import { quoteAgeMs, quoteFreshness, formatQuoteAge } from '../../live/freshness';
 import { splitName } from './Hero';
+import { scriptArt, type ScriptArt as ScriptArtT } from '../../lib/players';
+import { teamColors, teamLogo } from '../../lib/teams';
+import { useHeldImage } from '../../lib/useImage';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -136,6 +139,23 @@ export const SIM_SHARE_INFO = (
   </>
 );
 
+/** The cinematic layer behind a script card: player imagery (or the team's logo as atmosphere), heavily darkened. */
+function ArtImage({ art, sport }: { art: ScriptArtT; sport: string }) {
+  const img = useHeldImage(art.src);
+  const logo = useHeldImage(art.kind === 'logo' ? teamLogo(sport, art.team) : null);
+  if (art.kind === 'player') return img ? <img className="scard__img" src={img} alt="" style={{ objectPosition: art.focus }} /> : null;
+  return logo ? <img className="scard__img scard__img--logo" src={logo} alt="" /> : null;
+}
+
+export function ScriptArtLayer({ set, id }: { set: ScriptSet; id: ScriptId }) {
+  const arts = scriptArt(set, id);
+  return (
+    <span className={`scard__art${arts.length > 1 ? ' scard__art--split' : ''}`} aria-hidden="true">
+      {arts.map((a) => <span key={a.team} className="scard__frame" style={{ ['--tc' as string]: teamColors('NFL', a.team)[0] }}><ArtImage art={a} sport="NFL" /></span>)}
+    </span>
+  );
+}
+
 export function ScriptsPanel({ set, selected, hrefFor, title = 'Game Scripts', compact }: { set: ScriptSet; selected: ScriptId | null; hrefFor: (id: ScriptId | null) => string; title?: string; compact?: boolean }) {
   const sel = set.scripts.find((s) => s.id === selected) ?? null;
   return (
@@ -155,6 +175,7 @@ export function ScriptsPanel({ set, selected, hrefFor, title = 'Game Scripts', c
           return (
             <li key={s.id}>
               <Link to={hrefFor(on ? null : s.id)} className={`scard scard--s${s.index}${on ? ' is-sel' : ''}${sel && !on ? ' is-dim' : ''}`} aria-current={on ? "true" : undefined} aria-label={`${s.name}: ${sharePct(s.share)} of simulated games. ${s.summary}${on ? ' Selected.' : ''}`}>
+                <ScriptArtLayer set={set} id={s.id} />
                 <span className="scard__name">{s.name}</span>
                 <span className="scard__pct num">{sharePct(s.share)}</span>
                 <span className="scard__d">{s.summary}</span>

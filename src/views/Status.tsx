@@ -12,6 +12,7 @@ import { ROUTER_HEALTH_URL, useAllSports } from '../state/allSports';
 import { useVisit } from '../state/trail';
 import { CapabilityTable } from './SportOverview';
 import { LiveDiagnostics } from '../components/LiveDiagnostics';
+import { allPlayerImages } from '../lib/players';
 import { allVenuePhotos } from '../lib/venues';
 
 interface RouterHealth { overall_status: string; generated_at: string; last_poll_at: string; errors: string[]; warnings: string[]; delivered: number; failed: number; thresholds: Record<string, { fresh_after_seconds: number; stale_after_seconds: number }> }
@@ -82,6 +83,21 @@ export function StatusView() {
                 <td className="small">{photo.credit.source ? <a href={photo.credit.source} target="_blank" rel="noreferrer">{photo.credit.artist}</a> : photo.credit.artist}</td>
                 <td className="small">{photo.credit.licenseUrl ? <a href={photo.credit.licenseUrl} target="_blank" rel="noreferrer">{photo.credit.license}</a> : photo.credit.license}</td>
                 <td className="small">{photo.credit.modifications ?? 'None'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Stratum>
+      <Stratum id="player-credits" title="Player image credits" sub="REVIEW ASSETS for the Game Script cards: free-licence Wikimedia Commons photographs, darkened and cropped by Sift, until a licensed player-image source is chosen.">
+        <table className="dtable">
+          <thead><tr><th scope="col">Player</th><th scope="col">Photo</th><th scope="col">Licence</th><th scope="col">Changes</th></tr></thead>
+          <tbody>
+            {allPlayerImages().map((p) => (
+              <tr key={p.id}>
+                <th scope="row">{p.name}<span className="muted small"> · {p.team}</span></th>
+                <td className="small"><a href={p.source} target="_blank" rel="noreferrer">{p.artist}</a></td>
+                <td className="small">{p.license_url ? <a href={p.license_url} target="_blank" rel="noreferrer">{p.license}</a> : p.license}</td>
+                <td className="small">{p.modifications ?? 'None'}</td>
               </tr>
             ))}
           </tbody>

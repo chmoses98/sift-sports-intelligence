@@ -20,13 +20,16 @@ a:hover { color: var(--ivory); }
 ::selection { background: rgba(242, 192, 72, 0.32); color: #fff; }
 
 /* ---- panel: slate, faint top light, warm hairline */
+/* OPEN BY DEFAULT (mockup): a section is content placed on the black canvas — no fill, border, shadow or
+   radius. Structure comes from spacing, alignment, type and the occasional divider. A few components opt back
+   into a tonal field (Model Read, script cards) and borders are reserved for state (selected, active, focus). */
 .panel {
   position: relative; min-width: 0;
-  padding: var(--s-5);
-  border-radius: var(--r-3);
-  background: var(--panel);
-  border: 1px solid var(--panel-line);
-  box-shadow: var(--shadow-1);
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .panel--flush { padding: 0; }
 .panel__big { font-family: var(--font-serif); font-size: 3rem; color: var(--gold); line-height: 1; margin: 2px 0; }
@@ -214,3 +217,7 @@ a:hover { color: var(--ivory); }
 /* Content layer brightness (mockup): data reads crisp white and slightly heavier; labels stay quieter. */
 .ptabs a[aria-current='page'] { color: #fff; font-weight: 680; }
 .phead__sub { color: var(--text-2); }
+
+/* Quote status reads as quiet text with a state dot, not a pill; it is still a button (popover with the state). */
+.qchip { border-color: transparent !important; background: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding-left: 0; padding-right: 4px; }
+.qchip:hover, .qchip[aria-expanded='true'] { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-3); }

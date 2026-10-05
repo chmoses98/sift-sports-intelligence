@@ -87,9 +87,25 @@
   .mh__final { font-style: normal; color: var(--gold-2); }
 }
 @media (min-width: 1100px) {
-  .mh__in { padding: var(--s-8) var(--s-8) var(--s-5); min-height: 318px; align-content: space-between; }
-  .mh--hero .teammark--xl { width: 128px; height: 128px; }
-  .mh--hero .mh__name { font-size: clamp(3.4rem, 5vw, 5.6rem); }
+  /* Compact desktop header (mockup): one top row (eyebrow · prices · actions), one matchup row; the analytical
+     row starts inside the first viewport. */
+  .mh__in { padding: var(--s-4) var(--s-8) var(--s-5); gap: var(--s-3); grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'eyebrow bar' 'teams teams'; align-items: center; }
+  .mh__eyebrow { grid-area: eyebrow; }
+  .mh__bar { grid-area: bar; justify-content: flex-end; gap: 10px; }
+  .mh__bar .mh__chips { order: -1; }
+  .mh--hero .mh__teams { grid-area: teams; gap: var(--s-8); }
+  .mh--hero .teammark--xl { width: 92px; height: 92px; }
+  .mh--hero .mh__name { font-size: clamp(3rem, 3.9vw, 4.2rem); }
+  .mh--hero .mh__team { gap: var(--s-5); }
+  .mh__mid { gap: 4px; min-width: 300px; }
+  .mh__at { display: none; }
+  .mh__when { display: flex; gap: 8px; align-items: baseline; justify-content: center; flex-wrap: wrap; }
+  .mh__day { font-size: 1.02rem; }
+  .mh__time { font-size: 0.95rem; }
+  .mh__venue { font-size: 0.88rem; }
+  .mh__mid .wx { margin-top: 6px; padding: 6px 14px 6px 10px; }
+  .mh__mid .wx .wx__t { font-size: 2.1rem; }
+  .mh__mid .wx .wx__ic { width: 28px; height: 28px; }
 }
 
 /* ---------------------------------------------------------------- page tabs */
@@ -97,7 +113,7 @@
 @media (min-width: 720px) { .gtabs { margin: 0 calc(var(--s-6) * -1); padding: 0 var(--s-5); } }
 
 /* ---------------------------------------------------------------- overview grid */
-.ov { container-type: inline-size; display: grid; gap: var(--s-4); margin-top: var(--s-5); grid-template-columns: minmax(0, 1fr); }
+.ov { container-type: inline-size; display: grid; gap: var(--s-8) var(--s-4); margin-top: var(--s-6); grid-template-columns: minmax(0, 1fr); }
 .ov > * { grid-column: 1 / -1; }
 @media (min-width: 760px) {
   .ov { grid-template-columns: repeat(12, minmax(0, 1fr)); }
@@ -115,11 +131,11 @@
   .ov > .ov-h2h, .ov > .ov-inj { grid-column: span 6; }
 }
 @media (min-width: 1500px) {
-  /* 24 tracks: the analytical row gets Model Read 7 · Scripts 9 · Survivors 8 so neither the read nor the
+  /* 24 tracks: the analytical row gets Model Read 6 · Scripts 10 · Survivors 8 so neither the read nor the
      cards are squeezed; the evidence rows stay balanced underneath. */
   .ov { grid-template-columns: repeat(24, minmax(0, 1fr)); }
-  .ov > .ov-model { grid-column: span 7; }
-  .ov > .ov-scripts { grid-column: span 9; }
+  .ov > .ov-model { grid-column: span 6; }
+  .ov > .ov-scripts { grid-column: span 10; }
   .ov > .ov-surv { grid-column: 17 / span 8; grid-row: 1; }
   .ov > .ov-markets { grid-column: span 16; }
   .ov > .ov-form { grid-column: span 8; }
@@ -127,7 +143,7 @@
 }
 
 /* ---- model read: the lead read, set apart from the panels around it */
-.ov-model { background: radial-gradient(120% 70% at 0% 0%, rgba(20, 110, 210, 0.30), transparent 62%), linear-gradient(170deg, #08203a 0%, #05152a 45%, #04111c 100%); border-color: rgba(48, 150, 240, 0.36); }
+.ov-model { padding: var(--s-5); border-radius: var(--r-1); background: radial-gradient(120% 80% at 0% 0%, rgba(20, 100, 200, 0.20), transparent 60%), linear-gradient(180deg, #061a2c 0%, #041321 60%, rgba(4, 17, 28, 0) 100%); }
 .ov-model .phead { gap: 12px; }
 .ov-model__ic { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--r-2); background: rgba(34, 174, 236, 0.14); color: var(--ice); border: 1px solid rgba(34, 174, 236, 0.3); }
 .ov-model .phead__x { margin-left: auto; }
@@ -135,7 +151,8 @@
 /* Model tiles: three raised mini-cards (mockup), values scale with the panel so they never wrap. */
 .ov-model { container-type: inline-size; }
 .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
-.tile { display: grid; justify-items: center; align-content: start; gap: 3px; padding: 12px 6px 10px; text-align: center; border-radius: var(--r-2); background: var(--panel-raised); border: 1px solid rgba(48, 150, 240, 0.28); box-shadow: inset 0 1px 0 rgba(90, 190, 255, 0.1); }
+.tile { display: grid; justify-items: center; align-content: start; gap: 3px; padding: 12px 6px 10px; text-align: center; border-radius: var(--r-2); background: none; border: 0; border-radius: 0; box-shadow: none; }
+.tile + .tile { border-left: 1px solid var(--line); }
 .tile dd { margin: 0; }
 .tile .tile__v { order: -1; font-family: var(--font-num); font-weight: 500; font-size: clamp(1.05rem, 6.2cqw, 1.6rem); line-height: 1.1; color: #fff; white-space: nowrap; }
 .tile dt { font-size: 0.8rem; color: var(--text-2); }
@@ -156,19 +173,31 @@
 .scard--s4 { --sc: var(--script-4); --sh: var(--script-4-hi); --sd: var(--script-4-deep); }
 /* Each script is its own lit scenario (mockup): a saturated colour field glowing from the top corner, a dark
    readable centre, a bright edge with an outer glow. Selected = brighter edge + stronger glow; others dim. */
+/* Script scenario card (mockup): cinematic and dark. Player imagery fills the top, heavily darkened and fading
+   into near-black; the script colour lives only in the edge light, a soft atmosphere and the indicator. */
 .scard {
-  position: relative; display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; height: 100%; min-height: 188px;
-  padding: 14px 14px 12px; border-radius: var(--r-3); overflow: hidden; color: var(--text);
-  background:
-    radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--sh) 34%, transparent) 0%, transparent 70%),
-    linear-gradient(180deg, var(--sd) 0%, color-mix(in srgb, var(--sd) 55%, #02070d) 42%, #03080f 78%, color-mix(in srgb, var(--sd) 30%, #02070d) 100%);
-  border: 1.5px solid var(--sh);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 0 18px -8px var(--sh), 0 0 18px -8px var(--sh);
+  position: relative; isolation: isolate; display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; height: 100%; min-height: 220px;
+  padding: 14px 14px 12px; border-radius: var(--r-2); overflow: hidden; color: var(--text);
+  background: #02070d;
+  border: 1px solid color-mix(in srgb, var(--sh) 55%, transparent);
+  box-shadow: inset 0 2px 0 -1px color-mix(in srgb, var(--sh) 85%, transparent), 0 0 14px -8px var(--sh);
   transition: transform var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast), border-color var(--t-fast), filter var(--t-fast);
 }
-.scard:hover { color: var(--text); transform: translateY(-2px); border-color: var(--sh); }
-.scard.is-sel { border-width: 2px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 26px -6px var(--sh), 0 0 0 1px color-mix(in srgb, var(--sh) 45%, transparent), 0 0 30px -2px color-mix(in srgb, var(--sh) 80%, transparent); }
-.scard.is-sel::after { content: '✓'; position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: var(--sh); color: #04101a; font-size: 12px; font-weight: 800; box-shadow: 0 0 12px var(--sh); }
+.scard > :not(.scard__art) { position: relative; z-index: 1; }
+.scard__art { position: absolute; inset: 0 0 34% 0; z-index: 0; display: flex; overflow: hidden; }
+.scard__frame { position: relative; flex: 1; overflow: hidden; background: radial-gradient(90% 80% at 50% 20%, color-mix(in srgb, var(--tc) 35%, transparent), transparent 75%); }
+.scard__art--split .scard__frame + .scard__frame { border-left: 1px solid rgba(2, 7, 13, 0.9); }
+.scard__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85) contrast(1.08) brightness(0.62); }
+.scard__img--logo { object-fit: contain; padding: 18% 12% 30%; opacity: 0.32; filter: saturate(0.9) brightness(0.8); }
+/* darkness: a scrim over the image, fading to the card's near-black by the lower third; a breath of script colour */
+.scard__art::after { content: ''; position: absolute; inset: 0; background:
+  linear-gradient(180deg, rgba(2, 7, 13, 0.55) 0%, rgba(2, 7, 13, 0.25) 30%, rgba(2, 7, 13, 0.7) 70%, #02070d 100%),
+  radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--sh) 22%, transparent), transparent 70%); }
+.scard::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 40%; z-index: 0; pointer-events: none; background: radial-gradient(80% 90% at 50% 120%, color-mix(in srgb, var(--sc) 22%, transparent), transparent 70%); }
+.scard__name, .scard__pct, .scard__d { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.85); }
+.scard:hover { color: var(--text); transform: translateY(-2px); border-color: color-mix(in srgb, var(--sh) 85%, transparent); }
+.scard.is-sel { border: 2px solid var(--sh); box-shadow: inset 0 3px 0 -1px var(--sh), inset 0 0 22px -8px var(--sh), 0 0 28px -4px color-mix(in srgb, var(--sh) 80%, transparent); }
+.scard.is-sel::before { content: '✓'; z-index: 2; position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: var(--sh); color: #04101a; font-size: 12px; font-weight: 800; box-shadow: 0 0 12px var(--sh); }
 .scard.is-dim { opacity: 0.45; filter: saturate(0.7); }
 .scards { container-type: inline-size; }
 .scard__name { font-weight: 650; font-size: 0.98rem; line-height: 1.2; color: #fff; padding-right: 18px; }
@@ -255,7 +284,8 @@
 
 /* ---- team form */
 .forms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: var(--s-4); }
-.form { padding: 14px; border-radius: var(--r-2); background: var(--panel-raised); border: 1px solid var(--line-2); box-shadow: inset 0 1px 0 rgba(90, 190, 255, 0.08); min-width: 0; }
+.form { padding: 4px 0 0; min-width: 0; }
+.form + .form { padding-left: 16px; border-left: 1px solid var(--line); }
 .form__h { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .form__n { font-weight: 600; font-size: 1.05rem; color: var(--ivory); }
 .wl { list-style: none; margin: 0; padding: 0; display: flex; gap: 5px; }
@@ -323,7 +353,7 @@
 .inj__s--probable { color: var(--pos); }
 
 /* ---- publication notes */
-.gnotes { margin-top: var(--s-6); padding: var(--s-3) var(--s-4); border-radius: var(--r-3); border: 1px solid var(--line); background: transparent; font-size: var(--fs-sm); }
+.gnotes { margin-top: var(--s-8); padding: var(--s-3) 0; border-top: 1px solid var(--line); font-size: var(--fs-sm); }
 .gnotes summary { cursor: pointer; color: var(--text-2); font-weight: 500; min-height: 32px; display: flex; align-items: center; }
 .gnotes .notes { margin-top: var(--s-2); }
 
@@ -381,7 +411,7 @@
 .mb__key { color: var(--text-2); font-size: var(--fs-sm); max-width: 86ch; margin-bottom: var(--s-4); }
 .mb__grid { display: grid; gap: var(--s-4); }
 @media (min-width: 1000px) { .mb__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.mb__block { padding: var(--s-4) var(--s-5); border-radius: var(--r-3); background: var(--panel); border: 1px solid var(--panel-line); box-shadow: var(--shadow-1); }
+.mb__block { padding: var(--s-2) 0 var(--s-4); }
 .mb__bh { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; font-family: var(--font-ui); font-weight: 600; font-size: 0.98rem; margin-bottom: 8px; }
 .mb__side { display: inline-flex; align-items: center; gap: 8px; color: var(--ivory); }
 .mb__side--def { justify-content: flex-end; }
@@ -446,15 +476,10 @@
   .sfb__fascia { display: none; }
 }
 
-/* ---- surface hierarchy on the Overview (mockup): the scripts field recedes so the cards glow; evidence
-   lists (markets, line history, head to head, injuries) sit one step deeper than the summary panels. */
-.ov > .ov-scripts { background: linear-gradient(180deg, #051520 0%, #030f18 100%); }
-.ov > .ov-markets, .ov > .ov-lines, .ov > .ov-h2h, .ov > .ov-inj { background: var(--panel-deep); }
-.ov > .ov-surv { background: radial-gradient(90% 60% at 100% 0%, rgba(0, 160, 210, 0.10), transparent 60%), var(--panel); }
 
 /* Model Read fills its row: the read at the top, the three model tiles anchored to the bottom. */
 .ov > .ov-model { display: flex; flex-direction: column; }
-.ov > .ov-model .tiles { margin-top: auto; }
+.ov > .ov-model .tiles { margin-top: var(--s-2); }
 
 /* Survivors on a phone-width panel: every column stays, with tighter cells so the price is never clipped. */
 @container (max-width: 360px) {
@@ -475,3 +500,13 @@
 .gap--neg { color: var(--neg); }
 .tile .tile__v { font-weight: 600; }
 .scard__name { font-weight: 700; }
+
+/* ---- open overview (mockup): sections sit on the canvas; wide gutters do the separating */
+@media (min-width: 1100px) { .ov { column-gap: var(--s-8); row-gap: var(--s-10); } }
+.ov > .panel .phead { margin-bottom: var(--s-4); }
+.ov-model .tile { padding: 10px 2px 6px; }
+.ov-model .tile dt, .ov-model .tile .tile__m { font-size: 0.74rem; white-space: nowrap; }
+.ov-model .tile .tile__v { font-size: clamp(1rem, 6.6cqw, 1.5rem); }
+/* weather: dark glass, no outline at rest; impactful weather keeps its gold edge (a meaningful state) */
+.wx { border-color: transparent; }
+.wx--flag { border-color: var(--gold-line); }

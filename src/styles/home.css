@@ -186,3 +186,30 @@
 /* The stat's own label already says "Prices": the chip shows only its age (state stays in its name). */
 .shead__stats .qchip .chip__k, .shead__stats .qchip .chip__dim { display: none; }
 .gtile__foot .qchip .chip__dim { display: none; }
+
+/* ==========================================================================
+   OPEN EDITORIAL HOMES (owner: fewer boxes). Sections sit on the canvas; rows, type and space do the work.
+   ========================================================================== */
+/* sports row: an index line, not a strip of chips; the live sport carries the state */
+.sportsrow { gap: 0; padding-bottom: 0; border-bottom: 1px solid var(--line); }
+.sportsrow__a { flex: 0 0 auto; min-width: 0; padding: 12px 22px 12px 0; margin-right: 22px; border: 0; border-radius: 0; background: none; box-shadow: none; position: relative; }
+.sportsrow__a:hover { background: none; }
+.sportsrow__a--live { background: none; border: 0; }
+.sportsrow__a--live::after { content: ''; position: absolute; left: 0; right: 22px; bottom: -1px; height: 2px; background: var(--blue); box-shadow: 0 0 10px rgba(30, 140, 242, 0.7); }
+.sportsrow__a + .sportsrow__a::before { content: ''; position: absolute; left: -22px; top: 14px; bottom: 14px; width: 1px; background: var(--line); }
+/* featured band: imagery only, no frame */
+.feat { border: 0; box-shadow: none; border-radius: var(--r-1); }
+/* the two-column homes get wide gutters instead of card edges */
+@media (min-width: 1100px) { .home__grid, .shome__grid { column-gap: var(--s-10); row-gap: var(--s-8); } }
+.home .stack, .shome .stack { gap: var(--s-8); }
+.home .panel .phead, .shome .panel .phead { margin-bottom: var(--s-3); padding-bottom: var(--s-3); border-bottom: 1px solid var(--line); }
+/* this week: frameless tiles — image strip, then type on black */
+.gtile { background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; }
+.gtile:hover { transform: none; border: 0; }
+.gtile:hover .gtile__img { filter: brightness(1.12); }
+.gtile__img { border-radius: var(--r-1); }
+.gtile__link { padding: 10px 0 8px; }
+.gtile__scripts { padding: 0 0 10px; }
+.gtile__foot { padding: 8px 0 0; }
+.promo { background: none; border: 0; border-top: 1px solid var(--gold-line); border-radius: 0; padding-top: var(--s-4); }
+.feat--nophoto .feat__bg .sfb { -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%); mask-image: linear-gradient(90deg, transparent 0%, #000 22%); }

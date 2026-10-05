@@ -1,4 +1,61 @@
 {
-  "players": {},
-  "generated_at": "2026-10-05T18:22:03.006Z"
+  "players": {
+    "buf-allen-run": {
+      "name": "Josh Allen",
+      "team": "BUF",
+      "slot": "pull-away",
+      "participant_id": "prt_06ec4b4943c66094d6f3",
+      "focus": "58% 18%",
+      "file": "File:Josh Allen (44286993811).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Josh_Allen_(44286993811).jpg",
+      "artist": "Erik Drost",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "modifications": "Cropped, resized and darkened by Sift",
+      "review_asset": true
+    },
+    "buf-allen-portrait": {
+      "name": "Josh Allen",
+      "team": "BUF",
+      "slot": "control",
+      "participant_id": "prt_06ec4b4943c66094d6f3",
+      "focus": "40% 12%",
+      "file": "File:Josh Allen (43569465444).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Josh_Allen_(43569465444).jpg",
+      "artist": "Erik Drost",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "modifications": "Cropped, resized and darkened by Sift",
+      "review_asset": true
+    },
+    "buf-allen-home": {
+      "name": "Josh Allen",
+      "team": "BUF",
+      "slot": "lead",
+      "participant_id": "prt_06ec4b4943c66094d6f3",
+      "focus": "50% 14%",
+      "file": "File:Josh Allen 2019.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Josh_Allen_2019.jpg",
+      "artist": "All-Pro Reels",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "modifications": "Cropped, resized and darkened by Sift",
+      "review_asset": true
+    },
+    "ne-maye": {
+      "name": "Drake Maye",
+      "team": "NE",
+      "slot": "lead",
+      "participant_id": "prt_b23983bae524e670f6b8",
+      "focus": "40% 18%",
+      "file": "File:Drake Maye Patriots vs Titans NOV2024.png",
+      "source": "https://commons.wikimedia.org/wiki/File:Drake_Maye_Patriots_vs_Titans_NOV2024.png",
+      "artist": "Tennessee Titans",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "modifications": "Cropped, resized and darkened by Sift",
+      "review_asset": true
+    }
+  },
+  "generated_at": "2026-10-05T18:24:44.354Z"
 }

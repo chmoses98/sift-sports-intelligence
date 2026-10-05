@@ -5,6 +5,7 @@ import type { EntityProfileDoc, ModelPrice, Observation, SeriesDoc } from '../co
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
 import { MarketBoard } from '../components/MarketBoard';
+import { MetricInfo } from '../components/Gloss';
 import { ContextMeter, EntityLink, ErrorState, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { displayName, kickoff, metricFormatter, ordinal, shortDate } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER } from '../lib/nfl';
@@ -44,6 +45,7 @@ export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabe
         <span className="mrow2__rank">{ctx ? <RankPill rank={ctx.rank} size={ctx.universe_size} hib={ctx.higher_is_better} /> : <span className="muted small">no ranking</span>}</span>
         <span className="mrow2__q"><QualityBadge status={o.quality_status} compact /></span>
       </Link>
+      <MetricInfo metricId={o.metric_id} def={def} align="end" />
       {ctx?.ranking_id && (
         <SaveButton
           compact ref_kind="RANKING" sport={sportCode} id={ctx.ranking_id}

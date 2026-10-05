@@ -4,7 +4,7 @@
 // back to the bundled same-run NFL research snapshot, exactly as it does in production while NFL's
 // live explorer is unpublished; live quotes come from the fixture relay (e2e/fixtures.ts).
 import type { BrowserContext, Page } from '@playwright/test';
-import { expect, noHorizontalOverflow, test } from './fixtures';
+import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
 
 async function shot(page: Page, name: string) {
   await noHorizontalOverflow(page, name);
@@ -29,6 +29,8 @@ async function clipboardFor(context: BrowserContext, browserName: string) {
 
 test('the full research journey ends in a real handicap packet on the clipboard @journey', async ({ page: first, context, isMobile, browserName }) => {
   let page = first;
+  // Game day, before kickoff: a PREGAME research journey (after kickoff new saves are frozen; e2e/closure2.spec.ts).
+  await page.clock.install({ time: NOW });
   const readClipboard = await clipboardFor(context, browserName);
   // 1. Open Sift
   await page.goto('./#/');
@@ -89,7 +91,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   // 8. A player from that game's teams
   await page.locator('.chips .elink--player').filter({ hasText: 'Josh Allen' }).click();
   await expect(page.getByRole('heading', { name: 'Josh Allen' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Markets vs projection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Market vs Projection' })).toBeVisible();
   await shot(page, '08-player');
 
   // 9. One of the player's markets (a rung of the passing-yards ladder)
@@ -109,6 +111,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
     // long journey only; isolated reloads after the same screens pass (e2e deep-link test, CI diagnostic
     // 2026-10-04). A fresh page in the same context proves the same thing: the tray persists across loads.
     const fresh = await context.newPage();
+    await fresh.clock.install({ time: NOW });
     await page.close();
     page = fresh;
     await page.goto('./#/nfl');

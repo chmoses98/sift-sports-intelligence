@@ -27,7 +27,7 @@ const SCREENS: { name: string; url: string; wait: (p: Page) => Promise<unknown>;
   { name: 'game-matchup', url: `./#/nfl/game/${NEBUF}?tab=matchup`, wait: (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor() },
   { name: 'team', url: `./#/nfl/team/${BUF}`, wait: (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor() },
   { name: 'metric', url: `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`, wait: (p) => p.getByText('League median').waitFor() },
-  { name: 'player', url: `./#/nfl/player/${ALLEN}`, wait: (p) => p.getByRole('heading', { name: 'Markets vs projection' }).waitFor() },
+  { name: 'player', url: `./#/nfl/player/${ALLEN}`, wait: (p) => p.getByRole('heading', { name: 'Market vs Projection' }).waitFor() },
   { name: 'market', url: `./#/nfl/market/${ML_ID}?event=${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor(), full: true },
   { name: 'packet', url: `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, wait: (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 }) },
 ];
@@ -63,7 +63,7 @@ test('league ranking @visual', async ({ page, isMobile }) => {
 
 test('research tray @visual', async ({ page, isMobile }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
-  await page.getByRole('heading', { name: 'Markets vs projection' }).waitFor();
+  await page.getByRole('heading', { name: 'Market vs Projection' }).waitFor();
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
   await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });

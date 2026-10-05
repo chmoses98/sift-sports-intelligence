@@ -88,16 +88,16 @@ describe('team profile + historical drill-down', () => {
 describe('capability-aware rendering', () => {
   it('shows player lenses the manifest supports and hides the ones it does not', async () => {
     const a = renderScreen(routes.player('nfl', ALLEN), '/nfl/player/:playerId', <PlayerView />);
-    expect(await screen.findByText('Markets vs projection')).toBeInTheDocument();
-    expect(screen.getByText('Projected distribution')).toBeInTheDocument();
-    expect(screen.getByText('Usage')).toBeInTheDocument();
+    expect(await screen.findByText('Market vs Projection')).toBeInTheDocument();
+    expect(screen.getByText('Projected Range')).toBeInTheDocument();
+    expect(screen.getByText('Usage & Role')).toBeInTheDocument();
     a.unmount();
     clearAsyncMemo();
     renderScreen(routes.player('nfl', ALLEN), '/nfl/player/:playerId', <PlayerView />, { usage: 'UNAVAILABLE', projection_distributions: 'UNAVAILABLE', player_props: 'UNAVAILABLE' });
     await screen.findByText('Josh Allen');
-    expect(screen.queryByText('Markets vs projection')).toBeNull();
-    expect(screen.queryByText('Projected distribution')).toBeNull();
-    expect(screen.queryByText('Usage')).toBeNull();
+    expect(screen.queryByText('Market vs Projection')).toBeNull();
+    expect(screen.queryByText('Projected Range')).toBeNull();
+    expect(screen.queryByText('Usage & Role')).toBeNull();
   });
 
   it('the game page drops sections whose capability is unavailable', async () => {

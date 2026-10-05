@@ -22,6 +22,7 @@ const StatusView = lazy(() => import('./views/Status').then((x) => ({ default: x
 const TeamView = lazy(() => import('./views/Team').then((x) => ({ default: x.TeamView })));
 const TrayView = lazy(() => import('./views/Tray').then((x) => ({ default: x.TrayView })));
 const SlateView = lazy(() => import('./views/Slate').then((x) => ({ default: x.SlateView })));
+const ScorecardView = lazy(() => import('./views/Scorecard').then((x) => ({ default: x.ScorecardView })));
 const ParlaysView = lazy(() => import('./views/Parlays').then((x) => ({ default: x.ParlaysView })));
 const NewsView = lazy(() => import('./views/News').then((x) => ({ default: x.NewsView })));
 const SettingsView = lazy(() => import('./views/Settings').then((x) => ({ default: x.SettingsView })));
@@ -66,6 +67,7 @@ export const routeTree = [
           { index: true, element: <SportHomeView /> },
           { path: 'slate', element: <SlateView /> },
           { path: 'parlays', element: <ParlaysView /> },
+          { path: 'scorecard', element: <ScorecardView /> },
           { path: 'game/:eventId', element: <GameRoute /> },
           { path: 'team/:teamId', element: <TeamView /> },
           { path: 'player/:playerId', element: <PlayerView /> },

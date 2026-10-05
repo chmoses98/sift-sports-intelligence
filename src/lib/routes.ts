@@ -13,6 +13,7 @@ export const routes = {
   sport: (sport: string) => `/${sport}`,
   slate: (sport: string) => `/${sport}/slate`,
   parlays: (sport: string) => `/${sport}/parlays`,
+  scorecard: (sport: string) => `/${sport}/scorecard`,
   game: (sport: string, eventId: string, ctx?: { team?: string | null; tab?: string | null; script?: string | null }) =>
     `/${sport}/game/${eventId}${q({ team: ctx?.team, tab: ctx?.tab, script: ctx?.script })}`,
   team: (sport: string, teamId: string, tab?: string) => `/${sport}/team/${teamId}${q({ tab })}`,

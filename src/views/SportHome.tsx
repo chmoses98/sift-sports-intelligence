@@ -16,6 +16,7 @@ import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { Disagreements, FeaturedGame, featuredItem, GameTile, sides, useSlateResearch } from './home/cards';
 import { PanelHead, ViewAll } from './game/panels';
+import { ScorecardPanel } from './Scorecard';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -152,6 +153,7 @@ export function SportHomeView() {
         <div className="stack">
           <Disagreements items={upcoming} research={rmap} slug={slug} />
           <Results items={finals} slug={slug} sportCode={sport.code} />
+          <ScorecardPanel slug={slug} />
           {sport.code === 'NFL' && (
             <Link to={routes.parlays(slug)} className="panel promo">
               <span className="eyebrow">Structures</span>

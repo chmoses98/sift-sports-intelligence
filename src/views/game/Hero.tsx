@@ -146,7 +146,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, sportLabel, v
           </div>
           <span className="mh__kick sr-only">Kickoff {kickoff(ev.start_time_utc)}</span>
           <div className="mh__actions">
-            <SaveButton ref_kind="EVENT" sport={sportCode} id={ev.event_id} className="savebtn--glass" text="Add to research" label={{ label, sub: kickoff(ev.start_time_utc), href: routes.game(slug, ev.event_id) }} />
+            <SaveButton ref_kind="EVENT" sport={sportCode} id={ev.event_id} className="savebtn--glass" text="Add to research" kickoff={ev.start_time_utc} eventStatus={ev.status} label={{ label, sub: kickoff(ev.start_time_utc), href: routes.game(slug, ev.event_id) }} />
             <Link to={routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id })} className="btn btn--primary btn--sm">
               <Icon name="copy" size={15} /> Copy for ChatGPT
             </Link>

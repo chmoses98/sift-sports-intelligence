@@ -8,6 +8,8 @@ import { useHeldImage } from '../lib/useImage';
 import type { RefKind, TrayExtra } from '../packet/tray';
 import { useTray, type TrayLabel } from '../state/tray';
 import { Icon } from './Icon';
+import { FROZEN_LABEL, FROZEN_WHY, isFrozen } from '../lib/lifecycle';
+import { useNow } from '../live/hooks';
 
 // ------------------------------------------------------------------ entity links
 
@@ -163,26 +165,63 @@ export function Provenance({ quality }: { quality: Quality }) {
 // ------------------------------------------------------------------ research tray
 
 export function SaveButton({
-  ref_kind, sport, id, extra, label, compact, className, text,
-}: { ref_kind: RefKind; sport: string; id: string; extra?: Partial<TrayExtra> | null; label: TrayLabel; compact?: boolean; className?: string; text?: string }) {
+  ref_kind, sport, id, extra, label, compact, className, text, kickoff, eventStatus,
+}: {
+  ref_kind: RefKind; sport: string; id: string; extra?: Partial<TrayExtra> | null; label: TrayLabel; compact?: boolean; className?: string; text?: string;
+  /** Scheduled kickoff of the game this item belongs to: after it, nothing new can be saved (lib/lifecycle.ts). */
+  kickoff?: string | null;
+  eventStatus?: string | null;
+}) {
   const tray = useTray();
+  const now = useNow(30_000);
+  const whyId = useId();
+  const [explain, setExplain] = useState(false);
   const saved = tray.has(ref_kind, id, extra);
   const item = saved ? tray.tray.items.find((i) => i.ref_kind === ref_kind && i.id === id) : undefined;
+  const frozen = (kickoff != null || eventStatus != null) && isFrozen(kickoff, now, eventStatus);
+
+  // After kickoff, an item that was not saved before cannot be newly saved: a visibly disabled control that
+  // explains itself on hover (title), on tap (an inline note) and to assistive tech (aria-describedby).
+  if (frozen && !saved) {
+    return (
+      <span className={`savebtn-wrap${compact ? ' savebtn-wrap--compact' : ''}`}>
+        <button
+          type="button"
+          className={`savebtn is-frozen${compact ? ' savebtn--compact' : ''}${className ? ' ' + className : ''}`}
+          aria-disabled="true"
+          aria-label={`${FROZEN_LABEL}: ${label.label} can’t be saved after kickoff`}
+          aria-describedby={whyId}
+          title={FROZEN_WHY}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setExplain((x) => !x);
+          }}
+        >
+          <Icon name="lock" size={compact ? 14 : 15} />
+          {!compact && <span>{FROZEN_LABEL}</span>}
+        </button>
+        <span id={whyId} className={explain ? 'savebtn__why' : 'sr-only'} role={explain ? 'status' : undefined}>{FROZEN_WHY}</span>
+      </span>
+    );
+  }
+  const pregameSaved = frozen && saved;
   return (
     <button
       type="button"
       className={`savebtn${saved ? ' is-saved' : ''}${compact ? ' savebtn--compact' : ''}${className ? ' ' + className : ''}`}
       aria-pressed={saved}
-      aria-label={saved ? `Remove ${label.label} from research tray` : `Save ${label.label} to research tray`}
+      aria-label={saved ? `Remove ${label.label} from research tray${pregameSaved ? ' (saved before kickoff as pregame research)' : ''}` : `Save ${label.label} to research tray`}
+      title={pregameSaved ? 'Saved before kickoff: kept as pregame research. Tap to remove it from the tray.' : undefined}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         if (saved && item) tray.remove(item.item_id);
-        else tray.add({ ref_kind, sport, id, extra, label });
+        else tray.add({ ref_kind, sport, id, extra, label, kickoff, eventStatus });
       }}
     >
       <Icon name={saved ? 'check' : 'plus'} size={compact ? 14 : 16} />
-      {!compact && <span>{saved ? 'In tray' : text ?? 'Tray'}</span>}
+      {!compact && <span>{saved ? (pregameSaved ? 'Saved pregame' : 'In tray') : text ?? 'Tray'}</span>}
     </button>
   );
 }

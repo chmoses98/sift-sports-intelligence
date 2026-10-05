@@ -89,7 +89,7 @@ export function LadderChart({ rungs, quantiles, unit, title, selected, height = 
               {quantiles.p25 != null && quantiles.p75 != null && <rect x={geo.x(quantiles.p25)} y={6} width={Math.max(2, geo.x(quantiles.p75) - geo.x(quantiles.p25))} height={12} rx={3} className="dist__box" />}
               {quantiles.p50 != null && <line x1={geo.x(quantiles.p50)} x2={geo.x(quantiles.p50)} y1={4} y2={20} className="dist__median" />}
               {quantiles.mean != null && <circle cx={geo.x(quantiles.mean)} cy={12} r={3.5} className="dist__mean" />}
-              <text x={M.left} y={30} className="ax-label">Simulated range: 90% · 50% · median · ● mean (RESEARCH)</text>
+              <text x={M.left} y={30} className="ax-label">Simulated range: 90% · 50% · median · ● mean</text>
             </g>
           )}
         </svg>

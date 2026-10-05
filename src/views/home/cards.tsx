@@ -146,7 +146,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
       {set && lead && <div className="gtile__scripts"><ScriptBar set={set} labels={false} /><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />{lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}
       <div className="gtile__foot">
         {views.length ? <QuoteSummaryChip views={views} now={now} /> : <QuoteChip view={publicationView(item.market_captured_at)} now={now} label="prices" />}
-        <SaveButton ref_kind="EVENT" sport={sportCode} id={item.event_id} compact label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
+        <SaveButton ref_kind="EVENT" sport={sportCode} id={item.event_id} compact kickoff={item.start_time_utc} label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
       </div>
     </li>
   );

@@ -9,6 +9,7 @@ import { MarketBoard, latestPrices } from '../components/MarketBoard';
 import { ErrorState, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { kickoff, pct, signed } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER, MATCHUP_AREAS } from '../lib/nfl';
+import { glossLine, metricGloss } from '../lib/glossary';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { MarketIconProvider } from '../components/MarketIcon';
@@ -158,13 +159,21 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
   const shown = rows.filter((r) => cat === 'all' || (metrics.get(r.metric_id)?.category ?? 'other') === cat);
   return (
     <div className="mt">
-      <div className="seg" role="tablist" aria-label="Metric categories">
-        <button type="button" role="tab" aria-selected={cat === 'all'} className={`seg__b${cat === 'all' ? ' is-on' : ''}`} onClick={() => setCat('all')}>All metrics <span className="seg__n">{rows.length}</span></button>
-        {cats.map((c) => (
-          <button key={c} type="button" role="tab" aria-selected={cat === c} className={`seg__b${cat === c ? ' is-on' : ''}`} onClick={() => setCat(c)}>
-            {categoryLabel(c)}
-          </button>
-        ))}
+      <div className="mt__bar">
+        <div className="seg" role="tablist" aria-label="Metric categories">
+          <button type="button" role="tab" aria-selected={cat === 'all'} className={`seg__b${cat === 'all' ? ' is-on' : ''}`} onClick={() => setCat('all')}>All metrics <span className="seg__n">{rows.length}</span></button>
+          {cats.map((c) => (
+            <button key={c} type="button" role="tab" aria-selected={cat === c} className={`seg__b${cat === c ? ' is-on' : ''}`} onClick={() => setCat(c)}>
+              {categoryLabel(c)}
+            </button>
+          ))}
+        </div>
+        <Info label="What these metrics mean" align="end">
+          {shown.map((r) => {
+            const line = glossLine(metricGloss(r.metric_id, metrics.get(r.metric_id)));
+            return line ? <span key={r.metric_id}><b>{metrics.get(r.metric_id)?.short_name ?? r.name}:</b> {line}</span> : null;
+          })}
+        </Info>
       </div>
       <div className="mt__head" aria-hidden="true">
         <span className="mt__ta">{awayAbbr}</span>
@@ -189,7 +198,7 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
                 </span>
                 <span className="mt__bars">
                   <span className="mt__half mt__half--away"><span style={{ width: `${pa ?? 0}%` }} /></span>
-                  <span className="mt__name">{def?.short_name ?? r.name}</span>
+                  <span className="mt__name" title={glossLine(metricGloss(r.metric_id, def)) ?? undefined}>{def?.short_name ?? r.name}</span>
                   <span className="mt__half mt__half--home"><span style={{ width: `${ph ?? 0}%` }} /></span>
                 </span>
                 <span className="mt__v mt__v--home">

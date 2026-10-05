@@ -13,32 +13,32 @@ test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 
 async function usage(page: Page, id: string) {
   await page.goto(`./#/nfl/player/${id}`);
-  const sec = page.locator('section, .stratum').filter({ has: page.getByRole('heading', { name: 'Usage', exact: true }) }).first();
+  const sec = page.locator('section, .stratum').filter({ has: page.getByRole('heading', { name: 'Usage & Role', exact: true }) }).first();
   await expect(sec).toBeVisible();
   return sec;
 }
 
 test('a QB page never shows receiving usage (Josh Allen has a published 0.98% target share)', async ({ page }) => {
   const sec = await usage(page, ALLEN);
-  await expect(sec.getByText('Projected carry share')).toBeVisible();
+  await expect(sec.getByText('Carry share', { exact: true })).toBeVisible();
   await expect(sec.getByText(/target share|reception|receiving/i)).toHaveCount(0);
 });
 
 test('RB usage still renders rushing and receiving shares', async ({ page }) => {
   const sec = await usage(page, COOK);
-  await expect(sec.getByText('Projected carry share')).toBeVisible();
-  await expect(sec.getByText('Projected target share')).toBeVisible();
+  await expect(sec.getByText('Carry share', { exact: true })).toBeVisible();
+  await expect(sec.getByText('Target share', { exact: true })).toBeVisible();
 });
 
 test('WR usage renders target share and hides a token carry share', async ({ page }) => {
   const sec = await usage(page, SHAKIR);
-  await expect(sec.getByText('Projected target share')).toBeVisible();
-  await expect(sec.getByText('Projected carry share')).toHaveCount(0);
+  await expect(sec.getByText('Target share', { exact: true })).toBeVisible();
+  await expect(sec.getByText('Carry share', { exact: true })).toHaveCount(0);
 });
 
 test('TE usage renders target share', async ({ page }) => {
   const sec = await usage(page, KINCAID);
-  await expect(sec.getByText('Projected target share')).toBeVisible();
+  await expect(sec.getByText('Target share', { exact: true })).toBeVisible();
 });
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
@@ -50,7 +50,7 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['team', `./#/nfl/team/${BUF}`, (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor()],
   ['metric', `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}&opp=${NE}`, (p) => p.getByText('League median').waitFor()],
   ['raw-metric', `./#/nfl/metric/met_nfl.off_epa_play?team=${BUF}&opp=${NE}`, (p) => p.getByText('League median').waitFor()],
-  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Markets vs projection' }).waitFor()],
+  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Market vs Projection' }).waitFor()],
   ['market', `./#/nfl/market/${ML_ID}?event=${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor()],
 ];
 

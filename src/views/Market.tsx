@@ -101,7 +101,7 @@ export function MarketView() {
           </div>
         </div>
         <div className="ehead__actions">
-          <SaveButton ref_kind="MARKET" sport={sport.code} id={m.market_id} extra={{ market_id: m.market_id, event_id: ev.event_id }}
+          <SaveButton ref_kind="MARKET" sport={sport.code} id={m.market_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
             label={{ label: humanize(m.yes_description), sub: `${m.kalshi_ticker} · ${cents(m.yes_bid)}/${cents(m.yes_ask)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
           <Link className="btn btn--ghost" to={routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id })}><Icon name="copy" size={16} /> Game packet</Link>
         </div>
@@ -209,7 +209,7 @@ export function MarketView() {
           <div className="fact"><dt>Bet authority</dt><dd>{authority}</dd></div>
         </dl>
         {mp && (
-          <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }}
+          <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
             label={{ label: `Model price · ${m.kalshi_ticker}`, sub: `fair ${cents(mp.fair_probability)} vs ${cents(mid)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
         )}
       </Stratum>

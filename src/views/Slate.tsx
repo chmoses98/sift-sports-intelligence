@@ -107,7 +107,7 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         {item.health_flags.map((f) => (
           <span key={f} className="flag">{f.replace(/_/g, ' ').toLowerCase()}</span>
         ))}
-        <SaveButton ref_kind="EVENT" sport={repo.sport.code} id={item.event_id} compact label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
+        <SaveButton ref_kind="EVENT" sport={repo.sport.code} id={item.event_id} compact kickoff={item.start_time_utc} label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
       </div>
     </li>
   );

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
+import { isFrozen } from '../lib/lifecycle';
 import { routes } from '../lib/routes';
+import { useNow } from '../live/hooks';
 import { useTray } from '../state/tray';
 import { Icon } from './Icon';
 
@@ -11,6 +13,7 @@ export const REF_WORD: Record<string, string> = {
 
 export function TrayList({ dense }: { dense?: boolean }) {
   const tray = useTray();
+  const now = useNow(30_000);
   const items = [...tray.tray.items].reverse();
   if (!items.length) {
     return (
@@ -30,6 +33,9 @@ export function TrayList({ dense }: { dense?: boolean }) {
             <div className="tray__body">
               {l ? <Link to={l.href} className="tray__label">{l.label}</Link> : <span className="tray__label">{it.id}</span>}
               {l?.sub && <span className="tray__sub">{l.sub}</span>}
+              {l?.kickoff && isFrozen(l.kickoff, now) && (
+                <span className="tray__pregame" title="Saved before kickoff. It stays pregame research: Sift does not turn it into a live view.">Pregame · saved before kickoff</span>
+              )}
               {!dense && (
                 <input
                   className="tray__note"

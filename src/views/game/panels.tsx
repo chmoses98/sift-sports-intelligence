@@ -14,15 +14,17 @@ import { scriptArt, type ScriptArt as ScriptArtT } from '../../lib/players';
 import { teamColors, teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
 import { MarketIcon } from '../../components/MarketIcon';
+import { glossLine, metricGloss, term } from '../../lib/glossary';
+import { useSport } from '../../state/sport';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ------------------------------------------------------------------ primitives
 
-export function Info({ label, children }: { label: string; children: ReactNode }) {
+export function Info({ label, children, align }: { label: string; children: ReactNode; align?: 'start' | 'end' }) {
   return (
     <span className="info">
-      <Popover label={label} trigger={<Icon name="info" size={15} />}>
+      <Popover label={label} trigger={<Icon name="info" size={15} />} align={align}>
         <span className="info__body">{children}</span>
       </Popover>
     </span>
@@ -133,12 +135,7 @@ export function ModelReadPanel({ r, read, homeAbbr, awayAbbr, to }: { r: EventRe
 
 // ------------------------------------------------------------------ scripts
 
-export const SIM_SHARE_INFO = (
-  <>
-    <b>Sim share</b> is the share of the model's simulated games that end this way (by final margin). It is the simulator's own
-    distribution, not a calibrated probability, so it is shown in whole percents.
-  </>
-);
+export const SIM_SHARE_INFO = <><b>Sim share:</b> {glossLine(term('sim_share'))}</>;
 
 /** The cinematic layer behind a script card: player imagery (or the team's logo as atmosphere), heavily darkened. */
 function ArtImage({ art, sport }: { art: ScriptArtT; sport: string }) {
@@ -346,21 +343,22 @@ export function MarketsPanel({ rows, set, selected, slug, eventId, now, allHref 
 // ------------------------------------------------------------------ team form
 
 type FormView = 'offense' | 'defense' | 'overall';
-const FORM_STATS: Record<FormView, { id: string; label: string; fmt: (v: number) => string; def?: string }[]> = {
+// Definitions come from the shared glossary (lib/glossary.ts), with direction from the registry.
+const FORM_STATS: Record<FormView, { id: string; label: string; fmt: (v: number) => string }[]> = {
   offense: [
     { id: 'met_nfl.points_for', label: 'Points / game', fmt: (v) => v.toFixed(1) },
-    { id: 'met_nfl.off_epa_play', label: 'EPA / play', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2), def: 'EPA (expected points added) per play: how much each play changes the expected points of the drive. 0 is average.' },
-    { id: 'met_nfl.off_success_rate', label: 'Success rate', fmt: (v) => `${Math.round(v * 100)}%`, def: 'Share of plays with positive EPA — consistency, not explosiveness.' },
+    { id: 'met_nfl.off_epa_play', label: 'EPA / play', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2) },
+    { id: 'met_nfl.off_success_rate', label: 'Success rate', fmt: (v) => `${Math.round(v * 100)}%` },
   ],
   defense: [
     { id: 'met_nfl.points_against', label: 'Allowed / game', fmt: (v) => v.toFixed(1) },
-    { id: 'met_nfl.def_epa_play', label: 'EPA / play allowed', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2), def: 'EPA allowed per opponent play. Lower is better.' },
+    { id: 'met_nfl.def_epa_play', label: 'EPA / play allowed', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2) },
     { id: 'met_nfl.def_takeaway_rate', label: 'Takeaway rate', fmt: (v) => `${(v * 100).toFixed(1)}%` },
   ],
   overall: [
     { id: 'met_nfl.point_margin', label: 'Margin / game', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(1) },
-    { id: 'met_nfl.adj_off_epa', label: 'Adj. offense', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3), def: 'Opponent-adjusted offensive EPA per play: the rating after accounting for the defenses faced.' },
-    { id: 'met_nfl.adj_def_epa', label: 'Adj. defense', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3), def: 'Opponent-adjusted EPA per play allowed. Lower is better.' },
+    { id: 'met_nfl.adj_off_epa', label: 'Adj. offense', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3) },
+    { id: 'met_nfl.adj_def_epa', label: 'Adj. defense', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3) },
   ],
 };
 
@@ -405,7 +403,8 @@ function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityP
 
 export function FormPanel({ homeProf, awayProf, homeAbbr, awayAbbr, sportCode, before, slug, to }: { homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; homeAbbr: string; awayAbbr: string; sportCode: string; before: string; slug: string; to: string }) {
   const [view, setView] = useState<FormView>('offense');
-  const defs = FORM_STATS[view].filter((s) => s.def);
+  const { metrics } = useSport();
+  const defs = FORM_STATS[view].map((s) => ({ id: s.id, label: s.label, def: glossLine(metricGloss(s.id, metrics.get(s.id))) })).filter((d) => d.def);
   return (
     <section className="panel ov-form" aria-labelledby="ov-form-h">
       <PanelHead

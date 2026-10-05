@@ -9,6 +9,7 @@ import type { EntityProfileDoc, Observation, RankingDoc } from '../contract/type
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
 import { AdjustmentCompare } from '../components/AdjustmentCompare';
+import { glossLine, metricGloss } from '../lib/glossary';
 import { EntityLink, ErrorState, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { exactTime, metricFormatter, ordinal, unitLabel } from '../lib/format';
 import { adjustedTwin, counterpartMetric, WINDOW_EXPLAIN } from '../lib/nfl';
@@ -84,6 +85,7 @@ export function MetricView() {
             {tName && <><Link to={routes.team(slug, teamId!)} className="h-team">{tName}</Link><span className="h-sep"> · </span></>}
             {def.name}
           </h1>
+          <PlainEnglish metricId={metricId} def={def} />
           <div className="ehead__meta">
             <QualityBadge quality={def.quality} />
             <span className="chip">{unitLabel(def.unit) || def.stat_type}</span>
@@ -186,7 +188,7 @@ export function MetricView() {
 
       <Stratum n="04" title="What it is and why it might matter" sub="From the metric registry and the sport's handicap protocol.">
         <div className="explain">
-          <p className="explain__desc">{def.description}</p>
+          <p className="explain__desc"><span className="explain__k">Technical definition (metric registry)</span> {def.description}</p>
           <dl className="facts facts--slim">
             <Fact k="Source" v={def.source ?? '—'} sub={def.source_version ? `version ${def.source_version}` : undefined} />
             <Fact k="Method" v={def.methodology_version ?? '—'} />
@@ -219,5 +221,17 @@ export function MetricView() {
       </Stratum>
       {ranking.error && <ErrorState error={ranking.error} what="the ranking" />}
     </div>
+  );
+}
+
+/** The metric page's lead: one plain-English sentence from the glossary (lib/glossary.ts), or an honest
+ *  pointer to the registry definition when the glossary has none. */
+export function PlainEnglish({ metricId, def }: { metricId: string; def: Parameters<typeof metricGloss>[1] }) {
+  const g = metricGloss(metricId, def);
+  return (
+    <p className="plain">
+      <span className="plain__k">In plain English</span>
+      {g ? glossLine(g) : 'No short definition yet. The publication’s technical definition is below, under “What it is”.'}
+    </p>
   );
 }

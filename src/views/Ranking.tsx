@@ -1,6 +1,7 @@
 import { Link, useParams, useSearchParams } from 'react-router';
 import { RankBars } from '../charts/RankBars';
 import { useAsync } from '../data/hooks';
+import { PlainEnglish } from './Metric';
 import { EntityLink, ErrorState, QualityBadge, SaveButton, Skeleton, Stratum } from '../components/ui';
 import { exactTime, metricFormatter, ordinal } from '../lib/format';
 import { WINDOW_EXPLAIN } from '../lib/nfl';
@@ -48,6 +49,7 @@ export function RankingView() {
             <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Comparison universe · {d.universe.label}
           </div>
           <h1 className="h-display h-display--md">{def?.name ?? d.metric_id}</h1>
+          <PlainEnglish metricId={d.metric_id} def={def} />
           <div className="ehead__meta">
             <QualityBadge quality={d.quality} />
             <span className="chip">{d.window.label} — {WINDOW_EXPLAIN[d.window.label] ?? d.window.kind.toLowerCase()}</span>

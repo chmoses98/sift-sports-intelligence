@@ -203,3 +203,7 @@ a:hover { color: var(--ivory); }
   mask-image: radial-gradient(50% 42% at 50% 62%, transparent 64%, #000 68%, #000 84%, transparent 96%); -webkit-mask-image: radial-gradient(50% 42% at 50% 62%, transparent 64%, #000 68%, #000 84%, transparent 96%); }
 
 .mh__chips .qchip .chip__dim { display: none; }
+/* in the game hero the venue is already named in the centre block: no fascia; a richer pitch and rim glow */
+.mh .sfb__fascia { display: none; }
+.mh .sfb__field { box-shadow: 0 0 120px 34px rgba(60, 170, 105, 0.28); }
+.mh .sfb__bowl { background: radial-gradient(50% 42% at 50% 62%, transparent 62%, rgba(150, 200, 250, 0.24) 63%, rgba(10, 28, 46, 0.95) 66.5%, rgba(5, 16, 27, 0.98) 88%, rgba(3, 10, 18, 0.6) 100%); }

@@ -15,10 +15,8 @@ body {
   line-height: 1.5;
   color: var(--text);
   background-color: var(--ink-1);
-  /* Graphite with a faint deep-blue lift at the top and warm sand light in the far corner. */
-  background-image:
-    radial-gradient(1200px 560px at 30% -20%, rgba(42, 59, 79, 0.38), transparent 64%),
-    radial-gradient(800px 520px at 105% 110%, rgba(216, 201, 171, 0.035), transparent 62%);
+  /* Near-black (the mockup's page), with only a whisper of deep-blue light at the very top. */
+  background-image: radial-gradient(1100px 420px at 35% -18%, rgba(14, 54, 98, 0.22), transparent 62%);
   background-attachment: fixed;
   font-feature-settings: 'lnum' 1;
   -webkit-font-smoothing: antialiased;
@@ -568,7 +566,7 @@ p { margin: 0 0 var(--s-3); }
 .vsgrid { display: grid; gap: var(--s-2); grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 .vscard { display: grid; gap: 6px; padding: var(--s-4); border-radius: var(--r-3); background: var(--navy-1); border: 1px solid var(--line); color: var(--text); }
 .vscard:hover { border-color: var(--line-3); color: var(--text); }
-.vscard--opp { border-color: rgba(194, 136, 28, 0.45); box-shadow: inset 3px 0 0 var(--mark-opp); }
+.vscard--opp { border-color: rgba(214, 150, 20, 0.45); box-shadow: inset 3px 0 0 var(--mark-opp); }
 .vscard__t { font-weight: 650; color: var(--text-hi); }
 .vscard__v { display: flex; gap: 8px; align-items: center; font-size: var(--fs-lg); color: var(--text-hi); }
 .explain__desc { font-size: var(--fs-md); line-height: 1.6; color: var(--text); max-width: 75ch; }
@@ -580,7 +578,7 @@ p { margin: 0 0 var(--s-3); }
 .summary__k { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); }
 .summary b { color: var(--text-hi); }
 .summary--focus { border-color: rgba(14, 162, 182, 0.6) !important; box-shadow: inset 3px 0 0 var(--mark-focus); }
-.summary--opp { border-color: rgba(194, 136, 28, 0.6) !important; box-shadow: inset 3px 0 0 var(--mark-opp); }
+.summary--opp { border-color: rgba(214, 150, 20, 0.6) !important; box-shadow: inset 3px 0 0 var(--mark-opp); }
 
 /* market detail */
 .contract { display: grid; gap: 2px; margin: var(--s-3) 0; border-radius: var(--r-3); overflow: hidden; border: 1px solid var(--line-2); }

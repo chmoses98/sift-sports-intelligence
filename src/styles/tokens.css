@@ -1,97 +1,106 @@
 /* ==========================================================================
-   SIFT DESIGN TOKENS — premium sports editorial
-   Locked core palette (owner, redesign pass 2):
-     Graphite #0F1115 · Slate #1A1F26 · Deep Blue #2A3B4F · Sand #D8C9AB
-     Gold #C9A96A · Ice #6FA8C9 · Ivory #F5F2EA
-   Team and script colours supplement it; they never take over the system.
+   SIFT DESIGN TOKENS — derived from the APPROVED MOCKUP (pixel-sampled)
+   The mockup image is the source of truth; values below were sampled from it
+   (see docs/DESIGN_SYSTEM.md §1 for the sample table) and only adjusted where
+   accessibility or the data-viz validator required it.
    Token NAMES are stable so every screen inherits the system.
    ========================================================================== */
 :root {
   color-scheme: dark;
 
-  /* ---- core palette */
-  --graphite: #0f1115;
-  --slate: #1a1f26;
-  --deep-blue: #2a3b4f;
-  --sand: #d8c9ab;
-  --gold: #c9a96a;
-  --ice: #6fa8c9;
-  --ivory: #f5f2ea;
+  /* ---- core palette (mockup samples) */
+  --black: #01070d;          /* page: near-black with a trace of blue (mockup #000a11) */
+  --graphite: #01070d;       /* legacy name → the near-black page */
+  --slate: #081622;          /* panel body (mockup #061521) */
+  --deep-blue: #0e3662;      /* selected / active surface (mockup sidebar active #032559, lifted) */
+  --gold: #f0c048;           /* live price + primary action (mockup #eac34d / #f5c437) */
+  --ice: #1fb2ec;            /* cyan signal: links, focus (mockup #0aa7e8) */
+  --blue: #1e8cf2;           /* navigation state: active tab, active pill (mockup #0288f4) */
+  --teal: #2fccc8;           /* coverage bars (mockup #2fccc8) */
+  --ivory: #f7f6f1;          /* primary text (mockup headings read pure white) */
+  --sand: #f3d488;           /* light gold for eyebrows/records: warm, legible */
 
   /* ---- strata (deepest first) */
-  --ink-0: #0a0c0f;
-  --ink-1: #0f1115;          /* app background: graphite */
-  --rail: #0c0e12;           /* sidebar: a half-step below graphite */
-  --navy-1: #161a20;         /* inset rows inside panels */
-  --navy-2: #1a1f26;         /* slate: panels, inputs */
-  --navy-3: #222933;         /* hover */
-  --navy-4: #2a3b4f;         /* deep blue: selected, pressed */
+  --ink-0: #00050a;
+  --ink-1: #01070d;          /* app background: near-black */
+  --rail: #020c14;           /* sidebar (mockup #020f17) */
+  --navy-1: #061420;         /* inset rows inside panels */
+  --navy-2: #081622;         /* panels, inputs */
+  --navy-3: #0c1f30;         /* hover, raised tiles (mockup tiles #0c1d2c) */
+  --navy-4: #0e3662;         /* selected, pressed */
 
-  /* panels: slate with a faint top light and a warm hairline — layered, not boxes */
-  --panel: linear-gradient(180deg, rgba(30, 36, 45, 0.92) 0%, rgba(24, 28, 35, 0.92) 100%);
-  --panel-solid: #1a1f26;
-  --panel-raised: linear-gradient(180deg, #232a34 0%, #1c2129 100%);
-  --panel-glass: rgba(18, 22, 28, 0.58);
-  --panel-line: rgba(216, 201, 171, 0.09);
-  --panel-line-hi: rgba(216, 201, 171, 0.2);
-  --panel-glow: inset 0 1px 0 rgba(245, 242, 234, 0.05);
-  --shadow-1: inset 0 1px 0 rgba(245, 242, 234, 0.045), 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 32px -20px rgba(0, 0, 0, 0.9);
-  --shadow-2: 0 28px 64px -28px rgba(0, 0, 0, 0.92);
+  /* panels: dark navy raised off the black page by a blue hairline and a top light */
+  --panel: linear-gradient(180deg, rgba(11, 31, 49, 0.96) 0%, rgba(6, 19, 31, 0.96) 46%, rgba(5, 16, 26, 0.96) 100%);
+  --panel-solid: #081622;
+  --panel-raised: linear-gradient(180deg, #102a42 0%, #0a1d2f 100%);
+  --panel-glass: rgba(4, 14, 24, 0.62);
+  --panel-line: rgba(84, 150, 214, 0.2);
+  --panel-line-hi: rgba(110, 176, 238, 0.38);
+  --panel-glow: inset 0 1px 0 rgba(150, 200, 255, 0.08);
+  --shadow-1: inset 0 1px 0 rgba(150, 200, 255, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.4), 0 18px 40px -22px rgba(0, 0, 0, 0.95);
+  --shadow-2: 0 30px 70px -28px rgba(0, 0, 0, 0.95);
 
   /* ---- lines */
-  --line: rgba(216, 201, 171, 0.08);
-  --line-2: rgba(216, 201, 171, 0.15);
-  --line-3: rgba(216, 201, 171, 0.28);
+  --line: rgba(96, 156, 214, 0.13);
+  --line-2: rgba(96, 156, 214, 0.22);
+  --line-3: rgba(110, 176, 238, 0.36);
 
-  /* ---- ink (text): ivory family; every step >= 4.5:1 on slate */
-  --text-hi: #f5f2ea;
-  --text: #d9d4c8;
-  --text-2: #b4aea2;
-  --text-3: #a39d91;
+  /* ---- ink (text): bright ivory → cool greys (mockup body #c2ced7); every step >= 4.5:1 on panels */
+  --text-hi: #f7f6f1;
+  --text: #dfe6ec;
+  --text-2: #b8c5d1;
+  --text-3: #9aabbb;
 
   /* ---- accents */
-  --cobalt: #c9a96a;         /* primary action / active state is GOLD (was cobalt) */
-  --cobalt-hi: #dcc08a;
-  --cobalt-deep: #a8884b;
-  --cobalt-glow: rgba(201, 169, 106, 0.22);
-  --cyan: #6fa8c9;           /* ice: links, focus, data emphasis */
-  --cyan-2: #9cc4dc;
-  --gold-2: #e3cf9f;
-  --gold-bg: rgba(201, 169, 106, 0.1);
-  --gold-line: rgba(201, 169, 106, 0.42);
-  --sand-dim: rgba(216, 201, 171, 0.72);
+  --cobalt: #f0c048;         /* primary action is GOLD (legacy token name) */
+  --cobalt-hi: #f8d474;
+  --cobalt-deep: #c99a22;
+  --cobalt-glow: rgba(240, 192, 72, 0.28);
+  --cyan: #1fb2ec;
+  --cyan-2: #6fd0f6;
+  --gold-2: #f9d67a;
+  --gold-bg: rgba(240, 192, 72, 0.12);
+  --gold-line: rgba(240, 192, 72, 0.55);
+  --sand-dim: rgba(243, 212, 136, 0.78);
 
-  /* ---- model vs market sign: muted sage / clay, never casino green */
-  --pos: #8cc2a3;
-  --neg: #e0937f;
-  --pos-bg: rgba(140, 194, 163, 0.1);
-  --neg-bg: rgba(224, 147, 127, 0.1);
+  /* ---- model vs market sign (mockup green #0ae38d / red #e73044, kept just short of neon) */
+  --pos: #2ed592;
+  --neg: #ff6370;
+  --pos-bg: rgba(46, 213, 146, 0.12);
+  --neg-bg: rgba(255, 99, 112, 0.12);
 
   /* ---- game scripts: four fixed roles, each always named and glyphed.
-     dataviz validate_palette --mode dark --surface #1a1f26: all checks pass. */
-  --script-1: #c25a6e;        /* favourite pulls away (14+) — rose */
-  --script-2: #b88a2e;        /* favourite controls (7–13) — gold */
-  --script-3: #2f9a84;        /* one-score game — teal */
-  --script-4: #8a7fd0;        /* underdog controls (7+) — violet */
+     MARK colours (cells, bars, dots): dataviz validate_palette --mode dark --surface #081622 — all checks
+     PASS, no warnings (worst adjacent deutan ΔE 9.0). */
+  --script-1: #ea4770;        /* favourite pulls away (14+) — rose red */
+  --script-2: #c78400;        /* favourite controls (7–13) — amber */
+  --script-3: #00a1d0;        /* one-score game — cyan */
+  --script-4: #9264ef;        /* underdog controls (7+) — violet */
+  /* IDENTITY colours (card edges, glows, the big share figure): brighter, as in the mockup. Decorative —
+     always beside the script's name, never the only encoding. */
+  --script-1-hi: #ff5d79;
+  --script-2-hi: #ffbe3b;
+  --script-3-hi: #29c3f2;
+  --script-4-hi: #b088ff;
 
-  /* ---- chart marks (validated together on #1a1f26: all pass) */
-  --mark-focus: #3e8fc0;      /* home / viewing — deep ice */
-  --mark-opp: #b88a2e;        /* away / opponent — deep gold */
-  --mark-compare: #8a7fd0;
-  --mark-context: #2a313b;
-  --mark-context-hi: #3a4452;
-  --mark-grid: rgba(216, 201, 171, 0.07);
-  --mark-axis: rgba(216, 201, 171, 0.22);
+  /* ---- chart marks (mockup line chart: red #e73044 / blue #227ad6) */
+  --mark-focus: #2a8fe6;      /* home / viewing */
+  --mark-opp: #e8505f;        /* away / opponent */
+  --mark-compare: #9264ef;
+  --mark-context: #142b40;
+  --mark-context-hi: #1d3a56;
+  --mark-grid: rgba(96, 156, 214, 0.1);
+  --mark-axis: rgba(96, 156, 214, 0.3);
 
   /* ---- states (diagnostics; shown quietly in the product) */
-  --fresh: #8cc2a3;
-  --aging: #d4b06a;
-  --stale: #e0937f;
-  --unknown: #8e8a82;
-  --q-verified: #6fa8c9;
-  --q-partial: #9cc4dc;
-  --q-research: #d4b06a;
-  --q-unavailable: #8e8a82;
+  --fresh: #2ed592;
+  --aging: #f0c048;
+  --stale: #ff6370;
+  --unknown: #8496a8;
+  --q-verified: #1fb2ec;
+  --q-partial: #6fd0f6;
+  --q-research: #f0c048;
+  --q-unavailable: #8496a8;
 
   /* ---- type (self-hosted @fontsource) */
   --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;   /* selective editorial moments */
@@ -101,7 +110,7 @@
   --font-num: 'Roboto Mono Variable', 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --font-mono: var(--font-num);
 
-  --fs-micro: 0.72rem;     /* 11.5px: eyebrows, axis ticks */
+  --fs-micro: 0.75rem;     /* 12px: eyebrows, axis ticks (legibility floor) */
   --fs-xs: 0.8125rem;      /* 13px */
   --fs-sm: 0.875rem;       /* 14px: dense rows */
   --fs-md: 0.9688rem;      /* 15.5px: body */
@@ -134,7 +143,7 @@
 
   /* ---- layout */
   --maxw: 1520px;
-  --side-w: 220px;
+  --side-w: 200px;
   --rail-w: 78px;
   --topbar-h: 58px;
   --bottombar-h: 64px;

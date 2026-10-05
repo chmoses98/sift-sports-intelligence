@@ -156,7 +156,7 @@ a:hover { color: var(--ivory); }
 .toast { background: #0a1c2c; border-left-color: var(--gold); }
 .toast svg { color: var(--gold); }
 .skel__line { background: linear-gradient(90deg, var(--navy-1), var(--navy-3), var(--navy-1)); background-size: 200% 100%; }
-.tscroll { max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+.tscroll { position: relative; max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
 
 /* ---- stadium fallback (src/components/StadiumFallback.tsx): a designed night bowl, not a gap */
 .sfb { position: absolute; inset: 0; overflow: hidden; pointer-events: none;

@@ -510,3 +510,15 @@
 /* weather: dark glass, no outline at rest; impactful weather keeps its gold edge (a meaningful state) */
 .wx { border-color: transparent; }
 .wx--flag { border-color: var(--gold-line); }
+@container (max-width: 380px) {
+  .survt .mkrow { gap: 6px; }
+  .survt .mkicon { width: 22px; height: 22px; }
+  .survt .mkicon .teammark--sm { width: 22px; height: 22px; }
+  .survt .mkicon__badge { display: none; }
+  .survt .cov__bar { display: none; }
+}
+@container (max-width: 380px) {
+  .survt thead th { white-space: normal; line-height: 1.15; font-size: 0.68rem; letter-spacing: 0.03em; }
+  .survt .fitcells--head { display: none; }
+  .survt td, .survt th { padding-left: 2px; padding-right: 2px; }
+}

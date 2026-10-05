@@ -4,8 +4,8 @@ import { ContextMeter, EntityLink, FreshnessChip, QualityBadge, RankPill, Stratu
 import { useVisit } from '../state/trail';
 
 const SWATCHES: [string, string][] = [
-  ['--graphite', 'graphite · page'], ['--slate', 'slate · surface'], ['--deep-blue', 'deep blue · separation'], ['--sand', 'sand · accent'],
-  ['--gold', 'gold · action + price'], ['--ice', 'ice · signal'], ['--ivory', 'ivory · text'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'],
+  ['--black', 'page · near-black'], ['--slate', 'panel'], ['--deep-blue', 'selected surface'], ['--blue', 'navigation state'],
+  ['--gold', 'gold · price + action'], ['--ice', 'cyan · signal'], ['--teal', 'teal · coverage'], ['--ivory', 'ivory · text'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'],
   ['--mark-focus', 'chart: viewing'], ['--mark-opp', 'chart: opponent'], ['--mark-compare', 'chart: pinned'], ['--mark-context', 'chart: context'],
   ['--fresh', 'FRESH'], ['--aging', 'AGING'], ['--stale', 'STALE'], ['--q-research', 'RESEARCH'],
 ];
@@ -18,8 +18,8 @@ export function DesignView() {
     <div className="page design">
       <header className="pagehead">
         <div className="eyebrow">Design system</div>
-        <h1 className="h-display">Graphite &amp; sand</h1>
-        <p className="lede">Graphite and slate strata, deep-blue separation, sand and gold accents, glass only over real stadium photography. Examples below use illustrative inputs to show the components — they are not sports data.</p>
+        <h1 className="h-display">Night stadium</h1>
+        <p className="lede">A near-black page, dark navy panels raised by blue hairlines, vivid gold, cyan and script colours — sampled from the approved mockup. Examples below use illustrative inputs to show the components — they are not sports data.</p>
       </header>
       <Stratum n="01" title="Color">
         <ul className="swatches">

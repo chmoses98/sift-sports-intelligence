@@ -20,11 +20,11 @@ export interface Venue {
 export interface VenuePhoto {
   hero: string;
   card: string;
-  credit: { artist: string; license: string; licenseUrl: string | null; source: string | null; file: string };
+  credit: { artist: string; license: string; licenseUrl: string | null; source: string | null; file: string; modifications: string | null };
 }
 
 const VENUES = (venueList as { venues: Venue[] }).venues;
-const CREDITS = (credits as { venues: Record<string, { artist: string; license: string; license_url: string | null; source: string | null; file: string }> }).venues;
+const CREDITS = (credits as { venues: Record<string, { artist: string; license: string; license_url: string | null; source: string | null; file: string; modifications?: string }> }).venues;
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 
@@ -46,7 +46,7 @@ export function venuePhoto(v: Venue | null): VenuePhoto | null {
   return {
     hero: `${base}stadiums/${v.slug}.webp`,
     card: `${base}stadiums/${v.slug}-sm.webp`,
-    credit: { artist: c.artist, license: c.license, licenseUrl: c.license_url, source: c.source, file: c.file },
+    credit: { artist: c.artist, license: c.license, licenseUrl: c.license_url, source: c.source, file: c.file, modifications: c.modifications ?? null },
   };
 }
 

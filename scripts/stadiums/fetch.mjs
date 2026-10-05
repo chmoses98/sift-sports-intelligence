@@ -1,8 +1,9 @@
 // Fetch the curated stadium hero images ONCE and commit them (run by .github/workflows/stadium-images.yml).
 //
 // For every venue in scripts/stadiums/venues.json that has a hand-picked `commons_file` pinned: that exact
-// Wikimedia Commons file (free licence), converted to WebP (a 1920 px hero and a 720 px card) under
-// public/stadiums/, with its author, licence and source page recorded in src/lib/stadium-credits.json.
+// Wikimedia Commons file (free licence), converted to WebP (a 2400 px hero and a 720 px card) under
+// public/stadiums/ after a restrained colour grade, with its author, licence, source page and the
+// modification recorded in src/lib/stadium-credits.json.
 // A venue with no pin gets no photo (its old files and credit are removed) so the app shows the floodlit
 // fallback instead of a poor picture. Images are never fetched at runtime and never change between loads;
 // a venue that already has its pinned image is skipped unless FORCE=1.
@@ -18,7 +19,7 @@ const UA = 'SiftStadiumImages/1.0 (https://github.com/chmoses98/sift-sports-inte
 const FORCE = process.env.FORCE === '1';
 const ONLY = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
 /** Bump when the output format changes: venues fetched with an older variant are re-fetched. */
-const VARIANT = 'curated-hero1920q62-card720q58';
+const VARIANT = 'graded-hero2400q66-card720q60';
 
 const { venues } = JSON.parse(readFileSync(join(ROOT, 'scripts', 'stadiums', 'venues.json'), 'utf-8'));
 const credits = existsSync(CREDITS) ? JSON.parse(readFileSync(CREDITS, 'utf-8')) : { venues: {} };
@@ -41,7 +42,7 @@ const strip = (html) => (html ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' '
 
 async function commonsInfo(file) {
   const u = new URL('https://commons.wikimedia.org/w/api.php');
-  Object.entries({ action: 'query', format: 'json', formatversion: '2', prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920', titles: file }).forEach(([k, v]) => u.searchParams.set(k, v));
+  Object.entries({ action: 'query', format: 'json', formatversion: '2', prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '2600', titles: file }).forEach(([k, v]) => u.searchParams.set(k, v));
   const d = await json(u);
   const p = d.query?.pages?.[0];
   const ii = p?.imageinfo?.[0];
@@ -82,10 +83,15 @@ for (const v of venues) {
     if (!r.ok) throw new Error(`download ${r.status}`);
     const tmp = join(OUT, `.${v.slug}.src`);
     writeFileSync(tmp, Buffer.from(await r.arrayBuffer()));
-    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '1920x1280>', '-quality', '62', hero]);
-    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '720x480^', '-gravity', 'center', '-extent', '720x480', '-quality', '58', join(OUT, `${v.slug}-sm.webp`)]);
+    // The grade: a restrained editorial finish so a real photograph holds up as a hero behind the UI —
+    // mid-frequency clarity, a gentle S-curve and a little saturation; per-venue `grade` can adjust
+    // exposure ("brightness", 100 = unchanged), "saturation" and "contrast" (S-curve strength).
+    const g = { brightness: 100, saturation: 112, contrast: 3, ...(v.grade ?? {}) };
+    const grade = ['-unsharp', '0x28+0.32+0.02', '-sigmoidal-contrast', `${g.contrast}x48%`, '-modulate', `${g.brightness},${g.saturation},100`];
+    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '2400x1600>', ...grade, '-quality', '66', hero]);
+    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '720x480^', '-gravity', 'center', '-extent', '720x480', ...grade, '-quality', '60', join(OUT, `${v.slug}-sm.webp`)]);
     execFileSync('rm', ['-f', tmp]);
-    credits.venues[v.slug] = { variant: VARIANT, file: pick.file, page: pick.page, source: info.description_url, artist: info.artist, license: info.license, license_url: info.license_url, original_width: info.width, original_height: info.height };
+    credits.venues[v.slug] = { variant: VARIANT, file: pick.file, page: pick.page, source: info.description_url, artist: info.artist, license: info.license, license_url: info.license_url, original_width: info.width, original_height: info.height, modifications: 'Cropped, resized and colour graded by Sift' };
     ok++;
     console.log(`ok   ${v.slug}  ${pick.file}  (${info.license}, ${info.artist})`);
   } catch (e) {

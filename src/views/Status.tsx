@@ -72,15 +72,16 @@ export function StatusView() {
           </div>
         ) : router.loading ? <Skeleton lines={2} /> : <p className="muted">router_health.json could not be read.</p>}
       </Stratum>
-      <Stratum id="photo-credits" title="Stadium photo credits" sub="Each venue's Wikipedia lead image (free licence, Wikimedia Commons), fetched once and served with the app — never fetched at runtime.">
+      <Stratum id="photo-credits" title="Stadium photo credits" sub="Hand-picked photographs (free licences, Wikimedia Commons), colour graded for the hero, fetched once and served with the app — never fetched at runtime. Venues without an approved photograph use Sift's designed stadium artwork.">
         <table className="dtable">
-          <thead><tr><th scope="col">Venue</th><th scope="col">Photo</th><th scope="col">Licence</th></tr></thead>
+          <thead><tr><th scope="col">Venue</th><th scope="col">Photo</th><th scope="col">Licence</th><th scope="col">Changes</th></tr></thead>
           <tbody>
             {allVenuePhotos().map(({ venue, photo }) => (
               <tr key={venue.slug}>
                 <th scope="row">{venue.name}<span className="muted small"> · {venue.city}</span></th>
                 <td className="small">{photo.credit.source ? <a href={photo.credit.source} target="_blank" rel="noreferrer">{photo.credit.artist}</a> : photo.credit.artist}</td>
                 <td className="small">{photo.credit.licenseUrl ? <a href={photo.credit.licenseUrl} target="_blank" rel="noreferrer">{photo.credit.license}</a> : photo.credit.license}</td>
+                <td className="small">{photo.credit.modifications ?? 'None'}</td>
               </tr>
             ))}
           </tbody>

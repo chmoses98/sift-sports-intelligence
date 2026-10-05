@@ -1,49 +1,51 @@
-# Sift design system — *stadium night*
+# Sift design system — *graphite & sand*
 
 Sift guides the eye from **game → probable scripts → evidence → market fit → deeper research** through
 hierarchy alone: the matchup and its scripts dominate, evidence sits one step quieter, diagnostics live at
-the bottom or behind an info icon. A living reference renders at `#/design`. The approved owner mockup is
-the visual target; this document is its production translation.
+the bottom or behind an info icon. A living reference renders at `#/design`. The approved owner mockup's
+composition is the layout target; the palette and type below are locked by the owner (visual reset).
 
 ## 1. Surfaces & color (`src/styles/tokens.css`)
 
+Locked palette: **Graphite** `#0F1115` · **Slate** `#1A1F26` · **Deep Blue** `#2A3B4F` · **Sand** `#D8C9AB`
+· **Gold** `#C9A96A` · **Ice** `#6FA8C9` · **Ivory** `#F5F2EA`. No royal blue, no navy card soup, no neon.
+
 | Role | Tokens | Use |
 |---|---|---|
-| Strata | `--ink-0/1`, `--navy-1…4`, `--rail` | Deep navy/graphite base; each raised layer one step lighter. |
-| Glass panel | `--panel`, `--panel-line`, `--shadow-1` | The one card primitive (`.panel`): translucent, hairline border, inner light. Not used for everything — tables and lists sit flat inside it. |
-| Energy | `--cobalt`, `--cobalt-hi`, `--cobalt-glow` | Primary action, active navigation, active tab underline. |
-| Price | `--gold`, `--gold-line` | The live-price token (`.price`) and the research tray. |
-| Model vs market | `--pos`, `--neg` | Quiet green/coral for the sign of a model–market gap. Never "casino green". |
-| Game scripts | `--script-1…4` | Four fixed roles: favourite pulls away · favourite controls · one-score game · underdog controls. Always with a name and a glyph. |
+| Strata | `--graphite`, `--rail`, `--navy-1…4` (slate → deep blue) | Graphite page with a faint deep-blue light; each raised layer one step lighter. |
+| Panel | `--panel`, `--panel-line`, `--shadow-1` | Slate gradient with a warm sand hairline. Not every block is a panel: the hero, the featured band, the model read and the script cards each have their own surface. |
+| Glass | `.btn--glass`, `.wx`, top bar | Selective: only over photography (hero, featured band) and the sticky top bar. |
+| Accent | `--gold` (`--cobalt` aliases it), `--sand` | Primary action, active navigation and tab underline, the price token, eyebrows. |
+| Signal | `--ice` (`--cyan`) | Links and live/quiet status dots. |
+| Text | `--text-hi` ivory … `--text-3` | All four steps ≥ 4.5:1 on slate. |
+| Model vs market | `--pos`, `--neg` | Quiet sage / clay for the sign of a model–market gap. |
+| Game scripts | `--script-1…4` (rose, ochre, teal, violet) | Four fixed roles: favourite pulls away · favourite controls · one-score game · underdog controls. Always with a name and a glyph. |
 | Chart marks | `--mark-focus`, `--mark-opp`, `--mark-compare` | Home / away / third series. |
 | Freshness | `--fresh` `--aging` `--stale` `--unknown` | Only as a small dot tint on a quote chip (see §6). |
 
-Script and chart palettes are validated with the dataviz validator on the panel surface `#0d1424`
-(lightness band, chroma, CVD ΔE, normal-vision floor, contrast — all pass). Team colors are brand
-presentation only (crests, hero glow) and never color data.
+Script and chart colours are validated with the dataviz validator on slate `#1A1F26` (lightness band,
+chroma, CVD ΔE, normal-vision floor, contrast — all pass). The locked palette colours are deliberately
+muted, so they are never used to encode data. Team colours are brand presentation only (hero washes).
 
-## 2. Type (self-hosted, `@fontsource/barlow*`)
+## 2. Type (self-hosted via `@fontsource`; no runtime Google Fonts)
 
 | Face | Use |
 |---|---|
-| **Barlow Condensed** 600–800 | Display: team nicknames in the hero, page titles, big numbers (script shares, model tiles). Uppercase. |
-| **Barlow Semi Condensed** 500–700 | Panel titles, tabs, navigation, table heads, and every number (`.num`, tabular + lining figures). |
-| **Barlow** 400–700 | Running UI text and reads. |
-| JetBrains Mono | Tickers, packet text, diagnostics only. |
-
-One family in three widths gives the broadcast/editorial feel of the mockup with consistent figures.
+| **Instrument Serif** 400 (+ italic) | Selective display and editorial moments only: page mastheads, team nicknames in the hero and featured band, the model read, the script share figure, panel titles on the homes. Never body text, tables or controls. |
+| **Instrument Sans** (variable) | All UI: navigation, tabs, panel titles inside the game, labels, body, table text. |
+| **Roboto Mono** (variable) | Prices, model values, records, ranks, times — anywhere alignment helps (`.num`, `.price`, tabular). |
 
 ## 3. Space, shape, motion
 
-4 px grid (`--s-1`…`--s-12`), radii 4/6/10 px (crisp, not bubbly), 44 px touch targets. Motion is
+4 px grid (`--s-1`…`--s-12`), radii 4/8/12 px (crisp, not bubbly), 44 px touch targets. Motion is
 120/220 ms and off under `prefers-reduced-motion`.
 
 ## 4. Shell & navigation
 
-* **Desktop ≥ 1100 px** — left sidebar (216 px): SIFT wordmark, Home, every sport (NFL, CFB, MLB, NBA,
+* **Desktop ≥ 1100 px** — left sidebar (220 px): serif Sift wordmark, Home, every sport (NFL, CFB, MLB, NBA,
   NHL, Soccer, Tennis, MMA, PGA, More), then Research, Parlays, News, Search, and Settings at the foot.
   Top bar: breadcrumb, search, research tray.
-* **Tablet 720–1099 px** — the same sidebar as a 76 px icon rail with small labels.
+* **Tablet 720–1099 px** — the same sidebar as a 78 px icon rail with small labels.
 * **Phone < 720 px** — no sidebar. Bottom tab bar: Home · current sport · Sports (a sheet with every sport
   and the workspace) · Search · Tray. The top bar carries the wordmark, the breadcrumb and search.
 * **Breadcrumb** — the research path. It resets at the global Home (cleared) and at a sport home (starts
@@ -62,13 +64,13 @@ One family in three widths gives the broadcast/editorial feel of the mockup with
 
 | Component | Rule |
 |---|---|
-| **Game hero** | Curated venue photo (`scripts/stadiums/`), desaturated, under a dark gradient with each team's color glowing from its side. Indoor/closed roof says "Indoor" / "Roof closed", never a blank forecast. Photo credit links to Data & provenance. |
+| **Game hero** | Hand-picked venue photo pinned in `scripts/stadiums/venues.json` (night / bowl / golden hour), graded under a dark overlay with each team's colour washing in from its side; a venue without a good photo gets the floodlit fallback (radial lights, field glow), never a poor picture. Kickoff weather is a glass block: temperature in the serif, condition, wind, precipitation; a condition that plausibly matters (wind ≥ 15 mph, precipitation ≥ 50 %, ≤ 32 °F, ≥ 90 °F) gets a gold flag. Indoor / roof closed says so. Photo credit links to Data & provenance. |
 | **Script card** | Name, sim share (whole %), one-line description, glyph. Click = select (deep-linked `?script=`); "All scripts" returns to the uncertainty view. |
 | **Survival grid** | Four cells per market, one per script: filled = wins in every game of that script, half = some, empty = loses. Coverage = sim share of the scripts it always wins. Exact only for margin-settled markets. |
 | **Price token** | Gold-framed YES ask; dashed/dimmed when the quote is aging/stale; exact age in its title. |
 | **Model − Mkt** | Model probability minus the market midpoint in points, quiet green/coral. Never called "edge". |
 | **Quote chip** | Says "Updated 4m ago"; the FRESH/AGING/STALE/UNKNOWN state (unchanged thresholds) is the dot tint, `data-quote-state`, the accessible name and the popover. |
-| **Team crest** | Sift's own shield in the team's two colors with its abbreviation (no league or club marks). |
+| **Team logo** | The team's actual logo (`public/teams/nfl/`, fetched once by `scripts/teams/fetch-logos.mjs`; licensing to be settled by the owner). No initial shields. A sport without logos falls back to its abbreviation. |
 | **Info icon** | Definitions (EPA, success rate, sim share) in a popover; no inline lectures. |
 | **Ranks** | `#4 NFL`, never percentiles (32 teams). |
 | **Head to head** | Winner's score first, winner bold; framed as context, not model evidence. |

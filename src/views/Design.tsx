@@ -4,8 +4,8 @@ import { ContextMeter, EntityLink, FreshnessChip, QualityBadge, RankPill, Stratu
 import { useVisit } from '../state/trail';
 
 const SWATCHES: [string, string][] = [
-  ['--ink-1', 'app background'], ['--navy-1', 'stratum 1'], ['--navy-2', 'stratum 2'], ['--navy-3', 'stratum 3'],
-  ['--cobalt', 'energy'], ['--cyan', 'signal'], ['--gold', 'price'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'],
+  ['--graphite', 'graphite · page'], ['--slate', 'slate · surface'], ['--deep-blue', 'deep blue · separation'], ['--sand', 'sand · accent'],
+  ['--gold', 'gold · action + price'], ['--ice', 'ice · signal'], ['--ivory', 'ivory · text'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'],
   ['--mark-focus', 'chart: viewing'], ['--mark-opp', 'chart: opponent'], ['--mark-compare', 'chart: pinned'], ['--mark-context', 'chart: context'],
   ['--fresh', 'FRESH'], ['--aging', 'AGING'], ['--stale', 'STALE'], ['--q-research', 'RESEARCH'],
 ];
@@ -18,8 +18,8 @@ export function DesignView() {
     <div className="page design">
       <header className="pagehead">
         <div className="eyebrow">Design system</div>
-        <h1 className="h-display">Stadium night</h1>
-        <p className="lede">Navy and graphite strata, glass panels over real stadiums, restrained script and team accents. Examples below use illustrative inputs to show the components — they are not sports data.</p>
+        <h1 className="h-display">Graphite &amp; sand</h1>
+        <p className="lede">Graphite and slate strata, deep-blue separation, sand and gold accents, glass only over real stadium photography. Examples below use illustrative inputs to show the components — they are not sports data.</p>
       </header>
       <Stratum n="01" title="Color">
         <ul className="swatches">
@@ -30,10 +30,10 @@ export function DesignView() {
       </Stratum>
       <Stratum n="02" title="Type">
         <div className="typescale">
-          <div className="h-display">Display · Barlow Condensed</div>
+          <div className="h-display">Display · Instrument Serif</div>
           <div className="h-display h-display--md">Entity header</div>
-          <p>Body · Barlow. Panel titles, tabs and navigation · Barlow Semi Condensed.</p>
-          <p className="num">Numbers · Barlow Semi Condensed, tabular · +0.134 · #27 · 73.5¢</p>
+          <p>Interface · Instrument Sans: navigation, tabs, panel titles, labels and body.</p>
+          <p className="num">Numbers · Roboto Mono, tabular · +0.134 · #27 · 73.5¢</p>
           <div className="eyebrow">Eyebrow · section context</div>
         </div>
       </Stratum>

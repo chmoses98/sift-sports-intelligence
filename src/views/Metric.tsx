@@ -8,8 +8,9 @@ import { TrendChart } from '../charts/TrendChart';
 import type { EntityProfileDoc, Observation, RankingDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
+import { AdjustmentCompare } from '../components/AdjustmentCompare';
 import { EntityLink, ErrorState, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
-import { exactTime, metricFormatter, ordinal, pct, unitLabel } from '../lib/format';
+import { exactTime, metricFormatter, ordinal, unitLabel } from '../lib/format';
 import { adjustedTwin, counterpartMetric, WINDOW_EXPLAIN } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
@@ -108,7 +109,6 @@ export function MetricView() {
             <Fact k="League median" v={<span className="num">{fmt(ctx.league_median)}</span>} />
             <Fact k="Best" v={<EntityLink to={routes.team(slug, ctx.best_entity_id ?? '')} kind="team">{name(ctx.best_entity_id)}</EntityLink>} sub={<span className="num">{fmt(ctx.best_value)}</span>} />
             <Fact k="Worst" v={<EntityLink to={routes.team(slug, ctx.worst_entity_id ?? '')} kind="team">{name(ctx.worst_entity_id)}</EntityLink>} sub={<span className="num">{fmt(ctx.worst_value)}</span>} />
-            <Fact k="Percentile" v={<span className="num">{ctx.percentile != null ? `${ctx.percentile.toFixed(0)}th` : '—'}</span>} sub="share of the universe beaten or tied" />
             <Fact k="Window" v={o.window.label} sub={WINDOW_EXPLAIN[o.window.label] ?? o.window.kind.toLowerCase()} />
             <Fact k="Compared with" v={ctx.universe_label ?? '—'} />
             <Fact k="Sample" v={o.sample_size != null ? <span className="num">{o.sample_size}</span> : 'not published'} />
@@ -120,7 +120,7 @@ export function MetricView() {
       {teamId && !o && <Notice title={`${tName ?? 'This team'} has no published value for ${def.name}`}>Nothing is shown in its place.</Notice>}
 
       {(oppCp || oppSame || twinObs) && (
-        <Stratum n="01" title="Against whom" sub="The other side of the matchup, and the same team with the opponent-strength adjustment flipped.">
+        <Stratum n="01" title="Matchup Context" sub="The opponent unit this team faces, the same measure for that opponent, and how the number changes once the strength of opponents is accounted for.">
           <div className="vsgrid">
             {oppCp && cpDef && (
               <Link className="vscard vscard--opp" to={routes.metric(slug, cpId!, { team: oppId, opp: teamId, event: eventId })}>
@@ -136,14 +136,13 @@ export function MetricView() {
                 <span className="vscard__v"><span className="num">{fmt(oppSame.value)}</span> <RankPill rank={oppSame.context?.rank} size={oppSame.context?.universe_size} hib={oppSame.context?.higher_is_better} /></span>
               </Link>
             )}
-            {twin && twinObs && (
-              <Link className="vscard" to={routes.metric(slug, twin.id, { team: teamId, opp: oppId, event: eventId })}>
-                <span className="eyebrow">{twin.kind === 'adjusted' ? 'Opponent-adjusted version' : 'Unadjusted (raw) version'}</span>
-                <span className="vscard__t">{metrics.get(twin.id)?.name}</span>
-                <span className="vscard__v"><span className="num">{metricFormatter(metrics.get(twin.id), null)(twinObs.value)}</span> <RankPill rank={twinObs.context?.rank} size={twinObs.context?.universe_size} hib={twinObs.context?.higher_is_better} /></span>
-              </Link>
-            )}
           </div>
+          {twin && twinObs && o && (
+            twin.kind === 'adjusted'
+              ? <AdjustmentCompare raw={o} adj={twinObs} rawDef={def} adjDef={metrics.get(twin.id)} team={team.data?.entity.short_name ?? null} rawHref={routes.metric(slug, metricId, { team: teamId, opp: oppId, event: eventId })} adjHref={routes.metric(slug, twin.id, { team: teamId, opp: oppId, event: eventId })} />
+              : <AdjustmentCompare raw={twinObs} adj={o} rawDef={metrics.get(twin.id)} adjDef={def} team={team.data?.entity.short_name ?? null} rawHref={routes.metric(slug, twin.id, { team: teamId, opp: oppId, event: eventId })} adjHref={routes.metric(slug, metricId, { team: teamId, opp: oppId, event: eventId })} />
+          )}
+          {twin && !twinObs && <p className="muted small">The publication has no {twin.kind === 'adjusted' ? 'opponent-adjusted' : 'raw'} twin of this measure for this team, so no comparison is shown.</p>}
         </Stratum>
       )}
 
@@ -192,7 +191,7 @@ export function MetricView() {
             <Fact k="Source" v={def.source ?? '—'} sub={def.source_version ? `version ${def.source_version}` : undefined} />
             <Fact k="Method" v={def.methodology_version ?? '—'} />
             <Fact k="Updates" v={def.update_frequency ?? '—'} />
-            <Fact k="Supports" v={Object.entries(def.supports ?? {}).filter(([, v]) => v).map(([k]) => k.replace(/_/g, ' ')).join(', ') || '—'} />
+            <Fact k="Supports" v={Object.entries(def.supports ?? {}).filter(([k, v]) => v && k !== 'percentile').map(([k]) => k.replace(/_/g, ' ')).join(', ') || '—'} />
           </dl>
           {def.known_limitations.length > 0 && (
             <div className="explain__lims">
@@ -217,7 +216,6 @@ export function MetricView() {
             <EntityLink key={m.metric_id} to={routes.metric(slug, m.metric_id, { team: teamId, opp: oppId, event: eventId })} kind="metric">{m.short_name ?? m.name}</EntityLink>
           ))}
         </div>
-        {o?.context?.percentile != null && <p className="muted small">Percentile {pct(o.context.percentile / 100, 0)} = share of the universe this team beats or ties (contract definition).</p>}
       </Stratum>
       {ranking.error && <ErrorState error={ranking.error} what="the ranking" />}
     </div>

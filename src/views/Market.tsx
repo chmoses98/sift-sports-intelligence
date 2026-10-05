@@ -177,8 +177,7 @@ export function MarketView() {
             <p className="evid__q">
               Simulated {STAT_LABEL[stat!] ?? stat}: median <b className="num">{metricFormatter(metrics.get(simObs.metric_id))(q.p50)}</b>, 50% range{' '}
               <b className="num">{q.p25}–{q.p75}</b>, 90% range <b className="num">{q.p05}–{q.p95}</b>. This contract's line ({thr}) sits{' '}
-              {thr <= q.p05 ? 'below the 5th percentile' : thr <= q.p25 ? 'between the 5th and 25th percentiles' : thr <= q.p50 ? 'between the 25th percentile and the median' : thr <= q.p75 ? 'between the median and the 75th percentile' : thr <= q.p95 ? 'between the 75th and 95th percentiles' : 'above the 95th percentile'}{' '}
-              of the simulation. <QualityBadge status={simObs.quality_status} />
+              {thr <= q.p05 ? 'below almost every simulated outcome (the lowest 5%)' : thr <= q.p25 ? 'in the lower quarter of simulated outcomes' : thr <= q.p50 ? 'just below the middle of the simulated outcomes' : thr <= q.p75 ? 'just above the middle of the simulated outcomes' : thr <= q.p95 ? 'in the upper quarter of simulated outcomes' : 'above almost every simulated outcome (the highest 5%)'}. <QualityBadge status={simObs.quality_status} />
             </p>
           )}
         </Stratum>

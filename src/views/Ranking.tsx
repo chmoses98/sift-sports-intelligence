@@ -78,7 +78,7 @@ export function RankingView() {
           caption={`${def?.name} ranking, ${d.universe.label}`} onPin={togglePin}
         />
         <p className="muted small">
-          Competition ranking (ties share the best rank); percentile = share of the universe beaten or tied. Universe filter: {d.universe.filter ?? '—'}. As of {exactTime(d.as_of)}.
+          Competition ranking (ties share the best rank). Universe filter: {d.universe.filter ?? '—'}. As of {exactTime(d.as_of)}.
         </p>
         {d.quality.limitations.length > 0 && <ul className="lims">{d.quality.limitations.map((l) => <li key={l}>{l}</li>)}</ul>}
       </Stratum>

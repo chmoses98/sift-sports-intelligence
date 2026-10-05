@@ -1,3 +1,4 @@
+import { usageFor } from '../lib/usage';
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { LadderChart, type Rung } from '../charts/LadderChart';
@@ -69,7 +70,8 @@ export function PlayerView() {
   const teamAbbr = p.team?.short_name ?? (p.entity.metadata?.team as string) ?? '';
   const ext = (p.extensions ?? {}) as any;
   const sims = p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.sim_'));
-  const shares = p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.proj_'));
+  // Usage that makes football sense for this position (lib/usage.ts): never receiving usage on a QB, etc.
+  const shares = usageFor(pos, p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.proj_')), (id) => metrics.get(id)?.name);
   const qbObs = [...p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.qb_')), ...Object.values(p.splits ?? {}).flat()];
   const stats = [...byStat.keys()].sort((a, b) => (byStat.get(b)!.length - byStat.get(a)!.length));
   const prefer: Record<string, string[]> = { QB: ['passing_yards', 'attempts'], RB: ['rushing_yards', 'carries'], WR: ['receiving_yards', 'receptions'], TE: ['receiving_yards', 'receptions'] };

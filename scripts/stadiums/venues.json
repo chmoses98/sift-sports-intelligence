@@ -29,7 +29,7 @@
     { "slug": "levis-stadium", "name": "Levi's Stadium", "city": "Santa Clara, CA", "roof": "outdoor", "teams": ["SF"], "wiki": ["Levi's Stadium"] },
     { "slug": "lumen-field", "name": "Lumen Field", "city": "Seattle, WA", "roof": "outdoor", "teams": ["SEA"], "wiki": ["Lumen Field"] },
     { "slug": "raymond-james-stadium", "name": "Raymond James Stadium", "city": "Tampa, FL", "roof": "outdoor", "teams": ["TB"], "wiki": ["Raymond James Stadium"] },
-    { "slug": "nissan-stadium", "name": "Nissan Stadium", "city": "Nashville, TN", "roof": "outdoor", "teams": ["TEN"], "wiki": ["Nissan Stadium"] },
+    { "slug": "nissan-stadium", "name": "Nissan Stadium", "city": "Nashville, TN", "roof": "outdoor", "teams": ["TEN"], "aliases": ["LP Field"], "wiki": ["Nissan Stadium", "Nissan Stadium (1999)", "LP Field"] },
     { "slug": "northwest-stadium", "name": "Northwest Stadium", "city": "Landover, MD", "roof": "outdoor", "teams": ["WAS"], "aliases": ["FedExField"], "wiki": ["Northwest Stadium", "FedExField"] },
     { "slug": "tottenham-hotspur-stadium", "name": "Tottenham Hotspur Stadium", "city": "London, UK", "roof": "outdoor", "teams": [], "wiki": ["Tottenham Hotspur Stadium"] },
     { "slug": "wembley-stadium", "name": "Wembley Stadium", "city": "London, UK", "roof": "outdoor", "teams": [], "wiki": ["Wembley Stadium"] },

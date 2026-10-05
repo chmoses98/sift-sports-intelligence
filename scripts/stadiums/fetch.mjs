@@ -16,6 +16,8 @@ const CREDITS = join(ROOT, 'src', 'lib', 'stadium-credits.json');
 const UA = 'SiftStadiumImages/1.0 (https://github.com/chmoses98/sift-sports-intelligence; one-time curated fetch)';
 const FORCE = process.env.FORCE === '1';
 const ONLY = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
+/** Bump when the output format changes: venues fetched with an older variant are re-fetched. */
+const VARIANT = 'hero1600q60-card720q58';
 
 const { venues } = JSON.parse(readFileSync(join(ROOT, 'scripts', 'stadiums', 'venues.json'), 'utf-8'));
 const credits = existsSync(CREDITS) ? JSON.parse(readFileSync(CREDITS, 'utf-8')) : { venues: {} };
@@ -68,7 +70,7 @@ const failed = [];
 for (const v of venues) {
   if (ONLY && !ONLY.has(v.slug)) continue;
   const hero = join(OUT, `${v.slug}.webp`);
-  if (!FORCE && existsSync(hero) && credits.venues[v.slug]) {
+  if (!FORCE && existsSync(hero) && credits.venues[v.slug]?.variant === VARIANT) {
     ok++;
     continue;
   }
@@ -86,10 +88,10 @@ for (const v of venues) {
     if (!r.ok) throw new Error(`download ${r.status}`);
     const tmp = join(OUT, `.${v.slug}.src`);
     writeFileSync(tmp, Buffer.from(await r.arrayBuffer()));
-    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '1920x1280>', '-quality', '68', hero]);
-    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '800x534^', '-quality', '64', join(OUT, `${v.slug}-sm.webp`)]);
+    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '1600x1067>', '-quality', '60', hero]);
+    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '720x480^', '-gravity', 'center', '-extent', '720x480', '-quality', '58', join(OUT, `${v.slug}-sm.webp`)]);
     execFileSync('rm', ['-f', tmp]);
-    credits.venues[v.slug] = { file: pick.file, page: pick.page, source: info.description_url, artist: info.artist, license: info.license, license_url: info.license_url, original_width: info.width, original_height: info.height };
+    credits.venues[v.slug] = { variant: VARIANT, file: pick.file, page: pick.page, source: info.description_url, artist: info.artist, license: info.license, license_url: info.license_url, original_width: info.width, original_height: info.height };
     ok++;
     console.log(`ok   ${v.slug}  ${pick.file}  (${info.license}, ${info.artist})`);
   } catch (e) {

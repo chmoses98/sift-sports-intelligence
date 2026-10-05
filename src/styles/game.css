@@ -97,7 +97,10 @@
   .ov-lines { grid-column: span 6; }
   .ov-h2h, .ov-inj { grid-column: span 6; }
 }
-@media (min-width: 1440px) {
+@media (min-width: 1500px) {
+  .ov-surv .survt th, .ov-surv .survt td { padding-left: 4px; padding-right: 4px; }
+  .ov-surv .cov__bar { width: 36px; }
+  .ov-surv .price { min-width: 46px; }
   .ov-model { grid-column: span 3; }
   .ov-scripts { grid-column: span 5; }
   .ov-surv { grid-column: 9 / span 4; grid-row: 1; }

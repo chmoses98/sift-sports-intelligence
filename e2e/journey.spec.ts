@@ -39,7 +39,10 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await page.getByRole('link', { name: /NFL home/ }).click();
   await expect(page.getByRole('heading', { name: 'NFL', level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Script Outlook' })).toBeVisible();
+  // The research source is disclosed under the quiet Source control, not as a strip across the page.
+  await page.getByRole('button', { name: 'Source' }).click();
   await expect(page.getByText('RESEARCH SNAPSHOT')).toBeVisible();
+  await page.getByRole('button', { name: 'Less' }).click();
   // The breadcrumb restarted at the sport.
   await expect(page.getByRole('navigation', { name: 'Research path' }).locator('li')).toHaveCount(1);
   await shot(page, '02-nfl-home');

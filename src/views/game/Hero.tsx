@@ -13,6 +13,7 @@ import { teamColors } from '../../lib/teams';
 import { roofState, venueFor, venuePhoto, type Venue } from '../../lib/venues';
 import type { QuoteView } from '../../live/overlay';
 import { useHeldImage } from '../../lib/useImage';
+import { StadiumFallback } from '../../components/StadiumFallback';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -117,7 +118,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, sportLabel, v
     <header className={`mh mh--hero${photo ? '' : ' mh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
       <div className="mh__bg" aria-hidden="true">
         {img && <img src={img} alt="" decoding="async" />}
-        {!photo && <span className="mh__lights" />}
+        {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} />}
       </div>
       <div className="mh__in">
         <div className="mh__eyebrow">

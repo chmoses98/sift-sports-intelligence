@@ -117,17 +117,17 @@ a:hover { color: var(--ivory); }
 .teammark--text { display: inline-grid; place-items: center; font-family: var(--font-ui); font-weight: 700; font-size: 0.75rem; color: var(--text-2); }
 
 /* ---- data line (sport pages, bottom): one quiet sentence; diagnostics live behind "Source" */
-.srcbar { margin-top: var(--s-8); border-top: 1px solid var(--line); border-bottom: 0; background: transparent; font-size: var(--fs-xs); }
-.srcbar__in { max-width: var(--maxw); margin: 0 auto; padding: 12px var(--s-4); display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; color: var(--text-3); }
-.srcbar__mode { font-weight: 500; letter-spacing: 0; font-size: var(--fs-xs); padding: 0; border-radius: 0; background: none !important; color: var(--text-2) !important; text-transform: none; }
-.srcbar__txt { display: inline-flex; align-items: center; gap: 8px; color: var(--text-3); }
-.srcbar__live { display: inline-flex; align-items: center; gap: 6px; }
-.srcbar__live i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
-.srcbar__live[data-live-mode='LIVE'] i { background: var(--fresh); }
-.srcbar__live[data-live-mode='FEED'] i { background: var(--ice); }
-.srcbar__moved { color: var(--text-2); }
-.srcbar__more { margin-left: auto; color: var(--text-2); }
-.srcbar__detail { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--s-4) var(--s-4); color: var(--text-2); font-size: var(--fs-xs); }
+.srcbar { margin-top: var(--s-8); border: 0; background: transparent; font-size: var(--fs-xs); }
+.srcbar__in { max-width: var(--maxw); margin: 0 auto; padding: 10px var(--s-4); display: flex; justify-content: flex-end; }
+.srcbar__more { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 0 10px; border-radius: var(--r-pill); border: 1px solid var(--line); background: none; color: var(--text-2); font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+.srcbar__more:hover { color: var(--text-hi); border-color: var(--line-2); }
+.srcbar__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
+.srcbar__dot--live { background: var(--fresh); }
+.srcbar__dot--feed { background: var(--ice); }
+.srcbar__line { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 10px; color: var(--text-2); }
+.srcbar__mode { font-weight: 600; color: var(--text); }
+.srcbar__moved { color: var(--gold-2); }
+.srcbar__detail { max-width: var(--maxw); margin: 0 auto; padding: 4px var(--s-4) var(--s-4); color: var(--text-2); font-size: var(--fs-xs); border-top: 1px solid var(--line); }
 .srcbar__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 @media (min-width: 720px) { .srcbar__in, .srcbar__detail { padding-left: var(--s-6); padding-right: var(--s-6); } }
 
@@ -151,3 +151,55 @@ a:hover { color: var(--ivory); }
 .toast svg { color: var(--gold); }
 .skel__line { background: linear-gradient(90deg, var(--navy-1), var(--navy-3), var(--navy-1)); background-size: 200% 100%; }
 .tscroll { max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+
+/* ---- stadium fallback (src/components/StadiumFallback.tsx): a designed night bowl, not a gap */
+.sfb { position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 50% 100%, color-mix(in srgb, var(--home, #1e8cf2) 16%, transparent), transparent 70%),
+    radial-gradient(90% 60% at 50% -10%, rgba(40, 90, 150, 0.35), transparent 65%),
+    linear-gradient(180deg, #071a2b 0%, #04111d 38%, #020b13 70%, #01070d 100%); }
+/* four floodlight banks: hot cores with soft halos */
+.sfb__lights { position: absolute; inset: 0;
+  background:
+    radial-gradient(3.2% 1.3% at 8% 24%, #fff 0 45%, rgba(220, 236, 255, 0.85) 60%, transparent 100%),
+    radial-gradient(3.2% 1.3% at 26% 20%, #fff 0 45%, rgba(220, 236, 255, 0.85) 60%, transparent 100%),
+    radial-gradient(3.2% 1.3% at 74% 20%, #fff 0 45%, rgba(220, 236, 255, 0.85) 60%, transparent 100%),
+    radial-gradient(3.2% 1.3% at 92% 24%, #fff 0 45%, rgba(220, 236, 255, 0.85) 60%, transparent 100%),
+    radial-gradient(14% 16% at 8% 24%, rgba(200, 225, 255, 0.4), transparent 70%),
+    radial-gradient(14% 16% at 26% 20%, rgba(200, 225, 255, 0.36), transparent 70%),
+    radial-gradient(14% 16% at 74% 20%, rgba(200, 225, 255, 0.36), transparent 70%),
+    radial-gradient(14% 16% at 92% 24%, rgba(200, 225, 255, 0.4), transparent 70%); }
+/* light falling from each bank toward the pitch */
+.sfb__beams { position: absolute; inset: 0; mix-blend-mode: screen; opacity: 0.9;
+  background:
+    conic-gradient(from 128deg at 8% 24%, transparent 0deg, rgba(190, 220, 255, 0.09) 10deg, rgba(190, 220, 255, 0.02) 26deg, transparent 34deg),
+    conic-gradient(from 146deg at 26% 20%, transparent 0deg, rgba(190, 220, 255, 0.08) 9deg, rgba(190, 220, 255, 0.02) 22deg, transparent 30deg),
+    conic-gradient(from 184deg at 74% 20%, transparent 0deg, rgba(190, 220, 255, 0.02) 8deg, rgba(190, 220, 255, 0.08) 21deg, transparent 30deg),
+    conic-gradient(from 198deg at 92% 24%, transparent 0deg, rgba(190, 220, 255, 0.02) 8deg, rgba(190, 220, 255, 0.09) 24deg, transparent 34deg); }
+/* the stands: a dark ring around the bowl with a faint rim of light */
+.sfb__bowl { position: absolute; left: -10%; right: -10%; top: 36%; bottom: -46%;
+  background:
+    radial-gradient(50% 42% at 50% 62%, transparent 62%, rgba(140, 190, 240, 0.16) 63%, rgba(10, 28, 46, 0.95) 66%, rgba(5, 16, 27, 0.98) 88%, rgba(3, 10, 18, 0.6) 100%); }
+/* the pitch: a lit field in perspective with yard lines */
+.sfb__field { position: absolute; left: 20%; right: 20%; top: 64%; height: 56%; transform: perspective(520px) rotateX(62deg); transform-origin: 50% 0;
+  border-radius: 50% / 18%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9.2%, rgba(255, 255, 255, 0.16) 9.2% 9.6%),
+    radial-gradient(60% 70% at 50% 30%, rgba(78, 178, 110, 0.85), rgba(32, 112, 66, 0.75) 55%, rgba(14, 60, 36, 0.4) 85%, transparent 100%);
+  filter: saturate(1.1); box-shadow: 0 0 80px 20px rgba(60, 160, 100, 0.22); }
+/* the venue's name on an LED fascia across the far stand */
+.sfb__fascia { position: absolute; left: 50%; top: 31%; transform: translateX(-50%) perspective(600px) rotateX(18deg); display: inline-flex; align-items: center; justify-content: center; padding: 5px 22px; border-radius: 3px;
+  background: linear-gradient(180deg, rgba(10, 30, 52, 0.9), rgba(4, 14, 26, 0.9)); border-top: 1px solid color-mix(in srgb, var(--home, #1e8cf2) 70%, #fff); box-shadow: 0 -6px 26px -6px color-mix(in srgb, var(--home, #1e8cf2) 70%, transparent); white-space: nowrap; }
+.sfb__fascia span { font-family: var(--font-ui); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase; color: rgba(236, 244, 252, 0.62); }
+.sfb__grain { position: absolute; inset: 0; opacity: 0.16; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.sfb--compact .sfb__bowl { top: 24%; }
+.sfb--compact .sfb__field { top: 54%; }
+.sfb--compact .sfb__lights, .sfb--compact .sfb__beams { transform: translateY(-12%); }
+/* the crowd: a fine, warm speckle that lives only in the stands ring */
+.sfb__bowl::after { content: ''; position: absolute; inset: 0; opacity: 0.4;
+  background-image: radial-gradient(circle, rgba(255, 236, 200, 0.55) 0 0.7px, transparent 1.2px), radial-gradient(circle, rgba(190, 215, 255, 0.4) 0 0.6px, transparent 1.1px);
+  background-size: 9px 7px, 13px 11px; background-position: 0 0, 5px 3px;
+  mask-image: radial-gradient(50% 42% at 50% 62%, transparent 64%, #000 68%, #000 84%, transparent 96%); -webkit-mask-image: radial-gradient(50% 42% at 50% 62%, transparent 64%, #000 68%, #000 84%, transparent 96%); }
+
+.mh__chips .qchip .chip__dim { display: none; }

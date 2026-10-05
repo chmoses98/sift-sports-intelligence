@@ -7,6 +7,7 @@ import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';
 import { Icon } from '../../components/Icon';
+import { StadiumFallback } from '../../components/StadiumFallback';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../../components/LiveQuote';
 import { SaveButton, TeamMark } from '../../components/ui';
 import { gapText, modelRead } from '../../lib/gamedata';
@@ -85,7 +86,7 @@ export function FeaturedGame({ item, r, sportSlug, sportCode, now, eyebrow, size
   const [ac] = teamColors(sportCode, away?.short_name);
   return (
     <article className={`feat feat--${size}${photo ? '' : ' feat--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
-      <div className="feat__bg" aria-hidden="true">{img && <img src={img} alt="" decoding="async" />}</div>
+      <div className="feat__bg" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} />}</div>
       <div className="feat__in">
         <div className="feat__top">
           <span className="eyebrow">{eyebrow}</span>
@@ -127,9 +128,9 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
   const label = `${away?.short_name ?? '?'} @ ${home?.short_name ?? '?'}`;
   const lead = set ? [...set.scripts].sort((x, y) => y.share - x.share)[0] : null;
   return (
-    <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
+    <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%', ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }}>
       <div className="gtile__img" aria-hidden="true">
-        {img && <img src={img} alt="" decoding="async" />}
+        {img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback compact />}
         <span className="gtile__logos"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><i>at</i><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>
       </div>
       <Link to={routes.game(sportSlug, item.event_id)} className="gtile__link gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>

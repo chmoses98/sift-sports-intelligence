@@ -7,7 +7,7 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, noHorizontalOverflow, NOW, test } fro
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
-  ['nfl-home', './#/nfl', (p) => p.getByText('RESEARCH SNAPSHOT').waitFor()],
+  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor()],
   ['slate', './#/nfl/slate', (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor()],
   ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model Read' }).waitFor()],
   ['game-script', `./#/nfl/game/${NEBUF}?tab=script`, (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor()],

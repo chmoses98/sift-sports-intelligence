@@ -25,16 +25,8 @@
     radial-gradient(40% 70% at 4% 60%, color-mix(in srgb, var(--away) 26%, transparent), transparent 75%),
     radial-gradient(40% 70% at 96% 60%, color-mix(in srgb, var(--home) 26%, transparent), transparent 75%);
 }
-/* no curated photograph yet: night-game floodlights over the field, never a weak picture */
-.mh--nophoto .mh__bg {
-  background:
-    radial-gradient(60% 45% at 50% -8%, rgba(236, 244, 252, 0.22), transparent 70%),
-    radial-gradient(28% 34% at 12% 2%, rgba(96, 156, 214, 0.18), transparent 70%),
-    radial-gradient(28% 34% at 88% 2%, rgba(96, 156, 214, 0.18), transparent 70%),
-    radial-gradient(90% 60% at 50% 115%, rgba(47, 94, 72, 0.5), transparent 70%),
-    linear-gradient(180deg, #0b2133 0%, #061420 48%, #01070d 100%);
-}
-.mh__lights { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 9.5%, rgba(236, 244, 252, 0.035) 9.5% 10%); mask-image: linear-gradient(180deg, transparent 40%, #000 85%); -webkit-mask-image: linear-gradient(180deg, transparent 40%, #000 85%); transform: perspective(600px) rotateX(58deg); transform-origin: 50% 100%; }
+/* no curated photograph: the designed night-bowl fallback (.sfb) sits under the same grade */
+.mh--nophoto .mh__bg::after { background: linear-gradient(180deg, rgba(1, 7, 13, 0.55) 0%, transparent 30%, transparent 60%, rgba(1, 7, 13, 0.85) 92%, var(--graphite) 100%), linear-gradient(90deg, rgba(1, 7, 13, 0.6) 0%, transparent 28%, transparent 72%, rgba(1, 7, 13, 0.6) 100%); }
 
 .mh__in { position: relative; display: grid; gap: var(--s-5); padding: var(--s-5) var(--s-4) var(--s-4); }
 .mh__eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-weight: 600; font-size: 0.74rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sand); }
@@ -431,4 +423,23 @@
   .survt .cov__bar { width: 30px; }
   .survt .price { min-width: 46px; padding: 0 5px; font-size: 0.86rem; }
   .survt__sim { display: none; }
+}
+
+/* ---- phone hero: both teams first, then ONE band that groups kickoff + venue (left) with the weather (right) */
+@media (max-width: 719px) {
+  .mh--hero .mh__team--away { order: 1; }
+  .mh--hero .mh__team--home { order: 2; }
+  .mh--hero .mh__mid { order: 3; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 12px; row-gap: 2px; }
+  .mh--hero .mh__mid > :not(.wx) { grid-column: 1; }
+  .mh--hero .mh__mid .wx { grid-column: 2; grid-row: 1 / span 3; margin: 0; padding: 8px 12px 8px 10px; gap: 2px 8px; grid-template-columns: auto auto; }
+  .mh--hero .mh__mid .wx .wx__t { font-size: 2.2rem; }
+  .mh--hero .mh__mid .wx .wx__d { grid-column: 1 / -1; }
+  .mh--hero .mh__mid .wx .wx__ic { width: 26px; height: 26px; }
+  .mh--hero .mh__mid .wx--none { grid-row: auto; grid-column: 1; padding: 0; }
+  .mh--hero .mh__day { font-size: 1rem; }
+  .mh--hero .mh__time, .mh--hero .mh__venue { font-size: 0.86rem; }
+  .mh--hero .teammark--xl { width: 60px; height: 60px; }
+  .mh--hero .mh__name { font-size: clamp(2.2rem, 9.5vw, 3rem); }
+  .mh--hero .mh__teams { gap: var(--s-3); }
+  .sfb__fascia { display: none; }
 }

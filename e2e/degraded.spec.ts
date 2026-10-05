@@ -220,9 +220,11 @@ test('live vs snapshot: the live root\'s newer run is announced while the snapsh
     r.fulfill({ status: 404, headers: { 'access-control-allow-origin': '*' }, body: '404: Not Found' }),
   );
   await page.goto('./#/nfl');
+  // Normal screens show only the quiet Source control; its description carries the state for screen readers.
+  await expect(page.getByRole('button', { name: 'Source' })).toHaveAccessibleDescription(/snapshot of the published research.*newer run/);
+  await page.getByRole('button', { name: 'Source' }).click();
   await expect(page.getByText('RESEARCH SNAPSHOT')).toBeVisible();
   await expect(page.getByText('Live has a newer run')).toBeVisible();
-  await page.getByRole('button', { name: 'Source' }).click();
   await expect(page.getByText(/run_live_newer/)).toBeVisible();
 });
 

@@ -115,7 +115,7 @@
 .gtile { position: relative; display: flex; flex-direction: column; border-radius: var(--r-3); overflow: hidden; background: var(--panel); border: 1px solid var(--panel-line); box-shadow: var(--shadow-1); transition: transform var(--t-fast), border-color var(--t-fast); }
 .gtile:hover { transform: translateY(-2px); border-color: var(--panel-line-hi); }
 .gtile__img { position: relative; height: 118px; background: linear-gradient(160deg, #1c2633, #141920); overflow: hidden; }
-.gtile__img img { width: 100%; height: 100%; object-fit: cover; object-position: var(--focus, center 45%); filter: saturate(1) brightness(0.72); }
+.gtile__img > img { width: 100%; height: 100%; object-fit: cover; object-position: var(--focus, center 45%); filter: saturate(1) brightness(0.72); }
 .gtile__img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15, 17, 21, 0.15) 0%, rgba(15, 17, 21, 0.25) 50%, rgba(24, 28, 35, 0.98) 100%); }
 .gtile--nophoto .gtile__img { background: radial-gradient(60% 80% at 50% -10%, rgba(245, 242, 234, 0.14), transparent 70%), radial-gradient(80% 70% at 50% 130%, rgba(47, 94, 72, 0.4), transparent 70%), linear-gradient(180deg, #1c2633, #161b22); }
 .gtile__logos { position: absolute; z-index: 1; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 16px; }
@@ -187,3 +187,7 @@
   .sotab__cell { min-width: 30px; padding: 0 2px; }
   .sotab__fav { display: none; }
 }
+
+/* The stat's own label already says "Prices": the chip shows only its age (state stays in its name). */
+.shead__stats .qchip .chip__k, .shead__stats .qchip .chip__dim { display: none; }
+.gtile__foot .qchip .chip__dim { display: none; }

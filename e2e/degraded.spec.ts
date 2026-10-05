@@ -75,10 +75,10 @@ test.describe('with a fixed clock', () => {
     await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'FEED');
     await page.goto('./#/status');
     const diag = (k: string) => page.locator(`td[data-diag="${k}"]`);
-    await expect(diag('Answered by')).toHaveText('quote-feed');
+    await expect(diag('Quotes answered by')).toHaveText('quote-feed');
     await expect(diag('Mode')).toHaveText('FEED');
-    await expect(diag('Fallback reason')).toContainText('kalshi-relay HTTP 429');
-    await expect(diag('Fallback reason')).toContainText('rate limited');
+    await expect(diag('Quote fallback reason')).toContainText('kalshi-relay HTTP 429');
+    await expect(diag('Quote fallback reason')).toContainText('rate limited');
 
     market.fail = null;
     market.set(ML, 0.61);
@@ -87,9 +87,53 @@ test.describe('with a fixed clock', () => {
     await expect.poll(() => marketPrice(page)).toBe('61¢ / 63¢');
     await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'LIVE');
     await page.goto('./#/status');
-    await expect(diag('Answered by')).toHaveText('kalshi-relay');
+    await expect(diag('Quotes answered by')).toHaveText('kalshi-relay');
     await expect(diag('Mode')).toHaveText('LIVE');
-    await expect(diag('Fallback reason')).toHaveText('—');
+    await expect(diag('Quote fallback reason')).toHaveText('—');
+  });
+
+  test('routing: inventory from the feed first, quotes from the relay first; Status shows each source', async ({ page, market }) => {
+    const feedObserved = new Date(NOW.getTime() - 4 * 60_000).toISOString();
+    const feedMarkets = detail.markets.filter((m) => m.kalshi_ticker).map((m) => ({
+      ticker: m.kalshi_ticker, event_ticker: (m as { kalshi_event_ticker?: string }).kalshi_event_ticker ?? m.kalshi_ticker.split('-').slice(0, 2).join('-'),
+      status: 'active', yes_bid_dollars: (m.yes_bid ?? 0.5).toFixed(4), yes_ask_dollars: (m.yes_ask ?? 0.52).toFixed(4), observed_at: feedObserved,
+    }));
+    // Only the feed lists this contract: if it appears, inventory came from the feed.
+    feedMarkets.push({ ticker: 'KXNFLSPREAD-26OCT04NEBUF-BUF9', event_ticker: 'KXNFLSPREAD-26OCT04NEBUF', status: 'active', yes_bid_dollars: '0.2100', yes_ask_dollars: '0.2300', observed_at: feedObserved, title: 'Buffalo wins by over 9.5 points?', yes_sub_title: 'Buffalo by more than 9.5' } as (typeof feedMarkets)[number]);
+    await page.route('**/live-quotes/games/26OCT04NEBUF.json', (r) =>
+      r.fulfill({
+        headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' },
+        body: JSON.stringify({ schema: 'sift.live_quotes.v1', game_key: '26OCT04NEBUF', generated_at: feedObserved, source: 'test feed', tickers_checked: feedMarkets.map((m) => m.ticker), markets: feedMarkets }),
+      }),
+    );
+    market.set(ML, 0.51);
+    await page.goto(`./#/nfl/game/${NEBUF}`);
+    await expect(page.locator('.newlisted')).toContainText('Buffalo wins by over 9.5 points?');
+    await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'LIVE');
+    await expect.poll(() => market.tickerRequests().length).toBeGreaterThan(0);
+    expect(market.eventRequests(), 'the relay is never asked for the inventory sweep').toHaveLength(0);
+    await page.goto(marketUrl);
+    await expect.poll(() => marketPrice(page)).toBe('51¢ / 53¢'); // the relay's quote, not the feed's older one
+    await page.goto('./#/status');
+    const diag = (k: string) => page.locator(`td[data-diag="${k}"]`);
+    await expect(diag('Quote provider')).toHaveText(/^Kalshi public market data via relay \(relay\.sift\.invalid\), then Sift quote feed/);
+    await expect(diag('Inventory provider')).toHaveText(/^Sift quote feed .*, then Kalshi public market data via relay \(relay\.sift\.invalid\)/);
+    await expect(diag('Quotes answered by')).toHaveText('kalshi-relay');
+    await expect(diag('Inventory answered by')).toHaveText('quote-feed');
+    await expect(diag('Quote fallback reason')).toHaveText('—');
+    await expect(diag('Inventory fallback reason')).toHaveText('—');
+    await expect(diag('Mode')).toHaveText('LIVE');
+  });
+
+  test('routing: feed unavailable, inventory falls back to the relay and Status names the feed failure', async ({ page, market }) => {
+    await page.goto(`./#/nfl/game/${NEBUF}`);
+    await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', 'LIVE');
+    await expect.poll(() => market.eventRequests().length).toBeGreaterThan(0); // the blocked feed sent inventory to the relay
+    await page.goto('./#/status');
+    const diag = (k: string) => page.locator(`td[data-diag="${k}"]`);
+    await expect(diag('Inventory answered by')).toHaveText('kalshi-relay');
+    await expect(diag('Inventory fallback reason')).toContainText('quote-feed failed (network');
+    await expect(diag('Quotes answered by')).toHaveText('kalshi-relay');
   });
 
   test('one quote missing: that market keeps the publication quote; the packet names it', async ({ page, market }) => {

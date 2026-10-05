@@ -141,7 +141,9 @@ describe('FallbackProvider', () => {
     expect((await p.fetchQuotes(['X'])).missing).toEqual(['X']);
     expect(p.lastAnswered).toBe('feed');
     await p.fetchEventMarkets(['E']);
-    expect(p.lastAnswered).toBe('relay');
+    // Quote and inventory provenance are independent: an inventory answer never rewrites the quote source.
+    expect(p.lastInventoryAnswered).toBe('relay');
+    expect(p.lastAnswered).toBe('feed');
   });
 
   it('fails with the primary provider\'s error when every provider fails', async () => {
@@ -179,5 +181,70 @@ describe('FallbackProvider keeps the primary failure visible', () => {
     await p.fetchQuotes(['X']);
     expect(p.lastAnswered).toBe('kalshi-relay');
     expect(p.lastFallback).toBeNull();
+  });
+});
+
+describe('production routing: quotes relay-first, inventory feed-first', () => {
+  const ok = (id: string, extra: Partial<import('../../src/live/types').ProviderResult> = {}) => ({ quotes: [], missing: [], requests: 1, latencyMs: 0, ...extra, _id: id });
+  function chain(o: { relayQuotes?: () => unknown; relayEvents?: () => unknown; feedQuotes?: () => unknown; feedEvents?: () => unknown } = {}) {
+    const calls: string[] = [];
+    const mk = (id: string, q?: () => unknown, e?: () => unknown) => ({
+      id, label: id === 'kalshi-relay' ? 'Kalshi public market data via relay (r.example)' : 'Sift quote feed (f)', maxBatch: 100,
+      fetchQuotes: async () => { calls.push(`${id}:quotes`); return (q ? q() : ok(id)) as ReturnType<typeof ok>; },
+      fetchEventMarkets: async () => { calls.push(`${id}:events`); return (e ? e() : ok(id)) as ReturnType<typeof ok>; },
+    });
+    const relay = mk('kalshi-relay', o.relayQuotes, o.relayEvents);
+    const feed = mk('quote-feed', o.feedQuotes, o.feedEvents);
+    return { calls, p: new FallbackProvider([relay, feed], { inventoryOrder: [feed, relay] }) };
+  }
+
+  it('asks the relay for quote batches and the feed for inventory, and labels both chains', async () => {
+    const { p, calls } = chain();
+    const q = await p.fetchQuotes(['X']);
+    const e = await p.fetchEventMarkets(['KXNFLGAME-26OCT04NEBUF']);
+    expect(calls).toEqual(['kalshi-relay:quotes', 'quote-feed:events']);
+    expect([q.answeredBy, q.fallback, q.refreshesQuotes]).toEqual(['kalshi-relay', null, true]);
+    expect([e.answeredBy, e.fallback, e.refreshesQuotes]).toEqual(['quote-feed', null, false]);
+    expect([p.lastAnswered, p.lastInventoryAnswered]).toEqual(['kalshi-relay', 'quote-feed']);
+    expect(p.label).toBe('Kalshi public market data via relay (r.example), then Sift quote feed (f)');
+    expect(p.inventoryLabel).toBe('Sift quote feed (f), then Kalshi public market data via relay (r.example)');
+  });
+
+  it('quotes fall back to the feed on a relay 429; inventory keeps its own provenance', async () => {
+    const { p } = chain({ relayQuotes: () => { throw new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429); } });
+    const q = await p.fetchQuotes(['X']);
+    expect(q.answeredBy).toBe('quote-feed');
+    expect(q.fallback).toMatchObject({ provider: 'kalshi-relay', status: 429 });
+    await p.fetchEventMarkets(['E']);
+    expect(p.lastInventoryFallback).toBeNull();
+    expect(p.lastFallback).toMatchObject({ provider: 'kalshi-relay', status: 429 });
+  });
+
+  it('inventory falls back to the relay when the feed fails, and then counts as a quote refresh', async () => {
+    const { p, calls } = chain({ feedEvents: () => { throw new ProviderError('network', 'network error: offline'); } });
+    const e = await p.fetchEventMarkets(['E']);
+    expect(calls).toEqual(['quote-feed:events', 'kalshi-relay:events']);
+    expect([e.answeredBy, e.refreshesQuotes]).toEqual(['kalshi-relay', true]);
+    expect(e.fallback).toMatchObject({ provider: 'quote-feed', error: 'network: network error: offline' });
+  });
+
+  it('inventory the feed does not cover is asked of the relay, never read as "no contracts"', async () => {
+    const { p, calls } = chain({ feedEvents: () => ok('quote-feed', { uncovered: ['KXNFLGAME-26OCT12AAABBB'] }) });
+    const e = await p.fetchEventMarkets(['KXNFLGAME-26OCT12AAABBB']);
+    expect(calls).toEqual(['quote-feed:events', 'kalshi-relay:events']);
+    expect(e.answeredBy).toBe('kalshi-relay');
+    expect(e.fallback).toMatchObject({ provider: 'quote-feed', status: 404, error: 'http: no inventory for KXNFLGAME-26OCT12AAABBB' });
+  });
+});
+
+describe('FeedQuoteProvider inventory coverage', () => {
+  it('reports events of a game it has no file for as uncovered (not as an empty listing)', async () => {
+    const doc = { schema: FEED_SCHEMA, game_key: '26OCT04NEBUF', generated_at: '2026-10-04T15:00:00Z', tickers_checked: [], markets: [{ ticker: 'KXNFLGAME-26OCT04NEBUF-BUF', event_ticker: 'KXNFLGAME-26OCT04NEBUF', status: 'active', yes_bid_dollars: '0.5100', yes_ask_dollars: '0.5300', observed_at: '2026-10-04T14:59:00Z' }] };
+    const feed = new FeedQuoteProvider({ baseUrl: 'https://feed.example', fetchImpl: async (u) => (String(u).includes('26OCT04NEBUF') ? json(doc) : new Response('', { status: 404 })) });
+    const r = await feed.fetchEventMarkets(['KXNFLGAME-26OCT04NEBUF', 'KXNFLGAME-26OCT12AAABBB']);
+    expect(r.quotes.map((q) => q.ticker)).toEqual(['KXNFLGAME-26OCT04NEBUF-BUF']);
+    expect(r.uncovered).toEqual(['KXNFLGAME-26OCT12AAABBB']);
+    const covered = await feed.fetchEventMarkets(['KXNFLGAME-26OCT04NEBUF']);
+    expect(covered.uncovered).toBeUndefined();
   });
 });

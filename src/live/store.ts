@@ -10,7 +10,7 @@
 //   its freshness keeps aging honestly (src/live/freshness.ts).
 // * It never touches the research fetch cache (src/data/fetcher.ts): research documents may be
 //   memoised for navigation speed; quotes may not.
-import { ProviderError, type LiveQuote, type ProviderResult, type QuoteProvider } from './types';
+import { ProviderError, type FallbackNote, type LiveQuote, type ProviderResult, type QuoteProvider } from './types';
 
 export type Cadence = 'detail' | 'game' | 'slate' | 'background';
 
@@ -89,9 +89,16 @@ export interface EventState {
 export interface Diagnostics {
   provider: string;
   providerLabel: string;
+  /** Which provider answered the last quote batch (drives LIVE vs FEED). */
   answeredBy: string | null;
-  /** The primary provider's failure when a fallback answered the last call (e.g. relay HTTP 429). */
-  fallback: { provider: string; error: string; status: number | null; at: number } | null;
+  /** The quote primary's failure when a fallback answered the last quote batch (e.g. relay HTTP 429). */
+  fallback: FallbackNote | null;
+  /** The inventory chain (which provider is asked first for listed contracts). */
+  inventoryProviderLabel: string;
+  /** Which provider answered the last inventory sweep. */
+  inventoryAnsweredBy: string | null;
+  /** The inventory primary's failure when a fallback answered the last sweep. */
+  inventoryFallback: FallbackNote | null;
   requests: number;
   batches: number;
   tickersRequested: number;
@@ -200,7 +207,8 @@ export class QuoteStore {
   private persistence: Persistence | null;
   private random: () => number;
   private backoff = { failures: 0, until: 0, reason: null as string | null, rateLimited: false };
-  private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'answeredBy' | 'fallback'> = {
+  private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'inventoryProviderLabel'> = {
+    answeredBy: null, fallback: null, inventoryAnsweredBy: null, inventoryFallback: null,
     requests: 0, batches: 0, tickersRequested: 0, tickersRefreshed: 0, tickersFailed: 0, tickersMissing: 0,
     lastRequestAt: null, lastSuccessAt: null, lastErrorAt: null, lastError: null, lastLatencyMs: null,
   };
@@ -265,14 +273,11 @@ export class QuoteStore {
       s.tickers.forEach((t) => tickers.add(t));
       s.events.forEach((e) => events.add(e));
     }
-    const chain = this.provider as { lastAnswered?: string | null; lastFallback?: Diagnostics['fallback'] } | null;
-    const answered = chain?.lastAnswered ?? null;
     return {
       ...this.diag,
       provider: this.provider?.id ?? 'none',
       providerLabel: this.provider?.label ?? 'No live provider configured',
-      answeredBy: answered ?? (this.diag.lastSuccessAt ? this.provider?.id ?? null : null),
-      fallback: chain?.lastFallback ?? null,
+      inventoryProviderLabel: (this.provider as { inventoryLabel?: string } | null)?.inventoryLabel ?? this.provider?.label ?? 'No live provider configured',
       backoffUntil: this.backoff.until > this.now() ? this.backoff.until : null,
       backoffReason: this.backoff.until > this.now() ? this.backoff.reason : null,
       consecutiveFailures: this.backoff.failures,
@@ -526,8 +531,21 @@ export class QuoteStore {
     this.diag.lastLatencyMs = r.latencyMs ?? t - t0;
     this.diag.lastSuccessAt = t;
     this.backoff = { failures: 0, until: 0, reason: null, rateLimited: false };
+    // A listing from a provider other than the quote primary updates inventory and (newer-wins) quotes,
+    // but does not count as the quote refresh: the quote primary is still asked for those tickers.
+    const quoteGrade = kind === 'tickers' || r.refreshesQuotes !== false;
+    // Provenance per kind: quotes and inventory may come from different providers.
+    if (kind === 'events') {
+      this.diag.inventoryAnsweredBy = r.answeredBy ?? this.provider?.id ?? null;
+      this.diag.inventoryFallback = r.fallback ?? null;
+    }
+    if (quoteGrade) {
+      this.diag.answeredBy = r.answeredBy ?? this.provider?.id ?? null;
+      this.diag.fallback = kind === 'tickers' ? r.fallback ?? null : null;
+    }
     for (const q of r.quotes) {
       this.accept(q);
+      if (!quoteGrade) continue;
       const st = this.tickerState.get(q.ticker) ?? { lastAttemptAt: t0, lastSuccessAt: null, lastError: null, missing: false };
       st.lastSuccessAt = t;
       st.lastError = null;

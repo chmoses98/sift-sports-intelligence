@@ -321,3 +321,81 @@ describe('source mode: LIVE when the relay answers, FEED when the fallback does'
     expect([d.answeredBy, liveMode(d, clock.now()), d.fallback]).toEqual(['kalshi-relay', 'LIVE', null]);
   });
 });
+
+describe('inventory feed-first, quotes relay-first (production routing)', () => {
+  async function setupChain() {
+    const { FallbackProvider } = await import('../../src/live/providers/fallback');
+    const { liveMode } = await import('../../src/components/LiveQuote');
+    const clock = new FakeClock();
+    const relay = new FakeProvider(clock);
+    const feed = new FakeProvider(clock);
+    Object.defineProperty(relay, 'id', { value: 'kalshi-relay' });
+    Object.defineProperty(feed, 'id', { value: 'quote-feed' });
+    const E = 'KXNFLGAME-26OCT04NEBUF';
+    for (const p of [relay, feed]) p.events.set(E, [A, B]);
+    relay.prices.set(A, 0.51).set(B, 0.49);
+    feed.prices.set(A, 0.46).set(B, 0.52);
+    // The feed publishes every 3 minutes: its observations are minutes old, the relay's are current.
+    const feedEvents = feed.fetchEventMarkets.bind(feed);
+    feed.fetchEventMarkets = async (ev, s) => {
+      const r = await feedEvents(ev, s);
+      return { ...r, quotes: r.quotes.map((q) => ({ ...q, observedAt: new Date(clock.now() - 4 * 60_000).toISOString() })) };
+    };
+    store = new QuoteStore({ provider: new FallbackProvider([relay, feed], { inventoryOrder: [feed, relay] }), now: clock.now, timers: clock, env: new FakeEnv(), persistence: null, random: () => 0.5 });
+    store.addScope({ tickers: [A, B], events: [E], cadence: 'game' });
+    return { clock, relay, feed, store, liveMode, E };
+  }
+
+  it('a feed inventory sweep never stands in for the relay quote batch: prices come from the relay, LIVE', async () => {
+    const { clock, relay, feed, store, liveMode } = await setupChain();
+    await clock.advance(0);
+    expect(feed.calls.map((c) => c.kind)).toEqual(['events']);
+    expect(relay.calls.map((c) => c.kind)).toEqual(['tickers']); // asked for quotes, never for the 57-series sweep
+    expect(store.quote(A)?.yesBid).toBe(0.51);
+    expect(store.quote(A)?.observedAt).toBe(new Date(clock.now()).toISOString());
+    const d = store.diagnostics();
+    expect([d.answeredBy, d.inventoryAnsweredBy, liveMode(d, clock.now()), d.fallback, d.inventoryFallback]).toEqual(['kalshi-relay', 'quote-feed', 'LIVE', null, null]);
+  });
+
+  it('relay down: quotes come from the feed with their real age, FEED, and the 429 is named; inventory unaffected', async () => {
+    const { clock, relay, store, liveMode } = await setupChain();
+    relay.failWith = new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429, 7000);
+    await clock.advance(0);
+    const d = store.diagnostics();
+    expect([d.answeredBy, d.inventoryAnsweredBy, liveMode(d, clock.now())]).toEqual(['quote-feed', 'quote-feed', 'FEED']);
+    expect(d.fallback).toMatchObject({ provider: 'kalshi-relay', status: 429 });
+    expect(d.inventoryFallback).toBeNull();
+    expect(store.quote(A)?.yesBid).toBe(0.46);
+  });
+
+  it('feed down: inventory falls back to the relay, whose listing covers the quotes (LIVE); the feed failure is named', async () => {
+    const { clock, relay, feed, store, liveMode } = await setupChain();
+    feed.failWith = new ProviderError('network', 'network error: offline');
+    await clock.advance(0);
+    expect(relay.calls.map((c) => c.kind)).toEqual(['events']); // the relay listing refreshed A and B: no extra batch
+    const d = store.diagnostics();
+    expect([d.answeredBy, d.inventoryAnsweredBy]).toEqual(['kalshi-relay', 'kalshi-relay']);
+    expect(d.inventoryFallback).toMatchObject({ provider: 'quote-feed', error: 'network: network error: offline' });
+    expect(d.fallback).toBeNull();
+    expect(liveMode(d, clock.now())).toBe('LIVE'); // the relay's listing is a real quote refresh
+    expect(store.quote(A)?.yesBid).toBe(0.51);
+  });
+});
+
+describe('an inventory answer alone makes no claim about quotes', () => {
+  it('stays CONNECTING until a quote source has answered', async () => {
+    const { FallbackProvider } = await import('../../src/live/providers/fallback');
+    const { liveMode } = await import('../../src/components/LiveQuote');
+    const clock = new FakeClock();
+    const relay = new FakeProvider(clock);
+    const feed = new FakeProvider(clock);
+    Object.defineProperty(relay, 'id', { value: 'kalshi-relay' });
+    Object.defineProperty(feed, 'id', { value: 'quote-feed' });
+    feed.events.set('KXNFLGAME-26OCT04NEBUF', []);
+    store = new QuoteStore({ provider: new FallbackProvider([relay, feed], { inventoryOrder: [feed, relay] }), now: clock.now, timers: clock, env: new FakeEnv(), persistence: null, random: () => 0.5 });
+    store.addScope({ tickers: [], events: ['KXNFLGAME-26OCT04NEBUF'], cadence: 'game' });
+    await clock.advance(0);
+    const d = store.diagnostics();
+    expect([d.inventoryAnsweredBy, d.answeredBy, liveMode(d, clock.now())]).toEqual(['quote-feed', null, 'CONNECTING']);
+  });
+});

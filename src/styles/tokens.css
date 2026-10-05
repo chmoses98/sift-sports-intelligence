@@ -9,47 +9,49 @@
   color-scheme: dark;
 
   /* ---- core palette (mockup samples) */
-  --black: #01070d;          /* page: near-black with a trace of blue (mockup #000a11) */
-  --graphite: #01070d;       /* legacy name → the near-black page */
-  --slate: #081622;          /* panel body (mockup #061521) */
+  --black: #010b13;          /* LEVEL 0 page: near-black, cyan undertone (mockup #000a11–#010d15) */
+  --graphite: #010b13;       /* legacy name → the near-black page */
+  --slate: #05131d;          /* LEVEL 2 primary panel (mockup #05131d) */
   --deep-blue: #0e3662;      /* selected / active surface (mockup sidebar active #032559, lifted) */
   --gold: #f0c048;           /* live price + primary action (mockup #eac34d / #f5c437) */
   --ice: #1fb2ec;            /* cyan signal: links, focus (mockup #0aa7e8) */
   --blue: #1e8cf2;           /* navigation state: active tab, active pill (mockup #0288f4) */
   --teal: #2fccc8;           /* coverage bars (mockup #2fccc8) */
-  --ivory: #f7f6f1;          /* primary text (mockup headings read pure white) */
+  --ivory: #f7f9fb;          /* primary text (mockup headings read pure white) */
   --sand: #f3d488;           /* light gold for eyebrows/records: warm, legible */
 
   /* ---- strata (deepest first) */
-  --ink-0: #00050a;
-  --ink-1: #01070d;          /* app background: near-black */
-  --rail: #020c14;           /* sidebar (mockup #020f17) */
-  --navy-1: #061420;         /* inset rows inside panels */
-  --navy-2: #081622;         /* panels, inputs */
-  --navy-3: #0c1f30;         /* hover, raised tiles (mockup tiles #0c1d2c) */
+  --ink-0: #00070d;
+  --ink-1: #010b13;          /* LEVEL 0 app background */
+  --rail: #020f18;           /* LEVEL 1 sidebar / navigation (mockup #020f17) */
+  --navy-1: #03101a;         /* recessed: inset rows, chart plots */
+  --navy-2: #05131d;         /* LEVEL 2 panels, inputs */
+  --navy-3: #0b1b2b;         /* LEVEL 3 raised tiles, hover (mockup #0b1b2b) */
   --navy-4: #0e3662;         /* selected, pressed */
 
-  /* panels: dark navy raised off the black page by a blue hairline and a top light */
-  --panel: linear-gradient(180deg, rgba(11, 31, 49, 0.96) 0%, rgba(6, 19, 31, 0.96) 46%, rgba(5, 16, 26, 0.96) 100%);
-  --panel-solid: #081622;
-  --panel-raised: linear-gradient(180deg, #102a42 0%, #0a1d2f 100%);
-  --panel-glass: rgba(4, 14, 24, 0.62);
-  --panel-line: rgba(84, 150, 214, 0.2);
-  --panel-line-hi: rgba(110, 176, 238, 0.38);
-  --panel-glow: inset 0 1px 0 rgba(150, 200, 255, 0.08);
-  --shadow-1: inset 0 1px 0 rgba(150, 200, 255, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.4), 0 18px 40px -22px rgba(0, 0, 0, 0.95);
+  /* LEVEL 2 panel: blue-black, almost flat (the mockup's panels are barely lighter than the page); separation
+     comes from a crisp cyan hairline and a faint cyan top light, never from a gray or white wash. */
+  --panel: linear-gradient(180deg, #071824 0%, #05131d 38%, #04111a 100%);
+  --panel-solid: #05131d;
+  --panel-deep: linear-gradient(180deg, #04121b 0%, #020e16 100%);       /* recedes: tables, history, lists */
+  --panel-raised: linear-gradient(180deg, #0d2033 0%, #0a1a29 100%);     /* LEVEL 3 tiles, team cards */
+  --panel-glass: rgba(2, 14, 24, 0.66);
+  --panel-line: rgba(38, 150, 214, 0.24);
+  --panel-line-hi: rgba(64, 176, 240, 0.45);
+  --panel-glow: inset 0 1px 0 rgba(90, 190, 255, 0.08);
+  --shadow-1: inset 0 1px 0 rgba(90, 190, 255, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.5), 0 20px 44px -24px rgba(0, 0, 0, 0.95);
   --shadow-2: 0 30px 70px -28px rgba(0, 0, 0, 0.95);
 
   /* ---- lines */
-  --line: rgba(96, 156, 214, 0.13);
-  --line-2: rgba(96, 156, 214, 0.22);
-  --line-3: rgba(110, 176, 238, 0.36);
+  --line: rgba(38, 150, 214, 0.14);
+  --line-2: rgba(38, 150, 214, 0.26);
+  --line-3: rgba(64, 176, 240, 0.42);
 
   /* ---- ink (text): bright ivory → cool greys (mockup body #c2ced7); every step >= 4.5:1 on panels */
-  --text-hi: #f7f6f1;
-  --text: #dfe6ec;
-  --text-2: #b8c5d1;
-  --text-3: #9aabbb;
+  --text-hi: #f7f9fb;
+  --text: #e2eaf1;
+  --text-2: #b4c6d6;
+  --text-3: #94aabd;
 
   /* ---- accents */
   --cobalt: #f0c048;         /* primary action is GOLD (legacy token name) */
@@ -64,8 +66,8 @@
   --sand-dim: rgba(243, 212, 136, 0.78);
 
   /* ---- model vs market sign (mockup green #0ae38d / red #e73044, kept just short of neon) */
-  --pos: #2ed592;
-  --neg: #ff6370;
+  --pos: #1fe08f;
+  --neg: #ff5165;
   --pos-bg: rgba(46, 213, 146, 0.12);
   --neg-bg: rgba(255, 99, 112, 0.12);
 
@@ -78,24 +80,29 @@
   --script-4: #9264ef;        /* underdog controls (7+) — violet */
   /* IDENTITY colours (card edges, glows, the big share figure): brighter, as in the mockup. Decorative —
      always beside the script's name, never the only encoding. */
-  --script-1-hi: #ff5d79;
-  --script-2-hi: #ffbe3b;
-  --script-3-hi: #29c3f2;
-  --script-4-hi: #b088ff;
+  --script-1-hi: #ff4f6e;
+  --script-2-hi: #ffb522;
+  --script-3-hi: #2f9bff;
+  --script-4-hi: #a974ff;
+  /* DEEP tones: the saturated colour field behind each card's dark centre (mockup card tops). */
+  --script-1-deep: #7a0f2a;
+  --script-2-deep: #6e4600;
+  --script-3-deep: #08408a;
+  --script-4-deep: #3f1a86;
 
   /* ---- chart marks (mockup line chart: red #e73044 / blue #227ad6) */
   --mark-focus: #2a8fe6;      /* home / viewing */
   --mark-opp: #e8505f;        /* away / opponent */
   --mark-compare: #9264ef;
-  --mark-context: #142b40;
+  --mark-context: #0f2436;
   --mark-context-hi: #1d3a56;
-  --mark-grid: rgba(96, 156, 214, 0.1);
-  --mark-axis: rgba(96, 156, 214, 0.3);
+  --mark-grid: rgba(38, 150, 214, 0.12);
+  --mark-axis: rgba(38, 150, 214, 0.34);
 
   /* ---- states (diagnostics; shown quietly in the product) */
-  --fresh: #2ed592;
+  --fresh: #1fe08f;
   --aging: #f0c048;
-  --stale: #ff6370;
+  --stale: #ff5165;
   --unknown: #8496a8;
   --q-verified: #1fb2ec;
   --q-partial: #6fd0f6;

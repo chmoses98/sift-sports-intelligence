@@ -10,26 +10,26 @@ contrast or the data-viz validator required it.
 
 ## 1. Surfaces & color (`src/styles/tokens.css`)
 
-| Role | Mockup sample | Token (implemented) | Use |
-|---|---|---|---|
-| Page | `#000a11` | `--black` / `--ink-1` `#01070d` | Near-black page with a whisper of deep-blue light at the top. |
-| Sidebar | `#020f17` | `--rail` `#020c14` | |
-| Panel body | `#061521` | `--panel` gradient `#0b1f31 → #05101a` | Raised off the page by a blue hairline and a faint top light. |
-| Inner tile | `#0c1d2c` | `--navy-3` `#0c1f30`, `--panel-raised` | Model tiles, team-form cards. |
-| Panel border | `#091a28`–`#0c1f2e` | `--panel-line` `rgba(84,150,214,.2)` | |
-| Selected / active surface | `#032559` | `--deep-blue` `#0e3662`, sidebar active gradient | |
-| Glass | — | `--panel-glass`, `.wx`, top bar | Only over photography and the sticky top bar. |
-| Primary text | `#ffffff` | `--text-hi` `#f7f6f1` (ivory) | |
-| Body / muted text | `#c2ced7` / `#b9c9d4` | `--text` `#dfe6ec`, `--text-2` `#b8c5d1`, `--text-3` `#9aabbb` | All ≥ 4.5:1 on panels. |
-| Gold (prices, primary action) | `#eac34d` / `#f5c437` | `--gold` `#f0c048` | Solid gold price chips with dark text; primary buttons. |
-| Cyan / ice (signals, links) | `#0aa7e8` | `--ice` / `--cyan` `#1fb2ec` | |
-| Blue (navigation state) | `#0288f4` / `#075eb7` | `--blue` `#1e8cf2` | Active tab underline (with glow), active pills, sidebar active. |
-| Teal (coverage) | `#2fccc8` | `--teal` `#2fccc8` | |
-| Positive / negative | `#0ae38d` / `#e73044` | `--pos` `#2ed592` / `--neg` `#ff6370` | Model − Market sign; W/L boxes. |
-| Script 1 (fav pulls away) | edge `#e64557` | mark `--script-1` `#ea4770`, identity `--script-1-hi` `#ff5d79` | |
-| Script 2 (fav controls) | edge `#bc9134`, glyph `#e8b030` | mark `#c78400`, identity `#ffbe3b` | |
-| Script 3 (one-score) | edge `#0879ae`, glyph `#1e90ff` | mark `#00a1d0`, identity `#29c3f2` | |
-| Script 4 (dog controls) | edge `#6f3ba1`, glyph `#8a4fd8` | mark `#9264ef`, identity `#b088ff` | |
+Surfaces are a **blue-black hierarchy**: every level is a cyan/blue luminance step, never a gray or white wash.
+
+| Level / role | Rendered (sampled from the app) | Use |
+|---|---|---|
+| 0 · App background | `#000a11` (`--ink-1` `#010b13`) | The page. |
+| 1 · Sidebar / bars | `#020f18` (`--rail`); top bar, tabs, phone tab bar solid `#010b13` | Navigation. |
+| 2 · Primary panel | `#05131d` (`--panel`) | Survivors, Team Form, home panels. |
+| 2− · Recessed panel | `#04121a` (`--panel-deep`) | Evidence lists: markets, line history, head to head, injuries; the scripts field. |
+| 3 · Raised | `#0c1d2f` (`--panel-raised`) | Model tiles, team cards, hover. |
+| 4 · Lead / selected | Model Read `#061a2d` with a blue light; selected script glow; active nav `#1e8cf2` | What comes forward. |
+| Hairline | `#092434` (`--panel-line` `rgba(38,150,214,.24)`) | Cyan, crisp. |
+| Text | primary `#f7f9fb` (data and titles in white, heavier); secondary `#acbece`–`#b4c6d6` | |
+| Gold | price chips `#f6cf62→#e2ad2e`, rendered `#e3b23a` | Older prices keep the gold and add a corner tick. |
+| Cyan / ice | `#1fb2ec` | Signals, coverage. |
+| Blue (navigation) | `#1e8cf2` | Active tab (with glow), pills, sidebar. |
+| Green / red | `#1fe08f` / `#ff5165` (rendered `#1eda8b` / `#e1495c`) | Model − Market sign, W/L. |
+| Script identity (edges, glow) | `#ff4f6e` · `#ffb522` · `#2f9bff` · `#a974ff` | Over deep fields `#7a0f2a` · `#6e4600` · `#08408a` · `#3f1a86` with a near-black centre. |
+
+`scripts/dev/color-audit.py` (development only) compares a rendered screenshot with the mockup by dark-field
+hue, blue-black vs neutral share, luminance, vivid-accent share, bright-text share and dominant dark clusters.
 
 Two tiers for script colour: **mark** colours (survival cells, script bars, dots) pass the dataviz validator
 on `#081622` with no warnings (worst adjacent deutan ΔE 9.0); **identity** colours (card edges, glows, the

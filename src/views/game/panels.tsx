@@ -212,7 +212,7 @@ export function SurvivorsPanel({ rows, set, selected, slug, eventId, now, to }: 
         }
         sub={sel ? <>Markets that win if <b>{sel.name}</b></> : 'Moneyline and spreads, by share of simulated games covered'}
       />
-      <table className="survt">
+      <div className="tscroll"><table className="survt ">
         <thead>
           <tr>
             <th scope="col">Market</th>
@@ -248,7 +248,7 @@ export function SurvivorsPanel({ rows, set, selected, slug, eventId, now, to }: 
             <tr><td colSpan={5} className="muted small">No priced margin market wins in this script and at least one other.</td></tr>
           )}
         </tbody>
-      </table>
+      </table></div>
       <div className="ov-surv__foot"><ViewAll to={to}>All script fits</ViewAll></div>
     </section>
   );
@@ -285,7 +285,7 @@ export function MarketsPanel({ rows, set, selected, slug, eventId, now, allHref 
           ))}
         </div>
       </PanelHead>
-      <table className="mtab">
+      <div className="tscroll"><table className="mtab ">
         <thead>
           <tr>
             <th scope="col">Market</th>
@@ -315,7 +315,7 @@ export function MarketsPanel({ rows, set, selected, slug, eventId, now, allHref 
           ))}
           {!shown.length && <tr><td colSpan={6} className="muted small">No priced markets of this type have a model price.</td></tr>}
         </tbody>
-      </table>
+      </table></div>
       <div className="ov-markets__foot">
         <span className="muted small">{rows.length} markets · model prices are research evidence</span>
         <ViewAll to={allHref}>All markets</ViewAll>

@@ -238,7 +238,7 @@ export function LiveStatusChip({ now }: { now: number }) {
     <Popover
       label={`Market quotes: ${MODE_TEXT[mode]}`}
       trigger={
-        <span className={`chip chip--fresh qchip chip--${tone}`} data-live-mode={mode}>
+        <span className={`chip chip--fresh qchip chip--${tone}`}>
           <span aria-hidden="true">{mode === 'LIVE' ? '●' : mode === 'FEED' || mode === 'CONNECTING' ? '◐' : '○'}</span>
           <span>{MODE_TEXT[mode]}</span>
         </span>

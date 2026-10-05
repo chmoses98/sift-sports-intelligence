@@ -18,18 +18,18 @@ export interface NavSport {
 }
 
 export const NAV_SPORTS: NavSport[] = [
-  { slug: 'nfl', label: 'NFL', fullName: 'National Football League', icon: 'football', accent: '#4f86ff', status: 'live' },
-  { slug: 'cfb', label: 'CFB', fullName: 'College Football', icon: 'football', accent: '#f08a3c', status: 'health' },
-  { slug: 'mlb', label: 'MLB', fullName: 'Major League Baseball', icon: 'baseball', accent: '#ef5a5a', status: 'beta' },
-  { slug: 'nba', label: 'NBA', fullName: 'National Basketball Association', icon: 'basketball', accent: '#f29b38', status: 'health' },
-  { slug: 'nhl', label: 'NHL', fullName: 'National Hockey League', icon: 'hockey', accent: '#9cc7e8', status: 'health' },
-  { slug: 'soccer', label: 'Soccer', fullName: 'Soccer', icon: 'soccer', accent: '#3fcf9c', status: 'health' },
-  { slug: 'tennis', label: 'Tennis', fullName: 'Tennis', icon: 'tennis', accent: '#d4e157', status: 'health' },
-  { slug: 'mma', label: 'MMA', fullName: 'Mixed Martial Arts', icon: 'mma', accent: '#e5484d', status: 'planned' },
-  { slug: 'pga', label: 'PGA', fullName: 'PGA Tour', icon: 'golf', accent: '#4cc38a', status: 'planned' },
+  { slug: 'nfl', label: 'NFL', fullName: 'National Football League', icon: 'football', accent: '#6fa8c9', status: 'live' },
+  { slug: 'cfb', label: 'CFB', fullName: 'College Football', icon: 'football', accent: '#c99a6a', status: 'health' },
+  { slug: 'mlb', label: 'MLB', fullName: 'Major League Baseball', icon: 'baseball', accent: '#d08a7a', status: 'beta' },
+  { slug: 'nba', label: 'NBA', fullName: 'National Basketball Association', icon: 'basketball', accent: '#d4a05a', status: 'health' },
+  { slug: 'nhl', label: 'NHL', fullName: 'National Hockey League', icon: 'hockey', accent: '#9cc4dc', status: 'health' },
+  { slug: 'soccer', label: 'Soccer', fullName: 'Soccer', icon: 'soccer', accent: '#8cc2a3', status: 'health' },
+  { slug: 'tennis', label: 'Tennis', fullName: 'Tennis', icon: 'tennis', accent: '#c9c27a', status: 'health' },
+  { slug: 'mma', label: 'MMA', fullName: 'Mixed Martial Arts', icon: 'mma', accent: '#c97a7a', status: 'planned' },
+  { slug: 'pga', label: 'PGA', fullName: 'PGA Tour', icon: 'golf', accent: '#8cbf9a', status: 'planned' },
 ];
 
-export const STATUS_WORD: Record<NavStatus, string> = { live: 'Live', beta: 'Beta', health: 'Health only', planned: 'Not published yet' };
+export const STATUS_WORD: Record<NavStatus, string> = { live: 'Live', beta: 'Beta', health: 'Health only', planned: 'Coming soon' };
 
 export function navSport(slug: string | undefined): NavSport | undefined {
   return NAV_SPORTS.find((s) => s.slug === (slug ?? '').toLowerCase());

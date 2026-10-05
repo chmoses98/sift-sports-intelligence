@@ -1,104 +1,114 @@
 /* ==========================================================================
-   SIFT DESIGN TOKENS — "Stadium night"
-   A premium dark sports surface: deep navy/graphite strata, layered glass panels over
-   real stadium imagery, restrained but vivid accents. Documented in docs/DESIGN_SYSTEM.md.
-   Token NAMES are stable (screens built before the redesign inherit the new values).
+   SIFT DESIGN TOKENS — premium sports editorial
+   Locked core palette (owner, redesign pass 2):
+     Graphite #0F1115 · Slate #1A1F26 · Deep Blue #2A3B4F · Sand #D8C9AB
+     Gold #C9A96A · Ice #6FA8C9 · Ivory #F5F2EA
+   Team and script colours supplement it; they never take over the system.
+   Token NAMES are stable so every screen inherits the system.
    ========================================================================== */
 :root {
   color-scheme: dark;
 
-  /* ---- strata (surfaces, deepest first) */
-  --ink-0: #04070e;
-  --ink-1: #070b15;          /* app background */
-  --navy-1: #0c1322;         /* panels */
-  --navy-2: #111a2d;         /* raised rows, inputs */
-  --navy-3: #18233b;         /* hover */
-  --navy-4: #213052;         /* pressed / selected */
-  --rail: #080d18;           /* sidebar */
+  /* ---- core palette */
+  --graphite: #0f1115;
+  --slate: #1a1f26;
+  --deep-blue: #2a3b4f;
+  --sand: #d8c9ab;
+  --gold: #c9a96a;
+  --ice: #6fa8c9;
+  --ivory: #f5f2ea;
 
-  /* glass panels: translucent over the page (and over imagery), with a hairline and inner light */
-  --panel: rgba(14, 21, 37, 0.78);
-  --panel-solid: #0d1424;
-  --panel-hi: rgba(22, 32, 54, 0.82);
-  --panel-line: rgba(150, 172, 222, 0.13);
-  --panel-line-hi: rgba(150, 172, 222, 0.24);
-  --panel-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px -18px rgba(0, 0, 0, 0.8);
-  --shadow-2: 0 24px 60px -24px rgba(0, 0, 0, 0.85);
+  /* ---- strata (deepest first) */
+  --ink-0: #0a0c0f;
+  --ink-1: #0f1115;          /* app background: graphite */
+  --rail: #0c0e12;           /* sidebar: a half-step below graphite */
+  --navy-1: #161a20;         /* inset rows inside panels */
+  --navy-2: #1a1f26;         /* slate: panels, inputs */
+  --navy-3: #222933;         /* hover */
+  --navy-4: #2a3b4f;         /* deep blue: selected, pressed */
+
+  /* panels: slate with a faint top light and a warm hairline — layered, not boxes */
+  --panel: linear-gradient(180deg, rgba(30, 36, 45, 0.92) 0%, rgba(24, 28, 35, 0.92) 100%);
+  --panel-solid: #1a1f26;
+  --panel-raised: linear-gradient(180deg, #232a34 0%, #1c2129 100%);
+  --panel-glass: rgba(18, 22, 28, 0.58);
+  --panel-line: rgba(216, 201, 171, 0.09);
+  --panel-line-hi: rgba(216, 201, 171, 0.2);
+  --panel-glow: inset 0 1px 0 rgba(245, 242, 234, 0.05);
+  --shadow-1: inset 0 1px 0 rgba(245, 242, 234, 0.045), 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 32px -20px rgba(0, 0, 0, 0.9);
+  --shadow-2: 0 28px 64px -28px rgba(0, 0, 0, 0.92);
 
   /* ---- lines */
-  --line: rgba(150, 172, 222, 0.1);
-  --line-2: rgba(150, 172, 222, 0.18);
-  --line-3: rgba(150, 172, 222, 0.32);
+  --line: rgba(216, 201, 171, 0.08);
+  --line-2: rgba(216, 201, 171, 0.15);
+  --line-3: rgba(216, 201, 171, 0.28);
 
-  /* ---- ink (text) */
-  --text-hi: #f3f6fd;
-  --text: #cdd5e8;
-  --text-2: #9aa6c2;
-  --text-3: #8592b0;          /* labels: >= 4.5:1 on ink-1, navy-1..3 and --panel over ink-1 */
+  /* ---- ink (text): ivory family; every step >= 4.5:1 on slate */
+  --text-hi: #f5f2ea;
+  --text: #d9d4c8;
+  --text-2: #b4aea2;
+  --text-3: #a39d91;
 
-  /* ---- energy (primary action, active navigation) */
-  --cobalt: #2f6bff;
-  --cobalt-hi: #6e98ff;
-  --cobalt-deep: #1b44c4;
-  --cobalt-glow: rgba(47, 107, 255, 0.28);
-  --cyan: #38c8f0;            /* focus rings, "you are here" */
-  --cyan-2: #93dcf6;
-  --gold: #f2b53c;            /* prices, the research tray, attention */
-  --gold-2: #ffd88a;
-  --gold-bg: rgba(242, 181, 60, 0.1);
-  --gold-line: rgba(242, 181, 60, 0.45);
+  /* ---- accents */
+  --cobalt: #c9a96a;         /* primary action / active state is GOLD (was cobalt) */
+  --cobalt-hi: #dcc08a;
+  --cobalt-deep: #a8884b;
+  --cobalt-glow: rgba(201, 169, 106, 0.22);
+  --cyan: #6fa8c9;           /* ice: links, focus, data emphasis */
+  --cyan-2: #9cc4dc;
+  --gold-2: #e3cf9f;
+  --gold-bg: rgba(201, 169, 106, 0.1);
+  --gold-line: rgba(201, 169, 106, 0.42);
+  --sand-dim: rgba(216, 201, 171, 0.72);
 
-  /* ---- signal (model vs market, positive/negative) — quiet, never casino green */
-  --pos: #3fcf9c;
-  --neg: #ff7a6b;
-  --pos-bg: rgba(63, 207, 156, 0.1);
-  --neg-bg: rgba(255, 122, 107, 0.1);
+  /* ---- model vs market sign: muted sage / clay, never casino green */
+  --pos: #8cc2a3;
+  --neg: #e0937f;
+  --pos-bg: rgba(140, 194, 163, 0.1);
+  --neg-bg: rgba(224, 147, 127, 0.1);
 
-  /* ---- game scripts: four fixed roles, each with a glyph and a label (never color alone).
-     Validated (dataviz validate_palette --mode dark --surface #0d1424): all checks pass. */
-  --script-1: #d55181;        /* favourite pulls away (14+) */
-  --script-2: #c98500;        /* favourite controls (7–13) */
-  --script-3: #199e70;        /* one-score game */
-  --script-4: #9085e9;        /* underdog controls (7+) */
+  /* ---- game scripts: four fixed roles, each always named and glyphed.
+     dataviz validate_palette --mode dark --surface #1a1f26: all checks pass. */
+  --script-1: #c25a6e;        /* favourite pulls away (14+) — rose */
+  --script-2: #b88a2e;        /* favourite controls (7–13) — gold */
+  --script-3: #2f9a84;        /* one-score game — teal */
+  --script-4: #8a7fd0;        /* underdog controls (7+) — violet */
 
-  /* ---- chart marks */
-  /* validated together on #0d1424 (lightness band, CVD, contrast: all pass) */
-  --mark-focus: #2a8ad0;
-  --mark-opp: #c4841c;
-  --mark-compare: #7280f0;
-  --mark-context: #26324c;
-  --mark-context-hi: #3a4a6e;
-  --mark-grid: rgba(150, 172, 222, 0.09);
-  --mark-axis: rgba(150, 172, 222, 0.26);
+  /* ---- chart marks (validated together on #1a1f26: all pass) */
+  --mark-focus: #3e8fc0;      /* home / viewing — deep ice */
+  --mark-opp: #b88a2e;        /* away / opponent — deep gold */
+  --mark-compare: #8a7fd0;
+  --mark-context: #2a313b;
+  --mark-context-hi: #3a4452;
+  --mark-grid: rgba(216, 201, 171, 0.07);
+  --mark-axis: rgba(216, 201, 171, 0.22);
 
-  /* ---- states: freshness (backend states unchanged; shown quietly as "Updated Xm ago") */
-  --fresh: #3fcf9c;
-  --aging: #f2b53c;
-  --stale: #ff7a6b;
-  --unknown: #7d89a8;
+  /* ---- states (diagnostics; shown quietly in the product) */
+  --fresh: #8cc2a3;
+  --aging: #d4b06a;
+  --stale: #e0937f;
+  --unknown: #8e8a82;
+  --q-verified: #6fa8c9;
+  --q-partial: #9cc4dc;
+  --q-research: #d4b06a;
+  --q-unavailable: #8e8a82;
 
-  /* ---- states: quality (diagnostics) */
-  --q-verified: #38c8f0;
-  --q-partial: #6e98ff;
-  --q-research: #f0a640;
-  --q-unavailable: #8592b0;
+  /* ---- type (self-hosted @fontsource) */
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;   /* selective editorial moments */
+  --font-display: var(--font-serif);
+  --font-ui: 'Instrument Sans Variable', 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: var(--font-ui);
+  --font-num: 'Roboto Mono Variable', 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-mono: var(--font-num);
 
-  /* ---- type: self-hosted Barlow family (sports-broadcast DIN lineage) */
-  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;   /* matchup names, hero numbers */
-  --font-head: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; /* section titles, tabs, numbers */
-  --font-ui: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-num: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; /* tabular figures (tnum) */
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace; /* tickers, diagnostics */
-
-  --fs-micro: 0.6875rem;   /* 11px: eyebrows, axis ticks */
-  --fs-xs: 0.78rem;        /* 12.5px */
+  --fs-micro: 0.72rem;     /* 11.5px: eyebrows, axis ticks */
+  --fs-xs: 0.8125rem;      /* 13px */
   --fs-sm: 0.875rem;       /* 14px: dense rows */
-  --fs-md: 0.96875rem;     /* 15.5px: body */
-  --fs-lg: 1.1875rem;      /* 19px: panel titles */
-  --fs-xl: 1.5rem;         /* 24px */
-  --fs-2xl: 2.25rem;       /* 36px: entity headers */
-  --fs-3xl: clamp(2.6rem, 6vw, 4.5rem); /* matchup display */
+  --fs-md: 0.9688rem;      /* 15.5px: body */
+  --fs-lg: 1.125rem;       /* 18px: panel titles */
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: clamp(2.6rem, 6vw, 4.4rem);
 
   /* ---- space (4px grid) */
   --s-1: 4px;
@@ -111,10 +121,10 @@
   --s-10: 40px;
   --s-12: 48px;
 
-  /* ---- shape: crisp, not bubbly */
+  /* ---- shape */
   --r-1: 4px;
-  --r-2: 6px;
-  --r-3: 10px;
+  --r-2: 8px;
+  --r-3: 12px;
   --r-pill: 999px;
 
   /* ---- motion */
@@ -123,10 +133,10 @@
   --t-med: 220ms;
 
   /* ---- layout */
-  --maxw: 1480px;
-  --side-w: 216px;
-  --rail-w: 76px;
-  --topbar-h: 56px;
+  --maxw: 1520px;
+  --side-w: 220px;
+  --rail-w: 78px;
+  --topbar-h: 58px;
   --bottombar-h: 64px;
   --tap: 44px;
   --safe-b: env(safe-area-inset-bottom, 0px);

@@ -1,6 +1,6 @@
 name: Stadium images
 
-# Fetches the curated stadium hero images once (Wikipedia lead image, free licence, via Wikimedia Commons)
+# Fetches the hand-picked stadium hero images once (the Commons file pinned per venue, free licences)
 # and commits them with their credits: public/stadiums/*.webp + src/lib/stadium-credits.json. The app
 # never fetches an image at runtime. Runs when the venue list or the fetcher changes, or manually
 # (FORCE re-fetches every venue; ONLY limits it to some slugs, comma-separated).

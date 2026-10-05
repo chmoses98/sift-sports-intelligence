@@ -3,7 +3,8 @@ import { Link } from 'react-router';
 import { statusFor } from '../contract/freshness';
 import type { FreshnessState, ObservationContext, Quality, QualityStatus, Thresholds } from '../contract/types';
 import { ago, exactTime, ordinal } from '../lib/format';
-import { teamAccent, teamColors } from '../lib/teams';
+import { teamLogo } from '../lib/teams';
+import { useHeldImage } from '../lib/useImage';
 import type { RefKind, TrayExtra } from '../packet/tray';
 import { useTray, type TrayLabel } from '../state/tray';
 import { Icon } from './Icon';
@@ -27,15 +28,21 @@ export function EntityLink({ to, kind, children, className, title, quiet }: { to
 }
 
 /**
- * A team's crest: its colours and abbreviation in Sift's own shape (no league or club marks are used).
- * Brand presentation only — team colours never colour data.
+ * A team's identity mark: the team's real logo (committed under public/teams/<sport>/, fetched once —
+ * see scripts/teams/). Decorative: the team's name is always written next to it.
  */
 export function TeamMark({ sport, abbr, size = 'md' }: { sport: string; abbr: string | null | undefined; size?: 'sm' | 'md' | 'lg' | 'xl' }) {
-  const accent = teamAccent(sport, abbr);
-  const [, second] = teamColors(sport, abbr);
+  const src = teamLogo(sport, abbr);
+  // Held in memory once fetched: re-renders, navigation and offline never refetch or abort a logo.
+  const held = useHeldImage(src);
+  if (src) {
+    return held
+      ? <img className={`teammark teammark--logo teammark--${size}`} src={held} alt="" aria-hidden="true" decoding="async" draggable={false} />
+      : <span className={`teammark teammark--logo teammark--${size}`} aria-hidden="true" />;
+  }
   return (
-    <span className={`teammark teammark--${size}`} style={{ ['--team' as string]: accent, ['--team2' as string]: second }} aria-hidden="true">
-      <span className="teammark__t">{abbr ?? '?'}</span>
+    <span className={`teammark teammark--text teammark--${size}`} aria-hidden="true">
+      {abbr ?? ''}
     </span>
   );
 }

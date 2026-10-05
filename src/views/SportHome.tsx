@@ -9,27 +9,15 @@ import { Icon } from '../components/Icon';
 import { publicationView, QuoteChip } from '../components/LiveQuote';
 import { ErrorState, Skeleton, TeamMark } from '../components/ui';
 import { compact } from '../lib/format';
-import { gapText } from '../lib/gamedata';
 import { routes } from '../lib/routes';
 import { gameScripts, sharePct } from '../lib/scripts';
 import { useNow } from '../live/hooks';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
-import { FeaturedGame, featuredItem, GameTile, sides } from './home/cards';
+import { Disagreements, FeaturedGame, featuredItem, GameTile, sides, useSlateResearch } from './home/cards';
 import { PanelHead, ViewAll } from './game/panels';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-function useResearch(items: BoardItem[]) {
-  const { repo, sport } = useSport();
-  const key = items.map((i) => i.event_id).join(',');
-  return useAsync(key ? `slateResearch:${sport.code}:${key}` : null, async () => {
-    const out = await Promise.allSettled(items.map((i) => repo.eventResearch(i.event_id)));
-    const m = new Map<string, EventResearchDoc>();
-    out.forEach((o, k) => o.status === 'fulfilled' && m.set(items[k].event_id, o.value));
-    return m;
-  });
-}
 
 function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[]; research: Map<string, EventResearchDoc>; slug: string; sportCode: string }) {
   const rows = items
@@ -41,7 +29,7 @@ function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[
   return (
     <section className="panel" aria-labelledby="so-h">
       <PanelHead title="Script Outlook" sub="Share of simulated games by how they end · most competitive first" />
-      <table className="sotab">
+      <div className="tscroll"><table className="sotab ">
         <thead>
           <tr>
             <th scope="col">Game</th>
@@ -72,57 +60,15 @@ function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[
             );
           })}
         </tbody>
-      </table>
-    </section>
-  );
-}
-
-/** Game-line markets where the model and the market midpoint differ most (research evidence). */
-function Disagreements({ items, research, slug }: { items: BoardItem[]; research: Map<string, EventResearchDoc>; slug: string }) {
-  const rows = useMemo(() => {
-    const out: { label: string; game: string; eventId: string; marketId: string; model: number; mkt: number; gap: number }[] = [];
-    for (const i of items) {
-      const r = research.get(i.event_id);
-      if (!r) continue;
-      const { away, home } = sides(i);
-      const byId = new Map(r.markets.map((m) => [m.market_id, m]));
-      const short = (pid: string | null) => r.event.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
-      for (const p of r.projections) {
-        const m = byId.get(p.market_id ?? '');
-        if (!m || p.fair_probability == null || p.market_probability == null || m.period !== 'FULL') continue;
-        if (!['game_winner', 'spread', 'total'].includes(m.market_family)) continue;
-        if (p.market_probability < 0.1 || p.market_probability > 0.9) continue;
-        const t = m.threshold;
-        const label = m.market_family === 'game_winner' ? `${short(m.participant_id)} to win` : m.market_family === 'spread' ? `${short(m.participant_id)} −${t}` : `Over ${t != null && Number.isInteger(t) ? t - 0.5 : t}`;
-        out.push({ label, game: `${away?.short_name} @ ${home?.short_name}`, eventId: i.event_id, marketId: m.market_id, model: p.fair_probability, mkt: p.market_probability, gap: p.fair_probability - p.market_probability });
-      }
-    }
-    return out.sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap)).slice(0, 7);
-  }, [items, research]);
-  if (!rows.length) return null;
-  return (
-    <section className="panel" aria-labelledby="dis-h">
-      <PanelHead title="Model vs Market" sub="Largest gaps on game lines this week · research evidence, not validated edges" />
-      <table className="mtab mtab--compact">
-        <thead><tr><th scope="col">Market</th><th scope="col" className="r">Market</th><th scope="col" className="r">Model</th><th scope="col" className="r">Gap</th></tr></thead>
-        <tbody>
-          {rows.map((x) => (
-            <tr key={x.marketId}>
-              <th scope="row"><Link to={routes.market(slug, x.marketId, x.eventId)} className="mtab__m">{x.label}</Link><span className="mtab__sub">{x.game}</span></th>
-              <td className="r num">{Math.round(x.mkt * 100)}%</td>
-              <td className="r num">{Math.round(x.model * 100)}%</td>
-              <td className="r"><span className={`gap ${Math.round(x.gap * 100) > 0 ? 'gap--pos' : Math.round(x.gap * 100) < 0 ? 'gap--neg' : 'gap--flat'}`}>{gapText(x.gap)}</span></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      </table></div>
     </section>
   );
 }
 
 function Results({ items, slug, sportCode }: { items: BoardItem[]; slug: string; sportCode: string }) {
   const recent = items.slice(0, 6);
-  const research = useResearch(recent);
+  const { repo, sport } = useSport();
+  const research = useSlateResearch(repo, sport.code, recent);
   if (!recent.length) return null;
   return (
     <section className="panel" aria-labelledby="res-h">
@@ -161,7 +107,7 @@ export function SportHomeView() {
   const items = useMemo(() => board.data?.items ?? [], [board.data]);
   const upcoming = useMemo(() => items.filter((i) => i.status === 'SCHEDULED' || i.status === 'IN_PROGRESS' || i.status === 'LIVE').sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc)), [items]);
   const finals = useMemo(() => items.filter((i) => i.status === 'FINAL').sort((a, b) => b.start_time_utc.localeCompare(a.start_time_utc)), [items]);
-  const research = useResearch(upcoming);
+  const research = useSlateResearch(repo, sport.code, upcoming);
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!board.data) return <div className="page"><ErrorState error={board.error} what={`${sport.label} board`} /></div>;
   const comp = (upcoming[0]?.competition ?? items[0]?.competition ?? '').replace(/^(\d{4})\s*(REG\s*)?week/i, '$1 · Week');
@@ -177,22 +123,22 @@ export function SportHomeView() {
           <h1 className="h-display shead__h">{sport.label}</h1>
           <div className="shead__comp">{comp}</div>
         </div>
-        <div className="shead__stats">
-          <span><b className="num">{upcoming.length}</b> games</span>
-          <span><b className="num">{compact(markets)}</b> markets</span>
-          <QuoteChip view={publicationView(lastCapture)} now={now} label="published prices" />
-        </div>
+        <dl className="shead__stats">
+          <div><dt>Games</dt><dd className="num">{upcoming.length}</dd></div>
+          <div><dt>Markets</dt><dd className="num">{compact(markets)}</dd></div>
+          <div><dt>Prices</dt><dd><QuoteChip view={publicationView(lastCapture)} now={now} label="published prices" /></dd></div>
+        </dl>
         <div className="shead__x">
           <Link to={routes.slate(slug)} className="btn btn--sm">Full slate <Icon name="arrowRight" size={14} /></Link>
           {sport.code === 'NFL' && <Link to={routes.parlays(slug)} className="btn btn--sm btn--ghost">Parlays</Link>}
         </div>
       </header>
 
-      {feat && <FeaturedGame item={feat} r={rmap.get(feat.event_id)} sportSlug={slug} sportCode={sport.code} now={now} eyebrow={`Featured · ${comp}`} />}
+      {feat && <FeaturedGame item={feat} r={rmap.get(feat.event_id)} sportSlug={slug} sportCode={sport.code} now={now} eyebrow={`Featured · ${comp}`} size="lg" />}
 
       <section className="shome__games" aria-labelledby="wk-h">
         <div className="phead">
-          <h2 className="phead__t" id="wk-h">This Week</h2>
+          <h2 className="phead__t phead__t--serif" id="wk-h">This Week</h2>
           <div className="phead__x"><ViewAll to={routes.slate(slug)}>Full slate</ViewAll></div>
         </div>
         {!upcoming.length && <p className="muted">No upcoming games in this publication.</p>}

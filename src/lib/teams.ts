@@ -1,3 +1,5 @@
+import logos from './team-logos.json';
+
 // Team identity colors: brand presentation only (never data). Sift uses them as a thin accent —
 // a stripe, a monogram tile — so Sift's own palette stays in charge.
 const NFL: Record<string, [string, string]> = {
@@ -30,4 +32,13 @@ function luminance(hex: string): number {
     return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
+
+
+const LOGOS = (logos as { teams: Record<string, unknown> }).teams;
+
+/** The committed logo for a team, or null when Sift has none for that sport/team. */
+export function teamLogo(sport: string, abbr: string | null | undefined): string | null {
+  if (sport !== 'NFL' || !abbr || !LOGOS[abbr]) return null;
+  return `${import.meta.env.BASE_URL}teams/nfl/${abbr}.webp`;
 }

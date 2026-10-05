@@ -1,4 +1,4 @@
-// A large decorative image (stadium hero) held in memory once loaded, so a screen re-opened later in the
+// A decorative image (stadium photo, team logo) held in memory once loaded, so a screen re-opened later in the
 // session — including offline — shows it again without a network request. Fails quietly to "no image".
 import { useEffect, useState } from 'react';
 

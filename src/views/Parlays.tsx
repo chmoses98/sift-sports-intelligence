@@ -63,7 +63,7 @@ export function ParlaysView() {
         {(board.loading || docs.loading) && <Skeleton lines={4} />}
         {docs.data && !legs.length && <p className="muted">No game this week sits in the Wong window on the market-implied line.</p>}
         {legs.length > 0 && (
-          <table className="mtab">
+          <div className="tscroll"><table className="mtab">
             <thead><tr><th scope="col">Leg</th><th scope="col">Game</th><th scope="col" className="r">Line</th><th scope="col" className="r">Teased</th><th scope="col" className="r">Total</th><th scope="col">Why it qualifies</th></tr></thead>
             <tbody>
               {legs.map((l) => (
@@ -77,7 +77,7 @@ export function ParlaysView() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
         <Notice title="Correlation and pricing">
           Legs from the same game are correlated and should not be combined. Kalshi lists no teaser contract, so Sift shows no combined price or

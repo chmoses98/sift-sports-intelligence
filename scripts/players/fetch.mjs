@@ -2,7 +2,7 @@
 //
 // For every player in scripts/players/players.json:
 //  * with a pinned `commons_file`: download that exact Wikimedia Commons file (free licence only), convert it
-//    to a 600 px-wide portrait WebP under public/players/nfl/<participant_id>.webp and record author, licence,
+//    to a 600 px-wide WebP under public/players/nfl/<id>.webp and record author, licence,
 //    source and modification in src/lib/player-images.json;
 //  * without one: search the player's Commons category and name for free-licence photos >= 1200 px and render a
 //    numbered contact sheet under curation/players/<slug>.jpg (+ .json) so a person can pin the best frame.
@@ -52,18 +52,19 @@ async function info(titles, width) {
 
 for (const pl of players) {
   if (pl.commons_file) {
-    const dest = join(OUT, `${pl.participant_id}.webp`);
-    if (existsSync(dest) && manifest.players[pl.participant_id]?.file === pl.commons_file) continue;
+    const dest = join(OUT, `${pl.id}.webp`);
+    if (existsSync(dest) && manifest.players[pl.id]?.file === pl.commons_file) continue;
     const [c] = await info([pl.commons_file], 1400);
     if (!c || !FREE.test(c.license)) { console.log(`FAIL ${pl.name}: not found or not free (${c?.license})`); continue; }
-    const tmp = join(TMP, `${pl.participant_id}.src`);
+    const tmp = join(TMP, `${pl.id}.src`);
     writeFileSync(tmp, Buffer.from(await (await fetch(c.thumb, { headers: { 'user-agent': UA } })).arrayBuffer()));
     execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '600x>', '-quality', '64', dest]);
     rmSync(tmp, { force: true });
-    manifest.players[pl.participant_id] = { name: pl.name, team: pl.team, role: pl.role, focus: pl.focus ?? 'center 22%', file: pl.commons_file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Cropped, resized and darkened by Sift', review_asset: true };
+    manifest.players[pl.id] = { name: pl.name, team: pl.team, slot: pl.slot, participant_id: pl.participant_id, focus: pl.focus ?? 'center 22%', file: pl.commons_file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Cropped, resized and darkened by Sift', review_asset: true };
     console.log(`ok   ${pl.name}  ${pl.commons_file} (${c.license}, ${c.artist})`);
     continue;
   }
+  if (!pl.category) continue;
   const queries = [`deepcat:"${pl.category}" filetype:bitmap filew:>1199`, `"${pl.name}" filetype:bitmap filew:>1199`, `intitle:"${pl.name}" filetype:bitmap`];
   const seen = new Set(); const titles = [];
   for (const q of queries) {

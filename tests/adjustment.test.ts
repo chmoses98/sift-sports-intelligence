@@ -79,3 +79,14 @@ describe('mixed signals', () => {
     expect(c.interpretation).toBe('Opponent adjustment barely changes the rating.');
   });
 });
+
+describe('unchanged rank, clearly changed value', () => {
+  it('keeps #1 but reads the drop in the rating itself (BUF off EPA/play, published)', () => {
+    // raw 0.163 (#1, league avg 0.004268 -> +0.1587 vs avg); adjusted +0.122 (#1): delta -0.0367
+    const c = compareAdjustment(side(0.163, 1, 0.004268), side(0.122, 1), true, { unit: 'offense', team: 'BUF' });
+    expect(c.rankMove).toBe(0);
+    expect(c.delta).toBeCloseTo(-0.036732, 6);
+    expect(c.direction).toBe('worse');
+    expect(c.interpretation).toBe('The raw result looks stronger than the adjusted offensive rating; the opponents faced explain part of it.');
+  });
+});

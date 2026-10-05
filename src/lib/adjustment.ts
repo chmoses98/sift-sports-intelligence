@@ -51,8 +51,9 @@ export function compareAdjustment(raw: AdjSide, adj: AdjSide, higherIsBetter: bo
   // …and from the published ranks. Ranks lead (they already encode the better direction), but a rank move
   // with a negligible or contrary value change is a mixed signal and reads as "barely changes".
   const rankDir: AdjDirection | null = rankMove == null ? null : Math.abs(rankMove) <= SAME_RANKS ? 'same' : rankMove > 0 ? 'better' : 'worse';
-  let direction: AdjDirection | null = rankDir ?? valueDir;
-  if (rankDir && valueDir && rankDir !== 'same' && valueDir !== rankDir) direction = 'same';
+  let direction: AdjDirection | null;
+  if (rankDir === 'better' || rankDir === 'worse') direction = valueDir && valueDir !== rankDir ? 'same' : rankDir;
+  else direction = valueDir ?? rankDir; // rank unchanged: the value says whether the rating itself moved
 
   const size = adj.size ?? raw.size;
   const mid = size != null ? (size + 1) / 2 : null;

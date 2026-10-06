@@ -357,3 +357,13 @@ export function tickerTitle(ticker: string, known?: Map<string, MarketLike>, ctx
   const m = known?.get(ticker);
   return describeMarket(m ?? { kalshi_ticker: ticker }, ctx).title;
 }
+
+/**
+ * Publication prose (key questions, notes) with any Kalshi ticker written out as its market title, so a
+ * sentence never shows a raw ID: "The model disagrees on KXNFLRSHATT-… (Bijan Robinson)" →
+ * "The model disagrees on Bijan Robinson over 16.5 rushing attempts".
+ */
+export function readableNote(text: string, known?: Map<string, MarketLike>): string {
+  return text.replace(/\bKX[A-Z0-9]+-[A-Z0-9-]*[A-Z0-9]/g, (t) => `“${tickerTitle(t, known)}”`).replace(/“([^”]+)” \(([^)]+)\)/g, (all, title: string, name: string) => (title.includes(name) ? `“${title}”` : all));
+}
+

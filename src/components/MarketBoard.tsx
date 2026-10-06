@@ -67,7 +67,8 @@ export function groupMarkets(markets: AnyMarket[], playerName: (id: string | nul
     g.ladder = g.rows.length >= 2 && g.rows.every((m) => rung(m) != null);
     if (g.ladder) g.rows.sort((a, b) => Number(rung(a)) - Number(rung(b)) || a.kalshi_ticker.localeCompare(b.kalshi_ticker));
     if (g.ladder && !g.subject) {
-      const sample = humanize(g.rows[0].yes_description).replace(String(rung(g.rows[0])), 'X');
+      const r0 = String(rung(g.rows[0])).replace('.', '\\.');
+      const sample = humanize(g.rows[0].yes_description).replace(new RegExp(`${r0}(\\.0)?(?![\\d.])`), 'X');
       g.title = `${g.title} — ${sample.replace(/ ?· [A-Z]+$/, '')}`;
     }
   }

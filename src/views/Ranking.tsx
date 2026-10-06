@@ -4,7 +4,7 @@ import { useAsync } from '../data/hooks';
 import { PlainEnglish } from './Metric';
 import { EntityLink, ErrorState, QualityBadge, SaveButton, Skeleton, Stratum } from '../components/ui';
 import { exactTime, metricFormatter, ordinal } from '../lib/format';
-import { WINDOW_EXPLAIN } from '../lib/nfl';
+import { WINDOW_EXPLAIN, windowName } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
@@ -52,7 +52,7 @@ export function RankingView() {
           <PlainEnglish metricId={d.metric_id} def={def} />
           <div className="ehead__meta">
             <QualityBadge quality={d.quality} />
-            <span className="chip">{d.window.label} — {WINDOW_EXPLAIN[d.window.label] ?? d.window.kind.toLowerCase()}</span>
+            <span className="chip">{windowName(d.window.label)} — {WINDOW_EXPLAIN[d.window.label] ?? d.window.kind.toLowerCase()}</span>
             <span className="chip">{d.higher_is_better === false ? 'rank 1 = lowest value (lower is better)' : d.higher_is_better ? 'rank 1 = highest value' : 'ranked high to low; no better direction'}</span>
           </div>
         </div>

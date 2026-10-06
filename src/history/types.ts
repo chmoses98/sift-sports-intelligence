@@ -5,6 +5,8 @@
 export interface GameScore { for: number; against: number }
 
 export interface GameLogRow {
+  /** Season of the game (older documents omit it; readers fill it from the document). */
+  season?: number;
   week: number;
   game_id: string;
   season_type: string;
@@ -41,6 +43,21 @@ export interface PlayerHistoryDoc {
   team: string;
   games: GameLogRow[];
   vs_blitz: BlitzSplit | null;
+  /** The season before: box scores and snaps only (no play-by-play, so no longest plays). */
+  prior?: { season: number; games: GameLogRow[] } | null;
+  /** Per-game ranks within the position: one entry per completed week this season, one for last season. */
+  ranks?: PlayerRankEntry[];
+}
+
+export interface PlayerRankEntry {
+  season: number;
+  /** Ranks built from regular-season weeks up to and including this one; null = the whole season. */
+  through_week: number | null;
+  position: string;
+  /** Games needed to be ranked (half the most-played player's games at this position). */
+  min_games: number;
+  of: number;
+  stats: Record<string, { rank: number; of: number; per_game: number; games: number }>;
 }
 
 /** One side (offense or defense) of one team's game: raw counts, never rates. */
@@ -95,5 +112,6 @@ export interface HistoryIndexDoc {
   games_by_week: Record<string, number>;
   ftn_charted_plays_by_week: Record<string, number>;
   notes: string[];
-  players: Record<string, { name: string; position: string; team: string; games: number }>;
+  prior_season?: number | null;
+  players: Record<string, { name: string; position: string; team: string; games: number; prior_games?: number }>;
 }

@@ -12,7 +12,7 @@ import { AdjustmentCompare } from '../components/AdjustmentCompare';
 import { glossLine, metricGloss } from '../lib/glossary';
 import { EntityLink, ErrorState, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { exactTime, metricFormatter, ordinal, unitLabel } from '../lib/format';
-import { adjustedTwin, counterpartMetric, WINDOW_EXPLAIN } from '../lib/nfl';
+import { adjustedTwin, counterpartMetric, WINDOW_EXPLAIN, windowName } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { useSport } from '../state/sport';
@@ -111,7 +111,7 @@ export function MetricView() {
             <Fact k="League median" v={<span className="num">{fmt(ctx.league_median)}</span>} />
             <Fact k="Best" v={<EntityLink to={routes.team(slug, ctx.best_entity_id ?? '')} kind="team">{name(ctx.best_entity_id)}</EntityLink>} sub={<span className="num">{fmt(ctx.best_value)}</span>} />
             <Fact k="Worst" v={<EntityLink to={routes.team(slug, ctx.worst_entity_id ?? '')} kind="team">{name(ctx.worst_entity_id)}</EntityLink>} sub={<span className="num">{fmt(ctx.worst_value)}</span>} />
-            <Fact k="Window" v={o.window.label} sub={WINDOW_EXPLAIN[o.window.label] ?? o.window.kind.toLowerCase()} />
+            <Fact k="Window" v={windowName(o.window.label)} sub={WINDOW_EXPLAIN[o.window.label] ?? o.window.kind.toLowerCase()} />
             <Fact k="Compared with" v={ctx.universe_label ?? '—'} />
             <Fact k="Sample" v={o.sample_size != null ? <span className="num">{o.sample_size}</span> : 'not published'} />
             <Fact k="As of" v={exactTime(o.as_of)} />

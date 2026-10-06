@@ -52,7 +52,7 @@ export function SportOverview({ sport }: { sport: SportConfig }) {
         <Stratum title="Live health" sub={`${sport.repo}@${sport.branch} · exported ${exactTime(h.last_export_attempt)}`}>
           <ul className="healthlist">
             {Object.entries(h.components ?? {}).map(([k, c]) => (
-              <li key={k}><span className="healthlist__k">{k.replace(/_/g, ' ')}</span><span className={`hpill hpill--${c.status.toLowerCase()}`}>{c.status}</span><FreshnessChip asOf={c.as_of} component={k} thresholds={h.thresholds?.[k]} /></li>
+              <li key={k}><span className="healthlist__k">{k.replace(/_/g, ' ')}</span><span className={`hpill hpill--${c.status.toLowerCase()}`}>{c.status.replace(/_/g, " ").toLowerCase()}</span><FreshnessChip asOf={c.as_of} component={k} thresholds={h.thresholds?.[k]} /></li>
             ))}
           </ul>
           {h.errors.length > 0 && <ul className="lims">{h.errors.map((e) => <li key={e}>{e}</li>)}</ul>}

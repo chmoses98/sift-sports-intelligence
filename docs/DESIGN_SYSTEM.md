@@ -60,7 +60,12 @@ One navigation per screen size, one search, no decorative masthead:
   navigation: Home · current sport · Sports (sheet) · Search · Research.
 * **Search** — one command palette for the whole app (header field, tab bar, `/`, ⌘K / Ctrl-K). It opens over
   the page, never as a row of it. Enter goes to the full results page.
-* **Breadcrumb** — a slim line above the page (not sticky), the research path since the sport's home.
+* **Breadcrumb** — a slim line above the page (not sticky), the research path since the sport's home. It never
+  claims a context the screen does not have: a game is a root under its sport (opening a game drops any other
+  game), and a player or market names its own game as its parent — when the path does not run through that
+  game, the path restarts at the sport and the game (`state/trail.tsx`, `nextTrail`).
+* **Phone tab bar inset** — reserved once, at the end of the document (the footer); pages end with ordinary
+  spacing, and `scroll-padding` keeps anything scrolled or focused into view clear of the fixed bars.
 
 ## 4a. Progressive layers (the rule for every screen)
 
@@ -87,15 +92,24 @@ raw tables. Layer 4 is never shown by default.
   headline edge and most likely script, the week's biggest matchup edges, context that matters (quarterback
   changes), props to watch and your research.
 * **Sport home** (`/nfl`) — the sport's landing page: featured game, props to watch, this week's tiles
-  (stadium strip, headline edge, script bar), Script Outlook (plain script names, most likely first), recent
+  (stadium strip, headline edge, most likely script in words), Script Outlook (plain script names, most likely first), recent
   results, structures. Where prices and projections differ sits in a collapsed layer. The
   full slate is `/nfl/slate`.
 * **Game** — a clean hero (teams, time or score, venue, conditions — nothing else on the photo), then
-  Overview: **What Matters** (3–5 cards: context notes, ranked matchup edges, one scheme note) → **How It Could
+  Overview: **What Matters** (3–5 cards: matchup edges and context notes ordered together by importance,
+  at most one scheme note — `insights/matters.ts`) → **How It Could
   Play Out** (scripts most likely first, each with the player who carries it) → **Props to Watch** → form and
   injuries that matter → The Lines. Deeper tabs: Matchups · Scripts · Props · Players · Markets · Trends · Injuries.
-* **Player** — real photo, this game's projection with its labelled range, the line and the matchup rank, then
-  Game by Game (bars against the line, tap for the box score) with usage, splits and the full log one layer down.
+* **Player** — research first, market second. Real photo, then **This game** (projection, labelled range, the
+  line, the matchup rank), then **Game by Game**: windows Last 5 · Last 10 · this season · last season (last 5/10
+  span seasons), a sentence ("3 of 5 above today's line of 89.5"), the window's average and range, where today's
+  projection sits, the per-game league rank for the stat (cut before this game's week), and bars against
+  **today's** line (historical lines are not published, and the page says so). Usage & role, splits, the full
+  log and every stat's projected range are one layer down. Then Usage & Role, the matchup and availability
+  (beside the research on screens ≥ 1200 px), and last **Market Context**: the main line and the
+  market-implied average, with the fair-price ladder one tap down.
+* **No decorative script bars.** A script distribution is written out ("Most likely: One-score battle 36%");
+  the segmented colour bar was removed everywhere.
 
 ## 6. Components
 

@@ -132,3 +132,18 @@ markets with a notice saying so.
   by eye; 16 automatic picks were rejected). Players without one show their team mark. Licensed headshots
   (e.g. the NFL's) are not used.
 * **Season hard-coded in the deploy refresh** (`build-nfl-history.mjs … 2026`): bump it with the season.
+
+## 9. Gaps found in the surgical polish pass
+
+* **Player history now spans two seasons.** 2026 from nflverse weekly stats + play-by-play; 2025 from weekly
+  box scores, snap counts and the schedule (`schedules/games.csv`) — no 2025 play-by-play is read, so 2025 has
+  no longest plays or blitz splits. 703 players (any skill player with a game in either season).
+* **No historical betting lines.** nflverse's schedule carries historical game spreads/totals, but no player
+  prop lines; Sift compares past games with **today's** line only and labels it that way. Game lines in the
+  schedule are deliberately unused.
+* **Opponent strength for past games** is omitted: early-season samples are too thin to reconstruct an
+  as-of-that-week rank defensibly, and today's rank must not be presented as if it were known then.
+* **Player league ranks** are per-game averages of counting stats within a position (#1 = most), one ranking per
+  completed week (a pregame view uses the weeks before its game) and one for last season. Rate stats (yards per
+  carry, catch rate) are not ranked: their direction and sample rules need owner review.
+* **Routes run / route participation** remain blocked (no 2026 public source).

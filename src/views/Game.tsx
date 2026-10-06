@@ -8,7 +8,7 @@ import { Icon } from '../components/Icon';
 import { MarketBoard, latestPrices } from '../components/MarketBoard';
 import { ErrorState, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { kickoff, pct, signed } from '../lib/format';
-import { categoryLabel, CATEGORY_ORDER, MATCHUP_AREAS } from '../lib/nfl';
+import { categoryLabel, CATEGORY_ORDER, MATCHUP_AREAS, windowName, statusWord } from '../lib/nfl';
 import { glossLine, metricGloss } from '../lib/glossary';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
@@ -28,7 +28,7 @@ import { isEngine, readEngine } from '../lib/scriptEngine';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { type ReactNode } from 'react';
 import type { Market } from '../contract/types';
-import { tickerTitle } from '../lib/marketLabel';
+import { tickerTitle, readableNote } from '../lib/marketLabel';
 import { useTeamHistory } from '../history/load';
 import { qbStarts } from '../history/team';
 import type { PlayerHistoryDoc, TeamHistoryDoc } from '../history/types';
@@ -36,6 +36,7 @@ import { contextNotes, nameKey, starters } from '../insights/context';
 import { gameSides, type GameSides } from '../insights/game';
 import { matchupInsights } from '../insights/matchups';
 import { injuryNews, splitNews } from '../insights/news';
+import { whatMatters } from '../insights/matters';
 import { propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, PropsGrid, SchemeCard, usePropHistories } from './game/matters';
@@ -227,7 +228,7 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
           );
         })}
       </ul>
-      {rows[0]?.note && <p className="muted small">{rows[0].note}. Window: {rows[0].home?.window.label ?? rows[0].away?.window.label}.</p>}
+      {rows[0]?.note && <p className="muted small">{rows[0].note}. Window: {windowName(rows[0].home?.window.label ?? rows[0].away?.window.label)}.</p>}
     </div>
   );
 }
@@ -290,7 +291,7 @@ function Unusual({ r, ext, slug, known }: { r: EventResearchDoc; ext: any; slug:
       {questions.length > 0 && (
         <ol className="unusual__q">
           {questions.map((q) => (
-            <li key={q}>{q}</li>
+            <li key={q}>{readableNote(q, known)}</li>
           ))}
         </ol>
       )}
@@ -339,7 +340,7 @@ function Players({ r, slug, sportCode, homeAbbr, awayAbbr, homeId }: { r: EventR
                 <Link to={routes.player(slug, p.participant_id)} className="pl__row">
                   <span className="pl__pos">{p.role}</span>
                   <span className="pl__name">{p.display_name}</span>
-                  {inj && inj.status !== 'ACTIVE' && <span className={`pl__inj pl__inj--${inj.status.toLowerCase()}`}>{inj.status}</span>}
+                  {inj && inj.status !== 'ACTIVE' && <span className={`pl__inj pl__inj--${inj.status.toLowerCase()}`}>{statusWord(inj.status)}</span>}
                   {depth?.depth_chart_order != null && <span className="pl__depth">{depth.slot ?? depth.position}{depth.depth_chart_order}</span>}
                   {d && <span className="pl__proj"><span className="num">{d.mean?.toFixed(1)}</span> {d.label.split(' ').slice(-2).join(' ')}</span>}
                 </Link>
@@ -377,7 +378,7 @@ function Availability({ r }: { r: EventResearchDoc }) {
     <ul className="avail">
       {inj.map((i, k) => (
         <li key={k} className="avail__row">
-          <span className={`pl__inj pl__inj--${i.status.toLowerCase()}`}>{i.status}</span>
+          <span className={`pl__inj pl__inj--${i.status.toLowerCase()}`}>{statusWord(i.status)}</span>
           <span className="avail__d">{i.detail}</span>
           <span className="avail__src">{i.source} · {i.as_of?.slice(5, 16).replace('T', ' ')}</span>
         </li>
@@ -493,15 +494,11 @@ export function GameView({ eventId }: { eventId: string }) {
   const hasEnv = capShown(caps, 'projection_distributions') && Boolean(ext?.game_script_inputs?.game_environment);
   const notes = (r.context?.notes ?? []).filter((n) => !n.startsWith('packet key question:'));
   const ctx = { r, g, slug, sport: sport.code, profiles, label: `${label}, ${kickoff(ev.start_time_utc)}` };
-  // What matters: quarterback context first (it changes how to read everything else), then the biggest
-  // matchup edges, then one scheme note; never more than five cards.
-  const matters: ReactNode[] = [
-    ...context.filter((c) => c.kind === 'qb-change').map((c) => <ContextCard key={c.id} note={c} ctx={ctx} />),
-    ...insights.slice(0, 3).map((x) => <MatchupCard key={x.id} ins={x} ctx={ctx} />),
-    ...scheme.slice(0, 1).map((x) => <SchemeCard key={x.id} s={x} ctx={ctx} />),
-    ...context.filter((c) => c.kind !== 'qb-change').map((c) => <ContextCard key={c.id} note={c} ctx={ctx} />),
-    ...insights.slice(3).map((x) => <MatchupCard key={x.id} ins={x} ctx={ctx} />),
-  ].slice(0, 5);
+  // What matters: matchup edges and context notes compete on one importance scale (whatMatters), with at
+  // most one scheme note; never more than five cards.
+  const matters: ReactNode[] = whatMatters(insights, context, scheme).map((x) =>
+    x.kind === 'context' ? <ContextCard key={x.item.id} note={x.item} ctx={ctx} /> : x.kind === 'scheme' ? <SchemeCard key={x.item.id} s={x.item} ctx={ctx} /> : <MatchupCard key={x.item.id} ins={x.item} ctx={ctx} />,
+  );
 
   if (isEngine(engine)) {
     const engineSelected = engine.scripts.some((x) => x.script_id === sp.get('script')) ? sp.get('script') : null;
@@ -566,7 +563,14 @@ export function GameView({ eventId }: { eventId: string }) {
     playerTeam: (id: string | null) => (id ? dir.data?.player(id)?.context.team ?? null : null),
     sport: sport.code,
   };
-  const importantInjuries = splitNews(injuryNews(r, qbStartersFrom(teamHist.data ?? null, g), playedFn(keyHist, g.week))).lead;
+  const newsLead = splitNews(injuryNews(r, qbStartersFrom(teamHist.data ?? null, g), playedFn(keyHist, g.week))).lead;
+  // An absence What Matters calls out (a player with a real role this season) is an injury that matters too.
+  const importantInjuries = [
+    ...newsLead,
+    ...context
+      .filter((c) => c.kind === 'key-absence' && !newsLead.some((n) => n.headline.includes(c.headline.replace(/^.+? without (QB|RB|WR|TE) /, ''))))
+      .map((c) => ({ id: c.id, kind: 'injury' as const, level: 'high' as const, score: 4, team: c.team.abbr, headline: c.headline, detail: c.detail, eventId: r.event.event_id, asOf: null })),
+  ];
 
   return (
     <MarketIconProvider value={iconCtx}>

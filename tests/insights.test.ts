@@ -9,7 +9,8 @@ import type { EventDetailDoc, EventResearchDoc, MetricRegistryDoc, RankingDoc } 
 import { gamesBefore, hitRecord, statDef } from '../src/history/stats';
 import { qbStarts, schemeTable } from '../src/history/team';
 import type { PlayerHistoryDoc, TeamHistoryDoc } from '../src/history/types';
-import { contextNotes } from '../src/insights/context';
+import { contextNotes, nameKey } from '../src/insights/context';
+import { whatMatters } from '../src/insights/matters';
 import { gameSides } from '../src/insights/game';
 import { matchupInsights } from '../src/insights/matchups';
 import { injuryNews, levelOf, splitNews } from '../src/insights/news';
@@ -200,3 +201,31 @@ describe('research findings are atomic', () => {
     expect(t.label.finding).toBe('matchup');
   });
 });
+
+describe('what matters: one importance scale', () => {
+  const r = ev(ATL_NO);
+  const etienne = player('00-0036973');
+  const notes = (log: PlayerHistoryDoc) => contextNotes(r, teams, new Map([[`${nameKey('Travis Etienne Jr.')}|NO`, log]]));
+
+  it('a key absence is a note only when the player had a real role (snaps, carries or targets)', () => {
+    const real = notes(etienne).find((n) => n.kind === 'key-absence');
+    expect(real?.headline).toBe('Saints without RB Travis Etienne Jr.');
+    expect(real!.facts[0]).toMatch(/per game: \d+% of snaps/);
+    const bit = { ...etienne, games: etienne.games.map((x) => ({ ...x, snaps: { off: 3, pct: 0.05 }, rushing: { ...x.rushing, car: 1 }, receiving: { ...x.receiving, tgt: 0 } })) };
+    expect(notes(bit).some((n) => n.kind === 'key-absence')).toBe(false);
+  });
+
+  it('notes compete with edges on importance: a QB change leads, a committee back does not outrank clear edges', () => {
+    const ctx = notes(etienne);
+    const list = whatMatters(matchupInsights(r), ctx, schemeInsights(teams, gameSides(r)));
+    expect(list.length).toBeLessThanOrEqual(5);
+    expect(list[0]).toMatchObject({ kind: 'context', item: { kind: 'qb-change' } });
+    for (let i = 1; i < list.length; i++) expect(list[i - 1].importance).toBeGreaterThanOrEqual(list[i].importance);
+    const absence = list.findIndex((x) => x.kind === 'context' && x.item.kind === 'key-absence');
+    const firstEdge = list.findIndex((x) => x.kind === 'matchup');
+    expect(firstEdge).toBeGreaterThan(-1);
+    if (absence >= 0) expect(absence).toBeGreaterThan(firstEdge);
+    expect(list.filter((x) => x.kind === 'scheme').length).toBeLessThanOrEqual(1);
+  });
+});
+

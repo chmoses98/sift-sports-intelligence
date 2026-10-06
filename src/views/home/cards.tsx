@@ -11,14 +11,14 @@ import { StadiumFallback } from '../../components/StadiumFallback';
 import { MarketIcon, MarketIconProvider } from '../../components/MarketIcon';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../../components/LiveQuote';
 import { TeamMark } from '../../components/ui';
-import { gapText, modelRead } from '../../lib/gamedata';
+import { gapText } from '../../lib/gamedata';
 import { kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
-import { gameScripts, sharePct, type ScriptSet } from '../../lib/scripts';
+import { gameScripts, sharePct } from '../../lib/scripts';
 import { teamColors } from '../../lib/teams';
 import { venueFor, venuePhoto } from '../../lib/venues';
 import { useLiveQuotes } from '../../live/hooks';
-import { gameWeather, splitName, WeatherBlock } from '../game/Hero';
+import { gameWeather, splitName } from '../game/Hero';
 import { useHeldImage, useInView } from '../../lib/useImage';
 import { PanelHead } from '../game/panels';
 import type { MatchupInsight } from '../../insights/matchups';
@@ -43,24 +43,6 @@ export function useSlateResearch(repo: SportRepo | null | undefined, sportCode: 
   });
 }
 
-/** The four scripts as one proportional bar, with a legend of shares (labels carry identity). */
-export function ScriptBar({ set, labels = true }: { set: ScriptSet; labels?: boolean }) {
-  return (
-    <div className="smini">
-      <div className="sbar" role="img" aria-label={`Game scripts: ${set.scripts.map((s) => `${s.name} ${sharePct(s.share)}`).join(', ')}`}>
-        {set.scripts.map((s) => <span key={s.id} className={`sbar__seg sbar__seg--s${s.index}`} style={{ flexGrow: s.share }} />)}
-      </div>
-      {labels && (
-        <ul className="smini__l" aria-hidden="true">
-          {set.scripts.map((s) => (
-            <li key={s.id}><i className={`sdot sdot--s${s.index}`} />{s.name}<b className="num">{sharePct(s.share)}</b></li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 export function modelLine(r: EventResearchDoc | null | undefined): string | null {
   const mv = (r?.extensions as any)?.model_view;
   if (!mv || mv.model_spread == null) return null;
@@ -72,48 +54,6 @@ export function modelLine(r: EventResearchDoc | null | undefined): string | null
   const pts = Math.round(Math.abs(Number(mv.model_spread)) * 2) / 2;
   const wp = mv.model_win_probability?.[fav];
   return `${fav} −${pts}${wp != null ? ` · ${Math.round(wp * 100)}%` : ''}${mv.model_total != null ? ` · O/U ${Math.round(mv.model_total * 2) / 2}` : ''}`;
-}
-
-/** The marquee: a cinematic band over the game's stadium — matchup, place, weather, the model's read. */
-export function FeaturedGame({ item, r, sportSlug, sportCode, now, eyebrow, size = 'md' }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number; eyebrow: string; size?: 'md' | 'lg' }) {
-  const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
-  const photo = venuePhoto(venue);
-  const img = useHeldImage(photo?.hero);
-  const set = r ? gameScripts(r) : null;
-  const read = r && home && away ? modelRead(r, splitName(home.display_name ?? '').nick, splitName(away.display_name ?? '').nick, null, null) : null;
-  const wx = r ? gameWeather(r, venue) : null;
-  const a = splitName(away?.display_name ?? '');
-  const h = splitName(home?.display_name ?? '');
-  const [hc] = teamColors(sportCode, home?.short_name);
-  const [ac] = teamColors(sportCode, away?.short_name);
-  return (
-    <article className={`feat feat--${size}${photo ? '' : ' feat--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
-      <div className="feat__bg" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} />}</div>
-      <div className="feat__in">
-        <div className="feat__top">
-          <span className="eyebrow">{eyebrow}</span>
-          <span className="feat__when">{kickoff(item.start_time_utc)}{Date.parse(item.start_time_utc) > now ? <span> · {until(item.start_time_utc, now)}</span> : null}</span>
-        </div>
-        <Link to={routes.game(sportSlug, item.event_id)} className="feat__match gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>
-          <span className="feat__team"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><span className="feat__n"><small>{a.city}</small>{a.nick}</span></span>
-          <span className="feat__at" aria-hidden="true">at</span>
-          <span className="feat__team feat__team--home"><span className="feat__n"><small>{h.city}</small>{h.nick}</span><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>
-        </Link>
-        <div className="feat__meta">
-          {venue && <span className="feat__venue">{venue.name} · {venue.city}</span>}
-          {wx && <WeatherBlock wx={wx} compact />}
-        </div>
-        {read && <p className="feat__read">{read}</p>}
-        {set && <ScriptBar set={set} />}
-        <div className="feat__cta">
-          <Link to={routes.game(sportSlug, item.event_id)} className="btn btn--primary btn--sm">Open game <Icon name="arrowRight" size={15} /></Link>
-          <Link to={routes.game(sportSlug, item.event_id, { tab: 'script' })} className="btn btn--glass btn--sm">Game scripts</Link>
-        </div>
-      </div>
-      {photo && <span className="feat__credit">Photo: {photo.credit.artist.slice(0, 36)} · {photo.credit.license}</span>}
-    </article>
-  );
 }
 
 /**
@@ -146,7 +86,6 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
       </Link>
       <div className="fcard__foot">
         {insight ? <p className="fcard__thesis">{insight.headline}</p> : <p className="fcard__thesis">{lead ? `Most likely: ${lead.name}` : 'Open the game for its scripts and matchups'}</p>}
-        {set && <ScriptBar set={set} labels={false} />}
         {lead && <span className="fcard__lead"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span>}
       </div>
       {photo && <span className="fcard__credit">Photo: {photo.credit.artist.slice(0, 32)} · {photo.credit.license}</span>}
@@ -154,7 +93,7 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
   );
 }
 
-/** A game tile: the stadium as a strip with both logos, the matchup, kickoff, the model line, scripts. */
+/** A game tile: the stadium as a strip with both logos, the matchup, kickoff, the headline edge and the most likely script. */
 export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
   const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
@@ -182,7 +121,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
           <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? 'Evenly matched on the published ranks' : 'No event research published'}</span>
         )}
       </Link>
-      {set && lead && <div className="gtile__scripts"><ScriptBar set={set} labels={false} /><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />{lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}
+      {set && lead && <div className="gtile__scripts"><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}
       <div className="gtile__foot">
         {views.length ? <QuoteSummaryChip views={views} now={now} /> : <QuoteChip view={publicationView(item.market_captured_at)} now={now} label="prices" />}
       </div>

@@ -4,7 +4,7 @@ import { useWidth } from '../charts/useWidth';
 import type { EntityProfileDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { EntityLink, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../components/ui';
-import { kickoff, metricFormatter, pct } from '../lib/format';
+import { kickoff, metricFormatter, pct, displayName } from '../lib/format';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { useSport } from '../state/sport';
@@ -63,7 +63,7 @@ export function CompareView() {
         <TeamMark sport={sport.code} abbr={p.team?.short_name} />
         <div>
           <Link to={routes.player(slug, p.entity.participant_id)} className="cmp__name">{p.entity.display_name}</Link>
-          <div className="muted small">{p.entity.metadata?.position as string} · {p.team?.display_name}{p.games[0] ? ` · ${p.games[0].home_away === 'AWAY' ? '@' : 'vs'} ${p.games[0].opponent_name} ${kickoff(p.games[0].start_time_utc)}` : ''}</div>
+          <div className="muted small">{p.entity.metadata?.position as string} · {p.team?.display_name}{p.games[0] ? ` · ${p.games[0].home_away === 'AWAY' ? '@' : 'vs'} ${displayName(p.games[0].opponent_name)} ${kickoff(p.games[0].start_time_utc)}` : ''}</div>
         </div>
       </div>
     ) : null;
@@ -73,6 +73,7 @@ export function CompareView() {
     <div className="page compare">
       <header className="ehead ehead--metric">
         <div className="ehead__t">
+          <h1 className="sr-only">Compare {A?.entity.display_name ?? 'players'}{B ? ` and ${B.entity.display_name}` : ''}</h1>
           <div className="eyebrow"><EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Compare players</div>
           <div className="cmp__heads">
             {head(A, 'cmp__who--a')}

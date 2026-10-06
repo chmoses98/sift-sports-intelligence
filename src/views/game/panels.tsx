@@ -1,5 +1,6 @@
 // The game overview's panels. Each answers one question and links to the deep view that owns it.
 import { useMemo, useState, type ReactNode } from 'react';
+import { statusWord } from '../../lib/nfl';
 import { Link } from 'react-router';
 import { MiniLines, type LineSeries } from '../../charts/MiniLines';
 import type { EntityProfileDoc, EventResearchDoc, MarketHistoryDoc } from '../../contract/types';
@@ -566,7 +567,7 @@ export function InjuryList({ rows }: { rows: InjuryRow[] }) {
         <li key={i} className="inj__row">
           <span className="inj__p">{x.player}</span>
           <span className="inj__pos">{x.position}</span>
-          <span className={`inj__s inj__s--${x.status.toLowerCase()}`}>{STATUS_WORD[x.status] ?? x.status}</span>
+          <span className={`inj__s inj__s--${x.status.toLowerCase()}`}>{STATUS_WORD[x.status] ?? statusWord(x.status)}</span>
         </li>
       ))}
     </ul>

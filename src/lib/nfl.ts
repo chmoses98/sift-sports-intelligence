@@ -105,6 +105,26 @@ export const WINDOW_EXPLAIN: Record<string, string> = {
   GAME: 'one game (a projection for the upcoming game)',
 };
 
+/** An availability status for people (INJURED_RESERVE → "Injured reserve"). */
+const STATUS_NAME: Record<string, string> = {
+  ACTIVE: 'Active', QUESTIONABLE: 'Questionable', DOUBTFUL: 'Doubtful', OUT: 'Out', INACTIVE: 'Inactive', PROBABLE: 'Probable',
+  INJURED_RESERVE: 'Injured reserve', IR: 'Injured reserve', SUSPENDED: 'Suspended', PUP: 'PUP list', PHYSICALLY_UNABLE_TO_PERFORM: 'PUP list',
+  NON_FOOTBALL_INJURY: 'Non-football injury', NFI: 'Non-football injury', DAY_TO_DAY: 'Day to day',
+};
+export function statusWord(status: string | null | undefined): string {
+  if (!status) return '';
+  return STATUS_NAME[status] ?? status.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (x) => x.toUpperCase());
+}
+
+/** The window's name for people (the publication's code — ADJ_RIDGE, L34 — stays out of sight). */
+export const WINDOW_NAME: Record<string, string> = {
+  ADJ_RIDGE: 'Opponent-adjusted', L34: 'Last 34 games', L6: 'Last 6 games', SEASON: 'Season to date', GAME: 'This game', L200_DROPBACKS: 'Last 200 dropbacks',
+};
+export function windowName(label: string | null | undefined): string {
+  if (!label) return '';
+  return WINDOW_NAME[label] ?? label.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (x) => x.toUpperCase());
+}
+
 export function categoryLabel(c: string): string {
   return CATEGORY_LABEL[c] ?? c.replace(/_/g, ' ').replace(/^\w/, (x) => x.toUpperCase());
 }

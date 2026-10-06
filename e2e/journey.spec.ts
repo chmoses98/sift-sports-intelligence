@@ -93,10 +93,11 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   // 8. A player from that game's teams
   await page.locator('.chips .elink--player').filter({ hasText: 'Josh Allen' }).click();
   await expect(page.getByRole('heading', { name: 'Josh Allen' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Market Context', exact: true })).toBeVisible();
   await shot(page, '08-player');
 
   // 9. One of the player's markets (a rung of the passing-yards ladder)
+  await page.locator('section.stratum').filter({ has: page.getByRole('heading', { name: 'Market Context', exact: true }) }).locator('details.layer > summary').first().click();
   await page.locator('.ladder .trend__hit').first().click();
   await expect(page.getByText('YES pays $1 if')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Model evidence' })).toBeVisible();

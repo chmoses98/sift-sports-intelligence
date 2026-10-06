@@ -14,7 +14,7 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['game-matchup', `./#/nfl/game/${NEBUF}?tab=matchup`, (p) => p.getByRole('heading', { name: 'Unit by unit' }).waitFor()],
   ['team', `./#/nfl/team/${BUF}`, (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor()],
   ['metric', `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`, (p) => p.getByText('League median').waitFor()],
-  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Markets', exact: true }).waitFor()],
+  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Market Context', exact: true }).waitFor()],
   ['market', `./#/nfl/market/${ML_ID}?event=${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor()],
   ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 })],
 ];

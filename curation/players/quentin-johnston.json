@@ -1,26 +1,14 @@
 [
  {
+  "n": 1,
   "file": "File:Quentin Johnston (August 2026).jpg",
   "width": 4000,
   "height": 6000,
   "mime": "image/jpeg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Quentin_Johnston_%28August_2026%29.jpg/1920px-Quentin_Johnston_%28August_2026%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Quentin_Johnston_%28August_2026%29.jpg/500px-Quentin_Johnston_%28August_2026%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "source": "https://commons.wikimedia.org/wiki/File:Quentin_Johnston_(August_2026).jpg",
   "license": "CC BY 4.0",
   "license_url": "https://creativecommons.org/licenses/by/4.0",
-  "artist": "SDudley",
-  "score": 13
- },
- {
-  "file": "File:2024 FanDuel Interview Quentin Johnston.png",
-  "width": 1080,
-  "height": 1920,
-  "mime": "image/png",
-  "thumb": "https://upload.wikimedia.org/wikipedia/commons/6/6e/2024_FanDuel_Interview_Quentin_Johnston.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "source": "https://commons.wikimedia.org/wiki/File:2024_FanDuel_Interview_Quentin_Johnston.png",
-  "license": "CC BY 3.0",
-  "license_url": "https://creativecommons.org/licenses/by/3.0",
-  "artist": "FanDuel",
-  "score": 11
+  "artist": "SDudley"
  }
 ]

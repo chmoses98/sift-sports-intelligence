@@ -1,38 +1,50 @@
 [
  {
-  "file": "File:Brock Bowers vs Washington 2025.jpg",
-  "width": 2860,
-  "height": 3295,
-  "mime": "image/jpeg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Brock_Bowers_vs_Washington_2025.jpg/1920px-Brock_Bowers_vs_Washington_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-  "source": "https://commons.wikimedia.org/wiki/File:Brock_Bowers_vs_Washington_2025.jpg",
-  "license": "CC BY-SA 4.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-  "artist": "All-Pro Reels",
-  "score": 12
- },
- {
-  "file": "File:Brock Bowers (2025).jpg",
-  "width": 971,
-  "height": 1362,
-  "mime": "image/jpeg",
-  "thumb": "https://upload.wikimedia.org/wikipedia/commons/9/93/Brock_Bowers_%282025%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "source": "https://commons.wikimedia.org/wiki/File:Brock_Bowers_(2025).jpg",
-  "license": "CC BY-SA 4.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-  "artist": "All-Pro Reels from District of Columbia, USA",
-  "score": 12
- },
- {
+  "n": 1,
   "file": "File:U.S. Army Spc. Brock Bowers, an infantryman with the Honor Guard Company, 3rd U.S. Infantry Regiment (The Old Guard), renders honors to Medal of Honor recipient Sgt. Dwight H. Johnson after placing a flag on his 130523-A-KF670-002.jpg",
   "width": 3216,
   "height": 2136,
   "mime": "image/jpeg",
-  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/U.S._Army_Spc._Brock_Bowers%2C_an_infantryman_with_the_Honor_Guard_Company%2C_3rd_U.S._Infantry_Regiment_%28The_Old_Guard%29%2C_renders_honors_to_Medal_of_Honor_recipient_Sgt._Dwight_H._Johnson_after_placing_a_flag_on_his_130523-A-KF670-002.jpg/1920px-thumbnail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/U.S._Army_Spc._Brock_Bowers%2C_an_infantryman_with_the_Honor_Guard_Company%2C_3rd_U.S._Infantry_Regiment_%28The_Old_Guard%29%2C_renders_honors_to_Medal_of_Honor_recipient_Sgt._Dwight_H._Johnson_after_placing_a_flag_on_his_130523-A-KF670-002.jpg/500px-thumbnail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "source": "https://commons.wikimedia.org/wiki/File:U.S._Army_Spc._Brock_Bowers,_an_infantryman_with_the_Honor_Guard_Company,_3rd_U.S._Infantry_Regiment_(The_Old_Guard),_renders_honors_to_Medal_of_Honor_recipient_Sgt._Dwight_H._Johnson_after_placing_a_flag_on_his_130523-A-KF670-002.jpg",
   "license": "Public domain",
   "license_url": null,
-  "artist": "Sgt. Luisito Brooks",
-  "score": -5
+  "artist": "Sgt. Luisito Brooks"
+ },
+ {
+  "n": 2,
+  "file": "File:JG9 1461 (54841250904).jpg",
+  "width": 3440,
+  "height": 4300,
+  "mime": "image/jpeg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/JG9_1461_%2854841250904%29.jpg/500px-JG9_1461_%2854841250904%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "source": "https://commons.wikimedia.org/wiki/File:JG9_1461_(54841250904).jpg",
+  "license": "CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "artist": "All-Pro Reels from District of Columbia, USA"
+ },
+ {
+  "n": 3,
+  "file": "File:2025 Raiders at Commanders 97.jpg",
+  "width": 4300,
+  "height": 3440,
+  "mime": "image/jpeg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/2025_Raiders_at_Commanders_97.jpg/500px-2025_Raiders_at_Commanders_97.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "source": "https://commons.wikimedia.org/wiki/File:2025_Raiders_at_Commanders_97.jpg",
+  "license": "CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "artist": "All-Pro Reels"
+ },
+ {
+  "n": 4,
+  "file": "File:Brock Bowers vs Washington 2025.jpg",
+  "width": 2860,
+  "height": 3295,
+  "mime": "image/jpeg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Brock_Bowers_vs_Washington_2025.jpg/500px-Brock_Bowers_vs_Washington_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "source": "https://commons.wikimedia.org/wiki/File:Brock_Bowers_vs_Washington_2025.jpg",
+  "license": "CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "artist": "All-Pro Reels"
  }
 ]

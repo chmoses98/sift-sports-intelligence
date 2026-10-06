@@ -355,3 +355,11 @@
 .evid__t .rk { white-space: normal; }
 @media (max-width: 400px) { .evid__t .rk { grid-template-columns: auto; } .evid__t th, .evid__t td { padding: 6px 2px; } }
 .hbar__m .chip { white-space: normal; height: auto; }
+
+/* Phones: a section's actions (quote freshness, refresh) drop below its title instead of squeezing the
+   description into a one-word column. */
+@media (max-width: 559px) {
+  .stratum__head { flex-wrap: wrap; }
+  .stratum__titles { flex: 1 1 0; min-width: 0; }
+  .stratum__actions { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+}

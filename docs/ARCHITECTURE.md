@@ -309,7 +309,11 @@ overflows by 2–12 px on slate/game/metric.
 
 **Determinism.** External hosts are blocked; the e2e build points the relay at
 `https://relay.sift.invalid/kalshi` (a reserved TLD) which `e2e/fixtures.ts` answers from the bundled NFL
-publication with prices/status/failures each test sets. Time is Playwright's clock.
+publication with prices/status/failures each test sets. Time is Playwright's clock. Quote-freshness lines
+("Prices updated …") change when the live check lands, at moments that differ between engines; a capture
+that is about something else frames it out (the markets-board check pins the board under the sticky game
+tabs) instead of waiting on it. Overflow at 320 px is fixed on the game Matchups tab, but 320 px is still
+outside the matrix.
 
 **Console / page errors.** An auto fixture fails any test on an unexpected `console.error`, uncaught page
 error, failed same-origin asset load or HTTP ≥ 400 asset. The only allowlisted noise is a network error

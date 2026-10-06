@@ -143,6 +143,8 @@ describe('CFB game page', () => {
     expect(screen.getByRole('heading', { name: /Matchup Edges/ })).toBeTruthy();
     expect(screen.getByRole('heading', { name: /Data Confidence/ })).toBeTruthy();
     expect(screen.queryByRole('link', { name: 'Players' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Props' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Scripts' })).toBeTruthy();
     const page = document.querySelector('.game--engine')!.textContent!.toLowerCase();
     expect(page).not.toMatch(/\d+% likely|\+ev|fair value|win prob/);
   });

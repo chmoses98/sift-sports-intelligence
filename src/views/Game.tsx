@@ -419,8 +419,9 @@ const TABS: [GameTab, string][] = [
 ];
 type GameTab = 'overview' | 'script' | 'markets' | 'matchup' | 'props' | 'players' | 'trends' | 'injuries';
 const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'dog'];
-/** Script-engine games (CFB) carry no player projections or published injury lists: those tabs are not offered. */
-const ENGINE_TABS = TABS.filter(([k]) => k !== 'players' && k !== 'injuries');
+/** Script-engine games (CFB) carry no player projections, player props research or published injury lists:
+ * those tabs are not offered. */
+const ENGINE_TABS = TABS.filter(([k]) => k !== 'players' && k !== 'injuries' && k !== 'props');
 
 export function GameView({ eventId }: { eventId: string }) {
   const { sport, repo, slug, metrics, caps } = useSport();

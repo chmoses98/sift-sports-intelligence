@@ -1,7 +1,7 @@
 // Stat accessors over game logs, keyed by the same stat names the markets use (Kalshi `extensions.stat`),
 // so a player page can put "this market's line" over "this stat, game by game" without translation.
 // A sport plugs in by adding its own table; the screens never know which sport they draw.
-import type { GameLogRow } from './types';
+import type { GameLogRow, PlayerHistoryDoc, PlayerRankEntry } from './types';
 
 export interface StatDef {
   key: string;
@@ -100,4 +100,73 @@ export function roleShift(rows: GameLogRow[]): RoleShift | null {
     if (a != null && b != null && Math.abs(b - a) >= min) return { metric, from: a, to: b, sinceWeek: recent[0].week };
   }
   return null;
+}
+
+export type HistoryWindow = 'last5' | 'last10' | 'season' | 'prior';
+
+/**
+ * Every game a pregame view may use, oldest first: last season's games, then this season's games before
+ * the viewed one (cut by week, see gamesBefore). Each row carries its season.
+ */
+export function pregameRows(doc: PlayerHistoryDoc, beforeIso: string | null | undefined, week?: number | null): { prior: GameLogRow[]; current: GameLogRow[] } {
+  const current = gamesBefore(doc.games, beforeIso, week).map((r) => ({ ...r, season: r.season ?? doc.season }));
+  const prior = (doc.prior?.games ?? []).map((r) => ({ ...r, season: r.season ?? doc.prior!.season }));
+  return { prior, current };
+}
+
+/** The windows worth offering, in order, given what exists. */
+export function windowsFor(rows: { prior: GameLogRow[]; current: GameLogRow[] }): HistoryWindow[] {
+  const n = rows.prior.length + rows.current.length;
+  const out: HistoryWindow[] = [];
+  if (n > 0) out.push('last5');
+  if (n > 5) out.push('last10');
+  if (rows.current.length) out.push('season');
+  if (rows.prior.length) out.push('prior');
+  return out;
+}
+
+export function windowRows(rows: { prior: GameLogRow[]; current: GameLogRow[] }, w: HistoryWindow): GameLogRow[] {
+  const all = [...rows.prior, ...rows.current];
+  if (w === 'last5') return all.slice(-5);
+  if (w === 'last10') return all.slice(-10);
+  if (w === 'season') return rows.current;
+  return rows.prior;
+}
+
+export function windowLabel(w: HistoryWindow, season: number, prior: number | null): string {
+  return w === 'last5' ? 'Last 5' : w === 'last10' ? 'Last 10' : w === 'season' ? String(season) : String(prior ?? season - 1);
+}
+
+/** "W3", or "'25 W17" / "'25 WC" when a window mixes seasons. */
+export function gameTag(r: GameLogRow, currentSeason: number): string {
+  const wk = r.season_type && r.season_type !== 'REG' ? (POST_ROUND[r.week] ?? 'PO') : `W${r.week}`;
+  return r.season != null && r.season !== currentSeason ? `'${String(r.season).slice(2)} ${wk}` : wk;
+}
+// nflverse numbers postseason weeks after the regular season (19 = Wild Card … 22 = Super Bowl).
+const POST_ROUND: Record<number, string> = { 19: 'WC', 20: 'DIV', 21: 'CONF', 22: 'SB' };
+
+/**
+ * The player's rank for a stat that a pregame view may use: this season's ranking through the last week
+ * before the game (never the game's own week), else last season's full ranking. Null when unranked.
+ */
+export function rankFor(doc: PlayerHistoryDoc, stat: string, beforeWeek: number | null, season?: 'current' | 'prior'): (PlayerRankEntry['stats'][string] & { season: number; through_week: number | null; position: string; min_games: number }) | null {
+  const ranks = doc.ranks ?? [];
+  if (season === 'prior') {
+    const prior = ranks.find((r) => r.season !== doc.season && r.stats[stat]);
+    return prior ? { ...prior.stats[stat], season: prior.season, through_week: prior.through_week, position: prior.position, min_games: prior.min_games } : null;
+  }
+  const now = ranks
+    .filter((r) => r.season === doc.season && r.through_week != null && (beforeWeek == null || r.through_week < beforeWeek) && r.stats[stat])
+    .sort((a, b) => (b.through_week ?? 0) - (a.through_week ?? 0))[0];
+  const pick = now ?? ranks.find((r) => r.season !== doc.season && r.stats[stat]);
+  return pick ? { ...pick.stats[stat], season: pick.season, through_week: pick.through_week, position: pick.position, min_games: pick.min_games } : null;
+}
+
+/** Words for a player's rank in a large pool (#1 = most): Top 3, Top 10, Top quarter, Bottom quarter… */
+export function playerTier(rank: number, of: number): string {
+  if (rank <= 3) return 'Top 3';
+  if (rank <= 10) return 'Top 10';
+  if (rank <= Math.ceil(of / 4)) return 'Top quarter';
+  if (rank > of - Math.ceil(of / 4)) return 'Bottom quarter';
+  return 'Middle of the pack';
 }

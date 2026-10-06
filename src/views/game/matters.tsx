@@ -14,7 +14,7 @@ import { routes } from '../../lib/routes';
 import type { ScriptSet } from '../../lib/scripts';
 import { useAsync } from '../../data/hooks';
 import { historyAvailable, playerHistory, useHistoryIndex } from '../../history/load';
-import { gamesBefore, hitRecord, statDef } from '../../history/stats';
+import { hitRecord, statDef, pregameRows, windowRows } from '../../history/stats';
 import type { PlayerHistoryDoc } from '../../history/types';
 import type { ContextNote } from '../../insights/context';
 import { nameKey } from '../../insights/context';
@@ -193,18 +193,18 @@ export function SchemeCard({ s, ctx }: { s: SchemeInsight; ctx: GameCtx }) {
 function PropHistory({ c, hist, kickoff, week }: { c: PropCard; hist: PlayerHistoryDoc | null | undefined; kickoff: string; week: number | null }) {
   const def = statDef(c.stat);
   if (!def || !hist || c.line == null) return null;
-  const games = gamesBefore(hist.games, kickoff, week);
-  const rec = hitRecord(games.slice(-5), def, c.line);
+  // Last five games before this one, across seasons; compared with TODAY's line (past lines are not published).
+  const rec = hitRecord(windowRows(pregameRows(hist, kickoff, week), 'last5'), def, c.line);
   if (!rec.values.length) return null;
   return (
     <span className="pcard__hist">
       <span className="pcard__hk">Last {rec.values.length}</span>
       {rec.values.map((x) => (
-        <span key={x.row.game_id} className={`pcard__g ${x.v > c.line! ? 'is-over' : 'is-under'}`} title={`Week ${x.row.week} vs ${x.row.opp}: ${x.v}`}>
-          {x.v}<span className="sr-only">{x.v > c.line! ? ' (over)' : ' (under)'}</span>
+        <span key={x.row.game_id} className={`pcard__g ${x.v > c.line! ? 'is-over' : 'is-under'}`} title={`${x.row.season ?? ''} week ${x.row.week} vs ${x.row.opp}: ${x.v}`}>
+          {x.v}<span className="sr-only">{x.v > c.line! ? " (above today's line)" : " (below today's line)"}</span>
         </span>
       ))}
-      <span className="pcard__hr">{rec.over} of {rec.values.length} over {c.line}</span>
+      <span className="pcard__hr">{rec.over} of {rec.values.length} above today's {c.line}</span>
     </span>
   );
 }

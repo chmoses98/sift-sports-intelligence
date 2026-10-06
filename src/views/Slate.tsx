@@ -1,3 +1,4 @@
+import { matchupInsights } from '../insights/matchups';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
@@ -93,11 +94,12 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         <div className="gcard__meta">
           <span className="gcard__time">{timeLabel(item.start_time_utc)}</span>
           <span className={`gcard__until${passed ? ' is-passed' : ''}`}>{passed ? 'kickoff passed' : until(item.start_time_utc, now)}</span>
-          <span className="gcard__mk"><b className="num">{compact(item.markets_available)}</b> markets · <b className="num">{compact(item.markets_priced)}</b> modelled</span>
+          <span className="gcard__mk"><b className="num">{compact(item.markets_available)}</b> markets</span>
         </div>
         <div className="gcard__hooks">
           {!hooks && seen && research.loading && <span className="gcard__hook gcard__hook--load">reading research…</span>}
           {research.error && <span className="gcard__hook">no event research published</span>}
+          {research.data && <span className="gcard__hook gcard__hook--edge">{matchupInsights(research.data)[0]?.headline ?? 'Evenly matched on the published ranks'}</span>}
           {hooks?.implied && <span className="gcard__hook"><span className="gcard__hk">Market</span>{hooks.implied}</span>}
         </div>
       </Link>

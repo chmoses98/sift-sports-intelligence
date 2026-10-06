@@ -77,7 +77,7 @@ function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { si
     <div className={`gh__team gh__team--${side}`}>
       <TeamMark sport={sportCode} abbr={abbr} size="xl" />
       <div className="gh__tn">
-        <span className="gh__city">{city}{rec && <span className="gh__rec num"> · {rec.text}<span className="sr-only"> record</span></span>}</span>
+        <span className="gh__city"><span className="gh__cityname">{city}</span>{rec && <span className="gh__rec num"><span className="gh__sep"> · </span>{rec.text}<span className="sr-only"> record</span></span>}</span>
         <Link to={routes.team(slug, pid)} className="gh__name">{nick}</Link>
       </div>
       {score != null && <span className={`gh__score num${won ? ' is-win' : ''}`}>{score}</span>}

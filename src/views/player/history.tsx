@@ -49,7 +49,7 @@ export function GameBars({ rows, stat, line, upcoming, sport = 'NFL' }: { rows: 
         })}
         {upcoming && (
           <span className="gbars__b gbars__b--next" aria-label={`${upcoming.label}: projection ${fmt1(upcoming.projection)}, typical ${fmt1(upcoming.typical[0])} to ${fmt1(upcoming.typical[1])}`} role="img">
-            <span className="gbars__v num" style={{ bottom: `calc(${pct(upcoming.typical[1])} + 4px)` }}>{fmt1(Math.round(upcoming.projection * 10) / 10)}</span>
+            <span className="gbars__v num" style={{ bottom: `calc(${pct(upcoming.typical[1])} + 4px)` }}>{stat.unit === 'yds' ? Math.round(upcoming.projection) : fmt1(Math.round(upcoming.projection * 10) / 10)}</span>
             <span className="gbars__range" style={{ bottom: pct(upcoming.typical[0]), height: `calc(${pct(upcoming.typical[1])} - ${pct(upcoming.typical[0])})` }} />
             <span className="gbars__bar gbars__bar--proj" style={{ height: pct(upcoming.projection) }} />
             <span className="gbars__x"><span>Next</span></span>

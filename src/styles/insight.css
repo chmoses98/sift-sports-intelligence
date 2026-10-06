@@ -342,3 +342,6 @@
 .fcard__img { max-height: 340px; width: 100%; }
 @media (max-width: 480px) { .gh__name { font-size: 1.4rem; overflow-wrap: normal; white-space: nowrap; } .gh__meta { font-size: 0.78rem; } }
 @media (max-width: 360px) { .gh__name { font-size: 1.2rem; } }
+.gcard__hook--edge { color: #fff; font-weight: 650; }
+.shome__props { max-width: 880px; margin-bottom: var(--s-8); }
+@media (max-width: 480px) { .gh__cityname, .gh__sep { display: none; } }

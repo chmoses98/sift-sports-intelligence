@@ -120,7 +120,7 @@ function ContextPanel({ notes, slug }: { notes: { note: ContextNote; eventId: st
   );
 }
 
-function FeaturedProps({ item, r, slug }: { item: BoardItem; r: EventResearchDoc | undefined; slug: string }) {
+export function FeaturedProps({ item, r, slug }: { item: BoardItem; r: EventResearchDoc | undefined; slug: string }) {
   const { repo } = useNfl();
   const detail = useAsync(r && repo.data ? `ed:NFL:${item.event_id}` : null, () => repo.data!.eventDetail(item.event_id));
   const cards = useMemo(() => (r && detail.data ? propsToWatch(propCards(r, detail.data.markets), 3) : []), [r, detail.data]);

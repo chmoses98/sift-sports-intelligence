@@ -16,6 +16,7 @@ import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { Disagreements, FeatureCard, featuredItem, GameTile, ScriptBar, sides, useSlateResearch } from './home/cards';
 import { matchupInsights } from '../insights/matchups';
+import { FeaturedProps } from './Home';
 import { PanelHead, ViewAll } from './game/panels';
 import { ScorecardPanel } from './Scorecard';
 
@@ -129,6 +130,8 @@ export function SportHomeView() {
           {upcoming.map((i) => <GameTile key={i.event_id} item={i} r={rmap.get(i.event_id) ?? (research.loading ? undefined : null)} sportSlug={slug} sportCode={sport.code} now={now} />)}
         </ul>
       </section>
+
+      {feat && sport.code === 'NFL' && <div className="shome__props"><FeaturedProps item={feat} r={rmap.get(feat.event_id)} slug={slug} /></div>}
 
       <div className="shome__grid">
         <ScriptOutlook items={upcoming} research={rmap} slug={slug} sportCode={sport.code} />

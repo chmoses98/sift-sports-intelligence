@@ -73,9 +73,12 @@ test('phones: at the end of every page nothing visible sits under the tab bar @s
       const barH = document.querySelector('.bottombar')!.getBoundingClientRect().height;
       const end = document.documentElement.scrollHeight - barH;
       const out: string[] = [];
-      for (const el of document.querySelectorAll<HTMLElement>('main a, main button, main summary, footer a')) {
+      // Page content only: the page's own footer, and nothing inside a fixed layer (sheets, drawers, toasts),
+      // which does not scroll with the document.
+      const inFixed = (el: Element) => { for (let e: Element | null = el; e; e = e.parentElement) if (getComputedStyle(e).position === 'fixed') return true; return false; };
+      for (const el of document.querySelectorAll<HTMLElement>('main a, main button, main summary, .foot a')) {
         const r = el.getBoundingClientRect();
-        const visible = r.height > 0 && (el.checkVisibility ? el.checkVisibility() : true) && !el.closest('details:not([open]) > :not(summary)');
+        const visible = r.height > 0 && (el.checkVisibility ? el.checkVisibility() : true) && !el.closest('details:not([open]) > :not(summary)') && !inFixed(el);
         const bottom = r.bottom + window.scrollY;
         if (visible && bottom > end + 1) out.push(`${el.tagName} "${el.textContent?.trim().slice(0, 30)}" ends at ${Math.round(bottom)} vs ${Math.round(end)}`);
       }

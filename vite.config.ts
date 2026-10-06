@@ -60,6 +60,16 @@ export default defineConfig({
             },
           },
           {
+            // Stadium photos: fixed files, credited, large — cached as they are viewed, never precached.
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/stadiums/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'sift-stadiums',
+              expiration: { maxEntries: 80, maxAgeSeconds: 30 * 24 * 3600 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
             // The bundled NFL research snapshot: content is fixed per deploy.
             urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/data/'),
             handler: 'StaleWhileRevalidate',

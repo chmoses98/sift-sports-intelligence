@@ -4,8 +4,8 @@ import { ContextMeter, EntityLink, FreshnessChip, QualityBadge, RankPill, Stratu
 import { useVisit } from '../state/trail';
 
 const SWATCHES: [string, string][] = [
-  ['--ink-1', 'app background'], ['--navy-1', 'stratum 1'], ['--navy-2', 'stratum 2'], ['--navy-3', 'stratum 3'],
-  ['--cobalt', 'energy'], ['--cyan', 'signal'], ['--gold', 'highlight'],
+  ['--black', 'page · near-black'], ['--slate', 'panel'], ['--deep-blue', 'selected surface'], ['--blue', 'navigation state'],
+  ['--gold', 'gold · price + action'], ['--ice', 'cyan · signal'], ['--teal', 'teal · coverage'], ['--ivory', 'ivory · text'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'],
   ['--mark-focus', 'chart: viewing'], ['--mark-opp', 'chart: opponent'], ['--mark-compare', 'chart: pinned'], ['--mark-context', 'chart: context'],
   ['--fresh', 'FRESH'], ['--aging', 'AGING'], ['--stale', 'STALE'], ['--q-research', 'RESEARCH'],
 ];
@@ -18,8 +18,8 @@ export function DesignView() {
     <div className="page design">
       <header className="pagehead">
         <div className="eyebrow">Design system</div>
-        <h1 className="h-display">Signal from noise</h1>
-        <p className="lede">Deep strata of ink and navy; muted context; one bright signal. Examples below use illustrative inputs to show the components — they are not sports data.</p>
+        <h1 className="h-display">Night stadium</h1>
+        <p className="lede">A near-black page, dark navy panels raised by blue hairlines, vivid gold, cyan and script colours — sampled from the approved mockup. Examples below use illustrative inputs to show the components — they are not sports data.</p>
       </header>
       <Stratum n="01" title="Color">
         <ul className="swatches">
@@ -30,10 +30,10 @@ export function DesignView() {
       </Stratum>
       <Stratum n="02" title="Type">
         <div className="typescale">
-          <div className="h-display">Display · Big Shoulders</div>
+          <div className="h-display">Display · Instrument Serif</div>
           <div className="h-display h-display--md">Entity header</div>
-          <p>Body · Archivo. Long-form metric descriptions are set at 15px with a 1.55 line height for reading on a phone.</p>
-          <p className="num">Numbers · JetBrains Mono · +0.134 · 27th · 73.5¢</p>
+          <p>Interface · Instrument Sans: navigation, tabs, panel titles, labels and body.</p>
+          <p className="num">Numbers · Roboto Mono, tabular · +0.134 · #27 · 73.5¢</p>
           <div className="eyebrow">Eyebrow · section context</div>
         </div>
       </Stratum>

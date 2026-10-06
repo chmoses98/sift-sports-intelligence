@@ -1,6 +1,7 @@
 // Every market of a scope, grouped the way the handicap packet groups them: a ladder (same series,
 // period, side, subject; different line) is one row of rungs; singletons are rows. Prices are YES
 // bid/ask in cents; "fair" is the model's P(YES) — evidence, labelled as such, never a pick.
+import { MarketIcon } from './MarketIcon';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { Market, ModelPrice, ResearchMarket } from '../contract/types';
@@ -126,7 +127,7 @@ export function MarketBoard({
           {subject && <h4 className="mboard__who">{subject}</h4>}
           {gs.map((g) => (
             <div key={g.key} className="mgroup">
-              <div className="mgroup__title">{g.title}</div>
+              <div className="mgroup__title">{g.rows[0] && <MarketIcon m={g.rows[0]} />}{g.title}</div>
               {g.ladder ? (
                 <ol className="ladderrow">
                   {g.rows.map((m) => {

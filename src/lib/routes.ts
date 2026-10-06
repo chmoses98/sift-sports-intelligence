@@ -11,7 +11,11 @@ export const routes = {
   home: () => '/',
   search: (query?: string) => `/search${q({ q: query })}`,
   sport: (sport: string) => `/${sport}`,
-  game: (sport: string, eventId: string, ctx?: { team?: string | null }) => `/${sport}/game/${eventId}${q({ team: ctx?.team })}`,
+  slate: (sport: string) => `/${sport}/slate`,
+  parlays: (sport: string) => `/${sport}/parlays`,
+  scorecard: (sport: string) => `/${sport}/scorecard`,
+  game: (sport: string, eventId: string, ctx?: { team?: string | null; tab?: string | null; script?: string | null }) =>
+    `/${sport}/game/${eventId}${q({ team: ctx?.team, tab: ctx?.tab, script: ctx?.script })}`,
   team: (sport: string, teamId: string, tab?: string) => `/${sport}/team/${teamId}${q({ tab })}`,
   player: (sport: string, playerId: string) => `/${sport}/player/${playerId}`,
   metric: (sport: string, metricId: string, ctx?: { team?: string | null; opp?: string | null; event?: string | null }) =>
@@ -24,5 +28,8 @@ export const routes = {
   packet: (p: { sport: string; scope: 'GAME' | 'SLATE' | 'CUSTOM'; event?: string; start?: string; end?: string }) =>
     `/packet${q({ sport: p.sport, scope: p.scope, event: p.event, start: p.start, end: p.end })}`,
   status: () => '/status',
+  sports: () => '/sports',
+  news: () => '/news',
+  settings: () => '/settings',
   design: () => '/design',
 };

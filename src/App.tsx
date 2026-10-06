@@ -7,7 +7,7 @@ import { TrailProvider } from './state/trail';
 import { TrayProvider } from './state/tray';
 import { HomeView } from './views/Home';
 import { NotFound } from './views/NotFound';
-import { SlateView } from './views/Slate';
+import { SportHomeView } from './views/SportHome';
 
 const CompareView = lazy(() => import('./views/Compare').then((x) => ({ default: x.CompareView })));
 const DesignView = lazy(() => import('./views/Design').then((x) => ({ default: x.DesignView })));
@@ -21,6 +21,12 @@ const SearchView = lazy(() => import('./views/Search').then((x) => ({ default: x
 const StatusView = lazy(() => import('./views/Status').then((x) => ({ default: x.StatusView })));
 const TeamView = lazy(() => import('./views/Team').then((x) => ({ default: x.TeamView })));
 const TrayView = lazy(() => import('./views/Tray').then((x) => ({ default: x.TrayView })));
+const SlateView = lazy(() => import('./views/Slate').then((x) => ({ default: x.SlateView })));
+const ScorecardView = lazy(() => import('./views/Scorecard').then((x) => ({ default: x.ScorecardView })));
+const ParlaysView = lazy(() => import('./views/Parlays').then((x) => ({ default: x.ParlaysView })));
+const NewsView = lazy(() => import('./views/News').then((x) => ({ default: x.NewsView })));
+const SettingsView = lazy(() => import('./views/Settings').then((x) => ({ default: x.SettingsView })));
+const SportsView = lazy(() => import('./views/Sports').then((x) => ({ default: x.SportsView })));
 
 // Every screen is its own chunk: a phone downloads the code for the screen it opens.
 const Page = ({ children }: { children: ReactNode }) => (
@@ -51,11 +57,17 @@ export const routeTree = [
       { path: 'packet', element: <PacketView /> },
       { path: 'status', element: <StatusView /> },
       { path: 'design', element: <DesignView /> },
+      { path: 'sports', element: <SportsView /> },
+      { path: 'news', element: <NewsView /> },
+      { path: 'settings', element: <SettingsView /> },
       {
         path: ':sport',
         element: <SportLayout />,
         children: [
-          { index: true, element: <SlateView /> },
+          { index: true, element: <SportHomeView /> },
+          { path: 'slate', element: <SlateView /> },
+          { path: 'parlays', element: <ParlaysView /> },
+          { path: 'scorecard', element: <ScorecardView /> },
           { path: 'game/:eventId', element: <GameRoute /> },
           { path: 'team/:teamId', element: <TeamView /> },
           { path: 'player/:playerId', element: <PlayerView /> },

@@ -5,6 +5,7 @@ import type { EntityProfileDoc, ModelPrice, Observation, SeriesDoc } from '../co
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
 import { MarketBoard } from '../components/MarketBoard';
+import { MetricInfo } from '../components/Gloss';
 import { ContextMeter, EntityLink, ErrorState, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { displayName, kickoff, metricFormatter, ordinal, shortDate } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER } from '../lib/nfl';
@@ -44,6 +45,7 @@ export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabe
         <span className="mrow2__rank">{ctx ? <RankPill rank={ctx.rank} size={ctx.universe_size} hib={ctx.higher_is_better} /> : <span className="muted small">no ranking</span>}</span>
         <span className="mrow2__q"><QualityBadge status={o.quality_status} compact /></span>
       </Link>
+      <MetricInfo metricId={o.metric_id} def={def} align="end" />
       {ctx?.ranking_id && (
         <SaveButton
           compact ref_kind="RANKING" sport={sportCode} id={ctx.ranking_id}
@@ -207,7 +209,7 @@ export function TeamView() {
           {nxt && (
             <Stratum n="02" title={`This week: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${nxt.opponent_name}`} sub="The matchup board compares both units on every adjusted rating.">
               <div className="cta-row">
-                <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id)}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
+                <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id, { tab: 'matchup' })}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
                 {oppId && <Link className="btn btn--ghost" to={routes.team(slug, oppId)}>{nxt.opponent_name} profile</Link>}
               </div>
             </Stratum>

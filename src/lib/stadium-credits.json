@@ -1,0 +1,114 @@
+{
+  "venues": {
+    "state-farm-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:Boise State 2010 Fiesta Bowl.jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Boise_State_2010_Fiesta_Bowl.jpg",
+      "artist": "Sean Hobson",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_width": 3072,
+      "original_height": 2304,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "mercedes-benz-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:2017-10-26 - Atlanta United vs Columbus Crew.jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:2017-10-26_-_Atlanta_United_vs_Columbus_Crew.jpg",
+      "artist": "Eric.Jason.Cross",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4032,
+      "original_height": 3024,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "att-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:Houston Texans vs. Dallas Cowboys 2019 14 (opening kickoff).jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Houston_Texans_vs._Dallas_Cowboys_2019_14_(opening_kickoff).jpg",
+      "artist": "Michael Barera",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 6000,
+      "original_height": 4000,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "everbank-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:Chiefs at Jaguars 2025 (55037793371).jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Chiefs_at_Jaguars_2025_(55037793371).jpg",
+      "artist": "elisfkc2",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4080,
+      "original_height": 3072,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "allegiant-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:Vegas Kickoff Classic, Brigham Young University (BYU) Cougars 24, University of Arizona Wildcats 16, Allegiant Stadium, Las Vegas, Nevada (52271295939).jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Vegas_Kickoff_Classic,_Brigham_Young_University_(BYU)_Cougars_24,_University_of_Arizona_Wildcats_16,_Allegiant_Stadium,_Las_Vegas,_Nevada_(52271295939).jpg",
+      "artist": "Ken Lund from Reno, Nevada, USA",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "original_width": 4032,
+      "original_height": 3024,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "caesars-superdome": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:Super Bowl LIX (54360870227).jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Super_Bowl_LIX_(54360870227).jpg",
+      "artist": "elisfkc2",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "original_width": 4032,
+      "original_height": 2268,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "levis-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:2019 CFP - Clemson entrance.jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:2019_CFP_-_Clemson_entrance.jpg",
+      "artist": "Legoktm",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4000,
+      "original_height": 3000,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "lumen-field": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:2022 CONCACAF Champions League Final - View from southeast corner at night.jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:2022_CONCACAF_Champions_League_Final_-_View_from_southeast_corner_at_night.jpg",
+      "artist": "SounderBruce",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_width": 4866,
+      "original_height": 3194,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    },
+    "nissan-stadium": {
+      "variant": "graded-hero2400q66-card720q60",
+      "file": "File:Night Settles on LP Field.jpg",
+      "page": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Night_Settles_on_LP_Field.jpg",
+      "artist": "Casey Fleser from Nashville, TN",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_width": 3008,
+      "original_height": 2000,
+      "modifications": "Cropped, resized and colour graded by Sift"
+    }
+  },
+  "generated_at": "2026-10-05T15:59:49.228Z",
+  "source": "Hand-picked Wikimedia Commons photographs (free licences), pinned in scripts/stadiums/venues.json; scripts/stadiums/fetch.mjs"
+}

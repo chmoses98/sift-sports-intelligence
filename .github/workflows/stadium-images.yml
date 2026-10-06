@@ -1,0 +1,56 @@
+name: Stadium images
+
+# Fetches the hand-picked stadium hero images once (the Commons file pinned per venue, free licences)
+# and commits them with their credits: public/stadiums/*.webp + src/lib/stadium-credits.json. The app
+# never fetches an image at runtime. Runs when the venue list or the fetcher changes, or manually
+# (FORCE re-fetches every venue; ONLY limits it to some slugs, comma-separated).
+on:
+  push:
+    branches-ignore: [main, live-quotes]
+    paths:
+      - scripts/stadiums/**
+      - .github/workflows/stadium-images.yml
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Re-fetch venues that already have an image
+        type: boolean
+        default: false
+      only:
+        description: Venue slugs to fetch (comma-separated, optional)
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stadium-images-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: ImageMagick with WebP
+        run: |
+          convert -version | head -1
+          convert -list format | grep -i webp || (sudo apt-get update && sudo apt-get install -y webp imagemagick)
+      - name: Fetch images
+        env:
+          FORCE: ${{ inputs.force && '1' || '' }}
+          ONLY: ${{ inputs.only }}
+        run: node scripts/stadiums/fetch.mjs
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/stadiums src/lib/stadium-credits.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "Stadium hero images (Wikimedia Commons, free licences, credited)"
+          git push

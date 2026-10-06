@@ -100,7 +100,6 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
           {!hooks && seen && research.loading && <span className="gcard__hook gcard__hook--load">reading research…</span>}
           {research.error && <span className="gcard__hook">no event research published</span>}
           {hooks?.implied && <span className="gcard__hook"><span className="gcard__hk">Market</span>{hooks.implied}</span>}
-          {hooks?.gap && <span className="gcard__hook gcard__hook--signal"><span className="gcard__hk">Largest matchup gap</span>{hooks.gap.label} <span className="num">{hooks.gap.value}</span></span>}
         </div>
       </Link>
       <div className="gcard__foot">
@@ -108,7 +107,7 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         {item.health_flags.map((f) => (
           <span key={f} className="flag">{f.replace(/_/g, ' ').toLowerCase()}</span>
         ))}
-        <SaveButton ref_kind="EVENT" sport={repo.sport.code} id={item.event_id} compact label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
+        <SaveButton ref_kind="EVENT" sport={repo.sport.code} id={item.event_id} compact kickoff={item.start_time_utc} label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
       </div>
     </li>
   );
@@ -126,7 +125,7 @@ function PastRow({ item, repo, sportSlug }: { item: BoardItem; repo: SportRepo; 
         <span className="pastrow__wk">{item.competition?.replace(/^\d{4}\s*(REG\s*)?/, '')}</span>
         <span className="pastrow__m">{away?.short_name} @ {home?.short_name}</span>
         <span className="pastrow__r num">{hooks?.result ?? item.status}</span>
-        <span className="pastrow__n">{item.wagers_count ? `${item.wagers_count} logged wagers` : `${item.markets_available} markets`}</span>
+        <span className="pastrow__n">{item.markets_available} markets</span>
       </Link>
     </li>
   );
@@ -146,7 +145,7 @@ export function groupWindows(items: BoardItem[]): { key: string; day: string; ti
 export function SlateView() {
   const { sport, repo, slug, caps } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
-  useVisit(`${sport.label} slate`, 'sport');
+  useVisit(`${sport.label} slate`, 'slate');
   const now = useNow(30_000);
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!board.data) return <div className="page"><ErrorState error={board.error} what={`${sport.label} board`} /></div>;
@@ -204,7 +203,7 @@ export function SlateView() {
       ))}
 
       {past.length > 0 && caps.size > 0 && (
-        <Stratum title="Earlier this season" sub="Completed games the publication keeps research for (games referenced by the wager ledger). Every team's full schedule and results live on its profile.">
+        <Stratum title="Earlier this season" sub="Completed games the publication keeps research for. Every team's full schedule and results live on its profile.">
           <ul className="pastlist">
             {past.map((it) => (
               <PastRow key={it.event_id} item={it} repo={repo} sportSlug={slug} />

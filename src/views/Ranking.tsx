@@ -1,6 +1,7 @@
 import { Link, useParams, useSearchParams } from 'react-router';
 import { RankBars } from '../charts/RankBars';
 import { useAsync } from '../data/hooks';
+import { PlainEnglish } from './Metric';
 import { EntityLink, ErrorState, QualityBadge, SaveButton, Skeleton, Stratum } from '../components/ui';
 import { exactTime, metricFormatter, ordinal } from '../lib/format';
 import { WINDOW_EXPLAIN } from '../lib/nfl';
@@ -48,6 +49,7 @@ export function RankingView() {
             <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Comparison universe · {d.universe.label}
           </div>
           <h1 className="h-display h-display--md">{def?.name ?? d.metric_id}</h1>
+          <PlainEnglish metricId={d.metric_id} def={def} />
           <div className="ehead__meta">
             <QualityBadge quality={d.quality} />
             <span className="chip">{d.window.label} — {WINDOW_EXPLAIN[d.window.label] ?? d.window.kind.toLowerCase()}</span>
@@ -78,7 +80,7 @@ export function RankingView() {
           caption={`${def?.name} ranking, ${d.universe.label}`} onPin={togglePin}
         />
         <p className="muted small">
-          Competition ranking (ties share the best rank); percentile = share of the universe beaten or tied. Universe filter: {d.universe.filter ?? '—'}. As of {exactTime(d.as_of)}.
+          Competition ranking (ties share the best rank). Universe filter: {d.universe.filter ?? '—'}. As of {exactTime(d.as_of)}.
         </p>
         {d.quality.limitations.length > 0 && <ul className="lims">{d.quality.limitations.map((l) => <li key={l}>{l}</li>)}</ul>}
       </Stratum>

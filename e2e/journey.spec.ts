@@ -4,7 +4,7 @@
 // back to the bundled same-run NFL research snapshot, exactly as it does in production while NFL's
 // live explorer is unpublished; live quotes come from the fixture relay (e2e/fixtures.ts).
 import type { BrowserContext, Page } from '@playwright/test';
-import { expect, noHorizontalOverflow, test } from './fixtures';
+import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
 
 async function shot(page: Page, name: string) {
   await noHorizontalOverflow(page, name);
@@ -29,20 +29,31 @@ async function clipboardFor(context: BrowserContext, browserName: string) {
 
 test('the full research journey ends in a real handicap packet on the clipboard @journey', async ({ page: first, context, isMobile, browserName }) => {
   let page = first;
+  // Game day, before kickoff: a PREGAME research journey (after kickoff new saves are frozen; e2e/closure2.spec.ts).
+  await page.clock.install({ time: NOW });
   const readClipboard = await clipboardFor(context, browserName);
   // 1. Open Sift
   await page.goto('./#/');
-  await expect(page.getByRole('heading', { name: 'Sift' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Today on Sift' })).toBeVisible();
   await shot(page, '01-home');
 
-  // 2. Open NFL
-  await page.getByRole('link', { name: /Open the slate/ }).click();
-  await expect(page.getByRole('heading', { name: /2026 REG Week 4/i })).toBeVisible();
+  // 2. Open the NFL home (the sport's landing page; the full slate is one link away)
+  await page.getByRole('link', { name: /NFL home/ }).click();
+  await expect(page.getByRole('heading', { name: 'NFL', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Script Outlook' })).toBeVisible();
+  // The research source is disclosed under the quiet Source control, not as a strip across the page.
+  await page.getByRole('button', { name: 'Source' }).click();
   await expect(page.getByText('RESEARCH SNAPSHOT')).toBeVisible();
-  await shot(page, '02-slate');
+  await page.getByRole('button', { name: 'Less' }).click();
+  // The breadcrumb restarted at the sport.
+  await expect(page.getByRole('navigation', { name: 'Research path' }).locator('li')).toHaveCount(1);
+  await shot(page, '02-nfl-home');
 
-  // 3. Open an upcoming game
-  await page.getByRole('link', { name: /New England Patriots at Buffalo Bills/ }).click();
+  // 3. Open an upcoming game: the overview leads with the model read and the game scripts
+  await page.getByRole('link', { name: /New England Patriots at Buffalo Bills/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Model Read' })).toBeVisible();
+  await expect(page.locator('.scard')).toHaveCount(4);
+  await page.getByRole('navigation', { name: 'Game sections' }).getByRole('link', { name: 'Matchup' }).click();
   await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
   await expect(page.locator('.mb__cell')).toHaveCount(28);
   await shot(page, '03-game');
@@ -80,7 +91,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   // 8. A player from that game's teams
   await page.locator('.chips .elink--player').filter({ hasText: 'Josh Allen' }).click();
   await expect(page.getByRole('heading', { name: 'Josh Allen' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Markets vs projection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Market vs Projection' })).toBeVisible();
   await shot(page, '08-player');
 
   // 9. One of the player's markets (a rung of the passing-yards ladder)
@@ -100,6 +111,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
     // long journey only; isolated reloads after the same screens pass (e2e deep-link test, CI diagnostic
     // 2026-10-04). A fresh page in the same context proves the same thing: the tray persists across loads.
     const fresh = await context.newPage();
+    await fresh.clock.install({ time: NOW });
     await page.close();
     page = fresh;
     await page.goto('./#/nfl');
@@ -110,7 +122,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await expect(trayCount).toHaveText('1');
 
   // 12. Open the tray
-  await (isMobile ? page.locator('.bottombar button') : page.locator('.traybtn')).click();
+  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });
   await expect(drawer.locator('.tray__item')).toHaveCount(1);
   await shot(page, '12-tray');
@@ -154,6 +166,9 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 test('deep links survive a refresh on the Pages base path @smoke', async ({ page }) => {
   await page.goto('./#/nfl/team/prt_38f80e30c7c786aaf5b4?tab=schedule');
   await expect(page.getByRole('heading', { name: /Baltimore Ravens/i, level: 1 })).toBeVisible();
+  // Let the page's own requests (team logos are fetched and held as blobs) finish first: a reload cancels
+  // in-flight loads, which the asset guard (fixtures.ts) would rightly count as a failed internal asset.
+  await page.waitForLoadState('networkidle');
   await page.reload();
   await expect(page.locator('.tabs').getByRole('tab', { name: 'Schedule' })).toHaveAttribute('aria-selected', 'true');
 });

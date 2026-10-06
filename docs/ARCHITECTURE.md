@@ -269,6 +269,17 @@ MISSING line; a packet-level preflight block would need a contract change and is
 COPY FOR CHATGPT is a separate tap after the build, because iOS only allows clipboard writes inside a user
 gesture. Fallbacks: text selection, the share sheet, or a `.txt` download.
 
+## Stadium photos
+
+Game heroes show the real home stadium (or the published neutral site). `scripts/stadiums/venues.json`
+maps every venue (aliases included) to its Wikipedia lead image restricted to free licences;
+`.github/workflows/stadium-images.yml` fetches each one **once** on a GitHub runner (the dev container
+cannot reach Wikimedia), converts it to WebP (1600 px hero, 720 px card) under `public/stadiums/`, and
+records author, licence and source page in `src/lib/stadium-credits.json`, shown on *Data & provenance*.
+The app never fetches an image from a third party. Photos are excluded from the precache (≈ 6 MB); the
+service worker caches the ones you view (CacheFirst), and the app holds a viewed hero in memory so a game
+re-opened offline still shows it. Pin a specific photo with `commons_file` in `venues.json`.
+
 ## PWA
 
 `manifest.webmanifest` (name *Sift Sports Intelligence*, short name *Sift*, standalone, dark theme, 192/512/

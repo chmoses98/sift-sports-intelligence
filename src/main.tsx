@@ -1,8 +1,13 @@
-import '@fontsource-variable/archivo';
-import '@fontsource-variable/big-shoulders-display';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/instrument-serif/latin-400.css';
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import '@fontsource-variable/instrument-sans/wght.css';
+import '@fontsource-variable/roboto-mono/wght.css';
 import './styles/tokens.css';
 import './styles/sift.css';
+import './styles/shell.css';
+import './styles/surfaces.css';
+import './styles/home.css';
+import './styles/game.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

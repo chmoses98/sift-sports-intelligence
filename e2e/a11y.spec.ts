@@ -9,15 +9,19 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, NOW, test } from './fixtures';
 const EXCEPTIONS: Record<string, string> = {};
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
-  ['home', './#/', (p) => p.getByRole('heading', { name: 'Sift' }).waitFor()],
-  ['slate', './#/nfl', (p) => p.getByText('RESEARCH SNAPSHOT').waitFor()],
-  ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor()],
+  ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
+  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor()],
+  ['slate', './#/nfl/slate', (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor()],
+  ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model Read' }).waitFor()],
+  ['game-script', `./#/nfl/game/${NEBUF}?tab=script`, (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor()],
+  ['game-matchup', `./#/nfl/game/${NEBUF}?tab=matchup`, (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor()],
   ['team', `./#/nfl/team/${BUF}`, (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor()],
   ['metric', `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`, (p) => p.getByText('League median').waitFor()],
   ['ranking', `./#/nfl/ranking/rnk_${'x'}`, async () => {}],
-  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Markets vs projection' }).waitFor()],
+  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Market vs Projection' }).waitFor()],
   ['market', `./#/nfl/market/${ML_ID}?event=${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor()],
   ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 })],
+  ['scorecard', './#/nfl/scorecard', (p) => p.getByRole('heading', { name: 'Model Scorecard', level: 1 }).waitFor()],
   ['status', './#/status', (p) => p.getByRole('heading', { name: 'Live market quotes' }).waitFor()],
 ];
 
@@ -48,7 +52,7 @@ test('axe: league ranking and the open research tray @a11y', async ({ page }) =>
   await scan(page, 'ranking');
   await page.goto(`./#/nfl/team/${BUF}`);
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
-  await page.locator('.bottombar button, .traybtn').filter({ visible: true }).first().click();
+  await page.locator('.bottombar__tray, .traybtn').filter({ visible: true }).first().click();
   await expect(page.getByRole('complementary', { name: 'Research tray' })).toBeVisible();
   await scan(page, 'tray');
 });
@@ -59,7 +63,7 @@ test('axe: league ranking and the open research tray @a11y', async ({ page }) =>
 // the research reads keeps every skeleton on screen for the whole scan, under the same gate.
 const LOADING: [string, string][] = [
   ['home', './#/'],
-  ['slate', './#/nfl'],
+  ['nfl-home', './#/nfl'],
   ['game', `./#/nfl/game/${NEBUF}`],
   ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`],
 ];

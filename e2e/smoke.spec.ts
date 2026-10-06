@@ -6,12 +6,15 @@ import type { Page } from '@playwright/test';
 import { ALLEN, BUF, expect, ML_ID, NEBUF, noHorizontalOverflow, NOW, test } from './fixtures';
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
-  ['home', './#/', (p) => p.getByRole('heading', { name: 'Sift' }).waitFor()],
-  ['slate', './#/nfl', (p) => p.getByText('RESEARCH SNAPSHOT').waitFor()],
-  ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor()],
+  ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
+  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor()],
+  ['slate', './#/nfl/slate', (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor()],
+  ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model Read' }).waitFor()],
+  ['game-script', `./#/nfl/game/${NEBUF}?tab=script`, (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor()],
+  ['game-matchup', `./#/nfl/game/${NEBUF}?tab=matchup`, (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor()],
   ['team', `./#/nfl/team/${BUF}`, (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor()],
   ['metric', `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`, (p) => p.getByText('League median').waitFor()],
-  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Markets vs projection' }).waitFor()],
+  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Market vs Projection' }).waitFor()],
   ['market', `./#/nfl/market/${ML_ID}?event=${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor()],
   ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 })],
 ];
@@ -69,8 +72,8 @@ for (const [name, url, ready] of SCREENS) {
 }
 
 test('market controls are real touch targets; packet controls are never under the bottom bar @smoke', async ({ page, isMobile }) => {
-  await page.goto(`./#/nfl/game/${NEBUF}`);
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await page.goto(`./#/nfl/game/${NEBUF}?tab=markets`);
+  await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
   const small = await page.evaluate(() =>
     [...document.querySelectorAll('.mrow, .rungcell, .seg__b, .savebtn, .bottombar__a, .btn')]
       .filter((e) => (e as HTMLElement).offsetParent !== null)
@@ -88,7 +91,7 @@ test('market controls are real touch targets; packet controls are never under th
 test('the research tray sheet opens fully on screen and its build button is reachable @smoke', async ({ page, isMobile }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
-  await (isMobile ? page.locator('.bottombar button') : page.locator('.traybtn')).click();
+  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });
   await expect(drawer).toBeVisible();
   await expect(drawer.locator('.tray__item')).toHaveCount(1);

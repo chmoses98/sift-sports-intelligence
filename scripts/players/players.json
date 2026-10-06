@@ -1,0 +1,41 @@
+{
+  "$comment": "Player imagery for Game Script cards \u2014 REVIEW ASSETS (temporary until a licensed player-image source is chosen). Each image: `id`, the player, `team`, `slot` (pull-away = favourite dominant, control = favourite controlling, lead = the team's primary image), the publication's `participant_id`, a pinned Wikimedia Commons `commons_file` (free licence) and the CSS `focus`. scripts/players/fetch.mjs downloads pinned files only and credits them in src/lib/player-images.json. Players with no `commons_file` get a contact sheet instead. Gap: no free-licence photos found for James Cook III or Rhamondre Stevenson.",
+  "players": [
+    {
+      "id": "buf-allen-run",
+      "name": "Josh Allen",
+      "team": "BUF",
+      "slot": "pull-away",
+      "participant_id": "prt_06ec4b4943c66094d6f3",
+      "commons_file": "File:Josh Allen (44286993811).jpg",
+      "focus": "58% 18%"
+    },
+    {
+      "id": "buf-allen-portrait",
+      "name": "Josh Allen",
+      "team": "BUF",
+      "slot": "control",
+      "participant_id": "prt_06ec4b4943c66094d6f3",
+      "commons_file": "File:Josh Allen (43569465444).jpg",
+      "focus": "40% 12%"
+    },
+    {
+      "id": "buf-allen-home",
+      "name": "Josh Allen",
+      "team": "BUF",
+      "slot": "lead",
+      "participant_id": "prt_06ec4b4943c66094d6f3",
+      "commons_file": "File:Josh Allen 2019.jpg",
+      "focus": "50% 14%"
+    },
+    {
+      "id": "ne-maye",
+      "name": "Drake Maye",
+      "team": "NE",
+      "slot": "lead",
+      "participant_id": "prt_b23983bae524e670f6b8",
+      "commons_file": "File:Drake Maye Patriots vs Titans NOV2024.png",
+      "focus": "40% 18%"
+    }
+  ]
+}

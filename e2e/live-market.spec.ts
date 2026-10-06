@@ -2,7 +2,7 @@
 // fixture relay plays Kalshi, Playwright's clock plays time. No redeploy, no reload, no network.
 import { expect, marketPrice, ML, ML_ID, NEBUF, NOW, setVisibility, test } from './fixtures';
 
-const gameUrl = `./#/nfl/game/${NEBUF}`;
+const gameUrl = `./#/nfl/game/${NEBUF}?tab=markets`;
 const marketUrl = `./#/nfl/market/${ML_ID}?event=${NEBUF}`;
 const boardPrice = (page: import('@playwright/test').Page) => page.locator(`a.mrow[href*="${ML_ID}"] .mrow__p`);
 const quoteChip = (page: import('@playwright/test').Page) => page.locator('.px', { hasText: 'YES bid / ask' }).locator('xpath=ancestor::section[1]').locator('.qchip').first();
@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 46¢ @live', async ({ page, market }) => {
   market.set(ML, 0.46, 0.48);
   await page.goto(gameUrl);
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
   // 1. the game shows the provider's 46¢ (the publication says 63¢)
   await expect(boardPrice(page)).toHaveText('46¢ / 48¢');
   await expect(page.locator('.mh__chips .qchip')).toHaveAttribute('data-quote-source', 'live');
@@ -32,7 +32,7 @@ test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 
   market.fail = 'hang';
   market.set(ML, 0.53, 0.55);
   await page.goBack();
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
   await expect(boardPrice(page)).toHaveText('51¢ / 53¢');
   // ...and the moved market (53¢) as soon as the provider answers.
   market.release();
@@ -70,7 +70,7 @@ test('6-7: a provider outage keeps 51¢ with its real time; it ages to AGING the
   await page.clock.fastForward(15_000);
   await expect(quoteChip(page)).toHaveAttribute('data-quote-state', 'OPEN:STALE');
   expect(await marketPrice(page)).toBe('51¢ / 53¢'); // never blanked
-  await expect(quoteChip(page)).toContainText(/STALE · 3\dm/);
+  await expect(quoteChip(page)).toContainText(/Updated 3\dm ago/); // quiet wording; the state is in data-quote-state above
   await expect(quoteChip(page)).toContainText('live'); // a real live observation, honestly old
   await expect(page.locator('[data-live-mode]')).toHaveAttribute('data-live-mode', /BACKOFF|LIVE/);
 });
@@ -82,11 +82,11 @@ test('8: market status updates independently of the research publication', async
   market.status.set(ML, 'inactive');
   await page.clock.fastForward(21_000);
   await expect(quoteChip(page)).toHaveAttribute('data-quote-state', 'SUSPENDED:FRESH');
-  await expect(quoteChip(page)).toContainText('SUSPENDED · quote');
+  await expect(quoteChip(page)).toContainText('Suspended ·');
   await expect(page.locator('.ehead__meta .chip--status-suspended')).toHaveText('SUSPENDED');
   market.status.set(ML, 'closed');
   await page.clock.fastForward(21_000);
-  await expect(quoteChip(page)).toContainText('CLOSED · final quote');
+  await expect(quoteChip(page)).toContainText('Closed · final');
   // the research record is untouched: model evidence and history still come from the publication
   await expect(page.getByRole('heading', { name: 'Model evidence' })).toBeVisible();
   await expect(page.getByText('Model fair P(YES)')).toBeVisible();
@@ -124,7 +124,7 @@ async function settle(market: import('./fixtures').MarketMock) {
 
 test('10: shared, batched polling — no request storm from one screen', async ({ page, market }) => {
   await page.goto(gameUrl);
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
   await expect.poll(() => market.requests.length).toBeGreaterThan(0);
   await settle(market);
   for (let i = 0; i < 4; i++) {

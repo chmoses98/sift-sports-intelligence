@@ -1,81 +1,99 @@
-# Sift design system — *signal from noise*
+# Sift design system — *night stadium, sampled from the mockup*
 
-Sift separates signal from noise. The visual language says the same thing: deep strata of ink and navy,
-**muted context**, and **one lit signal**. A living reference renders at `#/design`.
+Sift guides the eye from **game → probable scripts → evidence → market fit → deeper research** through
+hierarchy alone: the matchup and its scripts dominate, evidence sits one step quieter, diagnostics live
+behind the Source control and on Status. A living reference renders at `#/design`.
 
-## 1. Color (`src/styles/tokens.css`)
+**The approved mockup image is the source of truth.** The tokens below were obtained by sampling its pixels
+(median of each region; brightest/most saturated 5–10 % for text and accents), then adjusted only where
+contrast or the data-viz validator required it.
 
-| Role | Tokens | Use |
+## 1. Surfaces & color (`src/styles/tokens.css`)
+
+Surfaces are a **blue-black hierarchy**: every level is a cyan/blue luminance step, never a gray or white wash.
+
+| Level / role | Rendered (sampled from the app) | Use |
 |---|---|---|
-| Strata (surfaces) | `--ink-0/1`, `--navy-1…4` | Background is deepest; each raised stratum is one step lighter. Never gray-on-gray: surfaces are blue-black. |
-| Energy | `--cobalt`, `--cobalt-hi` | Primary actions, team-adjacent emphasis. |
-| Signal | `--cyan` | Focus rings, active state, "you are here", the entity being researched. |
-| Highlight | `--gold` | The opponent, the research tray, attention. |
-| Chart marks | `--mark-focus` #0EA2B6, `--mark-opp` #C2881C, `--mark-compare` #5F7CF2, `--mark-context` | Validated with the dataviz palette validator against the `#0A1222` surface (lightness band, chroma, CVD ΔE ≥ 18, contrast ≥ 3:1). |
-| Freshness | `--fresh` `--aging` `--stale` `--unknown` | Always with a glyph and a word. |
-| Quality | `--q-verified` `--q-partial` `--q-research` `--q-unavailable` | RESEARCH is also *dashed*. |
+| 0 · App background | `#000a11` (`--ink-1` `#010b13`) | The page. |
+| 1 · Sidebar / bars | `#020f18` (`--rail`); top bar, tabs, phone tab bar solid `#010b13` | Navigation. |
+| 2 · Primary panel | `#05131d` (`--panel`) | Survivors, Team Form, home panels. |
+| 2− · Recessed panel | `#04121a` (`--panel-deep`) | Evidence lists: markets, line history, head to head, injuries; the scripts field. |
+| 3 · Raised | `#0c1d2f` (`--panel-raised`) | Model tiles, team cards, hover. |
+| 4 · Lead / selected | Model Read `#061a2d` with a blue light; selected script glow; active nav `#1e8cf2` | What comes forward. |
+| Hairline | `#092434` (`--panel-line` `rgba(38,150,214,.24)`) | Cyan, crisp. |
+| Text | primary `#f7f9fb` (data and titles in white, heavier); secondary `#acbece`–`#b4c6d6` | |
+| Gold | price chips `#f6cf62→#e2ad2e`, rendered `#e3b23a` | Older prices keep the gold and add a corner tick. |
+| Cyan / ice | `#1fb2ec` | Signals, coverage. |
+| Blue (navigation) | `#1e8cf2` | Active tab (with glow), pills, sidebar. |
+| Green / red | `#1fe08f` / `#ff5165` (rendered `#1eda8b` / `#e1495c`) | Model − Market sign, W/L. |
+| Script identity (edges, glow) | `#ff4f6e` · `#ffb522` · `#2f9bff` · `#a974ff` | Over deep fields `#7a0f2a` · `#6e4600` · `#08408a` · `#3f1a86` with a near-black centre. |
 
-Team colors are brand presentation only (`src/lib/teams.ts`): a monogram tile and a 3 px stripe. They
-never color data marks; Sift's own palette stays in charge. No purple gradients, no casino green.
+`scripts/dev/color-audit.py` (development only) compares a rendered screenshot with the mockup by dark-field
+hue, blue-black vs neutral share, luminance, vivid-accent share, bright-text share and dominant dark clusters.
 
-## 2. Type
+Two tiers for script colour: **mark** colours (survival cells, script bars, dots) pass the dataviz validator
+on `#081622` with no warnings (worst adjacent deutan ΔE 9.0); **identity** colours (card edges, glows, the
+big share figure) are brighter, as in the mockup, and are always shown beside the script's name. Chart
+marks `#2a8fe6` / `#e8505f` / `#9264ef` pass all checks. Team colours are brand presentation only.
+
+## 2. Type (self-hosted via `@fontsource`; no runtime Google Fonts)
 
 | Face | Use |
 |---|---|
-| **Big Shoulders Display** (variable) | Uppercase display: matchup headers, entity names, section titles, the hero rank ("18th"). |
-| **Archivo** (variable) | UI and long-form text (metric descriptions at 15 px / 1.55). |
-| **JetBrains Mono** (variable) | Numbers, prices, tickers, ranks in tables: tabular figures so columns align. |
-
-Eyebrows (11 px, 0.14em tracking, uppercase) carry context above every title ("NFL · METRIC · DEFENSE").
+| **Instrument Serif** 400 (+ italic) | Selective display and editorial moments only: page mastheads, team nicknames in the hero and featured band, the model read, the script share figure, panel titles on the homes. Never body text, tables or controls. |
+| **Instrument Sans** (variable) | All UI: navigation, tabs, panel titles inside the game, labels, body, table text. |
+| **Roboto Mono** (variable) | Prices, model values, records, ranks, times — anywhere alignment helps (`.num`, `.price`, tabular). |
 
 ## 3. Space, shape, motion
 
-4 px grid (`--s-1`…`--s-12`), radii 4/8/14 px, 44 px minimum touch target (`--tap`). Motion is short
-(120/220 ms) and disabled under `prefers-reduced-motion`.
+4 px grid (`--s-1`…`--s-12`), radii 4/8/12 px (crisp, not bubbly), 44 px touch targets. Motion is
+120/220 ms and off under `prefers-reduced-motion`.
 
-## 4. Layout primitives
+## 4. Shell & navigation
 
-* **Stratum** — a section: hairline top rule with a cyan lead-in, mono section number, display title, one-line
-  purpose. Replaces "endless identical cards".
-* **Entity header** — monogram, eyebrow path, display name, meta chips, actions (Tray, Copy).
-* **Matchup header** — two display-size team names, the away team ringed gold, the home team cyan.
-* **Sticky tabs / jump links** — only where a screen is long (team, game).
-* Phone: bottom navigation (Home · NFL · Search · Tray), tray as a bottom sheet, no sideways scroll (asserted
-  by the acceptance test). Desktop ≥ 720 px: search and tray in the top bar; ≥ 1040 px: sport rail.
+* **Desktop ≥ 1100 px** — left sidebar (220 px): serif Sift wordmark, Home, every sport (NFL, CFB, MLB, NBA,
+  NHL, Soccer, Tennis, MMA, PGA, More), then Research, Parlays, News, Search, and Settings at the foot.
+  Top bar: breadcrumb, search, research tray.
+* **Tablet 720–1099 px** — the same sidebar as a 78 px icon rail with small labels.
+* **Phone < 720 px** — no sidebar. Bottom tab bar: Home · current sport · Sports (a sheet with every sport
+  and the workspace) · Search · Tray. The top bar carries the wordmark, the breadcrumb and search.
+* **Breadcrumb** — the research path. It resets at the global Home (cleared) and at a sport home (starts
+  at that sport); deeper screens append; a tab change on the same entity replaces its step.
 
-## 5. Components
+## 5. Screens
+
+* **Global Home** — today across Sift: the featured game, up next, every sport's real status, your research.
+* **Sport home** (`/nfl`) — the sport's landing page: featured game, this week's tiles (stadium strip,
+  model line, script bar), Script Outlook, Model vs Market on game lines, recent results, structures. The
+  full slate is `/nfl/slate`.
+* **Game** — hero over the real home stadium (or the published neutral site) with kickoff-time forecast,
+  then tabs: Overview · Game Script · Markets · Matchup · Players · Trends · Injuries.
+
+## 6. Components
 
 | Component | Rule |
 |---|---|
-| **EntityLink** | Every entity reference is a link with a kind glyph: ◆ team, ● player, ⟷ game, ∿ metric, ≡ ranking, ¢ market. |
-| **FreshnessChip** | State + age, recomputed in the browser with the publication's thresholds; tap for the exact timestamp and rule. |
-| **QualityBadge** | VERIFIED ● / PARTIAL ◐ / RESEARCH ◌ (dashed) / UNAVAILABLE ○; tap for provenance (source, method, generated, as-of, coverage, limitations). |
-| **RankPill** | "18th / 32" with a left tick: cyan top quartile, coral bottom quartile, neutral when no direction is better. |
-| **ContextMeter** | worst ← → best track with mean │ and median ┊ ticks, the team's dot lit, the opponent's in gold. |
-| **SaveButton** | Dashed gold "+ Tray" → solid "✓ In tray". Saves a reference, never a copy. |
-| **MarketBoard** | Ladders as rows of rung cells (line, bid/ask, ◆ model fair); singletons as rows. Model fair is labelled research evidence everywhere. |
-| **SourceBanner** | LIVE or RESEARCH SNAPSHOT, health, market/model freshness, and the full provenance on tap. |
-| **COPY FOR CHATGPT** | The one cyan, full-width action in the app. |
+| **Game hero** | Hand-picked venue photo pinned in `scripts/stadiums/venues.json` only when it meets the hero bar (inside the bowl, atmosphere, composition, resolution), colour graded and credited with the modification; otherwise the designed **StadiumFallback** (floodlight banks and beams, lit pitch, stands with crowd speckle, the venue on an LED fascia, a breath of home colour, grain) — never a mediocre picture. Kickoff weather is a glass block: temperature in the serif, condition, wind, precipitation; a condition that plausibly matters (wind ≥ 15 mph, precipitation ≥ 50 %, ≤ 32 °F, ≥ 90 °F) gets a gold flag. Indoor / roof closed says so. Photo credit links to Data & provenance. |
+| **Script card** | Name, sim share (whole %), one-line description, glyph. Click = select (deep-linked `?script=`); "All scripts" returns to the uncertainty view. |
+| **Survival grid** | Four cells per market, one per script: filled = wins in every game of that script, half = some, empty = loses. Coverage = sim share of the scripts it always wins. Exact only for margin-settled markets. |
+| **Price token** | Gold-framed YES ask; dashed/dimmed when the quote is aging/stale; exact age in its title. |
+| **Model − Mkt** | Model probability minus the market midpoint in points, quiet green/coral. Never called "edge". |
+| **Quote chip** | Says "Updated 4m ago"; the FRESH/AGING/STALE/UNKNOWN state (unchanged thresholds) is the dot tint, `data-quote-state`, the accessible name and the popover. |
+| **Team logo** | The team's actual logo (`public/teams/nfl/`, fetched once by `scripts/teams/fetch-logos.mjs`; licensing to be settled by the owner). No initial shields. A sport without logos falls back to its abbreviation. |
+| **Info icon** | Definitions (EPA, success rate, sim share) in a popover; no inline lectures. |
+| **Ranks** | `#4 NFL`, never percentiles (32 teams). |
+| **Head to head** | Winner's score first, winner bold; framed as context, not model evidence. |
 
-## 6. Charts
+## 7. Charts
 
-Every chart answers one question, is navigation, and has a text alternative.
+Every chart answers one question and has a text alternative. New: **MiniLines** (line history: YES
+midpoint of the favourite's moneyline, the spread and total rungs nearest 50¢, crosshair readout) and the
+**matchup board**, where each unit's rank bar sits under its own label so direction can never contradict
+the label (no combined "advantage" figure — see `docs/MATCHUP_MATH.md`). Existing charts (RankBars,
+DotStrip, TrendChart, LadderChart, PriceHistory, RangeStrip) keep their specs and inherit the new tokens.
 
-| Chart | Question | Interaction |
-|---|---|---|
-| **RankBars** | Where does every team stand? | Rows link to that team on the same metric; + pins comparisons (URL-encoded). Mean/median drawn through the universe. |
-| **DotStrip** | Where does this team sit among all 32 values? | Dots are links; best always on the right. |
-| **TrendChart** | How has this gone game by game? | Columns are games; tap/←→ selects; detail opens the game, the opponent, or saves the chart point. Season boundaries, trailing mean, W/L tint, table view. |
-| **MatchupBoard** | Which unit has the edge where? | Each cell links to the metric with team, opponent and game context. |
-| **LadderChart** | Where along the ladder do market and projection disagree? | Rungs link to the contract; simulated quantiles share the x axis. |
-| **PriceHistory** | How has this contract moved? | Crosshair readout; bid–ask band, mid, model fair reference, kickoff. |
-| **RangeStrip** | What range does the simulation give vs the market's centre? | — |
+## 8. Voice
 
-Specs: thin marks (≤ 24 px bars, 2 px lines, ≥ 8 px markers with a 2 px surface ring), hairline solid grid,
-legends whenever two or more series, text in text tokens (never in the series color), dashed lines only for
-reference thresholds (model fair).
-
-## 7. Voice
-
-Evidence, not picks. Sift says "model evidence", "research signal", "market-implied", "projection". It never
-says lock, hammer, best bet, or ranks bets.
+Evidence, not picks. "Model read", "sim share", "Model − Market", "survives". Never "lock", "best bet",
+"edge" for an unvalidated model gap, or "probability" for an uncalibrated share. Technical limitations
+live in info popovers, the publication-notes drawer and Data & provenance — not across the main hierarchy.

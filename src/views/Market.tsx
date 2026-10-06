@@ -101,7 +101,7 @@ export function MarketView() {
           </div>
         </div>
         <div className="ehead__actions">
-          <SaveButton ref_kind="MARKET" sport={sport.code} id={m.market_id} extra={{ market_id: m.market_id, event_id: ev.event_id }}
+          <SaveButton ref_kind="MARKET" sport={sport.code} id={m.market_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
             label={{ label: humanize(m.yes_description), sub: `${m.kalshi_ticker} · ${cents(m.yes_bid)}/${cents(m.yes_ask)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
           <Link className="btn btn--ghost" to={routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id })}><Icon name="copy" size={16} /> Game packet</Link>
         </div>
@@ -177,8 +177,7 @@ export function MarketView() {
             <p className="evid__q">
               Simulated {STAT_LABEL[stat!] ?? stat}: median <b className="num">{metricFormatter(metrics.get(simObs.metric_id))(q.p50)}</b>, 50% range{' '}
               <b className="num">{q.p25}–{q.p75}</b>, 90% range <b className="num">{q.p05}–{q.p95}</b>. This contract's line ({thr}) sits{' '}
-              {thr <= q.p05 ? 'below the 5th percentile' : thr <= q.p25 ? 'between the 5th and 25th percentiles' : thr <= q.p50 ? 'between the 25th percentile and the median' : thr <= q.p75 ? 'between the median and the 75th percentile' : thr <= q.p95 ? 'between the 75th and 95th percentiles' : 'above the 95th percentile'}{' '}
-              of the simulation. <QualityBadge status={simObs.quality_status} />
+              {thr <= q.p05 ? 'below almost every simulated outcome (the lowest 5%)' : thr <= q.p25 ? 'in the lower quarter of simulated outcomes' : thr <= q.p50 ? 'just below the middle of the simulated outcomes' : thr <= q.p75 ? 'just above the middle of the simulated outcomes' : thr <= q.p95 ? 'in the upper quarter of simulated outcomes' : 'above almost every simulated outcome (the highest 5%)'}. <QualityBadge status={simObs.quality_status} />
             </p>
           )}
         </Stratum>
@@ -210,7 +209,7 @@ export function MarketView() {
           <div className="fact"><dt>Bet authority</dt><dd>{authority}</dd></div>
         </dl>
         {mp && (
-          <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }}
+          <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
             label={{ label: `Model price · ${m.kalshi_ticker}`, sub: `fair ${cents(mp.fair_probability)} vs ${cents(mid)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
         )}
       </Stratum>

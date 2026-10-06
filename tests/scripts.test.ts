@@ -1,0 +1,58 @@
+// Game scripts on the real NE @ BUF publication: the four scripts are exactly the simulator's five
+// final-margin buckets regrouped (shares sum to 1), named from the favourite, and script fit is exact
+// for margin-settled markets and unknown (null) for everything else.
+import { describe, expect, it } from 'vitest';
+import type { EventResearchDoc, Market } from '../src/contract/types';
+import { gameScripts, rangeFit, scriptFit, sharePct } from '../src/lib/scripts';
+import { readSnapshot } from './helpers';
+
+const r = readSnapshot<EventResearchDoc>('explorer/events/evt_0cb333291f580a201a70.json');
+const detail = readSnapshot<{ markets: Market[] }>('event_detail/evt_0cb333291f580a201a70.json');
+const HOME = 'prt_16bee2e0460c651b4bca'; // BUF
+const AWAY = 'prt_3d9358b1e2ac7256767d'; // NE
+const market = (t: string) => detail.markets.find((m) => m.kalshi_ticker === t)!;
+
+describe('game scripts', () => {
+  const set = gameScripts(r)!;
+
+  it('regroups the simulation buckets, from the favourite (BUF, home)', () => {
+    expect(set.fav).toBe('home');
+    expect(set.scripts.map((s) => s.name)).toEqual(['Bills Pull Away', 'Bills Control', 'One-Score Game', 'Patriots Control']);
+    expect(set.scripts.map((s) => sharePct(s.share))).toEqual(['26%', '24%', '36%', '13%']);
+    expect(set.scripts.reduce((a, s) => a + s.share, 0)).toBeCloseTo(1, 3);
+    expect(set.scripts[3].home).toEqual({ lo: null, hi: -7 });
+  });
+
+  it('carries the conditional team volume (BUF runs more when it pulls away)', () => {
+    const [big, , , dog] = set.scripts;
+    expect(big.volume.home.rushAtt!).toBeGreaterThan(set.overall.home.rushAtt!);
+    expect(dog.volume.home.passRate!).toBeGreaterThan(set.overall.home.passRate!);
+    // NE's own trail14+ bucket is BUF's lead14+.
+    expect(big.volume.away.passRate).toBeCloseTo(0.6982, 4);
+  });
+
+  it('fits margin markets exactly', () => {
+    expect(scriptFit(market('KXNFLGAME-26OCT04NEBUF-BUF'), set, HOME, AWAY)!.fits).toEqual(['yes', 'yes', 'part', 'no']);
+    const buf65 = scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-BUF7'), set, HOME, AWAY)!; // BUF by > 6.5
+    expect(buf65.fits).toEqual(['yes', 'yes', 'no', 'no']);
+    expect(sharePct(buf65.coverage)).toBe('50%');
+    const ne95 = scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-NE10'), set, HOME, AWAY)!; // NE by > 9.5
+    expect(ne95.fits).toEqual(['no', 'no', 'no', 'part']);
+    expect(ne95.coverage).toBe(0);
+    expect(scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-BUF14'), set, HOME, AWAY)!.fits).toEqual(['yes', 'no', 'no', 'no']); // > 13.5
+  });
+
+  it('never guesses a fit for markets that do not settle on the final margin', () => {
+    expect(scriptFit(market('KXNFLTOTAL-26OCT04NEBUF-50'), set, HOME, AWAY)).toBeNull();
+    expect(scriptFit(market('KXNFLTEAMTOTAL-26OCT04NEBUF-BUF28'), set, HOME, AWAY)).toBeNull();
+    expect(scriptFit(market('KXNFL1HSPREAD-26OCT04NEBUF-BUF7'), set, HOME, AWAY)).toBeNull();
+  });
+
+  it('range fit boundaries', () => {
+    expect(rangeFit({ lo: 7, hi: 13 }, { op: '>', v: 6.5 })).toBe('yes');
+    expect(rangeFit({ lo: 7, hi: 13 }, { op: '>', v: 13.5 })).toBe('no');
+    expect(rangeFit({ lo: -6, hi: 6 }, { op: '>', v: 0 })).toBe('part');
+    expect(rangeFit({ lo: null, hi: -14 }, { op: '<', v: -9.5 })).toBe('yes');
+    expect(rangeFit({ lo: -6, hi: 6 }, { op: '<', v: -9.5 })).toBe('no');
+  });
+});

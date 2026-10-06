@@ -12,6 +12,7 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "stadiums": "node scripts/stadiums/cli.mjs",
     "e2e": "playwright test",
     "build:e2e": "VITE_SIFT_QUOTE_RELAY_URL=https://relay.sift.invalid/kalshi npm run build",
     "e2e:chromium": "playwright test --project=phone --project=desktop",

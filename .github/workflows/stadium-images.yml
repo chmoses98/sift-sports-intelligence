@@ -1,9 +1,10 @@
 name: Stadium images
 
-# Fetches the hand-picked stadium hero images once (the Commons file pinned per venue, free licences)
-# and commits them with their credits: public/stadiums/*.webp + src/lib/stadium-credits.json. The app
-# never fetches an image at runtime. Runs when the venue list or the fetcher changes, or manually
-# (FORCE re-fetches every venue; ONLY limits it to some slugs, comma-separated).
+# Fetches Wikimedia Commons photographs PROPOSED in scripts/stadiums/photos.json (status candidate, no
+# files yet) and commits their derivatives under curation/stadiums/candidates/ with the provenance the
+# Commons API states. Nothing is approved or served by this workflow: approval is the owner's, and an
+# approved photo's files are never re-fetched. The app never fetches an image at runtime.
+# ONLY limits it to some photo ids or venue slugs, comma-separated.
 on:
   push:
     branches-ignore: [main, live-quotes]
@@ -12,12 +13,8 @@ on:
       - .github/workflows/stadium-images.yml
   workflow_dispatch:
     inputs:
-      force:
-        description: Re-fetch venues that already have an image
-        type: boolean
-        default: false
       only:
-        description: Venue slugs to fetch (comma-separated, optional)
+        description: Photo ids or venue slugs to fetch (comma-separated, optional)
         type: string
         default: ''
 
@@ -43,14 +40,13 @@ jobs:
           convert -list format | grep -i webp || (sudo apt-get update && sudo apt-get install -y webp imagemagick)
       - name: Fetch images
         env:
-          FORCE: ${{ inputs.force && '1' || '' }}
           ONLY: ${{ inputs.only }}
         run: node scripts/stadiums/fetch.mjs
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/stadiums src/lib/stadium-credits.json
+          git add scripts/stadiums/photos.json curation/stadiums/candidates
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          git commit -m "Stadium hero images (Wikimedia Commons, free licences, credited)"
+          git commit -m "Stadium photo candidates from Wikimedia Commons (owner review required)"
           git push

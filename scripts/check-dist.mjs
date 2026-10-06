@@ -41,6 +41,16 @@ for (const [f, t] of js.map((f) => [f, readFileSync(join(dist, 'assets', f), 'ut
   must(!/\/portfolio\/orders|\/portfolio\/balance|createOrder/i.test(t), `${f} references a Kalshi trading endpoint`);
 }
 
+// Stadium photos: exactly the approved files ship (each with provenance in scripts/stadiums/photos.json);
+// no candidate, import inbox or original is ever in the build, and none is precached by the service worker.
+const photos = JSON.parse(readFileSync(new URL('./stadiums/photos.json', import.meta.url), 'utf-8')).photos;
+const approvedFiles = new Set(Object.values(photos).filter((p) => p.status === 'approved').flatMap((p) => Object.values(p.files ?? {}).map((d) => d.path)));
+const shipped = existsSync(join(dist, 'stadiums')) ? readdirSync(join(dist, 'stadiums')).map((f) => `stadiums/${f}`) : [];
+for (const f of approvedFiles) must(shipped.includes(f), `approved stadium file ${f} is missing from the build`);
+for (const f of shipped) must(approvedFiles.has(f), `${f} ships without an approved photo record`);
+must(!existsSync(join(dist, 'curation')) && !existsSync(join(dist, 'stadium-import')), 'stadium candidates or imports are in the build');
+must(!/stadiums\/[^"']+\.webp/.test(sw), 'service worker precaches stadium photos (they are cached on view only)');
+
 if (fail.length) {
   console.error('dist check FAILED:\n- ' + fail.join('\n- '));
   process.exit(1);

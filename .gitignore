@@ -8,3 +8,6 @@ playwright-report
 production-*.png
 review/
 .curation-tmp/
+# Owner-supplied stadium originals: imported locally, never committed (licences differ; provenance keeps their sha256)
+stadium-import/*
+!stadium-import/README.md

@@ -10,9 +10,10 @@ import { recordOf, weatherIcon } from '../../lib/gamedata';
 import { displayName, kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
-import { roofState, venueFor, venuePhoto, type Venue } from '../../lib/venues';
+import { MOBILE_MAX_WIDTH, publishedVenue, resolveVenue, roofState, venuePhoto, type Venue } from '../../lib/venues';
+import { allowedLayers, stadiumScene } from '../../lib/stadium-scene';
 import type { QuoteView } from '../../live/overlay';
-import { useHeldImage } from '../../lib/useImage';
+import { useHeldImage, useMediaQuery } from '../../lib/useImage';
 import { StadiumFallback } from '../../components/StadiumFallback';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -102,12 +103,13 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, sportLabel, v
   const res = ext?.result;
   const final = ev.status === 'FINAL';
   const started = !final && Date.parse(ev.start_time_utc) <= now;
-  const pubVenue = r.context?.venue as any;
-  const venue = venueFor(homeAbbr, pubVenue?.name ?? (r.context?.weather as any)?.stadium ?? null);
-  const photo = venuePhoto(venue);
-  const img = useHeldImage(photo?.hero);
+  const pub = publishedVenue(r.context);
+  const { venue, displayName: venueName } = resolveVenue({ homeTeam: homeAbbr, published: pub, date: ev.start_time_utc });
+  const scene = stadiumScene({ venue, publishedRoof: pub.roof, forecast: r.context?.weather as any, kickoffUtc: ev.start_time_utc });
+  const photo = venuePhoto(venue, { light: scene.light });
+  const narrow = useMediaQuery(`(max-width: ${MOBILE_MAX_WIDTH}px)`);
+  const img = useHeldImage(photo ? (narrow ? photo.mobile : photo.hero) : null);
   const wx = gameWeather(r, venue);
-  const venueName = pubVenue?.name ?? venue?.name ?? null;
   const [hc] = teamColors(sportCode, homeAbbr);
   const [ac] = teamColors(sportCode, awayAbbr);
   const d = new Date(ev.start_time_utc);
@@ -115,10 +117,10 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, sportLabel, v
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
   const week = ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   return (
-    <header className={`mh mh--hero${photo ? '' : ' mh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
-      <div className="mh__bg" aria-hidden="true">
+    <header className={`mh mh--hero${photo ? '' : ' mh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: photo ? (narrow ? photo.mobileFocus : photo.focus) : 'center 45%' }}>
+      <div className="mh__bg" aria-hidden="true" data-scene={scene.key} data-layers={allowedLayers(scene, photo?.captured).join(' ') || undefined}>
         {img && <img src={img} alt="" decoding="async" />}
-        {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} />}
+        {!photo && <StadiumFallback venue={venueName} />}
       </div>
       <div className="mh__in">
         <div className="mh__eyebrow">

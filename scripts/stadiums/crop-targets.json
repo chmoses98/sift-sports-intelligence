@@ -1,0 +1,21 @@
+{
+  "$comment": [
+    "Where stadium photographs are shown and which derived file serves each place. Box aspect ranges (width / height) were MEASURED on the approved UI at base 6206a7e (Chromium, 375-1920 px viewports); widen them if the layout changes.",
+    "files: the derivatives made from every photograph. desktop keeps the whole frame; mobile is a 3:4 crop of the SAME photograph (full height, positioned by crop.mobile_focus); card is the 720x480 strip source.",
+    "targets.keep_min: the share of the photo's crop.keep rectangle (its identifying architecture) that must stay visible across the whole aspect range for a photo approved under standard 2. Legacy (standard 1) photos are measured and reported, not blocked."
+  ],
+  "breakpoint_px": 720,
+  "files": {
+    "desktop": { "suffix": "", "max_width": 2400, "max_height": 1600, "quality": 66 },
+    "mobile": { "suffix": "-m", "aspect": 0.75, "max_width": 1050, "max_height": 1400, "quality": 62 },
+    "card": { "suffix": "-sm", "width": 720, "height": 480, "quality": 60 }
+  },
+  "source_min": { "width": 2400, "height": 1300, "aspect_min": 1.25, "aspect_max": 2.4 },
+  "targets": [
+    { "id": "hero-desktop", "file": "desktop", "aspect": [1.2, 6.4], "keep_min": 1, "where": "Game hero, viewport >= 720 px: 1.26 at 768, 4.3 at 1280, 4.9 at 1440, 6.2 at 1920 (a 234-253 px tall band)" },
+    { "id": "hero-mobile", "file": "mobile", "aspect": [0.55, 0.85], "keep_min": 1, "where": "Game hero, viewport < 720 px: 0.61-0.78 on 375-430 px phones" },
+    { "id": "featured-desktop", "file": "desktop", "aspect": [1.3, 3.4], "keep_min": 1, "where": "Home / sport-home featured card, viewport >= 720 px: 1.42 at 768, 2.3 at 1280, 3.3 at 1920" },
+    { "id": "featured-mobile", "file": "mobile", "aspect": [0.55, 0.85], "keep_min": 1, "where": "Featured card, viewport < 720 px: 0.61-0.74" },
+    { "id": "tile", "file": "card", "aspect": [2.3, 3.5], "keep_min": 0.5, "where": "Week game tile strip, 118 px tall: 2.4-3.4" }
+  ]
+}

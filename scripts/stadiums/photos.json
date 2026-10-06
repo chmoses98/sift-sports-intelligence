@@ -1,0 +1,779 @@
+{
+ "$schema_version": 1,
+ "$comment": [
+  "PHOTO ASSET REGISTRY — every stadium photograph Sift can show, with its provenance. A venue shows a photo ONLY when an asset here is status 'approved' (by the owner); otherwise the designed floodlit fallback.",
+  "id names the files: public/stadiums/<id>.webp (desktop), <id>-m.webp (mobile, 3:4 crop of the same photograph), <id>-sm.webp (card strip). Candidates live under curation/stadiums/candidates/ and are never served.",
+  "source: where the ORIGINAL came from, its author, licence and original size (and sha256 for owner-supplied originals). transformations: every change made to get from the original to each served file.",
+  "crop.focus: desktop object-position (x, y in 0..1). crop.mobile_focus: optional separate framing of the mobile crop. crop.card_focus: card strip anchor. crop.keep: the rectangle of identifying architecture that crops must preserve (normalised source coordinates).",
+  "captured.light/sky: the conditions IN the photograph (day / night / indoor; clear / cloud / rain / snow / none). Weather presentation never changes these; it may only pick between approved photos and add a restrained atmosphere layer.",
+  "standard: 1 = approved under the PR #9 bar (grandfathered; crops are reported, not enforced). 2 = approved under the stadium phase bar (owner spec 9: every quality-bar item affirmed, crops enforced).",
+  "review: audit notes for the owner; not used by the app."
+ ],
+ "photos": {
+  "allegiant-stadium": {
+   "venue": "allegiant-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2022-09-03",
+    "event": "Vegas Kickoff Classic, BYU v Arizona (college)",
+    "light": "indoor",
+    "sky": "none",
+    "configuration": "football (college field paint)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:Vegas Kickoff Classic, Brigham Young University (BYU) Cougars 24, University of Arizona Wildcats 16, Allegiant Stadium, Las Vegas, Nevada (52271295939).jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Vegas_Kickoff_Classic,_Brigham_Young_University_(BYU)_Cougars_24,_University_of_Arizona_Wildcats_16,_Allegiant_Stadium,_Las_Vegas,_Nevada_(52271295939).jpg",
+    "author": "Ken Lund from Reno, Nevada, USA",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": {
+     "width": 4032,
+     "height": 3024,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/allegiant-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/allegiant-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/allegiant-stadium.webp -crop 1200x1600+466+0 +repage -resize 1050x1400> -quality 62 -> stadiums/allegiant-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.38
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.25,
+     "y0": 0.06,
+     "x1": 0.75,
+     "y1": 0.32
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/allegiant-stadium.webp",
+     "width": 2133,
+     "height": 1600,
+     "bytes": 755856,
+     "sha256": "11a23c731f0741b577b92c04123d293b8fa3e6131c5aaac4069bd4386facfe77"
+    },
+    "card": {
+     "path": "stadiums/allegiant-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 108398,
+     "sha256": "f178440f262c6d05ffca48d665922643253d7b159ca5f19af33bd7b532488646"
+    },
+    "mobile": {
+     "path": "stadiums/allegiant-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 329334,
+     "sha256": "dfc7e1ecda5e2b7c2c2042a003aa75f4ea7222435920494d2261ac644c407d36"
+    }
+   },
+   "review": {
+    "audit_status": "APPROVED REAL PHOTO",
+    "hero": "Good: real bowl, roof trusses and light ring, deep field-facing view",
+    "mobile": "Good",
+    "needs_replacement": "No — consider raising desktop focus so the roof reads",
+    "notes": "College game: BYU/Arizona end-zone and midfield paint. At 1280-1920 px the 253 px desktop band shows the far stands only; the roof (the identifier) sits above it.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "att-stadium": {
+   "venue": "att-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2019-08-24",
+    "event": "Texans at Cowboys, 2019 preseason (opening kickoff)",
+    "light": "indoor",
+    "sky": "none",
+    "configuration": "football (NFL)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:Houston Texans vs. Dallas Cowboys 2019 14 (opening kickoff).jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Houston_Texans_vs._Dallas_Cowboys_2019_14_(opening_kickoff).jpg",
+    "author": "Michael Barera",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": {
+     "width": 6000,
+     "height": 4000,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/att-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/att-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/att-stadium.webp -crop 1200x1600+600+0 +repage -resize 1050x1400> -quality 62 -> stadiums/att-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.46
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.38,
+     "y0": 0.04,
+     "x1": 0.66,
+     "y1": 0.3
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/att-stadium.webp",
+     "width": 2400,
+     "height": 1600,
+     "bytes": 742880,
+     "sha256": "b681a57a3b4feae793797402354f5fcc500e5aa15644ccf841f899853a42d4c2"
+    },
+    "card": {
+     "path": "stadiums/att-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 96862,
+     "sha256": "1ffd151f809459db5b86c38a7910a11150645f1c953aead6ca933c1b8fe8bdc2"
+    },
+    "mobile": {
+     "path": "stadiums/att-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 268696,
+     "sha256": "5c6ceaedf8a75aa8e5c287a45bdd3458919352d1440f0a97aebd1f3ecff9794b"
+    }
+   },
+   "review": {
+    "audit_status": "APPROVED REAL PHOTO",
+    "hero": "Strong: the centre-hung videoboard, roof and Cowboys end zone",
+    "mobile": "Good",
+    "needs_replacement": "No — raise desktop focus so the videoboard stays in the band",
+    "notes": "Videoboard content is a 2019 in-game graphic. Desktop band cuts through the videoboard.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "caesars-superdome": {
+   "venue": "caesars-superdome",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2025-02-09",
+    "event": "Super Bowl LIX",
+    "light": "indoor",
+    "sky": "none",
+    "configuration": "football (Super Bowl LIX field)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:Super Bowl LIX (54360870227).jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Super_Bowl_LIX_(54360870227).jpg",
+    "author": "elisfkc2",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": {
+     "width": 4032,
+     "height": 2268,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/caesars-superdome.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/caesars-superdome-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/caesars-superdome.webp -crop 1013x1350+694+0 +repage -resize 1050x1400> -quality 62 -> stadiums/caesars-superdome-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.42
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.3,
+     "y0": 0.1,
+     "x1": 0.7,
+     "y1": 0.36
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/caesars-superdome.webp",
+     "width": 2400,
+     "height": 1350,
+     "bytes": 771058,
+     "sha256": "5f7554caa12e9301770b7d3a4f413e623927d8de15c000a5d9b99ae30694830a"
+    },
+    "card": {
+     "path": "stadiums/caesars-superdome-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 116688,
+     "sha256": "9d6d8ac7614610c1bbc85327012007ff75c35c3ba7fa3722b075485d0df4b2be"
+    },
+    "mobile": {
+     "path": "stadiums/caesars-superdome-m.webp",
+     "width": 1013,
+     "height": 1350,
+     "bytes": 345334,
+     "sha256": "70424e6257b4c5a9fb81d0b763067a7ea6441e28c83cfa79139ec109377c689c"
+    }
+   },
+   "review": {
+    "audit_status": "REAL PHOTO — NEEDS REVIEW",
+    "hero": "Fair: flat sideline view, little of the dome visible; reads as 'a Super Bowl' more than 'the Superdome'",
+    "mobile": "Fair",
+    "needs_replacement": "Owner decision — every Saints home game would show Super Bowl LIX branding (LIX logos, Chiefs/Eagles end zones)",
+    "notes": "Event-specific signage is real but not representative of a regular Saints game.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "everbank-stadium": {
+   "venue": "everbank-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": null,
+    "event": "Chiefs at Jaguars, 2025 season",
+    "light": "night",
+    "sky": "unknown",
+    "configuration": "football (NFL)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:Chiefs at Jaguars 2025 (55037793371).jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Chiefs_at_Jaguars_2025_(55037793371).jpg",
+    "author": "elisfkc2",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": {
+     "width": 4080,
+     "height": 3072,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/everbank-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/everbank-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/everbank-stadium.webp -crop 1200x1600+463+0 +repage -resize 1050x1400> -quality 62 -> stadiums/everbank-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.4
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.3,
+     "y0": 0.12,
+     "x1": 0.7,
+     "y1": 0.42
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/everbank-stadium.webp",
+     "width": 2125,
+     "height": 1600,
+     "bytes": 689168,
+     "sha256": "b8ef2d50c3ca0b213d2471f1e1d8726ea38d6327fdd5d721266d4dd585a246a5"
+    },
+    "card": {
+     "path": "stadiums/everbank-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 105602,
+     "sha256": "cf23c66b2134e9e382cf6294a1ebb2a77eb05376d3aaa6bda748a5e259337fb2"
+    },
+    "mobile": {
+     "path": "stadiums/everbank-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 307532,
+     "sha256": "f3d249e2f059d60633cd1457f91eb4157f9a711979f33fef386b40be53f776d6"
+    }
+   },
+   "review": {
+    "audit_status": "REAL PHOTO — NEEDS REVIEW",
+    "hero": "Fair: generic lower-bowl view; a light beam washes the right third; weak venue identity",
+    "mobile": "Fair",
+    "needs_replacement": "Likely — and check against the renovation",
+    "notes": "Shows the PRE-renovation bowl; EverBank Stadium is mid-renovation, so the current configuration may differ.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "levis-stadium": {
+   "venue": "levis-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2019-01-07",
+    "event": "CFP National Championship, Clemson v Alabama",
+    "light": "night",
+    "sky": "unknown",
+    "configuration": "football (college championship field)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:2019 CFP - Clemson entrance.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:2019_CFP_-_Clemson_entrance.jpg",
+    "author": "Legoktm",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": {
+     "width": 4000,
+     "height": 3000,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/levis-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/levis-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/levis-stadium.webp -crop 1200x1600+466+0 +repage -resize 1050x1400> -quality 62 -> stadiums/levis-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.4
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.3,
+     "y0": 0.04,
+     "x1": 0.7,
+     "y1": 0.34
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/levis-stadium.webp",
+     "width": 2133,
+     "height": 1600,
+     "bytes": 533148,
+     "sha256": "27add6081e8b63f152b255a80c384b5a66e2d68ef24982f147d754376d281c95"
+    },
+    "card": {
+     "path": "stadiums/levis-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 89964,
+     "sha256": "cbe32c65d40c1eb14991d2b97abbd0d623e004b6ead24e815b44d1c91d2c08b0"
+    },
+    "mobile": {
+     "path": "stadiums/levis-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 223014,
+     "sha256": "4afb9790ad4789bb135927f937aa6df08ba6f38ef53599c87bf4b539e82ed559"
+    }
+   },
+   "review": {
+    "audit_status": "REAL PHOTO — NEEDS REVIEW",
+    "hero": "Fair: pyrotechnic smoke covers the far stands; college championship field; fan heads in the foreground",
+    "mobile": "Fair",
+    "needs_replacement": "Recommended",
+    "notes": "Smoke obscures the architecture that identifies Levi's (suite tower).",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "lumen-field": {
+   "venue": "lumen-field",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2022-05-04",
+    "event": "CONCACAF Champions League Final (soccer)",
+    "light": "night",
+    "sky": "clear",
+    "configuration": "SOCCER"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:2022 CONCACAF Champions League Final - View from southeast corner at night.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:2022_CONCACAF_Champions_League_Final_-_View_from_southeast_corner_at_night.jpg",
+    "author": "SounderBruce",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": {
+     "width": 4866,
+     "height": 3194,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/lumen-field.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/lumen-field-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/lumen-field.webp -crop 1182x1576+609+0 +repage -resize 1050x1400> -quality 62 -> stadiums/lumen-field-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.44
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.3,
+     "y0": 0.02,
+     "x1": 0.75,
+     "y1": 0.3
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/lumen-field.webp",
+     "width": 2400,
+     "height": 1576,
+     "bytes": 654970,
+     "sha256": "c3600a44d0de58f435b8b2c06418a3cf608f6ea1dce61d324b5e43c09d4404f3"
+    },
+    "card": {
+     "path": "stadiums/lumen-field-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 90184,
+     "sha256": "a26fdd1075acc004618c26f9ee66bdf40075c087b20593ce8f0870afb1ab828f"
+    },
+    "mobile": {
+     "path": "stadiums/lumen-field-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 229718,
+     "sha256": "eed2510c7f2fa11c1fb6ebb51a39984f10f5767ea373bf5b22c41fc08890ae1a"
+    }
+   },
+   "review": {
+    "audit_status": "BAD COMPOSITION",
+    "hero": "Venue is unmistakable (roof arcs, light rails, skyline board) but the field is a soccer pitch with a goal in frame",
+    "mobile": "Fair",
+    "needs_replacement": "YES — fails 'believable football perspective'",
+    "notes": "Soccer configuration: goal, penalty box and centre circle visible.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "mercedes-benz-stadium": {
+   "venue": "mercedes-benz-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2017-10-26",
+    "event": "Atlanta United v Columbus Crew (soccer)",
+    "light": "indoor",
+    "sky": "none",
+    "configuration": "SOCCER"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:2017-10-26 - Atlanta United vs Columbus Crew.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:2017-10-26_-_Atlanta_United_vs_Columbus_Crew.jpg",
+    "author": "Eric.Jason.Cross",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": {
+     "width": 4032,
+     "height": 3024,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/mercedes-benz-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/mercedes-benz-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/mercedes-benz-stadium.webp -crop 1200x1600+466+0 +repage -resize 1050x1400> -quality 62 -> stadiums/mercedes-benz-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.46
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.25,
+     "y0": 0,
+     "x1": 0.75,
+     "y1": 0.3
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/mercedes-benz-stadium.webp",
+     "width": 2133,
+     "height": 1600,
+     "bytes": 343018,
+     "sha256": "ba5376bd5c32bbb6bc3e99cfe84bac1bf671aa2d5bba9c7ba0665f5e99bc6e0f"
+    },
+    "card": {
+     "path": "stadiums/mercedes-benz-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 72668,
+     "sha256": "a3291f426620f1421028cb665ac4d7dbde9d76f2fafd3b70fc78a6c36ba5776c"
+    },
+    "mobile": {
+     "path": "stadiums/mercedes-benz-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 149532,
+     "sha256": "d3b80697867d9690aaadca32e3a22f073ad6a5487194e172f51b863d6e60ae0e"
+    }
+   },
+   "review": {
+    "audit_status": "BAD COMPOSITION",
+    "hero": "Low field-level angle on a soccer pitch; the halo board is a sliver; roof petals barely read",
+    "mobile": "Poor",
+    "needs_replacement": "YES — fails 'believable football perspective'",
+    "notes": "Soccer configuration with soccer players on the pitch.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "nissan-stadium": {
+   "venue": "nissan-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": null,
+    "event": "Titans home game, LP Field era (2006–2015)",
+    "light": "night",
+    "sky": "clear",
+    "configuration": "football (NFL)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:Night Settles on LP Field.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Night_Settles_on_LP_Field.jpg",
+    "author": "Casey Fleser from Nashville, TN",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "original": {
+     "width": 3008,
+     "height": 2000,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/nissan-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/nissan-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/nissan-stadium.webp -crop 1197x1596+602+0 +repage -resize 1050x1400> -quality 62 -> stadiums/nissan-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.44
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.3,
+     "y0": 0.03,
+     "x1": 0.7,
+     "y1": 0.3
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/nissan-stadium.webp",
+     "width": 2400,
+     "height": 1596,
+     "bytes": 665522,
+     "sha256": "bb268f982e66b8a2fb41fd72b2a82c0508360e05fa2179f345dd552201a89283"
+    },
+    "card": {
+     "path": "stadiums/nissan-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 103626,
+     "sha256": "c6e0f216df088d857b8faeccf39e8c44083b9dcb8a207b311cf799607514c645"
+    },
+    "mobile": {
+     "path": "stadiums/nissan-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 253190,
+     "sha256": "95fc03212b3dcc697c3d1843536d1b516e90a595d451e3254bd5ecc51f6e2a6b"
+    }
+   },
+   "review": {
+    "audit_status": "APPROVED REAL PHOTO",
+    "hero": "Good: night bowl, light banks, Titans end zone, strong depth",
+    "mobile": "Good",
+    "needs_replacement": "No for 2026; the venue is replaced in 2027",
+    "notes": "Taken when the venue was LP Field (signage/boards of that era). Valid only for the 1999 stadium (through the 2026 season).",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  },
+  "state-farm-stadium": {
+   "venue": "state-farm-stadium",
+   "status": "approved",
+   "standard": 1,
+   "approval": {
+    "by": "owner",
+    "at": "2026-10-05",
+    "ref": "chmoses98/sift-sports-intelligence#9 (owner-review closure)"
+   },
+   "captured": {
+    "date": "2010-01-04",
+    "event": "Fiesta Bowl, Boise State v TCU (college)",
+    "light": "indoor",
+    "sky": "none",
+    "configuration": "football (college bowl field)"
+   },
+   "source": {
+    "kind": "wikimedia-commons",
+    "file": "File:Boise State 2010 Fiesta Bowl.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Boise_State_2010_Fiesta_Bowl.jpg",
+    "author": "Sean Hobson",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "original": {
+     "width": 3072,
+     "height": 2304,
+     "retained_by": "Wikimedia Commons (not committed)"
+    },
+    "retrieved": "2026-10-05",
+    "retrieved_note": "Licence and author as returned by the Commons API to scripts/stadiums/fetch.mjs on a GitHub runner; not re-verified from the dev container (Commons is unreachable there)."
+   },
+   "transformations": [
+    "desktop: convert <original> -auto-orient -strip -resize 2400x1600> -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 66 -> stadiums/state-farm-stadium.webp",
+    "card: convert <original> -auto-orient -strip -resize 720x480^ -gravity center -extent 720x480 -unsharp 0x28+0.32+0.02 -sigmoidal-contrast 3x48% -modulate 100,112,100 -quality 60 -> stadiums/state-farm-stadium-sm.webp",
+    "fetched as variant graded-hero2400q66-card720q60 (the Commons thumbnail service at <= 2600 px wide was the input)",
+    "mobile: convert stadiums/state-farm-stadium.webp -crop 1200x1600+466+0 +repage -resize 1050x1400> -quality 62 -> stadiums/state-farm-stadium-m.webp (a 3:4 crop of the graded desktop derivative; no further grade)"
+   ],
+   "crop": {
+    "focus": {
+     "x": 0.5,
+     "y": 0.46
+    },
+    "card_focus": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "keep": {
+     "x0": 0.3,
+     "y0": 0.08,
+     "x1": 0.7,
+     "y1": 0.3
+    }
+   },
+   "files": {
+    "desktop": {
+     "path": "stadiums/state-farm-stadium.webp",
+     "width": 2133,
+     "height": 1600,
+     "bytes": 681654,
+     "sha256": "06d9b4b39cb52b6d70e71e68be0b0b986afe8857a89dd81617ce08f1b0e5c7f8"
+    },
+    "card": {
+     "path": "stadiums/state-farm-stadium-sm.webp",
+     "width": 720,
+     "height": 480,
+     "bytes": 106348,
+     "sha256": "9a11dd859a8a9992ac5989e0b076452efff88478ec436d54c19f9841099eaf79"
+    },
+    "mobile": {
+     "path": "stadiums/state-farm-stadium-m.webp",
+     "width": 1050,
+     "height": 1400,
+     "bytes": 325266,
+     "sha256": "279db6fc122819ac200c237eeca3612d469983c61cdd2bd3f673ba85a8438960"
+    }
+   },
+   "review": {
+    "audit_status": "REAL PHOTO — NEEDS REVIEW",
+    "hero": "Good composition (roof lights, bowl, field) but 16 years old",
+    "mobile": "Good",
+    "needs_replacement": "Recommended — dated",
+    "notes": "2010 photo: predates the stadium's later videoboard and fascia upgrades; Boise State end zone.",
+    "reviewed": "2026-10-06 (stadium phase audit, pending owner confirmation)"
+   }
+  }
+ }
+}

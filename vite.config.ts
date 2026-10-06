@@ -1,6 +1,38 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import type { Plugin } from 'vite';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * The stadium manifest and photo registry are imported by the app, but most of what they hold (provenance
+ * detail, hashes, review notes, crop-validation rectangles, comments) is for the repository, not the
+ * browser. Ship only the fields src/lib/venues.ts reads, and only APPROVED photos.
+ */
+function stadiumData(): Plugin {
+  const pick = (o: any, keys: string[]) => Object.fromEntries(keys.filter((k) => o?.[k] !== undefined).map((k) => [k, o[k]]));
+  return {
+    name: 'sift-stadium-data',
+    enforce: 'pre',
+    transform(code, id) {
+      if (id.endsWith('/scripts/stadiums/venues.json')) {
+        const venues = JSON.parse(code).venues.map((v: any) => pick(v, ['slug', 'name', 'aliases', 'city', 'lat', 'lon', 'roof', 'kind', 'in_service', 'tenancies']));
+        return { code: JSON.stringify({ venues }), map: null };
+      }
+      if (id.endsWith('/scripts/stadiums/photos.json')) {
+        const photos = Object.fromEntries(Object.entries(JSON.parse(code).photos as Record<string, any>).filter(([, p]) => p.status === 'approved').map(([id, p]) => [id, {
+          venue: p.venue, status: p.status, captured: pick(p.captured, ['light', 'sky', 'event']),
+          source: pick(p.source, ['kind', 'file', 'url', 'author', 'license', 'license_url']),
+          crop: pick(p.crop, ['focus', 'mobile_focus']),
+          files: Object.fromEntries(Object.entries(p.files ?? {}).map(([k, f]: [string, any]) => [k, { path: f.path }])),
+        }]));
+        return { code: JSON.stringify({ photos }), map: null };
+      }
+      return null;
+    },
+  };
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // GitHub Pages serves the site at https://<owner>.github.io/<repo>/, so every asset URL is built under
 // that base. Routing is hash-based (#/nfl/game/…), so deep links never hit the static server.
@@ -9,6 +41,7 @@ const base = process.env.SIFT_BASE ?? '/sift-sports-intelligence/';
 export default defineConfig({
   base,
   plugins: [
+    stadiumData(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

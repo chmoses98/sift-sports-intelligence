@@ -16,10 +16,11 @@ import { kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { gameScripts, sharePct, type ScriptSet } from '../../lib/scripts';
 import { teamColors } from '../../lib/teams';
-import { venueFor, venuePhoto } from '../../lib/venues';
+import { MOBILE_MAX_WIDTH, publishedVenue, resolveVenue, venuePhoto } from '../../lib/venues';
+import { allowedLayers, gameLight, stadiumScene } from '../../lib/stadium-scene';
 import { useLiveQuotes } from '../../live/hooks';
 import { gameWeather, splitName, WeatherBlock } from '../game/Hero';
-import { useHeldImage, useInView } from '../../lib/useImage';
+import { useHeldImage, useInView, useMediaQuery } from '../../lib/useImage';
 import { PanelHead } from '../game/panels';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -75,9 +76,12 @@ export function modelLine(r: EventResearchDoc | null | undefined): string | null
 /** The marquee: a cinematic band over the game's stadium — matchup, place, weather, the model's read. */
 export function FeaturedGame({ item, r, sportSlug, sportCode, now, eyebrow, size = 'md' }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number; eyebrow: string; size?: 'md' | 'lg' }) {
   const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
-  const photo = venuePhoto(venue);
-  const img = useHeldImage(photo?.hero);
+  const pub = publishedVenue(r?.context);
+  const { venue } = resolveVenue({ homeTeam: home?.short_name, published: pub, date: item.start_time_utc });
+  const scene = stadiumScene({ venue, publishedRoof: pub.roof, forecast: r?.context?.weather as any, kickoffUtc: item.start_time_utc });
+  const photo = venuePhoto(venue, { light: scene.light });
+  const narrow = useMediaQuery(`(max-width: ${MOBILE_MAX_WIDTH}px)`);
+  const img = useHeldImage(photo ? (narrow ? photo.mobile : photo.hero) : null);
   const set = r ? gameScripts(r) : null;
   const read = r && home && away ? modelRead(r, splitName(home.display_name ?? '').nick, splitName(away.display_name ?? '').nick, null, null) : null;
   const wx = r ? gameWeather(r, venue) : null;
@@ -86,8 +90,8 @@ export function FeaturedGame({ item, r, sportSlug, sportCode, now, eyebrow, size
   const [hc] = teamColors(sportCode, home?.short_name);
   const [ac] = teamColors(sportCode, away?.short_name);
   return (
-    <article className={`feat feat--${size}${photo ? '' : ' feat--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
-      <div className="feat__bg" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} />}</div>
+    <article className={`feat feat--${size}${photo ? '' : ' feat--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: photo ? (narrow ? photo.mobileFocus : photo.focus) : 'center 45%' }}>
+      <div className="feat__bg" aria-hidden="true" data-scene={scene.key} data-layers={allowedLayers(scene, photo?.captured).join(' ') || undefined}>{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} />}</div>
       <div className="feat__in">
         <div className="feat__top">
           <span className="eyebrow">{eyebrow}</span>
@@ -117,8 +121,8 @@ export function FeaturedGame({ item, r, sportSlug, sportCode, now, eyebrow, size
 /** A game tile: the stadium as a strip with both logos, the matchup, kickoff, the model line, scripts. */
 export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
-  const photo = venuePhoto(venue);
+  const { venue } = resolveVenue({ homeTeam: home?.short_name, published: publishedVenue(r?.context), date: item.start_time_utc });
+  const photo = venuePhoto(venue, { light: gameLight(venue, item.start_time_utc) });
   const [ref, inView] = useInView<HTMLLIElement>();
   const img = useHeldImage(inView ? photo?.card : null);
   const set = r ? gameScripts(r) : null;
@@ -129,7 +133,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
   const label = `${away?.short_name ?? '?'} @ ${home?.short_name ?? '?'}`;
   const lead = set ? [...set.scripts].sort((x, y) => y.share - x.share)[0] : null;
   return (
-    <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%', ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }}>
+    <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: photo?.focus ?? 'center 45%', ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }}>
       <div className="gtile__img" aria-hidden="true">
         {img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback compact />}
         <span className="gtile__logos"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><i>at</i><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>

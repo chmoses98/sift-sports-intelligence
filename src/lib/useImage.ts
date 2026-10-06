@@ -53,3 +53,19 @@ export function useInView<T extends Element>(margin = '300px') {
   }, [el, seen, margin]);
   return [setEl, seen] as const;
 }
+
+/** True while `query` matches (read synchronously on first render, so the right file is fetched first time). */
+export function useMediaQuery(query: string): boolean {
+  const mq = () => (typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia(query) : null);
+  const [on, setOn] = useState(() => mq()?.matches ?? false);
+  useEffect(() => {
+    const m = mq();
+    if (!m) return;
+    const f = () => setOn(m.matches);
+    f();
+    m.addEventListener('change', f);
+    return () => m.removeEventListener('change', f);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+  return on;
+}

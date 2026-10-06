@@ -271,14 +271,19 @@ gesture. Fallbacks: text selection, the share sheet, or a `.txt` download.
 
 ## Stadium photos
 
-Game heroes show the real home stadium (or the published neutral site). `scripts/stadiums/venues.json`
-maps every venue (aliases included) to its Wikipedia lead image restricted to free licences;
-`.github/workflows/stadium-images.yml` fetches each one **once** on a GitHub runner (the dev container
-cannot reach Wikimedia), converts it to WebP (1600 px hero, 720 px card) under `public/stadiums/`, and
-records author, licence and source page in `src/lib/stadium-credits.json`, shown on *Data & provenance*.
-The app never fetches an image from a third party. Photos are excluded from the precache (≈ 6 MB); the
-service worker caches the ones you view (CacheFirst), and the app holds a viewed hero in memory so a game
-re-opened offline still shows it. Pin a specific photo with `commons_file` in `venues.json`.
+Game heroes show the **event's** venue (the published venue first, including neutral sites; otherwise the
+home team's tenancy on the game date), using an owner-approved real photograph or the designed floodlit
+fallback. The canonical venue manifest is `scripts/stadiums/venues.json`, with one entry per physical
+venue, dated aliases and tenancies. The photo registry, with full provenance, crop metadata and approval,
+is `scripts/stadiums/photos.json`. The derivatives are WebP files in `public/stadiums/`: desktop, a 3:4
+mobile crop of the same photo, and a 720 × 480 card. Weather and roof decision rules are in
+`src/lib/stadium-scene.ts`. Owner-supplied photos come in through `stadium-import/` and
+`npm run stadiums -- import`, and only `approve` (by the owner) serves them. The full design is in
+**docs/STADIUMS.md**, and the current state is in **docs/STADIUM_AUDIT.md**.
+
+The app never fetches an image from a third party. Stadium photos are excluded from the precache. The
+service worker caches the ones you view (CacheFirst), and the app holds a viewed hero in memory, so a
+game re-opened offline still shows it.
 
 ## PWA
 

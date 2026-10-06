@@ -10,7 +10,7 @@ behind it one tap down, and never changes a model probability, a projection or a
 | Layer | Source | Refresh | Where |
 |---|---|---|---|
 | Ratings, ranks, projections, scripts, markets | The NFL publication (`edge_finder.app.v1`) | every publication run | `public/data/nfl/app/latest` (snapshot) or the live root |
-| Player game logs, quarterback starts, scheme counts | nflverse public releases: `stats_player_week`, `play_by_play`, `snap_counts`, `ftn_charting` (2026); `stats_player_week`, `snap_counts`, `schedules/games.csv` (2025) | every deploy (3 h), committed copy as fallback | `public/data/nfl/history` via `scripts/history/build-nfl-history.mjs` |
+| Player game logs, quarterback starts, scheme counts | nflverse public releases: `stats_player_week`, `play_by_play`, `snap_counts`, `ftn_charting` (2026); `stats_player_week`, `snap_counts` (2025; `schedules/games.csv` for dates and scores when available) | every deploy (3 h), committed copy as fallback | `public/data/nfl/history` via `scripts/history/build-nfl-history.mjs` |
 | Player photos | Wikimedia Commons, free licences only | on demand (`player-images.yml`) | `public/players/nfl`, credits in `src/lib/player-images.json` |
 
 nflverse data is CC-BY 4.0; FTN charting is © FTN Data, CC-BY-SA 4.0 (attribution on Data & provenance and in

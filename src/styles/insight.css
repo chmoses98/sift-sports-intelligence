@@ -345,3 +345,13 @@
 .gcard__hook--edge { color: #fff; font-weight: 650; }
 .shome__props { max-width: 880px; margin-bottom: var(--s-8); }
 @media (max-width: 480px) { .gh__cityname, .gh__sep { display: none; } }
+/* Narrow phones: unit rows wrap (name, then rank) instead of pushing past the screen edge. */
+.urow { display: flex; flex-wrap: wrap; align-items: center; max-width: 100%; row-gap: 2px; }
+.urow__name { white-space: normal; overflow: visible; min-width: 0; }
+.edgevs, .mcard .edgevs { max-width: 100%; min-width: 0; }
+.hbar__m { min-width: 0; overflow-wrap: anywhere; }
+.hbar__m .popover { display: inline-flex; max-width: 100%; }
+.lines .phead { flex-wrap: wrap; }
+.evid__t .rk { white-space: normal; }
+@media (max-width: 400px) { .evid__t .rk { grid-template-columns: auto; } .evid__t th, .evid__t td { padding: 6px 2px; } }
+.hbar__m .chip { white-space: normal; height: auto; }

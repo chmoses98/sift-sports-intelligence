@@ -67,15 +67,17 @@ test('phones: at the end of every page nothing visible sits under the tab bar @s
     await page.goto(url);
     await page.locator('main h1, main h2').first().waitFor();
     await expect(page.locator('.skel, .gcard__hook--load')).toHaveCount(0);
-    // At the true end of the page (scroll again until the height stops changing).
-    await expect.poll(async () => page.evaluate(() => { window.scrollTo(0, document.documentElement.scrollHeight); return Math.ceil(window.scrollY + innerHeight) >= document.documentElement.scrollHeight - 1; })).toBe(true);
+    // Layout, not scroll timing (WebKit scrolls asynchronously): fully scrolled, the bar covers the last
+    // bar-height of the document, so every visible control must end above that band.
     const hidden = await page.evaluate(() => {
-      const bar = document.querySelector('.bottombar')!.getBoundingClientRect().top;
+      const barH = document.querySelector('.bottombar')!.getBoundingClientRect().height;
+      const end = document.documentElement.scrollHeight - barH;
       const out: string[] = [];
       for (const el of document.querySelectorAll<HTMLElement>('main a, main button, main summary, footer a')) {
         const r = el.getBoundingClientRect();
         const visible = r.height > 0 && (el.checkVisibility ? el.checkVisibility() : true) && !el.closest('details:not([open]) > :not(summary)');
-        if (visible && r.bottom > bar + 1 && r.top < innerHeight) out.push(`${el.tagName} "${el.textContent?.trim().slice(0, 30)}" ${Math.round(r.top)}-${Math.round(r.bottom)} vs bar ${Math.round(bar)}`);
+        const bottom = r.bottom + window.scrollY;
+        if (visible && bottom > end + 1) out.push(`${el.tagName} "${el.textContent?.trim().slice(0, 30)}" ends at ${Math.round(bottom)} vs ${Math.round(end)}`);
       }
       return out;
     });

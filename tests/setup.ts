@@ -8,3 +8,8 @@ setLiveStore(new QuoteStore({ provider: null, persistence: null }));
 import { setHistoryBase } from '../src/history/load';
 // The history layer reads public/data/nfl/history through the same disk fetch as the publication.
 setHistoryBase('disk://history');
+
+import { configure } from '@testing-library/react';
+// Screen tests render real pages that load several documents (publication, history, props) before the
+// section a test looks for appears; a shared CI runner can take longer than Testing Library's 1 s default.
+configure({ asyncUtilTimeout: 10_000 });

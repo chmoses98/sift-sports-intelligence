@@ -6,6 +6,15 @@ import { chromium, webkit } from '@playwright/test';
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
+
+// The game's price chip: in "The Lines" on the overview, or (for a game with no priced lines) in the
+// Markets tab, whose header always carries it. Both summarise the same game quotes.
+const GAME_CHIP = '.gquote .qchip';
+async function gameChipReady(page) {
+  if (await page.locator(GAME_CHIP).count()) return;
+  await page.locator('.gtabs').getByRole('link', { name: 'Markets', exact: true }).click();
+  await page.locator(GAME_CHIP).first().waitFor({ timeout: 60_000 });
+}
 const RELAY = (process.env.SIFT_QUOTE_RELAY_URL ?? '').trim().replace(/\/+$/, '');
 const ORIGIN = new URL(BASE).origin;
 const EXPECT_RELAY = process.env.SIFT_EXPECT_RELAY === '1';
@@ -41,9 +50,10 @@ async function fallbackProof(browser, device, name, gameUrl) {
   try {
     await page.route(`${RELAY}/**`, block);
     await page.goto(gameUrl);
-    await page.getByRole('heading', { name: 'Model Read' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+    await gameChipReady(page);
     await page.waitForFunction(() => document.querySelector('[data-live-mode]')?.getAttribute('data-live-mode') === 'FEED', null, { timeout: 90_000 }).catch(() => {});
-    const chip = page.locator('.mh__chips .qchip');
+    const chip = page.locator(GAME_CHIP);
     const state = await chip.getAttribute('data-quote-state');
     console.log(`  forced 429s: ${forced.length} | feed requests: ${feed.length} | prices chip: ${await chip.getAttribute('data-quote-source')} ${state} "${(await chip.textContent())?.trim()}"`);
     check(forced.length > 0, 'fallback: the relay was asked first and answered 429');
@@ -120,10 +130,11 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     await page.goto(BASE + '#/nfl');
     await page.locator('.gcard__link').first().waitFor({ timeout: 60_000 });
     await page.locator('.gcard__link').first().click();
-    await page.getByRole('heading', { name: 'Model Read' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+    await gameChipReady(page);
     // Wait for the game scope's own refresh (inventory + tickers), not just the slate's first quotes.
-    await page.waitForFunction(() => document.querySelector('.mh__chips .qchip')?.getAttribute('data-quote-source') === 'live', null, { timeout: 90_000 }).catch(() => {});
-    const gameChip = page.locator('.mh__chips .qchip');
+    await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute('data-quote-source') === 'live', GAME_CHIP, { timeout: 90_000 }).catch(() => {});
+    const gameChip = page.locator(GAME_CHIP);
     const src = await gameChip.getAttribute('data-quote-source');
     const state = await gameChip.getAttribute('data-quote-state');
     console.log(`  game prices chip: source=${src} state=${state} "${(await gameChip.textContent())?.trim()}"`);

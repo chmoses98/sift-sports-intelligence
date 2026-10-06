@@ -24,11 +24,11 @@ Each row gives two statuses:
 | 12 | Raw vs opponent-adjusted (Y) | COMPLETE | COMPLETE | n/a | Shown only where the publication has both versions. |
 | 13 | Plain metric labels and short definitions (Z) | COMPLETE | COMPLETE | n/a | New registry metrics need a glossary entry. Until they have one, Sift shows the registry's own text and never an invented definition. |
 | 14 | Remove "Against whom" (AA) | COMPLETE | COMPLETE | n/a | — |
-| 15 | Quiet price freshness (AB) | PARTIAL | COMPLETE | n/a | Owner approval of the visual baselines; this is the reason it was PARTIAL last time, and nothing has changed it. |
+| 15 | Quiet price freshness (AB) | COMPLETE | COMPLETE | n/a | — (the owner approved the visual baselines, and CI re-rendered them for the approved redesign) |
 | 16 | Trust, model performance, past wagers (AC, AH) | PARTIAL | COMPLETE | BLOCKED | Out-of-sample, per-period model reporting beyond the cumulative scorecard. The owner's wager ledger stays private. |
 | 17 | Game Script deep view (AD) | PARTIAL | COMPLETE | BLOCKED | Sift shows every published script input. Fuller team impacts and fit for non-margin markets need row 1's joint simulation. |
 | 18 | Wong teasers and parlays (AE) | PARTIAL | COMPLETE | BLOCKED | Leg-level combined pricing and a correlation model. |
-| 19 | Game lifecycle and live data (AF, AG) | UPSTREAM BLOCKED | COMPLETE | BLOCKED | A live provider for score, clock, quarter, possession and live stats. The Sift-side pregame freeze is done. |
+| 19 | Game lifecycle and live data (AF, AG) | UPSTREAM BLOCKED | COMPLETE | BLOCKED | A live provider for score, clock, quarter, possession and live stats. The Sift-side pregame freeze is done. Owner-approved exception: completed past games can still be saved as HISTORICAL RESULT references, which are never treated as new pregame research. |
 
 ## Outside Sift: upstream and infrastructure
 

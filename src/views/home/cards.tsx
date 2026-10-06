@@ -10,7 +10,7 @@ import { Icon } from '../../components/Icon';
 import { StadiumFallback } from '../../components/StadiumFallback';
 import { MarketIcon, MarketIconProvider } from '../../components/MarketIcon';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../../components/LiveQuote';
-import { SaveButton, TeamMark } from '../../components/ui';
+import { TeamMark } from '../../components/ui';
 import { gapText, modelRead } from '../../lib/gamedata';
 import { kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
@@ -21,6 +21,8 @@ import { useLiveQuotes } from '../../live/hooks';
 import { gameWeather, splitName, WeatherBlock } from '../game/Hero';
 import { useHeldImage, useInView } from '../../lib/useImage';
 import { PanelHead } from '../game/panels';
+import type { MatchupInsight } from '../../insights/matchups';
+import { matchupInsights } from '../../insights/matchups';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -114,6 +116,44 @@ export function FeaturedGame({ item, r, sportSlug, sportCode, now, eyebrow, size
   );
 }
 
+/**
+ * The game to open first, compact: the stadium photo stays visible (one gradient at the foot), with only
+ * the teams, kickoff, place and one thesis line on it. Everything else is one tap away.
+ */
+export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; insight: MatchupInsight | null; sportSlug: string; sportCode: string; now: number }) {
+  const { away, home } = sides(item);
+  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
+  const photo = venuePhoto(venue);
+  const img = useHeldImage(photo?.hero);
+  const set = r ? gameScripts(r) : null;
+  const wx = r ? gameWeather(r, venue) : null;
+  const a = splitName(away?.display_name ?? '');
+  const h = splitName(home?.display_name ?? '');
+  const lead = set?.scripts[0];
+  return (
+    <article className={`fcard${photo ? '' : ' fcard--nophoto'}`} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
+      <Link to={routes.game(sportSlug, item.event_id)} className="fcard__a" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}. Open game.`}>
+        <div className="fcard__img" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} />}</div>
+        <div className="fcard__in">
+          <span className="fcard__when">{kickoff(item.start_time_utc)}{Date.parse(item.start_time_utc) > now ? ` · ${until(item.start_time_utc, now)}` : ''}</span>
+          <span className="fcard__match">
+            <span className="fcard__team"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><span className="fcard__n">{a.nick}</span></span>
+            <span className="fcard__at">at</span>
+            <span className="fcard__team"><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /><span className="fcard__n">{h.nick}</span></span>
+          </span>
+          <span className="fcard__meta">{venue ? `${venue.name}` : ''}{wx && wx.kind === 'outdoor' ? ` · ${wx.temp}° ${wx.condition ?? ''}` : wx && wx.kind === 'indoor' ? ` · ${wx.condition}` : ''}{wx?.flag ? ` · ${wx.flag}` : ''}</span>
+        </div>
+      </Link>
+      <div className="fcard__foot">
+        {insight ? <p className="fcard__thesis">{insight.headline}</p> : <p className="fcard__thesis">{lead ? `Most likely: ${lead.name}` : 'Open the game for its scripts and matchups'}</p>}
+        {set && <ScriptBar set={set} labels={false} />}
+        {lead && <span className="fcard__lead"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span>}
+      </div>
+      {photo && <span className="fcard__credit">Photo: {photo.credit.artist.slice(0, 32)} · {photo.credit.license}</span>}
+    </article>
+  );
+}
+
 /** A game tile: the stadium as a strip with both logos, the matchup, kickoff, the model line, scripts. */
 export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
@@ -126,8 +166,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
   useLiveQuotes(winners.map((m) => m.kalshi_ticker), 'slate');
   const views = useQuoteViews(winners);
   const passed = Date.parse(item.start_time_utc) <= now && item.status === 'SCHEDULED';
-  const label = `${away?.short_name ?? '?'} @ ${home?.short_name ?? '?'}`;
-  const lead = set ? [...set.scripts].sort((x, y) => y.share - x.share)[0] : null;
+  const lead = set ? set.scripts[0] : null;
   return (
     <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%', ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }}>
       <div className="gtile__img" aria-hidden="true">
@@ -140,13 +179,12 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
         {r === undefined ? (
           <span className="gtile__model gcard__hook--load">Reading research…</span>
         ) : (
-          <span className="gtile__model">{r ? modelLine(r) ?? 'No model view published' : 'No event research published'}</span>
+          <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? 'Evenly matched on the published ranks' : 'No event research published'}</span>
         )}
       </Link>
       {set && lead && <div className="gtile__scripts"><ScriptBar set={set} labels={false} /><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />{lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}
       <div className="gtile__foot">
         {views.length ? <QuoteSummaryChip views={views} now={now} /> : <QuoteChip view={publicationView(item.market_captured_at)} now={now} label="prices" />}
-        <SaveButton ref_kind="EVENT" sport={sportCode} id={item.event_id} compact kickoff={item.start_time_utc} label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
       </div>
     </li>
   );
@@ -156,7 +194,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
 export function SlateRow({ item, r, sportSlug, sportCode }: { item: BoardItem; r: EventResearchDoc | undefined; sportSlug: string; sportCode: string }) {
   const { away, home } = sides(item);
   const set = r ? gameScripts(r) : null;
-  const lead = set ? [...set.scripts].sort((x, y) => y.share - x.share)[0] : null;
+  const lead = set ? set.scripts[0] : null;
   return (
     <li>
       <Link to={routes.game(sportSlug, item.event_id)} className="slrow">

@@ -41,6 +41,11 @@ pass that repository's promotion gate, every total and team-total contract arriv
   ranges "descriptive" with a caption that they do not support any total or team-total market;
 * shows a total-band market disagreement as an observation, never as evidence of value.
 
+Margin markets (moneyline, spread) can be supported only by a script whose margin band is authorised. Each
+script publishes `margin_authority_evidence`: the matchup findings that let it state its margin. Scoring and
+pace findings never qualify. The script tab shows them under **Margin authority**. A script that states no
+margin (for example a shootout whose closeness the data cannot resolve) says so instead.
+
 ## Language rules (enforced by tests)
 
 * Scripts are **ranked, never given likelihoods** — V1 publishes none and Sift shows no percentage.

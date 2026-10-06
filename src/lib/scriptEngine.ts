@@ -41,7 +41,15 @@ export interface EngineScript {
   supporting_findings: string[];
   contradicting_findings: string[];
   evidence_score: number;
-  outcome_shape: Record<string, unknown> & { winner_lean: string; margin_environment: string; total_environment: string; bands: Bands; band_authority?: Partial<Record<keyof Bands, BandAuthority>> };
+  outcome_shape: Record<string, unknown> & {
+    winner_lean: string;
+    margin_environment: string;
+    total_environment: string;
+    bands: Bands;
+    band_authority?: Partial<Record<keyof Bands, BandAuthority>>;
+    /** The findings that authorise the margin band (empty when the script states no margin). */
+    margin_authority_evidence?: string[];
+  };
   data_confidence: Confidence;
   probability: null;
 }

@@ -85,31 +85,31 @@
    "bytes": 6124,
    "entity_id": "evt_776097ba6eef448fb340",
    "kind": "event_research",
-   "sha256": "16e06a9bb3972b30292c47539103de54156df8fa9cb5d8daa266d88781091042"
+   "sha256": "13eeffad48770aa5f8c0b88522e6e5a68d881d59c9e67bc4ea0a0653f071630d"
   },
   "events/evt_7ca164d80f042f650a5c.json": {
-   "bytes": 137151,
+   "bytes": 137391,
    "entity_id": "evt_7ca164d80f042f650a5c",
    "kind": "event_research",
-   "sha256": "a2df382c65aa1569a9f63590633044b8b141a01cf53838492ac086671d2edfae"
+   "sha256": "8612e8ce739d307008c03ed33a8d87f051632016fdd86982dc3802cf854f8827"
   },
   "events/evt_8c3166866b2bfa530c17.json": {
-   "bytes": 127518,
+   "bytes": 127710,
    "entity_id": "evt_8c3166866b2bfa530c17",
    "kind": "event_research",
-   "sha256": "bdaca89a4be484601bdd9aa314fbea03a5c7c39dd1ef8f403c88e26944983a27"
+   "sha256": "e3ceb85e49f1c91ea4327aa726909a855f888fb4b9567b848dd3e22586f501db"
   },
   "events/evt_93e12676ae9337017c63.json": {
-   "bytes": 143215,
+   "bytes": 143306,
    "entity_id": "evt_93e12676ae9337017c63",
    "kind": "event_research",
-   "sha256": "b2d40619610f326685ed3611a55e41211666177f4a1dcf5988766918ca77e59a"
+   "sha256": "9e6496094ef7964b5cbe500118846c0ae8897c250b6ea3d9fd480e00787500fb"
   },
   "events/evt_f121611ae29ec3e9d56e.json": {
-   "bytes": 129530,
+   "bytes": 129691,
    "entity_id": "evt_f121611ae29ec3e9d56e",
    "kind": "event_research",
-   "sha256": "05bbe8d1af08e1e13a556a36ddbc48902e66659ccaf93358e02a35aada561b0e"
+   "sha256": "b15504b46fb33bd40fdf3527a853913e34568567ef6185028895bd3528d99f5a"
   },
   "market_history/evt_776097ba6eef448fb340.json": {
    "bytes": 5047,

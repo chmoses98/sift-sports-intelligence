@@ -137,6 +137,33 @@ describe('payload decoding', () => {
     expect(e.findings.map((f) => f.code)).toContain('EVEN_MATCHUP');
   });
 
+  it('every active margin band names non-scoring, non-pace football evidence', () => {
+    const forbidden = new Set([
+      'HIGH_SCORING_ENVIRONMENT', 'LOW_SCORING_ENVIRONMENT', 'HIGH_POSSESSION_ENVIRONMENT',
+      'LOW_POSSESSION_ENVIRONMENT', 'HOME_SCORING_ADVANTAGE', 'AWAY_SCORING_ADVANTAGE',
+    ]);
+    let checked = 0;
+    for (const id of [UGA_ALA, LSU_UK]) {
+      const e = engineOf(id);
+      const codes = new Set(e.findings.map((f) => f.code));
+      for (const sc of e.scripts) {
+        const ev = sc.outcome_shape.margin_authority_evidence ?? [];
+        if (sc.outcome_shape.bands.home_margin) {
+          checked += 1;
+          expect(ev.length).toBeGreaterThan(0);
+          for (const c of ev) {
+            expect(forbidden.has(c)).toBe(false);
+            expect(codes.has(c)).toBe(true);
+          }
+        } else {
+          expect(ev).toEqual([]);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThanOrEqual(4);
+    expect(engineOf(UGA_ALA).scripts[0].outcome_shape.margin_authority_evidence).toEqual(['EVEN_MATCHUP']);
+  });
+
   it('the label vocabulary has no price verdict in it', () => {
     const words = Object.values(LABEL_WORD).join(' ').toLowerCase();
     for (const banned of ['+ev', 'edge', 'value', 'lock', 'probability', 'bet up to']) expect(words).not.toContain(banned);
@@ -189,6 +216,10 @@ describe('CFB game page', () => {
     expect(shape).toMatch(/Total points · descriptive/);
     expect(shape).not.toMatch(/Margin · descriptive/);
     expect(screen.getByText(/do not support any total or team-total market/)).toBeTruthy();
+    // ...and names the finding that gives the script its margin: EVEN_MATCHUP, never the scoring environment.
+    const auth = screen.getByRole('heading', { name: 'Margin authority' }).closest('.eng-marginauth')!;
+    expect(auth.querySelectorAll('.fchip')).toHaveLength(1);
+    expect(auth.textContent!.toLowerCase()).not.toMatch(/scoring environment|possession/);
   });
 
   it('opens why-this-bet with scripts, conditions and the price', async () => {

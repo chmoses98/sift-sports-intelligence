@@ -410,6 +410,27 @@ export function EngineConfidencePanel({ engine }: { engine: Engine }) {
 
 // ------------------------------------------------------------------ script tab
 
+/** Which football findings give this script permission to state its margin -- or why it states none. */
+function MarginAuthority({ engine, s }: { engine: Engine; s: EngineScript }) {
+  const evidence = s.outcome_shape.margin_authority_evidence ?? [];
+  if (s.outcome_shape.bands.home_margin && evidence.length) {
+    return (
+      <div className="eng-marginauth">
+        <h3 className="why__h">Margin authority</h3>
+        <span className="chain__f">{evidence.map((c) => <FindingChip key={c} engine={engine} code={c} />)}</span>
+      </div>
+    );
+  }
+  if (!s.outcome_shape.bands.home_margin && s.outcome_shape.total_environment !== 'NOT_STATED') {
+    return (
+      <p className="eng-bandnote muted small">
+        No margin stated: the scoring environment says nothing about how close the game is, and no resolved matchup finding does either.
+      </p>
+    );
+  }
+  return null;
+}
+
 function FindingChip({ engine, code }: { engine: Engine; code: string }) {
   const f = findingByCode(engine, code);
   if (!f) return null;
@@ -499,6 +520,7 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
           <div>
             <h3 className="why__h">Outcome shape</h3>
             <ShapeTiles s={s} home={home} away={away} />
+            <MarginAuthority engine={engine} s={s} />
             {s.contradicting_findings.length > 0 && (
               <>
                 <h3 className="why__h">Evidence against</h3>

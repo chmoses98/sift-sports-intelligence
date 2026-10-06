@@ -69,7 +69,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "was-marcus-mariota": {
       "name": "Marcus Mariota",
@@ -84,22 +85,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "ind-jonathan-taylor": {
-      "name": "Jonathan Taylor",
-      "team": "IND",
-      "slot": "portrait",
-      "participant_id": "prt_7877e1343a99819569e0",
-      "focus": "center 22%",
-      "file": "File:Jonathan Taylor 2019 3.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Jonathan_Taylor_2019_3.jpg",
-      "artist": "Bely Medved",
-      "license": "CC BY-SA 2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "was-stefon-diggs": {
       "name": "Stefon Diggs",
@@ -114,22 +101,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "buf-james-cook-iii": {
-      "name": "James Cook III",
-      "team": "BUF",
-      "slot": "portrait",
-      "participant_id": "prt_c4d635de928fd38b27a7",
-      "focus": "center 22%",
-      "file": "File:James Cook Gives Remarks at the Operation Market Garden Aaron Julian Cook Building Ceremony 2026 (9952361).jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:James_Cook_Gives_Remarks_at_the_Operation_Market_Garden_Aaron_Julian_Cook_Building_Ceremony_2026_(9952361).jpg",
-      "artist": "U.S. Army 21TSC by Spc. Kadence Connors",
-      "license": "Public domain",
-      "license_url": null,
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "bal-derrick-henry": {
       "name": "Derrick Henry",
@@ -144,7 +117,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "bal-lamar-jackson": {
       "name": "Lamar Jackson",
@@ -159,7 +133,8 @@
       "license_url": null,
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "ten-tony-pollard": {
       "name": "Tony Pollard",
@@ -174,7 +149,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "bal-zay-flowers": {
       "name": "Zay Flowers",
@@ -189,7 +165,8 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "gb-jordan-love": {
       "name": "Jordan Love",
@@ -204,37 +181,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "tb-jalon-daniels": {
-      "name": "Jalon Daniels",
-      "team": "TB",
-      "slot": "portrait",
-      "participant_id": "prt_1fc25af4fee32000153f",
-      "focus": "center 22%",
-      "file": "File:2022 Liberty Bowl Jalon Daniels first down.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:2022_Liberty_Bowl_Jalon_Daniels_first_down.jpg",
-      "artist": "Barrett Long",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
-    },
-    "tb-cade-otton": {
-      "name": "Cade Otton",
-      "team": "TB",
-      "slot": "portrait",
-      "participant_id": "prt_4bd9a2251e4f18e91c08",
-      "focus": "center 22%",
-      "file": "File:Cade Otton (53988919941) (cropped).jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Cade_Otton_(53988919941)_(cropped).jpg",
-      "artist": "All-Pro Reels from District of Columbia, USA",
-      "license": "CC BY-SA 2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "tb-emeka-egbuka": {
       "name": "Emeka Egbuka",
@@ -249,7 +197,8 @@
       "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "gb-marshawn-lloyd": {
       "name": "MarShawn Lloyd",
@@ -264,7 +213,8 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "nyj-geno-smith": {
       "name": "Geno Smith",
@@ -279,7 +229,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "chi-tyson-bagent": {
       "name": "Tyson Bagent",
@@ -294,22 +245,8 @@
       "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "chi-d-andre-swift": {
-      "name": "D'Andre Swift",
-      "team": "CHI",
-      "slot": "portrait",
-      "participant_id": "prt_40434f928d065d5b872e",
-      "focus": "center 22%",
-      "file": "File:Jared Goff & D'Andre Swift Commanders vs Lions SEP2022 (cropped).jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Jared_Goff_%26_D%27Andre_Swift_Commanders_vs_Lions_SEP2022_(cropped).jpg",
-      "artist": "All-Pro Reels",
-      "license": "CC BY-SA 2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "nyj-garrett-wilson": {
       "name": "Garrett Wilson",
@@ -324,7 +261,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "chi-luther-burden-iii": {
       "name": "Luther Burden III",
@@ -339,22 +277,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "la-matthew-stafford": {
-      "name": "Matthew Stafford",
-      "team": "LA",
-      "slot": "portrait",
-      "participant_id": "prt_593a09d190aa403acae8",
-      "focus": "center 22%",
-      "file": "File:2025 Rams vs Titans Matthew Stafford.png",
-      "source": "https://commons.wikimedia.org/wiki/File:2025_Rams_vs_Titans_Matthew_Stafford.png",
-      "artist": "Tennessee Titans",
-      "license": "CC BY 3.0",
-      "license_url": "https://creativecommons.org/licenses/by/3.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "phi-jalen-hurts": {
       "name": "Jalen Hurts",
@@ -369,7 +293,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "la-kyren-williams": {
       "name": "Kyren Williams",
@@ -384,7 +309,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "phi-saquon-barkley": {
       "name": "Saquon Barkley",
@@ -399,7 +325,8 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "la-puka-nacua": {
       "name": "Puka Nacua",
@@ -414,7 +341,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "la-davante-adams": {
       "name": "Davante Adams",
@@ -429,7 +357,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "jax-trevor-lawrence": {
       "name": "Trevor Lawrence",
@@ -444,7 +373,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "cin-joe-burrow": {
       "name": "Joe Burrow",
@@ -459,7 +389,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "cin-chase-brown": {
       "name": "Chase Brown",
@@ -474,7 +405,8 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "cin-ja-marr-chase": {
       "name": "Ja'Marr Chase",
@@ -489,37 +421,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "cin-tee-higgins": {
-      "name": "Tee Higgins",
-      "team": "CIN",
-      "slot": "portrait",
-      "participant_id": "prt_9a2f345ec4f50a4a4dc9",
-      "focus": "center 22%",
-      "file": "File:Tee Higgins catches a ball at Cincinnati Bengals training camp in August 2025.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Tee_Higgins_catches_a_ball_at_Cincinnati_Bengals_training_camp_in_August_2025.jpg",
-      "artist": "Gatorfan252525",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
-    },
-    "jax-parker-washington": {
-      "name": "Parker Washington",
-      "team": "JAX",
-      "slot": "portrait",
-      "participant_id": "prt_855eff10fa8a51192656",
-      "focus": "center 22%",
-      "file": "File:William McKinley, half-length portrait, facing slightly right) - Parker, Washington, D.C LCCN91738541.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:William_McKinley,_half-length_portrait,_facing_slightly_right)_-_Parker,_Washington,_D.C_LCCN91738541.jpg",
-      "artist": "Parker, Charles, photographer",
-      "license": "Public domain",
-      "license_url": null,
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "dal-dak-prescott": {
       "name": "Dak Prescott",
@@ -534,7 +437,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "hou-c-j-stroud": {
       "name": "C.J. Stroud",
@@ -549,7 +453,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "dal-javonte-williams": {
       "name": "Javonte Williams",
@@ -564,7 +469,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "hou-david-montgomery": {
       "name": "David Montgomery",
@@ -579,7 +485,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "hou-nico-collins": {
       "name": "Nico Collins",
@@ -594,7 +501,8 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "dal-ceedee-lamb": {
       "name": "CeeDee Lamb",
@@ -609,7 +517,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "ari-jacoby-brissett": {
       "name": "Jacoby Brissett",
@@ -624,7 +533,8 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "nyg-jameis-winston": {
       "name": "Jameis Winston",
@@ -639,22 +549,8 @@
       "license_url": null,
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "nyg-cam-skattebo": {
-      "name": "Cam Skattebo",
-      "team": "NYG",
-      "slot": "portrait",
-      "participant_id": "prt_9447a7c2cf08879197ce",
-      "focus": "center 22%",
-      "file": "File:Cam Skattebo Jan 2019.png",
-      "source": "https://commons.wikimedia.org/wiki/File:Cam_Skattebo_Jan_2019.png",
-      "artist": "utrhighlightvideos",
-      "license": "CC BY 3.0",
-      "license_url": "https://creativecommons.org/licenses/by/3.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "ari-jeremiyah-love": {
       "name": "Jeremiyah Love",
@@ -669,7 +565,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "ari-trey-mcbride": {
       "name": "Trey McBride",
@@ -684,7 +581,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "nyg-malik-nabers": {
       "name": "Malik Nabers",
@@ -699,7 +597,8 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "min-aaron-jones-sr": {
       "name": "Aaron Jones Sr.",
@@ -714,7 +613,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "min-kyler-murray": {
       "name": "Kyler Murray",
@@ -729,37 +629,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "mia-malik-washington": {
-      "name": "Malik Washington",
-      "team": "MIA",
-      "slot": "portrait",
-      "participant_id": "prt_982770719ef2cd71c6b6",
-      "focus": "center 22%",
-      "file": "File:Irfan Malik, Washington Poet, Jun 1996. Pic by Amarjit Chandan.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Irfan_Malik,_Washington_Poet,_Jun_1996._Pic_by_Amarjit_Chandan.jpg",
-      "artist": "Sukant78",
-      "license": "CC0",
-      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
-    },
-    "lac-justin-herbert": {
-      "name": "Justin Herbert",
-      "team": "LAC",
-      "slot": "portrait",
-      "participant_id": "prt_f41d6392079370c17835",
-      "focus": "center 22%",
-      "file": "File:Madison Beer & Justin Herbert - 2025 Commanders at Chargers (cropped).jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Madison_Beer_%26_Justin_Herbert_-_2025_Commanders_at_Chargers_(cropped).jpg",
-      "artist": "All-Pro Reels",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "sea-sam-darnold": {
       "name": "Sam Darnold",
@@ -774,52 +645,8 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "lac-omarion-hampton": {
-      "name": "Omarion Hampton",
-      "team": "LAC",
-      "slot": "portrait",
-      "participant_id": "prt_c659abbb7b1c4d3048a0",
-      "focus": "center 22%",
-      "file": "File:Justin Herbert & Omarion Hampton - 2025 Commanders at Chargers.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Justin_Herbert_%26_Omarion_Hampton_-_2025_Commanders_at_Chargers.jpg",
-      "artist": "All-Pro Reels",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
-    },
-    "lac-quentin-johnston": {
-      "name": "Quentin Johnston",
-      "team": "LAC",
-      "slot": "portrait",
-      "participant_id": "prt_a606207d4f64552716d2",
-      "focus": "center 22%",
-      "file": "File:Quentin Johnston (August 2026).jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Quentin_Johnston_(August_2026).jpg",
-      "artist": "SDudley",
-      "license": "CC BY 4.0",
-      "license_url": "https://creativecommons.org/licenses/by/4.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
-    },
-    "kc-patrick-mahomes": {
-      "name": "Patrick Mahomes",
-      "team": "KC",
-      "slot": "portrait",
-      "participant_id": "prt_02e509e1a92b0884456d",
-      "focus": "center 22%",
-      "file": "File:President Joe Biden greets Kansas City Chiefs' President Mark Donovan, Head Coach Andy Reid and players Patrick Mahomes and Travis Kelce in the Oval Office of the White House on June 5, 2023 - P20230605AS-0902.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:President_Joe_Biden_greets_Kansas_City_Chiefs%27_President_Mark_Donovan,_Head_Coach_Andy_Reid_and_players_Patrick_Mahomes_and_Travis_Kelce_in_the_Oval_Office_of_the_White_House_on_June_5,_2023_-_P20230605AS-0902.jpg",
-      "artist": "Adam Schultz",
-      "license": "Public domain",
-      "license_url": null,
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "lv-kirk-cousins": {
       "name": "Kirk Cousins",
@@ -834,7 +661,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "kc-kenneth-walker-iii": {
       "name": "Kenneth Walker III",
@@ -849,7 +677,8 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "lv-ashton-jeanty": {
       "name": "Ashton Jeanty",
@@ -864,22 +693,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "lv-brock-bowers": {
-      "name": "Brock Bowers",
-      "team": "LV",
-      "slot": "portrait",
-      "participant_id": "prt_1d56771c8be6b077c95a",
-      "focus": "center 22%",
-      "file": "File:Brock Bowers vs Washington 2025.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Brock_Bowers_vs_Washington_2025.jpg",
-      "artist": "All-Pro Reels",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "den-bo-nix": {
       "name": "Bo Nix",
@@ -894,7 +709,8 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "sf-brock-purdy": {
       "name": "Brock Purdy",
@@ -909,7 +725,8 @@
       "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "den-j-k-dobbins": {
       "name": "J.K. Dobbins",
@@ -924,7 +741,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "sf-christian-mccaffrey": {
       "name": "Christian McCaffrey",
@@ -939,7 +757,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "sf-george-kittle": {
       "name": "George Kittle",
@@ -954,7 +773,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "det-jared-goff": {
       "name": "Jared Goff",
@@ -969,7 +789,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "car-bryce-young": {
       "name": "Bryce Young",
@@ -984,22 +805,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
-    },
-    "car-chuba-hubbard": {
-      "name": "Chuba Hubbard",
-      "team": "CAR",
-      "slot": "portrait",
-      "participant_id": "prt_f554146532241e2c8140",
-      "focus": "center 22%",
-      "file": "File:Chuba Hubbard.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Chuba_Hubbard.jpg",
-      "artist": "All-Pro Reels",
-      "license": "CC BY-SA 2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
-      "modifications": "Resized and cropped by Sift",
-      "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "det-amon-ra-st-brown": {
       "name": "Amon-Ra St. Brown",
@@ -1014,7 +821,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "atl-michael-penix-jr": {
       "name": "Michael Penix Jr.",
@@ -1029,7 +837,8 @@
       "license_url": "https://creativecommons.org/licenses/by/3.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "atl-bijan-robinson": {
       "name": "Bijan Robinson",
@@ -1044,7 +853,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     },
     "no-alvin-kamara": {
       "name": "Alvin Kamara",
@@ -1059,7 +869,8 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
       "modifications": "Resized and cropped by Sift",
       "review_asset": true,
-      "auto_selected": true
+      "auto_selected": true,
+      "review": "identity and framing checked visually 2026-10-06"
     }
   },
   "generated_at": "2026-10-06T06:13:19.791Z"

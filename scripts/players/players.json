@@ -67,8 +67,9 @@
       "slot": "portrait",
       "participant_id": "prt_7877e1343a99819569e0",
       "category": "Jonathan Taylor",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "crowded frame, subject not identifiable"
     },
     {
       "id": "was-jacory-croskey-merritt",
@@ -122,8 +123,9 @@
       "slot": "portrait",
       "participant_id": "prt_c4d635de928fd38b27a7",
       "category": "James Cook",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "wrong person (a different James Cook)"
     },
     {
       "id": "ne-rhamondre-stevenson",
@@ -210,8 +212,9 @@
       "slot": "portrait",
       "participant_id": "prt_1fc25af4fee32000153f",
       "category": "Jalon Daniels",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "distant game photo, subject not identifiable"
     },
     {
       "id": "gb-kaleb-johnson",
@@ -243,8 +246,9 @@
       "slot": "portrait",
       "participant_id": "prt_4bd9a2251e4f18e91c08",
       "category": "Cade Otton",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "face not visible"
     },
     {
       "id": "tb-emeka-egbuka",
@@ -309,8 +313,9 @@
       "slot": "portrait",
       "participant_id": "prt_40434f928d065d5b872e",
       "category": "D'Andre Swift",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "crowded frame, subject not identifiable"
     },
     {
       "id": "nyj-garrett-wilson",
@@ -342,8 +347,9 @@
       "slot": "portrait",
       "participant_id": "prt_593a09d190aa403acae8",
       "category": "Matthew Stafford",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "subject too small in frame"
     },
     {
       "id": "phi-jalen-hurts",
@@ -474,8 +480,9 @@
       "slot": "portrait",
       "participant_id": "prt_9a2f345ec4f50a4a4dc9",
       "category": "Tee Higgins",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "subject too small in frame"
     },
     {
       "id": "jax-parker-washington",
@@ -485,8 +492,9 @@
       "slot": "portrait",
       "participant_id": "prt_855eff10fa8a51192656",
       "category": "Parker Washington",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "wrong person"
     },
     {
       "id": "dal-dak-prescott",
@@ -584,8 +592,9 @@
       "slot": "portrait",
       "participant_id": "prt_9447a7c2cf08879197ce",
       "category": "Cam Skattebo",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "identity not certain"
     },
     {
       "id": "ari-jeremiyah-love",
@@ -661,8 +670,9 @@
       "slot": "portrait",
       "participant_id": "prt_982770719ef2cd71c6b6",
       "category": "Malik Washington",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "wrong person"
     },
     {
       "id": "min-jordan-addison",
@@ -683,8 +693,9 @@
       "slot": "portrait",
       "participant_id": "prt_f41d6392079370c17835",
       "category": "Justin Herbert",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "personal photo, not a football image"
     },
     {
       "id": "sea-sam-darnold",
@@ -716,8 +727,9 @@
       "slot": "portrait",
       "participant_id": "prt_c659abbb7b1c4d3048a0",
       "category": "Omarion Hampton",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "subject too small in frame"
     },
     {
       "id": "lac-quentin-johnston",
@@ -727,8 +739,9 @@
       "slot": "portrait",
       "participant_id": "prt_a606207d4f64552716d2",
       "category": "Quentin Johnston",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "subject too small in frame"
     },
     {
       "id": "kc-patrick-mahomes",
@@ -738,8 +751,9 @@
       "slot": "portrait",
       "participant_id": "prt_02e509e1a92b0884456d",
       "category": "Patrick Mahomes",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "group photo, subject not identifiable"
     },
     {
       "id": "lv-kirk-cousins",
@@ -782,8 +796,9 @@
       "slot": "portrait",
       "participant_id": "prt_1d56771c8be6b077c95a",
       "category": "Brock Bowers",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "crowded frame"
     },
     {
       "id": "den-bo-nix",
@@ -881,8 +896,9 @@
       "slot": "portrait",
       "participant_id": "prt_f554146532241e2c8140",
       "category": "Chuba Hubbard",
-      "auto": true,
-      "focus": "center 22%"
+      "auto": false,
+      "focus": "center 22%",
+      "rejected": "subject too small in frame"
     },
     {
       "id": "det-amon-ra-st-brown",

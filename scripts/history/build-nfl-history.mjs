@@ -37,6 +37,14 @@ const SOURCES = {
   snaps: `snap_counts/snap_counts_${SEASON}.csv`,
   ftn: `ftn_charting/ftn_charting_${SEASON}.csv`,
 };
+// The season before: box scores, snaps and the schedule (dates, home/away, scores). No play-by-play, so
+// no longest plays or blitz splits for it. Optional: the current season builds without it.
+const PRIOR = SEASON - 1;
+const PRIOR_SOURCES = {
+  stats: `stats_player/stats_player_week_${PRIOR}.csv`,
+  snaps: `snap_counts/snap_counts_${PRIOR}.csv`,
+  schedule: 'schedules/games.csv',
+};
 
 async function load(path) {
   const local = process.env.SIFT_NFLVERSE_DIR ? join(process.env.SIFT_NFLVERSE_DIR, path.split('/').pop()) : null;
@@ -183,14 +191,10 @@ function newSplit() { return { db_blitz: 0, epa_blitz: 0, db_noblitz: 0, epa_nob
 const snapBy = new Map(snaps.map((s) => [`${norm(s.player)}|${s.team}|${s.week}`, s]));
 
 // ------------------------------------------------------------------ player game logs
-const byPlayer = new Map();
-for (const s of stats) {
-  if (!SKILL.has(s.position) || s.season_type === '') continue;
-  const g = games.get(s.game_id);
-  const sn = snapBy.get(`${norm(s.player_display_name)}|${s.team}|${s.week}`);
-  const l = longest.get(`${s.player_id}|${s.game_id}`);
-  const row = {
-    week: int(s.week), game_id: s.game_id, season_type: s.season_type, date: g?.date ?? null, team: s.team, opp: s.opponent_team,
+/** One box-score row → one game-log row. `g` is the game (date, home/away teams, final score). */
+function rowFrom(s, g, sn, l, season) {
+  return {
+    season, week: int(s.week), game_id: s.game_id, season_type: s.season_type, date: g?.date ?? null, team: s.team, opp: s.opponent_team,
     home: g ? g.home === s.team : null,
     score: g && g.home_score != null ? { for: g.home === s.team ? g.home_score : g.away_score, against: g.home === s.team ? g.away_score : g.home_score } : null,
     snaps: sn ? { off: int(sn.offense_snaps), pct: r3(num(sn.offense_pct)) } : null,
@@ -198,11 +202,74 @@ for (const s of stats) {
     rushing: { car: int(s.carries), yds: int(s.rushing_yards), td: int(s.rushing_tds), long: l?.rush ?? null },
     receiving: { tgt: int(s.targets), rec: int(s.receptions), yds: int(s.receiving_yards), td: int(s.receiving_tds), long: l?.rec ?? null, target_share: r3(num(s.target_share)), air_share: r3(num(s.air_yards_share)) },
   };
-  const p = byPlayer.get(s.player_id) ?? { gsis: s.player_id, name: s.player_display_name, position: s.position, team: s.team, games: [] };
+}
+const byPlayer = new Map();
+for (const s of stats) {
+  if (!SKILL.has(s.position) || s.season_type === '') continue;
+  const sn = snapBy.get(`${norm(s.player_display_name)}|${s.team}|${s.week}`);
+  const row = rowFrom(s, games.get(s.game_id), sn, longest.get(`${s.player_id}|${s.game_id}`), SEASON);
+  const p = byPlayer.get(s.player_id) ?? { gsis: s.player_id, name: s.player_display_name, position: s.position, team: s.team, games: [], prior: [] };
   p.team = s.team; // most recent row wins (rows are week-ordered below)
   p.games.push(row);
   byPlayer.set(s.player_id, p);
 }
+
+// ------------------------------------------------------------------ prior season (optional)
+let priorRows = 0;
+let priorSourceRows = null;
+try {
+  const [pStats, pSnaps, sched] = await Promise.all([load(PRIOR_SOURCES.stats), load(PRIOR_SOURCES.snaps).catch(() => []), load(PRIOR_SOURCES.schedule)]);
+  const pGames = new Map(sched.filter((g) => int(g.season) === PRIOR).map((g) => [g.game_id, { date: g.gameday || null, home: g.home_team, away: g.away_team, home_score: num(g.home_score), away_score: num(g.away_score) }]));
+  const pSnapBy = new Map(pSnaps.map((s) => [`${norm(s.player)}|${s.team}|${s.week}`, s]));
+  for (const s of pStats) {
+    if (!SKILL.has(s.position) || s.season_type === '') continue;
+    const row = rowFrom(s, pGames.get(s.game_id), pSnapBy.get(`${norm(s.player_display_name)}|${s.team}|${s.week}`), null, PRIOR);
+    const p = byPlayer.get(s.player_id) ?? { gsis: s.player_id, name: s.player_display_name, position: s.position, team: s.team, games: [], prior: [], priorOnly: true };
+    if (p.priorOnly) p.team = s.team;
+    p.prior.push(row);
+    byPlayer.set(s.player_id, p);
+    priorRows++;
+  }
+  priorSourceRows = { stats: pStats.length, snaps: pSnaps.length, schedule: pGames.size };
+  console.log(`prior season ${PRIOR}: ${priorRows} player-games, ${pGames.size} scheduled games`);
+} catch (e) {
+  console.warn(`prior season ${PRIOR} unavailable (${e.message}); building ${SEASON} only`);
+}
+
+// ------------------------------------------------------------------ league ranks for player stats
+// Per-game averages over regular-season games, ranked within a position (#1 = most), among players with
+// at least half as many games as the most-played player at that position. Counting stats only: "more"
+// is unambiguous, so the direction is never in doubt. Ties share a rank.
+const RANKED = {
+  QB: { passing_yards: (g) => g.passing?.yds ?? 0, attempts: (g) => g.passing?.att ?? 0, completions: (g) => g.passing?.cmp ?? 0, passing_tds: (g) => g.passing?.td ?? 0, rushing_yards: (g) => g.rushing.yds },
+  RB: { rushing_yards: (g) => g.rushing.yds, carries: (g) => g.rushing.car, receiving_yards: (g) => g.receiving.yds, receptions: (g) => g.receiving.rec, targets: (g) => g.receiving.tgt, rush_rec_yards: (g) => g.rushing.yds + g.receiving.yds },
+  WR: { receiving_yards: (g) => g.receiving.yds, receptions: (g) => g.receiving.rec, targets: (g) => g.receiving.tgt },
+  TE: { receiving_yards: (g) => g.receiving.yds, receptions: (g) => g.receiving.rec, targets: (g) => g.receiving.tgt },
+};
+function seasonRanks(pick) {
+  const out = new Map(); // gsis -> { position, min_games, stats }
+  for (const [pos, getters] of Object.entries(RANKED)) {
+    const pool = [...byPlayer.values()].filter((p) => p.position === pos).map((p) => ({ p, rows: pick(p).filter((r) => r.season_type === 'REG') })).filter((x) => x.rows.length);
+    if (!pool.length) continue;
+    const minGames = Math.max(1, Math.ceil(Math.max(...pool.map((x) => x.rows.length)) / 2));
+    const qual = pool.filter((x) => x.rows.length >= minGames);
+    for (const [key, get] of Object.entries(getters)) {
+      const vals = qual.map((x) => ({ gsis: x.p.gsis, games: x.rows.length, per_game: x.rows.reduce((a, r) => a + get(r), 0) / x.rows.length }));
+      for (const v of vals) {
+        const rank = 1 + vals.filter((o) => o.per_game > v.per_game).length;
+        const e = out.get(v.gsis) ?? { position: pos, min_games: minGames, of: qual.length, stats: {} };
+        e.stats[key] = { rank, of: vals.length, per_game: Math.round(v.per_game * 10) / 10, games: v.games };
+        out.set(v.gsis, e);
+      }
+    }
+  }
+  return out;
+}
+// Current season: one ranking per completed week ("through week N"), so a pregame view can use only the
+// weeks before its game. Prior season: the full regular season.
+const weeksNow = [...new Set([...byPlayer.values()].flatMap((p) => p.games.filter((r) => r.season_type === 'REG').map((r) => r.week)))].sort((a, b) => a - b);
+const ranksNow = weeksNow.map((w) => ({ w, m: seasonRanks((p) => p.games.filter((r) => r.week <= w)) }));
+const ranksPrior = seasonRanks((p) => p.prior);
 
 // ------------------------------------------------------------------ write
 rmSync(OUT, { recursive: true, force: true });
@@ -210,6 +277,7 @@ mkdirSync(join(OUT, 'players'), { recursive: true });
 const index = {};
 for (const p of byPlayer.values()) {
   p.games.sort((a, b) => a.week - b.week);
+  p.prior.sort((a, b) => (a.season_type === b.season_type ? 0 : a.season_type === 'REG' ? -1 : 1) || a.week - b.week);
   const b = playerBlitz.get(p.gsis);
   const t = playerBlitz.get(`team:${p.team}`);
   const blitz = b && (b.db_blitz + b.db_noblitz > 0 || b.tgt_blitz + b.tgt_noblitz > 0)
@@ -220,8 +288,16 @@ for (const p of byPlayer.values()) {
         team_targets_blitz: t?.tgt_blitz ?? null, team_targets_no_blitz: t?.tgt_noblitz ?? null,
       }
     : null;
-  writeFileSync(join(OUT, 'players', `${p.gsis}.json`), JSON.stringify({ kind: 'sift_player_history', sport: 'NFL', season: SEASON, gsis: p.gsis, name: p.name, position: p.position, team: p.team, games: p.games, vs_blitz: blitz }));
-  index[p.gsis] = { name: p.name, position: p.position, team: p.team, games: p.games.length };
+  const ranks = [
+    ...ranksNow.filter((x) => x.m.has(p.gsis)).map((x) => ({ season: SEASON, through_week: x.w, ...x.m.get(p.gsis) })),
+    ...(ranksPrior.has(p.gsis) ? [{ season: PRIOR, through_week: null, ...ranksPrior.get(p.gsis) }] : []),
+  ];
+  writeFileSync(join(OUT, 'players', `${p.gsis}.json`), JSON.stringify({
+    kind: 'sift_player_history', sport: 'NFL', season: SEASON, gsis: p.gsis, name: p.name, position: p.position, team: p.team, games: p.games, vs_blitz: blitz,
+    prior: p.prior.length ? { season: PRIOR, games: p.prior } : null,
+    ranks,
+  }));
+  index[p.gsis] = { name: p.name, position: p.position, team: p.team, games: p.games.length, prior_games: p.prior.length };
 }
 
 const qbs = [...qbGame.values()].map((q) => ({ ...q, epa: r3(q.epa) }));
@@ -249,13 +325,20 @@ const pbpWeeks = {};
 for (const g of games.values()) pbpWeeks[g.week] = (pbpWeeks[g.week] ?? 0) + 1;
 writeFileSync(join(OUT, 'index.json'), JSON.stringify({
   kind: 'sift_history_index', sport: 'NFL', season: SEASON, built_at: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
-  sources: Object.entries(SOURCES).map(([k, path]) => ({ key: k, url: `${REL}/${path}`, rows: { stats: stats.length, pbp: pbp.length, snaps: snaps.length, ftn: ftn.length }[k] })),
+  sources: [
+    ...Object.entries(SOURCES).map(([k, path]) => ({ key: k, url: `${REL}/${path}`, rows: { stats: stats.length, pbp: pbp.length, snaps: snaps.length, ftn: ftn.length }[k] })),
+    ...(priorSourceRows ? Object.entries(PRIOR_SOURCES).map(([k, path]) => ({ key: `prior_${k}`, url: `${REL}/${path}`, rows: priorSourceRows[k] })) : []),
+  ],
+  prior_season: priorSourceRows ? PRIOR : null,
   licence: 'nflverse data CC-BY 4.0; FTN charting © FTN Data, CC-BY-SA 4.0 (via nflverse)',
   games_by_week: pbpWeeks, ftn_charted_plays_by_week: ftnWeeks,
   notes: [
     'Counts and ratios of published rows only; nothing is modelled or adjusted.',
     'Snap counts are joined to players by name, team and week (PFR rows carry no GSIS id).',
     'A blitz is an FTN-charted dropback with at least one blitzer. Man/zone coverage is not in any 2026 file published yet.',
+    'Prior season: weekly box scores, snap counts and the schedule only (no play-by-play), so no longest plays or blitz splits for it.',
+    'Player ranks: per-game averages over regular-season games within a position, among players with at least half the games of the most-played player; #1 = most. Ties share a rank.',
+    'No historical betting lines are published here: comparisons in the app are against the CURRENT line only.',
   ],
   players: index,
 }, null, 1));

@@ -24,6 +24,11 @@ export interface ContextNote {
   affects: { label: string; metricId: string; rank: string | null }[];
   /** Always 'none': context notes never change a published number. */
   adjustment: 'none';
+  /**
+   * How much this note changes the read of the game, on the same scale as a matchup edge's score (a clear
+   * edge ≈ 0.45, a major one 0.6–1.0), so What Matters can order notes and edges together.
+   */
+  importance: number;
 }
 
 /** Name key that survives "Jr.", "III", punctuation and ESPN/Sleeper spelling differences. */
@@ -87,6 +92,8 @@ export function qbChangeNote(r: EventResearchDoc, g: GameSides, team: Side, hist
       { label: 'Offense overall', metricId: 'met_nfl.adj_off_epa', rank: rankView(matchupObs(r, 'met_nfl.adj_off_epa', team)?.context)?.text ?? null },
     ],
     adjustment: 'none',
+    // A new starter, or one who started at most half the games, changes the read most; a clear EPA gap adds to it.
+    importance: (!cur ? 1 : started * 2 <= played ? 0.85 : 0.5) + (better || worse ? 0.15 : 0),
   };
 }
 
@@ -116,8 +123,16 @@ export function personnelNotes(r: EventResearchDoc, g: GameSides, players: Map<s
       if (!['OUT', 'DOUBTFUL', 'INJURED_RESERVE', 'SUSPENDED'].includes(inj.status)) continue;
       const log = players.get(`${nameKey(m[1])}|${team.abbr}`);
       if (!log) continue;
-      const played = log.games.filter((x) => x.week < g.week!).length;
+      const rows = log.games.filter((x) => x.week < g.week!);
+      const played = rows.length;
       if (played === 0 || teamGames === 0) continue; // already absent all season: the numbers reflect it
+      // Only a player with a real role changes what the numbers describe: a regular snap share, carries or targets.
+      const avg = (f: (x: (typeof rows)[number]) => number | null) => { const v = rows.map(f).filter((n): n is number => n != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
+      const snapPct = avg((x) => x.snaps?.pct ?? null);
+      const car = avg((x) => x.rushing.car);
+      const tgt = avg((x) => x.receiving.tgt);
+      if (snapPct < 0.35 && car < 8 && tgt < 4) continue;
+      const usage = [snapPct >= 0.05 ? `${Math.round(snapPct * 100)}% of snaps` : null, car >= 1 ? `${Math.round(car * 10) / 10} carries` : null, tgt >= 1 ? `${Math.round(tgt * 10) / 10} targets` : null].filter(Boolean).join(', ');
       const ruled = inj.status === 'DOUBTFUL' ? 'is doubtful' : 'is out';
       out.push({
         id: `absence:${team.abbr}:${nameKey(m[1])}`,
@@ -125,9 +140,11 @@ export function personnelNotes(r: EventResearchDoc, g: GameSides, players: Map<s
         team,
         headline: `${team.nick} without ${m[2]} ${m[1]}`,
         detail: `${m[1]} ${ruled} for this game. He played in ${played} of the ${team.nick}' ${teamGames} games, so their season ${m[2] === 'QB' ? 'passing' : m[2] === 'RB' ? 'rushing' : 'passing'} numbers were built with him.`,
-        facts: [`${m[1]}: ${played} games played before week ${g.week}`, `Designation: ${inj.status.replace('_', ' ').toLowerCase()} (${inj.source})`],
+        facts: [`${m[1]}: ${played} games played before week ${g.week}${usage ? ` · per game: ${usage}` : ''}`, `Designation: ${inj.status.replace(/_/g, ' ').toLowerCase()} (${inj.source})`],
         affects: [{ label: m[2] === 'RB' ? 'Rush offense' : 'Passing offense', metricId: m[2] === 'RB' ? 'met_nfl.adj_off_rush_epa' : 'met_nfl.adj_off_db_epa', rank: rankView(matchupObs(r, m[2] === 'RB' ? 'met_nfl.adj_off_rush_epa' : 'met_nfl.adj_off_db_epa', team)?.context)?.text ?? null }],
         adjustment: 'none',
+        // An every-down player (~85% of snaps) ≈ a major edge; a committee back (~50%) ≈ below a clear edge.
+        importance: 0.15 + 0.5 * Math.min(1, snapPct),
       });
     }
     for (const s of starters(r, team.abbr)) {
@@ -148,6 +165,7 @@ export function personnelNotes(r: EventResearchDoc, g: GameSides, players: Map<s
         facts: [`Games played: ${played.length ? played.map((x) => `week ${x.week}`).join(', ') : 'none'}`],
         affects: [{ label: s.position === 'RB' ? 'Rush offense' : 'Passing offense', metricId: s.position === 'RB' ? 'met_nfl.adj_off_rush_epa' : 'met_nfl.adj_off_db_epa', rank: rankView(matchupObs(r, s.position === 'RB' ? 'met_nfl.adj_off_rush_epa' : 'met_nfl.adj_off_db_epa', team)?.context)?.text ?? null }],
         adjustment: 'none',
+        importance: 0.35,
       });
     }
   }

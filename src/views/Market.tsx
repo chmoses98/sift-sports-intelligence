@@ -55,7 +55,11 @@ export function MarketView() {
   const team = useAsync(m?.participant_id ? `prof:${sport.code}:${m.participant_id}` : null, () => repo.profile(m!.participant_id!));
   const recs = useAsync(`recs:${sport.code}:${repo.source.root}`, () => repo.recommendations());
   const title = m ? describeMarket(m, { playerName: () => player.data?.entity.display_name ?? null, abbrOf: () => team.data?.entity.short_name ?? null }).title : null;
-  useVisit(title, 'market');
+  // A market belongs to its game: the breadcrumb runs through that game.
+  const rev = research.data?.event;
+  const side = (ha: string) => rev?.participants.find((x) => x.participant_id === research.data?.participants.find((q) => q.home_away === ha)?.participant_id)?.short_name;
+  const parentStep = rev && side('AWAY') && side('HOME') ? { href: routes.game(slug, eventId), label: `${side('AWAY')} @ ${side('HOME')}`, kind: 'game' as const } : research.loading ? undefined : null;
+  useVisit(parentStep === undefined ? null : title, 'market', parentStep);
 
   if (!eventId) return <div className="page"><Notice tone="error" title="Which game is this market on?">Market links carry their event; open it from a game, player or team.</Notice></div>;
   if (detail.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
@@ -71,6 +75,7 @@ export function MarketView() {
   const mp = prices.get(m.market_id);
   const rec = recs.data?.items.find((r) => r.market_id === m.market_id);
   const authority = rec ? rec.authority : 'RESEARCH_ONLY';
+  const authorityWord = authority.replace(/_/g, ' ').toLowerCase();
   const mid = m.yes_bid != null && m.yes_ask != null ? (m.yes_bid + m.yes_ask) / 2 : m.market_probability;
   const x = (m.extensions ?? {}) as any;
   const stat = (x.stat as string | undefined) ?? null;
@@ -112,7 +117,13 @@ export function MarketView() {
       <section className="contract" aria-label="Contract semantics">
         <div className="contract__side contract__side--yes">
           <span className="contract__k">YES pays $1 if</span>
-          <span className="contract__v">{m.yes_description.replace(/^YES iff /, '').replace(/_/g, ' ')}</span>
+          <span className="contract__v">{title ? title.replace(/ moneyline$/, ' win the game') : m.yes_description.replace(/^YES iff /, '').replace(/_/g, ' ')}</span>
+          {title && (
+            <details className="contract__rule">
+              <summary>Exact settlement rule</summary>
+              <span>{m.yes_description.replace(/^YES iff /, '').replace(/_/g, ' ')}</span>
+            </details>
+          )}
         </div>
         <div className="contract__side contract__side--no">
           <span className="contract__k">NO pays $1 if</span>
@@ -151,11 +162,11 @@ export function MarketView() {
               <FreshnessChip asOf={mp.generated_at} component="model" label="model" />
               <span className="chip">support {String(mp.support_status ?? x.incumbent_support_state ?? '—').replace(/_/g, ' ').toLowerCase()}</span>
               <span className="chip">data quality {mp.data_quality_status ?? '—'}</span>
-              <span className="chip chip--research">authority {authority.replace('_', ' ')}</span>
+              <span className="chip chip--research">{authorityWord}</span>
             </div>
             {rec && (
               <Notice tone="research" title={`The repository's own process flags this market: ${rec.selection} ${rec.status}`}>
-                Fair {cents(rec.fair_probability)}, bet-up-to {cents(rec.bet_up_to_price)}, authority {rec.authority}{rec.research_only ? ', research only' : ''}. Evidence, not an instruction.
+                Fair {cents(rec.fair_probability)}, bet-up-to {cents(rec.bet_up_to_price)}, {rec.authority.replace(/_/g, ' ').toLowerCase()}{rec.research_only && rec.authority !== 'RESEARCH_ONLY' ? ', research only' : ''}. Evidence, not an instruction.
               </Notice>
             )}
           </div>
@@ -208,7 +219,7 @@ export function MarketView() {
           <div className="fact"><dt>Market prices</dt><dd><QualityBadge status={capStatus(caps, 'market_prices')} /></dd></div>
           <div className="fact"><dt>Price history</dt><dd><QualityBadge status={capStatus(caps, 'market_price_history')} /></dd></div>
           <div className="fact"><dt>Projections</dt><dd><QualityBadge status={capStatus(caps, 'raw_projections')} /></dd></div>
-          <div className="fact"><dt>Bet authority</dt><dd>{authority}</dd></div>
+          <div className="fact"><dt>Bet authority</dt><dd>{authorityWord.replace(/^\w/, (x) => x.toUpperCase())}</dd></div>
         </dl>
         {mp && (
           <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}

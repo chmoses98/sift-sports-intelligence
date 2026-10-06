@@ -37,7 +37,9 @@ describe('metric experience', () => {
     expect(screen.getByText('Dallas Cowboys')).toBeInTheDocument(); // worst
     expect(screen.getByText(/NFL teams, 2026/)).toBeInTheDocument();
     expect(await screen.findByText(/Buffalo Bills · Adjusted offensive EPA per dropback/)).toBeInTheDocument();
-    expect(screen.getByText('ADJ_RIDGE')).toBeInTheDocument();
+    // The window's name for people; the publication's code (ADJ_RIDGE) never shows.
+    expect(screen.getAllByText('Opponent-adjusted').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/ADJ_RIDGE/)).toBeNull();
     const full = await screen.findByRole('link', { name: /Full NFL ranking/ });
     expect(full.getAttribute('href')).toContain('/nfl/ranking/rnk_e3485aaecabb0ec363a8');
   });
@@ -88,15 +90,15 @@ describe('team profile + historical drill-down', () => {
 describe('capability-aware rendering', () => {
   it('shows player lenses the manifest supports and hides the ones it does not', async () => {
     const a = renderScreen(routes.player('nfl', ALLEN), '/nfl/player/:playerId', <PlayerView />);
-    expect(await screen.findByRole('heading', { name: 'Markets' })).toBeInTheDocument();
-    expect(screen.getByText('Projected Range')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Market Context' })).toBeInTheDocument();
+    expect(await screen.findByText('Projected ranges for every stat in this game')).toBeInTheDocument();
     expect(screen.getByText('Usage & Role')).toBeInTheDocument();
     a.unmount();
     clearAsyncMemo();
     renderScreen(routes.player('nfl', ALLEN), '/nfl/player/:playerId', <PlayerView />, { usage: 'UNAVAILABLE', projection_distributions: 'UNAVAILABLE', player_props: 'UNAVAILABLE' });
     await screen.findByText('Josh Allen');
-    expect(screen.queryByRole('heading', { name: 'Markets' })).toBeNull();
-    expect(screen.queryByText('Projected Range')).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Market Context' })).toBeNull();
+    expect(screen.queryByText('Projected ranges for every stat in this game')).toBeNull();
     expect(screen.queryByText('Usage & Role')).toBeNull();
   });
 

@@ -14,7 +14,7 @@ import { gameScripts, sharePct } from '../lib/scripts';
 import { useNow } from '../live/hooks';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
-import { Disagreements, FeatureCard, featuredItem, GameTile, ScriptBar, sides, useSlateResearch } from './home/cards';
+import { Disagreements, FeatureCard, featuredItem, GameTile, sides, useSlateResearch } from './home/cards';
 import { matchupInsights } from '../insights/matchups';
 import { FeaturedProps } from './Home';
 import { PanelHead, ViewAll } from './game/panels';
@@ -42,7 +42,6 @@ function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[
                 <span className="soutl__g">
                   <TeamMark sport={sportCode} abbr={away?.short_name} size="sm" />{away?.short_name} <span className="muted">at</span> {home?.short_name}<TeamMark sport={sportCode} abbr={home?.short_name} size="sm" />
                 </span>
-                <ScriptBar set={set!} labels={false} />
                 <ol className="soutl__l">
                   {set!.scripts.map((s) => (
                     <li key={s.id}><i className={`sdot sdot--s${s.index}`} aria-hidden="true" />{s.name} <b className="num">{sharePct(s.share)}</b></li>
@@ -111,7 +110,7 @@ export function SportHomeView() {
     <div className="page shome">
       <header className="hbar">
         <h1 className="hbar__h">{sport.label}</h1>
-        <span className="hbar__m">{comp} · {upcoming.length} games · {compact(markets)} markets · <QuoteChip view={publicationView(lastCapture)} now={now} label="published prices" /></span>
+        <span className="hbar__m">{comp} · {upcoming.length} games · {compact(markets)} markets · <QuoteChip view={publicationView(lastCapture)} now={now} label="prices" /></span>
         <span className="hbar__x">
           <Link to={routes.slate(slug)} className="btn btn--sm">Full slate <Icon name="arrowRight" size={14} /></Link>
           {sport.code === 'NFL' && <Link to={routes.parlays(slug)} className="btn btn--sm btn--ghost">Parlays</Link>}

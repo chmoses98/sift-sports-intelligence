@@ -37,7 +37,7 @@ export function GameRowLink({ g, slug, teamId }: { g: ProfileGame; slug: string;
   return (
     <Link to={routes.game(slug, g.event_id, { team: teamId })} className="grow">
       <span className="grow__c">{g.competition?.replace(/^(\d{4}) REG week /, '$1 · W')}</span>
-      <span className="grow__o">{g.home_away === 'AWAY' ? '@' : 'vs'} {g.opponent_name}</span>
+      <span className="grow__o">{g.home_away === 'AWAY' ? '@' : 'vs'} {displayName(g.opponent_name)}</span>
       {res?.outcome ? (
         <span className={`grow__r grow__r--${res.outcome}`}>
           <b>{res.outcome}</b> <span className="num">{res.for}–{res.against}</span>
@@ -91,6 +91,7 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
   return (
     <div className="page game game--hist">
       <header className="mh mh--hist">
+        <h1 className="sr-only">{away.name} at {home.name}, final</h1>
         <div className="mh__eyebrow">
           <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink>
           <span>·</span>

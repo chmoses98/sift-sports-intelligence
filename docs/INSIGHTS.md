@@ -10,7 +10,7 @@ behind it one tap down, and never changes a model probability, a projection or a
 | Layer | Source | Refresh | Where |
 |---|---|---|---|
 | Ratings, ranks, projections, scripts, markets | The NFL publication (`edge_finder.app.v1`) | every publication run | `public/data/nfl/app/latest` (snapshot) or the live root |
-| Player game logs, quarterback starts, scheme counts | nflverse public releases: `stats_player_week`, `play_by_play`, `snap_counts`, `ftn_charting` (2026) | every deploy (3 h), committed copy as fallback | `public/data/nfl/history` via `scripts/history/build-nfl-history.mjs` |
+| Player game logs, quarterback starts, scheme counts | nflverse public releases: `stats_player_week`, `play_by_play`, `snap_counts`, `ftn_charting` (2026); `stats_player_week`, `snap_counts`, `schedules/games.csv` (2025) | every deploy (3 h), committed copy as fallback | `public/data/nfl/history` via `scripts/history/build-nfl-history.mjs` |
 | Player photos | Wikimedia Commons, free licences only | on demand (`player-images.yml`) | `public/players/nfl`, credits in `src/lib/player-images.json` |
 
 nflverse data is CC-BY 4.0; FTN charting is © FTN Data, CC-BY-SA 4.0 (attribution on Data & provenance and in
@@ -39,6 +39,29 @@ into its pregame research.
   A player absent all season is not news — the numbers already reflect it.
 * **Returning**: a depth-chart starter who missed games before this one.
 * Notes are explanations, never adjustments (`adjustment: 'none'`); the script deep view shows them too.
+
+* **Key absence** notes need a real role: at least 35% of snaps, 8 carries or 4 targets per game in the games
+  played. Such an absence also appears in the game's Injuries That Matter, so the two panels never disagree.
+
+## What Matters ordering (`insights/matters.ts`)
+
+Matchup edges and context notes share one importance scale. An edge's score is its strength gap × area weight
+(a clear edge ≈ 0.45, a major one 0.6–1.0). A quarterback change scores 1.0 for a new starter, 0.85 when the
+current starter started at most half the games, 0.5 otherwise, +0.15 when the EPA-per-dropback gap is large.
+A key absence scores 0.15 + 0.5 × the player's snap share (an every-down player ≈ a major edge; a committee
+back sits below the clear edges). A returning starter 0.35; one scheme note at most, at 0.4. The five highest
+are shown, highest first.
+
+## Player history (`history/stats.ts`, `views/player/history.tsx`)
+
+* Windows: Last 5 · Last 10 (both span seasons) · this season · last season. Rows carry their season; a mixed
+  window labels last season's games ("'25 W17").
+* Every comparison is with **today's** line ("3 of 5 above today's line of 89.5"); no historical line is
+  published or implied. The chart's line is labelled "Today's line".
+* Ranks: per-game averages of counting stats within a position, #1 = most, ties share a rank, minimum games =
+  half the most-played player's games. This season's ranking is read through the last week before the game.
+* Is today's projection unusual? The summary says whether it sits above or below the window's average, or
+  outside every game in the window.
 
 ## Scheme (`insights/scheme.ts`, `history/team.ts`) — requirement 14
 

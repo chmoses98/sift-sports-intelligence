@@ -8,7 +8,7 @@ import { MarketBoard } from '../components/MarketBoard';
 import { MetricInfo } from '../components/Gloss';
 import { ContextMeter, EntityLink, ErrorState, Notice, QualityBadge, RankPill, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { displayName, kickoff, metricFormatter, ordinal, shortDate } from '../lib/format';
-import { categoryLabel, CATEGORY_ORDER } from '../lib/nfl';
+import { categoryLabel, CATEGORY_ORDER, windowName, statusWord } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { teamAccent } from '../lib/teams';
 import { useDirectory } from '../state/directory';
@@ -38,7 +38,7 @@ export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabe
       <Link className="mrow2__main" to={routes.metric(slug, o.metric_id, { team: teamId, opp: oppId, event: eventId })}>
         <span className="mrow2__name">
           {def?.name ?? o.metric_id}
-          <span className="mrow2__win">{o.window.label}{o.split ? ` · ${o.split.value.replace(/_/g, ' ')}` : ''}</span>
+          <span className="mrow2__win">{windowName(o.window.label)}{o.split ? ` · ${o.split.value.replace(/_/g, ' ')}` : ''}</span>
         </span>
         <span className="mrow2__val num">{o.display_value ?? fmt(o.value)}</span>
         <span className="mrow2__meter"><ContextMeter value={o.value} ctx={ctx} label={`${def?.name}: position among ${ctx?.universe_size} teams`} /></span>
@@ -49,7 +49,7 @@ export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabe
       {ctx?.ranking_id && (
         <SaveButton
           compact ref_kind="RANKING" sport={sportCode} id={ctx.ranking_id}
-          label={{ label: `${teamLabel} ${def?.short_name ?? o.metric_id}: ${ordinal(ctx.rank ?? 0)} of ${ctx.universe_size}`, sub: `${fmt(o.value)} · ${o.window.label}`, href: routes.metric(slug, o.metric_id, { team: teamId, opp: oppId }) }}
+          label={{ label: `${teamLabel} ${def?.short_name ?? o.metric_id}: ${ordinal(ctx.rank ?? 0)} of ${ctx.universe_size}`, sub: `${fmt(o.value)} · ${windowName(o.window.label)}`, href: routes.metric(slug, o.metric_id, { team: teamId, opp: oppId }) }}
         />
       )}
     </li>
@@ -65,7 +65,7 @@ function Standouts({ obs, slug, teamId, oppId }: { obs: Observation[]; slug: str
     <li key={o.observation_id}>
       <Link to={routes.metric(slug, o.metric_id, { team: teamId, opp: oppId })} className="stand">
         <span className="stand__rank">{ordinal(o.context!.rank!)}</span>
-        <span className="stand__name">{metrics.get(o.metric_id)?.name ?? o.metric_id}<span className="muted"> · {o.window.label}</span></span>
+        <span className="stand__name">{metrics.get(o.metric_id)?.name ?? o.metric_id}<span className="muted"> · {windowName(o.window.label)}</span></span>
       </Link>
     </li>
   );
@@ -177,7 +177,7 @@ export function TeamView() {
             {rec && <span className="ehead__rec num">{rec.wins}–{rec.losses}{rec.ties ? `–${rec.ties}` : ''}</span>}
             {nxt && (
               <EntityLink to={routes.game(slug, nxt.event_id)} kind="game">
-                Next: {nxt.home_away === 'AWAY' ? '@' : 'vs'} {nxt.opponent_name} · {kickoff(nxt.start_time_utc)}
+                Next: {nxt.home_away === 'AWAY' ? '@' : 'vs'} {displayName(nxt.opponent_name)} · {kickoff(nxt.start_time_utc)}
               </EntityLink>
             )}
             <QualityBadge quality={p.quality} />
@@ -207,10 +207,10 @@ export function TeamView() {
             )}
           </Stratum>
           {nxt && (
-            <Stratum n="02" title={`This week: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${nxt.opponent_name}`} sub="The matchup board compares both units on every adjusted rating.">
+            <Stratum n="02" title={`This week: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${displayName(nxt.opponent_name)}`} sub="The matchup board compares both units on every adjusted rating.">
               <div className="cta-row">
                 <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id, { tab: 'matchup' })}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
-                {oppId && <Link className="btn btn--ghost" to={routes.team(slug, oppId)}>{nxt.opponent_name} profile</Link>}
+                {oppId && <Link className="btn btn--ghost" to={routes.team(slug, oppId)}>{displayName(nxt.opponent_name)} profile</Link>}
               </div>
             </Stratum>
           )}
@@ -223,7 +223,7 @@ export function TeamView() {
             <Stratum n="04" title="Availability" sub="Current injury designations.">
               <ul className="avail">
                 {p.availability.filter((a) => a.status !== 'ACTIVE').map((a, i) => (
-                  <li key={i} className="avail__row"><span className={`pl__inj pl__inj--${a.status.toLowerCase()}`}>{a.status}</span><span className="avail__d">{a.detail}</span></li>
+                  <li key={i} className="avail__row"><span className={`pl__inj pl__inj--${a.status.toLowerCase()}`}>{statusWord(a.status)}</span><span className="avail__d">{a.detail}</span></li>
                 ))}
               </ul>
             </Stratum>

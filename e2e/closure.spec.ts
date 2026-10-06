@@ -50,7 +50,7 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['team', `./#/nfl/team/${BUF}`, (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor()],
   ['metric', `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}&opp=${NE}`, (p) => p.getByText('League median').waitFor()],
   ['raw-metric', `./#/nfl/metric/met_nfl.off_epa_play?team=${BUF}&opp=${NE}`, (p) => p.getByText('League median').waitFor()],
-  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Markets', exact: true }).waitFor()],
+  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Market Context', exact: true }).waitFor()],
   ['market', `./#/nfl/market/${ML_ID}?event=${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor()],
 ];
 

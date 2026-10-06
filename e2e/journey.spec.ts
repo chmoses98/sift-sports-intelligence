@@ -166,6 +166,9 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 test('deep links survive a refresh on the Pages base path @smoke', async ({ page }) => {
   await page.goto('./#/nfl/team/prt_38f80e30c7c786aaf5b4?tab=schedule');
   await expect(page.getByRole('heading', { name: /Baltimore Ravens/i, level: 1 })).toBeVisible();
+  // Let the page's own requests (team logos are fetched and held as blobs) finish first: a reload cancels
+  // in-flight loads, which the asset guard (fixtures.ts) would rightly count as a failed internal asset.
+  await page.waitForLoadState('networkidle');
   await page.reload();
   await expect(page.locator('.tabs').getByRole('tab', { name: 'Schedule' })).toHaveAttribute('aria-selected', 'true');
 });

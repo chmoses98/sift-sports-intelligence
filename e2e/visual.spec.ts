@@ -47,9 +47,12 @@ test('game markets board @visual', async ({ page }) => {
   await page.goto(`./#/nfl/game/${NEBUF}?tab=markets`);
   await page.getByRole('heading', { name: 'Markets', exact: true }).waitFor();
   const board = page.locator('#g-markets');
-  await board.scrollIntoViewIfNeeded();
   await ready(page);
+  // Let the quote check land first: its freshness line sits above the board and can change the board's
+  // position. Then scroll to a fixed offset rather than "into view", which differs between engines.
+  await expect(board.locator('.gquote')).toContainText(/updated/i);
   await expect(board.locator('.mboard__bar')).toBeVisible();
+  await board.locator('.mboard__bar').evaluate((e) => window.scrollTo(0, Math.round(e.getBoundingClientRect().top + window.scrollY - 180)));
   await expect(page).toHaveScreenshot('game-markets.png');
 });
 

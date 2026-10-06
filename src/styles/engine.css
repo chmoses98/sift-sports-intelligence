@@ -1,0 +1,146 @@
+/* ==========================================================================
+   CFB SCRIPT ENGINE — the CFB game page on the same SIFT surfaces.
+   Reuses panels, script cards (.scard--s1..4 = Primary..Danger), survival
+   cells and the price token; adds only what the engine's data needs.
+   ========================================================================== */
+
+/* ---- overview grid */
+@container (min-width: 760px) {
+  .ov--engine > .eng-read { grid-column: span 5; }
+  .ov--engine > .eng-scripts { grid-column: span 7; }
+  .ov--engine > .eng-surv { grid-column: 1 / -1; }
+  .ov--engine > .eng-edges { grid-column: span 7; }
+  .ov--engine > .eng-conf { grid-column: span 5; }
+}
+@container (min-width: 1180px) {
+  .ov--engine > .eng-read { grid-column: span 9; }
+  .ov--engine > .eng-scripts { grid-column: span 15; }
+  .ov--engine > .eng-surv { grid-column: 1 / -1; grid-row: auto; }
+  .ov--engine > .eng-edges { grid-column: span 13; }
+  .ov--engine > .eng-conf { grid-column: span 11; }
+}
+.eng-surv, .eng-edges, .eng-conf { padding: var(--s-5); border-radius: var(--r-1); }
+
+/* ---- SIFT read */
+.eng-read .phead { flex-wrap: wrap; }
+.eng-read__pts { margin: 0 0 var(--s-4); padding-left: 1.1em; display: grid; gap: 8px; color: var(--text); font-size: var(--fs-sm); line-height: 1.5; }
+.eng-read__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; color: var(--text-2); }
+.rchip { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: var(--r-pill); border: 1px solid var(--gold-line); color: var(--sand); font-size: 0.72rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ---- confidence */
+.cfchip { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: var(--r-pill); font-size: 0.76rem; font-weight: 650; white-space: nowrap; border: 1px solid var(--line-2); color: var(--text); margin-left: auto; }
+.cfchip--high { border-color: rgba(31, 224, 143, 0.55); color: var(--pos); background: var(--pos-bg); }
+.cfchip--medium { border-color: var(--gold-line); color: var(--gold-2); background: var(--gold-bg); }
+.cfchip--low { border-color: rgba(255, 81, 101, 0.55); color: #ff8a98; background: var(--neg-bg); }
+.gates { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 14px; font-size: var(--fs-sm); }
+.gates li { display: flex; align-items: center; gap: 6px; color: var(--text); }
+.gates li.is-ok svg { color: var(--pos); }
+.gates li.is-bad { color: #ffb3bc; }
+.gates li.is-bad svg { color: var(--neg); }
+.eng-conf__cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s-4); }
+
+/* ---- script cards: role word in place of a share (V1 publishes no likelihoods) */
+.eng-scard { min-height: 180px; grid-template-rows: auto auto 1fr auto; background: radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--sd) 70%, transparent), transparent 70%), #02070d; }
+.eng-scard__role { font-family: var(--font-serif); font-size: clamp(1.7rem, 7cqw, 2.3rem); line-height: 1; color: #fff; text-shadow: 0 0 18px color-mix(in srgb, var(--sh) 70%, transparent); order: -1; }
+.eng-scard__arch { font-size: 0.72rem; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sh); }
+.eng-scards { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+
+/* ---- survival table + why this bet */
+.fitcell--neutral { border-style: dashed; border-color: rgba(148, 170, 189, 0.45); }
+.why__toggle { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; min-height: 28px; padding: 0; border: 0; background: none; color: var(--ice); font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+.why__toggle:hover { color: var(--cyan-2); }
+.why__toggle .is-flipped { transform: rotate(180deg); }
+.eng-surv th[scope='row'] { display: grid; justify-items: start; }
+.why__row > td { padding: 0 0 var(--s-4) !important; }
+.why { padding: var(--s-4); border-radius: var(--r-2); background: var(--panel-deep); border: 1px solid var(--line-2); }
+.why__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--s-4); }
+.why__h { margin: 0 0 6px; font-size: 0.75rem; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-2); }
+.why__scripts, .why__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--fs-sm); color: var(--text); }
+.why__list li { line-height: 1.45; }
+.why__c--yes { color: var(--pos); }
+.why__c--part { color: var(--gold-2); }
+.why__c--no { color: #ff8a98; }
+.why__c--neutral { color: var(--text-2); }
+.lchips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.lchip { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border-radius: var(--r-1); border: 1px solid var(--line-2); font-size: 0.72rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+.lchip--best_expression { border-color: var(--gold-line); color: var(--gold-2); }
+.lchip--multi_script { border-color: rgba(31, 178, 236, 0.6); color: var(--cyan-2); }
+.lchip--aggressive, .lchip--script_dependent, .lchip--narrow_script { color: var(--text-2); }
+.lchip--contradicted { border-color: rgba(255, 81, 101, 0.55); color: #ff8a98; }
+.lchip--low_data_confidence, .lchip--market_disagreement { border-style: dashed; color: var(--sand); }
+
+/* ---- matchup edges */
+.etab { width: 100%; font-size: var(--fs-sm); border-collapse: collapse; }
+.etab th, .etab td { padding: 9px 6px; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+.etab thead th { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-2); white-space: nowrap; }
+.etab tbody th { color: var(--text-hi); font-weight: 600; white-space: nowrap; }
+.ecell { display: inline-flex; align-items: center; gap: 8px; }
+.ecell .num { font-family: var(--font-num); min-width: 3.4em; text-align: right; color: var(--text-hi); }
+.ebar { position: relative; display: inline-block; width: 92px; height: 8px; border-radius: 4px; background: rgba(38, 150, 214, 0.08); }
+.ebar__mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--mark-axis); }
+.ebar__v { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.ebar__v--pos { background: var(--mark-focus); }
+.ebar__v--neg { background: var(--mark-opp); }
+.etab td.is-noise .ebar__v { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0 2px, transparent 2px 5px); opacity: 0.7; }
+.eng-edges__pace { margin: var(--s-3) 0 0; }
+
+/* ---- script tab */
+.eng-chain { display: grid; gap: var(--s-6); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .eng-chain { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); } }
+.chain { list-style: none; counter-reset: c; margin: 0; padding: 0; display: grid; gap: 10px; }
+.chain > li { counter-increment: c; position: relative; padding: 10px 12px 10px 44px; border-radius: var(--r-2); background: var(--panel-deep); border: 1px solid var(--line); }
+.chain > li::before { content: counter(c); position: absolute; left: 12px; top: 10px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: rgba(31, 178, 236, 0.16); color: var(--cyan-2); font-family: var(--font-num); font-size: 0.75rem; }
+.chain > li + li::after { content: ''; position: absolute; left: 22px; top: -11px; width: 1px; height: 10px; background: var(--line-3); }
+.chain__t { display: block; color: var(--text-hi); font-size: var(--fs-md); line-height: 1.45; }
+.chain__f { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.fchip { border: 1px solid var(--line-2); border-radius: var(--r-2); background: rgba(2, 14, 24, 0.6); font-size: 0.78rem; max-width: 100%; }
+.fchip > summary { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 8px; color: var(--text); list-style: none; }
+.fchip > summary::-webkit-details-marker { display: none; }
+.fchip[open] { padding-bottom: 8px; }
+.fchip[open] > summary { color: var(--text-hi); }
+.fchip > p, .fchip > ul { margin: 6px 10px 0; }
+.fchip__s { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+.fchip__s--strong { color: var(--gold-2); }
+.mmini { list-style: none; padding: 0; display: grid; gap: 6px; }
+.mmini li { display: grid; gap: 1px; }
+.mmini .num { font-family: var(--font-num); color: var(--text-hi); }
+.eng-shape { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); margin-bottom: var(--s-4); }
+.eng-sm { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.eng-sm > .panel { padding: var(--s-4); }
+.elist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--fs-sm); }
+.elist li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.elist li:last-child { border-bottom: 0; }
+.elist__m a { color: #fff; font-weight: 600; }
+.flist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+/* ---- matchup tab: every metric */
+.mettab { width: 100%; font-size: var(--fs-sm); border-collapse: collapse; }
+.mettab th, .mettab td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-weight: 400; }
+.mettab thead th { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-2); white-space: nowrap; }
+.mettab tbody th { color: var(--text-hi); font-weight: 600; min-width: 11em; }
+.mettab .num { font-family: var(--font-num); color: var(--text-hi); display: block; }
+.mettab__sub { display: block; font-size: 0.74rem; color: var(--text-2); white-space: nowrap; }
+.mettab__tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: var(--r-1); border: 1px solid var(--line-2); font-size: 0.66rem; color: var(--text-2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+@media (max-width: 520px) {
+  .ebar { width: 54px; }
+  .elist li { grid-template-columns: minmax(0, 1fr) auto; }
+  .elist li .fitcells { grid-column: 1; }
+}
+
+/* ---- phones: each survival row is a small card (market + price, survival, labels), and the why-panel
+   gets the full width instead of a sideways-scrolling table cell */
+@media (max-width: 640px) {
+  .eng-survt thead { display: none; }
+  .eng-survt, .eng-survt tbody { display: block; width: 100%; }
+  .eng-survt tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .eng-survt tbody tr > * { display: block; padding: 0 !important; border: 0 !important; }
+  .eng-survt th[scope='row'] { grid-column: 1; grid-row: 1; }
+  .eng-survt .c-price { grid-column: 2; grid-row: 1; }
+  .eng-survt .c-fit { grid-column: 1 / -1; grid-row: 2; display: flex; align-items: center; gap: 8px; }
+  .eng-survt .c-fit .survt__k { display: inline; }
+  .eng-survt .c-role { grid-column: 1 / -1; grid-row: 3; }
+  .eng-survt tr.why__row { display: block; padding: 0 0 12px; }
+  .eng-survt tr.why__row > td { display: block; }
+  .eng-survt .survt__m { white-space: normal; }
+}

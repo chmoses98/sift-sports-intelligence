@@ -1,0 +1,412 @@
+// The CFB Script Engine payload (event_research.extensions.script_engine), typed and decoded.
+//
+// The publication answers three questions separately and Sift keeps them separate:
+//   1. what the football matchup says          (matchup_profile, matchup_findings)
+//   2. how the game can plausibly unfold       (game_scripts: PRIMARY / SECONDARY / ALTERNATE / DANGER)
+//   3. which bets express those possibilities  (script_market_map, built AFTER the scripts were frozen)
+// Nothing here turns a script count into a probability, and nothing calls a contract "+EV": the payload has
+// no pricing source, and Sift never invents one.
+import type { EventResearchDoc, Market } from '../contract/types';
+
+export type Role = 'PRIMARY' | 'SECONDARY' | 'ALTERNATE' | 'DANGER';
+export type Compat = 'SUPPORTED' | 'PARTIAL' | 'CONTRADICTED' | 'NEUTRAL' | 'UNMAPPABLE';
+export type Confidence = 'HIGH' | 'MEDIUM' | 'LOW';
+
+export const ROLE_ORDER: Role[] = ['PRIMARY', 'SECONDARY', 'ALTERNATE', 'DANGER'];
+/** Role -> the design system's four script identity colours (tokens --script-1..4). */
+export const ROLE_INDEX: Record<Role, 1 | 2 | 3 | 4> = { PRIMARY: 1, SECONDARY: 2, ALTERNATE: 3, DANGER: 4 };
+export const ROLE_WORD: Record<Role, string> = { PRIMARY: 'Primary', SECONDARY: 'Secondary', ALTERNATE: 'Alternate', DANGER: 'Danger' };
+
+export interface CausalStep { step: string; findings: string[] }
+
+export interface Bands {
+  home_margin: [number, number] | null;
+  total_points: [number, number] | null;
+  home_points?: [number, number] | null;
+  away_points?: [number, number] | null;
+}
+
+export interface EngineScript {
+  script_id: string;
+  rank: number;
+  role: Role;
+  archetype: string;
+  lead_side: 'home' | 'away' | null;
+  title: string;
+  summary: string;
+  causal_chain: CausalStep[];
+  required_findings: string[];
+  supporting_findings: string[];
+  contradicting_findings: string[];
+  evidence_score: number;
+  outcome_shape: Record<string, unknown> & { winner_lean: string; margin_environment: string; total_environment: string; bands: Bands };
+  data_confidence: Confidence;
+  probability: null;
+}
+
+export interface Finding {
+  code: string;
+  side: 'home' | 'away' | 'game';
+  dimension: string;
+  category: 'MATCHUP' | 'ENVIRONMENT' | 'DEPENDENCE' | 'DATA';
+  strength: 'MODERATE' | 'STRONG';
+  value: number | null;
+  threshold: number | null;
+  uncertainty: number | null;
+  metric_refs: string[];
+  statement: string;
+}
+
+export interface DirectionEdge {
+  edge: number | null;
+  uncertainty: number | null;
+  components: { metric_id: string; tier: string; offense_z: number; defense_z: number; edge: number; uncertainty: number; offense_ref: string; defense_ref: string }[];
+  enhanced_components: number;
+}
+
+export interface Dimension {
+  edge_metrics?: string[];
+  context_metrics?: string[];
+  home_offense_vs_away_defense?: DirectionEdge;
+  away_offense_vs_home_defense?: DirectionEdge;
+  net_home_advantage?: number | null;
+  possession_environment?: number | null;
+  tempo_environment?: number | null;
+  definition?: string;
+}
+
+export interface MetricRow {
+  key: string;
+  metric_id: string;
+  unit: 'offense' | 'defense';
+  raw: number | null;
+  adjusted: number | null;
+  adjusted_available: boolean;
+  adjusted_unavailable_reason: string | null;
+  standard_error: number | null;
+  rank: number | null;
+  universe_size: number;
+  rank_basis: string;
+  direction: 'higher_is_better' | 'lower_is_better';
+  games: number;
+  effective_n: number | null;
+  prior_weight: number | null;
+  source: string | null;
+  observed_at: string | null;
+  quality: string;
+}
+
+export interface EngineTeam {
+  team_id: string;
+  name: string;
+  division: string;
+  games_observed: number;
+  games_with_play_log: number;
+  record_in_window: { wins: number; losses: number };
+  quarterback: { season_primary: string | null; last_game_primary: string | null; changed: boolean | null; games: number };
+  season: number | null;
+  window: { type: string; through_exclusive: string } | null;
+  metrics: Record<string, MetricRow>;
+}
+
+export interface RegistryEntry { metric_id: string; name: string; dimension: string; tier: string; unit: string; offense_higher_is_better: boolean; adjusted: boolean; secondary_evidence: boolean; regression_prone: boolean; description?: string }
+
+export interface Survival { supported: number; partial: number; contradicted: number; neutral: number; total_scripts: number; meaningful_scripts: number; weighted_score: number }
+
+export interface Expression {
+  id: string;
+  ticker: string;
+  side: 'YES' | 'NO';
+  wins_when: string | null;
+  thesis: string;
+  compat: Compat[];
+  coverage: (number | null)[];
+  survival: Survival;
+  labels: string[];
+  correlation: { with: string; relation: string; both_can_cash: boolean | null; both_lose_when: string | null }[];
+}
+
+export interface Rung { expression_id: string; is_core: boolean; relation_to_core: string; additional_requirement_points: number | null; cashes_when_core_fails: boolean | null; scripts_supported: number; scripts_lost_vs_core_ranks: number[] }
+export interface Thesis { thesis: string; core_expression: string; rungs: Rung[] }
+
+export interface Generation {
+  generated_at: string;
+  football_data_cutoff: string;
+  market_blind: boolean;
+  artifact_hash: string;
+  data_confidence: Confidence;
+  methodology_version: string;
+  adjustment_version: string;
+  regeneration_reasons: string[];
+  mapped_at: string | null;
+  prices_captured_at: string | null;
+  identity: { status: string; reason?: string; orientation_swapped?: boolean };
+}
+
+export interface DataConfidence {
+  level: Confidence;
+  describes: string;
+  gates: Record<string, boolean>;
+  all_gates_pass: boolean;
+  reasons: string[];
+  known: string[];
+  unknown: string[];
+  core_coverage: Record<string, number>;
+  enhanced_dimensions: string[];
+  games_observed: Record<string, number>;
+  adjustment_stable: boolean;
+  availability_status: Record<string, string>;
+  freshness: { status: string; expected_prior_games?: number; missing_game_ids?: string[] };
+}
+
+export interface Engine {
+  status: string;
+  generation: Generation;
+  read: { headline: string; headline_findings: string[]; points: { text: string; findings: string[] }[]; caveats: string[]; data_confidence: Confidence };
+  confidence: DataConfidence;
+  teams: { home: EngineTeam; away: EngineTeam };
+  dimensions: Record<string, Dimension>;
+  baseline: { home_points: number | null; away_points: number | null; total_points: number | null; home_margin: number | null; uncertainty_points: number | null; label: string };
+  adjustment: { cutoff_exclusive: string; stable: boolean; fbs_schedule_components: number; median_fbs_games: number; games_in_window: number };
+  findings: Finding[];
+  scripts: EngineScript[];
+  expressions: Expression[];
+  survivors: string[];
+  theses: Thesis[];
+  disagreement: { flag: string; football_primary: string; market_moneyline_ask: number; rule: string; note: string } | null;
+  registry: Record<string, RegistryEntry>;
+  unmappableByFamily: Record<string, number>;
+  coverage: Record<string, unknown> | null;
+  researchOnly: boolean;
+  pricingNote: string;
+}
+
+export interface EngineUnavailable { status: string; reason: string | null }
+
+const CODE: Record<string, Compat> = { S: 'SUPPORTED', P: 'PARTIAL', C: 'CONTRADICTED', N: 'NEUTRAL', U: 'UNMAPPABLE' };
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+function decodeTeam(t: any, columns: string[], legend: Record<string, string[]>): EngineTeam {
+  const metrics: Record<string, MetricRow> = {};
+  for (const [key, row] of Object.entries<any[]>(t.metrics ?? {})) {
+    const rec: any = {};
+    columns.forEach((c, i) => {
+      const v = row[i];
+      rec[c] = legend[c] && typeof v === 'number' ? legend[c][v] ?? null : v;
+    });
+    const [unit, metric_id] = key.split('.', 2);
+    metrics[key] = { key, metric_id, unit: unit as MetricRow['unit'], ...rec };
+  }
+  return { ...t, metrics };
+}
+
+/** The payload, decoded; `null` when the event has none; `{status, reason}` when it explains why not. */
+export function readEngine(r: EventResearchDoc | null | undefined): Engine | EngineUnavailable | null {
+  const p = (r?.extensions as any)?.script_engine;
+  if (!p) return null;
+  if (!p.script_generation) return { status: String(p.status ?? 'UNAVAILABLE'), reason: p.reason ?? null };
+  const mp = p.matchup_profile ?? {};
+  const columns: string[] = mp.metric_columns ?? [];
+  const legend: Record<string, string[]> = mp.legend ?? {};
+  const smm = p.script_market_map ?? {};
+  const survCols: string[] = smm.survival_columns ?? [];
+  const expressions: Expression[] = (smm.expressions ?? []).map((e: any) => ({
+    id: `${e.ticker}:${e.side}`,
+    ticker: e.ticker,
+    side: e.side,
+    wins_when: e.wins_when ?? null,
+    thesis: e.thesis,
+    compat: String(e.compat ?? '').split('').map((c) => CODE[c] ?? 'UNMAPPABLE'),
+    coverage: e.coverage ?? [],
+    survival: Object.fromEntries(survCols.map((c, i) => [c, e.survival?.[i]])) as unknown as Survival,
+    labels: e.labels ?? [],
+    correlation: (e.correlation ?? []).map((c: any[]) => ({ with: c[0], relation: c[1], both_can_cash: c[2] ?? null, both_lose_when: c[3] ?? null })),
+  }));
+  const rungCols: string[] = p.rung_columns ?? [];
+  const theses: Thesis[] = (p.theses ?? []).map((t: any) => ({
+    thesis: t.thesis,
+    core_expression: t.core_expression,
+    rungs: (t.rungs ?? []).map((row: any[]) => Object.fromEntries(rungCols.map((c, i) => [c, row[i]])) as unknown as Rung),
+  }));
+  return {
+    status: p.status,
+    generation: p.script_generation,
+    read: p.sift_read,
+    confidence: p.data_confidence,
+    teams: { home: decodeTeam(mp.teams?.home, columns, legend), away: decodeTeam(mp.teams?.away, columns, legend) },
+    dimensions: mp.dimensions ?? {},
+    baseline: mp.scoring_baseline ?? {},
+    adjustment: mp.adjustment ?? {},
+    findings: p.matchup_findings ?? [],
+    scripts: [...(p.game_scripts ?? [])].sort((a: EngineScript, b: EngineScript) => a.rank - b.rank),
+    expressions,
+    survivors: p.script_survivors ?? [],
+    theses,
+    disagreement: p.market_disagreement ?? null,
+    registry: p.metric_registry ?? {},
+    unmappableByFamily: smm.unmappable_by_family ?? {},
+    coverage: smm.coverage ?? null,
+    researchOnly: smm.research_only !== false,
+    pricingNote: smm.pricing_note ?? '',
+  };
+}
+
+export function isEngine(e: Engine | EngineUnavailable | null): e is Engine {
+  return !!e && 'generation' in e;
+}
+
+/** A metric key in the profile ("home.offense.success_rate") -> its decoded row. */
+export function metricAt(engine: Engine, ref: string): (MetricRow & { side: 'home' | 'away'; team: string }) | null {
+  const [side, unit, ...rest] = ref.split('.');
+  const team = engine.teams[side as 'home' | 'away'];
+  const row = team?.metrics[`${unit}.${rest.join('.')}`];
+  return row ? { ...row, side: side as 'home' | 'away', team: team.name } : null;
+}
+
+export function findingByCode(engine: Engine, code: string): Finding | undefined {
+  return engine.findings.find((f) => f.code === code);
+}
+
+export function scriptForRole(engine: Engine, role: Role): EngineScript | undefined {
+  return engine.scripts.find((s) => s.role === role);
+}
+
+/** "survives 3/4 scripts" — supported out of all published scripts, partial support listed apart. */
+export function survivalText(s: Survival): string {
+  return `${s.supported}/${s.total_scripts}${s.partial ? ` +${s.partial} partly` : ''}`;
+}
+
+/** The expressions the publication featured (best or multi-script), in its own order. */
+export function survivorExpressions(engine: Engine): Expression[] {
+  const byId = new Map(engine.expressions.map((e) => [e.id, e]));
+  return engine.survivors.map((id) => byId.get(id)).filter((e): e is Expression => !!e);
+}
+
+/**
+ * Featured expressions with ladder rungs that survive exactly the same scripts collapsed to one row (the
+ * publication's own first choice), so the list shows distinct ways to survive, not one ladder eight times.
+ */
+export function groupedSurvivors(engine: Engine): (Expression & { similar: number })[] {
+  const groups = new Map<string, Expression[]>();
+  for (const e of survivorExpressions(engine)) {
+    const k = `${e.thesis}|${e.compat.join('')}`;
+    groups.set(k, [...(groups.get(k) ?? []), e]);
+  }
+  return [...groups.values()].map((g) => ({ ...g[0], similar: g.length - 1 }));
+}
+
+/** The settlement condition in team names: "full game home margin >= 7" -> "Alabama margin ≥ 7". */
+export function winsWhenText(e: Expression, engine: Engine): string | null {
+  if (!e.wins_when) return null;
+  const home = engine.teams.home.name;
+  const away = engine.teams.away.name;
+  return e.wins_when
+    .replace(/full game home margin/g, `${home} margin over ${away}`)
+    .replace(/full game home points/g, `${home} points`)
+    .replace(/full game away points/g, `${away} points`)
+    .replace(/full game total points/g, 'total points')
+    .replace(/>=/g, '≥')
+    .replace(/<=/g, '≤')
+    .replace(/ between (-?\d+) and (-?\d+)/g, ' from $1 to $2');
+}
+
+/** A contract side's label from the published market row: YES reads as the market says; NO is its negation. */
+export function expressionLabel(e: Expression, m: Market | undefined): string {
+  const base = m?.yes_description || e.wins_when || e.ticker;
+  return e.side === 'YES' ? base : `No — ${base}`;
+}
+
+/** The executable price of THIS side: the YES ask for YES, the NO ask for NO. Null when not quoted. */
+export function sidePrice(e: Expression, m: Market | undefined): number | null {
+  if (!m) return null;
+  const v = e.side === 'YES' ? m.yes_ask : m.no_ask;
+  return v == null || v <= 0 || v >= 1 ? null : v;
+}
+
+export const LABEL_WORD: Record<string, string> = {
+  BEST_EXPRESSION: 'Best expression',
+  MULTI_SCRIPT: 'Multi-script',
+  SCRIPT_ALIGNED: 'Script aligned',
+  AGGRESSIVE: 'Aggressive',
+  SCRIPT_DEPENDENT: 'Script dependent',
+  NARROW_SCRIPT: 'Narrow script',
+  CONTRADICTED: 'Contradicted',
+  LOW_DATA_CONFIDENCE: 'Low data confidence',
+  MARKET_DISAGREEMENT: 'Market disagreement',
+  RESEARCH_ONLY: 'Research only',
+};
+
+export const LABEL_HELP: Record<string, string> = {
+  BEST_EXPRESSION: 'The best market representation of one football thesis: the most script support; between rungs with identical support, the cheaper entry, whose extra requirement sits inside every supporting script.',
+  MULTI_SCRIPT: 'Survives most of the meaningful scripts, the primary included, and neither the primary nor the secondary contradicts it.',
+  SCRIPT_ALIGNED: 'The primary script supports it, fully or in part.',
+  AGGRESSIVE: 'A stronger version of a supported thesis: it needs more than the best expression of that thesis and survives fewer scripts.',
+  SCRIPT_DEPENDENT: 'Exactly one script supports it.',
+  NARROW_SCRIPT: 'No script supports it outright; at least one does in part.',
+  CONTRADICTED: 'The primary script contradicts it, or at least half of the meaningful scripts do.',
+  LOW_DATA_CONFIDENCE: 'The football evidence behind these scripts is LOW confidence.',
+  MARKET_DISAGREEMENT: 'The market baseline materially disagrees with the football primary script. Reported, never used to change the football read.',
+  RESEARCH_ONLY: 'No validated CFB pricing source exists: nothing here is a fair price or an expected value.',
+};
+
+/** Labels that describe a contract's fit, in the order Sift shows them. Never a price verdict. */
+export function orderedLabels(labels: string[]): string[] {
+  const order = Object.keys(LABEL_WORD);
+  return [...labels].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+}
+
+export const DIMENSION_WORD: Record<string, string> = {
+  scoring: 'Scoring',
+  sustained_efficiency: 'Sustained efficiency',
+  rushing: 'Rushing',
+  passing: 'Passing',
+  explosiveness: 'Explosiveness',
+  disruption: 'Protection vs pressure',
+  finishing: 'Finishing drives',
+  pace: 'Pace & possessions',
+  volatility: 'Volatility',
+};
+
+export const EDGE_DIMENSIONS = ['sustained_efficiency', 'rushing', 'passing', 'explosiveness', 'disruption', 'finishing', 'scoring'];
+
+/** Format a metric value by its measure ("rate" -> 47.1%, "yards" -> 6.42, "points" -> 31.2). */
+export function fmtMetric(value: number | null | undefined, measure: string | undefined): string {
+  if (value == null || !Number.isFinite(value)) return '—';
+  if (measure === 'rate') return `${(value * 100).toFixed(1)}%`;
+  if (measure === 'seconds') return value.toFixed(1);
+  if (measure === 'plays' || measure === 'points' || measure === 'count') return value.toFixed(1);
+  return value.toFixed(2);
+}
+
+export function fmtEdge(v: number | null | undefined): string {
+  if (v == null || !Number.isFinite(v)) return '—';
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}`;
+}
+
+export const ARCHETYPE_WORD: Record<string, string> = {
+  HOME_CONTROL: 'Home control',
+  AWAY_CONTROL: 'Away control',
+  FAVORITE_PULLS_AWAY: 'Pulls away',
+  UNDERDOG_HANGS_AROUND: 'Hangs around',
+  COMPETITIVE_SHOOTOUT: 'Shootout',
+  COMPETITIVE_GRIND: 'Grind',
+  COMPETITIVE_TOSSUP: 'Toss-up',
+  PACE_DRIVEN_OVER: 'Pace-driven scoring',
+  DEFENSIVE_SUPPRESSION: 'Defenses suppress',
+  EXPLOSIVE_UPSET: 'Explosive upset',
+  TURNOVER_DISRUPTION: 'Disruption',
+};
+
+/** "Alabama by 7–24" style text for a script's margin band (home margin, inclusive integers). */
+export function marginBandText(b: [number, number] | null, home: string, away: string): string | null {
+  if (!b) return null;
+  const [lo, hi] = b;
+  if (lo >= 0) return `${home} by ${Math.max(lo, 1)}–${hi}`;
+  if (hi <= 0) return `${away} by ${Math.max(-hi, 1)}–${-lo}`;
+  return `within ${Math.max(-lo, hi)} either way`;
+}
+
+export function bandText(b: [number, number] | null | undefined): string | null {
+  return b ? `${b[0]}–${b[1]}` : null;
+}

@@ -1,0 +1,389 @@
+{
+ "count": 5,
+ "generated_at": "2026-10-06T03:15:24Z",
+ "items": [
+  {
+   "away_participant": "prt_f663507cb626bfff153c",
+   "broadcast": null,
+   "competition": "FBS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_8c3166866b2bfa530c17",
+   "extensions": {
+    "conference": "SEC",
+    "division": "FBS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "first_half_spread": 21,
+     "first_half_total": 13,
+     "game_moneyline": 2,
+     "game_spread": 31,
+     "game_total": 19,
+     "overtime": 1,
+     "team_total": 25,
+     "touchdown_scorer": 3,
+     "unknown": 6
+    },
+    "game_key": "26OCT10LSUUK",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 124,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 6,
+    "tier": "A",
+    "title": "LSU at Kentucky"
+   },
+   "home_participant": "prt_ef6ed2cf7aba454b6fcf",
+   "last_updated_at": "2026-10-06T00:19:14Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "LSU",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_f663507cb626bfff153c",
+     "participant_type": "TEAM",
+     "short_name": "LSU",
+     "source_ids": {
+      "kalshi_football_team": "b3ab0e5c-0a4d-4d55-8487-d117afd0402f",
+      "kalshi_team_code": "LSU"
+     }
+    },
+    {
+     "display_name": "Kentucky",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_ef6ed2cf7aba454b6fcf",
+     "participant_type": "TEAM",
+     "short_name": "UK",
+     "source_ids": {
+      "kalshi_football_team": "1db5f6a2-6127-4b66-830a-10f5d8af4211",
+      "kalshi_team_code": "UK"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T00:19:14Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT10LSUUK",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT10LSUUK",
+    "kalshi_milestone_id": "c94b5d46-71a8-4bd7-848b-9926146d268f"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-10T23:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_ca6e7e5b7c1cd0b752ea",
+   "broadcast": null,
+   "competition": "FBS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_7ca164d80f042f650a5c",
+   "extensions": {
+    "conference": false,
+    "division": "FBS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "first_half_spread": 23,
+     "first_half_total": 15,
+     "game_moneyline": 2,
+     "game_spread": 17,
+     "game_total": 19,
+     "overtime": 1,
+     "team_total": 22,
+     "touchdown_scorer": 3
+    },
+    "game_key": "26OCT10STANND",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 105,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 6,
+    "tier": "A_MINUS",
+    "title": "Stanford at Notre Dame"
+   },
+   "home_participant": "prt_3dbc86ed6c007467d066",
+   "last_updated_at": "2026-10-06T00:19:14Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "Stanford",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_ca6e7e5b7c1cd0b752ea",
+     "participant_type": "TEAM",
+     "short_name": "STAN",
+     "source_ids": {
+      "kalshi_football_team": "dc3f22cf-921a-423f-9d1b-ed0289cc7ee7",
+      "kalshi_team_code": "STAN"
+     }
+    },
+    {
+     "display_name": "Notre Dame",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_3dbc86ed6c007467d066",
+     "participant_type": "TEAM",
+     "short_name": "ND",
+     "source_ids": {
+      "kalshi_football_team": "e29b78dd-ca06-432f-8f2f-8d25aca47b9a",
+      "kalshi_team_code": "ND"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T00:19:14Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT10STANND",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT10STANND",
+    "kalshi_milestone_id": "fa154938-65ad-42a3-ba74-b628c2febe39"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-10T19:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_19d5d59bfb68a59b9b2e",
+   "broadcast": null,
+   "competition": "FBS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_f121611ae29ec3e9d56e",
+   "extensions": {
+    "conference": "SEC",
+    "division": "FBS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "first_half_spread": 21,
+     "first_half_total": 14,
+     "game_moneyline": 2,
+     "game_spread": 31,
+     "game_total": 19,
+     "overtime": 1,
+     "team_total": 25,
+     "touchdown_scorer": 3
+    },
+    "game_key": "26OCT10TENNARK",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 119,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 6,
+    "tier": "A",
+    "title": "Tennessee at Arkansas"
+   },
+   "home_participant": "prt_8a780b47bb454a41c080",
+   "last_updated_at": "2026-10-06T00:19:14Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "Tennessee",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_19d5d59bfb68a59b9b2e",
+     "participant_type": "TEAM",
+     "short_name": "TENN",
+     "source_ids": {
+      "kalshi_football_team": "633c9bdd-9b1c-4e68-ad6b-7e554209d7db",
+      "kalshi_team_code": "TENN"
+     }
+    },
+    {
+     "display_name": "Arkansas",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_8a780b47bb454a41c080",
+     "participant_type": "TEAM",
+     "short_name": "ARK",
+     "source_ids": {
+      "kalshi_football_team": "7780c9bf-4db2-4a56-bdda-03e8dc0374af",
+      "kalshi_team_code": "ARK"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T00:19:14Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT10TENNARK",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT10TENNARK",
+    "kalshi_milestone_id": "98ebdf4c-9d5f-4bc1-ae47-4932e497674f"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-10T20:15:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_06f643ccc23b544ca46e",
+   "broadcast": null,
+   "competition": "FBS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_93e12676ae9337017c63",
+   "extensions": {
+    "conference": "SEC",
+    "division": "FBS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "first_half_spread": 20,
+     "first_half_total": 13,
+     "game_moneyline": 2,
+     "game_spread": 29,
+     "game_total": 19,
+     "overtime": 1,
+     "team_total": 20,
+     "touchdown_scorer": 3,
+     "unknown": 6
+    },
+    "game_key": "26OCT10UGAALA",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 116,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 6,
+    "tier": "A",
+    "title": "Georgia at Alabama"
+   },
+   "home_participant": "prt_cfe4b7056ed5e2175890",
+   "last_updated_at": "2026-10-06T00:19:14Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "Georgia",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_06f643ccc23b544ca46e",
+     "participant_type": "TEAM",
+     "short_name": "UGA",
+     "source_ids": {
+      "kalshi_football_team": "a92d6ac7-dbda-434a-b791-5b5959d1fb7b",
+      "kalshi_team_code": "UGA"
+     }
+    },
+    {
+     "display_name": "Alabama",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_cfe4b7056ed5e2175890",
+     "participant_type": "TEAM",
+     "short_name": "ALA",
+     "source_ids": {
+      "kalshi_football_team": "d76c78bf-3249-4d7a-86d6-df7df6c0fb60",
+      "kalshi_team_code": "ALA"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T00:19:14Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT10UGAALA",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT10UGAALA",
+    "kalshi_milestone_id": "2e615ada-7578-4be0-a34d-6b15e930c7ab"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-10T23:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_e7a0ceed3944ae9ce6d0",
+   "broadcast": null,
+   "competition": null,
+   "effective_start_time_utc": null,
+   "event_id": "evt_776097ba6eef448fb340",
+   "extensions": {
+    "conference": null,
+    "division": null,
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "game_moneyline": 2
+    },
+    "game_key": "26OCT17ALBYSTON",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_event_ticker",
+    "market_count": 5,
+    "milestone_status": null,
+    "season_type": null,
+    "season_week": null,
+    "tier": null,
+    "title": "University at Albany vs Stony Brook"
+   },
+   "home_participant": "prt_0d7af9c7c1a248999033",
+   "last_updated_at": "2026-10-06T00:19:14Z",
+   "league": null,
+   "participants": [
+    {
+     "display_name": "University",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_e7a0ceed3944ae9ce6d0",
+     "participant_type": "TEAM",
+     "short_name": "ALBY",
+     "source_ids": {
+      "kalshi_football_team": "26f09c01-3307-4cc6-bb6e-c988f2a10ca6",
+      "kalshi_team_code": "ALBY"
+     }
+    },
+    {
+     "display_name": "Albany vs Stony Brook",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_0d7af9c7c1a248999033",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_team_name": "Albany vs Stony Brook"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T00:19:14Z",
+   "season": null,
+   "source_ids": {
+    "kalshi_game_key": "26OCT17ALBYSTON",
+    "kalshi_main_event_ticker": null,
+    "kalshi_milestone_id": null
+   },
+   "sport": "CFB",
+   "start_time_confidence": "ESTIMATED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_event_ticker",
+   "start_time_utc": "2026-10-17T21:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  }
+ ],
+ "kind": "events",
+ "run_id": "run_48a34185ff385c8bafc4",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "CFB"
+}

@@ -1,0 +1,308 @@
+{
+ "as_of": "2026-10-06T00:19:14Z",
+ "base_manifest_run_id": "run_48a34185ff385c8bafc4",
+ "capabilities_path": "explorer/capabilities.json",
+ "commit_sha": "6bb5441c5ea04c92fd361f3c5488fb644e64bbf9",
+ "counts": {
+  "events": 5,
+  "market_history": 5,
+  "metrics": 0,
+  "players": 0,
+  "rankings": 0,
+  "series": 0,
+  "teams": 10
+ },
+ "events": [
+  {
+   "away_participant": "prt_ca6e7e5b7c1cd0b752ea",
+   "event_id": "evt_7ca164d80f042f650a5c",
+   "home_participant": "prt_3dbc86ed6c007467d066",
+   "participants": [
+    "prt_ca6e7e5b7c1cd0b752ea",
+    "prt_3dbc86ed6c007467d066"
+   ],
+   "path": "explorer/events/evt_7ca164d80f042f650a5c.json",
+   "start_time_utc": "2026-10-10T19:30:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_19d5d59bfb68a59b9b2e",
+   "event_id": "evt_f121611ae29ec3e9d56e",
+   "home_participant": "prt_8a780b47bb454a41c080",
+   "participants": [
+    "prt_19d5d59bfb68a59b9b2e",
+    "prt_8a780b47bb454a41c080"
+   ],
+   "path": "explorer/events/evt_f121611ae29ec3e9d56e.json",
+   "start_time_utc": "2026-10-10T20:15:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_f663507cb626bfff153c",
+   "event_id": "evt_8c3166866b2bfa530c17",
+   "home_participant": "prt_ef6ed2cf7aba454b6fcf",
+   "participants": [
+    "prt_f663507cb626bfff153c",
+    "prt_ef6ed2cf7aba454b6fcf"
+   ],
+   "path": "explorer/events/evt_8c3166866b2bfa530c17.json",
+   "start_time_utc": "2026-10-10T23:00:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_06f643ccc23b544ca46e",
+   "event_id": "evt_93e12676ae9337017c63",
+   "home_participant": "prt_cfe4b7056ed5e2175890",
+   "participants": [
+    "prt_06f643ccc23b544ca46e",
+    "prt_cfe4b7056ed5e2175890"
+   ],
+   "path": "explorer/events/evt_93e12676ae9337017c63.json",
+   "start_time_utc": "2026-10-10T23:30:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_e7a0ceed3944ae9ce6d0",
+   "event_id": "evt_776097ba6eef448fb340",
+   "home_participant": "prt_0d7af9c7c1a248999033",
+   "participants": [
+    "prt_e7a0ceed3944ae9ce6d0",
+    "prt_0d7af9c7c1a248999033"
+   ],
+   "path": "explorer/events/evt_776097ba6eef448fb340.json",
+   "start_time_utc": "2026-10-17T21:30:00Z",
+   "status": "SCHEDULED"
+  }
+ ],
+ "files": {
+  "capabilities.json": {
+   "bytes": 14595,
+   "entity_id": null,
+   "kind": "capability_manifest",
+   "sha256": "cb625afbf416d340d96e5ef01d5c03db37dcf714c63840e04154487fdd0cebca"
+  },
+  "events/evt_776097ba6eef448fb340.json": {
+   "bytes": 6124,
+   "entity_id": "evt_776097ba6eef448fb340",
+   "kind": "event_research",
+   "sha256": "51f26412f1ab1b91bde51994f905b502b1453b69433b5c3d361c84fa99bc8f09"
+  },
+  "events/evt_7ca164d80f042f650a5c.json": {
+   "bytes": 132301,
+   "entity_id": "evt_7ca164d80f042f650a5c",
+   "kind": "event_research",
+   "sha256": "b5096543ae4f9f4a73533ad90f6cfeb9992fe60d6c12e718abcfd6c9fcfcafa8"
+  },
+  "events/evt_8c3166866b2bfa530c17.json": {
+   "bytes": 147231,
+   "entity_id": "evt_8c3166866b2bfa530c17",
+   "kind": "event_research",
+   "sha256": "8e9bd32c734fa607c5499189625872db92868aa35bbfad2bc12436051d892f92"
+  },
+  "events/evt_93e12676ae9337017c63.json": {
+   "bytes": 143859,
+   "entity_id": "evt_93e12676ae9337017c63",
+   "kind": "event_research",
+   "sha256": "92e07e71b846009f1f77371f9307bafe9407e1c0ae14bf7871a35a39d2e507de"
+  },
+  "events/evt_f121611ae29ec3e9d56e.json": {
+   "bytes": 146473,
+   "entity_id": "evt_f121611ae29ec3e9d56e",
+   "kind": "event_research",
+   "sha256": "6e7b2f6a0f2e6a0ff8a12dbceab4f64f1e27fb8c8b6578939ebc2feb29a6a3c5"
+  },
+  "market_history/evt_776097ba6eef448fb340.json": {
+   "bytes": 5047,
+   "entity_id": "evt_776097ba6eef448fb340",
+   "kind": "market_history",
+   "sha256": "81a70373008eb35f7ad9dac0c72ace82f9b7a543da691ad58fbb0b11f3c6305b"
+  },
+  "market_history/evt_7ca164d80f042f650a5c.json": {
+   "bytes": 65980,
+   "entity_id": "evt_7ca164d80f042f650a5c",
+   "kind": "market_history",
+   "sha256": "49c5e07620166858fdecf3d2cc7f8bbcf0fbf4857151d002945b22d85b87674e"
+  },
+  "market_history/evt_8c3166866b2bfa530c17.json": {
+   "bytes": 88751,
+   "entity_id": "evt_8c3166866b2bfa530c17",
+   "kind": "market_history",
+   "sha256": "6ec9b75d05ff84755d277cf23935b197b9af69d983e1e27010bafeec18507cd7"
+  },
+  "market_history/evt_93e12676ae9337017c63.json": {
+   "bytes": 80143,
+   "entity_id": "evt_93e12676ae9337017c63",
+   "kind": "market_history",
+   "sha256": "a0e9e429dae9c5cc1aed71abf9986a9904041e5faffcf2bfd6413091a9c08f74"
+  },
+  "market_history/evt_f121611ae29ec3e9d56e.json": {
+   "bytes": 77922,
+   "entity_id": "evt_f121611ae29ec3e9d56e",
+   "kind": "market_history",
+   "sha256": "141e2a332c532c49032bf2c0077b98bd80de06058af4fd9e333a21f4dc4a49aa"
+  },
+  "metrics.json": {
+   "bytes": 174,
+   "entity_id": null,
+   "kind": "metric_registry",
+   "sha256": "77c0d1563e2ec828ab3c6f72d03990d61efe45bc57409b9a6d5e7114f72eca8a"
+  },
+  "search_index.json": {
+   "bytes": 6367,
+   "entity_id": null,
+   "kind": "search_index",
+   "sha256": "7496e9dfecc483bcd92526971ea0dcb04d17951ef4800e462ef8bf71f399f58a"
+  },
+  "teams/prt_06f643ccc23b544ca46e.json": {
+   "bytes": 20971,
+   "entity_id": "prt_06f643ccc23b544ca46e",
+   "kind": "entity_profile",
+   "sha256": "131c148d3d93ca3df4bfd80d51abeaf5d299b1184bd2feca765d2e9bbf436b56"
+  },
+  "teams/prt_0d7af9c7c1a248999033.json": {
+   "bytes": 1930,
+   "entity_id": "prt_0d7af9c7c1a248999033",
+   "kind": "entity_profile",
+   "sha256": "35704b575d465499cc3b16cbc169840987ec045fdafce8ff16711fc7725fd946"
+  },
+  "teams/prt_19d5d59bfb68a59b9b2e.json": {
+   "bytes": 26197,
+   "entity_id": "prt_19d5d59bfb68a59b9b2e",
+   "kind": "entity_profile",
+   "sha256": "d7200f3e7ea8e46d170819f7b01b623819c999c5648ac601f3de377de8a77af9"
+  },
+  "teams/prt_3dbc86ed6c007467d066.json": {
+   "bytes": 25529,
+   "entity_id": "prt_3dbc86ed6c007467d066",
+   "kind": "entity_profile",
+   "sha256": "491f0433eb68387e8eac9cb941f574460c8900d1c20e6e9fde674d585f5c8507"
+  },
+  "teams/prt_8a780b47bb454a41c080.json": {
+   "bytes": 18512,
+   "entity_id": "prt_8a780b47bb454a41c080",
+   "kind": "entity_profile",
+   "sha256": "8136f38819ed65907fd8bf6fb9220cb448188710cc3c8c477730e30f72bb96fc"
+  },
+  "teams/prt_ca6e7e5b7c1cd0b752ea.json": {
+   "bytes": 11442,
+   "entity_id": "prt_ca6e7e5b7c1cd0b752ea",
+   "kind": "entity_profile",
+   "sha256": "4b2c5c57ebcefbd9f3138ef02c91b6de9be860aba20375da9365850f7b4ad05e"
+  },
+  "teams/prt_cfe4b7056ed5e2175890.json": {
+   "bytes": 20545,
+   "entity_id": "prt_cfe4b7056ed5e2175890",
+   "kind": "entity_profile",
+   "sha256": "2aebb042c613fb35e7a588bb1c31028ddab07ae72c4085d6f93f535d8b6a7744"
+  },
+  "teams/prt_e7a0ceed3944ae9ce6d0.json": {
+   "bytes": 2856,
+   "entity_id": "prt_e7a0ceed3944ae9ce6d0",
+   "kind": "entity_profile",
+   "sha256": "09870962527f8804b83ced4bcf2999a6fcf0e898a819e2ae8a80140320c69683"
+  },
+  "teams/prt_ef6ed2cf7aba454b6fcf.json": {
+   "bytes": 20425,
+   "entity_id": "prt_ef6ed2cf7aba454b6fcf",
+   "kind": "entity_profile",
+   "sha256": "6f3d63d098372aa11454d1026919f7d1c9456cbebf4d5d43066ab43d2d013db5"
+  },
+  "teams/prt_f663507cb626bfff153c.json": {
+   "bytes": 26006,
+   "entity_id": "prt_f663507cb626bfff153c",
+   "kind": "entity_profile",
+   "sha256": "7687e89035b73a1c95e6aed7b6c81d0fbc4da696504131526892bf8bf8affeb3"
+  }
+ },
+ "generated_at": "2026-10-06T03:15:24Z",
+ "kind": "explorer_index",
+ "metrics_path": "explorer/metrics.json",
+ "players_by_team": {},
+ "quality": {
+  "coverage": null,
+  "data_as_of": "2026-10-06T00:19:14Z",
+  "generated_at": "2026-10-06T03:15:24Z",
+  "limitations": [
+   "change-detected snapshots, not a closing series (market history)",
+   "No model projections: the CFB model is retired (docs/MODEL_RETIREMENT_2026.md); model_prices, theses and recommendations are empty by design.",
+   "CFBD redistribution licence unresolved; owner opt-in required (--include-cfbd)"
+  ],
+  "methodology_version": "cfb-research-export 1.0.0",
+  "missingness": null,
+  "production": true,
+  "sample_size": null,
+  "source": "Kalshi market catalog + accounting ledger + CFBD snapshot",
+  "source_version": null,
+  "status": "PARTIAL"
+ },
+ "run_id": "run_48a34185ff385c8bafc4",
+ "schema_version": "edge_finder.app.v1",
+ "search_index_path": "explorer/search_index.json",
+ "sport": "CFB",
+ "teams": [
+  {
+   "display_name": "Alabama",
+   "participant_id": "prt_cfe4b7056ed5e2175890",
+   "path": "explorer/teams/prt_cfe4b7056ed5e2175890.json",
+   "short_name": "ALA"
+  },
+  {
+   "display_name": "Albany vs Stony Brook",
+   "participant_id": "prt_0d7af9c7c1a248999033",
+   "path": "explorer/teams/prt_0d7af9c7c1a248999033.json",
+   "short_name": null
+  },
+  {
+   "display_name": "Arkansas",
+   "participant_id": "prt_8a780b47bb454a41c080",
+   "path": "explorer/teams/prt_8a780b47bb454a41c080.json",
+   "short_name": "ARK"
+  },
+  {
+   "display_name": "Georgia",
+   "participant_id": "prt_06f643ccc23b544ca46e",
+   "path": "explorer/teams/prt_06f643ccc23b544ca46e.json",
+   "short_name": "UGA"
+  },
+  {
+   "display_name": "Kentucky",
+   "participant_id": "prt_ef6ed2cf7aba454b6fcf",
+   "path": "explorer/teams/prt_ef6ed2cf7aba454b6fcf.json",
+   "short_name": "UK"
+  },
+  {
+   "display_name": "LSU",
+   "participant_id": "prt_f663507cb626bfff153c",
+   "path": "explorer/teams/prt_f663507cb626bfff153c.json",
+   "short_name": "LSU"
+  },
+  {
+   "display_name": "Notre Dame",
+   "participant_id": "prt_3dbc86ed6c007467d066",
+   "path": "explorer/teams/prt_3dbc86ed6c007467d066.json",
+   "short_name": "ND"
+  },
+  {
+   "display_name": "Stanford",
+   "participant_id": "prt_ca6e7e5b7c1cd0b752ea",
+   "path": "explorer/teams/prt_ca6e7e5b7c1cd0b752ea.json",
+   "short_name": "STAN"
+  },
+  {
+   "display_name": "Tennessee",
+   "participant_id": "prt_19d5d59bfb68a59b9b2e",
+   "path": "explorer/teams/prt_19d5d59bfb68a59b9b2e.json",
+   "short_name": "TENN"
+  },
+  {
+   "display_name": "University",
+   "participant_id": "prt_e7a0ceed3944ae9ce6d0",
+   "path": "explorer/teams/prt_e7a0ceed3944ae9ce6d0.json",
+   "short_name": "ALBY"
+  }
+ ],
+ "warnings": [
+  "CFBD redistribution licence unresolved; owner opt-in required (--include-cfbd): CFBD-backed capabilities are UNAVAILABLE for this run"
+ ],
+ "windows": []
+}

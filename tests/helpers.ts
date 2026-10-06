@@ -8,19 +8,36 @@ import type { HealthDoc } from '../src/contract/types';
 
 export const SNAPSHOT_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'app', 'latest');
 export const ROOT = 'disk://nfl';
+/** A trimmed, real cfb-edge-finder publication carrying the CFB Script Engine (scripts/make_cfb_fixture.py). */
+export const CFB_DIR = join(__dirname, 'fixtures', 'cfb', 'app', 'latest');
+export const CFB_ROOT = 'disk://cfb';
+
+export function readCfb<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(CFB_DIR, rel), 'utf-8')) as T;
+}
 
 export function readSnapshot<T>(rel: string): T {
   return JSON.parse(readFileSync(join(SNAPSHOT_DIR, rel), 'utf-8')) as T;
 }
 
-/** Every fetch of disk://nfl/<path> reads public/data/nfl/app/latest/<path>; anything else 404s. */
+/** Every fetch of disk://nfl/<path> reads public/data/nfl/app/latest/<path> (disk://cfb/ the CFB fixture); anything else 404s. */
 export function useDiskFetch(): void {
   setFetchJson(async (url: string) => {
-    if (!url.startsWith(ROOT + '/')) throw new NotFoundError(url);
-    const file = join(SNAPSHOT_DIR, url.slice(ROOT.length + 1));
+    const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : [ROOT, SNAPSHOT_DIR];
+    if (!url.startsWith(root + '/')) throw new NotFoundError(url);
+    const file = join(dir, url.slice(root.length + 1));
     if (!existsSync(file)) throw new NotFoundError(url);
     return JSON.parse(readFileSync(file, 'utf-8'));
   });
+}
+
+export function cfbRepo(): SportRepo {
+  const sport = sportByCode('CFB')!;
+  const source: SportSource = {
+    sport, mode: 'live', root: CFB_ROOT, liveHealth: readCfb<HealthDoc>('health.json'), liveError: null,
+    snapshot: null, reason: 'test fixture',
+  };
+  return new SportRepo(source);
 }
 
 export function nflRepo(): SportRepo {

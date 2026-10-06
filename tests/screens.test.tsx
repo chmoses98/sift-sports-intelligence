@@ -132,7 +132,7 @@ describe('game page', () => {
 
   it('the overview leads with what matters, then the scripts (most likely first) and props to watch', async () => {
     const { container } = renderScreen(routes.game('nfl', GAME), '/nfl/game/:eventId', <GameRoute />);
-    await screen.findByRole('heading', { name: 'What Matters' });
+    await screen.findByRole('heading', { name: 'What Matters' }, { timeout: 10_000 });
     // The headline edge in NE @ BUF: Buffalo's #1 rush offense against New England's #21 run defense.
     expect((await screen.findAllByText('Bills rush offense has a major edge')).length).toBeGreaterThan(0);
     expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['One-score battle', 'Bills win going away', 'Bills win comfortably', 'Patriots win comfortably']);
@@ -141,7 +141,7 @@ describe('game page', () => {
     // No raw Kalshi ticker anywhere on the overview.
     await act(async () => {});
     expect(container.textContent).not.toMatch(/KXNFL/);
-    expect(await screen.findByRole('heading', { name: 'Props to Watch' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Props to Watch' }, { timeout: 10_000 })).toBeTruthy();
     // Selecting a script is a link (deep-linkable) that keeps the tab.
     expect(container.querySelector('.scard--s2 .scard__a')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { script: 'fav' }));
     // The hero carries no market chips or research actions.

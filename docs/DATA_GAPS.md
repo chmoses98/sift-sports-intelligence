@@ -129,8 +129,11 @@ them (their entity shapes — tennis players as participants, soccer clubs — w
 ## 9. Gaps found in the surgical polish pass
 
 * **Player history now spans two seasons.** 2026 from nflverse weekly stats + play-by-play; 2025 from weekly
-  box scores, snap counts and the schedule (`schedules/games.csv`) — no 2025 play-by-play is read, so 2025 has
-  no longest plays or blitz splits. 703 players (any skill player with a game in either season).
+  box scores and snap counts — no 2025 play-by-play is read, so 2025 has no longest plays or blitz splits.
+  Home/away comes from the nflverse game id; 2025 dates and final scores appear only when nflverse's
+  `schedules/games.csv` is reachable (it returned 404 on 2026-10-06). 703 players (any skill player with a game
+  in either season). The builder refuses to publish a layer that lost last season (the deploy then keeps the
+  committed copy).
 * **No historical betting lines.** nflverse's schedule carries historical game spreads/totals, but no player
   prop lines; Sift compares past games with **today's** line only and labels it that way. Game lines in the
   schedule are deliberately unused.

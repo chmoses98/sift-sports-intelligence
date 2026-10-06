@@ -2,7 +2,7 @@
  "kind": "sift_history_index",
  "sport": "NFL",
  "season": 2026,
- "built_at": "2026-10-06T19:02:07Z",
+ "built_at": "2026-10-06T20:34:11Z",
  "sources": [
   {
    "key": "stats",
@@ -37,7 +37,7 @@
   {
    "key": "prior_schedule",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
-   "rows": 285
+   "rows": 0
   }
  ],
  "prior_season": 2025,
@@ -58,7 +58,7 @@
   "Counts and ratios of published rows only; nothing is modelled or adjusted.",
   "Snap counts are joined to players by name, team and week (PFR rows carry no GSIS id).",
   "A blitz is an FTN-charted dropback with at least one blitzer. Man/zone coverage is not in any 2026 file published yet.",
-  "Prior season: weekly box scores, snap counts and the schedule only (no play-by-play), so no longest plays or blitz splits for it.",
+  "Prior season: weekly box scores and snap counts (no play-by-play, so no longest plays or blitz splits); home/away from the game id; dates and scores only when the schedule file is available.",
   "Player ranks: per-game averages over regular-season games within a position, among players with at least half the games of the most-played player; #1 = most. Ties share a rank.",
   "No historical betting lines are published here: comparisons in the app are against the CURRENT line only."
  ],

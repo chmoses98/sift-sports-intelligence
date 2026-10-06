@@ -9,8 +9,8 @@ import { Icon } from '../components/Icon';
 import { EntityLink, ErrorState, QualityBadge, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { MetricInfo, TermInfo } from '../components/Gloss';
 import { Info } from './game/panels';
-import { kickoff, metricFormatter, pct, signed } from '../lib/format';
-import { STAT_LABEL, STAT_TO_SIM } from '../lib/nfl';
+import { kickoff, metricFormatter, pct, displayName } from '../lib/format';
+import { STAT_LABEL, STAT_TO_SIM, windowName, statusWord } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { capShown, capStatus, useSport } from '../state/sport';
@@ -21,12 +21,12 @@ import { PlayerFace, RangeBar, RankBadge, Layer } from '../components/insight';
 import { DigDeeper } from '../components/ui';
 import { playerPhoto } from '../lib/players';
 import { rankView } from '../lib/rank';
-import { overLine } from '../lib/marketLabel';
+import { describeMarket, overLine } from '../lib/marketLabel';
 import { usePlayerHistory } from '../history/load';
-import { gamesBefore, hitRecord, statsForPosition, statDef } from '../history/stats';
+import { hitRecord, playerTier, pregameRows, rankFor, statsForPosition, statDef, windowLabel, windowRows, windowsFor, type HistoryWindow } from '../history/stats';
 import { mainLine as pickMainLine } from '../insights/props';
 import type { Market } from '../contract/types';
-import { GameBars, LogTable, Splits, UsageRows } from './player/history';
+import { GameBars, HistorySummary, LogTable, Splits, UsageRows } from './player/history';
 import type { Finding } from '../research/findings';
 import { overlayMarket } from '../live/overlay';
 
@@ -80,12 +80,21 @@ export function PlayerView() {
   const dir = useDirectory(repo);
   const prof = useAsync(`prof:${sport.code}:${playerId}`, () => repo.profile(playerId));
   const p = prof.data;
-  useVisit(p?.entity.display_name, 'player');
   const game = p?.games[0];
   const oppId = game?.opponent_id ?? null;
   const opp = useAsync(oppId ? `prof:${sport.code}:${oppId}` : null, () => repo.profile(oppId!));
+  // The breadcrumb's context is this player's own game (or team), never whichever game was open before.
+  const selfAbbr = p?.team?.short_name ?? (p?.entity.metadata?.team as string | undefined) ?? null;
+  const gameOppAbbr = opp.data?.entity.short_name ?? dir.data?.team(oppId)?.abbr ?? null;
+  const parentStep = !p
+    ? null
+    : game
+      ? (selfAbbr && gameOppAbbr ? { href: routes.game(slug, game.event_id), label: game.home_away === 'HOME' ? `${gameOppAbbr} @ ${selfAbbr}` : `${selfAbbr} @ ${gameOppAbbr}`, kind: 'game' as const } : undefined)
+      : p.team ? { href: routes.team(slug, p.team.participant_id), label: p.team.display_name, kind: 'team' as const } : null;
+  useVisit(parentStep === undefined ? null : p?.entity.display_name, 'player', parentStep);
   const [stat, setStat] = useState<string | null>(null);
   const [hs, setHs] = useState<string | null>(null);
+  const [hw, setHw] = useState<HistoryWindow>('last5');
   const gsis = (p?.entity.source_ids?.gsis_id as string | undefined) ?? ((p?.extensions as any)?.gsis_id as string | undefined) ?? null;
   const hist = usePlayerHistory(sport.code, gsis);
 
@@ -147,7 +156,7 @@ export function PlayerView() {
   const role = roleOf(pos, ext, p.availability);
   const status = p.availability.find((a) => /impact|injur/i.test(a.detail ?? '')) ?? p.availability[0];
   const oppAbbr = opp.data?.entity.short_name ?? dir.data?.team(oppId)?.abbr ?? null;
-  const oppNick = opp.data?.entity.display_name ?? game?.opponent_name ?? 'opponent';
+  const oppNick = opp.data?.entity.display_name ?? (displayName(game?.opponent_name) || 'opponent');
   const showMarkets = p.markets.length > 0 && capShown(caps, 'player_props');
   const showRange = distRows.length > 0 && capShown(caps, 'projection_distributions');
   const showUsage = (shares.length > 0 || ext.quarterback) && capShown(caps, 'usage');
@@ -168,7 +177,7 @@ export function PlayerView() {
             <span className="plhead__pos">{pos}</span>
             {role && <span className="plhead__role" title="From the published depth chart">{role}</span>}
             {status && (
-              <span className={`pl__inj pl__inj--${status.status.toLowerCase()}`} title={status.detail ?? undefined}>{STATUS_WORD[status.status] ?? status.status}</span>
+              <span className={`pl__inj pl__inj--${status.status.toLowerCase()}`} title={status.detail ?? undefined}>{STATUS_WORD[status.status] ?? statusWord(status.status)}</span>
             )}
             {ext.p_active != null && <span className="plhead__pa">Chance active <b className="num">{pct(ext.p_active, 0)}</b></span>}
           </div>
@@ -177,7 +186,7 @@ export function PlayerView() {
               <span className="plhead__game">
                 <span className="plhead__vs">{game.home_away === 'AWAY' ? '@' : 'vs'}</span>
                 {oppAbbr && <TeamMark sport={sport.code} abbr={oppAbbr} size="sm" />}
-                <b>{game.opponent_name}</b>
+                <b>{displayName(game.opponent_name)}</b>
                 <span className="plhead__when">{kickoff(game.start_time_utc)}</span>
               </span>
             </EntityLink>
@@ -193,15 +202,24 @@ export function PlayerView() {
         </div>
       </header>
 
+      {/* Wide screens: the research in the main column; role, matchup and availability beside it. */}
+      <div className="pl2">
+      <div className="pl2__main">
       {/* THIS GAME + GAME BY GAME: the projection with its range and line, then the season against that line. */}
       {(() => {
         const week = Number(/week\s*(\d+)/i.exec(game?.competition ?? '')?.[1] ?? NaN);
         const wk = Number.isFinite(week) ? week : null;
         const kicked = game ? Date.parse(game.start_time_utc) <= now : false;
         const all = hist.data?.games ?? [];
-        const before = game ? gamesBefore(all, game.start_time_utc, wk) : all;
         const result = kicked && wk != null ? all.find((r) => r.week === wk) ?? null : null;
-        const options = statsForPosition(pos).filter((d) => (STAT_TO_SIM[d.key] && sims.some((o) => o.metric_id === STAT_TO_SIM[d.key])) || all.some((r) => (d.get(r) ?? 0) > 0));
+        // Every game a pregame view may use: last season, then this season before this game.
+        const hrows = hist.data ? pregameRows(hist.data, game?.start_time_utc, wk) : { prior: [], current: [] };
+        const wins = windowsFor(hrows);
+        const win = wins.includes(hw) ? hw : wins[0] ?? 'last5';
+        const wrows = windowRows(hrows, win);
+        const season = hist.data?.season ?? new Date(now).getUTCFullYear();
+        const winName = windowLabel(win, season, hist.data?.prior?.season ?? null);
+        const options = statsForPosition(pos).filter((d) => (STAT_TO_SIM[d.key] && sims.some((o) => o.metric_id === STAT_TO_SIM[d.key])) || [...hrows.prior, ...all].some((r) => (d.get(r) ?? 0) > 0));
         const cur = statDef(hs && options.some((o) => o.key === hs) ? hs : options[0]?.key) ?? null;
         if (!cur) return null;
         const sObs = STAT_TO_SIM[cur.key] ? sims.find((o) => o.metric_id === STAT_TO_SIM[cur.key]) : undefined;
@@ -211,11 +229,12 @@ export function PlayerView() {
         const defId = /rush|carries/.test(cur.key) ? 'met_nfl.adj_def_rush_epa' : 'met_nfl.adj_def_db_epa';
         const defObs = opp.data?.metrics.find((x) => x.metric_id === defId);
         const defRank = rankView(defObs?.context);
-        const rec = line != null ? hitRecord(before.slice(-5), cur, line) : null;
+        const rec = line != null ? hitRecord(windowRows(hrows, 'last5'), cur, line) : null;
+        const rank = hist.data ? rankFor(hist.data, cur.key, wk, win === 'prior' ? 'prior' : 'current') : null;
         const f = (v: number) => (cur.unit === 'rec' || cur.unit === 'TD' || cur.unit === 'INT' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)));
         const finding: Finding | null = sObs?.value != null && qq ? {
           key: `proj:${playerId}:${cur.key}`, kind: 'projection', sport: sport.code, title: `${p.entity.display_name} ${cur.label.toLowerCase()}`,
-          statement: `Projection ${f(sObs.value)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.values.length ? `; ${rec.over} of last ${rec.values.length} over ${line}` : ''}.`,
+          statement: `Projection ${f(sObs.value)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.values.length ? `; ${rec.over} of his last ${rec.values.length} games above today's line of ${line}` : ''}.`,
           href: routes.player(slug, playerId), anchor: ml ? { ref_kind: 'MARKET', id: ml.market_id, extra: { market_id: ml.market_id, event_id: ml.event_id } } : { ref_kind: 'PLAYER', id: playerId },
           kickoff: game?.start_time_utc ?? null,
         } : null;
@@ -223,7 +242,7 @@ export function PlayerView() {
           <>
             <section className="pthis" aria-labelledby="pthis-h">
               <div className="pthis__h">
-                <h2 id="pthis-h" className="gsec__t">{game ? `This game ${game.home_away === 'AWAY' ? 'at' : 'vs'} ${oppAbbr ?? game.opponent_name}` : 'This season'}</h2>
+                <h2 id="pthis-h" className="gsec__t">{game ? `This game ${game.home_away === 'AWAY' ? 'at' : 'vs'} ${oppAbbr ?? displayName(game.opponent_name)}` : 'This season'}</h2>
                 <div className="seg seg--scroll" role="tablist" aria-label="Stat for this game">
                   {options.map((o) => (
                     <button key={o.key} type="button" role="tab" aria-selected={o.key === cur.key} className={`seg__b${o.key === cur.key ? ' is-on' : ''}`} onClick={() => setHs(o.key)}>{o.label}</button>
@@ -240,7 +259,7 @@ export function PlayerView() {
                   </dl>
                   <RangeBar typical={[qq.p25, qq.p75]} full={[qq.p05, qq.p95]} projection={sObs.value} line={line} format={f} label={`${p.entity.display_name} ${cur.label.toLowerCase()}`} />
                   <div className="pthis__x">
-                    {rec && rec.values.length > 0 && <span className="pthis__rec"><b>{rec.over} of {rec.values.length}</b> recent games over {line}</span>}
+                    {rec && rec.values.length > 0 && <span className="pthis__rec"><b>{rec.over} of his last {rec.values.length}</b> games above today's line</span>}
                     {finding && <DigDeeper finding={finding} />}
                   </div>
                 </div>
@@ -249,96 +268,47 @@ export function PlayerView() {
               )}
             </section>
             <section className="pgame" aria-labelledby="pgame-h">
-              <div className="gsec__h"><h2 id="pgame-h" className="gsec__t">Game by Game</h2><p className="gsec__sub">{cur.label} each game this season{line != null ? `, against today's line of ${line}` : ''}.{result ? ' This game has been played; its result is marked separately below.' : ''}</p></div>
+              <div className="gsec__h pgame__h">
+                <h2 id="pgame-h" className="gsec__t">Game by Game</h2>
+                {wins.length > 1 && (
+                  <div className="seg seg--sm seg--scroll" role="tablist" aria-label="Games shown">
+                    {wins.map((w) => (
+                      <button key={w} type="button" role="tab" aria-selected={w === win} className={`seg__b${w === win ? ' is-on' : ''}`} onClick={() => setHw(w)}>{windowLabel(w, season, hist.data?.prior?.season ?? null)}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <p className="gsec__sub">{cur.label}, game by game{line != null ? `. The dashed line is today's line (${line}) — past games are measured against it; historical lines are not published` : ''}.{result ? ' This game has been played; its result is marked separately below.' : ''}</p>
               {hist.loading && <Skeleton lines={3} />}
-              {!hist.loading && !hist.data && <p className="muted small">No {sport.label} game log for this player yet (rookie, no snaps, or not in the season's play-by-play).</p>}
-              {hist.data && <GameBars rows={before} stat={cur} line={line} upcoming={!kicked && sObs?.value != null && qq ? { projection: sObs.value, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />}
-              {result && <p className="pgame__res"><b>Result of this game:</b> {f(cur.get(result) ?? 0)} {cur.unit}{sObs?.value != null ? ` (projected ${f(sObs.value)})` : ''}.</p>}
-              {hist.data && before.length > 0 && (
+              {!hist.loading && !hist.data && <p className="muted small">No {sport.label} game log for this player yet (rookie, no snaps, or not in the play-by-play).</p>}
+              {hist.data && wrows.length > 0 && (
                 <>
-                  <Layer summary="Usage & role, game by game"><UsageRows rows={before} pos={pos} /></Layer>
-                  <Layer summary="Splits"><Splits doc={hist.data} rows={before} stat={cur} /></Layer>
-                  <Layer summary="Full game log"><LogTable rows={before} pos={pos} /><p className="muted small">Source: nflverse play-by-play and weekly player stats (snap counts from Pro Football Reference via nflverse). Games before this one only.</p></Layer>
+                  <HistorySummary rows={wrows} stat={cur} line={line} projection={!kicked && sObs?.value != null ? sObs.value : null} windowName={winName} unit={cur.unit} />
+                  {rank && (
+                    <p className="hsum__rank">
+                      {cur.label} per game: <b className="num">#{rank.rank}</b> of {rank.of} {rank.position}s <span className="hsum__tier">{playerTier(rank.rank, rank.of)}</span>
+                      <span className="muted"> · {rank.season}{rank.through_week != null ? `, through week ${rank.through_week}` : ', full season'} · {rank.per_game} per game, min {rank.min_games} games</span>
+                    </p>
+                  )}
+                  <GameBars rows={wrows} stat={cur} line={line} season={win === 'prior' ? hist.data.prior?.season ?? season : season} upcoming={!kicked && win !== 'prior' && sObs?.value != null && qq ? { projection: sObs.value, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />
                 </>
               )}
+              {hist.data && wrows.length === 0 && <p className="muted small">No games in this window.</p>}
+              {result && <p className="pgame__res"><b>Result of this game:</b> {f(cur.get(result) ?? 0)} {cur.unit}{sObs?.value != null ? ` (projected ${f(sObs.value)})` : ''}.</p>}
+              {hist.data && wrows.length > 0 && (
+                <>
+                  <Layer summary="Usage & role, game by game"><UsageRows rows={wrows} pos={pos} season={season} /></Layer>
+                  <Layer summary="Splits"><Splits doc={hist.data} rows={wrows} stat={cur} /></Layer>
+                  <Layer summary="Full game log"><LogTable rows={wrows} pos={pos} season={season} stat={cur} line={line} /><p className="muted small">Source: nflverse weekly player stats and play-by-play ({season}); {hist.data.prior ? `${hist.data.prior.season} from weekly box scores and the schedule; ` : ''}snap counts from Pro Football Reference via nflverse. Games before this one only. Longest plays are published for {season} only.</p></Layer>
+                </>
+              )}
+              {showRange && distRows.length > 1 && <Layer summary="Projected ranges for every stat in this game"><RangeStrip rows={distRows} caption={`${p.entity.display_name} projected ranges`} /><p className="plcav">Low-end and high-end are the 5th and 95th of every 100 simulated games; the typical range is the middle half.</p></Layer>}
             </section>
           </>
         );
       })()}
-
-      {showMarkets && (
-        <Stratum title="Markets" sub="Every priced line for this player, with the projection beside it. Tap a line for the full contract." actions={<QuoteSummaryChip views={quoteViews} now={now} />}>
-          <div className="seg seg--scroll" role="tablist" aria-label="Stat">
-            {stats.map((s) => (
-              <button key={s} type="button" role="tab" aria-selected={activeStat === s} className={`seg__b${activeStat === s ? ' is-on' : ''}`} onClick={() => setStat(s)}>
-                {STAT_LABEL[s] ?? s.replace(/_/g, ' ')} <span className="seg__n">{byStat.get(s)!.length}</span>
-              </button>
-            ))}
-          </div>
-          <dl className="pvm" aria-label={`${statLabel}: model versus market`}>
-            <div className="pvm__c">
-              <dt>Model projection</dt>
-              <dd><b className="num">{simObs ? fmtStat(simObs.value) : '—'}</b>{q && <span className="pvm__s">simulation average · typical {fmtStat(q.p25)}–{fmtStat(q.p75)}</span>}</dd>
-            </div>
-            <div className="pvm__c">
-              <dt>Live market</dt>
-              <dd>
-                {main && mainLine != null ? <><b className="num">{mainLine}+ · {cents(mid(main)!)}</b><span className="pvm__s">main line, YES mid</span></> : <b>—</b>}
-                {marketMean != null && <span className="pvm__s">implied average {fmtStat(marketMean)}</span>}
-              </dd>
-            </div>
-            <div className="pvm__c">
-              <dt>Model − Market</dt>
-              <dd>
-                {simObs?.value != null && marketMean != null ? <b className="num">{signed(simObs.value - marketMean, Math.abs(simObs.value) >= 10 ? 1 : 2)}</b> : <b>—</b>}
-                {mainFair != null && main && <span className="pvm__s">at {mainLine}+: model price {cents(mainFair)} vs market {cents(mid(main)!)}</span>}
-              </dd>
-            </div>
-            <div className="pvm__c pvm__c--go">
-              <dt className="sr-only">Open market</dt>
-              <dd>{main ? <Link className="btn btn--sm" to={routes.market(slug, main.market_id, main.event_id ?? '')}>Open market <Icon name="arrowRight" size={14} /></Link> : null}</dd>
-            </div>
-          </dl>
-          {rungs.length >= 2 ? (
-            <LadderChart rungs={rungs} quantiles={q} unit={statLabel} title={`${p.entity.display_name} ${statLabel}`} />
-          ) : (
-            <ul className="mrows">
-              {(byStat.get(activeStat ?? '') ?? []).map((m) => (
-                <li key={m.market_id}>
-                  <Link className="mrow" to={routes.market(slug, m.market_id, m.event_id ?? '')}>
-                    <span className="mrow__d">{m.yes_description.replace(/^YES iff /, '')}</span>
-                    <span className="mrow__p num">{m.yes_bid != null ? Math.round(m.yes_bid * 100) : '—'} / {m.yes_ask != null ? Math.round(m.yes_ask * 100) : '—'}¢</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className="plcav">
-            Research evidence, not a betting signal.
-            <Info label="About model prices on player props">
-              <span>Model prices here are {capStatus(caps, 'raw_projections')} research evidence (authority RESEARCH_ONLY). The publication notes its model has been shown redundant to the closing market on player props; see the Model Scorecard on the {sport.label} home.</span>
-              <span>The projection is the game simulation’s average; the model price is the pricing model’s fair probability for one line. They are separate published outputs and can disagree.</span>
-            </Info>
-          </p>
-        </Stratum>
-      )}
-
-      {showRange && (
-        <Stratum title="Projected Range" sub="What the model’s simulations of this game expect, from a low-end to a high-end outcome." actions={<TermInfo k="projected_range" align="end" />}>
-          {q && simObs && (
-            <dl className="prange" aria-label={`${statLabel} projected range`}>
-              <div><dt>{statLabel}</dt><dd className="prange__stat">this game</dd></div>
-              <div><dt>Low-end</dt><dd className="num">{fmtStat(q.p05)}</dd></div>
-              <div><dt>Typical range</dt><dd className="num">{fmtStat(q.p25)}–{fmtStat(q.p75)}</dd></div>
-              <div><dt>High-end</dt><dd className="num">{fmtStat(q.p95)}</dd></div>
-              <div><dt>Model average</dt><dd className="num">{fmtStat(simObs.value)}</dd></div>
-              {marketMean != null && <div><dt>Market-implied</dt><dd className="num">{fmtStat(marketMean)}</dd></div>}
-            </dl>
-          )}
-          <RangeStrip rows={distRows} caption={`${p.entity.display_name} projected ranges`} />
-          <p className="plcav">Low-end and high-end are the 5th and 95th of every 100 simulated games; the typical range is the middle half.</p>
-        </Stratum>
-      )}
+      </div>
+      <aside className="pl2__side" aria-label="Role, matchup and availability">
 
       {showUsage && (
         <Stratum title="Usage & Role" sub="Projected for this game, plus the published depth chart.">
@@ -363,7 +333,7 @@ export function PlayerView() {
                 <thead><tr><th>Measure</th><th>Split</th><th className="r">Value</th></tr></thead>
                 <tbody>
                   {qbObs.map((o) => (
-                    <tr key={o.observation_id}><td>{metrics.get(o.metric_id)?.name.replace(/^QB /, '')}<MetricInfo metricId={o.metric_id} def={metrics.get(o.metric_id)} /></td><td>{o.split?.value.replace(/_/g, ' ') ?? o.window.label}</td><td className="r num">{metricFormatter(metrics.get(o.metric_id))(o.value)}</td></tr>
+                    <tr key={o.observation_id}><td>{metrics.get(o.metric_id)?.name.replace(/^QB /, '')}<MetricInfo metricId={o.metric_id} def={metrics.get(o.metric_id)} /></td><td>{o.split?.value.replace(/_/g, ' ') ?? windowName(o.window.label)}</td><td className="r num">{metricFormatter(metrics.get(o.metric_id))(o.value)}</td></tr>
                   ))}
                 </tbody>
               </table>
@@ -399,21 +369,66 @@ export function PlayerView() {
         </Stratum>
       )}
 
-      <section className="plquiet" aria-label="History and availability">
+      <section className="plquiet" aria-label="Availability">
         <h2 className="plquiet__h">Availability</h2>
         <div className="plquiet__grid">
           {p.availability.length > 0 && (
             <div>
-              <h3 className="plquiet__k">Availability</h3>
               <ul className="plav">
                 {p.availability.map((a, i) => (
-                  <li key={i}><b>{STATUS_WORD[a.status] ?? a.status}</b> · {(a.detail ?? '').replace(/^.*?\):\s*/, '')}<span className="plav__src"> · {a.source}</span></li>
+                  <li key={i}><b>{STATUS_WORD[a.status] ?? statusWord(a.status)}</b> · {(a.detail ?? '').replace(/^.*?\):\s*/, '')}<span className="plav__src"> · {a.source}</span></li>
                 ))}
               </ul>
             </div>
           )}
         </div>
       </section>
+      </aside>
+      </div>
+
+
+      {showMarkets && (
+        <Stratum title="Market Context" sub="How Kalshi prices this player's lines, beside the projection. Supporting context for the research above." actions={<QuoteSummaryChip views={quoteViews} now={now} />}>
+          <div className="seg seg--scroll" role="tablist" aria-label="Stat">
+            {stats.map((s) => (
+              <button key={s} type="button" role="tab" aria-selected={activeStat === s} className={`seg__b${activeStat === s ? ' is-on' : ''}`} onClick={() => setStat(s)}>
+                {STAT_LABEL[s] ?? s.replace(/_/g, ' ')} <span className="seg__n">{byStat.get(s)!.length}</span>
+              </button>
+            ))}
+          </div>
+          <div className="mctx">
+            <dl className="mctx__nums" aria-label={`${statLabel}: market context`}>
+              <div><dt>Main line</dt><dd>{main && mainLine != null ? <><b>Over <span className="num">{overLine(mainLine)}</span></b> <span className="mctx__s">at {cents(mid(main)!)}</span></> : '—'}</dd></div>
+              {marketMean != null && <div><dt>Market-implied average</dt><dd><b className="num">{fmtStat(marketMean)}</b>{simObs?.value != null && <span className="mctx__s"> · projection {fmtStat(simObs.value)}</span>}</dd></div>}
+            </dl>
+            {main && <Link className="btn btn--sm btn--ghost" to={routes.market(slug, main.market_id, main.event_id ?? '')}>Open this line <Icon name="arrowRight" size={14} /></Link>}
+          </div>
+          <Layer summary={rungs.length >= 2 ? `Every ${statLabel.toLowerCase()} line, with Sift's fair price` : `Every ${statLabel.toLowerCase()} contract`}>
+            {rungs.length >= 2 ? (
+              <LadderChart rungs={rungs} quantiles={q} unit={statLabel} title={`${p.entity.display_name} ${statLabel}`} />
+            ) : (
+              <ul className="mrows">
+                {(byStat.get(activeStat ?? '') ?? []).map((m) => (
+                  <li key={m.market_id}>
+                    <Link className="mrow" to={routes.market(slug, m.market_id, m.event_id ?? '')}>
+                      <span className="mrow__d">{describeMarket(m, { playerName: () => p.entity.display_name }).title}</span>
+                      <span className="mrow__p num">{m.yes_bid != null ? Math.round(m.yes_bid * 100) : '—'} / {m.yes_ask != null ? Math.round(m.yes_ask * 100) : '—'}¢</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {mainFair != null && main && mainLine != null && <p className="muted small">On over {overLine(mainLine)}, Sift's fair price is {cents(mainFair)}; the market is at {cents(mid(main)!)}.</p>}
+            <p className="plcav">
+              Research evidence, not a betting signal.
+              <Info label="About fair prices on player props">
+                <span>Fair prices here are {capStatus(caps, 'raw_projections')} research evidence. The publication notes its pricing has been shown redundant to the closing market on player props; see the Model Scorecard on the {sport.label} home.</span>
+                <span>The projection is the game simulation’s average; the fair price is the pricing model’s probability for one line. They are separate published outputs and can disagree.</span>
+              </Info>
+            </p>
+          </Layer>
+        </Stratum>
+      )}
 
       <section className="plquiet" aria-label="Deeper research">
         <h2 className="plquiet__h">Deeper Research</h2>

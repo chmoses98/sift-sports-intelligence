@@ -104,7 +104,9 @@
 .mmini { list-style: none; padding: 0; display: grid; gap: 6px; }
 .mmini li { display: grid; gap: 1px; }
 .mmini .num { font-family: var(--font-num); color: var(--text-hi); }
-.eng-shape { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); margin-bottom: var(--s-4); }
+.eng-shape { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: var(--s-4); }
+.eng-shape .tile { min-width: 0; }
+.eng-shape .tile .tile__v { font-size: 1.2rem; white-space: normal; overflow-wrap: anywhere; text-wrap: balance; }
 .eng-sm { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .eng-sm > .panel { padding: var(--s-4); }
 .elist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--fs-sm); }

@@ -38,7 +38,8 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await shot(page, '01-home');
 
   // 2. Open the NFL home (the sport's landing page; the full slate is one link away)
-  await page.getByRole('link', { name: /NFL home/ }).click();
+  // The one sports navigation: header tabs on wide screens, the tab bar on phones.
+  await page.getByRole('link', { name: 'NFL', exact: true }).filter({ visible: true }).first().click();
   await expect(page.getByRole('heading', { name: 'NFL', level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Script Outlook' })).toBeVisible();
   // The research source is disclosed under the quiet Source control, not as a strip across the page.
@@ -49,17 +50,18 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await expect(page.getByRole('navigation', { name: 'Research path' }).locator('li')).toHaveCount(1);
   await shot(page, '02-nfl-home');
 
-  // 3. Open an upcoming game: the overview leads with the model read and the game scripts
+  // 3. Open an upcoming game: the overview leads with what matters and the game scripts
   await page.getByRole('link', { name: /New England Patriots at Buffalo Bills/ }).first().click();
-  await expect(page.getByRole('heading', { name: 'Model Read' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
   await expect(page.locator('.scard')).toHaveCount(4);
-  await page.getByRole('navigation', { name: 'Game sections' }).getByRole('link', { name: 'Matchup' }).click();
-  await expect(page.getByRole('heading', { name: 'How they match up' })).toBeVisible();
+  await expect(page.getByText('Bills rush offense has a major edge').first()).toBeVisible();
+  await page.getByRole('navigation', { name: 'Game sections' }).getByRole('link', { name: 'Matchups' }).click();
+  await expect(page.getByRole('heading', { name: 'Unit by unit' })).toBeVisible();
   await expect(page.locator('.mb__cell')).toHaveCount(28);
   await shot(page, '03-game');
 
   // 4. Open one team's profile
-  await page.locator('.mh__team--home .mh__name').click();
+  await page.locator('.gh__team--home .gh__name').click();
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await shot(page, '04-team');
 
@@ -91,7 +93,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   // 8. A player from that game's teams
   await page.locator('.chips .elink--player').filter({ hasText: 'Josh Allen' }).click();
   await expect(page.getByRole('heading', { name: 'Josh Allen' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Market vs Projection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
   await shot(page, '08-player');
 
   // 9. One of the player's markets (a rung of the passing-yards ladder)
@@ -102,7 +104,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 
   // 10. Save it to the research tray
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
-  await expect(page.getByRole('status').filter({ hasText: 'to the research tray' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'to your research' })).toBeVisible();
 
   // 11. Go elsewhere; the tray survives navigation and a fresh load of the app
   await page.goto('./#/nfl');
@@ -128,7 +130,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await shot(page, '12-tray');
 
   // 13. Build the handicap packet
-  await drawer.getByRole('link', { name: /Build NFL handicap packet/ }).click();
+  await drawer.getByRole('link', { name: /Dig deeper with ChatGPT \(NFL\)/ }).click();
   const copy = page.getByRole('button', { name: 'COPY FOR CHATGPT' });
   await expect(copy).toBeVisible({ timeout: 60_000 });
   // The packet's markets were refreshed before it was built (preflight), and the user is told so.

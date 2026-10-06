@@ -11,6 +11,8 @@ export const ROOT = 'disk://nfl';
 /** A trimmed, real cfb-edge-finder publication carrying the CFB Script Engine (scripts/make_cfb_fixture.py). */
 export const CFB_DIR = join(__dirname, 'fixtures', 'cfb', 'app', 'latest');
 export const CFB_ROOT = 'disk://cfb';
+export const HISTORY_ROOT = 'disk://history';
+export const HISTORY_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'history');
 
 export function readCfb<T>(rel: string): T {
   return JSON.parse(readFileSync(join(CFB_DIR, rel), 'utf-8')) as T;
@@ -20,9 +22,15 @@ export function readSnapshot<T>(rel: string): T {
   return JSON.parse(readFileSync(join(SNAPSHOT_DIR, rel), 'utf-8')) as T;
 }
 
-/** Every fetch of disk://nfl/<path> reads public/data/nfl/app/latest/<path> (disk://cfb/ the CFB fixture); anything else 404s. */
+/** Every fetch of disk://nfl/<path> reads public/data/nfl/app/latest/<path> (disk://history/<path> → public/data/nfl/history,
+ * disk://cfb/<path> → the CFB fixture); anything else 404s. */
 export function useDiskFetch(): void {
   setFetchJson(async (url: string) => {
+    if (url.startsWith(HISTORY_ROOT + '/')) {
+      const f = join(HISTORY_DIR, url.slice(HISTORY_ROOT.length + 1));
+      if (!existsSync(f)) throw new NotFoundError(url);
+      return JSON.parse(readFileSync(f, 'utf-8'));
+    }
     const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : [ROOT, SNAPSHOT_DIR];
     if (!url.startsWith(root + '/')) throw new NotFoundError(url);
     const file = join(dir, url.slice(root.length + 1));

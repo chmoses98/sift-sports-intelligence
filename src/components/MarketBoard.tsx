@@ -1,6 +1,7 @@
 // Every market of a scope, grouped the way the handicap packet groups them: a ladder (same series,
 // period, side, subject; different line) is one row of rungs; singletons are rows. Prices are YES
 // bid/ask in cents; "fair" is the model's P(YES) — evidence, labelled as such, never a pick.
+import { describeMarket } from '../lib/marketLabel';
 import { MarketIcon } from './MarketIcon';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
@@ -135,7 +136,7 @@ export function MarketBoard({
                     const st = notOpen(m);
                     return (
                       <li key={m.market_id}>
-                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`rungcell${st ? ' is-notopen' : ''}`} aria-label={`${humanize(m.yes_description)}: ${st ? `${st}, ` : ''}bid ${cents(m.yes_bid)}, ask ${cents(m.yes_ask)}${mp?.fair_probability != null ? `, model fair ${cents(mp.fair_probability)}` : ''}`}>
+                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`rungcell${st ? ' is-notopen' : ''}`} aria-label={`${describeMarket(m, { playerName }).title}: ${st ? `${st}, ` : ''}bid ${cents(m.yes_bid)}, ask ${cents(m.yes_ask)}${mp?.fair_probability != null ? `, model fair ${cents(mp.fair_probability)}` : ''}`}>
                           <span className="rungcell__x num">{rung(m)}</span>
                           {st && <span className="rungcell__st">{st}</span>}
                           <span className="rungcell__p num">{cents(m.yes_bid)}<span className="rungcell__sl">/</span>{cents(m.yes_ask)}</span>
@@ -153,7 +154,7 @@ export function MarketBoard({
                     return (
                       <li key={m.market_id}>
                         <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`mrow${st ? ' is-notopen' : ''}`}>
-                          <span className="mrow__d">{humanize(m.yes_description)}{st && <span className="rungcell__st"> {st}</span>}</span>
+                          <span className="mrow__d">{describeMarket(m, { playerName }).title}{st && <span className="rungcell__st"> {st}</span>}</span>
                           <span className="mrow__p num">{cents(m.yes_bid)} / {cents(m.yes_ask)}</span>
                           <span className="mrow__f num">{mp?.fair_probability != null ? `◆ ${cents(mp.fair_probability)}` : ''}</span>
                         </Link>

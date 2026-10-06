@@ -43,6 +43,8 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — stack choice, hash routing on GitHub Pages, data access,
   live vs snapshot sources, performance budget, the packet port, PWA, deployment, accessibility.
 * [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) — the *signal from noise* visual system (live at `#/design`).
+* [docs/INSIGHTS.md](docs/INSIGHTS.md) — the insight layer: matchup edges, context notes, scheme pairings,
+  props to watch, news importance, research findings, and the nflverse history layer behind them.
 * [docs/DATA_GAPS.md](docs/DATA_GAPS.md) — what the publications cannot support yet, and the upstream NFL
   explorer defect Sift works around.
 
@@ -52,6 +54,7 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
   own exporter (the deploy workflow runs it every 3 hours; it is a no-op once NFL publishes its explorer).
 * `scripts/make_golden_packets.py` — regenerate the golden packets with the contract's Python builder after a
   snapshot refresh.
+* `scripts/history/build-nfl-history.mjs` — the player/team history layer from nflverse (run by every deploy).
 * `scripts/make-icons.mjs` — render the PWA icons.
 * `scripts/publish-live-quotes.mjs` — the live-quote feed (run every 5 minutes by `live-quotes.yml`).
 * `scripts/kalshi-probe.mjs` — read-only real-provider probe (run by `live-provider-smoke.yml`).

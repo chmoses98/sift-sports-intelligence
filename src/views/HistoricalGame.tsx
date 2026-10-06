@@ -121,7 +121,6 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
           <span>Result source: nflverse schedule (schedule_cache.csv) · <QualityBadge status={capStatus(caps, 'historical_results')} /></span>
         </div>
         <div className="mh__actions">
-          <SaveButton text="Game" ref_kind="EVENT" sport={sport.code} id={eventId} label={{ label: label ?? eventId, sub: shortDate(row.start_time_utc), href: routes.game(slug, eventId, { team: teamId }) }} />
           {sPF && (
             <SaveButton
               text="Chart point" ref_kind="CHART_POINT" sport={sport.code} id={sPF.series_id}

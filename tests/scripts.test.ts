@@ -15,16 +15,36 @@ const market = (t: string) => detail.markets.find((m) => m.kalshi_ticker === t)!
 describe('game scripts', () => {
   const set = gameScripts(r)!;
 
-  it('regroups the simulation buckets, from the favourite (BUF, home)', () => {
+  const byId = (id: string) => set.scripts.find((s) => s.id === id)!;
+
+  it('regroups the simulation buckets, from the favourite (BUF, home), in plain words', () => {
     expect(set.fav).toBe('home');
-    expect(set.scripts.map((s) => s.name)).toEqual(['Bills Pull Away', 'Bills Control', 'One-Score Game', 'Patriots Control']);
-    expect(set.scripts.map((s) => sharePct(s.share))).toEqual(['26%', '24%', '36%', '13%']);
+    expect(byId('fav-big').name).toBe('Bills win going away');
+    expect(byId('fav').name).toBe('Bills win comfortably');
+    expect(byId('close').name).toBe('One-score battle');
+    expect(byId('dog').name).toBe('Patriots win comfortably');
+    expect(set.scripts.every((s) => !/\b(Fav|Dog)\b|\d+\+/.test(s.name))).toBe(true);
     expect(set.scripts.reduce((a, s) => a + s.share, 0)).toBeCloseTo(1, 3);
-    expect(set.scripts[3].home).toEqual({ lo: null, hi: -7 });
+    expect(byId('dog').home).toEqual({ lo: null, hi: -7 });
+  });
+
+  it('always lists scripts from most to least likely (colour identity stays with the script)', () => {
+    expect(set.scripts.map((s) => s.id)).toEqual(['close', 'fav-big', 'fav', 'dog']);
+    expect(set.scripts.map((s) => sharePct(s.share))).toEqual(['36%', '26%', '24%', '13%']);
+    for (let i = 1; i < set.scripts.length; i++) expect(set.scripts[i - 1].share).toBeGreaterThanOrEqual(set.scripts[i].share);
+    expect(byId('close').index).toBe(3);
+    // Every game on the slate, not just this one.
+    const board = readSnapshot<{ items: { event_id: string; status: string }[] }>('board.json');
+    for (const i of board.items.filter((x) => x.status === 'SCHEDULED')) {
+      const s = gameScripts(readSnapshot<EventResearchDoc>(`explorer/events/${i.event_id}.json`));
+      if (!s) continue;
+      for (let k = 1; k < s.scripts.length; k++) expect(s.scripts[k - 1].share).toBeGreaterThanOrEqual(s.scripts[k].share);
+    }
   });
 
   it('carries the conditional team volume (BUF runs more when it pulls away)', () => {
-    const [big, , , dog] = set.scripts;
+    const big = byId('fav-big');
+    const dog = byId('dog');
     expect(big.volume.home.rushAtt!).toBeGreaterThan(set.overall.home.rushAtt!);
     expect(dog.volume.home.passRate!).toBeGreaterThan(set.overall.home.passRate!);
     // NE's own trail14+ bucket is BUF's lead14+.
@@ -32,14 +52,15 @@ describe('game scripts', () => {
   });
 
   it('fits margin markets exactly', () => {
-    expect(scriptFit(market('KXNFLGAME-26OCT04NEBUF-BUF'), set, HOME, AWAY)!.fits).toEqual(['yes', 'yes', 'part', 'no']);
+    // Fits follow the (most-likely-first) script order: close, fav-big, fav, dog.
+    expect(scriptFit(market('KXNFLGAME-26OCT04NEBUF-BUF'), set, HOME, AWAY)!.fits).toEqual(['part', 'yes', 'yes', 'no']);
     const buf65 = scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-BUF7'), set, HOME, AWAY)!; // BUF by > 6.5
-    expect(buf65.fits).toEqual(['yes', 'yes', 'no', 'no']);
+    expect(buf65.fits).toEqual(['no', 'yes', 'yes', 'no']);
     expect(sharePct(buf65.coverage)).toBe('50%');
     const ne95 = scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-NE10'), set, HOME, AWAY)!; // NE by > 9.5
     expect(ne95.fits).toEqual(['no', 'no', 'no', 'part']);
     expect(ne95.coverage).toBe(0);
-    expect(scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-BUF14'), set, HOME, AWAY)!.fits).toEqual(['yes', 'no', 'no', 'no']); // > 13.5
+    expect(scriptFit(market('KXNFLSPREAD-26OCT04NEBUF-BUF14'), set, HOME, AWAY)!.fits).toEqual(['no', 'yes', 'no', 'no']); // > 13.5
   });
 
   it('never guesses a fit for markets that do not settle on the final margin', () => {

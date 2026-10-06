@@ -26,7 +26,7 @@ experience today, with their source. None was "fixed" by changing a sport model.
 
 | Capability | Status | Effect in Sift |
 |---|---|---|
-| player_game_logs | RESEARCH (2026 rows not committed) | No player game log or historical box score; player trend lens hidden; historical games say so. |
+| player_game_logs | RESEARCH (2026 rows not committed) | **Filled by Sift's history layer** (nflverse weekly stats + play-by-play, `docs/INSIGHTS.md`): player pages show game-by-game results, usage and splits. Historical games still say the publication has no per-game box scores. |
 | team_game_logs | PARTIAL | Per-game *series* exist only for points for/against/margin (schedule-derived); EPA metrics are current snapshots without history. |
 | rankings / time_series | PARTIAL | Rankings are current-snapshot; no "last 5" for EPA-type metrics. |
 | opponent_adjustment | PARTIAL | Ridge ratings are a current snapshot; shown as such. |
@@ -120,3 +120,15 @@ markets with a notice saying so.
 * **Teasers / parlays.** Kalshi lists no teaser product. The Parlays page lists Stafford Wong-eligible
   legs from market-implied spreads only; combined prices and correlation need per-leg pricing and a
   correlation model (phase 4).
+
+## 8. Gaps found in the progressive-clarity pass
+
+* **Man/zone coverage, routes, personnel.** nflverse `pbp_participation_2026` is not published (HTTP 404) and FTN
+  charting carries no coverage field. Sift shows blitz, box, play-action and motion tendencies only; man/zone
+  and route-based insights wait for that file (or a licensed charting feed). See `docs/INSIGHTS.md`.
+* **Snap counts lag a week.** PFR snap counts arrive after the box scores; the newest game shows "snap count
+  not published yet".
+* **Player photos.** Only free-licence Wikimedia Commons photos are used (51 players this week, each checked
+  by eye; 16 automatic picks were rejected). Players without one show their team mark. Licensed headshots
+  (e.g. the NFL's) are not used.
+* **Season hard-coded in the deploy refresh** (`build-nfl-history.mjs … 2026`): bump it with the season.

@@ -1,3 +1,4 @@
+import { matchupInsights } from '../insights/matchups';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
@@ -9,7 +10,7 @@ import { routes } from '../lib/routes';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { Icon } from '../components/Icon';
-import { ErrorState, Notice, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
+import { ErrorState, Notice, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
 
@@ -76,7 +77,6 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
   useLiveQuotes(winners.map((m) => m.kalshi_ticker), 'slate');
   const views = useQuoteViews(winners);
   const passed = Date.parse(item.start_time_utc) <= now && item.status === 'SCHEDULED';
-  const label = `${away?.short_name ?? '?'} @ ${home?.short_name ?? '?'}`;
   return (
     <li ref={ref} className="gcard">
       <Link to={routes.game(sportSlug, item.event_id)} className="gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>
@@ -94,11 +94,12 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         <div className="gcard__meta">
           <span className="gcard__time">{timeLabel(item.start_time_utc)}</span>
           <span className={`gcard__until${passed ? ' is-passed' : ''}`}>{passed ? 'kickoff passed' : until(item.start_time_utc, now)}</span>
-          <span className="gcard__mk"><b className="num">{compact(item.markets_available)}</b> markets · <b className="num">{compact(item.markets_priced)}</b> modelled</span>
+          <span className="gcard__mk"><b className="num">{compact(item.markets_available)}</b> markets</span>
         </div>
         <div className="gcard__hooks">
           {!hooks && seen && research.loading && <span className="gcard__hook gcard__hook--load">reading research…</span>}
           {research.error && <span className="gcard__hook">no event research published</span>}
+          {research.data && <span className="gcard__hook gcard__hook--edge">{matchupInsights(research.data)[0]?.headline ?? 'Evenly matched on the published ranks'}</span>}
           {hooks?.implied && <span className="gcard__hook"><span className="gcard__hk">Market</span>{hooks.implied}</span>}
         </div>
       </Link>
@@ -107,7 +108,6 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         {item.health_flags.map((f) => (
           <span key={f} className="flag">{f.replace(/_/g, ' ').toLowerCase()}</span>
         ))}
-        <SaveButton ref_kind="EVENT" sport={repo.sport.code} id={item.event_id} compact kickoff={item.start_time_utc} label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
       </div>
     </li>
   );

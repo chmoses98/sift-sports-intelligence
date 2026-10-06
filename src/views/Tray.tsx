@@ -13,11 +13,11 @@ export function TrayView() {
   return (
     <div className="page trayview">
       <header className="pagehead">
-        <div className="eyebrow">Research tray</div>
-        <h1 className="h-display">What you are investigating</h1>
+        <div className="eyebrow">Research</div>
+        <h1 className="h-display">What you are digging into</h1>
         <p className="lede">
-          References, not copies: each item is a contract <code>research_tray</code> entry (kind + id) stored on this device. Building a packet
-          resolves every item against the latest publication and tells ChatGPT you are specifically investigating them — and not to assume they are good bets.
+          Specific findings, not whole games: a matchup edge, a prop projection, a script, a context note. Each is saved with its numbers on this device;
+          building a packet resolves them against the latest publication and asks ChatGPT to dig into exactly these — not to assume they are good bets.
         </p>
       </header>
       <Stratum title={`${tray.tray.items.length} items`} sub={`Last changed ${new Date(tray.tray.updated_at).toLocaleString()}`}
@@ -29,13 +29,13 @@ export function TrayView() {
         <div className="cta-row">
           {sports.map((s) => (
             <Link key={s} className="btn btn--primary" to={routes.packet({ sport: s.toLowerCase(), scope: 'CUSTOM' })}>
-              <Icon name="bolt" size={16} /> Build {s} handicap packet
+              <Icon name="bolt" size={16} /> Dig deeper with ChatGPT ({s})
             </Link>
           ))}
         </div>
       ) : (
-        <Notice title="Start from a slate">
-          <Link to={routes.sport('nfl')}>Open the NFL slate</Link> and save what catches your eye.
+        <Notice title="Start from a game">
+          <Link to={routes.sport('nfl')}>Open an NFL game</Link> and tap Dig deeper on what catches your eye.
         </Notice>
       )}
     </div>

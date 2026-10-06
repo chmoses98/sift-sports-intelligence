@@ -230,14 +230,14 @@ test('live vs snapshot: the live root\'s newer run is announced while the snapsh
 
 test('offline with previously loaded research: it still renders; the banner is accurate', async ({ page, context }) => {
   await page.goto(`./#/nfl/game/${NEBUF}`);
-  await expect(page.getByRole('heading', { name: 'Model Read' })).toBeVisible();
-  await page.locator('.mh__team--home .mh__name').click();
+  await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
+  await page.locator('.gh__team--home .gh__name').click();
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await context.setOffline(true);
   await page.goBack();
-  await expect(page.getByRole('heading', { name: 'Model Read' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
   await expect(page.getByRole('status').filter({ hasText: 'Offline' })).toBeVisible();
-  await expect(page.locator('.mh__chips .qchip')).toBeVisible();
+  await expect(page.locator('.gquote .qchip')).toBeVisible();
   await context.setOffline(false);
   await expect(page.getByRole('status').filter({ hasText: 'Offline' })).toHaveCount(0);
 });

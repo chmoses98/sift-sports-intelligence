@@ -44,13 +44,13 @@ test('TE usage renders target share', async ({ page }) => {
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
   ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor()],
-  ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model Read' }).waitFor()],
-  ['game-matchup', `./#/nfl/game/${NEBUF}?tab=matchup`, (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor()],
+  ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor()],
+  ['game-matchup', `./#/nfl/game/${NEBUF}?tab=matchup`, (p) => p.getByRole('heading', { name: 'Unit by unit' }).waitFor()],
   ['game-trends', `./#/nfl/game/${NEBUF}?tab=trends`, (p) => p.locator('main').waitFor()],
   ['team', `./#/nfl/team/${BUF}`, (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor()],
   ['metric', `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}&opp=${NE}`, (p) => p.getByText('League median').waitFor()],
   ['raw-metric', `./#/nfl/metric/met_nfl.off_epa_play?team=${BUF}&opp=${NE}`, (p) => p.getByText('League median').waitFor()],
-  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Market vs Projection' }).waitFor()],
+  ['player', `./#/nfl/player/${ALLEN}`, (p) => p.getByRole('heading', { name: 'Markets', exact: true }).waitFor()],
   ['market', `./#/nfl/market/${ML_ID}?event=${NEBUF}`, (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor()],
 ];
 

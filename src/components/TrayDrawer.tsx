@@ -5,6 +5,7 @@ import { routes } from '../lib/routes';
 import { useNow } from '../live/hooks';
 import { useTray } from '../state/tray';
 import { Icon } from './Icon';
+import { FINDING_WORD, type FindingKind } from '../research/findings';
 
 export const REF_WORD: Record<string, string> = {
   TEAM: 'Team', PLAYER: 'Player', EVENT: 'Game', METRIC: 'Metric', RANKING: 'Ranking', SERIES: 'Trend',
@@ -18,8 +19,8 @@ export function TrayList({ dense }: { dense?: boolean }) {
   if (!items.length) {
     return (
       <div className="tray__empty">
-        <p><b>Your research tray is empty.</b></p>
-        <p>Tap <span className="kbdish">+ Tray</span> on any team, player, game, metric, ranking observation, chart point, projection or market. Sift keeps references (not copies) on this device and resolves them against the latest publication when you build a packet.</p>
+        <p><b>Nothing saved yet.</b></p>
+        <p>Tap <span className="kbdish">+ Dig deeper</span> on anything specific you want to investigate — a matchup edge, a prop projection, a game script, a context note, a player's trend. Sift keeps each finding (with its numbers) on this device and hands exactly those to ChatGPT when you build a packet.</p>
       </div>
     );
   }
@@ -29,7 +30,7 @@ export function TrayList({ dense }: { dense?: boolean }) {
         const l = tray.labels[it.item_id];
         return (
           <li key={it.item_id} className="tray__item">
-            <span className={`tray__kind tray__kind--${it.ref_kind.toLowerCase()}`}>{REF_WORD[it.ref_kind]}</span>
+            <span className={`tray__kind tray__kind--${l?.finding ?? it.ref_kind.toLowerCase()}`}>{l?.finding ? FINDING_WORD[l.finding as FindingKind] ?? l.finding : REF_WORD[it.ref_kind]}</span>
             <div className="tray__body">
               {l ? <Link to={l.href} className="tray__label">{l.label}</Link> : <span className="tray__label">{it.id}</span>}
               {l?.sub && <span className="tray__sub">{l.sub}</span>}
@@ -75,8 +76,8 @@ export function TrayDrawer() {
       <aside id="tray-drawer" className={`drawer${tray.open ? ' is-open' : ''}`} aria-label="Research tray" aria-hidden={!tray.open} ref={ref} tabIndex={-1} inert={!tray.open}>
         <header className="drawer__head">
           <div>
-            <div className="eyebrow">Research tray</div>
-            <div className="drawer__title">{n} saved {n === 1 ? 'item' : 'items'}</div>
+            <div className="eyebrow">Research</div>
+            <div className="drawer__title">{n} saved {n === 1 ? 'finding' : 'findings'}</div>
           </div>
           <button type="button" className="iconbtn" onClick={() => tray.setOpen(false)} aria-label="Close research tray">
             <Icon name="close" />
@@ -88,7 +89,7 @@ export function TrayDrawer() {
         <footer className="drawer__foot">
           {sports.map((s) => (
             <Link key={s} className="btn btn--primary btn--block" to={routes.packet({ sport: s.toLowerCase(), scope: 'CUSTOM' })} onClick={() => tray.setOpen(false)}>
-              <Icon name="bolt" size={16} /> Build {s} handicap packet
+              <Icon name="bolt" size={16} /> Dig deeper with ChatGPT ({s})
             </Link>
           ))}
           <div className="drawer__row">

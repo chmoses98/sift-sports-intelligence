@@ -17,6 +17,17 @@ import { capShown, capStatus, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
+import { PlayerFace, RangeBar, RankBadge, Layer } from '../components/insight';
+import { DigDeeper } from '../components/ui';
+import { playerPhoto } from '../lib/players';
+import { rankView } from '../lib/rank';
+import { overLine } from '../lib/marketLabel';
+import { usePlayerHistory } from '../history/load';
+import { gamesBefore, hitRecord, statsForPosition, statDef } from '../history/stats';
+import { mainLine as pickMainLine } from '../insights/props';
+import type { Market } from '../contract/types';
+import { GameBars, LogTable, Splits, UsageRows } from './player/history';
+import type { Finding } from '../research/findings';
 import { overlayMarket } from '../live/overlay';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -74,6 +85,9 @@ export function PlayerView() {
   const oppId = game?.opponent_id ?? null;
   const opp = useAsync(oppId ? `prof:${sport.code}:${oppId}` : null, () => repo.profile(oppId!));
   const [stat, setStat] = useState<string | null>(null);
+  const [hs, setHs] = useState<string | null>(null);
+  const gsis = (p?.entity.source_ids?.gsis_id as string | undefined) ?? ((p?.extensions as any)?.gsis_id as string | undefined) ?? null;
+  const hist = usePlayerHistory(sport.code, gsis);
 
   // Market clock: this player's contracts refresh at game cadence while the screen is open.
   const playerTickers = useMemo(() => (p?.markets ?? []).map((m) => m.kalshi_ticker), [p]);
@@ -143,7 +157,7 @@ export function PlayerView() {
     <div className="page player">
       {/* PLAYER · THIS GAME: who, team, position, role, opponent, when, availability. */}
       <header className="ehead plhead">
-        <TeamMark sport={sport.code} abbr={teamAbbr} size="lg" />
+        <PlayerFace photo={playerPhoto(playerId, p.entity.display_name, teamAbbr)} team={teamAbbr} sport={sport.code} size="xl" name={p.entity.display_name} />
         <div className="ehead__t">
           <div className="eyebrow">
             <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink>
@@ -170,7 +184,7 @@ export function PlayerView() {
           )}
         </div>
         <div className="ehead__actions">
-          <SaveButton ref_kind="PLAYER" sport={sport.code} id={playerId} label={{ label: p.entity.display_name, sub: `${pos} · ${teamAbbr}`, href: routes.player(slug, playerId) }} />
+          <SaveButton ref_kind="PLAYER" sport={sport.code} id={playerId} text="Save player" label={{ label: p.entity.display_name, sub: `${pos} · ${teamAbbr}`, href: routes.player(slug, playerId) }} />
           {rival && (
             <Link className="btn btn--ghost" to={routes.compare(slug, playerId, rival)}>
               <Icon name="compare" size={16} /> Compare with {dir.data?.player(rival)?.label}
@@ -179,8 +193,81 @@ export function PlayerView() {
         </div>
       </header>
 
+      {/* THIS GAME + GAME BY GAME: the projection with its range and line, then the season against that line. */}
+      {(() => {
+        const week = Number(/week\s*(\d+)/i.exec(game?.competition ?? '')?.[1] ?? NaN);
+        const wk = Number.isFinite(week) ? week : null;
+        const kicked = game ? Date.parse(game.start_time_utc) <= now : false;
+        const all = hist.data?.games ?? [];
+        const before = game ? gamesBefore(all, game.start_time_utc, wk) : all;
+        const result = kicked && wk != null ? all.find((r) => r.week === wk) ?? null : null;
+        const options = statsForPosition(pos).filter((d) => (STAT_TO_SIM[d.key] && sims.some((o) => o.metric_id === STAT_TO_SIM[d.key])) || all.some((r) => (d.get(r) ?? 0) > 0));
+        const cur = statDef(hs && options.some((o) => o.key === hs) ? hs : options[0]?.key) ?? null;
+        if (!cur) return null;
+        const sObs = STAT_TO_SIM[cur.key] ? sims.find((o) => o.metric_id === STAT_TO_SIM[cur.key]) : undefined;
+        const qq = quantilesOf(sObs);
+        const ml = pickMainLine((byStat.get(cur.key) ?? []) as unknown as Market[]);
+        const line = ml?.threshold != null ? Number(overLine(ml.threshold)) : null;
+        const defId = /rush|carries/.test(cur.key) ? 'met_nfl.adj_def_rush_epa' : 'met_nfl.adj_def_db_epa';
+        const defObs = opp.data?.metrics.find((x) => x.metric_id === defId);
+        const defRank = rankView(defObs?.context);
+        const rec = line != null ? hitRecord(before.slice(-5), cur, line) : null;
+        const f = (v: number) => (cur.unit === 'rec' || cur.unit === 'TD' || cur.unit === 'INT' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)));
+        const finding: Finding | null = sObs?.value != null && qq ? {
+          key: `proj:${playerId}:${cur.key}`, kind: 'projection', sport: sport.code, title: `${p.entity.display_name} ${cur.label.toLowerCase()}`,
+          statement: `Projection ${f(sObs.value)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.values.length ? `; ${rec.over} of last ${rec.values.length} over ${line}` : ''}.`,
+          href: routes.player(slug, playerId), anchor: ml ? { ref_kind: 'MARKET', id: ml.market_id, extra: { market_id: ml.market_id, event_id: ml.event_id } } : { ref_kind: 'PLAYER', id: playerId },
+          kickoff: game?.start_time_utc ?? null,
+        } : null;
+        return (
+          <>
+            <section className="pthis" aria-labelledby="pthis-h">
+              <div className="pthis__h">
+                <h2 id="pthis-h" className="gsec__t">{game ? `This game ${game.home_away === 'AWAY' ? 'at' : 'vs'} ${oppAbbr ?? game.opponent_name}` : 'This season'}</h2>
+                <div className="seg seg--scroll" role="tablist" aria-label="Stat for this game">
+                  {options.map((o) => (
+                    <button key={o.key} type="button" role="tab" aria-selected={o.key === cur.key} className={`seg__b${o.key === cur.key ? ' is-on' : ''}`} onClick={() => setHs(o.key)}>{o.label}</button>
+                  ))}
+                </div>
+              </div>
+              {sObs?.value != null && qq ? (
+                <div className="pthis__card">
+                  <dl className="pthis__nums">
+                    <div><dt>Projection</dt><dd className="num">{f(sObs.value)} <small>{cur.unit}</small></dd></div>
+                    <div><dt>Projected range</dt><dd className="num">{f(qq.p25)}–{f(qq.p75)} <small>{cur.unit}</small></dd><dd className="pthis__s">typical (middle half of simulations)</dd></div>
+                    <div><dt>Line</dt><dd className="num">{line ?? '—'}</dd><dd className="pthis__s">{ml ? 'market rung nearest even' : 'no priced line'}</dd></div>
+                    {defRank && <div><dt>Matchup</dt><dd><RankBadge rank={defRank} compact /></dd><dd className="pthis__s">{oppAbbr} {/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense</dd></div>}
+                  </dl>
+                  <RangeBar typical={[qq.p25, qq.p75]} full={[qq.p05, qq.p95]} projection={sObs.value} line={line} format={f} label={`${p.entity.display_name} ${cur.label.toLowerCase()}`} />
+                  <div className="pthis__x">
+                    {rec && rec.values.length > 0 && <span className="pthis__rec"><b>{rec.over} of {rec.values.length}</b> recent games over {line}</span>}
+                    {finding && <DigDeeper finding={finding} />}
+                  </div>
+                </div>
+              ) : (
+                <p className="muted small">No projection published for {cur.label.toLowerCase()} in this game.</p>
+              )}
+            </section>
+            <section className="pgame" aria-labelledby="pgame-h">
+              <div className="gsec__h"><h2 id="pgame-h" className="gsec__t">Game by Game</h2><p className="gsec__sub">{cur.label} each game this season{line != null ? `, against today's line of ${line}` : ''}.{result ? ' This game has been played; its result is marked separately below.' : ''}</p></div>
+              {hist.loading && <Skeleton lines={3} />}
+              {!hist.loading && !hist.data && <p className="muted small">No {sport.label} game log for this player yet (rookie, no snaps, or not in the season's play-by-play).</p>}
+              {hist.data && <GameBars rows={before} stat={cur} line={line} upcoming={!kicked && sObs?.value != null && qq ? { projection: sObs.value, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />}
+              {result && <p className="pgame__res"><b>Result of this game:</b> {f(cur.get(result) ?? 0)} {cur.unit}{sObs?.value != null ? ` (projected ${f(sObs.value)})` : ''}.</p>}
+              {hist.data && before.length > 0 && (
+                <>
+                  <Layer summary="Usage & role, game by game"><UsageRows rows={before} pos={pos} /></Layer>
+                  <Layer summary="Splits"><Splits doc={hist.data} rows={before} stat={cur} /></Layer>
+                  <Layer summary="Full game log"><LogTable rows={before} pos={pos} /><p className="muted small">Source: nflverse play-by-play and weekly player stats (snap counts from Pro Football Reference via nflverse). Games before this one only.</p></Layer>
+                </>
+              )}
+            </section>
+          </>
+        );
+      })()}
+
       {showMarkets && (
-        <Stratum title="Market vs Projection" sub="The model’s projection, the market’s price and the gap, for each stat. Tap a line for the full contract." actions={<QuoteSummaryChip views={quoteViews} now={now} />}>
+        <Stratum title="Markets" sub="Every priced line for this player, with the projection beside it. Tap a line for the full contract." actions={<QuoteSummaryChip views={quoteViews} now={now} />}>
           <div className="seg seg--scroll" role="tablist" aria-label="Stat">
             {stats.map((s) => (
               <button key={s} type="button" role="tab" aria-selected={activeStat === s} className={`seg__b${activeStat === s ? ' is-on' : ''}`} onClick={() => setStat(s)}>
@@ -313,12 +400,8 @@ export function PlayerView() {
       )}
 
       <section className="plquiet" aria-label="History and availability">
-        <h2 className="plquiet__h">History & Availability</h2>
+        <h2 className="plquiet__h">Availability</h2>
         <div className="plquiet__grid">
-          <div>
-            <h3 className="plquiet__k">Game log <Info label="About player game logs"><span>Player game logs: {capStatus(caps, 'player_game_logs')} for {sport.label}. {caps.get('player_game_logs')?.limitations?.[0] ?? 'Not published.'} Sift does not reconstruct a log it cannot source.</span></Info></h3>
-            <p>Not published for 2026 yet. Historical player game logs will appear here when the {sport.label} publication provides them.</p>
-          </div>
           {p.availability.length > 0 && (
             <div>
               <h3 className="plquiet__k">Availability</h3>

@@ -58,6 +58,12 @@ export function isoSeconds(ms: number): string {
 }
 
 /** "3m", "34m", "2h 05m": an age for a chip, never rounded down into a younger bucket. */
+/** "4m ago", or "just now" when the capture is stamped ahead of this device's clock. */
+export function formatQuoteAgo(ageMs: number | null): string {
+  const t = formatQuoteAge(ageMs);
+  return t === 'just now' || t === 'no timestamp' ? t : `${t} ago`;
+}
+
 export function formatQuoteAge(ageMs: number | null): string {
   if (ageMs == null) return 'no timestamp';
   if (ageMs < 0) return 'just now';

@@ -5,9 +5,10 @@ import type { FreshnessState, ObservationContext, Quality, QualityStatus, Thresh
 import { ago, exactTime, ordinal } from '../lib/format';
 import { teamLogo } from '../lib/teams';
 import { useHeldImage } from '../lib/useImage';
-import type { RefKind, TrayExtra } from '../packet/tray';
+import { makeTrayItem, type RefKind, type TrayExtra } from '../packet/tray';
 import { useTray, type TrayLabel } from '../state/tray';
 import { Icon } from './Icon';
+import { findingToTray, type Finding } from '../research/findings';
 import { FROZEN_LABEL, FROZEN_WHY, isFrozen } from '../lib/lifecycle';
 import { useNow } from '../live/hooks';
 
@@ -165,9 +166,12 @@ export function Provenance({ quality }: { quality: Quality }) {
 // ------------------------------------------------------------------ research tray
 
 export function SaveButton({
-  ref_kind, sport, id, extra, label, compact, className, text, kickoff, eventStatus,
+  ref_kind, sport, id, extra, label, compact, className, text, kickoff, eventStatus, note, savedText,
 }: {
   ref_kind: RefKind; sport: string; id: string; extra?: Partial<TrayExtra> | null; label: TrayLabel; compact?: boolean; className?: string; text?: string;
+  /** Contract note saved with the item (a finding's statement). */
+  note?: string | null;
+  savedText?: string;
   /** Scheduled kickoff of the game this item belongs to: after it, nothing new can be saved (lib/lifecycle.ts). */
   kickoff?: string | null;
   eventStatus?: string | null;
@@ -177,7 +181,8 @@ export function SaveButton({
   const whyId = useId();
   const [explain, setExplain] = useState(false);
   const saved = tray.has(ref_kind, id, extra);
-  const item = saved ? tray.tray.items.find((i) => i.ref_kind === ref_kind && i.id === id) : undefined;
+  const probe = makeTrayItem({ ref_kind, sport, id, extra, added_at: new Date(0) }).item_id;
+  const item = saved ? tray.tray.items.find((i) => i.item_id === probe) : undefined;
   const frozen = (kickoff != null || eventStatus != null) && isFrozen(kickoff, now, eventStatus);
 
   // After kickoff, an item that was not saved before cannot be newly saved: a visibly disabled control that
@@ -217,11 +222,11 @@ export function SaveButton({
         e.preventDefault();
         e.stopPropagation();
         if (saved && item) tray.remove(item.item_id);
-        else tray.add({ ref_kind, sport, id, extra, label, kickoff, eventStatus });
+        else tray.add({ ref_kind, sport, id, extra, label, kickoff, eventStatus, note });
       }}
     >
       <Icon name={saved ? 'check' : 'plus'} size={compact ? 14 : 16} />
-      {!compact && <span>{saved ? (pregameSaved ? 'Saved pregame' : 'In tray') : text ?? 'Tray'}</span>}
+      {!compact && <span>{saved ? (pregameSaved ? 'Saved pregame' : savedText ?? 'In tray') : text ?? 'Tray'}</span>}
     </button>
   );
 }
@@ -314,5 +319,16 @@ export function ContextMeter({ value, ctx, oppValue, label }: { value: number | 
       {oppValue != null && <span className="cmeter__dot cmeter__dot--opp" style={{ left: `${pos(oppValue)}%` }} />}
       <span className="cmeter__dot" style={{ left: `${pos(value)}%` }} />
     </span>
+  );
+}
+
+/** "Dig deeper": save one specific finding (not a whole game) to the research tray. */
+export function DigDeeper({ finding, compact, className }: { finding: Finding; compact?: boolean; className?: string }) {
+  const t = findingToTray(finding);
+  return (
+    <SaveButton
+      ref_kind={t.ref_kind} sport={t.sport} id={t.id} extra={t.extra} label={t.label} note={t.note} kickoff={t.kickoff} eventStatus={t.eventStatus}
+      compact={compact} className={`savebtn--dig${className ? ' ' + className : ''}`} text="Dig deeper" savedText="In research"
+    />
   );
 }

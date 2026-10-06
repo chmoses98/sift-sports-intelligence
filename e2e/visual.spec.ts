@@ -22,12 +22,12 @@ const SCREENS: { name: string; url: string; wait: (p: Page) => Promise<unknown>;
   { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor(), full: true },
   { name: 'nfl-home', url: './#/nfl', wait: (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor(), full: true },
   { name: 'slate', url: './#/nfl/slate', wait: (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor() },
-  { name: 'game', url: `./#/nfl/game/${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'Model Read' }).waitFor(), full: true },
+  { name: 'game', url: `./#/nfl/game/${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor(), full: true },
   { name: 'game-script', url: `./#/nfl/game/${NEBUF}?tab=script&script=fav`, wait: (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor(), full: true },
-  { name: 'game-matchup', url: `./#/nfl/game/${NEBUF}?tab=matchup`, wait: (p) => p.getByRole('heading', { name: 'How they match up' }).waitFor() },
+  { name: 'game-matchup', url: `./#/nfl/game/${NEBUF}?tab=matchup`, wait: (p) => p.getByRole('heading', { name: 'Unit by unit' }).waitFor() },
   { name: 'team', url: `./#/nfl/team/${BUF}`, wait: (p) => p.getByRole('heading', { name: /Buffalo Bills/i, level: 1 }).waitFor() },
   { name: 'metric', url: `./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`, wait: (p) => p.getByText('League median').waitFor() },
-  { name: 'player', url: `./#/nfl/player/${ALLEN}`, wait: (p) => p.getByRole('heading', { name: 'Market vs Projection' }).waitFor() },
+  { name: 'player', url: `./#/nfl/player/${ALLEN}`, wait: (p) => p.getByRole('heading', { name: 'Markets', exact: true }).waitFor() },
   { name: 'market', url: `./#/nfl/market/${ML_ID}?event=${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'Model evidence' }).waitFor(), full: true },
   { name: 'packet', url: `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, wait: (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 }) },
 ];
@@ -63,7 +63,7 @@ test('league ranking @visual', async ({ page, isMobile }) => {
 
 test('research tray @visual', async ({ page, isMobile }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
-  await page.getByRole('heading', { name: 'Market vs Projection' }).waitFor();
+  await page.getByRole('heading', { name: 'Markets', exact: true }).waitFor();
   await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
   await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });

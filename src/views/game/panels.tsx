@@ -10,7 +10,10 @@ import { routes } from '../../lib/routes';
 import { sharePct, type Fit, type GameScript, type ScriptId, type ScriptSet } from '../../lib/scripts';
 import { quoteAgeMs, quoteFreshness, formatQuoteAge } from '../../live/freshness';
 import { splitName } from './Hero';
-import { scriptArt, type ScriptArt as ScriptArtT } from '../../lib/players';
+import { scriptCast, type CastMember } from '../../insights/cast';
+import { RankBadge } from '../../components/insight';
+import { rankView } from '../../lib/rank';
+import type { NewsItem } from '../../insights/news';
 import { teamColors, teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
 import { MarketIcon } from '../../components/MarketIcon';
@@ -137,24 +140,26 @@ export function ModelReadPanel({ r, read, homeAbbr, awayAbbr, to }: { r: EventRe
 
 export const SIM_SHARE_INFO = <><b>Sim share:</b> {glossLine(term('sim_share'))}</>;
 
-/** The cinematic layer behind a script card: player imagery (or the team's logo as atmosphere), heavily darkened. */
-function ArtImage({ art, sport }: { art: ScriptArtT; sport: string }) {
-  const img = useHeldImage(art.src);
-  const logo = useHeldImage(art.kind === 'logo' ? teamLogo(sport, art.team) : null);
-  if (art.kind === 'player') return img ? <img className="scard__img" src={img} alt="" style={{ objectPosition: art.focus }} /> : null;
-  return logo ? <img className="scard__img scard__img--logo" src={logo} alt="" /> : null;
-}
-
-export function ScriptArtLayer({ set, id }: { set: ScriptSet; id: ScriptId }) {
-  const arts = scriptArt(set, id);
+/**
+ * The face of a script: the player whose role IS the script (insights/cast.ts), a real photo when one is
+ * pinned, otherwise the team's mark on its colour. The reason is written on the card, not implied.
+ */
+function CastLayer({ cast }: { cast: CastMember[] }) {
   return (
-    <span className={`scard__art${arts.length > 1 ? ' scard__art--split' : ''}`} aria-hidden="true">
-      {arts.map((a) => <span key={a.team} className="scard__frame" style={{ ['--tc' as string]: teamColors('NFL', a.team)[0] }}><ArtImage art={a} sport="NFL" /></span>)}
+    <span className={`scard__art${cast.length > 1 ? ' scard__art--split' : ''}`} aria-hidden="true">
+      {cast.map((c) => <span key={c.team} className="scard__frame" style={{ ['--tc' as string]: teamColors('NFL', c.team)[0] }}><CastImage c={c} /></span>)}
     </span>
   );
 }
 
-export function ScriptsPanel({ set, selected, hrefFor, title = 'Game Scripts', compact }: { set: ScriptSet; selected: ScriptId | null; hrefFor: (id: ScriptId | null) => string; title?: string; compact?: boolean }) {
+function CastImage({ c }: { c: CastMember }) {
+  const img = useHeldImage(c.photo?.src ?? null);
+  const logo = useHeldImage(c.photo ? null : teamLogo('NFL', c.team));
+  if (img) return <img className="scard__img" src={img} alt="" style={{ objectPosition: c.photo!.focus }} />;
+  return logo ? <img className="scard__img scard__img--logo" src={logo} alt="" /> : null;
+}
+
+export function ScriptsPanel({ set, selected, hrefFor, title = 'How It Could Play Out', compact, r, slug }: { set: ScriptSet; selected: ScriptId | null; hrefFor: (id: ScriptId | null) => string; title?: string; compact?: boolean; r?: EventResearchDoc; slug?: string }) {
   const sel = set.scripts.find((s) => s.id === selected) ?? null;
   return (
     <section className="panel ov-scripts" aria-labelledby="ov-scripts-h">
@@ -168,17 +173,29 @@ export function ScriptsPanel({ set, selected, hrefFor, title = 'Game Scripts', c
         </div>
       </div>
       <ul className={`scards${compact ? ' scards--compact' : ''}`}>
-        {set.scripts.map((s) => {
+        {set.scripts.map((s, rank) => {
           const on = s.id === selected;
+          const cast = r ? scriptCast(r, set, s) : [];
           return (
             <li key={s.id}>
-              <Link to={hrefFor(on ? null : s.id)} className={`scard scard--s${s.index}${on ? ' is-sel' : ''}${sel && !on ? ' is-dim' : ''}`} aria-current={on ? "true" : undefined} aria-label={`${s.name}: ${sharePct(s.share)} of simulated games. ${s.summary}${on ? ' Selected.' : ''}`}>
-                <ScriptArtLayer set={set} id={s.id} />
-                <span className="scard__name">{s.name}</span>
-                <span className="scard__pct num">{sharePct(s.share)}</span>
-                <span className="scard__d">{s.summary}</span>
+              <div className={`scard scard--s${s.index}${on ? ' is-sel' : ''}${sel && !on ? ' is-dim' : ''}`}>
+                <CastLayer cast={cast} />
+                <Link to={hrefFor(on ? null : s.id)} className="scard__a" aria-current={on ? 'true' : undefined} aria-label={`${rank === 0 ? 'Most likely: ' : ''}${s.name}: ${sharePct(s.share)} of simulated games. ${s.summary}${on ? ' Selected.' : ''}`}>
+                  {rank === 0 && <span className="scard__top">Most likely</span>}
+                  <span className="scard__name">{s.name}</span>
+                  <span className="scard__pct num">{sharePct(s.share)}</span>
+                  <span className="scard__d">{s.summary}</span>
+                </Link>
+                {!compact && cast[0]?.name && (
+                  <span className="scard__cast">
+                    {cast.filter((c) => c.name).map((c) => (
+                      slug && c.playerId ? <Link key={c.team} to={routes.player(slug, c.playerId)} className="scard__who">{c.name}</Link> : <span key={c.team} className="scard__who">{c.name}</span>
+                    ))}
+                    <span className="scard__why">{cast.length === 1 ? cast[0].why : 'Both quarterbacks carry a one-score game.'}</span>
+                  </span>
+                )}
                 <ScriptGlyph id={s.id} />
-              </Link>
+              </div>
             </li>
           );
         })}
@@ -388,11 +405,20 @@ function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityP
       <dl className="form__stats">
         {FORM_STATS[view].map((s) => {
           const st = teamStat(prof, s.id);
+          // Rank first for rates a reader can't judge on sight (EPA, success, takeaways); simple counts stay number-first.
+          const rv = st.rank != null && st.size ? rankView({ rank: st.rank, universe_size: st.size, higher_is_better: true }) : null;
+          const simple = /Points|Allowed|Margin/.test(s.label);
           return (
-            <div key={s.id} className="fstat">
+            <div key={s.id} className={`fstat${simple ? '' : ' fstat--rank'}`}>
               <dt className="fstat__k">{s.label}</dt>
-              <dd className="fstat__v num">{st.value != null ? s.fmt(st.value) : '—'}</dd>
-              <dd className={`fstat__r${st.rank != null && st.rank <= 8 ? ' is-top' : st.rank != null && st.rank >= 25 ? ' is-low' : ''}`}>{rankText(st.rank)}<span> NFL</span></dd>
+              {simple || !rv ? (
+                <>
+                  <dd className="fstat__v num">{st.value != null ? s.fmt(st.value) : '—'}</dd>
+                  <dd className={`fstat__r${st.rank != null && st.rank <= 8 ? ' is-top' : st.rank != null && st.rank >= 25 ? ' is-low' : ''}`}>{rankText(st.rank)}<span> NFL</span></dd>
+                </>
+              ) : (
+                <dd className="fstat__rk"><RankBadge rank={rv} raw={st.value != null ? s.fmt(st.value) : undefined} compact /></dd>
+              )}
             </div>
           );
         })}
@@ -547,7 +573,27 @@ export function InjuryList({ rows }: { rows: InjuryRow[] }) {
   );
 }
 
-export function InjuriesPanel({ rows, homeAbbr, awayAbbr, sportCode, to }: { rows: InjuryRow[]; homeAbbr: string; awayAbbr: string; sportCode: string; to: string }) {
+export function InjuriesPanel({ rows, important, homeAbbr, awayAbbr, sportCode, to }: { rows: InjuryRow[]; important?: NewsItem[]; homeAbbr: string; awayAbbr: string; sportCode: string; to: string }) {
+  // Important news first; routine designations stay one tap away on the Injuries tab.
+  if (important) {
+    return (
+      <section className="panel ov-inj" aria-labelledby="ov-inj-h">
+        <PanelHead title="Injuries That Matter" sub={important.length ? `${important.length} of ${rows.length} designations change this game` : `${rows.length} designations, none to a starter or key player`}>
+          <ViewAll to={to}>All {rows.length}</ViewAll>
+        </PanelHead>
+        {important.length ? (
+          <ul className="newsl newsl--game">
+            {important.slice(0, 5).map((n) => (
+              <li key={n.id} className={`newsl__i newsl__i--${n.level}`}>
+                <span className="newsl__h"><TeamMark sport={sportCode} abbr={n.team} size="sm" /><b>{n.headline}</b></span>
+                <span className="newsl__d">{n.detail}</span>
+              </li>
+            ))}
+          </ul>
+        ) : <p className="muted small">No starter or key player is out or doubtful.</p>}
+      </section>
+    );
+  }
   return (
     <section className="panel ov-inj" aria-labelledby="ov-inj-h">
       <PanelHead title="Notable Injuries" sub={`${rows.length} designations · skill players first`}>

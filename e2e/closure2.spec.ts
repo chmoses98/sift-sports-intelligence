@@ -38,34 +38,39 @@ test.describe('pregame research freezes at kickoff', () => {
     await expectTray(page, isMobile, 0);
   });
 
-  test('after kickoff the game hero offers no new save, and explains why on tap', async ({ page, isMobile }) => {
+  test('after kickoff the game’s findings offer no new save, and explain why on tap', async ({ page, isMobile }) => {
     await page.clock.install({ time: AFTER_KICKOFF });
     await page.goto(`./#/nfl/game/${NEBUF}`);
     await expect(page.getByText('Kicked off · pregame research frozen')).toBeVisible();
-    const b = page.locator('.mh__actions').getByRole('button', { name: /Pregame research frozen/ });
+    const b = page.locator('.mcard__x').first().getByRole('button', { name: /Pregame research frozen/ });
     await expect(b).toHaveAttribute('aria-disabled', 'true');
     await expect(b).toHaveAccessibleDescription(/New pregame research can’t be saved after kickoff/);
+    await b.evaluate((el) => el.scrollIntoView({ block: 'center' })); // clear of the phone tab bar
     await b.click({ force: true }); // aria-disabled: tapping explains, never saves
     await expect(page.getByRole('status').filter({ hasText: 'items saved before kickoff stay in your tray' })).toBeVisible();
     await expectTray(page, isMobile, 0);
-    // The Copy for ChatGPT packet path still works for the game.
-    await expect(page.getByRole('link', { name: /Copy for ChatGPT/ })).toBeVisible();
+    // The hero itself carries no research actions; the full-game packet export stays at the foot of the page.
+    await expect(page.locator('.gh button, .gh .savebtn')).toHaveCount(0);
+    await expect(page.locator('.gnotes a', { hasText: 'Export this game' })).toBeAttached();
   });
 
   test('a FINAL game rejects new pregame saves', async ({ page, isMobile }) => {
     await page.clock.install({ time: NOW });
     await page.goto(`./#/nfl/game/${FINAL_GAME}`);
-    const b = page.locator('.mh__actions').getByRole('button', { name: /Pregame research frozen/ });
+    const b = page.locator('.savebtn').filter({ visible: true }).first();
     await expect(b).toHaveAttribute('aria-disabled', 'true');
     await b.click({ force: true }); // aria-disabled: tapping explains, never saves
     await expectTray(page, isMobile, 0);
   });
 
-  test('before kickoff the same hero control saves normally', async ({ page, isMobile }) => {
+  test('before kickoff a finding saves on its own (never the whole game)', async ({ page, isMobile }) => {
     await page.clock.install({ time: NOW });
     await page.goto(`./#/nfl/game/${NEBUF}`);
-    await page.locator('.mh__actions').getByRole('button', { name: /^Save .* to research tray$/ }).click();
+    await page.locator('.mcard__x').first().getByRole('button', { name: /^Save .* to research tray$/ }).click();
     await expectTray(page, isMobile, 1);
+    await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
+    const drawer = page.getByRole('complementary', { name: 'Research tray' });
+    await expect(drawer.locator('.tray__kind').first()).not.toHaveText('Game');
   });
 });
 
@@ -114,7 +119,7 @@ test.describe('player page', () => {
 
   test('the key market and projection numbers lead; provenance is demoted but reachable', async ({ page }) => {
     await page.goto(`./#/nfl/player/${ALLEN}`);
-    await expect(page.getByRole('heading', { name: 'Market vs Projection' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
     for (const k of ['Model projection', 'Live market', 'Model − Market']) await expect(page.locator('.pvm').getByText(k, { exact: true })).toBeVisible();
     await expect(page.locator('.pvm').getByRole('link', { name: /Open market/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Projected Range' })).toBeVisible();
@@ -136,27 +141,27 @@ test.describe('player page', () => {
     await expect(sec.getByText(/target share|reception|receiving/i)).toHaveCount(0);
   });
 
-  test('the unavailable game log is honest and secondary, after the matchup', async ({ page }) => {
+  test('the game log is real history: game by game against the line, the full table one layer down', async ({ page }) => {
     await page.goto(`./#/nfl/player/${ALLEN}`);
-    const quiet = page.getByRole('region', { name: 'History and availability' });
-    await expect(quiet.getByText('Not published for 2026 yet.', { exact: false })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Game log', level: 2 })).toHaveCount(0);
-    const order = await page.evaluate(() => {
-      const mu = [...document.querySelectorAll('h2')].findIndex((h) => /^Matchup vs/.test(h.textContent ?? ''));
-      const hi = [...document.querySelectorAll('h2')].findIndex((h) => /History & Availability/.test(h.textContent ?? ''));
-      return { mu, hi };
-    });
-    expect(order.mu).toBeGreaterThan(-1);
-    expect(order.hi).toBeGreaterThan(order.mu);
+    await expect(page.getByRole('heading', { name: 'Game by Game' })).toBeVisible();
+    // Weeks 1-3 only: the pregame view never shows this game's own result.
+    await expect(page.locator('.gbars__b:not(.gbars__b--next)')).toHaveCount(3);
+    await expect(page.locator('.gbars__line')).toContainText('Line');
+    await expect(page.getByText('Not published for 2026 yet.', { exact: false })).toHaveCount(0);
+    const log = page.locator('details.layer').filter({ hasText: 'Full game log' });
+    await expect(log.locator('table')).toBeHidden();
+    await log.locator('summary').click();
+    await expect(log.locator('table tbody tr')).toHaveCount(3);
   });
 
   test('375 px: tabs, ladder, prices, range and matchup fit; info popovers open on tap', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto(`./#/nfl/player/${ALLEN}`);
-    await expect(page.getByRole('heading', { name: 'Market vs Projection' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
     await noHorizontalOverflow(page, 'player-375');
-    await page.getByRole('tab', { name: /Rushing yards/ }).click();
-    await expect(page.getByRole('tab', { name: /Rushing yards/ })).toHaveAttribute('aria-selected', 'true');
+    const markets = page.locator('section.stratum').filter({ has: page.getByRole('heading', { name: 'Markets', exact: true }) });
+    await markets.getByRole('tab', { name: /Rushing yards/ }).click();
+    await expect(markets.getByRole('tab', { name: /Rushing yards/ })).toHaveAttribute('aria-selected', 'true');
     await noHorizontalOverflow(page, 'player-375-rushing');
     for (const sel of ['.pvm', '.ladder', '.prange', '.plmu']) {
       const box = await page.locator(sel).first().boundingBox();

@@ -78,7 +78,7 @@ export function LadderChart({ rungs, quantiles, unit, title, selected, height = 
                   x={cx - 14} y={M.top} width={28} height={plotH - M.top - M.bottom} className="trend__hit"
                   onMouseEnter={() => setHover(r)} onMouseLeave={() => setHover(null)} onClick={() => nav(r.href)}
                 >
-                  <title>{`${r.ticker}: ${unit} ≥ ${r.x}`}</title>
+                  <title>{`${unit} ≥ ${r.x}`}</title>
                 </rect>
               </g>
             );

@@ -4,7 +4,7 @@
 // sim-script-1.0.0, nfl_edge/sim/script.py MARGIN_STATES). Each simulated game falls in exactly one
 // final-margin bucket — lead14+ · lead7-13 · within6 · trail7-13 · trail14+ (integer margins, from that
 // team's side) — and `share_of_rows` is the share of simulated games in it. Sift groups the five buckets
-// into four scripts named from the favourite's side. The weights are SIMULATION SHARES: the simulator's
+// into four scripts named from the favourite's side, listed most likely first. The weights are SIMULATION SHARES: the simulator's
 // own distribution, not calibrated probabilities (the publication validates no calibration for them),
 // so Sift calls them "sim share" and shows whole percents.
 //
@@ -125,7 +125,6 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
   const fav: 'home' | 'away' = pHome != null ? (pHome >= 0.5 ? 'home' : 'away') : homeWin >= awayWin ? 'home' : 'away';
   const dog = fav === 'home' ? 'away' : 'home';
   const name = { home: nick(homeP.display_name, homeAbbr), away: nick(awayP.display_name, awayAbbr) };
-  const abbr = { home: homeAbbr, away: awayAbbr };
   const keys: Record<ScriptId, (keyof Buckets)[]> =
     fav === 'home'
       ? { 'fav-big': ['lead14+'], fav: ['lead7-13'], close: ['within6'], dog: ['trail7-13', 'trail14+'] }
@@ -134,15 +133,24 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
     const s = sum(keys[id]);
     return { id, index, name: title, summary, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
   };
-  const scripts = [
-    mk('fav-big', 1, `${name[fav]} Pull Away`, `${abbr[fav]} wins by 14 or more.`, fav),
-    mk('fav', 2, `${name[fav]} Control`, `${abbr[fav]} wins by 7 to 13.`, fav),
-    mk('close', 3, 'One-Score Game', 'Final margin within 6 points, either way.', null),
-    mk('dog', 4, `${name[dog]} Control`, `${abbr[dog]} wins by 7 or more.`, dog),
-  ];
+  // Plain sports language named after the teams; the margin is in the one-line summary. Index is the
+  // script's colour identity and never changes; the list itself is ordered most likely first.
+  const scripts = sortScripts([
+    mk('fav-big', 1, `${name[fav]} win going away`, `${name[fav]} win by 14 or more.`, fav),
+    mk('fav', 2, `${name[fav]} win comfortably`, `${name[fav]} win by 7 to 13.`, fav),
+    mk('close', 3, 'One-score battle', 'Decided by 6 points or fewer, either way.', null),
+    mk('dog', 4, `${name[dog]} win comfortably`, `${name[dog]} win by 7 or more.`, dog),
+  ]);
   const all = sum(['lead14+', 'lead7-13', 'within6', 'trail7-13', 'trail14+']);
   return { scripts, fav, homeAbbr, awayAbbr, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
 }
+
+/** Most likely first; ties keep the favourite-to-underdog order. */
+export function sortScripts(scripts: GameScript[]): GameScript[] {
+  return [...scripts].sort((a, b) => b.share - a.share || a.index - b.index);
+}
+
+export const scriptById = (set: ScriptSet, id: ScriptId) => set.scripts.find((s) => s.id === id)!;
 
 /** The HOME-margin condition a market settles on, when it settles on the full-game final margin. */
 export function marginCondition(m: Pick<Market, 'market_family' | 'period' | 'participant_id' | 'threshold'>, homeId: string, awayId: string): { op: '>' | '<'; v: number } | null {

@@ -10,61 +10,82 @@ import { Icon, SiftWordmark } from './Icon';
 import { SearchResults } from './SearchResults';
 import { TrayDrawer } from './TrayDrawer';
 
-function SearchBox() {
+/**
+ * THE search: one command-palette for the whole app, opened from the header field, the phone tab bar,
+ * "/" or ⌘K / Ctrl-K. It never takes a row of the page; results appear in a dialog over it.
+ */
+export function SearchPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState('');
-  const [open, setOpen] = useState(false);
   const state = useSearch(open ? q : '');
   const nav = useNavigate();
-  const wrap = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        input.current?.focus();
-      }
-    };
-    const onDoc = (e: MouseEvent) => wrap.current && !wrap.current.contains(e.target as Node) && setOpen(false);
+    if (!open) return;
+    const t = setTimeout(() => input.current?.focus(), 10);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onDoc);
     return () => {
+      clearTimeout(t);
       window.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onDoc);
     };
-  }, []);
+  }, [open, onClose]);
+  if (!open) return null;
   return (
-    <div className="searchbox" ref={wrap}>
-      <form
-        role="search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setOpen(false);
-          nav(routes.search(q));
-        }}
-      >
-        <Icon name="search" size={16} className="searchbox__icon" />
-        <input
-          ref={input}
-          type="search"
-          value={q}
-          placeholder="Search teams, players, games, markets"
-          aria-label="Search Sift"
-          onFocus={() => setOpen(true)}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setOpen(true);
+    <div className="palette" role="dialog" aria-modal="true" aria-label="Search Sift">
+      <div className="palette__scrim" onClick={onClose} aria-hidden="true" />
+      <div className="palette__box">
+        <form
+          role="search"
+          className="palette__form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onClose();
+            nav(routes.search(q));
           }}
-          onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
-        />
-        <kbd className="searchbox__kbd" aria-hidden="true">/</kbd>
-      </form>
-      {open && q.trim() && (
-        <div className="searchbox__pop">
-          <SearchResults state={state} query={q} compact onPick={() => setOpen(false)} />
+        >
+          <Icon name="search" size={18} className="palette__icon" />
+          <input
+            ref={input}
+            type="search"
+            value={q}
+            placeholder="Teams, players, games, stats, markets"
+            aria-label="Search Sift"
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <button type="button" className="iconbtn" onClick={onClose} aria-label="Close search"><Icon name="close" size={18} /></button>
+        </form>
+        <div className="palette__body">
+          {q.trim() ? (
+            <SearchResults state={state} query={q} compact onPick={onClose} />
+          ) : (
+            <div className="palette__hint">
+              <span className="eyebrow">Try</span>
+              <div className="chips">
+                {['Bijan Robinson', 'Bills', 'Baltimore pass defense', 'Josh Allen passing yards'].map((x) => (
+                  <button key={x} type="button" className="chipbtn" onClick={() => setQ(x)}>{x}</button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
+}
+
+/** Opens the palette from anywhere: "/" (outside inputs) and ⌘K / Ctrl-K. */
+function usePaletteKeys(setOpen: (o: boolean) => void) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName ?? '');
+      if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey))) {
+        e.preventDefault();
+        setOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [setOpen]);
 }
 
 /** The sport whose screens are on view, from the address (#/nfl/…). */
@@ -123,7 +144,7 @@ function Toast() {
     <div className="toast" role="status">
       <Icon name="check" size={16} />
       <span>
-        Saved <b>{label}</b> to the research tray
+        Saved <b>{label}</b> to your research
       </span>
       <button type="button" className="toast__btn" onClick={() => tray.setOpen(true)}>Open</button>
       <button type="button" className="toast__btn" onClick={() => { tray.remove(show); setShow(null); }}>Undo</button>
@@ -153,50 +174,64 @@ const WORKSPACE: { to: string; label: string; icon: string }[] = [
   { to: routes.search(), label: 'Search', icon: 'search' },
 ];
 
-function SportLink({ s, onPick }: { s: NavSport; onPick?: () => void }) {
-  return (
-    <NavLink to={routes.sport(s.slug)} className="side__a" style={{ ['--accent' as string]: s.accent }} onClick={onPick}>
-      <span className="side__ic"><SportMark slug={s.slug} icon={s.icon} size={22} /></span>
-      <span className="side__t">{s.label}</span>
-      {s.status !== 'live' && <span className={`side__tag side__tag--${s.status}`}>{s.status === 'beta' ? 'beta' : s.status === 'planned' ? 'soon' : ''}</span>}
-    </NavLink>
-  );
-}
+/** Sports shown directly in the header; the rest live in "More". */
+const HEADER_SPORTS = NAV_SPORTS.filter((s) => s.status !== 'planned');
 
-/** Desktop and tablet navigation: every sport, then the workspace. */
-function Sidebar({ count }: { count: number }) {
+/**
+ * The one sports navigation on wide screens: compact tabs in the header. Phones use the tab bar and its
+ * Sports sheet instead (never both on one screen).
+ */
+function SportsNav() {
+  const [more, setMore] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const loc = useLocation();
+  useEffect(() => setMore(false), [loc.pathname]);
+  useEffect(() => {
+    if (!more) return;
+    const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setMore(false);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMore(false);
+    document.addEventListener('mousedown', onDoc);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [more]);
   return (
-    <aside className="side">
-      <Link to={routes.home()} className="side__brand" aria-label="Sift home">
-        <SiftWordmark />
-      </Link>
-      <nav className="side__nav" aria-label="Sports">
-        <NavLink to={routes.home()} end className="side__a">
-          <span className="side__ic"><Icon name="home" size={19} /></span>
-          <span className="side__t">Home</span>
-        </NavLink>
-        {NAV_SPORTS.map((s) => <SportLink key={s.slug} s={s} />)}
-        <NavLink to={routes.sports()} className="side__a">
-          <span className="side__ic"><Icon name="more" size={19} /></span>
-          <span className="side__t">More</span>
-        </NavLink>
-      </nav>
-      <nav className="side__nav side__nav--work" aria-label="Workspace">
-        {WORKSPACE.map((w) => (
-          <NavLink key={w.label} to={w.to} className="side__a">
-            <span className="side__ic"><Icon name={w.icon} size={19} /></span>
-            <span className="side__t">{w.label}</span>
-            {w.label === 'Research' && count > 0 && <span className="side__n" aria-label={`${count} in tray`}>{count}</span>}
-          </NavLink>
+    <nav className="snav" aria-label="Sports">
+      <ul className="snav__list">
+        {HEADER_SPORTS.map((s, i) => (
+          <li key={s.slug} className={i >= 4 ? 'snav__extra' : undefined}>
+            <NavLink to={routes.sport(s.slug)} className="snav__a" style={{ ['--accent' as string]: s.accent }}>
+              <SportMark slug={s.slug} icon={s.icon} size={18} />
+              <span>{s.label}</span>
+              {s.status === 'beta' && <span className="snav__tag">beta</span>}
+            </NavLink>
+          </li>
         ))}
-      </nav>
-      <div className="side__foot">
-        <NavLink to={routes.settings()} className="side__a">
-          <span className="side__ic"><Icon name="settings" size={19} /></span>
-          <span className="side__t">Settings</span>
-        </NavLink>
-      </div>
-    </aside>
+        <li className="snav__morewrap" ref={ref as never}>
+          <button type="button" className="snav__a snav__more" aria-expanded={more} aria-haspopup="true" onClick={() => setMore(!more)}>
+            More <Icon name="chevronDown" size={14} />
+          </button>
+          {more && (
+            <div className="snav__menu" role="menu">
+              <div className="snav__group">
+                {NAV_SPORTS.map((s) => (
+                  <NavLink key={s.slug} role="menuitem" to={routes.sport(s.slug)} className="snav__mi" style={{ ['--accent' as string]: s.accent }}>
+                    <SportMark slug={s.slug} icon={s.icon} size={18} /> {s.label} <span className="snav__st">{STATUS_WORD[s.status]}</span>
+                  </NavLink>
+                ))}
+              </div>
+              <div className="snav__group">
+                {[...WORKSPACE.filter((w) => w.label !== 'Search'), { to: routes.settings(), label: 'Settings', icon: 'settings' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }].map((w) => (
+                  <NavLink key={w.label} role="menuitem" to={w.to} className="snav__mi"><Icon name={w.icon} size={16} /> {w.label}</NavLink>
+                ))}
+              </div>
+            </div>
+          )}
+        </li>
+      </ul>
+    </nav>
   );
 }
 
@@ -256,36 +291,44 @@ export function Shell({ children }: { children: ReactNode }) {
   const online = useOnline();
   const sport = useSportContext();
   const [sheet, setSheet] = useState(false);
+  const [search, setSearch] = useState(false);
   const closeSheet = useCallback(() => setSheet(false), []);
+  const closeSearch = useCallback(() => setSearch(false), []);
+  usePaletteKeys(setSearch);
   const count = tray.tray.items.length;
   useEffect(() => {
     tray.setOpen(false);
     setSheet(false);
+    setSearch(false);
   }, [loc.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   const tabSport = sport ?? NAV_SPORTS[0];
   return (
     <div className="app">
       <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>
-      <Sidebar count={count} />
       <div className="app__col">
         <header className="topbar">
           <div className="topbar__in">
             <Link to={routes.home()} className="topbar__brand" aria-label="Sift home">
               <SiftWordmark compact />
             </Link>
-            <TrailBar sport={sport} />
-            <SearchBox />
+            <SportsNav />
+            <button type="button" className="searchbtn" onClick={() => setSearch(true)} aria-label="Search Sift" aria-haspopup="dialog">
+              <Icon name="search" size={16} />
+              <span className="searchbtn__t">Search teams, players, stats</span>
+              <kbd className="searchbtn__kbd" aria-hidden="true">/</kbd>
+            </button>
+            <NavLink to={routes.news()} className="topbar__news"><Icon name="news" size={16} /><span>News</span></NavLink>
             <button type="button" className={`traybtn${count ? ' has-items' : ''}`} onClick={() => tray.setOpen(!tray.open)} aria-expanded={tray.open} aria-controls="tray-drawer">
               <Icon name="research" size={17} />
-              <span className="traybtn__label">Research tray</span>
+              <span className="traybtn__label">Research</span>
               <span className="traybtn__n" aria-hidden="true">{count}</span>
               <span className="sr-only">{count === 1 ? '1 item' : `${count} items`}</span>
             </button>
-            <Link to={routes.search()} className="topbar__search iconbtn" aria-label="Search"><Icon name="search" /></Link>
           </div>
         </header>
         {!online && <div className="offline" role="status">Offline — showing research you already opened. Market quotes are not refreshing; each keeps its real age.</div>}
         <main id="main" tabIndex={-1} className="main">
+          {sport && <div className="crumbs"><TrailBar sport={sport} /></div>}
           {children}
         </main>
         <footer className="foot">
@@ -293,6 +336,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <span>Reads the published <code>edge_finder.app.v1</code> contract. Projections and model prices are research evidence, not bets.</span>
           <Link to={routes.status()}>Data & provenance</Link>
           <Link to={routes.design()}>Design system</Link>
+          <Link to={routes.settings()}>Settings</Link>
         </footer>
       </div>
       <nav className="bottombar" aria-label="Primary">
@@ -301,14 +345,15 @@ export function Shell({ children }: { children: ReactNode }) {
         <button type="button" className={`bottombar__a bottombar__sports${sheet ? ' active' : ''}`} onClick={() => setSheet(!sheet)} aria-expanded={sheet} aria-haspopup="dialog">
           <Icon name="grid" /><span>Sports</span>
         </button>
-        <NavLink to={routes.search()} className="bottombar__a"><Icon name="search" /><span>Search</span></NavLink>
+        <button type="button" className={`bottombar__a${search ? ' active' : ''}`} onClick={() => setSearch(true)} aria-haspopup="dialog"><Icon name="search" /><span>Search</span></button>
         <button type="button" className={`bottombar__a bottombar__tray${tray.open ? ' active' : ''}`} onClick={() => tray.setOpen(!tray.open)} aria-expanded={tray.open} aria-controls="tray-drawer">
           <span className="bottombar__ic"><Icon name="research" />{count > 0 && <span className="bottombar__n" aria-hidden="true">{count}</span>}</span>
-          <span>Tray</span>
+          <span>Research</span>
           {count > 0 && <span className="sr-only">{count === 1 ? '1 item' : `${count} items`}</span>}
         </button>
       </nav>
       <SportsSheet open={sheet} onClose={closeSheet} />
+      <SearchPalette open={search} onClose={closeSearch} />
       <TrayDrawer />
       <Toast />
     </div>

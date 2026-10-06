@@ -4,14 +4,12 @@
 import { Link } from 'react-router';
 import type { EntityProfileDoc, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
-import { QuoteSummaryChip } from '../../components/LiveQuote';
-import { SaveButton, TeamMark } from '../../components/ui';
+import { TeamMark } from '../../components/ui';
 import { recordOf, weatherIcon } from '../../lib/gamedata';
-import { displayName, kickoff, until } from '../../lib/format';
+import { displayName, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
 import { roofState, venueFor, venuePhoto, type Venue } from '../../lib/venues';
-import type { QuoteView } from '../../live/overlay';
 import { useHeldImage } from '../../lib/useImage';
 import { StadiumFallback } from '../../components/StadiumFallback';
 
@@ -76,21 +74,31 @@ function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { si
   const { city, nick } = splitName(name);
   const rec = recordOf(prof);
   return (
-    <div className={`mh__team mh__team--${side}`}>
+    <div className={`gh__team gh__team--${side}`}>
       <TeamMark sport={sportCode} abbr={abbr} size="xl" />
-      <div className="mh__tn">
-        <span className="mh__rec num">{rec ? rec.text : ''}{rec && <span className="sr-only"> record</span>}</span>
-        <span className="mh__city">{city}</span>
-        <Link to={routes.team(slug, pid)} className="mh__name">{nick}</Link>
+      <div className="gh__tn">
+        <span className="gh__city"><span className="gh__cityname">{city}</span>{rec && <span className="gh__rec num"><span className="gh__sep"> · </span>{rec.text}<span className="sr-only"> record</span></span>}</span>
+        <Link to={routes.team(slug, pid)} className="gh__name">{nick}</Link>
       </div>
-      {score != null && <span className={`mh__score${won ? ' is-win' : ''}`}>{score}</span>}
+      {score != null && <span className={`gh__score num${won ? ' is-win' : ''}`}>{score}</span>}
     </div>
   );
 }
 
-export function GameHero({ r, homeProf, awayProf, sportCode, slug, sportLabel, views, now, label }: {
-  r: EventResearchDoc; homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; sportCode: string; slug: string; sportLabel: string;
-  views: QuoteView[]; now: number; label: string;
+/** Kickoff conditions in one quiet line ("67° Mostly Sunny · wind 6 mph", "Indoor"). */
+export function weatherLine(wx: GameWeather): string | null {
+  if (wx.kind === 'indoor' || wx.kind === 'retractable') return wx.condition;
+  if (wx.kind !== 'outdoor') return null;
+  return [`${wx.temp}° ${wx.condition ?? ''}`.trim(), wx.wind?.replace(/^Wind/, 'wind'), wx.precip != null && wx.precip >= 30 ? `${wx.precip}% precipitation` : null].filter(Boolean).join(' · ');
+}
+
+/**
+ * The game hero, simplified: the stadium photograph is the subject. On it only what belongs at the top —
+ * the two teams (and the score once final), when, where, and the conditions. Prices, research actions and
+ * analysis live below the hero.
+ */
+export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
+  r: EventResearchDoc; homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; sportCode: string; slug: string; now: number;
 }) {
   const ev = r.event;
   const homeP = r.participants.find((p) => p.home_away === 'HOME')!;
@@ -111,50 +119,31 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, sportLabel, v
   const [hc] = teamColors(sportCode, homeAbbr);
   const [ac] = teamColors(sportCode, awayAbbr);
   const d = new Date(ev.start_time_utc);
-  const day = d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+  const day = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
   const week = ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
+  const wl = weatherLine(wx);
   return (
-    <header className={`mh mh--hero${photo ? '' : ' mh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
-      <div className="mh__bg" aria-hidden="true">
+    <header className={`gh${photo ? '' : ' gh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
+      <div className="gh__bg" aria-hidden="true">
         {img && <img src={img} alt="" decoding="async" />}
         {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} />}
       </div>
-      <div className="mh__in">
-        <div className="mh__eyebrow">
-          <span>{sportLabel}</span>
-          {week && <><span aria-hidden="true" className="mh__dot" /><span>{week}</span></>}
-          {final && <span className="mh__state mh__state--final">Final</span>}
-          {started && <span className="mh__state mh__state--live">Kicked off · pregame research frozen</span>}
-        </div>
-        <div className="mh__teams">
+      <div className="gh__in">
+        <div className="gh__teams">
           <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} />
-          <div className="mh__mid">
-            {final ? <span className="mh__final">Final</span> : <span className="mh__at" aria-hidden="true">at</span>}
-            <div className="mh__when">
-              <span className="mh__day">{day}</span>
-              <span className="mh__time">{time}{!final && !started && <span className="mh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
-            </div>
-            {venueName && <div className="mh__venue">{venueName}{venue?.city ? <span className="mh__city2"> · {venue.city}</span> : null}</div>}
-            <WeatherBlock wx={wx} />
-          </div>
+          <span className="gh__at" aria-hidden="true">{final ? 'final' : 'at'}</span>
           <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} />
         </div>
-        <div className="mh__bar">
-          <div className="mh__chips">
-            <QuoteSummaryChip views={views} now={now} />
-          </div>
-          <span className="mh__kick sr-only">Kickoff {kickoff(ev.start_time_utc)}</span>
-          <div className="mh__actions">
-            <SaveButton ref_kind="EVENT" sport={sportCode} id={ev.event_id} className="savebtn--glass" text="Add to research" kickoff={ev.start_time_utc} eventStatus={ev.status} label={{ label, sub: kickoff(ev.start_time_utc), href: routes.game(slug, ev.event_id) }} />
-            <Link to={routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id })} className="btn btn--primary btn--sm">
-              <Icon name="copy" size={15} /> Copy for ChatGPT
-            </Link>
-          </div>
-        </div>
+        <p className="gh__meta">
+          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">Kicked off · pregame research frozen</span> : null}
+          <span>{week ? `${week} · ` : ''}{day} · {time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
+          {venueName && <span>{venueName}{venue?.city ? `, ${venue.city}` : ''}</span>}
+          {wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
+        </p>
       </div>
       {photo && (
-        <Link to={`${routes.status()}#photo-credits`} className="mh__credit">
+        <Link to={`${routes.status()}#photo-credits`} className="gh__credit">
           Photo: {photo.credit.artist.slice(0, 40)} · {photo.credit.license}
         </Link>
       )}

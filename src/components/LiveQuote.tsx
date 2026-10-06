@@ -2,9 +2,10 @@
 // be traded (availability), how old the quote is (freshness by the market-quote policy), and where it
 // came from (a live provider or the research publication's capture). A publication capture is never
 // labelled live.
+import { tickerTitle } from '../lib/marketLabel';
 import { useState } from 'react';
 import { exactTime } from '../lib/format';
-import { formatQuoteAge, quoteAgeMs, quoteFreshness, worstQuote, type QuoteFreshness, QUOTE_FRESH_BEFORE_MS, QUOTE_STALE_AFTER_MS } from '../live/freshness';
+import { formatQuoteAge, formatQuoteAgo, quoteAgeMs, quoteFreshness, worstQuote, type QuoteFreshness, QUOTE_FRESH_BEFORE_MS, QUOTE_STALE_AFTER_MS } from '../live/freshness';
 import { liveStore, useLiveVersion } from '../live/hooks';
 import { quoteView, type QuoteView } from '../live/overlay';
 import type { Availability } from '../live/types';
@@ -21,7 +22,7 @@ export function sourceLabel(source: string): string {
 }
 
 function stateText(availability: Availability, fresh: QuoteFreshness, age: number | null): string {
-  if (availability === 'CLOSED' || availability === 'SETTLED') return `${availability} · final quote ${formatQuoteAge(age)} ago`;
+  if (availability === 'CLOSED' || availability === 'SETTLED') return `${availability} · final quote ${formatQuoteAgo(age)}`;
   if (availability === 'SUSPENDED') return `SUSPENDED · quote ${formatQuoteAge(age)} old`;
   if (fresh === 'UNKNOWN') return availability === 'UNKNOWN' ? 'UNKNOWN' : `${availability} · UNKNOWN`;
   return `${availability === 'UNKNOWN' ? '' : availability + ' · '}${fresh} · ${formatQuoteAge(age)}`;
@@ -33,10 +34,10 @@ function stateText(availability: Availability, fresh: QuoteFreshness, age: numbe
  * accessible name and the popover — never hidden, just not shouted.
  */
 export function quietText(availability: Availability, fresh: QuoteFreshness, age: number | null): string {
-  if (availability === 'CLOSED' || availability === 'SETTLED') return `${availability === 'SETTLED' ? 'Settled' : 'Closed'} · final ${formatQuoteAge(age)} ago`;
-  if (availability === 'SUSPENDED') return `Suspended · ${formatQuoteAge(age)} ago`;
+  if (availability === 'CLOSED' || availability === 'SETTLED') return `${availability === 'SETTLED' ? 'Settled' : 'Closed'} · final ${formatQuoteAgo(age)}`;
+  if (availability === 'SUSPENDED') return `Suspended · ${formatQuoteAgo(age)}`;
   if (fresh === 'UNKNOWN' || age == null) return 'Update time unknown';
-  return `Updated ${formatQuoteAge(age)} ago`;
+  return `Updated ${formatQuoteAgo(age)}`;
 }
 
 /** One market's quote state. */
@@ -114,7 +115,7 @@ export function QuoteSummaryChip({ views, now, label = 'prices' }: { views: Quot
       trigger={
         <span className={`chip chip--fresh qchip chip--${s.worst.toLowerCase()}`} data-quote-state={s.worst} data-quote-source={s.live === 0 ? 'publication' : allLive ? 'live' : 'mixed'}>
           <span className="qchip__dot" aria-hidden="true" />
-          <span>{s.oldestAgeMs != null && s.worst !== 'UNKNOWN' ? `${label === 'prices' ? 'Prices' : label} updated ${formatQuoteAge(s.oldestAgeMs)} ago` : `${label === 'prices' ? 'Prices' : label}: update time unknown`}</span>
+          <span>{s.oldestAgeMs != null && s.worst !== 'UNKNOWN' ? `${label === 'prices' ? 'Prices' : label} updated ${formatQuoteAgo(s.oldestAgeMs)}` : `${label === 'prices' ? 'Prices' : label}: update time unknown`}</span>
           {!allLive && <span className="chip__dim">{src}</span>}
         </span>
       }
@@ -194,7 +195,7 @@ export function NewlyListed({ quotes, now }: { quotes: import('../live/types').L
           return (
             <li key={q.ticker} className="mrow mrow--static">
               <span className="mrow__d">
-                {q.title ?? q.ticker}
+                {q.title ?? tickerTitle(q.ticker)}
                 {q.yesSubTitle && q.yesSubTitle !== q.title ? <span className="muted"> · {q.yesSubTitle}</span> : null}
                 <code className="ticker ticker--sm">{q.ticker}</code>
               </span>
@@ -247,7 +248,7 @@ export function LiveStatusChip({ now }: { now: number }) {
       <span className="pv">
         <span className="pv__row"><span>Quotes from</span><b>{d.answeredBy ?? '—'}</b></span>
         <span className="pv__row"><span>Inventory from</span><b>{d.inventoryAnsweredBy ?? '—'}</b></span>
-        <span className="pv__row"><span>Last success</span><b>{d.lastSuccessAt ? `${formatQuoteAge(now - d.lastSuccessAt)} ago` : 'never'}</b></span>
+        <span className="pv__row"><span>Last success</span><b>{d.lastSuccessAt ? formatQuoteAgo(now - d.lastSuccessAt) : 'never'}</b></span>
         {d.lastError && <span className="pv__row"><span>Last error</span><b>{d.lastError}</b></span>}
         {mode === 'FEED' && d.fallback && <span className="pv__row"><span>Relay skipped</span><b>{d.fallback.status ? `HTTP ${d.fallback.status}` : d.fallback.error}</b></span>}
         <span className="pv__note">Market quotes run on their own clock, separate from the research publication. Details: Data & provenance.</span>

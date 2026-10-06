@@ -103,6 +103,29 @@ describe('payload decoding', () => {
     expect(e && !isEngine(e) && e.reason).toMatch(/identity/);
   });
 
+  it('keeps every total and team-total contract research only', () => {
+    const e = engineOf(UGA_ALA);
+    expect(e.scoringResearchOnly).toBe(true);
+    const scoring = e.expressions.filter((x) => x.thesis.startsWith('total:') || x.thesis.startsWith('team_scoring:'));
+    expect(scoring.length).toBeGreaterThan(10);
+    for (const x of scoring) {
+      expect(x.authority).toBe('RESEARCH_UNCALIBRATED');
+      expect(x.compat.every((c) => c === 'RESEARCH_UNCALIBRATED' || c === 'NEUTRAL')).toBe(true);
+      expect(x.labels).not.toContain('BEST_EXPRESSION');
+      expect(x.labels).not.toContain('MULTI_SCRIPT');
+      expect(x.survival.supported).toBe(0);
+    }
+    // What the uncalibrated band would have said is kept, as research.
+    expect(scoring.some((x) => x.research.includes('SUPPORTED'))).toBe(true);
+    const featured = groupedSurvivors(e).map((x) => x.thesis);
+    expect(featured.length).toBeGreaterThan(0);
+    expect(featured.some((t) => t.startsWith('total:') || t.startsWith('team_scoring:'))).toBe(false);
+    // The football conclusion stays: the primary still describes an elevated scoring environment.
+    expect(e.scripts[0].outcome_shape.total_environment).toBe('ELEVATED');
+    expect(e.scripts[0].outcome_shape.band_authority?.total_points).toBe('UNCALIBRATED_DESCRIPTIVE');
+    expect(e.scripts[0].outcome_shape.band_authority?.home_margin).toBe('ARCHETYPE_DEFINITION');
+  });
+
   it('the label vocabulary has no price verdict in it', () => {
     const words = Object.values(LABEL_WORD).join(' ').toLowerCase();
     for (const banned of ['+ev', 'edge', 'value', 'lock', 'probability', 'bet up to']) expect(words).not.toContain(banned);
@@ -124,13 +147,35 @@ describe('CFB game page', () => {
     expect(page).not.toMatch(/\d+% likely|\+ev|fair value|win prob/);
   });
 
-  it('reports a market disagreement beside the read without changing it', async () => {
+  it('reports a market disagreement beside the read as an observation, not evidence of value', async () => {
     const e = engineOf(UGA_ALA);
-    expect(e.disagreement?.flags.map((f) => f.kind)).toContain('TOTAL');
+    const total = e.disagreement?.flags.find((f) => f.kind === 'TOTAL');
+    expect(total?.evidence_of_value).toBe(false);
     renderScreen(routes.game('cfb', UGA_ALA), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
-    const note = await screen.findByRole('note', {}, { timeout: 4000 });
-    expect(note.textContent).toMatch(/Market disagreement\..*never obeyed/);
+    const notes = await screen.findAllByRole('note', {}, { timeout: 4000 });
+    const disagreement = notes.find((n) => /Market disagreement\./.test(n.textContent ?? ''))!;
+    expect(disagreement.textContent).toMatch(/never obeyed/);
+    expect(disagreement.textContent).toMatch(/not evidence of value/);
     expect(e.scripts[0].archetype).toBe('COMPETITIVE_SHOOTOUT');
+  });
+
+  it('shows the scoring environment without implying a scoring bet', async () => {
+    renderScreen(routes.game('cfb', UGA_ALA), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
+    const notes = await screen.findAllByRole('note', {}, { timeout: 4000 });
+    expect(notes.some((n) => /Total and team-total markets are research only/.test(n.textContent ?? ''))).toBe(true);
+    const table = document.querySelector('.eng-survt')!.textContent!;
+    expect(table).toMatch(/wins by over \d+\.5 points/); // the margin rows that do survive
+    expect(table).not.toMatch(/(?<!by )over \d+\.5 points/i); // no total or team-total row
+  });
+
+  it('the script tab marks scoring ranges as descriptive and keeps the environment', async () => {
+    renderScreen(`${routes.game('cfb', UGA_ALA)}?tab=script`, '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
+    await waitFor(() => expect(document.querySelector('.eng-shape')).not.toBeNull(), { timeout: 4000 });
+    const shape = document.querySelector('.eng-shape')!.textContent!;
+    expect(shape).toMatch(/Scoring environment\s*Elevated/);
+    expect(shape).toMatch(/Total points · descriptive/);
+    expect(shape).not.toMatch(/Margin · descriptive/);
+    expect(screen.getByText(/do not support any total or team-total market/)).toBeTruthy();
   });
 
   it('opens why-this-bet with scripts, conditions and the price', async () => {

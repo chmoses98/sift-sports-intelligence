@@ -27,6 +27,20 @@ market row, overlaid with live quotes exactly like every other sport, and the si
 | **Why this bet** | Why this row? | scripts supported and contradicted, the settlement condition in team names, the findings and metrics behind them, the side's price, correlation with the other featured rows |
 | **Data Confidence** | What is and is not known? | the evidence gates, known / unknown lists, artifact hash, data cutoff, methodology version |
 
+## Scoring markets are research only
+
+The engine's margin ranges define its archetypes ("control" = wins by 7–24), so moneyline and spread
+contracts can be supported or contradicted by a script. Its total and team-points ranges are drawn
+around a descriptive, uncalibrated scoring baseline (`band_authority: UNCALIBRATED_DESCRIPTIVE`), and a
+retrospective check found them mis-placed (cfb-edge-finder `docs/SCRIPT_ENGINE.md` §15). Until they
+pass that repository's promotion gate, every total and team-total contract arrives as
+`RESEARCH_UNCALIBRATED` with the single label *Scoring: research only*, and Sift:
+
+* never lists one under **Bets That Survive Multiple Scripts** and says so in a note under the table;
+* shows the scoring environment (*Elevated* / *Suppressed*) on the script tab, but marks the point
+  ranges "descriptive" with a caption that they do not support any total or team-total market;
+* shows a total-band market disagreement as an observation, never as evidence of value.
+
 ## Language rules (enforced by tests)
 
 * Scripts are **ranked, never given likelihoods** — V1 publishes none and Sift shows no percentage.

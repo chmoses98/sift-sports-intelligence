@@ -147,3 +147,7 @@
 
 .eng-disagree { margin: var(--s-3) 0 0; padding: var(--s-2) var(--s-3); border: 1px dashed var(--sand); border-radius: var(--r-1); font-size: 0.8125rem; line-height: 1.45; }
 .eng-disagree b { color: var(--sand); }
+.eng-scoringnote { margin: var(--s-3) 0 0; line-height: 1.45; }
+.eng-bandnote { margin: var(--s-2) 0 0; line-height: 1.45; }
+.tile--descriptive .tile__v { opacity: 0.8; }
+.tile__tag { font-weight: 500; text-transform: none; letter-spacing: 0; }

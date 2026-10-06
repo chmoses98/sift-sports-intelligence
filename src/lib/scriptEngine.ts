@@ -9,7 +9,9 @@
 import type { EventResearchDoc, Market } from '../contract/types';
 
 export type Role = 'PRIMARY' | 'SECONDARY' | 'ALTERNATE' | 'DANGER';
-export type Compat = 'SUPPORTED' | 'PARTIAL' | 'CONTRADICTED' | 'NEUTRAL' | 'UNMAPPABLE';
+export type Compat = 'SUPPORTED' | 'PARTIAL' | 'CONTRADICTED' | 'NEUTRAL' | 'UNMAPPABLE' | 'RESEARCH_UNCALIBRATED';
+/** Where a numeric band comes from, and so whether a market classification may rest on it. */
+export type BandAuthority = 'ARCHETYPE_DEFINITION' | 'UNCALIBRATED_DESCRIPTIVE' | 'CALIBRATED';
 export type Confidence = 'HIGH' | 'MEDIUM' | 'LOW';
 
 export const ROLE_ORDER: Role[] = ['PRIMARY', 'SECONDARY', 'ALTERNATE', 'DANGER'];
@@ -39,7 +41,7 @@ export interface EngineScript {
   supporting_findings: string[];
   contradicting_findings: string[];
   evidence_score: number;
-  outcome_shape: Record<string, unknown> & { winner_lean: string; margin_environment: string; total_environment: string; bands: Bands };
+  outcome_shape: Record<string, unknown> & { winner_lean: string; margin_environment: string; total_environment: string; bands: Bands; band_authority?: Partial<Record<keyof Bands, BandAuthority>> };
   data_confidence: Confidence;
   probability: null;
 }
@@ -111,7 +113,7 @@ export interface EngineTeam {
 
 export interface RegistryEntry { metric_id: string; name: string; dimension: string; tier: string; unit: string; offense_higher_is_better: boolean; adjusted: boolean; secondary_evidence: boolean; regression_prone: boolean; description?: string }
 
-export interface Survival { supported: number; partial: number; contradicted: number; neutral: number; total_scripts: number; meaningful_scripts: number; weighted_score: number }
+export interface Survival { supported: number; partial: number; contradicted: number; neutral: number; total_scripts: number; meaningful_scripts: number; weighted_score: number; research_uncalibrated?: number }
 
 export interface Expression {
   id: string;
@@ -123,6 +125,10 @@ export interface Expression {
   coverage: (number | null)[];
   survival: Survival;
   labels: string[];
+  /** ACTIVE, or RESEARCH_UNCALIBRATED for a total / team-total contract whose scoring bands are not calibrated. */
+  authority: 'ACTIVE' | 'RESEARCH_UNCALIBRATED' | null;
+  /** Per script, what an uncalibrated scoring band would have said ('-' where not applicable). Research only. */
+  research: (Compat | null)[];
   correlation: { with: string; relation: string; both_can_cash: boolean | null; both_lose_when: string | null }[];
 }
 
@@ -176,11 +182,13 @@ export interface Engine {
   disagreement: {
     flag: string;
     football_primary: string;
-    flags: { kind: 'WINNER' | 'TOTAL'; thesis: string; rule: string }[];
+    flags: { kind: 'WINNER' | 'TOTAL'; thesis: string; rule: string; band_authority?: BandAuthority | null; evidence_of_value?: boolean; note?: string }[];
     rule: string;
     note: string;
   } | null;
   registry: Record<string, RegistryEntry>;
+  /** True when total and team-total markets are research only (scoring bands not calibrated). */
+  scoringResearchOnly: boolean;
   unmappableByFamily: Record<string, number>;
   coverage: Record<string, unknown> | null;
   researchOnly: boolean;
@@ -189,7 +197,7 @@ export interface Engine {
 
 export interface EngineUnavailable { status: string; reason: string | null }
 
-const CODE: Record<string, Compat> = { S: 'SUPPORTED', P: 'PARTIAL', C: 'CONTRADICTED', N: 'NEUTRAL', U: 'UNMAPPABLE' };
+const CODE: Record<string, Compat> = { S: 'SUPPORTED', P: 'PARTIAL', C: 'CONTRADICTED', N: 'NEUTRAL', U: 'UNMAPPABLE', R: 'RESEARCH_UNCALIBRATED' };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -227,6 +235,8 @@ export function readEngine(r: EventResearchDoc | null | undefined): Engine | Eng
     coverage: e.coverage ?? [],
     survival: Object.fromEntries(survCols.map((c, i) => [c, e.survival?.[i]])) as unknown as Survival,
     labels: e.labels ?? [],
+    authority: e.authority ?? null,
+    research: String(e.research ?? '').split('').map((c) => (c === '-' ? null : CODE[c] ?? null)),
     correlation: (e.correlation ?? []).map((c: any[]) => ({ with: c[0], relation: c[1], both_can_cash: c[2] ?? null, both_lose_when: c[3] ?? null })),
   }));
   const rungCols: string[] = p.rung_columns ?? [];
@@ -251,6 +261,7 @@ export function readEngine(r: EventResearchDoc | null | undefined): Engine | Eng
     theses,
     disagreement: p.market_disagreement ?? null,
     registry: p.metric_registry ?? {},
+    scoringResearchOnly: (p.band_policy?.total_points ?? 'UNCALIBRATED_DESCRIPTIVE') !== 'CALIBRATED',
     unmappableByFamily: smm.unmappable_by_family ?? {},
     coverage: smm.coverage ?? null,
     researchOnly: smm.research_only !== false,
@@ -341,6 +352,7 @@ export const LABEL_WORD: Record<string, string> = {
   LOW_DATA_CONFIDENCE: 'Low data confidence',
   MARKET_DISAGREEMENT: 'Market disagreement',
   RESEARCH_ONLY: 'Research only',
+  SCORING_BAND_UNCALIBRATED: 'Scoring: research only',
 };
 
 export const LABEL_HELP: Record<string, string> = {
@@ -354,7 +366,18 @@ export const LABEL_HELP: Record<string, string> = {
   LOW_DATA_CONFIDENCE: 'The football evidence behind these scripts is LOW confidence.',
   MARKET_DISAGREEMENT: 'The market baseline materially disagrees with the football primary script. Reported, never used to change the football read.',
   RESEARCH_ONLY: 'No validated CFB pricing source exists: nothing here is a fair price or an expected value.',
+  SCORING_BAND_UNCALIBRATED: 'A total or team-total contract. The scripts describe the scoring environment, but their point ranges come from a descriptive, uncalibrated baseline, so they cannot support or contradict a scoring bet until they pass calibration.',
 };
+
+/** Is this numeric band only descriptive (drawn around the uncalibrated scoring baseline)? */
+export function isDescriptiveBand(s: EngineScript, band: keyof Bands): boolean {
+  const a = s.outcome_shape.band_authority?.[band];
+  if (band === 'home_margin') return a != null && a !== 'ARCHETYPE_DEFINITION' && a !== 'CALIBRATED';
+  return a !== 'CALIBRATED';
+}
+
+export const SCORING_RESEARCH_NOTE =
+  'Total and team-total markets are research only. The scripts state the scoring environment, but their point ranges are drawn around a descriptive, uncalibrated baseline, so no scoring contract is supported or contradicted by them until the ranges pass out-of-sample calibration.';
 
 /** Labels that describe a contract's fit, in the order Sift shows them. Never a price verdict. */
 export function orderedLabels(labels: string[]): string[] {

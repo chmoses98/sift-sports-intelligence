@@ -15,11 +15,13 @@ import {
   LABEL_HELP,
   LABEL_WORD,
   ROLE_INDEX,
+  SCORING_RESEARCH_NOTE,
   ROLE_WORD,
   bandText,
   expressionLabel,
   findingByCode,
   fmtEdge,
+  isDescriptiveBand,
   fmtMetric,
   marginBandText,
   metricAt,
@@ -45,8 +47,10 @@ const COMPAT_WORD: Record<Compat, string> = {
   CONTRADICTED: 'contradicts',
   NEUTRAL: 'makes no claim about',
   UNMAPPABLE: 'cannot be mapped to',
+  RESEARCH_UNCALIBRATED: 'makes no calibrated claim about',
 };
-const COMPAT_CELL: Record<Compat, string> = { SUPPORTED: 'yes', PARTIAL: 'part', CONTRADICTED: 'no', NEUTRAL: 'neutral', UNMAPPABLE: 'neutral' };
+const SCORING_ENV_WORD: Record<string, string> = { ELEVATED: 'Elevated', SUPPRESSED: 'Suppressed' };
+const COMPAT_CELL: Record<Compat, string> = { SUPPORTED: 'yes', PARTIAL: 'part', CONTRADICTED: 'no', NEUTRAL: 'neutral', UNMAPPABLE: 'neutral', RESEARCH_UNCALIBRATED: 'neutral' };
 
 export const ENGINE_SURVIVAL_INFO = (
   <>
@@ -297,6 +301,7 @@ export function EngineSurvivorsPanel({ engine, marketsByTicker, slug, eventId, n
           {!rows.length && <tr><td colSpan={4} className="muted small">{engine.scripts.length ? 'No contract survives this script and at least one other.' : 'No scripts, so no contract is mapped.'}</td></tr>}
         </tbody>
       </table></Scroll>
+      {engine.scoringResearchOnly && <p className="eng-scoringnote muted small" role="note">{SCORING_RESEARCH_NOTE}</p>}
       {engine.disagreement && (
         <p className="eng-disagree" role="note">
           <b>Market disagreement.</b> {engine.disagreement.rule}. {engine.disagreement.note}
@@ -438,19 +443,33 @@ function MetricMini({ engine, refs }: { engine: Engine; refs: string[] }) {
 
 function ShapeTiles({ s, home, away }: { s: EngineScript; home: string; away: string }) {
   const b = s.outcome_shape.bands;
-  const tiles: [string, string | null][] = [
-    ['Winner lean', s.outcome_shape.winner_lean === 'HOME' ? home : s.outcome_shape.winner_lean === 'AWAY' ? away : 'Neither'],
-    ['Margin', marginBandText(b.home_margin, home, away)],
-    ['Total points', bandText(b.total_points)],
-    [`${home} points`, bandText(b.home_points)],
-    [`${away} points`, bandText(b.away_points)],
+  const env = SCORING_ENV_WORD[s.outcome_shape.total_environment];
+  const tiles: [string, string | null, boolean][] = [
+    ['Winner lean', s.outcome_shape.winner_lean === 'HOME' ? home : s.outcome_shape.winner_lean === 'AWAY' ? away : 'Neither', false],
+    ['Margin', marginBandText(b.home_margin, home, away), isDescriptiveBand(s, 'home_margin')],
+    ['Scoring environment', env ?? null, false],
+    ['Total points', bandText(b.total_points), isDescriptiveBand(s, 'total_points')],
+    [`${home} points`, bandText(b.home_points), isDescriptiveBand(s, 'home_points')],
+    [`${away} points`, bandText(b.away_points), isDescriptiveBand(s, 'away_points')],
   ];
+  const shown = tiles.filter(([, v]) => v != null);
+  const descriptive = shown.some(([, , d]) => d);
   return (
-    <dl className="tiles eng-shape">
-      {tiles.filter(([, v]) => v != null).map(([k, v]) => (
-        <div key={k} className="tile"><dt>{k}</dt><dd className="tile__v num">{v}</dd></div>
-      ))}
-    </dl>
+    <>
+      <dl className="tiles eng-shape">
+        {shown.map(([k, v, d]) => (
+          <div key={k} className={`tile${d ? ' tile--descriptive' : ''}`}>
+            <dt>{k}{d && <span className="tile__tag"> · descriptive</span>}</dt>
+            <dd className="tile__v num">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {descriptive && (
+        <p className="eng-bandnote muted small">
+          Point ranges marked descriptive are drawn around an uncalibrated scoring baseline. They describe the script; they are not a projection and do not support any total or team-total market.
+        </p>
+      )}
+    </>
   );
 }
 
@@ -489,7 +508,7 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
           </div>
         </div>
       </Stratum>
-      <Stratum id="g-script-markets" title="Markets this script settles" sub="Settlement-exact: a contract is supported only if every outcome in the script's range pays it.">
+      <Stratum id="g-script-markets" title="Markets this script settles" sub={`Settlement-exact: a contract is supported only if every outcome in the script's range pays it.${engine.scoringResearchOnly ? ' Total and team-total markets are research only until scoring ranges are calibrated.' : ''}`}>
         <div className="eng-sm">
           <ExprList title="Supported" list={fits} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
           <ExprList title="Contradicted" list={breaks} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />

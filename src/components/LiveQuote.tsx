@@ -194,10 +194,9 @@ export function NewlyListed({ quotes, now }: { quotes: import('../live/types').L
           const v: QuoteView = { yesBid: q.yesBid, yesAsk: q.yesAsk, noBid: q.noBid, noAsk: q.noAsk, lastPrice: q.lastPrice, volume: q.volume, openInterest: q.openInterest, availability: q.availability, observedAt: q.observedAt, source: q.source, live: true };
           return (
             <li key={q.ticker} className="mrow mrow--static">
-              <span className="mrow__d">
+              <span className="mrow__d" title={`Kalshi ID ${q.ticker}`}>
                 {q.title ?? tickerTitle(q.ticker)}
                 {q.yesSubTitle && q.yesSubTitle !== q.title ? <span className="muted"> · {q.yesSubTitle}</span> : null}
-                <code className="ticker ticker--sm">{q.ticker}</code>
               </span>
               <span className="mrow__p num">{q.yesBid != null ? `${Math.round(q.yesBid * 1000) / 10}¢` : '—'} / {q.yesAsk != null ? `${Math.round(q.yesAsk * 1000) / 10}¢` : '—'}</span>
               <span className="mrow__f"><QuoteChip view={v} now={now} /></span>

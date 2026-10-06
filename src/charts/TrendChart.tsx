@@ -141,7 +141,7 @@ export function TrendChart({ points, format, unit, rollingWindow, title, opponen
           <tbody>
             {[...points].reverse().map((p) => (
               <tr key={p.x}>
-                <td><button type="button" className="linklike" onClick={() => choose(p)}>{p.x}</button></td>
+                <td><button type="button" className="linklike" onClick={() => choose(p)}>{gameName(p.x, p.t)}</button></td>
                 <td>{shortDate(p.t)}</td>
                 <td>{opponentLabel(p.opponent_id)}</td>
                 <td className="r num">{format(p.value)}</td>
@@ -153,4 +153,12 @@ export function TrendChart({ points, format, unit, rollingWindow, title, opponen
       </details>
     </figure>
   );
+}
+
+/** "2025 · Wk 13" from an nflverse game id ("2025_13_MIN_SEA"); the date when the id has another shape. */
+function gameName(x: string, t: string): string {
+  const m = /^(\d{4})_(\d{2})_/.exec(x);
+  if (!m) return shortDate(t);
+  const wk = Number(m[2]);
+  return `${m[1]} · ${wk > 18 ? ({ 19: 'Wild Card', 20: 'Divisional', 21: 'Conference', 22: 'Super Bowl' } as Record<number, string>)[wk] ?? 'Playoffs' : `Wk ${wk}`}`;
 }

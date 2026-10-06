@@ -49,7 +49,7 @@
 .layer__s::-webkit-details-marker { display: none; }
 .layer__s::after { content: ''; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); margin-left: 2px; transition: transform var(--t-fast); }
 .layer[open] > .layer__s::after { transform: rotate(-135deg); }
-.layer__b { padding: 4px 0 12px; display: grid; gap: 10px; }
+.layer__b { padding: 4px 0 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 
 /* ---- home: one-line masthead, then content */
 .home.page { padding-top: var(--s-3); }
@@ -81,7 +81,6 @@
 .fcard__lead { font-size: 0.8rem; color: var(--text-2); display: inline-flex; align-items: center; }
 .fcard__lead b { margin-left: 5px; }
 .fcard__credit { position: absolute; right: 10px; top: 8px; font-size: 10px; color: rgba(236, 244, 252, 0.5); }
-.fcard .smini { margin: 0; }
 
 .slines { list-style: none; margin: 0; padding: 0; }
 .sline { display: grid; grid-template-columns: 6.6em minmax(0, 1fr) auto; grid-template-areas: 't m go' 't h go' 't s go'; column-gap: 12px; row-gap: 2px; align-items: center; padding: 10px 2px; border-bottom: 1px solid var(--line); color: var(--text); }
@@ -330,7 +329,6 @@
 .soutl__l { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 0.78rem; color: var(--text-2); }
 .soutl__l li { display: inline-flex; align-items: center; }
 .soutl__l b { margin-left: 4px; color: var(--text); font-weight: 600; }
-.soutl .smini { margin: 0; }
 .tray__kind--matchup, .tray__kind--scheme { background: rgba(240, 192, 72, 0.14); color: var(--gold-2); }
 .tray__kind--prop, .tray__kind--projection, .tray__kind--history, .tray__kind--usage { background: rgba(31, 224, 143, 0.12); color: #8ff0c4; }
 .tray__kind--context, .tray__kind--injury, .tray__kind--weather, .tray__kind--script { background: rgba(111, 208, 246, 0.12); color: var(--cyan-2); }
@@ -363,3 +361,49 @@
   .stratum__titles { flex: 1 1 0; min-width: 0; }
   .stratum__actions { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
 }
+
+/* ---- Player history: windows, summary in words, rank (Game by Game) */
+.pgame__h { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 4px; }
+.pgame__h .seg { margin: 0; }
+.seg--sm .seg__b { min-height: 34px; padding: 4px 12px; font-size: 0.82rem; }
+.hsum { display: grid; gap: 2px; margin: var(--s-3) 0 0; }
+.hsum p { margin: 0; }
+.hsum__k { font-size: 1.02rem; color: var(--text-hi); }
+.hsum__k b { color: #fff; }
+.hsum__s { font-size: var(--fs-sm); color: var(--text-2); }
+.hsum__s b { color: var(--text-hi); }
+.hsum__rank { margin: 6px 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+.hsum__rank b { color: #fff; font-size: 1.05rem; }
+.hsum__tier { margin-left: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; color: var(--gold-2); text-transform: uppercase; }
+.gdet__vs { color: var(--text-hi); }
+.logt__over { color: #4ce3a3; }
+/* A full season of bars: numbers only on the selected bar; opponent marks hidden on phones. */
+.gbars--dense .gbars__v { display: none; }
+.gbars--dense .gbars__b.is-sel .gbars__v { display: block; z-index: 3; padding: 1px 4px; border-radius: 4px; background: var(--ink-1); }
+.gbars--dense .gbars__plot { gap: 4px; }
+@media (max-width: 560px) { .gbars--dense .gbars__x .teammark { display: none; } .gbars--dense .gbars__x { font-size: 0.6rem; bottom: -24px; height: 20px; } .gbars--dense .gbars__plot { margin-bottom: 28px; } }
+
+/* ---- Player: market context (supporting, after the research) */
+.mctx { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: var(--s-3) 0; }
+.mctx__nums { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+.mctx__nums dt { font-size: var(--fs-xs); color: var(--text-3); }
+.mctx__nums dd { margin: 2px 0 0; }
+.mctx__nums b { font-size: 1.1rem; color: var(--text-hi); }
+.mctx__s { font-size: var(--fs-sm); color: var(--text-3); }
+
+/* ---- Player on wide screens: research in the main column; role, matchup and availability beside it */
+@media (min-width: 1200px) {
+  .pl2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: var(--s-8); align-items: start; }
+  .pl2__side { display: grid; gap: var(--s-4); }
+  .pl2__side .stratum { margin: 0; }
+  .pl2__side .stratum__head { padding-top: var(--s-3); margin-bottom: var(--s-3); }
+  .pl2__side .stratum__title { font-size: 1.35rem; }
+  .pl2__side .plmu__row, .pl2__side .plu li { font-size: 0.92rem; }
+  .pl2__side .plquiet { margin-top: 0; }
+  .pl2__main .pthis__card, .pl2__main .gbars { max-width: none; }
+}
+
+/* Market page: the plain condition first; the publication's exact rule one tap down. */
+.contract__rule { margin-top: 6px; font-size: var(--fs-xs); color: var(--text-3); }
+.contract__rule summary { cursor: pointer; color: var(--text-3); min-height: 28px; display: inline-flex; align-items: center; }
+.contract__rule span { display: block; margin-top: 4px; font-family: var(--font-num); color: var(--text-2); overflow-wrap: anywhere; }

@@ -156,7 +156,7 @@ export function ScorecardView() {
               {sc.caveats.map((c) => <li key={c}>{c}</li>)}
             </ul>
             <p className="mscore__note">
-              Source: {sc.source ?? 'the publication’s model scorecard'} (via the metric registry, <code>{SCORECARD_METRIC}</code>). Sift does not recompute or back-test anything here.
+              Source: {sc.source ?? 'the publication’s model scorecard'} (read from the publication's metric registry). Sift does not recompute or back-test anything here.
               This is model accuracy only; it is not anyone’s betting record.
             </p>
             <Link to={routes.metric(slug, SCORECARD_METRIC)} className="phead__more">Registry entry <Icon name="arrowRight" size={14} /></Link>

@@ -13,6 +13,7 @@ export function SearchView() {
   useVisit(q ? `Search “${q}”` : 'Search', 'search');
   return (
     <div className="page searchview">
+      <h1 className="sr-only">Search Sift</h1>
       <form role="search" className="bigsearch" onSubmit={(e) => e.preventDefault()}>
         <Icon name="search" size={20} />
         <input

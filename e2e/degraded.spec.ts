@@ -228,7 +228,10 @@ test('live vs snapshot: the live root\'s newer run is announced while the snapsh
   await expect(page.getByText(/run_live_newer/)).toBeVisible();
 });
 
-test('offline with previously loaded research: it still renders; the banner is accurate', async ({ page, context }) => {
+test('offline with previously loaded research: it still renders; the banner is accurate', async ({ page, context, errors }) => {
+  // Going offline while a screen still has reads in flight fails those reads by design (the screen keeps what
+  // it has); only that network error is expected here.
+  errors.allow(/ERR_INTERNET_DISCONNECTED/);
   await page.goto(`./#/nfl/game/${NEBUF}`);
   await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
   await page.locator('.gh__team--home .gh__name').click();

@@ -208,13 +208,6 @@
 .scards--compact .scard { min-height: 0; grid-template-rows: auto auto auto; }
 .scards--compact .scard__pct { font-size: 2.3rem; }
 .scards--compact .scard__d, .scards--compact .sglyph { display: none; }
-.sbar { display: flex; gap: 3px; height: 4px; margin-top: var(--s-4); border-radius: 2px; overflow: hidden; }
-.sbar__seg { min-width: 2px; }
-.sbar__seg--s1 { background: var(--script-1); }
-.sbar__seg--s2 { background: var(--script-2); }
-.sbar__seg--s3 { background: var(--script-3); }
-.sbar__seg--s4 { background: var(--script-4); }
-.sbar__seg.is-sel { box-shadow: inset 0 0 0 1px var(--ivory); }
 .sdot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
 .sdot--s1 { background: var(--script-1); }
 .sdot--s2 { background: var(--script-2); }

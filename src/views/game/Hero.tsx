@@ -130,6 +130,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
         {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} />}
       </div>
       <div className="gh__in">
+        <h1 className="sr-only">{awayP.display_name} at {homeP.display_name}</h1>
         <div className="gh__teams">
           <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} />
           <span className="gh__at" aria-hidden="true">{final ? 'final' : 'at'}</span>

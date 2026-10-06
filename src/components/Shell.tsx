@@ -302,7 +302,6 @@ export function Shell({ children }: { children: ReactNode }) {
     setSearch(false);
   }, [loc.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   const tabSport = sport ?? NAV_SPORTS[0];
-  const atHome = loc.pathname === '/';
   return (
     <div className="app">
       <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>
@@ -329,7 +328,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </header>
         {!online && <div className="offline" role="status">Offline — showing research you already opened. Market quotes are not refreshing; each keeps its real age.</div>}
         <main id="main" tabIndex={-1} className="main">
-          {!atHome && <div className="crumbs"><TrailBar sport={sport} /></div>}
+          {sport && <div className="crumbs"><TrailBar sport={sport} /></div>}
           {children}
         </main>
         <footer className="foot">

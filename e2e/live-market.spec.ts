@@ -17,7 +17,7 @@ test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 
   await expect(page.getByRole('heading', { name: 'Markets', exact: true })).toBeVisible();
   // 1. the game shows the provider's 46¢ (the publication says 63¢)
   await expect(boardPrice(page)).toHaveText('46¢ / 48¢');
-  await expect(page.locator('.mh__chips .qchip')).toHaveAttribute('data-quote-source', 'live');
+  await expect(page.locator('.gquote .qchip')).toHaveAttribute('data-quote-source', 'live');
 
   // 2-3. the provider moves to 51¢; the next game-cadence poll shows it — same page, same build
   market.set(ML, 0.51, 0.53);
@@ -26,7 +26,7 @@ test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 
 
   // 4. go to a team, spend minutes there, come back: the last known 51¢ is shown at once (never 46¢,
   //    never the publication's 63¢) even before the provider answers again...
-  await page.locator('.mh__team--home .mh__name').click();
+  await page.locator('.gh__team--home .gh__name').click();
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await page.clock.fastForward(4 * 60_000);
   market.fail = 'hang';

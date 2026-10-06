@@ -51,7 +51,9 @@ export function NewsView() {
         return hit ? hit.games : 0;
       };
       for (const n of injuryNews(r, qbs, played)) out.push({ ...n, game, kickoff: r.event.start_time_utc });
-      for (const c of contextNotes(r, hist.data ?? null, new Map(), g).filter((x) => x.kind === 'qb-change')) {
+      // A quarterback ruled out already says the starter changed; the start history adds to it only otherwise.
+      const qbOut = new Set(out.filter((x) => x.eventId === r.event.event_id && x.injury?.position === 'QB' && x.level === 'critical').map((x) => x.team));
+      for (const c of contextNotes(r, hist.data ?? null, new Map(), g).filter((x) => x.kind === 'qb-change' && !qbOut.has(x.team.abbr))) {
         out.push({ id: c.id + r.event.event_id, kind: 'qb-change', level: 'high', score: 6, team: c.team.abbr, headline: c.headline, detail: c.detail, eventId: r.event.event_id, asOf: null, game, kickoff: r.event.start_time_utc });
       }
       const wx = gameWeather(r, venueFor(g.home.abbr, (r.context?.venue as { name?: string } | null)?.name ?? null));

@@ -11,6 +11,8 @@ import { sharePct, type Fit, type GameScript, type ScriptId, type ScriptSet } fr
 import { quoteAgeMs, quoteFreshness, formatQuoteAge } from '../../live/freshness';
 import { splitName } from './Hero';
 import { scriptCast, type CastMember } from '../../insights/cast';
+import { RankBadge } from '../../components/insight';
+import { rankView } from '../../lib/rank';
 import type { NewsItem } from '../../insights/news';
 import { teamColors, teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
@@ -403,11 +405,20 @@ function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityP
       <dl className="form__stats">
         {FORM_STATS[view].map((s) => {
           const st = teamStat(prof, s.id);
+          // Rank first for rates a reader can't judge on sight (EPA, success, takeaways); simple counts stay number-first.
+          const rv = st.rank != null && st.size ? rankView({ rank: st.rank, universe_size: st.size, higher_is_better: true }) : null;
+          const simple = /Points|Allowed|Margin/.test(s.label);
           return (
-            <div key={s.id} className="fstat">
+            <div key={s.id} className={`fstat${simple ? '' : ' fstat--rank'}`}>
               <dt className="fstat__k">{s.label}</dt>
-              <dd className="fstat__v num">{st.value != null ? s.fmt(st.value) : '—'}</dd>
-              <dd className={`fstat__r${st.rank != null && st.rank <= 8 ? ' is-top' : st.rank != null && st.rank >= 25 ? ' is-low' : ''}`}>{rankText(st.rank)}<span> NFL</span></dd>
+              {simple || !rv ? (
+                <>
+                  <dd className="fstat__v num">{st.value != null ? s.fmt(st.value) : '—'}</dd>
+                  <dd className={`fstat__r${st.rank != null && st.rank <= 8 ? ' is-top' : st.rank != null && st.rank >= 25 ? ' is-low' : ''}`}>{rankText(st.rank)}<span> NFL</span></dd>
+                </>
+              ) : (
+                <dd className="fstat__rk"><RankBadge rank={rv} raw={st.value != null ? s.fmt(st.value) : undefined} compact /></dd>
+              )}
             </div>
           );
         })}

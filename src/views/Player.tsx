@@ -224,7 +224,7 @@ export function PlayerView() {
             <section className="pthis" aria-labelledby="pthis-h">
               <div className="pthis__h">
                 <h2 id="pthis-h" className="gsec__t">{game ? `This game ${game.home_away === 'AWAY' ? 'at' : 'vs'} ${oppAbbr ?? game.opponent_name}` : 'This season'}</h2>
-                <div className="seg seg--scroll" role="tablist" aria-label="Stat">
+                <div className="seg seg--scroll" role="tablist" aria-label="Stat for this game">
                   {options.map((o) => (
                     <button key={o.key} type="button" role="tab" aria-selected={o.key === cur.key} className={`seg__b${o.key === cur.key ? ' is-on' : ''}`} onClick={() => setHs(o.key)}>{o.label}</button>
                   ))}

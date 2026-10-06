@@ -20,13 +20,15 @@
 //   snap_counts/snap_counts_<season>.csv          offensive snaps (PFR)
 //   ftn_charting/ftn_charting_<season>.csv        FTN charting: blitzers, box count, play action, motion
 // FTN charting is © FTN Data, published by nflverse under CC-BY-SA 4.0; nflverse data under CC-BY 4.0.
-import { mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..');
-const OUT = process.argv[2] ?? join(ROOT, 'public', 'data', 'nfl', 'history');
+const FINAL = process.argv[2] ?? join(ROOT, 'public', 'data', 'nfl', 'history');
+// Written to a sibling directory and swapped in at the end: a failed run never leaves a half-written layer.
+const OUT = `${FINAL}.tmp`;
 const SEASON = Number(process.argv[3] ?? 2026);
 const REL = 'https://github.com/nflverse/nflverse-data/releases/download';
 const SOURCES = {
@@ -257,4 +259,7 @@ writeFileSync(join(OUT, 'index.json'), JSON.stringify({
   ],
   players: index,
 }, null, 1));
-console.log(`wrote ${Object.keys(index).length} players, ${Object.keys(teams).length} teams to ${OUT}`);
+if (Object.keys(index).length < 100 || Object.keys(teams).length < 32) throw new Error(`refusing to publish a thin history (${Object.keys(index).length} players, ${Object.keys(teams).length} teams)`);
+rmSync(FINAL, { recursive: true, force: true });
+renameSync(OUT, FINAL);
+console.log(`wrote ${Object.keys(index).length} players, ${Object.keys(teams).length} teams to ${FINAL}`);

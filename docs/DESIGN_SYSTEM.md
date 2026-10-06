@@ -51,30 +51,56 @@ marks `#2a8fe6` / `#e8505f` / `#9264ef` pass all checks. Team colours are brand 
 
 ## 4. Shell & navigation
 
-* **Desktop ≥ 1100 px** — left sidebar (220 px): serif Sift wordmark, Home, every sport (NFL, CFB, MLB, NBA,
-  NHL, Soccer, Tennis, MMA, PGA, More), then Research, Parlays, News, Search, and Settings at the foot.
-  Top bar: breadcrumb, search, research tray.
-* **Tablet 720–1099 px** — the same sidebar as a 78 px icon rail with small labels.
-* **Phone < 720 px** — no sidebar. Bottom tab bar: Home · current sport · Sports (a sheet with every sport
-  and the workspace) · Search · Tray. The top bar carries the wordmark, the breadcrumb and search.
-* **Breadcrumb** — the research path. It resets at the global Home (cleared) and at a sport home (starts
-  at that sport); deeper screens append; a tab change on the same entity replaces its step.
+One navigation per screen size, one search, no decorative masthead:
+
+* **Wide screens (≥ 720 px)** — one compact header: Sift wordmark · sport tabs (NFL, CFB, MLB, NBA, then NHL,
+  Soccer, Tennis from 1180 px) · **More** (every sport, Research, Parlays, Settings, Data & provenance) · the
+  search field · News · Research (the tray). No sidebar.
+* **Phones (< 720 px)** — the header carries the wordmark and a search icon; the bottom tab bar is the
+  navigation: Home · current sport · Sports (sheet) · Search · Research.
+* **Search** — one command palette for the whole app (header field, tab bar, `/`, ⌘K / Ctrl-K). It opens over
+  the page, never as a row of it. Enter goes to the full results page.
+* **Breadcrumb** — a slim line above the page (not sticky), the research path since the sport's home.
+
+## 4a. Progressive layers (the rule for every screen)
+
+Takeaway → why it matters → supporting matchup → rank → raw number → detail. Layer 1 is a sentence a casual
+fan understands ("Bills rush offense has a major edge"); layer 2 the two ranks behind it; layer 3 (one tap,
+a `details` disclosure) the season numbers, rank first; layer 4 (links) the league ranking, methodology and
+raw tables. Layer 4 is never shown by default.
+
+* **Rank first, number second** (`lib/rank.ts`, `RankBadge`): `#3` large with its tier in words (Top 3 · Top 10
+  · Middle of the pack · Bottom 10 · Bottom 3), the raw value small beneath. #1 is always the best unit for its
+  job (for "allowed" metrics, the one that allows the least); descriptive metrics say "Highest"/"3rd-lowest"
+  instead. Counting stats (yards, points, targets) stay number-first.
+* **Ranges are written out** (`RangeBar`): the typical range (middle half of simulations) as a band with its
+  numbers, the low and high ends labelled at the ends, the projection as a dot and the market line as a gold tick.
+* **Market language is quiet**: the market/model comparison lives in "The Lines" at the foot of the game, on
+  prop cards (projection vs line) and in the Markets tab — not in every panel title.
 
 ## 5. Screens
 
-* **Global Home** — today across Sift: the featured game, up next, every sport's real status, your research.
+* **Global Home** — a one-line masthead, then the featured game (photo visible), the slate with each game's
+  headline edge and most likely script, the week's biggest matchup edges, context that matters (quarterback
+  changes), props to watch and your research.
 * **Sport home** (`/nfl`) — the sport's landing page: featured game, this week's tiles (stadium strip,
   model line, script bar), Script Outlook, Model vs Market on game lines, recent results, structures. The
   full slate is `/nfl/slate`.
-* **Game** — hero over the real home stadium (or the published neutral site) with kickoff-time forecast,
-  then tabs: Overview · Game Script · Markets · Matchup · Players · Trends · Injuries.
+* **Game** — a clean hero (teams, time or score, venue, conditions — nothing else on the photo), then
+  Overview: **What Matters** (3–5 cards: context notes, ranked matchup edges, one scheme note) → **How It Could
+  Play Out** (scripts most likely first, each with the player who carries it) → **Props to Watch** → form and
+  injuries that matter → The Lines. Deeper tabs: Matchups · Scripts · Props · Players · Markets · Trends · Injuries.
+* **Player** — real photo, this game's projection with its labelled range, the line and the matchup rank, then
+  Game by Game (bars against the line, tap for the box score) with usage, splits and the full log one layer down.
 
 ## 6. Components
 
 | Component | Rule |
 |---|---|
 | **Game hero** | Hand-picked venue photo pinned in `scripts/stadiums/venues.json` only when it meets the hero bar (inside the bowl, atmosphere, composition, resolution), colour graded and credited with the modification; otherwise the designed **StadiumFallback** (floodlight banks and beams, lit pitch, stands with crowd speckle, the venue on an LED fascia, a breath of home colour, grain) — never a mediocre picture. Kickoff weather is a glass block: temperature in the serif, condition, wind, precipitation; a condition that plausibly matters (wind ≥ 15 mph, precipitation ≥ 50 %, ≤ 32 °F, ≥ 90 °F) gets a gold flag. Indoor / roof closed says so. Photo credit links to Data & provenance. |
-| **Script card** | Name, sim share (whole %), one-line description, glyph. Click = select (deep-linked `?script=`); "All scripts" returns to the uncertainty view. |
+| **Script card** | Plain name from the teams ("Bills win going away", "One-score battle"), sim share (whole %), one-line margin summary, the centerpiece player (photo + why: "BUF run 34 times in these games (28 on average)"). Always ordered most likely first; colour identity stays with the script. Click = select (deep-linked `?script=`). |
+| **What Matters card** | Kind (Major/Clear edge · Context · Scheme), one-sentence headline, the two ranks, why it matters, "The numbers behind it" disclosure, Dig deeper. |
+| **Dig deeper** | Saves one finding (not a game) to Research with its numbers as the packet note. |
 | **Survival grid** | Four cells per market, one per script: filled = wins in every game of that script, half = some, empty = loses. Coverage = sim share of the scripts it always wins. Exact only for margin-settled markets. |
 | **Price token** | Gold-framed YES ask; dashed/dimmed when the quote is aging/stale; exact age in its title. |
 | **Model − Mkt** | Model probability minus the market midpoint in points, quiet green/coral. Never called "edge". |

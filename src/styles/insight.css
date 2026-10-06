@@ -335,3 +335,10 @@
 .tray__kind--prop, .tray__kind--projection, .tray__kind--history, .tray__kind--usage { background: rgba(31, 224, 143, 0.12); color: #8ff0c4; }
 .tray__kind--context, .tray__kind--injury, .tray__kind--weather, .tray__kind--script { background: rgba(111, 208, 246, 0.12); color: var(--cyan-2); }
 .ticker-quiet { font-size: 0.72rem; color: var(--text-3); display: inline-flex; align-items: center; gap: 6px; }
+
+.fstat--rank .fstat__rk { order: 2; margin: 0; grid-column: 2 / -1; justify-self: end; text-align: right; }
+.mt__rk--big { font-size: 0.98rem; font-weight: 700; color: #fff; }
+.mt__raw { font-size: 0.74rem; color: var(--text-3); }
+.fcard__img { max-height: 340px; width: 100%; }
+@media (max-width: 480px) { .gh__name { font-size: 1.4rem; overflow-wrap: normal; white-space: nowrap; } .gh__meta { font-size: 0.78rem; } }
+@media (max-width: 360px) { .gh__name { font-size: 1.2rem; } }

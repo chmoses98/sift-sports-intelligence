@@ -1,7 +1,7 @@
 // IMPORTANT NEWS — what changes a game, not every designation on the wire.
 //
 // Importance = how serious the designation is × how much the player matters to his team this week,
-// plus a boost when the publication itself flags the absence (its "packet key question" notes). Role comes
+// plus a small boost when the publication itself flags the absence (its "packet key question" notes). Role comes
 // from facts only: the depth chart (starter or not), the position, and whether the simulation projected the
 // player. Quarterback changes and weather that plausibly matters are news too. Routine low-impact
 // designations stay available under "all designations" but never lead.
@@ -25,7 +25,8 @@ export interface NewsItem {
   injury?: InjuryRow;
 }
 
-const SEVERITY: Record<string, number> = { OUT: 3, INJURED_RESERVE: 3, SUSPENDED: 3, DOUBTFUL: 2.5, QUESTIONABLE: 1.3, PROBABLE: 0.4 };
+// Injured reserve is usually known for weeks; a fresh "out" is more of a change.
+const SEVERITY: Record<string, number> = { OUT: 3, SUSPENDED: 3, INJURED_RESERVE: 2.4, DOUBTFUL: 2.5, QUESTIONABLE: 1.3, PROBABLE: 0.4 };
 const STATUS_WORD: Record<string, string> = { OUT: 'out', INJURED_RESERVE: 'on injured reserve', SUSPENDED: 'suspended', DOUBTFUL: 'doubtful', QUESTIONABLE: 'questionable', PROBABLE: 'probable' };
 const SKILL = new Set(['QB', 'RB', 'WR', 'TE']);
 
@@ -74,8 +75,8 @@ export function injuryNews(r: EventResearchDoc, qbStarters: Set<string> = season
     const role = roleWeight(x, lineups, projected, qbStarters);
     // The publication's own key questions name the absences it considers material.
     const played = gamesPlayed?.(x.player, x.team) ?? null;
-    const stale = played === 0 && sev >= 2.5;
-    const score = (sev * role + (flagged.has(nameKey(x.player)) ? 2.5 : 0)) * (stale ? 0.3 : 1);
+    const stale = played === 0 && sev >= 2.4;
+    const score = (sev * role + (flagged.has(nameKey(x.player)) ? 1.5 : 0)) * (stale ? 0.3 : 1);
     const word = STATUS_WORD[x.status] ?? x.status.toLowerCase();
     const serious = sev >= 2.5;
     return {

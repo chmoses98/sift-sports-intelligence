@@ -36,7 +36,7 @@ export function LinesPanel({ r, homeAbbr, awayAbbr, to, views, now }: { r: Event
   return (
     <section className="panel lines" aria-labelledby="lines-h">
       <PanelHead title="The Lines" sub="What the market prices this game at">
-        <QuoteSummaryChip views={views} now={now} />
+        <span className="gquote"><QuoteSummaryChip views={views} now={now} /></span>
       </PanelHead>
       <dl className="lines__t">
         {tiles.map((t) => (

@@ -17,7 +17,7 @@ import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { HistoricalGameView } from './HistoricalGame';
 import { metricFormatter } from '../lib/format';
-import { NewlyListed, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
+import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
 import { injuryRows, marketLabel, priceRow } from '../lib/gamedata';
 import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
 import { GameHero } from './game/Hero';
@@ -192,7 +192,7 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
       </div>
       <div className="mt__head" aria-hidden="true">
         <span className="mt__ta">{awayAbbr}</span>
-        <span>league rank of 32 · longer bar = better · tap a metric for the full comparison</span>
+        <span>league rank of 32 (#1 = best for that job) · raw value beside it · tap a metric for the full comparison</span>
         <span className="mt__th">{homeAbbr}</span>
       </div>
       <ul className="mt__rows">
@@ -208,8 +208,8 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
             <li key={r.metric_id}>
               <Link to={routes.metric(slug, r.metric_id, { team: homeId, opp: awayId, event: eventId })} className="mt__row">
                 <span className="mt__v mt__v--away">
-                  <span className="num">{fmt(r.away?.value)}</span>
-                  <span className="mt__rk">{r.away?.context?.rank != null ? `#${r.away.context.rank}` : ''}</span>
+                  <span className="mt__rk mt__rk--big num">{r.away?.context?.rank != null ? `#${r.away.context.rank}` : '—'}</span>
+                  <span className="num mt__raw">{fmt(r.away?.value)}</span>
                 </span>
                 <span className="mt__bars">
                   <span className="mt__half mt__half--away"><span style={{ width: `${pa ?? 0}%` }} /></span>
@@ -217,8 +217,8 @@ function MatchupTable({ rows, metrics, slug, homeId, awayId, homeAbbr, awayAbbr,
                   <span className="mt__half mt__half--home"><span style={{ width: `${ph ?? 0}%` }} /></span>
                 </span>
                 <span className="mt__v mt__v--home">
-                  <span className="mt__rk">{r.home?.context?.rank != null ? `#${r.home.context.rank}` : ''}</span>
-                  <span className="num">{fmt(r.home?.value)}</span>
+                  <span className="num mt__raw">{fmt(r.home?.value)}</span>
+                  <span className="mt__rk mt__rk--big num">{r.home?.context?.rank != null ? `#${r.home.context.rank}` : '—'}</span>
                 </span>
               </Link>
             </li>
@@ -613,7 +613,7 @@ export function GameView({ eventId }: { eventId: string }) {
               <MarketModel ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
             </Stratum>
           )}
-          <Stratum id="g-markets" title="Every market" sub={`All Kalshi contracts on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={tickers.length ? <RefreshQuotes tickers={tickers} /> : undefined}>
+          <Stratum id="g-markets" title="Markets" sub={`All Kalshi contracts on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={<><span className="gquote"><QuoteSummaryChip views={views} now={now} /></span>{tickers.length ? <RefreshQuotes tickers={tickers} /> : null}</>}>
             {detail.loading && <Skeleton lines={6} />}
             {detail.error && <ErrorState error={detail.error} what="this game's markets" />}
             {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}

@@ -12,6 +12,8 @@ export interface TrayLabel {
   href: string;
   /** The game's scheduled kickoff (UTC) for game-scoped items: lets the tray mark them as pregame research. */
   kickoff?: string | null;
+  /** Set when the item is a research finding (research/findings.ts): what kind of thing it is. */
+  finding?: string;
 }
 
 interface Stored {

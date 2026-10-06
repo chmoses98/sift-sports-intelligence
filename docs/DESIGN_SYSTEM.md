@@ -77,14 +77,18 @@ raw tables. Layer 4 is never shown by default.
   numbers, the low and high ends labelled at the ends, the projection as a dot and the market line as a gold tick.
 * **Market language is quiet**: the market/model comparison lives in "The Lines" at the foot of the game, on
   prop cards (projection vs line) and in the Markets tab — not in every panel title.
+* **Narrow phones** (375 px and below): rank rows wrap (name, then rank) instead of truncating or pushing the
+  page sideways; evidence tables stack the rank badge under 400 px. The iPhone SE smoke check enforces no
+  horizontal overflow.
 
 ## 5. Screens
 
 * **Global Home** — a one-line masthead, then the featured game (photo visible), the slate with each game's
   headline edge and most likely script, the week's biggest matchup edges, context that matters (quarterback
   changes), props to watch and your research.
-* **Sport home** (`/nfl`) — the sport's landing page: featured game, this week's tiles (stadium strip,
-  model line, script bar), Script Outlook, Model vs Market on game lines, recent results, structures. The
+* **Sport home** (`/nfl`) — the sport's landing page: featured game, props to watch, this week's tiles
+  (stadium strip, headline edge, script bar), Script Outlook (plain script names, most likely first), recent
+  results, structures. Where prices and projections differ sits in a collapsed layer. The
   full slate is `/nfl/slate`.
 * **Game** — a clean hero (teams, time or score, venue, conditions — nothing else on the photo), then
   Overview: **What Matters** (3–5 cards: context notes, ranked matchup edges, one scheme note) → **How It Could

@@ -64,6 +64,46 @@ for (const pl of players) {
     console.log(`ok   ${pl.name}  ${pl.commons_file} (${c.license}, ${c.artist})`);
     continue;
   }
+  if (pl.auto && !pl.commons_file) {
+    // Conservative automatic pick (review asset): a free-licence photo whose FILE NAME names the player,
+    // from his own Commons category or a name search; recent seasons and his current team preferred.
+    // Every auto pick is listed in the manifest with auto_selected: true for human review, and a person can
+    // pin a different frame with `commons_file` at any time.
+    const dest = join(OUT, `${pl.id}.webp`);
+    if (existsSync(dest) && manifest.players[pl.id]) continue;
+    const seen = new Set(); const titles = [];
+    for (const q of [`incategory:"${pl.category ?? pl.name}" filetype:bitmap`, `deepcat:"${pl.category ?? pl.name}" filetype:bitmap`, `intitle:"${pl.name}" filetype:bitmap`]) {
+      const d = await api({ action: 'query', list: 'search', srnamespace: '6', srlimit: '50', srsearch: q });
+      for (const t of (d?.query?.search ?? []).map((x) => x.title)) if (!seen.has(t)) { seen.add(t); titles.push(t); }
+      await sleep(300);
+    }
+    const surname = pl.name.replace(/\b(Jr|Sr|II|III|IV)\.?$/i, '').trim().split(' ').pop().toLowerCase().replace(/[^a-z]/g, '');
+    const first = pl.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    const bad = /(signing|autograph|card|statue|mural|family|wedding|logo|jersey only|draft board|meets|visit|with president|cropped\)?.*group)/i;
+    const cand = (await info(titles, 1400))
+      .filter((c) => /jpeg|png|webp/.test(c.mime) && c.width >= 700 && c.height >= 700 && FREE.test(c.license))
+      .filter((c) => { const t = c.file.toLowerCase().replace(/[^a-z0-9]/g, ''); return t.includes(surname) && t.includes(first); })
+      .filter((c) => !bad.test(c.file))
+      .map((c) => {
+        const year = Number((/\b(20\d\d)\b/.exec(c.file) ?? [])[1] ?? 2010);
+        const team = new RegExp(pl.team_name ?? '#none#', 'i').test(c.file) ? 6 : 0;
+        const portrait = c.height >= c.width ? 2 : 0;
+        const cropped = /cropped/i.test(c.file) ? 2 : 0;
+        return { ...c, score: (year - 2015) + team + portrait + cropped };
+      })
+      .sort((a, b) => b.score - a.score);
+    writeFileSync(join(CUR, `${slug(pl.name)}.json`), JSON.stringify(cand.slice(0, 12), null, 1) + '\n');
+    const c = cand[0];
+    if (!c) { console.log(`none ${pl.name}: no free-licence photo naming him`); continue; }
+    const tmp = join(TMP, `${pl.id}.src`);
+    writeFileSync(tmp, Buffer.from(await (await fetch(c.thumb, { headers: { 'user-agent': UA } })).arrayBuffer()));
+    execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '600x>', '-quality', '64', dest]);
+    rmSync(tmp, { force: true });
+    manifest.players[pl.id] = { name: pl.name, team: pl.team, slot: pl.slot ?? 'portrait', participant_id: pl.participant_id, focus: pl.focus ?? 'center 22%', file: c.file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Resized and cropped by Sift', review_asset: true, auto_selected: true };
+    console.log(`auto ${pl.name}  ${c.file} (${c.license}, ${c.artist})`);
+    await sleep(200);
+    continue;
+  }
   if (!pl.category) continue;
   const queries = [`deepcat:"${pl.category}" filetype:bitmap filew:>1199`, `"${pl.name}" filetype:bitmap filew:>1199`, `intitle:"${pl.name}" filetype:bitmap`];
   const seen = new Set(); const titles = [];

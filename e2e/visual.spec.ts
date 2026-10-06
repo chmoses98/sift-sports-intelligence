@@ -48,11 +48,17 @@ test('game markets board @visual', async ({ page }) => {
   await page.getByRole('heading', { name: 'Markets', exact: true }).waitFor();
   const board = page.locator('#g-markets');
   await ready(page);
-  // Let the quote check land first: its freshness line sits above the board and can change the board's
-  // position. Then scroll to a fixed offset rather than "into view", which differs between engines.
+  // The board is what this check is about. Its section's quote-freshness line changes when the live quote
+  // check lands (the publication's capture age, then "updated 0s ago"), at engine-dependent times, so
+  // pin the board's tab bar just under the sticky game tabs, which cover that line.
   await expect(board.locator('.gquote')).toContainText(/updated/i);
   await expect(board.locator('.mboard__bar')).toBeVisible();
-  await board.locator('.mboard__bar').evaluate((e) => window.scrollTo(0, Math.round(e.getBoundingClientRect().top + window.scrollY - 180)));
+  await board.locator('.mboard__bar').evaluate((e) => {
+    // Where the game tabs sit once stuck (their sticky offset + height), not where they are now.
+    const t = document.querySelector<HTMLElement>('.gtabs');
+    const tabs = t ? parseFloat(getComputedStyle(t).top) + t.offsetHeight : 0;
+    window.scrollTo(0, Math.round(e.getBoundingClientRect().top + window.scrollY - tabs - 8));
+  });
   await expect(page).toHaveScreenshot('game-markets.png');
 });
 

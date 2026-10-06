@@ -126,6 +126,17 @@ describe('payload decoding', () => {
     expect(e.scripts[0].outcome_shape.band_authority?.home_margin).toBe('ARCHETYPE_DEFINITION');
   });
 
+  it('a one-score claim rests on independent closeness evidence, never on the scoring environment', () => {
+    const e = engineOf(UGA_ALA);
+    for (const sc of e.scripts) {
+      for (const st of sc.causal_chain.filter((x) => /one score|separates/.test(x.step))) {
+        expect(st.findings.every((f) => f === 'EVEN_MATCHUP' || f === 'NARROW_EFFICIENCY_GAP')).toBe(true);
+      }
+    }
+    expect(e.scripts[0].outcome_shape.bands.home_margin).toEqual([-8, 8]);
+    expect(e.findings.map((f) => f.code)).toContain('EVEN_MATCHUP');
+  });
+
   it('the label vocabulary has no price verdict in it', () => {
     const words = Object.values(LABEL_WORD).join(' ').toLowerCase();
     for (const banned of ['+ev', 'edge', 'value', 'lock', 'probability', 'bet up to']) expect(words).not.toContain(banned);

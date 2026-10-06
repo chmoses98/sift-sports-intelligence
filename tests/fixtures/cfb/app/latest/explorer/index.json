@@ -85,31 +85,31 @@
    "bytes": 6124,
    "entity_id": "evt_776097ba6eef448fb340",
    "kind": "event_research",
-   "sha256": "c5bf0efd89f03c5353bbb2ab73c87a936dbe88ff33023e4722bfc1b69f978079"
+   "sha256": "16e06a9bb3972b30292c47539103de54156df8fa9cb5d8daa266d88781091042"
   },
   "events/evt_7ca164d80f042f650a5c.json": {
-   "bytes": 137148,
+   "bytes": 137151,
    "entity_id": "evt_7ca164d80f042f650a5c",
    "kind": "event_research",
-   "sha256": "ef43945dd79396814231e11777ec13cdb2e8a61849279d901332e5533134676b"
+   "sha256": "a2df382c65aa1569a9f63590633044b8b141a01cf53838492ac086671d2edfae"
   },
   "events/evt_8c3166866b2bfa530c17.json": {
    "bytes": 127518,
    "entity_id": "evt_8c3166866b2bfa530c17",
    "kind": "event_research",
-   "sha256": "1ab8869466f769974fff815930d08e3a99d21d4d0de25f1dac97cd83507e5930"
+   "sha256": "bdaca89a4be484601bdd9aa314fbea03a5c7c39dd1ef8f403c88e26944983a27"
   },
   "events/evt_93e12676ae9337017c63.json": {
-   "bytes": 143083,
+   "bytes": 143215,
    "entity_id": "evt_93e12676ae9337017c63",
    "kind": "event_research",
-   "sha256": "f3f61c14eef7f3f5f540b74d075686d393d920a924282cf5724f014032f546ff"
+   "sha256": "b2d40619610f326685ed3611a55e41211666177f4a1dcf5988766918ca77e59a"
   },
   "events/evt_f121611ae29ec3e9d56e.json": {
    "bytes": 129530,
    "entity_id": "evt_f121611ae29ec3e9d56e",
    "kind": "event_research",
-   "sha256": "39bca97b29a50020853801608e4705c3765ae0552ec56a93cc5ef73c87caa753"
+   "sha256": "05bbe8d1af08e1e13a556a36ddbc48902e66659ccaf93358e02a35aada561b0e"
   },
   "market_history/evt_776097ba6eef448fb340.json": {
    "bytes": 5047,

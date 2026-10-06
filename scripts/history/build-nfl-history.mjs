@@ -218,8 +218,18 @@ for (const s of stats) {
 let priorRows = 0;
 let priorSourceRows = null;
 try {
-  const [pStats, pSnaps, sched] = await Promise.all([load(PRIOR_SOURCES.stats), load(PRIOR_SOURCES.snaps).catch(() => []), load(PRIOR_SOURCES.schedule)]);
+  // The schedule only adds dates and final scores; home/away is in the game id itself
+  // (SEASON_WEEK_AWAY_HOME), so last season still builds when the schedule file is unavailable.
+  const [pStats, pSnaps, sched] = await Promise.all([
+    load(PRIOR_SOURCES.stats),
+    load(PRIOR_SOURCES.snaps).catch(() => []),
+    load(PRIOR_SOURCES.schedule).catch((e) => { console.warn(`schedule unavailable (${e.message}); ${PRIOR} games keep home/away from their ids, without dates or scores`); return []; }),
+  ]);
   const pGames = new Map(sched.filter((g) => int(g.season) === PRIOR).map((g) => [g.game_id, { date: g.gameday || null, home: g.home_team, away: g.away_team, home_score: num(g.home_score), away_score: num(g.away_score) }]));
+  for (const s of pStats) {
+    const m = /^\d{4}_\d{2}_([A-Z]{2,3})_([A-Z]{2,3})$/.exec(s.game_id ?? '');
+    if (m && !pGames.has(s.game_id)) pGames.set(s.game_id, { date: null, home: m[2], away: m[1], home_score: null, away_score: null });
+  }
   const pSnapBy = new Map(pSnaps.map((s) => [`${norm(s.player)}|${s.team}|${s.week}`, s]));
   for (const s of pStats) {
     if (!SKILL.has(s.position) || s.season_type === '') continue;
@@ -230,9 +240,11 @@ try {
     byPlayer.set(s.player_id, p);
     priorRows++;
   }
-  priorSourceRows = { stats: pStats.length, snaps: pSnaps.length, schedule: pGames.size };
+  priorSourceRows = { stats: pStats.length, snaps: pSnaps.length, schedule: sched.length };
   console.log(`prior season ${PRIOR}: ${priorRows} player-games, ${pGames.size} scheduled games`);
 } catch (e) {
+  // Never publish a layer that silently lost a season: fail, and the deploy keeps the committed copy.
+  if (process.env.SIFT_ALLOW_NO_PRIOR !== '1') throw new Error(`prior season ${PRIOR} unavailable (${e.message}); refusing to drop it (SIFT_ALLOW_NO_PRIOR=1 builds ${SEASON} only)`);
   console.warn(`prior season ${PRIOR} unavailable (${e.message}); building ${SEASON} only`);
 }
 
@@ -336,7 +348,7 @@ writeFileSync(join(OUT, 'index.json'), JSON.stringify({
     'Counts and ratios of published rows only; nothing is modelled or adjusted.',
     'Snap counts are joined to players by name, team and week (PFR rows carry no GSIS id).',
     'A blitz is an FTN-charted dropback with at least one blitzer. Man/zone coverage is not in any 2026 file published yet.',
-    'Prior season: weekly box scores, snap counts and the schedule only (no play-by-play), so no longest plays or blitz splits for it.',
+    'Prior season: weekly box scores and snap counts (no play-by-play, so no longest plays or blitz splits); home/away from the game id; dates and scores only when the schedule file is available.',
     'Player ranks: per-game averages over regular-season games within a position, among players with at least half the games of the most-played player; #1 = most. Ties share a rank.',
     'No historical betting lines are published here: comparisons in the app are against the CURRENT line only.',
   ],

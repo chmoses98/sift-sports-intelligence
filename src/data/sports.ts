@@ -41,7 +41,9 @@ export const SPORTS: SportConfig[] = [
     code: 'CFB', slug: 'cfb', label: 'CFB', fullName: 'College Football',
     repo: 'chmoses98/cfb-edge-finder', branch: 'main',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest',
-    snapshotBase: null, tier: 'listed', entityNoun: { team: 'team', event: 'game' },
+    // Explorer screens through the generic views, plus the CFB Script Engine game page when an event carries
+    // extensions.script_engine (docs/CFB_SCRIPT_ENGINE.md).
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'team', event: 'game' },
   },
   {
     code: 'NBA', slug: 'nba', label: 'NBA', fullName: 'National Basketball Association',

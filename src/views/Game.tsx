@@ -23,6 +23,8 @@ import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
 import { GameHero } from './game/Hero';
 import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, MarketsPanel, PanelHead, ScriptsPanel, SurvivorsPanel } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
+import { EngineConfidencePanel, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
+import { isEngine, readEngine } from '../lib/scriptEngine';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { type ReactNode } from 'react';
 import type { Market } from '../contract/types';
@@ -418,6 +420,9 @@ const TABS: [GameTab, string][] = [
 ];
 type GameTab = 'overview' | 'script' | 'markets' | 'matchup' | 'props' | 'players' | 'trends' | 'injuries';
 const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'dog'];
+/** Script-engine games (CFB) carry no player projections, player props research or published injury lists:
+ * those tabs are not offered. */
+const ENGINE_TABS = TABS.filter(([k]) => k !== 'players' && k !== 'injuries' && k !== 'props');
 
 export function GameView({ eventId }: { eventId: string }) {
   const { sport, repo, slug, metrics, caps } = useSport();
@@ -456,6 +461,8 @@ export function GameView({ eventId }: { eventId: string }) {
   const listedLater = useMemo(() => newlyListed(tickers, liveStore().eventQuotes(events)), [tickers, events, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
   const now = useNow(15_000);
   const set = useMemo(() => (r ? gameScripts(r) : null), [r]);
+  const engine = useMemo(() => readEngine(r), [r]);
+  const marketsByTicker = useMemo(() => new Map(quoted.map((m) => [m.kalshi_ticker, m])), [quoted]);
   const g = useMemo(() => (r ? gameSides(r) : null), [r]);
   const rows = useMemo(() => {
     if (!homeP || !awayP) return [];
@@ -493,6 +500,64 @@ export function GameView({ eventId }: { eventId: string }) {
     x.kind === 'context' ? <ContextCard key={x.item.id} note={x.item} ctx={ctx} /> : x.kind === 'scheme' ? <SchemeCard key={x.item.id} s={x.item} ctx={ctx} /> : <MatchupCard key={x.item.id} ins={x.item} ctx={ctx} />,
   );
 
+  if (isEngine(engine)) {
+    const engineSelected = engine.scripts.some((x) => x.script_id === sp.get('script')) ? sp.get('script') : null;
+    const ehref = (t: GameTab, script: string | null = engineSelected) => routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
+    const ehrefFor = (id: string | null) => ehref(tab, id);
+    const etab = ENGINE_TABS.some(([k]) => k === tab) ? tab : 'overview';
+    return (
+      <div className="page page--hero game game--engine">
+        <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} />
+        <nav className="ptabs gtabs" aria-label="Game sections">
+          {ENGINE_TABS.map(([k, l]) => (
+            <Link key={k} to={ehref(k)} aria-current={etab === k ? 'page' : undefined}>{l}</Link>
+          ))}
+        </nav>
+        {etab === 'overview' && (
+          <div className="ov ov--engine">
+            <EngineReadPanel engine={engine} to={ehref('script')} />
+            <EngineScriptsPanel engine={engine} selected={engineSelected} hrefFor={ehrefFor} />
+            <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} to={ehref('script')} />
+            <EngineEdgesPanel engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={ehref('matchup')} />
+            <EngineConfidencePanel engine={engine} />
+          </div>
+        )}
+        {etab === 'script' && (
+          <EngineScriptTab engine={engine} selected={engineSelected} hrefFor={ehrefFor} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
+        )}
+        {etab === 'markets' && (
+          <>
+            <Stratum id="g-engine-survivors" title="Script survival" sub="Every best and multi-script expression, with the scripts it survives. Compatibility, not a probability.">
+              <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} limit={40} />
+            </Stratum>
+            <Stratum id="g-markets" title="Markets" sub={`Every Kalshi contract on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={tickers.length ? <RefreshQuotes tickers={tickers} /> : undefined}>
+              {detail.loading && <Skeleton lines={6} />}
+              {detail.error && <ErrorState error={detail.error} what="this game's markets" />}
+              {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}
+              <NewlyListed quotes={listedLater} now={now} />
+            </Stratum>
+          </>
+        )}
+        {etab === 'matchup' && <EngineMatchupTab engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />}
+        {etab === 'trends' && (
+          <div className="trends">
+            <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={homeAbbr} to={ehref('markets')} />
+            {capShown(caps, 'market_price_history') && r.market_history_path && (
+              <Stratum id="g-movement" title="Contract price history" sub="Game-level tickers, every capture since listing.">
+                <Movement eventId={eventId} path={r.market_history_path} prices={prices} kickoffIso={ev.start_time_utc} known={known} />
+              </Stratum>
+            )}
+          </div>
+        )}
+        <details className="gnotes">
+          <summary>Publication notes & provenance</summary>
+          {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
+          <p className="small muted"><QualityBadge quality={r.quality} /> {r.quality.source} · generated {r.quality.generated_at} · {r.quality.limitations.join(' · ')}</p>
+        </details>
+      </div>
+    );
+  }
+
   const iconCtx = {
     abbrOf: (id: string | null) => (id === homeP.participant_id ? homeAbbr : id === awayP.participant_id ? awayAbbr : null),
     playerTeam: (id: string | null) => (id ? dir.data?.player(id)?.context.team ?? null : null),
@@ -518,6 +583,11 @@ export function GameView({ eventId }: { eventId: string }) {
         ))}
       </nav>
 
+      {engine && !isEngine(engine) && (
+        <Notice tone="research" title="No script engine read for this game">
+          {engine.reason ?? 'The publication could not build a football matchup for this game.'} Sift shows the markets only.
+        </Notice>
+      )}
       {tab === 'overview' && (
         <div className="gov">
           <section className="gsec" aria-labelledby="g-matters-h">

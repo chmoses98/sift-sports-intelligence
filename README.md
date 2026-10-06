@@ -22,7 +22,10 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
 * **NFL** — the complete vertical slice: slate, game, team, metric, league ranking, historical games, player,
   compare, market, research tray, handicap packet.
 * **MLB** — beta, through the same generic screens on its live publication.
-* **CFB, NBA, NHL, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
+* **CFB** — beta. The game page is the CFB Script Engine read: a market-blind, opponent-adjusted matchup,
+  Primary/Secondary/Alternate/Danger scripts (ranked, no likelihoods) and the contracts that survive them
+  (`docs/CFB_SCRIPT_ENGINE.md`).
+* **NBA, NHL, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
 
 ## Develop
 

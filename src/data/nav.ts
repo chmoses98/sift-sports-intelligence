@@ -19,7 +19,7 @@ export interface NavSport {
 
 export const NAV_SPORTS: NavSport[] = [
   { slug: 'nfl', label: 'NFL', fullName: 'National Football League', icon: 'football', accent: '#6fa8c9', status: 'live' },
-  { slug: 'cfb', label: 'CFB', fullName: 'College Football', icon: 'football', accent: '#c99a6a', status: 'health' },
+  { slug: 'cfb', label: 'CFB', fullName: 'College Football', icon: 'football', accent: '#c99a6a', status: 'beta' },
   { slug: 'mlb', label: 'MLB', fullName: 'Major League Baseball', icon: 'baseball', accent: '#d08a7a', status: 'beta' },
   { slug: 'nba', label: 'NBA', fullName: 'National Basketball Association', icon: 'basketball', accent: '#d4a05a', status: 'health' },
   { slug: 'nhl', label: 'NHL', fullName: 'National Hockey League', icon: 'hockey', accent: '#9cc4dc', status: 'health' },

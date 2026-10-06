@@ -1,0 +1,187 @@
+{
+ "bet_authority": "RESEARCH_ONLY",
+ "count": 5,
+ "generated_at": "2026-10-06T03:15:24Z",
+ "items": [
+  {
+   "away_participant": "prt_ca6e7e5b7c1cd0b752ea",
+   "competition": "FBS",
+   "data_freshness": "AGING",
+   "detail_path": "event_detail/evt_7ca164d80f042f650a5c.json",
+   "event_id": "evt_7ca164d80f042f650a5c",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_3dbc86ed6c007467d066",
+   "league": "NCAAFB",
+   "market_captured_at": "2026-10-06T00:19:14Z",
+   "markets_available": 105,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Stanford",
+     "participant_id": "prt_ca6e7e5b7c1cd0b752ea",
+     "participant_type": "TEAM",
+     "short_name": "STAN"
+    },
+    {
+     "display_name": "Notre Dame",
+     "participant_id": "prt_3dbc86ed6c007467d066",
+     "participant_type": "TEAM",
+     "short_name": "ND"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-10T19:30:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_19d5d59bfb68a59b9b2e",
+   "competition": "FBS",
+   "data_freshness": "AGING",
+   "detail_path": "event_detail/evt_f121611ae29ec3e9d56e.json",
+   "event_id": "evt_f121611ae29ec3e9d56e",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_8a780b47bb454a41c080",
+   "league": "NCAAFB",
+   "market_captured_at": "2026-10-06T00:19:14Z",
+   "markets_available": 119,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Tennessee",
+     "participant_id": "prt_19d5d59bfb68a59b9b2e",
+     "participant_type": "TEAM",
+     "short_name": "TENN"
+    },
+    {
+     "display_name": "Arkansas",
+     "participant_id": "prt_8a780b47bb454a41c080",
+     "participant_type": "TEAM",
+     "short_name": "ARK"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-10T20:15:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_f663507cb626bfff153c",
+   "competition": "FBS",
+   "data_freshness": "AGING",
+   "detail_path": "event_detail/evt_8c3166866b2bfa530c17.json",
+   "event_id": "evt_8c3166866b2bfa530c17",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_ef6ed2cf7aba454b6fcf",
+   "league": "NCAAFB",
+   "market_captured_at": "2026-10-06T00:19:14Z",
+   "markets_available": 124,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "LSU",
+     "participant_id": "prt_f663507cb626bfff153c",
+     "participant_type": "TEAM",
+     "short_name": "LSU"
+    },
+    {
+     "display_name": "Kentucky",
+     "participant_id": "prt_ef6ed2cf7aba454b6fcf",
+     "participant_type": "TEAM",
+     "short_name": "UK"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-10T23:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_06f643ccc23b544ca46e",
+   "competition": "FBS",
+   "data_freshness": "AGING",
+   "detail_path": "event_detail/evt_93e12676ae9337017c63.json",
+   "event_id": "evt_93e12676ae9337017c63",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_cfe4b7056ed5e2175890",
+   "league": "NCAAFB",
+   "market_captured_at": "2026-10-06T00:19:14Z",
+   "markets_available": 116,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Georgia",
+     "participant_id": "prt_06f643ccc23b544ca46e",
+     "participant_type": "TEAM",
+     "short_name": "UGA"
+    },
+    {
+     "display_name": "Alabama",
+     "participant_id": "prt_cfe4b7056ed5e2175890",
+     "participant_type": "TEAM",
+     "short_name": "ALA"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-10T23:30:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_e7a0ceed3944ae9ce6d0",
+   "competition": null,
+   "data_freshness": "AGING",
+   "detail_path": "event_detail/evt_776097ba6eef448fb340.json",
+   "event_id": "evt_776097ba6eef448fb340",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_0d7af9c7c1a248999033",
+   "league": null,
+   "market_captured_at": "2026-10-06T00:19:14Z",
+   "markets_available": 5,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "University",
+     "participant_id": "prt_e7a0ceed3944ae9ce6d0",
+     "participant_type": "TEAM",
+     "short_name": "ALBY"
+    },
+    {
+     "display_name": "Albany vs Stony Brook",
+     "participant_id": "prt_0d7af9c7c1a248999033",
+     "participant_type": "TEAM",
+     "short_name": null
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-17T21:30:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  }
+ ],
+ "kind": "board",
+ "overall_status": "RESEARCH_ONLY",
+ "run_id": "run_48a34185ff385c8bafc4",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "CFB"
+}

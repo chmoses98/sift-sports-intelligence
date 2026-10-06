@@ -55,9 +55,16 @@ game). No per-game EPA, no player lines.
 
 ## 5. Other sports
 
-MLB is explorable as a beta through the same screens. CFB, NBA, NHL, Soccer and Tennis publish explorers
-and are shown with real health and capability manifests, but Sift V1 does not open explorer screens for
-them (their entity shapes — tennis players as participants, soccer clubs — were not validated in this pass).
+MLB is explorable as a beta through the same screens. CFB is explorable as a beta, and its game page is driven
+by the CFB Script Engine (`docs/CFB_SCRIPT_ENGINE.md`); its team and slate screens are the generic ones, with
+the CFB publication's own (sparser) data. NBA, NHL, Soccer and Tennis publish explorers and are shown with
+real health and capability manifests, but Sift V1 does not open explorer screens for them (their entity
+shapes — tennis players as participants, soccer clubs — were not validated in this pass).
+
+CFB gaps that remain upstream: no script likelihoods (not yet calibrated — they are ranked only), no
+first-half/quarter/prop mapping to scripts (shown as unmappable), no player data, and injury availability is a
+listing rather than a depth chart. A game the engine could not match to the football schedule shows its
+markets with a notice saying so.
 
 ## 6. Live market data (market clock) — what remains impossible or limited
 

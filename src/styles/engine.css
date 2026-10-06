@@ -144,3 +144,6 @@
   .eng-survt tr.why__row > td { display: block; }
   .eng-survt .survt__m { white-space: normal; }
 }
+
+.eng-disagree { margin: var(--s-3) 0 0; padding: var(--s-2) var(--s-3); border: 1px dashed var(--sand); border-radius: var(--r-1); font-size: 0.8125rem; line-height: 1.45; }
+.eng-disagree b { color: var(--sand); }

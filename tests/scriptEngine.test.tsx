@@ -124,6 +124,15 @@ describe('CFB game page', () => {
     expect(page).not.toMatch(/\d+% likely|\+ev|fair value|win prob/);
   });
 
+  it('reports a market disagreement beside the read without changing it', async () => {
+    const e = engineOf(UGA_ALA);
+    expect(e.disagreement?.flags.map((f) => f.kind)).toContain('TOTAL');
+    renderScreen(routes.game('cfb', UGA_ALA), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
+    const note = await screen.findByRole('note', {}, { timeout: 4000 });
+    expect(note.textContent).toMatch(/Market disagreement\..*never obeyed/);
+    expect(e.scripts[0].archetype).toBe('COMPETITIVE_SHOOTOUT');
+  });
+
   it('opens why-this-bet with scripts, conditions and the price', async () => {
     renderScreen(routes.game('cfb', LSU_UK), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
     const toggles = await screen.findAllByRole('button', { name: /why this bet/i }, { timeout: 4000 });

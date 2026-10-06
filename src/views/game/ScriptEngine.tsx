@@ -297,6 +297,11 @@ export function EngineSurvivorsPanel({ engine, marketsByTicker, slug, eventId, n
           {!rows.length && <tr><td colSpan={4} className="muted small">{engine.scripts.length ? 'No contract survives this script and at least one other.' : 'No scripts, so no contract is mapped.'}</td></tr>}
         </tbody>
       </table></Scroll>
+      {engine.disagreement && (
+        <p className="eng-disagree" role="note">
+          <b>Market disagreement.</b> {engine.disagreement.rule}. {engine.disagreement.note}
+        </p>
+      )}
       {to && <div className="ov-surv__foot"><ViewAll to={to}>All script fits</ViewAll></div>}
     </section>
   );

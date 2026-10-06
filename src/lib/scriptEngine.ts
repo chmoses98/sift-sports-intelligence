@@ -173,7 +173,13 @@ export interface Engine {
   expressions: Expression[];
   survivors: string[];
   theses: Thesis[];
-  disagreement: { flag: string; football_primary: string; market_moneyline_ask: number; rule: string; note: string } | null;
+  disagreement: {
+    flag: string;
+    football_primary: string;
+    flags: { kind: 'WINNER' | 'TOTAL'; thesis: string; rule: string }[];
+    rule: string;
+    note: string;
+  } | null;
   registry: Record<string, RegistryEntry>;
   unmappableByFamily: Record<string, number>;
   coverage: Record<string, unknown> | null;

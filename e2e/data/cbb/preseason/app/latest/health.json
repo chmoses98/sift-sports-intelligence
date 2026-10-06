@@ -1,0 +1,264 @@
+{
+  "bet_authority": "RESEARCH_ONLY",
+  "commit_sha": "fixture000000",
+  "components": {
+    "export": {
+      "age_seconds": 0.0,
+      "as_of": "2026-10-20T15:00:00Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "market_data": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": "UNAVAILABLE: no Kalshi game contract maps to a published game (futures and season-win markets are not game markets)",
+      "status": "NOT_APPLICABLE"
+    },
+    "model": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": "WAITING_FOR_WINDOW: no game has entered the 30-hour prospective capture window",
+      "status": "NOT_APPLICABLE"
+    },
+    "projection_archive": {
+      "age_seconds": 3000.0,
+      "as_of": "2026-10-20T14:10:00Z",
+      "detail": "0 archived records; append-only; commit None",
+      "status": "OK"
+    },
+    "prospective_pipeline": {
+      "age_seconds": null,
+      "as_of": "2026-10-20T14:10:00Z",
+      "detail": "HEALTHY: last prospective run 2026-10-20T14:10:00+00:00 (0 records); scheduled runs start in November",
+      "status": "NOT_APPLICABLE"
+    },
+    "prospective_scorer": {
+      "age_seconds": 1800.0,
+      "as_of": "2026-10-20T14:30:00Z",
+      "detail": "NO_DATA: game-1 N = 0",
+      "status": "OK"
+    },
+    "roster_archive": {
+      "age_seconds": 442800.0,
+      "as_of": "2026-10-15T12:00:00Z",
+      "detail": "commit None",
+      "status": "STALE"
+    },
+    "roster_truth": {
+      "age_seconds": 442800.0,
+      "as_of": "2026-10-15T12:00:00Z",
+      "detail": "HEALTHY: CONFIRMED 24, LIKELY 1, UNKNOWN 1, STALE 1, CONFLICTED 1",
+      "status": "STALE"
+    },
+    "router": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": null,
+      "status": "NOT_APPLICABLE"
+    },
+    "schedule": {
+      "age_seconds": 3600.0,
+      "as_of": "2026-10-20T14:00:00Z",
+      "detail": "HEALTHY: 14 D-I games (13 SDV-native, 1 ESPN fallback, 2 field-reconciled)",
+      "status": "OK"
+    },
+    "schedule_archive": {
+      "age_seconds": 3600.0,
+      "as_of": "2026-10-20T14:00:00Z",
+      "detail": "commit None",
+      "status": "OK"
+    },
+    "settlement": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": null,
+      "status": "NOT_APPLICABLE"
+    },
+    "upcoming_projection": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": "WAITING_FOR_WINDOW: no D-I game tips in the next 30 h; first game 2026-11-01T14:30:00Z",
+      "status": "NOT_APPLICABLE"
+    }
+  },
+  "data_age_seconds": null,
+  "errors": [],
+  "extensions": {
+    "cbb": {
+      "capabilities": {
+        "bets": "UNAVAILABLE",
+        "expected_rotation": "AVAILABLE_WHERE_VALID",
+        "game_scripting": "UNAVAILABLE",
+        "live_kalshi_quotes": "UNAVAILABLE",
+        "margin_projection": "AVAILABLE",
+        "opponent_adjusted_ratings": "WAITING_FOR_WINDOW",
+        "player_props": "UNAVAILABLE",
+        "prospective_evaluation": "AVAILABLE",
+        "recommendations": "UNAVAILABLE",
+        "roster_truth": "AVAILABLE",
+        "schedule": "AVAILABLE",
+        "score_projection": "AVAILABLE",
+        "team_projections": "WAITING_FOR_WINDOW",
+        "total_projection": "AVAILABLE",
+        "win_probability": "AVAILABLE"
+      },
+      "first_game_utc": "2026-11-01T14:30:00Z",
+      "games_in_capture_window": 0,
+      "markets": {
+        "captured_at": null,
+        "note": "Market research is not published for CBB yet.",
+        "published": 0
+      },
+      "model_note": "pure-0.2.0 is the production incumbent. Challengers run in shadow; P-ROSTER-1 is a prospective roster overlay on pure-0.5.0. No model is called better before the preregistered evaluation (after the 2027 national championship game).",
+      "models": [
+        {
+          "role": "incumbent",
+          "role_label": "Incumbent",
+          "version": "pure-0.2.0"
+        },
+        {
+          "role": "shadow",
+          "role_label": "Shadow research",
+          "version": "pure-0.3.0"
+        },
+        {
+          "role": "shadow",
+          "role_label": "Shadow research",
+          "version": "pure-0.4.0"
+        },
+        {
+          "role": "shadow",
+          "role_label": "Shadow research",
+          "version": "pure-0.5.0"
+        },
+        {
+          "role": "roster_overlay",
+          "role_label": "Prospective roster overlay",
+          "version": "pure-0.5.0+roster"
+        }
+      ],
+      "projection_states": {
+        "PENDING_WINDOW": 14
+      },
+      "prospective": {
+        "game_1": {
+          "N": 0,
+          "ci90": null
+        },
+        "game_2": {
+          "N": 0,
+          "ci90": null
+        },
+        "game_3": {
+          "N": 0,
+          "ci90": null
+        },
+        "gate": {},
+        "inference_allowed": false,
+        "min_days_for_inference": 10,
+        "min_n_for_inference": 20,
+        "note": "no settled game with both base and P-ROSTER-1 pregame records yet",
+        "protocol": "research/hypotheses/WAVE7.md section 7 (locked)",
+        "scoreboard_path": "scores/2026/10/2026-10-20T143000Z",
+        "scoreboard_stamp": "2026-10-20T143000Z",
+        "versions": {
+          "base": "pure-0.5.0",
+          "incumbent": "pure-0.2.0",
+          "roster": "pure-0.5.0+roster"
+        }
+      },
+      "provenance": {
+        "code_sha": "fixture000000",
+        "kalshi_archive": null,
+        "last_prospective_run": {
+          "as_of": "2026-10-20T14:10:00+00:00",
+          "code_sha": "ebe89a7b2e85ea81bd21bb93be289612a6baf8aa",
+          "records": 0,
+          "roster_archive_commit": "f20c13b5e2d5a560734b4cf5a34b3be91f8a805d",
+          "stamp": "20261020T141000Z"
+        },
+        "projections_archive": null,
+        "roster_archive": null,
+        "schedule_archive": null,
+        "scores_archive": null
+      },
+      "research_status": "PRESEASON",
+      "roster_readiness": {
+        "continuity_audit": {
+          "abs_max": 2.8,
+          "confirmed_teams": 24,
+          "mean": -0.3,
+          "median": -0.2
+        },
+        "counts": {
+          "CONFIRMED": 24,
+          "CONFLICTED": 1,
+          "LIKELY": 1,
+          "STALE": 1,
+          "UNKNOWN": 1
+        },
+        "snapshot": "20261015T120000Z",
+        "snapshot_at": "2026-10-15T12:00:00+00:00"
+      },
+      "schedule": {
+        "d1_games": 14,
+        "excluded": 0,
+        "fallback_games": 1,
+        "observed_at": "2026-10-20T14:00:00+00:00",
+        "reconciled_games": 2,
+        "sdv_games": 13
+      },
+      "season": "2026-27"
+    }
+  },
+  "freshness_status": "UNKNOWN",
+  "generated_at": "2026-10-20T15:00:00Z",
+  "kind": "health",
+  "last_export_attempt": "2026-10-20T15:00:00Z",
+  "last_market_capture": null,
+  "last_model_generated": null,
+  "last_successful_run": "2026-10-20T15:00:00Z",
+  "market_data_status": "NOT_APPLICABLE",
+  "model_status": "NOT_APPLICABLE",
+  "next_scheduled_run": null,
+  "overall_status": "RESEARCH_ONLY",
+  "payload_run_id": "run_6a4252acb705984705a8",
+  "router_status": "NOT_APPLICABLE",
+  "run_id": "run_6a4252acb705984705a8",
+  "schema_version": "edge_finder.app.v1",
+  "settlement_status": "NOT_APPLICABLE",
+  "sport": "CBB",
+  "thresholds": {
+    "export": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 10800
+    },
+    "market_data": {
+      "fresh_after_seconds": 900,
+      "stale_after_seconds": 3600
+    },
+    "model": {
+      "fresh_after_seconds": 50400,
+      "stale_after_seconds": 108000
+    },
+    "recommendations": {
+      "fresh_after_seconds": 3600,
+      "stale_after_seconds": 21600
+    },
+    "router": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 14400
+    },
+    "schedule": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    },
+    "settlement": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    }
+  },
+  "warnings": [
+    "Market research is not published for CBB yet: no Kalshi game contract maps to a published game."
+  ]
+}

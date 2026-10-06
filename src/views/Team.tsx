@@ -15,6 +15,7 @@ import { useDirectory } from '../state/directory';
 import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { GameRowLink } from './HistoricalGame';
+import { CbbTeamView } from './cbb/Team';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -130,7 +131,13 @@ function SeriesBlock({ s, slug, teamId, games }: { s: SeriesDoc; slug: string; t
 const TABS = ['overview', 'metrics', 'results', 'schedule', 'players', 'markets'] as const;
 
 export function TeamView() {
+  const { sport } = useSport();
   const { teamId = '' } = useParams();
+  // CBB has its own presentation adapter over the same generic profile document
+  return sport.code === 'CBB' ? <CbbTeamView teamId={teamId} /> : <GenericTeamView teamId={teamId} />;
+}
+
+function GenericTeamView({ teamId }: { teamId: string }) {
   const [sp, setSp] = useSearchParams();
   const tab = (TABS as readonly string[]).includes(sp.get('tab') ?? '') ? (sp.get('tab') as (typeof TABS)[number]) : 'overview';
   const { sport, repo, slug, caps, metrics } = useSport();

@@ -103,6 +103,9 @@ export const WINDOW_EXPLAIN: Record<string, string> = {
   L6: 'the last 6 games',
   SEASON: 'this season to date',
   GAME: 'one game (a projection for the upcoming game)',
+  LATEST_PREGAME: "each team's newest archived pre-tip rating (CBB; opponent-adjusted inside the model fit)",
+  PRESEASON_ROSTER: 'the newest roster-truth snapshot (CBB; expected pregame rotation, not opponent-adjusted)',
+  PREGAME: 'the pregame rating stored in the archived pre-tip projection record',
 };
 
 /** An availability status for people (INJURED_RESERVE → "Injured reserve"). */
@@ -119,6 +122,7 @@ export function statusWord(status: string | null | undefined): string {
 /** The window's name for people (the publication's code — ADJ_RIDGE, L34 — stays out of sight). */
 export const WINDOW_NAME: Record<string, string> = {
   ADJ_RIDGE: 'Opponent-adjusted', L34: 'Last 34 games', L6: 'Last 6 games', SEASON: 'Season to date', GAME: 'This game', L200_DROPBACKS: 'Last 200 dropbacks',
+  LATEST_PREGAME: 'Latest pregame rating', PRESEASON_ROSTER: 'Roster truth', PREGAME: 'Pregame',
 };
 export function windowName(label: string | null | undefined): string {
   if (!label) return '';

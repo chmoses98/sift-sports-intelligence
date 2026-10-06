@@ -22,6 +22,7 @@ export const NAV_SPORTS: NavSport[] = [
   { slug: 'cfb', label: 'CFB', fullName: 'College Football', icon: 'football', accent: '#c99a6a', status: 'health' },
   { slug: 'mlb', label: 'MLB', fullName: 'Major League Baseball', icon: 'baseball', accent: '#d08a7a', status: 'beta' },
   { slug: 'nba', label: 'NBA', fullName: 'National Basketball Association', icon: 'basketball', accent: '#d4a05a', status: 'health' },
+  { slug: 'cbb', label: 'CBB', fullName: "NCAA Division I Men's Basketball", icon: 'basketball', accent: '#e07b39', status: 'live' },
   { slug: 'nhl', label: 'NHL', fullName: 'National Hockey League', icon: 'hockey', accent: '#9cc4dc', status: 'health' },
   { slug: 'soccer', label: 'Soccer', fullName: 'Soccer', icon: 'soccer', accent: '#8cc2a3', status: 'health' },
   { slug: 'tennis', label: 'Tennis', fullName: 'Tennis', icon: 'tennis', accent: '#c9c27a', status: 'health' },

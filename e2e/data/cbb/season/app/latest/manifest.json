@@ -1,0 +1,195 @@
+{
+  "commit_sha": "fixture000000",
+  "counts": {
+    "board": 14,
+    "events": 14,
+    "markets": 0,
+    "model_prices": 0,
+    "recommendations": 0,
+    "runs": 1,
+    "settlements": 0,
+    "theses": 0,
+    "wagers": 0
+  },
+  "files": {
+    "board": {
+      "bytes": 11917,
+      "count": 14,
+      "kind": "board",
+      "path": "board.json",
+      "sha256": "bcc941a11cdd15be20a6450cb1d024273d158d1cc860b4b0622200df2d884ee1"
+    },
+    "event_detail/evt_00c2f3089adb6cbdb0ef": {
+      "bytes": 2970,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_00c2f3089adb6cbdb0ef.json",
+      "sha256": "93549d4b6cb97e5751c46730bbe832408a0f1313155a62c63f194c5a8de9df07"
+    },
+    "event_detail/evt_0c0381b053135539809f": {
+      "bytes": 3145,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_0c0381b053135539809f.json",
+      "sha256": "be73174fab626c29da7d36d16c74d7a377348cca00ecb4dba2e03bd0889fb827"
+    },
+    "event_detail/evt_14e56f3ea2304c03d654": {
+      "bytes": 2795,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_14e56f3ea2304c03d654.json",
+      "sha256": "001e264e98b3477cc9e142c8234732bc24efa59600c1276784342bb40579f683"
+    },
+    "event_detail/evt_3c9dadf203d6d092f650": {
+      "bytes": 2808,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_3c9dadf203d6d092f650.json",
+      "sha256": "bb722fea45c618aaa701f431626b40213b9c8f216a3d51967121b52cc2701f5b"
+    },
+    "event_detail/evt_72695f4d6febd7f1cfa4": {
+      "bytes": 2769,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_72695f4d6febd7f1cfa4.json",
+      "sha256": "83f85bd54af55b0e5855ca638fdbacf20f247a968e5c1cae12b9f4359f48cd5c"
+    },
+    "event_detail/evt_78832a3b5fa9148dba69": {
+      "bytes": 2813,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_78832a3b5fa9148dba69.json",
+      "sha256": "e5a5ae08e5dcb210c038927fa416a7beb4c834a039a3d7579dca5c781f1c97e5"
+    },
+    "event_detail/evt_81ce7dd989cd58083711": {
+      "bytes": 2796,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_81ce7dd989cd58083711.json",
+      "sha256": "69935312e5e3c7a679082a2b9582ebf7d9d715c85e09723f2351dcd9b02883ef"
+    },
+    "event_detail/evt_92b7b8b123ad31780c0c": {
+      "bytes": 2565,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_92b7b8b123ad31780c0c.json",
+      "sha256": "4a5281e4c71a3a651f3acc40b1388b008592f0706975a40e6cb08aaf0c6e3688"
+    },
+    "event_detail/evt_b51d744a52aeb6c3a40e": {
+      "bytes": 2525,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_b51d744a52aeb6c3a40e.json",
+      "sha256": "2614fbc312614c9efe69bdd3ebdf1d63b85dc5239ee6437c1b961395eebdeb21"
+    },
+    "event_detail/evt_befc6d9d32f21329635e": {
+      "bytes": 2832,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_befc6d9d32f21329635e.json",
+      "sha256": "cb5b52ab9bc3efe389d6bbebe6ceaf6065b694256c0e7509a6280d88e29839cd"
+    },
+    "event_detail/evt_bf834be430077bd05d08": {
+      "bytes": 2805,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_bf834be430077bd05d08.json",
+      "sha256": "cc5dd120b21cf372a42a55e58ed8e1ffd1c055c939b39e373450eed7427568b9"
+    },
+    "event_detail/evt_c468ae7aee02551f3839": {
+      "bytes": 2592,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_c468ae7aee02551f3839.json",
+      "sha256": "d13095b748d0f8a6096423d66fddee9f875f116073728fae6a16c2aa5b02cd6c"
+    },
+    "event_detail/evt_c4d3b26ca1d1537ce7b7": {
+      "bytes": 2721,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_c4d3b26ca1d1537ce7b7.json",
+      "sha256": "e0ab8d43933fed845625414a95f6e220276532910bf5f86147717c6b11539004"
+    },
+    "event_detail/evt_f49f249d013ee312eb36": {
+      "bytes": 2804,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_f49f249d013ee312eb36.json",
+      "sha256": "60aa303d32fe3e889f0f66f95ceac57b68c22a108b4e6c1bb93d68fd4cf9d12f"
+    },
+    "events": {
+      "bytes": 32987,
+      "count": 14,
+      "kind": "events",
+      "path": "events.json",
+      "sha256": "8b81e3e951aab8259a968129deaca36e021d14cd4d13835e0432b4dea927eaf1"
+    },
+    "markets": {
+      "bytes": 166,
+      "count": 0,
+      "kind": "markets",
+      "path": "markets.json",
+      "sha256": "556cf6357bd08b87f2a55f22f1be4b8b74bdb10408cb69a1ec3dc531aa693a5a"
+    },
+    "model_prices": {
+      "bytes": 171,
+      "count": 0,
+      "kind": "model_prices",
+      "path": "model_prices.json",
+      "sha256": "cfbe957208456b310103296181ef002ab8f84e13307fa2c1aad1e00e3f140fc0"
+    },
+    "performance": {
+      "bytes": 976,
+      "count": null,
+      "kind": "performance",
+      "path": "performance.json",
+      "sha256": "0d846461333d793c33d3d8af59e7bd0c16e51787e5a5e8d6ca641d25439bbedb"
+    },
+    "recommendations": {
+      "bytes": 174,
+      "count": 0,
+      "kind": "recommendations",
+      "path": "recommendations.json",
+      "sha256": "797f5c94725d88da11193d51d61165044ee97611a4651d26372dd88d98283e08"
+    },
+    "runs": {
+      "bytes": 976,
+      "count": 1,
+      "kind": "runs",
+      "path": "runs.json",
+      "sha256": "269a62476b0943869f48d3f85bb38e8601bb22fc4b923ca54fbc6221a299f50f"
+    },
+    "settlements": {
+      "bytes": 170,
+      "count": 0,
+      "kind": "settlements",
+      "path": "settlements.json",
+      "sha256": "e2de823b2e92253b4839bce77bc36e4c75fc077df649dd9d61a3d157c58ddd91"
+    },
+    "theses": {
+      "bytes": 165,
+      "count": 0,
+      "kind": "theses",
+      "path": "theses.json",
+      "sha256": "7af90bfb1f3826d80de636a21f922a554551af606b73afadfb5219aac82bb868"
+    },
+    "wagers": {
+      "bytes": 165,
+      "count": 0,
+      "kind": "wagers",
+      "path": "wagers.json",
+      "sha256": "bdb2ebe99e80d9ab24b514adc533af7ef5ec785ac519f56e8032f227159432c5"
+    }
+  },
+  "freshness": {},
+  "generated_at": "2026-11-02T18:00:00Z",
+  "kind": "manifest",
+  "model_version": "pure-0.2.0",
+  "run_id": "run_c190d53dbffce9028c09",
+  "schema_version": "edge_finder.app.v1",
+  "source_branch": "app-data",
+  "source_repo": "chmoses98/cbb-edge-finder",
+  "sport": "CBB",
+  "status": "SUCCESS",
+  "warnings": []
+}

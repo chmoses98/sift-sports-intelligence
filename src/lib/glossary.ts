@@ -118,7 +118,36 @@ export function directionSentence(hib: boolean | null | undefined, description?:
   return null;
 }
 
+/** CBB (NCAA D-I men's basketball) metrics, by registry slug: every rating is opponent-adjusted inside the model fit. */
+const CBB: Record<string, string> = {
+  adj_off: 'Points the team scores per 100 possessions against an average D-I defense.',
+  adj_def: 'Points the team allows per 100 possessions against an average D-I offense.',
+  adj_tempo: 'Possessions per 40 minutes against an average-tempo opponent: how fast the team plays.',
+  adj_efg_off: 'Shooting accuracy with threes counted as 1.5 makes, against average defenses.',
+  adj_efg_def: 'Opponents’ effective field-goal percentage against this defense.',
+  adj_to_off: 'Turnovers per 100 possessions by this offense.',
+  adj_to_def: 'Turnovers this defense forces per 100 opponent possessions.',
+  adj_orb_off: 'Share of the team’s own missed shots it rebounds.',
+  adj_orb_def: 'Share of missed shots opponents rebound against this defense.',
+  adj_ftr_off: 'Free-throw attempts per field-goal attempt: how often the offense gets to the line.',
+  adj_ftr_def: 'How often opponents get to the line against this defense.',
+  adj_fg2_off: 'Two-point field-goal percentage.',
+  adj_fg2_def: 'Opponents’ two-point field-goal percentage against this defense.',
+  adj_fg3_off: 'Three-point field-goal percentage.',
+  adj_fg3_def: 'Opponents’ three-point field-goal percentage against this defense.',
+  adj_fg3a_rate_off: 'Share of the team’s shots that are threes: a style, not a quality.',
+  adj_fg3a_rate_def: 'Share of opponents’ shots that are threes against this defense: a style, not a quality.',
+  returning_minutes_share: 'Share of last season’s minutes played by players on this season’s roster.',
+  expected_returning_minutes: 'Of 200 team minutes, the expected pregame share for returning players.',
+  expected_transfer_minutes: 'Of 200 team minutes, the expected pregame share for incoming D-I transfers.',
+  expected_first_d1_minutes: 'Of 200 team minutes, the expected pregame share for players new to D-I.',
+};
+
 export function metricGloss(metricId: string, def?: MetricLike | null): Gloss | null {
+  if (metricId.startsWith('met_cbb.')) {
+    const text = CBB[metricId.slice('met_cbb.'.length)];
+    return text ? { term: def?.name ?? metricId, text, direction: directionSentence(def?.higher_is_better, def?.description) } : null;
+  }
   const bare = metricId.replace(/^met_[a-z]+\./, '');
   const adjusted = bare.startsWith('adj_');
   const stem0 = bare.replace(/^adj_/, '');

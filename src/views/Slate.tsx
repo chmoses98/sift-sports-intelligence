@@ -13,6 +13,7 @@ import { Icon } from '../components/Icon';
 import { ErrorState, Notice, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
+import { CbbSlateView } from './cbb/Slate';
 
 function useVisible<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -143,6 +144,11 @@ export function groupWindows(items: BoardItem[]): { key: string; day: string; ti
 }
 
 export function SlateView() {
+  const { sport } = useSport();
+  return sport.code === 'CBB' ? <CbbSlateView /> : <GenericSlateView />;
+}
+
+function GenericSlateView() {
   const { sport, repo, slug, caps } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
   useVisit(`${sport.label} slate`, 'slate');

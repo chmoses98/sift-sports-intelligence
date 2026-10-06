@@ -19,6 +19,7 @@ import { matchupInsights } from '../insights/matchups';
 import { FeaturedProps } from './Home';
 import { PanelHead, ViewAll } from './game/panels';
 import { ScorecardPanel } from './Scorecard';
+import { CbbHomeView } from './cbb/Home';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -91,6 +92,11 @@ function Results({ items, slug, sportCode }: { items: BoardItem[]; slug: string;
 }
 
 export function SportHomeView() {
+  const { sport } = useSport();
+  return sport.code === 'CBB' ? <CbbHomeView /> : <GenericSportHome />;
+}
+
+function GenericSportHome() {
   const { sport, repo, slug } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
   useVisit(sport.label, 'sport');

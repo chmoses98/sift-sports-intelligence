@@ -16,6 +16,7 @@ import { MarketIconProvider } from '../components/MarketIcon';
 import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { HistoricalGameView } from './HistoricalGame';
+import { CbbGameView } from './cbb/Game';
 import { metricFormatter } from '../lib/format';
 import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
 import { injuryRows, marketLabel, priceRow } from '../lib/gamedata';
@@ -51,7 +52,8 @@ export function GameRoute() {
   const dir = useDirectory(repo);
   if (dir.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!dir.data) return <div className="page"><ErrorState error={dir.error} what="the explorer index" /></div>;
-  if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} />;
+  if (dir.data.hasEventResearch(eventId)) return repo.sport.code === 'CBB' ? <CbbGameView eventId={eventId} /> : <GameView eventId={eventId} />;
+  if (repo.sport.code === 'CBB') return <div className="page"><Notice title="This game has no research page">The CBB publication keeps research for games in its current window (recent results and the coming week). Nothing is reconstructed for older games.</Notice></div>;
   return <HistoricalGameView eventId={eventId} teamId={sp.get('team')} />;
 }
 

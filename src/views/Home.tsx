@@ -21,6 +21,7 @@ import { useTray } from '../state/tray';
 import { useNow } from '../live/hooks';
 import { PanelHead, ViewAll } from './game/panels';
 import { featuredItem, FeatureCard, sides, useSlateResearch } from './home/cards';
+import { CbbHomeModule } from './cbb/HomeModule';
 
 function useNfl() {
   const nfl = sportByCode('NFL')!;
@@ -210,6 +211,7 @@ export function HomeView() {
         <section className="panel"><p className="muted">The NFL board could not be read{repo.data && !repo.data.source.root ? ` (${repo.data.source.reason})` : ''}.</p></section>
       )}
       {board.data && <NflToday board={board.data} now={now} />}
+      <CbbHomeModule />
     </div>
   );
 }

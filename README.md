@@ -22,6 +22,14 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
 * **NFL** — the complete vertical slice: slate, game, team, metric, league ranking, historical games, player,
   compare, market, research tray, handicap packet.
 * **MLB** — beta, through the same generic screens on its live publication.
+* **CBB** (NCAA Division I men's basketball) — its own sport, on the CBB repo's `app-data` publication (built from
+  its immutable pre-tip projection archive): sport home with the prospective research status, the real D-I slate
+  ("projection pending" until a game enters the 30-hour capture window), game pages (projected score with model
+  uncertainty, roster truth and the expected rotation, opponent-adjusted matchup, model comparison with frozen roles,
+  integrity verdicts, provenance), team pages, metrics and full D-I rankings. Research only: no recommendations,
+  no wagers, no market rows until real Kalshi game contracts map to games. Screens: `src/views/cbb/` (a presentation
+  adapter behind the generic routes); tests: `tests/cbb.test.ts`, `e2e/cbb.spec.ts` on synthetic fixtures in
+  `e2e/data/cbb/`.
 * **CFB, NBA, NHL, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
 
 ## Develop

@@ -1,6 +1,6 @@
 // A sport's mark for navigation: the league's own logo where one universal league exists (NFL, MLB, NBA,
 // NHL; NCAA for college football and the PGA Tour mark when fetched — public/leagues/), otherwise Sift's own
-// filled sport symbol (soccer ball, tennis ball, fight glove). Recognisable before the label is read; the
+// filled sport symbol (soccer ball, tennis ball, fight glove, the college basketball). Recognisable before the label is read; the
 // label always sits beside it, so the mark is decorative (aria-hidden).
 import leagues from '../lib/league-logos.json';
 import { useHeldImage } from '../lib/useImage';
@@ -42,6 +42,14 @@ function sportSymbol(slug: string) {
           <ellipse cx="12" cy="12" rx="10" ry="6.2" transform="rotate(-35 12 12)" fill="#8a4a24" />
           <path d="M8.2 15.8 15.8 8.2" stroke="#f4f7fa" strokeWidth="1.4" strokeLinecap="round" />
           <path d="m10 12.6 1.4 1.4M11.4 11.2l1.4 1.4M12.8 9.8l1.4 1.4" stroke="#f4f7fa" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+      );
+    case 'cbb':
+      // a college basketball: Sift's own ball (the NBA uses its league mark), so the two never look alike
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="#e07b39" />
+          <path d="M2 12h20M12 2v20M5 4.9c2.6 2.2 4 4.6 4 7.1s-1.4 4.9-4 7.1M19 4.9c-2.6 2.2-4 4.6-4 7.1s1.4 4.9 4 7.1" fill="none" stroke="#2a160a" strokeWidth="1.2" />
         </svg>
       );
     case 'pga':

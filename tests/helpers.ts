@@ -8,14 +8,21 @@ import type { HealthDoc } from '../src/contract/types';
 
 export const SNAPSHOT_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'app', 'latest');
 export const ROOT = 'disk://nfl';
+export const HISTORY_ROOT = 'disk://history';
+export const HISTORY_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'history');
 
 export function readSnapshot<T>(rel: string): T {
   return JSON.parse(readFileSync(join(SNAPSHOT_DIR, rel), 'utf-8')) as T;
 }
 
-/** Every fetch of disk://nfl/<path> reads public/data/nfl/app/latest/<path>; anything else 404s. */
+/** Every fetch of disk://nfl/<path> (and disk://history/<path> → public/data/nfl/history) reads public/data/nfl/app/latest/<path>; anything else 404s. */
 export function useDiskFetch(): void {
   setFetchJson(async (url: string) => {
+    if (url.startsWith(HISTORY_ROOT + '/')) {
+      const f = join(HISTORY_DIR, url.slice(HISTORY_ROOT.length + 1));
+      if (!existsSync(f)) throw new NotFoundError(url);
+      return JSON.parse(readFileSync(f, 'utf-8'));
+    }
     if (!url.startsWith(ROOT + '/')) throw new NotFoundError(url);
     const file = join(SNAPSHOT_DIR, url.slice(ROOT.length + 1));
     if (!existsSync(file)) throw new NotFoundError(url);

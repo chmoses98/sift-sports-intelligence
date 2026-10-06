@@ -9,7 +9,7 @@ import { routes } from '../lib/routes';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { Icon } from '../components/Icon';
-import { ErrorState, Notice, SaveButton, Skeleton, Stratum, TeamMark } from '../components/ui';
+import { ErrorState, Notice, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
 
@@ -76,7 +76,6 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
   useLiveQuotes(winners.map((m) => m.kalshi_ticker), 'slate');
   const views = useQuoteViews(winners);
   const passed = Date.parse(item.start_time_utc) <= now && item.status === 'SCHEDULED';
-  const label = `${away?.short_name ?? '?'} @ ${home?.short_name ?? '?'}`;
   return (
     <li ref={ref} className="gcard">
       <Link to={routes.game(sportSlug, item.event_id)} className="gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>
@@ -107,7 +106,6 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         {item.health_flags.map((f) => (
           <span key={f} className="flag">{f.replace(/_/g, ' ').toLowerCase()}</span>
         ))}
-        <SaveButton ref_kind="EVENT" sport={repo.sport.code} id={item.event_id} compact kickoff={item.start_time_utc} label={{ label, sub: kickoff(item.start_time_utc), href: routes.game(sportSlug, item.event_id) }} />
       </div>
     </li>
   );

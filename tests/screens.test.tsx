@@ -88,14 +88,14 @@ describe('team profile + historical drill-down', () => {
 describe('capability-aware rendering', () => {
   it('shows player lenses the manifest supports and hides the ones it does not', async () => {
     const a = renderScreen(routes.player('nfl', ALLEN), '/nfl/player/:playerId', <PlayerView />);
-    expect(await screen.findByText('Market vs Projection')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Markets' })).toBeInTheDocument();
     expect(screen.getByText('Projected Range')).toBeInTheDocument();
     expect(screen.getByText('Usage & Role')).toBeInTheDocument();
     a.unmount();
     clearAsyncMemo();
     renderScreen(routes.player('nfl', ALLEN), '/nfl/player/:playerId', <PlayerView />, { usage: 'UNAVAILABLE', projection_distributions: 'UNAVAILABLE', player_props: 'UNAVAILABLE' });
     await screen.findByText('Josh Allen');
-    expect(screen.queryByText('Market vs Projection')).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Markets' })).toBeNull();
     expect(screen.queryByText('Projected Range')).toBeNull();
     expect(screen.queryByText('Usage & Role')).toBeNull();
   });
@@ -103,7 +103,7 @@ describe('capability-aware rendering', () => {
   it('the game page drops sections whose capability is unavailable', async () => {
     const off = { matchup_metrics: 'UNAVAILABLE', market_price_history: 'UNAVAILABLE' };
     const markets = renderScreen(routes.game('nfl', GAME, { tab: 'markets' }), '/nfl/game/:eventId', <GameRoute />, off);
-    await screen.findByRole('heading', { name: 'Market vs model' });
+    await screen.findByRole('heading', { name: 'Market and simulation' });
     expect(markets.container.querySelector('#g-markets')).not.toBeNull();
     markets.unmount();
     const matchup = renderScreen(routes.game('nfl', GAME, { tab: 'matchup' }), '/nfl/game/:eventId', <GameRoute />, off);
@@ -119,26 +119,33 @@ describe('capability-aware rendering', () => {
 describe('game page', () => {
   it('links every matchup cell into metric views with team, opponent and game context', async () => {
     const { container } = renderScreen(routes.game('nfl', GAME, { tab: 'matchup' }), '/nfl/game/:eventId', <GameRoute />);
-    await screen.findByText('How they match up');
+    await screen.findByText('Unit by unit');
     const cells = container.querySelectorAll('.mb__cell');
     expect(cells.length).toBe(28);
     for (const c of cells) expect(c.getAttribute('href')).toMatch(/^\/nfl\/metric\/met_nfl\.adj_(off|def)_\w+\?team=prt_\w+&opp=prt_\w+&event=evt_/);
     // No combined "advantage" figure is drawn from the publication's sign-inverted advantage_to_offense.
     expect(container.querySelector('.mb__adv')).toBeNull();
-    expect(screen.getAllByRole('link', { name: /Copy for ChatGPT/ })[0].getAttribute('href')).toBe(routes.packet({ sport: 'nfl', scope: 'GAME', event: GAME }));
+    // The whole-game packet is an export at the foot of the page, not a hero action.
+    expect(screen.getAllByRole('link', { name: /Export this game's full handicap packet/ })[0].getAttribute('href')).toBe(routes.packet({ sport: 'nfl', scope: 'GAME', event: GAME }));
+    expect(container.querySelector('.gh a[href*="packet"]')).toBeNull();
   });
 
-  it('the overview leads with the model read, the scripts and the markets that survive them', async () => {
+  it('the overview leads with what matters, then the scripts (most likely first) and props to watch', async () => {
     const { container } = renderScreen(routes.game('nfl', GAME), '/nfl/game/:eventId', <GameRoute />);
-    await screen.findByRole('heading', { name: 'Model Read' });
-    expect(screen.getByText(/Bills projects as a 7-point favorite/)).toBeTruthy();
-    expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['Bills Pull Away', 'Bills Control', 'One-Score Game', 'Patriots Control']);
-    expect([...container.querySelectorAll('.scard__pct')].map((e) => e.textContent)).toEqual(['26%', '24%', '36%', '13%']);
+    await screen.findByRole('heading', { name: 'What Matters' });
+    // The headline edge in NE @ BUF: Buffalo's #1 rush offense against New England's #21 run defense.
+    expect((await screen.findAllByText('Bills rush offense has a major edge')).length).toBeGreaterThan(0);
+    expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['One-score battle', 'Bills win going away', 'Bills win comfortably', 'Patriots win comfortably']);
+    expect([...container.querySelectorAll('.scard__pct')].map((e) => e.textContent)).toEqual(['36%', '26%', '24%', '13%']);
+    expect(container.querySelector('.scard__top')!.textContent).toBe('Most likely');
+    // No raw Kalshi ticker anywhere on the overview.
     await act(async () => {});
-    await screen.findByText('BUF to win', { selector: '.mtab__m' });
-    expect(container.querySelectorAll('.survt tbody tr').length).toBeGreaterThan(0);
+    expect(container.textContent).not.toMatch(/KXNFL/);
+    expect(await screen.findByRole('heading', { name: 'Props to Watch' })).toBeTruthy();
     // Selecting a script is a link (deep-linkable) that keeps the tab.
-    expect(container.querySelector('.scard--s2')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { script: 'fav' }));
+    expect(container.querySelector('.scard--s2 .scard__a')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { script: 'fav' }));
+    // The hero carries no market chips or research actions.
+    expect(container.querySelector('.gh .savebtn, .gh .qchip')).toBeNull();
   });
 
   it('the markets tab lists every contract on the game', async () => {

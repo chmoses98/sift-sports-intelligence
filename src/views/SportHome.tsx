@@ -14,54 +14,44 @@ import { gameScripts, sharePct } from '../lib/scripts';
 import { useNow } from '../live/hooks';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
-import { Disagreements, FeaturedGame, featuredItem, GameTile, sides, useSlateResearch } from './home/cards';
+import { Disagreements, FeatureCard, featuredItem, GameTile, ScriptBar, sides, useSlateResearch } from './home/cards';
+import { matchupInsights } from '../insights/matchups';
 import { PanelHead, ViewAll } from './game/panels';
 import { ScorecardPanel } from './Scorecard';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/** Each game's scripts in plain words, most likely first; the most competitive games lead. */
 function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[]; research: Map<string, EventResearchDoc>; slug: string; sportCode: string }) {
   const rows = items
     .map((i) => ({ i, r: research.get(i.event_id) }))
     .map((x) => ({ ...x, set: x.r ? gameScripts(x.r) : null }))
     .filter((x) => x.set)
-    .sort((a, b) => b.set!.scripts[2].share - a.set!.scripts[2].share);
+    .sort((a, b) => (b.set!.scripts.find((s) => s.id === 'close')?.share ?? 0) - (a.set!.scripts.find((s) => s.id === 'close')?.share ?? 0));
   if (!rows.length) return null;
   return (
     <section className="panel" aria-labelledby="so-h">
-      <PanelHead title="Script Outlook" sub="Share of simulated games by how they end · most competitive first" />
-      <div className="tscroll"><table className="sotab ">
-        <thead>
-          <tr>
-            <th scope="col">Game</th>
-            <th scope="col" className="r"><i className="sdot sdot--s1" />Fav 14+</th>
-            <th scope="col" className="r"><i className="sdot sdot--s2" />Fav 7–13</th>
-            <th scope="col" className="r"><i className="sdot sdot--s3" />One score</th>
-            <th scope="col" className="r"><i className="sdot sdot--s4" />Dog 7+</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ i, set }) => {
-            const { away, home } = sides(i);
-            const fav = set!.fav === 'home' ? home?.short_name : away?.short_name;
-            return (
-              <tr key={i.event_id}>
-                <th scope="row">
-                  <Link to={routes.game(slug, i.event_id, { tab: 'script' })} className="sotab__g">
-                    <TeamMark sport={sportCode} abbr={away?.short_name} size="sm" />{away?.short_name} <span className="muted">@</span> {home?.short_name}<TeamMark sport={sportCode} abbr={home?.short_name} size="sm" />
-                  </Link>
-                  <span className="sotab__fav">fav {fav}</span>
-                </th>
-                {set!.scripts.map((s) => (
-                  <td key={s.id} className="r">
-                    <span className="sotab__cell"><span className={`sotab__bar sotab__bar--s${s.index}`} style={{ width: `${Math.round(s.share * 100)}%` }} aria-hidden="true" /><span className="num">{sharePct(s.share)}</span></span>
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table></div>
+      <PanelHead title="Script Outlook" sub="How each game most likely ends · share of simulated games · closest games first" />
+      <ul className="soutl">
+        {rows.map(({ i, set }) => {
+          const { away, home } = sides(i);
+          return (
+            <li key={i.event_id}>
+              <Link to={routes.game(slug, i.event_id, { tab: 'script' })} className="soutl__a">
+                <span className="soutl__g">
+                  <TeamMark sport={sportCode} abbr={away?.short_name} size="sm" />{away?.short_name} <span className="muted">at</span> {home?.short_name}<TeamMark sport={sportCode} abbr={home?.short_name} size="sm" />
+                </span>
+                <ScriptBar set={set!} labels={false} />
+                <ol className="soutl__l">
+                  {set!.scripts.map((s) => (
+                    <li key={s.id}><i className={`sdot sdot--s${s.index}`} aria-hidden="true" />{s.name} <b className="num">{sharePct(s.share)}</b></li>
+                  ))}
+                </ol>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
@@ -118,24 +108,16 @@ export function SportHomeView() {
   const rmap = research.data ?? new Map<string, EventResearchDoc>();
   return (
     <div className="page shome">
-      <header className="shead">
-        <div className="shead__t">
-          <div className="eyebrow">{sport.fullName}</div>
-          <h1 className="h-display shead__h">{sport.label}</h1>
-          <div className="shead__comp">{comp}</div>
-        </div>
-        <dl className="shead__stats">
-          <div><dt>Games</dt><dd className="num">{upcoming.length}</dd></div>
-          <div><dt>Markets</dt><dd className="num">{compact(markets)}</dd></div>
-          <div><dt>Prices</dt><dd><QuoteChip view={publicationView(lastCapture)} now={now} label="published prices" /></dd></div>
-        </dl>
-        <div className="shead__x">
+      <header className="hbar">
+        <h1 className="hbar__h">{sport.label}</h1>
+        <span className="hbar__m">{comp} · {upcoming.length} games · {compact(markets)} markets · <QuoteChip view={publicationView(lastCapture)} now={now} label="published prices" /></span>
+        <span className="hbar__x">
           <Link to={routes.slate(slug)} className="btn btn--sm">Full slate <Icon name="arrowRight" size={14} /></Link>
           {sport.code === 'NFL' && <Link to={routes.parlays(slug)} className="btn btn--sm btn--ghost">Parlays</Link>}
-        </div>
+        </span>
       </header>
 
-      {feat && <FeaturedGame item={feat} r={rmap.get(feat.event_id)} sportSlug={slug} sportCode={sport.code} now={now} eyebrow={`Featured · ${comp}`} size="lg" />}
+      {feat && <div className="shome__feat"><FeatureCard item={feat} r={rmap.get(feat.event_id)} insight={rmap.get(feat.event_id) ? matchupInsights(rmap.get(feat.event_id)!)[0] ?? null : null} sportSlug={slug} sportCode={sport.code} now={now} /></div>}
 
       <section className="shome__games" aria-labelledby="wk-h">
         <div className="phead">
@@ -151,9 +133,12 @@ export function SportHomeView() {
       <div className="shome__grid">
         <ScriptOutlook items={upcoming} research={rmap} slug={slug} sportCode={sport.code} />
         <div className="stack">
-          <Disagreements items={upcoming} research={rmap} slug={slug} />
           <Results items={finals} slug={slug} sportCode={sport.code} />
           <ScorecardPanel slug={slug} />
+          <details className="layer shome__deep">
+            <summary className="layer__s">Where prices and projections differ</summary>
+            <div className="layer__b"><Disagreements items={upcoming} research={rmap} slug={slug} title="Prices vs projections" /></div>
+          </details>
           {sport.code === 'NFL' && (
             <Link to={routes.parlays(slug)} className="panel promo">
               <span className="eyebrow">Structures</span>

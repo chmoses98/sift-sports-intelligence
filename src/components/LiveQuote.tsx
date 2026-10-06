@@ -2,6 +2,7 @@
 // be traded (availability), how old the quote is (freshness by the market-quote policy), and where it
 // came from (a live provider or the research publication's capture). A publication capture is never
 // labelled live.
+import { tickerTitle } from '../lib/marketLabel';
 import { useState } from 'react';
 import { exactTime } from '../lib/format';
 import { formatQuoteAge, quoteAgeMs, quoteFreshness, worstQuote, type QuoteFreshness, QUOTE_FRESH_BEFORE_MS, QUOTE_STALE_AFTER_MS } from '../live/freshness';
@@ -194,7 +195,7 @@ export function NewlyListed({ quotes, now }: { quotes: import('../live/types').L
           return (
             <li key={q.ticker} className="mrow mrow--static">
               <span className="mrow__d">
-                {q.title ?? q.ticker}
+                {q.title ?? tickerTitle(q.ticker)}
                 {q.yesSubTitle && q.yesSubTitle !== q.title ? <span className="muted"> · {q.yesSubTitle}</span> : null}
                 <code className="ticker ticker--sm">{q.ticker}</code>
               </span>

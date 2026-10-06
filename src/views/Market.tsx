@@ -4,7 +4,8 @@ import { PriceHistory } from '../charts/PriceHistory';
 import type { Market } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
-import { humanize, latestPrices } from '../components/MarketBoard';
+import { latestPrices } from '../components/MarketBoard';
+import { describeMarket } from '../lib/marketLabel';
 import { EntityLink, ErrorState, FreshnessChip, Notice, QualityBadge, SaveButton, Skeleton, Stratum } from '../components/ui';
 import { cents, exactTime, familyLabel, kickoff, metricFormatter, signed } from '../lib/format';
 import { STAT_LABEL, STAT_TO_SIM } from '../lib/nfl';
@@ -53,7 +54,8 @@ export function MarketView() {
   const player = useAsync(m?.player_id ? `prof:${sport.code}:${m.player_id}` : null, () => repo.profile(m!.player_id!));
   const team = useAsync(m?.participant_id ? `prof:${sport.code}:${m.participant_id}` : null, () => repo.profile(m!.participant_id!));
   const recs = useAsync(`recs:${sport.code}:${repo.source.root}`, () => repo.recommendations());
-  useVisit(m ? m.kalshi_ticker : null, 'market');
+  const title = m ? describeMarket(m, { playerName: () => player.data?.entity.display_name ?? null, abbrOf: () => team.data?.entity.short_name ?? null }).title : null;
+  useVisit(title, 'market');
 
   if (!eventId) return <div className="page"><Notice tone="error" title="Which game is this market on?">Market links carry their event; open it from a game, player or team.</Notice></div>;
   if (detail.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
@@ -91,18 +93,18 @@ export function MarketView() {
           <div className="eyebrow">
             <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Market · {familyLabel(m.market_family)}{m.period && m.period !== 'FULL' ? ` · ${m.period}` : ''}
           </div>
-          <h1 className="h-display h-display--md">{humanize(m.yes_description)}</h1>
+          <h1 className="h-display h-display--md">{title}</h1>
           <div className="ehead__meta">
-            <code className="ticker">{m.kalshi_ticker}</code>
             <EntityLink to={routes.game(slug, ev.event_id)} kind="game">{evLabel} · {kickoff(ev.start_time_utc)}</EntityLink>
             {player.data && <EntityLink to={routes.player(slug, player.data.entity.participant_id)} kind="player">{player.data.entity.display_name}</EntityLink>}
             {team.data && <EntityLink to={routes.team(slug, team.data.entity.participant_id)} kind="team">{team.data.entity.display_name}</EntityLink>}
             <span className={`chip chip--status-${(view?.availability ?? 'UNKNOWN').toLowerCase()}`}>{view?.availability ?? 'UNKNOWN'}</span>
+            <span className="ticker-quiet" title="Kalshi contract ID, for reference">Kalshi ID <code className="ticker ticker--sm">{m.kalshi_ticker}</code></span>
           </div>
         </div>
         <div className="ehead__actions">
           <SaveButton ref_kind="MARKET" sport={sport.code} id={m.market_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
-            label={{ label: humanize(m.yes_description), sub: `${m.kalshi_ticker} · ${cents(m.yes_bid)}/${cents(m.yes_ask)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
+            label={{ label: title ?? 'Market', sub: `${cents(m.yes_bid)}/${cents(m.yes_ask)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
           <Link className="btn btn--ghost" to={routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id })}><Icon name="copy" size={16} /> Game packet</Link>
         </div>
       </header>
@@ -169,7 +171,7 @@ export function MarketView() {
               rungs={siblings.map((o) => ({ x: Number(rungOf(o)), bid: o.yes_bid, ask: o.yes_ask, fair: prices.get(o.market_id)?.fair_probability ?? null, href: routes.market(slug, o.market_id, ev.event_id), ticker: o.kalshi_ticker }))}
               quantiles={q}
               unit={stat ? STAT_LABEL[stat] ?? stat : familyLabel(m.market_family)}
-              title={`${m.kalshi_ticker} ladder`}
+              title={`${title} ladder`}
               selected={m.kalshi_ticker}
             />
           )}
@@ -186,7 +188,7 @@ export function MarketView() {
       <Stratum n="04" title="Price history" sub="Every capture of this ticker.">
         {hist.loading && <Skeleton lines={3} />}
         {hseries ? (
-          <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${m.kalshi_ticker} price history`} />
+          <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
         ) : (
           !hist.loading && (
             <p className="muted">
@@ -210,7 +212,7 @@ export function MarketView() {
         </dl>
         {mp && (
           <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
-            label={{ label: `Model price · ${m.kalshi_ticker}`, sub: `fair ${cents(mp.fair_probability)} vs ${cents(mid)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
+            label={{ label: `Projection · ${title}`, sub: `fair ${cents(mp.fair_probability)} vs ${cents(mid)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
         )}
       </Stratum>
     </div>

@@ -156,7 +156,7 @@ export function TrendChart({ points, format, unit, rollingWindow, title, opponen
 }
 
 /** "2025 · Wk 13" from an nflverse game id ("2025_13_MIN_SEA"); the date when the id has another shape. */
-function gameName(x: string, t: string): string {
+export function gameName(x: string, t: string): string {
   const m = /^(\d{4})_(\d{2})_/.exec(x);
   if (!m) return shortDate(t);
   const wk = Number(m[2]);

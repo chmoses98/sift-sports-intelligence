@@ -5,7 +5,7 @@ import { lazy, Suspense } from 'react';
 import { Link } from 'react-router';
 import { TermInfo } from '../components/Gloss';
 import { Icon } from '../components/Icon';
-import { Notice } from '../components/ui';
+import { Notice, Skeleton } from '../components/ui';
 import { routes } from '../lib/routes';
 import { calibrationText, LEADER_WORD, readScorecard, SCORECARD_METRIC, verdictHeadline, verdictText, type Scorecard, type ScoreRow } from '../lib/scorecard';
 import { useSport } from '../state/sport';
@@ -90,7 +90,7 @@ const NhlScorecardView = lazy(() => import('./nhl/NhlScorecard').then((m) => ({ 
 
 export function ScorecardView() {
   const { sport } = useSport();
-  if (sport.code === 'NHL') return <Suspense fallback={null}><NhlScorecardView /></Suspense>;
+  if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NhlScorecardView /></Suspense>;
   return <PublishedScorecardView />;
 }
 

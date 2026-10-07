@@ -140,22 +140,22 @@ test('an NHL game saved to the tray builds an NHL handicap packet with the scrip
   }
 });
 
-for (const [name, url, root] of [
-  ['nhl-home', './#/nhl', 'main'],
+for (const [name, url, wait] of [
+  ['nhl-home', './#/nhl', '.nhome'],
   ['nhl-game', `./#/nhl/game/${FLA_LAK}`, '.game--nhl'],
   ['nhl-game-script', `./#/nhl/game/${FLA_LAK}?tab=script`, '.game--nhl'],
   ['nhl-game-candidates', `./#/nhl/game/${FLA_LAK}?tab=candidates`, '.game--nhl'],
-  ['nhl-market', `./#/nhl/market/${TOTAL}?event=${FLA_LAK}`, 'main'],
-  ['nhl-team', `./#/nhl/team/${LAK}`, 'main'],
-  ['nhl-goalie', `./#/nhl/player/${KUEMPER}`, 'main'],
-  ['nhl-scorecard', './#/nhl/scorecard', 'main'],
+  ['nhl-market', `./#/nhl/market/${TOTAL}?event=${FLA_LAK}`, '.nsc__t'],
+  ['nhl-team', `./#/nhl/team/${LAK}`, '.team'],
+  ['nhl-goalie', `./#/nhl/player/${KUEMPER}`, 'main h1'],
+  ['nhl-scorecard', './#/nhl/scorecard', '.nsc'],
 ] as const) {
   test(`${name} has no horizontal overflow and no serious a11y violations @smoke`, async ({ page }) => {
     await page.goto(url);
-    await page.locator(root).first().waitFor();
+    await page.locator(wait).first().waitFor();
     await ready(page);
     await noHorizontalOverflow(page, name);
-    const res = await new AxeBuilder({ page }).include(root).analyze();
+    const res = await new AxeBuilder({ page }).include(wait === '.game--nhl' ? wait : 'main').analyze();
     const bad = res.violations.filter((v) => v.impact === 'critical' || v.impact === 'serious');
     expect(bad.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   });
@@ -163,7 +163,7 @@ for (const [name, url, root] of [
   if (['nhl-home', 'nhl-game', 'nhl-game-script', 'nhl-scorecard'].includes(name)) {
     test(`${name} @visual`, async ({ page, isMobile }) => {
       await page.goto(url);
-      await page.locator(root).first().waitFor();
+      await page.locator(wait).first().waitFor();
       await ready(page);
       await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: !isMobile });
     });

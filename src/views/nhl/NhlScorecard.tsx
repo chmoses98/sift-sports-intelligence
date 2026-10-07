@@ -63,6 +63,9 @@ function Counts({ l }: { l: Learning }) {
   return <ul className="nsc__counts">{items.map(([k, v]) => <li key={k}><b>{n0(v)}</b><span>{k}</span></li>)}</ul>;
 }
 
+/** A publisher note ("no settled … yet") as a sentence: capitalised, full stop. */
+const sentence = (t: string | undefined) => (t ? `${t[0].toUpperCase()}${t.slice(1)}${/[.!?]$/.test(t) ? '' : '.'}` : undefined);
+
 export function NhlScorecardView() {
   const { metrics, slug } = useSport();
   useVisit('NHL scorecard', 'sport');
@@ -163,7 +166,7 @@ export function NhlScorecardView() {
               <tbody>{(sc.by_script ?? []).map((x: any) => <tr key={x.id}><th scope="row">{x.id.replace(/_/g, ' ').toLowerCase()}</th><td className="r num">{probText(x.mean_predicted)}</td><td className="r num">{probText(x.realized_share)}</td><td className="r num">{x.realized_n}</td></tr>)}</tbody>
             </table>
           </>
-        ) : <p className="muted small">{sc.note ?? 'No settled script forecast yet.'} {n0(l.counts?.script_forecasts)} forecasts are logged and will be scored as their games settle.</p>}
+        ) : <p className="muted small">{sentence(sc.note) ?? 'No settled script forecast yet.'} {n0(l.counts?.script_forecasts)} forecasts are logged and will be scored as their games settle.</p>}
       </Section>
 
       <div className="nsc__grid">

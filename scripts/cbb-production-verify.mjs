@@ -80,6 +80,7 @@ async function run(browserType, opts, label) {
   if (gp.extensions.cbb.neutral_site) ok(/Neutral site/.test(hero), 'game: neutral-site label');
   if (!gp.extensions.cbb.primary) ok(/Projection pending|Capture window open|No pre-tip projection/.test(hero), 'game: pending state, no invented projection');
   ok((await page.locator('.cgh .cconf').count()) === 2, 'game: roster confidence for both teams');
+  await page.waitForFunction(() => [...document.querySelectorAll('.cgh img')].every((i) => i.complete), null, { timeout: 30_000 }).catch(() => {});
   const logos = await page.locator('.cgh img').evaluateAll((els) => els.map((i) => ({ src: i.getAttribute('src'), w: i.naturalWidth })));
   ok(logos.length === 2 && logos.every((l) => l.w > 0 && /teams\/cbb\/\d+\.webp$/.test(l.src ?? '')), `game: school logos load (${JSON.stringify(logos)})`);
   const ca = await page.locator('.cbbg').evaluate((e) => [getComputedStyle(e).getPropertyValue('--ca').trim(), getComputedStyle(e).getPropertyValue('--ch').trim()]);
@@ -102,14 +103,19 @@ async function run(browserType, opts, label) {
   await page.locator('.cgh').waitFor({ timeout: 30_000 });
   ok(/Purdue/.test(await page.locator('.cgh').innerText()), 'game deep link survives reload');
 
-  // logo fallback: block one school's logo
-  const espn = (await page.locator('.cgh img').first().getAttribute('src')).match(/(\d+)\.webp$/)[1];
-  await page.route(`**/teams/cbb/${espn}.webp`, (r) => r.abort());
-  await page.reload();
-  await page.locator('.cgh').waitFor({ timeout: 30_000 });
-  await page.waitForTimeout(1500);
-  ok((await page.locator('.cgh .clogo--mono').count()) >= 1, 'logo failure falls back to the school monogram');
-  await page.unroute(`**/teams/cbb/${espn}.webp`);
+  // logo fallback: a fresh context (empty cache) where one school's logo cannot load
+  {
+    const espn = (await page.locator('.cgh img').first().getAttribute('src')).match(/(\d+)\.webp$/)[1];
+    const fctx = await b.newContext({ ...opts, timezoneId: 'America/New_York' });
+    await fctx.route(`**/teams/cbb/${espn}.webp`, (r) => r.abort());
+    const fp = await fctx.newPage();
+    await fp.goto(`${BASE}#/cbb/game/${gp.event_id}`);
+    await fp.locator('.cgh').waitFor({ timeout: 30_000 });
+    const mono = await fp.locator('.cgh .clogo--mono').first().waitFor({ timeout: 15_000 }).then(() => true, () => false);
+    const txt = mono ? (await fp.locator('.cgh .clogo--mono').first().innerText()).trim() : '';
+    ok(mono && txt.length > 0, `logo failure falls back to the school monogram (${txt})`);
+    await fctx.close();
+  }
 
   // Purdue
   await go(`/cbb/team/${purdue}`);

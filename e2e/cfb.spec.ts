@@ -116,15 +116,16 @@ test('every engine state renders as published: two scripts, one script, or the h
 });
 
 test('the CFB hero shows both teams\' committed logos, loaded @smoke', async ({ page }) => {
+  const served: string[] = [];
+  page.on('response', (r) => r.url().includes('/teams/cfb/') && r.ok() && served.push(r.url()));
   for (const [id, files] of [[ISU_BYU, ['66.webp', '252.webp']], [NMSU_FIU, ['166.webp', '2229.webp']]] as const) {
     await page.goto(`./#/cfb/game/${id}`);
     const logos = page.locator('.gh img.teammark--logo');
     await expect(logos).toHaveCount(2);
     await expect.poll(() => logos.evaluateAll((els) => els.every((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0))).toBe(true);
     await expect(page.locator('.gh .teammark--text')).toHaveCount(0);
-    // the held image is a blob of the committed file: the page fetched exactly these two
-    const fetched = await page.evaluate(() => performance.getEntriesByType('resource').map((r) => r.name).filter((n) => n.includes('/teams/cfb/')));
-    for (const f of files) expect(fetched.some((u) => u.endsWith(`/teams/cfb/${f}`))).toBe(true);
+    // the held image is a blob of the committed file: the site served exactly these two
+    for (const f of files) expect(served.some((u) => u.endsWith(`/teams/cfb/${f}`)), f).toBe(true);
   }
 });
 

@@ -1,0 +1,120 @@
+{
+  "commit_sha": "5b40bc20627abe7455a77410823ff2755e222c86",
+  "counts": {
+    "board": 0,
+    "events": 0,
+    "markets": 809,
+    "model_prices": 0,
+    "recommendations": 0,
+    "runs": 1,
+    "settlements": 147,
+    "theses": 0,
+    "wagers": 152
+  },
+  "files": {
+    "board": {
+      "bytes": 220,
+      "count": 0,
+      "kind": "board",
+      "path": "board.json",
+      "sha256": "37d108e9e5f2037f489a00b69a8b16bdae7ea4bafc2e249d580bf5adb7df65a0"
+    },
+    "events": {
+      "bytes": 165,
+      "count": 0,
+      "kind": "events",
+      "path": "events.json",
+      "sha256": "a478d9ffe0fd4bd2763047effae614c85802068f89b24f72ad84f47c983b00dc"
+    },
+    "markets": {
+      "bytes": 765797,
+      "count": 809,
+      "kind": "markets",
+      "path": "markets.json",
+      "sha256": "1dcc4775950c65bb8c9f7acffd5056c0b03a01ca0f5159d09f2bc97358e2586f"
+    },
+    "model_prices": {
+      "bytes": 171,
+      "count": 0,
+      "kind": "model_prices",
+      "path": "model_prices.json",
+      "sha256": "3dd4c6bf802b097bf7d05cfe98efd62713162a62aeb2508ef9e6d1f846534961"
+    },
+    "performance": {
+      "bytes": 22722,
+      "count": null,
+      "kind": "performance",
+      "path": "performance.json",
+      "sha256": "37441f9fec3d944be1fcd2e2a954997997fde880fee3d2bdccdaa3fa5d35edb1"
+    },
+    "recommendations": {
+      "bytes": 174,
+      "count": 0,
+      "kind": "recommendations",
+      "path": "recommendations.json",
+      "sha256": "c45ddaaea72a5c5e756a00f8576f8a176b5064dd20fe0a0fe50748dab421a18a"
+    },
+    "runs": {
+      "bytes": 1319,
+      "count": 1,
+      "kind": "runs",
+      "path": "runs.json",
+      "sha256": "2392b2540079df76bd5507283c8478e2bac09c50e197c8bb82c084b0bb4d6081"
+    },
+    "settlements": {
+      "bytes": 102381,
+      "count": 147,
+      "kind": "settlements",
+      "path": "settlements.json",
+      "sha256": "7029d5c8c8aeb398a8103863b2e60cf88b1456553aedc841408e30ec5b8d00df"
+    },
+    "theses": {
+      "bytes": 165,
+      "count": 0,
+      "kind": "theses",
+      "path": "theses.json",
+      "sha256": "185df8d95faa22f4dc3580bb52a95e9ef51354d9cefc58170d90fca6da89e50c"
+    },
+    "wagers": {
+      "bytes": 249825,
+      "count": 152,
+      "kind": "wagers",
+      "path": "wagers.json",
+      "sha256": "ce4e8ef416d0c58118b22e6915261326c8519b1741638b7e0d76a453b0db9be9"
+    }
+  },
+  "freshness": {
+    "kalshi": {
+      "as_of": "2026-10-07T10:46:36Z",
+      "status": "STALE"
+    },
+    "model": {
+      "as_of": null,
+      "status": "UNKNOWN"
+    },
+    "router": {
+      "as_of": "2026-10-07T02:20:59Z",
+      "status": "STALE"
+    },
+    "schedule": {
+      "as_of": "2026-10-07T01:09:42Z",
+      "status": "FRESH"
+    },
+    "settlement": {
+      "as_of": "2026-10-07T13:07:51Z",
+      "status": "FRESH"
+    }
+  },
+  "generated_at": "2026-10-07T19:21:16Z",
+  "kind": "manifest",
+  "model_version": null,
+  "run_id": "run_ec8c4135037776c3c03d",
+  "schema_version": "edge_finder.app.v1",
+  "source_branch": "main",
+  "source_repo": "chmoses98/edge-finder-api",
+  "sport": "MLB",
+  "status": "SUCCESS",
+  "warnings": [
+    "no model price could be exported for 2026-10-07"
+  ]
+}

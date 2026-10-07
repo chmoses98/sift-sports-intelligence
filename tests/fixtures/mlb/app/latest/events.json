@@ -1,0 +1,170 @@
+{
+ "count": 4,
+ "generated_at": "2026-10-07T19:21:16Z",
+ "items": [
+  {
+   "away_participant": "prt_92ade3f0358a8dae1b73",
+   "broadcast": null,
+   "competition": "MLB 2026 postseason",
+   "effective_start_time_utc": null,
+   "event_id": "evt_a48e8423c1dd4be3eb3f",
+   "extensions": {
+    "kalshi_event_suffix": "26OCT071600CLECWS",
+    "synthetic_fixture": true
+   },
+   "home_participant": "prt_cee09510605ea2fbdd05",
+   "last_updated_at": "2026-10-07T19:21:16Z",
+   "league": "MLB",
+   "participants": [
+    {
+     "display_name": "Chicago White Sox",
+     "participant_id": "prt_cee09510605ea2fbdd05",
+     "participant_type": "TEAM",
+     "short_name": "CWS"
+    },
+    {
+     "display_name": "Cleveland Guardians",
+     "participant_id": "prt_92ade3f0358a8dae1b73",
+     "participant_type": "TEAM",
+     "short_name": "CLE"
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T01:09:42Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXMLBGAME-26OCT071600CLECWS"
+   },
+   "sport": "MLB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "mlb_statsapi_schedule",
+   "start_time_utc": "2026-10-07T20:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_d186de0371365fb859d1",
+   "broadcast": null,
+   "competition": "MLB 2026 postseason",
+   "effective_start_time_utc": null,
+   "event_id": "evt_3478a7145aea5fda0ecf",
+   "extensions": {
+    "kalshi_event_suffix": "26OCT071800LADATL",
+    "synthetic_fixture": true
+   },
+   "home_participant": "prt_c0a56acb069d2f86f1f9",
+   "last_updated_at": "2026-10-07T19:21:16Z",
+   "league": "MLB",
+   "participants": [
+    {
+     "display_name": "Atlanta Braves",
+     "participant_id": "prt_c0a56acb069d2f86f1f9",
+     "participant_type": "TEAM",
+     "short_name": "ATL"
+    },
+    {
+     "display_name": "Los Angeles Dodgers",
+     "participant_id": "prt_d186de0371365fb859d1",
+     "participant_type": "TEAM",
+     "short_name": "LAD"
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T01:09:42Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXMLBGAME-26OCT071800LADATL"
+   },
+   "sport": "MLB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "mlb_statsapi_schedule",
+   "start_time_utc": "2026-10-07T22:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_8979140a8933607f7754",
+   "broadcast": null,
+   "competition": "MLB 2026 postseason",
+   "effective_start_time_utc": null,
+   "event_id": "evt_21cde0ef0e1a4b6231fb",
+   "extensions": {
+    "kalshi_event_suffix": "26OCT072000TBNYY",
+    "synthetic_fixture": true
+   },
+   "home_participant": "prt_fd5da5828b9f7c7b232d",
+   "last_updated_at": "2026-10-07T19:21:16Z",
+   "league": "MLB",
+   "participants": [
+    {
+     "display_name": "New York Yankees",
+     "participant_id": "prt_fd5da5828b9f7c7b232d",
+     "participant_type": "TEAM",
+     "short_name": "NYY"
+    },
+    {
+     "display_name": "Tampa Bay Rays",
+     "participant_id": "prt_8979140a8933607f7754",
+     "participant_type": "TEAM",
+     "short_name": "TB"
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T01:09:42Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXMLBGAME-26OCT072000TBNYY"
+   },
+   "sport": "MLB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "mlb_statsapi_schedule",
+   "start_time_utc": "2026-10-08T00:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_73aa67e3174682e476f6",
+   "broadcast": null,
+   "competition": "MLB 2026 postseason",
+   "effective_start_time_utc": null,
+   "event_id": "evt_0501ce703eb4ba39dda7",
+   "extensions": {
+    "kalshi_event_suffix": "26OCT072200MILSD",
+    "synthetic_fixture": true
+   },
+   "home_participant": "prt_c16aca9683b6c5fadbc7",
+   "last_updated_at": "2026-10-07T19:21:16Z",
+   "league": "MLB",
+   "participants": [
+    {
+     "display_name": "San Diego Padres",
+     "participant_id": "prt_c16aca9683b6c5fadbc7",
+     "participant_type": "TEAM",
+     "short_name": "SD"
+    },
+    {
+     "display_name": "Milwaukee Brewers",
+     "participant_id": "prt_73aa67e3174682e476f6",
+     "participant_type": "TEAM",
+     "short_name": "MIL"
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T01:09:42Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXMLBGAME-26OCT072200MILSD"
+   },
+   "sport": "MLB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "mlb_statsapi_schedule",
+   "start_time_utc": "2026-10-08T02:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  }
+ ],
+ "kind": "events",
+ "run_id": "run_ec8c4135037776c3c03d",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "MLB"
+}

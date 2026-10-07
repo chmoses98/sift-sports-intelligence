@@ -1,0 +1,140 @@
+{
+ "bet_authority": "MANUAL",
+ "count": 4,
+ "generated_at": "2026-10-07T19:21:16Z",
+ "items": [
+  {
+   "away_participant": "prt_92ade3f0358a8dae1b73",
+   "competition": "MLB 2026 postseason",
+   "data_freshness": "STALE",
+   "detail_path": "event_detail/evt_a48e8423c1dd4be3eb3f.json",
+   "event_id": "evt_a48e8423c1dd4be3eb3f",
+   "health_flags": [],
+   "home_participant": "prt_cee09510605ea2fbdd05",
+   "league": "MLB",
+   "market_captured_at": "2026-10-07T10:46:36Z",
+   "markets_available": 146,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Chicago White Sox",
+     "participant_id": "prt_cee09510605ea2fbdd05",
+     "participant_type": "TEAM",
+     "short_name": "CWS"
+    },
+    {
+     "display_name": "Cleveland Guardians",
+     "participant_id": "prt_92ade3f0358a8dae1b73",
+     "participant_type": "TEAM",
+     "short_name": "CLE"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-07T20:00:00Z",
+   "status": "SCHEDULED",
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_d186de0371365fb859d1",
+   "competition": "MLB 2026 postseason",
+   "data_freshness": "STALE",
+   "detail_path": "event_detail/evt_3478a7145aea5fda0ecf.json",
+   "event_id": "evt_3478a7145aea5fda0ecf",
+   "health_flags": [],
+   "home_participant": "prt_c0a56acb069d2f86f1f9",
+   "league": "MLB",
+   "market_captured_at": "2026-10-07T10:46:36Z",
+   "markets_available": 207,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Atlanta Braves",
+     "participant_id": "prt_c0a56acb069d2f86f1f9",
+     "participant_type": "TEAM",
+     "short_name": "ATL"
+    },
+    {
+     "display_name": "Los Angeles Dodgers",
+     "participant_id": "prt_d186de0371365fb859d1",
+     "participant_type": "TEAM",
+     "short_name": "LAD"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-07T22:00:00Z",
+   "status": "SCHEDULED",
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_8979140a8933607f7754",
+   "competition": "MLB 2026 postseason",
+   "data_freshness": "STALE",
+   "detail_path": "event_detail/evt_21cde0ef0e1a4b6231fb.json",
+   "event_id": "evt_21cde0ef0e1a4b6231fb",
+   "health_flags": [],
+   "home_participant": "prt_fd5da5828b9f7c7b232d",
+   "league": "MLB",
+   "market_captured_at": "2026-10-07T10:46:36Z",
+   "markets_available": 163,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "New York Yankees",
+     "participant_id": "prt_fd5da5828b9f7c7b232d",
+     "participant_type": "TEAM",
+     "short_name": "NYY"
+    },
+    {
+     "display_name": "Tampa Bay Rays",
+     "participant_id": "prt_8979140a8933607f7754",
+     "participant_type": "TEAM",
+     "short_name": "TB"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-08T00:00:00Z",
+   "status": "SCHEDULED",
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_73aa67e3174682e476f6",
+   "competition": "MLB 2026 postseason",
+   "data_freshness": "STALE",
+   "detail_path": "event_detail/evt_0501ce703eb4ba39dda7.json",
+   "event_id": "evt_0501ce703eb4ba39dda7",
+   "health_flags": [],
+   "home_participant": "prt_c16aca9683b6c5fadbc7",
+   "league": "MLB",
+   "market_captured_at": "2026-10-07T10:46:36Z",
+   "markets_available": 147,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "San Diego Padres",
+     "participant_id": "prt_c16aca9683b6c5fadbc7",
+     "participant_type": "TEAM",
+     "short_name": "SD"
+    },
+    {
+     "display_name": "Milwaukee Brewers",
+     "participant_id": "prt_73aa67e3174682e476f6",
+     "participant_type": "TEAM",
+     "short_name": "MIL"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-08T02:00:00Z",
+   "status": "SCHEDULED",
+   "wagers_count": 0
+  }
+ ],
+ "kind": "board",
+ "overall_status": "DEGRADED",
+ "run_id": "run_ec8c4135037776c3c03d",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "MLB"
+}

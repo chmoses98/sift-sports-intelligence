@@ -26,8 +26,9 @@ metrics.
 | Learning stage and scorecard | metric `met_nhl.model_learning_stage`, `extensions.learning_v1` | `readLearning` |
 | Capability status | `explorer/capabilities.json`: `opponent_adjustment` and `schedule_strength` are `RESEARCH` | generic |
 
-When `nhl_scripts_v1` is missing, or has `status` `NOT_SIMULATED` or `FAILED`, the game page says so ("Not
-simulated yet", "The script layer failed for this game", "No NHL script layer for this game"). It shows no scripts
+When `nhl_scripts_v1` is missing, or has `status` `NOT_SIMULATED` or `FAILED`, the game page says so ("No
+game scripts yet", "The script layer failed for this game", "No NHL script layer for this game"), followed by the
+publisher's own reason (for example, a game whose latest simulation predates the script layer). It shows no scripts
 or candidates instead of inventing them. Markets and the live market clock are unaffected.
 
 ## Screens

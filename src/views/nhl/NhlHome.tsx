@@ -40,7 +40,7 @@ function GameState({ r }: { r: EventResearchDoc | null | undefined }) {
   if (r === null) return <span className="ntile__warn">No event research published</span>;
   const s = readNhl(r);
   if (!s) return null;
-  if (!isNhlScripts(s)) return <span className="ntile__warn">{s.status === 'NOT_SIMULATED' ? 'Not simulated yet — the model runs on game day' : 'Script layer unavailable for this game'}</span>;
+  if (!isNhlScripts(s)) return <span className="ntile__warn" title={s.reason}>{s.status === 'NOT_SIMULATED' ? 'No game scripts yet' : 'Script layer unavailable for this game'}</span>;
   const lead = s.scripts[0];
   const ok = s.candidates.filter((c) => c.governance.status !== 'REJECTED' && (c.robustness === 'ROBUST' || c.robustness === 'MODERATE')).length;
   return (
@@ -82,7 +82,7 @@ function Featured({ item, r, slug, now }: { item: BoardItem; r: EventResearchDoc
       <div className="nfeat__meta">{goalieLine(r) ?? 'Goalie status not published yet'} · <QuoteChip view={publicationView(item.market_captured_at)} now={now} label="prices" /></div>
       <div className="nfeat__grid">
         <div><span className="nfeat__k">What matters most</span><span className="nfeat__v">{f ? <>{f.text} <BasisChip basis={f.basis} /></> : 'No ranked finding published'}</span></div>
-        <div><span className="nfeat__k">Most likely script</span><span className="nfeat__v">{lead ? <><ScriptDot tone={lead.tone} />{lead.label} — {probText(lead.probability)} of simulated games. {lead.summary}</> : 'Not simulated yet'}</span></div>
+        <div><span className="nfeat__k">Most likely script</span><span className="nfeat__v">{lead ? <><ScriptDot tone={lead.tone} />{lead.label} — {probText(lead.probability)} of simulated games. {lead.summary}</> : 'No game scripts yet'}</span></div>
         <div><span className="nfeat__k">Strongest robust candidate</span><span className="nfeat__v">{best ? <>{candidateTitle(best, r?.markets.find((m) => m.kalshi_ticker === best.ticker) as any)} at {best.price.ask_cents}¢ — {survivalText(best.survival.mass_survived, best.survival.survives, 7).toLowerCase()}</> : 'None robust on this game'}</span></div>
       </div>
       <Link to={routes.game(slug, item.event_id)} className="btn btn--sm">Open the game <Icon name="arrowRight" size={14} /></Link>

@@ -161,7 +161,7 @@ async function nhlCheck(page) {
     await game.click();
     await page.locator('.game--nhl').waitFor({ timeout: 60_000 });
     const scripts = await page.getByRole('heading', { name: /How It Could Play Out/ }).count();
-    const unavailable = await page.getByText(/not simulated|no NHL script layer|script layer failed/i).count();
+    const unavailable = await page.getByText(/no game scripts yet|no NHL script layer|script layer failed/i).count();
     console.log(`  NHL game: scripts=${scripts} unavailable-notes=${unavailable} ${page.url().split('#')[1]}`);
     check(scripts > 0 || unavailable > 0, 'NHL game shows the scripts or says why they are unavailable');
     const text = await page.locator('.game--nhl').innerText();

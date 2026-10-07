@@ -564,10 +564,11 @@ export function LinesPanel({ r, homeAbbr, awayAbbr, full }: { r: EventResearchDo
 // ------------------------------------------------------------------ status notes
 
 export function ScriptsUnavailable({ status, reason }: { status: string; reason: string }) {
-  const title = status === 'NOT_SIMULATED' ? 'Not simulated yet' : status === 'FAILED' ? 'The script layer failed for this game' : 'No NHL script layer for this game';
+  const title = status === 'NOT_SIMULATED' ? 'No game scripts yet' : status === 'FAILED' ? 'The script layer failed for this game' : 'No NHL script layer for this game';
+  const why = reason ? `${reason[0].toUpperCase()}${reason.slice(1).replace(/\.$/, '')}.` : '';
   return (
     <div className="nunav" role="note">
-      <b>{title}.</b> {reason}. Sift shows no scripts or candidates rather than inventing them.
+      <b>{title}.</b> {why} Sift shows no scripts or candidates rather than inventing them.
     </div>
   );
 }

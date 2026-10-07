@@ -12,14 +12,19 @@
 // The label is built from the market's structured fields (family, period, subject, threshold); when only
 // a ticker is known (price history rows, moves, newly listed contracts) the ticker grammar is parsed.
 import type { Market } from '../contract/types';
+import { describeMlbMarket, isMlbTicker, mlbNick } from './mlb';
+import { isFullGame } from './period';
 
 export interface LabelContext {
   /** Team abbreviation for a participant id. */
   abbrOf?: (pid: string | null) => string | null;
   /** Player display name for a player id. */
   playerName?: (id: string | null) => string | null;
-  /** Team nickname for an abbreviation (defaults to the built-in NFL table). */
+  /** Team nickname for an abbreviation (defaults to the sport's built-in table: NFL, or MLB for baseball). */
   teamName?: (abbr: string) => string | null;
+  /** The sport the market belongs to. Only NFL (the default) falls back to the NFL nickname table: an MLB "ATL"
+   * is the Braves, never the Falcons; other sports keep the bare abbreviation. */
+  sport?: string;
 }
 
 export interface MarketLabel {
@@ -66,7 +71,12 @@ const minus = (t: number) => `−${t}`;
 
 function nickOf(abbr: string | null | undefined, ctx: LabelContext): string | null {
   if (!abbr) return null;
-  return ctx.teamName?.(abbr) ?? NFL_NICK[abbr.toUpperCase()] ?? abbr;
+  const own = ctx.teamName?.(abbr);
+  if (own) return own;
+  const sport = (ctx.sport ?? 'NFL').toUpperCase();
+  if (sport === 'MLB') return mlbNick(abbr);
+  if (sport !== 'NFL') return abbr;
+  return NFL_NICK[abbr.toUpperCase()] ?? abbr;
 }
 
 /** "CHI Bears D/ST" → "Bears D/ST"; "Chicago" (a team subject) stays. */
@@ -205,7 +215,7 @@ interface Fields {
 }
 
 function build(f: Fields, ctx: LabelContext): MarketLabel | null {
-  const per = f.period && f.period !== 'FULL' ? f.period : null;
+  const per = f.period && !isFullGame(f.period) ? f.period : null;
   const adj = per ? `${PERIOD_ADJ[per] ?? per} ` : '';
   const ps = per ? `${PERIOD_SHORT[per] ?? per} ` : '';
   const abbr = f.subjectAbbr ?? null;
@@ -361,6 +371,7 @@ export function describeNhlMarket(m: MarketLike): MarketLabel | null {
 
 /** The readable name of any market. Never returns a raw ticker unless nothing else is known about it. */
 export function describeMarket(m: MarketLike, ctx: LabelContext = {}): MarketLabel {
+  if (isMlbTicker(m.kalshi_ticker) || ctx.sport === 'MLB') return describeMlbMarket(m, ctx);
   if (/^KXNHL/.test(m.kalshi_ticker)) {
     const nhl = describeNhlMarket(m);
     if (nhl) return nhl;

@@ -1,4 +1,5 @@
 import logos from './team-logos.json';
+import { mlbClub } from './mlb';
 
 // Team identity colors: brand presentation only (never data). Sift uses them as a thin accent —
 // a stripe, a monogram tile — so Sift's own palette stays in charge.
@@ -28,6 +29,7 @@ const NHL: Record<string, [string, string]> = {
 export function teamColors(sport: string, abbr: string | null | undefined): [string, string] {
   if (sport === 'NFL' && abbr && NFL[abbr]) return NFL[abbr];
   if (sport === 'NHL' && abbr && NHL[abbr]) return NHL[abbr];
+  if (sport === 'MLB') return mlbClub(abbr)?.colors ?? ['#1d2d52', '#3f5079'];
   return ['#1d2d52', '#3f5079'];
 }
 

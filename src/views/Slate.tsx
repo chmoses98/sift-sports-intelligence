@@ -95,7 +95,7 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         </div>
         <div className="gcard__meta">
           <span className="gcard__time">{timeLabel(item.start_time_utc)}</span>
-          <span className={`gcard__until${passed ? ' is-passed' : ''}`}>{passed ? 'kickoff passed' : until(item.start_time_utc, now)}</span>
+          <span className={`gcard__until${passed ? ' is-passed' : ''}`}>{passed ? (repo.sport.code === 'MLB' ? 'first pitch passed' : 'kickoff passed') : until(item.start_time_utc, now)}</span>
           <span className="gcard__mk"><b className="num">{compact(item.markets_available)}</b> markets</span>
         </div>
         <div className="gcard__hooks">

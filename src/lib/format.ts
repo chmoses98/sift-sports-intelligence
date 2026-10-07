@@ -119,6 +119,12 @@ export function familyLabel(f: string): string {
     both_teams_score_n: 'Both teams score', team_stat: 'Team stat', race_to_n: 'Race to N', win_margin_bucket: 'Win margin',
     half_full_result: 'Half / full', first_td_team: 'First TD team', player_stat: 'Player stat', player_td: 'Touchdown scorer',
     anytime_td: 'Anytime TD', first_td: 'First TD',
+    // MLB (edge-finder-api families)
+    game_result: 'Moneyline', ml: 'Moneyline', ml_home: 'Moneyline', ml_away: 'Moneyline', winning_margin: 'Run line',
+    game_total: 'Total runs', inning_result: 'Inning result', inning_total: 'Total runs', first_inning_run: 'Run in 1st inning',
+    yrfi: 'Run in 1st inning', f5_ml: 'Moneyline', pitcher_strikeouts: 'Strikeouts', pitcher_outs: 'Outs recorded', hitter_hits: 'Hits',
+    hitter_total_bases: 'Total bases', hitter_hits_runs_rbis: 'Hits + runs + RBIs', hitter_hrr: 'Hits + runs + RBIs', hitter_rbis: 'RBIs',
+    hitter_rbi: 'RBIs', hitter_runs: 'Runs', hitter_stolen_bases: 'Stolen bases', hitter_home_runs: 'Home runs',
   };
   return map[f] ?? f.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
 }

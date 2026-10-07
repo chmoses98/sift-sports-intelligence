@@ -5,7 +5,7 @@
 // Every number is read from the event research document the CBB publisher built from its immutable pre-tip
 // archive (and, for national ranks, the teams' published profiles); nothing here computes a projection, a
 // rating or an edge.
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { EntityProfileDoc, EventResearchDoc, MetricDef, Observation, Participant } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
@@ -51,8 +51,7 @@ export function CbbGameView({ eventId }: { eventId: string }) {
     <div className="page cbbg" style={accentVars}>
       <Hero r={r} c={c} home={home} away={away} slug={slug} now={now} primary={primary} colors={colors} />
       <nav className="cbbg__toc" aria-label="Game sections">
-        <a href="#cg-proj">Projection</a><a href="#cg-matchup">Matchup</a><a href="#cg-roster">Rosters</a>
-        <a href="#cg-models">Models</a><a href="#cg-status">Research status</a><a href="#cg-prov">Data &amp; provenance</a>
+        {SECTIONS.map(([id, label]) => <a key={id} href={`#${id}`} onClick={(e) => jumpTo(e, id)}>{label}</a>)}
       </nav>
 
       <Stratum id="cg-proj" title="Projected score" sub={primary ? 'The production incumbent’s projection, archived before tip. Research evidence, never a pick.' : undefined}>
@@ -96,6 +95,18 @@ export function CbbGameView({ eventId }: { eventId: string }) {
       <Provenance r={r} c={c} now={now} />
     </div>
   );
+}
+
+// The app routes on the URL hash, so an in-page "#section" link would navigate away from the game:
+// the section tabs scroll instead (and open the provenance disclosure when it is the target).
+const SECTIONS = [['cg-proj', 'Projection'], ['cg-matchup', 'Matchup'], ['cg-roster', 'Rosters'], ['cg-models', 'Models'], ['cg-status', 'Research status'], ['cg-prov', 'Data & provenance']] as const;
+
+function jumpTo(e: MouseEvent<HTMLAnchorElement>, id: string) {
+  e.preventDefault();
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el instanceof HTMLDetailsElement) el.open = true;
+  el.scrollIntoView({ block: 'start' });
 }
 
 // ------------------------------------------------------------------ hero

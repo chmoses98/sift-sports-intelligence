@@ -98,6 +98,12 @@ test.describe('CBB in season', () => {
     await expect(page.locator('#cg-matchup .cmu__row').first()).toContainText('Efficiency');
     await expect(page.locator('#cg-matchup')).toContainText('No combined “edge” number is drawn');
     await noHorizontalOverflow(page, 'cbb game hero');
+    // section tabs scroll within the game (the app routes on the hash, so they must not navigate)
+    await page.locator('.cbbg__toc').getByRole('link', { name: 'Rosters' }).click();
+    await expect(page).toHaveURL(new RegExp(`#/cbb/game/${DUKE_KU.event_id}$`));
+    await expect(page.locator('#cg-roster')).toBeInViewport();
+    await page.locator('.cbbg__toc').getByRole('link', { name: /Data/ }).click();
+    await expect(page.locator('#cg-prov')).toHaveAttribute('open', '');
 
     await page.goto('./#/cbb/slate');
     await page.getByRole('radio', { name: 'Projected' }).click();

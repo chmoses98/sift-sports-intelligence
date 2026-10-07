@@ -1,9 +1,23 @@
 // Post-deploy production check: the LIVE site on GitHub Pages, in real Chromium and WebKit, against the
 // live quote feed — no fixtures, no mocks. Proves the market clock works where the owner uses it.
 // Read-only. Run by .github/workflows/production-check.yml after every deploy (and on demand).
+//
+// SLATE-AWARE, NOT WEAKER. The target game comes from the canonical NFL publication's own board metadata
+// (scripts/live-quotes/slate.mjs, the same rule the feed publisher uses), never from "the first card":
+//   CURRENT    a current NFL game exists -> every live-game assertion is strict on THAT event, and the feed must
+//              carry it (a current game the feed does not cover is a production failure)
+//   OFF_SLATE  no current game and a healthy publication -> live-game assertions are NOT_APPLICABLE; the check
+//              proves the off-slate state instead (publication current, feed current and saying NO_CURRENT_GAMES,
+//              relay healthy, pages render, historical prices honest)
+//   STALE      the publication stopped describing the present -> a production failure
 import { chromium, webkit } from '@playwright/test';
+import { honestPublicationStates, selectTarget } from './live-quotes/slate.mjs';
 
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
+const NFL_BOARD = process.env.SIFT_NFL_BOARD_URL ?? 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json';
+const FEED = (process.env.SIFT_QUOTE_FEED_URL ?? 'https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes').replace(/\/+$/, '');
+/** The feed publishes every 3 minutes and raw.githubusercontent.com caches up to 5: 15 minutes is several missed cycles. */
+const FEED_MAX_AGE_S = 15 * 60;
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
 
@@ -18,6 +32,8 @@ async function gameChipReady(page) {
 const RELAY = (process.env.SIFT_QUOTE_RELAY_URL ?? '').trim().replace(/\/+$/, '');
 const ORIGIN = new URL(BASE).origin;
 const EXPECT_RELAY = process.env.SIFT_EXPECT_RELAY === '1';
+const gameUrlOf = (eventId) => `${BASE}#/nfl/game/${encodeURIComponent(eventId)}`;
+const ageS = (iso) => Math.round((Date.now() - Date.parse(iso ?? '')) / 1000);
 
 /** A Status diagnostics cell; a row this build does not have reads as such (and fails its check). */
 async function diagCell(page, k) {
@@ -25,16 +41,40 @@ async function diagCell(page, k) {
   return (await cell.count()) ? ((await cell.textContent()) ?? '').trim() : `(no "${k}" row)`;
 }
 
-// Fallback proof, on the live site: force the relay to answer Kalshi's 429 in this browser only, and
-// prove the feed answers the quotes (FEED, honest freshness, packet still builds, the 429 named with its status,
-// no crash). Then let the relay through again and prove LIVE returns. Production itself is untouched.
-async function fallbackProof(browser, device, name, gameUrl) {
-  console.log(`  -- fallback proof (relay forced to HTTP 429 in this browser)`);
-  const ctx = await browser.newContext(device);
-  const page = await ctx.newPage();
+async function getJson(url) {
+  const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(30_000) });
+  if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+  return r.json();
+}
+
+/** Relay responses seen by a page; a request the browser itself cancelled (navigation) is not a relay answer. */
+function watchRelay(page) {
+  const seen = [];
+  if (!RELAY) return seen;
+  page.on('response', (r) => r.url().startsWith(RELAY) && seen.push(`${r.request().method()} ${r.status()}`));
+  page.on('requestfailed', (r) => r.url().startsWith(RELAY) && seen.push(/cancel|abort/i.test(r.failure()?.errorText ?? '') ? `${r.method()} cancelled by the page` : `${r.method()} failed: ${r.failure()?.errorText}`));
+  return seen;
+}
+const answered = (seen) => seen.filter((s) => !s.endsWith('cancelled by the page'));
+
+function watchErrors(page) {
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
   page.on('console', (m) => m.type() === 'error' && !/Failed to load resource|access control checks|net::ERR/.test(m.text()) && errs.push(m.text()));
+  return errs;
+}
+
+// Fallback proof, on the live site: force the relay to answer Kalshi's 429 in this browser only, and
+// prove the feed answers the quotes (FEED, honest freshness, packet still builds, the 429 named with its status,
+// no crash). Then remove the interception and prove LIVE returns in a CLEAN browser context: the 429s this check
+// injected put the page's own quote store into rate-limit backoff, and a hash navigation keeps that store, so
+// waiting on the same page measured the check's own backoff, not production. Production itself is untouched.
+async function fallbackProof(browser, device, name, eventId) {
+  console.log(`  -- fallback proof (relay forced to HTTP 429 in this browser; target ${eventId})`);
+  const gameUrl = gameUrlOf(eventId);
+  const ctx = await browser.newContext(device);
+  const page = await ctx.newPage();
+  const errs = watchErrors(page);
   const feed = [];
   page.on('response', (r) => r.url().includes('/live-quotes/') && feed.push(r.status()));
   const forced = [];
@@ -53,6 +93,7 @@ async function fallbackProof(browser, device, name, gameUrl) {
     await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
     await gameChipReady(page);
     await page.waitForFunction(() => document.querySelector('[data-live-mode]')?.getAttribute('data-live-mode') === 'FEED', null, { timeout: 90_000 }).catch(() => {});
+    await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute('data-quote-source') === 'live', GAME_CHIP, { timeout: 60_000 }).catch(() => {});
     const chip = page.locator(GAME_CHIP);
     const state = await chip.getAttribute('data-quote-state');
     console.log(`  forced 429s: ${forced.length} | feed requests: ${feed.length} | prices chip: ${await chip.getAttribute('data-quote-source')} ${state} "${(await chip.textContent())?.trim()}"`);
@@ -60,6 +101,7 @@ async function fallbackProof(browser, device, name, gameUrl) {
     check((await page.locator('[data-live-mode]').getAttribute('data-live-mode')) === 'FEED', 'fallback: mode becomes FEED');
     check(feed.some((s) => s === 200 || s === 304), `fallback: the GitHub quote feed answered (${feed.length} requests)`);
     check((await chip.getAttribute('data-quote-source')) === 'live' && /\d/.test((await chip.textContent()) ?? ''), 'fallback: prices stay visible, from the feed');
+    // The feed's quotes carry the time Kalshi answered the publisher (minutes old), so FRESH or AGING is their real age.
     check(['FRESH', 'AGING'].includes(state ?? ''), `fallback: freshness is the feed's real age (got ${state})`);
     await page.goto(BASE + '#/status');
     await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
@@ -67,28 +109,42 @@ async function fallbackProof(browser, device, name, gameUrl) {
     console.log(`  status: quotes answered by ${await diag('Quotes answered by')} | mode ${await diag('Mode')} | quote fallback reason: ${reason} | inventory answered by ${await diag('Inventory answered by')}`);
     check((await diag('Quotes answered by')) === 'quote-feed', 'fallback: Status says the quote feed answered the quotes');
     check(/kalshi-relay HTTP 429/.test(reason), `fallback: the relay error is shown with its status code (${reason})`);
-    const ev = gameUrl.split('/game/')[1]?.split('?')[0];
-    await page.goto(`${BASE}#/packet?sport=nfl&scope=GAME&event=${ev}`);
+    await page.goto(`${BASE}#/packet?sport=nfl&scope=GAME&event=${encodeURIComponent(eventId)}`);
     await page.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 120_000 });
     const verdict = await page.getByRole('region', { name: 'Market refresh preflight' }).getAttribute('data-preflight');
     check(verdict === 'PASS' || verdict === 'PARTIAL', `fallback: the packet preflight still completes (got ${verdict})`);
     check(errs.length === 0, `fallback: no page/console errors, no crash (${errs.slice(0, 3).join(' | ')})`);
     await page.screenshot({ path: `production-${name}-fallback.png` });
-
-    // Restore: the relay answers again and LIVE returns on the next refresh.
-    await page.unroute(`${RELAY}/**`, block);
-    await page.goto(gameUrl);
-    await page.waitForFunction(() => document.querySelector('[data-live-mode]')?.getAttribute('data-live-mode') === 'LIVE', null, { timeout: 120_000 }).catch(() => {});
-    check((await page.locator('[data-live-mode]').getAttribute('data-live-mode')) === 'LIVE', 'restored: mode returns to LIVE when the relay answers');
-    await page.goto(BASE + '#/status');
-    await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
-    console.log(`  restored: quotes answered by ${await diag('Quotes answered by')} | mode ${await diag('Mode')} | quote fallback reason: ${await diag('Quote fallback reason')}`);
-    check((await diag('Quotes answered by')) === 'kalshi-relay' && (await diag('Quote fallback reason')) === '—', 'restored: the relay answers the quotes and no quote fallback is reported');
   } catch (e) {
     check(false, `${name} fallback proof: ${String(e).split('\n')[0]}`);
     await page.screenshot({ path: `production-${name}-fallback-failure.png` }).catch(() => {});
   } finally {
+    await page.unroute(`${RELAY}/**`, block).catch(() => {});
     await ctx.close();
+  }
+
+  // Restore: interception removed, provider state rebuilt by a real document load in a clean context.
+  const rctx = await browser.newContext(device);
+  const rpage = await rctx.newPage();
+  const relay = watchRelay(rpage);
+  const rdiag = (k) => diagCell(rpage, k);
+  try {
+    await rpage.goto(gameUrl);
+    await rpage.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+    await rpage.waitForFunction(() => document.querySelector('[data-live-mode]')?.getAttribute('data-live-mode') === 'LIVE', null, { timeout: 60_000 }).catch(() => {});
+    const mode = await rpage.locator('[data-live-mode]').getAttribute('data-live-mode');
+    console.log(`  restored (clean context): mode ${mode} | relay answers: ${answered(relay).length} [${[...new Set(relay)].join('; ')}]`);
+    check(mode === 'LIVE', `restored: mode returns to LIVE when the relay answers (got ${mode})`);
+    check(answered(relay).length > 0 && answered(relay).every((r) => r === 'GET 200'), `restored: every relay request answered 200 (${[...new Set(relay)].join('; ')})`);
+    await rpage.goto(BASE + '#/status');
+    await rpage.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
+    console.log(`  restored: quotes answered by ${await rdiag('Quotes answered by')} | mode ${await rdiag('Mode')} | quote fallback reason: ${await rdiag('Quote fallback reason')}`);
+    check((await rdiag('Quotes answered by')) === 'kalshi-relay' && (await rdiag('Quote fallback reason')) === '—', 'restored: the relay answers the quotes and no quote fallback is reported');
+  } catch (e) {
+    check(false, `${name} restore: ${String(e).split('\n')[0]}`);
+    await rpage.screenshot({ path: `production-${name}-restore-failure.png` }).catch(() => {});
+  } finally {
+    await rctx.close();
   }
 }
 
@@ -121,6 +177,37 @@ async function nhlCheck(page) {
   check(/settled|Learning|learning/.test(sc), 'NHL scorecard renders the learning state');
 }
 
+// ---------------------------------------------------------------- the slate, from the publication itself
+const now = Date.now();
+let board = null;
+let index = null;
+try {
+  board = await getJson(NFL_BOARD);
+} catch (e) {
+  check(false, `NFL canonical publication is readable (${String(e)})`);
+}
+try {
+  index = await getJson(`${FEED}/index.json`);
+} catch (e) {
+  check(false, `live-quote feed index is reachable (${String(e)})`);
+}
+const sel = selectTarget(board ?? {}, now, index);
+const pub = sel.publication;
+console.log(`NFL publication: ${pub.status} | generated ${pub.generated_at} (${pub.age_seconds}s old) | ${pub.eligible_games} current event(s) | latest ${JSON.stringify(pub.latest_event)}`);
+for (const r of pub.reasons) console.log(`  reason: ${r}`);
+if (pub.stale_events.length) console.log(`  started events still marked upcoming/live: ${pub.stale_events.map((e) => e.event_id).join(', ')}`);
+if (index) console.log(`feed: generated ${index.generated_at} (${ageS(index.generated_at)}s old) | status ${index.status ?? '(not declared)'} | ${index.games?.length ?? 0} game file(s) | ${index.errors?.length ?? 0} error(s)`);
+console.log(`mode: ${sel.mode}${sel.target ? ` | target ${sel.target.event_id} (${sel.target.status}, ${sel.target.start_time_utc}) | feed ${sel.feed.covered ? `covers it (${sel.feed.key}, ${sel.feed.markets} markets)` : 'does NOT cover it'}` : ''}`);
+
+check(!!board && pub.status !== 'STALE_PUBLICATION', `NFL canonical publication is current (${pub.status}${pub.reasons.length ? `: ${pub.reasons.join('; ')}` : ''})`);
+if (index) {
+  check(ageS(index.generated_at) <= FEED_MAX_AGE_S, `live-quote feed index is recent (${ageS(index.generated_at)}s old; limit ${FEED_MAX_AGE_S}s)`);
+  check((index.errors ?? []).length === 0, `live-quote feed reports no source errors (${(index.errors ?? []).slice(0, 3).join(' | ')})`);
+  if (sel.mode === 'CURRENT') check(index.status === 'CURRENT_SLATE', `feed declares CURRENT_SLATE (got ${index.status})`);
+  if (sel.mode === 'OFF_SLATE') check(index.status === 'NO_CURRENT_GAMES' && (index.games ?? []).length === 0, `feed explicitly declares NO_CURRENT_GAMES (got ${index.status}, ${(index.games ?? []).length} game file(s))`);
+}
+if (sel.mode === 'CURRENT') check(sel.feed.covered, `the feed carries the current game ${sel.target.event_id} with markets (${sel.feed.key ?? 'no file'}, ${sel.feed.markets} markets)`);
+
 // The relay as the browser sees it: Sift's Pages origin, a CORS preflight, then the real GET.
 // Logged on every run so a relay failure always says why (the app's fallback hides it from the UI).
 if (RELAY) {
@@ -131,90 +218,128 @@ if (RELAY) {
       const r = await fetch(q, { ...init, signal: AbortSignal.timeout(20_000) });
       const body = what === 'GET' ? (await r.text()).replace(/\s+/g, ' ').slice(0, 300) : '';
       console.log(`  ${what} ${r.status} acao=${r.headers.get('access-control-allow-origin')} observed=${r.headers.get('x-sift-observed-at')} ${body}`);
+      if (what === 'GET') check(r.status === 200 && r.headers.get('access-control-allow-origin') === ORIGIN, `relay direct probe answers 200 to this origin (${r.status})`);
     } catch (e) {
       console.log(`  ${what} failed: ${String(e.cause ?? e)}`);
+      if (what === 'GET') check(false, `relay direct probe answers 200 to this origin (${String(e.cause ?? e)})`);
     }
   }
+}
+
+/** Quote architecture, from the Status diagnostics: which chains production runs (independent of any game). */
+async function quoteChain(page) {
+  await page.goto(BASE + '#/status');
+  await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
+  const provider = await diagCell(page, 'Quote provider');
+  const invProvider = await diagCell(page, 'Inventory provider');
+  console.log(`  quote chain: ${provider}\n  inventory chain: ${invProvider}`);
+  if (EXPECT_RELAY) {
+    check(/^Kalshi public market data via relay \(.+\), then Sift quote feed/.test(provider), 'quotes: relay first, GitHub quote feed the fallback');
+    check(/^Sift quote feed .*, then Kalshi public market data via relay \(.+\)/.test(invProvider), 'inventory: GitHub quote feed first, relay the fallback');
+    check(provider.includes(`(${new URL(RELAY).host})`), `the configured relay host is the one Sift calls (${new URL(RELAY).host})`);
+  } else {
+    check(/Sift quote feed/.test(provider), `quotes: the GitHub quote feed is configured (${provider})`);
+  }
+  return { provider, invProvider };
+}
+
+/** CURRENT: the strict live-game path, on the exact current event. */
+async function currentGame(browser, device, name, page, errs) {
+  const feed = [];
+  page.on('response', (r) => r.url().includes('/live-quotes/') && feed.push(r.status()));
+  const relay = watchRelay(page);
+  const eventId = sel.target.event_id;
+  await page.goto(gameUrlOf(eventId));
+  await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+  check(page.url().includes(`/game/${encodeURIComponent(eventId)}`), `opened the current game itself (${eventId})`);
+  await gameChipReady(page);
+  // Wait for the game scope's own refresh (inventory + tickers), not just the slate's first quotes.
+  await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute('data-quote-source') === 'live', GAME_CHIP, { timeout: 90_000 }).catch(() => {});
+  await page.waitForFunction(() => !!document.querySelector('[data-live-inventory]')?.getAttribute('data-live-inventory'), null, { timeout: 90_000 }).catch(() => {});
+  const gameChip = page.locator(GAME_CHIP);
+  const src = await gameChip.getAttribute('data-quote-source');
+  const state = await gameChip.getAttribute('data-quote-state');
+  console.log(`  game prices chip: source=${src} state=${state} "${(await gameChip.textContent())?.trim()}"`);
+  check(src === 'live', 'every game price comes from the live market clock');
+  check(['FRESH', 'AGING'].includes(state ?? ''), `game quotes are FRESH or AGING (got ${state})`);
+  if (!EXPECT_RELAY) check(feed.some((s) => s === 200 || s === 304), `live-quote feed answered (${feed.length} requests)`);
+  const mode = await page.locator('[data-live-mode]').getAttribute('data-live-mode');
+  console.log(`  live mode: ${mode}`);
+  check(['FEED', 'LIVE'].includes(mode ?? ''), `source banner shows live quotes running (got ${mode})`);
+  // Which provider chain production runs, and which provider actually answered (Status diagnostics).
+  // With the relay configured (repo variable SIFT_QUOTE_RELAY_URL -> SIFT_EXPECT_RELAY=1) the chain must be
+  // relay first, GitHub quote feed as fallback, and the relay must be the one answering.
+  await quoteChain(page);
+  const diag = (k) => diagCell(page, k);
+  const answeredBy = await diag('Quotes answered by');
+  const diagMode = await diag('Mode');
+  const invAnswered = await diag('Inventory answered by');
+  const invFallback = await diag('Inventory fallback reason');
+  console.log(`  quotes answered by: ${answeredBy} | mode: ${diagMode}`);
+  console.log(`  inventory answered by: ${invAnswered} | inventory fallback reason: ${invFallback}`);
+  if (RELAY) console.log(`  relay requests from the page: ${relay.length} [${[...new Set(relay)].slice(0, 6).join('; ')}]`);
+  if (EXPECT_RELAY) {
+    const fallback = await diag('Quote fallback reason');
+    console.log(`  quote fallback reason: ${fallback} | feed requests (inventory): ${feed.length}`);
+    check(invAnswered === 'quote-feed' || (invAnswered === 'kalshi-relay' && invFallback.startsWith('quote-feed')), `inventory came from the feed, or from the relay after the feed was asked first (${invAnswered}; ${invFallback})`);
+    check(answeredBy === 'kalshi-relay', `live quotes answered by kalshi-relay (got ${answeredBy})`);
+    check(diagMode === 'LIVE', `market clock mode LIVE (got ${diagMode})`);
+    check(state === 'FRESH', `current game prices are FRESH (got ${state})`);
+    check(answered(relay).length > 0 && answered(relay).every((r) => r === 'GET 200'), `every relay request on the main path answered 200 (${answered(relay).length}: ${[...new Set(relay)].join('; ')})`);
+    check(fallback === '—', `no quote fallback to the feed on the main path (quote fallback reason ${fallback})`);
+  }
+  await page.goto(`${BASE}#/packet?sport=nfl&scope=GAME&event=${encodeURIComponent(eventId)}`);
+  await page.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 120_000 });
+  const pf = page.getByRole('region', { name: 'Market refresh preflight' });
+  const verdict = await pf.getAttribute('data-preflight');
+  console.log(`  preflight: ${verdict} | ${(await pf.textContent())?.replace(/\s+/g, ' ').slice(0, 220)}`);
+  if (EXPECT_RELAY) check(verdict === 'PASS', `packet preflight PASS through the relay (got ${verdict})`);
+  else check(verdict === 'PASS' || verdict === 'PARTIAL', `packet preflight refreshed the game's markets (got ${verdict})`);
+  await page.screenshot({ path: `production-${name}-packet.png` });
+  check(errs.length === 0, `no page/console errors (${errs.slice(0, 3).join(' | ')})`);
+  // Only against a game the feed carries: forcing the relay down for a game the fallback cannot answer proves nothing.
+  if (RELAY && sel.feed.covered) await fallbackProof(browser, device, name, eventId);
+}
+
+/** OFF_SLATE (and STALE, for diagnostics): no game is treated as live; what must hold anyway is proved. */
+async function offSlate(name, page, errs) {
+  await page.goto(BASE + '#/nfl');
+  await page.locator('.gcard__link').first().waitFor({ timeout: 60_000 });
+  check(true, 'NFL page renders');
+  await quoteChain(page);
+  if (sel.historical) {
+    // A historical game's price is never demanded FRESH. Where it comes from the publication capture (no live
+    // observation), it can be no younger than the board that carried it.
+    await page.goto(gameUrlOf(sel.historical.event_id));
+    await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+    await gameChipReady(page);
+    const chip = page.locator(GAME_CHIP);
+    const src = await chip.getAttribute('data-quote-source');
+    const state = await chip.getAttribute('data-quote-state');
+    console.log(`  historical ${sel.historical.event_id} (${sel.historical.status}, ${sel.historical.start_time_utc}): prices chip source=${src} state=${state} "${(await chip.textContent())?.trim()}"`);
+    const allowed = src === 'publication' ? honestPublicationStates(board?.generated_at, Date.now()) : ['FRESH', 'AGING', 'STALE', 'UNKNOWN'];
+    check(allowed.includes(state ?? ''), `historical game prices are labelled honestly (${src} ${state}; allowed ${allowed.join('/')})`);
+  }
+  await page.screenshot({ path: `production-${name}-offslate.png` });
+  check(errs.length === 0, `no page/console errors (${errs.slice(0, 3).join(' | ')})`);
+  console.log(`  live-game quote assertions: NOT_APPLICABLE — ${sel.mode === 'STALE' ? 'the NFL publication is stale (failed above)' : 'no current NFL game'}`);
 }
 
 for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { width: 390, height: 844 } }], ['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]]) {
   console.log(`\n${name}`);
   const browser = await type.launch();
   const page = await (await browser.newContext(device)).newPage();
-  const errs = [];
-  page.on('pageerror', (e) => errs.push(e.message));
-  page.on('console', (m) => m.type() === 'error' && !/Failed to load resource|access control checks|net::ERR/.test(m.text()) && errs.push(m.text()));
-  const feed = [];
-  page.on('response', (r) => r.url().includes('/live-quotes/') && feed.push(r.status()));
-  const relay = [];
-  if (RELAY) {
-    page.on('response', (r) => r.url().startsWith(RELAY) && relay.push(`${r.request().method()} ${r.status()}`));
-    page.on('requestfailed', (r) => r.url().startsWith(RELAY) && relay.push(`${r.method()} failed: ${r.failure()?.errorText}`));
-  }
+  const errs = watchErrors(page);
   try {
     await page.goto(BASE + '#/');
     await page.getByRole('heading', { name: 'Today on Sift' }).waitFor({ timeout: 60_000 });
     check(true, 'home renders');
-    // Find an upcoming game from the board and open its moneyline market.
-    await page.goto(BASE + '#/nfl');
-    await page.locator('.gcard__link').first().waitFor({ timeout: 60_000 });
-    await page.locator('.gcard__link').first().click();
-    await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
-    await gameChipReady(page);
-    // Wait for the game scope's own refresh (inventory + tickers), not just the slate's first quotes.
-    await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute('data-quote-source') === 'live', GAME_CHIP, { timeout: 90_000 }).catch(() => {});
-    const gameChip = page.locator(GAME_CHIP);
-    const src = await gameChip.getAttribute('data-quote-source');
-    const state = await gameChip.getAttribute('data-quote-state');
-    console.log(`  game prices chip: source=${src} state=${state} "${(await gameChip.textContent())?.trim()}"`);
-    check(src === 'live', 'every game price comes from the live market clock');
-    check(['FRESH', 'AGING'].includes(state ?? ''), `game quotes are FRESH or AGING (got ${state})`);
-    if (!EXPECT_RELAY) check(feed.some((s) => s === 200 || s === 304), `live-quote feed answered (${feed.length} requests)`);
-    const mode = await page.locator('[data-live-mode]').getAttribute('data-live-mode');
-    console.log(`  live mode: ${mode}`);
-    check(['FEED', 'LIVE'].includes(mode ?? ''), `source banner shows live quotes running (got ${mode})`);
-    // Which provider chain production runs, and which provider actually answered (Status diagnostics).
-    // With the relay configured (repo variable SIFT_QUOTE_RELAY_URL -> SIFT_EXPECT_RELAY=1) the chain must be
-    // relay first, GitHub quote feed as fallback, and the relay must be the one answering.
-    const gameUrl = page.url();
-    await page.goto(BASE + '#/status');
-    await page.getByRole('heading', { name: 'Live market quotes' }).waitFor({ timeout: 60_000 });
-    const diag = (k) => diagCell(page, k);
-    const provider = await diag('Quote provider');
-    const answered = await diag('Quotes answered by');
-    const diagMode = await diag('Mode');
-    const invProvider = await diag('Inventory provider');
-    const invAnswered = await diag('Inventory answered by');
-    const invFallback = await diag('Inventory fallback reason');
-    console.log(`  quote chain: ${provider}\n  quotes answered by: ${answered} | mode: ${diagMode}`);
-    console.log(`  inventory chain: ${invProvider}\n  inventory answered by: ${invAnswered} | inventory fallback reason: ${invFallback}`);
-    if (RELAY) console.log(`  relay requests from the page: ${relay.length} [${[...new Set(relay)].slice(0, 6).join('; ')}]`);
-    if (EXPECT_RELAY) {
-      const fallback = await diag('Quote fallback reason');
-      console.log(`  quote fallback reason: ${fallback} | feed requests (inventory): ${feed.length}`);
-      check(/^Kalshi public market data via relay \(.+\), then Sift quote feed/.test(provider), 'quotes: relay first, GitHub quote feed the fallback');
-      check(/^Sift quote feed .*, then Kalshi public market data via relay \(.+\)/.test(invProvider), 'inventory: GitHub quote feed first, relay the fallback');
-      check(invAnswered === 'quote-feed' || (invAnswered === 'kalshi-relay' && invFallback.startsWith('quote-feed')), `inventory came from the feed, or from the relay after the feed was asked first (${invAnswered}; ${invFallback})`);
-      check(provider.includes(`(${new URL(RELAY).host})`), `the configured relay host is the one Sift calls (${new URL(RELAY).host})`);
-      check(answered === 'kalshi-relay', `live quotes answered by kalshi-relay (got ${answered})`);
-      check(diagMode === 'LIVE', `market clock mode LIVE (got ${diagMode})`);
-      check(state === 'FRESH', `current game prices are FRESH (got ${state})`);
-      check(relay.length > 0 && relay.every((r) => r === 'GET 200'), `every relay request on the main path answered 200 (${relay.length}: ${[...new Set(relay)].join('; ')})`);
-      check(fallback === '—', `no quote fallback to the feed on the main path (quote fallback reason ${fallback})`);
-    }
-    await page.goto(gameUrl);
-    const ev = page.url().split('/game/')[1]?.split('?')[0];
-    await page.goto(`${BASE}#/packet?sport=nfl&scope=GAME&event=${ev}`);
-    await page.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 120_000 });
-    const pf = page.getByRole('region', { name: 'Market refresh preflight' });
-    const verdict = await pf.getAttribute('data-preflight');
-    console.log(`  preflight: ${verdict} | ${(await pf.textContent())?.replace(/\s+/g, ' ').slice(0, 220)}`);
-    if (EXPECT_RELAY) check(verdict === 'PASS', `packet preflight PASS through the relay (got ${verdict})`);
-    else check(verdict === 'PASS' || verdict === 'PARTIAL', `packet preflight refreshed the game's markets (got ${verdict})`);
-    await page.screenshot({ path: `production-${name}-packet.png` });
+    if (sel.mode === 'CURRENT') await currentGame(browser, device, name, page, errs);
+    else await offSlate(name, page, errs);
+    // NHL rides along on every run: its own pages, errors counted separately from the NFL path above.
+    const before = errs.length;
     await nhlCheck(page);
-    check(errs.length === 0, `no page/console errors (${errs.slice(0, 3).join(' | ')})`);
-    if (RELAY) await fallbackProof(browser, device, name, gameUrl);
+    check(errs.length === before, `NHL pages: no page/console errors (${errs.slice(before, before + 3).join(' | ')})`);
   } catch (e) {
     check(false, `${name}: ${String(e).split('\n')[0]}`);
     await page.screenshot({ path: `production-${name}-failure.png` }).catch(() => {});
@@ -222,6 +347,7 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     await browser.close();
   }
 }
+console.log(`\nslate mode: ${sel.mode}${sel.mode === 'OFF_SLATE' ? ' (live-game quote assertions NOT_APPLICABLE — no current NFL game)' : ''}`);
 if (failures.length) {
   console.error(`\nPRODUCTION CHECK FAILED:\n- ${failures.join('\n- ')}`);
   process.exit(1);

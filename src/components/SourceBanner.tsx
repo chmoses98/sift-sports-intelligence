@@ -28,13 +28,15 @@ const LIVE_WORD: Record<LiveMode, string> = {
  * Where the numbers come from. Normal screens show only a quiet "Source" control at the foot; the research
  * mode, model age, price-feed state, newer-run notice, health and freshness are one tap away under it (and
  * on Data & provenance / Status). Screen readers get the same state as the control's description, and
- * data-live-mode carries the market-clock mode for diagnostics and tests.
+ * data-live-mode carries the market-clock mode (data-live-inventory: who answered the last inventory sweep) for
+ * diagnostics and tests.
  */
 export function SourceBanner({ source, shown }: { source: SportSource; shown: HealthDoc | null }) {
   const [more, setMore] = useState(false);
   const now = useNow(15_000);
   useLiveVersion();
-  const mode = liveMode(liveStore().diagnostics(), now);
+  const diag = liveStore().diagnostics();
+  const mode = liveMode(diag, now);
   const live = source.liveHealth;
   // Freshness describes the data on screen: the snapshot's own health in snapshot mode.
   const h = shown ?? live;
@@ -46,7 +48,7 @@ export function SourceBanner({ source, shown }: { source: SportSource; shown: He
   return (
     <div className={`srcbar srcbar--${source.mode}${more ? ' is-open' : ''}`}>
       <div className="srcbar__in">
-        <span className="sr-only" id={`srcbar-${source.sport.code}`} data-live-mode={mode}>{srText}</span>
+        <span className="sr-only" id={`srcbar-${source.sport.code}`} data-live-mode={mode} data-live-inventory={diag.inventoryAnsweredBy ?? ''}>{srText}</span>
         <button type="button" className="srcbar__more" aria-expanded={more} aria-describedby={`srcbar-${source.sport.code}`} onClick={() => setMore((m) => !m)}>
           <i aria-hidden="true" className={`srcbar__dot srcbar__dot--${mode.toLowerCase()}`} />
           {more ? 'Less' : 'Source'}

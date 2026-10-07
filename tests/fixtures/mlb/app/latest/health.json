@@ -1,0 +1,94 @@
+{
+  "bet_authority": "MANUAL",
+  "commit_sha": "891daa5561f90f4817824f97a9ed987bf4eb69fa",
+  "components": {
+    "export": {
+      "age_seconds": 0.1,
+      "as_of": "2026-10-07T20:03:39Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "market_data": {
+      "age_seconds": 614.3,
+      "as_of": "2026-10-07T19:53:24Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "model": {
+      "age_seconds": 156.1,
+      "as_of": "2026-10-07T20:01:03Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "production_gate": {
+      "age_seconds": 3205.1,
+      "as_of": "2026-10-07T19:10:14Z",
+      "detail": "production_health_gate overall=CRITICAL",
+      "status": "DEGRADED"
+    },
+    "router": {
+      "age_seconds": 63760.1,
+      "as_of": "2026-10-07T02:20:59Z",
+      "detail": null,
+      "status": "STALE"
+    },
+    "settlement": {
+      "age_seconds": 24948.1,
+      "as_of": "2026-10-07T13:07:51Z",
+      "detail": null,
+      "status": "OK"
+    }
+  },
+  "data_age_seconds": 614.3,
+  "errors": [],
+  "freshness_status": "FRESH",
+  "generated_at": "2026-10-07T20:03:39Z",
+  "kind": "health",
+  "last_export_attempt": "2026-10-07T20:03:39Z",
+  "last_market_capture": "2026-10-07T19:53:24Z",
+  "last_model_generated": "2026-10-07T20:01:03Z",
+  "last_successful_run": "2026-10-07T20:03:39Z",
+  "market_data_status": "OK",
+  "model_status": "OK",
+  "next_scheduled_run": "2026-10-07T20:30:00Z",
+  "overall_status": "HEALTHY",
+  "payload_run_id": "run_cd3df33ae386ca222d6e",
+  "router_status": "STALE",
+  "run_id": "run_cd3df33ae386ca222d6e",
+  "schema_version": "edge_finder.app.v1",
+  "settlement_status": "OK",
+  "sport": "MLB",
+  "thresholds": {
+    "export": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 10800
+    },
+    "market_data": {
+      "fresh_after_seconds": 1200,
+      "stale_after_seconds": 7200
+    },
+    "model": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 21600
+    },
+    "recommendations": {
+      "fresh_after_seconds": 3600,
+      "stale_after_seconds": 21600
+    },
+    "router": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 14400
+    },
+    "schedule": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    },
+    "settlement": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    }
+  },
+  "warnings": [
+    "22 recommendation row(s) skipped: ticker, event or contract side could not be established"
+  ]
+}

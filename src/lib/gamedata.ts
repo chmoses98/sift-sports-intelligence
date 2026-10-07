@@ -5,6 +5,8 @@ import type { EntityProfileDoc, EventResearchDoc, Market, ModelPrice } from '../
 import { STAT_LABEL } from './nfl';
 import { describeNhlMarket } from './marketLabel';
 import type { GameScript, ScriptFit, ScriptSet } from './scripts';
+import { isFullGame } from './period';
+import { describeMlbMarket, isMlbTicker } from './mlb';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -15,7 +17,7 @@ export type MarketGroupKey = 'spreads' | 'totals' | 'team_totals' | 'props' | 'h
 export function marketGroup(m: Pick<Market, 'market_family' | 'period' | 'player_id'>): MarketGroupKey {
   if (m.player_id || ['player_stat', 'first_td_scorer', 'game_player_leader', 'anytime_td', 'first_td'].includes(m.market_family)) return 'props';
   if (m.period === '1H' || m.period === '2H') return 'halves';
-  if (m.period && m.period !== 'FULL') return 'more';
+  if (m.period && !isFullGame(m.period)) return 'more';
   if (m.market_family === 'spread' || m.market_family === 'game_winner') return 'spreads';
   if (m.market_family === 'total') return 'totals';
   if (m.market_family === 'team_total') return 'team_totals';
@@ -35,8 +37,9 @@ const STAT_SHORT: Record<string, string> = {
  */
 export function marketLabel(m: Market, abbrOf: (pid: string | null) => string | null, playerName: (id: string | null) => string | null): string {
   if (/^KXNHL/.test(m.kalshi_ticker)) return describeNhlMarket(m)?.title ?? m.yes_description;
+  if (isMlbTicker(m.kalshi_ticker)) return describeMlbMarket(m, { abbrOf, playerName }).title;
   const who = abbrOf(m.participant_id);
-  const per = m.period && m.period !== 'FULL' ? `${m.period} ` : '';
+  const per = m.period && !isFullGame(m.period) ? `${m.period} ` : '';
   const t = m.threshold;
   switch (m.market_family) {
     case 'game_winner':

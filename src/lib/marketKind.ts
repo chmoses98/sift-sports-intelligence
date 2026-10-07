@@ -2,17 +2,19 @@
 // optional team (whose market it is) and an optional period, so the same symbol appears wherever that
 // kind of market appears. The visual is drawn by components/MarketIcon.tsx.
 import type { Market } from '../contract/types';
+import { isFullGame } from './period';
+import { isMlbTicker, mlbKind, mlbPeriod, mlbTeamOf, propFamily } from './mlb';
 
 export type MarketKind =
   | 'moneyline' | 'spread' | 'total' | 'team-total'
   | 'passing' | 'rushing' | 'receiving' | 'receptions' | 'touchdown' | 'kicking' | 'defense' | 'fantasy'
-  | 'period' | 'parlay' | 'game';
+  | 'period' | 'parlay' | 'game' | 'pitching' | 'hitting';
 
 export const KIND_LABEL: Record<MarketKind, string> = {
   moneyline: 'Moneyline', spread: 'Spread', total: 'Game total', 'team-total': 'Team total',
   passing: 'Passing prop', rushing: 'Rushing prop', receiving: 'Receiving prop', receptions: 'Receptions prop',
   touchdown: 'Touchdown market', kicking: 'Kicking prop', defense: 'Defense market', fantasy: 'Fantasy points prop',
-  period: 'Period result', parlay: 'Parlay / teaser', game: 'Game event',
+  period: 'Period result', parlay: 'Parlay / teaser', game: 'Game event', pitching: 'Pitching prop', hitting: 'Hitting prop',
 };
 
 const STAT_KIND: Record<string, MarketKind> = {
@@ -39,14 +41,23 @@ export interface MarketAnchor {
  * player's team. Defensive and special-teams subjects ("BUF Bills D/ST") count as defense for that team.
  */
 export function marketAnchor(
-  m: Pick<Market, 'market_family' | 'period' | 'participant_id' | 'player_id' | 'extensions'>,
+  m: Pick<Market, 'market_family' | 'period' | 'participant_id' | 'player_id' | 'extensions'> & { kalshi_ticker?: string },
   abbrOf: (pid: string | null) => string | null,
   playerTeam: (playerId: string | null) => string | null,
 ): MarketAnchor {
-  const period = m.period && m.period !== 'FULL' ? m.period : null;
+  const period = m.period && !isFullGame(m.period) ? m.period : null;
   const ext = (m.extensions ?? {}) as { stat?: string; subject?: string };
   const team = abbrOf(m.participant_id) ?? playerTeam(m.player_id) ?? null;
   const dst = /\bD\/ST\b/.test(ext.subject ?? '') ? (ext.subject ?? '').split(' ')[0] : null;
+  if (m.kalshi_ticker && isMlbTicker(m.kalshi_ticker)) {
+    const mm = m as Parameters<typeof mlbKind>[0];
+    const kind = mlbKind(mm);
+    const per = mlbPeriod(mm);
+    const t = abbrOf(m.participant_id) ?? mlbTeamOf(mm);
+    if (kind === 'player') return { kind: (propFamily(mm) ?? '').startsWith('pitcher_') ? 'pitching' : 'hitting', team: t, period: null };
+    const k: MarketKind = kind === 'moneyline' ? 'moneyline' : kind === 'run_line' ? 'spread' : kind === 'total' ? 'total' : kind === 'team_total' ? 'team-total' : kind === 'period_result' ? 'period' : 'game';
+    return { kind: k, team: kind === 'total' || kind === 'yrfi' ? null : t, period: per };
+  }
   switch (m.market_family) {
     case 'game_winner': return { kind: 'moneyline', team, period };
     case 'spread': return { kind: 'spread', team, period };

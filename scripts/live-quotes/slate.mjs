@@ -80,6 +80,46 @@ export function publishVerdict(publication, games, markets) {
   return { publish: true, reason: publication.status === 'NO_CURRENT_GAMES' ? 'no current games: a healthy empty feed' : `${games} game key(s), ${markets} market(s)` };
 }
 
+/**
+ * The feed's per-sport index entry (index.sport_status, scripts/live-quotes/lib.mjs planFeed). An index written before
+ * per-sport status existed is read the old way: the sport is listed when `sports` names it, `status` is the feed's.
+ */
+export function sportEntry(index, sport) {
+  const e = (index?.sport_status ?? []).find((s) => s.sport === sport);
+  if (e) return e;
+  if (!index || index.sport_status) return null;
+  return (index.sports ?? []).includes(sport) ? { sport, status: index.status ?? null, published: index.status !== 'STALE_PUBLICATION', reason: '(index has no sport_status)', legacy: true } : null;
+}
+
+/** The feed's game entries for a sport (entries without a `sport`, from an older index, match by game key). */
+export function sportGames(index, sport, keys = new Set()) {
+  return (index?.games ?? []).filter((g) => g.sport === sport || (g.sport == null && keys.has(g.key)));
+}
+
+/**
+ * Production check, per sport: when the sport's publication lists current games, the feed must list the sport as
+ * published and carry at least one game file whose quoted markets intersect the publication's own tickers.
+ *   mode STALE      the publication is stale or unreadable: a failure for THIS sport only
+ *   mode OFF_SLATE  no current game: NOT_APPLICABLE, ok
+ *   mode CURRENT    `problems` lists what is missing (empty = ok); `file` is the covering game file
+ * `files` maps a feed path (games/<key>.json) to its parsed document (the caller fetches the sport's game files).
+ */
+export function sportCoverage(sport, publication, index, publishedTickers, files = new Map()) {
+  if (publication.status === 'STALE_PUBLICATION' || publication.status === 'UNREADABLE_PUBLICATION') {
+    return { mode: 'STALE', ok: false, problems: [`the ${sport} publication is ${publication.status === 'STALE_PUBLICATION' ? 'stale' : 'unreadable'} (${publication.reasons.join('; ')})`], file: null };
+  }
+  if (!publication.eligible_games) return { mode: 'OFF_SLATE', ok: true, problems: [], file: null };
+  const problems = [];
+  const entry = sportEntry(index, sport);
+  if (!entry || !entry.published) problems.push(`the live-quote index does not list ${sport} as published (${entry ? `${entry.status}: ${entry.reason}` : `no ${sport} entry`})`);
+  const tickers = publishedTickers instanceof Set ? publishedTickers : new Set(publishedTickers);
+  const keys = new Set([...tickers].map((t) => t.split('-')[1]).filter(Boolean));
+  const games = sportGames(index, sport, keys);
+  const hit = games.find((g) => (files.get(g.file)?.markets ?? []).some((m) => tickers.has(m.ticker)));
+  if (!hit) problems.push(`no ${sport} game file in the feed quotes a ticker the ${sport} publication lists (${games.length} ${sport} game file(s) in the index, ${tickers.size} published ticker(s))`);
+  return { mode: 'CURRENT', ok: problems.length === 0, problems, file: hit?.file ?? null };
+}
+
 const startOf = (it) => Date.parse(it.start_time_utc);
 
 /**

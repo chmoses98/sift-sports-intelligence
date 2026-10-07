@@ -23,6 +23,7 @@ import { useHeldImage, useInView } from '../../lib/useImage';
 import { PanelHead } from '../game/panels';
 import type { MatchupInsight } from '../../insights/matchups';
 import { matchupInsights } from '../../insights/matchups';
+import { isFullGame } from '../../lib/period';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -67,8 +68,8 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
   const img = useHeldImage(photo?.hero);
   const set = r ? gameScripts(r) : null;
   const wx = r ? gameWeather(r, venue) : null;
-  const a = splitName(away?.display_name ?? '');
-  const h = splitName(home?.display_name ?? '');
+  const a = splitName(away?.display_name ?? '', away?.short_name, sportCode);
+  const h = splitName(home?.display_name ?? '', home?.short_name, sportCode);
   const lead = set?.scripts[0];
   return (
     <article className={`fcard${photo ? '' : ' fcard--nophoto'}`} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
@@ -85,7 +86,7 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
         </div>
       </Link>
       <div className="fcard__foot">
-        {insight ? <p className="fcard__thesis">{insight.headline}</p> : <p className="fcard__thesis">{lead ? `Most likely: ${lead.name}` : 'Open the game for its scripts and matchups'}</p>}
+        {insight ? <p className="fcard__thesis">{insight.headline}</p> : <p className="fcard__thesis">{lead ? `Most likely: ${lead.name}` : sportCode === 'MLB' ? 'Open the game for its lines and player props' : 'Open the game for its scripts and matchups'}</p>}
         {lead && <span className="fcard__lead"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span>}
       </div>
       {photo && <span className="fcard__credit">Photo: {photo.credit.artist.slice(0, 32)} · {photo.credit.license}</span>}
@@ -113,12 +114,12 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
         <span className="gtile__logos"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><i>at</i><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>
       </div>
       <Link to={routes.game(sportSlug, item.event_id)} className="gtile__link gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>
-        <span className="gtile__when"><span>{new Date(item.start_time_utc).toLocaleDateString(undefined, { weekday: "short" })} {new Date(item.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span><span className={passed ? 'is-passed' : ''}>{passed ? 'Kicked off' : until(item.start_time_utc, now)}</span></span>
-        <span className="gtile__t">{splitName(away?.display_name ?? '').nick} <span className="gtile__at">at</span> {splitName(home?.display_name ?? '').nick}</span>
+        <span className="gtile__when"><span>{new Date(item.start_time_utc).toLocaleDateString(undefined, { weekday: "short" })} {new Date(item.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span><span className={passed ? 'is-passed' : ''}>{passed ? (sportCode === 'MLB' ? 'First pitch passed' : 'Kicked off') : until(item.start_time_utc, now)}</span></span>
+        <span className="gtile__t">{splitName(away?.display_name ?? '', away?.short_name, sportCode).nick} <span className="gtile__at">at</span> {splitName(home?.display_name ?? '', home?.short_name, sportCode).nick}</span>
         {r === undefined ? (
           <span className="gtile__model gcard__hook--load">Reading research…</span>
         ) : (
-          <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? 'Evenly matched on the published ranks' : 'No event research published'}</span>
+          <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? (sportCode === 'MLB' ? 'Lines, model inputs and player props' : 'Evenly matched on the published ranks') : 'No event research published'}</span>
         )}
       </Link>
       {set && lead && <div className="gtile__scripts"><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}
@@ -139,9 +140,9 @@ export function SlateRow({ item, r, sportSlug, sportCode }: { item: BoardItem; r
       <Link to={routes.game(sportSlug, item.event_id)} className="slrow">
         <span className="slrow__t">{new Date(item.start_time_utc).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}</span>
         <span className="slrow__m">
-          <TeamMark sport={sportCode} abbr={away?.short_name} size="sm" /><span>{splitName(away?.display_name ?? '').nick}</span>
+          <TeamMark sport={sportCode} abbr={away?.short_name} size="sm" /><span>{splitName(away?.display_name ?? '', away?.short_name, sportCode).nick}</span>
           <span className="slrow__at">at</span>
-          <TeamMark sport={sportCode} abbr={home?.short_name} size="sm" /><span>{splitName(home?.display_name ?? '').nick}</span>
+          <TeamMark sport={sportCode} abbr={home?.short_name} size="sm" /><span>{splitName(home?.display_name ?? '', home?.short_name, sportCode).nick}</span>
         </span>
         <span className="slrow__model num">{r ? modelLine(r) ?? '' : ''}</span>
         <span className="slrow__lead">{lead && <><i className={`sdot sdot--s${lead.index}`} />{lead.name} <b className="num">{sharePct(lead.share)}</b></>}</span>
@@ -163,7 +164,7 @@ export function Disagreements({ items, research, slug, title = 'Model vs Market'
       const short = (pid: string | null) => r.event.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
       for (const p of r.projections) {
         const m = byId.get(p.market_id ?? '');
-        if (!m || p.fair_probability == null || p.market_probability == null || m.period !== 'FULL') continue;
+        if (!m || p.fair_probability == null || p.market_probability == null || !isFullGame(m.period)) continue;
         if (!['game_winner', 'spread', 'total'].includes(m.market_family)) continue;
         if (p.market_probability < 0.1 || p.market_probability > 0.9) continue;
         const t = m.threshold;

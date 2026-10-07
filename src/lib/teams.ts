@@ -1,4 +1,5 @@
 import logos from './team-logos.json';
+import { mlbClub } from './mlb';
 import { cfbTeam } from './cfbTeams';
 
 // Team identity colors: brand presentation only (never data). Sift uses them as a thin accent —
@@ -29,6 +30,7 @@ const NHL: Record<string, [string, string]> = {
 export function teamColors(sport: string, abbr: string | null | undefined): [string, string] {
   if (sport === 'NFL' && abbr && NFL[abbr]) return NFL[abbr];
   if (sport === 'NHL' && abbr && NHL[abbr]) return NHL[abbr];
+  if (sport === 'MLB') return mlbClub(abbr)?.colors ?? ['#1d2d52', '#3f5079'];
   if (sport === 'CFB') {
     const t = cfbTeam(abbr);
     if (t?.c) return [t.c, t.c2 ?? t.c];

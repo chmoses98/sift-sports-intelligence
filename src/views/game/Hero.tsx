@@ -9,14 +9,18 @@ import { recordOf, weatherIcon } from '../../lib/gamedata';
 import { displayName, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
+import { mlbClub } from '../../lib/mlb';
 import { roofState, venueFor, venuePhoto, type Venue } from '../../lib/venues';
 import { useHeldImage } from '../../lib/useImage';
 import { StadiumFallback } from '../../components/StadiumFallback';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export function splitName(full: string): { city: string; nick: string } {
+export function splitName(full: string, abbr?: string | null, sport?: string): { city: string; nick: string } {
   const n = displayName(full);
+  // Baseball nicknames can be two words ("White Sox", "Red Sox", "Blue Jays"): the club table knows them.
+  const club = sport === 'MLB' ? mlbClub(abbr) : null;
+  if (club && n.endsWith(club.nick)) return { city: n.slice(0, -club.nick.length).trim(), nick: club.nick };
   const w = n.split(' ');
   return w.length > 1 ? { city: w.slice(0, -1).join(' '), nick: w[w.length - 1] } : { city: '', nick: n };
 }
@@ -72,7 +76,7 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
 
 function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean }) {
   // College names are not "City Nickname" ("Iowa St.", "Florida International"): CFB shows the whole name.
-  const { city, nick } = sportCode === 'CFB' ? { city: '', nick: displayName(name) } : splitName(name);
+  const { city, nick } = sportCode === 'CFB' ? { city: '', nick: displayName(name) } : splitName(name, abbr, sportCode);
   const rec = recordOf(prof);
   return (
     <div className={`gh__team gh__team--${side}`}>
@@ -91,6 +95,13 @@ export function weatherLine(wx: GameWeather): string | null {
   if (wx.kind === 'indoor' || wx.kind === 'retractable') return wx.condition;
   if (wx.kind !== 'outdoor') return null;
   return [`${wx.temp}° ${wx.condition ?? ''}`.trim(), wx.wind?.replace(/^Wind/, 'wind'), wx.precip != null && wx.precip >= 30 ? `${wx.precip}% precipitation` : null].filter(Boolean).join(' · ');
+}
+
+/** What the hero says once a game has begun, in the sport's own words. */
+export function startedWords(sportCode: string): string {
+  if (sportCode === 'NHL') return 'Puck dropped';
+  if (sportCode === 'MLB') return 'In progress';
+  return 'Kicked off';
 }
 
 /**
@@ -124,7 +135,9 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
   const week = sportCode === 'NHL'
     ? ({ regular: 'Regular season', playoffs: 'Playoffs', preseason: 'Preseason' } as Record<string, string>)[ev.competition ?? ''] ?? ev.competition
-    : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
+    : sportCode === 'MLB'
+      ? ev.competition?.replace(/^MLB\s+\d{4}\s*/i, '').replace(/^\w/, (c) => c.toUpperCase()) ?? null
+      : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
   return (
     <header className={`gh${photo ? '' : ' gh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
@@ -140,8 +153,8 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
           <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} />
         </div>
         <p className="gh__meta">
-          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">{sportCode === 'NHL' ? 'Puck dropped' : 'Kicked off'} · pregame research frozen</span> : null}
-          <span>{week ? `${week} · ` : ''}{day} · {time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
+          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">{startedWords(sportCode)} · pregame research frozen</span> : null}
+          <span>{week ? `${week} · ` : ''}{day} · {sportCode === 'MLB' && !final && !started ? 'First pitch ' : ''}{time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
           {venueName && <span>{venueName}{venue?.city ? `, ${venue.city}` : ''}</span>}
           {wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
         </p>

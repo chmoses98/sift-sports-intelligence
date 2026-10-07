@@ -10,6 +10,7 @@ import { describeMarket, overLine } from '../lib/marketLabel';
 import { rankView, type RankView } from '../lib/rank';
 import { gameSides, matchupObs, type GameSides, type Side } from './game';
 import { nameKey } from './context';
+import { isFullGame } from '../lib/period';
 
 export const PROP_STATS: { stat: string; sim: string; label: string; unit: string; star: number; def: string; defUnit: string }[] = [
   { stat: 'rushing_yards', sim: 'met_nfl.sim_rushing_yards', label: 'Rushing yards', unit: 'yds', star: 80, def: 'met_nfl.adj_def_rush_epa', defUnit: 'run defense' },
@@ -73,7 +74,7 @@ export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides |
   const byPlayerStat = new Map<string, Market[]>();
   for (const m of markets) {
     const stat = (m.extensions as { stat?: string } | null)?.stat;
-    if (m.market_family !== 'player_stat' || !m.player_id || !stat || m.period !== 'FULL') continue;
+    if (m.market_family !== 'player_stat' || !m.player_id || !stat || !isFullGame(m.period)) continue;
     const k = `${m.player_id}|${stat}`;
     byPlayerStat.set(k, [...(byPlayerStat.get(k) ?? []), m]);
   }

@@ -20,6 +20,7 @@ import { useHeldImage } from '../../lib/useImage';
 import { MarketIcon } from '../../components/MarketIcon';
 import { glossLine, metricGloss, term } from '../../lib/glossary';
 import { useSport } from '../../state/sport';
+import { isFullGame } from '../../lib/period';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -484,9 +485,9 @@ export function lineSeries(hist: MarketHistoryDoc | undefined, rows: PriceRow[],
   const mid = (p: { yes_bid: number | null; yes_ask: number | null; last_price?: number | null }) => (p.yes_bid != null && p.yes_ask != null && p.yes_ask - p.yes_bid <= 0.2 ? (p.yes_bid + p.yes_ask) / 2 : p.last_price ?? null);
   const pick = (pred: (r: PriceRow) => boolean) =>
     rows.filter((r) => pred(r) && byTicker.has(r.m.kalshi_ticker) && r.mid != null).sort((a, b) => Math.abs((a.mid ?? 0) - 0.5) - Math.abs((b.mid ?? 0) - 0.5))[0];
-  const ml = rows.find((r) => r.m.market_family === 'game_winner' && r.m.period === 'FULL' && r.label.startsWith(favAbbr) && byTicker.has(r.m.kalshi_ticker));
-  const sp = pick((r) => r.m.market_family === 'spread' && r.m.period === 'FULL' && r.label.startsWith(favAbbr));
-  const to = pick((r) => r.m.market_family === 'total' && r.m.period === 'FULL');
+  const ml = rows.find((r) => r.m.market_family === 'game_winner' && isFullGame(r.m.period) && r.label.startsWith(favAbbr) && byTicker.has(r.m.kalshi_ticker));
+  const sp = pick((r) => r.m.market_family === 'spread' && isFullGame(r.m.period) && r.label.startsWith(favAbbr));
+  const to = pick((r) => r.m.market_family === 'total' && isFullGame(r.m.period));
   const colors = ['var(--mark-focus)', 'var(--mark-opp)', 'var(--mark-compare)'];
   return [ml, sp, to]
     .filter((r): r is PriceRow => !!r)

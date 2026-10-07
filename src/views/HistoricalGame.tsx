@@ -119,7 +119,7 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
         </div>
         <div className="mh__meta">
           <span><Icon name="clock" size={14} /> {new Date(row.start_time_utc).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}</span>
-          <span>Result source: nflverse schedule (schedule_cache.csv) · <QualityBadge status={capStatus(caps, 'historical_results')} /></span>
+          <span>Result source: {sport.code === 'NFL' ? 'nflverse schedule (schedule_cache.csv)' : `the ${sport.label} publication's team game list`} · <QualityBadge status={capStatus(caps, 'historical_results')} /></span>
         </div>
         <div className="mh__actions">
           {sPF && (

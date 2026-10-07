@@ -14,11 +14,19 @@ export const CFB_ROOT = 'disk://cfb';
 /** A trimmed, real NHL-edge-finder publication carrying NHL_SCRIPT_V1, findings and the learning scorecard (scripts/make_nhl_fixture.py). */
 export const NHL_DIR = join(__dirname, 'fixtures', 'nhl', 'app', 'latest');
 export const NHL_ROOT = 'disk://nhl';
+/** The real edge-finder-api MLB publication (2026-10-07) with a synthesized four-game postseason board, event details
+ * and mlb.player_prop.v1 extensions on LAD@ATL (scripts/make_mlb_fixture.py; tests/fixtures/mlb/README.md). */
+export const MLB_DIR = join(__dirname, 'fixtures', 'mlb', 'app', 'latest');
+export const MLB_ROOT = 'disk://mlb';
 export const HISTORY_ROOT = 'disk://history';
 export const HISTORY_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'history');
 
 export function readCfb<T>(rel: string): T {
   return JSON.parse(readFileSync(join(CFB_DIR, rel), 'utf-8')) as T;
+}
+
+export function readMlb<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(MLB_DIR, rel), 'utf-8')) as T;
 }
 
 export function readNhl<T>(rel: string): T {
@@ -42,7 +50,7 @@ export async function readDisk(url: string): Promise<unknown> {
     if (!existsSync(f)) throw new NotFoundError(url);
     return JSON.parse(readFileSync(f, 'utf-8'));
   }
-  const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : url.startsWith(NHL_ROOT + '/') ? [NHL_ROOT, NHL_DIR] : [ROOT, SNAPSHOT_DIR];
+  const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : url.startsWith(NHL_ROOT + '/') ? [NHL_ROOT, NHL_DIR] : url.startsWith(MLB_ROOT + '/') ? [MLB_ROOT, MLB_DIR] : [ROOT, SNAPSHOT_DIR];
   if (!url.startsWith(root + '/')) throw new NotFoundError(url);
   const file = join(dir, url.slice(root.length + 1));
   if (!existsSync(file)) throw new NotFoundError(url);
@@ -62,6 +70,15 @@ export function nhlRepo(): SportRepo {
   const sport = sportByCode('NHL')!;
   const source: SportSource = {
     sport, mode: 'live', root: NHL_ROOT, liveHealth: readNhl<HealthDoc>('health.json'), liveError: null,
+    snapshot: null, reason: 'test fixture',
+  };
+  return new SportRepo(source);
+}
+
+export function mlbRepo(): SportRepo {
+  const sport = sportByCode('MLB')!;
+  const source: SportSource = {
+    sport, mode: 'live', root: MLB_ROOT, liveHealth: readMlb<HealthDoc>('health.json'), liveError: null,
     snapshot: null, reason: 'test fixture',
   };
   return new SportRepo(source);

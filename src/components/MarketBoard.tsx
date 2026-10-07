@@ -2,6 +2,8 @@
 // period, side, subject; different line) is one row of rungs; singletons are rows. Prices are YES
 // bid/ask in cents; "fair" is the model's P(YES) — evidence, labelled as such, never a pick.
 import { describeMarket } from '../lib/marketLabel';
+import { isMlbPlayerMarket, isMlbTicker, mlbKind, mlbNick, mlbPeriod, mlbPlayerKey, mlbPlayerName, mlbTeamOf, propFamily, PROP_FAMILY_LABEL } from '../lib/mlb';
+import { inningWords, isFullGame } from '../lib/period';
 import { MarketIcon } from './MarketIcon';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
@@ -42,22 +44,46 @@ export function humanize(desc: string): string {
 
 function sectionOf(m: AnyMarket): MarketGroup['section'] {
   if (m.player_id || m.market_family === 'player_stat' || m.market_family === 'first_td_scorer' || m.market_family === 'game_player_leader') return 'players';
-  if (m.period && m.period !== 'FULL') return 'periods';
+  if (isMlbTicker(m.kalshi_ticker)) {
+    // Baseball: a prop is grouped by its player (never by team), inning windows (F5 …) and the 1st-inning run are innings.
+    if (isMlbPlayerMarket(m)) return 'players';
+    if (mlbPeriod(m)) return 'periods';
+    return mlbKind(m) === 'unknown' ? 'props' : 'lines';
+  }
+  if (m.period && !isFullGame(m.period)) return 'periods';
   if (['game_winner', 'spread', 'total', 'team_total'].includes(m.market_family)) return 'lines';
   return 'props';
+}
+
+/** An MLB group: one ladder per player and stat, or per club and line type, titled in baseball words. */
+function mlbGroup(m: AnyMarket, playerName: (id: string | null) => string | null): Pick<MarketGroup, 'key' | 'title' | 'subject'> {
+  const series = m.kalshi_ticker.split('-')[0];
+  const per = mlbPeriod(m);
+  if (isMlbPlayerMarket(m)) {
+    const fam = propFamily(m);
+    const who = playerName(m.player_id) ?? mlbPlayerName(m);
+    return { key: ['mlb-player', m.event_id ?? '', mlbPlayerKey(m), fam ?? series].join('|'), title: PROP_FAMILY_LABEL[fam ?? ''] ?? familyLabel(m.market_family), subject: who };
+  }
+  const team = mlbTeamOf(m);
+  const kind = mlbKind(m);
+  const base = { moneyline: 'Moneyline', run_line: 'Run line', total: 'Total runs', team_total: 'Team total', period_result: 'Result', yrfi: 'Run in 1st inning', player: '', unknown: familyLabel(m.market_family) }[kind];
+  const words = kind === 'yrfi' ? null : inningWords(per);
+  const who = kind === 'team_total' || kind === 'run_line' ? mlbNick(team) : null;
+  return { key: ['mlb', m.event_id ?? '', kind, series, per ?? '', kind === 'period_result' || kind === 'moneyline' ? '' : team ?? ''].join('|'), title: [base, words, who].filter(Boolean).join(' · '), subject: null };
 }
 
 export function groupMarkets(markets: AnyMarket[], playerName: (id: string | null) => string | null): MarketGroup[] {
   const groups = new Map<string, MarketGroup>();
   for (const m of markets) {
     const series = m.kalshi_ticker.split('-')[0];
-    const key = [m.event_id ?? '', m.market_family, series, m.period ?? '', m.side ?? '', m.participant_id ?? '', m.player_id ?? ''].join('|');
+    const mlb = isMlbTicker(m.kalshi_ticker) ? mlbGroup(m, playerName) : null;
+    const key = mlb?.key ?? [m.event_id ?? '', m.market_family, series, m.period ?? '', m.side ?? '', m.participant_id ?? '', m.player_id ?? ''].join('|');
     let g = groups.get(key);
     if (!g) {
       const stat = (m.extensions?.stat as string | undefined) ?? null;
-      const who = m.player_id ? playerName(m.player_id) ?? (m.extensions?.subject as string | undefined) ?? null : null;
-      const per = m.period && m.period !== 'FULL' ? ` · ${m.period}` : '';
-      const title = who && stat ? `${STAT_LABEL[stat] ?? stat.replace(/_/g, ' ')}` : `${familyLabel(m.market_family)}${per}`;
+      const who = mlb ? mlb.subject : m.player_id ? playerName(m.player_id) ?? (m.extensions?.subject as string | undefined) ?? null : null;
+      const per = m.period && !isFullGame(m.period) ? ` · ${m.period}` : '';
+      const title = mlb ? mlb.title : who && stat ? `${STAT_LABEL[stat] ?? stat.replace(/_/g, ' ')}` : `${familyLabel(m.market_family)}${per}`;
       g = { key, title, family: m.market_family, period: m.period ?? null, section: sectionOf(m), subject: who, rows: [], ladder: false };
       groups.set(key, g);
     }
@@ -66,7 +92,7 @@ export function groupMarkets(markets: AnyMarket[], playerName: (id: string | nul
   for (const g of groups.values()) {
     g.ladder = g.rows.length >= 2 && g.rows.every((m) => rung(m) != null);
     if (g.ladder) g.rows.sort((a, b) => Number(rung(a)) - Number(rung(b)) || a.kalshi_ticker.localeCompare(b.kalshi_ticker));
-    if (g.ladder && !g.subject) {
+    if (g.ladder && !g.subject && !isMlbTicker(g.rows[0].kalshi_ticker)) {
       const r0 = String(rung(g.rows[0])).replace('.', '\\.');
       const sample = humanize(g.rows[0].yes_description).replace(new RegExp(`${r0}(\\.0)?(?![\\d.])`), 'X');
       g.title = `${g.title} — ${sample.replace(/ ?· [A-Z]+$/, '')}`;
@@ -90,6 +116,9 @@ const SECTIONS: { id: MarketGroup['section']; label: string }[] = [
   { id: 'players', label: 'Player props' },
   { id: 'props', label: 'Specials' },
 ];
+/** Baseball has innings, not halves and quarters. */
+const sectionLabel = (id: MarketGroup['section'], groups: MarketGroup[]) =>
+  id === 'periods' && groups.some((g) => g.section === 'periods' && isMlbTicker(g.rows[0]?.kalshi_ticker)) ? 'Innings' : SECTIONS.find((s) => s.id === id)!.label;
 
 export function MarketBoard({
   markets, prices, sportSlug, playerName, initialSection, compact,
@@ -114,7 +143,7 @@ export function MarketBoard({
           <div className="seg" role="tablist" aria-label="Market sections">
             {present.map((s) => (
               <button key={s.id} type="button" role="tab" aria-selected={section === s.id} className={`seg__b${section === s.id ? ' is-on' : ''}`} onClick={() => setSection(s.id)}>
-                {s.label} <span className="seg__n">{groups.filter((g) => g.section === s.id).reduce((a, g) => a + g.rows.length, 0)}</span>
+                {sectionLabel(s.id, groups)} <span className="seg__n">{groups.filter((g) => g.section === s.id).reduce((a, g) => a + g.rows.length, 0)}</span>
               </button>
             ))}
           </div>

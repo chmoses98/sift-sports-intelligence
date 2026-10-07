@@ -23,6 +23,8 @@ const G: Record<MarketKind, ReactNode> = {
   period: <><circle cx="8" cy="8" r="5.5" /><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor" stroke="none" /></>,
   parlay: <><rect x="2" y="5.5" width="6" height="5" rx="2.5" /><rect x="8" y="5.5" width="6" height="5" rx="2.5" /></>,
   game: <><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3.5l2.2 1.4" /></>,
+  pitching: <><circle cx="8" cy="8" r="5.5" /><path d="M5 3.6c1.4 1.2 1.4 7.6 0 8.8M11 3.6c-1.4 1.2-1.4 7.6 0 8.8" /></>,
+  hitting: <><path d="m3 13 7.5-7.5a1.8 1.8 0 0 1 2.5 2.5L5.5 15.5" /><path d="M2.5 13.5 4 12" /><circle cx="4.5" cy="4.5" r="1.6" /></>,
 };
 
 export function KindGlyph({ kind, size = 16 }: { kind: MarketKind; size?: number }) {
@@ -40,7 +42,7 @@ interface Resolver { abbrOf: (pid: string | null) => string | null; playerTeam: 
 const Ctx = createContext<Resolver>({ abbrOf: () => null, playerTeam: () => null, sport: 'NFL' });
 export const MarketIconProvider = Ctx.Provider;
 
-export function MarketIcon({ m }: { m: Pick<Market, 'market_family' | 'period' | 'participant_id' | 'player_id' | 'extensions'> }) {
+export function MarketIcon({ m }: { m: Pick<Market, 'market_family' | 'period' | 'participant_id' | 'player_id' | 'extensions'> & { kalshi_ticker?: string } }) {
   const { abbrOf, playerTeam, sport } = useContext(Ctx);
   const a = marketAnchor(m, abbrOf, playerTeam);
   const title = `${KIND_LABEL[a.kind]}${a.team ? ` · ${a.team}` : ''}${a.period ? ` · ${a.period}` : ''}`;

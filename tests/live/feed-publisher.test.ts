@@ -12,6 +12,8 @@ const RAW = 'https://raw.test/nfl';
 const API = 'https://kalshi.test/v2';
 const NOW = Date.parse('2026-10-04T15:00:00Z');
 const DATE = 'Sun, 04 Oct 2026 15:00:10 GMT';
+/** A Kalshi game key: date + teams (NFL 26OCT04NEBUF, NHL 26OCT06FLALA), or date + ET start + teams (MLB 26OCT071800LADATL). */
+const GAME_KEY = /^\d{2}[A-Z]{3}\d{2}(\d{4})?[A-Z]{4,6}$/;
 
 function fakeFetch(log: string[]) {
   return async (url: string): Promise<Response> => {
@@ -92,7 +94,7 @@ describe('live-quote feed publisher', () => {
     const games = await publicationGames(raw, get, { now: () => Date.parse('2026-10-06T23:30:00Z') });
     expect(games.map((g) => g.event_id).sort()).toEqual(['evt_4f20f09608cc97c362a7', 'evt_5938c3f8a7c1b24c0118', 'evt_c4a2cf978d0824a1493a']);
     for (const g of games) {
-      expect(g.key).toMatch(/^\d{2}[A-Z]{3}\d{2}[A-Z]{4,6}$/);
+      expect(g.key).toMatch(GAME_KEY);
       expect(g.series.every((x: string) => x.startsWith('KXNHL'))).toBe(true);
       expect(g.tickers.every((t: string) => t.split('-')[1] === g.key)).toBe(true);
     }

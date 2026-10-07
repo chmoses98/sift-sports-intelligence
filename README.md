@@ -21,7 +21,16 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
 
 * **NFL** — the complete vertical slice: slate, game, team, metric, league ranking, historical games, player,
   compare, market, research tray, handicap packet.
-* **MLB** — beta, through the same generic screens on its live publication.
+* **MLB** — beta, on its live publication (`chmoses98/edge-finder-api` `main`): home, slate, team, player and metric
+  screens through the generic views, and a game page built from the generic parts (`src/views/mlb/`): game lines in
+  baseball language (moneyline, run line, totals, first five innings, run in the 1st) with the live market clock, the
+  publication's model inputs side by side, price history, an innings section, and **Player Props** — pitchers then
+  hitters, by player and stat, a ladder of thresholds with the market's implied probability and, only where the
+  publisher released a projection (`market.extensions.player_prop`, `mlb.player_prop.v1`, `*_PROJECTION` statuses),
+  the model's probability labelled "Model" / "Model (research)"; every other status is shown with its reason. No edge
+  is derived for a prop. MLB is in the live-quote feed and the Production check. Tests: `tests/mlb.test.tsx`,
+  `tests/live/feed-mlb.test.ts`, `e2e/mlb.spec.ts` on `tests/fixtures/mlb` (the real 2026-10-07 publication; only the
+  player-prop objects are synthetic).
 * **CFB** — beta. The game page is the CFB Script Engine read: a market-blind, opponent-adjusted matchup,
   Primary/Secondary/Alternate/Danger scripts (ranked, no likelihoods) and the contracts that survive them
   (`docs/CFB_SCRIPT_ENGINE.md`).
@@ -71,6 +80,11 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * `scripts/make_nhl_fixture.py` — trim a real NHL `app/latest` publication to a few games for the NHL tests
   (`tests/fixtures/nhl`); rerun it when the NHL research payload changes shape.
 * `scripts/make-icons.mjs` — render the PWA icons.
-* `scripts/publish-live-quotes.mjs` — the live-quote feed (NFL and NHL; run every 5 minutes by `live-quotes.yml`).
+* `scripts/publish-live-quotes.mjs` — the live-quote feed (NFL, NHL and MLB; run every 3 minutes by `live-quotes.yml`).
+  Staleness is per sport: a stale or unreadable sport is left out (its games are not written; `index.json`
+  `sport_status[]` / `excluded_sports[]` say why) while the healthy sports publish; nothing is written (last-known-good
+  stays) only when no sport carries a current game with markets. See docs/ARCHITECTURE.md → *Quote feed*.
+* `scripts/make_mlb_fixture.py` — build `tests/fixtures/mlb` from the real MLB publication (synthesized postseason
+  board and `mlb.player_prop.v1` examples where production has none yet; see the script's docstring).
 * `scripts/kalshi-probe.mjs` — read-only real-provider probe (run by `live-provider-smoke.yml`).
 * `relay/` — the read-only Kalshi quote relay for sub-minute quotes (Vercel Function; the earlier Cloudflare Worker is legacy). Deploy steps and limits: `relay/README.md`.

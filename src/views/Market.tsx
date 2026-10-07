@@ -17,6 +17,8 @@ import { quantilesOf } from './Player';
 import { QuoteChip, RefreshQuotes, sourceLabel, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
 import { overlayMarket } from '../live/overlay';
+import { isFullGame, periodWords } from '../lib/period';
+import { isMlbTicker, mlbPlayerKey } from '../lib/mlb';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -88,7 +90,7 @@ export function MarketView() {
   const series = m.kalshi_ticker.split('-')[0];
   const siblings = detail.data.markets
     .map((o) => overlayMarket(o, live.quote(o.kalshi_ticker)))
-    .filter((o) => o.kalshi_ticker.split('-')[0] === series && o.period === m.period && (o.side ?? '') === (m.side ?? '') && (o.participant_id ?? '') === (m.participant_id ?? '') && (o.player_id ?? '') === (m.player_id ?? '') && rungOf(o) != null)
+    .filter((o) => o.kalshi_ticker.split('-')[0] === series && o.period === m.period && (o.side ?? '') === (m.side ?? '') && (o.participant_id ?? '') === (m.participant_id ?? '') && (o.player_id ?? '') === (m.player_id ?? '') && (!isMlbTicker(m.kalshi_ticker) || mlbPlayerKey(o) === mlbPlayerKey(m)) && rungOf(o) != null)
     .sort((a, b) => Number(rungOf(a)) - Number(rungOf(b)));
   const hseries = hist.data?.series.find((s) => s.market_id === m.market_id);
   const thr = rungOf(m);
@@ -102,7 +104,7 @@ export function MarketView() {
       <header className="ehead ehead--metric">
         <div className="ehead__t">
           <div className="eyebrow">
-            <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Market · {familyLabel(m.market_family)}{m.period && m.period !== 'FULL' ? ` · ${m.period}` : ''}
+            <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Market · {familyLabel(m.market_family)}{m.period && !isFullGame(m.period) ? ` · ${periodWords(m.period)}` : ''}
           </div>
           <h1 className="h-display h-display--md">{title}</h1>
           <div className="ehead__meta">

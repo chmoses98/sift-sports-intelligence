@@ -13,6 +13,7 @@
 // market. Totals, team totals, props and period markets need a joint (margin × points) script output the
 // publication does not carry yet, so their fit is reported as unknown — never guessed.
 import type { EventResearchDoc, Market } from '../contract/types';
+import { isFullGame } from './period';
 
 export type ScriptId = 'fav-big' | 'fav' | 'close' | 'dog';
 export type Fit = 'yes' | 'part' | 'no';
@@ -154,7 +155,7 @@ export const scriptById = (set: ScriptSet, id: ScriptId) => set.scripts.find((s)
 
 /** The HOME-margin condition a market settles on, when it settles on the full-game final margin. */
 export function marginCondition(m: Pick<Market, 'market_family' | 'period' | 'participant_id' | 'threshold'>, homeId: string, awayId: string): { op: '>' | '<'; v: number } | null {
-  if (m.period !== 'FULL') return null;
+  if (!isFullGame(m.period)) return null;
   if (m.market_family !== 'game_winner' && m.market_family !== 'spread') return null;
   const L = m.market_family === 'game_winner' ? 0 : m.threshold;
   if (L == null) return null;

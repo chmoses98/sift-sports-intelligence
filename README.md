@@ -25,7 +25,10 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
 * **CFB** — beta. The game page is the CFB Script Engine read: a market-blind, opponent-adjusted matchup,
   Primary/Secondary/Alternate/Danger scripts (ranked, no likelihoods) and the contracts that survive them
   (`docs/CFB_SCRIPT_ENGINE.md`).
-* **NBA, NHL, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
+* **NHL** — a research vertical on its live publication: NHL_SCRIPT_V1 game scripts, script survival,
+  RESEARCH-ONLY research candidates, opponent-adjusted team strength, skater and goalie pages and a
+  learning scorecard (`docs/NHL.md`).
+* **NBA, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
 
 ## Develop
 
@@ -45,6 +48,8 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) — the *signal from noise* visual system (live at `#/design`).
 * [docs/INSIGHTS.md](docs/INSIGHTS.md) — the insight layer: matchup edges, context notes, scheme pairings,
   props to watch, news importance, research findings, and the nflverse history layer behind them.
+* [docs/NHL.md](docs/NHL.md) — the NHL vertical: data consumed, screens, script survival, research candidates,
+  raw vs opponent-adjusted, learning gates, scorecard.
 * [docs/DATA_GAPS.md](docs/DATA_GAPS.md) — what the publications cannot support yet, and the upstream NFL
   explorer defect Sift works around.
 

@@ -92,6 +92,35 @@ async function fallbackProof(browser, device, name, gameUrl) {
   }
 }
 
+// NHL on the live site: the NHL home, a game from it (scripts and candidates when the publication carries
+// NHL_SCRIPT_V1, the honest unavailable state when it does not), and the scorecard. No raw tickers on screen,
+// nothing that reads as a betting verdict. Tolerant of an off day (no games on the board).
+async function nhlCheck(page) {
+  console.log('  -- NHL');
+  await page.goto(BASE + '#/nhl');
+  await page.getByRole('heading', { name: 'NHL', level: 1 }).waitFor({ timeout: 60_000 });
+  check(true, 'NHL home renders');
+  const game = page.locator('a.ntile, .nfeat__m a').first();
+  if (await game.count()) {
+    await game.click();
+    await page.locator('.game--nhl').waitFor({ timeout: 60_000 });
+    const scripts = await page.getByRole('heading', { name: /How It Could Play Out/ }).count();
+    const unavailable = await page.getByText(/not simulated|no NHL script layer|script layer failed/i).count();
+    console.log(`  NHL game: scripts=${scripts} unavailable-notes=${unavailable} ${page.url().split('#')[1]}`);
+    check(scripts > 0 || unavailable > 0, 'NHL game shows the scripts or says why they are unavailable');
+    const text = await page.locator('.game--nhl').innerText();
+    check(!/KXNHL/.test(text), 'NHL game shows no raw Kalshi tickers');
+    check(!/\block\b|best bet|guaranteed|profitable/i.test(text), 'NHL game carries no betting-verdict language');
+  } else {
+    console.log('  NHL home lists no game today; game check skipped');
+  }
+  await page.goto(BASE + '#/nhl/scorecard');
+  await page.locator('main').waitFor({ timeout: 60_000 });
+  await page.waitForTimeout(3000);
+  const sc = await page.locator('main').innerText();
+  check(/settled|Learning|learning/.test(sc), 'NHL scorecard renders the learning state');
+}
+
 // The relay as the browser sees it: Sift's Pages origin, a CORS preflight, then the real GET.
 // Logged on every run so a relay failure always says why (the app's fallback hides it from the UI).
 if (RELAY) {
@@ -183,6 +212,7 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     if (EXPECT_RELAY) check(verdict === 'PASS', `packet preflight PASS through the relay (got ${verdict})`);
     else check(verdict === 'PASS' || verdict === 'PARTIAL', `packet preflight refreshed the game's markets (got ${verdict})`);
     await page.screenshot({ path: `production-${name}-packet.png` });
+    await nhlCheck(page);
     check(errs.length === 0, `no page/console errors (${errs.slice(0, 3).join(' | ')})`);
     if (RELAY) await fallbackProof(browser, device, name, gameUrl);
   } catch (e) {

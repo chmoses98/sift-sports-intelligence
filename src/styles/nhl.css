@@ -226,3 +226,9 @@
 .nsc__unk { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--text-2); font-size: 0.9rem; }
 .nsc__gates { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.86rem; color: var(--text-2); }
 .nsc__gates .is-on { color: #fff; font-weight: 650; }
+
+.nsc, .ngov { display: grid; gap: 16px; }
+.nsc > .panel, .nsc .nsc__grid > .panel { margin: 0; }
+.nhome__learn { margin: 4px 0 14px; }
+.nhome .nfeat { margin-bottom: 18px; }
+.nhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }

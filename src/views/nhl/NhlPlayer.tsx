@@ -73,11 +73,12 @@ function SeasonTable({ p, goalie }: { p: EntityProfileDoc; goalie: boolean }) {
 function GameLog({ p, goalie, n = 10 }: { p: EntityProfileDoc; goalie: boolean; n?: number }) {
   const gl = (p.extensions as any)?.game_log;
   const cols: string[] = gl?.columns ?? [];
-  const rows: any[][] = (gl?.rows ?? []).slice(-n).reverse();
-  if (!rows.length) return <p className="muted small">No game log published.</p>;
   const ix = (c: string) => cols.indexOf(c);
+  // goalies: only games he actually played (a dressed backup has 0 minutes)
+  const rows: any[][] = (gl?.rows ?? []).filter((r: any[]) => !goalie || Number(r[ix('toi_s')] ?? 0) > 0).slice(-n).reverse();
+  if (!rows.length) return <p className="muted small">No game log published.</p>;
   const show = goalie ? [['date', 'Date'], ['opp', 'Opp'], ['start', 'Start'], ['dec', 'Dec'], ['sa', 'SA'], ['sv', 'SV'], ['ga', 'GA']] : [['date', 'Date'], ['opp', 'Opp'], ['g', 'G'], ['a', 'A'], ['p', 'P'], ['sog', 'SOG'], ['toi_s', 'TOI'], ['toi_pp_s', 'PP TOI']];
-  const fmt = (c: string, v: any) => (v == null ? '—' : c.startsWith('toi') ? `${Math.floor(Number(v) / 60)}:${String(Math.round(Number(v) % 60)).padStart(2, '0')}` : c === 'start' ? (v ? 'Yes' : 'No') : c === 'opp' ? v : String(v));
+  const fmt = (c: string, v: any) => (v == null ? '—' : c.startsWith('toi') ? `${Math.floor(Number(v) / 60)}:${String(Math.round(Number(v) % 60)).padStart(2, '0')}` : c === 'start' ? (v ? 'Yes' : 'Relief') : c === 'dec' ? ({ W: 'W', L: 'L', O: 'OTL' } as Record<string, string>)[v] ?? v : c === 'opp' ? v : String(v));
   return (
     <div className="tscroll" tabIndex={0} role="region" aria-label="Game log">
       <table className="nsc__t">
@@ -204,7 +205,7 @@ export function NhlPlayerView() {
         )}
       </Stratum>
 
-      <Stratum n="03" title="Recent games" sub="Last 10 games, newest first.">
+      <Stratum n="03" title="Recent games" sub={goalie ? 'Last 10 games he played, newest first.' : 'Last 10 games, newest first.'}>
         <GameLog p={p} goalie={goalie} />
       </Stratum>
 

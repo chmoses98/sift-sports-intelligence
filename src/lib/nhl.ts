@@ -152,7 +152,7 @@ export const SCRIPT_TONE: Record<string, number> = {
 };
 
 export const TIER_WORD: Record<Tier, string> = {
-  ROBUST: 'Robust', MODERATE: 'Moderate', FRAGILE: 'Fragile', DOES_NOT_SURVIVE: 'Does not survive', UNAVAILABLE: 'Unavailable',
+  ROBUST: 'Robust', MODERATE: 'Moderate', FRAGILE: 'Fragile', DOES_NOT_SURVIVE: 'Negative EV', UNAVAILABLE: 'Unavailable',
 };
 export const TIER_HELP: Record<Tier, string> = {
   ROBUST: 'Stays positive after fees and the conservative haircut in scripts covering at least 65% of simulated games, including 3+ major scripts, with an adjusted edge of 2¢ or more.',

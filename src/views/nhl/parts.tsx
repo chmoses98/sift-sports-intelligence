@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { DigDeeper, TeamMark } from '../../components/ui';
+import { describeNhlMarket } from '../../lib/marketLabel';
 import { routes } from '../../lib/routes';
 import {
   BASIS_HELP,
@@ -201,7 +202,11 @@ export function ScriptDetail({ x, s, homeAbbr, awayAbbr, slug, eventId, marketsB
         <div>
           <h4 className="nsd__h4">Markets it helps</h4>
           {x.helps.length ? (
-            <ul className="nsd__list">{x.helps.map((h) => <li key={h.ticker + h.side}>{h.title} {sideLabel(h.side)} <span className="muted num">{probText(h.p)} → {probText(h.p_given_script)}</span></li>)}</ul>
+            <ul className="nsd__list">{x.helps.map((h) => {
+              const hm = marketsByTicker.get(h.ticker);
+              const t = (hm ? describeNhlMarket(hm)?.title : null) ?? h.title;
+              return <li key={h.ticker + h.side}>{hm ? <Link to={routes.market(slug, hm.market_id, eventId)}>{t}</Link> : t} {h.side === 'no' ? 'NO' : ''} <span className="muted num">{probText(h.p)} → {probText(h.p_given_script)}</span></li>;
+            })}</ul>
           ) : <p className="muted small">No game market moves 5+ points in this script.</p>}
         </div>
         <div>

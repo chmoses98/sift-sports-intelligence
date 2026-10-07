@@ -170,7 +170,7 @@ export function NhlScorecardView() {
         <Section id="nsc-cands" title="Research candidates (shadow)" sub={rc.population}>
           {rc.n ? (
             <>
-              <p className="small">{n0(rc.n)} settled candidates · hit rate {probText(rc.hit_rate, 1)} vs mean conservative p {probText(rc.mean_p, 1)} · shadow return per $ of cost {rc.shadow_return_per_cost != null ? `${(rc.shadow_return_per_cost * 100).toFixed(1)}%` : '—'} · CLV {evText(rc.clv?.mean)}{rc.clv?.ci95 ? ` (95% interval ${evText(rc.clv.ci95[0])} to ${evText(rc.clv.ci95[1])}; ${rc.clv.ci_note})` : ''}.</p>
+              <p className="small">{n0(rc.n)} settled candidates · hit rate {probText(rc.hit_rate, 1)} vs mean conservative p {probText(rc.mean_p, 1)} · shadow return per $ of cost {rc.shadow_return_per_cost != null ? `${(rc.shadow_return_per_cost * 100).toFixed(1)}%` : '—'} · CLV {evText(rc.clv?.mean)}{rc.clv?.ci95 ? ` (95% interval ${evText(rc.clv.ci95[0])} to ${evText(rc.clv.ci95[1])}; ${rc.clv.ci_note ?? 'treats candidates as independent, so it is too narrow'})` : ''}.</p>
               <GroupTable label="By status" g={rc.by_status} />
               <GroupTable label="By market family" g={rc.by_family} />
               <GroupTable label="By edge after fee" g={rc.by_edge_bucket} />

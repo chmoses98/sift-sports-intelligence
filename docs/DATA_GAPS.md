@@ -57,9 +57,18 @@ game). No per-game EPA, no player lines.
 
 MLB is explorable as a beta through the same screens. CFB is explorable as a beta, and its game page is driven
 by the CFB Script Engine (`docs/CFB_SCRIPT_ENGINE.md`); its team and slate screens are the generic ones, with
-the CFB publication's own (sparser) data. NBA, NHL, Soccer and Tennis publish explorers and are shown with
+the CFB publication's own (sparser) data. NBA, Soccer and Tennis publish explorers and are shown with
 real health and capability manifests, but Sift V1 does not open explorer screens for them (their entity
 shapes — tennis players as participants, soccer clubs — were not validated in this pass).
+
+NHL is explorable (`docs/NHL.md`). Gaps that remain upstream: NHL_SCRIPT_V1 probabilities are not yet calibrated
+(0 settled script forecasts when the layer shipped; the scorecard counts them); script-conditioned prices exist only
+for the families the joint simulation models (moneyline, puck line, game and team totals, period results, spreads and
+totals, first goal, skater goals/points/assists, goalie saves); every other market (for example overtime and early-goal
+contracts) says "Model does not price this market";
+opponent adjustment covers 5v5 team rates only (no special-teams or player adjustment) and is a research layer, not a
+model input; goalie starts come from a lineup source and can be "projected" until confirmed; the learning stage is
+"Learning" (43 settled games and 7,626 settled final-pregame contracts at release), so nothing is validated.
 
 CFB gaps that remain upstream: no script likelihoods (not yet calibrated — they are ranked only), no
 first-half/quarter/prop mapping to scripts (shown as unmappable), no player data, and injury availability is a

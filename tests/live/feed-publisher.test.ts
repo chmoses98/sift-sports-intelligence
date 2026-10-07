@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildFiles, makeGet, observedAt, publicationGames, sweep } from '../../scripts/live-quotes/lib.mjs';
 import { FeedQuoteProvider } from '../../src/live/providers/feed';
-import { SNAPSHOT_DIR } from '../helpers';
+import { NHL_DIR, SNAPSHOT_DIR } from '../helpers';
 
 const RAW = 'https://raw.test/nfl';
 const API = 'https://kalshi.test/v2';
@@ -83,5 +83,18 @@ describe('live-quote feed publisher', () => {
     expect(byT.get('KXNFL1H-26OCT04NEBUF-BUF')).toMatchObject({ availability: 'CLOSED', yesBid: null });
     const inv = await provider.fetchEventMarkets(['KXNFLSPREAD-26OCT04NEBUF']);
     expect(inv.quotes.map((q) => q.ticker)).toEqual(['KXNFLSPREAD-26OCT04NEBUF-BUF9']);
+  });
+
+  it('maps the NHL publication the same way (one feed, sport-agnostic game keys)', async () => {
+    const raw = 'https://raw.test/nhl';
+    const fetchImpl = (async (url: string) => new Response(readFileSync(join(NHL_DIR, url.slice(raw.length + 1))), { headers: { 'content-type': 'application/json' } })) as typeof fetch;
+    const { get } = makeGet({ fetchImpl, sleep: async () => {}, now: () => Date.parse('2026-10-06T23:30:00Z') });
+    const games = await publicationGames(raw, get, { now: () => Date.parse('2026-10-06T23:30:00Z') });
+    expect(games.map((g) => g.event_id).sort()).toEqual(['evt_4f20f09608cc97c362a7', 'evt_5938c3f8a7c1b24c0118', 'evt_c4a2cf978d0824a1493a']);
+    for (const g of games) {
+      expect(g.key).toMatch(/^\d{2}[A-Z]{3}\d{2}[A-Z]{4,6}$/);
+      expect(g.series.every((x: string) => x.startsWith('KXNHL'))).toBe(true);
+      expect(g.tickers.every((t: string) => t.split('-')[1] === g.key)).toBe(true);
+    }
   });
 });

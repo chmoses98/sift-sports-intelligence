@@ -39,7 +39,8 @@ tier at private / friends scale — limits in `relay/README.md`).
 ## Data access (`src/data/`)
 
 * **Registry** (`sports.ts`): each sport's raw root, from the router's `registry.json`. NFL is primary, MLB a
-  beta through the same generic screens; CFB/NBA/NHL/Soccer/Tennis show real live health and capability manifests only.
+  beta through the same generic screens; CFB has its Script Engine game page; NHL is a research vertical with
+  its own lazy screens (`src/views/nhl/`, docs/NHL.md); NBA/Soccer/Tennis show real live health and capability manifests only.
 * **Source resolution** (`source.ts`): for each sport Sift reads `health.json` and probes
   `explorer/index.json` on the live root.
   * `live` — the live root has an explorer: everything comes from it.

@@ -22,6 +22,8 @@ export const NOW = new Date('2026-10-04T15:00:00Z');
 
 const SNAPSHOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'public', 'data', 'nfl', 'app', 'latest');
 export const NHL_FIXTURE = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'tests', 'fixtures', 'nhl', 'app', 'latest');
+/** The real MLB publication (2026-10-07) with synthetic mlb.player_prop.v1 objects on LAD@ATL (tests/fixtures/mlb/README.md). */
+export const MLB_FIXTURE = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'tests', 'fixtures', 'mlb', 'app', 'latest');
 
 interface PubMarket {
   kalshi_ticker: string;
@@ -39,8 +41,8 @@ let published: Map<string, PubMarket> | null = null;
 function publication(): Map<string, PubMarket> {
   if (published) return published;
   published = new Map();
-  // The NFL snapshot and the NHL fixture (e2e/nhl.spec.ts): the relay mock lists whatever the publications carry.
-  for (const dir of [join(SNAPSHOT, 'event_detail'), join(NHL_FIXTURE, 'event_detail')]) {
+  // The NFL snapshot and the NHL and MLB fixtures (e2e/nhl.spec.ts, e2e/mlb.spec.ts): the relay mock lists whatever the publications carry.
+  for (const dir of [join(SNAPSHOT, 'event_detail'), join(NHL_FIXTURE, 'event_detail'), join(MLB_FIXTURE, 'event_detail')]) {
     for (const f of readdirSync(dir)) {
       const d = JSON.parse(readFileSync(join(dir, f), 'utf-8')) as { markets: PubMarket[] };
       for (const m of d.markets) published.set(m.kalshi_ticker, m);

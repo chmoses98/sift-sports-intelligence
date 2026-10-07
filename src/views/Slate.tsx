@@ -101,7 +101,7 @@ function GameCard({ item, repo, sportSlug, now }: { item: BoardItem; repo: Sport
         <div className="gcard__hooks">
           {!hooks && seen && research.loading && <span className="gcard__hook gcard__hook--load">reading research…</span>}
           {research.error && <span className="gcard__hook">no event research published</span>}
-          {research.data && <span className="gcard__hook gcard__hook--edge">{matchupInsights(research.data)[0]?.headline ?? 'Evenly matched on the published ranks'}</span>}
+          {research.data && <span className="gcard__hook gcard__hook--edge">{matchupInsights(research.data)[0]?.headline ?? (repo.sport.code === 'MLB' ? 'Lines, model inputs and player props' : 'Evenly matched on the published ranks')}</span>}
           {hooks?.implied && <span className="gcard__hook"><span className="gcard__hk">Market</span>{hooks.implied}</span>}
         </div>
       </Link>

@@ -119,7 +119,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
         {r === undefined ? (
           <span className="gtile__model gcard__hook--load">Reading research…</span>
         ) : (
-          <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? 'Evenly matched on the published ranks' : 'No event research published'}</span>
+          <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? (sportCode === 'MLB' ? 'Lines, model inputs and player props' : 'Evenly matched on the published ranks') : 'No event research published'}</span>
         )}
       </Link>
       {set && lead && <div className="gtile__scripts"><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}

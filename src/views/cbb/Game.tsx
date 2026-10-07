@@ -506,7 +506,7 @@ export function Rotation({ players, note, max = 10, open = 5 }: { players: Rotat
           {p.position && <span>{p.position}</span>}
           <span className={`crot__c crot__c--${CLASS_CLS[p.class] ?? 'x'}`}>{p.class_label}</span>
           {p.prior_team && <span className="muted">from {p.prior_team}</span>}
-          {p.expected_starter && <span className="crot__st" title="Expected to start, from the rotation model — not a confirmed starting lineup">exp. starter</span>}
+          {p.expected_starter && <span className="crot__st" title="Among the five highest expected minutes in the published rotation. Not a starting lineup.">top-5 minutes</span>}
         </span>
       </th>
       <td className="crot__min"><MinuteBar v={p.minutes} /></td>

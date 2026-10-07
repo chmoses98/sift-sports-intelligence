@@ -63,6 +63,7 @@ export interface RotationPlayer {
   class: string;
   class_label: string;
   prior_team: string | null;
+  /** The publisher's flag: one of the five highest expected minutes (rank ≤ 5). Not a starter designation. */
   expected_starter: boolean | null;
 }
 

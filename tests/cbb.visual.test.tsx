@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 import type { EventDoc, HealthDoc } from '../src/contract/types';
 import { eventExt, statusExt } from '../src/views/cbb/data';
 import { accent, allTeams, confShort, identity, matchupAccents } from '../src/views/cbb/identity';
+import { Rotation } from '../src/views/cbb/Game';
 import { marquee } from '../src/views/cbb/Slate';
 import { AxisKey, MarginAxis, MinutesComp, Standing, TeamLogo, WinSplit } from '../src/views/cbb/viz';
 
@@ -92,6 +93,18 @@ describe('CBB visual components', () => {
     rerender(<Standing rank={10} size={20} directional={false} />);
     expect(container.querySelector('.cstand__fill')).toBeNull();
     expect(container.querySelector('.cstand__dot')).toBeTruthy();
+  });
+});
+
+describe('CBB rotation wording', () => {
+  it('describes the top-five-minutes flag as what it is, never as a starter', () => {
+    const players = [1, 2, 3, 4, 5, 6].map((k) => ({
+      player_id: `P${k}`, name: `Player ${k}`, position: 'G', minutes: 36 - k * 3, class: 'returning', class_label: 'Returning', prior_team: null, expected_starter: k <= 5,
+    }));
+    const { container } = render(<Rotation players={players} note={null} />);
+    expect(screen.getAllByText('top-5 minutes')).toHaveLength(5);
+    expect(container.textContent ?? '').not.toMatch(/starter/i);
+    expect(container.innerHTML).not.toMatch(/starter/i);
   });
 });
 

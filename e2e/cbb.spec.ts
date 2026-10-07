@@ -137,6 +137,10 @@ test.describe('CBB in season', () => {
   test('deep links survive a reload @smoke', async ({ page }) => {
     await page.goto(`./#/cbb/team/${DUKE_KU.home_participant}`);
     await expect(page.getByRole('heading', { name: 'Kansas Jayhawks', level: 1 })).toBeVisible();
+    // Let the in-view school logos finish loading first: a reload while one is in flight makes WebKit
+    // cancel it ("Load request cancelled"), which the asset guard rightly counts, but that is the
+    // reload interrupting a download, not the deep link this test is about.
+    await page.waitForLoadState('networkidle');
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Kansas Jayhawks', level: 1 })).toBeVisible();
   });

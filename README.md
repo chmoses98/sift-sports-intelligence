@@ -60,7 +60,9 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * `scripts/make_golden_packets.py` — regenerate the golden packets with the contract's Python builder after a
   snapshot refresh.
 * `scripts/history/build-nfl-history.mjs` — the player/team history layer from nflverse (run by every deploy).
+* `scripts/make_nhl_fixture.py` — trim a real NHL `app/latest` publication to a few games for the NHL tests
+  (`tests/fixtures/nhl`); rerun it when the NHL research payload changes shape.
 * `scripts/make-icons.mjs` — render the PWA icons.
-* `scripts/publish-live-quotes.mjs` — the live-quote feed (run every 5 minutes by `live-quotes.yml`).
+* `scripts/publish-live-quotes.mjs` — the live-quote feed (NFL and NHL; run every 5 minutes by `live-quotes.yml`).
 * `scripts/kalshi-probe.mjs` — read-only real-provider probe (run by `live-provider-smoke.yml`).
 * `relay/` — the read-only Kalshi quote relay for sub-minute quotes (Vercel Function; the earlier Cloudflare Worker is legacy). Deploy steps and limits: `relay/README.md`.

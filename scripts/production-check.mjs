@@ -10,11 +10,17 @@
 //              proves the off-slate state instead (publication current, feed current and saying NO_CURRENT_GAMES,
 //              relay healthy, pages render, historical prices honest)
 //   STALE      the publication stopped describing the present -> a production failure
+//
+// PER SPORT. The feed judges staleness per sport (index.sport_status); so does this check. NFL's feed assertions read
+// NFL's own entry and game files. MLB is checked on its own (publication readable as edge_finder.app.v1; when its
+// board lists current games, the feed lists MLB and at least one MLB game file quotes the publication's tickers) and
+// its failures are reported as "MLB: …": they fail the run without stopping or masking the NFL and NHL checks.
 import { chromium, webkit } from '@playwright/test';
-import { honestPublicationStates, selectTarget } from './live-quotes/slate.mjs';
+import { honestPublicationStates, isEligibleEvent, publicationStatus, selectTarget, sportCoverage, sportEntry, sportGames } from './live-quotes/slate.mjs';
 
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
 const NFL_BOARD = process.env.SIFT_NFL_BOARD_URL ?? 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json';
+const MLB_BASE = (process.env.SIFT_MLB_BASE_URL ?? 'https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest').replace(/\/+$/, '');
 const FEED = (process.env.SIFT_QUOTE_FEED_URL ?? 'https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes').replace(/\/+$/, '');
 /** The feed publishes every 3 minutes and raw.githubusercontent.com caches up to 5: 15 minutes is several missed cycles. */
 const FEED_MAX_AGE_S = 15 * 60;
@@ -177,6 +183,66 @@ async function nhlCheck(page) {
   check(/settled|Learning|learning/.test(sc), 'NHL scorecard renders the learning state');
 }
 
+/**
+ * MLB, from the data (no browser): the publication resolves as edge_finder.app.v1, and when its board lists current
+ * games the feed lists MLB and at least one MLB game file quotes a ticker the publication lists. Every failure is
+ * "MLB: …"; an exception here is an MLB failure, never a crash of the NFL/NHL checks.
+ */
+async function mlbData(index) {
+  console.log('\nMLB publication and feed');
+  const ok = (cond, msg) => check(cond, `MLB: ${msg}`);
+  try {
+    const [health, manifest, mboard] = await Promise.all(['health.json', 'manifest.json', 'board.json'].map((f) => getJson(`${MLB_BASE}/${f}`)));
+    ok(health?.schema_version === 'edge_finder.app.v1' && health?.sport === 'MLB', `health.json readable as edge_finder.app.v1 (got ${health?.schema_version}, ${health?.sport}, overall ${health?.overall_status})`);
+    ok(manifest?.schema_version === 'edge_finder.app.v1' && manifest?.sport === 'MLB', `manifest.json readable as edge_finder.app.v1 (got ${manifest?.schema_version}, run ${manifest?.run_id})`);
+    const pub = publicationStatus(mboard, Date.now(), { source: `${MLB_BASE}/board.json` });
+    console.log(`  MLB publication: ${pub.status} | generated ${pub.generated_at} (${pub.age_seconds}s old) | ${pub.eligible_games} current event(s)${(manifest?.warnings ?? []).length ? ` | warnings: ${manifest.warnings.join('; ')}` : ''}`);
+    const tickers = new Set();
+    for (const it of (mboard.items ?? []).filter((x) => isEligibleEvent(x, Date.now()))) {
+      const d = await getJson(`${MLB_BASE}/${it.detail_path}`);
+      for (const m of d.markets ?? []) if (typeof m.kalshi_ticker === 'string') tickers.add(m.kalshi_ticker);
+    }
+    const files = new Map();
+    const keys = new Set([...tickers].map((t) => t.split('-')[1]));
+    for (const g of sportGames(index, 'MLB', keys).slice(0, 8)) {
+      try {
+        files.set(g.file, await getJson(`${FEED}/${g.file}`));
+      } catch (e) {
+        console.log(`  MLB feed file ${g.file}: ${String(e)}`);
+      }
+    }
+    const cov = sportCoverage('MLB', pub, index, tickers, files);
+    const entry = sportEntry(index, 'MLB');
+    console.log(`  MLB in the feed: ${entry ? `${entry.status}${entry.published ? '' : ` (EXCLUDED: ${entry.reason})`}` : 'not listed'} | ${files.size} MLB game file(s) read | ${tickers.size} published ticker(s)`);
+    if (cov.mode === 'OFF_SLATE') console.log('  MLB live-quote assertions: NOT_APPLICABLE — no current MLB game on the board');
+    for (const p of cov.problems) ok(false, p);
+    if (cov.ok && cov.mode === 'CURRENT') ok(true, `the feed carries the current MLB slate (${cov.file})`);
+  } catch (e) {
+    ok(false, `publication and feed readable (${String(e).split('\n')[0]})`);
+  }
+}
+
+/** MLB on the live site: home, a game (lines, player props) when the board has one. No raw tickers, no verdicts. */
+async function mlbCheck(page) {
+  console.log('  -- MLB');
+  await page.goto(BASE + '#/mlb');
+  await page.getByRole('heading', { name: 'MLB', level: 1 }).waitFor({ timeout: 60_000 });
+  check(true, 'MLB: home renders');
+  const game = page.locator('a.fcard__a, a.gtile__link').first();
+  if (await game.count()) {
+    await game.click();
+    await page.locator('.game--mlb').waitFor({ timeout: 60_000 });
+    await page.locator('.gtabs').getByRole('link', { name: 'Player props', exact: true }).click();
+    await page.getByRole('heading', { name: 'Player props', level: 2 }).waitFor({ timeout: 60_000 });
+    const text = await page.locator('.game--mlb').innerText();
+    console.log(`  MLB game: ${page.url().split('#')[1]}`);
+    check(!/KXMLB/.test(text), 'MLB: game shows no raw Kalshi tickers');
+    check(!/\bedge\b|\block\b|best bet|guaranteed|profitable/i.test(text), 'MLB: player props carry no edge or betting-verdict language');
+  } else {
+    console.log('  MLB home lists no game today; game check skipped');
+  }
+}
+
 // ---------------------------------------------------------------- the slate, from the publication itself
 const now = Date.now();
 let board = null;
@@ -203,10 +269,18 @@ check(!!board && pub.status !== 'STALE_PUBLICATION', `NFL canonical publication 
 if (index) {
   check(ageS(index.generated_at) <= FEED_MAX_AGE_S, `live-quote feed index is recent (${ageS(index.generated_at)}s old; limit ${FEED_MAX_AGE_S}s)`);
   check((index.errors ?? []).length === 0, `live-quote feed reports no source errors (${(index.errors ?? []).slice(0, 3).join(' | ')})`);
-  if (sel.mode === 'CURRENT') check(index.status === 'CURRENT_SLATE', `feed declares CURRENT_SLATE (got ${index.status})`);
-  if (sel.mode === 'OFF_SLATE') check(index.status === 'NO_CURRENT_GAMES' && (index.games ?? []).length === 0, `feed explicitly declares NO_CURRENT_GAMES (got ${index.status}, ${(index.games ?? []).length} game file(s))`);
+  // NFL's own entry: another sport's games (or its exclusion) never decide NFL's verdict.
+  const nfl = sportEntry(index, 'NFL');
+  const nflGames = sportGames(index, 'NFL');
+  if (index.sport_status) console.log(`feed per sport: ${index.sport_status.map((x) => `${x.sport} ${x.status}${x.published ? '' : ' (EXCLUDED)'}`).join(' | ')}`);
+  if (sel.mode === 'CURRENT') check(nfl?.status === 'CURRENT_SLATE' && nfl.published, `feed declares NFL CURRENT_SLATE and publishes it (got ${nfl ? `${nfl.status}${nfl.published ? '' : ', excluded'}` : 'no NFL entry'})`);
+  if (sel.mode === 'OFF_SLATE') {
+    const nflFiles = index.sport_status ? nflGames.length : (index.games ?? []).length;
+    check(nfl?.status === 'NO_CURRENT_GAMES' && nflFiles === 0, `feed explicitly declares NFL NO_CURRENT_GAMES (got ${nfl?.status ?? 'no NFL entry'}, ${nflFiles} NFL game file(s))`);
+  }
 }
 if (sel.mode === 'CURRENT') check(sel.feed.covered, `the feed carries the current game ${sel.target.event_id} with markets (${sel.feed.key ?? 'no file'}, ${sel.feed.markets} markets)`);
+await mlbData(index);
 
 // The relay as the browser sees it: Sift's Pages origin, a CORS preflight, then the real GET.
 // Logged on every run so a relay failure always says why (the app's fallback hides it from the UI).
@@ -340,6 +414,15 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     const before = errs.length;
     await nhlCheck(page);
     check(errs.length === before, `NHL pages: no page/console errors (${errs.slice(before, before + 3).join(' | ')})`);
+    // MLB too, in its own try: an MLB page failure is reported as MLB and never skips what follows.
+    const mlbBefore = errs.length;
+    try {
+      await mlbCheck(page);
+    } catch (e) {
+      check(false, `MLB: ${name}: ${String(e).split('\n')[0]}`);
+      await page.screenshot({ path: `production-${name}-mlb-failure.png` }).catch(() => {});
+    }
+    check(errs.length === mlbBefore, `MLB: pages show no page/console errors (${errs.slice(mlbBefore, mlbBefore + 3).join(' | ')})`);
   } catch (e) {
     check(false, `${name}: ${String(e).split('\n')[0]}`);
     await page.screenshot({ path: `production-${name}-failure.png` }).catch(() => {});

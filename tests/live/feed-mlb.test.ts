@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { Market } from '../../src/contract/types';
 import { buildFiles, makeGet, planFeed, readPublication, sweep, unreadablePublication, type Game, type Publication } from '../../scripts/live-quotes/lib.mjs';
+import { publicationStatus, sportCoverage, sportEntry } from '../../scripts/live-quotes/slate.mjs';
 import { FeedQuoteProvider } from '../../src/live/providers/feed';
 import { overlayMarket } from '../../src/live/overlay';
 import { MLB_DIR, NHL_DIR, SNAPSHOT_DIR } from '../helpers';
@@ -218,5 +219,42 @@ describe('per-sport staleness: one stale sport never kills the feed', () => {
     expect(plan).toMatchObject({ publish: true, reason: 'no current games: a healthy empty feed' });
     const idx = buildFiles([], new Map(), { generatedAt: '2026-10-07T19:30:12Z', publications: [q('NFL'), q('MLB')], sportStatus: plan.sports }).get('index.json')!;
     expect([idx.status, idx.games, idx.excluded_sports]).toEqual(['NO_CURRENT_GAMES', [], []]);
+  });
+});
+
+describe('Production check, per sport (scripts/production-check.mjs → sportCoverage)', () => {
+  const mlbBoard = () => JSON.parse(readFileSync(join(MLB_DIR, 'board.json'), 'utf-8'));
+  const tickersOf = () => new Set(readdirSync(join(MLB_DIR, 'event_detail')).flatMap((f) => (JSON.parse(readFileSync(join(MLB_DIR, 'event_detail', f), 'utf-8')) as { markets: Market[] }).markets.map((m) => m.kalshi_ticker)));
+
+  it('a current MLB slate is covered when the index lists MLB and a game file quotes a published ticker', async () => {
+    const { files } = await cycle(['MLB'], MLB_NOW);
+    const idx = files!.get('index.json')!;
+    const docs = new Map([...files!.entries()].filter(([k]) => k.startsWith('games/')));
+    const pub = publicationStatus(mlbBoard(), MLB_NOW);
+    const cov = sportCoverage('MLB', pub, idx, tickersOf(), docs);
+    expect(cov).toMatchObject({ mode: 'CURRENT', ok: true, problems: [] });
+    expect(cov.file).toMatch(/^games\/26OCT07\d{4}[A-Z]+\.json$/);
+  });
+
+  it('fails as MLB when the feed does not carry it, without touching NFL', async () => {
+    const { files } = await cycle(['NFL', 'NHL', 'MLB'], NFL_NOW, { boards: { 'https://raw.test/mlb': staleMlbBoard('2026-10-03T22:00:00Z') } });
+    const idx = files!.get('index.json')!;
+    // the MLB publication has since recovered (current at MLB_NOW) but this feed still excludes it: an MLB failure
+    const cov = sportCoverage('MLB', publicationStatus(mlbBoard(), MLB_NOW), idx, tickersOf(), new Map());
+    expect(cov.ok).toBe(false);
+    expect(cov.problems.join(' | ')).toMatch(/does not list MLB as published \(STALE_PUBLICATION.*no MLB game file in the feed/);
+    // NFL's own entry is unaffected
+    expect(sportEntry(idx, 'NFL')).toMatchObject({ status: 'CURRENT_SLATE', published: true });
+  });
+
+  it('a quiet MLB board is NOT_APPLICABLE; a stale one fails as MLB; an old-style index is read the old way', () => {
+    const quiet = { ...mlbBoard(), items: [] };
+    expect(sportCoverage('MLB', publicationStatus(quiet, MLB_NOW), null, [])).toMatchObject({ mode: 'OFF_SLATE', ok: true });
+    const stale = sportCoverage('MLB', publicationStatus(staleMlbBoard('2026-10-03T22:00:00Z'), MLB_NOW), null, []);
+    expect(stale).toMatchObject({ mode: 'STALE', ok: false });
+    expect(stale.problems[0]).toMatch(/^the MLB publication is stale/);
+    const legacy = { sports: ['NFL', 'NHL'], status: 'CURRENT_SLATE', games: [{ key: '26OCT04NEBUF', file: 'games/26OCT04NEBUF.json', event_ids: ['e'], markets: 3 }] };
+    expect(sportEntry(legacy, 'NFL')).toMatchObject({ status: 'CURRENT_SLATE', published: true, legacy: true });
+    expect(sportEntry(legacy, 'MLB')).toBeNull();
   });
 });

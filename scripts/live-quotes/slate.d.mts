@@ -16,3 +16,10 @@ export function selectTarget(board: Board, now: number, feedIndex?: { games?: Fe
   feed: { covered: boolean; key: string | null; markets: number } | null; historical: Brief | null;
 };
 export function honestPublicationStates(boardGeneratedAt: string | null | undefined, now: number): string[];
+export interface SportIndexEntry { sport: string; status: string | null; published: boolean; reason: string; games?: number; markets?: number | null; legacy?: boolean }
+export interface FeedIndexLike { sports?: string[]; status?: string; sport_status?: SportIndexEntry[]; games?: (FeedIndexGame & { sport?: string; file: string })[] }
+export function sportEntry(index: FeedIndexLike | null | undefined, sport: string): SportIndexEntry | null;
+export function sportGames(index: FeedIndexLike | null | undefined, sport: string, keys?: Set<string>): (FeedIndexGame & { sport?: string; file: string })[];
+export function sportCoverage(sport: string, publication: Pick<Publication, 'status' | 'reasons' | 'eligible_games'>, index: FeedIndexLike | null | undefined, publishedTickers: Iterable<string>, files?: Map<string, { markets?: { ticker: string }[] }>): {
+  mode: 'STALE' | 'OFF_SLATE' | 'CURRENT'; ok: boolean; problems: string[]; file: string | null;
+};

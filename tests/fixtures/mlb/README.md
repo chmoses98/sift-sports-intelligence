@@ -1,8 +1,12 @@
-MLB TEST FIXTURE — real market rows, synthesized slate and projections.
+MLB TEST FIXTURE — the real edge-finder-api publication of 2026-10-07, plus synthetic player-prop objects.
 
-Built by `python3 scripts/make_mlb_fixture.py` from the live `chmoses98/edge-finder-api` publication of
-2026-10-07 (whose board was empty that day). REAL: manifest, health, model_prices (empty), every market row,
-the explorer index / capabilities / metrics / search index and the team and player profiles. SYNTHESIZED: the
-four-game board, events and event details (LAD@ATL, TB@NYY, MIL@SD, CLE@CWS on 2026-10-07), and on LAD@ATL the
-`market.extensions.player_prop` (`mlb.player_prop.v1`) objects and `market.player_id` values. Every projection
-number in them is SYNTHETIC TEST DATA, not model output. Never shipped in the app bundle.
+Built by `python3 scripts/make_mlb_fixture.py` from the live `chmoses98/edge-finder-api` `app/latest` publication
+(run_cd3df33ae386ca222d6e, generated 2026-10-07T20:03:39Z): board, events, event details, markets, model prices,
+recommendations, theses, manifest, health and the explorer (index, capabilities, metrics, search index, event research,
+market history, team and player profiles), trimmed to the four postseason games CLE@CWS, LAD@ATL, TB@NYY and MIL@SD.
+
+SYNTHETIC: only `market.extensions.player_prop` (schema `mlb.player_prop.v1`) and `market.player_id` on LAD@ATL's
+player-prop markets — the shape the MLB exporter is about to publish. Every projection number in them is SYNTHETIC
+TEST DATA, not model output. Stolen-base markets carry none (an "Other player markets" example), Andy Pages is left
+unresolved (no profile link), and the other three games carry none (today's production shape). Never shipped in the
+app bundle.

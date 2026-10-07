@@ -1,6 +1,6 @@
 {
- "count": 113,
- "generated_at": "2026-10-07T17:10:26Z",
+ "count": 151,
+ "generated_at": "2026-10-07T20:00:16Z",
  "items": [
   {
    "aliases": [
@@ -353,6 +353,60 @@
   },
   {
    "aliases": [
+    "L15 R/G"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_mlb.slate_last15_rpg",
+   "kind": "METRIC",
+   "label": "Last-15 runs per game (slate)",
+   "path": "explorer/metrics.json",
+   "secondary": "form",
+   "sport": "MLB",
+   "tokens": [
+    "15",
+    "form",
+    "game",
+    "l15",
+    "last",
+    "per",
+    "runs",
+    "slate"
+   ]
+  },
+  {
+   "aliases": [
+    "L7 R/G"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_mlb.slate_last7_rpg",
+   "kind": "METRIC",
+   "label": "Last-7 runs per game (slate)",
+   "path": "explorer/metrics.json",
+   "secondary": "form",
+   "sport": "MLB",
+   "tokens": [
+    "7",
+    "form",
+    "game",
+    "l7",
+    "last",
+    "per",
+    "runs",
+    "slate"
+   ]
+  },
+  {
+   "aliases": [
     "Cal err"
    ],
    "context": {
@@ -375,6 +429,29 @@
     "model",
     "real",
     "wagers"
+   ]
+  },
+  {
+   "aliases": [
+    "Model W%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_mlb.model_win_probability",
+   "kind": "METRIC",
+   "label": "Model win probability",
+   "path": "explorer/metrics.json",
+   "secondary": "projection",
+   "sport": "MLB",
+   "tokens": [
+    "model",
+    "probability",
+    "projection",
+    "win"
    ]
   },
   {
@@ -725,6 +802,29 @@
   },
   {
    "aliases": [
+    "Proj R"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_mlb.projected_runs",
+   "kind": "METRIC",
+   "label": "Projected runs",
+   "path": "explorer/metrics.json",
+   "secondary": "projection",
+   "sport": "MLB",
+   "tokens": [
+    "proj",
+    "projected",
+    "projection",
+    "runs"
+   ]
+  },
+  {
+   "aliases": [
     "Form med"
    ],
    "context": {
@@ -890,6 +990,31 @@
     "per",
     "runs",
     "scored"
+   ]
+  },
+  {
+   "aliases": [
+    "R/G"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_mlb.slate_season_rpg",
+   "kind": "METRIC",
+   "label": "Season runs per game (slate)",
+   "path": "explorer/metrics.json",
+   "secondary": "offense",
+   "sport": "MLB",
+   "tokens": [
+    "game",
+    "offense",
+    "per",
+    "runs",
+    "season",
+    "slate"
    ]
   },
   {
@@ -1206,6 +1331,28 @@
   },
   {
    "aliases": [
+    "wRC+*"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_mlb.wrc_plus_proxy",
+   "kind": "METRIC",
+   "label": "wRC+ (proxy)",
+   "path": "explorer/metrics.json",
+   "secondary": "offense",
+   "sport": "MLB",
+   "tokens": [
+    "offense",
+    "proxy",
+    "wrc"
+   ]
+  },
+  {
+   "aliases": [
     "xwOBA-A"
    ],
    "context": {
@@ -1232,7 +1379,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "CF",
     "season": null,
     "team": "LAD"
    },
@@ -1240,14 +1387,70 @@
    "kind": "PLAYER",
    "label": "Andy Pages",
    "path": "explorer/players/prt_73e3d5b7f71484e6dc59.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "andy",
+    "cf",
+    "confirmed",
     "current",
     "lad",
+    "lineup",
     "market",
     "pages"
+   ]
+  },
+  {
+   "aliases": [
+    "Martínez"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "LF",
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_f85b24fb6da155e75035",
+   "kind": "PLAYER",
+   "label": "Angel Martínez",
+   "path": "explorer/players/prt_f85b24fb6da155e75035.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "angel",
+    "cle",
+    "confirmed",
+    "current",
+    "lf",
+    "lineup",
+    "market",
+    "mart",
+    "nez"
+   ]
+  },
+  {
+   "aliases": [
+    "Volpe"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "2B",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_da96b2a1ed6fd30a24c7",
+   "kind": "PLAYER",
+   "label": "Anthony Volpe",
+   "path": "explorer/players/prt_da96b2a1ed6fd30a24c7.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "2b",
+    "anthony",
+    "confirmed",
+    "lineup",
+    "nyy",
+    "volpe"
    ]
   },
   {
@@ -1256,7 +1459,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "3B",
     "season": null,
     "team": "ATL"
    },
@@ -1264,14 +1467,41 @@
    "kind": "PLAYER",
    "label": "Austin Riley",
    "path": "explorer/players/prt_b930e28010a26eac3095.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "3b",
     "atl",
     "austin",
+    "confirmed",
     "current",
+    "lineup",
     "market",
     "riley"
+   ]
+  },
+  {
+   "aliases": [
+    "Wells"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "C",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_94e2612308c4093c67f4",
+   "kind": "PLAYER",
+   "label": "Austin Wells",
+   "path": "explorer/players/prt_94e2612308c4093c67f4.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "austin",
+    "confirmed",
+    "lineup",
+    "nyy",
+    "wells"
    ]
   },
   {
@@ -1280,7 +1510,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "DH",
     "season": null,
     "team": "NYY"
    },
@@ -1288,14 +1518,44 @@
    "kind": "PLAYER",
    "label": "Ben Rice",
    "path": "explorer/players/prt_ce009c6c727a991a9cdd.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "ben",
+    "confirmed",
     "current",
+    "dh",
+    "lineup",
     "market",
     "nyy",
     "rice"
+   ]
+  },
+  {
+   "aliases": [
+    "Montgomery"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "RF",
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_7416decfb1e88bde230a",
+   "kind": "PLAYER",
+   "label": "Braden Montgomery",
+   "path": "explorer/players/prt_7416decfb1e88bde230a.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "braden",
+    "confirmed",
+    "current",
+    "cws",
+    "lineup",
+    "market",
+    "montgomery",
+    "rf"
    ]
   },
   {
@@ -1304,7 +1564,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "SS",
     "season": null,
     "team": "CLE"
    },
@@ -1312,14 +1572,17 @@
    "kind": "PLAYER",
    "label": "Brayan Rocchio",
    "path": "explorer/players/prt_c15b08d3ac2bd35c342f.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "brayan",
     "cle",
+    "confirmed",
     "current",
+    "lineup",
     "market",
-    "rocchio"
+    "rocchio",
+    "ss"
    ]
   },
   {
@@ -1348,11 +1611,65 @@
   },
   {
    "aliases": [
+    "DeLauter"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "RF",
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_9b0e2994b8e4b26914f9",
+   "kind": "PLAYER",
+   "label": "Chase DeLauter",
+   "path": "explorer/players/prt_9b0e2994b8e4b26914f9.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "chase",
+    "cle",
+    "confirmed",
+    "current",
+    "delauter",
+    "lineup",
+    "market",
+    "rf"
+   ]
+  },
+  {
+   "aliases": [
+    "Meidroth"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "2B",
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_66df9d11e25ebde29514",
+   "kind": "PLAYER",
+   "label": "Chase Meidroth",
+   "path": "explorer/players/prt_66df9d11e25ebde29514.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "2b",
+    "chase",
+    "confirmed",
+    "current",
+    "cws",
+    "lineup",
+    "market",
+    "meidroth"
+   ]
+  },
+  {
+   "aliases": [
     "Bellinger"
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "LF",
     "season": null,
     "team": "NYY"
    },
@@ -1360,12 +1677,15 @@
    "kind": "PLAYER",
    "label": "Cody Bellinger",
    "path": "explorer/players/prt_4309a897b18462248710.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "bellinger",
     "cody",
+    "confirmed",
     "current",
+    "lf",
+    "lineup",
     "market",
     "nyy"
    ]
@@ -1376,7 +1696,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "SS",
     "season": null,
     "team": "CWS"
    },
@@ -1384,14 +1704,41 @@
    "kind": "PLAYER",
    "label": "Colson Montgomery",
    "path": "explorer/players/prt_cba0f40553030216be67.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "colson",
+    "confirmed",
     "current",
     "cws",
+    "lineup",
     "market",
-    "montgomery"
+    "montgomery",
+    "ss"
+   ]
+  },
+  {
+   "aliases": [
+    "Espino"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": null,
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_9a697503a3f1822c4dcb",
+   "kind": "PLAYER",
+   "label": "Daniel Espino",
+   "path": "explorer/players/prt_9a697503a3f1822c4dcb.json",
+   "secondary": "starting pitcher",
+   "sport": "MLB",
+   "tokens": [
+    "cle",
+    "daniel",
+    "espino",
+    "pitcher",
+    "starting"
    ]
   },
   {
@@ -1400,7 +1747,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "DH",
     "season": null,
     "team": "ATL"
    },
@@ -1408,14 +1755,45 @@
    "kind": "PLAYER",
    "label": "Drake Baldwin",
    "path": "explorer/players/prt_350595b1e56c5339d8ec.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "atl",
     "baldwin",
+    "confirmed",
     "current",
+    "dh",
     "drake",
+    "lineup",
     "market"
+   ]
+  },
+  {
+   "aliases": [
+    "Hernández"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "2B",
+    "season": null,
+    "team": "LAD"
+   },
+   "id": "prt_ecca925370c401bc8cfa",
+   "kind": "PLAYER",
+   "label": "Enrique Hernández",
+   "path": "explorer/players/prt_ecca925370c401bc8cfa.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "2b",
+    "confirmed",
+    "current",
+    "enrique",
+    "hern",
+    "lad",
+    "lineup",
+    "market",
+    "ndez"
    ]
   },
   {
@@ -1449,7 +1827,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "1B",
     "season": null,
     "team": "LAD"
    },
@@ -1457,14 +1835,43 @@
    "kind": "PLAYER",
    "label": "Freddie Freeman",
    "path": "explorer/players/prt_e0e691a3d8d1f694810e.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "1b",
+    "confirmed",
     "current",
     "freddie",
     "freeman",
     "lad",
+    "lineup",
     "market"
+   ]
+  },
+  {
+   "aliases": [
+    "Jr."
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "SS",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_ab3e700cc74e43e64956",
+   "kind": "PLAYER",
+   "label": "George Lombard Jr.",
+   "path": "explorer/players/prt_ab3e700cc74e43e64956.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "george",
+    "jr",
+    "lineup",
+    "lombard",
+    "nyy",
+    "ss"
    ]
   },
   {
@@ -1546,7 +1953,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "DH",
     "season": null,
     "team": "CLE"
    },
@@ -1554,13 +1961,16 @@
    "kind": "PLAYER",
    "label": "Jo Adell",
    "path": "explorer/players/prt_c7255914b2c43f6f0c63.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "adell",
     "cle",
+    "confirmed",
     "current",
+    "dh",
     "jo",
+    "lineup",
     "market"
    ]
   },
@@ -1590,11 +2000,36 @@
   },
   {
    "aliases": [
+    "Caballero"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "3B",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_dae2442509e07dee935f",
+   "kind": "PLAYER",
+   "label": "José Caballero",
+   "path": "explorer/players/prt_dae2442509e07dee935f.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "3b",
+    "caballero",
+    "confirmed",
+    "jos",
+    "lineup",
+    "nyy"
+   ]
+  },
+  {
+   "aliases": [
     "Ramírez"
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "3B",
     "season": null,
     "team": "CLE"
    },
@@ -1602,12 +2037,15 @@
    "kind": "PLAYER",
    "label": "José Ramírez",
    "path": "explorer/players/prt_d6b361f638d70cc33082.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "3b",
     "cle",
+    "confirmed",
     "current",
     "jos",
+    "lineup",
     "market",
     "ram",
     "rez"
@@ -1635,6 +2073,85 @@
     "junior",
     "market",
     "tb"
+   ]
+  },
+  {
+   "aliases": [
+    "Teel"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "C",
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_0ce52bcb6fd660344547",
+   "kind": "PLAYER",
+   "label": "Kyle Teel",
+   "path": "explorer/players/prt_0ce52bcb6fd660344547.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "current",
+    "cws",
+    "kyle",
+    "lineup",
+    "market",
+    "teel"
+   ]
+  },
+  {
+   "aliases": [
+    "Tucker"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "RF",
+    "season": null,
+    "team": "LAD"
+   },
+   "id": "prt_e846e51a679dbb2ee799",
+   "kind": "PLAYER",
+   "label": "Kyle Tucker",
+   "path": "explorer/players/prt_e846e51a679dbb2ee799.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "current",
+    "kyle",
+    "lad",
+    "lineup",
+    "market",
+    "rf",
+    "tucker"
+   ]
+  },
+  {
+   "aliases": [
+    "Jr."
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "1B",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_e63a3eed5717069c423d",
+   "kind": "PLAYER",
+   "label": "Luis García Jr.",
+   "path": "explorer/players/prt_e63a3eed5717069c423d.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "1b",
+    "confirmed",
+    "garc",
+    "jr",
+    "lineup",
+    "luis",
+    "nyy"
    ]
   },
   {
@@ -1667,7 +2184,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "1B",
     "season": null,
     "team": "ATL"
    },
@@ -1675,14 +2192,44 @@
    "kind": "PLAYER",
    "label": "Matt Olson",
    "path": "explorer/players/prt_5c5ac14aa1d0627fa6c0.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "1b",
     "atl",
+    "confirmed",
     "current",
+    "lineup",
     "market",
     "matt",
     "olson"
+   ]
+  },
+  {
+   "aliases": [
+    "Dubón"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "SS",
+    "season": null,
+    "team": "ATL"
+   },
+   "id": "prt_8f2e62f11f62e05c61ab",
+   "kind": "PLAYER",
+   "label": "Mauricio Dubón",
+   "path": "explorer/players/prt_8f2e62f11f62e05c61ab.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "atl",
+    "confirmed",
+    "current",
+    "dub",
+    "lineup",
+    "market",
+    "mauricio",
+    "ss"
    ]
   },
   {
@@ -1699,14 +2246,69 @@
    "kind": "PLAYER",
    "label": "Max Fried",
    "path": "explorer/players/prt_f75a251b58ff5e4d2171.json",
-   "secondary": "current market",
+   "secondary": "current market, starting pitcher",
    "sport": "MLB",
    "tokens": [
     "current",
     "fried",
     "market",
     "max",
-    "nyy"
+    "nyy",
+    "pitcher",
+    "starting"
+   ]
+  },
+  {
+   "aliases": [
+    "Muncy"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "3B",
+    "season": null,
+    "team": "LAD"
+   },
+   "id": "prt_99af6ec18e0ea7f689f7",
+   "kind": "PLAYER",
+   "label": "Max Muncy",
+   "path": "explorer/players/prt_99af6ec18e0ea7f689f7.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "3b",
+    "confirmed",
+    "current",
+    "lad",
+    "lineup",
+    "market",
+    "max",
+    "muncy"
+   ]
+  },
+  {
+   "aliases": [
+    "II"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "CF",
+    "season": null,
+    "team": "ATL"
+   },
+   "id": "prt_87052ab2a2a934d9e22f",
+   "kind": "PLAYER",
+   "label": "Michael Harris II",
+   "path": "explorer/players/prt_87052ab2a2a934d9e22f.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "atl",
+    "cf",
+    "confirmed",
+    "harris",
+    "ii",
+    "lineup",
+    "michael"
    ]
   },
   {
@@ -1715,7 +2317,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "3B",
     "season": null,
     "team": "CWS"
    },
@@ -1723,14 +2325,44 @@
    "kind": "PLAYER",
    "label": "Miguel Vargas",
    "path": "explorer/players/prt_f1e52b599fe4e586162c.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "3b",
+    "confirmed",
     "current",
     "cws",
+    "lineup",
     "market",
     "miguel",
     "vargas"
+   ]
+  },
+  {
+   "aliases": [
+    "Yastrzemski"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "LF",
+    "season": null,
+    "team": "ATL"
+   },
+   "id": "prt_a356c74b275a7a20bcaa",
+   "kind": "PLAYER",
+   "label": "Mike Yastrzemski",
+   "path": "explorer/players/prt_a356c74b275a7a20bcaa.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "atl",
+    "confirmed",
+    "current",
+    "lf",
+    "lineup",
+    "market",
+    "mike",
+    "yastrzemski"
    ]
   },
   {
@@ -1739,7 +2371,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "SS",
     "season": null,
     "team": "LAD"
    },
@@ -1747,14 +2379,17 @@
    "kind": "PLAYER",
    "label": "Mookie Betts",
    "path": "explorer/players/prt_aabb3234a8d88b9d0a3d.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "betts",
+    "confirmed",
     "current",
     "lad",
+    "lineup",
     "market",
-    "mookie"
+    "mookie",
+    "ss"
    ]
   },
   {
@@ -1763,7 +2398,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "1B",
     "season": null,
     "team": "CWS"
    },
@@ -1771,14 +2406,44 @@
    "kind": "PLAYER",
    "label": "Munetaka Murakami",
    "path": "explorer/players/prt_f59efb13b651550a6a8c.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "1b",
+    "confirmed",
     "current",
     "cws",
+    "lineup",
     "market",
     "munetaka",
     "murakami"
+   ]
+  },
+  {
+   "aliases": [
+    "Lowe"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "1B",
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_7b7329ffb85149133462",
+   "kind": "PLAYER",
+   "label": "Nathaniel Lowe",
+   "path": "explorer/players/prt_7b7329ffb85149133462.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "1b",
+    "cle",
+    "confirmed",
+    "current",
+    "lineup",
+    "lowe",
+    "market",
+    "nathaniel"
    ]
   },
   {
@@ -1795,13 +2460,15 @@
    "kind": "PLAYER",
    "label": "Nick Martinez",
    "path": "explorer/players/prt_9b12f0d9079f368316af.json",
-   "secondary": "current market",
+   "secondary": "current market, starting pitcher",
    "sport": "MLB",
    "tokens": [
     "current",
     "market",
     "martinez",
     "nick",
+    "pitcher",
+    "starting",
     "tb"
    ]
   },
@@ -1811,7 +2478,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "2B",
     "season": null,
     "team": "ATL"
    },
@@ -1819,14 +2486,92 @@
    "kind": "PLAYER",
    "label": "Ozzie Albies",
    "path": "explorer/players/prt_6bfac2caac85b7b57cb0.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "2b",
+    "albies",
+    "atl",
+    "confirmed",
+    "current",
+    "lineup",
+    "market",
+    "ozzie"
+   ]
+  },
+  {
+   "aliases": [
+    "Bailey"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "C",
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_df0d6c09c3032d414a8c",
+   "kind": "PLAYER",
+   "label": "Patrick Bailey",
+   "path": "explorer/players/prt_df0d6c09c3032d414a8c.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "bailey",
+    "cle",
+    "confirmed",
+    "current",
+    "lineup",
+    "market",
+    "patrick"
+   ]
+  },
+  {
+   "aliases": [
+    "Grichuk"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "LF",
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_accf4985f63ef45d057b",
+   "kind": "PLAYER",
+   "label": "Randal Grichuk",
+   "path": "explorer/players/prt_accf4985f63ef45d057b.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "cws",
+    "grichuk",
+    "lf",
+    "lineup",
+    "randal"
+   ]
+  },
+  {
+   "aliases": [
+    "Gasser"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": null,
+    "season": null,
+    "team": "MIL"
+   },
+   "id": "prt_95d5722fd5dec1635304",
+   "kind": "PLAYER",
+   "label": "Robert Gasser",
+   "path": "explorer/players/prt_95d5722fd5dec1635304.json",
    "secondary": "current market",
    "sport": "MLB",
    "tokens": [
-    "albies",
-    "atl",
     "current",
+    "gasser",
     "market",
-    "ozzie"
+    "mil",
+    "robert"
    ]
   },
   {
@@ -1835,7 +2580,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "RF",
     "season": null,
     "team": "ATL"
    },
@@ -1843,15 +2588,95 @@
    "kind": "PLAYER",
    "label": "Ronald Acuña Jr.",
    "path": "explorer/players/prt_fa892c9b1da6fd4ba7e8.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
     "acu",
     "atl",
+    "confirmed",
     "current",
     "jr",
+    "lineup",
     "market",
+    "rf",
     "ronald"
+   ]
+  },
+  {
+   "aliases": [
+    "Antonacci"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "DH",
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_91904d0f61f1cab17118",
+   "kind": "PLAYER",
+   "label": "Sam Antonacci",
+   "path": "explorer/players/prt_91904d0f61f1cab17118.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "antonacci",
+    "confirmed",
+    "current",
+    "cws",
+    "dh",
+    "lineup",
+    "market",
+    "sam"
+   ]
+  },
+  {
+   "aliases": [
+    "Murphy"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "C",
+    "season": null,
+    "team": "ATL"
+   },
+   "id": "prt_71366be3c38ced578c39",
+   "kind": "PLAYER",
+   "label": "Sean Murphy",
+   "path": "explorer/players/prt_71366be3c38ced578c39.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "atl",
+    "confirmed",
+    "current",
+    "lineup",
+    "market",
+    "murphy",
+    "sean"
+   ]
+  },
+  {
+   "aliases": [
+    "Newcomb"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": null,
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_fa362656edbf2767d877",
+   "kind": "PLAYER",
+   "label": "Sean Newcomb",
+   "path": "explorer/players/prt_fa362656edbf2767d877.json",
+   "secondary": "starting pitcher",
+   "sport": "MLB",
+   "tokens": [
+    "cws",
+    "newcomb",
+    "pitcher",
+    "sean",
+    "starting"
    ]
   },
   {
@@ -1860,7 +2685,7 @@
    ],
    "context": {
     "league": "MLB",
-    "position": null,
+    "position": "DH",
     "season": null,
     "team": "LAD"
    },
@@ -1868,14 +2693,174 @@
    "kind": "PLAYER",
    "label": "Shohei Ohtani",
    "path": "explorer/players/prt_7ab966481f73ddb546fa.json",
-   "secondary": "current market",
+   "secondary": "confirmed lineup, current market",
    "sport": "MLB",
    "tokens": [
+    "confirmed",
     "current",
+    "dh",
     "lad",
+    "lineup",
     "market",
     "ohtani",
     "shohei"
+   ]
+  },
+  {
+   "aliases": [
+    "Jones"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "RF",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_8b32a635cdb009e2c277",
+   "kind": "PLAYER",
+   "label": "Spencer Jones",
+   "path": "explorer/players/prt_8b32a635cdb009e2c277.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "jones",
+    "lineup",
+    "nyy",
+    "rf",
+    "spencer"
+   ]
+  },
+  {
+   "aliases": [
+    "Kwan"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "CF",
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_426effb4ced21c94759d",
+   "kind": "PLAYER",
+   "label": "Steven Kwan",
+   "path": "explorer/players/prt_426effb4ced21c94759d.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "cf",
+    "cle",
+    "confirmed",
+    "current",
+    "kwan",
+    "lineup",
+    "market",
+    "steven"
+   ]
+  },
+  {
+   "aliases": [
+    "Hernández"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "LF",
+    "season": null,
+    "team": "LAD"
+   },
+   "id": "prt_2377338acedfb733db62",
+   "kind": "PLAYER",
+   "label": "Teoscar Hernández",
+   "path": "explorer/players/prt_2377338acedfb733db62.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "current",
+    "hern",
+    "lad",
+    "lf",
+    "lineup",
+    "market",
+    "ndez",
+    "teoscar"
+   ]
+  },
+  {
+   "aliases": [
+    "Bazzana"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "2B",
+    "season": null,
+    "team": "CLE"
+   },
+   "id": "prt_25141abb130850a8e3b8",
+   "kind": "PLAYER",
+   "label": "Travis Bazzana",
+   "path": "explorer/players/prt_25141abb130850a8e3b8.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "2b",
+    "bazzana",
+    "cle",
+    "confirmed",
+    "current",
+    "lineup",
+    "market",
+    "travis"
+   ]
+  },
+  {
+   "aliases": [
+    "Grisham"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "CF",
+    "season": null,
+    "team": "NYY"
+   },
+   "id": "prt_a62654641a03dd78a811",
+   "kind": "PLAYER",
+   "label": "Trent Grisham",
+   "path": "explorer/players/prt_a62654641a03dd78a811.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "cf",
+    "confirmed",
+    "grisham",
+    "lineup",
+    "nyy",
+    "trent"
+   ]
+  },
+  {
+   "aliases": [
+    "Peters"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "CF",
+    "season": null,
+    "team": "CWS"
+   },
+   "id": "prt_7b9faee5a50bb6ef4781",
+   "kind": "PLAYER",
+   "label": "Tristan Peters",
+   "path": "explorer/players/prt_7b9faee5a50bb6ef4781.json",
+   "secondary": "confirmed lineup",
+   "sport": "MLB",
+   "tokens": [
+    "cf",
+    "confirmed",
+    "cws",
+    "lineup",
+    "peters",
+    "tristan"
    ]
   },
   {
@@ -1892,13 +2877,15 @@
    "kind": "PLAYER",
    "label": "Tyler Glasnow",
    "path": "explorer/players/prt_337d5d123a707f99b0ea.json",
-   "secondary": "current market",
+   "secondary": "current market, starting pitcher",
    "sport": "MLB",
    "tokens": [
     "current",
     "glasnow",
     "lad",
     "market",
+    "pitcher",
+    "starting",
     "tyler"
    ]
   },
@@ -1916,14 +2903,68 @@
    "kind": "PLAYER",
    "label": "Tyler Mahle",
    "path": "explorer/players/prt_7df76b70f882b360b083.json",
-   "secondary": "current market",
+   "secondary": "current market, starting pitcher",
    "sport": "MLB",
    "tokens": [
     "atl",
     "current",
     "mahle",
     "market",
+    "pitcher",
+    "starting",
     "tyler"
+   ]
+  },
+  {
+   "aliases": [
+    "Buehler"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": null,
+    "season": null,
+    "team": "SD"
+   },
+   "id": "prt_a1e428f6af0d99204e1a",
+   "kind": "PLAYER",
+   "label": "Walker Buehler",
+   "path": "explorer/players/prt_a1e428f6af0d99204e1a.json",
+   "secondary": "current market, starting pitcher",
+   "sport": "MLB",
+   "tokens": [
+    "buehler",
+    "current",
+    "market",
+    "pitcher",
+    "sd",
+    "starting",
+    "walker"
+   ]
+  },
+  {
+   "aliases": [
+    "Smith"
+   ],
+   "context": {
+    "league": "MLB",
+    "position": "C",
+    "season": null,
+    "team": "LAD"
+   },
+   "id": "prt_3dc61563fc5430f77b59",
+   "kind": "PLAYER",
+   "label": "Will Smith",
+   "path": "explorer/players/prt_3dc61563fc5430f77b59.json",
+   "secondary": "confirmed lineup, current market",
+   "sport": "MLB",
+   "tokens": [
+    "confirmed",
+    "current",
+    "lad",
+    "lineup",
+    "market",
+    "smith",
+    "will"
    ]
   },
   {
@@ -2651,7 +3692,7 @@
   }
  ],
  "kind": "search_index",
- "run_id": "run_93193efbf4b682fbd3f1",
+ "run_id": "run_432906e2160c497b1431",
  "schema_version": "edge_finder.app.v1",
  "sport": "MLB"
 }

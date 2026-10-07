@@ -1,44 +1,30 @@
 #!/usr/bin/env python3
 """Build Sift's MLB test fixture (tests/fixtures/mlb/app/latest) from the REAL edge-finder-api publication.
 
-    # 1. download the live publication (read-only) into a scratch directory
-    B=https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest
-    for f in manifest health board events markets model_prices explorer/index explorer/capabilities \
-             explorer/metrics explorer/search_index; do mkdir -p raw/$(dirname $f); curl -sS -o raw/$f.json $B/$f.json; done
-    # (plus explorer/teams/<id>.json and explorer/players/<id>.json for the teams kept below)
+    # 1. download the live publication (read-only) into a scratch directory: manifest, health, board, events,
+    #    markets, model_prices, recommendations, event_detail/<id>.json for every board item, and explorer/
+    #    (index, capabilities, metrics, search_index, events/<id>, market_history/<id>, teams/<id>, players/<id>)
     # 2. build
     python3 scripts/make_mlb_fixture.py --raw raw --out tests/fixtures/mlb/app/latest
 
-What is real and what is synthesized (on 2026-10-07 the production board was EMPTY: "no model price could be
-exported", explorer "no v1 events"):
-  REAL       manifest, health, model_prices (empty), markets.json rows (byte-identical market rows of the four
-             postseason games), explorer index / capabilities / metrics / search index, team and player profiles.
-  SYNTHETIC  board.json, events.json and event_detail/*.json for the four 2026-10-07 games (event ids are a hash
-             of the Kalshi event suffix). Their markets ARE the real rows above, with event_id filled in.
-             LAD@ATL additionally carries `market.extensions.player_prop` (mlb.player_prop.v1) on its player-prop
-             markets and `market.player_id` where the player resolves to an explorer profile: the shape the MLB
-             exporter will publish. Every projection number in them is SYNTHETIC test data, not a model output.
-             The other three games carry no player_prop at all (today's production shape).
+Every document is the real 2026-10-07 publication (four postseason games: CLE@CWS, LAD@ATL, TB@NYY, MIL@SD), trimmed
+to those games, their teams and their players. ONE thing is synthesized: on LAD@ATL the player-prop markets carry
+`market.extensions.player_prop` (schema mlb.player_prop.v1) and `market.player_id` (where the player resolves to an
+explorer profile), the shape the MLB exporter is about to publish; every projection number in them is SYNTHETIC TEST
+DATA, not model output. Stolen-base markets are left without one (an "Other player markets" example), Andy Pages is
+left unresolved (plain text, no profile link), and the other three games carry none (today's production shape).
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import math
 import shutil
 from pathlib import Path
 
-GAMES = [
-    # Kalshi event suffix (ET date + time + AWAY + HOME), first pitch UTC
-    ("26OCT071600CLECWS", "2026-10-07T20:00:00Z"),
-    ("26OCT071800LADATL", "2026-10-07T22:00:00Z"),
-    ("26OCT072000TBNYY", "2026-10-08T00:00:00Z"),
-    ("26OCT072200MILSD", "2026-10-08T02:00:00Z"),
-]
+# The game whose prop markets get mlb.player_prop.v1 examples (Kalshi event suffix: ET date + start + AWAY + HOME).
 PROPS_GAME = "26OCT071800LADATL"
-GENERATED = "2026-10-07T19:21:16Z"
 
 FAMILY = {  # market_family as published -> mlb.player_prop.v1 family
     "pitcher_strikeouts": "pitcher_strikeouts", "pitcher_outs": "pitcher_outs", "hitter_hits": "hitter_hits",
@@ -51,6 +37,10 @@ STAT = {
     "hitter_hrr": ("Hits + runs + RBIs", "hrr", "H+R+RBI"), "hitter_rbi": ("RBIs", "rbi", "RBI"),
     "hitter_stolen_bases": ("Stolen bases", "stolen_bases", "SB"),
 }
+YES_WORDS = {
+    "pitcher_strikeouts": "strikeouts", "pitcher_outs": "outs recorded", "hitter_hits": "hits", "hitter_total_bases": "total bases",
+    "hitter_hrr": "hits + runs + RBIs", "hitter_rbi": "RBIs", "hitter_stolen_bases": "stolen bases",
+}
 # Synthetic research projections (Poisson means) and statuses for LAD@ATL. NOT model output.
 PLAN: dict[tuple[str, str], tuple[str, float | None, str]] = {}
 for name, mean in (("Tyler Glasnow", 6.2), ("Tyler Mahle", 4.6)):
@@ -61,7 +51,7 @@ for name, hits, tb in (("Freddie Freeman", 1.05, 1.7), ("Shohei Ohtani", 1.0, 1.
     PLAN[(name, "hitter_total_bases")] = ("RESEARCH_PROJECTION", tb, "Research projection from the hitter engine.")
     PLAN[(name, "hitter_hrr")] = ("NO_MODEL_SUPPORT", None, "Hits + runs + RBIs depends on teammates; no model is published.")
     PLAN[(name, "hitter_rbi")] = ("NO_MODEL_SUPPORT", None, "RBIs depend on lineup context; no model is published.")
-for name in ("Mookie Betts", "Andy Pages", "Drake Baldwin"):
+for name in ("Mookie Betts", "Andy Pages"):
     for fam in ("hitter_hits", "hitter_total_bases", "hitter_hrr", "hitter_rbi"):
         PLAN[(name, fam)] = ("LINEUP_UNCONFIRMED", None, "The lineup is not confirmed yet; no projection until it is.")
 # Hitters whose player_id is withheld (the exporter could not resolve the participant): rendered as plain text.
@@ -75,10 +65,6 @@ def _load(p: Path) -> dict:
 def _dump(p: Path, doc: dict) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(doc, indent=1, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def evt(suffix: str) -> str:
-    return "evt_" + hashlib.sha1(f"MLB|{suffix}".encode()).hexdigest()[:20]
 
 
 def p_at_least(mean: float, k: float) -> float:
@@ -117,14 +103,14 @@ def player_prop(m: dict, team_abbr: dict[str, str], ids: dict[str, dict]) -> dic
         "team": team, "opponent": opp, "family": fam, "stat_label": label,
         "threshold": int(t) if t is not None and float(t).is_integer() else t,
         "comparison": "AT_LEAST",
-        "yes_semantics": f"{name} records {int(t)}+ {label.lower()}",
+        "yes_semantics": f"{name} records {int(t)}+ {YES_WORDS[fam]}",
         "projection_status": status, "status_reason": reason,
         "model_probability_yes": p_at_least(mean, t) if projected and mean is not None else None,
         "expected_stat": {"stat": stat, "mean": mean, "median": quantile(mean, 0.5), "p10": quantile(mean, 0.1), "p90": quantile(mean, 0.9), "unit": unit} if projected else None,
         "projection_generated_at": "2026-10-07T18:40:00Z" if projected else None,
         "inputs_as_of": "2026-10-07T18:30:00Z" if projected else None,
-        "lineup_status": "PROJECTED" if status == "RESEARCH_PROJECTION" and fam.startswith("hitter_") else ("UNCONFIRMED" if status == "LINEUP_UNCONFIRMED" else None),
-        "lineup_slot": {"Freddie Freeman": 3, "Shohei Ohtani": 1, "Matt Olson": 4, "Ronald Acuña Jr.": 1, "Austin Riley": 3, "Ozzie Albies": 2}.get(name) if projected and fam.startswith("hitter_") else None,
+        "lineup_status": "CONFIRMED" if status == "RESEARCH_PROJECTION" and fam.startswith("hitter_") else ("UNCONFIRMED" if status == "LINEUP_UNCONFIRMED" else None),
+        "lineup_slot": None,  # the publication does not carry batting orders
         "drivers": ([{"label": "Opp lineup K%", "value": "24.1%" if team == "LAD" else "21.7%"}, {"label": "Pitcher K% (season)", "value": "29.8%" if name == "Tyler Glasnow" else "22.3%"}, {"label": "Expected batters faced", "value": "22.5" if name == "Tyler Glasnow" else "21.0"}, {"label": "Park K factor", "value": "1.01"}, {"label": "Umpire K tendency", "value": "neutral"}]
                     if fam == "pitcher_strikeouts" and projected else
                     [{"label": "Expected plate appearances", "value": "4.4"}, {"label": "Opp starter xBA allowed", "value": ".231"}, {"label": "Platoon split", "value": "neutral"}] if projected else []),
@@ -146,87 +132,62 @@ def main() -> int:
         shutil.rmtree(out)
     out.mkdir(parents=True)
 
+    board = _load(raw / "board.json")
+    if not board["items"]:
+        raise SystemExit("the MLB board is empty: nothing real to build a fixture from")
+    keep = {it["event_id"] for it in board["items"]}
     index = _load(raw / "explorer/index.json")
-    teams = {t["short_name"]: t for t in index["teams"]}
     search = _load(raw / "explorer/search_index.json")
-    players = {i["label"]: i for i in search["items"] if i["kind"] == "PLAYER"}
     ids: dict[str, dict] = {}
-    for name, entry in players.items():
+    for entry in (i for i in search["items"] if i["kind"] == "PLAYER"):
         prof = _load(raw / entry["path"]) if (raw / entry["path"]).exists() else None
-        ids[name] = {"id": entry["id"], "mlbam": ((prof or {}).get("entity") or {}).get("source_ids", {}).get("mlbam_player_id")}
+        ids[entry["label"]] = {"id": entry["id"], "mlbam": ((prof or {}).get("entity") or {}).get("source_ids", {}).get("mlbam_player_id")}
 
-    market_rows = _load(raw / "markets.json")
-    keep_keys = {g for g, _ in GAMES}
-    rows = [m for m in market_rows["items"] if m["kalshi_ticker"].split("-")[1] in keep_keys]
-
-    board_items, events, kept_teams = [], [], set()
-    for suffix, start in GAMES:
-        away_abbr, home_abbr = next((a, suffix[11:][len(a):]) for a in teams if suffix[11:].startswith(a) and suffix[11:][len(a):] in teams)
-        away, home = teams[away_abbr], teams[home_abbr]
-        kept_teams |= {away["participant_id"], home["participant_id"]}
-        eid = evt(suffix)
-        parts = [{"display_name": t["display_name"], "participant_id": t["participant_id"], "participant_type": "TEAM", "short_name": t["short_name"]} for t in (home, away)]
-        event = {
-            "away_participant": away["participant_id"], "broadcast": None, "competition": "MLB 2026 postseason",
-            "effective_start_time_utc": None, "event_id": eid, "extensions": {"kalshi_event_suffix": suffix, "synthetic_fixture": True},
-            "home_participant": home["participant_id"], "last_updated_at": GENERATED, "league": "MLB", "participants": parts,
-            "schedule_updated_at": "2026-10-07T01:09:42Z", "season": "2026", "source_ids": {"kalshi_event_ticker": f"KXMLBGAME-{suffix}"},
-            "sport": "MLB", "start_time_confidence": "SCHEDULED", "start_time_local": None, "start_time_source": "mlb_statsapi_schedule",
-            "start_time_utc": start, "status": "SCHEDULED", "venue": None,
-        }
-        events.append(event)
-        team_abbr = {home["participant_id"]: home_abbr, away["participant_id"]: away_abbr}
-        markets = []
-        for m in rows:
-            if m["kalshi_ticker"].split("-")[1] != suffix:
-                continue
-            m = json.loads(json.dumps(m))
-            m["event_id"] = eid
-            if suffix == PROPS_GAME:
+    teams: set[str] = set()
+    for it in board["items"]:
+        detail = _load(raw / it["detail_path"])
+        ev = detail["event"]
+        teams |= {ev["home_participant"], ev["away_participant"]}
+        if (ev.get("extensions") or {}).get("kalshi_event_ticker_suffix") == PROPS_GAME:
+            team_abbr = {p["participant_id"]: p["short_name"] for p in ev["participants"]}
+            for m in detail["markets"]:
                 pp = player_prop(m, team_abbr, ids)
                 if pp:
                     m["extensions"]["player_prop"] = pp
                     m["player_id"] = pp["player_id"]
-            markets.append(m)
-        markets.sort(key=lambda m: m["kalshi_ticker"])
-        detail = {
-            "context": None, "data_freshness": "STALE", "event": event, "generated_at": GENERATED, "kind": "event_detail",
-            "markets": markets, "model_prices": [], "price_history": [], "recommendations": [], "run_id": "run_ec8c4135037776c3c03d",
-            "schema_version": "edge_finder.app.v1", "settlements": [], "sport": "MLB", "theses": [], "wagers": [],
-        }
-        _dump(out / f"event_detail/{eid}.json", detail)
-        board_items.append({
-            "away_participant": away["participant_id"], "competition": "MLB 2026 postseason", "data_freshness": "STALE",
-            "detail_path": f"event_detail/{eid}.json", "event_id": eid, "health_flags": [], "home_participant": home["participant_id"],
-            "league": "MLB", "market_captured_at": max(m["captured_at"] for m in markets), "markets_available": len(markets),
-            "markets_priced": 0, "model_generated_at": None, "participants": parts, "recommendations_count": 0,
-            "start_time_utc": start, "status": "SCHEDULED", "wagers_count": 0,
-        })
-
-    base = {"generated_at": GENERATED, "run_id": "run_ec8c4135037776c3c03d", "schema_version": "edge_finder.app.v1", "sport": "MLB"}
-    _dump(out / "board.json", {**base, "bet_authority": "MANUAL", "count": len(board_items), "items": board_items, "kind": "board", "overall_status": "DEGRADED"})
-    _dump(out / "events.json", {**base, "count": len(events), "items": events, "kind": "events"})
-    _dump(out / "markets.json", {**market_rows, "items": [{**m, "event_id": evt(m["kalshi_ticker"].split("-")[1])} for m in rows], "count": len(rows)})
-    for name in ("manifest.json", "health.json", "model_prices.json"):
+        _dump(out / it["detail_path"], detail)
+    _dump(out / "board.json", board)
+    for name in ("events.json", "markets.json", "model_prices.json", "recommendations.json", "theses.json"):
+        doc = _load(raw / name)
+        doc["items"] = [x for x in doc["items"] if x.get("event_id") in keep]
+        doc["count"] = len(doc["items"])
+        _dump(out / name, doc)
+    for name in ("manifest.json", "health.json"):
         shutil.copyfile(raw / name, out / name)
 
-    # explorer: real documents, trimmed to the kept teams and their players (every file the index names exists)
-    keep_players = {p for t in kept_teams for p in index["players_by_team"].get(t, [])}
+    # explorer: real documents, trimmed to the four games, their teams and their players
+    players = {p for t in teams for p in index["players_by_team"].get(t, [])}
     files = {}
     for rel, f in index["files"].items():
-        if f["kind"] in ("capability_manifest", "metric_registry", "search_index") or (f["kind"] == "entity_profile" and f["entity_id"] in kept_teams | keep_players):
-            files[rel] = f
-            if f["kind"] == "entity_profile":
-                shutil.copyfile(raw / "explorer" / rel, (out / "explorer" / rel).parent.mkdir(parents=True, exist_ok=True) or out / "explorer" / rel)
+        wanted = f["kind"] in ("capability_manifest", "metric_registry", "search_index") \
+            or (f["kind"] == "entity_profile" and f["entity_id"] in teams | players) \
+            or (f["kind"] in ("event_research", "market_history") and f["entity_id"] in keep)
+        if not wanted:
+            continue
+        files[rel] = f
+        if f["kind"] not in ("capability_manifest", "metric_registry", "search_index"):
+            (out / "explorer" / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(raw / "explorer" / rel, out / "explorer" / rel)
     index["files"] = files
-    index["players_by_team"] = {t: ps for t, ps in index["players_by_team"].items() if t in kept_teams}
+    index["events"] = [e for e in index["events"] if e["event_id"] in keep]
+    index["players_by_team"] = {t: ps for t, ps in index["players_by_team"].items() if t in teams}
     _dump(out / "explorer/index.json", index)
     for name in ("capabilities.json", "metrics.json"):
         shutil.copyfile(raw / "explorer" / name, out / "explorer" / name)
-    search["items"] = [i for i in search["items"] if i["kind"] in ("TEAM", "METRIC") or (i["kind"] == "PLAYER" and i["id"] in keep_players)]
+    search["items"] = [i for i in search["items"] if i["kind"] in ("TEAM", "METRIC") or (i["kind"] == "PLAYER" and i["id"] in players)]
     search["count"] = len(search["items"])
     _dump(out / "explorer/search_index.json", search)
-    print(f"wrote {len(board_items)} games, {len(rows)} markets, {len(files)} explorer files to {out}")
+    print(f"wrote {len(board['items'])} games, {len(files)} explorer files to {out}")
     return 0
 
 

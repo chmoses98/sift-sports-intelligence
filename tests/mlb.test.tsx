@@ -25,10 +25,10 @@ import { SportHomeView } from '../src/views/SportHome';
 import { MLB_DIR, readMlb, useDiskFetch } from './helpers';
 import { renderScreen } from './render';
 
-const LADATL = 'evt_3478a7145aea5fda0ecf';
-const MILSD = 'evt_0501ce703eb4ba39dda7';
+const LADATL = 'evt_f809f61380cdbb0eb4f0';
+const MILSD = 'evt_f5eb66fea0cf02bbe998';
 const GLASNOW = 'prt_337d5d123a707f99b0ea';
-const NOW = new Date('2026-10-07T19:30:00Z');
+const NOW = new Date('2026-10-07T20:10:00Z');
 const detail = (id: string) => readMlb<EventDetailDoc>(`event_detail/${id}.json`);
 const BANNED = /\bedge\b|confidence|best bet|\block\b|guaranteed/i;
 
@@ -66,7 +66,7 @@ describe('the MLB publication', () => {
     for (const it of board.items) {
       const d = readMlb<EventDetailDoc>(it.detail_path);
       expect(d.markets.length).toBeGreaterThan(100);
-      const key = (d.event.extensions as { kalshi_event_suffix: string }).kalshi_event_suffix;
+      const key = (d.event.extensions as { kalshi_event_ticker_suffix: string }).kalshi_event_ticker_suffix;
       expect(d.markets.every((m) => m.kalshi_ticker.startsWith('KXMLB') && m.kalshi_ticker.split('-')[1] === key)).toBe(true);
     }
     expect(readdirSync(join(MLB_DIR, 'event_detail'))).toHaveLength(4);
@@ -166,7 +166,7 @@ describe('the player-prop object (mlb.player_prop.v1)', () => {
     expect(b.pitchers.map((p) => p.name)).toEqual(['Tyler Glasnow', 'Tyler Mahle']);
     expect(b.hitters[0].team).toBe('LAD');
     expect(b.hitters.find((p) => p.name === 'Freddie Freeman')!.families.map((f) => f.family)).toEqual(['hitter_hits', 'hitter_total_bases', 'hitter_hrr', 'hitter_rbi']);
-    expect(b.other.length).toBe(9);
+    expect(b.other.length).toBe(18);
     expect(b.other.every((m) => m.kalshi_series_ticker === 'KXMLBSB')).toBe(true);
     // the fallback: no player_prop anywhere → every player market, grouped by player, nothing projected
     const sd = propBoard(detail(MILSD).markets, ['MIL', 'SD']);
@@ -199,17 +199,40 @@ describe('MLB screens', () => {
     expect(await screen.findByRole('heading', { name: 'Game Lines' })).toBeInTheDocument();
     const lines = screen.getByRole('heading', { name: 'Game Lines' }).closest('section')!;
     for (const t of ['Braves moneyline', 'Dodgers moneyline', 'Dodgers −1.5', 'Run in 1st inning', 'Dodgers lead after 5 innings']) expect(within(lines).getByRole('link', { name: t })).toBeInTheDocument();
-    expect(within(lines).getByText(/No model price is published for this game/)).toBeInTheDocument();
+    // the publication's model price for a game line, labelled as such (◆ Model); no model on a line without one
+    const mp = detail(LADATL).model_prices.find((p) => p.market_id === 'mkt_kalshi_KXMLBGAME-26OCT071800LADATL-LAD')!;
+    const mlRow = within(lines).getByRole('link', { name: 'Dodgers moneyline' }).closest('tr')!;
+    expect(within(mlRow).getByLabelText(`model ${Math.round(mp.fair_probability! * 100)}%`)).toBeInTheDocument();
+    expect(within(within(lines).getByRole('link', { name: 'Dodgers −1.5' }).closest('tr')!).getByLabelText('no model price')).toBeInTheDocument();
+    expect(within(lines).getByText(/Lineups: LAD confirmed \(official\) · ATL confirmed \(official\)/)).toBeInTheDocument();
     expect(screen.getByText(/First pitch/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Starting pitchers' })).toBeInTheDocument();
     const tabs = within(screen.getByRole('navigation', { name: 'Game sections' })).getAllByRole('link').map((a) => a.textContent);
-    expect(tabs).toEqual(['Overview', 'Player props', 'Markets']);
+    expect(tabs).toEqual(['Overview', 'Player props', 'Matchup', 'Markets', 'Trends']);
     expect(document.body.textContent).not.toMatch(/Falcons|What Matters|Kicked off|Injuries &/);
+  });
+
+  it('Matchup shows the published model inputs side by side, never a rank Sift did not receive', async () => {
+    renderScreen(`${routes.game('mlb', LADATL)}?tab=matchup`, '/:sport/game/:eventId', <GameRoute />, {}, 'mlb');
+    const sec = (await screen.findByRole('heading', { name: 'Model inputs, side by side' })).closest('section')!;
+    const row = within(sec).getByRole('link', { name: 'Starter K% (slate)' }).closest('tr')!;
+    expect(row.textContent).toContain('34.0%');
+    expect(row.textContent).toContain('22.3%');
+    expect(within(sec).getByRole('columnheader', { name: 'LAD' })).toBeInTheDocument();
+    expect(sec.textContent).not.toMatch(/#\d|of 32/);
+  });
+
+  it('a game without model prices says so on its game lines', async () => {
+    renderScreen(routes.game('mlb', MILSD), '/:sport/game/:eventId', <GameRoute />, {}, 'mlb');
+    const lines = (await screen.findByRole('heading', { name: 'Game Lines' })).closest('section')!;
+    expect(within(lines).getByText(/No model price is published for this game/)).toBeInTheDocument();
+    expect(within(lines).queryByText(/◆/)).toBeNull();
   });
 
   it('a football tab deep link says MLB does not publish it (no crash, no NFL shapes)', async () => {
     renderScreen(`${routes.game('mlb', LADATL)}?tab=injuries`, '/:sport/game/:eventId', <GameRoute />, {}, 'mlb');
     expect(await screen.findByText('Injuries are not published for MLB')).toBeInTheDocument();
+    expect(within(screen.getByRole('navigation', { name: 'Game sections' })).queryByRole('link', { current: 'page' })).toBeNull();
   });
 
   it('Player Props: market for every rung, a model number only for published projections, statuses with reasons', async () => {
@@ -246,7 +269,7 @@ describe('MLB screens', () => {
 
     // unsupported markets: listed apart, with their price and "No projection published"
     const other = within(sec).getByRole('region', { name: 'Other player markets' });
-    expect(within(other).getAllByText('No projection published')).toHaveLength(9);
+    expect(within(other).getAllByText('No projection published')).toHaveLength(18);
     expect(within(other).getByText(/Shohei Ohtani: 1\+ stolen bases/)).toBeInTheDocument();
 
     // links: a resolvable player opens his profile; an unresolved one is plain text

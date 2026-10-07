@@ -12,9 +12,9 @@ import { MLB_DIR, NHL_DIR, SNAPSHOT_DIR } from '../helpers';
 
 const API = 'https://kalshi.test/v2';
 const RAW: Record<string, string> = { 'https://raw.test/nfl': SNAPSHOT_DIR, 'https://raw.test/nhl': NHL_DIR, 'https://raw.test/mlb': MLB_DIR };
-const MLB_NOW = Date.parse('2026-10-07T19:30:00Z');
+const MLB_NOW = Date.parse('2026-10-07T20:10:00Z');
 const NFL_NOW = Date.parse('2026-10-04T15:00:00Z');
-const DATE = 'Wed, 07 Oct 2026 19:30:05 GMT';
+const DATE = 'Wed, 07 Oct 2026 20:10:05 GMT';
 const GAME_KEY = /^\d{2}[A-Z]{3}\d{2}(\d{4})?[A-Z]{4,6}$/;
 const LADATL = '26OCT071800LADATL';
 
@@ -80,7 +80,7 @@ async function cycle(sports: string[], now: number, o: FakeOpts = {}) {
   if (!pre.publish) return { plan: pre, files: null, games, publications };
   const { byKey, errors } = await sweep(pre.games!, get, { api: API });
   const plan = planFeed(publications, pre.games!, byKey);
-  const files = plan.publish ? buildFiles(plan.games!, byKey, { generatedAt: '2026-10-07T19:30:12Z', sports, errors, requests: count(), publications, sportStatus: plan.sports }) : null;
+  const files = plan.publish ? buildFiles(plan.games!, byKey, { generatedAt: '2026-10-07T20:10:12Z', sports, errors, requests: count(), publications, sportStatus: plan.sports }) : null;
   return { plan, files, games, publications };
 }
 
@@ -142,9 +142,9 @@ describe('MLB in the live-quote feed', () => {
     const ks = detail.markets.find((m) => m.kalshi_ticker === 'KXMLBKS-26OCT071800LADATL-LADTGLASNOW31-7')!;
     const r = await provider.fetchQuotes([ks.kalshi_ticker, 'KXMLBGAME-26OCT071800LADATL-ATL']);
     const q = r.quotes.find((x) => x.ticker === ks.kalshi_ticker)!;
-    expect(q).toMatchObject({ source: 'quote-feed', availability: 'OPEN', observedAt: '2026-10-07T19:30:02Z', yesBid: ks.yes_bid, yesAsk: ks.yes_ask });
+    expect(q).toMatchObject({ source: 'quote-feed', availability: 'OPEN', observedAt: '2026-10-07T20:10:02Z', yesBid: ks.yes_bid, yesAsk: ks.yes_ask });
     const over = overlayMarket(ks, q);
-    expect(over.captured_at).toBe('2026-10-07T19:30:02Z'); // newer than the publication capture (10:46Z): the live quote wins
+    expect(over.captured_at).toBe('2026-10-07T20:10:02Z'); // newer than the publication capture (19:53Z): the live quote wins
     expect(over.source).toMatch(/^quote-feed \(live quote/);
     expect(over.extensions).toEqual(ks.extensions); // the research row (player_prop included) is kept
     // A ticker of another game is never answered from this game's file.

@@ -54,3 +54,8 @@
   .pp__orow { grid-template-columns: minmax(0, 1fr) auto auto; }
   .pp__orow .pp__none { grid-column: auto; }
 }
+
+/* ---- model inputs side by side */
+.mmatch th[scope="row"] { display: grid; gap: 2px; }
+.mmatch__cat { font-size: 0.72rem; color: var(--text-3); font-weight: 500; }
+.mmatch__note { font-size: 0.72rem; color: var(--text-3); font-weight: 400; }

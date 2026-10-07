@@ -1,5 +1,6 @@
 import logos from './team-logos.json';
 import { mlbClub } from './mlb';
+import { cfbTeam } from './cfbTeams';
 
 // Team identity colors: brand presentation only (never data). Sift uses them as a thin accent —
 // a stripe, a monogram tile — so Sift's own palette stays in charge.
@@ -30,6 +31,10 @@ export function teamColors(sport: string, abbr: string | null | undefined): [str
   if (sport === 'NFL' && abbr && NFL[abbr]) return NFL[abbr];
   if (sport === 'NHL' && abbr && NHL[abbr]) return NHL[abbr];
   if (sport === 'MLB') return mlbClub(abbr)?.colors ?? ['#1d2d52', '#3f5079'];
+  if (sport === 'CFB') {
+    const t = cfbTeam(abbr);
+    if (t?.c) return [t.c, t.c2 ?? t.c];
+  }
   return ['#1d2d52', '#3f5079'];
 }
 
@@ -53,6 +58,12 @@ const LOGOS = (logos as { teams: Record<string, unknown> }).teams;
 
 /** The committed logo for a team, or null when Sift has none for that sport/team. */
 export function teamLogo(sport: string, abbr: string | null | undefined): string | null {
-  if (sport !== 'NFL' || !abbr || !LOGOS[abbr]) return null;
-  return `${import.meta.env.BASE_URL}teams/nfl/${abbr}.webp`;
+  if (!abbr) return null;
+  if (sport === 'NFL') return LOGOS[abbr] ? `${import.meta.env.BASE_URL}teams/nfl/${abbr}.webp` : null;
+  if (sport === 'CFB') {
+    // CFB contract team code -> ESPN team id through the committed identity map (src/lib/cfbTeams.ts).
+    const t = cfbTeam(abbr);
+    return t?.l ? `${import.meta.env.BASE_URL}teams/cfb/${t.e}.webp` : null;
+  }
+  return null;
 }

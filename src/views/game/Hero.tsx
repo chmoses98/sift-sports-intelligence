@@ -75,7 +75,8 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
 }
 
 function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean }) {
-  const { city, nick } = splitName(name, abbr, sportCode);
+  // College names are not "City Nickname" ("Iowa St.", "Florida International"): CFB shows the whole name.
+  const { city, nick } = sportCode === 'CFB' ? { city: '', nick: displayName(name) } : splitName(name, abbr, sportCode);
   const rec = recordOf(prof);
   return (
     <div className={`gh__team gh__team--${side}`}>

@@ -1,6 +1,6 @@
 {
- "count": 15,
- "generated_at": "2026-10-06T03:15:24Z",
+ "count": 24,
+ "generated_at": "2026-10-07T13:53:20Z",
  "items": [
   {
    "aliases": [
@@ -30,6 +30,61 @@
   },
   {
    "aliases": [
+    "26OCT09ISUBYU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_1f7f2822f37fb1a8e34e",
+   "kind": "EVENT",
+   "label": "Iowa St. at BYU",
+   "path": "explorer/events/evt_1f7f2822f37fb1a8e34e.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct09isubyu",
+    "at",
+    "byu",
+    "fbs",
+    "iowa",
+    "st"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT07JVSTKENN"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_e56d7cee653c3507226b",
+   "kind": "EVENT",
+   "label": "Jacksonville St. at Kennesaw St.",
+   "path": "explorer/events/evt_e56d7cee653c3507226b.json",
+   "secondary": "2026-10-07 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "07",
+    "10",
+    "2026",
+    "26oct07jvstkenn",
+    "at",
+    "fbs",
+    "jacksonville",
+    "kennesaw",
+    "st"
+   ]
+  },
+  {
+   "aliases": [
     "26OCT10LSUUK"
    ],
    "context": {
@@ -52,6 +107,36 @@
     "fbs",
     "kentucky",
     "lsu"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT07NMSUFIU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_f39ef6a955b04b97fe84",
+   "kind": "EVENT",
+   "label": "New Mexico St. at Florida International",
+   "path": "explorer/events/evt_f39ef6a955b04b97fe84.json",
+   "secondary": "2026-10-07 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "07",
+    "10",
+    "2026",
+    "26oct07nmsufiu",
+    "at",
+    "fbs",
+    "florida",
+    "international",
+    "mexico",
+    "new",
+    "st"
    ]
   },
   {
@@ -200,6 +285,46 @@
    ]
   },
   {
+   "aliases": [],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_62f3806b37c6de70d9ca",
+   "kind": "TEAM",
+   "label": "BYU",
+   "path": "explorer/teams/prt_62f3806b37c6de70d9ca.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "byu"
+   ]
+  },
+  {
+   "aliases": [
+    "FIU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_bafb79d8984828d8c0bb",
+   "kind": "TEAM",
+   "label": "Florida International",
+   "path": "explorer/teams/prt_bafb79d8984828d8c0bb.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "fiu",
+    "florida",
+    "international"
+   ]
+  },
+  {
    "aliases": [
     "UGA"
    ],
@@ -218,6 +343,72 @@
    "tokens": [
     "georgia",
     "uga"
+   ]
+  },
+  {
+   "aliases": [
+    "ISU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_dc7905094619ad99a1be",
+   "kind": "TEAM",
+   "label": "Iowa St.",
+   "path": "explorer/teams/prt_dc7905094619ad99a1be.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "iowa",
+    "isu",
+    "st"
+   ]
+  },
+  {
+   "aliases": [
+    "JVST"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_b5f5b75952dd24e1599a",
+   "kind": "TEAM",
+   "label": "Jacksonville St.",
+   "path": "explorer/teams/prt_b5f5b75952dd24e1599a.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "jacksonville",
+    "jvst",
+    "st"
+   ]
+  },
+  {
+   "aliases": [
+    "KENN"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_71b49ac37b701af901df",
+   "kind": "TEAM",
+   "label": "Kennesaw St.",
+   "path": "explorer/teams/prt_71b49ac37b701af901df.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "kenn",
+    "kennesaw",
+    "st"
    ]
   },
   {
@@ -257,6 +448,29 @@
    "sport": "CFB",
    "tokens": [
     "lsu"
+   ]
+  },
+  {
+   "aliases": [
+    "NMSU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_130d7e7161e246278450",
+   "kind": "TEAM",
+   "label": "New Mexico St.",
+   "path": "explorer/teams/prt_130d7e7161e246278450.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "mexico",
+    "new",
+    "nmsu",
+    "st"
    ]
   },
   {
@@ -346,7 +560,7 @@
   }
  ],
  "kind": "search_index",
- "run_id": "run_48a34185ff385c8bafc4",
+ "run_id": "run_4c065c9e1d3c13d8b02e",
  "schema_version": "edge_finder.app.v1",
  "sport": "CFB"
 }

@@ -17,6 +17,13 @@ export const UGA_ALA = 'evt_93e12676ae9337017c63';
 export const LSU_UK = 'evt_8c3166866b2bfa530c17';
 /** Albany vs Stony Brook: the engine could not match the game; markets only. */
 export const ALBY_STON = 'evt_776097ba6eef448fb340';
+/** Iowa St. at BYU: SCRIPTS_GENERATED (two scripts). */
+export const ISU_BYU = 'evt_1f7f2822f37fb1a8e34e';
+/** New Mexico St. at Florida International: SINGLE_SCRIPT. */
+export const NMSU_FIU = 'evt_f39ef6a955b04b97fe84';
+/** Jacksonville St. at Kennesaw St.: NO_SCRIPT_CLEARED_EVIDENCE. */
+export const JVST_KENN = 'evt_e56d7cee653c3507226b';
+const EMPTY = 'No script cleared its evidence requirement';
 
 async function serveCfb(page: Page) {
   await page.context().route(CFB_RAW, async (route) => {
@@ -87,6 +94,39 @@ test('the matchup tab publishes every metric with raw, adjusted and rank @journe
 test('a game the engine could not read says so and keeps the markets @smoke', async ({ page }) => {
   await page.goto(`./#/cfb/game/${ALBY_STON}`);
   await expect(page.getByText('No script engine read for this game')).toBeVisible();
+});
+
+test('every engine state renders as published: two scripts, one script, or the honest empty state @smoke', async ({ page }) => {
+  await page.goto(`./#/cfb/game/${ISU_BYU}`);
+  await expect(page.locator('.eng-scard')).toHaveCount(2);
+  await expect(page.getByText(EMPTY)).toHaveCount(0);
+
+  await page.goto(`./#/cfb/game/${NMSU_FIU}`);
+  await expect(page.locator('.eng-scard')).toHaveCount(1);
+  await expect(page.locator('.eng-scard')).toContainText('Primary');
+  await expect(page.getByText(EMPTY)).toHaveCount(0);
+  await page.locator('.gtabs').getByRole('link', { name: 'Scripts', exact: true }).click();
+  await expect(page.locator('.chain > li').first()).toBeVisible();
+  await expect(page.getByText(EMPTY)).toHaveCount(0);
+
+  await page.goto(`./#/cfb/game/${JVST_KENN}`);
+  await expect(page.locator('.game--engine')).toBeVisible();
+  await expect(page.getByText(EMPTY)).toBeVisible();
+  await expect(page.locator('.eng-scard')).toHaveCount(0);
+});
+
+test('the CFB hero shows both teams\' committed logos, loaded @smoke', async ({ page }) => {
+  const served: string[] = [];
+  page.on('response', (r) => r.url().includes('/teams/cfb/') && r.ok() && served.push(r.url()));
+  for (const [id, files] of [[ISU_BYU, ['66.webp', '252.webp']], [NMSU_FIU, ['166.webp', '2229.webp']]] as const) {
+    await page.goto(`./#/cfb/game/${id}`);
+    const logos = page.locator('.gh img.teammark--logo');
+    await expect(logos).toHaveCount(2);
+    await expect.poll(() => logos.evaluateAll((els) => els.every((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0))).toBe(true);
+    await expect(page.locator('.gh .teammark--text')).toHaveCount(0);
+    // the held image is a blob of the committed file: the site served exactly these two
+    for (const f of files) expect(served.some((u) => u.endsWith(`/teams/cfb/${f}`)), f).toBe(true);
+  }
 });
 
 for (const [name, url] of [

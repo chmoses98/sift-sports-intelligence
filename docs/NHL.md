@@ -102,7 +102,15 @@ know* list. Sift never shows "Profitable" or "Proven".
 
 NHL markets use the same market clock as every sport. The relay comes first and the GitHub quote feed is the
 fallback. `scripts/publish-live-quotes.mjs` lists NHL next to NFL, and there is no NHL-specific fetcher. A
-publication capture is never labelled "Live". The research tray and the handicap packet use the contract's
+publication capture is never labelled "Live".
+
+The feed reads NHL's board with the same slate rule as NFL (`scripts/live-quotes/slate.mjs`). Its feed status is
+STALE if any sport's publication is stale. In that case nothing is published, the run fails visibly and the last
+good feed stays up. So if the NHL board stopped refreshing, NFL's feed fallback would freeze with it (and the
+reverse). The relay, which is the primary quote source, is unaffected. NHL's board marks games FINAL as they
+finish, so a working NHL capture never trips this rule.
+
+The research tray and the handicap packet use the contract's
 `edge_finder.handicap.nhl.v1` protocol. An NHL game packet carries the script distribution and the research
 candidates (with survival and stake type) as context notes.
 

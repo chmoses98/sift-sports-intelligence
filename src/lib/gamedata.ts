@@ -3,6 +3,7 @@
 // published documents — they choose words and order, never create a number.
 import type { EntityProfileDoc, EventResearchDoc, Market, ModelPrice } from '../contract/types';
 import { STAT_LABEL } from './nfl';
+import { describeNhlMarket } from './marketLabel';
 import type { GameScript, ScriptFit, ScriptSet } from './scripts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -33,6 +34,7 @@ const STAT_SHORT: Record<string, string> = {
  * "total ≥ 50" is Over 49.5, "BUF team points ≥ 28" is BUF Over 27.5.
  */
 export function marketLabel(m: Market, abbrOf: (pid: string | null) => string | null, playerName: (id: string | null) => string | null): string {
+  if (/^KXNHL/.test(m.kalshi_ticker)) return describeNhlMarket(m)?.title ?? m.yes_description;
   const who = abbrOf(m.participant_id);
   const per = m.period && m.period !== 'FULL' ? `${m.period} ` : '';
   const t = m.threshold;
@@ -165,13 +167,16 @@ export interface InjuryRow {
 
 const STATUS_ORDER = ['OUT', 'DOUBTFUL', 'QUESTIONABLE', 'PROBABLE'];
 
-/** "Name (POS, TEAM): note" → structured rows, non-active only, most serious first. */
-export function injuryRows(r: EventResearchDoc): InjuryRow[] {
+/** "Name (POS, TEAM): note" → structured rows, non-active only, most serious first. NHL rows read "Name (POS): note"
+ * with no team; `teamOf` resolves the team from the game's own rosters / line combinations (never guessed). */
+export function injuryRows(r: EventResearchDoc, teamOf?: (name: string) => string | null): InjuryRow[] {
   return (r.context?.injuries ?? [])
     .filter((i) => i.status && i.status !== 'ACTIVE')
     .map((i) => {
       const m = /^(.+?) \(([^,]+), ([A-Z]{2,3})\):\s*(.*)$/.exec(i.detail ?? '');
-      return { player: m?.[1] ?? i.detail ?? '', position: m?.[2] ?? null, team: m?.[3] ?? null, status: i.status, note: m?.[4] ?? null, asOf: i.as_of ?? null };
+      if (m) return { player: m[1], position: m[2], team: m[3], status: i.status, note: m[4], asOf: i.as_of ?? null };
+      const h = /^(.+?) \(([^)]+)\):\s*(.*)$/.exec(i.detail ?? '');
+      return { player: h?.[1] ?? i.detail ?? '', position: h?.[2] ?? null, team: h && teamOf ? teamOf(h[1]) : null, status: i.status, note: h?.[3] ?? null, asOf: i.as_of ?? null };
     })
     .sort((a, b) => ((STATUS_ORDER.indexOf(a.status) + 9) % 9) - ((STATUS_ORDER.indexOf(b.status) + 9) % 9));
 }

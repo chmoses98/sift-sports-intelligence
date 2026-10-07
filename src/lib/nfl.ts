@@ -60,10 +60,15 @@ export const STAT_LABEL: Record<string, string> = {
   team_sacks: 'Team sacks', team_yards: 'Team yards',
 };
 
-export const CATEGORY_ORDER = ['opponent-adjusted', 'offense', 'defense', 'style', 'results', 'quarterback', 'usage', 'projection', 'model'];
+export const CATEGORY_ORDER = ['opponent-adjusted', 'opponent_adjusted', 'offense', 'defense', 'style', 'results', 'quarterback', 'usage', 'projection', 'model'];
 
 export const CATEGORY_LABEL: Record<string, string> = {
   'opponent-adjusted': 'Opponent-adjusted ratings',
+  opponent_adjusted: 'Opponent-adjusted (5v5)',
+  advanced: 'Advanced (raw)',
+  model_inputs: 'Model inputs',
+  model_quality: 'Model status',
+  official: 'Official (raw)',
   offense: 'Offense',
   defense: 'Defense',
   style: 'Style & pace',
@@ -122,6 +127,7 @@ export const WINDOW_NAME: Record<string, string> = {
 };
 export function windowName(label: string | null | undefined): string {
   if (!label) return '';
+  if (/^run \d{4}-\d\d-\d\dT/i.test(label)) return 'Latest model run';
   return WINDOW_NAME[label] ?? label.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (x) => x.toUpperCase());
 }
 

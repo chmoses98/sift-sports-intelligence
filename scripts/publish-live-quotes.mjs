@@ -12,7 +12,10 @@ import { buildFiles, feedStatus, makeGet, readPublication, sweep } from './live-
 import { publishVerdict } from './live-quotes/slate.mjs';
 
 // Sports whose publication Sift maps to Kalshi. One line per sport; the feed format is sport-agnostic.
-const SPORTS = [{ code: 'NFL', rawBase: 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest' }];
+const SPORTS = [
+  { code: 'NFL', rawBase: 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest' },
+  { code: 'NHL', rawBase: 'https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest' },
+];
 
 const out = process.argv[2] ?? 'out/live-quotes';
 const log = (s) => console.log(s);

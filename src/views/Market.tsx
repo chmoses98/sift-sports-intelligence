@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { LadderChart } from '../charts/LadderChart';
 import { PriceHistory } from '../charts/PriceHistory';
@@ -30,6 +31,9 @@ function Px({ k, v, sub }: { k: string; v: string; sub?: string }) {
     </div>
   );
 }
+
+/** The NHL research layer for a market (views/nhl): its own chunk. */
+const NhlMarketResearch = lazy(() => import('./nhl/NhlMarket').then((x) => ({ default: x.NhlMarketResearch })));
 
 export function MarketView() {
   const { marketId = '' } = useParams();
@@ -89,6 +93,8 @@ export function MarketView() {
   const hseries = hist.data?.series.find((s) => s.market_id === m.market_id);
   const thr = rungOf(m);
   const subject = player.data?.entity.display_name ?? team.data?.entity.display_name ?? x.subject ?? null;
+  // NHL inserts its research stratum as 02; the rest renumber after it.
+  const sn = (k: number) => String(sport.code === 'NHL' ? k + 1 : k).padStart(2, '0');
   const v2 = x.shadow_v2_p_yes ?? (mp?.extensions as any)?.shadow_v2?.p_yes ?? null;
 
   return (
@@ -127,7 +133,7 @@ export function MarketView() {
         </div>
         <div className="contract__side contract__side--no">
           <span className="contract__k">NO pays $1 if</span>
-          <span className="contract__v">{m.no_description ?? 'the YES condition is not met'}</span>
+          <span className="contract__v">{sport.code === 'NHL' ? `the YES condition is not met${title ? ` (not: ${title.charAt(0).toLowerCase()}${title.slice(1)})` : ''}` : m.no_description ?? 'the YES condition is not met'}</span>
         </div>
       </section>
 
@@ -148,7 +154,9 @@ export function MarketView() {
         </div>
       </Stratum>
 
-      <Stratum n="02" title="Model evidence" sub="What the repository's model says about this contract. Research evidence — not a recommendation, not a bet.">
+      {sport.code === 'NHL' && <Suspense fallback={null}><NhlMarketResearch r={research.data} m={m} slug={slug} /></Suspense>}
+
+      <Stratum n={sn(2)} title="Model evidence" sub="What the repository's model says about this contract. Research evidence — not a recommendation, not a bet.">
         {mp ? (
           <div className="evid">
             <div className="pxgrid">
@@ -176,7 +184,7 @@ export function MarketView() {
       </Stratum>
 
       {(q || siblings.length >= 2) && (
-        <Stratum n="03" title="Projection evidence" sub={stat ? `${subject}'s ${STAT_LABEL[stat] ?? stat}: the whole ladder, this rung highlighted.` : 'The whole ladder, this rung highlighted.'}>
+        <Stratum n={sn(3)} title="Projection evidence" sub={stat && subject ? `${subject}'s ${STAT_LABEL[stat] ?? stat}: the whole ladder, this rung highlighted.` : 'The whole ladder, this rung highlighted.'}>
           {siblings.length >= 2 && (
             <LadderChart
               rungs={siblings.map((o) => ({ x: Number(rungOf(o)), bid: o.yes_bid, ask: o.yes_ask, fair: prices.get(o.market_id)?.fair_probability ?? null, href: routes.market(slug, o.market_id, ev.event_id), ticker: o.kalshi_ticker }))}
@@ -196,7 +204,7 @@ export function MarketView() {
         </Stratum>
       )}
 
-      <Stratum n="04" title="Price history" sub="Every capture of this ticker.">
+      <Stratum n={sn(4)} title="Price history" sub="Every capture of this ticker.">
         {hist.loading && <Skeleton lines={3} />}
         {hseries ? (
           <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
@@ -209,7 +217,7 @@ export function MarketView() {
         )}
       </Stratum>
 
-      <Stratum n="05" title="Data quality & research status">
+      <Stratum n={sn(5)} title="Data quality & research status">
         <dl className="facts facts--slim">
           <div className="fact"><dt>Quote source</dt><dd>{view ? sourceLabel(view.source) : '—'}</dd></div>
           <div className="fact"><dt>Quote observed</dt><dd>{exactTime(view?.observedAt)}</dd></div>

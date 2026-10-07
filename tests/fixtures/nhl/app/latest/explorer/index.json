@@ -1,0 +1,624 @@
+{
+ "as_of": "2026-10-07T00:02:08Z",
+ "base_manifest_run_id": "run_a2cad146553270f7c5aa",
+ "capabilities_path": "explorer/capabilities.json",
+ "commit_sha": null,
+ "counts": {
+  "events": 3,
+  "market_history": 3,
+  "metrics": 41,
+  "players": 24,
+  "rankings": 8,
+  "series": 0,
+  "teams": 6
+ },
+ "events": [
+  {
+   "away_participant": "prt_fcdebf3b5c34498e33c5",
+   "event_id": "evt_c4a2cf978d0824a1493a",
+   "home_participant": "prt_0cb6dd6f6ad2475e1492",
+   "participants": [
+    "prt_0cb6dd6f6ad2475e1492",
+    "prt_fcdebf3b5c34498e33c5"
+   ],
+   "path": "explorer/events/evt_c4a2cf978d0824a1493a.json",
+   "start_time_utc": "2026-10-07T00:00:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_6a6712b98b3104e80135",
+   "event_id": "evt_4f20f09608cc97c362a7",
+   "home_participant": "prt_88a79c34c6265e0181a3",
+   "participants": [
+    "prt_88a79c34c6265e0181a3",
+    "prt_6a6712b98b3104e80135"
+   ],
+   "path": "explorer/events/evt_4f20f09608cc97c362a7.json",
+   "start_time_utc": "2026-10-07T01:40:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_ae48b83ca306673b8b79",
+   "event_id": "evt_5938c3f8a7c1b24c0118",
+   "home_participant": "prt_1513313ad992fb9eb71f",
+   "participants": [
+    "prt_1513313ad992fb9eb71f",
+    "prt_ae48b83ca306673b8b79"
+   ],
+   "path": "explorer/events/evt_5938c3f8a7c1b24c0118.json",
+   "start_time_utc": "2026-10-07T02:00:00Z",
+   "status": "SCHEDULED"
+  }
+ ],
+ "files": {
+  "capabilities.json": {
+   "bytes": 25675,
+   "entity_id": null,
+   "kind": "capability_manifest",
+   "sha256": "03d9d95c6233d3a229395714112e2ac76e7a96b3ddff196e4ff0920f6575aca9"
+  },
+  "events/evt_4f20f09608cc97c362a7.json": {
+   "bytes": 304921,
+   "entity_id": "evt_4f20f09608cc97c362a7",
+   "kind": "event_research",
+   "sha256": "84d74227fccc2d2975a8aa89f54146cea97de1c1a7af123f464fd909d4d66639"
+  },
+  "events/evt_5938c3f8a7c1b24c0118.json": {
+   "bytes": 312016,
+   "entity_id": "evt_5938c3f8a7c1b24c0118",
+   "kind": "event_research",
+   "sha256": "240a0581b63e63e23c556030ac64cf73216440e626644c27425257be319c31d3"
+  },
+  "events/evt_c4a2cf978d0824a1493a.json": {
+   "bytes": 301690,
+   "entity_id": "evt_c4a2cf978d0824a1493a",
+   "kind": "event_research",
+   "sha256": "501fc2ece070090c742c25b38d55c87932ab20d3dab461b1c08a8c4907a27455"
+  },
+  "market_history/evt_4f20f09608cc97c362a7.json": {
+   "bytes": 361664,
+   "entity_id": "evt_4f20f09608cc97c362a7",
+   "kind": "market_history",
+   "sha256": "b19217471ca96de0600929c02ed6145bbf747992b0b1bfbe4978385fe0e3ac3d"
+  },
+  "market_history/evt_5938c3f8a7c1b24c0118.json": {
+   "bytes": 323758,
+   "entity_id": "evt_5938c3f8a7c1b24c0118",
+   "kind": "market_history",
+   "sha256": "c58e983bc0aa251486235e2ba080b7fa906ad4a7fef4d28dd63cb2557c844adf"
+  },
+  "market_history/evt_c4a2cf978d0824a1493a.json": {
+   "bytes": 353371,
+   "entity_id": "evt_c4a2cf978d0824a1493a",
+   "kind": "market_history",
+   "sha256": "4266f05185ccd40374ad55e02ce17a8088bf1b5a6a52659e204f8ab299eb86d1"
+  },
+  "metrics.json": {
+   "bytes": 116797,
+   "entity_id": null,
+   "kind": "metric_registry",
+   "sha256": "d22542bd3d75ba3367240f255ff2f610bd774a3835b637ecff1a49a61da99866"
+  },
+  "players/prt_02da6aa6a19045d7fbba.json": {
+   "bytes": 25232,
+   "entity_id": "prt_02da6aa6a19045d7fbba",
+   "kind": "entity_profile",
+   "sha256": "d5e1d923348fcc3ad091e5194863eeeb617dc76458d85e1ee36cfb98f5ed41d4"
+  },
+  "players/prt_0ec11666841da4ee86ec.json": {
+   "bytes": 17273,
+   "entity_id": "prt_0ec11666841da4ee86ec",
+   "kind": "entity_profile",
+   "sha256": "8e5a92d3bbe1727a4bb6988158d5953459233aecbcb7528ae721a5f98d2ba64d"
+  },
+  "players/prt_12b4b48eb5121c1355c5.json": {
+   "bytes": 24178,
+   "entity_id": "prt_12b4b48eb5121c1355c5",
+   "kind": "entity_profile",
+   "sha256": "c795a57c57250d11fe8fbb139c5427c4bbe9c33265545eb8247faba13d3332b5"
+  },
+  "players/prt_12fb918dd199a9730a10.json": {
+   "bytes": 25159,
+   "entity_id": "prt_12fb918dd199a9730a10",
+   "kind": "entity_profile",
+   "sha256": "f239296341586ce3f7e565d10b322a10aeaa3fc1ea56f16628fcf2cf73403762"
+  },
+  "players/prt_1b116f479f8d41abdc33.json": {
+   "bytes": 10315,
+   "entity_id": "prt_1b116f479f8d41abdc33",
+   "kind": "entity_profile",
+   "sha256": "4a5afbf79f78466fba18087098b788e315ec5ac4cbcee0076033a0094c3cb920"
+  },
+  "players/prt_1c273063d670dc555bd9.json": {
+   "bytes": 17234,
+   "entity_id": "prt_1c273063d670dc555bd9",
+   "kind": "entity_profile",
+   "sha256": "377a33fc7a2abe47608420d68213f40d39c2f693cf4b69394c380df81e1c25fb"
+  },
+  "players/prt_42c14552cab8af288559.json": {
+   "bytes": 25220,
+   "entity_id": "prt_42c14552cab8af288559",
+   "kind": "entity_profile",
+   "sha256": "b03940fcafdb066d2bd000232c738369d53c5bc3eac5e4ebe13f88592e1aea84"
+  },
+  "players/prt_628b1d1dc955ba0a8b41.json": {
+   "bytes": 17256,
+   "entity_id": "prt_628b1d1dc955ba0a8b41",
+   "kind": "entity_profile",
+   "sha256": "f9000d5fee89464448032666d34505dfe3caf98a5d686b7075a2b7e5b3712090"
+  },
+  "players/prt_6eb16ec826a085919c52.json": {
+   "bytes": 25368,
+   "entity_id": "prt_6eb16ec826a085919c52",
+   "kind": "entity_profile",
+   "sha256": "d2cfe82bdd7cf83055f7925814c6347c0c8684145b4ce030c1fc738dd0eadcf9"
+  },
+  "players/prt_7fe87062502771e4489c.json": {
+   "bytes": 25325,
+   "entity_id": "prt_7fe87062502771e4489c",
+   "kind": "entity_profile",
+   "sha256": "f737a13ab6c434c31b957f410456034132efcc3d4ed6eb6043e29a5b61ce323d"
+  },
+  "players/prt_8143b784eccc340b64b7.json": {
+   "bytes": 25380,
+   "entity_id": "prt_8143b784eccc340b64b7",
+   "kind": "entity_profile",
+   "sha256": "2e43111597edf09201e037d918eb4ba0a162bd528fd5bb7a739dc9170023d615"
+  },
+  "players/prt_93b66122e1dfa5d7927d.json": {
+   "bytes": 25342,
+   "entity_id": "prt_93b66122e1dfa5d7927d",
+   "kind": "entity_profile",
+   "sha256": "329df2f5076f4a58590c786f6f72383085b9be355e96ce88759355b107dfc3f5"
+  },
+  "players/prt_97a2b26d577a88b7244c.json": {
+   "bytes": 25294,
+   "entity_id": "prt_97a2b26d577a88b7244c",
+   "kind": "entity_profile",
+   "sha256": "86bb460690da42791b492ca9f430fc69913ad7bde1aecdfe0db322b8675a93cb"
+  },
+  "players/prt_9e029c60206351bdb98b.json": {
+   "bytes": 25331,
+   "entity_id": "prt_9e029c60206351bdb98b",
+   "kind": "entity_profile",
+   "sha256": "f41caab03b8ba6d0a4bb5960ccd8308d41d1892a77de497d29bc7654f4e5f4ae"
+  },
+  "players/prt_9e5d52ad51ba0c6a2f60.json": {
+   "bytes": 25305,
+   "entity_id": "prt_9e5d52ad51ba0c6a2f60",
+   "kind": "entity_profile",
+   "sha256": "153b05d9874fbe75289fade56b96cff4aaa0f43f5169efc88a87e6b7345e9c68"
+  },
+  "players/prt_a9c1ee4fb76c237c1431.json": {
+   "bytes": 25312,
+   "entity_id": "prt_a9c1ee4fb76c237c1431",
+   "kind": "entity_profile",
+   "sha256": "0d81a3dc22de6f9035fcf53de19d10056247a868e2ef214d964e5156642ef91a"
+  },
+  "players/prt_b60ef82e00e1ab8d3cae.json": {
+   "bytes": 25278,
+   "entity_id": "prt_b60ef82e00e1ab8d3cae",
+   "kind": "entity_profile",
+   "sha256": "d5aeada3f28d106795f9218416d336744c56e04238f745896b31443658968eff"
+  },
+  "players/prt_b843b34e92bb1e866014.json": {
+   "bytes": 25387,
+   "entity_id": "prt_b843b34e92bb1e866014",
+   "kind": "entity_profile",
+   "sha256": "9585214956947f36aa74bda2aab65a18649a36a6dc444cd89e463318380368ac"
+  },
+  "players/prt_ccc8396012f58b2d4813.json": {
+   "bytes": 25250,
+   "entity_id": "prt_ccc8396012f58b2d4813",
+   "kind": "entity_profile",
+   "sha256": "c10374085ce0e6b75af5a017ec66c0c5971baecff4f8295b9f7aa2aee11e55ad"
+  },
+  "players/prt_d1643c0f0d90befec59d.json": {
+   "bytes": 17165,
+   "entity_id": "prt_d1643c0f0d90befec59d",
+   "kind": "entity_profile",
+   "sha256": "bf0e44f112499ea8fff057056dc60a681e1cd27daf838437a12673174930c656"
+  },
+  "players/prt_daa5fd54e3fa0be171b7.json": {
+   "bytes": 17201,
+   "entity_id": "prt_daa5fd54e3fa0be171b7",
+   "kind": "entity_profile",
+   "sha256": "d911b4cf22c9b9d4b1eff9eb1fcb23592833d5df90f6875b019dd5b115a482fe"
+  },
+  "players/prt_e9cf812765611c4a1078.json": {
+   "bytes": 25283,
+   "entity_id": "prt_e9cf812765611c4a1078",
+   "kind": "entity_profile",
+   "sha256": "a9c24e1edca6fdb93d76b7798579f3adb7995222874c90a26c2abd7477179510"
+  },
+  "players/prt_f97a722bca3a32d9dcf4.json": {
+   "bytes": 17270,
+   "entity_id": "prt_f97a722bca3a32d9dcf4",
+   "kind": "entity_profile",
+   "sha256": "ddd6a1d8c66433a43a64b21c33e18ea7a9648b26ef96a63664c77535cd53defc"
+  },
+  "players/prt_fcaf2fa394545f1c983c.json": {
+   "bytes": 25147,
+   "entity_id": "prt_fcaf2fa394545f1c983c",
+   "kind": "entity_profile",
+   "sha256": "446b52bd9a8696c3e689e1e0b4e7f1891d65a4406f0fc6b7762a745f611294fb"
+  },
+  "rankings/rnk_0e5c4897885ceeb2e723.json": {
+   "bytes": 8970,
+   "entity_id": "rnk_0e5c4897885ceeb2e723",
+   "kind": "ranking",
+   "sha256": "6597472c5a443ead596bdb8c1d2cac4659fb500f2608a69a8e4d10099d265457"
+  },
+  "rankings/rnk_4244d4f73a968aa46316.json": {
+   "bytes": 8978,
+   "entity_id": "rnk_4244d4f73a968aa46316",
+   "kind": "ranking",
+   "sha256": "c18a1c83eb9f6f6add55389751aa3861a628aa6275b51c85f1ecf654c52e3847"
+  },
+  "rankings/rnk_7f1ba20704d0c7265c1d.json": {
+   "bytes": 8975,
+   "entity_id": "rnk_7f1ba20704d0c7265c1d",
+   "kind": "ranking",
+   "sha256": "bda6a37b315dee1ec1e43cf6498487eed13fe9ba8c5b4461a3e83b3f0e680fea"
+  },
+  "rankings/rnk_947c93c0c9144cc6b815.json": {
+   "bytes": 8971,
+   "entity_id": "rnk_947c93c0c9144cc6b815",
+   "kind": "ranking",
+   "sha256": "3b56c117d9151f85cff327c5151a4bb6e088ac0d4df3b584642f12e854e24692"
+  },
+  "rankings/rnk_a179be596d294517fe11.json": {
+   "bytes": 8985,
+   "entity_id": "rnk_a179be596d294517fe11",
+   "kind": "ranking",
+   "sha256": "bfe6efb2ae50df9f47f32c36f0cbc6ee237a0e1472476f3f03c3b4b6a20592b3"
+  },
+  "rankings/rnk_eaf0462f329705996c20.json": {
+   "bytes": 9054,
+   "entity_id": "rnk_eaf0462f329705996c20",
+   "kind": "ranking",
+   "sha256": "f5c5c787bfb8adbb8437ef71e45c2c90bbc0075f41817dc9b9024f5d3c01aab9"
+  },
+  "rankings/rnk_efa4c5d01ff24ee12cab.json": {
+   "bytes": 8985,
+   "entity_id": "rnk_efa4c5d01ff24ee12cab",
+   "kind": "ranking",
+   "sha256": "34675983a775eedb6063e105f4b84820a9415cbba7d22ceeff9bace2367f05d9"
+  },
+  "rankings/rnk_f3a267e25f2658adb82f.json": {
+   "bytes": 8967,
+   "entity_id": "rnk_f3a267e25f2658adb82f",
+   "kind": "ranking",
+   "sha256": "a224585011f91ce9c36993d57a1eaa78255ed1d354fbb476f7a107413a1c2288"
+  },
+  "search_index.json": {
+   "bytes": 35675,
+   "entity_id": null,
+   "kind": "search_index",
+   "sha256": "e1d7c60daccbff24435cacbd30f25bd079f0dc501d24972842ea09ce4d6d1458"
+  },
+  "teams/prt_0cb6dd6f6ad2475e1492.json": {
+   "bytes": 116906,
+   "entity_id": "prt_0cb6dd6f6ad2475e1492",
+   "kind": "entity_profile",
+   "sha256": "ac51d633f10000e209e073f16482ca831c8c9498588e451484d199b0aac55994"
+  },
+  "teams/prt_1513313ad992fb9eb71f.json": {
+   "bytes": 116979,
+   "entity_id": "prt_1513313ad992fb9eb71f",
+   "kind": "entity_profile",
+   "sha256": "d848e67f6a4c1e285bde91c656b20785ba99000817b5fb76ad428817c347f468"
+  },
+  "teams/prt_6a6712b98b3104e80135.json": {
+   "bytes": 117465,
+   "entity_id": "prt_6a6712b98b3104e80135",
+   "kind": "entity_profile",
+   "sha256": "9a548af4e9a94acfab11d2b3fd9c3b28f639ab483fdb9402d0a24d28b2758367"
+  },
+  "teams/prt_88a79c34c6265e0181a3.json": {
+   "bytes": 118220,
+   "entity_id": "prt_88a79c34c6265e0181a3",
+   "kind": "entity_profile",
+   "sha256": "510bc3c72e85c7b67e140b4aae9ef33da6d0d6e40343b36c201b736c3038dfc6"
+  },
+  "teams/prt_ae48b83ca306673b8b79.json": {
+   "bytes": 117246,
+   "entity_id": "prt_ae48b83ca306673b8b79",
+   "kind": "entity_profile",
+   "sha256": "3fd2abe6779fae651e14ceda8f8993f78d27ecc540e0330260e25224795278d6"
+  },
+  "teams/prt_fcdebf3b5c34498e33c5.json": {
+   "bytes": 118404,
+   "entity_id": "prt_fcdebf3b5c34498e33c5",
+   "kind": "entity_profile",
+   "sha256": "03d3a4034609e3780b6ec9ce356076e0f0017951485c532de3a810f0489b06a0"
+  }
+ },
+ "generated_at": "2026-10-06T22:48:00Z",
+ "kind": "explorer_index",
+ "metrics_path": "explorer/metrics.json",
+ "players_by_team": {
+  "prt_0cb6dd6f6ad2475e1492": [
+   "prt_0ec11666841da4ee86ec",
+   "prt_1b116f479f8d41abdc33",
+   "prt_7fe87062502771e4489c",
+   "prt_b843b34e92bb1e866014",
+   "prt_ccc8396012f58b2d4813",
+   "prt_e9cf812765611c4a1078"
+  ],
+  "prt_1513313ad992fb9eb71f": [
+   "prt_628b1d1dc955ba0a8b41",
+   "prt_8143b784eccc340b64b7",
+   "prt_97a2b26d577a88b7244c",
+   "prt_9e5d52ad51ba0c6a2f60",
+   "prt_a9c1ee4fb76c237c1431",
+   "prt_b60ef82e00e1ab8d3cae"
+  ],
+  "prt_6a6712b98b3104e80135": [
+   "prt_93b66122e1dfa5d7927d",
+   "prt_d1643c0f0d90befec59d"
+  ],
+  "prt_88a79c34c6265e0181a3": [
+   "prt_12b4b48eb5121c1355c5",
+   "prt_12fb918dd199a9730a10",
+   "prt_6eb16ec826a085919c52",
+   "prt_9e029c60206351bdb98b",
+   "prt_f97a722bca3a32d9dcf4",
+   "prt_fcaf2fa394545f1c983c"
+  ],
+  "prt_ae48b83ca306673b8b79": [
+   "prt_02da6aa6a19045d7fbba",
+   "prt_1c273063d670dc555bd9"
+  ],
+  "prt_fcdebf3b5c34498e33c5": [
+   "prt_42c14552cab8af288559",
+   "prt_daa5fd54e3fa0be171b7"
+  ]
+ },
+ "quality": {
+  "coverage": null,
+  "data_as_of": "2026-10-07T00:02:08Z",
+  "generated_at": "2026-10-06T22:48:00Z",
+  "limitations": [
+   "raw metrics and DATA_ONLY_V1 ratings are NOT opponent-adjusted (opponent enters the model only as a multiplicative factor at game time); the only opponent-adjusted numbers are the met_nhl.oa_* 5v5 metrics (nhl-oppadj-1.0, RESEARCH)",
+   "Team game logs: PARTIAL (history one-off) / VERIFIED (live kind); the historical parquet pulls are one-off manual-dispatch workflows, not scheduled",
+   "Player game logs (official): VERIFIED (live) / PARTIAL (history one-off); `shifts_ok` flag (57 of 1,398 games in 2024-25 lack shift charts)"
+  ],
+  "methodology_version": "nhl-research-export-1.0",
+  "missingness": null,
+  "production": true,
+  "sample_size": null,
+  "source": "NHL-edge-finder: data-archive + data/history on main + the v1 publication",
+  "source_version": null,
+  "status": "PARTIAL"
+ },
+ "run_id": "run_a2cad146553270f7c5aa",
+ "schema_version": "edge_finder.app.v1",
+ "search_index_path": "explorer/search_index.json",
+ "sport": "NHL",
+ "teams": [
+  {
+   "display_name": "Anaheim Ducks",
+   "participant_id": "prt_6074ed9db3e77a72be6a",
+   "path": "explorer/teams/prt_6074ed9db3e77a72be6a.json",
+   "short_name": "ANA"
+  },
+  {
+   "display_name": "Boston Bruins",
+   "participant_id": "prt_83101b4adee6860c5481",
+   "path": "explorer/teams/prt_83101b4adee6860c5481.json",
+   "short_name": "BOS"
+  },
+  {
+   "display_name": "Buffalo Sabres",
+   "participant_id": "prt_2a8690ca0c425f036f1f",
+   "path": "explorer/teams/prt_2a8690ca0c425f036f1f.json",
+   "short_name": "BUF"
+  },
+  {
+   "display_name": "Calgary Flames",
+   "participant_id": "prt_227ffc695558a61da21f",
+   "path": "explorer/teams/prt_227ffc695558a61da21f.json",
+   "short_name": "CGY"
+  },
+  {
+   "display_name": "Carolina Hurricanes",
+   "participant_id": "prt_d425bc67d0f114fa025e",
+   "path": "explorer/teams/prt_d425bc67d0f114fa025e.json",
+   "short_name": "CAR"
+  },
+  {
+   "display_name": "Chicago Blackhawks",
+   "participant_id": "prt_0cb6dd6f6ad2475e1492",
+   "path": "explorer/teams/prt_0cb6dd6f6ad2475e1492.json",
+   "short_name": "CHI"
+  },
+  {
+   "display_name": "Colorado Avalanche",
+   "participant_id": "prt_47a35b22a8973dec89ca",
+   "path": "explorer/teams/prt_47a35b22a8973dec89ca.json",
+   "short_name": "COL"
+  },
+  {
+   "display_name": "Columbus Blue Jackets",
+   "participant_id": "prt_affda72adf2aaabf7e17",
+   "path": "explorer/teams/prt_affda72adf2aaabf7e17.json",
+   "short_name": "CBJ"
+  },
+  {
+   "display_name": "Dallas Stars",
+   "participant_id": "prt_172e5f0da45b56f9c552",
+   "path": "explorer/teams/prt_172e5f0da45b56f9c552.json",
+   "short_name": "DAL"
+  },
+  {
+   "display_name": "Detroit Red Wings",
+   "participant_id": "prt_a760a2afdeca33482ade",
+   "path": "explorer/teams/prt_a760a2afdeca33482ade.json",
+   "short_name": "DET"
+  },
+  {
+   "display_name": "Edmonton Oilers",
+   "participant_id": "prt_3fe6715bc299e00e9ef1",
+   "path": "explorer/teams/prt_3fe6715bc299e00e9ef1.json",
+   "short_name": "EDM"
+  },
+  {
+   "display_name": "Florida Panthers",
+   "participant_id": "prt_ae48b83ca306673b8b79",
+   "path": "explorer/teams/prt_ae48b83ca306673b8b79.json",
+   "short_name": "FLA"
+  },
+  {
+   "display_name": "Los Angeles Kings",
+   "participant_id": "prt_1513313ad992fb9eb71f",
+   "path": "explorer/teams/prt_1513313ad992fb9eb71f.json",
+   "short_name": "LAK"
+  },
+  {
+   "display_name": "Minnesota Wild",
+   "participant_id": "prt_a993f5fb7f58f282012b",
+   "path": "explorer/teams/prt_a993f5fb7f58f282012b.json",
+   "short_name": "MIN"
+  },
+  {
+   "display_name": "Montreal Canadiens",
+   "participant_id": "prt_ae15aa5f33a3d3f2cffc",
+   "path": "explorer/teams/prt_ae15aa5f33a3d3f2cffc.json",
+   "short_name": "MTL"
+  },
+  {
+   "display_name": "Nashville Predators",
+   "participant_id": "prt_418ae54835043c4a8121",
+   "path": "explorer/teams/prt_418ae54835043c4a8121.json",
+   "short_name": "NSH"
+  },
+  {
+   "display_name": "New Jersey Devils",
+   "participant_id": "prt_badb217ec73587604ef8",
+   "path": "explorer/teams/prt_badb217ec73587604ef8.json",
+   "short_name": "NJD"
+  },
+  {
+   "display_name": "New York Islanders",
+   "participant_id": "prt_b7c734fbfc442fc9646b",
+   "path": "explorer/teams/prt_b7c734fbfc442fc9646b.json",
+   "short_name": "NYI"
+  },
+  {
+   "display_name": "New York Rangers",
+   "participant_id": "prt_fbf98c957e6a86c38537",
+   "path": "explorer/teams/prt_fbf98c957e6a86c38537.json",
+   "short_name": "NYR"
+  },
+  {
+   "display_name": "Ottawa Senators",
+   "participant_id": "prt_984e4f8105d623bf25b7",
+   "path": "explorer/teams/prt_984e4f8105d623bf25b7.json",
+   "short_name": "OTT"
+  },
+  {
+   "display_name": "Philadelphia Flyers",
+   "participant_id": "prt_27687553b3c1caab61cc",
+   "path": "explorer/teams/prt_27687553b3c1caab61cc.json",
+   "short_name": "PHI"
+  },
+  {
+   "display_name": "Pittsburgh Penguins",
+   "participant_id": "prt_f2214e2139e9dcf483e7",
+   "path": "explorer/teams/prt_f2214e2139e9dcf483e7.json",
+   "short_name": "PIT"
+  },
+  {
+   "display_name": "San Jose Sharks",
+   "participant_id": "prt_d40c54d77619417ed9d2",
+   "path": "explorer/teams/prt_d40c54d77619417ed9d2.json",
+   "short_name": "SJS"
+  },
+  {
+   "display_name": "Seattle Kraken",
+   "participant_id": "prt_88a79c34c6265e0181a3",
+   "path": "explorer/teams/prt_88a79c34c6265e0181a3.json",
+   "short_name": "SEA"
+  },
+  {
+   "display_name": "St. Louis Blues",
+   "participant_id": "prt_fcdebf3b5c34498e33c5",
+   "path": "explorer/teams/prt_fcdebf3b5c34498e33c5.json",
+   "short_name": "STL"
+  },
+  {
+   "display_name": "Tampa Bay Lightning",
+   "participant_id": "prt_dbde8414744915e0e594",
+   "path": "explorer/teams/prt_dbde8414744915e0e594.json",
+   "short_name": "TBL"
+  },
+  {
+   "display_name": "Toronto Maple Leafs",
+   "participant_id": "prt_3ce50da866d0a92fa2dc",
+   "path": "explorer/teams/prt_3ce50da866d0a92fa2dc.json",
+   "short_name": "TOR"
+  },
+  {
+   "display_name": "Utah Mammoth",
+   "participant_id": "prt_607118a5ed75b16bfded",
+   "path": "explorer/teams/prt_607118a5ed75b16bfded.json",
+   "short_name": "UTA"
+  },
+  {
+   "display_name": "Vancouver Canucks",
+   "participant_id": "prt_a61a65a54e6634927cd1",
+   "path": "explorer/teams/prt_a61a65a54e6634927cd1.json",
+   "short_name": "VAN"
+  },
+  {
+   "display_name": "Vegas Golden Knights",
+   "participant_id": "prt_6a6712b98b3104e80135",
+   "path": "explorer/teams/prt_6a6712b98b3104e80135.json",
+   "short_name": "VGK"
+  },
+  {
+   "display_name": "Washington Capitals",
+   "participant_id": "prt_df193afe8f1ea84ffa5f",
+   "path": "explorer/teams/prt_df193afe8f1ea84ffa5f.json",
+   "short_name": "WSH"
+  },
+  {
+   "display_name": "Winnipeg Jets",
+   "participant_id": "prt_31b885f5b93ef404f04b",
+   "path": "explorer/teams/prt_31b885f5b93ef404f04b.json",
+   "short_name": "WPG"
+  }
+ ],
+ "warnings": [],
+ "windows": [
+  {
+   "end": null,
+   "kind": "SEASON",
+   "label": "2025-26",
+   "n": null,
+   "start": null
+  },
+  {
+   "end": null,
+   "kind": "SEASON",
+   "label": "2026-27",
+   "n": null,
+   "start": null
+  },
+  {
+   "end": null,
+   "kind": "LAST_N",
+   "label": "L10",
+   "n": 10,
+   "start": null
+  },
+  {
+   "end": "2026-10-06T22:45:00Z",
+   "kind": "RUN",
+   "label": "run 2026-10-06T22:45Z",
+   "n": null,
+   "start": "2026-10-06T22:45:00Z"
+  }
+ ]
+}

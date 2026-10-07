@@ -3,9 +3,9 @@
 // fascia, a breath of the home team's colour and fine grain. Purely decorative (aria-hidden); it is
 // meant to read as an intentional image, never as "picture missing".
 
-export function StadiumFallback({ venue, compact }: { venue?: string | null; compact?: boolean }) {
+export function StadiumFallback({ venue, compact, rink }: { venue?: string | null; compact?: boolean; rink?: boolean }) {
   return (
-    <span className={`sfb${compact ? ' sfb--compact' : ''}`} aria-hidden="true">
+    <span className={`sfb${compact ? ' sfb--compact' : ''}${rink ? ' sfb--rink' : ''}`} aria-hidden="true">
       <span className="sfb__beams" />
       <span className="sfb__lights" />
       <span className="sfb__bowl" />

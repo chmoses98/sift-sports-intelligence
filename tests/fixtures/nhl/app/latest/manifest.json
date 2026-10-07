@@ -1,0 +1,184 @@
+{
+  "commit_sha": null,
+  "counts": {
+    "board": 9,
+    "events": 9,
+    "markets": 3549,
+    "model_prices": 220,
+    "recommendations": 36,
+    "runs": 1,
+    "settlements": 0,
+    "theses": 45,
+    "wagers": 0
+  },
+  "files": {
+    "board": {
+      "bytes": 16091,
+      "count": 9,
+      "kind": "board",
+      "path": "board.json",
+      "sha256": "947f00fc3434e9d5345ec38143ab07c6273dc32a35dae1da87038538ad4ceb3d"
+    },
+    "event_detail/evt_139cdf78f57ca9b621c3": {
+      "bytes": 231595,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_139cdf78f57ca9b621c3.json",
+      "sha256": "f07b34002ee474d8ed4db3604332d34968bf1c9542311e49ff3000a62fded99e"
+    },
+    "event_detail/evt_16728c946675ab51be62": {
+      "bytes": 250438,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_16728c946675ab51be62.json",
+      "sha256": "7691a037ac8c5e36dc1f62bb0ce7b5ff773326506d64ff2027188b2586dec093"
+    },
+    "event_detail/evt_4497482ab66af0adcdb9": {
+      "bytes": 233026,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_4497482ab66af0adcdb9.json",
+      "sha256": "ffeb1bad76b30764dc1a3ea1623e84131de4950b9e70fcb5b858c357ed5d714e"
+    },
+    "event_detail/evt_4f20f09608cc97c362a7": {
+      "bytes": 272964,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_4f20f09608cc97c362a7.json",
+      "sha256": "d5877b9bc80f7f8190f5f594c0a1430374d755bf3fae9d6f91ac79964f695a61"
+    },
+    "event_detail/evt_5938c3f8a7c1b24c0118": {
+      "bytes": 286156,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_5938c3f8a7c1b24c0118.json",
+      "sha256": "6f06ea22ac4ff91f85031474d9f2c201dcb76fe3dd4c0d2d7d0b248395324e7c"
+    },
+    "event_detail/evt_59bb4802336bb2e03cfe": {
+      "bytes": 244959,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_59bb4802336bb2e03cfe.json",
+      "sha256": "2da3c2f2e1547bed42624b43967891f510d7c1c5be2589970a14e8839facd8bc"
+    },
+    "event_detail/evt_a5e96b42c9fa219832af": {
+      "bytes": 244273,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_a5e96b42c9fa219832af.json",
+      "sha256": "e8cda12c678191f199fd0241e16a97fd9f9b4761d35dc2065bfaea976eed7776"
+    },
+    "event_detail/evt_c4a2cf978d0824a1493a": {
+      "bytes": 276669,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_c4a2cf978d0824a1493a.json",
+      "sha256": "bf2ff565fe85b565f085a64bdd7feb0e549b00b8f2a695198bacaefab07b2ae0"
+    },
+    "event_detail/evt_f8e2fab79b33f485f7cc": {
+      "bytes": 280465,
+      "count": null,
+      "kind": "event_detail",
+      "path": "event_detail/evt_f8e2fab79b33f485f7cc.json",
+      "sha256": "ac2fb334338cd3f3f5f976a8afaf4dcc76b84e86e13402b73054f307e767ada5"
+    },
+    "events": {
+      "bytes": 12098,
+      "count": 9,
+      "kind": "events",
+      "path": "events.json",
+      "sha256": "b69aa4d77bd29f7f70a382bc88389f9b9f1aea6248c46d98226289227d426fc1"
+    },
+    "markets": {
+      "bytes": 3762241,
+      "count": 3549,
+      "kind": "markets",
+      "path": "markets.json",
+      "sha256": "88b1679a2d256a6d06ef0c1a9fc235b8aec4e8b22d5c78af548a3304e3197a10"
+    },
+    "model_prices": {
+      "bytes": 230761,
+      "count": 220,
+      "kind": "model_prices",
+      "path": "model_prices.json",
+      "sha256": "6235dc3459726ac158a9d2d68cbcb8b9aed5805a89617b2f00842bd0a0366108"
+    },
+    "performance": {
+      "bytes": 1092,
+      "count": null,
+      "kind": "performance",
+      "path": "performance.json",
+      "sha256": "094edb75376d4edb97522d59e61f7f33ddb122fd646e359fc001c85e6ad7edf4"
+    },
+    "recommendations": {
+      "bytes": 70556,
+      "count": 36,
+      "kind": "recommendations",
+      "path": "recommendations.json",
+      "sha256": "398d664d8522417c24e14d4eb06d76eabf9a1087e5b7bc44d613b42a60f0958e"
+    },
+    "runs": {
+      "bytes": 1370,
+      "count": 1,
+      "kind": "runs",
+      "path": "runs.json",
+      "sha256": "da281008c825b1d7cc5a5f473d20adf5bab9c4fbc509995ee1c0162115bc1fbe"
+    },
+    "settlements": {
+      "bytes": 170,
+      "count": 0,
+      "kind": "settlements",
+      "path": "settlements.json",
+      "sha256": "01428a34ae14297d8268a08d4ffb6acf68db22fc48a26f4c4566e082d519d574"
+    },
+    "theses": {
+      "bytes": 135191,
+      "count": 45,
+      "kind": "theses",
+      "path": "theses.json",
+      "sha256": "35e594c248a3ddbfad1f5f19331463c623e73d6a11ff0a1281fd4778eec58e6d"
+    },
+    "wagers": {
+      "bytes": 165,
+      "count": 0,
+      "kind": "wagers",
+      "path": "wagers.json",
+      "sha256": "a6c41ee8a415e725ecb55896b3701c49872c6f30fb504dd46ab206fca7ae0479"
+    }
+  },
+  "freshness": {
+    "accounting": {
+      "as_of": null,
+      "status": "UNKNOWN"
+    },
+    "context": {
+      "as_of": "2026-10-06T23:58:46Z",
+      "status": "FRESH"
+    },
+    "kalshi": {
+      "as_of": "2026-10-07T00:02:08Z",
+      "status": "FRESH"
+    },
+    "model": {
+      "as_of": "2026-10-06T22:45:00Z",
+      "status": "FRESH"
+    },
+    "schedule": {
+      "as_of": "2026-10-06T23:58:46Z",
+      "status": "FRESH"
+    }
+  },
+  "generated_at": "2026-10-06T22:47:00Z",
+  "kind": "manifest",
+  "model_version": "DATA_ONLY_V1",
+  "run_id": "run_a2cad146553270f7c5aa",
+  "schema_version": "edge_finder.app.v1",
+  "source_branch": "data-archive",
+  "source_repo": "chmoses98/NHL-edge-finder",
+  "sport": "NHL",
+  "status": "SUCCESS",
+  "warnings": [
+    "no accounting dir given: wagers/settlements empty",
+    "5 slate contract(s) are no longer on the board; model prices skipped"
+  ]
+}

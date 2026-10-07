@@ -1,5 +1,5 @@
 import { usageFor } from '../lib/usage';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { LadderChart, type Rung } from '../charts/LadderChart';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
@@ -74,7 +74,16 @@ const MATCHUP_FOR_POS: Record<string, string[]> = {
   TE: ['met_nfl.adj_def_db_epa', 'met_nfl.adj_def_sr', 'met_nfl.def_rz_epa'],
 };
 
+/** The NHL player page (views/nhl): its own chunk. */
+const NhlPlayerView = lazy(() => import('./nhl/NhlPlayer').then((m) => ({ default: m.NhlPlayerView })));
+
 export function PlayerView() {
+  const { sport } = useSport();
+  if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NhlPlayerView /></Suspense>;
+  return <GenericPlayerView />;
+}
+
+function GenericPlayerView() {
   const { playerId = '' } = useParams();
   const { sport, repo, slug, caps, metrics } = useSport();
   const dir = useDirectory(repo);

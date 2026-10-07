@@ -1,7 +1,7 @@
 // A sport's home: the landing page for that sport (not just its slate). The featured game, this week's
 // games with their script outlook, where the model and market disagree most on game lines, recent
 // results and the way into structures. The full slate is one link away.
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { Link } from 'react-router';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
@@ -90,7 +90,16 @@ function Results({ items, slug, sportCode }: { items: BoardItem[]; slug: string;
   );
 }
 
+/** The NHL home (views/nhl): its own chunk, so other sports never download it. */
+const NhlHomeView = lazy(() => import('./nhl/NhlHome').then((m) => ({ default: m.NhlHomeView })));
+
 export function SportHomeView() {
+  const { sport } = useSport();
+  if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><NhlHomeView /></Suspense>;
+  return <GenericSportHome />;
+}
+
+function GenericSportHome() {
   const { sport, repo, slug } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
   useVisit(sport.label, 'sport');

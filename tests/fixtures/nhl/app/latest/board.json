@@ -1,0 +1,222 @@
+{
+ "bet_authority": "RESEARCH_ONLY",
+ "count": 3,
+ "generated_at": "2026-10-06T22:47:00Z",
+ "items": [
+  {
+   "away_participant": "prt_fcdebf3b5c34498e33c5",
+   "competition": "regular",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_c4a2cf978d0824a1493a.json",
+   "event_id": "evt_c4a2cf978d0824a1493a",
+   "health_flags": [],
+   "home_participant": "prt_0cb6dd6f6ad2475e1492",
+   "league": "NHL",
+   "market_captured_at": "2026-10-07T00:02:08Z",
+   "markets_available": 201,
+   "markets_priced": 25,
+   "model_generated_at": "2026-10-06T22:45:00Z",
+   "participants": [
+    {
+     "display_name": "Chicago Blackhawks",
+     "participant_id": "prt_0cb6dd6f6ad2475e1492",
+     "participant_type": "TEAM",
+     "short_name": "CHI"
+    },
+    {
+     "display_name": "St. Louis Blues",
+     "participant_id": "prt_fcdebf3b5c34498e33c5",
+     "participant_type": "TEAM",
+     "short_name": "STL"
+    }
+   ],
+   "recommendations_count": 4,
+   "start_time_utc": "2026-10-07T00:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.11,
+     "edge": 0.0359,
+     "fair_probability": 0.1528,
+     "market_description": "YES Ryan Greene: 1+ goals",
+     "market_id": "mkt_kalshi_KXNHLGOAL-26OCT06STLCHI-CHIRGREENE20-1",
+     "recommendation_id": "rec_a731b2a25437967ad837",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.59,
+     "edge": 0.0285,
+     "fair_probability": 0.6354,
+     "market_description": "NO Patrick Kane: 1+ assists",
+     "market_id": "mkt_kalshi_KXNHLAST-26OCT06STLCHI-CHIPKANE88-1",
+     "recommendation_id": "rec_843c12c4d2f2230589ce",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.07,
+     "edge": 0.0169,
+     "fair_probability": 0.0915,
+     "market_description": "YES Philip Broberg: 1+ goals",
+     "market_id": "mkt_kalshi_KXNHLGOAL-26OCT06STLCHI-STLPBROBERG6-1",
+     "recommendation_id": "rec_533b0f9b66c20e1c9703",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    }
+   ],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_6a6712b98b3104e80135",
+   "competition": "regular",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_4f20f09608cc97c362a7.json",
+   "event_id": "evt_4f20f09608cc97c362a7",
+   "health_flags": [],
+   "home_participant": "prt_88a79c34c6265e0181a3",
+   "league": "NHL",
+   "market_captured_at": "2026-10-07T00:02:08Z",
+   "markets_available": 198,
+   "markets_priced": 25,
+   "model_generated_at": "2026-10-06T22:45:00Z",
+   "participants": [
+    {
+     "display_name": "Seattle Kraken",
+     "participant_id": "prt_88a79c34c6265e0181a3",
+     "participant_type": "TEAM",
+     "short_name": "SEA"
+    },
+    {
+     "display_name": "Vegas Golden Knights",
+     "participant_id": "prt_6a6712b98b3104e80135",
+     "participant_type": "TEAM",
+     "short_name": "VGK"
+    }
+   ],
+   "recommendations_count": 4,
+   "start_time_utc": "2026-10-07T01:40:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.7,
+     "edge": 0.029,
+     "fair_probability": 0.7437,
+     "market_description": "NO Mitch Marner: 1+ goals",
+     "market_id": "mkt_kalshi_KXNHLGOAL-26OCT06VGKSEA-VGKMMARNER93-1",
+     "recommendation_id": "rec_4309d15e216d17daf9e1",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.18,
+     "edge": 0.0246,
+     "fair_probability": 0.2149,
+     "market_description": "YES Matty Beniers: 1+ goals",
+     "market_id": "mkt_kalshi_KXNHLGOAL-26OCT06VGKSEA-SEAMBENIERS10-1",
+     "recommendation_id": "rec_f8885aee3db00c67597a",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.1,
+     "edge": 0.023,
+     "fair_probability": 0.1293,
+     "market_description": "YES Ryan Winterton: 1+ goals",
+     "market_id": "mkt_kalshi_KXNHLGOAL-26OCT06VGKSEA-SEARWINTERTON26-1",
+     "recommendation_id": "rec_be63b5c7ef4a89651f8e",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    }
+   ],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_ae48b83ca306673b8b79",
+   "competition": "regular",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_5938c3f8a7c1b24c0118.json",
+   "event_id": "evt_5938c3f8a7c1b24c0118",
+   "health_flags": [],
+   "home_participant": "prt_1513313ad992fb9eb71f",
+   "league": "NHL",
+   "market_captured_at": "2026-10-07T00:02:08Z",
+   "markets_available": 210,
+   "markets_priced": 25,
+   "model_generated_at": "2026-10-06T22:45:00Z",
+   "participants": [
+    {
+     "display_name": "Los Angeles Kings",
+     "participant_id": "prt_1513313ad992fb9eb71f",
+     "participant_type": "TEAM",
+     "short_name": "LAK"
+    },
+    {
+     "display_name": "Florida Panthers",
+     "participant_id": "prt_ae48b83ca306673b8b79",
+     "participant_type": "TEAM",
+     "short_name": "FLA"
+    }
+   ],
+   "recommendations_count": 4,
+   "start_time_utc": "2026-10-07T02:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.69,
+     "edge": 0.0442,
+     "fair_probability": 0.7492,
+     "market_description": "NO Sam Reinhart: 1+ goals",
+     "market_id": "mkt_kalshi_KXNHLGOAL-26OCT06FLALA-FLASREINHART13-1",
+     "recommendation_id": "rec_acb9b3a7377af072a186",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.64,
+     "edge": 0.0294,
+     "fair_probability": 0.6855,
+     "market_description": "NO Mats Zuccarello: 1+ assists",
+     "market_id": "mkt_kalshi_KXNHLAST-26OCT06FLALA-LAMZUCCARELLO36-1",
+     "recommendation_id": "rec_9d23b6610fe1485b8670",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.49,
+     "edge": 0.0213,
+     "fair_probability": 0.5288,
+     "market_description": "NO Artemi Panarin: 1+ assists",
+     "market_id": "mkt_kalshi_KXNHLAST-26OCT06FLALA-LAAPANARIN10-1",
+     "recommendation_id": "rec_babd9d7753e85ba5a448",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    }
+   ],
+   "wagers_count": 0
+  }
+ ],
+ "kind": "board",
+ "overall_status": "RESEARCH_ONLY",
+ "run_id": "run_a2cad146553270f7c5aa",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NHL"
+}

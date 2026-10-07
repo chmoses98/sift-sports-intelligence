@@ -6,7 +6,7 @@ import type { Capability, CapabilityManifestDoc, MetricRegistryDoc } from '../sr
 import { SportProvider } from '../src/state/sport';
 import { TrailProvider } from '../src/state/trail';
 import { TrayProvider } from '../src/state/tray';
-import { cfbRepo, nflRepo, readCfb, readSnapshot } from './helpers';
+import { cfbRepo, nflRepo, nhlRepo, readCfb, readNhl, readSnapshot } from './helpers';
 
 export function nflContext(capsOverride: Record<string, string> = {}) {
   const repo = nflRepo();
@@ -24,8 +24,16 @@ export function cfbContext() {
   return { sport: repo.sport, slug: 'cfb', repo, caps, capDoc, metrics };
 }
 
-export function renderScreen(path: string, pattern: string, element: ReactElement, capsOverride: Record<string, string> = {}, sport: 'nfl' | 'cfb' = 'nfl') {
-  const ctx = sport === 'cfb' ? cfbContext() : nflContext(capsOverride);
+export function nhlContext() {
+  const repo = nhlRepo();
+  const capDoc = readNhl<CapabilityManifestDoc>('explorer/capabilities.json');
+  const caps = new Map<string, Capability>(capDoc.items.map((c) => [c.capability, c]));
+  const metrics = new Map(readNhl<MetricRegistryDoc>('explorer/metrics.json').items.map((m) => [m.metric_id, m]));
+  return { sport: repo.sport, slug: 'nhl', repo, caps, capDoc, metrics };
+}
+
+export function renderScreen(path: string, pattern: string, element: ReactElement, capsOverride: Record<string, string> = {}, sport: 'nfl' | 'cfb' | 'nhl' = 'nfl') {
+  const ctx = sport === 'cfb' ? cfbContext() : sport === 'nhl' ? nhlContext() : nflContext(capsOverride);
   const router = createMemoryRouter(
     [
       { path: pattern, element: <TrailProvider><SportProvider value={ctx}>{element}</SportProvider></TrailProvider> },

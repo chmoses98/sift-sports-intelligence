@@ -111,7 +111,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
   const final = ev.status === 'FINAL';
   const started = !final && Date.parse(ev.start_time_utc) <= now;
   const pubVenue = r.context?.venue as any;
-  const venue = venueFor(homeAbbr, pubVenue?.name ?? (r.context?.weather as any)?.stadium ?? null);
+  const venue = venueFor(homeAbbr, pubVenue?.name ?? (r.context?.weather as any)?.stadium ?? null, sportCode);
   const photo = venuePhoto(venue);
   const img = useHeldImage(photo?.hero);
   const wx = gameWeather(r, venue);
@@ -121,13 +121,15 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
   const d = new Date(ev.start_time_utc);
   const day = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
-  const week = ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
+  const week = sportCode === 'NHL'
+    ? ({ regular: 'Regular season', playoffs: 'Playoffs', preseason: 'Preseason' } as Record<string, string>)[ev.competition ?? ''] ?? ev.competition
+    : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
   return (
     <header className={`gh${photo ? '' : ' gh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
       <div className="gh__bg" aria-hidden="true">
         {img && <img src={img} alt="" decoding="async" />}
-        {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} />}
+        {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} rink={sportCode === 'NHL'} />}
       </div>
       <div className="gh__in">
         <h1 className="sr-only">{awayP.display_name} at {homeP.display_name}</h1>
@@ -137,7 +139,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
           <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} />
         </div>
         <p className="gh__meta">
-          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">Kicked off · pregame research frozen</span> : null}
+          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">{sportCode === 'NHL' ? 'Puck dropped' : 'Kicked off'} · pregame research frozen</span> : null}
           <span>{week ? `${week} · ` : ''}{day} · {time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
           {venueName && <span>{venueName}{venue?.city ? `, ${venue.city}` : ''}</span>}
           {wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}

@@ -14,8 +14,20 @@ const NFL: Record<string, [string, string]> = {
   WAS: ['#5A1414', '#FFB612'],
 };
 
+const NHL: Record<string, [string, string]> = {
+  ANA: ['#F47A38', '#B9975B'], BOS: ['#FFB81C', '#000000'], BUF: ['#003087', '#FFB81C'], CAR: ['#CE1126', '#000000'],
+  CBJ: ['#002654', '#CE1126'], CGY: ['#C8102E', '#F1BE48'], CHI: ['#CF0A2C', '#000000'], COL: ['#6F263D', '#236192'],
+  DAL: ['#006847', '#8F8F8C'], DET: ['#CE1126', '#FFFFFF'], EDM: ['#041E42', '#FF4C00'], FLA: ['#C8102E', '#041E42'],
+  LAK: ['#111111', '#A2AAAD'], MIN: ['#154734', '#A6192E'], MTL: ['#AF1E2D', '#192168'], NJD: ['#CE1126', '#000000'],
+  NSH: ['#FFB81C', '#041E42'], NYI: ['#00539B', '#F47D30'], NYR: ['#0038A8', '#CE1126'], OTT: ['#C52032', '#C2912C'],
+  PHI: ['#F74902', '#000000'], PIT: ['#FCB514', '#000000'], SEA: ['#001628', '#99D9D9'], SJS: ['#006D75', '#EA7200'],
+  STL: ['#002F87', '#FCB514'], TBL: ['#002868', '#FFFFFF'], TOR: ['#00205B', '#FFFFFF'], UTA: ['#71AFE5', '#090909'],
+  VAN: ['#00205B', '#00843D'], VGK: ['#B4975A', '#333F42'], WPG: ['#041E42', '#004C97'], WSH: ['#041E42', '#C8102E'],
+};
+
 export function teamColors(sport: string, abbr: string | null | undefined): [string, string] {
   if (sport === 'NFL' && abbr && NFL[abbr]) return NFL[abbr];
+  if (sport === 'NHL' && abbr && NHL[abbr]) return NHL[abbr];
   return ['#1d2d52', '#3f5079'];
 }
 

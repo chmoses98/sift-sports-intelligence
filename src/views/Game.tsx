@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { PriceHistory } from '../charts/PriceHistory';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
@@ -46,13 +46,19 @@ import { newlyListed, overlayMarket } from '../live/overlay';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/** The NHL game page (views/nhl): its own chunk, so NFL never downloads it. */
+const NhlGameView = lazy(() => import('./nhl/NhlGame').then((m) => ({ default: m.NhlGameView })));
+
 export function GameRoute() {
   const { eventId = '' } = useParams();
   const [sp] = useSearchParams();
-  const { repo } = useSport();
+  const { repo, sport } = useSport();
   const dir = useDirectory(repo);
   if (dir.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!dir.data) return <div className="page"><ErrorState error={dir.error} what="the explorer index" /></div>;
+  if (sport.code === 'NHL' && dir.data.hasEventResearch(eventId)) {
+    return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NhlGameView eventId={eventId} /></Suspense>;
+  }
   if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} />;
   return <HistoricalGameView eventId={eventId} teamId={sp.get('team')} />;
 }
@@ -387,7 +393,7 @@ function Availability({ r }: { r: EventResearchDoc }) {
   );
 }
 
-function Movement({ eventId, path, prices, kickoffIso, known }: { eventId: string; path: string | null; prices: Map<string, any>; kickoffIso: string; known: Map<string, Market> }) {
+export function Movement({ eventId, path, prices, kickoffIso, known }: { eventId: string; path: string | null; prices: Map<string, any>; kickoffIso: string; known: Map<string, Market> }) {
   const { repo } = useSport();
   const hist = useAsync(path ? `mh:${repo.sport.code}:${eventId}` : null, () => repo.marketHistory(eventId));
   const [ticker, setTicker] = useState<string | null>(null);

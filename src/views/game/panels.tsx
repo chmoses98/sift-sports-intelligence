@@ -362,6 +362,26 @@ export function MarketsPanel({ rows, set, selected, slug, eventId, now, allHref 
 
 type FormView = 'offense' | 'defense' | 'overall';
 // Definitions come from the shared glossary (lib/glossary.ts), with direction from the registry.
+const pctFmt = (v: number) => `${(v * 100).toFixed(1)}%`;
+/** NHL form rows: opponent-adjusted 5v5 rates where they exist (labelled "Adj."), raw counts and percentages labelled raw. */
+const NHL_FORM_STATS: Record<FormView, { id: string; label: string; fmt: (v: number) => string }[]> = {
+  offense: [
+    { id: 'met_nhl.gf_per_game', label: 'Goals / game', fmt: (v) => v.toFixed(2) },
+    { id: 'met_nhl.oa_xgf60_5v5', label: 'Adj. 5v5 xGF/60', fmt: (v) => v.toFixed(2) },
+    { id: 'met_nhl.pp_pct', label: 'Power play (raw)', fmt: pctFmt },
+  ],
+  defense: [
+    { id: 'met_nhl.ga_per_game', label: 'Allowed / game', fmt: (v) => v.toFixed(2) },
+    { id: 'met_nhl.oa_xga60_5v5', label: 'Adj. 5v5 xGA/60', fmt: (v) => v.toFixed(2) },
+    { id: 'met_nhl.pk_pct', label: 'Penalty kill (raw)', fmt: pctFmt },
+  ],
+  overall: [
+    { id: 'met_nhl.points_pct', label: 'Points %', fmt: pctFmt },
+    { id: 'met_nhl.oa_xgf_pct_5v5', label: 'Adj. 5v5 xG share', fmt: pctFmt },
+    { id: 'met_nhl.xgf_pct', label: 'xG share (raw)', fmt: pctFmt },
+  ],
+};
+
 const FORM_STATS: Record<FormView, { id: string; label: string; fmt: (v: number) => string }[]> = {
   offense: [
     { id: 'met_nfl.points_for', label: 'Points / game', fmt: (v) => v.toFixed(1) },
@@ -404,18 +424,18 @@ function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityP
       </ol>
       <div className="form__l5">{ppg != null ? <>Last {games.length}: <b className="num">{ppg.toFixed(1)}</b> {view === 'defense' ? 'allowed' : 'scored'}/g</> : 'No completed games published'}</div>
       <dl className="form__stats">
-        {FORM_STATS[view].map((s) => {
+        {(sportCode === 'NHL' ? NHL_FORM_STATS : FORM_STATS)[view].map((s) => {
           const st = teamStat(prof, s.id);
           // Rank first for rates a reader can't judge on sight (EPA, success, takeaways); simple counts stay number-first.
           const rv = st.rank != null && st.size ? rankView({ rank: st.rank, universe_size: st.size, higher_is_better: true }) : null;
-          const simple = /Points|Allowed|Margin/.test(s.label);
+          const simple = /Points|Allowed|Margin|Goals/.test(s.label);
           return (
             <div key={s.id} className={`fstat${simple ? '' : ' fstat--rank'}`}>
               <dt className="fstat__k">{s.label}</dt>
               {simple || !rv ? (
                 <>
                   <dd className="fstat__v num">{st.value != null ? s.fmt(st.value) : '—'}</dd>
-                  <dd className={`fstat__r${st.rank != null && st.rank <= 8 ? ' is-top' : st.rank != null && st.rank >= 25 ? ' is-low' : ''}`}>{rankText(st.rank)}<span> NFL</span></dd>
+                  <dd className={`fstat__r${st.rank != null && st.rank <= 8 ? ' is-top' : st.rank != null && st.rank >= 25 ? ' is-low' : ''}`}>{rankText(st.rank)}<span> {sportCode}</span></dd>
                 </>
               ) : (
                 <dd className="fstat__rk"><RankBadge rank={rv} raw={st.value != null ? s.fmt(st.value) : undefined} compact /></dd>
@@ -431,7 +451,7 @@ function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityP
 export function FormPanel({ homeProf, awayProf, homeAbbr, awayAbbr, sportCode, before, slug, to }: { homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; homeAbbr: string; awayAbbr: string; sportCode: string; before: string; slug: string; to: string }) {
   const [view, setView] = useState<FormView>('offense');
   const { metrics } = useSport();
-  const defs = FORM_STATS[view].map((s) => ({ id: s.id, label: s.label, def: glossLine(metricGloss(s.id, metrics.get(s.id))) })).filter((d) => d.def);
+  const defs = (sportCode === 'NHL' ? NHL_FORM_STATS : FORM_STATS)[view].map((s) => ({ id: s.id, label: s.label, def: glossLine(metricGloss(s.id, metrics.get(s.id))) })).filter((d) => d.def);
   return (
     <section className="panel ov-form" aria-labelledby="ov-form-h">
       <PanelHead

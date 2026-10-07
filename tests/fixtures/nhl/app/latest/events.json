@@ -1,0 +1,202 @@
+{
+ "count": 3,
+ "generated_at": "2026-10-06T22:47:00Z",
+ "items": [
+  {
+   "away_participant": "prt_fcdebf3b5c34498e33c5",
+   "broadcast": null,
+   "competition": "regular",
+   "effective_start_time_utc": null,
+   "event_id": "evt_c4a2cf978d0824a1493a",
+   "extensions": {
+    "away_abbrev": "STL",
+    "game_date_et": "2026-10-06",
+    "home_abbrev": "CHI",
+    "neutral_site": false,
+    "source_game_state": "PRE/OK"
+   },
+   "home_participant": "prt_0cb6dd6f6ad2475e1492",
+   "last_updated_at": "2026-10-06T23:58:46Z",
+   "league": "NHL",
+   "participants": [
+    {
+     "display_name": "Chicago Blackhawks",
+     "metadata": {
+      "city": "Chicago",
+      "conference": "West",
+      "division": "Central",
+      "nickname": "Blackhawks"
+     },
+     "participant_id": "prt_0cb6dd6f6ad2475e1492",
+     "participant_type": "TEAM",
+     "short_name": "CHI",
+     "source_ids": {
+      "nhl_abbrev": "CHI",
+      "nhl_team_id": 16
+     }
+    },
+    {
+     "display_name": "St. Louis Blues",
+     "metadata": {
+      "city": "St. Louis",
+      "conference": "West",
+      "division": "Central",
+      "nickname": "Blues"
+     },
+     "participant_id": "prt_fcdebf3b5c34498e33c5",
+     "participant_type": "TEAM",
+     "short_name": "STL",
+     "source_ids": {
+      "nhl_abbrev": "STL",
+      "nhl_team_id": 19
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T23:58:46Z",
+   "season": "2026-27",
+   "source_ids": {
+    "kalshi_event_ticker": "KXNHLGAME-26OCT06STLCHI",
+    "nhl_game_id": "2026020050"
+   },
+   "sport": "NHL",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "nhl_api_schedule",
+   "start_time_utc": "2026-10-07T00:00:00Z",
+   "status": "SCHEDULED",
+   "venue": "United Center"
+  },
+  {
+   "away_participant": "prt_6a6712b98b3104e80135",
+   "broadcast": null,
+   "competition": "regular",
+   "effective_start_time_utc": null,
+   "event_id": "evt_4f20f09608cc97c362a7",
+   "extensions": {
+    "away_abbrev": "VGK",
+    "game_date_et": "2026-10-06",
+    "home_abbrev": "SEA",
+    "neutral_site": false,
+    "source_game_state": "FUT/OK"
+   },
+   "home_participant": "prt_88a79c34c6265e0181a3",
+   "last_updated_at": "2026-10-06T23:58:46Z",
+   "league": "NHL",
+   "participants": [
+    {
+     "display_name": "Seattle Kraken",
+     "metadata": {
+      "city": "Seattle",
+      "conference": "West",
+      "division": "Pacific",
+      "nickname": "Kraken"
+     },
+     "participant_id": "prt_88a79c34c6265e0181a3",
+     "participant_type": "TEAM",
+     "short_name": "SEA",
+     "source_ids": {
+      "nhl_abbrev": "SEA",
+      "nhl_team_id": 55
+     }
+    },
+    {
+     "display_name": "Vegas Golden Knights",
+     "metadata": {
+      "city": "Vegas",
+      "conference": "West",
+      "division": "Pacific",
+      "nickname": "Golden Knights"
+     },
+     "participant_id": "prt_6a6712b98b3104e80135",
+     "participant_type": "TEAM",
+     "short_name": "VGK",
+     "source_ids": {
+      "nhl_abbrev": "VGK",
+      "nhl_team_id": 54
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T23:58:46Z",
+   "season": "2026-27",
+   "source_ids": {
+    "kalshi_event_ticker": "KXNHLGAME-26OCT06VGKSEA",
+    "nhl_game_id": "2026020051"
+   },
+   "sport": "NHL",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "nhl_api_schedule",
+   "start_time_utc": "2026-10-07T01:40:00Z",
+   "status": "SCHEDULED",
+   "venue": "Climate Pledge Arena"
+  },
+  {
+   "away_participant": "prt_ae48b83ca306673b8b79",
+   "broadcast": null,
+   "competition": "regular",
+   "effective_start_time_utc": null,
+   "event_id": "evt_5938c3f8a7c1b24c0118",
+   "extensions": {
+    "away_abbrev": "FLA",
+    "game_date_et": "2026-10-06",
+    "home_abbrev": "LAK",
+    "neutral_site": false,
+    "source_game_state": "FUT/OK"
+   },
+   "home_participant": "prt_1513313ad992fb9eb71f",
+   "last_updated_at": "2026-10-06T23:58:46Z",
+   "league": "NHL",
+   "participants": [
+    {
+     "display_name": "Los Angeles Kings",
+     "metadata": {
+      "city": "Los Angeles",
+      "conference": "West",
+      "division": "Pacific",
+      "nickname": "Kings"
+     },
+     "participant_id": "prt_1513313ad992fb9eb71f",
+     "participant_type": "TEAM",
+     "short_name": "LAK",
+     "source_ids": {
+      "nhl_abbrev": "LAK",
+      "nhl_team_id": 26
+     }
+    },
+    {
+     "display_name": "Florida Panthers",
+     "metadata": {
+      "city": "Florida",
+      "conference": "East",
+      "division": "Atlantic",
+      "nickname": "Panthers"
+     },
+     "participant_id": "prt_ae48b83ca306673b8b79",
+     "participant_type": "TEAM",
+     "short_name": "FLA",
+     "source_ids": {
+      "nhl_abbrev": "FLA",
+      "nhl_team_id": 13
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-06T23:58:46Z",
+   "season": "2026-27",
+   "source_ids": {
+    "kalshi_event_ticker": "KXNHLGAME-26OCT06FLALA",
+    "nhl_game_id": "2026020052"
+   },
+   "sport": "NHL",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "nhl_api_schedule",
+   "start_time_utc": "2026-10-07T02:00:00Z",
+   "status": "SCHEDULED",
+   "venue": "Crypto.com Arena"
+  }
+ ],
+ "kind": "events",
+ "run_id": "run_a2cad146553270f7c5aa",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NHL"
+}

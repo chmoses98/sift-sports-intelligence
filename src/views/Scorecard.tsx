@@ -1,6 +1,7 @@
 // MODEL SCORECARD: is the model proving itself? Only the publication's own scorecard (lib/scorecard.ts:
 // met_nfl.incumbent_fair_probability → extensions.scorecard). Bad results are shown as plainly as good ones.
 // The compact panel sits on the sport home; the full view (calibration bands, market types) is one link away.
+import { lazy, Suspense } from 'react';
 import { Link } from 'react-router';
 import { TermInfo } from '../components/Gloss';
 import { Icon } from '../components/Icon';
@@ -84,7 +85,16 @@ export function ScorecardPanel({ slug, full }: { slug: string; full?: boolean })
 }
 
 /** The full scorecard: everything the same published object contains, nothing more. */
+/** The NHL scorecard (views/nhl): the learning report, its own chunk. */
+const NhlScorecardView = lazy(() => import('./nhl/NhlScorecard').then((m) => ({ default: m.NhlScorecardView })));
+
 export function ScorecardView() {
+  const { sport } = useSport();
+  if (sport.code === 'NHL') return <Suspense fallback={null}><NhlScorecardView /></Suspense>;
+  return <PublishedScorecardView />;
+}
+
+function PublishedScorecardView() {
   const { sport, slug } = useSport();
   useVisit('Model scorecard', 'sport');
   const sc = useScorecard();

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { TrendChart } from '../charts/TrendChart';
-import type { EntityProfileDoc, ModelPrice, Observation, SeriesDoc } from '../contract/types';
+import type { EntityProfileDoc, MetricDef, ModelPrice, Observation, SeriesDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
 import { MarketBoard } from '../components/MarketBoard';
@@ -129,6 +129,46 @@ function SeriesBlock({ s, slug, teamId, games }: { s: SeriesDoc; slug: string; t
 
 const TABS = ['overview', 'metrics', 'results', 'schedule', 'players', 'markets'] as const;
 
+/** "3–1" this season from the profile's own game references (OT/SO losses are losses; the profile carries no OTL flag). */
+function seasonRecord(p: EntityProfileDoc): string | null {
+  const start = `${(p.season ?? '').slice(0, 4)}-09-01`;
+  const gs = p.games.filter((g) => g.start_time_utc >= start && g.result?.outcome);
+  if (!gs.length) return null;
+  return `${gs.filter((g) => g.result!.outcome === 'W').length}–${gs.filter((g) => g.result!.outcome === 'L').length}`;
+}
+
+/** NHL: opponent-adjusted 5v5 strength next to the raw number on the same games — never one mistaken for the other. */
+function NhlStrength({ p, slug, metrics }: { p: EntityProfileDoc; slug: string; metrics: Map<string, MetricDef> }) {
+  const rows = p.metrics.filter((o) => metrics.get(o.metric_id)?.category === 'opponent_adjusted');
+  if (!rows.length) return null;
+  const f = (v: number | null | undefined, unit: string | null | undefined) => (v == null ? '—' : unit === 'share' ? `${(v * 100).toFixed(1)}%` : v.toFixed(2));
+  return (
+    <Stratum title="Opponent-adjusted strength" sub="5v5, recency-weighted, each opponent's strength removed (nhl-oppadj-1.0, a research layer). Raw is the same games without the adjustment.">
+      <div className="tscroll" tabIndex={0} role="region" aria-label="Opponent-adjusted strength">
+        <table className="mtab">
+          <thead><tr><th scope="col">Metric</th><th scope="col" className="r">Adjusted rank</th><th scope="col" className="r">Adjusted</th><th scope="col" className="r">Raw (same games)</th><th scope="col" className="r">Schedule effect</th></tr></thead>
+          <tbody>
+            {rows.map((o) => {
+              const d = metrics.get(o.metric_id);
+              const x = (o.extensions ?? {}) as { raw_value?: number | null; schedule_effect?: number | null; status?: string };
+              return (
+                <tr key={o.metric_id}>
+                  <th scope="row"><Link to={routes.metric(slug, o.metric_id, { team: p.entity.participant_id })}>{d?.short_name ?? d?.name}</Link>{x.status === 'PRIOR_HEAVY' && <span className="muted small"> · mostly last season</span>}</th>
+                  <td className="r num">{o.context?.rank != null ? `#${o.context.rank} of ${o.context.universe_size}` : '—'}</td>
+                  <td className="r num">{f(o.value, d?.unit)}</td>
+                  <td className="r num muted">{f(x.raw_value, d?.unit)}</td>
+                  <td className="r num muted">{x.schedule_effect == null ? '—' : `${x.schedule_effect > 0 ? '+' : ''}${d?.unit === 'share' ? (x.schedule_effect * 100).toFixed(1) + ' pts' : x.schedule_effect.toFixed(2)}`}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="muted small">A positive schedule effect means the raw number was flattered by weaker opponents.</p>
+    </Stratum>
+  );
+}
+
 export function TeamView() {
   const { teamId = '' } = useParams();
   const [sp, setSp] = useSearchParams();
@@ -175,6 +215,7 @@ export function TeamView() {
           <h1 className="h-display">{displayName(p.entity.display_name)}</h1>
           <div className="ehead__meta">
             {rec && <span className="ehead__rec num">{rec.wins}–{rec.losses}{rec.ties ? `–${rec.ties}` : ''}</span>}
+            {!rec && sport.code === 'NHL' && seasonRecord(p) && <span className="ehead__rec num" title="Wins–losses this season (overtime and shootout losses count as losses here)">{seasonRecord(p)}</span>}
             {nxt && (
               <EntityLink to={routes.game(slug, nxt.event_id)} kind="game">
                 Next: {nxt.home_away === 'AWAY' ? '@' : 'vs'} {displayName(nxt.opponent_name)} · {kickoff(nxt.start_time_utc)}
@@ -198,6 +239,7 @@ export function TeamView() {
 
       {tab === 'overview' && (
         <>
+          {sport.code === 'NHL' && <NhlStrength p={p} slug={slug} metrics={metrics} />}
           <Stratum n="01" title="Where they stand out" sub={`Ranks among ${obs.find((o) => o.context)?.context?.universe_size ?? ''} teams on every published, directional metric.`}>
             <Standouts obs={obs} slug={slug} teamId={teamId} oppId={oppId} />
             {basis && (
@@ -207,7 +249,7 @@ export function TeamView() {
             )}
           </Stratum>
           {nxt && (
-            <Stratum n="02" title={`This week: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${displayName(nxt.opponent_name)}`} sub="The matchup board compares both units on every adjusted rating.">
+            <Stratum n="02" title={`${sport.code === 'NHL' ? 'Next game' : 'This week'}: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${displayName(nxt.opponent_name)}`} sub={sport.code === 'NHL' ? 'The game page compares opponent-adjusted 5v5 strength, goaltending and the simulated game scripts.' : 'The matchup board compares both units on every adjusted rating.'}>
               <div className="cta-row">
                 <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id, { tab: 'matchup' })}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
                 {oppId && <Link className="btn btn--ghost" to={routes.team(slug, oppId)}>{displayName(nxt.opponent_name)} profile</Link>}
@@ -215,7 +257,7 @@ export function TeamView() {
             </Stratum>
           )}
           {capShown(caps, 'time_series') && series.data?.[0] && (
-            <Stratum n="03" title="Recent form" sub="Points per game, last 40 games. Tap a game to open it.">
+            <Stratum n="03" title="Recent form" sub={sport.code === 'NHL' ? 'Expected-goals share by game (raw MoneyPuck, all situations), with its trailing 10-game mean. Tap a game to open it.' : 'Points per game, last 40 games. Tap a game to open it.'}>
               <SeriesBlock s={series.data.find((s) => s.metric_id.endsWith('point_margin')) ?? series.data[0]} slug={slug} teamId={teamId} games={p.games} />
             </Stratum>
           )}

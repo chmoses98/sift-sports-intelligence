@@ -28,13 +28,15 @@ const CREDITS = (credits as { venues: Record<string, { artist: string; license: 
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 
-export function venueFor(homeAbbr: string | null | undefined, publishedName?: string | null): Venue | null {
+/** The venue for a game. The team-abbreviation fallback covers only NFL clubs (the committed venue table): other
+ * sports share abbreviations (CAR, SEA, DAL …) with different buildings, so they resolve by published name only. */
+export function venueFor(homeAbbr: string | null | undefined, publishedName?: string | null, sport: string = 'NFL'): Venue | null {
   if (publishedName) {
     const n = norm(publishedName);
     const byName = VENUES.find((v) => norm(v.name) === n || (v.aliases ?? []).some((a) => norm(a) === n));
     if (byName) return byName;
   }
-  if (homeAbbr) return VENUES.find((v) => v.teams.includes(homeAbbr)) ?? null;
+  if (homeAbbr && sport === 'NFL') return VENUES.find((v) => v.teams.includes(homeAbbr)) ?? null;
   return null;
 }
 

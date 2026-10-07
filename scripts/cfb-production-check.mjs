@@ -11,14 +11,17 @@
 //      negative -> the honest empty state and no script card
 //      every game -> both teams' committed CFB logos loaded in the hero
 // 3. Freshness: the deployed build's SHA (version.json) when SIFT_EXPECT_SHA is set, and the publication's age.
+import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
-import { NEGATIVE, selectGames } from './cfb/select.mjs';
+import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
 
 const BASE = (process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/').replace(/\/?$/, '/');
 const CFB_RAW = (process.env.SIFT_CFB_RAW ?? 'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main').replace(/\/+$/, '');
 const APP = `${CFB_RAW}/app/latest`;
 const EXPECT_SHA = (process.env.SIFT_EXPECT_SHA ?? '').trim();
 const EMPTY = 'No script cleared its evidence requirement';
+/** The committed CFB identity map this build ships (team code -> ESPN id -> public/teams/cfb/<id>.webp). */
+const CFB_TEAMS = JSON.parse(readFileSync(new URL('../src/lib/cfb-teams.json', import.meta.url), 'utf-8')).teams;
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
 
@@ -39,25 +42,40 @@ const [board, explorerIndex, scriptIndex, health] = await Promise.all([
 const ageH = (iso) => (Date.now() - Date.parse(iso ?? '')) / 3600e3;
 console.log(`  board generated ${board.generated_at} (${ageH(board.generated_at).toFixed(1)} h ago) · explorer built ${explorerIndex.generated_at ?? explorerIndex.built_at ?? '?'} · script index ${scriptIndex.methodology_version} counts ${JSON.stringify(scriptIndex.counts)}`);
 console.log(`  health ${health?.overall_status ?? '?'} generated ${health?.generated_at ?? '?'}`);
+const nUpcoming = upcoming(board, Date.now()).length;
 const { picked, problems, scanned } = await selectGames({
-  board, explorerIndex, scriptIndex, nowMs: Date.now(), readDoc: (p) => getJson(`${APP}/${p}`),
+  board, explorerIndex, scriptIndex, nowMs: Date.now(), readDoc: (p) => getJson(`${APP}/${p}`), maxScan: Infinity,
 });
-console.log(`  scanned ${scanned} upcoming games`);
+console.log(`  ${nUpcoming} upcoming games, scanned ${scanned}`);
 for (const p of problems) check(false, `upstream export: ${p}`);
 for (const k of ['SCRIPTS_GENERATED', 'SINGLE_SCRIPT', NEGATIVE]) {
   const g = picked[k];
-  check(!!g, `upstream: a current ${k} game exists in the live publication`);
   if (g) console.log(`  ${k.padEnd(27)} ${g.gameKey} ${g.eventId} ${g.away} @ ${g.home} ${g.start} · scripts ${g.scripts.map((s) => `${s.role}:${s.title}`).join(' | ') || '—'}`);
+  else console.log(`  ${k.padEnd(27)} NOT_APPLICABLE — no upcoming game has this status`);
 }
+// A slate with games must put at least one real script in front of the reader; an empty slate (off-season) is
+// reported, not failed.
+if (nUpcoming) check(!!(picked.SCRIPTS_GENERATED || picked.SINGLE_SCRIPT), 'upstream: at least one upcoming game carries published scripts');
+else console.log('  no upcoming CFB game: page assertions NOT_APPLICABLE');
 
 // ------------------------------------------------------------------ 2. production
 async function deployedSha() {
   try {
-    const r = await fetch(`${BASE}version.json`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
+    const r = await fetch(`${BASE}version.json?t=${Date.now()}`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
     return r.ok ? (await r.json()).sha ?? null : null;
   } catch {
     return null;
   }
+}
+
+/** The Pages CDN can answer with the previous build for a few minutes after a deploy: wait up to 10 for the new one. */
+async function awaitSha(want) {
+  let sha = await deployedSha();
+  for (let i = 0; i < 20 && sha !== want; i++) {
+    await new Promise((r) => setTimeout(r, 30_000));
+    sha = await deployedSha();
+  }
+  return sha;
 }
 
 /** What the open game page shows: engine page, script cards, empty state, hero logos. */
@@ -75,6 +93,9 @@ async function readGame(page) {
   }), EMPTY);
 }
 
+/** Logo files the site has served in this browser context (held images are re-used as blob: URLs after). */
+const served = new Set();
+
 function judge(label, kind, g, seen) {
   const titles = g.scripts.map((s) => s.title);
   console.log(`  ${label}: engine=${seen.engine} cards=[${seen.cards.join(' | ')}] empty=${seen.empty} logos=${seen.logos.map((l) => `${l.src.split('/').slice(-2).join('/')}${l.ok ? '' : '(not loaded)'}`).join(',') || '—'} text-marks=[${seen.textMarks.join(',')}]`);
@@ -87,12 +108,14 @@ function judge(label, kind, g, seen) {
     check(seen.cards.length === titles.length, `${label}: shows ${titles.length} script card(s) (got ${seen.cards.length})`);
     check(titles.every((t) => seen.cards.includes(t)), `${label}: shows the published script titles`);
   }
-  const cfbLogos = seen.logos.filter((l) => l.ok && /\/teams\/cfb\//.test(l.src));
-  check(cfbLogos.length === 2, `${label}: both teams' committed CFB logos load in the hero (${g.away}, ${g.home})`);
+  const files = [g.away, g.home].map((c) => (CFB_TEAMS[c]?.l ? `teams/cfb/${CFB_TEAMS[c].e}.webp` : null));
+  check(files.every(Boolean), `${label}: both teams (${g.away}, ${g.home}) have a committed CFB logo in the identity map`);
+  check(seen.logos.length === 2 && seen.logos.every((l) => l.ok) && seen.textMarks.length === 0, `${label}: two loaded logo marks in the hero, no text initials`);
+  check(files.every((f) => f && [...served].some((u) => u.endsWith(`/${f}`))), `${label}: the site served ${files.join(' and ')}`);
 }
 
 console.log('\nproduction');
-const sha = await deployedSha();
+const sha = EXPECT_SHA ? await awaitSha(EXPECT_SHA) : await deployedSha();
 console.log(`  deployed build: ${sha ?? '(no version.json)'}${EXPECT_SHA ? ` · expected ${EXPECT_SHA}` : ''}`);
 if (EXPECT_SHA) check(sha === EXPECT_SHA, `the deployed build is ${EXPECT_SHA.slice(0, 7)} (got ${sha ?? 'none'})`);
 
@@ -115,6 +138,8 @@ for (const [name, type, device] of BROWSERS) {
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
   const research = [];
+  served.clear();
+  page.on('response', (r) => r.ok() && r.url().includes('/teams/cfb/') && served.add(r.url().split('?')[0]));
   page.on('response', (r) => /cfb-edge-finder\/main\/app\/latest\/explorer\/events\//.test(r.url()) && research.push(`${r.status()} ${r.url().split('/').pop()}${r.fromServiceWorker() ? ' (service worker)' : ''}`));
   try {
     // A deep link to each game, then the same games again from the CFB slate (a warm client, service worker

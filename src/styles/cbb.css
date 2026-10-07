@@ -506,3 +506,5 @@
   .cgh__board.has-score .cgh__mid { padding-top: 22px; }
   .cgh__board.has-score .cgh__line { font-size: var(--fs-xs); }
 }
+.cbbhome .cbbstat, .cbbhome__grid .panel { padding: var(--s-4); border-radius: var(--r-3, 12px); background: var(--panel); border: 1px solid var(--line-2); box-shadow: var(--shadow-1); }
+.cbbhome .cbbstat { border-top: 3px solid #e07b39; }

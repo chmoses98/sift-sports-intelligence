@@ -105,11 +105,11 @@ NHL markets use the same market clock as every sport. The relay comes first and 
 fallback. `scripts/publish-live-quotes.mjs` lists NHL next to NFL, and there is no NHL-specific fetcher. A
 publication capture is never labelled "Live".
 
-The feed reads NHL's board with the same slate rule as NFL (`scripts/live-quotes/slate.mjs`). Its feed status is
-STALE if any sport's publication is stale. In that case nothing is published, the run fails visibly and the last
-good feed stays up. So if the NHL board stopped refreshing, NFL's feed fallback would freeze with it (and the
-reverse). The relay, which is the primary quote source, is unaffected. NHL's board marks games FINAL as they
-finish, so a working NHL capture never trips this rule.
+The feed reads NHL's board with the same slate rule as NFL (`scripts/live-quotes/slate.mjs`). Staleness is judged
+per sport: if the NHL board stopped refreshing, NHL's games are left out of the feed (and its index `sport_status`
+says why) while NFL and MLB keep publishing, and the reverse. The whole cycle is refused (the last good feed stays
+up) only when no sport carries a current game with markets. The relay, which is the primary quote source, is
+unaffected. NHL's board marks games FINAL as they finish, so a working NHL capture never trips this rule.
 
 The research tray and the handicap packet use the contract's
 `edge_finder.handicap.nhl.v1` protocol. An NHL game packet carries the script distribution and the research

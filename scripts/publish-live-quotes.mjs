@@ -1,20 +1,28 @@
 #!/usr/bin/env node
 // Write the live-quote feed into <outdir> (the live-quotes workflow force-pushes it to the
-// `live-quotes` branch). Read-only: Kalshi public market data + the sport publication.
+// `live-quotes` branch). Read-only: Kalshi public market data + the sport publications.
 //   node scripts/publish-live-quotes.mjs out/live-quotes
 //
-// Exit 1 WITHOUT writing anything (so the workflow pushes nothing and the last-known-good feed stays) when the
-// sport publication is stale (scripts/live-quotes/slate.mjs) or when current games yielded no Kalshi market.
-// A fresh publication with no current game publishes a healthy empty feed whose index says NO_CURRENT_GAMES.
+// Staleness is PER SPORT (scripts/live-quotes/lib.mjs planFeed). A sport whose publication is stale or unreadable,
+// or whose current games yielded no Kalshi market, is excluded: none of its games is written (the job writes a
+// fresh tree and force-pushes it, so that sport's previous game files disappear too; the browser then keeps the
+// publication's own capture with its true age and never shows a stale sport's quotes as current), and index.json
+// `sport_status` says why. The healthy sports still publish.
+//
+// Exit 1 WITHOUT writing anything (so the workflow pushes nothing and the last-known-good feed stays) when no sport
+// can be published, or when a sport was excluded and no other sport carries a current game with markets (including
+// "Kalshi answered nothing"). Fresh publications with no current game publish a healthy empty feed whose index says
+// NO_CURRENT_GAMES.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { buildFiles, feedStatus, makeGet, readPublication, sweep } from './live-quotes/lib.mjs';
-import { publishVerdict } from './live-quotes/slate.mjs';
+import { buildFiles, makeGet, planFeed, readPublication, sweep, unreadablePublication } from './live-quotes/lib.mjs';
 
-// Sports whose publication Sift maps to Kalshi. One line per sport; the feed format is sport-agnostic.
+// Sports whose publication Sift maps to Kalshi. One line per sport; the feed format is sport-agnostic. Only series a
+// sport's CURRENT games use are swept (MLB lists up to 17 KXMLB* series; a quiet sport costs one board read).
 const SPORTS = [
   { code: 'NFL', rawBase: 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest' },
   { code: 'NHL', rawBase: 'https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest' },
+  { code: 'MLB', rawBase: 'https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest' },
 ];
 
 const out = process.argv[2] ?? 'out/live-quotes';
@@ -23,32 +31,39 @@ const { get, count } = makeGet({ log });
 const games = [];
 const publications = [];
 for (const s of SPORTS) {
-  const { games: g, publication } = await readPublication(s.rawBase, get, { sport: s.code });
+  let g = [];
+  let publication;
+  try {
+    ({ games: g, publication } = await readPublication(s.rawBase, get, { sport: s.code }));
+  } catch (e) {
+    publication = unreadablePublication(s.code, `${s.rawBase}/board.json`, e);
+  }
   log(`${s.code}: publication ${publication.status} (generated ${publication.generated_at}, ${publication.age_seconds}s old), ${publication.eligible_games} current event(s), ${g.length} game key(s)`);
   for (const r of publication.reasons) log(`::error title=${s.code} publication ${publication.status}::${r}`);
   if (publication.stale_events.length && publication.status !== 'STALE_PUBLICATION') log(`::warning title=${s.code} publication::${publication.stale_events.length} started event(s) still marked upcoming/live on the board (${publication.stale_events.map((e) => e.event_id).join(', ')})`);
   games.push(...g);
   publications.push(publication);
 }
-// A stale source is refused before Kalshi is asked anything: no request is spent on a feed that will not publish.
-const stale = publications.find((p) => p.status === 'STALE_PUBLICATION');
-if (stale) {
-  console.error(publishVerdict(stale, games.length, 0).reason);
+// A cycle that cannot publish is refused before Kalshi is asked anything; an excluded sport's series are never swept.
+const pre = planFeed(publications, games);
+if (!pre.publish) {
+  console.error(pre.reason);
   process.exit(1);
 }
-const { byKey, errors } = await sweep(games, get, { log });
+const { byKey, errors } = await sweep(pre.games, get, { log });
+const plan = planFeed(publications, pre.games, byKey);
 const total = [...byKey.values()].reduce((a, m) => a + m.size, 0);
-const verdict = publishVerdict({ status: feedStatus(publications), reasons: [] }, games.length, total);
-log(`${count()} requests, ${total} markets, ${errors.length} errors: ${verdict.reason}`);
-if (!verdict.publish) {
-  console.error(verdict.reason);
+log(`${count()} requests, ${total} markets, ${errors.length} errors: ${plan.reason}`);
+for (const s of plan.sports.filter((x) => !x.published)) log(`::warning title=${s.sport} excluded from the feed::${s.reason}`);
+if (!plan.publish) {
+  console.error(plan.reason);
   process.exit(1);
 }
-const files = buildFiles(games, byKey, { generatedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'), sports: SPORTS.map((s) => s.code), errors, requests: count(), publications });
+const files = buildFiles(plan.games, byKey, { generatedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'), sports: SPORTS.map((s) => s.code), errors, requests: count(), publications, sportStatus: plan.sports });
 for (const [rel, doc] of files) {
   const p = join(out, rel);
   mkdirSync(dirname(p), { recursive: true });
   writeFileSync(p, JSON.stringify(doc));
 }
-writeFileSync(join(out, 'README.md'), '# Sift live-quote feed\n\nGenerated by `.github/workflows/live-quotes.yml` from Kalshi public market data (read-only). Force-pushed; no history is kept. `index.json` `status` / `publications` say whether the sport publication it read was current (CURRENT_SLATE), legitimately quiet (NO_CURRENT_GAMES) or stale (never published: the last-known-good feed stays).\n');
-log(`wrote ${files.size} files (feed status ${files.get('index.json').status})`);
+writeFileSync(join(out, 'README.md'), '# Sift live-quote feed\n\nGenerated by `.github/workflows/live-quotes.yml` from Kalshi public market data (read-only). Force-pushed; no history is kept. `index.json` `sport_status` says, per sport, whether its publication was current (CURRENT_SLATE), legitimately quiet (NO_CURRENT_GAMES), stale or unreadable, and whether its games are in this feed: an excluded sport has no game files here (never stale quotes presented as current). `status` describes the published sports; when nothing trustworthy can be published the previous feed stays.\n');
+log(`wrote ${files.size} files (feed status ${files.get('index.json').status}${files.get('index.json').excluded_sports.length ? `, excluded ${files.get('index.json').excluded_sports.join(', ')}` : ''})`);

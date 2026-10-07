@@ -1,7 +1,7 @@
 name: Live-quote feed
 
 # The market clock without a server: a runner reads Kalshi's PUBLIC market data (read-only, no
-# credential; browsers cannot, Kalshi refuses their Origin) for the games the NFL publication lists and
+# credential; browsers cannot, Kalshi refuses their Origin) for the games the NFL, NHL and MLB publications list and
 # force-pushes one small JSON per game to the `live-quotes` branch every 3 minutes. Sift reads it from
 # raw.githubusercontent.com; the app is never rebuilt or redeployed for a price move.
 #

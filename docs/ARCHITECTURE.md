@@ -116,8 +116,19 @@ can leak. Two read-only paths remain, and Sift uses both behind one provider abs
    event, reasons) and each game entry lists its `event_ids`. `CURRENT_SLATE` publishes game files;
    `NO_CURRENT_GAMES` (a fresh board with nothing current) publishes a healthy empty feed that says so;
    `STALE_PUBLICATION` (nothing current while the board still lists an event SCHEDULED / live more than 8 h
-   after its kickoff, or no trustworthy `generated_at`) publishes **nothing**: the run fails and the
-   last-known-good feed stays (incident 2026-10-07: the NFL board stopped at the week-4 MNF pregame build).
+   after its kickoff, or no trustworthy `generated_at`) never publishes that sport's games (incident
+   2026-10-07: the NFL board stopped at the week-4 MNF pregame build).
+   **Staleness is per sport** (`planFeed` in `scripts/live-quotes/lib.mjs`; sports: NFL, NHL, MLB). A sport whose
+   publication is stale or unreadable, or whose current games yielded no Kalshi market, is EXCLUDED: none of its
+   games is written and, because each cycle force-pushes a fresh tree, its previous game files disappear too (the
+   simplest safe choice: the browser then keeps the publication's own capture at its true age and never shows a
+   stale sport's quotes as current). The healthy sports still publish. `index.json` adds (additively)
+   `sport_status[]` (`sport`, `status`, `published`, `reason`, `games`, `markets`) and `excluded_sports[]`; each
+   game entry carries its `sport`; top-level `status` describes the published sports. The whole cycle is refused
+   (nothing written, last-known-good stays) only when no sport can be published, or when a sport was excluded and
+   no remaining sport carries a current game with markets (this includes Kalshi answering nothing). Only the series
+   of CURRENT games are swept (MLB adds up to 17 `KXMLB*` series on a game day, none on a quiet one), at the same
+   pacing and retry as before.
 2. **Relay** (`relay/`, deployed by the owner once — see `relay/README.md`): forwards only `GET /markets`
    with allow-listed parameters (≤ 100 tickers, one event or series, status/limit/cursor) without an
    Origin, answers CORS for Sift's origins only (not an open proxy), stamps `X-Sift-Observed-At` (Kalshi's

@@ -71,6 +71,11 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * `scripts/make_nhl_fixture.py` — trim a real NHL `app/latest` publication to a few games for the NHL tests
   (`tests/fixtures/nhl`); rerun it when the NHL research payload changes shape.
 * `scripts/make-icons.mjs` — render the PWA icons.
-* `scripts/publish-live-quotes.mjs` — the live-quote feed (NFL and NHL; run every 5 minutes by `live-quotes.yml`).
+* `scripts/publish-live-quotes.mjs` — the live-quote feed (NFL, NHL and MLB; run every 3 minutes by `live-quotes.yml`).
+  Staleness is per sport: a stale or unreadable sport is left out (its games are not written; `index.json`
+  `sport_status[]` / `excluded_sports[]` say why) while the healthy sports publish; nothing is written (last-known-good
+  stays) only when no sport carries a current game with markets. See docs/ARCHITECTURE.md → *Quote feed*.
+* `scripts/make_mlb_fixture.py` — build `tests/fixtures/mlb` from the real MLB publication (synthesized postseason
+  board and `mlb.player_prop.v1` examples where production has none yet; see the script's docstring).
 * `scripts/kalshi-probe.mjs` — read-only real-provider probe (run by `live-provider-smoke.yml`).
 * `relay/` — the read-only Kalshi quote relay for sub-minute quotes (Vercel Function; the earlier Cloudflare Worker is legacy). Deploy steps and limits: `relay/README.md`.

@@ -6,7 +6,7 @@
 // (publication event -> Kalshi event suffix) comes from the publication, never from guessing.
 //
 // GET only. No credential. No order, account or portfolio endpoint is ever called.
-import { HORIZON_DAYS, LOOKBACK_HOURS, isEligibleEvent, publicationStatus } from './slate.mjs';
+import { HORIZON_DAYS, LOOKBACK_HOURS, isEligibleEvent, publicationStatus, publishVerdict } from './slate.mjs';
 
 export const FEED_SCHEMA = 'sift.live_quotes.v1';
 export const INDEX_SCHEMA = 'sift.live_quotes.index.v1';
@@ -79,6 +79,7 @@ export async function readPublication(rawBase, get, { now = Date.now, horizonDay
     for (const key of keys) {
       games.push({
         key,
+        ...(sport ? { sport } : {}),
         event_id: it.event_id,
         tickers: markets.filter((m) => gameKeyOf(m.kalshi_ticker) === key).map((m) => m.kalshi_ticker),
         series: [...new Set(markets.map((m) => m.kalshi_series_ticker || m.kalshi_ticker.split('-')[0]))],
@@ -97,6 +98,53 @@ export async function publicationGames(rawBase, get, opts = {}) {
 export function feedStatus(publications) {
   const s = publications.map((p) => p.status);
   return s.includes('STALE_PUBLICATION') ? 'STALE_PUBLICATION' : s.includes('CURRENT_SLATE') ? 'CURRENT_SLATE' : 'NO_CURRENT_GAMES';
+}
+
+/** Publication states whose games the feed never writes: that sport fails closed for itself. */
+export const UNUSABLE = ['STALE_PUBLICATION', 'UNREADABLE_PUBLICATION'];
+
+/** A publication that could not be read at all (network error, 404, not JSON): unusable, like a stale one. */
+export function unreadablePublication(sport, source, error, { horizonDays = HORIZON_DAYS, lookbackHours = LOOKBACK_HOURS } = {}) {
+  return {
+    sport, status: 'UNREADABLE_PUBLICATION', source, generated_at: null, age_seconds: null, eligible_games: 0, eligible_event_ids: [],
+    latest_event: null, stale_events: [], reasons: [`the publication could not be read (${String(error?.message ?? error)})`],
+    horizon_days: horizonDays, lookback_hours: lookbackHours,
+  };
+}
+
+/**
+ * The per-sport publish plan for one cycle. Each sport is judged on its own (publishVerdict): a stale or unreadable
+ * publication, or current games that yielded no Kalshi market, EXCLUDES THAT SPORT (none of its games is written;
+ * the index records its status and why) while the other sports publish. The whole cycle is refused (nothing is
+ * written, the last-known-good feed stays) only when nothing trustworthy would replace it:
+ *   - no sport passes its verdict, or
+ *   - a sport was excluded and no remaining sport carries a current game with markets (a feed that would only
+ *     drop the excluded sport's files is not published).
+ * A cycle where every sport is healthy and quiet still publishes a healthy empty feed (NO_CURRENT_GAMES).
+ * `byKey` null = before the Kalshi sweep (markets unknown): the same rule, assuming a usable sport's games will
+ * price, so a cycle that cannot publish is refused before any Kalshi request is spent on it.
+ */
+export function planFeed(publications, games, byKey = null) {
+  const sports = publications.map((p) => {
+    const keys = [...new Set(games.filter((g) => g.sport === p.sport).map((g) => g.key))];
+    const markets = byKey ? keys.reduce((a, k) => a + (byKey.get(k)?.size ?? 0), 0) : null;
+    const v = UNUSABLE.includes(p.status) ? publishVerdict({ ...p, status: 'STALE_PUBLICATION' }, keys.length, 0) : byKey ? publishVerdict(p, keys.length, markets) : { publish: true, reason: 'not swept yet' };
+    const reason = p.status === 'UNREADABLE_PUBLICATION' ? `the sport publication is unreadable (${p.reasons.join('; ')}); its games are not published` : UNUSABLE.includes(p.status) ? `the sport publication is stale (${p.reasons.join('; ')}); its games are not published` : v.reason;
+    return { sport: p.sport, status: p.status, published: v.publish, reason, games: keys.length, markets };
+  });
+  const ok = sports.filter((s) => s.published);
+  const excluded = sports.filter((s) => !s.published);
+  const carries = ok.some((s) => s.games > 0 && (s.markets == null || s.markets > 0));
+  const named = (xs) => xs.map((s) => `${s.sport}: ${s.reason}`).join(' | ');
+  if (!ok.length) return { publish: false, reason: `no sport can be published (${named(excluded)}); not replacing the last-known-good feed`, sports };
+  if (excluded.length && !carries) return { publish: false, reason: `excluded ${named(excluded)}; no other sport carries a current game with markets, so the last-known-good feed is not replaced`, sports };
+  const published = new Set(ok.map((s) => s.sport));
+  return {
+    publish: true,
+    reason: excluded.length ? `published ${[...published].join(', ')}; excluded ${named(excluded)}` : ok.some((s) => s.games > 0) ? sports.map((s) => `${s.sport} ${s.games} game key(s), ${s.markets ?? '?'} market(s)`).join('; ') : 'no current games: a healthy empty feed',
+    sports,
+    games: games.filter((g) => published.has(g.sport)),
+  };
 }
 
 /** Sweep Kalshi for those games: open markets by series (inventory), then published tickers not open. */
@@ -141,15 +189,26 @@ export async function sweep(games, get, { api = KALSHI, maxPages = 10, log = () 
   return { byKey, errors };
 }
 
-export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public via github-actions (sift live-quotes feed)', sports = ['NFL'], errors = [], requests = 0, publications = null }) {
+export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public via github-actions (sift live-quotes feed)', sports = ['NFL'], errors = [], requests = 0, publications = null, sportStatus = null }) {
   const files = new Map();
   const index = { schema: INDEX_SCHEMA, generated_at: generatedAt, sports, requests, errors, games: [] };
   // Source health (optional, additive): which publication was read, how old it was, how many current games it
   // listed, and its status. A reader can tell a healthy empty feed (NO_CURRENT_GAMES) from a broken source.
   if (publications) Object.assign(index, { status: feedStatus(publications), publications });
+  // Per-sport status (optional, additive; planFeed): every configured sport, whether its games are in this feed and
+  // why not. `status` then describes the PUBLISHED sports only; `excluded_sports` names the ones left out (fail closed:
+  // a stale sport's games are absent, never shown as current).
+  if (sportStatus) {
+    const published = new Set(sportStatus.filter((s) => s.published).map((s) => s.sport));
+    Object.assign(index, {
+      status: feedStatus((publications ?? []).filter((p) => published.has(p.sport))),
+      sport_status: sportStatus,
+      excluded_sports: sportStatus.filter((s) => !s.published).map((s) => s.sport),
+    });
+  }
   const grouped = new Map();
   for (const g of games) {
-    const cur = grouped.get(g.key) ?? { key: g.key, event_ids: [], tickers: new Set() };
+    const cur = grouped.get(g.key) ?? { key: g.key, sport: g.sport ?? null, event_ids: [], tickers: new Set() };
     cur.event_ids.push(g.event_id);
     g.tickers.forEach((t) => cur.tickers.add(t));
     grouped.set(g.key, cur);
@@ -162,7 +221,7 @@ export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public 
       tickers_checked: checked, markets,
     });
     const obs = markets.map((m) => m.observed_at).sort();
-    index.games.push({ key: g.key, file: `games/${g.key}.json`, event_ids: [...new Set(g.event_ids)].sort(), markets: markets.length, published: g.tickers.size, newly_listed: markets.filter((m) => !g.tickers.has(m.ticker)).length, observed_from: obs[0] ?? null, observed_to: obs[obs.length - 1] ?? null });
+    index.games.push({ key: g.key, ...(g.sport ? { sport: g.sport } : {}), file: `games/${g.key}.json`, event_ids: [...new Set(g.event_ids)].sort(), markets: markets.length, published: g.tickers.size, newly_listed: markets.filter((m) => !g.tickers.has(m.ticker)).length, observed_from: obs[0] ?? null, observed_to: obs[obs.length - 1] ?? null });
   }
   index.games.sort((a, b) => a.key.localeCompare(b.key));
   files.set('index.json', index);

@@ -326,8 +326,46 @@ export function cleanDescription(d: string | null | undefined): string {
 
 type MarketLike = Partial<Pick<Market, 'market_family' | 'period' | 'participant_id' | 'player_id' | 'threshold' | 'yes_description' | 'extensions'>> & { kalshi_ticker: string; title?: string | null };
 
+const NHL_PERIOD: Record<string, string> = { P1: '1st period', P2: '2nd period', P3: '3rd period' };
+
+/**
+ * NHL markets in plain hockey language, from the publication's own structured fields and YES wording
+ * ("Carolina wins by over 1.5 goals" → "Carolina −1.5"). The NFL nickname table is never consulted: hockey
+ * clubs share abbreviations (CAR, SEA, DAL …) with football teams.
+ */
+export function describeNhlMarket(m: MarketLike): MarketLabel | null {
+  const d = cleanDescription(m.yes_description).replace(/^Full Game: /, '');
+  if (!d) return null;
+  const fam = m.market_family ?? '';
+  const per = NHL_PERIOD[m.period ?? ''] ?? null;
+  let mm: RegExpExecArray | null;
+  const ret = (title: string, short = title, subject: string | null = null): MarketLabel => ({ title, short, subject });
+  if (fam === 'game_winner' && (mm = /^(.+?) wins$/.exec(d))) return ret(`${mm[1]} to win`, `${mm[1]} ML`, mm[1]);
+  if ((fam === 'game_spread' || fam === 'period_spread') && (mm = /^(.+?) wins(?: the \S+ period)? by over ([\d.]+) goals?/.exec(d))) {
+    return ret(`${mm[1]} −${mm[2]}${per ? ` (${per})` : ''}`, `${mm[1]} −${mm[2]}`, mm[1]);
+  }
+  if ((fam === 'game_total' || fam === 'period_total') && (mm = /Over ([\d.]+) goals/i.exec(d))) {
+    return ret(`${per ? `${per[0].toUpperCase()}${per.slice(1)}` : 'Game'} total over ${mm[1]} goals`, `${per ? per.slice(0, 3) : 'Total'} O ${mm[1]}`);
+  }
+  if (fam === 'team_total' && (mm = /^(.+?) over ([\d.]+) goals/.exec(d))) return ret(`${mm[1]} team total over ${mm[2]} goals`, `${mm[1]} O ${mm[2]}`, mm[1]);
+  if (fam === 'period_winner' && (mm = /^(.+?) wins the (\S+) period/.exec(d))) return ret(`${mm[1]} wins the ${mm[2]} period`, `${mm[1]} ${mm[2]}`, mm[1]);
+  if (fam === 'player_goals' && (mm = /^(.+?): (\d+)\+ goals?/.exec(d))) {
+    return ret(mm[2] === '1' ? `${mm[1]} to score a goal` : `${mm[1]} ${mm[2]}+ goals`, `${mm[1]} ${mm[2]}+ G`, mm[1]);
+  }
+  if (fam === 'player_assists' && (mm = /^(.+?): (\d+)\+ assists?/.exec(d))) return ret(`${mm[1]} ${mm[2]}+ assist${mm[2] === '1' ? '' : 's'}`, `${mm[1]} ${mm[2]}+ A`, mm[1]);
+  if (fam === 'player_points' && (mm = /^(.+?): (\d+)\+ points?/.exec(d))) return ret(`${mm[1]} ${mm[2]}+ point${mm[2] === '1' ? '' : 's'}`, `${mm[1]} ${mm[2]}+ P`, mm[1]);
+  if (fam === 'goalie_saves' && (mm = /^(.+?): (\d+)\+ saves/.exec(d))) return ret(`${mm[1]} over ${Number(mm[2]) - 0.5} saves`, `${mm[1]} O ${Number(mm[2]) - 0.5} SV`, mm[1]);
+  if (fam === 'first_goal' && (mm = /^(.+?): First Goalscorer/i.exec(d))) return ret(`${mm[1]} scores the first goal`, `${mm[1]} 1st G`, mm[1]);
+  return ret(d);
+}
+
 /** The readable name of any market. Never returns a raw ticker unless nothing else is known about it. */
 export function describeMarket(m: MarketLike, ctx: LabelContext = {}): MarketLabel {
+  if (/^KXNHL/.test(m.kalshi_ticker)) {
+    const nhl = describeNhlMarket(m);
+    if (nhl) return nhl;
+    if (m.title) return { title: m.title, short: m.title, subject: null };
+  }
   const ext = (m.extensions ?? {}) as { stat?: string; subject?: string };
   const p = parseKalshiTicker(m.kalshi_ticker);
   const abbr = ctx.abbrOf?.(m.participant_id ?? null) ?? (ext.subject && /^[A-Z]{2,3}$/.test(ext.subject) ? ext.subject : null);

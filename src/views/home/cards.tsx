@@ -62,7 +62,7 @@ export function modelLine(r: EventResearchDoc | null | undefined): string | null
  */
 export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; insight: MatchupInsight | null; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
+  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null, sportCode);
   const photo = venuePhoto(venue);
   const img = useHeldImage(photo?.hero);
   const set = r ? gameScripts(r) : null;
@@ -73,7 +73,7 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
   return (
     <article className={`fcard${photo ? '' : ' fcard--nophoto'}`} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
       <Link to={routes.game(sportSlug, item.event_id)} className="fcard__a" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}. Open game.`}>
-        <div className="fcard__img" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} />}</div>
+        <div className="fcard__img" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} rink={sportCode === 'NHL'} />}</div>
         <div className="fcard__in">
           <span className="fcard__when">{kickoff(item.start_time_utc)}{Date.parse(item.start_time_utc) > now ? ` · ${until(item.start_time_utc, now)}` : ''}</span>
           <span className="fcard__match">
@@ -96,7 +96,7 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
 /** A game tile: the stadium as a strip with both logos, the matchup, kickoff, the headline edge and the most likely script. */
 export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null);
+  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null, sportCode);
   const photo = venuePhoto(venue);
   const [ref, inView] = useInView<HTMLLIElement>();
   const img = useHeldImage(inView ? photo?.card : null);
@@ -109,7 +109,7 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
   return (
     <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%', ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }}>
       <div className="gtile__img" aria-hidden="true">
-        {img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback compact />}
+        {img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback compact rink={sportCode === 'NHL'} />}
         <span className="gtile__logos"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><i>at</i><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>
       </div>
       <Link to={routes.game(sportSlug, item.event_id)} className="gtile__link gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>

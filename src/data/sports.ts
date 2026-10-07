@@ -41,7 +41,9 @@ export const SPORTS: SportConfig[] = [
     code: 'CFB', slug: 'cfb', label: 'CFB', fullName: 'College Football',
     repo: 'chmoses98/cfb-edge-finder', branch: 'main',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest',
-    snapshotBase: null, tier: 'listed', entityNoun: { team: 'team', event: 'game' },
+    // Explorer screens through the generic views, plus the CFB Script Engine game page when an event carries
+    // extensions.script_engine (docs/CFB_SCRIPT_ENGINE.md).
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'team', event: 'game' },
   },
   {
     code: 'NBA', slug: 'nba', label: 'NBA', fullName: 'National Basketball Association',
@@ -53,7 +55,9 @@ export const SPORTS: SportConfig[] = [
     code: 'NHL', slug: 'nhl', label: 'NHL', fullName: 'National Hockey League',
     repo: 'chmoses98/NHL-edge-finder', branch: 'data-archive',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest',
-    snapshotBase: null, tier: 'listed', entityNoun: { team: 'team', event: 'game' },
+    // First-class research vertical: the generic explorer views plus the NHL game, home, market and scorecard
+    // screens driven by extensions.nhl_scripts_v1 / nhl_matchup_v1 and the learning scorecard (docs/NHL.md).
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'team', event: 'game' },
   },
   {
     code: 'SOCCER', slug: 'soccer', label: 'Soccer', fullName: 'Soccer',

@@ -1,0 +1,352 @@
+{
+ "count": 15,
+ "generated_at": "2026-10-06T03:15:24Z",
+ "items": [
+  {
+   "aliases": [
+    "26OCT10UGAALA"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_93e12676ae9337017c63",
+   "kind": "EVENT",
+   "label": "Georgia at Alabama",
+   "path": "explorer/events/evt_93e12676ae9337017c63.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct10ugaala",
+    "alabama",
+    "at",
+    "fbs",
+    "georgia"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT10LSUUK"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_8c3166866b2bfa530c17",
+   "kind": "EVENT",
+   "label": "LSU at Kentucky",
+   "path": "explorer/events/evt_8c3166866b2bfa530c17.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct10lsuuk",
+    "at",
+    "fbs",
+    "kentucky",
+    "lsu"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT10STANND"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_7ca164d80f042f650a5c",
+   "kind": "EVENT",
+   "label": "Stanford at Notre Dame",
+   "path": "explorer/events/evt_7ca164d80f042f650a5c.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct10stannd",
+    "at",
+    "dame",
+    "fbs",
+    "notre",
+    "stanford"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT10TENNARK"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_f121611ae29ec3e9d56e",
+   "kind": "EVENT",
+   "label": "Tennessee at Arkansas",
+   "path": "explorer/events/evt_f121611ae29ec3e9d56e.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct10tennark",
+    "arkansas",
+    "at",
+    "fbs",
+    "tennessee"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT17ALBYSTON"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "evt_776097ba6eef448fb340",
+   "kind": "EVENT",
+   "label": "University at Albany vs Stony Brook",
+   "path": "explorer/events/evt_776097ba6eef448fb340.json",
+   "secondary": "2026-10-17",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "17",
+    "2026",
+    "26oct17albyston",
+    "albany",
+    "at",
+    "brook",
+    "stony",
+    "university",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "ALA"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_cfe4b7056ed5e2175890",
+   "kind": "TEAM",
+   "label": "Alabama",
+   "path": "explorer/teams/prt_cfe4b7056ed5e2175890.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "ala",
+    "alabama"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_0d7af9c7c1a248999033",
+   "kind": "TEAM",
+   "label": "Albany vs Stony Brook",
+   "path": "explorer/teams/prt_0d7af9c7c1a248999033.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "albany",
+    "brook",
+    "stony",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "ARK"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_8a780b47bb454a41c080",
+   "kind": "TEAM",
+   "label": "Arkansas",
+   "path": "explorer/teams/prt_8a780b47bb454a41c080.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "ark",
+    "arkansas"
+   ]
+  },
+  {
+   "aliases": [
+    "UGA"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_06f643ccc23b544ca46e",
+   "kind": "TEAM",
+   "label": "Georgia",
+   "path": "explorer/teams/prt_06f643ccc23b544ca46e.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "georgia",
+    "uga"
+   ]
+  },
+  {
+   "aliases": [
+    "UK"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_ef6ed2cf7aba454b6fcf",
+   "kind": "TEAM",
+   "label": "Kentucky",
+   "path": "explorer/teams/prt_ef6ed2cf7aba454b6fcf.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "kentucky",
+    "uk"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_f663507cb626bfff153c",
+   "kind": "TEAM",
+   "label": "LSU",
+   "path": "explorer/teams/prt_f663507cb626bfff153c.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "lsu"
+   ]
+  },
+  {
+   "aliases": [
+    "ND"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_3dbc86ed6c007467d066",
+   "kind": "TEAM",
+   "label": "Notre Dame",
+   "path": "explorer/teams/prt_3dbc86ed6c007467d066.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "dame",
+    "nd",
+    "notre"
+   ]
+  },
+  {
+   "aliases": [
+    "STAN"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_ca6e7e5b7c1cd0b752ea",
+   "kind": "TEAM",
+   "label": "Stanford",
+   "path": "explorer/teams/prt_ca6e7e5b7c1cd0b752ea.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "stan",
+    "stanford"
+   ]
+  },
+  {
+   "aliases": [
+    "TENN"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_19d5d59bfb68a59b9b2e",
+   "kind": "TEAM",
+   "label": "Tennessee",
+   "path": "explorer/teams/prt_19d5d59bfb68a59b9b2e.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "tenn",
+    "tennessee"
+   ]
+  },
+  {
+   "aliases": [
+    "ALBY"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_e7a0ceed3944ae9ce6d0",
+   "kind": "TEAM",
+   "label": "University",
+   "path": "explorer/teams/prt_e7a0ceed3944ae9ce6d0.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "alby",
+    "university"
+   ]
+  }
+ ],
+ "kind": "search_index",
+ "run_id": "run_48a34185ff385c8bafc4",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "CFB"
+}

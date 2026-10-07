@@ -8,26 +8,63 @@ import type { HealthDoc } from '../src/contract/types';
 
 export const SNAPSHOT_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'app', 'latest');
 export const ROOT = 'disk://nfl';
+/** A trimmed, real cfb-edge-finder publication carrying the CFB Script Engine (scripts/make_cfb_fixture.py). */
+export const CFB_DIR = join(__dirname, 'fixtures', 'cfb', 'app', 'latest');
+export const CFB_ROOT = 'disk://cfb';
+/** A trimmed, real NHL-edge-finder publication carrying NHL_SCRIPT_V1, findings and the learning scorecard (scripts/make_nhl_fixture.py). */
+export const NHL_DIR = join(__dirname, 'fixtures', 'nhl', 'app', 'latest');
+export const NHL_ROOT = 'disk://nhl';
 export const HISTORY_ROOT = 'disk://history';
 export const HISTORY_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'history');
+
+export function readCfb<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(CFB_DIR, rel), 'utf-8')) as T;
+}
+
+export function readNhl<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(NHL_DIR, rel), 'utf-8')) as T;
+}
 
 export function readSnapshot<T>(rel: string): T {
   return JSON.parse(readFileSync(join(SNAPSHOT_DIR, rel), 'utf-8')) as T;
 }
 
-/** Every fetch of disk://nfl/<path> (and disk://history/<path> → public/data/nfl/history) reads public/data/nfl/app/latest/<path>; anything else 404s. */
+/** Every fetch of disk://nfl/<path> reads public/data/nfl/app/latest/<path> (disk://history/<path> → public/data/nfl/history,
+ * disk://cfb/<path> → the CFB fixture); anything else 404s. */
 export function useDiskFetch(): void {
-  setFetchJson(async (url: string) => {
-    if (url.startsWith(HISTORY_ROOT + '/')) {
-      const f = join(HISTORY_DIR, url.slice(HISTORY_ROOT.length + 1));
-      if (!existsSync(f)) throw new NotFoundError(url);
-      return JSON.parse(readFileSync(f, 'utf-8'));
-    }
-    if (!url.startsWith(ROOT + '/')) throw new NotFoundError(url);
-    const file = join(SNAPSHOT_DIR, url.slice(ROOT.length + 1));
-    if (!existsSync(file)) throw new NotFoundError(url);
-    return JSON.parse(readFileSync(file, 'utf-8'));
-  });
+  setFetchJson(readDisk);
+}
+
+/** The disk reader behind useDiskFetch (tests that log requests wrap it). */
+export async function readDisk(url: string): Promise<unknown> {
+  if (url.startsWith(HISTORY_ROOT + '/')) {
+    const f = join(HISTORY_DIR, url.slice(HISTORY_ROOT.length + 1));
+    if (!existsSync(f)) throw new NotFoundError(url);
+    return JSON.parse(readFileSync(f, 'utf-8'));
+  }
+  const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : url.startsWith(NHL_ROOT + '/') ? [NHL_ROOT, NHL_DIR] : [ROOT, SNAPSHOT_DIR];
+  if (!url.startsWith(root + '/')) throw new NotFoundError(url);
+  const file = join(dir, url.slice(root.length + 1));
+  if (!existsSync(file)) throw new NotFoundError(url);
+  return JSON.parse(readFileSync(file, 'utf-8'));
+}
+
+export function cfbRepo(): SportRepo {
+  const sport = sportByCode('CFB')!;
+  const source: SportSource = {
+    sport, mode: 'live', root: CFB_ROOT, liveHealth: readCfb<HealthDoc>('health.json'), liveError: null,
+    snapshot: null, reason: 'test fixture',
+  };
+  return new SportRepo(source);
+}
+
+export function nhlRepo(): SportRepo {
+  const sport = sportByCode('NHL')!;
+  const source: SportSource = {
+    sport, mode: 'live', root: NHL_ROOT, liveHealth: readNhl<HealthDoc>('health.json'), liveError: null,
+    snapshot: null, reason: 'test fixture',
+  };
+  return new SportRepo(source);
 }
 
 export function nflRepo(): SportRepo {

@@ -332,3 +332,13 @@ a.adjcmp__col:hover .adjcmp__v { color: var(--gold-2); }
 .plav__src { color: var(--text-3); }
 /* Phones: a section's actions (price chip, info) wrap under the title instead of squeezing it */
 @media (max-width: 559px) { .player .stratum__head { flex-wrap: wrap; } .player .stratum__titles { flex-basis: 100%; } }
+
+/* hockey: the same night bowl over a lit sheet of ice (centre red line, two blue lines, a faint centre circle) */
+.sfb--rink .sfb__field { left: 24%; right: 24%; border-radius: 28% / 40%;
+  background:
+    linear-gradient(90deg, transparent 0 49.4%, rgba(214, 48, 64, 0.75) 49.4% 50.6%, transparent 50.6%),
+    linear-gradient(90deg, transparent 0 35%, rgba(46, 120, 230, 0.7) 35% 36.2%, transparent 36.2% 63.8%, rgba(46, 120, 230, 0.7) 63.8% 65%, transparent 65%),
+    radial-gradient(9% 16% at 50% 50%, transparent 0 78%, rgba(46, 120, 230, 0.55) 80% 92%, transparent 94%),
+    radial-gradient(60% 70% at 50% 35%, rgba(232, 242, 250, 0.82), rgba(176, 200, 222, 0.62) 55%, rgba(90, 120, 150, 0.32) 85%, transparent 100%);
+  filter: none; box-shadow: 0 0 80px 20px rgba(160, 200, 240, 0.2); }
+.mh .sfb--rink .sfb__field, .gh .sfb--rink .sfb__field { box-shadow: 0 0 110px 30px rgba(160, 200, 240, 0.24); }

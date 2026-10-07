@@ -109,6 +109,14 @@ can leak. Two read-only paths remain, and Sift uses both behind one provider abs
    start for 40+ minutes), so each feed run loops for ~55 minutes and dispatches its successor; the cron
    only restarts a broken chain. First real run: 15 games, 79
    requests, 0 errors, 28 contracts listed after the research run.
+   **Source health** (`scripts/live-quotes/slate.mjs`, shared with the Production check): a current game is
+   SCHEDULED / IN_PROGRESS / LIVE (or UNKNOWN) with kickoff inside (now − 8 h, now + 10 d). `index.json`
+   carries `status` and `publications[]` (source, `generated_at`, `age_seconds`, `eligible_games`, latest
+   event, reasons) and each game entry lists its `event_ids`. `CURRENT_SLATE` publishes game files;
+   `NO_CURRENT_GAMES` (a fresh board with nothing current) publishes a healthy empty feed that says so;
+   `STALE_PUBLICATION` (nothing current while the board still lists an event SCHEDULED / live more than 8 h
+   after its kickoff, or no trustworthy `generated_at`) publishes **nothing**: the run fails and the
+   last-known-good feed stays (incident 2026-10-07: the NFL board stopped at the week-4 MNF pregame build).
 2. **Relay** (`relay/`, deployed by the owner once — see `relay/README.md`): forwards only `GET /markets`
    with allow-listed parameters (≤ 100 tickers, one event or series, status/limit/cursor) without an
    Origin, answers CORS for Sift's origins only (not an open proxy), stamps `X-Sift-Observed-At` (Kalshi's
@@ -340,13 +348,21 @@ Pages origin. The live-quote feed workflow is itself a real read every 5 minutes
 * `.github/workflows/live-provider-smoke.yml` — every 6 hours: non-blocking real-provider probe.
 * `.github/workflows/visual-baselines.yml` — on demand: render visual baselines on CI runners.
 * `.github/workflows/production-check.yml` — after every deploy (and on demand): the **live** site in real
-  Chromium (phone) and WebKit (iPhone) with live quotes from the feed, no fixtures: game prices live and
+  Chromium (phone) and WebKit (iPhone) with live quotes from the feed, no fixtures. **Slate-aware**: the
+  target is chosen from the canonical NFL board with the feed's own rule (`slate.mjs`), never "the first
+  card". The NFL publication must be current and the feed index recent (≤ 15 min), error-free and in
+  agreement. CURRENT (a current game exists): the strict path below runs on that exact event, which the feed
+  must carry. OFF_SLATE (none, healthy board): the feed must declare `NO_CURRENT_GAMES`, the relay probe must
+  answer 200, the NFL page and quote chain must be intact, a historical game's publication price must be no
+  fresher than its board — and live-game assertions are reported NOT_APPLICABLE. STALE: a failure. Strict
+  path: game prices live and
   FRESH/AGING, live-quote status running, packet preflight PASS/PARTIAL, no page or console errors
   (`scripts/production-check.mjs`). With `SIFT_QUOTE_RELAY_URL` set it also requires: relay first and
   feed second in the chain, answered by `kalshi-relay`, mode LIVE, FRESH prices, every relay request 200,
   no feed request on the main path, preflight PASS; then a forced relay 429 (in that browser only) must
   give FEED with honest freshness, the 429 named in Status, a completed preflight and no errors, and LIVE
-  must return once the relay answers. A second job runs `scripts/relay-smoke.mjs` against the relay and,
+  must return once the relay answers — in a clean browser context, because the 429s the check injected
+  leave its own page's store in rate-limit backoff (a hash navigation keeps it). A second job runs `scripts/relay-smoke.mjs` against the relay and,
   as a control, against Kalshi directly from the same runner.
 * `.github/workflows/relay-smoke.yml` — on demand: the measured rate-limit smoke (1 · 10 sequential ·
   20 burst · 100-ticker batches · a 3-game refresh cycle) for any relay URL, or Kalshi directly.

@@ -1,10 +1,10 @@
-// Types for the edge_finder.app.v1 documents Sift reads (contract 1.1.1, kalshi-bet-router
+// Types for the edge_finder.app.v1 documents Sift reads (contract 1.2.0, kalshi-bet-router
 // contract/edge_finder_contract/schemas). Fields are typed as the schemas publish them; nullable
 // fields stay nullable so every screen has to decide what "missing" looks like.
 
 export const SCHEMA_VERSION = 'edge_finder.app.v1';
 
-export type SportCode = 'NFL' | 'MLB' | 'CFB' | 'NBA' | 'NHL' | 'SOCCER' | 'TENNIS';
+export type SportCode = 'NFL' | 'MLB' | 'CFB' | 'NBA' | 'NHL' | 'SOCCER' | 'TENNIS' | 'CBB';
 export type QualityStatus = 'VERIFIED' | 'PARTIAL' | 'RESEARCH' | 'UNAVAILABLE' | 'UNKNOWN';
 export type FreshnessState = 'FRESH' | 'AGING' | 'STALE' | 'UNKNOWN';
 export type OverallStatus = 'HEALTHY' | 'DEGRADED' | 'STALE' | 'UNAVAILABLE' | 'RESEARCH_ONLY';
@@ -99,6 +99,8 @@ export interface HealthDoc extends Doc {
   payload_run_id: string | null;
   data_age_seconds: number | null;
   commit_sha: string | null;
+  /** Contract 1.2.0 (optional): sport-specific operational state (CBB: the prospective research status). */
+  extensions?: Record<string, unknown> | null;
 }
 
 export interface BoardItem {

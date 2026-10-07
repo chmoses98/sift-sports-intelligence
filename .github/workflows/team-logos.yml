@@ -1,7 +1,8 @@
 name: Team logos
 
 # Fetches NFL team logos once (ESPN's public logo CDN) and commits them under public/teams/nfl/ with
-# src/lib/team-logos.json. The app never fetches a logo from a third party at runtime.
+# src/lib/team-logos.json; CBB team identity (colors + logos for every D-I team in the CBB publication)
+# under public/teams/cbb/ with src/lib/cbb-teams.json. The app never fetches a logo from a third party at runtime.
 on:
   push:
     branches-ignore: [main, live-quotes]
@@ -29,11 +30,12 @@ jobs:
       - run: convert -list format | grep -i webp || (sudo apt-get update && sudo apt-get install -y webp imagemagick)
       - run: node scripts/teams/fetch-logos.mjs
       - run: node scripts/teams/fetch-leagues.mjs
+      - run: node scripts/teams/fetch-cbb-teams.mjs
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/teams public/leagues src/lib/team-logos.json src/lib/league-logos.json
+          git add public/teams public/leagues src/lib/team-logos.json src/lib/league-logos.json src/lib/cbb-teams.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "Team and league logos (fetched once from ESPN's logo CDN)"
           git pull --rebase origin "${GITHUB_REF_NAME}" || true

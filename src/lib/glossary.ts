@@ -37,6 +37,12 @@ export const TERMS: Record<string, Gloss> = {
   log_loss: T('Log loss', 'Measures probability accuracy and penalizes confident wrong probabilities more heavily.', 'Lower is better.'),
   calibration: T('Calibration', 'Whether events predicted around X% actually happen around X% of the time.', null),
   projected_range: T('Projected range', 'The spread of outcomes in the model’s simulations: the middle half of games and the middle 90%.', null),
+  cbb_model_range: T('80% model range', 'Where 80% of the frozen model’s own normal margin (or total) distribution lies. It is the model’s uncertainty, not a guarantee and not a calibrated interval.', null),
+  cbb_capture_window: T('Capture window', 'The frozen prospective pipeline archives a projection only within 30 hours of tip. Before that, the game is shown with its projection pending; nothing is projected early or after tip.', null),
+  cbb_roster_confidence: T('Roster confidence', 'How well current-season roster sources agree on who is on the team: Confirmed, Likely, Conflicted, Stale or Unknown.', null),
+  cbb_returning_minutes: T('Returning minutes', 'Share of last season’s minutes played by players on this season’s roster. Roster truth, not opponent-adjusted.', 'A roster trait, not a quality.'),
+  cbb_expected_minutes: T('Expected minutes', 'How the 200 team minutes of a game are expected to split between returning players, incoming transfers and first-year D-I players, from roster and prior participation evidence. Not a confirmed lineup.', null),
+  cbb_standing: T('National standing', 'The team’s rank in the published D-I ranking for this metric; the bar shows how close to #1 it sits. It is the rank, not a combined score.', null),
 };
 
 export function term(key: keyof typeof TERMS | string): Gloss | null {
@@ -118,7 +124,36 @@ export function directionSentence(hib: boolean | null | undefined, description?:
   return null;
 }
 
+/** CBB (NCAA D-I men's basketball) metrics, by registry slug: every rating is opponent-adjusted inside the model fit. */
+const CBB: Record<string, string> = {
+  adj_off: 'Points the team scores per 100 possessions against an average D-I defense.',
+  adj_def: 'Points the team allows per 100 possessions against an average D-I offense.',
+  adj_tempo: 'Possessions per 40 minutes against an average-tempo opponent: how fast the team plays.',
+  adj_efg_off: 'Shooting accuracy with threes counted as 1.5 makes, against average defenses.',
+  adj_efg_def: 'Opponents’ effective field-goal percentage against this defense.',
+  adj_to_off: 'Turnovers per 100 possessions by this offense.',
+  adj_to_def: 'Turnovers this defense forces per 100 opponent possessions.',
+  adj_orb_off: 'Share of the team’s own missed shots it rebounds.',
+  adj_orb_def: 'Share of missed shots opponents rebound against this defense.',
+  adj_ftr_off: 'Free-throw attempts per field-goal attempt: how often the offense gets to the line.',
+  adj_ftr_def: 'How often opponents get to the line against this defense.',
+  adj_fg2_off: 'Two-point field-goal percentage.',
+  adj_fg2_def: 'Opponents’ two-point field-goal percentage against this defense.',
+  adj_fg3_off: 'Three-point field-goal percentage.',
+  adj_fg3_def: 'Opponents’ three-point field-goal percentage against this defense.',
+  adj_fg3a_rate_off: 'Share of the team’s shots that are threes: a style, not a quality.',
+  adj_fg3a_rate_def: 'Share of opponents’ shots that are threes against this defense: a style, not a quality.',
+  returning_minutes_share: 'Share of last season’s minutes played by players on this season’s roster.',
+  expected_returning_minutes: 'Of 200 team minutes, the expected pregame share for returning players.',
+  expected_transfer_minutes: 'Of 200 team minutes, the expected pregame share for incoming D-I transfers.',
+  expected_first_d1_minutes: 'Of 200 team minutes, the expected pregame share for players new to D-I.',
+};
+
 export function metricGloss(metricId: string, def?: MetricLike | null): Gloss | null {
+  if (metricId.startsWith('met_cbb.')) {
+    const text = CBB[metricId.slice('met_cbb.'.length)];
+    return text ? { term: def?.name ?? metricId, text, direction: directionSentence(def?.higher_is_better, def?.description) } : null;
+  }
   const bare = metricId.replace(/^met_[a-z]+\./, '');
   const adjusted = bare.startsWith('adj_');
   const stem0 = bare.replace(/^adj_/, '');

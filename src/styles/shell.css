@@ -98,6 +98,8 @@
   .page { padding: var(--s-4) var(--s-6) var(--s-12); }
 }
 @media (min-width: 1180px) { .snav__extra { display: list-item; } }
+/* eight sports since CBB: the last two join the header only when there is room; all stay in More */
+@media (max-width: 1439px) { .snav__extra--wide { display: none; } }
 @media (max-width: 719px) {
   .topbar__in { gap: var(--s-3); padding: 0 6px 0 var(--s-4); }
   .trail { font-size: 0.85rem; }

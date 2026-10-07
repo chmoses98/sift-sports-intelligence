@@ -28,6 +28,14 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
 * **NHL** — a research vertical on its live publication: NHL_SCRIPT_V1 game scripts, script survival,
   RESEARCH-ONLY research candidates, opponent-adjusted team strength, skater and goalie pages and a
   learning scorecard (`docs/NHL.md`).
+* **CBB** (NCAA Division I men's basketball) — its own sport, on the CBB repo's `app-data` publication (built from
+  its immutable pre-tip projection archive): sport home with the prospective research status, the real D-I slate
+  ("projection pending" until a game enters the 30-hour capture window), game pages (projected score with model
+  uncertainty, roster truth and the expected rotation, opponent-adjusted matchup, model comparison with frozen roles,
+  integrity verdicts, provenance), team pages, metrics and full D-I rankings. Research only: no recommendations,
+  no wagers, no market rows until real Kalshi game contracts map to games. Screens: `src/views/cbb/` (a presentation
+  adapter behind the generic routes); tests: `tests/cbb.test.ts`, `e2e/cbb.spec.ts` on synthetic fixtures in
+  `e2e/data/cbb/`.
 * **NBA, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
 
 ## Develop

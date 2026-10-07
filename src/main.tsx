@@ -10,6 +10,7 @@ import './styles/home.css';
 import './styles/game.css';
 import './styles/insight.css';
 import './styles/engine.css';
+import './styles/cbb.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

@@ -164,10 +164,36 @@ function hostOf(u: string): string {
   }
 }
 
-export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExternal: void }>({
+/** The CBB publication root Sift reads (src/data/sports.ts) and the synthetic fixtures served in its place. */
+export const CBB_RAW = 'https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/';
+const CBB_FIXTURES = join(fileURLToPath(new URL('.', import.meta.url)), 'data', 'cbb');
+/** The season fixture's clock (projections archived, a final, an UNSCORABLE game) and the preseason one. */
+export const CBB_NOW = { season: new Date('2026-11-02T18:00:00Z'), preseason: new Date('2026-10-20T15:00:00Z') };
+
+export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExternal: void; cbbVariant: 'season' | 'preseason'; cbb: void }>({
   blockExternal: [
     async ({ context }, use) => {
       await context.route(/^https:\/\/raw\.githubusercontent\.com\//, (r) => r.abort());
+      await use();
+    },
+    { auto: true },
+  ],
+  cbbVariant: ['season', { option: true }],
+  // The CBB raw root answered from e2e/data/cbb/<variant> (SYNTHETIC TEST FIXTURES built by the CBB repo's
+  // own publisher); registered after blockExternal so it takes precedence for that one root only.
+  cbb: [
+    async ({ context, blockExternal, cbbVariant }, use) => {
+      void blockExternal;
+      const root = join(CBB_FIXTURES, cbbVariant, 'app', 'latest');
+      await context.route(`${CBB_RAW}**`, (r) => {
+        const rel = r.request().url().slice(CBB_RAW.length).split('?')[0];
+        const file = join(root, rel);
+        try {
+          return r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: readFileSync(file) });
+        } catch {
+          return r.fulfill({ status: 404, headers: { 'access-control-allow-origin': '*' }, body: 'not found' });
+        }
+      });
       await use();
     },
     { auto: true },

@@ -789,3 +789,9 @@ p { margin: 0 0 var(--s-3); }
 .preflight__grid dt { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
 .preflight__grid dd { margin: 0; font-family: var(--font-num); color: var(--text-hi); }
 .livediag { width: 100%; }
+.rankbars--marks { --rb-name: 5.6rem; }
+@media (min-width: 720px) { .rankbars--marks { --rb-name: 17rem; } }
+.rankbars--marks .rankbars__name { display: flex; align-items: center; gap: 6px; }
+.rankbars--marks .rankbars__full, .rankbars--marks .rankbars__abbr { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.rankbars__sub { display: none; flex-shrink: 0; font-size: 10.5px; color: var(--text-3); }
+@media (min-width: 720px) { .rankbars__sub { display: inline; } }

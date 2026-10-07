@@ -66,6 +66,15 @@ export const SPORTS: SportConfig[] = [
     snapshotBase: null, tier: 'listed', entityNoun: { team: 'club', event: 'match' },
   },
   {
+    // NCAA Division I men's basketball: its own sport (never NBA, never CFB). The publication is the CBB
+    // repo's app-data branch, built from its immutable pre-tip projection archive (prospectively frozen
+    // research system; no recommendations, no wagers).
+    code: 'CBB', slug: 'cbb', label: 'CBB', fullName: "NCAA Division I Men's Basketball",
+    repo: 'chmoses98/cbb-edge-finder', branch: 'app-data',
+    rawBase: 'https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest',
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'team', event: 'game' },
+  },
+  {
     code: 'TENNIS', slug: 'tennis', label: 'Tennis', fullName: 'Tennis',
     repo: 'chmoses98/Tennis-Edge-Finder', branch: 'tennis-data',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest',

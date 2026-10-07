@@ -47,6 +47,7 @@ import { newlyListed, overlayMarket } from '../live/overlay';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /** The NHL game page (views/nhl): its own chunk, so NFL never downloads it. */
+const CbbGameView = lazy(() => import('./cbb/Game').then((m) => ({ default: m.CbbGameView })));
 const NhlGameView = lazy(() => import('./nhl/NhlGame').then((m) => ({ default: m.NhlGameView })));
 
 export function GameRoute() {
@@ -58,6 +59,10 @@ export function GameRoute() {
   if (!dir.data) return <div className="page"><ErrorState error={dir.error} what="the explorer index" /></div>;
   if (sport.code === 'NHL' && dir.data.hasEventResearch(eventId)) {
     return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NhlGameView eventId={eventId} /></Suspense>;
+  }
+  if (sport.code === 'CBB') {
+    if (!dir.data.hasEventResearch(eventId)) return <div className="page"><Notice title="This game has no research page">The CBB publication keeps research for games in its current window (recent results and the coming week). Nothing is reconstructed for older games.</Notice></div>;
+    return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><CbbGameView eventId={eventId} /></Suspense>;
   }
   if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} />;
   return <HistoricalGameView eventId={eventId} teamId={sp.get('team')} />;

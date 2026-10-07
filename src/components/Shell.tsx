@@ -201,7 +201,7 @@ function SportsNav() {
     <nav className="snav" aria-label="Sports">
       <ul className="snav__list">
         {HEADER_SPORTS.map((s, i) => (
-          <li key={s.slug} className={i >= 4 ? 'snav__extra' : undefined}>
+          <li key={s.slug} className={i >= 6 ? 'snav__extra snav__extra--wide' : i >= 4 ? 'snav__extra' : undefined}>
             <NavLink to={routes.sport(s.slug)} className="snav__a" style={{ ['--accent' as string]: s.accent }}>
               <SportMark slug={s.slug} icon={s.icon} size={18} />
               <span>{s.label}</span>

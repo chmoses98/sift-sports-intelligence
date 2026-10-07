@@ -91,11 +91,13 @@ function Results({ items, slug, sportCode }: { items: BoardItem[]; slug: string;
 }
 
 /** The NHL home (views/nhl): its own chunk, so other sports never download it. */
+const CbbHomeView = lazy(() => import('./cbb/Home').then((m) => ({ default: m.CbbHomeView })));
 const NhlHomeView = lazy(() => import('./nhl/NhlHome').then((m) => ({ default: m.NhlHomeView })));
 
 export function SportHomeView() {
   const { sport } = useSport();
   if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><NhlHomeView /></Suspense>;
+  if (sport.code === 'CBB') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><CbbHomeView /></Suspense>;
   return <GenericSportHome />;
 }
 

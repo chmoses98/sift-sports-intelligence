@@ -1,5 +1,5 @@
 import { matchupInsights } from '../insights/matchups';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
@@ -13,6 +13,8 @@ import { Icon } from '../components/Icon';
 import { ErrorState, Notice, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
+
+const CbbSlateView = lazy(() => import('./cbb/Slate').then((m) => ({ default: m.CbbSlateView })));
 
 function useVisible<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -143,6 +145,11 @@ export function groupWindows(items: BoardItem[]): { key: string; day: string; ti
 }
 
 export function SlateView() {
+  const { sport } = useSport();
+  return sport.code === 'CBB' ? <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><CbbSlateView /></Suspense> : <GenericSlateView />;
+}
+
+function GenericSlateView() {
   const { sport, repo, slug, caps } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
   useVisit(`${sport.label} slate`, 'slate');

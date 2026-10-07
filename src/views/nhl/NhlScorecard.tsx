@@ -28,6 +28,11 @@ function Section({ id, title, sub, children }: { id: string; title: string; sub?
   );
 }
 
+/** Every scorecard table scrolls inside its own region on narrow screens; the page itself never scrolls sideways. */
+function Scroll({ label, children }: { label: string; children: ReactNode }) {
+  return <div className="tscroll" tabIndex={0} role="region" aria-label={label}>{children}</div>;
+}
+
 function GroupTable({ label, g }: { label: string; g: Record<string, any> | null | undefined }) {
   const rows = Object.entries(g ?? {});
   if (!rows.length) return <p className="muted small">No settled rows for {label.toLowerCase()} yet.</p>;
@@ -102,14 +107,16 @@ export function NhlScorecardView() {
         <Section id="nsc-prob" title="Projection vs market" sub={p.population}>
           {p.n ? (
             <>
-              <table className="nsc__t">
-                <thead><tr><th scope="col" /><th scope="col" className="r">Model</th><th scope="col" className="r">Market</th></tr></thead>
-                <tbody>
-                  <tr><th scope="row">Brier (lower is better)</th><td className="r num">{f4(p.model?.brier)}</td><td className="r num">{f4(p.market?.brier)}</td></tr>
-                  <tr><th scope="row">Log loss</th><td className="r num">{f4(p.model?.log_loss)}</td><td className="r num">{f4(p.market?.log_loss)}</td></tr>
-                  <tr><th scope="row">Bias (mean p − hit rate)</th><td className="r num">{f4(p.model?.bias)}</td><td className="r num">{f4(p.market?.bias)}</td></tr>
-                </tbody>
-              </table>
+              <Scroll label="Projection vs market">
+                <table className="nsc__t">
+                  <thead><tr><th scope="col" /><th scope="col" className="r">Model</th><th scope="col" className="r">Market</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">Brier (lower is better)</th><td className="r num">{f4(p.model?.brier)}</td><td className="r num">{f4(p.market?.brier)}</td></tr>
+                    <tr><th scope="row">Log loss</th><td className="r num">{f4(p.model?.log_loss)}</td><td className="r num">{f4(p.market?.log_loss)}</td></tr>
+                    <tr><th scope="row">Bias (mean p − hit rate)</th><td className="r num">{f4(p.model?.bias)}</td><td className="r num">{f4(p.market?.bias)}</td></tr>
+                  </tbody>
+                </table>
+              </Scroll>
               <p className="small">{n0(p.n)} settled contracts. Mean disagreement {probText(p.mean_abs_disagreement, 1)} (model − market {p.mean_signed_model_minus_market != null ? `${(p.mean_signed_model_minus_market * 100).toFixed(1)} pts` : '—'}). The market moved toward the model {probText(p.market_moved_toward_model?.mean)} of the time (n {n0(p.market_moved_toward_model?.n)}).</p>
               {p.model?.calibration && (
                 <details className="layer">
@@ -128,43 +135,51 @@ export function NhlScorecardView() {
 
         <Section id="nsc-proj" title="Expected goals" sub={pr.population}>
           {pr.n_games ? (
-            <table className="nsc__t">
-              <tbody>
-                <tr><th scope="row">Games</th><td className="r num">{n0(pr.n_games)}{pr.small_sample && SMALL}</td></tr>
-                <tr><th scope="row">Total goals: mean absolute error</th><td className="r num">{pr.total_mae}</td></tr>
-                <tr><th scope="row">Total goals: bias (projected − actual)</th><td className="r num">{pr.total_bias}</td></tr>
-                <tr><th scope="row">Team goals: mean absolute error</th><td className="r num">{pr.team_goals_mae}</td></tr>
-                <tr><th scope="row">Home / away bias</th><td className="r num">{pr.home_bias} / {pr.away_bias}</td></tr>
-              </tbody>
-            </table>
+            <Scroll label="Expected goals">
+              <table className="nsc__t">
+                <tbody>
+                  <tr><th scope="row">Games</th><td className="r num">{n0(pr.n_games)}{pr.small_sample && SMALL}</td></tr>
+                  <tr><th scope="row">Total goals: mean absolute error</th><td className="r num">{pr.total_mae}</td></tr>
+                  <tr><th scope="row">Total goals: bias (projected − actual)</th><td className="r num">{pr.total_bias}</td></tr>
+                  <tr><th scope="row">Team goals: mean absolute error</th><td className="r num">{pr.team_goals_mae}</td></tr>
+                  <tr><th scope="row">Home / away bias</th><td className="r num">{pr.home_bias} / {pr.away_bias}</td></tr>
+                </tbody>
+              </table>
+            </Scroll>
           ) : <p className="muted small">No settled projection yet.</p>}
         </Section>
       </div>
 
       {(l.windows ?? []).length > 0 && (
         <Section id="nsc-win" title="By time before the puck drop" sub="The snapshot nearest each window, per contract (only windows the run cadence actually produced)">
-          <table className="nsc__t">
-            <thead><tr><th scope="col">Window</th><th scope="col" className="r">n</th><th scope="col" className="r">Model Brier</th><th scope="col" className="r">Market Brier</th><th scope="col" className="r">Mean disagreement</th></tr></thead>
-            <tbody>{(l.windows ?? []).map((w: any) => <tr key={w.window}><th scope="row">{w.window}</th><td className="r num">{n0(w.n)}</td><td className="r num">{f4(w.model_brier)}</td><td className="r num">{f4(w.market_brier)}</td><td className="r num">{probText(w.mean_abs_disagreement, 1)}</td></tr>)}</tbody>
-          </table>
+          <Scroll label="By time before the puck drop">
+            <table className="nsc__t">
+              <thead><tr><th scope="col">Window</th><th scope="col" className="r">n</th><th scope="col" className="r">Model Brier</th><th scope="col" className="r">Market Brier</th><th scope="col" className="r">Mean disagreement</th></tr></thead>
+              <tbody>{(l.windows ?? []).map((w: any) => <tr key={w.window}><th scope="row">{w.window}</th><td className="r num">{n0(w.n)}</td><td className="r num">{f4(w.model_brier)}</td><td className="r num">{f4(w.market_brier)}</td><td className="r num">{probText(w.mean_abs_disagreement, 1)}</td></tr>)}</tbody>
+            </table>
+          </Scroll>
         </Section>
       )}
 
       <Section id="nsc-scripts" title="Script model" sub={sc.population ?? 'NHL_SCRIPT_V1 forecasts scored against the realised script of each game'}>
         {sc.n_games ? (
           <>
-            <table className="nsc__t">
-              <tbody>
-                <tr><th scope="row">Settled games</th><td className="r num">{n0(sc.n_games)}{sc.small_sample && SMALL}</td></tr>
-                <tr><th scope="row">Multiclass Brier (model / league base rate)</th><td className="r num">{sc.multiclass_brier} / {sc.base_rate_brier}</td></tr>
-                <tr><th scope="row">Log loss (model / base rate)</th><td className="r num">{sc.log_loss} / {sc.base_rate_log_loss}</td></tr>
-                <tr><th scope="row">Most likely script happened</th><td className="r num">{probText(sc.top_script_accuracy)}</td></tr>
-              </tbody>
-            </table>
-            <table className="nsc__t">
-              <thead><tr><th scope="col">Script</th><th scope="col" className="r">Mean forecast</th><th scope="col" className="r">Happened</th><th scope="col" className="r">n</th></tr></thead>
-              <tbody>{(sc.by_script ?? []).map((x: any) => <tr key={x.id}><th scope="row">{x.id.replace(/_/g, ' ').toLowerCase()}</th><td className="r num">{probText(x.mean_predicted)}</td><td className="r num">{probText(x.realized_share)}</td><td className="r num">{x.realized_n}</td></tr>)}</tbody>
-            </table>
+            <Scroll label="Script model summary">
+              <table className="nsc__t">
+                <tbody>
+                  <tr><th scope="row">Settled games</th><td className="r num">{n0(sc.n_games)}{sc.small_sample && SMALL}</td></tr>
+                  <tr><th scope="row">Multiclass Brier (model / league base rate)</th><td className="r num">{sc.multiclass_brier} / {sc.base_rate_brier}</td></tr>
+                  <tr><th scope="row">Log loss (model / base rate)</th><td className="r num">{sc.log_loss} / {sc.base_rate_log_loss}</td></tr>
+                  <tr><th scope="row">Most likely script happened</th><td className="r num">{probText(sc.top_script_accuracy)}</td></tr>
+                </tbody>
+              </table>
+            </Scroll>
+            <Scroll label="Script model by script">
+              <table className="nsc__t">
+                <thead><tr><th scope="col">Script</th><th scope="col" className="r">Mean forecast</th><th scope="col" className="r">Happened</th><th scope="col" className="r">n</th></tr></thead>
+                <tbody>{(sc.by_script ?? []).map((x: any) => <tr key={x.id}><th scope="row">{x.id.replace(/_/g, ' ').toLowerCase()}</th><td className="r num">{probText(x.mean_predicted)}</td><td className="r num">{probText(x.realized_share)}</td><td className="r num">{x.realized_n}</td></tr>)}</tbody>
+              </table>
+            </Scroll>
           </>
         ) : <p className="muted small">{sentence(sc.note) ?? 'No settled script forecast yet.'} {n0(l.counts?.script_forecasts)} forecasts are logged and will be scored as their games settle.</p>}
       </Section>

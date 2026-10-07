@@ -18,6 +18,8 @@ export function RankingView() {
   const { sport, repo, slug, metrics } = useSport();
   const rk = useAsync(`rnk:${sport.code}:${rankingId}`, () => repo.ranking(rankingId));
   const si = useAsync(`si:${sport.code}:${repo.source.root}`, () => repo.searchIndex());
+  // CBB rows carry school logos and conferences: the identity map loads with the CBB chunk only.
+  const marks = useAsync(sport.code === 'CBB' ? 'cbb:rank-marks' : null, () => import('./cbb/marks'));
   const d = rk.data;
   const def = d ? metrics.get(d.metric_id) : undefined;
   useVisit(def ? `${def.short_name ?? def.name} ranking` : null, 'ranking');
@@ -78,6 +80,7 @@ export function RankingView() {
           entries={d.entries} mean={d.summary.mean} median={d.summary.median} focusId={focus} oppId={opp} pins={pins}
           format={fmt} hrefFor={(e) => routes.metric(slug, d.metric_id, { team: e.entity_id, opp: e.entity_id === focus ? opp : focus })}
           caption={`${def?.name} ranking, ${d.universe.label}`} onPin={togglePin}
+          markFor={marks.data?.markFor} subFor={marks.data?.subFor}
         />
         <p className="muted small">
           Competition ranking (ties share the best rank). Universe filter: {d.universe.filter ?? '—'}. As of {exactTime(d.as_of)}.

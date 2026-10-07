@@ -1,6 +1,7 @@
 // The full comparison universe as ranked horizontal bars. Every team is present; the one you are
 // researching is the signal (cyan), its opponent gold, pinned comparisons cobalt, everyone else muted
 // context. League mean and median are drawn through the whole universe. Every row is a link.
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { RankingEntry } from '../contract/types';
 import { displayName, ordinal } from '../lib/format';
@@ -16,6 +17,10 @@ export interface RankBarsProps {
   hrefFor: (e: RankingEntry) => string | null;
   caption: string;
   onPin?: (id: string) => void;
+  /** Optional identity mark per row (a sport's logo), decorative: the name is always written. */
+  markFor?: (e: RankingEntry) => ReactNode;
+  /** Optional secondary label per row (e.g. a conference). */
+  subFor?: (e: RankingEntry) => string | null;
 }
 
 export function rankDomain(values: number[], mean: number | null, median: number | null): [number, number] {
@@ -29,7 +34,7 @@ export function rankDomain(values: number[], mean: number | null, median: number
   return [lo, hi];
 }
 
-export function RankBars({ entries, mean, median, focusId, oppId, pins, format, hrefFor, caption, onPin }: RankBarsProps) {
+export function RankBars({ entries, mean, median, focusId, oppId, pins, format, hrefFor, caption, onPin, markFor, subFor }: RankBarsProps) {
   const vals = entries.map((e) => e.value).filter((v): v is number => v != null);
   if (!vals.length) return null;
   const [lo, hi] = rankDomain(vals, mean, median);
@@ -37,7 +42,7 @@ export function RankBars({ entries, mean, median, focusId, oppId, pins, format, 
   const zero = x(0);
 
   return (
-    <figure className="rankbars" aria-label={caption}>
+    <figure className={`rankbars${markFor ? ' rankbars--marks' : ''}`} aria-label={caption}>
       <figcaption className="sr-only">{caption}</figcaption>
       <div className="rankbars__legend" aria-hidden="true">
         {focusId && <span className="lg lg--focus">Viewing</span>}
@@ -59,8 +64,10 @@ export function RankBars({ entries, mean, median, focusId, oppId, pins, format, 
             <>
               <span className="rankbars__rank">{e.rank}</span>
               <span className="rankbars__name">
+                {markFor?.(e)}
                 <span className="rankbars__abbr">{e.short_name ?? ''}</span>
                 <span className="rankbars__full">{displayName(e.display_name)}</span>
+                {subFor && <span className="rankbars__sub">{subFor(e) ?? ''}</span>}
               </span>
               <span className="rankbars__track">
                 <span className={`rankbars__bar rankbars__bar--${role}${v != null && v < 0 ? ' is-neg' : ''}`} style={{ left: `${left}%`, width: `${Math.max(width, 0.6)}%` }} />

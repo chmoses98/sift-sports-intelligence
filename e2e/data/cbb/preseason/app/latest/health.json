@@ -104,6 +104,396 @@
       },
       "first_game_utc": "2026-11-01T14:30:00Z",
       "games_in_capture_window": 0,
+      "leaders": {
+        "expected_first_d1_minutes": {
+          "adjusted": false,
+          "bottom": [
+            {
+              "display_name": "Drake Bulldogs",
+              "entity_id": "prt_a6609b5d385440c3f660",
+              "percentile": 3.85,
+              "rank": 26,
+              "short_name": "DRKE",
+              "value": 14.1
+            },
+            {
+              "display_name": "Tennessee Volunteers",
+              "entity_id": "prt_15b3cac2189298c05fdb",
+              "percentile": 7.69,
+              "rank": 25,
+              "short_name": "TENN",
+              "value": 19.5
+            },
+            {
+              "display_name": "Houston Cougars",
+              "entity_id": "prt_f1432d24458ffb2ea461",
+              "percentile": 11.54,
+              "rank": 24,
+              "short_name": "HOU",
+              "value": 24.3
+            },
+            {
+              "display_name": "Kentucky Wildcats",
+              "entity_id": "prt_542d2e00ec9cde9b1cba",
+              "percentile": 15.38,
+              "rank": 23,
+              "short_name": "UK",
+              "value": 25.8
+            },
+            {
+              "display_name": "Florida Gators",
+              "entity_id": "prt_29db619d019b6e7c06f1",
+              "percentile": 19.23,
+              "rank": 22,
+              "short_name": "FLA",
+              "value": 26.4
+            }
+          ],
+          "group": "roster",
+          "higher_is_better": null,
+          "mean": 44.169231,
+          "metric_id": "met_cbb.expected_first_d1_minutes",
+          "name": "Expected minutes to first-D-I players",
+          "ranking_id": "rnk_4c18fa3a84698075d432",
+          "short_name": "First D-I",
+          "top": [
+            {
+              "display_name": "Marquette Golden Eagles",
+              "entity_id": "prt_a92c12f42bc305fcb330",
+              "percentile": 100.0,
+              "rank": 1,
+              "short_name": "MARQ",
+              "value": 90.9
+            },
+            {
+              "display_name": "Xavier Musketeers",
+              "entity_id": "prt_877710d5dbb848b40947",
+              "percentile": 96.15,
+              "rank": 2,
+              "short_name": "XAV",
+              "value": 75.3
+            },
+            {
+              "display_name": "High Point Panthers",
+              "entity_id": "prt_633c616e2448f933da33",
+              "percentile": 92.31,
+              "rank": 3,
+              "short_name": "HPU",
+              "value": 69.6
+            },
+            {
+              "display_name": "Yale Bulldogs",
+              "entity_id": "prt_fa72d4de124ded76c2bd",
+              "percentile": 88.46,
+              "rank": 4,
+              "short_name": "YALE",
+              "value": 63.2
+            },
+            {
+              "display_name": "Iona Gaels",
+              "entity_id": "prt_c01a7ad9aa88b3835de4",
+              "percentile": 84.62,
+              "rank": 5,
+              "short_name": "IONA",
+              "value": 60.5
+            }
+          ],
+          "unit": "min/200",
+          "universe_size": 26,
+          "window": "PRESEASON_ROSTER"
+        },
+        "expected_returning_minutes": {
+          "adjusted": false,
+          "bottom": [
+            {
+              "display_name": "Marquette Golden Eagles",
+              "entity_id": "prt_a92c12f42bc305fcb330",
+              "percentile": 3.85,
+              "rank": 26,
+              "short_name": "MARQ",
+              "value": 28.5
+            },
+            {
+              "display_name": "Alabama Crimson Tide",
+              "entity_id": "prt_2f5a452d209219604d95",
+              "percentile": 7.69,
+              "rank": 25,
+              "short_name": "ALA",
+              "value": 32.3
+            },
+            {
+              "display_name": "Gonzaga Bulldogs",
+              "entity_id": "prt_66d812230cca375cbb89",
+              "percentile": 11.54,
+              "rank": 24,
+              "short_name": "GONZ",
+              "value": 39.9
+            },
+            {
+              "display_name": "Fordham Rams",
+              "entity_id": "prt_ddaa884ca07dbbacfa73",
+              "percentile": 19.23,
+              "rank": 22,
+              "short_name": "FOR",
+              "value": 47.5
+            },
+            {
+              "display_name": "UConn Huskies",
+              "entity_id": "prt_99af22e47799c5a7fcf6",
+              "percentile": 19.23,
+              "rank": 22,
+              "short_name": "CONN",
+              "value": 47.5
+            }
+          ],
+          "group": "roster",
+          "higher_is_better": null,
+          "mean": 75.05,
+          "metric_id": "met_cbb.expected_returning_minutes",
+          "name": "Expected minutes to returning players",
+          "ranking_id": "rnk_c4ed1ffd0c16d73173d4",
+          "short_name": "Ret. exp",
+          "top": [
+            {
+              "display_name": "Tennessee Volunteers",
+              "entity_id": "prt_15b3cac2189298c05fdb",
+              "percentile": 100.0,
+              "rank": 1,
+              "short_name": "TENN",
+              "value": 142.5
+            },
+            {
+              "display_name": "Houston Cougars",
+              "entity_id": "prt_f1432d24458ffb2ea461",
+              "percentile": 96.15,
+              "rank": 2,
+              "short_name": "HOU",
+              "value": 121.6
+            },
+            {
+              "display_name": "Liberty Flames",
+              "entity_id": "prt_16faa855df4bb5496bb7",
+              "percentile": 92.31,
+              "rank": 3,
+              "short_name": "LIB",
+              "value": 115.9
+            },
+            {
+              "display_name": "Villanova Wildcats",
+              "entity_id": "prt_7fa23e7d5b15434fa276",
+              "percentile": 92.31,
+              "rank": 3,
+              "short_name": "VILL",
+              "value": 115.9
+            },
+            {
+              "display_name": "Drake Bulldogs",
+              "entity_id": "prt_a6609b5d385440c3f660",
+              "percentile": 84.62,
+              "rank": 5,
+              "short_name": "DRKE",
+              "value": 112.1
+            }
+          ],
+          "unit": "min/200",
+          "universe_size": 26,
+          "window": "PRESEASON_ROSTER"
+        },
+        "expected_transfer_minutes": {
+          "adjusted": false,
+          "bottom": [
+            {
+              "display_name": "Tennessee Volunteers",
+              "entity_id": "prt_15b3cac2189298c05fdb",
+              "percentile": 3.85,
+              "rank": 26,
+              "short_name": "TENN",
+              "value": 38.0
+            },
+            {
+              "display_name": "Houston Cougars",
+              "entity_id": "prt_f1432d24458ffb2ea461",
+              "percentile": 7.69,
+              "rank": 25,
+              "short_name": "HOU",
+              "value": 54.1
+            },
+            {
+              "display_name": "Villanova Wildcats",
+              "entity_id": "prt_7fa23e7d5b15434fa276",
+              "percentile": 11.54,
+              "rank": 24,
+              "short_name": "VILL",
+              "value": 54.7
+            },
+            {
+              "display_name": "Liberty Flames",
+              "entity_id": "prt_16faa855df4bb5496bb7",
+              "percentile": 15.38,
+              "rank": 23,
+              "short_name": "LIB",
+              "value": 56.3
+            },
+            {
+              "display_name": "Purdue Boilermakers",
+              "entity_id": "prt_5b169af0e759c556850a",
+              "percentile": 19.23,
+              "rank": 22,
+              "short_name": "PUR",
+              "value": 56.7
+            }
+          ],
+          "group": "roster",
+          "higher_is_better": null,
+          "mean": 80.780769,
+          "metric_id": "met_cbb.expected_transfer_minutes",
+          "name": "Expected minutes to incoming transfers",
+          "ranking_id": "rnk_93ec16d3fd9800fd13e8",
+          "short_name": "Transfer",
+          "top": [
+            {
+              "display_name": "Gonzaga Bulldogs",
+              "entity_id": "prt_66d812230cca375cbb89",
+              "percentile": 100.0,
+              "rank": 1,
+              "short_name": "GONZ",
+              "value": 121.7
+            },
+            {
+              "display_name": "Florida Gators",
+              "entity_id": "prt_29db619d019b6e7c06f1",
+              "percentile": 96.15,
+              "rank": 2,
+              "short_name": "FLA",
+              "value": 120.4
+            },
+            {
+              "display_name": "UConn Huskies",
+              "entity_id": "prt_99af22e47799c5a7fcf6",
+              "percentile": 92.31,
+              "rank": 3,
+              "short_name": "CONN",
+              "value": 119.0
+            },
+            {
+              "display_name": "Alabama Crimson Tide",
+              "entity_id": "prt_2f5a452d209219604d95",
+              "percentile": 88.46,
+              "rank": 4,
+              "short_name": "ALA",
+              "value": 117.4
+            },
+            {
+              "display_name": "Kansas Jayhawks",
+              "entity_id": "prt_0942f878f3ef65425167",
+              "percentile": 84.62,
+              "rank": 5,
+              "short_name": "KU",
+              "value": 95.4
+            }
+          ],
+          "unit": "min/200",
+          "universe_size": 26,
+          "window": "PRESEASON_ROSTER"
+        },
+        "returning_minutes_share": {
+          "adjusted": false,
+          "bottom": [
+            {
+              "display_name": "Marquette Golden Eagles",
+              "entity_id": "prt_a92c12f42bc305fcb330",
+              "percentile": 3.85,
+              "rank": 26,
+              "short_name": "MARQ",
+              "value": 0.15
+            },
+            {
+              "display_name": "Alabama Crimson Tide",
+              "entity_id": "prt_2f5a452d209219604d95",
+              "percentile": 7.69,
+              "rank": 25,
+              "short_name": "ALA",
+              "value": 0.17
+            },
+            {
+              "display_name": "Gonzaga Bulldogs",
+              "entity_id": "prt_66d812230cca375cbb89",
+              "percentile": 11.54,
+              "rank": 24,
+              "short_name": "GONZ",
+              "value": 0.21
+            },
+            {
+              "display_name": "Fordham Rams",
+              "entity_id": "prt_ddaa884ca07dbbacfa73",
+              "percentile": 19.23,
+              "rank": 22,
+              "short_name": "FOR",
+              "value": 0.25
+            },
+            {
+              "display_name": "UConn Huskies",
+              "entity_id": "prt_99af22e47799c5a7fcf6",
+              "percentile": 19.23,
+              "rank": 22,
+              "short_name": "CONN",
+              "value": 0.25
+            }
+          ],
+          "group": "roster",
+          "higher_is_better": null,
+          "mean": 0.395,
+          "metric_id": "met_cbb.returning_minutes_share",
+          "name": "Returning minutes share",
+          "ranking_id": "rnk_902ea9d649eef1999773",
+          "short_name": "Ret. min",
+          "top": [
+            {
+              "display_name": "Tennessee Volunteers",
+              "entity_id": "prt_15b3cac2189298c05fdb",
+              "percentile": 100.0,
+              "rank": 1,
+              "short_name": "TENN",
+              "value": 0.75
+            },
+            {
+              "display_name": "Houston Cougars",
+              "entity_id": "prt_f1432d24458ffb2ea461",
+              "percentile": 96.15,
+              "rank": 2,
+              "short_name": "HOU",
+              "value": 0.64
+            },
+            {
+              "display_name": "Liberty Flames",
+              "entity_id": "prt_16faa855df4bb5496bb7",
+              "percentile": 92.31,
+              "rank": 3,
+              "short_name": "LIB",
+              "value": 0.61
+            },
+            {
+              "display_name": "Villanova Wildcats",
+              "entity_id": "prt_7fa23e7d5b15434fa276",
+              "percentile": 92.31,
+              "rank": 3,
+              "short_name": "VILL",
+              "value": 0.61
+            },
+            {
+              "display_name": "Drake Bulldogs",
+              "entity_id": "prt_a6609b5d385440c3f660",
+              "percentile": 84.62,
+              "rank": 5,
+              "short_name": "DRKE",
+              "value": 0.59
+            }
+          ],
+          "unit": "share",
+          "universe_size": 26,
+          "window": "PRESEASON_ROSTER"
+        }
+      },
       "markets": {
         "captured_at": null,
         "note": "Market research is not published for CBB yet.",

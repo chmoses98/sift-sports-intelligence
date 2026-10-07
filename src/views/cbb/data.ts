@@ -186,6 +186,26 @@ export interface ScoreSlice {
   ci90?: unknown;
 }
 
+export interface LeaderEntry { rank: number; entity_id: string; display_name: string; short_name: string | null; value: number | null; percentile: number | null }
+
+/** A presentation digest of one published national ranking (its top and bottom five), copied by the
+ *  publisher from the ranking document so the home can show the national picture without loading it. */
+export interface CbbLeaders {
+  metric_id: string;
+  ranking_id: string;
+  name: string;
+  short_name: string;
+  unit: string | null;
+  group: 'ratings' | 'roster' | string;
+  adjusted: boolean;
+  higher_is_better: boolean | null;
+  universe_size: number;
+  window: string;
+  mean: number | null;
+  top: LeaderEntry[];
+  bottom: LeaderEntry[];
+}
+
 export interface CbbStatus {
   research_status: 'PRESEASON' | 'IN_SEASON' | string;
   season: string;
@@ -213,6 +233,7 @@ export interface CbbStatus {
   markets: { published: number; captured_at: string | null; note: string | null };
   capabilities: Record<string, string>;
   provenance: Record<string, unknown>;
+  leaders?: Record<string, CbbLeaders>;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

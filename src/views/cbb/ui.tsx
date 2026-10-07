@@ -1,14 +1,16 @@
 // Small CBB presentation pieces shared by the CBB screens. Shared shells (Stratum, Notice, chips, marks)
 // stay generic; these only translate CBB research terms into plain language.
 import type { ReactNode } from 'react';
-import { TeamMark } from '../../components/ui';
 import type { Participant } from '../../contract/types';
 import { ago } from '../../lib/format';
+import { TeamLogo } from './viz';
 import { CONFIDENCE_TEXT, ROLE_SHORT, STATE_TEXT, type Confidence, type Integrity, type ProjectionState } from './data';
 
-export function CbbMark({ p, size = 'md' }: { p: Pick<Participant, 'short_name' | 'display_name'> | null | undefined; size?: 'sm' | 'md' | 'lg' | 'xl' }) {
-  // Text marks: CBB team logos are not self-hosted (no external image is fetched for 365 teams).
-  return <span className="cmark"><TeamMark sport="CBB" abbr={p?.short_name ?? p?.display_name?.slice(0, 4) ?? ''} size={size} /></span>;
+const MARK_PX = { sm: 22, md: 30, lg: 48, xl: 76 } as const;
+
+/** The school's committed logo (lazy), or a monogram in its colors; decorative, the name is always beside it. */
+export function CbbMark({ p, size = 'md' }: { p: Pick<Participant, 'participant_id' | 'short_name' | 'display_name'> | null | undefined; size?: 'sm' | 'md' | 'lg' | 'xl' }) {
+  return <TeamLogo pid={p?.participant_id} abbr={p?.short_name ?? p?.display_name?.slice(0, 4)} size={MARK_PX[size]} />;
 }
 
 const CONF_TONE: Record<Confidence, string> = { CONFIRMED: 'ok', LIKELY: 'mid', CONFLICTED: 'warn', STALE: 'warn', UNKNOWN: 'unk' };

@@ -36,7 +36,9 @@ test.describe('CBB in season', () => {
     // projected score: the incumbent, archived before tip, with model uncertainty (never a guarantee)
     await expect(page.getByRole('heading', { name: 'Projected score' })).toBeVisible();
     await expect(page.getByText('Incumbent', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(/Model uncertainty/)).toBeVisible();
+    await expect(page.getByText(/Model uncertainty/).first()).toBeVisible();
+    await expect(page.getByText('Model uncertainty — not guaranteed')).toBeVisible();
+    await expect(page.getByText(/80% model range:/).first()).toBeVisible();
     await expect(page.getByText(/not guaranteed ranges/)).toBeVisible();
     // roster: the P-ROSTER-1 pregame state archived with the projection, in plain language
     await expect(page.getByText(/P-ROSTER-1 · prospective roster overlay/i)).toBeVisible();
@@ -69,7 +71,8 @@ test.describe('CBB in season', () => {
     await page.locator('.cbbh__team').last().click();
     await expect(page.getByRole('heading', { name: 'Kansas Jayhawks', level: 1 })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Opponent-adjusted ratings' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Roster', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Roster construction' })).toBeVisible();
+    await expect(page.getByText('of 200 expected minutes')).toBeVisible();
     await noHorizontalOverflow(page, 'cbb team');
   });
 
@@ -81,6 +84,48 @@ test.describe('CBB in season', () => {
     await page.goto(`./#/cbb/game/${SWAPPED.event_id}`);
     await expect(page.getByText('Unscorable').first()).toBeVisible();
     await expect(page.getByText(/different matchup than the current schedule/)).toBeVisible();
+  });
+
+  test('identity and visuals: real logos, win probability in numbers, butterfly matchup, slate filters @smoke', async ({ page }) => {
+    await page.goto(`./#/cbb/game/${DUKE_KU.event_id}`);
+    // the schools' committed logos (never a remote URL), names always beside them
+    const logos = page.locator('.cgh img');
+    await expect(logos).toHaveCount(2);
+    for (const src of await logos.evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute('src') ?? ''))) expect(src).toMatch(/teams\/cbb\/\d+\.webp$/);
+    await expect(page.locator('.cgh')).toContainText('Duke');
+    await expect(page.locator('.cgh')).toContainText('Kansas');
+    await expect(page.getByLabel(/Model win probability: Duke \d+%, Kansas \d+%/)).toBeVisible();
+    await expect(page.locator('#cg-matchup .cmu__row').first()).toContainText('Efficiency');
+    await expect(page.locator('#cg-matchup')).toContainText('No combined “edge” number is drawn');
+    await noHorizontalOverflow(page, 'cbb game hero');
+
+    await page.goto('./#/cbb/slate');
+    await page.getByRole('radio', { name: 'Projected' }).click();
+    await expect(page.getByText(/of \d+ games shown/)).toBeVisible();
+    await expect(page.locator('.cgame__score').first()).toBeVisible();
+    await page.getByRole('radio', { name: 'All games' }).click();
+    await expect(page.getByText('Projection pending').first()).toBeVisible(); // unprojected games are never hidden by default
+    await noHorizontalOverflow(page, 'cbb slate filters');
+  });
+
+  test('home: national picture from the published rankings, conferences lead to the slate', async ({ page }) => {
+    await page.goto('./#/cbb');
+    await expect(page.getByRole('heading', { name: 'National picture' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Best adjusted offense' })).toBeVisible();
+    await expect(page.getByText('Roster storylines')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Games to open first' })).toBeVisible();
+    await page.getByRole('heading', { name: 'Conferences' }).scrollIntoViewIfNeeded();
+    await page.locator('.cconfs__a', { hasText: 'Big 12' }).click();
+    await expect(page.getByRole('combobox')).toHaveValue('Big 12');
+    await expect(page.locator('.cgame').first()).toContainText('Big 12');
+  });
+
+  test('a national ranking shows school logos and conferences', async ({ page, isMobile }) => {
+    const h = JSON.parse(readFileSync(join(fileURLToPath(new URL('.', import.meta.url)), 'data', 'cbb', 'season', 'app', 'latest', 'health.json'), 'utf-8'));
+    await page.goto(`./#/cbb/ranking/${h.extensions.cbb.leaders.adj_off.ranking_id}`);
+    await expect(page.locator('.rankbars__row').first().locator('.clogo')).toBeVisible();
+    if (!isMobile) await expect(page.locator('.rankbars__sub').first()).not.toBeEmpty();
+    await noHorizontalOverflow(page, 'cbb ranking logos');
   });
 
   test('deep links survive a reload @smoke', async ({ page }) => {
@@ -126,6 +171,12 @@ test.describe('CBB preseason', () => {
     await expect(page.getByText(/game has not entered the prospective capture window/).first()).toBeVisible();
     await expect(page.getByText(/Current roster truth/)).toBeVisible();
     await expect(page.locator('.cmc__row')).toHaveCount(0);
+    // the pending hero still shows both schools and an intentional status, plus the protocol timeline
+    await expect(page.locator('.cgh img')).toHaveCount(2);
+    await expect(page.locator('.cpend')).toContainText('Projection pending');
+    await expect(page.getByRole('list', { name: 'Projection timeline' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Roster comparison' })).toBeVisible();
+    await expect(page.getByText(/not opponent-adjusted/).first()).toBeVisible();
     await noHorizontalOverflow(page, 'cbb preseason game');
   });
 });

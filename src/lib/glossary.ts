@@ -37,6 +37,12 @@ export const TERMS: Record<string, Gloss> = {
   log_loss: T('Log loss', 'Measures probability accuracy and penalizes confident wrong probabilities more heavily.', 'Lower is better.'),
   calibration: T('Calibration', 'Whether events predicted around X% actually happen around X% of the time.', null),
   projected_range: T('Projected range', 'The spread of outcomes in the model’s simulations: the middle half of games and the middle 90%.', null),
+  cbb_model_range: T('80% model range', 'Where 80% of the frozen model’s own normal margin (or total) distribution lies. It is the model’s uncertainty, not a guarantee and not a calibrated interval.', null),
+  cbb_capture_window: T('Capture window', 'The frozen prospective pipeline archives a projection only within 30 hours of tip. Before that, the game is shown with its projection pending; nothing is projected early or after tip.', null),
+  cbb_roster_confidence: T('Roster confidence', 'How well current-season roster sources agree on who is on the team: Confirmed, Likely, Conflicted, Stale or Unknown.', null),
+  cbb_returning_minutes: T('Returning minutes', 'Share of last season’s minutes played by players on this season’s roster. Roster truth, not opponent-adjusted.', 'A roster trait, not a quality.'),
+  cbb_expected_minutes: T('Expected minutes', 'How the 200 team minutes of a game are expected to split between returning players, incoming transfers and first-year D-I players, from roster and prior participation evidence. Not a confirmed lineup.', null),
+  cbb_standing: T('National standing', 'The team’s rank in the published D-I ranking for this metric; the bar shows how close to #1 it sits. It is the rank, not a combined score.', null),
 };
 
 export function term(key: keyof typeof TERMS | string): Gloss | null {

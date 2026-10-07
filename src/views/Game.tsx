@@ -49,6 +49,8 @@ import { newlyListed, overlayMarket } from '../live/overlay';
 /** The NHL game page (views/nhl): its own chunk, so NFL never downloads it. */
 const CbbGameView = lazy(() => import('./cbb/Game').then((m) => ({ default: m.CbbGameView })));
 const NhlGameView = lazy(() => import('./nhl/NhlGame').then((m) => ({ default: m.NhlGameView })));
+/** The MLB game page (views/mlb): the generic game parts over the board's event detail, plus Player Props. */
+const MlbGameView = lazy(() => import('./mlb/MlbGame').then((m) => ({ default: m.MlbGameView })));
 
 export function GameRoute() {
   const { eventId = '' } = useParams();
@@ -59,6 +61,11 @@ export function GameRoute() {
   if (!dir.data) return <div className="page"><ErrorState error={dir.error} what="the explorer index" /></div>;
   if (sport.code === 'NHL' && dir.data.hasEventResearch(eventId)) {
     return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NhlGameView eventId={eventId} /></Suspense>;
+  }
+  if (sport.code === 'MLB') {
+    // MLB publishes the board and each game's event detail (no football research layer): the generic game parts
+    // over that detail; football-only tabs are not offered (views/mlb/MlbGame.tsx).
+    return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><MlbGameView eventId={eventId} teamId={sp.get('team')} /></Suspense>;
   }
   if (sport.code === 'CBB') {
     if (!dir.data.hasEventResearch(eventId)) return <div className="page"><Notice title="This game has no research page">The CBB publication keeps research for games in its current window (recent results and the coming week). Nothing is reconstructed for older games.</Notice></div>;

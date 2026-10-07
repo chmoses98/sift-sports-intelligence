@@ -6,6 +6,7 @@
 // (publication event -> Kalshi event suffix) comes from the publication, never from guessing.
 //
 // GET only. No credential. No order, account or portfolio endpoint is ever called.
+import { HORIZON_DAYS, LOOKBACK_HOURS, isEligibleEvent, publicationStatus } from './slate.mjs';
 
 export const FEED_SCHEMA = 'sift.live_quotes.v1';
 export const INDEX_SCHEMA = 'sift.live_quotes.index.v1';
@@ -61,15 +62,17 @@ export function makeGet({ fetchImpl = fetch, sleep = (ms) => new Promise((r) => 
   return { get, count: () => requests };
 }
 
-/** The games the publication lists as upcoming/live, with their published markets. */
-export async function publicationGames(rawBase, get, { now = Date.now, horizonDays = 10, lookbackHours = 8 } = {}) {
+/**
+ * Read the sport publication: the games it lists as current (scripts/live-quotes/slate.mjs), with their
+ * published markets, and the publication's own health (CURRENT_SLATE / NO_CURRENT_GAMES / STALE_PUBLICATION).
+ */
+export async function readPublication(rawBase, get, { now = Date.now, horizonDays = HORIZON_DAYS, lookbackHours = LOOKBACK_HOURS, sport = null } = {}) {
   const { body: board } = await get(`${rawBase}/board.json`);
   const t = now();
+  const publication = { sport, ...publicationStatus(board, t, { source: `${rawBase}/board.json`, horizonDays, lookbackHours }) };
   const games = [];
   for (const it of board.items ?? []) {
-    const start = Date.parse(it.start_time_utc);
-    const live = ['SCHEDULED', 'IN_PROGRESS', 'LIVE'].includes(it.status) || (it.status === 'UNKNOWN' && start > t - lookbackHours * 3600e3);
-    if (!live || !(start > t - lookbackHours * 3600e3 && start < t + horizonDays * 86400e3)) continue;
+    if (!isEligibleEvent(it, t, { horizonDays, lookbackHours })) continue;
     const { body: detail } = await get(`${rawBase}/${it.detail_path}`);
     const markets = (detail.markets ?? []).filter((m) => typeof m.kalshi_ticker === 'string');
     const keys = new Set(markets.map((m) => gameKeyOf(m.kalshi_ticker)).filter(Boolean));
@@ -82,7 +85,18 @@ export async function publicationGames(rawBase, get, { now = Date.now, horizonDa
       });
     }
   }
-  return games;
+  return { games, publication };
+}
+
+/** The games the publication lists as upcoming/live, with their published markets. */
+export async function publicationGames(rawBase, get, opts = {}) {
+  return (await readPublication(rawBase, get, opts)).games;
+}
+
+/** One status for the feed: STALE if any sport's publication is, else CURRENT_SLATE if any has a current game. */
+export function feedStatus(publications) {
+  const s = publications.map((p) => p.status);
+  return s.includes('STALE_PUBLICATION') ? 'STALE_PUBLICATION' : s.includes('CURRENT_SLATE') ? 'CURRENT_SLATE' : 'NO_CURRENT_GAMES';
 }
 
 /** Sweep Kalshi for those games: open markets by series (inventory), then published tickers not open. */
@@ -127,9 +141,12 @@ export async function sweep(games, get, { api = KALSHI, maxPages = 10, log = () 
   return { byKey, errors };
 }
 
-export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public via github-actions (sift live-quotes feed)', sports = ['NFL'], errors = [], requests = 0 }) {
+export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public via github-actions (sift live-quotes feed)', sports = ['NFL'], errors = [], requests = 0, publications = null }) {
   const files = new Map();
   const index = { schema: INDEX_SCHEMA, generated_at: generatedAt, sports, requests, errors, games: [] };
+  // Source health (optional, additive): which publication was read, how old it was, how many current games it
+  // listed, and its status. A reader can tell a healthy empty feed (NO_CURRENT_GAMES) from a broken source.
+  if (publications) Object.assign(index, { status: feedStatus(publications), publications });
   const grouped = new Map();
   for (const g of games) {
     const cur = grouped.get(g.key) ?? { key: g.key, event_ids: [], tickers: new Set() };
@@ -145,7 +162,7 @@ export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public 
       tickers_checked: checked, markets,
     });
     const obs = markets.map((m) => m.observed_at).sort();
-    index.games.push({ key: g.key, file: `games/${g.key}.json`, markets: markets.length, published: g.tickers.size, newly_listed: markets.filter((m) => !g.tickers.has(m.ticker)).length, observed_from: obs[0] ?? null, observed_to: obs[obs.length - 1] ?? null });
+    index.games.push({ key: g.key, file: `games/${g.key}.json`, event_ids: [...new Set(g.event_ids)].sort(), markets: markets.length, published: g.tickers.size, newly_listed: markets.filter((m) => !g.tickers.has(m.ticker)).length, observed_from: obs[0] ?? null, observed_to: obs[obs.length - 1] ?? null });
   }
   index.games.sort((a, b) => a.key.localeCompare(b.key));
   files.set('index.json', index);

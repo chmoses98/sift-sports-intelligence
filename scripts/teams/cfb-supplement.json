@@ -1,6 +1,15 @@
 {
- "$comment": "Reviewed CFB identities for FBS programs that have not yet appeared in any identity-verified game of the CFB publication (so scripts/teams/fetch-cfb-teams.mjs could not learn them from a verified pair). Each entry is the Kalshi/contract team code and its ESPN team id. A later verified pair that disagrees fails the fetch (mergePairs conflict) instead of silently winning, so a mistake here can never stick.",
+ "$comment": "Reviewed CFB identities for programs that have not yet appeared in any identity-verified game of the CFB publication (so scripts/teams/fetch-cfb-teams.mjs could not learn them from a verified pair). Each entry is the Kalshi/contract team code and its ESPN team id. A later verified pair that disagrees fails the fetch (mergePairs conflict) instead of silently winning, so a mistake here can never stick.",
  "teams": {
-  "MICH": {"e": "130", "n": "Michigan", "why": "Michigan Wolverines: ESPN team id 130; contract code MICH (Big Ten). Absent from the 2026-10-08 publication's verified games."}
+  "MICH": {
+   "e": "130",
+   "n": "Michigan",
+   "why": "Michigan Wolverines: ESPN team id 130; contract code MICH (Big Ten). Absent from the 2026-10-08 publication's verified games."
+  },
+  "ALBY": {
+   "e": "399",
+   "n": "UAlbany",
+   "why": "UAlbany Great Danes (University at Albany, FCS, CAA football): ESPN team id 399, the same id SIFT's committed CBB identity carries for UAlbany (src/lib/cbb-teams.json, name 'UAlbany'). Contract code ALBY (Kalshi 26OCT17ALBYSTON, yes label 'University at Albany'). The Script Engine could not identity-verify the game (FCS), so no verified pair exists."
+  }
  }
 }

@@ -20,6 +20,10 @@
 //    phones), its Top Value Signal is a Value Watch game or says plainly why not, a football read is never marked
 //    value, every item opens its game and Back returns; every school name on the page is whole (never "St." or
 //    "Iowa St."); the page is set in Barlow at installed weights (400–700) with no italic.
+// 6. One canonical name per school (docs/CFB_SLATE_PRIORITIES.md "School names"): no raw publication spelling
+//    ("Utah St.", "Miami (FL)", "University at Albany") or fragment matchup ("University @ …") is visible on the CFB
+//    home, and each picked game's breadcrumb, Markets tab and Scripts tab name both schools canonically. When the
+//    UAlbany game (ALBY) is on the board it shows UAlbany and Stony Brook, with UAlbany's committed logo.
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
@@ -32,6 +36,10 @@ const EMPTY = 'No script cleared its evidence requirement';
 const SIGNALS_URL = process.env.SIFT_CFB_SIGNALS ?? 'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json';
 /** The committed CFB identity map this build ships (team code -> ESPN id -> public/teams/cfb/<id>.webp). */
 const CFB_TEAMS = JSON.parse(readFileSync(new URL('../src/lib/cfb-teams.json', import.meta.url), 'utf-8')).teams;
+/** The overrides cfbName() applies (Penn, UMass, LIU): the same file the app reads. */
+const CFB_PUBLIC = JSON.parse(readFileSync(new URL('../src/lib/cfb-public-names.json', import.meta.url), 'utf-8')).names;
+/** The one public-facing name SIFT shows for a contract code (src/lib/cfbTeams.ts cfbName), or null when unknown. */
+const canonicalName = (code) => CFB_PUBLIC[code] ?? CFB_TEAMS[code]?.n ?? null;
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
 
@@ -118,6 +126,56 @@ async function readGame(page) {
 /** A school name that cannot identify a school, or the publication's abbreviation shown as-is. */
 // "TBD" is not here: it is the honest stand-in for an upstream participant row that names no school (reported below).
 const BROKEN_NAME = /^(St\.?|State|Miss|Tech|U\.?|University)$|\sSt\.$/;
+
+// ------------------------------------------------------------------ 6. one canonical name per school, everywhere
+
+/** Every raw spelling the live publication uses for a school that SIFT names differently ("Utah St.", "Miami (FL)",
+ * "University at Albany"), plus the schedule names of the overrides: none may be visible. */
+function rawSpellings() {
+  const raw = new Set(Object.keys(CFB_PUBLIC).map((c) => CFB_TEAMS[c]?.n).filter((n) => n && !Object.values(CFB_PUBLIC).includes(n)));
+  for (const i of board.items) for (const p of i.participants) {
+    const c = canonicalName(p.short_name);
+    if (c && p.display_name && p.display_name !== c) raw.add(p.display_name);
+  }
+  return raw;
+}
+const RAW = rawSpellings();
+const RAW_RE = new RegExp(`(?<![\\w&'’-])(${[...RAW].sort((a, b) => b.length - a.length).map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\w&-])`);
+const FRAGMENT_MATCHUP = /(^|\n|\s)(St\.|State|Miss|Tech|U|University)\s+(at|@|vs)\s+(St\.|State|Miss|Tech|U|University)(\s|$)|(^|\n)University (at|@) |\s(at|@) University(\s|$)/;
+
+function visibleLeak(text) {
+  const m = RAW.size ? RAW_RE.exec(text) : null;
+  return m ? m[0] : FRAGMENT_MATCHUP.test(text) ? 'fragment matchup' : null;
+}
+
+/** A game's breadcrumb, Markets tab and Scripts tab all name both schools canonically (section 6). */
+async function identityCheck(page, name, eventId, label) {
+  const item = board.items.find((i) => i.event_id === eventId);
+  const away = item?.participants.find((p) => p.participant_id === item.away_participant);
+  const home = item?.participants.find((p) => p.participant_id === item.home_participant);
+  const want = `${canonicalName(away?.short_name) ?? away?.display_name} @ ${canonicalName(home?.short_name) ?? home?.display_name}`;
+  for (const [tab, what] of [['', 'overview'], ['?tab=markets', 'Markets'], ['?tab=script', 'Scripts']]) {
+    await page.goto(`${BASE}#/cfb/game/${eventId}${tab}`);
+    await page.locator('.game').first().waitFor({ timeout: 60_000 });
+    await page.locator('.skel').first().waitFor({ state: 'detached', timeout: 30_000 }).catch(() => {});
+    await page.waitForTimeout(1500);
+    const crumb = ((await page.locator('.trail li.is-here').innerText().catch(() => '')) ?? '').trim();
+    check(crumb === want, `${name}: ${label} ${what}: the breadcrumb reads "${want}" (got "${crumb}")`);
+    const text = await page.locator('main').innerText();
+    const leak = visibleLeak(text);
+    check(!leak, `${name}: ${label} ${what}: every school by its canonical name${leak ? ` (raw "${leak}" visible)` : ''}`);
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${name}: ${label} ${what}: no sideways scroll`);
+    if (tab === '?tab=markets') {
+      const rows = await page.locator('.mrow__d, .mgroup__title').allInnerTexts();
+      console.log(`  ${label} markets: ${rows.slice(0, 4).join(' | ')}`);
+    }
+    if (tab === '?tab=script') {
+      const cards = await page.locator('.eng-scard .scard__name').evaluateAll((els) => els.map((e) => ({ shown: e.textContent?.trim(), published: e.getAttribute('data-canonical') })));
+      if (cards.length) console.log(`  ${label} scripts: ${cards.map((c) => `${c.shown} [${c.published}]`).join(' | ')}`);
+      check(cards.every((c) => c.published && c.shown && !visibleLeak(c.shown)), `${name}: ${label} Scripts: titles use canonical names, the published title kept as data-canonical`);
+    }
+  }
+}
 
 /** CFB Slate Priorities, school names and typography on the open CFB home (section 5 above). */
 async function priorityCheck(page, name, device) {
@@ -270,6 +328,21 @@ for (const [name, type, device] of BROWSERS) {
       await page.goto(`${BASE}#/cfb`);
       await page.screenshot({ path: `production-cfb-${name}-home.png` });
       await priorityCheck(page, name, device);
+      const homeLeak = visibleLeak(await page.locator('main').innerText());
+      check(!homeLeak, `${name}: CFB home: no raw school spelling or fragment matchup visible${homeLeak ? ` ("${homeLeak}")` : ''}`);
+      // Section 6: every picked game, then the UAlbany game when the board carries it.
+      for (const [kind, g] of Object.entries(picked)) await identityCheck(page, name, g.eventId, `${kind} ${g.gameKey}`);
+      const alby = board.items.find((i) => i.participants.some((p) => p.short_name === 'ALBY') && i.status !== 'FINAL');
+      if (alby) {
+        await identityCheck(page, name, alby.event_id, `UAlbany game ${alby.event_id}`);
+        await page.goto(`${BASE}#/cfb/game/${alby.event_id}`);
+        await page.locator('.gh__name').first().waitFor({ timeout: 60_000 });
+        await page.waitForFunction(() => [...document.querySelectorAll('.gh__team img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
+        const heroNames = await page.locator('.gh__name').allInnerTexts();
+        check(heroNames.includes('UAlbany') && !heroNames.some((n) => /University|TBD|Albany at/.test(n)), `${name}: the UAlbany game names both real schools (${heroNames.join(' vs ')})`);
+        check([...served].some((u) => u.endsWith('/teams/cfb/399.webp')), `${name}: UAlbany's committed logo (teams/cfb/399.webp) is served`);
+        await page.screenshot({ path: `production-cfb-${name}-ualbany.png` });
+      } else console.log('  UAlbany game: NOT_APPLICABLE — no upcoming ALBY game on the board');
     }
     // A deep link to each game, then the same games again from the CFB slate (a warm client, service worker
     // installed): the way a returning reader actually arrives.

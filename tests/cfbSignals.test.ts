@@ -67,7 +67,9 @@ describe('the contract', () => {
     const d = doc();
     expect(d.schema).toBe('cfb_research_signals/1.0.0');
     expect(d.games).toHaveLength(10);
-    expect(d.byEvent.get(ISU_BYU)?.title).toBe('Iowa St. at BYU');
+    // The title is said with canonical school names; the contract's own title is kept in source_text.
+    expect(d.byEvent.get(ISU_BYU)?.title).toBe('Iowa State at BYU');
+    expect((d.byEvent.get(ISU_BYU) as unknown as { source_text: { title: string } }).source_text.title).toBe('Iowa St. at BYU');
     expect(d.signals.moderate_control.status).toBe('VALUE_WATCH');
     expect(d.signals.market_disagreement.rule).toMatchObject({ applies_to: 'STRONG_CONTROL', below_cents: 85 });
     expect(d.research_only).toBe(true);

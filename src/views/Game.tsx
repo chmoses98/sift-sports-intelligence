@@ -462,7 +462,10 @@ export function GameView({ eventId }: { eventId: string }) {
   const teamHist = useTeamHistory(sport.code);
   const ev = r?.event;
   const short = (pid?: string | null) => ev?.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
-  const label = ev ? `${short(awayP?.participant_id)} @ ${short(homeP?.participant_id)}` : null;
+  // The breadcrumb names the game. CFB says each school by its canonical name (the CFB data layer already set
+  // display_name: "Washington State @ Utah State"), never the contract codes; other sports keep their short codes.
+  const named = (pid?: string | null) => ev?.participants.find((p) => p.participant_id === pid)?.display_name ?? short(pid);
+  const label = ev ? (sport.code === 'CFB' ? `${named(awayP?.participant_id)} @ ${named(homeP?.participant_id)}` : `${short(awayP?.participant_id)} @ ${short(homeP?.participant_id)}`) : null;
   useVisit(label, 'game');
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
   const playerName = useMemo(() => (id: string | null) => (id ? dir.data?.player(id)?.label ?? null : null), [dir.data]);

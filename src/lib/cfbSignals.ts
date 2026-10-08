@@ -8,7 +8,7 @@
 // return, popularity or price, and nothing turns a count into a chance. A side's price is always that side's own
 // YES ask: never 1 − the other side.
 import type { BoardItem } from '../contract/types';
-import { cfbCodeOfEspn, cfbName } from './cfbTeams';
+import { cfbCodeOfEspn, cfbDisplayText, cfbName } from './cfbTeams';
 import { signedPoints, type Engine } from './scriptEngine';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -201,7 +201,12 @@ function withPublicNames(g: any): any {
       }
     : c;
   const market = g.market && typeof g.market === 'object' ? { ...g.market, team: sideName(g.market.side, g.market.team) } : g.market;
-  return { ...g, teams, claims, market };
+  // The contract's sentences name schools by the football schedule too ("Massachusetts controls"): said by the
+  // canonical name, with the published sentences kept beside them (source_text).
+  const text = (v: unknown) => (typeof v === 'string' ? cfbDisplayText(v) : v);
+  const edges = (g.edges as string[]).map((e) => cfbDisplayText(e));
+  const source_text = { card_line: g.card_line ?? null, headline: g.headline ?? null, read: g.read ?? null, edges: g.edges, title: g.title ?? null };
+  return { ...g, teams, claims, market, card_line: text(g.card_line), headline: text(g.headline), read: text(g.read), title: text(g.title), edges, source_text };
 }
 
 /** Accept a cfb_research_signals/1.x document, or throw: a malformed contract never renders half a signal. */

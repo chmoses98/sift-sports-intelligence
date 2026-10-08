@@ -90,7 +90,8 @@ values (`rule.below_cents`), asserted in `tests/cfbPriorities.test.tsx`.
 Two things combined:
 
 1. **The publication's names are abbreviated.** The board's `display_name` is Kalshi's: "Iowa St.", "Michigan St.",
-   "Mississippi St.", "Miami (FL)"; one live row was even malformed ("University" vs "Albany at Stony Brook").
+   "Mississippi St.", "Miami (FL)"; one live row was even malformed ("University" vs "Albany at Stony Brook" —
+   an upstream title-parsing defect, fixed at the source in cfb-edge-finder #110, see below).
 2. **NFL "City Nickname" logic ran on college names.** `splitName().nick` (cards, featured game, slate rows,
    model-vs-market panel), `lib/priorities.ts nickOf`, `lib/scripts.ts nick` and `insights/game.ts gameSides` took
    the *last word*: "Iowa St." → "St.", "Utah St." → "St." (so "St. at St."), "Southern Miss" → "Miss" (so
@@ -100,8 +101,8 @@ The fix is one identity, applied once:
 
 * `src/lib/cfbTeams.ts cfbName(code, published)` — the sports-facing name from the committed identity map
   (`cfb-teams.json`, built from the publication's identity-verified ESPN pairs): "ISU" → Iowa State, "MISS" → Ole
-  Miss, "USM" → Southern Miss, "MOH" → Miami (OH), "MIA" → Miami, "NCST" → NC State, "APP" → App State, plus four
-  public-name overrides (Penn, UMass, LIU, Albany). Every name in the map is unique (tested). A code outside the
+  Miss, "USM" → Southern Miss, "MOH" → Miami (OH), "MIA" → Miami (FL), "NCST" → NC State, "APP" → App State, plus four
+  public-name overrides (Penn, UMass, LIU, Miami (FL); `cfb-public-names.json`). UAlbany is in the map itself (ESPN 399). Every name in the map is unique (tested). A code outside the
   map keeps the published name with "St." spelled out; a fragment or a whole matchup in one row is never shown as
   a school (`TBD`).
 * `normalizeCfbNames()` — run by `SportRepo` on every CFB document (and on CFB `health.json`): participant names by
@@ -112,6 +113,52 @@ The fix is one identity, applied once:
 * Every last-word helper is now sport-aware: for CFB the whole name is the name.
 * `cfbMatchupNames()` guarantees the two sides of a header differ (a code is appended if two fallbacks ever collide).
 
+### One identity, used everywhere (2026-10-08 identity pass)
+
+**The answer to "what is this school called?"** is `cfbName(code)` in `src/lib/cfbTeams.ts`: the identity map's name
+(`cfb-teams.json`: contract code → ESPN team id, football-schedule name, colours, committed logo), except the four
+overrides in `cfb-public-names.json` (Penn, UMass, LIU, Miami (FL)). `cfbIdentity(code)` returns the whole record (`code`, `name`,
+`espnId`, `logo`, `scheduleName`). The production check reads the same two files.
+
+```
+cfb-edge-finder app/latest (Kalshi names: "Utah St.", "Miami (FL)", "University at Albany")
+research-signals contract and Script Engine payload (football-schedule names: "Massachusetts", "UAlbany")
+        │
+SportRepo.doc → normalizeCfbNames (every CFB document, once, in place; two passes)
+  1. learn every (code, published name) pair in the document
+  2. participants' display_name → cfbName(code)             published form kept as source_display_name
+     yes_description / no_description / title / label → cfbDisplayText()   published form kept in source_text
+decodeSignals → withPublicNames: teams, CONTROL team, market team by ESPN id; card_line / headline / read /
+                edges / title through cfbDisplayText          published sentences kept in source_text
+readEngine:     team names by ESPN id; summaries, chain steps, read, V2 story through cfbDisplayText
+                (the payload itself, r.extensions.script_engine, is never modified)
+        ▼
+every screen: home, Top CFB Signals, Slate Priorities, schedule, cards, hero, Quick Read, Script Engine, Markets,
+Deep Dive, breadcrumb (`Game.tsx`: "Washington State @ Utah State", never "WSU @ USU"), team pages, search
+```
+
+`cfbDisplayText(text)` replaces whole raw spellings only (longest first; never inside a longer word or a longer
+school name: "Miami (OH)" is untouched by "Miami (FL)"). Its alias index is seeded from the identity map (each
+override's schedule name — "Miami" only ever as a whole word, never before "(OH)"; the "X St." form of every "X State"; "Miss St.", "Appalachian St.") and
+extended by every coded participant a document carries. A spelling two schools claim is never rewritten.
+
+Market labels built from a team code (`marketLabel.ts`) say `cfbName(code)` for CFB, never the code. Tickers,
+contract ids, lines and prices are never touched.
+
+**UAlbany.** ESPN team id 399, contract code ALBY, canonical name **UAlbany**: the name ESPN's schedule and SIFT's own
+CBB identity already use (the school's athletics brand), so it follows the same rule as every other school rather
+than an override. It entered the identity map through the reviewed supplement (`scripts/teams/cfb-supplement.json`),
+because the Script Engine cannot identity-verify UAlbany's FCS games; colours and the logo
+(`public/teams/cfb/399.webp`) came from the same team-logos workflow and ESPN CDN as every other school.
+
+**The upstream defect (fixed in cfb-edge-finder #110).** Kalshi's milestone for 26OCT17ALBYSTON is titled
+"University at Albany at Stony Brook". `execution/semantics.py::_split_matchup` partitioned it on the first " at ",
+so the export published away "University" (code ALBY, by prefix match) and home "Albany at Stony Brook" (no code).
+Every separator occurrence is now a candidate split and the contracts' own team labels pick the split whose two
+sides are both teams; without evidence a single-separator title reads as before and a several-separator title is
+`ambiguous_title`. The corrected export (21:22Z) publishes ALBY "University at Albany" away and STON "Stony Brook"
+home, both with stable participant ids.
+
 ## CFB script titles
 
 The CFB home shows no script titles (it shows the contract's card lines). On game pages, three game-environment
@@ -119,8 +166,13 @@ archetypes had names that need decoding — "Competitive grind" (72 live scripts
 "Pace-driven scoring" (8). They are now said from the script's own `outcome_shape`, only what it states:
 "Close, Low-Scoring Game" (one-score margin + suppressed total), "Low-Scoring Game", "Close, High-Scoring Game",
 "High-Scoring Game", "Fast-Paced, High-Scoring Game" (more possessions). Team-named titles ("Memphis pulls away",
-"Kent State hangs around", "Missouri controls") were already plain and are unchanged. The engine's title stays on
+"Kent State hangs around", "Missouri controls") were already plain (see below for their names and capitalization). The engine's title stays on
 the card as `data-canonical` (the production check still requires exactly the published scripts).
+
+Every other title keeps the engine's words, with each school said by its canonical name and in headline style (the NFL
+scripts' style): "Kent State hangs around" → **Kent State Hangs Around**, "Massachusetts pulls away" → **UMass Pulls
+Away**; a HOME_CONTROL / AWAY_CONTROL title ("Utah State controls") reads **Utah State Controls the Matchup**, the
+phrasing the Slate Priorities rail uses for CONTROL.
 
 ## Typography
 

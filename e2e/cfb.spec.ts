@@ -149,6 +149,35 @@ test('CFB Slate Priorities: beside Top CFB Signals on desktop, first on phones; 
   expect(type.italic).toEqual([]);
 });
 
+test('CFB identity: the breadcrumb, Markets and Scripts say each school by its canonical name @smoke', async ({ page }) => {
+  // Iowa St. at BYU in the publication (participants, 252 market labels such as "Iowa St. wins 1st Half", and the
+  // engine's "BYU controls" / "Iowa State hangs around").
+  await page.goto(`./#/cfb/game/${ISU_BYU}`);
+  const crumb = page.locator('.trail li.is-here');
+  await expect(crumb).toHaveText('Iowa State @ BYU');
+  await expect(page.locator('.gh__name')).toHaveText(['Iowa State', 'BYU']);
+  await noHorizontalOverflow(page, 'cfb-game-identity');
+
+  await page.goto(`./#/cfb/game/${ISU_BYU}?tab=markets`);
+  await expect(page.locator('main')).toContainText('Iowa State wins');
+  expect(await page.locator('main').innerText()).not.toMatch(/Iowa St\.(?=\s|$)/);
+  await expect(crumb).toHaveText('Iowa State @ BYU');
+  await noHorizontalOverflow(page, 'cfb-game-markets-identity');
+
+  await page.goto(`./#/cfb/game/${ISU_BYU}?tab=script`);
+  const cards = page.locator('.stab__pick .eng-scard .scard__name');
+  await expect(cards).toHaveText(['BYU Controls the Matchup', 'Iowa State Hangs Around']);
+  // The published titles stay on the page, unchanged, for parity with the publication.
+  expect(await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-canonical')))).toEqual(['BYU controls', 'Iowa State hangs around']);
+
+  // A long canonical pair wraps in the breadcrumb instead of being cut off, and never scrolls the page sideways.
+  await page.goto(`./#/cfb/game/${NMSU_FIU}`);
+  await expect(crumb).toHaveText('New Mexico State @ Florida International');
+  const fits = await crumb.evaluate((el) => { const s = el.querySelector('span')!; return s.scrollWidth <= s.clientWidth + 1; });
+  expect(fits).toBe(true);
+  await noHorizontalOverflow(page, 'cfb-game-long-breadcrumb');
+});
+
 test('a V2 game leads with the Quick Read; every older panel waits in a closed Deep Dive @smoke', async ({ page }) => {
   await page.goto(`./#/cfb/game/${LSU_UK}`);
   const q = page.getByTestId('cfb-quick-read');

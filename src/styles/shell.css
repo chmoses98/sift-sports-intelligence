@@ -89,6 +89,10 @@
 .trail a, .trail li > span { color: var(--text-2); display: inline-flex; align-items: center; gap: 7px; max-width: 18em; overflow: hidden; text-overflow: ellipsis; min-height: 32px; }
 .trail a:hover { color: var(--text-hi); }
 .trail li.is-here > span { color: var(--text-hi); font-weight: 600; }
+/* Where you are is never cut off: a long current step ("Southeast Missouri State @ Lindenwood") wraps instead of
+   ending in an ellipsis; earlier steps keep their compact, truncated form. */
+.trail li.is-here { min-width: 0; }
+.trail li.is-here > span { max-width: none; white-space: normal; overflow-wrap: anywhere; line-height: 1.25; padding: 4px 0; }
 .trail__root svg { color: var(--sand); }
 
 @media (min-width: 720px) {

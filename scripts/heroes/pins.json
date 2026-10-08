@@ -250,12 +250,12 @@
    "venue": "state-farm-stadium",
    "file": "File:Packers vs Cardinals 2021 regular season game.jpg",
    "focus": {
-    "desktop": "50% 60%",
-    "mobile": "35% 62%"
+    "desktop": "50% 52%",
+    "mobile": "40% 55%"
    },
-   "identity": "ARIZONA end zone lettering in Cardinals red, cardinal at midfield, State Farm Stadium bowl",
+   "identity": "ARIZONA end zone and the Cardinals logo at midfield, State Farm Stadium videoboard",
    "event": "Green Bay Packers at Arizona Cardinals (2021 regular season, TNF)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Slightly soft/dark phone shot; 4032 wide is fine.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-bal-mt-bank-stadium",
@@ -264,12 +264,12 @@
    "venue": "mt-bank-stadium",
    "file": "File:M&T Bank Stadium.jpg",
    "focus": {
-    "desktop": "50% 62%",
-    "mobile": "12% 70%"
+    "desktop": "40% 55%",
+    "mobile": "18% 58%"
    },
-   "identity": "RAVENS end zone lettering (left edge), purple-clad crowd, M&T Bank Stadium bowl",
+   "identity": "RAVENS end zone and a purple bowl at M&T Bank Stadium",
    "event": "Cincinnati Bengals at Baltimore Ravens",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (End zone sits at far left edge, so mobile focus must hug the left; overcast daylight.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-car-bank-of-america-stadium",
@@ -278,12 +278,12 @@
    "venue": "bank-of-america-stadium",
    "file": "File:Panther Broncos- Prestation of Colors.JPG",
    "focus": {
-    "desktop": "50% 58%",
-    "mobile": "62% 60%"
+    "desktop": "50% 62%",
+    "mobile": "50% 62%"
    },
-   "identity": "PANTHERS end zone lettering in Panthers blue, Bank of America Stadium bowl",
+   "identity": "PANTHERS end zone and a Carolina-blue bowl at Bank of America Stadium (pregame flag)",
    "event": "Denver Broncos at Carolina Panthers",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (iPhone 4S shot, 3264 wide but soft; fan heads in the bottom ~15% must be cropped out; pregame flag ceremony on field.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-chi-soldier-field",
@@ -292,26 +292,12 @@
    "venue": "soldier-field",
    "file": "File:Soldier Field (51762250554).jpg",
    "focus": {
-    "desktop": "50% 60%",
-    "mobile": "50% 62%"
+    "desktop": "50% 58%",
+    "mobile": "55% 60%"
    },
-   "identity": "CHICAGO end zone lettering, Bears orange/navy, night game under Soldier Field lights",
+   "identity": "CHICAGO end zone under the lights at Soldier Field",
    "event": "Minnesota Vikings at Chicago Bears (MNF, 2021-12-20)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Fan heads along the bottom edge; date in metadata is upload day after the 12/20 MNF game.); pending full-resolution identity check"
-  },
-  {
-   "id": "nfl-den-empower-field",
-   "sport": "NFL",
-   "team": "DEN",
-   "venue": "empower-field",
-   "file": "File:NFL Kickoff Game 2013.jpg",
-   "focus": {
-    "desktop": "50% 70%",
-    "mobile": "50% 68%"
-   },
-   "identity": "Broncos logo at midfield, orange-clad crowd, Mile High stands and light towers",
-   "event": "Baltimore Ravens at Denver Broncos (2013 NFL Kickoff Game)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Image is somewhat soft; \"KICKOFF\" tarp card stunt dominates the stands; Broncos logo at midfield is small. Regular-season opener (not a neutral event).); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-gb-lambeau-field",
@@ -320,12 +306,12 @@
    "venue": "lambeau-field",
    "file": "File:Green Bay Packers entering the field for start of October 5, 2008 game against the Atlanta Falcons at Lambeau Field.jpg",
    "focus": {
-    "desktop": "50% 50%",
-    "mobile": "45% 52%"
+    "desktop": "50% 55%",
+    "mobile": "50% 58%"
    },
-   "identity": "Packers in green and gold running onto Lambeau Field, goalpost and Lambeau bowl",
+   "identity": "the Packers running onto Lambeau Field in green and gold",
    "event": "Atlanta Falcons at Green Bay Packers",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2008 and field-level/sideline vantage with spectators in the lower foreground; acceptable but not ideal.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-kc-arrowhead-stadium",
@@ -334,12 +320,12 @@
    "venue": "arrowhead-stadium",
    "file": "File:Arrowhead Stadium for Chiefs vs Chargers 10-22-2023 (1) (53283857054).jpg",
    "focus": {
-    "desktop": "50% 58%",
-    "mobile": "55% 58%"
+    "desktop": "50% 46%",
+    "mobile": "55% 50%"
    },
-   "identity": "CHIEFS end zone lettering, sea of red, Arrowhead bowl and scoreboard",
+   "identity": "CHIEFS end zone in a red Arrowhead bowl",
    "event": "Los Angeles Chargers at Kansas City Chiefs",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Spectator heads (incl. #87 jersey) cover the bottom of the frame and part of the end zone; desktop crop keeps field and upper bowl.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-lar-sofi-stadium",
@@ -348,12 +334,12 @@
    "venue": "sofi-stadium",
    "file": "File:Ramscolts2025.jpg",
    "focus": {
-    "desktop": "50% 68%",
+    "desktop": "50% 58%",
     "mobile": "50% 62%"
    },
-   "identity": "RAMS end zone lettering, Rams logo at midfield, RAMS on the SoFi Infinity Screen",
+   "identity": "RAMS end zone and RAMS on the SoFi Stadium videoboard",
    "event": "Indianapolis Colts at Los Angeles Rams",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (None significant; SoFi is shared with the Chargers but this frame is unmistakably the Rams configuration.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-min-us-bank-stadium",
@@ -363,11 +349,11 @@
    "file": "File:Panorama-US Bank Stadium Interior.jpg",
    "focus": {
     "desktop": "50% 62%",
-    "mobile": "50% 72%"
+    "mobile": "45% 65%"
    },
-   "identity": "VIKINGS end zone lettering in purple, U.S. Bank Stadium roof and glass wall",
+   "identity": "VIKINGS end zone under the U.S. Bank Stadium roof",
    "event": "Denver Broncos at Minnesota Vikings (2021 preseason)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (PRESEASON game (described as \"Scrimmage Vikings vs. Broncos\"); panorama with slight curvature.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-no-caesars-superdome",
@@ -376,12 +362,12 @@
    "venue": "caesars-superdome",
    "file": "File:Saints Stadium (3927508936).jpg",
    "focus": {
-    "desktop": "50% 55%",
-    "mobile": "50% 58%"
+    "desktop": "50% 48%",
+    "mobile": "50% 52%"
    },
-   "identity": "SAINTS end zone lettering and fleur-de-lis at midfield, Saints sideline",
+   "identity": "the fleur-de-lis at midfield and SAINTS in both end zones at the Superdome",
    "event": "2009 Saints home game (categories: 2009 New Orleans Saints season, Louisiana Superdome interior)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Only 1600x1200 (meets minimum, below preferred); tone-mapped HDR look; exact opponent not stated in metadata (date likely upload, Saints opened 2009 at home vs Lions on 9/13).); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium. Quality note: a 2009 phone frame (1600 px, saturated); replace when a sharper Saints home frame is found."
   },
   {
    "id": "nfl-nyj-metlife-stadium",
@@ -391,11 +377,11 @@
    "file": "File:General Daniel Hokanson, chief, National Guard Bureau, participates in activities commemorating the 22nd anniversary of the Sept. 11th attacks in September 11, 2023 - 56.jpg",
    "focus": {
     "desktop": "50% 55%",
-    "mobile": "58% 55%"
+    "mobile": "50% 58%"
    },
-   "identity": "MetLife ring lit Jets green, Jets flag runner, night pregame fireworks",
+   "identity": "MetLife lit Jets green for a Jets home pregame (lasers, fireworks)",
    "event": "Buffalo Bills at New York Jets (MNF, Sept 11 2023)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (No JETS end zone visible; identity rests on the green ring lighting (Jets configuration) - flag as moderately confident; field-level vantage.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-sf-levis-stadium",
@@ -404,12 +390,12 @@
    "venue": "levis-stadium",
    "file": "File:Broncos vs 49ers preseason game at Levi's Stadium.jpg",
    "focus": {
-    "desktop": "50% 62%",
-    "mobile": "62% 64%"
+    "desktop": "50% 60%",
+    "mobile": "60% 62%"
    },
-   "identity": "49ERS end zone lettering and 49ers logo at midfield, red-clad crowd, Levi's scoreboard",
+   "identity": "49ERS end zone and the 49ers logo at midfield, Levi’s Stadium",
    "event": "Denver Broncos at San Francisco 49ers (2014 preseason, Levi's Stadium first season)",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (PRESEASON game; 3648 wide; spectators along bottom edge.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   },
   {
    "id": "nfl-was-northwest-stadium",
@@ -418,12 +404,12 @@
    "venue": "northwest-stadium",
    "file": "File:Atlanta Falcons at Washington Commanders 2024 16.jpg",
    "focus": {
-    "desktop": "50% 62%",
-    "mobile": "50% 66%"
+    "desktop": "50% 52%",
+    "mobile": "45% 55%"
    },
-   "identity": "Commanders W logo at midfield, burgundy-and-gold uniforms and crowd",
+   "identity": "the Commanders W at midfield and a burgundy-and-gold sideline",
    "event": "Atlanta Falcons at Washington Commanders",
-   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Midfield logo is small/faint and no end zone in frame; lower-deck vantage. Identity relies on uniforms + logo - moderately confident.); pending full-resolution identity check"
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
   }
  ]
 }

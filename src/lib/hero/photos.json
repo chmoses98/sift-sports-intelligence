@@ -9,10 +9,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "ARIZONA end zone lettering in Cardinals red, cardinal at midfield, State Farm Stadium bowl",
+   "identity": "ARIZONA end zone and the Cardinals logo at midfield, State Farm Stadium videoboard",
    "focus": {
-    "desktop": "50% 60%",
-    "mobile": "35% 62%"
+    "desktop": "50% 52%",
+    "mobile": "40% 55%"
    },
    "w": 2400,
    "h": 1167,
@@ -38,10 +38,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "RAVENS end zone lettering (left edge), purple-clad crowd, M&T Bank Stadium bowl",
+   "identity": "RAVENS end zone and a purple bowl at M&T Bank Stadium",
    "focus": {
-    "desktop": "50% 62%",
-    "mobile": "12% 70%"
+    "desktop": "40% 55%",
+    "mobile": "18% 58%"
    },
    "w": 2400,
    "h": 1800,
@@ -67,10 +67,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "PANTHERS end zone lettering in Panthers blue, Bank of America Stadium bowl",
+   "identity": "PANTHERS end zone and a Carolina-blue bowl at Bank of America Stadium (pregame flag)",
    "focus": {
-    "desktop": "50% 58%",
-    "mobile": "62% 60%"
+    "desktop": "50% 62%",
+    "mobile": "50% 62%"
    },
    "w": 2400,
    "h": 1800,
@@ -96,10 +96,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "CHICAGO end zone lettering, Bears orange/navy, night game under Soldier Field lights",
+   "identity": "CHICAGO end zone under the lights at Soldier Field",
    "focus": {
-    "desktop": "50% 60%",
-    "mobile": "50% 62%"
+    "desktop": "50% 58%",
+    "mobile": "55% 60%"
    },
    "w": 2400,
    "h": 1500,
@@ -147,35 +147,6 @@
    }
   },
   {
-   "id": "nfl-den-empower-field",
-   "sport": "NFL",
-   "team": "DEN",
-   "venue": "empower-field",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Broncos logo at midfield, orange-clad crowd, Mile High stands and light towers",
-   "focus": {
-    "desktop": "50% 70%",
-    "mobile": "50% 68%"
-   },
-   "w": 2400,
-   "h": 1117,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "Jeffrey Beall",
-    "license": "CC BY-SA 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:NFL_Kickoff_Game_2013.jpg",
-    "file": "File:NFL Kickoff Game 2013.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
    "id": "nfl-gb-lambeau-field",
    "sport": "NFL",
    "team": "GB",
@@ -183,10 +154,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Packers in green and gold running onto Lambeau Field, goalpost and Lambeau bowl",
+   "identity": "the Packers running onto Lambeau Field in green and gold",
    "focus": {
-    "desktop": "50% 50%",
-    "mobile": "45% 52%"
+    "desktop": "50% 55%",
+    "mobile": "50% 58%"
    },
    "w": 2400,
    "h": 1598,
@@ -241,10 +212,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "CHIEFS end zone lettering, sea of red, Arrowhead bowl and scoreboard",
+   "identity": "CHIEFS end zone in a red Arrowhead bowl",
    "focus": {
-    "desktop": "50% 58%",
-    "mobile": "55% 58%"
+    "desktop": "50% 46%",
+    "mobile": "55% 50%"
    },
    "w": 2400,
    "h": 1800,
@@ -270,9 +241,9 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "RAMS end zone lettering, Rams logo at midfield, RAMS on the SoFi Infinity Screen",
+   "identity": "RAMS end zone and RAMS on the SoFi Stadium videoboard",
    "focus": {
-    "desktop": "50% 68%",
+    "desktop": "50% 58%",
     "mobile": "50% 62%"
    },
    "w": 2400,
@@ -299,10 +270,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "VIKINGS end zone lettering in purple, U.S. Bank Stadium roof and glass wall",
+   "identity": "VIKINGS end zone under the U.S. Bank Stadium roof",
    "focus": {
     "desktop": "50% 62%",
-    "mobile": "50% 72%"
+    "mobile": "45% 65%"
    },
    "w": 2400,
    "h": 961,
@@ -328,10 +299,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "SAINTS end zone lettering and fleur-de-lis at midfield, Saints sideline",
+   "identity": "the fleur-de-lis at midfield and SAINTS in both end zones at the Superdome",
    "focus": {
-    "desktop": "50% 55%",
-    "mobile": "50% 58%"
+    "desktop": "50% 48%",
+    "mobile": "50% 52%"
    },
    "w": 1600,
    "h": 1200,
@@ -357,10 +328,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "MetLife ring lit Jets green, Jets flag runner, night pregame fireworks",
+   "identity": "MetLife lit Jets green for a Jets home pregame (lasers, fireworks)",
    "focus": {
     "desktop": "50% 55%",
-    "mobile": "58% 55%"
+    "mobile": "50% 58%"
    },
    "w": 2400,
    "h": 1350,
@@ -386,10 +357,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "49ERS end zone lettering and 49ers logo at midfield, red-clad crowd, Levi's scoreboard",
+   "identity": "49ERS end zone and the 49ers logo at midfield, Levi’s Stadium",
    "focus": {
-    "desktop": "50% 62%",
-    "mobile": "62% 64%"
+    "desktop": "50% 60%",
+    "mobile": "60% 62%"
    },
    "w": 2400,
    "h": 1342,
@@ -444,10 +415,10 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Commanders W logo at midfield, burgundy-and-gold uniforms and crowd",
+   "identity": "the Commanders W at midfield and a burgundy-and-gold sideline",
    "focus": {
-    "desktop": "50% 62%",
-    "mobile": "50% 66%"
+    "desktop": "50% 52%",
+    "mobile": "45% 55%"
    },
    "w": 2400,
    "h": 1351,

@@ -11,6 +11,10 @@
 //      negative -> the honest empty state and no script card
 //      every game -> both teams' committed CFB logos loaded in the hero
 // 3. Freshness: the deployed build's SHA (version.json) when SIFT_EXPECT_SHA is set, and the publication's age.
+// 4. The CFB home (research-signals contract, cfb_research_signals/1.x): Top CFB Signals renders from the LIVE
+//    contract; every upcoming Moderate CONTROL game in it is starred Value Watch on the page, no Strong CONTROL
+//    game is; the filter chips work; no horizontal overflow at phone width. V2 game pages lead with the Quick
+//    Read and keep every older panel in a closed Deep Dive.
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
@@ -20,6 +24,7 @@ const CFB_RAW = (process.env.SIFT_CFB_RAW ?? 'https://raw.githubusercontent.com/
 const APP = `${CFB_RAW}/app/latest`;
 const EXPECT_SHA = (process.env.SIFT_EXPECT_SHA ?? '').trim();
 const EMPTY = 'No script cleared its evidence requirement';
+const SIGNALS_URL = process.env.SIFT_CFB_SIGNALS ?? 'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json';
 /** The committed CFB identity map this build ships (team code -> ESPN id -> public/teams/cfb/<id>.webp). */
 const CFB_TEAMS = JSON.parse(readFileSync(new URL('../src/lib/cfb-teams.json', import.meta.url), 'utf-8')).teams;
 const failures = [];
@@ -40,6 +45,12 @@ const [board, explorerIndex, scriptIndex, health] = await Promise.all([
   getJson(`${APP}/health.json`).catch(() => null),
 ]);
 const ageH = (iso) => (Date.now() - Date.parse(iso ?? '')) / 3600e3;
+const signals = await getJson(SIGNALS_URL).catch((e) => (check(false, `research-signals contract readable (${e})`), null));
+if (signals) {
+  check(/^cfb_research_signals\/1\./.test(signals.schema), `research-signals schema ${signals.schema}`);
+  check(ageH(signals.generated_at) < 2, `research-signals generated ${signals.generated_at} (${ageH(signals.generated_at).toFixed(2)} h ago, < 2 h: the conductor is alive)`);
+  console.log(`  signals: moderate ${signals.signals.moderate_control.status} · strong ${signals.signals.strong_control.status} · capture ${JSON.stringify(signals.capture_health)}`);
+}
 console.log(`  board generated ${board.generated_at} (${ageH(board.generated_at).toFixed(1)} h ago) · explorer built ${explorerIndex.generated_at ?? explorerIndex.built_at ?? '?'} · script index ${scriptIndex.methodology_version} counts ${JSON.stringify(scriptIndex.counts)}`);
 console.log(`  health ${health?.overall_status ?? '?'} generated ${health?.generated_at ?? '?'}`);
 const nUpcoming = upcoming(board, Date.now()).length;
@@ -86,8 +97,11 @@ async function readGame(page) {
   await page.waitForFunction(() => document.querySelectorAll('.gh .teammark--logo img, .gh img.teammark--logo').length >= 2 && [...document.querySelectorAll('.gh img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
   return page.evaluate((empty) => ({
     engine: !!document.querySelector('.game--engine'),
-    cards: [...document.querySelectorAll('.ov--engine .eng-scard .scard__name, .stab__pick .eng-scard .scard__name')].map((e) => e.textContent?.trim() ?? ''),
-    empty: document.body.innerText.includes(empty),
+    cards: [...document.querySelectorAll('.ov--engine .eng-scard .scard__name, .stab__pick .eng-scard .scard__name, .cfdd__s .eng-scard .scard__name')].map((e) => e.textContent?.trim() ?? ''),
+    quickRead: !!document.querySelector('[data-testid="cfb-quick-read"]'),
+    deep: [...document.querySelectorAll('details.cfdd__s')].map((d) => d.open),
+    // V2 pages keep the V1 scripts (and their honest empty state) inside the closed Deep Dive: read its text too.
+    empty: document.body.innerText.includes(empty) || [...document.querySelectorAll('details.cfdd__s')].some((d) => (d.textContent ?? '').includes(empty)),
     logos: [...document.querySelectorAll('.gh img.teammark--logo')].map((i) => ({ src: i.currentSrc || i.src, ok: i.complete && i.naturalWidth > 0 })),
     textMarks: [...document.querySelectorAll('.gh .teammark--text')].map((e) => e.textContent?.trim()),
   }), EMPTY);
@@ -100,6 +114,7 @@ function judge(label, kind, g, seen) {
   const titles = g.scripts.map((s) => s.title);
   console.log(`  ${label}: engine=${seen.engine} cards=[${seen.cards.join(' | ')}] empty=${seen.empty} logos=${seen.logos.map((l) => `${l.src.split('/').slice(-2).join('/')}${l.ok ? '' : '(not loaded)'}`).join(',') || '—'} text-marks=[${seen.textMarks.join(',')}]`);
   check(seen.engine, `${label}: renders the CFB Script Engine page`);
+  if (seen.quickRead) check(seen.deep.length >= 5 && seen.deep.every((o) => !o), `${label}: V2 Quick Read first, ${seen.deep.length} Deep Dive sections all closed`);
   if (kind === NEGATIVE) {
     check(seen.empty, `${label}: shows the honest empty state`);
     check(seen.cards.length === 0, `${label}: shows no script card`);
@@ -142,6 +157,30 @@ for (const [name, type, device] of BROWSERS) {
   page.on('response', (r) => r.ok() && r.url().includes('/teams/cfb/') && served.add(r.url().split('?')[0]));
   page.on('response', (r) => /cfb-edge-finder\/main\/app\/latest\/explorer\/events\//.test(r.url()) && research.push(`${r.status()} ${r.url().split('/').pop()}${r.fromServiceWorker() ? ' (service worker)' : ''}`));
   try {
+    if (signals) {
+      await page.goto(`${BASE}#/cfb`);
+      await page.getByRole('heading', { name: 'Top CFB Signals' }).waitFor({ timeout: 60_000 });
+      await page.waitForTimeout(1500);
+      const home = await page.evaluate(() => ({
+        vw: [...document.querySelectorAll('.cfc--vw')].length,
+        strongStarred: [...document.querySelectorAll('.cfc--strong.cfc--vw')].length,
+        cards: document.querySelectorAll('.cfc').length,
+        sections: [...document.querySelectorAll('[data-signal]')].map((e) => e.getAttribute('data-signal')),
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      }));
+      console.log(`  CFB home: sections ${home.sections.join(',')} · cards ${home.cards} · Value Watch cards ${home.vw}`);
+      const liveVW = signals.games.filter((x) => x.signal === 'VALUE_WATCH' && Date.parse(x.kickoff_utc) > Date.now()).length;
+      check(home.cards > 0, 'CFB home: intelligent game cards render');
+      check(home.strongStarred === 0, 'CFB home: no Strong CONTROL card is starred Value Watch');
+      if (liveVW && signals.signals.moderate_control.status === 'VALUE_WATCH') check(home.sections.includes('value-watch') && home.vw > 0, `CFB home: Value Watch section and starred cards (${liveVW} upcoming Moderate CONTROL games in the contract)`);
+      check(home.overflow <= 0, `CFB home: no horizontal overflow (${home.overflow}px)`);
+      await page.goto(`${BASE}#/cfb?f=value-watch`);
+      await page.waitForTimeout(1500);
+      const filtered = await page.evaluate(() => [...document.querySelectorAll('.cfc')].every((c) => c.classList.contains('cfc--vw')));
+      check(filtered, 'CFB home: the Value Watch filter shows only Value Watch games');
+      await page.goto(`${BASE}#/cfb`);
+      await page.screenshot({ path: `production-cfb-${name}-home.png` });
+    }
     // A deep link to each game, then the same games again from the CFB slate (a warm client, service worker
     // installed): the way a returning reader actually arrives.
     for (const [kind, g] of Object.entries(picked)) {

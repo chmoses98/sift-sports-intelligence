@@ -732,6 +732,132 @@
    "identity": "Globe Life Field interior, Rangers T logo behind home plate, Rangers home game vs Athletics.",
    "event": "",
    "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "cbb-ark-bud-walton-arena",
+   "sport": "CBB",
+   "team": "ARK",
+   "venue": "bud-walton-arena",
+   "file": "File:Kentucky at Arkansas basketball 2016, 002.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "identity": "Elevated wide view: Razorback hog centre-court logo, red-trimmed baselines, RAZORBACKS videoboard, packed white-out stands.",
+   "event": "Kentucky at Arkansas men's basketball, 2016-01-21 (white-out crowd)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2016 court graphics; court has since been named Nolan Richardson Court (2021), so sideline lettering may differ slightly. Smartphone-grade sharpness.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-cin-fifth-third-arena",
+   "sport": "CBB",
+   "team": "CIN",
+   "venue": "fifth-third-arena",
+   "file": "File:Fifth Third Interior.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "75% 50%"
+   },
+   "identity": "Elevated wide view: red C-paw centre-court logo, Bearcats red-clad full house, post-2018-renovation videoboard.",
+   "event": "Houston at Cincinnati men's basketball, 2019-03-10 (view from Section 201)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Dark silhouetted spectators in the lower-right foreground; keep the crop high.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-day-ud-arena",
+   "sport": "CBB",
+   "team": "DAY",
+   "venue": "ud-arena",
+   "file": "File:Youngstown State vs. Dayton, UD Arena, 11-24-23.jpg",
+   "focus": {
+    "desktop": "50% 43%",
+    "mobile": "50% 50%"
+   },
+   "identity": "DAYTON FLYERS fascia signage, red Flyer Faithful full house, Dayton centre-court logo, renovated UD Arena videoboards.",
+   "event": "Youngstown State at Dayton men's basketball, 2023-11-24 (national anthem)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Anthem moment (teams lined up), not live action; heads of spectators fill the lower third. Crop high.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-duke-cameron-indoor-stadium",
+   "sport": "CBB",
+   "team": "DUKE",
+   "venue": "cameron-indoor-stadium",
+   "file": "File:Duke women's basketball 12172013.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Duke centre-court logo, COACH K COURT lettering, CAMERON INDOOR STADIUM scorer's-table fascia, blue-clad crowd.",
+   "event": "UConn at Duke WOMEN'S basketball tip-off, 2013-12-17",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Women's game; same Cameron Indoor court and identity as the men. 2013 photo, but Cameron and the Coach K Court floor branding are unchanged in substance.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-osu-value-city-arena",
+   "sport": "CBB",
+   "team": "OSU",
+   "venue": "value-city-arena",
+   "file": "File:Duke Blue Devils v Ohio State University Buckeyes.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Ohio State block-O centre logo, 'BUCKEYE NUTHOUSE' signage, Value City Arena board, red crowd.",
+   "event": "Duke Blue Devils at Ohio State Buckeyes, Big Ten/ACC Challenge (on-campus home game), Nov 30, 2021",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Found on the OHIO sheet, not the OSU sheet; elevated sideline view, sharp, strongly recommended for OSU.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-tem-liacouras-center",
+   "sport": "CBB",
+   "team": "TEM",
+   "venue": "liacouras-center",
+   "file": "File:Liacouras Center at a Temple vs. Cincinnati basketball game.jpg",
+   "focus": {
+    "desktop": "50% 57%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Cherry/red court paint, 'The Liacouras Center' scoreboard, 'OWLS' ribbon boards, Temple T logos.",
+   "event": "Temple Owls vs Cincinnati Bearcats, men's regular season (Jan 27, 2019) at Liacouras Center",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Phone shot with Instagram-style fade; dark silhouettes of spectators across bottom ~25% (keep desktop crop high); taken during a stoppage, centre logo only partly legible.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-uk-rupp-arena",
+   "sport": "CBB",
+   "team": "UK",
+   "venue": "rupp-arena",
+   "file": "File:Rupp Arena, Arkansas at Kentucky, February 2023.jpg",
+   "focus": {
+    "desktop": "50% 72%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Kentucky interlocking-UK logo at centre court, blue lane paint, 'Rupp Arena' centre-hung board, sea of blue.",
+   "event": "Arkansas Razorbacks at Kentucky Wildcats, men's regular season (Feb 7, 2023)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Upper-deck phone shot; dark roof trusses top ~25% and a few heads/rail bottom-left. Post-2019 renovation era.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-unc-dean-e-smith-center",
+   "sport": "CBB",
+   "team": "UNC",
+   "venue": "dean-e-smith-center",
+   "file": "File:Dean E. Smith Center (Florida State vs. North Carolina - February 23, 2019).jpg",
+   "focus": {
+    "desktop": "52% 58%",
+    "mobile": "56% 50%"
+   },
+   "identity": "Carolina-blue capacity crowd in the Smith Center bowl, light-blue lane paint, Smith Center ribbon boards.",
+   "event": "Florida State Seminoles at North Carolina Tar Heels, ACC men's regular season (Feb 23, 2019)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Phone panorama (8246x3968): court is small and distant, centre logo not legible; standing fans at right foreground; bluish cast. Identity rests on the bowl and the all-blue crowd.); pending full-resolution identity check"
+  },
+  {
+   "id": "cbb-uva-john-paul-jones-arena",
+   "sport": "CBB",
+   "team": "UVA",
+   "venue": "john-paul-jones-arena",
+   "file": "File:UVA vs Duke, Feb. 2022.jpg",
+   "focus": {
+    "desktop": "55% 76%",
+    "mobile": "55% 70%"
+   },
+   "identity": "Virginia V-sabre centre logo, orange-clad full house, JPJ centre-hung board and banners.",
+   "event": "Duke Blue Devils at Virginia Cavaliers, ACC men's regular season (Feb 23, 2022)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Upper-deck phone shot, slightly dark; black rail/shadow lower-left. Keep crop low on the court.); pending full-resolution identity check"
   }
  ]
 }

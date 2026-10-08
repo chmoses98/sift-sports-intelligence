@@ -599,6 +599,21 @@
    ]
   },
   {
+   "id": "bud-walton-arena",
+   "name": "Bud Walton Arena",
+   "aliases": [],
+   "city": "Fayetteville, AR",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "ARK"
+    }
+   ]
+  },
+  {
    "id": "busch-stadium",
    "name": "Busch Stadium",
    "aliases": [],
@@ -684,6 +699,23 @@
     {
      "sport": "MLB",
      "team": "BAL"
+    }
+   ]
+  },
+  {
+   "id": "cameron-indoor-stadium",
+   "name": "Cameron Indoor Stadium",
+   "aliases": [
+    "Duke Indoor Stadium"
+   ],
+   "city": "Durham, NC",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "DUKE"
     }
    ]
   },
@@ -1114,6 +1146,24 @@
    ]
   },
   {
+   "id": "dean-e-smith-center",
+   "name": "Dean E. Smith Center",
+   "aliases": [
+    "Dean Dome",
+    "Dean Smith Center"
+   ],
+   "city": "Chapel Hill, NC",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "UNC"
+    }
+   ]
+  },
+  {
    "id": "delaware-stadium",
    "name": "Delaware Stadium",
    "aliases": [],
@@ -1446,6 +1496,23 @@
     {
      "sport": "MLB",
      "team": "BOS"
+    }
+   ]
+  },
+  {
+   "id": "fifth-third-arena",
+   "name": "Fifth Third Arena",
+   "aliases": [
+    "Shoemaker Center"
+   ],
+   "city": "Cincinnati, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "CIN"
     }
    ]
   },
@@ -2035,6 +2102,23 @@
    ]
   },
   {
+   "id": "john-paul-jones-arena",
+   "name": "John Paul Jones Arena",
+   "aliases": [
+    "JPJ"
+   ],
+   "city": "Charlottesville, VA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "UVA"
+    }
+   ]
+  },
+  {
    "id": "jones-att-stadium",
    "name": "Jones AT&T Stadium",
    "aliases": [],
@@ -2381,6 +2465,24 @@
      "sport": "NFL",
      "team": "SF",
      "from": "2014-06-01"
+    }
+   ]
+  },
+  {
+   "id": "liacouras-center",
+   "name": "Liacouras Center",
+   "aliases": [
+    "Apollo of Temple",
+    "The Liacouras Center"
+   ],
+   "city": "Philadelphia, PA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "TEM"
     }
    ]
   },
@@ -3580,6 +3682,23 @@
    ]
   },
   {
+   "id": "rupp-arena",
+   "name": "Rupp Arena",
+   "aliases": [
+    "Rupp Arena at Central Bank Center"
+   ],
+   "city": "Lexington, KY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "UK"
+    }
+   ]
+  },
+  {
    "id": "ryan-field",
    "name": "Ryan Field",
    "aliases": [],
@@ -4243,6 +4362,23 @@
    ]
   },
   {
+   "id": "ud-arena",
+   "name": "UD Arena",
+   "aliases": [
+    "University of Dayton Arena"
+   ],
+   "city": "Dayton, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "DAY"
+    }
+   ]
+  },
+  {
    "id": "ufcu-stadium",
    "name": "UFCU Stadium",
    "aliases": [
@@ -4325,6 +4461,24 @@
     {
      "sport": "CFB",
      "team": "FRES"
+    }
+   ]
+  },
+  {
+   "id": "value-city-arena",
+   "name": "Value City Arena",
+   "aliases": [
+    "Jerome Schottenstein Center",
+    "Schottenstein Center"
+   ],
+   "city": "Columbus, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "OSU"
     }
    ]
   },

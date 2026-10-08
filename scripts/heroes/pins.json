@@ -1,0 +1,17 @@
+{
+ "$comment": [
+  "THE reviewed list of game hero photographs (one per team identity and era). A pin is added only after a person has looked at the full frame and confirmed it shows THIS home team's identity (its end zones / centre-ice / court logo / signage) at THIS venue — not merely the right building. Candidates come from the contact sheets of scripts/heroes/candidates.mjs; scripts/heroes/fetch.mjs turns each pin into the served files (public/heroes/<sport>/<id>-{2400,1200,720}.webp) and src/lib/hero/photos.json, with the licence read from Commons itself.",
+  "focus: CSS object-position for the desktop band and for phones. from/to: [from, to) dates the frame represents (a branding or configuration era). neutralOk: the frame may stand for the venue at a neutral-site game. review: who checked what, when."
+ ],
+ "pins": [
+  {"id": "nfl-dal-att-stadium", "sport": "NFL", "team": "DAL", "venue": "att-stadium", "file": "File:Houston Texans vs. Dallas Cowboys 2019 14 (opening kickoff).jpg",
+   "focus": {"desktop": "50% 60%", "mobile": "38% 62%"}, "identity": "COWBOYS end zones and the star at midfield under the AT&T Stadium videoboard", "event": "Houston Texans at Dallas Cowboys, 2019",
+   "review": "2026-10-08 visual review: Cowboys home configuration (both end zones, midfield star); kept from the previous set."},
+  {"id": "nfl-ten-nissan-stadium-1999", "sport": "NFL", "team": "TEN", "venue": "nissan-stadium", "file": "File:Night Settles on LP Field.jpg", "to": "2027-06-01",
+   "focus": {"desktop": "50% 56%", "mobile": "42% 60%"}, "identity": "TITANS end zone and the Titans logo at midfield, night game", "event": "Titans home playoff game, LP Field era",
+   "review": "2026-10-08 visual review: Titans end zones and midfield logo. Valid only for the 1999 stadium (the enclosed Nissan Stadium opens in 2027)."},
+  {"id": "nfl-jax-everbank-stadium", "sport": "NFL", "team": "JAX", "venue": "everbank-stadium", "file": "File:Chiefs at Jaguars 2025 (55037793371).jpg",
+   "focus": {"desktop": "50% 58%", "mobile": "62% 60%"}, "identity": "JACKSONVILLE end zone, Jaguars sideline wall and Pride of the Jaguars ring", "event": "Kansas City Chiefs at Jacksonville Jaguars, 2025",
+   "review": "2026-10-08 visual review: Jaguars home configuration (end zone, wall signage, ring of honor). Away fans in the foreground; replace if a stronger Jaguars frame is found."}
+ ]
+}

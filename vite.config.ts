@@ -85,11 +85,11 @@ export default defineConfig({
             },
           },
           {
-            // Stadium photos: fixed files, credited, large — cached as they are viewed, never precached.
-            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/stadiums/'),
+            // Game hero photos: fixed files, credited, large — cached as they are viewed, never precached.
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/heroes/'),
             handler: 'CacheFirst',
             options: {
-              cacheName: 'sift-stadiums',
+              cacheName: 'sift-heroes',
               expiration: { maxEntries: 80, maxAgeSeconds: 30 * 24 * 3600 },
               cacheableResponse: { statuses: [200] },
             },

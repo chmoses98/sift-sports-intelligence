@@ -1,0 +1,8 @@
+{
+ "$comment": "Standing facts the hero resolver needs and no publication states. neutral_matchups: games played every year at a neutral site in the listed month(s), so a feed that names no venue (the CFB publication carries none) still never shows either school's home stadium for them. The venue is deliberately NOT named here (it can move, e.g. during a renovation): the hero says 'Neutral site' and nothing more unless the publication names the venue.",
+ "neutral_matchups": [
+  {"sport": "CFB", "teams": ["TEX", "OKLA"], "months": [10], "note": "Red River Rivalry (Dallas)"},
+  {"sport": "CFB", "teams": ["FLA", "UGA"], "months": [10, 11], "note": "Florida–Georgia game"},
+  {"sport": "CFB", "teams": ["ARMY", "NAVY"], "months": [12], "note": "Army–Navy Game"}
+ ]
+}

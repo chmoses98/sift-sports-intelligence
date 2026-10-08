@@ -20,7 +20,11 @@ import {
   CONFIDENCE_TEXT, fmt1, marginWords, pct0, researchExt, shortSha, signed1, stampTime, teamShort, tipLabel,
   type CbbResearchExt, type ModelRow, type ProsterSide, type RotationPlayer, type TeamRoster,
 } from './data';
-import { confShort, identity, matchupAccents } from './identity';
+import { confShort, identity, matchupAccents, type CbbTeamIdentity } from './identity';
+import { HeroArt, heroVars } from '../../components/HeroArt';
+import { resolveHero } from '../../lib/hero/resolve';
+import type { HeroTeam } from '../../lib/hero/types';
+import { heroData } from '../game/Hero';
 import { AsOf, CbbMark, ConfidenceChip, IntegrityBadge, KV, RoleTag } from './ui';
 import { AxisKey, MarginAxis, MinuteBar, MinutesComp, TotalAxis, WinSplit } from './viz';
 
@@ -111,6 +115,13 @@ function jumpTo(e: MouseEvent<HTMLAnchorElement>, id: string) {
 
 // ------------------------------------------------------------------ hero
 
+/** A CBB team's hero identity: its ESPN abbreviation, school colours and committed logo. */
+function cbbHeroTeam(p: Participant, t: CbbTeamIdentity | null): HeroTeam {
+  const c1 = t?.color && /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : '#1d2d52';
+  const c2 = t?.alt && /^#[0-9a-f]{6}$/i.test(t.alt) ? t.alt : c1;
+  return { sport: 'CBB', code: t?.abbr ?? p.short_name ?? p.participant_id, name: t?.full ?? p.display_name, short: teamShort(p), colors: [c1, c2], logo: t?.logo ?? null };
+}
+
 function captureOpens(startIso: string): string {
   return new Date(new Date(startIso).getTime() - 30 * 3600_000).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
@@ -118,6 +129,12 @@ function captureOpens(startIso: string): string {
 function Hero({ r, c, home, away, slug, now, primary, colors }: { r: EventResearchDoc; c: CbbResearchExt; home: Participant; away: Participant; slug: string; now: number; primary: ModelRow | null; colors: [string, string] }) {
   const ev = r.event;
   const venue = [c.venue.name, [c.venue.city, c.venue.region].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+  // The hero art: the stated home team's identity (ESPN states home/away and the neutral flag), never a guess.
+  const spec = resolveHero({
+    sport: 'CBB', date: ev.start_time_utc,
+    home: cbbHeroTeam(home, identity(home.participant_id)), away: cbbHeroTeam(away, identity(away.participant_id)),
+    homeVerified: true, venueName: c.venue.name, neutral: c.neutral_site, eventName: c.event_name,
+  });
   const hn = teamShort(home);
   const an = teamShort(away);
   const final = c.result;
@@ -143,8 +160,10 @@ function Hero({ r, c, home, away, slug, now, primary, colors }: { r: EventResear
     );
   };
   return (
-    <header className="cgh">
+    <header className={`cgh cgh--art cgh--${spec.kind}`} style={heroVars(spec)} {...heroData(spec)}>
+      <div className="cgh__art" aria-hidden="true"><HeroArt spec={spec} variant="card" /></div>
       <div className="cgh__eyebrow">
+        {spec.context === 'home' && <span className="cgh__tag cgh__tag--home" data-hero-label="">{spec.label}</span>}
         <span className="cgh__when"><Icon name="clock" size={13} /> {tipLabel(ev.start_time_utc, c)}</span>
         {c.event_name && <span className="cgh__tag cgh__tag--event">{c.event_name}</span>}
         {c.neutral_site && <span className="cgh__tag">Neutral site</span>}

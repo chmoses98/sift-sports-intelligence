@@ -156,8 +156,8 @@ describe('CFB team marks in the game hero', () => {
       clearAsyncMemo();
       const { unmount } = renderScreen(routes.game('cfb', id), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
       await screen.findByRole('heading', { name: /Likely Game Scripts/ }, { timeout: 4000 });
-      expect(document.querySelectorAll('.gh .teammark--logo')).toHaveLength(2);
-      expect(document.querySelectorAll('.gh .teammark--text')).toHaveLength(0);
+      expect(document.querySelectorAll('.gh__team .teammark--logo')).toHaveLength(2);
+      expect(document.querySelectorAll('.gh .teammark--text')).toHaveLength(0); // the identity line's mark too
       unmount();
     }
   });

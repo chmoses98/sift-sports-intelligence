@@ -11,7 +11,8 @@ import { Layer } from '../components/insight';
 import { Skeleton, TeamMark } from '../components/ui';
 import { kickoff } from '../lib/format';
 import { routes } from '../lib/routes';
-import { venueFor } from '../lib/venues';
+import { resolveHero } from '../lib/hero/resolve';
+import { heroInputFromResearch } from '../lib/hero/input';
 import { useHistoryIndex, useTeamHistory } from '../history/load';
 import { qbStarts } from '../history/team';
 import { contextNotes, nameKey } from '../insights/context';
@@ -56,7 +57,7 @@ export function NewsView() {
       for (const c of contextNotes(r, hist.data ?? null, new Map(), g).filter((x) => x.kind === 'qb-change' && !qbOut.has(x.team.abbr))) {
         out.push({ id: c.id + r.event.event_id, kind: 'qb-change', level: 'high', score: 6, team: c.team.abbr, headline: c.headline, detail: c.detail, eventId: r.event.event_id, asOf: null, game, kickoff: r.event.start_time_utc });
       }
-      const wx = gameWeather(r, venueFor(g.home.abbr, (r.context?.venue as { name?: string } | null)?.name ?? null));
+      const wx = gameWeather(r, resolveHero(heroInputFromResearch(r, 'NFL')).venue);
       if (wx.flag) out.push({ id: `wx:${r.event.event_id}`, kind: 'weather', level: levelOf(4.5), score: 4.5, team: g.home.abbr, headline: `${wx.flag} expected for ${game}`, detail: `Kickoff forecast: ${wx.temp}° ${wx.condition ?? ''}${wx.wind ? `, ${wx.wind.toLowerCase()}` : ''}${wx.precip != null ? `, ${wx.precip}% chance of precipitation` : ''}.`, eventId: r.event.event_id, asOf: null, game, kickoff: r.event.start_time_utc });
     }
     return out.sort((a, b) => b.score - a.score || a.kickoff.localeCompare(b.kickoff));

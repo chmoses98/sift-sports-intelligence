@@ -1,0 +1,11 @@
+{
+ "$comment": "Commons files that must never be a game hero again: each shows the right building at the WRONG event (another team, another sport, a bowl or championship), which is exactly what made a Saints home game look like Super Bowl LIX. tests/heroRegistry.test.ts fails if any is pinned.",
+ "files": [
+  {"file": "File:Super Bowl LIX (54360870227).jpg", "venue": "caesars-superdome", "why": "Super Bowl LIX branding (Chiefs/Eagles end zones), not a Saints home game"},
+  {"file": "File:Boise State 2010 Fiesta Bowl.jpg", "venue": "state-farm-stadium", "why": "2010 Fiesta Bowl (Boise State v TCU), not a Cardinals home game"},
+  {"file": "File:2017-10-26 - Atlanta United vs Columbus Crew.jpg", "venue": "mercedes-benz-stadium", "why": "Atlanta United soccer configuration, not a Falcons home game"},
+  {"file": "File:Vegas Kickoff Classic, Brigham Young University (BYU) Cougars 24, University of Arizona Wildcats 16, Allegiant Stadium, Las Vegas, Nevada (52271295939).jpg", "venue": "allegiant-stadium", "why": "BYU v Arizona college game, not a Raiders (or UNLV) home game"},
+  {"file": "File:2019 CFP - Clemson entrance.jpg", "venue": "levis-stadium", "why": "College Football Playoff final (Clemson v Alabama), not a 49ers home game"},
+  {"file": "File:2022 CONCACAF Champions League Final - View from southeast corner at night.jpg", "venue": "lumen-field", "why": "CONCACAF soccer final configuration, not a Seahawks home game"}
+ ]
+}

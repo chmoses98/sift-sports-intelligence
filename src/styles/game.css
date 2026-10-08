@@ -25,7 +25,6 @@
     radial-gradient(40% 70% at 4% 60%, color-mix(in srgb, var(--away) 26%, transparent), transparent 75%),
     radial-gradient(40% 70% at 96% 60%, color-mix(in srgb, var(--home) 26%, transparent), transparent 75%);
 }
-/* no curated photograph: the designed night-bowl fallback (.sfb) sits under the same grade */
 .mh--nophoto .mh__bg::after { background: linear-gradient(180deg, rgba(1, 11, 19, 0.55) 0%, transparent 30%, transparent 60%, rgba(1, 11, 19, 0.85) 92%, var(--graphite) 100%), linear-gradient(90deg, rgba(1, 11, 19, 0.6) 0%, transparent 28%, transparent 72%, rgba(1, 11, 19, 0.6) 100%); }
 
 .mh__in { position: relative; display: grid; gap: var(--s-5); padding: var(--s-5) var(--s-4) var(--s-4); }
@@ -466,7 +465,6 @@
   .mh--hero .teammark--xl { width: 60px; height: 60px; }
   .mh--hero .mh__name { font-size: clamp(2.2rem, 9.5vw, 3rem); }
   .mh--hero .mh__teams { gap: var(--s-3); }
-  .sfb__fascia { display: none; }
 }
 
 

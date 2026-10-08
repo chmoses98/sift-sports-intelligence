@@ -37,6 +37,13 @@ export function mlbClub(abbr: string | null | undefined): MlbClub | null {
   return MLB_CLUBS[a] ?? MLB_CLUBS[ALIAS[a] ?? ''] ?? null;
 }
 
+/** The registry code for a club ("OAK" → "ATH", "CHW" → "CWS"), or null for an unknown code. */
+export function mlbCode(abbr: string | null | undefined): string | null {
+  if (!abbr) return null;
+  const a = abbr.toUpperCase();
+  return MLB_CLUBS[a] ? a : ALIAS[a] && MLB_CLUBS[ALIAS[a]] ? ALIAS[a] : null;
+}
+
 /** "ATL" → "Braves". Never a football name: an unknown code stays the code. */
 export function mlbNick(abbr: string | null | undefined): string | null {
   return abbr ? mlbClub(abbr)?.nick ?? abbr : null;

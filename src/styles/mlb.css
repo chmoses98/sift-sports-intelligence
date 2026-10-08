@@ -4,9 +4,9 @@
 /* ---- game lines */
 .mlines__t { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
 .mlines__t th, .mlines__t td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
-.mlines__t thead th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); font-weight: 650; }
-.mlines__t tbody th { font-weight: 550; }
-.mlines__t td.num { white-space: nowrap; font-family: var(--font-num); }
+.mlines__t thead th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); font-weight: 600; }
+.mlines__t tbody th { font-weight: 500; }
+.mlines__t td.num { white-space: nowrap; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 
 /* ---- player props */
 .pp { display: grid; gap: 14px; min-width: 0; }
@@ -17,31 +17,31 @@
 .pp__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .pp__player { padding: 12px; border-radius: var(--r-2); border: 1px solid var(--line); background: var(--panel-deep); display: grid; gap: 10px; min-width: 0; }
 .pp__ph { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-.pp__name { margin: 0; font-size: var(--fs-md); font-weight: 680; color: var(--text-hi); }
+.pp__name { margin: 0; font-size: var(--fs-md); font-weight: 700; color: var(--text-hi); }
 .pp__team { font-size: var(--fs-xs); color: var(--text-3); }
 .pp__lineup { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: var(--r-pill); border: 1px solid var(--line-2); font-size: 0.72rem; color: var(--text-2); }
 .pp__lineup--confirmed { border-color: rgba(31, 224, 143, 0.45); }
 .pp__lineup--unconfirmed { border-style: dashed; color: var(--text-3); }
 .pp__fam { display: grid; gap: 6px; min-width: 0; }
 .pp__fh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
-.pp__ft { margin: 0; font-size: var(--fs-sm); font-weight: 650; color: var(--text); }
-.pp__exp { font-size: var(--fs-xs); color: var(--text-2); font-family: var(--font-num); }
-.pp__research { font-size: 0.72rem; font-weight: 650; padding: 1px 8px; border-radius: var(--r-pill); border: 1px dashed var(--gold-line); color: var(--gold-2); }
+.pp__ft { margin: 0; font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+.pp__exp { font-size: var(--fs-xs); color: var(--text-2); font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.pp__research { font-size: 0.72rem; font-weight: 600; padding: 1px 8px; border-radius: var(--r-pill); border: 1px dashed var(--gold-line); color: var(--gold-2); }
 .pp__drivers { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: var(--fs-xs); color: var(--text-3); }
 .pp__drivers b { color: var(--text-2); font-weight: 600; }
 .pp__t { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); table-layout: fixed; }
 .pp__t th, .pp__t td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
-.pp__t thead th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); font-weight: 650; }
+.pp__t thead th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); font-weight: 600; }
 .pp__t thead th:nth-child(1) { width: 3.6em; }
 .pp__t thead th:nth-child(3) { width: 26%; }
 .pp__t thead th:nth-child(4) { width: 30%; }
 .pp__yes { color: var(--text-2); }
 .pp__mkt, .pp__model { display: grid; gap: 1px; }
-.pp__mkt b, .pp__model b { font-family: var(--font-num); color: var(--text-hi); font-weight: 650; }
+.pp__mkt b, .pp__model b { font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--text-hi); font-weight: 600; }
 .pp__ba { font-size: 0.72rem; color: var(--text-3); white-space: nowrap; }
 .pp__ml { font-size: 0.68rem; color: var(--text-3); }
 .pp__status { display: grid; gap: 3px; }
-.pp__badge { justify-self: start; font-size: 0.72rem; font-weight: 650; padding: 1px 7px; border-radius: var(--r-1); border: 1px dashed var(--line-3); color: var(--text-2); }
+.pp__badge { justify-self: start; font-size: 0.72rem; font-weight: 600; padding: 1px 7px; border-radius: var(--r-1); border: 1px dashed var(--line-3); color: var(--text-2); }
 .pp__reason { font-size: 0.72rem; color: var(--text-3); }
 .pp__none { font-size: 0.76rem; color: var(--text-3); }
 .pp__more summary { cursor: pointer; font-size: var(--fs-xs); color: var(--text-3); min-height: 32px; display: flex; align-items: center; }

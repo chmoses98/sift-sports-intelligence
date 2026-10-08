@@ -10,7 +10,7 @@ const EXCEPTIONS: Record<string, string> = {};
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
-  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor()],
+  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'How Each Game Could End' }).waitFor()],
   ['slate', './#/nfl/slate', (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor()],
   ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor()],
   ['game-script', `./#/nfl/game/${NEBUF}?tab=script`, (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor()],

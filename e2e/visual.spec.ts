@@ -20,7 +20,7 @@ test.beforeEach(async ({ page, market }) => {
 
 const SCREENS: { name: string; url: string; wait: (p: Page) => Promise<unknown>; full?: boolean }[] = [
   { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor(), full: true },
-  { name: 'nfl-home', url: './#/nfl', wait: (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor(), full: true },
+  { name: 'nfl-home', url: './#/nfl', wait: (p) => p.getByRole('heading', { name: 'How Each Game Could End' }).waitFor(), full: true },
   { name: 'slate', url: './#/nfl/slate', wait: (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor() },
   { name: 'game', url: `./#/nfl/game/${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor(), full: true },
   { name: 'game-script', url: `./#/nfl/game/${NEBUF}?tab=script&script=fav`, wait: (p) => p.getByRole('heading', { name: 'Choose a script' }).waitFor(), full: true },

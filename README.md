@@ -64,7 +64,10 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 
 * [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — stack choice, hash routing on GitHub Pages, data access,
   live vs snapshot sources, performance budget, the packet port, PWA, deployment, accessibility.
-* [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) — the *signal from noise* visual system (live at `#/design`).
+* [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) — the *signal from noise* visual system (live at `#/design`); Barlow is the
+  one typeface.
+* [docs/SLATE_PRIORITIES.md](docs/SLATE_PRIORITIES.md) — the NFL home's Slate Priorities rail (every rule, field and
+  threshold) and the plain-English game-script titles.
 * [docs/INSIGHTS.md](docs/INSIGHTS.md) — the insight layer: matchup edges, context notes, scheme pairings,
   props to watch, news importance, research findings, and the nflverse history layer behind them.
 * [docs/NHL.md](docs/NHL.md) — the NHL vertical: data consumed, screens, script survival, research candidates,

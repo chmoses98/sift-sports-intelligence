@@ -1,7 +1,10 @@
-import '@fontsource/instrument-serif/latin-400.css';
-import '@fontsource/instrument-serif/latin-400-italic.css';
-import '@fontsource-variable/instrument-sans/wght.css';
-import '@fontsource-variable/roboto-mono/wght.css';
+// Barlow is the one Sift typeface (self-hosted @fontsource; tokens.css → --font-sans). Only the four weights
+// the interface uses; each weight's CSS carries latin, latin-ext and vietnamese subsets behind unicode-range,
+// so a browser downloads only the subsets a page actually renders. No italics: font-synthesis is off.
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '@fontsource/barlow/600.css';
+import '@fontsource/barlow/700.css';
 import './styles/tokens.css';
 import './styles/sift.css';
 import './styles/shell.css';

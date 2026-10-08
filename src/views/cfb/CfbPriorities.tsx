@@ -171,7 +171,7 @@ export function CfbSlatePriorities({ games, doc, loading, slug, now }: { games: 
               <Matchup x={p.look.x} />
               <span className="prio__why">
                 {p.look.x.valueWatch
-                  ? <><Kind k="value">Value signal · {s.moderate_control.label}</Kind> {p.look.tag}: {priceText(p.look.team ?? '', p.look.x.price)}.</>
+                  ? <><Kind k="value">Value signal</Kind> {p.look.tag}: {priceText(p.look.team ?? '', p.look.x.price)}.</>
                   : <><Kind k="read">Football read · not a bet</Kind> {p.look.tag}: {p.look.team} {STRENGTH_LABEL.STRONG.toLowerCase()}.</>}
               </span>
             </Item>

@@ -1,0 +1,395 @@
+{
+ "_fixture": "Reduced from the cfb-edge-finder V2 shadow build of 26OCT08MOSUWKU (as of 2026-10-08T01:30Z): extensions.script_engine only, metric tables and market expressions removed.",
+ "extensions": {
+  "script_engine": {
+   "band_policy": {
+    "away_points": "UNCALIBRATED_DESCRIPTIVE",
+    "home_margin": "ARCHETYPE_DEFINITION",
+    "home_points": "UNCALIBRATED_DESCRIPTIVE",
+    "rule": "Margin bands define the archetype. Scoring bands are drawn around the descriptive, uncalibrated scoring baseline: research context only, never grounds for calling a total or team-total contract supported, until the scoring-band promotion gate passes.",
+    "total_points": "UNCALIBRATED_DESCRIPTIVE"
+   },
+   "claims_v2": {
+    "abstentions": [],
+    "activation": "SHADOW",
+    "calibration": {
+     "artifact": "data/scripting/calibration/control_margin_v2.json",
+     "calibration_version": "cfb-control-margin/2021-2025/1.0.0",
+     "development_seasons": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+     ],
+     "schema": "cfb_control_margin_calibration/1.0.0",
+     "sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+     "source_parameters_sha256": "683d075d99efdfed16f7fb35a9fd58234808d1a354f8fb8e3352c64e972bf7aa",
+     "validation_seasons": [
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+     ]
+    },
+    "claims": {
+     "closeness": {
+      "claims_winner": false,
+      "evidence": [
+       "EVEN_MATCHUP"
+      ],
+      "family": "CLOSENESS",
+      "statement": "The evidence supports a relatively close game.",
+      "uncertainty": 1.457,
+      "value": 0.304
+     },
+     "control": null,
+     "defensive_suppression": null,
+     "disruption": [],
+     "explosive_upset": {
+      "methodology": "V1 rule and V1 script, unchanged (historical explosive-play counts unavailable)",
+      "script_ids": [],
+      "status": "UNTESTED_HISTORICALLY_DATA_UNAVAILABLE"
+     },
+     "pace": null,
+     "scoring_environment": null
+    },
+    "claims_artifact_hash": "1da28c9a4fbbc88d20de1a22a7992462d482b61e2a7ef1b7df03e21d5d48eb14",
+    "data_quality": {
+     "all_gates_pass": true,
+     "describes": "the quality and completeness of the football evidence (coverage, sample, adjustment stability, availability, identity) -- never how likely a claim is to come true",
+     "level": "MEDIUM",
+     "reasons": []
+    },
+    "generated_at": "2026-10-08T01:30:00Z",
+    "market_authority": {
+     "counts": {
+      "DIRECT_FOOTBALL_AUTHORITY": 0,
+      "NO_MARKET_AUTHORITY": 56,
+      "RESEARCH_CONTEXT_ONLY": 0,
+      "RESEARCH_UNCALIBRATED": 86,
+      "UNMAPPABLE": 78
+     },
+     "explosive_upset_v1": [],
+     "moneyline": [],
+     "schema_version": "cfb_claims_market_authority/1.0.0"
+    },
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/2.0.0",
+    "outcome_strength_source": "CONTROL.strength",
+    "probability": null,
+    "schema_version": "cfb_script_claims/2.0.0",
+    "source": {
+     "football_artifact_hash": "6d653fc97874a28ec56e5869d1d0ea60f07a38080243d13bafe740dfec38ca0c",
+     "football_methodology_version": "cfb-script-engine/1.3.0",
+     "football_schema_version": "cfb_script_artifact/1.0.0"
+    },
+    "status": "CLAIMS_PUBLISHED",
+    "status_statement": null,
+    "story": {
+     "clauses": [
+      {
+       "claims": [
+        "closeness"
+       ],
+       "text": "Close-game profile."
+      }
+     ],
+     "generated_from": "V2 claims only; deterministic templates; no market input; not a calibrated archetype",
+     "headline": "Close-game profile."
+    },
+    "teams": {
+     "away": {
+      "name": "Missouri State",
+      "team_id": "2623"
+     },
+     "home": {
+      "name": "Western Kentucky",
+      "team_id": "98"
+     }
+    }
+   },
+   "data_confidence": {
+    "adjustment_stable": true,
+    "all_gates_pass": true,
+    "availability_status": {
+     "away": "OBSERVED",
+     "home": "OBSERVED"
+    },
+    "core_coverage": {
+     "away": 1.0,
+     "home": 1.0
+    },
+    "describes": "the quality of the football evidence, never how strongly a side or script is favoured",
+    "enhanced_dimensions": [
+     "sustained_efficiency",
+     "rushing",
+     "passing",
+     "explosiveness",
+     "finishing"
+    ],
+    "freshness": {
+     "expected_prior_games": 9,
+     "missing_game_ids": [],
+     "rule": "every finished prior game of either team that involved an FBS team must be in the game log",
+     "status": "FRESH"
+    },
+    "games_observed": {
+     "away": 4,
+     "home": 5
+    },
+    "gates": {
+     "adjusted_inputs": true,
+     "availability": true,
+     "freshness": true,
+     "identity": true,
+     "market_blind": true,
+     "sample_size": true
+    },
+    "known": [
+     "Western Kentucky: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Western Kentucky: prior weight on key adjusted metrics up to 46%",
+     "Missouri State: 4 completed game(s) before kickoff, core metric coverage 100%",
+     "Missouri State: prior weight on key adjusted metrics up to 52%"
+    ],
+    "level": "MEDIUM",
+    "reasons": [],
+    "unknown": [
+     "weather, travel distance, coaching tendencies and motivation are not part of the V1 evidence"
+    ]
+   },
+   "game_scripts": [],
+   "matchup_findings": [
+    {
+     "category": "ENVIRONMENT",
+     "code": "EVEN_MATCHUP",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate",
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "game",
+     "statement": "Neither team owns the opponent-adjusted efficiency or scoring matchup (efficiency gap +0.30, scoring gap -0.69).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.457,
+     "value": 0.304
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "AWAY_HIGH_VARIANCE_OFFENSE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.yards_per_play"
+     ],
+     "side": "away",
+     "statement": "Missouri State's offense has swung widely from game to game relative to its opponents (game-to-game residual variation in the 100th percentile of FBS).",
+     "strength": "MODERATE",
+     "threshold": 0.8,
+     "uncertainty": null,
+     "value": 1.0
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HIGH_VARIANCE_MATCHUP",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.yards_per_play",
+      "home.offense.turnovers_per_game"
+     ],
+     "side": "game",
+     "statement": "2 independent volatility indicators are present: this matchup has wide outcomes.",
+     "strength": "MODERATE",
+     "threshold": 2.0,
+     "uncertainty": null,
+     "value": 2.0
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HOME_OFFENSE_TURNOVER_PRONE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "home.offense.turnovers_per_game"
+     ],
+     "side": "home",
+     "statement": "Western Kentucky's offense has given the ball away at a high rate (+1.50 SD). Regression-prone: reported as volatility, never as a cause on its own.",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.498
+    }
+   ],
+   "matchup_profile": {
+    "adjustment": {
+     "config": {
+      "prior_games_fbs": 4.0,
+      "prior_games_group_offset": 0.5,
+      "prior_games_home_effect": 1.0,
+      "prior_games_non_fbs": 8.0,
+      "weight_cap": 2.5,
+      "weight_floor": 0.25
+     },
+     "cutoff_exclusive": "2026-10-08T08:00:00Z",
+     "fbs_schedule_components": 1,
+     "games_in_window": 391,
+     "median_fbs_games": 5.0,
+     "stable": true
+    },
+    "dimensions": {},
+    "legend": {},
+    "metric_columns": [
+     "raw",
+     "adjusted",
+     "adjusted_available",
+     "adjusted_unavailable_reason",
+     "standard_error",
+     "rank",
+     "universe_size",
+     "rank_basis",
+     "direction",
+     "games",
+     "effective_n",
+     "prior_weight",
+     "source",
+     "observed_at",
+     "quality"
+    ],
+    "scoring_baseline": {
+     "away_points": 26.0,
+     "home_effect_applied": 3.3,
+     "home_margin": 3.9,
+     "home_points": 29.9,
+     "label": "opponent-adjusted scoring baseline -- descriptive, uncalibrated, NOT a projection",
+     "refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "total_points": 56.0,
+     "uncertainty_points": 7.5
+    },
+    "teams": {
+     "away": {
+      "division": "fbs",
+      "games_observed": 4,
+      "games_with_play_log": 4,
+      "metrics": {},
+      "name": "Missouri State",
+      "quarterback": {
+       "changed": false,
+       "games": 4,
+       "last_game_primary": "Skyler Locklear",
+       "season_primary": "Skyler Locklear"
+      },
+      "record_in_window": {
+       "losses": 3,
+       "wins": 1
+      },
+      "residual_sd": {
+       "defense_points": 7.836,
+       "defense_yards_per_play": 0.5406,
+       "offense_points": 9.3816,
+       "offense_yards_per_play": 1.9268
+      },
+      "season": 2026,
+      "team_id": "2623",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     },
+     "home": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Western Kentucky",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Rodney Tisdale Jr.",
+       "season_primary": "Rodney Tisdale Jr."
+      },
+      "record_in_window": {
+       "losses": 4,
+       "wins": 1
+      },
+      "residual_sd": {
+       "defense_points": 13.3416,
+       "defense_yards_per_play": 1.0806,
+       "offense_points": 8.0525,
+       "offense_yards_per_play": 1.2055
+      },
+      "season": 2026,
+      "team_id": "98",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     }
+    }
+   },
+   "script_generation": {
+    "adjustment_version": "cfb-opponent-adjustment/1.0.0",
+    "artifact_hash": "6d653fc97874a28ec56e5869d1d0ea60f07a38080243d13bafe740dfec38ca0c",
+    "data_confidence": "MEDIUM",
+    "event_id_football": "401871052",
+    "football_data_cutoff": "2026-10-08T08:00:00Z",
+    "generated_at": "2026-10-08T01:30:00Z",
+    "identity": {
+     "espn_event_id": "401871052",
+     "orientation_swapped": false,
+     "status": "PASS"
+    },
+    "mapped_at": "2026-10-08T01:30:00Z",
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/1.3.0",
+    "prices_captured_at": "2026-10-07T23:19:34.451947Z",
+    "regeneration_reasons": [
+     "CONTENT_CHANGED_WITHOUT_INPUT_CHANGE"
+    ]
+   },
+   "script_market_map": {
+    "expressions": [],
+    "survival_columns": [
+     "supported",
+     "partial",
+     "contradicted",
+     "neutral",
+     "total_scripts",
+     "meaningful_scripts",
+     "weighted_score",
+     "research_uncalibrated"
+    ]
+   },
+   "sift_read": {
+    "caveats": [],
+    "data_confidence": "MEDIUM",
+    "generated_from": "structured findings and script summaries only; no market input",
+    "headline": "No opponent-adjusted matchup difference between Western Kentucky and Missouri State clears its evidence threshold; no script is published.",
+    "headline_findings": [],
+    "points": []
+   },
+   "status": "NO_SCRIPT_CLEARED_EVIDENCE",
+   "version": "cfb_script_engine_payload/1.2.0"
+  }
+ }
+}

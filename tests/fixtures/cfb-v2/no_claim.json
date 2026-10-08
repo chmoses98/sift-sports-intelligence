@@ -1,0 +1,409 @@
+{
+ "_fixture": "Reduced from the cfb-edge-finder V2 shadow build of 26OCT08SHSULIB (as of 2026-10-08T01:30Z): extensions.script_engine only, metric tables and market expressions removed.",
+ "extensions": {
+  "script_engine": {
+   "band_policy": {
+    "away_points": "UNCALIBRATED_DESCRIPTIVE",
+    "home_margin": "ARCHETYPE_DEFINITION",
+    "home_points": "UNCALIBRATED_DESCRIPTIVE",
+    "rule": "Margin bands define the archetype. Scoring bands are drawn around the descriptive, uncalibrated scoring baseline: research context only, never grounds for calling a total or team-total contract supported, until the scoring-band promotion gate passes.",
+    "total_points": "UNCALIBRATED_DESCRIPTIVE"
+   },
+   "claims_v2": {
+    "abstentions": [],
+    "activation": "SHADOW",
+    "calibration": {
+     "artifact": "data/scripting/calibration/control_margin_v2.json",
+     "calibration_version": "cfb-control-margin/2021-2025/1.0.0",
+     "development_seasons": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+     ],
+     "schema": "cfb_control_margin_calibration/1.0.0",
+     "sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+     "source_parameters_sha256": "683d075d99efdfed16f7fb35a9fd58234808d1a354f8fb8e3352c64e972bf7aa",
+     "validation_seasons": [
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+     ]
+    },
+    "claims": {
+     "closeness": null,
+     "control": null,
+     "defensive_suppression": null,
+     "disruption": [],
+     "explosive_upset": {
+      "methodology": "V1 rule and V1 script, unchanged (historical explosive-play counts unavailable)",
+      "script_ids": [],
+      "status": "UNTESTED_HISTORICALLY_DATA_UNAVAILABLE"
+     },
+     "pace": null,
+     "scoring_environment": null
+    },
+    "claims_artifact_hash": "18827f04f7c6dcfc7a6759a5b4eff728e3a888266e78837bf0ca2f5446484e12",
+    "data_quality": {
+     "all_gates_pass": true,
+     "describes": "the quality and completeness of the football evidence (coverage, sample, adjustment stability, availability, identity) -- never how likely a claim is to come true",
+     "level": "MEDIUM",
+     "reasons": []
+    },
+    "generated_at": "2026-10-08T01:30:00Z",
+    "market_authority": {
+     "counts": {
+      "DIRECT_FOOTBALL_AUTHORITY": 0,
+      "NO_MARKET_AUTHORITY": 66,
+      "RESEARCH_CONTEXT_ONLY": 0,
+      "RESEARCH_UNCALIBRATED": 88,
+      "UNMAPPABLE": 74
+     },
+     "explosive_upset_v1": [],
+     "moneyline": [],
+     "schema_version": "cfb_claims_market_authority/1.0.0"
+    },
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/2.0.0",
+    "outcome_strength_source": "CONTROL.strength",
+    "probability": null,
+    "schema_version": "cfb_script_claims/2.0.0",
+    "source": {
+     "football_artifact_hash": "bd49d04f8f7b74e2f974fbc0b950b4e27930bc3552cc077ebee036c610752e9f",
+     "football_methodology_version": "cfb-script-engine/1.3.0",
+     "football_schema_version": "cfb_script_artifact/1.0.0"
+    },
+    "status": "NO_SUPPORTED_CLAIM",
+    "status_statement": "No supported matchup claim cleared the evidence requirements.",
+    "story": {
+     "clauses": [
+      {
+       "claims": [],
+       "text": "No supported matchup claim cleared the evidence requirements."
+      }
+     ],
+     "generated_from": "V2 claims only; deterministic templates; no market input; not a calibrated archetype",
+     "headline": "No supported matchup claim cleared the evidence requirements."
+    },
+    "teams": {
+     "away": {
+      "name": "Sam Houston",
+      "team_id": "2534"
+     },
+     "home": {
+      "name": "Liberty",
+      "team_id": "2335"
+     }
+    }
+   },
+   "data_confidence": {
+    "adjustment_stable": true,
+    "all_gates_pass": true,
+    "availability_status": {
+     "away": "OBSERVED",
+     "home": "OBSERVED"
+    },
+    "core_coverage": {
+     "away": 1.0,
+     "home": 1.0
+    },
+    "describes": "the quality of the football evidence, never how strongly a side or script is favoured",
+    "enhanced_dimensions": [
+     "sustained_efficiency",
+     "rushing",
+     "passing",
+     "explosiveness",
+     "finishing"
+    ],
+    "freshness": {
+     "expected_prior_games": 9,
+     "missing_game_ids": [],
+     "rule": "every finished prior game of either team that involved an FBS team must be in the game log",
+     "status": "FRESH"
+    },
+    "games_observed": {
+     "away": 4,
+     "home": 5
+    },
+    "gates": {
+     "adjusted_inputs": true,
+     "availability": true,
+     "freshness": true,
+     "identity": true,
+     "market_blind": true,
+     "sample_size": true
+    },
+    "known": [
+     "Liberty: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Liberty: prior weight on key adjusted metrics up to 46%",
+     "Sam Houston: 4 completed game(s) before kickoff, core metric coverage 100%",
+     "Sam Houston: prior weight on key adjusted metrics up to 50%"
+    ],
+    "level": "MEDIUM",
+    "reasons": [],
+    "unknown": [
+     "weather, travel distance, coaching tendencies and motivation are not part of the V1 evidence"
+    ]
+   },
+   "game_scripts": [],
+   "matchup_findings": [
+    {
+     "category": "MATCHUP",
+     "code": "HOME_EXPLOSIVE_ADVANTAGE",
+     "dimension": "explosiveness",
+     "metric_refs": [
+      "home.offense.explosive_play_rate",
+      "away.defense.explosive_play_rate",
+      "home.offense.explosive_rush_rate",
+      "away.defense.explosive_rush_rate",
+      "home.offense.explosive_pass_rate",
+      "away.defense.explosive_pass_rate",
+      "away.offense.explosive_play_rate",
+      "home.defense.explosive_play_rate",
+      "away.offense.explosive_rush_rate",
+      "home.defense.explosive_rush_rate",
+      "away.offense.explosive_pass_rate",
+      "home.defense.explosive_pass_rate"
+     ],
+     "side": "home",
+     "statement": "Liberty owns the stronger opponent-adjusted explosive-play matchup: Liberty offense vs Sam Houston defense +1.15, Sam Houston offense vs Liberty defense -1.02 (explosive-play rate, opponent-adjusted: Liberty offense #29 of 138, Sam Houston defense #100 of 138).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.642,
+     "value": 2.178
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_RUSH_EXPLOSIVE_ADVANTAGE",
+     "dimension": "explosiveness",
+     "metric_refs": [
+      "home.offense.explosive_rush_rate",
+      "away.defense.explosive_rush_rate"
+     ],
+     "side": "home",
+     "statement": "Liberty's explosive rushing offense meets a Sam Houston defense that allows explosive rush plays (+2.38).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.648,
+     "value": 2.384
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_RUSH_ADVANTAGE",
+     "dimension": "rushing",
+     "metric_refs": [
+      "home.offense.rush_success_rate",
+      "away.defense.rush_success_rate",
+      "home.offense.yards_per_designed_rush",
+      "away.defense.yards_per_designed_rush",
+      "home.offense.yards_per_rush",
+      "away.defense.yards_per_rush"
+     ],
+     "side": "home",
+     "statement": "Liberty's rushing offense meets a Sam Houston defense it out-rates on the matchup scale (+1.72) (rush success rate, opponent-adjusted: Liberty offense #16 of 138, Sam Houston defense #100 of 138).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.45,
+     "value": 1.718
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_SCORING_ADVANTAGE",
+     "dimension": "scoring",
+     "metric_refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "side": "home",
+     "statement": "Liberty owns the stronger opponent-adjusted scoring matchup: Liberty offense vs Sam Houston defense +0.27, Sam Houston offense vs Liberty defense -1.21 (points per game, opponent-adjusted: Liberty offense #66 of 138, Sam Houston defense #84 of 138).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.323,
+     "value": 1.484
+    }
+   ],
+   "matchup_profile": {
+    "adjustment": {
+     "config": {
+      "prior_games_fbs": 4.0,
+      "prior_games_group_offset": 0.5,
+      "prior_games_home_effect": 1.0,
+      "prior_games_non_fbs": 8.0,
+      "weight_cap": 2.5,
+      "weight_floor": 0.25
+     },
+     "cutoff_exclusive": "2026-10-08T08:00:00Z",
+     "fbs_schedule_components": 1,
+     "games_in_window": 391,
+     "median_fbs_games": 5.0,
+     "stable": true
+    },
+    "dimensions": {},
+    "legend": {},
+    "metric_columns": [
+     "raw",
+     "adjusted",
+     "adjusted_available",
+     "adjusted_unavailable_reason",
+     "standard_error",
+     "rank",
+     "universe_size",
+     "rank_basis",
+     "direction",
+     "games",
+     "effective_n",
+     "prior_weight",
+     "source",
+     "observed_at",
+     "quality"
+    ],
+    "scoring_baseline": {
+     "away_points": 18.3,
+     "home_effect_applied": 3.3,
+     "home_margin": 12.4,
+     "home_points": 30.7,
+     "label": "opponent-adjusted scoring baseline -- descriptive, uncalibrated, NOT a projection",
+     "refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "total_points": 48.9,
+     "uncertainty_points": 7.5
+    },
+    "teams": {
+     "away": {
+      "division": "fbs",
+      "games_observed": 4,
+      "games_with_play_log": 4,
+      "metrics": {},
+      "name": "Sam Houston",
+      "quarterback": {
+       "changed": false,
+       "games": 4,
+       "last_game_primary": "Landyn Locke",
+       "season_primary": "Landyn Locke"
+      },
+      "record_in_window": {
+       "losses": 3,
+       "wins": 1
+      },
+      "residual_sd": {
+       "defense_points": 9.4336,
+       "defense_yards_per_play": 0.7981,
+       "offense_points": 7.1002,
+       "offense_yards_per_play": 0.5764
+      },
+      "season": 2026,
+      "team_id": "2534",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     },
+     "home": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Liberty",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Deshawn Purdie",
+       "season_primary": "Deshawn Purdie"
+      },
+      "record_in_window": {
+       "losses": 1,
+       "wins": 4
+      },
+      "residual_sd": {
+       "defense_points": 9.2395,
+       "defense_yards_per_play": 0.6028,
+       "offense_points": 12.4985,
+       "offense_yards_per_play": 1.1566
+      },
+      "season": 2026,
+      "team_id": "2335",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     }
+    }
+   },
+   "script_generation": {
+    "adjustment_version": "cfb-opponent-adjustment/1.0.0",
+    "artifact_hash": "bd49d04f8f7b74e2f974fbc0b950b4e27930bc3552cc077ebee036c610752e9f",
+    "data_confidence": "MEDIUM",
+    "event_id_football": "401870766",
+    "football_data_cutoff": "2026-10-08T08:00:00Z",
+    "generated_at": "2026-10-08T01:30:00Z",
+    "identity": {
+     "espn_event_id": "401870766",
+     "orientation_swapped": false,
+     "status": "PASS"
+    },
+    "mapped_at": "2026-10-08T01:30:00Z",
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/1.3.0",
+    "prices_captured_at": "2026-10-07T23:19:34.451947Z",
+    "regeneration_reasons": [
+     "CONTENT_CHANGED_WITHOUT_INPUT_CHANGE"
+    ]
+   },
+   "script_market_map": {
+    "expressions": [],
+    "survival_columns": [
+     "supported",
+     "partial",
+     "contradicted",
+     "neutral",
+     "total_scripts",
+     "meaningful_scripts",
+     "weighted_score",
+     "research_uncalibrated"
+    ]
+   },
+   "sift_read": {
+    "caveats": [],
+    "data_confidence": "MEDIUM",
+    "generated_from": "structured findings and script summaries only; no market input",
+    "headline": "Liberty owns the stronger opponent-adjusted explosive-play matchup: Liberty offense vs Sam Houston defense +1.15, Sam Houston offense vs Liberty defense -1.02 (explosive-play rate, opponent-adjusted: Liberty offense #29 of 138, Sam Houston defense #100 of 138).",
+    "headline_findings": [
+     "HOME_EXPLOSIVE_ADVANTAGE"
+    ],
+    "points": [
+     {
+      "findings": [
+       "HOME_EXPLOSIVE_ADVANTAGE"
+      ],
+      "text": "Liberty owns the stronger opponent-adjusted explosive-play matchup: Liberty offense vs Sam Houston defense +1.15, Sam Houston offense vs Liberty defense -1.02 (explosive-play rate, opponent-adjusted: Liberty offense #29 of 138, Sam Houston defense #100 of 138)."
+     },
+     {
+      "findings": [
+       "HOME_RUSH_EXPLOSIVE_ADVANTAGE"
+      ],
+      "text": "Liberty's explosive rushing offense meets a Sam Houston defense that allows explosive rush plays (+2.38)."
+     },
+     {
+      "findings": [
+       "HOME_RUSH_ADVANTAGE"
+      ],
+      "text": "Liberty's rushing offense meets a Sam Houston defense it out-rates on the matchup scale (+1.72) (rush success rate, opponent-adjusted: Liberty offense #16 of 138, Sam Houston defense #100 of 138)."
+     }
+    ]
+   },
+   "status": "NO_SCRIPT_CLEARED_EVIDENCE",
+   "version": "cfb_script_engine_payload/1.2.0"
+  }
+ }
+}

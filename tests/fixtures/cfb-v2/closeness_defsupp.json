@@ -1,0 +1,649 @@
+{
+ "_fixture": "Reduced from the cfb-edge-finder V2 shadow build of 26OCT09WSUUSU (as of 2026-10-08T01:30Z): extensions.script_engine only, metric tables and market expressions removed.",
+ "extensions": {
+  "script_engine": {
+   "band_policy": {
+    "away_points": "UNCALIBRATED_DESCRIPTIVE",
+    "home_margin": "ARCHETYPE_DEFINITION",
+    "home_points": "UNCALIBRATED_DESCRIPTIVE",
+    "rule": "Margin bands define the archetype. Scoring bands are drawn around the descriptive, uncalibrated scoring baseline: research context only, never grounds for calling a total or team-total contract supported, until the scoring-band promotion gate passes.",
+    "total_points": "UNCALIBRATED_DESCRIPTIVE"
+   },
+   "claims_v2": {
+    "abstentions": [],
+    "activation": "SHADOW",
+    "calibration": {
+     "artifact": "data/scripting/calibration/control_margin_v2.json",
+     "calibration_version": "cfb-control-margin/2021-2025/1.0.0",
+     "development_seasons": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+     ],
+     "schema": "cfb_control_margin_calibration/1.0.0",
+     "sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+     "source_parameters_sha256": "683d075d99efdfed16f7fb35a9fd58234808d1a354f8fb8e3352c64e972bf7aa",
+     "validation_seasons": [
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+     ]
+    },
+    "claims": {
+     "closeness": {
+      "claims_winner": false,
+      "evidence": [
+       "EVEN_MATCHUP"
+      ],
+      "family": "CLOSENESS",
+      "statement": "The evidence supports a relatively close game.",
+      "uncertainty": 1.364,
+      "value": 0.016
+     },
+     "control": null,
+     "defensive_suppression": {
+      "evidence": [
+       "BOTH_DEFENSES_CONTROL"
+      ],
+      "family": "DEFENSIVE_SUPPRESSION",
+      "numeric_band": null,
+      "statement": "Both defenses out-rate the offense they face: a lower-scoring tendency, stated without a number."
+     },
+     "disruption": [],
+     "explosive_upset": {
+      "methodology": "V1 rule and V1 script, unchanged (historical explosive-play counts unavailable)",
+      "script_ids": [],
+      "status": "UNTESTED_HISTORICALLY_DATA_UNAVAILABLE"
+     },
+     "pace": null,
+     "scoring_environment": {
+      "evidence": [
+       "LOW_SCORING_ENVIRONMENT"
+      ],
+      "family": "SCORING_ENVIRONMENT",
+      "incremental_over_baseline": false,
+      "level": "SUPPRESSED",
+      "numeric_band": null,
+      "statement": "Scoring environment: lower-scoring. The scoring baseline already expects this; the label adds no validated information beyond it.",
+      "strengthened": true,
+      "supports": []
+     }
+    },
+    "claims_artifact_hash": "5f24ad28a6ee6150bf6b7d0bbe54ea745cc2fca5c12ae4214de19e4e38d404a2",
+    "data_quality": {
+     "all_gates_pass": true,
+     "describes": "the quality and completeness of the football evidence (coverage, sample, adjustment stability, availability, identity) -- never how likely a claim is to come true",
+     "level": "HIGH",
+     "reasons": []
+    },
+    "generated_at": "2026-10-08T01:30:00Z",
+    "market_authority": {
+     "counts": {
+      "DIRECT_FOOTBALL_AUTHORITY": 0,
+      "NO_MARKET_AUTHORITY": 56,
+      "RESEARCH_CONTEXT_ONLY": 0,
+      "RESEARCH_UNCALIBRATED": 78,
+      "UNMAPPABLE": 346
+     },
+     "explosive_upset_v1": [],
+     "moneyline": [],
+     "schema_version": "cfb_claims_market_authority/1.0.0"
+    },
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/2.0.0",
+    "outcome_strength_source": "CONTROL.strength",
+    "probability": null,
+    "schema_version": "cfb_script_claims/2.0.0",
+    "source": {
+     "football_artifact_hash": "1e62e42d4e4777901c287303dbb3a4cf329b56afbfadb6b839487e42ef31869d",
+     "football_methodology_version": "cfb-script-engine/1.3.0",
+     "football_schema_version": "cfb_script_artifact/1.0.0"
+    },
+    "status": "CLAIMS_PUBLISHED",
+    "status_statement": null,
+    "story": {
+     "clauses": [
+      {
+       "claims": [
+        "closeness",
+        "scoring_environment",
+        "defensive_suppression"
+       ],
+       "text": "Close-game profile, with a lower-scoring environment the baseline already expects and defensive suppression."
+      }
+     ],
+     "generated_from": "V2 claims only; deterministic templates; no market input; not a calibrated archetype",
+     "headline": "Close-game profile, with a lower-scoring environment the baseline already expects and defensive suppression."
+    },
+    "teams": {
+     "away": {
+      "name": "Washington State",
+      "team_id": "265"
+     },
+     "home": {
+      "name": "Utah State",
+      "team_id": "328"
+     }
+    }
+   },
+   "data_confidence": {
+    "adjustment_stable": true,
+    "all_gates_pass": true,
+    "availability_status": {
+     "away": "OBSERVED",
+     "home": "OBSERVED"
+    },
+    "core_coverage": {
+     "away": 1.0,
+     "home": 1.0
+    },
+    "describes": "the quality of the football evidence, never how strongly a side or script is favoured",
+    "enhanced_dimensions": [
+     "sustained_efficiency",
+     "rushing",
+     "passing",
+     "explosiveness",
+     "finishing"
+    ],
+    "freshness": {
+     "expected_prior_games": 10,
+     "missing_game_ids": [],
+     "rule": "every finished prior game of either team that involved an FBS team must be in the game log",
+     "status": "FRESH"
+    },
+    "games_observed": {
+     "away": 5,
+     "home": 5
+    },
+    "gates": {
+     "adjusted_inputs": true,
+     "availability": true,
+     "freshness": true,
+     "identity": true,
+     "market_blind": true,
+     "sample_size": true
+    },
+    "known": [
+     "Utah State: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Utah State: prior weight on key adjusted metrics up to 45%",
+     "Washington State: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Washington State: prior weight on key adjusted metrics up to 47%"
+    ],
+    "level": "HIGH",
+    "reasons": [],
+    "unknown": [
+     "weather, travel distance, coaching tendencies and motivation are not part of the V1 evidence"
+    ]
+   },
+   "game_scripts": [
+    {
+     "archetype": "COMPETITIVE_GRIND",
+     "causal_chain": [
+      {
+       "findings": [
+        "LOW_SCORING_ENVIRONMENT",
+        "BOTH_DEFENSES_CONTROL"
+       ],
+       "step": "neither offense out-rates the defense in front of it"
+      },
+      {
+       "findings": [
+        "LOW_SCORING_ENVIRONMENT"
+       ],
+       "step": "drives stall before scoring range; field position decides"
+      },
+      {
+       "findings": [
+        "LOW_SCORING_ENVIRONMENT",
+        "BOTH_DEFENSES_CONTROL"
+       ],
+       "step": "few possessions and few points keep the total down"
+      },
+      {
+       "findings": [
+        "EVEN_MATCHUP"
+       ],
+       "step": "neither Utah State nor Washington State separates: the margin stays inside one score"
+      }
+     ],
+     "contradicting_findings": [],
+     "data_confidence": "HIGH",
+     "evidence_score": 4.0,
+     "lead_side": null,
+     "outcome_shape": {
+      "away_scoring": "BELOW_BASELINE",
+      "band_authority": {
+       "away_points": "UNCALIBRATED_DESCRIPTIVE",
+       "home_margin": "ARCHETYPE_DEFINITION",
+       "home_points": "UNCALIBRATED_DESCRIPTIVE",
+       "total_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": [
+        0,
+        16
+       ],
+       "home_margin": [
+        -8,
+        8
+       ],
+       "home_points": [
+        6,
+        21
+       ],
+       "total_points": [
+        13,
+        37
+       ]
+      },
+      "home_scoring": "BELOW_BASELINE",
+      "margin_authority_evidence": [
+       "EVEN_MATCHUP"
+      ],
+      "margin_environment": "ONE_SCORE",
+      "pace": "NOT_STATED",
+      "total_environment": "SUPPRESSED",
+      "winner_lean": "NONE"
+     },
+     "probability": null,
+     "rank": 1,
+     "required_findings": [
+      "LOW_SCORING_ENVIRONMENT"
+     ],
+     "role": "PRIMARY",
+     "script_id": "scr_7bcbb52c2f217f80",
+     "summary": "Neither offense has the upper hand; the game stays low-scoring and within one score.",
+     "supporting_findings": [
+      "BOTH_DEFENSES_CONTROL",
+      "HOME_DEFENSIVE_CONTROL",
+      "AWAY_DEFENSIVE_CONTROL"
+     ],
+     "title": "Competitive grind"
+    }
+   ],
+   "matchup_findings": [
+    {
+     "category": "MATCHUP",
+     "code": "AWAY_DEFENSIVE_CONTROL",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate"
+     ],
+     "side": "away",
+     "statement": "Washington State's defense out-rates the opposing offense on a down-to-down basis (-1.38 for Utah State's offense).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.364,
+     "value": 1.381
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_DEFENSIVE_CONTROL",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "home",
+     "statement": "Utah State's defense out-rates the opposing offense on a down-to-down basis (-1.36 for Washington State's offense).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.359,
+     "value": 1.365
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_EXPLOSIVE_ADVANTAGE",
+     "dimension": "explosiveness",
+     "metric_refs": [
+      "home.offense.explosive_play_rate",
+      "away.defense.explosive_play_rate",
+      "home.offense.explosive_rush_rate",
+      "away.defense.explosive_rush_rate",
+      "home.offense.explosive_pass_rate",
+      "away.defense.explosive_pass_rate",
+      "away.offense.explosive_play_rate",
+      "home.defense.explosive_play_rate",
+      "away.offense.explosive_rush_rate",
+      "home.defense.explosive_rush_rate",
+      "away.offense.explosive_pass_rate",
+      "home.defense.explosive_pass_rate"
+     ],
+     "side": "home",
+     "statement": "Utah State owns the stronger opponent-adjusted explosive-play matchup: Utah State offense vs Washington State defense -0.44, Washington State offense vs Utah State defense -2.12 (explosive-play rate, opponent-adjusted: Utah State offense #114 of 138, Washington State defense #98 of 138).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.56,
+     "value": 1.682
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "BOTH_DEFENSES_CONTROL",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate",
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "game",
+     "statement": "Both defenses out-rate the offense they face on sustained efficiency (Utah State offense -1.38, Washington State offense -1.36).",
+     "strength": "MODERATE",
+     "threshold": -0.75,
+     "uncertainty": null,
+     "value": -1.365
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "EVEN_MATCHUP",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate",
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "game",
+     "statement": "Neither team owns the opponent-adjusted efficiency or scoring matchup (efficiency gap -0.02, scoring gap -0.15).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.364,
+     "value": 0.016
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "LOW_SCORING_ENVIRONMENT",
+     "dimension": "scoring",
+     "metric_refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "side": "game",
+     "statement": "Each offense meets a defense it is held by on opponent-adjusted points (Utah State -1.38, Washington State -1.23).",
+     "strength": "MODERATE",
+     "threshold": 1.5,
+     "uncertainty": null,
+     "value": -2.603
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HIGH_VARIANCE_MATCHUP",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.turnovers_per_game",
+      "away.offense.yards_per_play",
+      "home.offense.turnovers_per_game"
+     ],
+     "side": "game",
+     "statement": "3 independent volatility indicators are present: this matchup has wide outcomes.",
+     "strength": "STRONG",
+     "threshold": 2.0,
+     "uncertainty": null,
+     "value": 3.0
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "AWAY_HIGH_VARIANCE_OFFENSE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.yards_per_play"
+     ],
+     "side": "away",
+     "statement": "Washington State's offense has swung widely from game to game relative to its opponents (game-to-game residual variation in the 80th percentile of FBS).",
+     "strength": "MODERATE",
+     "threshold": 0.8,
+     "uncertainty": null,
+     "value": 0.804
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "AWAY_OFFENSE_TURNOVER_PRONE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.turnovers_per_game"
+     ],
+     "side": "away",
+     "statement": "Washington State's offense has given the ball away at a high rate (+1.31 SD). Regression-prone: reported as volatility, never as a cause on its own.",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.314
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HOME_OFFENSE_TURNOVER_PRONE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "home.offense.turnovers_per_game"
+     ],
+     "side": "home",
+     "statement": "Utah State's offense has given the ball away at a high rate (+1.82 SD). Regression-prone: reported as volatility, never as a cause on its own.",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.821
+    }
+   ],
+   "matchup_profile": {
+    "adjustment": {
+     "config": {
+      "prior_games_fbs": 4.0,
+      "prior_games_group_offset": 0.5,
+      "prior_games_home_effect": 1.0,
+      "prior_games_non_fbs": 8.0,
+      "weight_cap": 2.5,
+      "weight_floor": 0.25
+     },
+     "cutoff_exclusive": "2026-10-08T08:00:00Z",
+     "fbs_schedule_components": 1,
+     "games_in_window": 391,
+     "median_fbs_games": 5.0,
+     "stable": true
+    },
+    "dimensions": {},
+    "legend": {},
+    "metric_columns": [
+     "raw",
+     "adjusted",
+     "adjusted_available",
+     "adjusted_unavailable_reason",
+     "standard_error",
+     "rank",
+     "universe_size",
+     "rank_basis",
+     "direction",
+     "games",
+     "effective_n",
+     "prior_weight",
+     "source",
+     "observed_at",
+     "quality"
+    ],
+    "scoring_baseline": {
+     "away_points": 17.5,
+     "home_effect_applied": 3.3,
+     "home_margin": 5.6,
+     "home_points": 23.1,
+     "label": "opponent-adjusted scoring baseline -- descriptive, uncalibrated, NOT a projection",
+     "refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "total_points": 40.6,
+     "uncertainty_points": 7.3
+    },
+    "teams": {
+     "away": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Washington State",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Caden Pinnick",
+       "season_primary": "Caden Pinnick"
+      },
+      "record_in_window": {
+       "losses": 4,
+       "wins": 1
+      },
+      "residual_sd": {
+       "defense_points": 4.5998,
+       "defense_yards_per_play": 0.2796,
+       "offense_points": 8.6119,
+       "offense_yards_per_play": 1.3284
+      },
+      "season": 2026,
+      "team_id": "265",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     },
+     "home": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Utah State",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Grady Brosterhous",
+       "season_primary": "Grady Brosterhous"
+      },
+      "record_in_window": {
+       "losses": 4,
+       "wins": 1
+      },
+      "residual_sd": {
+       "defense_points": 10.4744,
+       "defense_yards_per_play": 0.6263,
+       "offense_points": 10.6778,
+       "offense_yards_per_play": 1.161
+      },
+      "season": 2026,
+      "team_id": "328",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     }
+    }
+   },
+   "script_generation": {
+    "adjustment_version": "cfb-opponent-adjustment/1.0.0",
+    "artifact_hash": "1e62e42d4e4777901c287303dbb3a4cf329b56afbfadb6b839487e42ef31869d",
+    "data_confidence": "HIGH",
+    "event_id_football": "401860922",
+    "football_data_cutoff": "2026-10-09T08:00:00Z",
+    "generated_at": "2026-10-08T01:30:00Z",
+    "identity": {
+     "espn_event_id": "401860922",
+     "orientation_swapped": false,
+     "status": "PASS"
+    },
+    "mapped_at": "2026-10-08T01:30:00Z",
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/1.3.0",
+    "prices_captured_at": "2026-10-07T23:19:34.451947Z",
+    "regeneration_reasons": [
+     "CONTENT_CHANGED_WITHOUT_INPUT_CHANGE"
+    ]
+   },
+   "script_market_map": {
+    "expressions": [],
+    "survival_columns": [
+     "supported",
+     "partial",
+     "contradicted",
+     "neutral",
+     "total_scripts",
+     "meaningful_scripts",
+     "weighted_score",
+     "research_uncalibrated"
+    ]
+   },
+   "sift_read": {
+    "caveats": [],
+    "data_confidence": "HIGH",
+    "generated_from": "structured findings and script summaries only; no market input",
+    "headline": "Neither offense has the upper hand; the game stays low-scoring and within one score.",
+    "headline_findings": [
+     "LOW_SCORING_ENVIRONMENT"
+    ],
+    "points": [
+     {
+      "findings": [
+       "AWAY_DEFENSIVE_CONTROL"
+      ],
+      "text": "Washington State's defense out-rates the opposing offense on a down-to-down basis (-1.38 for Utah State's offense)."
+     },
+     {
+      "findings": [
+       "HOME_DEFENSIVE_CONTROL"
+      ],
+      "text": "Utah State's defense out-rates the opposing offense on a down-to-down basis (-1.36 for Washington State's offense)."
+     },
+     {
+      "findings": [
+       "HOME_EXPLOSIVE_ADVANTAGE"
+      ],
+      "text": "Utah State owns the stronger opponent-adjusted explosive-play matchup: Utah State offense vs Washington State defense -0.44, Washington State offense vs Utah State defense -2.12 (explosive-play rate, opponent-adjusted: Utah State offense #114 of 138, Washington State defense #98 of 138)."
+     }
+    ]
+   },
+   "status": "SINGLE_SCRIPT",
+   "version": "cfb_script_engine_payload/1.2.0"
+  }
+ }
+}

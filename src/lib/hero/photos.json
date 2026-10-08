@@ -553,35 +553,6 @@
    }
   },
   {
-   "id": "cfb-fsu-doak-campbell-stadium",
-   "sport": "CFB",
-   "team": "FSU",
-   "venue": "doak-campbell-stadium",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Renovated Doak west side, garnet crowd, garnet end zone corner",
-   "focus": {
-    "desktop": "50% 45%",
-    "mobile": "45% 50%"
-   },
-   "w": 2400,
-   "h": 1600,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "Keiteay",
-    "license": "CC BY 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Doak_Campbell_Stadium_in_2026.jpg",
-    "file": "File:Doak Campbell Stadium in 2026.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
    "id": "cfb-gt-bobby-dodd-stadium",
    "sport": "CFB",
    "team": "GT",
@@ -781,35 +752,6 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "source": "https://commons.wikimedia.org/wiki/File:LSU_Tigers_vs_Nicholls_Colonels_at_Tiger_Stadium_09-07-2024_(19).jpg",
     "file": "File:LSU Tigers vs Nicholls Colonels at Tiger Stadium 09-07-2024 (19).jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
-   "id": "cfb-mem-liberty-stadium",
-   "sport": "CFB",
-   "team": "MEM",
-   "venue": "liberty-stadium",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Memphis-blue home crowd foreground, navy end zone, Liberty Bowl press tower",
-   "focus": {
-    "desktop": "50% 50%",
-    "mobile": "35% 50%"
-   },
-   "w": 2400,
-   "h": 777,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "Azyrii",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Panorama_of_Liberty_Bowl_Memorial_Stadium,_Memphis,_TN,_Oct_2015.jpg",
-    "file": "File:Panorama of Liberty Bowl Memorial Stadium, Memphis, TN, Oct 2015.jpg",
     "modifications": "resized and colour graded by Sift"
    }
   },

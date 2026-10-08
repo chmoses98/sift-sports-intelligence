@@ -1,0 +1,72 @@
+{
+ "team": "SHSU",
+ "full": "Sam Houston",
+ "venues": [
+  "bowers-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Sam Houston State's Bowers Stadium Away Side.JPG",
+   "width": 1824,
+   "height": 1368,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Sam_Houston_State%27s_Bowers_Stadium_Away_Side.JPG/500px-Sam_Houston_State%27s_Bowers_Stadium_Away_Side.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Sam_Houston_State%27s_Bowers_Stadium_Away_Side.JPG",
+   "license": "CC BY-SA 4.0",
+   "artist": "Greenstrat",
+   "date": "2016-04-30",
+   "description": "Opponent Side of Bowers Stadium",
+   "categories": [
+    "Bowers Stadium",
+    "CC-BY-SA-4.0",
+    "Self-published work"
+   ],
+   "text": 5,
+   "look": 2.02
+  },
+  {
+   "n": 2,
+   "file": "File:Sam Houston State's Bowers Stadium Grandstand Facade.JPG",
+   "width": 3648,
+   "height": 2736,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Sam_Houston_State%27s_Bowers_Stadium_Grandstand_Facade.JPG/500px-Sam_Houston_State%27s_Bowers_Stadium_Grandstand_Facade.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Sam_Houston_State%27s_Bowers_Stadium_Grandstand_Facade.JPG",
+   "license": "CC BY-SA 4.0",
+   "artist": "Greenstrat",
+   "date": "2016-04-30",
+   "description": "The Main Facade to Sam Houston's Bowers Stadium",
+   "categories": [
+    "Bowers Stadium",
+    "CC-BY-SA-4.0",
+    "Self-published work"
+   ],
+   "text": 5,
+   "look": 1.64
+  },
+  {
+   "n": 3,
+   "file": "File:HA-Chapman-Stadium-Tulsa.JPG",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/HA-Chapman-Stadium-Tulsa.JPG/500px-HA-Chapman-Stadium-Tulsa.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:HA-Chapman-Stadium-Tulsa.JPG",
+   "license": "CC BY 3.0",
+   "artist": "Chippothenut",
+   "date": "2009-09-26",
+   "description": "The University of Tulsa Golden Hurricane play the Bearkats of Sam Houston State on Skelly Field at H.A. Chapman Stadium (September 26th, 2009). The Tulsa Golden Hurricane win the game 56-3.",
+   "categories": [
+    "2009 Sam Houston State Bearkats football team",
+    "2009 Tulsa Golden Hurricane football team",
+    "CC-BY-3.0",
+    "Self-published work",
+    "September 2009 in Oklahoma",
+    "Skelly Field at H. A. Chapman Stadium"
+   ],
+   "text": 4,
+   "look": 1.77
+  }
+ ]
+}

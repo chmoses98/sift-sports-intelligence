@@ -1,0 +1,31 @@
+{
+ "team": "HAW",
+ "full": "Hawai'i",
+ "venues": [
+  "ching-complex"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Clarence T.C. Ching Athletics Complex.jpg",
+   "width": 4000,
+   "height": 2222,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Clarence_T.C._Ching_Athletics_Complex.jpg/500px-Clarence_T.C._Ching_Athletics_Complex.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Clarence_T.C._Ching_Athletics_Complex.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "LuckyJ008",
+   "date": "2021",
+   "description": "Clarence T. C. Ching Athletics Complex Football Field, c. 2021",
+   "categories": [
+    "2021 college football season",
+    "CC-BY-SA-4.0",
+    "Clarence T. C. Ching Athletics Complex",
+    "Files with coordinates missing SDC location of creation",
+    "Self-published work"
+   ],
+   "text": 2,
+   "look": 1.71
+  }
+ ]
+}

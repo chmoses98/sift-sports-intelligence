@@ -1,0 +1,255 @@
+{
+ "team": "SDSU",
+ "full": "San Diego State",
+ "venues": [
+  "snapdragon-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Snapdragon Stadium interior-Night end zone 1.jpg",
+   "width": 3845,
+   "height": 2846,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Snapdragon_Stadium_interior-Night_end_zone_1.jpg/500px-Snapdragon_Stadium_interior-Night_end_zone_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_end_zone_1.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night end zone 1",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work",
+    "University of Hawaii Rainbow Warrior Marching Band"
+   ],
+   "text": 6,
+   "look": 2.95
+  },
+  {
+   "n": 2,
+   "file": "File:Snapdragon Stadium interior-Night end zone with band.jpg",
+   "width": 4007,
+   "height": 3006,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Snapdragon_Stadium_interior-Night_end_zone_with_band.jpg/500px-Snapdragon_Stadium_interior-Night_end_zone_with_band.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_end_zone_with_band.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night end zone with band",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Marching Aztecs",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.94
+  },
+  {
+   "n": 3,
+   "file": "File:Snapdragon Stadium interior-Night end zone 2.jpg",
+   "width": 3862,
+   "height": 2743,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Snapdragon_Stadium_interior-Night_end_zone_2.jpg/500px-Snapdragon_Stadium_interior-Night_end_zone_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_end_zone_2.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night end zone 2",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work",
+    "University of Hawaii Rainbow Warrior Marching Band"
+   ],
+   "text": 6,
+   "look": 2.91
+  },
+  {
+   "n": 4,
+   "file": "File:Snapdragon Stadium interior-Night end zone 3.jpg",
+   "width": 3924,
+   "height": 2761,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Snapdragon_Stadium_interior-Night_end_zone_3.jpg/500px-Snapdragon_Stadium_interior-Night_end_zone_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_end_zone_3.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night end zone 3",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work",
+    "University of Hawaii Rainbow Warrior Marching Band"
+   ],
+   "text": 6,
+   "look": 2.9
+  },
+  {
+   "n": 5,
+   "file": "File:Snapdragon Stadium interior-Night game field 2.jpg",
+   "width": 4022,
+   "height": 2927,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Snapdragon_Stadium_interior-Night_game_field_2.jpg/500px-Snapdragon_Stadium_interior-Night_game_field_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_game_field_2.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night game field 2",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.66
+  },
+  {
+   "n": 6,
+   "file": "File:Snapdragon Stadium interior-Night game field 1.jpg",
+   "width": 3852,
+   "height": 2527,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Snapdragon_Stadium_interior-Night_game_field_1.jpg/500px-Snapdragon_Stadium_interior-Night_game_field_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_game_field_1.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night game field 1",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.64
+  },
+  {
+   "n": 7,
+   "file": "File:Snapdragon Stadium interior-Night Club area 3.jpg",
+   "width": 4032,
+   "height": 2509,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Snapdragon_Stadium_interior-Night_Club_area_3.jpg/500px-Snapdragon_Stadium_interior-Night_Club_area_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_Club_area_3.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night Club area 3",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.59
+  },
+  {
+   "n": 8,
+   "file": "File:Snapdragon Stadium interior-Night game field 3.jpg",
+   "width": 3487,
+   "height": 2471,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Snapdragon_Stadium_interior-Night_game_field_3.jpg/500px-Snapdragon_Stadium_interior-Night_game_field_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_game_field_3.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night game field 3",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.59
+  },
+  {
+   "n": 9,
+   "file": "File:Snapdragon Stadium interior-Night Club area 2.jpg",
+   "width": 3779,
+   "height": 2369,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Snapdragon_Stadium_interior-Night_Club_area_2.jpg/500px-Snapdragon_Stadium_interior-Night_Club_area_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_Club_area_2.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night Club area 2",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.56
+  },
+  {
+   "n": 10,
+   "file": "File:Snapdragon Stadium interior-home stands 2.jpg",
+   "width": 3818,
+   "height": 2137,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Snapdragon_Stadium_interior-home_stands_2.jpg/500px-Snapdragon_Stadium_interior-home_stands_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-home_stands_2.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-home stands 2",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.46
+  },
+  {
+   "n": 11,
+   "file": "File:Snapdragon Stadium interior-home stands 1.jpg",
+   "width": 4004,
+   "height": 2271,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Snapdragon_Stadium_interior-home_stands_1.jpg/500px-Snapdragon_Stadium_interior-home_stands_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-home_stands_1.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-home stands 1",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Marching Aztecs",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.42
+  },
+  {
+   "n": 12,
+   "file": "File:Snapdragon Stadium interior-Night game field 4.jpg",
+   "width": 3984,
+   "height": 2403,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Snapdragon_Stadium_interior-Night_game_field_4.jpg/500px-Snapdragon_Stadium_interior-Night_game_field_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_game_field_4.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2022-10-08",
+   "description": "Snapdragon Stadium interior-Night game field 4",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hawaii Rainbow Warriors at San Diego State Aztecs (October 8, 2022)",
+    "Marching Aztecs",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.19
+  }
+ ]
+}

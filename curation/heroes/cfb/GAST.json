@@ -1,0 +1,85 @@
+{
+ "team": "GAST",
+ "full": "Georgia State",
+ "venues": [
+  "center-parc-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Georgia State Stadium field.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Georgia_State_Stadium_field.jpg/500px-Georgia_State_Stadium_field.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Georgia_State_Stadium_field.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Southernkeith",
+   "date": "2017-12-02",
+   "description": "Pre-game warm up at Georgia State Stadium before game with Idaho Vandals on December 2, 2017",
+   "categories": [
+    "2017 NCAA Division I FBS football season",
+    "2017 in Atlanta",
+    "CC-BY-SA-4.0",
+    "Center Parc Stadium",
+    "December 2017 in Georgia (U.S. state)",
+    "PNC advertisements",
+    "Self-published work",
+    "Taken with Kodak Pixpro FZ41",
+    "Under Armour advertising in sports"
+   ],
+   "text": 6,
+   "look": 1.33
+  },
+  {
+   "n": 2,
+   "file": "File:2011 Georgia State at Houston.JPG",
+   "width": 4000,
+   "height": 3000,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/2011_Georgia_State_at_Houston.JPG/500px-2011_Georgia_State_at_Houston.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:2011_Georgia_State_at_Houston.JPG",
+   "license": "CC BY-SA 3.0",
+   "artist": "Brian Reading",
+   "date": "2011-09-24",
+   "description": "The 2011 Houston Cougars football team competes against the Georgia State Panthers at Robertson Stadium in Houston .",
+   "categories": [
+    "2011 Houston Cougars football team",
+    "2011 NCAA Division I FCS football season",
+    "CC-BY-SA-3.0",
+    "GFDL",
+    "Georgia State Panthers football",
+    "License migration redundant",
+    "Self-published work",
+    "Taken with Fujifilm FinePix S2700HD"
+   ],
+   "text": 4,
+   "look": 2.67
+  },
+  {
+   "n": 3,
+   "file": "File:2016-0725-RobertDavis.jpg",
+   "width": 2356,
+   "height": 1767,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/2016-0725-RobertDavis.jpg/500px-2016-0725-RobertDavis.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:2016-0725-RobertDavis.jpg",
+   "license": "CC BY 3.0",
+   "artist": "Bobak Ha'Eri",
+   "date": "2016-07-25",
+   "description": "Robert Davis , wide receiver on the Georgia State Panthers football team, at the 2016 Sun Belt Conference Media Day in the Mercedes-Benz Superdome in New Orleans.",
+   "categories": [
+    "2016 Sun Belt Conference Media Day",
+    "CC-BY-3.0",
+    "Files by User:Bobak",
+    "Files with coordinates missing SDC location of creation",
+    "Men wearing lapel pins",
+    "Men with bow ties",
+    "Robert Davis (wide receiver)",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 1.6
+  }
+ ]
+}

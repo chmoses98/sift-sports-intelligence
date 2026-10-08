@@ -1,0 +1,281 @@
+{
+ "team": "UNM",
+ "full": "New Mexico",
+ "venues": [
+  "university-stadium-unm"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:University of New Mexico Spirit Marching Band.jpg",
+   "width": 3600,
+   "height": 2400,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/University_of_New_Mexico_Spirit_Marching_Band.jpg/500px-University_of_New_Mexico_Spirit_Marching_Band.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:University_of_New_Mexico_Spirit_Marching_Band.jpg",
+   "license": "CC BY 4.0",
+   "artist": "Kenneth C. Zirkel",
+   "date": "2024-09-21",
+   "description": "University of New Mexico Spirit Marching Band at University Stadium.",
+   "categories": [
+    "CC-BY-4.0",
+    "Fresno State Bulldogs at New Mexico Lobos football (September 21, 2024)",
+    "Photos of college football games taken by Kzirkel",
+    "Self-published work",
+    "Spirit Marching Band"
+   ],
+   "text": 6,
+   "look": 2.43
+  },
+  {
+   "n": 2,
+   "file": "File:New Mexico Lobos Spirit Program cheerleaders.jpg",
+   "width": 3600,
+   "height": 2400,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/New_Mexico_Lobos_Spirit_Program_cheerleaders.jpg/500px-New_Mexico_Lobos_Spirit_Program_cheerleaders.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:New_Mexico_Lobos_Spirit_Program_cheerleaders.jpg",
+   "license": "CC BY 4.0",
+   "artist": "Kenneth C. Zirkel",
+   "date": "2024-09-21",
+   "description": "New Mexico Lobos Spirit Program cheerleaders at University Stadium",
+   "categories": [
+    "CC-BY-4.0",
+    "Fresno State Bulldogs at New Mexico Lobos football (September 21, 2024)",
+    "New Mexico Lobos Spirit Program",
+    "Photos of college football games taken by Kzirkel",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 2.43
+  },
+  {
+   "n": 3,
+   "file": "File:Attendance 18,019 at University Stadium.jpg",
+   "width": 3600,
+   "height": 2400,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Attendance_18%2C019_at_University_Stadium.jpg/500px-Attendance_18%2C019_at_University_Stadium.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Attendance_18,019_at_University_Stadium.jpg",
+   "license": "CC BY 4.0",
+   "artist": "Kenneth C. Zirkel",
+   "date": "2024-09-21",
+   "description": "New Mexico Lobos digital \"LoboVision\" video screen at University Stadium. Fresno State Bulldogs at New Mexico Lobos",
+   "categories": [
+    "18019 (number)",
+    "CC-BY-4.0",
+    "Fresno State Bulldogs at New Mexico Lobos football (September 21, 2024)",
+    "Photos of college football games taken by Kzirkel",
+    "Self-published work",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 6,
+   "look": 1.33
+  },
+  {
+   "n": 4,
+   "file": "File:University Stadium Filling Up for the Fifth Annual New Mexico Bowl (5272604963).jpg",
+   "width": 2279,
+   "height": 1709,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/University_Stadium_Filling_Up_for_the_Fifth_Annual_New_Mexico_Bowl_%285272604963%29.jpg/500px-University_Stadium_Filling_Up_for_the_Fifth_Annual_New_Mexico_Bowl_%285272604963%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:University_Stadium_Filling_Up_for_the_Fifth_Annual_New_Mexico_Bowl_(5272604963).jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Ken Lund from Reno, Nevada, USA",
+   "date": "2010-12-18",
+   "description": "BYU fans gather on the east side and UTEP fans on the west side to watch what will ultimately become a BYU onslaught.",
+   "categories": [
+    "2010 New Mexico Bowl",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Marching Miners",
+    "Photographs by Ken Lund",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 5,
+   "look": 2.02
+  },
+  {
+   "n": 5,
+   "file": "File:University Stadium as Seen from the North End Zone (5273285406).jpg",
+   "width": 2465,
+   "height": 1849,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/University_Stadium_as_Seen_from_the_North_End_Zone_%285273285406%29.jpg/500px-University_Stadium_as_Seen_from_the_North_End_Zone_%285273285406%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:University_Stadium_as_Seen_from_the_North_End_Zone_(5273285406).jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Ken Lund from Reno, Nevada, USA",
+   "date": "2010-12-18",
+   "description": "Fifth Annual New Mexico Bowl, Albuquerque, New Mexico, Brigham Young University Cougars 52, University of Texas-El Paso Miners 24",
+   "categories": [
+    "2010 New Mexico Bowl",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Marching Miners",
+    "Photographs by Ken Lund",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 5,
+   "look": 2
+  },
+  {
+   "n": 6,
+   "file": "File:UTEP Kicks Off to BYU (5273299612).jpg",
+   "width": 2766,
+   "height": 2075,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/UTEP_Kicks_Off_to_BYU_%285273299612%29.jpg/500px-UTEP_Kicks_Off_to_BYU_%285273299612%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:UTEP_Kicks_Off_to_BYU_(5273299612).jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Ken Lund from Reno, Nevada, USA",
+   "date": "2010-12-18",
+   "description": "Fifth Annual New Mexico Bowl, BYU 52, UTEP 24, Albuquerque, New Mexico",
+   "categories": [
+    "2010 New Mexico Bowl",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Marching Miners",
+    "Photographs by Ken Lund",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 5,
+   "look": 2
+  },
+  {
+   "n": 7,
+   "file": "File:University Stadium, Home of the Lobos.jpg",
+   "width": 3600,
+   "height": 1941,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/University_Stadium%2C_Home_of_the_Lobos.jpg/500px-University_Stadium%2C_Home_of_the_Lobos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:University_Stadium,_Home_of_the_Lobos.jpg",
+   "license": "CC BY 4.0",
+   "artist": "Kenneth C. Zirkel",
+   "date": "2024-09-21",
+   "description": "University Stadium, Home of the University of New Mexico Lobos",
+   "categories": [
+    "CC-BY-4.0",
+    "Fresno State Bulldogs at New Mexico Lobos football (September 21, 2024)",
+    "Photos of college football games taken by Kzirkel",
+    "Self-published work",
+    "Taken with Canon EOS R6 and Canon RF 16mm F2.8 STM",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 6,
+   "look": 0.8
+  },
+  {
+   "n": 8,
+   "file": "File:University of Nevada Wolf Pack v. New Mexico State Aggies, Mackay Stadium, Reno, Nevada (281902928).jpg",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/University_of_Nevada_Wolf_Pack_v._New_Mexico_State_Aggies%2C_Mackay_Stadium%2C_Reno%2C_Nevada_%28281902928%29.jpg/500px-University_of_Nevada_Wolf_Pack_v._New_Mexico_State_Aggies%2C_Mackay_Stadium%2C_Reno%2C_Nevada_%28281902928%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:University_of_Nevada_Wolf_Pack_v._New_Mexico_State_Aggies,_Mackay_Stadium,_Reno,_Nevada_(281902928).jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Ken Lund from Reno, Nevada, USA",
+   "date": "2006-10-28",
+   "description": "University of Nevada 48, New Mexico State University, 21. It was a blowout.",
+   "categories": [
+    "CC-BY-SA-2.0",
+    "Files uploaded by INeverCry",
+    "Files with coordinates missing SDC location of creation",
+    "Flickr images reviewed by FlickreviewR",
+    "New Mexico Lobos at Nevada Wolf Pack football (October 28, 2006)",
+    "Photographs by Ken Lund"
+   ],
+   "text": 4,
+   "look": 2.79
+  },
+  {
+   "n": 9,
+   "file": "File:BYU Marching Band Spelling \"Cougars\" During Halftime Performance (5273277306).jpg",
+   "width": 2816,
+   "height": 2112,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/BYU_Marching_Band_Spelling_%22Cougars%22_During_Halftime_Performance_%285273277306%29.jpg/500px-BYU_Marching_Band_Spelling_%22Cougars%22_During_Halftime_Performance_%285273277306%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:BYU_Marching_Band_Spelling_%22Cougars%22_During_Halftime_Performance_(5273277306).jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Ken Lund from Reno, Nevada, USA",
+   "date": "2010-12-18",
+   "description": "Fifth Annual New Mexico Bowl, Albuquerque, New Mexico, Brigham Young University Cougars 52, University of Texas-El Paso Miners 24",
+   "categories": [
+    "2010 New Mexico Bowl",
+    "Brigham Young University Marching Band",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Marching Miners",
+    "Photographs by Ken Lund",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 5,
+   "look": 1.75
+  },
+  {
+   "n": 10,
+   "file": "File:New Mexico Lobos at Wisconsin Badgers football, September 8, 2018 (44594164021).jpg",
+   "width": 3647,
+   "height": 2735,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/New_Mexico_Lobos_at_Wisconsin_Badgers_football%2C_September_8%2C_2018_%2844594164021%29.jpg/500px-New_Mexico_Lobos_at_Wisconsin_Badgers_football%2C_September_8%2C_2018_%2844594164021%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:New_Mexico_Lobos_at_Wisconsin_Badgers_football,_September_8,_2018_(44594164021).jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Bely Medved from Madison, USA",
+   "date": "2018-09-08",
+   "description": "20180908-EM188775-UWvUNM_DxO",
+   "categories": [
+    "CC-BY-SA-2.0",
+    "Files with coordinates missing SDC location of creation",
+    "Flickr images missing SDC published in",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Jonathan Taylor (American football player)",
+    "New Mexico Lobos at Wisconsin Badgers football (September 8, 2018)"
+   ],
+   "text": 4,
+   "look": 2.72
+  },
+  {
+   "n": 11,
+   "file": "File:UNM - Dreamstyle Stadium field.jpg",
+   "width": 4032,
+   "height": 3024,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/UNM_-_Dreamstyle_Stadium_field.jpg/500px-UNM_-_Dreamstyle_Stadium_field.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:UNM_-_Dreamstyle_Stadium_field.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "SportsGuy789",
+   "date": "2019-07-15",
+   "description": "The home football stadium for the University of New Mexico.",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "July 2019 in New Mexico",
+    "Self-published work",
+    "University Stadium (Albuquerque)"
+   ],
+   "text": 5,
+   "look": 1.69
+  },
+  {
+   "n": 12,
+   "file": "File:New Mexico Lobos football players in 2024.jpg",
+   "width": 3600,
+   "height": 2551,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/New_Mexico_Lobos_football_players_in_2024.jpg/500px-New_Mexico_Lobos_football_players_in_2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:New_Mexico_Lobos_football_players_in_2024.jpg",
+   "license": "CC BY 4.0",
+   "artist": "Kenneth C. Zirkel",
+   "date": "2024-09-21",
+   "description": "September 21, 2024: Fresno State Bulldogs at New Mexico Lobos football game.",
+   "categories": [
+    "CC-BY-4.0",
+    "Fresno State Bulldogs at New Mexico Lobos football (September 21, 2024)",
+    "Photos of college football games taken by Kzirkel",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 2.41
+  }
+ ]
+}

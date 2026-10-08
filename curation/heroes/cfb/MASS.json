@@ -1,0 +1,264 @@
+{
+ "team": "MASS",
+ "full": "Massachusetts",
+ "venues": [
+  "mcguirk-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Stadium2-3.jpg",
+   "width": 2000,
+   "height": 1045,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Stadium2-3.jpg/500px-Stadium2-3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Stadium2-3.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "MHarrison",
+   "date": "2008-08",
+   "description": "Warren McGuirk Alumni Stadium at the University of Massachusetts Amherst.",
+   "categories": [
+    "CC-BY-SA-3.0",
+    "GFDL",
+    "License migration redundant",
+    "Self-published work",
+    "Warren McGuirk Alumni Stadium"
+   ],
+   "text": 6,
+   "look": 2.24
+  },
+  {
+   "n": 2,
+   "file": "File:Warren P. McGuirk Alumni Stadium, looking south.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Warren_P._McGuirk_Alumni_Stadium%2C_looking_south.jpg/500px-Warren_P._McGuirk_Alumni_Stadium%2C_looking_south.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Warren_P._McGuirk_Alumni_Stadium,_looking_south.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Ktr101",
+   "date": "2011-10-15",
+   "description": "Looking south inside Warren P. McGuirk Alumni Stadium at the University of Massachusetts Amherst .",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Photographs by Kevin Rutherford",
+    "Taken with Sony DSC-H70",
+    "Warren McGuirk Alumni Stadium"
+   ],
+   "text": 6,
+   "look": 2
+  },
+  {
+   "n": 3,
+   "file": "File:Warren P. McGuirk Alumni Stadium, looking east.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Warren_P._McGuirk_Alumni_Stadium%2C_looking_east.jpg/500px-Warren_P._McGuirk_Alumni_Stadium%2C_looking_east.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Warren_P._McGuirk_Alumni_Stadium,_looking_east.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Ktr101",
+   "date": "2011-10-15",
+   "description": "Looking east inside Warren P. McGuirk Alumni Stadium at the University of Massachusetts Amherst .",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Photographs by Kevin Rutherford",
+    "Taken with Sony DSC-H70",
+    "Warren McGuirk Alumni Stadium"
+   ],
+   "text": 6,
+   "look": 2
+  },
+  {
+   "n": 4,
+   "file": "File:Warren P. McGuirk Alumni Stadium, looking north.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Warren_P._McGuirk_Alumni_Stadium%2C_looking_north.jpg/500px-Warren_P._McGuirk_Alumni_Stadium%2C_looking_north.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Warren_P._McGuirk_Alumni_Stadium,_looking_north.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Ktr101",
+   "date": "2011-10-15",
+   "description": "Looking north inside Warren P. McGuirk Alumni Stadium at the University of Massachusetts Amherst .",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Photographs by Kevin Rutherford",
+    "Taken with Sony DSC-H70",
+    "Warren McGuirk Alumni Stadium"
+   ],
+   "text": 6,
+   "look": 1.99
+  },
+  {
+   "n": 5,
+   "file": "File:Warren P. McGuirk Alumni Stadium, east facade.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Warren_P._McGuirk_Alumni_Stadium%2C_east_facade.jpg/500px-Warren_P._McGuirk_Alumni_Stadium%2C_east_facade.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Warren_P._McGuirk_Alumni_Stadium,_east_facade.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Ktr101",
+   "date": "2011-10-15",
+   "description": "The east facade of the Warren P. McGuirk Alumni Stadium at the University of Massachusetts Amherst .",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Photographs by Kevin Rutherford",
+    "Taken with Sony DSC-H70",
+    "Warren McGuirk Alumni Stadium"
+   ],
+   "text": 6,
+   "look": 1.97
+  },
+  {
+   "n": 6,
+   "file": "File:UMassFootball1.jpg",
+   "width": 2452,
+   "height": 855,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/UMassFootball1.jpg/500px-UMassFootball1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:UMassFootball1.jpg",
+   "license": "CC BY 3.0",
+   "artist": "Anc516",
+   "date": "2010-09-04",
+   "description": "2010 UMass Football Team at Warren McGuirk Alumni Stadium, Amherst, Massachusetts.",
+   "categories": [
+    "2010 NCAA Division I FCS football season",
+    "American football stadium entrances",
+    "CC-BY-3.0",
+    "Self-published work",
+    "Taken with Sony DSC-HX1",
+    "UMass Minutemen football players"
+   ],
+   "text": 6,
+   "look": 1.11
+  },
+  {
+   "n": 7,
+   "file": "File:Warren P. McGuirk Alumni Stadium, looking west.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Warren_P._McGuirk_Alumni_Stadium%2C_looking_west.jpg/500px-Warren_P._McGuirk_Alumni_Stadium%2C_looking_west.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Warren_P._McGuirk_Alumni_Stadium,_looking_west.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Ktr101",
+   "date": "2011-10-15",
+   "description": "Looking west inside Warren P. McGuirk Alumni Stadium at the University of Massachusetts Amherst .",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Photographs by Kevin Rutherford",
+    "Taken with Sony DSC-H70",
+    "Warren McGuirk Alumni Stadium"
+   ],
+   "text": 6,
+   "look": 0.95
+  },
+  {
+   "n": 8,
+   "file": "File:Massachusetts Minutemen at Army Black Knights football (October 28, 2023) (Flickr 53297743514).jpg",
+   "width": 4897,
+   "height": 3266,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297743514%29.jpg/500px-Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297743514%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Massachusetts_Minutemen_at_Army_Black_Knights_football_(October_28,_2023)_(Flickr_53297743514).jpg",
+   "license": "Public domain",
+   "artist": "United States Military Academy",
+   "date": "2023-10-28",
+   "description": "Army Football vs UMass, Michie Stadium, West Point, NY on 28 October 2023. (U.S. Army photo by Christopher Hennen, USMA)",
+   "categories": [
+    "Massachusetts Minutemen at Army Black Knights football (October 28, 2023)",
+    "PD US Army",
+    "Uploaded with OpenRefine"
+   ],
+   "text": 4,
+   "look": 2.23
+  },
+  {
+   "n": 9,
+   "file": "File:Princeton at Harvard football game 2003 (178410385).jpg",
+   "width": 2048,
+   "height": 1536,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Princeton_at_Harvard_football_game_2003_%28178410385%29.jpg/500px-Princeton_at_Harvard_football_game_2003_%28178410385%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Princeton_at_Harvard_football_game_2003_(178410385).jpg",
+   "license": "CC BY 2.0",
+   "artist": "Andrew Fong from Cambridge, MA, United States",
+   "date": "2003-10-25",
+   "description": "IMGP0461.JPG",
+   "categories": [
+    "2003 Harvard Crimson football team",
+    "2003 in Massachusetts",
+    "American football games at Harvard Stadium",
+    "CC-BY-2.0",
+    "Flickr images missing SDC Flickr photo ID",
+    "Flickr images missing SDC published in",
+    "Flickr images reviewed by FlickreviewR",
+    "Princeton Tigers football games"
+   ],
+   "text": 4,
+   "look": 2.17
+  },
+  {
+   "n": 10,
+   "file": "File:Massachusetts Minutemen at Army Black Knights football (October 28, 2023) (Flickr 53297614488).jpg",
+   "width": 4897,
+   "height": 3266,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297614488%29.jpg/500px-Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297614488%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Massachusetts_Minutemen_at_Army_Black_Knights_football_(October_28,_2023)_(Flickr_53297614488).jpg",
+   "license": "Public domain",
+   "artist": "United States Military Academy",
+   "date": "2023-10-28",
+   "description": "Army Football vs UMass, Michie Stadium, West Point, NY on 28 October 2023. (U.S. Army photo by Christopher Hennen, USMA)",
+   "categories": [
+    "Massachusetts Minutemen at Army Black Knights football (October 28, 2023)",
+    "PD US Army",
+    "Uploaded with OpenRefine"
+   ],
+   "text": 4,
+   "look": 2.08
+  },
+  {
+   "n": 11,
+   "file": "File:Massachusetts Minutemen at Army Black Knights football (October 28, 2023) (Flickr 53297370921).jpg",
+   "width": 4897,
+   "height": 3266,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297370921%29.jpg/500px-Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297370921%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Massachusetts_Minutemen_at_Army_Black_Knights_football_(October_28,_2023)_(Flickr_53297370921).jpg",
+   "license": "Public domain",
+   "artist": "United States Military Academy",
+   "date": "2023-10-28",
+   "description": "Army Football vs UMass, Michie Stadium, West Point, NY on 28 October 2023. (U.S. Army photo by Christopher Hennen, USMA)",
+   "categories": [
+    "Massachusetts Minutemen at Army Black Knights football (October 28, 2023)",
+    "PD US Army",
+    "Uploaded with OpenRefine"
+   ],
+   "text": 4,
+   "look": 2.03
+  },
+  {
+   "n": 12,
+   "file": "File:Massachusetts Minutemen at Army Black Knights football (October 28, 2023) (Flickr 53297614438).jpg",
+   "width": 4897,
+   "height": 3266,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297614438%29.jpg/500px-Massachusetts_Minutemen_at_Army_Black_Knights_football_%28October_28%2C_2023%29_%28Flickr_53297614438%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Massachusetts_Minutemen_at_Army_Black_Knights_football_(October_28,_2023)_(Flickr_53297614438).jpg",
+   "license": "Public domain",
+   "artist": "United States Military Academy",
+   "date": "2023-10-28",
+   "description": "Army Football vs UMass, Michie Stadium, West Point, NY on 28 October 2023. (U.S. Army photo by Christopher Hennen, USMA)",
+   "categories": [
+    "Massachusetts Minutemen at Army Black Knights football (October 28, 2023)",
+    "PD US Army",
+    "Uploaded with OpenRefine"
+   ],
+   "text": 4,
+   "look": 2.03
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+{
+ "team": "BALL",
+ "full": "Ball State",
+ "venues": [
+  "scheumann-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Rocky rocket football.jpg",
+   "width": 3104,
+   "height": 2069,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Rocky_rocket_football.jpg/500px-Rocky_rocket_football.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Rocky_rocket_football.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Bcconley97",
+   "date": "2018-04-18",
+   "description": "The current Rocky the Rocket at Scheumann Stadium against the Ball State Cardinals. (photo by Grace Hollars).",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Rocky the Rocket",
+    "Self-published work"
+   ],
+   "text": 6,
+   "look": 1.61
+  },
+  {
+   "n": 2,
+   "file": "File:Kelly-Shorts Stadium CMU 2006.jpg",
+   "width": 3392,
+   "height": 2209,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Kelly-Shorts_Stadium_CMU_2006.jpg/500px-Kelly-Shorts_Stadium_CMU_2006.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Kelly-Shorts_Stadium_CMU_2006.jpg",
+   "license": "CC BY 2.0",
+   "artist": "Terry Johnston",
+   "date": "2006-10-14",
+   "description": "Central Michigan University Kelly/Shorts Stadium on October 14, 2006 at halftime. The band created the open C.",
+   "categories": [
+    "2006 Ball State Cardinals football team",
+    "2006 Central Michigan Chippewas football team",
+    "2006 in Kalamazoo, Michigan",
+    "2006 sports events in Michigan",
+    "CC-BY-2.0",
+    "Central Michigan University Marching Band",
+    "Flickr images reviewed by FlickreviewR",
+    "Homecomings",
+    "Kelly/Shorts Stadium",
+    "October 2006 in Michigan",
+    "Taken with Canon EOS 350D"
+   ],
+   "text": 4,
+   "look": 2.5
+  },
+  {
+   "n": 3,
+   "file": "File:Kyle Field Panorama.jpg",
+   "width": 7772,
+   "height": 3136,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Kyle_Field_Panorama.jpg/500px-Kyle_Field_Panorama.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Kyle_Field_Panorama.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Janreagan at English Wikipedia",
+   "date": "2015-07-21",
+   "description": "A panorama of the interior of Kyle Field in College Station, Texas. Taken at the Ball State game during the 2015 season.",
+   "categories": [
+    "2015 college football season",
+    "American football games at Kyle Field",
+    "CC-BY-SA-4.0",
+    "GFDL",
+    "License migration redundant",
+    "Panoramics of American football stadiums",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 1.06
+  }
+ ]
+}

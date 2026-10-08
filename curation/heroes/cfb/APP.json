@@ -1,0 +1,76 @@
+{
+ "team": "APP",
+ "full": "App State",
+ "venues": [
+  "kidd-brewer-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Yosef, App State and U.S. Navy.jpg",
+   "width": 2000,
+   "height": 1325,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Yosef%2C_App_State_and_U.S._Navy.jpg/500px-Yosef%2C_App_State_and_U.S._Navy.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Yosef,_App_State_and_U.S._Navy.jpg",
+   "license": "CC BY 2.0",
+   "artist": "Maize &amp; Blue Nation",
+   "date": "2014-08-30",
+   "description": "Yosef, App State mascot and U.S. Navy",
+   "categories": [
+    "Appalachian State Mountaineers at Michigan Wolverines football (August 30, 2014)",
+    "CC-BY-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Yosef (mascot)"
+   ],
+   "text": 4,
+   "look": 1.4
+  },
+  {
+   "n": 2,
+   "file": "File:The Beav After App State OT Win.jpg",
+   "width": 9602,
+   "height": 3738,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/The_Beav_After_App_State_OT_Win.jpg/500px-The_Beav_After_App_State_OT_Win.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:The_Beav_After_App_State_OT_Win.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "StateLionPro",
+   "date": "2018-09-01",
+   "description": "Beaver Stadium postgame after the Nittany Lion's thrilling overtime win over Appalachian State in 2018.",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "Self-published work",
+    "Stadiums in Pennsylvania"
+   ],
+   "text": 3,
+   "look": 1.36
+  },
+  {
+   "n": 3,
+   "file": "File:KiddBrewerStadium(PanoramaFromN).jpg",
+   "width": 1600,
+   "height": 485,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/KiddBrewerStadium%28PanoramaFromN%29.jpg/500px-KiddBrewerStadium%28PanoramaFromN%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:KiddBrewerStadium(PanoramaFromN).jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Porsche997SBS",
+   "date": "2017-05-18",
+   "description": "Kidd Brewer Stadium , looking towards the south from the north endzone",
+   "categories": [
+    "American football goal posts",
+    "CC-BY-SA-4.0",
+    "End zone",
+    "Files with coordinates missing SDC location of creation",
+    "Kidd Brewer Stadium",
+    "Panoramics in North Carolina",
+    "Panoramics of American football stadiums",
+    "Self-published work"
+   ],
+   "text": 2,
+   "look": 1.16
+  }
+ ]
+}

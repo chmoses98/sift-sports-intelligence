@@ -1,0 +1,130 @@
+{
+ "team": "MOSU",
+ "full": "Missouri State",
+ "venues": [
+  "plaster-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Braun Stadium Evansville 2024.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Braun_Stadium_Evansville_2024.jpg/500px-Braun_Stadium_Evansville_2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Braun_Stadium_Evansville_2024.jpg",
+   "license": "CC0",
+   "artist": "Kithira",
+   "date": "2024-04-27",
+   "description": "Charles H. Braun Stadium in Evansville, Indiana, USA, during an April 2024 game between the host Evansville Purple Aces and visiting Missouri State Bears.",
+   "categories": [
+    "2024 Evansville Purple Aces baseball season",
+    "2024 Missouri State Bears baseball season",
+    "2024 in Evansville, Indiana",
+    "2024 sports events in Indiana",
+    "April 2024 in Indiana",
+    "CC-Zero",
+    "German American Bank Field at Charles H. Braun Stadium",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 1.59
+  },
+  {
+   "n": 2,
+   "file": "File:Route 66 Stadium 2026.jpg",
+   "width": 4000,
+   "height": 1848,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Route_66_Stadium_2026.jpg/500px-Route_66_Stadium_2026.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Route_66_Stadium_2026.jpg",
+   "license": "CC0",
+   "artist": "Noctawny",
+   "date": "2026-06-27",
+   "description": "Route 66 Stadium (formerly Hammons Field) in Downtown Springfield, Missouri. Here is a game between the Springfield Cardinals (the Double-A minor league affiliate of the St. Louis Cardinals) and the Northwest Arkansas Naturals (the Double-A minor league affiliate of the Kansas City Royals). Springfield won, 4-0. The Missouri State University Bears college baseball team plays their home games here ",
+   "categories": [
+    "CC-Zero",
+    "Creative Commons CC0 1.0 Universal Public Domain Dedication missing SDC copyright license",
+    "Files with coordinates missing SDC location of creation",
+    "Northwest Arkansas Naturals",
+    "Route 66 Stadium",
+    "Self-published work",
+    "Self-published work missing SDC copyright license",
+    "Springfield Cardinals (Missouri)"
+   ],
+   "text": 4,
+   "look": 1.4
+  },
+  {
+   "n": 3,
+   "file": "File:Nwmsu-score.jpg",
+   "width": 2930,
+   "height": 1760,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Nwmsu-score.jpg/500px-Nwmsu-score.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Nwmsu-score.jpg",
+   "license": "CC BY-SA 2.5",
+   "artist": "",
+   "date": "",
+   "description": "",
+   "categories": [
+    "August 2006 in Missouri",
+    "CC-BY-SA-2.5",
+    "Files with no machine-readable author",
+    "Files with no machine-readable source",
+    "Media missing infobox template",
+    "Northwest Missouri State University athletics",
+    "Taken with Canon PowerShot A620"
+   ],
+   "text": 3,
+   "look": 2.15
+  },
+  {
+   "n": 4,
+   "file": "File:Great Southern Bank Arena.jpg",
+   "width": 4080,
+   "height": 3072,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Great_Southern_Bank_Arena.jpg/500px-Great_Southern_Bank_Arena.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Great_Southern_Bank_Arena.jpg",
+   "license": "CC BY 4.0",
+   "artist": "Benpiano800",
+   "date": "2024-06-04",
+   "description": "The Great Southern Bank arena at Missouri State University",
+   "categories": [
+    "2024 in basketball",
+    "CC-BY-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "JQH Arena",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 0.79
+  },
+  {
+   "n": 5,
+   "file": "File:Bearcat Stadium, Northwest Missouri State University.jpg",
+   "width": 3072,
+   "height": 2304,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Bearcat_Stadium%2C_Northwest_Missouri_State_University.jpg/500px-Bearcat_Stadium%2C_Northwest_Missouri_State_University.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Bearcat_Stadium,_Northwest_Missouri_State_University.jpg",
+   "license": "CC BY-SA 2.5",
+   "artist": "",
+   "date": "",
+   "description": "",
+   "categories": [
+    "2006 college football season",
+    "August 2006 in Missouri",
+    "Bearcat Stadium",
+    "CC-BY-SA-2.5",
+    "Files with no machine-readable author",
+    "Files with no machine-readable source",
+    "Media missing infobox template",
+    "Taken with Canon PowerShot A620"
+   ],
+   "text": 3,
+   "look": 1.24
+  }
+ ]
+}

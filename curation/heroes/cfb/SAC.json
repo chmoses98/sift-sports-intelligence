@@ -1,0 +1,74 @@
+{
+ "team": "SAC",
+ "full": "Sacramento State",
+ "venues": [
+  "hornet-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Run Ralphie Run (20666860541).jpg",
+   "width": 4587,
+   "height": 3038,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Run_Ralphie_Run_%2820666860541%29.jpg/500px-Run_Ralphie_Run_%2820666860541%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Run_Ralphie_Run_(20666860541).jpg",
+   "license": "CC0",
+   "artist": "cuboulder",
+   "date": "2012-09-08",
+   "description": "Ralphie takes to the field during the CU vs. Sacramento State game at Folsom stadium on September 8, 2012. (Photo by Glenn Asakawa/University of Colorado)",
+   "categories": [
+    "CC-Zero",
+    "Flickr images reviewed by FlickreviewR",
+    "Folsom Field",
+    "Ralphie"
+   ],
+   "text": 4,
+   "look": 2.58
+  },
+  {
+   "n": 2,
+   "file": "File:Hornet Stadium (Sacramento State).jpg",
+   "width": 4605,
+   "height": 2592,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Hornet_Stadium_%28Sacramento_State%29.jpg/500px-Hornet_Stadium_%28Sacramento_State%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Hornet_Stadium_(Sacramento_State).jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Spatms",
+   "date": "2017-10-08",
+   "description": "Hornet Stadium (Sacramento State)",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Hornet Stadium (Sacramento)",
+    "Self-published work"
+   ],
+   "text": 5,
+   "look": 0.79
+  },
+  {
+   "n": 3,
+   "file": "File:Hornet Stadium (Sacramento).jpg",
+   "width": 8165,
+   "height": 5832,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Hornet_Stadium_%28Sacramento%29.jpg/500px-Hornet_Stadium_%28Sacramento%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Hornet_Stadium_(Sacramento).jpg",
+   "license": "CC BY 4.0",
+   "artist": "Quintin Soloviev",
+   "date": "2026-04-02",
+   "description": "Fred Anderson Field at Hornet Stadium is a 21,195-seat college football and track stadium on the campus of California State University, Sacramento. It is the home field of the Sacramento State Hornets.",
+   "categories": [
+    "Aerial photographs of American football venues in the United States",
+    "Aerial photographs of athletics venues",
+    "CC-BY-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "Hornet Stadium (Sacramento)",
+    "Photographs by Quintin Soloviev",
+    "Self-published work"
+   ],
+   "text": 2,
+   "look": 1.28
+  }
+ ]
+}

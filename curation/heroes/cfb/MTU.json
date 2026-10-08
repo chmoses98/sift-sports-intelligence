@@ -1,0 +1,121 @@
+{
+ "team": "MTU",
+ "full": "Middle Tennessee",
+ "venues": [
+  "floyd-stadium"
+ ],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:MTSU Pressbox.JPG",
+   "width": 2048,
+   "height": 1536,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/MTSU_Pressbox.JPG/500px-MTSU_Pressbox.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:MTSU_Pressbox.JPG",
+   "license": "Public domain",
+   "artist": "Raider ATO at English Wikipedia",
+   "date": "Originally",
+   "description": "Middle Tennessee State University 's Johnny \"Red\" Floyd Stadium pressbox section.",
+   "categories": [
+    "Announcers' booths",
+    "Johnny \"Red\" Floyd Stadium",
+    "PD-user"
+   ],
+   "text": 5,
+   "look": 0.55
+  },
+  {
+   "n": 2,
+   "file": "File:Death Valley, LSU.jpg",
+   "width": 3886,
+   "height": 2590,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Death_Valley%2C_LSU.jpg/500px-Death_Valley%2C_LSU.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Death_Valley,_LSU.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "JustDog",
+   "date": "",
+   "description": "Second ranked LSU comes onto the field at the start of the game versus Middle Tennessee State in 2007.",
+   "categories": [
+    "American football stadium entrances",
+    "CC-BY-SA-3.0,2.5,2.0,1.0",
+    "GFDL",
+    "License migration redundant",
+    "Louisiana State University Tiger Marching Band",
+    "Middle Tennessee Blue Raiders vs LSU Tigers, 15 September 2007",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 1.46
+  },
+  {
+   "n": 3,
+   "file": "File:MTSU Minnesota 2010-09-02 field goal.JPG",
+   "width": 3648,
+   "height": 2736,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/MTSU_Minnesota_2010-09-02_field_goal.JPG/500px-MTSU_Minnesota_2010-09-02_field_goal.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:MTSU_Minnesota_2010-09-02_field_goal.JPG",
+   "license": "CC BY-SA 2.0",
+   "artist": "Latics",
+   "date": "2010-09-02",
+   "description": "MTSU vs Minnesota, point after attempt",
+   "categories": [
+    "2010 NCAA Division I FBS football season",
+    "CC-BY-SA-2.0",
+    "Field goal",
+    "Johnny \"Red\" Floyd Stadium",
+    "Minnesota Golden Gophers football games"
+   ],
+   "text": 3,
+   "look": 2.04
+  },
+  {
+   "n": 4,
+   "file": "File:Gil Reese of Vanderbilt on a wide end run vs. Middle Tennessee State, Sept. 26, 1925.jpg",
+   "width": 2336,
+   "height": 1010,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Gil_Reese_of_Vanderbilt_on_a_wide_end_run_vs._Middle_Tennessee_State%2C_Sept._26%2C_1925.jpg/500px-Gil_Reese_of_Vanderbilt_on_a_wide_end_run_vs._Middle_Tennessee_State%2C_Sept._26%2C_1925.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Gil_Reese_of_Vanderbilt_on_a_wide_end_run_vs._Middle_Tennessee_State,_Sept._26,_1925.jpg",
+   "license": "Public domain",
+   "artist": "W. E. Bar",
+   "date": "10-04-1925",
+   "description": "Caption text says \"Gil Reese, Vanderbilt's All-American half back getting off on a wide end run in the game against Teachers' College\"",
+   "categories": [
+    "1925 Middle Tennessee State Teachers football team",
+    "1925 Vanderbilt Commodores football team",
+    "American football games at Vanderbilt Stadium",
+    "Gil Reese",
+    "PD-US missing SDC copyright status",
+    "PD US expired",
+    "W. E. Bar"
+   ],
+   "text": 4,
+   "look": 0.95
+  },
+  {
+   "n": 5,
+   "file": "File:Middle Tennessee State University Football Field Entrance.jpg",
+   "width": 5152,
+   "height": 3864,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Middle_Tennessee_State_University_Football_Field_Entrance.jpg/500px-Middle_Tennessee_State_University_Football_Field_Entrance.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Middle_Tennessee_State_University_Football_Field_Entrance.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Jacob bloodaxe",
+   "date": "2018-11-15",
+   "description": "Middle Tennessee State University Football Field Entrance",
+   "categories": [
+    "American football stadium entrances",
+    "CC-BY-SA-4.0",
+    "Murfreesboro, Tennessee",
+    "November 2018 in Tennessee",
+    "Self-published work"
+   ],
+   "text": 3,
+   "look": 1.72
+  }
+ ]
+}

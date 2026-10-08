@@ -180,7 +180,7 @@ async function nhlCheck(page) {
     const frozen = await page.getByText(/Frozen at puck drop/).count();
     console.log(`  NHL game: story=${story} scripts=${scripts} frozen=${frozen > 0} unavailable-notes=${unavailable} ${page.url().split('#')[1]}`);
     check((story > 0 && scripts > 0) || unavailable > 0, 'NHL game tells the story with its scripts, or says why they are unavailable');
-    check(await page.locator('.gh img.teammark--logo').count() === 2, 'NHL game hero shows both team logos');
+    check(await page.locator('.gh__team img.teammark--logo').count() === 2, 'NHL game hero shows both team logos');
     const text = await page.locator('.game--nhl').innerText();
     check(!/KXNHL/.test(text), 'NHL game shows no raw Kalshi tickers');
     check(!/undefined|NaN/.test(text), 'NHL game shows no undefined / NaN');

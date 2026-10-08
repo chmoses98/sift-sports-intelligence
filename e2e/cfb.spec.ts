@@ -191,7 +191,7 @@ test('the CFB hero shows both teams\' committed logos, loaded @smoke', async ({ 
   page.on('response', (r) => r.url().includes('/teams/cfb/') && r.ok() && served.push(r.url()));
   for (const [id, files] of [[ISU_BYU, ['66.webp', '252.webp']], [NMSU_FIU, ['166.webp', '2229.webp']]] as const) {
     await page.goto(`./#/cfb/game/${id}`);
-    const logos = page.locator('.gh img.teammark--logo');
+    const logos = page.locator('.gh__team img.teammark--logo') /* the two teams; the identity line repeats the home mark */;
     await expect(logos).toHaveCount(2);
     await expect.poll(() => logos.evaluateAll((els) => els.every((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0))).toBe(true);
     await expect(page.locator('.gh .teammark--text')).toHaveCount(0);

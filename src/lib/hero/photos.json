@@ -473,7 +473,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Spoked-B centre-ice logo ringed 'TD Banknorth Garden', Bruins lined up, black/gold crowd, playoff ice logos",
+   "identity": "Bruins centre-ice logo and Bruins bench (2008 home playoff game: playoff decals and the TD Banknorth Garden name on the ice)",
    "focus": {
     "desktop": "50% 50%",
     "mobile": "50% 50%"
@@ -502,7 +502,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Sabres centre-ice crest legible, Sabres logos on scoreboard, full bowl from the 300 level",
+   "identity": "Sabres crest at centre ice and on the scoreboard, full bowl from the upper deck",
    "focus": {
     "desktop": "50% 55%",
     "mobile": "55% 50%"
@@ -531,7 +531,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Hurricanes centre-ice logo, 'Glen Wesley Night' ribbon boards, red home crowd, Canes in red",
+   "identity": "Hurricanes at home (RBC Center era), Hurricanes logo at centre ice, red bowl",
    "focus": {
     "desktop": "50% 85%",
     "mobile": "45% 70%"
@@ -553,35 +553,6 @@
    }
   },
   {
-   "id": "nhl-cgy-scotiabank-saddledome",
-   "sport": "NHL",
-   "team": "CGY",
-   "venue": "scotiabank-saddledome",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Flames-red full bowl ('C of Red'), flaming Flames scoreboard, Flames players saluting in red",
-   "focus": {
-    "desktop": "50% 30%",
-    "mobile": "0% 50%"
-   },
-   "w": 2400,
-   "h": 1350,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "Asessippi41",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Saddledome.jpg",
-    "file": "File:Saddledome.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
    "id": "nhl-col-ball-arena",
    "sport": "NHL",
    "team": "COL",
@@ -589,7 +560,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Ball Arena/Avalanche centre-ice logo, 'LET THE AVS HEAR YOU' Avalanche scoreboard, Avs ribbon boards",
+   "identity": "Avalanche home game: Avs on the videoboard, Ball Arena centre ice",
    "focus": {
     "desktop": "50% 80%",
     "mobile": "52% 75%"
@@ -618,7 +589,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Oilers centre-ice logo, 'Rogers Place' Oilers GOAL scoreboard, full orange/blue bowl",
+   "identity": "Oilers centre ice, orange crowd, Rogers Place board",
    "focus": {
     "desktop": "50% 62%",
     "mobile": "50% 60%"
@@ -647,7 +618,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Panthers centre-ice logo, 'AMERANT BANK ARENA' scoreboard showing Panthers lead, Stanley Cup banners, red-clad crowd",
+   "identity": "Panthers centre ice, red crowd, 2024 and 2025 Stanley Cup banners",
    "focus": {
     "desktop": "50% 65%",
     "mobile": "50% 60%"
@@ -676,7 +647,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Wild centre-ice logo, Wild logos on scoreboard, full bowl from the upper deck",
+   "identity": "Wild logo at centre ice and on the scoreboard (Xcel Energy Center era); warm, dim light",
    "focus": {
     "desktop": "50% 65%",
     "mobile": "57% 60%"
@@ -705,7 +676,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Two CH centre-ice logos ringed 'Centre Bell', Canadiens scoreboard, full bowl",
+   "identity": "Canadiens CH at centre ice; dark foreground silhouettes under the foot gradient",
    "focus": {
     "desktop": "50% 40%",
     "mobile": "50% 35%"
@@ -734,7 +705,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Rangers shield centre-ice logo, 'Madison Square Garden' scoreboard with Rangers graphics, hockey configuration",
+   "identity": "Rangers shield at centre ice under the MSG scoreboard",
    "focus": {
     "desktop": "50% 60%",
     "mobile": "50% 55%"
@@ -763,7 +734,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Sharks-branded 'SAP center' scoreboard with Sharks logos, Sharks in teal home jerseys, full bowl",
+   "identity": "Sharks centre ice, teal jerseys, SAP Center scoreboard",
    "focus": {
     "desktop": "50% 55%",
     "mobile": "50% 50%"
@@ -792,7 +763,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Blues centre-ice note logo, 'Scottrade Center' scoreboard with Blues graphics, blue-clad full bowl",
+   "identity": "Blues note at centre ice (Scottrade Center era), blue crowd",
    "focus": {
     "desktop": "45% 68%",
     "mobile": "43% 65%"
@@ -821,7 +792,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Lightning bolt centre-ice logo, Lecavalier/St. Louis retired banners, packed blue bowl",
+   "identity": "Lightning bolt at centre ice, Lecavalier and St. Louis banners, full bowl",
    "focus": {
     "desktop": "50% 60%",
     "mobile": "52% 55%"
@@ -850,7 +821,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Maple Leafs centre-ice leaf, Leafs legends banners, Leafs scoreboard, full bowl",
+   "identity": "Maple Leafs leaf at centre ice, retired-number banners",
    "focus": {
     "desktop": "50% 62%",
     "mobile": "54% 55%"
@@ -879,7 +850,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Canucks orca centre-ice logo ringed 'Rogers Arena', Canucks scoreboard, full bowl",
+   "identity": "Canucks orca at centre ice, Rogers Arena board",
    "focus": {
     "desktop": "60% 90%",
     "mobile": "75% 75%"
@@ -897,35 +868,6 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "source": "https://commons.wikimedia.org/wiki/File:Rogers_Arena_2016.jpg",
     "file": "File:Rogers Arena 2016.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
-   "id": "nhl-wpg-canada-life-centre",
-   "sport": "NHL",
-   "team": "WPG",
-   "venue": "canada-life-centre",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Jets players saluting at centre ice, 'JETS WIN' ribbon boards and Jets scoreboard, full upper-deck view",
-   "focus": {
-    "desktop": "50% 38%",
-    "mobile": "55% 40%"
-   },
-   "w": 2400,
-   "h": 1800,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "Words in the Wind",
-    "license": "CC BY-SA 3.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Winnipeg_Jets_first_home_victory_celebration.jpg",
-    "file": "File:Winnipeg Jets first home victory celebration.jpg",
     "modifications": "resized and colour graded by Sift"
    }
   }

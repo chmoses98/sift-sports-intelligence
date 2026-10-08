@@ -1,6 +1,30 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import type { Plugin } from 'vite';
+
+/**
+ * Preload the two Barlow files every first paint needs (latin 400 body, latin 600 headings), by their hashed
+ * build names, so text renders in Barlow without waiting for CSS discovery. Other weights and subsets load
+ * on demand through their @font-face unicode-range.
+ */
+function preloadBarlow(): Plugin {
+  return {
+    name: 'sift-preload-barlow',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(_html, ctx) {
+        const files = Object.keys(ctx.bundle ?? {}).filter((f) => /barlow-latin-(400|600)-normal-[\w-]+\.woff2$/.test(f)).sort();
+        return files.map((f) => ({
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', href: `${ctx.server ? '/' : base}${f}`, crossorigin: '' },
+          injectTo: 'head' as const,
+        }));
+      },
+    },
+  };
+}
 
 // GitHub Pages serves the site at https://<owner>.github.io/<repo>/, so every asset URL is built under
 // that base. Routing is hash-based (#/nfl/game/…), so deep links never hit the static server.
@@ -10,6 +34,7 @@ export default defineConfig({
   base,
   plugins: [
     react(),
+    preloadBarlow(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,

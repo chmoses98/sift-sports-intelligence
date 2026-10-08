@@ -55,3 +55,13 @@ describe('formatting', () => {
     expect(displayName('Buffalo Bills')).toBe('Buffalo Bills');
   });
 });
+
+describe('freshness for a component without a policy', () => {
+  // The live Soccer and Tennis health manifests list components Sift has no default thresholds for and publish
+  // none of their own; their sport pages crashed on it. The honest answer is UNKNOWN.
+  it('is UNKNOWN, not a crash', () => {
+    expect(statusFor('2026-10-08T00:00:00Z', 'player_ratings', Date.parse('2026-10-08T00:05:00Z'))).toBe('UNKNOWN');
+    expect(statusFor(null, 'player_ratings', Date.now())).toBe('UNKNOWN');
+    expect(statusFor('2026-10-08T00:00:00Z', 'model', Date.parse('2026-10-08T00:05:00Z'))).toBe('FRESH');
+  });
+});

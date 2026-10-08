@@ -137,7 +137,7 @@ describe('game page', () => {
     await screen.findByRole('heading', { name: 'What Matters' }, { timeout: 10_000 });
     // The headline edge in NE @ BUF: Buffalo's #1 rush offense against New England's #21 run defense.
     expect((await screen.findAllByText('Bills rush offense has a major edge')).length).toBeGreaterThan(0);
-    expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['One-score battle', 'Bills win going away', 'Bills win comfortably', 'Patriots win comfortably']);
+    expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['Close Game Either Way', 'Bills Win Big', 'Bills Win Comfortably', 'Patriots Win Comfortably']);
     expect([...container.querySelectorAll('.scard__pct')].map((e) => e.textContent)).toEqual(['36%', '26%', '24%', '13%']);
     expect(container.querySelector('.scard__top')!.textContent).toBe('Most likely');
     // No raw Kalshi ticker anywhere on the overview.

@@ -36,13 +36,33 @@ on `#081622` with no warnings (worst adjacent deutan ΔE 9.0); **identity** colo
 big share figure) are brighter, as in the mockup, and are always shown beside the script's name. Chart
 marks `#2a8fe6` / `#e8505f` / `#9264ef` pass all checks. Team colours are brand presentation only.
 
-## 2. Type (self-hosted via `@fontsource`; no runtime Google Fonts)
+## 2. Type — Barlow, one family (self-hosted via `@fontsource/barlow`; no runtime Google Fonts)
 
-| Face | Use |
-|---|---|
-| **Instrument Serif** 400 (+ italic) | Selective display and editorial moments only: page mastheads, team nicknames in the hero and featured band, the model read, the script share figure, panel titles on the homes. Never body text, tables or controls. |
-| **Instrument Sans** (variable) | All UI: navigation, tabs, panel titles inside the game, labels, body, table text. |
-| **Roboto Mono** (variable) | Prices, model values, records, ranks, times — anywhere alignment helps (`.num`, `.price`, tabular). |
+Sift has exactly one typeface. Hierarchy comes from size, weight, spacing, colour and alignment — not from a
+second family, not from making everything bold or uppercase.
+
+| Role | Barlow weight | Token |
+|---|---|---|
+| Body, table text, secondary metadata | 400 (500 where it sits on imagery) | `--fw-body` / `--fw-ui` |
+| Navigation, controls, labels, one-line reads | 500–600 | `--fw-ui` / `--fw-strong` |
+| Section titles, team and game headings, display numbers, script share figures | 600 | `--fw-display` |
+| Small uppercase eyebrows, the strongest signals | 600–700 | `--fw-strong` / `--fw-bold` |
+
+* **Loading.** `src/main.tsx` imports `@fontsource/barlow/{400,500,600,700}.css` — four static weights, normal
+  style only (no italics; `font-synthesis: none`, so nothing is ever faked). Each weight file carries latin,
+  latin-ext and vietnamese subsets behind `unicode-range`; a browser downloads only what it renders. The build
+  preloads the latin 400 and 600 files (`vite.config.ts` → `preloadBarlow`).
+* **No layout shift.** `--font-sans` falls back to `'Barlow Fallback'`: local Arial/Helvetica with
+  `size-adjust: 96.94%`, `ascent-override: 103.15%`, `descent-override: 20.63%` (Barlow 400's average glyph
+  width and vertical metrics measured against Arial), so the swap from fallback to Barlow keeps line breaks.
+* **Numbers.** Barlow too (`--font-num` = `--font-sans`), with `font-variant-numeric: tabular-nums` on `.num`,
+  `.price`, `.gap` and every rule that sets `--font-num`, so odds, percentages and scores align and do not
+  jitter as they update. Numbers are not monospaced.
+* **Uppercase** is for small eyebrows and section markers only. Headings stay in title/sentence case.
+* **Barlow Condensed is not used.**
+* **The one exception:** `--font-mono` (system `ui-monospace`, nothing downloaded) for `<code>`, Kalshi tickers
+  and the plain-text ChatGPT packet, where fixed-width characters are the point.
+* `--font-serif` survives only as a deprecated alias of `--font-display` so older branches still render Barlow.
 
 ## 3. Space, shape, motion
 
@@ -108,15 +128,15 @@ raw tables. Layer 4 is never shown by default.
   log and every stat's projected range are one layer down. Then Usage & Role, the matchup and availability
   (beside the research on screens ≥ 1200 px), and last **Market Context**: the main line and the
   market-implied average, with the fair-price ladder one tap down.
-* **No decorative script bars.** A script distribution is written out ("Most likely: One-score battle 36%");
+* **No decorative script bars.** A script distribution is written out ("Most likely: Close Game Either Way 36%");
   the segmented colour bar was removed everywhere.
 
 ## 6. Components
 
 | Component | Rule |
 |---|---|
-| **Game hero** | Hand-picked venue photo pinned in `scripts/stadiums/venues.json` only when it meets the hero bar (inside the bowl, atmosphere, composition, resolution), colour graded and credited with the modification; otherwise the designed **StadiumFallback** (floodlight banks and beams, lit pitch, stands with crowd speckle, the venue on an LED fascia, a breath of home colour, grain) — never a mediocre picture. Kickoff weather is a glass block: temperature in the serif, condition, wind, precipitation; a condition that plausibly matters (wind ≥ 15 mph, precipitation ≥ 50 %, ≤ 32 °F, ≥ 90 °F) gets a gold flag. Indoor / roof closed says so. Photo credit links to Data & provenance. |
-| **Script card** | Plain name from the teams ("Bills win going away", "One-score battle"), sim share (whole %), one-line margin summary, the centerpiece player (photo + why: "BUF run 34 times in these games (28 on average)"). Always ordered most likely first; colour identity stays with the script. Click = select (deep-linked `?script=`). |
+| **Game hero** | Hand-picked venue photo pinned in `scripts/stadiums/venues.json` only when it meets the hero bar (inside the bowl, atmosphere, composition, resolution), colour graded and credited with the modification; otherwise the designed **StadiumFallback** (floodlight banks and beams, lit pitch, stands with crowd speckle, the venue on an LED fascia, a breath of home colour, grain) — never a mediocre picture. Kickoff weather is a glass block: temperature as a Barlow display figure, condition, wind, precipitation; a condition that plausibly matters (wind ≥ 15 mph, precipitation ≥ 50 %, ≤ 32 °F, ≥ 90 °F) gets a gold flag. Indoor / roof closed says so. Photo credit links to Data & provenance. |
+| **Script card** | Plain title a casual fan reads instantly ("Bills Win Big", "Bills Win Comfortably", "Close Game Either Way"; the canonical bucket stays in `GameScript.canonical`), sim share (whole %), one-line margin summary, the centerpiece player (photo + why: "BUF run 34 times in these games (28 on average)"). Always ordered most likely first; colour identity stays with the script. Click = select (deep-linked `?script=`). |
 | **What Matters card** | Kind (Major/Clear edge · Context · Scheme), one-sentence headline, the two ranks, why it matters, "The numbers behind it" disclosure, Dig deeper. |
 | **Dig deeper** | Saves one finding (not a game) to Research with its numbers as the packet note. |
 | **Survival grid** | Four cells per market, one per script: filled = wins in every game of that script, half = some, empty = loses. Coverage = sim share of the scripts it always wins. Exact only for margin-settled markets. |

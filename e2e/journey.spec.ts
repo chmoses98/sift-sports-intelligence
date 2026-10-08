@@ -41,7 +41,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   // The one sports navigation: header tabs on wide screens, the tab bar on phones.
   await page.getByRole('link', { name: 'NFL', exact: true }).filter({ visible: true }).first().click();
   await expect(page.getByRole('heading', { name: 'NFL', level: 1 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Script Outlook' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'How Each Game Could End' })).toBeVisible();
   // The research source is disclosed under the quiet Source control, not as a strip across the page.
   await page.getByRole('button', { name: 'Source' }).click();
   await expect(page.getByText('RESEARCH SNAPSHOT')).toBeVisible();

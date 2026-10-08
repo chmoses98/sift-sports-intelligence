@@ -1,0 +1,37 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`slate priorities (real week 5) > Game to Watch and Worth a Look are slate standouts, on different games, with plain reasons 1`] = `
+[
+  {
+    "game": "TB@DAL",
+    "reason": "The likeliest blowout of the week: decided by 17 points or more in 31% of simulations.",
+    "signal": "blowout",
+    "tag": "Most lopsided",
+  },
+  {
+    "game": "DET@ARI",
+    "reason": "The highest-scoring game of the week: SIFT projects about 55 points (the typical game this week: 44).",
+    "signal": "high",
+    "tag": "Highest-scoring",
+  },
+  {
+    "game": "DEN@LAC",
+    "reason": "The closest game of the week: decided by 6 points or fewer in 54% of simulations.",
+    "signal": "close",
+    "tag": "Closest game",
+  },
+]
+`;
+
+exports[`slate priorities (real week 5) > Holds Up Across Scripts is the documented survivor rule, verified against the source 1`] = `
+{
+  "cov": 55,
+  "game": "HOU@TEN",
+  "label": "Texans −4.5",
+  "team": "HOU",
+  "wins": [
+    "Texans Win Big",
+    "Texans Win Comfortably",
+  ],
+}
+`;

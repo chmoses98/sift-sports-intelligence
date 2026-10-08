@@ -30,10 +30,10 @@ export function DesignView() {
       </Stratum>
       <Stratum n="02" title="Type">
         <div className="typescale">
-          <div className="h-display">Display · Instrument Serif</div>
+          <div className="h-display">Display · Barlow 600</div>
           <div className="h-display h-display--md">Entity header</div>
-          <p>Interface · Instrument Sans: navigation, tabs, panel titles, labels and body.</p>
-          <p className="num">Numbers · Roboto Mono, tabular · +0.134 · #27 · 73.5¢</p>
+          <p>Interface · Barlow 400–500: navigation, tabs, panel titles, labels and body.</p>
+          <p className="num">Numbers · Barlow, tabular figures · +0.134 · #27 · 73.5¢</p>
           <div className="eyebrow">Eyebrow · section context</div>
         </div>
       </Stratum>

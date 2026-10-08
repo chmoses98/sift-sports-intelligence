@@ -116,13 +116,19 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
       <Link to={routes.game(sportSlug, item.event_id)} className="gtile__link gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>
         <span className="gtile__when"><span>{new Date(item.start_time_utc).toLocaleDateString(undefined, { weekday: "short" })} {new Date(item.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span><span className={passed ? 'is-passed' : ''}>{passed ? (sportCode === 'MLB' ? 'First pitch passed' : 'Kicked off') : until(item.start_time_utc, now)}</span></span>
         <span className="gtile__t">{splitName(away?.display_name ?? '', away?.short_name, sportCode).nick} <span className="gtile__at">at</span> {splitName(home?.display_name ?? '', home?.short_name, sportCode).nick}</span>
+        {lead && (
+          <span className="gtile__script" style={{ ['--sc' as string]: `var(--script-${lead.index})` }}>
+            <span className="gtile__k"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely <b className="num">{sharePct(lead.share)}</b></span>
+            <span className="gtile__sn">{lead.name}</span>
+            <span className="gtile__story">{lead.line}</span>
+          </span>
+        )}
         {r === undefined ? (
           <span className="gtile__model gcard__hook--load">Reading research…</span>
         ) : (
           <span className="gtile__model">{r ? matchupInsights(r)[0]?.headline ?? (sportCode === 'MLB' ? 'Lines, model inputs and player props' : 'Evenly matched on the published ranks') : 'No event research published'}</span>
         )}
       </Link>
-      {set && lead && <div className="gtile__scripts"><span className="gtile__lead"><i className={`sdot sdot--s${lead.index}`} />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span></div>}
       <div className="gtile__foot">
         {views.length ? <QuoteSummaryChip views={views} now={now} /> : <QuoteChip view={publicationView(item.market_captured_at)} now={now} label="prices" />}
       </div>

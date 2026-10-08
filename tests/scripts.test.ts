@@ -19,13 +19,31 @@ describe('game scripts', () => {
 
   it('regroups the simulation buckets, from the favourite (BUF, home), in plain words', () => {
     expect(set.fav).toBe('home');
-    expect(byId('fav-big').name).toBe('Bills win going away');
-    expect(byId('fav').name).toBe('Bills win comfortably');
-    expect(byId('close').name).toBe('One-score battle');
-    expect(byId('dog').name).toBe('Patriots win comfortably');
+    expect(byId('fav-big').name).toBe('Bills Win Big');
+    expect(byId('fav').name).toBe('Bills Win Comfortably');
+    expect(byId('close').name).toBe('Close Game Either Way');
+    expect(byId('dog').name).toBe('Patriots Win Comfortably');
+    // The canonical model bucket is kept beside the display title, unchanged by wording.
+    expect(set.scripts.map((s) => [s.id, s.canonical])).toEqual(expect.arrayContaining([['fav-big', 'BUF by 14+'], ['fav', 'BUF by 7–13'], ['close', 'Within 6 either way'], ['dog', 'NE by 7+']]));
     expect(set.scripts.every((s) => !/\b(Fav|Dog)\b|\d+\+/.test(s.name))).toBe(true);
     expect(set.scripts.reduce((a, s) => a + s.share, 0)).toBeCloseTo(1, 3);
     expect(byId('dog').home).toEqual({ lo: null, hi: -7 });
+  });
+
+  it('never uses insider wording in a title, and tells the story only from the conditional pass rates', () => {
+    const insider = /going away|controls|game script|positive|negative|track meet|slugfest|from behind|gets away|one-score battle|environment|leverage/i;
+    for (const s of set.scripts) {
+      expect(s.name).not.toMatch(insider);
+      expect(s.story.startsWith(s.summary)).toBe(true);
+      expect(s.story).not.toMatch(insider);
+    }
+    expect(byId('close').story).toBe(byId('close').summary);
+    // A clause appears only when a team's simulated pass rate in that script moves 3+ points from its average.
+    for (const s of set.scripts.filter((x) => x.leader)) {
+      const trail = s.leader === 'home' ? 'away' : 'home';
+      const shift = (s.volume[trail].passRate ?? 0) - (set.overall[trail].passRate ?? 0);
+      expect(/throw/.test(s.story)).toBe(shift >= 0.03);
+    }
   });
 
   it('always lists scripts from most to least likely (colour identity stays with the script)', () => {

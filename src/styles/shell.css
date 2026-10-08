@@ -15,7 +15,7 @@
 
 /* ---- wordmark: an editorial masthead */
 .wordmark { display: inline-grid; line-height: 1; color: var(--text-hi); }
-.wordmark__w { font-family: var(--font-serif); font-weight: 400; font-size: 2.5rem; letter-spacing: -0.01em; line-height: 0.8; }
+.wordmark__w { font-family: var(--font-display); font-weight: var(--fw-display); font-size: 2.5rem; letter-spacing: -0.01em; line-height: 0.8; }
 .wordmark__d { font-family: var(--font-ui); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.2em; white-space: nowrap; text-transform: uppercase; color: var(--sand-dim); margin-top: 8px; }
 .wordmark--compact .wordmark__w { font-size: 1.85rem; }
 
@@ -47,7 +47,7 @@
 .snav__menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 40; min-width: 260px; display: grid; gap: 6px; padding: 8px; background: var(--panel-solid); border: 1px solid var(--line-2); border-radius: var(--r-3); box-shadow: var(--shadow-2); }
 .snav__group { display: grid; }
 .snav__group + .snav__group { border-top: 1px solid var(--line); padding-top: 6px; }
-.snav__mi { --accent: var(--sand); display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 10px; border-radius: var(--r-2); color: var(--text); font-size: var(--fs-sm); font-weight: 550; }
+.snav__mi { --accent: var(--sand); display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 10px; border-radius: var(--r-2); color: var(--text); font-size: var(--fs-sm); font-weight: 500; }
 .snav__mi:hover, .snav__mi.active { background: rgba(38, 150, 214, 0.08); color: var(--text-hi); }
 .snav__mi svg { color: var(--text-3); }
 .snav__st { margin-left: auto; font-size: 0.72rem; color: var(--text-3); }
@@ -56,7 +56,7 @@
 .searchbtn { margin-left: auto; display: flex; align-items: center; gap: 8px; height: 38px; min-width: 38px; padding: 0 10px; flex: 0 1 300px; background: rgba(7, 21, 33, 0.8); border: 1px solid var(--line-2); border-radius: var(--r-2); color: var(--text-3); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
 .searchbtn:hover { border-color: var(--line-3); color: var(--text-2); }
 .searchbtn__t { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.searchbtn__kbd { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; }
+.searchbtn__kbd { font-family: var(--font-ui); font-weight: 600; font-size: 11px; color: var(--text-3); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; }
 .palette { position: fixed; inset: 0; z-index: 60; display: grid; justify-items: center; align-items: start; padding: max(10vh, 56px) var(--s-3) var(--s-3); }
 .palette__scrim { position: absolute; inset: 0; background: rgba(0, 4, 8, 0.72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .palette__box { position: relative; width: min(640px, 100%); max-height: min(72vh, 640px); display: flex; flex-direction: column; background: var(--panel-solid); border: 1px solid var(--line-3); border-radius: var(--r-3); box-shadow: var(--shadow-2); overflow: hidden; }
@@ -68,7 +68,7 @@
 .searchbox__pop { display: none; }
 .traybtn { display: none; align-items: center; gap: 8px; height: 38px; padding: 0 12px; background: rgba(7, 21, 33, 0.8); border: 1px solid var(--line-2); border-radius: var(--r-2); cursor: pointer; font-family: var(--font-ui); font-weight: 600; font-size: var(--fs-sm); color: var(--text); flex-shrink: 0; }
 .traybtn:hover { border-color: var(--gold-line); color: var(--text-hi); }
-.traybtn__n { font-family: var(--font-num); min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 11px; background: var(--navy-3); font-size: 11.5px; }
+.traybtn__n { font-family: var(--font-num); font-variant-numeric: tabular-nums; min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 11px; background: var(--navy-3); font-size: 11.5px; }
 .traybtn.has-items .traybtn__n { background: var(--gold); color: var(--graphite); }
 .offline { text-align: center; font-size: var(--fs-xs); padding: 6px; background: rgba(242, 192, 72, 0.12); color: var(--gold-2); }
 @media (max-width: 719px) {
@@ -113,7 +113,7 @@
 
 /* ---- footer: quiet */
 .foot { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: var(--s-6) var(--s-4) calc(var(--bottombar-h) + var(--safe-b) + var(--s-6)); display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); align-items: center; font-size: var(--fs-xs); color: var(--text-3); border-top: 1px solid var(--line); }
-.foot__brand { font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-2); line-height: 1; }
+.foot__brand { font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.25rem; color: var(--text-2); line-height: 1; }
 .foot a { color: var(--text-2); min-height: 32px; display: inline-flex; align-items: center; }
 .foot a:hover { color: var(--text-hi); }
 @media (min-width: 720px) { .foot { padding: var(--s-6) var(--s-6); } }
@@ -131,7 +131,7 @@
 .bottombar__a.active::before, .bottombar__a[aria-current='page']::before { content: ''; position: absolute; top: 0; left: 28%; right: 28%; height: 3px; border-radius: 0 0 3px 3px; background: var(--blue); box-shadow: 0 0 12px rgba(30, 140, 242, 0.8); }
 .bottombar__a.active svg, .bottombar__a[aria-current='page'] svg { color: #4aa8ff; }
 .bottombar__ic { position: relative; display: inline-flex; }
-.bottombar__n { position: absolute; top: -6px; right: -12px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--gold); color: var(--graphite); font-family: var(--font-num); font-size: 10.5px; font-weight: 600; display: grid; place-items: center; padding: 0 4px; }
+.bottombar__n { position: absolute; top: -6px; right: -12px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--gold); color: var(--graphite); font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 10.5px; font-weight: 600; display: grid; place-items: center; padding: 0 4px; }
 @media (min-width: 720px) { .bottombar { display: none; } }
 
 /* ---- phone sports sheet */

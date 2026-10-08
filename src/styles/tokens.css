@@ -5,6 +5,17 @@
    accessibility or the data-viz validator required it.
    Token NAMES are stable so every screen inherits the system.
    ========================================================================== */
+/* Barlow's metrics on a local sans (avg glyph width, ascent, descent measured from Barlow 400 against
+   Arial/Liberation Sans), so text set in the fallback occupies Barlow's space while the woff2 loads. */
+@font-face {
+  font-family: 'Barlow Fallback';
+  src: local('Arial'), local('ArialMT'), local('Helvetica'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 96.94%;
+  ascent-override: 103.15%;
+  descent-override: 20.63%;
+  line-gap-override: 0%;
+}
+
 :root {
   color-scheme: dark;
 
@@ -109,13 +120,27 @@
   --q-research: #f0c048;
   --q-unavailable: #8496a8;
 
-  /* ---- type (self-hosted @fontsource) */
-  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;   /* selective editorial moments */
-  --font-display: var(--font-serif);
-  --font-ui: 'Instrument Sans Variable', 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-head: var(--font-ui);
-  --font-num: 'Roboto Mono Variable', 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --font-mono: var(--font-num);
+  /* ---- type: Barlow, one family for the whole app (self-hosted @fontsource, weights 400/500/600/700).
+     Hierarchy comes from size, weight, spacing and colour — never from a second typeface. 'Barlow Fallback'
+     is Arial/Helvetica resized to Barlow's metrics (below), so the swap from fallback to Barlow does not
+     shift layout. */
+  --font-sans: 'Barlow', 'Barlow Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-ui: var(--font-sans);
+  --font-head: var(--font-sans);
+  --font-display: var(--font-sans);
+  /* Numbers are Barlow too, with tabular figures (font-variant-numeric) where values align or update. */
+  --font-num: var(--font-sans);
+  /* The only exception: code, Kalshi tickers and the plain-text packet, where fixed-width characters are the
+     point. System monospace, nothing downloaded. */
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  /* Deprecated alias kept so in-flight branches that still say var(--font-serif) render Barlow, not a serif. */
+  --font-serif: var(--font-display);
+
+  --fw-body: 400;
+  --fw-ui: 500;
+  --fw-strong: 600;
+  --fw-display: 600;
+  --fw-bold: 700;
 
   --fs-micro: 0.75rem;     /* 12px: eyebrows, axis ticks (legibility floor) */
   --fs-xs: 0.8125rem;      /* 13px */

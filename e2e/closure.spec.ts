@@ -43,7 +43,7 @@ test('TE usage renders target share', async ({ page }) => {
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
-  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'Script Outlook' }).waitFor()],
+  ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'How Each Game Could End' }).waitFor()],
   ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor()],
   ['game-matchup', `./#/nfl/game/${NEBUF}?tab=matchup`, (p) => p.getByRole('heading', { name: 'Unit by unit' }).waitFor()],
   ['game-trends', `./#/nfl/game/${NEBUF}?tab=trends`, (p) => p.locator('main').waitFor()],

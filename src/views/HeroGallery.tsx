@@ -64,13 +64,15 @@ function GalleryHero({ spec, sport }: { spec: HeroSpec; sport: string }) {
   const side = (team: HeroTeam | null, which: 'away' | 'home') => (
     <div className={`gh__team gh__team--${which}`}>
       {sport === 'CBB' ? (team?.logo ? <img className="teammark teammark--logo teammark--xl" src={team.logo} alt="" /> : <span className="teammark teammark--text teammark--xl">{team?.code}</span>) : <TeamMark sport={sport} abbr={team?.code} size="xl" />}
-      <div className="gh__tn"><span className="gh__city"><span className="gh__cityname">{team && team.name !== team.short ? team.name.replace(team.short, '').trim() : ''}</span></span><span className="gh__name">{team?.short}</span></div>
+      <div className="gh__tn"><span className="gh__city"><span className="gh__cityname">{team && team.name !== team.short ? team.name.replace(team.short, '').trim() : ''}</span></span><span className={`gh__name${(sport === 'CFB' || sport === 'CBB') && (team?.short.length ?? 0) > 9 ? ' gh__name--long' : ''}`}>{team?.short}</span></div>
     </div>
   );
   return (
     <header className={`gh gh--${spec.kind} gh--ctx-${spec.context}`} style={heroVars(spec)} {...heroData(spec)}>
       <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /></div>
-      <HeroIdentity spec={spec} sportCode={sport} />
+      {sport === 'CBB' ? (
+        <span className="gh__id" data-hero-label="">{spec.home?.logo ? <img className="teammark teammark--logo teammark--sm" src={spec.home.logo} alt="" /> : <i aria-hidden="true" />}<span>{spec.label}</span></span>
+      ) : <HeroIdentity spec={spec} sportCode={sport} />}
       <div className="gh__in">
         <div className="gh__teams">{side(spec.away, 'away')}<span className="gh__at" aria-hidden="true">{atWord(spec)}</span>{side(spec.home, 'home')}</div>
         <p className="gh__meta">{spec.venue && <span className="gh__venue">{spec.venue.name}{spec.venue.city ? `, ${spec.venue.city}` : ''}</span>}<span className="muted">{spec.reason}</span></p>

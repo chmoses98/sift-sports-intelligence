@@ -260,6 +260,9 @@
   .shome__top .fcard { flex: 1; display: flex; flex-direction: column; }
   .shome__top .fcard__a { flex: 1; display: flex; flex-direction: column; }
   .shome__top .fcard__img { flex: 1; aspect-ratio: auto; max-height: none; min-height: 300px; }
+  /* The photo fills whatever height the rail sets; its own intrinsic size never drives the row. */
+  .shome__top .fcard__img > img, .shome__top .fcard__img > .sfb { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .shome__top .fcard__credit { z-index: 2; }
 }
 
 .prio { --pk: var(--text-3); display: flex; flex-direction: column; padding: var(--s-4) var(--s-5) var(--s-3); border-radius: var(--r-3); background: var(--panel); border: 1px solid var(--panel-line); box-shadow: var(--panel-glow); min-width: 0; }

@@ -1,0 +1,1002 @@
+{
+ "capture_health": {
+  "expected_games": 6,
+  "game_winner_markets_found": 4,
+  "market_absent": 0,
+  "not_tracked": 2,
+  "orientation_failures": 0,
+  "pending": 4,
+  "price_1_00": 0,
+  "primary_window_coverage": null,
+  "statuses": {
+   "CAPTURE_PENDING": 4,
+   "NOT_TRACKED": 2
+  },
+  "system_failures": 0,
+  "unexecutable": 0,
+  "valid_primary_captures": 0,
+  "window": {
+   "from": "2026-10-07T23:00:00Z",
+   "horizon_hours": 36.0
+  },
+  "windows_closed": 0
+ },
+ "games": [
+  {
+   "capture": null,
+   "card_line": null,
+   "claims": null,
+   "claims_artifact_hash": null,
+   "data_quality": null,
+   "edges": [],
+   "espn_event_id": null,
+   "event_id": "evt_e56d7cee653c3507226b",
+   "game_key": "26OCT07JVSTKENN",
+   "historical": null,
+   "kickoff_utc": "2026-10-07T23:00:00Z",
+   "market": null,
+   "read": null,
+   "season_week": 6,
+   "signal": null,
+   "status": "NOT_BUILT",
+   "title": "Jacksonville St. at Kennesaw St."
+  },
+  {
+   "capture": null,
+   "card_line": null,
+   "claims": null,
+   "claims_artifact_hash": null,
+   "data_quality": null,
+   "edges": [],
+   "espn_event_id": null,
+   "event_id": "evt_f39ef6a955b04b97fe84",
+   "game_key": "26OCT07NMSUFIU",
+   "historical": null,
+   "kickoff_utc": "2026-10-07T23:30:00Z",
+   "market": null,
+   "read": null,
+   "season_week": 6,
+   "signal": null,
+   "status": "NOT_BUILT",
+   "title": "New Mexico St. at Florida International"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "home",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T01:15:00Z",
+    "window_opens_at": "2026-10-09T23:15:00Z"
+   },
+   "card_line": "BYU control edge · slower pace",
+   "claims": {
+    "closeness": false,
+    "control": {
+     "side": "home",
+     "strength": "MODERATE",
+     "team": "BYU",
+     "tier": "HOME_CONTROL_MODERATE"
+    },
+    "defensive_suppression": false,
+    "disruption": [],
+    "explosive_upset_v1": false,
+    "pace": "LOW",
+    "scoring": null
+   },
+   "claims_artifact_hash": "77af557a968a6ec9ea8af3a73a4f79c522e0bdb7b1a5c9e5a7877f4b0c83d904",
+   "data_quality": "MEDIUM",
+   "edges": [
+    "BYU owns the sustained-efficiency matchup",
+    "Fewer plays than an average FBS game"
+   ],
+   "espn_event_id": "401856826",
+   "event_id": "evt_1f7f2822f37fb1a8e34e",
+   "game_key": "26OCT09ISUBYU",
+   "headline": "BYU holds a moderate sustained-efficiency control edge, with a slower possession environment.",
+   "historical": {
+    "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+    "central_50": [
+     3.0,
+     24.0
+    ],
+    "central_80": [
+     -7.0,
+     34.0
+    ],
+    "development_seasons": [
+     2021,
+     2022,
+     2023,
+     2024,
+     2025
+    ],
+    "label": "Historical empirical range",
+    "median": 12.0,
+    "n": 404,
+    "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+    "validation_n": 512,
+    "validation_seasons": [
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020
+    ],
+    "variable": "CONTROL-side final margin of past games with the same claim",
+    "wins": 323
+   },
+   "kickoff_utc": "2026-10-10T02:15:00Z",
+   "market": {
+    "disagreement": false,
+    "is_control_side": true,
+    "participant_id": "prt_62f3806b37c6de70d9ca",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT09ISUBYU-BYU",
+     "source": "KALSHI_CATALOG",
+     "status": "EXECUTABLE",
+     "yes_ask": 0.79
+    },
+    "side": "home",
+    "team": "BYU",
+    "team_code": "BYU"
+   },
+   "read": "BYU holds a control edge in this matchup. Expect a slower game.",
+   "season_week": 6,
+   "signal": "VALUE_WATCH",
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "Iowa State",
+     "team_id": "66"
+    },
+    "home": {
+     "name": "BYU",
+     "team_id": "252"
+    }
+   },
+   "title": "Iowa St. at BYU"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "away",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T15:00:00Z",
+    "window_opens_at": "2026-10-10T13:00:00Z"
+   },
+   "card_line": "Arizona controls · faster pace",
+   "claims": {
+    "closeness": false,
+    "control": {
+     "side": "away",
+     "strength": "STRONG",
+     "team": "Arizona",
+     "tier": "AWAY_CONTROL_STRONG"
+    },
+    "defensive_suppression": false,
+    "disruption": [],
+    "explosive_upset_v1": false,
+    "pace": "HIGH",
+    "scoring": null
+   },
+   "claims_artifact_hash": "4a53732669f705777909aa6bd2ed798a45e224dcec90db543c446bb7e2043096",
+   "data_quality": "HIGH",
+   "edges": [
+    "Arizona owns the sustained-efficiency matchup",
+    "More plays than an average FBS game"
+   ],
+   "espn_event_id": "401856823",
+   "event_id": "evt_16c15c04ce50a5cb83f5",
+   "game_key": "26OCT10ARIZWVU",
+   "headline": "Arizona holds a strong sustained-efficiency control edge, with a faster possession environment.",
+   "historical": {
+    "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+    "central_50": [
+     3.0,
+     27.0
+    ],
+    "central_80": [
+     -5.3,
+     37.0
+    ],
+    "development_seasons": [
+     2021,
+     2022,
+     2023,
+     2024,
+     2025
+    ],
+    "label": "Historical empirical range",
+    "median": 14.5,
+    "n": 378,
+    "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+    "validation_n": 552,
+    "validation_seasons": [
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020
+    ],
+    "variable": "CONTROL-side final margin of past games with the same claim",
+    "wins": 306
+   },
+   "kickoff_utc": "2026-10-10T16:00:00Z",
+   "market": {
+    "disagreement": true,
+    "is_control_side": true,
+    "participant_id": "prt_ba587efcb5d0faa377d2",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT10ARIZWVU-ARIZ",
+     "source": "KALSHI_CATALOG",
+     "status": "EXECUTABLE",
+     "yes_ask": 0.61
+    },
+    "side": "away",
+    "team": "Arizona",
+    "team_code": "ARIZ"
+   },
+   "read": "Arizona controls this matchup. Expect a faster game.",
+   "season_week": 6,
+   "signal": "STRONG_CONTROL",
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "Arizona",
+     "team_id": "12"
+    },
+    "home": {
+     "name": "West Virginia",
+     "team_id": "277"
+    }
+   },
+   "title": "Arizona at West Virginia"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "away",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T15:00:00Z",
+    "window_opens_at": "2026-10-10T13:00:00Z"
+   },
+   "card_line": "Sacramento State controls · slower pace",
+   "claims": {
+    "closeness": false,
+    "control": {
+     "side": "away",
+     "strength": "STRONG",
+     "team": "Sacramento State",
+     "tier": "AWAY_CONTROL_STRONG"
+    },
+    "defensive_suppression": false,
+    "disruption": [],
+    "explosive_upset_v1": false,
+    "pace": "LOW",
+    "scoring": null
+   },
+   "claims_artifact_hash": "658bdee0ada8ec7c3d006024fedf152471aba1008b0d84d0131996af2ede68e1",
+   "data_quality": "HIGH",
+   "edges": [
+    "Sacramento State owns the sustained-efficiency matchup",
+    "Fewer plays than an average FBS game"
+   ],
+   "espn_event_id": "401866436",
+   "event_id": "evt_f32aa654d1e5ccd474f9",
+   "game_key": "26OCT10SACBGSU",
+   "headline": "Sacramento State holds a strong sustained-efficiency control edge, with a slower possession environment.",
+   "historical": {
+    "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+    "central_50": [
+     3.0,
+     27.0
+    ],
+    "central_80": [
+     -5.3,
+     37.0
+    ],
+    "development_seasons": [
+     2021,
+     2022,
+     2023,
+     2024,
+     2025
+    ],
+    "label": "Historical empirical range",
+    "median": 14.5,
+    "n": 378,
+    "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+    "validation_n": 552,
+    "validation_seasons": [
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020
+    ],
+    "variable": "CONTROL-side final margin of past games with the same claim",
+    "wins": 306
+   },
+   "kickoff_utc": "2026-10-10T16:00:00Z",
+   "market": {
+    "disagreement": true,
+    "is_control_side": true,
+    "participant_id": "prt_7a85c00e0ce29c2509c8",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT10SACBGSU-SAC",
+     "source": "KALSHI_CATALOG",
+     "status": "EXECUTABLE",
+     "yes_ask": 0.28
+    },
+    "side": "away",
+    "team": "Sacramento State",
+    "team_code": "SAC"
+   },
+   "read": "Sacramento State controls this matchup. Expect a slower game.",
+   "season_week": 6,
+   "signal": "STRONG_CONTROL",
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "Sacramento State",
+     "team_id": "16"
+    },
+    "home": {
+     "name": "Bowling Green",
+     "team_id": "189"
+    }
+   },
+   "title": "Sacramento St. at Bowling Green"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "home",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T18:30:00Z",
+    "window_opens_at": "2026-10-10T16:30:00Z"
+   },
+   "card_line": "Notre Dame controls · disruption aligned",
+   "claims": {
+    "closeness": false,
+    "control": {
+     "side": "home",
+     "strength": "STRONG",
+     "team": "Notre Dame",
+     "tier": "HOME_CONTROL_STRONG"
+    },
+    "defensive_suppression": false,
+    "disruption": [
+     {
+      "aligned_with_control": true,
+      "side": "home",
+      "team": "Notre Dame"
+     }
+    ],
+    "explosive_upset_v1": false,
+    "pace": null,
+    "scoring": null
+   },
+   "claims_artifact_hash": "0f2a3b2cf7ef55d78df84811cfcc33274689771d7c5ad5e03f8c1412fb919c19",
+   "data_quality": "HIGH",
+   "edges": [
+    "Notre Dame owns the sustained-efficiency matchup",
+    "Notre Dame owns the disruption edge, aligned with control"
+   ],
+   "espn_event_id": "401858257",
+   "event_id": "evt_7ca164d80f042f650a5c",
+   "game_key": "26OCT10STANND",
+   "headline": "Notre Dame holds a strong sustained-efficiency control edge. Notre Dame's disruption edge points the same way.",
+   "historical": {
+    "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+    "central_50": [
+     8.0,
+     35.0
+    ],
+    "central_80": [
+     1.0,
+     48.0
+    ],
+    "development_seasons": [
+     2021,
+     2022,
+     2023,
+     2024,
+     2025
+    ],
+    "label": "Historical empirical range",
+    "median": 23.0,
+    "n": 628,
+    "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+    "validation_n": 824,
+    "validation_seasons": [
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020
+    ],
+    "variable": "CONTROL-side final margin of past games with the same claim",
+    "wins": 566
+   },
+   "kickoff_utc": "2026-10-10T19:30:00Z",
+   "market": {
+    "disagreement": null,
+    "is_control_side": true,
+    "participant_id": "prt_3dbc86ed6c007467d066",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT10STANND-ND",
+     "source": "KALSHI_CATALOG",
+     "status": "PRICE_1_00",
+     "yes_ask": null
+    },
+    "side": "home",
+    "team": "Notre Dame",
+    "team_code": "ND"
+   },
+   "read": "Notre Dame controls this matchup.",
+   "season_week": 6,
+   "signal": "STRONG_CONTROL",
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "Stanford",
+     "team_id": "24"
+    },
+    "home": {
+     "name": "Notre Dame",
+     "team_id": "87"
+    }
+   },
+   "title": "Stanford at Notre Dame"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "away",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T19:15:00Z",
+    "window_opens_at": "2026-10-10T17:15:00Z"
+   },
+   "card_line": "Tennessee control edge · disruption aligned",
+   "claims": {
+    "closeness": false,
+    "control": {
+     "side": "away",
+     "strength": "MODERATE",
+     "team": "Tennessee",
+     "tier": "AWAY_CONTROL_MODERATE"
+    },
+    "defensive_suppression": false,
+    "disruption": [
+     {
+      "aligned_with_control": true,
+      "side": "away",
+      "team": "Tennessee"
+     }
+    ],
+    "explosive_upset_v1": false,
+    "pace": null,
+    "scoring": null
+   },
+   "claims_artifact_hash": "cedfae900edf709e9f41dd3b942930f383a3e44075625cd40c2ab5d6bf82f30e",
+   "data_quality": "LOW",
+   "edges": [
+    "Tennessee owns the sustained-efficiency matchup",
+    "Tennessee owns the disruption edge, aligned with control"
+   ],
+   "espn_event_id": "401856713",
+   "event_id": "evt_f121611ae29ec3e9d56e",
+   "game_key": "26OCT10TENNARK",
+   "headline": "Tennessee holds a moderate sustained-efficiency control edge. Tennessee's disruption edge points the same way.",
+   "historical": {
+    "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+    "central_50": [
+     -4.0,
+     18.0
+    ],
+    "central_80": [
+     -13.7,
+     30.0
+    ],
+    "development_seasons": [
+     2021,
+     2022,
+     2023,
+     2024,
+     2025
+    ],
+    "label": "Historical empirical range",
+    "median": 7.0,
+    "n": 404,
+    "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+    "validation_n": 514,
+    "validation_seasons": [
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020
+    ],
+    "variable": "CONTROL-side final margin of past games with the same claim",
+    "wins": 269
+   },
+   "kickoff_utc": "2026-10-10T20:15:00Z",
+   "market": {
+    "disagreement": false,
+    "is_control_side": true,
+    "participant_id": "prt_19d5d59bfb68a59b9b2e",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT10TENNARK-TENN",
+     "source": "KALSHI_CATALOG",
+     "status": "EXECUTABLE",
+     "yes_ask": 0.83
+    },
+    "side": "away",
+    "team": "Tennessee",
+    "team_code": "TENN"
+   },
+   "read": "Tennessee holds a control edge in this matchup.",
+   "season_week": 6,
+   "signal": "VALUE_WATCH",
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "Tennessee",
+     "team_id": "2633"
+    },
+    "home": {
+     "name": "Arkansas",
+     "team_id": "8"
+    }
+   },
+   "title": "Tennessee at Arkansas"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "away",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T22:00:00Z",
+    "window_opens_at": "2026-10-10T20:00:00Z"
+   },
+   "card_line": "LSU control edge · faster pace · disruption aligned",
+   "claims": {
+    "closeness": false,
+    "control": {
+     "side": "away",
+     "strength": "MODERATE",
+     "team": "LSU",
+     "tier": "AWAY_CONTROL_MODERATE"
+    },
+    "defensive_suppression": false,
+    "disruption": [
+     {
+      "aligned_with_control": true,
+      "side": "away",
+      "team": "LSU"
+     }
+    ],
+    "explosive_upset_v1": false,
+    "pace": "HIGH",
+    "scoring": null
+   },
+   "claims_artifact_hash": "1a2e44b6b6d470f0a1f156caaa8dd652e1c953f09567fcdea3c165dc61d23dd4",
+   "data_quality": "HIGH",
+   "edges": [
+    "LSU owns the sustained-efficiency matchup",
+    "More plays than an average FBS game",
+    "LSU owns the disruption edge, aligned with control"
+   ],
+   "espn_event_id": "401856715",
+   "event_id": "evt_8c3166866b2bfa530c17",
+   "game_key": "26OCT10LSUUK",
+   "headline": "LSU holds a moderate sustained-efficiency control edge, with a faster possession environment. LSU's disruption edge points the same way.",
+   "historical": {
+    "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+    "central_50": [
+     -4.0,
+     18.0
+    ],
+    "central_80": [
+     -13.7,
+     30.0
+    ],
+    "development_seasons": [
+     2021,
+     2022,
+     2023,
+     2024,
+     2025
+    ],
+    "label": "Historical empirical range",
+    "median": 7.0,
+    "n": 404,
+    "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+    "validation_n": 514,
+    "validation_seasons": [
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020
+    ],
+    "variable": "CONTROL-side final margin of past games with the same claim",
+    "wins": 269
+   },
+   "kickoff_utc": "2026-10-10T23:00:00Z",
+   "market": {
+    "disagreement": false,
+    "is_control_side": true,
+    "participant_id": "prt_f663507cb626bfff153c",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT10LSUUK-LSU",
+     "source": "KALSHI_CATALOG",
+     "status": "EXECUTABLE",
+     "yes_ask": 0.76
+    },
+    "side": "away",
+    "team": "LSU",
+    "team_code": "LSU"
+   },
+   "read": "LSU holds a control edge in this matchup. Expect a faster game.",
+   "season_week": 6,
+   "signal": "VALUE_WATCH",
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "LSU",
+     "team_id": "99"
+    },
+    "home": {
+     "name": "Kentucky",
+     "team_id": "96"
+    }
+   },
+   "title": "LSU at Kentucky"
+  },
+  {
+   "capture": {
+    "attempts": 0,
+    "attempts_failed": 0,
+    "entry": null,
+    "market_ticker": null,
+    "side": "home",
+    "status": "CAPTURE_PENDING",
+    "window_closes_at": "2026-10-10T22:30:00Z",
+    "window_opens_at": "2026-10-10T20:30:00Z"
+   },
+   "card_line": "Close-game profile · slower pace · elevated scoring",
+   "claims": {
+    "closeness": true,
+    "control": null,
+    "defensive_suppression": false,
+    "disruption": [],
+    "explosive_upset_v1": false,
+    "pace": "LOW",
+    "scoring": {
+     "incremental": true,
+     "level": "ELEVATED"
+    }
+   },
+   "claims_artifact_hash": "b86889321605b51a39eb97bc7ced30dccd6297942e755211a316e30859b34e59",
+   "data_quality": "HIGH",
+   "edges": [
+    "Evidence supports a relatively close game",
+    "Fewer plays than an average FBS game",
+    "Scoring above what the baseline expects"
+   ],
+   "espn_event_id": "401856712",
+   "event_id": "evt_93e12676ae9337017c63",
+   "game_key": "26OCT10UGAALA",
+   "headline": "Close-game profile, with a slower possession environment and an elevated-scoring environment.",
+   "historical": null,
+   "kickoff_utc": "2026-10-10T23:30:00Z",
+   "market": {
+    "disagreement": false,
+    "is_control_side": false,
+    "participant_id": "prt_cfe4b7056ed5e2175890",
+    "price": {
+     "captured_at": "2026-10-07T23:19:34.451947Z",
+     "market_ticker": "KXNCAAFGAME-26OCT10UGAALA-ALA",
+     "source": "KALSHI_CATALOG",
+     "status": "EXECUTABLE",
+     "yes_ask": 0.53
+    },
+    "side": "home",
+    "team": "Alabama",
+    "team_code": "ALA"
+   },
+   "read": "This profiles as a close game. Expect a slower game with elevated scoring.",
+   "season_week": 6,
+   "signal": null,
+   "status": "CLAIMS_PUBLISHED",
+   "teams": {
+    "away": {
+     "name": "Georgia",
+     "team_id": "61"
+    },
+    "home": {
+     "name": "Alabama",
+     "team_id": "333"
+    }
+   },
+   "title": "Georgia at Alabama"
+  },
+  {
+   "capture": null,
+   "card_line": null,
+   "claims": null,
+   "claims_artifact_hash": null,
+   "data_quality": null,
+   "edges": [],
+   "espn_event_id": null,
+   "event_id": "evt_eed4efa39c9e61732fb8",
+   "game_key": "26OCT17ALBYSTON",
+   "historical": null,
+   "kickoff_utc": "2026-10-17T18:30:00Z",
+   "market": null,
+   "read": null,
+   "season_week": 7,
+   "signal": null,
+   "status": "NOT_BUILT",
+   "title": "University at Albany at Stony Brook"
+  }
+ ],
+ "generated_at": "2026-10-07T12:00:00Z",
+ "methodology_version": "cfb-script-engine/2.0.0",
+ "never": [
+  "probability",
+  "fair price",
+  "bet-up-to price",
+  "stake",
+  "recommendation"
+ ],
+ "population": {
+  "awaiting_kickoff": {},
+  "by_strength": {},
+  "by_tier": {},
+  "final_pregame_games": 0,
+  "missing_final_pregame": []
+ },
+ "prospective_version": "cfb-control-prospective/1.0.0",
+ "protocol": {
+  "hypotheses": {
+   "H1": {
+    "id": "H1_MODERATE_CONTROL_PRIMARY_ROI",
+    "wording": "MODERATE CONTROL, home and away pooled, purchased at the frozen PRIMARY_60_180 executable game-winner ask at all available prices, has fee-adjusted ROI > 0."
+   },
+   "H2": {
+    "id": "H2_STRONG_CONTROL_BELOW_85_UNDERPERFORMS",
+    "wording": "STRONG CONTROL priced below 85¢ underperforms its fee-adjusted break-even rate."
+   }
+  },
+  "path": "data/scripting/validation/control_prospective_2026/protocol.json",
+  "primary_window": {
+   "close_minutes_before": 60,
+   "name": "PRIMARY_60_180",
+   "open_minutes_before": 180
+  },
+  "review_checkpoints": {
+   "10": "EARLY_READ_ONLY",
+   "20": "INTERIM_RESEARCH_READ",
+   "30": "MEANINGFUL_EARLY_SAMPLE",
+   "50": "PRIMARY_REVIEW"
+  },
+  "sha256": "b35c75ef64447ba6087dc83d1741e42e9d2570528f4fee5518154724a84c8021"
+ },
+ "research_only": true,
+ "schema": "cfb_research_signals/1.0.0",
+ "signals": {
+  "market_disagreement": {
+   "explanation": "The football model shows Strong CONTROL, but the market is unusually skeptical. Early 2026 research found these disagreements performed poorly for CONTROL. This is being tracked prospectively and is not a betting rule.",
+   "hypothesis": "H2_STRONG_CONTROL_BELOW_85_UNDERPERFORMS",
+   "label": "Market Disagreement",
+   "prospective": {
+    "checkpoint": {
+     "next": "EARLY_READ_ONLY",
+     "next_at_n": 10,
+     "reached": null,
+     "reached_at_n": null
+    },
+    "fee_adjusted_roi": null,
+    "losses": null,
+    "n": 0,
+    "priced_n": 0,
+    "realized_minus_break_even": null,
+    "review_threshold": 50,
+    "roi_ci95": null,
+    "settled_n": 0,
+    "statement": "No prospective settlements yet.",
+    "wins": null
+   },
+   "research_basis": {
+    "break_even": 0.6782,
+    "fee_adjusted_roi": -0.3062,
+    "kind": "EXPLORATORY (post-reveal cut of the frozen rows; not a validated rule)",
+    "losses": 9,
+    "retrospective_priced_n": 17,
+    "wins": 8
+   },
+   "rule": {
+    "applies_to": "STRONG_CONTROL",
+    "below_cents": 85,
+    "never": "NO is never 1 - YES; no price means no flag",
+    "price": "current executable YES ask of the CONTROL team's own game-winner market"
+   },
+   "short": "Market unusually skeptical of Strong CONTROL",
+   "status": "INSUFFICIENT_DATA"
+  },
+  "moderate_control": {
+   "applies_to": [
+    "HOME_CONTROL_MODERATE",
+    "AWAY_CONTROL_MODERATE"
+   ],
+   "disclaimer": "Promising early market evidence; prospective confirmation in progress.",
+   "explanation": "Moderate CONTROL is a historically validated football signal. In the first 2026 priced research sample, Moderate CONTROL teams went 6–0 with positive fee-adjusted returns, but the sample is too small to establish a proven betting edge. SIFT is tracking it prospectively.",
+   "game_page_explanation": "Moderate CONTROL is a historically validated football signal. The initial 2026 priced sample went 6–0, but the market sample is too small to establish a proven edge. Prospective confirmation is in progress.",
+   "gate": {
+    "capture_coverage_healthy": null,
+    "decision": null,
+    "edge_criteria_met": null,
+    "football_coherent": null,
+    "review_reason": null,
+    "source": "AUTOMATIC_GATE",
+    "status": "VALUE_WATCH"
+   },
+   "hypothesis": "H1_MODERATE_CONTROL_PRIMARY_ROI",
+   "label": "Value Watch",
+   "meaning": "Historically validated football signal with promising early market evidence. Prospective confirmation in progress.",
+   "prospective": {
+    "checkpoint": {
+     "next": "EARLY_READ_ONLY",
+     "next_at_n": 10,
+     "reached": null,
+     "reached_at_n": null
+    },
+    "fee_adjusted_roi": null,
+    "losses": null,
+    "n": 0,
+    "priced_n": 0,
+    "review_threshold": 50,
+    "roi_ci95": null,
+    "settled_n": 0,
+    "statement": "No prospective settlements yet.",
+    "wins": null
+   },
+   "research_basis": {
+    "break_even": 0.755,
+    "fee_adjusted_roi": 0.3245,
+    "football_n": 7,
+    "football_wins": 6,
+    "losses": 0,
+    "market_verdict": "INSUFFICIENT_DATA",
+    "mean_entry": 0.74,
+    "retrospective_priced_n": 6,
+    "roi_ci95": [
+     0.1364,
+     0.7241
+    ],
+    "tier_verdicts": {
+     "AWAY_CONTROL_MODERATE": "INSUFFICIENT_DATA",
+     "HOME_CONTROL_MODERATE": "INSUFFICIENT_DATA"
+    },
+    "wins": 6
+   },
+   "short": "Promising early market evidence",
+   "small_sample": "Initial priced n = 6",
+   "status": "VALUE_WATCH",
+   "status_line": "Prospective confirmation in progress"
+  },
+  "no_claim": {
+   "explanation": "This does not mean the game is unusually unpredictable. It means the current evidence taxonomy did not justify a stronger claim.",
+   "label": "No clear SIFT read",
+   "short": "No supported matchup claim cleared the evidence requirements."
+  },
+  "strong_control": {
+   "applies_to": [
+    "HOME_CONTROL_STRONG",
+    "AWAY_CONTROL_STRONG"
+   ],
+   "explanation": "Strong CONTROL is a validated football signal. In the first 2026 priced research sample the market already priced it about right, so it is a football read, not a value signal.",
+   "label": "Strong Control",
+   "market_summary": "Market approximately efficient so far",
+   "priced_high": "Market already prices this side aggressively",
+   "prospective": {
+    "fee_adjusted_roi": null,
+    "n": 0,
+    "priced_n": 0,
+    "settled_n": 0,
+    "statement": "No prospective settlements yet."
+   },
+   "research_basis": {
+    "break_even": 0.8403,
+    "fee_adjusted_roi": -0.0845,
+    "football_n": 82,
+    "football_wins": 70,
+    "losses": 9,
+    "market_verdict": "APPROXIMATELY_EFFICIENT",
+    "mean_entry": 0.8259,
+    "retrospective_priced_n": 39,
+    "roi_ci95": [
+     -0.2287,
+     0.041
+    ],
+    "tier_verdicts": {
+     "AWAY_CONTROL_STRONG": "INSUFFICIENT_DATA",
+     "HOME_CONTROL_STRONG": "APPROXIMATELY_EFFICIENT"
+    },
+    "wins": 30
+   },
+   "short": "Validated football signal",
+   "status": "NO_EDGE"
+  }
+ },
+ "sources": {
+  "catalog_captured_at": "2026-10-07T23:19:34.451947Z",
+  "conductor_run_id": null,
+  "ledger_v2_rows": 214,
+  "market_read": {
+   "at": "2026-10-07T12:00:00Z",
+   "error": "RuntimeError: offline: no Kalshi read",
+   "ok": false,
+   "series": "KXNCAAFGAME"
+  },
+  "watchdog": {
+   "dispatched": null,
+   "needs": {
+    "final_pregame": [],
+    "results": []
+   }
+  }
+ },
+ "sport": "CFB",
+ "study": {
+  "id": "CONTROL_2026_MARKET_PRICING",
+  "kind": "retrospective football replay with prospectively captured prices",
+  "manifest_sha256": "bc74f8bf79ac2a56568ce966386b12b45e401498606893649f03033b376f4ab7",
+  "overall_verdict": "2026 CONTROL FOOTBALL SIGNAL HOLDS BUT MARKET IS APPROXIMATELY EFFICIENT",
+  "pr": "chmoses98/cfb-edge-finder#105",
+  "protocol_sha256": "61aa278d86582532556d0174abc2e1c5f883ebaa882285fe603d1ee2af23e1db",
+  "report_path": "data/scripting/validation/control_market_2026/control_market_report.json",
+  "report_sha256": "97b19865314848597a213f8b319dbe6e8d6bf6e3035b6e218a3a9b66d5d7d038",
+  "results_commit": "b7df12c36fb0f94e0ccb9a26ac861763a7b418e8",
+  "rows_sha256": "3956ea6a50c04cd6234f172ace6b6f95a28a01d85969ce7c8ffd76f16cdf8208"
+ }
+}

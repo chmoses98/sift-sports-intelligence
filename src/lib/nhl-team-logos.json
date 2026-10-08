@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-10-08T03:11:00.279Z",
+  "source": "NHL logo CDN (assets.nhle.com/logos/nhl/svg, _dark variant); ESPN team-logo CDN fallback",
+  "teams": {
+    "ANA": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/ANA_dark.svg"
+    },
+    "BOS": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/BOS_dark.svg"
+    },
+    "BUF": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/BUF_dark.svg"
+    },
+    "CAR": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg"
+    },
+    "CBJ": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/CBJ_dark.svg"
+    },
+    "CGY": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/CGY_dark.svg"
+    },
+    "CHI": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/CHI_dark.svg"
+    },
+    "COL": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/COL_dark.svg"
+    },
+    "DAL": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/DAL_dark.svg"
+    },
+    "DET": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/DET_dark.svg"
+    },
+    "EDM": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/EDM_dark.svg"
+    },
+    "FLA": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/FLA_dark.svg"
+    },
+    "LAK": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/LAK_dark.svg"
+    },
+    "MIN": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/MIN_dark.svg"
+    },
+    "MTL": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/MTL_dark.svg"
+    },
+    "NJD": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/NJD_dark.svg"
+    },
+    "NSH": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/NSH_dark.svg"
+    },
+    "NYI": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/NYI_dark.svg"
+    },
+    "NYR": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/NYR_dark.svg"
+    },
+    "OTT": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/OTT_dark.svg"
+    },
+    "PHI": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/PHI_dark.svg"
+    },
+    "PIT": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/PIT_dark.svg"
+    },
+    "SEA": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/SEA_dark.svg"
+    },
+    "SJS": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/SJS_dark.svg"
+    },
+    "STL": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/STL_dark.svg"
+    },
+    "TBL": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/TBL_dark.svg"
+    },
+    "TOR": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/TOR_dark.svg"
+    },
+    "UTA": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/UTA_dark.svg"
+    },
+    "VAN": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/VAN_dark.svg"
+    },
+    "VGK": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/VGK_dark.svg"
+    },
+    "WPG": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/WPG_dark.svg"
+    },
+    "WSH": {
+      "source": "https://assets.nhle.com/logos/nhl/svg/WSH_dark.svg"
+    }
+  }
+}

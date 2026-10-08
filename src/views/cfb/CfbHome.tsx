@@ -429,7 +429,10 @@ export function CfbHomeView() {
   if (!board.data) return <div className="page"><ErrorState error={board.error} what={`${sport.label} board`} /></div>;
   const slateIds = new Set(slate.items.map((i) => i.event_id));
   const rest = items.filter((i) => !slateIds.has(i.event_id));
-  const lastCapture = slate.items.map((i) => i.market_captured_at).filter(Boolean).sort().pop() ?? null;
+  // The freshest read of these prices: the research conductor's own Kalshi read when it succeeded, else the board's capture.
+  const boardCapture = slate.items.map((i) => i.market_captured_at).filter(Boolean).sort().pop() ?? null;
+  const conductorRead = doc?.sources?.market_read?.ok ? doc.sources.market_read.at : null;
+  const lastCapture = [boardCapture, conductorRead].filter((x): x is string => !!x).sort().pop() ?? null;
   const vwActive = valueWatchActive(doc);
   const filters: FilterId[] = ['all', ...(vwActive ? (['value-watch'] as FilterId[]) : []), 'moderate', 'strong', 'close', 'fast', 'defensive', 'disagreement', ...(filter === 'environment' ? (['environment'] as FilterId[]) : [])];
   const cards = showAll ? shown : shown.slice(0, CARD_CAP);

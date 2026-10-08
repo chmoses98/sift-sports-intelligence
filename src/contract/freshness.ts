@@ -39,7 +39,11 @@ export function statusFor(
   now: string | number | Date,
   thresholds?: Thresholds,
 ): FreshnessState {
-  return classify(ageSeconds(asOf, now), thresholds ?? DEFAULT_THRESHOLDS[component]);
+  const th = thresholds ?? DEFAULT_THRESHOLDS[component];
+  // A component Sift has no freshness policy for (a sport's health manifest can list its own, without thresholds):
+  // its age cannot be judged, so it is UNKNOWN — never a crash, never a guessed FRESH.
+  if (!th) return 'UNKNOWN';
+  return classify(ageSeconds(asOf, now), th);
 }
 
 const ORDER: Record<string, number> = { FRESH: 0, AGING: 1, STALE: 2, UNKNOWN: 3 };

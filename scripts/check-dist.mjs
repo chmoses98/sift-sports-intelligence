@@ -34,7 +34,12 @@ for (const [code, t] of Object.entries(cfbTeams)) if (t.l) must(existsSync(join(
 const nhlLogos = JSON.parse(readFileSync(new URL('../src/lib/nhl-team-logos.json', import.meta.url), 'utf-8')).teams;
 must(Object.keys(nhlLogos).length === 32, `NHL logo map lists ${Object.keys(nhlLogos).length} clubs, expected 32`);
 for (const code of Object.keys(nhlLogos)) must(existsSync(join(dist, 'teams', 'nhl', `${code}.webp`)), `NHL logo for ${code} is missing from dist`);
-const js = readdirSync(join(dist, 'assets')).filter((f) => f.endsWith('.js'));
+// Typography: Barlow is the one typeface. Its first-paint files are preloaded and no earlier face ships.
+const assets = readdirSync(join(dist, 'assets'));
+for (const w of [400, 500, 600, 700]) must(assets.some((f) => new RegExp(`^barlow-latin-${w}-normal-.+\\.woff2$`).test(f)), `Barlow ${w} (latin woff2) is missing from dist`);
+must(!assets.some((f) => /instrument|roboto-mono|big-shoulders/i.test(f)), 'a retired typeface still ships in dist/assets');
+must(/<link rel="preload" as="font" type="font\/woff2" href="[^"]*barlow-latin-400-normal-[^"]+\.woff2" crossorigin/.test(html), 'index.html does not preload Barlow 400');
+const js = assets.filter((f) => f.endsWith('.js'));
 const main = js.map((f) => [f, readFileSync(join(dist, 'assets', f), 'utf-8')]).find(([, t]) => t.includes('createHashRouter') || t.includes('HashRouter'));
 must(main, 'no hash router in the bundle (deep links would break on Pages)');
 const sw = readFileSync(join(dist, 'sw.js'), 'utf-8');

@@ -41,7 +41,7 @@
 .cfmarks { display: inline-flex; align-items: center; gap: 5px; }
 
 /* the price token: the CONTROL side's own YES ask */
-.cfpx { display: inline-flex; align-items: center; gap: 5px; min-height: 22px; padding: 1px 9px; border-radius: var(--r-pill); border: 1px solid var(--gold-line); background: rgba(240, 192, 72, 0.06); color: var(--gold-2); font-size: 0.76rem; font-weight: 650; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cfpx { display: inline-flex; align-items: center; gap: 5px; min-height: 22px; padding: 1px 9px; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: rgba(236, 244, 252, 0.04); color: var(--ivory); font-size: 0.76rem; font-weight: 650; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .cfpx__age { color: var(--text-3); font-size: 0.64rem; font-weight: 500; }
 .cfpx--no_offer, .cfpx--unavailable { border-style: dashed; border-color: var(--line-2); color: var(--text-3); font-family: var(--font-ui); }
 .cfpx--lg { min-height: 28px; padding: 2px 12px; font-size: 0.9rem; }
@@ -54,7 +54,7 @@
    HOME
    ========================================================================== */
 .cfh .hbar { margin-bottom: var(--s-4); }
-.cfh__h2 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.45rem; line-height: 1.15; color: var(--ivory); }
+.cfh__h2 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.45rem; line-height: 1.15; color: var(--ivory); }
 .cfh__bar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 var(--s-3); }
 .cfh__meta { color: var(--text-3); font-size: var(--fs-xs); }
 .cfh__quiet { color: var(--text-2); font-size: var(--fs-sm); }
@@ -106,7 +106,7 @@
 .cfrs__t { display: grid; align-content: start; gap: 2px; padding: 10px 12px; border-radius: var(--r-2); background: var(--cf-soft); min-width: 0; }
 .cfrs__t--star { background: rgba(240, 192, 72, 0.08); }
 .cfrs__k { display: inline-flex; align-items: center; gap: 5px; color: var(--text-3); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.cfrs__v { color: var(--text-hi); font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.15; }
+.cfrs__v { color: var(--text-hi); font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.15rem; line-height: 1.15; }
 .cfrs__t--star .cfrs__v { color: var(--sand); }
 .cfrs__v--sm { font-family: var(--font-ui); font-size: 0.82rem; font-weight: 650; line-height: 1.3; }
 .cfrs__s { color: var(--text-2); font-size: 0.72rem; line-height: 1.35; }
@@ -182,7 +182,7 @@
 .cfq__eye { margin: 0 0 6px; font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sand-dim); }
 .cfq { padding: 18px 20px 20px; border-radius: var(--r-3); background: radial-gradient(120% 140% at 0% 0%, rgba(30, 140, 242, 0.12), transparent 55%), linear-gradient(180deg, #061a2d, #04121d); border: 1px solid var(--panel-line); min-width: 0; }
 .cfq--vw { border-color: rgba(240, 192, 72, 0.45); }
-.cfq__read { margin: 0 0 12px; font-family: var(--font-serif); font-size: clamp(1.3rem, 2.4vw, 1.75rem); line-height: 1.22; color: var(--ivory); max-width: 40ch; }
+.cfq__read { margin: 0 0 12px; font-family: var(--font-display); font-weight: var(--fw-ui); font-size: clamp(1.3rem, 2.4vw, 1.75rem); line-height: 1.22; color: var(--ivory); max-width: 40ch; }
 .cfq__chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
 .cfq__chips .cftag { min-height: 28px; font-size: 0.78rem; padding: 2px 10px 2px 8px; }
 .cfq__mkt { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 4px; }

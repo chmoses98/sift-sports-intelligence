@@ -34,9 +34,20 @@ export interface TeamVolume {
 export interface GameScript {
   id: ScriptId;
   index: 1 | 2 | 3 | 4;
+  /** The DISPLAY title, plain words a casual fan reads instantly ("Cowboys Win Big"). Presentation only. */
   name: string;
-  /** One line, plain sports language. */
+  /** The canonical model bucket this script is, unchanged by wording ("DAL by 14+"): for debugging, packets, tests. */
+  canonical: string;
+  /** One line, plain sports language: the final margin that defines the script. */
   summary: string;
+  /**
+   * The summary plus, when the simulation shows it, how the teams play in games that end this way (from the
+   * conditional pass rates in team_volume.by_final_margin): "Cowboys win by 14 or more. The Buccaneers throw more
+   * to catch up." Never more than the publication carries — no score-state or scoring narrative is inferred.
+   */
+  story: string;
+  /** The compact form for tiles and the priorities rail, under the title: "By 14 or more. The Buccaneers throw more to catch up." */
+  line: string;
   /** Share of simulated games (0..1). */
   share: number;
   home: MarginRange;
@@ -130,20 +141,54 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
     fav === 'home'
       ? { 'fav-big': ['lead14+'], fav: ['lead7-13'], close: ['within6'], dog: ['trail7-13', 'trail14+'] }
       : { 'fav-big': ['trail14+'], fav: ['trail7-13'], close: ['within6'], dog: ['lead7-13', 'lead14+'] };
-  const mk = (id: ScriptId, index: 1 | 2 | 3 | 4, title: string, summary: string, leader: 'home' | 'away' | null): GameScript => {
+  const mk = (id: ScriptId, index: 1 | 2 | 3 | 4, title: string, canonical: string, summary: string, leader: 'home' | 'away' | null): GameScript => {
     const s = sum(keys[id]);
-    return { id, index, name: title, summary, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
+    return { id, index, name: title, canonical, summary, story: summary, line: summary, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
   };
-  // Plain sports language named after the teams; the margin is in the one-line summary. Index is the
-  // script's colour identity and never changes; the list itself is ordered most likely first.
+  // DISPLAY LANGUAGE. The four margin buckets are the model's; only their titles are written for a casual fan:
+  // "Win Big" (14+), "Win Comfortably" (7–13, or 7+ for the underdog), "Close Game Either Way" (6 or fewer).
+  // No title implies scoring (the publication simulates no joint margin × points script) or game flow. Index is
+  // the script's colour identity and never changes; the list itself is ordered most likely first.
+  const abbr = { home: homeAbbr, away: awayAbbr };
   const scripts = sortScripts([
-    mk('fav-big', 1, `${name[fav]} win going away`, `${name[fav]} win by 14 or more.`, fav),
-    mk('fav', 2, `${name[fav]} win comfortably`, `${name[fav]} win by 7 to 13.`, fav),
-    mk('close', 3, 'One-score battle', 'Decided by 6 points or fewer, either way.', null),
-    mk('dog', 4, `${name[dog]} win comfortably`, `${name[dog]} win by 7 or more.`, dog),
+    mk('fav-big', 1, `${name[fav]} Win Big`, `${abbr[fav]} by 14+`, `${name[fav]} win by 14 or more.`, fav),
+    mk('fav', 2, `${name[fav]} Win Comfortably`, `${abbr[fav]} by 7–13`, `${name[fav]} win by 7 to 13.`, fav),
+    mk('close', 3, 'Close Game Either Way', 'Within 6 either way', 'Decided by 6 points or fewer, either way.', null),
+    mk('dog', 4, `${name[dog]} Win Comfortably`, `${abbr[dog]} by 7+`, `${name[dog]} win by 7 or more.`, dog),
   ]);
   const all = sum(['lead14+', 'lead7-13', 'within6', 'trail7-13', 'trail14+']);
+  const margin: Record<ScriptId, string> = { 'fav-big': 'By 14 or more.', fav: 'By 7 to 13.', close: 'Decided by 6 points or fewer, either way.', dog: 'By 7 or more.' };
+  for (const sc of scripts) {
+    const clause = scriptClause(sc, all, name);
+    sc.story = clause ? `${sc.summary} ${clause}` : sc.summary;
+    sc.line = clause ? `${margin[sc.id]} ${clause}` : margin[sc.id];
+  }
   return { scripts, fav, homeAbbr, awayAbbr, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
+}
+
+/** Pass-rate shift (share of plays) that counts as a real change in how a team plays in a script: 3 points. */
+const PASS_SHIFT = 0.03;
+
+/**
+ * The clause after a script's margin: how the winner and loser play in simulated games that end this
+ * way, but only where the publication's conditional pass rate moves by PASS_SHIFT or more from that team's
+ * average. A close game gets no clause (neither side is forced to change).
+ */
+function scriptClause(s: GameScript, all: { home: TeamVolume; away: TeamVolume }, name: { home: string; away: string }): string | null {
+  if (!s.leader) return null;
+  const lead = s.leader;
+  const trail = lead === 'home' ? 'away' : 'home';
+  const shift = (side: 'home' | 'away') => {
+    const a = s.volume[side].passRate;
+    const b = all[side].passRate;
+    return a != null && b != null ? a - b : 0;
+  };
+  const runs = shift(lead) <= -PASS_SHIFT;
+  const throws = shift(trail) >= PASS_SHIFT;
+  if (runs && throws) return `The ${name[lead]} lean on the run while the ${name[trail]} throw to catch up.`;
+  if (throws) return `The ${name[trail]} throw more to catch up.`;
+  if (runs) return `The ${name[lead]} lean on the run.`;
+  return null;
 }
 
 /** Most likely first; ties keep the favourite-to-underdog order. */

@@ -19,6 +19,7 @@ import { matchupInsights } from '../insights/matchups';
 import { FeaturedProps } from './Home';
 import { PanelHead, ViewAll } from './game/panels';
 import { ScorecardPanel } from './Scorecard';
+import { SlatePriorities } from './home/Priorities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -32,7 +33,7 @@ function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[
   if (!rows.length) return null;
   return (
     <section className="panel" aria-labelledby="so-h">
-      <PanelHead title="Script Outlook" sub="How each game most likely ends · share of simulated games · closest games first" />
+      <PanelHead title="How Each Game Could End" sub="Every game's outcomes, most likely first · share of simulated games · closest games first" />
       <ul className="soutl">
         {rows.map(({ i, set }) => {
           const { away, home } = sides(i);
@@ -112,6 +113,8 @@ function GenericSportHome() {
   const upcoming = useMemo(() => items.filter((i) => i.status === 'SCHEDULED' || i.status === 'IN_PROGRESS' || i.status === 'LIVE').sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc)), [items]);
   const finals = useMemo(() => items.filter((i) => i.status === 'FINAL').sort((a, b) => b.start_time_utc.localeCompare(a.start_time_utc)), [items]);
   const research = useSlateResearch(repo, sport.code, upcoming);
+  // The publication's own recommendations: the only source of a "Top SIFT Edge" (lib/priorities.ts).
+  const recs = useAsync(sport.code === 'NFL' ? `recs:${sport.code}:${repo.source.root}` : null, () => repo.recommendations());
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!board.data) return <div className="page"><ErrorState error={board.error} what={`${sport.label} board`} /></div>;
   const comp = (upcoming[0]?.competition ?? items[0]?.competition ?? '').replace(/^(\d{4})\s*(REG\s*)?week/i, '$1 · Week');
@@ -130,7 +133,16 @@ function GenericSportHome() {
         </span>
       </header>
 
-      {feat && <div className="shome__feat"><FeatureCard item={feat} r={rmap.get(feat.event_id)} insight={rmap.get(feat.event_id) ? matchupInsights(rmap.get(feat.event_id)!)[0] ?? null : null} sportSlug={slug} sportCode={sport.code} now={now} /></div>}
+      {sport.code === 'NFL' ? (
+        // NFL: the featured game and Slate Priorities are one composition — the rail fills the desktop's right side,
+        // and on phones it comes first, before the slate, so "where to look first" is never below the fold.
+        <div className={`shome__top${feat ? '' : ' shome__top--solo'}`}>
+          <SlatePriorities items={items} research={rmap} recommendations={recs.data?.items} recError={!!recs.error} slug={slug} sport={sport.code} now={now} loading={research.loading} />
+          {feat && <div className="shome__feat"><FeatureCard item={feat} r={rmap.get(feat.event_id)} insight={rmap.get(feat.event_id) ? matchupInsights(rmap.get(feat.event_id)!)[0] ?? null : null} sportSlug={slug} sportCode={sport.code} now={now} /></div>}
+        </div>
+      ) : (
+        feat && <div className="shome__feat"><FeatureCard item={feat} r={rmap.get(feat.event_id)} insight={rmap.get(feat.event_id) ? matchupInsights(rmap.get(feat.event_id)!)[0] ?? null : null} sportSlug={slug} sportCode={sport.code} now={now} /></div>
+      )}
 
       <section className="shome__games" aria-labelledby="wk-h">
         <div className="phead">
@@ -143,10 +155,11 @@ function GenericSportHome() {
         </ul>
       </section>
 
-      {feat && sport.code === 'NFL' && <div className="shome__props"><FeaturedProps item={feat} r={rmap.get(feat.event_id)} slug={slug} /></div>}
-
       <div className="shome__grid">
-        <ScriptOutlook items={upcoming} research={rmap} slug={slug} sportCode={sport.code} />
+        <div className="stack">
+          {feat && sport.code === 'NFL' && <div className="shome__props"><FeaturedProps item={feat} r={rmap.get(feat.event_id)} slug={slug} /></div>}
+          <ScriptOutlook items={upcoming} research={rmap} slug={slug} sportCode={sport.code} />
+        </div>
         <div className="stack">
           <Results items={finals} slug={slug} sportCode={sport.code} />
           <ScorecardPanel slug={slug} />

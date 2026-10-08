@@ -5,14 +5,14 @@
 
 /* ---- type */
 body { font-family: var(--font-ui); color: var(--text); }
-.h-display { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; line-height: 0.95; text-transform: none; color: var(--text-hi); }
+.h-display { font-family: var(--font-display); font-weight: var(--fw-display); letter-spacing: -0.01em; line-height: 0.95; text-transform: none; color: var(--text-hi); }
 .eyebrow { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sand-dim); }
 .eyebrow--signal { color: var(--gold); }
-.serif { font-family: var(--font-serif); font-weight: 400; }
+.serif { font-family: var(--font-display); font-weight: var(--fw-display); }
 .num { font-family: var(--font-num); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 .stratum__head::before { background: linear-gradient(90deg, var(--gold), transparent); }
-.stratum__n { color: var(--gold); font-family: var(--font-num); }
-.stratum__title { font-family: var(--font-serif); font-weight: 400; font-size: 1.75rem; letter-spacing: -0.005em; }
+.stratum__n { color: var(--gold); font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.stratum__title { font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.75rem; letter-spacing: -0.005em; }
 .stratum__sub { color: var(--text-2); }
 a { color: var(--cyan-2); }
 a:hover { color: var(--ivory); }
@@ -32,12 +32,12 @@ a:hover { color: var(--ivory); }
   box-shadow: none;
 }
 .panel--flush { padding: 0; }
-.panel__big { font-family: var(--font-serif); font-size: 3rem; color: var(--gold); line-height: 1; margin: 2px 0; }
+.panel__big { font-family: var(--font-display); font-weight: var(--fw-display); font-size: 3rem; color: var(--gold); line-height: 1; margin: 2px 0; }
 /* a quieter, borderless surface that sits on the page rather than above it */
 .surface-quiet { background: transparent; border: 0; box-shadow: none; padding: 0; }
 
 .phead { display: flex; align-items: center; gap: 10px; min-height: 30px; margin-bottom: var(--s-4); }
-.phead__t { font-family: var(--font-ui); font-weight: 680; font-size: 1.14rem; color: #fff; letter-spacing: -0.005em; line-height: 1.2; margin: 0; display: inline-flex; align-items: center; gap: 2px; }
+.phead__t { font-family: var(--font-ui); font-weight: 700; font-size: 1.14rem; color: #fff; letter-spacing: -0.005em; line-height: 1.2; margin: 0; display: inline-flex; align-items: center; gap: 2px; }
 .phead__t a { color: inherit; }
 .phead__t a:hover { color: var(--gold-2); }
 .phead__sub { font-size: 0.82rem; color: var(--text-2); margin-top: 3px; }
@@ -56,7 +56,7 @@ a:hover { color: var(--ivory); }
 /* ---- page tabs */
 .ptabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
 .ptabs::-webkit-scrollbar { display: none; }
-.ptabs a { position: relative; flex-shrink: 0; display: inline-flex; align-items: center; min-height: 50px; padding: 0 16px; font-weight: 560; font-size: 0.98rem; color: var(--text); white-space: nowrap; }
+.ptabs a { position: relative; flex-shrink: 0; display: inline-flex; align-items: center; min-height: 50px; padding: 0 16px; font-weight: 500; font-size: 0.98rem; color: var(--text); white-space: nowrap; }
 .ptabs a:hover { color: var(--text-hi); }
 .ptabs a[aria-current='page'] { color: var(--text-hi); font-weight: 600; }
 .ptabs a[aria-current='page']::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--blue); box-shadow: 0 0 14px rgba(30, 140, 242, 0.75); }
@@ -88,7 +88,7 @@ a:hover { color: var(--ivory); }
 
 /* ---- chips: quieter */
 .chip { border-radius: var(--r-1); background: rgba(7, 21, 33, 0.85); border-color: var(--line); font-family: var(--font-ui); font-size: 0.8rem; font-weight: 500; color: var(--text-2); }
-.chip__dim { font-family: var(--font-num); }
+.chip__dim { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 
 /* ---- quiet price freshness: "Updated 4m ago" + a small dot (the state stays in data attributes) */
 .qchip { font-weight: 500; }
@@ -146,8 +146,8 @@ a:hover { color: var(--ivory); }
 .notice--info { border-left-color: var(--ice); }
 .dtable th, .dtable td { border-bottom-color: var(--line); }
 .dtable thead th { color: var(--text-3); font-family: var(--font-ui); letter-spacing: 0.08em; }
-.dtable td.num, .dtable .num { font-family: var(--font-num); }
-.rankpill { background: var(--navy-1); font-family: var(--font-num); }
+.dtable td.num, .dtable .num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.rankpill { background: var(--navy-1); font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 .rankpill--top { box-shadow: inset 2px 0 0 var(--ice); }
 .rankpill--bottom { box-shadow: inset 2px 0 0 var(--neg); }
 .elink { background: var(--navy-1); border-color: var(--line); }
@@ -215,7 +215,7 @@ a:hover { color: var(--ivory); }
 .mh .sfb__bowl { background: radial-gradient(50% 42% at 50% 62%, transparent 62%, rgba(150, 200, 250, 0.24) 63%, rgba(10, 28, 46, 0.95) 66.5%, rgba(5, 16, 27, 0.98) 88%, rgba(3, 10, 18, 0.6) 100%); }
 
 /* Content layer brightness (mockup): data reads crisp white and slightly heavier; labels stay quieter. */
-.ptabs a[aria-current='page'] { color: #fff; font-weight: 680; }
+.ptabs a[aria-current='page'] { color: #fff; font-weight: 700; }
 .phead__sub { color: var(--text-2); }
 
 /* Quote status reads as quiet text with a state dot, not a pill; it is still a button (popover with the state). */
@@ -244,7 +244,7 @@ a.adjcmp__col:hover .adjcmp__v { color: var(--gold-2); }
 .adjcmp__s { font-size: 0.8rem; color: var(--text-3); line-height: 1.35; }
 .adjcmp--better .adjcmp__col--move .adjcmp__v b { color: var(--pos); }
 .adjcmp--worse .adjcmp__col--move .adjcmp__v b { color: var(--neg); }
-.adjcmp__read { grid-column: 1 / -1; margin: var(--s-3) 0 0; font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.35; color: var(--ivory); }
+.adjcmp__read { grid-column: 1 / -1; margin: var(--s-3) 0 0; font-family: var(--font-display); font-weight: var(--fw-ui); font-size: 1.15rem; line-height: 1.35; color: var(--ivory); }
 @media (max-width: 560px) { .adjcmp { grid-template-columns: 1fr; } .adjcmp__col + .adjcmp__col { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); padding-top: 10px; } }
 
 /* Post-kickoff: new pregame research is frozen (lib/lifecycle.ts) */
@@ -255,7 +255,7 @@ a.adjcmp__col:hover .adjcmp__v { color: var(--gold-2); }
 .savebtn__why { position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; width: min(260px, 80vw); padding: 8px 10px; border-radius: var(--r-2); background: var(--navy-3); border: 1px solid var(--line-3); color: var(--text-2); font-size: var(--fs-xs); line-height: 1.4; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
 .tray__pregame { display: inline-block; margin-top: 2px; font-size: var(--fs-xs); color: var(--text-3); letter-spacing: 0.02em; }
 /* Plain-English lead (lib/glossary.ts) */
-.plain { margin: var(--s-2) 0 0; max-width: 62ch; font-family: var(--font-serif); font-size: 1.12rem; line-height: 1.4; color: var(--text); }
+.plain { margin: var(--s-2) 0 0; max-width: 62ch; font-family: var(--font-display); font-weight: var(--fw-ui); font-size: 1.12rem; line-height: 1.4; color: var(--text); }
 .plain__k { display: block; margin-bottom: 2px; font-family: var(--font-ui); font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
 .explain__k { display: block; margin-bottom: 4px; font-size: var(--fs-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
 .gloss { margin-left: 2px; }

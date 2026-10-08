@@ -410,6 +410,356 @@
    "identity": "the Commanders W at midfield and a burgundy-and-gold sideline",
    "event": "Atlanta Falcons at Washington Commanders",
    "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "mlb-atl-truist-park",
+   "sport": "MLB",
+   "team": "ATL",
+   "venue": "truist-park",
+   "file": "File:Truist Park 2025.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Elevated full-field view, Braves logo on grass, Truist Park canopy and scoreboard, packed home crowd vs Padres.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Daytime, flat light; some railing at bottom edge.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-az-chase-field",
+   "sport": "MLB",
+   "team": "AZ",
+   "venue": "chase-field",
+   "file": "File:Chase Field, July 3, 2021.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "45% 55%"
+   },
+   "identity": "Chase Field interior during D-backs vs Giants, roof closed, home scoreboard/signage and Sedona-red D-backs facade.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Roof closed so interior is artificially lit; no field logo visible.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-bal-camden-yards",
+   "sport": "MLB",
+   "team": "BAL",
+   "venue": "camden-yards",
+   "file": "File:OrioleParkatCamdenYardsSummer2025.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "55% 50%"
+   },
+   "identity": "B&O Warehouse, Camden Yards brick arcade and Baltimore skyline, Orioles home game vs Tigers.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Taken an hour before first pitch: sparse crowd and empty foreground seats.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-bos-fenway-park",
+   "sport": "MLB",
+   "team": "BOS",
+   "venue": "fenway-park",
+   "file": "File:Fenway under the lights.JPG",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Fenway Park under the lights: bleachers, light tower, John Hancock board, Red Sox pitcher on mound vs Yankees.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Field-level medium view without the Green Monster; 2014 signage.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-chc-wrigley-field",
+   "sport": "MLB",
+   "team": "CHC",
+   "venue": "wrigley-field",
+   "file": "File:Wrigley Field 2018 - 42195054760.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Wrigley Field panorama: ivy, bleachers, video board with Cubs logo, Sunday Night Baseball vs Nationals.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Stitched panorama has some curvature at the edges.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-cin-great-american-ball-park",
+   "sport": "MLB",
+   "team": "CIN",
+   "venue": "great-american-ball-park",
+   "file": "File:Great American Ball Park (20267321373).jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "55% 50%"
+   },
+   "identity": "Great American Ball Park at night with smokestacks, Reds wordmark signage and riverfront, Tigers at Reds.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Appears late/postgame with crowd thinning; some light specks in the sky.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-cle-progressive-field",
+   "sport": "MLB",
+   "team": "CLE",
+   "venue": "progressive-field",
+   "file": "File:2023 Cleveland Guardians Home Opener - 52850272150.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Progressive Field 2023 home opener, Guardians script on the grass and Guardians signage after the rebrand.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Pregame: stands still filling.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-col-coors-field",
+   "sport": "MLB",
+   "team": "COL",
+   "venue": "coors-field",
+   "file": "File:Coors Field July 2015.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Coors Field during Rockies vs Reds, purple row/rooftop deck area and mountains backdrop in evening light.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Phone snapshot (Galaxy S5 Mini), modest sharpness; 2015 signage.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-cws-rate-field",
+   "sport": "MLB",
+   "team": "CWS",
+   "venue": "rate-field",
+   "file": "File:U.S. Cellular Field (30972191694).jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Rate Field at dusk with exploding pinwheel scoreboard and White Sox home crowd.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (U.S. Cellular Field-era signage (renamed 2017/2024); metadata mixes Yankees and Cubs crosstown categories.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-det-comerica-park",
+   "sport": "MLB",
+   "team": "DET",
+   "venue": "comerica-park",
+   "file": "File:Comerica Park, Home of the Detroit Tigers Baseball Team.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "55% 60%"
+   },
+   "identity": "Comerica Park during a game with Detroit skyline, Detroit Athletic Club and full stands behind the field.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (No Tigers wordmark visible; identity carried by architecture/skyline; heads at bottom edge (cropped on desktop).); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-hou-daikin-park",
+   "sport": "MLB",
+   "team": "HOU",
+   "venue": "daikin-park",
+   "file": "File:Minute Maid Park 2016-04-23.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "40% 55%"
+   },
+   "identity": "Daikin (Minute Maid) Park with roof open, Union Station facade, train track and downtown skyline during an Astros game.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2016: shows Tal's Hill era outfield and Minute Maid naming; heads at lower right.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-kc-kauffman-stadium",
+   "sport": "MLB",
+   "team": "KC",
+   "venue": "kauffman-stadium",
+   "file": "File:Kauffman Stadium at night, 2009.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 40%"
+   },
+   "identity": "Kauffman Stadium at night: crown scoreboard and lit fountains, Royals fans in the stands.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Exact date only \"2009\" (camera note truncated); fan heads in bottom ~15% (out of desktop crop, may show on mobile).); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-laa-angel-stadium",
+   "sport": "MLB",
+   "team": "LAA",
+   "venue": "angel-stadium",
+   "file": "File:Angel Stadium of Anaheim (31714556991).jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "45% 55%"
+   },
+   "identity": "Angel Stadium golden hour: outfield rock pile, Big A sign, Angels A logo on the grass, Reds at Angels.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Long shadows across the infield; 2016 signage.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-lad-dodger-stadium",
+   "sport": "MLB",
+   "team": "LAD",
+   "venue": "dodger-stadium",
+   "file": "File:Dodger Stadium from Top Deck night 2021-06-28.jpg",
+   "focus": {
+    "desktop": "50% 35%",
+    "mobile": "50% 40%"
+   },
+   "identity": "Dodger Stadium from the Top Deck at night: full crowd, pavilion roofs, light towers, Dodgers vs Giants.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Fan heads across the bottom ~20% (kept out of desktop crop, may show on mobile); phone low-light softness.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-min-target-field",
+   "sport": "MLB",
+   "team": "MIN",
+   "venue": "target-field",
+   "file": "File:Target Field-20100730.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "40% 55%"
+   },
+   "identity": "Target Field at night: Twins script atop scoreboard, Minnie & Paul sign, Twins vs Mariners.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Inaugural-season 2010 signage; heads across bottom ~15%; lot of dark sky.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-nym-citi-field",
+   "sport": "MLB",
+   "team": "NYM",
+   "venue": "citi-field",
+   "file": "File:Citi Field 2011.JPG",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 45%"
+   },
+   "identity": "Citi Field at night from behind home: Citi Field and Let's Go Mets scoreboard, Mets script behind the plate.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2011: pre-2012 fence move; Home Run Apple not visible.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-nyy-yankee-stadium",
+   "sport": "MLB",
+   "team": "NYY",
+   "venue": "yankee-stadium",
+   "file": "File:The view from the Grandstand Level at New Yankee Stadium.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "40% 50%"
+   },
+   "identity": "New Yankee Stadium frieze framing the field, NY logo behind plate and Yankees scoreboard, Bronx skyline.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Only 2048px wide; 2009 signage; fan heads at lower right.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-phi-citizens-bank-park",
+   "sport": "MLB",
+   "team": "PHI",
+   "venue": "citizens-bank-park",
+   "file": "File:Citizens Bank Park - Wide View.jpg",
+   "focus": {
+    "desktop": "50% 35%",
+    "mobile": "60% 50%"
+   },
+   "identity": "Citizens Bank Park at night: Phillies script atop scoreboard, Citizens Bank Park sign, full home crowd vs White Sox.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Field sits in lower right; phone low-light softness.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-pit-pnc-park",
+   "sport": "MLB",
+   "team": "PIT",
+   "venue": "pnc-park",
+   "file": "File:PNC Park (25509297558).jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 55%"
+   },
+   "identity": "PNC Park golden hour: PNC Park scoreboard, Clemente Bridge and Pittsburgh skyline, Reds at Pirates.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Slight blown highlights on the buildings.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-sea-t-mobile-park",
+   "sport": "MLB",
+   "team": "SEA",
+   "venue": "t-mobile-park",
+   "file": "File:T-Mobile Park 2026.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "40% 50%"
+   },
+   "identity": "T-Mobile Park with roof open, Seattle skyline, Welcome to the Sound signage, White Sox vs Mariners.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Fan heads at bottom right; daytime.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-sf-oracle-park",
+   "sport": "MLB",
+   "team": "SF",
+   "venue": "oracle-park",
+   "file": "File:Oracle Park 2026-05-22 2.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "45% 60%"
+   },
+   "identity": "Oracle Park at dusk: Oracle Park sign on scoreboard, brick arcade and San Francisco Bay, Giants home game.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Infield partially cut at right edge; dusk sky large.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-stl-busch-stadium",
+   "sport": "MLB",
+   "team": "STL",
+   "venue": "busch-stadium",
+   "file": "File:Busch Stadium III (16180972535).jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Busch Stadium with Gateway Arch, Old Courthouse and red seats, Reds at Cardinals.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Pregame with nearly empty stands, overcast, Ballpark Village construction lot in view.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-tb-tropicana-field",
+   "sport": "MLB",
+   "team": "TB",
+   "venue": "tropicana-field",
+   "file": "File:PXL 20220528 205520913.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 40%"
+   },
+   "identity": "Tropicana Field interior: tilted dome with catwalk rings, Tropicana sign, Rays home game vs Yankees.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (No Rays logo visible (identity via the unique dome); fan heads lower ~25%; pre-Hurricane Milton roof.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-tex-globe-life-field",
+   "sport": "MLB",
+   "team": "TEX",
+   "venue": "globe-life-field",
+   "file": "File:GlobeLifeField2021.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Globe Life Field interior, Rangers T logo behind home plate, Rangers home game vs Athletics.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Some foreground seats/fans at the bottom.); pending full-resolution identity check"
+  },
+  {
+   "id": "mlb-tor-rogers-centre",
+   "sport": "MLB",
+   "team": "TOR",
+   "venue": "rogers-centre",
+   "file": "File:The Blue Jays host the Orioles in the AL Wild Card Game (30243609181).jpg",
+   "focus": {
+    "desktop": "50% 85%",
+    "mobile": "35% 80%"
+   },
+   "identity": "Rogers Centre with retractable roof open at night, packed blue-clad home crowd, Blue Jays batting.",
+   "event": "",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Postseason game (2016 AL Wild Card), though no postseason branding is visible; field fills only bottom third; pre-2023 renovation.); pending full-resolution identity check"
   }
  ]
 }

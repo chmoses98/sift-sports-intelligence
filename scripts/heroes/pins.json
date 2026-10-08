@@ -4,14 +4,272 @@
   "focus: CSS object-position for the desktop band and for phones. from/to: [from, to) dates the frame represents (a branding or configuration era). neutralOk: the frame may stand for the venue at a neutral-site game. review: who checked what, when."
  ],
  "pins": [
-  {"id": "nfl-dal-att-stadium", "sport": "NFL", "team": "DAL", "venue": "att-stadium", "file": "File:Houston Texans vs. Dallas Cowboys 2019 14 (opening kickoff).jpg",
-   "focus": {"desktop": "50% 60%", "mobile": "38% 62%"}, "identity": "COWBOYS end zones and the star at midfield under the AT&T Stadium videoboard", "event": "Houston Texans at Dallas Cowboys, 2019",
-   "review": "2026-10-08 visual review: Cowboys home configuration (both end zones, midfield star); kept from the previous set."},
-  {"id": "nfl-ten-nissan-stadium-1999", "sport": "NFL", "team": "TEN", "venue": "nissan-stadium", "file": "File:Night Settles on LP Field.jpg", "to": "2027-06-01",
-   "focus": {"desktop": "50% 56%", "mobile": "42% 60%"}, "identity": "TITANS end zone and the Titans logo at midfield, night game", "event": "Titans home playoff game, LP Field era",
-   "review": "2026-10-08 visual review: Titans end zones and midfield logo. Valid only for the 1999 stadium (the enclosed Nissan Stadium opens in 2027)."},
-  {"id": "nfl-jax-everbank-stadium", "sport": "NFL", "team": "JAX", "venue": "everbank-stadium", "file": "File:Chiefs at Jaguars 2025 (55037793371).jpg",
-   "focus": {"desktop": "50% 58%", "mobile": "62% 60%"}, "identity": "JACKSONVILLE end zone, Jaguars sideline wall and Pride of the Jaguars ring", "event": "Kansas City Chiefs at Jacksonville Jaguars, 2025",
-   "review": "2026-10-08 visual review: Jaguars home configuration (end zone, wall signage, ring of honor). Away fans in the foreground; replace if a stronger Jaguars frame is found."}
+  {
+   "id": "nfl-dal-att-stadium",
+   "sport": "NFL",
+   "team": "DAL",
+   "venue": "att-stadium",
+   "file": "File:Houston Texans vs. Dallas Cowboys 2019 14 (opening kickoff).jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "38% 62%"
+   },
+   "identity": "COWBOYS end zones and the star at midfield under the AT&T Stadium videoboard",
+   "event": "Houston Texans at Dallas Cowboys, 2019",
+   "review": "2026-10-08 visual review: Cowboys home configuration (both end zones, midfield star); kept from the previous set."
+  },
+  {
+   "id": "nfl-ten-nissan-stadium-1999",
+   "sport": "NFL",
+   "team": "TEN",
+   "venue": "nissan-stadium",
+   "file": "File:Night Settles on LP Field.jpg",
+   "to": "2027-06-01",
+   "focus": {
+    "desktop": "50% 56%",
+    "mobile": "42% 60%"
+   },
+   "identity": "TITANS end zone and the Titans logo at midfield, night game",
+   "event": "Titans home playoff game, LP Field era",
+   "review": "2026-10-08 visual review: Titans end zones and midfield logo. Valid only for the 1999 stadium (the enclosed Nissan Stadium opens in 2027)."
+  },
+  {
+   "id": "nfl-jax-everbank-stadium",
+   "sport": "NFL",
+   "team": "JAX",
+   "venue": "everbank-stadium",
+   "file": "File:Chiefs at Jaguars 2025 (55037793371).jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "62% 60%"
+   },
+   "identity": "JACKSONVILLE end zone, Jaguars sideline wall and Pride of the Jaguars ring",
+   "event": "Kansas City Chiefs at Jacksonville Jaguars, 2025",
+   "review": "2026-10-08 visual review: Jaguars home configuration (end zone, wall signage, ring of honor). Away fans in the foreground; replace if a stronger Jaguars frame is found."
+  },
+  {
+   "id": "nhl-bos-td-garden",
+   "sport": "NHL",
+   "team": "BOS",
+   "venue": "td-garden",
+   "file": "File:Boston vs Montreal.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Spoked-B centre-ice logo ringed 'TD Banknorth Garden', Bruins lined up, black/gold crowd, playoff ice logos",
+   "event": "Boston Bruins vs Montreal Canadiens, 2008 Stanley Cup playoffs (home playoff game, pregame ceremonies)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2008 ads and Stanley Cup Playoffs ice decals; ring shows old arena name (same building)); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-buf-keybank-center",
+   "sport": "NHL",
+   "team": "BUF",
+   "venue": "keybank-center",
+   "file": "File:HSBC Arena Sabres.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "identity": "Sabres centre-ice crest legible, Sabres logos on scoreboard, full bowl from the 300 level",
+   "event": "Buffalo Sabres home game at HSBC Arena (opponent not named in metadata)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Only 2048px wide; 2009 board ads; arena then named HSBC Arena (same building)); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-car-lenovo-center",
+   "sport": "NHL",
+   "team": "CAR",
+   "venue": "lenovo-center",
+   "file": "File:Hurricanes Home Ice.JPG",
+   "focus": {
+    "desktop": "50% 85%",
+    "mobile": "45% 70%"
+   },
+   "identity": "Hurricanes centre-ice logo, 'Glen Wesley Night' ribbon boards, red home crowd, Canes in red",
+   "event": "Carolina Hurricanes vs Boston Bruins (Glen Wesley jersey night), RBC Center",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2009; ice ring and boards say RBC Center (old name of Lenovo Center, same building); lower-bowl angle, scoreboard top cropped in desktop band); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-cgy-scotiabank-saddledome",
+   "sport": "NHL",
+   "team": "CGY",
+   "venue": "scotiabank-saddledome",
+   "file": "File:Saddledome.jpg",
+   "focus": {
+    "desktop": "50% 30%",
+    "mobile": "0% 50%"
+   },
+   "identity": "Flames-red full bowl ('C of Red'), flaming Flames scoreboard, Flames players saluting in red",
+   "event": "Calgary Flames home game, Scotiabank Saddledome (Flames win; opponent not named in metadata)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Centre-ice logo not visible; a spectator's head sits in the lower-right corner (cropped out on desktop, partly visible on mobile); Flames move to Scotia Place in 2027); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-col-ball-arena",
+   "sport": "NHL",
+   "team": "COL",
+   "venue": "ball-arena",
+   "file": "File:Ball Arena during a game between the Colorado Avalanche and Florida Panthers during the 2025-26 season.jpg",
+   "focus": {
+    "desktop": "50% 80%",
+    "mobile": "52% 75%"
+   },
+   "identity": "Ball Arena/Avalanche centre-ice logo, 'LET THE AVS HEAR YOU' Avalanche scoreboard, Avs ribbon boards",
+   "event": "Colorado Avalanche vs Florida Panthers, Ball Arena, 2025-26 season",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (no concerns noted); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-edm-rogers-place",
+   "sport": "NHL",
+   "team": "EDM",
+   "venue": "rogers-place",
+   "file": "File:Philadelphia Flyers vs. Edmonton Oilers December 6, 2017.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Oilers centre-ice logo, 'Rogers Place' Oilers GOAL scoreboard, full orange/blue bowl",
+   "event": "Edmonton Oilers vs Philadelphia Flyers, Rogers Place (regular season)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (no concerns noted); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-fla-amerant-bank-arena",
+   "sport": "NHL",
+   "team": "FLA",
+   "venue": "amerant-bank-arena",
+   "file": "File:Amerant Bank Arena during a game in November 2025 between the Panthers and Canucks.jpg",
+   "focus": {
+    "desktop": "50% 65%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Panthers centre-ice logo, 'AMERANT BANK ARENA' scoreboard showing Panthers lead, Stanley Cup banners, red-clad crowd",
+   "event": "Florida Panthers vs Vancouver Canucks, Amerant Bank Arena",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Lower-bowl angle; spectators' heads across the bottom ~15% (cropped on desktop, visible on mobile). The file date 2026-01-11 is the upload date; the category gives the game date 2025-11-17); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-min-grand-casino-arena",
+   "sport": "NHL",
+   "team": "MIN",
+   "venue": "grand-casino-arena",
+   "file": "File:Minnesota Wild at Xcel Energy Center 3-26-08 Against Edmonton - panoramio.jpg",
+   "focus": {
+    "desktop": "50% 65%",
+    "mobile": "57% 60%"
+   },
+   "identity": "Wild centre-ice logo, Wild logos on scoreboard, full bowl from the upper deck",
+   "event": "Minnesota Wild vs Edmonton Oilers, Xcel Energy Center",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (2008; warm/dim colour cast; the arena was then named Xcel Energy Center (now Grand Casino Arena, same building)); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-mtl-bell-centre",
+   "sport": "NHL",
+   "team": "MTL",
+   "venue": "bell-centre",
+   "file": "File:Great Night for Hockey, Montreal Canadiens 3, Ottawa Senators 4, Centre Bell, Montreal, Quebec (29439731474).jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 35%"
+   },
+   "identity": "Two CH centre-ice logos ringed 'Centre Bell', Canadiens scoreboard, full bowl",
+   "event": "Montreal Canadiens vs Ottawa Senators (preseason), Centre Bell",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Preseason game; spectators' heads darken the lower third and right edge (desktop band crops above them)); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-nyr-madison-square-garden",
+   "sport": "NHL",
+   "team": "NYR",
+   "venue": "madison-square-garden",
+   "file": "File:Madison Square Garden Transformation Stage 3.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Rangers shield centre-ice logo, 'Madison Square Garden' scoreboard with Rangers graphics, hockey configuration",
+   "event": "New York Rangers home game, Madison Square Garden (post-renovation; opponent not named in metadata)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Dark foreground heads in the bottom ~20% (desktop band sits above them); opponent not named); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-sjs-sap-center",
+   "sport": "NHL",
+   "team": "SJS",
+   "venue": "sap-center",
+   "file": "File:Ice hockey at SAP Center at San Jose 2025-01-27 3.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Sharks-branded 'SAP center' scoreboard with Sharks logos, Sharks in teal home jerseys, full bowl",
+   "event": "San Jose Sharks home game, SAP Center, 2024-25 season (opponent not named in metadata)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Centre-ice logo too distant to read; a railing sits in the lower foreground (cropped on desktop); opponent not named); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-stl-enterprise-center",
+   "sport": "NHL",
+   "team": "STL",
+   "venue": "enterprise-center",
+   "file": "File:Scottrade Center interior.jpg",
+   "focus": {
+    "desktop": "45% 68%",
+    "mobile": "43% 65%"
+   },
+   "identity": "Blues centre-ice note logo, 'Scottrade Center' scoreboard with Blues graphics, blue-clad full bowl",
+   "event": "St. Louis Blues home game, Scottrade Center (now Enterprise Center; opponent not named in metadata)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Only 2016px wide; the description names no opponent (Blues scoreboard and ice confirm a Blues home game); old arena name on the scoreboard); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-tbl-benchmark-international-arena",
+   "sport": "NHL",
+   "team": "TBL",
+   "venue": "benchmark-international-arena",
+   "file": "File:Tampa Bay Lightning Game.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "52% 55%"
+   },
+   "identity": "Lightning bolt centre-ice logo, Lecavalier/St. Louis retired banners, packed blue bowl",
+   "event": "Tampa Bay Lightning vs Boston Bruins (pregame), Benchmark International Arena",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Taken just before puck drop (empty ice), but the bowl is full); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-tor-scotiabank-arena",
+   "sport": "NHL",
+   "team": "TOR",
+   "venue": "scotiabank-arena",
+   "file": "File:Scotiabank Arena Toronto Carolina March 20 2026.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "54% 55%"
+   },
+   "identity": "Maple Leafs centre-ice leaf, Leafs legends banners, Leafs scoreboard, full bowl",
+   "event": "Toronto Maple Leafs vs Carolina Hurricanes, Scotiabank Arena",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Spectators' heads along the bottom edge (cropped on desktop)); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-van-rogers-arena",
+   "sport": "NHL",
+   "team": "VAN",
+   "venue": "rogers-arena",
+   "file": "File:Rogers Arena 2016.jpg",
+   "focus": {
+    "desktop": "60% 90%",
+    "mobile": "75% 75%"
+   },
+   "identity": "Canucks orca centre-ice logo ringed 'Rogers Arena', Canucks scoreboard, full bowl",
+   "event": "Vancouver Canucks vs Winnipeg Jets, Rogers Arena",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Centre-ice logo sits low-right in the frame; dark heads in the lower-left corner); pending full-resolution identity check"
+  },
+  {
+   "id": "nhl-wpg-canada-life-centre",
+   "sport": "NHL",
+   "team": "WPG",
+   "venue": "canada-life-centre",
+   "file": "File:Winnipeg Jets first home victory celebration.jpg",
+   "focus": {
+    "desktop": "50% 38%",
+    "mobile": "55% 40%"
+   },
+   "identity": "Jets players saluting at centre ice, 'JETS WIN' ribbon boards and Jets scoreboard, full upper-deck view",
+   "event": "Winnipeg Jets first home win celebration, MTS Centre (now Canada Life Centre)",
+   "review": "2026-10-08 PROVISIONAL: proposed from the contact sheet (Dark; silhouetted fans in the lower and left foreground (desktop band keeps the bright rink); 2011 but the Jets identity is unchanged); pending full-resolution identity check"
+  }
  ]
 }

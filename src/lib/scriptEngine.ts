@@ -7,7 +7,7 @@
 // Nothing here turns a script count into a probability, and nothing calls a contract "+EV": the payload has
 // no pricing source, and Sift never invents one.
 import type { EventResearchDoc, Market } from '../contract/types';
-import { cfbCodeOfEspn, cfbName } from './cfbTeams';
+import { cfbCodeOfEspn, cfbDisplayText, cfbName } from './cfbTeams';
 
 export type Role = 'PRIMARY' | 'SECONDARY' | 'ALTERNATE' | 'DANGER';
 export type Compat = 'SUPPORTED' | 'PARTIAL' | 'CONTRADICTED' | 'NEUTRAL' | 'UNMAPPABLE' | 'RESEARCH_UNCALIBRATED';
@@ -279,8 +279,9 @@ function decodeTeam(t: any, columns: string[], legend: Record<string, string[]>)
     metrics[key] = { key, metric_id, unit: unit as MetricRow['unit'], ...rec };
   }
   // The engine names teams by the football schedule; Sift shows the name fans use (lib/cfbTeams.ts), by ESPN id.
+  // The schedule's own name stays beside it (source_name).
   const code = cfbCodeOfEspn(t.team_id);
-  return { ...t, name: code ? cfbName(code, t.name) : t.name, metrics };
+  return { ...t, name: code ? cfbName(code, t.name) : cfbDisplayText(t.name), source_name: t.name, metrics };
 }
 
 /** The payload, decoded; `null` when the event has none; `{status, reason}` when it explains why not. */
@@ -316,14 +317,19 @@ export function readEngine(r: EventResearchDoc | null | undefined): Engine | Eng
   return {
     status: p.status,
     generation: p.script_generation,
-    read: p.sift_read,
+    // Every sentence below is the engine's own, with each school said by its canonical name (cfbDisplayText:
+    // "Massachusetts controls" -> "UMass controls"). The published payload itself is never modified — it stays in
+    // r.extensions.script_engine — and each script keeps its published title as `title` (scriptTitle() is the display).
+    read: p.sift_read ? { ...p.sift_read, headline: cfbDisplayText(p.sift_read.headline), points: (p.sift_read.points ?? []).map((x: any) => ({ ...x, text: cfbDisplayText(x.text) })) } : p.sift_read,
     confidence: p.data_confidence,
     teams: { home: decodeTeam(mp.teams?.home, columns, legend), away: decodeTeam(mp.teams?.away, columns, legend) },
     dimensions: mp.dimensions ?? {},
     baseline: mp.scoring_baseline ?? {},
     adjustment: mp.adjustment ?? {},
     findings: p.matchup_findings ?? [],
-    scripts: [...(p.game_scripts ?? [])].sort((a: EngineScript, b: EngineScript) => a.rank - b.rank),
+    scripts: [...(p.game_scripts ?? [])]
+      .sort((a: EngineScript, b: EngineScript) => a.rank - b.rank)
+      .map((x: EngineScript) => ({ ...x, summary: cfbDisplayText(x.summary), source_summary: x.summary, causal_chain: (x.causal_chain ?? []).map((c) => ({ ...c, step: cfbDisplayText(c.step) })) })),
     expressions,
     survivors: p.script_survivors ?? [],
     theses,
@@ -334,7 +340,9 @@ export function readEngine(r: EventResearchDoc | null | undefined): Engine | Eng
     coverage: smm.coverage ?? null,
     researchOnly: smm.research_only !== false,
     pricingNote: smm.pricing_note ?? '',
-    claimsV2: p.claims_v2?.claims && p.claims_v2?.story ? (p.claims_v2 as ClaimsV2) : null,
+    claimsV2: p.claims_v2?.claims && p.claims_v2?.story
+      ? ({ ...p.claims_v2, story: { ...p.claims_v2.story, headline: cfbDisplayText(p.claims_v2.story.headline), clauses: (p.claims_v2.story.clauses ?? []).map((c: any) => ({ ...c, text: cfbDisplayText(c.text) })) } } as ClaimsV2)
+      : null,
   };
 }
 
@@ -482,15 +490,34 @@ export function fmtEdge(v: number | null | undefined): string {
   return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}`;
 }
 
+const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'vs']);
+
+/** "Kent State hangs around" → "Kent State Hangs Around"; "Even matchup, one-score game" → "Even Matchup, One-Score Game". */
+function headlineCase(t: string): string {
+  return t
+    .split(' ')
+    .map((w, i) => (i > 0 && SMALL_WORDS.has(w) ? w : w.replace(/(^|-)([a-z])/g, (_, d, c) => d + c.toUpperCase())))
+    .join(' ');
+}
+
 /**
- * The title a reader sees for a script. The engine's titles are kept (they are the canonical label, on the page as
- * data-canonical) except for the three game-environment archetypes whose names need decoding ("Competitive grind",
- * "Competitive shootout", "Pace-driven scoring"): those are said from the script's own outcome shape, and only
- * what it states — a one-score margin, a suppressed or elevated total, more possessions. Never a game flow the
- * engine does not model.
+ * The title a reader sees for a script; the engine's own title stays as `s.title` (rendered as data-canonical, and
+ * checked against the publication by the production check).
+ *  - The three game-environment archetypes ("Competitive grind", "Competitive shootout", "Pace-driven scoring") are
+ *    said from the script's own outcome shape, and only what it states — a one-score margin, a suppressed or
+ *    elevated total, more possessions. Never a game flow the engine does not model.
+ *  - Every other title keeps its words, with each school said by its canonical name ("Massachusetts controls" →
+ *    "UMass …") and headline capitalization, the NFL scripts' style ("Kent State Hangs Around").
+ *  - A HOME_CONTROL / AWAY_CONTROL title ("Utah State controls") reads "Utah State Controls the Matchup", the
+ *    phrasing SIFT uses for CONTROL everywhere else (the Slate Priorities rail).
  */
 export function scriptTitle(s: Pick<EngineScript, 'archetype' | 'title' | 'outcome_shape'>): string {
-  if (!['COMPETITIVE_GRIND', 'COMPETITIVE_SHOOTOUT', 'PACE_DRIVEN_OVER'].includes(s.archetype)) return s.title;
+  if (!['COMPETITIVE_GRIND', 'COMPETITIVE_SHOOTOUT', 'PACE_DRIVEN_OVER'].includes(s.archetype)) {
+    const t = cfbDisplayText(s.title);
+    const control = /^(.+?) controls$/i.exec(t);
+    if (control && (s.archetype === 'HOME_CONTROL' || s.archetype === 'AWAY_CONTROL')) return `${control[1]} Controls the Matchup`;
+    return headlineCase(t);
+  }
   const o = s.outcome_shape ?? ({} as EngineScript['outcome_shape']);
   const close = o.margin_environment === 'ONE_SCORE';
   const fast = o.pace === 'MORE_POSSESSIONS';

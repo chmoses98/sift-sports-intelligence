@@ -14,6 +14,7 @@
 import type { Market } from '../contract/types';
 import { describeMlbMarket, isMlbTicker, mlbNick } from './mlb';
 import { isFullGame } from './period';
+import { cfbName } from './cfbTeams';
 
 export interface LabelContext {
   /** Team abbreviation for a participant id. */
@@ -75,6 +76,8 @@ function nickOf(abbr: string | null | undefined, ctx: LabelContext): string | nu
   if (own) return own;
   const sport = (ctx.sport ?? 'NFL').toUpperCase();
   if (sport === 'MLB') return mlbNick(abbr);
+  // A CFB code is a school: its canonical name ("USU" → "Utah State"), never the bare code.
+  if (sport === 'CFB') return cfbName(abbr);
   if (sport !== 'NFL') return abbr;
   return NFL_NICK[abbr.toUpperCase()] ?? abbr;
 }

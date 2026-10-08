@@ -1,0 +1,908 @@
+{
+ "_fixture": "Reduced from the cfb-edge-finder V2 shadow build of 26OCT10BUFFTOL (as of 2026-10-08T01:30Z): extensions.script_engine only, metric tables and market expressions removed.",
+ "extensions": {
+  "script_engine": {
+   "band_policy": {
+    "away_points": "UNCALIBRATED_DESCRIPTIVE",
+    "home_margin": "ARCHETYPE_DEFINITION",
+    "home_points": "UNCALIBRATED_DESCRIPTIVE",
+    "rule": "Margin bands define the archetype. Scoring bands are drawn around the descriptive, uncalibrated scoring baseline: research context only, never grounds for calling a total or team-total contract supported, until the scoring-band promotion gate passes.",
+    "total_points": "UNCALIBRATED_DESCRIPTIVE"
+   },
+   "claims_v2": {
+    "abstentions": [],
+    "activation": "SHADOW",
+    "calibration": {
+     "artifact": "data/scripting/calibration/control_margin_v2.json",
+     "calibration_version": "cfb-control-margin/2021-2025/1.0.0",
+     "development_seasons": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+     ],
+     "schema": "cfb_control_margin_calibration/1.0.0",
+     "sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+     "source_parameters_sha256": "683d075d99efdfed16f7fb35a9fd58234808d1a354f8fb8e3352c64e972bf7aa",
+     "validation_seasons": [
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+     ]
+    },
+    "claims": {
+     "closeness": null,
+     "control": {
+      "context": {
+       "opposing": [],
+       "rule": "listed for drill-down; not weighed (the historical range is conditional on the control finding alone)",
+       "same_side": [
+        "HOME_EARLY_DOWN_ADVANTAGE",
+        "HOME_FINISHING_ADVANTAGE",
+        "HOME_EXPLOSIVE_ADVANTAGE",
+        "HOME_PASS_EXPLOSIVE_ADVANTAGE",
+        "HOME_DEFENSIVE_CONTROL",
+        "HOME_SCORING_ADVANTAGE"
+       ]
+      },
+      "evidence": [
+       "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+      ],
+      "family": "CONTROL",
+      "historical_range": {
+       "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+       "central_50": [
+        8.0,
+        35.0
+       ],
+       "central_80": [
+        1.0,
+        48.0
+       ],
+       "development_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+       ],
+       "label": "Historical empirical range: the full-game margins of past games (2021-2025) that carried the same football claim, from the control side's point of view.",
+       "mean": 22.76,
+       "median": 23.0,
+       "n": 628,
+       "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+       "tier": "HOME_CONTROL_STRONG",
+       "validation": {
+        "coverage_50": 0.5291,
+        "coverage_80": 0.8216,
+        "median": 24.0,
+        "n": 824,
+        "seasons": [
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "win_rate": 0.9102
+       },
+       "variable": "control_side_margin",
+       "win_rate": {
+        "ci95": [
+         0.8754,
+         0.9222
+        ],
+        "hits": 566,
+        "n": 628,
+        "rate": 0.9013
+       }
+      },
+      "side": "home",
+      "statement": "Toledo owns the opponent-adjusted sustained-efficiency matchup (strong edge).",
+      "strength": "STRONG",
+      "tier": "HOME_CONTROL_STRONG"
+     },
+     "defensive_suppression": null,
+     "disruption": [],
+     "explosive_upset": {
+      "methodology": "V1 rule and V1 script, unchanged (historical explosive-play counts unavailable)",
+      "script_ids": [],
+      "status": "UNTESTED_HISTORICALLY_DATA_UNAVAILABLE"
+     },
+     "pace": {
+      "evidence": [
+       "HIGH_POSSESSION_ENVIRONMENT"
+      ],
+      "family": "PACE",
+      "level": "HIGH",
+      "statement": "Expected possession volume: more plays than an average FBS game.",
+      "strength": "MODERATE"
+     },
+     "scoring_environment": {
+      "evidence": [
+       "HIGH_SCORING_ENVIRONMENT"
+      ],
+      "family": "SCORING_ENVIRONMENT",
+      "incremental_over_baseline": true,
+      "level": "ELEVATED",
+      "numeric_band": null,
+      "statement": "Scoring environment: elevated, beyond what the opponent-adjusted scoring baseline expects.",
+      "strengthened": false,
+      "supports": [
+       "HIGH_POSSESSION_ENVIRONMENT"
+      ]
+     }
+    },
+    "claims_artifact_hash": "710afb8f03eba3da2ea047e1f5334cd067798c6c8557481a4b68bf2a2565a98a",
+    "data_quality": {
+     "all_gates_pass": true,
+     "describes": "the quality and completeness of the football evidence (coverage, sample, adjustment stability, availability, identity) -- never how likely a claim is to come true",
+     "level": "HIGH",
+     "reasons": []
+    },
+    "generated_at": "2026-10-08T01:30:00Z",
+    "market_authority": {
+     "counts": {
+      "DIRECT_FOOTBALL_AUTHORITY": 3,
+      "NO_MARKET_AUTHORITY": 1,
+      "RESEARCH_CONTEXT_ONLY": 52,
+      "RESEARCH_UNCALIBRATED": 88,
+      "UNMAPPABLE": 76
+     },
+     "explosive_upset_v1": [],
+     "moneyline": [
+      [
+       "KXNCAAFGAME-26OCT10BUFFTOL-BUFF:YES",
+       "OPPOSED"
+      ],
+      [
+       "KXNCAAFGAME-26OCT10BUFFTOL-TOL:YES",
+       "ALIGNED"
+      ],
+      [
+       "KXNCAAFGAME-26OCT10BUFFTOL-TOL:NO",
+       "OPPOSED"
+      ]
+     ],
+     "schema_version": "cfb_claims_market_authority/1.0.0"
+    },
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/2.0.0",
+    "outcome_strength_source": "CONTROL.strength",
+    "probability": null,
+    "schema_version": "cfb_script_claims/2.0.0",
+    "source": {
+     "football_artifact_hash": "9442b05bfc919def0429e02ffff50de984a05915bdcfe8fbacb243f032cf8d10",
+     "football_methodology_version": "cfb-script-engine/1.3.0",
+     "football_schema_version": "cfb_script_artifact/1.0.0"
+    },
+    "status": "CLAIMS_PUBLISHED",
+    "status_statement": null,
+    "story": {
+     "clauses": [
+      {
+       "claims": [
+        "control",
+        "pace",
+        "scoring_environment"
+       ],
+       "text": "Toledo holds a strong sustained-efficiency control edge, with a faster possession environment and an elevated-scoring environment."
+      }
+     ],
+     "generated_from": "V2 claims only; deterministic templates; no market input; not a calibrated archetype",
+     "headline": "Toledo holds a strong sustained-efficiency control edge, with a faster possession environment and an elevated-scoring environment."
+    },
+    "teams": {
+     "away": {
+      "name": "Buffalo",
+      "team_id": "2084"
+     },
+     "home": {
+      "name": "Toledo",
+      "team_id": "2649"
+     }
+    }
+   },
+   "data_confidence": {
+    "adjustment_stable": true,
+    "all_gates_pass": true,
+    "availability_status": {
+     "away": "OBSERVED",
+     "home": "OBSERVED"
+    },
+    "core_coverage": {
+     "away": 1.0,
+     "home": 1.0
+    },
+    "describes": "the quality of the football evidence, never how strongly a side or script is favoured",
+    "enhanced_dimensions": [
+     "sustained_efficiency",
+     "rushing",
+     "passing",
+     "explosiveness",
+     "finishing"
+    ],
+    "freshness": {
+     "expected_prior_games": 10,
+     "missing_game_ids": [],
+     "rule": "every finished prior game of either team that involved an FBS team must be in the game log",
+     "status": "FRESH"
+    },
+    "games_observed": {
+     "away": 5,
+     "home": 5
+    },
+    "gates": {
+     "adjusted_inputs": true,
+     "availability": true,
+     "freshness": true,
+     "identity": true,
+     "market_blind": true,
+     "sample_size": true
+    },
+    "known": [
+     "Toledo: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Toledo: prior weight on key adjusted metrics up to 44%",
+     "Buffalo: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Buffalo: prior weight on key adjusted metrics up to 44%"
+    ],
+    "level": "HIGH",
+    "reasons": [],
+    "unknown": [
+     "weather, travel distance, coaching tendencies and motivation are not part of the V1 evidence"
+    ]
+   },
+   "game_scripts": [
+    {
+     "archetype": "HOME_CONTROL",
+     "causal_chain": [
+      {
+       "findings": [
+        "HOME_EARLY_DOWN_ADVANTAGE"
+       ],
+       "step": "Toledo wins early downs against Buffalo's defense"
+      },
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Toledo stays out of obvious passing downs"
+      },
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Toledo sustains longer possessions"
+      },
+      {
+       "findings": [
+        "HOME_FINISHING_ADVANTAGE"
+       ],
+       "step": "Toledo finishes drives with touchdowns rather than field goals"
+      },
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Buffalo receives fewer possessions and plays from behind"
+      },
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Buffalo becomes more pass-dependent while trailing"
+      }
+     ],
+     "contradicting_findings": [
+      "HIGH_VARIANCE_MATCHUP",
+      "HOME_SCORING_DEPENDENT_ON_EXPLOSIVES"
+     ],
+     "data_confidence": "HIGH",
+     "evidence_score": 8.0,
+     "lead_side": "home",
+     "outcome_shape": {
+      "away_scoring": "BELOW_BASELINE",
+      "band_authority": {
+       "away_points": "UNCALIBRATED_DESCRIPTIVE",
+       "home_margin": "ARCHETYPE_DEFINITION",
+       "home_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": [
+        6,
+        22
+       ],
+       "home_margin": [
+        7,
+        24
+       ],
+       "home_points": [
+        39,
+        56
+       ],
+       "total_points": null
+      },
+      "home_scoring": "AT_OR_ABOVE_BASELINE",
+      "margin_authority_evidence": [
+       "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+      ],
+      "margin_environment": "HOME_BY_ONE_TO_THREE_SCORES",
+      "pace": "NOT_STATED",
+      "total_environment": "NOT_STATED",
+      "winner_lean": "HOME"
+     },
+     "probability": null,
+     "rank": 1,
+     "required_findings": [
+      "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+     ],
+     "role": "PRIMARY",
+     "script_id": "scr_4c8d5fbae7253553",
+     "summary": "Toledo's sustained-efficiency edge turns into longer drives and a multi-score lead that Buffalo chases.",
+     "supporting_findings": [
+      "HOME_EARLY_DOWN_ADVANTAGE",
+      "HOME_FINISHING_ADVANTAGE",
+      "HOME_DEFENSIVE_CONTROL",
+      "HOME_SCORING_ADVANTAGE"
+     ],
+     "title": "Toledo controls"
+    },
+    {
+     "archetype": "FAVORITE_PULLS_AWAY",
+     "causal_chain": [
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Toledo's efficiency edge is large on both sides of the ball"
+      },
+      {
+       "findings": [
+        "HOME_FINISHING_ADVANTAGE",
+        "HOME_EXPLOSIVE_ADVANTAGE"
+       ],
+       "step": "Toledo has a second advantage to stack on it"
+      },
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Buffalo cannot trade possessions evenly and falls multiple scores behind"
+      },
+      {
+       "findings": [
+        "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Buffalo abandons its plan to chase points, which extends Toledo's lead"
+      }
+     ],
+     "contradicting_findings": [
+      "HIGH_VARIANCE_MATCHUP"
+     ],
+     "data_confidence": "HIGH",
+     "evidence_score": 7.0,
+     "lead_side": "home",
+     "outcome_shape": {
+      "away_scoring": "BELOW_BASELINE",
+      "band_authority": {
+       "away_points": "UNCALIBRATED_DESCRIPTIVE",
+       "home_margin": "ARCHETYPE_DEFINITION",
+       "home_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": [
+        0,
+        17
+       ],
+       "home_margin": [
+        17,
+        45
+       ],
+       "home_points": [
+        45,
+        66
+       ],
+       "total_points": null
+      },
+      "home_scoring": "ABOVE_BASELINE",
+      "margin_authority_evidence": [
+       "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE",
+       "HOME_FINISHING_ADVANTAGE",
+       "HOME_EXPLOSIVE_ADVANTAGE"
+      ],
+      "margin_environment": "HOME_BY_THREE_PLUS_SCORES",
+      "pace": "NOT_STATED",
+      "total_environment": "NOT_STATED",
+      "winner_lean": "HOME"
+     },
+     "probability": null,
+     "rank": 2,
+     "required_findings": [
+      "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+     ],
+     "role": "SECONDARY",
+     "script_id": "scr_b90bfa8ebc352788",
+     "summary": "Toledo's efficiency edge compounds with a second advantage and the margin keeps growing.",
+     "supporting_findings": [
+      "HOME_FINISHING_ADVANTAGE",
+      "HOME_EXPLOSIVE_ADVANTAGE",
+      "HOME_SCORING_ADVANTAGE"
+     ],
+     "title": "Toledo pulls away"
+    },
+    {
+     "archetype": "PACE_DRIVEN_OVER",
+     "causal_chain": [
+      {
+       "findings": [
+        "HIGH_POSSESSION_ENVIRONMENT"
+       ],
+       "step": "both teams play at a snap count above the FBS norm"
+      },
+      {
+       "findings": [
+        "HIGH_POSSESSION_ENVIRONMENT"
+       ],
+       "step": "extra possessions create extra scoring chances for both sides"
+      },
+      {
+       "findings": [
+        "HIGH_POSSESSION_ENVIRONMENT",
+        "HIGH_SCORING_ENVIRONMENT"
+       ],
+       "step": "the total rises with volume, whoever wins"
+      }
+     ],
+     "contradicting_findings": [],
+     "data_confidence": "HIGH",
+     "evidence_score": 4.0,
+     "lead_side": null,
+     "outcome_shape": {
+      "away_scoring": "NOT_STATED",
+      "band_authority": {
+       "total_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": null,
+       "home_margin": null,
+       "home_points": null,
+       "total_points": [
+        65,
+        90
+       ]
+      },
+      "home_scoring": "NOT_STATED",
+      "margin_authority_evidence": [],
+      "margin_environment": "NOT_STATED",
+      "pace": "MORE_POSSESSIONS",
+      "total_environment": "ELEVATED",
+      "winner_lean": "NONE"
+     },
+     "probability": null,
+     "rank": 3,
+     "required_findings": [
+      "HIGH_POSSESSION_ENVIRONMENT"
+     ],
+     "role": "ALTERNATE",
+     "script_id": "scr_1ebed577bc8895ef",
+     "summary": "Snap volume above the FBS norm on both sides pushes the total up regardless of who wins.",
+     "supporting_findings": [
+      "HIGH_SCORING_ENVIRONMENT",
+      "HOME_EXPLOSIVE_ADVANTAGE"
+     ],
+     "title": "Pace-driven scoring"
+    }
+   ],
+   "matchup_findings": [
+    {
+     "category": "MATCHUP",
+     "code": "HOME_DEFENSIVE_CONTROL",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "home",
+     "statement": "Toledo's defense out-rates the opposing offense on a down-to-down basis (-3.30 for Buffalo's offense).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.347,
+     "value": 3.3
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_EARLY_DOWN_ADVANTAGE",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate"
+     ],
+     "side": "home",
+     "statement": "Toledo holds the early-down edge: its offense stays ahead of the chains on 1st and 2nd down against this defense (+0.78) more than Buffalo does (-3.84).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.408,
+     "value": 4.619
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_EXPLOSIVE_ADVANTAGE",
+     "dimension": "explosiveness",
+     "metric_refs": [
+      "home.offense.explosive_play_rate",
+      "away.defense.explosive_play_rate",
+      "home.offense.explosive_rush_rate",
+      "away.defense.explosive_rush_rate",
+      "home.offense.explosive_pass_rate",
+      "away.defense.explosive_pass_rate",
+      "away.offense.explosive_play_rate",
+      "home.defense.explosive_play_rate",
+      "away.offense.explosive_rush_rate",
+      "home.defense.explosive_rush_rate",
+      "away.offense.explosive_pass_rate",
+      "home.defense.explosive_pass_rate"
+     ],
+     "side": "home",
+     "statement": "Toledo owns the stronger opponent-adjusted explosive-play matchup: Toledo offense vs Buffalo defense +1.39, Buffalo offense vs Toledo defense -2.65 (explosive-play rate, opponent-adjusted: Toledo offense #22 of 138, Buffalo defense #109 of 138).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.564,
+     "value": 4.039
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_FINISHING_ADVANTAGE",
+     "dimension": "finishing",
+     "metric_refs": [
+      "home.offense.points_per_opportunity",
+      "away.defense.points_per_opportunity",
+      "home.offense.points_per_drive",
+      "away.defense.points_per_drive",
+      "away.offense.points_per_opportunity",
+      "home.defense.points_per_opportunity",
+      "away.offense.points_per_drive",
+      "home.defense.points_per_drive"
+     ],
+     "side": "home",
+     "statement": "Toledo owns the stronger opponent-adjusted finishing matchup: Toledo offense vs Buffalo defense +1.71, Buffalo offense vs Toledo defense -0.58 (points per scoring opportunity, opponent-adjusted: Toledo offense #50 of 138, Buffalo defense #111 of 138).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.489,
+     "value": 2.291
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_PASS_EXPLOSIVE_ADVANTAGE",
+     "dimension": "explosiveness",
+     "metric_refs": [
+      "home.offense.explosive_pass_rate",
+      "away.defense.explosive_pass_rate"
+     ],
+     "side": "home",
+     "statement": "Toledo's explosive passing offense meets a Buffalo defense that allows explosive pass plays (+2.29).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.54,
+     "value": 2.295
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_SCORING_ADVANTAGE",
+     "dimension": "scoring",
+     "metric_refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "side": "home",
+     "statement": "Toledo owns the stronger opponent-adjusted scoring matchup: Toledo offense vs Buffalo defense +3.10, Buffalo offense vs Toledo defense -0.53 (points per game, opponent-adjusted: Toledo offense #16 of 138, Buffalo defense #132 of 138).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.281,
+     "value": 3.631
+    },
+    {
+     "category": "MATCHUP",
+     "code": "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate",
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "home",
+     "statement": "Toledo owns the stronger opponent-adjusted sustained-efficiency matchup: Toledo offense vs Buffalo defense +1.21, Buffalo offense vs Toledo defense -3.30 (success rate, opponent-adjusted: Toledo offense #59 of 138, Buffalo defense #85 of 138).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.361,
+     "value": 4.512
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "HIGH_POSSESSION_ENVIRONMENT",
+     "dimension": "pace",
+     "metric_refs": [
+      "home.offense.plays_per_game",
+      "away.defense.plays_per_game",
+      "away.offense.plays_per_game",
+      "home.defense.plays_per_game",
+      "home.offense.seconds_per_play",
+      "away.offense.seconds_per_play"
+     ],
+     "side": "game",
+     "statement": "Both offenses and both defenses point to more snaps than an average FBS game (possession environment +1.71).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.705
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "HIGH_SCORING_ENVIRONMENT",
+     "dimension": "scoring",
+     "metric_refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "side": "game",
+     "statement": "Each offense meets a defense it out-scores on opponent-adjusted points (Toledo +3.10, Buffalo -0.53).",
+     "strength": "MODERATE",
+     "threshold": 1.5,
+     "uncertainty": null,
+     "value": 2.567
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "AWAY_OFFENSE_TURNOVER_PRONE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.turnovers_per_game"
+     ],
+     "side": "away",
+     "statement": "Buffalo's offense has given the ball away at a high rate (+1.29 SD). Regression-prone: reported as volatility, never as a cause on its own.",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.288
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HIGH_VARIANCE_MATCHUP",
+     "dimension": "volatility",
+     "metric_refs": [
+      "away.offense.turnovers_per_game",
+      "home.offense.explosive_yard_share",
+      "home.offense.success_rate"
+     ],
+     "side": "game",
+     "statement": "2 independent volatility indicators are present: this matchup has wide outcomes.",
+     "strength": "MODERATE",
+     "threshold": 2.0,
+     "uncertainty": null,
+     "value": 2.0
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HOME_SCORING_DEPENDENT_ON_EXPLOSIVES",
+     "dimension": "volatility",
+     "metric_refs": [
+      "home.offense.explosive_yard_share",
+      "home.offense.success_rate"
+     ],
+     "side": "home",
+     "statement": "Toledo's yardage leans on explosive plays (share +1.35 SD) more than its down-to-down success rate (+0.09 SD) supports: a less repeatable path.",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.347
+    }
+   ],
+   "matchup_profile": {
+    "adjustment": {
+     "config": {
+      "prior_games_fbs": 4.0,
+      "prior_games_group_offset": 0.5,
+      "prior_games_home_effect": 1.0,
+      "prior_games_non_fbs": 8.0,
+      "weight_cap": 2.5,
+      "weight_floor": 0.25
+     },
+     "cutoff_exclusive": "2026-10-08T08:00:00Z",
+     "fbs_schedule_components": 1,
+     "games_in_window": 391,
+     "median_fbs_games": 5.0,
+     "stable": true
+    },
+    "dimensions": {},
+    "legend": {},
+    "metric_columns": [
+     "raw",
+     "adjusted",
+     "adjusted_available",
+     "adjusted_unavailable_reason",
+     "standard_error",
+     "rank",
+     "universe_size",
+     "rank_basis",
+     "direction",
+     "games",
+     "effective_n",
+     "prior_weight",
+     "source",
+     "observed_at",
+     "quality"
+    ],
+    "scoring_baseline": {
+     "away_points": 19.9,
+     "home_effect_applied": 3.3,
+     "home_margin": 22.2,
+     "home_points": 42.1,
+     "label": "opponent-adjusted scoring baseline -- descriptive, uncalibrated, NOT a projection",
+     "refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "total_points": 62.0,
+     "uncertainty_points": 7.3
+    },
+    "teams": {
+     "away": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Buffalo",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Jason Wright",
+       "season_primary": "Jason Wright"
+      },
+      "record_in_window": {
+       "losses": 3,
+       "wins": 2
+      },
+      "residual_sd": {
+       "defense_points": 9.435,
+       "defense_yards_per_play": 1.1116,
+       "offense_points": 9.8878,
+       "offense_yards_per_play": 1.1949
+      },
+      "season": 2026,
+      "team_id": "2084",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     },
+     "home": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Toledo",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "John Alan Richter",
+       "season_primary": "John Alan Richter"
+      },
+      "record_in_window": {
+       "losses": 1,
+       "wins": 4
+      },
+      "residual_sd": {
+       "defense_points": 11.1918,
+       "defense_yards_per_play": 0.6969,
+       "offense_points": 7.8619,
+       "offense_yards_per_play": 0.6286
+      },
+      "season": 2026,
+      "team_id": "2649",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     }
+    }
+   },
+   "script_generation": {
+    "adjustment_version": "cfb-opponent-adjustment/1.0.0",
+    "artifact_hash": "9442b05bfc919def0429e02ffff50de984a05915bdcfe8fbacb243f032cf8d10",
+    "data_confidence": "HIGH",
+    "event_id_football": "401866437",
+    "football_data_cutoff": "2026-10-10T08:00:00Z",
+    "generated_at": "2026-10-08T01:30:00Z",
+    "identity": {
+     "espn_event_id": "401866437",
+     "orientation_swapped": false,
+     "status": "PASS"
+    },
+    "mapped_at": "2026-10-08T01:30:00Z",
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/1.3.0",
+    "prices_captured_at": "2026-10-07T23:19:34.451947Z",
+    "regeneration_reasons": [
+     "CONTENT_CHANGED_WITHOUT_INPUT_CHANGE"
+    ]
+   },
+   "script_market_map": {
+    "expressions": [],
+    "survival_columns": [
+     "supported",
+     "partial",
+     "contradicted",
+     "neutral",
+     "total_scripts",
+     "meaningful_scripts",
+     "weighted_score",
+     "research_uncalibrated"
+    ]
+   },
+   "sift_read": {
+    "caveats": [],
+    "data_confidence": "HIGH",
+    "generated_from": "structured findings and script summaries only; no market input",
+    "headline": "Toledo's sustained-efficiency edge turns into longer drives and a multi-score lead that Buffalo chases.",
+    "headline_findings": [
+     "HOME_SUSTAINED_EFFICIENCY_ADVANTAGE"
+    ],
+    "points": [
+     {
+      "findings": [
+       "HOME_DEFENSIVE_CONTROL"
+      ],
+      "text": "Toledo's defense out-rates the opposing offense on a down-to-down basis (-3.30 for Buffalo's offense)."
+     },
+     {
+      "findings": [
+       "HOME_EARLY_DOWN_ADVANTAGE"
+      ],
+      "text": "Toledo holds the early-down edge: its offense stays ahead of the chains on 1st and 2nd down against this defense (+0.78) more than Buffalo does (-3.84)."
+     },
+     {
+      "findings": [
+       "HOME_EXPLOSIVE_ADVANTAGE"
+      ],
+      "text": "Toledo owns the stronger opponent-adjusted explosive-play matchup: Toledo offense vs Buffalo defense +1.39, Buffalo offense vs Toledo defense -2.65 (explosive-play rate, opponent-adjusted: Toledo offense #22 of 138, Buffalo defense #109 of 138)."
+     }
+    ]
+   },
+   "status": "SCRIPTS_GENERATED",
+   "version": "cfb_script_engine_payload/1.2.0"
+  }
+ }
+}

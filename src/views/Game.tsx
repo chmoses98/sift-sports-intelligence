@@ -24,6 +24,7 @@ import { GameHero } from './game/Hero';
 import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, MarketsPanel, PanelHead, ScriptsPanel, SurvivorsPanel } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
 import { EngineConfidencePanel, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
+import { GameReadV2Panel } from './game/GameReadV2';
 import { isEngine, readEngine } from '../lib/scriptEngine';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { type ReactNode } from 'react';
@@ -535,6 +536,7 @@ export function GameView({ eventId }: { eventId: string }) {
           <div className="ov ov--engine">
             <EngineReadPanel engine={engine} to={ehref('script')} />
             <EngineScriptsPanel engine={engine} selected={engineSelected} hrefFor={ehrefFor} />
+            {engine.claimsV2 && <GameReadV2Panel engine={engine} />}
             <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} to={ehref('script')} />
             <EngineEdgesPanel engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={ehref('matchup')} />
             <EngineConfidencePanel engine={engine} />

@@ -263,6 +263,760 @@
    }
   },
   {
+   "id": "cfb-afa-falcon-stadium",
+   "sport": "CFB",
+   "team": "AFA",
+   "venue": "falcon-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "AIR FORCE end zone, giant flag on field, blue-clad full crowd",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "40% 50%"
+   },
+   "w": 2400,
+   "h": 884,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Sapient254",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Air_Force_Academy_Stadium.jpg",
+    "file": "File:Air Force Academy Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ala-bryant-denny-stadium",
+   "sport": "CFB",
+   "team": "ALA",
+   "venue": "bryant-denny-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "ALABAMA end zone, script-A midfield, crimson crowd at night",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "72% 50%"
+   },
+   "w": 2400,
+   "h": 804,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Matthew Tosh",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bryant-Denny_10-22-11.jpg",
+    "file": "File:Bryant-Denny 10-22-11.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ark-razorback-stadium",
+   "sport": "CFB",
+   "team": "ARK",
+   "venue": "razorback-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "RAZORBACKS end zone lettering, hog midfield logo, red crowd",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "25% 50%"
+   },
+   "w": 2400,
+   "h": 1599,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Brandonrush",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Texas_A%26M_at_Arkansas,_2013.jpg",
+    "file": "File:Texas A&M at Arkansas, 2013.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-bay-mclane-stadium",
+   "sport": "CFB",
+   "team": "BAY",
+   "venue": "mclane-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "BAYLOR end zone, Baylor Line in gold, McLane Stadium video board",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "w": 1920,
+   "h": 1080,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Cardinalfan24",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Theline.jpg",
+    "file": "File:Theline.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-bsu-albertsons-stadium",
+   "sport": "CFB",
+   "team": "BSU",
+   "venue": "albertsons-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Blue turf, BOISE STATE orange end zone, night crowd",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "22% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Iamneven",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:BSUvsFresnoSt.jpg",
+    "file": "File:BSUvsFresnoSt.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-byu-lavell-edwards-stadium",
+   "sport": "CFB",
+   "team": "BYU",
+   "venue": "lavell-edwards-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "BYU end zone lettering, white/blue-clad crowd, night",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1350,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Dalee Despain",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:BYU_Football.jpg",
+    "file": "File:BYU Football.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-cal-california-memorial-stadium",
+   "sport": "CFB",
+   "team": "CAL",
+   "venue": "california-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "CALIFORNIA end zone, Cal logo midfield, blue/gold fans",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "35% 50%"
+   },
+   "w": 2400,
+   "h": 1351,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Stephen Kaus",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Gameday_at_California_Memorial_Stadium.jpg",
+    "file": "File:Gameday at California Memorial Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-clem-clemson-memorial-stadium",
+   "sport": "CFB",
+   "team": "CLEM",
+   "venue": "clemson-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Team running down the Hill, orange balloons, CLEMSON end zone, orange crowd",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "40% 50%"
+   },
+   "w": 2400,
+   "h": 1600,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Daderot",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Clemson_Memorial_Stadium_-_Clemson_University_-_DSC07482.JPG",
+    "file": "File:Clemson Memorial Stadium - Clemson University - DSC07482.JPG",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-cmu-kelly-shorts-stadium",
+   "sport": "CFB",
+   "team": "CMU",
+   "venue": "kelly-shorts-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "CHIPPEWAS maroon/gold end zone, CMU press box, full crowd",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "70% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "PureMichiganChip",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kelly_Shorts_Stadium.jpg",
+    "file": "File:Kelly Shorts Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-colo-folsom-field",
+   "sport": "CFB",
+   "team": "COLO",
+   "venue": "folsom-field",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "BUFFS end zone, Champions Center, sellout night crowd",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Thelastcanadian",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Folsom_Field_vs._Utah_2016.jpg",
+    "file": "File:Folsom Field vs. Utah 2016.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-duke-wallace-wade-stadium",
+   "sport": "CFB",
+   "team": "DUKE",
+   "venue": "wallace-wade-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Duke D midfield logo, blue stands, post-2016 renovation",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1306,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "User:B",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:2018_Virginia_Tech_@_Duke_opening_kickoff.jpg",
+    "file": "File:2018 Virginia Tech @ Duke opening kickoff.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-fla-ben-hill-griffin-stadium",
+   "sport": "CFB",
+   "team": "FLA",
+   "venue": "ben-hill-griffin-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Gator head midfield logo, FLORIDA sideline signage, packed Swamp",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "58% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Gatorfan252525",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ben_Hill_Griffin_Stadium_during_a_Florida_Gators_football_game_against_the_Tennessee_Volunteers_in_November_2025.jpg",
+    "file": "File:Ben Hill Griffin Stadium during a Florida Gators football game against the Tennessee Volunteers in November 2025.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-fsu-doak-campbell-stadium",
+   "sport": "CFB",
+   "team": "FSU",
+   "venue": "doak-campbell-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Renovated Doak west side, garnet crowd, garnet end zone corner",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1600,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Keiteay",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Doak_Campbell_Stadium_in_2026.jpg",
+    "file": "File:Doak Campbell Stadium in 2026.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-gt-bobby-dodd-stadium",
+   "sport": "CFB",
+   "team": "GT",
+   "venue": "bobby-dodd-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Atlanta skyline over Bobby Dodd, gold end zone lettering, white-clad crowd",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1177,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Bkporter12",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:BobbyDoddStadiumGTMiami2008.jpg",
+    "file": "File:BobbyDoddStadiumGTMiami2008.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-hou-tdecu-stadium",
+   "sport": "CFB",
+   "team": "HOU",
+   "venue": "tdecu-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "COUGARS end zone, UH red crowd, TDECU bowl",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "62% 50%"
+   },
+   "w": 2400,
+   "h": 1025,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Brian Reading",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Night_panorama_of_TDECU_Stadium.JPG",
+    "file": "File:Night panorama of TDECU Stadium.JPG",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ill-illinois-memorial-stadium",
+   "sport": "CFB",
+   "team": "ILL",
+   "venue": "illinois-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Block I midfield, orange-and-blue I flags, orange-clad crowd",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Asolsma1988",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Iowa_Illinois_005.jpg",
+    "file": "File:Iowa Illinois 005.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ind-indiana-memorial-stadium",
+   "sport": "CFB",
+   "team": "IND",
+   "venue": "indiana-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "INDIANA crimson end zone, cream-and-crimson packed crowd",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "60% 50%"
+   },
+   "w": 2400,
+   "h": 1600,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "JYDecker",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:GEU_0557.jpg",
+    "file": "File:GEU 0557.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-kent-dix-stadium",
+   "sport": "CFB",
+   "team": "KENT",
+   "venue": "dix-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Kent State end zone lettering in gold, Dix west stands full",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "50% 50%"
+   },
+   "w": 2048,
+   "h": 1536,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "JonRidinger",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Dix_Stadium_2012.JPG",
+    "file": "File:Dix Stadium 2012.JPG",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-lou-ln-stadium",
+   "sport": "CFB",
+   "team": "LOU",
+   "venue": "ln-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "LOUISVILLE end zone with Cardinal head, red-clad full crowd",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1186,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Nolanwebb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:CardinalStadiumUL7.jpg",
+    "file": "File:CardinalStadiumUL7.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-lsu-tiger-stadium-lsu",
+   "sport": "CFB",
+   "team": "LSU",
+   "venue": "tiger-stadium-lsu",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "LSU purple/gold end zone, eye-of-tiger midfield, Tiger Stadium bowl",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "30% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Spatms",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:LSU_Tigers_vs_Nicholls_Colonels_at_Tiger_Stadium_09-07-2024_(19).jpg",
+    "file": "File:LSU Tigers vs Nicholls Colonels at Tiger Stadium 09-07-2024 (19).jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-mem-liberty-stadium",
+   "sport": "CFB",
+   "team": "MEM",
+   "venue": "liberty-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Memphis-blue home crowd foreground, navy end zone, Liberty Bowl press tower",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "35% 50%"
+   },
+   "w": 2400,
+   "h": 777,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Azyrii",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Panorama_of_Liberty_Bowl_Memorial_Stadium,_Memphis,_TN,_Oct_2015.jpg",
+    "file": "File:Panorama of Liberty Bowl Memorial Stadium, Memphis, TN, Oct 2015.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-mich-michigan-stadium",
+   "sport": "CFB",
+   "team": "MICH",
+   "venue": "michigan-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Block M midfield, MICHIGAN end zone, maize-out crowd at night",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "40% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "BenjaminSmithChef",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Western_Michigan_Broncos_at_Michigan_Wolverines_football_2026_02.jpg",
+    "file": "File:Western Michigan Broncos at Michigan Wolverines football 2026 02.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-minn-huntington-bank-stadium",
+   "sport": "CFB",
+   "team": "MINN",
+   "venue": "huntington-bank-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "MINNESOTA maroon/gold end zone, Gophers board, full night crowd",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "70% 50%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "GoBlue9",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Michigan_vs_Minnesota_at_Huntington_Bank_Stadium.jpg",
+    "file": "File:Michigan vs Minnesota at Huntington Bank Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-mrsh-joan-c-edwards-stadium",
+   "sport": "CFB",
+   "team": "MRSH",
+   "venue": "joan-c-edwards-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "MARSHALL end zone, green-and-white striped crowd",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "35% 50%"
+   },
+   "w": 2400,
+   "h": 1477,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Wv funnyman",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Striping_the_Joan_C._Edwards_Stadium.jpg",
+    "file": "File:Striping the Joan C. Edwards Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-msu-spartan-stadium",
+   "sport": "CFB",
+   "team": "MSU",
+   "venue": "spartan-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Spartan helmet midfield, SPARTANS end zone, green/white stripe-out at sunset",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "60% 50%"
+   },
+   "w": 2292,
+   "h": 1290,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Stillnotjayjay",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Spartan_Stadium_in_2025_During_a_game_against_Western_Michigan.jpg",
+    "file": "File:Spartan Stadium in 2025 During a game against Western Michigan.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-navy-navy-marine-corps-memorial-stadium",
+   "sport": "CFB",
+   "team": "NAVY",
+   "venue": "navy-marine-corps-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Blue/gold checkerboard end zones, N midfield, Brigade of Midshipmen in white",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "50% 50%"
+   },
+   "w": 2400,
+   "h": 1559,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Damon J. Moritz",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:2005_Stanford-Navy_Game_at_Navy-Marine_Corps_Memorial_Stadium.jpg",
+    "file": "File:2005 Stanford-Navy Game at Navy-Marine Corps Memorial Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
    "id": "mlb-atl-truist-park",
    "sport": "MLB",
    "team": "ATL",

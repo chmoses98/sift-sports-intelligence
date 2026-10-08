@@ -16,7 +16,7 @@ import { injuryRows, marketLabel, priceRow } from '../../lib/gamedata';
 import { kickoff } from '../../lib/format';
 import { describeNhlMarket } from '../../lib/marketLabel';
 import { FAMILY_WORD, evText, familyGroup, isNhlScripts, probText, readFindings, readLearning, readNhl, type NhlFinding, type NhlScripts } from '../../lib/nhl';
-import { ageMs, gamePhase, goalieLines, modelFreshness, playerLines, priceFreshness, projection, sidesOf, thesis, type Fresh } from '../../lib/nhlStory';
+import { ageMs, gamePhase, isOut, goalieLines, modelFreshness, playerLines, priceFreshness, projection, sidesOf, thesis, type Fresh } from '../../lib/nhlStory';
 import { routes } from '../../lib/routes';
 import { liveStore, useLiveQuotes, useNow } from '../../live/hooks';
 import { newlyListed, overlayMarket } from '../../live/overlay';
@@ -237,7 +237,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
   const rosterOf = (prof: any, abbr: string) => ({ abbr, names: ((prof?.players ?? []) as { display_name: string }[]).map((x) => x.display_name) });
   const teamOf = teamResolver(r, [rosterOf(homeProf.data, homeAbbr), rosterOf(awayProf.data, awayAbbr)]);
   const injuries = injuryRows(r, teamOf);
-  const outCount = (t: string) => injuries.filter((x) => x.team === t && /out|ir|injured reserve/i.test(String((x as any).status ?? (x as any).designation ?? ''))).length;
+  const outCount = (t: string) => injuries.filter((x) => x.team === t && isOut(x.status)).length;
   const rows = quoted.map((m) => priceRow(m, prices, marketLabel(m, (pid) => (pid === homeP.participant_id ? homeAbbr : pid === awayP.participant_id ? awayAbbr : null), playerName), null));
   const notes = r.context?.notes ?? [];
   const unavailable = scripts && !isNhlScripts(scripts) ? <ScriptsUnavailable status={scripts.status} reason={scripts.reason} /> : null;

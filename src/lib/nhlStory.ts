@@ -178,6 +178,11 @@ export function favourite(p: Projection | null, ids: SideIds): { team: string; p
   return { team, p: v, words };
 }
 
+/** An injury designation that keeps the player out of the lineup (OUT, injured reserve, LTIR), not day-to-day. */
+export function isOut(status: string | null | undefined): boolean {
+  return /^(OUT|IR|LTIR|INJURED[_ ]RESERVE|LONG[_ ]TERM[_ ]INJURED[_ ]RESERVE)$/i.test(String(status ?? '').trim());
+}
+
 // ------------------------------------------------------------------ the thesis
 
 export interface Thesis {

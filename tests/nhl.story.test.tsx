@@ -11,6 +11,7 @@ import { clearAsyncMemo } from '../src/data/hooks';
 import { isNhlScripts, readNhl, type NhlCandidate, type NhlScripts } from '../src/lib/nhl';
 import {
   HIGH_VARIANCE_FAMILIES,
+  isOut,
   conflicts,
   gamePhase,
   goalieLines,
@@ -193,6 +194,11 @@ describe('the game story', () => {
     const sk = lines.filter((p) => !p.goalie);
     const pt = (i: number) => sk[i].markets.find((m) => m.family === 'player_points' && (m.threshold ?? 0.5) <= 0.5)?.pYes ?? -1;
     for (let i = 1; i < sk.length; i++) expect(pt(i - 1)).toBeGreaterThanOrEqual(pt(i));
+  });
+
+  it('out-of-lineup designations include injured reserve, never day-to-day', () => {
+    for (const st of ['OUT', 'INJURED_RESERVE', 'IR', 'LTIR']) expect(isOut(st), st).toBe(true);
+    for (const st of ['DAY-TO-DAY', 'QUESTIONABLE', '', null]) expect(isOut(st), String(st)).toBe(false);
   });
 
   it('a game without scripts reads as such, never as an error', () => {

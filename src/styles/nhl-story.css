@@ -368,3 +368,16 @@ a.npc__n:hover { color: var(--cyan-2); }
 .nhg .gtabs { margin-top: var(--s-4); }
 .nmf__key { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -6px 0 16px; font-size: 0.78rem; color: var(--text-3); }
 @media (max-width: 420px) { .nrp > .nrp__n { display: none; } }
+/* Phones: the summary stays one glance tall so the thesis starts on the first screen. */
+@media (max-width: 560px) {
+  .nsum { gap: 10px; padding: 12px; margin-top: var(--s-3); }
+  .nsum__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-top: 10px; }
+  .nsum__stats .nstat__l { font-size: 0.62rem; letter-spacing: 0.06em; }
+  .nsum__stats .nstat__l .nglyph { display: none; }
+  .nsum__stats .nstat__v { font-size: 0.92rem; }
+  .nsum__stats .nstat__s { font-size: 0.68rem; }
+  .nsum__status { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-top: 10px; }
+  .nsum__status::-webkit-scrollbar { display: none; }
+  .nsum__status > * { flex-shrink: 0; }
+}
+@media (max-width: 560px) { .nsum__stats .nstat + .nstat .nstat__s { display: none; } }

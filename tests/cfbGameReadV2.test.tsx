@@ -33,7 +33,7 @@ function show(engine: Engine) {
  * spread of past margins, not a chance — they are removed before the check.
  */
 const FORECAST = /%|\bchance\b|\bprobab|\bpredict|\bodds\b|\bover\b|\bunder\b|\+EV\b|\blikely to\b/i;
-const forecastText = (t: string) => t.replace(/\bMiddle (50|80)%/g, 'Middle');
+const forecastText = (t: string) => t.replace(/Middle (50|80)%/g, 'Middle');
 
 afterEach(cleanup);
 

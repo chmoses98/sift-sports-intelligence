@@ -88,6 +88,7 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
   const s = doc?.signals ?? null;
 
   const read = sg?.read ?? v2.story.headline;
+  const noClaimShort = s?.no_claim.short ?? 'No supported matchup claim cleared the evidence requirements.';
   const chips = supportChips(claims, { disruption: true });
   const edges = (sg?.edges.length ? sg.edges : edgesFromClaims(claims)).slice(0, 4);
   const range = engine.claimsV2?.claims.control?.historical_range ?? null;
@@ -113,7 +114,7 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
     <div className="cfov">
       <section className={`cfq${valueWatch ? ' cfq--vw' : ''}${disagreement ? ' cfq--dis' : ''}`} aria-labelledby="cfq-h" data-testid="cfb-quick-read">
         <h2 className="cfq__eye" id="cfq-h">SIFT Read</h2>
-        <p className="cfq__read">{read}</p>
+        {!(noClaim && read === noClaimShort) && <p className="cfq__read">{read}</p>}
 
         {!noClaim && (control || chips.length > 0 || valueWatch) && (
           <div className="cfq__chips" role="list" aria-label="SIFT read claims">
@@ -172,7 +173,7 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
         {noClaim && (
           <div className="cfsig cfsig--none">
             <p className="cfsig__t"><CfbGlyph name="none" tone="none" size={16} /><b>{s?.no_claim.label ?? 'No clear SIFT read'}</b></p>
-            <p className="cfsig__n">{s?.no_claim.short ?? 'No supported matchup claim cleared the evidence requirements.'}</p>
+            <p className="cfsig__n">{noClaimShort}</p>
             <details className="cfsig__why">
               <summary>What this means</summary>
               <p>{s?.no_claim.explanation ?? 'This does not mean the game is unusually unpredictable. The current evidence taxonomy did not justify a stronger claim.'}</p>

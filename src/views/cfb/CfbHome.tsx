@@ -422,7 +422,7 @@ export function CfbHomeView() {
   };
   const pick = (f: FilterId) => {
     setParam('f', f === 'all' ? null : f);
-    requestAnimationFrame(() => document.getElementById('cfh-games')?.scrollIntoView({ block: 'start' }));
+    requestAnimationFrame(() => document.getElementById('cfh-games')?.scrollIntoView?.({ block: 'start' }));
   };
 
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;

@@ -292,35 +292,6 @@
    }
   },
   {
-   "id": "mlb-hou-daikin-park",
-   "sport": "MLB",
-   "team": "HOU",
-   "venue": "daikin-park",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Daikin (Minute Maid) Park with roof open, Union Station facade, train track and downtown skyline during an Astros game.",
-   "focus": {
-    "desktop": "50% 55%",
-    "mobile": "40% 55%"
-   },
-   "w": 2400,
-   "h": 1602,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "J Dimas",
-    "license": "CC BY 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Minute_Maid_Park_2016-04-23.jpg",
-    "file": "File:Minute Maid Park 2016-04-23.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
    "id": "mlb-kc-kauffman-stadium",
    "sport": "MLB",
    "team": "KC",
@@ -694,35 +665,6 @@
     "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
     "source": "https://commons.wikimedia.org/wiki/File:GlobeLifeField2021.jpg",
     "file": "File:GlobeLifeField2021.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
-   "id": "mlb-tor-rogers-centre",
-   "sport": "MLB",
-   "team": "TOR",
-   "venue": "rogers-centre",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Rogers Centre with retractable roof open at night, packed blue-clad home crowd, Blue Jays batting.",
-   "focus": {
-    "desktop": "50% 85%",
-    "mobile": "35% 80%"
-   },
-   "w": 2400,
-   "h": 1722,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "Arturo Pardavila III from Hoboken, NJ, USA",
-    "license": "CC BY 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:The_Blue_Jays_host_the_Orioles_in_the_AL_Wild_Card_Game_(30243609181).jpg",
-    "file": "File:The Blue Jays host the Orioles in the AL Wild Card Game (30243609181).jpg",
     "modifications": "resized and colour graded by Sift"
    }
   },

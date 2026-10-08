@@ -1146,24 +1146,6 @@
    ]
   },
   {
-   "id": "dean-e-smith-center",
-   "name": "Dean E. Smith Center",
-   "aliases": [
-    "Dean Dome",
-    "Dean Smith Center"
-   ],
-   "city": "Chapel Hill, NC",
-   "country": "US",
-   "roof": "dome",
-   "kind": "arena",
-   "tenants": [
-    {
-     "sport": "CBB",
-     "team": "UNC"
-    }
-   ]
-  },
-  {
    "id": "delaware-stadium",
    "name": "Delaware Stadium",
    "aliases": [],
@@ -2465,24 +2447,6 @@
      "sport": "NFL",
      "team": "SF",
      "from": "2014-06-01"
-    }
-   ]
-  },
-  {
-   "id": "liacouras-center",
-   "name": "Liacouras Center",
-   "aliases": [
-    "Apollo of Temple",
-    "The Liacouras Center"
-   ],
-   "city": "Philadelphia, PA",
-   "country": "US",
-   "roof": "dome",
-   "kind": "arena",
-   "tenants": [
-    {
-     "sport": "CBB",
-     "team": "TEM"
     }
    ]
   },

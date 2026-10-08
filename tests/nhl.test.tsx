@@ -26,7 +26,8 @@ import {
 } from '../src/lib/nhl';
 import { routes } from '../src/lib/routes';
 import { teamColors } from '../src/lib/teams';
-import { venueFor } from '../src/lib/venues';
+import { resolveHero } from '../src/lib/hero/resolve';
+import { heroTeam } from '../src/lib/hero/input';
 import { GameRoute } from '../src/views/Game';
 import { MarketView } from '../src/views/Market';
 import { PlayerView } from '../src/views/Player';
@@ -67,9 +68,12 @@ describe('NHL is a first-class sport', () => {
   });
 
   it('never borrows NFL stadiums, nicknames or colours for hockey clubs that share an abbreviation', () => {
-    expect(venueFor('CAR', null, 'NHL')).toBeNull();
-    expect(venueFor('SEA', 'Climate Pledge Arena', 'NHL')).toBeNull();
-    expect(venueFor('SEA', null)).not.toBeNull(); // NFL keeps its table
+    const hero = (sport: string, code: string, venueName: string | null) =>
+      resolveHero({ sport, date: '2026-10-08T23:00:00Z', home: heroTeam(sport, code, code), away: heroTeam(sport, 'MTL', 'MTL'), homeVerified: true, venueName, neutral: false });
+    // Hockey's CAR plays at Lenovo Center and SEA at Climate Pledge Arena — never the football stadiums.
+    expect(hero('NHL', 'CAR', null).venue?.id).toBe('lenovo-center');
+    expect(hero('NHL', 'SEA', 'Climate Pledge Arena').venue?.id).toBe('climate-pledge-arena');
+    expect(hero('NFL', 'SEA', null).venue?.id).toBe('lumen-field');
     expect(teamColors('NHL', 'CAR')).not.toEqual(teamColors('NFL', 'CAR'));
     const label = describeMarket({ kalshi_ticker: 'KXNHLGAME-26OCT06CARMTL-CAR', market_family: 'game_winner', yes_description: 'Carolina wins', period: 'FULL' });
     expect(label.title).toBe('Carolina to win');

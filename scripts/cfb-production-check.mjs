@@ -94,7 +94,7 @@ async function readGame(page) {
   await page.locator('.game').first().waitFor({ timeout: 60_000 });
   await page.locator('.skel').first().waitFor({ state: 'detached', timeout: 30_000 }).catch(() => {});
   // The hero logos are held images: wait until both have loaded (or the page settles without them).
-  await page.waitForFunction(() => document.querySelectorAll('.gh .teammark--logo img, .gh img.teammark--logo').length >= 2 && [...document.querySelectorAll('.gh img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
+  await page.waitForFunction(() => document.querySelectorAll('.gh .teammark--logo img, .gh img.teammark--logo').length >= 2 && [...document.querySelectorAll('.gh__team img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
   return page.evaluate((empty) => ({
     engine: !!document.querySelector('.game--engine'),
     cards: [...document.querySelectorAll('.ov--engine .eng-scard .scard__name, .stab__pick .eng-scard .scard__name, .cfdd__s .eng-scard .scard__name')].map((e) => e.textContent?.trim() ?? ''),
@@ -102,7 +102,7 @@ async function readGame(page) {
     deep: [...document.querySelectorAll('details.cfdd__s')].map((d) => d.open),
     // V2 pages keep the V1 scripts (and their honest empty state) inside the closed Deep Dive: read its text too.
     empty: document.body.innerText.includes(empty) || [...document.querySelectorAll('details.cfdd__s')].some((d) => (d.textContent ?? '').includes(empty)),
-    logos: [...document.querySelectorAll('.gh img.teammark--logo')].map((i) => ({ src: i.currentSrc || i.src, ok: i.complete && i.naturalWidth > 0 })),
+    logos: [...document.querySelectorAll('.gh__team img.teammark--logo')].map((i) => ({ src: i.currentSrc || i.src, ok: i.complete && i.naturalWidth > 0 })),
     textMarks: [...document.querySelectorAll('.gh .teammark--text')].map((e) => e.textContent?.trim()),
   }), EMPTY);
 }

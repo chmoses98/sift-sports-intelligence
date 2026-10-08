@@ -74,7 +74,7 @@ test('the NHL game page tells the story of the game @smoke', async ({ page }) =>
   }
   await expect(game.getByRole('img', { name: /Model win probability: FLA 44%, LAK 56%/ })).toBeVisible();
   await expect(game.getByRole('note', { name: 'Contradiction check' })).toBeVisible();
-  await expect(game.locator('.gh img.teammark--logo')).toHaveCount(2);
+  await expect(game.locator('.gh__team img.teammark--logo')).toHaveCount(2);
   const text = await game.innerText();
   expect(text).not.toMatch(/KXNHL|undefined|NaN/);
   expect(text).not.toMatch(BANNED);

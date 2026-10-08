@@ -1,0 +1,1409 @@
+{
+ "$comment": [
+  "THE reviewed list of game hero photographs (one per team identity and era). A pin is added only after a person has looked at the full frame and confirmed it shows THIS home team's identity (its end zones / centre-ice / court logo / signage) at THIS venue — not merely the right building. Candidates come from the contact sheets of scripts/heroes/candidates.mjs; scripts/heroes/fetch.mjs turns each pin into the served files (public/heroes/<sport>/<id>-{2400,1200,720}.webp) and src/lib/hero/photos.json, with the licence read from Commons itself.",
+  "focus: CSS object-position for the desktop band and for phones. from/to: [from, to) dates the frame represents (a branding or configuration era). neutralOk: the frame may stand for the venue at a neutral-site game. review: who checked what, when."
+ ],
+ "pins": [
+  {
+   "id": "nfl-dal-att-stadium",
+   "sport": "NFL",
+   "team": "DAL",
+   "venue": "att-stadium",
+   "file": "File:Houston Texans vs. Dallas Cowboys 2019 14 (opening kickoff).jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "38% 62%"
+   },
+   "identity": "COWBOYS end zones and the star at midfield under the AT&T Stadium videoboard",
+   "event": "Houston Texans at Dallas Cowboys, 2019",
+   "review": "2026-10-08 visual review: Cowboys home configuration (both end zones, midfield star); kept from the previous set."
+  },
+  {
+   "id": "nfl-ten-nissan-stadium-1999",
+   "sport": "NFL",
+   "team": "TEN",
+   "venue": "nissan-stadium",
+   "file": "File:Night Settles on LP Field.jpg",
+   "to": "2027-06-01",
+   "focus": {
+    "desktop": "50% 56%",
+    "mobile": "42% 60%"
+   },
+   "identity": "TITANS end zone and the Titans logo at midfield, night game",
+   "event": "Titans home playoff game, LP Field era",
+   "review": "2026-10-08 visual review: Titans end zones and midfield logo. Valid only for the 1999 stadium (the enclosed Nissan Stadium opens in 2027)."
+  },
+  {
+   "id": "nfl-jax-everbank-stadium",
+   "sport": "NFL",
+   "team": "JAX",
+   "venue": "everbank-stadium",
+   "file": "File:Chiefs at Jaguars 2025 (55037793371).jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "62% 60%"
+   },
+   "identity": "JACKSONVILLE end zone, Jaguars sideline wall and Pride of the Jaguars ring",
+   "event": "Kansas City Chiefs at Jacksonville Jaguars, 2025",
+   "review": "2026-10-08 visual review: Jaguars home configuration (end zone, wall signage, ring of honor). Away fans in the foreground; replace if a stronger Jaguars frame is found."
+  },
+  {
+   "id": "nhl-bos-td-garden",
+   "sport": "NHL",
+   "team": "BOS",
+   "venue": "td-garden",
+   "file": "File:Boston vs Montreal.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Bruins centre-ice logo and Bruins bench (2008 home playoff game: playoff decals and the TD Banknorth Garden name on the ice)",
+   "event": "Boston Bruins vs Montreal Canadiens, 2008 Stanley Cup playoffs (home playoff game, pregame ceremonies)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-buf-keybank-center",
+   "sport": "NHL",
+   "team": "BUF",
+   "venue": "keybank-center",
+   "file": "File:HSBC Arena Sabres.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "identity": "Sabres crest at centre ice and on the scoreboard, full bowl from the upper deck",
+   "event": "Buffalo Sabres home game at HSBC Arena (opponent not named in metadata)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-car-lenovo-center",
+   "sport": "NHL",
+   "team": "CAR",
+   "venue": "lenovo-center",
+   "file": "File:Hurricanes Home Ice.JPG",
+   "focus": {
+    "desktop": "50% 85%",
+    "mobile": "45% 70%"
+   },
+   "identity": "Hurricanes at home (RBC Center era), Hurricanes logo at centre ice, red bowl",
+   "event": "Carolina Hurricanes vs Boston Bruins (Glen Wesley jersey night), RBC Center",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-col-ball-arena",
+   "sport": "NHL",
+   "team": "COL",
+   "venue": "ball-arena",
+   "file": "File:Ball Arena during a game between the Colorado Avalanche and Florida Panthers during the 2025-26 season.jpg",
+   "focus": {
+    "desktop": "50% 80%",
+    "mobile": "52% 75%"
+   },
+   "identity": "Avalanche home game: Avs on the videoboard, Ball Arena centre ice",
+   "event": "Colorado Avalanche vs Florida Panthers, Ball Arena, 2025-26 season",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-edm-rogers-place",
+   "sport": "NHL",
+   "team": "EDM",
+   "venue": "rogers-place",
+   "file": "File:Philadelphia Flyers vs. Edmonton Oilers December 6, 2017.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Oilers centre ice, orange crowd, Rogers Place board",
+   "event": "Edmonton Oilers vs Philadelphia Flyers, Rogers Place (regular season)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-fla-amerant-bank-arena",
+   "sport": "NHL",
+   "team": "FLA",
+   "venue": "amerant-bank-arena",
+   "file": "File:Amerant Bank Arena during a game in November 2025 between the Panthers and Canucks.jpg",
+   "focus": {
+    "desktop": "50% 65%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Panthers centre ice, red crowd, 2024 and 2025 Stanley Cup banners",
+   "event": "Florida Panthers vs Vancouver Canucks, Amerant Bank Arena",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-min-grand-casino-arena",
+   "sport": "NHL",
+   "team": "MIN",
+   "venue": "grand-casino-arena",
+   "file": "File:Minnesota Wild at Xcel Energy Center 3-26-08 Against Edmonton - panoramio.jpg",
+   "focus": {
+    "desktop": "50% 65%",
+    "mobile": "57% 60%"
+   },
+   "identity": "Wild logo at centre ice and on the scoreboard (Xcel Energy Center era); warm, dim light",
+   "event": "Minnesota Wild vs Edmonton Oilers, Xcel Energy Center",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-mtl-bell-centre",
+   "sport": "NHL",
+   "team": "MTL",
+   "venue": "bell-centre",
+   "file": "File:Great Night for Hockey, Montreal Canadiens 3, Ottawa Senators 4, Centre Bell, Montreal, Quebec (29439731474).jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 35%"
+   },
+   "identity": "Canadiens CH at centre ice; dark foreground silhouettes under the foot gradient",
+   "event": "Montreal Canadiens vs Ottawa Senators (preseason), Centre Bell",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-nyr-madison-square-garden",
+   "sport": "NHL",
+   "team": "NYR",
+   "venue": "madison-square-garden",
+   "file": "File:Madison Square Garden Transformation Stage 3.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Rangers shield at centre ice under the MSG scoreboard",
+   "event": "New York Rangers home game, Madison Square Garden (post-renovation; opponent not named in metadata)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-sjs-sap-center",
+   "sport": "NHL",
+   "team": "SJS",
+   "venue": "sap-center",
+   "file": "File:Ice hockey at SAP Center at San Jose 2025-01-27 3.jpg",
+   "focus": {
+    "desktop": "50% 76%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Sharks centre ice, teal jerseys, SAP Center scoreboard",
+   "event": "San Jose Sharks home game, SAP Center, 2024-25 season (opponent not named in metadata)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-stl-enterprise-center",
+   "sport": "NHL",
+   "team": "STL",
+   "venue": "enterprise-center",
+   "file": "File:Scottrade Center interior.jpg",
+   "focus": {
+    "desktop": "45% 68%",
+    "mobile": "43% 65%"
+   },
+   "identity": "Blues note at centre ice (Scottrade Center era), blue crowd",
+   "event": "St. Louis Blues home game, Scottrade Center (now Enterprise Center; opponent not named in metadata)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-tbl-benchmark-international-arena",
+   "sport": "NHL",
+   "team": "TBL",
+   "venue": "benchmark-international-arena",
+   "file": "File:Tampa Bay Lightning Game.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "52% 55%"
+   },
+   "identity": "Lightning bolt at centre ice, Lecavalier and St. Louis banners, full bowl",
+   "event": "Tampa Bay Lightning vs Boston Bruins (pregame), Benchmark International Arena",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-tor-scotiabank-arena",
+   "sport": "NHL",
+   "team": "TOR",
+   "venue": "scotiabank-arena",
+   "file": "File:Scotiabank Arena Toronto Carolina March 20 2026.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "54% 55%"
+   },
+   "identity": "Maple Leafs leaf at centre ice, retired-number banners",
+   "event": "Toronto Maple Leafs vs Carolina Hurricanes, Scotiabank Arena",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nhl-van-rogers-arena",
+   "sport": "NHL",
+   "team": "VAN",
+   "venue": "rogers-arena",
+   "file": "File:Rogers Arena 2016.jpg",
+   "focus": {
+    "desktop": "60% 90%",
+    "mobile": "75% 75%"
+   },
+   "identity": "Canucks orca at centre ice, Rogers Arena board",
+   "event": "Vancouver Canucks vs Winnipeg Jets, Rogers Arena",
+   "review": "2026-10-08 verified at full resolution (Claude): home-club identity confirmed in the frame; current arena (renamed buildings are the same venue)."
+  },
+  {
+   "id": "nfl-ari-state-farm-stadium",
+   "sport": "NFL",
+   "team": "ARI",
+   "venue": "state-farm-stadium",
+   "file": "File:Packers vs Cardinals 2021 regular season game.jpg",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "40% 55%"
+   },
+   "identity": "ARIZONA end zone and the Cardinals logo at midfield, State Farm Stadium videoboard",
+   "event": "Green Bay Packers at Arizona Cardinals (2021 regular season, TNF)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-bal-mt-bank-stadium",
+   "sport": "NFL",
+   "team": "BAL",
+   "venue": "mt-bank-stadium",
+   "file": "File:M&T Bank Stadium.jpg",
+   "focus": {
+    "desktop": "40% 75%",
+    "mobile": "18% 58%"
+   },
+   "identity": "RAVENS end zone and a purple bowl at M&T Bank Stadium",
+   "event": "Cincinnati Bengals at Baltimore Ravens",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-car-bank-of-america-stadium",
+   "sport": "NFL",
+   "team": "CAR",
+   "venue": "bank-of-america-stadium",
+   "file": "File:Panther Broncos- Prestation of Colors.JPG",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 62%"
+   },
+   "identity": "PANTHERS end zone and a Carolina-blue bowl at Bank of America Stadium (pregame flag)",
+   "event": "Denver Broncos at Carolina Panthers",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-chi-soldier-field",
+   "sport": "NFL",
+   "team": "CHI",
+   "venue": "soldier-field",
+   "file": "File:Soldier Field (51762250554).jpg",
+   "focus": {
+    "desktop": "50% 72%",
+    "mobile": "55% 60%"
+   },
+   "identity": "CHICAGO end zone under the lights at Soldier Field",
+   "event": "Minnesota Vikings at Chicago Bears (MNF, 2021-12-20)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-gb-lambeau-field",
+   "sport": "NFL",
+   "team": "GB",
+   "venue": "lambeau-field",
+   "file": "File:Green Bay Packers entering the field for start of October 5, 2008 game against the Atlanta Falcons at Lambeau Field.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 58%"
+   },
+   "identity": "the Packers running onto Lambeau Field in green and gold",
+   "event": "Atlanta Falcons at Green Bay Packers",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-kc-arrowhead-stadium",
+   "sport": "NFL",
+   "team": "KC",
+   "venue": "arrowhead-stadium",
+   "file": "File:Arrowhead Stadium for Chiefs vs Chargers 10-22-2023 (1) (53283857054).jpg",
+   "focus": {
+    "desktop": "50% 78%",
+    "mobile": "55% 50%"
+   },
+   "identity": "CHIEFS end zone in a red Arrowhead bowl",
+   "event": "Los Angeles Chargers at Kansas City Chiefs",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-lar-sofi-stadium",
+   "sport": "NFL",
+   "team": "LAR",
+   "venue": "sofi-stadium",
+   "file": "File:Ramscolts2025.jpg",
+   "focus": {
+    "desktop": "50% 78%",
+    "mobile": "50% 62%"
+   },
+   "identity": "RAMS end zone and RAMS on the SoFi Stadium videoboard",
+   "event": "Indianapolis Colts at Los Angeles Rams",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-min-us-bank-stadium",
+   "sport": "NFL",
+   "team": "MIN",
+   "venue": "us-bank-stadium",
+   "file": "File:Panorama-US Bank Stadium Interior.jpg",
+   "focus": {
+    "desktop": "50% 82%",
+    "mobile": "45% 65%"
+   },
+   "identity": "VIKINGS end zone under the U.S. Bank Stadium roof",
+   "event": "Denver Broncos at Minnesota Vikings (2021 preseason)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-no-caesars-superdome",
+   "sport": "NFL",
+   "team": "NO",
+   "venue": "caesars-superdome",
+   "file": "File:Saints Stadium (3927508936).jpg",
+   "focus": {
+    "desktop": "50% 48%",
+    "mobile": "50% 52%"
+   },
+   "identity": "the fleur-de-lis at midfield and SAINTS in both end zones at the Superdome",
+   "event": "2009 Saints home game (categories: 2009 New Orleans Saints season, Louisiana Superdome interior)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium. Quality note: a 2009 phone frame (1600 px, saturated); replace when a sharper Saints home frame is found."
+  },
+  {
+   "id": "nfl-nyj-metlife-stadium",
+   "sport": "NFL",
+   "team": "NYJ",
+   "venue": "metlife-stadium",
+   "file": "File:General Daniel Hokanson, chief, National Guard Bureau, participates in activities commemorating the 22nd anniversary of the Sept. 11th attacks in September 11, 2023 - 56.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 58%"
+   },
+   "identity": "MetLife lit Jets green for a Jets home pregame (lasers, fireworks)",
+   "event": "Buffalo Bills at New York Jets (MNF, Sept 11 2023)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-sf-levis-stadium",
+   "sport": "NFL",
+   "team": "SF",
+   "venue": "levis-stadium",
+   "file": "File:Broncos vs 49ers preseason game at Levi's Stadium.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "60% 62%"
+   },
+   "identity": "49ERS end zone and the 49ers logo at midfield, Levi’s Stadium",
+   "event": "Denver Broncos at San Francisco 49ers (2014 preseason, Levi's Stadium first season)",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "nfl-was-northwest-stadium",
+   "sport": "NFL",
+   "team": "WAS",
+   "venue": "northwest-stadium",
+   "file": "File:Atlanta Falcons at Washington Commanders 2024 16.jpg",
+   "focus": {
+    "desktop": "50% 72%",
+    "mobile": "45% 55%"
+   },
+   "identity": "the Commanders W at midfield and a burgundy-and-gold sideline",
+   "event": "Atlanta Falcons at Washington Commanders",
+   "review": "2026-10-08 verified at full resolution (Claude): home-team identity confirmed in the frame at its current stadium."
+  },
+  {
+   "id": "mlb-atl-truist-park",
+   "sport": "MLB",
+   "team": "ATL",
+   "venue": "truist-park",
+   "file": "File:Truist Park 2025.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Elevated full-field view, Braves logo on grass, Truist Park canopy and scoreboard, packed home crowd vs Padres.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-az-chase-field",
+   "sport": "MLB",
+   "team": "AZ",
+   "venue": "chase-field",
+   "file": "File:Chase Field, July 3, 2021.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "45% 55%"
+   },
+   "identity": "Chase Field interior during D-backs vs Giants, roof closed, home scoreboard/signage and Sedona-red D-backs facade.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-bal-camden-yards",
+   "sport": "MLB",
+   "team": "BAL",
+   "venue": "camden-yards",
+   "file": "File:OrioleParkatCamdenYardsSummer2025.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "55% 50%"
+   },
+   "identity": "B&O Warehouse, Camden Yards brick arcade and Baltimore skyline, Orioles home game vs Tigers.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-bos-fenway-park",
+   "sport": "MLB",
+   "team": "BOS",
+   "venue": "fenway-park",
+   "file": "File:Fenway under the lights.JPG",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Fenway Park under the lights: bleachers, light tower, John Hancock board, Red Sox pitcher on mound vs Yankees.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-chc-wrigley-field",
+   "sport": "MLB",
+   "team": "CHC",
+   "venue": "wrigley-field",
+   "file": "File:Wrigley Field 2018 - 42195054760.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Wrigley Field panorama: ivy, bleachers, video board with Cubs logo, Sunday Night Baseball vs Nationals.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-cin-great-american-ball-park",
+   "sport": "MLB",
+   "team": "CIN",
+   "venue": "great-american-ball-park",
+   "file": "File:Great American Ball Park (20267321373).jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "55% 50%"
+   },
+   "identity": "Great American Ball Park at night with smokestacks, Reds wordmark signage and riverfront, Tigers at Reds.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-cle-progressive-field",
+   "sport": "MLB",
+   "team": "CLE",
+   "venue": "progressive-field",
+   "file": "File:2023 Cleveland Guardians Home Opener - 52850272150.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Progressive Field 2023 home opener, Guardians script on the grass and Guardians signage after the rebrand.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-col-coors-field",
+   "sport": "MLB",
+   "team": "COL",
+   "venue": "coors-field",
+   "file": "File:Coors Field July 2015.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Coors Field during Rockies vs Reds, purple row/rooftop deck area and mountains backdrop in evening light.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-cws-rate-field",
+   "sport": "MLB",
+   "team": "CWS",
+   "venue": "rate-field",
+   "file": "File:U.S. Cellular Field (30972191694).jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Rate Field at dusk with exploding pinwheel scoreboard and White Sox home crowd.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-det-comerica-park",
+   "sport": "MLB",
+   "team": "DET",
+   "venue": "comerica-park",
+   "file": "File:Comerica Park, Home of the Detroit Tigers Baseball Team.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "55% 60%"
+   },
+   "identity": "Comerica Park during a game with Detroit skyline, Detroit Athletic Club and full stands behind the field.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-kc-kauffman-stadium",
+   "sport": "MLB",
+   "team": "KC",
+   "venue": "kauffman-stadium",
+   "file": "File:Kauffman Stadium at night, 2009.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 40%"
+   },
+   "identity": "Kauffman Stadium at night: crown scoreboard and lit fountains, Royals fans in the stands.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-laa-angel-stadium",
+   "sport": "MLB",
+   "team": "LAA",
+   "venue": "angel-stadium",
+   "file": "File:Angel Stadium of Anaheim (31714556991).jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "45% 55%"
+   },
+   "identity": "Angel Stadium golden hour: outfield rock pile, Big A sign, Angels A logo on the grass, Reds at Angels.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-lad-dodger-stadium",
+   "sport": "MLB",
+   "team": "LAD",
+   "venue": "dodger-stadium",
+   "file": "File:Dodger Stadium from Top Deck night 2021-06-28.jpg",
+   "focus": {
+    "desktop": "50% 35%",
+    "mobile": "50% 40%"
+   },
+   "identity": "Dodger Stadium from the Top Deck at night: full crowd, pavilion roofs, light towers, Dodgers vs Giants.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-min-target-field",
+   "sport": "MLB",
+   "team": "MIN",
+   "venue": "target-field",
+   "file": "File:Target Field-20100730.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "40% 55%"
+   },
+   "identity": "Target Field at night: Twins script atop scoreboard, Minnie & Paul sign, Twins vs Mariners.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-nym-citi-field",
+   "sport": "MLB",
+   "team": "NYM",
+   "venue": "citi-field",
+   "file": "File:Citi Field 2011.JPG",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 45%"
+   },
+   "identity": "Citi Field at night from behind home: Citi Field and Let's Go Mets scoreboard, Mets script behind the plate.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-nyy-yankee-stadium",
+   "sport": "MLB",
+   "team": "NYY",
+   "venue": "yankee-stadium",
+   "file": "File:The view from the Grandstand Level at New Yankee Stadium.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "40% 50%"
+   },
+   "identity": "New Yankee Stadium frieze framing the field, NY logo behind plate and Yankees scoreboard, Bronx skyline.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-phi-citizens-bank-park",
+   "sport": "MLB",
+   "team": "PHI",
+   "venue": "citizens-bank-park",
+   "file": "File:Citizens Bank Park - Wide View.jpg",
+   "focus": {
+    "desktop": "50% 35%",
+    "mobile": "60% 50%"
+   },
+   "identity": "Citizens Bank Park at night: Phillies script atop scoreboard, Citizens Bank Park sign, full home crowd vs White Sox.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-pit-pnc-park",
+   "sport": "MLB",
+   "team": "PIT",
+   "venue": "pnc-park",
+   "file": "File:PNC Park (25509297558).jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "50% 55%"
+   },
+   "identity": "PNC Park golden hour: PNC Park scoreboard, Clemente Bridge and Pittsburgh skyline, Reds at Pirates.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-sea-t-mobile-park",
+   "sport": "MLB",
+   "team": "SEA",
+   "venue": "t-mobile-park",
+   "file": "File:T-Mobile Park 2026.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "40% 50%"
+   },
+   "identity": "T-Mobile Park with roof open, Seattle skyline, Welcome to the Sound signage, White Sox vs Mariners.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-sf-oracle-park",
+   "sport": "MLB",
+   "team": "SF",
+   "venue": "oracle-park",
+   "file": "File:Oracle Park 2026-05-22 2.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "45% 60%"
+   },
+   "identity": "Oracle Park at dusk: Oracle Park sign on scoreboard, brick arcade and San Francisco Bay, Giants home game.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-stl-busch-stadium",
+   "sport": "MLB",
+   "team": "STL",
+   "venue": "busch-stadium",
+   "file": "File:Busch Stadium III (16180972535).jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Busch Stadium with Gateway Arch, Old Courthouse and red seats, Reds at Cardinals.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-tb-tropicana-field",
+   "sport": "MLB",
+   "team": "TB",
+   "venue": "tropicana-field",
+   "file": "File:PXL 20220528 205520913.jpg",
+   "focus": {
+    "desktop": "50% 74%",
+    "mobile": "50% 40%"
+   },
+   "identity": "Tropicana Field interior: tilted dome with catwalk rings, Tropicana sign, Rays home game vs Yankees.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "mlb-tex-globe-life-field",
+   "sport": "MLB",
+   "team": "TEX",
+   "venue": "globe-life-field",
+   "file": "File:GlobeLifeField2021.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Globe Life Field interior, Rangers T logo behind home plate, Rangers home game vs Athletics.",
+   "event": "",
+   "review": "2026-10-08 verified at full resolution (Claude): the home club’s own ballpark in its current identity era; club branding or unmistakable home architecture in frame."
+  },
+  {
+   "id": "cbb-ark-bud-walton-arena",
+   "sport": "CBB",
+   "team": "ARK",
+   "venue": "bud-walton-arena",
+   "file": "File:Kentucky at Arkansas basketball 2016, 002.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "identity": "hog logo at centre court, RAZORBACKS scoreboard, a white-out crowd",
+   "event": "Kentucky at Arkansas men's basketball, 2016-01-21 (white-out crowd)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cbb-cin-fifth-third-arena",
+   "sport": "CBB",
+   "team": "CIN",
+   "venue": "fifth-third-arena",
+   "file": "File:Fifth Third Interior.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "75% 50%"
+   },
+   "identity": "Cincinnati C-paw at centre court and a red full house",
+   "event": "Houston at Cincinnati men's basketball, 2019-03-10 (view from Section 201)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cbb-day-ud-arena",
+   "sport": "CBB",
+   "team": "DAY",
+   "venue": "ud-arena",
+   "file": "File:Youngstown State vs. Dayton, UD Arena, 11-24-23.jpg",
+   "focus": {
+    "desktop": "50% 43%",
+    "mobile": "50% 50%"
+   },
+   "identity": "DAYTON FLYERS signage and a red UD Arena full house (anthem)",
+   "event": "Youngstown State at Dayton men's basketball, 2023-11-24 (national anthem)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cbb-duke-cameron-indoor-stadium",
+   "sport": "CBB",
+   "team": "DUKE",
+   "venue": "cameron-indoor-stadium",
+   "file": "File:Duke women's basketball 12172013.jpg",
+   "focus": {
+    "desktop": "50% 40%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Coach K Court, the Duke logo and the Cameron Indoor Stadium fascia (a women’s game on the same home court)",
+   "event": "UConn at Duke WOMEN'S basketball tip-off, 2013-12-17",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cbb-osu-value-city-arena",
+   "sport": "CBB",
+   "team": "OSU",
+   "venue": "value-city-arena",
+   "file": "File:Duke Blue Devils v Ohio State University Buckeyes.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Ohio State block-O at centre court, BUCKEYE NUTHOUSE signage, Value City Arena",
+   "event": "Duke Blue Devils at Ohio State Buckeyes, Big Ten/ACC Challenge (on-campus home game), Nov 30, 2021",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cbb-uk-rupp-arena",
+   "sport": "CBB",
+   "team": "UK",
+   "venue": "rupp-arena",
+   "file": "File:Rupp Arena, Arkansas at Kentucky, February 2023.jpg",
+   "focus": {
+    "desktop": "50% 72%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Kentucky KY at centre court and a blue Rupp Arena full house",
+   "event": "Arkansas Razorbacks at Kentucky Wildcats, men's regular season (Feb 7, 2023)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cbb-uva-john-paul-jones-arena",
+   "sport": "CBB",
+   "team": "UVA",
+   "venue": "john-paul-jones-arena",
+   "file": "File:UVA vs Duke, Feb. 2022.jpg",
+   "focus": {
+    "desktop": "55% 76%",
+    "mobile": "55% 70%"
+   },
+   "identity": "Virginia V-sabre court and an orange John Paul Jones Arena crowd",
+   "event": "Duke Blue Devils at Virginia Cavaliers, ACC men's regular season (Feb 23, 2022)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home court and identity in frame."
+  },
+  {
+   "id": "cfb-afa-falcon-stadium",
+   "sport": "CFB",
+   "team": "AFA",
+   "venue": "falcon-stadium",
+   "file": "File:Air Force Academy Stadium.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "40% 50%"
+   },
+   "identity": "AIR FORCE end zone, giant flag on field, blue-clad full crowd",
+   "event": "Air Force home game at Falcon Stadium, Sept 2011",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ala-bryant-denny-stadium",
+   "sport": "CFB",
+   "team": "ALA",
+   "venue": "bryant-denny-stadium",
+   "file": "File:Bryant-Denny 10-22-11.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "72% 50%"
+   },
+   "identity": "ALABAMA end zone, script-A midfield, crimson crowd at night",
+   "event": "Tennessee at Alabama, Oct 22 2011",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ark-razorback-stadium",
+   "sport": "CFB",
+   "team": "ARK",
+   "venue": "razorback-stadium",
+   "file": "File:Texas A&M at Arkansas, 2013.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "25% 50%"
+   },
+   "identity": "RAZORBACKS end zone lettering, hog midfield logo, red crowd",
+   "event": "Texas A&M at Arkansas, Sept 28 2013",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-bay-mclane-stadium",
+   "sport": "CFB",
+   "team": "BAY",
+   "venue": "mclane-stadium",
+   "file": "File:Theline.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "identity": "BAYLOR end zone, Baylor Line in gold, McLane Stadium video board",
+   "event": "Baylor home game at McLane Stadium (Baylor Line tunnel)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-bsu-albertsons-stadium",
+   "sport": "CFB",
+   "team": "BSU",
+   "venue": "albertsons-stadium",
+   "file": "File:BSUvsFresnoSt.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "22% 50%"
+   },
+   "identity": "Blue turf, BOISE STATE orange end zone, night crowd",
+   "event": "Fresno State at Boise State, Nov 9 2018",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-byu-lavell-edwards-stadium",
+   "sport": "CFB",
+   "team": "BYU",
+   "venue": "lavell-edwards-stadium",
+   "file": "File:BYU Football.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "45% 50%"
+   },
+   "identity": "BYU end zone lettering, white/blue-clad crowd, night",
+   "event": "BYU home game at LaVell Edwards Stadium, Sept 3 2016",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-cal-california-memorial-stadium",
+   "sport": "CFB",
+   "team": "CAL",
+   "venue": "california-memorial-stadium",
+   "file": "File:Gameday at California Memorial Stadium.jpg",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "35% 50%"
+   },
+   "identity": "CALIFORNIA end zone, Cal logo midfield, blue/gold fans",
+   "event": "Cal home game at California Memorial Stadium, Sept 18 2021",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-clem-clemson-memorial-stadium",
+   "sport": "CFB",
+   "team": "CLEM",
+   "venue": "clemson-memorial-stadium",
+   "file": "File:Clemson Memorial Stadium - Clemson University - DSC07482.JPG",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "40% 50%"
+   },
+   "identity": "Team running down the Hill, orange balloons, CLEMSON end zone, orange crowd",
+   "event": "Florida State at Clemson, Oct 19 2013",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-cmu-kelly-shorts-stadium",
+   "sport": "CFB",
+   "team": "CMU",
+   "venue": "kelly-shorts-stadium",
+   "file": "File:Kelly Shorts Stadium.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "70% 50%"
+   },
+   "identity": "CHIPPEWAS maroon/gold end zone, CMU press box, full crowd",
+   "event": "Michigan State at Central Michigan, Sept 8 2012",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-colo-folsom-field",
+   "sport": "CFB",
+   "team": "COLO",
+   "venue": "folsom-field",
+   "file": "File:Folsom Field vs. Utah 2016.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "45% 50%"
+   },
+   "identity": "BUFFS end zone, Champions Center, sellout night crowd",
+   "event": "Utah at Colorado, Nov 26 2016",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-duke-wallace-wade-stadium",
+   "sport": "CFB",
+   "team": "DUKE",
+   "venue": "wallace-wade-stadium",
+   "file": "File:2018 Virginia Tech @ Duke opening kickoff.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "45% 50%"
+   },
+   "identity": "Duke D midfield logo, blue stands, post-2016 renovation",
+   "event": "Virginia Tech at Duke, Sept 29 2018 opening kickoff",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-fla-ben-hill-griffin-stadium",
+   "sport": "CFB",
+   "team": "FLA",
+   "venue": "ben-hill-griffin-stadium",
+   "file": "File:Ben Hill Griffin Stadium during a Florida Gators football game against the Tennessee Volunteers in November 2025.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "58% 50%"
+   },
+   "identity": "Gator head midfield logo, FLORIDA sideline signage, packed Swamp",
+   "event": "Tennessee at Florida, Nov 22 2025",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-gt-bobby-dodd-stadium",
+   "sport": "CFB",
+   "team": "GT",
+   "venue": "bobby-dodd-stadium",
+   "file": "File:BobbyDoddStadiumGTMiami2008.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "45% 50%"
+   },
+   "identity": "Atlanta skyline over Bobby Dodd, gold end zone lettering, white-clad crowd",
+   "event": "Miami at Georgia Tech, Nov 20 2008 (night)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-hou-tdecu-stadium",
+   "sport": "CFB",
+   "team": "HOU",
+   "venue": "tdecu-stadium",
+   "file": "File:Night panorama of TDECU Stadium.JPG",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "62% 50%"
+   },
+   "identity": "COUGARS end zone, UH red crowd, TDECU bowl",
+   "event": "TDECU Stadium opener (UTSA at Houston), Aug 29 2014 night",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ill-illinois-memorial-stadium",
+   "sport": "CFB",
+   "team": "ILL",
+   "venue": "illinois-memorial-stadium",
+   "file": "File:Iowa Illinois 005.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "55% 50%"
+   },
+   "identity": "Block I midfield, orange-and-blue I flags, orange-clad crowd",
+   "event": "Iowa at Illinois, 2008",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ind-indiana-memorial-stadium",
+   "sport": "CFB",
+   "team": "IND",
+   "venue": "indiana-memorial-stadium",
+   "file": "File:GEU 0557.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "60% 50%"
+   },
+   "identity": "INDIANA crimson end zone, cream-and-crimson packed crowd",
+   "event": "Nebraska at Indiana, Oct 19 2024",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-kent-dix-stadium",
+   "sport": "CFB",
+   "team": "KENT",
+   "venue": "dix-stadium",
+   "file": "File:Dix Stadium 2012.JPG",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Kent State end zone lettering in gold, Dix west stands full",
+   "event": "Ohio at Kent State, Nov 23 2012",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-lou-ln-stadium",
+   "sport": "CFB",
+   "team": "LOU",
+   "venue": "ln-stadium",
+   "file": "File:CardinalStadiumUL7.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "45% 50%"
+   },
+   "identity": "LOUISVILLE end zone with Cardinal head, red-clad full crowd",
+   "event": "Louisville home night game, Sept 15 2018 (post-expansion)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-lsu-tiger-stadium-lsu",
+   "sport": "CFB",
+   "team": "LSU",
+   "venue": "tiger-stadium-lsu",
+   "file": "File:LSU Tigers vs Nicholls Colonels at Tiger Stadium 09-07-2024 (19).jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "30% 50%"
+   },
+   "identity": "LSU purple/gold end zone, eye-of-tiger midfield, Tiger Stadium bowl",
+   "event": "Nicholls at LSU, Sept 7 2024",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-mich-michigan-stadium",
+   "sport": "CFB",
+   "team": "MICH",
+   "venue": "michigan-stadium",
+   "file": "File:Western Michigan Broncos at Michigan Wolverines football 2026 02.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "40% 50%"
+   },
+   "identity": "Block M midfield, MICHIGAN end zone, maize-out crowd at night",
+   "event": "Western Michigan at Michigan, Sept 5 2026",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-minn-huntington-bank-stadium",
+   "sport": "CFB",
+   "team": "MINN",
+   "venue": "huntington-bank-stadium",
+   "file": "File:Michigan vs Minnesota at Huntington Bank Stadium.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "70% 50%"
+   },
+   "identity": "MINNESOTA maroon/gold end zone, Gophers board, full night crowd",
+   "event": "Michigan at Minnesota, Oct 7 2023",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-mrsh-joan-c-edwards-stadium",
+   "sport": "CFB",
+   "team": "MRSH",
+   "venue": "joan-c-edwards-stadium",
+   "file": "File:Striping the Joan C. Edwards Stadium.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "35% 50%"
+   },
+   "identity": "MARSHALL end zone, green-and-white striped crowd",
+   "event": "Louisville at Marshall, Sept 2016 (night)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-msu-spartan-stadium",
+   "sport": "CFB",
+   "team": "MSU",
+   "venue": "spartan-stadium",
+   "file": "File:Spartan Stadium in 2025 During a game against Western Michigan.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "60% 50%"
+   },
+   "identity": "Spartan helmet midfield, SPARTANS end zone, green/white stripe-out at sunset",
+   "event": "Western Michigan at Michigan State, Aug 29 2025",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-navy-navy-marine-corps-memorial-stadium",
+   "sport": "CFB",
+   "team": "NAVY",
+   "venue": "navy-marine-corps-memorial-stadium",
+   "file": "File:2005 Stanford-Navy Game at Navy-Marine Corps Memorial Stadium.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Blue/gold checkerboard end zones, N midfield, Brigade of Midshipmen in white",
+   "event": "Stanford at Navy, Sept 10 2005 (night)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-nd-notre-dame-stadium",
+   "sport": "CFB",
+   "team": "ND",
+   "venue": "notre-dame-stadium",
+   "file": "File:NotreDameStadiumNight.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "48% 45%"
+   },
+   "identity": "Interlocking ND logo on the post-Crossroads video board and at midfield; full Notre Dame Stadium crowd",
+   "event": "Notre Dame night home game, Oct 2021 (most likely vs USC, 23 Oct 2021; file date reads 22 Oct)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-neb-nebraska-memorial-stadium",
+   "sport": "CFB",
+   "team": "NEB",
+   "venue": "nebraska-memorial-stadium",
+   "file": "File:MemorialStadium 260912.jpg",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "55% 55%"
+   },
+   "identity": "Sea of red, red HUSKERS end zone, Nebraska Memorial Stadium press box and east stadium",
+   "event": "Bowling Green at Nebraska, 12 Sep 2026",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ohio-peden-stadium",
+   "sport": "CFB",
+   "team": "OHIO",
+   "venue": "peden-stadium",
+   "file": "File:Peden Stadium 2018.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "40% 60%"
+   },
+   "identity": "Green OHIO end zone lettering, Ohio sideline and Peden Stadium home grandstand",
+   "event": "Howard at Ohio, 1 Sep 2018",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-okla-oklahoma-memorial-stadium",
+   "sport": "CFB",
+   "team": "OKLA",
+   "venue": "oklahoma-memorial-stadium",
+   "file": "File:The Pride of Oklahoma Marching Band, Gaylord Family Oklahoma Memorial Stadium, LSU vs Oklahoma, 2025 (2).jpg",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "55% 50%"
+   },
+   "identity": "OKLAHOMA crimson end zone, Pride of Oklahoma band on field, 'Sooner Tag' on video board",
+   "event": "LSU at Oklahoma, 29 Nov 2025",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ore-autzen-stadium",
+   "sport": "CFB",
+   "team": "ORE",
+   "venue": "autzen-stadium",
+   "file": "File:Autzen Stadium, Eugene, Oregon - 24 (2012).JPG",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "58% 55%"
+   },
+   "identity": "Yellow OREGON end zone, green-and-yellow full Autzen crowd at dusk",
+   "event": "Arkansas State at Oregon, 1 Sep 2012",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-osu-ohio-stadium",
+   "sport": "CFB",
+   "team": "OSU",
+   "venue": "ohio-stadium",
+   "file": "File:OSU football 05.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "50% 55%"
+   },
+   "identity": "Scarlet BUCKEYES end zone, Buckeyes in scarlet warming up, scarlet-clad Ohio Stadium stands",
+   "event": "Illinois at Ohio State, 3 Nov 2012 (pregame warm-up)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-rutg-shi-stadium",
+   "sport": "CFB",
+   "team": "RUTG",
+   "venue": "shi-stadium",
+   "file": "File:Michigan at Rutgers November 5 2022 Third Quarter 2 Yard Line.jpg",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "62% 55%"
+   },
+   "identity": "Giant scarlet RUTGERS end zone, Rutgers in scarlet at the goal line, SHI Stadium signage",
+   "event": "Michigan at Rutgers, 5 Nov 2022",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-sdsu-snapdragon-stadium",
+   "sport": "CFB",
+   "team": "SDSU",
+   "venue": "snapdragon-stadium",
+   "file": "File:Snapdragon Stadium interior-Night game field 4.jpg",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "45% 50%"
+   },
+   "identity": "Red SAN DIEGO STATE end zone lettering, Aztecs in red, red-clad Snapdragon Stadium crowd",
+   "event": "Hawaii at San Diego State, 8 Oct 2022",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-syr-jma-wireless-dome",
+   "sport": "CFB",
+   "team": "SYR",
+   "venue": "jma-wireless-dome",
+   "file": "File:Kyle McCord gives the football to LeQuint Allen 02.jpg",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "45% 60%"
+   },
+   "identity": "Orange-clad JMA Wireless Dome crowd, Syracuse in navy/orange, SYRACUSE sideline banner and Ring of Honor",
+   "event": "Stanford at Syracuse, 20 Sep 2024",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-tcu-amon-g-carter-stadium",
+   "sport": "CFB",
+   "team": "TCU",
+   "venue": "amon-g-carter-stadium",
+   "file": "File:Southern Methodist vs. Texas Christian football 2019 05 (Southern Methodist kicking off).jpg",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "50% 50%"
+   },
+   "identity": "Purple HORNED FROGS end zone, TCU midfield logo, purple-clad Amon G. Carter crowd",
+   "event": "SMU at TCU, 21 Sep 2019",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-tuln-yulman-stadium",
+   "sport": "CFB",
+   "team": "TULN",
+   "venue": "yulman-stadium",
+   "file": "File:Yulman Stadium opening day (top corner).jpg",
+   "focus": {
+    "desktop": "50% 38%",
+    "mobile": "70% 45%"
+   },
+   "identity": "Tulane logo on the Wilson press center, green checkerboard end zone, green-and-blue Yulman crowd",
+   "event": "Georgia Tech at Tulane, 6 Sep 2014 (Yulman Stadium opener)",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ucf-fbc-mortgage-stadium",
+   "sport": "CFB",
+   "team": "UCF",
+   "venue": "fbc-mortgage-stadium",
+   "file": "File:2021UCFvsUConn-JohnnyRichardson.jpg",
+   "focus": {
+    "desktop": "62% 50%",
+    "mobile": "62% 50%"
+   },
+   "identity": "KNIGHTS end zone, '2017 National Champions' and conference-champions signage on the Bounce House press box, black-clad crowd",
+   "event": "UConn at UCF, 20 Nov 2021",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-ucla-rose-bowl",
+   "sport": "CFB",
+   "team": "UCLA",
+   "venue": "rose-bowl",
+   "file": "File:OregonAtUCLA10232021.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "50% 40%"
+   },
+   "identity": "UCLA end-zone lettering and midfield script, 'Spieker Field at the Rose Bowl' banner, UCLA-blue crowd",
+   "event": "Oregon at UCLA, 23 Oct 2021",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-uga-sanford-stadium",
+   "sport": "CFB",
+   "team": "UGA",
+   "venue": "sanford-stadium",
+   "file": "File:UGA vs. Marshall at Sanford Stadium, 2025.jpg",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 60%"
+   },
+   "identity": "Red BULLDOGS end zone, G midfield logo, red-clad Sanford Stadium stands and video board",
+   "event": "Marshall at Georgia, 30 Aug 2025",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-utah-rice-eccles-stadium",
+   "sport": "CFB",
+   "team": "UTAH",
+   "venue": "rice-eccles-stadium",
+   "file": "File:Ken Garff South End zone at Rice-Eccles Stadium.jpg",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "45% 45%"
+   },
+   "identity": "Red UTES end zone, red-out Rice-Eccles crowd, Utah video board, new south end-zone stands",
+   "event": "Oregon State at Utah, 1 Oct 2022",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-vt-lane-stadium",
+   "sport": "CFB",
+   "team": "VT",
+   "venue": "lane-stadium",
+   "file": "File:Virginia Tech Flag Bearers Run Out On Field.png",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "identity": "VT midfield logo, maroon HOKIES end zone, flag runners, packed maroon-and-orange Lane Stadium stands",
+   "event": "Marshall at Virginia Tech, 7 Sep 2024",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  },
+  {
+   "id": "cfb-wyo-war-memorial-stadium-wyo",
+   "sport": "CFB",
+   "team": "WYO",
+   "venue": "war-memorial-stadium-wyo",
+   "file": "File:Wyoming Cowboys Football Game (52331204627).jpg",
+   "focus": {
+    "desktop": "55% 35%",
+    "mobile": "55% 40%"
+   },
+   "identity": "Gold-and-brown COWBOYS end zone, Steamboat flag rider on horseback, gold-clad War Memorial crowd",
+   "event": "Tulsa at Wyoming, 3 Sep 2022",
+   "review": "2026-10-08 verified at full resolution (Claude): the school’s own home stadium, with its end-zone lettering, midfield logo or school-colour crowd in frame."
+  }
+ ]
+}

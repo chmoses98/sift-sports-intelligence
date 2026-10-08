@@ -1,0 +1,4651 @@
+{
+ "$schema_version": 1,
+ "$comment": [
+  "SIFT hero venue registry: one entry per PHYSICAL venue. Read by src/lib/hero/resolve.ts.",
+  "tenants: the home teams that play there, per sport, with optional [from, to) ISO dates. A venue hosting several teams (MetLife: Giants and Jets; TD Garden: Bruins and Celtics; Hard Rock: Dolphins and Miami Hurricanes) lists each tenant; the hero always shows the ACTUAL home team's identity, never the building's other tenant.",
+  "A name may appear on more than one venue only when the game's date or the home team separates them (old/new Highmark Stadium; the many 'Memorial Stadium's).",
+  "kind 'neutral' venues have no tenants: they resolve from a published venue name only and always produce a neutral-site hero.",
+  "NBA tenants exist so shared arenas stay tenant-correct; Sift publishes no NBA game pages today.",
+  "Photos are NOT here: see src/lib/hero/photos.json (each photo names its venue AND the team whose identity it shows)."
+ ],
+ "venues": [
+  {
+   "id": "acrisure-stadium",
+   "name": "Acrisure Stadium",
+   "aliases": [
+    "Heinz Field"
+   ],
+   "city": "Pittsburgh, PA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "PIT",
+     "from": "2001-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "PITT"
+    }
+   ]
+  },
+  {
+   "id": "aggie-memorial-stadium",
+   "name": "Aggie Memorial Stadium",
+   "aliases": [],
+   "city": "Las Cruces, NM",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NMSU"
+    }
+   ]
+  },
+  {
+   "id": "alamodome",
+   "name": "Alamodome",
+   "aliases": [],
+   "city": "San Antonio, TX",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UTSA"
+    }
+   ]
+  },
+  {
+   "id": "albertsons-stadium",
+   "name": "Albertsons Stadium",
+   "aliases": [
+    "Bronco Stadium"
+   ],
+   "city": "Boise, ID",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BSU"
+    }
+   ]
+  },
+  {
+   "id": "allegacy-stadium",
+   "name": "Allegacy Federal Credit Union Stadium",
+   "aliases": [
+    "BB&T Field",
+    "Truist Field"
+   ],
+   "city": "Winston-Salem, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WAKE"
+    }
+   ]
+  },
+  {
+   "id": "allegiant-stadium",
+   "name": "Allegiant Stadium",
+   "aliases": [],
+   "city": "Paradise, NV",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "LV",
+     "from": "2020-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "UNLV",
+     "from": "2020-06-01"
+    }
+   ]
+  },
+  {
+   "id": "allianz-arena",
+   "name": "Allianz Arena",
+   "aliases": [
+    "Fußball Arena München",
+    "Munich Football Arena"
+   ],
+   "city": "Munich, Germany",
+   "country": "DE",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "aloha-stadium",
+   "name": "Aloha Stadium",
+   "aliases": [],
+   "city": "Honolulu, HI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "HAW",
+     "to": "2021-06-01"
+    }
+   ]
+  },
+  {
+   "id": "alumni-stadium-bc",
+   "name": "Alumni Stadium",
+   "aliases": [],
+   "city": "Chestnut Hill, MA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BC"
+    }
+   ]
+  },
+  {
+   "id": "amerant-bank-arena",
+   "name": "Amerant Bank Arena",
+   "aliases": [
+    "BB&T Center",
+    "FLA Live Arena"
+   ],
+   "city": "Sunrise, FL",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "FLA"
+    }
+   ]
+  },
+  {
+   "id": "american-airlines-center",
+   "name": "American Airlines Center",
+   "aliases": [],
+   "city": "Dallas, TX",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "DAL"
+    },
+    {
+     "sport": "NBA",
+     "team": "DAL"
+    }
+   ]
+  },
+  {
+   "id": "american-family-field",
+   "name": "American Family Field",
+   "aliases": [
+    "Miller Park"
+   ],
+   "city": "Milwaukee, WI",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "MIL"
+    }
+   ]
+  },
+  {
+   "id": "amon-g-carter-stadium",
+   "name": "Amon G. Carter Stadium",
+   "aliases": [],
+   "city": "Fort Worth, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TCU"
+    }
+   ]
+  },
+  {
+   "id": "angel-stadium",
+   "name": "Angel Stadium",
+   "aliases": [
+    "Angel Stadium of Anaheim"
+   ],
+   "city": "Anaheim, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "LAA"
+    }
+   ]
+  },
+  {
+   "id": "arizona-stadium",
+   "name": "Arizona Stadium",
+   "aliases": [
+    "Casino Del Sol Stadium"
+   ],
+   "city": "Tucson, AZ",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ARIZ"
+    }
+   ]
+  },
+  {
+   "id": "arrowhead-stadium",
+   "name": "GEHA Field at Arrowhead Stadium",
+   "aliases": [
+    "Arrowhead Stadium"
+   ],
+   "city": "Kansas City, MO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "KC",
+     "from": "1972-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "KU",
+     "from": "2024-06-01",
+     "to": "2025-06-01"
+    }
+   ]
+  },
+  {
+   "id": "att-stadium",
+   "name": "AT&T Stadium",
+   "aliases": [
+    "Cowboys Stadium"
+   ],
+   "city": "Arlington, TX",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "DAL",
+     "from": "2009-06-01"
+    }
+   ]
+  },
+  {
+   "id": "autzen-stadium",
+   "name": "Autzen Stadium",
+   "aliases": [],
+   "city": "Eugene, OR",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ORE"
+    }
+   ]
+  },
+  {
+   "id": "ball-arena",
+   "name": "Ball Arena",
+   "aliases": [
+    "Pepsi Center"
+   ],
+   "city": "Denver, CO",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "COL"
+    },
+    {
+     "sport": "NBA",
+     "team": "DEN"
+    }
+   ]
+  },
+  {
+   "id": "ballard-stadium",
+   "name": "S.B. Ballard Stadium",
+   "aliases": [],
+   "city": "Norfolk, VA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ODU"
+    }
+   ]
+  },
+  {
+   "id": "bank-of-america-stadium",
+   "name": "Bank of America Stadium",
+   "aliases": [
+    "Ericsson Stadium",
+    "Panthers Stadium"
+   ],
+   "city": "Charlotte, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "CAR",
+     "from": "1996-06-01"
+    }
+   ]
+  },
+  {
+   "id": "barclays-center",
+   "name": "Barclays Center",
+   "aliases": [],
+   "city": "Brooklyn, NY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "BKN"
+    }
+   ]
+  },
+  {
+   "id": "beaver-stadium",
+   "name": "Beaver Stadium",
+   "aliases": [],
+   "city": "University Park, PA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "PSU"
+    }
+   ]
+  },
+  {
+   "id": "bell-centre",
+   "name": "Bell Centre",
+   "aliases": [
+    "Centre Bell"
+   ],
+   "city": "Montreal, QC",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "MTL"
+    }
+   ]
+  },
+  {
+   "id": "ben-hill-griffin-stadium",
+   "name": "Ben Hill Griffin Stadium",
+   "aliases": [
+    "Florida Field",
+    "Steve Spurrier-Florida Field",
+    "The Swamp"
+   ],
+   "city": "Gainesville, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "FLA"
+    }
+   ]
+  },
+  {
+   "id": "benchmark-international-arena",
+   "name": "Benchmark International Arena",
+   "aliases": [
+    "Amalie Arena"
+   ],
+   "city": "Tampa, FL",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "TBL"
+    }
+   ]
+  },
+  {
+   "id": "bill-snyder-family-stadium",
+   "name": "Bill Snyder Family Stadium",
+   "aliases": [],
+   "city": "Manhattan, KS",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "KSU"
+    }
+   ]
+  },
+  {
+   "id": "bobby-dodd-stadium",
+   "name": "Bobby Dodd Stadium",
+   "aliases": [
+    "Bobby Dodd Stadium at Hyundai Field"
+   ],
+   "city": "Atlanta, GA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "GT"
+    }
+   ]
+  },
+  {
+   "id": "boone-pickens-stadium",
+   "name": "Boone Pickens Stadium",
+   "aliases": [],
+   "city": "Stillwater, OK",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "OKST"
+    }
+   ]
+  },
+  {
+   "id": "bowers-stadium",
+   "name": "Shell Energy Stadium at Bowers",
+   "aliases": [
+    "Bowers Stadium",
+    "Elliott T. Bowers Stadium"
+   ],
+   "city": "Huntsville, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SHSU"
+    }
+   ]
+  },
+  {
+   "id": "bridgeforth-stadium",
+   "name": "Bridgeforth Stadium",
+   "aliases": [],
+   "city": "Harrisonburg, VA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "JMU"
+    }
+   ]
+  },
+  {
+   "id": "bridgestone-arena",
+   "name": "Bridgestone Arena",
+   "aliases": [],
+   "city": "Nashville, TN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "NSH"
+    }
+   ]
+  },
+  {
+   "id": "bristol-motor-speedway",
+   "name": "Bristol Motor Speedway",
+   "aliases": [],
+   "city": "Bristol, TN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "brooks-stadium",
+   "name": "Brooks Stadium",
+   "aliases": [],
+   "city": "Conway, SC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CCAR"
+    }
+   ]
+  },
+  {
+   "id": "bryant-denny-stadium",
+   "name": "Bryant–Denny Stadium",
+   "aliases": [
+    "Bryant-Denny Stadium",
+    "Saban Field at Bryant-Denny Stadium",
+    "Saban Field at Bryant–Denny Stadium"
+   ],
+   "city": "Tuscaloosa, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ALA"
+    }
+   ]
+  },
+  {
+   "id": "bud-walton-arena",
+   "name": "Bud Walton Arena",
+   "aliases": [],
+   "city": "Fayetteville, AR",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "ARK"
+    }
+   ]
+  },
+  {
+   "id": "busch-stadium",
+   "name": "Busch Stadium",
+   "aliases": [],
+   "city": "St. Louis, MO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "STL"
+    }
+   ]
+  },
+  {
+   "id": "caesars-superdome",
+   "name": "Caesars Superdome",
+   "aliases": [
+    "Louisiana Superdome",
+    "Mercedes-Benz Superdome",
+    "Superdome"
+   ],
+   "city": "New Orleans, LA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "NO",
+     "from": "1975-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "TULN",
+     "to": "2014-06-01"
+    }
+   ]
+  },
+  {
+   "id": "cajun-field",
+   "name": "Our Lady of Lourdes Stadium",
+   "aliases": [
+    "Cajun Field"
+   ],
+   "city": "Lafayette, LA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ULL"
+    }
+   ]
+  },
+  {
+   "id": "california-memorial-stadium",
+   "name": "California Memorial Stadium",
+   "aliases": [],
+   "city": "Berkeley, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CAL"
+    }
+   ]
+  },
+  {
+   "id": "camden-yards",
+   "name": "Oriole Park at Camden Yards",
+   "aliases": [
+    "Camden Yards"
+   ],
+   "city": "Baltimore, MD",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "BAL"
+    }
+   ]
+  },
+  {
+   "id": "cameron-indoor-stadium",
+   "name": "Cameron Indoor Stadium",
+   "aliases": [
+    "Duke Indoor Stadium"
+   ],
+   "city": "Durham, NC",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "DUKE"
+    }
+   ]
+  },
+  {
+   "id": "camp-randall-stadium",
+   "name": "Camp Randall Stadium",
+   "aliases": [],
+   "city": "Madison, WI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WIS"
+    }
+   ]
+  },
+  {
+   "id": "canada-life-centre",
+   "name": "Canada Life Centre",
+   "aliases": [
+    "Bell MTS Place",
+    "MTS Centre"
+   ],
+   "city": "Winnipeg, MB",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "WPG"
+    }
+   ]
+  },
+  {
+   "id": "canadian-tire-centre",
+   "name": "Canadian Tire Centre",
+   "aliases": [],
+   "city": "Ottawa, ON",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "OTT"
+    }
+   ]
+  },
+  {
+   "id": "canvas-stadium",
+   "name": "Canvas Stadium",
+   "aliases": [],
+   "city": "Fort Collins, CO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CSU"
+    }
+   ]
+  },
+  {
+   "id": "capital-one-arena",
+   "name": "Capital One Arena",
+   "aliases": [
+    "Verizon Center"
+   ],
+   "city": "Washington, DC",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "WSH"
+    },
+    {
+     "sport": "NBA",
+     "team": "WSH"
+    }
+   ]
+  },
+  {
+   "id": "carter-finley-stadium",
+   "name": "Carter–Finley Stadium",
+   "aliases": [
+    "Carter-Finley Stadium"
+   ],
+   "city": "Raleigh, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NCST"
+    }
+   ]
+  },
+  {
+   "id": "cefcu-stadium",
+   "name": "CEFCU Stadium",
+   "aliases": [
+    "Spartan Stadium (San Jose)"
+   ],
+   "city": "San Jose, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SJSU"
+    }
+   ]
+  },
+  {
+   "id": "centennial-bank-stadium",
+   "name": "Centennial Bank Stadium",
+   "aliases": [],
+   "city": "Jonesboro, AR",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ARST"
+    }
+   ]
+  },
+  {
+   "id": "center-parc-stadium",
+   "name": "Center Parc Stadium",
+   "aliases": [
+    "Georgia State Stadium"
+   ],
+   "city": "Atlanta, GA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "GAST"
+    }
+   ]
+  },
+  {
+   "id": "chapman-stadium",
+   "name": "Skelly Field at H. A. Chapman Stadium",
+   "aliases": [
+    "Chapman Stadium",
+    "H. A. Chapman Stadium"
+   ],
+   "city": "Tulsa, OK",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TLSA"
+    }
+   ]
+  },
+  {
+   "id": "chase-center",
+   "name": "Chase Center",
+   "aliases": [],
+   "city": "San Francisco, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "GS"
+    }
+   ]
+  },
+  {
+   "id": "chase-field",
+   "name": "Chase Field",
+   "aliases": [
+    "Bank One Ballpark"
+   ],
+   "city": "Phoenix, AZ",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "AZ"
+    }
+   ]
+  },
+  {
+   "id": "childrens-mercy-park",
+   "name": "Children's Mercy Park",
+   "aliases": [],
+   "city": "Kansas City, KS",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "KU",
+     "from": "2024-06-01",
+     "to": "2025-06-01"
+    }
+   ]
+  },
+  {
+   "id": "ching-complex",
+   "name": "Clarence T. C. Ching Athletics Complex",
+   "aliases": [
+    "Ching Complex"
+   ],
+   "city": "Honolulu, HI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "HAW",
+     "from": "2021-06-01"
+    }
+   ]
+  },
+  {
+   "id": "citi-field",
+   "name": "Citi Field",
+   "aliases": [],
+   "city": "Queens, NY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "NYM"
+    }
+   ]
+  },
+  {
+   "id": "citizens-bank-park",
+   "name": "Citizens Bank Park",
+   "aliases": [],
+   "city": "Philadelphia, PA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "PHI"
+    }
+   ]
+  },
+  {
+   "id": "clemson-memorial-stadium",
+   "name": "Memorial Stadium (Clemson)",
+   "aliases": [
+    "Clemson Memorial Stadium",
+    "Frank Howard Field at Clemson Memorial Stadium",
+    "Memorial Stadium"
+   ],
+   "city": "Clemson, SC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CLEM"
+    }
+   ]
+  },
+  {
+   "id": "climate-pledge-arena",
+   "name": "Climate Pledge Arena",
+   "aliases": [],
+   "city": "Seattle, WA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "SEA"
+    }
+   ]
+  },
+  {
+   "id": "comerica-park",
+   "name": "Comerica Park",
+   "aliases": [],
+   "city": "Detroit, MI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "DET"
+    }
+   ]
+  },
+  {
+   "id": "coors-field",
+   "name": "Coors Field",
+   "aliases": [],
+   "city": "Denver, CO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "COL"
+    }
+   ]
+  },
+  {
+   "id": "cotton-bowl-stadium",
+   "name": "Cotton Bowl Stadium",
+   "aliases": [
+    "Cotton Bowl"
+   ],
+   "city": "Dallas, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "croke-park",
+   "name": "Croke Park",
+   "aliases": [],
+   "city": "Dublin, Ireland",
+   "country": "IE",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "cryptocom-arena",
+   "name": "Crypto.com Arena",
+   "aliases": [
+    "Staples Center"
+   ],
+   "city": "Los Angeles, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "LAK"
+    },
+    {
+     "sport": "NBA",
+     "team": "LAL"
+    },
+    {
+     "sport": "NBA",
+     "team": "LAC",
+     "to": "2024-07-01"
+    }
+   ]
+  },
+  {
+   "id": "daikin-park",
+   "name": "Daikin Park",
+   "aliases": [
+    "Minute Maid Park"
+   ],
+   "city": "Houston, TX",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "HOU"
+    }
+   ]
+  },
+  {
+   "id": "datcu-stadium",
+   "name": "DATCU Stadium",
+   "aliases": [
+    "Apogee Stadium"
+   ],
+   "city": "Denton, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UNT"
+    }
+   ]
+  },
+  {
+   "id": "davis-wade-stadium",
+   "name": "Davis Wade Stadium",
+   "aliases": [],
+   "city": "Starkville, MS",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MSST"
+    }
+   ]
+  },
+  {
+   "id": "delaware-stadium",
+   "name": "Delaware Stadium",
+   "aliases": [],
+   "city": "Newark, DE",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "DEL"
+    }
+   ]
+  },
+  {
+   "id": "delta-center",
+   "name": "Delta Center",
+   "aliases": [
+    "Vivint Arena",
+    "Vivint Smart Home Arena"
+   ],
+   "city": "Salt Lake City, UT",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "UTA",
+     "from": "2024-07-01"
+    },
+    {
+     "sport": "NBA",
+     "team": "UTAH"
+    }
+   ]
+  },
+  {
+   "id": "deutsche-bank-park",
+   "name": "Deutsche Bank Park",
+   "aliases": [
+    "Commerzbank-Arena",
+    "Frankfurt Stadium",
+    "Waldstadion"
+   ],
+   "city": "Frankfurt, Germany",
+   "country": "DE",
+   "roof": "retractable",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "dix-stadium",
+   "name": "Dix Stadium",
+   "aliases": [],
+   "city": "Kent, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "KENT"
+    }
+   ]
+  },
+  {
+   "id": "dkr-memorial-stadium",
+   "name": "Darrell K Royal–Texas Memorial Stadium",
+   "aliases": [
+    "DKR-Texas Memorial Stadium",
+    "Darrell K Royal-Texas Memorial Stadium"
+   ],
+   "city": "Austin, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TEX"
+    }
+   ]
+  },
+  {
+   "id": "doak-campbell-stadium",
+   "name": "Doak Campbell Stadium",
+   "aliases": [],
+   "city": "Tallahassee, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "FSU"
+    }
+   ]
+  },
+  {
+   "id": "dodger-stadium",
+   "name": "Dodger Stadium",
+   "aliases": [],
+   "city": "Los Angeles, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "LAD"
+    }
+   ]
+  },
+  {
+   "id": "dowdy-ficklen-stadium",
+   "name": "Dowdy–Ficklen Stadium",
+   "aliases": [
+    "Dowdy-Ficklen Stadium"
+   ],
+   "city": "Greenville, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ECU"
+    }
+   ]
+  },
+  {
+   "id": "doyt-perry-stadium",
+   "name": "Doyt L. Perry Stadium",
+   "aliases": [],
+   "city": "Bowling Green, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BGSU"
+    }
+   ]
+  },
+  {
+   "id": "empower-field",
+   "name": "Empower Field at Mile High",
+   "aliases": [
+    "Broncos Stadium at Mile High",
+    "Invesco Field at Mile High",
+    "Sports Authority Field at Mile High"
+   ],
+   "city": "Denver, CO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "DEN",
+     "from": "2001-06-01"
+    }
+   ]
+  },
+  {
+   "id": "enterprise-center",
+   "name": "Enterprise Center",
+   "aliases": [],
+   "city": "St. Louis, MO",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "STL"
+    }
+   ]
+  },
+  {
+   "id": "estadio-alfredo-harp-helu",
+   "name": "Estadio Alfredo Harp Helú",
+   "aliases": [],
+   "city": "Mexico City, Mexico",
+   "country": "MX",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "estadio-azteca",
+   "name": "Estadio Azteca",
+   "aliases": [
+    "Azteca Stadium",
+    "Estadio Banorte",
+    "Estadio Ciudad de México"
+   ],
+   "city": "Mexico City, Mexico",
+   "country": "MX",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "estadio-monterrey",
+   "name": "Estadio de Béisbol Monterrey",
+   "aliases": [],
+   "city": "Monterrey, Mexico",
+   "country": "MX",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "everbank-stadium",
+   "name": "EverBank Stadium",
+   "aliases": [
+    "Alltel Stadium",
+    "EverBank Field",
+    "Jacksonville Municipal Stadium",
+    "TIAA Bank Field"
+   ],
+   "city": "Jacksonville, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "JAX",
+     "from": "1995-06-01"
+    }
+   ]
+  },
+  {
+   "id": "falcon-stadium",
+   "name": "Falcon Stadium",
+   "aliases": [],
+   "city": "USAF Academy, CO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "AFA"
+    }
+   ]
+  },
+  {
+   "id": "fau-stadium",
+   "name": "Flagler Credit Union Stadium",
+   "aliases": [
+    "FAU Stadium"
+   ],
+   "city": "Boca Raton, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "FAU"
+    }
+   ]
+  },
+  {
+   "id": "faurot-field",
+   "name": "Faurot Field at Memorial Stadium",
+   "aliases": [
+    "Faurot Field",
+    "Memorial Stadium"
+   ],
+   "city": "Columbia, MO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MIZZ"
+    }
+   ]
+  },
+  {
+   "id": "fbc-mortgage-stadium",
+   "name": "Acrisure Bounce House",
+   "aliases": [
+    "Bright House Networks Stadium",
+    "FBC Mortgage Stadium",
+    "Spectrum Stadium"
+   ],
+   "city": "Orlando, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UCF"
+    }
+   ]
+  },
+  {
+   "id": "fedexforum",
+   "name": "FedExForum",
+   "aliases": [],
+   "city": "Memphis, TN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "MEM"
+    }
+   ]
+  },
+  {
+   "id": "fenway-park",
+   "name": "Fenway Park",
+   "aliases": [],
+   "city": "Boston, MA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "BOS"
+    }
+   ]
+  },
+  {
+   "id": "fifth-third-arena",
+   "name": "Fifth Third Arena",
+   "aliases": [
+    "Shoemaker Center"
+   ],
+   "city": "Cincinnati, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "CIN"
+    }
+   ]
+  },
+  {
+   "id": "fifth-third-stadium",
+   "name": "Fifth Third Bank Stadium",
+   "aliases": [
+    "Fifth Third Stadium"
+   ],
+   "city": "Kennesaw, GA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "KENN"
+    }
+   ]
+  },
+  {
+   "id": "firstbank-stadium",
+   "name": "FirstBank Stadium",
+   "aliases": [
+    "Vanderbilt Stadium"
+   ],
+   "city": "Nashville, TN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "VAN"
+    }
+   ]
+  },
+  {
+   "id": "fiserv-forum",
+   "name": "Fiserv Forum",
+   "aliases": [],
+   "city": "Milwaukee, WI",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "MIL"
+    }
+   ]
+  },
+  {
+   "id": "floyd-stadium",
+   "name": "Johnny \"Red\" Floyd Stadium",
+   "aliases": [
+    "Floyd Stadium"
+   ],
+   "city": "Murfreesboro, TN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MTU"
+    }
+   ]
+  },
+  {
+   "id": "folsom-field",
+   "name": "Folsom Field",
+   "aliases": [],
+   "city": "Boulder, CO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "COLO"
+    }
+   ]
+  },
+  {
+   "id": "ford-field",
+   "name": "Ford Field",
+   "aliases": [],
+   "city": "Detroit, MI",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "DET",
+     "from": "2002-06-01"
+    }
+   ]
+  },
+  {
+   "id": "frost-bank-center",
+   "name": "Frost Bank Center",
+   "aliases": [
+    "AT&T Center"
+   ],
+   "city": "San Antonio, TX",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "SA"
+    }
+   ]
+  },
+  {
+   "id": "gainbridge-fieldhouse",
+   "name": "Gainbridge Fieldhouse",
+   "aliases": [
+    "Bankers Life Fieldhouse"
+   ],
+   "city": "Indianapolis, IN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "IND"
+    }
+   ]
+  },
+  {
+   "id": "gerald-j-ford-stadium",
+   "name": "Gerald J. Ford Stadium",
+   "aliases": [],
+   "city": "Dallas, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SMU"
+    }
+   ]
+  },
+  {
+   "id": "gillette-stadium",
+   "name": "Gillette Stadium",
+   "aliases": [],
+   "city": "Foxborough, MA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "NE",
+     "from": "2002-06-01"
+    }
+   ]
+  },
+  {
+   "id": "glass-bowl",
+   "name": "Glass Bowl",
+   "aliases": [],
+   "city": "Toledo, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TOL"
+    }
+   ]
+  },
+  {
+   "id": "globe-life-field",
+   "name": "Globe Life Field",
+   "aliases": [],
+   "city": "Arlington, TX",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "TEX"
+    }
+   ]
+  },
+  {
+   "id": "gocheok-sky-dome",
+   "name": "Gocheok Sky Dome",
+   "aliases": [],
+   "city": "Seoul, South Korea",
+   "country": "KR",
+   "roof": "dome",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "golden-1-center",
+   "name": "Golden 1 Center",
+   "aliases": [],
+   "city": "Sacramento, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "SAC"
+    }
+   ]
+  },
+  {
+   "id": "grand-casino-arena",
+   "name": "Grand Casino Arena",
+   "aliases": [
+    "Xcel Energy Center"
+   ],
+   "city": "Saint Paul, MN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "MIN"
+    }
+   ]
+  },
+  {
+   "id": "great-american-ball-park",
+   "name": "Great American Ball Park",
+   "aliases": [],
+   "city": "Cincinnati, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "CIN"
+    }
+   ]
+  },
+  {
+   "id": "hancock-whitney-stadium",
+   "name": "Hancock Whitney Stadium",
+   "aliases": [],
+   "city": "Mobile, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "USA"
+    }
+   ]
+  },
+  {
+   "id": "hard-rock-stadium",
+   "name": "Hard Rock Stadium",
+   "aliases": [
+    "Dolphin Stadium",
+    "Joe Robbie Stadium",
+    "Pro Player Stadium",
+    "Sun Life Stadium"
+   ],
+   "city": "Miami Gardens, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "MIA",
+     "from": "1987-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "MIA",
+     "from": "2008-06-01"
+    }
+   ]
+  },
+  {
+   "id": "highmark-stadium",
+   "name": "Highmark Stadium",
+   "aliases": [
+    "New Highmark Stadium"
+   ],
+   "city": "Orchard Park, NY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "BUF",
+     "from": "2026-06-01"
+    }
+   ]
+  },
+  {
+   "id": "highmark-stadium-1973",
+   "name": "Highmark Stadium (1973)",
+   "aliases": [
+    "Bills Stadium",
+    "Highmark Stadium",
+    "New Era Field",
+    "Ralph Wilson Stadium",
+    "Rich Stadium"
+   ],
+   "city": "Orchard Park, NY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "BUF",
+     "from": "1973-06-01",
+     "to": "2026-06-01"
+    }
+   ]
+  },
+  {
+   "id": "hiram-bithorn",
+   "name": "Estadio Hiram Bithorn",
+   "aliases": [],
+   "city": "San Juan, PR",
+   "country": "PR",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "honda-center",
+   "name": "Honda Center",
+   "aliases": [
+    "Arrowhead Pond"
+   ],
+   "city": "Anaheim, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "ANA"
+    }
+   ]
+  },
+  {
+   "id": "hornet-stadium",
+   "name": "Hornet Stadium",
+   "aliases": [],
+   "city": "Sacramento, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SAC"
+    }
+   ]
+  },
+  {
+   "id": "huntington-bank-field",
+   "name": "Huntington Bank Field",
+   "aliases": [
+    "Cleveland Browns Stadium",
+    "FirstEnergy Stadium"
+   ],
+   "city": "Cleveland, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "CLE",
+     "from": "1999-06-01"
+    }
+   ]
+  },
+  {
+   "id": "huntington-bank-stadium",
+   "name": "Huntington Bank Stadium",
+   "aliases": [
+    "TCF Bank Stadium"
+   ],
+   "city": "Minneapolis, MN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MINN"
+    }
+   ]
+  },
+  {
+   "id": "huskie-stadium",
+   "name": "Huskie Stadium",
+   "aliases": [],
+   "city": "DeKalb, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NIU"
+    }
+   ]
+  },
+  {
+   "id": "husky-stadium",
+   "name": "Husky Stadium",
+   "aliases": [
+    "Alaska Airlines Field at Husky Stadium"
+   ],
+   "city": "Seattle, WA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WASH"
+    }
+   ]
+  },
+  {
+   "id": "illinois-memorial-stadium",
+   "name": "Gies Memorial Stadium",
+   "aliases": [
+    "Memorial Stadium"
+   ],
+   "city": "Champaign, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ILL"
+    }
+   ]
+  },
+  {
+   "id": "indiana-memorial-stadium",
+   "name": "Memorial Stadium (Indiana)",
+   "aliases": [
+    "Memorial Stadium"
+   ],
+   "city": "Bloomington, IN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "IND"
+    }
+   ]
+  },
+  {
+   "id": "infocision-stadium",
+   "name": "InfoCision Stadium",
+   "aliases": [
+    "InfoCision Stadium–Summa Field"
+   ],
+   "city": "Akron, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "AKR"
+    }
+   ]
+  },
+  {
+   "id": "intuit-dome",
+   "name": "Intuit Dome",
+   "aliases": [],
+   "city": "Inglewood, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "LAC",
+     "from": "2024-07-01"
+    }
+   ]
+  },
+  {
+   "id": "jack-trice-stadium",
+   "name": "Jack Trice Stadium",
+   "aliases": [],
+   "city": "Ames, IA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ISU"
+    }
+   ]
+  },
+  {
+   "id": "jerry-richardson-stadium",
+   "name": "Jerry Richardson Stadium",
+   "aliases": [],
+   "city": "Charlotte, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CHAR"
+    }
+   ]
+  },
+  {
+   "id": "jma-wireless-dome",
+   "name": "JMA Wireless Dome",
+   "aliases": [
+    "Carrier Dome"
+   ],
+   "city": "Syracuse, NY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SYR"
+    }
+   ]
+  },
+  {
+   "id": "joan-c-edwards-stadium",
+   "name": "Joan C. Edwards Stadium",
+   "aliases": [],
+   "city": "Huntington, WV",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MRSH"
+    }
+   ]
+  },
+  {
+   "id": "joe-aillet-stadium",
+   "name": "Joe Aillet Stadium",
+   "aliases": [],
+   "city": "Ruston, LA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "LT"
+    }
+   ]
+  },
+  {
+   "id": "john-paul-jones-arena",
+   "name": "John Paul Jones Arena",
+   "aliases": [
+    "JPJ"
+   ],
+   "city": "Charlottesville, VA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "UVA"
+    }
+   ]
+  },
+  {
+   "id": "jones-att-stadium",
+   "name": "Jones AT&T Stadium",
+   "aliases": [],
+   "city": "Lubbock, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TTU"
+    }
+   ]
+  },
+  {
+   "id": "jordan-hare-stadium",
+   "name": "Jordan-Hare Stadium",
+   "aliases": [
+    "Jordan–Hare Stadium"
+   ],
+   "city": "Auburn, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "AUB"
+    }
+   ]
+  },
+  {
+   "id": "jsu-stadium",
+   "name": "AmFirst Stadium",
+   "aliases": [
+    "Burgess-Snow Field at JSU Stadium",
+    "JSU Stadium"
+   ],
+   "city": "Jacksonville, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "JVST"
+    }
+   ]
+  },
+  {
+   "id": "kansas-memorial-stadium",
+   "name": "David Booth Kansas Memorial Stadium",
+   "aliases": [
+    "Kansas Memorial Stadium",
+    "Memorial Stadium"
+   ],
+   "city": "Lawrence, KS",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "KU",
+     "to": "2024-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "KU",
+     "from": "2025-06-01"
+    }
+   ]
+  },
+  {
+   "id": "kaseya-center",
+   "name": "Kaseya Center",
+   "aliases": [
+    "American Airlines Arena",
+    "FTX Arena"
+   ],
+   "city": "Miami, FL",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "MIA"
+    }
+   ]
+  },
+  {
+   "id": "kauffman-stadium",
+   "name": "Kauffman Stadium",
+   "aliases": [],
+   "city": "Kansas City, MO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "KC"
+    }
+   ]
+  },
+  {
+   "id": "kelly-shorts-stadium",
+   "name": "Kelly/Shorts Stadium",
+   "aliases": [],
+   "city": "Mount Pleasant, MI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CMU"
+    }
+   ]
+  },
+  {
+   "id": "kenan-stadium",
+   "name": "Kenan Memorial Stadium",
+   "aliases": [
+    "Kenan Stadium"
+   ],
+   "city": "Chapel Hill, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UNC"
+    }
+   ]
+  },
+  {
+   "id": "keybank-center",
+   "name": "KeyBank Center",
+   "aliases": [
+    "First Niagara Center",
+    "HSBC Arena"
+   ],
+   "city": "Buffalo, NY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "BUF"
+    }
+   ]
+  },
+  {
+   "id": "kia-center",
+   "name": "Kia Center",
+   "aliases": [
+    "Amway Center"
+   ],
+   "city": "Orlando, FL",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "ORL"
+    }
+   ]
+  },
+  {
+   "id": "kidd-brewer-stadium",
+   "name": "Kidd Brewer Stadium",
+   "aliases": [],
+   "city": "Boone, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "APP"
+    }
+   ]
+  },
+  {
+   "id": "kinnick-stadium",
+   "name": "Kinnick Stadium",
+   "aliases": [],
+   "city": "Iowa City, IA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "IOWA"
+    }
+   ]
+  },
+  {
+   "id": "kroger-field",
+   "name": "Kroger Field",
+   "aliases": [
+    "Commonwealth Stadium"
+   ],
+   "city": "Lexington, KY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UK"
+    }
+   ]
+  },
+  {
+   "id": "kyle-field",
+   "name": "Kyle Field",
+   "aliases": [],
+   "city": "College Station, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TXAM"
+    }
+   ]
+  },
+  {
+   "id": "la-memorial-coliseum",
+   "name": "Los Angeles Memorial Coliseum",
+   "aliases": [
+    "LA Memorial Coliseum",
+    "The Coliseum"
+   ],
+   "city": "Los Angeles, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "USC"
+    }
+   ]
+  },
+  {
+   "id": "lambeau-field",
+   "name": "Lambeau Field",
+   "aliases": [],
+   "city": "Green Bay, WI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "GB",
+     "from": "1957-06-01"
+    }
+   ]
+  },
+  {
+   "id": "lane-stadium",
+   "name": "Lane Stadium",
+   "aliases": [],
+   "city": "Blacksburg, VA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "VT"
+    }
+   ]
+  },
+  {
+   "id": "lavell-edwards-stadium",
+   "name": "LaVell Edwards Stadium",
+   "aliases": [],
+   "city": "Provo, UT",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BYU"
+    }
+   ]
+  },
+  {
+   "id": "legion-field",
+   "name": "Legion Field",
+   "aliases": [],
+   "city": "Birmingham, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UAB",
+     "to": "2021-06-01"
+    }
+   ]
+  },
+  {
+   "id": "lenovo-center",
+   "name": "Lenovo Center",
+   "aliases": [
+    "PNC Arena",
+    "RBC Center"
+   ],
+   "city": "Raleigh, NC",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "CAR"
+    }
+   ]
+  },
+  {
+   "id": "levis-stadium",
+   "name": "Levi's Stadium",
+   "aliases": [],
+   "city": "Santa Clara, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "SF",
+     "from": "2014-06-01"
+    }
+   ]
+  },
+  {
+   "id": "liberty-stadium",
+   "name": "Simmons Bank Liberty Stadium",
+   "aliases": [
+    "Liberty Bowl Memorial Stadium"
+   ],
+   "city": "Memphis, TN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MEM"
+    }
+   ]
+  },
+  {
+   "id": "lincoln-financial-field",
+   "name": "Lincoln Financial Field",
+   "aliases": [],
+   "city": "Philadelphia, PA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "PHI",
+     "from": "2003-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "TEM"
+    }
+   ]
+  },
+  {
+   "id": "little-caesars-arena",
+   "name": "Little Caesars Arena",
+   "aliases": [],
+   "city": "Detroit, MI",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "DET"
+    },
+    {
+     "sport": "NBA",
+     "team": "DET"
+    }
+   ]
+  },
+  {
+   "id": "ln-stadium",
+   "name": "L&N Federal Credit Union Stadium",
+   "aliases": [
+    "Cardinal Stadium",
+    "Papa John's Cardinal Stadium"
+   ],
+   "city": "Louisville, KY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "LOU"
+    }
+   ]
+  },
+  {
+   "id": "loandepot-park",
+   "name": "loanDepot park",
+   "aliases": [
+    "Marlins Park"
+   ],
+   "city": "Miami, FL",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "MIA"
+    }
+   ]
+  },
+  {
+   "id": "london-stadium",
+   "name": "London Stadium",
+   "aliases": [],
+   "city": "London, UK",
+   "country": "GB",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "lt-smith-stadium",
+   "name": "Houchens Industries–L. T. Smith Stadium",
+   "aliases": [
+    "L. T. Smith Stadium"
+   ],
+   "city": "Bowling Green, KY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WKU"
+    }
+   ]
+  },
+  {
+   "id": "lucas-oil-stadium",
+   "name": "Lucas Oil Stadium",
+   "aliases": [],
+   "city": "Indianapolis, IN",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "IND",
+     "from": "2008-06-01"
+    }
+   ]
+  },
+  {
+   "id": "lumen-field",
+   "name": "Lumen Field",
+   "aliases": [
+    "CenturyLink Field",
+    "Qwest Field"
+   ],
+   "city": "Seattle, WA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "SEA",
+     "from": "2002-06-01"
+    }
+   ]
+  },
+  {
+   "id": "mackay-stadium",
+   "name": "Mackay Stadium",
+   "aliases": [],
+   "city": "Reno, NV",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NEV"
+    }
+   ]
+  },
+  {
+   "id": "madison-square-garden",
+   "name": "Madison Square Garden",
+   "aliases": [],
+   "city": "New York, NY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "NYR"
+    },
+    {
+     "sport": "NBA",
+     "team": "NY"
+    }
+   ]
+  },
+  {
+   "id": "malone-stadium",
+   "name": "Malone Stadium",
+   "aliases": [],
+   "city": "Monroe, LA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ULM"
+    }
+   ]
+  },
+  {
+   "id": "maracana",
+   "name": "Estádio do Maracanã",
+   "aliases": [
+    "Estadio do Maracana",
+    "Maracana Stadium",
+    "Maracanã",
+    "Maracanã Stadium"
+   ],
+   "city": "Rio de Janeiro, Brazil",
+   "country": "BR",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "martin-stadium",
+   "name": "Gesa Field at Martin Stadium",
+   "aliases": [
+    "Martin Stadium"
+   ],
+   "city": "Pullman, WA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WSU"
+    }
+   ]
+  },
+  {
+   "id": "martin-stadium-nw",
+   "name": "Martin Stadium",
+   "aliases": [
+    "Northwestern Medicine Field at Martin Stadium"
+   ],
+   "city": "Evanston, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NW",
+     "from": "2024-06-01",
+     "to": "2026-06-01"
+    }
+   ]
+  },
+  {
+   "id": "maverik-stadium",
+   "name": "Maverik Stadium",
+   "aliases": [],
+   "city": "Logan, UT",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "USU"
+    }
+   ]
+  },
+  {
+   "id": "mcguirk-stadium",
+   "name": "Warren McGuirk Alumni Stadium",
+   "aliases": [
+    "McGuirk Stadium"
+   ],
+   "city": "Amherst, MA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MASS"
+    }
+   ]
+  },
+  {
+   "id": "mclane-stadium",
+   "name": "McLane Stadium",
+   "aliases": [],
+   "city": "Waco, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BAY"
+    }
+   ]
+  },
+  {
+   "id": "melbourne-cricket-ground",
+   "name": "Melbourne Cricket Ground",
+   "aliases": [
+    "MCG"
+   ],
+   "city": "Melbourne, Australia",
+   "country": "AU",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "mercedes-benz-stadium",
+   "name": "Mercedes-Benz Stadium",
+   "aliases": [],
+   "city": "Atlanta, GA",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "ATL",
+     "from": "2017-06-01"
+    }
+   ]
+  },
+  {
+   "id": "metlife-stadium",
+   "name": "MetLife Stadium",
+   "aliases": [
+    "New Meadowlands Stadium"
+   ],
+   "city": "East Rutherford, NJ",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "NYG",
+     "from": "2010-06-01"
+    },
+    {
+     "sport": "NFL",
+     "team": "NYJ",
+     "from": "2010-06-01"
+    }
+   ]
+  },
+  {
+   "id": "michie-stadium",
+   "name": "Michie Stadium",
+   "aliases": [
+    "Blaik Field at Michie Stadium"
+   ],
+   "city": "West Point, NY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ARMY"
+    }
+   ]
+  },
+  {
+   "id": "michigan-stadium",
+   "name": "Michigan Stadium",
+   "aliases": [
+    "The Big House"
+   ],
+   "city": "Ann Arbor, MI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MICH"
+    }
+   ]
+  },
+  {
+   "id": "milan-puskar-stadium",
+   "name": "Milan Puskar Stadium",
+   "aliases": [
+    "Mountaineer Field"
+   ],
+   "city": "Morgantown, WV",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WVU"
+    }
+   ]
+  },
+  {
+   "id": "mm-roberts-stadium",
+   "name": "M. M. Roberts Stadium",
+   "aliases": [
+    "Roberts Stadium"
+   ],
+   "city": "Hattiesburg, MS",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "USM"
+    }
+   ]
+  },
+  {
+   "id": "moda-center",
+   "name": "Moda Center",
+   "aliases": [],
+   "city": "Portland, OR",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "POR"
+    }
+   ]
+  },
+  {
+   "id": "mt-bank-stadium",
+   "name": "M&T Bank Stadium",
+   "aliases": [
+    "PSINet Stadium",
+    "Ravens Stadium"
+   ],
+   "city": "Baltimore, MD",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "BAL",
+     "from": "1998-06-01"
+    }
+   ]
+  },
+  {
+   "id": "nationals-park",
+   "name": "Nationals Park",
+   "aliases": [],
+   "city": "Washington, DC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "WSH"
+    }
+   ]
+  },
+  {
+   "id": "nationwide-arena",
+   "name": "Nationwide Arena",
+   "aliases": [],
+   "city": "Columbus, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "CBJ"
+    }
+   ]
+  },
+  {
+   "id": "navy-marine-corps-memorial-stadium",
+   "name": "Navy–Marine Corps Memorial Stadium",
+   "aliases": [
+    "Navy-Marine Corps Memorial Stadium"
+   ],
+   "city": "Annapolis, MD",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NAVY"
+    }
+   ]
+  },
+  {
+   "id": "nebraska-memorial-stadium",
+   "name": "Memorial Stadium (Nebraska)",
+   "aliases": [
+    "Memorial Stadium"
+   ],
+   "city": "Lincoln, NE",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NEB"
+    }
+   ]
+  },
+  {
+   "id": "neo-quimica-arena",
+   "name": "Neo Química Arena",
+   "aliases": [
+    "Arena Corinthians",
+    "Corinthians Arena"
+   ],
+   "city": "São Paulo, Brazil",
+   "country": "BR",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "neyland-stadium",
+   "name": "Neyland Stadium",
+   "aliases": [],
+   "city": "Knoxville, TN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TENN"
+    }
+   ]
+  },
+  {
+   "id": "nippert-stadium",
+   "name": "Nippert Stadium",
+   "aliases": [],
+   "city": "Cincinnati, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CIN"
+    }
+   ]
+  },
+  {
+   "id": "nissan-stadium",
+   "name": "Nissan Stadium",
+   "aliases": [
+    "Adelphia Coliseum",
+    "LP Field",
+    "LP Field at Nissan Stadium",
+    "The Coliseum"
+   ],
+   "city": "Nashville, TN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "TEN",
+     "from": "1999-06-01",
+     "to": "2027-06-01"
+    }
+   ]
+  },
+  {
+   "id": "nissan-stadium-2027",
+   "name": "Nissan Stadium (2027)",
+   "aliases": [
+    "New Nissan Stadium",
+    "Nissan Stadium"
+   ],
+   "city": "Nashville, TN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "TEN",
+     "from": "2027-06-01"
+    }
+   ]
+  },
+  {
+   "id": "northwest-stadium",
+   "name": "Northwest Stadium",
+   "aliases": [
+    "Commanders Field",
+    "FedEx Field",
+    "FedExField",
+    "Jack Kent Cooke Stadium"
+   ],
+   "city": "Landover, MD",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "WAS",
+     "from": "1997-06-01"
+    }
+   ]
+  },
+  {
+   "id": "notre-dame-stadium",
+   "name": "Notre Dame Stadium",
+   "aliases": [],
+   "city": "Notre Dame, IN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ND"
+    }
+   ]
+  },
+  {
+   "id": "nrg-stadium",
+   "name": "NRG Stadium",
+   "aliases": [
+    "Reliant Stadium"
+   ],
+   "city": "Houston, TX",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "HOU",
+     "from": "2002-06-01"
+    }
+   ]
+  },
+  {
+   "id": "oakland-coliseum",
+   "name": "Oakland Coliseum",
+   "aliases": [
+    "Oakland-Alameda County Coliseum",
+    "RingCentral Coliseum"
+   ],
+   "city": "Oakland, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "ATH",
+     "to": "2025-01-01"
+    }
+   ]
+  },
+  {
+   "id": "ohio-stadium",
+   "name": "Ohio Stadium",
+   "aliases": [],
+   "city": "Columbus, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "OSU"
+    }
+   ]
+  },
+  {
+   "id": "oklahoma-memorial-stadium",
+   "name": "Gaylord Family Oklahoma Memorial Stadium",
+   "aliases": [
+    "Oklahoma Memorial Stadium",
+    "Owen Field"
+   ],
+   "city": "Norman, OK",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "OKLA"
+    }
+   ]
+  },
+  {
+   "id": "olympiastadion-berlin",
+   "name": "Olympiastadion",
+   "aliases": [
+    "Olympiastadion Berlin"
+   ],
+   "city": "Berlin, Germany",
+   "country": "DE",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "oracle-park",
+   "name": "Oracle Park",
+   "aliases": [
+    "AT&T Park"
+   ],
+   "city": "San Francisco, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "SF"
+    }
+   ]
+  },
+  {
+   "id": "orange-bowl-stadium",
+   "name": "Miami Orange Bowl",
+   "aliases": [
+    "Orange Bowl"
+   ],
+   "city": "Miami, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MIA",
+     "to": "2008-06-01"
+    }
+   ]
+  },
+  {
+   "id": "paulson-stadium",
+   "name": "Paulson Stadium",
+   "aliases": [],
+   "city": "Statesboro, GA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "GASO"
+    }
+   ]
+  },
+  {
+   "id": "paycom-center",
+   "name": "Paycom Center",
+   "aliases": [],
+   "city": "Oklahoma City, OK",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "OKC"
+    }
+   ]
+  },
+  {
+   "id": "paycor-stadium",
+   "name": "Paycor Stadium",
+   "aliases": [
+    "Paul Brown Stadium"
+   ],
+   "city": "Cincinnati, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "CIN",
+     "from": "2000-06-01"
+    }
+   ]
+  },
+  {
+   "id": "peden-stadium",
+   "name": "Peden Stadium",
+   "aliases": [],
+   "city": "Athens, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "OHIO"
+    }
+   ]
+  },
+  {
+   "id": "petco-park",
+   "name": "Petco Park",
+   "aliases": [],
+   "city": "San Diego, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "SD"
+    }
+   ]
+  },
+  {
+   "id": "phx-arena",
+   "name": "PHX Arena",
+   "aliases": [
+    "Footprint Center",
+    "Phoenix Suns Arena",
+    "Talking Stick Resort Arena"
+   ],
+   "city": "Phoenix, AZ",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "PHX"
+    }
+   ]
+  },
+  {
+   "id": "pitbull-stadium",
+   "name": "Pitbull Stadium",
+   "aliases": [
+    "FIU Stadium",
+    "Riccardo Silva Stadium"
+   ],
+   "city": "Miami, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "FIU"
+    }
+   ]
+  },
+  {
+   "id": "plaster-stadium",
+   "name": "Robert W. Plaster Stadium",
+   "aliases": [
+    "Plaster Stadium"
+   ],
+   "city": "Springfield, MO",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MOSU"
+    }
+   ]
+  },
+  {
+   "id": "pnc-park",
+   "name": "PNC Park",
+   "aliases": [],
+   "city": "Pittsburgh, PA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "PIT"
+    }
+   ]
+  },
+  {
+   "id": "ppg-paints-arena",
+   "name": "PPG Paints Arena",
+   "aliases": [
+    "Consol Energy Center"
+   ],
+   "city": "Pittsburgh, PA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "PIT"
+    }
+   ]
+  },
+  {
+   "id": "progressive-field",
+   "name": "Progressive Field",
+   "aliases": [
+    "Jacobs Field"
+   ],
+   "city": "Cleveland, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "CLE"
+    }
+   ]
+  },
+  {
+   "id": "protective-stadium",
+   "name": "Protective Stadium",
+   "aliases": [],
+   "city": "Birmingham, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UAB",
+     "from": "2021-06-01"
+    }
+   ]
+  },
+  {
+   "id": "prudential-center",
+   "name": "Prudential Center",
+   "aliases": [],
+   "city": "Newark, NJ",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "NJD"
+    }
+   ]
+  },
+  {
+   "id": "rate-field",
+   "name": "Rate Field",
+   "aliases": [
+    "Guaranteed Rate Field",
+    "U.S. Cellular Field"
+   ],
+   "city": "Chicago, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "CWS"
+    }
+   ]
+  },
+  {
+   "id": "raymond-james-stadium",
+   "name": "Raymond James Stadium",
+   "aliases": [],
+   "city": "Tampa, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "TB",
+     "from": "1998-06-01"
+    },
+    {
+     "sport": "CFB",
+     "team": "USF"
+    }
+   ]
+  },
+  {
+   "id": "razorback-stadium",
+   "name": "Donald W. Reynolds Razorback Stadium",
+   "aliases": [
+    "Razorback Stadium",
+    "Reynolds Razorback Stadium"
+   ],
+   "city": "Fayetteville, AR",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ARK"
+    }
+   ]
+  },
+  {
+   "id": "rentschler-field",
+   "name": "Pratt & Whitney Stadium at Rentschler Field",
+   "aliases": [
+    "Rentschler Field"
+   ],
+   "city": "East Hartford, CT",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "CONN"
+    }
+   ]
+  },
+  {
+   "id": "reser-stadium",
+   "name": "Reser Stadium",
+   "aliases": [],
+   "city": "Corvallis, OR",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ORST"
+    }
+   ]
+  },
+  {
+   "id": "rice-eccles-stadium",
+   "name": "Rice–Eccles Stadium",
+   "aliases": [
+    "Rice-Eccles Stadium"
+   ],
+   "city": "Salt Lake City, UT",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UTAH"
+    }
+   ]
+  },
+  {
+   "id": "rice-stadium",
+   "name": "Rice Stadium",
+   "aliases": [],
+   "city": "Houston, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "RICE"
+    }
+   ]
+  },
+  {
+   "id": "rickwood-field",
+   "name": "Rickwood Field",
+   "aliases": [],
+   "city": "Birmingham, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "rocket-arena",
+   "name": "Rocket Arena",
+   "aliases": [
+    "Quicken Loans Arena",
+    "Rocket Mortgage FieldHouse"
+   ],
+   "city": "Cleveland, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "CLE"
+    }
+   ]
+  },
+  {
+   "id": "rogers-arena",
+   "name": "Rogers Arena",
+   "aliases": [],
+   "city": "Vancouver, BC",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "VAN"
+    }
+   ]
+  },
+  {
+   "id": "rogers-centre",
+   "name": "Rogers Centre",
+   "aliases": [
+    "SkyDome"
+   ],
+   "city": "Toronto, ON",
+   "country": "CA",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "TOR"
+    }
+   ]
+  },
+  {
+   "id": "rogers-place",
+   "name": "Rogers Place",
+   "aliases": [],
+   "city": "Edmonton, AB",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "EDM"
+    }
+   ]
+  },
+  {
+   "id": "rose-bowl",
+   "name": "Rose Bowl",
+   "aliases": [
+    "Rose Bowl Stadium"
+   ],
+   "city": "Pasadena, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UCLA"
+    }
+   ]
+  },
+  {
+   "id": "ross-ade-stadium",
+   "name": "Ross–Ade Stadium",
+   "aliases": [
+    "Ross-Ade Stadium"
+   ],
+   "city": "West Lafayette, IN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "PUR"
+    }
+   ]
+  },
+  {
+   "id": "rupp-arena",
+   "name": "Rupp Arena",
+   "aliases": [
+    "Rupp Arena at Central Bank Center"
+   ],
+   "city": "Lexington, KY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "UK"
+    }
+   ]
+  },
+  {
+   "id": "ryan-field",
+   "name": "Ryan Field",
+   "aliases": [],
+   "city": "Evanston, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NW",
+     "from": "2026-06-01"
+    }
+   ]
+  },
+  {
+   "id": "ryan-field-1926",
+   "name": "Ryan Field (1926)",
+   "aliases": [
+    "Dyche Stadium",
+    "Ryan Field"
+   ],
+   "city": "Evanston, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "NW",
+     "to": "2024-06-01"
+    }
+   ]
+  },
+  {
+   "id": "rynearson-stadium",
+   "name": "Rynearson Stadium",
+   "aliases": [],
+   "city": "Ypsilanti, MI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "EMU"
+    }
+   ]
+  },
+  {
+   "id": "sam-boyd-stadium",
+   "name": "Sam Boyd Stadium",
+   "aliases": [],
+   "city": "Whitney, NV",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UNLV",
+     "to": "2020-06-01"
+    }
+   ]
+  },
+  {
+   "id": "sanford-stadium",
+   "name": "Sanford Stadium",
+   "aliases": [],
+   "city": "Athens, GA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UGA"
+    }
+   ]
+  },
+  {
+   "id": "santiago-bernabeu",
+   "name": "Santiago Bernabéu",
+   "aliases": [
+    "Estadio Santiago Bernabéu",
+    "Santiago Bernabéu Stadium"
+   ],
+   "city": "Madrid, Spain",
+   "country": "ES",
+   "roof": "retractable",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "sap-center",
+   "name": "SAP Center",
+   "aliases": [
+    "SAP Center at San Jose"
+   ],
+   "city": "San Jose, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "SJS"
+    }
+   ]
+  },
+  {
+   "id": "scheumann-stadium",
+   "name": "Scheumann Stadium",
+   "aliases": [],
+   "city": "Muncie, IN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BALL"
+    }
+   ]
+  },
+  {
+   "id": "scotiabank-arena",
+   "name": "Scotiabank Arena",
+   "aliases": [
+    "Air Canada Centre"
+   ],
+   "city": "Toronto, ON",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "TOR"
+    },
+    {
+     "sport": "NBA",
+     "team": "TOR"
+    }
+   ]
+  },
+  {
+   "id": "scotiabank-saddledome",
+   "name": "Scotiabank Saddledome",
+   "aliases": [
+    "Saddledome"
+   ],
+   "city": "Calgary, AB",
+   "country": "CA",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "CGY"
+    }
+   ]
+  },
+  {
+   "id": "scott-stadium",
+   "name": "Scott Stadium",
+   "aliases": [],
+   "city": "Charlottesville, VA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UVA"
+    }
+   ]
+  },
+  {
+   "id": "secu-stadium",
+   "name": "SECU Stadium",
+   "aliases": [
+    "Capital One Field at Maryland Stadium",
+    "Maryland Stadium"
+   ],
+   "city": "College Park, MD",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MD"
+    }
+   ]
+  },
+  {
+   "id": "shi-stadium",
+   "name": "SHI Stadium",
+   "aliases": [
+    "High Point Solutions Stadium"
+   ],
+   "city": "Piscataway, NJ",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "RUTG"
+    }
+   ]
+  },
+  {
+   "id": "smoothie-king-center",
+   "name": "Smoothie King Center",
+   "aliases": [],
+   "city": "New Orleans, LA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "NO"
+    }
+   ]
+  },
+  {
+   "id": "snapdragon-stadium",
+   "name": "Snapdragon Stadium",
+   "aliases": [],
+   "city": "San Diego, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SDSU"
+    }
+   ]
+  },
+  {
+   "id": "sofi-stadium",
+   "name": "SoFi Stadium",
+   "aliases": [],
+   "city": "Inglewood, CA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "LAC",
+     "from": "2020-06-01"
+    },
+    {
+     "sport": "NFL",
+     "team": "LAR",
+     "from": "2020-06-01"
+    },
+    {
+     "sport": "NFL",
+     "team": "LA",
+     "from": "2020-06-01"
+    }
+   ]
+  },
+  {
+   "id": "soldier-field",
+   "name": "Soldier Field",
+   "aliases": [],
+   "city": "Chicago, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "CHI",
+     "from": "1971-06-01"
+    }
+   ]
+  },
+  {
+   "id": "spartan-stadium",
+   "name": "Spartan Stadium",
+   "aliases": [],
+   "city": "East Lansing, MI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MSU"
+    }
+   ]
+  },
+  {
+   "id": "spectrum-center",
+   "name": "Spectrum Center",
+   "aliases": [],
+   "city": "Charlotte, NC",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "CHA"
+    }
+   ]
+  },
+  {
+   "id": "stade-de-france",
+   "name": "Stade de France",
+   "aliases": [],
+   "city": "Saint-Denis, France",
+   "country": "FR",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "stanford-stadium",
+   "name": "Stanford Stadium",
+   "aliases": [],
+   "city": "Stanford, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "STAN"
+    }
+   ]
+  },
+  {
+   "id": "state-farm-arena",
+   "name": "State Farm Arena",
+   "aliases": [
+    "Philips Arena"
+   ],
+   "city": "Atlanta, GA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "ATL"
+    }
+   ]
+  },
+  {
+   "id": "state-farm-stadium",
+   "name": "State Farm Stadium",
+   "aliases": [
+    "University of Phoenix Stadium"
+   ],
+   "city": "Glendale, AZ",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "ARI",
+     "from": "2006-06-01"
+    }
+   ]
+  },
+  {
+   "id": "steinbrenner-field",
+   "name": "George M. Steinbrenner Field",
+   "aliases": [
+    "Steinbrenner Field"
+   ],
+   "city": "Tampa, FL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "TB",
+     "from": "2025-01-01",
+     "to": "2026-01-01"
+    }
+   ]
+  },
+  {
+   "id": "sun-bowl-stadium",
+   "name": "Sun Bowl Stadium",
+   "aliases": [
+    "Sun Bowl"
+   ],
+   "city": "El Paso, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UTEP"
+    }
+   ]
+  },
+  {
+   "id": "sun-devil-stadium",
+   "name": "Mountain America Stadium",
+   "aliases": [
+    "Sun Devil Stadium"
+   ],
+   "city": "Tempe, AZ",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "ASU"
+    }
+   ]
+  },
+  {
+   "id": "sutter-health-park",
+   "name": "Sutter Health Park",
+   "aliases": [],
+   "city": "West Sacramento, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "ATH",
+     "from": "2025-01-01"
+    }
+   ]
+  },
+  {
+   "id": "t-mobile-arena",
+   "name": "T-Mobile Arena",
+   "aliases": [],
+   "city": "Paradise, NV",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "VGK"
+    }
+   ]
+  },
+  {
+   "id": "t-mobile-park",
+   "name": "T-Mobile Park",
+   "aliases": [
+    "Safeco Field"
+   ],
+   "city": "Seattle, WA",
+   "country": "US",
+   "roof": "retractable",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "SEA"
+    }
+   ]
+  },
+  {
+   "id": "target-center",
+   "name": "Target Center",
+   "aliases": [],
+   "city": "Minneapolis, MN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "MIN"
+    }
+   ]
+  },
+  {
+   "id": "target-field",
+   "name": "Target Field",
+   "aliases": [],
+   "city": "Minneapolis, MN",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "MIN"
+    }
+   ]
+  },
+  {
+   "id": "td-garden",
+   "name": "TD Garden",
+   "aliases": [
+    "FleetCenter",
+    "TD Banknorth Garden"
+   ],
+   "city": "Boston, MA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "BOS"
+    },
+    {
+     "sport": "NBA",
+     "team": "BOS"
+    }
+   ]
+  },
+  {
+   "id": "tdecu-stadium",
+   "name": "TDECU Stadium",
+   "aliases": [],
+   "city": "Houston, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "HOU"
+    }
+   ]
+  },
+  {
+   "id": "tiger-stadium-lsu",
+   "name": "Tiger Stadium",
+   "aliases": [],
+   "city": "Baton Rouge, LA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "LSU"
+    }
+   ]
+  },
+  {
+   "id": "tokyo-dome",
+   "name": "Tokyo Dome",
+   "aliases": [],
+   "city": "Tokyo, Japan",
+   "country": "JP",
+   "roof": "dome",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "tottenham-hotspur-stadium",
+   "name": "Tottenham Hotspur Stadium",
+   "aliases": [],
+   "city": "London, UK",
+   "country": "GB",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "toyota-center",
+   "name": "Toyota Center",
+   "aliases": [],
+   "city": "Houston, TX",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NBA",
+     "team": "HOU"
+    }
+   ]
+  },
+  {
+   "id": "tropicana-field",
+   "name": "Tropicana Field",
+   "aliases": [],
+   "city": "St. Petersburg, FL",
+   "country": "US",
+   "roof": "dome",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "TB",
+     "to": "2025-01-01"
+    },
+    {
+     "sport": "MLB",
+     "team": "TB",
+     "from": "2026-01-01"
+    }
+   ]
+  },
+  {
+   "id": "truist-park",
+   "name": "Truist Park",
+   "aliases": [
+    "SunTrust Park"
+   ],
+   "city": "Atlanta, GA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "ATL"
+    }
+   ]
+  },
+  {
+   "id": "ub-stadium",
+   "name": "UB Stadium",
+   "aliases": [],
+   "city": "Amherst, NY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "BUFF"
+    }
+   ]
+  },
+  {
+   "id": "ubs-arena",
+   "name": "UBS Arena",
+   "aliases": [],
+   "city": "Elmont, NY",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "NYI",
+     "from": "2021-07-01"
+    }
+   ]
+  },
+  {
+   "id": "ud-arena",
+   "name": "UD Arena",
+   "aliases": [
+    "University of Dayton Arena"
+   ],
+   "city": "Dayton, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "DAY"
+    }
+   ]
+  },
+  {
+   "id": "ufcu-stadium",
+   "name": "UFCU Stadium",
+   "aliases": [
+    "Bobcat Stadium"
+   ],
+   "city": "San Marcos, TX",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TXST"
+    }
+   ]
+  },
+  {
+   "id": "united-center",
+   "name": "United Center",
+   "aliases": [],
+   "city": "Chicago, IL",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "CHI"
+    },
+    {
+     "sport": "NBA",
+     "team": "CHI"
+    }
+   ]
+  },
+  {
+   "id": "university-stadium-unm",
+   "name": "University Stadium",
+   "aliases": [
+    "Dreamstyle Stadium"
+   ],
+   "city": "Albuquerque, NM",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "UNM"
+    }
+   ]
+  },
+  {
+   "id": "us-bank-stadium",
+   "name": "U.S. Bank Stadium",
+   "aliases": [],
+   "city": "Minneapolis, MN",
+   "country": "US",
+   "roof": "dome",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "NFL",
+     "team": "MIN",
+     "from": "2016-06-01"
+    }
+   ]
+  },
+  {
+   "id": "valley-childrens-stadium",
+   "name": "Valley Children's Stadium",
+   "aliases": [
+    "Bulldog Stadium"
+   ],
+   "city": "Fresno, CA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "FRES"
+    }
+   ]
+  },
+  {
+   "id": "value-city-arena",
+   "name": "Value City Arena",
+   "aliases": [
+    "Jerome Schottenstein Center",
+    "Schottenstein Center"
+   ],
+   "city": "Columbus, OH",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "CBB",
+     "team": "OSU"
+    }
+   ]
+  },
+  {
+   "id": "vaught-hemingway-stadium",
+   "name": "Vaught–Hemingway Stadium",
+   "aliases": [
+    "Vaught-Hemingway Stadium"
+   ],
+   "city": "Oxford, MS",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MISS"
+    }
+   ]
+  },
+  {
+   "id": "veterans-memorial-stadium-troy",
+   "name": "Veterans Memorial Stadium",
+   "aliases": [],
+   "city": "Troy, AL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TROY"
+    }
+   ]
+  },
+  {
+   "id": "waldo-stadium",
+   "name": "Waldo Stadium",
+   "aliases": [],
+   "city": "Kalamazoo, MI",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WMU"
+    }
+   ]
+  },
+  {
+   "id": "wallace-wade-stadium",
+   "name": "Wallace Wade Stadium",
+   "aliases": [],
+   "city": "Durham, NC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "DUKE"
+    }
+   ]
+  },
+  {
+   "id": "war-memorial-stadium-wyo",
+   "name": "War Memorial Stadium",
+   "aliases": [],
+   "city": "Laramie, WY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "WYO"
+    }
+   ]
+  },
+  {
+   "id": "wembley-stadium",
+   "name": "Wembley Stadium",
+   "aliases": [],
+   "city": "London, UK",
+   "country": "GB",
+   "roof": "outdoor",
+   "kind": "neutral",
+   "tenants": []
+  },
+  {
+   "id": "williams-brice-stadium",
+   "name": "Williams–Brice Stadium",
+   "aliases": [
+    "Williams-Brice Stadium"
+   ],
+   "city": "Columbia, SC",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "SCAR"
+    }
+   ]
+  },
+  {
+   "id": "williams-stadium",
+   "name": "Williams Stadium",
+   "aliases": [],
+   "city": "Lynchburg, VA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "LIB"
+    }
+   ]
+  },
+  {
+   "id": "wrigley-field",
+   "name": "Wrigley Field",
+   "aliases": [],
+   "city": "Chicago, IL",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "CHC"
+    }
+   ]
+  },
+  {
+   "id": "xfinity-mobile-arena",
+   "name": "Xfinity Mobile Arena",
+   "aliases": [
+    "Wells Fargo Center"
+   ],
+   "city": "Philadelphia, PA",
+   "country": "US",
+   "roof": "dome",
+   "kind": "arena",
+   "tenants": [
+    {
+     "sport": "NHL",
+     "team": "PHI"
+    },
+    {
+     "sport": "NBA",
+     "team": "PHI"
+    }
+   ]
+  },
+  {
+   "id": "yager-stadium",
+   "name": "Yager Stadium",
+   "aliases": [],
+   "city": "Oxford, OH",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "MOH"
+    }
+   ]
+  },
+  {
+   "id": "yankee-stadium",
+   "name": "Yankee Stadium",
+   "aliases": [],
+   "city": "Bronx, NY",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "ballpark",
+   "tenants": [
+    {
+     "sport": "MLB",
+     "team": "NYY"
+    }
+   ]
+  },
+  {
+   "id": "yulman-stadium",
+   "name": "Yulman Stadium",
+   "aliases": [],
+   "city": "New Orleans, LA",
+   "country": "US",
+   "roof": "outdoor",
+   "kind": "stadium",
+   "tenants": [
+    {
+     "sport": "CFB",
+     "team": "TULN",
+     "from": "2014-06-01"
+    }
+   ]
+  }
+ ]
+}

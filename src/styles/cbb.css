@@ -508,3 +508,13 @@
 }
 .cbbhome .cbbstat, .cbbhome__grid .panel { padding: var(--s-4); border-radius: var(--r-3, 12px); background: var(--panel); border: 1px solid var(--line-2); box-shadow: var(--shadow-1); }
 .cbbhome .cbbstat { border-top: 3px solid #e07b39; }
+
+/* Hero art (src/components/HeroArt.tsx) behind the top of the matchup card: the home team's identity — its photo
+   when one is verified, else its colours, livery and logo — fading into the panel before the projection strip. */
+.cgh--art > :not(.cgh__art) { position: relative; z-index: 1; }
+.cgh__art { position: absolute; inset: 0 0 auto 0; height: min(100%, 300px); z-index: 0;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); }
+.cgh--art .cgh__name, .cgh--art .cgh__sub, .cgh--art .cgh__eyebrow { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85); }
+.cgh__tag--home { color: var(--ivory); border-color: color-mix(in srgb, var(--hc1) 70%, #fff 10%); background: color-mix(in srgb, var(--hc1) 30%, rgba(1, 11, 19, 0.6)); }
+@media (min-width: 720px) { .cgh__art { height: min(100%, 340px); } }
+.cgh::before, .cgh::after { z-index: 2; }

@@ -1,6 +1,7 @@
-// The game hero: the venue's curated photograph (or an elegant floodlit fallback), both teams with
-// their logos and records, kickoff, venue and the kickoff-time weather as part of the atmosphere.
-// Indoor games say so instead of showing meaningless outdoor conditions.
+// The game hero: the home team's identity first — a verified photograph of ITS home game at ITS venue, or its
+// designed branded hero (src/lib/hero: the one decision; src/components/HeroArt: the one look) — then both teams with
+// their logos and records, kickoff, venue and the kickoff-time weather. Neutral sites and unconfirmed home sides
+// say so and show both teams; indoor games say so instead of showing meaningless outdoor conditions.
 import { Link } from 'react-router';
 import type { EntityProfileDoc, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
@@ -11,9 +12,11 @@ import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
 import { mlbClub } from '../../lib/mlb';
 import { nhlTeam } from '../../lib/nhlTeams';
-import { roofState, venueFor, venuePhoto, type Venue } from '../../lib/venues';
-import { useHeldImage } from '../../lib/useImage';
-import { StadiumFallback } from '../../components/StadiumFallback';
+import { useMemo } from 'react';
+import { resolveHero } from '../../lib/hero/resolve';
+import { heroInputFromResearch } from '../../lib/hero/input';
+import type { HeroSpec, HeroVenue } from '../../lib/hero/types';
+import { HeroArt, heroVars } from '../../components/HeroArt';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -40,8 +43,24 @@ export interface GameWeather {
   flag: string | null;
 }
 
+/**
+ * The roof the game is actually played under, from the publication's own capture when it has one
+ * ('dome' / 'closed' / 'open' / 'outdoors'), else the venue's construction.
+ */
+export function roofState(published: string | null | undefined, v: Pick<HeroVenue, 'roof'> | null): 'outdoors' | 'indoor' | 'roof-open' | 'roof-closed' | 'retractable' | 'unknown' {
+  const p = (published ?? '').toLowerCase();
+  if (p === 'dome') return 'indoor';
+  if (p === 'closed') return 'roof-closed';
+  if (p === 'open') return 'roof-open';
+  if (p === 'outdoors' || p === 'outdoor') return 'outdoors';
+  if (v?.roof === 'dome') return 'indoor';
+  if (v?.roof === 'retractable') return 'retractable';
+  if (v?.roof === 'outdoor') return 'outdoors';
+  return 'unknown';
+}
+
 /** The kickoff-time conditions the publication captured, read honestly for the roof the game is under. */
-export function gameWeather(r: EventResearchDoc, venue: Venue | null): GameWeather {
+export function gameWeather(r: EventResearchDoc, venue: Pick<HeroVenue, 'roof'> | null): GameWeather {
   const w = r.context?.weather as any;
   const pubVenue = r.context?.venue as any;
   const roof = roofState(pubVenue?.roof ?? w?.roof, venue);
@@ -128,12 +147,10 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
   const res = finalScore ? { home_score: finalScore.home, away_score: finalScore.away } : ext?.result;
   const final = ev.status === 'FINAL';
   const started = !final && Date.parse(ev.start_time_utc) <= now;
-  const pubVenue = r.context?.venue as any;
-  const venue = venueFor(homeAbbr, pubVenue?.name ?? (r.context?.weather as any)?.stadium ?? null, sportCode);
-  const photo = venuePhoto(venue);
-  const img = useHeldImage(photo?.hero);
+  const spec = useMemo(() => resolveHero(heroInputFromResearch(r, sportCode)), [r, sportCode]);
+  const venue = spec.venue;
   const wx = gameWeather(r, venue);
-  const venueName = pubVenue?.name ?? venue?.name ?? null;
+  const venueName = venue?.name ?? null;
   const [hc] = teamColors(sportCode, homeAbbr);
   const [ac] = teamColors(sportCode, awayAbbr);
   const d = new Date(ev.start_time_utc);
@@ -146,30 +163,57 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
   return (
-    <header className={`gh${photo ? '' : ' gh--nophoto'}`} style={{ ['--home' as string]: hc, ['--away' as string]: ac, ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
-      <div className="gh__bg" aria-hidden="true">
-        {img && <img src={img} alt="" decoding="async" />}
-        {!photo && <StadiumFallback venue={pubVenue?.name ?? venue?.name ?? null} rink={sportCode === 'NHL'} />}
-      </div>
+    <header className={`gh gh--${spec.kind} gh--ctx-${spec.context}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac }} {...heroData(spec)}>
+      <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /></div>
+      <HeroIdentity spec={spec} sportCode={sportCode} />
       <div className="gh__in">
-        <h1 className="sr-only">{awayP.display_name} at {homeP.display_name}</h1>
+        <h1 className="sr-only">{awayP.display_name} {atWord(spec)} {homeP.display_name}</h1>
         <div className="gh__teams">
           <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} />
-          <span className="gh__at" aria-hidden="true">{final ? 'final' : 'at'}</span>
+          <span className="gh__at" aria-hidden="true">{final ? 'final' : atWord(spec)}</span>
           <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} />
         </div>
         <p className="gh__meta">
           {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">{startedWords(sportCode)} · pregame research frozen</span> : null}
           <span>{week ? `${week} · ` : ''}{day} · {sportCode === 'MLB' && !final && !started ? 'First pitch ' : ''}{time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
-          {venueName && <span>{venueName}{venue?.city ? `, ${venue.city}` : ''}</span>}
+          {venueName && <span className="gh__venue">{venueName}{venue?.city ? `, ${venue.city}` : ''}</span>}
           {wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
         </p>
       </div>
-      {photo && (
+      {spec.photo && (
         <Link to={`${routes.status()}#photo-credits`} className="gh__credit">
-          Photo: {photo.credit.artist.slice(0, 40)} · {photo.credit.license}
+          Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}
         </Link>
       )}
     </header>
+  );
+}
+
+/** "at" only when a home side is stated and it is not a neutral site; "vs" otherwise. */
+export function atWord(spec: HeroSpec): string {
+  return spec.context === 'neutral' || spec.context === 'matchup' ? 'vs' : 'at';
+}
+
+/** Inert attributes that say what the hero decided (for tests, the production check and the audit). */
+export function heroData(spec: HeroSpec): Record<string, string> {
+  return {
+    'data-hero-kind': spec.kind,
+    'data-hero-context': spec.context,
+    'data-hero-team': spec.context === 'neutral' || spec.context === 'matchup' ? '' : spec.home?.code ?? '',
+    'data-hero-venue': spec.venue?.id ?? '',
+    'data-hero-photo': spec.photo?.id ?? '',
+    'data-hero-reason': spec.reason,
+  };
+}
+
+/** The identity line: who is at home ("Saints home game") or why nobody is ("Neutral site"). */
+export function HeroIdentity({ spec, sportCode }: { spec: HeroSpec; sportCode: string }) {
+  if (!spec.label) return null;
+  const showMark = (spec.context === 'home' || spec.context === 'home-elsewhere') && spec.home;
+  return (
+    <span className={`gh__id${showMark ? '' : ' gh__id--plain'}`} data-hero-label="">
+      {showMark ? <TeamMark sport={sportCode} abbr={spec.home!.code} size="sm" /> : <i aria-hidden="true" />}
+      <span>{spec.label}</span>
+    </span>
   );
 }

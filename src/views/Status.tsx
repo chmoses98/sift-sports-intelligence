@@ -13,7 +13,7 @@ import { useVisit } from '../state/trail';
 import { CapabilityTable } from './SportOverview';
 import { LiveDiagnostics } from '../components/LiveDiagnostics';
 import { allPlayerImages } from '../lib/players';
-import { allVenuePhotos } from '../lib/venues';
+import { PHOTOS, venueById } from '../lib/hero/registry';
 
 interface RouterHealth { overall_status: string; generated_at: string; last_poll_at: string; errors: string[]; warnings: string[]; delivered: number; failed: number; thresholds: Record<string, { fresh_after_seconds: number; stale_after_seconds: number }> }
 
@@ -73,16 +73,16 @@ export function StatusView() {
           </div>
         ) : router.loading ? <Skeleton lines={2} /> : <p className="muted">router_health.json could not be read.</p>}
       </Stratum>
-      <Stratum id="photo-credits" title="Stadium photo credits" sub="Hand-picked photographs (free licences, Wikimedia Commons), colour graded for the hero, fetched once and served with the app — never fetched at runtime. Venues without an approved photograph use Sift's designed stadium artwork.">
+      <Stratum id="photo-credits" title="Game photo credits" sub="Each game hero photograph shows the HOME team's own game at its own venue, reviewed for that identity before approval: free-licence Wikimedia Commons photographs, cropped, resized and colour graded by Sift, fetched once and served with the app — never fetched at runtime. A team without an approved photograph has Sift's designed team-identity hero instead.">
         <table className="dtable">
-          <thead><tr><th scope="col">Venue</th><th scope="col">Photo</th><th scope="col">Licence</th><th scope="col">Changes</th></tr></thead>
+          <thead><tr><th scope="col">Team · venue</th><th scope="col">Photo</th><th scope="col">Licence</th><th scope="col">Changes</th></tr></thead>
           <tbody>
-            {allVenuePhotos().map(({ venue, photo }) => (
-              <tr key={venue.slug}>
-                <th scope="row">{venue.name}<span className="muted small"> · {venue.city}</span></th>
-                <td className="small">{photo.credit.source ? <a href={photo.credit.source} target="_blank" rel="noreferrer">{photo.credit.artist}</a> : photo.credit.artist}</td>
-                <td className="small">{photo.credit.licenseUrl ? <a href={photo.credit.licenseUrl} target="_blank" rel="noreferrer">{photo.credit.license}</a> : photo.credit.license}</td>
-                <td className="small">{photo.credit.modifications ?? 'None'}</td>
+            {PHOTOS.map((p) => (
+              <tr key={p.id}>
+                <th scope="row">{p.sport} {p.team}<span className="muted small"> · {venueById(p.venue)?.name ?? p.venue}</span></th>
+                <td className="small"><a href={p.credit.source} target="_blank" rel="noreferrer">{p.credit.artist}</a></td>
+                <td className="small">{p.credit.licenseUrl ? <a href={p.credit.licenseUrl} target="_blank" rel="noreferrer">{p.credit.license}</a> : p.credit.license}</td>
+                <td className="small">{p.credit.modifications}</td>
               </tr>
             ))}
           </tbody>

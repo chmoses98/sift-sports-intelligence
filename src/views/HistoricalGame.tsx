@@ -11,6 +11,10 @@ import { displayName, metricFormatter, shortDate } from '../lib/format';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { capStatus, useSport } from '../state/sport';
+import { HeroArt, heroVars } from '../components/HeroArt';
+import { resolveHero } from '../lib/hero/resolve';
+import { heroTeam } from '../lib/hero/input';
+import { heroData } from './game/Hero';
 import { useVisit } from '../state/trail';
 
 function Around({ prof, eventId, slug, label }: { prof: EntityProfileDoc; eventId: string; slug: string; label: string }) {
@@ -87,16 +91,27 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
   const awayScore = row.home_away === 'AWAY' ? res?.for : res?.against;
   const sPF = series.data?.find((s) => s.metric_id === 'met_nfl.points_for');
   const plStatus = capStatus(caps, 'player_game_logs');
+  // The hero for the game AS IT WAS: the date decides the venue and photo era (a 2023 Bills game is the old
+  // Highmark Stadium); a neutral-site game in the team's list shows both teams and nobody at home.
+  const neutralGame = row.home_away === 'NEUTRAL';
+  const spec = resolveHero({
+    sport: sport.code, date: row.start_time_utc,
+    home: heroTeam(sport.code, home.abbr, home.name), away: heroTeam(sport.code, away.abbr, away.name),
+    homeVerified: true, venueName: null, neutral: neutralGame ? true : null,
+    postseason: /post|playoff|wild ?card|division|conference|super bowl/i.test(row.competition ?? ''),
+  });
 
   return (
     <div className="page game game--hist">
-      <header className="mh mh--hist">
-        <h1 className="sr-only">{away.name} at {home.name}, final</h1>
+      <header className={`mh mh--hist mh--art mh--${spec.kind}`} style={heroVars(spec)} {...heroData(spec)}>
+        <div className="mh__art" aria-hidden="true"><HeroArt spec={spec} variant="card" /></div>
+        <h1 className="sr-only">{away.name} {neutralGame ? 'vs' : 'at'} {home.name}, final</h1>
         <div className="mh__eyebrow">
           <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink>
           <span>·</span>
           <span>{row.competition}</span>
           <span className="chip">Historical game</span>
+          {spec.label && <span className="chip chip--hero" data-hero-label="">{spec.label}</span>}
         </div>
         <div className="mh__teams">
           <div className="mh__team mh__team--away">
@@ -112,7 +127,7 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
             <TeamMark sport={sport.code} abbr={home.abbr} size="lg" />
             <div className="mh__tn">
               {home.id ? <Link to={routes.team(slug, home.id)} className="mh__name">{home.name}</Link> : <span className="mh__name">{home.name}</span>}
-              <span className="mh__rec">home</span>
+              <span className="mh__rec">{neutralGame ? 'neutral site' : 'home'}</span>
             </div>
             <span className="mh__score num">{homeScore ?? '—'}</span>
           </div>

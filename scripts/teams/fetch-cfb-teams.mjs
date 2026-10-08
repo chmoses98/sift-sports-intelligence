@@ -50,7 +50,11 @@ async function main() {
   const paths = Object.entries(index.files).filter(([, f]) => f.kind === 'event_research').map(([rel]) => `explorer/${rel}`);
   const pairs = [];
   for (const p of paths) pairs.push(...pairsOf(await read(p)));
-  const { teams, conflicts } = mergePairs(previous, pairs);
+  // Reviewed supplement (scripts/teams/cfb-supplement.json) first: verified pairs then confirm it or conflict loudly.
+  const supplement = JSON.parse(readFileSync(join(ROOT, 'scripts', 'teams', 'cfb-supplement.json'), 'utf-8')).teams;
+  const base = { ...previous };
+  for (const [code, t] of Object.entries(supplement)) if (!base[code]) base[code] = { e: t.e, n: t.n };
+  const { teams, conflicts } = mergePairs(base, pairs);
   if (conflicts.length) {
     console.error(`CFB team identity conflicts (nothing written):\n- ${[...new Set(conflicts)].join('\n- ')}`);
     process.exit(1);
@@ -67,6 +71,28 @@ async function main() {
     colorSource = 'previously committed colors';
     espnColors = {};
   }
+  // The list endpoint can fail or omit teams (it did: every CFB team ended up colourless, so every CFB surface fell
+  // back to Sift's navy). Any team still without colours is asked for individually.
+  let single = 0;
+  for (const t of Object.values(teams)) {
+    if (espnColors[t.e]?.color) continue;
+    try {
+      const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${t.e}`, { headers: UA });
+      if (!r.ok) continue;
+      const team = (await r.json()).team ?? {};
+      if (hex(team.color)) { espnColors[t.e] = { color: hex(team.color), alt: hex(team.alternateColor) }; single++; }
+    } catch { /* keep previous */ }
+  }
+  if (single) colorSource = `ESPN team colors (${single} fetched per team)`;
+  // Still none (ESPN's site API does not answer every runner): the school's colours from the committed CBB identity.
+  // ESPN uses one team id per university across sports (Alabama is 333 in football and basketball).
+  const cbb = JSON.parse(readFileSync(join(ROOT, 'src', 'lib', 'cbb-teams.json'), 'utf-8')).teams;
+  let seeded = 0;
+  for (const t of Object.values(cbb)) {
+    const id = String(t.e);
+    if (!espnColors[id]?.color && hex(t.c)) { espnColors[id] = { color: hex(t.c), alt: hex(t.c2) }; seeded++; }
+  }
+  if (seeded) colorSource += `; ${seeded} schools' colours from the committed CBB identity (same ESPN team id)`;
 
   // 3. logos
   mkdirSync(OUT, { recursive: true });
@@ -74,7 +100,7 @@ async function main() {
   let failed = 0;
   for (const t of Object.values(teams)) {
     const col = espnColors[t.e];
-    if (col) {
+    if (col?.color) {
       t.c = col.color ?? null;
       t.c2 = col.alt ?? null;
     }

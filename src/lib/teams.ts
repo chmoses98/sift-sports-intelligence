@@ -1,5 +1,6 @@
 import logos from './team-logos.json';
-import { mlbClub } from './mlb';
+import { mlbClub, mlbCode } from './mlb';
+import mlbLogos from './mlb-team-logos.json';
 import { cfbTeam } from './cfbTeams';
 import { nhlCode, nhlLogo } from './nhlTeams';
 
@@ -68,5 +69,10 @@ export function teamLogo(sport: string, abbr: string | null | undefined): string
   }
   // NHL tricode (or any alias) -> the club's committed logo (src/lib/nhlTeams.ts).
   if (sport === 'NHL') return nhlLogo(abbr);
+  // MLB club code (or alias) -> the club's committed logo (scripts/teams/fetch-mlb-logos.mjs).
+  if (sport === 'MLB') {
+    const c = mlbCode(abbr);
+    return c && (mlbLogos as { teams: Record<string, unknown> }).teams[c] ? `${import.meta.env.BASE_URL}teams/mlb/${c}.webp` : null;
+  }
   return null;
 }

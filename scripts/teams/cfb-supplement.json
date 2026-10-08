@@ -1,0 +1,6 @@
+{
+ "$comment": "Reviewed CFB identities for FBS programs that have not yet appeared in any identity-verified game of the CFB publication (so scripts/teams/fetch-cfb-teams.mjs could not learn them from a verified pair). Each entry is the Kalshi/contract team code and its ESPN team id. A later verified pair that disagrees fails the fetch (mergePairs conflict) instead of silently winning, so a mistake here can never stick.",
+ "teams": {
+  "MICH": {"e": "130", "n": "Michigan", "why": "Michigan Wolverines: ESPN team id 130; contract code MICH (Big Ten). Absent from the 2026-10-08 publication's verified games."}
+ }
+}

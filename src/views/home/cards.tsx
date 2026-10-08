@@ -7,7 +7,7 @@ import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';
 import { Icon } from '../../components/Icon';
-import { StadiumFallback } from '../../components/StadiumFallback';
+import { HeroArt, heroVars } from '../../components/HeroArt';
 import { MarketIcon, MarketIconProvider } from '../../components/MarketIcon';
 import { publicationView, QuoteChip, QuoteSummaryChip, useQuoteViews } from '../../components/LiveQuote';
 import { TeamMark } from '../../components/ui';
@@ -16,10 +16,11 @@ import { kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { gameScripts, sharePct } from '../../lib/scripts';
 import { teamColors } from '../../lib/teams';
-import { venueFor, venuePhoto } from '../../lib/venues';
+import { resolveHero } from '../../lib/hero/resolve';
+import { heroInputFor } from '../../lib/hero/input';
 import { useLiveQuotes } from '../../live/hooks';
-import { gameWeather, splitName } from '../game/Hero';
-import { useHeldImage, useInView } from '../../lib/useImage';
+import { atWord, gameWeather, heroData, splitName } from '../game/Hero';
+import { useInView } from '../../lib/useImage';
 import { PanelHead } from '../game/panels';
 import type { MatchupInsight } from '../../insights/matchups';
 import { matchupInsights } from '../../insights/matchups';
@@ -63,23 +64,22 @@ export function modelLine(r: EventResearchDoc | null | undefined): string | null
  */
 export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; insight: MatchupInsight | null; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null, sportCode);
-  const photo = venuePhoto(venue);
-  const img = useHeldImage(photo?.hero);
+  const spec = useMemo(() => resolveHero(heroInputFor(item, r, sportCode)), [item, r, sportCode]);
+  const venue = spec.venue;
   const set = r ? gameScripts(r) : null;
   const wx = r ? gameWeather(r, venue) : null;
   const a = splitName(away?.display_name ?? '', away?.short_name, sportCode);
   const h = splitName(home?.display_name ?? '', home?.short_name, sportCode);
   const lead = set?.scripts[0];
   return (
-    <article className={`fcard${photo ? '' : ' fcard--nophoto'}`} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%' }}>
+    <article className={`fcard fcard--${spec.kind}${spec.photo ? '' : ' fcard--nophoto'}`} style={heroVars(spec)} {...heroData(spec)}>
       <Link to={routes.game(sportSlug, item.event_id)} className="fcard__a" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}. Open game.`}>
-        <div className="fcard__img" aria-hidden="true">{img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback venue={venue?.name ?? null} rink={sportCode === 'NHL'} />}</div>
+        <div className="fcard__img" aria-hidden="true"><HeroArt spec={spec} variant="card" /></div>
         <div className="fcard__in">
           <span className="fcard__when">{kickoff(item.start_time_utc)}{Date.parse(item.start_time_utc) > now ? ` · ${until(item.start_time_utc, now)}` : ''}</span>
           <span className="fcard__match">
             <span className="fcard__team"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><span className="fcard__n">{a.nick}</span></span>
-            <span className="fcard__at">at</span>
+            <span className="fcard__at">{atWord(spec)}</span>
             <span className="fcard__team"><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /><span className="fcard__n">{h.nick}</span></span>
           </span>
           <span className="fcard__meta">{venue ? `${venue.name}` : ''}{wx && wx.kind === 'outdoor' ? ` · ${wx.temp}° ${wx.condition ?? ''}` : wx && wx.kind === 'indoor' ? ` · ${wx.condition}` : ''}{wx?.flag ? ` · ${wx.flag}` : ''}</span>
@@ -89,7 +89,7 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
         {insight ? <p className="fcard__thesis">{insight.headline}</p> : <p className="fcard__thesis">{lead ? `Most likely: ${lead.name}` : sportCode === 'MLB' ? 'Open the game for its lines and player props' : 'Open the game for its scripts and matchups'}</p>}
         {lead && <span className="fcard__lead"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely: {lead.name} <b className="num">{sharePct(lead.share)}</b></span>}
       </div>
-      {photo && <span className="fcard__credit">Photo: {photo.credit.artist.slice(0, 32)} · {photo.credit.license}</span>}
+      {spec.photo && <span className="fcard__credit">Photo: {spec.photo.credit.artist.slice(0, 32)} · {spec.photo.credit.license}</span>}
     </article>
   );
 }
@@ -97,10 +97,8 @@ export function FeatureCard({ item, r, insight, sportSlug, sportCode, now }: { i
 /** A game tile: the stadium as a strip with both logos, the matchup, kickoff, the headline edge and the most likely script. */
 export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardItem; r: EventResearchDoc | null | undefined; sportSlug: string; sportCode: string; now: number }) {
   const { away, home } = sides(item);
-  const venue = venueFor(home?.short_name, (r?.context?.venue as any)?.name ?? null, sportCode);
-  const photo = venuePhoto(venue);
+  const spec = useMemo(() => resolveHero(heroInputFor(item, r, sportCode)), [item, r, sportCode]);
   const [ref, inView] = useInView<HTMLLIElement>();
-  const img = useHeldImage(inView ? photo?.card : null);
   const set = r ? gameScripts(r) : null;
   const winners = useMemo(() => (r?.markets ?? []).filter((m) => m.market_family === 'game_winner'), [r]);
   useLiveQuotes(winners.map((m) => m.kalshi_ticker), 'slate');
@@ -108,14 +106,14 @@ export function GameTile({ item, r, sportSlug, sportCode, now }: { item: BoardIt
   const passed = Date.parse(item.start_time_utc) <= now && item.status === 'SCHEDULED';
   const lead = set ? set.scripts[0] : null;
   return (
-    <li className={`gtile gcard${photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ['--focus' as string]: venue?.focus ?? 'center 45%', ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }}>
+    <li className={`gtile gcard gtile--${spec.kind}${spec.photo ? '' : ' gtile--nophoto'}`} ref={ref} style={{ ...heroVars(spec), ['--home' as string]: teamColors(sportCode, home?.short_name)[0] }} {...heroData(spec)}>
       <div className="gtile__img" aria-hidden="true">
-        {img ? <img src={img} alt="" decoding="async" /> : !photo && <StadiumFallback compact rink={sportCode === 'NHL'} />}
-        <span className="gtile__logos"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><i>at</i><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>
+        <HeroArt spec={spec} variant="tile" load={inView} />
+        <span className="gtile__logos"><TeamMark sport={sportCode} abbr={away?.short_name} size="lg" /><i>{atWord(spec)}</i><TeamMark sport={sportCode} abbr={home?.short_name} size="lg" /></span>
       </div>
       <Link to={routes.game(sportSlug, item.event_id)} className="gtile__link gcard__link" aria-label={`${away?.display_name} at ${home?.display_name}, ${kickoff(item.start_time_utc)}`}>
         <span className="gtile__when"><span>{new Date(item.start_time_utc).toLocaleDateString(undefined, { weekday: "short" })} {new Date(item.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span><span className={passed ? 'is-passed' : ''}>{passed ? (sportCode === 'MLB' ? 'First pitch passed' : 'Kicked off') : until(item.start_time_utc, now)}</span></span>
-        <span className="gtile__t">{splitName(away?.display_name ?? '', away?.short_name, sportCode).nick} <span className="gtile__at">at</span> {splitName(home?.display_name ?? '', home?.short_name, sportCode).nick}</span>
+        <span className="gtile__t">{splitName(away?.display_name ?? '', away?.short_name, sportCode).nick} <span className="gtile__at">{atWord(spec)}</span> {splitName(home?.display_name ?? '', home?.short_name, sportCode).nick}</span>
         {lead && (
           <span className="gtile__script" style={{ ['--sc' as string]: `var(--script-${lead.index})` }}>
             <span className="gtile__k"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely <b className="num">{sharePct(lead.share)}</b></span>

@@ -1,0 +1,102 @@
+/* ------------------------------------------------------------------ hero art (src/components/HeroArt.tsx)
+   One look for every hero, card and tile. A photo is the subject (a single foot gradient keeps the text legible);
+   the branded hero is the home team's identity as light — its colours, its livery stripes, its logo as a
+   watermark — on Sift's near-black. Neutral sites and unconfirmed home sides split the frame between both teams. */
+
+.hart { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #02080e; isolation: isolate; }
+.hart > * { position: absolute; }
+
+.hart__wash { inset: 0;
+  background:
+    radial-gradient(110% 95% at 82% 18%, color-mix(in srgb, var(--hc1) 62%, transparent) 0%, transparent 62%),
+    radial-gradient(70% 80% at 100% 100%, color-mix(in srgb, var(--hc2) 34%, transparent) 0%, transparent 70%),
+    linear-gradient(118deg, #02080e 26%, color-mix(in srgb, var(--hc1) 30%, #02080e) 100%); }
+.hart--split .hart__wash {
+  background:
+    radial-gradient(80% 110% at 0% 30%, color-mix(in srgb, var(--ac1) 52%, transparent) 0%, transparent 62%),
+    radial-gradient(80% 110% at 100% 30%, color-mix(in srgb, var(--hc1) 52%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, #03101a 0%, #02080e 100%); }
+
+/* Stadium light: soft beams falling from the top right (home) — or from both top corners on a split frame. */
+.hart__rays { inset: -20% -10% 0 -10%; opacity: 0.55; mix-blend-mode: screen;
+  background:
+    conic-gradient(from 198deg at 86% -8%, transparent 0deg, rgba(255, 255, 255, 0.10) 6deg, transparent 13deg, transparent 20deg, rgba(255, 255, 255, 0.07) 25deg, transparent 31deg, transparent 360deg);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%); mask-image: linear-gradient(180deg, #000 0%, transparent 78%); }
+.hart--split .hart__rays {
+  background:
+    conic-gradient(from 150deg at 8% -8%, transparent 0deg, rgba(255, 255, 255, 0.08) 6deg, transparent 13deg, transparent 360deg),
+    conic-gradient(from 198deg at 92% -8%, transparent 0deg, rgba(255, 255, 255, 0.08) 6deg, transparent 13deg, transparent 360deg); }
+
+/* Livery: two diagonal bands in the home team's colours, like a jersey stripe, at the right edge. */
+.hart__livery { top: -30%; bottom: -30%; right: 15%; width: 64px; transform: skewX(-18deg); opacity: 0.5;
+  background: linear-gradient(90deg, transparent 0 8px, var(--hc2) 8px 14px, transparent 14px 24px, var(--hc1) 24px 52px, transparent 52px); filter: saturate(1.05);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 24%, #000 66%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 24%, #000 66%, transparent 100%); }
+.hart--split .hart__livery { right: auto; left: 50%; width: 3px; transform: translateX(-50%); opacity: 0.4;
+  background: linear-gradient(180deg, var(--ac1), var(--hc1)); }
+
+/* The team's logo as a watermark: big, quiet, cropped by the frame. */
+.hart__logo { top: 50%; height: 150%; width: auto; aspect-ratio: 1; object-fit: contain; opacity: 0.17; filter: saturate(0.95) drop-shadow(0 0 40px rgba(0, 0, 0, 0.45)); }
+.hart__logo--home { right: -6%; transform: translateY(-48%) rotate(-6deg); }
+.hart--split .hart__logo { height: 120%; opacity: 0.13; }
+.hart--split .hart__logo--home { right: -10%; transform: translateY(-50%); }
+.hart--split .hart__logo--away { left: -10%; transform: translateY(-50%); }
+
+.hart__grain { inset: 0; opacity: 0.12; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* The photograph: fades in over the wash; art-directed focus per breakpoint. */
+.hart__photo { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--focus-d, center 45%); opacity: 0; transition: opacity 360ms ease; }
+.hart.is-loaded .hart__photo { opacity: 1; }
+@media (max-width: 720px) { .hart__photo { object-position: var(--focus-m, center 45%); } }
+@media (prefers-reduced-motion: reduce) { .hart__photo { transition: none; } }
+
+/* One foot gradient for legibility (the photo stays visible above it), with a breath of the home colour. */
+.hart__shade { inset: 0;
+  background: linear-gradient(180deg, rgba(1, 11, 19, 0.28) 0%, rgba(1, 11, 19, 0) 22%, rgba(1, 11, 19, 0) 42%, rgba(1, 11, 19, 0.62) 72%, rgba(1, 11, 19, 0.94) 100%); }
+.hart--photo .hart__shade { background:
+    linear-gradient(180deg, rgba(1, 11, 19, 0.30) 0%, rgba(1, 11, 19, 0) 20%, rgba(1, 11, 19, 0) 46%, rgba(1, 11, 19, 0.58) 74%, rgba(1, 11, 19, 0.93) 100%),
+    linear-gradient(0deg, color-mix(in srgb, var(--hc1) 16%, transparent) 0%, transparent 40%); }
+
+/* Cards and tiles: the same art, scaled down. */
+.hart--tile .hart__livery { width: 40px; right: 10%; }
+.hart--tile .hart__rays { opacity: 0.4; }
+.hart--card .hart__logo { height: 130%; }
+
+/* ------------------------------------------------------------------ the game hero's identity line */
+.gh__id { position: absolute; left: var(--s-4); top: 12px; z-index: 1; display: inline-flex; align-items: center; gap: 8px; max-width: 60%;
+  padding: 4px 11px 4px 6px; border-radius: 999px; background: rgba(1, 11, 19, 0.58); border: 1px solid rgba(236, 244, 252, 0.16);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  font-weight: 600; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ivory); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gh__id .teammark { width: 20px; height: 20px; flex-shrink: 0; }
+.gh__id--plain { padding-left: 11px; }
+.gh__id i { width: 3px; align-self: stretch; border-radius: 2px; background: linear-gradient(180deg, var(--hc1), var(--hc2)); font-style: normal; }
+@media (min-width: 720px) { .gh__id { left: var(--s-6); top: 16px; font-size: 0.76rem; } }
+
+/* ------------------------------------------------------------------ historical game header with hero art */
+.mh--art { isolation: isolate; overflow: hidden; margin-top: var(--s-2); padding: var(--s-5) var(--s-4) var(--s-4); border-radius: var(--r-3); border: 1px solid var(--panel-line); }
+.mh--art::after { display: none; }
+.mh--art > :not(.mh__art) { position: relative; z-index: 1; }
+.mh__art { position: absolute; inset: 0; z-index: 0; }
+.mh--art .mh__name, .mh--art .mh__eyebrow, .mh--art .mh__meta, .mh--art .mh__score { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85); }
+.chip--hero { color: var(--ivory); border-color: color-mix(in srgb, var(--hc1) 70%, #fff 10%); background: color-mix(in srgb, var(--hc1) 30%, rgba(1, 11, 19, 0.6)); }
+@media (min-width: 720px) { .mh--art { padding: var(--s-6) var(--s-6) var(--s-5); } }
+
+/* Phones: a final score sits under its team's name (it never collides with a long name), and the photo credit
+   moves to the bottom corner so the identity line has the top to itself. */
+@media (max-width: 480px) {
+  .gh__team { flex-wrap: wrap; row-gap: 0; }
+  .gh__team .gh__tn { flex: 1 1 0; }
+  .gh__team .gh__score { order: 3; flex-basis: 100%; margin: 2px 0 0; font-size: 1.7rem; line-height: 1; }
+  .gh__team--home .gh__score { text-align: right; }
+}
+@media (max-width: 720px) {
+  .gh__credit { top: auto; bottom: 3px; right: 8px; max-width: 70%; font-size: 9px; }
+  .gh--photo .gh__in { padding-bottom: calc(var(--s-3) + 8px); }
+}
+
+/* ------------------------------------------------------------------ hero gallery (#/design/heroes) */
+.hg__nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
+.hg__nav .chip.is-on { background: var(--deep-blue); color: var(--ivory); }
+.hg__list { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: grid; gap: var(--s-5); }
+.hg__cap { margin-bottom: 6px; font-size: 0.86rem; }
+@media (min-width: 1100px) { .heroes-gallery .gh { min-height: 340px; } }

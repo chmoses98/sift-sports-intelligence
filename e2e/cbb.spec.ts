@@ -89,7 +89,7 @@ test.describe('CBB in season', () => {
   test('identity and visuals: real logos, win probability in numbers, butterfly matchup, slate filters @smoke', async ({ page }) => {
     await page.goto(`./#/cbb/game/${DUKE_KU.event_id}`);
     // the schools' committed logos (never a remote URL), names always beside them
-    const logos = page.locator('.cgh img');
+    const logos = page.locator('.cgh__side img') /* the two teams; the hero art's watermark is not a team mark */;
     await expect(logos).toHaveCount(2);
     for (const src of await logos.evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute('src') ?? ''))) expect(src).toMatch(/teams\/cbb\/\d+\.webp$/);
     await expect(page.locator('.cgh')).toContainText('Duke');
@@ -182,7 +182,7 @@ test.describe('CBB preseason', () => {
     await expect(page.getByText(/Current roster truth/)).toBeVisible();
     await expect(page.locator('.cmc__row')).toHaveCount(0);
     // the pending hero still shows both schools and an intentional status, plus the protocol timeline
-    await expect(page.locator('.cgh img')).toHaveCount(2);
+    await expect(page.locator('.cgh__side img') /* the two teams; the hero art's watermark is not a team mark */).toHaveCount(2);
     await expect(page.locator('.cpend')).toContainText('Projection pending');
     await expect(page.getByRole('list', { name: 'Projection timeline' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Roster comparison' })).toBeVisible();

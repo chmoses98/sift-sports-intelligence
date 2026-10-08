@@ -901,6 +901,499 @@
    }
   },
   {
+   "id": "cfb-nd-notre-dame-stadium",
+   "sport": "CFB",
+   "team": "ND",
+   "venue": "notre-dame-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Interlocking ND logo on the post-Crossroads video board and at midfield; full Notre Dame Stadium crowd",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "48% 45%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Eccekevin",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:NotreDameStadiumNight.jpg",
+    "file": "File:NotreDameStadiumNight.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-neb-nebraska-memorial-stadium",
+   "sport": "CFB",
+   "team": "NEB",
+   "venue": "nebraska-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Sea of red, red HUSKERS end zone, Nebraska Memorial Stadium press box and east stadium",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "55% 55%"
+   },
+   "w": 2400,
+   "h": 1627,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "HuskerPower",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:MemorialStadium_260912.jpg",
+    "file": "File:MemorialStadium 260912.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ohio-peden-stadium",
+   "sport": "CFB",
+   "team": "OHIO",
+   "venue": "peden-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Green OHIO end zone lettering, Ohio sideline and Peden Stadium home grandstand",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "40% 60%"
+   },
+   "w": 2400,
+   "h": 1350,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Dan Keck",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Peden_Stadium_2018.jpg",
+    "file": "File:Peden Stadium 2018.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-okla-oklahoma-memorial-stadium",
+   "sport": "CFB",
+   "team": "OKLA",
+   "venue": "oklahoma-memorial-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "OKLAHOMA crimson end zone, Pride of Oklahoma band on field, 'Sooner Tag' on video board",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "55% 50%"
+   },
+   "w": 2400,
+   "h": 1688,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Spatms",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Pride_of_Oklahoma_Marching_Band,_Gaylord_Family_Oklahoma_Memorial_Stadium,_LSU_vs_Oklahoma,_2025_(2).jpg",
+    "file": "File:The Pride of Oklahoma Marching Band, Gaylord Family Oklahoma Memorial Stadium, LSU vs Oklahoma, 2025 (2).jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ore-autzen-stadium",
+   "sport": "CFB",
+   "team": "ORE",
+   "venue": "autzen-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Yellow OREGON end zone, green-and-yellow full Autzen crowd at dusk",
+   "focus": {
+    "desktop": "50% 60%",
+    "mobile": "58% 55%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Another Believer",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Autzen_Stadium,_Eugene,_Oregon_-_24_(2012).JPG",
+    "file": "File:Autzen Stadium, Eugene, Oregon - 24 (2012).JPG",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-osu-ohio-stadium",
+   "sport": "CFB",
+   "team": "OSU",
+   "venue": "ohio-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Scarlet BUCKEYES end zone, Buckeyes in scarlet warming up, scarlet-clad Ohio Stadium stands",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "50% 55%"
+   },
+   "w": 2400,
+   "h": 1600,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Sam Howzit",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:OSU_football_05.jpg",
+    "file": "File:OSU football 05.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-rutg-shi-stadium",
+   "sport": "CFB",
+   "team": "RUTG",
+   "venue": "shi-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Giant scarlet RUTGERS end zone, Rutgers in scarlet at the goal line, SHI Stadium signage",
+   "focus": {
+    "desktop": "50% 58%",
+    "mobile": "62% 55%"
+   },
+   "w": 2048,
+   "h": 1536,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Jweiss11",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Michigan_at_Rutgers_November_5_2022_Third_Quarter_2_Yard_Line.jpg",
+    "file": "File:Michigan at Rutgers November 5 2022 Third Quarter 2 Yard Line.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-sdsu-snapdragon-stadium",
+   "sport": "CFB",
+   "team": "SDSU",
+   "venue": "snapdragon-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Red SAN DIEGO STATE end zone lettering, Aztecs in red, red-clad Snapdragon Stadium crowd",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "45% 50%"
+   },
+   "w": 2400,
+   "h": 1448,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Spatms",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Snapdragon_Stadium_interior-Night_game_field_4.jpg",
+    "file": "File:Snapdragon Stadium interior-Night game field 4.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-syr-jma-wireless-dome",
+   "sport": "CFB",
+   "team": "SYR",
+   "venue": "jma-wireless-dome",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Orange-clad JMA Wireless Dome crowd, Syracuse in navy/orange, SYRACUSE sideline banner and Ring of Honor",
+   "focus": {
+    "desktop": "50% 55%",
+    "mobile": "45% 60%"
+   },
+   "w": 2400,
+   "h": 1350,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Kiran891",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kyle_McCord_gives_the_football_to_LeQuint_Allen_02.jpg",
+    "file": "File:Kyle McCord gives the football to LeQuint Allen 02.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-tcu-amon-g-carter-stadium",
+   "sport": "CFB",
+   "team": "TCU",
+   "venue": "amon-g-carter-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Purple HORNED FROGS end zone, TCU midfield logo, purple-clad Amon G. Carter crowd",
+   "focus": {
+    "desktop": "50% 52%",
+    "mobile": "50% 50%"
+   },
+   "w": 2400,
+   "h": 1600,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Michael Barera",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Southern_Methodist_vs._Texas_Christian_football_2019_05_(Southern_Methodist_kicking_off).jpg",
+    "file": "File:Southern Methodist vs. Texas Christian football 2019 05 (Southern Methodist kicking off).jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-tuln-yulman-stadium",
+   "sport": "CFB",
+   "team": "TULN",
+   "venue": "yulman-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Tulane logo on the Wilson press center, green checkerboard end zone, green-and-blue Yulman crowd",
+   "focus": {
+    "desktop": "50% 38%",
+    "mobile": "70% 45%"
+   },
+   "w": 2400,
+   "h": 1594,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Vegasjon",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Yulman_Stadium_opening_day_(top_corner).jpg",
+    "file": "File:Yulman Stadium opening day (top corner).jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ucf-fbc-mortgage-stadium",
+   "sport": "CFB",
+   "team": "UCF",
+   "venue": "fbc-mortgage-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "KNIGHTS end zone, '2017 National Champions' and conference-champions signage on the Bounce House press box, black-clad crowd",
+   "focus": {
+    "desktop": "62% 50%",
+    "mobile": "62% 50%"
+   },
+   "w": 2400,
+   "h": 1690,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Doctorindy",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:2021UCFvsUConn-JohnnyRichardson.jpg",
+    "file": "File:2021UCFvsUConn-JohnnyRichardson.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-ucla-rose-bowl",
+   "sport": "CFB",
+   "team": "UCLA",
+   "venue": "rose-bowl",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "UCLA end-zone lettering and midfield script, 'Spieker Field at the Rose Bowl' banner, UCLA-blue crowd",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "50% 40%"
+   },
+   "w": 2048,
+   "h": 1536,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Ryanishungry",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:OregonAtUCLA10232021.jpg",
+    "file": "File:OregonAtUCLA10232021.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-uga-sanford-stadium",
+   "sport": "CFB",
+   "team": "UGA",
+   "venue": "sanford-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Red BULLDOGS end zone, G midfield logo, red-clad Sanford Stadium stands and video board",
+   "focus": {
+    "desktop": "50% 62%",
+    "mobile": "50% 60%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "TarheelBornBred",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:UGA_vs._Marshall_at_Sanford_Stadium,_2025.jpg",
+    "file": "File:UGA vs. Marshall at Sanford Stadium, 2025.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-utah-rice-eccles-stadium",
+   "sport": "CFB",
+   "team": "UTAH",
+   "venue": "rice-eccles-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Red UTES end zone, red-out Rice-Eccles crowd, Utah video board, new south end-zone stands",
+   "focus": {
+    "desktop": "50% 45%",
+    "mobile": "45% 45%"
+   },
+   "w": 2400,
+   "h": 1800,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Mattstorms",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ken_Garff_South_End_zone_at_Rice-Eccles_Stadium.jpg",
+    "file": "File:Ken Garff South End zone at Rice-Eccles Stadium.jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-vt-lane-stadium",
+   "sport": "CFB",
+   "team": "VT",
+   "venue": "lane-stadium",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "VT midfield logo, maroon HOKIES end zone, flag runners, packed maroon-and-orange Lane Stadium stands",
+   "focus": {
+    "desktop": "50% 50%",
+    "mobile": "50% 50%"
+   },
+   "w": 1818,
+   "h": 1213,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "The Stratman",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Virginia_Tech_Flag_Bearers_Run_Out_On_Field.png",
+    "file": "File:Virginia Tech Flag Bearers Run Out On Field.png",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
+   "id": "cfb-wyo-war-memorial-stadium-wyo",
+   "sport": "CFB",
+   "team": "WYO",
+   "venue": "war-memorial-stadium-wyo",
+   "from": null,
+   "to": null,
+   "neutralOk": false,
+   "identity": "Gold-and-brown COWBOYS end zone, Steamboat flag rider on horseback, gold-clad War Memorial crowd",
+   "focus": {
+    "desktop": "55% 35%",
+    "mobile": "55% 40%"
+   },
+   "w": 2400,
+   "h": 1693,
+   "widths": [
+    2400,
+    1200
+   ],
+   "crop": null,
+   "credit": {
+    "artist": "Tony Webster",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Wyoming_Cowboys_Football_Game_(52331204627).jpg",
+    "file": "File:Wyoming Cowboys Football Game (52331204627).jpg",
+    "modifications": "resized and colour graded by Sift"
+   }
+  },
+  {
    "id": "mlb-atl-truist-park",
    "sport": "MLB",
    "team": "ATL",

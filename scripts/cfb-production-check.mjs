@@ -140,7 +140,9 @@ function rawSpellings() {
   return raw;
 }
 const RAW = rawSpellings();
-const RAW_RE = new RegExp(`(?<![\\w&'’-])(${[...RAW].sort((a, b) => b.length - a.length).map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\w&-])`);
+// Whole spellings only, and the same rule the app's cfbDisplayText uses: a spelling followed by " (" is the start of a
+// longer school name ("Miami" in "Miami (OH)" or "Miami (FL)"), never a leak of the bare schedule name.
+const RAW_RE = new RegExp(`(?<![\\w&'’-])(${[...RAW].sort((a, b) => b.length - a.length).map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\w&-]|\\s\\()`);
 const FRAGMENT_MATCHUP = /(^|\n|\s)(St\.|State|Miss|Tech|U|University)\s+(at|@|vs)\s+(St\.|State|Miss|Tech|U|University)(\s|$)|(^|\n)University (at|@) |\s(at|@) University(\s|$)/;
 
 function visibleLeak(text) {

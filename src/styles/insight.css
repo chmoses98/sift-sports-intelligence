@@ -340,6 +340,8 @@
 .fcard__img { max-height: 340px; width: 100%; }
 @media (max-width: 480px) { .gh__name { font-size: 1.4rem; overflow-wrap: normal; white-space: nowrap; } .gh__meta { font-size: 0.78rem; } }
 @media (max-width: 360px) { .gh__name { font-size: 1.2rem; } }
+/* Long college names ("Sacramento St.", "Bowling Green") wrap onto two lines on phones instead of running into each other. */
+@media (max-width: 480px) { .gh__name--long { white-space: normal; overflow-wrap: normal; font-size: 1.15rem; line-height: 1.05; } }
 .gcard__hook--edge { color: #fff; font-weight: 600; }
 .shome__props { max-width: 880px; margin-bottom: var(--s-8); }
 @media (max-width: 480px) { .gh__cityname, .gh__sep { display: none; } }

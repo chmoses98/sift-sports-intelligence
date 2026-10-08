@@ -1,6 +1,6 @@
 {
- "count": 8,
- "generated_at": "2026-10-07T15:22:15Z",
+ "count": 11,
+ "generated_at": "2026-10-08T01:42:42Z",
  "items": [
   {
    "away_participant": "prt_b5f5b75952dd24e1599a",
@@ -25,14 +25,14 @@
     "home_away_source": "milestone_title_at",
     "identity_source": "kalshi_milestone",
     "market_count": 109,
-    "milestone_status": "scheduled",
+    "milestone_status": "inprogress",
     "season_type": "REG",
     "season_week": 6,
     "tier": "C",
     "title": "Jacksonville St. at Kennesaw St."
    },
    "home_participant": "prt_71b49ac37b701af901df",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -62,7 +62,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT07JVSTKENN",
@@ -74,7 +74,7 @@
    "start_time_local": null,
    "start_time_source": "kalshi_milestone",
    "start_time_utc": "2026-10-07T23:00:00Z",
-   "status": "SCHEDULED",
+   "status": "LIVE",
    "venue": null
   },
   {
@@ -107,7 +107,7 @@
     "title": "New Mexico St. at Florida International"
    },
    "home_participant": "prt_bafb79d8984828d8c0bb",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -137,7 +137,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT07NMSUFIU",
@@ -149,7 +149,7 @@
    "start_time_local": null,
    "start_time_source": "kalshi_milestone",
    "start_time_utc": "2026-10-07T23:30:00Z",
-   "status": "SCHEDULED",
+   "status": "LIVE",
    "venue": null
   },
   {
@@ -190,7 +190,7 @@
     "title": "Iowa St. at BYU"
    },
    "home_participant": "prt_62f3806b37c6de70d9ca",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -220,7 +220,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT09ISUBYU",
@@ -232,6 +232,89 @@
    "start_time_local": null,
    "start_time_source": "kalshi_milestone",
    "start_time_utc": "2026-10-10T02:15:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_ba587efcb5d0faa377d2",
+   "broadcast": null,
+   "competition": "FBS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_16c15c04ce50a5cb83f5",
+   "extensions": {
+    "conference": "BIG-12",
+    "division": "FBS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "first_half_spread": 21,
+     "first_half_total": 15,
+     "game_moneyline": 2,
+     "game_spread": 29,
+     "game_total": 19,
+     "overtime": 1,
+     "quarter_moneyline": 12,
+     "quarter_spread": 41,
+     "quarter_total": 44,
+     "second_half_moneyline": 3,
+     "second_half_spread": 21,
+     "second_half_total": 15,
+     "team_total": 28,
+     "touchdown_scorer": 3
+    },
+    "game_key": "26OCT10ARIZWVU",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 257,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 6,
+    "tier": "A_MINUS",
+    "title": "Arizona at West Virginia"
+   },
+   "home_participant": "prt_9aef85007590e9519a78",
+   "last_updated_at": "2026-10-07T23:19:34Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "Arizona",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_ba587efcb5d0faa377d2",
+     "participant_type": "TEAM",
+     "short_name": "ARIZ",
+     "source_ids": {
+      "kalshi_football_team": "4d04b3c4-de42-41ce-b7e0-a9ac9716ceb7",
+      "kalshi_team_code": "ARIZ"
+     }
+    },
+    {
+     "display_name": "West Virginia",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_9aef85007590e9519a78",
+     "participant_type": "TEAM",
+     "short_name": "WVU",
+     "source_ids": {
+      "kalshi_football_team": "a791681b-d60e-4957-ae7b-8268d5a1a74d",
+      "kalshi_team_code": "WVU"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT10ARIZWVU",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT10ARIZWVU",
+    "kalshi_milestone_id": "10599d28-1907-4902-aed7-ede85189d9f3"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-10T16:00:00Z",
    "status": "SCHEDULED",
    "venue": null
   },
@@ -269,7 +352,7 @@
     "title": "LSU at Kentucky"
    },
    "home_participant": "prt_ef6ed2cf7aba454b6fcf",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -299,7 +382,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT10LSUUK",
@@ -311,6 +394,81 @@
    "start_time_local": null,
    "start_time_source": "kalshi_milestone",
    "start_time_utc": "2026-10-10T23:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_7a85c00e0ce29c2509c8",
+   "broadcast": null,
+   "competition": "FBS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_f32aa654d1e5ccd474f9",
+   "extensions": {
+    "conference": "MID-AMERICAN",
+    "division": "FBS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "first_half_spread": 21,
+     "first_half_total": 14,
+     "game_moneyline": 2,
+     "game_spread": 31,
+     "game_total": 19,
+     "team_total": 22
+    },
+    "game_key": "26OCT10SACBGSU",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 112,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 6,
+    "tier": "C",
+    "title": "Sacramento St. at Bowling Green"
+   },
+   "home_participant": "prt_1b7677330401abdeac71",
+   "last_updated_at": "2026-10-07T23:19:34Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "Sacramento St.",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_7a85c00e0ce29c2509c8",
+     "participant_type": "TEAM",
+     "short_name": "SAC",
+     "source_ids": {
+      "kalshi_football_team": "3a527168-1048-4cb3-ae17-13a86efde559",
+      "kalshi_team_code": "SAC"
+     }
+    },
+    {
+     "display_name": "Bowling Green",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_1b7677330401abdeac71",
+     "participant_type": "TEAM",
+     "short_name": "BGSU",
+     "source_ids": {
+      "kalshi_football_team": "63512fa9-9e9d-4b93-a7f3-6fb0a1412c18",
+      "kalshi_team_code": "BGSU"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT10SACBGSU",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT10SACBGSU",
+    "kalshi_milestone_id": "67330032-b755-433e-b3f3-a37a0e9d7ee9"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-10T16:00:00Z",
    "status": "SCHEDULED",
    "venue": null
   },
@@ -331,6 +489,12 @@
      "game_spread": 17,
      "game_total": 19,
      "overtime": 1,
+     "quarter_moneyline": 12,
+     "quarter_spread": 56,
+     "quarter_total": 44,
+     "second_half_moneyline": 3,
+     "second_half_spread": 23,
+     "second_half_total": 15,
      "team_total": 22,
      "touchdown_scorer": 3
     },
@@ -338,7 +502,7 @@
     "home_away_confidence": "stated",
     "home_away_source": "milestone_title_at",
     "identity_source": "kalshi_milestone",
-    "market_count": 105,
+    "market_count": 258,
     "milestone_status": "scheduled",
     "season_type": "REG",
     "season_week": 6,
@@ -346,7 +510,7 @@
     "title": "Stanford at Notre Dame"
    },
    "home_participant": "prt_3dbc86ed6c007467d066",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -376,7 +540,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT10STANND",
@@ -407,8 +571,15 @@
      "first_half_total": 14,
      "game_moneyline": 2,
      "game_spread": 31,
+     "game_stat_prop": 1,
      "game_total": 19,
      "overtime": 1,
+     "quarter_moneyline": 12,
+     "quarter_spread": 40,
+     "quarter_total": 44,
+     "second_half_moneyline": 3,
+     "second_half_spread": 21,
+     "second_half_total": 14,
      "team_total": 25,
      "touchdown_scorer": 3
     },
@@ -416,7 +587,7 @@
     "home_away_confidence": "stated",
     "home_away_source": "milestone_title_at",
     "identity_source": "kalshi_milestone",
-    "market_count": 136,
+    "market_count": 271,
     "milestone_status": "scheduled",
     "season_type": "REG",
     "season_week": 6,
@@ -424,7 +595,7 @@
     "title": "Tennessee at Arkansas"
    },
    "home_participant": "prt_8a780b47bb454a41c080",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -454,7 +625,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT10TENNARK",
@@ -503,7 +674,7 @@
     "title": "Georgia at Alabama"
    },
    "home_participant": "prt_cfe4b7056ed5e2175890",
-   "last_updated_at": "2026-10-07T06:26:26Z",
+   "last_updated_at": "2026-10-07T23:19:34Z",
    "league": "NCAAFB",
    "participants": [
     {
@@ -533,7 +704,7 @@
      }
     }
    ],
-   "schedule_updated_at": "2026-10-07T06:26:26Z",
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
    "season": "2026",
    "source_ids": {
     "kalshi_game_key": "26OCT10UGAALA",
@@ -545,6 +716,75 @@
    "start_time_local": null,
    "start_time_source": "kalshi_milestone",
    "start_time_utc": "2026-10-10T23:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_e7a0ceed3944ae9ce6d0",
+   "broadcast": null,
+   "competition": "FCS",
+   "effective_start_time_utc": null,
+   "event_id": "evt_eed4efa39c9e61732fb8",
+   "extensions": {
+    "conference": "CAA",
+    "division": "FCS",
+    "family_distribution": {
+     "first_half_moneyline": 3,
+     "game_moneyline": 2
+    },
+    "game_key": "26OCT17ALBYSTON",
+    "home_away_confidence": "stated",
+    "home_away_source": "milestone_title_at",
+    "identity_source": "kalshi_milestone",
+    "market_count": 5,
+    "milestone_status": "scheduled",
+    "season_type": "REG",
+    "season_week": 7,
+    "tier": "D",
+    "title": "University at Albany at Stony Brook"
+   },
+   "home_participant": "prt_d71a44feb622c530ce5b",
+   "last_updated_at": "2026-10-07T23:19:34Z",
+   "league": "NCAAFB",
+   "participants": [
+    {
+     "display_name": "University",
+     "metadata": {
+      "slot": "away"
+     },
+     "participant_id": "prt_e7a0ceed3944ae9ce6d0",
+     "participant_type": "TEAM",
+     "short_name": "ALBY",
+     "source_ids": {
+      "kalshi_football_team": "26f09c01-3307-4cc6-bb6e-c988f2a10ca6",
+      "kalshi_team_code": "ALBY"
+     }
+    },
+    {
+     "display_name": "Albany at Stony Brook",
+     "metadata": {
+      "slot": "home"
+     },
+     "participant_id": "prt_d71a44feb622c530ce5b",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_team_name": "Albany at Stony Brook"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-07T23:19:34Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_game_key": "26OCT17ALBYSTON",
+    "kalshi_main_event_ticker": "KXNCAAFGAME-26OCT17ALBYSTON",
+    "kalshi_milestone_id": "c019d9c7-8fad-5d08-b726-746a9693bd74"
+   },
+   "sport": "CFB",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "kalshi_milestone",
+   "start_time_utc": "2026-10-17T18:30:00Z",
    "status": "SCHEDULED",
    "venue": null
   },
@@ -619,7 +859,7 @@
   }
  ],
  "kind": "events",
- "run_id": "run_8c26da01c4d85c0c5d9c",
+ "run_id": "run_c2576cfa8ba3b0feb4af",
  "schema_version": "edge_finder.app.v1",
  "sport": "CFB"
 }

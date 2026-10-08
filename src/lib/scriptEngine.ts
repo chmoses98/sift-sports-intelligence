@@ -201,9 +201,66 @@ export interface Engine {
   coverage: Record<string, unknown> | null;
   researchOnly: boolean;
   pricingNote: string;
+  /** The V2 claims published beside the scripts; null when the payload predates them (1.1.0) or trimmed them. */
+  claimsV2: ClaimsV2 | null;
 }
 
 export interface EngineUnavailable { status: string; reason: string | null }
+
+// ------------------------------------------------------------------ V2 claims (cfb-script-engine/2.0.0)
+//
+// Independent football claims published beside the V1 scripts (`claims_v2`, payload 1.2.0). While
+// `activation` is SHADOW the V1 scripts stay the active read and Sift labels V2 as a preview. Nothing here
+// is a probability: the CONTROL range is a HISTORICAL EMPIRICAL RANGE (margins of past games that carried
+// the same football claim), never a prediction interval, and the historical win count is a frequency of
+// those past games, never this game's chance.
+
+export interface HistoricalRange {
+  label: string;
+  not: string;
+  tier: string;
+  n: number;
+  win_rate: { rate: number; hits: number; n: number; ci95?: [number, number] };
+  median: number;
+  central_50: [number, number];
+  central_80: [number, number];
+  development_seasons: number[];
+  validation: { seasons: number[]; n: number; median: number; coverage_50: number; coverage_80: number };
+  calibration_sha256: string;
+}
+
+export interface ControlClaim {
+  family: 'CONTROL';
+  side: 'home' | 'away';
+  strength: 'MODERATE' | 'STRONG';
+  tier: string;
+  evidence: string[];
+  statement: string;
+  context?: { same_side: string[]; opposing: string[] };
+  historical_range: HistoricalRange | null;
+}
+
+export interface ClaimsV2 {
+  methodology_version: string;
+  activation: 'SHADOW' | 'ACTIVE' | string;
+  status: 'CLAIMS_PUBLISHED' | 'NO_SUPPORTED_CLAIM' | string;
+  status_statement: string | null;
+  data_quality: { level: Confidence; describes: string };
+  claims: {
+    control: ControlClaim | null;
+    closeness: { evidence: string[]; statement: string } | null;
+    pace: { level: 'HIGH' | 'LOW'; strength: string; evidence: string[]; statement: string } | null;
+    scoring_environment: { level: 'ELEVATED' | 'SUPPRESSED'; strengthened: boolean; incremental_over_baseline: boolean; evidence: string[]; statement: string } | null;
+    defensive_suppression: { evidence: string[]; statement: string } | null;
+    disruption: { side: 'home' | 'away'; strength: string; evidence: string[]; aligned_with_control: boolean | null; statement: string }[];
+    explosive_upset: { status: string; script_ids: string[] };
+  };
+  story: { headline: string; clauses: { text: string; claims: string[] }[] };
+  calibration?: { sha256?: string; calibration_version?: string };
+  claims_artifact_hash: string;
+  generated_at: string;
+  market_authority: { counts: Record<string, number>; moneyline: [string, 'ALIGNED' | 'OPPOSED'][] } | null;
+}
 
 const CODE: Record<string, Compat> = { S: 'SUPPORTED', P: 'PARTIAL', C: 'CONTRADICTED', N: 'NEUTRAL', U: 'UNMAPPABLE', R: 'RESEARCH_UNCALIBRATED' };
 
@@ -274,6 +331,7 @@ export function readEngine(r: EventResearchDoc | null | undefined): Engine | Eng
     coverage: smm.coverage ?? null,
     researchOnly: smm.research_only !== false,
     pricingNote: smm.pricing_note ?? '',
+    claimsV2: p.claims_v2?.claims && p.claims_v2?.story ? (p.claims_v2 as ClaimsV2) : null,
   };
 }
 
@@ -446,4 +504,30 @@ export function marginBandText(b: [number, number] | null, home: string, away: s
 
 export function bandText(b: [number, number] | null | undefined): string | null {
   return b ? `${b[0]}–${b[1]}` : null;
+}
+
+// ------------------------------------------------------------------ V2 words
+
+export const PACE_WORD: Record<string, string> = { HIGH: 'Faster', LOW: 'Slower' };
+export const SCORING_WORD: Record<string, string> = { ELEVATED: 'Elevated', SUPPRESSED: 'Lower (baseline already expects it)' };
+export const STRENGTH_WORD: Record<string, string> = { MODERATE: 'Moderate', STRONG: 'Strong' };
+
+/** A control-side margin as text: 3 -> "+3", -4 -> "−4". */
+export function signedPoints(v: number): string {
+  const r = Math.round(v * 10) / 10;
+  return `${r > 0 ? '+' : r < 0 ? '−' : ''}${Math.abs(r)}`;
+}
+
+/** "Alabama margin −4 to +18" for a historical range on the control side's margin. */
+export function rangeText(team: string, range: [number, number]): string {
+  return `${team} margin ${signedPoints(range[0])} to ${signedPoints(range[1])}`;
+}
+
+/** "323 of 404" — the historical frequency, deliberately a count and never a percentage or a chance. */
+export function historicalWinsText(r: HistoricalRange): string {
+  return `${r.win_rate.hits} of ${r.win_rate.n}`;
+}
+
+export function seasonsText(seasons: number[]): string {
+  return seasons.length ? `${Math.min(...seasons)}–${Math.max(...seasons)}` : '—';
 }

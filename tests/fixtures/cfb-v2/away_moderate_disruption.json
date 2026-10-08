@@ -1,0 +1,789 @@
+{
+ "_fixture": "Reduced from the cfb-edge-finder V2 shadow build of 26OCT10LSUUK (as of 2026-10-08T01:30Z): extensions.script_engine only, metric tables and market expressions removed.",
+ "extensions": {
+  "script_engine": {
+   "band_policy": {
+    "away_points": "UNCALIBRATED_DESCRIPTIVE",
+    "home_margin": "ARCHETYPE_DEFINITION",
+    "home_points": "UNCALIBRATED_DESCRIPTIVE",
+    "rule": "Margin bands define the archetype. Scoring bands are drawn around the descriptive, uncalibrated scoring baseline: research context only, never grounds for calling a total or team-total contract supported, until the scoring-band promotion gate passes.",
+    "total_points": "UNCALIBRATED_DESCRIPTIVE"
+   },
+   "claims_v2": {
+    "abstentions": [
+     {
+      "family": "CLOSENESS",
+      "reason": "NARROW_EFFICIENCY_GAP is informational; it never activates CLOSENESS"
+     }
+    ],
+    "activation": "SHADOW",
+    "calibration": {
+     "artifact": "data/scripting/calibration/control_margin_v2.json",
+     "calibration_version": "cfb-control-margin/2021-2025/1.0.0",
+     "development_seasons": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+     ],
+     "schema": "cfb_control_margin_calibration/1.0.0",
+     "sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+     "source_parameters_sha256": "683d075d99efdfed16f7fb35a9fd58234808d1a354f8fb8e3352c64e972bf7aa",
+     "validation_seasons": [
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+     ]
+    },
+    "claims": {
+     "closeness": null,
+     "control": {
+      "context": {
+       "opposing": [],
+       "rule": "listed for drill-down; not weighed (the historical range is conditional on the control finding alone)",
+       "same_side": [
+        "AWAY_DISRUPTION_ADVANTAGE",
+        "AWAY_SCORING_ADVANTAGE"
+       ]
+      },
+      "evidence": [
+       "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+      ],
+      "family": "CONTROL",
+      "historical_range": {
+       "calibration_sha256": "626c649b91379bc7d8855f121b32c2d148d4e9b129ea674b612a9a0978e89730",
+       "central_50": [
+        -4.0,
+        18.0
+       ],
+       "central_80": [
+        -13.7,
+        30.0
+       ],
+       "development_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+       ],
+       "label": "Historical empirical range: the full-game margins of past games (2021-2025) that carried the same football claim, from the control side's point of view.",
+       "mean": 7.02,
+       "median": 7.0,
+       "n": 404,
+       "not": "Not a prediction interval, a probability, a fair price, an expected value or a guarantee. The win rate is a historical conditional frequency, not this game's chance to win.",
+       "tier": "AWAY_CONTROL_MODERATE",
+       "validation": {
+        "coverage_50": 0.537,
+        "coverage_80": 0.784,
+        "median": 7.0,
+        "n": 514,
+        "seasons": [
+         2014,
+         2015,
+         2016,
+         2017,
+         2018,
+         2019,
+         2020
+        ],
+        "win_rate": 0.679
+       },
+       "variable": "control_side_margin",
+       "win_rate": {
+        "ci95": [
+         0.6185,
+         0.7101
+        ],
+        "hits": 269,
+        "n": 404,
+        "rate": 0.6658
+       }
+      },
+      "side": "away",
+      "statement": "LSU owns the opponent-adjusted sustained-efficiency matchup (moderate edge).",
+      "strength": "MODERATE",
+      "tier": "AWAY_CONTROL_MODERATE"
+     },
+     "defensive_suppression": null,
+     "disruption": [
+      {
+       "aligned_with_control": true,
+       "evidence": [
+        "AWAY_DISRUPTION_ADVANTAGE"
+       ],
+       "family": "DISRUPTION_EDGE",
+       "side": "away",
+       "statement": "LSU has a repeatable pressure/disruption advantage (sacks, tackles for loss, negative plays) against Kentucky's protection. It does not by itself say who wins.",
+       "strength": "STRONG",
+       "volatility_context": [],
+       "winner_authority": false
+      }
+     ],
+     "explosive_upset": {
+      "methodology": "V1 rule and V1 script, unchanged (historical explosive-play counts unavailable)",
+      "script_ids": [],
+      "status": "UNTESTED_HISTORICALLY_DATA_UNAVAILABLE"
+     },
+     "pace": {
+      "evidence": [
+       "HIGH_POSSESSION_ENVIRONMENT"
+      ],
+      "family": "PACE",
+      "level": "HIGH",
+      "statement": "Expected possession volume: more plays than an average FBS game.",
+      "strength": "MODERATE"
+     },
+     "scoring_environment": null
+    },
+    "claims_artifact_hash": "ab6c624ec1c60a13a27c8b54dd09408503b431438c34e5004d907f40b0c43968",
+    "data_quality": {
+     "all_gates_pass": true,
+     "describes": "the quality and completeness of the football evidence (coverage, sample, adjustment stability, availability, identity) -- never how likely a claim is to come true",
+     "level": "HIGH",
+     "reasons": []
+    },
+    "generated_at": "2026-10-08T01:30:00Z",
+    "market_authority": {
+     "counts": {
+      "DIRECT_FOOTBALL_AUTHORITY": 3,
+      "NO_MARKET_AUTHORITY": 1,
+      "RESEARCH_CONTEXT_ONLY": 62,
+      "RESEARCH_UNCALIBRATED": 88,
+      "UNMAPPABLE": 128
+     },
+     "explosive_upset_v1": [],
+     "moneyline": [
+      [
+       "KXNCAAFGAME-26OCT10LSUUK-LSU:YES",
+       "ALIGNED"
+      ],
+      [
+       "KXNCAAFGAME-26OCT10LSUUK-LSU:NO",
+       "OPPOSED"
+      ],
+      [
+       "KXNCAAFGAME-26OCT10LSUUK-UK:YES",
+       "OPPOSED"
+      ]
+     ],
+     "schema_version": "cfb_claims_market_authority/1.0.0"
+    },
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/2.0.0",
+    "outcome_strength_source": "CONTROL.strength",
+    "probability": null,
+    "schema_version": "cfb_script_claims/2.0.0",
+    "source": {
+     "football_artifact_hash": "708abcfbba7799671e5bc9078556ff1ffd385b5467fbdcd6af50d9de31eea684",
+     "football_methodology_version": "cfb-script-engine/1.3.0",
+     "football_schema_version": "cfb_script_artifact/1.0.0"
+    },
+    "status": "CLAIMS_PUBLISHED",
+    "status_statement": null,
+    "story": {
+     "clauses": [
+      {
+       "claims": [
+        "control",
+        "pace"
+       ],
+       "text": "LSU holds a moderate sustained-efficiency control edge, with a faster possession environment."
+      },
+      {
+       "claims": [
+        "disruption.away"
+       ],
+       "text": "LSU's disruption edge points the same way."
+      }
+     ],
+     "generated_from": "V2 claims only; deterministic templates; no market input; not a calibrated archetype",
+     "headline": "LSU holds a moderate sustained-efficiency control edge, with a faster possession environment. LSU's disruption edge points the same way."
+    },
+    "teams": {
+     "away": {
+      "name": "LSU",
+      "team_id": "99"
+     },
+     "home": {
+      "name": "Kentucky",
+      "team_id": "96"
+     }
+    }
+   },
+   "data_confidence": {
+    "adjustment_stable": true,
+    "all_gates_pass": true,
+    "availability_status": {
+     "away": "OBSERVED",
+     "home": "OBSERVED"
+    },
+    "core_coverage": {
+     "away": 1.0,
+     "home": 1.0
+    },
+    "describes": "the quality of the football evidence, never how strongly a side or script is favoured",
+    "enhanced_dimensions": [
+     "sustained_efficiency",
+     "rushing",
+     "passing",
+     "explosiveness",
+     "finishing"
+    ],
+    "freshness": {
+     "expected_prior_games": 10,
+     "missing_game_ids": [],
+     "rule": "every finished prior game of either team that involved an FBS team must be in the game log",
+     "status": "FRESH"
+    },
+    "games_observed": {
+     "away": 5,
+     "home": 5
+    },
+    "gates": {
+     "adjusted_inputs": true,
+     "availability": true,
+     "freshness": true,
+     "identity": true,
+     "market_blind": true,
+     "sample_size": true
+    },
+    "known": [
+     "Kentucky: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "Kentucky: prior weight on key adjusted metrics up to 44%",
+     "LSU: 5 completed game(s) before kickoff, core metric coverage 100%",
+     "LSU: prior weight on key adjusted metrics up to 48%"
+    ],
+    "level": "HIGH",
+    "reasons": [],
+    "unknown": [
+     "weather, travel distance, coaching tendencies and motivation are not part of the V1 evidence"
+    ]
+   },
+   "game_scripts": [
+    {
+     "archetype": "AWAY_CONTROL",
+     "causal_chain": [
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "LSU owns the down-to-down efficiency matchup"
+      },
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "LSU stays out of obvious passing downs"
+      },
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "LSU sustains longer possessions"
+      },
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "Kentucky receives fewer possessions and plays from behind"
+      },
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE",
+        "AWAY_DISRUPTION_ADVANTAGE"
+       ],
+       "step": "Kentucky becomes more pass-dependent while trailing, into a LSU pass rush that creates negative plays"
+      }
+     ],
+     "contradicting_findings": [],
+     "data_confidence": "HIGH",
+     "evidence_score": 5.0,
+     "lead_side": "away",
+     "outcome_shape": {
+      "away_scoring": "AT_OR_ABOVE_BASELINE",
+      "band_authority": {
+       "away_points": "UNCALIBRATED_DESCRIPTIVE",
+       "home_margin": "ARCHETYPE_DEFINITION",
+       "home_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": [
+        26,
+        44
+       ],
+       "home_margin": [
+        -24,
+        -7
+       ],
+       "home_points": [
+        14,
+        30
+       ],
+       "total_points": null
+      },
+      "home_scoring": "BELOW_BASELINE",
+      "margin_authority_evidence": [
+       "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+      ],
+      "margin_environment": "AWAY_BY_ONE_TO_THREE_SCORES",
+      "pace": "NOT_STATED",
+      "total_environment": "NOT_STATED",
+      "winner_lean": "AWAY"
+     },
+     "probability": null,
+     "rank": 1,
+     "required_findings": [
+      "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+     ],
+     "role": "PRIMARY",
+     "script_id": "scr_afbb1cc80e091e5c",
+     "summary": "LSU's sustained-efficiency edge turns into longer drives and a multi-score lead that Kentucky chases.",
+     "supporting_findings": [
+      "AWAY_DISRUPTION_ADVANTAGE",
+      "AWAY_SCORING_ADVANTAGE"
+     ],
+     "title": "LSU controls"
+    },
+    {
+     "archetype": "PACE_DRIVEN_OVER",
+     "causal_chain": [
+      {
+       "findings": [
+        "HIGH_POSSESSION_ENVIRONMENT"
+       ],
+       "step": "both teams play at a snap count above the FBS norm"
+      },
+      {
+       "findings": [
+        "HIGH_POSSESSION_ENVIRONMENT"
+       ],
+       "step": "extra possessions create extra scoring chances for both sides"
+      },
+      {
+       "findings": [
+        "HIGH_POSSESSION_ENVIRONMENT"
+       ],
+       "step": "the total rises with volume, whoever wins"
+      }
+     ],
+     "contradicting_findings": [],
+     "data_confidence": "HIGH",
+     "evidence_score": 1.0,
+     "lead_side": null,
+     "outcome_shape": {
+      "away_scoring": "NOT_STATED",
+      "band_authority": {
+       "total_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": null,
+       "home_margin": null,
+       "home_points": null,
+       "total_points": [
+        60,
+        85
+       ]
+      },
+      "home_scoring": "NOT_STATED",
+      "margin_authority_evidence": [],
+      "margin_environment": "NOT_STATED",
+      "pace": "MORE_POSSESSIONS",
+      "total_environment": "ELEVATED",
+      "winner_lean": "NONE"
+     },
+     "probability": null,
+     "rank": 2,
+     "required_findings": [
+      "HIGH_POSSESSION_ENVIRONMENT"
+     ],
+     "role": "SECONDARY",
+     "script_id": "scr_3a4550a3fcb3dacb",
+     "summary": "Snap volume above the FBS norm on both sides pushes the total up regardless of who wins.",
+     "supporting_findings": [],
+     "title": "Pace-driven scoring"
+    },
+    {
+     "archetype": "UNDERDOG_HANGS_AROUND",
+     "causal_chain": [
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+       ],
+       "step": "LSU owns the efficiency edge"
+      },
+      {
+       "findings": [
+        "NARROW_EFFICIENCY_GAP"
+       ],
+       "step": "LSU's efficiency edge is real but not decisive"
+      },
+      {
+       "findings": [
+        "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE",
+        "NARROW_EFFICIENCY_GAP"
+       ],
+       "step": "LSU's drives stall often enough that Kentucky stays within one score"
+      }
+     ],
+     "contradicting_findings": [
+      "HIGH_POSSESSION_ENVIRONMENT"
+     ],
+     "data_confidence": "HIGH",
+     "evidence_score": 1.0,
+     "lead_side": "home",
+     "outcome_shape": {
+      "away_scoring": "BELOW_BASELINE",
+      "band_authority": {
+       "away_points": "UNCALIBRATED_DESCRIPTIVE",
+       "home_margin": "ARCHETYPE_DEFINITION",
+       "home_points": "UNCALIBRATED_DESCRIPTIVE"
+      },
+      "bands": {
+       "away_points": [
+        20,
+        32
+       ],
+       "home_margin": [
+        -8,
+        7
+       ],
+       "home_points": [
+        25,
+        38
+       ],
+       "total_points": null
+      },
+      "home_scoring": "AT_OR_ABOVE_BASELINE",
+      "margin_authority_evidence": [
+       "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE",
+       "NARROW_EFFICIENCY_GAP"
+      ],
+      "margin_environment": "ONE_SCORE",
+      "pace": "NOT_STATED",
+      "total_environment": "NOT_STATED",
+      "winner_lean": "AWAY"
+     },
+     "probability": null,
+     "rank": 3,
+     "required_findings": [
+      "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE",
+      "NARROW_EFFICIENCY_GAP"
+     ],
+     "role": "DANGER",
+     "script_id": "scr_2e76ca728740fcd5",
+     "summary": "LSU has the better efficiency profile, but lsu's efficiency edge is real but not decisive keeps Kentucky within one score.",
+     "supporting_findings": [],
+     "title": "Kentucky hangs around"
+    }
+   ],
+   "matchup_findings": [
+    {
+     "category": "MATCHUP",
+     "code": "AWAY_DISRUPTION_ADVANTAGE",
+     "dimension": "disruption",
+     "metric_refs": [
+      "home.offense.sack_rate_allowed",
+      "away.defense.sack_rate_allowed",
+      "home.offense.havoc_allowed",
+      "away.defense.havoc_allowed"
+     ],
+     "side": "away",
+     "statement": "LSU's defense generates sacks and negative plays against an offense that allows them (-2.87 for Kentucky's offense).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.537,
+     "value": 2.865
+    },
+    {
+     "category": "MATCHUP",
+     "code": "AWAY_SCORING_ADVANTAGE",
+     "dimension": "scoring",
+     "metric_refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "side": "away",
+     "statement": "LSU owns the stronger opponent-adjusted scoring matchup: Kentucky offense vs LSU defense -0.65, LSU offense vs Kentucky defense +1.44 (points per game, opponent-adjusted: LSU offense #12 of 138, Kentucky defense #70 of 138).",
+     "strength": "STRONG",
+     "threshold": 1.0,
+     "uncertainty": 1.281,
+     "value": -2.085
+    },
+    {
+     "category": "MATCHUP",
+     "code": "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate",
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "away",
+     "statement": "LSU owns the stronger opponent-adjusted sustained-efficiency matchup: Kentucky offense vs LSU defense -1.19, LSU offense vs Kentucky defense +0.69 (success rate, opponent-adjusted: LSU offense #34 of 138, Kentucky defense #103 of 138).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": 1.41,
+     "value": -1.879
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "HIGH_POSSESSION_ENVIRONMENT",
+     "dimension": "pace",
+     "metric_refs": [
+      "home.offense.plays_per_game",
+      "away.defense.plays_per_game",
+      "away.offense.plays_per_game",
+      "home.defense.plays_per_game",
+      "home.offense.seconds_per_play",
+      "away.offense.seconds_per_play"
+     ],
+     "side": "game",
+     "statement": "Both offenses and both defenses point to more snaps than an average FBS game (possession environment +1.67).",
+     "strength": "MODERATE",
+     "threshold": 1.0,
+     "uncertainty": null,
+     "value": 1.672
+    },
+    {
+     "category": "ENVIRONMENT",
+     "code": "NARROW_EFFICIENCY_GAP",
+     "dimension": "sustained_efficiency",
+     "metric_refs": [
+      "home.offense.success_rate",
+      "away.defense.success_rate",
+      "home.offense.early_down_success_rate",
+      "away.defense.early_down_success_rate",
+      "home.offense.yards_per_play",
+      "away.defense.yards_per_play",
+      "home.offense.first_down_rate",
+      "away.defense.first_down_rate",
+      "away.offense.success_rate",
+      "home.defense.success_rate",
+      "away.offense.early_down_success_rate",
+      "home.defense.early_down_success_rate",
+      "away.offense.yards_per_play",
+      "home.defense.yards_per_play",
+      "away.offense.first_down_rate",
+      "home.defense.first_down_rate"
+     ],
+     "side": "game",
+     "statement": "LSU's sustained-efficiency edge is real but not decisive (1.88, below the 2.0 strong threshold): enough for the trailing side to stay in range.",
+     "strength": "MODERATE",
+     "threshold": 2.0,
+     "uncertainty": 1.41,
+     "value": 1.879
+    },
+    {
+     "category": "DEPENDENCE",
+     "code": "HOME_HIGH_VARIANCE_OFFENSE",
+     "dimension": "volatility",
+     "metric_refs": [
+      "home.offense.yards_per_play"
+     ],
+     "side": "home",
+     "statement": "Kentucky's offense has swung widely from game to game relative to its opponents (game-to-game residual variation in the 91th percentile of FBS).",
+     "strength": "MODERATE",
+     "threshold": 0.8,
+     "uncertainty": null,
+     "value": 0.913
+    }
+   ],
+   "matchup_profile": {
+    "adjustment": {
+     "config": {
+      "prior_games_fbs": 4.0,
+      "prior_games_group_offset": 0.5,
+      "prior_games_home_effect": 1.0,
+      "prior_games_non_fbs": 8.0,
+      "weight_cap": 2.5,
+      "weight_floor": 0.25
+     },
+     "cutoff_exclusive": "2026-10-08T08:00:00Z",
+     "fbs_schedule_components": 1,
+     "games_in_window": 391,
+     "median_fbs_games": 5.0,
+     "stable": true
+    },
+    "dimensions": {},
+    "legend": {},
+    "metric_columns": [
+     "raw",
+     "adjusted",
+     "adjusted_available",
+     "adjusted_unavailable_reason",
+     "standard_error",
+     "rank",
+     "universe_size",
+     "rank_basis",
+     "direction",
+     "games",
+     "effective_n",
+     "prior_weight",
+     "source",
+     "observed_at",
+     "quality"
+    ],
+    "scoring_baseline": {
+     "away_points": 29.5,
+     "home_effect_applied": 3.3,
+     "home_margin": -1.9,
+     "home_points": 27.7,
+     "label": "opponent-adjusted scoring baseline -- descriptive, uncalibrated, NOT a projection",
+     "refs": [
+      "home.offense.points_per_game",
+      "away.defense.points_per_game",
+      "away.offense.points_per_game",
+      "home.defense.points_per_game"
+     ],
+     "total_points": 57.2,
+     "uncertainty_points": 7.3
+    },
+    "teams": {
+     "away": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "LSU",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Sam Leavitt",
+       "season_primary": "Sam Leavitt"
+      },
+      "record_in_window": {
+       "losses": 1,
+       "wins": 4
+      },
+      "residual_sd": {
+       "defense_points": 8.5259,
+       "defense_yards_per_play": 1.3093,
+       "offense_points": 9.118,
+       "offense_yards_per_play": 0.8399
+      },
+      "season": 2026,
+      "team_id": "99",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     },
+     "home": {
+      "division": "fbs",
+      "games_observed": 5,
+      "games_with_play_log": 5,
+      "metrics": {},
+      "name": "Kentucky",
+      "quarterback": {
+       "changed": false,
+       "games": 5,
+       "last_game_primary": "Kenny Minchey",
+       "season_primary": "Kenny Minchey"
+      },
+      "record_in_window": {
+       "losses": 1,
+       "wins": 4
+      },
+      "residual_sd": {
+       "defense_points": 6.4497,
+       "defense_yards_per_play": 0.5214,
+       "offense_points": 8.4032,
+       "offense_yards_per_play": 1.4656
+      },
+      "season": 2026,
+      "team_id": "96",
+      "window": {
+       "through_exclusive": "2026-10-08T08:00:00Z",
+       "type": "season_to_date"
+      }
+     }
+    }
+   },
+   "script_generation": {
+    "adjustment_version": "cfb-opponent-adjustment/1.0.0",
+    "artifact_hash": "708abcfbba7799671e5bc9078556ff1ffd385b5467fbdcd6af50d9de31eea684",
+    "data_confidence": "HIGH",
+    "event_id_football": "401856715",
+    "football_data_cutoff": "2026-10-10T08:00:00Z",
+    "generated_at": "2026-10-08T01:30:00Z",
+    "identity": {
+     "espn_event_id": "401856715",
+     "orientation_swapped": false,
+     "status": "PASS"
+    },
+    "mapped_at": "2026-10-08T01:30:00Z",
+    "market_blind": true,
+    "methodology_version": "cfb-script-engine/1.3.0",
+    "prices_captured_at": "2026-10-07T23:19:34.451947Z",
+    "regeneration_reasons": [
+     "CONTENT_CHANGED_WITHOUT_INPUT_CHANGE"
+    ]
+   },
+   "script_market_map": {
+    "expressions": [],
+    "survival_columns": [
+     "supported",
+     "partial",
+     "contradicted",
+     "neutral",
+     "total_scripts",
+     "meaningful_scripts",
+     "weighted_score",
+     "research_uncalibrated"
+    ]
+   },
+   "sift_read": {
+    "caveats": [],
+    "data_confidence": "HIGH",
+    "generated_from": "structured findings and script summaries only; no market input",
+    "headline": "LSU's sustained-efficiency edge turns into longer drives and a multi-score lead that Kentucky chases.",
+    "headline_findings": [
+     "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+    ],
+    "points": [
+     {
+      "findings": [
+       "AWAY_DISRUPTION_ADVANTAGE"
+      ],
+      "text": "LSU's defense generates sacks and negative plays against an offense that allows them (-2.87 for Kentucky's offense)."
+     },
+     {
+      "findings": [
+       "AWAY_SCORING_ADVANTAGE"
+      ],
+      "text": "LSU owns the stronger opponent-adjusted scoring matchup: Kentucky offense vs LSU defense -0.65, LSU offense vs Kentucky defense +1.44 (points per game, opponent-adjusted: LSU offense #12 of 138, Kentucky defense #70 of 138)."
+     },
+     {
+      "findings": [
+       "AWAY_SUSTAINED_EFFICIENCY_ADVANTAGE"
+      ],
+      "text": "LSU owns the stronger opponent-adjusted sustained-efficiency matchup: Kentucky offense vs LSU defense -1.19, LSU offense vs Kentucky defense +0.69 (success rate, opponent-adjusted: LSU offense #34 of 138, Kentucky defense #103 of 138)."
+     }
+    ]
+   },
+   "status": "SCRIPTS_GENERATED",
+   "version": "cfb_script_engine_payload/1.2.0"
+  }
+ }
+}

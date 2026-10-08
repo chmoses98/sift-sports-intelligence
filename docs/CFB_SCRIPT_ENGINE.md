@@ -27,6 +27,33 @@ market row, overlaid with live quotes exactly like every other sport, and the si
 | **Why this bet** | Why this row? | scripts supported and contradicted, the settlement condition in team names, the findings and metrics behind them, the side's price, correlation with the other featured rows |
 | **Data Confidence** | What is and is not known? | the evidence gates, known / unknown lists, artifact hash, data cutoff, methodology version |
 
+## The CFB home and the V2 Quick Read (research-signals contract)
+
+The CFB home (`src/views/cfb/CfbHome.tsx`) and the V2 game overview (`src/views/game/CfbOverview.tsx`) read one more
+document beside the board: `cfb_research_signals/1.x`, published by the cfb-edge-finder conductor at
+`research-signals/signals/cfb_research_signals.json` (`SportConfig.researchSignalsUrl`, re-read every 4 minutes
+while a CFB screen is open; `src/data/cfbSignals.ts`). `src/lib/cfbSignals.ts` decodes it and holds every rule:
+
+* **Home** — Top CFB Signals (Value Watch = every Moderate CONTROL game while `moderate_control.status` is
+  `VALUE_WATCH`; Strongest football edges; Market Disagreement; close games; pace / scoring spots), the
+  research-signals status, single-select filters and SIFT priority / time sort persisted as `?f=…&sort=time`,
+  one compact card per game of the slate (the earliest season week with a game to play) and the complete
+  schedule. No per-game research document is read. Without the signals document the schedule still renders
+  with a notice.
+* **SIFT priority** — 1 Value Watch · 2 Strong CONTROL · 3 Market Disagreement · 4 other CONTROL · 5 close or two
+  environment claims · 6 other claims · 7 no read; kickoff order within a tier. Never return, popularity or price.
+* **Prices** — only the CONTROL side's own game-winner YES ask (a live quote when newer than the contract's
+  capture), never 1 − the other side; `PRICE_1_00` reads "No offer below $1", anything else without an
+  executable ask "Price unavailable". **Market Disagreement**: Strong CONTROL and that ask below
+  `market_disagreement.rule.below_cents` (85¢); no price, no flag; Moderate CONTROL never.
+* **Game page (claims_v2 payloads)** — Quick Read (the contract's one-sentence read, claim chips, the price, the
+  signal), Best Research (historical empirical range: median, Middle 50%, Middle 80%, wins as "N of M past
+  games"; 2–4 ✓ edges), and a Deep Dive whose six sections start closed and hold every earlier panel. A payload
+  without claims_v2 keeps the earlier overview.
+
+Tests: `tests/cfbSignals.test.ts`, `tests/cfbHome.test.tsx`, `tests/cfbGamePage.test.tsx` (fixture
+`tests/fixtures/cfb/signals/cfb_research_signals.json`, ten games matching the app fixture) and `e2e/cfb.spec.ts`.
+
 ## Scoring markets are research only
 
 The engine's margin ranges define its archetypes ("control" = wins by 7–24), so moneyline and spread

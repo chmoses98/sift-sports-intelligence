@@ -1,7 +1,34 @@
 {
- "count": 24,
- "generated_at": "2026-10-07T13:53:20Z",
+ "count": 31,
+ "generated_at": "2026-10-08T01:42:42Z",
  "items": [
+  {
+   "aliases": [
+    "26OCT10ARIZWVU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_16c15c04ce50a5cb83f5",
+   "kind": "EVENT",
+   "label": "Arizona at West Virginia",
+   "path": "explorer/events/evt_16c15c04ce50a5cb83f5.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct10arizwvu",
+    "arizona",
+    "at",
+    "fbs",
+    "virginia",
+    "west"
+   ]
+  },
   {
    "aliases": [
     "26OCT10UGAALA"
@@ -141,6 +168,34 @@
   },
   {
    "aliases": [
+    "26OCT10SACBGSU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_f32aa654d1e5ccd474f9",
+   "kind": "EVENT",
+   "label": "Sacramento St. at Bowling Green",
+   "path": "explorer/events/evt_f32aa654d1e5ccd474f9.json",
+   "secondary": "2026-10-10 FBS",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "2026",
+    "26oct10sacbgsu",
+    "at",
+    "bowling",
+    "fbs",
+    "green",
+    "sacramento",
+    "st"
+   ]
+  },
+  {
+   "aliases": [
     "26OCT10STANND"
    ],
    "context": {
@@ -197,16 +252,16 @@
     "26OCT17ALBYSTON"
    ],
    "context": {
-    "league": null,
+    "league": "NCAAFB",
     "position": null,
-    "season": null,
+    "season": "2026",
     "team": null
    },
-   "id": "evt_776097ba6eef448fb340",
+   "id": "evt_eed4efa39c9e61732fb8",
    "kind": "EVENT",
-   "label": "University at Albany vs Stony Brook",
-   "path": "explorer/events/evt_776097ba6eef448fb340.json",
-   "secondary": "2026-10-17",
+   "label": "University at Albany at Stony Brook",
+   "path": "explorer/events/evt_eed4efa39c9e61732fb8.json",
+   "secondary": "2026-10-17 FCS",
    "sport": "CFB",
    "tokens": [
     "10",
@@ -216,9 +271,9 @@
     "albany",
     "at",
     "brook",
+    "fcs",
     "stony",
-    "university",
-    "vs"
+    "university"
    ]
   },
   {
@@ -245,22 +300,43 @@
   {
    "aliases": [],
    "context": {
-    "league": null,
+    "league": "NCAAFB",
     "position": null,
     "season": "2026",
     "team": null
    },
-   "id": "prt_0d7af9c7c1a248999033",
+   "id": "prt_d71a44feb622c530ce5b",
    "kind": "TEAM",
-   "label": "Albany vs Stony Brook",
-   "path": "explorer/teams/prt_0d7af9c7c1a248999033.json",
+   "label": "Albany at Stony Brook",
+   "path": "explorer/teams/prt_d71a44feb622c530ce5b.json",
    "secondary": null,
    "sport": "CFB",
    "tokens": [
     "albany",
+    "at",
     "brook",
-    "stony",
-    "vs"
+    "stony"
+   ]
+  },
+  {
+   "aliases": [
+    "ARIZ"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_ba587efcb5d0faa377d2",
+   "kind": "TEAM",
+   "label": "Arizona",
+   "path": "explorer/teams/prt_ba587efcb5d0faa377d2.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "ariz",
+    "arizona"
    ]
   },
   {
@@ -282,6 +358,28 @@
    "tokens": [
     "ark",
     "arkansas"
+   ]
+  },
+  {
+   "aliases": [
+    "BGSU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_1b7677330401abdeac71",
+   "kind": "TEAM",
+   "label": "Bowling Green",
+   "path": "explorer/teams/prt_1b7677330401abdeac71.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "bgsu",
+    "bowling",
+    "green"
    ]
   },
   {
@@ -497,6 +595,28 @@
   },
   {
    "aliases": [
+    "SAC"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_7a85c00e0ce29c2509c8",
+   "kind": "TEAM",
+   "label": "Sacramento St.",
+   "path": "explorer/teams/prt_7a85c00e0ce29c2509c8.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "sac",
+    "sacramento",
+    "st"
+   ]
+  },
+  {
+   "aliases": [
     "STAN"
    ],
    "context": {
@@ -542,7 +662,7 @@
     "ALBY"
    ],
    "context": {
-    "league": null,
+    "league": "NCAAFB",
     "position": null,
     "season": "2026",
     "team": null
@@ -557,10 +677,61 @@
     "alby",
     "university"
    ]
+  },
+  {
+   "aliases": [
+    "WVU"
+   ],
+   "context": {
+    "league": "NCAAFB",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_9aef85007590e9519a78",
+   "kind": "TEAM",
+   "label": "West Virginia",
+   "path": "explorer/teams/prt_9aef85007590e9519a78.json",
+   "secondary": null,
+   "sport": "CFB",
+   "tokens": [
+    "virginia",
+    "west",
+    "wvu"
+   ]
+  },
+  {
+   "aliases": [
+    "26OCT17ALBYSTON"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "evt_776097ba6eef448fb340",
+   "kind": "EVENT",
+   "label": "University at Albany vs Stony Brook",
+   "path": "explorer/events/evt_776097ba6eef448fb340.json",
+   "secondary": "2026-10-17",
+   "sport": "CFB",
+   "tokens": [
+    "10",
+    "17",
+    "2026",
+    "26oct17albyston",
+    "albany",
+    "at",
+    "brook",
+    "stony",
+    "university",
+    "vs"
+   ]
   }
  ],
  "kind": "search_index",
- "run_id": "run_4c065c9e1d3c13d8b02e",
+ "run_id": "run_c2576cfa8ba3b0feb4af",
  "schema_version": "edge_finder.app.v1",
  "sport": "CFB"
 }

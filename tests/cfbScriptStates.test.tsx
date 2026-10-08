@@ -21,6 +21,8 @@ const ISU_BYU = 'evt_1f7f2822f37fb1a8e34e';
 const NMSU_FIU = 'evt_f39ef6a955b04b97fe84';
 /** Jacksonville St. at Kennesaw St., 2026-10-07: NO_SCRIPT_CLEARED_EVIDENCE. */
 const JVST_KENN = 'evt_e56d7cee653c3507226b';
+/** LSU at Kentucky: a V2 game whose trimmed payload keeps its full matchup profile and featured market map. */
+const LSU_UK = 'evt_8c3166866b2bfa530c17';
 const EMPTY = 'No script cleared its evidence requirement';
 
 const doc = (id: string) => readCfb<EventResearchDoc>(`explorer/events/${id}.json`);
@@ -60,14 +62,14 @@ describe('CFB publication contract (data level)', () => {
   });
 
   it('a multi-script game publishes the contracts that survive several scripts, as theses', () => {
-    const e = readEngine(doc(ISU_BYU));
+    const e = readEngine(doc(LSU_UK));
     if (!isEngine(e)) throw new Error('did not decode');
     expect(e.survivors.length).toBeGreaterThan(0);
     expect(e.theses.length).toBeGreaterThan(0);
   });
 
   it('a positive payload keeps every section Sift renders: matchup, findings, market map, survivors, theses, confidence, generation', () => {
-    for (const id of [ISU_BYU, NMSU_FIU]) {
+    for (const id of [LSU_UK, NMSU_FIU]) {
       const e = readEngine(doc(id));
       if (!isEngine(e)) throw new Error(`${id} did not decode`);
       expect(Object.keys(e.teams.home.metrics).length).toBeGreaterThan(20);

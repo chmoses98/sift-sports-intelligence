@@ -84,6 +84,15 @@ async function main() {
     } catch { /* keep previous */ }
   }
   if (single) colorSource = `ESPN team colors (${single} fetched per team)`;
+  // Still none (ESPN's site API does not answer every runner): the school's colours from the committed CBB identity.
+  // ESPN uses one team id per university across sports (Alabama is 333 in football and basketball).
+  const cbb = JSON.parse(readFileSync(join(ROOT, 'src', 'lib', 'cbb-teams.json'), 'utf-8')).teams;
+  let seeded = 0;
+  for (const t of Object.values(cbb)) {
+    const id = String(t.e);
+    if (!espnColors[id]?.color && hex(t.c)) { espnColors[id] = { color: hex(t.c), alt: hex(t.c2) }; seeded++; }
+  }
+  if (seeded) colorSource += `; ${seeded} schools' colours from the committed CBB identity (same ESPN team id)`;
 
   // 3. logos
   mkdirSync(OUT, { recursive: true });

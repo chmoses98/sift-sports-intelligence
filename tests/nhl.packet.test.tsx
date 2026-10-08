@@ -54,7 +54,8 @@ describe('NHL load budget', () => {
     });
     try {
       renderScreen(routes.sport('nhl'), '/:sport', <SportHomeView />, {}, 'nhl');
-      await screen.findByRole('heading', { name: 'Research Candidates' }, { timeout: 6000 });
+      await screen.findByRole('heading', { name: 'Research that survives the scripts' }, { timeout: 6000 });
+      await screen.findAllByText(/most likely script/, {}, { timeout: 6000 });
     } finally {
       useDiskFetch();
     }

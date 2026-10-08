@@ -6,7 +6,7 @@ import type { Capability, CapabilityManifestDoc, MetricRegistryDoc } from '../sr
 import { SportProvider } from '../src/state/sport';
 import { TrailProvider } from '../src/state/trail';
 import { TrayProvider } from '../src/state/tray';
-import { cfbRepo, mlbRepo, nflRepo, nhlRepo, readCfb, readMlb, readNhl, readSnapshot } from './helpers';
+import { cfbRepo, mlbRepo, nflRepo, nhlFinalRepo, nhlRepo, readCfb, readMlb, readNhl, readNhlFinal, readSnapshot } from './helpers';
 
 export function nflContext(capsOverride: Record<string, string> = {}) {
   const repo = nflRepo();
@@ -32,6 +32,14 @@ export function nhlContext() {
   return { sport: repo.sport, slug: 'nhl', repo, caps, capDoc, metrics };
 }
 
+export function nhlFinalContext() {
+  const repo = nhlFinalRepo();
+  const capDoc = readNhlFinal<CapabilityManifestDoc>('explorer/capabilities.json');
+  const caps = new Map<string, Capability>(capDoc.items.map((c) => [c.capability, c]));
+  const metrics = new Map(readNhlFinal<MetricRegistryDoc>('explorer/metrics.json').items.map((m) => [m.metric_id, m]));
+  return { sport: repo.sport, slug: 'nhl', repo, caps, capDoc, metrics };
+}
+
 export function mlbContext() {
   const repo = mlbRepo();
   const capDoc = readMlb<CapabilityManifestDoc>('explorer/capabilities.json');
@@ -40,8 +48,8 @@ export function mlbContext() {
   return { sport: repo.sport, slug: 'mlb', repo, caps, capDoc, metrics };
 }
 
-export function renderScreen(path: string, pattern: string, element: ReactElement, capsOverride: Record<string, string> = {}, sport: 'nfl' | 'cfb' | 'nhl' | 'mlb' = 'nfl') {
-  const ctx = sport === 'cfb' ? cfbContext() : sport === 'nhl' ? nhlContext() : sport === 'mlb' ? mlbContext() : nflContext(capsOverride);
+export function renderScreen(path: string, pattern: string, element: ReactElement, capsOverride: Record<string, string> = {}, sport: 'nfl' | 'cfb' | 'nhl' | 'nhl-final' | 'mlb' = 'nfl') {
+  const ctx = sport === 'cfb' ? cfbContext() : sport === 'nhl' ? nhlContext() : sport === 'nhl-final' ? nhlFinalContext() : sport === 'mlb' ? mlbContext() : nflContext(capsOverride);
   const router = createMemoryRouter(
     [
       { path: pattern, element: <TrailProvider><SportProvider value={ctx}>{element}</SportProvider></TrailProvider> },

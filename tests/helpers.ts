@@ -14,6 +14,9 @@ export const CFB_ROOT = 'disk://cfb';
 /** A trimmed, real NHL-edge-finder publication carrying NHL_SCRIPT_V1, findings and the learning scorecard (scripts/make_nhl_fixture.py). */
 export const NHL_DIR = join(__dirname, 'fixtures', 'nhl', 'app', 'latest');
 export const NHL_ROOT = 'disk://nhl';
+/** The real 2026-10-07 NHL slate after puck drop: frozen pregame research, two finals with script postmortems (tests/fixtures/nhl-final/README.md). */
+export const NHL_FINAL_DIR = join(__dirname, 'fixtures', 'nhl-final', 'app', 'latest');
+export const NHL_FINAL_ROOT = 'disk://nhl-final';
 /** The real edge-finder-api MLB publication (2026-10-07) with a synthesized four-game postseason board, event details
  * and mlb.player_prop.v1 extensions on LAD@ATL (scripts/make_mlb_fixture.py; tests/fixtures/mlb/README.md). */
 export const MLB_DIR = join(__dirname, 'fixtures', 'mlb', 'app', 'latest');
@@ -33,6 +36,10 @@ export function readNhl<T>(rel: string): T {
   return JSON.parse(readFileSync(join(NHL_DIR, rel), 'utf-8')) as T;
 }
 
+export function readNhlFinal<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(NHL_FINAL_DIR, rel), 'utf-8')) as T;
+}
+
 export function readSnapshot<T>(rel: string): T {
   return JSON.parse(readFileSync(join(SNAPSHOT_DIR, rel), 'utf-8')) as T;
 }
@@ -50,7 +57,7 @@ export async function readDisk(url: string): Promise<unknown> {
     if (!existsSync(f)) throw new NotFoundError(url);
     return JSON.parse(readFileSync(f, 'utf-8'));
   }
-  const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : url.startsWith(NHL_ROOT + '/') ? [NHL_ROOT, NHL_DIR] : url.startsWith(MLB_ROOT + '/') ? [MLB_ROOT, MLB_DIR] : [ROOT, SNAPSHOT_DIR];
+  const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : url.startsWith(NHL_FINAL_ROOT + '/') ? [NHL_FINAL_ROOT, NHL_FINAL_DIR] : url.startsWith(NHL_ROOT + '/') ? [NHL_ROOT, NHL_DIR] : url.startsWith(MLB_ROOT + '/') ? [MLB_ROOT, MLB_DIR] : [ROOT, SNAPSHOT_DIR];
   if (!url.startsWith(root + '/')) throw new NotFoundError(url);
   const file = join(dir, url.slice(root.length + 1));
   if (!existsSync(file)) throw new NotFoundError(url);
@@ -70,6 +77,15 @@ export function nhlRepo(): SportRepo {
   const sport = sportByCode('NHL')!;
   const source: SportSource = {
     sport, mode: 'live', root: NHL_ROOT, liveHealth: readNhl<HealthDoc>('health.json'), liveError: null,
+    snapshot: null, reason: 'test fixture',
+  };
+  return new SportRepo(source);
+}
+
+export function nhlFinalRepo(): SportRepo {
+  const sport = sportByCode('NHL')!;
+  const source: SportSource = {
+    sport, mode: 'live', root: NHL_FINAL_ROOT, liveHealth: readNhlFinal<HealthDoc>('health.json'), liveError: null,
     snapshot: null, reason: 'test fixture',
   };
   return new SportRepo(source);

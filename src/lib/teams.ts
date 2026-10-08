@@ -1,6 +1,7 @@
 import logos from './team-logos.json';
 import { mlbClub } from './mlb';
 import { cfbTeam } from './cfbTeams';
+import { nhlCode, nhlLogo } from './nhlTeams';
 
 // Team identity colors: brand presentation only (never data). Sift uses them as a thin accent —
 // a stripe, a monogram tile — so Sift's own palette stays in charge.
@@ -29,7 +30,7 @@ const NHL: Record<string, [string, string]> = {
 
 export function teamColors(sport: string, abbr: string | null | undefined): [string, string] {
   if (sport === 'NFL' && abbr && NFL[abbr]) return NFL[abbr];
-  if (sport === 'NHL' && abbr && NHL[abbr]) return NHL[abbr];
+  if (sport === 'NHL' && nhlCode(abbr)) return NHL[nhlCode(abbr)!];
   if (sport === 'MLB') return mlbClub(abbr)?.colors ?? ['#1d2d52', '#3f5079'];
   if (sport === 'CFB') {
     const t = cfbTeam(abbr);
@@ -65,5 +66,7 @@ export function teamLogo(sport: string, abbr: string | null | undefined): string
     const t = cfbTeam(abbr);
     return t?.l ? `${import.meta.env.BASE_URL}teams/cfb/${t.e}.webp` : null;
   }
+  // NHL tricode (or any alias) -> the club's committed logo (src/lib/nhlTeams.ts).
+  if (sport === 'NHL') return nhlLogo(abbr);
   return null;
 }

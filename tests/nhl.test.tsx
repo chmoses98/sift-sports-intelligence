@@ -3,7 +3,7 @@
 // read from real counts, hockey markets read as hockey, NFL lookups never leak into hockey, and the NHL screens
 // (home, game, scripts, candidates, market, team, player, scorecard) render from a trimmed real publication.
 import { screen, waitFor, within } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EventResearchDoc, MetricDef, MetricRegistryDoc } from '../src/contract/types';
 import { clearAsyncMemo } from '../src/data/hooks';
 import { NAV_SPORTS } from '../src/data/nav';
@@ -197,38 +197,70 @@ describe('NHL injuries', () => {
 });
 
 describe('NHL screens', () => {
-  it('the NHL home leads with the learning state, then the next game, today’s games, candidates and edges', async () => {
+  // The fixture's slate, before its first puck drop (2026-10-07 00:00Z).
+  beforeAll(() => vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-06T23:30:00Z') }));
+  afterAll(() => vi.useRealTimers());
+
+  it('the NHL home is a hockey dashboard: compact status, the slate with logos and goalies, research that survives', async () => {
     renderScreen(routes.sport('nhl'), '/:sport', <SportHomeView />, {}, 'nhl');
-    await screen.findByRole('heading', { name: "Today's Games" }, { timeout: 6000 });
+    await screen.findByRole('heading', { name: 'NHL', level: 1 }, { timeout: 6000 });
     expect(screen.getAllByRole('link', { name: /NHL model status: Learning/ }).length).toBeGreaterThan(0);
-    await screen.findByRole('heading', { name: 'Research Candidates' }, { timeout: 6000 });
-    await screen.findByRole('heading', { name: 'Biggest Matchup Edges' }, { timeout: 6000 });
+    await screen.findAllByText(/most likely script/, {}, { timeout: 6000 });
+    const rows = document.querySelectorAll('.nsl');
+    expect(rows.length).toBe(3);
+    for (const row of rows) {
+      expect(row.querySelectorAll('img.teammark--logo, span.teammark--logo').length).toBe(2);
+      expect(row.querySelectorAll('.ngi').length).toBe(2);
+    }
+    expect(screen.getByRole('link', { name: /St\. Louis Blues at Chicago Blackhawks/ })).toBeTruthy();
+    await screen.findByRole('heading', { name: 'Research that survives the scripts' }, { timeout: 6000 });
+    expect(screen.getByRole('heading', { name: 'Research status' })).toBeTruthy();
+    // Goal-scorer contracts are never featured on the home.
+    const strong = document.querySelector('.nsr')!.textContent!;
+    expect(strong).not.toMatch(/to score|goals? —|\bGoal\b/);
+    expect(screen.getAllByText('Goalie unconfirmed').length).toBeGreaterThan(0);
     const text = document.body.textContent!.toLowerCase();
-    for (const banned of ['lock', 'best bet', 'guaranteed', 'proven', 'profitable']) expect(text).not.toContain(banned);
+    for (const banned of ['lock', 'best bet', 'guaranteed', 'proven', 'profitable', 'undefined', 'nan%']) expect(text).not.toContain(banned);
   });
 
-  it('the NHL game page answers projection, what matters, scripts and candidates — research only', async () => {
+  it('the NHL game page tells the story: summary, thesis, scripts, goalies, market fit, special teams, players', async () => {
     renderScreen(routes.game('nhl', FLA_LAK), '/:sport/game/:eventId', <GameRoute />, {}, 'nhl');
-    const matters = await screen.findByRole('heading', { name: 'What Matters' }, { timeout: 6000 });
+    const thesis = await screen.findByRole('heading', { name: 'How this game is most likely to play' }, { timeout: 6000 });
     const game = within(document.querySelector('.game--nhl') as HTMLElement);
-    const play = game.getByRole('heading', { name: /How It Could Play Out/ });
-    const cands = game.getAllByRole('heading', { name: /Research Candidates/ })[0];
-    expect(matters.compareDocumentPosition(play) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(play.compareDocumentPosition(cands) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByText(/Model projects FLA/)).toBeTruthy();
-    expect(screen.getAllByText(/Survives \d+% of simulated games/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Research only').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Goaltending' })).toBeTruthy();
+    const order = ['How this game is most likely to play', 'Game scripts', 'Goalie matchup', 'Market fit', 'Special teams', 'Player research'].map((n) => game.getByRole('heading', { name: n }));
+    for (let i = 1; i < order.length; i++) expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(thesis).toBeTruthy();
+    expect(game.getByRole('img', { name: /Model win probability: FLA 44%, LAK 56%/ })).toBeTruthy();
+    expect(game.getByText(/LAK slight edge/)).toBeTruthy();
+    expect(game.getByText(/LAK has the stronger control-and-pull-away branch/)).toBeTruthy();
+    expect(game.getByRole('note', { name: 'Contradiction check' })).toBeTruthy();
+    expect(game.getByText('Survives multiple scripts')).toBeTruthy();
+    expect(game.getAllByText(/Darcy Kuemper|Jacob Markstrom/).length).toBeGreaterThan(1);
+    expect(screen.getAllByText('Confirmed').length).toBeGreaterThanOrEqual(2);
+    // Every script is listed with a written probability.
+    for (const x of scriptsOf().scripts) expect(game.getAllByText(x.label).length).toBeGreaterThan(0);
     const page = document.querySelector('.game--nhl')!.textContent!;
-    expect(page).not.toMatch(/KXNHL/);
+    expect(page).not.toMatch(/KXNHL|undefined|NaN/);
     expect(page.toLowerCase()).not.toMatch(/\block\b|best bet|guaranteed/);
+  });
+
+  it('links published before the story layout still open the right tab', async () => {
+    renderScreen(`${routes.game('nhl', FLA_LAK)}?tab=candidates`, '/:sport/game/:eventId', <GameRoute />, {}, 'nhl');
+    await screen.findByRole('heading', { name: 'What the model says about each market' }, { timeout: 6000 });
+    clearAsyncMemo();
+    document.body.innerHTML = '';
+    renderScreen(`${routes.game('nhl', FLA_LAK)}?tab=lineups`, '/:sport/game/:eventId', <GameRoute />, {}, 'nhl');
+    await screen.findByRole('heading', { name: 'Injuries' }, { timeout: 6000 });
+    expect(screen.getByRole('heading', { name: 'Player research' })).toBeTruthy();
   });
 
   it('the scripts tab shows every script and the cross-script matrix', async () => {
     renderScreen(`${routes.game('nhl', FLA_LAK)}?tab=script`, '/:sport/game/:eventId', <GameRoute />, {}, 'nhl');
     await screen.findByRole('heading', { name: 'Which markets survive which scripts' }, { timeout: 6000 });
     const s = scriptsOf();
-    for (const x of s.scripts) expect(screen.getAllByText(x.label).length).toBeGreaterThan(0);
+    for (const x of s.scripts) expect(screen.getByRole('heading', { name: x.label, level: 3 })).toBeTruthy();
+    expect(screen.getAllByText('What creates it').length).toBe(s.scripts.length);
+    expect(screen.getAllByText('Markets it hurts').length).toBe(s.scripts.length);
     const table = screen.getByRole('region', { name: 'Script survival matrix' });
     expect(within(table).getAllByRole('columnheader').length).toBe(s.scripts.length + 2);
   });

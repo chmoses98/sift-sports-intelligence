@@ -1,0 +1,1878 @@
+{
+ "count": 76,
+ "generated_at": "2026-10-08T02:51:34Z",
+ "items": [
+  {
+   "aliases": [
+    "Winnipeg Jets",
+    "Colorado Avalanche"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "evt_ced0054a8fcfd15477e5",
+   "kind": "EVENT",
+   "label": "COL @ WPG",
+   "path": "explorer/events/evt_ced0054a8fcfd15477e5.json",
+   "secondary": "2026-10-07 regular",
+   "sport": "NHL",
+   "tokens": [
+    "07",
+    "10",
+    "2026",
+    "avalanche",
+    "col",
+    "colorado",
+    "jets",
+    "regular",
+    "winnipeg",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "Anaheim Ducks",
+    "Edmonton Oilers"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "evt_e3797432fbc05a48f863",
+   "kind": "EVENT",
+   "label": "EDM @ ANA",
+   "path": "explorer/events/evt_e3797432fbc05a48f863.json",
+   "secondary": "2026-10-08 regular",
+   "sport": "NHL",
+   "tokens": [
+    "08",
+    "10",
+    "2026",
+    "ana",
+    "anaheim",
+    "ducks",
+    "edm",
+    "edmonton",
+    "oilers",
+    "regular"
+   ]
+  },
+  {
+   "aliases": [
+    "Washington Capitals",
+    "Pittsburgh Penguins"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "evt_a7a78f07c40f2542da30",
+   "kind": "EVENT",
+   "label": "PIT @ WSH",
+   "path": "explorer/events/evt_a7a78f07c40f2542da30.json",
+   "secondary": "2026-10-07 regular",
+   "sport": "NHL",
+   "tokens": [
+    "07",
+    "10",
+    "2026",
+    "capitals",
+    "penguins",
+    "pit",
+    "pittsburgh",
+    "regular",
+    "washington",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "A"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.assists",
+   "kind": "METRIC",
+   "label": "Assists",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "assists",
+    "skater"
+   ]
+  },
+  {
+   "aliases": [
+    "Brier (player)"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.calibration_player_sim",
+   "kind": "METRIC",
+   "label": "Calibration (PLAYER_SIM_V1 shadow vs Kalshi)",
+   "path": "explorer/metrics.json",
+   "secondary": "evaluation",
+   "sport": "NHL",
+   "tokens": [
+    "brier",
+    "calibration",
+    "evaluation",
+    "kalshi",
+    "player",
+    "shadow",
+    "sim",
+    "v1",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "Brier"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.calibration_v1",
+   "kind": "METRIC",
+   "label": "Calibration and accuracy (DATA_ONLY_V1 vs Kalshi)",
+   "path": "explorer/metrics.json",
+   "secondary": "evaluation",
+   "sport": "NHL",
+   "tokens": [
+    "accuracy",
+    "and",
+    "brier",
+    "calibration",
+    "data",
+    "evaluation",
+    "kalshi",
+    "only",
+    "v1",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "CLV"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.clv_v1",
+   "kind": "METRIC",
+   "label": "Closing-line value (DATA_ONLY_V1 side)",
+   "path": "explorer/metrics.json",
+   "secondary": "evaluation",
+   "sport": "NHL",
+   "tokens": [
+    "closing",
+    "clv",
+    "data",
+    "evaluation",
+    "line",
+    "only",
+    "side",
+    "v1",
+    "value"
+   ]
+  },
+  {
+   "aliases": [
+    "EV SV%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.ev_save_pct",
+   "kind": "METRIC",
+   "label": "Even-strength save percentage",
+   "path": "explorer/metrics.json",
+   "secondary": "goalie",
+   "sport": "NHL",
+   "tokens": [
+    "ev",
+    "even",
+    "goalie",
+    "percentage",
+    "save",
+    "strength",
+    "sv"
+   ]
+  },
+  {
+   "aliases": [
+    "xGA/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.xga_per60",
+   "kind": "METRIC",
+   "label": "Expected goals against per 60",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "60",
+    "advanced",
+    "against",
+    "expected",
+    "goals",
+    "per",
+    "xga"
+   ]
+  },
+  {
+   "aliases": [
+    "xGF/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.xgf_per60",
+   "kind": "METRIC",
+   "label": "Expected goals for per 60",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "60",
+    "advanced",
+    "expected",
+    "for",
+    "goals",
+    "per",
+    "xgf"
+   ]
+  },
+  {
+   "aliases": [
+    "xGF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.xgf_pct",
+   "kind": "METRIC",
+   "label": "Expected-goals share",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "advanced",
+    "expected",
+    "goals",
+    "share",
+    "xgf"
+   ]
+  },
+  {
+   "aliases": [
+    "GP"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.games_played",
+   "kind": "METRIC",
+   "label": "Games played",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "games",
+    "gp",
+    "played",
+    "skater"
+   ]
+  },
+  {
+   "aliases": [
+    "GP"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.goalie_games",
+   "kind": "METRIC",
+   "label": "Goalie appearances",
+   "path": "explorer/metrics.json",
+   "secondary": "goalie",
+   "sport": "NHL",
+   "tokens": [
+    "appearances",
+    "goalie",
+    "gp"
+   ]
+  },
+  {
+   "aliases": [
+    "G"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.goals",
+   "kind": "METRIC",
+   "label": "Goals",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "goals",
+    "skater"
+   ]
+  },
+  {
+   "aliases": [
+    "GA/GP"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.ga_per_game",
+   "kind": "METRIC",
+   "label": "Goals against per game",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "advanced",
+    "against",
+    "ga",
+    "game",
+    "goals",
+    "gp",
+    "per"
+   ]
+  },
+  {
+   "aliases": [
+    "GF/GP"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.gf_per_game",
+   "kind": "METRIC",
+   "label": "Goals for per game",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "advanced",
+    "for",
+    "game",
+    "gf",
+    "goals",
+    "gp",
+    "per"
+   ]
+  },
+  {
+   "aliases": [
+    "GAA"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.gaa",
+   "kind": "METRIC",
+   "label": "Goals-against average",
+   "path": "explorer/metrics.json",
+   "secondary": "goalie",
+   "sport": "NHL",
+   "tokens": [
+    "against",
+    "average",
+    "gaa",
+    "goalie",
+    "goals"
+   ]
+  },
+  {
+   "aliases": [
+    "HDxGF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.hd_xgf_pct",
+   "kind": "METRIC",
+   "label": "High-danger expected-goals share",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "advanced",
+    "danger",
+    "expected",
+    "goals",
+    "hdxgf",
+    "high",
+    "share"
+   ]
+  },
+  {
+   "aliases": [
+    "P(model)"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.model_prob_v1",
+   "kind": "METRIC",
+   "label": "Model probability (DATA_ONLY_V1)",
+   "path": "explorer/metrics.json",
+   "secondary": "model",
+   "sport": "NHL",
+   "tokens": [
+    "data",
+    "model",
+    "only",
+    "probability",
+    "v1"
+   ]
+  },
+  {
+   "aliases": [
+    "adj GA/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_ga60_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 goals against/60",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adj",
+    "adjusted",
+    "against",
+    "ga",
+    "goals",
+    "opponent"
+   ]
+  },
+  {
+   "aliases": [
+    "adj GF/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_gf60_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 goals for/60",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adj",
+    "adjusted",
+    "for",
+    "gf",
+    "goals",
+    "opponent"
+   ]
+  },
+  {
+   "aliases": [
+    "adj HDxGF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_hdxgf_pct_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 high-danger xG share",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "adj",
+    "adjusted",
+    "danger",
+    "hdxgf",
+    "high",
+    "opponent",
+    "share",
+    "xg"
+   ]
+  },
+  {
+   "aliases": [
+    "adj CF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_cf_pct_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 shot-attempt share",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "adj",
+    "adjusted",
+    "attempt",
+    "cf",
+    "opponent",
+    "share",
+    "shot"
+   ]
+  },
+  {
+   "aliases": [
+    "adj xGF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_xgf_pct_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 xG share",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "adj",
+    "adjusted",
+    "opponent",
+    "share",
+    "xg",
+    "xgf"
+   ]
+  },
+  {
+   "aliases": [
+    "adj xGA/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_xga60_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 xGA/60",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adj",
+    "adjusted",
+    "opponent",
+    "xga"
+   ]
+  },
+  {
+   "aliases": [
+    "adj xGF/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.oa_xgf60_5v5",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted 5v5 xGF/60",
+   "path": "explorer/metrics.json",
+   "secondary": "opponent_adjusted",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adj",
+    "adjusted",
+    "opponent",
+    "xgf"
+   ]
+  },
+  {
+   "aliases": [
+    "PK%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.pk_pct",
+   "kind": "METRIC",
+   "label": "Penalty-kill percentage (official)",
+   "path": "explorer/metrics.json",
+   "secondary": "official",
+   "sport": "NHL",
+   "tokens": [
+    "kill",
+    "official",
+    "penalty",
+    "percentage",
+    "pk"
+   ]
+  },
+  {
+   "aliases": [
+    "P"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.points",
+   "kind": "METRIC",
+   "label": "Points",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "points",
+    "skater"
+   ]
+  },
+  {
+   "aliases": [
+    "P/60"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.points_per60",
+   "kind": "METRIC",
+   "label": "Points per 60",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "60",
+    "per",
+    "points",
+    "skater"
+   ]
+  },
+  {
+   "aliases": [
+    "PTS%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.points_pct",
+   "kind": "METRIC",
+   "label": "Points percentage (official)",
+   "path": "explorer/metrics.json",
+   "secondary": "official",
+   "sport": "NHL",
+   "tokens": [
+    "official",
+    "percentage",
+    "points",
+    "pts"
+   ]
+  },
+  {
+   "aliases": [
+    "PP%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.pp_pct",
+   "kind": "METRIC",
+   "label": "Power-play percentage (official)",
+   "path": "explorer/metrics.json",
+   "secondary": "official",
+   "sport": "NHL",
+   "tokens": [
+    "official",
+    "percentage",
+    "play",
+    "power",
+    "pp"
+   ]
+  },
+  {
+   "aliases": [
+    "SV%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.save_pct",
+   "kind": "METRIC",
+   "label": "Save percentage",
+   "path": "explorer/metrics.json",
+   "secondary": "goalie",
+   "sport": "NHL",
+   "tokens": [
+    "goalie",
+    "percentage",
+    "save",
+    "sv"
+   ]
+  },
+  {
+   "aliases": [
+    "saxGF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.sva_xgf_pct",
+   "kind": "METRIC",
+   "label": "Score- and venue-adjusted xG share",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "adjusted",
+    "advanced",
+    "and",
+    "saxgf",
+    "score",
+    "share",
+    "venue",
+    "xg"
+   ]
+  },
+  {
+   "aliases": [
+    "CF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.corsi_pct",
+   "kind": "METRIC",
+   "label": "Shot-attempt share (Corsi)",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "advanced",
+    "attempt",
+    "cf",
+    "corsi",
+    "share",
+    "shot"
+   ]
+  },
+  {
+   "aliases": [
+    "SOG"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.shots_on_goal",
+   "kind": "METRIC",
+   "label": "Shots on goal",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "goal",
+    "on",
+    "shots",
+    "skater",
+    "sog"
+   ]
+  },
+  {
+   "aliases": [
+    "GS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.goalie_starts",
+   "kind": "METRIC",
+   "label": "Starts",
+   "path": "explorer/metrics.json",
+   "secondary": "goalie",
+   "sport": "NHL",
+   "tokens": [
+    "goalie",
+    "gs",
+    "starts"
+   ]
+  },
+  {
+   "aliases": [
+    "TOI/GP"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.toi_per_game",
+   "kind": "METRIC",
+   "label": "Time on ice per game",
+   "path": "explorer/metrics.json",
+   "secondary": "skater",
+   "sport": "NHL",
+   "tokens": [
+    "game",
+    "gp",
+    "ice",
+    "on",
+    "per",
+    "skater",
+    "time",
+    "toi"
+   ]
+  },
+  {
+   "aliases": [
+    "FF%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nhl.fenwick_pct",
+   "kind": "METRIC",
+   "label": "Unblocked-attempt share (Fenwick)",
+   "path": "explorer/metrics.json",
+   "secondary": "advanced",
+   "sport": "NHL",
+   "tokens": [
+    "advanced",
+    "attempt",
+    "fenwick",
+    "ff",
+    "share",
+    "unblocked"
+   ]
+  },
+  {
+   "aliases": [
+    "Ovechkin"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "L",
+    "season": "2026-27",
+    "team": "WSH"
+   },
+   "id": "prt_ae17a6ef982eecf02332",
+   "kind": "PLAYER",
+   "label": "Alex Ovechkin",
+   "path": "explorer/players/prt_ae17a6ef982eecf02332.json",
+   "secondary": "L WSH",
+   "sport": "NHL",
+   "tokens": [
+    "alex",
+    "ovechkin",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "Silovs"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "G",
+    "season": "2026-27",
+    "team": "PIT"
+   },
+   "id": "prt_15203f01192d4d1c6834",
+   "kind": "PLAYER",
+   "label": "Arturs Silovs",
+   "path": "explorer/players/prt_15203f01192d4d1c6834.json",
+   "secondary": "G PIT",
+   "sport": "NHL",
+   "tokens": [
+    "arturs",
+    "pit",
+    "silovs"
+   ]
+  },
+  {
+   "aliases": [
+    "Sennecke"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "R",
+    "season": "2026-27",
+    "team": "ANA"
+   },
+   "id": "prt_444ad4aeee20bb544e08",
+   "kind": "PLAYER",
+   "label": "Beckett Sennecke",
+   "path": "explorer/players/prt_444ad4aeee20bb544e08.json",
+   "secondary": "R ANA",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "beckett",
+    "sennecke"
+   ]
+  },
+  {
+   "aliases": [
+    "Kindel"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "PIT"
+   },
+   "id": "prt_1b7046586b28c0773a7a",
+   "kind": "PLAYER",
+   "label": "Ben Kindel",
+   "path": "explorer/players/prt_1b7046586b28c0773a7a.json",
+   "secondary": "C PIT",
+   "sport": "NHL",
+   "tokens": [
+    "ben",
+    "kindel",
+    "pit"
+   ]
+  },
+  {
+   "aliases": [
+    "Perfetti"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "WPG"
+   },
+   "id": "prt_6d77c6a6a6fdbd931a35",
+   "kind": "PLAYER",
+   "label": "Cole Perfetti",
+   "path": "explorer/players/prt_6d77c6a6a6fdbd931a35.json",
+   "secondary": "C WPG",
+   "sport": "NHL",
+   "tokens": [
+    "cole",
+    "perfetti",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "Gauthier"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "L",
+    "season": "2026-27",
+    "team": "ANA"
+   },
+   "id": "prt_9cfe97c99c58c8d9ec81",
+   "kind": "PLAYER",
+   "label": "Cutter Gauthier",
+   "path": "explorer/players/prt_9cfe97c99c58c8d9ec81.json",
+   "secondary": "L ANA",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "cutter",
+    "gauthier"
+   ]
+  },
+  {
+   "aliases": [
+    "Levi"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "G",
+    "season": "2026-27",
+    "team": "EDM"
+   },
+   "id": "prt_181c9cd2f5b8fc0cd3d1",
+   "kind": "PLAYER",
+   "label": "Devon Levi",
+   "path": "explorer/players/prt_181c9cd2f5b8fc0cd3d1.json",
+   "secondary": "G EDM",
+   "sport": "NHL",
+   "tokens": [
+    "devon",
+    "edm",
+    "levi"
+   ]
+  },
+  {
+   "aliases": [
+    "Strome"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "WSH"
+   },
+   "id": "prt_41c10198cfba9489137f",
+   "kind": "PLAYER",
+   "label": "Dylan Strome",
+   "path": "explorer/players/prt_41c10198cfba9489137f.json",
+   "secondary": "C WSH",
+   "sport": "NHL",
+   "tokens": [
+    "dylan",
+    "strome",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "Vilardi"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "WPG"
+   },
+   "id": "prt_da18da6ec4005af33c97",
+   "kind": "PLAYER",
+   "label": "Gabriel Vilardi",
+   "path": "explorer/players/prt_da18da6ec4005af33c97.json",
+   "secondary": "C WPG",
+   "sport": "NHL",
+   "tokens": [
+    "gabriel",
+    "vilardi",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "LaCombe"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "D",
+    "season": "2026-27",
+    "team": "ANA"
+   },
+   "id": "prt_2941d04b58dc90c10656",
+   "kind": "PLAYER",
+   "label": "Jackson LaCombe",
+   "path": "explorer/players/prt_2941d04b58dc90c10656.json",
+   "secondary": "D ANA",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "jackson",
+    "lacombe"
+   ]
+  },
+  {
+   "aliases": [
+    "Chychrun"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "D",
+    "season": "2026-27",
+    "team": "WSH"
+   },
+   "id": "prt_560e39807219c9ed2b08",
+   "kind": "PLAYER",
+   "label": "Jakob Chychrun",
+   "path": "explorer/players/prt_560e39807219c9ed2b08.json",
+   "secondary": "D WSH",
+   "sport": "NHL",
+   "tokens": [
+    "chychrun",
+    "jakob",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "Morrissey"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "D",
+    "season": "2026-27",
+    "team": "WPG"
+   },
+   "id": "prt_f073d05344c2ec47c8e9",
+   "kind": "PLAYER",
+   "label": "Josh Morrissey",
+   "path": "explorer/players/prt_f073d05344c2ec47c8e9.json",
+   "secondary": "D WPG",
+   "sport": "NHL",
+   "tokens": [
+    "josh",
+    "morrissey",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "Connor"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "L",
+    "season": "2026-27",
+    "team": "WPG"
+   },
+   "id": "prt_dcfac6489d4300d3d28a",
+   "kind": "PLAYER",
+   "label": "Kyle Connor",
+   "path": "explorer/players/prt_dcfac6489d4300d3d28a.json",
+   "secondary": "L WPG",
+   "sport": "NHL",
+   "tokens": [
+    "connor",
+    "kyle",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "Carlsson"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "ANA"
+   },
+   "id": "prt_c3dc850b1200a0e23b38",
+   "kind": "PLAYER",
+   "label": "Leo Carlsson",
+   "path": "explorer/players/prt_c3dc850b1200a0e23b38.json",
+   "secondary": "C ANA",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "carlsson",
+    "leo"
+   ]
+  },
+  {
+   "aliases": [
+    "Thompson"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "G",
+    "season": "2026-27",
+    "team": "WSH"
+   },
+   "id": "prt_165c6b9dd9bc03266849",
+   "kind": "PLAYER",
+   "label": "Logan Thompson",
+   "path": "explorer/players/prt_165c6b9dd9bc03266849.json",
+   "secondary": "G WSH",
+   "sport": "NHL",
+   "tokens": [
+    "logan",
+    "thompson",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "Dostal"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "G",
+    "season": "2026-27",
+    "team": "ANA"
+   },
+   "id": "prt_7294d4c3ebb123452475",
+   "kind": "PLAYER",
+   "label": "Lukas Dostal",
+   "path": "explorer/players/prt_7294d4c3ebb123452475.json",
+   "secondary": "G ANA",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "dostal",
+    "lukas"
+   ]
+  },
+  {
+   "aliases": [
+    "Blackwood"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "G",
+    "season": "2026-27",
+    "team": "COL"
+   },
+   "id": "prt_d169d88a8f1532be8899",
+   "kind": "PLAYER",
+   "label": "Mackenzie Blackwood",
+   "path": "explorer/players/prt_d169d88a8f1532be8899.json",
+   "secondary": "G COL",
+   "sport": "NHL",
+   "tokens": [
+    "blackwood",
+    "col",
+    "mackenzie"
+   ]
+  },
+  {
+   "aliases": [
+    "Scheifele"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "WPG"
+   },
+   "id": "prt_2ae905f27d9be91fb365",
+   "kind": "PLAYER",
+   "label": "Mark Scheifele",
+   "path": "explorer/players/prt_2ae905f27d9be91fb365.json",
+   "secondary": "C WPG",
+   "sport": "NHL",
+   "tokens": [
+    "mark",
+    "scheifele",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "Granlund"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "ANA"
+   },
+   "id": "prt_e64d27ceebbe16a6083d",
+   "kind": "PLAYER",
+   "label": "Mikael Granlund",
+   "path": "explorer/players/prt_e64d27ceebbe16a6083d.json",
+   "secondary": "C ANA",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "granlund",
+    "mikael"
+   ]
+  },
+  {
+   "aliases": [
+    "Dubois"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "C",
+    "season": "2026-27",
+    "team": "WSH"
+   },
+   "id": "prt_aec2b4d0d35177007b0d",
+   "kind": "PLAYER",
+   "label": "Pierre-Luc Dubois",
+   "path": "explorer/players/prt_aec2b4d0d35177007b0d.json",
+   "secondary": "C WSH",
+   "sport": "NHL",
+   "tokens": [
+    "dubois",
+    "luc",
+    "pierre",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "Skinner"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "G",
+    "season": "2026-27",
+    "team": "WPG"
+   },
+   "id": "prt_72c34d7cce3b16f353d3",
+   "kind": "PLAYER",
+   "label": "Stuart Skinner",
+   "path": "explorer/players/prt_72c34d7cce3b16f353d3.json",
+   "secondary": "G WPG",
+   "sport": "NHL",
+   "tokens": [
+    "skinner",
+    "stuart",
+    "wpg"
+   ]
+  },
+  {
+   "aliases": [
+    "Hughes"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "R",
+    "season": "2026-27",
+    "team": "COL"
+   },
+   "id": "prt_b8a170f4f814b0851b2b",
+   "kind": "PLAYER",
+   "label": "T.J. Hughes",
+   "path": "explorer/players/prt_b8a170f4f814b0851b2b.json",
+   "secondary": "R COL",
+   "sport": "NHL",
+   "tokens": [
+    "col",
+    "hughes"
+   ]
+  },
+  {
+   "aliases": [
+    "Wilson"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "R",
+    "season": "2026-27",
+    "team": "WSH"
+   },
+   "id": "prt_0d45ae66d75d4c4afbdd",
+   "kind": "PLAYER",
+   "label": "Tom Wilson",
+   "path": "explorer/players/prt_0d45ae66d75d4c4afbdd.json",
+   "secondary": "R WSH",
+   "sport": "NHL",
+   "tokens": [
+    "tom",
+    "wilson",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "Podkolzin"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": "R",
+    "season": "2026-27",
+    "team": "EDM"
+   },
+   "id": "prt_7a8ada6df3b6a8f97d75",
+   "kind": "PLAYER",
+   "label": "Vasily Podkolzin",
+   "path": "explorer/players/prt_7a8ada6df3b6a8f97d75.json",
+   "secondary": "R EDM",
+   "sport": "NHL",
+   "tokens": [
+    "edm",
+    "podkolzin",
+    "vasily"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2025-26",
+    "team": null
+   },
+   "id": "rnk_eaf0462f329705996c20",
+   "kind": "RANKING",
+   "label": "Expected-goals share ranking",
+   "path": "explorer/rankings/rnk_eaf0462f329705996c20.json",
+   "secondary": "NHL teams, 2025-26 regular season [2025-26]",
+   "sport": "NHL",
+   "tokens": [
+    "2025",
+    "26",
+    "expected",
+    "goals",
+    "nhl",
+    "ranking",
+    "regular",
+    "season",
+    "share",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_7f1ba20704d0c7265c1d",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 goals against/60 ranking",
+   "path": "explorer/rankings/rnk_7f1ba20704d0c7265c1d.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adjusted",
+    "against",
+    "goals",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "teams",
+    "weighted"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_4244d4f73a968aa46316",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 goals for/60 ranking",
+   "path": "explorer/rankings/rnk_4244d4f73a968aa46316.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adjusted",
+    "for",
+    "goals",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "teams",
+    "weighted"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_a179be596d294517fe11",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 high-danger xG share ranking",
+   "path": "explorer/rankings/rnk_a179be596d294517fe11.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "adjusted",
+    "danger",
+    "high",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "share",
+    "teams",
+    "weighted",
+    "xg"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_efa4c5d01ff24ee12cab",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 shot-attempt share ranking",
+   "path": "explorer/rankings/rnk_efa4c5d01ff24ee12cab.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "adjusted",
+    "attempt",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "share",
+    "shot",
+    "teams",
+    "weighted"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_947c93c0c9144cc6b815",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 xG share ranking",
+   "path": "explorer/rankings/rnk_947c93c0c9144cc6b815.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "adjusted",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "share",
+    "teams",
+    "weighted",
+    "xg"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_f3a267e25f2658adb82f",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 xGA/60 ranking",
+   "path": "explorer/rankings/rnk_f3a267e25f2658adb82f.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adjusted",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "teams",
+    "weighted",
+    "xga"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_0e5c4897885ceeb2e723",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted 5v5 xGF/60 ranking",
+   "path": "explorer/rankings/rnk_0e5c4897885ceeb2e723.json",
+   "secondary": "NHL teams, opponent-adjusted 5v5 [5v5 recency-weighted]",
+   "sport": "NHL",
+   "tokens": [
+    "5v5",
+    "60",
+    "adjusted",
+    "nhl",
+    "opponent",
+    "ranking",
+    "recency",
+    "teams",
+    "weighted",
+    "xgf"
+   ]
+  },
+  {
+   "aliases": [
+    "ANA",
+    "Anaheim",
+    "Ducks"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "prt_6074ed9db3e77a72be6a",
+   "kind": "TEAM",
+   "label": "Anaheim Ducks",
+   "path": "explorer/teams/prt_6074ed9db3e77a72be6a.json",
+   "secondary": "Pacific division",
+   "sport": "NHL",
+   "tokens": [
+    "ana",
+    "anaheim",
+    "division",
+    "ducks",
+    "pacific"
+   ]
+  },
+  {
+   "aliases": [
+    "COL",
+    "Colorado",
+    "Avalanche"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "prt_47a35b22a8973dec89ca",
+   "kind": "TEAM",
+   "label": "Colorado Avalanche",
+   "path": "explorer/teams/prt_47a35b22a8973dec89ca.json",
+   "secondary": "Central division",
+   "sport": "NHL",
+   "tokens": [
+    "avalanche",
+    "central",
+    "col",
+    "colorado",
+    "division"
+   ]
+  },
+  {
+   "aliases": [
+    "EDM",
+    "Edmonton",
+    "Oilers"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "prt_3fe6715bc299e00e9ef1",
+   "kind": "TEAM",
+   "label": "Edmonton Oilers",
+   "path": "explorer/teams/prt_3fe6715bc299e00e9ef1.json",
+   "secondary": "Pacific division",
+   "sport": "NHL",
+   "tokens": [
+    "division",
+    "edm",
+    "edmonton",
+    "oilers",
+    "pacific"
+   ]
+  },
+  {
+   "aliases": [
+    "PIT",
+    "Pittsburgh",
+    "Penguins"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "prt_f2214e2139e9dcf483e7",
+   "kind": "TEAM",
+   "label": "Pittsburgh Penguins",
+   "path": "explorer/teams/prt_f2214e2139e9dcf483e7.json",
+   "secondary": "Metropolitan division",
+   "sport": "NHL",
+   "tokens": [
+    "division",
+    "metropolitan",
+    "penguins",
+    "pit",
+    "pittsburgh"
+   ]
+  },
+  {
+   "aliases": [
+    "WSH",
+    "Washington",
+    "Capitals"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "prt_df193afe8f1ea84ffa5f",
+   "kind": "TEAM",
+   "label": "Washington Capitals",
+   "path": "explorer/teams/prt_df193afe8f1ea84ffa5f.json",
+   "secondary": "Metropolitan division",
+   "sport": "NHL",
+   "tokens": [
+    "capitals",
+    "division",
+    "metropolitan",
+    "washington",
+    "wsh"
+   ]
+  },
+  {
+   "aliases": [
+    "WPG",
+    "Winnipeg",
+    "Jets"
+   ],
+   "context": {
+    "league": "NHL",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "prt_31b885f5b93ef404f04b",
+   "kind": "TEAM",
+   "label": "Winnipeg Jets",
+   "path": "explorer/teams/prt_31b885f5b93ef404f04b.json",
+   "secondary": "Central division",
+   "sport": "NHL",
+   "tokens": [
+    "central",
+    "division",
+    "jets",
+    "winnipeg",
+    "wpg"
+   ]
+  }
+ ],
+ "kind": "search_index",
+ "run_id": "run_cafa7fa97633ca3afa48",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NHL"
+}

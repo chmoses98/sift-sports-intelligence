@@ -1,0 +1,206 @@
+{
+ "count": 3,
+ "generated_at": "2026-10-08T02:51:34Z",
+ "items": [
+  {
+   "away_participant": "prt_f2214e2139e9dcf483e7",
+   "broadcast": null,
+   "competition": "regular",
+   "effective_start_time_utc": null,
+   "event_id": "evt_a7a78f07c40f2542da30",
+   "extensions": {
+    "away_abbrev": "PIT",
+    "away_score": 3,
+    "game_date_et": "2026-10-07",
+    "home_abbrev": "WSH",
+    "home_score": 5,
+    "neutral_site": false,
+    "source_game_state": "LIVE/OK"
+   },
+   "home_participant": "prt_df193afe8f1ea84ffa5f",
+   "last_updated_at": "2026-10-08T01:59:01Z",
+   "league": "NHL",
+   "participants": [
+    {
+     "display_name": "Washington Capitals",
+     "metadata": {
+      "city": "Washington",
+      "conference": "East",
+      "division": "Metropolitan",
+      "nickname": "Capitals"
+     },
+     "participant_id": "prt_df193afe8f1ea84ffa5f",
+     "participant_type": "TEAM",
+     "short_name": "WSH",
+     "source_ids": {
+      "nhl_abbrev": "WSH",
+      "nhl_team_id": 15
+     }
+    },
+    {
+     "display_name": "Pittsburgh Penguins",
+     "metadata": {
+      "city": "Pittsburgh",
+      "conference": "East",
+      "division": "Metropolitan",
+      "nickname": "Penguins"
+     },
+     "participant_id": "prt_f2214e2139e9dcf483e7",
+     "participant_type": "TEAM",
+     "short_name": "PIT",
+     "source_ids": {
+      "nhl_abbrev": "PIT",
+      "nhl_team_id": 5
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-08T01:59:01Z",
+   "season": "2026-27",
+   "source_ids": {
+    "kalshi_event_ticker": null,
+    "nhl_game_id": "2026020053"
+   },
+   "sport": "NHL",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "nhl_api_schedule",
+   "start_time_utc": "2026-10-07T23:30:00Z",
+   "status": "FINAL",
+   "venue": "Capital One Arena"
+  },
+  {
+   "away_participant": "prt_47a35b22a8973dec89ca",
+   "broadcast": null,
+   "competition": "regular",
+   "effective_start_time_utc": null,
+   "event_id": "evt_ced0054a8fcfd15477e5",
+   "extensions": {
+    "away_abbrev": "COL",
+    "away_score": 2,
+    "game_date_et": "2026-10-07",
+    "home_abbrev": "WPG",
+    "home_score": 3,
+    "neutral_site": false,
+    "source_game_state": "LIVE/OK"
+   },
+   "home_participant": "prt_31b885f5b93ef404f04b",
+   "last_updated_at": "2026-10-08T01:59:01Z",
+   "league": "NHL",
+   "participants": [
+    {
+     "display_name": "Winnipeg Jets",
+     "metadata": {
+      "city": "Winnipeg",
+      "conference": "West",
+      "division": "Central",
+      "nickname": "Jets"
+     },
+     "participant_id": "prt_31b885f5b93ef404f04b",
+     "participant_type": "TEAM",
+     "short_name": "WPG",
+     "source_ids": {
+      "nhl_abbrev": "WPG",
+      "nhl_team_id": 52
+     }
+    },
+    {
+     "display_name": "Colorado Avalanche",
+     "metadata": {
+      "city": "Colorado",
+      "conference": "West",
+      "division": "Central",
+      "nickname": "Avalanche"
+     },
+     "participant_id": "prt_47a35b22a8973dec89ca",
+     "participant_type": "TEAM",
+     "short_name": "COL",
+     "source_ids": {
+      "nhl_abbrev": "COL",
+      "nhl_team_id": 21
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-08T01:59:01Z",
+   "season": "2026-27",
+   "source_ids": {
+    "kalshi_event_ticker": null,
+    "nhl_game_id": "2026020054"
+   },
+   "sport": "NHL",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "nhl_api_schedule",
+   "start_time_utc": "2026-10-07T23:30:00Z",
+   "status": "FINAL",
+   "venue": "Canada Life Centre"
+  },
+  {
+   "away_participant": "prt_3fe6715bc299e00e9ef1",
+   "broadcast": null,
+   "competition": "regular",
+   "effective_start_time_utc": null,
+   "event_id": "evt_e3797432fbc05a48f863",
+   "extensions": {
+    "away_abbrev": "EDM",
+    "game_date_et": "2026-10-07",
+    "home_abbrev": "ANA",
+    "neutral_site": false,
+    "source_game_state": "PRE/OK"
+   },
+   "home_participant": "prt_6074ed9db3e77a72be6a",
+   "last_updated_at": "2026-10-08T01:59:01Z",
+   "league": "NHL",
+   "participants": [
+    {
+     "display_name": "Anaheim Ducks",
+     "metadata": {
+      "city": "Anaheim",
+      "conference": "West",
+      "division": "Pacific",
+      "nickname": "Ducks"
+     },
+     "participant_id": "prt_6074ed9db3e77a72be6a",
+     "participant_type": "TEAM",
+     "short_name": "ANA",
+     "source_ids": {
+      "nhl_abbrev": "ANA",
+      "nhl_team_id": 24
+     }
+    },
+    {
+     "display_name": "Edmonton Oilers",
+     "metadata": {
+      "city": "Edmonton",
+      "conference": "West",
+      "division": "Pacific",
+      "nickname": "Oilers"
+     },
+     "participant_id": "prt_3fe6715bc299e00e9ef1",
+     "participant_type": "TEAM",
+     "short_name": "EDM",
+     "source_ids": {
+      "nhl_abbrev": "EDM",
+      "nhl_team_id": 22
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-08T01:59:01Z",
+   "season": "2026-27",
+   "source_ids": {
+    "kalshi_event_ticker": "KXNHLGAME-26OCT07EDMANA",
+    "nhl_game_id": "2026020055"
+   },
+   "sport": "NHL",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "nhl_api_schedule",
+   "start_time_utc": "2026-10-08T02:00:00Z",
+   "status": "SCHEDULED",
+   "venue": "Honda Center"
+  }
+ ],
+ "kind": "events",
+ "run_id": "run_cafa7fa97633ca3afa48",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NHL"
+}

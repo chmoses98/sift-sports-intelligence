@@ -1,9 +1,13 @@
-// The NHL game page: projection → plausible game scripts → research candidates and their script survival → the
-// evidence behind them → markets, goalies, lines, form. Driven by the NHL publication's NHL_SCRIPT_V1 block and
-// basis-labelled findings (lib/nhl.ts). Live Kalshi quotes ride on the same market clock as every Sift game.
+// The NHL game page tells the story of the game. Under the hero: the model's read in one strip (win probability, total,
+// most likely script, freshness). Then, in order: how the game is most likely to play, the scripts, the goalie
+// matchup, market fit with its contradiction check, special teams and player research. Deeper tabs hold every
+// script in full, every market, every player, the matchup evidence and price history. Driven by the NHL
+// publication's NHL_SCRIPT_V1 block and basis-labelled findings (lib/nhl.ts, lib/nhlStory.ts); live Kalshi quotes ride
+// on the same market clock as every Sift game. Once the puck drops the pregame research is frozen and labelled so.
 import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import type { EventResearchDoc, Market, MatchupRow, MetricDef } from '../../contract/types';
+import type { EntityProfileDoc, EventResearchDoc, Market, MatchupRow, MetricDef } from '../../contract/types';
+import { Icon } from '../../components/Icon';
 import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../../components/LiveQuote';
 import { MarketBoard, latestPrices } from '../../components/MarketBoard';
 import { ErrorState, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../../components/ui';
@@ -11,18 +15,8 @@ import { useAsync } from '../../data/hooks';
 import { injuryRows, marketLabel, priceRow } from '../../lib/gamedata';
 import { kickoff } from '../../lib/format';
 import { describeNhlMarket } from '../../lib/marketLabel';
-import {
-  FAMILY_WORD,
-  evText,
-  familyGroup,
-  isNhlScripts,
-  probText,
-  readFindings,
-  readLearning,
-  readNhl,
-  type NhlFinding,
-  type NhlScripts,
-} from '../../lib/nhl';
+import { FAMILY_WORD, evText, familyGroup, isNhlScripts, probText, readFindings, readLearning, readNhl, type NhlFinding, type NhlScripts } from '../../lib/nhl';
+import { ageMs, gamePhase, goalieLines, modelFreshness, playerLines, priceFreshness, projection, sidesOf, thesis, type Fresh } from '../../lib/nhlStory';
 import { routes } from '../../lib/routes';
 import { liveStore, useLiveQuotes, useNow } from '../../live/hooks';
 import { newlyListed, overlayMarket } from '../../live/overlay';
@@ -31,49 +25,46 @@ import { useDirectory } from '../../state/directory';
 import { useVisit } from '../../state/trail';
 import { Movement } from '../Game';
 import { GameHero } from '../game/Hero';
-import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, PanelHead } from '../game/panels';
-import {
-  CandidatesPanel,
-  FindingCard,
-  GoaltendingPanel,
-  LearningBadge,
-  LinesPanel,
-  ProbabilityPair,
-  ResearchOnly,
-  ScriptDetail,
-  ScriptMatrix,
-  ScriptRows,
-  ScriptsSummaryPanel,
-  ScriptsUnavailable,
-  TierChip,
-  WhatMatters,
-  teamResolver,
-} from './parts';
+import { FormPanel, H2HPanel, Info, InjuryList, LineHistoryPanel, PanelHead } from '../game/panels';
+import { familyGlyph, Glyph } from './glyphs';
+import { FreshPill, ResearchPill } from './kit';
+import { BasisChip, FindingCard, LinesPanel, ScriptMatrix, ScriptsUnavailable, TierChip, teamResolver } from './parts';
+import { FrozenNote, GoalieMatchup, MarketFit, PlayerResearch, ReviewSection, ScriptCard, ScriptList, Section, SpecialTeams, SummaryStrip, ThesisSection } from './story';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-type Tab = 'overview' | 'script' | 'candidates' | 'markets' | 'matchup' | 'lineups' | 'trends';
-const TABS: [Tab, string][] = [
-  ['overview', 'Overview'], ['script', 'Scripts'], ['candidates', 'Candidates'], ['markets', 'Markets'], ['matchup', 'Matchup'], ['lineups', 'Lineups'], ['trends', 'Trends'],
-];
+type Tab = 'overview' | 'script' | 'markets' | 'players' | 'matchup' | 'trends';
+const TABS: [Tab, string][] = [['overview', 'Story'], ['script', 'Scripts'], ['markets', 'Markets'], ['players', 'Players'], ['matchup', 'Matchup'], ['trends', 'Trends']];
+/** Links published before the story layout keep working. */
+const TAB_ALIAS: Record<string, Tab> = { candidates: 'markets', lineups: 'players' };
 
-/** Model projection beside the market, in one line: the first thing to read. */
-function ProjectionStrip({ r, s, homeAbbr, awayAbbr, quoted }: { r: EventResearchDoc; s: NhlScripts | null; homeAbbr: string; awayAbbr: string; quoted: Market[] }) {
-  const sim = (r.extensions as any)?.sim;
-  if (!sim) return null;
-  const ph = sim.p_home_win != null ? Number(sim.p_home_win) : null;
-  const homeMl = quoted.find((m) => m.market_family === 'game_winner' && m.participant_id === r.participants.find((p) => p.home_away === 'HOME')?.participant_id);
-  const mid = homeMl && homeMl.yes_bid != null && homeMl.yes_ask != null ? (homeMl.yes_bid + homeMl.yes_ask) / 2 : homeMl?.market_probability ?? null;
-  const fav = ph == null ? null : ph >= 0.5 ? homeAbbr : awayAbbr;
+const UNIT_ROLE: Record<string, string> = { f1: 'Line 1', f2: 'Line 2', f3: 'Line 3', f4: 'Line 4', d1: 'Pair 1', d2: 'Pair 2', d3: 'Pair 3' };
+
+/** "Line 1 · PP1" for a skater, from the game's published line combinations. */
+function roleResolver(r: EventResearchDoc): (name: string) => string | null {
+  const key = (n: string) => n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const by = new Map<string, string[]>();
+  for (const l of (r.context?.lineups ?? []) as any[]) {
+    if (l.kind !== 'line_combinations') continue;
+    for (const [u, ps] of Object.entries(l.units ?? {}) as [string, any[]][]) {
+      const [kind, unit] = u.split(':');
+      const word = kind === 'ev' ? UNIT_ROLE[unit] : kind === 'pp' ? unit.toUpperCase() : null;
+      if (!word) continue;
+      for (const p of ps ?? []) if (p?.name) by.set(key(p.name), [...(by.get(key(p.name)) ?? []), word]);
+    }
+  }
+  return (name: string) => (by.get(key(name)) ?? []).sort((a, b) => Number(b.startsWith('L') || b.startsWith('P') && !b.startsWith('PP')) - Number(a.startsWith('L') || a.startsWith('P') && !a.startsWith('PP'))).join(' · ') || null;
+}
+
+/** The game's matchup findings as one compact list (basis first), not a wall of cards. */
+function EdgeList({ items }: { items: NhlFinding[] }) {
+  if (!items.length) return null;
   return (
-    <div className="nproj">
-      <p className="nproj__lead">
-        Model projects {awayAbbr} {Number(sim.away_lambda).toFixed(2)} – {homeAbbr} {Number(sim.home_lambda).toFixed(2)} expected goals
-        {fav && ph != null ? <>; {fav} wins {probText(Math.max(ph, 1 - ph))} of simulations</> : null}
-        <small>DATA_ONLY_V1, independent of market prices · total {Number(sim.total_mean).toFixed(1)} goals · OT {probText(sim.p_overtime)}{s ? ` · scripts from ${s.nDraws.toLocaleString('en-US')} joint draws` : ''}</small>
-      </p>
-      <ProbabilityPair label={`${homeAbbr} win`} model={ph} market={mid} />
-    </div>
+    <Section id="n-edges" title="What matters" sub="The findings that move this game most, each labelled with what it rests on. Raw statistics are context, never the reason for an edge.">
+      <ul className="nedge">
+        {items.map((f) => <li key={f.id}><BasisChip basis={f.basis} /><b>{f.title}</b><span>{f.text}</span></li>)}
+      </ul>
+    </Section>
   );
 }
 
@@ -99,7 +90,7 @@ function NhlMarketTable({ s, quoted, slug, eventId }: { s: NhlScripts | null; qu
                     const best = row ? ([['yes', row.yes], ['no', row.no]] as const).filter(([, sd]) => sd?.ev != null).sort((a, b) => (b[1]!.ev ?? -9) - (a[1]!.ev ?? -9))[0] : null;
                     return (
                       <tr key={m.kalshi_ticker}>
-                        <th scope="row"><Link to={routes.market(slug, m.market_id, eventId)} className="mtab__m">{describeNhlMarket(m)?.title ?? m.yes_description}</Link><span className="nmx__tag">{FAMILY_WORD[m.market_family] ?? m.market_family}</span></th>
+                        <th scope="row"><Glyph name={familyGlyph(m.market_family)} size={14} className="nmt__g" /><Link to={routes.market(slug, m.market_id, eventId)} className="mtab__m">{describeNhlMarket(m)?.title ?? m.yes_description}</Link><span className="nmx__tag">{FAMILY_WORD[m.market_family] ?? m.market_family}</span></th>
                         <td className="r num">{m.yes_ask != null ? Math.round(m.yes_ask * 100) : '—'} / {m.no_ask != null ? Math.round(m.no_ask * 100) : '—'}</td>
                         {row ? (
                           <>
@@ -190,7 +181,8 @@ function fmt(v: number | null | undefined, unit: string | null | undefined): str
 export function NhlGameView({ eventId }: { eventId: string }) {
   const { sport, repo, slug, metrics, caps } = useSport();
   const [sp] = useSearchParams();
-  const tab = (TABS.find(([k]) => k === sp.get('tab'))?.[0] ?? 'overview') as Tab;
+  const rawTab = sp.get('tab') ?? '';
+  const tab = (TAB_ALIAS[rawTab] ?? TABS.find(([k]) => k === rawTab)?.[0] ?? 'overview') as Tab;
   const research = useAsync(`er:${sport.code}:${eventId}`, () => repo.eventResearch(eventId));
   const detail = useAsync(`ed:${sport.code}:${eventId}`, () => repo.eventDetail(eventId));
   const dir = useDirectory(repo);
@@ -201,8 +193,8 @@ export function NhlGameView({ eventId }: { eventId: string }) {
   const awayProf = useAsync(awayP ? `prof:${sport.code}:${awayP.participant_id}` : null, () => repo.profile(awayP!.participant_id));
   const hist = useAsync(r?.market_history_path && tab === 'trends' ? `mh:${sport.code}:${eventId}` : null, () => repo.marketHistory(eventId));
   const ev = r?.event;
-  const short = (pid?: string | null) => ev?.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
-  useVisit(ev ? `${short(awayP?.participant_id)} @ ${short(homeP?.participant_id)}` : null, 'game');
+  const ids = useMemo(() => (r ? sidesOf(r) : null), [r]);
+  useVisit(ids ? `${ids.away} @ ${ids.home}` : null, 'game');
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
   const playerName = useMemo(() => (id: string | null) => (id ? dir.data?.player(id)?.label ?? null : null), [dir.data]);
 
@@ -218,99 +210,145 @@ export function NhlGameView({ eventId }: { eventId: string }) {
   const known = useMemo(() => new Map((published ?? r?.markets ?? []).map((m) => [m.kalshi_ticker, m as Market])), [published, r]);
   const now = useNow(15_000);
   const scripts = useMemo(() => readNhl(r), [r]);
+  const s = isNhlScripts(scripts) ? scripts : null;
   const fnd = useMemo(() => readFindings(r), [r]);
   const learning = useMemo(() => readLearning(metrics), [metrics]);
+  const proj = useMemo(() => (r ? projection(r, s) : null), [r, s]);
+  const goalies = useMemo(() => (r && ids ? goalieLines(r, s, ids) : []), [r, s, ids]);
+  const goaliePids = goalies.map((g) => g.pid).filter((x): x is string => !!x);
+  const goalieProfs = useAsync(goaliePids.length && (tab === 'overview' || tab === 'players') ? `nhl-goalies:${goaliePids.join(',')}` : null, async () => {
+    const out = await Promise.allSettled(goaliePids.map((id) => repo.profile(id)));
+    return new Map(goaliePids.map((id, i) => [id, out[i].status === 'fulfilled' ? (out[i] as PromiseFulfilledResult<EntityProfileDoc>).value : null]));
+  });
+  const roleOf = useMemo(() => (r ? roleResolver(r) : () => null), [r]);
 
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
-  if (!r || !ev || !homeP || !awayP) return <div className="page"><ErrorState error={research.error} what="this game's research" /></div>;
-  const homeAbbr = short(homeP.participant_id);
-  const awayAbbr = short(awayP.participant_id);
-  const s = isNhlScripts(scripts) ? scripts : null;
+  if (!r || !ev || !homeP || !awayP || !ids) return <div className="page"><ErrorState error={research.error} what="this game's research" /></div>;
+  const homeAbbr = ids.home;
+  const awayAbbr = ids.away;
+  const phase = gamePhase(ev, now);
+  const pregame = phase.phase === 'UPCOMING';
+  // The publisher's postmortem score is authoritative over the schedule feed's last captured score.
+  const fs = (s?.outcome as any)?.final_score;
+  const finalScore = fs?.home != null && fs?.away != null ? { home: Number(fs.home), away: Number(fs.away) } : phase.score;
   const selected = s && s.byId.has(sp.get('script') ?? '') ? sp.get('script') : null;
   const href = (t: Tab, script: string | null = selected) => routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
-  const hrefFor = (id: string | null) => href('script', id);
+  const hrefFor = (id: string | null) => `${href('script', id)}`;
   const rosterOf = (prof: any, abbr: string) => ({ abbr, names: ((prof?.players ?? []) as { display_name: string }[]).map((x) => x.display_name) });
-  const injuries = injuryRows(r, teamResolver(r, [rosterOf(homeProf.data, homeAbbr), rosterOf(awayProf.data, awayAbbr)]));
+  const teamOf = teamResolver(r, [rosterOf(homeProf.data, homeAbbr), rosterOf(awayProf.data, awayAbbr)]);
+  const injuries = injuryRows(r, teamOf);
+  const outCount = (t: string) => injuries.filter((x) => x.team === t && /out|ir|injured reserve/i.test(String((x as any).status ?? (x as any).designation ?? ''))).length;
   const rows = quoted.map((m) => priceRow(m, prices, marketLabel(m, (pid) => (pid === homeP.participant_id ? homeAbbr : pid === awayP.participant_id ? awayAbbr : null), playerName), null));
   const notes = r.context?.notes ?? [];
   const unavailable = scripts && !isNhlScripts(scripts) ? <ScriptsUnavailable status={scripts.status} reason={scripts.reason} /> : null;
   const abbrOf = (id: string | null) => (id === homeP.participant_id ? homeAbbr : id === awayP.participant_id ? awayAbbr : '?');
+  const t = thesis(s, proj, ids, goalies, injuries.length ? { home: outCount(homeAbbr), away: outCount(awayAbbr) } : null);
+  const homeMl = quoted.find((m) => m.market_family === 'game_winner' && m.participant_id === homeP.participant_id);
+  const marketPHome = homeMl && homeMl.yes_bid != null && homeMl.yes_ask != null ? (homeMl.yes_bid + homeMl.yes_ask) / 2 : homeMl?.market_probability ?? null;
+  const players = playerLines(r, s, quoted, roleOf, teamOf);
+  const knownPlayer = (id: string | null) => !!id && (!!dir.data?.player(id) || r.players.some((x) => x.participant_id === id));
+  const lastQuote = quoted.map((m) => m.captured_at).filter((x): x is string => !!x).sort().pop() ?? null;
+  const gAge = goalies.map((g) => ageMs(g.observedAt, now)).filter((x): x is number => x != null);
+  const goalieFresh: Fresh = !gAge.length ? 'UNKNOWN' : Math.max(...gAge) <= 3 * 3600e3 ? 'CURRENT' : Math.max(...gAge) <= 12 * 3600e3 ? 'AGING' : 'STALE';
+  const status = (
+    <>
+      <FreshPill label="Model" state={modelFreshness(s?.generatedAt ?? (r.distributions[0] as any)?.generated_at ?? null, phase.phase, now)} at={s?.generatedAt ?? null} now={now} glyph="chances" />
+      {pregame && published && published.length > 0 && <FreshPill label="Prices" state={priceFreshness(lastQuote, now)} at={lastQuote} now={now} glyph="moneyline" />}
+      {pregame && published && published.length === 0 && <span className="nsl__muted">No Kalshi markets listed yet</span>}
+      {pregame && goalies.length > 0 && <FreshPill label="Goalies" state={goalieFresh} at={goalies.map((g) => g.observedAt).filter(Boolean).sort().pop() ?? null} now={now} glyph="mask" />}
+      <ResearchPill learning={learning} slug={slug} bare />
+    </>
+  );
 
   return (
-    <div className="page game game--nhl">
-      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} />
+    <div className="page game game--nhl nhg">
+      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} finalScore={phase.phase === 'FINAL' ? finalScore : null} />
+      <SummaryStrip ids={ids} p={proj} s={s} phase={phase} marketPHome={marketPHome} status={status} />
       <nav className="ptabs gtabs" aria-label="Game sections">
-        {TABS.map(([k, l]) => <Link key={k} to={href(k)} aria-current={tab === k ? 'page' : undefined}>{l}</Link>)}
+        {TABS.map(([k, l]) => <Link key={k} to={href(k, null)} aria-current={tab === k ? 'page' : undefined}>{l}</Link>)}
       </nav>
 
       {tab === 'overview' && (
-        <div className="ngov">
-          <div className="nhead"><LearningBadge learning={learning} slug={slug} compact /> <ResearchOnly />{s?.pregame === false && <span className="muted small">Research is from after puck drop; shown for reference only.</span>}</div>
-          <ProjectionStrip r={r} s={s} homeAbbr={homeAbbr} awayAbbr={awayAbbr} quoted={quoted} />
-          <WhatMatters items={fnd.whatMatters} r={r} slug={slug} empty={<p className="muted">No ranked findings were published for this game.</p>} more={fnd.findings.length > fnd.whatMatters.length ? <p className="gsec__more"><Link to={href('matchup')}>Every finding, adjusted and raw →</Link></p> : null} />
-          {s ? <ScriptsSummaryPanel s={s} homeAbbr={homeAbbr} awayAbbr={awayAbbr} hrefFor={hrefFor} to={href('script')} /> : unavailable}
-          {s && <CandidatesPanel s={s} r={r} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} limit={4} to={href('candidates')} />}
-          <div className="ngov__pair">
-            <GoaltendingPanel r={r} findings={fnd.findings} homeAbbr={homeAbbr} awayAbbr={awayAbbr} slug={slug} />
-            <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
-          </div>
-          <div className="ngov__pair">
-            <FormPanel homeProf={homeProf.data} awayProf={awayProf.data} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={href('trends')} />
-            <InjuriesPanel rows={injuries} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} to={href('lineups')} />
-          </div>
+        <div className="nhg__story">
+          <FrozenNote phase={phase} generatedAt={s?.generatedAt ?? null} />
+          <ReviewSection phase={phase} ids={ids} s={s} />
+          {t ? <ThesisSection t={t} s={s} r={r} slug={slug} ids={ids} /> : null}
+          {s ? (
+            <Section id="n-scripts" title="Game scripts" sub={`Seven ways this game can go, from ${s.nDraws.toLocaleString('en-US')} simulated games. Every simulated game falls in exactly one, so they add to 100%.`}
+              actions={<Link to={href('script', null)} className="nlink">Each script in full <Icon name="arrowRight" size={14} /></Link>}>
+              <ScriptList s={s} ids={ids} hrefFor={hrefFor} />
+            </Section>
+          ) : unavailable}
+          <GoalieMatchup goalies={goalies} profiles={goalieProfs.data ?? new Map()} p={proj} s={s} markets={quoted} start={ev.start_time_utc} now={now} slug={slug} ids={ids} />
+          {s && <MarketFit s={s} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} pregame={pregame} limit={3} to={href('markets', null)} />}
+          <SpecialTeams s={s} p={proj} ids={ids} matchup={r.matchup} lineups={r.context?.lineups ?? []} />
+          <PlayerResearch players={players} s={s} ids={ids} slug={slug} known={knownPlayer} limit={4} to={href('players', null)} />
+          <EdgeList items={fnd.whatMatters.filter((f) => f.basis === 'OPPONENT_ADJUSTED' || f.basis === 'AVAILABILITY')} />
         </div>
       )}
 
       {tab === 'script' && (
         s ? (
-          <>
-            <Stratum id="g-nhl-scripts" title="How it could play out" sub={`Seven mutually exclusive game scripts from ${s.nDraws.toLocaleString('en-US')} simulated games · ${s.versions.script}`}>
-              <ScriptRows s={s} homeAbbr={homeAbbr} awayAbbr={awayAbbr} hrefFor={hrefFor} selected={selected} />
-            </Stratum>
-            <Stratum id="g-nhl-matrix" title="Which markets survive which scripts" sub="The probability mass a market survives matters more than the number of scripts.">
+          <div className="nhg__story">
+            <FrozenNote phase={phase} generatedAt={s.generatedAt} />
+            <Section id="n-scripts-all" title="How it could play out" sub={`Seven mutually exclusive game scripts from ${s.nDraws.toLocaleString('en-US')} simulated games · ${s.versions.script}. Probabilities are written numbers; colour only identifies the script.`}>
+              <ScriptList s={s} ids={ids} hrefFor={(id) => `${href('script', id)}`} selected={selected} />
+            </Section>
+            <div className="nscgrid">
+              {(selected ? s.scripts.filter((x) => x.id === selected) : s.scripts).map((x) => (
+                <ScriptCard key={x.id} x={x} s={s} ids={ids} slug={slug} eventId={eventId} marketsByTicker={marketsByTicker} r={r} />
+              ))}
+            </div>
+            {selected && <p className="small"><Link to={hrefFor(null)}>Show every script →</Link></p>}
+            <Stratum id="g-nhl-matrix" title="Which markets survive which scripts" sub="Expected value per contract inside each script. The probability mass a market survives matters more than the number of scripts.">
               <ScriptMatrix s={s} markets={quoted} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} selected={selected} />
             </Stratum>
-            <Stratum id="g-nhl-script-detail" title="Each script in full" sub="Why it exists, what would need to happen, what breaks it, and the markets it moves.">
-              <div className="nsdgrid">
-                {(selected ? s.scripts.filter((x) => x.id === selected) : s.scripts).map((x) => (
-                  <ScriptDetail key={x.id} x={x} s={s} homeAbbr={homeAbbr} awayAbbr={awayAbbr} slug={slug} eventId={eventId} marketsByTicker={marketsByTicker} r={r} />
-                ))}
-              </div>
-              {selected && <p className="small"><Link to={hrefFor(null)}>Show every script →</Link></p>}
-            </Stratum>
-          </>
+          </div>
         ) : unavailable ?? <Notice title="No scripts for this game" />
       )}
 
-      {tab === 'candidates' && (
-        s ? (
-          <>
-            <CandidatesPanel s={s} r={r} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
-            {s.rules && (
-              <details className="layer">
-                <summary className="layer__s">How candidates are ranked</summary>
-                <div className="layer__b small">
-                  <p>{s.rules.ordering}.</p>
-                  <ul>{Object.entries(s.rules.tiers).map(([k, v]) => <li key={k}><b>{k.replace(/_/g, ' ').toLowerCase()}</b>: {v}</li>)}</ul>
-                  <p className="muted">{s.rules.conservative_probability}. Versions: {s.versions.script} · {s.versions.survival} · {s.versions.candidates}.</p>
-                </div>
-              </details>
-            )}
-          </>
-        ) : unavailable ?? <Notice title="No research candidates for this game" />
-      )}
-
       {tab === 'markets' && (
-        <>
+        <div className="nhg__story">
+          <FrozenNote phase={phase} generatedAt={s?.generatedAt ?? null} />
+          {s ? <MarketFit s={s} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} pregame={pregame} /> : unavailable}
+          {s?.rules && (
+            <details className="layer">
+              <summary className="layer__s">How research candidates are ranked</summary>
+              <div className="layer__b small">
+                <p>{s.rules.ordering}.</p>
+                <ul>{Object.entries(s.rules.tiers).map(([k, v]) => <li key={k}><b>{k.replace(/_/g, ' ').toLowerCase()}</b>: {v}</li>)}</ul>
+                <p className="muted">{s.rules.conservative_probability}. Versions: {s.versions.script} · {s.versions.survival} · {s.versions.candidates}.</p>
+              </div>
+            </details>
+          )}
           <Stratum id="g-nhl-mt" title="What the model says about each market" sub="Supported markets show the model's probability and the best side after fees; unsupported markets say so.">
             {detail.loading ? <Skeleton lines={6} /> : <NhlMarketTable s={s} quoted={quoted} slug={slug} eventId={eventId} />}
           </Stratum>
-          <Stratum id="g-markets" title="Markets" sub={`All Kalshi contracts on this game (${detail.data?.markets.length ?? '…'}). Prices are the current quote where Sift has one, otherwise the publication's capture.`} actions={<><span className="gquote"><QuoteSummaryChip views={views} now={now} /></span>{tickers.length ? <RefreshQuotes tickers={tickers} /> : null}</>}>
+          <Stratum id="g-markets" title="Markets" sub={`All Kalshi contracts on this game (${detail.data?.markets.length ?? '…'}). ${pregame ? 'Prices are the current quote where Sift has one, otherwise the publication\'s capture.' : 'The game has started: prices move with the score and are not pregame research.'}`} actions={<><span className="gquote"><QuoteSummaryChip views={views} now={now} /></span>{tickers.length ? <RefreshQuotes tickers={tickers} /> : null}</>}>
             {detail.error && <ErrorState error={detail.error} what="this game's markets" />}
-            {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}
+            {detail.data && (detail.data.markets.length ? <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} /> : <p className="nsl__muted">No Kalshi market is listed for this game yet.</p>)}
             <NewlyListed quotes={listedLater} now={now} />
           </Stratum>
-        </>
+        </div>
+      )}
+
+      {tab === 'players' && (
+        <div className="nhg__story">
+          <GoalieMatchup goalies={goalies} profiles={goalieProfs.data ?? new Map()} p={proj} s={s} markets={quoted} start={ev.start_time_utc} now={now} slug={slug} ids={ids} />
+          <PlayerResearch players={players} s={s} ids={ids} slug={slug} known={knownPlayer} />
+          <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} full />
+          <Section id="n-inj" title="Injuries" sub="ESPN designations, name-matched by the publication. Injuries enter the model only through who is in the projected lineup.">
+            <div className="injcols injcols--full">
+              {[awayAbbr, homeAbbr].map((tm) => (
+                <div key={tm} className="injcol">
+                  <div className="injcol__h"><TeamMark sport={sport.code} abbr={tm} size="sm" /> {tm}</div>
+                  <InjuryList rows={injuries.filter((x) => x.team === tm)} />
+                </div>
+              ))}
+            </div>
+            {injuries.some((x) => !x.team) && <InjuryList rows={injuries.filter((x) => !x.team)} />}
+          </Section>
+        </div>
       )}
 
       {tab === 'matchup' && (
@@ -319,26 +357,9 @@ export function NhlGameView({ eventId }: { eventId: string }) {
             <FindingsByBasis findings={fnd.findings} r={r} slug={slug} />
             {fnd.rule && <p className="muted small">{fnd.rule}.</p>}
           </Stratum>
+          <SpecialTeams s={s} p={proj} ids={ids} matchup={r.matchup} lineups={r.context?.lineups ?? []} />
           {capShown(caps, 'matchup_metrics') && <AdjustedMatchup rows={r.matchup} metrics={metrics} slug={slug} homeAbbr={homeAbbr} awayAbbr={awayAbbr} homeId={homeP.participant_id} awayId={awayP.participant_id} eventId={eventId} />}
         </>
-      )}
-
-      {tab === 'lineups' && (
-        <div className="ngov">
-          <GoaltendingPanel r={r} findings={fnd.findings} homeAbbr={homeAbbr} awayAbbr={awayAbbr} slug={slug} />
-          <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} full />
-          <Stratum id="g-nhl-inj" title="Injuries" sub="ESPN designations, name-matched by the publication. Injuries are not modelled beyond who is in the projected lineup.">
-            <div className="injcols injcols--full">
-              {[awayAbbr, homeAbbr].map((t) => (
-                <div key={t} className="panel injcol">
-                  <div className="injcol__h"><TeamMark sport={sport.code} abbr={t} size="sm" /> {t}</div>
-                  <InjuryList rows={injuries.filter((x) => x.team === t)} />
-                </div>
-              ))}
-            </div>
-            {injuries.some((x) => !x.team) && <InjuryList rows={injuries.filter((x) => !x.team)} />}
-          </Stratum>
-        </div>
       )}
 
       {tab === 'trends' && (
@@ -360,7 +381,8 @@ export function NhlGameView({ eventId }: { eventId: string }) {
         <summary>Publication notes, provenance & full-game export</summary>
         {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
         <p className="small muted"><QualityBadge quality={r.quality} /> {r.quality.source} · generated {r.quality.generated_at}</p>
-        {s && <p className="small muted">Scripts: {s.versions.script} · survival {s.versions.survival} · candidates {s.versions.candidates} · {s.drawSource}</p>}
+        {s && <p className="small muted">Scripts: {s.versions.script} · survival {s.versions.survival} · candidates {s.versions.candidates} · {s.drawSource}{s.frozen ? ` · frozen from ${s.frozenFromRun}` : ''}</p>}
+        {proj && <p className="small muted">Projection: {proj.source}.</p>}
         <p className="small"><Link to={routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id })}>Export this game's full handicap packet →</Link></p>
       </details>
     </div>

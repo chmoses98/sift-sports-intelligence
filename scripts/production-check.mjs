@@ -415,6 +415,48 @@ async function offSlate(name, page, errs) {
 // home's Slate Priorities rail is there (beside the featured game on desktop, before it on phones) and every item
 // opens a real page, the script titles are the plain-English ones, and every sport page renders — no error screen.
 // Screenshots of each, for review (uploaded with the run).
+// Game heroes (src/lib/hero): the live site shows each game's HOME team identity — the Saints at the Superdome are a
+// Saints home game, never Super Bowl LIX — neutral sites show nobody at home, every served hero photo loads, and the
+// retired venue-only photo set (/stadiums/) is never requested.
+async function heroCheck(page, name) {
+  const retired = [];
+  const onReq = (r) => r.url().includes('/stadiums/') && retired.push(r.url());
+  page.on('request', onReq);
+  await page.goto(BASE + '#/design/heroes');
+  await page.locator('.hg__item').first().waitFor({ timeout: 60_000 });
+  const saints = page.locator('.hg__item').filter({ hasText: 'Saints at the Superdome' }).locator('header.gh');
+  check(await saints.getAttribute('data-hero-team') === 'NO', `${name}: Saints at the Superdome resolves to the Saints' identity`);
+  check(/Saints home game/i.test((await saints.locator('[data-hero-label]').textContent()) ?? ''), `${name}: the Saints hero says "Saints home game"`);
+  const london = page.locator('.hg__item').filter({ hasText: 'International: Colts vs Commanders' }).locator('header.gh');
+  check(await london.getAttribute('data-hero-context') === 'neutral' && await london.getAttribute('data-hero-team') === '', `${name}: an international neutral site shows nobody at home`);
+  const bruins = page.locator('.hg__item').filter({ hasText: 'Bruins at TD Garden' }).locator('header.gh');
+  check(await bruins.getAttribute('data-hero-team') === 'BOS' && !(await bruins.getAttribute('data-hero-photo') ?? '').startsWith('nba-'), `${name}: a shared arena shows the hockey tenant (Bruins, never the Celtics)`);
+  for (const sport of ['NFL', 'MLB', 'NHL', 'CFB', 'CBB']) {
+    await page.goto(`${BASE}#/design/heroes?sport=${sport}&only=photo`);
+    await page.locator('.page.heroes-gallery').waitFor({ timeout: 60_000 });
+    const heroes = await page.locator('header.gh[data-hero-kind="photo"]').all();
+    let loaded = 0;
+    for (const h of heroes) {
+      await h.scrollIntoViewIfNeeded();
+      const ok = await h.locator('.hart__photo').evaluate((i) => new Promise((res) => { const t = Date.now(); const tick = () => (i.complete && i.naturalWidth > 0 ? res(true) : Date.now() - t > 20000 ? res(false) : setTimeout(tick, 200)); tick(); })).catch(() => false);
+      if (ok) loaded++; else console.log(`  hero photo did not load: ${await h.getAttribute('data-hero-photo')}`);
+    }
+    check(loaded === heroes.length, `${name}: ${sport}: every hero photo loads (${loaded}/${heroes.length})`);
+  }
+  if (sel?.target?.event_id) {
+    await page.goto(gameUrlOf(sel.target.event_id));
+    const hero = page.locator('header.gh');
+    await hero.waitFor({ timeout: 60_000 });
+    const ctx = await hero.getAttribute('data-hero-context');
+    const team = await hero.getAttribute('data-hero-team');
+    const home = sel.target.participants?.find((p) => p.participant_id === sel.target.home_participant)?.short_name;
+    console.log(`  NFL game hero: context=${ctx} team=${team} photo=${await hero.getAttribute('data-hero-photo') || '—'} reason=${await hero.getAttribute('data-hero-reason')}`);
+    check(ctx === 'neutral' || ctx === 'matchup' || !home || team === home || (home === 'LA' && team === 'LA'), `${name}: the NFL game hero shows its home team (${home}) or nobody at a neutral site (got ${ctx}/${team})`);
+  }
+  page.off('request', onReq);
+  check(retired.length === 0, `${name}: no retired venue-only photo requested (${retired.slice(0, 2).join(', ')})`);
+}
+
 async function designCheck(browser, device, name) {
   console.log('  -- Barlow + NFL home + every sport page');
   const ctx = await browser.newContext(device);
@@ -513,6 +555,12 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     }
     check(errs.length === mlbBefore, `MLB: pages show no page/console errors (${errs.slice(mlbBefore, mlbBefore + 3).join(' | ')})`);
     await designCheck(browser, device, name);
+    try {
+      await heroCheck(page, name);
+    } catch (e) {
+      check(false, `heroes: ${name}: ${String(e).split('\n')[0]}`);
+      await page.screenshot({ path: `production-${name}-heroes-failure.png` }).catch(() => {});
+    }
   } catch (e) {
     check(false, `${name}: ${String(e).split('\n')[0]}`);
     await page.screenshot({ path: `production-${name}-failure.png` }).catch(() => {});

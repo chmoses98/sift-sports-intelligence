@@ -93,3 +93,10 @@
   .gh__credit { top: auto; bottom: 3px; right: 8px; max-width: 70%; font-size: 9px; }
   .gh--photo .gh__in { padding-bottom: calc(var(--s-3) + 8px); }
 }
+
+/* ------------------------------------------------------------------ hero gallery (#/design/heroes) */
+.hg__nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
+.hg__nav .chip.is-on { background: var(--deep-blue); color: var(--ivory); }
+.hg__list { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: grid; gap: var(--s-5); }
+.hg__cap { margin-bottom: 6px; font-size: 0.86rem; }
+@media (min-width: 1100px) { .heroes-gallery .gh { min-height: 340px; } }

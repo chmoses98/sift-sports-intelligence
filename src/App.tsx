@@ -11,6 +11,7 @@ import { SportHomeView } from './views/SportHome';
 
 const CompareView = lazy(() => import('./views/Compare').then((x) => ({ default: x.CompareView })));
 const DesignView = lazy(() => import('./views/Design').then((x) => ({ default: x.DesignView })));
+const HeroGalleryView = lazy(() => import('./views/HeroGallery').then((x) => ({ default: x.HeroGalleryView })));
 const GameRoute = lazy(() => import('./views/Game').then((x) => ({ default: x.GameRoute })));
 const MarketView = lazy(() => import('./views/Market').then((x) => ({ default: x.MarketView })));
 const MetricView = lazy(() => import('./views/Metric').then((x) => ({ default: x.MetricView })));
@@ -57,6 +58,7 @@ export const routeTree = [
       { path: 'packet', element: <PacketView /> },
       { path: 'status', element: <StatusView /> },
       { path: 'design', element: <DesignView /> },
+      { path: 'design/heroes', element: <HeroGalleryView /> },
       { path: 'sports', element: <SportsView /> },
       { path: 'news', element: <NewsView /> },
       { path: 'settings', element: <SettingsView /> },

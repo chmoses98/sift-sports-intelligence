@@ -1,0 +1,51 @@
+name: Hero candidates
+
+# Curation aid: numbered contact sheets of free-licence Commons photographs per HOME TEAM (identity-first search,
+# scripts/heroes/candidates.mjs) under curation/heroes/<sport>/, committed to the branch that ran it. A person reviews
+# them and pins at most one frame per team in scripts/heroes/pins.json. Nothing here is used by the app.
+on:
+  push:
+    branches: ['claude/hero-curation*']
+    paths:
+      - scripts/heroes/candidates.mjs
+      - scripts/heroes/team-names.json
+      - .github/workflows/hero-candidates.yml
+  workflow_dispatch:
+    inputs:
+      sports:
+        description: Sports (JSON array)
+        type: string
+        default: '["NFL","MLB","NHL","CFB","CBB"]'
+      only:
+        description: Team codes (comma-separated, optional; one sport)
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  sheets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        sport: ${{ fromJSON(inputs.sports || '["NFL","MLB","NHL","CFB","CBB"]') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y imagemagick fonts-dejavu-core
+      - run: node scripts/heroes/candidates.mjs ${{ matrix.sport }} "${{ inputs.only }}"
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add curation/heroes
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "Hero curation contact sheets: ${{ matrix.sport }} (not used by the app)"
+          for i in 1 2 3 4 5; do git pull --rebase origin "${GITHUB_REF_NAME}" && git push && exit 0; sleep $((i*7)); done
+          exit 1

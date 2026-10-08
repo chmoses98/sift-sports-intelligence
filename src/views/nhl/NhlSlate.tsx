@@ -19,6 +19,14 @@ import { sides, useSlateResearch } from '../home/cards';
 import { Glyph, SCRIPT_GLYPH } from './glyphs';
 import { FreshPill, GoalieInline, PhaseChip, TeamChip } from './kit';
 
+/** "3 robust or moderate · 9 research ideas", "No robust idea · 1 fragile", "No research candidate". */
+function researchWords(c: SlateRead['candidates']) {
+  const strong = c.robust + c.moderate;
+  if (strong) return <><b className="num">{strong}</b> robust or moderate<small>{c.total} research idea{c.total === 1 ? '' : 's'}</small></>;
+  if (c.total) return <>No robust idea<small>{c.total} fragile</small></>;
+  return <>No research candidate</>;
+}
+
 function TeamLine({ abbr, p, fav, goalie }: { abbr: string | null | undefined; p: number | null; fav: boolean; goalie: SlateRead['goalies'][number] | undefined; }) {
   const t = nhlTeam(abbr);
   return (
@@ -69,7 +77,7 @@ export function SlateRow({ item, r, slug, now }: { item: BoardItem; r: EventRese
                 <span className="nsl__k nsl__muted" title={read.reason ?? undefined}><Glyph name="alert" size={14} /><span>{read.status === 'NOT_SIMULATED' ? (ph.phase === 'UPCOMING' ? 'Not simulated yet' : 'No pregame scripts published') : 'Scripts unavailable'}</span></span>
               )}
               {s && (
-                <span className="nsl__k"><Glyph name="chances" size={14} /><span>{read.candidates.total ? <><b className="num">{read.candidates.robust + read.candidates.moderate}</b> robust or moderate</> : 'No candidate'}<small>{read.candidates.total} research idea{read.candidates.total === 1 ? '' : 's'}</small></span></span>
+                <span className="nsl__k"><Glyph name="chances" size={14} /><span>{researchWords(read.candidates)}</span></span>
               )}
             </>
           )}
@@ -78,7 +86,7 @@ export function SlateRow({ item, r, slug, now }: { item: BoardItem; r: EventRese
           {unconfirmed && ph.phase === 'UPCOMING' && <span className="nsl__warn"><Glyph name="mask" size={13} />Goalie unconfirmed</span>}
           {s?.frozen && <span className="nsl__muted">Pregame research frozen</span>}
           {s && ph.phase === 'UPCOMING' && mFresh !== 'CURRENT' && <FreshPill label="Model" state={mFresh} at={s.generatedAt} now={now} />}
-          {ph.phase === 'UPCOMING' && item.markets_available > 0 && pFresh !== 'CURRENT' && <FreshPill label="Prices" state={pFresh} at={item.market_captured_at} now={now} />}
+          {ph.phase === 'UPCOMING' && item.markets_available > 0 && pFresh === 'STALE' && <FreshPill label="Prices" state={pFresh} at={item.market_captured_at} now={now} />}
           {ph.phase === 'UPCOMING' && item.markets_available === 0 && <span className="nsl__muted">No Kalshi markets yet</span>}
         </span>
         <Icon name="chevronRight" size={18} className="nsl__go" />

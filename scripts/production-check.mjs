@@ -411,6 +411,83 @@ async function offSlate(name, page, errs) {
   console.log(`  live-game quote assertions: NOT_APPLICABLE — ${sel.mode === 'STALE' ? 'the NFL publication is stale (failed above)' : 'no current NFL game'}`);
 }
 
+// Typography and the NFL home on the live site: Barlow is the face actually rendering (no retired face loads), the NFL
+// home's Slate Priorities rail is there (beside the featured game on desktop, before it on phones) and every item
+// opens a real page, the script titles are the plain-English ones, and every sport page renders — no error screen.
+// Screenshots of each, for review (uploaded with the run).
+async function designCheck(browser, device, name) {
+  console.log('  -- Barlow + NFL home + every sport page');
+  const ctx = await browser.newContext(device);
+  const page = await ctx.newPage();
+  const fonts = () => page.evaluate(async () => {
+    await document.fonts.ready;
+    return { body: getComputedStyle(document.body).fontFamily, loaded: [...new Set([...document.fonts].filter((x) => x.status === 'loaded').map((x) => `${x.family.replace(/"/g, '')} ${x.weight}`))] };
+  });
+  try {
+    await page.goto(BASE + '#/');
+    await page.getByRole('heading', { name: 'Today on Sift' }).waitFor({ timeout: 60_000 });
+    await page.waitForTimeout(2500);
+    const f = await fonts();
+    console.log(`  fonts: body ${f.body.split(',')[0]} · loaded ${f.loaded.join(', ')}`);
+    check(/^"?Barlow"?,/.test(f.body) && f.loaded.some((x) => x.startsWith('Barlow ')), 'Barlow is the rendering typeface');
+    check(!f.loaded.some((x) => /Instrument|Roboto/.test(x)), 'no retired typeface loads');
+    await page.screenshot({ path: `production-${name}-home.png` });
+
+    await page.goto(BASE + '#/nfl');
+    const rail = page.getByRole('region', { name: 'Where to look first' });
+    await rail.waitFor({ timeout: 60_000 });
+    await rail.locator('.prio__l').waitFor({ timeout: 60_000 });
+    await page.waitForTimeout(3000);
+    const railText = (await rail.innerText()).replace(/\s+/g, ' ');
+    console.log(`  NFL rail: ${railText.slice(0, 600)}`);
+    check(/Top SIFT edge/i.test(railText), 'NFL Slate Priorities: the Top SIFT Edge section is present (an edge, or plainly none)');
+    const items = await rail.locator('a.prio__a').count();
+    check(items <= 5, `NFL Slate Priorities: ${items} linked items (at most 5)`);
+    const main = await page.locator('main').innerText();
+    check(!/going away|One-score battle/i.test(main), 'NFL home: script titles are plain English');
+    check(!/undefined|NaN/.test(main), 'NFL home shows no undefined / NaN');
+    const feat = page.locator('.shome__feat');
+    if (await feat.count()) {
+      const r = await rail.boundingBox();
+      const b = await feat.boundingBox();
+      if (device.viewport.width >= 1100) check(r.x > b.x + b.width && Math.abs(r.y - b.y) < 2, 'NFL desktop: the rail sits beside the featured game (no empty right side)');
+      else check(r.y < b.y, 'NFL phone: the rail comes before the featured game');
+    }
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'NFL home: no sideways scroll');
+    await page.screenshot({ path: `production-${name}-nfl.png` });
+    await rail.screenshot({ path: `production-${name}-nfl-rail.png` });
+    const tiles = page.locator('.gtiles');
+    if (await tiles.count()) {
+      await tiles.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(1500);
+      await page.screenshot({ path: `production-${name}-nfl-tiles.png` });
+    }
+    if (items) {
+      await rail.locator('a.prio__a').first().click();
+      await page.waitForURL(/#\/nfl\/(game|market)\//, { timeout: 30_000 });
+      check(true, `NFL Slate Priorities: the first item opens ${page.url().split('#')[1]}`);
+      await page.goBack();
+      await rail.waitFor({ timeout: 30_000 });
+      check(true, 'NFL Slate Priorities: Back returns to the NFL home');
+    }
+
+    for (const [slug, label] of [['cfb', 'CFB'], ['nhl', 'NHL'], ['cbb', 'CBB'], ['mlb', 'MLB'], ['soccer', 'Soccer'], ['tennis', 'Tennis']]) {
+      await page.goto(BASE + `#/${slug}`);
+      await page.locator('main h1').first().waitFor({ timeout: 60_000 }).catch(() => {});
+      await page.waitForTimeout(2500);
+      const body = await page.locator('body').innerText();
+      check(!/Unexpected Application Error|Cannot read properties/.test(body) && (await page.locator('main h1').count()) > 0, `${label} page renders (no error screen)`);
+      check(/^"?Barlow"?,/.test(await page.evaluate(() => getComputedStyle(document.querySelector('main') ?? document.body).fontFamily)), `${label} page is set in Barlow`);
+      if (slug === 'cfb' || slug === 'nhl') await page.screenshot({ path: `production-${name}-${slug}.png` });
+    }
+  } catch (e) {
+    check(false, `design: ${name}: ${String(e).split('\n')[0]}`);
+    await page.screenshot({ path: `production-${name}-design-failure.png` }).catch(() => {});
+  } finally {
+    await ctx.close();
+  }
+}
+
 for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { width: 390, height: 844 } }], ['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]]) {
   console.log(`\n${name}`);
   const browser = await type.launch();
@@ -435,9 +512,20 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
       await page.screenshot({ path: `production-${name}-mlb-failure.png` }).catch(() => {});
     }
     check(errs.length === mlbBefore, `MLB: pages show no page/console errors (${errs.slice(mlbBefore, mlbBefore + 3).join(' | ')})`);
+    await designCheck(browser, device, name);
   } catch (e) {
     check(false, `${name}: ${String(e).split('\n')[0]}`);
     await page.screenshot({ path: `production-${name}-failure.png` }).catch(() => {});
+  } finally {
+    await browser.close();
+  }
+}
+// Desktop: the NFL home's composition (rail beside the featured game) only exists at desktop widths.
+{
+  console.log('\nchromium-desktop');
+  const browser = await chromium.launch();
+  try {
+    await designCheck(browser, { viewport: { width: 1440, height: 900 } }, 'chromium-desktop');
   } finally {
     await browser.close();
   }

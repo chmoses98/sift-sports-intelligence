@@ -8,7 +8,7 @@ import type { BoardItem, EventResearchDoc, Market, Recommendation } from '../../
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';
 import { formatQuoteAgo, quoteAgeMs } from '../../live/freshness';
-import { useLiveQuotes } from '../../live/hooks';
+import { liveStore, useLiveQuotes } from '../../live/hooks';
 import { quoteView } from '../../live/overlay';
 import { isFullGame } from '../../lib/period';
 import { HOLDS_MIN_COVERAGE, HOLDS_MIN_GAP, isActionable, slatePriorities, type GameRef, type WatchPick } from '../../lib/priorities';
@@ -78,6 +78,12 @@ export function SlatePriorities({ items, research, recommendations, recError, sl
   );
 
   const waiting = loading || (!recError && recommendations === undefined);
+  // First load: the publication's captured prices are usually hours old, so until the live provider has answered
+  // for these markets once, "stale" would be a false alarm — say SIFT is checking instead.
+  const checkingPrices = p.holds.kind === 'stale' && liveStore().diagnostics().provider !== 'none' && markets.some((m) => {
+    const st = liveStore().ticker(m.kalshi_ticker);
+    return !st || (st.lastSuccessAt == null && st.lastError == null);
+  });
   const nothingUpcoming = !loading && items.filter((i) => isActionable(i, now)).length === 0;
 
   return (
@@ -120,7 +126,13 @@ export function SlatePriorities({ items, research, recommendations, recError, sl
               </Link>
             </li>
           )}
-          {p.holds.kind === 'stale' && (
+          {p.holds.kind === 'stale' && checkingPrices && (
+            <li className="prio__i prio__i--holds">
+              <span className="prio__k"><Icon name="shield" size={15} />Holds up across scripts</span>
+              <p className="prio__none">Checking current prices…</p>
+            </li>
+          )}
+          {p.holds.kind === 'stale' && !checkingPrices && (
             <li className="prio__i prio__i--holds">
               <span className="prio__k"><Icon name="shield" size={15} />Holds up across scripts</span>
               <p className="prio__none prio__none--stale"><b>Waiting for updated markets</b> Current quote data is stale, so no price is checked against the scripts.</p>

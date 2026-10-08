@@ -9,7 +9,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Elevated wide view: Razorback hog centre-court logo, red-trimmed baselines, RAZORBACKS videoboard, packed white-out stands.",
+   "identity": "hog logo at centre court, RAZORBACKS scoreboard, a white-out crowd",
    "focus": {
     "desktop": "50% 55%",
     "mobile": "55% 50%"
@@ -38,7 +38,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Elevated wide view: red C-paw centre-court logo, Bearcats red-clad full house, post-2018-renovation videoboard.",
+   "identity": "Cincinnati C-paw at centre court and a red full house",
    "focus": {
     "desktop": "50% 40%",
     "mobile": "75% 50%"
@@ -67,7 +67,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "DAYTON FLYERS fascia signage, red Flyer Faithful full house, Dayton centre-court logo, renovated UD Arena videoboards.",
+   "identity": "DAYTON FLYERS signage and a red UD Arena full house (anthem)",
    "focus": {
     "desktop": "50% 43%",
     "mobile": "50% 50%"
@@ -96,7 +96,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Duke centre-court logo, COACH K COURT lettering, CAMERON INDOOR STADIUM scorer's-table fascia, blue-clad crowd.",
+   "identity": "Coach K Court, the Duke logo and the Cameron Indoor Stadium fascia (a women’s game on the same home court)",
    "focus": {
     "desktop": "50% 40%",
     "mobile": "50% 50%"
@@ -125,7 +125,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Ohio State block-O centre logo, 'BUCKEYE NUTHOUSE' signage, Value City Arena board, red crowd.",
+   "identity": "Ohio State block-O at centre court, BUCKEYE NUTHOUSE signage, Value City Arena",
    "focus": {
     "desktop": "50% 62%",
     "mobile": "50% 55%"
@@ -147,35 +147,6 @@
    }
   },
   {
-   "id": "cbb-tem-liacouras-center",
-   "sport": "CBB",
-   "team": "TEM",
-   "venue": "liacouras-center",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Cherry/red court paint, 'The Liacouras Center' scoreboard, 'OWLS' ribbon boards, Temple T logos.",
-   "focus": {
-    "desktop": "50% 57%",
-    "mobile": "50% 50%"
-   },
-   "w": 2400,
-   "h": 1800,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "ImagineerJC",
-    "license": "CC0",
-    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    "source": "https://commons.wikimedia.org/wiki/File:Liacouras_Center_at_a_Temple_vs._Cincinnati_basketball_game.jpg",
-    "file": "File:Liacouras Center at a Temple vs. Cincinnati basketball game.jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
    "id": "cbb-uk-rupp-arena",
    "sport": "CBB",
    "team": "UK",
@@ -183,7 +154,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Kentucky interlocking-UK logo at centre court, blue lane paint, 'Rupp Arena' centre-hung board, sea of blue.",
+   "identity": "Kentucky KY at centre court and a blue Rupp Arena full house",
    "focus": {
     "desktop": "50% 72%",
     "mobile": "50% 60%"
@@ -205,35 +176,6 @@
    }
   },
   {
-   "id": "cbb-unc-dean-e-smith-center",
-   "sport": "CBB",
-   "team": "UNC",
-   "venue": "dean-e-smith-center",
-   "from": null,
-   "to": null,
-   "neutralOk": false,
-   "identity": "Carolina-blue capacity crowd in the Smith Center bowl, light-blue lane paint, Smith Center ribbon boards.",
-   "focus": {
-    "desktop": "52% 58%",
-    "mobile": "56% 50%"
-   },
-   "w": 2400,
-   "h": 1155,
-   "widths": [
-    2400,
-    1200
-   ],
-   "crop": null,
-   "credit": {
-    "artist": "GATORFAN2525",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Dean_E._Smith_Center_(Florida_State_vs._North_Carolina_-_February_23,_2019).jpg",
-    "file": "File:Dean E. Smith Center (Florida State vs. North Carolina - February 23, 2019).jpg",
-    "modifications": "resized and colour graded by Sift"
-   }
-  },
-  {
    "id": "cbb-uva-john-paul-jones-arena",
    "sport": "CBB",
    "team": "UVA",
@@ -241,7 +183,7 @@
    "from": null,
    "to": null,
    "neutralOk": false,
-   "identity": "Virginia V-sabre centre logo, orange-clad full house, JPJ centre-hung board and banners.",
+   "identity": "Virginia V-sabre court and an orange John Paul Jones Arena crowd",
    "focus": {
     "desktop": "55% 76%",
     "mobile": "55% 70%"

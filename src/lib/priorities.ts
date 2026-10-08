@@ -20,6 +20,7 @@ import { quoteFreshness } from '../live/freshness';
 import type { QuoteView } from '../live/overlay';
 import { describeMarket } from './marketLabel';
 import { isFullGame } from './period';
+import { cfbName } from './cfbTeams';
 import { gameScripts, scriptFit, sharePct, type GameScript, type ScriptSet } from './scripts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -31,7 +32,7 @@ const USABLE_QUOTES = new Set(['FRESH', 'AGING']);
 /** Contracts priced outside 10–90¢ are long shots or near-locks; the game page's own survivor table excludes them too. */
 export const PRICE_MIN = 0.1;
 export const PRICE_MAX = 0.9;
-/** Holds Up: the scripts the market always wins in must cover at least half of the simulated games… */
+/** Works in Multiple Scripts: the scripts the market always wins in must cover at least half of the simulated games… */
 export const HOLDS_MIN_COVERAGE = 0.5;
 /** …in at least two of the four scripts… */
 export const HOLDS_MIN_SCRIPTS = 2;
@@ -135,14 +136,15 @@ export interface PriorityInput {
 
 // ------------------------------------------------------------------ helpers
 
-const nickOf = (display: string | undefined, abbr: string) => (display ? display.split(' ').pop() || abbr : abbr);
+/** "Dallas Cowboys" → "Cowboys". College names are one name ("Iowa State"), never cut to their last word. */
+const nickOf = (display: string | undefined, abbr: string, sport?: string) => (sport === 'CFB' ? cfbName(abbr, display) : display ? display.split(' ').pop() || abbr : abbr);
 
-function gameRef(item: BoardItem): GameRef {
+function gameRef(item: BoardItem, sport?: string): GameRef {
   const away = item.participants.find((p) => p.participant_id === item.away_participant);
   const home = item.participants.find((p) => p.participant_id === item.home_participant);
   const a = away?.short_name ?? '?';
   const h = home?.short_name ?? '?';
-  return { eventId: item.event_id, away: a, home: h, awayName: nickOf(away?.display_name, a), homeName: nickOf(home?.display_name, h), kickoff: item.start_time_utc };
+  return { eventId: item.event_id, away: a, home: h, awayName: nickOf(away?.display_name, a, sport), homeName: nickOf(home?.display_name, h, sport), kickoff: item.start_time_utc };
 }
 
 /** Upcoming and not kicked off on the app clock: the only games a priority may point at. */
@@ -201,7 +203,7 @@ function topEdge(input: PriorityInput, games: Map<string, { item: BoardItem; r: 
     }
     const ask = q.yesAsk;
     if (ask == null || ask >= x.fair_probability || (x.bet_up_to_price != null && ask > x.bet_up_to_price)) continue;
-    picks.push({ game: gameRef(g.item), market: m, label: labelFor(m, g.r, input.sport ?? 'NFL'), fair: x.fair_probability, ask, quote: q });
+    picks.push({ game: gameRef(g.item, input.sport), market: m, label: labelFor(m, g.r, input.sport ?? 'NFL'), fair: x.fair_probability, ask, quote: q });
   }
   picks.sort((a, b) => b.fair - b.ask - (a.fair - a.ask) || byKickoff(a.game, b.game) || a.market.market_id.localeCompare(b.market.market_id));
   if (picks.length) return { kind: 'edge', item: picks[0] };
@@ -217,14 +219,15 @@ function topEdge(input: PriorityInput, games: Map<string, { item: BoardItem; r: 
   };
 }
 
-// ------------------------------------------------------------------ Holds Up Across Scripts
+// ------------------------------------------------------------------ Works in Multiple Scripts
 
 /**
- * The strongest cross-script survivor on the slate: a full-game moneyline or spread (the markets whose script fit
- * is exact) that always wins in at least HOLDS_MIN_SCRIPTS scripts covering HOLDS_MIN_COVERAGE of simulated
- * games, priced 10–90¢ on a usable quote, with the model at least HOLDS_MIN_GAP above the midpoint. Ranked by
+ * Works in Multiple Scripts (internally still `holds`): the strongest cross-script survivor on the slate: a
+ * full-game moneyline or spread (the markets whose script fit is exact) that always wins in at least
+ * HOLDS_MIN_SCRIPTS scripts covering HOLDS_MIN_COVERAGE of simulated games, priced 10–90¢ on a usable quote, with the model at least HOLDS_MIN_GAP above the midpoint. Ranked by
  * coverage, then the model gap, then kickoff, then market id. Same evidence as the game page's
- * "Bets That Survive Multiple Scripts", stricter bar.
+ * "Bets That Survive Multiple Scripts", stricter bar. The four scripts are final-margin buckets, so a moneyline or
+ * spread can win in at most two of them: the UI says "supported in N of the 4", never "most scripts".
  */
 function holdsUp(input: PriorityInput, games: { item: BoardItem; r: EventResearchDoc; set: ScriptSet | null }[]): HoldsState {
   const { now } = input;
@@ -251,7 +254,7 @@ function holdsUp(input: PriorityInput, games: { item: BoardItem; r: EventResearc
       const mid = (q.yesBid + q.yesAsk) / 2;
       if (ask < PRICE_MIN || ask > PRICE_MAX || fair - mid < HOLDS_MIN_GAP) continue;
       out.push({
-        game: gameRef(item), market: m, label: labelFor(m, r, input.sport ?? 'NFL'), full: fit.full, of: set.scripts.length, coverage: fit.coverage,
+        game: gameRef(item, input.sport), market: m, label: labelFor(m, r, input.sport ?? 'NFL'), full: fit.full, of: set.scripts.length, coverage: fit.coverage,
         wins: set.scripts.filter((_, i) => fit.fits[i] === 'yes').map((s) => ({ name: s.name, index: s.index })),
         team: r.event.participants.find((x) => x.participant_id === m.participant_id)?.short_name ?? null, model: fair, mid, ask, gap: fair - mid, quote: q,
       });

@@ -39,12 +39,16 @@ describe('slate priorities (real week 5)', () => {
     expect(p.edge.kind !== 'edge' && p.edge.text).not.toMatch(/close to/);
   });
 
-  it('Holds Up Across Scripts is the documented survivor rule, verified against the source', () => {
+  it('Works in Multiple Scripts is the documented survivor rule, verified against the source', () => {
     expect(p.holds.kind).toBe('pick');
     if (p.holds.kind !== 'pick') return;
     const h = p.holds.item;
     expect(h.coverage).toBeGreaterThanOrEqual(HOLDS_MIN_COVERAGE);
     expect(h.full).toBeGreaterThanOrEqual(2);
+    // The scripts are final-margin buckets: a moneyline or spread wins in at most two of the four, which is why the
+    // section says "multiple", never "most".
+    expect(h.full).toBeLessThanOrEqual(2);
+    expect(h.of).toBe(4);
     expect(h.gap).toBeGreaterThanOrEqual(HOLDS_MIN_GAP);
     expect(h.ask).toBeGreaterThanOrEqual(0.1);
     expect(h.ask).toBeLessThanOrEqual(0.9);

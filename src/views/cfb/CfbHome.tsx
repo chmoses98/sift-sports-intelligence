@@ -36,7 +36,8 @@ import {
   type SlateGame,
   type SortId,
 } from '../../lib/cfbSignals';
-import { ago, dayLabel, displayName } from '../../lib/format';
+import { ago, dayLabel } from '../../lib/format';
+import { cfbMatchupNames } from '../../lib/cfbTeams';
 import { routes } from '../../lib/routes';
 import { useLiveQuotes, useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
@@ -44,13 +45,20 @@ import { useVisit } from '../../state/trail';
 import { sides } from '../home/cards';
 import { Info } from '../game/panels';
 import { CfbGlyph, Chip, SignalMarks, supportChips, type CfbGlyphName } from './kit';
+import { CfbSlatePriorities } from './CfbPriorities';
 
 const CARD_CAP = 24;
 const ENV_CAP = 6;
+/** Close Game Profiles can run to dozens of games: the first eight, then "See all" (the filter shows every one). */
+const CLOSE_CAP = 8;
+/** Strongest Football Edges: the first eight by kickoff, then "See all" (the Strong Control filter). */
+const STRONG_CAP = 8;
 
+/** Both schools by the names fans use ("Iowa State", "Ole Miss"), guaranteed distinguishable (lib/cfbTeams.ts). */
 const names = (item: BoardItem) => {
   const { away, home } = sides(item);
-  return { away, home, awayName: displayName(away?.display_name) || away?.short_name || 'Away', homeName: displayName(home?.display_name) || home?.short_name || 'Home' };
+  const n = cfbMatchupNames({ code: away?.short_name, name: away?.display_name }, { code: home?.short_name, name: home?.display_name });
+  return { away, home, awayName: n.away, homeName: n.home };
 };
 
 function started(item: BoardItem, now: number): boolean {
@@ -217,12 +225,14 @@ function TopSignals({ games, doc, slug, now, onPick }: { games: SlateGame[]; doc
             render={(x) => <SignalRow x={x} slug={slug} now={now} main={control(x)} aside={priced(x)} />}
           />
         )}
+        {/* The other signal lists pack into balanced columns: a short list never leaves a hole beside a long one. */}
+        <div className="cftop__cols">
         {strong.length > 0 && (
           <SignalSection
             id="strong" glyph="control" tone="control" title="Strongest Football Edges"
             sub={`${s.strong_control.label}: ${s.strong_control.short.toLowerCase()} · ${s.strong_control.market_summary.toLowerCase()}`}
             info={<Info label={`What ${s.strong_control.label} means`}>{s.strong_control.explanation}</Info>}
-            rows={strong} onPick={onPick}
+            rows={strong} cap={STRONG_CAP} onPick={onPick}
             render={(x) => <SignalRow x={x} slug={slug} now={now} main={control(x)} aside={priced(x)} />}
           />
         )}
@@ -239,11 +249,12 @@ function TopSignals({ games, doc, slug, now, onPick }: { games: SlateGame[]; doc
           </SignalSection>
         )}
         {close.length > 0 && (
-          <SignalSection id="close" glyph="close" tone="close" title="Close Game Profiles" sub="Evidence supports a relatively close game" rows={close} onPick={onPick} render={quiet} />
+          <SignalSection id="close" glyph="close" tone="close" title="Close Game Profiles" sub="Evidence supports a relatively close game" rows={close} cap={CLOSE_CAP} onPick={onPick} render={quiet} />
         )}
         {env.length > 0 && (
           <SignalSection id="environment" glyph="fast" tone="fast" title="Pace / Scoring Spots" sub="Pace, scoring environment or defensive suppression" rows={env} cap={ENV_CAP} onPick={onPick} render={quiet} />
         )}
+        </div>
       </div>
     </section>
   );
@@ -447,18 +458,27 @@ export function CfbHomeView() {
         </span>
       </header>
 
-      {signals.loading && !doc && <div className="cfh__load"><Skeleton lines={3} /></div>}
-      {!signals.loading && !doc && (
-        <p className="cfh__notice" role="status">
-          SIFT research signals are unavailable right now, so game reads and Value Watch are not shown. The schedule below is complete.
-        </p>
-      )}
-      {doc && (
-        <div className="cfh__intel">
-          <TopSignals games={games} doc={doc} slug={slug} now={now} onPick={pick} />
-          <ResearchStrip doc={doc} />
+      {/* One composition: Slate Priorities first on phones (right after the slate line), the right rail beside Top
+          CFB Signals on desktop; the slate's cards and the schedule run full width below. */}
+      <div className="cfh__top">
+        <div className="cfh__rail">
+          <CfbSlatePriorities games={games} doc={doc} loading={signals.loading} slug={slug} now={now} />
         </div>
-      )}
+        <div className="cfh__main">
+          {signals.loading && !doc && <div className="cfh__load"><Skeleton lines={3} /></div>}
+          {!signals.loading && !doc && (
+            <p className="cfh__notice" role="status">
+              SIFT research signals are unavailable right now, so game reads and Value Watch are not shown. The schedule below is complete.
+            </p>
+          )}
+          {doc && (
+            <div className="cfh__intel">
+              <TopSignals games={games} doc={doc} slug={slug} now={now} onPick={pick} />
+              <ResearchStrip doc={doc} />
+            </div>
+          )}
+        </div>
+      </div>
 
       <section className="cfgames" id="cfh-games" aria-labelledby="cfgames-h">
         <div className="cfh__bar">

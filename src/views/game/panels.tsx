@@ -407,7 +407,7 @@ export function rankText(rank: number | null) {
 
 function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityProfileDoc | null | undefined; abbr: string; sportCode: string; view: FormView; before: string; slug: string }) {
   const games = completedGames(prof, before).slice(0, 5);
-  const name = prof ? splitName(prof.entity.display_name).nick : abbr;
+  const name = prof ? splitName(prof.entity.display_name, abbr, sportCode).nick : abbr;
   const ppg = games.length ? games.reduce((a, g) => a + (view === 'defense' ? g.against : g.for), 0) / games.length : null;
   return (
     <div className="form">

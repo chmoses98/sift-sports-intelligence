@@ -8,6 +8,7 @@
 // return, popularity or price, and nothing turns a count into a chance. A side's price is always that side's own
 // YES ask: never 1 − the other side.
 import type { BoardItem } from '../contract/types';
+import { cfbCodeOfEspn, cfbName } from './cfbTeams';
 import { signedPoints, type Engine } from './scriptEngine';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -176,6 +177,33 @@ export class SignalsSchemaError extends Error {
   }
 }
 
+/**
+ * The contract names teams by the football schedule ("Massachusetts"); the board's participants are shown by
+ * lib/cfbTeams.ts cfbName ("UMass"). Re-name each side through its ESPN team id so one game never shows a school
+ * two ways (the CONTROL line, the price token and the matchup all say the same name). An id outside the identity
+ * map keeps the contract's own name.
+ */
+function withPublicNames(g: any): any {
+  const sideName = (side: 'home' | 'away' | undefined, fallback: string): string => {
+    const t = side ? g.teams?.[side] : null;
+    const code = cfbCodeOfEspn(t?.team_id);
+    return code ? cfbName(code, t?.name) : fallback;
+  };
+  const teams = g.teams && typeof g.teams === 'object'
+    ? Object.fromEntries(Object.entries(g.teams).map(([k, t]: [string, any]) => [k, t && typeof t === 'object' ? { ...t, name: sideName(k as 'home' | 'away', t.name) } : t]))
+    : g.teams;
+  const c = g.claims;
+  const claims = c && typeof c === 'object'
+    ? {
+        ...c,
+        control: c.control ? { ...c.control, team: sideName(c.control.side, c.control.team) } : c.control,
+        disruption: Array.isArray(c.disruption) ? c.disruption.map((x: any) => ({ ...x, team: sideName(x.side, x.team) })) : [],
+      }
+    : c;
+  const market = g.market && typeof g.market === 'object' ? { ...g.market, team: sideName(g.market.side, g.market.team) } : g.market;
+  return { ...g, teams, claims, market };
+}
+
 /** Accept a cfb_research_signals/1.x document, or throw: a malformed contract never renders half a signal. */
 export function decodeSignals(raw: unknown): SignalsDoc {
   const d = raw as any;
@@ -189,7 +217,7 @@ export function decodeSignals(raw: unknown): SignalsDoc {
   if (typeof s.market_disagreement.rule?.below_cents !== 'number') throw new SignalsSchemaError('market_disagreement.rule.below_cents missing');
   const games: SignalGame[] = d.games
     .filter((g: any) => g && typeof g.event_id === 'string')
-    .map((g: any) => ({ ...g, edges: Array.isArray(g.edges) ? g.edges.filter((x: unknown) => typeof x === 'string') : [] }));
+    .map((g: any) => withPublicNames({ ...g, edges: Array.isArray(g.edges) ? g.edges.filter((x: unknown) => typeof x === 'string') : [] }));
   return { ...d, capture_health: d.capture_health ?? null, games, byEvent: new Map(games.map((g) => [g.event_id, g])) };
 }
 

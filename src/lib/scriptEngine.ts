@@ -7,6 +7,7 @@
 // Nothing here turns a script count into a probability, and nothing calls a contract "+EV": the payload has
 // no pricing source, and Sift never invents one.
 import type { EventResearchDoc, Market } from '../contract/types';
+import { cfbCodeOfEspn, cfbName } from './cfbTeams';
 
 export type Role = 'PRIMARY' | 'SECONDARY' | 'ALTERNATE' | 'DANGER';
 export type Compat = 'SUPPORTED' | 'PARTIAL' | 'CONTRADICTED' | 'NEUTRAL' | 'UNMAPPABLE' | 'RESEARCH_UNCALIBRATED';
@@ -277,7 +278,9 @@ function decodeTeam(t: any, columns: string[], legend: Record<string, string[]>)
     const [unit, metric_id] = key.split('.', 2);
     metrics[key] = { key, metric_id, unit: unit as MetricRow['unit'], ...rec };
   }
-  return { ...t, metrics };
+  // The engine names teams by the football schedule; Sift shows the name fans use (lib/cfbTeams.ts), by ESPN id.
+  const code = cfbCodeOfEspn(t.team_id);
+  return { ...t, name: code ? cfbName(code, t.name) : t.name, metrics };
 }
 
 /** The payload, decoded; `null` when the event has none; `{status, reason}` when it explains why not. */
@@ -477,6 +480,23 @@ export function fmtMetric(value: number | null | undefined, measure: string | un
 export function fmtEdge(v: number | null | undefined): string {
   if (v == null || !Number.isFinite(v)) return '—';
   return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}`;
+}
+
+/**
+ * The title a reader sees for a script. The engine's titles are kept (they are the canonical label, on the page as
+ * data-canonical) except for the three game-environment archetypes whose names need decoding ("Competitive grind",
+ * "Competitive shootout", "Pace-driven scoring"): those are said from the script's own outcome shape, and only
+ * what it states — a one-score margin, a suppressed or elevated total, more possessions. Never a game flow the
+ * engine does not model.
+ */
+export function scriptTitle(s: Pick<EngineScript, 'archetype' | 'title' | 'outcome_shape'>): string {
+  if (!['COMPETITIVE_GRIND', 'COMPETITIVE_SHOOTOUT', 'PACE_DRIVEN_OVER'].includes(s.archetype)) return s.title;
+  const o = s.outcome_shape ?? ({} as EngineScript['outcome_shape']);
+  const close = o.margin_environment === 'ONE_SCORE';
+  const fast = o.pace === 'MORE_POSSESSIONS';
+  if (o.total_environment === 'SUPPRESSED') return close ? 'Close, Low-Scoring Game' : 'Low-Scoring Game';
+  if (o.total_environment === 'ELEVATED') return close ? 'Close, High-Scoring Game' : fast ? 'Fast-Paced, High-Scoring Game' : 'High-Scoring Game';
+  return s.title;
 }
 
 export const ARCHETYPE_WORD: Record<string, string> = {

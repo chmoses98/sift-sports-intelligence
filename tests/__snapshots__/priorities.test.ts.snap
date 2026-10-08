@@ -23,7 +23,7 @@ exports[`slate priorities (real week 5) > Game to Watch and Worth a Look are sla
 ]
 `;
 
-exports[`slate priorities (real week 5) > Holds Up Across Scripts is the documented survivor rule, verified against the source 1`] = `
+exports[`slate priorities (real week 5) > Works in Multiple Scripts is the documented survivor rule, verified against the source 1`] = `
 {
   "cov": 55,
   "game": "HOU@TEN",

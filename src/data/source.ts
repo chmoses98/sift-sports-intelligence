@@ -6,6 +6,7 @@
 //   live-v1    live v1 only, no explorer anywhere: health and the board, no research screens.
 //   unavailable  nothing could be read.
 import type { ExplorerIndexDoc, HealthDoc } from '../contract/types';
+import { normalizeCfbNames } from '../lib/cfbTeams';
 import { getJson, joinUrl, NotFoundError } from './fetcher';
 import type { SportConfig } from './sports';
 
@@ -77,6 +78,7 @@ async function doResolve(sport: SportConfig, pref: SourcePreference): Promise<Sp
   let liveError: string | null = null;
   try {
     liveHealth = await getJson<HealthDoc>(joinUrl(sport.rawBase, 'health.json'));
+    if (sport.code === 'CFB') normalizeCfbNames(liveHealth);
   } catch (e) {
     liveError = e instanceof Error ? e.message : String(e);
   }

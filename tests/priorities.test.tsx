@@ -27,6 +27,15 @@ describe('Slate Priorities rail', () => {
     expect(rail.textContent).not.toMatch(/\bEV\b|EPA|implied|survivab|z-score|dislocation|calibrat|CLV/i);
   });
 
+  it('names the multi-script section precisely: "Works in multiple scripts", supported in N of the 4, never "most"', () => {
+    const { container } = render(<MemoryRouter><SlatePriorities items={board.items} research={research} recommendations={[]} recError={false} slug="nfl" sport="NFL" now={NOW} loading={false} /></MemoryRouter>);
+    const holds = container.querySelector('.prio__i--holds')!;
+    expect(holds.querySelector('.prio__k')!.textContent).toBe('Works in multiple scripts');
+    expect(holds.textContent).toMatch(/Supported in 2 of the 4 modeled outcome scripts \(\d+% of simulations\)/);
+    expect(holds.querySelector('a')!.getAttribute('aria-label')).toMatch(/supported in 2 of the 4 modeled outcome scripts/);
+    expect(container.textContent).not.toMatch(/holds up|across scripts|most scripts|survives most|most likely scripts/i);
+  });
+
   it('says it is reading while research loads, and says so when no game is upcoming', () => {
     const { rerender } = render(<MemoryRouter><SlatePriorities items={board.items} research={new Map()} recommendations={undefined} recError={false} slug="nfl" sport="NFL" now={NOW} loading /></MemoryRouter>);
     expect(screen.getByText('Reading this week’s research…')).toBeInTheDocument();

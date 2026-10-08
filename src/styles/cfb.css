@@ -41,12 +41,12 @@
 .cfmarks { display: inline-flex; align-items: center; gap: 5px; }
 
 /* the price token: the CONTROL side's own YES ask */
-.cfpx { display: inline-flex; align-items: center; gap: 5px; min-height: 22px; padding: 1px 9px; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: rgba(236, 244, 252, 0.04); color: var(--ivory); font-size: 0.76rem; font-weight: 650; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cfpx { display: inline-flex; align-items: center; gap: 5px; min-height: 22px; padding: 1px 9px; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: rgba(236, 244, 252, 0.04); color: var(--ivory); font-size: 0.76rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .cfpx__age { color: var(--text-3); font-size: 0.64rem; font-weight: 500; }
 .cfpx--no_offer, .cfpx--unavailable { border-style: dashed; border-color: var(--line-2); color: var(--text-3); font-family: var(--font-ui); }
 .cfpx--lg { min-height: 28px; padding: 2px 12px; font-size: 0.9rem; }
 
-.cfbadge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--r-pill); font-size: 0.66rem; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; white-space: nowrap; }
+.cfbadge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--r-pill); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; white-space: nowrap; }
 .cfbadge--star { color: var(--sand); background: rgba(240, 192, 72, 0.16); box-shadow: inset 0 0 0 1px var(--gold-line); }
 .cfbadge--alert { color: #ffc2c9; background: rgba(255, 81, 101, 0.14); box-shadow: inset 0 0 0 1px rgba(255, 107, 125, 0.5); }
 
@@ -64,14 +64,45 @@
 
 .cfh__intel { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); margin: 0 0 var(--s-8); }
 
+/* ---- the top composition: Top CFB Signals (main) + SLATE PRIORITIES (rail), as on the NFL home.
+   Phones and tablets: the rail comes first, right after the slate line, so "where to look first" is above the
+   fold (tablets lay its items in two columns). Desktop (≥ 1100px): Top CFB Signals left, the rail right, both
+   starting on the same line; the slate's cards and the full schedule run full width below. */
+.cfh__top { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: var(--s-6); margin: 0 0 var(--s-8); }
+.cfh__rail, .cfh__main { min-width: 0; }
+.cfh__main > .cfh__intel { margin-bottom: 0; }
+@media (min-width: 1100px) {
+  .cfh__top { grid-template-columns: minmax(0, 1fr) minmax(320px, 360px); grid-template-areas: 'main rail'; column-gap: var(--s-6); align-items: start; }
+  .cfh__main { grid-area: main; }
+  .cfh__rail { grid-area: rail; }
+}
+
+/* ---- the CFB rail: the NFL rail's pattern (home.css .prio), CFB's kinds of evidence.
+   Value and a football read never look alike: only value is gold and carries a price. */
+.prio--cfb .prio__i--value { --pk: var(--gold); }
+.prio--cfb .prio__i--read { --pk: var(--cf-control); }
+.prio--cfb .prio__i--dis { --pk: var(--cf-alert); }
+.prio--cfb .prio__i--watch { --pk: var(--cf-close); }
+.prio--cfb .prio__k .cfg { color: var(--pk); }
+.prio__kind { display: inline-flex; align-items: center; margin-right: 6px; padding: 0 7px; border-radius: var(--r-pill); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.06em; line-height: 1.6; text-transform: uppercase; white-space: nowrap; vertical-align: 1px; }
+.prio__kind--value { color: var(--ink-0); background: var(--gold); }
+.prio__kind--read { color: var(--cf-control); box-shadow: inset 0 0 0 1px rgba(111, 208, 246, 0.45); }
+.prio__kind--explore { color: #ffc2c9; box-shadow: inset 0 0 0 1px rgba(255, 107, 125, 0.5); }
+.prio__kind--watch { color: var(--text-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.prio__px--alert { background: rgba(255, 81, 101, 0.14); color: #ffc2c9; }
+.prio__more { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; justify-self: start; font-size: var(--fs-xs); font-weight: 600; color: var(--cyan-2); }
+
 /* ---- Top CFB Signals */
 .cftop .cfh__h2 { margin-bottom: var(--s-3); }
-.cftop__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: var(--s-3) var(--s-4); align-items: start; }
+.cftop__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+/* Strongest Football Edges, Market Disagreement, Close Games and Pace pack into balanced columns, in reading order. */
+.cftop__cols { columns: 2 340px; column-gap: var(--s-4); }
+.cftop__cols > .cfs { break-inside: avoid; margin: 0 0 var(--s-3); }
 .cfs { min-width: 0; padding: 12px 14px 8px; border-radius: var(--r-2); background: var(--cf-soft); container-type: inline-size; }
 .cfs--star { grid-column: 1 / -1; background: linear-gradient(100deg, rgba(240, 192, 72, 0.12), rgba(240, 192, 72, 0.03) 60%, transparent); box-shadow: inset 3px 0 0 var(--gold); }
 .cfs--alert { box-shadow: inset 3px 0 0 var(--cf-alert); }
 .cfs__head { display: flex; align-items: center; gap: 6px; }
-.cfs__h { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0; border: 0; background: none; color: var(--text-hi); font: inherit; font-size: 0.8rem; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-align: left; }
+.cfs__h { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0; border: 0; background: none; color: var(--text-hi); font: inherit; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-align: left; }
 .cfs__h:hover .cfs__t { text-decoration: underline; text-underline-offset: 3px; }
 .cfs--star .cfs__h { color: var(--sand); }
 .cfs__n { min-width: 22px; padding: 0 6px; border-radius: var(--r-pill); background: rgba(255, 255, 255, 0.06); color: var(--text-2); font-size: 0.7rem; letter-spacing: 0; text-align: center; }
@@ -80,7 +111,7 @@
 .cfs--star .cfs__list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); column-gap: var(--s-6); }
 .cfs__row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 48px; padding: 6px 0; border-top: 1px solid var(--line); color: var(--text); text-decoration: none; }
 .cfs__list > li:first-child .cfs__row { border-top: 0; }
-.cfs--star .cfs__list > li:nth-child(-n + 3) .cfs__row { border-top: 0; }
+.cfs--star .cfs__list > li:nth-child(-n + 2) .cfs__row { border-top: 0; }
 .cfs__row:hover .cfs__m { color: var(--cyan-2); }
 .cfs__logos { display: inline-flex; }
 .cfs__logos .teammark + .teammark { margin-left: -5px; }
@@ -92,7 +123,7 @@
   .cfs__row { grid-template-columns: auto minmax(0, 1fr); row-gap: 4px; }
   .cfs__x { grid-column: 2; justify-self: start; }
 }
-.cfs__all { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0; border: 0; background: none; color: var(--cyan-2); font: inherit; font-size: var(--fs-xs); font-weight: 650; cursor: pointer; }
+.cfs__all { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0; border: 0; background: none; color: var(--cyan-2); font: inherit; font-size: var(--fs-xs); font-weight: 600; cursor: pointer; }
 .cfs__why { margin: 0 0 4px; font-size: var(--fs-xs); color: var(--text-2); }
 .cfs__why summary { cursor: pointer; color: var(--cyan-2); min-height: 28px; display: inline-flex; align-items: center; }
 .cfs__why p { margin: 4px 0 6px; max-width: 62ch; }
@@ -108,7 +139,7 @@
 .cfrs__k { display: inline-flex; align-items: center; gap: 5px; color: var(--text-3); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .cfrs__v { color: var(--text-hi); font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.15rem; line-height: 1.15; }
 .cfrs__t--star .cfrs__v { color: var(--sand); }
-.cfrs__v--sm { font-family: var(--font-ui); font-size: 0.82rem; font-weight: 650; line-height: 1.3; }
+.cfrs__v--sm { font-family: var(--font-ui); font-size: 0.82rem; font-weight: 600; line-height: 1.3; }
 .cfrs__s { color: var(--text-2); font-size: 0.72rem; line-height: 1.35; }
 .cfrs__foot { margin: 8px 0 0; color: var(--text-3); font-size: 0.7rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
@@ -117,7 +148,7 @@
 .cfctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0 0 var(--s-4); }
 .cffilters, .cfsort { display: flex; gap: 6px; min-width: 0; }
 .cffilters { flex-wrap: wrap; }
-.cff { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: transparent; color: var(--text-2); font: inherit; font-size: 0.74rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
+.cff { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: transparent; color: var(--text-2); font: inherit; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
 .cff:hover { border-color: var(--line-3); color: var(--text-hi); }
 .cff.is-on { background: var(--navy-4); border-color: var(--blue); color: #fff; box-shadow: inset 0 0 0 1px var(--blue); }
 .cff.is-on .cfg { color: #fff; }
@@ -143,14 +174,14 @@
 .cfc__time { color: var(--text-3); font-family: var(--font-num); font-size: 0.7rem; }
 .cfc__top .cfbadge { margin-left: auto; }
 .cfc__top .cfbadge + .cfbadge { margin-left: 0; }
-.cfc__teams { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--text-hi); font-weight: 650; font-size: 0.92rem; }
+.cfc__teams { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--text-hi); font-weight: 600; font-size: 0.92rem; }
 .cfc__tn { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cfc__at { color: var(--text-3); font-weight: 500; }
 .cfc__ctl { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; font-size: 0.84rem; }
 .cfc__cn { display: inline-flex; align-items: center; gap: 5px; min-width: 0; color: var(--text); }
 .cfc__cn b { color: var(--text-hi); }
 .cfc--vw .cfc__cn b { color: var(--sand); }
-.cfc__none { color: var(--text-3); font-size: 0.8rem; font-style: italic; }
+.cfc__none { color: var(--text-3); font-size: 0.8rem; }
 .cfc__line { color: var(--text-2); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cfc__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 6px; }
 .cfc__hist { color: var(--text-3); font-family: var(--font-num); font-size: 0.68rem; }
@@ -160,7 +191,7 @@
 .cfsch { margin: 0 0 var(--s-6); }
 .cfsch__day { margin: 0 0 var(--s-4); }
 .cfsch__d { margin: 0 0 4px; color: var(--sand-dim); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
-.cfsch__more { margin: var(--s-5) 0 var(--s-3); color: var(--text-2); font-size: var(--fs-sm); font-weight: 650; }
+.cfsch__more { margin: var(--s-5) 0 var(--s-3); color: var(--text-2); font-size: var(--fs-sm); font-weight: 600; }
 .cfsch__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); column-gap: var(--s-6); }
 .cfsch__row { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 44px; border-bottom: 1px solid var(--line); color: var(--text); text-decoration: none; }
 .cfsch__row:hover .cfsch__n { color: var(--cyan-2); }
@@ -193,7 +224,7 @@
 .cfsig--alert { box-shadow: inset 3px 0 0 var(--cf-alert); }
 .cfsig__t { display: block; margin: 0; font-size: 0.86rem; line-height: 1.45; color: var(--text); }
 .cfsig__t > .cfg { margin-right: 6px; vertical-align: -3px; }
-.cfsig__t b { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hi); }
+.cfsig__t b { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hi); }
 .cfsig--star .cfsig__t b { color: var(--sand); }
 .cfsig__t--alert { margin-top: 8px; }
 .cfsig__t--alert b { color: #ffc2c9; }
@@ -212,7 +243,7 @@
 .cfrange__dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; margin: 0; }
 .cfrange__dl > div { min-width: 0; }
 .cfrange__dl dt { color: var(--text-3); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.cfrange__dl dd { margin: 2px 0 0; color: var(--text-hi); font-size: 0.95rem; font-weight: 650; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.cfrange__dl dd { margin: 2px 0 0; color: var(--text-hi); font-size: 0.95rem; font-weight: 600; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .cfedges__l { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .cfedges__l li { display: flex; align-items: flex-start; gap: 8px; color: var(--text); font-size: 0.88rem; line-height: 1.35; }
 .cfedges__l .cfg { margin-top: 1px; }
@@ -220,7 +251,7 @@
 .cfdd { min-width: 0; }
 .cfdd__s { border-top: 1px solid var(--line); }
 .cfdd__s:last-child { border-bottom: 1px solid var(--line); }
-.cfdd__h { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; cursor: pointer; list-style: none; color: var(--text-hi); font-size: 0.9rem; font-weight: 650; }
+.cfdd__h { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; cursor: pointer; list-style: none; color: var(--text-hi); font-size: 0.9rem; font-weight: 600; }
 .cfdd__h::-webkit-details-marker { display: none; }
 .cfdd__chev { width: 8px; height: 8px; border-right: 1.75px solid var(--text-3); border-bottom: 1.75px solid var(--text-3); transform: rotate(45deg); transition: transform var(--t-fast); margin-right: 4px; }
 .cfdd__s[open] > .cfdd__h .cfdd__chev { transform: rotate(-135deg); }

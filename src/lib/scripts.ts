@@ -14,6 +14,7 @@
 // publication does not carry yet, so their fit is reported as unknown — never guessed.
 import type { EventResearchDoc, Market } from '../contract/types';
 import { isFullGame } from './period';
+import { cfbName } from './cfbTeams';
 
 export type ScriptId = 'fav-big' | 'fav' | 'close' | 'dog';
 export type Fit = 'yes' | 'part' | 'no';
@@ -99,8 +100,10 @@ function pool(bs: (Bucket | undefined)[]): TeamVolume & { share: number } {
   return { share: w, plays: avg('plays_mean'), passAtt: avg('pass_att_mean'), rushAtt: avg('rush_att_mean'), passRate: avg('pass_rate_mean') };
 }
 
-const nick = (name: string | undefined, abbr: string) => {
+const nick = (name: string | undefined, abbr: string, sport?: string) => {
   if (!name) return abbr;
+  // College names are one name ("Iowa State"): their last word names nobody.
+  if (sport === 'CFB') return cfbName(abbr, name);
   const w = name.split(' ');
   // "New York Jets Jets" → "Jets"; "Washington Commanders" → "Commanders"
   return w[w.length - 1] || abbr;
@@ -136,7 +139,8 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
   const pHome = gsi?.game_environment?.p_home_win;
   const fav: 'home' | 'away' = pHome != null ? (pHome >= 0.5 ? 'home' : 'away') : homeWin >= awayWin ? 'home' : 'away';
   const dog = fav === 'home' ? 'away' : 'home';
-  const name = { home: nick(homeP.display_name, homeAbbr), away: nick(awayP.display_name, awayAbbr) };
+  const sport = (r.event as { sport?: string }).sport ?? (r as { sport?: string }).sport;
+  const name = { home: nick(homeP.display_name, homeAbbr, sport), away: nick(awayP.display_name, awayAbbr, sport) };
   const keys: Record<ScriptId, (keyof Buckets)[]> =
     fav === 'home'
       ? { 'fav-big': ['lead14+'], fav: ['lead7-13'], close: ['within6'], dog: ['trail7-13', 'trail14+'] }

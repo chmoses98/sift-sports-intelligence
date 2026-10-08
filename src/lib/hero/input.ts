@@ -4,6 +4,7 @@
 // and says how sure it is of the home side (CFB: home_away_confidence 'stated' vs a display-order 'convention').
 import type { EventResearchDoc } from '../../contract/types';
 import { displayName } from '../format';
+import { cfbName } from '../cfbTeams';
 import { teamColors, teamLogo } from '../teams';
 import { mlbClub } from '../mlb';
 import { nhlTeam } from '../nhlTeams';
@@ -16,7 +17,8 @@ export function shortName(sport: string, code: string, name: string): string {
   const n = displayName(name);
   if (sport === 'NHL') return nhlTeam(code)?.name ?? n.split(' ').slice(-1)[0];
   if (sport === 'MLB') return mlbClub(code)?.nick ?? n.split(' ').slice(-1)[0];
-  if (sport === 'CFB' || sport === 'CBB' || sport === 'TENNIS') return n;
+  if (sport === 'CFB') return cfbName(code, n);
+  if (sport === 'CBB' || sport === 'TENNIS') return n;
   const w = n.split(' ');
   return w.length > 1 ? w[w.length - 1] : n;
 }

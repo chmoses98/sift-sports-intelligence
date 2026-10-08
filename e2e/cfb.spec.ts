@@ -84,6 +84,71 @@ test('the CFB home leads with Top CFB Signals; Value Watch filters the cards @sm
   expect(text).not.toMatch(/\d+% (chance|likely)/);
 });
 
+test('CFB Slate Priorities: beside Top CFB Signals on desktop, first on phones; value never confused with CONTROL @smoke', async ({ page, market }) => {
+  // Fresh live quotes for every priced CONTROL side (the fixture's own captures are 13 hours old by CFB_NOW).
+  const sig = JSON.parse(readFileSync(SIGNALS_FIXTURE, 'utf-8')) as { games: { market?: { price?: { market_ticker?: string | null; yes_ask?: number | null } | null } | null }[] };
+  for (const g of sig.games) {
+    const t = g.market?.price?.market_ticker;
+    const ask = g.market?.price?.yes_ask;
+    if (!t || ask == null) continue;
+    market.extra.push({ ticker: t, event_ticker: t.split('-').slice(0, 2).join('-') });
+    market.set(t, Math.round((ask - 0.02) * 100) / 100, ask);
+  }
+  await page.goto('./#/cfb');
+  const rail = page.getByRole('region', { name: 'Where to look first' });
+  await expect(rail).toBeVisible();
+  const value = rail.locator('[data-priority="value"]');
+  await expect(value).toContainText('LSU win');
+  await expect(value).toContainText('76¢');
+  await expect(value.locator('.prio__kind--value')).toHaveText(/value signal/i);
+  const read = rail.locator('[data-priority="read"]');
+  await expect(read).toContainText('Notre Dame Controls the Matchup');
+  await expect(read).toContainText(/football read · not a bet/i);
+  await expect(read.locator('.prio__kind--value, .prio__px')).toHaveCount(0);
+  await expect(rail.locator('[data-priority="disagreement"]')).toContainText('Sacramento State win');
+  await expect(rail.locator('[data-priority="disagreement"]')).toContainText(/exploratory · not a bet/i);
+  await expect(rail.locator('[data-priority="watch"]')).toContainText('Georgia at Alabama');
+  const teams = await rail.locator('.prio__teams').allInnerTexts();
+  for (const t of teams) expect(t).not.toMatch(/\bSt\.(?= at|$)|^(St\.|State|Miss|Tech) at /);
+  await noHorizontalOverflow(page, 'cfb-home-rail');
+
+  // Composition: the right rail on desktop, top-aligned with Top CFB Signals; the first thing after the slate line on phones.
+  const r = (await rail.boundingBox())!;
+  const main = (await page.locator('.cfh__main').boundingBox())!;
+  const top = (await page.getByRole('heading', { name: 'Top CFB Signals' }).boundingBox())!;
+  if (page.viewportSize()!.width >= 1100) {
+    expect(r.x).toBeGreaterThan(main.x + main.width);
+    expect(Math.abs(r.y - main.y)).toBeLessThan(4);
+    expect(r.x + r.width).toBeGreaterThan(page.viewportSize()!.width - 60); // the right side is used, not empty
+  } else {
+    expect(r.y).toBeLessThan(top.y);
+    expect(r.y).toBeLessThan(400);
+  }
+
+  // Every item opens its game, and Back returns to the CFB home.
+  const hrefs = await rail.locator('a.prio__a').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
+  expect(hrefs.length).toBeGreaterThanOrEqual(3);
+  expect(hrefs.length).toBeLessThanOrEqual(5);
+  for (const h of hrefs) expect(h).toMatch(/^#?\/?cfb\/game\/evt_[0-9a-f]+$|\/cfb\/game\/evt_[0-9a-f]+$/);
+  await rail.locator('a.prio__a').first().click();
+  await expect(page).toHaveURL(/#\/cfb\/game\/evt_/);
+  await page.goBack();
+  await expect(rail).toBeVisible();
+
+  // Barlow at installed weights only (400–700), and no italic anywhere on the CFB home.
+  const type = await page.evaluate(() => {
+    const els = [...document.querySelectorAll('.cfh *')].filter((e) => (e.textContent ?? '').trim());
+    return {
+      weights: [...new Set(els.map((e) => getComputedStyle(e).fontWeight))],
+      italic: els.filter((e) => getComputedStyle(e).fontStyle !== 'normal').map((e) => e.className || e.tagName).slice(0, 5),
+      family: getComputedStyle(document.querySelector('.cfh')!).fontFamily,
+    };
+  });
+  expect(type.family).toMatch(/^"?Barlow"?,/);
+  for (const w of type.weights) expect(['400', '500', '600', '700']).toContain(w);
+  expect(type.italic).toEqual([]);
+});
+
 test('a V2 game leads with the Quick Read; every older panel waits in a closed Deep Dive @smoke', async ({ page }) => {
   await page.goto(`./#/cfb/game/${LSU_UK}`);
   const q = page.getByTestId('cfb-quick-read');

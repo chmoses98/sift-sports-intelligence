@@ -15,6 +15,11 @@
 //    contract; every upcoming Moderate CONTROL game in it is starred Value Watch on the page, no Strong CONTROL
 //    game is; the filter chips work; no horizontal overflow at phone width. V2 game pages lead with the Quick
 //    Read and keep every older panel in a closed Deep Dive.
+// 5. CFB Slate Priorities (docs/CFB_SLATE_PRIORITIES.md) on Chromium desktop, Chromium phone and WebKit iPhone:
+//    the rail is there (the right column beside Top CFB Signals on desktop — no blank right side — and first on
+//    phones), its Top Value Signal is a Value Watch game or says plainly why not, a football read is never marked
+//    value, every item opens its game and Back returns; every school name on the page is whole (never "St." or
+//    "Iowa St."); the page is set in Barlow at installed weights (400–700) with no italic.
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
@@ -97,7 +102,10 @@ async function readGame(page) {
   await page.waitForFunction(() => document.querySelectorAll('.gh .teammark--logo img, .gh img.teammark--logo').length >= 2 && [...document.querySelectorAll('.gh__team img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
   return page.evaluate((empty) => ({
     engine: !!document.querySelector('.game--engine'),
-    cards: [...document.querySelectorAll('.ov--engine .eng-scard .scard__name, .stab__pick .eng-scard .scard__name, .cfdd__s .eng-scard .scard__name')].map((e) => e.textContent?.trim() ?? ''),
+    // The engine's own title (data-canonical): environment scripts are shown in plain words ("Close, Low-Scoring
+    // Game" for "Competitive grind"), and the check still requires exactly the published scripts.
+    cards: [...document.querySelectorAll('.ov--engine .eng-scard .scard__name, .stab__pick .eng-scard .scard__name, .cfdd__s .eng-scard .scard__name')].map((e) => e.getAttribute('data-canonical') ?? e.textContent?.trim() ?? ''),
+    shown: [...document.querySelectorAll('.eng-scard .scard__name')].map((e) => e.textContent?.trim() ?? ''),
     quickRead: !!document.querySelector('[data-testid="cfb-quick-read"]'),
     deep: [...document.querySelectorAll('details.cfdd__s')].map((d) => d.open),
     // V2 pages keep the V1 scripts (and their honest empty state) inside the closed Deep Dive: read its text too.
@@ -105,6 +113,86 @@ async function readGame(page) {
     logos: [...document.querySelectorAll('.gh__team img.teammark--logo')].map((i) => ({ src: i.currentSrc || i.src, ok: i.complete && i.naturalWidth > 0 })),
     textMarks: [...document.querySelectorAll('.gh .teammark--text')].map((e) => e.textContent?.trim()),
   }), EMPTY);
+}
+
+/** A school name that cannot identify a school, or the publication's abbreviation shown as-is. */
+// "TBD" is not here: it is the honest stand-in for an upstream participant row that names no school (reported below).
+const BROKEN_NAME = /^(St\.?|State|Miss|Tech|U\.?|University)$|\sSt\.$/;
+
+/** CFB Slate Priorities, school names and typography on the open CFB home (section 5 above). */
+async function priorityCheck(page, name, device) {
+  const rail = page.getByRole('region', { name: 'Where to look first' });
+  await rail.waitFor({ timeout: 60_000 });
+  await page.waitForTimeout(2500);
+  const text = (await rail.innerText()).replace(/\s+/g, ' ');
+  console.log(`  CFB rail: ${text.slice(0, 700)}`);
+  check(/top value signal/i.test(text), `${name}: CFB Slate Priorities: the Top Value Signal section is present (a Value Watch game, or plainly none)`);
+  const value = rail.locator('[data-priority="value"]');
+  const valueText = (await value.innerText()).replace(/\s+/g, ' ');
+  check(/value signal/i.test(valueText) || /No strong value signal yet|Waiting for updated prices/.test(valueText), `${name}: the value slot is a value signal or says why not ("${valueText.slice(0, 120)}")`);
+  if (await value.locator('a.prio__a').count()) {
+    const href = await value.locator('a.prio__a').getAttribute('href');
+    const id = /evt_[0-9a-f]+/.exec(href ?? '')?.[0];
+    const g = signals?.games.find((x) => x.event_id === id);
+    check(!!g && g.claims?.control?.strength === 'MODERATE' && signals.signals.moderate_control.status === 'VALUE_WATCH', `${name}: the Top Value Signal (${id}) is a Value Watch game in the live contract`);
+  }
+  const reads = rail.locator('[data-priority="read"], [data-priority="disagreement"]');
+  check((await reads.locator('.prio__kind--value').count()) === 0, `${name}: no football read or market disagreement is marked as value`);
+  const items = await rail.locator('a.prio__a').count();
+  check(items >= 1 && items <= 5, `${name}: CFB Slate Priorities: ${items} linked items (1–5)`);
+  const hrefs = await rail.locator('a.prio__a').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''));
+  check(hrefs.every((h) => /\/cfb\/game\/evt_[0-9a-f]+$/.test(h)) && new Set(hrefs).size === hrefs.length, `${name}: every priority opens a different CFB game (${hrefs.length})`);
+  const upcomingIds = new Set(board.items.filter((i) => i.status === 'SCHEDULED' && Date.parse(i.start_time_utc) > Date.now()).map((i) => i.event_id));
+  check(hrefs.every((h) => upcomingIds.has(/evt_[0-9a-f]+/.exec(h)?.[0])), `${name}: no priority points at a game that has kicked off`);
+
+  // Composition: desktop rail beside Top CFB Signals and reaching the right edge; phones put it first.
+  const r = await rail.boundingBox();
+  const main = await page.locator('.cfh__main').boundingBox();
+  const top = await page.getByRole('heading', { name: 'Top CFB Signals' }).boundingBox();
+  if (device.viewport.width >= 1100) {
+    check(!!r && !!main && r.x > main.x + main.width && Math.abs(r.y - main.y) < 4, `${name}: the rail sits beside Top CFB Signals`);
+    check(!!r && r.x + r.width > device.viewport.width - 60, `${name}: the right side of the desktop page is used (rail ends at ${Math.round((r?.x ?? 0) + (r?.width ?? 0))}px of ${device.viewport.width})`);
+  } else check(!!r && !!top && r.y < top.y, `${name}: phones show Slate Priorities before Top CFB Signals`);
+
+  // School names: every name element on the home is whole.
+  const names = await page.evaluate(() => [...document.querySelectorAll('.cfc__tn, .cfsch__n, .prio__teams, .cfs__m b, .cfs__s')].map((e) => (e.textContent ?? '').trim()));
+  const parts = names.flatMap((n) => n.split(/ · /)[0].split(/ (?:@|at) /)).map((s) => s.trim()).filter(Boolean);
+  const bad = [...new Set(parts.filter((s) => BROKEN_NAME.test(s)))];
+  check(parts.length > 10 && bad.length === 0, `${name}: every school name on the CFB home is whole (${parts.length} checked; broken: ${bad.slice(0, 6).join(', ') || 'none'})`);
+  const tbd = parts.filter((p) => p === 'TBD').length;
+  if (tbd) console.log(`  note: ${tbd} school name(s) shown as TBD — an upstream participant row that names no school (e.g. "University" / "Albany at Stony Brook")`);
+  const body = await page.locator('main').innerText();
+  check(!/(^|\n|\s)(St\.|State|Miss|Tech) (at|@) (St\.|State|Miss|Tech)(\s|$)/.test(body), `${name}: no "St. at St."-style matchup anywhere on the page`);
+
+  // Typography: Barlow at installed weights, no italic.
+  const type = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const els = [...document.querySelectorAll('.cfh *')].filter((e) => (e.textContent ?? '').trim());
+    return {
+      family: getComputedStyle(document.querySelector('.cfh')).fontFamily,
+      weights: [...new Set(els.map((e) => getComputedStyle(e).fontWeight))],
+      italic: els.filter((e) => getComputedStyle(e).fontStyle !== 'normal').map((e) => e.className || e.tagName).slice(0, 4),
+      loaded: [...new Set([...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family.replace(/"/g, '')} ${f.weight}`))],
+    };
+  });
+  console.log(`  CFB type: ${type.family.split(',')[0]} · weights ${type.weights.join(',')} · loaded ${type.loaded.join(', ')}`);
+  check(/^"?Barlow"?,/.test(type.family) && type.loaded.some((x) => x.startsWith('Barlow ')), `${name}: the CFB home is set in Barlow`);
+  check(type.weights.every((w) => ['400', '500', '600', '700'].includes(w)), `${name}: CFB text uses installed Barlow weights only (${type.weights.join(',')})`);
+  check(type.italic.length === 0, `${name}: no italic text on the CFB home (${type.italic.join(', ')})`);
+  check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${name}: CFB home: no sideways scroll`);
+  await rail.screenshot({ path: `production-cfb-${name}-rail.png` });
+  await page.screenshot({ path: `production-cfb-${name}-home-full.png`, fullPage: true });
+
+  if (items) {
+    await rail.locator('a.prio__a').first().click();
+    await page.waitForURL(/#\/cfb\/game\/evt_/, { timeout: 30_000 });
+    await page.locator('.game').first().waitFor({ timeout: 60_000 });
+    check(true, `${name}: the first priority opens ${page.url().split('#')[1]}`);
+    await page.screenshot({ path: `production-cfb-${name}-priority-game.png` });
+    await page.goBack();
+    await rail.waitFor({ timeout: 30_000 });
+    check(true, `${name}: Back returns to the CFB home`);
+  }
 }
 
 /** Logo files the site has served in this browser context (held images are re-used as blob: URLs after). */
@@ -122,6 +210,7 @@ function judge(label, kind, g, seen) {
     check(!seen.empty, `${label}: does not show "${EMPTY}"`);
     check(seen.cards.length === titles.length, `${label}: shows ${titles.length} script card(s) (got ${seen.cards.length})`);
     check(titles.every((t) => seen.cards.includes(t)), `${label}: shows the published script titles`);
+    check(!seen.shown.some((t) => /^(Competitive grind|Competitive shootout|Pace-driven scoring)$/i.test(t)), `${label}: environment scripts read in plain words (${seen.shown.join(' | ')})`);
   }
   const files = [g.away, g.home].map((c) => (CFB_TEAMS[c]?.l ? `teams/cfb/${CFB_TEAMS[c].e}.webp` : null));
   check(files.every(Boolean), `${label}: both teams (${g.away}, ${g.home}) have a committed CFB logo in the identity map`);
@@ -134,7 +223,7 @@ const sha = EXPECT_SHA ? await awaitSha(EXPECT_SHA) : await deployedSha();
 console.log(`  deployed build: ${sha ?? '(no version.json)'}${EXPECT_SHA ? ` · expected ${EXPECT_SHA}` : ''}`);
 if (EXPECT_SHA) check(sha === EXPECT_SHA, `the deployed build is ${EXPECT_SHA.slice(0, 7)} (got ${sha ?? 'none'})`);
 
-const BROWSERS = [['chromium-phone', chromium, { viewport: { width: 390, height: 844 } }], ['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]]
+const BROWSERS = [['chromium-desktop', chromium, { viewport: { width: 1440, height: 900 } }], ['chromium-phone', chromium, { viewport: { width: 390, height: 844 } }], ['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]]
   .filter(([n]) => !process.env.SIFT_BROWSERS || process.env.SIFT_BROWSERS.split(',').some((b) => n.startsWith(b)));
 for (const [name, type, device] of BROWSERS) {
   console.log(`\n${name}`);
@@ -180,6 +269,7 @@ for (const [name, type, device] of BROWSERS) {
       check(filtered, 'CFB home: the Value Watch filter shows only Value Watch games');
       await page.goto(`${BASE}#/cfb`);
       await page.screenshot({ path: `production-cfb-${name}-home.png` });
+      await priorityCheck(page, name, device);
     }
     // A deep link to each game, then the same games again from the CFB slate (a warm client, service worker
     // installed): the way a returning reader actually arrives.

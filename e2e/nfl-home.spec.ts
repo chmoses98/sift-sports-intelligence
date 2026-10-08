@@ -12,6 +12,10 @@ test('NFL home: Slate Priorities beside the featured game on desktop, first on p
   await expect(rail.locator('.prio__i--edge')).toBeVisible();
   // The Top SIFT Edge always says something: an edge, or plainly that none qualifies.
   await expect(rail.locator('.prio__i--edge')).toContainText(/SIFT edge|Top SIFT edge/i);
+  // The multi-script section says what the data supports ("multiple", N of the 4), never "holds up" or "most".
+  await expect(rail).not.toContainText(/holds up|across scripts|most scripts/i);
+  const holds = rail.locator('.prio__i--holds');
+  if (await holds.count()) await expect(holds.locator('.prio__k')).toHaveText(/works in multiple scripts/i);
   await noHorizontalOverflow(page, 'nfl-home');
 
   const feat = page.locator('.shome__feat');

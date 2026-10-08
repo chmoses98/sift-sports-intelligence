@@ -12,6 +12,7 @@ import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
 import { mlbClub } from '../../lib/mlb';
 import { nhlTeam } from '../../lib/nhlTeams';
+import { cfbName } from '../../lib/cfbTeams';
 import { useMemo } from 'react';
 import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFromResearch } from '../../lib/hero/input';
@@ -21,6 +22,8 @@ import { HeroArt, heroVars } from '../../components/HeroArt';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export function splitName(full: string, abbr?: string | null, sport?: string): { city: string; nick: string } {
+  // College names are not "City Nickname": "Iowa State" is one name, and its last word ("State") names nobody.
+  if (sport === 'CFB') return { city: '', nick: cfbName(abbr, full) };
   const n = displayName(full);
   // Baseball nicknames can be two words ("White Sox", "Red Sox", "Blue Jays"): the club table knows them.
   // Hockey nicknames can be two words too ("Golden Knights", "Maple Leafs", "Red Wings"): the NHL identity table knows them.
@@ -99,7 +102,7 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
 
 function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean }) {
   // College names are not "City Nickname" ("Iowa St.", "Florida International"): CFB shows the whole name.
-  const { city, nick } = sportCode === 'CFB' ? { city: '', nick: displayName(name) } : splitName(name, abbr, sportCode);
+  const { city, nick } = splitName(name, abbr, sportCode);
   const rec = recordOf(prof);
   return (
     <div className={`gh__team gh__team--${side}`}>

@@ -21,6 +21,7 @@ import type {
   SeriesDoc,
   Thesis,
 } from '../contract/types';
+import { normalizeCfbNames } from '../lib/cfbTeams';
 import { getJson, joinUrl, NotFoundError } from './fetcher';
 import type { SportSource } from './source';
 
@@ -42,10 +43,15 @@ export class SportRepo {
     return joinUrl(this.source.root, path);
   }
 
-  /** Always a promise: a missing root rejects (never throws synchronously into a render/effect). */
+  /**
+   * Always a promise: a missing root rejects (never throws synchronously into a render/effect). CFB documents come
+   * back with every team name already the one a reader sees ("Iowa State", never "Iowa St." or "St."): see
+   * lib/cfbTeams.ts normalizeCfbNames. Idempotent, so the shared fetch cache can hand the same object out again.
+   */
   doc<T>(path: string): Promise<T> {
     try {
-      return getJson<T>(this.url(path));
+      const p = getJson<T>(this.url(path));
+      return this.sport.code === 'CFB' ? p.then(normalizeCfbNames) : p;
     } catch (e) {
       return Promise.reject(e);
     }

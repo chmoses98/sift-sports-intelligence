@@ -68,6 +68,8 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
   one typeface.
 * [docs/SLATE_PRIORITIES.md](docs/SLATE_PRIORITIES.md) — the NFL home's Slate Priorities rail (every rule, field and
   threshold) and the plain-English game-script titles.
+* [docs/CFB_SLATE_PRIORITIES.md](docs/CFB_SLATE_PRIORITIES.md) — the CFB home's Slate Priorities rail (value vs CONTROL,
+  every rule and field), CFB school names (one identity, applied at the data layer) and the CFB Barlow weights.
 * [docs/INSIGHTS.md](docs/INSIGHTS.md) — the insight layer: matchup edges, context notes, scheme pairings,
   props to watch, news importance, research findings, and the nflverse history layer behind them.
 * [docs/NHL.md](docs/NHL.md) — the NHL vertical: data consumed, screens, script survival, research candidates,

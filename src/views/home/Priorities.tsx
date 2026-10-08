@@ -52,9 +52,10 @@ const HOW = (
     section stays empty.
     <br /><br /><b>Top SIFT Edge</b> appears only when the publication itself recommends a market and its live price is fresh and
     still under SIFT’s limit. The NFL model is research-only until it beats the market, so most weeks this says so.
-    <br /><br /><b>Holds up across scripts</b> is a moneyline or spread that wins in at least two of the four game scripts, covering
-    at least {pct(HOLDS_MIN_COVERAGE)} of simulated games, priced 10–90¢ on a fresh quote, with SIFT’s model at least {Math.round(HOLDS_MIN_GAP * 100)} points
-    above the market.
+    <br /><br /><b>Works in multiple scripts</b> is a moneyline or spread that wins in at least two of the four modeled outcome
+    scripts (the final-margin buckets SIFT simulates), those scripts together covering at least {pct(HOLDS_MIN_COVERAGE)} of simulated games,
+    priced 10–90¢ on a fresh quote, with SIFT’s model at least {Math.round(HOLDS_MIN_GAP * 100)} points above the market. A moneyline or spread
+    can win in at most two of the four, so this never means “most scripts”.
     <br /><br /><b>Game to watch</b> and <b>Worth a look</b> are the games that stand out most from the rest of the week — the likeliest
     blowout, the closest game, the highest- or lowest-scoring game, or where SIFT and the market disagree most on the
     spread or total. Unusual, not a bet.
@@ -116,10 +117,10 @@ export function SlatePriorities({ items, research, recommendations, recError, sl
 
           {p.holds.kind === 'pick' && (
             <li className="prio__i prio__i--holds">
-              <span className="prio__k"><Icon name="shield" size={15} />Holds up across scripts</span>
-              <Link to={routes.market(slug, p.holds.item.market.market_id, p.holds.item.game.eventId)} className="prio__a" aria-label={`${p.holds.item.label}: holds up in ${p.holds.item.full} of ${p.holds.item.of} game scripts, ${pct(p.holds.item.coverage)} of simulated games. Open market.`}>
+              <span className="prio__k"><Icon name="shield" size={15} />Works in multiple scripts</span>
+              <Link to={routes.market(slug, p.holds.item.market.market_id, p.holds.item.game.eventId)} className="prio__a" aria-label={`${p.holds.item.label}: supported in ${p.holds.item.full} of the ${p.holds.item.of} modeled outcome scripts, ${pct(p.holds.item.coverage)} of simulated games. Open market.`}>
                 <span className="prio__mk"><TeamMark sport={sport} abbr={p.holds.item.team} size="sm" /><b>{p.holds.item.label}</b><span className="prio__px num">{cents(p.holds.item.ask)}</span></span>
-                <span className="prio__why">Holds up in {p.holds.item.full} of {p.holds.item.of} game scripts — {pct(p.holds.item.coverage)} of simulations.</span>
+                <span className="prio__why">Supported in {p.holds.item.full} of the {p.holds.item.of} modeled outcome scripts ({pct(p.holds.item.coverage)} of simulations).</span>
                 <span className="prio__wins">{p.holds.item.wins.map((w) => <span key={w.name}><i className={`sdot sdot--s${w.index}`} aria-hidden="true" />{w.name}</span>)}</span>
                 <span className="prio__meta"><span>{p.holds.item.game.awayName} at {p.holds.item.game.homeName} · {when(p.holds.item.game.kickoff)}</span><span>SIFT {pct(p.holds.item.model)} · price {formatQuoteAgo(quoteAgeMs(p.holds.item.quote.observedAt, now))}</span></span>
                 <Icon name="chevronRight" size={16} className="prio__go" />
@@ -128,13 +129,13 @@ export function SlatePriorities({ items, research, recommendations, recError, sl
           )}
           {p.holds.kind === 'stale' && checkingPrices && (
             <li className="prio__i prio__i--holds">
-              <span className="prio__k"><Icon name="shield" size={15} />Holds up across scripts</span>
+              <span className="prio__k"><Icon name="shield" size={15} />Works in multiple scripts</span>
               <p className="prio__none">Checking current prices…</p>
             </li>
           )}
           {p.holds.kind === 'stale' && !checkingPrices && (
             <li className="prio__i prio__i--holds">
-              <span className="prio__k"><Icon name="shield" size={15} />Holds up across scripts</span>
+              <span className="prio__k"><Icon name="shield" size={15} />Works in multiple scripts</span>
               <p className="prio__none prio__none--stale"><b>Waiting for updated markets</b> Current quote data is stale, so no price is checked against the scripts.</p>
             </li>
           )}

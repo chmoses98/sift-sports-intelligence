@@ -10,6 +10,7 @@ import { Notice, Stratum } from '../../components/ui';
 import { routes } from '../../lib/routes';
 import {
   ARCHETYPE_WORD,
+  scriptTitle,
   DIMENSION_WORD,
   EDGE_DIMENSIONS,
   LABEL_HELP,
@@ -102,7 +103,7 @@ function CompatCells({ engine, e, selected }: { engine: Engine; e: Expression; s
         <span
           key={s.script_id}
           className={`fitcell fitcell--${COMPAT_CELL[e.compat[i]]} fitcell--s${ROLE_INDEX[s.role]}${selected === s.script_id ? ' is-sel' : ''}`}
-          title={`${ROLE_WORD[s.role]} (${s.title}) ${COMPAT_WORD[e.compat[i]]} this`}
+          title={`${ROLE_WORD[s.role]} (${scriptTitle(s)}) ${COMPAT_WORD[e.compat[i]]} this`}
         />
       ))}
     </span>
@@ -177,10 +178,10 @@ export function EngineScriptsPanel({ engine, selected, hrefFor, title = 'Likely 
                   to={hrefFor(on ? null : s.script_id)}
                   className={`scard scard--s${ROLE_INDEX[s.role]} eng-scard${on ? ' is-sel' : ''}${sel && !on ? ' is-dim' : ''}`}
                   aria-current={on ? 'true' : undefined}
-                  aria-label={`${ROLE_WORD[s.role]} script: ${s.title}. ${s.summary}${on ? ' Selected.' : ''}`}
+                  aria-label={`${ROLE_WORD[s.role]} script: ${scriptTitle(s)}. ${s.summary}${on ? ' Selected.' : ''}`}
                 >
                   <span className="eng-scard__role">{ROLE_WORD[s.role]}</span>
-                  <span className="scard__name">{s.title}</span>
+                  <span className="scard__name" data-canonical={s.title}>{scriptTitle(s)}</span>
                   <span className="scard__d">{s.summary}</span>
                   <span className="eng-scard__arch">{ARCHETYPE_WORD[s.archetype] ?? s.archetype}</span>
                 </Link>
@@ -207,7 +208,7 @@ function WhyThisBet({ engine, e, m, marketsByTicker, now }: { engine: Engine; e:
           <h4 className="why__h">Scripts</h4>
           <ul className="why__scripts">
             {engine.scripts.map((s, i) => (
-              <li key={s.script_id}><span className={`sdot sdot--s${ROLE_INDEX[s.role]}`} aria-hidden="true" /><b>{ROLE_WORD[s.role]}</b> · {s.title}: <span className={`why__c why__c--${COMPAT_CELL[e.compat[i]]}`}>{COMPAT_WORD[e.compat[i]]}</span>{e.compat[i] === 'PARTIAL' && e.coverage[i] != null ? ` (${Math.round(e.coverage[i]! * 100)}% of its range)` : ''}</li>
+              <li key={s.script_id}><span className={`sdot sdot--s${ROLE_INDEX[s.role]}`} aria-hidden="true" /><b>{ROLE_WORD[s.role]}</b> · {scriptTitle(s)}: <span className={`why__c why__c--${COMPAT_CELL[e.compat[i]]}`}>{COMPAT_WORD[e.compat[i]]}</span>{e.compat[i] === 'PARTIAL' && e.coverage[i] != null ? ` (${Math.round(e.coverage[i]! * 100)}% of its range)` : ''}</li>
             ))}
           </ul>
         </div>
@@ -507,7 +508,7 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
   return (
     <>
       <div className="stab__pick"><EngineScriptsPanel engine={engine} selected={s.script_id} hrefFor={hrefFor} title="Scripts" /></div>
-      <Stratum id="g-script-chain" title={<><span className={`sdot sdot--s${ROLE_INDEX[s.role]}`} aria-hidden="true" />{ROLE_WORD[s.role]}: {s.title}</>} sub={s.summary}>
+      <Stratum id="g-script-chain" title={<><span className={`sdot sdot--s${ROLE_INDEX[s.role]}`} aria-hidden="true" />{ROLE_WORD[s.role]}: {scriptTitle(s)}</>} sub={s.summary}>
         <div className="eng-chain">
           <ol className="chain">
             {s.causal_chain.map((st) => (

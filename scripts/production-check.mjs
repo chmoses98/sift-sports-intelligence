@@ -485,6 +485,16 @@ async function designCheck(browser, device, name) {
     check(/Top SIFT edge/i.test(railText), 'NFL Slate Priorities: the Top SIFT Edge section is present (an edge, or plainly none)');
     const items = await rail.locator('a.prio__a').count();
     check(items <= 5, `NFL Slate Priorities: ${items} linked items (at most 5)`);
+    // The multi-script section says what the data supports: the four scripts are final-margin buckets and a
+    // moneyline or spread wins in at most two of them, so the label is "Works in multiple scripts", never the
+    // retired "Holds up across scripts" or any "most scripts" claim. The section is omitted when nothing qualifies.
+    check(!/holds up|across scripts|most scripts|survives most/i.test(railText), 'NFL Slate Priorities: the retired "Holds up across scripts" wording is absent');
+    const holds = rail.locator('.prio__i--holds');
+    if (await holds.count()) {
+      const ht = (await holds.innerText()).replace(/\s+/g, ' ');
+      check(/works in multiple scripts/i.test(ht), 'NFL Slate Priorities: the multi-script section is labelled "Works in multiple scripts"');
+      if (await holds.locator('a.prio__a').count()) check(/Supported in \d of the 4 modeled outcome scripts/.test(ht), `NFL Slate Priorities: the pick states its exact script count ("${ht.slice(0, 160)}")`);
+    } else console.log('  NFL rail: no multi-script pick this run (section omitted: nothing qualifies) — label check NOT_APPLICABLE');
     const main = await page.locator('main').innerText();
     check(!/going away|One-score battle/i.test(main), 'NFL home: script titles are plain English');
     check(!/undefined|NaN/.test(main), 'NFL home shows no undefined / NaN');

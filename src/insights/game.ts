@@ -1,6 +1,7 @@
 // A game's two sides in one place (ids, abbreviations, nicknames), shared by every insight builder.
 import type { EventResearchDoc, Observation } from '../contract/types';
 import { displayName } from '../lib/format';
+import { cfbName } from '../lib/cfbTeams';
 
 export interface Side {
   pid: string;
@@ -30,6 +31,8 @@ export function gameSides(r: EventResearchDoc): GameSides | null {
     const name = displayName(p.display_name);
     const w = name.split(' ');
     const abbr = r.event.participants.find((x) => x.participant_id === p.participant_id)?.short_name ?? '?';
+    // College names are one name ("Iowa State"): never split into a "city" and a last-word "nick" ("State").
+    if (((r.event as { sport?: string }).sport ?? (r as { sport?: string }).sport) === 'CFB') return { pid: p.participant_id, abbr, nick: cfbName(abbr, name), city: '', home: side === 'HOME' };
     return { pid: p.participant_id, abbr, nick: w[w.length - 1] || abbr, city: w.slice(0, -1).join(' '), home: side === 'HOME' };
   };
   const home = mk('HOME');

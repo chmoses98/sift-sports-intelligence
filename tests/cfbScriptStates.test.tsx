@@ -8,7 +8,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { EventResearchDoc } from '../src/contract/types';
 import { clearAsyncMemo } from '../src/data/hooks';
 import { routes } from '../src/lib/routes';
-import { isEngine, readEngine } from '../src/lib/scriptEngine';
+import { isEngine, readEngine, scriptTitle } from '../src/lib/scriptEngine';
 import { teamLogo } from '../src/lib/teams';
 import { GameRoute } from '../src/views/Game';
 import { agreement, payloadOf } from '../scripts/cfb/select.mjs';
@@ -27,7 +27,9 @@ const EMPTY = 'No script cleared its evidence requirement';
 
 const doc = (id: string) => readCfb<EventResearchDoc>(`explorer/events/${id}.json`);
 const raw = (id: string) => (doc(id).extensions as { script_engine: { status: string; game_scripts: { script_id: string; title: string; role: string }[] } }).script_engine;
-const cardTitles = () => [...document.querySelectorAll('.eng-scard .scard__name')].map((e) => e.textContent);
+/** The engine's own titles (data-canonical); what the card shows is scriptTitle() of each (plain words for the environment scripts). */
+const cardTitles = () => [...document.querySelectorAll('.eng-scard .scard__name')].map((e) => e.getAttribute('data-canonical'));
+const shownTitles = () => [...document.querySelectorAll('.eng-scard .scard__name')].map((e) => e.textContent);
 
 beforeAll(() => {
   useDiskFetch();
@@ -121,6 +123,9 @@ describe('CFB game page renders the publication it was given (UI level)', () => 
     const { unmount } = renderScreen(routes.game('cfb', NMSU_FIU), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
     await screen.findByRole('heading', { name: /Likely Game Scripts/ }, { timeout: 4000 });
     expect(cardTitles()).toEqual([only.title]);
+    // "Competitive grind" is said from its outcome shape: a suppressed total, no stated margin.
+    expect(shownTitles()).toEqual([scriptTitle(only as never)]);
+    expect(shownTitles()[0]).not.toMatch(/Competitive|Pace-driven/);
     expect(document.body.textContent).not.toContain(EMPTY);
     expect(screen.queryByText('No script engine read for this game')).toBeNull();
     unmount();
@@ -162,9 +167,9 @@ describe('CFB team marks in the game hero', () => {
     }
   });
 
-  it('shows the whole college name in the hero ("Iowa St.", not "St.")', async () => {
+  it('shows the whole college name in the hero, as fans say it ("Iowa State", never "Iowa St." or "St.")', async () => {
     renderScreen(routes.game('cfb', ISU_BYU), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
     await screen.findByRole('heading', { name: /Likely Game Scripts/ }, { timeout: 4000 });
-    expect([...document.querySelectorAll('.gh__name')].map((e) => e.textContent)).toEqual(['Iowa St.', 'BYU']);
+    expect([...document.querySelectorAll('.gh__name')].map((e) => e.textContent)).toEqual(['Iowa State', 'BYU']);
   });
 });

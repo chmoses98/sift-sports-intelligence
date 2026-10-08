@@ -25,6 +25,7 @@ import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel,
 import { ScriptTab } from './game/ScriptTab';
 import { EngineConfidencePanel, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
 import { GameReadV2Panel } from './game/GameReadV2';
+import { CfbOverview } from './game/CfbOverview';
 import { isEngine, readEngine } from '../lib/scriptEngine';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { type ReactNode } from 'react';
@@ -532,11 +533,25 @@ export function GameView({ eventId }: { eventId: string }) {
             <Link key={k} to={ehref(k)} aria-current={etab === k ? 'page' : undefined}>{l}</Link>
           ))}
         </nav>
-        {etab === 'overview' && (
+        {etab === 'overview' && engine.claimsV2 && (
+          // V2 games: a five-second Quick Read, the best research, and every panel below in a closed Deep Dive.
+          <CfbOverview
+            engine={engine} eventId={eventId} markets={quoted} participants={{ home: homeP.participant_id, away: awayP.participant_id }}
+            signalsUrl={sport.researchSignalsUrl} now={now} marketsHref={ehref('markets')}
+            deep={{
+              read: <EngineReadPanel engine={engine} to={ehref('script')} />,
+              scripts: <EngineScriptsPanel engine={engine} selected={engineSelected} hrefFor={ehrefFor} />,
+              v2: <GameReadV2Panel engine={engine} />,
+              survivors: <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} to={ehref('script')} />,
+              edges: <EngineEdgesPanel engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={ehref('matchup')} />,
+              confidence: <EngineConfidencePanel engine={engine} />,
+            }}
+          />
+        )}
+        {etab === 'overview' && !engine.claimsV2 && (
           <div className="ov ov--engine">
             <EngineReadPanel engine={engine} to={ehref('script')} />
             <EngineScriptsPanel engine={engine} selected={engineSelected} hrefFor={ehrefFor} />
-            {engine.claimsV2 && <GameReadV2Panel engine={engine} />}
             <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} to={ehref('script')} />
             <EngineEdgesPanel engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={ehref('matchup')} />
             <EngineConfidencePanel engine={engine} />

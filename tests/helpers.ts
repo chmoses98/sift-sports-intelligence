@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import { NotFoundError, setFetchJson } from '../src/data/fetcher';
 import { SportRepo } from '../src/data/repo';
 import type { SportSource } from '../src/data/source';
-import { sportByCode } from '../src/data/sports';
+import { CFB_RESEARCH_SIGNALS_URL, sportByCode } from '../src/data/sports';
+import { setSignalsLoader } from '../src/data/cfbSignals';
 import type { HealthDoc } from '../src/contract/types';
 
 export const SNAPSHOT_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'app', 'latest');
@@ -11,6 +12,8 @@ export const ROOT = 'disk://nfl';
 /** A trimmed, real cfb-edge-finder publication carrying the CFB Script Engine (scripts/make_cfb_fixture.py). */
 export const CFB_DIR = join(__dirname, 'fixtures', 'cfb', 'app', 'latest');
 export const CFB_ROOT = 'disk://cfb';
+/** The CFB research-signals contract (cfb_research_signals/1.0.0) for the same ten games. */
+export const CFB_SIGNALS_FILE = join(__dirname, 'fixtures', 'cfb', 'signals', 'cfb_research_signals.json');
 /** A trimmed, real NHL-edge-finder publication carrying NHL_SCRIPT_V1, findings and the learning scorecard (scripts/make_nhl_fixture.py). */
 export const NHL_DIR = join(__dirname, 'fixtures', 'nhl', 'app', 'latest');
 export const NHL_ROOT = 'disk://nhl';
@@ -48,10 +51,12 @@ export function readSnapshot<T>(rel: string): T {
  * disk://cfb/<path> → the CFB fixture); anything else 404s. */
 export function useDiskFetch(): void {
   setFetchJson(readDisk);
+  setSignalsLoader(readDisk);
 }
 
 /** The disk reader behind useDiskFetch (tests that log requests wrap it). */
 export async function readDisk(url: string): Promise<unknown> {
+  if (url.split('?')[0] === CFB_RESEARCH_SIGNALS_URL) return JSON.parse(readFileSync(CFB_SIGNALS_FILE, 'utf-8'));
   if (url.startsWith(HISTORY_ROOT + '/')) {
     const f = join(HISTORY_DIR, url.slice(HISTORY_ROOT.length + 1));
     if (!existsSync(f)) throw new NotFoundError(url);

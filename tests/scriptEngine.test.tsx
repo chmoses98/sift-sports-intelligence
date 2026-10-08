@@ -23,6 +23,7 @@ import { renderScreen } from './render';
 const UGA_ALA = 'evt_93e12676ae9337017c63';
 const LSU_UK = 'evt_8c3166866b2bfa530c17';
 const ALBY_STON = 'evt_776097ba6eef448fb340';
+const NMSU_FIU = 'evt_f39ef6a955b04b97fe84';
 
 function engineOf(id: string): Engine {
   const e = readEngine(readCfb<EventResearchDoc>(`explorer/events/${id}.json`));
@@ -104,7 +105,9 @@ describe('payload decoding', () => {
   });
 
   it('keeps every total and team-total contract research only', () => {
-    const e = engineOf(UGA_ALA);
+    // The regenerated fixture trims the V2 games' market maps to their survivors; NMSU at FIU (a 1.1.0 single-script
+    // payload) keeps its full map, with every scoring contract in it.
+    const e = engineOf(NMSU_FIU);
     expect(e.scoringResearchOnly).toBe(true);
     const scoring = e.expressions.filter((x) => x.thesis.startsWith('total:') || x.thesis.startsWith('team_scoring:'));
     expect(scoring.length).toBeGreaterThan(10);
@@ -117,13 +120,16 @@ describe('payload decoding', () => {
     }
     // What the uncalibrated band would have said is kept, as research.
     expect(scoring.some((x) => x.research.includes('SUPPORTED'))).toBe(true);
-    const featured = groupedSurvivors(e).map((x) => x.thesis);
+    // The football conclusion stays: the primary still describes its scoring environment, on a descriptive band.
+    expect(e.scripts[0].outcome_shape.total_environment).toBe('SUPPRESSED');
+    expect(e.scripts[0].outcome_shape.band_authority?.total_points).toBe('UNCALIBRATED_DESCRIPTIVE');
+    // A featured (multi-script) list never leads with a scoring contract, and a margin band rests on its archetype.
+    const ua = engineOf(UGA_ALA);
+    const featured = groupedSurvivors(ua).map((x) => x.thesis);
     expect(featured.length).toBeGreaterThan(0);
     expect(featured.some((t) => t.startsWith('total:') || t.startsWith('team_scoring:'))).toBe(false);
-    // The football conclusion stays: the primary still describes an elevated scoring environment.
-    expect(e.scripts[0].outcome_shape.total_environment).toBe('ELEVATED');
-    expect(e.scripts[0].outcome_shape.band_authority?.total_points).toBe('UNCALIBRATED_DESCRIPTIVE');
-    expect(e.scripts[0].outcome_shape.band_authority?.home_margin).toBe('ARCHETYPE_DEFINITION');
+    expect(ua.scripts[0].outcome_shape.total_environment).toBe('ELEVATED');
+    expect(ua.scripts[0].outcome_shape.band_authority?.home_margin).toBe('ARCHETYPE_DEFINITION');
   });
 
   it('a one-score claim rests on independent closeness evidence, never on the scoring environment', () => {
@@ -173,7 +179,12 @@ describe('payload decoding', () => {
 describe('CFB game page', () => {
   it('answers the matchup, the scripts and the bets separately, in that order', async () => {
     renderScreen(routes.game('cfb', UGA_ALA), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
-    const read = await screen.findByRole('heading', { name: /SIFT Read/ }, { timeout: 4000 });
+    // A V2 game leads with the Quick Read; the V1 read, scripts and bets keep their order inside the closed Deep Dive.
+    const quick = within(await screen.findByTestId('cfb-quick-read', {}, { timeout: 4000 })).getByRole('heading', { name: 'SIFT Read' });
+    await waitFor(() => expect(document.querySelector('#eng-read-h')).not.toBeNull());
+    const read = document.querySelector('#eng-read-h')!;
+    expect(quick.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(read.closest('details:not([open])')).not.toBeNull();
     const scripts = screen.getByRole('heading', { name: /Likely Game Scripts/ });
     const bets = screen.getByRole('heading', { name: /Bets That Survive Multiple Scripts/ });
     expect(read.compareDocumentPosition(scripts) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

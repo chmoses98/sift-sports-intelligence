@@ -17,12 +17,18 @@ export interface SportConfig {
   /** primary/secondary sports get Sift explorer screens; listed sports show live health + capabilities. */
   tier: SportTier;
   entityNoun: { team: string; event: string };
+  /** CFB: the research-signals contract (cfb_research_signals/1.x) the home and game pages read beside the board. */
+  researchSignalsUrl?: string;
 }
 
 const BASE = import.meta.env.BASE_URL;
 
 export const REGISTRY_URL =
   'https://raw.githubusercontent.com/chmoses98/kalshi-bet-router/app-data/app/latest/sports_registry.json';
+
+/** The CFB research-signals contract, refreshed every few minutes by the cfb-edge-finder conductor. */
+export const CFB_RESEARCH_SIGNALS_URL =
+  'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json';
 
 export const SPORTS: SportConfig[] = [
   {
@@ -44,6 +50,7 @@ export const SPORTS: SportConfig[] = [
     // Explorer screens through the generic views, plus the CFB Script Engine game page when an event carries
     // extensions.script_engine (docs/CFB_SCRIPT_ENGINE.md).
     snapshotBase: null, tier: 'secondary', entityNoun: { team: 'team', event: 'game' },
+    researchSignalsUrl: CFB_RESEARCH_SIGNALS_URL,
   },
   {
     code: 'NBA', slug: 'nba', label: 'NBA', fullName: 'National Basketball Association',

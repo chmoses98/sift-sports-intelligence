@@ -27,8 +27,13 @@ function show(engine: Engine) {
   return screen.getByTestId('game-read-v2');
 }
 
-/** Words that would turn a historical frequency or a range into a forecast. */
+/**
+ * Words that would turn a historical frequency or a range into a forecast. A percentage is banned (a win rate, a
+ * "% chance", "% to win"); the one exception is the range labels "Middle 50%" and "Middle 80%", which describe the
+ * spread of past margins, not a chance — they are removed before the check.
+ */
 const FORECAST = /%|\bchance\b|\bprobab|\bpredict|\bodds\b|\bover\b|\bunder\b|\+EV\b|\blikely to\b/i;
+const forecastText = (t: string) => t.replace(/\bMiddle (50|80)%/g, 'Middle');
 
 afterEach(cleanup);
 
@@ -42,10 +47,23 @@ describe('V2 claims decode', () => {
   });
 
   it('a 1.1.0 payload without claims_v2 decodes exactly as before', () => {
-    for (const id of ['evt_1f7f2822f37fb1a8e34e', 'evt_e56d7cee653c3507226b']) {
-      const e = readEngine(readCfb<EventResearchDoc>(`explorer/events/${id}.json`));
+    // NMSU at FIU and JVST at KENN are 1.1.0 exports; ISU at BYU is 1.2.0, reduced here to its 1.1.0 shape.
+    const stripped = readCfb<EventResearchDoc>('explorer/events/evt_1f7f2822f37fb1a8e34e.json');
+    const se = (stripped.extensions as { script_engine: Record<string, unknown> }).script_engine;
+    delete se.claims_v2;
+    se.version = 'cfb_script_engine_payload/1.1.0';
+    const docs = [
+      ...['evt_f39ef6a955b04b97fe84', 'evt_e56d7cee653c3507226b'].map((id) => readCfb<EventResearchDoc>(`explorer/events/${id}.json`)),
+      stripped,
+    ];
+    for (const d of docs) {
+      expect((d.extensions as { script_engine: { version: string } }).script_engine.version).toBe('cfb_script_engine_payload/1.1.0');
+      const e = readEngine(d);
       expect(isEngine(e)).toBe(true);
-      if (isEngine(e)) expect(e.claimsV2).toBeNull();
+      if (isEngine(e)) {
+        expect(e.claimsV2).toBeNull();
+        expect(e.scripts.length).toBeGreaterThanOrEqual(0);
+      }
     }
     expect(CFB_DIR).toBeTruthy();
   });
@@ -124,11 +142,16 @@ describe('V2 game read renders every dimension', () => {
 });
 
 describe('no false probability language', () => {
+  it('allows exactly the Middle 50% / Middle 80% range labels and nothing else with a percent sign', () => {
+    expect(forecastText('Middle 50% +8 to +35 · Middle 80% +1 to +48')).not.toMatch(FORECAST);
+    for (const bad of ['90% chance', 'wins 74% to win', 'win rate 89%', 'Middle 60%', '12% likely']) expect(forecastText(bad), bad).toMatch(FORECAST);
+  });
+
   it('no rendered V2 read uses forecast words, percentages or a chance to win', () => {
     for (const name of ['home_strong_pace', 'away_moderate_disruption', 'closeness_defsupp', 'closeness', 'suppressed', 'no_claim']) {
       const panel = show(engineOf(name));
       // Popover bodies are not rendered until opened; the visible read is what a reader sees first.
-      const visible = panel.textContent ?? '';
+      const visible = forecastText(panel.textContent ?? '');
       expect(visible, name).not.toMatch(FORECAST);
       expect(visible.toLowerCase(), name).not.toContain('prediction interval');
       expect(visible, name).toContain('describes evidence quality');

@@ -204,7 +204,7 @@ function GoalieCard({ g, prof, factor, faces, saves, savesMarket, s, start, now,
       </div>
       {!confirmed && <p className="ngc__warn" role="note"><Glyph name="alert" size={14} />Not confirmed. The projection assumes this starter; a different goalie changes the read.</p>}
       <dl className="ngc__kv">
-        {st?.sv != null && <div><dt>Save %</dt><dd className="num">{sv3(st.sv)}<small>{st.svSeason}{st.starts != null ? ` · ${st.starts} starts` : ''}</small></dd></div>}
+        {st?.sv != null && <div><dt>Save %</dt><dd className="num">{sv3(st.sv)}<small>{st.svSeason}{st.starts != null ? ` · ${st.starts} start${st.starts === 1 ? '' : 's'}` : ''}{st.starts != null && st.starts < 20 ? ': small sample' : ''}</small></dd></div>}
         {st?.ev != null && <div><dt>Even-strength SV%</dt><dd className="num">{sv3(st.ev)}</dd></div>}
         {st?.gaa != null && <div><dt>GAA</dt><dd className="num">{st.gaa.toFixed(2)}</dd></div>}
         {st?.cur && st.cur.starts ? <div><dt>{st.cur.season}</dt><dd className="num">{sv3(st.cur.sv)}<small>{st.cur.starts} start{st.cur.starts === 1 ? '' : 's'}: tiny sample</small></dd></div> : null}

@@ -35,7 +35,7 @@
 .topbar__news:hover, .topbar__news.active { color: var(--text-hi); background: rgba(38, 150, 214, 0.08); }
 
 /* ---- sports: compact header tabs (wide screens); phones use the tab bar + sheet */
-.snav { display: none; min-width: 0; flex: 0 1 auto; }
+.snav { display: none; min-width: 0; flex: 0 0 auto; }
 .snav__list { display: flex; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; }
 .snav__a { --accent: var(--sand); position: relative; display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 10px; border-radius: var(--r-2); color: var(--text-2); font-weight: 600; font-size: var(--fs-sm); background: none; border: 0; cursor: pointer; font-family: var(--font-ui); white-space: nowrap; }
 .snav__a:hover { color: var(--text-hi); background: rgba(38, 150, 214, 0.06); }
@@ -107,6 +107,9 @@
   .trail li + li::before { margin: 0 8px 0 6px; }
 }
 @media (max-width: 1099px) { .traybtn__label, .topbar__news span { display: none; } }
+/* Tablets: the sport tabs keep their size (the search field gives way) and the fourth sport moves to More. */
+@media (min-width: 720px) and (max-width: 1099px) { .snav__tag { display: none; } }
+@media (min-width: 720px) and (max-width: 899px) { .snav__mid { display: none; } }
 
 /* ---- footer: quiet */
 .foot { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: var(--s-6) var(--s-4) calc(var(--bottombar-h) + var(--safe-b) + var(--s-6)); display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); align-items: center; font-size: var(--fs-xs); color: var(--text-3); border-top: 1px solid var(--line); }

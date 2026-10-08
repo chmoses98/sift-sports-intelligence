@@ -8,20 +8,28 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, NHL_FIXTURE, noHorizontalOverflow, test } from './fixtures';
 
+/** The real 2026-10-07 slate after puck drop: frozen pregame research, two finals with publisher reviews. */
+const NHL_FINAL_FIXTURE = join(NHL_FIXTURE, '..', '..', '..', 'nhl-final', 'app', 'latest');
+
 const NHL_RAW = /^https:\/\/raw\.githubusercontent\.com\/chmoses98\/NHL-edge-finder\/data-archive\/app\/latest\/(.+)$/;
 const NHL_NOW = new Date('2026-10-06T23:30:00Z');
+const COL_WPG = 'evt_ced0054a8fcfd15477e5';
+const EDM_ANA = 'evt_e3797432fbc05a48f863';
 
 /** Florida at Los Angeles, 2026-10-07 02:00Z: simulated, scripts and research candidates published. */
 const FLA_LAK = 'evt_5938c3f8a7c1b24c0118';
+/** Vegas at Seattle: Vegas's starter is projected, Seattle's probable (neither confirmed). */
+const VGK_SEA = 'evt_4f20f09608cc97c362a7';
 const LAK = 'prt_1513313ad992fb9eb71f';
 const KEMPE = 'prt_9e5d52ad51ba0c6a2f60';
 const KUEMPER = 'prt_628b1d1dc955ba0a8b41';
 const TOTAL = 'mkt_kalshi_KXNHLTOTAL-26OCT06FLALA-6';
 
-async function serveNhl(page: Page) {
+async function serveNhl(page: Page, dir = NHL_FIXTURE) {
+  await page.context().unroute(NHL_RAW);
   await page.context().route(NHL_RAW, async (route) => {
     const rel = NHL_RAW.exec(route.request().url())![1].split('?')[0];
-    const file = join(NHL_FIXTURE, rel);
+    const file = join(dir, rel);
     if (!existsSync(file)) return route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } });
     return route.fulfill({ status: 200, contentType: 'application/json', body: readFileSync(file, 'utf-8'), headers: { 'access-control-allow-origin': '*' } });
   });
@@ -41,26 +49,72 @@ test.beforeEach(async ({ page, market }) => {
   await serveNhl(page);
 });
 
-test('the NHL home leads with the learning state, the slate and research candidates @smoke', async ({ page }) => {
+test('the NHL home is a hockey dashboard: status, the slate with logos and goalies @smoke', async ({ page }) => {
   await page.goto('./#/nhl');
   await expect(page.getByRole('heading', { name: 'NHL', level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: /NHL model status: Learning/ }).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: "Today's Games" })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Research Candidates' })).toBeVisible();
-  expect(await page.locator('main').innerText()).not.toMatch(BANNED);
+  const rows = page.locator('.nsl');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.first()).toContainText(/most likely script/);
+  await expect(page.getByRole('heading', { name: 'Research that survives the scripts' })).toBeVisible();
+  // Every team logo on the slate is a real, loaded image.
+  const logos = page.locator('.nsl img.teammark--logo');
+  await expect(logos).toHaveCount(6);
+  for (const ok of await logos.evaluateAll((els) => els.map((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0))) expect(ok).toBe(true);
+  const text = await page.locator('main').innerText();
+  expect(text).not.toMatch(BANNED);
+  expect(text).not.toMatch(/undefined|NaN/);
 });
 
-test('the NHL game page answers projection, what matters, scripts and candidates @smoke', async ({ page }) => {
+test('the NHL game page tells the story of the game @smoke', async ({ page }) => {
   await page.goto(`./#/nhl/game/${FLA_LAK}`);
-  await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /How It Could Play Out/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Research Candidates/ }).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Goaltending' })).toBeVisible();
-  await expect(page.getByText(/Model projects FLA/)).toBeVisible();
-  const text = await page.locator('.game--nhl').innerText();
-  expect(text).not.toMatch(/KXNHL/);
+  const game = page.locator('.game--nhl');
+  for (const h of ['How this game is most likely to play', 'Game scripts', 'Goalie matchup', 'Market fit', 'Special teams', 'Player research']) {
+    await expect(game.getByRole('heading', { name: new RegExp(`^${h}`) }).first()).toBeVisible();
+  }
+  await expect(game.getByRole('img', { name: /Model win probability: FLA 44%, LAK 56%/ })).toBeVisible();
+  await expect(game.getByRole('note', { name: 'Contradiction check' })).toBeVisible();
+  await expect(game.locator('.gh img.teammark--logo')).toHaveCount(2);
+  const text = await game.innerText();
+  expect(text).not.toMatch(/KXNHL|undefined|NaN/);
   expect(text).not.toMatch(BANNED);
   expect(text).toMatch(/research only/i);
+});
+
+test('an unconfirmed goalie is obvious on the slate and the game page @journey', async ({ page }) => {
+  await page.goto('./#/nhl');
+  await expect(page.locator('.nsl').filter({ hasText: 'VGK' }).getByText('Goalie unconfirmed')).toBeVisible();
+  await page.goto(`./#/nhl/game/${VGK_SEA}`);
+  await expect(page.locator('.ngc--unconf').first()).toBeVisible();
+  await expect(page.getByText(/Not confirmed\. The projection assumes this starter/).first()).toBeVisible();
+});
+
+test('direct links, refresh and back/forward keep the NHL route @journey', async ({ page }) => {
+  await page.goto(`./#/nhl/game/${FLA_LAK}?tab=script`);
+  await expect(page.getByRole('heading', { name: 'Which markets survive which scripts' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Which markets survive which scripts' })).toBeVisible();
+  await page.getByRole('link', { name: 'Story' }).click();
+  await expect(page.getByRole('heading', { name: 'How this game is most likely to play' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Which markets survive which scripts' })).toBeVisible();
+  await page.goForward();
+  await expect(page.getByRole('heading', { name: 'How this game is most likely to play' })).toBeVisible();
+  await page.goto('./#/nhl/slate');
+  await expect(page.getByRole('heading', { name: 'NHL slate', level: 1 })).toBeVisible();
+  await page.locator('.nsl__a').first().click();
+  await expect(page).toHaveURL(/#\/nhl\/game\//);
+});
+
+test('NHL fits a tablet and a narrow Android phone without sideways scrolling @journey', async ({ page }) => {
+  for (const size of [{ width: 820, height: 1180 }, { width: 360, height: 780 }]) {
+    await page.setViewportSize(size);
+    for (const url of ['./#/nhl', `./#/nhl/game/${FLA_LAK}`, `./#/nhl/game/${FLA_LAK}?tab=players`, `./#/nhl/game/${FLA_LAK}?tab=markets`]) {
+      await page.goto(url);
+      await ready(page);
+      await noHorizontalOverflow(page, `${url} @ ${size.width}px`);
+    }
+  }
 });
 
 test('the scripts tab carries every script and a survival matrix that fits the screen @journey', async ({ page, isMobile }) => {
@@ -71,17 +125,16 @@ test('the scripts tab carries every script and a survival matrix that fits the s
   await noHorizontalOverflow(page, 'nhl-scripts');
 });
 
-test('a research candidate opens why it is interesting, its survival and its research status @journey', async ({ page }) => {
-  await page.goto(`./#/nhl/game/${FLA_LAK}?tab=candidates`);
-  const first = page.locator('.nc').first();
-  await expect(first).toBeVisible();
-  await expect(first).toContainText(/Survives \d+% of simulated games/);
-  await expect(first.locator('.nstatus')).toBeVisible();
-  await first.getByRole('button', { name: /Why this candidate/ }).click();
-  const why = page.getByRole('region', { name: /^Why / }).first();
-  await expect(why).toContainText('Scripts');
-  await expect(why).toContainText('Model evidence');
-  await expect(why).toContainText('Price');
+test('market fit groups research by the scripts and flags contradictions @journey', async ({ page }) => {
+  await page.goto(`./#/nhl/game/${FLA_LAK}?tab=markets`);
+  const fit = page.locator('#n-fit');
+  await expect(fit.getByRole('note', { name: 'Contradiction check' })).toBeVisible();
+  await expect(fit.getByRole('heading', { name: /Survives multiple scripts/ })).toBeVisible();
+  await expect(fit.locator('.nfr').first()).toContainText(/Fair \d+%/);
+  // Goal scorers sit behind a high-variance disclosure, never in the featured groups.
+  await expect(fit.locator('.nmf .nfr').filter({ hasText: /1\+ goals|to score/ })).toHaveCount(0);
+  await fit.getByText(/High-variance research: goal scorers/).click();
+  await expect(fit.locator('.nmf__hv .nfr').first()).toBeVisible();
 });
 
 test('the markets tab keeps the live market and says when the model does not price a market @journey', async ({ page }) => {
@@ -141,10 +194,11 @@ test('an NHL game saved to the tray builds an NHL handicap packet with the scrip
 });
 
 for (const [name, url, wait] of [
-  ['nhl-home', './#/nhl', '.nhome'],
+  ['nhl-home', './#/nhl', '.nhx'],
   ['nhl-game', `./#/nhl/game/${FLA_LAK}`, '.game--nhl'],
   ['nhl-game-script', `./#/nhl/game/${FLA_LAK}?tab=script`, '.game--nhl'],
-  ['nhl-game-candidates', `./#/nhl/game/${FLA_LAK}?tab=candidates`, '.game--nhl'],
+  ['nhl-game-markets', `./#/nhl/game/${FLA_LAK}?tab=markets`, '.game--nhl'],
+  ['nhl-game-players', `./#/nhl/game/${FLA_LAK}?tab=players`, '.game--nhl'],
   ['nhl-market', `./#/nhl/market/${TOTAL}?event=${FLA_LAK}`, '.nsc__t'],
   ['nhl-team', `./#/nhl/team/${LAK}`, '.team'],
   ['nhl-goalie', `./#/nhl/player/${KUEMPER}`, 'main h1'],
@@ -169,3 +223,40 @@ for (const [name, url, wait] of [
     });
   }
 }
+
+test.describe('a started and finished slate (the real 2026-10-07 publication)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-10-08T05:00:00Z'));
+    await serveNhl(page, NHL_FINAL_FIXTURE);
+  });
+
+  test('finals list for review with the score, live games as live, no pregame research offered @smoke', async ({ page }) => {
+    await page.goto('./#/nhl');
+    await expect(page.locator('.nsl')).toHaveCount(3);
+    await expect(page.locator('.nsl--final')).toHaveCount(2);
+    await expect(page.locator('.nsl--final').filter({ hasText: 'COL' })).toContainText(/WPG 3/);
+    await expect(page.getByText(/Every game on this slate has started/)).toBeVisible();
+    await noHorizontalOverflow(page, 'nhl-home-final');
+  });
+
+  test('a final game reviews the frozen pregame read against what happened @smoke', async ({ page }) => {
+    await page.goto(`./#/nhl/game/${COL_WPG}`);
+    await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+    await expect(page.getByText(/Goaltending steals it · forecast 8% \(ranked 6 of 7\)/)).toBeVisible();
+    await expect(page.getByLabel('Final: COL 2, WPG 3')).toBeVisible();
+    await expect(page.locator('.gh__score')).toHaveCount(2);
+    await expect(page.getByText(/frozen at/).first()).toBeVisible();
+    await noHorizontalOverflow(page, 'nhl-game-final');
+    const bad = (await new AxeBuilder({ page }).include('.game--nhl').analyze()).violations.filter((v) => v.impact === 'critical' || v.impact === 'serious');
+    expect(bad.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
+  test('a live game shows its frozen research and never presents live prices as pregame @journey', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-10-08T02:30:00Z'));
+    await page.goto(`./#/nhl/game/${EDM_ANA}`);
+    await expect(page.getByText(/Puck has dropped\./)).toBeVisible();
+    await expect(page.getByText('Pregame model win probability')).toBeVisible();
+    await page.goto(`./#/nhl/game/${EDM_ANA}?tab=markets`);
+    await expect(page.getByText(/prices move with the score and are not pregame research/)).toBeVisible();
+  });
+});

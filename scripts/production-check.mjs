@@ -154,24 +154,36 @@ async function fallbackProof(browser, device, name, eventId) {
   }
 }
 
-// NHL on the live site: the NHL home, a game from it (scripts and candidates when the publication carries
-// NHL_SCRIPT_V1, the honest unavailable state when it does not), and the scorecard. No raw tickers on screen,
-// nothing that reads as a betting verdict. Tolerant of an off day (no games on the board).
+// NHL on the live site: the NHL home (slate rows with every team logo actually loaded), a game from it (the story when
+// the publication carries NHL_SCRIPT_V1 — live games keep it frozen at puck drop — or the honest unavailable state),
+// and the scorecard. No raw tickers, no "undefined", nothing that reads as a betting verdict. Tolerant of an off day.
 async function nhlCheck(page) {
   console.log('  -- NHL');
   await page.goto(BASE + '#/nhl');
   await page.getByRole('heading', { name: 'NHL', level: 1 }).waitFor({ timeout: 60_000 });
   check(true, 'NHL home renders');
-  const game = page.locator('a.ntile, .nfeat__m a').first();
-  if (await game.count()) {
-    await game.click();
+  const rows = page.locator('a.nsl__a');
+  if (await rows.count()) {
+    await page.waitForTimeout(3000);
+    const logos = await page.locator('.nsl img.teammark--logo').evaluateAll((els) => els.map((e) => e.complete && e.naturalWidth > 0));
+    const n = await rows.count();
+    console.log(`  NHL slate: ${n} games, ${logos.filter(Boolean).length}/${logos.length} logos loaded`);
+    check(logos.length === 2 * n && logos.every(Boolean), 'NHL slate: both team logos load on every row');
+    const home = await page.locator('main').innerText();
+    check(!/undefined|NaN/.test(home), 'NHL home shows no undefined / NaN');
+    await rows.first().click();
     await page.locator('.game--nhl').waitFor({ timeout: 60_000 });
-    const scripts = await page.getByRole('heading', { name: /How It Could Play Out/ }).count();
+    await page.waitForTimeout(3000);
+    const story = await page.getByRole('heading', { name: /^How this game is most likely to play/ }).count();
+    const scripts = await page.getByRole('heading', { name: /^Game scripts/ }).count();
     const unavailable = await page.getByText(/no game scripts yet|no NHL script layer|script layer failed/i).count();
-    console.log(`  NHL game: scripts=${scripts} unavailable-notes=${unavailable} ${page.url().split('#')[1]}`);
-    check(scripts > 0 || unavailable > 0, 'NHL game shows the scripts or says why they are unavailable');
+    const frozen = await page.getByText(/Frozen at puck drop/).count();
+    console.log(`  NHL game: story=${story} scripts=${scripts} frozen=${frozen > 0} unavailable-notes=${unavailable} ${page.url().split('#')[1]}`);
+    check((story > 0 && scripts > 0) || unavailable > 0, 'NHL game tells the story with its scripts, or says why they are unavailable');
+    check(await page.locator('.gh img.teammark--logo').count() === 2, 'NHL game hero shows both team logos');
     const text = await page.locator('.game--nhl').innerText();
     check(!/KXNHL/.test(text), 'NHL game shows no raw Kalshi tickers');
+    check(!/undefined|NaN/.test(text), 'NHL game shows no undefined / NaN');
     check(!/\block\b|best bet|guaranteed|profitable/i.test(text), 'NHL game carries no betting-verdict language');
   } else {
     console.log('  NHL home lists no game today; game check skipped');

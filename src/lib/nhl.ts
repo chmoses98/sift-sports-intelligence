@@ -42,6 +42,9 @@ export interface NhlScript {
   pOvertime: number | null;
   ppShare: number | null;
   enShare: number | null;
+  homePpGoals: number | null;
+  awayPpGoals: number | null;
+  homeShotShare: number | null;
   players: { player: string; p_point: number; lift: number }[];
   helps: { ticker: string; side: 'yes' | 'no'; title: string; family: string; p: number; p_given_script: number; lift: number }[];
   hurts: { bet_id: string; ev_drop: number }[];
@@ -127,6 +130,11 @@ export interface NhlScripts {
   rules: { min_ev_per_contract: number; tiers: Record<string, string>; ordering: string; conservative_probability: string; taxonomy: any } | null;
   unpriced: { ticker: string; family: string; title: string | null; reason: string | null }[];
   versions: { script: string; survival: string; candidates: string };
+  /** The publisher froze this block at the last simulation before puck drop (the game has since started). */
+  frozen: boolean;
+  frozenFromRun: string | null;
+  /** The realized game, for a FINAL game the publisher has reviewed (script postmortem); only published fields. */
+  outcome: Record<string, unknown> | null;
 }
 
 export interface NhlScriptsUnavailable {
@@ -202,6 +210,7 @@ function decodeScript(s: any): NhlScript {
     pHomeWin: n(s.p_home_win), pAwayWin: n(s.p_away_win), homeGoals: n(s.home_goals), awayGoals: n(s.away_goals), totalGoals: n(s.total_goals),
     totalRange: s.total_goals_range ?? null, homeShots: n(s.home_shots), awayShots: n(s.away_shots), homeSaves: n(s.home_starter_saves),
     awaySaves: n(s.away_starter_saves), pOvertime: n(s.p_overtime), ppShare: n(s.pp_goal_share), enShare: n(s.en_goal_share),
+    homePpGoals: n(s.home_pp_goals), awayPpGoals: n(s.away_pp_goals), homeShotShare: n(s.home_shot_share),
     players: s.players_most_involved ?? [], helps: s.helps ?? [], hurts: s.hurts ?? [], tone: SCRIPT_TONE[s.id] ?? 7,
   };
 }
@@ -225,6 +234,7 @@ export function readNhl(r: EventResearchDoc | null | undefined): NhlScripts | Nh
     candidatesTotal: Number(x.candidates_total ?? (x.candidates ?? []).length), summary: x.candidate_summary ?? null, context: x.context ?? null,
     rules: x.rules ?? null, unpriced: x.unpriced ?? [],
     versions: { script: x.script_version, survival: x.survival_version, candidates: x.candidate_rules_version },
+    frozen: x.frozen === true, frozenFromRun: x.frozen_from_run ?? null, outcome: x.outcome && typeof x.outcome === 'object' ? x.outcome : null,
   };
 }
 

@@ -30,6 +30,10 @@ must(existsSync(join(dist, 'data/nfl/app/latest/explorer/index.json')), 'no NFL 
 // Team identity: every CFB logo the committed map promises ships with the site (src/lib/cfb-teams.json).
 const cfbTeams = JSON.parse(readFileSync(new URL('../src/lib/cfb-teams.json', import.meta.url), 'utf-8')).teams;
 for (const [code, t] of Object.entries(cfbTeams)) if (t.l) must(existsSync(join(dist, 'teams', 'cfb', `${t.e}.webp`)), `CFB logo for ${code} (ESPN ${t.e}) is missing from dist`);
+// NHL: all 32 clubs have a committed logo (src/lib/nhl-team-logos.json) and every one ships with the site.
+const nhlLogos = JSON.parse(readFileSync(new URL('../src/lib/nhl-team-logos.json', import.meta.url), 'utf-8')).teams;
+must(Object.keys(nhlLogos).length === 32, `NHL logo map lists ${Object.keys(nhlLogos).length} clubs, expected 32`);
+for (const code of Object.keys(nhlLogos)) must(existsSync(join(dist, 'teams', 'nhl', `${code}.webp`)), `NHL logo for ${code} is missing from dist`);
 const js = readdirSync(join(dist, 'assets')).filter((f) => f.endsWith('.js'));
 const main = js.map((f) => [f, readFileSync(join(dist, 'assets', f), 'utf-8')]).find(([, t]) => t.includes('createHashRouter') || t.includes('HashRouter'));
 must(main, 'no hash router in the bundle (deep links would break on Pages)');

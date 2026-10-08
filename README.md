@@ -34,9 +34,11 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
 * **CFB** — beta. The game page is the CFB Script Engine read: a market-blind, opponent-adjusted matchup,
   Primary/Secondary/Alternate/Danger scripts (ranked, no likelihoods) and the contracts that survive them
   (`docs/CFB_SCRIPT_ENGINE.md`).
-* **NHL** — a research vertical on its live publication: NHL_SCRIPT_V1 game scripts, script survival,
-  RESEARCH-ONLY research candidates, opponent-adjusted team strength, skater and goalie pages and a
-  learning scorecard (`docs/NHL.md`).
+* **NHL** — a first-class research vertical on its live publication: a hockey slate (all 32 club logos, goalies,
+  win probability, projected total, most likely script), and a game page that tells the story — how the game is most
+  likely to play, the seven NHL_SCRIPT_V1 game scripts, the goalie matchup, market fit with a contradiction check,
+  special teams and player research — with honest freshness, frozen pregame research after puck drop and a review
+  of finals. RESEARCH ONLY; skater and goalie pages and a learning scorecard (`docs/NHL.md`).
 * **CBB** (NCAA Division I men's basketball) — its own sport, on the CBB repo's `app-data` publication (built from
   its immutable pre-tip projection archive): sport home with the prospective research status, the real D-I slate
   ("projection pending" until a game enters the 30-hour capture window), game pages (projected score with model

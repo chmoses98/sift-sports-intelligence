@@ -1,0 +1,117 @@
+{
+ "bet_authority": "RESEARCH_ONLY",
+ "count": 3,
+ "generated_at": "2026-10-08T02:51:34Z",
+ "items": [
+  {
+   "away_participant": "prt_f2214e2139e9dcf483e7",
+   "competition": "regular",
+   "data_freshness": "UNKNOWN",
+   "detail_path": "event_detail/evt_a7a78f07c40f2542da30.json",
+   "event_id": "evt_a7a78f07c40f2542da30",
+   "health_flags": [
+    "NO_MARKETS"
+   ],
+   "home_participant": "prt_df193afe8f1ea84ffa5f",
+   "league": "NHL",
+   "market_captured_at": null,
+   "markets_available": 0,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Washington Capitals",
+     "participant_id": "prt_df193afe8f1ea84ffa5f",
+     "participant_type": "TEAM",
+     "short_name": "WSH"
+    },
+    {
+     "display_name": "Pittsburgh Penguins",
+     "participant_id": "prt_f2214e2139e9dcf483e7",
+     "participant_type": "TEAM",
+     "short_name": "PIT"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-07T23:30:00Z",
+   "status": "FINAL",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_47a35b22a8973dec89ca",
+   "competition": "regular",
+   "data_freshness": "UNKNOWN",
+   "detail_path": "event_detail/evt_ced0054a8fcfd15477e5.json",
+   "event_id": "evt_ced0054a8fcfd15477e5",
+   "health_flags": [
+    "NO_MARKETS"
+   ],
+   "home_participant": "prt_31b885f5b93ef404f04b",
+   "league": "NHL",
+   "market_captured_at": null,
+   "markets_available": 0,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Winnipeg Jets",
+     "participant_id": "prt_31b885f5b93ef404f04b",
+     "participant_type": "TEAM",
+     "short_name": "WPG"
+    },
+    {
+     "display_name": "Colorado Avalanche",
+     "participant_id": "prt_47a35b22a8973dec89ca",
+     "participant_type": "TEAM",
+     "short_name": "COL"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-07T23:30:00Z",
+   "status": "FINAL",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_3fe6715bc299e00e9ef1",
+   "competition": "regular",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_e3797432fbc05a48f863.json",
+   "event_id": "evt_e3797432fbc05a48f863",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_6074ed9db3e77a72be6a",
+   "league": "NHL",
+   "market_captured_at": "2026-10-08T02:49:57Z",
+   "markets_available": 183,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Anaheim Ducks",
+     "participant_id": "prt_6074ed9db3e77a72be6a",
+     "participant_type": "TEAM",
+     "short_name": "ANA"
+    },
+    {
+     "display_name": "Edmonton Oilers",
+     "participant_id": "prt_3fe6715bc299e00e9ef1",
+     "participant_type": "TEAM",
+     "short_name": "EDM"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-08T02:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  }
+ ],
+ "kind": "board",
+ "overall_status": "RESEARCH_ONLY",
+ "run_id": "run_cafa7fa97633ca3afa48",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NHL"
+}

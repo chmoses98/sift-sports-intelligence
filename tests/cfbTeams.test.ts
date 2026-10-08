@@ -78,9 +78,10 @@ describe('the shared team-logo resolver', () => {
     expect(teamColors('NFL', 'KC')).toEqual(['#E31837', '#FFB81C']);
   });
 
-  it('NHL is unchanged (no committed NHL logos: text marks, its own colors)', () => {
-    expect(teamLogo('NHL', 'BOS')).toBeNull();
-    expect(teamLogo('NHL', 'TOR')).toBeNull();
+  it('NHL resolves through its own identity table (committed logos, its own colors), never through NFL or CFB', () => {
+    expect(teamLogo('NHL', 'BOS')).toMatch(/teams\/nhl\/BOS\.webp$/);
+    expect(teamLogo('NHL', 'LA')).toMatch(/teams\/nhl\/LAK\.webp$/);
+    expect(teamLogo('NHL', 'XYZ')).toBeNull();
     expect(teamColors('NHL', 'BOS')).toEqual(['#FFB81C', '#000000']);
   });
 });

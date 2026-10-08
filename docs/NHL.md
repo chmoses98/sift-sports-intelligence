@@ -31,31 +31,84 @@ game scripts yet", "The script layer failed for this game", "No NHL script layer
 publisher's own reason (for example, a game whose latest simulation predates the script layer). It shows no scripts
 or candidates instead of inventing them. Markets and the live market clock are unaffected.
 
+## Team identity
+
+All 32 clubs resolve through one table, `src/lib/nhlTeams.ts` (tricode, city, nickname, conference, division, plus the
+aliases other feeds use: `LA`, `NJ`, `SJ`, `TB`, `UTAH`…). Logos are the NHL's own `_dark` SVGs, rasterized once to
+256 px WebP by `scripts/teams/fetch-nhl-logos.mjs` (the Team logos workflow) and committed under
+`public/teams/nhl/<TRICODE>.webp`; `src/lib/nhl-team-logos.json` records each source. `teamLogo('NHL', …)` and
+`teamColors('NHL', …)` both go through the table, so the slate, hero, market rows, goalie and player cards can never
+disagree. `scripts/check-dist.mjs` fails the build unless all 32 logos ship; `tests/nhl.story.test.tsx` checks every
+club. The tricode is always visible text beside a logo, so identity never depends on an image.
+
 ## Screens
 
 | Route | Screen | Notes |
 |---|---|---|
-| `#/nhl` | NHL home (`views/nhl/NhlHome.tsx`) | learning badge, featured game, today's games, research candidates across the slate, biggest matchup edges, learning panel |
-| `#/nhl/slate` | slate | the generic slate on NHL data |
-| `#/nhl/game/:id` | game (`views/nhl/NhlGame.tsx`) | tabs: Overview, Scripts, Candidates, Markets, Matchup, Lineups, Trends |
+| `#/nhl` | NHL home (`views/nhl/NhlHome.tsx`) | compact header (schedule day, games, live / final counts), Model and Prices freshness pills, the research-status pill; the slate; *Research that survives the scripts* (robust/moderate, never goal scorers); *Research status* |
+| `#/nhl/slate` | slate (`views/nhl/NhlSlate.tsx`) | the same rows, grouped by the NHL (Eastern) schedule day |
+| `#/nhl/game/:id` | game (`views/nhl/NhlGame.tsx`, sections in `story.tsx`) | tabs: Story, Scripts, Markets, Players, Matchup, Trends (`?tab=candidates` → Markets, `?tab=lineups` → Players) |
 | `#/nhl/market/:id` | market | the generic market page plus stratum 02, *NHL research: does it survive the game scripts?* (`NhlMarket.tsx`) |
 | `#/nhl/team/:id` | team | season record, next game, *Opponent-adjusted strength* (adjusted next to raw on the same games) |
-| `#/nhl/player/:id` | skater or goalie (`NhlPlayer.tsx`) | role in the next game, season table, game log (goalies: games they played, W/L/OTL, relief), priced markets, goalie saves by script |
+| `#/nhl/player/:id` | skater or goalie (`NhlPlayer.tsx`) | role in the next game, season table, game log, priced markets, goalie saves by script |
 | `#/nhl/scorecard` | scorecard (`NhlScorecard.tsx`) | sample, projection vs market, expected goals, windows, script model, research candidates by robustness, what is not known, learning gates, versions |
-| `#/nhl/metric/…`, `#/nhl/ranking/…` | generic metric and ranking screens | NHL metric categories (opponent-adjusted, advanced, model inputs, model quality, official) |
 
-**Game overview, in order:** hero (rink fallback, "Puck dropped" after the start), projection strip (model
-expected goals, win probability next to the market's), **What Matters** (the findings that move the game, each
-with its basis), **How It Could Play Out** (each script's probability as a number, no decorative bar),
-**Research Candidates**, **Goaltending**, **Lines & Special Teams**, form and injuries.
+**Slate row:** puck-drop time (or LIVE / FINAL with the final score), each team on its own line with logo, tricode,
+nickname, its expected or confirmed goalie and status, and the model's win probability; then the projected total
+with its scoring word, the most likely script with its probability, the number of robust or moderate research ideas.
+"Goalie unconfirmed", "Pregame research frozen" and aging/stale freshness show on the row only when they apply.
 
-**Scripts tab:** each script with its supporting and opposing evidence, what it depends on, the model outputs
-inside it, and the markets it helps and hurts. Below that, the cross-script matrix (*Which markets survive which
-scripts*). It is a table at 720px and wider; on phones each market is a disclosure card, so the page never scrolls
-sideways.
+**Game page, Story tab (also the mobile order):** hero (logos, records, venue, puck drop; the final score once
+final) → summary strip (win-probability split in team colours, projected total with its 90% range, most likely
+script, overtime; Model / Prices / Goalies freshness and the research pill) → for a started game, the frozen note;
+for a final, *Review* → *How this game is most likely to play* (headline, the shape in two or three sentences, the
+drivers: team strength, pace, shot generation, goaltending, special teams, home ice, schedule, lineups) → *Game
+scripts* (all seven, compact) → *Goalie matchup* → *Market fit* → *Special teams* → *Player research* → *What
+matters*.
 
-**Markets tab:** the live market board. Rows the NHL model prices show its probability and survival. Rows it does
-not price say **"Model does not price this market"** and keep their live quote. No model price is invented.
+## How the story is derived (`src/lib/nhlStory.ts`)
+
+Sift computes no probability. Every number is published, or an exact identity over published numbers: expected
+shots, starter saves and power-play goals across scripts are Σ P(script) × E[x | script] over the seven mutually
+exclusive scripts. The words are fixed templates:
+
+* **Headline**: the favourite from the simulation's win probability (< 53% "coin flip", < 60% "slight edge",
+  < 68% "favoured", else "clear favourite"), the most likely script, and the scoring environment (the model's total
+  against its own league baseline, 2 × league goals per 60; ±0.4 goals is "average").
+* **Shape**: whether one script dominates (≥ 40%), the top two are within 5 points, or the top script leaves most
+  games elsewhere; which team has the stronger control-and-pull-away branch (a 3-point gap or more); open vs tight.
+* **Market fit** groups the published research candidates by their published survival bits: goal-scorer contracts
+  (`player_goals`, `first_goal`) → *High-variance research* (collapsed, never featured); fails in the most likely
+  script and survives < 50% of simulated games → *Conflicts with the thesis*; robust → *Survives multiple scripts*;
+  moderate and holds in the most likely script → *Fits the projected game*; anything else → *Script-dependent*.
+* **Contradiction check**: a pair is flagged when the model's own relation says OFFSETTING / PARTIALLY_CONTRADICTORY,
+  or when two ideas that each survive ≥ 45% of simulated games survive together in < 25% (they need different games,
+  e.g. one team dominating vs. the other goalie facing few shots). "No contradictory pair" is stated when none is.
+* **Goalie matchup**: status, confidence and last update from the publication's goalie timeline; save %, even-strength
+  save %, GAA and starts from the goalie's profile (the last season with 20+ starts, the current season beside it
+  marked as a tiny sample); workload from the game log; the model goalie factor; shots faced and saves as script
+  expectations; the saves market closest to even money with model vs market. No goals-saved metric is published,
+  so none is shown. An unconfirmed starter gets a gold card and a plain warning.
+* **Player research**: every priced player prop grouped by player and team (team from the script matrix), role from
+  the line combinations (Line n / Pair n · PP1), model probability beside the market midpoint, and the script where
+  the point chance is highest and lowest. Goal props are marked high variance. No shots-on-goal prop is published.
+
+## Freshness and game state
+
+* **Model**: CURRENT ≤ 1 h, AGING ≤ 6 h, STALE beyond (the publisher's own health thresholds); a STALE slate shows a
+  visible warning. After puck drop it is FROZEN, never stale.
+* **Prices**: the market clock (CURRENT < 15 min ≤ AGING ≤ 30 min < STALE).
+* **Goalies**: from the newest goalie observation (CURRENT ≤ 3 h, AGING ≤ 12 h).
+* **Phase**: UPCOMING before the scheduled start; LIVE after it even when the publication still says SCHEDULED;
+  FINAL only when published. A live score is never shown (a periodic publication's live score is stale by
+  construction); the final score prefers the publisher's postmortem.
+
+**Started games keep their research.** The NHL model only simulates games that have not started, so the exporter
+now freezes each started game at its last pregame simulation (`nhl_scripts_v1.frozen`, `frozen_from_run`,
+`extensions.sim_frozen`; NHL-edge-finder `docs/research/SCRIPTS_V1.md` §8). Sift labels it "Frozen at puck drop",
+shows research-run prices (not live ones) on candidates and says live prices move with the score. For a FINAL game
+with a script postmortem, `nhl_scripts_v1.outcome` drives *Review*: the realized script, its pregame probability
+and rank, and the script forecast's Brier score against league base rates.
 
 ## What the numbers mean
 
@@ -127,6 +180,10 @@ NHL screens are lazy chunks, so NFL pages do not download them.
   screen rendered from a trimmed real publication (`tests/fixtures/nhl`, made by `scripts/make_nhl_fixture.py`).
 * `tests/nhl.packet.test.tsx`: the NHL packet (notes, determinism) and the load budget.
 * `tests/live/feed-publisher.test.ts`: the quote feed maps NHL publication games to Kalshi game keys.
-* `e2e/nhl.spec.ts`: home, game, scripts, candidates, markets, market, team, skater, goalie, scorecard, search,
-  tray → packet. Also axe, no horizontal overflow and visual baselines, on phone, desktop, iPhone and iPhone SE.
+* `tests/nhl.story.test.tsx`: all 32 logos and aliases, phases, freshness, the projection identities, the thesis,
+  goalie states, market fit and the contradiction check, player research, missing scripts, and the started/final
+  slate (`tests/fixtures/nhl-final`: the real 2026-10-07 publication after puck drop, with two reviewed finals).
+* `e2e/nhl.spec.ts`: home, game story, unconfirmed goalie, direct links / refresh / back-forward, tablet and 360 px,
+  scripts, market fit, markets, market, team, skater, goalie, scorecard, search, tray → packet, and the started /
+  final slate. Also axe, no horizontal overflow and visual baselines, on phone, desktop, iPhone and iPhone SE.
 * `scripts/production-check.mjs`: the live NHL home, a game and the scorecard after each deploy.

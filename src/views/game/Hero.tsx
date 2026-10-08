@@ -10,6 +10,7 @@ import { displayName, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
 import { mlbClub } from '../../lib/mlb';
+import { nhlTeam } from '../../lib/nhlTeams';
 import { roofState, venueFor, venuePhoto, type Venue } from '../../lib/venues';
 import { useHeldImage } from '../../lib/useImage';
 import { StadiumFallback } from '../../components/StadiumFallback';
@@ -19,6 +20,9 @@ import { StadiumFallback } from '../../components/StadiumFallback';
 export function splitName(full: string, abbr?: string | null, sport?: string): { city: string; nick: string } {
   const n = displayName(full);
   // Baseball nicknames can be two words ("White Sox", "Red Sox", "Blue Jays"): the club table knows them.
+  // Hockey nicknames can be two words too ("Golden Knights", "Maple Leafs", "Red Wings"): the NHL identity table knows them.
+  const nhl = sport === 'NHL' ? nhlTeam(abbr) : null;
+  if (nhl && n.endsWith(nhl.name)) return { city: n.slice(0, -nhl.name.length).trim(), nick: nhl.name };
   const club = sport === 'MLB' ? mlbClub(abbr) : null;
   if (club && n.endsWith(club.nick)) return { city: n.slice(0, -club.nick.length).trim(), nick: club.nick };
   const w = n.split(' ');
@@ -109,8 +113,10 @@ export function startedWords(sportCode: string): string {
  * the two teams (and the score once final), when, where, and the conditions. Prices, research actions and
  * analysis live below the hero.
  */
-export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
+export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalScore }: {
   r: EventResearchDoc; homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; sportCode: string; slug: string; now: number;
+  /** A sport's own final score when it is not published as extensions.result (NHL: the publisher's postmortem). */
+  finalScore?: { home: number; away: number } | null;
 }) {
   const ev = r.event;
   const homeP = r.participants.find((p) => p.home_away === 'HOME')!;
@@ -119,7 +125,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now }: {
   const homeAbbr = short(homeP.participant_id);
   const awayAbbr = short(awayP.participant_id);
   const ext = r.extensions as any;
-  const res = ext?.result;
+  const res = finalScore ? { home_score: finalScore.home, away_score: finalScore.away } : ext?.result;
   const final = ev.status === 'FINAL';
   const started = !final && Date.parse(ev.start_time_utc) <= now;
   const pubVenue = r.context?.venue as any;

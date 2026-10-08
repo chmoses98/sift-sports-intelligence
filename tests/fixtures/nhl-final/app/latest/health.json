@@ -1,0 +1,92 @@
+{
+  "bet_authority": "RESEARCH_ONLY",
+  "commit_sha": "b100ff53c9df29041b20aad99e6207545a88e3b6",
+  "components": {
+    "export": {
+      "age_seconds": 0.0,
+      "as_of": "2026-10-08T02:51:34Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "learning": {
+      "age_seconds": 997.0,
+      "as_of": "2026-10-08T02:34:57Z",
+      "detail": "steps OK: learning, player, thesis_postmortem, v1",
+      "status": "OK"
+    },
+    "market_data": {
+      "age_seconds": 97.0,
+      "as_of": "2026-10-08T02:49:57Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "model": {
+      "age_seconds": 1955.0,
+      "as_of": "2026-10-08T02:18:59Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "router": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": null,
+      "status": "UNKNOWN"
+    },
+    "settlement": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": null,
+      "status": "UNKNOWN"
+    }
+  },
+  "data_age_seconds": 1955.0,
+  "errors": [],
+  "freshness_status": "FRESH",
+  "generated_at": "2026-10-08T02:51:34Z",
+  "kind": "health",
+  "last_export_attempt": "2026-10-08T02:51:34Z",
+  "last_market_capture": "2026-10-08T02:49:57Z",
+  "last_model_generated": "2026-10-08T02:18:59Z",
+  "last_successful_run": "2026-10-08T02:51:34Z",
+  "market_data_status": "OK",
+  "model_status": "OK",
+  "next_scheduled_run": null,
+  "overall_status": "RESEARCH_ONLY",
+  "payload_run_id": "run_cafa7fa97633ca3afa48",
+  "router_status": "UNKNOWN",
+  "run_id": "run_cafa7fa97633ca3afa48",
+  "schema_version": "edge_finder.app.v1",
+  "settlement_status": "UNKNOWN",
+  "sport": "NHL",
+  "thresholds": {
+    "export": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 10800
+    },
+    "market_data": {
+      "fresh_after_seconds": 1200,
+      "stale_after_seconds": 3600
+    },
+    "model": {
+      "fresh_after_seconds": 3600,
+      "stale_after_seconds": 21600
+    },
+    "recommendations": {
+      "fresh_after_seconds": 3600,
+      "stale_after_seconds": 21600
+    },
+    "router": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 14400
+    },
+    "schedule": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    },
+    "settlement": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    }
+  },
+  "warnings": []
+}

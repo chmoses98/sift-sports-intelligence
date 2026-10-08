@@ -1,0 +1,50 @@
+{
+ "team": "KSU",
+ "full": "Kansas State Wildcats",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Frank erwin center 6.jpg",
+   "width": 2592,
+   "height": 1944,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Frank_erwin_center_6.jpg/500px-Frank_erwin_center_6.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Frank_erwin_center_6.jpg",
+   "license": "CC BY-SA 2.5",
+   "artist": "Corpx",
+   "date": "",
+   "description": "Texas Basketball game at the Frank Erwin Center versus Kansas State",
+   "categories": [
+    "CC-BY-SA-2.5",
+    "Frank Erwin Center",
+    "Pictures uploaded by CorpX",
+    "Taken with Canon PowerShot A610"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:Frank Erwin Center.jpg",
+   "width": 2592,
+   "height": 1944,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Frank_Erwin_Center.jpg/500px-Frank_Erwin_Center.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Frank_Erwin_Center.jpg",
+   "license": "CC BY-SA 2.5",
+   "artist": "Corpx",
+   "date": "Unknown da",
+   "description": "Texas Basketball game at the Frank Erwin Center against Kansas State",
+   "categories": [
+    "CC-BY-SA-2.5",
+    "Frank Erwin Center",
+    "Pictures uploaded by CorpX",
+    "Taken with Canon PowerShot A610",
+    "Unknown date"
+   ],
+   "text": 4,
+   "look": 2.63
+  }
+ ]
+}

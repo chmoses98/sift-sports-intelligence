@@ -1,0 +1,50 @@
+{
+ "team": "ECU",
+ "full": "East Carolina Pirates",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Tulsa vs. East Carolina.jpg",
+   "width": 5184,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Tulsa_vs._East_Carolina.jpg/500px-Tulsa_vs._East_Carolina.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Tulsa_vs._East_Carolina.jpg",
+   "license": "CC BY 2.0",
+   "artist": "Ybrammer",
+   "date": "2013-02-20",
+   "description": "Tulsa v East Carolina, 2013",
+   "categories": [
+    "2012–13 NCAA Division I men's basketball season",
+    "CC-BY-2.0",
+    "East Carolina Pirates men's basketball",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Tulsa Golden Hurricane men's basketball"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:ECUMingesColiseum2.jpg",
+   "width": 2272,
+   "height": 1704,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/ECUMingesColiseum2.jpg/500px-ECUMingesColiseum2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:ECUMingesColiseum2.jpg",
+   "license": "Public domain",
+   "artist": "Greenstrat",
+   "date": "",
+   "description": "Football &amp; Basketball Facilities East Carolina Arena",
+   "categories": [
+    "PD-self",
+    "Self-published work",
+    "Taken with Canon PowerShot A80",
+    "Williams Arena at Minges Coliseum"
+   ],
+   "text": 4,
+   "look": 1.91
+  }
+ ]
+}

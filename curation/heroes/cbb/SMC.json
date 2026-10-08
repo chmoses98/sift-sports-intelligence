@@ -1,0 +1,52 @@
+{
+ "team": "SMC",
+ "full": "Saint Mary's Gaels",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:McKeon Pavilion interior.jpg",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/McKeon_Pavilion_interior.jpg/500px-McKeon_Pavilion_interior.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:McKeon_Pavilion_interior.jpg",
+   "license": "Public domain",
+   "artist": "Smcj0001 ( talk )",
+   "date": "2010-01-28",
+   "description": "McKeon Pavilion at Saint Mary's College of California before a women's basketball game on Jan. 28, 2010.",
+   "categories": [
+    "Files with coordinates missing SDC location of creation",
+    "McKeon Pavilion",
+    "PD-user",
+    "Taken with iPhone 3G"
+   ],
+   "text": 4,
+   "look": 2.5
+  },
+  {
+   "n": 2,
+   "file": "File:St. Mary's coach Randy Bennett and staff in 2012.jpg",
+   "width": 1920,
+   "height": 1412,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/St._Mary%27s_coach_Randy_Bennett_and_staff_in_2012.jpg/500px-St._Mary%27s_coach_Randy_Bennett_and_staff_in_2012.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:St._Mary%27s_coach_Randy_Bennett_and_staff_in_2012.jpg",
+   "license": "CC BY 2.0",
+   "artist": "Dirk Hansen",
+   "date": "2012-01-05",
+   "description": "Saint Mary's College men's basketball coach Randy Bennett (center) speaks to his team during a game at the Jenny Craig Pavillion at the University of San Diego on Jan. 5, 2012. Behind Bennett to his left are assistant coaches Adam Caporn and Rick Croy.",
+   "categories": [
+    "2011–12 NCAA Division I men's basketball season",
+    "CC-BY-2.0",
+    "Flickr images reviewed by FlickreviewR",
+    "Jenny Craig Pavilion",
+    "Men wearing neckties",
+    "Randy Bennett",
+    "Taken with Nikon D7000"
+   ],
+   "text": 4,
+   "look": 2.11
+  }
+ ]
+}

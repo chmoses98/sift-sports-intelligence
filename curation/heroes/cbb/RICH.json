@@ -1,0 +1,93 @@
+{
+ "team": "RICH",
+ "full": "Richmond Spiders",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Robins Center, University of Richmond.jpg",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Robins_Center%2C_University_of_Richmond.jpg/500px-Robins_Center%2C_University_of_Richmond.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Robins_Center,_University_of_Richmond.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Rikster2",
+   "date": "2013-02-09",
+   "description": "Robins Center at the University of Richmond",
+   "categories": [
+    "2012–13 NCAA Division I men's basketball season",
+    "CC-BY-SA-3.0",
+    "Robins Center",
+    "Self-published work",
+    "Taken with Nikon Coolpix P510"
+   ],
+   "text": 4,
+   "look": 2.48
+  },
+  {
+   "n": 2,
+   "file": "File:Marines at Virginia Wesleyan University Women's Basketball Game (6).jpg",
+   "width": 6720,
+   "height": 4480,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Marines_at_Virginia_Wesleyan_University_Women%27s_Basketball_Game_%286%29.jpg/500px-Marines_at_Virginia_Wesleyan_University_Women%27s_Basketball_Game_%286%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Marines_at_Virginia_Wesleyan_University_Women%27s_Basketball_Game_(6).jpg",
+   "license": "Public domain",
+   "artist": "Sgt. Alexa M. Hernandez",
+   "date": "2021-12-15",
+   "description": "U.S. Marines with Officer Selection Team Norfolk, Recruiting Station Richmond, 4th Marine Corps District set up a table display during Virginia Wesleyan University’s women’s basketball game at Virginia Beach, Virginia, Dec. 15, 2021. The Marines attended the event to educate the public on the benefits and career opportunities of commissioning as a Marine Corps officer. (U.S. Marine Corps photo by ",
+   "categories": [
+    "PD-USGov missing SDC copyright status",
+    "PD US Marines",
+    "Wilson basketballs"
+   ],
+   "text": 4,
+   "look": 2.16
+  },
+  {
+   "n": 3,
+   "file": "File:UR Century Team.JPG",
+   "width": 4608,
+   "height": 3456,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/UR_Century_Team.JPG/500px-UR_Century_Team.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:UR_Century_Team.JPG",
+   "license": "CC BY-SA 3.0",
+   "artist": "Rikster2",
+   "date": "2013-02-09",
+   "description": "ceremony honoring the University of Richmond All-Century basketball team",
+   "categories": [
+    "CC-BY-SA-3.0",
+    "Richmond Spiders men's basketball",
+    "Self-published work",
+    "Taken with Nikon Coolpix P510"
+   ],
+   "text": 3,
+   "look": 2.64
+  },
+  {
+   "n": 4,
+   "file": "File:Travis McKie.jpg",
+   "width": 2846,
+   "height": 1868,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Travis_McKie.jpg/500px-Travis_McKie.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Travis_McKie.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "SneakinDeacon",
+   "date": "2011-12-03",
+   "description": "Travis McKie goes for the block",
+   "categories": [
+    "2011–12 NCAA Division I men's basketball season",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Images with extracted images",
+    "Richmond Spiders men's basketball players",
+    "Wake Forest Demon Deacons men's basketball players"
+   ],
+   "text": 3,
+   "look": 2.57
+  }
+ ]
+}

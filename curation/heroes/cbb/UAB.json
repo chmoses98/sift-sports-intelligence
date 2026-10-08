@@ -1,0 +1,28 @@
+{
+ "team": "UAB",
+ "full": "UAB Blazers",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Dodie Dunson II.jpg",
+   "width": 3500,
+   "height": 2333,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Dodie_Dunson_II.jpg/500px-Dodie_Dunson_II.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Dodie_Dunson_II.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Jimmy Mitchell",
+   "date": "2020-01-16",
+   "description": "Women's basketball coach, Dodie Dunson II",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "SIU Edwardsville Cougars basketball",
+    "Self-published work",
+    "UAB Blazers women's basketball"
+   ],
+   "text": 3,
+   "look": 2.49
+  }
+ ]
+}

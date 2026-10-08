@@ -1,0 +1,102 @@
+{
+ "team": "TEM",
+ "full": "Temple Owls",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:McGonigle Hall, Temple University.jpg",
+   "width": 2560,
+   "height": 1920,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/McGonigle_Hall%2C_Temple_University.jpg/500px-McGonigle_Hall%2C_Temple_University.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:McGonigle_Hall,_Temple_University.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Sphilbrick",
+   "date": "2014-01-28",
+   "description": "Moria Jefferson (#4) attempts a layup for UConn against Temple in McGonigle Hall, 28 January 2014, a game UConn would win 86–29. Note the owl (mascot) eyes on the facade behind the basket.",
+   "categories": [
+    "CC-BY-SA-3.0",
+    "Layup",
+    "Self-published work",
+    "Women's basketball"
+   ],
+   "text": 4,
+   "look": 2.63
+  },
+  {
+   "n": 2,
+   "file": "File:Liacouras Center at a Temple vs. Cincinnati basketball game.jpg",
+   "width": 4032,
+   "height": 3024,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Liacouras_Center_at_a_Temple_vs._Cincinnati_basketball_game.jpg/500px-Liacouras_Center_at_a_Temple_vs._Cincinnati_basketball_game.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Liacouras_Center_at_a_Temple_vs._Cincinnati_basketball_game.jpg",
+   "license": "CC0",
+   "artist": "ImagineerJC",
+   "date": "2019-01-27",
+   "description": "Liacouras Center at a Temple vs. Cincinnati basketball game",
+   "categories": [
+    "CC-Zero",
+    "Files with coordinates missing SDC location of creation",
+    "Liacouras Center",
+    "Self-published work",
+    "Temple Owls men's basketball",
+    "Temple University"
+   ],
+   "text": 4,
+   "look": 2.47
+  },
+  {
+   "n": 3,
+   "file": "File:Temple Owls and Duke Blue Devils.jpg",
+   "width": 3456,
+   "height": 2592,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Temple_Owls_and_Duke_Blue_Devils.jpg/500px-Temple_Owls_and_Duke_Blue_Devils.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Temple_Owls_and_Duke_Blue_Devils.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Bryan Horowitz",
+   "date": "2011-12-04",
+   "description": "Temple vs. Duke",
+   "categories": [
+    "2011–12 Duke Blue Devils men's basketball team",
+    "CC-BY-SA-2.0",
+    "Flickr images missing SDC published in",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Images with extracted images",
+    "Quinn Cook",
+    "Seth Curry",
+    "Will Cummings"
+   ],
+   "text": 4,
+   "look": 2.34
+  },
+  {
+   "n": 4,
+   "file": "File:Mason Plumlee free throw.jpg",
+   "width": 3456,
+   "height": 2592,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Mason_Plumlee_free_throw.jpg/500px-Mason_Plumlee_free_throw.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Mason_Plumlee_free_throw.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Bryan Horowitz, SportsAngle.com",
+   "date": "2011-12-04",
+   "description": "Mason Plumlee of Duke University attempts a free throw on December 4, 2011 in a game vs Temple University. Seth Curry (#30) stands in the background.",
+   "categories": [
+    "2011–12 Duke Blue Devils men's basketball team",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR",
+    "Free throw",
+    "Mason Plumlee",
+    "Photographs by Bryan Horowitz",
+    "Seth Curry",
+    "Taken with Sony DSC-HX1",
+    "Temple Owls men's basketball players"
+   ],
+   "text": 4,
+   "look": 2.24
+  }
+ ]
+}

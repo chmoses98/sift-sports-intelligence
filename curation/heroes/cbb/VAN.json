@@ -1,0 +1,77 @@
+{
+ "team": "VAN",
+ "full": "Vanderbilt Commodores",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Perry Wallace and Bill Bunting 1967.jpeg",
+   "width": 3020,
+   "height": 2386,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Perry_Wallace_and_Bill_Bunting_1967.jpeg/500px-Perry_Wallace_and_Bill_Bunting_1967.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Perry_Wallace_and_Bill_Bunting_1967.jpeg",
+   "license": "Public domain",
+   "artist": "Unknown author Unknown author",
+   "date": "1967-12-09",
+   "description": "Vanderbilt Commodores men's basketball player Perry Wallace (left) grabs a rebound from North Carolina Tar Heels player Bill Bunting (right) during a game on December 9, 1967 at Memorial Gymnasium in Nashville, Tennessee.",
+   "categories": [
+    "1967 in basketball",
+    "Bill Bunting",
+    "Images with extracted images",
+    "PD US no notice",
+    "Perry Wallace",
+    "Template Unknown (author)"
+   ],
+   "text": 4,
+   "look": 2.61
+  },
+  {
+   "n": 2,
+   "file": "File:Vanderbilt 1923-24 basketball team.jpg",
+   "width": 2140,
+   "height": 1595,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Vanderbilt_1923-24_basketball_team.jpg/500px-Vanderbilt_1923-24_basketball_team.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Vanderbilt_1923-24_basketball_team.jpg",
+   "license": "Public domain",
+   "artist": "The Atlanta Journal",
+   "date": "03-01-1924",
+   "description": "Caption text (not included) says \"Here is the Vanderbilt quintet which Friday defeated Clemson college in its opening tournament game. Left to right, front row: Kirkes, guard; Bell, captain and forward; Gil Reese, guard; Foster, forward. Second row: Bomar, forward; Ryan, guard; Simpson, center; Porter, center; Shrigley, guard.\"",
+   "categories": [
+    "1923-24 Vanderbilt Commodores men's basketball team",
+    "Alvin Bell",
+    "Gil Reese",
+    "Lynn Bomar",
+    "Newspapers.com",
+    "PD US expired",
+    "The Atlanta Journal",
+    "Vanderbilt Commodores men's basketball players"
+   ],
+   "text": 4,
+   "look": 2.38
+  },
+  {
+   "n": 3,
+   "file": "File:Tennessee Volunteers Basketball Thompson-Boling Arena.jpg",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Tennessee_Volunteers_Basketball_Thompson-Boling_Arena.jpg/500px-Tennessee_Volunteers_Basketball_Thompson-Boling_Arena.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Tennessee_Volunteers_Basketball_Thompson-Boling_Arena.jpg",
+   "license": "CC0",
+   "artist": "TN 66",
+   "date": "",
+   "description": "The Tennessee Vols taking on the Vanderbilt Commodores in front of a packed Thompson-Boling Arena",
+   "categories": [
+    "CC-Zero",
+    "Self-published work",
+    "Taken with iPhone 3G",
+    "Thompson-Boling Arena",
+    "Vanderbilt Commodores men's basketball"
+   ],
+   "text": 3,
+   "look": 2.5
+  }
+ ]
+}

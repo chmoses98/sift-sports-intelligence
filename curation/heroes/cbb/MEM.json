@@ -1,0 +1,53 @@
+{
+ "team": "MEM",
+ "full": "Memphis Tigers",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:2008-09 Memphis at Houston men's basketball.jpg",
+   "width": 2592,
+   "height": 1944,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/2008-09_Memphis_at_Houston_men%27s_basketball.jpg/500px-2008-09_Memphis_at_Houston_men%27s_basketball.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:2008-09_Memphis_at_Houston_men%27s_basketball.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Brian Reading",
+   "date": "2009-03-04",
+   "description": "The 2008-09 Memphis Tigers men's basketball team at Houston in Hofheinz Pavilion .",
+   "categories": [
+    "2008–09 NCAA Division I men's basketball season",
+    "CC-BY-SA-3.0",
+    "GFDL",
+    "Houston Cougars men's basketball",
+    "License migration redundant",
+    "Memphis Tigers men's basketball",
+    "Self-published work",
+    "Taken with Nikon Coolpix S200"
+   ],
+   "text": 4,
+   "look": 2.62
+  },
+  {
+   "n": 2,
+   "file": "File:FedExForum 2015.jpg",
+   "width": 3264,
+   "height": 2448,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/FedExForum_2015.jpg/500px-FedExForum_2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:FedExForum_2015.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Trev0B",
+   "date": "2015-04-22",
+   "description": "Photo of the FedExForum in Memphis, TN during a Memphis Grizzlies basketball game.",
+   "categories": [
+    "2015 in Memphis, Tennessee",
+    "CC-BY-SA-4.0",
+    "FedExForum",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 2.54
+  }
+ ]
+}

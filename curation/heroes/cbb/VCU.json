@@ -1,0 +1,72 @@
+{
+ "team": "VCU",
+ "full": "VCU Rams",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:WU vs VCU.jpg",
+   "width": 2998,
+   "height": 1877,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/WU_vs_VCU.jpg/500px-WU_vs_VCU.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:WU_vs_VCU.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Hashtag youre it",
+   "date": "2017-12-19",
+   "description": "Xavier Cooks shooting a free throw during the WU/VCU game in Richmond, VA.",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Self-published work",
+    "VCU Rams men's basketball players",
+    "Winthrop Eagles men's basketball",
+    "Xavier Cooks"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:VCU vs Penn State basketball 2020.jpg",
+   "width": 5568,
+   "height": 3712,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/VCU_vs_Penn_State_basketball_2020.jpg/500px-VCU_vs_Penn_State_basketball_2020.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:VCU_vs_Penn_State_basketball_2020.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Tim Weight",
+   "date": "2020-12-02",
+   "description": "VCU vs Penn State basketball 2020",
+   "categories": [
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Images with extracted images",
+    "Penn State Nittany Lions men's basketball",
+    "VCU Rams men's basketball"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 3,
+   "file": "File:Siegel Center White Out 2016 vs GW.jpg",
+   "width": 4608,
+   "height": 2592,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Siegel_Center_White_Out_2016_vs_GW.jpg/500px-Siegel_Center_White_Out_2016_vs_GW.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Siegel_Center_White_Out_2016_vs_GW.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Stadiums and Arenas blog",
+   "date": "2016-02-06",
+   "description": "Interior look at the Siegel Center during the Feb. 6 2016 contest vs GW.",
+   "categories": [
+    "2016–17 NCAA Division I men's basketball season",
+    "CC-BY-SA-4.0",
+    "Siegel Center",
+    "VCU Rams men's basketball"
+   ],
+   "text": 4,
+   "look": 2.15
+  }
+ ]
+}

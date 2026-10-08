@@ -1,0 +1,100 @@
+{
+ "team": "BGSU",
+ "full": "Bowling Green Falcons",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Bader defense vs bgsu.jpg",
+   "width": 4928,
+   "height": 3264,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Bader_defense_vs_bgsu.jpg/500px-Bader_defense_vs_bgsu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Bader_defense_vs_bgsu.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "x97kruszka",
+   "date": "2012-03-14",
+   "description": "Travis Bader, Oakland University guard, playing defense in a 2012 game against Bowling Green State University",
+   "categories": [
+    "2011–12 NCAA Division I men's basketball season",
+    "Bowling Green Falcons men's basketball players",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR",
+    "Oakland Golden Grizzlies men's basketball players",
+    "Reggie Hamilton",
+    "Taken with Nikon D7000",
+    "Travis Bader"
+   ],
+   "text": 4,
+   "look": 2.51
+  },
+  {
+   "n": 2,
+   "file": "File:Bader vs bgsu.jpg",
+   "width": 4928,
+   "height": 3264,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Bader_vs_bgsu.jpg/500px-Bader_vs_bgsu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Bader_vs_bgsu.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "x97kruszka",
+   "date": "2012-03-14",
+   "description": "Travis Bader, Oakland University guard, in a 2012 game against Bowling Green State University",
+   "categories": [
+    "2011–12 NCAA Division I men's basketball season",
+    "Bowling Green Falcons men's basketball players",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR",
+    "Men with basketballs",
+    "Number 3 on basketball jerseys",
+    "Taken with Nikon D7000",
+    "Travis Bader"
+   ],
+   "text": 4,
+   "look": 2.49
+  },
+  {
+   "n": 3,
+   "file": "File:1962–63 Bowling Green men's basketball team (NCAA program).jpg",
+   "width": 2307,
+   "height": 1431,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/1962%E2%80%9363_Bowling_Green_men%27s_basketball_team_%28NCAA_program%29.jpg/500px-1962%E2%80%9363_Bowling_Green_men%27s_basketball_team_%28NCAA_program%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:1962%E2%80%9363_Bowling_Green_men%27s_basketball_team_(NCAA_program).jpg",
+   "license": "Public domain",
+   "artist": "NCAA",
+   "date": "1963-03-15",
+   "description": "An official program for the Mideast regional round of the 1963 NCAA University Division Basketball Tournament, which was held March 15–16, 1963 in Michigan State University's Jenison Fieldhouse in East Lansing, Michigan",
+   "categories": [
+    "1962–63 NCAA Division I men's basketball season",
+    "Bowling Green Falcons men's basketball",
+    "Extracted images",
+    "Group photographs of college basketball teams",
+    "PD US no notice"
+   ],
+   "text": 3,
+   "look": 2.14
+  },
+  {
+   "n": 4,
+   "file": "File:BGSUStadium1.jpg",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/BGSUStadium1.jpg/500px-BGSUStadium1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:BGSUStadium1.jpg",
+   "license": "Public domain",
+   "artist": "Greenstrat",
+   "date": "",
+   "description": "Football &amp; Basketball Facilities Bowling Green Football Stadium",
+   "categories": [
+    "Doyt Perry Stadium",
+    "PD-self",
+    "Self-published work",
+    "Taken with Canon PowerShot A80"
+   ],
+   "text": 3,
+   "look": 1.73
+  }
+ ]
+}

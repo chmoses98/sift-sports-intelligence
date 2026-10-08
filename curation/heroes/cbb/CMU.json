@@ -1,0 +1,31 @@
+{
+ "team": "CMU",
+ "full": "Central Michigan Chippewas",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Michigan vs Central Michigan basketball 2017.jpg",
+   "width": 4501,
+   "height": 3001,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Michigan_vs_Central_Michigan_basketball_2017.jpg/500px-Michigan_vs_Central_Michigan_basketball_2017.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Michigan_vs_Central_Michigan_basketball_2017.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "MGoBlog",
+   "date": "2017-11-13",
+   "description": "Michigan vs Central Michigan basketball 2017",
+   "categories": [
+    "2017 sports events in Ann Arbor, Michigan",
+    "2017–18 Central Michigan Chippewas men's basketball season",
+    "2017–18 Michigan Wolverines men's basketball team",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Images with extracted images",
+    "November 2017 in Michigan"
+   ],
+   "text": 4,
+   "look": 2.52
+  }
+ ]
+}

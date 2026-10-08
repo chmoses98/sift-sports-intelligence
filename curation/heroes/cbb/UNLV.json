@@ -1,0 +1,54 @@
+{
+ "team": "UNLV",
+ "full": "UNLV Rebels",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Justin Hammonds layup - Air Force at UNLV basketball 1-31-2015.jpg",
+   "width": 3450,
+   "height": 2760,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Justin_Hammonds_layup_-_Air_Force_at_UNLV_basketball_1-31-2015.jpg/500px-Justin_Hammonds_layup_-_Air_Force_at_UNLV_basketball_1-31-2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Justin_Hammonds_layup_-_Air_Force_at_UNLV_basketball_1-31-2015.jpg",
+   "license": "Public domain",
+   "artist": "U.S. Air Force photo by Staff Sgt. Siuta B. Ika",
+   "date": "2015-01-31",
+   "description": "Air Force Academy forward Justin Hammonds lays the ball into the hoop while avoiding University of Nevada-Las Vegas forward Christian Wood during a game at the Thomas and Mack Center in Las Vegas Jan. 31, 2015. Hammonds led the team with 15 points and six rebounds in Air Force’s 74-63 loss.",
+   "categories": [
+    "2014–15 NCAA Division I men's basketball season",
+    "2015 in Las Vegas",
+    "Air Force Falcons men's basketball players",
+    "Christian Wood",
+    "PD US Air Force",
+    "Patrick McCaw",
+    "Thomas & Mack Center",
+    "UNLV Runnin' Rebels men's basketball players"
+   ],
+   "text": 4,
+   "look": 2.52
+  },
+  {
+   "n": 2,
+   "file": "File:ThomasandMackinside.jpg",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/ThomasandMackinside.jpg/500px-ThomasandMackinside.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:ThomasandMackinside.jpg",
+   "license": "CC BY 3.0",
+   "artist": "MojaveNC",
+   "date": "",
+   "description": "The interior of the Thomas and Mack Center in Paradise, Nevada, before a UNLV basketball game.",
+   "categories": [
+    "2011 events in Las Vegas",
+    "CC-BY-3.0",
+    "February 2011 in Las Vegas",
+    "Self-published work",
+    "Thomas & Mack Center"
+   ],
+   "text": 4,
+   "look": 2.44
+  }
+ ]
+}

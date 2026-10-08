@@ -1,0 +1,54 @@
+{
+ "team": "WMU",
+ "full": "Western Michigan Broncos",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:UM Western 09.04.21 0739 (51426522592).jpg",
+   "width": 6016,
+   "height": 4016,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/UM_Western_09.04.21_0739_%2851426522592%29.jpg/500px-UM_Western_09.04.21_0739_%2851426522592%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:UM_Western_09.04.21_0739_(51426522592).jpg",
+   "license": "CC BY 2.0",
+   "artist": "Maize &amp; Blue Nation",
+   "date": "2021-09-03",
+   "description": "UM_Western_09.04.21_0739",
+   "categories": [
+    "CC-BY-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Franz Wagner (basketball)",
+    "Juwan Howard",
+    "Michigan Wolverines men's basketball",
+    "Western Michigan Broncos at Michigan Wolverines football (September 4, 2021)"
+   ],
+   "text": 4,
+   "look": 2.06
+  },
+  {
+   "n": 2,
+   "file": "File:Western Michigan Broncos women's basketball 1985 MAC.jpg",
+   "width": 4032,
+   "height": 3024,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Western_Michigan_Broncos_women%27s_basketball_1985_MAC.jpg/500px-Western_Michigan_Broncos_women%27s_basketball_1985_MAC.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Western_Michigan_Broncos_women%27s_basketball_1985_MAC.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "BenjaminSmithChef",
+   "date": "2025-01-25",
+   "description": "Western Michigan honoring the 1985 women's basketball team, 2025",
+   "categories": [
+    "2025 in sports in Michigan",
+    "CC-BY-SA-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "Photographs by User:BenjaminSmithChef",
+    "Self-published work",
+    "University Arena",
+    "Western Michigan Broncos women's basketball"
+   ],
+   "text": 3,
+   "look": 2.37
+  }
+ ]
+}

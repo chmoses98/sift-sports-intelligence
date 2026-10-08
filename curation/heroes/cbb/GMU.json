@@ -1,0 +1,55 @@
+{
+ "team": "GMU",
+ "full": "George Mason Patriots",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:GMU basketball game.jpg",
+   "width": 2592,
+   "height": 1944,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/GMU_basketball_game.jpg/500px-GMU_basketball_game.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:GMU_basketball_game.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Mak7912",
+   "date": "2011-02-24",
+   "description": "GMU basketball game and the Green Machine Pep Band",
+   "categories": [
+    "2010–11 NCAA Division I men's basketball season",
+    "CC-BY-SA-3.0",
+    "GFDL",
+    "George Mason Patriots men's basketball",
+    "Green Machine Pep Band",
+    "License migration redundant",
+    "Patriot Center",
+    "Self-published work",
+    "Taken with BlackBerry 9800"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:Towson Center.jpg",
+   "width": 3264,
+   "height": 2448,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Towson_Center.jpg/500px-Towson_Center.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Towson_Center.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Fuzzy510",
+   "date": "2011-12-03",
+   "description": "Interior of Towson Center, taken prior to a basketball game on December 3rd, 2011 between the Towson Tigers and the George Mason Patriots.",
+   "categories": [
+    "CC-BY-SA-3.0",
+    "Files with coordinates missing SDC location of creation",
+    "Self-published work",
+    "Taken with iPhone 4S",
+    "Towson Center"
+   ],
+   "text": 4,
+   "look": 2.35
+  }
+ ]
+}

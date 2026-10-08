@@ -1,0 +1,55 @@
+{
+ "team": "WYO",
+ "full": "Wyoming Cowboys",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Marcus Williams (basketball).jpg",
+   "width": 3503,
+   "height": 2332,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Marcus_Williams_%28basketball%29.jpg/500px-Marcus_Williams_%28basketball%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Marcus_Williams_(basketball).jpg",
+   "license": "Public domain",
+   "artist": "Trevor Cokley",
+   "date": "2021-01-16",
+   "description": "U.S. Air Force Academy -- Air Force's Keaton Van Soelen blocks the University of Wyoming's Marcus Williams during a game at Clune Arena in Colorado Springs, Colo. on Jan. 16, 2021. Air Force defeated Wyoming 72-69.– (U.S. Air Force photo/Trevor Cokley)",
+   "categories": [
+    "CC-PD-Mark",
+    "Clune Arena",
+    "Images with extracted images",
+    "PD US Government"
+   ],
+   "text": 4,
+   "look": 2.54
+  },
+  {
+   "n": 2,
+   "file": "File:Parnassus 1964 spread 75.jpg",
+   "width": 2856,
+   "height": 1932,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/Parnassus_1964_spread_75.jpg/500px-Parnassus_1964_spread_75.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Parnassus_1964_spread_75.jpg",
+   "license": "Public domain",
+   "artist": "Municipal University of Wichita",
+   "date": "1964",
+   "description": "From the 1964 yearbook of the Municipal University of Wichita, titled Parnassus",
+   "categories": [
+    "1963–64 Wichita Shockers men's basketball team",
+    "Bradley Braves men's basketball",
+    "Dave Leach",
+    "Dave Stallworth",
+    "Leonard Kelley",
+    "Nate Bowman",
+    "PD-US missing SDC copyright status",
+    "PD US no notice",
+    "Parnassus 1964",
+    "Wyoming Cowboys men's basketball"
+   ],
+   "text": 3,
+   "look": 2.26
+  }
+ ]
+}

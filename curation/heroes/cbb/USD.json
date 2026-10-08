@@ -1,0 +1,54 @@
+{
+ "team": "USD",
+ "full": "San Diego Toreros",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:San diego vs. northern colorado 3.jpg",
+   "width": 3823,
+   "height": 2749,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/San_diego_vs._northern_colorado_3.jpg/500px-San_diego_vs._northern_colorado_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:San_diego_vs._northern_colorado_3.jpg",
+   "license": "CC BY 2.0",
+   "artist": "SD Dirk",
+   "date": "2018-03-21",
+   "description": "San Diego Toreros vs UNC Bears",
+   "categories": [
+    "2017–18 NCAA Division I men's basketball season",
+    "CC-BY-2.0",
+    "Flickr images reviewed by FlickreviewR 2"
+   ],
+   "text": 4,
+   "look": 2.54
+  },
+  {
+   "n": 2,
+   "file": "File:Rob Jones dunk 02.jpg",
+   "width": 2765,
+   "height": 2073,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Rob_Jones_dunk_02.jpg/500px-Rob_Jones_dunk_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Rob_Jones_dunk_02.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Djh57",
+   "date": "11/29/08",
+   "description": "Rob Jones, forward for the University of San Diego Toreros college basketball team, hangs on the rim after dunking the ball, in a game on 11/29/08 against SD Christian.",
+   "categories": [
+    "2008–09 NCAA Division I men's basketball season",
+    "Alumni of the University of San Diego",
+    "CC-BY-SA-3.0",
+    "GFDL",
+    "Jenny Craig Pavilion",
+    "License migration redundant",
+    "Rob Jones (basketball player)",
+    "Self-published work",
+    "Slam dunk",
+    "Taken with Nikon D300"
+   ],
+   "text": 4,
+   "look": 2.48
+  }
+ ]
+}

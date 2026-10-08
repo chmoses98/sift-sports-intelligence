@@ -1,0 +1,51 @@
+{
+ "team": "HOU",
+ "full": "Houston Cougars",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Wheelchair basketball, Freewheeler action during game between University of Texas at Arlington and Houston (10007407).jpg",
+   "width": 2272,
+   "height": 1827,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Wheelchair_basketball%2C_Freewheeler_action_during_game_between_University_of_Texas_at_Arlington_and_Houston_%2810007407%29.jpg/500px-Wheelchair_basketball%2C_Freewheeler_action_during_game_between_University_of_Texas_at_Arlington_and_Houston_%2810007407%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Wheelchair_basketball,_Freewheeler_action_during_game_between_University_of_Texas_at_Arlington_and_Houston_(10007407).jpg",
+   "license": "CC BY 4.0",
+   "artist": "University of Texas at Arlington News Service Photograph Collection",
+   "date": "Unknown da",
+   "description": "UTA Freewheelers wheelchair basketball action during game between University of Texas at Arlington and Houston.",
+   "categories": [
+    "CC-BY-4.0",
+    "History of the University of Texas at Arlington",
+    "Media contributed by the University of Texas at Arlington Libraries",
+    "UT Arlington Mavericks men's wheelchair basketball",
+    "University of Texas at Arlington News Service Photograph Collection at the University of Texas at Arlington Libraries",
+    "Unknown date"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:HBU Basketball CIMG8372.JPG",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/HBU_Basketball_CIMG8372.JPG/500px-HBU_Basketball_CIMG8372.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:HBU_Basketball_CIMG8372.JPG",
+   "license": "Public domain",
+   "artist": "Nick Juhasz",
+   "date": "2008-02-18",
+   "description": "A jump ball begins a game at Sharp Gymnasium on February 18, 2008 between the Houston Baptist Huskies and Dallas Christian Crusaders . Captioned As {",
+   "categories": [
+    "2008 in basketball",
+    "Houston Christian Huskies men's basketball",
+    "PD-user",
+    "Sharp Gymnasium"
+   ],
+   "text": 4,
+   "look": 1.79
+  }
+ ]
+}

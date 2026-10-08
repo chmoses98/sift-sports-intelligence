@@ -1,0 +1,52 @@
+{
+ "team": "GW",
+ "full": "George Washington Revolutionaries",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Leake Avenue, Carrollton, New Orleans, September 2020 - Basketball Game.jpg",
+   "width": 4441,
+   "height": 3561,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Leake_Avenue%2C_Carrollton%2C_New_Orleans%2C_September_2020_-_Basketball_Game.jpg/500px-Leake_Avenue%2C_Carrollton%2C_New_Orleans%2C_September_2020_-_Basketball_Game.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Leake_Avenue,_Carrollton,_New_Orleans,_September_2020_-_Basketball_Game.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Infrogmation of New Orleans",
+   "date": "2020-09-17",
+   "description": "Leake Avenue, Carrollton, New Orleans, September 2020. Basketball game underway in playground.",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "George Washington Carver Park, New Orleans",
+    "Playgrounds in New Orleans",
+    "Self-published work",
+    "September 2020 in Carrollton, New Orleans"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:GWU vs. Cal - November 13, 2011.jpg",
+   "width": 4752,
+   "height": 3168,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/GWU_vs._Cal_-_November_13%2C_2011.jpg/500px-GWU_vs._Cal_-_November_13%2C_2011.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:GWU_vs._Cal_-_November_13,_2011.jpg",
+   "license": "CC BY 2.0",
+   "artist": "Ohad Ben-Yoseph",
+   "date": "2011-11-13",
+   "description": "My George Washington University Colonials made a rare trip to the Bay Area to play the University of California Golden Bears at the Haas Pavilion in Berkeley. The two teams exchange baskets until midway through the first half when the 24th ranked Bears went on a huge run and never looked back winning 81-54. Thanks to the GW Alumni Association as well as Athletic Director Patrick Nero for arranging",
+   "categories": [
+    "2011–12 NCAA Division I men's basketball season",
+    "CC-BY-2.0",
+    "California Golden Bears men's basketball games",
+    "Flickr images reviewed by FlickreviewR 2",
+    "George Washington Colonials men's basketball",
+    "Images with extracted images"
+   ],
+   "text": 4,
+   "look": 2.29
+  }
+ ]
+}

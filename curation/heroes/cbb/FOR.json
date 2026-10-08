@@ -1,0 +1,99 @@
+{
+ "team": "FOR",
+ "full": "Fordham Rams",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Manhattan College Basketball at Draddy Gymnasium.jpg",
+   "width": 1901,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Manhattan_College_Basketball_at_Draddy_Gymnasium.jpg/500px-Manhattan_College_Basketball_at_Draddy_Gymnasium.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Manhattan_College_Basketball_at_Draddy_Gymnasium.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Trollness",
+   "date": "2011-12-07",
+   "description": "MC basketball versus fordham at Draddy Gymnasium",
+   "categories": [
+    "2010–11 NCAA Division I men's basketball season",
+    "CC-BY-SA-4.0",
+    "Draddy Gymnasium",
+    "Fordham Rams men's basketball",
+    "Self-published work",
+    "Taken with Nikon D3"
+   ],
+   "text": 4,
+   "look": 2.48
+  },
+  {
+   "n": 2,
+   "file": "File:Rose Hill Gymnasium basketball game 2007.jpg",
+   "width": 3072,
+   "height": 2304,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Rose_Hill_Gymnasium_basketball_game_2007.jpg/500px-Rose_Hill_Gymnasium_basketball_game_2007.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Rose_Hill_Gymnasium_basketball_game_2007.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Flickr user Charlie",
+   "date": "2007-02-15",
+   "description": "Rose Hill Gymnasium, Fordham Rams basketball game",
+   "categories": [
+    "CC-BY-SA-2.0",
+    "Flickr images missing SDC source of file",
+    "Flickr images reviewed by FlickreviewR",
+    "Rose Hill Gymnasium"
+   ],
+   "text": 4,
+   "look": 2.02
+  },
+  {
+   "n": 3,
+   "file": "File:Coach Ed Kelleher and the 1929-30 Fordham Rams men's basketball team.jpg",
+   "width": 2904,
+   "height": 1239,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Coach_Ed_Kelleher_and_the_1929-30_Fordham_Rams_men%27s_basketball_team.jpg/500px-Coach_Ed_Kelleher_and_the_1929-30_Fordham_Rams_men%27s_basketball_team.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Coach_Ed_Kelleher_and_the_1929-30_Fordham_Rams_men%27s_basketball_team.jpg",
+   "license": "Public domain",
+   "artist": "Times Wide World Photos",
+   "date": "12-08-1929",
+   "description": "Caption text says \"Left to Right: Coach Kelleher, Joseph Mulligan, Ben Weiss, Ransom Parker, John Hurley, Joseph Baker, Peter Wisniewski, John Commerford, John Conroy, Captain Morgan Anglim, John Hays, William Szeszkowski and Marion Zalaski\"",
+   "categories": [
+    "1929-30 Fordham Rams men's basketball team",
+    "Ed Kelleher",
+    "PD-US missing SDC copyright status",
+    "PD US expired",
+    "Wide World Photos"
+   ],
+   "text": 3,
+   "look": 2.52
+  },
+  {
+   "n": 4,
+   "file": "File:Coach and some players of the 1925-26 Fordham Maroon men's basketball team.jpg",
+   "width": 4320,
+   "height": 2381,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Coach_and_some_players_of_the_1925-26_Fordham_Maroon_men%27s_basketball_team.jpg/500px-Coach_and_some_players_of_the_1925-26_Fordham_Maroon_men%27s_basketball_team.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Coach_and_some_players_of_the_1925-26_Fordham_Maroon_men%27s_basketball_team.jpg",
+   "license": "Public domain",
+   "artist": "Times Wide World Photos",
+   "date": "12-13-1925",
+   "description": "Caption text says \"Coach and Some Star Players on Fordham Basketball Team, Which Will Open Its Season Wednesday Night by Meeting St. Stephen's.\"",
+   "categories": [
+    "1925-26 Fordham Maroon men's basketball team",
+    "Ed Kelleher",
+    "Jim Delaney",
+    "Jim Manning (Fordham)",
+    "John White (Fordham)",
+    "PD-US missing SDC copyright status",
+    "PD US expired",
+    "Tom Leary (American football)",
+    "Wide World Photos"
+   ],
+   "text": 3,
+   "look": 2
+  }
+ ]
+}

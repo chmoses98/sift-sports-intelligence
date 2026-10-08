@@ -1,0 +1,55 @@
+{
+ "team": "BALL",
+ "full": "Ball State Cardinals",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Hunter Dickinson Michigan vs. Ball State.jpg",
+   "width": 5228,
+   "height": 3485,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Hunter_Dickinson_Michigan_vs._Ball_State.jpg/500px-Hunter_Dickinson_Michigan_vs._Ball_State.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Hunter_Dickinson_Michigan_vs._Ball_State.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Marc-Gregor Campredon / MGoBlog",
+   "date": "2020-12-02",
+   "description": "Hunter Dickinson Michigan vs. Ball State",
+   "categories": [
+    "Ball State Cardinals men's basketball",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Hunter Dickinson",
+    "Images with extracted images"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:Franz Wagner floater vs Ball State.jpg",
+   "width": 5303,
+   "height": 3535,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Franz_Wagner_floater_vs_Ball_State.jpg/500px-Franz_Wagner_floater_vs_Ball_State.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Franz_Wagner_floater_vs_Ball_State.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "Marc-Gregor Campredon / MGoBlog",
+   "date": "2020-12-02",
+   "description": "Franz Wagner floater vs Ball State",
+   "categories": [
+    "Austin Davis (basketball)",
+    "Ball State Cardinals men's basketball",
+    "CC-BY-SA-2.0",
+    "Eli Brooks",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Franz Wagner (basketball)",
+    "Images with extracted images",
+    "Isaiah Livers",
+    "Ishmael El-Amin"
+   ],
+   "text": 4,
+   "look": 2.61
+  }
+ ]
+}

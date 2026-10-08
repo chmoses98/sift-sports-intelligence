@@ -1,0 +1,30 @@
+{
+ "team": "GCU",
+ "full": "Grand Canyon Lopes",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Brian Mueller GCU Basketball 2015.JPG",
+   "width": 1631,
+   "height": 1080,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Brian_Mueller_GCU_Basketball_2015.JPG/500px-Brian_Mueller_GCU_Basketball_2015.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Brian_Mueller_GCU_Basketball_2015.JPG",
+   "license": "CC BY-SA 4.0",
+   "artist": "Jdhhauser",
+   "date": "2015-01-29",
+   "description": "Brian Mueller delivers a check to a non-profit organization at halftime of a Grand Canyon Men's Basketball game in 2015.",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "Grand Canyon Antelopes men's basketball",
+    "Grand Canyon University",
+    "Images with extracted images",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 2.44
+  }
+ ]
+}

@@ -1,0 +1,54 @@
+{
+ "team": "SF",
+ "full": "San Francisco Dons",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Colin Kaepernick at Clippers game in 2013.jpg",
+   "width": 2651,
+   "height": 2000,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Colin_Kaepernick_at_Clippers_game_in_2013.jpg/500px-Colin_Kaepernick_at_Clippers_game_in_2013.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Colin_Kaepernick_at_Clippers_game_in_2013.jpg",
+   "license": "CC BY 2.0",
+   "artist": "LW Yang",
+   "date": "2013-03-10",
+   "description": "San Francisco 49ers quarterback Colin Kaepernick (wearing red cap and backpack) attends a Los Angeles Clippers game in 2013.",
+   "categories": [
+    "Basketball games at Staples Center",
+    "CC-BY-2.0",
+    "Colin Kaepernick",
+    "Files from LWYang Flickr stream",
+    "Flickr images reviewed by FlickreviewR",
+    "Images with extracted images",
+    "Interior of Crypto.com Arena"
+   ],
+   "text": 4,
+   "look": 2.54
+  },
+  {
+   "n": 2,
+   "file": "File:Jamaree Bouyea.jpg",
+   "width": 5616,
+   "height": 3744,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Jamaree_Bouyea.jpg/500px-Jamaree_Bouyea.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Jamaree_Bouyea.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "donsathletics",
+   "date": "2021-11-09",
+   "description": "11/9/21: USF MBB vs LIU at War Memorial Gym at the Sobrato Center in San Francisco, CA. Image by Chris M. Leung for USF Dons Athletics",
+   "categories": [
+    "2021–22 NCAA Division I men's basketball season",
+    "CC-BY-SA-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Images with extracted images",
+    "Jamaree Bouyea",
+    "San Francisco Dons men's basketball"
+   ],
+   "text": 4,
+   "look": 2.52
+  }
+ ]
+}

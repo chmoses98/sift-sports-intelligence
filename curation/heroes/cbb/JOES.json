@@ -1,0 +1,75 @@
+{
+ "team": "JOES",
+ "full": "Saint Joseph's Hawks",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:HaganArea 02.JPG",
+   "width": 1600,
+   "height": 1200,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/HaganArea_02.JPG/500px-HaganArea_02.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:HaganArea_02.JPG",
+   "license": "CC BY-SA 3.0",
+   "artist": "Peetlesnumber1",
+   "date": "2013-01-09",
+   "description": "Hagan Arena, during a St. Joseph's Butler game, 2013",
+   "categories": [
+    "CC-BY-SA-3.0",
+    "Hagan Arena",
+    "Saint Joseph's Hawks men's basketball",
+    "Saint Joseph's University",
+    "Self-published work",
+    "Taken with Canon PowerShot A560"
+   ],
+   "text": 4,
+   "look": 2.65
+  },
+  {
+   "n": 2,
+   "file": "File:Saint Joseph's Hawk mascot up close 2018.jpg",
+   "width": 4032,
+   "height": 3024,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Saint_Joseph%27s_Hawk_mascot_up_close_2018.jpg/500px-Saint_Joseph%27s_Hawk_mascot_up_close_2018.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Saint_Joseph%27s_Hawk_mascot_up_close_2018.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Jonathan Schilling",
+   "date": "2018-12-05",
+   "description": "The Hawk, the mascot of the Saint Joseph's University Hawks basketball team, visits the stands during halftime of a game at Princeton's Jadwin Gymnasium. Unusually, the Hawk travels to all away games. The Hawk is most known never stopping the flapping of its wings during the entire game – here it is seen in mid-flap.",
+   "categories": [
+    "CC-BY-SA-4.0",
+    "Files with coordinates missing SDC location of creation",
+    "Jadwin Gymnasium",
+    "Saint Joseph's Hawks mascot",
+    "Saint Joseph's Hawks men's basketball",
+    "Self-published work"
+   ],
+   "text": 4,
+   "look": 1.97
+  },
+  {
+   "n": 3,
+   "file": "File:Papa Ndao.jpg",
+   "width": 1700,
+   "height": 974,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Papa_Ndao.jpg/500px-Papa_Ndao.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Papa_Ndao.jpg",
+   "license": "CC BY 2.0",
+   "artist": "Jeff Horne",
+   "date": "2016-03-13",
+   "description": "Papa Ndao of St. Joseph's",
+   "categories": [
+    "2015–16 NCAA Division I men's basketball season",
+    "CC-BY-2.0",
+    "Flickr images reviewed by FlickreviewR 2",
+    "Men's basketball players from Senegal",
+    "Saint Joseph's Hawks men's basketball players"
+   ],
+   "text": 3,
+   "look": 2.63
+  }
+ ]
+}

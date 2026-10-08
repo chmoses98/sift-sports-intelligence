@@ -1,0 +1,29 @@
+{
+ "team": "DUQ",
+ "full": "Duquesne Dukes",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:09Dukes.JPG",
+   "width": 2304,
+   "height": 1728,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/09Dukes.JPG/500px-09Dukes.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:09Dukes.JPG",
+   "license": "CC BY 3.0",
+   "artist": "Daniel Kemp ( talk )",
+   "date": "2010-03-13",
+   "description": "The 2009-10 Dukes warming up before a game.",
+   "categories": [
+    "CC-BY-3.0",
+    "Duquesne Dukes men's basketball",
+    "Palumbo Center",
+    "Self-published work",
+    "Taken with Kodak EasyShare C330"
+   ],
+   "text": 4,
+   "look": 2.49
+  }
+ ]
+}

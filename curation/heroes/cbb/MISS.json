@@ -1,0 +1,78 @@
+{
+ "team": "MISS",
+ "full": "Ole Miss Rebels",
+ "venues": [],
+ "candidates": [
+  {
+   "n": 1,
+   "file": "File:Ole Miss Rebels basketball team, 1924-25.jpg",
+   "width": 2919,
+   "height": 1750,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Ole_Miss_Rebels_basketball_team%2C_1924-25.jpg/500px-Ole_Miss_Rebels_basketball_team%2C_1924-25.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Ole_Miss_Rebels_basketball_team,_1924-25.jpg",
+   "license": "Public domain",
+   "artist": "The Atlanta Journal",
+   "date": "03-01-1925",
+   "description": "Caption text says \"At the left is University of Mississippi, which clashes with Tulane in the semifinals. The players are, front to back: Johnson, captain; Burke, Lee, Hoff, Bryson, Thompson, Izard, Wells, Cutrer and Leftwich.\"",
+   "categories": [
+    "1924-25 Ole Miss Rebels men's basketball team",
+    "PD-US missing SDC copyright status",
+    "PD US expired",
+    "The Atlanta Journal"
+   ],
+   "text": 4,
+   "look": 2.37
+  },
+  {
+   "n": 2,
+   "file": "File:Ole Miss Rebels 1928-29 basketball team.jpg",
+   "width": 2955,
+   "height": 1931,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Ole_Miss_Rebels_1928-29_basketball_team.jpg/500px-Ole_Miss_Rebels_1928-29_basketball_team.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Ole_Miss_Rebels_1928-29_basketball_team.jpg",
+   "license": "Public domain",
+   "artist": "The Atlanta Journal",
+   "date": "1929-03-03",
+   "description": "Caption text says \"At top, the University of Mississippi, champions of 1928, whose sensational 30 to 28 victory over W. &amp; L. [Washington &amp; Lee] Saturday afternoon was a big upset. The Generals were the favorites in the tourney. Top row, left to right: Mabry, Boutwell, Strange and Captain Laird. Bottom row, left to right A. Phillips, Ward, Selby and C. Phillips.\"",
+   "categories": [
+    "1928-29 Ole Miss Rebels men's basketball team",
+    "Ary Phillips",
+    "Cary Phillips (basketball)",
+    "Dewitt Laird",
+    "Edward Mabry (basketball)",
+    "George Boutwell (basketball)",
+    "PD-US missing SDC copyright status",
+    "PD US expired",
+    "Robert Selby (basketball)",
+    "The Atlanta Journal",
+    "William Strange (basketball)"
+   ],
+   "text": 4,
+   "look": 2.28
+  },
+  {
+   "n": 3,
+   "file": "File:Mississippi 1927-28 basketball team.jpg",
+   "width": 2991,
+   "height": 2409,
+   "mime": "image/jpeg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Mississippi_1927-28_basketball_team.jpg/500px-Mississippi_1927-28_basketball_team.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "url": "https://commons.wikimedia.org/wiki/File:Mississippi_1927-28_basketball_team.jpg",
+   "license": "Public domain",
+   "artist": "The Atlanta Journal",
+   "date": "1928-02-26",
+   "description": "Caption text says \"University of Mississippi. Left to right, Cary Phillips, Dugger, Lee, Odgen, Courtney, Laird, Selby, and Ary Phillips",
+   "categories": [
+    "1927-28 Ole Miss Rebels men's basketball team",
+    "Ary Phillips",
+    "Newspapers.com",
+    "PD US expired",
+    "The Atlanta Journal"
+   ],
+   "text": 3,
+   "look": 2.37
+  }
+ ]
+}

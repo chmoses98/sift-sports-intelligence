@@ -3,7 +3,8 @@
 // bid/ask in cents; "fair" is the model's P(YES) — evidence, labelled as such, never a pick.
 import { describeMarket } from '../lib/marketLabel';
 import { isMlbPlayerMarket, isMlbTicker, mlbKind, mlbNick, mlbPeriod, mlbPlayerKey, mlbPlayerName, mlbTeamOf, propFamily, PROP_FAMILY_LABEL } from '../lib/mlb';
-import { inningWords, isFullGame } from '../lib/period';
+import { inningWords, periodCode } from '../lib/period';
+import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { MarketIcon } from './MarketIcon';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
@@ -50,8 +51,11 @@ function sectionOf(m: AnyMarket): MarketGroup['section'] {
     if (mlbPeriod(m)) return 'periods';
     return mlbKind(m) === 'unknown' ? 'props' : 'lines';
   }
-  if (m.period && !isFullGame(m.period)) return 'periods';
+  if (periodCode(m.period)) return 'periods';
   if (['game_winner', 'spread', 'total', 'team_total'].includes(m.market_family)) return 'lines';
+  // CFB names its full-game lines by family (game_moneyline, game_spread, game_total); scoped to CFB tickers so no
+  // other sport's board is re-sectioned.
+  if (cfbMarketHeading(m) && ['game_moneyline', 'game_spread', 'game_total'].includes(m.market_family)) return 'lines';
   return 'props';
 }
 
@@ -82,8 +86,8 @@ export function groupMarkets(markets: AnyMarket[], playerName: (id: string | nul
     if (!g) {
       const stat = (m.extensions?.stat as string | undefined) ?? null;
       const who = mlb ? mlb.subject : m.player_id ? playerName(m.player_id) ?? (m.extensions?.subject as string | undefined) ?? null : null;
-      const per = m.period && !isFullGame(m.period) ? ` · ${m.period}` : '';
-      const title = mlb ? mlb.title : who && stat ? `${STAT_LABEL[stat] ?? stat.replace(/_/g, ' ')}` : `${familyLabel(m.market_family)}${per}`;
+      const per = periodCode(m.period) ? ` · ${m.period}` : '';
+      const title = mlb ? mlb.title : who && stat ? `${STAT_LABEL[stat] ?? stat.replace(/_/g, ' ')}` : cfbMarketHeading(m) ?? `${familyLabel(m.market_family)}${per}`;
       g = { key, title, family: m.market_family, period: m.period ?? null, section: sectionOf(m), subject: who, rows: [], ladder: false };
       groups.set(key, g);
     }

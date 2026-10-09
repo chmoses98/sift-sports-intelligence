@@ -178,6 +178,25 @@ test('CFB identity: the breadcrumb, Markets and Scripts say each school by its c
   await noHorizontalOverflow(page, 'cfb-game-long-breadcrumb');
 });
 
+test('CFB Markets: every heading in plain English, full-game lines first, no internal period identifier @smoke', async ({ page }) => {
+  // The publication names markets by series, family ('first_half_spread') and a lower-case period ('first_half');
+  // the board says them in words and files them like every other sport: game lines, halves & quarters, specials.
+  await page.goto(`./#/cfb/game/${ISU_BYU}?tab=markets`);
+  const tabs = page.locator('.mboard .seg__b');
+  await expect(tabs.first()).toContainText('Game lines');
+  const headings: string[] = [];
+  for (let i = 0; i < (await tabs.count()); i++) {
+    await tabs.nth(i).click();
+    headings.push(...(await page.locator('.mgroup__title').allInnerTexts()));
+    await noHorizontalOverflow(page, `cfb-markets-section-${i}`);
+  }
+  expect(headings.length).toBeGreaterThan(0);
+  expect(headings.filter((h) => /_|\bunknown\b|· (first|second|full)/i.test(h))).toEqual([]);
+  await tabs.first().click();
+  await expect(page.locator('.mgroup__title').first()).toContainText(/^Full game (moneyline|spread|total|team total)/);
+  expect(headings.some((h) => /First half (moneyline|spread|total)/.test(h))).toBe(true);
+});
+
 test('a V2 game leads with the Quick Read; every older panel waits in a closed Deep Dive @smoke', async ({ page }) => {
   await page.goto(`./#/cfb/game/${LSU_UK}`);
   const q = page.getByTestId('cfb-quick-read');

@@ -157,7 +157,31 @@ so the export published away "University" (code ALBY, by prefix match) and home 
 Every separator occurrence is now a candidate split and the contracts' own team labels pick the split whose two
 sides are both teams; without evidence a single-separator title reads as before and a several-separator title is
 `ambiguous_title`. The corrected export (21:22Z) publishes ALBY "University at Albany" away and STON "Stony Brook"
-home, both with stable participant ids.
+home, both with stable participant ids. The Script Engine, which never reads contracts, settles the same ambiguous
+title against the football schedule instead (cfb-edge-finder #113).
+
+**Three more identities (2026-10-09, cfb-edge-finder #115).** The Script Engine failed identity on "Appalachian St."
+(ESPN "App State"), "Southeastern Louisiana" ("SE Louisiana") and "Tennessee-Martin" ("UT Martin"). The facts were
+already upstream (the FBS registry's exact alias "App State"; `fcs_identity.KNOWN_NON_FBS_NAME_VARIANTS` for the two
+FCS schools), but the team-name matcher shared by the live-context collector and the Script Engine never read them; it
+now does, so the live slate has no IDENTITY_FAIL game. SIFT shows **App State** and **UT Martin** (the schedule's own
+names) and **Southeastern Louisiana** (an override in `cfb-public-names.json`; the schedule abbreviates it "SE
+Louisiana"). ESPN ids: App State 2026, SE Louisiana 2545, UT Martin 2630.
+
+## CFB market headings
+
+The CFB publication names a market by its Kalshi series (`KXNCAAF1HSPREAD`), family (`first_half_spread`) and a
+lower-case period (`first_half`, `full_game`). SIFT's period helpers knew only the NFL/NHL `FULL` and MLB `FULL_GAME`,
+so every CFB heading carried the raw period ("First half moneyline · first_half", "Game moneyline · full_game"), the
+period badge printed it, `game_total` borrowed baseball's "Total runs", and with no full-game line recognised the
+whole board sat in one unsectioned list, first-half markets above the game lines.
+
+`src/lib/cfbMarkets.ts` now says each CFB market from its series, the token the upstream classifier reads (an
+optional period prefix, then a family suffix): **Full game moneyline**, **First half spread**, **Second half total**,
+**First quarter spread**, **Team receiving yards**, **First half and full game result**. `period.ts` knows the CFB
+periods (`full_game` is the full game; the others read as words and badge as 1H / 2Q / OT), so the board files CFB
+markets like every other sport's: Game lines, Halves & quarters, Specials. Display only: family, period and ticker
+stay on every market for parsing, pricing, provenance and settlement; other sports' boards render unchanged.
 
 ## CFB script titles
 

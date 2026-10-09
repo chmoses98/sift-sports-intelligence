@@ -18,6 +18,7 @@ import { QuoteChip, RefreshQuotes, sourceLabel, useQuoteViews } from '../compone
 import { useLiveQuotes, useNow } from '../live/hooks';
 import { overlayMarket } from '../live/overlay';
 import { isFullGame, periodWords } from '../lib/period';
+import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { isMlbTicker, mlbPlayerKey } from '../lib/mlb';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -104,7 +105,7 @@ export function MarketView() {
       <header className="ehead ehead--metric">
         <div className="ehead__t">
           <div className="eyebrow">
-            <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Market · {familyLabel(m.market_family)}{m.period && !isFullGame(m.period) ? ` · ${periodWords(m.period)}` : ''}
+            <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink> · Market · {cfbMarketHeading(m) ?? `${familyLabel(m.market_family)}${m.period && !isFullGame(m.period) ? ` · ${periodWords(m.period)}` : ''}`}
           </div>
           <h1 className="h-display h-display--md">{title}</h1>
           <div className="ehead__meta">
@@ -191,7 +192,7 @@ export function MarketView() {
             <LadderChart
               rungs={siblings.map((o) => ({ x: Number(rungOf(o)), bid: o.yes_bid, ask: o.yes_ask, fair: prices.get(o.market_id)?.fair_probability ?? null, href: routes.market(slug, o.market_id, ev.event_id), ticker: o.kalshi_ticker }))}
               quantiles={q}
-              unit={stat ? STAT_LABEL[stat] ?? stat : familyLabel(m.market_family)}
+              unit={stat ? STAT_LABEL[stat] ?? stat : cfbMarketHeading(m) ?? familyLabel(m.market_family)}
               title={`${title} ladder`}
               selected={m.kalshi_ticker}
             />

@@ -24,6 +24,11 @@
 //    ("Utah St.", "Miami (FL)", "University at Albany") or fragment matchup ("University @ …") is visible on the CFB
 //    home, and each picked game's breadcrumb, Markets tab and Scripts tab name both schools canonically. When the
 //    UAlbany game (ALBY) is on the board it shows UAlbany and Stony Brook, with UAlbany's committed logo.
+// 7. Identity and market headings (2026-10-09 pass): the script index carries no IDENTITY_FAIL game; every game
+//    whose identity this repository had to resolve (UAlbany, Southeastern Louisiana, App State, UT Martin) shows
+//    both schools by canonical name with their committed logos, and exactly its published script status (its
+//    scripts, or the honest empty state); no Markets section heading shows an internal period identifier
+//    ("first_half", "full_game") on any picked game.
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
@@ -58,6 +63,8 @@ const [board, explorerIndex, scriptIndex, health] = await Promise.all([
   getJson(`${APP}/health.json`).catch(() => null),
 ]);
 const ageH = (iso) => (Date.now() - Date.parse(iso ?? '')) / 3600e3;
+const identityFails = Object.entries(scriptIndex.games ?? {}).filter(([, g]) => g.status === 'IDENTITY_FAIL').map(([k]) => k);
+check(identityFails.length === 0, `the script index resolves every game's identity (${identityFails.length ? `IDENTITY_FAIL: ${identityFails.join(', ')}` : '0 IDENTITY_FAIL'})`);
 const signals = await getJson(SIGNALS_URL).catch((e) => (check(false, `research-signals contract readable (${e})`), null));
 if (signals) {
   check(/^cfb_research_signals\/1\./.test(signals.schema), `research-signals schema ${signals.schema}`);
@@ -123,6 +130,12 @@ async function readGame(page) {
   }), EMPTY);
 }
 
+/** An internal period or family identifier shown to a reader ("first_half", "full_game", "Unknown · unknown"). */
+const TOKEN = /_|\bunknown\b|· (first|second|third|fourth|full|overtime)\b/i;
+
+/** Games whose identity this repository had to resolve: each pair of team codes, checked whenever it is on the board. */
+const RESOLVED_IDENTITIES = [['ALBY', 'STON'], ['SELA', 'UTRGV'], ['APP', 'CCAR'], ['WEBB', 'UTM']];
+
 /** A school name that cannot identify a school, or the publication's abbreviation shown as-is. */
 // "TBD" is not here: it is the honest stand-in for an upstream participant row that names no school (reported below).
 const BROKEN_NAME = /^(St\.?|State|Miss|Tech|U\.?|University)$|\sSt\.$/;
@@ -168,8 +181,18 @@ async function identityCheck(page, name, eventId, label) {
     check(!leak, `${name}: ${label} ${what}: every school by its canonical name${leak ? ` (raw "${leak}" visible)` : ''}`);
     check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${name}: ${label} ${what}: no sideways scroll`);
     if (tab === '?tab=markets') {
-      const rows = await page.locator('.mrow__d, .mgroup__title').allInnerTexts();
-      console.log(`  ${label} markets: ${rows.slice(0, 4).join(' | ')}`);
+      // Every section of the board (Game lines, Halves & quarters, Specials), every heading and period badge.
+      const headings = [];
+      const sections = page.locator('.mboard .seg__b');
+      const n = await sections.count();
+      for (let i = 0; i < Math.max(n, 1); i++) {
+        if (n) await sections.nth(i).click();
+        headings.push(...(await page.locator('.mgroup__title').evaluateAll((els) => els.map((e) => ({ text: e.textContent?.trim() ?? '', clipped: e.scrollWidth > e.clientWidth + 1 })))));
+      }
+      const token = headings.find((h) => TOKEN.test(h.text));
+      console.log(`  ${label} markets: ${headings.length} headings · ${[...new Set(headings.map((h) => h.text.replace(/ — .*/, '')))].slice(0, 6).join(' | ')}`);
+      check(headings.length > 0 && !token, `${name}: ${label} Markets: every heading in plain English (${headings.length} across ${Math.max(n, 1)} section${n > 1 ? 's' : ''})${token ? ` (got "${token.text}")` : ''}`);
+      check(!headings.some((h) => h.clipped), `${name}: ${label} Markets: no clipped heading`);
     }
     if (tab === '?tab=script') {
       const cards = await page.locator('.eng-scard .scard__name').evaluateAll((els) => els.map((e) => ({ shown: e.textContent?.trim(), published: e.getAttribute('data-canonical') })));
@@ -334,17 +357,34 @@ for (const [name, type, device] of BROWSERS) {
       check(!homeLeak, `${name}: CFB home: no raw school spelling or fragment matchup visible${homeLeak ? ` ("${homeLeak}")` : ''}`);
       // Section 6: every picked game, then the UAlbany game when the board carries it.
       for (const [kind, g] of Object.entries(picked)) await identityCheck(page, name, g.eventId, `${kind} ${g.gameKey}`);
-      const alby = board.items.find((i) => i.participants.some((p) => p.short_name === 'ALBY') && i.status !== 'FINAL');
-      if (alby) {
-        await identityCheck(page, name, alby.event_id, `UAlbany game ${alby.event_id}`);
-        await page.goto(`${BASE}#/cfb/game/${alby.event_id}`);
-        await page.locator('.gh__name').first().waitFor({ timeout: 60_000 });
-        await page.waitForFunction(() => [...document.querySelectorAll('.gh__team img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
+      // Section 7: the games whose identity had to be resolved, each against its own published status.
+      for (const pair of RESOLVED_IDENTITIES) {
+        const item = board.items.find((i) => pair.every((c) => i.participants.some((p) => p.short_name === c)) && i.status !== 'FINAL');
+        const tag = pair.map(canonicalName).join(' / ');
+        if (!item) { console.log(`  ${tag}: NOT_APPLICABLE — not on the board`); continue; }
+        const doc = await getJson(`${APP}/explorer/events/${item.event_id}.json`).catch(() => null);
+        const key = doc?.event?.source_ids?.kalshi_game_key ?? null;
+        const st = key ? scriptIndex.games?.[key] ?? null : null;
+        check(!!st && st.status !== 'IDENTITY_FAIL', `${name}: ${tag} (${key}): the script index resolves its identity (status ${st?.status ?? 'missing'})`);
+        await identityCheck(page, name, item.event_id, `${tag} ${item.event_id}`);
+        await page.goto(`${BASE}#/cfb/game/${item.event_id}?tab=script`);
+        const g = await readGame(page);
         const heroNames = await page.locator('.gh__name').allInnerTexts();
-        check(heroNames.includes('UAlbany') && !heroNames.some((n) => /University|TBD|Albany at/.test(n)), `${name}: the UAlbany game names both real schools (${heroNames.join(' vs ')})`);
-        check([...served].some((u) => u.endsWith('/teams/cfb/399.webp')), `${name}: UAlbany's committed logo (teams/cfb/399.webp) is served`);
-        await page.screenshot({ path: `production-cfb-${name}-ualbany.png` });
-      } else console.log('  UAlbany game: NOT_APPLICABLE — no upcoming ALBY game on the board');
+        const want = pair.map(canonicalName);
+        check(want.every((w) => heroNames.includes(w)), `${name}: ${tag}: the header names both schools canonically (${heroNames.join(' vs ')})`);
+        const logos = pair.map((c) => `/teams/cfb/${CFB_TEAMS[c]?.e}.webp`);
+        // The header holds each logo as a blob: the files are read from the network log, the images from the page.
+        check(logos.every((l) => [...served].some((u) => u.endsWith(l))) && g.logos.length === 2 && g.logos.every((l) => l.ok) && g.textMarks.length === 0, `${name}: ${tag}: both committed logos are served and load in the header (${logos.join(', ')})`);
+        if (st && ['SCRIPTS_GENERATED', 'SINGLE_SCRIPT'].includes(st.status)) {
+          const published = (st.scripts ?? []).length;
+          check(g.cards.length === published && !g.empty, `${name}: ${tag}: Scripts shows its ${published} published script${published === 1 ? '' : 's'} (${g.shown.join(' | ')})`);
+          const story = await page.locator('main').innerText();
+          check(want.some((w) => story.includes(w)) && !visibleLeak(story), `${name}: ${tag}: script descriptions name the schools canonically`);
+        } else if (st?.status === 'NO_SCRIPT_CLEARED_EVIDENCE') {
+          check(g.cards.length === 0 && g.empty, `${name}: ${tag}: no script cleared its evidence, and the page says so`);
+        }
+        await page.screenshot({ path: `production-cfb-${name}-${pair.join('-').toLowerCase()}.png` });
+      }
     }
     // A deep link to each game, then the same games again from the CFB slate (a warm client, service worker
     // installed): the way a returning reader actually arrives.

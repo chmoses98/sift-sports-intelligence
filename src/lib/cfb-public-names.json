@@ -1,9 +1,10 @@
 {
- "$comment": "Where the football schedule's name (cfb-teams.json `n`) is not the one fans use. Kept tiny on purpose (Miami (FL) is here so the two Miamis always carry their state; the schedule says just \"Miami\"): the schedule name already is the sports-facing one for almost every school (Iowa State, Ole Miss, NC State, Miami (OH), Southern Miss, UAlbany). Read by src/lib/cfbTeams.ts (cfbName) and by scripts/cfb-production-check.mjs, so the app and its production check share one answer.",
+ "$comment": "Where the football schedule's name (cfb-teams.json `n`) is not the one fans use. Kept tiny on purpose (Miami (FL) is here so the two Miamis always carry their state; the schedule says just \"Miami\"; Southeastern Louisiana is the school's own name, where the schedule abbreviates it \"SE Louisiana\"): the schedule name already is the sports-facing one for almost every school (Iowa State, Ole Miss, NC State, Miami (OH), Southern Miss, UAlbany). Read by src/lib/cfbTeams.ts (cfbName) and by scripts/cfb-production-check.mjs, so the app and its production check share one answer.",
  "names": {
   "PENN": "Penn",
   "MASS": "UMass",
   "LIU": "LIU",
-  "MIA": "Miami (FL)"
+  "MIA": "Miami (FL)",
+  "SELA": "Southeastern Louisiana"
  }
 }

@@ -2,7 +2,7 @@
 // optional team (whose market it is) and an optional period, so the same symbol appears wherever that
 // kind of market appears. The visual is drawn by components/MarketIcon.tsx.
 import type { Market } from '../contract/types';
-import { isFullGame } from './period';
+import { periodCode } from './period';
 import { isMlbTicker, mlbKind, mlbPeriod, mlbTeamOf, propFamily } from './mlb';
 
 export type MarketKind =
@@ -45,7 +45,7 @@ export function marketAnchor(
   abbrOf: (pid: string | null) => string | null,
   playerTeam: (playerId: string | null) => string | null,
 ): MarketAnchor {
-  const period = m.period && !isFullGame(m.period) ? m.period : null;
+  const period = periodCode(m.period);
   const ext = (m.extensions ?? {}) as { stat?: string; subject?: string };
   const team = abbrOf(m.participant_id) ?? playerTeam(m.player_id) ?? null;
   const dst = /\bD\/ST\b/.test(ext.subject ?? '') ? (ext.subject ?? '').split(' ')[0] : null;

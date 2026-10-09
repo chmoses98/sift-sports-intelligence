@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import type { SearchEntry } from '../contract/types';
 import type { SportConfig } from '../data/sports';
 import { cents, familyLabel, ordinal } from '../lib/format';
+import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { routes } from '../lib/routes';
 import { describeMarket } from '../lib/marketLabel';
 import type { SearchState } from '../search/useSearch';
@@ -80,7 +81,7 @@ export function SearchResults({ state, query, onPick, compact }: { state: Search
                 <Link className="sres sres--market" to={routes.market(h.sport.slug, h.market.market_id, h.market.event_id ?? '')} onClick={onPick}>
                   <span className="sres__label">{describeMarket(h.market as never).title}</span>
                   <span className="sres__ctx">
-                    Market • {familyLabel(h.market.market_family)} • <span className="num">{cents(h.market.yes_bid)} / {cents(h.market.yes_ask)}</span>
+                    Market • {cfbMarketHeading(h.market) ?? familyLabel(h.market.market_family)} • <span className="num">{cents(h.market.yes_bid)} / {cents(h.market.yes_ask)}</span>
                   </span>
                 </Link>
               </li>

@@ -81,10 +81,13 @@ export function TennisHomeView() {
   }, [filtered]);
   const shown = useMemo(() => filtered.filter((i) => !tourney || tournamentOf(i) === tourney).sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc)), [filtered, tourney]);
   const set = (k: string, v: string | null) => {
-    const next = new URLSearchParams(sp);
-    if (v) next.set(k, v); else next.delete(k);
-    if (k !== 't') next.delete('t');
-    setSp(next, { replace: true });
+    // Functional update: quick successive taps build on each other's params (see views/game/PropsBoard.tsx).
+    setSp((prev) => {
+      const next = new URLSearchParams(prev);
+      if (v) next.set(k, v); else next.delete(k);
+      if (k !== 't') next.delete('t');
+      return next;
+    }, { replace: true });
   };
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!board.data) return <div className="page"><ErrorState error={board.error} what="Tennis board" /></div>;

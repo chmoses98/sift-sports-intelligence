@@ -105,9 +105,9 @@ test('CFB script cards say what a contract pays, what it loses in, its price aft
   // Switching to the danger script changes the supported contracts and names what loses.
   const titles = await cards.locator('.smc__t').allTextContents();
   await page.locator('.eng-scard').filter({ hasText: 'Danger' }).first().click();
-  await expect(page.getByTestId('script-market').first()).toBeVisible();
-  const after = await page.getByTestId('script-market').locator('.smc__t').allTextContents();
-  expect(after).not.toEqual(titles);
+  await expect(page).toHaveURL(/script=/);
+  // Auto-retrying: the set of cards changes once the danger script's cards render (its first card may be shared).
+  await expect.poll(async () => (await page.getByTestId('script-market').locator('.smc__t').allTextContents()).join('|')).not.toBe(titles.join('|'));
   await expect(page.getByText(/Loses in|No script the engine built contradicts/).first()).toBeVisible();
   // Counts stay counts: no card turns script survival into a percentage of winning.
   for (const t of await page.getByTestId('script-market').locator('.smc__nums').allTextContents()) expect(t).not.toMatch(/\d+% (chance|to win|probability)/i);

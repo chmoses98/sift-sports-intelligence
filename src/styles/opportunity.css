@@ -34,6 +34,7 @@
 .opp__state { margin: 0; font-size: 0.78rem; color: var(--text-2); }
 .opp__state--current { color: var(--pos); }
 .opp__state--stale, .opp__state--expired, .opp__state--above_bet_up_to { color: var(--gold-2); }
+.opp__stale { margin: 0; padding: 6px 10px; border-left: 3px solid var(--gold-2); background: rgba(212, 175, 55, 0.08); border-radius: 0 var(--r-1) var(--r-1) 0; font-size: var(--fs-sm); color: var(--text); line-height: 1.4; }
 .opp__risk { margin: 0; padding: 8px 10px; border-left: 3px solid var(--neg); background: var(--neg-bg); border-radius: 0 var(--r-1) var(--r-1) 0; color: var(--text); font-size: var(--fs-sm); line-height: 1.4; }
 .opp__risk b { color: #ff8a98; }
 .opp__more { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0; border: 0; background: none; color: var(--cyan-2); font-weight: 600; font-size: var(--fs-sm); cursor: pointer; justify-self: start; }

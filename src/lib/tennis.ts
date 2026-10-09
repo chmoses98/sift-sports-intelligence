@@ -163,7 +163,8 @@ export function tennisMarketTitle(m: MarketLike, t: TennisMatch | null): string 
   const fam = m.market_family ?? '';
   const side = t ? tennisSide(m, t) : null;
   const who = side ? t![side].name : d;
-  const setIdx = n((m.extensions as any)?.set_index);
+  // SETWINNER tickers carry the set number before the player code: KXWTASETWINNER-26OCT07MERSWI-2-MER.
+  const setIdx = n((m.extensions as any)?.set_index) ?? n(/SETWINNER-[^-]+-(\d)-/.exec(m.kalshi_ticker)?.[1]);
   if (fam === 'match_winner') return `${who} to win the match`;
   if (fam === 'set_winner') return `${who} wins set ${setIdx ?? ''}`.trim();
   if (fam === 'total_games') {

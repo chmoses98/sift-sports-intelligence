@@ -16,6 +16,7 @@ import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
 import { useVisibleOnce } from '../shared/useVisible';
 import { Pill, Section, SportHeader } from '../shared/kit';
+import { SportOpportunities } from '../home/SportOpportunities';
 
 function MatchRow({ item, slug, now, showTournament }: { item: BoardItem; slug: string; now: number; showTournament: boolean }) {
   const { repo } = useSport();
@@ -92,7 +93,6 @@ export function TennisHomeView() {
   const markets = items.reduce((a, b) => a + b.markets_available, 0);
   const byTourney = new Map<string, BoardItem[]>();
   for (const i of shown) byTourney.set(tournamentOf(i), [...(byTourney.get(tournamentOf(i)) ?? []), i]);
-  const candidates = items.filter((i) => i.recommendations_count > 0 && i.markets_priced > 0).sort((a, b) => b.recommendations_count - a.recommendations_count);
   return (
     <div className="page tennis">
       <SportHeader
@@ -120,25 +120,7 @@ export function TennisHomeView() {
           ))}
         </Section>
         <div className="stack">
-          <Section id="tn-cand" title="Matches with research candidates" sub="Contracts the publication flags as research candidates: a model-market gap to review, never a bet. Every one is RESEARCH_ONLY.">
-            {candidates.length === 0 ? <p className="muted">No match carries a research candidate right now.</p> : (
-              <ul className="sklist">
-                {candidates.slice(0, 8).map((i) => {
-                  const [a, b] = boardPlayers(i);
-                  return (
-                    <li key={i.event_id}>
-                      <Link to={routes.game(slug, i.event_id)} className="skrow">
-                        <span className="skrow__when"><span className="skrow__time num">{timeLabel(i.start_time_utc)}</span><span className="skrow__until">{dayLabel(i.start_time_utc)}</span></span>
-                        <span className="skrow__teams"><span className="skrow__name">{a} v {b}<small>{tournamentOf(i)}</small></span></span>
-                        <span className="skrow__meta"><span><b className="num">{i.recommendations_count}</b> candidate{i.recommendations_count === 1 ? '' : 's'}</span></span>
-                        <Icon name="chevronRight" size={18} className="skrow__go" />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Section>
+          <SportOpportunities now={now} />
           <Section id="tn-status" title="Model status" sub="What the tennis publication says about itself.">
             <dl className="skkv">
               <div><dt>Authority</dt><dd>Every model number is RESEARCH_ONLY. On 15,117 settled rows the Kalshi mid scored a Brier of 0.1776 against the model's 0.2193: no evidence of edge.</dd></div>

@@ -523,12 +523,32 @@ async function designCheck(browser, device, name) {
       check(true, 'NFL Slate Priorities: Back returns to the NFL home');
     }
 
-    for (const [slug, label] of [['cfb', 'CFB'], ['nhl', 'NHL'], ['cbb', 'CBB'], ['mlb', 'MLB'], ['soccer', 'Soccer'], ['tennis', 'Tennis']]) {
+    // The global Home: the opportunity board (one card per featured expression, or an honest PASS per sport) and the
+    // cross-sport game list, with no sideways scroll on any device.
+    await page.goto(BASE + '#/');
+    await page.getByRole('heading', { name: /opportunities$/i }).waitFor({ timeout: 60_000 });
+    await page.waitForTimeout(4000);
+    const homeText = await page.locator('main').innerText();
+    check(/opportunit/i.test(homeText) && /games/i.test(homeText), 'Home: the opportunities and games sections render');
+    check(!/undefined|NaN|Unexpected Application Error/.test(homeText), 'Home shows no undefined / NaN / error screen');
+    check(!/\bKX[A-Z]{2,}[A-Z0-9]*-[A-Z0-9-]+/.test(homeText), 'Home shows no raw Kalshi ticker');
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'Home: no sideways scroll');
+    const cards = await page.locator('.opp').count();
+    check(cards > 0, `Home: ${cards} opportunity / PASS cards (every explorable sport accounted for)`);
+
+    for (const [slug, label] of [['cfb', 'CFB'], ['nhl', 'NHL'], ['cbb', 'CBB'], ['mlb', 'MLB'], ['soccer', 'Soccer'], ['tennis', 'Tennis'], ['nba', 'NBA']]) {
       await page.goto(BASE + `#/${slug}`);
       await page.locator('main h1').first().waitFor({ timeout: 60_000 }).catch(() => {});
       await page.waitForTimeout(2500);
       const body = await page.locator('body').innerText();
       check(!/Unexpected Application Error|Cannot read properties/.test(body) && (await page.locator('main h1').count()) > 0, `${label} page renders (no error screen)`);
+      check(!/undefined|NaN/.test(await page.locator('main').innerText()), `${label} page shows no undefined / NaN`);
+      check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${label} page: no sideways scroll`);
+      if (['soccer', 'tennis', 'nba'].includes(slug)) {
+        // A first-class sport page, not the retired health-only screen: a slate of rows and the opportunity panel.
+        check(!/is not explorable in Sift yet/.test(body), `${label}: the health-only screen is gone`);
+        check((await page.getByRole('heading', { name: 'Opportunities' }).count()) > 0, `${label}: the Opportunities panel is present`);
+      }
       check(/^"?Barlow"?,/.test(await page.evaluate(() => getComputedStyle(document.querySelector('main') ?? document.body).fontFamily)), `${label} page is set in Barlow`);
       if (slug === 'cfb' || slug === 'nhl') await page.screenshot({ path: `production-${name}-${slug}.png` });
     }

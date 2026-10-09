@@ -35,7 +35,8 @@ test('the NBA tab opens a real home: the slate with both clubs and the honest re
   await expect(page.getByText('market beats model 8/8 families')).toBeVisible();
   await expect(page.locator('.skrow')).toHaveCount(2);
   await expect(page.getByText('Dallas Mavericks').first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: /No NBA market clears the bar/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Opportunities' })).toBeVisible();
+  await expect(page.getByText(/prices no contract/).first()).toBeVisible();
   // Team identity never depends on an image: the tricode or the club name is always text on the row.
   await expect(page.locator('.skrow').first()).toContainText(/Bucks|Thunder|MIL|OKC/);
   const text = await page.locator('main').innerText();

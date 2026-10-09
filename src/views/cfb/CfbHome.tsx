@@ -46,6 +46,7 @@ import { sides } from '../home/cards';
 import { Info } from '../game/panels';
 import { CfbGlyph, Chip, SignalMarks, supportChips, type CfbGlyphName } from './kit';
 import { CfbSlatePriorities } from './CfbPriorities';
+import { SportOpportunities } from '../home/SportOpportunities';
 
 const CARD_CAP = 24;
 const ENV_CAP = 6;
@@ -465,6 +466,7 @@ export function CfbHomeView() {
           <CfbSlatePriorities games={games} doc={doc} loading={signals.loading} slug={slug} now={now} />
         </div>
         <div className="cfh__main">
+          <SportOpportunities now={now} />
           {signals.loading && !doc && <div className="cfh__load"><Skeleton lines={3} /></div>}
           {!signals.loading && !doc && (
             <p className="cfh__notice" role="status">

@@ -114,7 +114,7 @@ describe('soccer screens render from the real publication', () => {
     expect(screen.getByRole('button', { name: /Premier League/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Liga MX/ })).toBeInTheDocument();
     expect((await screen.findAllByText(/Arsenal/)).length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Fixtures with research candidates' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Opportunities' })).toBeInTheDocument();
     const text = document.body.textContent ?? '';
     expect(text).not.toMatch(/undefined|NaN|KXEPL|KXLIGA/);
     expect(text).not.toMatch(BANNED);

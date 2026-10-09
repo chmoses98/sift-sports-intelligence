@@ -62,6 +62,14 @@ export function StatusView() {
         </table>
         {open && all.data?.find((s) => s.sport.code === open)?.caps && <CapabilityTable items={all.data.find((s) => s.sport.code === open)!.caps!.items} />}
       </Stratum>
+      <Stratum id="opportunities" title="How opportunities are decided" sub="The global Home and every sport home show only what a publication itself flags; Sift adds no probability, no bet-up-to and no stake (docs/OPPORTUNITIES.md).">
+        <ul className="lims">
+          <li><b>Source.</b> A sport's own <code>recommendations.json</code> rows (research candidates, or actionable recommendations when the publication's authority permits a bet), the CFB research-signals Value Watch, and nothing else. A row the publication marks PASS, expired or above its bet-up-to stays a PASS.</li>
+          <li><b>Price.</b> The side's ask as the publication observed it (or a newer live quote), Kalshi's taker fee (round-up 7% × P × (1 − P) per contract; the publication's own fee where it publishes one), break-even = ask + fee, edge = fair − break-even. A quote older than 30 minutes is stale; a validity window that has passed is expired.</li>
+          <li><b>Order.</b> Actionable → robust research candidate with a current price and a positive worst-case edge → other research candidates → watch signals → passes; then current price first, then the publication's worst-case edge, fee-adjusted edge and posterior edge share; high-variance single-event contracts last; one featured expression per thesis, the rest listed as related. No hidden score.</li>
+          <li><b>Confidence.</b> The publication's record, verbatim: validated only when it permits real money; research-only models with a published calibration; "market beats model" when its own settled record says so (tennis, NBA).</li>
+        </ul>
+      </Stratum>
       <Stratum title="Live market quotes" sub="The market clock: current Kalshi quotes on their own refresh schedule, separate from the research publication. Fresh < 15 min, aging to 30 min, stale after.">
         <LiveDiagnostics />
       </Stratum>

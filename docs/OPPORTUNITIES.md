@@ -1,0 +1,58 @@
+# The opportunity layer
+
+Sift does the research so the viewer doesn't have to. The opportunity layer (`src/opportunity/`) is how: one shape for
+"something worth a viewer's attention" across every sport, fed only by what each sport publication itself flags, ranked
+by a documented rule, and shown with the price, the fee-aware break-even, the publication's bet-up-to, the evidence and
+the strongest reason it could lose. **A PASS is a first-class result.** Sift never manufactures a recommendation.
+
+## What counts as an opportunity
+
+| Source | Sport | Status | Price intelligence |
+|---|---|---|---|
+| `recommendations.json` rows with `status` RESEARCH_CANDIDATE (or an actionable status with a non-research authority) | Soccer, Tennis, NHL, MLB, NFL | `RESEARCH_CANDIDATE` (or `ACTIONABLE` when the publication permits a bet and the price is current and within its bet-up-to) | The row's `current_price` for the selected side, the publication's `fee_per_contract` (else Kalshi's schedule), break-even = ask + fee, the publication's `bet_up_to_price`, `worst_case_edge`, `available_size`, `expires_at` |
+| `recommendations.json` rows with `status` PASS / NOT_PLAYABLE, expired validity, or a price above bet-up-to | same | `PASS` with the publication's own reason | shown, never featured |
+| `cfb_research_signals` Moderate CONTROL while the contract's status is VALUE_WATCH, with a fresh executable price for the CONTROL side's own game-winner contract | CFB | `WATCH` | the CONTROL side's YES ask; no fair probability and no bet-up-to (the contract publishes none) |
+| `cfb_research_signals` Strong CONTROL | CFB | `PASS` ("the market already prices it", the contract's own verdict) | — |
+| nothing published | NBA, CBB | sport-level PASS with the publication's reason (NBA: 0 model prices, the market beats the model in 8 of 8 families; CBB: no Kalshi contracts mapped) | — |
+
+Sift adds no probability, no bet-up-to and no stake. Where a publication publishes none (tennis, MLB research candidates,
+CFB), the field is null and the card says so. A NO side is priced at the NO ask (1 − YES price as the publication reports
+it), with fair = 1 − P(YES) and the NO bet-up-to; never 1 − the other side's bid.
+
+## Fee model
+
+`kalshiFee(p) = roundUp(0.07 × p × (1 − p), cent)` per contract — Kalshi's general taker schedule. A publication's own
+`fee_per_contract` wins when it publishes one (soccer, NHL), because some series carry a multiplier.
+`breakEven = ask + fee`; `evPerContract = fair − breakEven` unless the publication publishes its own fee-adjusted EV.
+
+## Price state
+
+Decided in this order: `EXPIRED` (the publication's validity window has passed, or it says STALE_PRICE) →
+`NO_QUOTE` → `STALE` (quote older than the market-quote policy: 30 min) → `ABOVE_BET_UP_TO` → `UNPRICED` (no fair
+probability) → `CURRENT`. Only `CURRENT` counts as a current price in the ranking.
+
+## Ranking (`rank.ts`)
+
+1. Tier: Actionable (1) → robust research candidate with a current price and a positive worst-case edge (2) → other
+   research candidates (3) → published watch signals (4) → passes (5). "Robust" is the publication's own support word
+   (soccer script-robustness label ROBUST / VERY_ROBUST, NHL family reliability EVIDENCE_STRONGER, tennis external
+   confirmation AGREES_WITH_MODEL); a high-variance single-event contract (goal scorer, exact score) never reaches tier 2.
+2. Within a tier: a current price before a stale or missing one.
+3. Then the publication's worst-case edge, then its fee-adjusted EV per contract, then the share of posterior draws with a
+   positive edge (all descending).
+4. High-variance contracts sort after everything else in their tier.
+5. Kickoff, then id.
+
+Correlation: at most one opportunity per thesis group (`event_id` + the publication's thesis / exposure key) is featured;
+the others are attached as related expressions. Nothing here is a score and nothing is shown as one.
+
+## Confidence
+
+`calibration` is the publication's record, never Sift's opinion: `VALIDATED` only when the publication permits real money;
+`RESEARCH` for research-only models with a published calibration record; `MARKET_BEATS_MODEL` when the publication's
+own settled record shows the market as the better forecaster (tennis; NBA); `UNVALIDATED` when nothing is published.
+
+## Tests
+
+`tests/opportunity.test.ts` on the real trimmed publications (`tests/fixtures/{soccer,tennis,nhl,mlb,cfb}`): the fee
+schedule, the price states, every adapter's authority and side handling, the ranking order and the PASS reasons.

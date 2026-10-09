@@ -70,6 +70,13 @@ withdrawn:
 | posterior edge share | withdrawn (it needs the model's draws at the new price) |
 | tier | recomputed by the same rule as at load |
 
+Quote integrity (from the 2026-10-09 relay audit): only an OPEN contract has an executable ask (a paused or
+unrecognised market is a PASS like a closed one); a quote observed at or after the start is an in-play price and makes
+the pregame row a PASS (tennis excepted: its nominal start times are governed by the publication's verified-upcoming
+word); the publication's size-at-ask is dropped once the ask comes from a live quote (the provider publishes no
+depth, and Sift never infers size from a price); a price with no timestamp is STALE, never current; and an actionable
+row needs a FRESH quote (under 15 minutes), at load and live, not merely one younger than the 30-minute stale line.
+
 Then the status is revalidated: a closed, settled or unopened contract is a PASS whatever the research said; a live ask
 above the publication's bet-up-to, or one at which the edge after fee is gone, eliminates the opportunity (PASS with the
 numbers); an actionable row also needs a current executable quote. The card says which figures were re-based. The home board and every
@@ -125,6 +132,16 @@ families), and soccer's `dc_laplace_v1` (soccer-edge-finder `docs/RESEARCH_DISAG
 matches the de-vigged market is reliably better in 112 of 116 subgroups and the model in none, with the model's error
 growing with the gap; keyed to that model version, so a new version is not labelled by an old study); `UNVALIDATED` when
 nothing is published.
+
+## Track record (`record.ts`)
+
+A gap is only as good as the model's record on the same kind of contract, so a card carries that record in one line
+when the publication publishes one. NHL: the learning scorecard's settled research candidates for the card's family
+(`metrics.json` → `met_nhl.model_learning_stage` → `learning_v1.research_candidates.by_family`): how many settled, how
+often they won against the probability the model gave them, the mean closing-line value and the shadow return. When
+the record runs against the model, the card says so in its risk line. (2026-10-09: 318 settled player-goals candidates
+won 33.0% against 38.4% expected, closing line −0.4¢.) Soccer, tennis and NBA carry their market comparison in the
+confidence note instead; NFL in its scorecard sentence.
 
 ## Tests
 

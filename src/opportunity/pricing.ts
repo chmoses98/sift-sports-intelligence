@@ -51,7 +51,8 @@ export function priceIntel(x: PriceInputs): PriceIntel {
   const fresh = quoteFreshness(x.observedAt, x.now);
   if (expired || (x.publishedPriceState ?? '').toUpperCase() === 'EXPIRED') state = 'EXPIRED';
   else if (x.ask == null) state = 'NO_QUOTE';
-  else if (fresh === 'STALE' || (x.publishedPriceState ?? '').toUpperCase() === 'STALE') state = 'STALE';
+  // A price with no clock cannot be shown as current: its age is unknown.
+  else if (fresh === 'STALE' || fresh === 'UNKNOWN' || (x.publishedPriceState ?? '').toUpperCase() === 'STALE') state = 'STALE';
   else if (x.betUpTo != null && x.ask > x.betUpTo + 1e-9) state = 'ABOVE_BET_UP_TO';
   else if (x.fair == null) state = 'UNPRICED';
   return {

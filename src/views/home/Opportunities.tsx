@@ -62,6 +62,7 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
       <p className="opp__why">{o.why}</p>
       <PriceLine o={o} now={now} />
       <p className={`opp__state opp__state--${o.price.state.toLowerCase()}`}>{PRICE_STATE_WORD[o.price.state]}{o.price.expiresAt ? ` · valid until ${new Date(o.price.expiresAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : ''} · {CAL_WORD[o.confidence.calibration]}{o.confidence.supportNote ? ` · ${o.confidence.supportNote}` : ''}</p>
+      {o.confidence.record && <p className={`opp__record${o.confidence.record.adverse ? ' opp__record--adverse' : ''}`} title={o.confidence.record.source}><b>Track record:</b> {o.confidence.record.line}</p>}
       {o.priceNote && <p className="opp__note opp__reprice">{o.priceNote}</p>}
       {f.conflicts.length > 0 && <p className="opp__conflict" role="note"><b>Opposite scenario:</b> this cannot win together with {f.conflicts.map((c) => `${c.what.side} ${c.what.title}`).join(' or ')}, also shown for this game. They rely on different game scripts; at most one can be right.</p>}
       {f.conflicts.length === 0 && f.sameGame.length > 0 && <p className="opp__note opp__same">Same game as {f.sameGame.length} other {f.sameGame.length === 1 ? 'card' : 'cards'} here: one exposure, not independent edges.</p>}

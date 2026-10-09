@@ -81,6 +81,19 @@ export interface Confidence {
   supportNote: string | null;
   /** 0..1 share of simulated worlds / posterior draws in which the edge is positive, when published. */
   edgeShare: number | null;
+  /** How this kind of candidate has done when settled, from the publication's own scorecard (null when none is published). */
+  record?: TrackRecord | null;
+}
+
+/** A publication's settled record for the candidate's family: what a skeptical viewer checks before trusting a gap. */
+export interface TrackRecord {
+  /** One line a viewer reads in seconds: "318 past player-goals candidates won 33% against 38% expected; closing line −0.4¢". */
+  line: string;
+  /** True when the record runs against the model (won less than expected, or a negative closing line / shadow return). */
+  adverse: boolean;
+  n: number;
+  /** Where the numbers come from and when they were computed. */
+  source: string;
 }
 
 export interface Opportunity {

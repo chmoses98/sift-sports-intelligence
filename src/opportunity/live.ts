@@ -12,6 +12,7 @@
 // Then the status is revalidated: a closed, settled or unopened contract is a PASS whatever the research said; a live
 // ask above the publication's bet-up-to, or one at which the edge after fee is gone, eliminates the opportunity; an
 // actionable row also needs a current executable quote. The tier is recomputed by the same rule as at load.
+import { quoteFreshness } from '../live/freshness';
 import { liveWins } from '../live/overlay';
 import type { LiveQuote } from '../live/types';
 import { priceIntel } from './pricing';
@@ -22,13 +23,20 @@ const cents = (v: number | null) => (v == null ? '—' : `${Math.round(v * 100)}
 
 export function repriceWithLive(o: Opportunity, q: LiveQuote | undefined, now: number): Opportunity {
   if (!q || !liveWins({ captured_at: o.price.observedAt }, q)) return o;
-  const closed = q.availability === 'CLOSED' || q.availability === 'SETTLED' || q.availability === 'UNOPENED';
+  // Only an OPEN contract has an executable ask: paused (SUSPENDED) or unrecognised (UNKNOWN) is not tradable either.
+  const closed = q.availability !== 'OPEN';
+  // A quote observed at or after the start is an in-play price, never a pregame one (tennis start times are nominal:
+  // its publication's verified-upcoming word governs there, see lifecycle.ts).
+  const kickoff = Date.parse(o.startTime);
+  const inPlay = o.sport !== 'TENNIS' && Number.isFinite(kickoff) && Date.parse(q.observedAt) >= kickoff;
   const ask = closed ? null : o.what.side === 'YES' ? q.yesAsk : q.noAsk;
   const bid = closed ? null : o.what.side === 'YES' ? q.yesBid : q.noBid;
   const same = ask != null && o.price.ask != null && Math.abs(ask - o.price.ask) < 1e-9;
   const price = priceIntel({
     ...o.reprice, ask, bid, observedAt: q.observedAt, source: 'live', now, publishedPriceState: null,
     publishedFee: same ? o.reprice.publishedFee : null, publishedEv: same ? o.reprice.publishedEv : null,
+    // The publication's depth belongs to its own ask and time; the live provider publishes no depth.
+    availableSize: null,
   });
   // Worst case = (publication's worst-case probability) − break-even; carry the probability, swap the break-even.
   const worstCaseEdge = same || o.rank.worstCaseEdge == null ? o.rank.worstCaseEdge
@@ -38,7 +46,10 @@ export function repriceWithLive(o: Opportunity, q: LiveQuote | undefined, now: n
   let statusReason = o.statusReason;
   if (closed && status !== 'PASS') {
     status = 'PASS';
-    statusReason = `The contract is ${q.availability.toLowerCase()} on the live market (observed ${q.observedAt}).`;
+    statusReason = `The contract is ${q.availability === 'UNKNOWN' ? 'in an unrecognised state' : q.availability.toLowerCase()} on the live market (observed ${q.observedAt}): no executable price.`;
+  } else if (inPlay && status !== 'PASS') {
+    status = 'PASS';
+    statusReason = `The live quote was observed after the start (${q.observedAt}): it is an in-play price, and the pregame research does not apply to it.`;
   } else if (status !== 'PASS' && price.state === 'EXPIRED') {
     status = 'PASS';
     statusReason = 'The publication’s validity window for this price has passed.';
@@ -48,9 +59,10 @@ export function repriceWithLive(o: Opportunity, q: LiveQuote | undefined, now: n
   } else if ((status === 'RESEARCH_CANDIDATE' || status === 'ACTIONABLE') && !same && price.evPerContract != null && price.evPerContract <= 0) {
     status = 'PASS';
     statusReason = `At the live ask (${cents(ask)}) the edge after fee is gone: break-even ${cents(price.breakEven)} against a fair ${Math.round((price.fair ?? 0) * 100)}%.`;
-  } else if (status === 'ACTIONABLE' && price.state !== 'CURRENT') {
+  } else if (status === 'ACTIONABLE' && (price.state !== 'CURRENT' || quoteFreshness(q.observedAt, now) !== 'FRESH')) {
+    // Acting needs a fresh executable quote (under 15 minutes), not merely one that is not yet stale.
     status = 'PASS';
-    statusReason = price.state === 'NO_QUOTE' ? 'No executable live quote for this side.' : 'The live quote is stale.';
+    statusReason = price.state === 'NO_QUOTE' ? 'No executable live quote for this side.' : price.state === 'CURRENT' ? 'The live quote is no longer fresh (over 15 minutes old): refresh before acting.' : 'The live quote is stale.';
   }
   const priceNote = same || ask == null ? null
     : `Repriced on the live ask: ${cents(o.price.ask)} at the research run → ${cents(ask)} now. Break-even and edge after fee are recomputed from the publication’s fair probability${o.rank.worstCaseEdge != null ? ', and the worst case is re-based on the new break-even' : ''}${o.rank.edgeShare != null ? '; the posterior edge share is withdrawn (it needs the model’s draws at the new price)' : ''}.`;

@@ -23,6 +23,8 @@ import { eventPhase, type PhaseRead } from './lifecycle';
 import { mlbOrientation, soccerOrientation, tennisOrientation, type OrientationRead } from './identity';
 import { soccerScoreRule, type Outcome } from './correlation';
 import { tierOf, tierWord } from './rank';
+import { nhlFamilyRecord } from './record';
+import type { Learning } from '../lib/nhl';
 import type { Confidence, Opportunity, OpportunityStatus, RankInputs, Side, SportVerdict } from './types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -39,6 +41,8 @@ export interface SportInputs {
   board: BoardItem[];
   recommendations: Rec[] | null;
   theses?: Thesis[] | null;
+  /** NHL: the learning scorecard (metrics.json), for each candidate's family record. */
+  learning?: Learning | null;
   now: number;
 }
 
@@ -67,7 +71,7 @@ export function eventLabel(item: BoardItem, code: string): string {
  * first: once the start time has passed (whatever the publisher's status word says), or the game is final, postponed,
  * cancelled or suspended, nothing pregame is actionable or a candidate — the research is frozen for review.
  */
-function statusOf(r: Rec, phase: PhaseRead, priceState: string, orientation: OrientationRead): { status: OpportunityStatus; reason: string } {
+function statusOf(r: Rec, phase: PhaseRead, priceState: string, orientation: OrientationRead, quoteFresh: boolean): { status: OpportunityStatus; reason: string } {
   const st = String(r.status ?? '').toUpperCase();
   const act = String(r.extensions?.action ?? st).toUpperCase();
   if (phase.phase !== 'PREGAME' && phase.phase !== 'NO_START') return { status: 'PASS', reason: phase.reason };
@@ -78,6 +82,7 @@ function statusOf(r: Rec, phase: PhaseRead, priceState: string, orientation: Ori
   if (act === 'ACTIONABLE' && !isResearch(r)) {
     if (phase.phase === 'NO_START') return { status: 'RESEARCH_CANDIDATE', reason: `${phase.reason} The publication permits a bet, but Sift cannot verify the game has not started.` };
     if (priceState === 'STALE' || priceState === 'NO_QUOTE') return { status: 'PASS', reason: 'No current executable quote for this side.' };
+    if (!quoteFresh) return { status: 'PASS', reason: 'The quote is no longer fresh (over 15 minutes old): refresh before acting.' };
     return { status: 'ACTIONABLE', reason: `The publication permits a bet on this contract and the price is current and within its bet-up-to.${phase.staleStatus ? ' The listed start has passed but the publication verifies the start as still upcoming.' : ''}` };
   }
   const research = r.extensions?.research_status ?? r.extensions?.action_reasons?.[0] ?? `${r.authority}: the publication flags this for research review, not as a bet.`;
@@ -93,7 +98,7 @@ interface Extra {
 function base(code: Opportunity['sport'], slug: string, item: BoardItem, r: Rec, title: string, subject: string | null, family: string | null, why: string, evidence: string[], risk: string | null, alternatives: string[], confidence: Confidence, price: Opportunity['price'], group: string | null, highVariance: boolean, now: number, x: Extra = {}): Opportunity {
   const phase = eventPhase(item, now, { verifiedUpcoming: x.verifiedUpcoming });
   const orientation = x.orientation ?? { state: 'UNVERIFIED', reason: null };
-  const { status, reason } = statusOf(r, phase, price.state, orientation);
+  const { status, reason } = statusOf(r, phase, price.state, orientation, quoteFreshness(price.observedAt, now) === 'FRESH');
   const worst = n(r.extensions?.worst_case_edge);
   const tier = tierOf({ status, support: confidence.support, worstCaseEdge: worst, highVariance, priceCurrent: price.state === 'CURRENT', calibration: confidence.calibration });
   return {
@@ -253,11 +258,12 @@ export function nhlOpportunities(x: SportInputs): Opportunity[] {
       r.lineup_status ? `Lines ${String(r.lineup_status).replace(/_/g, ' ').toLowerCase()}` : null,
     ].filter((s): s is string => !!s);
     const hv = HIGH_VARIANCE.has(family);
-    const risk = `${hv ? 'A goal-scorer contract settles on a single event and is high variance: the publication’s NHL home never features these.' : 'The NHL model is under prospective tracking; nothing is validated yet.'}${ext.portfolio_impact?.delta_p10 != null ? ` Portfolio 10th percentile moves ${ext.portfolio_impact.delta_p10}.` : ''}`;
+    const record = nhlFamilyRecord(x.learning, family);
+    const risk = `${hv ? 'A goal-scorer contract settles on a single event and is high variance: the publication’s NHL home never features these.' : 'The NHL model is under prospective tracking; nothing is validated yet.'}${record?.adverse ? ' Its past candidates in this family have done worse than the model expected.' : ''}${ext.portfolio_impact?.delta_p10 != null ? ` Portfolio 10th percentile moves ${ext.portfolio_impact.delta_p10}.` : ''}`;
     const alternatives = ext.best_alternative_bet_id ? [`Best alternative expression: ${String(ext.best_alternative_bet_id).replace('|', ' · ')}`] : [];
     const confidence: Confidence = {
       calibration: 'RESEARCH', note: 'RESEARCH_ONLY under prospective tracking (the learning scorecard counts settled games).', inputs: { price: String(r.data_freshness ?? 'unknown'), lines: String(r.lineup_status ?? 'unknown') },
-      support: String(ext.family_reliability ?? r.confidence ?? ''), supportNote: ext.family_reliability ? `Family reliability ${String(ext.family_reliability).replace(/_/g, ' ').toLowerCase()}` : null, edgeShare: null,
+      support: String(ext.family_reliability ?? r.confidence ?? ''), supportNote: ext.family_reliability ? `Family reliability ${String(ext.family_reliability).replace(/_/g, ' ').toLowerCase()}` : null, edgeShare: null, record,
     };
     out.push(base('NHL', x.sport.slug, item, r, title, null, family, why, evidence, risk, alternatives, confidence, price, `${item.event_id}:${ext.primary_thesis_key ?? 'thesis'}`, hv, x.now));
   }

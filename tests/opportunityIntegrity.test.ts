@@ -4,15 +4,17 @@
 // that cannot both win are named as contradicting each other. Each case below reproduces a defect seen on the live
 // publications on 2026-10-09.
 import { describe, expect, it } from 'vitest';
-import type { BoardDoc, ItemsDoc, Recommendation, Thesis } from '../src/contract/types';
+import type { BoardDoc, ItemsDoc, MetricDef, Recommendation, Thesis } from '../src/contract/types';
+import { readLearning } from '../src/lib/nhl';
+import { nhlFamilyRecord } from '../src/opportunity/record';
 import { codePosition, mlbOrientation, scoreOf, soccerOrientation, tennisOrientation, tickerParts } from '../src/opportunity/identity';
 import { contradicts, scoreRulesExclusive, soccerScoreRule } from '../src/opportunity/correlation';
 import { repriceWithLive } from '../src/opportunity/live';
 import { compareOpportunities, featureOpportunities, tierOf } from '../src/opportunity/rank';
-import { soccerOpportunities, tennisOpportunities } from '../src/opportunity/sources';
+import { nhlOpportunities, soccerOpportunities, tennisOpportunities } from '../src/opportunity/sources';
 import type { Opportunity } from '../src/opportunity/types';
 import { quote } from './live/fakes';
-import { readSoccer, readTennis } from './helpers';
+import { readNhl, readSoccer, readTennis } from './helpers';
 
 const NOW = Date.parse('2026-10-09T06:10:00Z');
 const ARS = 'KXEPLGAME-26OCT10ARSLEE-ARS';
@@ -199,5 +201,67 @@ describe('contradiction and correlation', () => {
     expect(f).toHaveLength(2);
     expect(f[0].sameGame.map((x) => x.id)).toEqual([f[1].lead.id]);
     expect(f[0].conflicts).toHaveLength(1);
+  });
+});
+
+describe('track record on the card', () => {
+  const learning = () => {
+    const idx = readNhl<{ metrics_path: string }>('explorer/index.json');
+    const reg = readNhl<{ items: MetricDef[] }>(idx.metrics_path);
+    return readLearning(new Map(reg.items.map((m) => [m.metric_id, m])));
+  };
+  it('reads the NHL scorecard’s settled record for the candidate’s family, and says when it runs against the model', () => {
+    const l = learning();
+    expect(l).not.toBeNull();
+    const row = (l!.research_candidates as { by_family: Record<string, { n: number; hit_rate: number; mean_p: number }> }).by_family.player_goals;
+    const r = nhlFamilyRecord(l, 'player_goals')!;
+    expect(r.n).toBe(row.n);
+    expect(r.line).toContain(`${row.n.toLocaleString('en-US')} settled player goals candidates won ${Math.round(row.hit_rate * 100)}% against ${Math.round(row.mean_p * 100)}% expected`);
+    expect(r.adverse).toBe(row.hit_rate < row.mean_p || r.line.includes('−'));
+    expect(nhlFamilyRecord(l, 'no_such_family')).toBeNull();
+    expect(nhlFamilyRecord(null, 'player_goals')).toBeNull();
+  });
+  it('NHL candidates carry their family record into the card’s confidence', () => {
+    const opps = nhlOpportunities({ sport: { code: 'NHL', slug: 'nhl', label: 'NHL' }, board: readNhl<BoardDoc>('board.json').items, recommendations: readNhl<ItemsDoc<Recommendation>>('recommendations.json').items as never, learning: learning(), now: Date.parse('2026-10-06T22:50:00Z') });
+    const goals = opps.find((o) => o.family === 'player_goals')!;
+    expect(goals.confidence.record?.line).toMatch(/player goals candidates won/);
+    if (goals.confidence.record?.adverse) expect(goals.risk).toMatch(/done worse than the model expected/);
+  });
+});
+
+describe('quote integrity on the live path (relay audit, 2026-10-09)', () => {
+  const act = (o: Opportunity): Opportunity => ({ ...o, status: 'ACTIONABLE', rank: { ...o.rank, tier: 1 } });
+  it('only an OPEN contract has an executable ask: a paused or unrecognised market is a PASS', () => {
+    for (const availability of ['SUSPENDED', 'UNKNOWN'] as const) {
+      const r = repriceWithLive(act(ars()), quote(ARS, 0.66, NOW - 60_000, { availability }), NOW);
+      expect(r.status).toBe('PASS');
+      expect(r.price.ask).toBeNull();
+    }
+  });
+  it('the publication’s depth is never shown beside a different live ask', () => {
+    expect(ars().price.availableSize).not.toBeNull();
+    const r = repriceWithLive(ars(), quote(ARS, 0.62, NOW - 60_000), NOW);
+    expect(r.price.ask).toBeCloseTo(0.38, 6);
+    expect(r.price.availableSize).toBeNull();
+  });
+  it('a price with no clock is stale, never current', () => {
+    const p = repriceWithLive(ars(), undefined, NOW).price;
+    expect(p.state).toBe('CURRENT');
+    const noClock = soccerOpportunities({ ...soccerInputs(readSoccer<ItemsDoc<Recommendation>>('recommendations.json').items.map((r) => ({ ...r, created_at: null as unknown as string }))) }).find((o) => o.ticker === ARS)!;
+    expect(noClock.price.state).toBe('STALE');
+  });
+  it('acting needs a fresh quote: an aging (15–30 min) quote demotes an actionable row', () => {
+    const o: Opportunity = { ...act(ars()), price: { ...ars().price, observedAt: '2026-10-09T05:00:00Z' }, reprice: { ...ars().reprice, expiresAt: null } };
+    const aging = repriceWithLive(o, quote(ARS, 0.66, NOW - 20 * 60_000), NOW);
+    expect(aging.price.state).toBe('CURRENT');
+    expect(aging.status).toBe('PASS');
+    expect(aging.statusReason).toMatch(/no longer fresh/);
+  });
+  it('a quote observed after the start is in-play: never a pregame price', () => {
+    const o = ars();
+    const after = Date.parse(o.startTime) + 60_000;
+    const r = repriceWithLive(o, quote(ARS, 0.66, after), after + 1000);
+    expect(r.status).toBe('PASS');
+    expect(r.statusReason).toMatch(/in-play price/);
   });
 });

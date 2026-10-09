@@ -79,7 +79,7 @@ describe('soccer candidates', () => {
     const late = soccerOpportunities({ ...soccerInputs(), now: Date.parse('2026-10-09T07:00:00Z') });
     expect(late.every((o) => o.status === 'PASS')).toBe(true);
     expect(late[0].statusReason).toMatch(/validity window/);
-    expect(passReasonFor('SOCCER', late, soccerInputs().board, true)).toMatch(/No fixture/);
+    expect(passReasonFor('SOCCER', late, soccerInputs().board, true, Date.parse('2026-10-09T07:00:00Z'))).toMatch(/No fixture/);
   });
 });
 

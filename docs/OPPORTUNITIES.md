@@ -25,6 +25,24 @@ it), with fair = 1 − P(YES) and the NO bet-up-to; never 1 − the other side's
 `fee_per_contract` wins when it publishes one (soccer, NHL), because some series carry a multiplier.
 `breakEven = ask + fee`; `evPerContract = fair − breakEven` unless the publication publishes its own fee-adjusted EV.
 
+## Lifecycle (`lifecycle.ts`)
+
+An opportunity is pregame research. `eventPhase(event, now)` decides, from the caller's clock first and the
+publisher's status word second, whether it can still be acted on:
+
+| Phase | Rule | Opportunity |
+| --- | --- | --- |
+| PREGAME | start (effective start when published) is in the future; or the publication verifies the start as still upcoming, for at most six hours past the nominal time (tennis day placeholders) | as the publication states it |
+| STARTED | the start has passed, whatever the status word says (a stale SCHEDULED past kickoff is named as stale), or the publisher says LIVE | PASS: research frozen for review |
+| FINAL | the publisher says the game is over | PASS: frozen for review |
+| POSTPONED / CANCELLED / SUSPENDED | the publisher's word | PASS with that word |
+| NO_START | no usable start time | never ACTIONABLE; a permitted bet is downgraded to a research candidate that says Sift cannot verify the game has not started |
+
+`now` is always the caller's clock in epoch milliseconds (`useNow`); the evaluator throws on a zero or invalid clock
+rather than treating every game as pregame. Price state is checked after the phase: an actionable row also needs a
+current quote (younger than 30 minutes) at or under the publication's bet-up-to. The frozen rows keep their price,
+fair probability and evidence so a game page can review them; the home board and sport panels never feature them.
+
 ## Price state
 
 Decided in this order: `EXPIRED` (the publication's validity window has passed, or it says STALE_PRICE) →

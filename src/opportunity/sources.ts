@@ -19,6 +19,7 @@ import { describeMlbMarket } from '../lib/mlb';
 import { nbaTeam } from '../lib/nba';
 import { controlPrice, isPricedHigh, isStrong, isValueWatch, type SignalsDoc } from '../lib/cfbSignals';
 import { priceIntel } from './pricing';
+import { eventPhase, type PhaseRead } from './lifecycle';
 import type { Confidence, Opportunity, OpportunityStatus, RankInputs, Side, SportVerdict } from './types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -56,19 +57,25 @@ export function eventLabel(item: BoardItem, code: string): string {
   return item.participants.map((p) => p.display_name).join(' v ');
 }
 
-/** The publication's recommendation status as an Opportunity status, with the reason. */
-function statusOf(r: Rec, item: BoardItem, now: number, priceState: string): { status: OpportunityStatus; reason: string } {
+/**
+ * The publication's recommendation status as an Opportunity status, with the reason. The event's lifecycle comes
+ * first: once the start time has passed (whatever the publisher's status word says), or the game is final, postponed,
+ * cancelled or suspended, nothing pregame is actionable or a candidate — the research is frozen for review.
+ */
+function statusOf(r: Rec, phase: PhaseRead, priceState: string): { status: OpportunityStatus; reason: string } {
   const st = String(r.status ?? '').toUpperCase();
   const act = String(r.extensions?.action ?? st).toUpperCase();
-  if (Date.parse(item.start_time_utc) <= now && item.status !== 'SCHEDULED') return { status: 'PASS', reason: 'The game has started: pregame research is frozen.' };
+  if (phase.phase !== 'PREGAME' && phase.phase !== 'NO_START') return { status: 'PASS', reason: phase.reason };
   if (DEAD.test(st) || st === 'PASS' || st === 'NOT_PLAYABLE') return { status: 'PASS', reason: r.reason_not_playable ?? r.extensions?.native_status ?? `The publication marked this ${st.toLowerCase().replace(/_/g, ' ')}.` };
   if (priceState === 'EXPIRED') return { status: 'PASS', reason: 'The publication’s validity window for this price has passed; it says to treat the price as stale and take no action.' };
   if (act === 'ACTIONABLE' && !isResearch(r)) {
+    if (phase.phase === 'NO_START') return { status: 'RESEARCH_CANDIDATE', reason: `${phase.reason} The publication permits a bet, but Sift cannot verify the game has not started.` };
     if (priceState === 'ABOVE_BET_UP_TO') return { status: 'PASS', reason: 'The current ask is above the publication’s bet-up-to price.' };
     if (priceState === 'STALE' || priceState === 'NO_QUOTE') return { status: 'PASS', reason: 'No current executable quote for this side.' };
-    return { status: 'ACTIONABLE', reason: 'The publication permits a bet on this contract and the price is current and within its bet-up-to.' };
+    return { status: 'ACTIONABLE', reason: `The publication permits a bet on this contract and the price is current and within its bet-up-to.${phase.staleStatus ? ' The listed start has passed but the publication verifies the start as still upcoming.' : ''}` };
   }
-  return { status: 'RESEARCH_CANDIDATE', reason: r.extensions?.research_status ?? r.extensions?.action_reasons?.[0] ?? `${r.authority}: the publication flags this for research review, not as a bet.` };
+  const research = r.extensions?.research_status ?? r.extensions?.action_reasons?.[0] ?? `${r.authority}: the publication flags this for research review, not as a bet.`;
+  return { status: 'RESEARCH_CANDIDATE', reason: phase.phase === 'NO_START' ? `${research} ${phase.reason}` : research };
 }
 
 function tierOf(status: OpportunityStatus, support: string | null, worst: number | null, highVariance: boolean): RankInputs['tier'] {
@@ -81,14 +88,15 @@ function tierOf(status: OpportunityStatus, support: string | null, worst: number
 }
 const TIER_WORD: Record<RankInputs['tier'], string> = { 1: 'Actionable', 2: 'Research candidate · robust', 3: 'Research candidate', 4: 'Watch', 5: 'Pass' };
 
-function base(code: Opportunity['sport'], slug: string, item: BoardItem, r: Rec, title: string, subject: string | null, family: string | null, why: string, evidence: string[], risk: string | null, alternatives: string[], confidence: Confidence, price: Opportunity['price'], group: string | null, highVariance: boolean): Opportunity {
-  const { status, reason } = statusOf(r, item, price.state === 'CURRENT' ? 0 : 0, price.state);
+function base(code: Opportunity['sport'], slug: string, item: BoardItem, r: Rec, title: string, subject: string | null, family: string | null, why: string, evidence: string[], risk: string | null, alternatives: string[], confidence: Confidence, price: Opportunity['price'], group: string | null, highVariance: boolean, now: number, verifiedUpcoming = false): Opportunity {
+  const phase = eventPhase(item, now, { verifiedUpcoming });
+  const { status, reason } = statusOf(r, phase, price.state);
   const worst = n(r.extensions?.worst_case_edge);
   const tier = tierOf(status, confidence.support, worst, highVariance);
   return {
     id: `${code}:${r.recommendation_id}`, sport: code, slug, eventId: item.event_id, eventLabel: eventLabel(item, code), competition: item.competition, startTime: item.start_time_utc,
     marketId: r.market_id, ticker: r.source_ids?.kalshi_ticker ?? r.market_id.replace(/^mkt_kalshi_/, ''), family,
-    what: { title, side: sideOf(r.selection), subject }, why, evidence, risk, alternatives, price, confidence, status, authority: r.authority, statusReason: reason, group,
+    what: { title, side: sideOf(r.selection), subject }, why, evidence, risk, alternatives, price, confidence, status, authority: r.authority, statusReason: reason, group, phase: phase.phase,
     href: routes.market(slug, r.market_id, item.event_id), gameHref: routes.game(slug, item.event_id),
     rank: { tier, tierWord: TIER_WORD[tier], worstCaseEdge: worst, evPerContract: price.evPerContract, edgeShare: confidence.edgeShare, priceCurrent: price.state === 'CURRENT', highVariance, kickoff: item.start_time_utc },
   };
@@ -139,7 +147,7 @@ export function soccerOpportunities(x: SportInputs): Opportunity[] {
       calibration: 'RESEARCH', note: 'Every soccer model family is RESEARCH_ONLY: settled calibration is published per family on the match page; the international pool is not validated.',
       inputs: fresh(ext.freshness), support: label ?? (ext.best_expression ? 'BEST_EXPRESSION' : null), supportNote: label ? `Script robustness ${String(label).toLowerCase()}` : ext.best_expression ? 'Best expression on this fixture' : null, edgeShare: n(ext.model_posterior_edge_share),
     };
-    out.push(base('SOCCER', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${r.thesis_id ?? 'thesis'}`, HIGH_VARIANCE.has(family ?? '')));
+    out.push(base('SOCCER', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${r.thesis_id ?? 'thesis'}`, HIGH_VARIANCE.has(family ?? ''), x.now));
   }
   return out;
 }
@@ -196,7 +204,7 @@ export function tennisOpportunities(x: SportInputs): Opportunity[] {
       calibration: 'MARKET_BEATS_MODEL', note: 'RESEARCH_ONLY; the publication reports no evidence of edge on settled rows.', inputs: { start: String(ext.start_status ?? 'unknown'), discrepancy: String(ext.discrepancy_band ?? 'unknown') },
       support: ext_conf, supportNote: ext_conf === 'AGREES_WITH_MODEL' ? 'Sharp references agree with the model' : ext_conf === 'NO_EXTERNAL_REFERENCE' ? 'No sharp reference to check against' : 'Sharp references side with the market', edgeShare: null,
     };
-    out.push(base('TENNIS', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${family}`, HIGH_VARIANCE.has(family)));
+    out.push(base('TENNIS', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${family}`, HIGH_VARIANCE.has(family), x.now, String(ext.start_status ?? '').toUpperCase() === 'VERIFIED_UPCOMING'));
   }
   return out;
 }
@@ -234,7 +242,7 @@ export function nhlOpportunities(x: SportInputs): Opportunity[] {
       calibration: 'RESEARCH', note: 'RESEARCH_ONLY under prospective tracking (the learning scorecard counts settled games).', inputs: { price: String(r.data_freshness ?? 'unknown'), lines: String(r.lineup_status ?? 'unknown') },
       support: String(ext.family_reliability ?? r.confidence ?? ''), supportNote: ext.family_reliability ? `Family reliability ${String(ext.family_reliability).replace(/_/g, ' ').toLowerCase()}` : null, edgeShare: null,
     };
-    out.push(base('NHL', x.sport.slug, item, r, title, null, family, why, evidence, risk, alternatives, confidence, price, `${item.event_id}:${ext.primary_thesis_key ?? 'thesis'}`, hv));
+    out.push(base('NHL', x.sport.slug, item, r, title, null, family, why, evidence, risk, alternatives, confidence, price, `${item.event_id}:${ext.primary_thesis_key ?? 'thesis'}`, hv, x.now));
   }
   return out;
 }
@@ -258,7 +266,7 @@ export function mlbOpportunities(x: SportInputs): Opportunity[] {
     const evidence = [r.fair_probability != null ? `Fair probability ${pct(r.fair_probability)}` : 'No fair probability is published for this row', `Native status ${String(ext.native_status ?? 'unknown').toLowerCase()} · confidence ${String(r.confidence ?? 'unknown').toLowerCase()}`];
     const risk = ext.real_money_eligible === false ? 'Not real-money eligible by the publication’s own flag; the MLB model is research-only.' : null;
     const confidence: Confidence = { calibration: 'RESEARCH', note: 'RESEARCH_ONLY: the MLB slate ledger is a paper record.', inputs: { price: String(r.data_freshness ?? 'unknown') }, support: String(ext.native_status ?? ''), supportNote: null, edgeShare: null };
-    out.push(base('MLB', x.sport.slug, item, r, title, null, String(ext.market_name ?? null), why, evidence, risk, [], confidence, price, `${item.event_id}:${ext.market_name ?? 'ml'}`, false));
+    out.push(base('MLB', x.sport.slug, item, r, title, null, String(ext.market_name ?? null), why, evidence, risk, [], confidence, price, `${item.event_id}:${ext.market_name ?? 'ml'}`, false, x.now));
   }
   return out;
 }
@@ -274,7 +282,7 @@ export function nflOpportunities(x: SportInputs): Opportunity[] {
     const side = sideOf(r.selection);
     const price = priceIntel({ side, ask: n(r.current_price), observedAt: r.created_at, source: 'recommendation', fair: r.fair_probability, betUpTo: r.bet_up_to_price, expiresAt: r.expires_at ?? null, now: x.now });
     const confidence: Confidence = { calibration: isResearch(r) ? 'RESEARCH' : 'VALIDATED', note: isResearch(r) ? 'The NFL model is research-only (shown redundant to the closing market on props and behind it on game outcomes).' : 'The publication permits this bet.', inputs: { price: String(r.data_freshness ?? 'unknown') }, support: null, supportNote: null, edgeShare: null };
-    out.push(base('NFL', x.sport.slug, item, r, r.market_description ?? r.market_id, null, null, `${eventLabel(item, 'NFL')}: the NFL publication recommends ${side} on this contract.`, [r.fair_probability != null ? `Fair probability ${pct(r.fair_probability)}` : 'No fair probability published'], null, [], confidence, price, `${item.event_id}`, false));
+    out.push(base('NFL', x.sport.slug, item, r, r.market_description ?? r.market_id, null, null, `${eventLabel(item, 'NFL')}: the NFL publication recommends ${side} on this contract.`, [r.fair_probability != null ? `Fair probability ${pct(r.fair_probability)}` : 'No fair probability published'], null, [], confidence, price, `${item.event_id}`, false, x.now));
   }
   return out;
 }
@@ -285,7 +293,8 @@ export function cfbOpportunities(board: BoardItem[], doc: SignalsDoc | null, slu
   if (!doc) return [];
   const out: Opportunity[] = [];
   for (const item of board) {
-    if (item.status !== 'SCHEDULED' || Date.parse(item.start_time_utc) <= now) continue;
+    const phase = eventPhase(item, now);
+    if (phase.phase !== 'PREGAME') continue;
     const g = doc.byEvent.get(item.event_id);
     if (!g?.claims?.control) continue;
     const price = controlPrice(g, live && g.market?.price?.market_ticker ? live(g.market.price.market_ticker) : null);
@@ -313,7 +322,7 @@ export function cfbOpportunities(board: BoardItem[], doc: SignalsDoc | null, slu
       why: g.headline ?? g.card_line ?? `${team} controls this game on the opponent-adjusted football read.`, evidence, risk: value ? doc.signals.moderate_control.small_sample ?? doc.signals.moderate_control.disclaimer ?? null : doc.signals.strong_control.explanation,
       alternatives: [], price: pi,
       confidence: { calibration: 'RESEARCH', note: value ? doc.signals.moderate_control.explanation : doc.signals.strong_control.explanation, inputs: { data_quality: String(g.data_quality ?? 'unknown'), price: price.kind }, support: `${strength}_CONTROL`, supportNote: `${strength === 'STRONG' ? 'Strong' : 'Moderate'} CONTROL${g.claims.closeness ? ' with a close-game profile' : ''}`, edgeShare: null },
-      status, authority: 'RESEARCH_ONLY', statusReason: reason, group: `${item.event_id}:control`, href: marketId ? routes.market(slug, marketId, item.event_id) : routes.game(slug, item.event_id), gameHref: routes.game(slug, item.event_id),
+      status, authority: 'RESEARCH_ONLY', statusReason: reason, group: `${item.event_id}:control`, phase: phase.phase, href: marketId ? routes.market(slug, marketId, item.event_id) : routes.game(slug, item.event_id), gameHref: routes.game(slug, item.event_id),
       rank: { tier, tierWord: TIER_WORD[tier], worstCaseEdge: null, evPerContract: null, edgeShare: null, priceCurrent: quoteOk, highVariance: false, kickoff: item.start_time_utc },
     });
   }
@@ -323,15 +332,16 @@ export function cfbOpportunities(board: BoardItem[], doc: SignalsDoc | null, slu
 // ------------------------------------------------------------------ verdicts
 
 /** The one-sentence reason a sport surfaces no opportunity, from what the publication itself says. */
-export function passReasonFor(code: Opportunity['sport'], opps: Opportunity[], board: BoardItem[], recsRead: boolean): string | null {
+export function passReasonFor(code: Opportunity['sport'], opps: Opportunity[], board: BoardItem[], recsRead: boolean, now: number): string | null {
   if (opps.some((o) => o.status !== 'PASS')) return null;
-  const upcoming = board.filter((i) => i.status === 'SCHEDULED').length;
-  if (!upcoming) return 'No upcoming game on the publication’s board.';
+  // A publication that prices nothing has that as its reason whatever the clock says; the others depend on the board.
+  if (code === 'NBA') return 'The NBA publication prices no contract, and its own study shows the market beating its model in 8 of 8 families.';
+  if (code === 'CBB') return 'The CBB publication maps no Kalshi contract to its games yet: research only, no markets.';
+  const upcoming = board.filter((i) => eventPhase(i, now).phase === 'PREGAME').length;
+  if (!upcoming) return board.some((i) => eventPhase(i, now).staleStatus) ? 'Every game on the publication’s board has passed its published start; the publication has not refreshed since.' : 'No upcoming game on the publication’s board.';
   switch (code) {
     case 'NFL': return recsRead ? 'The NFL publication recommends nothing this week: its model is research-only (behind the closing market on game outcomes), so no model-vs-market gap is called an edge.' : 'The NFL recommendations file could not be read.';
     case 'CFB': return 'No Moderate CONTROL game with a fresh executable price qualifies as a Value Watch right now; Strong CONTROL reads are already priced by the market.';
-    case 'NBA': return 'The NBA publication prices no contract, and its own study shows the market beating its model in 8 of 8 families.';
-    case 'CBB': return 'The CBB publication maps no Kalshi contract to its games yet: research only, no markets.';
     case 'NHL': return recsRead ? 'The NHL publication lists no research candidate on today’s games yet (games are simulated on their game day).' : 'The NHL recommendations file could not be read.';
     case 'MLB': return 'Every row of the MLB slate ledger is a PASS: no research candidate on the board.';
     case 'SOCCER': return 'No fixture on the board carries a research candidate at the current prices.';
@@ -340,9 +350,9 @@ export function passReasonFor(code: Opportunity['sport'], opps: Opportunity[], b
   }
 }
 
-export function verdict(code: Opportunity['sport'], slug: string, label: string, board: BoardItem[], opps: Opportunity[], recsRead: boolean, modelState: string | null, loaded: boolean, error: string | null): SportVerdict {
+export function verdict(code: Opportunity['sport'], slug: string, label: string, board: BoardItem[], opps: Opportunity[], recsRead: boolean, modelState: string | null, loaded: boolean, error: string | null, now: number): SportVerdict {
   return {
-    sport: code, slug, label, games: board.filter((i) => i.status !== 'FINAL').length, opportunities: opps.filter((o) => o.status !== 'PASS').length, passes: opps.filter((o) => o.status === 'PASS').length,
-    passReason: loaded ? passReasonFor(code, opps, board, recsRead) : null, modelState, loaded, error,
+    sport: code, slug, label, games: board.filter((i) => eventPhase(i, now).phase === 'PREGAME' || eventPhase(i, now).phase === 'STARTED').length, opportunities: opps.filter((o) => o.status !== 'PASS').length, passes: opps.filter((o) => o.status === 'PASS').length,
+    passReason: loaded ? passReasonFor(code, opps, board, recsRead, now) : null, modelState, loaded, error,
   };
 }

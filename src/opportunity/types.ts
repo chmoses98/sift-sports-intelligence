@@ -13,6 +13,7 @@
 //   ALTERNATIVES the related expressions the publication names
 // A PASS is a first-class result: a sport with nothing that qualifies says so, with the precise missing prerequisite.
 import type { SportCode } from '../contract/types';
+import type { EventPhase } from './lifecycle';
 
 export type OpportunityStatus =
   /** The publication itself permits a bet (authority not research-only), the price is current and at or under its bet-up-to. */
@@ -104,6 +105,8 @@ export interface Opportunity {
   authority: string;
   /** Why the status is what it is, in one sentence. */
   statusReason: string;
+  /** The event's lifecycle phase at evaluation time (src/opportunity/lifecycle.ts): only PREGAME can be acted on. */
+  phase: EventPhase;
   /** A thesis / exposure group shared with related opportunities on the same game (correlation). */
   group: string | null;
   href: string;

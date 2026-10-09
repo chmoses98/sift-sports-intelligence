@@ -24,6 +24,13 @@ export const NHL_FINAL_ROOT = 'disk://nhl-final';
  * and mlb.player_prop.v1 extensions on LAD@ATL (scripts/make_mlb_fixture.py; tests/fixtures/mlb/README.md). */
 export const MLB_DIR = join(__dirname, 'fixtures', 'mlb', 'app', 'latest');
 export const MLB_ROOT = 'disk://mlb';
+/** Trimmed, real soccer-edge-finder, Tennis-Edge-Finder and nba-edge-finder publications (scripts/make_sport_fixture.py). */
+export const SOCCER_DIR = join(__dirname, 'fixtures', 'soccer', 'app', 'latest');
+export const SOCCER_ROOT = 'disk://soccer';
+export const TENNIS_DIR = join(__dirname, 'fixtures', 'tennis', 'app', 'latest');
+export const TENNIS_ROOT = 'disk://tennis';
+export const NBA_DIR = join(__dirname, 'fixtures', 'nba', 'app', 'latest');
+export const NBA_ROOT = 'disk://nba';
 export const HISTORY_ROOT = 'disk://history';
 export const HISTORY_DIR = join(__dirname, '..', 'public', 'data', 'nfl', 'history');
 
@@ -41,6 +48,18 @@ export function readNhl<T>(rel: string): T {
 
 export function readNhlFinal<T>(rel: string): T {
   return JSON.parse(readFileSync(join(NHL_FINAL_DIR, rel), 'utf-8')) as T;
+}
+
+export function readSoccer<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(SOCCER_DIR, rel), 'utf-8')) as T;
+}
+
+export function readTennis<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(TENNIS_DIR, rel), 'utf-8')) as T;
+}
+
+export function readNba<T>(rel: string): T {
+  return JSON.parse(readFileSync(join(NBA_DIR, rel), 'utf-8')) as T;
 }
 
 export function readSnapshot<T>(rel: string): T {
@@ -62,7 +81,8 @@ export async function readDisk(url: string): Promise<unknown> {
     if (!existsSync(f)) throw new NotFoundError(url);
     return JSON.parse(readFileSync(f, 'utf-8'));
   }
-  const [root, dir] = url.startsWith(CFB_ROOT + '/') ? [CFB_ROOT, CFB_DIR] : url.startsWith(NHL_FINAL_ROOT + '/') ? [NHL_FINAL_ROOT, NHL_FINAL_DIR] : url.startsWith(NHL_ROOT + '/') ? [NHL_ROOT, NHL_DIR] : url.startsWith(MLB_ROOT + '/') ? [MLB_ROOT, MLB_DIR] : [ROOT, SNAPSHOT_DIR];
+  const ROOTS: [string, string][] = [[CFB_ROOT, CFB_DIR], [NHL_FINAL_ROOT, NHL_FINAL_DIR], [NHL_ROOT, NHL_DIR], [MLB_ROOT, MLB_DIR], [SOCCER_ROOT, SOCCER_DIR], [TENNIS_ROOT, TENNIS_DIR], [NBA_ROOT, NBA_DIR]];
+  const [root, dir] = ROOTS.find(([r]) => url.startsWith(r + '/')) ?? [ROOT, SNAPSHOT_DIR];
   if (!url.startsWith(root + '/')) throw new NotFoundError(url);
   const file = join(dir, url.slice(root.length + 1));
   if (!existsSync(file)) throw new NotFoundError(url);
@@ -104,6 +124,16 @@ export function mlbRepo(): SportRepo {
   };
   return new SportRepo(source);
 }
+
+function fixtureRepo(code: 'SOCCER' | 'TENNIS' | 'NBA', root: string, read: <T>(rel: string) => T): SportRepo {
+  const sport = sportByCode(code)!;
+  const source: SportSource = { sport, mode: 'live', root, liveHealth: read<HealthDoc>('health.json'), liveError: null, snapshot: null, reason: 'test fixture' };
+  return new SportRepo(source);
+}
+
+export const soccerRepo = () => fixtureRepo('SOCCER', SOCCER_ROOT, readSoccer);
+export const tennisRepo = () => fixtureRepo('TENNIS', TENNIS_ROOT, readTennis);
+export const nbaRepo = () => fixtureRepo('NBA', NBA_ROOT, readNba);
 
 export function nflRepo(): SportRepo {
   const sport = sportByCode('NFL')!;

@@ -1,0 +1,96 @@
+{
+  "generated_at": "2026-10-09T06:59:21.254Z",
+  "source": "ESPN team-logo CDN (a.espncdn.com/i/teamlogos/nba)",
+  "teams": {
+    "ATL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/atl.png"
+    },
+    "BOS": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/bos.png"
+    },
+    "BKN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/bkn.png"
+    },
+    "CHA": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/cha.png"
+    },
+    "CHI": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/chi.png"
+    },
+    "CLE": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/cle.png"
+    },
+    "DAL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/dal.png"
+    },
+    "DEN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/den.png"
+    },
+    "DET": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/det.png"
+    },
+    "GSW": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/gs.png"
+    },
+    "HOU": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/hou.png"
+    },
+    "IND": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/ind.png"
+    },
+    "LAC": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/lac.png"
+    },
+    "LAL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/lal.png"
+    },
+    "MEM": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/mem.png"
+    },
+    "MIA": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/mia.png"
+    },
+    "MIL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/mil.png"
+    },
+    "MIN": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/min.png"
+    },
+    "NOP": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/no.png"
+    },
+    "NYK": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/ny.png"
+    },
+    "OKC": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/okc.png"
+    },
+    "ORL": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/orl.png"
+    },
+    "PHI": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/phi.png"
+    },
+    "PHX": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/phx.png"
+    },
+    "POR": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/por.png"
+    },
+    "SAC": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/sac.png"
+    },
+    "SAS": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/sa.png"
+    },
+    "TOR": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/tor.png"
+    },
+    "UTA": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/utah.png"
+    },
+    "WAS": {
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/wsh.png"
+    }
+  }
+}

@@ -1,0 +1,187 @@
+{
+ "bet_authority": "ASSISTED",
+ "count": 3,
+ "generated_at": "2026-10-09T05:52:46Z",
+ "items": [
+  {
+   "away_participant": null,
+   "competition": "M25 Kigali",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_d09d8721f706b006741f.json",
+   "event_id": "evt_d09d8721f706b006741f",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": null,
+   "league": "ATP",
+   "market_captured_at": "2026-10-09T05:52:40Z",
+   "markets_available": 2,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Lock / John Lock",
+     "participant_id": "prt_af2387c468d349706c4a",
+     "participant_type": "PLAYER",
+     "short_name": null
+    },
+    {
+     "display_name": "Christopher Kucukhuseyin / Van Aken",
+     "participant_id": "prt_da04eb46e4f3015a71b5",
+     "participant_type": "PLAYER",
+     "short_name": null
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-08T16:30:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": null,
+   "competition": "ATP Shanghai",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_626bc16043b56b7b1921.json",
+   "event_id": "evt_626bc16043b56b7b1921",
+   "health_flags": [],
+   "home_participant": null,
+   "league": "ATP",
+   "market_captured_at": "2026-10-09T05:52:38Z",
+   "markets_available": 16,
+   "markets_priced": 16,
+   "model_generated_at": "2026-10-09T05:52:43Z",
+   "participants": [
+    {
+     "display_name": "Karen Khachanov",
+     "participant_id": "prt_dc998b2d3279e7cce73b",
+     "participant_type": "PLAYER",
+     "short_name": null
+    },
+    {
+     "display_name": "Arthur Fery",
+     "participant_id": "prt_30230b56538f4022e512",
+     "participant_type": "PLAYER",
+     "short_name": null
+    }
+   ],
+   "recommendations_count": 3,
+   "start_time_utc": "2026-10-09T07:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.49,
+     "edge": 0.096272,
+     "fair_probability": 0.6063,
+     "market_description": "Over 22.5 games",
+     "market_id": "mkt_kalshi_KXATPGTOTAL-26OCT09KHAFER-23",
+     "recommendation_id": "rec_af7036bf2b04da19169b",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.53,
+     "edge": 0.087006,
+     "fair_probability": 0.637,
+     "market_description": "Karen Khachanov -3.5 games",
+     "market_id": "mkt_kalshi_KXATPGSPREAD-26OCT09KHAFER-KHA4",
+     "recommendation_id": "rec_06a118ab74c5ec074cd2",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.32,
+     "edge": 0.064047,
+     "fair_probability": 0.404,
+     "market_description": "Over 27.5 games",
+     "market_id": "mkt_kalshi_KXATPGTOTAL-26OCT09KHAFER-28",
+     "recommendation_id": "rec_7f8f5491e93bf299d000",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    }
+   ],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": null,
+   "competition": "WTA Beijing",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_581f889e1dfb4de11420.json",
+   "event_id": "evt_581f889e1dfb4de11420",
+   "health_flags": [],
+   "home_participant": null,
+   "league": "WTA",
+   "market_captured_at": "2026-10-09T05:52:43Z",
+   "markets_available": 9,
+   "markets_priced": 9,
+   "model_generated_at": "2026-10-09T05:52:43Z",
+   "participants": [
+    {
+     "display_name": "Elise Mertens",
+     "participant_id": "prt_672feecdb6304f1cb2b1",
+     "participant_type": "PLAYER",
+     "short_name": null
+    },
+    {
+     "display_name": "Iga Swiatek",
+     "participant_id": "prt_d539a3814ae640119d8d",
+     "participant_type": "PLAYER",
+     "short_name": null
+    }
+   ],
+   "recommendations_count": 4,
+   "start_time_utc": "2026-10-09T11:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.47,
+     "edge": 0.094836,
+     "fair_probability": 0.5848,
+     "market_description": "Over 20.5 games",
+     "market_id": "mkt_kalshi_KXWTAGTOTAL-26OCT07MERSWI-21",
+     "recommendation_id": "rec_71b7d0d5778625e5d143",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.27,
+     "edge": 0.065527,
+     "fair_probability": 0.3555,
+     "market_description": "Elise Mertens",
+     "market_id": "mkt_kalshi_KXWTASETWINNER-26OCT07MERSWI-2-MER",
+     "recommendation_id": "rec_93ea8cb3e4648ff14d67",
+     "research_only": true,
+     "selection": "YES",
+     "status": "RESEARCH_CANDIDATE"
+    },
+    {
+     "authority": "RESEARCH_ONLY",
+     "current_price": 0.27,
+     "edge": 0.065527,
+     "fair_probability": 0.3555,
+     "market_description": "Iga Swiatek",
+     "market_id": "mkt_kalshi_KXWTASETWINNER-26OCT07MERSWI-2-SWI",
+     "recommendation_id": "rec_e4db48c592e0c5eaaef8",
+     "research_only": true,
+     "selection": "NO",
+     "status": "RESEARCH_CANDIDATE"
+    }
+   ],
+   "wagers_count": 0
+  }
+ ],
+ "kind": "board",
+ "overall_status": "HEALTHY",
+ "run_id": "run_125ad64151a15d9d180b",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "TENNIS"
+}

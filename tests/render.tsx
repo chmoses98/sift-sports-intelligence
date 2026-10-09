@@ -6,7 +6,8 @@ import type { Capability, CapabilityManifestDoc, MetricRegistryDoc } from '../sr
 import { SportProvider } from '../src/state/sport';
 import { TrailProvider } from '../src/state/trail';
 import { TrayProvider } from '../src/state/tray';
-import { cfbRepo, mlbRepo, nflRepo, nhlFinalRepo, nhlRepo, readCfb, readMlb, readNhl, readNhlFinal, readSnapshot } from './helpers';
+import { cfbRepo, mlbRepo, nbaRepo, nflRepo, nhlFinalRepo, nhlRepo, readCfb, readMlb, readNba, readNhl, readNhlFinal, readSnapshot, readSoccer, readTennis, soccerRepo, tennisRepo } from './helpers';
+import type { SportRepo } from '../src/data/repo';
 
 export function nflContext(capsOverride: Record<string, string> = {}) {
   const repo = nflRepo();
@@ -48,8 +49,20 @@ export function mlbContext() {
   return { sport: repo.sport, slug: 'mlb', repo, caps, capDoc, metrics };
 }
 
-export function renderScreen(path: string, pattern: string, element: ReactElement, capsOverride: Record<string, string> = {}, sport: 'nfl' | 'cfb' | 'nhl' | 'nhl-final' | 'mlb' = 'nfl') {
-  const ctx = sport === 'cfb' ? cfbContext() : sport === 'nhl' ? nhlContext() : sport === 'nhl-final' ? nhlFinalContext() : sport === 'mlb' ? mlbContext() : nflContext(capsOverride);
+function fixtureContext(repo: SportRepo, slug: string, read: <T>(rel: string) => T) {
+  const capDoc = read<CapabilityManifestDoc>('explorer/capabilities.json');
+  const caps = new Map<string, Capability>(capDoc.items.map((c) => [c.capability, c]));
+  const metrics = new Map(read<MetricRegistryDoc>('explorer/metrics.json').items.map((m) => [m.metric_id, m]));
+  return { sport: repo.sport, slug, repo, caps, capDoc, metrics };
+}
+export const soccerContext = () => fixtureContext(soccerRepo(), 'soccer', readSoccer);
+export const tennisContext = () => fixtureContext(tennisRepo(), 'tennis', readTennis);
+export const nbaContext = () => fixtureContext(nbaRepo(), 'nba', readNba);
+
+export type FixtureSport = 'nfl' | 'cfb' | 'nhl' | 'nhl-final' | 'mlb' | 'soccer' | 'tennis' | 'nba';
+
+export function renderScreen(path: string, pattern: string, element: ReactElement, capsOverride: Record<string, string> = {}, sport: FixtureSport = 'nfl') {
+  const ctx = sport === 'cfb' ? cfbContext() : sport === 'nhl' ? nhlContext() : sport === 'nhl-final' ? nhlFinalContext() : sport === 'mlb' ? mlbContext() : sport === 'soccer' ? soccerContext() : sport === 'tennis' ? tennisContext() : sport === 'nba' ? nbaContext() : nflContext(capsOverride);
   const router = createMemoryRouter(
     [
       { path: pattern, element: <TrailProvider><SportProvider value={ctx}>{element}</SportProvider></TrailProvider> },

@@ -2,11 +2,16 @@
 
 **Live:** https://chmoses98.github.io/sift-sports-intelligence/ (installable on iPhone: Share → Add to Home Screen)
 
-Sift is a sports research web, not a picks app. Open a game and follow the evidence: team → opponent →
-metric → the full league comparison → a historical game → a player → his markets → save what matters to the
-research tray → **COPY FOR CHATGPT** a compact handicap packet for the final judgment.
+Sift does the research so the viewer doesn't have to. It identifies, evaluates, explains and prioritizes
+evidence-supported betting opportunities across eight sports, makes uncertainty transparent, and leaves the
+decision with the viewer. Every screen is built as progressive disclosure: the opportunity (or an honest PASS) →
+the plain-English reason → the evidence and the counter-case → the complete research (team → opponent → metric →
+league comparison → history → player → markets → research tray → **COPY FOR CHATGPT** packet).
 
-> Projections and model prices are evidence, never recommendations. Sift never ranks "best bets".
+> A PASS is a successful outcome when the evidence is insufficient. Sift never manufactures a recommendation: an
+> opportunity is shown only with the publication's own authority (actionable, research candidate, research only),
+> its executable price, the fee-aware break-even and the strongest reason it could lose. Unvalidated models stay
+> research-only until their publication promotes them.
 
 Sift is the consumer layer over the Edge Finder research infrastructure. It reads the published
 `edge_finder.app.v1` contract (authored in `chmoses98/kalshi-bet-router`) straight from each sport repository —
@@ -47,7 +52,22 @@ packet refreshes its markets before it is built. See docs/ARCHITECTURE.md → *T
   no wagers, no market rows until real Kalshi game contracts map to games. Screens: `src/views/cbb/` (a presentation
   adapter behind the generic routes); tests: `tests/cbb.test.ts`, `e2e/cbb.spec.ts` on synthetic fixtures in
   `e2e/data/cbb/`.
-* **NBA, Soccer, Tennis** — real live health and capability manifests; explorer screens come later.
+* **Soccer** — a first-class vertical on its live publication: a home organised by competition (every fixture with
+  the model's 1X2 read and its research candidates) and a match page that leads with the strongest research
+  expression from the soccer script engine (fee-aware break-even, fair probability, worst-case edge, the script that
+  beats it) or an honest PASS, then six scripts with simulation shares, the opponent- and schedule-adjusted matchup,
+  every market by family with the model beside the price, rest, head-to-head and settled calibration. RESEARCH_ONLY
+  throughout (`src/lib/soccer.ts`, `src/views/soccer/`; tests on `tests/fixtures/soccer`, a trimmed real publication).
+* **Tennis** — an individual sport with its own home (tours, tiers, tournaments; matches as two players with the
+  model's chance where one exists), match pages (three model generations, sharp-reference triangulation, serve and
+  return evidence, every market, the publication's research candidates and why they are not bets), and player pages
+  (surface-aware Elo, serve/return ability). Doubles carry no model by the publication's rule (`src/lib/tennis.ts`,
+  `src/views/tennis/`; `tests/fixtures/tennis`).
+* **NBA** — a home and game pages on its live publication: the slate with club identity, the opponent-ranked
+  matchup, the injury report, projected rosters and every market as prices only, with the publication's own
+  out-of-sample study (the market beats the model in 8 of 8 families) shown as the reason no NBA opportunity is
+  surfaced (`src/lib/nba.ts`, `src/views/nba/`; `tests/fixtures/nba`). Logos are fetched once by
+  `scripts/teams/fetch-nba-logos.mjs` in the team-logos workflow.
 
 ## Develop
 
@@ -84,6 +104,8 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * `scripts/make_golden_packets.py` — regenerate the golden packets with the contract's Python builder after a
   snapshot refresh.
 * `scripts/history/build-nfl-history.mjs` — the player/team history layer from nflverse (run by every deploy).
+* `scripts/make_sport_fixture.py` — trim any real `app/latest` publication (URL or directory) to a few events for
+  the tests (used for `tests/fixtures/{soccer,tennis,nba}`).
 * `scripts/make_nhl_fixture.py` — trim a real NHL `app/latest` publication to a few games for the NHL tests
   (`tests/fixtures/nhl`); rerun it when the NHL research payload changes shape.
 * `scripts/make-icons.mjs` — render the PWA icons.

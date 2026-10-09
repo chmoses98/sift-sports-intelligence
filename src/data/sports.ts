@@ -56,7 +56,8 @@ export const SPORTS: SportConfig[] = [
     code: 'NBA', slug: 'nba', label: 'NBA', fullName: 'National Basketball Association',
     repo: 'chmoses98/nba-edge-finder', branch: 'data-archive',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest',
-    snapshotBase: null, tier: 'listed', entityNoun: { team: 'team', event: 'game' },
+    // Explorable: the NBA home, game pages and the generic team/player/metric screens over its live explorer (views/nba).
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'team', event: 'game' },
   },
   {
     code: 'NHL', slug: 'nhl', label: 'NHL', fullName: 'National Hockey League',
@@ -70,7 +71,8 @@ export const SPORTS: SportConfig[] = [
     code: 'SOCCER', slug: 'soccer', label: 'Soccer', fullName: 'Soccer',
     repo: 'chmoses98/soccer-edge-finder', branch: 'data-archive',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest',
-    snapshotBase: null, tier: 'listed', entityNoun: { team: 'club', event: 'match' },
+    // Explorable: the Soccer home and match pages read the soccer script engine and model board (views/soccer, lib/soccer.ts).
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'club', event: 'match' },
   },
   {
     // NCAA Division I men's basketball: its own sport (never NBA, never CFB). The publication is the CBB
@@ -85,7 +87,8 @@ export const SPORTS: SportConfig[] = [
     code: 'TENNIS', slug: 'tennis', label: 'Tennis', fullName: 'Tennis',
     repo: 'chmoses98/Tennis-Edge-Finder', branch: 'tennis-data',
     rawBase: 'https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest',
-    snapshotBase: null, tier: 'listed', entityNoun: { team: 'player', event: 'match' },
+    // Explorable: an individual sport (participants are players; no home/away) with its own home, match and player pages (views/tennis).
+    snapshotBase: null, tier: 'secondary', entityNoun: { team: 'player', event: 'match' },
   },
 ];
 

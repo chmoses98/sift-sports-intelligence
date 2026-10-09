@@ -17,6 +17,10 @@ import { useLiveQuotes, useNow } from '../live/hooks';
 const CbbSlateView = lazy(() => import('./cbb/Slate').then((m) => ({ default: m.CbbSlateView })));
 /** The NHL slate (views/nhl): its own chunk. */
 const NhlSlateView = lazy(() => import('./nhl/NhlSlate').then((m) => ({ default: m.NhlSlateView })));
+/** Soccer, Tennis and NBA: the sport home IS the slate (competition / tournament navigation over every row). */
+const SoccerHomeView = lazy(() => import('./soccer/SoccerHome').then((m) => ({ default: m.SoccerHomeView })));
+const TennisHomeView = lazy(() => import('./tennis/TennisHome').then((m) => ({ default: m.TennisHomeView })));
+const NbaHomeView = lazy(() => import('./nba/NbaHome').then((m) => ({ default: m.NbaHomeView })));
 
 function useVisible<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -149,6 +153,9 @@ export function groupWindows(items: BoardItem[]): { key: string; day: string; ti
 export function SlateView() {
   const { sport } = useSport();
   if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><NhlSlateView /></Suspense>;
+  if (sport.code === 'SOCCER') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><SoccerHomeView /></Suspense>;
+  if (sport.code === 'TENNIS') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><TennisHomeView /></Suspense>;
+  if (sport.code === 'NBA') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><NbaHomeView /></Suspense>;
   return sport.code === 'CBB' ? <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><CbbSlateView /></Suspense> : <GenericSlateView />;
 }
 

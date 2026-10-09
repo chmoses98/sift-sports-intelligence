@@ -76,10 +76,13 @@ const MATCHUP_FOR_POS: Record<string, string[]> = {
 
 /** The NHL player page (views/nhl): its own chunk. */
 const NhlPlayerView = lazy(() => import('./nhl/NhlPlayer').then((m) => ({ default: m.NhlPlayerView })));
+/** Tennis players are participants, not roster members: their own page (views/tennis). */
+const TennisPlayerView = lazy(() => import('./tennis/TennisPlayer').then((m) => ({ default: m.TennisPlayerView })));
 
 export function PlayerView() {
   const { sport } = useSport();
   if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NhlPlayerView /></Suspense>;
+  if (sport.code === 'TENNIS') return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><TennisPlayerView /></Suspense>;
   return <GenericPlayerView />;
 }
 

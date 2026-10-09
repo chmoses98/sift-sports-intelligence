@@ -1,0 +1,107 @@
+{
+  "bet_authority": "ASSISTED",
+  "commit_sha": "49ca6779814edc467eb1b02a0487d47aaeb488cd",
+  "components": {
+    "assisted_pipeline": {
+      "age_seconds": 4921.9,
+      "as_of": "2026-10-09T04:30:44Z",
+      "detail": "NO_DECISIONS_YET",
+      "status": "OK"
+    },
+    "assisted_pipeline_gate": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": "TENNIS-16 PASS",
+      "status": "OK"
+    },
+    "export": {
+      "age_seconds": 0.6,
+      "as_of": "2026-10-09T05:52:46Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "frozen_producers": {
+      "age_seconds": 5223.2,
+      "as_of": "2026-10-09T04:25:43Z",
+      "detail": "model4_board_v1",
+      "status": "OK"
+    },
+    "market_data": {
+      "age_seconds": 3.6,
+      "as_of": "2026-10-09T05:52:43Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "model": {
+      "age_seconds": 3.6,
+      "as_of": "2026-10-09T05:52:43Z",
+      "detail": null,
+      "status": "OK"
+    },
+    "router": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": null,
+      "status": "UNKNOWN"
+    },
+    "settlement": {
+      "age_seconds": null,
+      "as_of": null,
+      "detail": null,
+      "status": "UNKNOWN"
+    }
+  },
+  "data_age_seconds": 3.6,
+  "errors": [],
+  "freshness_status": "FRESH",
+  "generated_at": "2026-10-09T05:52:46Z",
+  "kind": "health",
+  "last_export_attempt": "2026-10-09T05:52:46Z",
+  "last_market_capture": "2026-10-09T05:52:43Z",
+  "last_model_generated": "2026-10-09T05:52:43Z",
+  "last_successful_run": "2026-10-09T05:52:46Z",
+  "market_data_status": "OK",
+  "model_status": "OK",
+  "next_scheduled_run": "2026-10-09T05:15:00Z",
+  "overall_status": "HEALTHY",
+  "payload_run_id": "run_125ad64151a15d9d180b",
+  "router_status": "UNKNOWN",
+  "run_id": "run_125ad64151a15d9d180b",
+  "schema_version": "edge_finder.app.v1",
+  "settlement_status": "UNKNOWN",
+  "sport": "TENNIS",
+  "thresholds": {
+    "export": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 10800
+    },
+    "market_data": {
+      "fresh_after_seconds": 600,
+      "stale_after_seconds": 1800
+    },
+    "model": {
+      "fresh_after_seconds": 21600,
+      "stale_after_seconds": 46800
+    },
+    "recommendations": {
+      "fresh_after_seconds": 3600,
+      "stale_after_seconds": 21600
+    },
+    "router": {
+      "fresh_after_seconds": 1800,
+      "stale_after_seconds": 14400
+    },
+    "schedule": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    },
+    "settlement": {
+      "fresh_after_seconds": 86400,
+      "stale_after_seconds": 259200
+    }
+  },
+  "warnings": [
+    "TENNIS-4 active_market_projection FAIL",
+    "TENNIS-8 sports_truth_health FAIL"
+  ]
+}

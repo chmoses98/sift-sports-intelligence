@@ -1,0 +1,909 @@
+{
+ "count": 35,
+ "generated_at": "2026-10-09T05:52:46Z",
+ "items": [
+  {
+   "aliases": [
+    "KXWTAMATCH-26OCT07MERSWI"
+   ],
+   "context": {
+    "league": "WTA",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_581f889e1dfb4de11420",
+   "kind": "EVENT",
+   "label": "Elise Mertens vs Iga Swiatek",
+   "path": "explorer/events/evt_581f889e1dfb4de11420.json",
+   "secondary": "WTA Beijing",
+   "sport": "TENNIS",
+   "tokens": [
+    "26oct07merswi",
+    "beijing",
+    "elise",
+    "iga",
+    "kxwtamatch",
+    "mertens",
+    "swiatek",
+    "vs",
+    "wta"
+   ]
+  },
+  {
+   "aliases": [
+    "KXATPMATCH-26OCT09KHAFER"
+   ],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_626bc16043b56b7b1921",
+   "kind": "EVENT",
+   "label": "Karen Khachanov vs Arthur Fery",
+   "path": "explorer/events/evt_626bc16043b56b7b1921.json",
+   "secondary": "ATP Shanghai",
+   "sport": "TENNIS",
+   "tokens": [
+    "26oct09khafer",
+    "arthur",
+    "atp",
+    "fery",
+    "karen",
+    "khachanov",
+    "kxatpmatch",
+    "shanghai",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "KXITFDOUBLES-26OCT08LOCJOHCHRVAN"
+   ],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_d09d8721f706b006741f",
+   "kind": "EVENT",
+   "label": "Lock / John Lock vs Christopher Kucukhuseyin / Van Aken",
+   "path": "explorer/events/evt_d09d8721f706b006741f.json",
+   "secondary": "M25 Kigali",
+   "sport": "TENNIS",
+   "tokens": [
+    "26oct08locjohchrvan",
+    "aken",
+    "christopher",
+    "john",
+    "kigali",
+    "kucukhuseyin",
+    "kxitfdoubles",
+    "lock",
+    "m25",
+    "van",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "Brier"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.settled_brier_score",
+   "kind": "METRIC",
+   "label": "Brier score on settled contracts",
+   "path": "explorer/metrics.json",
+   "secondary": "calibration",
+   "sport": "TENNIS",
+   "tokens": [
+    "brier",
+    "calibration",
+    "contracts",
+    "on",
+    "score",
+    "settled"
+   ]
+  },
+  {
+   "aliases": [
+    "Elo"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.elo_overall",
+   "kind": "METRIC",
+   "label": "Elo rating (overall)",
+   "path": "explorer/metrics.json",
+   "secondary": "rating",
+   "sport": "TENNIS",
+   "tokens": [
+    "elo",
+    "overall",
+    "rating"
+   ]
+  },
+  {
+   "aliases": [
+    "Surface Elo"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.elo_surface",
+   "kind": "METRIC",
+   "label": "Elo rating (surface)",
+   "path": "explorer/metrics.json",
+   "secondary": "rating",
+   "sport": "TENNIS",
+   "tokens": [
+    "elo",
+    "rating",
+    "surface"
+   ]
+  },
+  {
+   "aliases": [
+    "Elo study Brier"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.elo_study_brier",
+   "kind": "METRIC",
+   "label": "Elo variant walk-forward Brier (research)",
+   "path": "explorer/metrics.json",
+   "secondary": "calibration",
+   "sport": "TENNIS",
+   "tokens": [
+    "brier",
+    "calibration",
+    "elo",
+    "forward",
+    "research",
+    "study",
+    "variant",
+    "walk"
+   ]
+  },
+  {
+   "aliases": [
+    "ELO"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_elo",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): ELO",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "elo",
+    "ledger",
+    "model",
+    "price",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "ELO_DP_FAIR"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_elo_dp_fair",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): ELO_DP_FAIR",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "dp",
+    "elo",
+    "fair",
+    "ledger",
+    "model",
+    "price",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "ENSEMBLE"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_ensemble",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): ENSEMBLE",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "ensemble",
+    "ledger",
+    "model",
+    "price",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "HYBRID_MARKET_MODEL"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_hybrid_market_model",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): HYBRID_MARKET_MODEL",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "hybrid",
+    "ledger",
+    "market",
+    "model",
+    "price",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "INCUMBENT"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_incumbent",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): INCUMBENT",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "incumbent",
+    "ledger",
+    "model",
+    "price",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "MARKET_MID"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_market_mid",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): MARKET_MID",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "ledger",
+    "market",
+    "mid",
+    "model",
+    "price",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "PRODUCTION"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_production",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): PRODUCTION",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "ledger",
+    "model",
+    "price",
+    "production",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "STRUCTURAL"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_structural",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): STRUCTURAL",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "ledger",
+    "model",
+    "price",
+    "structural",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "V2"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_p_v2",
+   "kind": "METRIC",
+   "label": "Ledger P(YES): V2",
+   "path": "explorer/metrics.json",
+   "secondary": "model_price",
+   "sport": "TENNIS",
+   "tokens": [
+    "ledger",
+    "model",
+    "price",
+    "v2",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "SPW (Gen-2)"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.gen2_serve_point_win",
+   "kind": "METRIC",
+   "label": "P(win a point on serve), Gen-2 (Model 4)",
+   "path": "explorer/metrics.json",
+   "secondary": "matchup",
+   "sport": "TENNIS",
+   "tokens": [
+    "2",
+    "4",
+    "gen",
+    "matchup",
+    "model",
+    "on",
+    "point",
+    "serve",
+    "spw",
+    "win"
+   ]
+  },
+  {
+   "aliases": [
+    "SPW (ledger)"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_serve_point_win",
+   "kind": "METRIC",
+   "label": "P(win a point on serve), ledger ensemble",
+   "path": "explorer/metrics.json",
+   "secondary": "matchup",
+   "sport": "TENNIS",
+   "tokens": [
+    "ensemble",
+    "ledger",
+    "matchup",
+    "on",
+    "point",
+    "serve",
+    "spw",
+    "win"
+   ]
+  },
+  {
+   "aliases": [
+    "SPW (structural)"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.ledger_structural_serve_point_win",
+   "kind": "METRIC",
+   "label": "P(win a point on serve), structural",
+   "path": "explorer/metrics.json",
+   "secondary": "matchup",
+   "sport": "TENNIS",
+   "tokens": [
+    "matchup",
+    "on",
+    "point",
+    "serve",
+    "spw",
+    "structural",
+    "win"
+   ]
+  },
+  {
+   "aliases": [
+    "Pinnacle Brier"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.pinnacle_benchmark_brier",
+   "kind": "METRIC",
+   "label": "Pinnacle benchmark Brier (research)",
+   "path": "explorer/metrics.json",
+   "secondary": "calibration",
+   "sport": "TENNIS",
+   "tokens": [
+    "benchmark",
+    "brier",
+    "calibration",
+    "pinnacle",
+    "research"
+   ]
+  },
+  {
+   "aliases": [
+    "Projection V2"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.projection_v2_backtest",
+   "kind": "METRIC",
+   "label": "Projection V2 vs incumbent (preregistered backtest)",
+   "path": "explorer/metrics.json",
+   "secondary": "calibration",
+   "sport": "TENNIS",
+   "tokens": [
+    "backtest",
+    "calibration",
+    "incumbent",
+    "preregistered",
+    "projection",
+    "v2",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "SR pts"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.serve_point_evidence",
+   "kind": "METRIC",
+   "label": "Serve-point evidence",
+   "path": "explorer/metrics.json",
+   "secondary": "serve_return",
+   "sport": "TENNIS",
+   "tokens": [
+    "evidence",
+    "point",
+    "pts",
+    "return",
+    "serve",
+    "sr"
+   ]
+  },
+  {
+   "aliases": [
+    "CLV"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.strict_executable_clv",
+   "kind": "METRIC",
+   "label": "Strict executable CLV",
+   "path": "explorer/metrics.json",
+   "secondary": "clv",
+   "sport": "TENNIS",
+   "tokens": [
+    "clv",
+    "executable",
+    "strict"
+   ]
+  },
+  {
+   "aliases": [
+    "Return"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.sr_return_ability",
+   "kind": "METRIC",
+   "label": "Structural return ability",
+   "path": "explorer/metrics.json",
+   "secondary": "serve_return",
+   "sport": "TENNIS",
+   "tokens": [
+    "ability",
+    "return",
+    "serve",
+    "structural"
+   ]
+  },
+  {
+   "aliases": [
+    "Serve"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_tennis.sr_serve_ability",
+   "kind": "METRIC",
+   "label": "Structural serve ability",
+   "path": "explorer/metrics.json",
+   "secondary": "serve_return",
+   "sport": "TENNIS",
+   "tokens": [
+    "ability",
+    "return",
+    "serve",
+    "structural"
+   ]
+  },
+  {
+   "aliases": [
+    "ATP:209259"
+   ],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_30230b56538f4022e512",
+   "kind": "PLAYER",
+   "label": "Arthur Fery",
+   "path": "explorer/players/prt_30230b56538f4022e512.json",
+   "secondary": "ATP · on the current slate",
+   "sport": "TENNIS",
+   "tokens": [
+    "209259",
+    "arthur",
+    "atp",
+    "current",
+    "fery",
+    "on",
+    "slate",
+    "the"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_da04eb46e4f3015a71b5",
+   "kind": "PLAYER",
+   "label": "Christopher Kucukhuseyin / Van Aken",
+   "path": "explorer/players/prt_da04eb46e4f3015a71b5.json",
+   "secondary": "ATP · on the current slate",
+   "sport": "TENNIS",
+   "tokens": [
+    "aken",
+    "atp",
+    "christopher",
+    "current",
+    "kucukhuseyin",
+    "on",
+    "slate",
+    "the",
+    "van"
+   ]
+  },
+  {
+   "aliases": [
+    "WTA:210722"
+   ],
+   "context": {
+    "league": "WTA",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_672feecdb6304f1cb2b1",
+   "kind": "PLAYER",
+   "label": "Elise Mertens",
+   "path": "explorer/players/prt_672feecdb6304f1cb2b1.json",
+   "secondary": "WTA · on the current slate",
+   "sport": "TENNIS",
+   "tokens": [
+    "210722",
+    "current",
+    "elise",
+    "mertens",
+    "on",
+    "slate",
+    "the",
+    "wta"
+   ]
+  },
+  {
+   "aliases": [
+    "WTA:216347"
+   ],
+   "context": {
+    "league": "WTA",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_d539a3814ae640119d8d",
+   "kind": "PLAYER",
+   "label": "Iga Swiatek",
+   "path": "explorer/players/prt_d539a3814ae640119d8d.json",
+   "secondary": "WTA · on the current slate",
+   "sport": "TENNIS",
+   "tokens": [
+    "216347",
+    "current",
+    "iga",
+    "on",
+    "slate",
+    "swiatek",
+    "the",
+    "wta"
+   ]
+  },
+  {
+   "aliases": [
+    "ATP:111575"
+   ],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_dc998b2d3279e7cce73b",
+   "kind": "PLAYER",
+   "label": "Karen Khachanov",
+   "path": "explorer/players/prt_dc998b2d3279e7cce73b.json",
+   "secondary": "ATP · on the current slate",
+   "sport": "TENNIS",
+   "tokens": [
+    "111575",
+    "atp",
+    "current",
+    "karen",
+    "khachanov",
+    "on",
+    "slate",
+    "the"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_af2387c468d349706c4a",
+   "kind": "PLAYER",
+   "label": "Lock / John Lock",
+   "path": "explorer/players/prt_af2387c468d349706c4a.json",
+   "secondary": "ATP · on the current slate",
+   "sport": "TENNIS",
+   "tokens": [
+    "atp",
+    "current",
+    "john",
+    "lock",
+    "on",
+    "slate",
+    "the"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_9599f2a2d4796f5e1415",
+   "kind": "RANKING",
+   "label": "ATP Elo ranking",
+   "path": "explorer/rankings/rnk_9599f2a2d4796f5e1415.json",
+   "secondary": "ATP rated players: current slate + top 0 active by Elo",
+   "sport": "TENNIS",
+   "tokens": [
+    "0",
+    "active",
+    "atp",
+    "by",
+    "current",
+    "elo",
+    "players",
+    "ranking",
+    "rated",
+    "slate",
+    "top"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "ATP",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_6de27a3ba946728e61a5",
+   "kind": "RANKING",
+   "label": "ATP Elo ranking (Hard)",
+   "path": "explorer/rankings/rnk_6de27a3ba946728e61a5.json",
+   "secondary": "ATP rated players: current slate + top 0 active by Elo",
+   "sport": "TENNIS",
+   "tokens": [
+    "0",
+    "active",
+    "atp",
+    "by",
+    "current",
+    "elo",
+    "hard",
+    "players",
+    "ranking",
+    "rated",
+    "slate",
+    "top"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "WTA",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_3a11ac489731f8e84cfb",
+   "kind": "RANKING",
+   "label": "WTA Elo ranking",
+   "path": "explorer/rankings/rnk_3a11ac489731f8e84cfb.json",
+   "secondary": "WTA rated players: current slate + top 0 active by Elo",
+   "sport": "TENNIS",
+   "tokens": [
+    "0",
+    "active",
+    "by",
+    "current",
+    "elo",
+    "players",
+    "ranking",
+    "rated",
+    "slate",
+    "top",
+    "wta"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "WTA",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_a0ef6b76106b5f4c1a27",
+   "kind": "RANKING",
+   "label": "WTA Elo ranking (Hard)",
+   "path": "explorer/rankings/rnk_a0ef6b76106b5f4c1a27.json",
+   "secondary": "WTA rated players: current slate + top 0 active by Elo",
+   "sport": "TENNIS",
+   "tokens": [
+    "0",
+    "active",
+    "by",
+    "current",
+    "elo",
+    "hard",
+    "players",
+    "ranking",
+    "rated",
+    "slate",
+    "top",
+    "wta"
+   ]
+  }
+ ],
+ "kind": "search_index",
+ "run_id": "run_125ad64151a15d9d180b",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "TENNIS"
+}

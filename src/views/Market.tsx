@@ -65,7 +65,8 @@ export function MarketView() {
   // A market belongs to its game: the breadcrumb runs through that game.
   const rev = research.data?.event;
   const side = (ha: string) => rev?.participants.find((x) => x.participant_id === research.data?.participants.find((q) => q.home_away === ha)?.participant_id)?.short_name;
-  const parentStep = rev && side('AWAY') && side('HOME') ? { href: routes.game(slug, eventId), label: `${side('AWAY')} @ ${side('HOME')}`, kind: 'game' as const } : research.loading ? undefined : null;
+  const pair = rev && !research.data?.participants.some((q) => q.home_away) ? rev.participants.map((p) => p.display_name).join(' v ') : null;
+  const parentStep = rev && side('AWAY') && side('HOME') ? { href: routes.game(slug, eventId), label: `${side('AWAY')} @ ${side('HOME')}`, kind: 'game' as const } : pair ? { href: routes.game(slug, eventId), label: pair, kind: 'game' as const } : research.loading ? undefined : null;
   useVisit(parentStep === undefined ? null : title, 'market', parentStep);
 
   if (!eventId) return <div className="page"><Notice tone="error" title="Which game is this market on?">Market links carry their event; open it from a game, player or team.</Notice></div>;
@@ -76,6 +77,8 @@ export function MarketView() {
   const ev = detail.data.event;
   const evLabel = (() => {
     const s = (pid: string | null) => ev.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
+    // An individual sport (tennis) has two participants and no home or away side: name them.
+    if (!ev.home_participant || !ev.away_participant) return ev.participants.map((p) => p.display_name).join(' v ');
     return `${s(ev.away_participant)} @ ${s(ev.home_participant)}`;
   })();
   const prices = latestPrices(detail.data.model_prices);

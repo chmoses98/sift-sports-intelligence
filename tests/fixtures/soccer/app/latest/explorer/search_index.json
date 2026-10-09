@@ -1,0 +1,1036 @@
+{
+ "count": 38,
+ "generated_at": "2026-10-09T05:37:35Z",
+ "items": [
+  {
+   "aliases": [
+    "fx:eng.premier_league:2026-27:eng.arsenal:eng.leeds:matchday_6"
+   ],
+   "context": {
+    "league": "eng.premier_league",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "evt_0a69396895a311cb26b2",
+   "kind": "EVENT",
+   "label": "Arsenal vs Leeds United",
+   "path": "explorer/events/evt_0a69396895a311cb26b2.json",
+   "secondary": "Premier League 2026-10-10 SCHEDULED",
+   "sport": "SOCCER",
+   "tokens": [
+    "10",
+    "2026",
+    "27",
+    "6",
+    "arsenal",
+    "eng",
+    "fx",
+    "league",
+    "leeds",
+    "matchday",
+    "premier",
+    "scheduled",
+    "united",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "fx:mex.liga_mx:2026:mex.puebla:mex.leon"
+   ],
+   "context": {
+    "league": "mex.liga_mx",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_19cfa921a7dcc9bfa189",
+   "kind": "EVENT",
+   "label": "Puebla vs León",
+   "path": "explorer/events/evt_19cfa921a7dcc9bfa189.json",
+   "secondary": "Liga MX 2026-10-10 SCHEDULED",
+   "sport": "SOCCER",
+   "tokens": [
+    "10",
+    "2026",
+    "fx",
+    "le",
+    "leon",
+    "liga",
+    "mex",
+    "mx",
+    "puebla",
+    "scheduled",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "fx:bra.serie_a:2026:bra.santos:bra.flamengo"
+   ],
+   "context": {
+    "league": "bra.serie_a",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "evt_588a4c8417a2e976344d",
+   "kind": "EVENT",
+   "label": "Santos vs Flamengo",
+   "path": "explorer/events/evt_588a4c8417a2e976344d.json",
+   "secondary": "Brasileirão Série A 2026-10-08 SCHEDULED",
+   "sport": "SOCCER",
+   "tokens": [
+    "08",
+    "10",
+    "2026",
+    "bra",
+    "brasileir",
+    "flamengo",
+    "fx",
+    "rie",
+    "santos",
+    "scheduled",
+    "serie",
+    "vs"
+   ]
+  },
+  {
+   "aliases": [
+    "ATT",
+    "dc_attack"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.dc_attack",
+   "kind": "METRIC",
+   "label": "Attack rating (DC v2 refit)",
+   "path": "explorer/metrics.json",
+   "secondary": "rating",
+   "sport": "SOCCER",
+   "tokens": [
+    "att",
+    "attack",
+    "dc",
+    "rating",
+    "refit",
+    "v2"
+   ]
+  },
+  {
+   "aliases": [
+    "BTTS%",
+    "btts_rate"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.btts_rate",
+   "kind": "METRIC",
+   "label": "Both-teams-to-score rate",
+   "path": "explorer/metrics.json",
+   "secondary": "game_state",
+   "sport": "SOCCER",
+   "tokens": [
+    "both",
+    "btts",
+    "game",
+    "rate",
+    "score",
+    "state",
+    "teams",
+    "to"
+   ]
+  },
+  {
+   "aliases": [
+    "CS%",
+    "clean_sheet_rate"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.clean_sheet_rate",
+   "kind": "METRIC",
+   "label": "Clean-sheet rate",
+   "path": "explorer/metrics.json",
+   "secondary": "defence",
+   "sport": "SOCCER",
+   "tokens": [
+    "clean",
+    "cs",
+    "defence",
+    "rate",
+    "sheet"
+   ]
+  },
+  {
+   "aliases": [
+    "DEF",
+    "dc_defence"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.dc_defence",
+   "kind": "METRIC",
+   "label": "Defence rating (DC v2 refit)",
+   "path": "explorer/metrics.json",
+   "secondary": "rating",
+   "sport": "SOCCER",
+   "tokens": [
+    "dc",
+    "def",
+    "defence",
+    "rating",
+    "refit",
+    "v2"
+   ]
+  },
+  {
+   "aliases": [
+    "GD/G",
+    "goal_difference_per_game"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.goal_difference_per_game",
+   "kind": "METRIC",
+   "label": "Goal difference per game",
+   "path": "explorer/metrics.json",
+   "secondary": "results",
+   "sport": "SOCCER",
+   "tokens": [
+    "difference",
+    "game",
+    "gd",
+    "goal",
+    "per",
+    "results"
+   ]
+  },
+  {
+   "aliases": [
+    "GA/G",
+    "goals_against_per_game"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.goals_against_per_game",
+   "kind": "METRIC",
+   "label": "Goals conceded per game",
+   "path": "explorer/metrics.json",
+   "secondary": "defence",
+   "sport": "SOCCER",
+   "tokens": [
+    "against",
+    "conceded",
+    "defence",
+    "ga",
+    "game",
+    "goals",
+    "per"
+   ]
+  },
+  {
+   "aliases": [
+    "GF/G",
+    "goals_for_per_game"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.goals_for_per_game",
+   "kind": "METRIC",
+   "label": "Goals scored per game",
+   "path": "explorer/metrics.json",
+   "secondary": "attack",
+   "sport": "SOCCER",
+   "tokens": [
+    "attack",
+    "for",
+    "game",
+    "gf",
+    "goals",
+    "per",
+    "scored"
+   ]
+  },
+  {
+   "aliases": [
+    "Elo",
+    "elo_rating"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.elo_rating",
+   "kind": "METRIC",
+   "label": "International Elo (pre-match)",
+   "path": "explorer/metrics.json",
+   "secondary": "rating",
+   "sport": "SOCCER",
+   "tokens": [
+    "elo",
+    "international",
+    "match",
+    "pre",
+    "rating"
+   ]
+  },
+  {
+   "aliases": [
+    "P(model)",
+    "model_fair_probability"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.model_fair_probability",
+   "kind": "METRIC",
+   "label": "Model fair P(YES) per run",
+   "path": "explorer/metrics.json",
+   "secondary": "projection",
+   "sport": "SOCCER",
+   "tokens": [
+    "fair",
+    "model",
+    "per",
+    "probability",
+    "projection",
+    "run",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "O2.5%",
+    "over_2_5_rate"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.over_2_5_rate",
+   "kind": "METRIC",
+   "label": "Over 2.5 goals rate",
+   "path": "explorer/metrics.json",
+   "secondary": "game_state",
+   "sport": "SOCCER",
+   "tokens": [
+    "2",
+    "5",
+    "game",
+    "goals",
+    "o2",
+    "over",
+    "rate",
+    "state"
+   ]
+  },
+  {
+   "aliases": [
+    "PPG",
+    "points_per_game"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_soccer.points_per_game",
+   "kind": "METRIC",
+   "label": "Points per game",
+   "path": "explorer/metrics.json",
+   "secondary": "results",
+   "sport": "SOCCER",
+   "tokens": [
+    "game",
+    "per",
+    "points",
+    "ppg",
+    "results"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_b2a4999f6056d419cc4b",
+   "kind": "RANKING",
+   "label": "Attack rating (DC v2 refit) ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_b2a4999f6056d419cc4b.json",
+   "secondary": "FIT_730D",
+   "sport": "SOCCER",
+   "tokens": [
+    "730d",
+    "attack",
+    "brasileir",
+    "dc",
+    "fit",
+    "ranking",
+    "rating",
+    "refit",
+    "rie",
+    "teams",
+    "v2"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_db9b86cdf6d7fc059eda",
+   "kind": "RANKING",
+   "label": "Attack rating (DC v2 refit) ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_db9b86cdf6d7fc059eda.json",
+   "secondary": "FIT_730D",
+   "sport": "SOCCER",
+   "tokens": [
+    "730d",
+    "attack",
+    "dc",
+    "fit",
+    "liga",
+    "mx",
+    "ranking",
+    "rating",
+    "refit",
+    "teams",
+    "v2"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_7535f82f86c315a0bf73",
+   "kind": "RANKING",
+   "label": "Both-teams-to-score rate ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_7535f82f86c315a0bf73.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "both",
+    "brasileir",
+    "ranking",
+    "rate",
+    "rie",
+    "score",
+    "season",
+    "teams",
+    "to"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_712a4e6d4534e7590131",
+   "kind": "RANKING",
+   "label": "Both-teams-to-score rate ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_712a4e6d4534e7590131.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "both",
+    "liga",
+    "mx",
+    "ranking",
+    "rate",
+    "score",
+    "season",
+    "teams",
+    "to"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_48ee995732da76326daf",
+   "kind": "RANKING",
+   "label": "Clean-sheet rate ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_48ee995732da76326daf.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "brasileir",
+    "clean",
+    "ranking",
+    "rate",
+    "rie",
+    "season",
+    "sheet",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_a14ac88b98f8b7123c9b",
+   "kind": "RANKING",
+   "label": "Clean-sheet rate ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_a14ac88b98f8b7123c9b.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "clean",
+    "liga",
+    "mx",
+    "ranking",
+    "rate",
+    "season",
+    "sheet",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_21ad31c669b25cfe5e97",
+   "kind": "RANKING",
+   "label": "Defence rating (DC v2 refit) ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_21ad31c669b25cfe5e97.json",
+   "secondary": "FIT_730D",
+   "sport": "SOCCER",
+   "tokens": [
+    "730d",
+    "brasileir",
+    "dc",
+    "defence",
+    "fit",
+    "ranking",
+    "rating",
+    "refit",
+    "rie",
+    "teams",
+    "v2"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_b968a1a8e7740b8ba337",
+   "kind": "RANKING",
+   "label": "Defence rating (DC v2 refit) ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_b968a1a8e7740b8ba337.json",
+   "secondary": "FIT_730D",
+   "sport": "SOCCER",
+   "tokens": [
+    "730d",
+    "dc",
+    "defence",
+    "fit",
+    "liga",
+    "mx",
+    "ranking",
+    "rating",
+    "refit",
+    "teams",
+    "v2"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_b442c0d0cfe2e82d3b25",
+   "kind": "RANKING",
+   "label": "Goal difference per game ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_b442c0d0cfe2e82d3b25.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "brasileir",
+    "difference",
+    "game",
+    "goal",
+    "per",
+    "ranking",
+    "rie",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_4fb9cb0354ae1b8dafcd",
+   "kind": "RANKING",
+   "label": "Goal difference per game ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_4fb9cb0354ae1b8dafcd.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "difference",
+    "game",
+    "goal",
+    "liga",
+    "mx",
+    "per",
+    "ranking",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_945507e5526c3a08e4f3",
+   "kind": "RANKING",
+   "label": "Goals conceded per game ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_945507e5526c3a08e4f3.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "brasileir",
+    "conceded",
+    "game",
+    "goals",
+    "per",
+    "ranking",
+    "rie",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_28103308b0b744a192b0",
+   "kind": "RANKING",
+   "label": "Goals conceded per game ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_28103308b0b744a192b0.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "conceded",
+    "game",
+    "goals",
+    "liga",
+    "mx",
+    "per",
+    "ranking",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_bdec24cb563f9303a8e7",
+   "kind": "RANKING",
+   "label": "Goals scored per game ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_bdec24cb563f9303a8e7.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "brasileir",
+    "game",
+    "goals",
+    "per",
+    "ranking",
+    "rie",
+    "scored",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_a0a6a732b18e7a899359",
+   "kind": "RANKING",
+   "label": "Goals scored per game ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_a0a6a732b18e7a899359.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "game",
+    "goals",
+    "liga",
+    "mx",
+    "per",
+    "ranking",
+    "scored",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_3435b25cd05a25f0b8d2",
+   "kind": "RANKING",
+   "label": "Over 2.5 goals rate ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_3435b25cd05a25f0b8d2.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "2",
+    "5",
+    "brasileir",
+    "goals",
+    "over",
+    "ranking",
+    "rate",
+    "rie",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_fe826b79ce3c2684172a",
+   "kind": "RANKING",
+   "label": "Over 2.5 goals rate ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_fe826b79ce3c2684172a.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "2",
+    "5",
+    "goals",
+    "liga",
+    "mx",
+    "over",
+    "ranking",
+    "rate",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_1b0080bac94cd53c1894",
+   "kind": "RANKING",
+   "label": "Points per game ranking — Brasileirão Série A teams",
+   "path": "explorer/rankings/rnk_1b0080bac94cd53c1894.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "brasileir",
+    "game",
+    "per",
+    "points",
+    "ranking",
+    "rie",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "rnk_10387cb8d9c83c8dc954",
+   "kind": "RANKING",
+   "label": "Points per game ranking — Liga MX teams",
+   "path": "explorer/rankings/rnk_10387cb8d9c83c8dc954.json",
+   "secondary": "SEASON",
+   "sport": "SOCCER",
+   "tokens": [
+    "game",
+    "liga",
+    "mx",
+    "per",
+    "points",
+    "ranking",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [
+    "Arsenal",
+    "Arsenal FC",
+    "ENG",
+    "eng.arsenal"
+   ],
+   "context": {
+    "league": "eng.premier_league",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_be94f63b5798695abd7e",
+   "kind": "TEAM",
+   "label": "Arsenal",
+   "path": "explorer/teams/prt_be94f63b5798695abd7e.json",
+   "secondary": "Premier League teams",
+   "sport": "SOCCER",
+   "tokens": [
+    "arsenal",
+    "eng",
+    "fc",
+    "league",
+    "premier",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [
+    "BRA",
+    "CR Flamengo",
+    "bra.flamengo"
+   ],
+   "context": {
+    "league": "bra.serie_a",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_ad0c469c446f0b226c2d",
+   "kind": "TEAM",
+   "label": "Flamengo",
+   "path": "explorer/teams/prt_ad0c469c446f0b226c2d.json",
+   "secondary": "Brasileirão Série A teams",
+   "sport": "SOCCER",
+   "tokens": [
+    "bra",
+    "brasileir",
+    "cr",
+    "flamengo",
+    "rie",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [
+    "ENG",
+    "Leeds",
+    "Leeds United FC",
+    "eng.leeds"
+   ],
+   "context": {
+    "league": "eng.premier_league",
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "prt_3a10c0bfe80f845dad4a",
+   "kind": "TEAM",
+   "label": "Leeds United",
+   "path": "explorer/teams/prt_3a10c0bfe80f845dad4a.json",
+   "secondary": "Premier League teams",
+   "sport": "SOCCER",
+   "tokens": [
+    "eng",
+    "fc",
+    "league",
+    "leeds",
+    "premier",
+    "teams",
+    "united"
+   ]
+  },
+  {
+   "aliases": [
+    "Club Leon",
+    "Club León",
+    "Leon",
+    "MEX",
+    "mex.leon"
+   ],
+   "context": {
+    "league": "mex.liga_mx",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_7faa31e5e826cacd24c7",
+   "kind": "TEAM",
+   "label": "León",
+   "path": "explorer/teams/prt_7faa31e5e826cacd24c7.json",
+   "secondary": "Liga MX teams",
+   "sport": "SOCCER",
+   "tokens": [
+    "club",
+    "le",
+    "leon",
+    "liga",
+    "mex",
+    "mx",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [
+    "Club Puebla",
+    "MEX",
+    "mex.puebla"
+   ],
+   "context": {
+    "league": "mex.liga_mx",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_fa838f16754c60f5d247",
+   "kind": "TEAM",
+   "label": "Puebla",
+   "path": "explorer/teams/prt_fa838f16754c60f5d247.json",
+   "secondary": "Liga MX teams",
+   "sport": "SOCCER",
+   "tokens": [
+    "club",
+    "liga",
+    "mex",
+    "mx",
+    "puebla",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [
+    "BRA",
+    "Santos FC",
+    "bra.santos"
+   ],
+   "context": {
+    "league": "bra.serie_a",
+    "position": null,
+    "season": "2026",
+    "team": null
+   },
+   "id": "prt_5dbc39bd0edb06fbfec7",
+   "kind": "TEAM",
+   "label": "Santos",
+   "path": "explorer/teams/prt_5dbc39bd0edb06fbfec7.json",
+   "secondary": "Brasileirão Série A teams",
+   "sport": "SOCCER",
+   "tokens": [
+    "bra",
+    "brasileir",
+    "fc",
+    "rie",
+    "santos",
+    "teams"
+   ]
+  }
+ ],
+ "kind": "search_index",
+ "run_id": "run_c67d63b8791397a7a4ee",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "SOCCER"
+}

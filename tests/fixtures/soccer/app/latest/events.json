@@ -1,0 +1,247 @@
+{
+ "count": 3,
+ "generated_at": "2026-10-09T06:07:49Z",
+ "items": [
+  {
+   "away_participant": "prt_ad0c469c446f0b226c2d",
+   "broadcast": null,
+   "competition": "Brasileirão Série A",
+   "effective_start_time_utc": null,
+   "event_id": "evt_588a4c8417a2e976344d",
+   "extensions": {
+    "lineup_status": "unknown",
+    "markets_discovered": 29,
+    "markets_evaluated": 29,
+    "neutral_site": false,
+    "stage": null
+   },
+   "home_participant": "prt_5dbc39bd0edb06fbfec7",
+   "last_updated_at": "2026-10-08T20:57:00Z",
+   "league": "bra.serie_a",
+   "participants": [
+    {
+     "display_name": "Santos",
+     "metadata": {},
+     "participant_id": "prt_5dbc39bd0edb06fbfec7",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "team_id": "bra.santos"
+     }
+    },
+    {
+     "display_name": "Flamengo",
+     "metadata": {},
+     "participant_id": "prt_ad0c469c446f0b226c2d",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "team_id": "bra.flamengo"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-08T20:41:50Z",
+   "season": "2026",
+   "source_ids": {
+    "espn_event_id": "401841251",
+    "fixture_id": "fx:bra.serie_a:2026:bra.santos:bra.flamengo"
+   },
+   "sport": "SOCCER",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "espn_fixtures",
+   "start_time_utc": "2026-10-08T22:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_3a10c0bfe80f845dad4a",
+   "broadcast": null,
+   "competition": "Premier League",
+   "effective_start_time_utc": null,
+   "event_id": "evt_0a69396895a311cb26b2",
+   "extensions": {
+    "lineup_status": "unknown",
+    "markets_discovered": 70,
+    "markets_evaluated": 69,
+    "neutral_site": false,
+    "scripts": {
+     "best_robust_expression": "KXEPLGAME-26OCT10ARSLEE-ARS|no",
+     "detail": "explorer event_research.extensions.soccer_script_engine",
+     "no_compelling_edge": false,
+     "primary": "TIGHT_LOW_EVENT",
+     "scripts": [
+      "HOME_CONTROL",
+      "HOME_CHASE",
+      "TIGHT_LOW_EVENT",
+      "OPEN_END_TO_END",
+      "AWAY_CHASE",
+      "AWAY_CONTROL"
+     ],
+     "secondary": "HOME_CONTROL",
+     "shares": [
+      0.30492,
+      0.09797,
+      0.34221,
+      0.08623,
+      0.07541,
+      0.09325
+     ],
+     "taxonomy_version": "soccer_scripts_v1"
+    },
+    "slate": {
+     "best_expressions": [
+      "KXEPLGAME-26OCT10ARSLEE-ARS|no"
+     ],
+     "contracts_priced": 3,
+     "contracts_without_model": 0,
+     "lineup_last_change_at": null,
+     "lineup_status": "unknown",
+     "minutes_to_kickoff_at_publish": 1762.6,
+     "model_family": "data_only.world_sim_v2",
+     "model_invalidation_reasons": [],
+     "model_validity": "VALID",
+     "reference_bookmaker": null,
+     "reference_quality": "UNAVAILABLE"
+    },
+    "stage": "Matchday 6"
+   },
+   "home_participant": "prt_be94f63b5798695abd7e",
+   "last_updated_at": "2026-10-08T20:57:00Z",
+   "league": "eng.premier_league",
+   "participants": [
+    {
+     "display_name": "Arsenal",
+     "metadata": {},
+     "participant_id": "prt_be94f63b5798695abd7e",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "team_id": "eng.arsenal"
+     }
+    },
+    {
+     "display_name": "Leeds United",
+     "metadata": {},
+     "participant_id": "prt_3a10c0bfe80f845dad4a",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "team_id": "eng.leeds"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-08T20:41:50Z",
+   "season": null,
+   "source_ids": {
+    "fixture_id": "fx:eng.premier_league:2026-27:eng.arsenal:eng.leeds:matchday_6"
+   },
+   "sport": "SOCCER",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "fixture_registry",
+   "start_time_utc": "2026-10-10T11:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": "prt_7faa31e5e826cacd24c7",
+   "broadcast": null,
+   "competition": "Liga MX",
+   "effective_start_time_utc": null,
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "lineup_status": "unknown",
+    "markets_discovered": 80,
+    "markets_evaluated": 79,
+    "neutral_site": false,
+    "scripts": {
+     "best_robust_expression": "KXLIGAMXSPREAD-26OCT09PUELEO-LEO2|no",
+     "detail": "explorer event_research.extensions.soccer_script_engine",
+     "no_compelling_edge": false,
+     "primary": "TIGHT_LOW_EVENT",
+     "scripts": [
+      "HOME_CONTROL",
+      "HOME_CHASE",
+      "TIGHT_LOW_EVENT",
+      "OPEN_END_TO_END",
+      "AWAY_CHASE",
+      "AWAY_CONTROL"
+     ],
+     "secondary": "HOME_CONTROL",
+     "shares": [
+      0.22323,
+      0.09785,
+      0.36117,
+      0.08836,
+      0.08859,
+      0.1408
+     ],
+     "taxonomy_version": "soccer_scripts_v1"
+    },
+    "slate": {
+     "best_expressions": [
+      "KXLIGAMXBTTS-26OCT09PUELEO-BTTS|no",
+      "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO0|yes",
+      "KXLIGAMXSPREAD-26OCT09PUELEO-LEO2|no",
+      "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO1|no",
+      "KXLIGAMXTOTAL-26OCT09PUELEO-2|no"
+     ],
+     "contracts_priced": 79,
+     "contracts_without_model": 1,
+     "lineup_last_change_at": "2026-10-09T00:28:57Z",
+     "lineup_status": "unconfirmed",
+     "minutes_to_kickoff_at_publish": 1132.6,
+     "model_family": "data_only.world_sim_v2",
+     "model_invalidation_reasons": [],
+     "model_validity": "VALID",
+     "reference_bookmaker": null,
+     "reference_quality": "UNAVAILABLE"
+    },
+    "stage": null
+   },
+   "home_participant": "prt_fa838f16754c60f5d247",
+   "last_updated_at": "2026-10-08T20:57:00Z",
+   "league": "mex.liga_mx",
+   "participants": [
+    {
+     "display_name": "Puebla",
+     "metadata": {},
+     "participant_id": "prt_fa838f16754c60f5d247",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "team_id": "mex.puebla"
+     }
+    },
+    {
+     "display_name": "León",
+     "metadata": {},
+     "participant_id": "prt_7faa31e5e826cacd24c7",
+     "participant_type": "TEAM",
+     "short_name": null,
+     "source_ids": {
+      "team_id": "mex.leon"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-08T20:41:50Z",
+   "season": "2026",
+   "source_ids": {
+    "espn_event_id": "401876954",
+    "fixture_id": "fx:mex.liga_mx:2026:mex.puebla:mex.leon"
+   },
+   "sport": "SOCCER",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "espn_fixtures",
+   "start_time_utc": "2026-10-10T01:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  }
+ ],
+ "kind": "events",
+ "run_id": "run_7c77419f20bcef90ada2",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "SOCCER"
+}

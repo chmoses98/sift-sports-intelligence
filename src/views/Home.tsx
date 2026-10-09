@@ -116,9 +116,12 @@ export function HomeView() {
   const status = (sp.get('status') === 'all' ? 'all' : 'live') as StatusFilter;
   const [q, setQ] = useState('');
   const set = (k: string, v: string | null) => {
-    const next = new URLSearchParams(sp);
-    if (v) next.set(k, v); else next.delete(k);
-    setSp(next, { replace: true });
+    // Functional update: quick successive taps build on each other's params (see views/game/PropsBoard.tsx).
+    setSp((prev) => {
+      const next = new URLSearchParams(prev);
+      if (v) next.set(k, v); else next.delete(k);
+      return next;
+    }, { replace: true });
   };
 
   const games = useMemo<GameRow[]>(() => {

@@ -63,7 +63,7 @@ export function evaluate(b: SportBundle, now: number): { opportunities: Opportun
       default: return [];
     }
   })();
-  return { opportunities: opps, verdict: verdict(code, b.sport.slug, b.sport.label, b.board, opps, b.recommendations != null || code === 'CFB' || code === 'NBA' || code === 'CBB', b.modelState, !b.error, b.error) };
+  return { opportunities: opps, verdict: verdict(code, b.sport.slug, b.sport.label, b.board, opps, b.recommendations != null || code === 'CFB' || code === 'NBA' || code === 'CBB', b.modelState, !b.error, b.error, now) };
 }
 
 /** One sport's opportunities and verdict (for that sport's home). */

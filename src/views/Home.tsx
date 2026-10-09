@@ -20,6 +20,7 @@ import { useTray } from '../state/tray';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { featureOpportunities, isLive } from '../opportunity/rank';
+import { eventPhase } from '../opportunity/lifecycle';
 import { eventLabel } from '../opportunity/sources';
 import type { Opportunity } from '../opportunity/types';
 import { useSport } from '../state/sport';
@@ -96,6 +97,14 @@ export function inWindow(startIso: string, now: number, w: Window): boolean {
 }
 
 const matches = (hay: string, q: string) => !q || hay.toLowerCase().includes(q.toLowerCase());
+
+/** A started, postponed, cancelled or suspended game says so on its row instead of counting candidates or markets. */
+function phaseWord(item: BoardItem, now: number) {
+  const p = eventPhase(item, now);
+  if (p.phase === 'STARTED') return <Pill tone="neutral" title={p.reason}>{p.staleStatus ? 'Started · board not refreshed' : 'In play'}</Pill>;
+  if (p.phase === 'POSTPONED' || p.phase === 'CANCELLED' || p.phase === 'SUSPENDED') return <Pill tone="warn" title={p.reason}>{p.phase.charAt(0) + p.phase.slice(1).toLowerCase()}</Pill>;
+  return null;
+}
 
 interface GameRow {
   sport: string;
@@ -220,7 +229,7 @@ export function HomeView() {
                         <span className="gm__t num">{timeLabel(g.item.start_time_utc)}</span>
                         <span className="gm__sport" style={{ ['--accent' as string]: nav?.accent }}>{nav && <SportMark slug={g.slug} icon={nav.icon} size={14} />}{nav?.label ?? g.sport}</span>
                         <span className="gm__m"><span className="gm__n">{g.label}</span><span className="gm__s">{g.item.competition ?? ''}{home && away && g.sport !== 'SOCCER' ? ` · ${away.display_name} at ${home.display_name}` : ''}</span></span>
-                        <span className="gm__x">{g.opps > 0 ? <Pill tone="research">{g.opps} {g.opps === 1 ? 'candidate' : 'candidates'}</Pill> : <span>{g.item.markets_available ? <><b className="num">{g.item.markets_available}</b> markets</> : 'no markets yet'}</span>}</span>
+                        <span className="gm__x">{phaseWord(g.item, now) ?? (g.opps > 0 ? <Pill tone="research">{g.opps} {g.opps === 1 ? 'candidate' : 'candidates'}</Pill> : <span>{g.item.markets_available ? <><b className="num">{g.item.markets_available}</b> markets</> : 'no markets yet'}</span>)}</span>
                       </Link>
                     );
                   })}

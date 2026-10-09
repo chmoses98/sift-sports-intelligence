@@ -20,6 +20,9 @@ import { nbaTeam } from '../lib/nba';
 import { controlPrice, isPricedHigh, isStrong, isValueWatch, type SignalsDoc } from '../lib/cfbSignals';
 import { priceIntel } from './pricing';
 import { eventPhase, type PhaseRead } from './lifecycle';
+import { mlbOrientation, soccerOrientation, tennisOrientation, type OrientationRead } from './identity';
+import { soccerScoreRule, type Outcome } from './correlation';
+import { tierOf, tierWord } from './rank';
 import type { Confidence, Opportunity, OpportunityStatus, RankInputs, Side, SportVerdict } from './types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -27,6 +30,8 @@ import type { Confidence, Opportunity, OpportunityStatus, RankInputs, Side, Spor
 type Rec = Recommendation & { edge?: number | null; confidence?: string | null; current_price?: number | null; current_probability?: number | null; market_description?: string | null; data_freshness?: string | null; extensions?: Record<string, any> | null; lineup_status?: string | null; reason_not_playable?: string | null; thesis_id?: string | null; source_ids?: Record<string, string> | null };
 
 const DEAD = /expired|void|cancel|settled|withdrawn|closed|superseded|rejected|inactive/i;
+/** Soccer model versions whose publication's own study finds the market the better forecaster (docs/RESEARCH_DISAGREEMENT.md upstream). */
+const SOCCER_MARKET_BEATS_MODEL = new Set(['dc_laplace_v1']);
 const HIGH_VARIANCE = new Set(['player_goals', 'first_goal', 'first_td_scorer', 'exact_score', 'first_half_exact_score', 'exact_set_score', 'anytime_td']);
 
 export interface SportInputs {
@@ -62,15 +67,16 @@ export function eventLabel(item: BoardItem, code: string): string {
  * first: once the start time has passed (whatever the publisher's status word says), or the game is final, postponed,
  * cancelled or suspended, nothing pregame is actionable or a candidate — the research is frozen for review.
  */
-function statusOf(r: Rec, phase: PhaseRead, priceState: string): { status: OpportunityStatus; reason: string } {
+function statusOf(r: Rec, phase: PhaseRead, priceState: string, orientation: OrientationRead): { status: OpportunityStatus; reason: string } {
   const st = String(r.status ?? '').toUpperCase();
   const act = String(r.extensions?.action ?? st).toUpperCase();
   if (phase.phase !== 'PREGAME' && phase.phase !== 'NO_START') return { status: 'PASS', reason: phase.reason };
   if (DEAD.test(st) || st === 'PASS' || st === 'NOT_PLAYABLE') return { status: 'PASS', reason: r.reason_not_playable ?? r.extensions?.native_status ?? `The publication marked this ${st.toLowerCase().replace(/_/g, ' ')}.` };
+  if (orientation.state === 'MISMATCH') return { status: 'PASS', reason: `Contract identity failed: ${orientation.reason} Sift does not feature a price and a probability that belong to different contracts.` };
   if (priceState === 'EXPIRED') return { status: 'PASS', reason: 'The publication’s validity window for this price has passed; it says to treat the price as stale and take no action.' };
+  if (priceState === 'ABOVE_BET_UP_TO') return { status: 'PASS', reason: 'The ask is above the publication’s own bet-up-to price: at this price its model no longer supports the contract.' };
   if (act === 'ACTIONABLE' && !isResearch(r)) {
     if (phase.phase === 'NO_START') return { status: 'RESEARCH_CANDIDATE', reason: `${phase.reason} The publication permits a bet, but Sift cannot verify the game has not started.` };
-    if (priceState === 'ABOVE_BET_UP_TO') return { status: 'PASS', reason: 'The current ask is above the publication’s bet-up-to price.' };
     if (priceState === 'STALE' || priceState === 'NO_QUOTE') return { status: 'PASS', reason: 'No current executable quote for this side.' };
     return { status: 'ACTIONABLE', reason: `The publication permits a bet on this contract and the price is current and within its bet-up-to.${phase.staleStatus ? ' The listed start has passed but the publication verifies the start as still upcoming.' : ''}` };
   }
@@ -78,28 +84,25 @@ function statusOf(r: Rec, phase: PhaseRead, priceState: string): { status: Oppor
   return { status: 'RESEARCH_CANDIDATE', reason: phase.phase === 'NO_START' ? `${research} ${phase.reason}` : research };
 }
 
-function tierOf(status: OpportunityStatus, support: string | null, worst: number | null, highVariance: boolean): RankInputs['tier'] {
-  if (status === 'ACTIONABLE') return 1;
-  if (status === 'PASS') return 5;
-  if (status === 'WATCH') return 4;
-  const strong = /ROBUST|STRONGER|AGREES|HIGH/i.test(support ?? '') && !/NOT|WEAK|FRAG|LONE_OUTLIER|NO_EXTERNAL/i.test(support ?? '');
-  if (strong && (worst == null || worst > 0) && !highVariance) return 2;
-  return 3;
+interface Extra {
+  verifiedUpcoming?: boolean;
+  orientation?: OrientationRead;
+  outcome?: Outcome;
 }
-const TIER_WORD: Record<RankInputs['tier'], string> = { 1: 'Actionable', 2: 'Research candidate · robust', 3: 'Research candidate', 4: 'Watch', 5: 'Pass' };
 
-function base(code: Opportunity['sport'], slug: string, item: BoardItem, r: Rec, title: string, subject: string | null, family: string | null, why: string, evidence: string[], risk: string | null, alternatives: string[], confidence: Confidence, price: Opportunity['price'], group: string | null, highVariance: boolean, now: number, verifiedUpcoming = false): Opportunity {
-  const phase = eventPhase(item, now, { verifiedUpcoming });
-  const { status, reason } = statusOf(r, phase, price.state);
+function base(code: Opportunity['sport'], slug: string, item: BoardItem, r: Rec, title: string, subject: string | null, family: string | null, why: string, evidence: string[], risk: string | null, alternatives: string[], confidence: Confidence, price: Opportunity['price'], group: string | null, highVariance: boolean, now: number, x: Extra = {}): Opportunity {
+  const phase = eventPhase(item, now, { verifiedUpcoming: x.verifiedUpcoming });
+  const orientation = x.orientation ?? { state: 'UNVERIFIED', reason: null };
+  const { status, reason } = statusOf(r, phase, price.state, orientation);
   const worst = n(r.extensions?.worst_case_edge);
-  const tier = tierOf(status, confidence.support, worst, highVariance);
+  const tier = tierOf({ status, support: confidence.support, worstCaseEdge: worst, highVariance, priceCurrent: price.state === 'CURRENT', calibration: confidence.calibration });
   return {
     id: `${code}:${r.recommendation_id}`, sport: code, slug, eventId: item.event_id, eventLabel: eventLabel(item, code), competition: item.competition, startTime: item.start_time_utc,
     marketId: r.market_id, ticker: r.source_ids?.kalshi_ticker ?? r.market_id.replace(/^mkt_kalshi_/, ''), family,
-    what: { title, side: sideOf(r.selection), subject }, why, evidence, risk, alternatives, price, confidence, status, authority: r.authority, statusReason: reason, group, phase: phase.phase,
+    what: { title, side: sideOf(r.selection), subject }, why, evidence, risk, alternatives, price, confidence, status, authority: r.authority, statusReason: reason, group, phase: phase.phase, orientation: orientation.state, outcome: x.outcome,
     reprice: { side: price.side, fair: price.fair, fairLow: price.fairLow, fairHigh: price.fairHigh, publishedFee: price.feeSource === 'publication' ? price.fee : null, publishedEv: price.evSource === 'publication' ? price.evPerContract : null, betUpTo: price.betUpTo, availableSize: price.availableSize, expiresAt: price.expiresAt, publishedPriceState: r.extensions?.freshness?.kalshi ?? null },
     href: routes.market(slug, r.market_id, item.event_id), gameHref: routes.game(slug, item.event_id),
-    rank: { tier, tierWord: TIER_WORD[tier], worstCaseEdge: worst, evPerContract: price.evPerContract, edgeShare: confidence.edgeShare, priceCurrent: price.state === 'CURRENT', highVariance, kickoff: item.start_time_utc },
+    rank: { tier, tierWord: tierWord(tier, status), worstCaseEdge: worst, evPerContract: price.evPerContract, edgeShare: confidence.edgeShare, priceCurrent: price.state === 'CURRENT', highVariance, kickoff: item.start_time_utc },
   };
 }
 
@@ -137,18 +140,27 @@ export function soccerOpportunities(x: SportInputs): Opportunity[] {
     const why = th?.summary ? th.summary.replace(/; contract .*$/, '.').replace(/model xG/, 'model expected goals') : `${names.home} v ${names.away}: the publication's model prices this contract above the market after fees.`;
     const evidence = [
       fairYes != null ? `Model fair probability for ${side} ${pct(fair)} (YES ${pct(fairYes)}; ${ext.model_version ?? 'dc_laplace'}, ${ext.model_family ?? 'world_sim_v2'}); the side's price ${pct(r.current_probability)}` : null,
-      ext.model_posterior_edge_share != null ? `Edge positive in ${pct(ext.model_posterior_edge_share)} of posterior draws` : null,
-      ext.worst_case_edge != null ? `Worst-case edge ${(ext.worst_case_edge * 100).toFixed(1)} pts` : null,
+      ext.model_posterior_edge_share != null ? `Edge positive in ${pct(ext.model_posterior_edge_share)} of posterior draws at the research-run price of ${cents(ask)}` : null,
+      ext.worst_case_edge != null ? `Worst-case edge ${(ext.worst_case_edge * 100).toFixed(1)} pts at the research-run price of ${cents(ask)}` : null,
       ext.best_expression ? 'The publication marks this the best expression of its thesis on this fixture' : null,
     ].filter((s): s is string => !!s);
     const opposing = (th?.opposing_factors ?? []).filter((s) => !/RESEARCH_ONLY/.test(s));
     const risk = opposing.length ? opposing.join('; ') : r.lineup_status === 'unknown' ? 'Lineups unknown: availability shocks are not priced.' : null;
     const label = ext.script_robustness?.[side.toLowerCase()]?.label ?? null;
+    // The publication's own pre-registered study of this model against the de-vigged closing market
+    // (soccer-edge-finder docs/RESEARCH_DISAGREEMENT.md, disagreement_v1, 12,248 walk-forward matches): the market is
+    // reliably better in 112 of 116 subgroups and the model in none; the model's error grows with the size of the gap.
+    const studied = SOCCER_MARKET_BEATS_MODEL.has(String(ext.model_version ?? ''));
     const confidence: Confidence = {
-      calibration: 'RESEARCH', note: 'Every soccer model family is RESEARCH_ONLY: settled calibration is published per family on the match page; the international pool is not validated.',
+      calibration: studied ? 'MARKET_BEATS_MODEL' : 'RESEARCH',
+      note: studied
+        ? `RESEARCH_ONLY. The publication’s own walk-forward study of ${ext.model_version} (12,248 matches, 2019–2026) finds the de-vigged market reliably better in 112 of 116 subgroups and the model better in none; the bigger the gap, the bigger the model’s error. A gap here is a model disagreement, not an edge.`
+        : 'Every soccer model family is RESEARCH_ONLY and this model version has no published comparison with the market.',
       inputs: fresh(ext.freshness), support: label ?? (ext.best_expression ? 'BEST_EXPRESSION' : null), supportNote: label ? `Script robustness ${String(label).toLowerCase()}` : ext.best_expression ? 'Best expression on this fixture' : null, edgeShare: n(ext.model_posterior_edge_share),
     };
-    out.push(base('SOCCER', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${r.thesis_id ?? 'thesis'}`, HIGH_VARIANCE.has(family ?? ''), x.now));
+    const orientation = soccerOrientation(ticker, desc, { home: names.home, away: names.away });
+    const riskShown = studied ? `When this model and the market disagree, the market has been right: on 12,248 matches its error grew with the size of the gap.${risk ? ` ${risk}` : ''}` : risk;
+    out.push(base('SOCCER', x.sport.slug, item, r, title, null, family, why, evidence, riskShown, [], confidence, price, `${item.event_id}:${r.thesis_id ?? 'thesis'}`, HIGH_VARIANCE.has(family ?? ''), x.now, { orientation, outcome: { score: soccerScoreRule(desc) } }));
   }
   return out;
 }
@@ -184,7 +196,9 @@ export function tennisOpportunities(x: SportInputs): Opportunity[] {
     const ticker = r.source_ids?.kalshi_ticker ?? r.market_id.replace(/^mkt_kalshi_/, '');
     const family = /GTOTAL/.test(ticker) ? 'total_games' : /SETWINNER/.test(ticker) ? 'set_winner' : /SPREAD/.test(ticker) ? 'game_spread' : /EXACT/.test(ticker) ? 'exact_set_score' : 'match_winner';
     const desc = r.market_description ?? '';
-    const subjId = item.participants.find((p) => desc.startsWith(p.display_name))?.participant_id ?? null;
+    const subj = item.participants.find((p) => desc.startsWith(p.display_name)) ?? null;
+    const opp = subj ? item.participants.find((p) => p.participant_id !== subj.participant_id) ?? null : null;
+    const subjId = subj?.participant_id ?? null;
     const title = tennisMarketTitle({ kalshi_ticker: ticker, market_family: family, yes_description: desc, participant_id: subjId }, null);
     // current_price and fair_probability are stated for the SELECTED side; model_probability_yes is the YES view.
     const pYes = n(ext.model_probability_yes);
@@ -205,7 +219,9 @@ export function tennisOpportunities(x: SportInputs): Opportunity[] {
       calibration: 'MARKET_BEATS_MODEL', note: 'RESEARCH_ONLY; the publication reports no evidence of edge on settled rows.', inputs: { start: String(ext.start_status ?? 'unknown'), discrepancy: String(ext.discrepancy_band ?? 'unknown') },
       support: ext_conf, supportNote: ext_conf === 'AGREES_WITH_MODEL' ? 'Sharp references agree with the model' : ext_conf === 'NO_EXTERNAL_REFERENCE' ? 'No sharp reference to check against' : 'Sharp references side with the market', edgeShare: null,
     };
-    out.push(base('TENNIS', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${family}`, HIGH_VARIANCE.has(family), x.now, String(ext.start_status ?? '').toUpperCase() === 'VERIFIED_UPCOMING'));
+    const orientation = family === 'match_winner' || family === 'exact_set_score' ? tennisOrientation(ticker, subj?.display_name ?? null, opp?.display_name ?? null) : { state: 'UNVERIFIED' as const, reason: null };
+    const winner = family === 'match_winner' ? (side === 'YES' ? subjId : opp?.participant_id ?? null) : family === 'exact_set_score' && side === 'YES' ? subjId : null;
+    out.push(base('TENNIS', x.sport.slug, item, r, title, null, family, why, evidence, risk, [], confidence, price, `${item.event_id}:${family}`, HIGH_VARIANCE.has(family), x.now, { verifiedUpcoming: String(ext.start_status ?? '').toUpperCase() === 'VERIFIED_UPCOMING', orientation, outcome: { winner } }));
   }
   return out;
 }
@@ -267,7 +283,12 @@ export function mlbOpportunities(x: SportInputs): Opportunity[] {
     const evidence = [r.fair_probability != null ? `Fair probability ${pct(r.fair_probability)}` : 'No fair probability is published for this row', `Native status ${String(ext.native_status ?? 'unknown').toLowerCase()} · confidence ${String(r.confidence ?? 'unknown').toLowerCase()}`];
     const risk = ext.real_money_eligible === false ? 'Not real-money eligible by the publication’s own flag; the MLB model is research-only.' : null;
     const confidence: Confidence = { calibration: 'RESEARCH', note: 'RESEARCH_ONLY: the MLB slate ledger is a paper record.', inputs: { price: String(r.data_freshness ?? 'unknown') }, support: String(ext.native_status ?? ''), supportNote: null, edgeShare: null };
-    out.push(base('MLB', x.sport.slug, item, r, title, null, String(ext.market_name ?? null), why, evidence, risk, [], confidence, price, `${item.event_id}:${ext.market_name ?? 'ml'}`, false, x.now));
+    const marketName = String(ext.market_name ?? '');
+    const sideWord = /_Home(_|$)/.test(marketName) ? 'home' : /_Away(_|$)/.test(marketName) ? 'away' : null;
+    const orientation = mlbOrientation(ticker, sideWord, { home: home?.short_name, away: away?.short_name });
+    const winnerId = sideWord === 'home' ? home?.participant_id : away?.participant_id;
+    const winner = /^ML_(Home|Away)$/.test(marketName) ? (side === 'YES' ? winnerId : sideWord === 'home' ? away?.participant_id : home?.participant_id) ?? null : null;
+    out.push(base('MLB', x.sport.slug, item, r, title, null, String(ext.market_name ?? null), why, evidence, risk, [], confidence, price, `${item.event_id}:${ext.market_name ?? 'ml'}`, false, x.now, { orientation, outcome: { winner } }));
   }
   return out;
 }
@@ -323,8 +344,8 @@ export function cfbOpportunities(board: BoardItem[], doc: SignalsDoc | null, slu
       why: g.headline ?? g.card_line ?? `${team} controls this game on the opponent-adjusted football read.`, evidence, risk: value ? doc.signals.moderate_control.small_sample ?? doc.signals.moderate_control.disclaimer ?? null : doc.signals.strong_control.explanation,
       alternatives: [], price: pi,
       confidence: { calibration: 'RESEARCH', note: value ? doc.signals.moderate_control.explanation : doc.signals.strong_control.explanation, inputs: { data_quality: String(g.data_quality ?? 'unknown'), price: price.kind }, support: `${strength}_CONTROL`, supportNote: `${strength === 'STRONG' ? 'Strong' : 'Moderate'} CONTROL${g.claims.closeness ? ' with a close-game profile' : ''}`, edgeShare: null },
-      status, authority: 'RESEARCH_ONLY', statusReason: reason, group: `${item.event_id}:control`, phase: phase.phase, reprice: { side: 'YES', fair: null, betUpTo: null }, href: marketId ? routes.market(slug, marketId, item.event_id) : routes.game(slug, item.event_id), gameHref: routes.game(slug, item.event_id),
-      rank: { tier, tierWord: TIER_WORD[tier], worstCaseEdge: null, evPerContract: null, edgeShare: null, priceCurrent: quoteOk, highVariance: false, kickoff: item.start_time_utc },
+      status, authority: 'RESEARCH_ONLY', statusReason: reason, group: `${item.event_id}:control`, phase: phase.phase, orientation: 'UNVERIFIED', outcome: { winner: team }, reprice: { side: 'YES', fair: null, betUpTo: null }, href: marketId ? routes.market(slug, marketId, item.event_id) : routes.game(slug, item.event_id), gameHref: routes.game(slug, item.event_id),
+      rank: { tier, tierWord: tierWord(tier, status), worstCaseEdge: null, evPerContract: null, edgeShare: null, priceCurrent: quoteOk, highVariance: false, kickoff: item.start_time_utc },
     });
   }
   return out;

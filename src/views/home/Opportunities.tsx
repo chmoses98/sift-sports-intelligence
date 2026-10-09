@@ -56,12 +56,15 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
           <span className="opp__when">{when(o.startTime)}</span>
           {o.competition && <span className="opp__comp">{o.competition}</span>}
         </span>
-        <span className="opp__chips"><StatusPill o={o} />{o.rank.tier === 2 && <Pill tone="ok" title={o.confidence.supportNote ?? ''}>robust</Pill>}{o.rank.highVariance && <Pill tone="warn" title="Settles on a single event; high variance">high variance</Pill>}</span>
+        <span className="opp__chips"><StatusPill o={o} />{o.rank.tier === 2 && <Pill tone="ok" title={o.confidence.supportNote ?? ''}>robust</Pill>}{o.rank.tierWord === 'Model disagreement' && <Pill tone="warn" title={o.confidence.note}>market beats model</Pill>}{o.rank.highVariance && <Pill tone="warn" title="Settles on a single event; high variance">high variance</Pill>}</span>
       </header>
       <h3 className="opp__t"><Link to={o.href}><span className="opp__side">{o.what.side}</span> {o.what.title}</Link></h3>
       <p className="opp__why">{o.why}</p>
       <PriceLine o={o} now={now} />
       <p className={`opp__state opp__state--${o.price.state.toLowerCase()}`}>{PRICE_STATE_WORD[o.price.state]}{o.price.expiresAt ? ` · valid until ${new Date(o.price.expiresAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : ''} · {CAL_WORD[o.confidence.calibration]}{o.confidence.supportNote ? ` · ${o.confidence.supportNote}` : ''}</p>
+      {o.priceNote && <p className="opp__note opp__reprice">{o.priceNote}</p>}
+      {f.conflicts.length > 0 && <p className="opp__conflict" role="note"><b>Opposite scenario:</b> this cannot win together with {f.conflicts.map((c) => `${c.what.side} ${c.what.title}`).join(' or ')}, also shown for this game. They rely on different game scripts; at most one can be right.</p>}
+      {f.conflicts.length === 0 && f.sameGame.length > 0 && <p className="opp__note opp__same">Same game as {f.sameGame.length} other {f.sameGame.length === 1 ? 'card' : 'cards'} here: one exposure, not independent edges.</p>}
       {o.risk && <p className="opp__risk"><b>What beats it:</b> {o.risk}</p>}
       <button type="button" className="opp__more" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Less' : 'Evidence'}{f.related.length ? ` · ${f.related.length} related` : ''}<Icon name="chevronDown" size={14} /></button>
       {open && (
@@ -73,7 +76,7 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
           {f.related.length > 0 && (
             <div className="opp__rel">
               <span className="opp__relh">Related expressions of the same thesis (not independent evidence)</span>
-              <ul>{f.related.map((r) => <li key={r.id}><Link to={r.href}>{r.what.side} {r.what.title}</Link> <span className="muted">· {cents(r.price.ask)} · fair {pct(r.price.fair)} · {STATUS_WORD[r.status].toLowerCase()}</span></li>)}</ul>
+              <ul>{f.related.map((r) => <li key={r.id}><Link to={r.href}>{r.what.side} {r.what.title}</Link> <span className="muted">· {cents(r.price.ask)} · fair {pct(r.price.fair)} · {STATUS_WORD[r.status].toLowerCase()}</span>{f.opposed.includes(r.id) && <span className="opp__opposed"> · opposite outcome: cannot win with the lead</span>}</li>)}</ul>
             </div>
           )}
           <p className="opp__note">Status: {o.statusReason}</p>
@@ -81,6 +84,29 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
         </div>
       )}
     </article>
+  );
+}
+
+/** The board's evidence levels, best first; a level with nothing in it is not shown. */
+const LEVELS: { id: string; tiers: number[]; title: string; sub: string }[] = [
+  { id: 'act', tiers: [1], title: 'Actionable', sub: 'The publication permits a bet, the price is current and within its bet-up-to.' },
+  { id: 'res', tiers: [2, 3], title: 'Research candidates', sub: 'A research-only model prices these above the market after the fee. Worth reviewing; not validated bets.' },
+  { id: 'sig', tiers: [4], title: 'Signals without a validated bet', sub: 'Matchup reads, and gaps from models whose own settled record loses to the market. Read them as research, not as edges.' },
+];
+
+function TierSections({ featured, now, showSport }: { featured: Featured[]; now: number; showSport: boolean }) {
+  const levels = LEVELS.map((l) => ({ ...l, items: featured.filter((f) => l.tiers.includes(f.lead.rank.tier)) })).filter((l) => l.items.length);
+  const strongest = levels[0]?.id;
+  return (
+    <>
+      {strongest === 'sig' && <p className="oppboard__lede" role="note"><b>No validated or research-backed bet right now.</b> What follows are signals to read, not edges to take.</p>}
+      {levels.map((l) => (
+        <div key={l.id} className={`oppboard__lvl oppboard__lvl--${l.id}`} data-level={l.id}>
+          {levels.length > 1 || l.id !== 'act' ? <h3 className="oppboard__lh">{l.title} <span className="oppboard__ln">{l.items.length}</span><small>{l.sub}</small></h3> : null}
+          <div className="oppboard__grid">{l.items.map((f) => <OpportunityCard key={f.lead.id} f={f} now={now} showSport={showSport} />)}</div>
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -115,7 +141,7 @@ export function OpportunityBoard({ featured, verdicts, now, loading, showSport =
   const broken = verdicts.filter((v) => !v.loaded);
   return (
     <div className="oppboard">
-      {featured.length > 0 && <div className="oppboard__grid">{featured.map((f) => <OpportunityCard key={f.lead.id} f={f} now={now} showSport={showSport} />)}</div>}
+      {featured.length > 0 && <TierSections featured={featured} now={now} showSport={showSport} />}
       {featured.length === 0 && !loading && (
         <div className="oppboard__none">
           <h3 className="oppboard__nt">No opportunity clears the bar right now.</h3>

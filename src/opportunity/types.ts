@@ -13,7 +13,9 @@
 //   ALTERNATIVES the related expressions the publication names
 // A PASS is a first-class result: a sport with nothing that qualifies says so, with the precise missing prerequisite.
 import type { SportCode } from '../contract/types';
+import type { Outcome } from './correlation';
 import type { EventPhase } from './lifecycle';
+import type { Orientation } from './identity';
 
 export type OpportunityStatus =
   /** The publication itself permits a bet (authority not research-only), the price is current and at or under its bet-up-to. */
@@ -111,6 +113,12 @@ export interface Opportunity {
   reprice: RepriceInputs;
   /** A thesis / exposure group shared with related opportunities on the same game (correlation). */
   group: string | null;
+  /** Whether the Kalshi ticker's own side code agrees with the side the publication names (src/opportunity/identity.ts). */
+  orientation: Orientation;
+  /** What must happen for the position to pay, from the contract words (src/opportunity/correlation.ts). */
+  outcome?: Outcome;
+  /** Set when a live quote changed the ask: which published figures were re-based and which are as of the research run. */
+  priceNote?: string | null;
   href: string;
   gameHref: string;
   /** Auditable ranking inputs; the order is a documented rule over these, never a hidden score. */

@@ -135,7 +135,7 @@ describe('the other sports', () => {
     expect(nextDay.find((o) => o.id === cand.id)!.phase).toBe('STARTED');
   });
   it('a sport verdict counts games by phase and names a board whose every start has passed', () => {
-    const b = { sport: sportByCode('SOCCER')!, board: readSoccer<BoardDoc>('board.json').items, recommendations: readSoccer<ItemsDoc<Recommendation>>('recommendations.json').items, theses: readSoccer<ItemsDoc<Thesis>>('theses.json').items, signals: null, modelState: 'RESEARCH_ONLY', error: null };
+    const b = { sport: sportByCode('SOCCER')!, board: readSoccer<BoardDoc>('board.json').items, recommendations: readSoccer<ItemsDoc<Recommendation>>('recommendations.json').items, theses: readSoccer<ItemsDoc<Thesis>>('theses.json').items, signals: null, modelState: 'RESEARCH_ONLY', marketCaptureAt: null, error: null };
     const v = evaluate(b, Date.parse('2026-10-11T12:00:00Z')).verdict;
     expect(v.opportunities).toBe(0);
     expect(v.passReason).toMatch(/passed its published start/);

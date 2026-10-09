@@ -7,7 +7,7 @@ import { useSportOpportunities } from '../../opportunity/load';
 import { featureOpportunities, isLive } from '../../opportunity/rank';
 import { useSport } from '../../state/sport';
 import { Section } from '../shared/kit';
-import { OpportunityBoard } from './Opportunities';
+import { OpportunityBoard, StaleNote } from './Opportunities';
 
 export function SportOpportunities({ now, title = 'Opportunities', max = 6 }: { now: number; title?: string; max?: number }) {
   const { sport, repo } = useSport();
@@ -22,6 +22,7 @@ export function SportOpportunities({ now, title = 'Opportunities', max = 6 }: { 
       actions={featured.length > max ? <span className="ghome__count">{featured.length - max} more on the games below</span> : undefined}
     >
       {o.loading && <Skeleton lines={4} tall />}
+      {!o.loading && o.verdict && shown.length > 0 && <StaleNote v={o.verdict} />}
       {!o.loading && <OpportunityBoard featured={shown} verdicts={o.verdict ? [o.verdict] : []} now={now} loading={o.loading} showSport={false} />}
     </Section>
   );

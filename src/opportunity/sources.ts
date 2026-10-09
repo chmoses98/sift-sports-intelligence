@@ -97,6 +97,7 @@ function base(code: Opportunity['sport'], slug: string, item: BoardItem, r: Rec,
     id: `${code}:${r.recommendation_id}`, sport: code, slug, eventId: item.event_id, eventLabel: eventLabel(item, code), competition: item.competition, startTime: item.start_time_utc,
     marketId: r.market_id, ticker: r.source_ids?.kalshi_ticker ?? r.market_id.replace(/^mkt_kalshi_/, ''), family,
     what: { title, side: sideOf(r.selection), subject }, why, evidence, risk, alternatives, price, confidence, status, authority: r.authority, statusReason: reason, group, phase: phase.phase,
+    reprice: { side: price.side, fair: price.fair, fairLow: price.fairLow, fairHigh: price.fairHigh, publishedFee: price.feeSource === 'publication' ? price.fee : null, publishedEv: price.evSource === 'publication' ? price.evPerContract : null, betUpTo: price.betUpTo, availableSize: price.availableSize, expiresAt: price.expiresAt, publishedPriceState: r.extensions?.freshness?.kalshi ?? null },
     href: routes.market(slug, r.market_id, item.event_id), gameHref: routes.game(slug, item.event_id),
     rank: { tier, tierWord: TIER_WORD[tier], worstCaseEdge: worst, evPerContract: price.evPerContract, edgeShare: confidence.edgeShare, priceCurrent: price.state === 'CURRENT', highVariance, kickoff: item.start_time_utc },
   };
@@ -322,7 +323,7 @@ export function cfbOpportunities(board: BoardItem[], doc: SignalsDoc | null, slu
       why: g.headline ?? g.card_line ?? `${team} controls this game on the opponent-adjusted football read.`, evidence, risk: value ? doc.signals.moderate_control.small_sample ?? doc.signals.moderate_control.disclaimer ?? null : doc.signals.strong_control.explanation,
       alternatives: [], price: pi,
       confidence: { calibration: 'RESEARCH', note: value ? doc.signals.moderate_control.explanation : doc.signals.strong_control.explanation, inputs: { data_quality: String(g.data_quality ?? 'unknown'), price: price.kind }, support: `${strength}_CONTROL`, supportNote: `${strength === 'STRONG' ? 'Strong' : 'Moderate'} CONTROL${g.claims.closeness ? ' with a close-game profile' : ''}`, edgeShare: null },
-      status, authority: 'RESEARCH_ONLY', statusReason: reason, group: `${item.event_id}:control`, phase: phase.phase, href: marketId ? routes.market(slug, marketId, item.event_id) : routes.game(slug, item.event_id), gameHref: routes.game(slug, item.event_id),
+      status, authority: 'RESEARCH_ONLY', statusReason: reason, group: `${item.event_id}:control`, phase: phase.phase, reprice: { side: 'YES', fair: null, betUpTo: null }, href: marketId ? routes.market(slug, marketId, item.event_id) : routes.game(slug, item.event_id), gameHref: routes.game(slug, item.event_id),
       rank: { tier, tierWord: TIER_WORD[tier], worstCaseEdge: null, evPerContract: null, edgeShare: null, priceCurrent: quoteOk, highVariance: false, kickoff: item.start_time_utc },
     });
   }
@@ -350,9 +351,9 @@ export function passReasonFor(code: Opportunity['sport'], opps: Opportunity[], b
   }
 }
 
-export function verdict(code: Opportunity['sport'], slug: string, label: string, board: BoardItem[], opps: Opportunity[], recsRead: boolean, modelState: string | null, loaded: boolean, error: string | null, now: number): SportVerdict {
+export function verdict(code: Opportunity['sport'], slug: string, label: string, board: BoardItem[], opps: Opportunity[], recsRead: boolean, modelState: string | null, loaded: boolean, error: string | null, now: number, marketCaptureAt: string | null = null): SportVerdict {
   return {
     sport: code, slug, label, games: board.filter((i) => eventPhase(i, now).phase === 'PREGAME' || eventPhase(i, now).phase === 'STARTED').length, opportunities: opps.filter((o) => o.status !== 'PASS').length, passes: opps.filter((o) => o.status === 'PASS').length,
-    passReason: loaded ? passReasonFor(code, opps, board, recsRead, now) : null, modelState, loaded, error,
+    passReason: loaded ? passReasonFor(code, opps, board, recsRead, now) : null, modelState, marketCaptureAt, loaded, error,
   };
 }

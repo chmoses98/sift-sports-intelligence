@@ -20,7 +20,7 @@ const NOW = Date.parse('2026-10-09T06:10:00Z');
 function soccerBundle() {
   return {
     sport: sportByCode('SOCCER')!, board: readSoccer<BoardDoc>('board.json').items, recommendations: readSoccer<ItemsDoc<Recommendation>>('recommendations.json').items,
-    theses: readSoccer<ItemsDoc<Thesis>>('theses.json').items, signals: null, modelState: 'RESEARCH_ONLY', error: null,
+    theses: readSoccer<ItemsDoc<Thesis>>('theses.json').items, signals: null, modelState: 'RESEARCH_ONLY', marketCaptureAt: null, error: null,
   };
 }
 
@@ -74,11 +74,18 @@ describe('opportunity cards', () => {
   });
 
   it('a PASS sport shows the missing prerequisite; a filtered-empty board says so without inventing anything', () => {
-    const v = { sport: 'NBA' as const, slug: 'nba', label: 'NBA', games: 2, opportunities: 0, passes: 0, passReason: 'The NBA publication prices no contract, and its own study shows the market beating its model in 8 of 8 families.', modelState: 'RESEARCH_ONLY', loaded: true, error: null };
+    const v = { sport: 'NBA' as const, slug: 'nba', label: 'NBA', games: 2, opportunities: 0, passes: 0, passReason: 'The NBA publication prices no contract, and its own study shows the market beating its model in 8 of 8 families.', modelState: 'RESEARCH_ONLY', marketCaptureAt: null, loaded: true, error: null };
     wrap(<OpportunityBoard featured={[]} verdicts={[v]} now={NOW} loading={false} />);
     expect(screen.getByText('No opportunity clears the bar right now.')).toBeInTheDocument();
     expect(screen.getByText(/prices no contract/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Open NBA/ })).toBeInTheDocument();
+  });
+
+  it('a stale publication says so with its own market-capture clock, on the pass card', () => {
+    const v = { sport: 'MLB' as const, slug: 'mlb', label: 'MLB', games: 1, opportunities: 0, passes: 7, passReason: 'Every row of the MLB slate ledger is a PASS: no research candidate on the board.', modelState: 'STALE', marketCaptureAt: new Date(Date.now() - 11 * 3600_000).toISOString(), loaded: true, error: null };
+    wrap(<OpportunityBoard featured={[]} verdicts={[v]} now={NOW} loading={false} />);
+    expect(screen.getByText(/Publication stale/)).toBeInTheDocument();
+    expect(screen.getByText(/markets last captured 11h/)).toBeInTheDocument();
   });
 });
 

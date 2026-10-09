@@ -107,12 +107,28 @@ export interface Opportunity {
   statusReason: string;
   /** The event's lifecycle phase at evaluation time (src/opportunity/lifecycle.ts): only PREGAME can be acted on. */
   phase: EventPhase;
+  /** The publication's pricing inputs, kept so a newer live quote can reprice the side (src/opportunity/live.ts). */
+  reprice: RepriceInputs;
   /** A thesis / exposure group shared with related opportunities on the same game (correlation). */
   group: string | null;
   href: string;
   gameHref: string;
   /** Auditable ranking inputs; the order is a documented rule over these, never a hidden score. */
   rank: RankInputs;
+}
+
+/** What priceIntel needs besides the ask and its clock: the publication's fair band, fee, EV, limit and expiry. */
+export interface RepriceInputs {
+  side: Side;
+  fair: number | null;
+  fairLow?: number | null;
+  fairHigh?: number | null;
+  publishedFee?: number | null;
+  publishedEv?: number | null;
+  betUpTo?: number | null;
+  availableSize?: number | null;
+  expiresAt?: string | null;
+  publishedPriceState?: string | null;
 }
 
 export interface RankInputs {
@@ -139,6 +155,8 @@ export interface SportVerdict {
   passReason: string | null;
   /** Publication health / model state words. */
   modelState: string | null;
+  /** The publication's own market-capture clock, so a stale feed is said in words next to its passes and candidates. */
+  marketCaptureAt: string | null;
   loaded: boolean;
   error: string | null;
 }

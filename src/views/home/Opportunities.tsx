@@ -84,6 +84,14 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
   );
 }
 
+/** A publication that reports itself STALE or DEGRADED says so, with its own market-capture clock, wherever its verdict shows. */
+export function StaleNote({ v }: { v: SportVerdict }) {
+  const st = (v.modelState ?? '').toUpperCase();
+  if (!/STALE|DEGRADED|UNAVAILABLE|FAILED/.test(st)) return null;
+  const age = v.marketCaptureAt ? formatQuoteAgo(quoteAgeMs(v.marketCaptureAt, Date.now())) : null;
+  return <p className="opp__stale" role="note"><b>Publication {st.toLowerCase()}</b>{age ? `: markets last captured ${age}` : ''}. Its prices and statuses are as old as that capture; nothing here is a live read.</p>;
+}
+
 /** A sport with nothing to feature: the precise prerequisite that is missing, from the publication. */
 export function PassCard({ v, children }: { v: SportVerdict; children?: ReactNode }) {
   const nav = navSport(v.slug);
@@ -94,6 +102,7 @@ export function PassCard({ v, children }: { v: SportVerdict; children?: ReactNod
         <span className="opp__chips"><Pill tone="neutral">Pass</Pill></span>
       </header>
       <p className="opp__why">{v.error ? `The ${nav?.label ?? v.label} board could not be read: ${v.error}` : v.passReason ?? 'Nothing qualifies.'}</p>
+      <StaleNote v={v} />
       {children}
       <Link to={`/${v.slug}`} className="opp__more">Open {nav?.label ?? v.label}<Icon name="arrowRight" size={14} /></Link>
     </article>

@@ -43,6 +43,19 @@ rather than treating every game as pregame. Price state is checked after the pha
 current quote (younger than 30 minutes) at or under the publication's bet-up-to. The frozen rows keep their price,
 fair probability and evidence so a game page can review them; the home board and sport panels never feature them.
 
+## Live repricing (`live.ts`)
+
+The price on a card is the publication's at its research run until a newer live quote exists for the same contract
+(the relay's quote clock is at least as new as the publication's capture). Then the executable ask of the selected
+side comes from the quote (YES ask or NO ask, never a midpoint or last trade), the fee from Kalshi's schedule (a
+published fee belongs to the published ask), freshness from the quote's own clock, and the status is revalidated: an
+actionable row needs a current executable quote at or under the bet-up-to; a closed, settled or unopened contract is a
+PASS whatever the research said; research candidates keep their status and show the quote. The home board and every
+sport panel subscribe to the live tickers of their non-PASS opportunities at slate cadence.
+
+A publication that reports itself STALE or DEGRADED says so, with its own market-capture clock, on its pass card and
+above its panel: its prices and statuses are as old as that capture.
+
 ## Price state
 
 Decided in this order: `EXPIRED` (the publication's validity window has passed, or it says STALE_PRICE) →

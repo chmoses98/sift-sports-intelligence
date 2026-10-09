@@ -4,6 +4,8 @@
 import { useMemo } from 'react';
 import type { BoardItem, Recommendation, Thesis } from '../contract/types';
 import { useAsync } from '../data/hooks';
+import { useLiveQuotes } from '../live/hooks';
+import { repriceAll } from './live';
 import { SportRepo } from '../data/repo';
 import { resolveSource } from '../data/source';
 import { explorable, SPORTS, type SportConfig } from '../data/sports';
@@ -19,6 +21,7 @@ export interface SportBundle {
   theses: Thesis[] | null;
   signals: SignalsDoc | null;
   modelState: string | null;
+  marketCaptureAt: string | null;
   error: string | null;
 }
 
@@ -27,16 +30,16 @@ export async function loadBundle(repo: SportRepo): Promise<SportBundle> {
   const sport = repo.sport;
   try {
     const src = repo.source;
-    if (!src.root) return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: src.liveHealth?.overall_status ?? null, error: src.reason };
+    if (!src.root) return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: src.liveHealth?.overall_status ?? null, marketCaptureAt: src.liveHealth?.last_market_capture ?? null, error: src.reason };
     const board = await repo.board();
     const [recs, theses, signals] = await Promise.all([
       repo.recommendations().then((d) => d.items as Recommendation[]).catch(() => null),
       sport.code === 'SOCCER' ? repo.theses().then((d) => d.items).catch(() => null) : Promise.resolve(null),
       sport.researchSignalsUrl ? loadSignals(sport.researchSignalsUrl).catch(() => null) : Promise.resolve(null),
     ]);
-    return { sport, board: board.items, recommendations: recs, theses, signals, modelState: src.liveHealth?.overall_status ?? null, error: null };
+    return { sport, board: board.items, recommendations: recs, theses, signals, modelState: src.liveHealth?.overall_status ?? null, marketCaptureAt: src.liveHealth?.last_market_capture ?? board.generated_at ?? null, error: null };
   } catch (e) {
-    return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: null, error: e instanceof Error ? e.message : String(e) };
+    return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: null, marketCaptureAt: null, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
@@ -44,7 +47,7 @@ async function loadSport(sport: SportConfig): Promise<SportBundle> {
   try {
     return await loadBundle(new SportRepo(await resolveSource(sport)));
   } catch (e) {
-    return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: null, error: e instanceof Error ? e.message : String(e) };
+    return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: null, marketCaptureAt: null, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
@@ -63,30 +66,41 @@ export function evaluate(b: SportBundle, now: number): { opportunities: Opportun
       default: return [];
     }
   })();
-  return { opportunities: opps, verdict: verdict(code, b.sport.slug, b.sport.label, b.board, opps, b.recommendations != null || code === 'CFB' || code === 'NBA' || code === 'CBB', b.modelState, !b.error, b.error, now) };
+  return { opportunities: opps, verdict: verdict(code, b.sport.slug, b.sport.label, b.board, opps, b.recommendations != null || code === 'CFB' || code === 'NBA' || code === 'CBB', b.modelState, !b.error, b.error, now, b.marketCaptureAt) };
 }
 
-/** One sport's opportunities and verdict (for that sport's home). */
+/** The live tickers worth a quote: every opportunity that is not already a PASS. */
+const liveTickers = (opps: Opportunity[]) => [...new Set(opps.filter((o) => o.status !== 'PASS' && o.ticker).map((o) => o.ticker!))];
+
+/** A verdict's counts after live repricing (the pass reason stays the publication's). */
+const recount = (v: SportVerdict, opps: Opportunity[]): SportVerdict => {
+  const mine = opps.filter((o) => o.slug === v.slug);
+  return { ...v, opportunities: mine.filter((o) => o.status !== 'PASS').length, passes: mine.filter((o) => o.status === 'PASS').length };
+};
+
+/** One sport's opportunities and verdict (for that sport's home), repriced by the live quote where one exists. */
 export function useSportOpportunities(repo: SportRepo, now: number) {
   const bundle = useAsync(`opportunities:${repo.sport.code}:${repo.source.root}`, () => loadBundle(repo));
+  const evaluated = useMemo(() => (bundle.data ? evaluate(bundle.data, now) : null), [bundle.data, now]);
+  const live = useLiveQuotes(useMemo(() => liveTickers(evaluated?.opportunities ?? []), [evaluated]), 'slate');
   return useMemo(() => {
-    const b = bundle.data;
-    const ev = b ? evaluate(b, now) : null;
-    return { loading: bundle.loading, error: bundle.error, opportunities: ev?.opportunities ?? [], verdict: ev?.verdict ?? null };
-  }, [bundle.data, bundle.loading, bundle.error, now]);
+    const opportunities = evaluated ? repriceAll(evaluated.opportunities, live.quote, now) : [];
+    return { loading: bundle.loading, error: bundle.error, opportunities, verdict: evaluated ? recount(evaluated.verdict, opportunities) : null };
+  }, [evaluated, bundle.loading, bundle.error, live, now]);
 }
 
 export function useAllOpportunities(now: number) {
   const bundles = useAsync('opportunities:all', () => Promise.all(SPORTS.filter(explorable).map(loadSport)));
+  const evaluated = useMemo(() => (bundles.data ?? []).map((b) => evaluate(b, now)), [bundles.data, now]);
+  const live = useLiveQuotes(useMemo(() => liveTickers(evaluated.flatMap((e) => e.opportunities)), [evaluated]), 'slate');
   return useMemo(() => {
-    const list = bundles.data ?? [];
-    const evaluated = list.map((b) => evaluate(b, now));
+    const opportunities = repriceAll(evaluated.flatMap((e) => e.opportunities), live.quote, now);
     return {
       loading: bundles.loading,
       error: bundles.error,
-      bundles: list,
-      opportunities: evaluated.flatMap((e) => e.opportunities),
-      verdicts: evaluated.map((e) => e.verdict),
+      bundles: bundles.data ?? [],
+      opportunities,
+      verdicts: evaluated.map((e) => recount(e.verdict, opportunities)),
     };
-  }, [bundles.data, bundles.loading, bundles.error, now]);
+  }, [evaluated, bundles.data, bundles.loading, bundles.error, live, now]);
 }

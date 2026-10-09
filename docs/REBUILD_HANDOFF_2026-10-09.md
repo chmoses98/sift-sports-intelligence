@@ -53,9 +53,10 @@ Tests at the end: 55 unit files / 687 tests (Vitest), 21 e2e files on Chromium p
 * `[update-visual-baselines]` in a commit message makes the Visual baselines workflow render and push baselines; CI
   does not run on that bot push automatically, so re-run the pull-request CI on the new head (Actions → re-run), or
   dispatch the workflow by hand when the marker was on an earlier commit of the branch.
-* `e2e/nhl.spec.ts` "direct links, refresh and back/forward" failed once per full local sweep under parallel load
-  (a browser error asserted by the fixture) and passed 4 of 4 in isolation; CI has not failed on it. Worth a root
-  cause if it recurs.
+* `e2e/nhl.spec.ts` "direct links, refresh and back/forward" flaked under load (twice locally, once on the #37
+  deploy's verify run): the error fixture counted a navigation-cancelled team-logo image ("Load request cancelled"
+  in WebKit, `net::ERR_ABORTED` in Chromium) as a failed asset. The fixture now ignores navigation-cancelled
+  requests; a real failed load is still a failure.
 * The production check cannot be run from a sandboxed container (the site is blocked); read its workflow run.
 * `innerText` in Playwright reflects CSS `text-transform`: match uppercase eyebrows case-insensitively (the two
   verdict-strip checks in #36 failed on this and were corrected in #37).

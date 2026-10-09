@@ -116,10 +116,15 @@ raw tables. Layer 4 is never shown by default.
   results, structures. Where prices and projections differ sits in a collapsed layer. The
   full slate is `/nfl/slate`.
 * **Game** — a clean hero (teams, time or score, venue, conditions — nothing else on the photo), then
-  Overview: **What Matters** (3–5 cards: matchup edges and context notes ordered together by importance,
+  Overview: the **Sift verdict** strip (what the sport's own candidate layer says about this game through the
+  shared opportunity system — the opportunity cards, or "no published opportunity" with the precise reason) →
+  **What Matters** (3–5 cards: matchup edges and context notes ordered together by importance,
   at most one scheme note — `insights/matters.ts`) → **How It Could
   Play Out** (scripts most likely first, each with the player who carries it) → **Props to Watch** → form and
-  injuries that matter → The Lines. Deeper tabs: Matchups · Scripts · Props · Players · Markets · Trends · Injuries.
+  injuries that matter → The Lines. Deeper tabs: Matchups · Scripts · Props (the prop board, docs/INSIGHTS.md) · Players · Markets · Trends · Injuries.
+  CFB's Scripts tab maps the selected script to exact contracts: each card says what the side pays when, what it
+  costs after Kalshi's fee, the football it needs, the scripts it loses in and the other rungs of its thesis
+  (`lib/scriptMarkets.ts`). Script survival stays a count; no card turns a rank into a probability.
 * **Player** — research first, market second. Real photo, then **This game** (projection, labelled range, the
   line, the matchup rank), then **Game by Game**: windows Last 5 · Last 10 · this season · last season (last 5/10
   span seasons), a sentence ("3 of 5 above today's line of 89.5"), the window's average and range, where today's

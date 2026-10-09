@@ -91,7 +91,8 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
 * [docs/CFB_SLATE_PRIORITIES.md](docs/CFB_SLATE_PRIORITIES.md) — the CFB home's Slate Priorities rail (value vs CONTROL,
   every rule and field), CFB school names (one identity, applied at the data layer) and the CFB Barlow weights.
 * [docs/INSIGHTS.md](docs/INSIGHTS.md) — the insight layer: matchup edges, context notes, scheme pairings,
-  props to watch, news importance, research findings, and the nflverse history layer behind them.
+  props to watch, the prop board (every prop by family with price after fees, the shadow model beside the market,
+  risks and the ladder), news importance, research findings, and the nflverse history layer behind them.
 * [docs/NHL.md](docs/NHL.md) — the NHL vertical: data consumed, screens, script survival, research candidates,
   raw vs opponent-adjusted, learning gates, scorecard.
 * [docs/DATA_GAPS.md](docs/DATA_GAPS.md) — what the publications cannot support yet, and the upstream NFL

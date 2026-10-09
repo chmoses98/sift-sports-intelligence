@@ -56,3 +56,12 @@ own settled record shows the market as the better forecaster (tennis; NBA); `UNV
 
 `tests/opportunity.test.ts` on the real trimmed publications (`tests/fixtures/{soccer,tennis,nhl,mlb,cfb}`): the fee
 schedule, the price states, every adapter's authority and side handling, the ranking order and the PASS reasons.
+
+## On a game page
+
+Every game page opens with the **Sift verdict** strip (`views/game/GameOpportunities.tsx`): the sport's opportunities
+filtered to that event, rendered as the same cards the home shows, or one line — "No published opportunity on this
+game" — with the publication's precise reason (the sport verdict's pass reason, or the first judged candidate's status
+reason). The NFL publication recommends nothing this season and its model is research-only, so every NFL game says so
+before What Matters; the research below is for reading the game, not a pick.
+

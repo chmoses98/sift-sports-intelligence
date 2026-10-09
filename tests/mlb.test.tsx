@@ -22,7 +22,7 @@ import { splitName } from '../src/views/game/Hero';
 import { propBoard } from '../src/views/mlb/PlayerProps';
 import { SlateView } from '../src/views/Slate';
 import { SportHomeView } from '../src/views/SportHome';
-import { MLB_DIR, readMlb, useDiskFetch } from './helpers';
+import { MLB_DIR, readDisk, readMlb, useDiskFetch } from './helpers';
 import { renderScreen } from './render';
 
 const LADATL = 'evt_f809f61380cdbb0eb4f0';
@@ -183,6 +183,30 @@ describe('MLB screens', () => {
     await waitFor(() => expect(screen.getAllByText(/Dodgers/).length).toBeGreaterThan(0));
     expect(screen.getAllByText(/White Sox/).length).toBeGreaterThan(0);
     expect(document.body.textContent).not.toMatch(/Falcons|Kicked off|scripts and matchups/);
+  });
+
+  it('a board whose every game is final still carries the publication\'s market clock, never "Update time unknown"', async () => {
+    // The 2026-10-09 production review: after the night's last out the MLB home read "0 games · 0 markets ·
+    // Update time unknown · published" with a green dot, while the publication itself said its markets were
+    // last captured 13 hours earlier. The clock falls back to the publication's health.last_market_capture.
+    setFetchJson(async (url: string) => {
+      const doc = (await readDisk(url)) as Record<string, unknown>;
+      if (url.endsWith('/board.json')) {
+        return { ...doc, items: (doc.items as Record<string, unknown>[]).map((i) => ({ ...i, status: 'FINAL', market_captured_at: null })) };
+      }
+      return doc;
+    });
+    try {
+      renderScreen(routes.sport('mlb'), '/:sport', <SportHomeView />, {}, 'mlb');
+      expect(await screen.findByRole('heading', { name: 'MLB', level: 1 })).toBeInTheDocument();
+      // the fixture publication's own last_market_capture (2026-10-07T19:53:24Z, 16 minutes before NOW)
+      const chip = await screen.findByText(/Updated 16m ago/);
+      expect(chip.closest('.qchip')).toHaveAttribute('data-quote-source', 'publication');
+      expect(document.body.textContent).not.toMatch(/Update time unknown/);
+      expect(screen.getByText(/No upcoming games in this publication/)).toBeInTheDocument();
+    } finally {
+      useDiskFetch();
+    }
   });
 
   it('the MLB slate lists the four postseason games', async () => {

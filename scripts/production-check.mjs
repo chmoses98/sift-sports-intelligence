@@ -185,6 +185,14 @@ async function nhlCheck(page) {
     check(!/KXNHL/.test(text), 'NHL game shows no raw Kalshi tickers');
     check(!/undefined|NaN/.test(text), 'NHL game shows no undefined / NaN');
     check(!/\block\b|best bet|guaranteed|profitable/i.test(text), 'NHL game carries no betting-verdict language');
+    // A pregame NHL game opens with the Sift verdict strip (research-candidate cards or "no published opportunity");
+    // once the puck drops the pregame research is frozen and the strip is not shown.
+    const verdict = page.getByTestId('game-opportunities');
+    if (frozen === 0) {
+      check((await verdict.count()) === 1 && /Sift verdict/.test((await verdict.innerText().catch(() => '')) ?? ''), 'NHL game: the Sift verdict strip is present before puck drop');
+    } else {
+      console.log('  NHL game is frozen (puck dropped): verdict strip NOT_APPLICABLE');
+    }
   } else {
     console.log('  NHL home lists no game today; game check skipped');
   }

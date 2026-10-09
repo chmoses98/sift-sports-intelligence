@@ -18,6 +18,7 @@ import { allTeams, confShort, identity } from './identity';
 import { GameRow, marquee, teamConf, useCbbEvents } from './Slate';
 import { CbbMark, ConfidenceChip, RoleTag, StateLine } from './ui';
 import { TeamLogo } from './viz';
+import { SportOpportunities } from '../home/SportOpportunities';
 
 const DAY = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '—';
@@ -48,6 +49,8 @@ export function CbbHomeView() {
       </header>
 
       <SeasonBand st={st} health={health.data} projected={projected.length} upcoming={upcoming.length} />
+
+      <SportOpportunities now={Date.now()} />
 
       {featured.length > 0 && (
         <section className="cbbhome__sec" aria-labelledby="cb-mq-h">

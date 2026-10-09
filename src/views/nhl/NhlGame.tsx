@@ -30,6 +30,7 @@ import { familyGlyph, Glyph } from './glyphs';
 import { FreshPill, ResearchPill } from './kit';
 import { BasisChip, FindingCard, LinesPanel, ScriptMatrix, ScriptsUnavailable, TierChip, teamResolver } from './parts';
 import { FrozenNote, GoalieMatchup, MarketFit, PlayerResearch, ReviewSection, ScriptCard, ScriptList, Section, SpecialTeams, SummaryStrip, ThesisSection } from './story';
+import { GameOpportunities } from '../game/GameOpportunities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -271,6 +272,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
       {tab === 'overview' && (
         <div className="nhg__story">
           <FrozenNote phase={phase} generatedAt={s?.generatedAt ?? null} />
+          {pregame && <GameOpportunities eventId={eventId} now={now}>The scripts, goalies and market fit below are the research behind that call.</GameOpportunities>}
           <ReviewSection phase={phase} ids={ids} s={s} />
           {t ? <ThesisSection t={t} s={s} r={r} slug={slug} ids={ids} /> : null}
           {s ? (

@@ -63,5 +63,9 @@ Every game page opens with the **Sift verdict** strip (`views/game/GameOpportuni
 filtered to that event, rendered as the same cards the home shows, or one line — "No published opportunity on this
 game" — with the publication's precise reason (the sport verdict's pass reason, or the first judged candidate's status
 reason). The NFL publication recommends nothing this season and its model is research-only, so every NFL game says so
-before What Matters; the research below is for reading the game, not a pick.
+before What Matters; the research below is for reading the game, not a pick. NHL, MLB, tennis and CBB game pages open
+with the same strip (NHL and tennis show their research candidates as cards; MLB its one candidate beside the judged
+passes; CBB says the publication maps no Kalshi contract), and the CBB home carries the Opportunities panel every other
+sport home has. Soccer's match page leads with the script engine's own headline expression and NBA's with its PASS card,
+which already say the same thing in the sport's own words.
 

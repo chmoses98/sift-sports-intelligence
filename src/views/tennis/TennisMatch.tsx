@@ -15,6 +15,7 @@ import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
 import { Authority, centsOf, Deep, KV, MarketFamilies, pct0, pct1, Pill, Section, signedPts, TextMark } from '../shared/kit';
+import { GameOpportunities } from '../game/GameOpportunities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -123,6 +124,8 @@ export function TennisMatchView({ eventId }: { eventId: string }) {
           </div>
         </div>
       </header>
+
+      <GameOpportunities eventId={r.event.event_id} now={now}>Every tennis number below is research only; the Kalshi mid has beaten the model on settled rows.</GameOpportunities>
 
       <Section id="tm-model" title="The model read" sub="The publication's chance for each player, the sharp-reference triangulation, and why it stays research.">
         <ModelPanel t={t} />

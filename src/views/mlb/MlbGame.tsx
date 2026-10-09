@@ -27,6 +27,7 @@ import { Movement } from '../Game';
 import { GameHero } from '../game/Hero';
 import { PanelHead } from '../game/panels';
 import { marketImplied, MlbPlayerProps } from './PlayerProps';
+import { GameOpportunities } from '../game/GameOpportunities';
 
 type Tab = 'overview' | 'props' | 'matchup' | 'markets' | 'trends';
 const ALL_TABS: [Tab, string][] = [['overview', 'Overview'], ['props', 'Player props'], ['matchup', 'Matchup'], ['markets', 'Markets'], ['trends', 'Trends']];
@@ -107,6 +108,7 @@ export function MlbGameView({ eventId, teamId }: { eventId: string; teamId: stri
           </Notice>
         ) : tab === 'overview' ? (
           <div className="gov">
+            <GameOpportunities eventId={eventId} now={now}>The lines and props below are the market and the publication's inputs, not a pick.</GameOpportunities>
             <GameLines markets={quoted} prices={prices} slug={slug} eventId={eventId} abbrOf={abbrOf} views={views} now={now} noModel={noModel} to={href('markets')} lineups={lineupLine(r)} />
             <Stratum id="g-mlb-pitchers" title="Starting pitchers" sub="Pitcher props: the market's price for each line and, where the publisher released one, its projection." actions={<Link to={href('props')} className="btn btn--sm">All player props</Link>}>
               <MlbPlayerProps markets={quoted} teamOrder={teamOrder} slug={slug} eventId={eventId} canLink={canLink} abbrOf={abbrOf} limit={{ role: 'PITCHER' }} />

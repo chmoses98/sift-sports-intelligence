@@ -1,0 +1,223 @@
+{
+ "as_of": "2026-10-09T05:52:43Z",
+ "base_manifest_run_id": "run_125ad64151a15d9d180b",
+ "capabilities_path": "explorer/capabilities.json",
+ "commit_sha": "49ca6779814edc467eb1b02a0487d47aaeb488cd",
+ "counts": {
+  "events": 3,
+  "market_history": 3,
+  "metrics": 22,
+  "players": 6,
+  "rankings": 4,
+  "series": 0,
+  "teams": 0
+ },
+ "events": [
+  {
+   "away_participant": null,
+   "event_id": "evt_d09d8721f706b006741f",
+   "home_participant": null,
+   "participants": [
+    "prt_af2387c468d349706c4a",
+    "prt_da04eb46e4f3015a71b5"
+   ],
+   "path": "explorer/events/evt_d09d8721f706b006741f.json",
+   "start_time_utc": "2026-10-08T16:30:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": null,
+   "event_id": "evt_626bc16043b56b7b1921",
+   "home_participant": null,
+   "participants": [
+    "prt_dc998b2d3279e7cce73b",
+    "prt_30230b56538f4022e512"
+   ],
+   "path": "explorer/events/evt_626bc16043b56b7b1921.json",
+   "start_time_utc": "2026-10-09T07:00:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": null,
+   "event_id": "evt_581f889e1dfb4de11420",
+   "home_participant": null,
+   "participants": [
+    "prt_672feecdb6304f1cb2b1",
+    "prt_d539a3814ae640119d8d"
+   ],
+   "path": "explorer/events/evt_581f889e1dfb4de11420.json",
+   "start_time_utc": "2026-10-09T11:00:00Z",
+   "status": "SCHEDULED"
+  }
+ ],
+ "files": {
+  "capabilities.json": {
+   "bytes": 18060,
+   "entity_id": null,
+   "kind": "capability_manifest",
+   "sha256": "639655960fd2ea5253f2c6fc1c6dee1a6904e09124be881dc2c10cae6ef23d12"
+  },
+  "events/evt_581f889e1dfb4de11420.json": {
+   "bytes": 46942,
+   "entity_id": "evt_581f889e1dfb4de11420",
+   "kind": "event_research",
+   "sha256": "268ce71b2142e161455c8dedc81381c75cded86a25dacd7fe867845360a01d48"
+  },
+  "events/evt_626bc16043b56b7b1921.json": {
+   "bytes": 216891,
+   "entity_id": "evt_626bc16043b56b7b1921",
+   "kind": "event_research",
+   "sha256": "9a5263ecb96e8821e975d88e49ae042816dfdff95b6f87cf4652695e4b5ee489"
+  },
+  "events/evt_d09d8721f706b006741f.json": {
+   "bytes": 7769,
+   "entity_id": "evt_d09d8721f706b006741f",
+   "kind": "event_research",
+   "sha256": "28c427b4449518d03f6594fb109305932acda111643bc12229154698707a8045"
+  },
+  "market_history/evt_581f889e1dfb4de11420.json": {
+   "bytes": 151954,
+   "entity_id": "evt_581f889e1dfb4de11420",
+   "kind": "market_history",
+   "sha256": "2396a00e61d045bddb4a7c9c9dd37d60307247d82d2cf7ce0c780c0bab0481b3"
+  },
+  "market_history/evt_626bc16043b56b7b1921.json": {
+   "bytes": 262892,
+   "entity_id": "evt_626bc16043b56b7b1921",
+   "kind": "market_history",
+   "sha256": "ecb6f64a29bde0fb400aff3c40ab5cdf7264697b673e269f5418b0bd5dd65ac0"
+  },
+  "market_history/evt_d09d8721f706b006741f.json": {
+   "bytes": 30423,
+   "entity_id": "evt_d09d8721f706b006741f",
+   "kind": "market_history",
+   "sha256": "1f8779ae7f207d23a138dc158bcfaf8f42d37415c112ed5862927d73f8985efe"
+  },
+  "metrics.json": {
+   "bytes": 59274,
+   "entity_id": null,
+   "kind": "metric_registry",
+   "sha256": "36b45cfdb162b082268ca456b5231a9a4b21ff56e087f3f6a4e2381093dbc7a1"
+  },
+  "players/prt_30230b56538f4022e512.json": {
+   "bytes": 18171,
+   "entity_id": "prt_30230b56538f4022e512",
+   "kind": "entity_profile",
+   "sha256": "aa5a3747e5ad7e90b9b788f3e03314654d75b7202abf0c468a9174f59f964bff"
+  },
+  "players/prt_672feecdb6304f1cb2b1.json": {
+   "bytes": 17125,
+   "entity_id": "prt_672feecdb6304f1cb2b1",
+   "kind": "entity_profile",
+   "sha256": "34a2b9e9147f3311155539d331f7ae4e62e0323be2f21128f62bdff23f1ddb4a"
+  },
+  "players/prt_af2387c468d349706c4a.json": {
+   "bytes": 2879,
+   "entity_id": "prt_af2387c468d349706c4a",
+   "kind": "entity_profile",
+   "sha256": "64f44f6da99e01d9bd27e9d6485099a63579c26d150cac82bdb8fdb8e289053d"
+  },
+  "players/prt_d539a3814ae640119d8d.json": {
+   "bytes": 16773,
+   "entity_id": "prt_d539a3814ae640119d8d",
+   "kind": "entity_profile",
+   "sha256": "c60af015307de30111d72f48e27dcda6a7af7ba926248724b52c3b76ed64b1c0"
+  },
+  "players/prt_da04eb46e4f3015a71b5.json": {
+   "bytes": 2879,
+   "entity_id": "prt_da04eb46e4f3015a71b5",
+   "kind": "entity_profile",
+   "sha256": "fef079b111620d79dbc7b7447e1f7cc3191f1ea738af735fd744f0df951d8210"
+  },
+  "players/prt_dc998b2d3279e7cce73b.json": {
+   "bytes": 20895,
+   "entity_id": "prt_dc998b2d3279e7cce73b",
+   "kind": "entity_profile",
+   "sha256": "e6c11d7f748ed46bae5de1c4543f432b08965291e8f640ec68b6e1e0817dab52"
+  },
+  "rankings/rnk_3a11ac489731f8e84cfb.json": {
+   "bytes": 30254,
+   "entity_id": "rnk_3a11ac489731f8e84cfb",
+   "kind": "ranking",
+   "sha256": "91f161f64ae79b7e86a7fb69f79cc6a3d1272b29f43a06d7bf6ab7990448ef3e"
+  },
+  "rankings/rnk_6de27a3ba946728e61a5.json": {
+   "bytes": 38193,
+   "entity_id": "rnk_6de27a3ba946728e61a5",
+   "kind": "ranking",
+   "sha256": "88dabcdc527e29236249c91a4927a1fa2d019295f5657ec4b1c506ef724d60ff"
+  },
+  "rankings/rnk_9599f2a2d4796f5e1415.json": {
+   "bytes": 39163,
+   "entity_id": "rnk_9599f2a2d4796f5e1415",
+   "kind": "ranking",
+   "sha256": "801a5daad337d361aa73ccd6489f7bd882e8885c67714fa076d9652652c21e1a"
+  },
+  "rankings/rnk_a0ef6b76106b5f4c1a27.json": {
+   "bytes": 28290,
+   "entity_id": "rnk_a0ef6b76106b5f4c1a27",
+   "kind": "ranking",
+   "sha256": "4f2b14ec9712aa9143be85a4581d44760c68094feaee22b182fd61743a4e1f19"
+  },
+  "search_index.json": {
+   "bytes": 16583,
+   "entity_id": null,
+   "kind": "search_index",
+   "sha256": "72438eaca7a268d25ee059aaf780e676536d727b839335c54d833e8b868260fc"
+  }
+ },
+ "generated_at": "2026-10-09T05:52:46Z",
+ "kind": "explorer_index",
+ "metrics_path": "explorer/metrics.json",
+ "players_by_team": {
+  "_none": []
+ },
+ "quality": {
+  "coverage": null,
+  "data_as_of": "2026-10-09T05:52:43Z",
+  "generated_at": "2026-10-09T05:52:46Z",
+  "limitations": [
+   "end-state only, overwritten each run; no W-L, no career aggregates",
+   "model output: authority RESEARCH_ONLY (real-money authority is OFF everywhere)",
+   "see capabilities.json for every UNAVAILABLE capability and why"
+  ],
+  "methodology_version": "tennis_explorer_v1",
+  "missingness": null,
+  "production": true,
+  "sample_size": null,
+  "source": "Tennis-Edge-Finder committed data (tennis-data branch + research/ on main)",
+  "source_version": null,
+  "status": "PARTIAL"
+ },
+ "run_id": "run_125ad64151a15d9d180b",
+ "schema_version": "edge_finder.app.v1",
+ "search_index_path": "explorer/search_index.json",
+ "sport": "TENNIS",
+ "teams": [],
+ "warnings": [
+  "top-N reduced from 200 to 0 per tour to keep explorer/index.json under 300000 bytes"
+ ],
+ "windows": [
+  {
+   "end": null,
+   "kind": "CUSTOM",
+   "label": "RATING_STATE",
+   "n": null,
+   "start": null
+  },
+  {
+   "end": null,
+   "kind": "GAME",
+   "label": "GAME",
+   "n": null,
+   "start": null
+  },
+  {
+   "end": null,
+   "kind": "RUN",
+   "label": "RUN",
+   "n": null,
+   "start": null
+  }
+ ]
+}

@@ -53,6 +53,9 @@ const CbbGameView = lazy(() => import('./cbb/Game').then((m) => ({ default: m.Cb
 const NhlGameView = lazy(() => import('./nhl/NhlGame').then((m) => ({ default: m.NhlGameView })));
 /** The MLB game page (views/mlb): the generic game parts over the board's event detail, plus Player Props. */
 const MlbGameView = lazy(() => import('./mlb/MlbGame').then((m) => ({ default: m.MlbGameView })));
+const SoccerMatchView = lazy(() => import('./soccer/SoccerMatch').then((m) => ({ default: m.SoccerMatchView })));
+const TennisMatchView = lazy(() => import('./tennis/TennisMatch').then((m) => ({ default: m.TennisMatchView })));
+const NbaGameView = lazy(() => import('./nba/NbaGame').then((m) => ({ default: m.NbaGameView })));
 
 export function GameRoute() {
   const { eventId = '' } = useParams();
@@ -68,6 +71,15 @@ export function GameRoute() {
     // MLB publishes the board and each game's event detail (no football research layer): the generic game parts
     // over that detail; football-only tabs are not offered (views/mlb/MlbGame.tsx).
     return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><MlbGameView eventId={eventId} teamId={sp.get('team')} /></Suspense>;
+  }
+  if (sport.code === 'SOCCER' && dir.data.hasEventResearch(eventId)) {
+    return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><SoccerMatchView eventId={eventId} /></Suspense>;
+  }
+  if (sport.code === 'TENNIS' && dir.data.hasEventResearch(eventId)) {
+    return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><TennisMatchView eventId={eventId} /></Suspense>;
+  }
+  if (sport.code === 'NBA' && dir.data.hasEventResearch(eventId)) {
+    return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><NbaGameView eventId={eventId} /></Suspense>;
   }
   if (sport.code === 'CBB') {
     if (!dir.data.hasEventResearch(eventId)) return <div className="page"><Notice title="This game has no research page">The CBB publication keeps research for games in its current window (recent results and the coming week). Nothing is reconstructed for older games.</Notice></div>;

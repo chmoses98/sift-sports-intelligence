@@ -1,0 +1,5130 @@
+{
+ "count": 82,
+ "generated_at": "2026-10-09T06:07:49Z",
+ "items": [
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T11:30:00Z",
+   "event_id": "evt_0a69396895a311cb26b2",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 21190.57,
+     "yes": 1283047.28
+    },
+    "best_expression": true,
+    "breakeven_price": {
+     "no": 0.304413,
+     "yes": 0.734112
+    },
+    "fee_per_contract": 0.014112,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.1687,
+      "stance": "OSSS-S",
+      "weighted_support_share": 0.6702
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.2072,
+      "stance": "SOOO-O",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXEPLGAME-26OCT10ARSLEE",
+   "kalshi_series_ticker": "KXEPLGAME",
+   "kalshi_ticker": "KXEPLGAME-26OCT10ARSLEE-ARS",
+   "last_price": null,
+   "line": null,
+   "market_family": "match_result_3way",
+   "market_id": "mkt_kalshi_KXEPLGAME-26OCT10ARSLEE-ARS",
+   "market_probability": 0.715,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.29,
+   "no_bid": 0.28,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_be94f63b5798695abd7e",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.72,
+   "yes_bid": 0.71,
+   "yes_description": "Result: home"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T11:30:00Z",
+   "event_id": "evt_0a69396895a311cb26b2",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "RESEARCH_CANDIDATE"
+    },
+    "available_size": {
+     "no": 31073.12,
+     "yes": 365787.79
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.9063,
+     "yes": 0.116853
+    },
+    "fee_per_contract": 0.006853,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1178,
+      "stance": "SSOO-O",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.0946,
+      "stance": "OOSS-S",
+      "weighted_support_share": 0.5642
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXEPLGAME-26OCT10ARSLEE",
+   "kalshi_series_ticker": "KXEPLGAME",
+   "kalshi_ticker": "KXEPLGAME-26OCT10ARSLEE-LEE",
+   "last_price": null,
+   "line": null,
+   "market_family": "match_result_3way",
+   "market_id": "mkt_kalshi_KXEPLGAME-26OCT10ARSLEE-LEE",
+   "market_probability": 0.105,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.9,
+   "no_bid": 0.89,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_3a10c0bfe80f845dad4a",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.11,
+   "yes_bid": 0.1,
+   "yes_description": "Result: away"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T11:30:00Z",
+   "event_id": "evt_0a69396895a311cb26b2",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "RESEARCH_CANDIDATE"
+    },
+    "available_size": {
+     "no": 12240.73,
+     "yes": 182105.61
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.830332,
+     "yes": 0.200773
+    },
+    "fee_per_contract": 0.010773,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.092,
+      "stance": "SOOO-S",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.0609,
+      "stance": "OSSS-O",
+      "weighted_support_share": 0.5694
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXEPLGAME-26OCT10ARSLEE",
+   "kalshi_series_ticker": "KXEPLGAME",
+   "kalshi_ticker": "KXEPLGAME-26OCT10ARSLEE-TIE",
+   "last_price": null,
+   "line": null,
+   "market_family": "match_result_3way",
+   "market_id": "mkt_kalshi_KXEPLGAME-26OCT10ARSLEE-TIE",
+   "market_probability": 0.185,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.82,
+   "no_bid": 0.81,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "DRAW",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.19,
+   "yes_bid": 0.18,
+   "yes_description": "Result: draw"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 649.02,
+     "yes": 1445.93
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.7147,
+     "yes": 0.324973
+    },
+    "fee_per_contract": 0.014973,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0602,
+      "stance": "SOSOSO",
+      "weighted_support_share": 0.673
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0998,
+      "stance": "OSONOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1H-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1H",
+   "kalshi_ticker": "KXLIGAMX1H-26OCT09PUELEO-LEO",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_result",
+   "market_id": "mkt_kalshi_KXLIGAMX1H-26OCT09PUELEO-LEO",
+   "market_probability": 0.305,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.7,
+   "no_bid": 0.69,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.31,
+   "yes_bid": 0.3,
+   "yes_description": "First-half result: away"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 69.0,
+     "yes": 1197.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.753468,
+     "yes": 0.294112
+    },
+    "fee_per_contract": 0.014112,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0552,
+      "stance": "OSSOOS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0076,
+      "stance": "SOOSSO",
+      "weighted_support_share": 0.4002
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1H-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1H",
+   "kalshi_ticker": "KXLIGAMX1H-26OCT09PUELEO-PUE",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_result",
+   "market_id": "mkt_kalshi_KXLIGAMX1H-26OCT09PUELEO-PUE",
+   "market_probability": 0.27,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.74,
+   "no_bid": 0.72,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.28,
+   "yes_bid": 0.26,
+   "yes_description": "First-half result: home"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 65.99,
+     "yes": 958.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.606933,
+     "yes": 0.447157
+    },
+    "fee_per_contract": 0.017157,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0801,
+      "stance": "SOOSOS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.026,
+      "stance": "OSSOSO",
+      "weighted_support_share": 0.5476
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1H-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1H",
+   "kalshi_ticker": "KXLIGAMX1H-26OCT09PUELEO-TIE",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_result",
+   "market_id": "mkt_kalshi_KXLIGAMX1H-26OCT09PUELEO-TIE",
+   "market_probability": 0.42,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.59,
+   "no_bid": 0.57,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "DRAW",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.43,
+   "yes_bid": 0.41,
+   "yes_description": "First-half result: draw"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 33.0,
+     "yes": 8750.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.830332,
+     "yes": 0.232012
+    },
+    "fee_per_contract": 0.012012,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0266,
+      "stance": "SOSOOS",
+      "weighted_support_share": 0.7252
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0889,
+      "stance": "OSOSSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HBTTS-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HBTTS",
+   "kalshi_ticker": "KXLIGAMX1HBTTS-26OCT09PUELEO-BTTS",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_btts",
+   "market_id": "mkt_kalshi_KXLIGAMX1HBTTS-26OCT09PUELEO-BTTS",
+   "market_probability": 0.2,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.82,
+   "no_bid": 0.78,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.22,
+   "yes_bid": 0.18,
+   "yes_description": "First half: both teams to score"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 65.96,
+     "yes": 65.97
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.743797,
+     "yes": 0.345477
+    },
+    "fee_per_contract": 0.015477,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1279,
+      "stance": "SNOSNS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0386,
+      "stance": "OOSOOO",
+      "weighted_support_share": 0.3612
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO0",
+   "market_probability": 0.3,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.73,
+   "no_bid": 0.67,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.33,
+   "yes_bid": 0.27,
+   "yes_description": "First-half exact score 0-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 65.98,
+     "yes": 65.99
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.849408,
+     "yes": 0.232012
+    },
+    "fee_per_contract": 0.012012,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0084,
+      "stance": "SOSSSO",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.073,
+      "stance": "OSOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO1",
+   "market_probability": 0.19,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.84,
+   "no_bid": 0.78,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.22,
+   "yes_bid": 0.16,
+   "yes_description": "First-half exact score 0-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 65.98
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.085152
+    },
+    "fee_per_contract": 0.005152,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0491,
+      "stance": "OOOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO2",
+   "market_probability": 0.04,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.92,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.08,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 0-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1250.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.042688
+    },
+    "fee_per_contract": 0.002688,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0368,
+      "stance": "OOOOON",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE0LEO3",
+   "market_probability": 0.02,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.96,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.04,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 0-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 66.0,
+     "yes": 65.94
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.868428,
+     "yes": 0.2112
+    },
+    "fee_per_contract": 0.0112,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0682,
+      "stance": "OSONOS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0114,
+      "stance": "SOOOSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO0",
+   "market_probability": 0.17,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.86,
+   "no_bid": 0.8,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.2,
+   "yes_bid": 0.14,
+   "yes_description": "First-half exact score 1-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 65.98,
+     "yes": 66.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.925152,
+     "yes": 0.148428
+    },
+    "fee_per_contract": 0.008428,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0088,
+      "stance": "SOSOON",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0648,
+      "stance": "OSOSSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO1",
+   "market_probability": 0.11,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.92,
+   "no_bid": 0.86,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.14,
+   "yes_bid": 0.08,
+   "yes_description": "First-half exact score 1-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 6.0,
+     "yes": 100.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.972037,
+     "yes": 0.487437
+    },
+    "fee_per_contract": 0.017437,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0092,
+      "stance": "SSSONN",
+      "weighted_support_share": 0.6823
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4687,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO2",
+   "market_probability": 0.25,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.97,
+   "no_bid": 0.53,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.47,
+   "yes_bid": 0.03,
+   "yes_description": "First-half exact score 1-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1250.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.032037
+    },
+    "fee_per_contract": 0.002037,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.029,
+      "stance": "OOONOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE1LEO3",
+   "market_probability": 0.015,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.97,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.03,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 1-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 100.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.487437
+    },
+    "fee_per_contract": 0.017437,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4304,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO0",
+   "market_probability": 0.235,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.53,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.47,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 2-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 0.1,
+     "yes": 100.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.981372,
+     "yes": 0.487437
+    },
+    "fee_per_contract": 0.017437,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.005,
+      "stance": "OONONN",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4638,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO1",
+   "market_probability": 0.245,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.98,
+   "no_bid": 0.53,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.47,
+   "yes_bid": 0.02,
+   "yes_description": "First-half exact score 2-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1250.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.042688
+    },
+    "fee_per_contract": 0.002688,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0374,
+      "stance": "OOONOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO2",
+   "market_probability": 0.02,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.96,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.04,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 2-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1250.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.032037
+    },
+    "fee_per_contract": 0.002037,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0312,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE2LEO3",
+   "market_probability": 0.015,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.97,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.03,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 2-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1250.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.042688
+    },
+    "fee_per_contract": 0.002688,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0309,
+      "stance": "NOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE3LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE3LEO0",
+   "market_probability": 0.02,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.96,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.04,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 3-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1250.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.032037
+    },
+    "fee_per_contract": 0.002037,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0272,
+      "stance": "OOONOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE3LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE3LEO1",
+   "market_probability": 0.015,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.97,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.03,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 3-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 100.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.487437
+    },
+    "fee_per_contract": 0.017437,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4863,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSCORE",
+   "kalshi_ticker": "KXLIGAMX1HSCORE-26OCT09PUELEO-PUE3LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_half_exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSCORE-26OCT09PUELEO-PUE3LEO2",
+   "market_probability": 0.235,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.53,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.47,
+   "yes_bid": 0.0,
+   "yes_description": "First-half exact score 3-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 143.0,
+     "yes": 165.94
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.934557,
+     "yes": 0.095733
+    },
+    "fee_per_contract": 0.005733,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0189,
+      "stance": "SSSOSO",
+      "weighted_support_share": 0.7708
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0492,
+      "stance": "OOONOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSPREAD-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSPREAD",
+   "kalshi_ticker": "KXLIGAMX1HSPREAD-26OCT09PUELEO-LEO2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "first_half_handicap",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSPREAD-26OCT09PUELEO-LEO2",
+   "market_probability": 0.08,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.93,
+   "no_bid": 0.91,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.09,
+   "yes_bid": 0.07,
+   "yes_description": "First half: away wins by more than 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 210.0,
+     "yes": 130.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.953325,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0305,
+      "stance": "OSSOSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0133,
+      "stance": "SOOSOO",
+      "weighted_support_share": 0.3116
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HSPREAD-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HSPREAD",
+   "kalshi_ticker": "KXLIGAMX1HSPREAD-26OCT09PUELEO-PUE2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "first_half_handicap",
+   "market_id": "mkt_kalshi_KXLIGAMX1HSPREAD-26OCT09PUELEO-PUE2",
+   "market_probability": 0.055,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.95,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.05,
+   "yes_description": "First half: home wins by more than 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 1517.11,
+     "yes": 1066.09
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.324973,
+     "yes": 0.724413
+    },
+    "fee_per_contract": 0.014413,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0591,
+      "stance": "OOSOOO",
+      "weighted_support_share": 0.3612
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1085,
+      "stance": "SSOSNS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HTOTAL",
+   "kalshi_ticker": "KXLIGAMX1HTOTAL-26OCT09PUELEO-1",
+   "last_price": null,
+   "line": 0.5,
+   "market_family": "first_half_total",
+   "market_id": "mkt_kalshi_KXLIGAMX1HTOTAL-26OCT09PUELEO-1",
+   "market_probability": 0.7,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.31,
+   "no_bid": 0.29,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.71,
+   "yes_bid": 0.69,
+   "yes_description": "First-half total goals over 0.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 450.09,
+     "yes": 1000.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.695232,
+     "yes": 0.345477
+    },
+    "fee_per_contract": 0.015477,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.0476,
+      "stance": "ONSOSO",
+      "weighted_support_share": 0.4498
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0883,
+      "stance": "SOOSOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HTOTAL",
+   "kalshi_ticker": "KXLIGAMX1HTOTAL-26OCT09PUELEO-2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "first_half_total",
+   "market_id": "mkt_kalshi_KXLIGAMX1HTOTAL-26OCT09PUELEO-2",
+   "market_probability": 0.325,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.68,
+   "no_bid": 0.67,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.33,
+   "yes_bid": 0.32,
+   "yes_description": "First-half total goals over 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 47.0,
+     "yes": 142.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.896853,
+     "yes": 0.127392
+    },
+    "fee_per_contract": 0.007392,
+    "kalshi_freshness": "CURRENT",
+    "period": "first_half",
+    "script_robustness": {
+     "no": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.0227,
+      "stance": "NSSOSN",
+      "weighted_support_share": 0.5476
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.047,
+      "stance": "NOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX1HTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX1HTOTAL",
+   "kalshi_ticker": "KXLIGAMX1HTOTAL-26OCT09PUELEO-3",
+   "last_price": null,
+   "line": 2.5,
+   "market_family": "first_half_total",
+   "market_id": "mkt_kalshi_KXLIGAMX1HTOTAL-26OCT09PUELEO-3",
+   "market_probability": 0.115,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.89,
+   "no_bid": 0.88,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "first_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.12,
+   "yes_bid": 0.11,
+   "yes_description": "First-half total goals over 2.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 6.0,
+     "yes": 6.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.953325,
+     "yes": 0.801613
+    },
+    "fee_per_contract": 0.011613,
+    "kalshi_freshness": "CURRENT",
+    "period": "second_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.2022,
+      "stance": "NSOOOO",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.5528,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX2H-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX2H",
+   "kalshi_ticker": "KXLIGAMX2H-26OCT09PUELEO-LEO",
+   "last_price": null,
+   "line": null,
+   "market_family": "second_half_result",
+   "market_id": "mkt_kalshi_KXLIGAMX2H-26OCT09PUELEO-LEO",
+   "market_probability": 0.42,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.95,
+   "no_bid": 0.21,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "second_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.79,
+   "yes_bid": 0.05,
+   "yes_description": "Second-half result: away"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 6.0,
+     "yes": 5.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.9063,
+     "yes": 0.801613
+    },
+    "fee_per_contract": 0.011613,
+    "kalshi_freshness": "CURRENT",
+    "period": "second_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.2444,
+      "stance": "OOOOSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4635,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX2H-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX2H",
+   "kalshi_ticker": "KXLIGAMX2H-26OCT09PUELEO-PUE",
+   "last_price": null,
+   "line": null,
+   "market_family": "second_half_result",
+   "market_id": "mkt_kalshi_KXLIGAMX2H-26OCT09PUELEO-PUE",
+   "market_probability": 0.445,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.9,
+   "no_bid": 0.21,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "second_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.79,
+   "yes_bid": 0.1,
+   "yes_description": "Second-half result: home"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 5.0,
+     "yes": 5.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.934557,
+     "yes": 0.801613
+    },
+    "fee_per_contract": 0.011613,
+    "kalshi_freshness": "CURRENT",
+    "period": "second_half",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.3476,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.3886,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMX2H-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMX2H",
+   "kalshi_ticker": "KXLIGAMX2H-26OCT09PUELEO-TIE",
+   "last_price": null,
+   "line": null,
+   "market_family": "second_half_result",
+   "market_id": "mkt_kalshi_KXLIGAMX2H-26OCT09PUELEO-TIE",
+   "market_probability": 0.43,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.93,
+   "no_bid": 0.21,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "second_half",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "DRAW",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.79,
+   "yes_bid": 0.07,
+   "yes_description": "Second-half result: draw"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 3027.31,
+     "yes": 11904.0
+    },
+    "best_expression": true,
+    "breakeven_price": {
+     "no": 0.467325,
+     "yes": 0.587157
+    },
+    "fee_per_contract": 0.017157,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.1094,
+      "stance": "SOSOOS",
+      "weighted_support_share": 0.7252
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1638,
+      "stance": "OSOSSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXBTTS-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXBTTS",
+   "kalshi_ticker": "KXLIGAMXBTTS-26OCT09PUELEO-BTTS",
+   "last_price": null,
+   "line": null,
+   "market_family": "btts",
+   "market_id": "mkt_kalshi_KXLIGAMXBTTS-26OCT09PUELEO-BTTS",
+   "market_probability": 0.56,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.45,
+   "no_bid": 0.43,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.57,
+   "yes_bid": 0.55,
+   "yes_description": "btts"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 1.0,
+     "yes": 6.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.830332,
+     "yes": 0.782397
+    },
+    "fee_per_contract": 0.012397,
+    "kalshi_freshness": "CURRENT",
+    "period": "including_extra_time",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.2183,
+      "stance": "SOOOSO",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.3944,
+      "stance": "OSOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXFTTS-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXFTTS",
+   "kalshi_ticker": "KXLIGAMXFTTS-26OCT09PUELEO-LEO",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_to_score",
+   "market_id": "mkt_kalshi_KXLIGAMXFTTS-26OCT09PUELEO-LEO",
+   "market_probability": 0.475,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.82,
+   "no_bid": 0.23,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "including_extra_time",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.77,
+   "yes_bid": 0.18,
+   "yes_description": "First team to score: away"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 6.0,
+     "yes": 1.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.896853,
+     "yes": 0.626653
+    },
+    "fee_per_contract": 0.016653,
+    "kalshi_freshness": "CURRENT",
+    "period": "including_extra_time",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.3859,
+      "stance": "OSOOOS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1376,
+      "stance": "SOOOSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXFTTS-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXFTTS",
+   "kalshi_ticker": "KXLIGAMXFTTS-26OCT09PUELEO-PUE",
+   "last_price": null,
+   "line": null,
+   "market_family": "first_to_score",
+   "market_id": "mkt_kalshi_KXLIGAMXFTTS-26OCT09PUELEO-PUE",
+   "market_probability": 0.36,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.89,
+   "no_bid": 0.39,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "including_extra_time",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.61,
+   "yes_bid": 0.11,
+   "yes_description": "First team to score: home"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 2944.89,
+     "yes": 58417.44
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.626653,
+     "yes": 0.4168
+    },
+    "fee_per_contract": 0.0168,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "VERY_ROBUST",
+      "overall_edge": 0.0802,
+      "stance": "SSSSSO",
+      "weighted_support_share": 0.8592
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1237,
+      "stance": "OOOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXGAME-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXGAME",
+   "kalshi_ticker": "KXLIGAMXGAME-26OCT09PUELEO-LEO",
+   "last_price": null,
+   "line": null,
+   "market_family": "match_result_3way",
+   "market_id": "mkt_kalshi_KXLIGAMXGAME-26OCT09PUELEO-LEO",
+   "market_probability": 0.395,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.61,
+   "no_bid": 0.6,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.4,
+   "yes_bid": 0.39,
+   "yes_description": "Result: away"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 12625.83,
+     "yes": 59193.68
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.695232,
+     "yes": 0.345477
+    },
+    "fee_per_contract": 0.015477,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.113,
+      "stance": "OOONSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0723,
+      "stance": "SSSOOO",
+      "weighted_support_share": 0.6823
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXGAME-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXGAME",
+   "kalshi_ticker": "KXLIGAMXGAME-26OCT09PUELEO-PUE",
+   "last_price": null,
+   "line": null,
+   "market_family": "match_result_3way",
+   "market_id": "mkt_kalshi_KXLIGAMXGAME-26OCT09PUELEO-PUE",
+   "market_probability": 0.325,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.68,
+   "no_bid": 0.67,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.33,
+   "yes_bid": 0.32,
+   "yes_description": "Result: home"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 21287.91,
+     "yes": 11049.94
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.743797,
+     "yes": 0.294112
+    },
+    "fee_per_contract": 0.014112,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0329,
+      "stance": "SOOOOS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.005,
+      "stance": "OSSSSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXGAME-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXGAME",
+   "kalshi_ticker": "KXLIGAMXGAME-26OCT09PUELEO-TIE",
+   "last_price": null,
+   "line": null,
+   "market_family": "match_result_3way",
+   "market_id": "mkt_kalshi_KXLIGAMXGAME-26OCT09PUELEO-TIE",
+   "market_probability": 0.275,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.73,
+   "no_bid": 0.72,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "DRAW",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.28,
+   "yes_bid": 0.27,
+   "yes_description": "Result: draw"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 35294.33,
+     "yes": 190.04
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.953325,
+     "yes": 0.085152
+    },
+    "fee_per_contract": 0.005152,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0763,
+      "stance": "SSOSSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0378,
+      "stance": "OOSOOO",
+      "weighted_support_share": 0.3612
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO0",
+   "market_probability": 0.065,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.95,
+   "no_bid": 0.92,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.08,
+   "yes_bid": 0.05,
+   "yes_description": "Exact score 0-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 363.0,
+     "yes": 6582.15
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.915733,
+     "yes": 0.116853
+    },
+    "fee_per_contract": 0.006853,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0219,
+      "stance": "SSOSSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0107,
+      "stance": "OOSOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO1",
+   "market_probability": 0.1,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.91,
+   "no_bid": 0.89,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.11,
+   "yes_bid": 0.09,
+   "yes_description": "Exact score 0-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 12077.0,
+     "yes": 3521.88
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.943948,
+     "yes": 0.085152
+    },
+    "fee_per_contract": 0.005152,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "VERY_ROBUST",
+      "overall_edge": 0.0029,
+      "stance": "SSSSSO",
+      "weighted_support_share": 0.8592
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.032,
+      "stance": "OOOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO2",
+   "market_probability": 0.07,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.94,
+   "no_bid": 0.92,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.08,
+   "yes_bid": 0.06,
+   "yes_description": "Exact score 0-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.085152
+    },
+    "fee_per_contract": 0.005152,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0664,
+      "stance": "OOOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO3",
+   "market_probability": 0.04,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.92,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.08,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 0-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0585,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO4",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO4",
+   "market_probability": 0.03,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 0-4 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 0.1,
+     "yes": 108.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.981372,
+     "yes": 0.467325
+    },
+    "fee_per_contract": 0.017325,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0173,
+      "stance": "NNNNNN",
+      "weighted_support_share": 0.0
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.466,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO5",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE0LEO5",
+   "market_probability": 0.235,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.98,
+   "no_bid": 0.55,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.45,
+   "yes_bid": 0.02,
+   "yes_description": "Exact score 0-5 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "RESEARCH_CANDIDATE"
+    },
+    "available_size": {
+     "no": 363.0,
+     "yes": 293.85
+    },
+    "best_expression": true,
+    "breakeven_price": {
+     "no": 0.925152,
+     "yes": 0.095733
+    },
+    "fee_per_contract": 0.005733,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0572,
+      "stance": "SSOSSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0363,
+      "stance": "OOSOOO",
+      "weighted_support_share": 0.3612
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO0",
+   "market_probability": 0.085,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.92,
+   "no_bid": 0.91,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.09,
+   "yes_bid": 0.08,
+   "yes_description": "Exact score 1-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 363.0,
+     "yes": 1162.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.877917,
+     "yes": 0.148428
+    },
+    "fee_per_contract": 0.008428,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0021,
+      "stance": "SOSSOS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0243,
+      "stance": "OSOOSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO1",
+   "market_probability": 0.135,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.87,
+   "no_bid": 0.86,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.14,
+   "yes_bid": 0.13,
+   "yes_description": "Exact score 1-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 33627.37,
+     "yes": 366.12
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.934557,
+     "yes": 0.095733
+    },
+    "fee_per_contract": 0.005733,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0061,
+      "stance": "SSSSOO",
+      "weighted_support_share": 0.7706
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0364,
+      "stance": "OOOOSS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO2",
+   "market_probability": 0.08,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.93,
+   "no_bid": 0.91,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.09,
+   "yes_bid": 0.07,
+   "yes_description": "Exact score 1-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.095733
+    },
+    "fee_per_contract": 0.005733,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0748,
+      "stance": "OOOOON",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO3",
+   "market_probability": 0.045,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.91,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.09,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 1-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.058,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO4",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO4",
+   "market_probability": 0.03,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 1-4 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 12.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.457248
+    },
+    "fee_per_contract": 0.017248,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4558,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO5",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE1LEO5",
+   "market_probability": 0.22,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.56,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.44,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 1-5 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1354.96
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.074557
+    },
+    "fee_per_contract": 0.004557,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0074,
+      "stance": "SOOOOO",
+      "weighted_support_share": 0.2232
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO0",
+   "market_probability": 0.035,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.93,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.07,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 2-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 22484.25,
+     "yes": 187.55
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.943948,
+     "yes": 0.095733
+    },
+    "fee_per_contract": 0.005733,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0177,
+      "stance": "OOSSSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0219,
+      "stance": "SSOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO1",
+   "market_probability": 0.075,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.94,
+   "no_bid": 0.91,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.09,
+   "yes_bid": 0.06,
+   "yes_description": "Exact score 2-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 19130.88,
+     "yes": 6423.3
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.962688,
+     "yes": 0.085152
+    },
+    "fee_per_contract": 0.005152,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "VERY_ROBUST",
+      "overall_edge": 0.0014,
+      "stance": "SSSOSS",
+      "weighted_support_share": 0.9116
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0492,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO2",
+   "market_probability": 0.06,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.96,
+   "no_bid": 0.92,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.08,
+   "yes_bid": 0.04,
+   "yes_description": "Exact score 2-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.053325
+    },
+    "fee_per_contract": 0.003325,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0407,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO3",
+   "market_probability": 0.025,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.95,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.05,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 2-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0603,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO4",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO4",
+   "market_probability": 0.03,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 2-4 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 13.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.457248
+    },
+    "fee_per_contract": 0.017248,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4564,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO5",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE2LEO5",
+   "market_probability": 0.22,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.56,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.44,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 2-5 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.074557
+    },
+    "fee_per_contract": 0.004557,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0385,
+      "stance": "SOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO0",
+   "market_probability": 0.035,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.93,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.07,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 3-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.085152
+    },
+    "fee_per_contract": 0.005152,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0528,
+      "stance": "SNOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO1",
+   "market_probability": 0.04,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.92,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.08,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 3-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.074557
+    },
+    "fee_per_contract": 0.004557,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0588,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO2",
+   "market_probability": 0.035,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.93,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.07,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 3-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 1242.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.032037
+    },
+    "fee_per_contract": 0.002037,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0265,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO3",
+   "market_probability": 0.015,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.97,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.03,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 3-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.053325
+    },
+    "fee_per_contract": 0.003325,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0518,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO4",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE3LEO4",
+   "market_probability": 0.025,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.95,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.05,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 3-4 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.051,
+      "stance": "NOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO0",
+   "market_probability": 0.03,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 4-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0524,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO1",
+   "market_probability": 0.03,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 4-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0584,
+      "stance": "OOONOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO2",
+   "market_probability": 0.03,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 4-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.053325
+    },
+    "fee_per_contract": 0.003325,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0514,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO3",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE4LEO3",
+   "market_probability": 0.025,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.95,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.05,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 4-3 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 13.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.426933
+    },
+    "fee_per_contract": 0.016933,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4229,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE5LEO0",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE5LEO0",
+   "market_probability": 0.205,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.59,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.41,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 5-0 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 13.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.426933
+    },
+    "fee_per_contract": 0.016933,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4234,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE5LEO1",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE5LEO1",
+   "market_probability": 0.205,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.59,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.41,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 5-1 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_QUOTE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": null,
+     "yes": 50.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": null,
+     "yes": 0.467325
+    },
+    "fee_per_contract": 0.017325,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.4656,
+      "stance": "OOOOOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSCORE-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSCORE",
+   "kalshi_ticker": "KXLIGAMXSCORE-26OCT09PUELEO-PUE5LEO2",
+   "last_price": null,
+   "line": null,
+   "market_family": "exact_score",
+   "market_id": "mkt_kalshi_KXLIGAMXSCORE-26OCT09PUELEO-PUE5LEO2",
+   "market_probability": 0.225,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 1.0,
+   "no_bid": 0.55,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": null,
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.45,
+   "yes_bid": 0.0,
+   "yes_description": "Exact score 5-2 (home-away)"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 369.0,
+     "yes": 1406.81
+    },
+    "best_expression": true,
+    "breakeven_price": {
+     "no": 0.830332,
+     "yes": 0.200773
+    },
+    "fee_per_contract": 0.010773,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "VERY_ROBUST",
+      "overall_edge": 0.0564,
+      "stance": "SSSSSO",
+      "weighted_support_share": 0.8592
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0875,
+      "stance": "OOOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSPREAD",
+   "kalshi_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO-LEO2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "handicap",
+   "market_id": "mkt_kalshi_KXLIGAMXSPREAD-26OCT09PUELEO-LEO2",
+   "market_probability": 0.185,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.82,
+   "no_bid": 0.81,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.19,
+   "yes_bid": 0.18,
+   "yes_description": "away wins by more than 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 16329.9,
+     "yes": 4824.27
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.953325,
+     "yes": 0.074557
+    },
+    "fee_per_contract": 0.004557,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "VERY_ROBUST",
+      "overall_edge": 0.0116,
+      "stance": "SSSSSO",
+      "weighted_support_share": 0.8592
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0395,
+      "stance": "OOOOOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSPREAD",
+   "kalshi_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO-LEO3",
+   "last_price": null,
+   "line": 2.5,
+   "market_family": "handicap",
+   "market_id": "mkt_kalshi_KXLIGAMXSPREAD-26OCT09PUELEO-LEO3",
+   "market_probability": 0.06,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.95,
+   "no_bid": 0.93,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "AWAY",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.07,
+   "yes_bid": 0.05,
+   "yes_description": "away wins by more than 2.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 477.0,
+     "yes": 7045.53
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.877917,
+     "yes": 0.158925
+    },
+    "fee_per_contract": 0.008925,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.072,
+      "stance": "ONSSSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0351,
+      "stance": "SOOOOO",
+      "weighted_support_share": 0.2232
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSPREAD",
+   "kalshi_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO-PUE2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "handicap",
+   "market_id": "mkt_kalshi_KXLIGAMXSPREAD-26OCT09PUELEO-PUE2",
+   "market_probability": 0.14,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.87,
+   "no_bid": 0.85,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.15,
+   "yes_bid": 0.13,
+   "yes_description": "home wins by more than 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 500.0,
+     "yes": 468.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.962688,
+     "yes": 0.053325
+    },
+    "fee_per_contract": 0.003325,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0362,
+      "stance": "ONSNSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0202,
+      "stance": "SOOOOO",
+      "weighted_support_share": 0.2232
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXSPREAD",
+   "kalshi_ticker": "KXLIGAMXSPREAD-26OCT09PUELEO-PUE3",
+   "last_price": null,
+   "line": 2.5,
+   "market_family": "handicap",
+   "market_id": "mkt_kalshi_KXLIGAMXSPREAD-26OCT09PUELEO-PUE3",
+   "market_probability": 0.045,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.96,
+   "no_bid": 0.95,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "HOME",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.05,
+   "yes_bid": 0.04,
+   "yes_description": "home wins by more than 2.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 729.0,
+     "yes": 1322.73
+    },
+    "best_expression": true,
+    "breakeven_price": {
+     "no": 0.252768,
+     "yes": 0.792012
+    },
+    "fee_per_contract": 0.012012,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.1386,
+      "stance": "SOSOOO",
+      "weighted_support_share": 0.5844
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1834,
+      "stance": "OSOSSS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTEAMTOTAL",
+   "kalshi_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO1",
+   "last_price": null,
+   "line": 0.5,
+   "market_family": "team_total",
+   "market_id": "mkt_kalshi_KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO1",
+   "market_probability": 0.77,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.24,
+   "no_bid": 0.22,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.78,
+   "yes_bid": 0.76,
+   "yes_description": "away team total over 0.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 432.7,
+     "yes": 445.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.6168,
+     "yes": 0.426933
+    },
+    "fee_per_contract": 0.016933,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.1275,
+      "stance": "SSSOSO",
+      "weighted_support_share": 0.7708
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1713,
+      "stance": "OOOSOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTEAMTOTAL",
+   "kalshi_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "team_total",
+   "market_id": "mkt_kalshi_KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO2",
+   "market_probability": 0.405,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.6,
+   "no_bid": 0.59,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.41,
+   "yes_bid": 0.4,
+   "yes_description": "away team total over 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 696.8,
+     "yes": 750.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.858925,
+     "yes": 0.190332
+    },
+    "fee_per_contract": 0.010332,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0576,
+      "stance": "SSSOSO",
+      "weighted_support_share": 0.7708
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1068,
+      "stance": "OOOSOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTEAMTOTAL",
+   "kalshi_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO3",
+   "last_price": null,
+   "line": 2.5,
+   "market_family": "team_total",
+   "market_id": "mkt_kalshi_KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO3",
+   "market_probability": 0.165,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.85,
+   "no_bid": 0.82,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.18,
+   "yes_bid": 0.15,
+   "yes_description": "away team total over 2.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 648.0,
+     "yes": 741.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.294112,
+     "yes": 0.753468
+    },
+    "fee_per_contract": 0.013468,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.0141,
+      "stance": "OOSOOS",
+      "weighted_support_share": 0.502
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0617,
+      "stance": "SSOSSO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTEAMTOTAL",
+   "kalshi_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-PUE1",
+   "last_price": null,
+   "line": 0.5,
+   "market_family": "team_total",
+   "market_id": "mkt_kalshi_KXLIGAMXTEAMTOTAL-26OCT09PUELEO-PUE1",
+   "market_probability": 0.73,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.28,
+   "no_bid": 0.26,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.74,
+   "yes_bid": 0.72,
+   "yes_description": "home team total over 0.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 322.34,
+     "yes": 516.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.665925,
+     "yes": 0.376128
+    },
+    "fee_per_contract": 0.016128,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0133,
+      "stance": "OOSOSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0288,
+      "stance": "SNOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTEAMTOTAL",
+   "kalshi_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-PUE2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "team_total",
+   "market_id": "mkt_kalshi_KXLIGAMXTEAMTOTAL-26OCT09PUELEO-PUE2",
+   "market_probability": 0.355,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.65,
+   "no_bid": 0.64,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.36,
+   "yes_bid": 0.35,
+   "yes_description": "home team total over 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 568.72,
+     "yes": 750.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.896853,
+     "yes": 0.148428
+    },
+    "fee_per_contract": 0.008428,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0352,
+      "stance": "ONSOSS",
+      "weighted_support_share": null
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0101,
+      "stance": "SOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTEAMTOTAL",
+   "kalshi_ticker": "KXLIGAMXTEAMTOTAL-26OCT09PUELEO-PUE3",
+   "last_price": null,
+   "line": 2.5,
+   "market_family": "team_total",
+   "market_id": "mkt_kalshi_KXLIGAMXTEAMTOTAL-26OCT09PUELEO-PUE3",
+   "market_probability": 0.125,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.89,
+   "no_bid": 0.86,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.14,
+   "yes_bid": 0.11,
+   "yes_description": "home team total over 2.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 832.38,
+     "yes": 22231.71
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.085152,
+     "yes": 0.943948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.0378,
+      "stance": "OOSOOO",
+      "weighted_support_share": 0.3612
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0669,
+      "stance": "SSOSSS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTOTAL",
+   "kalshi_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO-1",
+   "last_price": null,
+   "line": 0.5,
+   "market_family": "total_goals",
+   "market_id": "mkt_kalshi_KXLIGAMXTOTAL-26OCT09PUELEO-1",
+   "market_probability": 0.93,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.08,
+   "no_bid": 0.06,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.94,
+   "yes_bid": 0.92,
+   "yes_description": "Total goals over 0.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 367.0,
+     "yes": 11161.24
+    },
+    "best_expression": true,
+    "breakeven_price": {
+     "no": 0.263125,
+     "yes": 0.772768
+    },
+    "fee_per_contract": 0.012768,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "SCRIPT_SPECIFIC_UPSIDE",
+      "label": "SCRIPT_DEPENDENT",
+      "overall_edge": 0.098,
+      "stance": "OOSOOO",
+      "weighted_support_share": 0.3612
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1339,
+      "stance": "SSOSSS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTOTAL",
+   "kalshi_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO-2",
+   "last_price": null,
+   "line": 1.5,
+   "market_family": "total_goals",
+   "market_id": "mkt_kalshi_KXLIGAMXTOTAL-26OCT09PUELEO-2",
+   "market_probability": 0.755,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.25,
+   "no_bid": 0.24,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.76,
+   "yes_bid": 0.75,
+   "yes_description": "Total goals over 1.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 24824.07,
+     "yes": 23733.73
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.527493,
+     "yes": 0.527493
+    },
+    "fee_per_contract": 0.017493,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "MIXED",
+      "label": "MIXED",
+      "overall_edge": 0.0929,
+      "stance": "OSSOSO",
+      "weighted_support_share": 0.5476
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1479,
+      "stance": "SOOSOS",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTOTAL",
+   "kalshi_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO-3",
+   "last_price": null,
+   "line": 2.5,
+   "market_family": "total_goals",
+   "market_id": "mkt_kalshi_KXLIGAMXTOTAL-26OCT09PUELEO-3",
+   "market_probability": 0.5,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.51,
+   "no_bid": 0.49,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.51,
+   "yes_bid": 0.49,
+   "yes_description": "Total goals over 2.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 21326.36,
+     "yes": 13272.64
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.743797,
+     "yes": 0.304413
+    },
+    "fee_per_contract": 0.014413,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0647,
+      "stance": "NSSOSS",
+      "weighted_support_share": 0.6884
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.1129,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTOTAL",
+   "kalshi_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO-4",
+   "last_price": null,
+   "line": 3.5,
+   "market_family": "total_goals",
+   "market_id": "mkt_kalshi_KXLIGAMXTOTAL-26OCT09PUELEO-4",
+   "market_probability": 0.28,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.73,
+   "no_bid": 0.71,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.29,
+   "yes_bid": 0.27,
+   "yes_description": "Total goals over 3.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "RESEARCH_CANDIDATE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 1000.0,
+     "yes": 467.0
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.877917,
+     "yes": 0.148428
+    },
+    "fee_per_contract": 0.008428,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "VERY_ROBUST",
+      "overall_edge": 0.0381,
+      "stance": "SSSOSS",
+      "weighted_support_share": 0.9116
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0644,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTOTAL",
+   "kalshi_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO-5",
+   "last_price": null,
+   "line": 4.5,
+   "market_family": "total_goals",
+   "market_id": "mkt_kalshi_KXLIGAMXTOTAL-26OCT09PUELEO-5",
+   "market_probability": 0.135,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.87,
+   "no_bid": 0.86,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.14,
+   "yes_bid": 0.13,
+   "yes_description": "Total goals over 4.5"
+  },
+  {
+   "captured_at": "2026-10-09T06:04:55Z",
+   "close_time_utc": "2026-10-10T01:00:00Z",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "extensions": {
+    "actions": {
+     "no": "NO_EDGE",
+     "yes": "NO_EDGE"
+    },
+    "available_size": {
+     "no": 19862.51,
+     "yes": 1309.32
+    },
+    "best_expression": false,
+    "breakeven_price": {
+     "no": 0.962688,
+     "yes": 0.063948
+    },
+    "fee_per_contract": 0.003948,
+    "kalshi_freshness": "CURRENT",
+    "period": "regulation",
+    "script_robustness": {
+     "no": {
+      "category": "ROBUST_ACROSS_SCRIPTS",
+      "label": "ROBUST",
+      "overall_edge": 0.0046,
+      "stance": "NSSOSS",
+      "weighted_support_share": 0.6884
+     },
+     "yes": {
+      "category": "NO_EDGE",
+      "label": "NO_EDGE",
+      "overall_edge": -0.0312,
+      "stance": "OOOSOO",
+      "weighted_support_share": null
+     }
+    }
+   },
+   "kalshi_event_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO",
+   "kalshi_series_ticker": "KXLIGAMXTOTAL",
+   "kalshi_ticker": "KXLIGAMXTOTAL-26OCT09PUELEO-6",
+   "last_price": null,
+   "line": 5.5,
+   "market_family": "total_goals",
+   "market_id": "mkt_kalshi_KXLIGAMXTOTAL-26OCT09PUELEO-6",
+   "market_probability": 0.05,
+   "market_status": "OPEN",
+   "market_type": null,
+   "no_ask": 0.96,
+   "no_bid": 0.94,
+   "no_description": null,
+   "open_interest": null,
+   "participant_id": null,
+   "period": "regulation",
+   "player_id": null,
+   "raw_market_reference": null,
+   "side": "OVER",
+   "source": "actionable_slate",
+   "sport": "SOCCER",
+   "threshold": null,
+   "volume": null,
+   "yes_ask": 0.06,
+   "yes_bid": 0.04,
+   "yes_description": "Total goals over 5.5"
+  }
+ ],
+ "kind": "markets",
+ "run_id": "run_7c77419f20bcef90ada2",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "SOCCER"
+}

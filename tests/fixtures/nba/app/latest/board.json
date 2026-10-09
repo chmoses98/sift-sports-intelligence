@@ -1,0 +1,82 @@
+{
+ "bet_authority": "RESEARCH_ONLY",
+ "count": 2,
+ "generated_at": "2026-10-09T06:12:27Z",
+ "items": [
+  {
+   "away_participant": "prt_8848b90e0c224d6f089f",
+   "competition": "preseason",
+   "data_freshness": "UNKNOWN",
+   "detail_path": "event_detail/evt_9833be3ebf85ecefa9b4.json",
+   "event_id": "evt_9833be3ebf85ecefa9b4",
+   "health_flags": [
+    "NO_MARKETS"
+   ],
+   "home_participant": "prt_5bcdc9aab9018ae9d861",
+   "league": "NBA",
+   "market_captured_at": null,
+   "markets_available": 0,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Oklahoma City Thunder",
+     "participant_id": "prt_5bcdc9aab9018ae9d861",
+     "participant_type": "TEAM",
+     "short_name": "OKC"
+    },
+    {
+     "display_name": "Milwaukee Bucks",
+     "participant_id": "prt_8848b90e0c224d6f089f",
+     "participant_type": "TEAM",
+     "short_name": "MIL"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-08T00:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  },
+  {
+   "away_participant": "prt_154c9a432d4539fabeea",
+   "competition": "preseason",
+   "data_freshness": "FRESH",
+   "detail_path": "event_detail/evt_0787342e3e624193d62e.json",
+   "event_id": "evt_0787342e3e624193d62e",
+   "health_flags": [
+    "NO_MODEL_PRICES"
+   ],
+   "home_participant": "prt_fe5481634395448d9b19",
+   "league": "NBA",
+   "market_captured_at": "2026-10-09T06:09:16Z",
+   "markets_available": 51,
+   "markets_priced": 0,
+   "model_generated_at": null,
+   "participants": [
+    {
+     "display_name": "Dallas Mavericks",
+     "participant_id": "prt_fe5481634395448d9b19",
+     "participant_type": "TEAM",
+     "short_name": "DAL"
+    },
+    {
+     "display_name": "Houston Rockets",
+     "participant_id": "prt_154c9a432d4539fabeea",
+     "participant_type": "TEAM",
+     "short_name": "HOU"
+    }
+   ],
+   "recommendations_count": 0,
+   "start_time_utc": "2026-10-09T12:00:00Z",
+   "status": "SCHEDULED",
+   "top_recommendations": [],
+   "wagers_count": 0
+  }
+ ],
+ "kind": "board",
+ "overall_status": "RESEARCH_ONLY",
+ "run_id": "run_40568003a5ecc45be6cc",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NBA"
+}

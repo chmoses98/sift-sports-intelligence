@@ -1,0 +1,1886 @@
+{
+ "count": 75,
+ "generated_at": "2026-10-09T05:27:29Z",
+ "items": [
+  {
+   "aliases": [
+    "HOU @ DAL"
+   ],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "evt_0787342e3e624193d62e",
+   "kind": "EVENT",
+   "label": "Houston Rockets @ Dallas Mavericks",
+   "path": "explorer/events/evt_0787342e3e624193d62e.json",
+   "secondary": "2026-10-09 preseason",
+   "sport": "NBA",
+   "tokens": [
+    "09",
+    "10",
+    "2026",
+    "dal",
+    "dallas",
+    "hou",
+    "houston",
+    "mavericks",
+    "preseason",
+    "rockets"
+   ]
+  },
+  {
+   "aliases": [
+    "MIL @ OKC"
+   ],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2026-27",
+    "team": null
+   },
+   "id": "evt_9833be3ebf85ecefa9b4",
+   "kind": "EVENT",
+   "label": "Milwaukee Bucks @ Oklahoma City Thunder",
+   "path": "explorer/events/evt_9833be3ebf85ecefa9b4.json",
+   "secondary": "2026-10-08 preseason",
+   "sport": "NBA",
+   "tokens": [
+    "08",
+    "10",
+    "2026",
+    "bucks",
+    "city",
+    "mil",
+    "milwaukee",
+    "okc",
+    "oklahoma",
+    "preseason",
+    "thunder"
+   ]
+  },
+  {
+   "aliases": [
+    "AST"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_ast",
+   "kind": "METRIC",
+   "label": "Assists per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "assists",
+    "ast",
+    "game",
+    "per",
+    "player"
+   ]
+  },
+  {
+   "aliases": [
+    "AST O - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_prop_ast_over_minus_implied",
+   "kind": "METRIC",
+   "label": "Assists prop OVER minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "assists",
+    "ast",
+    "implied",
+    "minus",
+    "mkt",
+    "over",
+    "player",
+    "prop"
+   ]
+  },
+  {
+   "aliases": [
+    "TOTAL"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_total",
+   "kind": "METRIC",
+   "label": "Average game total",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "average",
+    "game",
+    "team",
+    "total"
+   ]
+  },
+  {
+   "aliases": [
+    "MARGIN"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_margin",
+   "kind": "METRIC",
+   "label": "Average margin",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "average",
+    "margin",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "BLK"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_blk",
+   "kind": "METRIC",
+   "label": "Blocks per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "blk",
+    "blocks",
+    "game",
+    "per",
+    "player"
+   ]
+  },
+  {
+   "aliases": [
+    "DRTG"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_def_rtg",
+   "kind": "METRIC",
+   "label": "Defensive rating",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "defensive",
+    "drtg",
+    "rating",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "FGA"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_fga",
+   "kind": "METRIC",
+   "label": "Field-goal attempts per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "attempts",
+    "fga",
+    "field",
+    "game",
+    "goal",
+    "per",
+    "player"
+   ]
+  },
+  {
+   "aliases": [
+    "FG%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_fg_pct",
+   "kind": "METRIC",
+   "label": "Field-goal percentage",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "fg",
+    "field",
+    "goal",
+    "percentage",
+    "player"
+   ]
+  },
+  {
+   "aliases": [
+    "1H PTS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_first_half_pts",
+   "kind": "METRIC",
+   "label": "First-half points per game",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "1h",
+    "first",
+    "game",
+    "half",
+    "per",
+    "points",
+    "pts",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "FTA"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_fta",
+   "kind": "METRIC",
+   "label": "Free-throw attempts per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "attempts",
+    "free",
+    "fta",
+    "game",
+    "per",
+    "player",
+    "throw"
+   ]
+  },
+  {
+   "aliases": [
+    "FT%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_ft_pct",
+   "kind": "METRIC",
+   "label": "Free-throw percentage",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "free",
+    "ft",
+    "percentage",
+    "player",
+    "throw"
+   ]
+  },
+  {
+   "aliases": [
+    "FTr"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_fta_rate",
+   "kind": "METRIC",
+   "label": "Free-throw rate",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "free",
+    "ftr",
+    "rate",
+    "team",
+    "throw"
+   ]
+  },
+  {
+   "aliases": [
+    "O - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_mkt_total_over_minus_implied",
+   "kind": "METRIC",
+   "label": "Game total OVER minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "implied",
+    "minus",
+    "mkt",
+    "over",
+    "team",
+    "total"
+   ]
+  },
+  {
+   "aliases": [
+    "MIN"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_min",
+   "kind": "METRIC",
+   "label": "Minutes per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "min",
+    "minutes",
+    "per",
+    "player"
+   ]
+  },
+  {
+   "aliases": [
+    "P model"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.model_p_data_only",
+   "kind": "METRIC",
+   "label": "Model probability (DATA_ONLY) per run",
+   "path": "explorer/metrics.json",
+   "secondary": "MARKET",
+   "sport": "NBA",
+   "tokens": [
+    "data",
+    "market",
+    "model",
+    "only",
+    "per",
+    "probability",
+    "run"
+   ]
+  },
+  {
+   "aliases": [
+    "NET"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_net_rtg",
+   "kind": "METRIC",
+   "label": "Net rating",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "net",
+    "rating",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "ORTG"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_off_rtg",
+   "kind": "METRIC",
+   "label": "Offensive rating",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "offensive",
+    "ortg",
+    "rating",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "adj DRTG"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_adj_def_ppp",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted defense (model input)",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "adj",
+    "adjusted",
+    "defense",
+    "drtg",
+    "input",
+    "model",
+    "opponent",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "adj NET"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_adj_net_ppp",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted net (model input)",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "adj",
+    "adjusted",
+    "input",
+    "model",
+    "net",
+    "opponent",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "adj ORTG"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_adj_off_ppp",
+   "kind": "METRIC",
+   "label": "Opponent-adjusted offense (model input)",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "adj",
+    "adjusted",
+    "input",
+    "model",
+    "offense",
+    "opponent",
+    "ortg",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "+/-"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_plus_minus",
+   "kind": "METRIC",
+   "label": "Plus-minus per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "minus",
+    "per",
+    "player",
+    "plus"
+   ]
+  },
+  {
+   "aliases": [
+    "OPP PTS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_opp_pts",
+   "kind": "METRIC",
+   "label": "Points allowed per game",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "allowed",
+    "game",
+    "opp",
+    "per",
+    "points",
+    "pts",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "PTS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_pts",
+   "kind": "METRIC",
+   "label": "Points per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "per",
+    "player",
+    "points",
+    "pts"
+   ]
+  },
+  {
+   "aliases": [
+    "PTS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_pts",
+   "kind": "METRIC",
+   "label": "Points per game",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "per",
+    "points",
+    "pts",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "PTS O - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_prop_pts_over_minus_implied",
+   "kind": "METRIC",
+   "label": "Points prop OVER minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "implied",
+    "minus",
+    "mkt",
+    "over",
+    "player",
+    "points",
+    "prop",
+    "pts"
+   ]
+  },
+  {
+   "aliases": [
+    "POSS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_possessions",
+   "kind": "METRIC",
+   "label": "Possessions per game",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "per",
+    "poss",
+    "possessions",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "ML P(win)"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_mkt_ml_implied_win_prob",
+   "kind": "METRIC",
+   "label": "Pre-tip moneyline implied win probability",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "implied",
+    "ml",
+    "moneyline",
+    "pre",
+    "probability",
+    "team",
+    "tip",
+    "win"
+   ]
+  },
+  {
+   "aliases": [
+    "REB"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_reb",
+   "kind": "METRIC",
+   "label": "Rebounds per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "per",
+    "player",
+    "reb",
+    "rebounds"
+   ]
+  },
+  {
+   "aliases": [
+    "REB O - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_prop_reb_over_minus_implied",
+   "kind": "METRIC",
+   "label": "Rebounds prop OVER minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "implied",
+    "minus",
+    "mkt",
+    "over",
+    "player",
+    "prop",
+    "reb",
+    "rebounds"
+   ]
+  },
+  {
+   "aliases": [
+    "ABOV%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_shot_share_above_break_three",
+   "kind": "METRIC",
+   "label": "Shot share: above break three",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "abov",
+    "above",
+    "break",
+    "share",
+    "shot",
+    "team",
+    "three"
+   ]
+  },
+  {
+   "aliases": [
+    "CORN%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_shot_share_corner_three",
+   "kind": "METRIC",
+   "label": "Shot share: corner three",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "corn",
+    "corner",
+    "share",
+    "shot",
+    "team",
+    "three"
+   ]
+  },
+  {
+   "aliases": [
+    "MIDR%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_shot_share_midrange",
+   "kind": "METRIC",
+   "label": "Shot share: midrange",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "midr",
+    "midrange",
+    "share",
+    "shot",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "PAIN%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_shot_share_paint_non_rim",
+   "kind": "METRIC",
+   "label": "Shot share: paint non rim",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "non",
+    "pain",
+    "paint",
+    "rim",
+    "share",
+    "shot",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "RIM%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_shot_share_rim",
+   "kind": "METRIC",
+   "label": "Shot share: rim",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "rim",
+    "share",
+    "shot",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "ATS - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_mkt_spread_cover_minus_implied",
+   "kind": "METRIC",
+   "label": "Spread YES minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "ats",
+    "implied",
+    "minus",
+    "mkt",
+    "spread",
+    "team",
+    "yes"
+   ]
+  },
+  {
+   "aliases": [
+    "GS%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_start_rate",
+   "kind": "METRIC",
+   "label": "Start rate",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "gs",
+    "player",
+    "rate",
+    "start"
+   ]
+  },
+  {
+   "aliases": [
+    "STL"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_stl",
+   "kind": "METRIC",
+   "label": "Steals per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "per",
+    "player",
+    "steals",
+    "stl"
+   ]
+  },
+  {
+   "aliases": [
+    "SOS"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_sos_opp_net_rtg",
+   "kind": "METRIC",
+   "label": "Strength of schedule (opponents' net rating)",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "net",
+    "of",
+    "opponents",
+    "rating",
+    "schedule",
+    "sos",
+    "strength",
+    "team"
+   ]
+  },
+  {
+   "aliases": [
+    "TT O - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_mkt_team_total_over_minus_implied",
+   "kind": "METRIC",
+   "label": "Team total OVER minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "implied",
+    "minus",
+    "mkt",
+    "over",
+    "team",
+    "total",
+    "tt"
+   ]
+  },
+  {
+   "aliases": [
+    "3P%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_fg3_pct",
+   "kind": "METRIC",
+   "label": "Three-point percentage",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "3p",
+    "percentage",
+    "player",
+    "point",
+    "three"
+   ]
+  },
+  {
+   "aliases": [
+    "3PM"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_fg3m",
+   "kind": "METRIC",
+   "label": "Threes made per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "3pm",
+    "game",
+    "made",
+    "per",
+    "player",
+    "threes"
+   ]
+  },
+  {
+   "aliases": [
+    "FG3M O - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_prop_fg3m_over_minus_implied",
+   "kind": "METRIC",
+   "label": "Threes prop OVER minus implied",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "fg3m",
+    "implied",
+    "minus",
+    "mkt",
+    "over",
+    "player",
+    "prop",
+    "threes"
+   ]
+  },
+  {
+   "aliases": [
+    "TOV/100"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_tov_rate",
+   "kind": "METRIC",
+   "label": "Turnovers per 100 possessions",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "100",
+    "per",
+    "possessions",
+    "team",
+    "tov",
+    "turnovers"
+   ]
+  },
+  {
+   "aliases": [
+    "TOV"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.player_tov",
+   "kind": "METRIC",
+   "label": "Turnovers per game",
+   "path": "explorer/metrics.json",
+   "secondary": "PLAYER",
+   "sport": "NBA",
+   "tokens": [
+    "game",
+    "per",
+    "player",
+    "tov",
+    "turnovers"
+   ]
+  },
+  {
+   "aliases": [
+    "W%"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_win_pct",
+   "kind": "METRIC",
+   "label": "Win percentage",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "percentage",
+    "team",
+    "win"
+   ]
+  },
+  {
+   "aliases": [
+    "W - mkt"
+   ],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "met_nba.team_mkt_ml_win_minus_implied",
+   "kind": "METRIC",
+   "label": "Wins minus moneyline-implied",
+   "path": "explorer/metrics.json",
+   "secondary": "TEAM",
+   "sport": "NBA",
+   "tokens": [
+    "implied",
+    "minus",
+    "mkt",
+    "moneyline",
+    "team",
+    "wins"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "C",
+    "season": "2025-26",
+    "team": "Houston Rockets"
+   },
+   "id": "prt_352321a2a46c950e99d7",
+   "kind": "PLAYER",
+   "label": "Alperen Sengun",
+   "path": "explorer/players/prt_352321a2a46c950e99d7.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "alperen",
+    "hou",
+    "houston",
+    "rockets",
+    "sengun"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "G",
+    "season": "2025-26",
+    "team": "Houston Rockets"
+   },
+   "id": "prt_42548365a4be7320e855",
+   "kind": "PLAYER",
+   "label": "Amen Thompson",
+   "path": "explorer/players/prt_42548365a4be7320e855.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "amen",
+    "hou",
+    "houston",
+    "rockets",
+    "thompson"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2025-26",
+    "team": "Milwaukee Bucks"
+   },
+   "id": "prt_faceca4af956f21876e4",
+   "kind": "PLAYER",
+   "label": "Cam Thomas",
+   "path": "explorer/players/prt_faceca4af956f21876e4.json",
+   "secondary": "MIL",
+   "sport": "NBA",
+   "tokens": [
+    "bucks",
+    "cam",
+    "mil",
+    "milwaukee",
+    "thomas"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "G",
+    "season": "2025-26",
+    "team": "Oklahoma City Thunder"
+   },
+   "id": "prt_7e41d81ac694f6f8fa22",
+   "kind": "PLAYER",
+   "label": "Cason Wallace",
+   "path": "explorer/players/prt_7e41d81ac694f6f8fa22.json",
+   "secondary": "OKC",
+   "sport": "NBA",
+   "tokens": [
+    "cason",
+    "city",
+    "okc",
+    "oklahoma",
+    "thunder",
+    "wallace"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "C",
+    "season": "2025-26",
+    "team": "Oklahoma City Thunder"
+   },
+   "id": "prt_4b8fd818f9b99e4a08a1",
+   "kind": "PLAYER",
+   "label": "Chet Holmgren",
+   "path": "explorer/players/prt_4b8fd818f9b99e4a08a1.json",
+   "secondary": "OKC",
+   "sport": "NBA",
+   "tokens": [
+    "chet",
+    "city",
+    "holmgren",
+    "okc",
+    "oklahoma",
+    "thunder"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "C",
+    "season": "2025-26",
+    "team": "Oklahoma City Thunder"
+   },
+   "id": "prt_22894c5d96cfa195a582",
+   "kind": "PLAYER",
+   "label": "Isaiah Hartenstein",
+   "path": "explorer/players/prt_22894c5d96cfa195a582.json",
+   "secondary": "OKC",
+   "sport": "NBA",
+   "tokens": [
+    "city",
+    "hartenstein",
+    "isaiah",
+    "okc",
+    "oklahoma",
+    "thunder"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "F",
+    "season": "2025-26",
+    "team": "Houston Rockets"
+   },
+   "id": "prt_28d83e8efc89fd7bcde2",
+   "kind": "PLAYER",
+   "label": "Jabari Smith Jr.",
+   "path": "explorer/players/prt_28d83e8efc89fd7bcde2.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "hou",
+    "houston",
+    "jabari",
+    "jr",
+    "rockets",
+    "smith"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "G",
+    "season": "2025-26",
+    "team": "Oklahoma City Thunder"
+   },
+   "id": "prt_cae406dfd3526f429089",
+   "kind": "PLAYER",
+   "label": "Jalen Williams",
+   "path": "explorer/players/prt_cae406dfd3526f429089.json",
+   "secondary": "OKC",
+   "sport": "NBA",
+   "tokens": [
+    "city",
+    "jalen",
+    "okc",
+    "oklahoma",
+    "thunder",
+    "williams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "F",
+    "season": "2025-26",
+    "team": "Houston Rockets"
+   },
+   "id": "prt_63476de9845045ea5f46",
+   "kind": "PLAYER",
+   "label": "Kevin Durant",
+   "path": "explorer/players/prt_63476de9845045ea5f46.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "durant",
+    "hou",
+    "houston",
+    "kevin",
+    "rockets"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "G",
+    "season": "2025-26",
+    "team": "Houston Rockets"
+   },
+   "id": "prt_29f1345dd2fc0ad8e363",
+   "kind": "PLAYER",
+   "label": "Marcus Smart",
+   "path": "explorer/players/prt_29f1345dd2fc0ad8e363.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "hou",
+    "houston",
+    "marcus",
+    "rockets",
+    "smart"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "G",
+    "season": "2025-26",
+    "team": "Houston Rockets"
+   },
+   "id": "prt_ae22a60829c583553d6d",
+   "kind": "PLAYER",
+   "label": "Reed Sheppard",
+   "path": "explorer/players/prt_ae22a60829c583553d6d.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "hou",
+    "houston",
+    "reed",
+    "rockets",
+    "sheppard"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": "NBA",
+    "position": "G",
+    "season": "2025-26",
+    "team": "Oklahoma City Thunder"
+   },
+   "id": "prt_9a64cfe911b69f694ade",
+   "kind": "PLAYER",
+   "label": "Shai Gilgeous-Alexander",
+   "path": "explorer/players/prt_9a64cfe911b69f694ade.json",
+   "secondary": "OKC",
+   "sport": "NBA",
+   "tokens": [
+    "alexander",
+    "city",
+    "gilgeous",
+    "okc",
+    "oklahoma",
+    "shai",
+    "thunder"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_e8a5c72e8cd45a7a21b9",
+   "kind": "RANKING",
+   "label": "Average game total ranking (SEASON)",
+   "path": "explorer/rankings/rnk_e8a5c72e8cd45a7a21b9.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "average",
+    "game",
+    "nba",
+    "ranking",
+    "regular",
+    "season",
+    "teams",
+    "total"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_049e5e200405605b482f",
+   "kind": "RANKING",
+   "label": "Defensive rating ranking (SEASON)",
+   "path": "explorer/rankings/rnk_049e5e200405605b482f.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "defensive",
+    "nba",
+    "ranking",
+    "rating",
+    "regular",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_34544a0682fa74cd3a18",
+   "kind": "RANKING",
+   "label": "Net rating ranking (SEASON)",
+   "path": "explorer/rankings/rnk_34544a0682fa74cd3a18.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "nba",
+    "net",
+    "ranking",
+    "rating",
+    "regular",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_709325b7d361b3812f7f",
+   "kind": "RANKING",
+   "label": "Offensive rating ranking (SEASON)",
+   "path": "explorer/rankings/rnk_709325b7d361b3812f7f.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "nba",
+    "offensive",
+    "ranking",
+    "rating",
+    "regular",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_fdccb1708e4e6eb9f327",
+   "kind": "RANKING",
+   "label": "Opponent-adjusted net (model input) ranking (EWM to 2026-06-14)",
+   "path": "explorer/rankings/rnk_fdccb1708e4e6eb9f327.json",
+   "secondary": "NBA teams",
+   "sport": "NBA",
+   "tokens": [
+    "06",
+    "14",
+    "2026",
+    "adjusted",
+    "ewm",
+    "input",
+    "model",
+    "nba",
+    "net",
+    "opponent",
+    "ranking",
+    "teams",
+    "to"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_67c376e0b556199c9cbf",
+   "kind": "RANKING",
+   "label": "Points allowed per game ranking (SEASON)",
+   "path": "explorer/rankings/rnk_67c376e0b556199c9cbf.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "allowed",
+    "game",
+    "nba",
+    "per",
+    "points",
+    "ranking",
+    "regular",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_977076bef16d700dd3b9",
+   "kind": "RANKING",
+   "label": "Points per game ranking (SEASON)",
+   "path": "explorer/rankings/rnk_977076bef16d700dd3b9.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "game",
+    "nba",
+    "per",
+    "points",
+    "ranking",
+    "regular",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_a109930fe303425ca9c1",
+   "kind": "RANKING",
+   "label": "Possessions per game ranking (SEASON)",
+   "path": "explorer/rankings/rnk_a109930fe303425ca9c1.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "game",
+    "nba",
+    "per",
+    "possessions",
+    "ranking",
+    "regular",
+    "season",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_57624613dc15a2df972e",
+   "kind": "RANKING",
+   "label": "Pre-tip moneyline implied win probability ranking (SEASON)",
+   "path": "explorer/rankings/rnk_57624613dc15a2df972e.json",
+   "secondary": "NBA teams, 2025-26 settled Kalshi markets",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "implied",
+    "kalshi",
+    "markets",
+    "moneyline",
+    "nba",
+    "pre",
+    "probability",
+    "ranking",
+    "season",
+    "settled",
+    "teams",
+    "tip",
+    "win"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_850475142e2260f37f22",
+   "kind": "RANKING",
+   "label": "Strength of schedule (opponents' net rating) ranking (SEASON)",
+   "path": "explorer/rankings/rnk_850475142e2260f37f22.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "nba",
+    "net",
+    "of",
+    "opponents",
+    "ranking",
+    "rating",
+    "regular",
+    "schedule",
+    "season",
+    "strength",
+    "teams"
+   ]
+  },
+  {
+   "aliases": [],
+   "context": {
+    "league": null,
+    "position": null,
+    "season": null,
+    "team": null
+   },
+   "id": "rnk_c39a0fe0f323f8fbfa21",
+   "kind": "RANKING",
+   "label": "Win percentage ranking (SEASON)",
+   "path": "explorer/rankings/rnk_c39a0fe0f323f8fbfa21.json",
+   "secondary": "NBA teams, 2025-26 regular season",
+   "sport": "NBA",
+   "tokens": [
+    "2025",
+    "26",
+    "nba",
+    "percentage",
+    "ranking",
+    "regular",
+    "season",
+    "teams",
+    "win"
+   ]
+  },
+  {
+   "aliases": [
+    "DAL",
+    "Dallas",
+    "Mavericks"
+   ],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2025-26",
+    "team": null
+   },
+   "id": "prt_fe5481634395448d9b19",
+   "kind": "TEAM",
+   "label": "Dallas Mavericks",
+   "path": "explorer/teams/prt_fe5481634395448d9b19.json",
+   "secondary": "DAL",
+   "sport": "NBA",
+   "tokens": [
+    "dal",
+    "dallas",
+    "mavericks"
+   ]
+  },
+  {
+   "aliases": [
+    "HOU",
+    "Houston",
+    "Rockets"
+   ],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2025-26",
+    "team": null
+   },
+   "id": "prt_154c9a432d4539fabeea",
+   "kind": "TEAM",
+   "label": "Houston Rockets",
+   "path": "explorer/teams/prt_154c9a432d4539fabeea.json",
+   "secondary": "HOU",
+   "sport": "NBA",
+   "tokens": [
+    "hou",
+    "houston",
+    "rockets"
+   ]
+  },
+  {
+   "aliases": [
+    "MIL",
+    "Milwaukee",
+    "Bucks"
+   ],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2025-26",
+    "team": null
+   },
+   "id": "prt_8848b90e0c224d6f089f",
+   "kind": "TEAM",
+   "label": "Milwaukee Bucks",
+   "path": "explorer/teams/prt_8848b90e0c224d6f089f.json",
+   "secondary": "MIL",
+   "sport": "NBA",
+   "tokens": [
+    "bucks",
+    "mil",
+    "milwaukee"
+   ]
+  },
+  {
+   "aliases": [
+    "OKC",
+    "Oklahoma City",
+    "Thunder"
+   ],
+   "context": {
+    "league": "NBA",
+    "position": null,
+    "season": "2025-26",
+    "team": null
+   },
+   "id": "prt_5bcdc9aab9018ae9d861",
+   "kind": "TEAM",
+   "label": "Oklahoma City Thunder",
+   "path": "explorer/teams/prt_5bcdc9aab9018ae9d861.json",
+   "secondary": "OKC",
+   "sport": "NBA",
+   "tokens": [
+    "city",
+    "okc",
+    "oklahoma",
+    "thunder"
+   ]
+  }
+ ],
+ "kind": "search_index",
+ "run_id": "run_407b669aab4cf5612a4c",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "NBA"
+}

@@ -352,7 +352,9 @@
 /* ---------------------------------------------------------------- game script deep view */
 .stab { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); margin-top: var(--s-5); }
 @media (min-width: 1100px) { .stab { grid-template-columns: 360px minmax(0, 1fr); align-items: start; } .stab > * { grid-column: auto; grid-row: auto; } .stab .scards { grid-template-columns: 1fr 1fr; } }
-.stab > .ov-scripts { position: sticky; top: calc(var(--topbar-h) + 60px); }
+/* The script selector scrolls with the page. It is never sticky: a pinned 360px panel covered the research below it
+   on every viewport and intercepted taps on phones (e2e/game-scroll.spec.ts guards this). */
+.stab > .ov-scripts { position: static; }
 .stab__main { border-top: 2px solid var(--sc); }
 .stab__head { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding-bottom: var(--s-4); border-bottom: 1px solid var(--line); }
 .stab__head .sglyph { width: 42px; height: 28px; }

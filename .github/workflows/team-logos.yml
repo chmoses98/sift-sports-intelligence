@@ -36,6 +36,7 @@ jobs:
       - run: node scripts/teams/fetch-logos.mjs
       - run: node scripts/teams/fetch-nhl-logos.mjs
       - run: node scripts/teams/fetch-mlb-logos.mjs
+      - run: node scripts/teams/fetch-nba-logos.mjs
       - run: node scripts/teams/fetch-leagues.mjs
       - run: node scripts/teams/fetch-cbb-teams.mjs
       - run: node scripts/teams/fetch-cfb-teams.mjs
@@ -43,7 +44,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/teams public/leagues src/lib/team-logos.json src/lib/nhl-team-logos.json src/lib/mlb-team-logos.json src/lib/league-logos.json src/lib/cbb-teams.json src/lib/cfb-teams.json
+          git add public/teams public/leagues src/lib/team-logos.json src/lib/nhl-team-logos.json src/lib/mlb-team-logos.json src/lib/nba-team-logos.json src/lib/league-logos.json src/lib/cbb-teams.json src/lib/cfb-teams.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "Team and league logos (fetched once from ESPN's logo CDN)"
           git pull --rebase origin "${GITHUB_REF_NAME}" || true

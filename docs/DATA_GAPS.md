@@ -57,9 +57,16 @@ game). No per-game EPA, no player lines.
 
 MLB is explorable as a beta through the same screens. CFB is explorable as a beta, and its game page is driven
 by the CFB Script Engine (`docs/CFB_SCRIPT_ENGINE.md`); its team and slate screens are the generic ones, with
-the CFB publication's own (sparser) data. NBA, Soccer and Tennis publish explorers and are shown with
-real health and capability manifests, but Sift V1 does not open explorer screens for them (their entity
-shapes — tennis players as participants, soccer clubs — were not validated in this pass).
+the CFB publication's own (sparser) data. NBA, Soccer and Tennis are explorable on their live publications (validated 2026-10-09 against the latest
+upstream commits; fixtures trimmed from the real publications by `scripts/make_sport_fixture.py`). What stays
+upstream: **Soccer** — every model family is RESEARCH_ONLY, script shares are simulation shares (not calibrated), no
+lineup/player layer, no xG (Dixon-Coles rates), no standings or must-win context, no club logos published; **Tennis** —
+every model number is RESEARCH_ONLY (Kalshi mid Brier 0.1776 vs model 0.2193 on 15,117 settled rows), doubles have no
+model, first-ball truth covers the main tours and Slams only, no injuries, draws or rankings consumed, no bet-up-to
+price is ever published; **NBA** — RESEARCH authority in every family, the market beats the data-only model out of
+sample in 8 of 8 families, this publication carries 0 model prices (a documented export defect), injuries come from
+ESPN rather than the official report, no lineups or confirmed starters, and preseason rotations are not
+representative. None of these gaps is filled by Sift: the screens say PASS where the evidence stops.
 
 NHL is explorable (`docs/NHL.md`). Gaps that remain upstream: NHL_SCRIPT_V1 probabilities are not yet calibrated
 (0 settled script forecasts when the layer shipped; the scorecard counts them); script-conditioned prices exist only

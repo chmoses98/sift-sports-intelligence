@@ -1,0 +1,249 @@
+{
+ "count": 3,
+ "generated_at": "2026-10-09T05:52:46Z",
+ "items": [
+  {
+   "away_participant": null,
+   "broadcast": null,
+   "competition": "M25 Kigali",
+   "effective_start_time_utc": null,
+   "event_id": "evt_d09d8721f706b006741f",
+   "extensions": {
+    "bet_allowed": true,
+    "data_quality_status": "UNKNOWN",
+    "discipline": "doubles",
+    "first_ball_status": "NO_FIRST_BALL_SOURCE",
+    "identity_check_status": "IDENTITY_AMBIGUOUS",
+    "level": "ITF",
+    "level_bucket": "DOUBLES",
+    "live_source_covered": false,
+    "match_winner_ticker": {
+     "a": "KXITFDOUBLES-26OCT08LOCJOHCHRVAN-LOCJOH",
+     "b": "KXITFDOUBLES-26OCT08LOCJOHCHRVAN-CHRVAN"
+    },
+    "model_validity": {
+     "fair_v1": "NOT_PRODUCED_FOR_DOUBLES",
+     "gen1": "UNVALIDATED_DO_NOT_USE",
+     "gen2": "NOT_PRODUCED_FOR_DOUBLES",
+     "model4": "NOT_PRODUCED_FOR_DOUBLES",
+     "reason": "Current Gen-1 doubles failed the no-skill validation and is suppressed from assisted handicapping pending a validated replacement. No model probability is shown for doubles; prices, liquidity and external markets remain for manual handicapping."
+    },
+    "nominal_is_placeholder": false,
+    "nominal_scheduled_start": "2026-10-08T16:30:00+00:00",
+    "round": "QF",
+    "start_status": "START_UNKNOWN",
+    "status_reasons": [
+     "NOMINAL_UNRELIABLE_AT_THIS_LEVEL",
+     "NO_CREDIBLE_START_TIME"
+    ],
+    "surface": null,
+    "surface_bucket": "OTHER",
+    "warnings": [
+     "NO_MODEL_FOR_MATCH: no Gen-1 ledger or shadow-board row (identity unmapped, doubles, or unpriced format)",
+     "DOUBLES_NOT_MODELLED_BY_FROZEN_PRODUCERS",
+     "GEN1_DOUBLES_UNVALIDATED_DO_NOT_USE: Current Gen-1 doubles failed the no-skill validation and is suppressed from assisted handicapping pending a validated replacement. No model probability is shown for doubles; prices, liquidity and external markets remain for manual handicapping.",
+     "FIRST_BALL_SOURCE_UNAVAILABLE: Challenger/ITF/WTA125 starts are not observed; a nominal time is not a first ball",
+     "SCHEDULED_START_PASSED: the match may already be under way"
+    ]
+   },
+   "home_participant": null,
+   "last_updated_at": "2026-10-09T05:52:43Z",
+   "league": "ATP",
+   "participants": [
+    {
+     "display_name": "Lock / John Lock",
+     "metadata": {},
+     "participant_id": "prt_af2387c468d349706c4a",
+     "participant_type": "PLAYER",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_match_winner_ticker": "KXITFDOUBLES-26OCT08LOCJOHCHRVAN-LOCJOH",
+      "kalshi_player_name": "lock / john lock"
+     }
+    },
+    {
+     "display_name": "Christopher Kucukhuseyin / Van Aken",
+     "metadata": {},
+     "participant_id": "prt_da04eb46e4f3015a71b5",
+     "participant_type": "PLAYER",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_match_winner_ticker": "KXITFDOUBLES-26OCT08LOCJOHCHRVAN-CHRVAN",
+      "kalshi_player_name": "christopher kucukhuseyin / van aken"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-09T05:52:43Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXITFDOUBLES-26OCT08LOCJOHCHRVAN",
+    "match_code": "26OCT08LOCJOHCHRVAN",
+    "match_key": "ATP:26OCT08LOCJOHCHRVAN:doubles",
+    "physical_match_id": null
+   },
+   "sport": "TENNIS",
+   "start_time_confidence": "SCHEDULED",
+   "start_time_local": null,
+   "start_time_source": "KALSHI_NOMINAL",
+   "start_time_utc": "2026-10-08T16:30:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": null,
+   "broadcast": null,
+   "competition": "ATP Shanghai",
+   "effective_start_time_utc": null,
+   "event_id": "evt_626bc16043b56b7b1921",
+   "extensions": {
+    "bet_allowed": true,
+    "data_quality_status": "ADEQUATE",
+    "discipline": "singles",
+    "first_ball_status": "NOT_OBSERVED_STARTED",
+    "identity_check_status": "IDENTITY_VERIFIED",
+    "level": "MASTERS_1000",
+    "level_bucket": "ATP",
+    "live_source_covered": true,
+    "match_winner_ticker": {
+     "a": "KXATPMATCH-26OCT09KHAFER-KHA",
+     "b": "KXATPMATCH-26OCT09KHAFER-FER"
+    },
+    "model_validity": null,
+    "nominal_is_placeholder": true,
+    "nominal_scheduled_start": "2026-10-09T07:00:00+00:00",
+    "round": "R64",
+    "start_status": "VERIFIED_UPCOMING",
+    "status_reasons": [
+     "NOMINAL_IS_DAY_PLACEHOLDER: Kalshi lists this time for many matches of the series"
+    ],
+    "surface": "Hard",
+    "surface_bucket": "HARD",
+    "warnings": [
+     "NOMINAL_START_IS_DAY_PLACEHOLDER: Kalshi lists the same time for many matches of this series; it is not this match's start"
+    ]
+   },
+   "home_participant": null,
+   "last_updated_at": "2026-10-09T05:52:43Z",
+   "league": "ATP",
+   "participants": [
+    {
+     "display_name": "Karen Khachanov",
+     "metadata": {},
+     "participant_id": "prt_dc998b2d3279e7cce73b",
+     "participant_type": "PLAYER",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_match_winner_ticker": "KXATPMATCH-26OCT09KHAFER-KHA",
+      "kalshi_player_name": "karen khachanov"
+     }
+    },
+    {
+     "display_name": "Arthur Fery",
+     "metadata": {},
+     "participant_id": "prt_30230b56538f4022e512",
+     "participant_type": "PLAYER",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_match_winner_ticker": "KXATPMATCH-26OCT09KHAFER-FER",
+      "kalshi_player_name": "arthur fery"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-09T05:52:43Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXATPMATCH-26OCT09KHAFER",
+    "match_code": "26OCT09KHAFER",
+    "match_key": "ATP:26OCT09KHAFER:singles",
+    "physical_match_id": "ATP:111575:209259:2026-10-09"
+   },
+   "sport": "TENNIS",
+   "start_time_confidence": "VERIFIED",
+   "start_time_local": null,
+   "start_time_source": "LIVE_SCHEDULE:espn_atp",
+   "start_time_utc": "2026-10-09T07:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  },
+  {
+   "away_participant": null,
+   "broadcast": null,
+   "competition": "WTA Beijing",
+   "effective_start_time_utc": null,
+   "event_id": "evt_581f889e1dfb4de11420",
+   "extensions": {
+    "bet_allowed": true,
+    "data_quality_status": "ADEQUATE",
+    "discipline": "singles",
+    "first_ball_status": "NOT_OBSERVED_STARTED",
+    "identity_check_status": "IDENTITY_VERIFIED",
+    "level": "MASTERS_1000",
+    "level_bucket": "WTA",
+    "live_source_covered": true,
+    "match_winner_ticker": {
+     "a": "KXWTAMATCH-26OCT07MERSWI-MER",
+     "b": "KXWTAMATCH-26OCT07MERSWI-SWI"
+    },
+    "model_validity": null,
+    "nominal_is_placeholder": false,
+    "nominal_scheduled_start": "2026-10-08T06:00:00+00:00",
+    "round": "QF",
+    "start_status": "VERIFIED_UPCOMING",
+    "status_reasons": [
+     "EXPECTED_START_DIFFERS_FROM_NOMINAL_BY_+1740_MIN"
+    ],
+    "surface": "Hard",
+    "surface_bucket": "HARD",
+    "warnings": [
+     "SCHEDULED_START_PASSED: the match may already be under way"
+    ]
+   },
+   "home_participant": null,
+   "last_updated_at": "2026-10-09T05:52:43Z",
+   "league": "WTA",
+   "participants": [
+    {
+     "display_name": "Elise Mertens",
+     "metadata": {},
+     "participant_id": "prt_672feecdb6304f1cb2b1",
+     "participant_type": "PLAYER",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_match_winner_ticker": "KXWTAMATCH-26OCT07MERSWI-MER",
+      "kalshi_player_name": "elise mertens"
+     }
+    },
+    {
+     "display_name": "Iga Swiatek",
+     "metadata": {},
+     "participant_id": "prt_d539a3814ae640119d8d",
+     "participant_type": "PLAYER",
+     "short_name": null,
+     "source_ids": {
+      "kalshi_match_winner_ticker": "KXWTAMATCH-26OCT07MERSWI-SWI",
+      "kalshi_player_name": "iga swiatek"
+     }
+    }
+   ],
+   "schedule_updated_at": "2026-10-09T05:52:43Z",
+   "season": "2026",
+   "source_ids": {
+    "kalshi_event_ticker": "KXWTAMATCH-26OCT07MERSWI",
+    "match_code": "26OCT07MERSWI",
+    "match_key": "WTA:26OCT07MERSWI:singles",
+    "physical_match_id": "WTA:210722:216347:2026-10-08"
+   },
+   "sport": "TENNIS",
+   "start_time_confidence": "VERIFIED",
+   "start_time_local": null,
+   "start_time_source": "LIVE_SCHEDULE:espn_atp",
+   "start_time_utc": "2026-10-09T11:00:00Z",
+   "status": "SCHEDULED",
+   "venue": null
+  }
+ ],
+ "kind": "events",
+ "run_id": "run_125ad64151a15d9d180b",
+ "schema_version": "edge_finder.app.v1",
+ "sport": "TENNIS"
+}

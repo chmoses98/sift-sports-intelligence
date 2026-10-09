@@ -95,12 +95,18 @@ function Results({ items, slug, sportCode }: { items: BoardItem[]; slug: string;
 const CbbHomeView = lazy(() => import('./cbb/Home').then((m) => ({ default: m.CbbHomeView })));
 const NhlHomeView = lazy(() => import('./nhl/NhlHome').then((m) => ({ default: m.NhlHomeView })));
 const CfbHomeView = lazy(() => import('./cfb/CfbHome').then((m) => ({ default: m.CfbHomeView })));
+const SoccerHomeView = lazy(() => import('./soccer/SoccerHome').then((m) => ({ default: m.SoccerHomeView })));
+const TennisHomeView = lazy(() => import('./tennis/TennisHome').then((m) => ({ default: m.TennisHomeView })));
+const NbaHomeView = lazy(() => import('./nba/NbaHome').then((m) => ({ default: m.NbaHomeView })));
 
 export function SportHomeView() {
   const { sport } = useSport();
   if (sport.code === 'NHL') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><NhlHomeView /></Suspense>;
   if (sport.code === 'CBB') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><CbbHomeView /></Suspense>;
   if (sport.code === 'CFB') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><CfbHomeView /></Suspense>;
+  if (sport.code === 'SOCCER') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><SoccerHomeView /></Suspense>;
+  if (sport.code === 'TENNIS') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><TennisHomeView /></Suspense>;
+  if (sport.code === 'NBA') return <Suspense fallback={<div className="page"><Skeleton lines={6} tall /></div>}><NbaHomeView /></Suspense>;
   return <GenericSportHome />;
 }
 

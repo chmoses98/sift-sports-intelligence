@@ -1,0 +1,336 @@
+{
+ "as_of": "2026-10-09T05:37:04Z",
+ "base_manifest_run_id": "run_c67d63b8791397a7a4ee",
+ "capabilities_path": "explorer/capabilities.json",
+ "commit_sha": "75b53721801007f60d0dcafd511b3ec958dc5f83",
+ "counts": {
+  "events": 3,
+  "market_history": 2,
+  "metrics": 11,
+  "players": 0,
+  "rankings": 18,
+  "series": 0,
+  "teams": 6
+ },
+ "events": [
+  {
+   "away_participant": "prt_ad0c469c446f0b226c2d",
+   "event_id": "evt_588a4c8417a2e976344d",
+   "home_participant": "prt_5dbc39bd0edb06fbfec7",
+   "participants": [
+    "prt_5dbc39bd0edb06fbfec7",
+    "prt_ad0c469c446f0b226c2d"
+   ],
+   "path": "explorer/events/evt_588a4c8417a2e976344d.json",
+   "start_time_utc": "2026-10-08T22:30:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_7faa31e5e826cacd24c7",
+   "event_id": "evt_19cfa921a7dcc9bfa189",
+   "home_participant": "prt_fa838f16754c60f5d247",
+   "participants": [
+    "prt_fa838f16754c60f5d247",
+    "prt_7faa31e5e826cacd24c7"
+   ],
+   "path": "explorer/events/evt_19cfa921a7dcc9bfa189.json",
+   "start_time_utc": "2026-10-10T01:00:00Z",
+   "status": "SCHEDULED"
+  },
+  {
+   "away_participant": "prt_3a10c0bfe80f845dad4a",
+   "event_id": "evt_0a69396895a311cb26b2",
+   "home_participant": "prt_be94f63b5798695abd7e",
+   "participants": [
+    "prt_be94f63b5798695abd7e",
+    "prt_3a10c0bfe80f845dad4a"
+   ],
+   "path": "explorer/events/evt_0a69396895a311cb26b2.json",
+   "start_time_utc": "2026-10-10T11:30:00Z",
+   "status": "SCHEDULED"
+  }
+ ],
+ "files": {
+  "capabilities.json": {
+   "bytes": 22619,
+   "entity_id": null,
+   "kind": "capability_manifest",
+   "sha256": "4248d5c980f57e82d8d6bc0267ed558f19babf7971f649dbd991016e7db974f0"
+  },
+  "events/evt_0a69396895a311cb26b2.json": {
+   "bytes": 73856,
+   "entity_id": "evt_0a69396895a311cb26b2",
+   "kind": "event_research",
+   "sha256": "9f6d956d757b0f6470ac10070d71d70b63f79215ec46b81c79891e9785879c6b"
+  },
+  "events/evt_19cfa921a7dcc9bfa189.json": {
+   "bytes": 214614,
+   "entity_id": "evt_19cfa921a7dcc9bfa189",
+   "kind": "event_research",
+   "sha256": "4d5004596e8fbb90e5e276bf774bbca94a2585088bc79bde9b2477664be698fe"
+  },
+  "events/evt_588a4c8417a2e976344d.json": {
+   "bytes": 55323,
+   "entity_id": "evt_588a4c8417a2e976344d",
+   "kind": "event_research",
+   "sha256": "01a01a501d38889235996544c03bbbf81ef0b02bcb9dde7b9a1b6f8d81f8a15a"
+  },
+  "market_history/evt_0a69396895a311cb26b2.json": {
+   "bytes": 102087,
+   "entity_id": "evt_0a69396895a311cb26b2",
+   "kind": "market_history",
+   "sha256": "56c2992cb421556680251f7b333a2a19451e4de45c2c0131d78e8b1c5053ad3f"
+  },
+  "market_history/evt_19cfa921a7dcc9bfa189.json": {
+   "bytes": 375485,
+   "entity_id": "evt_19cfa921a7dcc9bfa189",
+   "kind": "market_history",
+   "sha256": "2e68b2ae9d8c79f318ba7b5ad5caebb7d2a2a97efab334fafa27c196d677af13"
+  },
+  "metrics.json": {
+   "bytes": 24841,
+   "entity_id": null,
+   "kind": "metric_registry",
+   "sha256": "ec9a384939832adcbe7ee677462e23f052c0fe2e845bf059b21ff60136043edd"
+  },
+  "rankings/rnk_10387cb8d9c83c8dc954.json": {
+   "bytes": 5546,
+   "entity_id": "rnk_10387cb8d9c83c8dc954",
+   "kind": "ranking",
+   "sha256": "d4c4cdbd394d2968ded18d7ad9080de77909feffbcecec47499f8149c52cb4a3"
+  },
+  "rankings/rnk_1b0080bac94cd53c1894.json": {
+   "bytes": 6056,
+   "entity_id": "rnk_1b0080bac94cd53c1894",
+   "kind": "ranking",
+   "sha256": "aba151d067ef0bc938c6e0ae30e9be2aa025b99682bbf56b8f3f4794cb5c09d0"
+  },
+  "rankings/rnk_21ad31c669b25cfe5e97.json": {
+   "bytes": 6064,
+   "entity_id": "rnk_21ad31c669b25cfe5e97",
+   "kind": "ranking",
+   "sha256": "4e3595ffcaffbd46f6fd7c48112597a7497c23cf6b6057d632579cf37b46130a"
+  },
+  "rankings/rnk_28103308b0b744a192b0.json": {
+   "bytes": 5553,
+   "entity_id": "rnk_28103308b0b744a192b0",
+   "kind": "ranking",
+   "sha256": "c5952114e810f69b47a8f2840babf3a31e1af48b8adf4952f73f0295d84a0dbc"
+  },
+  "rankings/rnk_3435b25cd05a25f0b8d2.json": {
+   "bytes": 6033,
+   "entity_id": "rnk_3435b25cd05a25f0b8d2",
+   "kind": "ranking",
+   "sha256": "1e770cf439718f5a15193944e8237861d6300f9a7708370398ed7a22b7633208"
+  },
+  "rankings/rnk_48ee995732da76326daf.json": {
+   "bytes": 6032,
+   "entity_id": "rnk_48ee995732da76326daf",
+   "kind": "ranking",
+   "sha256": "c9797ed06c8b2847a0a01c072a571ef146474b2665094a9d1c79f6ac81cbed19"
+  },
+  "rankings/rnk_4fb9cb0354ae1b8dafcd.json": {
+   "bytes": 5561,
+   "entity_id": "rnk_4fb9cb0354ae1b8dafcd",
+   "kind": "ranking",
+   "sha256": "5ad814b82cdc34c9a86dcf80287f327c2c012469d72f1ce186259af244615e9a"
+  },
+  "rankings/rnk_712a4e6d4534e7590131.json": {
+   "bytes": 5549,
+   "entity_id": "rnk_712a4e6d4534e7590131",
+   "kind": "ranking",
+   "sha256": "991142357fbac50c3362e18bc3ebec44fba61a261622cf46834c890df87331a9"
+  },
+  "rankings/rnk_7535f82f86c315a0bf73.json": {
+   "bytes": 6027,
+   "entity_id": "rnk_7535f82f86c315a0bf73",
+   "kind": "ranking",
+   "sha256": "0f13b52a12f3f196dd0aad52155ecd3071b58106b009e2e3a571a00d06fb76f4"
+  },
+  "rankings/rnk_945507e5526c3a08e4f3.json": {
+   "bytes": 6059,
+   "entity_id": "rnk_945507e5526c3a08e4f3",
+   "kind": "ranking",
+   "sha256": "3ffaa443fc29ac4722a4d8331ea8621e0e82edcb16246bc363ab72f3b29d71f4"
+  },
+  "rankings/rnk_a0a6a732b18e7a899359.json": {
+   "bytes": 5547,
+   "entity_id": "rnk_a0a6a732b18e7a899359",
+   "kind": "ranking",
+   "sha256": "791877bfa98a25f1e7908ca9e54c877f790aab1f7280260d3ab3b1da3471781e"
+  },
+  "rankings/rnk_a14ac88b98f8b7123c9b.json": {
+   "bytes": 5550,
+   "entity_id": "rnk_a14ac88b98f8b7123c9b",
+   "kind": "ranking",
+   "sha256": "63aa8c8a8d2ceae381d4e03865c368db612dcc8a0be31e9922aaf84a27842957"
+  },
+  "rankings/rnk_b2a4999f6056d419cc4b.json": {
+   "bytes": 6064,
+   "entity_id": "rnk_b2a4999f6056d419cc4b",
+   "kind": "ranking",
+   "sha256": "c074dac1e292a7a1bbc38606561b7ae857867bf7b7723c1846e8bb7ef5472d28"
+  },
+  "rankings/rnk_b442c0d0cfe2e82d3b25.json": {
+   "bytes": 6075,
+   "entity_id": "rnk_b442c0d0cfe2e82d3b25",
+   "kind": "ranking",
+   "sha256": "136a0de8e5d75a6c8a9c792e63ba8b08ed34453028d9637185d3a11882bc17af"
+  },
+  "rankings/rnk_b968a1a8e7740b8ba337.json": {
+   "bytes": 5379,
+   "entity_id": "rnk_b968a1a8e7740b8ba337",
+   "kind": "ranking",
+   "sha256": "7ad53d002c7475d5e1d72763f03187abffcf68a98ff459c8dd25f8d9cd511f25"
+  },
+  "rankings/rnk_bdec24cb563f9303a8e7.json": {
+   "bytes": 6062,
+   "entity_id": "rnk_bdec24cb563f9303a8e7",
+   "kind": "ranking",
+   "sha256": "243628e61c5781e2eacc3a429b956dec7b036c1f4ae4aaa1ec80017eaf3ef6ac"
+  },
+  "rankings/rnk_db9b86cdf6d7fc059eda.json": {
+   "bytes": 5380,
+   "entity_id": "rnk_db9b86cdf6d7fc059eda",
+   "kind": "ranking",
+   "sha256": "d26d29b4a6bd02a60c680f452317fe0244dfb8171d0be50cc508872760db4492"
+  },
+  "rankings/rnk_fe826b79ce3c2684172a.json": {
+   "bytes": 5552,
+   "entity_id": "rnk_fe826b79ce3c2684172a",
+   "kind": "ranking",
+   "sha256": "6d6c455432c1802f47d146377ee07356c355174791bd615150d4761e11a71880"
+  },
+  "search_index.json": {
+   "bytes": 19091,
+   "entity_id": null,
+   "kind": "search_index",
+   "sha256": "c19e26a111c197dc514293f4a5cff27d0769b3156ea1109b1ddc6b71e617f586"
+  },
+  "teams/prt_3a10c0bfe80f845dad4a.json": {
+   "bytes": 2933,
+   "entity_id": "prt_3a10c0bfe80f845dad4a",
+   "kind": "entity_profile",
+   "sha256": "f6a02515101a4738aa6beedb85f04f4a8accc62df8090cea1b4785857a185050"
+  },
+  "teams/prt_5dbc39bd0edb06fbfec7.json": {
+   "bytes": 41241,
+   "entity_id": "prt_5dbc39bd0edb06fbfec7",
+   "kind": "entity_profile",
+   "sha256": "baf0e2a6ee85cdaaa7609e78dce627efd3f685226b03d70932703a91d21b183f"
+  },
+  "teams/prt_7faa31e5e826cacd24c7.json": {
+   "bytes": 50207,
+   "entity_id": "prt_7faa31e5e826cacd24c7",
+   "kind": "entity_profile",
+   "sha256": "b7bc2bd7810a67ab026da2616c5d103ea950440ad4455dd0af3c03d37dcdda83"
+  },
+  "teams/prt_ad0c469c446f0b226c2d.json": {
+   "bytes": 41483,
+   "entity_id": "prt_ad0c469c446f0b226c2d",
+   "kind": "entity_profile",
+   "sha256": "ef6ab9c460e6e1638dbd2bfcd0de9b89698ac6647fa8103d7744b6bffbf5aa94"
+  },
+  "teams/prt_be94f63b5798695abd7e.json": {
+   "bytes": 2934,
+   "entity_id": "prt_be94f63b5798695abd7e",
+   "kind": "entity_profile",
+   "sha256": "ff8c6a91ad974c3c93db4e3f2ca61d39dc9f6daa55284008c206011d869923e4"
+  },
+  "teams/prt_fa838f16754c60f5d247.json": {
+   "bytes": 50184,
+   "entity_id": "prt_fa838f16754c60f5d247",
+   "kind": "entity_profile",
+   "sha256": "012907f4bd2927aad46e94c75ebec9661e1cc9c567bb74d75ff0344f77942ce1"
+  }
+ },
+ "generated_at": "2026-10-09T05:37:35Z",
+ "kind": "explorer_index",
+ "metrics_path": "explorer/metrics.json",
+ "players_by_team": {},
+ "quality": {
+  "coverage": "134 events, 274 teams, 81 rankings, 272 series",
+  "data_as_of": "2026-10-09T05:37:04Z",
+  "generated_at": "2026-10-09T05:37:35Z",
+  "limitations": [
+   "ESPN results carry goals only (HT split 3 %, shots/corners/cards/xG 0 %)",
+   "results/espn covers 14 ESPN leagues from 2024-07-01; club top-5 league history is not in the repo (fetched at run time into a gitignored cache)",
+   "207 duplicated fixture_ids (Liga MX Apertura/Clausura share season 2024) and 85 duplicated espn_event_ids: deduplicated by espn_event_id (last row wins); repeated fixture ids get the repo's :occN suffix",
+   "the model is RESEARCH_ONLY everywhere (walk-forward log loss 1.0010 vs Bet365 0.9732)",
+   "the international pool (model_family *.intl_pool) is explicitly not validated (docs/KNOWN_LIMITATIONS.md #26)"
+  ],
+  "methodology_version": "soccer_edge 0.1.0 research_export v1",
+  "missingness": null,
+  "production": true,
+  "sample_size": null,
+  "source": "SOCCER data-archive + main (results, ledgers, captures, registry)",
+  "source_version": null,
+  "status": "PARTIAL"
+ },
+ "run_id": "run_c67d63b8791397a7a4ee",
+ "schema_version": "edge_finder.app.v1",
+ "search_index_path": "explorer/search_index.json",
+ "sport": "SOCCER",
+ "teams": [
+  {
+   "display_name": "Arsenal",
+   "participant_id": "prt_be94f63b5798695abd7e",
+   "path": "explorer/teams/prt_be94f63b5798695abd7e.json",
+   "short_name": null
+  },
+  {
+   "display_name": "Flamengo",
+   "participant_id": "prt_ad0c469c446f0b226c2d",
+   "path": "explorer/teams/prt_ad0c469c446f0b226c2d.json",
+   "short_name": null
+  },
+  {
+   "display_name": "Leeds United",
+   "participant_id": "prt_3a10c0bfe80f845dad4a",
+   "path": "explorer/teams/prt_3a10c0bfe80f845dad4a.json",
+   "short_name": null
+  },
+  {
+   "display_name": "León",
+   "participant_id": "prt_7faa31e5e826cacd24c7",
+   "path": "explorer/teams/prt_7faa31e5e826cacd24c7.json",
+   "short_name": null
+  },
+  {
+   "display_name": "Puebla",
+   "participant_id": "prt_fa838f16754c60f5d247",
+   "path": "explorer/teams/prt_fa838f16754c60f5d247.json",
+   "short_name": null
+  },
+  {
+   "display_name": "Santos",
+   "participant_id": "prt_5dbc39bd0edb06fbfec7",
+   "path": "explorer/teams/prt_5dbc39bd0edb06fbfec7.json",
+   "short_name": null
+  }
+ ],
+ "warnings": [],
+ "windows": [
+  {
+   "end": null,
+   "kind": "LAST_N",
+   "label": "L10",
+   "n": 10,
+   "start": null
+  },
+  {
+   "end": null,
+   "kind": "LAST_N",
+   "label": "L5",
+   "n": 5,
+   "start": null
+  },
+  {
+   "end": null,
+   "kind": "SEASON",
+   "label": "SEASON",
+   "n": null,
+   "start": null
+  }
+ ]
+}

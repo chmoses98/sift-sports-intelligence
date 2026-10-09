@@ -127,7 +127,13 @@ function GenericSportHome() {
   const comp = (upcoming[0]?.competition ?? items[0]?.competition ?? '').replace(/^(\d{4})\s*(REG\s*)?week/i, '$1 · Week');
   const feat = featuredItem(upcoming, now);
   const markets = upcoming.reduce((a, b) => a + b.markets_available, 0);
-  const lastCapture = upcoming.map((i) => i.market_captured_at).filter(Boolean).sort().pop() ?? null;
+  // The publication's market clock: the newest capture on an upcoming game, else the publication's own
+  // last_market_capture, else the newest capture on any listed game. A board whose every game is final
+  // (MLB after the night's last out) still has a clock; "unknown" is only for a publication that publishes none.
+  const lastCapture = upcoming.map((i) => i.market_captured_at).filter(Boolean).sort().pop()
+    ?? repo.source.liveHealth?.last_market_capture
+    ?? items.map((i) => i.market_captured_at).filter(Boolean).sort().pop()
+    ?? null;
   const rmap = research.data ?? new Map<string, EventResearchDoc>();
   return (
     <div className="page shome">

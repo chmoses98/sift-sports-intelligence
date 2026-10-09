@@ -12,6 +12,7 @@ import './styles/surfaces.css';
 import './styles/home.css';
 import './styles/game.css';
 import './styles/insight.css';
+import './styles/props.css';
 import './styles/engine.css';
 import './styles/cbb.css';
 import './styles/hero.css';

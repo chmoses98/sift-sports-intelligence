@@ -42,6 +42,8 @@ import { whatMatters } from '../insights/matters';
 import { propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, PropsGrid, SchemeCard, usePropHistories } from './game/matters';
+import { PropsBoard } from './game/PropsBoard';
+import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, SchemeTable } from './game/lines';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
@@ -640,6 +642,7 @@ export function GameView({ eventId }: { eventId: string }) {
       )}
       {tab === 'overview' && (
         <div className="gov">
+          <GameOpportunities eventId={eventId} now={now} />
           <section className="gsec" aria-labelledby="g-matters-h">
             <div className="gsec__h">
               <h2 id="g-matters-h" className="gsec__t">What Matters</h2>
@@ -723,10 +726,7 @@ export function GameView({ eventId }: { eventId: string }) {
       )}
 
       {tab === 'props' && (
-        <Stratum id="g-props" title="Player props" sub="Every player with a projection and a priced line, most to read first. Projection and typical range come from the game simulation; the line is the market's rung nearest a coin flip." actions={<Link to={href('markets')} className="btn btn--sm">Every market</Link>}>
-          {detail.loading && <Skeleton lines={6} />}
-          {allProps.filter((c) => c.market).length > 0 ? <PropsGrid cards={allProps.filter((c) => c.market).slice(0, 16)} ctx={ctx} /> : !detail.loading && <p className="muted">No player prop with both a projection and a two-sided line is published for this game.</p>}
-        </Stratum>
+        <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
       )}
 
       {tab === 'markets' && (

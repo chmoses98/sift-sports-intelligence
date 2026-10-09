@@ -87,6 +87,28 @@ Candidates: players with a simulated distribution and a priced line (the rung ne
 one quarterback passing line per list. Cards show projection, typical range (25th–75th percentile), low/high
 ends (5th/95th), the line, the opposing unit's rank and recent results against that line.
 
+## The prop board (`insights/propBoard.ts`, `views/game/PropsBoard.tsx`)
+
+The Props tab is the whole board: one row per player and stat, grouped by family (passing, rushing, receiving,
+touchdowns, other) with family and team chips and a priced-lines switch. Each row carries, from published fields only:
+
+* **WHAT** — the player, the stat, the main line (the rung nearest a coin flip) and the full ladder.
+* **WHY** — where the simulation's mean sits against the line, in widths of the typical (25th–75th) band: "sim above
+  the line" / "below" / "on" (|separation| < 0.15). A read describes a published projection; it is never a probability.
+* **EVIDENCE** — the range (5th–95th, middle half), the last five games against today's line (history layer), and the
+  shadow model's P(over) beside the market's probability with the model's own support word
+  (`PROJECTABLE_NOT_YET_VALIDATED` on every priced row this season).
+* **PRICE** — the over and under asks and the fee-aware break-even of each (`opportunity/pricing.ts`, Kalshi's
+  general taker schedule). No bet-up-to is shown or derived: the publication prices no limit for NFL props.
+* **CONFIDENCE** — the publication's own scorecard sentence for `PLAYER_STAT` (market payout error vs model, with the
+  sample), always worded as research only.
+* **RISK** — an injury designation (ACTIVE / PROBABLE are not risks), a line inside the typical range, a wide quote
+  (≥ 4¢), a thin market, no simulation for the stat, and the high-variance note on touchdowns.
+* **ALTERNATIVES** — the other rungs of the ladder with their prices and probabilities.
+
+Players the publication lists OUT / IR / DOUBTFUL / SUSPENDED are hidden and named under the board. Order is the
+documented interest rule (role size, matchup extremity, separation; props without a priced line sink).
+
 ## News (`insights/news.ts`) — requirement 17
 
 importance = severity (out/IR 3, doubtful 2.5, questionable 1.3) × role (QB starter 3, skill starter 2, WR2 1.6,

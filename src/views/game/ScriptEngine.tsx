@@ -41,6 +41,7 @@ import {
 } from '../../lib/scriptEngine';
 import { quoteFreshness, quoteAgeMs, formatQuoteAge } from '../../live/freshness';
 import { Info, PanelHead, ViewAll } from './panels';
+import { ScriptMarkets } from './ScriptMarkets';
 
 const COMPAT_WORD: Record<Compat, string> = {
   SUPPORTED: 'supports',
@@ -503,7 +504,6 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
   const i = engine.scripts.indexOf(s);
   const home = engine.teams.home.name;
   const away = engine.teams.away.name;
-  const fits = engine.expressions.filter((e) => e.compat[i] === 'SUPPORTED').sort((a, b) => b.survival.weighted_score - a.survival.weighted_score).slice(0, 6);
   const breaks = engine.expressions.filter((e) => e.compat[i] === 'CONTRADICTED' && e.labels.some((l) => l === 'BEST_EXPRESSION' || l === 'MULTI_SCRIPT' || l === 'SCRIPT_ALIGNED')).slice(0, 6);
   return (
     <>
@@ -531,10 +531,10 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
           </div>
         </div>
       </Stratum>
-      <Stratum id="g-script-markets" title="Markets this script settles" sub={`Settlement-exact: a contract is supported only if every outcome in the script's range pays it.${engine.scoringResearchOnly ? ' Total and team-total markets are research only until scoring ranges are calibrated.' : ''}`}>
-        <div className="eng-sm">
-          <ExprList title="Supported" list={fits} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
-          <ExprList title="Contradicted" list={breaks} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
+      <Stratum id="g-script-markets" title="Markets this script settles" sub={`Settlement-exact: a contract is supported only if every outcome in the script's range pays it. Each card says what the side costs after Kalshi's fee, the football it needs, the scripts it loses in and the other rungs of its thesis.${engine.scoringResearchOnly ? ' Total and team-total markets are research only until scoring ranges are calibrated.' : ''}`}>
+        <ScriptMarkets engine={engine} selected={s.script_id} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
+        <div className="eng-sm eng-sm--breaks">
+          <ExprList title="Contradicted by this script" list={breaks} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
         </div>
       </Stratum>
     </>

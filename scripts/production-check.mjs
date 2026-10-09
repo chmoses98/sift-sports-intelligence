@@ -185,6 +185,14 @@ async function nhlCheck(page) {
     check(!/KXNHL/.test(text), 'NHL game shows no raw Kalshi tickers');
     check(!/undefined|NaN/.test(text), 'NHL game shows no undefined / NaN');
     check(!/\block\b|best bet|guaranteed|profitable/i.test(text), 'NHL game carries no betting-verdict language');
+    // A pregame NHL game opens with the Sift verdict strip (research-candidate cards or "no published opportunity");
+    // once the puck drops the pregame research is frozen and the strip is not shown.
+    const verdict = page.getByTestId('game-opportunities');
+    if (frozen === 0) {
+      check((await verdict.count()) === 1 && /Sift verdict/.test((await verdict.innerText().catch(() => '')) ?? ''), 'NHL game: the Sift verdict strip is present before puck drop');
+    } else {
+      console.log('  NHL game is frozen (puck dropped): verdict strip NOT_APPLICABLE');
+    }
   } else {
     console.log('  NHL home lists no game today; game check skipped');
   }
@@ -457,6 +465,52 @@ async function heroCheck(page, name) {
   check(retired.length === 0, `${name}: no retired venue-only photo requested (${retired.slice(0, 2).join(', ')})`);
 }
 
+/**
+ * Football decision surfaces on the live site: an NFL game opens with the Sift verdict strip (a published
+ * opportunity or "no published opportunity", never silence), its Props tab is the prop board (family chips, one card per
+ * player and stat, the publication's own scorecard sentence, no bet-up-to), and a CFB game's Scripts tab maps the
+ * selected script to exact contracts (pays-when, loses-in, price after fee). Counts, never probabilities.
+ */
+async function footballCheck(page, name) {
+  const game = board?.items?.find((i) => i.status !== 'FINAL') ?? board?.items?.[0];
+  if (game) {
+    await page.goto(gameUrlOf(game.event_id));
+    await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+    const verdict = page.getByTestId('game-opportunities');
+    await verdict.waitFor({ timeout: 60_000 }).catch(() => {});
+    check((await verdict.count()) === 1, `NFL game ${game.event_id}: the Sift verdict strip is present`);
+    const vt = (await verdict.innerText().catch(() => '')) ?? '';
+    check(/Sift verdict/.test(vt) && !/undefined|NaN/.test(vt), `NFL game: the verdict reads cleanly ("${vt.replace(/\s+/g, ' ').slice(0, 90)}…")`);
+    await page.goto(gameUrlOf(game.event_id) + '?tab=props');
+    const pb = page.getByTestId('props-board');
+    await pb.waitFor({ timeout: 60_000 });
+    await pb.locator('.pb__card').first().waitFor({ timeout: 60_000 }).catch(() => {});
+    const cards = await pb.locator('.pb__card').count();
+    const text = await pb.innerText();
+    check(cards > 0 || /No player prop/.test(text), `NFL props board: ${cards} prop cards (or an honest empty state)`);
+    check((await pb.getByRole('group', { name: 'Prop family' }).count()) === 1, 'NFL props board: family chips are present');
+    check(/Research only|research-only/.test(text), 'NFL props board: the confidence line quotes the publication scorecard');
+    check(!/bet up to|best bet|undefined|NaN/i.test(text), 'NFL props board: no bet-up-to, no verdict language, no undefined / NaN');
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'NFL props board: no sideways scroll');
+    await page.screenshot({ path: `production-${name}-nfl-props.png` });
+  } else {
+    console.log('  NFL game surfaces: NOT_APPLICABLE — the NFL board lists no game');
+  }
+  const cfb = await getJson('https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/board.json').catch(() => null);
+  const cg = cfb?.items?.find((i) => i.status !== 'FINAL' && i.event_id) ?? cfb?.items?.[0];
+  if (cg) {
+    await page.goto(`${BASE}#/cfb/game/${encodeURIComponent(cg.event_id)}?tab=script`);
+    await page.locator('main h1').first().waitFor({ timeout: 60_000 });
+    await page.waitForTimeout(2500);
+    const body = await page.locator('main').innerText();
+    const mapped = await page.getByTestId('script-market').count();
+    check(/Markets this script settles|No script cleared|No script engine read|markets only/i.test(body), `CFB game ${cg.event_id}: the Scripts tab renders its published state`);
+    check(!/undefined|NaN/.test(body), 'CFB scripts tab: no undefined / NaN');
+    for (const t of await page.getByTestId('script-market').locator('.smc__nums').allInnerTexts()) check(!/\d+% (chance|to win|probability)/i.test(t), 'CFB script card: survival stays a count');
+    console.log(`  CFB ${cg.event_id}: ${mapped} script → market cards`);
+  }
+}
+
 async function designCheck(browser, device, name) {
   console.log('  -- Barlow + NFL home + every sport page');
   const ctx = await browser.newContext(device);
@@ -585,6 +639,12 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
     }
     check(errs.length === mlbBefore, `MLB: pages show no page/console errors (${errs.slice(mlbBefore, mlbBefore + 3).join(' | ')})`);
     await designCheck(browser, device, name);
+    try {
+      await footballCheck(page, name);
+    } catch (e) {
+      check(false, `football: ${name}: ${String(e).split('\n')[0]}`);
+      await page.screenshot({ path: `production-${name}-football-failure.png` }).catch(() => {});
+    }
     try {
       await heroCheck(page, name);
     } catch (e) {

@@ -27,6 +27,7 @@ import type { HeroTeam } from '../../lib/hero/types';
 import { heroData } from '../game/Hero';
 import { AsOf, CbbMark, ConfidenceChip, IntegrityBadge, KV, RoleTag } from './ui';
 import { AxisKey, MarginAxis, MinuteBar, MinutesComp, TotalAxis, WinSplit } from './viz';
+import { GameOpportunities } from '../game/GameOpportunities';
 
 type Side = 'home' | 'away';
 
@@ -57,6 +58,8 @@ export function CbbGameView({ eventId }: { eventId: string }) {
       <nav className="cbbg__toc" aria-label="Game sections">
         {SECTIONS.map(([id, label]) => <a key={id} href={`#${id}`} onClick={(e) => jumpTo(e, id)}>{label}</a>)}
       </nav>
+
+      <GameOpportunities eventId={r.event.event_id} now={now}>The projection and matchup below are research evidence for reading the game.</GameOpportunities>
 
       <Stratum id="cg-proj" title="Projected score" sub={primary ? 'The production incumbent’s projection, archived before tip. Research evidence, never a pick.' : undefined}>
         {primary ? <ProjectionBlock m={primary} hn={hn} an={an} c={c} now={now} /> : <NoProjection c={c} start={ev.start_time_utc} />}

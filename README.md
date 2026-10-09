@@ -90,6 +90,11 @@ npx playwright test    # Chromium phone/desktop + WebKit iPhone: journey, market
   threshold) and the plain-English game-script titles.
 * [docs/CFB_SLATE_PRIORITIES.md](docs/CFB_SLATE_PRIORITIES.md) — the CFB home's Slate Priorities rail (value vs CONTROL,
   every rule and field), CFB school names (one identity, applied at the data layer) and the CFB Barlow weights.
+* [docs/REBUILD_HANDOFF_2026-10-09.md](docs/REBUILD_HANDOFF_2026-10-09.md) — the 2026-10-09 rebuild handoff: what
+  changed (PRs, merge commits, CI and production runs), the eight-sport status, model and data quality as
+  published, and the next improvements in order.
+* [docs/OPPORTUNITIES.md](docs/OPPORTUNITIES.md) — the shared opportunity system: sources, fee model, price state,
+  ranking, confidence, the game verdict strip.
 * [docs/INSIGHTS.md](docs/INSIGHTS.md) — the insight layer: matchup edges, context notes, scheme pairings,
   props to watch, the prop board (every prop by family with price after fees, the shadow model beside the market,
   risks and the ladder), news importance, research findings, and the nflverse history layer behind them.

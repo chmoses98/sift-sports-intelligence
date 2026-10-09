@@ -78,7 +78,9 @@ test('a tennis match opens with research candidates that say the market beats th
   await expect(first.getByText('Research candidate')).toBeVisible();
   await first.getByRole('button', { name: /Evidence/ }).click();
   await expect(first.getByText(/Brier/).first()).toBeVisible();
-  expect(await v.textContent()).not.toMatch(/Bet up to/);
+  // The publication prices no limit for tennis: the card says so instead of showing a derived one.
+  await expect(first.getByText('not published').first()).toBeVisible();
+  expect(await v.textContent()).not.toMatch(/Bet up to\s*\d+¢/);
   await noHorizontalOverflow(page, 'tennis verdict');
 });
 

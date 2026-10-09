@@ -73,7 +73,11 @@ describe('soccer candidates', () => {
     expect(ars.why).toMatch(/Arsenal/);
     expect(ars.risk).toMatch(/lineups unknown/i);
     expect(ars.evidence.some((e) => /best expression/i.test(e))).toBe(true);
-    expect(ars.rank.tier).toBeLessThanOrEqual(3);
+    // The publication's own study finds the market beats dc_laplace_v1: a gap is a model disagreement, not an edge.
+    expect(ars.confidence.calibration).toBe('MARKET_BEATS_MODEL');
+    expect(ars.rank.tier).toBe(4);
+    expect(ars.rank.tierWord).toBe('Model disagreement');
+    expect(ars.orientation).toBe('VERIFIED');
   });
   it('a candidate past its validity window is a PASS, not a stale edge', () => {
     const late = soccerOpportunities({ ...soccerInputs(), now: Date.parse('2026-10-09T07:00:00Z') });

@@ -70,3 +70,15 @@
 .gm__x b { color: var(--text); }
 .gm__x .skpill { min-height: 20px; font-size: 0.66rem; }
 @media (max-width: 479px) { .gm { grid-template-columns: 48px minmax(0, 1fr) auto; } .gm__sport { display: none; } }
+
+/* Evidence levels on the board: actionable, research candidates, signals without a validated bet. */
+.oppboard__lvl { display: grid; gap: var(--s-3); }
+.oppboard__lh { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.1rem; color: var(--ivory); }
+.oppboard__ln { font-size: var(--fs-sm); color: var(--text-3); font-family: inherit; }
+.oppboard__lh small { flex-basis: 100%; font-family: var(--font-body, inherit); font-weight: 400; font-size: var(--fs-sm); color: var(--text-3); line-height: 1.4; }
+.oppboard__lvl--sig .opp { opacity: 0.94; }
+.oppboard__lede { margin: 0; padding: 10px 12px; border-radius: var(--r-2); border: 1px dashed var(--line-2); background: var(--panel-deep); font-size: var(--fs-sm); color: var(--text); line-height: 1.45; }
+.opp__conflict { margin: 0; padding: 6px 10px; border-left: 3px solid var(--gold-2); background: rgba(212, 175, 55, 0.08); border-radius: 0 var(--r-1) var(--r-1) 0; font-size: var(--fs-sm); color: var(--text); line-height: 1.4; }
+.opp__opposed { color: var(--gold-2); }
+.opp__record { margin: 0; font-size: var(--fs-sm); color: var(--text-2, var(--text)); line-height: 1.4; }
+.opp__record--adverse b { color: var(--gold-2); }

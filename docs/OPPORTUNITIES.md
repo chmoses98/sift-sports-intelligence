@@ -19,6 +19,17 @@ Sift adds no probability, no bet-up-to and no stake. Where a publication publish
 CFB), the field is null and the card says so. A NO side is priced at the NO ask (1 − YES price as the publication reports
 it), with fair = 1 − P(YES) and the NO bet-up-to; never 1 − the other side's bid.
 
+## Contract identity (`identity.ts`)
+
+A card's price and its fair probability must belong to the same contract. Wherever a Kalshi ticker carries a team or
+player code, Sift checks it against the side the publication names in words: soccer (Kalshi lists the home side first:
+`…ARSLEE-ARS` is Arsenal's contract, `-TIE` the draw, `-PUE1LEO0` a 1-0 home win), MLB (the suffix is the team's own
+code), tennis (the suffix reads as the player's surname). A code that sits on the other side is a `MISMATCH`: the row is
+a PASS with the reason and is never featured. Totals and both-teams-to-score carry no side code and are not checked;
+an ambiguous code is never read as a side. Found live on 2026-10-09: `KXBRASILEIROGAME-26OCT10VDGCR-CR` (Clube do
+Remo's contract) published as "Result: home" for Vasco da Gama at 9.5¢ against Vasco's 57% — a 47-point "edge" that
+was the soccer board's first card.
+
 ## Fee model
 
 `kalshiFee(p) = roundUp(0.07 × p × (1 − p), cent)` per contract — Kalshi's general taker schedule. A publication's own
@@ -48,9 +59,27 @@ fair probability and evidence so a game page can review them; the home board and
 The price on a card is the publication's at its research run until a newer live quote exists for the same contract
 (the relay's quote clock is at least as new as the publication's capture). Then the executable ask of the selected
 side comes from the quote (YES ask or NO ask, never a midpoint or last trade), the fee from Kalshi's schedule (a
-published fee belongs to the published ask), freshness from the quote's own clock, and the status is revalidated: an
-actionable row needs a current executable quote at or under the bet-up-to; a closed, settled or unopened contract is a
-PASS whatever the research said; research candidates keep their status and show the quote. The home board and every
+published fee belongs to the published ask), freshness from the quote's own clock (the publication's freshness word
+described its own price, not the newer quote), and every number that depended on the old price is recomputed or
+withdrawn:
+
+| Figure | After a live price change |
+| --- | --- |
+| break-even, edge after fee | recomputed from the publication's fair probability at the live ask |
+| worst-case edge | re-based exactly: the soccer publication defines it as a worst-case probability (a posterior quantile) minus the break-even, so the live figure is that probability minus the live break-even |
+| posterior edge share | withdrawn (it needs the model's draws at the new price) |
+| tier | recomputed by the same rule as at load |
+
+Quote integrity (from the 2026-10-09 relay audit): only an OPEN contract has an executable ask (a paused or
+unrecognised market is a PASS like a closed one); a quote observed at or after the start is an in-play price and makes
+the pregame row a PASS (tennis excepted: its nominal start times are governed by the publication's verified-upcoming
+word); the publication's size-at-ask is dropped once the ask comes from a live quote (the provider publishes no
+depth, and Sift never infers size from a price); a price with no timestamp is STALE, never current; and an actionable
+row needs a FRESH quote (under 15 minutes), at load and live, not merely one younger than the 30-minute stale line.
+
+Then the status is revalidated: a closed, settled or unopened contract is a PASS whatever the research said; a live ask
+above the publication's bet-up-to, or one at which the edge after fee is gone, eliminates the opportunity (PASS with the
+numbers); an actionable row also needs a current executable quote. The card says which figures were re-based. The home board and every
 sport panel subscribe to the live tickers of their non-PASS opportunities at slate cadence.
 
 A publication that reports itself STALE or DEGRADED says so, with its own market-capture clock, on its pass card and
@@ -64,28 +93,61 @@ probability) → `CURRENT`. Only `CURRENT` counts as a current price in the rank
 
 ## Ranking (`rank.ts`)
 
-1. Tier: Actionable (1) → robust research candidate with a current price and a positive worst-case edge (2) → other
-   research candidates (3) → published watch signals (4) → passes (5). "Robust" is the publication's own support word
-   (soccer script-robustness label ROBUST / VERY_ROBUST, NHL family reliability EVIDENCE_STRONGER, tennis external
-   confirmation AGREES_WITH_MODEL); a high-variance single-event contract (goal scorer, exact score) never reaches tier 2.
+1. Tier: Actionable (1) → robust research candidate (2) → other research candidates (3) → signals without a validated
+   bet (4: published watch signals, and research candidates from a model whose own settled record loses to the market,
+   shown as a *model disagreement*) → passes (5). Robust needs all of: the publication's own support word, matched
+   exactly (soccer script-robustness ROBUST / VERY_ROBUST, NHL family reliability EVIDENCE_STRONGER, tennis external
+   confirmation AGREES_WITH_MODEL — never `AGREES_WITH_KALSHI`, which means the sharp books side with the market), a
+   current price, a published positive worst-case edge, and not a high-variance single-event contract.
 2. Within a tier: a current price before a stale or missing one.
-3. Then the publication's worst-case edge, then its fee-adjusted EV per contract, then the share of posterior draws with a
-   positive edge (all descending).
-4. High-variance contracts sort after everything else in their tier.
-5. Kickoff, then id.
+3. High-variance contracts sort after everything else in their tier.
+4. Evidence class: VALIDATED → RESEARCH → UNVALIDATED → MARKET_BEATS_MODEL.
+5. Then the publication's worst-case edge, then its fee-adjusted EV per contract, then the share of posterior draws with a
+   positive edge (all descending) — except between two market-beats-model rows, whose gap size is not evidence (both
+   publications' studies find the model's error grows with it): they keep kickoff order.
+6. Kickoff, then id.
 
-Correlation: at most one opportunity per thesis group (`event_id` + the publication's thesis / exposure key) is featured;
-the others are attached as related expressions. Nothing here is a score and nothing is shown as one.
+Before 2026-10-09 a substring match on the support word ranked tennis rows marked `AGREES_WITH_KALSHI` as robust, with
+three-hour-old prices and a model the market beats, as the first four cards of the global board.
+
+The board shows the levels as separate sections (Actionable · Research candidates · Signals without a validated bet),
+and when only signals exist it says first that there is no validated or research-backed bet.
+
+### Correlation and contradiction (`correlation.ts`)
+
+At most one opportunity per thesis group (`event_id` + the publication's thesis / exposure key) is featured; the others
+are attached as related expressions. A position's settlement is read from the contract words: a soccer full-time
+contract is a rule over the final score (result, both teams score, totals, team totals, margins, exact score); winner
+contracts name the participant who must win; YES and NO on one ticker are opposite. Two positions **contradict** when
+no outcome pays both. A related expression that contradicts the lead is labelled the opposite outcome (live: YES Leeds
+and YES draw were both listed as "related" to NO Arsenal); featured cards on the same game say they are one exposure,
+and two featured cards that contradict each other say so on both. Nothing here is a score and nothing is shown as one.
 
 ## Confidence
 
 `calibration` is the publication's record, never Sift's opinion: `VALIDATED` only when the publication permits real money;
-`RESEARCH` for research-only models with a published calibration record; `MARKET_BEATS_MODEL` when the publication's
-own settled record shows the market as the better forecaster (tennis; NBA); `UNVALIDATED` when nothing is published.
+`RESEARCH` for research-only models; `MARKET_BEATS_MODEL` when the publication's own settled record or pre-registered
+study shows the market as the better forecaster: tennis (Brier 0.1776 vs 0.2193 on 15,117 settled rows), NBA (8 of 8
+families), and soccer's `dc_laplace_v1` (soccer-edge-finder `docs/RESEARCH_DISAGREEMENT.md`: on 12,248 walk-forward
+matches the de-vigged market is reliably better in 112 of 116 subgroups and the model in none, with the model's error
+growing with the gap; keyed to that model version, so a new version is not labelled by an old study); `UNVALIDATED` when
+nothing is published.
+
+## Track record (`record.ts`)
+
+A gap is only as good as the model's record on the same kind of contract, so a card carries that record in one line
+when the publication publishes one. NHL: the learning scorecard's settled research candidates for the card's family
+(`metrics.json` → `met_nhl.model_learning_stage` → `learning_v1.research_candidates.by_family`): how many settled, how
+often they won against the probability the model gave them, the mean closing-line value and the shadow return. When
+the record runs against the model, the card says so in its risk line. (2026-10-09: 318 settled player-goals candidates
+won 33.0% against 38.4% expected, closing line −0.4¢.) Soccer, tennis and NBA carry their market comparison in the
+confidence note instead; NFL in its scorecard sentence.
 
 ## Tests
 
-`tests/opportunity.test.ts` on the real trimmed publications (`tests/fixtures/{soccer,tennis,nhl,mlb,cfb}`): the fee
+`tests/opportunityIntegrity.test.ts`: contract identity (including the Vasco/Remo case), exact support words, the
+evidence-class order, live re-basing of the worst case and withdrawal of the posterior share, price-eliminated
+candidates, and contradiction over final scores. `tests/opportunity.test.ts` on the real trimmed publications (`tests/fixtures/{soccer,tennis,nhl,mlb,cfb}`): the fee
 schedule, the price states, every adapter's authority and side handling, the ranking order and the PASS reasons.
 
 ## On a game page

@@ -79,6 +79,26 @@ test('a fixture the engine did not run says PASS, without inventing a thesis or 
   expect(text).not.toMatch(/bet up to|break-even/i);
 });
 
+test('model disagreement is never shown as an edge: the board says first that no validated bet exists (tests A, D, F) @smoke', async ({ page }) => {
+  // The soccer publication's own walk-forward study finds the market better than dc_laplace_v1 in 112 of 116
+  // subgroups: its gaps are signals to read, not research-backed bets, and the board leads by saying so.
+  await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
+  await page.goto('./#/');
+  await page.getByRole('button', { name: 'This week' }).click();
+  const board = page.locator('.oppboard');
+  await expect(board.getByRole('note').filter({ hasText: 'No validated or research-backed bet right now' })).toBeVisible();
+  const signals = board.locator('[data-level="sig"]');
+  await expect(signals.getByRole('heading', { name: /Signals without a validated bet/ })).toBeVisible();
+  await expect(board.locator('[data-level="act"], [data-level="res"]')).toHaveCount(0);
+  const card = signals.locator('.opp').first();
+  await expect(card.getByText('market beats model', { exact: true })).toBeVisible();
+  await expect(card.getByText('robust', { exact: true })).toHaveCount(0);
+  await expect(card).toContainText(/the market has been right/);
+  // The skeptical viewer: one tap shows the record behind the label and the related expressions, opposite outcomes named.
+  await card.getByRole('button', { name: /Evidence/ }).click();
+  await expect(card.locator('.opp__note').filter({ hasText: /12,248 matches/ })).toBeVisible();
+});
+
 test('the global home features the soccer research candidates with their price, break-even and limit @smoke', async ({ page }) => {
   // Inside the publication's validity window for these recommendations (they expire at 06:24Z).
   await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));

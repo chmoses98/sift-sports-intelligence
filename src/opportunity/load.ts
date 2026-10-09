@@ -11,6 +11,7 @@ import { resolveSource } from '../data/source';
 import { explorable, SPORTS, type SportConfig } from '../data/sports';
 import { loadSignals } from '../data/cfbSignals';
 import type { SignalsDoc } from '../lib/cfbSignals';
+import { readLearning, type Learning } from '../lib/nhl';
 import { cfbOpportunities, mlbOpportunities, nflOpportunities, nhlOpportunities, soccerOpportunities, tennisOpportunities, verdict } from './sources';
 import type { Opportunity, SportVerdict } from './types';
 
@@ -20,6 +21,8 @@ export interface SportBundle {
   recommendations: Recommendation[] | null;
   theses: Thesis[] | null;
   signals: SignalsDoc | null;
+  /** NHL: the learning scorecard, for each candidate's family record (src/opportunity/record.ts). */
+  learning?: Learning | null;
   modelState: string | null;
   marketCaptureAt: string | null;
   error: string | null;
@@ -32,12 +35,13 @@ export async function loadBundle(repo: SportRepo): Promise<SportBundle> {
     const src = repo.source;
     if (!src.root) return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: src.liveHealth?.overall_status ?? null, marketCaptureAt: src.liveHealth?.last_market_capture ?? null, error: src.reason };
     const board = await repo.board();
-    const [recs, theses, signals] = await Promise.all([
+    const [recs, theses, signals, learning] = await Promise.all([
       repo.recommendations().then((d) => d.items as Recommendation[]).catch(() => null),
       sport.code === 'SOCCER' ? repo.theses().then((d) => d.items).catch(() => null) : Promise.resolve(null),
       sport.researchSignalsUrl ? loadSignals(sport.researchSignalsUrl).catch(() => null) : Promise.resolve(null),
+      sport.code === 'NHL' ? repo.metricMap().then(readLearning).catch(() => null) : Promise.resolve(null),
     ]);
-    return { sport, board: board.items, recommendations: recs, theses, signals, modelState: src.liveHealth?.overall_status ?? null, marketCaptureAt: src.liveHealth?.last_market_capture ?? board.generated_at ?? null, error: null };
+    return { sport, board: board.items, recommendations: recs, theses, signals, learning, modelState: src.liveHealth?.overall_status ?? null, marketCaptureAt: src.liveHealth?.last_market_capture ?? board.generated_at ?? null, error: null };
   } catch (e) {
     return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: null, marketCaptureAt: null, error: e instanceof Error ? e.message : String(e) };
   }
@@ -54,7 +58,7 @@ async function loadSport(sport: SportConfig): Promise<SportBundle> {
 /** Opportunities and the sport verdict for one loaded bundle, at `now`. */
 export function evaluate(b: SportBundle, now: number): { opportunities: Opportunity[]; verdict: SportVerdict } {
   const code = b.sport.code;
-  const inputs = { sport: { code, slug: b.sport.slug, label: b.sport.label }, board: b.board, recommendations: b.recommendations as never, theses: b.theses, now };
+  const inputs = { sport: { code, slug: b.sport.slug, label: b.sport.label }, board: b.board, recommendations: b.recommendations as never, theses: b.theses, learning: b.learning ?? null, now };
   const opps: Opportunity[] = (() => {
     switch (code) {
       case 'SOCCER': return soccerOpportunities(inputs);

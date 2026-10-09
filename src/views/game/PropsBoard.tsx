@@ -153,10 +153,14 @@ export function PropsBoard({ r, g, detail, slug, sport, label, loading }: { r: E
   const hist = usePropHistories(sport, players);
   const sc = useScorecard();
   const scorecard = propScorecardSentence(sc?.families);
+  // Functional update: two quick taps (family, then team) each build on the params the previous one wrote, not on
+  // the render they were born in — otherwise the second tap drops the first.
   const set = (k: string, v: string | null) => {
-    const next = new URLSearchParams(sp);
-    if (v) next.set(k, v); else next.delete(k);
-    setSp(next, { replace: true });
+    setSp((prev) => {
+      const next = new URLSearchParams(prev);
+      if (v) next.set(k, v); else next.delete(k);
+      return next;
+    }, { replace: true });
   };
   const ctx: Ctx = { r, g, slug, sport, label };
   const total = board ? filterBoard(board.rows, { pricedOnly }).length : 0;

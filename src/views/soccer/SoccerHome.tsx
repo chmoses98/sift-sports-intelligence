@@ -16,6 +16,7 @@ import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
 import { useVisibleOnce } from '../shared/useVisible';
 import { Pill, Section, SportHeader, TextMark } from '../shared/kit';
+import { SportOpportunities } from '../home/SportOpportunities';
 
 const fmtAge = (iso: string | null | undefined, now: number) => {
   if (!iso) return 'unknown';
@@ -141,7 +142,6 @@ export function SoccerHomeView() {
   const comps = useMemo(() => competitions(items), [items]);
   if (board.loading) return <div className="page"><Skeleton lines={6} tall /></div>;
   if (!board.data) return <div className="page"><ErrorState error={board.error} what="Soccer board" /></div>;
-  const candidates = items.filter((i) => i.recommendations_count > 0).sort((a, b) => b.recommendations_count - a.recommendations_count);
   const markets = items.reduce((a, b) => a + b.markets_available, 0);
   const health = repo.source.liveHealth;
   return (
@@ -157,25 +157,7 @@ export function SoccerHomeView() {
           <SoccerSlate items={items} slug={slug} now={now} filter={filter} />
         </Section>
         <div className="stack">
-          <Section id="sc-cand" title="Fixtures with research candidates" sub="Where the publication's model finds a contract priced below its fair value after fees. Research only: nothing here is a bet.">
-            {candidates.length === 0 ? <p className="muted">No fixture on the board carries a research candidate right now. That is a valid result.</p> : (
-              <ul className="sklist">
-                {candidates.slice(0, 8).map((i) => {
-                  const { home, away } = sidesOf(i);
-                  return (
-                    <li key={i.event_id}>
-                      <Link to={routes.game(slug, i.event_id)} className="skrow">
-                        <span className="skrow__when"><span className="skrow__time num">{timeLabel(i.start_time_utc)}</span><span className="skrow__until">{dayLabel(i.start_time_utc)}</span></span>
-                        <span className="skrow__teams"><span className="skrow__name">{home?.display_name} v {away?.display_name}<small>{competitionOf(i).name}</small></span></span>
-                        <span className="skrow__meta"><span><b className="num">{i.recommendations_count}</b> candidate{i.recommendations_count === 1 ? '' : 's'}</span></span>
-                        <Icon name="chevronRight" size={18} className="skrow__go" />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Section>
+          <SportOpportunities now={now} />
           <Section id="sc-status" title="Model status" sub="What the soccer publication says about itself.">
             <dl className="skkv">
               <div><dt>Authority</dt><dd>Every soccer model family is RESEARCH_ONLY: nothing on these pages permits a bet. The international pool is not validated.</dd></div>

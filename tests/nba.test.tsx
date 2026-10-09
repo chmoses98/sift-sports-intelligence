@@ -72,7 +72,9 @@ describe('NBA screens render from the real publication', () => {
     expect(screen.getByText('market beats model 8/8 families')).toBeInTheDocument();
     expect(await screen.findByText('Dallas Mavericks')).toBeInTheDocument();
     expect(screen.getByText('Houston Rockets')).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: /No NBA market clears the bar/ })).toBeInTheDocument();
+    // The shared opportunity panel says PASS with the publication's own reason.
+    expect((await screen.findAllByText(/prices no contract/)).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'Opportunities' })).toBeInTheDocument();
     const text = document.body.textContent ?? '';
     expect(text).not.toMatch(/undefined|NaN|KXNBA/);
     expect(text).not.toMatch(BANNED);

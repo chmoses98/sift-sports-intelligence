@@ -35,8 +35,8 @@ test('the Soccer tab opens a real home: competitions, fixtures, research candida
   await page.goto('./#/soccer');
   await expect(page.getByRole('heading', { name: 'Soccer', level: 1 })).toBeVisible();
   await expect(page.getByRole('button', { name: /Premier League/ })).toBeVisible();
-  await expect(page.locator('.skrow')).toHaveCount(3 + 2); // 3 fixtures + 2 candidate rows
-  await expect(page.getByRole('heading', { name: 'Fixtures with research candidates' })).toBeVisible();
+  await expect(page.locator('.skrow')).toHaveCount(3);
+  await expect(page.getByRole('heading', { name: 'Opportunities' })).toBeVisible();
   await expect(page.getByText('Arsenal').first()).toBeVisible();
   // Filtering to one competition keeps only its fixtures.
   await page.getByRole('button', { name: /Liga MX/ }).click();
@@ -77,4 +77,29 @@ test('a fixture the engine did not run says PASS, without inventing a thesis or 
   const text = await page.locator('main').innerText();
   expect(text).not.toMatch(/undefined|NaN/);
   expect(text).not.toMatch(/bet up to|break-even/i);
+});
+
+test('the global home features the soccer research candidates with their price, break-even and limit @smoke', async ({ page }) => {
+  // Inside the publication's validity window for these recommendations (they expire at 06:24Z).
+  await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
+  await page.goto('./#/');
+  await expect(page.getByRole('heading', { name: 'Today on Sift' })).toBeVisible();
+  await page.getByRole('button', { name: 'This week' }).click();
+  const card = page.locator('.opp--research_candidate').first();
+  await expect(card).toBeVisible();
+  await expect(card).toContainText(/Research candidate/);
+  await expect(card).toContainText(/Break-even/);
+  await expect(card).toContainText(/Bet up to/);
+  await expect(card).toContainText(/What beats it:/);
+  await card.getByRole('button', { name: /Evidence/ }).click();
+  await expect(card.getByText(/posterior draws/)).toBeVisible();
+  // Every other sport is honest about being unreadable in this offline run; nothing is invented for it.
+  await expect(page.locator('.opp--pass').first()).toBeVisible();
+  const text = await page.locator('main').innerText();
+  expect(text).not.toMatch(/undefined|NaN|KXEPL|KXLIGA/);
+  expect(text).not.toMatch(BANNED);
+  await noHorizontalOverflow(page, 'home');
+  // The game list carries the fixture with its candidate count and opens it.
+  await page.getByRole('link', { name: /Arsenal v Leeds United, Soccer/ }).click();
+  await expect(page.getByRole('heading', { name: 'The research read' })).toBeVisible();
 });

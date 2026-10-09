@@ -17,6 +17,7 @@ import { useVisit } from '../../state/trail';
 import { sides } from '../home/cards';
 import { useVisibleOnce } from '../shared/useVisible';
 import { Pill, Section, SportHeader } from '../shared/kit';
+import { SportOpportunities } from '../home/SportOpportunities';
 
 /** "Dallas #4 net rating vs Houston #18" from the published matchup row ranks. */
 export function nbaHeadline(r: { matchup: { metric_id: string; home: { context: { rank: number | null } | null } | null; away: { context: { rank: number | null } | null } | null }[] }, home: string, away: string): string | null {
@@ -95,12 +96,8 @@ export function NbaHomeView() {
           ))}
         </Section>
         <div className="stack">
-          <Section id="nb-status" title="Model status" sub="What the NBA publication says about itself. Sift shows the study, not a recommendation.">
-            <div className="skopp skopp--pass">
-              <div className="skopp__eyebrow">Pass <Pill tone="neutral">research authority</Pill></div>
-              <h2 className="skopp__t">No NBA market clears the bar: the market has been the better forecaster in every family.</h2>
-              <p className="skopp__why">Out of sample, the raw Kalshi price has lower log loss than the model in 8 of 8 families, every NBA family is RESEARCH authority, and this publication carries no model prices (a known export defect). Preseason rotations are not representative. Sift therefore surfaces no NBA opportunity and says so.</p>
-            </div>
+          <SportOpportunities now={now} />
+          <Section id="nb-status" title="Model against the market" sub="The publication’s own out-of-sample study, by family: the reason no NBA opportunity is surfaced. Lower log loss is better.">
             {families.length > 0 && (
               <div className="tscroll" style={{ marginTop: 12 }}><table className="dtable">
                 <thead><tr><th scope="col">Family</th><th scope="col" className="r">Out-of-sample n</th><th scope="col" className="r">Market log loss</th><th scope="col" className="r">Model</th><th scope="col" className="r">Hybrid</th></tr></thead>

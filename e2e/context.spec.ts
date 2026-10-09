@@ -52,7 +52,8 @@ test('a direct link with another game in the path, back/forward and refresh neve
 });
 
 test('the featured game states its most likely script in words, with no decorative script bar', async ({ page }) => {
-  for (const url of ['./#/', './#/nfl']) {
+  // The featured game lives on the NFL home; the global home is the cross-sport opportunity board (e2e/soccer.spec.ts).
+  for (const url of ['./#/nfl']) {
     await page.goto(url);
     const card = page.locator('.fcard').first();
     await expect(card).toBeVisible();

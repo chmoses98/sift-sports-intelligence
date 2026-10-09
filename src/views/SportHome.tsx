@@ -20,6 +20,7 @@ import { FeaturedProps } from './Home';
 import { PanelHead, ViewAll } from './game/panels';
 import { ScorecardPanel } from './Scorecard';
 import { SlatePriorities } from './home/Priorities';
+import { SportOpportunities } from './home/SportOpportunities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -149,6 +150,8 @@ function GenericSportHome() {
       ) : (
         feat && <div className="shome__feat"><FeatureCard item={feat} r={rmap.get(feat.event_id)} insight={rmap.get(feat.event_id) ? matchupInsights(rmap.get(feat.event_id)!)[0] ?? null : null} sportSlug={slug} sportCode={sport.code} now={now} /></div>
       )}
+
+      <SportOpportunities now={now} />
 
       <section className="shome__games" aria-labelledby="wk-h">
         <div className="phead">

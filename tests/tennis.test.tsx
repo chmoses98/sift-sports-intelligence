@@ -134,7 +134,7 @@ describe('tennis screens render from the real publication', () => {
 
   it('a market page names the match by its players (no home or away side)', async () => {
     renderScreen(routes.market('tennis', FERY_WIN, KHA_FER), '/:sport/market/:marketId', <MarketView />, {}, 'tennis');
-    await screen.findByText(/Karen Khachanov v Arthur Fery/);
+    await screen.findAllByText(/Karen Khachanov v Arthur Fery/);
     expect(screen.getAllByRole('heading', { level: 1 }).length).toBeGreaterThan(0);
   });
 });

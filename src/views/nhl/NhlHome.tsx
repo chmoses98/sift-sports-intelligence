@@ -19,6 +19,7 @@ import { familyGlyph, Glyph } from './glyphs';
 import { FreshPill, ResearchPill } from './kit';
 import { TierChip, lowerLabel } from './parts';
 import { SlateList, slateDay, slateItems } from './NhlSlate';
+import { SportOpportunities } from '../home/SportOpportunities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -128,6 +129,8 @@ export function NhlHomeView() {
         </div>
       </header>
       {modelState === 'STALE' && <p className="nstale" role="alert"><Glyph name="alert" size={16} /> The latest NHL simulation is more than six hours old. Projections below may not reflect current goalies or lines.</p>}
+
+      <SportOpportunities now={now} title="Research candidates" />
 
       <SlateList items={items} research={research.data ?? null} slug={slug} now={now} loading={research.loading} />
 

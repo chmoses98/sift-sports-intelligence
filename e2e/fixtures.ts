@@ -233,8 +233,12 @@ export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExt
       });
       page.on('requestfailed', (req: Request) => {
         const u = req.url();
+        const why = req.failure()?.errorText ?? 'failed';
+        // A navigation that leaves a page mid-load cancels its in-flight images (WebKit: "Load request cancelled",
+        // Chromium: net::ERR_ABORTED). That is the browser's bookkeeping, not an asset that failed to load.
+        if (/cancelled|ERR_ABORTED/i.test(why)) return;
         // Internal assets (same origin) must always load; external research/quote hosts may be blocked.
-        if (hostOf(u) === 'localhost' && !/\/data\//.test(new URL(u).pathname)) log.assets.push(`${req.failure()?.errorText ?? 'failed'} ${u}`);
+        if (hostOf(u) === 'localhost' && !/\/data\//.test(new URL(u).pathname)) log.assets.push(`${why} ${u}`);
       });
       page.on('response', (res) => {
         const u = res.url();

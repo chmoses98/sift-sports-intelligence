@@ -189,7 +189,7 @@ async function nhlCheck(page) {
     // once the puck drops the pregame research is frozen and the strip is not shown.
     const verdict = page.getByTestId('game-opportunities');
     if (frozen === 0) {
-      check((await verdict.count()) === 1 && /Sift verdict/.test((await verdict.innerText().catch(() => '')) ?? ''), 'NHL game: the Sift verdict strip is present before puck drop');
+      check((await verdict.count()) === 1 && /sift verdict/i.test((await verdict.innerText().catch(() => '')) ?? ''), 'NHL game: the Sift verdict strip is present before puck drop');
     } else {
       console.log('  NHL game is frozen (puck dropped): verdict strip NOT_APPLICABLE');
     }
@@ -476,11 +476,12 @@ async function footballCheck(page, name) {
   if (game) {
     await page.goto(gameUrlOf(game.event_id));
     await page.getByRole('heading', { name: 'What Matters' }).waitFor({ timeout: 60_000 });
+    // innerText reflects CSS text-transform (the eyebrow renders "SIFT VERDICT"), so the match is case-insensitive.
     const verdict = page.getByTestId('game-opportunities');
     await verdict.waitFor({ timeout: 60_000 }).catch(() => {});
     check((await verdict.count()) === 1, `NFL game ${game.event_id}: the Sift verdict strip is present`);
     const vt = (await verdict.innerText().catch(() => '')) ?? '';
-    check(/Sift verdict/.test(vt) && !/undefined|NaN/.test(vt), `NFL game: the verdict reads cleanly ("${vt.replace(/\s+/g, ' ').slice(0, 90)}…")`);
+    check(/sift verdict/i.test(vt) && !/undefined|NaN/.test(vt), `NFL game: the verdict reads cleanly ("${vt.replace(/\s+/g, ' ').slice(0, 90)}…")`);
     await page.goto(gameUrlOf(game.event_id) + '?tab=props');
     const pb = page.getByTestId('props-board');
     await pb.waitFor({ timeout: 60_000 });

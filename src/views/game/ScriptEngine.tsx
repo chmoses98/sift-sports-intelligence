@@ -333,17 +333,19 @@ function EdgeBar({ v }: { v: number | null | undefined }) {
  */
 export function EngineDetailNotice({ engine }: { engine: Engine }) {
   const d = engine.detail;
-  if (d.state === 'inline' || d.state === 'recovered') return null;
+  // Speak only about research the trim actually removed from this event.
+  if (d.state === 'inline' || d.state === 'recovered' || !d.gaps.length) return null;
+  const matchup = d.gaps.includes('matchup');
   if (d.state === 'loading') {
     return (
       <p className="eng-detail eng-detail--loading" role="status" aria-live="polite" data-testid="engine-detail-loading">
-        <span className="eng-detail__pulse" aria-hidden="true" /> Loading the detailed matchup research (opponent-adjusted metric tables and ranks)…
+        <span className="eng-detail__pulse" aria-hidden="true" /> {matchup ? 'Loading the detailed matchup research (opponent-adjusted metric tables and ranks)…' : 'Loading the full script-to-market map…'}
       </p>
     );
   }
   return (
     <div className="eng-detail eng-detail--unavailable" role="status" data-testid="engine-detail-unavailable">
-      <b>Detailed matchup metrics unavailable.</b> {d.reason ? `${d.reason.charAt(0).toUpperCase()}${d.reason.slice(1)}.` : ''} The SIFT Read, the scripts, the {engine.findings.length} matchup findings and every contract below are the publication's own and unaffected.
+      <b>{matchup ? 'Detailed matchup metrics unavailable.' : 'The full script-to-market map is unavailable.'}</b> {d.reason ? `${d.reason.charAt(0).toUpperCase()}${d.reason.slice(1)}.` : ''} The SIFT Read, the scripts, the {engine.findings.length} matchup findings and every contract below are the publication's own and unaffected.
     </div>
   );
 }

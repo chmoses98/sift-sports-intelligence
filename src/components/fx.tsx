@@ -7,7 +7,7 @@
 //  - Histogram draws counts the caller computed from real samples or published quantile bins; it never smooths,
 //    extrapolates or invents a tail. Fewer than three bins renders an honest "not enough data" state.
 //  - VsBar draws two published ranks against their universe; a missing rank renders as "unranked", never as a bar.
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Icon } from './Icon';
 
@@ -184,6 +184,7 @@ export function Histogram({
   ticks?: number;
   className?: string;
 }) {
+  const uid = useId().replace(/:/g, '');
   if (counts.length < 3 || edges.length !== counts.length + 1) return <p className="fx-hist__none muted small">Not enough observed data to draw a distribution.</p>;
   const W = 400;
   const H = height;
@@ -198,14 +199,14 @@ export function Histogram({
     <figure className={`fx-hist${className ? ` ${className}` : ''}`}>
       <svg viewBox={`0 0 ${W} ${H + 22}`} role="img" aria-label={label}>
         <defs>
-          <linearGradient id="fxh-u" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5fb8ff" /><stop offset="1" stopColor="#1e5fd0" stopOpacity="0.55" /></linearGradient>
-          <linearGradient id="fxh-o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c08bff" /><stop offset="1" stopColor="#7a3fd8" stopOpacity="0.55" /></linearGradient>
+          <linearGradient id={`${uid}u`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5fb8ff" /><stop offset="1" stopColor="#1e5fd0" stopOpacity="0.55" /></linearGradient>
+          <linearGradient id={`${uid}o`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c08bff" /><stop offset="1" stopColor="#7a3fd8" stopOpacity="0.55" /></linearGradient>
         </defs>
         <line x1={P} x2={W - P} y1={H} y2={H} className="fx-hist__axis" />
         {counts.map((c, i) => {
           const h = (c / max) * (H - 14);
           const over = marker != null && edges[i] >= marker.value;
-          return <rect key={i} x={P + i * bw + 1} y={H - h} width={Math.max(1, bw - 2)} height={h} rx={1.5} fill={over ? 'url(#fxh-o)' : 'url(#fxh-u)'} />;
+          return <rect key={i} x={P + i * bw + 1} y={H - h} width={Math.max(1, bw - 2)} height={h} rx={1.5} fill={over ? `url(#${uid}o)` : `url(#${uid}u)`} data-over={over || undefined} />;
         })}
         {tickVals.map((t) => (
           <text key={t} x={x(t)} y={H + 16} textAnchor="middle" className="fx-hist__t">{format(t)}</text>

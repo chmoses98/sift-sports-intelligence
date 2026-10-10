@@ -1,6 +1,8 @@
-import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { binSamples, Histogram, rankStrength, Ring } from '../src/components/fx';
+
+afterEach(cleanup);
 
 describe('fx kit', () => {
   it('bins real samples without inventing mass', () => {
@@ -17,7 +19,7 @@ describe('fx kit', () => {
 
   it('marks the line and tints the mass above it', () => {
     const { container } = render(<Histogram edges={[0, 1, 2, 3, 4]} counts={[1, 3, 2, 1]} marker={{ value: 2, label: 'Line 2' }} label="dist" />);
-    expect(container.querySelectorAll('rect[fill="url(#fxh-o)"]').length).toBe(2);
+    expect(container.querySelectorAll('rect[data-over]').length).toBe(2);
     expect(container.textContent).toContain('Line 2');
   });
 

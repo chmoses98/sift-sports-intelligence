@@ -43,7 +43,6 @@ import { propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, SchemeCard, usePropHistories } from './game/matters';
 import { CompactProps } from './game/CompactProps';
-import { ScriptCompare } from './game/ScriptCompare';
 import { PropsBoard } from './game/PropsBoard';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, SchemeTable } from './game/lines';
@@ -700,7 +699,6 @@ export function GameView({ eventId }: { eventId: string }) {
           {set ? (
             <>
               <ScriptTab r={r} set={set} selected={selected} hrefFor={hrefFor} rows={rows} slug={slug} eventId={eventId} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} />
-              <ScriptCompare set={set} rows={rows} />
               <SurvivorsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} to={href('markets')} />
               {context.some((c) => c.kind === 'qb-change') && (
                 <p className="gsec__note"><b>Context:</b> {context.filter((c) => c.kind === 'qb-change').map((c) => c.headline).join('; ')}. The simulation's scripts are its own; season numbers behind the matchups include those games.</p>

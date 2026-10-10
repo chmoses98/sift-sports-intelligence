@@ -21,6 +21,7 @@ import './styles/cbb.css';
 import './styles/hero.css';
 import './styles/broadcast.css';
 import './styles/fx.css';
+import './styles/fidelity-research.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

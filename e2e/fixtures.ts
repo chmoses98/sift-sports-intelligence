@@ -261,16 +261,37 @@ export async function noHorizontalOverflow(page: Page, name: string) {
     const cw = document.documentElement.clientWidth;
     const sw = document.documentElement.scrollWidth;
     if (sw <= cw) return [sw, cw, ''] as const;
-    // On failure, name the deepest elements that reach past the viewport so a WebKit-only overflow is diagnosable from the CI log.
-    const clipped = (el: Element) => {
-      for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) if (getComputedStyle(p).overflowX !== 'visible') return true;
-      return false;
-    };
-    const out = [...document.querySelectorAll('body *')]
-      .filter((el) => !clipped(el) && el.getBoundingClientRect().right > cw + 0.5 && ![...el.children].some((c) => c.getBoundingClientRect().right > cw + 0.5))
-      .slice(0, 8)
-      .map((el) => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} right=${Math.round(el.getBoundingClientRect().right)}`);
-    return [sw, cw, out.join('; ')] as const;
+    // On failure, name what makes the page wide so a WebKit-only overflow is diagnosable from the CI log: walk down
+    // from <body>, at each level hiding one child at a time; the child whose removal brings the page back inside the
+    // viewport is the culprit (this also catches overflowing text and pseudo-elements, which have no element box).
+    const tag = (el: Element) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}${[...el.classList].map((c) => `.${c}`).join('')}`;
+    const fits = () => document.documentElement.scrollWidth <= cw;
+    const out: string[] = [];
+    let at: Element = document.body;
+    for (;;) {
+      const next = [...at.children].find((c) => {
+        const h = c as HTMLElement;
+        const prev = h.style.display;
+        h.style.display = 'none';
+        const ok = fits();
+        h.style.display = prev;
+        return ok;
+      });
+      if (!next) break;
+      out.push(tag(next));
+      at = next;
+    }
+    const r = at.getBoundingClientRect();
+    const cs = getComputedStyle(at);
+    out.push(`[box ${Math.round(r.left)}..${Math.round(r.right)} w=${cs.width} minw=${cs.minWidth} ws=${cs.whiteSpace} disp=${cs.display}]`);
+    const text = [...at.childNodes].filter((n) => n.nodeType === 3 && n.textContent?.trim()).map((n) => {
+      const rg = document.createRange();
+      rg.selectNodeContents(n);
+      return `"${n.textContent!.trim().slice(0, 40)}" right=${Math.round(rg.getBoundingClientRect().right)}`;
+    });
+    if (text.length) out.push(text.join(' | '));
+    out.push(at.outerHTML.slice(0, 240));
+    return [sw, cw, out.join(' > ')] as const;
   });
   expect(sw, `${name} overflows horizontally${wide ? ` (${wide})` : ''}`).toBeLessThanOrEqual(cw);
 }

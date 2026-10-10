@@ -5,6 +5,9 @@ import '@fontsource/barlow/400.css';
 import '@fontsource/barlow/500.css';
 import '@fontsource/barlow/600.css';
 import '@fontsource/barlow/700.css';
+// Barlow Condensed (the same Barlow family, condensed width) for display numerals and broadcast headings only.
+import '@fontsource/barlow-condensed/latin-600.css';
+import '@fontsource/barlow-condensed/latin-700.css';
 import './styles/tokens.css';
 import './styles/sift.css';
 import './styles/shell.css';
@@ -17,6 +20,7 @@ import './styles/engine.css';
 import './styles/cbb.css';
 import './styles/hero.css';
 import './styles/broadcast.css';
+import './styles/fx.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

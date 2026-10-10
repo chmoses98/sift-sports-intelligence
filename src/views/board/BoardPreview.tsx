@@ -35,7 +35,7 @@ export function BoardPreview() {
         const kinds = [...new Set(g.entries.map((e) => GROUP_WORD[e.group]))].slice(0, 3).join(' · ');
         return (
           <li key={g.key}>
-            <Link to={routes.board()} className="glass bprev__card">
+            <Link to={routes.board({ game: g.eventId })} className="glass bprev__card">
               <span className="bgame__sport">{nav && <SportMark slug={nav.slug} icon={nav.icon} size={13} />}{nav?.label ?? g.sport}{g.start ? ` · ${kickoff(g.start)}` : ''}</span>
               <span className="bprev__t">{g.title}</span>
               <span className="bprev__s"><b className="bnum">{g.entries.length}</b> saved · {kinds}</span>

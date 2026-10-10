@@ -3,13 +3,20 @@
 // games as tiles, the selected team's results from its own profile, and its weekly opponent-unadjusted EPA per play
 // from the nflverse history layer. Weeks the publication has not listed yet say so; nothing is filled in.
 // Other sports: a date strip over the publication's board (their calendars are daily, not weekly).
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import type { BoardItem, ExplorerIndexDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
+import { FxCard } from '../../components/fx';
+import { HubMast, hubPhoto } from '../../components/HubMast';
 import { Icon } from '../../components/Icon';
 import { Skeleton, TeamMark } from '../../components/ui';
-import { completedGames } from '../../lib/gamedata';
+import { completedGames, recordOf } from '../../lib/gamedata';
+import { PHOTOS } from '../../lib/hero/registry';
+import { teamColors } from '../../lib/teams';
+import type { SportRepo } from '../../data/repo';
+import { PMark } from '../broadcast/parts';
+import { EXPLORE_PHOTO } from './photos';
 import { routes } from '../../lib/routes';
 import { useTeamHistory } from '../../history/load';
 import type { TeamWeek } from '../../history/types';
@@ -119,18 +126,19 @@ function TrendChart({ weeks, abbr }: { weeks: TeamWeek[]; abbr: string }) {
   );
 }
 
-function NflSeason() {
-  const { repo, slug, sport } = useSport();
-  const [sp, setSp] = useSearchParams();
-  const idx = useAsync(`season:idx:${repo.source.root}`, () => repo.index());
-  const board = useAsync(`season:board:${repo.source.root}`, () => repo.board().catch(() => null));
-  const hist = useTeamHistory(sport.code);
+/**
+ * The NFL season as weeks, shared by the Season navigator and the Explore hub's timeline: the publication's event
+ * index and board merged, week numbers anchored on the history layer where it has a game (exact), else on the first
+ * published September-or-later game. Weeks with nothing published stay empty; nothing is filled in.
+ */
+export function useNflWeeks(repo: SportRepo | null, sportCode = 'NFL') {
+  const root = repo?.source.root ?? null;
+  const idx = useAsync(repo && root ? `season:idx:${root}` : null, () => repo!.index());
+  const board = useAsync(repo && root ? `season:board:${root}` : null, () => repo!.board().catch(() => null));
+  const hist = useTeamHistory(sportCode);
   const data = idx.data;
   const teams = useMemo(() => [...(data?.teams ?? [])].sort((a, b) => (a.short_name ?? '').localeCompare(b.short_name ?? '')), [data]);
   const byId = useMemo(() => new Map(teams.map((t) => [t.participant_id, t])), [teams]);
-  const teamAbbr = sp.get('team') ?? teams[0]?.short_name ?? null;
-  const team = teams.find((t) => t.short_name === teamAbbr) ?? null;
-  const profile = useAsync(team ? `season:prof:${team.participant_id}` : null, () => repo.profile(team!.participant_id));
   const season = String(new Date().getFullYear() - (new Date().getMonth() < 2 ? 1 : 0));
   const events: Ev[] = useMemo(() => {
     const m = new Map<string, Ev>();
@@ -159,34 +167,57 @@ function NflSeason() {
     for (const v of m.values()) v.sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc));
     return m;
   }, [events, anchor]);
-  const now = Date.now();
-  const currentWeek = anchor != null ? Math.max(1, Math.min(18, weekOf(new Date(now).toISOString(), anchor))) : 1;
+  const currentWeek = anchor != null ? Math.max(1, Math.min(18, weekOf(new Date().toISOString(), anchor))) : 1;
+  const nameOf = useCallback((pid: string | null) => (pid ? byId.get(pid)?.short_name ?? '?' : '?'), [byId]);
+  return { idx, board, hist, data, teams, byId, season, events, anchor, byWeek, currentWeek, nameOf };
+}
+
+const at = (home: boolean | null) => (home == null ? 'vs' : home ? 'vs' : '@');
+
+function NflSeason() {
+  const { repo, slug, sport } = useSport();
+  const [sp, setSp] = useSearchParams();
+  const wk = useNflWeeks(repo, sport.code);
+  const { data, teams, byWeek, currentWeek, nameOf, season, hist } = wk;
+  const teamAbbr = sp.get('team') ?? teams[0]?.short_name ?? null;
+  const team = teams.find((t) => t.short_name === teamAbbr) ?? null;
+  const profile = useAsync(team ? `season:prof:${team.participant_id}` : null, () => repo.profile(team!.participant_id));
   const week = Number(sp.get('week') ?? currentWeek);
   const results = useMemo(() => new Map(completedGames(profile.data).map((g) => [g.eventId, g])), [profile.data]);
+  const record = recordOf(profile.data);
   const teamWeeks = (team?.short_name && hist.data?.teams[team.short_name]?.weeks) || [];
   const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
-  if (idx.loading) return <Skeleton lines={10} tall />;
+  if (wk.idx.loading) return <Skeleton lines={10} tall />;
   if (!data) return <div className="bempty"><h3>The NFL explorer is not available</h3><p>The season navigator needs the publication’s event index.</p></div>;
   const games = byWeek.get(week) ?? [];
-  const nameOf = (pid: string | null) => (pid ? byId.get(pid)?.short_name ?? '?' : '?');
+  const cells = WEEKS.map((w) => ({ w, gs: byWeek.get(w) ?? [], cell: weekCell(byWeek.get(w) ?? [], team, nameOf, teamWeeks.find((x) => x.week === w)) }));
+  const played = cells.filter((c) => c.cell.kind === 'played' || (c.cell.kind === 'game' && results.has(c.cell.ev.event_id))).length;
   return (
     <>
-      <section className="bsec" aria-labelledby="sgrid-h">
-        <div className="bsec__h">
-          <h2 className="bsec__t" id="sgrid-h"><Icon name="grid" size={20} /> {season} season</h2>
-          <label className="term__sel season__team"><span>Team</span>
+      <section className="fx-card sn-team" aria-labelledby="sgrid-h" style={team ? { ['--tc' as string]: teamColors('NFL', team.short_name)[0] } : undefined}>
+        <div className="sn-team__id">
+          {team && <TeamMark sport="NFL" abbr={team.short_name} size="xl" />}
+          <div className="sn-team__nm">
+            <span className="fx-eyebrow">{season} season · {sport.label}</span>
+            <h2 className="sn-team__t" id="sgrid-h">{team?.display_name ?? 'Pick a team'}</h2>
+            <span className="sn-team__rec">{record ? <><b className="fx-num fx-num--md">{record.text}</b> record (publication profile)</> : 'No record published'} · {played} completed {played === 1 ? 'week' : 'weeks'} on the grid</span>
+          </div>
+        </div>
+        <div className="sn-team__ctl">
+          <label className="hubm__select season__team"><span>Team</span>
             <select value={teamAbbr ?? ''} onChange={(e) => set('team', e.target.value || null)}>
               {teams.map((t) => <option key={t.participant_id} value={t.short_name ?? ''}>{t.display_name}</option>)}
             </select>
           </label>
+          {team && <Link to={routes.team(slug, team.participant_id)} className="btn btn--sm btn--glass">Team page <Icon name="arrowRight" size={14} /></Link>}
         </div>
-        <ol className="wgrid" aria-label="Weeks">
-          {WEEKS.map((w) => {
-            const gs = byWeek.get(w) ?? [];
+      </section>
+      <section className="fx-card sn-weeks" aria-labelledby="sweeks-h">
+        <header className="fx-card__h"><h2 className="fx-card__t" id="sweeks-h"><Icon name="grid" size={17} /><span>Season timeline</span></h2><span className="muted small">Week {currentWeek} is the current week</span></header>
+        <ol className="wgrid sn-grid" aria-label="Weeks">
+          {cells.map(({ w, gs, cell }) => {
             const finals = gs.filter((g) => /FINAL/i.test(g.status)).length;
-            const cell = weekCell(gs, team, nameOf, teamWeeks.find((x) => x.week === w));
             const res = cell.kind === 'game' ? results.get(cell.ev.event_id) : undefined;
-            const at = (home: boolean | null) => (home == null ? 'vs' : home ? 'vs' : '@');
             const teamText =
               cell.kind === 'game' ? `; ${teamAbbr} ${at(cell.home)} ${cell.opp}` :
               cell.kind === 'played' ? `; ${teamAbbr} ${at(cell.home)} ${cell.opp}, completed (play-by-play record)` :
@@ -197,9 +228,9 @@ function NflSeason() {
                 <button type="button" className={`wcell${w === week ? ' is-on' : ''}${w === currentWeek ? ' is-now' : ''}${gs.length || cell.kind === 'played' ? '' : ' is-empty'}`} aria-pressed={w === week} onClick={() => set('week', String(w))} aria-label={`Week ${w}: ${gs.length ? `${gs.length} games published, ${finals} final` : 'not published yet'}${teamText}`} data-cell={cell.kind}>
                   <span className="wcell__w">W{w}</span>
                   {cell.kind === 'game' || cell.kind === 'played' ? (
-                    <span className="wcell__opp"><i className="wcell__at">{at(cell.home)}</i><TeamMark sport="NFL" abbr={cell.opp} size="sm" />{cell.opp}</span>
+                    <span className="wcell__opp"><i className="wcell__at">{at(cell.home)}</i><TeamMark sport="NFL" abbr={cell.opp} size="sm" /><span className="wcell__ab">{cell.opp}</span></span>
                   ) : cell.kind === 'conflict' ? (
-                    <span className="wcell__opp wcell__opp--none">Identity conflict</span>
+                    <span className="wcell__opp wcell__opp--none">Conflict</span>
                   ) : cell.kind === 'unpublished' ? (
                     <span className="wcell__opp wcell__opp--none">Not published</span>
                   ) : (
@@ -208,20 +239,26 @@ function NflSeason() {
                   {res ? <span className={`wcell__res wcell__res--${res.outcome}`}>{res.outcome} {res.for}–{res.against}</span>
                     : cell.kind === 'game' ? <span className="wcell__st">{phaseText(cell.ev)}</span>
                     : cell.kind === 'played' ? <span className="wcell__st">Completed</span>
-                    : cell.kind === 'unpublished' ? <span className="wcell__st">{gs.length} other games listed</span>
-                    : cell.kind === 'conflict' ? <span className="wcell__st">{cell.reason}</span>
+                    : cell.kind === 'unpublished' ? <span className="wcell__st">{gs.length} other games</span>
+                    : cell.kind === 'conflict' ? <span className="wcell__st" title={cell.reason}>Check source</span>
                     : <span className="wcell__st">Not listed</span>}
                 </button>
               </li>
             );
           })}
         </ol>
-        <p className="tpanel__note">Weeks come from the publication’s event index and board. A game the publication does not list but the play-by-play history recorded shows as Completed; anything else is “Not published” or “—”. Sift has no complete league schedule, so it never marks a bye. Results are the selected team’s, from its own profile.</p>
+        <ul className="sn-key" aria-label="Legend">
+          <li><i className="k k--game" /> Published game</li>
+          <li><i className="k k--played" /> Completed (play-by-play record)</li>
+          <li><i className="k k--unpub" /> Not published</li>
+          <li><i className="k k--none" /> Not listed</li>
+        </ul>
+        <p className="tm-note">Weeks come from the publication’s event index and board. A game the publication does not list but the play-by-play history recorded shows as Completed; anything else is “Not published” or “—”. Sift has no complete league schedule, so it never marks a bye. Results are the selected team’s, from its own profile.</p>
       </section>
-      <section className="bsec" aria-labelledby="wk-h">
-        <div className="bsec__h"><h2 className="bsec__t" id="wk-h">Week {week}</h2><span className="muted">{games.length} games</span></div>
+      <section className="fx-card" aria-labelledby="wk-h">
+        <header className="fx-card__h"><h2 className="fx-card__t" id="wk-h"><Icon name="clock" size={17} /><span>Week {week}</span></h2><span className="muted small">{games.length} games published</span></header>
         {games.length ? (
-          <ul className="wgames">
+          <ul className="wgames sn-games">
             {games.map((g) => {
               const a = nameOf(g.away_participant), h = nameOf(g.home_participant);
               const res = results.get(g.event_id);
@@ -229,9 +266,9 @@ function NflSeason() {
               const score = res ? (teamHome ? `${a} ${res.against} – ${res.for} ${h}` : `${a} ${res.for} – ${res.against} ${h}`) : null;
               return (
                 <li key={g.event_id}>
-                  <Link to={routes.game(slug, g.event_id)} className={`glass wgame${team && g.participants.includes(team.participant_id) ? ' is-mine' : ''}`}>
+                  <Link to={routes.game(slug, g.event_id)} className={`wgame sn-game${team && g.participants.includes(team.participant_id) ? ' is-mine' : ''}`}>
                     <span className="wgame__when">{new Date(g.start_time_utc).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
-                    <span className="wgame__m"><TeamMark sport="NFL" abbr={a} size="md" /><b>{a}</b><i>@</i><b>{h}</b><TeamMark sport="NFL" abbr={h} size="md" /></span>
+                    <span className="wgame__m"><TeamMark sport="NFL" abbr={a} size="lg" /><b>{a}</b><i>@</i><b>{h}</b><TeamMark sport="NFL" abbr={h} size="lg" /></span>
                     <span className="wgame__st">{score ?? phaseText(g)}</span>
                   </Link>
                 </li>
@@ -241,10 +278,9 @@ function NflSeason() {
         ) : <div className="bempty"><h3>Week {week} is not listed yet</h3><p>The publication lists games as its schedule window reaches them.</p></div>}
       </section>
       {team && (
-        <section className="bsec" aria-labelledby="perf-h">
-          <div className="bsec__h"><h2 className="bsec__t" id="perf-h"><TeamMark sport="NFL" abbr={team.short_name} size="md" /> {team.display_name} by week</h2><Link to={routes.team(slug, team.participant_id)} className="bsec__more">Team page <Icon name="arrowRight" size={14} /></Link></div>
-          <div className="glass season__perf">{hist.loading ? <Skeleton lines={4} /> : <TrendChart weeks={teamWeeks} abbr={team.short_name ?? ''} />}</div>
-        </section>
+        <FxCard title={`${team.display_name} by week`} icon="chart" id="perf" action={{ to: routes.team(slug, team.participant_id), label: 'Team page' }}>
+          {hist.loading ? <Skeleton lines={4} /> : <TrendChart weeks={teamWeeks} abbr={team.short_name ?? ''} />}
+        </FxCard>
       )}
     </>
   );
@@ -264,8 +300,8 @@ function DailySeason() {
   const items = days.find(([d]) => d === sel)?.[1] ?? [];
   if (board.loading) return <Skeleton lines={8} tall />;
   return (
-    <section className="bsec" aria-labelledby="days-h">
-      <div className="bsec__h"><h2 className="bsec__t" id="days-h"><Icon name="clock" size={20} /> {sport.label} calendar</h2></div>
+    <section className="fx-card" aria-labelledby="days-h">
+      <header className="fx-card__h"><h2 className="fx-card__t" id="days-h"><Icon name="clock" size={17} /><span>{sport.label} calendar</span></h2></header>
       {!days.length ? <div className="bempty"><h3>No games listed</h3><p>The publication’s board is empty right now.</p></div> : (
         <>
           <ol className="dstrip" aria-label="Days">
@@ -274,15 +310,15 @@ function DailySeason() {
               return <li key={d}><button type="button" className={`dcell${d === sel ? ' is-on' : ''}${d === today ? ' is-now' : ''}`} aria-pressed={d === sel} onClick={() => setSp({ day: d }, { replace: true })}><span>{dt.toLocaleDateString(undefined, { weekday: 'short' })}</span><b>{dt.getDate()}</b><small>{gs.length}</small></button></li>;
             })}
           </ol>
-          <ul className="wgames">
+          <ul className="wgames sn-games">
             {items.map((g) => {
               const away = g.participants.find((p) => p.participant_id === g.away_participant) ?? g.participants[1];
               const home = g.participants.find((p) => p.participant_id === g.home_participant) ?? g.participants[0];
               return (
                 <li key={g.event_id}>
-                  <Link to={routes.game(slug, g.event_id)} className="glass wgame">
+                  <Link to={routes.game(slug, g.event_id)} className="wgame sn-game">
                     <span className="wgame__when">{g.competition ?? sport.label} · {new Date(g.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
-                    <span className="wgame__m"><b>{away?.short_name ?? away?.display_name}</b><i>{sport.code === 'SOCCER' || sport.code === 'TENNIS' ? 'v' : '@'}</i><b>{home?.short_name ?? home?.display_name}</b></span>
+                    <span className="wgame__m"><PMark sport={sport.code} p={away} size="md" /><b>{away?.short_name ?? away?.display_name}</b><i>{sport.code === 'SOCCER' || sport.code === 'TENNIS' ? 'v' : '@'}</i><b>{home?.short_name ?? home?.display_name}</b><PMark sport={sport.code} p={home} size="md" /></span>
                     <span className="wgame__st">{/FINAL/i.test(g.status) ? 'Final' : g.status === 'SCHEDULED' ? 'Upcoming' : g.status.toLowerCase().replace(/_/g, ' ')}</span>
                   </Link>
                 </li>
@@ -295,16 +331,20 @@ function DailySeason() {
   );
 }
 
+/** The team's own home stadium photograph when the registry has one, else Explore's NFL photograph. */
+function seasonPhoto(code: string, abbr: string | null) {
+  const own = PHOTOS.find((p) => p.sport === code && p.team === abbr && !p.to);
+  return own ? hubPhoto(own.id) : hubPhoto(EXPLORE_PHOTO[code.toLowerCase()] ?? null);
+}
+
 export function SeasonView() {
   const { sport } = useSport();
+  const [sp] = useSearchParams();
   useVisit('Season', 'season', EXPLORE_STEP);
   return (
     <div className="page season">
-      <header className="bhome__mast">
-        <div><span className="eyebrow2">Explore · {sport.label}</span><h1 className="bhome__h">Season navigator</h1></div>
-        <p className="bhome__sum">{sport.code === 'NFL' ? 'Every week on one grid: pick a week, pick a team' : 'Day by day, from the publication’s board'}</p>
-      </header>
-      {sport.code === 'NFL' ? <NflSeason /> : <DailySeason />}
+      <HubMast title="Season navigator" eyebrow={`Explore · ${sport.label}`} sub={sport.code === 'NFL' ? 'Every week on one grid: pick a week, pick a team' : 'Day by day, from the publication’s board'} photo={seasonPhoto(sport.code, sport.code === 'NFL' ? sp.get('team') : null)} />
+      <div className="sn-stack">{sport.code === 'NFL' ? <NflSeason /> : <DailySeason />}</div>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useAsync } from '../../data/hooks';
 import { navSport } from '../../data/nav';
+import { FxCard, StatStrip, type FxTone } from '../../components/fx';
+import { HubMast, hubPhoto } from '../../components/HubMast';
 import { Icon } from '../../components/Icon';
 import { SportMark } from '../../components/SportMark';
 import { Skeleton } from '../../components/ui';
@@ -35,13 +37,33 @@ export function CompareBars({ c }: { c: Comparison }) {
 
 function PulseCard({ e }: { e: SportEvidence }) {
   const nav = navSport(e.slug);
+  const c = e.headline;
+  const fam = { model: e.families.filter((f) => f.leader === 'model').length, market: e.families.filter((f) => f.leader === 'market').length, even: e.families.filter((f) => f.leader === 'even').length };
   return (
-    <article className="glass pcard" aria-labelledby={`pc-${e.slug}`}>
+    <article className={`fx-card pcard pcard--${c ? leaderTone(c.leader) : 'none'}`} aria-labelledby={`pc-${e.slug}`}>
       <header className="pcard__h">
-        <h2 className="pcard__t" id={`pc-${e.slug}`}>{nav && <SportMark slug={e.slug} icon={nav.icon} size={20} />}{e.label}</h2>
-        {e.headline ? <span className={`tier tier--${leaderTone(e.headline.leader)}`}>{LEADER_WORD[e.headline.leader]}</span> : <span className="tier tier--none">{e.state === 'error' ? 'Unavailable' : 'No record published'}</span>}
+        <h2 className="pcard__t" id={`pc-${e.slug}`}>{nav && <SportMark slug={e.slug} icon={nav.icon} size={22} />}{e.label}</h2>
+        {c ? <span className={`tier tier--${leaderTone(c.leader)}`}>{LEADER_WORD[c.leader]}</span> : <span className="tier tier--none">{e.state === 'error' ? 'Unavailable' : 'No record published'}</span>}
       </header>
-      {e.headline && <><p className="pcard__k">{e.headline.label}</p><CompareBars c={e.headline} /></>}
+      {c ? (
+        <>
+          <p className="pcard__k">{c.label}</p>
+          <dl className="pcard__nums">
+            <div><dt>Model</dt><dd className="fx-num fx-num--lg">{fmt(c.model)}</dd></div>
+            <div><dt>Market</dt><dd className="fx-num fx-num--lg pcard__mkt">{fmt(c.market)}</dd></div>
+            <div><dt>Settled rows</dt><dd className="fx-num fx-num--lg">{c.n ? c.n.toLocaleString() : '—'}</dd></div>
+          </dl>
+          <CompareBars c={c} />
+          {e.families.length > 0 && (
+            <div className="pfam__sum" role="img" aria-label={`By market family: market leads in ${fam.market}, model in ${fam.model}, about even in ${fam.even}, of ${e.families.length}`}>
+              {e.families.map((f) => <i key={f.label} className={`pfam__dot pfam__dot--${leaderTone(f.leader)}`} title={`${f.label}: ${f.leader === 'market' ? 'market leads' : f.leader === 'model' ? 'model leads' : 'about even'}`} />)}
+              <span>{e.families.length} market families · market {fam.market} · model {fam.model}{fam.even ? ` · even ${fam.even}` : ''}</span>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="pcard__cap"><Icon name="shield" size={20} /><span>No like-for-like model-versus-market record is published for {e.label}. Sift shows nothing in its place.</span></div>
+      )}
       <p className="pcard__v">{e.verdict}</p>
       {e.families.length > 0 && (
         <div className="pfam" role="group" aria-label="By market family">
@@ -63,19 +85,37 @@ export function PulseView() {
   const focus = sp.get('sport');
   const list = useMemo(() => (ev.data ?? []).slice().sort((a, b) => (a.slug === focus ? -1 : b.slug === focus ? 1 : 0) || (a.state === 'evidence' ? 0 : 1) - (b.state === 'evidence' ? 0 : 1)), [ev.data, focus]);
   const scored = list.filter((e) => e.headline);
+  const marketLeads = scored.filter((e) => e.headline!.leader === 'market').length;
+  const modelLeads = scored.filter((e) => e.headline!.leader === 'model').length;
+  const rows = scored.reduce((m, e) => m + (e.headline!.n ?? 0), 0);
+  const fams = scored.reduce((m, e) => m + e.families.length, 0);
   return (
-    <div className="page pulse">
+    <div className="page pulse pulsex">
       <IntelNav />
-      <header className="bhome__mast">
-        <div>
-          <span className="eyebrow2">Public model evidence</span>
-          <h1 className="bhome__h">Model Pulse</h1>
-        </div>
-        {ev.data && <p className="bhome__sum">The market leads in <b className="bnum">{scored.filter((e) => e.headline!.leader === 'market').length}</b> of <b className="bnum">{scored.length}</b> sports with a published comparison · no single overall win rate, by design</p>}
-      </header>
-      <div className="pulse__intro glass">
-        <p><b>How to read this.</b> Each card scores a sport’s model against the market on that sport’s own published metric (Brier score, log loss or payout error — all lower-is-better), on the same settled contracts. A model that trails the market is research evidence, not a betting edge; SIFT never upgrades it because a screen looks good. These are model forecasts, not anyone’s betting results.</p>
-      </div>
+      <HubMast
+        title="Model Pulse"
+        eyebrow="Public model evidence"
+        sub="How each sport’s model has actually done against the market, on its own published metric. No single overall win rate, by design."
+        photo={hubPhoto('nfl-kc-arrowhead-stadium')}
+        aside={ev.data ? <p className="hubm__stat"><b className="fx-num fx-num--xl">{marketLeads}<small>/{scored.length}</small></b><span>sports where<br />the market leads</span></p> : undefined}
+      />
+      {ev.data && (
+        <StatStrip
+          className="pulsex__strip"
+          label="Model Pulse summary"
+          items={[
+            { label: 'Sports with a record', value: `${scored.length} of ${list.length}`, sub: 'like-for-like model vs market', bar: list.length ? scored.length / list.length : null },
+            { label: 'Market leads', value: marketLeads, sub: 'sports, on the headline metric', tone: 'red', bar: scored.length ? marketLeads / scored.length : null },
+            { label: 'Model leads', value: modelLeads, sub: 'sports, on the headline metric', tone: 'green', bar: scored.length ? modelLeads / scored.length : null },
+            { label: 'Settled rows scored', value: rows.toLocaleString(), sub: 'headline samples, all sports' },
+            { label: 'Market families', value: fams, sub: 'compared family by family' },
+          ]}
+        />
+      )}
+      <details className="fx-card pulse__intro">
+        <summary><Icon name="info" size={15} /> How to read this</summary>
+        <p>Each card scores a sport’s model against the market on that sport’s own published metric (Brier score, log loss or payout error — all lower-is-better), on the same settled contracts. A model that trails the market is research evidence, not a betting edge; SIFT never upgrades it because a screen looks good. These are model forecasts, not anyone’s betting results.</p>
+      </details>
       {ev.loading && <Skeleton lines={8} tall />}
       <div className="pgrid">{list.map((e) => <PulseCard key={e.slug} e={e} />)}</div>
     </div>
@@ -92,6 +132,9 @@ export function CalibrationChart({ bins, label }: { bins: Bin[]; label: string }
   return (
     <figure className="calib">
       <svg viewBox={`0 0 ${W} ${W}`} role="img" aria-label={`${label}: ${bins.map((b) => `predicted ${Math.round(b.predicted * 100)}%, observed ${Math.round(b.observed * 100)}% (n ${b.n})`).join('; ')}`}>
+        <defs>
+          <linearGradient id="calib-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3ec3ff" stopOpacity="0.28" /><stop offset="1" stopColor="#3ec3ff" stopOpacity="0" /></linearGradient>
+        </defs>
         {[0, 0.25, 0.5, 0.75, 1].map((t) => (
           <g key={t}>
             <line x1={x(t)} x2={x(t)} y1={y(0)} y2={y(1)} className="calib__grid" />
@@ -101,6 +144,7 @@ export function CalibrationChart({ bins, label }: { bins: Bin[]; label: string }
           </g>
         ))}
         <line x1={x(0)} y1={y(0)} x2={x(1)} y2={y(1)} className="calib__diag" />
+        <polygon points={`${x(bins[0].predicted)},${y(0)} ${bins.map((b) => `${x(b.predicted)},${y(b.observed)}`).join(' ')} ${x(bins[bins.length - 1].predicted)},${y(0)}`} fill="url(#calib-fill)" />
         <polyline points={bins.map((b) => `${x(b.predicted)},${y(b.observed)}`).join(' ')} className="calib__line" />
         {bins.map((b) => <circle key={b.lo} cx={x(b.predicted)} cy={y(b.observed)} r={3 + 6 * Math.sqrt(b.n / maxN)} className="calib__dot"><title>{`Predicted ${Math.round(b.predicted * 100)}% → observed ${Math.round(b.observed * 100)}% (n ${b.n})`}</title></circle>)}
       </svg>
@@ -109,80 +153,113 @@ export function CalibrationChart({ bins, label }: { bins: Bin[]; label: string }
   );
 }
 
+/** One family's model and market scores on a shared scale (lower is better), the leader lit. */
+function FamilyBars({ f, max }: { f: Comparison; max: number }) {
+  return (
+    <span className="famb" aria-hidden="true">
+      <i className={`famb__m${f.leader === 'model' ? ' is-lead' : ''}`} style={{ width: `${(f.model / max) * 100}%` }} />
+      <i className={`famb__k${f.leader === 'market' ? ' is-lead' : ''}`} style={{ width: `${(f.market / max) * 100}%` }} />
+    </span>
+  );
+}
+
 export function LabView() {
   useVisit('Advanced Model Lab', 'intel');
   const ev = useEvidence();
   const [sp, setSp] = useSearchParams();
   const withEv = (ev.data ?? []).filter((e) => e.state === 'evidence');
+  const without = (ev.data ?? []).filter((e) => e.state !== 'evidence');
   const cur = withEv.find((e) => e.slug === sp.get('sport')) ?? withEv[0] ?? null;
+  const famMax = cur ? Math.max(...cur.families.flatMap((f) => [f.model, f.market]), 0.0001) * 1.05 : 1;
   return (
-    <div className="page lab">
+    <div className="page lab labx">
       <IntelNav />
-      <header className="bhome__mast">
-        <div>
-          <span className="eyebrow2">Reliability research</span>
-          <h1 className="bhome__h">Advanced Model Lab</h1>
-        </div>
-        <p className="bhome__sum">Calibration, scoring rules, walk-forward studies and closing-line value, exactly as each publication reports them</p>
-      </header>
+      <HubMast
+        title="Advanced Model Lab"
+        eyebrow="Reliability research"
+        sub="Calibration, scoring rules, walk-forward studies and closing-line value — exactly as each publication reports them."
+        photo={hubPhoto('nhl-tor-scotiabank-arena')}
+      >
+        {withEv.length > 0 && (
+          <div className="tm-chips" role="group" aria-label="Sport">
+            {withEv.map((e) => { const n = navSport(e.slug); return <button key={e.slug} type="button" className={`tm-chip${cur?.slug === e.slug ? ' is-on' : ''}`} aria-pressed={cur?.slug === e.slug} onClick={() => setSp({ sport: e.slug }, { replace: true })}>{n && <SportMark slug={e.slug} icon={n.icon} size={15} />}{e.label}</button>; })}
+          </div>
+        )}
+      </HubMast>
       {ev.loading && <Skeleton lines={10} tall />}
-      {withEv.length > 0 && (
-        <div className="gtabs2" role="group" aria-label="Sport">
-          {withEv.map((e) => { const n = navSport(e.slug); return <button key={e.slug} type="button" className={`gtab${cur?.slug === e.slug ? ' is-on' : ''}`} aria-pressed={cur?.slug === e.slug} onClick={() => setSp({ sport: e.slug }, { replace: true })}>{n && <SportMark slug={e.slug} icon={n.icon} size={14} />}{e.label}</button>; })}
-        </div>
-      )}
       {cur && (
-        <div className="lab__grid">
-          <section className="glass lab__panel lab__panel--wide" aria-labelledby="lab-head">
-            <h2 className="tpanel__h" id="lab-head">Headline comparison</h2>
-            <p className="tpanel__lead">{cur.verdict}</p>
-            {cur.headline && <CompareBars c={cur.headline} />}
-            {cur.headline?.note && <p className="tpanel__note">{cur.headline.note}</p>}
-          </section>
-          {cur.bins && cur.bins.length > 2 && (
-            <section className="glass lab__panel" aria-labelledby="lab-cal">
-              <h2 className="tpanel__h" id="lab-cal">Calibration</h2>
-              <CalibrationChart bins={cur.bins} label={cur.binsLabel ?? 'Calibration'} />
-            </section>
-          )}
-          {cur.families.length > 0 && (
-            <section className="glass lab__panel lab__panel--fam" aria-labelledby="lab-fam">
-              <h2 className="tpanel__h" id="lab-fam">By market family</h2>
-              <div className="lab__tw" tabIndex={0} role="region" aria-label="Scrollable table">
-                <table className="lab__t">
-                  <thead><tr><th scope="col">Family</th><th scope="col">Model</th><th scope="col">Market</th><th scope="col">n</th><th scope="col">Leader</th></tr></thead>
-                  <tbody>{cur.families.map((f) => <tr key={f.label}><th scope="row">{f.label}</th><td className="bnum">{fmt(f.model)}</td><td className="bnum">{fmt(f.market)}</td><td className="bnum">{f.n?.toLocaleString() ?? '—'}</td><td><span className={`tier tier--${leaderTone(f.leader)}`}>{f.leader === 'market' ? 'Market' : f.leader === 'model' ? 'Model' : 'Even'}</span></td></tr>)}</tbody>
-                </table>
-              </div>
-              <p className="tpanel__note">{cur.families[0].metric}, lower is better, same rows for model and market.</p>
-            </section>
-          )}
-          {cur.clv && (
-            <section className="glass lab__panel" aria-labelledby="lab-clv">
-              <h2 className="tpanel__h" id="lab-clv">Closing-line value</h2>
-              <p className={`lab__big bnum ${cur.clv.mean >= 0 ? 'is-pos' : 'is-neg'}`}>{cur.clv.mean >= 0 ? '+' : '−'}{Math.abs(cur.clv.mean * 100).toFixed(2)} pts</p>
-              <p className="tpanel__note">{cur.clv.note}{cur.clv.n ? ` n = ${cur.clv.n.toLocaleString()}.` : ''} Positive means the price moved toward the model after it priced the contract.</p>
-            </section>
-          )}
-          {cur.studies.map((s) => (
-            <section key={s.title} className="glass lab__panel lab__panel--wide" aria-label={s.title}>
-              <h2 className="tpanel__h">{s.title} <small className="muted">· {s.kind === 'walk_forward' ? 'walk-forward' : s.kind}</small></h2>
-              <div className="lab__tw" tabIndex={0} role="region" aria-label="Scrollable table">
-                <table className="lab__t">
-                  <thead><tr><th scope="col">Sample</th><th scope="col">{s.rows[0]?.a}</th><th scope="col">{s.rows[0]?.b}</th><th scope="col">n</th><th scope="col">95% interval</th></tr></thead>
-                  <tbody>{s.rows.map((r) => <tr key={r.label}><th scope="row">{r.label}</th><td className="bnum">{r.aVal == null ? '—' : fmt(r.aVal)}</td><td className="bnum">{r.bVal == null ? '—' : fmt(r.bVal)}</td><td className="bnum">{r.n?.toLocaleString() ?? '—'}</td><td className="bnum">{r.ci ? `${fmt(r.ci[0])} to ${fmt(r.ci[1])}` : '—'}</td></tr>)}</tbody>
-                </table>
-              </div>
-              {s.note && <p className="tpanel__note">{s.note}</p>}
-            </section>
-          ))}
-          <section className="glass lab__panel lab__panel--wide" aria-labelledby="lab-src">
-            <h2 className="tpanel__h" id="lab-src">Source and limitations</h2>
-            <p className="tpanel__note">Source: <code>{cur.source}</code>{cur.modelVersion ? ` · model ${cur.modelVersion}` : ''}{cur.asOf ? ` · evaluated ${new Date(cur.asOf).toLocaleString()}` : ''}</p>
-            {cur.limitations.length > 0 && <ul className="tpanel__list">{cur.limitations.slice(0, 8).map((l) => <li key={l}>{l}</li>)}</ul>}
-            <p className="tpanel__note">Not shown, because no publication provides it yet: feature ablations and a time series of these scores. Model changes are promoted only by their publication after out-of-sample and prospective checks; SIFT never promotes one.</p>
-          </section>
-        </div>
+        <>
+          <StatStrip
+            className="pulsex__strip"
+            label={`${cur.label} evaluation summary`}
+            items={[
+              ...(cur.headline ? [
+                { label: `Model ${cur.headline.metric.toLowerCase()}`, value: fmt(cur.headline.model), sub: 'lower is better', tone: (cur.headline.leader === 'model' ? 'green' : 'cyan') as FxTone },
+                { label: `Market ${cur.headline.metric.toLowerCase()}`, value: fmt(cur.headline.market), sub: 'same settled rows', tone: (cur.headline.leader === 'market' ? 'green' : 'cyan') as FxTone },
+                { label: 'Settled rows', value: cur.headline.n ? cur.headline.n.toLocaleString() : '—', sub: cur.headline.label },
+              ] : []),
+              { label: 'Market families', value: cur.families.length || '—', sub: cur.families.length ? `market leads in ${cur.families.filter((f) => f.leader === 'market').length}` : 'none published' },
+              ...(cur.clv ? [{ label: 'Closing-line value', value: `${cur.clv.mean >= 0 ? '+' : '−'}${Math.abs(cur.clv.mean * 100).toFixed(2)}`, sub: 'points, mean', tone: (cur.clv.mean >= 0 ? 'green' : 'red') as FxTone }] : []),
+            ]}
+          />
+          <div className="fx-bento labx__grid">
+            <FxCard title="Headline comparison" icon="bolt" id="lab-head" className="fx-span-6">
+              <p className="tpanel__lead">{cur.verdict}</p>
+              {cur.headline && <CompareBars c={cur.headline} />}
+              {cur.headline?.note && <p className="tm-note">{cur.headline.note}</p>}
+            </FxCard>
+            {cur.bins && cur.bins.length > 2 ? (
+              <FxCard title="Calibration" icon="chart" id="lab-cal" className="fx-span-6">
+                <CalibrationChart bins={cur.bins} label={cur.binsLabel ?? 'Calibration'} />
+              </FxCard>
+            ) : (
+              <FxCard title="Calibration" icon="chart" id="lab-cal" className="fx-span-6">
+                <p className="tm-none"><Icon name="info" size={14} /> {cur.label}’s publication does not publish calibration bins, so no reliability curve is drawn.</p>
+              </FxCard>
+            )}
+            {cur.families.length > 0 && (
+              <FxCard title="By market family" icon="layers" id="lab-fam" className={cur.clv ? 'fx-span-8' : 'fx-span-12'}>
+                <div className="lab__tw" tabIndex={0} role="region" aria-label="Market family scores">
+                  <table className="lab__t labx__t">
+                    <thead><tr><th scope="col">Family</th><th scope="col">Model</th><th scope="col">Market</th><th scope="col" className="labx__bars">Model · market (shorter is better)</th><th scope="col">n</th><th scope="col">Leader</th></tr></thead>
+                    <tbody>{cur.families.map((f) => <tr key={f.label}><th scope="row">{f.label}</th><td className="fx-num">{fmt(f.model)}</td><td className="fx-num">{fmt(f.market)}</td><td className="labx__bars"><FamilyBars f={f} max={famMax} /></td><td className="fx-num">{f.n?.toLocaleString() ?? '—'}</td><td><span className={`tier tier--${leaderTone(f.leader)}`}>{f.leader === 'market' ? 'Market' : f.leader === 'model' ? 'Model' : 'Even'}</span></td></tr>)}</tbody>
+                  </table>
+                </div>
+                <p className="tm-note">{cur.families[0].metric}, lower is better, same rows for model and market.</p>
+              </FxCard>
+            )}
+            {cur.clv && (
+              <FxCard title="Closing-line value" icon="clock" id="lab-clv" className={cur.families.length ? 'fx-span-4' : 'fx-span-6'}>
+                <p className={`lab__big fx-num ${cur.clv.mean >= 0 ? 'is-pos' : 'is-neg'}`}>{cur.clv.mean >= 0 ? '+' : '−'}{Math.abs(cur.clv.mean * 100).toFixed(2)} pts</p>
+                <p className="tm-note">{cur.clv.note}{cur.clv.n ? ` n = ${cur.clv.n.toLocaleString()}.` : ''} Positive means the price moved toward the model after it priced the contract.</p>
+              </FxCard>
+            )}
+            {cur.studies.map((s) => (
+              <FxCard key={s.title} title={<>{s.title} <small className="muted">· {s.kind === 'walk_forward' ? 'walk-forward' : s.kind}</small></>} icon="research" className="fx-span-12">
+                <div className="lab__tw" tabIndex={0} role="region" aria-label={`${s.title} table`}>
+                  <table className="lab__t">
+                    <thead><tr><th scope="col">Sample</th><th scope="col">{s.rows[0]?.a}</th><th scope="col">{s.rows[0]?.b}</th><th scope="col">n</th><th scope="col">95% interval</th></tr></thead>
+                    <tbody>{s.rows.map((r) => <tr key={r.label}><th scope="row">{r.label}</th><td className="fx-num">{r.aVal == null ? '—' : fmt(r.aVal)}</td><td className="fx-num">{r.bVal == null ? '—' : fmt(r.bVal)}</td><td className="fx-num">{r.n?.toLocaleString() ?? '—'}</td><td className="fx-num">{r.ci ? `${fmt(r.ci[0])} to ${fmt(r.ci[1])}` : '—'}</td></tr>)}</tbody>
+                  </table>
+                </div>
+                {s.note && <p className="tm-note">{s.note}</p>}
+              </FxCard>
+            ))}
+            <FxCard title="Source and limitations" icon="shield" id="lab-src" className="fx-span-12">
+              <p className="tpanel__note">Source: <code>{cur.source}</code>{cur.modelVersion ? ` · model ${cur.modelVersion}` : ''}{cur.asOf ? ` · evaluated ${new Date(cur.asOf).toLocaleString()}` : ''}</p>
+              {cur.limitations.length > 0 && <ul className="tpanel__list">{cur.limitations.slice(0, 8).map((l) => <li key={l}>{l}</li>)}</ul>}
+              <p className="tpanel__note">Not shown, because no publication provides it yet: feature ablations and a time series of these scores. Model changes are promoted only by their publication after out-of-sample and prospective checks; SIFT never promotes one.</p>
+            </FxCard>
+          </div>
+        </>
+      )}
+      {without.length > 0 && (
+        <section className="labx__none" aria-labelledby="lab-none-h">
+          <h2 className="bbx__fh" id="lab-none-h"><Icon name="info" size={18} /> No evaluation record published</h2>
+          <ul className="labx__nl">
+            {without.map((e) => { const n = navSport(e.slug); return <li key={e.slug} className="fx-card"><span className="labx__nt">{n && <SportMark slug={e.slug} icon={n.icon} size={18} />}{e.label}</span><span className="muted small">{e.verdict || 'No like-for-like model-versus-market record is published.'}</span></li>; })}
+          </ul>
+        </section>
       )}
     </div>
   );

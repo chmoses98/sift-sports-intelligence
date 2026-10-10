@@ -44,6 +44,11 @@ export interface CfbOverviewProps {
   marketsHref: string;
   /** The existing panels, shown inside the deep dive. */
   deep: { read: ReactNode; scripts: ReactNode; v2: ReactNode; survivors: ReactNode; edges: ReactNode; confidence: ReactNode };
+  /**
+   * The Visual Intelligence Dashboard cards (approved reference 02): ranked scripts, rank-vs-rank matchup bars, the
+   * top contracts and game information around the Quick Read. Omitted (tests, embeds): the Quick Read stands alone.
+   */
+  dash?: { scripts: ReactNode; matchup: (wide: boolean) => ReactNode };
 }
 
 /** The game-winner contract of one participant (CFB lists these as market_family 'game_moneyline', one per team). */
@@ -65,7 +70,26 @@ function Deep({ title, children, id }: { title: string; children: ReactNode; id:
   );
 }
 
-export function CfbOverview({ engine, eventId, markets, participants, signalsUrl, now, marketsHref, deep }: CfbOverviewProps) {
+/**
+ * The historical empirical range as a picture: the middle 80% and 50% of past games' margins (from the CONTROL side)
+ * with their median and the zero line. The published numbers, drawn; never a prediction interval for this game.
+ */
+function MarginStrip({ median, c50, c80, team }: { median: number; c50: [number, number]; c80: [number, number]; team: string }) {
+  const lo = Math.min(c80[0], 0) - 3;
+  const hi = Math.max(c80[1], 0) + 3;
+  const x = (v: number) => `${((v - lo) / (hi - lo)) * 100}%`;
+  const w = (a: number, b: number) => `${((b - a) / (hi - lo)) * 100}%`;
+  return (
+    <div className="cfstrip" role="img" aria-label={`Past games with the same claim: ${team} margin median ${signedPoints(median)}, middle 50% ${marginRange(c50)}, middle 80% ${marginRange(c80)}`}>
+      <span className="cfstrip__80" style={{ left: x(c80[0]), width: w(c80[0], c80[1]) }} />
+      <span className="cfstrip__50" style={{ left: x(c50[0]), width: w(c50[0], c50[1]) }} />
+      <span className="cfstrip__0" style={{ left: x(0) }}><small>0</small></span>
+      <span className="cfstrip__m" style={{ left: x(median) }}><small>{signedPoints(median)}</small></span>
+    </div>
+  );
+}
+
+export function CfbOverview({ engine, eventId, markets, participants, signalsUrl, now, marketsHref, deep, dash }: CfbOverviewProps) {
   const v2 = engine.claimsV2!;
   const { doc } = useCfbSignals(signalsUrl);
   const sg: SignalGame | null = doc?.byEvent.get(eventId) ?? null;
@@ -110,9 +134,11 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
     ...[v2.claims.control?.statement, v2.claims.closeness?.statement, v2.claims.pace?.statement, v2.claims.scoring_environment?.statement, v2.claims.defensive_suppression?.statement, ...v2.claims.disruption.map((d) => d.statement)].filter((x): x is string => !!x),
   ];
 
+  const hasBest = Boolean((control && hist) || edges.length > 0);
   return (
-    <div className="cfov">
-      <section className={`cfq${valueWatch ? ' cfq--vw' : ''}${disagreement ? ' cfq--dis' : ''}`} aria-labelledby="cfq-h" data-testid="cfb-quick-read">
+    <div className={`cfov${dash ? ' cfov--dash' : ''}`}>
+      <div className={dash ? 'fx-bento gdash cfdash' : 'cfov__top'}>
+      <section className={`cfq${valueWatch ? ' cfq--vw' : ''}${disagreement ? ' cfq--dis' : ''}${dash ? ' fx-card fx-span-5' : ''}`} aria-labelledby="cfq-h" data-testid="cfb-quick-read">
         <h2 className="cfq__eye" id="cfq-h">SIFT Read</h2>
         {!(noClaim && read === noClaimShort) && <p className="cfq__read">{read}</p>}
 
@@ -182,8 +208,11 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
         )}
       </section>
 
-      {(control && hist) || edges.length > 0 ? (
-        <section className="cfbest" aria-labelledby="cfbest-h">
+      {dash?.scripts}
+      {dash?.matchup(!hasBest)}
+
+      {hasBest ? (
+        <section className={`cfbest${dash ? ' fx-card fx-span-5' : ''}`} aria-labelledby="cfbest-h">
           <h2 className="cfq__eye" id="cfbest-h">Best Research</h2>
           {control && hist && (
             <div className="cfrange" role="group" aria-label="Historical empirical range">
@@ -191,6 +220,7 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
                 Historical empirical range
                 {hist.not && <Info label="What the historical range is">{hist.not} Margins of past games that carried the same football claim, from {control.team}'s side.</Info>}
               </p>
+              {dash && <MarginStrip median={hist.median} c50={hist.c50} c80={hist.c80} team={control.team} />}
               <dl className="cfrange__dl">
                 <div><dt>Team</dt><dd>{control.team}</dd></div>
                 <div><dt>Control strength</dt><dd>{control.strength === 'STRONG' ? 'Strong' : 'Moderate'}</dd></div>
@@ -211,6 +241,8 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
           )}
         </section>
       ) : null}
+
+      </div>
 
       <section className="cfdd" aria-labelledby="cfdd-h">
         <h2 className="cfq__eye" id="cfdd-h">Deep Dive</h2>

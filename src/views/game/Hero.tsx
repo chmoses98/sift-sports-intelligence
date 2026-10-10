@@ -13,7 +13,7 @@ import { teamColors } from '../../lib/teams';
 import { mlbClub } from '../../lib/mlb';
 import { nhlTeam } from '../../lib/nhlTeams';
 import { cfbName } from '../../lib/cfbTeams';
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFromResearch } from '../../lib/hero/input';
 import type { HeroSpec, HeroVenue } from '../../lib/hero/types';
@@ -102,15 +102,21 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
 }
 
 function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean }) {
-  // College names are not "City Nickname" ("Iowa St.", "Florida International"): CFB shows the whole name.
+  // Broadcast identity (approved reference 02): the club's city small, its code huge in the condensed face, the
+  // record under it, the logo toward the centre. College names are not "City Nickname" ("Iowa St.", "Florida
+  // International") and CFB never shows contract codes: CFB's huge line is the school's canonical name.
   const { city, nick } = splitName(name, abbr, sportCode);
   const rec = recordOf(prof);
+  const college = sportCode === 'CFB';
   return (
     <div className={`gh__team gh__team--${side}`}>
       <TeamMark sport={sportCode} abbr={abbr} size="xl" />
       <div className="gh__tn">
-        <span className="gh__city"><span className="gh__cityname">{city}</span>{rec && <span className="gh__rec num"><span className="gh__sep"> · </span>{rec.text}<span className="sr-only"> record</span></span>}</span>
-        <Link to={routes.team(slug, pid)} className={`gh__name${sportCode === 'CFB' && nick.length > 9 ? ' gh__name--long' : ''}`}>{nick}</Link>
+        {!college && <span className="gh__city"><span className="gh__cityname">{city || nick}</span></span>}
+        <Link to={routes.team(slug, pid)} className={`gh__name${college ? ' gh__name--school' : ''}${college && nick.length > 9 ? ' gh__name--long' : ''}`}>
+          {college ? nick : abbr}{!college && <span className="sr-only"> {name}</span>}
+        </Link>
+        {rec && <span className="gh__rec num">{rec.text}<span className="sr-only"> record</span></span>}
       </div>
       {score != null && <span className={`gh__score num${won ? ' is-win' : ''}`}>{score}</span>}
     </div>
@@ -132,14 +138,17 @@ export function startedWords(sportCode: string): string {
 }
 
 /**
- * The game hero, simplified: the stadium photograph is the subject. On it only what belongs at the top —
- * the two teams (and the score once final), when, where, and the conditions. Prices, research actions and
- * analysis live below the hero.
+ * The broadcast game hero (approved reference 02): the home venue's licensed photograph as a darkened, directionally
+ * lit backdrop; both teams left and right; the matchup line (week, kickoff, venue) in the centre; then, when the page
+ * passes one, the sourced numbers strip (`stats`, views/game/HeroStats.tsx). The hero never computes a number itself:
+ * prices, projections and probabilities arrive through `stats`, and only where a publication carries them.
  */
-export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalScore }: {
+export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalScore, stats }: {
   r: EventResearchDoc; homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; sportCode: string; slug: string; now: number;
   /** A sport's own final score when it is not published as extensions.result (NHL: the publisher's postmortem). */
   finalScore?: { home: number; away: number } | null;
+  /** The sourced stat strip under the matchup; without one the hero carries the conditions line instead. */
+  stats?: ReactNode;
 }) {
   const ev = r.event;
   const homeP = r.participants.find((p) => p.home_away === 'HOME')!;
@@ -167,23 +176,25 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
   return (
-    <header className={`gh gh--${spec.kind} gh--ctx-${spec.context}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac }} {...heroData(spec)}>
-      <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /></div>
+    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hc, ['--fx-away' as string]: ac }} {...heroData(spec)}>
+      <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /><span className="gh__light" /></div>
       <HeroIdentity spec={spec} sportCode={sportCode} />
       <div className="gh__in">
         <h1 className="sr-only">{awayP.display_name} {atWord(spec)} {homeP.display_name}</h1>
+        <p className="gh__meta">
+          <span className="gh__lg">{sportCode}{week ? ` · ${week}` : ''}</span>
+          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">{startedWords(sportCode)} · pregame research frozen</span> : null}
+          <span className="gh__when">{day} · {sportCode === 'MLB' && !final && !started ? 'First pitch ' : ''}{time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
+          {venueName && <span className="gh__venue">{venueName}{venue?.city ? ` · ${venue.city}` : ''}</span>}
+          {!stats && wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
+        </p>
         <div className="gh__teams">
           <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} />
           <span className="gh__at" aria-hidden="true">{final ? 'final' : atWord(spec)}</span>
           <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} />
         </div>
-        <p className="gh__meta">
-          {final ? <span className="gh__state gh__state--final">Final</span> : started ? <span className="gh__state gh__state--live">{startedWords(sportCode)} · pregame research frozen</span> : null}
-          <span>{week ? `${week} · ` : ''}{day} · {sportCode === 'MLB' && !final && !started ? 'First pitch ' : ''}{time}{!final && !started && <span className="gh__until"> · {until(ev.start_time_utc, now)}</span>}</span>
-          {venueName && <span className="gh__venue">{venueName}{venue?.city ? `, ${venue.city}` : ''}</span>}
-          {wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
-        </p>
       </div>
+      {stats && <div className="gh__stats">{stats}</div>}
       {spec.photo && (
         <Link to={`${routes.status()}#photo-credits`} className="gh__credit">
           Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}

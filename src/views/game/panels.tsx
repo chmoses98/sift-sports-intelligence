@@ -146,7 +146,7 @@ export const SIM_SHARE_INFO = <><b>Sim share:</b> {glossLine(term('sim_share'))}
  * The face of a script: the player whose role IS the script (insights/cast.ts), a real photo when one is
  * pinned, otherwise the team's mark on its colour. The reason is written on the card, not implied.
  */
-function CastLayer({ cast }: { cast: CastMember[] }) {
+export function CastLayer({ cast }: { cast: CastMember[] }) {
   return (
     <span className={`scard__art${cast.length > 1 ? ' scard__art--split' : ''}`} aria-hidden="true">
       {cast.map((c) => <span key={c.team} className="scard__frame" style={{ ['--tc' as string]: teamColors('NFL', c.team)[0] }}><CastImage c={c} /></span>)}

@@ -137,18 +137,22 @@ describe('game page', () => {
     await screen.findByRole('heading', { name: 'What Matters' }, { timeout: 10_000 });
     // The headline edge in NE @ BUF: Buffalo's #1 rush offense against New England's #21 run defense.
     expect((await screen.findAllByText('Bills rush offense has a major edge')).length).toBeGreaterThan(0);
-    expect([...container.querySelectorAll('.scard__name')].map((e) => e.textContent)).toEqual(['Close Game Either Way', 'Bills Win Big', 'Bills Win Comfortably', 'Patriots Win Comfortably']);
-    expect([...container.querySelectorAll('.scard__pct')].map((e) => e.textContent)).toEqual(['36%', '26%', '24%', '13%']);
-    expect(container.querySelector('.scard__top')!.textContent).toBe('Most likely');
+    // The dashboard's script cards (most simulated first), each with its published sim share, never called a probability.
+    expect([...container.querySelectorAll('.gscr__n')].map((e) => e.textContent)).toEqual(['Close Game Either Way', 'Bills Win Big', 'Bills Win Comfortably', 'Patriots Win Comfortably']);
+    expect([...container.querySelectorAll('.gscr__p .fx-num')].map((e) => e.textContent)).toEqual(['36%', '26%', '24%', '13%']);
+    expect(container.querySelector('.gscr__a')!.getAttribute('aria-label')).toMatch(/^Most simulated: Close Game Either Way, 36% of simulated games/);
+    expect(container.querySelector('#gd-scripts')!.textContent).toMatch(/sim share/);
+    expect(container.querySelector('#gd-scripts')!.textContent).not.toMatch(/\d+% probability/i);
     // No raw Kalshi ticker anywhere on the overview.
     await act(async () => {});
     expect(container.textContent).not.toMatch(/KXNFL/);
     expect(await screen.findByRole('heading', { name: 'Player Prop Explorer' }, { timeout: 10_000 })).toBeTruthy();
-    // The compact explorer filters by category and team, and deep-links into the full explorer for this game.
-    expect(screen.getByRole('group', { name: 'Prop category' })).toBeTruthy();
+    // The compact explorer filters by prop type and team, and deep-links into the full explorer for this game.
+    expect(screen.getByRole('combobox', { name: 'Prop type' })).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Team' })).toBeTruthy();
     expect(container.querySelector(`a[href="${routes.props('nfl', { game: GAME })}"]`)).not.toBeNull();
-    // Selecting a script is a link (deep-linkable) that keeps the tab.
-    expect(container.querySelector('.scard--s2 .scard__a')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { script: 'fav' }));
+    // A script card is a link (deep-linkable) into the Scripts tab with that script selected.
+    expect(container.querySelector('.gscr__i--s2 .gscr__a')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { tab: 'script', script: 'fav' }));
     // The hero carries no market chips or research actions.
     expect(container.querySelector('.gh .savebtn, .gh .qchip')).toBeNull();
   });

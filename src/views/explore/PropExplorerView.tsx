@@ -18,7 +18,7 @@ import { playerPhoto } from '../../lib/players';
 import { routes } from '../../lib/routes';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
-import { useVisit } from '../../state/trail';
+import { EXPLORE_STEP, useVisit } from '../../state/trail';
 import { GameBars, HistorySummary } from '../player/history';
 import { usePropHistories } from '../game/matters';
 
@@ -207,7 +207,7 @@ function PropAnalysis({ row, kickoff, slug, sportCode, eventId, week }: { row: P
 
 export function PropExplorerView() {
   const { sport, slug } = useSport();
-  useVisit('Prop explorer', 'explore');
+  useVisit('Prop explorer', 'explore', EXPLORE_STEP);
   return (
     <div className="page pexp">
       <header className="bhome__mast">

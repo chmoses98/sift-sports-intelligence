@@ -25,7 +25,7 @@ export function GameOpportunities({ eventId, now, children }: { eventId: string;
       {live.length > 0 && <div className="oppboard__grid">{live.slice(0, 2).map((f) => <OpportunityCard key={f.lead.id} f={f} now={now} showSport={false} compact />)}</div>}
       {live.length === 0 && (
         <p className="gopp__pass">
-          <b>No published opportunity on this game.</b>{' '}
+          <span className="dword dword--noedge">No Edge</span>{' '}<b>No published opportunity on this game.</b>{' '}
           {passes.length > 0
             ? `${passes.length} candidate${passes.length === 1 ? '' : 's'} judged and passed: ${passes[0].statusReason}`
             : o.verdict?.passReason ?? `The ${sport.label} publication flags nothing on this game.`}{' '}

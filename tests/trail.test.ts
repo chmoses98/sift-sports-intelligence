@@ -65,5 +65,10 @@ describe('research path', () => {
     const m = s('/nfl/market/m2?event=e2', 'Bijan Robinson over 89.5 rushing yards', 'market');
     expect(labels(nextTrail([nfl, atlno, bijan], m, atlno))).toEqual(['NFL', 'ATL @ NO', 'Bijan Robinson', 'Bijan Robinson over 89.5 rushing yards']);
   });
-});
 
+  it('going back up the path collapses everything below the screen reopened', () => {
+    expect(labels(nextTrail(deep, nebuf))).toEqual(['NFL', 'NE @ BUF']);
+    expect(labels(nextTrail(deep, s('/nfl/player/p1', 'Josh Allen', 'player'), nebuf))).toEqual(['NFL', 'NE @ BUF', 'Josh Allen']);
+    expect(labels(nextTrail(deep, s('/nfl/game/e1?tab=props', 'NE @ BUF', 'game')))).toEqual(['NFL', 'NE @ BUF']);
+  });
+});

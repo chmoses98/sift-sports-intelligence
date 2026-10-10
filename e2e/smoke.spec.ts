@@ -90,7 +90,7 @@ test('market controls are real touch targets; packet controls are never under th
 
 test('the research tray sheet opens fully on screen and its build button is reachable @smoke', async ({ page, isMobile }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
-  await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
+  await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
   await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });
   await expect(drawer).toBeVisible();

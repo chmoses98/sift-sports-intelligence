@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { isFrozen } from '../lib/lifecycle';
 import { makeTray, makeTrayItem, type RefKind, type TrayDoc, type TrayExtra, type TrayItem } from '../packet/tray';
+import { liveStore } from '../live/hooks';
 
 export const TRAY_KEY = 'sift.researchTray.v1';
 
@@ -14,6 +15,34 @@ export interface TrayLabel {
   kickoff?: string | null;
   /** Set when the item is a research finding (research/findings.ts): what kind of thing it is. */
   finding?: string;
+  /**
+   * For a saved market: the exact contract and the quote seen when it was saved (My Board's "what changed since
+   * saved" compares this same ticker only — a different threshold is a different contract, never a price move).
+   */
+  market?: MarketSnapshot | null;
+  /** When the item was saved (ISO); older saves fall back to the tray item's added_at. */
+  savedAt?: string;
+}
+
+export interface MarketSnapshot {
+  ticker: string;
+  yesAsk: number | null;
+  yesBid: number | null;
+  noAsk: number | null;
+  noBid: number | null;
+  /** The quote's own observation time (never the save time); null when no quote was on screen. */
+  observedAt: string | null;
+  source: string | null;
+}
+
+/** The Kalshi ticker a Sift market id carries ("mkt_kalshi_<TICKER>"), or null. */
+export const tickerOfMarketId = (id: string | null | undefined): string | null => (id && id.startsWith('mkt_kalshi_') ? id.slice('mkt_kalshi_'.length) : null);
+
+/** The quote on screen for a ticker when it is saved (the live store holds whatever the page subscribed to). */
+export function snapshotOf(ticker: string | null): MarketSnapshot | null {
+  if (!ticker) return null;
+  const q = liveStore().quote(ticker);
+  return { ticker, yesAsk: q?.yesAsk ?? null, yesBid: q?.yesBid ?? null, noAsk: q?.noAsk ?? null, noBid: q?.noBid ?? null, observedAt: q?.observedAt ?? null, source: q?.source ?? null };
 }
 
 interface Stored {
@@ -94,7 +123,9 @@ export function TrayProvider({ children }: { children: ReactNode }) {
     const item = makeTrayItem({ ref_kind: a.ref_kind, sport: a.sport, id: a.id, extra: a.extra, note: a.note, added_at: new Date() });
     setStored((s) => {
       if (s.tray.items.some((i) => i.item_id === item.item_id)) return s;
-      return { tray: makeTray([...s.tray.items, item], new Date()), labels: { ...s.labels, [item.item_id]: a.kickoff ? { ...a.label, kickoff: a.kickoff } : a.label } };
+      const market = a.label.market ?? (a.ref_kind === 'MARKET' ? snapshotOf(tickerOfMarketId(a.extra?.market_id ?? a.id)) : null);
+      const label: TrayLabel = { ...a.label, ...(a.kickoff ? { kickoff: a.kickoff } : {}), ...(market ? { market } : {}), savedAt: new Date().toISOString() };
+      return { tray: makeTray([...s.tray.items, item], new Date()), labels: { ...s.labels, [item.item_id]: label } };
     });
     setLastAdded(item.item_id);
     return item;

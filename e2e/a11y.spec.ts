@@ -51,7 +51,7 @@ test('axe: league ranking and the open research tray @a11y', async ({ page }) =>
   await expect(page.locator('.rankbars__row')).toHaveCount(32);
   await scan(page, 'ranking');
   await page.goto(`./#/nfl/team/${BUF}`);
-  await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
+  await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
   await page.locator('.bottombar__tray, .traybtn').filter({ visible: true }).first().click();
   await expect(page.getByRole('complementary', { name: 'Research tray' })).toBeVisible();
   await scan(page, 'tray');

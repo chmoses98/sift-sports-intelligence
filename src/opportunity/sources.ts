@@ -57,6 +57,31 @@ function sides(item: BoardItem) {
 }
 
 /** "Away @ Home" for team sports with sides; "A v B" otherwise. */
+/**
+ * An NHL thesis key in plain words: "TOR:WINS_BY_2PLUS" → "TOR wins by 2+ goals", "GAME:LOW_EVENT" → "a low-event
+ * game (few chances and goals)". Unknown keys fall back to their words, never to the raw token.
+ */
+export function nhlThesisWords(key: unknown): string {
+  const k = String(key ?? '').trim();
+  if (!k) return '';
+  const m = k.match(/^([A-Z]{2,4}):([A-Z0-9_]+)$/);
+  if (!m) return k.replace(/_/g, ' ').toLowerCase();
+  const [, who, what] = m;
+  if (who === 'GAME') {
+    const g: Record<string, string> = {
+      HIGH_EVENT: 'a high-event game (plenty of chances and goals)', LOW_EVENT: 'a low-event game (few chances and goals)',
+      TIGHT: 'a tight, one-goal game', OVERTIME: 'a game that reaches overtime', BLOWOUT: 'a lopsided game',
+    };
+    return g[what] ?? `a ${what.replace(/_/g, ' ').toLowerCase()} game`;
+  }
+  const t: Record<string, string> = {
+    WINS: `${who} wins`, WINS_BY_2PLUS: `${who} wins by 2+ goals`, WINS_BY_3PLUS: `${who} wins by 3+ goals`, LOSES: `${who} loses`,
+    OFFENSE_4PLUS: `${who} scores 4+ goals`, OFFENSE_3PLUS: `${who} scores 3+ goals`, OFFENSE_5PLUS: `${who} scores 5+ goals`,
+    SUPPRESSED: `${who} is held to few goals`, HELD_UNDER_2: `${who} is held under 2 goals`, GOALIE_DUEL: `${who}’s goalie stands tall`,
+  };
+  return t[what] ?? `${who} ${what.replace(/_/g, ' ').toLowerCase().replace(/(\d)plus/, '$1+')}`;
+}
+
 export function eventLabel(item: BoardItem, code: string): string {
   const { home, away } = sides(item);
   if (home && away) {
@@ -219,7 +244,7 @@ export function tennisOpportunities(x: SportInputs): Opportunity[] {
       ext.start_status ? `Start ${String(ext.start_status).replace(/_/g, ' ').toLowerCase()}` : null,
     ].filter((s): s is string => !!s);
     const tags = ((ext.discrepancy_reason_tags ?? []) as string[]).map((t) => t.replace(/_/g, ' ').toLowerCase());
-    const risk = `On 15,117 settled rows the Kalshi mid has beaten this model (Brier 0.1776 vs 0.2193): a gap is more often the model's error than the market's.${tags.length ? ` Flags: ${tags.join(', ')}.` : ''}${ext.display_status ? ` Publication: ${String(ext.display_status).toLowerCase()}.` : ''}`;
+    const risk = `The publication's own settled record has the Kalshi mid beating this model (Model Pulse shows the current numbers): a gap is more often the model's error than the market's.${tags.length ? ` Flags: ${tags.join(', ')}.` : ''}${ext.display_status ? ` Publication: ${String(ext.display_status).toLowerCase()}.` : ''}`;
     const confidence: Confidence = {
       calibration: 'MARKET_BEATS_MODEL', note: 'RESEARCH_ONLY; the publication reports no evidence of edge on settled rows.', inputs: { start: String(ext.start_status ?? 'unknown'), discrepancy: String(ext.discrepancy_band ?? 'unknown') },
       support: ext_conf, supportNote: ext_conf === 'AGREES_WITH_MODEL' ? 'Sharp references agree with the model' : ext_conf === 'NO_EXTERNAL_REFERENCE' ? 'No sharp reference to check against' : 'Sharp references side with the market', edgeShare: null,
@@ -250,8 +275,9 @@ export function nhlOpportunities(x: SportInputs): Opportunity[] {
       side, ask: n(r.current_price), observedAt: ext.price_observed_at_utc ?? r.created_at, source: 'recommendation', fair, publishedFee: n(ext.fee_per_contract), publishedEv: n(r.edge),
       betUpTo: r.bet_up_to_price, expiresAt: r.expires_at ?? null, now: x.now,
     });
-    const thesis = String(ext.primary_thesis_key ?? '').replace(/^([A-Z]{2,3}):/, '$1 ').replace(/_/g, ' ').toLowerCase();
-    const why = `${ext.team_opponent?.matchup ?? eventLabel(item, 'NHL')}: ${thesis ? `the thesis is ${thesis}` : 'the NHL joint simulation prices this contract above the market after fees'}${ext.secondary_thesis_key ? `, with ${String(ext.secondary_thesis_key).replace(/^([A-Z]{2,3}):/, '$1 ').replace(/_/g, ' ').toLowerCase()} behind it` : ''}.`;
+    const thesis = nhlThesisWords(ext.primary_thesis_key);
+    const support = nhlThesisWords(ext.secondary_thesis_key);
+    const why = `${ext.team_opponent?.matchup ?? eventLabel(item, 'NHL')}: ${thesis ? `the model’s story is that ${thesis}` : 'the NHL joint simulation prices this contract above the market after fees'}${support ? `${thesis ? ', supported by' : ' — its story:'} ${support}` : ''}.`;
     const evidence = [
       `Joint-simulation P(${side}) ${pct(n(ext.p_model_joint_draw) ?? fair)}; confidence-adjusted ${pct(n(ext.p_confidence_adjusted))}; Kalshi mid ${pct(n(ext.p_kalshi_mid_yes))}`,
       ext.family_reliability ? `Family reliability ${String(ext.family_reliability).replace(/_/g, ' ').toLowerCase()}` : null,

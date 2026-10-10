@@ -132,7 +132,7 @@ describe('game page', () => {
     expect(container.querySelector('.gh a[href*="packet"]')).toBeNull();
   });
 
-  it('the overview leads with what matters, then the scripts (most likely first) and props to watch', async () => {
+  it('the overview leads with what matters, then the scripts (most likely first) and the compact prop explorer', async () => {
     const { container } = renderScreen(routes.game('nfl', GAME), '/nfl/game/:eventId', <GameRoute />);
     await screen.findByRole('heading', { name: 'What Matters' }, { timeout: 10_000 });
     // The headline edge in NE @ BUF: Buffalo's #1 rush offense against New England's #21 run defense.
@@ -143,7 +143,10 @@ describe('game page', () => {
     // No raw Kalshi ticker anywhere on the overview.
     await act(async () => {});
     expect(container.textContent).not.toMatch(/KXNFL/);
-    expect(await screen.findByRole('heading', { name: 'Props to Watch' }, { timeout: 10_000 })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Player Prop Explorer' }, { timeout: 10_000 })).toBeTruthy();
+    // The compact explorer filters by category and team, and deep-links into the full explorer for this game.
+    expect(screen.getByRole('group', { name: 'Prop category' })).toBeTruthy();
+    expect(container.querySelector(`a[href="${routes.props('nfl', { game: GAME })}"]`)).not.toBeNull();
     // Selecting a script is a link (deep-linkable) that keeps the tab.
     expect(container.querySelector('.scard--s2 .scard__a')!.getAttribute('href')).toBe(routes.game('nfl', GAME, { script: 'fav' }));
     // The hero carries no market chips or research actions.

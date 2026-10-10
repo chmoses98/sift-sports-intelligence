@@ -73,7 +73,7 @@ test('league ranking @visual', async ({ page, isMobile }) => {
 test('research tray @visual', async ({ page, isMobile }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
   await page.getByRole('heading', { name: 'Market Context', exact: true }).waitFor();
-  await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
+  await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
   await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
   const drawer = page.getByRole('complementary', { name: 'Research tray' });
   await expect(drawer.locator('.tray__item')).toHaveCount(1);

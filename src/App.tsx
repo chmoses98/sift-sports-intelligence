@@ -27,6 +27,15 @@ const ScorecardView = lazy(() => import('./views/Scorecard').then((x) => ({ defa
 const ParlaysView = lazy(() => import('./views/Parlays').then((x) => ({ default: x.ParlaysView })));
 const NewsView = lazy(() => import('./views/News').then((x) => ({ default: x.NewsView })));
 const SettingsView = lazy(() => import('./views/Settings').then((x) => ({ default: x.SettingsView })));
+const GamesView = lazy(() => import('./views/broadcast/GamesView').then((x) => ({ default: x.GamesView })));
+const BoardView = lazy(() => import('./views/board/BoardView').then((x) => ({ default: x.BoardView })));
+const MarketsView = lazy(() => import('./views/Markets').then((x) => ({ default: x.MarketsView })));
+const TerminalView = lazy(() => import('./views/intel/TerminalView').then((x) => ({ default: x.TerminalView })));
+const PulseView = lazy(() => import('./views/intel/PulseView').then((x) => ({ default: x.PulseView })));
+const LabView = lazy(() => import('./views/intel/PulseView').then((x) => ({ default: x.LabView })));
+const ExploreView = lazy(() => import('./views/explore/ExploreView').then((x) => ({ default: x.ExploreView })));
+const SeasonView = lazy(() => import('./views/explore/SeasonView').then((x) => ({ default: x.SeasonView })));
+const PropExplorerView = lazy(() => import('./views/explore/PropExplorerView').then((x) => ({ default: x.PropExplorerView })));
 const SportsView = lazy(() => import('./views/Sports').then((x) => ({ default: x.SportsView })));
 
 // Every screen is its own chunk: a phone downloads the code for the screen it opens.
@@ -54,6 +63,13 @@ export const routeTree = [
     children: [
       { index: true, element: <HomeView /> },
       { path: 'search', element: <SearchView /> },
+      { path: 'games', element: <GamesView /> },
+      { path: 'explore', element: <ExploreView /> },
+      { path: 'board', element: <BoardView /> },
+      { path: 'intelligence', element: <TerminalView /> },
+      { path: 'intelligence/markets', element: <MarketsView /> },
+      { path: 'intelligence/pulse', element: <PulseView /> },
+      { path: 'intelligence/lab', element: <LabView /> },
       { path: 'tray', element: <TrayView /> },
       { path: 'packet', element: <PacketView /> },
       { path: 'status', element: <StatusView /> },
@@ -77,6 +93,8 @@ export const routeTree = [
           { path: 'ranking/:rankingId', element: <RankingView /> },
           { path: 'market/:marketId', element: <MarketView /> },
           { path: 'compare', element: <CompareView /> },
+          { path: 'season', element: <SeasonView /> },
+          { path: 'props', element: <PropExplorerView /> },
           { path: '*', element: <NotFound /> },
         ],
       },

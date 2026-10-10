@@ -239,3 +239,23 @@ export function tournamentTier(name: string): 'main' | 'challenger' | 'itf' | 'o
   return 'other';
 }
 export const TIER_WORD: Record<ReturnType<typeof tournamentTier>, string> = { main: 'Main tour', challenger: 'Challenger', itf: 'ITF', other: 'Other' };
+
+/**
+ * The tennis publication's settled model-vs-market record, read live from the metric registry
+ * (`met_tennis.settled_brier_score` → extensions.scorecard.forecasters). Null when it is not published.
+ */
+export function tennisRecord(metrics: Map<string, { extensions?: unknown }> | null | undefined): { n: number; model: number; market: number; asOf: string | null } | null {
+  const sc = (metrics?.get('met_tennis.settled_brier_score')?.extensions as any)?.scorecard;
+  const m = sc?.forecasters?.model_fair;
+  const k = sc?.forecasters?.market_mid_at_decision;
+  if (m?.brier == null || k?.brier == null) return null;
+  return { n: Number(m.n ?? k.n ?? 0), model: Number(m.brier), market: Number(k.brier), asOf: sc.generated_at ?? null };
+}
+
+/** One sentence for that record, or a plain statement that the market's record is better when the numbers are not in hand. */
+export function tennisRecordText(metrics: Map<string, { extensions?: unknown }> | null | undefined): string {
+  const r = tennisRecord(metrics);
+  if (!r) return 'the publication’s settled record has the Kalshi mid out-scoring the model';
+  const better = r.market < r.model;
+  return `on ${r.n.toLocaleString('en-US')} settled rows the Kalshi mid scored a Brier of ${r.market.toFixed(4)} against the model’s ${r.model.toFixed(4)}${better ? '' : ' (the model is not behind on this sample)'}`;
+}

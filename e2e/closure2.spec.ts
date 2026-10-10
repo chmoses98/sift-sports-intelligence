@@ -17,7 +17,7 @@ test.describe('pregame research freezes at kickoff', () => {
   test('before kickoff a market can be saved; after kickoff it stays saved, shows as pregame and can be removed', async ({ page, isMobile }) => {
     await page.clock.install({ time: NOW });
     await page.goto(`./#/nfl/market/${ML_ID}?event=${NEBUF}`);
-    const save = page.getByRole('button', { name: /^Save .* to research tray$/ }).first();
+    const save = page.getByRole('button', { name: /^Save .* to My Board$/ }).first();
     await save.click();
     await expectTray(page, isMobile, 1);
 
@@ -66,7 +66,7 @@ test.describe('pregame research freezes at kickoff', () => {
   test('before kickoff a finding saves on its own (never the whole game)', async ({ page, isMobile }) => {
     await page.clock.install({ time: NOW });
     await page.goto(`./#/nfl/game/${NEBUF}`);
-    await page.locator('.mcard__x').first().getByRole('button', { name: /^Save .* to research tray$/ }).click();
+    await page.locator('.mcard__x').first().getByRole('button', { name: /^Save .* to My Board$/ }).click();
     await expectTray(page, isMobile, 1);
     await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
     const drawer = page.getByRole('complementary', { name: 'Research tray' });

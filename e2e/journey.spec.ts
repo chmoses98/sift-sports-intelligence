@@ -104,7 +104,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await shot(page, '09-market');
 
   // 10. Save it to the research tray
-  await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
+  await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
   await expect(page.getByRole('status').filter({ hasText: 'to your research' })).toBeVisible();
 
   // 11. Go elsewhere; the tray survives navigation and a fresh load of the app

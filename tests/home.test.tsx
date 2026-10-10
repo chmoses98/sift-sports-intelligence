@@ -11,7 +11,7 @@ import { evaluate } from '../src/opportunity/load';
 import { featureOpportunities, isLive } from '../src/opportunity/rank';
 import { TrailProvider } from '../src/state/trail';
 import { TrayProvider } from '../src/state/tray';
-import { HomeView, inWindow } from '../src/views/Home';
+import { MarketsView as HomeView, inWindow } from '../src/views/Markets';
 import { OpportunityBoard, OpportunityCard } from '../src/views/home/Opportunities';
 import { readSoccer, useDiskFetch } from './helpers';
 
@@ -92,7 +92,7 @@ describe('opportunity cards', () => {
 describe('the Home', () => {
   it('renders the masthead, the filters and both sections; every unreadable sport says so instead of disappearing', async () => {
     wrap(<HomeView />);
-    expect(screen.getByRole('heading', { name: 'Today on Sift' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Market board' })).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: /opportunities/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /games/ })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Sport' })).toBeInTheDocument();

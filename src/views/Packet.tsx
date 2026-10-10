@@ -54,7 +54,12 @@ export function PacketView() {
   const end = sp.get('end') ?? undefined;
   const repo = useRepo(sport);
   const tray = useTray();
-  const trayItems = useMemo(() => tray.tray.items.filter((i) => i.sport === sport?.code), [tray.tray.items, sport]);
+  // My Board builds a packet for one game's saved items: `items` narrows the custom scope to those item ids.
+  const only = sp.get('items');
+  const trayItems = useMemo(() => {
+    const keep = only ? new Set(only.split(',')) : null;
+    return tray.tray.items.filter((i) => i.sport === sport?.code && (!keep || keep.has(i.item_id)));
+  }, [tray.tray.items, sport, only]);
   const trayKey = trayItems.map((i) => i.item_id + (i.note ?? '')).join(',');
   const [packet, setPacket] = useState<HandicapPacket | null>(null);
   const [text, setText] = useState<string>('');

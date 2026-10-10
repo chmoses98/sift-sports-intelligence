@@ -96,6 +96,7 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
         {wx.precip != null && wx.precip >= 20 && <span className="wx__s">{wx.precip}% precipitation</span>}
       </span>
       {wx.flag && <span className="wx__flag">{wx.flag}</span>}
+      {!compact && <span className="wx__note" title="Audited 2026-10-10: the NFL, CFB and soccer publications capture the forecast for context; it does not enter their simulations or probabilities.">Context only · not in the projection</span>}
     </div>
   );
 }

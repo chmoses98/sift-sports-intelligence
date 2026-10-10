@@ -41,7 +41,8 @@ import { injuryNews, splitNews } from '../insights/news';
 import { whatMatters } from '../insights/matters';
 import { propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
-import { ContextCard, MatchupCard, PropsGrid, SchemeCard, usePropHistories } from './game/matters';
+import { ContextCard, MatchupCard, SchemeCard, usePropHistories } from './game/matters';
+import { CompactProps } from './game/CompactProps';
 import { PropsBoard } from './game/PropsBoard';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, SchemeTable } from './game/lines';
@@ -658,18 +659,7 @@ export function GameView({ eventId }: { eventId: string }) {
             <section className="panel ov-scripts"><PanelHead title="How It Could Play Out" /><p className="muted small">The publication attached no simulation script summary for this game.</p></section>
           )}
 
-          {watch.length > 0 && (
-            <section className="gsec" aria-labelledby="g-props-h">
-              <div className="gsec__h gsec__h--row">
-                <div>
-                  <h2 id="g-props-h" className="gsec__t">Props to Watch</h2>
-                  <p className="gsec__sub">Player props with the most to read: the projection, its range, the line and the matchup behind it.</p>
-                </div>
-                <Link to={href('props')} className="phead__more">All {allProps.filter((c) => c.market).length} player props <Icon name="arrowRight" size={14} /></Link>
-              </div>
-              <PropsGrid cards={watch} ctx={ctx} />
-            </section>
-          )}
+          {watch.length > 0 && <CompactProps all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
 
           <div className="gov__pair">
             <FormPanel homeProf={homeProf.data} awayProf={awayProf.data} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={href('trends')} />

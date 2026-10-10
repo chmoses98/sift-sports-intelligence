@@ -13,6 +13,7 @@ import { routes } from '../../lib/routes';
 import { LEVEL_WORD, readTennis, START_WORD, TENNIS_FAMILY_ORDER, tennisFamilyLabel, tennisMarketTitle, tennisRating, TRIANGULATION_WORD, type TennisMatch } from '../../lib/tennis';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
+import { tennisRecordText } from '../../lib/tennis';
 import { useVisit } from '../../state/trail';
 import { Authority, centsOf, Deep, KV, MarketFamilies, pct0, pct1, Pill, Section, signedPts, TextMark } from '../shared/kit';
 import { GameOpportunities } from '../game/GameOpportunities';
@@ -38,6 +39,7 @@ function PlayerCard({ p, prof, slug, side }: { p: TennisMatch['a']; prof: Entity
 }
 
 function ModelPanel({ t }: { t: TennisMatch }) {
+  const { metrics } = useSport();
   const m = t.model;
   if (t.discipline === 'doubles') {
     return (
@@ -75,7 +77,7 @@ function ModelPanel({ t }: { t: TennisMatch }) {
         {t.surfaceAdjustment && <li><span>Surface sensitivity</span><b className="num">{signedPts(Math.min(...Object.values(t.surfaceAdjustment).filter((v): v is number => v != null)))} to {signedPts(Math.max(...Object.values(t.surfaceAdjustment).filter((v): v is number => v != null)))}</b><small>P({t.a.name.split(' ').pop()}) under surface-prior perturbations</small></li>}
         {ext?.decision && <li><span>External decision</span><b>{ext.decision}</b><small>{ext.referenceKind?.replace(/_/g, ' ').toLowerCase()}</small></li>}
       </ul>
-      <p className="skopp__risk"><b>Why this is not a bet:</b> every tennis model number is RESEARCH_ONLY; on 15,117 settled rows the Kalshi mid has out-scored the model (Brier 0.1776 vs 0.2193). {ext?.triangulation === 'MODEL_LONE_OUTLIER' ? 'Here the model is the lone outlier against two sharp references, which is the usual sign the model, not the market, is wrong.' : ''}{t.form.note ? ` ${t.form.note}.` : ''}</p>
+      <p className="skopp__risk"><b>Why this is not a bet:</b> every tennis model number is RESEARCH_ONLY; {tennisRecordText(metrics)}. {ext?.triangulation === 'MODEL_LONE_OUTLIER' ? 'Here the model is the lone outlier against two sharp references, which is the usual sign the model, not the market, is wrong.' : ''}{t.form.note ? ` ${t.form.note}.` : ''}</p>
     </div>
   );
 }

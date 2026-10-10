@@ -3,10 +3,14 @@
 // with market fit computed only afterwards. Copy is generated upstream from structured football findings;
 // Sift adds no reasoning of its own and never turns script counts into probabilities.
 import { Fragment, useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import type { Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { Notice, Stratum } from '../../components/ui';
+import { MarginMap, type MarginSeg } from '../../components/fxResearch';
+import { cfbCodeOfEspn } from '../../lib/cfbTeams';
+import { teamLogo } from '../../lib/teams';
+import { useHeldImage } from '../../lib/useImage';
 import { routes } from '../../lib/routes';
 import {
   ARCHETYPE_WORD,
@@ -71,7 +75,7 @@ function cents(v: number | null | undefined): string {
   return v == null ? '—' : `${Math.round(v * 100)}¢`;
 }
 
-function SidePrice({ e, m, now }: { e: Expression; m: Market | undefined; now: number }) {
+export function SidePrice({ e, m, now }: { e: Expression; m: Market | undefined; now: number }) {
   const v = sidePrice(e, m);
   const fresh = quoteFreshness(m?.captured_at ?? null, now);
   const age = quoteAgeMs(m?.captured_at ?? null, now);
@@ -87,7 +91,7 @@ export function ConfidenceChip({ level }: { level: string }) {
   return <span className={`cfchip cfchip--${level.toLowerCase()}`}>{level === 'LOW' ? 'Low data confidence' : `${level[0]}${level.slice(1).toLowerCase()} data confidence`}</span>;
 }
 
-function LabelChips({ labels }: { labels: string[] }) {
+export function LabelChips({ labels }: { labels: string[] }) {
   return (
     <span className="lchips">
       {orderedLabels(labels).map((l) => (
@@ -97,7 +101,7 @@ function LabelChips({ labels }: { labels: string[] }) {
   );
 }
 
-function CompatCells({ engine, e, selected }: { engine: Engine; e: Expression; selected?: string | null }) {
+export function CompatCells({ engine, e, selected }: { engine: Engine; e: Expression; selected?: string | null }) {
   return (
     <span className="fitcells" aria-hidden="true">
       {engine.scripts.map((s, i) => (
@@ -153,7 +157,7 @@ export function EngineReadPanel({ engine, to }: { engine: Engine; to: string }) 
 
 // ------------------------------------------------------------------ scripts
 
-export function EngineScriptsPanel({ engine, selected, hrefFor, title = 'Likely Game Scripts' }: { engine: Engine; selected: string | null; hrefFor: (id: string | null) => string; title?: string }) {
+export function EngineScriptsPanel({ engine, selected, hrefFor, title = 'Likely Game Scripts', art }: { engine: Engine; selected: string | null; hrefFor: (id: string | null) => string; title?: string; art?: boolean }) {
   const sel = engine.scripts.find((s) => s.script_id === selected) ?? null;
   return (
     <section className="panel ov-scripts eng-scripts" aria-labelledby="eng-scripts-h">
@@ -181,7 +185,8 @@ export function EngineScriptsPanel({ engine, selected, hrefFor, title = 'Likely 
                   aria-current={on ? 'true' : undefined}
                   aria-label={`${ROLE_WORD[s.role]} script: ${scriptTitle(s)}. ${s.summary}${on ? ' Selected.' : ''}`}
                 >
-                  <span className="eng-scard__role">{ROLE_WORD[s.role]}</span>
+                  {art && <LeadArt engine={engine} s={s} />}
+                  <span className="eng-scard__role">{ROLE_WORD[s.role]}{art && <span className="eng-scard__rank"> · #{s.rank} by evidence</span>}</span>
                   <span className="scard__name" data-canonical={s.title}>{scriptTitle(s)}</span>
                   <span className="scard__d">{s.summary}</span>
                   <span className="eng-scard__arch">{ARCHETYPE_WORD[s.archetype] ?? s.archetype}</span>
@@ -533,48 +538,215 @@ function ShapeTiles({ s, home, away }: { s: EngineScript; home: string; away: st
   );
 }
 
+/** A script's lead team as a watermark on its card (logos only: CFB carries no licensed player photography). */
+function LeadArt({ engine, s }: { engine: Engine; s: EngineScript }) {
+  const side = s.lead_side ?? (s.outcome_shape.winner_lean === 'HOME' ? 'home' : s.outcome_shape.winner_lean === 'AWAY' ? 'away' : null);
+  const code = side ? cfbCodeOfEspn(engine.teams[side].team_id) : null;
+  const logo = useHeldImage(code ? teamLogo('CFB', code) : null);
+  return logo ? <span className="eng-scard__art" aria-hidden="true"><img src={logo} alt="" /></span> : null;
+}
+
+/** Where each script's stated margin sits (the archetype's own definition, not a projection). */
+function engineSegs(engine: Engine, on: string[], dim: boolean): MarginSeg[] {
+  return engine.scripts.filter((s) => s.outcome_shape.bands.home_margin).map((s) => ({
+    key: s.script_id, lo: s.outcome_shape.bands.home_margin![0], hi: s.outcome_shape.bands.home_margin![1], tone: ROLE_INDEX[s.role],
+    label: ROLE_WORD[s.role], on: on.includes(s.script_id), dim: dim && !on.includes(s.script_id),
+  }));
+}
+
+function TheaterHead({ compare, setView, canCompare }: { compare: boolean; setView: (v: 'single' | 'compare') => void; canCompare: boolean }) {
+  return (
+    <header className="fr-th__h">
+      <span className="fr-th__ic" aria-hidden="true"><Icon name="layers" size={22} /></span>
+      <div className="fr-th__tt">
+        <h2 className="fr-th__t">SIFT Game Script Theater</h2>
+        <p className="fr-th__sub">Football scripts ranked by matchup evidence: <b>Primary</b>, <b>Secondary</b>, <b>Alternate</b>, <b>Danger</b>. Ranked, never priced — no script carries a probability.</p>
+      </div>
+      <div className="fr-seg fr-th__mode" role="group" aria-label="Theater mode">
+        <button type="button" className={`fr-seg__b${!compare ? ' is-on' : ''}`} aria-pressed={!compare} onClick={() => setView('single')}><Icon name="eye" size={15} /> Single script</button>
+        <button type="button" className={`fr-seg__b${compare ? ' is-on' : ''}`} aria-pressed={compare} disabled={!canCompare} onClick={() => setView('compare')}><Icon name="compare" size={15} /> Compare scripts</button>
+      </div>
+    </header>
+  );
+}
+
 export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, slug, eventId, now }: { engine: Engine; selected: string | null; hrefFor: (id: string | null) => string; marketsByTicker: Map<string, Market>; slug: string; eventId: string; now: number }) {
+  const [sp, setSp] = useSearchParams();
   if (!engine.scripts.length) {
     return <Notice title="No script cleared its evidence requirement">The matchup evidence for this game does not support any script yet, so Sift shows none rather than inventing one.</Notice>;
   }
+  const canCompare = engine.scripts.length >= 2;
+  const compare = canCompare && sp.get('view') === 'compare';
+  const setView = (v: 'single' | 'compare') => setSp((p) => { const n = new URLSearchParams(p); if (v === 'compare') n.set('view', 'compare'); else n.delete('view'); return n; }, { replace: true });
   const s = engine.scripts.find((x) => x.script_id === selected) ?? engine.scripts[0];
   const i = engine.scripts.indexOf(s);
   const home = engine.teams.home.name;
   const away = engine.teams.away.name;
   const breaks = engine.expressions.filter((e) => e.compat[i] === 'CONTRADICTED' && e.labels.some((l) => l === 'BEST_EXPRESSION' || l === 'MULTI_SCRIPT' || l === 'SCRIPT_ALIGNED')).slice(0, 6);
+  const supported = engine.expressions.filter((e) => e.compat[i] === 'SUPPORTED');
+  const danger = engine.scripts.find((x) => x.role === 'DANGER' && x.script_id !== s.script_id);
+  const segs = engineSegs(engine, [s.script_id], false);
   return (
-    <>
-      <div className="stab__pick"><EngineScriptsPanel engine={engine} selected={s.script_id} hrefFor={hrefFor} title="Scripts" /></div>
-      <Stratum id="g-script-chain" title={<><span className={`sdot sdot--s${ROLE_INDEX[s.role]}`} aria-hidden="true" />{ROLE_WORD[s.role]}: {scriptTitle(s)}</>} sub={s.summary}>
-        <div className="eng-chain">
-          <ol className="chain">
-            {s.causal_chain.map((st) => (
-              <li key={st.step}>
-                <span className="chain__t">{st.step}</span>
-                <span className="chain__f">{st.findings.map((c) => <FindingChip key={c} engine={engine} code={c} />)}</span>
-              </li>
-            ))}
-          </ol>
-          <div>
-            <h3 className="why__h">Outcome shape</h3>
-            <ShapeTiles s={s} home={home} away={away} />
-            <MarginAuthority engine={engine} s={s} />
-            {s.contradicting_findings.length > 0 && (
-              <>
-                <h3 className="why__h">Evidence against</h3>
-                <span className="chain__f">{s.contradicting_findings.map((c) => <FindingChip key={c} engine={engine} code={c} />)}</span>
-              </>
-            )}
+    <div className="fr-theater fr-theater--cfb">
+      <TheaterHead compare={compare} setView={setView} canCompare={canCompare} />
+      {compare ? <EngineCompare engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} /> : (
+        <>
+          <div className="stab__pick"><EngineScriptsPanel engine={engine} selected={s.script_id} hrefFor={hrefFor} title="Scripts" art /></div>
+          <div className="fx-bento fr-th__grid">
+            <section className={`fx-card fx-span-4 fr-sel fr-sel--s${ROLE_INDEX[s.role]}`} aria-labelledby="eng-sel-h">
+              <span className="fr-sel__tag">{ROLE_WORD[s.role]} · rank {s.rank} of {engine.scripts.length}</span>
+              <h2 className="fr-sel__name" id="eng-sel-h">{scriptTitle(s)}</h2>
+              <p className="fr-sel__pct">Ranked by matchup evidence · <b className="fr-sel__np">no probability published</b></p>
+              <p className="fr-sel__story">{s.summary}</p>
+              <ul className="fr-rows">
+                <li><span className="fr-rows__ic fr-rows__ic--cyan"><Icon name="football" size={16} /></span><div><b>Game flow</b><p>{s.causal_chain[0]?.step ?? s.summary}</p></div></li>
+                <li><span className="fr-rows__ic fr-rows__ic--red"><Icon name="bolt" size={16} /></span><div><b>Outcome shape</b><p>{[s.outcome_shape.winner_lean === 'HOME' ? `${home} lean` : s.outcome_shape.winner_lean === 'AWAY' ? `${away} lean` : 'No winner lean', marginBandText(s.outcome_shape.bands.home_margin, home, away), SCORING_ENV_WORD[s.outcome_shape.total_environment] ? `${SCORING_ENV_WORD[s.outcome_shape.total_environment].toLowerCase()} scoring` : null].filter(Boolean).join(' · ')}</p></div></li>
+                <li><span className="fr-rows__ic fr-rows__ic--gold"><Icon name="chart" size={16} /></span><div><b>Markets to investigate</b><p>{supported.length ? `${supported.length} contract${supported.length === 1 ? '' : 's'} pay across this script — see below.` : 'No contract pays across this script.'}</p></div></li>
+                <li><span className="fr-rows__ic fr-rows__ic--violet"><Icon name="shield" size={16} /></span><div><b>How this script fails</b><p>{s.contradicting_findings.length ? `${s.contradicting_findings.length} finding${s.contradicting_findings.length === 1 ? '' : 's'} cut against it` : 'No published finding cuts against it'}{danger ? `; the danger path is ${scriptTitle(danger)}.` : '.'}</p></div></li>
+              </ul>
+            </section>
+            <section className="fx-card fx-span-8" aria-labelledby="g-script-chain-h" id="g-script-chain">
+              <h3 className="fx-card__t" id="g-script-chain-h"><span className={`sdot sdot--s${ROLE_INDEX[s.role]}`} aria-hidden="true" />{ROLE_WORD[s.role]}: {scriptTitle(s)}</h3>
+              <ol className="chain">
+                {s.causal_chain.map((st) => (
+                  <li key={st.step}>
+                    <span className="chain__t">{st.step}</span>
+                    <span className="chain__f">{st.findings.map((c) => <FindingChip key={c} engine={engine} code={c} />)}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+            <section className="fx-card fx-span-6" aria-labelledby="eng-shape-h">
+              <h3 className="fx-card__t" id="eng-shape-h"><Icon name="grid" size={16} /> Outcome shape</h3>
+              <ShapeTiles s={s} home={home} away={away} />
+              <MarginAuthority engine={engine} s={s} />
+              {s.contradicting_findings.length > 0 && (
+                <>
+                  <h3 className="why__h">Evidence against</h3>
+                  <span className="chain__f">{s.contradicting_findings.map((c) => <FindingChip key={c} engine={engine} code={c} />)}</span>
+                </>
+              )}
+            </section>
+            <section className="fx-card fx-span-6" aria-labelledby="eng-mm-h">
+              <h3 className="fx-card__t" id="eng-mm-h"><Icon name="chart" size={16} /> Where each script ends</h3>
+              {segs.length ? (
+                <>
+                  <MarginMap segs={segs} homeAbbr={cfbCodeOfEspn(engine.teams.home.team_id) ?? 'HOME'} awayAbbr={cfbCodeOfEspn(engine.teams.away.team_id) ?? 'AWAY'} label={`${home} final margin each script states`} />
+                  <p className="fr-note">Margins are each archetype’s own definition{segs.some((g) => isDescriptiveBand(engine.scripts.find((x) => x.script_id === g.key)!, 'home_margin')) ? '; ranges marked descriptive are research only' : ''} — not a projection and not a probability.</p>
+                </>
+              ) : <p className="fr-note">No script states a margin: the scripts describe the scoring environment only.</p>}
+              {engine.scoringResearchOnly && <p className="fr-note" role="note"><span className="fr-badge">Research only</span> {SCORING_RESEARCH_NOTE}</p>}
+            </section>
           </div>
+          <Stratum id="g-script-markets" title="Markets this script settles" sub={`Settlement-exact: a contract is supported only if every outcome in the script's range pays it. Each card says what the side costs after Kalshi's fee, the football it needs, the scripts it loses in and the other rungs of its thesis.${engine.scoringResearchOnly ? ' Total and team-total markets are research only until scoring ranges are calibrated.' : ''}`}>
+            <ScriptMarkets engine={engine} selected={s.script_id} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
+            <div className="eng-sm eng-sm--breaks">
+              <ExprList title="Contradicted by this script" list={breaks} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
+            </div>
+          </Stratum>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Two CFB scripts side by side: what each states, the evidence behind each, and the contracts that split them. */
+function EngineCompare({ engine, marketsByTicker, slug, eventId, now }: { engine: Engine; marketsByTicker: Map<string, Market>; slug: string; eventId: string; now: number }) {
+  const [sp, setSp] = useSearchParams();
+  const byId = (id: string | null) => engine.scripts.find((x) => x.script_id === id);
+  const a = byId(sp.get('a')) ?? engine.scripts[0];
+  let b = byId(sp.get('b')) ?? engine.scripts[1];
+  if (b.script_id === a.script_id) b = engine.scripts.find((x) => x.script_id !== a.script_id)!;
+  const setPair = (na: string, nb: string) => setSp((p) => { const n = new URLSearchParams(p); n.set('view', 'compare'); n.set('a', na); n.set('b', nb); return n; }, { replace: true });
+  const ia = engine.scripts.indexOf(a);
+  const ib = engine.scripts.indexOf(b);
+  const home = engine.teams.home.name;
+  const away = engine.teams.away.name;
+  const split = (i: number, j: number) => engine.expressions.filter((e) => e.compat[i] === 'SUPPORTED' && e.compat[j] === 'CONTRADICTED').slice(0, 4);
+  const both = engine.expressions.filter((e) => e.compat[ia] === 'SUPPORTED' && e.compat[ib] === 'SUPPORTED').slice(0, 4);
+  const lean = (x: EngineScript) => (x.outcome_shape.winner_lean === 'HOME' ? home : x.outcome_shape.winner_lean === 'AWAY' ? away : 'Neither');
+  const band = (x: EngineScript, k: 'home_margin' | 'total_points') => {
+    const t = k === 'home_margin' ? marginBandText(x.outcome_shape.bands.home_margin, home, away) : bandText(x.outcome_shape.bands.total_points);
+    if (!t) return <span className="muted">Not stated</span>;
+    return <>{t}{isDescriptiveBand(x, k) && <span className="fr-badge fr-cmp__rs">research only</span>}</>;
+  };
+  const rows: [string, (x: EngineScript) => ReactNode][] = [
+    ['Evidence rank', (x) => <><b className="fx-num">#{x.rank}</b> <span className="muted">of {engine.scripts.length}</span></>],
+    ['Archetype', (x) => ARCHETYPE_WORD[x.archetype] ?? x.archetype],
+    ['Winner lean', lean],
+    ['Margin', (x) => band(x, 'home_margin')],
+    ['Scoring environment', (x) => SCORING_ENV_WORD[x.outcome_shape.total_environment] ?? <span className="muted">Not stated</span>],
+    ['Total points', (x) => band(x, 'total_points')],
+    ['Required findings', (x) => <b className="fx-num">{x.required_findings.length}</b>],
+    ['Supporting findings', (x) => <b className="fx-num">{x.supporting_findings.length}</b>],
+    ['Findings against', (x) => <b className="fx-num">{x.contradicting_findings.length}</b>],
+    ['Data confidence', (x) => <ConfidenceChip level={x.data_confidence} />],
+  ];
+  const Head = ({ x, tag }: { x: EngineScript; tag: string }) => (
+    <div className={`fr-cmp__head fr-cmp__head--s${ROLE_INDEX[x.role]}`}>
+      <span className="fr-cmp__tag">{tag}</span>
+      <span className="fr-k">{ROLE_WORD[x.role]}</span>
+      <b className="fr-cmp__name">{scriptTitle(x)}</b>
+      <span className="fr-cmp__need">{x.summary}</span>
+    </div>
+  );
+  const ExprCol = ({ list, x, tag }: { list: Expression[]; x: EngineScript; tag: string }) => (
+    <div className={`fr-cmp__mkc fr-cmp__mkc--s${ROLE_INDEX[x.role]}`}>
+      <span className="fr-cmp__mkh"><span className="fr-cmp__tag">{tag}</span> Pays in {ROLE_WORD[x.role].toLowerCase()}, contradicted in the other</span>
+      {list.length ? <ul>{list.map((e) => { const m = marketsByTicker.get(e.ticker); return <li key={e.id}>{m ? <Link to={routes.market(slug, m.market_id, eventId)}>{expressionLabel(e, m)}</Link> : expressionLabel(e, m)} <SidePrice e={e} m={m} now={now} /></li>; })}</ul> : <p className="fr-note">No contract splits these two scripts this way.</p>}
+    </div>
+  );
+  return (
+    <section className="fr-cmp" aria-labelledby="eng-cmp-h">
+      <h3 className="fr-k fr-th__pick" id="eng-cmp-h">Compare two scripts</h3>
+      <div className="fr-cmp__pickers">
+        {(['a', 'b'] as const).map((k) => {
+          const cur = k === 'a' ? a : b;
+          const other = k === 'a' ? b : a;
+          return (
+            <div key={k} className="fr-cmp__picker" role="group" aria-label={`Script ${k.toUpperCase()}`}>
+              <span className="fr-k">Script {k.toUpperCase()}</span>
+              <div className="fr-chips">
+                {engine.scripts.map((x) => (
+                  <button key={x.script_id} type="button" className={`fr-chip fr-chip--s${ROLE_INDEX[x.role]}${cur.script_id === x.script_id ? ' is-on' : ''}`} aria-pressed={cur.script_id === x.script_id} disabled={x.script_id === other.script_id} onClick={() => (k === 'a' ? setPair(x.script_id, b.script_id) : setPair(a.script_id, x.script_id))}>{ROLE_WORD[x.role]} · {scriptTitle(x)}</button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+        <button type="button" className="btn btn--sm fr-cmp__swap" onClick={() => setPair(b.script_id, a.script_id)}><Icon name="compare" size={15} /> Swap</button>
+      </div>
+      <div className="fx-bento">
+        <div className="fx-card fx-span-7">
+          <div className="fr-cmp__heads"><Head x={a} tag="A" /><span className="fr-cmp__vs" aria-hidden="true">VS</span><Head x={b} tag="B" /></div>
+          <table className="fr-t fr-cmp__t">
+            <caption className="sr-only">{scriptTitle(a)} against {scriptTitle(b)}</caption>
+            <thead><tr><th scope="col">Script states</th><th scope="col">A · {ROLE_WORD[a.role]}</th><th scope="col">B · {ROLE_WORD[b.role]}</th></tr></thead>
+            <tbody>{rows.map(([k, f]) => <tr key={k}><th scope="row">{k}</th><td>{f(a)}</td><td>{f(b)}</td></tr>)}</tbody>
+          </table>
+          <p className="fr-note">Scripts are ranked by evidence, never priced: there is no win probability, projected score or likelihood per script to compare.</p>
         </div>
-      </Stratum>
-      <Stratum id="g-script-markets" title="Markets this script settles" sub={`Settlement-exact: a contract is supported only if every outcome in the script's range pays it. Each card says what the side costs after Kalshi's fee, the football it needs, the scripts it loses in and the other rungs of its thesis.${engine.scoringResearchOnly ? ' Total and team-total markets are research only until scoring ranges are calibrated.' : ''}`}>
-        <ScriptMarkets engine={engine} selected={s.script_id} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
-        <div className="eng-sm eng-sm--breaks">
-          <ExprList title="Contradicted by this script" list={breaks} engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
+        <div className="fx-card fx-span-5">
+          <h3 className="fx-card__t"><Icon name="chart" size={16} /> How the game ends</h3>
+          {engineSegs(engine, [a.script_id, b.script_id], true).length ? (
+            <MarginMap segs={engineSegs(engine, [a.script_id, b.script_id], true)} homeAbbr={cfbCodeOfEspn(engine.teams.home.team_id) ?? 'HOME'} awayAbbr={cfbCodeOfEspn(engine.teams.away.team_id) ?? 'AWAY'} label={`Margins stated by ${scriptTitle(a)} and ${scriptTitle(b)}`} />
+          ) : <p className="fr-note">Neither script states a margin.</p>}
+          <p className="fr-note">Each bar is the margin the script’s archetype defines — a description, not a projection. Score paths are not modelled.</p>
         </div>
-      </Stratum>
-    </>
+        <div className="fx-card fx-span-12">
+          <h3 className="fx-card__t"><Icon name="layers" size={16} /> Markets that separate them</h3>
+          <div className="fr-cmp__mk fr-cmp__mk--3">
+            <ExprCol list={split(ia, ib)} x={a} tag="A" />
+            <ExprCol list={split(ib, ia)} x={b} tag="B" />
+            <div className="fr-cmp__mkc">
+              <span className="fr-cmp__mkh">Pays in both</span>
+              {both.length ? <ul>{both.map((e) => { const m = marketsByTicker.get(e.ticker); return <li key={e.id}>{m ? <Link to={routes.market(slug, m.market_id, eventId)}>{expressionLabel(e, m)}</Link> : expressionLabel(e, m)} <SidePrice e={e} m={m} now={now} /></li>; })}</ul> : <p className="fr-note">No contract pays across both scripts.</p>}
+            </div>
+          </div>
+          {engine.scoringResearchOnly && <p className="fr-note" role="note">{SCORING_RESEARCH_NOTE}</p>}
+        </div>
+      </div>
+    </section>
   );
 }
 

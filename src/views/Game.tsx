@@ -21,7 +21,12 @@ import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../
 import { injuryRows, marketLabel, priceRow } from '../lib/gamedata';
 import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
 import { GameHero } from './game/Hero';
-import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel, PanelHead, ScriptsPanel, SurvivorsPanel } from './game/panels';
+import { CfbHeroStats, NflHeroStats } from './game/HeroStats';
+import { GameTabs } from './game/GameTabs';
+import { GameInfoCard, GameReadCard, MarketContextCard, MatchupAdvantagesCard, PropExplorerCard, RelatedResearchCard, ScriptsCard } from './game/Dashboard';
+import { FxCard } from '../components/fx';
+import { CfbMatchupCard, CfbScriptsCard } from './game/CfbDashboard';
+import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel, SurvivorsPanel } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
 import { EngineConfidencePanel, EngineDetailNotice, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
 import { GameReadV2Panel } from './game/GameReadV2';
@@ -43,9 +48,8 @@ import { whatMatters } from '../insights/matters';
 import { propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, SchemeCard, usePropHistories } from './game/matters';
-import { CompactProps } from './game/CompactProps';
-import { ScriptCompare } from './game/ScriptCompare';
 import { PropsBoard } from './game/PropsBoard';
+import { EngineMarketIntel, MarketIntel } from './game/MarketIntel';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, SchemeTable } from './game/lines';
 
@@ -554,12 +558,8 @@ export function GameView({ eventId }: { eventId: string }) {
     const etab = ENGINE_TABS.some(([k]) => k === tab) ? tab : 'overview';
     return (
       <div className="page page--hero game game--engine">
-        <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} />
-        <nav className="ptabs gtabs" aria-label="Game sections">
-          {ENGINE_TABS.map(([k, l]) => (
-            <Link key={k} to={ehref(k)} aria-current={etab === k ? 'page' : undefined}>{l}</Link>
-          ))}
-        </nav>
+        <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<CfbHeroStats r={r} engine={engine} markets={quoted.length ? quoted : r.markets} now={now} />} />
+        <GameTabs tabs={ENGINE_TABS} current={etab} href={(k) => ehref(k)} />
         {etab !== 'trends' && <EngineDetailNotice engine={engine} />}
         {etab === 'overview' && engine.claimsV2 && (
           // V2 games: a five-second Quick Read, the best research, and every panel below in a closed Deep Dive.
@@ -573,6 +573,12 @@ export function GameView({ eventId }: { eventId: string }) {
               survivors: <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} to={ehref('script')} />,
               edges: <EngineEdgesPanel engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={ehref('matchup')} />,
               confidence: <EngineConfidencePanel engine={engine} />,
+            }}
+            dash={{
+              scripts: <CfbScriptsCard engine={engine} codes={{ home: homeAbbr, away: awayAbbr }} scriptHref={(id) => ehref('script', id)} allHref={ehref('script')} />,
+              // Each team's game-winner price (with its age) is already in the hero strip and the CONTROL side's in the
+              // Quick Read, so the CFB dashboard carries no separate market card: the word budget goes to graphics.
+              matchup: (wide) => <CfbMatchupCard engine={engine} codes={{ home: homeAbbr, away: awayAbbr }} href={ehref('matchup')} className={wide ? 'fx-span-12' : 'fx-span-7'} />,
             }}
           />
         )}
@@ -590,6 +596,7 @@ export function GameView({ eventId }: { eventId: string }) {
         )}
         {etab === 'markets' && (
           <>
+            <EngineMarketIntel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
             <Stratum id="g-engine-survivors" title="Script survival" sub="Every best and multi-script expression, with the scripts it survives. Compatibility, not a probability.">
               <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} limit={40} />
             </Stratum>
@@ -644,13 +651,9 @@ export function GameView({ eventId }: { eventId: string }) {
   return (
     <MarketIconProvider value={iconCtx}>
     <div className="page game">
-      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} />
+      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
 
-      <nav className="ptabs gtabs" aria-label="Game sections">
-        {TABS.map(([k, l]) => (
-          <Link key={k} to={href(k)} aria-current={tab === k ? 'page' : undefined}>{l}</Link>
-        ))}
-      </nav>
+      <GameTabs tabs={TABS} current={tab} href={(k) => href(k)} />
 
       {engine && !isEngine(engine) && (
         <Notice tone="research" title="No script engine read for this game">
@@ -658,9 +661,30 @@ export function GameView({ eventId }: { eventId: string }) {
         </Notice>
       )}
       {tab === 'overview' && (
-        <div className="gov">
+        // The Visual Intelligence Dashboard (approved references 01 option 1 and 02): graphics first, the detail one
+        // tap down. The verdict leads (No Edge / Watch / Back semantics are the opportunity layer's own).
+        <div className="gov gov--dash">
           <GameOpportunities eventId={eventId} now={now} />
-          <section className="gsec" aria-labelledby="g-matters-h">
+          <div className="fx-bento gdash">
+            <GameReadCard insights={insights} context={context} set={set} fullHref={href('matchup')} scriptHref={href('script')} />
+            {set ? (
+              <ScriptsCard set={set} r={r} hrefFor={(id) => routes.game(slug, eventId, { tab: 'script', script: id })} allHref={href('script')} />
+            ) : (
+              <FxCard title="Likely Game Scripts" icon="play" className="fx-span-7"><p className="muted small">The publication attached no simulation script summary for this game, so Sift shows no scripts rather than inventing them.</p></FxCard>
+            )}
+            <MatchupAdvantagesCard r={r} g={g} sport={sport.code} href={href('matchup')} wide={!watch.length} />
+            {watch.length > 0 && <PropExplorerCard all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
+            <MarketContextCard rows={rows} slug={slug} eventId={eventId} now={now} allHref={href('markets')} chip={<QuoteSummaryChip views={views} now={now} />} />
+            <GameInfoCard r={r} sport={sport.code} />
+            <RelatedResearchCard links={[
+              { to: href('trends'), icon: 'trend', t: 'Team trends', s: 'Form, head-to-head, line moves' },
+              { to: href('players'), icon: 'users', t: 'Player usage', s: 'Projections and depth roles' },
+              { to: href('injuries'), icon: 'medic', t: 'Injuries', s: `${injuries.filter((x) => x.status !== 'ACTIVE').length} designations` },
+              { to: routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id }), icon: 'research', t: 'Handicap packet', s: 'Every number, exportable' },
+            ]} />
+          </div>
+
+          <section className="gsec gsec--fx" aria-labelledby="g-matters-h">
             <div className="gsec__h">
               <h2 id="g-matters-h" className="gsec__t">What Matters</h2>
               <p className="gsec__sub">The biggest matchup edges and the context behind them. Tap any card for the numbers.</p>
@@ -669,23 +693,19 @@ export function GameView({ eventId }: { eventId: string }) {
             {insights.length > 3 || matters.length >= 5 ? <p className="gsec__more"><Link to={href('matchup')}>Every matchup, scheme and metric →</Link></p> : null}
           </section>
 
-          {set ? (
-            <ScriptsPanel set={set} selected={selected} hrefFor={hrefFor} r={r} slug={slug} />
-          ) : (
-            <section className="panel ov-scripts"><PanelHead title="How It Could Play Out" /><p className="muted small">The publication attached no simulation script summary for this game.</p></section>
-          )}
-
-          {watch.length > 0 && <CompactProps all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
-
-          <div className="gov__pair">
-            <FormPanel homeProf={homeProf.data} awayProf={awayProf.data} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={href('trends')} />
-            <InjuriesPanel rows={injuries} important={importantInjuries} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} to={href('injuries')} />
-          </div>
-
-          <div className="gov__pair">
-            <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={href('markets')} views={views} now={now} />
-            <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={favAbbr} to={href('trends')} />
-          </div>
+          <details className="gmore">
+            <summary className="gmore__s"><Icon name="layers" size={18} /><span>Form, injuries and the lines</span><small>Recent results, availability, market and model lines, line history</small></summary>
+            <div className="gmore__b">
+              <div className="gov__pair">
+                <FormPanel homeProf={homeProf.data} awayProf={awayProf.data} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} before={ev.start_time_utc} slug={slug} to={href('trends')} />
+                <InjuriesPanel rows={injuries} important={importantInjuries} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} to={href('injuries')} />
+              </div>
+              <div className="gov__pair">
+                <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={href('markets')} views={views} now={now} chip={false} />
+                <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={favAbbr} to={href('trends')} />
+              </div>
+            </div>
+          </details>
         </div>
       )}
 
@@ -715,7 +735,6 @@ export function GameView({ eventId }: { eventId: string }) {
           {set ? (
             <>
               <ScriptTab r={r} set={set} selected={selected} hrefFor={hrefFor} rows={rows} slug={slug} eventId={eventId} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} />
-              <ScriptCompare set={set} rows={rows} />
               <SurvivorsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} to={href('markets')} />
               {context.some((c) => c.kind === 'qb-change') && (
                 <p className="gsec__note"><b>Context:</b> {context.filter((c) => c.kind === 'qb-change').map((c) => c.headline).join('; ')}. The simulation's scripts are its own; season numbers behind the matchups include those games.</p>
@@ -738,7 +757,9 @@ export function GameView({ eventId }: { eventId: string }) {
 
       {tab === 'markets' && (
         <>
-          <MarketsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+          <MarketIntel r={r} rows={rows} set={set} slug={slug} eventId={eventId} now={now} homeAbbr={homeAbbr} awayAbbr={awayAbbr}>
+            <MarketsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+          </MarketIntel>
           {Boolean(ext?.market_implied || ext?.model_view) && (
             <Stratum id="g-market-vs-model" title="Market and simulation" sub="What the prices imply next to what Sift's simulation reconstructs.">
               <MarketModel ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />

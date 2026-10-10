@@ -25,6 +25,7 @@ import { useDirectory } from '../../state/directory';
 import { useVisit } from '../../state/trail';
 import { Movement } from '../Game';
 import { GameHero } from '../game/Hero';
+import { GameTabs } from '../game/GameTabs';
 import { FormPanel, H2HPanel, Info, InjuryList, LineHistoryPanel, PanelHead } from '../game/panels';
 import { familyGlyph, Glyph } from './glyphs';
 import { FreshPill, ResearchPill } from './kit';
@@ -265,9 +266,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
     <div className="page game game--nhl nhg">
       <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} finalScore={phase.phase === 'FINAL' ? finalScore : null} />
       <SummaryStrip ids={ids} p={proj} s={s} phase={phase} marketPHome={marketPHome} status={status} />
-      <nav className="ptabs gtabs" aria-label="Game sections">
-        {TABS.map(([k, l]) => <Link key={k} to={href(k, null)} aria-current={tab === k ? 'page' : undefined}>{l}</Link>)}
-      </nav>
+      <GameTabs tabs={TABS} current={tab} href={(k) => href(k, null)} />
 
       {tab === 'overview' && (
         <div className="nhg__story">

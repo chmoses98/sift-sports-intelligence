@@ -22,6 +22,12 @@ import { mismatchDiscovery } from '../intelligence/discoveries';
 import { featuredGame, gameRows, inDay, slateOrder } from './broadcast/games';
 import { DiscoveryCard, FeaturedHero, GameRail, useGameResearch } from './broadcast/parts';
 import { BoardPreview } from './board/BoardPreview';
+import type { EventResearchDoc } from '../contract/types';
+import { FxCard, VsBar } from '../components/fx';
+import { TeamMark } from '../components/ui';
+import { gameSides } from '../insights/game';
+import { teamColors } from '../lib/teams';
+import { nflVsRows } from './game/Dashboard';
 
 const LAB: { to: string; title: string; sub: string; icon: string; tone: string }[] = [
   { to: routes.ranking('nfl', 'met_nfl.adj_off_epa'), title: 'Team rankings', sub: 'Opponent-adjusted offense and defense, league-relative', icon: 'chart', tone: 'blue' },
@@ -31,6 +37,31 @@ const LAB: { to: string; title: string; sub: string; icon: string; tone: string 
   { to: routes.season('nfl'), title: 'Season navigator', sub: 'Every week on one grid, scores and upcoming games', icon: 'grid', tone: 'green' },
   { to: routes.pulse(), title: 'Model Pulse', sub: 'How each model has actually performed against the market', icon: 'bolt', tone: 'red' },
 ];
+
+/** The featured game's published unit ranks as rank-vs-rank bars: a graphic preview of the matchup, one tap from it. */
+function FeaturedEdges({ r, slug }: { r: EventResearchDoc; slug: string }) {
+  const g = useMemo(() => gameSides(r), [r]);
+  const rows = useMemo(() => (g ? nflVsRows(r, g).slice(0, 4) : []), [r, g]);
+  if (!g || !rows.length) return null;
+  return (
+    <FxCard title={`Matchup edges · ${g.away.abbr} @ ${g.home.abbr}`} icon="compare" className="bhome__edges" id="home-edges" action={{ to: routes.game(slug, r.event.event_id, { tab: 'matchup' }), label: 'Full matchup' }}>
+      <div className="gvs">
+        {rows.map((x) => (
+          <div key={x.key} className="gvs__row" style={{ ['--fx-home' as string]: teamColors('NFL', x.off.abbr)[0], ['--fx-away' as string]: teamColors('NFL', x.def.abbr)[0] }}>
+            <VsBar
+              label={<><b>{x.off.abbr}</b> {x.label.toLowerCase()} O vs <b>{x.def.abbr}</b> D</>}
+              left={{ rank: x.o.context?.rank ?? null, of: x.o.context?.universe_size ?? null, text: `${x.off.abbr} ${x.label.toLowerCase()} offense` }}
+              right={{ rank: x.d.context?.rank ?? null, of: x.d.context?.universe_size ?? null, text: `${x.def.abbr} ${x.label.toLowerCase()} defense` }}
+              leftMark={<TeamMark sport="NFL" abbr={x.off.abbr} size="sm" />}
+              rightMark={<TeamMark sport="NFL" abbr={x.def.abbr} size="sm" />}
+            />
+          </div>
+        ))}
+      </div>
+      <p className="gdash__fine">Opponent-adjusted league ranks, #1 best for the job. Context for reading the game, not a betting signal.</p>
+    </FxCard>
+  );
+}
 
 export function HomeView() {
   useVisit('Home', 'home');
@@ -60,7 +91,7 @@ export function HomeView() {
   const sportsToday = counts.size;
 
   return (
-    <div className="page bhome">
+    <div className="page bhome bhome--fx">
       <header className="bhome__mast">
         <div>
           <span className="eyebrow2">{dateWord}</span>
@@ -69,7 +100,10 @@ export function HomeView() {
         {!all.loading && <p className="bhome__sum"><b className="bnum">{today.length}</b> games across <b className="bnum">{sportsToday}</b> {sportsToday === 1 ? 'sport' : 'sports'} · <b className="bnum">{all.opportunities.filter((o) => o.status === 'RESEARCH_CANDIDATE' || o.status === 'ACTIONABLE').length}</b> contracts the publications flag for review</p>}
       </header>
 
-      <section className="bsec" aria-labelledby="rail-h">
+      {/* The stage (approved references, Home): the featured matchup's venue dominates; today's games sit beside it on
+          wide screens and above it as compact chips on phones, so the hero is above the fold everywhere. */}
+      <div className="bhome__stage">
+      <section className="bsec bhome__games" aria-labelledby="rail-h">
         <div className="bsec__h">
           <h2 className="bsec__t" id="rail-h"><Icon name="clock" size={20} /> Today’s games</h2>
           <Link to={routes.games({ sport: sportFilter })} className="bsec__more">View all games <Icon name="arrowRight" size={14} /></Link>
@@ -87,11 +121,13 @@ export function HomeView() {
         )}
       </section>
 
-      <section className="bsec" aria-label="Featured matchup">
+      <section className="bsec bhome__feat" aria-label="Featured matchup">
         {all.loading ? <div className="fhero fhero--skel"><Skeleton lines={5} tall /></div> : featured ? <FeaturedHero g={featured} now={now} /> : <div className="bempty"><h3>No upcoming game to feature</h3><p>Every listed game has started or finished. Open <Link to={routes.games()}>Games</Link> for finals and reviews.</p></div>}
       </section>
+      </div>
 
       <div className="bhome__grid">
+        {featured?.sport === 'NFL' && featResearch.data && <FeaturedEdges r={featResearch.data} slug={featured.slug} />}
         <section className="bsec bhome__intel" aria-labelledby="intel-h">
           <div className="bsec__h">
             <div>

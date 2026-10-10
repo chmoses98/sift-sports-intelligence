@@ -69,11 +69,15 @@ export interface StatItem {
   title?: string;
 }
 
-/** The hero's broadcast stat strip: condensed numerals over a thin lit accent bar. */
-export function StatStrip({ items, className, label }: { items: StatItem[]; className?: string; label: string }) {
+/**
+ * The hero's broadcast stat strip: condensed numerals over a thin lit accent bar. `focusable` for a strip that can
+ * scroll sideways (the phone hero): a scroll region must be reachable by keyboard (WCAG 2.1.1, axe
+ * scrollable-region-focusable).
+ */
+export function StatStrip({ items, className, label, focusable }: { items: StatItem[]; className?: string; label: string; focusable?: boolean }) {
   if (!items.length) return null;
   return (
-    <dl className={`fx-stats${className ? ` ${className}` : ''}`} aria-label={label}>
+    <dl className={`fx-stats${className ? ` ${className}` : ''}`} aria-label={label} tabIndex={focusable ? 0 : undefined}>
       {items.map((s) => (
         <div key={s.label} className={`fx-stat${s.tone ? ` fx-stat--${s.tone}` : ''}`} title={s.title}>
           <dt className="fx-stat__l">{s.label}</dt>

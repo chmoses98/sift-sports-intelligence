@@ -64,7 +64,9 @@ test('game markets board @visual', async ({ page }) => {
     const tabs = t ? parseFloat(getComputedStyle(t).top) + t.offsetHeight : 0;
     window.scrollTo(0, Math.round(e.getBoundingClientRect().top + window.scrollY - tabs - 8));
   });
-  await expect(page).toHaveScreenshot('game-markets.png');
+  // The freshness line itself is masked wherever the layout puts it: after the scroll it can sit under the
+  // translucent top bar instead of the game tabs, and its live state ghosted through on WebKit.
+  await expect(page).toHaveScreenshot('game-markets.png', { mask: [board.locator('.gquote')] });
 });
 
 test('league ranking @visual', async ({ page, isMobile }) => {

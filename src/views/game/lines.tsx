@@ -18,7 +18,7 @@ import { PanelHead } from './panels';
 
 const half = (v: number) => (Math.round(Math.abs(v) * 2) / 2).toFixed(1).replace(/\.0$/, '');
 
-export function LinesPanel({ r, homeAbbr, awayAbbr, to, views, now }: { r: EventResearchDoc; homeAbbr: string; awayAbbr: string; to: string; views: QuoteView[]; now: number }) {
+export function LinesPanel({ r, homeAbbr, awayAbbr, to, views, now, chip = true }: { r: EventResearchDoc; homeAbbr: string; awayAbbr: string; to: string; views: QuoteView[]; now: number; chip?: boolean }) {
   const ext = r.extensions as any;
   const mi = ext?.market_implied;
   const mv = ext?.model_view;
@@ -36,7 +36,7 @@ export function LinesPanel({ r, homeAbbr, awayAbbr, to, views, now }: { r: Event
   return (
     <section className="panel lines" aria-labelledby="lines-h">
       <PanelHead title="The Lines" sub="What the market prices this game at">
-        <span className="gquote"><QuoteSummaryChip views={views} now={now} /></span>
+        {chip && <span className="gquote"><QuoteSummaryChip views={views} now={now} /></span>}
       </PanelHead>
       <dl className="lines__t">
         {tiles.map((t) => (

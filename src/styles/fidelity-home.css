@@ -1,0 +1,84 @@
+/* Visual fidelity — Journey A: Home. A deliberate bento on wide screens (the featured venue dominates, today's games
+   beside it, a graphic matchup preview next to the intelligence feed, the lab as one illuminated row) and, on phones,
+   compact game chips so the featured hero sits above the fold. Built on broadcast.css + the visual kit. */
+
+.bhome--fx .bhome__mast { margin-bottom: var(--s-4); }
+.bhome--fx .bhome__h { font-family: var(--font-cond); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
+.bhome--fx .bsec__t { font-family: var(--font-cond); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* The stage: featured hero first in the reading order of the eye, games beside it. */
+.bhome__stage { display: grid; gap: var(--s-5); margin-bottom: var(--s-6); }
+.bhome__stage > .bsec { margin: 0; min-width: 0; }
+
+/* The featured hero, more dramatic: taller, the photograph brighter in the middle, lit glass panels. */
+.bhome--fx .fhero { border-color: var(--fx-edge); box-shadow: var(--fx-rim), 0 40px 90px -40px rgba(0, 0, 0, 0.95); }
+.bhome--fx .fhero__img img { filter: saturate(1.05) contrast(1.06) brightness(0.86); }
+.bhome--fx .fhero__nm { font-family: var(--font-cond); text-transform: uppercase; letter-spacing: 0.01em; }
+.bhome--fx .fhero__panel { border: 1px solid var(--fx-edge); box-shadow: var(--fx-rim); background: linear-gradient(180deg, rgba(10, 30, 52, 0.72), rgba(3, 14, 24, 0.9)); }
+.bhome--fx .hstat__v { font-family: var(--font-cond); font-weight: 700; }
+
+@media (min-width: 1100px) {
+  .bhome__stage { grid-template-columns: minmax(0, 2.15fr) minmax(300px, 1fr); grid-template-areas: 'feat games'; align-items: stretch; }
+  .bhome__feat { grid-area: feat; }
+  .bhome__games { grid-area: games; display: flex; flex-direction: column; padding: 14px 14px 10px; border-radius: 18px;
+    border: 1px solid var(--fx-edge); box-shadow: var(--fx-rim); background: var(--fx-key), linear-gradient(165deg, rgba(18, 48, 80, 0.45), rgba(2, 11, 20, 0.85)); }
+  .bhome--fx .fhero, .bhome--fx .fhero__in { min-height: 620px; }
+  .bhome__games .bsec__h { margin-bottom: 8px; }
+  .bhome__games .bsec__t { font-size: 1.15rem; }
+  .bhome__games .gtabs2 { flex-wrap: wrap; overflow: visible; }
+  .bhome__games .gtab { padding: 5px 9px; min-height: 32px; font-size: 0.8rem; }
+  .bhome__games .rail { flex: 1; min-height: 0; display: flex; }
+  .bhome__games .rail__btn { display: none; }
+  .bhome__games .rail__list { flex: 1; grid-auto-flow: row; grid-template-columns: 1fr 1fr; grid-auto-columns: auto; align-content: start; max-height: 470px; overflow-x: hidden; overflow-y: auto; scroll-snap-type: y proximity; padding: 2px 4px 6px 2px; scrollbar-width: thin; }
+  .bhome__games .rtile { min-height: 0; padding: 8px 9px; gap: 4px; border-radius: 11px; }
+  .bhome__games .rtile__n { font-size: 0.84rem; }
+  .bhome__games .rtile__row { gap: 6px; }
+  .bhome__games .rtile__row .teammark, .bhome__games .rtile__row .pmark { width: 20px; height: 20px; font-size: 0.55rem; }
+  .bhome__games .rtile__top { font-size: 0.64rem; }
+  .bhome__games .rtile__foot { font-size: 0.66rem; }
+  .bhome__games .rail__all { min-height: 64px; }
+
+  .bhome--fx .bhome__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--s-5); align-items: start; }
+  .bhome--fx .bhome__edges { grid-column: span 4; margin-top: 6px; }
+  .bhome--fx .bhome__intel { grid-column: span 8; margin: 0; }
+  .bhome--fx .bhome__edges ~ .bhome__intel .dgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bhome--fx .bhome__lab { grid-column: 1 / -1; margin: 0; }
+  .bhome--fx .bhome__lab .labgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .bhome--fx .bhome__intel:first-child { grid-column: span 12; }
+}
+
+/* Discovery cards and lab tiles as lit glass, kinds as glowing badges. */
+.bhome--fx .dcard { border-color: var(--fx-edge); background: var(--fx-key), linear-gradient(165deg, rgba(18, 48, 80, 0.45), rgba(2, 11, 20, 0.85)); box-shadow: var(--fx-rim); }
+.bhome--fx .dcard__t { font-family: var(--font-cond); font-weight: 700; font-size: 1.22rem; line-height: 1.1; }
+.bhome--fx .dcard__why { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.bhome--fx .labtile { min-height: 132px; }
+.bhome--fx .labtile__t { font-family: var(--font-cond); font-weight: 700; font-size: 1.12rem; letter-spacing: 0.02em; }
+.bhome__edges .gvs .fx-vs__label { font-size: 0.76rem; }
+
+/* Phones: compact chips, not the oversized rail; the hero follows immediately. */
+@media (max-width: 719px) {
+  .bhome--fx .bhome__mast { margin: 0 0 var(--s-3); gap: 2px; }
+  .bhome--fx .bhome__h { font-size: 1.7rem; }
+  .bhome--fx .bhome__sum { font-size: 0.78rem; }
+  .bhome__stage { gap: var(--s-3); }
+  .bhome__games .bsec__h { margin-bottom: 6px; }
+  .bhome__games .bsec__t { font-size: 1.05rem; }
+  .bhome__games .bsec__t svg { width: 16px; height: 16px; }
+  .bhome__games .gtabs2 { margin-bottom: 8px; padding: 3px; }
+  .bhome__games .gtab { padding: 4px 9px; min-height: 30px; font-size: 0.78rem; }
+  .bhome__games .rail__list { grid-auto-columns: 142px; gap: 8px; padding-bottom: 4px; }
+  .bhome__games .rtile { min-height: 0; padding: 7px 9px; gap: 3px; border-radius: 11px; }
+  .bhome__games .rtile__top { font-size: 0.6rem; }
+  .bhome__games .rtile__sport { letter-spacing: 0.04em; }
+  .bhome__games .rtile__row { gap: 6px; }
+  .bhome__games .rtile__row .teammark, .bhome__games .rtile__row .pmark { width: 18px; height: 18px; font-size: 0.5rem; }
+  .bhome__games .rtile__n { font-size: 0.8rem; }
+  .bhome__games .rtile__foot { display: none; }
+  .bhome__games .rail__all { min-height: 0; padding: 8px; font-size: 0.8rem; }
+  .bhome--fx .fhero__img { height: 260px; }
+  .bhome--fx .fhero__in { padding-top: 186px; }
+  .bhome--fx .fhero__shade { background: linear-gradient(180deg, rgba(1, 8, 15, 0.35) 0%, rgba(1, 8, 15, 0) 25%, rgba(1, 8, 15, 0.7) 200px, #020d17 260px, #020d17 100%); }
+  .bhome--fx .fhero__credit { top: auto; bottom: 6px; right: 12px; max-width: 80%; }
+  .bhome--fx .fhero__in { padding-bottom: 26px; }
+  .bhome__edges { margin-bottom: var(--s-5); }
+}

@@ -59,7 +59,7 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   // 3. Open an upcoming game: the overview leads with what matters and the game scripts
   await page.getByRole('link', { name: /New England Patriots at Buffalo Bills/ }).first().click();
   await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
-  await expect(page.locator('.scard')).toHaveCount(4);
+  await expect(page.locator('#gd-scripts .gscr__i')).toHaveCount(4); // the dashboard's Likely Game Scripts cards
   await expect(page.getByText('Bills rush offense has a major edge').first()).toBeVisible();
   await page.getByRole('navigation', { name: 'Game sections' }).getByRole('link', { name: 'Matchups' }).click();
   await expect(page.getByRole('heading', { name: 'Unit by unit' })).toBeVisible();

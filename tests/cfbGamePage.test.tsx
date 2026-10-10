@@ -43,6 +43,8 @@ async function open(id: string) {
 function visibleText(root: Element): string {
   const c = root.cloneNode(true) as Element;
   for (const d of c.querySelectorAll('details:not([open])')) for (const ch of [...d.children]) if (ch.tagName !== 'SUMMARY') ch.remove();
+  // Screen-reader-only text (the rank bars' spoken equivalents) is not visible text.
+  for (const s of c.querySelectorAll('.sr-only')) s.remove();
   // one space between text nodes, so words from neighbouring elements are counted apart
   const parts: string[] = [];
   const walk = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);

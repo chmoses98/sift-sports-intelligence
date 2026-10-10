@@ -79,7 +79,7 @@
 /* Phones (reference 02 phone): a compact ~220px matchup block, then three stat tiles and full-width rows below. */
 @media (max-width: 719px) {
   .page--hero .gh.gh--bc, .page.game .gh.gh--bc { border-radius: 16px; }
-  .gh--bc .gh__in { min-height: 210px; align-content: end; padding: 40px 12px 12px; gap: 8px; }
+  .gh--bc .gh__in { min-height: 184px; align-content: end; padding: 36px 12px 10px; gap: 6px; }
   .gh--bc .gh__meta { font-size: 0.78rem; }
   .gh--bc .gh__lg { font-size: 0.86rem; }
   .gh--bc .gh__venue { display: none; }
@@ -95,16 +95,19 @@
   .gh--bc.gh--stats .gh__credit { top: auto; bottom: auto; position: static; display: block; padding: 0 12px 4px; text-align: right; max-width: none; background: transparent; }
   /* Below the matchup block the strip sits on the page's own dark, not the photograph. */
   .gh__stats { padding: 10px 10px 10px; background: linear-gradient(180deg, rgba(2, 10, 18, 0.94), #020b14 40%); border-top: 1px solid rgba(98, 186, 255, 0.14); }
-  .ghs.fx-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .ghs .fx-stat { padding: 8px 9px 9px; }
-  .ghs .fx-stat__l { font-size: 0.66rem; letter-spacing: 0.06em; }
-  .ghs .fx-stat__v { font-size: 1.35rem; }
-  .ghs .fx-stat__s { font-size: 0.68rem; }
-  .ghs .fx-stat:nth-child(n + 4) { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; }
-  .ghs .fx-stat:nth-child(n + 4) .fx-stat__l { grid-column: 1; }
-  .ghs .fx-stat:nth-child(n + 4) .fx-stat__v { grid-column: 2; grid-row: 1 / span 2; justify-self: end; }
-  .ghs .fx-stat:nth-child(n + 4) .fx-stat__s { grid-column: 1; }
-  .ghs__win .fx-ring { width: 40px !important; height: 40px !important; }
+  /* One swipeable row (ref 02 phone: the game sections sit right under the hero, not below five stacked rows):
+     three tiles in view, the rest a swipe away, snapping tile by tile. */
+  .ghs.fx-stats { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 16px) / 3); grid-template-columns: none; gap: 8px;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 2px;
+    mask-image: linear-gradient(90deg, #000 92%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); }
+  .ghs.fx-stats::-webkit-scrollbar { display: none; }
+  .ghs .fx-stat { padding: 8px 9px 9px; scroll-snap-align: start; min-width: 0; }
+  .ghs .fx-stat__l { font-size: 0.64rem; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ghs .fx-stat__v { font-size: 1.3rem; }
+  .ghs .fx-stat__s { font-size: 0.66rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ghs .fx-stat:has(.ghs__win), .ghs .fx-stat:has(.ghs__px) { grid-column: span 2; }
+  .ghs__win .fx-ring { width: 34px !important; height: 34px !important; }
+  .ghs__win .fx-ring__c { font-size: 0.78rem; }
   .ghs__txt { font-size: 1rem; }
 }
 @media (max-width: 380px) {

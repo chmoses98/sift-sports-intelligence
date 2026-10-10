@@ -83,7 +83,7 @@ test('model disagreement is never shown as an edge: the board says first that no
   // The soccer publication's own walk-forward study finds the market better than dc_laplace_v1 in 112 of 116
   // subgroups: its gaps are signals to read, not research-backed bets, and the board leads by saying so.
   await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
-  await page.goto('./#/');
+  await page.goto('./#/intelligence/markets');
   await page.getByRole('button', { name: 'This week' }).click();
   const board = page.locator('.oppboard');
   await expect(board.getByRole('note').filter({ hasText: 'No validated or research-backed bet right now' })).toBeVisible();
@@ -99,11 +99,11 @@ test('model disagreement is never shown as an edge: the board says first that no
   await expect(card.locator('.opp__note').filter({ hasText: /12,248 matches/ })).toBeVisible();
 });
 
-test('the global home features the soccer research candidates with their price, break-even and limit @smoke', async ({ page }) => {
+test('the market board features the soccer research candidates with their price, break-even and limit @smoke', async ({ page }) => {
   // Inside the publication's validity window for these recommendations (they expire at 06:24Z).
   await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
-  await page.goto('./#/');
-  await expect(page.getByRole('heading', { name: 'Today on Sift' })).toBeVisible();
+  await page.goto('./#/intelligence/markets');
+  await expect(page.getByRole('heading', { name: 'Market board' })).toBeVisible();
   await page.getByRole('button', { name: 'This week' }).click();
   const card = page.locator('.opp--research_candidate').first();
   await expect(card).toBeVisible();
@@ -118,7 +118,7 @@ test('the global home features the soccer research candidates with their price, 
   const text = await page.locator('main').innerText();
   expect(text).not.toMatch(/undefined|NaN|KXEPL|KXLIGA/);
   expect(text).not.toMatch(BANNED);
-  await noHorizontalOverflow(page, 'home');
+  await noHorizontalOverflow(page, 'market-board');
   // The game list carries the fixture with its candidate count and opens it.
   await page.getByRole('link', { name: /Arsenal v Leeds United, Soccer/ }).click();
   await expect(page.getByRole('heading', { name: 'The research read' })).toBeVisible();

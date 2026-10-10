@@ -182,13 +182,13 @@ function PropAnalysis({ row, kickoff, slug, sportCode, eventId, week }: { row: P
         </section>
         <section className="tpanel" aria-labelledby="pexa-mu">
           <h3 className="tpanel__h" id="pexa-mu"><Icon name="compare" size={15} /> Matchup</h3>
-          {row.matchup ? <><p className="tpanel__lead">{row.opp.abbr} {row.matchup.label}</p><span className="pexa__mu"><RankBadge rank={row.matchup.rank} /><MatchupWord tier={row.matchup.rank.tier} /></span><p className="tpanel__note">Opponent-adjusted league rank of the unit this stat runs into (#1 = best at stopping it). For {row.name}, a top-ranked unit is the tough side of the matchup.</p></> : <p className="tpanel__note">No opposing-unit rank is published for this stat.</p>}
+          {row.matchup ? <><p className="tpanel__lead">{row.opp.abbr} {row.matchup.label}</p><span className="pexa__mu"><RankBadge rank={row.matchup.rank} against /><MatchupWord tier={row.matchup.rank.tier} /></span><p className="tpanel__note">Opponent-adjusted league rank of the unit this stat runs into (#1 = best at stopping it). For {row.name}, a top-ranked unit is the tough side of the matchup.</p></> : <p className="tpanel__note">No opposing-unit rank is published for this stat.</p>}
           {row.reasons.length > 0 && <ul className="tpanel__list">{row.reasons.map((x) => <li key={x}>{x}</li>)}</ul>}
         </section>
         <section className="tpanel" aria-labelledby="pexa-lad">
           <h3 className="tpanel__h" id="pexa-lad"><Icon name="layers" size={15} /> Alternative lines</h3>
           {row.ladder.length ? (
-            <div className="lab__tw"><table className="lab__t">
+            <div className="lab__tw" tabIndex={0} role="region" aria-label="Scrollable table"><table className="lab__t">
               <thead><tr><th scope="col">Line</th><th scope="col">Over</th><th scope="col">Under</th><th scope="col">Market</th><th scope="col">Model (research)</th></tr></thead>
               <tbody>{row.ladder.map((r) => <tr key={r.market.market_id} className={r.market.market_id === row.main?.market.market_id ? 'is-main' : undefined}><th scope="row">{r.line}{r.market.market_id === row.main?.market.market_id && <small className="pexa__main"> main</small>}</th><td className="bnum">{cents(r.yesAsk)}</td><td className="bnum">{cents(r.noAsk)}</td><td className="bnum">{pct(r.marketP)}</td><td className="bnum">{pct(r.modelP)}</td></tr>)}</tbody>
             </table></div>

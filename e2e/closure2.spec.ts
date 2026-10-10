@@ -6,9 +6,14 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, noHorizontalOverflow, NOW, test } fro
 const FINAL_GAME = 'evt_0e858f7285b411adf630'; // a 2026 week-1 game, FINAL in this publication
 const AFTER_KICKOFF = new Date('2026-10-04T17:30:00Z'); // NE @ BUF kicked off at 17:00Z
 async function expectTray(page: Page, isMobile: boolean, n: number) {
-  const badge = isMobile ? page.locator('.bottombar__n') : page.locator('.traybtn__n');
-  if (isMobile && n === 0) await expect(badge).toHaveCount(0); // the phone badge hides at zero
+  // The My Board count on the destination bar (header on wide screens, tab bar on phones); it hides at zero.
+  const badge = isMobile ? page.locator('.bottombar__n') : page.locator('.dnav__n [aria-hidden="true"]');
+  if (n === 0) await expect(badge).toHaveCount(0);
   else await expect(badge).toHaveText(String(n));
+}
+async function openBoard(page: Page, isMobile: boolean) {
+  await (isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
+  await expect(page.getByRole('heading', { name: /^My Board$/, level: 1 })).toBeVisible();
 }
 
 // ---------------------------------------------------------------- post-kickoff freeze
@@ -26,9 +31,9 @@ test.describe('pregame research freezes at kickoff', () => {
     await expect(saved).toBeVisible();
     await expect(saved).toHaveText(/Saved pregame/);
     await expectTray(page, isMobile, 1);
-    await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
-    await expect(page.getByRole('complementary', { name: 'Research tray' }).getByText('Pregame · saved before kickoff')).toBeVisible();
-    await page.keyboard.press('Escape');
+    await openBoard(page, isMobile);
+    await expect(page.locator('.bentry').getByText('Pregame · saved before kickoff')).toBeVisible();
+    await page.goBack();
 
     await saved.click();
     await expectTray(page, isMobile, 0);
@@ -47,7 +52,7 @@ test.describe('pregame research freezes at kickoff', () => {
     await expect(b).toHaveAccessibleDescription(/New pregame research can’t be saved after kickoff/);
     await b.evaluate((el) => el.scrollIntoView({ block: 'center' })); // clear of the phone tab bar
     await b.click({ force: true }); // aria-disabled: tapping explains, never saves
-    await expect(page.getByRole('status').filter({ hasText: 'items saved before kickoff stay in your tray' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'items saved before kickoff stay on My Board' })).toBeVisible();
     await expectTray(page, isMobile, 0);
     // The hero itself carries no research actions; the full-game packet export stays at the foot of the page.
     await expect(page.locator('.gh button, .gh .savebtn')).toHaveCount(0);
@@ -68,9 +73,8 @@ test.describe('pregame research freezes at kickoff', () => {
     await page.goto(`./#/nfl/game/${NEBUF}`);
     await page.locator('.mcard__x').first().getByRole('button', { name: /^Save .* to My Board$/ }).click();
     await expectTray(page, isMobile, 1);
-    await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
-    const drawer = page.getByRole('complementary', { name: 'Research tray' });
-    await expect(drawer.locator('.tray__kind').first()).not.toHaveText('Game');
+    await openBoard(page, isMobile);
+    await expect(page.locator('.bentry__kind').first()).not.toHaveText('Game');
   });
 });
 

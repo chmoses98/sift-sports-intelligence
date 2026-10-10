@@ -88,19 +88,14 @@ test('market controls are real touch targets; packet controls are never under th
   }
 });
 
-test('the research tray sheet opens fully on screen and its build button is reachable @smoke', async ({ page, isMobile }) => {
+test('My Board shows the saved item under its game and its packet action is reachable @smoke', async ({ page }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
   await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
-  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
-  const drawer = page.getByRole('complementary', { name: 'Research tray' });
-  await expect(drawer).toBeVisible();
-  await expect(drawer.locator('.tray__item')).toHaveCount(1);
-  const vp = page.viewportSize()!;
-  // (polled: the sheet slides in with a CSS transition)
-  await expect.poll(async () => { const b = (await drawer.boundingBox())!; return b.y + b.height; }, { message: 'tray sheet extends below the screen' }).toBeLessThanOrEqual(vp.height + 1);
-  expect((await drawer.boundingBox())!.y).toBeGreaterThanOrEqual(-1);
-  expect(await notCovered(page, '.drawer__foot .btn--primary'), 'tray build button unreachable').toBe(true);
-  await noHorizontalOverflow(page, 'tray');
+  await page.goto('./#/board');
+  await expect(page.locator('.bentry')).toHaveCount(1);
+  // Run-a-sport analysis is always reachable, clear of the fixed bars.
+  expect(await notCovered(page, '.brun__btns .btn'), 'Run analysis button unreachable').toBe(true);
+  await noHorizontalOverflow(page, 'board');
 });
 
 test('iOS safe areas: viewport-fit=cover and the bottom bar pads by the inset @smoke', async ({ page }) => {

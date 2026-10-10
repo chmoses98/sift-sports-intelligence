@@ -493,3 +493,29 @@
 @media (min-width: 900px) { .brun { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } }
 .brun__btns { display: flex; flex-wrap: wrap; gap: 6px; }
 .brun__btns .btn { display: inline-flex; align-items: center; gap: 6px; }
+.bentry__pre { font-size: 0.75rem; font-weight: 600; color: var(--gold-2); }
+
+/* script comparison studio */
+.scmp { padding: 16px 18px; display: grid; gap: 12px; margin-top: var(--s-5); }
+.scmp__pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.scmp__cols { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 719px) { .scmp__cols, .scmp__pick { grid-template-columns: 1fr; } }
+.scmp__col { display: grid; gap: 10px; align-content: start; padding: 12px 14px; border-radius: 12px; background: rgba(3, 16, 27, 0.6); border: 1px solid var(--line); border-top: 3px solid var(--sc, var(--blue)); min-width: 0; }
+.scmp__col--s1 { --sc: var(--script-1-hi); } .scmp__col--s2 { --sc: var(--script-2-hi); } .scmp__col--s3 { --sc: var(--script-3-hi); } .scmp__col--s4 { --sc: var(--script-4-hi); }
+.scmp__share { font-size: 2rem; font-weight: 700; color: var(--sc); line-height: 1; }
+.scmp__share small { font-size: 0.8rem; color: var(--text-3); font-weight: 500; }
+.scmp__story { margin: 0; color: var(--text); font-size: 0.92rem; line-height: 1.45; }
+.scmp__t td small { font-size: 0.72rem; }
+.scmp__mk ul { margin: 6px 0 0; padding-left: 18px; font-size: 0.86rem; display: grid; gap: 3px; }
+
+/* market comparison studio */
+.mcmp { padding: 16px 18px; display: grid; gap: 10px; margin-top: var(--s-4); }
+.mcmp__cols { display: grid; gap: 10px; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
+@media (max-width: 899px) { .mcmp__cols { grid-template-columns: 1fr; } }
+.mcmp__col { display: grid; gap: 8px; align-content: start; padding: 12px 14px; border-radius: 12px; background: rgba(3, 16, 27, 0.6); border: 1px solid var(--line); min-width: 0; }
+.mcmp__col.is-lead { border-color: rgba(78, 170, 255, 0.55); box-shadow: inset 0 2px 0 rgba(78, 170, 255, 0.6); }
+.mcmp__t { margin: 0; font-size: 1.05rem; color: var(--text-hi); }
+.mcmp__dl { margin: 0; display: grid; gap: 7px; }
+.mcmp__dl div { display: grid; gap: 1px; }
+.mcmp__dl dt { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 600; }
+.mcmp__dl dd { margin: 0; font-size: 0.86rem; color: var(--text); overflow-wrap: anywhere; }

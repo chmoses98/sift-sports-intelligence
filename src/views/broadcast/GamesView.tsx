@@ -15,7 +15,7 @@ import { routes } from '../../lib/routes';
 import { useNow } from '../../live/hooks';
 import { useAllOpportunities } from '../../opportunity/load';
 import { useVisit } from '../../state/trail';
-import { DAY_WORD, gameRows, inDay, phaseWord, slateOrder, type DayWindow, type GameRow } from './games';
+import { competitionWord, DAY_WORD, gameRows, inDay, phaseWord, slateOrder, type DayWindow, type GameRow } from './games';
 import { PMark } from './parts';
 
 const nameOf = (g: GameRow, p: GameRow['home']) => (!p ? '' : g.sport === 'SOCCER' || g.sport === 'TENNIS' || g.sport === 'CBB' ? p.display_name : p.short_name ?? p.display_name);
@@ -31,7 +31,7 @@ function SlateTile({ g }: { g: GameRow }) {
       <div className="stile__img" aria-hidden="true"><HeroArt spec={spec} variant="tile" load={inView} /></div>
       <Link to={routes.game(g.slug, g.item.event_id)} className="stile__a" aria-label={`${g.label}, ${day} ${phaseWord(g)}${g.candidates ? `, ${g.candidates} research candidates` : ''}`}>
         <span className="stile__top">
-          <span className="stile__comp">{g.item.competition ?? navSport(g.slug)?.label}</span>
+          <span className="stile__comp">{competitionWord(g.item.competition, navSport(g.slug)?.label ?? g.sport)}</span>
           <span className={`stile__clock${g.phase === 'STARTED' && !g.stale ? ' is-live' : ''}`}>{g.phase === 'PREGAME' ? `${day} · ${phaseWord(g)}` : phaseWord(g)}</span>
         </span>
         <span className="stile__teams">

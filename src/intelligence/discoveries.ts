@@ -15,6 +15,7 @@ import { matchupInsights, type MatchupInsight } from '../insights/matchups';
 import { isLive } from '../opportunity/rank';
 import type { Opportunity, SportVerdict } from '../opportunity/types';
 import { ago } from '../lib/format';
+import { scrutiny } from '../opportunity/scrutiny';
 
 export type DiscoveryKind = 'market' | 'mismatch' | 'context' | 'freshness' | 'model';
 export type Significance = 'high' | 'medium' | 'low';
@@ -65,7 +66,10 @@ const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.rou
 
 /** A published opportunity as a discovery. Significance follows its tier; evidence is the decision word. */
 export function marketDiscovery(o: Opportunity): Discovery {
-  const d = decisionOf(o.status, o.confidence.calibration);
+  const d0 = decisionOf(o.status, o.confidence.calibration);
+  const x = scrutiny(o);
+  // An extreme gap is a reason to check, never stronger evidence: its basis says so.
+  const d = x && d0.word !== 'No Edge' ? { ...d0, basis: `${d0.basis} · extreme gap, check before trusting` } : d0;
   const significance: Significance = o.rank.tier <= 2 ? 'high' : o.rank.tier === 3 ? 'medium' : 'low';
   const isProp = /player|prop|goal|shots|points|assists|saves|strikeout|hits|bases/i.test(`${o.family ?? ''} ${o.what.title}`);
   return {
@@ -84,6 +88,7 @@ export function marketDiscovery(o: Opportunity): Discovery {
       { label: 'Bet up to', value: o.price.betUpTo == null ? 'Not published' : cents(o.price.betUpTo) },
       { label: 'Authority', value: o.authority || '—' },
       ...(o.confidence.record ? [{ label: 'Family record', value: o.confidence.record.line }] : []),
+      ...(x ? x.checks.map((c) => ({ label: `Check · ${c.label}`, value: `${c.ok === true ? 'Pass' : c.ok === false ? 'Fail' : 'Unverified'} — ${c.note}` })) : []),
     ],
     method: `${o.authority || 'Publication'} candidate, repriced on the current quote where one exists; break-even includes Kalshi's fee.`,
     source: `${o.sport} publication · recommendations`,
@@ -92,7 +97,7 @@ export function marketDiscovery(o: Opportunity): Discovery {
     gameHref: o.gameHref,
     href: o.href,
     players: [],
-    risk: o.risk,
+    risk: x ? `${x.line} ${o.risk ?? ''}`.trim() : o.risk,
     workspaces: isProp ? ['props', 'market'] : ['market'],
     opportunity: o,
   };

@@ -177,3 +177,16 @@ describe('NFL weeks', () => {
     expect(weekOf('2026-10-13T00:15:00Z', a)).toBe(5);
   });
 });
+
+describe('extreme-gap scrutiny', () => {
+  it('flags a gap of 25 points or more with its failed checks, and never strengthens the evidence', async () => {
+    const { scrutiny } = await import('../src/opportunity/scrutiny');
+    const o = opp(); // fair 60%, ask 40¢: a 20-point gap
+    expect(scrutiny(o)).toBeNull();
+    const big = opp({ price: { ...opp().price, fair: 0.72, ask: 0.4 }, orientation: 'VERIFIED' as never });
+    const x = scrutiny(big)!;
+    expect(x.line).toMatch(/32 points above the ask/);
+    expect(x.line).toMatch(/model record/);
+    expect(marketDiscovery(big).evidence!.word).toBe('No Edge');
+  });
+});

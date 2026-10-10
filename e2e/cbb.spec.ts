@@ -149,8 +149,13 @@ test.describe('CBB in season', () => {
     await page.goto('./#/sports');
     await expect(page.locator('.sportcard2', { hasText: "NCAA Division I Men's Basketball" })).toBeVisible();
     await page.goto('./#/');
-    await expect(page.locator('.cbbmod')).toContainText('College basketball');
-    if (!isMobile) await expect(page.locator('.snav').getByRole('link', { name: 'CBB' })).toBeVisible();
+    // Home's games rail filters by every sport with a publication, CBB included.
+    await expect(page.getByRole('group', { name: /Filter today’s games by sport/ }).getByRole('button', { name: /CBB/ })).toBeVisible();
+    if (!isMobile) await expect(page.getByRole('navigation', { name: 'Sports' }).getByRole('link', { name: 'CBB' })).toBeVisible();
+    else {
+      await page.getByRole('button', { name: /Choose a sport|Change sport/ }).click();
+      await expect(page.getByRole('dialog', { name: 'Sports and sections' }).getByRole('link', { name: /CBB/ })).toBeVisible();
+    }
   });
 
   test('the CBB game packet carries the projection rows and the frozen protocol', async ({ page }) => {

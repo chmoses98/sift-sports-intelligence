@@ -84,7 +84,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
         <RangeBar typical={row.range.typical} full={row.range.full} projection={row.projection} line={row.line} format={fmt} label={`${row.name} ${def.label.toLowerCase()} projected range`} />
       )}
       {row.matchup && (
-        <p className="pcard__mu"><span>Matchup</span> <TeamMark sport={ctx.sport} abbr={row.opp.abbr} size="sm" /> {row.matchup.label} <RankBadge rank={row.matchup.rank} compact /></p>
+        <p className="pcard__mu"><span>Matchup</span> <TeamMark sport={ctx.sport} abbr={row.opp.abbr} size="sm" /> {row.matchup.label} <RankBadge rank={row.matchup.rank} compact against /></p>
       )}
       <LastGames row={row} hist={hist} kickoff={ctx.r.event.start_time_utc} week={ctx.g.week} />
 

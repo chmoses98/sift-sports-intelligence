@@ -19,7 +19,12 @@ test.beforeEach(async ({ page, market }) => {
 });
 
 const SCREENS: { name: string; url: string; wait: (p: Page) => Promise<unknown>; full?: boolean }[] = [
-  { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor(), full: true },
+  { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: /^Today on SIFT$/ }).waitFor(), full: true },
+  { name: 'games', url: './#/games?day=week', wait: (p) => p.locator('.stile').first().waitFor() },
+  { name: 'terminal', url: './#/intelligence', wait: (p) => p.locator('.term__list .dcard').first().waitFor() },
+  { name: 'pulse', url: './#/intelligence/pulse', wait: (p) => p.locator('.pcard').first().waitFor() },
+  { name: 'season', url: './#/nfl/season', wait: (p) => p.locator('.wcell').first().waitFor() },
+  { name: 'props', url: './#/nfl/props', wait: (p) => p.locator('#pexa-t').waitFor(), full: true },
   { name: 'nfl-home', url: './#/nfl', wait: (p) => p.getByRole('heading', { name: 'How Each Game Could End' }).waitFor(), full: true },
   { name: 'slate', url: './#/nfl/slate', wait: (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor() },
   { name: 'game', url: `./#/nfl/game/${NEBUF}`, wait: (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor(), full: true },
@@ -70,15 +75,12 @@ test('league ranking @visual', async ({ page, isMobile }) => {
   await expect(page).toHaveScreenshot('ranking.png', { fullPage: !isMobile });
 });
 
-test('research tray @visual', async ({ page, isMobile }) => {
+test('my board @visual', async ({ page }) => {
   await page.goto(`./#/nfl/player/${ALLEN}`);
   await page.getByRole('heading', { name: 'Market Context', exact: true }).waitFor();
   await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
-  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
-  const drawer = page.getByRole('complementary', { name: 'Research tray' });
-  await expect(drawer.locator('.tray__item')).toHaveCount(1);
-  await expect.poll(async () => (await drawer.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(0);
-  await page.waitForTimeout(400); // the sheet's slide-in transition (animations are not CSS-animation based)
+  await page.goto('./#/board');
+  await expect(page.locator('.bentry')).toHaveCount(1);
   await ready(page);
-  await expect(page).toHaveScreenshot('tray.png');
+  await expect(page).toHaveScreenshot('board.png');
 });

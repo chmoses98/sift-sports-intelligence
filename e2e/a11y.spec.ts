@@ -9,7 +9,7 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, NOW, test } from './fixtures';
 const EXCEPTIONS: Record<string, string> = {};
 
 const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
-  ['home', './#/', (p) => p.getByRole('heading', { name: 'Today on Sift' }).waitFor()],
+  ['home', './#/', (p) => p.getByRole('heading', { name: /^Today on SIFT$/ }).waitFor()],
   ['nfl-home', './#/nfl', (p) => p.getByRole('heading', { name: 'How Each Game Could End' }).waitFor()],
   ['slate', './#/nfl/slate', (p) => p.getByRole('heading', { name: /2026 REG Week 4/i }).waitFor()],
   ['game', `./#/nfl/game/${NEBUF}`, (p) => p.getByRole('heading', { name: 'What Matters' }).waitFor()],
@@ -23,6 +23,15 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['packet', `./#/packet?sport=nfl&scope=GAME&event=${NEBUF}`, (p) => p.getByRole('button', { name: 'COPY FOR CHATGPT' }).waitFor({ timeout: 60_000 })],
   ['scorecard', './#/nfl/scorecard', (p) => p.getByRole('heading', { name: 'Model Scorecard', level: 1 }).waitFor()],
   ['status', './#/status', (p) => p.getByRole('heading', { name: 'Live market quotes' }).waitFor()],
+  ['games', './#/games?day=week', (p) => p.locator('.stile').first().waitFor()],
+  ['explore', './#/explore', (p) => p.getByRole('heading', { name: 'Stats Lab' }).waitFor()],
+  ['terminal', './#/intelligence', (p) => p.locator('.term__list .dcard').first().waitFor()],
+  ['market-board', './#/intelligence/markets', (p) => p.getByRole('heading', { name: 'Market board' }).waitFor()],
+  ['pulse', './#/intelligence/pulse', (p) => p.locator('.pcard').first().waitFor()],
+  ['lab', './#/intelligence/lab', (p) => p.getByRole('heading', { name: 'Advanced Model Lab', level: 1 }).waitFor()],
+  ['board-empty', './#/board', (p) => p.getByText('Your board is empty').waitFor()],
+  ['season', './#/nfl/season', (p) => p.locator('.wcell').first().waitFor()],
+  ['props', './#/nfl/props', (p) => p.locator('#pexa-t').waitFor()],
 ];
 
 async function scan(page: Page, name: string) {
@@ -45,16 +54,16 @@ for (const [name, url, ready] of SCREENS) {
   });
 }
 
-test('axe: league ranking and the open research tray @a11y', async ({ page }) => {
+test('axe: league ranking and My Board with a saved item @a11y', async ({ page }) => {
   await page.goto(`./#/nfl/metric/met_nfl.adj_def_db_epa?team=${BUF}`);
   await page.getByRole('link', { name: /Full NFL ranking/ }).click();
   await expect(page.locator('.rankbars__row')).toHaveCount(32);
   await scan(page, 'ranking');
   await page.goto(`./#/nfl/team/${BUF}`);
   await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
-  await page.locator('.bottombar__tray, .traybtn').filter({ visible: true }).first().click();
-  await expect(page.getByRole('complementary', { name: 'Research tray' })).toBeVisible();
-  await scan(page, 'tray');
+  await page.goto('./#/board');
+  await expect(page.locator('.bentry')).toHaveCount(1);
+  await scan(page, 'board');
 });
 
 // Loading states are scanned on purpose, not by luck of timing. CI once caught the home screen

@@ -44,7 +44,7 @@ function PulseCard({ e }: { e: SportEvidence }) {
       {e.headline && <><p className="pcard__k">{e.headline.label}</p><CompareBars c={e.headline} /></>}
       <p className="pcard__v">{e.verdict}</p>
       {e.families.length > 0 && (
-        <div className="pfam" aria-label="By market family">
+        <div className="pfam" role="group" aria-label="By market family">
           {e.families.slice(0, 6).map((f) => <span key={f.label} className={`pfam__c pfam__c--${leaderTone(f.leader)}`} title={`${f.label}: model ${fmt(f.model)} vs market ${fmt(f.market)} (${f.metric}, n ${f.n ?? '—'})`}>{f.label}</span>)}
         </div>
       )}
@@ -148,7 +148,7 @@ export function LabView() {
           {cur.families.length > 0 && (
             <section className="glass lab__panel lab__panel--fam" aria-labelledby="lab-fam">
               <h2 className="tpanel__h" id="lab-fam">By market family</h2>
-              <div className="lab__tw">
+              <div className="lab__tw" tabIndex={0} role="region" aria-label="Scrollable table">
                 <table className="lab__t">
                   <thead><tr><th scope="col">Family</th><th scope="col">Model</th><th scope="col">Market</th><th scope="col">n</th><th scope="col">Leader</th></tr></thead>
                   <tbody>{cur.families.map((f) => <tr key={f.label}><th scope="row">{f.label}</th><td className="bnum">{fmt(f.model)}</td><td className="bnum">{fmt(f.market)}</td><td className="bnum">{f.n?.toLocaleString() ?? '—'}</td><td><span className={`tier tier--${leaderTone(f.leader)}`}>{f.leader === 'market' ? 'Market' : f.leader === 'model' ? 'Model' : 'Even'}</span></td></tr>)}</tbody>
@@ -167,7 +167,7 @@ export function LabView() {
           {cur.studies.map((s) => (
             <section key={s.title} className="glass lab__panel lab__panel--wide" aria-label={s.title}>
               <h2 className="tpanel__h">{s.title} <small className="muted">· {s.kind === 'walk_forward' ? 'walk-forward' : s.kind}</small></h2>
-              <div className="lab__tw">
+              <div className="lab__tw" tabIndex={0} role="region" aria-label="Scrollable table">
                 <table className="lab__t">
                   <thead><tr><th scope="col">Sample</th><th scope="col">{s.rows[0]?.a}</th><th scope="col">{s.rows[0]?.b}</th><th scope="col">n</th><th scope="col">95% interval</th></tr></thead>
                   <tbody>{s.rows.map((r) => <tr key={r.label}><th scope="row">{r.label}</th><td className="bnum">{r.aVal == null ? '—' : fmt(r.aVal)}</td><td className="bnum">{r.bVal == null ? '—' : fmt(r.bVal)}</td><td className="bnum">{r.n?.toLocaleString() ?? '—'}</td><td className="bnum">{r.ci ? `${fmt(r.ci[0])} to ${fmt(r.ci[1])}` : '—'}</td></tr>)}</tbody>

@@ -107,3 +107,13 @@ export function phaseWord(g: GameRow): string {
   if (!Number.isFinite(g.startMs)) return 'Time TBC';
   return new Date(g.startMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
+
+/** A board competition word fit for a tile: "regular" → "Regular season"; real names pass through. */
+export function competitionWord(c: string | null | undefined, sportLabel: string): string {
+  if (!c) return sportLabel;
+  const k = c.trim().toLowerCase();
+  if (k === 'regular' || k === 'reg' || k === 'regular_season') return `${sportLabel} · Regular season`;
+  if (k === 'preseason' || k === 'pre') return `${sportLabel} · Preseason`;
+  if (k === 'postseason' || k === 'playoffs' || k === 'post') return `${sportLabel} · Playoffs`;
+  return c;
+}

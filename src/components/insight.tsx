@@ -10,9 +10,18 @@ import { useHeldImage } from '../lib/useImage';
 import { TeamMark } from './ui';
 
 /** "#3 NFL" big, the tier in words beside it ("Top 3"), the raw number (if any) quieter underneath. */
-export function RankBadge({ rank, raw, compact }: { rank: RankView; raw?: ReactNode; compact?: boolean }) {
+const AGAINST: Record<RankView['tier'], RankView['tier']> = { elite: 'poor', strong: 'weak', average: 'average', weak: 'strong', poor: 'elite' };
+
+/**
+ * `against`: the unit is the OPPONENT of the player or team being read (a prop's opposing defense). The colour then
+ * follows the reader's side — a top-ranked opposing unit is red (tough matchup) — while the rank and its tier words
+ * still describe the unit itself.
+ */
+export function RankBadge({ rank, raw, compact, against }: { rank: RankView; raw?: ReactNode; compact?: boolean; against?: boolean }) {
+  const tier = against && rank.directional ? AGAINST[rank.tier] : rank.tier;
+  const title = against && rank.directional ? (tier === 'poor' || tier === 'weak' ? 'Tough matchup for this player' : tier === 'elite' || tier === 'strong' ? 'Favorable matchup for this player' : 'Neutral matchup') : undefined;
   return (
-    <span className={`rk rk--${rank.tier}${compact ? ' rk--compact' : ''}${rank.directional ? '' : ' rk--neutral'}`}>
+    <span className={`rk rk--${tier}${compact ? ' rk--compact' : ''}${rank.directional ? '' : ' rk--neutral'}`} title={title}>
       <span className="rk__n num">#{rank.rank}</span>
       <span className="rk__w">{rank.directional ? rank.tierWord : rank.tierWord}</span>
       {raw != null && <span className="rk__raw num">{raw}</span>}

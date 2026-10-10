@@ -43,6 +43,8 @@ export interface SportInputs {
   theses?: Thesis[] | null;
   /** NHL: the learning scorecard (metrics.json), for each candidate's family record. */
   learning?: Learning | null;
+  /** Tennis: the settled model-vs-market record (metrics.json met_tennis.settled_brier_score), read live. */
+  tennisRecord?: { n: number; model: number; market: number } | null;
   now: number;
 }
 
@@ -244,7 +246,7 @@ export function tennisOpportunities(x: SportInputs): Opportunity[] {
       ext.start_status ? `Start ${String(ext.start_status).replace(/_/g, ' ').toLowerCase()}` : null,
     ].filter((s): s is string => !!s);
     const tags = ((ext.discrepancy_reason_tags ?? []) as string[]).map((t) => t.replace(/_/g, ' ').toLowerCase());
-    const risk = `The publication's own settled record has the Kalshi mid beating this model (Model Pulse shows the current numbers): a gap is more often the model's error than the market's.${tags.length ? ` Flags: ${tags.join(', ')}.` : ''}${ext.display_status ? ` Publication: ${String(ext.display_status).toLowerCase()}.` : ''}`;
+    const risk = `${x.tennisRecord ? `On ${x.tennisRecord.n.toLocaleString('en-US')} settled rows the Kalshi mid has ${x.tennisRecord.market < x.tennisRecord.model ? 'beaten' : 'been scored against'} this model (Brier ${x.tennisRecord.market.toFixed(4)} vs ${x.tennisRecord.model.toFixed(4)})` : "The publication's own settled record has the Kalshi mid beating this model (Model Pulse shows the current numbers)"}: a gap is more often the model's error than the market's.${tags.length ? ` Flags: ${tags.join(', ')}.` : ''}${ext.display_status ? ` Publication: ${String(ext.display_status).toLowerCase()}.` : ''}`;
     const confidence: Confidence = {
       calibration: 'MARKET_BEATS_MODEL', note: 'RESEARCH_ONLY; the publication reports no evidence of edge on settled rows.', inputs: { start: String(ext.start_status ?? 'unknown'), discrepancy: String(ext.discrepancy_band ?? 'unknown') },
       support: ext_conf, supportNote: ext_conf === 'AGREES_WITH_MODEL' ? 'Sharp references agree with the model' : ext_conf === 'NO_EXTERNAL_REFERENCE' ? 'No sharp reference to check against' : 'Sharp references side with the market', edgeShare: null,

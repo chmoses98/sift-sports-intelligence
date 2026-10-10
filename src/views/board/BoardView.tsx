@@ -15,6 +15,7 @@ import { routes } from '../../lib/routes';
 import { useLiveQuotes, useNow } from '../../live/hooks';
 import { useAllOpportunities } from '../../opportunity/load';
 import { useTray } from '../../state/tray';
+import { isFrozen } from '../../lib/lifecycle';
 import { useVisit } from '../../state/trail';
 import { boardGroups, gameChanges, GROUP_WORD, marketChange, type BoardEntry, type BoardGroupKey, type GameGroup } from '../../board/model';
 
@@ -65,6 +66,7 @@ function EntryRow({ e, quote }: { e: BoardEntry; quote: ReturnType<typeof useLiv
             {l.market.yesAsk != null ? <> · saved at YES {Math.round(l.market.yesAsk * 100)}¢{l.market.observedAt ? `, quote observed ${new Date(l.market.observedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}` : ''}</> : ' · no quote on screen when saved'}
           </span>
         )}
+        {l?.kickoff && isFrozen(l.kickoff, Date.now()) && <span className="bentry__pre" title="Saved before kickoff: it stays pregame research, never a live view.">Pregame · saved before kickoff</span>}
         {ch && <span className={`bentry__chg${ch.reassess ? ' is-alert' : ''}`}><Icon name="clock" size={13} /> {ch.text}</span>}
         <input className="bentry__note" defaultValue={e.item.note ?? ''} placeholder="Add a note (kept with the packet)" aria-label={`Note for ${l?.label ?? e.item.id}`} onBlur={(ev) => tray.setNote(e.item.item_id, ev.target.value)} />
       </div>

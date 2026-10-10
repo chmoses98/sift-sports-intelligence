@@ -3,6 +3,7 @@
 // one line with the sport's precise reason, so the page never implies a bet it does not have.
 import { useMemo } from 'react';
 import { Link } from 'react-router';
+import { MarketCompare } from '../intel/MarketCompare';
 import { useSportOpportunities } from '../../opportunity/load';
 import { featureOpportunities, isLive } from '../../opportunity/rank';
 import type { Opportunity } from '../../opportunity/types';
@@ -32,6 +33,7 @@ export function GameOpportunities({ eventId, now, children }: { eventId: string;
           {children ?? 'The research below is for reading the game, not a pick.'}
         </p>
       )}
+      {mine.length >= 2 && <MarketCompare opps={mine} />}
       {live.length > 2 && <p className="gopp__more muted small">{live.length - 2} more on this game in the {sport.label} opportunities.</p>}
     </section>
   );

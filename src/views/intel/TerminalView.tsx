@@ -23,6 +23,7 @@ import { useVisit } from '../../state/trail';
 import { buildDiscoveries, KIND_WORD, WORKSPACES, type Discovery, type DiscoveryKind, type Workspace } from '../../intelligence/discoveries';
 import { DiscoveryCard } from '../broadcast/parts';
 import { IntelNav } from './IntelNav';
+import { MarketCompare } from './MarketCompare';
 
 const PREF_KEY = 'sift.terminal.v1';
 interface Prefs { ws: Workspace | 'all'; pins: string[] }
@@ -158,6 +159,7 @@ function Workspace({ d, all, pinned, onPin, onBack }: { d: Discovery; all: Disco
           <p className="tpanel__note">{d.method}</p>
           <p className="tpanel__note">Source: {d.source}{d.observedAt ? ` · observed ${ago(d.observedAt)}` : ''}</p>
         </section>
+        {o && <div className="tpanel--wide"><MarketCompare key={d.id} opps={all.filter((x) => x.opportunity && x.eventId === d.eventId).map((x) => x.opportunity!)} title="Compare expressions on this game" /></div>}
         {sameGame.length > 0 && (
           <section className="tpanel tpanel--wide" aria-labelledby="tp-same">
             <h3 className="tpanel__h" id="tp-same"><Icon name="layers" size={15} /> Same game</h3>
@@ -213,7 +215,7 @@ export function TerminalView() {
         </div>
       </div>
       {pinned.length > 0 && (
-        <div className="term__pins" aria-label="Pinned discoveries">
+        <div className="term__pins" role="group" aria-label="Pinned discoveries">
           <span className="eyebrow2"><Icon name="pin" size={12} /> Pinned</span>
           {pinned.map((p) => <button key={p.id} type="button" className={`term__pin${selected?.id === p.id ? ' is-on' : ''}`} onClick={() => set('d', p.id)}>{p.title}</button>)}
         </div>

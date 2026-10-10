@@ -115,7 +115,7 @@ export function PacketView() {
   if (scope === 'CUSTOM' && !trayItems.length) {
     return (
       <div className="page">
-        <Notice title={`Your research tray has no ${sport.label} items`}>Save teams, players, metrics, chart points or markets with “+ Tray”, then build the packet here.</Notice>
+        <Notice title={`My Board has no ${sport.label} items`}>Save teams, players, findings or markets with “+ Save”, then build the packet here.</Notice>
         <Link className="btn btn--ghost" to={routes.sport(sport.slug)}>Go to {sport.label}</Link>
       </div>
     );
@@ -156,7 +156,7 @@ export function PacketView() {
   return (
     <div className="page packet">
       <header className="pagehead">
-        <div className="eyebrow">Copy for ChatGPT · {sport.label} · {scope === 'CUSTOM' ? 'research tray' : scope.toLowerCase()}</div>
+        <div className="eyebrow">Copy for ChatGPT · {sport.label} · {scope === 'CUSTOM' ? 'My Board' : scope.toLowerCase()}</div>
         <h1 className="h-display h-display--md">{packet?.scope.label ?? 'Building the handicap packet'}</h1>
         <p className="lede">
           One compact, self-contained packet: the {sport.label} handicap protocol, the evidence, every current market in scope, the model evidence,

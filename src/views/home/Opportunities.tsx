@@ -14,6 +14,7 @@ import type { Opportunity, SportVerdict } from '../../opportunity/types';
 import { Pill } from '../shared/kit';
 import '../../styles/opportunity.css';
 import { decisionOf } from '../../lib/decision';
+import { scrutiny } from '../../opportunity/scrutiny';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
@@ -74,6 +75,7 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
       {o.priceNote && <p className="opp__note opp__reprice">{o.priceNote}</p>}
       {f.conflicts.length > 0 && <p className="opp__conflict" role="note"><b>Opposite scenario:</b> this cannot win together with {f.conflicts.map((c) => `${c.what.side} ${c.what.title}`).join(' or ')}, also shown for this game. They rely on different game scripts; at most one can be right.</p>}
       {f.conflicts.length === 0 && f.sameGame.length > 0 && <p className="opp__note opp__same">Same game as {f.sameGame.length} other {f.sameGame.length === 1 ? 'card' : 'cards'} here: one exposure, not independent edges.</p>}
+      {(() => { const x = scrutiny(o); return x ? <p className="opp__scrutiny" role="note">{x.line}</p> : null; })()}
       {o.risk && <p className="opp__risk"><b>What beats it:</b> {o.risk}</p>}
       <button type="button" className="opp__more" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Less' : 'Evidence'}{f.related.length ? ` · ${f.related.length} related` : ''}<Icon name="chevronDown" size={14} /></button>
       {open && (

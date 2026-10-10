@@ -1,0 +1,1 @@
+Real cfb-edge-finder files for Texas A&M at Missouri (`evt_03ae795dcfb6056381a6`), published 2026-10-10. This is the full-game moneyline, spread and total rows from `event_detail/<evt>.json`, plus their series from `explorer/market_history/<evt>.json`, with other families filtered out. The values are unedited.

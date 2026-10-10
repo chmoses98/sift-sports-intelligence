@@ -581,3 +581,9 @@ a.ex-tool:hover { color: var(--text); border-color: color-mix(in srgb, var(--ton
   .tm-hero__match .teammark, .tm-hero__match .pmark { width: 60px !important; height: 60px !important; }
   .tm-hero__lbl { font-size: 1.6rem; white-space: nowrap; }
 }
+/* Mid-width desktops (1000–1359px): the sport column keeps only its mark so the matchup label is never cut. */
+@media (min-width: 1000px) and (max-width: 1359px) {
+  .tboard__head, .trow { grid-template-columns: 26px minmax(150px, 1.25fr) 96px minmax(0, 2fr) 64px; }
+  .tboard__head span:first-child { visibility: hidden; }
+  .trow__sport > span:not(.sportmark) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}

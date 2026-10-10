@@ -376,7 +376,8 @@ a.ex-tool:hover { color: var(--text); border-color: color-mix(in srgb, var(--ton
   .ex-tool__art, .ex-tool__go { display: none; }
   .ex-tool__off { font-size: 0.6rem; padding: 1px 6px; justify-self: center; }
   .ex-rk__pc { display: none; }
-  .exh__sports { flex-wrap: nowrap; }
+  .exh__sports { flex-wrap: wrap; gap: 6px; }
+  .exh__sports .tm-chip { padding-inline: 10px; }
 }
 @media (max-width: 420px) {
   .ex-qs__bars li { grid-template-columns: 18px 24px 36px 1fr auto; gap: 6px; }
@@ -596,8 +597,4 @@ a.ex-tool:hover { color: var(--text); border-color: color-mix(in srgb, var(--ton
 .ex-rk__sel { display: flex; width: 100%; }
 .ex-rk__sel select { flex: 1 1 0; width: 0; min-width: 0; }
 .ex-rk__ctl .tm-seg + .ex-rk__sel { flex: 1 1 220px; width: auto; }
-/* WebKit still reported Explore 86px wider than a 393px iPhone (Chromium at the same width fits exactly). Nothing on
-   the hub is designed wider than its card, so the hub clips any intrinsic-size overshoot instead of letting the page
-   scroll sideways; every wide part (week strip, tables, chip rows) already scrolls inside its own container. */
-.exh { overflow-x: hidden; overflow-x: clip; }
 .ex-rk__sel select { max-width: 100%; }

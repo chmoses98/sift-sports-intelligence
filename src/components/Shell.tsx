@@ -103,7 +103,9 @@ function TrailBar({ sport }: { sport: NavSport | undefined }) {
   const loc = useLocation();
   const here = loc.pathname + loc.search;
   const inSport = (s: TrailStep) => !sport || s.href === `/${sport.slug}` || s.href.startsWith(`/${sport.slug}/`) || s.href.startsWith(`/${sport.slug}?`);
-  const shown = steps.filter((s) => s.kind !== 'home' && s.kind !== 'sport' && inSport(s)).slice(-5);
+  // A destination hub that is not sport-scoped (Explore, Intelligence) still names where a sport tool sits.
+  const isHub = (s: TrailStep) => s.href === '/explore' || s.href === '/intelligence';
+  const shown = steps.filter((s) => s.kind !== 'home' && s.kind !== 'sport' && (inSport(s) || isHub(s))).slice(-5);
   if (!sport && !shown.length) return null;
   const atRoot = sport && loc.pathname === `/${sport.slug}`;
   return (

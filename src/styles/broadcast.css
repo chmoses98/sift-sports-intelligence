@@ -420,6 +420,7 @@
 .wcell__opp { display: flex; align-items: center; gap: 5px; font-weight: 600; color: var(--text-hi); font-size: 0.9rem; }
 .wcell__opp .teammark { width: 20px; height: 20px; }
 .wcell__opp--none { color: var(--text-2); font-weight: 500; }
+.wcell__at { font-style: normal; font-weight: 600; color: var(--text-2); min-width: 1.4em; }
 .wcell__bye { font-weight: 700; color: var(--gold-2); }
 .wcell__st { font-size: 0.74rem; color: var(--text-3); }
 .wcell__res { font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }

@@ -41,7 +41,7 @@
 }
 .hubm__preset svg { color: #8fdcff; }
 .hubm__select { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 6px 0 12px; border-radius: 11px; background: rgba(2, 14, 26, 0.7); border: 1px solid rgba(120, 200, 255, 0.24); color: var(--text-2); font-size: 0.8rem; font-weight: 600; }
-.hubm__select select { min-height: 36px; background: transparent; color: #fff; border: 0; font: inherit; font-weight: 600; font-size: 0.92rem; padding-right: 4px; }
+.hubm__select select { min-height: 36px; background: transparent; color: #fff; border: 0; font: inherit; font-weight: 600; font-size: 0.92rem; padding-right: 4px; overflow: hidden; text-overflow: ellipsis; }
 .hubm__select select option { background: #05131d; }
 @media (max-width: 700px) {
   .hubm { min-height: 170px; border-radius: 14px; margin-left: calc(var(--s-2) * -0.5); margin-right: calc(var(--s-2) * -0.5); }
@@ -593,7 +593,9 @@ a.ex-tool:hover { color: var(--text); border-color: color-mix(in srgb, var(--ton
 .hubm__in > *, .hubm__ctl, .exh__bento > div > *, .term__cell > *, .bbx__grid > *, .sn-stack > * { min-width: 0; max-width: 100%; }
 .ex-wk, .tm-tw, .lab__tw { max-width: 100%; }
 /* WebKit sizes a <select> to its longest option (ranking names run ~450px): let the metric pickers fill their card
-   and shrink instead, so the page never scrolls sideways on an iPhone. */
+   and shrink instead, so the page never scrolls sideways on an iPhone. WebKit also paints the chosen option's text
+   past a narrowed control (and counts it as page width) unless the control clips its own text: .hubm__select select
+   sets overflow: hidden, which is also what lets its text-overflow: ellipsis apply. */
 .ex-rk__sel { display: flex; width: 100%; }
 .ex-rk__sel select { flex: 1 1 0; width: 0; min-width: 0; }
 .ex-rk__ctl .tm-seg + .ex-rk__sel { flex: 1 1 220px; width: auto; }

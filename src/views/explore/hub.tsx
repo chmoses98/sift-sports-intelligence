@@ -46,7 +46,7 @@ const yearOf = (r: SearchItem) => Math.max(0, ...((`${r.label} ${r.secondary ?? 
 /** A sport's team rankings, opponent-adjusted first, then the most recent season, then recent form. */
 export function teamRankings(items: SearchItem[]): SearchItem[] {
   return items
-    .filter((i) => i.kind === 'RANKING' && /\bteams\b/i.test(i.secondary ?? i.label) && !/players|skaters|goalies|pitchers|batters/i.test(i.secondary ?? ''))
+    .filter((i) => i.kind === 'RANKING' && /\b(teams|clubs)\b/i.test(i.secondary ?? i.label) && !/players|skaters|goalies|pitchers|batters/i.test(i.secondary ?? ''))
     .sort((a, b) => Number(isAdj(b)) - Number(isAdj(a)) || yearOf(b) - yearOf(a) || Number(/\(L\d+\)/.test(a.label)) - Number(/\(L\d+\)/.test(b.label)) || a.label.localeCompare(b.label));
 }
 

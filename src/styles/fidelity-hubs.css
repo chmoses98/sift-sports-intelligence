@@ -515,3 +515,69 @@ a.ex-tool:hover { color: var(--text); border-color: color-mix(in srgb, var(--ton
   .bgcard__body { padding: 0 12px 14px; }
   .bbx__rail { grid-auto-columns: minmax(240px, 82%); }
 }
+
+/* ===================================================================================== model pulse / lab */
+.pulsex .intelnav, .labx .intelnav { margin-bottom: var(--s-3); }
+.hubm__stat .fx-num small { font-size: 0.5em; color: var(--text-2); margin-left: 2px; }
+.pulsex__strip { margin-bottom: 14px; }
+.pulsex__strip .fx-stat__v { font-size: 1.9rem; }
+.pulsex .pulse__intro { padding: 12px 16px; margin-bottom: 14px; }
+.pulsex .pulse__intro summary { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-cond); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; min-height: 32px; }
+.pulsex .pulse__intro summary svg { color: var(--fx-cyan); }
+.pulsex .pulse__intro p { margin: 8px 0 2px; }
+.pulsex .pgrid { gap: 14px; margin-bottom: var(--s-4); }
+.pulsex .pcard { padding: 16px 18px; gap: 10px; }
+.pulsex .pcard--bad { --fx-edge: rgba(255, 90, 95, 0.28); }
+.pulsex .pcard--good { --fx-edge: rgba(47, 211, 138, 0.32); }
+.pulsex .pcard--mid { --fx-edge: rgba(240, 192, 72, 0.3); }
+.pulsex .pcard--none { opacity: 0.92; }
+.pulsex .pcard__t { font-family: var(--font-cond); font-weight: 700; font-size: 1.55rem; letter-spacing: 0.03em; text-transform: uppercase; color: #fff; }
+.pcard__nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.pcard__nums div { display: grid; gap: 2px; min-width: 0; }
+.pcard__nums dt { font-family: var(--font-cond); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.pcard__nums dd { margin: 0; color: #8fdcff; }
+.pcard__nums .pcard__mkt { color: #dbe4ec; }
+.pcard__nums div:last-child dd { color: #fff; font-size: 1.5rem; }
+.pfam__sum { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 0.74rem; color: var(--text-3); }
+.pfam__sum span { margin-left: 6px; }
+.pfam__dot { width: 12px; height: 12px; border-radius: 3px; }
+.pfam__dot--bad { background: var(--fx-red); box-shadow: 0 0 6px rgba(255, 90, 95, 0.5); }
+.pfam__dot--good { background: var(--fx-green); box-shadow: 0 0 6px rgba(47, 211, 138, 0.5); }
+.pfam__dot--mid { background: var(--fx-gold); }
+.pcard__cap { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: rgba(2, 12, 22, 0.55); border: 1px dashed rgba(148, 170, 189, 0.3); color: var(--text-2); font-size: 0.86rem; line-height: 1.45; }
+.pcard__cap svg { flex: 0 0 auto; color: var(--text-3); }
+.pulsex .cbars__t, .labx .cbars__t { height: 14px; background: rgba(255, 255, 255, 0.06); }
+.pulsex .cbars__f--model, .labx .cbars__f--model { background: linear-gradient(90deg, #1e8cf2, #6fd0ff); box-shadow: 0 0 10px rgba(62, 195, 255, 0.5); }
+.pulsex .cbars__f--market, .labx .cbars__f--market { background: linear-gradient(90deg, #6f7c8c, #d6dee6); }
+.pulsex .cbars__row b, .labx .cbars__row b { font-family: var(--font-cond); font-size: 1.05rem; }
+.labx__grid { margin-bottom: var(--s-4); }
+.labx__grid > .fx-card { min-width: 0; }
+.labx .calib svg { max-width: 420px; margin: 0 auto; display: block; }
+.labx .calib__grid { stroke: rgba(98, 186, 255, 0.12); }
+.labx .calib__line { stroke: #6fd0ff; stroke-width: 2.5; filter: drop-shadow(0 0 4px rgba(62, 195, 255, 0.6)); }
+.labx .calib__dot { fill: #1e8cf2; stroke: #dff3ff; }
+.labx .lab__big { font-size: 3rem; line-height: 1; margin: 8px 0; }
+.labx__t td.labx__bars, .labx__t th.labx__bars { width: 32%; min-width: 140px; }
+.famb { display: grid; gap: 3px; }
+.famb i { display: block; height: 6px; border-radius: 3px; opacity: 0.55; }
+.famb__m { background: linear-gradient(90deg, #1e8cf2, #6fd0ff); }
+.famb__k { background: linear-gradient(90deg, #6f7c8c, #d6dee6); }
+.famb i.is-lead { opacity: 1; box-shadow: 0 0 8px rgba(62, 195, 255, 0.45); }
+.labx__none { margin-bottom: var(--s-4); }
+.labx__nl { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.labx__nl li { display: grid; gap: 6px; padding: 12px 14px; }
+.labx__nt { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-cond); font-weight: 700; font-size: 1.2rem; text-transform: uppercase; color: #fff; }
+@media (max-width: 600px) {
+  .pulsex .pgrid { grid-template-columns: 1fr; }
+  .pulsex__strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .labx .lab__big { font-size: 2.4rem; }
+}
+/* phones: the masthead credit sits above the title block, never over the subtitle */
+@media (max-width: 700px) { .hubm__credit { top: 6px; bottom: auto; } }
+/* The lit top edge of a very tall card (the phone discovery list) pushed the page 1px wide: drop it on the board. */
+.term .tboard::after { display: none; }
+.labx .calib svg { max-width: 340px; }
+@media (max-width: 700px) {
+  .tm-hero__match .teammark, .tm-hero__match .pmark { width: 60px !important; height: 60px !important; }
+  .tm-hero__lbl { font-size: 1.6rem; white-space: nowrap; }
+}

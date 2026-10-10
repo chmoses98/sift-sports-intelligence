@@ -8,6 +8,7 @@
 // no pricing source, and Sift never invents one.
 import type { EventResearchDoc, Market } from '../contract/types';
 import { cfbCodeOfEspn, cfbDisplayText, cfbName } from './cfbTeams';
+import type { ScriptResearch } from '../data/scriptResearch';
 
 export type Role = 'PRIMARY' | 'SECONDARY' | 'ALTERNATE' | 'DANGER';
 export type Compat = 'SUPPORTED' | 'PARTIAL' | 'CONTRADICTED' | 'NEUTRAL' | 'UNMAPPABLE' | 'RESEARCH_UNCALIBRATED';
@@ -204,6 +205,20 @@ export interface Engine {
   pricingNote: string;
   /** The V2 claims published beside the scripts; null when the payload predates them (1.1.0) or trimmed them. */
   claimsV2: ClaimsV2 | null;
+  /** Whether the detailed research (metric tables, dimensions, registry) is on the page, and if not, why. */
+  detail: EngineDetail;
+}
+
+/**
+ * `inline`: the event carried everything. `loading`: the event was trimmed and its research sidecar is being read.
+ * `recovered`: the trimmed detail was restored from the verified same-run sidecar. `unavailable`: it could not be
+ * restored (`reason` says why); the scripts, findings, SIFT Read and contracts are still the event's own.
+ */
+export interface EngineDetail {
+  state: 'inline' | 'loading' | 'recovered' | 'unavailable';
+  reason: string | null;
+  /** The publisher's trim steps, in its words (empty when nothing was trimmed). */
+  trimmed: string[];
 }
 
 export interface EngineUnavailable { status: string; reason: string | null }
@@ -284,11 +299,27 @@ function decodeTeam(t: any, columns: string[], legend: Record<string, string[]>)
   return { ...t, name: code ? cfbName(code, t.name) : cfbDisplayText(t.name), source_name: t.name, metrics };
 }
 
-/** The payload, decoded; `null` when the event has none; `{status, reason}` when it explains why not. */
-export function readEngine(r: EventResearchDoc | null | undefined): Engine | EngineUnavailable | null {
-  const p = (r?.extensions as any)?.script_engine;
-  if (!p) return null;
-  if (!p.script_generation) return { status: String(p.status ?? 'UNAVAILABLE'), reason: p.reason ?? null };
+/**
+ * The payload, decoded; `null` when the event has none; `{status, reason}` when it explains why not.
+ *
+ * `research` is the event's verified research sidecar (data/scriptResearch.ts) when the publisher trimmed the
+ * event: its sections are the same football artifact's own values, so they replace the trimmed ones verbatim.
+ * Pass 'loading' while it is being read; omit it for an event published whole.
+ */
+export function readEngine(r: EventResearchDoc | null | undefined, research?: ScriptResearch | 'loading'): Engine | EngineUnavailable | null {
+  const published = (r?.extensions as any)?.script_engine;
+  if (!published) return null;
+  if (!published.script_generation) return { status: String(published.status ?? 'UNAVAILABLE'), reason: published.reason ?? null };
+  const trimmed: string[] = Array.isArray(published.payload_trim?.steps) ? published.payload_trim.steps.map(String) : [];
+  const recovered = research && typeof research === 'object' && research.state === 'recovered' ? research.sections : null;
+  const p = recovered ? { ...published, ...recovered } : published;
+  const detail: EngineDetail = !trimmed.length
+    ? { state: 'inline', reason: null, trimmed }
+    : research === 'loading'
+      ? { state: 'loading', reason: null, trimmed }
+      : recovered
+        ? { state: 'recovered', reason: null, trimmed }
+        : { state: 'unavailable', reason: research && typeof research === 'object' && research.state === 'unavailable' ? research.reason : 'the publication trimmed this game\'s detailed research to fit its size budget', trimmed };
   const mp = p.matchup_profile ?? {};
   const columns: string[] = mp.metric_columns ?? [];
   const legend: Record<string, string[]> = mp.legend ?? {};
@@ -343,6 +374,7 @@ export function readEngine(r: EventResearchDoc | null | undefined): Engine | Eng
     claimsV2: p.claims_v2?.claims && p.claims_v2?.story
       ? ({ ...p.claims_v2, story: { ...p.claims_v2.story, headline: cfbDisplayText(p.claims_v2.story.headline), clauses: (p.claims_v2.story.clauses ?? []).map((c: any) => ({ ...c, text: cfbDisplayText(c.text) })) } } as ClaimsV2)
       : null,
+    detail,
   };
 }
 

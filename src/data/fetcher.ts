@@ -89,6 +89,41 @@ export function getJson<T>(url: string): Promise<T> {
   return p as Promise<T>;
 }
 
+// ---- raw text (integrity-checked documents)
+//
+// A document whose publisher binds it by the sha256 of its bytes (the CFB Script Engine research sidecar) is
+// read as text, so the digest is checked over exactly what was served before it is parsed.
+
+type FetchText = (url: string) => Promise<string>;
+
+async function defaultFetchText(url: string): Promise<string> {
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (res.status === 404) throw new NotFoundError(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return res.text();
+}
+
+let textImpl: FetchText = defaultFetchText;
+const textInflight = new Map<string, Promise<string>>();
+
+/** Tests swap in a disk reader; the app never calls this. */
+export function setFetchText(fn: FetchText | null): void {
+  textImpl = fn ?? defaultFetchText;
+  textInflight.clear();
+}
+
+/** Memoised per session; a failure is not memoised, so the next read retries. */
+export function getText(url: string): Promise<string> {
+  const hit = textInflight.get(url);
+  if (hit) return hit;
+  const p = textImpl(url);
+  p.catch(() => {
+    if (textInflight.get(url) === p) textInflight.delete(url);
+  });
+  textInflight.set(url, p);
+  return p;
+}
+
 export function joinUrl(base: string, path: string): string {
   return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }

@@ -174,3 +174,12 @@
 .tile--descriptive .tile__v { opacity: 0.8; }
 .tile__tag { font-weight: 500; text-transform: none; letter-spacing: 0; }
 .eng-marginauth { margin: var(--s-3) 0 0; }
+
+/* ---- detailed research status (trimmed event + same-run sidecar) */
+.eng-detail { margin: var(--s-3) 0; padding: 10px 14px; border-radius: 10px; font-size: 0.875rem; line-height: 1.45; border: 1px solid var(--line, rgba(255,255,255,.12)); background: rgba(255,255,255,.03); }
+.eng-detail--loading { display: flex; align-items: center; gap: 10px; color: var(--muted, #9fb0c8); }
+.eng-detail--unavailable { border-color: rgba(255, 196, 77, .45); background: rgba(255, 196, 77, .07); }
+.eng-detail__pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent, #3ad1ff); animation: eng-pulse 1.2s ease-in-out infinite; }
+@keyframes eng-pulse { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .eng-detail__pulse { animation: none; } }
+.eng-gap { margin: var(--s-2) 0; }

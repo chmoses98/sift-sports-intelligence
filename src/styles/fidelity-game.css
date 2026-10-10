@@ -118,7 +118,8 @@
 
 /* ================================================================== illuminated game tabs */
 .gtabs.gtabs--fx { position: sticky; top: calc(var(--topbar-h) + var(--safe-t, 0px)); z-index: 20; margin: 12px 0 0; padding: 4px; border-bottom: 0;
-  background: linear-gradient(180deg, rgba(8, 26, 44, 0.96), rgba(3, 13, 22, 0.97)); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  /* Opaque: content scrolling under the stuck bar must not ghost through it (a live quote age showed through at 96%). */
+  background: linear-gradient(180deg, #081a2c, #030d16); }
 .gtabs.gtabs--fx .fx-tab { min-height: 42px; }
 .gtabs.gtabs--fx .fx-tab::after { display: none; }
 .gtabs.gtabs--fx .fx-tab svg { color: var(--text-3); }

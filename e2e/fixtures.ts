@@ -257,8 +257,22 @@ export { expect };
 
 /** Mobile is not a squeezed desktop: no screen may scroll sideways. */
 export async function noHorizontalOverflow(page: Page, name: string) {
-  const [sw, cw] = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
-  expect(sw, `${name} overflows horizontally`).toBeLessThanOrEqual(cw);
+  const [sw, cw, wide] = await page.evaluate(() => {
+    const cw = document.documentElement.clientWidth;
+    const sw = document.documentElement.scrollWidth;
+    if (sw <= cw) return [sw, cw, ''] as const;
+    // On failure, name the deepest elements that reach past the viewport so a WebKit-only overflow is diagnosable from the CI log.
+    const clipped = (el: Element) => {
+      for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) if (getComputedStyle(p).overflowX !== 'visible') return true;
+      return false;
+    };
+    const out = [...document.querySelectorAll('body *')]
+      .filter((el) => !clipped(el) && el.getBoundingClientRect().right > cw + 0.5 && ![...el.children].some((c) => c.getBoundingClientRect().right > cw + 0.5))
+      .slice(0, 8)
+      .map((el) => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} right=${Math.round(el.getBoundingClientRect().right)}`);
+    return [sw, cw, out.join('; ')] as const;
+  });
+  expect(sw, `${name} overflows horizontally${wide ? ` (${wide})` : ''}`).toBeLessThanOrEqual(cw);
 }
 
 /** Simulate the PWA going to the background / coming back (the store listens for this). */

@@ -14,6 +14,7 @@ import type { Opportunity, SportVerdict } from '../../opportunity/types';
 import { Pill } from '../shared/kit';
 import '../../styles/opportunity.css';
 import { decisionOf } from '../../lib/decision';
+import { betPhrase } from '../../lib/betWords';
 import { scrutiny } from '../../opportunity/scrutiny';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
@@ -67,13 +68,13 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
         </span>
         <span className="opp__chips"><StatusPill o={o} />{o.rank.tier === 2 && <Pill tone="ok" title={o.confidence.supportNote ?? ''}>robust</Pill>}{o.rank.tierWord === 'Model disagreement' && <Pill tone="warn" title={o.confidence.note}>market beats model</Pill>}{o.rank.highVariance && <Pill tone="warn" title="Settles on a single event; high variance">high variance</Pill>}</span>
       </header>
-      <h3 className="opp__t"><Link to={o.href}><span className="opp__side">{o.what.side}</span> {o.what.title}</Link></h3>
+      <h3 className="opp__t" title={betPhrase(o.what.side, o.what.title).exact}><Link to={o.href}>{(() => { const b = betPhrase(o.what.side, o.what.title); return b.rewritten || o.what.side === 'YES' ? b.text : <><span className="opp__side">{o.what.side}</span> {o.what.title}</>; })()}</Link></h3>
       <p className="opp__why">{o.why}</p>
       <PriceLine o={o} now={now} />
       <p className={`opp__state opp__state--${o.price.state.toLowerCase()}`}>{PRICE_STATE_WORD[o.price.state]}{o.price.expiresAt ? ` · valid until ${new Date(o.price.expiresAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : ''} · {CAL_WORD[o.confidence.calibration]}{o.confidence.supportNote ? ` · ${o.confidence.supportNote}` : ''}</p>
       {o.confidence.record && <p className={`opp__record${o.confidence.record.adverse ? ' opp__record--adverse' : ''}`} title={o.confidence.record.source}><b>Track record:</b> {o.confidence.record.line}</p>}
       {o.priceNote && <p className="opp__note opp__reprice">{o.priceNote}</p>}
-      {f.conflicts.length > 0 && <p className="opp__conflict" role="note"><b>Opposite scenario:</b> this cannot win together with {f.conflicts.map((c) => `${c.what.side} ${c.what.title}`).join(' or ')}, also shown for this game. They rely on different game scripts; at most one can be right.</p>}
+      {f.conflicts.length > 0 && <p className="opp__conflict" role="note"><b>Opposite scenario:</b> this cannot win together with {f.conflicts.map((c) => betPhrase(c.what.side, c.what.title).text).join(' or ')}, also shown for this game. They rely on different game scripts; at most one can be right.</p>}
       {f.conflicts.length === 0 && f.sameGame.length > 0 && <p className="opp__note opp__same">Same game as {f.sameGame.length} other {f.sameGame.length === 1 ? 'card' : 'cards'} here: one exposure, not independent edges.</p>}
       {(() => { const x = scrutiny(o); return x ? <p className="opp__scrutiny" role="note">{x.line}</p> : null; })()}
       {o.risk && <p className="opp__risk"><b>What beats it:</b> {o.risk}</p>}
@@ -87,7 +88,7 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
           {f.related.length > 0 && (
             <div className="opp__rel">
               <span className="opp__relh">Related expressions of the same thesis (not independent evidence)</span>
-              <ul>{f.related.map((r) => <li key={r.id}><Link to={r.href}>{r.what.side} {r.what.title}</Link> <span className="muted">· {cents(r.price.ask)} · fair {pct(r.price.fair)} · {STATUS_WORD[r.status].toLowerCase()}</span>{f.opposed.includes(r.id) && <span className="opp__opposed"> · opposite outcome: cannot win with the lead</span>}</li>)}</ul>
+              <ul>{f.related.map((r) => <li key={r.id}><Link to={r.href} title={betPhrase(r.what.side, r.what.title).exact}>{betPhrase(r.what.side, r.what.title).text}</Link> <span className="muted">· {cents(r.price.ask)} · fair {pct(r.price.fair)} · {STATUS_WORD[r.status].toLowerCase()}</span>{f.opposed.includes(r.id) && <span className="opp__opposed"> · opposite outcome: cannot win with the lead</span>}</li>)}</ul>
             </div>
           )}
           <p className="opp__note">Status: {o.statusReason}</p>

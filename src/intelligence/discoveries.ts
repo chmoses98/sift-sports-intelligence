@@ -16,6 +16,7 @@ import { isLive } from '../opportunity/rank';
 import type { Opportunity, SportVerdict } from '../opportunity/types';
 import { ago } from '../lib/format';
 import { scrutiny } from '../opportunity/scrutiny';
+import { betPhrase } from '../lib/betWords';
 
 export type DiscoveryKind = 'market' | 'mismatch' | 'context' | 'freshness' | 'model';
 export type Significance = 'high' | 'medium' | 'low';
@@ -77,7 +78,7 @@ export function marketDiscovery(o: Opportunity): Discovery {
     kind: 'market',
     sport: o.sport,
     slug: o.slug,
-    title: `${o.what.side === 'NO' ? 'NO · ' : ''}${o.what.title}`,
+    title: betPhrase(o.what.side, o.what.title).text,
     why: o.why,
     significance,
     evidence: d,

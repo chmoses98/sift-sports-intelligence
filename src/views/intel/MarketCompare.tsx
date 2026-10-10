@@ -7,6 +7,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { decisionOf } from '../../lib/decision';
+import { betPhrase } from '../../lib/betWords';
 import { contradicts } from '../../opportunity/correlation';
 import { compareOpportunities } from '../../opportunity/rank';
 import type { Opportunity } from '../../opportunity/types';
@@ -26,7 +27,7 @@ export function MarketCompare({ opps, title = 'Market Comparison Studio' }: { op
   const set = (i: number, id: string) => setPicks((p) => p.map((x, k) => (k === i ? id : x)));
   const rows: { k: string; v: (o: Opportunity) => React.ReactNode }[] = [
     { k: 'Evidence', v: (o) => { const d = decisionOf(o.status, o.confidence.calibration); return <><span className={`dword dword--${d.tone}`}>{d.word}</span> <small className="muted">{d.basis}</small></>; } },
-    { k: 'Pays when', v: (o) => (o.what.side === 'NO' ? `${o.what.title} does not happen` : o.what.title) },
+    { k: 'Exact position', v: (o) => betPhrase(o.what.side, o.what.title).exact },
     { k: 'Executable ask', v: (o) => <>{o.what.side} {c(o.price.ask)} <small className="muted">{o.price.state.toLowerCase().replace(/_/g, ' ')}</small></> },
     { k: 'Break-even after fee', v: (o) => c(o.price.breakEven) },
     { k: 'Publication fair', v: (o) => pct(o.price.fair) },
@@ -42,11 +43,11 @@ export function MarketCompare({ opps, title = 'Market Comparison Studio' }: { op
       <p className="tpanel__note">{anyQualifies ? 'Auto-filled with the best-supported expression first (the documented ranking: authority, current price, worst-case edge — never the biggest gap alone), then the strongest alternatives. Replace any column.' : 'Nothing on this game qualifies at the current price: these are research comparisons, not recommendations. Replace any column.'}</p>
       <div className="mcmp__cols" style={{ ['--n' as string]: cols.length }}>
         {cols.map((o, i) => (
-          <article key={o.id} className={`mcmp__col${i === 0 && anyQualifies ? ' is-lead' : ''}`} aria-label={`${o.what.side} ${o.what.title}`}>
+          <article key={o.id} className={`mcmp__col${i === 0 && anyQualifies ? ' is-lead' : ''}`} aria-label={betPhrase(o.what.side, o.what.title).exact}>
             <label className="term__sel"><span>{i === 0 && anyQualifies ? 'Best supported' : i === 0 ? 'Comparison 1' : `Alternative ${i}`}</span>
-              <select value={o.id} onChange={(e) => set(i, e.target.value)}>{ranked.map((x) => <option key={x.id} value={x.id}>{x.what.side} {x.what.title}</option>)}</select>
+              <select value={o.id} onChange={(e) => set(i, e.target.value)}>{ranked.map((x) => <option key={x.id} value={x.id}>{betPhrase(x.what.side, x.what.title).text}</option>)}</select>
             </label>
-            <h3 className="mcmp__t"><Link to={o.href}>{o.what.side === 'NO' ? 'NO · ' : ''}{o.what.title}</Link></h3>
+            <h3 className="mcmp__t" title={betPhrase(o.what.side, o.what.title).exact}><Link to={o.href}>{betPhrase(o.what.side, o.what.title).text}</Link></h3>
             <dl className="mcmp__dl">{rows.map((r) => <div key={r.k}><dt>{r.k}</dt><dd>{r.v(o)}</dd></div>)}</dl>
           </article>
         ))}

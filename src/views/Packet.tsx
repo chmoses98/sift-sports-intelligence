@@ -54,7 +54,12 @@ export function PacketView() {
   const end = sp.get('end') ?? undefined;
   const repo = useRepo(sport);
   const tray = useTray();
-  const trayItems = useMemo(() => tray.tray.items.filter((i) => i.sport === sport?.code), [tray.tray.items, sport]);
+  // My Board builds a packet for one game's saved items: `items` narrows the custom scope to those item ids.
+  const only = sp.get('items');
+  const trayItems = useMemo(() => {
+    const keep = only ? new Set(only.split(',')) : null;
+    return tray.tray.items.filter((i) => i.sport === sport?.code && (!keep || keep.has(i.item_id)));
+  }, [tray.tray.items, sport, only]);
   const trayKey = trayItems.map((i) => i.item_id + (i.note ?? '')).join(',');
   const [packet, setPacket] = useState<HandicapPacket | null>(null);
   const [text, setText] = useState<string>('');
@@ -110,7 +115,7 @@ export function PacketView() {
   if (scope === 'CUSTOM' && !trayItems.length) {
     return (
       <div className="page">
-        <Notice title={`Your research tray has no ${sport.label} items`}>Save teams, players, metrics, chart points or markets with “+ Tray”, then build the packet here.</Notice>
+        <Notice title={`My Board has no ${sport.label} items`}>Save teams, players, findings or markets with “+ Save”, then build the packet here.</Notice>
         <Link className="btn btn--ghost" to={routes.sport(sport.slug)}>Go to {sport.label}</Link>
       </div>
     );
@@ -151,7 +156,7 @@ export function PacketView() {
   return (
     <div className="page packet">
       <header className="pagehead">
-        <div className="eyebrow">Copy for ChatGPT · {sport.label} · {scope === 'CUSTOM' ? 'research tray' : scope.toLowerCase()}</div>
+        <div className="eyebrow">Copy for ChatGPT · {sport.label} · {scope === 'CUSTOM' ? 'My Board' : scope.toLowerCase()}</div>
         <h1 className="h-display h-display--md">{packet?.scope.label ?? 'Building the handicap packet'}</h1>
         <p className="lede">
           One compact, self-contained packet: the {sport.label} handicap protocol, the evidence, every current market in scope, the model evidence,

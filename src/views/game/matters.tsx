@@ -235,7 +235,7 @@ export function PropCardView({ c, ctx, hist }: { c: PropCard; ctx: GameCtx; hist
       <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />
       {c.matchup && (
         <p className="pcard__mu">
-          <span>Matchup</span> <TeamMark sport={ctx.sport} abbr={c.opp.abbr} size="sm" /> {c.matchup.label} <RankBadge rank={c.matchup.rank} compact />
+          <span>Matchup</span> <TeamMark sport={ctx.sport} abbr={c.opp.abbr} size="sm" /> {c.matchup.label} <RankBadge rank={c.matchup.rank} compact against />
         </p>
       )}
       <PropHistory c={c} hist={hist} kickoff={ctx.r.event.start_time_utc} week={ctx.g.week} />

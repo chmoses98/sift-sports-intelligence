@@ -118,7 +118,7 @@ describe('post-kickoff freeze in the research tray', () => {
     expect(b).toHaveAccessibleDescription(expect.stringContaining('New pregame research can’t be saved after kickoff'));
     expect(b.getAttribute('title')).toContain('kicked off');
     fireEvent.click(b);
-    expect(screen.getByRole('status')).toHaveTextContent('items saved before kickoff stay in your tray');
+    expect(screen.getByRole('status')).toHaveTextContent('items saved before kickoff stay on My Board');
   });
 
   it('7. a FINAL game rejects new pregame saves', () => {

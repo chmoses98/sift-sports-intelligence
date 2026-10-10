@@ -13,6 +13,9 @@ import { routes } from '../../lib/routes';
 import { boardPlayers, LEVEL_WORD, readTennis, SURFACE_WORD, TIER_WORD, tournamentOf, tournamentTier } from '../../lib/tennis';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
+import { tennisRecordText } from '../../lib/tennis';
+
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 import { useVisit } from '../../state/trail';
 import { useVisibleOnce } from '../shared/useVisible';
 import { Pill, Section, SportHeader } from '../shared/kit';
@@ -63,7 +66,7 @@ function MatchRow({ item, slug, now, showTournament }: { item: BoardItem; slug: 
 }
 
 export function TennisHomeView() {
-  const { sport, repo, slug } = useSport();
+  const { sport, repo, slug, metrics } = useSport();
   const board = useAsync(`board:${sport.code}:${repo.source.root}`, () => repo.board());
   useVisit(sport.label, 'sport');
   const now = useNow(30_000);
@@ -101,7 +104,7 @@ export function TennisHomeView() {
       <SportHeader
         title="Tennis"
         sub={<><b>{items.length}</b> matches across <b>{new Set(items.map(tournamentOf)).size}</b> tournaments · <b>{markets}</b> Kalshi markets, <b>{priced}</b> priced by the model · every model number is research only</>}
-        status={health ? <><Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}>{health.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill><Pill tone="research" title="Kalshi mid Brier 0.1776 vs model 0.2193 on 15,117 settled rows (publication capability notes)">no evidence of edge</Pill></> : null}
+        status={health ? <><Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}>{health.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill><Pill tone="research" title={cap(tennisRecordText(metrics))}>no evidence of edge</Pill></> : null}
       />
       <div className="skchips" role="group" aria-label="Tour and level">
         {[['', 'Both tours'], ['ATP', 'ATP'], ['WTA', 'WTA']].map(([v, l]) => <button key={v} type="button" className={`skchip${(tour ?? '') === v ? ' is-on' : ''}`} onClick={() => set('tour', v || null)}>{l}</button>)}
@@ -126,7 +129,7 @@ export function TennisHomeView() {
           <SportOpportunities now={now} />
           <Section id="tn-status" title="Model status" sub="What the tennis publication says about itself.">
             <dl className="skkv">
-              <div><dt>Authority</dt><dd>Every model number is RESEARCH_ONLY. On 15,117 settled rows the Kalshi mid scored a Brier of 0.1776 against the model's 0.2193: no evidence of edge.</dd></div>
+              <div><dt>Authority</dt><dd>Every model number is RESEARCH_ONLY. {cap(tennisRecordText(metrics))}: no evidence of edge.</dd></div>
               <div><dt>Ratings</dt><dd>Surface-aware Elo plus a structural serve/return model; a rating attaches only on an exact, unique name match in the tour's rating state.</dd></div>
               <div><dt>Doubles</dt><dd>Gen-1 doubles failed its no-skill validation and is suppressed: no model probability is shown for doubles.</dd></div>
               <div><dt>Start times</dt><dd>Verified first-ball status exists for ATP/WTA main tour and Slams only; Challenger, ITF and qualifying list nominal times.</dd></div>

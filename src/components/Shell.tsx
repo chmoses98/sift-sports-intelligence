@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { NAV_SPORTS, navSport, STATUS_WORD, type NavSport } from '../data/nav';
+import { DESTINATIONS, destinationOf, type Destination } from '../lib/destinations';
 import { routes } from '../lib/routes';
 import { useSearch } from '../search/useSearch';
 import { useTrail, type TrailStep } from '../state/trail';
@@ -8,7 +9,6 @@ import { useTray } from '../state/tray';
 import { SportMark } from './SportMark';
 import { Icon, SiftWordmark } from './Icon';
 import { SearchResults } from './SearchResults';
-import { TrayDrawer } from './TrayDrawer';
 
 /**
  * THE search: one command-palette for the whole app, opened from the header field, the phone tab bar,
@@ -130,6 +130,7 @@ function TrailBar({ sport }: { sport: NavSport | undefined }) {
 
 function Toast() {
   const tray = useTray();
+  const nav = useNavigate();
   const [show, setShow] = useState<string | null>(null);
   useEffect(() => {
     if (!tray.lastAdded) return;
@@ -138,15 +139,14 @@ function Toast() {
     return () => clearTimeout(t);
   }, [tray.lastAdded]);
   const label = show ? tray.labels[show]?.label : null;
-  // Never over the open tray sheet: it would cover the sheet's build-packet button on phones.
-  if (!show || !label || tray.open) return null;
+  if (!show || !label) return null;
   return (
     <div className="toast" role="status">
       <Icon name="check" size={16} />
       <span>
-        Saved <b>{label}</b> to your research
+        Saved <b>{label}</b> to My Board
       </span>
-      <button type="button" className="toast__btn" onClick={() => tray.setOpen(true)}>Open</button>
+      <button type="button" className="toast__btn" onClick={() => { setShow(null); nav(routes.board()); }}>Open</button>
       <button type="button" className="toast__btn" onClick={() => { tray.remove(show); setShow(null); }}>Undo</button>
     </div>
   );
@@ -167,70 +167,75 @@ function useOnline() {
   return on;
 }
 
-const WORKSPACE: { to: string; label: string; icon: string }[] = [
-  { to: routes.tray(), label: 'Research', icon: 'research' },
-  { to: routes.parlays('nfl'), label: 'Parlays', icon: 'parlays' },
-  { to: routes.news(), label: 'News', icon: 'news' },
-  { to: routes.search(), label: 'Search', icon: 'search' },
-];
-
-/** Sports shown directly in the header; the rest live in "More". */
-const HEADER_SPORTS = NAV_SPORTS.filter((s) => s.status !== 'planned');
+/** Sports with a publication (planned ones live on the Sports page, never advertised as implemented). */
+const STRIP_SPORTS = NAV_SPORTS.filter((s) => s.status !== 'planned');
 
 /**
- * The one sports navigation on wide screens: compact tabs in the header. Phones use the tab bar and its
- * Sports sheet instead (never both on one screen).
+ * The five destinations. Desktop: glass tabs in the header, the active one lit. Phones: the bottom tab bar.
+ * Both read destinationOf() so they always agree with the address.
  */
-function SportsNav() {
-  const [more, setMore] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const loc = useLocation();
-  useEffect(() => setMore(false), [loc.pathname]);
-  useEffect(() => {
-    if (!more) return;
-    const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setMore(false);
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMore(false);
-    document.addEventListener('mousedown', onDoc);
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDoc);
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [more]);
+function DestinationTabs({ active, count }: { active: Destination | null; count: number }) {
   return (
-    <nav className="snav" aria-label="Sports">
-      <ul className="snav__list">
-        {HEADER_SPORTS.map((s, i) => (
-          <li key={s.slug} className={i >= 6 ? 'snav__extra snav__extra--wide' : i >= 4 ? 'snav__extra' : i === 3 ? 'snav__mid' : undefined}>
-            <NavLink to={routes.sport(s.slug)} className="snav__a" style={{ ['--accent' as string]: s.accent }}>
-              <SportMark slug={s.slug} icon={s.icon} size={18} />
-              <span>{s.label}</span>
-              {s.status === 'beta' && <span className="snav__tag">beta</span>}
-            </NavLink>
+    <nav className="dnav" aria-label="Primary">
+      <ul className="dnav__list">
+        {DESTINATIONS.map((d) => (
+          <li key={d.id}>
+            <Link to={d.to} className={`dnav__a${active === d.id ? ' is-on' : ''}`} aria-current={active === d.id ? 'page' : undefined}>
+              <Icon name={d.icon} size={16} />
+              <span>{d.label}</span>
+              {d.id === 'board' && count > 0 && <span className="dnav__n"><span aria-hidden="true">{count}</span><span className="sr-only">{count === 1 ? '1 saved item' : `${count} saved items`}</span></span>}
+            </Link>
           </li>
         ))}
-        <li className="snav__morewrap" ref={ref as never}>
-          <button type="button" className="snav__a snav__more" aria-expanded={more} aria-haspopup="true" onClick={() => setMore(!more)}>
-            More <Icon name="chevronDown" size={14} />
-          </button>
-          {more && (
-            <div className="snav__menu" role="menu">
-              <div className="snav__group">
-                {NAV_SPORTS.map((s) => (
-                  <NavLink key={s.slug} role="menuitem" to={routes.sport(s.slug)} className="snav__mi" style={{ ['--accent' as string]: s.accent }}>
-                    <SportMark slug={s.slug} icon={s.icon} size={18} /> {s.label} <span className="snav__st">{STATUS_WORD[s.status]}</span>
-                  </NavLink>
-                ))}
-              </div>
-              <div className="snav__group">
-                {[...WORKSPACE.filter((w) => w.label !== 'Search'), { to: routes.settings(), label: 'Settings', icon: 'settings' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }].map((w) => (
-                  <NavLink key={w.label} role="menuitem" to={w.to} className="snav__mi"><Icon name={w.icon} size={16} /> {w.label}</NavLink>
-                ))}
-              </div>
-            </div>
-          )}
+      </ul>
+    </nav>
+  );
+}
+
+/** Direct sport navigation: one compact glass strip, every sport with a publication, the current one lit. */
+function SportStrip({ sport }: { sport: NavSport | undefined }) {
+  return (
+    <nav className="sstrip" aria-label="Sports">
+      <ul className="sstrip__list">
+        {STRIP_SPORTS.map((s) => (
+          <li key={s.slug}>
+            <Link to={routes.sport(s.slug)} className={`sstrip__a${sport?.slug === s.slug ? ' is-on' : ''}`} aria-current={sport?.slug === s.slug ? 'page' : undefined} style={{ ['--accent' as string]: s.accent }}>
+              <SportMark slug={s.slug} icon={s.icon} size={16} />
+              <span>{s.label}</span>
+            </Link>
+          </li>
+        ))}
+        <li>
+          <Link to={routes.sports()} className="sstrip__a sstrip__all"><Icon name="more" size={16} /><span>All sports</span></Link>
         </li>
       </ul>
+    </nav>
+  );
+}
+
+const SUBPAGES: Record<string, string> = {
+  '/intelligence/pulse': 'Model Pulse',
+  '/intelligence/lab': 'Advanced Model Lab',
+  '/status': 'Data & provenance',
+  '/news': 'News',
+  '/tray': 'Packet items',
+  '/packet': 'Analysis packet',
+  '/search': 'Search',
+};
+
+/** Breadcrumb for screens outside a sport: the destination, then the screen (nothing on a destination's own root). */
+function DestinationCrumb({ active }: { active: Destination | null }) {
+  const loc = useLocation();
+  if (!active || active === 'home') return null;
+  const d = DESTINATIONS.find((x) => x.id === active)!;
+  const sub = SUBPAGES[loc.pathname];
+  if (!sub) return null;
+  return (
+    <nav className="trail" aria-label="Research path">
+      <ol>
+        <li><Link to={d.to} className="trail__root"><Icon name={d.icon} size={15} /> {d.label}</Link></li>
+        <li className="is-here"><span aria-current="page">{sub}</span></li>
+      </ol>
     </nav>
   );
 }
@@ -272,9 +277,9 @@ function SportsSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
             </NavLink>
           </li>
         </ul>
-        <div className="sheet__h"><span className="eyebrow">Workspace</span></div>
+        <div className="sheet__h"><span className="eyebrow">More</span></div>
         <ul className="sheet__work">
-          {[...WORKSPACE.filter((w) => w.label !== 'Search'), { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
+          {[{ to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
             <li key={w.label}>
               <NavLink to={w.to} className="sheet__wa" onClick={onClose}><Icon name={w.icon} size={18} /> {w.label}</NavLink>
             </li>
@@ -290,6 +295,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const online = useOnline();
   const sport = useSportContext();
+  const active = destinationOf(loc.pathname);
   const [sheet, setSheet] = useState(false);
   const [search, setSearch] = useState(false);
   const closeSheet = useCallback(() => setSheet(false), []);
@@ -301,7 +307,8 @@ export function Shell({ children }: { children: ReactNode }) {
     setSheet(false);
     setSearch(false);
   }, [loc.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
-  const tabSport = sport ?? NAV_SPORTS[0];
+  // Explore and Intelligence carry their own sport selectors; the strip would be a second one.
+  const showStrip = active === 'home' || active === 'games' || !!sport;
   return (
     <div className="app">
       <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>
@@ -311,50 +318,46 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link to={routes.home()} className="topbar__brand" aria-label="Sift home">
               <SiftWordmark compact />
             </Link>
-            <SportsNav />
+            <DestinationTabs active={active} count={count} />
             <button type="button" className="searchbtn" onClick={() => setSearch(true)} aria-label="Search Sift" aria-haspopup="dialog">
               <Icon name="search" size={16} />
-              <span className="searchbtn__t">Search teams, players, stats</span>
+              <span className="searchbtn__t">Search teams, players, games, stats</span>
               <kbd className="searchbtn__kbd" aria-hidden="true">/</kbd>
             </button>
-            <NavLink to={routes.news()} className="topbar__news"><Icon name="news" size={16} /><span>News</span></NavLink>
-            <button type="button" className={`traybtn${count ? ' has-items' : ''}`} onClick={() => tray.setOpen(!tray.open)} aria-expanded={tray.open} aria-controls="tray-drawer">
-              <Icon name="research" size={17} />
-              <span className="traybtn__label">Research</span>
-              <span className="traybtn__n" aria-hidden="true">{count}</span>
-              <span className="sr-only">{count === 1 ? '1 item' : `${count} items`}</span>
+            <button type="button" className={`topbar__sport${sheet ? ' is-on' : ''}`} onClick={() => setSheet(!sheet)} aria-expanded={sheet} aria-haspopup="dialog" aria-label={sport ? `Sport: ${sport.label}. Change sport` : 'Choose a sport'}>
+              {sport ? <SportMark slug={sport.slug} icon={sport.icon} size={18} /> : <Icon name="grid" size={18} />}
+              <span>{sport?.label ?? 'Sports'}</span>
+              <Icon name="chevronDown" size={14} />
             </button>
+            <Link to={routes.settings()} className="topbar__icon" aria-label="Settings"><Icon name="settings" size={17} /></Link>
           </div>
         </header>
+        {showStrip && <div className="sstrip__wrap"><SportStrip sport={sport} /></div>}
         {!online && <div className="offline" role="status">Offline — showing research you already opened. Market quotes are not refreshing; each keeps its real age.</div>}
         <main id="main" tabIndex={-1} className="main">
-          {sport && <div className="crumbs"><TrailBar sport={sport} /></div>}
+          <div className="crumbs">{sport ? <TrailBar sport={sport} /> : <DestinationCrumb active={active} />}</div>
           {children}
         </main>
         <footer className="foot">
           <span className="foot__brand">SIFT</span>
           <span>Reads the published <code>edge_finder.app.v1</code> contract. Projections and model prices are research evidence, not bets.</span>
+          <Link to={routes.pulse()}>Model Pulse</Link>
           <Link to={routes.status()}>Data & provenance</Link>
           <Link to={routes.design()}>Design system</Link>
           <Link to={routes.settings()}>Settings</Link>
         </footer>
       </div>
-      <nav className="bottombar" aria-label="Primary">
-        <NavLink to={routes.home()} end className="bottombar__a"><Icon name="home" /><span>Home</span></NavLink>
-        <NavLink to={routes.sport(tabSport.slug)} className="bottombar__a"><SportMark slug={tabSport.slug} icon={tabSport.icon} size={22} /><span>{tabSport.label}</span></NavLink>
-        <button type="button" className={`bottombar__a bottombar__sports${sheet ? ' active' : ''}`} onClick={() => setSheet(!sheet)} aria-expanded={sheet} aria-haspopup="dialog">
-          <Icon name="grid" /><span>Sports</span>
-        </button>
-        <button type="button" className={`bottombar__a${search ? ' active' : ''}`} onClick={() => setSearch(true)} aria-haspopup="dialog"><Icon name="search" /><span>Search</span></button>
-        <button type="button" className={`bottombar__a bottombar__tray${tray.open ? ' active' : ''}`} onClick={() => tray.setOpen(!tray.open)} aria-expanded={tray.open} aria-controls="tray-drawer">
-          <span className="bottombar__ic"><Icon name="research" />{count > 0 && <span className="bottombar__n" aria-hidden="true">{count}</span>}</span>
-          <span>Research</span>
-          {count > 0 && <span className="sr-only">{count === 1 ? '1 item' : `${count} items`}</span>}
-        </button>
+      <nav className="bottombar" aria-label="Destinations">
+        {DESTINATIONS.map((d) => (
+          <Link key={d.id} to={d.to} className={`bottombar__a${active === d.id ? ' active' : ''}${d.id === 'board' ? ' bottombar__board' : ''}`} aria-current={active === d.id ? 'page' : undefined}>
+            <span className="bottombar__ic"><Icon name={d.icon} />{d.id === 'board' && count > 0 && <span className="bottombar__n" aria-hidden="true">{count}</span>}</span>
+            <span>{d.id === 'intelligence' ? 'Intel' : d.label}</span>
+            {d.id === 'board' && count > 0 && <span className="sr-only">{count === 1 ? '1 saved item' : `${count} saved items`}</span>}
+          </Link>
+        ))}
       </nav>
       <SportsSheet open={sheet} onClose={closeSheet} />
       <SearchPalette open={search} onClose={closeSearch} />
-      <TrayDrawer />
       <Toast />
     </div>
   );

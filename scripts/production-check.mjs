@@ -522,7 +522,7 @@ async function designCheck(browser, device, name) {
   });
   try {
     await page.goto(BASE + '#/');
-    await page.getByRole('heading', { name: 'Today on Sift' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: /^Today on SIFT$/i }).waitFor({ timeout: 60_000 });
     await page.waitForTimeout(2500);
     const f = await fonts();
     console.log(`  fonts: body ${f.body.split(',')[0]} · loaded ${f.loaded.join(', ')}`);
@@ -578,18 +578,42 @@ async function designCheck(browser, device, name) {
       check(true, 'NFL Slate Priorities: Back returns to the NFL home');
     }
 
-    // The global Home: the opportunity board (one card per featured expression, or an honest PASS per sport) and the
-    // cross-sport game list, with no sideways scroll on any device.
+    // The global Home (2026-10-10 rebuild): five destinations, today's games rail, the featured matchup hero, the
+    // intelligence preview, the research lab and My Board — with no sideways scroll on any device.
     await page.goto(BASE + '#/');
-    await page.getByRole('heading', { name: /opportunities$/i }).waitFor({ timeout: 60_000 });
-    await page.waitForTimeout(4000);
+    await page.getByRole('heading', { name: /^Today on SIFT$/i }).waitFor({ timeout: 60_000 });
+    await page.waitForTimeout(5000);
     const homeText = await page.locator('main').innerText();
-    check(/opportunit/i.test(homeText) && /games/i.test(homeText), 'Home: the opportunities and games sections render');
+    check(/Today.s games/i.test(homeText) && /SIFT Intelligence/i.test(homeText) && /Research Lab/i.test(homeText) && /My Board/i.test(homeText), 'Home: games rail, intelligence, research lab and My Board sections render');
     check(!/undefined|NaN|Unexpected Application Error/.test(homeText), 'Home shows no undefined / NaN / error screen');
     check(!/\bKX[A-Z]{2,}[A-Z0-9]*-[A-Z0-9-]+/.test(homeText), 'Home shows no raw Kalshi ticker');
     check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'Home: no sideways scroll');
+    const railTiles = await page.locator('.rtile').count();
+    check(railTiles > 0 || /No games today/.test(homeText), `Home: today's games rail (${railTiles} tiles) or an honest empty state`);
+    check((await page.locator('.fhero').count()) > 0 || /No upcoming game to feature/.test(homeText), 'Home: the featured matchup hero (or its honest empty state)');
+    const dests = await page.locator('.dnav__a:visible, .bottombar__a:visible').count();
+    check(dests === 5, `Home: exactly five primary destinations visible (got ${dests})`);
+    check((await page.locator('.searchbtn:visible').count()) === 1, 'Home: exactly one search control');
+    await page.screenshot({ path: `production-${name}-home.png` });
+
+    // The market board (Intelligence → Market board): one card per featured expression, or a No Edge card per sport.
+    await page.goto(BASE + '#/intelligence/markets');
+    await page.getByRole('heading', { name: /opportunities$/i }).waitFor({ timeout: 60_000 });
+    await page.waitForTimeout(4000);
     const cards = await page.locator('.opp').count();
-    check(cards > 0, `Home: ${cards} opportunity / PASS cards (every explorable sport accounted for)`);
+    check(cards > 0, `Market board: ${cards} opportunity / No Edge cards (every explorable sport accounted for)`);
+
+    // Every new destination opens without an error screen, undefined or sideways scroll.
+    for (const [path, heading] of [['games', /^Games$/], ['explore', /^Explore$/], ['intelligence', /^Terminal$/], ['intelligence/pulse', /^Model Pulse$/], ['intelligence/lab', /^Advanced Model Lab$/], ['board', /^My Board$/], ['nfl/season', /^Season navigator$/], ['nfl/props', /^Prop explorer$/]]) {
+      await page.goto(BASE + `#/${path}`);
+      const ok = await page.getByRole('heading', { name: heading }).first().waitFor({ timeout: 60_000 }).then(() => true).catch(() => false);
+      await page.waitForTimeout(3000);
+      const t = await page.locator('main').innerText();
+      check(ok && !/Unexpected Application Error|undefined|NaN/.test(t), `#/${path} renders its screen with no error, undefined or NaN`);
+      check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `#/${path}: no sideways scroll`);
+      if (path === 'intelligence/pulse') check((await page.locator('.pcard').count()) >= 8, 'Model Pulse: one evidence card per explorable sport');
+      await page.screenshot({ path: `production-${name}-${path.replace(/\//g, '-')}.png` });
+    }
 
     for (const [slug, label] of [['cfb', 'CFB'], ['nhl', 'NHL'], ['cbb', 'CBB'], ['mlb', 'MLB'], ['soccer', 'Soccer'], ['tennis', 'Tennis'], ['nba', 'NBA']]) {
       await page.goto(BASE + `#/${slug}`);
@@ -622,7 +646,7 @@ for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { w
   const errs = watchErrors(page);
   try {
     await page.goto(BASE + '#/');
-    await page.getByRole('heading', { name: 'Today on Sift' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: /^Today on SIFT$/i }).waitFor({ timeout: 60_000 });
     check(true, 'home renders');
     if (sel.mode === 'CURRENT') await currentGame(browser, device, name, page, errs);
     else await offSlate(name, page, errs);

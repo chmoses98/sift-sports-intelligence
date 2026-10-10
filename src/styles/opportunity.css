@@ -82,3 +82,5 @@
 .opp__opposed { color: var(--gold-2); }
 .opp__record { margin: 0; font-size: var(--fs-sm); color: var(--text-2, var(--text)); line-height: 1.4; }
 .opp__record--adverse b { color: var(--gold-2); }
+/* extreme model–market gap: a reason to check (src/opportunity/scrutiny.ts) */
+.opp__scrutiny { margin: 0; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; color: var(--gold-2); background: rgba(240, 192, 72, 0.08); border: 1px solid rgba(240, 192, 72, 0.3); }

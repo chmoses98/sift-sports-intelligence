@@ -173,6 +173,25 @@
   --t-fast: 120ms;
   --t-med: 220ms;
 
+  /* ---- broadcast glass (2026-10-10 rebuild): frosted panels, directional light, illuminated active state.
+     Glow is reserved for the selected state; resting surfaces get a hairline and a top light only. */
+  --glass-bg: linear-gradient(160deg, rgba(20, 52, 84, 0.42) 0%, rgba(6, 22, 36, 0.62) 42%, rgba(2, 12, 21, 0.74) 100%);
+  --glass-bg-strong: linear-gradient(160deg, rgba(24, 62, 100, 0.55) 0%, rgba(6, 24, 40, 0.78) 50%, rgba(2, 12, 21, 0.88) 100%);
+  --glass-line: rgba(110, 196, 255, 0.18);
+  --glass-line-hi: rgba(120, 206, 255, 0.42);
+  --glass-top: inset 0 1px 0 rgba(160, 220, 255, 0.14);
+  --glass-blur: blur(18px) saturate(1.25);
+  --glass-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(0, 0, 0, 0.35);
+  --glow-active: 0 0 0 1px rgba(78, 170, 255, 0.65), 0 0 18px rgba(30, 140, 242, 0.45), inset 0 0 14px rgba(70, 160, 255, 0.28);
+  --active-bg: linear-gradient(180deg, rgba(44, 130, 230, 0.42) 0%, rgba(16, 70, 150, 0.38) 100%);
+  /* ranking tiers: favourable / middle / unfavourable for the team being read (always shown with the rank) */
+  --tier-good: #22d98a;
+  --tier-mid: #f2b83b;
+  --tier-bad: #ff5a6a;
+  --tier-good-bg: rgba(34, 217, 138, 0.14);
+  --tier-mid-bg: rgba(242, 184, 59, 0.14);
+  --tier-bad-bg: rgba(255, 90, 106, 0.14);
+
   /* ---- layout */
   --maxw: 1520px;
   --side-w: 200px;

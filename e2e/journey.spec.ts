@@ -39,7 +39,13 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 
   // 2. Open the NFL home (the sport's landing page; the full slate is one link away)
   // The one sports navigation: header tabs on wide screens, the tab bar on phones.
-  await page.getByRole('link', { name: 'NFL', exact: true }).filter({ visible: true }).first().click();
+  // Wide screens: the sport strip under the header. Phones: the sport button opens the sports sheet.
+  if (isMobile) {
+    await page.getByRole('button', { name: /Choose a sport|Change sport/ }).click();
+    await page.getByRole('dialog', { name: 'Sports and sections' }).getByRole('link', { name: /NFL/ }).click();
+  } else {
+    await page.getByRole('navigation', { name: 'Sports' }).getByRole('link', { name: 'NFL', exact: true }).click();
+  }
   await expect(page.getByRole('heading', { name: 'NFL', level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'How Each Game Could End' })).toBeVisible();
   // The research source is disclosed under the quiet Source control, not as a strip across the page.
@@ -103,9 +109,9 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   await expect(page.getByRole('heading', { name: 'Model evidence' })).toBeVisible();
   await shot(page, '09-market');
 
-  // 10. Save it to the research tray
-  await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
-  await expect(page.getByRole('status').filter({ hasText: 'to your research' })).toBeVisible();
+  // 10. Save it to My Board
+  await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
+  await expect(page.getByRole('status').filter({ hasText: 'to My Board' })).toBeVisible();
 
   // 11. Go elsewhere; the tray survives navigation and a fresh load of the app
   await page.goto('./#/nfl');
@@ -121,17 +127,17 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   } else {
     await page.reload();
   }
-  const trayCount = isMobile ? page.locator('.bottombar__n') : page.locator('.traybtn__n');
+  const trayCount = isMobile ? page.locator('.bottombar__n') : page.locator('.dnav__n [aria-hidden="true"]');
   await expect(trayCount).toHaveText('1');
 
-  // 12. Open the tray
-  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
-  const drawer = page.getByRole('complementary', { name: 'Research tray' });
-  await expect(drawer.locator('.tray__item')).toHaveCount(1);
-  await shot(page, '12-tray');
+  // 12. Open My Board: the saved market sits under its game
+  await (isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
+  const board = page.locator('.bgame').first();
+  await expect(board.locator('.bentry')).toHaveCount(1);
+  await shot(page, '12-board');
 
-  // 13. Build the handicap packet
-  await drawer.getByRole('link', { name: /Dig deeper with ChatGPT \(NFL\)/ }).click();
+  // 13. Build the handicap packet for that game's saved research
+  await board.getByRole('link', { name: /Analysis packet/ }).click();
   const copy = page.getByRole('button', { name: 'COPY FOR CHATGPT' });
   await expect(copy).toBeVisible({ timeout: 60_000 });
   // The packet's markets were refreshed before it was built (preflight), and the user is told so.

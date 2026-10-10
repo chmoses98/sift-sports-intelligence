@@ -25,8 +25,16 @@ export const routes = {
   market: (sport: string, marketId: string, eventId: string) => `/${sport}/market/${marketId}${q({ event: eventId })}`,
   compare: (sport: string, a: string, b?: string | null) => `/${sport}/compare${q({ a, b })}`,
   tray: () => '/tray',
-  packet: (p: { sport: string; scope: 'GAME' | 'SLATE' | 'CUSTOM'; event?: string; start?: string; end?: string }) =>
-    `/packet${q({ sport: p.sport, scope: p.scope, event: p.event, start: p.start, end: p.end })}`,
+  games: (ctx?: { sport?: string | null; day?: string | null }) => `/games${q({ sport: ctx?.sport, day: ctx?.day })}`,
+  explore: () => '/explore',
+  season: (sport: string, ctx?: { week?: string | null; team?: string | null }) => `/${sport}/season${q({ week: ctx?.week, team: ctx?.team })}`,
+  intelligence: (ctx?: { ws?: string | null; d?: string | null; sport?: string | null }) => `/intelligence${q({ ws: ctx?.ws, d: ctx?.d, sport: ctx?.sport })}`,
+  pulse: (sport?: string | null) => `/intelligence/pulse${q({ sport })}`,
+  lab: (sport?: string | null) => `/intelligence/lab${q({ sport })}`,
+  board: (ctx?: { game?: string | null }) => `/board${q({ game: ctx?.game })}`,
+  packet: (p: { sport: string; scope: 'GAME' | 'SLATE' | 'CUSTOM'; event?: string; start?: string; end?: string; items?: string[] }) =>
+    `/packet${q({ sport: p.sport, scope: p.scope, event: p.event, start: p.start, end: p.end, items: p.items?.join(',') })}`,
+  props: (sport: string, ctx?: { game?: string | null; player?: string | null; stat?: string | null }) => `/${sport}/props${q({ game: ctx?.game, player: ctx?.player, stat: ctx?.stat })}`,
   status: () => '/status',
   sports: () => '/sports',
   news: () => '/news',

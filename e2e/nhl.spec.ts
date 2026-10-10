@@ -178,13 +178,13 @@ test('search finds NHL teams and players @journey', async ({ page }) => {
   await expect(page.locator('.sres').filter({ hasText: 'Kempe' }).first()).toBeVisible();
 });
 
-test('an NHL game saved to the tray builds an NHL handicap packet with the scripts @journey', async ({ page, isMobile }) => {
+test('an NHL game saved to My Board builds an NHL handicap packet with the scripts @journey', async ({ page }) => {
   await page.goto(`./#/nhl/game/${FLA_LAK}`);
-  await page.getByRole('button', { name: /^Save .* to research tray$/ }).first().click();
-  await (isMobile ? page.locator('.bottombar__tray') : page.locator('.traybtn')).click();
-  const drawer = page.getByRole('complementary', { name: 'Research tray' });
-  await expect(drawer.locator('.tray__item')).toHaveCount(1);
-  await drawer.getByRole('link', { name: /Dig deeper with ChatGPT \(NHL\)/ }).click();
+  await page.getByRole('button', { name: /^Save .* to My Board$/ }).first().click();
+  await page.goto('./#/board');
+  const board = page.locator('.bgame').first();
+  await expect(board.locator('.bentry')).toHaveCount(1);
+  await board.getByRole('link', { name: /Analysis packet/ }).click();
   await expect(page.getByRole('button', { name: 'COPY FOR CHATGPT' })).toBeVisible({ timeout: 60_000 });
   const packet = await page.locator('pre, textarea').first().innerText().catch(() => '');
   if (packet) {

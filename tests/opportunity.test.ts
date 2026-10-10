@@ -89,13 +89,15 @@ describe('soccer candidates', () => {
 
 describe('tennis candidates', () => {
   it('carry no bet-up-to, say the market beats the model, and keep NOT_PLAYABLE rows as PASS with the publication’s reason', () => {
-    const inputs = { sport: { code: 'TENNIS' as const, slug: 'tennis', label: 'Tennis' }, board: readTennis<BoardDoc>('board.json').items, recommendations: readTennis<ItemsDoc<Recommendation>>('recommendations.json').items as never, now: Date.parse('2026-10-09T06:00:00Z') };
+    const inputs = { sport: { code: 'TENNIS' as const, slug: 'tennis', label: 'Tennis' }, board: readTennis<BoardDoc>('board.json').items, recommendations: readTennis<ItemsDoc<Recommendation>>('recommendations.json').items as never, now: Date.parse('2026-10-09T06:00:00Z'), tennisRecord: { n: 32335, model: 0.2136, market: 0.1846 } };
     const opps = tennisOpportunities(inputs);
+    // Without the published record the risk line still says the market's record is better, with no stale numbers.
+    expect(tennisOpportunities({ ...inputs, tennisRecord: null })[0].risk).toMatch(/settled record has the Kalshi mid beating this model/);
     expect(opps.length).toBeGreaterThan(0);
     for (const o of opps) {
       expect(o.price.betUpTo).toBeNull();
       expect(o.confidence.calibration).toBe('MARKET_BEATS_MODEL');
-      expect(o.risk).toMatch(/Brier/);
+      expect(o.risk).toMatch(/On 32,335 settled rows the Kalshi mid has beaten this model \(Brier 0\.1846 vs 0\.2136\)/);
     }
     const set2 = opps.find((o) => o.ticker === 'KXWTASETWINNER-26OCT07MERSWI-2-MER');
     expect(set2?.what.title).toBe('Elise Mertens wins set 2');

@@ -216,8 +216,8 @@ export function SaveButton({
       type="button"
       className={`savebtn${saved ? ' is-saved' : ''}${compact ? ' savebtn--compact' : ''}${className ? ' ' + className : ''}`}
       aria-pressed={saved}
-      aria-label={saved ? `Remove ${label.label} from research tray${pregameSaved ? ' (saved before kickoff as pregame research)' : ''}` : `Save ${label.label} to research tray`}
-      title={pregameSaved ? 'Saved before kickoff: kept as pregame research. Tap to remove it from the tray.' : undefined}
+      aria-label={saved ? `Remove ${label.label} from My Board${pregameSaved ? ' (saved before kickoff as pregame research)' : ''}` : `Save ${label.label} to My Board`}
+      title={pregameSaved ? 'Saved before kickoff: kept as pregame research. Tap to remove it from My Board.' : undefined}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -226,7 +226,7 @@ export function SaveButton({
       }}
     >
       <Icon name={saved ? 'check' : 'plus'} size={compact ? 14 : 16} />
-      {!compact && <span>{saved ? (pregameSaved ? 'Saved pregame' : savedText ?? 'In tray') : text ?? 'Tray'}</span>}
+      {!compact && <span>{saved ? (pregameSaved ? 'Saved pregame' : savedText ?? 'Saved') : text ?? 'Save'}</span>}
     </button>
   );
 }
@@ -328,7 +328,7 @@ export function DigDeeper({ finding, compact, className }: { finding: Finding; c
   return (
     <SaveButton
       ref_kind={t.ref_kind} sport={t.sport} id={t.id} extra={t.extra} label={t.label} note={t.note} kickoff={t.kickoff} eventStatus={t.eventStatus}
-      compact={compact} className={`savebtn--dig${className ? ' ' + className : ''}`} text="Dig deeper" savedText="In research"
+      compact={compact} className={`savebtn--dig${className ? ' ' + className : ''}`} text="Dig deeper" savedText="On My Board"
     />
   );
 }

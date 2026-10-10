@@ -16,6 +16,7 @@ import './styles/props.css';
 import './styles/engine.css';
 import './styles/cbb.css';
 import './styles/hero.css';
+import './styles/broadcast.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

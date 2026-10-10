@@ -13,6 +13,8 @@ import type { Featured } from '../../opportunity/rank';
 import type { Opportunity, SportVerdict } from '../../opportunity/types';
 import { Pill } from '../shared/kit';
 import '../../styles/opportunity.css';
+import { decisionOf } from '../../lib/decision';
+import { scrutiny } from '../../opportunity/scrutiny';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
@@ -23,8 +25,15 @@ const STATUS_WORD: Record<Opportunity['status'], string> = { ACTIONABLE: 'Action
 const STATUS_TONE: Record<Opportunity['status'], 'ok' | 'research' | 'warn' | 'neutral'> = { ACTIONABLE: 'ok', RESEARCH_CANDIDATE: 'research', WATCH: 'warn', PASS: 'neutral' };
 const CAL_WORD: Record<Opportunity['confidence']['calibration'], string> = { VALIDATED: 'Validated', RESEARCH: 'Research model', MARKET_BEATS_MODEL: 'Market beats model', UNVALIDATED: 'Unvalidated' };
 
+/** The decision word a viewer reads (Back · Watch · No Edge), then the publication's own status word beside it. */
 export function StatusPill({ o }: { o: Opportunity }) {
-  return <Pill tone={STATUS_TONE[o.status]} title={o.statusReason}>{STATUS_WORD[o.status]}</Pill>;
+  const d = decisionOf(o.status, o.confidence.calibration);
+  return (
+    <>
+      <span className={`dword dword--${d.tone}`} title={`${d.basis}. ${o.statusReason}`}>{d.word}</span>
+      {o.status !== 'PASS' && <Pill tone={STATUS_TONE[o.status]} title={o.statusReason}>{STATUS_WORD[o.status]}</Pill>}
+    </>
+  );
 }
 
 /** The price line: the side's ask with its age, the break-even, the fair probability and the publication's bet-up-to. */
@@ -66,6 +75,7 @@ export function OpportunityCard({ f, now, showSport = true, compact }: { f: Feat
       {o.priceNote && <p className="opp__note opp__reprice">{o.priceNote}</p>}
       {f.conflicts.length > 0 && <p className="opp__conflict" role="note"><b>Opposite scenario:</b> this cannot win together with {f.conflicts.map((c) => `${c.what.side} ${c.what.title}`).join(' or ')}, also shown for this game. They rely on different game scripts; at most one can be right.</p>}
       {f.conflicts.length === 0 && f.sameGame.length > 0 && <p className="opp__note opp__same">Same game as {f.sameGame.length} other {f.sameGame.length === 1 ? 'card' : 'cards'} here: one exposure, not independent edges.</p>}
+      {(() => { const x = scrutiny(o); return x ? <p className="opp__scrutiny" role="note">{x.line}</p> : null; })()}
       {o.risk && <p className="opp__risk"><b>What beats it:</b> {o.risk}</p>}
       <button type="button" className="opp__more" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Less' : 'Evidence'}{f.related.length ? ` · ${f.related.length} related` : ''}<Icon name="chevronDown" size={14} /></button>
       {open && (
@@ -126,7 +136,7 @@ export function PassCard({ v, children }: { v: SportVerdict; children?: ReactNod
     <article className="opp opp--pass opp--compact">
       <header className="opp__h">
         <span className="opp__eyebrow">{nav && <span className="opp__sport" style={{ ['--accent' as string]: nav.accent }}><SportMark slug={v.slug} icon={nav.icon} size={14} />{nav.label}</span>}<span className="opp__when">{v.games} {v.games === 1 ? 'game' : 'games'} listed</span></span>
-        <span className="opp__chips"><Pill tone="neutral">Pass</Pill></span>
+        <span className="opp__chips"><span className="dword dword--noedge" title="Nothing qualifies at the current price">No Edge</span></span>
       </header>
       <p className="opp__why">{v.error ? `The ${nav?.label ?? v.label} board could not be read: ${v.error}` : v.passReason ?? 'Nothing qualifies.'}</p>
       <StaleNote v={v} />

@@ -6,7 +6,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 
-export type TrailKind = 'home' | 'sport' | 'slate' | 'parlays' | 'news' | 'settings' | 'game' | 'team' | 'player' | 'metric' | 'ranking' | 'market' | 'history' | 'tray' | 'packet' | 'search' | 'compare' | 'status';
+export type TrailKind = 'home' | 'sport' | 'slate' | 'parlays' | 'news' | 'settings' | 'game' | 'team' | 'player' | 'metric' | 'ranking' | 'market' | 'history' | 'tray' | 'packet' | 'search' | 'compare' | 'status' | 'intel' | 'board' | 'explore' | 'season';
 
 export interface TrailStep {
   href: string;
@@ -58,6 +58,10 @@ const GAME_KINDS = new Set<TrailKind>(['game', 'history']);
 export function nextTrail(prev: TrailStep[], s: TrailStep, parent?: TrailStep | null): TrailStep[] {
   if (s.kind === 'home') return [];
   if (s.kind === 'sport') return [s];
+  // Going back up the path (a breadcrumb, browser back, or reopening a screen already in it) collapses
+  // everything below that screen: NFL › Game › Player, then Game → NFL › Game. Never NFL › Player › Game.
+  const up = prev.findIndex((p) => pathOf(p.href) === pathOf(s.href));
+  if (up >= 0 && (!parent || prev.slice(0, up).some((p) => pathOf(p.href) === pathOf(parent.href)))) return [...prev.slice(0, up), s];
   let without = prev.filter((p) => p.href !== s.href);
   if (GAME_KINDS.has(s.kind)) {
     const i = without.findIndex((p) => GAME_KINDS.has(p.kind) && pathOf(p.href) !== pathOf(s.href));

@@ -10,10 +10,15 @@
 .rk__w { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text-2); }
 .rk__raw { grid-column: 1 / -1; font-size: 0.74rem; color: var(--text-3); }
 .rk--compact .rk__n { font-size: 0.92rem; }
-.rk--elite .rk__n, .rk--strong .rk__n { color: #7ff0bd; }
+.rk--elite .rk__n, .rk--strong .rk__n { color: var(--tier-good); }
 .rk--elite .rk__w, .rk--strong .rk__w { color: #9fe8c6; }
-.rk--poor .rk__n, .rk--weak .rk__n { color: #ff8e9b; }
+.rk--average .rk__n { color: var(--tier-mid); }
+.rk--average .rk__w { color: #f5d48a; }
+.rk--poor .rk__n, .rk--weak .rk__n { color: var(--tier-bad); }
 .rk--poor .rk__w, .rk--weak .rk__w { color: #f5aab3; }
+/* favourable / middle / unfavourable, in the league's own terms: top 30% green, middle 40% amber, bottom 30% red.
+   A dot repeats the tier beside the rank and its tier words, so colour is never the only signal. */
+.rk:not(.rk--neutral) .rk__n::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; vertical-align: 0.12em; background: currentColor; box-shadow: 0 0 8px currentColor; }
 .rk--neutral .rk__n { color: var(--text-hi); }
 
 .urow { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }

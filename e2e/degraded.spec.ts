@@ -196,7 +196,11 @@ test('research unavailable on Home: the app stays up and says why (no error-boun
   errors.allow(/Failed to load resource: the server responded with a status of 404/); // injected below
   await page.route('**/data/nfl/app/latest/explorer/index.json', (r) => r.fulfill({ status: 404, body: 'not found' }));
   await page.goto('./#/');
-  await expect(page.getByRole('heading', { name: 'Today on Sift' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Today on SIFT$/ })).toBeVisible();
+  // The intelligence preview names the unreadable publication instead of hiding it.
+  await expect(page.getByText(/NFL publication could not be read/).first()).toBeVisible();
+  // The market board says it per sport too.
+  await page.goto('./#/intelligence/markets');
   await expect(page.getByText(/The NFL board could not be read/)).toBeVisible();
   await expect(page.getByText('Unexpected Application Error')).toHaveCount(0);
 });

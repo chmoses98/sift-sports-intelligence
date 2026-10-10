@@ -16,7 +16,7 @@ import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { Disagreements, FeatureCard, featuredItem, GameTile, sides, useSlateResearch } from './home/cards';
 import { matchupInsights } from '../insights/matchups';
-import { FeaturedProps } from './Home';
+import { FeaturedProps } from './Markets';
 import { PanelHead, ViewAll } from './game/panels';
 import { ScorecardPanel } from './Scorecard';
 import { SlatePriorities } from './home/Priorities';

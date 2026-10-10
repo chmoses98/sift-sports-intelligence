@@ -6,7 +6,7 @@
 export type ResearchPhase = 'pregame' | 'frozen';
 
 export const FROZEN_LABEL = 'Pregame research frozen';
-export const FROZEN_WHY = 'This game has kicked off. New pregame research can’t be saved after kickoff; items saved before kickoff stay in your tray.';
+export const FROZEN_WHY = 'This game has kicked off. New pregame research can’t be saved after kickoff; items saved before kickoff stay on My Board.';
 
 export function researchPhase(kickoffUtc: string | null | undefined, now: number = Date.now(), eventStatus?: string | null): ResearchPhase {
   if (eventStatus === 'FINAL' || eventStatus === 'IN_PROGRESS' || eventStatus === 'LIVE') return 'frozen';

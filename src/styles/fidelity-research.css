@@ -558,3 +558,16 @@
 #g-players .pl__th { font-family: var(--font-cond); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em; text-transform: uppercase; }
 #g-players .pl__pos { font-family: var(--font-cond); font-weight: 700; color: var(--fx-cyan); }
 #g-players .pl__proj .num { font-family: var(--font-cond); font-weight: 700; font-size: 1.05rem; color: #fff; }
+
+/* 360px: long script names and stated bands wrap instead of widening the page */
+@media (max-width: 560px) {
+  .fr-sens .fr-t th[scope="row"] { white-space: normal; }
+  .fr-sens .fr-t td .frbar { display: none; }
+  .fr-theater--cfb .fr-cmp__t { table-layout: fixed; }
+  .fr-theater--cfb .fr-cmp__t td, .fr-theater--cfb .fr-cmp__t th { white-space: normal; overflow-wrap: anywhere; }
+  .fr-theater--cfb .fr-cmp__t .cfchip { white-space: normal; }
+  .fr-cmp__heads { grid-template-columns: 1fr; }
+  .fr-cmp__vs { justify-self: center; }
+}
+.frd__proj text, .frd__line text, .frmm__seg text { paint-order: stroke; stroke: rgba(2, 10, 18, 0.92); stroke-width: 4px; stroke-linejoin: round; }
+@media (max-width: 760px) { .fr-cmp .fr-sc { padding-top: 40px; } .fr-cmp .fr-sc__badge { display: none; } .fr-sc__badge { font-size: 0.6rem; } }

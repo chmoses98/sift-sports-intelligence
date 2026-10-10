@@ -156,6 +156,8 @@ test('CFB identity: the breadcrumb, Markets and Scripts say each school by its c
   const crumb = page.locator('.trail li.is-here');
   await expect(crumb).toHaveText('Iowa State @ BYU');
   await expect(page.locator('.gh__name')).toHaveText(['Iowa State', 'BYU']);
+  // As rendered, not just in the DOM: a text-transform must never restyle a school's name (UAlbany is not UALBANY).
+  expect(await page.locator('.gh__name').allInnerTexts()).toEqual(['Iowa State', 'BYU']);
   await noHorizontalOverflow(page, 'cfb-game-identity');
 
   await page.goto(`./#/cfb/game/${ISU_BYU}?tab=markets`);

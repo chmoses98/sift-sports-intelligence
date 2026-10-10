@@ -254,6 +254,8 @@ export function EngineMarketIntel({ engine, marketsByTicker, slug, eventId, now 
   const setCol = (i: number, id: string) => setSp((p) => { const n = new URLSearchParams(p); const next = studio.map((e) => e.id); next[i] = id; n.set('cmp', next.join(',')); return n; }, { replace: true });
   const losesIn = (e: Expression) => engine.scripts.filter((_, j) => e.compat[j] === 'CONTRADICTED');
   const read = engine.read;
+  /** A trimmed event whose market map could not be restored (main #45): say so, never "nothing survives". */
+  const mapGap = !engine.expressions.length && engine.detail.state !== 'inline';
   return (
     <div className="fr-mi fr-mi--cfb">
       <Rail label="Market views" items={[
@@ -286,7 +288,8 @@ export function EngineMarketIntel({ engine, marketsByTicker, slug, eventId, now 
                 );
               })}
             </div>
-          ) : <CapabilityState title="No expression mapped for this game">The engine mapped no contract to these scripts (no best or multi-script expression survives). Sift features none rather than inventing one; every contract is still listed under All markets.</CapabilityState>}
+          ) : mapGap ? <CapabilityState title={engine.detail.state === 'loading' ? 'Loading the script-to-market map…' : 'Script-to-market map not available'}>{engine.detail.state === 'loading' ? 'Reading the verified research sidecar for this game.' : `The script-to-market map is not available for this game: ${engine.detail.reason ?? 'not published'}. Every contract is still listed under All markets.`}</CapabilityState>
+            : <CapabilityState title="No expression mapped for this game">The engine mapped no contract to these scripts (no best or multi-script expression survives). Sift features none rather than inventing one; every contract is still listed under All markets.</CapabilityState>}
           {engine.scoringResearchOnly && <p className="fr-note" role="note">{SCORING_RESEARCH_NOTE}</p>}
         </section>
         <section className="fx-card fx-span-4 fr-thesis" aria-labelledby="mi-th-h">
@@ -329,7 +332,7 @@ export function EngineMarketIntel({ engine, marketsByTicker, slug, eventId, now 
                 })}
               </div>
             </>
-          ) : <CapabilityState title="Nothing to compare yet">The engine published no expression for this game. A comparison needs at least one mapped contract; Sift does not compare unmapped prices as if they carried football support.</CapabilityState>}
+          ) : <CapabilityState title="Nothing to compare yet">{mapGap ? `The script-to-market map is ${engine.detail.state === 'loading' ? 'still loading' : `not available for this game (${engine.detail.reason ?? 'not published'})`}.` : 'The engine published no expression for this game.'} A comparison needs at least one mapped contract; Sift does not compare unmapped prices as if they carried football support.</CapabilityState>}
         </section>
       </div>
     </div>

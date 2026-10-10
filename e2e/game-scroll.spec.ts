@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 test('the script selector is in normal flow and never covers the research below it @smoke', async ({ page }) => {
   await page.goto(`./#/nfl/game/${NEBUF}?tab=script`);
   await page.getByRole('heading', { name: 'Choose a script' }).waitFor();
-  const panel = page.locator('.stab > .ov-scripts');
+  const panel = page.locator('.fr-theater > .fr-scards');
   await expect(panel).toBeVisible();
   expect(await panel.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky');
   const before = (await panel.boundingBox())!;

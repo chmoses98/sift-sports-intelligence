@@ -542,3 +542,19 @@
 .fr-pl .gbars { max-width: none; }
 .fr-plscript { margin-bottom: 14px; }
 .fr-plscript .frcap { border-style: solid; }
+
+/* ------------------------------------------------------------------ Game Props tab cards (reference 03 language) */
+.frd--compact { margin: 2px 0 0; }
+.frd--compact .frd__t { font-size: 18px; }
+.frd--compact .frd__proj text, .frd--compact .frd__line text { font-size: 19px; }
+.pb__card { position: relative; isolation: isolate; border-radius: 16px; border-color: var(--fx-edge); background: var(--fx-key), linear-gradient(165deg, rgba(18, 48, 80, 0.5) 0%, rgba(6, 22, 37, 0.74) 46%, rgba(2, 11, 20, 0.86) 100%); box-shadow: var(--fx-rim), 0 26px 60px -34px rgba(0, 0, 0, 0.95); }
+.pb__card .pcard__n { font-family: var(--font-cond); font-weight: 700; font-size: 1.2rem; letter-spacing: 0.01em; }
+.pb__card .pb__nums dd { font-family: var(--font-cond); font-weight: 700; font-size: 1.45rem; }
+.pb__card .pface--md { border-radius: 14px; }
+.pb__pex { color: var(--fx-cyan); }
+
+/* Game Players tab: lit glass team columns (content unchanged) */
+#g-players .pl__team { padding: 14px 16px; border-radius: 16px; border: 1px solid var(--fx-edge); background: var(--fx-key), linear-gradient(165deg, rgba(18, 48, 80, 0.5), rgba(2, 11, 20, 0.86)); box-shadow: var(--fx-rim); }
+#g-players .pl__th { font-family: var(--font-cond); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em; text-transform: uppercase; }
+#g-players .pl__pos { font-family: var(--font-cond); font-weight: 700; color: var(--fx-cyan); }
+#g-players .pl__proj .num { font-family: var(--font-cond); font-weight: 700; font-size: 1.05rem; color: #fff; }

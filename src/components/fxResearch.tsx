@@ -73,6 +73,7 @@ export function QuantileDist({
   unit,
   minSpan,
   className,
+  compact,
 }: {
   points: QPoint[] | null;
   line?: number | null;
@@ -84,10 +85,13 @@ export function QuantileDist({
   unit?: string;
   minSpan?: number;
   className?: string;
+  /** Card size: no caption and no tail notes (the caption lives once on the page). */
+  compact?: boolean;
 }) {
   const uid = useId().replace(/:/g, '');
   const qm = points ? quantileMass(points, bins, minSpan) : null;
   if (!points || !qm) {
+    if (compact) return null;
     return (
       <div className="frd frd--none" role="note">
         <span className="frd__none-h">{points ? 'Range too narrow to draw' : 'No published distribution'}</span>
@@ -121,7 +125,7 @@ export function QuantileDist({
   const projX = projection != null ? x(projection) : null;
   const near = lineX != null && projX != null && Math.abs(lineX - projX) < 80;
   return (
-    <figure className={`frd${className ? ` ${className}` : ''}`}>
+    <figure className={`frd${compact ? ' frd--compact' : ''}${className ? ` ${className}` : ''}`}>
       <svg viewBox={`0 0 ${W} ${H + 24}`} role="img" aria-label={`${label}. ${desc}`}>
         <defs>
           <linearGradient id={`${uid}u`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6cc4ff" /><stop offset="1" stopColor="#1f5fd6" stopOpacity="0.5" /></linearGradient>
@@ -138,8 +142,8 @@ export function QuantileDist({
           return <rect key={i} x={bx + 0.8} y={H - h} width={Math.max(1, bw - 1.6)} height={h} rx={1.5} fill={`url(#${uid}${over ? 'o' : 'u'})`} />;
         })}
         {ticks.map((t) => <text key={t} x={x(t)} y={H + 20} textAnchor="middle" className="frd__t">{format(t)}</text>)}
-        <text x={x(lo)} y={top - 10} textAnchor="start" className="frd__tail">5% below</text>
-        <text x={x(hi)} y={top - 10} textAnchor="end" className="frd__tail">5% above</text>
+        {!compact && <text x={x(lo)} y={top - 10} textAnchor="start" className="frd__tail">5% below</text>}
+        {!compact && <text x={x(hi)} y={top - 10} textAnchor="end" className="frd__tail">5% above</text>}
         {projX != null && (
           <g className="frd__proj">
             <line x1={projX} x2={projX} y1={top - 2} y2={H} />
@@ -154,7 +158,7 @@ export function QuantileDist({
           </g>
         )}
       </svg>
-      <figcaption className="frd__cap">Drawn from the five published quantiles (5th · 25th · 50th · 75th · 95th): each block is the share of simulated games between two quantiles. Samples are not published.</figcaption>
+      {!compact && <figcaption className="frd__cap">Drawn from the five published quantiles (5th · 25th · 50th · 75th · 95th): each block is the share of simulated games between two quantiles. Samples are not published.</figcaption>}
     </figure>
   );
 }

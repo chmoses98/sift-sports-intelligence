@@ -5,7 +5,8 @@
 // after Kalshi's fee; confidence is the publication's own scorecard, which rates its prop pricing research only.
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { Layer, PlayerFace, RangeBar, RankBadge } from '../../components/insight';
+import { Layer, PlayerFace, RankBadge } from '../../components/insight';
+import { QuantileDist } from '../../components/fxResearch';
 import { DigDeeper, TeamMark } from '../../components/ui';
 import type { EventDetailDoc, EventResearchDoc, Market, ModelPrice } from '../../contract/types';
 import { hitRecord, pregameRows, statDef, windowRows } from '../../history/stats';
@@ -81,7 +82,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
       </dl>
       <p className="pb__why">{why}</p>
       {row.range && row.projection != null && !flatRange && (
-        <RangeBar typical={row.range.typical} full={row.range.full} projection={row.projection} line={row.line} format={fmt} label={`${row.name} ${def.label.toLowerCase()} projected range`} />
+        <QuantileDist compact points={[{ p: 0.05, v: row.range.full[0] }, { p: 0.25, v: row.range.typical[0] }, ...(row.range.median != null ? [{ p: 0.5, v: row.range.median }] : []), { p: 0.75, v: row.range.typical[1] }, { p: 0.95, v: row.range.full[1] }]} line={row.line} projection={row.projection} format={fmt} unit={def.unit} minSpan={def.count ? 3 : 8} bins={20} height={84} label={`${row.name} ${def.label.toLowerCase()} projected range`} />
       )}
       {row.matchup && (
         <p className="pcard__mu"><span>Matchup</span> <TeamMark sport={ctx.sport} abbr={row.opp.abbr} size="sm" /> {row.matchup.label} <RankBadge rank={row.matchup.rank} compact against /></p>
@@ -132,6 +133,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
       </Layer>
       <div className="pcard__x">
         {row.main && <Link className="pcard__m" to={routes.market(ctx.slug, row.main.market.market_id, ctx.r.event.event_id)}>{row.marketTitle} →</Link>}
+        <Link className="pcard__m pb__pex" to={`${routes.props(ctx.slug, { game: ctx.r.event.event_id })}&prop=${encodeURIComponent(row.id)}`}>Prop Explorer →</Link>
         <DigDeeper finding={finding} compact />
       </div>
     </article>

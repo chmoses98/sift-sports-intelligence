@@ -307,7 +307,8 @@ export function Shell({ children }: { children: ReactNode }) {
     setSheet(false);
     setSearch(false);
   }, [loc.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
-  const showStrip = active === 'home' || active === 'games' || active === 'explore' || !!sport;
+  // Explore and Intelligence carry their own sport selectors; the strip would be a second one.
+  const showStrip = active === 'home' || active === 'games' || !!sport;
   return (
     <div className="app">
       <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>

@@ -301,6 +301,22 @@ function judge(label, kind, g, seen) {
   check(files.every((f) => f && [...served].some((u) => u.endsWith(`/${f}`))), `${label}: the site served ${files.join(' and ')}`);
 }
 
+// The game for section 8: Texas A&M at Missouri while the board carries it, else the first board game whose event
+// document links a Script Engine research sidecar (scanning at most 60 documents).
+const TXAM_MIZZ = 'evt_03ae795dcfb6056381a6';
+async function findSidecarGame() {
+  const ids = [TXAM_MIZZ, ...board.items.filter((i) => i.event_id !== TXAM_MIZZ).map((i) => i.event_id)].slice(0, 60);
+  for (const id of ids) {
+    if (id !== TXAM_MIZZ && !board.items.some((i) => i.event_id === id)) continue;
+    const doc = await getJson(`${APP}/explorer/events/${id}.json`).catch(() => null);
+    const ptr = doc?.extensions?.script_engine?.research_sidecar;
+    if (ptr?.path) return { eventId: id, path: ptr.path };
+  }
+  return null;
+}
+const sidecarGame = board.items.length ? await findSidecarGame() : null;
+console.log(`  research sidecar game: ${sidecarGame ? `${sidecarGame.eventId} (${sidecarGame.path})` : 'none on the board'}`);
+
 console.log('\nproduction');
 const sha = EXPECT_SHA ? await awaitSha(EXPECT_SHA) : await deployedSha();
 console.log(`  deployed build: ${sha ?? '(no version.json)'}${EXPECT_SHA ? ` · expected ${EXPECT_SHA}` : ''}`);
@@ -385,6 +401,28 @@ for (const [name, type, device] of BROWSERS) {
         }
         await page.screenshot({ path: `production-cfb-${name}-${pair.join('-').toLowerCase()}.png` });
       }
+    }
+    // Section 8: a game whose Script Engine payload was trimmed to the event budget reads its detailed research
+    // (metric tables, ranks, dimensions) back from the verified same-run sidecar (cfb-edge-finder #127, Sift #45).
+    // Texas A&M at Missouri (the 2026-10-10 report) when the board still carries it, else the first trimmed game.
+    if (sidecarGame) {
+      const label = `${name}: trimmed game ${sidecarGame.eventId}`;
+      await page.goto(`${BASE}#/cfb/game/${sidecarGame.eventId}?tab=matchup`);
+      await page.locator('.game--engine').waitFor({ timeout: 60_000 });
+      await page.waitForFunction(() => document.querySelectorAll('table.mettab').length > 0 || document.querySelector('[data-testid="engine-detail-unavailable"]'), null, { timeout: 60_000 }).catch(() => {});
+      const st = await page.evaluate(() => ({
+        tables: document.querySelectorAll('table.mettab').length,
+        ranks: (document.querySelector('main')?.innerText.match(/#\d+\/\d+/g) ?? []).length,
+        unavailable: document.querySelector('[data-testid="engine-detail-unavailable"]')?.textContent?.trim() ?? null,
+        provenance: document.querySelector('[data-testid="engine-detail-provenance"]')?.textContent ?? '',
+      }));
+      console.log(`  ${label}: ${st.tables} metric tables · ${st.ranks} ranks · ${st.unavailable ? `unavailable: ${st.unavailable}` : 'detail restored'}`);
+      check(!st.unavailable, `${label}: no "detailed research unavailable" notice${st.unavailable ? ` (${st.unavailable.slice(0, 160)})` : ''}`);
+      check(st.tables > 0 && st.ranks > 0, `${label}: the matchup tab shows the sidecar's opponent-adjusted metric tables with ranks (${st.tables} tables, ${st.ranks} ranks)`);
+      check(/restored from the same-run sidecar .* verified/.test(st.provenance), `${label}: provenance names the verified sidecar`);
+      await page.screenshot({ path: `production-cfb-${name}-sidecar-matchup.png`, fullPage: false });
+    } else {
+      console.log('  trimmed game with a research sidecar: NOT_APPLICABLE — none on the board');
     }
     // A deep link to each game, then the same games again from the CFB slate (a warm client, service worker
     // installed): the way a returning reader actually arrives.

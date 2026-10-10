@@ -29,7 +29,7 @@
   .bhome__games .gtab { padding: 5px 9px; min-height: 32px; font-size: 0.8rem; }
   .bhome__games .rail { flex: 1; min-height: 0; display: flex; }
   .bhome__games .rail__btn { display: none; }
-  .bhome__games .rail__list { flex: 1; grid-auto-flow: row; grid-template-columns: 1fr 1fr; grid-auto-columns: auto; align-content: start; max-height: 560px; overflow-x: hidden; overflow-y: auto; scroll-snap-type: y proximity; padding: 2px 4px 6px 2px; scrollbar-width: thin; }
+  .bhome__games .rail__list { flex: 1; grid-auto-flow: row; grid-template-columns: 1fr 1fr; grid-auto-columns: auto; align-content: start; max-height: 470px; overflow-x: hidden; overflow-y: auto; scroll-snap-type: y proximity; padding: 2px 4px 6px 2px; scrollbar-width: thin; }
   .bhome__games .rtile { min-height: 0; padding: 8px 9px; gap: 4px; border-radius: 11px; }
   .bhome__games .rtile__n { font-size: 0.84rem; }
   .bhome__games .rtile__row { gap: 6px; }
@@ -78,6 +78,7 @@
   .bhome--fx .fhero__img { height: 260px; }
   .bhome--fx .fhero__in { padding-top: 186px; }
   .bhome--fx .fhero__shade { background: linear-gradient(180deg, rgba(1, 8, 15, 0.35) 0%, rgba(1, 8, 15, 0) 25%, rgba(1, 8, 15, 0.7) 200px, #020d17 260px, #020d17 100%); }
-  .bhome--fx .fhero__credit { top: 236px; }
+  .bhome--fx .fhero__credit { top: auto; bottom: 6px; right: 12px; max-width: 80%; }
+  .bhome--fx .fhero__in { padding-bottom: 26px; }
   .bhome__edges { margin-bottom: var(--s-5); }
 }

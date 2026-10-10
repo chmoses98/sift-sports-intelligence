@@ -67,6 +67,7 @@ export function CfbMatchupCard({ engine, codes, href, className = 'fx-span-5' }:
     return cfbVsRows(engine).filter((x) => per[x.off]++ < 2).slice(0, 4);
   }, [engine]);
   const name = (side: 'home' | 'away') => engine.teams[side]?.name ?? side;
+  const gap = (engine.detail.gaps ?? []).includes('matchup');
   return (
     <FxCard title="Key Matchup Advantages" icon="compare" className={`gdash__vs ${className}`} id="gd-cfb-vs" action={{ to: href, label: 'Full matchup' }}>
       {rows.length ? (
@@ -90,11 +91,12 @@ export function CfbMatchupCard({ engine, codes, href, className = 'fx-span-5' }:
           <p className="gdash__fine">Offense (left) vs the defense it faces · FBS rank, #1 best.</p>
         </>
       ) : (
-        <p className={`gdash__state gdash__state--${engine.detail.state}`} role="status" title={engine.detail.reason ?? undefined}>
-          <Icon name={engine.detail.state === 'loading' ? 'clock' : 'info'} size={16} />
-          {engine.detail.state === 'loading'
+        // Only a trim that removed the matchup detail (detail.gaps) is loading or unavailable; otherwise nothing ranks.
+        <p className={`gdash__state gdash__state--${gap ? engine.detail.state : 'inline'}`} role="status" title={gap ? engine.detail.reason ?? undefined : undefined}>
+          <Icon name={gap && engine.detail.state === 'loading' ? 'clock' : 'info'} size={16} />
+          {gap && engine.detail.state === 'loading'
             ? 'Loading the opponent-adjusted ranks…'
-            : engine.detail.state === 'unavailable'
+            : gap && engine.detail.state === 'unavailable'
               ? 'Rank bars unavailable: the detailed research could not be restored (reason above).'
               : 'No opponent-adjusted ranks published for this game.'}
         </p>

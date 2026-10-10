@@ -46,6 +46,13 @@ function save(key: string, v: TrailStep[]) {
 
 const pathOf = (href: string) => href.split('?')[0];
 const GAME_KINDS = new Set<TrailKind>(['game', 'history']);
+/**
+ * Destination screens (the Games, Explore, Intelligence and My Board hubs and the tools under them) are places,
+ * not steps in a research path: their crumb is their fixed position in the hierarchy (the hub, then the screen),
+ * never the game or tool the user happened to come from. NFL › BUF @ LA › Prop explorer › Season is a history,
+ * not a location; NFL › Explore › Season is where the reader is.
+ */
+export const DESTINATION_KINDS = new Set<TrailKind>(['slate', 'explore', 'season', 'intel', 'board', 'news', 'parlays', 'settings', 'status', 'search', 'tray']);
 
 /**
  * The next path after visiting `s`. Pure, so the rules are unit-testable.
@@ -58,13 +65,16 @@ const GAME_KINDS = new Set<TrailKind>(['game', 'history']);
 export function nextTrail(prev: TrailStep[], s: TrailStep, parent?: TrailStep | null): TrailStep[] {
   if (s.kind === 'home') return [];
   if (s.kind === 'sport') return [s];
+  if (DESTINATION_KINDS.has(s.kind)) return parent && pathOf(parent.href) !== pathOf(s.href) ? [parent, s] : [s];
   // Going back up the path (a breadcrumb, browser back, or reopening a screen already in it) collapses
   // everything below that screen: NFL › Game › Player, then Game → NFL › Game. Never NFL › Player › Game.
   const up = prev.findIndex((p) => pathOf(p.href) === pathOf(s.href));
   if (up >= 0 && (!parent || prev.slice(0, up).some((p) => pathOf(p.href) === pathOf(parent.href)))) return [...prev.slice(0, up), s];
   let without = prev.filter((p) => p.href !== s.href);
   if (GAME_KINDS.has(s.kind)) {
-    const i = without.findIndex((p) => GAME_KINDS.has(p.kind) && pathOf(p.href) !== pathOf(s.href));
+    // A game is a root under its sport: another game, or a destination hub/tool the user came through, is not
+    // where the game lives, so neither stays above it.
+    const i = without.findIndex((p) => (GAME_KINDS.has(p.kind) && pathOf(p.href) !== pathOf(s.href)) || DESTINATION_KINDS.has(p.kind));
     if (i >= 0) without = without.slice(0, i);
   }
   if (parent && !without.some((p) => pathOf(p.href) === pathOf(parent.href))) {
@@ -75,6 +85,9 @@ export function nextTrail(prev: TrailStep[], s: TrailStep, parent?: TrailStep | 
   if (last && last.label === s.label && last.kind === s.kind) without.pop();
   return [...without, s].slice(-MAX);
 }
+
+/** The Explore hub, as the parent of the tools under it (Season, Prop explorer). */
+export const EXPLORE_STEP: TrailStep = { href: '/explore', label: 'Explore', kind: 'explore' };
 
 const ENTITY_KINDS = new Set<TrailKind>(['game', 'team', 'player', 'metric', 'ranking', 'market', 'history', 'compare']);
 

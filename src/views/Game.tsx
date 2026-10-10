@@ -26,7 +26,7 @@ import { GameTabs } from './game/GameTabs';
 import { GameInfoCard, GameReadCard, MarketContextCard, MatchupAdvantagesCard, PropExplorerCard, RelatedResearchCard, ScriptsCard } from './game/Dashboard';
 import { FxCard } from '../components/fx';
 import { CfbMatchupCard, CfbScriptsCard } from './game/CfbDashboard';
-import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, MarketsPanel, SurvivorsPanel } from './game/panels';
+import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel, SurvivorsPanel } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
 import { EngineConfidencePanel, EngineDetailNotice, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
 import { GameReadV2Panel } from './game/GameReadV2';
@@ -610,7 +610,7 @@ export function GameView({ eventId }: { eventId: string }) {
         {etab === 'matchup' && <EngineMatchupTab engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />}
         {etab === 'trends' && (
           <div className="trends">
-            <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={homeAbbr} to={ehref('markets')} />
+            <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={homeAbbr} favId={marketFavoriteId(rows)} to={ehref('markets')} />
             {capShown(caps, 'market_price_history') && r.market_history_path && (
               <Stratum id="g-movement" title="Contract price history" sub="Game-level tickers, every capture since listing.">
                 <Movement eventId={eventId} path={r.market_history_path} prices={prices} kickoffIso={ev.start_time_utc} known={known} />

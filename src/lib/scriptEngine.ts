@@ -219,6 +219,13 @@ export interface EngineDetail {
   reason: string | null;
   /** The publisher's trim steps, in its words (empty when nothing was trimmed). */
   trimmed: string[];
+  /**
+   * What the trim actually emptied in the published event, so a notice speaks only about missing research: an early
+   * trim step (expression correlations) leaves the matchup tables whole and says nothing about them.
+   *  - matchup: the metric registry, a team's metric table or the matchup dimensions are empty;
+   *  - market_map: the script-to-market expressions are empty.
+   */
+  gaps: ('matchup' | 'market_map')[];
 }
 
 export interface EngineUnavailable { status: string; reason: string | null }
@@ -313,13 +320,18 @@ export function readEngine(r: EventResearchDoc | null | undefined, research?: Sc
   const trimmed: string[] = Array.isArray(published.payload_trim?.steps) ? published.payload_trim.steps.map(String) : [];
   const recovered = research && typeof research === 'object' && research.state === 'recovered' ? research.sections : null;
   const p = recovered ? { ...published, ...recovered } : published;
+  const empty = (o: unknown) => !o || (typeof o === 'object' && Object.keys(o as object).length === 0);
+  const pmp = published.matchup_profile ?? {};
+  const gaps: EngineDetail['gaps'] = [];
+  if (trimmed.length && (empty(published.metric_registry) || empty(pmp.teams?.home?.metrics) || empty(pmp.teams?.away?.metrics) || empty(pmp.dimensions))) gaps.push('matchup');
+  if (trimmed.length && !(published.script_market_map?.expressions ?? []).length) gaps.push('market_map');
   const detail: EngineDetail = !trimmed.length
-    ? { state: 'inline', reason: null, trimmed }
+    ? { state: 'inline', reason: null, trimmed, gaps }
     : research === 'loading'
-      ? { state: 'loading', reason: null, trimmed }
+      ? { state: 'loading', reason: null, trimmed, gaps }
       : recovered
-        ? { state: 'recovered', reason: null, trimmed }
-        : { state: 'unavailable', reason: research && typeof research === 'object' && research.state === 'unavailable' ? research.reason : 'the publication trimmed this game\'s detailed research to fit its size budget', trimmed };
+        ? { state: 'recovered', reason: null, trimmed, gaps }
+        : { state: 'unavailable', reason: research && typeof research === 'object' && research.state === 'unavailable' ? research.reason : 'the publication trimmed this game\'s detailed research to fit its size budget', trimmed, gaps };
   const mp = p.matchup_profile ?? {};
   const columns: string[] = mp.metric_columns ?? [];
   const legend: Record<string, string[]> = mp.legend ?? {};

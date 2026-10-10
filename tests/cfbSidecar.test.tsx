@@ -172,3 +172,22 @@ describe('a small event published whole', () => {
     expect(document.querySelector('.eng-detail')).toBeNull();
   });
 });
+
+describe('an event trimmed only in its early steps', () => {
+  it('keeps its matchup tables and shows no unavailable notice', () => {
+    const r = doc(`${EID}.json`);
+    const ext = r.extensions as { script_engine: Record<string, unknown> };
+    // the same event as if only expression correlations had been trimmed: matchup sections whole, sidecar not read
+    const full = JSON.parse(read(SIDECAR)).sections;
+    const early = { ...r, extensions: { script_engine: { ...ext.script_engine, ...full, payload_trim: { budget_bytes: 1, steps: ['expression correlations'], omitted: false } } } } as unknown as EventResearchDoc;
+    const e = engineOf(early, { state: 'unavailable', reason: 'not published yet' });
+    expect(e.detail.gaps).toEqual([]);
+    render(<MemoryRouter><EngineDetailNotice engine={e} /></MemoryRouter>);
+    expect(screen.queryByTestId('engine-detail-unavailable')).toBeNull();
+  });
+
+  it('the Texas A&M at Missouri publication had both gaps', () => {
+    const e = engineOf(doc(`${EID}.published-2026-10-10.json`), 'loading');
+    expect(e.detail.gaps).toEqual(['matchup', 'market_map']);
+  });
+});

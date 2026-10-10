@@ -479,15 +479,33 @@ export function FormPanel({ homeProf, awayProf, homeAbbr, awayAbbr, sportCode, b
 
 const RANGES: [string, number | null][] = [['7D', 7], ['14D', 14], ['All', null]];
 
-export function lineSeries(hist: MarketHistoryDoc | undefined, rows: PriceRow[], favAbbr: string): LineSeries[] {
+// Full-game line families across publications: NFL says game_winner / spread / total; CFB says game_moneyline /
+// game_spread / game_total.
+const WINNER_FAMILIES = new Set(['game_winner', 'game_moneyline']);
+const SPREAD_FAMILIES = new Set(['spread', 'game_spread']);
+const TOTAL_FAMILIES = new Set(['total', 'game_total']);
+
+/**
+ * The favourite's side by the market itself: the full-game winner contract with the higher YES midpoint. Null when
+ * the game has no priced winner contract. Used where the publication states no favourite of its own (CFB).
+ */
+export function marketFavoriteId(rows: PriceRow[]): string | null {
+  const ml = rows.filter((r) => WINNER_FAMILIES.has(r.m.market_family) && isFullGame(r.m.period) && r.m.participant_id && r.mid != null);
+  ml.sort((a, b) => (b.mid ?? 0) - (a.mid ?? 0));
+  return ml[0]?.m.participant_id ?? null;
+}
+
+export function lineSeries(hist: MarketHistoryDoc | undefined, rows: PriceRow[], favAbbr: string, favId?: string | null): LineSeries[] {
   if (!hist) return [];
   const byTicker = new Map(hist.series.map((s) => [s.kalshi_ticker, s]));
   const mid = (p: { yes_bid: number | null; yes_ask: number | null; last_price?: number | null }) => (p.yes_bid != null && p.yes_ask != null && p.yes_ask - p.yes_bid <= 0.2 ? (p.yes_bid + p.yes_ask) / 2 : p.last_price ?? null);
   const pick = (pred: (r: PriceRow) => boolean) =>
     rows.filter((r) => pred(r) && byTicker.has(r.m.kalshi_ticker) && r.mid != null).sort((a, b) => Math.abs((a.mid ?? 0) - 0.5) - Math.abs((b.mid ?? 0) - 0.5))[0];
-  const ml = rows.find((r) => r.m.market_family === 'game_winner' && isFullGame(r.m.period) && r.label.startsWith(favAbbr) && byTicker.has(r.m.kalshi_ticker));
-  const sp = pick((r) => r.m.market_family === 'spread' && isFullGame(r.m.period) && r.label.startsWith(favAbbr));
-  const to = pick((r) => r.m.market_family === 'total' && isFullGame(r.m.period));
+  // The favourite's side by the contract's own participant when known; the label prefix otherwise (NFL abbreviations).
+  const isFav = (r: PriceRow) => (favId ? r.m.participant_id === favId : r.label.startsWith(favAbbr));
+  const ml = rows.find((r) => WINNER_FAMILIES.has(r.m.market_family) && isFullGame(r.m.period) && isFav(r) && byTicker.has(r.m.kalshi_ticker));
+  const sp = pick((r) => SPREAD_FAMILIES.has(r.m.market_family) && isFullGame(r.m.period) && isFav(r));
+  const to = pick((r) => TOTAL_FAMILIES.has(r.m.market_family) && isFullGame(r.m.period));
   const colors = ['var(--mark-focus)', 'var(--mark-opp)', 'var(--mark-compare)'];
   return [ml, sp, to]
     .filter((r): r is PriceRow => !!r)
@@ -500,9 +518,9 @@ export function lineSeries(hist: MarketHistoryDoc | undefined, rows: PriceRow[],
     .filter((s) => s.points.length >= 2);
 }
 
-export function LineHistoryPanel({ hist, loading, rows, favAbbr, to }: { hist: MarketHistoryDoc | undefined; loading: boolean; rows: PriceRow[]; favAbbr: string; to: string }) {
+export function LineHistoryPanel({ hist, loading, rows, favAbbr, favId, to }: { hist: MarketHistoryDoc | undefined; loading: boolean; rows: PriceRow[]; favAbbr: string; favId?: string | null; to: string }) {
   const [range, setRange] = useState<number | null>(7);
-  const all = useMemo(() => lineSeries(hist, rows, favAbbr), [hist, rows, favAbbr]);
+  const all = useMemo(() => lineSeries(hist, rows, favAbbr, favId), [hist, rows, favAbbr, favId]);
   const series = useMemo(() => {
     if (!range) return all;
     const end = Math.max(...all.flatMap((s) => s.points.map((p) => p.t)));

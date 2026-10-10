@@ -124,4 +124,8 @@ changes.
 
 CI (WebKit iPhone) caught one more layout issue the Chromium runs could not: WebKit sizes a `<select>` to its longest
 option, so the rankings metric picker widened Explore to 479 px on a 393 px iPhone. The pickers and every hub grid item
-now shrink to their card; the fourth baseline render (`01bfba6`) changed no screen beyond sub-threshold noise.
+now shrink to their card (the fourth baseline render, `01bfba6`, changed no screen beyond sub-threshold noise), but
+WebKit still measured Explore 86 px wide, so the hub now clips any intrinsic-size overshoot horizontally
+(`overflow-x: clip`; every wide part already scrolls inside its own container). CI is green on `529e63b`
+(Chromium + WebKit, 652 passed). The exact WebKit element was not identified: no WebKit is available locally and
+the CI artifact download is blocked from this session.

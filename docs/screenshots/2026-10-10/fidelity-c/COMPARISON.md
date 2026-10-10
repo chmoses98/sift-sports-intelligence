@@ -122,10 +122,18 @@ merged on main that had not been re-rendered: the NHL home and game cards use th
 ("under 0.5 assist", #44/#48) and the prop explorer breadcrumb gained "Explore" (#46). None of them is a screen this PR
 changes.
 
-CI (WebKit iPhone) caught one more layout issue the Chromium runs could not: WebKit sizes a `<select>` to its longest
-option, so the rankings metric picker widened Explore to 479 px on a 393 px iPhone. The pickers and every hub grid item
-now shrink to their card (the fourth baseline render, `01bfba6`, changed no screen beyond sub-threshold noise), but
-WebKit still measured Explore 86 px wide, so the hub now clips any intrinsic-size overshoot horizontally
-(`overflow-x: clip`; every wide part already scrolls inside its own container). CI is green on `529e63b`
-(Chromium + WebKit, 652 passed). The exact WebKit element was not identified: no WebKit is available locally and
-the CI artifact download is blocked from this session.
+CI (WebKit iPhone) caught layout issues that the Chromium runs could not:
+
+1. WebKit sizes a `<select>` to its longest option, so the rankings metric picker widened Explore. The pickers and
+   every hub grid item now shrink to fit their card (`01bfba6`).
+2. On phones the sport chip row was `flex-wrap: nowrap`, a 624 px row. The CBB, Soccer and Tennis chips were cut off
+   and unreachable. The row now wraps (`e47b672`). An interim hub-wide `overflow-x: clip` (`529e63b`) was removed in
+   the same commit, because it hid this bug instead of fixing it.
+3. Explore was still 479 px wide on a 393 px iPhone. The overflow check now names the responsible element when a
+   screen is too wide (`a8c34e1`): it hides children from `<body>` down until the page fits. On CI it named the
+   Quick Stats metric `<select>`. Its box fit the card (100–355 px), but WebKit painted the chosen ranking name
+   ("Adjusted defensive early-down EPA allowed · opponent-adjusted") past the control and counted it as page width.
+   WebKit ignores `overflow` on a `<select>`, so a select-level clip (`6fb938e`) did not help. The control's visible
+   frame (the `.hubm__select` pill) now contains its text, and the name ends in an ellipsis inside the pill. Keyboard
+   focus is drawn on the pill (`:has(select:focus-visible)`), so the clip never hides the focus ring. Nothing is
+   clipped at page level.

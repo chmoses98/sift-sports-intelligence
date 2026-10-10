@@ -164,8 +164,8 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
   const venue = spec.venue;
   const wx = gameWeather(r, venue);
   const venueName = venue?.name ?? null;
-  const [hc] = teamColors(sportCode, homeAbbr);
-  const [ac] = teamColors(sportCode, awayAbbr);
+  const [hc, hc2] = teamColors(sportCode, homeAbbr);
+  const [ac, ac2] = teamColors(sportCode, awayAbbr);
   const d = new Date(ev.start_time_utc);
   const day = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
@@ -176,7 +176,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
   return (
-    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hc, ['--fx-away' as string]: ac }} {...heroData(spec)}>
+    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: brighter(hc, hc2), ['--fx-away' as string]: brighter(ac, ac2) }} {...heroData(spec)}>
       <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /><span className="gh__light" /></div>
       <HeroIdentity spec={spec} sportCode={sportCode} />
       <div className="gh__in">
@@ -202,6 +202,17 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       )}
     </header>
   );
+}
+
+/** Of a club's two colours, the one that reads as light on the dark hero (rings and lit accents use it). */
+export function brighter(a: string, b: string | undefined): string {
+  const lum = (hex: string) => {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+    if (!m) return 0;
+    const n = parseInt(m[1], 16);
+    return 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+  };
+  return b && lum(b) > lum(a) ? b : a;
 }
 
 /** "at" only when a home side is stated and it is not a neutral site; "vs" otherwise. */

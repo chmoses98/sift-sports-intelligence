@@ -115,3 +115,9 @@ provenance.
    bento was widened (the `.cfov` two-column grid had squeezed it), and CFB prices were read through `isFullGame`.
 3. Home: hero above the fold on phones, a balanced stage on desktop, the photo credit moved clear of the team
    names. The win-probability rings now use each club's lighter colour so they read on the dark backdrop.
+4. CI review. The phone stat strip became one sideways swipe row that takes keyboard focus (axe
+   `scrollable-region-focusable`). On the iPhone markets board, the stuck tab bar was translucent, so the rows
+   scrolling under it ghosted through; it is now opaque. The board's live freshness line ("updated Ns ago") is
+   masked in its visual check because it changes every second. In the regenerated baselines only
+   `game-markets` changed materially (the masked line and the opaque tab bar). Every other screen differs by
+   0 px, or by sub-pixel antialiasing on `desktop/game-script`.

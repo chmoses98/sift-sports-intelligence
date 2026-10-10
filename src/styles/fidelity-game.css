@@ -199,7 +199,7 @@
 .gpx__nums { display: flex; justify-content: space-between; gap: 8px; }
 .gpx__nums > span { display: grid; }
 .gpx__nums small { font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
-.gpx__nums .fx-num { font-size: 1.25rem; }
+.gpx__nums .fx-num { font-size: clamp(1rem, 1.35vw, 1.25rem); white-space: nowrap; }
 .gpx__proj { color: var(--fx-green); }
 .gpx__dist { display: grid; gap: 2px; margin-top: 2px; }
 .gpx__dist .fx-hist__t { font-size: 13px; }

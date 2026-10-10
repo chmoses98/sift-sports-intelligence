@@ -29,6 +29,7 @@ import { PanelHead, ViewAll } from './game/panels';
 import { sides } from './home/cards';
 import { OpportunityBoard } from './home/Opportunities';
 import { Pill } from './shared/kit';
+import { betPhrase } from '../lib/betWords';
 
 function YourResearch() {
   const tray = useTray();
@@ -201,7 +202,7 @@ export function MarketsView() {
           <details className="skdeep">
             <summary className="skdeep__s">{passes.length} contracts the publications judged and passed on<Icon name="chevronDown" size={14} /></summary>
             <div className="skdeep__b">
-              <ul className="lims">{passes.slice(0, 40).map((o) => <li key={o.id}><Link to={o.href}>{o.what.side} {o.what.title}</Link> <span className="muted">· {o.eventLabel} · {o.statusReason}</span></li>)}</ul>
+              <ul className="lims">{passes.slice(0, 40).map((o) => <li key={o.id}><Link to={o.href} title={betPhrase(o.what.side, o.what.title).exact}>{betPhrase(o.what.side, o.what.title).text}</Link> <span className="muted">· {o.eventLabel} · {o.statusReason}</span></li>)}</ul>
             </div>
           </details>
         )}

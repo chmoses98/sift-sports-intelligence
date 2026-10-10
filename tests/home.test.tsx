@@ -58,7 +58,9 @@ describe('opportunity cards', () => {
     const feats = featureOpportunities(opportunities.filter(isLive));
     const ars = feats.find((f) => f.lead.ticker === 'KXEPLGAME-26OCT10ARSLEE-ARS')!;
     wrap(<OpportunityCard f={ars} now={NOW} />);
-    expect(screen.getByRole('heading', { name: /NO Arsenal to win/ })).toBeInTheDocument();
+    // Conventional words for the NO side of a winner contract, never "the opponent wins" (draws exist); the exact
+    // position stays in the heading's title.
+    expect(screen.getByRole('heading', { name: /Arsenal not to win/ })).toHaveAttribute('title', 'NO on Arsenal to win');
     expect(screen.getByText('Research candidate')).toBeInTheDocument();
     expect(screen.getByText(/Arsenal vs Leeds United: model expected goals/)).toBeInTheDocument();
     const text = document.body.textContent ?? '';

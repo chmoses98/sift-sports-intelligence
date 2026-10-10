@@ -34,7 +34,9 @@
 .gh--bc .gh__city { font-family: var(--font-cond); font-weight: 600; font-size: 0.86rem; letter-spacing: 0.16em; color: rgba(236, 244, 252, 0.85); }
 .gh--bc .gh__name { font-family: var(--font-cond); font-weight: 700; font-size: clamp(2.3rem, 5.2vw, 4.6rem); line-height: 0.92; letter-spacing: 0.01em; text-transform: uppercase; color: #fff;
   text-shadow: 0 2px 22px rgba(0, 0, 0, 0.8), 0 0 30px rgba(110, 190, 255, 0.18); overflow-wrap: normal; white-space: nowrap; }
-.gh--bc .gh__name--school { font-size: clamp(1.8rem, 3.8vw, 3.4rem); white-space: normal; }
+/* A school's canonical name is its identity ("UAlbany", "App State", "UT Martin"): the broadcast caps are for club
+   codes only, so CFB names keep their published case. */
+.gh--bc .gh__name--school { font-size: clamp(1.8rem, 3.8vw, 3.4rem); white-space: normal; text-transform: none; }
 .gh--bc .gh__rec { font-family: var(--font-cond); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.04em; color: rgba(236, 244, 252, 0.78); }
 .gh--bc .gh__at { padding: 0; font-family: var(--font-cond); font-weight: 600; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(236, 244, 252, 0.7); }
 .gh--bc .gh__score { font-family: var(--font-cond); }

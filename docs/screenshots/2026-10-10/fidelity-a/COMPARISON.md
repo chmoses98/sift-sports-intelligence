@@ -121,3 +121,7 @@ provenance.
    masked in its visual check because it changes every second. In the regenerated baselines only
    `game-markets` changed materially (the masked line and the opaque tab bar). Every other screen differs by
    0 px, or by sub-pixel antialiasing on `desktop/game-script`.
+5. After merge (#53). The live production check on `ba69539` found the broadcast hero's caps applied to CFB schools
+   ("UALBANY", "APP STATE", "UT MARTIN"). A school's canonical spelling is its identity, so CFB names now keep their
+   published case; NFL, NHL and MLB club codes keep the broadcast caps. The CFB identity e2e now reads the rendered
+   text too, because `toHaveText` reads `textContent`, which ignores `text-transform`.

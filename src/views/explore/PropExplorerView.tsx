@@ -31,7 +31,7 @@ import { gameScripts, sharePct, type ScriptSet, type TeamVolume } from '../../li
 import { teamColors } from '../../lib/teams';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
-import { useVisit } from '../../state/trail';
+import { EXPLORE_STEP, useVisit } from '../../state/trail';
 import { GameBars, HistorySummary } from '../player/history';
 import { usePropHistories } from '../game/matters';
 
@@ -338,7 +338,7 @@ const CAPS: Record<string, { have: string[]; missing: string[]; where: string }>
 
 export function PropExplorerView() {
   const { sport, slug } = useSport();
-  useVisit('Prop explorer', 'explore');
+  useVisit('Prop explorer', 'explore', EXPLORE_STEP);
   const cap = CAPS[sport.code];
   return (
     <div className="page pexp">

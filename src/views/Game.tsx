@@ -21,12 +21,13 @@ import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../
 import { injuryRows, marketLabel, priceRow } from '../lib/gamedata';
 import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
 import { GameHero } from './game/Hero';
-import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, MarketsPanel, PanelHead, ScriptsPanel, SurvivorsPanel } from './game/panels';
+import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel, PanelHead, ScriptsPanel, SurvivorsPanel } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
-import { EngineConfidencePanel, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
+import { EngineConfidencePanel, EngineDetailNotice, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
 import { GameReadV2Panel } from './game/GameReadV2';
 import { CfbOverview } from './game/CfbOverview';
 import { isEngine, readEngine } from '../lib/scriptEngine';
+import { loadScriptResearch, trimInfo } from '../data/scriptResearch';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { type ReactNode } from 'react';
 import type { Market } from '../contract/types';
@@ -500,7 +501,14 @@ export function GameView({ eventId }: { eventId: string }) {
   const listedLater = useMemo(() => newlyListed(tickers, liveStore().eventQuotes(events)), [tickers, events, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
   const now = useNow(15_000);
   const set = useMemo(() => (r ? gameScripts(r) : null), [r]);
-  const engine = useMemo(() => readEngine(r), [r]);
+  // A CFB event trimmed to its size budget links a verified same-run research sidecar: the event paints first,
+  // then the detail (metric tables, dimensions, registry) is read and merged; a failure is shown with its reason.
+  const trim = useMemo(() => trimInfo(r), [r]);
+  const sidecar = useAsync(r && trim ? `sr:${sport.code}:${eventId}:${trim.pointer?.sha256 ?? 'unlinked'}` : null, () => loadScriptResearch(r!, (p) => repo.url(p)));
+  const engine = useMemo(
+    () => readEngine(r, trim ? (sidecar.data ?? (sidecar.error ? { state: 'unavailable', reason: String(sidecar.error) } : 'loading')) : undefined),
+    [r, trim, sidecar.data, sidecar.error],
+  );
   const marketsByTicker = useMemo(() => new Map(quoted.map((m) => [m.kalshi_ticker, m])), [quoted]);
   const g = useMemo(() => (r ? gameSides(r) : null), [r]);
   const rows = useMemo(() => {
@@ -552,6 +560,7 @@ export function GameView({ eventId }: { eventId: string }) {
             <Link key={k} to={ehref(k)} aria-current={etab === k ? 'page' : undefined}>{l}</Link>
           ))}
         </nav>
+        {etab !== 'trends' && <EngineDetailNotice engine={engine} />}
         {etab === 'overview' && engine.claimsV2 && (
           // V2 games: a five-second Quick Read, the best research, and every panel below in a closed Deep Dive.
           <CfbOverview
@@ -596,7 +605,7 @@ export function GameView({ eventId }: { eventId: string }) {
         {etab === 'matchup' && <EngineMatchupTab engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />}
         {etab === 'trends' && (
           <div className="trends">
-            <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={homeAbbr} to={ehref('markets')} />
+            <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={homeAbbr} favId={marketFavoriteId(rows)} to={ehref('markets')} />
             {capShown(caps, 'market_price_history') && r.market_history_path && (
               <Stratum id="g-movement" title="Contract price history" sub="Game-level tickers, every capture since listing.">
                 <Movement eventId={eventId} path={r.market_history_path} prices={prices} kickoffIso={ev.start_time_utc} known={known} />
@@ -608,6 +617,12 @@ export function GameView({ eventId }: { eventId: string }) {
           <summary>Publication notes & provenance</summary>
           {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
           <p className="small muted"><QualityBadge quality={r.quality} /> {r.quality.source} · generated {r.quality.generated_at} · {r.quality.limitations.join(' · ')}</p>
+          <p className="small muted" data-testid="engine-detail-provenance">
+            Script Engine artifact {engine.generation.artifact_hash.slice(0, 12)} ({engine.generation.methodology_version}), frozen {engine.generation.generated_at}, football data through {engine.generation.football_data_cutoff}.{' '}
+            {engine.detail.state === 'inline' && 'Published whole in this game\'s document.'}
+            {engine.detail.state === 'recovered' && sidecar.data?.state === 'recovered' && `Detailed research restored from the same-run sidecar ${sidecar.data.pointer.path} (sha256 ${sidecar.data.pointer.sha256.slice(0, 12)}, verified).`}
+            {engine.detail.state === 'unavailable' && `Detailed research unavailable: ${engine.detail.reason}.`}
+          </p>
         </details>
       </div>
     );

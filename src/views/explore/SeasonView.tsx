@@ -1,5 +1,5 @@
 // SEASON NAVIGATOR — the season on one screen instead of an endless week-by-week list.
-// NFL: an 18-week grid (games published per week, finals, the selected team's opponent or bye), the selected week's
+// NFL: an 18-week grid (games published per week, finals, the selected team's opponent), the selected week's
 // games as tiles, the selected team's results from its own profile, and its weekly opponent-unadjusted EPA per play
 // from the nflverse history layer. Weeks the publication has not listed yet say so; nothing is filled in.
 // Other sports: a date strip over the publication's board (their calendars are daily, not weekly).
@@ -14,7 +14,7 @@ import { routes } from '../../lib/routes';
 import { useTeamHistory } from '../../history/load';
 import type { TeamWeek } from '../../history/types';
 import { useSport } from '../../state/sport';
-import { useVisit } from '../../state/trail';
+import { EXPLORE_STEP, useVisit } from '../../state/trail';
 import { eventPhase } from '../../opportunity/lifecycle';
 
 const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
@@ -34,6 +34,52 @@ export function weekOf(iso: string, anchor: number): number {
 }
 
 type Ev = ExplorerIndexDoc['events'][number];
+
+/**
+ * Week 1's anchor from the history layer: a completed game's own nflverse week and local date name the week
+ * exactly, so the grid does not depend on how far back the publication's window reaches. Null when there is none.
+ */
+export function anchorFromHistory(weeks: Pick<TeamWeek, 'week' | 'date'>[]): number | null {
+  const w = weeks.find((x) => x.date && x.week >= 1);
+  if (!w?.date) return null;
+  return weekAnchor(new Date(Date.parse(`${w.date}T12:00:00Z`) - (w.week - 1) * 7 * DAY).toISOString());
+}
+
+/**
+ * What one week says about one team. Sift has no authoritative complete league schedule, so it never infers a
+ * bye: a week without the team's game is either a completed game the history layer recorded, or "not published".
+ *  - game: the publication lists the team's game (home/away from the event itself);
+ *  - played: no published event, but the play-by-play history recorded the team's game that week;
+ *  - conflict: the published event names the team on both sides, or its opponent is the team itself;
+ *  - unpublished: the publication lists other games that week but not this team's (partial window);
+ *  - unlisted: the publication lists nothing that week.
+ */
+export type WeekCell =
+  | { kind: 'game'; ev: Ev; opp: string; home: boolean }
+  | { kind: 'played'; opp: string; home: boolean | null; gameId: string }
+  | { kind: 'conflict'; ev: Ev; reason: string }
+  | { kind: 'unpublished'; games: number }
+  | { kind: 'unlisted' };
+
+export function weekCell(
+  games: Ev[],
+  team: { participant_id: string; short_name: string | null } | null,
+  nameOf: (pid: string | null) => string,
+  history: Pick<TeamWeek, 'week' | 'opp' | 'home' | 'game_id'> | undefined,
+): WeekCell {
+  const mine = team ? games.find((e) => e.participants.includes(team.participant_id) || e.home_participant === team.participant_id || e.away_participant === team.participant_id) : undefined;
+  if (mine && team) {
+    const isHome = mine.home_participant === team.participant_id;
+    const isAway = mine.away_participant === team.participant_id;
+    if (mine.home_participant && mine.home_participant === mine.away_participant) return { kind: 'conflict', ev: mine, reason: 'the event names the same team home and away' };
+    if (isHome === isAway) return { kind: 'conflict', ev: mine, reason: 'the event does not say which side this team is' };
+    const opp = nameOf(isHome ? mine.away_participant : mine.home_participant);
+    if (opp === '?' || opp === team.short_name) return { kind: 'conflict', ev: mine, reason: 'the opponent cannot be identified' };
+    return { kind: 'game', ev: mine, opp, home: isHome };
+  }
+  if (history?.opp && history.opp !== team?.short_name) return { kind: 'played', opp: history.opp, home: history.home, gameId: history.game_id };
+  return games.length ? { kind: 'unpublished', games: games.length } : { kind: 'unlisted' };
+}
 
 /** The clock decides, not a stale status word: a past kickoff without a final reads "Awaiting result". */
 function phaseText(g: Pick<Ev, 'status' | 'start_time_utc'>): string {
@@ -92,10 +138,20 @@ function NflSeason() {
     for (const b of (board.data?.items ?? []) as BoardItem[]) if (!m.has(b.event_id)) m.set(b.event_id, { event_id: b.event_id, path: '', start_time_utc: b.start_time_utc, status: b.status, home_participant: b.home_participant, away_participant: b.away_participant, participants: b.participants.map((p) => p.participant_id) });
     return [...m.values()].filter((e) => e.start_time_utc.startsWith(season) || e.start_time_utc.startsWith(String(Number(season) + 1)));
   }, [data, board.data, season]);
+  // Week numbering: from the history layer's own week/date when it has one (exact), else the Tuesday before the
+  // first September-or-later game the publication lists (exact only when its window reaches week 1).
+  const histAnchor = useMemo(() => {
+    for (const t of Object.values(hist.data?.teams ?? {})) {
+      const a = anchorFromHistory(t.weeks);
+      if (a != null) return a;
+    }
+    return null;
+  }, [hist.data]);
   const anchor = useMemo(() => {
+    if (histAnchor != null) return histAnchor;
     const first = events.map((e) => e.start_time_utc).filter((t) => t.slice(5, 7) >= '09' || t.startsWith(String(Number(season) + 1))).sort()[0];
     return first ? weekAnchor(first) : null;
-  }, [events, season]);
+  }, [events, season, histAnchor]);
   const byWeek = useMemo(() => {
     const m = new Map<number, Ev[]>();
     if (anchor == null) return m;
@@ -109,8 +165,6 @@ function NflSeason() {
   const results = useMemo(() => new Map(completedGames(profile.data).map((g) => [g.eventId, g])), [profile.data]);
   const teamWeeks = (team?.short_name && hist.data?.teams[team.short_name]?.weeks) || [];
   const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
-  const oppIn = (w: number) => (byWeek.get(w) ?? []).find((e) => team && e.participants.includes(team.participant_id));
-  const lastPublished = Math.max(0, ...byWeek.keys());
   if (idx.loading) return <Skeleton lines={10} tall />;
   if (!data) return <div className="bempty"><h3>The NFL explorer is not available</h3><p>The season navigator needs the publication’s event index.</p></div>;
   const games = byWeek.get(week) ?? [];
@@ -130,22 +184,39 @@ function NflSeason() {
           {WEEKS.map((w) => {
             const gs = byWeek.get(w) ?? [];
             const finals = gs.filter((g) => /FINAL/i.test(g.status)).length;
-            const mine = oppIn(w);
-            const opp = mine && team ? nameOf(mine.home_participant === team.participant_id ? mine.away_participant : mine.home_participant) : null;
-            const res = mine ? results.get(mine.event_id) : undefined;
-            const bye = !mine && gs.length > 0 && w < lastPublished;
+            const cell = weekCell(gs, team, nameOf, teamWeeks.find((x) => x.week === w));
+            const res = cell.kind === 'game' ? results.get(cell.ev.event_id) : undefined;
+            const at = (home: boolean | null) => (home == null ? 'vs' : home ? 'vs' : '@');
+            const teamText =
+              cell.kind === 'game' ? `; ${teamAbbr} ${at(cell.home)} ${cell.opp}` :
+              cell.kind === 'played' ? `; ${teamAbbr} ${at(cell.home)} ${cell.opp}, completed (play-by-play record)` :
+              cell.kind === 'conflict' ? `; ${teamAbbr}: identity conflict, ${cell.reason}` :
+              cell.kind === 'unpublished' ? `; ${teamAbbr}'s game is not in the publication` : '';
             return (
               <li key={w}>
-                <button type="button" className={`wcell${w === week ? ' is-on' : ''}${w === currentWeek ? ' is-now' : ''}${gs.length ? '' : ' is-empty'}`} aria-pressed={w === week} onClick={() => set('week', String(w))} aria-label={`Week ${w}: ${gs.length ? `${gs.length} games published, ${finals} final` : 'not published yet'}${opp ? `; ${teamAbbr} vs ${opp}` : bye ? `; ${teamAbbr} bye` : ''}`}>
+                <button type="button" className={`wcell${w === week ? ' is-on' : ''}${w === currentWeek ? ' is-now' : ''}${gs.length || cell.kind === 'played' ? '' : ' is-empty'}`} aria-pressed={w === week} onClick={() => set('week', String(w))} aria-label={`Week ${w}: ${gs.length ? `${gs.length} games published, ${finals} final` : 'not published yet'}${teamText}`} data-cell={cell.kind}>
                   <span className="wcell__w">W{w}</span>
-                  {opp ? <span className="wcell__opp"><TeamMark sport="NFL" abbr={opp} size="sm" />{mine?.home_participant === team?.participant_id ? 'vs' : '@'} {opp}</span> : bye ? <span className="wcell__bye">Bye</span> : <span className="wcell__opp wcell__opp--none">{gs.length ? `${gs.length} games` : '—'}</span>}
-                  {res ? <span className={`wcell__res wcell__res--${res.outcome}`}>{res.outcome} {res.for}–{res.against}</span> : gs.length ? <span className="wcell__st">{finals === gs.length ? 'Final' : finals ? `${finals}/${gs.length} final` : gs.some((g) => phaseText(g) !== 'Upcoming') ? 'In progress' : 'Upcoming'}</span> : <span className="wcell__st">Not listed</span>}
+                  {cell.kind === 'game' || cell.kind === 'played' ? (
+                    <span className="wcell__opp"><i className="wcell__at">{at(cell.home)}</i><TeamMark sport="NFL" abbr={cell.opp} size="sm" />{cell.opp}</span>
+                  ) : cell.kind === 'conflict' ? (
+                    <span className="wcell__opp wcell__opp--none">Identity conflict</span>
+                  ) : cell.kind === 'unpublished' ? (
+                    <span className="wcell__opp wcell__opp--none">Not published</span>
+                  ) : (
+                    <span className="wcell__opp wcell__opp--none">—</span>
+                  )}
+                  {res ? <span className={`wcell__res wcell__res--${res.outcome}`}>{res.outcome} {res.for}–{res.against}</span>
+                    : cell.kind === 'game' ? <span className="wcell__st">{phaseText(cell.ev)}</span>
+                    : cell.kind === 'played' ? <span className="wcell__st">Completed</span>
+                    : cell.kind === 'unpublished' ? <span className="wcell__st">{gs.length} other games listed</span>
+                    : cell.kind === 'conflict' ? <span className="wcell__st">{cell.reason}</span>
+                    : <span className="wcell__st">Not listed</span>}
                 </button>
               </li>
             );
           })}
         </ol>
-        <p className="tpanel__note">Weeks come from the publication’s event index and board; weeks it has not listed show “—”. Results shown are the selected team’s, from its own profile. Bye = no game for the team in a week the publication has fully listed.</p>
+        <p className="tpanel__note">Weeks come from the publication’s event index and board. A game the publication does not list but the play-by-play history recorded shows as Completed; anything else is “Not published” or “—”. Sift has no complete league schedule, so it never marks a bye. Results are the selected team’s, from its own profile.</p>
       </section>
       <section className="bsec" aria-labelledby="wk-h">
         <div className="bsec__h"><h2 className="bsec__t" id="wk-h">Week {week}</h2><span className="muted">{games.length} games</span></div>
@@ -226,7 +297,7 @@ function DailySeason() {
 
 export function SeasonView() {
   const { sport } = useSport();
-  useVisit('Season', 'season');
+  useVisit('Season', 'season', EXPLORE_STEP);
   return (
     <div className="page season">
       <header className="bhome__mast">

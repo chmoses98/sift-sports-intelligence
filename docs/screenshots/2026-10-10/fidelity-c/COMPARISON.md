@@ -121,3 +121,7 @@ The other PNGs touched by the workflow are either sub-threshold re-encoding nois
 merged on main that had not been re-rendered: the NHL home and game cards use the conventional NO-side wording
 ("under 0.5 assist", #44/#48) and the prop explorer breadcrumb gained "Explore" (#46). None of them is a screen this PR
 changes.
+
+CI (WebKit iPhone) caught one more layout issue the Chromium runs could not: WebKit sizes a `<select>` to its longest
+option, so the rankings metric picker widened Explore to 479 px on a 393 px iPhone. The pickers and every hub grid item
+now shrink to their card; the fourth baseline render (`01bfba6`) changed no screen beyond sub-threshold noise.

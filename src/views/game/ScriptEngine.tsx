@@ -300,7 +300,7 @@ export function EngineSurvivorsPanel({ engine, marketsByTicker, slug, eventId, n
               </Fragment>
             );
           })}
-          {!rows.length && <tr><td colSpan={4} className="muted small">{engine.scripts.length ? 'No contract survives this script and at least one other.' : 'No scripts, so no contract is mapped.'}</td></tr>}
+          {!rows.length && <tr><td colSpan={4} className="muted small">{!engine.expressions.length && engine.detail.state !== 'inline' ? (engine.detail.state === 'loading' ? 'Loading the script-to-market map…' : `The script-to-market map is not available for this game: ${engine.detail.reason ?? 'not published'}.`) : engine.scripts.length ? 'No contract survives this script and at least one other.' : 'No scripts, so no contract is mapped.'}</td></tr>}
         </tbody>
       </table></Scroll>
       {engine.scoringResearchOnly && <p className="eng-scoringnote muted small" role="note">{SCORING_RESEARCH_NOTE}</p>}
@@ -326,7 +326,42 @@ function EdgeBar({ v }: { v: number | null | undefined }) {
   );
 }
 
+/**
+ * Says, once per page, whether the detailed matchup research is here. A trimmed event's detail is read from its
+ * verified same-run sidecar after first paint; while that runs, or if it fails, the reason is shown and the rest of
+ * the page (SIFT Read, scripts, findings, contracts) stays usable.
+ */
+export function EngineDetailNotice({ engine }: { engine: Engine }) {
+  const d = engine.detail;
+  if (d.state === 'inline' || d.state === 'recovered') return null;
+  if (d.state === 'loading') {
+    return (
+      <p className="eng-detail eng-detail--loading" role="status" aria-live="polite" data-testid="engine-detail-loading">
+        <span className="eng-detail__pulse" aria-hidden="true" /> Loading the detailed matchup research (opponent-adjusted metric tables and ranks)…
+      </p>
+    );
+  }
+  return (
+    <div className="eng-detail eng-detail--unavailable" role="status" data-testid="engine-detail-unavailable">
+      <b>Detailed matchup metrics unavailable.</b> {d.reason ? `${d.reason.charAt(0).toUpperCase()}${d.reason.slice(1)}.` : ''} The SIFT Read, the scripts, the {engine.findings.length} matchup findings and every contract below are the publication's own and unaffected.
+    </div>
+  );
+}
+
+function DetailGap({ engine, what }: { engine: Engine; what: string }) {
+  const d = engine.detail;
+  return <p className="muted small eng-gap">{d.state === 'loading' ? `Loading ${what}…` : d.state === 'unavailable' ? `${what.charAt(0).toUpperCase()}${what.slice(1)} not available for this game: ${d.reason ?? 'not published'}.` : `No ${what} published for this game.`}</p>;
+}
+
 export function EngineEdgesPanel({ engine, homeAbbr, awayAbbr, to }: { engine: Engine; homeAbbr: string; awayAbbr: string; to?: string }) {
+  if (!EDGE_DIMENSIONS.some((d) => engine.dimensions[d])) {
+    return (
+      <section className="panel eng-edges" aria-labelledby="eng-edges-h">
+        <PanelHead title="Matchup Edges" sub={`${awayAbbr} @ ${homeAbbr} · season to date, adjusted for opponents`} />
+        <DetailGap engine={engine} what="the unit-by-unit matchup edges" />
+      </section>
+    );
+  }
   return (
     <section className="panel eng-edges" aria-labelledby="eng-edges-h">
       <PanelHead
@@ -607,6 +642,7 @@ function MetricTable({ engine, dimension }: { engine: Engine; dimension: string 
 
 export function EngineMatchupTab({ engine, homeAbbr, awayAbbr }: { engine: Engine; homeAbbr: string; awayAbbr: string }): ReactNode {
   const t = engine.teams.home;
+  const hasTables = Object.keys(engine.registry).length > 0 && Object.keys(engine.teams.home.metrics).length > 0;
   return (
     <>
       <EngineEdgesPanel engine={engine} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />
@@ -619,11 +655,15 @@ export function EngineMatchupTab({ engine, homeAbbr, awayAbbr }: { engine: Engin
           </ul>
         ) : <p className="muted small">No finding clears its threshold and its own uncertainty.</p>}
       </Stratum>
-      {['sustained_efficiency', 'rushing', 'passing', 'explosiveness', 'disruption', 'finishing', 'scoring', 'pace', 'volatility'].map((d) => (
+      {hasTables ? ['sustained_efficiency', 'rushing', 'passing', 'explosiveness', 'disruption', 'finishing', 'scoring', 'pace', 'volatility'].map((d) => (
         <Stratum key={d} id={`g-m-${d}`} title={DIMENSION_WORD[d]} sub={d === 'pace' || d === 'volatility' ? 'Descriptive tendencies and variance; some are not opponent-adjusted, and say so.' : undefined}>
           <MetricTable engine={engine} dimension={d} />
         </Stratum>
-      ))}
+      )) : (
+        <Stratum id="g-m-tables" title="Metric tables">
+          <DetailGap engine={engine} what="the opponent-adjusted metric tables" />
+        </Stratum>
+      )}
       <p className="small muted">
         Season {t.season ?? '—'}, {t.window?.type?.replace(/_/g, ' ')} through {t.window?.through_exclusive ?? '—'} (exclusive). Ranks are within FBS; a non-FBS team is unranked.
         Adjustment: {engine.adjustment.stable ? 'stable' : 'not yet stable'} ({engine.adjustment.games_in_window} games, median FBS sample {engine.adjustment.median_fbs_games}).

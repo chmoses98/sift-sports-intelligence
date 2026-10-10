@@ -587,3 +587,12 @@ a.ex-tool:hover { color: var(--text); border-color: color-mix(in srgb, var(--ton
   .tboard__head span:first-child { visibility: hidden; }
   .trow__sport > span:not(.sportmark) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+/* Grid items default to min-width:auto, so a wide child (the 18-week strip, a table, the nowrap chip row) could
+   widen its card past the screen in WebKit. Every hub grid item may shrink; wide content scrolls inside itself. */
+.hubm__in > *, .hubm__ctl, .exh__bento > div > *, .term__cell > *, .bbx__grid > *, .sn-stack > * { min-width: 0; max-width: 100%; }
+.ex-wk, .tm-tw, .lab__tw { max-width: 100%; }
+/* WebKit sizes a <select> to its longest option (ranking names run ~450px): let the metric pickers fill their card
+   and shrink instead, so the page never scrolls sideways on an iPhone. */
+.ex-rk__sel { display: flex; width: 100%; }
+.ex-rk__sel select { flex: 1 1 0; width: 0; min-width: 0; }
+.ex-rk__ctl .tm-seg + .ex-rk__sel { flex: 1 1 220px; width: auto; }

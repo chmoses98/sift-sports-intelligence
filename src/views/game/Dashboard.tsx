@@ -207,7 +207,7 @@ export function PropExplorerCard({ all, ctx, slug, eventId, propsHref }: { all: 
   const [cat, setCat] = useState<string>('');
   const teams = useMemo(() => [...new Set(all.map((c) => c.team.abbr))], [all]);
   const cats = useMemo(() => (['passing', 'rushing', 'receiving', 'touchdowns'] as const).filter((k) => all.some((c) => propCat(c.stat) === k)), [all]);
-  const cards = useMemo(() => propsToWatch(all.filter((c) => (!team || c.team.abbr === team) && (!cat || propCat(c.stat) === cat)), 4, team ? 4 : 2), [all, team, cat]);
+  const cards = useMemo(() => propsToWatch(all.filter((c) => (!team || c.team.abbr === team) && (!cat || propCat(c.stat) === cat)), 4, !team && !cat ? 3 : 4), [all, team, cat]);
   const players = useMemo(() => cards.map((c) => ({ name: c.name, team: c.team.abbr })), [cards]);
   const hist = usePropHistories(ctx.sport, players);
   return (
@@ -265,10 +265,11 @@ export function topContracts(rows: PriceRow[]): PriceRow[] {
   return [...winners.slice(0, 2), spread, total].filter((x): x is PriceRow => !!x);
 }
 
-export function MarketContextCard({ rows, slug, eventId, now, allHref, title = 'Top Market Context', className = 'fx-span-5', fine = true }: { rows: PriceRow[]; slug: string; eventId: string; now: number; allHref: string; title?: string; className?: string; fine?: boolean }) {
+export function MarketContextCard({ rows, slug, eventId, now, allHref, title = 'Top Market Context', className = 'fx-span-5', fine = true, chip }: { rows: PriceRow[]; slug: string; eventId: string; now: number; allHref: string; title?: string; className?: string; fine?: boolean; chip?: ReactNode }) {
   const top = useMemo(() => topContracts(rows), [rows]);
   return (
     <FxCard title={title} icon="chart" className={`gdash__mkt ${className}`} id="gd-mkt" action={{ to: allHref, label: 'All markets' }}>
+      {chip && <div className="gmk__q gquote">{chip}</div>}
       {top.length ? (
         <ol className="gmk">
           {top.map((x, i) => {

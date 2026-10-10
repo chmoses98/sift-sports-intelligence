@@ -25,6 +25,7 @@ import { useVisit } from '../../state/trail';
 import { HistoricalGameView } from '../HistoricalGame';
 import { Movement } from '../Game';
 import { GameHero } from '../game/Hero';
+import { GameTabs } from '../game/GameTabs';
 import { PanelHead } from '../game/panels';
 import { marketImplied, MlbPlayerProps } from './PlayerProps';
 import { GameOpportunities } from '../game/GameOpportunities';
@@ -97,9 +98,7 @@ export function MlbGameView({ eventId, teamId }: { eventId: string; teamId: stri
     <MarketIconProvider value={iconCtx}>
       <div className="page game game--mlb">
         <GameHero r={heroDoc(ev, research.data)} homeProf={homeProf.data} awayProf={awayProf.data} sportCode="MLB" slug={slug} now={now} />
-        <nav className="ptabs gtabs" aria-label="Game sections">
-          {TABS.map(([k, l]) => <Link key={k} to={href(k)} aria-current={tab === k && !(raw && UNAVAILABLE[raw]) ? 'page' : undefined}>{l}</Link>)}
-        </nav>
+        <GameTabs tabs={TABS} current={raw && UNAVAILABLE[raw] ? null : tab} href={(k) => href(k)} />
 
         {raw && UNAVAILABLE[raw] ? (
           <Notice title={`${UNAVAILABLE[raw]} are not published for MLB`}>

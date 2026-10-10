@@ -673,7 +673,7 @@ export function GameView({ eventId }: { eventId: string }) {
             )}
             <MatchupAdvantagesCard r={r} g={g} sport={sport.code} href={href('matchup')} wide={!watch.length} />
             {watch.length > 0 && <PropExplorerCard all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
-            <MarketContextCard rows={rows} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+            <MarketContextCard rows={rows} slug={slug} eventId={eventId} now={now} allHref={href('markets')} chip={<QuoteSummaryChip views={views} now={now} />} />
             <GameInfoCard r={r} sport={sport.code} />
             <RelatedResearchCard links={[
               { to: href('trends'), icon: 'trend', t: 'Team trends', s: 'Form, head-to-head, line moves' },
@@ -700,7 +700,7 @@ export function GameView({ eventId }: { eventId: string }) {
                 <InjuriesPanel rows={injuries} important={importantInjuries} homeAbbr={homeAbbr} awayAbbr={awayAbbr} sportCode={sport.code} to={href('injuries')} />
               </div>
               <div className="gov__pair">
-                <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={href('markets')} views={views} now={now} />
+                <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} to={href('markets')} views={views} now={now} chip={false} />
                 <LineHistoryPanel hist={hist.data} loading={hist.loading} rows={rows} favAbbr={favAbbr} to={href('trends')} />
               </div>
             </div>

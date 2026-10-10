@@ -210,6 +210,7 @@
 .gpx__go:hover { background: rgba(30, 110, 200, 0.3); }
 
 /* Top Market Context */
+.gmk__q { margin: -4px 0 10px; }
 .gmk { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .gmk__a { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto 16px; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border-radius: 10px;
   background: rgba(8, 24, 40, 0.65); border: 1px solid rgba(98, 186, 255, 0.12); color: #fff; }

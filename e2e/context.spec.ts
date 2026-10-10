@@ -19,7 +19,7 @@ test('players opened from different games each show their own game', async ({ pa
   await page.goto(`./#/nfl/game/${ATLNO}`);
   await page.getByRole('heading', { name: 'What Matters' }).waitFor();
   await expectCrumbs(page, ['NFL', 'ATL @ NO']);
-  await page.locator('.pcard__who').filter({ hasText: 'Bijan Robinson' }).first().click();
+  await page.locator('.gpx__who').filter({ hasText: 'Bijan Robinson' }).first().click();
   await expect(page.getByRole('heading', { name: 'Bijan Robinson', level: 1 })).toBeVisible();
   await expectCrumbs(page, ['NFL', 'ATL @ NO', 'Bijan Robinson']);
   await page.goto(`./#/nfl/game/${NEBUF}`);

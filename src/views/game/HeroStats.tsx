@@ -104,7 +104,7 @@ export function NflHeroStats({ r, markets, now }: { r: EventResearchDoc; markets
   }
   const w = weatherItem(wx);
   if (w) items.push(w);
-  return <StatStrip items={items} label="Game numbers, sourced" className="ghs" />;
+  return <StatStrip items={items} label="Game numbers, sourced" className="ghs" focusable />;
 }
 
 /**
@@ -134,5 +134,5 @@ export function CfbHeroStats({ r, engine, markets, now }: { r: EventResearchDoc;
   const spec = resolveHero(heroInputFromResearch(r, 'CFB'));
   const w = weatherItem(gameWeather(r, spec.venue));
   if (w) items.push(w);
-  return <StatStrip items={items} label="Game numbers, sourced" className="ghs" />;
+  return <StatStrip items={items} label="Game numbers, sourced" className="ghs" focusable />;
 }

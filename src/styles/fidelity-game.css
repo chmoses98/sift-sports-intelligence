@@ -353,3 +353,5 @@
 .cfstrip > .cfstrip__m { top: 4px; height: 26px; width: 3px; margin-left: -1px; background: #fff; box-shadow: 0 0 8px #fff; }
 .cfstrip small { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); font-family: var(--font-cond); font-weight: 700; font-size: 0.8rem; color: var(--text-2); white-space: nowrap; }
 .cfstrip__m small { color: #fff; }
+/* The phone strip scrolls sideways and takes keyboard focus (scrollable-region-focusable): show where focus is. */
+.ghs.fx-stats:focus-visible { outline: 2px solid var(--fx-cyan); outline-offset: 3px; border-radius: 12px; }

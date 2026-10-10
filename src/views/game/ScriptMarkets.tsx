@@ -62,6 +62,9 @@ function Card({ c, slug, eventId, now }: { c: ScriptMarketCard; slug: string; ev
 
 export function ScriptMarkets({ engine, selected, marketsByTicker, slug, eventId, now }: { engine: Engine; selected: string | null; marketsByTicker: Map<string, Market>; slug: string; eventId: string; now: number }) {
   const cards = scriptMarketCards(engine, selected, marketsByTicker);
+  if (!cards.length && !engine.expressions.length && engine.detail.state !== 'inline') {
+    return <p className="muted small">{engine.detail.state === 'loading' ? 'Loading the script-to-market map…' : `The script-to-market map is not available for this game: ${engine.detail.reason ?? 'not published'}.`}</p>;
+  }
   if (!cards.length) return <p className="muted small">No contract is supported by this script.</p>;
   return <div className="smc__grid">{cards.map((c) => <Card key={c.e.id} c={c} slug={slug} eventId={eventId} now={now} />)}</div>;
 }

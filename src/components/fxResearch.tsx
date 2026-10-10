@@ -150,7 +150,7 @@ export function QuantileDist({
         {lineX != null && (
           <g className="frd__line">
             <line x1={lineX} x2={lineX} y1={top - 6} y2={H} />
-            <text x={lineX + (near && projX! >= lineX ? -6 : 6)} y={top + 36} textAnchor={near && projX! >= lineX ? 'end' : 'start'}>Line {format(line!)}</text>
+            <text x={lineX + (near && projX! >= lineX ? -6 : 6)} y={top + 36} textAnchor={near && projX! >= lineX ? 'end' : 'start'}>Line {String(line)}</text>
           </g>
         )}
       </svg>

@@ -17,7 +17,10 @@ import { capShown, capStatus, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { QuoteSummaryChip, useQuoteViews } from '../components/LiveQuote';
 import { useLiveQuotes, useNow } from '../live/hooks';
-import { PlayerFace, RangeBar, RankBadge, Layer } from '../components/insight';
+import { PlayerFace, RankBadge, Layer } from '../components/insight';
+import { StatStrip } from '../components/fx';
+import { CapabilityState, QuantileDist, quantilePoints } from '../components/fxResearch';
+import { teamColors, teamLogo } from '../lib/teams';
 import { DigDeeper } from '../components/ui';
 import { playerPhoto } from '../lib/players';
 import { rankView } from '../lib/rank';
@@ -174,18 +177,46 @@ function GenericPlayerView() {
   const showUsage = (shares.length > 0 || ext.quarterback) && capShown(caps, 'usage');
   const shortShare = (id: string) => (id.endsWith('carry_share') ? 'Carry share' : id.endsWith('target_share') ? 'Target share' : metrics.get(id)?.name ?? id);
 
+  const heroLogo = teamLogo(sport.code, teamAbbr);
+  const nameParts = p.entity.display_name.split(' ');
+  const firstName = nameParts.length > 1 ? nameParts[0] : '';
+  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : p.entity.display_name;
+  // The season per game, from the real game log (games before this one only).
+  const heroWeek = Number(/week\s*(\d+)/i.exec(game?.competition ?? '')?.[1] ?? NaN);
+  const heroRows = hist.data ? pregameRows(hist.data, game?.start_time_utc, Number.isFinite(heroWeek) ? heroWeek : null) : null;
+  const seasonRowsAll = heroRows ? (heroRows.current.length ? heroRows.current : heroRows.prior) : [];
+  const seasonLabel = heroRows && heroRows.current.length ? String(hist.data?.season ?? '') : String(hist.data?.prior?.season ?? '');
+  const seasonStrip = seasonRowsAll.length
+    ? [{ label: 'Games', value: String(seasonRowsAll.length) }, ...statsForPosition(pos).slice(0, 3).map((d) => {
+        const vals = seasonRowsAll.map((r) => d.get(r)).filter((v): v is number => v != null);
+        const avg = vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : null;
+        return { label: d.label.replace(/ yards$/i, ' yds'), value: avg == null ? '—' : d.unit === 'yds' ? String(Math.round(avg)) : (Math.round(avg * 10) / 10).toString() };
+      })]
+    : [];
+  const fmtProj = (v: number, st: string) => (/yards|longest/.test(st) ? String(Math.round(v)) : (Math.round(v * 10) / 10).toString());
+  const propRows = stats.map((st) => {
+    const ms = (byStat.get(st) ?? []) as unknown as Market[];
+    const ml = pickMainLine(ms);
+    const ln = ml?.threshold != null ? Number(overLine(ml.threshold)) : null;
+    const so = STAT_TO_SIM[st] ? sims.find((o) => o.metric_id === STAT_TO_SIM[st]) : undefined;
+    const proj = so?.value ?? null;
+    return { stat: st, label: STAT_LABEL[st] ?? st.replace(/_/g, ' '), line: ln, ask: ml?.yes_ask ?? null, proj, gap: proj != null && ln != null ? proj - ln : null };
+  }).filter((x) => x.line != null || x.proj != null);
   return (
     <div className="page player">
-      {/* PLAYER · THIS GAME: who, team, position, role, opponent, when, availability. */}
-      <header className="ehead plhead">
+      {/* PLAYER HERO (reference 06): licensed photo on the team's colour, the name in broadcast type, this game,
+          and the season per game from the real game log. Nothing here is projected. */}
+      <header className="ehead plhead fr-plhero" style={{ ['--tc' as string]: teamColors(sport.code, teamAbbr)[0], ['--tc2' as string]: teamColors(sport.code, teamAbbr)[1] }}>
+        <span className="fr-plhero__bg" aria-hidden="true">{heroLogo && <img src={heroLogo} alt="" />}</span>
         <PlayerFace photo={playerPhoto(playerId, p.entity.display_name, teamAbbr)} team={teamAbbr} sport={sport.code} size="xl" name={p.entity.display_name} />
-        <div className="ehead__t">
+        <div className="ehead__t fr-plhero__id">
           <div className="eyebrow">
             <EntityLink to={routes.sport(slug)} kind="sport" quiet>{sport.label}</EntityLink>
             {p.team && <> · <EntityLink to={routes.team(slug, p.team.participant_id)} kind="team" quiet>{p.team.display_name}</EntityLink></>}
           </div>
-          <h1 className="h-display">{p.entity.display_name}</h1>
+          <h1 className="h-display fr-plhero__name"><span>{firstName}</span> {lastName}</h1>
           <div className="plhead__id">
+            {teamAbbr && <TeamMark sport={sport.code} abbr={teamAbbr} size="sm" />}
             <span className="plhead__pos">{pos}</span>
             {role && <span className="plhead__role" title="From the published depth chart">{role}</span>}
             {status && (
@@ -204,15 +235,42 @@ function GenericPlayerView() {
             </EntityLink>
           )}
         </div>
-        <div className="ehead__actions">
-          <SaveButton ref_kind="PLAYER" sport={sport.code} id={playerId} text="Save player" label={{ label: p.entity.display_name, sub: `${pos} · ${teamAbbr}`, href: routes.player(slug, playerId) }} />
-          {rival && (
-            <Link className="btn btn--ghost" to={routes.compare(slug, playerId, rival)}>
-              <Icon name="compare" size={16} /> Compare with {dir.data?.player(rival)?.label}
-            </Link>
-          )}
+        <div className="fr-plhero__side">
+          {seasonStrip.length > 0 && <StatStrip label={`${seasonLabel} per game`} items={seasonStrip} className="fr-plhero__stats" />}
+          {seasonStrip.length > 0 && <span className="fr-plhero__cap">{seasonLabel} · per game · from the game log</span>}
+          <div className="ehead__actions">
+            <SaveButton ref_kind="PLAYER" sport={sport.code} id={playerId} text="Save player" label={{ label: p.entity.display_name, sub: `${pos} · ${teamAbbr}`, href: routes.player(slug, playerId) }} />
+            {rival && (
+              <Link className="btn btn--ghost" to={routes.compare(slug, playerId, rival)}>
+                <Icon name="compare" size={16} /> Compare with {dir.data?.player(rival)?.label}
+              </Link>
+            )}
+          </div>
         </div>
       </header>
+
+      {showMarkets && propRows.length > 0 && (
+        <section className="fx-card fr-plprops" aria-labelledby="plprops-h">
+          <h2 className="fx-card__t" id="plprops-h"><Icon name="layers" size={17} /> Player prop markets</h2>
+          <p className="fx-card__sub">Every stat Kalshi lists for {p.entity.display_name}: the main line (rung nearest even), its ask, and the simulation’s projection where it publishes one. Select a row to read it below.</p>
+          <div className="lab__tw" tabIndex={0} role="region" aria-label="Player prop markets"><table className="fr-t">
+            <thead><tr><th scope="col">Prop</th><th scope="col" className="r">Line</th><th scope="col" className="r">Over ask</th><th scope="col" className="r">Projection</th><th scope="col" className="r">Proj − line</th><th scope="col"><span className="sr-only">Read</span></th></tr></thead>
+            <tbody>
+              {propRows.map((x) => (
+                <tr key={x.stat} className={x.stat === activeStat ? 'is-main' : undefined}>
+                  <th scope="row">{x.label}</th>
+                  <td className="r fx-num">{x.line ?? '—'}</td>
+                  <td className="r fx-num fr-gold">{x.ask != null ? `${Math.round(x.ask * 100)}¢` : '—'}</td>
+                  <td className="r fx-num">{x.proj != null ? fmtProj(x.proj, x.stat) : <small className="muted">not published</small>}</td>
+                  <td className={`r fx-num fr-d fr-d--${x.gap == null || Math.abs(x.gap) < 0.05 ? 'flat' : x.gap > 0 ? 'up' : 'down'}`}>{x.gap == null ? '—' : `${x.gap > 0 ? '+' : x.gap < 0 ? '−' : ''}${fmtProj(Math.abs(x.gap), x.stat)}`}</td>
+                  <td className="r"><button type="button" className="btn btn--sm" aria-pressed={x.stat === activeStat} onClick={() => { setStat(x.stat); setHs(x.stat); }}>Read</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table></div>
+          <p className="fr-note">Projection − line is distance, not an edge or a probability. The publication’s scorecard has the market ahead of its prop pricing.</p>
+        </section>
+      )}
 
       {/* Wide screens: the research in the main column; role, matchup and availability beside it. */}
       <div className="pl2">
@@ -252,7 +310,7 @@ function GenericPlayerView() {
         } : null;
         return (
           <>
-            <section className="pthis" aria-labelledby="pthis-h">
+            <section className="pthis fx-card fr-pthis" aria-labelledby="pthis-h">
               <div className="pthis__h">
                 <h2 id="pthis-h" className="gsec__t">{game ? `This game ${game.home_away === 'AWAY' ? 'at' : 'vs'} ${oppAbbr ?? displayName(game.opponent_name)}` : 'This season'}</h2>
                 <div className="seg seg--scroll" role="tablist" aria-label="Stat for this game">
@@ -269,7 +327,7 @@ function GenericPlayerView() {
                     <div><dt>Line</dt><dd className="num">{line ?? '—'}</dd><dd className="pthis__s">{ml ? 'market rung nearest even' : 'no priced line'}</dd></div>
                     {defRank && <div><dt>Matchup</dt><dd><RankBadge rank={defRank} compact /></dd><dd className="pthis__s">{oppAbbr} {/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense</dd></div>}
                   </dl>
-                  <RangeBar typical={[qq.p25, qq.p75]} full={[qq.p05, qq.p95]} projection={sObs.value} line={line} format={f} label={`${p.entity.display_name} ${cur.label.toLowerCase()}`} />
+                  <QuantileDist points={quantilePoints(qq)} line={line} projection={sObs.value} format={f} unit={cur.unit} minSpan={cur.unit === 'yds' ? 8 : 3} label={`${p.entity.display_name} ${cur.label.toLowerCase()}: simulated distribution`} />
                   <div className="pthis__x">
                     {rec && rec.values.length > 0 && <span className="pthis__rec"><b>{rec.over} of his last {rec.values.length}</b> games above today's line</span>}
                     {finding && <DigDeeper finding={finding} />}
@@ -279,7 +337,7 @@ function GenericPlayerView() {
                 <p className="muted small">No projection published for {cur.label.toLowerCase()} in this game.</p>
               )}
             </section>
-            <section className="pgame" aria-labelledby="pgame-h">
+            <section className="pgame fx-card fr-pl" aria-labelledby="pgame-h">
               <div className="gsec__h pgame__h">
                 <h2 id="pgame-h" className="gsec__t">Game by Game</h2>
                 {wins.length > 1 && (
@@ -321,6 +379,14 @@ function GenericPlayerView() {
       })()}
       </div>
       <aside className="pl2__side" aria-label="Role, matchup and availability">
+      {game && (
+        <section className="fx-card fr-plscript" aria-labelledby="plscript-h">
+          <h2 className="fx-card__t" id="plscript-h"><Icon name="layers" size={16} /> Game script impact</h2>
+          <CapabilityState title="Not published by script" icon="info" tone="cyan" action={<Link className="btn btn--sm" to={routes.game(slug, game.event_id, { tab: 'script' })}>Open the Script Theater</Link>}>
+            <p>The simulation publishes each <b>team’s</b> volume in every final-margin script, not {p.entity.display_name}’s projection by script. The Script Theater shows his team’s pass and run volume in each.</p>
+          </CapabilityState>
+        </section>
+      )}
 
       {showUsage && (
         <Stratum title="Usage & Role" sub="Projected for this game, plus the published depth chart.">

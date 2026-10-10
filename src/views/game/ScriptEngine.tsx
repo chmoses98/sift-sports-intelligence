@@ -75,7 +75,7 @@ function cents(v: number | null | undefined): string {
   return v == null ? '—' : `${Math.round(v * 100)}¢`;
 }
 
-function SidePrice({ e, m, now }: { e: Expression; m: Market | undefined; now: number }) {
+export function SidePrice({ e, m, now }: { e: Expression; m: Market | undefined; now: number }) {
   const v = sidePrice(e, m);
   const fresh = quoteFreshness(m?.captured_at ?? null, now);
   const age = quoteAgeMs(m?.captured_at ?? null, now);
@@ -91,7 +91,7 @@ export function ConfidenceChip({ level }: { level: string }) {
   return <span className={`cfchip cfchip--${level.toLowerCase()}`}>{level === 'LOW' ? 'Low data confidence' : `${level[0]}${level.slice(1).toLowerCase()} data confidence`}</span>;
 }
 
-function LabelChips({ labels }: { labels: string[] }) {
+export function LabelChips({ labels }: { labels: string[] }) {
   return (
     <span className="lchips">
       {orderedLabels(labels).map((l) => (
@@ -101,7 +101,7 @@ function LabelChips({ labels }: { labels: string[] }) {
   );
 }
 
-function CompatCells({ engine, e, selected }: { engine: Engine; e: Expression; selected?: string | null }) {
+export function CompatCells({ engine, e, selected }: { engine: Engine; e: Expression; selected?: string | null }) {
   return (
     <span className="fitcells" aria-hidden="true">
       {engine.scripts.map((s, i) => (

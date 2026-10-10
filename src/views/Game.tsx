@@ -44,6 +44,7 @@ import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, SchemeCard, usePropHistories } from './game/matters';
 import { CompactProps } from './game/CompactProps';
 import { PropsBoard } from './game/PropsBoard';
+import { EngineMarketIntel, MarketIntel } from './game/MarketIntel';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, SchemeTable } from './game/lines';
 
@@ -580,6 +581,7 @@ export function GameView({ eventId }: { eventId: string }) {
         )}
         {etab === 'markets' && (
           <>
+            <EngineMarketIntel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />
             <Stratum id="g-engine-survivors" title="Script survival" sub="Every best and multi-script expression, with the scripts it survives. Compatibility, not a probability.">
               <EngineSurvivorsPanel engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={engineSelected} limit={40} />
             </Stratum>
@@ -721,7 +723,9 @@ export function GameView({ eventId }: { eventId: string }) {
 
       {tab === 'markets' && (
         <>
-          <MarketsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+          <MarketIntel r={r} rows={rows} set={set} slug={slug} eventId={eventId} now={now} homeAbbr={homeAbbr} awayAbbr={awayAbbr}>
+            <MarketsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+          </MarketIntel>
           {Boolean(ext?.market_implied || ext?.model_view) && (
             <Stratum id="g-market-vs-model" title="Market and simulation" sub="What the prices imply next to what Sift's simulation reconstructs.">
               <MarketModel ext={ext} homeAbbr={homeAbbr} awayAbbr={awayAbbr} />

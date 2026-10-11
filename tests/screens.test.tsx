@@ -138,9 +138,9 @@ describe('game page', () => {
     // The headline edge in NE @ BUF: Buffalo's #1 rush offense against New England's #21 run defense.
     expect((await screen.findAllByText('Bills rush offense has a major edge')).length).toBeGreaterThan(0);
     // The dashboard's script cards (most simulated first), each with its published sim share, never called a probability.
-    expect([...container.querySelectorAll('.gscr__n')].map((e) => e.textContent)).toEqual(['Close Game Either Way', 'Bills Win Big', 'Bills Win Comfortably', 'Patriots Win Comfortably']);
+    expect([...container.querySelectorAll('.gscr__n')].map((e) => e.textContent)).toEqual(['Patriots Keep It Close', 'Bills Win Big', 'Bills Win Comfortably', 'Patriots Win Comfortably']);
     expect([...container.querySelectorAll('.gscr__p .fx-num')].map((e) => e.textContent)).toEqual(['36%', '26%', '24%', '13%']);
-    expect(container.querySelector('.gscr__a')!.getAttribute('aria-label')).toMatch(/^Most simulated: Close Game Either Way, 36% of simulated games/);
+    expect(container.querySelector('.gscr__a')!.getAttribute('aria-label')).toMatch(/^Most simulated: Patriots Keep It Close, 36% of simulated games/);
     expect(container.querySelector('#gd-scripts')!.textContent).toMatch(/sim share/);
     expect(container.querySelector('#gd-scripts')!.textContent).not.toMatch(/\d+% probability/i);
     // No raw Kalshi ticker anywhere on the overview.

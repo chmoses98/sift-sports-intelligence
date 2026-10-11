@@ -8,6 +8,7 @@
 // formatting, plus EV at a live ask (P(side | script) − haircut − cost), shown only beside the published value.
 import type { EventResearchDoc, MetricDef } from '../contract/types';
 import { describeNhlMarket } from './marketLabel';
+import { nhlScriptWords } from './scriptNames';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -222,7 +223,11 @@ export function readNhl(r: EventResearchDoc | null | undefined): NhlScripts | Nh
   if (!x) return { status: 'ABSENT', reason: 'This publication carries no NHL script layer for the game.' };
   if (x.status !== 'OK') return { status: x.status === 'FAILED' ? 'FAILED' : 'NOT_SIMULATED', reason: String(x.reason ?? 'not simulated') };
   const order: string[] = x.script_order ?? [];
-  const scripts = (x.scripts ?? []).map(decodeScript).sort((a: NhlScript, b: NhlScript) => b.probability - a.probability || a.code - b.code);
+  // Team-specific words (owner item 8): each club named in its own scripts, never a bare tricode or "one team".
+  const code = (ha: string) => r.event.participants.find((p) => p.participant_id === r.participants?.find((q) => q.home_away === ha)?.participant_id)?.short_name ?? '';
+  const pair = { home: code('HOME'), away: code('AWAY') };
+  const named = (sc: NhlScript): NhlScript => ({ ...sc, ...nhlScriptWords(sc, pair) } as NhlScript);
+  const scripts = (x.scripts ?? []).map(decodeScript).map(named).sort((a: NhlScript, b: NhlScript) => b.probability - a.probability || a.code - b.code);
   const markets = new Map<string, NhlMarketRow>();
   for (const row of x.markets ?? []) {
     const [ticker, family, team, pYes, pYesMid, byScript, yes, no] = row as any[];

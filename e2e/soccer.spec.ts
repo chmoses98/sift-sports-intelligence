@@ -85,6 +85,9 @@ test('model disagreement is never shown as an edge: the board says first that no
   await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
   await page.goto('./#/intelligence/markets');
   await page.getByRole('button', { name: 'This week' }).click();
+  // The board opens on the Kalshi-style browse view; the full research cards are one tap away.
+  await expect(page.getByTestId('browse-board').getByRole('note').filter({ hasText: 'No validated or research-backed bet right now' })).toBeVisible();
+  await page.getByRole('button', { name: 'Full cards' }).click();
   const board = page.locator('.oppboard');
   await expect(board.getByRole('note').filter({ hasText: 'No validated or research-backed bet right now' })).toBeVisible();
   const signals = board.locator('[data-level="sig"]');
@@ -105,6 +108,11 @@ test('the market board features the soccer research candidates with their price,
   await page.goto('./#/intelligence/markets');
   await expect(page.getByRole('heading', { name: 'Market board' })).toBeVisible();
   await page.getByRole('button', { name: 'This week' }).click();
+  // Browse view: the fixture's game is one event card with its contracts in betting words, price and break-even.
+  const ev = page.getByTestId('event-card').first();
+  await expect(ev).toBeVisible();
+  await expect(ev).toContainText(/break-even/);
+  await page.getByRole('button', { name: 'Full cards' }).click();
   const card = page.locator('.opp--research_candidate').first();
   await expect(card).toBeVisible();
   await expect(card).toContainText(/Research candidate/);

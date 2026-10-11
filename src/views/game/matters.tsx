@@ -14,7 +14,8 @@ import { routes } from '../../lib/routes';
 import type { ScriptSet } from '../../lib/scripts';
 import { useAsync } from '../../data/hooks';
 import { historyAvailable, playerHistory, useHistoryIndex } from '../../history/load';
-import { hitRecord, statDef, pregameRows, windowRows } from '../../history/stats';
+import { statDef, pregameRows } from '../../history/stats';
+import { hitRate } from '../../history/hitRate';
 import type { PlayerHistoryDoc } from '../../history/types';
 import type { ContextNote } from '../../insights/context';
 import { nameKey } from '../../insights/context';
@@ -193,18 +194,20 @@ export function SchemeCard({ s, ctx }: { s: SchemeInsight; ctx: GameCtx }) {
 function PropHistory({ c, hist, kickoff, week }: { c: PropCard; hist: PlayerHistoryDoc | null | undefined; kickoff: string; week: number | null }) {
   const def = statDef(c.stat);
   if (!def || !hist || c.line == null) return null;
-  // Last five games before this one, across seasons; compared with TODAY's line (past lines are not published).
-  const rec = hitRecord(windowRows(pregameRows(hist, kickoff, week), 'last5'), def, c.line);
-  if (!rec.values.length) return null;
+  // Last five ELIGIBLE games before this one (rows without an offensive snap are skipped, never read as 0), across
+  // seasons, compared with TODAY's line (past lines are not published). A value on a whole-number line is a push.
+  const rec = hitRate(pregameRows(hist, kickoff, week), def, c.line, 'last5');
+  if (!rec.n) return null;
+  const word = (r: string) => (r === 'over' ? " (above today's line)" : r === 'under' ? " (below today's line)" : " (on today's line: push)");
   return (
     <span className="pcard__hist">
-      <span className="pcard__hk">Last {rec.values.length}</span>
-      {rec.values.map((x) => (
-        <span key={x.row.game_id} className={`pcard__g ${x.v > c.line! ? 'is-over' : 'is-under'}`} title={`${x.row.season ?? ''} week ${x.row.week} vs ${x.row.opp}: ${x.v}`}>
-          {x.v}<span className="sr-only">{x.v > c.line! ? " (above today's line)" : " (below today's line)"}</span>
+      <span className="pcard__hk">Last {rec.n}</span>
+      {rec.games.map((x) => (
+        <span key={x.row.game_id} className={`pcard__g is-${x.result}`} title={`${x.row.season ?? ''} week ${x.row.week} vs ${x.row.opp}: ${x.v}`}>
+          {x.v}<span className="sr-only">{word(x.result)}</span>
         </span>
       ))}
-      <span className="pcard__hr">{rec.over} of {rec.values.length} above today's {c.line}</span>
+      <span className="pcard__hr">{rec.over} of {rec.n} above today's {c.line}{rec.push ? ` · ${rec.push} push` : ''}</span>
     </span>
   );
 }

@@ -1,0 +1,155 @@
+{
+ "$comment": "Player photographs that must never be shown (reviewed 2026-10-11 against the full images). Rule: a player photo is a game-day frame in the player’s CURRENT team uniform (action, warm-ups or the sideline at a game). Never a press conference, interview, draft or signing event, training camp, an off-field event, a college uniform or a former team’s uniform. src/lib/players.ts drops these at runtime and scripts/players/fetch.mjs never downloads them again; tests/playerImages.test.ts fails if one is in the manifest. A player without an approved photo shows the team-branded graphic.",
+ "files": [
+  {
+   "id": "ari-jacoby-brissett",
+   "file": "File:Jacoby Brissett at Charity Softball Game 2024 (cropped).jpg",
+   "why": "charity softball game, not a football game"
+  },
+  {
+   "id": "ari-jeremiyah-love",
+   "file": "File:2025-0118 Jeremiyah Love.jpg",
+   "why": "press conference (microphones, sponsor backdrop)"
+  },
+  {
+   "id": "ari-trey-mcbride",
+   "file": "File:2024 FanDuel Interview Trey McBride.png",
+   "why": "sportsbook-sponsored interview, not game action"
+  },
+  {
+   "id": "atl-michael-penix-jr",
+   "file": "File:2024 Atlanta Falcons Post-draft Press Conference Michael Penix Jr.png",
+   "why": "post-draft press conference"
+  },
+  {
+   "id": "bal-derrick-henry",
+   "file": "File:Derrick Henry 2019 10-13.jpg",
+   "why": "former team (Titans uniform)"
+  },
+  {
+   "id": "bal-lamar-jackson",
+   "file": "File:Lamar jackson ravens camp 2018 (cropped).jpg",
+   "why": "training camp (2018), not game action"
+  },
+  {
+   "id": "bal-zay-flowers",
+   "file": "File:Zay Flowers (53732057596) (cropped).jpg",
+   "why": "off-field public event"
+  },
+  {
+   "id": "cin-chase-brown",
+   "file": "File:Chase Brown.jpg",
+   "why": "college uniform (Illinois)"
+  },
+  {
+   "id": "den-j-k-dobbins",
+   "file": "File:J. K. Dobbins 2021 (cropped).jpg",
+   "why": "off-field portrait, not game action"
+  },
+  {
+   "id": "gb-jordan-love",
+   "file": "File:Jordan Love (2019).png",
+   "why": "college uniform (Utah State)"
+  },
+  {
+   "id": "gb-marshawn-lloyd",
+   "file": "File:MarShawn Lloyd.jpg",
+   "why": "college uniform (South Carolina)"
+  },
+  {
+   "id": "hou-c-j-stroud",
+   "file": "File:C.J. Stroud being interviewed by CBS Sports at Houston Texans training camp in July 2026.jpg",
+   "why": "training-camp media interview"
+  },
+  {
+   "id": "hou-david-montgomery",
+   "file": "File:David Montgomery in 2019 (cropped).jpg",
+   "why": "former team (Bears uniform)"
+  },
+  {
+   "id": "hou-nico-collins",
+   "file": "File:Nico Collins 2019.jpg",
+   "why": "college uniform (Michigan)"
+  },
+  {
+   "id": "ind-daniel-jones",
+   "file": "File:Daniel Jones 2019 (cropped).jpg",
+   "why": "off-field portrait in a suit (draft-era), not game action"
+  },
+  {
+   "id": "kc-kenneth-walker-iii",
+   "file": "File:Kenneth Walker III being interviewed by Time2Football 2026 (cropped).png",
+   "why": "media interview in another team’s gear"
+  },
+  {
+   "id": "la-kyren-williams",
+   "file": "File:2025 FanDuel Super Bowl LIX Winner Poll - Kyren Williams.png",
+   "why": "sportsbook party interview"
+  },
+  {
+   "id": "la-puka-nacua",
+   "file": "File:Zach Wilson and Puka Nacua, Vegas Kickoff Classic, Brigham Young University (BYU) Cougars 24, University of Arizona Wildcats 16, Allegiant Stadium, Las Vegas, Nevada (51427825570) (cropped).jpg",
+   "why": "college uniform (BYU)"
+  },
+  {
+   "id": "lv-kirk-cousins",
+   "file": "File:Kirk Cousins vs. Vikings 2016 (cropped).jpg",
+   "why": "former team (Washington helmet)"
+  },
+  {
+   "id": "min-aaron-jones-sr",
+   "file": "File:Aaron Jones (36287699470) (cropped).jpg",
+   "why": "former team (Packers uniform)"
+  },
+  {
+   "id": "min-kyler-murray",
+   "file": "File:Kyler Murray Oct 31, 2015 - Cropped.jpg",
+   "why": "college uniform (Texas A&M)"
+  },
+  {
+   "id": "nyg-jameis-winston",
+   "file": "File:Jameis winston 2018 training camp (cropped).jpg",
+   "why": "former team training camp (Buccaneers)"
+  },
+  {
+   "id": "nyg-malik-nabers",
+   "file": "File:Malik Nabers Arkansas 2023.jpg",
+   "why": "college uniform (LSU)"
+  },
+  {
+   "id": "nyj-garrett-wilson",
+   "file": "File:2025 NYJ offseason - Garrett Wilson interview (cropped).png",
+   "why": "offseason interview"
+  },
+  {
+   "id": "nyj-geno-smith",
+   "file": "File:Geno Smith Raiders 2025 (cropped).jpg",
+   "why": "former team (Raiders uniform)"
+  },
+  {
+   "id": "phi-saquon-barkley",
+   "file": "File:Saquon Barkley Super Bowl LX 2026.png",
+   "why": "media/gaming event, not game action"
+  },
+  {
+   "id": "sf-christian-mccaffrey",
+   "file": "File:Christian McCaffrey 2021.jpg",
+   "why": "former team (Panthers uniform)"
+  },
+  {
+   "id": "tb-emeka-egbuka",
+   "file": "File:Emeka Egbuka 2024 (cropped).jpg",
+   "why": "college uniform (Ohio State)"
+  },
+  {
+   "id": "ten-tony-pollard",
+   "file": "File:2024 Titans FA Announcement - Tony Pollard.png",
+   "why": "free-agency press conference"
+  },
+  {
+   "id": "was-stefon-diggs",
+   "file": "File:Stefon Diggs 2017 (cropped).jpg",
+   "why": "former team (Vikings uniform)"
+  }
+ ]
+}

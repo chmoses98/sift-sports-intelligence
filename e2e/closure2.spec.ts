@@ -6,13 +6,13 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, noHorizontalOverflow, NOW, test } fro
 const FINAL_GAME = 'evt_0e858f7285b411adf630'; // a 2026 week-1 game, FINAL in this publication
 const AFTER_KICKOFF = new Date('2026-10-04T17:30:00Z'); // NE @ BUF kicked off at 17:00Z
 async function expectTray(page: Page, isMobile: boolean, n: number) {
-  // The My Board count on the destination bar (header on wide screens, tab bar on phones); it hides at zero.
-  const badge = isMobile ? page.locator('.bottombar__n') : page.locator('.dnav__n [aria-hidden="true"]');
+  // The My Board count: its header tab on wide screens, the header bookmark on phones; it hides at zero.
+  const badge = isMobile ? page.locator('.topbar__boardn') : page.locator('.dnav__n [aria-hidden="true"]');
   if (n === 0) await expect(badge).toHaveCount(0);
   else await expect(badge).toHaveText(String(n));
 }
 async function openBoard(page: Page, isMobile: boolean) {
-  await (isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
+  await (isMobile ? page.getByRole('banner') : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
   await expect(page.getByRole('heading', { name: /^My Board$/, level: 1 })).toBeVisible();
 }
 
@@ -125,7 +125,8 @@ test.describe('player page', () => {
     await page.goto(`./#/nfl/player/${ALLEN}`);
     await page.getByRole('heading', { name: 'Market Context', exact: true }).waitFor();
     await page.getByRole('heading', { name: 'Game by Game' }).waitFor();
-    const order = await page.locator('h2').allInnerTexts();
+    // Heading text, not its rendering: section titles are set in capitals by CSS (the type scale), the words are unchanged.
+    const order = (await page.locator('h2').allTextContents()).map((h) => h.replace(/\s+/g, ' ').trim());
     const at = (t: string | RegExp) => order.findIndex((h) => (typeof t === 'string' ? h === t : t.test(h)));
     expect(at(/^This game/)).toBeGreaterThanOrEqual(0);
     expect(at('Game by Game')).toBeGreaterThan(at(/^This game/));
@@ -146,7 +147,7 @@ test.describe('player page', () => {
     // …but the provenance is one tap away.
     await page.getByText('About this data: source, quality and support').click();
     await expect(page.locator('.pldet--about')).toContainText('support state');
-    await expect(page.locator('.pldet--about')).toContainText('RESEARCH_ONLY');
+    await expect(page.locator('.pldet--about')).toContainText('Research only');
   });
 
   test('QB receiving usage stays absent; relevant usage and role remain', async ({ page }) => {
@@ -160,22 +161,23 @@ test.describe('player page', () => {
   test('the game log is real history: game by game against the line, the full table one layer down', async ({ page }) => {
     await page.goto(`./#/nfl/player/${ALLEN}`);
     await expect(page.getByRole('heading', { name: 'Game by Game' })).toBeVisible();
-    // Default window: the last five games before this one (2025's last two, then 2026 weeks 1-3).
-    await expect(page.locator('.gbars__b:not(.gbars__b--next)')).toHaveCount(5);
-    await expect(page.locator('.gbars__line')).toContainText("Today's line");
+    // Default window: the last five games he played before this one (2025's last two, then 2026 weeks 1-3).
+    await expect(page.locator('.pchart__g')).toHaveCount(5);
+    await expect(page.locator('.pchart__lineLab')).toContainText('Line');
     await expect(page.getByText(/historical lines are not published/)).toBeVisible();
-    await expect(page.locator('.gbars__x').first()).toContainText("'25");
+    await expect(page.locator('.pchart__xl').first()).toContainText("'25");
+    await expect(page.locator('.hsum2__n')).toContainText('n = 5 games played');
     // This season only: weeks 1-3 — the pregame view never shows this game's own result.
-    await page.getByRole('tablist', { name: 'Games shown' }).getByRole('tab', { name: '2026' }).click();
-    await expect(page.locator('.gbars__b:not(.gbars__b--next)')).toHaveCount(3);
-    await expect(page.locator('.hsum__k')).toContainText("above today's line");
+    await page.getByRole('tablist', { name: 'Games shown' }).getByRole('tab', { name: /^2026/ }).click();
+    await expect(page.locator('.pchart__g')).toHaveCount(3);
+    await expect(page.locator('.hsum2__k')).toContainText('over today’s line');
     await expect(page.getByText('Not published for 2026 yet.', { exact: false })).toHaveCount(0);
     const log = page.locator('details.layer').filter({ hasText: 'Full game log' });
     await expect(log.locator('table')).toBeHidden();
     await log.locator('summary').click();
     await expect(log.locator('table tbody tr')).toHaveCount(3);
     // Last season: its own rank (full season), never this season's.
-    await page.getByRole('tablist', { name: 'Games shown' }).getByRole('tab', { name: '2025' }).click();
+    await page.getByRole('tablist', { name: 'Games shown' }).getByRole('tab', { name: /^2025/ }).click();
     await expect(page.locator('.hsum__rank')).toContainText('2025, full season');
   });
 
@@ -189,7 +191,7 @@ test.describe('player page', () => {
     await expect(markets.getByRole('tab', { name: /Rushing yards/ })).toHaveAttribute('aria-selected', 'true');
     await markets.locator('details.layer > summary').first().click();
     await noHorizontalOverflow(page, 'player-375-rushing');
-    for (const sel of ['.pthis__card', '.gbars', '.mctx', '.ladder', '.plmu']) {
+    for (const sel of ['.pthis__card', '.pchart', '.mctx', '.ladder', '.plmu']) {
       const box = await page.locator(sel).first().boundingBox();
       expect(box, sel).not.toBeNull();
       expect(box!.x + box!.width, `${sel} fits`).toBeLessThanOrEqual(375);

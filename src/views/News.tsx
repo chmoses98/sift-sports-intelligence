@@ -21,6 +21,8 @@ import { injuryNews, levelOf, type NewsItem } from '../insights/news';
 import { useVisit } from '../state/trail';
 import { PanelHead } from './game/panels';
 import { gameWeather } from './game/Hero';
+import { InjurySource } from '../components/InjurySource';
+import { useNow } from '../live/hooks';
 
 const LEVEL_WORD: Record<string, string> = { critical: 'Major', high: 'Important', medium: 'Worth knowing', low: 'Routine' };
 
@@ -62,6 +64,8 @@ export function NewsView() {
     }
     return out.sort((a, b) => b.score - a.score || a.kickoff.localeCompare(b.kickoff));
   }, [data.data, hist.data, index.data]);
+  const now = useNow(60_000);
+  const injuryRowsAll = useMemo(() => (data.data ?? []).flatMap((r) => r.context?.injuries ?? []), [data.data]);
   const lead = items.filter((x) => x.level === 'critical' || x.level === 'high');
   const medium = items.filter((x) => x.level === 'medium');
   const low = items.filter((x) => x.level === 'low');
@@ -93,7 +97,8 @@ export function NewsView() {
           <Layer summary={`Routine designations (${low.length})`}><ul className="newsl newsl--quiet">{low.map(row)}</ul></Layer>
         </section>
       )}
-      <p className="muted small">Designations: ESPN via the publication (they resolve at the inactive release, 90 minutes before kickoff). Starts: the quarterback with the most dropbacks in each game (nflverse play-by-play). Importance weighs the designation against the player's role on the depth chart and in the projections.</p>
+      {injuryRowsAll.length > 0 && <InjurySource rows={injuryRowsAll} sport="NFL" now={now} />}
+      <p className="muted small">Starts: the quarterback with the most dropbacks in each game (nflverse play-by-play). Importance weighs the designation against the player's role on the depth chart and in the projections. Weather appears here only for open-air stadiums; domes and retractable roofs are never flagged.</p>
     </div>
   );
 }

@@ -77,6 +77,9 @@ jobs:
       - name: Refresh the player/team history layer from nflverse (keeps the committed copy on failure)
         continue-on-error: true
         run: node scripts/history/build-nfl-history.mjs public/data/nfl/history 2026
+      - name: Refresh the NFL league schedule (scores, closing lines) from nflverse (keeps the committed copy on failure)
+        continue-on-error: true
+        run: node scripts/history/build-nfl-schedule.mjs public/data/league/nfl/schedule.json 2026
       - run: npm run build
         env:
           # Optional read-only quote relay (relay/README.md). A public URL, not a secret; unset means

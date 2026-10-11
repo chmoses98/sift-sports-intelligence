@@ -100,3 +100,20 @@
 .hg__list { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: grid; gap: var(--s-5); }
 .hg__cap { margin-bottom: 6px; font-size: 0.86rem; }
 @media (min-width: 1100px) { .heroes-gallery .gh { min-height: 340px; } }
+
+/* ------------------------------------------------------------------ branded identity, broadcast treatment (2026-10-11)
+   With no verified photo the frame is a designed graphic: the home club's colours and outlined name dominate, the
+   visitors' colours answer from the left, so a branded hero reads as THIS matchup rather than an empty dark box. */
+.hart--branded.hart--home .hart__wash {
+  background:
+    radial-gradient(110% 95% at 82% 18%, color-mix(in srgb, var(--hc1) 66%, transparent) 0%, transparent 62%),
+    radial-gradient(70% 80% at 100% 100%, color-mix(in srgb, var(--hc2) 38%, transparent) 0%, transparent 70%),
+    radial-gradient(55% 70% at 0% 85%, color-mix(in srgb, var(--ac1) 30%, transparent) 0%, transparent 70%),
+    linear-gradient(118deg, #02080e 22%, color-mix(in srgb, var(--hc1) 34%, #02080e) 100%); }
+.hart__livery--away { right: auto; left: 7%; width: 40px; opacity: 0.32;
+  background: linear-gradient(90deg, transparent 0 6px, var(--ac2) 6px 10px, transparent 10px 16px, var(--ac1) 16px 34px, transparent 34px); }
+.hart--tile .hart__livery--away { display: none; }
+.hart__word { right: 3%; bottom: 6%; font-family: var(--font-cond); font-weight: 700; font-size: clamp(5rem, 15vw, 14rem); line-height: 0.8; letter-spacing: -0.01em;
+  text-transform: uppercase; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--hc1) 55%, #fff 25%); opacity: 0.22; }
+.hart--branded .hart__logo--home { opacity: 0.22; }
+@media (max-width: 720px) { .hart__word { font-size: 6.5rem; bottom: 4%; -webkit-text-stroke-width: 1.5px; } }

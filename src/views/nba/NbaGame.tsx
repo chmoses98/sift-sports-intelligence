@@ -14,6 +14,9 @@ import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
 import { teamAccent } from '../../lib/teams';
+import { DesignationKey, InjurySource } from '../../components/InjurySource';
+import { DataState } from '../../components/DataState';
+import { designation } from '../../lib/injurySource';
 import { Authority, Deep, MarketFamilies, Pill, RankRows, Section } from '../shared/kit';
 
 const STATUS_WORD: Record<string, string> = { OUT: 'Out', DOUBTFUL: 'Doubtful', QUESTIONABLE: 'Questionable', PROBABLE: 'Probable', DAY_TO_DAY: 'Day to day' };
@@ -74,9 +77,13 @@ export function NbaGameView({ eventId }: { eventId: string }) {
       </Section>
 
       <div className="skgrid">
-        <Section id="ng-inj" title="Injury report" sub={inj[0]?.source ? `${inj[0].source}${inj[0].asOf ? ` · as of ${kickoff(inj[0].asOf)}` : ''}` : 'No injury rows published for this game.'}>
-          {inj.length === 0 ? <p className="muted">Nobody listed.</p> : (
-            <ul className="lims">{inj.map((i) => <li key={`${i.player}-${i.status}`}><b>{i.player}</b>{i.team ? ` (${i.team})` : ''} · {STATUS_WORD[i.status] ?? i.status.toLowerCase()}{i.detail ? ` · ${i.detail}` : ''}</li>)}</ul>
+        <Section id="ng-inj" title="Injury report" sub="Official designations as the source lists them.">
+          {inj.length === 0 ? <DataState title="No injury list for this game" detail="The NBA publication carries no injury rows for this game. That usually means nobody was listed at the last capture; statuses can change up to tip-off." /> : (
+            <>
+              <InjurySource rows={inj} sport="NBA" now={now} />
+              <ul className="lims">{inj.map((i) => <li key={`${i.player}-${i.status}`}><b>{i.player}</b>{i.team ? ` (${i.team})` : ''} · {STATUS_WORD[i.status] ?? designation(i.status).word}{i.detail ? ` · ${i.detail}` : ''}</li>)}</ul>
+              <DesignationKey statuses={inj.map((i) => i.status)} />
+            </>
           )}
         </Section>
         <Section id="ng-roster" title="Rosters the publication projects" sub="Players the research document lists for each club. Open one for last season's game log and per-game rates.">

@@ -109,6 +109,31 @@ touchdowns, other) with family and team chips and a priced-lines switch. Each ro
 Players the publication lists OUT / IR / DOUBTFUL / SUSPENDED are hidden and named under the board. Order is the
 documented interest rule (role size, matchup extremity, separation; props without a priced line sink).
 
+## Hit rates and the Player Prop Explorer (`history/hitRate.ts`, `views/props/*`, `/props`)
+
+* **Eligible game** = a game he played with the stat recorded: a history row exists, the stat reads a value, and he
+  took at least one offensive snap (where no snap count was joined, any recorded touch counts). Rows with zero
+  offensive snaps (special teams only, inactive) are skipped and reported, never counted as zeros; games he missed
+  have no row. "Last 5 / Last 10" are the last 5 / 10 games **played** (spanning seasons); season, last season and
+  All count every eligible game. Every window shows its n.
+* **Against the CURRENT line**: over = value > line, under = value < line, **push** = equal (whole-number lines only)
+  and counted on its own. Written "7 of 10 over 54.5" / "Last 10: 7/10 over" — history, never "70% chance".
+* **Explorer** (`/nfl/props`): the rail groups every market under its player; the analysis carries the player's market
+  carousel (scroll-snap, arrow buttons on pointer devices, ←/→/Home/End), the game-log chart against today's line
+  (over blue ▲, under red ▼, push gold =; tooltip with opponent, date, value), the window's usage from game-log fields
+  only (snap share, targets, target share, air-yard share, catch rate, carries, yards per carry, attempts, completion
+  rate, sacks; routes, yards after contact and per-play air yards are not published and say so), the matchup in one
+  plain sentence from the player's side, and every ladder rung with its Last 5 / Last 10 / season history.
+* **Role disagreement**: a main line outside the simulation's own 5th–95th range means the market and the simulation
+  price different roles (a backup projected for spot snaps against a starter's line). The explorer says so; the
+  slate board never ranks such a prop.
+* **Top props on the slate** (`/props`): ranked by one stated criterion — *Projection vs line* (|projection − line| in
+  widths of the published middle-50% range; touchdown ladders only under their own filter, because their simulated
+  quartiles collapse to zero) labelled **Research**, or *Last 10 history* (the larger of games over and under as a
+  share of games played, n ≥ 5) labelled **History**. Ticked rows go to My Board together as ordinary MARKET items;
+  props of games already kicked off are refused and counted. MLB and NHL are labelled entry points to their game pages:
+  their publications carry no simulated player distributions or per-prop opponent ranks.
+
 ## News (`insights/news.ts`) — requirement 17
 
 importance = severity (out/IR 3, doubtful 2.5, questionable 1.3) × role (QB starter 3, skill starter 2, WR2 1.6,
@@ -122,3 +147,28 @@ The research tray holds findings, not games. A finding is a contract `research_t
 rests on (METRIC for a matchup, MARKET for a prop, TEAM for context/scheme, PLAYER otherwise), with
 `extra.x = finding:<kind>:<key>` (so findings stay distinct) and the finding written out as the contract
 `note`, which the packet prints beside the item. The packet format is unchanged.
+
+## The basics, units, unit by unit, scheme meets players (repair sprint 2026-10-11, lane C)
+
+* **Basics** (`insights/basics.ts`): points, total/passing (net of sack yards)/rushing yards, yards per play,
+  turnovers (interceptions + fumbles lost), sacks per game, third-down and red-zone TD rates — sums of nflverse
+  play-by-play counts (`history/teams.json`, written per team-week by `scripts/history/build-nfl-history.mjs`)
+  divided by games, over the weeks before the game; ranked of 32, #1 = best for the job, ties share. Raw results.
+* **Units** (`insights/units.ts`): every team metric's denominator from the registry descriptions ("sacks per
+  dropback", "turnovers per play"). A rate is never written as a per-game count; adjusted ratings read as a
+  difference from league average ("+1.8 pts", "−0.034 EPA / dropback"); raw values carry their window (last 34).
+* **Adjusted / Raw** (`state/statMode.ts`): one app-wide choice, adjusted by default (the publication's matchup
+  rows are opponent-adjusted). Each value carries an Adjusted / Raw / Box score tag; where only one version is
+  published the tag says "… only".
+* **Unit by unit** (`insights/unitAnalysis.ts`): passing game, run game, line vs pass rush, receivers vs coverage,
+  downs, red zone, turnovers, special teams; the conclusion compares the two published ranks (slight ≥ 0.2,
+  clear ≥ 0.35, major ≥ 0.55 strength gap with the top/bottom-40% rule) and is labelled an observation.
+* **Scheme meets players** (`insights/schemePlayers.ts`): stacked boxes → lead back, blitz rate → quarterback,
+  pass rate over expected → lead receiver; each chain shows the charted tendency with its sample, the player's
+  published projection (research simulation), the simulated script that moves his volume, and his priced prop with
+  the bet status read from the opportunity layer (Validated only when the publication flags it ACTIONABLE).
+* **Box counts and backs** (investigation, weeks 1–4 2026): designed runs into 8+ man boxes averaged 2.9 yards
+  (288 runs) against 4.3 into lighter boxes (2,809); a defense's stacked-box rate showed no relationship with the
+  yards per carry it allowed (r ≈ 0.01, 32 teams) and a weak negative one with opponents' designed runs per game
+  (r ≈ −0.30, plausibly game script); backs have a median of 6 charted stacked-box carries. Surfaced as an
+  observation with samples only; nothing adjusts a projection.

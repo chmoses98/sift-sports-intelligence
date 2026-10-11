@@ -20,6 +20,14 @@ const MANIFEST = join(ROOT, 'src', 'lib', 'player-images.json');
 const UA = 'SiftPlayerImages/1.0 (https://github.com/chmoses98/sift-sports-intelligence; review assets)';
 const FREE = /^(cc0|cc[- ]by(-sa)?( [\d.]+)?|cc[- ]by(-sa)? [\d.]+( [a-z-]+)?|public domain|pd.*)$/i;
 const { players } = JSON.parse(readFileSync(join(ROOT, 'scripts', 'players', 'players.json'), 'utf-8'));
+// Reviewed files that must never be shown (press conferences, interviews, draft events, camp, college or
+// former-team uniforms) and the same contexts by file name — mirrored at runtime by src/lib/players.ts.
+const BLOCKLIST = JSON.parse(readFileSync(join(ROOT, 'src', 'lib', 'player-image-blocklist.json'), 'utf-8')).files;
+const BLOCKED = new Set(BLOCKLIST.map((f) => f.file));
+// A player whose photo was rejected waits for a human pin: no automatic re-pick.
+const NEEDS_PIN = new Set(BLOCKLIST.map((f) => f.id));
+const NON_GAME_FILE = /press[ _-]?conference|interview|podium|draft|announcement|signing|poll|party|softball|charity|training[ _-]?camp|minicamp|\bcamp\b|practice|offseason|gala|ceremony|award|visit|meets/i;
+const allowed = (file) => !BLOCKED.has(file) && !NON_GAME_FILE.test(file);
 const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf-8')) : { players: {} };
 for (const d of [OUT, CUR, TMP]) mkdirSync(d, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -51,6 +59,15 @@ async function info(titles, width) {
 }
 
 for (const pl of players) {
+  // A blocked pin is never fetched and never replaced by an automatic pick: it needs a person to pin a
+  // game-day frame in the current uniform. Any file it left behind is removed.
+  const pinOk = pl.commons_file && allowed(pl.commons_file) && !BLOCKED.has(pl.commons_file);
+  if ((pl.commons_file && !pinOk) || (NEEDS_PIN.has(pl.id) && !pinOk) || (manifest.players[pl.id] && !allowed(manifest.players[pl.id].file))) {
+    rmSync(join(OUT, `${pl.id}.webp`), { force: true });
+    delete manifest.players[pl.id];
+    console.log(`BLOCKED ${pl.name}: ${pl.commons_file ?? 'auto pick'} is not a game-day frame in the current uniform; pin another`);
+    continue;
+  }
   if (pl.commons_file) {
     const dest = join(OUT, `${pl.id}.webp`);
     if (existsSync(dest) && manifest.players[pl.id]?.file === pl.commons_file) continue;
@@ -83,7 +100,7 @@ for (const pl of players) {
     const cand = (await info(titles, 1400))
       .filter((c) => /jpeg|png|webp/.test(c.mime) && c.width >= 700 && c.height >= 700 && FREE.test(c.license))
       .filter((c) => { const t = c.file.toLowerCase().replace(/[^a-z0-9]/g, ''); return t.includes(surname) && t.includes(first); })
-      .filter((c) => !bad.test(c.file))
+      .filter((c) => !bad.test(c.file) && allowed(c.file))
       .map((c) => {
         const year = Number((/\b(20\d\d)\b/.exec(c.file) ?? [])[1] ?? 2010);
         const team = new RegExp(pl.team_name ?? '#none#', 'i').test(c.file) ? 6 : 0;

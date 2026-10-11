@@ -224,6 +224,8 @@
 .pcard__g.is-over::after { content: '▲'; font-size: 0.6rem; margin-left: 2px; }
 .pcard__g.is-under { color: var(--text-2); }
 .pcard__g.is-under::after { content: '▼'; font-size: 0.6rem; margin-left: 2px; color: var(--text-3); }
+.pcard__g.is-push { border-color: rgba(240, 193, 75, 0.55); color: #f0c14b; }
+.pcard__g.is-push::after { content: '='; font-size: 0.6rem; margin-left: 2px; }
 .pcard__hr { color: var(--text-2); }
 .pcard__x { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pcard__m { font-size: 0.8rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

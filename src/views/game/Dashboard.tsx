@@ -38,6 +38,9 @@ import { gameWeather, weatherLine } from './Hero';
 import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFromResearch } from '../../lib/hero/input';
 import { usePropHistories, type GameCtx } from './matters';
+import { useTeamHistory } from '../../history/load';
+import { basicText, leagueBasics, type BasicKey, type BasicValue } from '../../insights/basics';
+import '../../styles/lane-c-views.css';
 
 // ------------------------------------------------------------------ SIFT Game Read
 
@@ -167,6 +170,56 @@ export function MatchupAdvantagesCard({ r, g, sport, href, wide }: { r: EventRes
         </div>
       ) : <p className="muted small">No opponent-adjusted unit ranks are published for this game.</p>}
       <p className="gdash__fine">League rank of {rows[0]?.o.context?.universe_size ?? 32}, opponent-adjusted; #1 is the best unit for its job. The longer, lit bar is the stronger unit.</p>
+    </FxCard>
+  );
+}
+
+// ------------------------------------------------------------------ The basics (box score per game, both teams)
+
+const BASIC_ROWS: { key: BasicKey; side: 'off' | 'def' }[] = [
+  { key: 'points', side: 'off' }, { key: 'yards', side: 'off' }, { key: 'pass_yds', side: 'off' }, { key: 'rush_yds', side: 'off' }, { key: 'turnovers', side: 'off' }, { key: 'third', side: 'off' },
+  { key: 'points', side: 'def' }, { key: 'yards', side: 'def' }, { key: 'pass_yds', side: 'def' }, { key: 'rush_yds', side: 'def' }, { key: 'turnovers', side: 'def' }, { key: 'sacks', side: 'def' },
+];
+
+/**
+ * The box-score basics on the overview: points, yards, passing and rushing yards, turnovers, third downs and sacks per
+ * game for both teams, each with its league rank — raw nflverse results over the weeks before this game. The full
+ * table (with red zone and samples) is on the Matchups tab.
+ */
+export function BasicsCard({ g, sport, href }: { g: GameSides; sport: string; href: string }) {
+  const hist = useTeamHistory(sport);
+  const basics = useMemo(() => (hist.data ? leagueBasics(hist.data, g.week) : null), [hist.data, g.week]);
+  const A = basics?.get(g.away.abbr);
+  const H = basics?.get(g.home.abbr);
+  if (!hist.loading && !A && !H) return null;
+  const cell = (v: BasicValue | undefined) => (v ? <span className="gbx__v"><b className="fx-num">{basicText(v)}</b><small>{v.rank != null ? `#${v.rank}` : '—'}</small></span> : <span className="gbx__v muted">—</span>);
+  const col = (side: 'off' | 'def') => (
+    <div className="gbx__col">
+      <div className="gbx__hd"><span><TeamMark sport={sport} abbr={g.away.abbr} size="sm" /> {g.away.abbr}</span><b>{side === 'off' ? 'Offense' : 'Defense'}</b><span>{g.home.abbr} <TeamMark sport={sport} abbr={g.home.abbr} size="sm" /></span></div>
+      <ul className="gbx__l">
+        {BASIC_ROWS.filter((x) => x.side === side).map((x) => {
+          const a = A?.[side].find((v) => v.def.key === x.key);
+          const h = H?.[side].find((v) => v.def.key === x.key);
+          const d = (a ?? h)?.def;
+          if (!d) return null;
+          const lead = a?.rank != null && h?.rank != null ? (a.rank < h.rank ? 'a' : h.rank < a.rank ? 'h' : '') : '';
+          return (
+            <li key={x.key} className={`gbx__r${lead ? ` gbx__r--${lead}` : ''}`}>
+              {cell(a)}
+              <span className="gbx__k">{d.label[side]}</span>
+              {cell(h)}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+  return (
+    <FxCard title="The Basics" icon="grid" className="gdash__basics fx-span-12" id="gd-basics" action={{ to: href, label: 'Full box-score comparison' }}>
+      {hist.loading ? <p className="muted small">Loading box scores…</p> : (
+        <div className="gbx">{col('off')}{col('def')}</div>
+      )}
+      <p className="gdash__fine">Per game unless stated · rank of {A?.off[0]?.of ?? 32} (#1 = best) · weeks before this game · nflverse play-by-play, raw results.</p>
     </FxCard>
   );
 }

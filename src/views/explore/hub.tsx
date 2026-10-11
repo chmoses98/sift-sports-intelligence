@@ -1,4 +1,4 @@
-// The Explore hub's interactive parts (approved reference 11): the team rankings table (switchable unit and metric,
+// The Research Lab hub's interactive parts (approved reference 11): the team rankings table (switchable unit and metric,
 // opponent-adjusted first, real ranking documents joined by team), the quick-stats bar chart (league percentile of a
 // published ranking), key matchups this week (NFL opponent-adjusted mismatches, or the closest games by the market's
 // own win price) and the season timeline (NFL weeks via the season navigator's hook; other sports by day).
@@ -19,6 +19,7 @@ import { eventPhase } from '../../opportunity/lifecycle';
 import { heroNumbers } from '../broadcast/numbers';
 import { PMark } from '../broadcast/parts';
 import { useNflWeeks } from './SeasonView';
+import { atsOf, currentLeagueWeek, easternDate, findLeagueGame, LEAGUE_SOURCE, resultLine, useLeagueSchedule } from '../../history/league';
 
 export interface SearchItem { id: string; kind: string; label: string; secondary?: string | null; context?: { team?: string | null; position?: string | null; season?: string | null } }
 
@@ -226,8 +227,10 @@ const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
 
 function NflTimeline({ repo, slug }: { repo: SportRepo | null; slug: string }) {
   const wk = useNflWeeks(repo, 'NFL');
+  const league = useLeagueSchedule('NFL');
   const [week, setWeek] = useState<number | null>(null);
-  const w = week ?? wk.currentWeek;
+  const lw = useMemo(() => (league.data ? currentLeagueWeek(league.data.games, easternDate(new Date().toISOString()) ?? '') : null), [league.data]);
+  const w = week ?? lw ?? wk.currentWeek;
   const games = wk.byWeek.get(w) ?? [];
   if (wk.idx.loading) return <div className="skel" style={{ height: 200 }} />;
   return (
@@ -249,18 +252,21 @@ function NflTimeline({ repo, slug }: { repo: SportRepo | null; slug: string }) {
           {games.slice(0, 16).map((g) => {
             const a = wk.nameOf(g.away_participant), h = wk.nameOf(g.home_participant);
             const ph = eventPhase(g, Date.now()).phase;
+            const lg = findLeagueGame(league.data?.games, a, h, g.start_time_utc);
+            const res = lg ? resultLine(lg) : null;
+            const ats = lg ? atsOf(lg) : null;
             return (
               <li key={g.event_id}>
                 <Link to={routes.game(slug, g.event_id)} className="ex-tile">
                   <span className="ex-tile__d">{new Date(g.start_time_utc).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                   <span className="ex-tile__m"><TeamMark sport="NFL" abbr={a} size="md" /><b>{a}</b><i>@</i><b>{h}</b><TeamMark sport="NFL" abbr={h} size="md" /></span>
-                  <span className="ex-tile__s">{ph === 'FINAL' ? 'Final' : ph === 'STARTED' ? 'Awaiting result' : new Date(g.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
+                  <span className="ex-tile__s">{res ? <>{res}{ats && <small className={`ex-tile__ats ex-tile__ats--${ats.cover ?? 'pk'}`} title={`Against the closing spread (${LEAGUE_SOURCE})`}> · {ats.text}</small>}</> : ph === 'FINAL' ? 'Final' : ph === 'STARTED' ? 'Awaiting result' : new Date(g.start_time_utc).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
-      ) : <p className="tm-none"><Icon name="info" size={14} /> Week {w} is not listed yet: the publication lists games as its schedule window reaches them. Sift never fills a week in.</p>}
+      ) : <p className="tm-none"><Icon name="info" size={14} /> Week {w} is not on the publication’s board yet. <Link to={routes.season(slug, { week: String(w) })}>See every week-{w} matchup in the Season navigator</Link>.</p>}
     </>
   );
 }

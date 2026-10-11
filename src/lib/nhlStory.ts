@@ -7,6 +7,7 @@
 // corresponding line is omitted; nothing is defaulted or invented.
 import type { EventDoc, EventResearchDoc, Market } from '../contract/types';
 import { quoteFreshness, type QuoteFreshness } from '../live/freshness';
+import { scriptLower } from './scriptNames';
 import { isNhlScripts, readNhl, type NhlCandidate, type NhlMarketRow, type NhlScript, type NhlScripts, type Tier } from './nhl';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -196,9 +197,7 @@ export interface Thesis {
 
 const byId = (s: NhlScripts, id: string) => s.byId.get(id) ?? null;
 
-function lower(label: string): string {
-  return /^[A-Z]{2,3}\b/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1);
-}
+const lower = scriptLower;
 
 export function thesis(s: NhlScripts | null, p: Projection | null, ids: SideIds, goalies: GoalieLine[], injuriesOut: { home: number; away: number } | null): Thesis | null {
   if (!s && !p) return null;

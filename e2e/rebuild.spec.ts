@@ -4,14 +4,25 @@
 // replacing its analysis when another prop is picked. No sideways scroll anywhere.
 import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
 
-const DESTS = ['Home', 'Games', 'Explore', 'Intelligence', 'My Board'];
+// Wide screens: six header tabs. Phones: five tabs (short words; the accessible name is the full label) and
+// My Board as a bookmark in the header.
+const DESTS = ['Home', 'Games', 'Props', 'Research Lab', 'Intelligence', 'My Board'];
 
-test('five destinations, one search, and Home’s sections @smoke', async ({ page, isMobile }) => {
+test('six destinations, one search, and Home’s sections @smoke', async ({ page, isMobile }) => {
   await page.clock.install({ time: NOW });
   await page.goto('./#/');
   await expect(page.getByRole('heading', { name: /^Today on SIFT$/ })).toBeVisible();
   const nav = isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' });
-  for (const d of DESTS) await expect(nav.getByRole('link', { name: isMobile && d === 'Intelligence' ? 'Intel' : d, exact: false }).first()).toBeVisible();
+  for (const d of DESTS) {
+    const where = isMobile && d === 'My Board' ? page.getByRole('banner') : nav;
+    await expect(where.getByRole('link', { name: d, exact: false }).first()).toBeVisible();
+  }
+  if (isMobile) {
+    await expect(nav.getByRole('link')).toHaveCount(5);
+    for (const w of ['Home', 'Games', 'Props', 'Lab', 'Intel']) await expect(nav.getByText(w, { exact: true })).toBeVisible();
+  }
+  // Props is the top-level Player Prop Explorer (route /props).
+  await expect(nav.getByRole('link', { name: 'Props' })).toHaveAttribute('href', '#/props');
   await expect(page.locator('.searchbtn')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: /Today’s games/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: /SIFT Intelligence/ })).toBeVisible();
@@ -24,15 +35,17 @@ test('every new destination opens from the navigation and survives back/forward 
   await page.clock.install({ time: NOW });
   await page.goto('./#/');
   const nav = isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' });
-  const go = async (label: string, heading: RegExp) => {
+  const go = async (label: string | RegExp, heading: RegExp) => {
     await nav.getByRole('link', { name: label }).first().click();
     await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
-    await noHorizontalOverflow(page, label);
+    await noHorizontalOverflow(page, String(label));
   };
   await go('Games', /^Games$/);
-  await go('Explore', /^Explore$/);
-  await go(isMobile ? 'Intel' : 'Intelligence', /^Terminal$/);
-  await go('My Board', /^My Board$/);
+  // The Research Lab tab opens /explore (its page heading is the Research Lab redesign's, lane E).
+  await go('Research Lab', /^Research Lab$/);
+  await go('Intelligence', /^Terminal$/);
+  await (isMobile ? page.getByRole('banner') : nav).getByRole('link', { name: 'My Board' }).click();
+  await expect(page.getByRole('heading', { name: /^My Board$/, level: 1 })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('heading', { name: /^Terminal$/, level: 1 })).toBeVisible();
   await page.goForward();
@@ -76,18 +89,52 @@ test('the breadcrumb collapses when going back up the path @journey', async ({ p
   await expect(crumbs.locator('li')).toHaveCount(2);
 });
 
-test('the prop explorer replaces every panel when another prop is picked @journey', async ({ page }) => {
+test('the prop explorer groups markets by player and replaces every panel when another market is picked @journey', async ({ page }) => {
   await page.clock.install({ time: NOW });
   await page.goto('./#/nfl/props');
   await expect(page.getByRole('heading', { name: /^Prop explorer$/, level: 1 })).toBeVisible();
-  const rows = page.locator('.pex__row');
-  await expect(rows.first()).toBeVisible();
-  const second = rows.nth(1);
+  const players = page.locator('.pex__ph');
+  await expect(players.first()).toBeVisible();
+  const second = players.nth(1);
   const name = (await second.locator('.pex__rb b').innerText()).trim();
-  const stat = (await second.locator('.pex__rb small').innerText()).split('·').pop()!.trim();
   await second.click();
   await expect(page.locator('#pexa-t')).toContainText(name);
-  await expect(page.locator('#pexa-t')).toContainText(stat);
   await expect(second).toHaveAttribute('aria-pressed', 'true');
+  // His markets sit together in one carousel; picking another market replaces the analysis.
+  const tiles = page.locator('.pexa__mk .pmk');
+  if ((await tiles.count()) > 1) {
+    const next = tiles.nth(1);
+    const stat = ((await next.locator('.pmk__stat').textContent()) ?? '').trim();
+    await next.click();
+    await expect(page.locator('#pexa-t')).toContainText(stat);
+    await expect(page.locator('.pexa__mk .pmk').nth(1)).toHaveAttribute('aria-pressed', 'true');
+    // Keyboard: arrows move along the carousel.
+    await page.locator('.pexa__mk .pmk').nth(1).focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(page.locator('.pexa__mk .pmk').first()).toBeFocused();
+  }
   await noHorizontalOverflow(page, 'props');
+});
+
+test('hit rates read history against today\'s line, with the n of games played @journey', async ({ page }) => {
+  await page.clock.install({ time: NOW });
+  await page.goto('./#/nfl/props');
+  await expect(page.locator('#pexa-t')).toBeVisible();
+  const perf = page.locator('.pexa__perf');
+  const summary = perf.locator('.hsum2');
+  // Game logs load after the publication: wait for the summary or the plain "no game log" state.
+  await expect(summary.or(perf.getByText(/No game log|No priced line/)).first()).toBeVisible();
+  if (await summary.count()) {
+    await expect(summary).toContainText(/over today’s line of/);
+    await expect(summary).toContainText(/n = \d+ games? played/);
+    await expect(summary).not.toContainText(/chance/i);
+    // Windows report their eligible games, and switching one keeps the sentence honest.
+    const wins = perf.getByRole('group', { name: 'History window' }).getByRole('button');
+    expect(await wins.count()).toBeGreaterThan(0);
+    await wins.first().click();
+    await expect(wins.first()).toHaveAttribute('aria-pressed', 'true');
+    await expect(perf.locator('.pchart svg')).toBeVisible();
+  } else {
+    await expect(perf).toContainText(/No game log|No priced line/);
+  }
 });

@@ -1,0 +1,51 @@
+/* Lane F — data integrity surfaces: injury provenance strip, designation key, data-availability states,
+   venue/roof facts. Imported by the components that use it (src/components/InjurySource.tsx, DataState.tsx). */
+
+.injsrc { display: grid; gap: 6px; margin: 0 0 var(--s-4); padding: 12px 14px; border-radius: var(--r-3); background: var(--panel); border: 1px solid var(--panel-line); }
+.injsrc__top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; min-width: 0; }
+.injsrc__ic { color: var(--text-2); flex: none; }
+.injsrc__name { font-weight: var(--fw-strong); color: var(--text-hi); }
+.injsrc__when { color: var(--text-2); font-size: var(--fs-sm); }
+.injsrc__age { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.02em; border: 1px solid currentColor; }
+.injsrc__age::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.injsrc__age--fresh { color: var(--fresh); }
+.injsrc__age--aging { color: var(--aging); }
+.injsrc__age--stale { color: var(--stale); }
+.injsrc__age--unknown { color: var(--unknown); }
+.injsrc__note { margin: 0; color: var(--text-2); font-size: var(--fs-sm); line-height: 1.45; }
+.injsrc--compact { padding: 0; background: none; border: 0; margin: 0; }
+.injsrc--compact .injsrc__note { display: none; }
+
+.injkey { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: var(--s-3) 0 0; padding: 0; list-style: none; font-size: var(--fs-sm); color: var(--text-2); }
+.injkey li { display: inline-flex; gap: 6px; align-items: baseline; }
+.injkey b { font-weight: 600; }
+.injkey .is-out { color: var(--neg); }
+.injkey .is-doubtful { color: #e3ad7f; }
+.injkey .is-questionable { color: var(--gold); }
+.injkey .is-probable { color: var(--pos); }
+
+/* Data-availability state: what is missing, why it matters, when it may arrive. */
+.dstate { display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--r-3); border: 1px dashed var(--line-2); background: transparent; color: var(--text-2); }
+.dstate__t { margin: 0; font-weight: 600; color: var(--text); font-size: var(--fs-md); }
+.dstate__d { margin: 0; font-size: var(--fs-sm); line-height: 1.45; }
+.dstate__more { font-size: var(--fs-sm); }
+
+/* Kickoff weather tile extras (game hero WeatherBlock). */
+.wx__out { color: rgba(236, 244, 252, 0.7); }
+.wx__conflict { color: var(--gold-2); text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.wx--retract .wx__ic { color: var(--gold); }
+
+/* Status: venue facts table. */
+.venuefacts td, .venuefacts th { white-space: nowrap; }
+.venuefacts th[scope='row'] { white-space: normal; min-width: 12rem; }
+@media (max-width: 640px) {
+  .venuefacts th:nth-child(n + 4), .venuefacts td:nth-child(n + 4) { display: none; }
+  .venuefacts th[scope='row'] { min-width: 0; }
+  .venuefacts th[scope='row'] .muted { display: block; }
+  .venuefacts td { white-space: normal; }
+}
+.venuefacts__wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.venuefacts__flag { color: var(--gold-2); }
+.dfacts__h { margin: var(--s-6) 0 var(--s-2); font-size: var(--fs-md); font-weight: 600; color: var(--text-hi); }
+.venuefacts__wrap { margin-top: var(--s-3); }
+.livediag__sum { margin: 0 0 var(--s-3); color: var(--text); font-size: var(--fs-sm); line-height: 1.5; }

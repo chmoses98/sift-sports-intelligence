@@ -44,11 +44,14 @@ function WeatherValue({ wx }: { wx: GameWeather }) {
 }
 
 function weatherItem(wx: GameWeather): StatItem | null {
-  if (wx.kind === 'none') return null;
+  if (wx.kind === 'none') {
+    // A forecast that cannot be for this venue is withheld, and the tile says so rather than vanishing.
+    return wx.withheld ? { label: 'Kickoff weather', value: <span className="ghs__wxw">Withheld</span>, sub: wx.note ?? wx.withheld, title: wx.withheld } : null;
+  }
   return {
     label: wx.kind === 'outdoor' ? 'Kickoff weather' : 'Roof',
     value: <WeatherValue wx={wx} />,
-    sub: wx.kind === 'outdoor' ? [wx.condition, wx.wind?.replace(/^Wind /, '')].filter(Boolean).join(' · ') + (wx.flag ? ` · ${wx.flag}` : '') : wx.kind === 'retractable' ? 'Roof status not published' : 'No weather exposure',
+    sub: wx.kind === 'outdoor' ? [wx.condition, wx.wind?.replace(/^Wind /, '')].filter(Boolean).join(' · ') + (wx.flag ? ` · ${wx.flag}` : '') : wx.kind === 'retractable' ? ['Roof status not announced', wx.outside ? `outside ${wx.outside}` : null].filter(Boolean).join(' · ') : 'No weather exposure',
     title: 'Captured by the publication for context; it does not enter the projection.',
     tone: wx.flag ? 'gold' : undefined,
   };

@@ -15,6 +15,10 @@ import { useDirectory } from '../state/directory';
 import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { GameRowLink } from './HistoricalGame';
+import { BasisTag, ModeToggle } from '../components/statviz';
+import { basisOf, formatStat, unitLine } from '../insights/units';
+import { useStatMode } from '../state/statMode';
+import { TeamBasicsStratum, TeamDepthStratum, TeamSchemeStratum, CompareTeamPicker } from './stats/TeamSections';
 
 const CbbTeamView = lazy(() => import('./cbb/Team').then((m) => ({ default: m.CbbTeamView })));
 
@@ -40,9 +44,9 @@ export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabe
       <Link className="mrow2__main" to={routes.metric(slug, o.metric_id, { team: teamId, opp: oppId, event: eventId })}>
         <span className="mrow2__name">
           {def?.name ?? o.metric_id}
-          <span className="mrow2__win">{windowName(o.window.label)}{o.split ? ` · ${o.split.value.replace(/_/g, ' ')}` : ''}</span>
+          <span className="mrow2__win">{sportCode === 'NFL' && basisOf(o) !== 'other' && <><BasisTag basis={basisOf(o) as 'adjusted' | 'raw' | 'season'} /> {unitLine(o.metric_id, def)} · </>}{windowName(o.window.label)}{o.split ? ` · ${o.split.value.replace(/_/g, ' ')}` : ''}</span>
         </span>
-        <span className="mrow2__val num">{o.display_value ?? fmt(o.value)}</span>
+        <span className="mrow2__val num">{o.display_value ?? (sportCode === 'NFL' ? formatStat(o.metric_id, o.value, def) : fmt(o.value))}</span>
         <span className="mrow2__meter"><ContextMeter value={o.value} ctx={ctx} label={`${def?.name}: position among ${ctx?.universe_size} teams`} /></span>
         <span className="mrow2__rank">{ctx ? <RankPill rank={ctx.rank} size={ctx.universe_size} hib={ctx.higher_is_better} /> : <span className="muted small">no ranking</span>}</span>
         <span className="mrow2__q"><QualityBadge status={o.quality_status} compact /></span>
@@ -97,7 +101,7 @@ function SeriesBlock({ s, slug, teamId, games }: { s: SeriesDoc; slug: string; t
         format={fmt}
         unit={s.unit ?? ''}
         rollingWindow={s.rolling_window}
-        title={`${def?.name} per game`}
+        title={`${def?.name ?? ''}, game by game`}
         opponentLabel={(id) => dir.data?.team(id)?.abbr ?? '?'}
         outcome={(p) => (byEvent.get(p.event_id ?? '')?.result?.outcome as 'W' | 'L' | 'T' | null) ?? null}
         renderDetail={(p) => {
@@ -186,7 +190,9 @@ function GenericTeamView({ teamId }: { teamId: string }) {
   const p = prof.data;
   useVisit(p?.entity.display_name, 'team');
   const series = useAsync(p ? `series:${sport.code}:${teamId}` : null, () => Promise.all(p!.series.map((s) => repo.series(s.series_id))));
-  const [cat, setCat] = useState<string>('opponent-adjusted');
+  const [mode] = useStatMode();
+  const [catPick, setCat] = useState<string | null>(null);
+  const cat = catPick ?? (mode === 'raw' ? 'offense' : 'opponent-adjusted');
   const [season, setSeason] = useState<string | null>(null);
 
   const prices = useMemo(() => {
@@ -201,6 +207,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
   if (!p) return <div className="page"><ErrorState error={prof.error} what="this team profile" /></div>;
 
   const abbr = p.entity.short_name ?? '';
+  const nick = displayName(p.entity.display_name).split(' ').pop() ?? abbr;
   const rec = (p.extensions as any)?.record;
   const nxt = nextGame(p);
   const oppId = nxt?.opponent_id ?? null;
@@ -233,6 +240,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
           </div>
         </div>
         <div className="ehead__actions">
+          {sport.code === 'NFL' && <CompareTeamPicker teamId={teamId} />}
           <SaveButton ref_kind="TEAM" sport={sport.code} id={teamId} label={{ label: p.entity.display_name, sub: `${sport.label} team`, href: routes.team(slug, teamId) }} />
         </div>
       </header>
@@ -248,7 +256,8 @@ function GenericTeamView({ teamId }: { teamId: string }) {
       {tab === 'overview' && (
         <>
           {sport.code === 'NHL' && <NhlStrength p={p} slug={slug} metrics={metrics} />}
-          <Stratum n="01" title="Where they stand out" sub={`Ranks among ${obs.find((o) => o.context)?.context?.universe_size ?? ''} teams on every published, directional metric.`}>
+          {sport.code === 'NFL' && <TeamBasicsStratum abbr={abbr} nick={nick} />}
+          <Stratum title="Where they stand out" sub={`Ranks among ${obs.find((o) => o.context)?.context?.universe_size ?? ''} teams on every published, directional metric.`}>
             <Standouts obs={obs} slug={slug} teamId={teamId} oppId={oppId} />
             {basis && (
               <p className="muted small">
@@ -257,20 +266,21 @@ function GenericTeamView({ teamId }: { teamId: string }) {
             )}
           </Stratum>
           {nxt && (
-            <Stratum n="02" title={`${sport.code === 'NHL' ? 'Next game' : 'This week'}: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${displayName(nxt.opponent_name)}`} sub={sport.code === 'NHL' ? 'The game page compares opponent-adjusted 5v5 strength, goaltending and the simulated game scripts.' : 'The matchup board compares both units on every adjusted rating.'}>
+            <Stratum title={`${sport.code === 'NHL' ? 'Next game' : 'This week'}: ${nxt.home_away === 'AWAY' ? '@' : 'vs'} ${displayName(nxt.opponent_name)}`} sub={sport.code === 'NHL' ? 'The game page compares opponent-adjusted 5v5 strength, goaltending and the simulated game scripts.' : 'The matchup board compares both units on every adjusted rating.'}>
               <div className="cta-row">
                 <Link className="btn btn--primary" to={routes.game(slug, nxt.event_id, { tab: 'matchup' })}>Open the matchup <Icon name="arrowRight" size={16} /></Link>
                 {oppId && <Link className="btn btn--ghost" to={routes.team(slug, oppId)}>{displayName(nxt.opponent_name)} profile</Link>}
               </div>
             </Stratum>
           )}
+          {sport.code === 'NFL' && <TeamSchemeStratum abbr={abbr} nick={nick} profile={p} />}
           {capShown(caps, 'time_series') && series.data?.[0] && (
-            <Stratum n="03" title="Recent form" sub={sport.code === 'NHL' ? 'Expected-goals share by game (raw MoneyPuck, all situations), with its trailing 10-game mean. Tap a game to open it.' : 'Points per game, last 40 games. Tap a game to open it.'}>
+            <Stratum title="Recent form" sub={sport.code === 'NHL' ? 'Expected-goals share by game (raw MoneyPuck, all situations), with its trailing 10-game mean. Tap a game to open it.' : 'Point margin in each of the last 40 games (points scored minus allowed), with its trailing mean. Tap a game to open it.'}>
               <SeriesBlock s={series.data.find((s) => s.metric_id.endsWith('point_margin')) ?? series.data[0]} slug={slug} teamId={teamId} games={p.games} />
             </Stratum>
           )}
           {capShown(caps, 'injuries') && p.availability.filter((a) => a.status !== 'ACTIVE').length > 0 && (
-            <Stratum n="04" title="Availability" sub="Current injury designations.">
+            <Stratum title="Availability" sub="Current injury designations.">
               <ul className="avail">
                 {p.availability.filter((a) => a.status !== 'ACTIVE').map((a, i) => (
                   <li key={i} className="avail__row"><span className={`pl__inj pl__inj--${a.status.toLowerCase()}`}>{statusWord(a.status)}</span><span className="avail__d">{a.detail}</span></li>
@@ -283,6 +293,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
 
       {tab === 'metrics' && (
         <Stratum title="Metrics" sub="Every published observation with its comparison universe. Tap one for the full ranking and what it means.">
+          {sport.code === 'NFL' && <ModeToggle className="team__mode" note={mode === 'adjusted' ? 'Opponent-adjusted ratings open first; the raw measures (last 34 games) are under Offense, Defense and Style.' : 'Raw measures open first (last 34 games); opponent-adjusted ratings have their own tab.'} />}
           <div className="seg" role="tablist" aria-label="Metric categories">
             {cats.map((c) => (
               <button key={c} type="button" role="tab" aria-selected={activeCat === c} className={`seg__b${activeCat === c ? ' is-on' : ''}`} onClick={() => setCat(c)}>
@@ -323,6 +334,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
         </Stratum>
       )}
 
+      {tab === 'players' && sport.code === 'NFL' && <TeamDepthStratum teamId={teamId} eventId={nxt?.event_id ?? null} nick={nick} />}
       {tab === 'players' && (
         <Stratum title="Players" sub="Players the current simulation projects for this team.">
           <ul className="roster">
@@ -338,7 +350,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
           </ul>
           {(p.extensions as any)?.quarterbacks && (
             <p className="muted small">
-              Quarterback room: {((p.extensions as any).quarterbacks as any[]).map((q) => `${q.player} (${q.status ?? 'status n/a'}, depth ${q.depth_chart_order})`).join(' · ')}
+              Quarterback room: {((p.extensions as any).quarterbacks as any[]).map((q) => `${q.player} (${q.status ?? 'status not listed'}, depth ${q.depth_chart_order})`).join(' · ')}
             </p>
           )}
         </Stratum>

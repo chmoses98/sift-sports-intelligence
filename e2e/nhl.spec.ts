@@ -168,7 +168,7 @@ test('the scorecard reports real counts and what is not yet known @journey', asy
   await page.goto('./#/nhl/scorecard');
   await expect(page.getByRole('heading', { name: /Projection vs market/ })).toBeVisible();
   const text = await page.locator('main').innerText();
-  expect(text).toMatch(/What we still do not know/);
+  expect(text).toMatch(/What we still do not know/i); // a section title, rendered in capitals by the type scale
   expect(text).toMatch(/\d+ settled games/);
   expect(text).not.toMatch(BANNED);
 });

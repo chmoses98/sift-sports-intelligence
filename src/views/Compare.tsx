@@ -10,6 +10,7 @@ import { useDirectory } from '../state/directory';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { quantilesOf } from './Player';
+import { TeamCompareView } from './TeamCompare';
 
 function PairRange({ label, a, b, fmt }: { label: string; a: ReturnType<typeof quantilesOf>; b: ReturnType<typeof quantilesOf>; fmt: (v: number) => string }) {
   const [ref, width] = useWidth<HTMLDivElement>();
@@ -41,7 +42,18 @@ function PairRange({ label, a, b, fmt }: { label: string; a: ReturnType<typeof q
   );
 }
 
+/** /:sport/compare?a=&b= — two teams (a team id in `a`) or two players. */
 export function CompareView() {
+  const [sp] = useSearchParams();
+  const a = sp.get('a');
+  const { repo, sport } = useSport();
+  const dir = useDirectory(repo);
+  if (a && dir.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
+  if (a && sport.code === 'NFL' && dir.data?.team(a)) return <TeamCompareView a={a} b={sp.get('b')} />;
+  return <PlayerCompareView />;
+}
+
+function PlayerCompareView() {
   const [sp] = useSearchParams();
   const nav = useNavigate();
   const a = sp.get('a');

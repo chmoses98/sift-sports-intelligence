@@ -80,3 +80,30 @@ The photographs are free-licence Wikimedia Commons files (CC0, CC BY or CC BY-SA
 requires derivative images to be shared under the same licence, and the served WebP files are. Team logos are the
 committed logo files Sift already uses for identification. Trademark review of league and school marks remains an owner
 item before any commercial launch.
+
+## Audit, 2026-10-11 (repair sprint)
+
+**Venue photographs.** All 100 approved hero photos (`src/lib/hero/photos.json`) were re-checked on contact sheets of
+the served 720 px files: every one is a venue / game frame of the home team at its own building. None shows a press
+conference, draft event, player portrait or unrelated event. No change was needed.
+
+**Branded heroes.** With no verified photo, `HeroArt` now draws a broadcast graphic: the home club's colours, livery
+and logo, its name set large in outline, and the visitors' colour band and glow from the left, so the frame reads as
+this matchup instead of an empty dark box.
+
+## Player photographs
+
+The script cards, prop cards and player pages show player photos from `src/lib/player-images.json`. The rule is the
+same as for venues: **only a game-day frame in the player's current team uniform** (action, warm-ups or the sideline
+at a game). Never a press conference, interview, draft or free-agency announcement, training camp, off-field event,
+college uniform or former team's uniform.
+
+The 2026-10-11 review of the full images removed 30 of 55 files (`src/lib/player-image-blocklist.json` names each
+file and why). The blocklist and a non-game file-name rule are enforced in three places:
+
+- `src/lib/players.ts` never returns a blocked file, so no page can show one;
+- `scripts/players/fetch.mjs` never downloads a blocked pin, removes any file it left behind, and never auto-picks a
+  replacement for a rejected player (a person pins a new game-day frame);
+- `tests/playerImages.test.ts` fails if a blocked or non-game file is in the manifest or still shipped.
+
+A player without an approved photo shows the team-branded frame (both team colours, livery bands, the logo).

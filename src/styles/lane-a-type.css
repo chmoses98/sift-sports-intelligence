@@ -1,0 +1,40 @@
+/* ==========================================================================
+   LANE A · one typographic hierarchy for every screen (repair sprint 2026-10-11)
+   Barlow Condensed is the broadcast voice for names of things — the page title, section titles, panel titles and
+   eyebrows — set in capitals with tracking; Barlow carries everything people read. The scale is in tokens.css
+   (--fs-page / --fs-section / --fs-panel / --fs-eyebrow). Loaded last and scoped to :root so a lazily loaded screen sheet does not undo it; a screen that needs a
+   bigger title (a hero, a mast) keeps its own size through a more specific rule.
+   ========================================================================== */
+
+/* h1 — the screen's name */
+:root .h-display, :root .hbar__h, :root .bhome__h, :root .hubm__t, :root .nhx__h, :root .skh__h, :root .ghead__h, :root .shead__h {
+  font-family: var(--font-cond); font-weight: 700; letter-spacing: var(--ls-page); text-transform: uppercase; line-height: 0.95; color: #fff;
+}
+.h-display { font-size: var(--fs-page); }
+.h-display.h-display--md { font-size: clamp(1.9rem, 4vw, 2.8rem); }
+.skh__h { font-size: var(--fs-page); }
+.ghead__h, .shead__h { font-size: clamp(2.6rem, 5.6vw, 4rem); }
+
+/* h2 — a section of the page */
+:root .bsec__t, :root .gsec__t, :root .sksec__t, :root .stratum__title, :root .phead__t--serif, :root .home .phead__t, :root .shome .phead__t, :root .cfh__h2, :root .nhx__h2 {
+  font-family: var(--font-cond); font-weight: 700; letter-spacing: var(--ls-section); text-transform: uppercase; line-height: 1.05; color: #fff;
+}
+/* Sizes at single-class weight: the scale wins over the old per-file sizes, a contextual size (a rail, a sidebar) wins over the scale. */
+.bsec__t, .gsec__t, .sksec__t, .stratum__title, .phead__t--serif, .cfh__h2, .nhx__h2 { font-size: var(--fs-section); }
+
+/* a panel or card title */
+:root .phead__t, :root .fx-card__t {
+  font-family: var(--font-cond); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.1; color: #fff;
+}
+.phead__t, .fx-card__t { font-size: var(--fs-panel); }
+
+/* the eyebrow: one style for the small marker above a title */
+:root .eyebrow, :root .eyebrow2, :root .fx-eyebrow {
+  font-family: var(--font-cond); font-weight: 600; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+}
+.eyebrow, .eyebrow2, .fx-eyebrow { font-size: var(--fs-eyebrow); }
+
+@media (max-width: 719px) {
+  .h-display, .skh__h { font-size: clamp(1.9rem, 8.4vw, 2.4rem); }
+  .ghead__h, .shead__h { font-size: clamp(2.2rem, 10vw, 2.8rem); }
+}

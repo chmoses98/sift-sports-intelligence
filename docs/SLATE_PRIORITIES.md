@@ -75,13 +75,13 @@ favourite's side). Their ids and margin ranges are unchanged; only the titles sh
 |---|---|---|---|
 | `fav-big` | Cowboys win going away | **Cowboys Win Big** | DAL by 14+ |
 | `fav` | Cowboys win comfortably | **Cowboys Win Comfortably** | DAL by 7–13 |
-| `close` | One-score battle | **Close Game Either Way** | Within 6 either way |
+| `close` | One-score battle | **Buccaneers Keep It Close** (was "Close Game Either Way" until 2026-10-11: every title now names a team) | Within 6 either way |
 | `dog` | Buccaneers win comfortably | **Buccaneers Win Comfortably** | TB by 7+ |
 
-Under each title, one line (`GameScript.line`): the margin, plus — only when the simulation shows it — how the teams
-play in games that end that way, read from the conditional pass rates: a team whose pass rate moves 3+ points from
+Under each title, one tight line (`GameScript.line`, naming the team: "Cowboys by 14 or more."); one tap down
+(`GameScript.detail`), only when the simulation shows it, how the teams play in games that end that way, read from the conditional pass rates: a team whose pass rate moves 3+ points from
 its average "throws more to catch up" or "leans on the run". Example (TB @ DAL, week 5): **Cowboys Win Big · 35%** —
-"By 14 or more. The Cowboys lean on the run while the Buccaneers throw to catch up."
+"Cowboys by 14 or more.", and one tap down "The Cowboys lean on the run while the Buccaneers throw to catch up."
 
 What the titles deliberately do **not** say: anything about scoring ("high-scoring, close game") or game flow
 ("leads most of the game", "close early, then pulls away"). The NFL publication simulates final margin and total

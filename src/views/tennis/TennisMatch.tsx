@@ -77,7 +77,7 @@ function ModelPanel({ t }: { t: TennisMatch }) {
         {t.surfaceAdjustment && <li><span>Surface sensitivity</span><b className="num">{signedPts(Math.min(...Object.values(t.surfaceAdjustment).filter((v): v is number => v != null)))} to {signedPts(Math.max(...Object.values(t.surfaceAdjustment).filter((v): v is number => v != null)))}</b><small>P({t.a.name.split(' ').pop()}) under surface-prior perturbations</small></li>}
         {ext?.decision && <li><span>External decision</span><b>{ext.decision}</b><small>{ext.referenceKind?.replace(/_/g, ' ').toLowerCase()}</small></li>}
       </ul>
-      <p className="skopp__risk"><b>Why this is not a bet:</b> every tennis model number is RESEARCH_ONLY; {tennisRecordText(metrics)}. {ext?.triangulation === 'MODEL_LONE_OUTLIER' ? 'Here the model is the lone outlier against two sharp references, which is the usual sign the model, not the market, is wrong.' : ''}{t.form.note ? ` ${t.form.note}.` : ''}</p>
+      <p className="skopp__risk"><b>Why this is not a bet:</b> every tennis model number is research only; {tennisRecordText(metrics)}. {ext?.triangulation === 'MODEL_LONE_OUTLIER' ? 'Here the model is the lone outlier against two sharp references, which is the usual sign the model, not the market, is wrong.' : ''}{t.form.note ? ` ${t.form.note}.` : ''}</p>
     </div>
   );
 }

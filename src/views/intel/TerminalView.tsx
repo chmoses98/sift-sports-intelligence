@@ -30,6 +30,8 @@ import { ComparePanel, ContextPanel, EvidencePanel, Importance, KindChip, Market
 import { isLayout, kindCounts, LAYOUT_PANELS, LAYOUTS, layoutFromWorkspace, mainLines, TYPE_FILTERS, type Layout, type PanelId } from './terminalModel';
 
 const PREF_KEY = 'sift.terminal.v2';
+/** Discoveries listed before "Show more": a phone gets a page, not an endless list (desktop scrolls inside the board). */
+const BOARD_PAGE = 20;
 interface Prefs { layout: Layout; pins: string[] }
 function loadPrefs(): Prefs {
   try {
@@ -83,6 +85,7 @@ export function TerminalView() {
   const all = useAllOpportunities(now);
   const [sp, setSp] = useSearchParams();
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
+  const [limit, setLimit] = useState(BOARD_PAGE);
   useEffect(() => savePrefs(prefs), [prefs]);
   const urlLayout = sp.get('layout');
   const layout: Layout = isLayout(urlLayout) ? urlLayout : layoutFromWorkspace(sp.get('ws')) ?? prefs.layout;
@@ -177,11 +180,11 @@ export function TerminalView() {
           <div className="tboard__head" aria-hidden="true"><span>Sport</span><span>Matchup</span><span>Type</span><span>Insight</span><span>Importance</span></div>
           {loading && !discoveries.length ? <Skeleton lines={6} /> : shown.length ? (
             <div className="tboard__scroll" role="region" aria-label="Discoveries">
-              <ol className="term__list">{shown.slice(0, 80).map((d) => <li key={d.id}><BoardRow d={d} g={d.eventId ? games.get(d.eventId) : undefined} active={selected?.id === d.id} onSelect={() => sel(d.id)} /></li>)}</ol>
+              <ol className="term__list">{shown.slice(0, limit).map((d) => <li key={d.id}><BoardRow d={d} g={d.eventId ? games.get(d.eventId) : undefined} active={selected?.id === d.id} onSelect={() => sel(d.id)} /></li>)}</ol>
+              {shown.length > limit && <div className="term__more"><button type="button" className="btn btn--sm btn--glass" onClick={() => setLimit((n) => n + BOARD_PAGE)}>Show {Math.min(BOARD_PAGE, shown.length - limit)} more · {shown.length - limit} left</button></div>}
             </div>
           ) : <div className="bempty"><h3>No discoveries match</h3><p>Change the sport or type. An empty board is an honest result on a quiet day.</p></div>}
           {nfl.loading && <p className="muted term__loading">Reading NFL matchup research…</p>}
-          {shown.length > 80 && <p className="muted small term__loading">Showing the 80 most significant of {shown.length}.</p>}
         </section>
         <div className="term__main">
           {selected ? <SelectedHero d={selected} game={game ?? null} spec={spec} pinned={prefs.pins.includes(selected.id)} onPin={() => togglePin(selected.id)} onBack={() => set('d', null)} /> : selectedId && !loading ? (

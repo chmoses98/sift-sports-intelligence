@@ -149,7 +149,7 @@ export const SIM_SHARE_INFO = <><b>Sim share:</b> {glossLine(term('sim_share'))}
 export function CastLayer({ cast }: { cast: CastMember[] }) {
   return (
     <span className={`scard__art${cast.length > 1 ? ' scard__art--split' : ''}`} aria-hidden="true">
-      {cast.map((c) => <span key={c.team} className="scard__frame" style={{ ['--tc' as string]: teamColors('NFL', c.team)[0] }}><CastImage c={c} /></span>)}
+      {cast.map((c) => <span key={c.team} className={`scard__frame${c.photo ? '' : ' scard__frame--brand'}`} style={{ ['--tc' as string]: teamColors('NFL', c.team)[0], ['--tc2' as string]: teamColors('NFL', c.team)[1] }}><CastImage c={c} /></span>)}
     </span>
   );
 }
@@ -386,18 +386,18 @@ const NHL_FORM_STATS: Record<FormView, { id: string; label: string; fmt: (v: num
 const FORM_STATS: Record<FormView, { id: string; label: string; fmt: (v: number) => string }[]> = {
   offense: [
     { id: 'met_nfl.points_for', label: 'Points / game', fmt: (v) => v.toFixed(1) },
-    { id: 'met_nfl.off_epa_play', label: 'EPA / play', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2) },
-    { id: 'met_nfl.off_success_rate', label: 'Success rate', fmt: (v) => `${Math.round(v * 100)}%` },
+    { id: 'met_nfl.off_epa_play', label: 'EPA / play (raw)', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2) },
+    { id: 'met_nfl.off_success_rate', label: 'Success rate (% of plays)', fmt: (v) => `${Math.round(v * 100)}%` },
   ],
   defense: [
     { id: 'met_nfl.points_against', label: 'Allowed / game', fmt: (v) => v.toFixed(1) },
-    { id: 'met_nfl.def_epa_play', label: 'EPA / play allowed', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2) },
-    { id: 'met_nfl.def_takeaway_rate', label: 'Takeaway rate', fmt: (v) => `${(v * 100).toFixed(1)}%` },
+    { id: 'met_nfl.def_epa_play', label: 'EPA / play allowed (raw)', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(2) },
+    { id: 'met_nfl.def_takeaway_rate', label: 'Takeaways (% of plays)', fmt: (v) => `${(v * 100).toFixed(1)}%` },
   ],
   overall: [
     { id: 'met_nfl.point_margin', label: 'Margin / game', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(1) },
-    { id: 'met_nfl.adj_off_epa', label: 'Adj. offense', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3) },
-    { id: 'met_nfl.adj_def_epa', label: 'Adj. defense', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3) },
+    { id: 'met_nfl.adj_off_epa', label: 'Adj. offense (EPA / play)', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3) },
+    { id: 'met_nfl.adj_def_epa', label: 'Adj. defense (EPA / play)', fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(3) },
   ],
 };
 
@@ -452,12 +452,13 @@ function FormTeam({ prof, abbr, sportCode, view, before, slug }: { prof: EntityP
 export function FormPanel({ homeProf, awayProf, homeAbbr, awayAbbr, sportCode, before, slug, to }: { homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; homeAbbr: string; awayAbbr: string; sportCode: string; before: string; slug: string; to: string }) {
   const [view, setView] = useState<FormView>('offense');
   const { metrics } = useSport();
+  const of = teamStat(homeProf ?? awayProf, (sportCode === 'NHL' ? NHL_FORM_STATS : FORM_STATS)[view][0].id).size;
   const defs = (sportCode === 'NHL' ? NHL_FORM_STATS : FORM_STATS)[view].map((s) => ({ id: s.id, label: s.label, def: glossLine(metricGloss(s.id, metrics.get(s.id))) })).filter((d) => d.def);
   return (
     <section className="panel ov-form" aria-labelledby="ov-form-h">
       <PanelHead
         title="Team Form"
-        sub="Last 5 games · season ranks of 32"
+        sub={`Last 5 games${of ? ` · season ranks of ${of}` : ''}`}
         info={defs.length ? <Info label="Stat definitions">{defs.map((d) => <span key={d.id}><b>{d.label}:</b> {d.def}</span>)}</Info> : undefined}
       >
         <ViewAll to={to}>Trends</ViewAll>

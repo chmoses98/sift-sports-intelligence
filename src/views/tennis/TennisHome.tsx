@@ -129,7 +129,7 @@ export function TennisHomeView() {
           <SportOpportunities now={now} />
           <Section id="tn-status" title="Model status" sub="What the tennis publication says about itself.">
             <dl className="skkv">
-              <div><dt>Authority</dt><dd>Every model number is RESEARCH_ONLY. {cap(tennisRecordText(metrics))}: no evidence of edge.</dd></div>
+              <div><dt>Authority</dt><dd>Every model number is research only. {cap(tennisRecordText(metrics))}: no evidence of edge.</dd></div>
               <div><dt>Ratings</dt><dd>Surface-aware Elo plus a structural serve/return model; a rating attaches only on an exact, unique name match in the tour's rating state.</dd></div>
               <div><dt>Doubles</dt><dd>Gen-1 doubles failed its no-skill validation and is suppressed: no model probability is shown for doubles.</dd></div>
               <div><dt>Start times</dt><dd>Verified first-ball status exists for ATP/WTA main tour and Slams only; Challenger, ITF and qualifying list nominal times.</dd></div>

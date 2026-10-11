@@ -10,6 +10,8 @@ import { defineConfig, devices } from '@playwright/test';
 //   iphone     WebKit, iPhone 15 Pro (393x852, touch, Safari)   full journey, live market core, visual, smoke
 //   iphone-se  WebKit, iPhone SE 3rd gen (375x667, smallest current iPhone)  smoke (layout, overflow, fixed controls)
 const iphoneOnly = /@(smoke|journey|live|visual)/;
+// SIFT_E2E_PORT lets parallel worktrees each serve their own build (CI leaves it unset: 4173).
+const port = Number(process.env.SIFT_E2E_PORT || 4173);
 export default defineConfig({
   testDir: './e2e',
   timeout: 120_000,
@@ -21,14 +23,14 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
   use: {
-    baseURL: 'http://localhost:4173/sift-sports-intelligence/',
+    baseURL: `http://localhost:${port}/sift-sports-intelligence/`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     serviceWorkers: 'block',
   },
   webServer: {
-    command: 'npx vite preview --port 4173 --strictPort',
-    url: 'http://localhost:4173/sift-sports-intelligence/',
+    command: `npx vite preview --port ${port} --strictPort`,
+    url: `http://localhost:${port}/sift-sports-intelligence/`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

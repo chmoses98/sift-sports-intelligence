@@ -9,6 +9,7 @@
 // Sift computes no probability of its own here: the only arithmetic is formatting.
 import type { EventResearchDoc, Market, ResearchMarket } from '../contract/types';
 import { cleanDescription } from './marketLabel';
+import { soccerScriptDefinition, soccerScriptTitle } from './scriptNames';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -280,9 +281,12 @@ export function readSoccerEngine(r: EventResearchDoc | null | undefined): Soccer
   if (!se) return { status: 'ABSENT', reason: 'The publication attached no soccer script engine payload to this fixture.' };
   if (se.status !== 'OK') return { status: se.status === 'FAILED' ? 'FAILED' : 'UNAVAILABLE', reason: String(se.reason ?? 'The script engine did not run for this fixture.') };
   const order: string[] = Array.isArray(se.scripts?.canonical_order) ? se.scripts.canonical_order.map(String) : Object.keys(SOCCER_SCRIPT_TITLE);
+  // Team-specific words (owner item 8): "Arsenal in control", never "Home control".
+  const nameOf = (ha: string) => r!.event.participants.find((p) => p.participant_id === r!.participants?.find((q) => q.home_away === ha)?.participant_id)?.display_name ?? (ha === 'HOME' ? 'Home side' : 'Away side');
+  const clubs = { home: nameOf('HOME'), away: nameOf('AWAY') };
   const cards = ((se.scripts?.cards ?? []) as any[]).map((c): SoccerScript => ({
-    id: String(c.script_id), title: String(c.title ?? SOCCER_SCRIPT_TITLE[c.script_id] ?? c.script_id), rank: Number(c.rank ?? 0),
-    share: Number(c.simulation_share ?? 0), shareLow: n(c.share_low), shareHigh: n(c.share_high), definition: String(c.definition ?? ''),
+    id: String(c.script_id), title: soccerScriptTitle(String(c.script_id), String(c.title ?? SOCCER_SCRIPT_TITLE[c.script_id] ?? c.script_id), clubs), rank: Number(c.rank ?? 0),
+    share: Number(c.simulation_share ?? 0), shareLow: n(c.share_low), shareHigh: n(c.share_high), definition: soccerScriptDefinition(String(c.definition ?? ''), clubs),
     material: Boolean(c.material), profile: profileOf(c.profile ?? c.primary),
     helped: ((c.markets_helped ?? []) as any[]).map((m) => ({ ticker: String(m.ticker), description: String(m.description ?? ''), p: Number(m.p), pGivenScript: Number(m.p_given_script), lift: Number(m.lift) })),
     hurt: ((c.markets_hurt ?? []) as any[]).map((m) => ({ ticker: String(m.ticker), description: String(m.description ?? ''), p: Number(m.p), pGivenScript: Number(m.p_given_script), lift: Number(m.lift) })),
@@ -294,7 +298,7 @@ export function readSoccerEngine(r: EventResearchDoc | null | undefined): Soccer
   const byKey = new Map(expressions.map((e) => [e.key, e]));
   const g = se.glance ?? {};
   const pick = (x: any): SoccerExpression | null => (x?.key ? byKey.get(String(x.key)) ?? decodeExpression(x) : null);
-  const scr = (x: any) => (x?.script ? { id: String(x.script), share: Number(x.share ?? byId.get(x.script)?.share ?? 0), title: String(x.title ?? SOCCER_SCRIPT_TITLE[x.script] ?? x.script) } : null);
+  const scr = (x: any) => (x?.script ? { id: String(x.script), share: Number(x.share ?? byId.get(x.script)?.share ?? 0), title: soccerScriptTitle(String(x.script), String(x.title ?? SOCCER_SCRIPT_TITLE[x.script] ?? x.script), clubs) } : null);
   const ctx = se.context ?? null;
   const val = (k: string) => (ctx?.[k]?.value ?? null);
   const fresh: SoccerEngine['freshness'] = {};

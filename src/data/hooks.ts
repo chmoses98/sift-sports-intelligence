@@ -13,13 +13,21 @@ export interface Async<T> {
 const memo = new Map<string, unknown>();
 const memoAt = new Map<string, number>();
 
+/** How often a screen that asked for `revalidate` checks its memo's age while it stays mounted and visible. */
+export const REVALIDATE_CHECK_MS = 60_000;
+
 /**
  * Run a loader keyed by `key`. Results are memoised per key so going BACK through the research graph
  * renders instantly instead of flashing skeletons. A memo older than the research revalidation period
  * is shown immediately AND re-loaded in the background (stale-while-revalidate); a failed re-load keeps
  * what is on screen. Market quotes do not use this (src/live/ keeps its own clock).
+ *
+ * `revalidate`: a screen that stays open (Home) applies the same rule while it is mounted: every
+ * REVALIDATE_CHECK_MS, and when the tab becomes visible again, a memo older than the research revalidation
+ * period is re-loaded in the background and replaces what is on screen. Same period, same "keep the copy on
+ * failure" rule; nothing is re-read sooner than the research clock allows.
  */
-export function useAsync<T>(key: string | null, loader: () => Promise<T>): Async<T> {
+export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: { revalidate?: boolean } = {}): Async<T> {
   const initial = key != null && memo.has(key) ? (memo.get(key) as T) : undefined;
   const [state, setState] = useState<Async<T>>({ data: initial, error: undefined, loading: key != null && initial === undefined });
   const loaderRef = useRef(loader);
@@ -62,6 +70,32 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>): Async
       alive = false;
     };
   }, [key]);
+  const revalidate = !!opts.revalidate;
+  useEffect(() => {
+    if (key == null || !revalidate) return;
+    let alive = true;
+    const check = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      if (!memo.has(key) || Date.now() - (memoAt.get(key) ?? 0) <= RESEARCH_REVALIDATE_MS) return;
+      memoAt.set(key, Date.now()); // one background re-load per period, however many screens hold the key
+      loaderRef.current().then(
+        (data) => {
+          memo.set(key, data);
+          if (alive) setState({ data, error: undefined, loading: false });
+        },
+        () => {
+          /* keep the copy on screen */
+        },
+      );
+    };
+    const id = setInterval(check, REVALIDATE_CHECK_MS);
+    document.addEventListener('visibilitychange', check);
+    return () => {
+      alive = false;
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', check);
+    };
+  }, [key, revalidate]);
   return state;
 }
 

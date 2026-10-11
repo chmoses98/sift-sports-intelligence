@@ -16,6 +16,7 @@ import { isMlbPlayerMarket } from '../../lib/mlb';
 import { routes } from '../../lib/routes';
 import { useNow } from '../../live/hooks';
 import { useVisit } from '../../state/trail';
+import { upcomingGames } from './slate';
 import { TopProps } from './TopProps';
 import '../../styles/lane-b-props.css';
 
@@ -40,11 +41,7 @@ export function isPlayerMarket(sportCode: string, m: Pick<Market, 'market_family
   return !!m.player_id || /^player/i.test(m.market_family ?? '');
 }
 
-function upcoming(items: BoardItem[] | undefined, now: number, days: number) {
-  return (items ?? [])
-    .filter((b) => Date.parse(b.start_time_utc) > now && Date.parse(b.start_time_utc) < now + days * 86_400_000 && !/FINAL|CANCEL|POSTPON/i.test(b.status))
-    .sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc));
-}
+const upcoming = upcomingGames;
 const sideOf = (b: BoardItem, id: string | null) => b.participants.find((p) => p.participant_id === id)?.short_name ?? '—';
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
 

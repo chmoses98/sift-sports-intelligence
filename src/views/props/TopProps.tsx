@@ -12,44 +12,22 @@ import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { PlayerFace } from '../../components/insight';
 import { Skeleton, TeamMark } from '../../components/ui';
-import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';
 import type { HitRate } from '../../history/hitRate';
 import { roleShift, statDef } from '../../history/stats';
-import { fmtValue, PROP_FAMILY_LABEL, PROP_FAMILY_ORDER, propBoard, type PropFamily, type PropRow } from '../../insights/propBoard';
+import { fmtValue, PROP_FAMILY_LABEL, PROP_FAMILY_ORDER, type PropFamily } from '../../insights/propBoard';
 import { playerPhoto } from '../../lib/players';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
 import { useTray } from '../../state/tray';
 import { HitDots } from './HitRate';
-import { historySide, rankByGap, rankByHistory, type DiscoveryRow, type DiscoverySort } from './model';
+import { historySide, type DiscoveryRow, type DiscoverySort } from './model';
+import { rankSlate } from './ranking';
+import { addedNotice, addPropsToBoard, cents, gameName, onBoard, propHref, rowKey, useSlateProps } from './slate';
 import { histKey, hitFor, usePlayerHistories } from './useHits';
 
-const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const PAGE = 20;
-export const rowKey = (d: Pick<DiscoveryRow, 'eventId'> & { row: Pick<PropRow, 'id'> }) => `${d.eventId}|${d.row.id}`;
-
-function gameName(b: BoardItem) {
-  const a = b.participants.find((p) => p.participant_id === b.away_participant)?.short_name;
-  const h = b.participants.find((p) => p.participant_id === b.home_participant)?.short_name;
-  return `${a} @ ${h}`;
-}
-
-/** Every pregame game's prop board, read once for the slate. A game whose research cannot be read is skipped and counted. */
-export function useSlateProps(repo: SportRepo | undefined, games: BoardItem[]) {
-  const key = games.map((g) => g.event_id).join(',');
-  return useAsync(repo && key ? `props:slate:${repo.source.root}:${key}` : null, async () => {
-    const out = await Promise.all(games.map(async (g) => {
-      try {
-        const [r, d] = await Promise.all([repo!.eventResearch(g.event_id), repo!.eventDetail(g.event_id)]);
-        return propBoard(r, d).rows.map((row): DiscoveryRow => ({ row, eventId: g.event_id, kickoff: g.start_time_utc, game: gameName(g) }));
-      } catch {
-        return null;
-      }
-    }));
-    return { rows: out.flatMap((x) => x ?? []), unreadable: out.filter((x) => x == null).length };
-  });
-}
+export { rowKey, useSlateProps };
 
 export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | undefined; games: BoardItem[]; slug: string; sportCode: string }) {
   const slate = useSlateProps(repo, games);
@@ -71,34 +49,20 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
   }, [all, sort]);
   const { docs, loading: histLoading } = usePlayerHistories(sportCode, histPlayers);
 
-  const { ranked, setAside } = useMemo((): { ranked: { d: DiscoveryRow; h: HitRate | null }[]; setAside: DiscoveryRow[] } => {
-    if (sort === 'gap') {
-      const g = rankByGap(all, { touchdowns: fam === 'touchdowns' });
-      return { ranked: g.ranked.map((d) => ({ d, h: null })), setAside: g.setAside };
-    }
-    // Anytime-touchdown ladders sit at 0.5 and land under in most games for most players: they rank only on their own.
-    const withH = all.filter((d) => (fam === 'touchdowns') === (d.row.family === 'touchdowns')).map((d) => ({ d, h: hitFor(docs.get(histKey(d.row.name, d.row.team.abbr)), d.row, d.kickoff, 'last10') }));
-    return { ranked: rankByHistory(withH.filter((x) => x.h && x.h.n > 0)), setAside: [] };
-  }, [all, sort, docs, fam]);
+  // The shared slate ranking (views/props/ranking.ts): Home's Top Props reads the same order.
+  const { ranked, setAside } = useMemo(
+    () => rankSlate<HitRate>(all, { sort, touchdowns: fam === 'touchdowns', hit: sort === 'history' ? (d) => hitFor(docs.get(histKey(d.row.name, d.row.team.abbr)), d.row, d.kickoff, 'last10') : undefined }),
+    [all, sort, docs, fam],
+  );
   const shown = ranked.slice(0, limit);
-  const savedKey = (d: DiscoveryRow) => !!d.row.main && tray.has('MARKET', d.row.main.market.market_id, { market_id: d.row.main.market.market_id, event_id: d.eventId });
+  const savedKey = (d: DiscoveryRow) => onBoard(tray, d);
   const toggle = (k: string) => setPicked((p) => { const n = new Set(p); if (n.has(k)) n.delete(k); else n.add(k); return n; });
   const pickedRows = ranked.filter((x) => picked.has(rowKey(x.d)) && !savedKey(x.d));
 
   const addAll = () => {
-    let ok = 0;
-    let refused = 0;
-    for (const { d } of pickedRows) {
-      const m = d.row.main!;
-      const item = tray.add({
-        ref_kind: 'MARKET', sport: sportCode, id: m.market.market_id, extra: { market_id: m.market.market_id, event_id: d.eventId }, kickoff: d.kickoff,
-        label: { label: `${d.row.name} ${d.row.def.label.toLowerCase()} ${d.row.line ?? ''}`.trim(), sub: `Over ${cents(m.yesAsk)} · under ${cents(m.noAsk)}`, href: `${routes.props(slug, { game: d.eventId })}&prop=${encodeURIComponent(d.row.id)}`, kickoff: d.kickoff },
-      });
-      if (item) ok++;
-      else refused++;
-    }
+    const res = addPropsToBoard(tray, pickedRows.map((x) => x.d), sportCode, slug);
     setPicked(new Set());
-    setNotice(`Added ${ok} prop${ok === 1 ? '' : 's'} to My Board${refused ? ` · ${refused} not saved: the game has kicked off` : ''}.`);
+    setNotice(addedNotice(res));
   };
 
   const gameIds = [...new Set((slate.data?.rows ?? []).map((d) => d.eventId))];
@@ -178,7 +142,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
                   })() : <small className="tprow__crit">—</small>}
                 </span>
                 <span className="tprow__auth">{sort === 'gap' ? <span className="tprops__auth" title={r.main?.modelState ? `Shadow model: ${r.main.modelState.toLowerCase().replace(/_/g, ' ')}` : 'Research only'}>Research</span> : <span className="tprops__auth tprops__auth--hist">History</span>}</span>
-                <Link className="tprow__go" to={`${routes.props(slug, { game: d.eventId })}&prop=${encodeURIComponent(r.id)}`} aria-label={`Analyse ${r.name} ${r.def.label.toLowerCase()}`}><Icon name="arrowRight" size={16} /></Link>
+                <Link className="tprow__go" to={propHref(slug, d)} aria-label={`Analyse ${r.name} ${r.def.label.toLowerCase()}`}><Icon name="arrowRight" size={16} /></Link>
               </li>
             );
           })}
@@ -190,7 +154,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
         <details className="tprops__aside">
           <summary>{setAside.length} prop{setAside.length === 1 ? '' : 's'} not ranked: the line sits outside the simulation’s 5th–95th range</summary>
           <p className="fr-note">The market and the simulation are pricing different roles (for example a backup projected for spot snaps against a starter’s line). That is a data question to check, not a finding.</p>
-          <ul>{setAside.map((d) => <li key={rowKey(d)}><Link to={`${routes.props(slug, { game: d.eventId })}&prop=${encodeURIComponent(d.row.id)}`}>{d.row.name} · {d.row.def.label.toLowerCase()} {d.row.line}</Link> <small>projection {fmtValue(d.row.projection!, d.row.def)}, simulated range {d.row.range ? `${Math.round(d.row.range.full[0] * 10) / 10}–${Math.round(d.row.range.full[1] * 10) / 10}` : '—'}</small></li>)}</ul>
+          <ul>{setAside.map((d) => <li key={rowKey(d)}><Link to={propHref(slug, d)}>{d.row.name} · {d.row.def.label.toLowerCase()} {d.row.line}</Link> <small>projection {fmtValue(d.row.projection!, d.row.def)}, simulated range {d.row.range ? `${Math.round(d.row.range.full[0] * 10) / 10}–${Math.round(d.row.range.full[1] * 10) / 10}` : '—'}</small></li>)}</ul>
         </details>
       )}
       {slate.data?.unreadable ? <p className="fr-note">{slate.data.unreadable} game{slate.data.unreadable === 1 ? '’s' : 's’'} research could not be read, so {slate.data.unreadable === 1 ? 'its props are' : 'their props are'} not ranked.</p> : null}

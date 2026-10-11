@@ -126,10 +126,14 @@ A second defect surfaced in the same data: **Eagles at Jaguars, Tottenham Hotspu
   retractable. `views/home/cards.tsx:85` (unowned) shows nothing for retractable; could append `weatherLine(wx)`.
 
 ## Tests
-* `npm run lint` clean, `npm run typecheck` clean.
-* `npx vitest run`: 69 files / 824 tests passed at commit 07a1d2e (baseline 793; +31 new: `tests/venue.test.ts` 21,
-  `tests/dataIntegrity.test.tsx` 10). Re-run after later commits: see report.
-* Playwright (desktop + phone, `--grep-invert @visual`, SIFT_E2E_PORT=4206): see report.
+* `npm run lint` clean, `npm run typecheck` clean (final commit).
+* `npx vitest run`: 824 tests, 823 pass in the full parallel run; the one failure,
+  `tests/scriptEngine.test.tsx › CFB game page › a game without a read keeps its markets and says why`, is a
+  load-dependent 4-second `findByText` timeout that **also fails at the sprint baseline 66aad3f** in this environment
+  (verified in a scratch worktree: 792/793, same test) and passes when its file is run alone (18/18). Added tests:
+  `tests/venue.test.ts` 21, `tests/dataIntegrity.test.tsx` 10.
+* Playwright, desktop + phone, `--grep-invert @visual`, SIFT_E2E_PORT=4206, specs smoke, football, nfl-home,
+  degraded, hero, nba, nhl, soccer, tennis, mlb, context, a11y: **231 passed, 1 skipped, 0 failed** (13.2 min).
 
 ## Screenshots (real live data, `docs/screenshots/2026-10-11/lane-f/`)
 `home-featured-retractable-roof_1440/_390`, `game-hero-state-farm-retractable_1440`,

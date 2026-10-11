@@ -1,6 +1,6 @@
 // Conventional betting words, only where the settlement is unambiguous; everything else keeps its explicit side.
 import { describe, expect, it } from 'vitest';
-import { betPhrase } from '../src/lib/betWords';
+import { betPhrase, plainClubTitle } from '../src/lib/betWords';
 
 describe('betPhrase', () => {
   it('reads the NO side of a threshold as the Under', () => {
@@ -18,5 +18,14 @@ describe('betPhrase', () => {
     expect(betPhrase('YES', 'Total goals over 3.5').text).toBe('Total goals over 3.5');
     expect(betPhrase('NO', 'Result: home')).toMatchObject({ text: 'NO · Result: home', rewritten: false });
     expect(betPhrase('NO', 'Total goals over 3.5').exact).toBe('NO on Total goals over 3.5');
+  });
+});
+
+describe('Kalshi one-letter club names', () => {
+  it('spells out a shared-city club only where the letter names one club', () => {
+    expect(betPhrase('NO', 'New York R -1.5').text).toBe('NY Rangers does not cover −1.5');
+    expect(betPhrase('YES', 'New York I to win').text).toBe('NY Islanders to win');
+    expect(plainClubTitle('Los Angeles C -3.5')).toBe('Los Angeles C -3.5');
+    expect(plainClubTitle('New York Rangers to win')).toBe('New York Rangers to win');
   });
 });

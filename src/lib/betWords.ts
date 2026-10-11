@@ -18,8 +18,22 @@ export interface BetPhrase {
 
 const half = (n: number) => (Math.round((n - 0.5) * 10) / 10).toString();
 
+// Kalshi shortens a shared-city club to the city plus one letter ("New York R"). Only letters that name one club in
+// every league Sift reads are expanded; "Los Angeles C" (Chargers or Clippers) stays as published.
+const KALSHI_SHORT: [RegExp, string][] = [
+  [/\bNew York R\b/g, 'NY Rangers'], [/\bNew York I\b/g, 'NY Islanders'], [/\bNew York G\b/g, 'NY Giants'],
+  [/\bNew York J\b/g, 'NY Jets'], [/\bNew York Y\b/g, 'NY Yankees'], [/\bNew York M\b/g, 'NY Mets'],
+  [/\bLos Angeles R\b/g, 'LA Rams'], [/\bLos Angeles L\b/g, 'LA Lakers'], [/\bLos Angeles D\b/g, 'LA Dodgers'],
+  [/\bLos Angeles A\b/g, 'LA Angels'], [/\bChicago C\b/g, 'Chicago Cubs'], [/\bChicago WS\b/g, 'Chicago White Sox'],
+];
+
+/** A contract title with Kalshi's one-letter club abbreviations spelled out where unambiguous. */
+export function plainClubTitle(title: string): string {
+  return KALSHI_SHORT.reduce((t, [re, name]) => t.replace(re, name), title);
+}
+
 export function betPhrase(side: 'YES' | 'NO', title: string): BetPhrase {
-  const t = title.trim().replace(/^(YES|NO)\s+/, '');
+  const t = plainClubTitle(title.trim().replace(/^(YES|NO)\s+/, ''));
   const exact = `${side} on ${t}`;
   if (side === 'YES') return { text: t, rewritten: false, exact };
   // "Total goals over 3.5" / "Chicago team total over 3.5 goals" / "Over 20.5 games"

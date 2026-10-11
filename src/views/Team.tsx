@@ -350,7 +350,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
           </ul>
           {(p.extensions as any)?.quarterbacks && (
             <p className="muted small">
-              Quarterback room: {((p.extensions as any).quarterbacks as any[]).map((q) => `${q.player} (${q.status ?? 'status n/a'}, depth ${q.depth_chart_order})`).join(' · ')}
+              Quarterback room: {((p.extensions as any).quarterbacks as any[]).map((q) => `${q.player} (${q.status ?? 'status not listed'}, depth ${q.depth_chart_order})`).join(' · ')}
             </p>
           )}
         </Stratum>

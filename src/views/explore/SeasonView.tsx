@@ -214,7 +214,7 @@ function NflSeason() {
   const summary = useMemo(() => weekSummary(weekGames), [weekGames]);
   const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
   if (wk.idx.loading || league.loading) return <Skeleton lines={10} tall />;
-  if (!data && !L) return <div className="bempty"><h3>The NFL season is not available</h3><p>Neither the publication’s event index nor the league schedule could be read.</p></div>;
+  if (!data && !L) return <div className="bempty"><h3>The NFL season is not available</h3><p>Neither the publication’s list of games nor the league schedule could be read.</p></div>;
   const pubGames = byWeek.get(week) ?? [];
   const cells = WEEKS.map((w) => ({ w, gs: byWeek.get(w) ?? [], lc: lcells?.[w - 1] ?? null, cell: weekCell(byWeek.get(w) ?? [], team, nameOf, teamWeeks.find((x) => x.week === w)) }));
   const played = lcells ? lcells.filter((c) => c.kind === 'game' && isFinal(c.game)).length : cells.filter((c) => c.cell.kind === 'played' || (c.cell.kind === 'game' && results.has(c.cell.ev.event_id))).length;
@@ -316,7 +316,7 @@ function NflSeason() {
               <li><i className="k k--unpub" /> Not published</li>
               <li><i className="k k--none" /> Not listed</li>
             </ul>
-            <p className="tm-note">The league schedule could not be read, so weeks come from the publication’s event index and board. Sift never marks a bye without a complete schedule. Results are the selected team’s, from its own profile.</p>
+            <p className="tm-note">The league schedule could not be read, so weeks come from the publication’s own list of games. Sift never marks a bye without a complete schedule. Results are the selected team’s, from its own profile.</p>
           </>
         )}
       </section>

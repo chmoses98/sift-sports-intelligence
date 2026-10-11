@@ -15,6 +15,7 @@ import { routes } from '../../lib/routes';
 import { useVisit } from '../../state/trail';
 import { fmt, loadEvidence, type Bin, type Comparison, type SportEvidence } from '../../intelligence/evidence';
 import { IntelNav } from './IntelNav';
+import { modelVersionLabel } from '../../lib/plainLabels';
 
 const LEADER_WORD = { market: 'Market leads', model: 'Model leads', even: 'About even' } as const;
 const leaderTone = (l: Comparison['leader']) => (l === 'model' ? 'good' : l === 'even' ? 'mid' : 'bad');
@@ -44,7 +45,7 @@ function PulseCard({ e }: { e: SportEvidence }) {
     <article className={`fx-card pcard pcard--${c ? leaderTone(c.leader) : 'none'}`} aria-labelledby={`pc-${e.slug}`}>
       <header className="pcard__h">
         <h2 className="pcard__t" id={`pc-${e.slug}`}>{nav && <SportMark slug={e.slug} icon={nav.icon} size={22} />}{e.label}</h2>
-        {c ? <span className={`tier tier--${leaderTone(c.leader)}`}>{LEADER_WORD[c.leader]}</span> : <span className="tier tier--none">{e.state === 'error' ? 'Unavailable' : 'No record published'}</span>}
+        {c ? <span className={`tier tier--${leaderTone(c.leader)}`}>{LEADER_WORD[c.leader]}</span> : <span className="tier tier--none">{e.state === 'error' ? 'Could not be read' : 'No record published'}</span>}
       </header>
       {c ? (
         <>
@@ -256,7 +257,7 @@ export function LabView() {
               </FxCard>
             ))}
             <FxCard title="Source and limitations" icon="shield" id="lab-src" className="fx-span-12">
-              <p className="tpanel__note">Source: <code>{cur.source}</code>{cur.modelVersion ? ` · model ${cur.modelVersion}` : ''}{cur.asOf ? ` · evaluated ${new Date(cur.asOf).toLocaleString()}` : ''}</p>
+              <p className="tpanel__note"><span title={cur.source}>Source: the publication’s own evaluation record</span>{cur.modelVersion ? ` · model ${modelVersionLabel(cur.modelVersion) ?? ''}` : ''}{cur.asOf ? ` · evaluated ${new Date(cur.asOf).toLocaleString()}` : ''}</p>
               {cur.limitations.length > 0 && <ul className="tpanel__list">{cur.limitations.slice(0, 8).map((l) => <li key={l}>{l}</li>)}</ul>}
               <p className="tpanel__note">Not shown, because no publication provides it yet: feature ablations and a time series of these scores. Model changes are promoted only by their publication after out-of-sample and prospective checks; SIFT never promotes one.</p>
             </FxCard>

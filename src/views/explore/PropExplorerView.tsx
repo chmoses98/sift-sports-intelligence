@@ -37,7 +37,7 @@ import { EXPLORE_STEP, useVisit } from '../../state/trail';
 import { MarketCarousel } from '../props/MarketCarousel';
 import { HitDots, HitSummary } from '../props/HitRate';
 import { PerfChart } from '../props/PerfChart';
-import { groupByPlayer, matchupSentence, NOT_IN_HISTORY, supportMetrics } from '../props/model';
+import { groupByPlayer, matchupSentence, NOT_IN_HISTORY, roleDisagreement, supportMetrics } from '../props/model';
 import { histKey, usePropHits } from '../props/useHits';
 import '../../styles/lane-b-props.css';
 
@@ -243,6 +243,7 @@ function PropAnalysis({ row, playerRows, hits, hist, win, onWin, onPick, r, scri
             <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projection != null ? 'simulation mean · research' : 'not published'}</dd></div>
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
+          {roleDisagreement(row) && <p className="pexa__warn" role="note"><Icon name="alert" size={16} /> <span>The line sits outside the simulation’s 5th–95th range: the market and the simulation are pricing different roles. Treat this gap as a data question, not a finding.</span></p>}
           {mu && <p className={`pexa__mu pexa__mu--${mu.word}`}><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p>}
           <div className="pexa__acts">
             {row.main && <SaveButton ref_kind="MARKET" sport={sportCode} id={row.main.market.market_id} extra={{ market_id: row.main.market.market_id, event_id: eventId }} label={{ label: `${row.name} ${def.label.toLowerCase()} ${row.line ?? ''}`.trim(), sub: `Over ${cents(row.main.yesAsk)} · under ${cents(row.main.noAsk)}`, href: routes.props(slug, { game: eventId }) + `&prop=${encodeURIComponent(row.id)}` }} kickoff={kickoff} />}

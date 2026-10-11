@@ -125,21 +125,44 @@ export interface DiscoveryRow {
 }
 
 /**
- * The slate's top props by a published criterion. 'gap': the simulation's projection against the main line, in widths
- * of its own typical (25th–75th) range (the board's separation; larger = the published projection sits further from
- * the line). Only priced props with a simulation qualify. Not a probability and not a validated edge.
+ * The market line sits outside the simulation's own 5th–95th range: the two are pricing different roles (a backup
+ * projected for garbage time against a starter's line, or a player the market expects to sit). Such a gap is a data
+ * question, not a finding, so it is never ranked.
  */
-export function rankByGap(rows: DiscoveryRow[]): DiscoveryRow[] {
-  return rows
-    .filter((d) => d.row.main && d.row.separation != null && d.row.projection != null)
-    .sort((a, b) => Math.abs(b.row.separation!) - Math.abs(a.row.separation!) || b.row.interest - a.row.interest);
+export function roleDisagreement(row: Pick<PropRow, 'range' | 'line'>): boolean {
+  return !!row.range && row.line != null && (row.line < row.range.full[0] || row.line > row.range.full[1]);
 }
 
 /**
- * 'history': how often the last N played games cleared today's line, most-often first (ties: the larger sample).
- * Rows without enough history sink. History, not a probability.
+ * The slate's top props by a published criterion. 'gap': the simulation's projection against the main line, in widths
+ * of its own typical (25th–75th) range (the board's separation; larger = the published projection sits further from
+ * the line). Only priced props with a simulation qualify; a line outside the simulated 5th–95th range is set aside
+ * (roleDisagreement). Touchdown ladders rank only on their own (touchdowns: true): their simulated quartiles collapse
+ * to 0, so the range-width measure is not comparable with yardage. Not a probability and not a validated edge.
  */
-export function rankByHistory<T extends { over: number; n: number }>(rows: { d: DiscoveryRow; h: T | null }[], minGames = 5): { d: DiscoveryRow; h: T | null }[] {
-  const share = (h: T | null) => (h && h.n >= minGames ? h.over / h.n : -1);
+export function rankByGap(rows: DiscoveryRow[], opts: { touchdowns?: boolean } = {}): { ranked: DiscoveryRow[]; setAside: DiscoveryRow[] } {
+  const eligible = rows.filter((d) => d.row.main && d.row.separation != null && d.row.projection != null && (opts.touchdowns ? d.row.family === 'touchdowns' : d.row.family !== 'touchdowns'));
+  return {
+    ranked: eligible.filter((d) => !roleDisagreement(d.row)).sort((a, b) => Math.abs(b.row.separation!) - Math.abs(a.row.separation!) || b.row.interest - a.row.interest),
+    setAside: eligible.filter((d) => roleDisagreement(d.row)),
+  };
+}
+
+/**
+ * 'history': how one-sided the last N played games were against today's line — the larger of games over and games
+ * under, as a share of games played; most one-sided first (ties: the larger sample). Rows with fewer than `minGames`
+ * played sink. History, not a probability.
+ */
+export function rankByHistory<T extends { over: number; under: number; n: number }>(rows: { d: DiscoveryRow; h: T | null }[], minGames = 5): { d: DiscoveryRow; h: T | null }[] {
+  const share = (h: T | null) => (h && h.n >= minGames ? Math.max(h.over, h.under) / h.n : -1);
   return [...rows].sort((a, b) => share(b.h) - share(a.h) || (b.h?.n ?? 0) - (a.h?.n ?? 0) || b.d.row.interest - a.d.row.interest);
+}
+
+/** The side his recent games favoured against today's line, and the count: "8 of 10 under 54.5". */
+export function historySide(h: { over: number; under: number; n: number; push: number; line: number }): { side: 'over' | 'under' | 'even'; count: number; text: string } {
+  const side = h.over > h.under ? 'over' : h.under > h.over ? 'under' : 'even';
+  const count = side === 'under' ? h.under : h.over;
+  const l = Number.isInteger(h.line) ? String(h.line) : String(Math.round(h.line * 10) / 10);
+  const text = side === 'even' ? `${h.over} over, ${h.under} under ${l} in ${h.n}` : `${count} of ${h.n} ${side} ${l}`;
+  return { side, count, text: h.push ? `${text}, ${h.push} push${h.push > 1 ? 'es' : ''}` : text };
 }

@@ -125,7 +125,8 @@ test.describe('player page', () => {
     await page.goto(`./#/nfl/player/${ALLEN}`);
     await page.getByRole('heading', { name: 'Market Context', exact: true }).waitFor();
     await page.getByRole('heading', { name: 'Game by Game' }).waitFor();
-    const order = await page.locator('h2').allInnerTexts();
+    // Heading text, not its rendering: section titles are set in capitals by CSS (the type scale), the words are unchanged.
+    const order = (await page.locator('h2').allTextContents()).map((h) => h.replace(/\s+/g, ' ').trim());
     const at = (t: string | RegExp) => order.findIndex((h) => (typeof t === 'string' ? h === t : t.test(h)));
     expect(at(/^This game/)).toBeGreaterThanOrEqual(0);
     expect(at('Game by Game')).toBeGreaterThan(at(/^This game/));

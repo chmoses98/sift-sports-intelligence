@@ -36,33 +36,33 @@ on `#081622` with no warnings (worst adjacent deutan ΔE 9.0); **identity** colo
 big share figure) are brighter, as in the mockup, and are always shown beside the script's name. Chart
 marks `#2a8fe6` / `#e8505f` / `#9264ef` pass all checks. Team colours are brand presentation only.
 
-## 2. Type — Barlow, one family (self-hosted via `@fontsource/barlow`; no runtime Google Fonts)
+## 2. Type — Barlow and Barlow Condensed (self-hosted via `@fontsource`; no runtime Google Fonts)
 
-Sift has exactly one typeface. Hierarchy comes from size, weight, spacing, colour and alignment — not from a
-second family, not from making everything bold or uppercase.
+One family in two widths. **Barlow Condensed** (latin 600/700) is the broadcast voice for the *names of things*:
+page titles, section titles, panel titles, eyebrows and display numerals, set in capitals with tracking.
+**Barlow** carries everything people read: body, table text, labels, one-line reads. Hierarchy comes from these
+two widths, size, weight and colour — never from a third face.
 
-| Role | Barlow weight | Token |
-|---|---|---|
-| Body, table text, secondary metadata | 400 (500 where it sits on imagery) | `--fw-body` / `--fw-ui` |
-| Navigation, controls, labels, one-line reads | 500–600 | `--fw-ui` / `--fw-strong` |
-| Section titles, team and game headings, display numbers, script share figures | 600 | `--fw-display` |
-| Small uppercase eyebrows, the strongest signals | 600–700 | `--fw-strong` / `--fw-bold` |
+| Tier | Face · weight | Token | Classes |
+|---|---|---|---|
+| Page title (h1) | Condensed 700, capitals | `--fs-page` (2.2–3.4 rem) | `.h-display`, `.bhome__h`, `.hubm__t`, `.skh__h`, `.hbar__h` |
+| Section title (h2) | Condensed 700, capitals, `--ls-section` | `--fs-section` (1.3–1.6 rem) | `.bsec__t`, `.gsec__t`, `.sksec__t`, `.stratum__title` |
+| Panel / card title | Condensed 700, capitals | `--fs-panel` (1.06 rem) | `.phead__t`, `.fx-card__t` |
+| Eyebrow | Condensed 600, capitals, `--ls-eyebrow` | `--fs-eyebrow` (0.78 rem) | `.eyebrow`, `.eyebrow2`, `.fx-eyebrow` |
+| Reading text | Barlow 400–600 | `--fs-md` and below | everything else |
 
-* **Loading.** `src/main.tsx` imports `@fontsource/barlow/{400,500,600,700}.css` — four static weights, normal
-  style only (no italics; `font-synthesis: none`, so nothing is ever faked). Each weight file carries latin,
-  latin-ext and vietnamese subsets behind `unicode-range`; a browser downloads only what it renders. The build
-  preloads the latin 400 and 600 files (`vite.config.ts` → `preloadBarlow`).
-* **No layout shift.** `--font-sans` falls back to `'Barlow Fallback'`: local Arial/Helvetica with
-  `size-adjust: 96.94%`, `ascent-override: 103.15%`, `descent-override: 20.63%` (Barlow 400's average glyph
-  width and vertical metrics measured against Arial), so the swap from fallback to Barlow keeps line breaks.
-* **Numbers.** Barlow too (`--font-num` = `--font-sans`), with `font-variant-numeric: tabular-nums` on `.num`,
-  `.price`, `.gap` and every rule that sets `--font-num`, so odds, percentages and scores align and do not
-  jitter as they update. Numbers are not monospaced.
-* **Uppercase** is for small eyebrows and section markers only. Headings stay in title/sentence case.
-* **Barlow Condensed is not used.**
-* **The one exception:** `--font-mono` (system `ui-monospace`, nothing downloaded) for `<code>`, Kalshi tickers
-  and the plain-text ChatGPT packet, where fixed-width characters are the point.
-* `--font-serif` survives only as a deprecated alias of `--font-display` so older branches still render Barlow.
+The scale lives in `tokens.css` and is applied once, for every screen, by `src/styles/lane-a-type.css` (loaded last;
+a contextual size such as a rail title still wins through a more specific rule).
+
+* **Loading.** `src/main.tsx` imports `@fontsource/barlow/{400,500,600,700}.css` and
+  `@fontsource/barlow-condensed/latin-{600,700}.css`. No italics (`font-synthesis: none`). The build preloads the
+  latin Barlow 400 and 600 files (`vite.config.ts` → `preloadBarlow`).
+* **No layout shift.** `--font-sans` falls back to `'Barlow Fallback'` (Arial/Helvetica resized to Barlow's metrics).
+* **Numbers.** `font-variant-numeric: tabular-nums` on `.num`, `.price`, `.gap`, `.bnum` and display numerals, so
+  odds, percentages and scores align and do not jitter. Numbers are not monospaced.
+* **Capitals** are for names of things (titles, eyebrows, club codes). Sentences, explanations and data stay in
+  sentence case.
+* **The one exception:** `--font-mono` (system `ui-monospace`) for `<code>`, Kalshi tickers and the plain-text packet.
 
 ## 3. Space, shape, motion
 
@@ -71,21 +71,24 @@ second family, not from making everything bold or uppercase.
 
 ## 4. Shell & navigation
 
-One navigation per screen size, one search, no decorative masthead:
+Six destinations, one search, no decorative masthead (`src/lib/destinations.ts`, `src/components/Shell.tsx`):
+**Home · Games · Props · Research Lab · Intelligence · My Board**. Props is the top-level Player Prop Explorer
+(`/props`); Research Lab is the research hub (route `/explore`).
 
-* **Wide screens (≥ 720 px)** — one compact header: Sift wordmark · sport tabs (NFL, CFB, MLB, NBA, then NHL,
-  Soccer, Tennis from 1180 px) · **More** (every sport, Research, Parlays, Settings, Data & provenance) · the
-  search field · News · Research (the tray). No sidebar.
-* **Phones (< 720 px)** — the header carries the wordmark and a search icon; the bottom tab bar is the
-  navigation: Home · current sport · Sports (sheet) · Search · Research.
-* **Search** — one command palette for the whole app (header field, tab bar, `/`, ⌘K / Ctrl-K). It opens over
-  the page, never as a row of it. Enter goes to the full results page.
-* **Breadcrumb** — a slim line above the page (not sticky), the research path since the sport's home. It never
-  claims a context the screen does not have: a game is a root under its sport (opening a game drops any other
-  game), and a player or market names its own game as its parent — when the path does not run through that
-  game, the path restarts at the sport and the game (`state/trail.tsx`, `nextTrail`).
-* **Phone tab bar inset** — reserved once, at the end of the document (the footer); pages end with ordinary
-  spacing, and `scroll-padding` keeps anything scrolled or focused into view clear of the fixed bars.
+* **Wide screens (≥ 720 px)** — one compact header: Sift wordmark · the six destination tabs · the search field ·
+  Settings; a sport strip under it on Home, Games and sport screens.
+* **Phones (< 720 px)** — the bottom tab bar holds five: Home · Games · Props · Lab · Intel (accessible names are
+  the full labels). My Board is a bookmark (with its count) in the phone header; the Sports sheet lists every sport
+  plus My Board, Model Pulse, News, Data & provenance and Settings.
+* **Search** — one command palette for the whole app (header field, `/`, ⌘K / Ctrl-K). Enter goes to results.
+* **Breadcrumb** — a slim line above the page (not sticky), the research path since the sport's home
+  (`state/trail.tsx`, `nextTrail`). Hub tools name their hub: `EXPLORE_STEP` (Research Lab), `PROPS_STEP` (Props).
+* **Scroll** (`src/components/ScrollManager.tsx`, rules in `src/lib/scroll.ts`): a new screen opens at the top; a
+  filter, selection or tab change on the same screen keeps the reader's place (a tab change puts the section tabs
+  just under the header); back/forward restores the position as the page loads and stops the moment the reader
+  scrolls; `navigate(to, { state: { scroll: 'top' | 'keep' } })` overrides. `scroll-padding-top` clears the header
+  and, on pages with sticky section tabs, the tabs too.
+* **Phone tab bar inset** — reserved once, at the end of the document (the footer).
 
 ## 4a. Progressive layers (the rule for every screen)
 
@@ -140,6 +143,8 @@ raw tables. Layer 4 is never shown by default.
 
 | Component | Rule |
 |---|---|
+| **Featured matchup (Home)** | Venue photo or branded graphic; both clubs in their own colours (name rules, a two-colour foot edge); one scoreboard strip — Sift projection, market, model win chance, key matchup. Each limitation is one short phrase ("Research model · behind the closing market"); the publication's full caveat, model version and market basis sit behind info buttons. |
+| **Team colour** | Authentic club colours (`lib/teams.ts`, hero registry) as accents only — bars, rules, glows. `lib/hero/accent.ts` picks the primary colour when it reaches 3:1 on the dark surface, else lifts it slightly, else uses the secondary; text is never set on team colour. |
 | **Game hero** | Hand-picked venue photo pinned in `scripts/stadiums/venues.json` only when it meets the hero bar (inside the bowl, atmosphere, composition, resolution), colour graded and credited with the modification; otherwise the designed **StadiumFallback** (floodlight banks and beams, lit pitch, stands with crowd speckle, the venue on an LED fascia, a breath of home colour, grain) — never a mediocre picture. Kickoff weather is a glass block: temperature as a Barlow display figure, condition, wind, precipitation; a condition that plausibly matters (wind ≥ 15 mph, precipitation ≥ 50 %, ≤ 32 °F, ≥ 90 °F) gets a gold flag. Indoor / roof closed says so. Photo credit links to Data & provenance. |
 | **Script card** | Plain title a casual fan reads instantly ("Bills Win Big", "Bills Win Comfortably", "Close Game Either Way"; the canonical bucket stays in `GameScript.canonical`), sim share (whole %), one-line margin summary, the centerpiece player (photo + why: "BUF run 34 times in these games (28 on average)"). Always ordered most likely first; colour identity stays with the script. Click = select (deep-linked `?script=`). |
 | **What Matters card** | Kind (Major/Clear edge · Context · Scheme), one-sentence headline, the two ranks, why it matters, "The numbers behind it" disclosure, Dig deeper. |
@@ -148,6 +153,7 @@ raw tables. Layer 4 is never shown by default.
 | **Price token** | Gold-framed YES ask; dashed/dimmed when the quote is aging/stale; exact age in its title. |
 | **Model − Mkt** | Model probability minus the market midpoint in points, quiet green/coral. Never called "edge". |
 | **Quote chip** | Says "Updated 4m ago"; the FRESH/AGING/STALE/UNKNOWN state (unchanged thresholds) is the dot tint, `data-quote-state`, the accessible name and the popover. |
+| **Player photo** | Only a game-day frame in the player's current uniform; never a press conference, interview, draft or camp frame, off-field event, college or former-team uniform (`lib/player-image-blocklist.json`, enforced by `lib/players.ts` and `scripts/players/fetch.mjs`). No approved photo → the team-branded frame (both colours, livery bands, logo). |
 | **Team logo** | The team's actual logo (`public/teams/nfl/`, fetched once by `scripts/teams/fetch-logos.mjs`; licensing to be settled by the owner). No initial shields. A sport without logos falls back to its abbreviation. |
 | **Info icon** | Definitions (EPA, success rate, sim share) in a popover; no inline lectures. |
 | **Ranks** | `#4 NFL`, never percentiles (32 teams). |

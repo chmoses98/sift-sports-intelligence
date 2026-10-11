@@ -26,6 +26,7 @@ import './styles/fidelity-home.css';
 import './styles/fidelity-research.css';
 import './styles/fidelity-hubs.css';
 import './styles/lane-a-brand.css';
+import './styles/lane-a-hero.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

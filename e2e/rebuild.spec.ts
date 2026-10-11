@@ -76,18 +76,50 @@ test('the breadcrumb collapses when going back up the path @journey', async ({ p
   await expect(crumbs.locator('li')).toHaveCount(2);
 });
 
-test('the prop explorer replaces every panel when another prop is picked @journey', async ({ page }) => {
+test('the prop explorer groups markets by player and replaces every panel when another market is picked @journey', async ({ page }) => {
   await page.clock.install({ time: NOW });
   await page.goto('./#/nfl/props');
   await expect(page.getByRole('heading', { name: /^Prop explorer$/, level: 1 })).toBeVisible();
-  const rows = page.locator('.pex__row');
-  await expect(rows.first()).toBeVisible();
-  const second = rows.nth(1);
+  const players = page.locator('.pex__ph');
+  await expect(players.first()).toBeVisible();
+  const second = players.nth(1);
   const name = (await second.locator('.pex__rb b').innerText()).trim();
-  const stat = (await second.locator('.pex__rb small').innerText()).split('·').pop()!.trim();
   await second.click();
   await expect(page.locator('#pexa-t')).toContainText(name);
-  await expect(page.locator('#pexa-t')).toContainText(stat);
   await expect(second).toHaveAttribute('aria-pressed', 'true');
+  // His markets sit together in one carousel; picking another market replaces the analysis.
+  const tiles = page.locator('.pexa__mk .pmk');
+  if ((await tiles.count()) > 1) {
+    const next = tiles.nth(1);
+    const stat = ((await next.locator('.pmk__stat').textContent()) ?? '').trim();
+    await next.click();
+    await expect(page.locator('#pexa-t')).toContainText(stat);
+    await expect(page.locator('.pexa__mk .pmk').nth(1)).toHaveAttribute('aria-pressed', 'true');
+    // Keyboard: arrows move along the carousel.
+    await page.locator('.pexa__mk .pmk').nth(1).focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(page.locator('.pexa__mk .pmk').first()).toBeFocused();
+  }
   await noHorizontalOverflow(page, 'props');
+});
+
+test('hit rates read history against today\'s line, with the n of games played @journey', async ({ page }) => {
+  await page.clock.install({ time: NOW });
+  await page.goto('./#/nfl/props');
+  await expect(page.locator('#pexa-t')).toBeVisible();
+  const perf = page.locator('.pexa__perf');
+  const summary = perf.locator('.hsum2');
+  if (await summary.count()) {
+    await expect(summary).toContainText(/over today’s line of/);
+    await expect(summary).toContainText(/n = \d+ games? played/);
+    await expect(summary).not.toContainText(/chance/i);
+    // Windows report their eligible games, and switching one keeps the sentence honest.
+    const wins = perf.getByRole('group', { name: 'History window' }).getByRole('button');
+    expect(await wins.count()).toBeGreaterThan(0);
+    await wins.first().click();
+    await expect(wins.first()).toHaveAttribute('aria-pressed', 'true');
+    await expect(perf.locator('.pchart svg')).toBeVisible();
+  } else {
+    await expect(perf).toContainText(/No game log|No priced line/);
+  }
 });

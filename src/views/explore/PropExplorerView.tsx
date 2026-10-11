@@ -21,7 +21,9 @@ import { PlayerFace } from '../../components/insight';
 import { SaveButton, Skeleton, TeamMark } from '../../components/ui';
 import { VsBar } from '../../components/fx';
 import { CapabilityState, FreshChip, QuantileDist, ShareBar, type QPoint } from '../../components/fxResearch';
-import { pregameRows, statDef, windowLabel, windowRows, windowsFor, type HistoryWindow } from '../../history/stats';
+import { pregameRows, statDef } from '../../history/stats';
+import { HIT_WINDOWS, hitRate, hitWindowLabel, hitWindows, hitWindowShort, windowGames, type HitRate, type HitWindow } from '../../history/hitRate';
+import type { PlayerHistoryDoc } from '../../history/types';
 import { fmtValue, PROP_FAMILY_LABEL, PROP_FAMILY_ORDER, PROP_READ_WORD, propBoard, type PropFamily, type PropRow } from '../../insights/propBoard';
 import { matchupObs, type Side } from '../../insights/game';
 import { playerPhoto } from '../../lib/players';
@@ -32,8 +34,12 @@ import { teamColors } from '../../lib/teams';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
 import { EXPLORE_STEP, useVisit } from '../../state/trail';
-import { GameBars, HistorySummary } from '../player/history';
-import { usePropHistories } from '../game/matters';
+import { MarketCarousel } from '../props/MarketCarousel';
+import { HitDots, HitSummary } from '../props/HitRate';
+import { PerfChart } from '../props/PerfChart';
+import { groupByPlayer, matchupSentence, NOT_IN_HISTORY, supportMetrics } from '../props/model';
+import { histKey, usePropHits } from '../props/useHits';
+import '../../styles/lane-b-props.css';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
@@ -70,12 +76,21 @@ function NflExplorer() {
   const band = sp.get('band');
   const q = (sp.get('q') ?? '').trim().toLowerCase();
   const priced = sp.get('priced') !== '0';
-  const rows = data.data?.b.rows ?? [];
+  const winParam = sp.get('win') as HitWindow | null;
+  const win: HitWindow = winParam && HIT_WINDOWS.includes(winParam) ? winParam : 'last10';
+  const rows = useMemo(() => data.data?.b.rows ?? [], [data.data]);
   const positions = [...new Set(rows.map((r) => r.role).filter(Boolean))] as string[];
   const shown = rows.filter((r) => (!fam || r.family === fam) && (!team || r.team.abbr === team) && (!pos || r.role === pos) && (!read || r.read === read) && (!priced || r.main) && (!q || r.name.toLowerCase().includes(q)) && (!band || (r.main?.yesAsk != null && BANDS.find((b) => b.id === band)!.test(r.main.yesAsk))));
+  const groups = groupByPlayer(shown);
   const selId = sp.get('prop');
-  const sel = shown.find((r) => r.id === selId) ?? (selId ? rows.find((r) => r.id === selId) : undefined) ?? shown[0] ?? null;
+  const sel = shown.find((r) => r.id === selId) ?? (selId ? rows.find((r) => r.id === selId) : undefined) ?? groups[0]?.lead ?? null;
+  // Every market of the selected player (priced or not), so his carousel is complete whatever the rail's filters.
+  const selRows = useMemo(() => (sel ? groupByPlayer(rows.filter((r) => r.playerId === sel.playerId))[0]?.rows ?? [] : []), [rows, sel]);
+  const { docs, hits } = usePropHits(sport.code, rows, game?.start_time_utc ?? null, win);
+  const season = [...docs.values()].find(Boolean)?.season ?? (game ? new Date(game.start_time_utc).getFullYear() : new Date().getFullYear());
+  const winName = hitWindowLabel(win, season, [...docs.values()].find((d) => d?.prior)?.prior?.season ?? null);
   const teams = data.data ? [data.data.b.rows[0]?.team, data.data.b.rows[0]?.opp].filter((t): t is Side => !!t).sort((a, b) => Number(a.home) - Number(b.home)) : [];
+  const pickRow = (r: PropRow) => set({ prop: r.id }, true);
   return (
     <>
       <div className="pex__games gtabs2" role="group" aria-label="Game">
@@ -83,7 +98,7 @@ function NflExplorer() {
       </div>
       {!games.length && !board.loading && <div className="bempty"><h3>No upcoming NFL games listed</h3><p>The prop explorer reads the coming week’s games.</p></div>}
       <div className="pex fr-pex">
-        <aside className="pex__side fr-rail" aria-label="Filters and props">
+        <aside className="pex__side fr-rail" aria-label="Filters and players">
           <div className="pex__filters">
             {teams.length === 2 && (
               <div className="fr-teams" role="group" aria-label="Team">
@@ -119,24 +134,31 @@ function NflExplorer() {
             <label className="pex__chk"><input type="checkbox" checked={priced} onChange={(e) => set({ priced: e.target.checked ? null : '0', prop: null })} /> Priced lines only</label>
           </div>
           {data.loading ? <Skeleton lines={8} /> : (
-            <ol className="pex__list" aria-label={`${shown.length} props`}>
-              {shown.map((r) => (
-                <li key={r.id}>
-                  <button type="button" className={`pex__row${sel?.id === r.id ? ' is-on' : ''}`} aria-pressed={sel?.id === r.id} onClick={() => set({ prop: r.id }, true)} style={{ ['--tc' as string]: teamColors('NFL', r.team.abbr)[0] }}>
-                    <PlayerFace photo={playerPhoto(r.playerId, r.name, r.team.abbr)} team={r.team.abbr} size="sm" />
-                    <span className="pex__rb"><b>{r.name}</b><small>{r.team.abbr} {r.role ?? ''} · {r.def.label}</small></span>
-                    <span className="pex__rv"><span className="bnum">{r.line ?? '—'}</span><small className={`pex__rd pex__rd--${r.read.toLowerCase()}`}>{r.read === 'ABOVE' ? 'Proj ↑' : r.read === 'BELOW' ? 'Proj ↓' : r.read === 'ON' ? 'Proj =' : '—'}</small></span>
-                  </button>
-                </li>
-              ))}
-              {!shown.length && <li className="muted">No prop matches these filters.</li>}
+            <ol className="pex__list pex__players" aria-label={`${groups.length} players, ${shown.length} props`}>
+              {groups.map((g) => {
+                const on = sel?.playerId === g.playerId;
+                return (
+                  <li key={g.playerId} className={`pex__player${on ? ' is-on' : ''}`} style={{ ['--tc' as string]: teamColors('NFL', g.team.abbr)[0] }}>
+                    <button type="button" className="pex__ph" aria-pressed={on} onClick={() => pickRow(g.rows.find((r) => r.id === sel?.id) ?? g.lead)}>
+                      <PlayerFace photo={playerPhoto(g.playerId, g.name, g.team.abbr)} team={g.team.abbr} size="sm" />
+                      <span className="pex__rb"><b>{g.name}</b><small>{g.team.abbr} {g.role ?? ''} · {g.rows.length} market{g.rows.length === 1 ? '' : 's'}{g.injury ? <span className="fr-inj"> · {g.injury.toLowerCase().replace(/_/g, ' ')}</span> : null}</small></span>
+                      <Icon name="chevronRight" size={16} />
+                    </button>
+                    <MarketCarousel rows={g.rows} selectedId={sel?.id ?? null} onSelect={pickRow} hits={hits} hitLabel={winName} label={`${g.name} markets`} size="sm" />
+                  </li>
+                );
+              })}
+              {!groups.length && <li className="muted">No prop matches these filters.</li>}
             </ol>
           )}
         </aside>
         <div className="pex__main">
           {data.loading && <Skeleton lines={10} tall />}
-          {sel && data.data && game && <PropAnalysis key={sel.id} row={sel} r={data.data.r} scripts={data.data.scripts} kickoff={game.start_time_utc} slug={slug} sportCode={sport.code} eventId={game.event_id} week={null} now={now} />}
-          {!data.loading && !sel && data.data && <div className="bempty"><h3>Pick a prop</h3><p>Choose a player and stat on the left to see the full analysis.</p></div>}
+          {sel && data.data && game && (
+            <PropAnalysis key={sel.id} row={sel} playerRows={selRows} hits={hits} hist={docs.get(histKey(sel.name, sel.team.abbr)) ?? null} win={win} onWin={(w) => set({ win: w === 'last10' ? null : w })} onPick={pickRow}
+              r={data.data.r} scripts={data.data.scripts} kickoff={game.start_time_utc} slug={slug} sportCode={sport.code} eventId={game.event_id} now={now} />
+          )}
+          {!data.loading && !sel && data.data && <div className="bempty"><h3>Pick a player</h3><p>Choose a player and one of his markets to see the full analysis.</p></div>}
         </div>
       </div>
     </>
@@ -176,17 +198,19 @@ function pointsOf(row: PropRow): QPoint[] | null {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function PropAnalysis({ row, r, scripts, kickoff, slug, sportCode, eventId, week, now }: { row: PropRow; r: EventResearchDoc; scripts: ScriptSet | null; kickoff: string; slug: string; sportCode: string; eventId: string; week: number | null; now: number }) {
-  const [sp, setSp] = useSearchParams();
-  const players = useMemo(() => [{ name: row.name, team: row.team.abbr }], [row.name, row.team.abbr]);
-  const hists = usePropHistories(sportCode, players);
-  const hist = [...hists.values()][0] ?? null;
+function PropAnalysis({ row, playerRows, hits, hist, win, onWin, onPick, r, scripts, kickoff, slug, sportCode, eventId, now }: {
+  row: PropRow; playerRows: PropRow[]; hits: Map<string, HitRate | null>; hist: PlayerHistoryDoc | null; win: HitWindow; onWin: (w: HitWindow) => void; onPick: (r: PropRow) => void;
+  r: EventResearchDoc; scripts: ScriptSet | null; kickoff: string; slug: string; sportCode: string; eventId: string; now: number;
+}) {
   const hdef = statDef(row.def.stat);
-  const hrows = hist ? pregameRows(hist, kickoff, week) : null;
-  const wins = hrows ? windowsFor(hrows) : [];
-  const win = (sp.get('win') as HistoryWindow | null) ?? wins[0] ?? 'last5';
-  const wrows = hrows ? windowRows(hrows, win) : [];
+  const hrows = hist ? pregameRows(hist, kickoff, null) : null;
+  const wins = hrows && hdef ? hitWindows(hrows, hdef) : [];
   const season = hist?.season ?? new Date(kickoff).getFullYear();
+  const prior = hist?.prior?.season ?? null;
+  const shownWin: HitWindow = wins.some((w) => w.w === win) ? win : wins[wins.length > 1 ? 1 : 0]?.w ?? 'last10';
+  const h = hrows && hdef && row.line != null ? hitRate(hrows, hdef, row.line, shownWin) : null;
+  const wgames = hrows && hdef ? windowGames(hrows, hdef, shownWin).games.map((g) => g.row) : [];
+  const support = supportMetrics(wgames, row.family, row.role);
   const def = row.def;
   const fmt = (v: number) => fmtValue(v, def).replace(/ \S+$/, '');
   const gap = row.projection != null && row.line != null ? row.projection - row.line : null;
@@ -197,6 +221,9 @@ function PropAnalysis({ row, r, scripts, kickoff, slug, sportCode, eventId, week
   const side: 'home' | 'away' = row.team.home ? 'home' : 'away';
   const vol = SCRIPT_VOL[row.family];
   const keyRisk = row.risks[0] ?? null;
+  const mu = matchupSentence(row);
+  const winName = hitWindowLabel(shownWin, season, prior);
+  const ladderHist = (line: number, w: HitWindow) => (hrows && hdef ? hitRate(hrows, hdef, line, w) : null);
   return (
     <article className="pexa fr-pexa" aria-labelledby="pexa-t">
       <div className="fr-pexa__top">
@@ -206,13 +233,17 @@ function PropAnalysis({ row, r, scripts, kickoff, slug, sportCode, eventId, week
           <div className="pexa__id">
             <span className="fr-phead__team"><TeamMark sport="NFL" abbr={row.team.abbr} size="sm" /> {row.team.abbr} {row.role ?? ''} · vs {row.opp.abbr}{row.injury ? <span className="fr-inj"> · {row.injury.toLowerCase().replace(/_/g, ' ')}</span> : null}</span>
             <h2 className="pexa__t fr-phead__t" id="pexa-t">{row.name} <span>{def.label}</span></h2>
-            <span className={`pb__read pb__read--${row.read === 'ABOVE' ? 'above' : row.read === 'BELOW' ? 'below' : row.read === 'ON' ? 'on' : 'none'}`}>{PROP_READ_WORD[row.read]}</span>
+            <span className="pexa__pills">
+              <span className={`pb__read pb__read--${row.read === 'ABOVE' ? 'above' : row.read === 'BELOW' ? 'below' : row.read === 'ON' ? 'on' : 'none'}`}>{PROP_READ_WORD[row.read]}</span>
+              {h && h.n > 0 && <span className="pexa__hitpill" title="History against today's line, not a probability"><HitDots h={h} max={10} /> {winName}: {h.over}/{h.n} over{h.push ? ` · ${h.push} push` : ''}</span>}
+            </span>
           </div>
           <dl className="fr-tiles pexa__nums">
             <div className="fr-tile"><dt>Market line</dt><dd className="fx-num">{row.line ?? '—'}</dd><dd className="fr-tile__s">{row.main ? <>Over {cents(row.main.yesAsk)} · Under {cents(row.main.noAsk)}</> : 'No priced line'}</dd></div>
             <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projection != null ? 'simulation mean · research' : 'not published'}</dd></div>
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
+          {mu && <p className={`pexa__mu pexa__mu--${mu.word}`}><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p>}
           <div className="pexa__acts">
             {row.main && <SaveButton ref_kind="MARKET" sport={sportCode} id={row.main.market.market_id} extra={{ market_id: row.main.market.market_id, event_id: eventId }} label={{ label: `${row.name} ${def.label.toLowerCase()} ${row.line ?? ''}`.trim(), sub: `Over ${cents(row.main.yesAsk)} · under ${cents(row.main.noAsk)}`, href: routes.props(slug, { game: eventId }) + `&prop=${encodeURIComponent(row.id)}` }} kickoff={kickoff} />}
             <Link to={routes.player(slug, row.playerId)} className="btn btn--sm">Player profile</Link>
@@ -236,7 +267,42 @@ function PropAnalysis({ row, r, scripts, kickoff, slug, sportCode, eventId, week
         )}
       </div>
 
+      {playerRows.length > 1 && (
+        <section className="fx-card pexa__mk" aria-labelledby="pexa-mk">
+          <h3 className="fx-card__t" id="pexa-mk"><Icon name="layers" size={16} /> All {row.name.split(' ').slice(-1)[0]} markets <small className="pexa__mkn">{playerRows.length} stats · {playerRows.reduce((n, x) => n + x.ladder.length, 0)} lines</small></h3>
+          <MarketCarousel rows={playerRows} selectedId={row.id} onSelect={onPick} hits={hits} hitLabel={winName} label={`${row.name}: every market`} />
+        </section>
+      )}
+
       <div className="fx-bento fr-pexa__grid">
+        <section className="fx-card fx-span-8 fr-perf pexa__perf" aria-labelledby="pexa-hist">
+          <h3 className="fx-card__t" id="pexa-hist"><Icon name="chart" size={16} /> Game by game vs today’s line</h3>
+          {hist && hdef && hrows && wins.length ? (
+            <>
+              <div className="fr-seg pexa__wins" role="group" aria-label="History window">
+                {wins.map((w) => <button key={w.w} type="button" className={`fr-seg__b${w.w === shownWin ? ' is-on' : ''}`} aria-pressed={w.w === shownWin} onClick={() => onWin(w.w)}>{hitWindowShort(w.w, season, prior)} <small className="pexa__wn">{w.n}</small></button>)}
+              </div>
+              {h ? (
+                <>
+                  <HitSummary h={h} windowName={winName} unit={hdef.unit} />
+                  <PerfChart h={h} statLabel={hdef.label} unit={hdef.unit} season={season} sport={sportCode} projection={row.projection != null && shownWin !== 'prior' ? { value: row.projection, typical: row.range?.typical ?? null } : null} />
+                </>
+              ) : <p className="fr-note">No priced line to compare with. {wgames.length} game{wgames.length === 1 ? '' : 's'} played in this window.</p>}
+              <p className="fr-note">Each bar is a game he played, compared with <b>today’s</b> line; historical betting lines are not published. Small numbers above each window are the games played.</p>
+            </>
+          ) : <CapabilityState title={hdef ? 'No game log for this player yet' : 'No game log for this stat'}>{hdef ? 'The public game logs Sift reads have no games for him before this kickoff (a rookie or a player with no offensive snaps).' : `The public game logs do not carry ${def.label.toLowerCase()}, so there is no history to compare with the line.`}</CapabilityState>}
+        </section>
+
+        <section className="fx-card fx-span-4 pexa__use" aria-labelledby="pexa-use">
+          <h3 className="fx-card__t" id="pexa-use"><Icon name="users" size={16} /> Usage &amp; role <small className="pexa__mkn">{winName}</small></h3>
+          {support.length ? (
+            <dl className="pexa__usel">
+              {support.map((m) => <div key={m.key}><dt>{m.label}</dt><dd className="fx-num">{m.value}</dd><dd className="pexa__useb">{m.basis}</dd></div>)}
+            </dl>
+          ) : <p className="fr-note">No usage numbers in this window.</p>}
+          <p className="fr-note">{NOT_IN_HISTORY}</p>
+        </section>
+
         <section className="fx-card fx-span-8 fr-dist" aria-labelledby="pexa-dist">
           <h3 className="fx-card__t" id="pexa-dist"><Icon name="chart" size={16} /> Projection distribution</h3>
           <div className="fr-dist__body">
@@ -261,23 +327,9 @@ function PropAnalysis({ row, r, scripts, kickoff, slug, sportCode, eventId, week
           <p className="fr-note">The NFL publication’s own scorecard has the market ahead of its prop pricing: everything here is research, not a validated edge.</p>
         </section>
 
-        <section className="fx-card fx-span-6 fr-perf" aria-labelledby="pexa-hist">
-          <h3 className="fx-card__t" id="pexa-hist"><Icon name="clock" size={16} /> Recent performance</h3>
-          {hist && hdef && hrows ? (
-            <>
-              <div className="fr-seg" role="group" aria-label="History window">
-                {wins.map((w) => <button key={w} type="button" className={`fr-seg__b${w === win ? ' is-on' : ''}`} aria-pressed={w === win} onClick={() => setSp((p) => { const n = new URLSearchParams(p); n.set('win', w); return n; }, { replace: true })}>{windowLabel(w, season, hist.prior?.season ?? null)}</button>)}
-              </div>
-              <HistorySummary rows={wrows} stat={hdef} line={row.line} projection={row.projection} windowName={windowLabel(win, season, hist.prior?.season ?? null)} unit={hdef.unit} />
-              <GameBars rows={wrows} stat={hdef} line={row.line} season={win === 'prior' ? hist.prior?.season ?? season : season} upcoming={row.projection != null && row.range && win !== 'prior' ? { projection: row.projection, typical: row.range.typical, label: 'Today' } : null} sport={sportCode} />
-              <p className="fr-note">Bars compare each past game with <b>today’s</b> line; historical betting lines are not published.</p>
-            </>
-          ) : <p className="fr-note">No game log for this player in the history layer yet.</p>}
-        </section>
-
         <section className="fx-card fx-span-6 fr-mu" aria-labelledby="pexa-mu">
           <h3 className="fx-card__t" id="pexa-mu"><Icon name="compare" size={16} /> Matchup: {row.opp.abbr} {def.defUnit ?? 'defense'}</h3>
-          {row.matchup && <p className="fr-mu__lead"><MatchupWord tier={row.matchup.rank.tier} /> <span>{row.opp.abbr} {row.matchup.label.replace(`${row.opp.nick} `, '')} <b>{row.matchup.rank.text}</b></span></p>}
+          {mu ? <p className="fr-mu__lead"><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p> : <p className="fr-mu__lead"><span>No opposing-unit rank is published for {def.label.toLowerCase()}.</span></p>}
           {pairs.length ? (
             <div className="fr-mu__rows">
               <div className="fr-mu__head"><span><TeamMark sport="NFL" abbr={row.team.abbr} size="sm" /> {row.team.abbr} offense</span><span>{row.opp.abbr} defense <TeamMark sport="NFL" abbr={row.opp.abbr} size="sm" /></span></div>
@@ -315,15 +367,19 @@ function PropAnalysis({ row, r, scripts, kickoff, slug, sportCode, eventId, week
           ) : <CapabilityState title="No script summary for this game">The publication attached no simulated scripts, so Sift shows no script sensitivity.</CapabilityState>}
         </section>
 
-        <section className="fx-card fx-span-6 fr-ladder" aria-labelledby="pexa-lad">
-          <h3 className="fx-card__t" id="pexa-lad"><Icon name="layers" size={16} /> Market ladder {row.main && <FreshChip at={row.main.market.captured_at} now={now} label="Captured" />}</h3>
+        <section className="fx-card fx-span-12 fr-ladder" aria-labelledby="pexa-lad">
+          <h3 className="fx-card__t" id="pexa-lad"><Icon name="layers" size={16} /> Every line, with his history {row.main && <FreshChip at={row.main.market.captured_at} now={now} label="Captured" />}</h3>
           {row.ladder.length ? (
-            <div className="lab__tw" tabIndex={0} role="region" aria-label="Market ladder"><table className="fr-t fr-t--ladder">
-              <thead><tr><th scope="col">Line</th><th scope="col" className="r">Over</th><th scope="col" className="r">Under</th><th scope="col" className="r">Market</th><th scope="col" className="r">Model <small>(research)</small></th></tr></thead>
-              <tbody>{row.ladder.map((x) => <tr key={x.market.market_id} className={x.market.market_id === row.main?.market.market_id ? 'is-main' : undefined}><th scope="row" className="fx-num">{x.line}{x.market.market_id === row.main?.market.market_id && <small className="pexa__main"> main</small>}</th><td className="r fx-num">{cents(x.yesAsk)}</td><td className="r fx-num">{cents(x.noAsk)}</td><td className="r fx-num">{pct(x.marketP)}</td><td className="r fx-num">{pct(x.modelP)}</td></tr>)}</tbody>
+            <div className="lab__tw" tabIndex={0} role="region" aria-label="Market ladder"><table className="fr-t fr-t--ladder pexa__lad">
+              <thead><tr><th scope="col">Line</th><th scope="col" className="r">Over</th><th scope="col" className="r">Under</th><th scope="col" className="r">Market</th><th scope="col" className="r">Model <small>(research)</small></th>{hrows && hdef && <><th scope="col" className="r">Last 5</th><th scope="col" className="r">Last 10</th><th scope="col" className="r">{season}</th></>}</tr></thead>
+              <tbody>{row.ladder.map((x) => {
+                const ln = Number(x.line);
+                const cell = (w: HitWindow) => { const hh = ladderHist(ln, w); return <td className="r fx-num pexa__ladh">{hh && hh.n ? <>{hh.over}<small>/{hh.n}</small>{hh.push ? <small> · {hh.push}P</small> : null}</> : '—'}</td>; };
+                return <tr key={x.market.market_id} className={x.market.market_id === row.main?.market.market_id ? 'is-main' : undefined}><th scope="row" className="fx-num">{x.line}{x.market.market_id === row.main?.market.market_id && <small className="pexa__main"> main</small>}</th><td className="r fx-num">{cents(x.yesAsk)}</td><td className="r fx-num">{cents(x.noAsk)}</td><td className="r fx-num">{pct(x.marketP)}</td><td className="r fx-num">{pct(x.modelP)}</td>{hrows && hdef && <>{cell('last5')}{cell('last10')}{cell('season')}</>}</tr>;
+              })}</tbody>
             </table></div>
           ) : <p className="fr-note">No contracts listed for this prop.</p>}
-          <p className="fr-note">Asks are the publication’s capture; open the market for its live quote and fee-aware break-even.{row.main ? <> <Link to={routes.market(slug, row.main.market.market_id, eventId)}>Open the main line →</Link></> : null}</p>
+          <p className="fr-note">Asks are the publication’s capture; open the market for its live quote and fee-aware break-even.{hrows && hdef ? ' History columns: games played over each line (pushes marked P), not probabilities.' : ''}{row.main ? <> <Link to={routes.market(slug, row.main.market.market_id, eventId)}>Open the main line →</Link></> : null}</p>
         </section>
       </div>
     </article>

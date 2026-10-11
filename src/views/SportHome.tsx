@@ -186,7 +186,7 @@ function GenericSportHome() {
             <Link to={routes.parlays(slug)} className="panel promo">
               <span className="eyebrow">Structures</span>
               <span className="promo__t">Teasers & parlays</span>
-              <span className="promo__d">Stafford Wong teaser legs from this week's lines, with correlation notes. Review only — Sift never places bets.</span>
+              <span className="promo__d">Stanford Wong teaser legs from this week's lines, with correlation notes. Review only — Sift never places bets.</span>
               <Icon name="arrowRight" size={18} />
             </Link>
           )}

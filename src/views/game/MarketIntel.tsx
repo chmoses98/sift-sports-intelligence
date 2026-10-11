@@ -10,7 +10,7 @@
 // CFB: the engine's BEST_EXPRESSION / multi-script survivors with their published thesis, script survival, risks and
 // correlations, and a studio over up to three of them. No CFB price is a fair price: the engine publishes none.
 // Nothing here changes an opportunity's status, a price rule, contract identity, fees or settlement.
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
@@ -19,7 +19,7 @@ import { Ring } from '../../components/fx';
 import { CapabilityState, FreshChip, QuantileDist, ShareBar, type QPoint } from '../../components/fxResearch';
 import { betPhrase } from '../../lib/betWords';
 import { decisionOf } from '../../lib/decision';
-import { gapText, type PriceRow } from '../../lib/gamedata';
+import { gapText, type MarketGroupKey, type PriceRow } from '../../lib/gamedata';
 import { routes } from '../../lib/routes';
 import { sharePct, type ScriptSet } from '../../lib/scripts';
 import { expressionLabel, groupedSurvivors, LABEL_WORD, orderedLabels, ROLE_INDEX, ROLE_WORD, SCORING_RESEARCH_NOTE, scriptTitle, winsWhenText, type Engine, type Expression } from '../../lib/scriptEngine';
@@ -30,6 +30,9 @@ import { breakEven, kalshiFee } from '../../opportunity/pricing';
 import { useSport } from '../../state/sport';
 import { survivors } from './panels';
 import { CompatCells, ConfidenceChip, SidePrice } from './ScriptEngine';
+import { SurvivorBoard } from './ScriptSurvivors';
+import { boardScripts, survivorItems } from './ScriptTab';
+import '../../styles/lane-d-markets.css';
 
 const c = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pc = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
@@ -41,7 +44,7 @@ function scrollTo(id: string) {
   el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
 }
 
-function Rail({ items, label }: { items: { id: string; label: string; sub: string; icon: string }[]; label: string }) {
+function Rail({ items, label, extra }: { items: { id: string; label: string; sub: string; icon: string }[]; label: string; extra?: ReactNode }) {
   return (
     <nav className="fx-card fr-mi__rail" aria-label={label}>
       <h2 className="fx-card__t">Market views</h2>
@@ -50,6 +53,7 @@ function Rail({ items, label }: { items: { id: string; label: string; sub: strin
           <li key={x.id}><button type="button" className="fr-mi__ri" onClick={() => scrollTo(x.id)}><Icon name={x.icon} size={17} /><span><b>{x.label}</b><small>{x.sub}</small></span></button></li>
         ))}
       </ul>
+      {extra}
     </nav>
   );
 }
@@ -80,16 +84,17 @@ export function MarketIntel({ r, rows, set, slug, eventId, now, homeAbbr, awayAb
     { id: 'mi-proj', label: 'Model projections', sub: 'Score · total range', icon: 'chart' },
     { id: 'mi-win', label: 'Win probability', sub: 'Market · model · sim', icon: 'compare' },
     { id: 'mi-studio', label: 'Comparison studio', sub: 'Up to three side by side', icon: 'layers' },
-    { id: 'ov-markets-h', label: 'Top markets', sub: 'By script fit', icon: 'grid' },
+    { id: 'ov-markets', label: 'Top markets', sub: 'By script fit · filter by type', icon: 'grid' },
+    { id: 'g-moves', label: 'Price moves', sub: 'Open → now · open questions', icon: 'trend' },
     { id: 'g-markets', label: 'All markets', sub: `${rows.length} contracts · ${counts.spreads ?? 0} game lines · ${counts.props ?? 0} props`, icon: 'grid' },
   ];
   return (
     <div className="fr-mi">
-      <Rail items={rail} label="Market views" />
+      <Rail items={rail} label="Market views" extra={slug === 'nfl' ? <Link to={routes.parlays(slug)} className="lsd-promo lsd-promo--rail"><span className="lsd-promo__ic" aria-hidden="true"><Icon name="parlays" size={18} /></span><span><b>Teasers & parlays</b><small>Stanford Wong teaser legs this week</small></span></Link> : undefined} />
       <div className="fr-mi__main fx-bento">
         <section className="fx-card fx-span-8 fr-best" id="mi-best" aria-labelledby="mi-best-h">
           <h2 className="fx-card__t" id="mi-best-h"><Icon name="star" size={17} /> Best-supported market expressions</h2>
-          <p className="fx-card__sub">{mine.length ? 'The publication’s own opportunities on this game, ranked by its documented rule. ' : 'The publication flags no opportunity on this game: these are the margin contracts that win across the most simulated scripts — research comparisons, not recommendations. '}Not bets or advice.</p>
+          <p className="fx-card__sub">{mine.length ? 'The publication’s own opportunities on this game, ranked by its documented rule. ' : 'The publication flags no opportunity on this game. These are the priced moneylines and spreads that win in every game of the most simulated scripts — research comparisons, not recommendations. '}Not bets or advice.</p>
           {mine.length ? (
             <div className="fr-best__cards">
               {mine.slice(0, 3).map((x, i) => {
@@ -109,22 +114,14 @@ export function MarketIntel({ r, rows, set, slug, eventId, now, homeAbbr, awayAb
                 );
               })}
             </div>
-          ) : surv.length && set ? (
-            <div className="fr-best__cards">
-              {surv.map((x, i) => (
-                <article key={x.m.market_id} className={`fr-ex${i === 0 ? ' fr-ex--lead' : ''}`}>
-                  <span className="fr-ex__tag">{i === 0 ? 'Widest script support' : 'Alternative'}</span>
-                  <h3 className="fr-ex__t"><Link to={routes.market(slug, x.m.market_id, eventId)}>{x.label}</Link></h3>
-                  <dl className="fr-ex__dl">
-                    <div><dt>YES ask</dt><dd className="fx-num fr-gold">{c(x.ask)}</dd></div>
-                    <div><dt>Model <small>research</small></dt><dd className="fx-num">{pc(x.model)}</dd></div>
-                  </dl>
-                  <p className="fr-ex__fit"><FitDots fits={x.fit!.fits} set={set} /> wins outright in scripts holding <b>{sharePct(x.fit!.coverage)}</b> of simulated games{x.similar ? ` · +${x.similar} similar` : ''}</p>
-                  <span className="fr-ex__bar" aria-hidden="true"><i style={{ width: `${x.fit!.coverage * 100}%` }} /></span>
-                  <FreshChip at={x.m.captured_at} now={now} />
-                </article>
-              ))}
-            </div>
+          ) : set ? (
+            <SurvivorBoard
+              sport="NFL" scripts={boardScripts(set)} items={survivorItems(rows, set, slug, eventId)} now={now} id="mi-surv" limit={3} bare
+              title="Bets that survive the most scripts"
+              sub="Research comparisons, not recommendations: margin contracts that win in every game of two or more simulated scripts."
+              empty="No priced margin contract wins in every game of two or more scripts."
+              footer="Same game, one exposure: contracts that win in the same scripts are not independent edges and are never combined as diversification."
+            />
           ) : <CapabilityState title="No expression to feature">Neither a published opportunity nor a margin contract with multi-script support exists for this game.</CapabilityState>}
         </section>
 
@@ -238,6 +235,79 @@ function PriceStudio({ rows, set, slug, eventId, now, seed }: { rows: PriceRow[]
       </div>
       <p className="fr-note">Same game, one exposure: contracts that win in the same scripts are not independent edges. Correlation coefficients are not published, so none is shown.</p>
     </>
+  );
+}
+
+// ------------------------------------------------------------------ top markets by script fit (own, tested filters)
+
+export type TopFilter = 'all' | MarketGroupKey;
+export const TOP_FILTERS: [TopFilter, string][] = [
+  ['all', 'All'], ['spreads', 'Moneyline & spreads'], ['totals', 'Totals'], ['team_totals', 'Team totals'], ['props', 'Player props'], ['halves', 'Halves'], ['more', 'More'],
+];
+
+/** A row with a real two-sided price worth comparing (8¢–92¢). Model price optional: shown as "—" when unpublished. */
+const listable = (r: PriceRow) => r.ask != null && r.ask >= 0.08 && r.ask <= 0.92;
+
+/**
+ * The rows a Top Markets filter shows: the filter's family only, ordered by script fit (always wins in the selected
+ * script, else the share of simulated games it always wins in), then the model–market gap, then closeness to even
+ * money. Each chip's count is exactly what the chip shows, so no chip opens an empty table.
+ */
+export function topMarketRows(rows: PriceRow[], f: TopFilter, si: number, n = 8): PriceRow[] {
+  const score = (r: PriceRow) => (r.fit ? (si >= 0 ? (r.fit.fits[si] === 'yes' ? 2 : r.fit.fits[si] === 'part' ? 1 : 0) : r.fit.coverage) : -1);
+  return rows
+    .filter((r) => listable(r) && (f === 'all' || r.group === f))
+    .sort((a, b) => score(b) - score(a) || Math.abs(b.gap ?? 0) - Math.abs(a.gap ?? 0) || Math.abs((a.mid ?? 0.5) - 0.5) - Math.abs((b.mid ?? 0.5) - 0.5) || a.m.market_id.localeCompare(b.m.market_id))
+    .slice(0, n);
+}
+
+export function topMarketCounts(rows: PriceRow[]): Record<TopFilter, number> {
+  const c = { all: 0, spreads: 0, totals: 0, team_totals: 0, props: 0, halves: 0, more: 0 } as Record<TopFilter, number>;
+  for (const r of rows) if (listable(r)) { c.all++; c[r.group]++; }
+  return c;
+}
+
+export function TopMarkets({ rows, set, selected, slug, eventId, now, allHref }: { rows: PriceRow[]; set: ScriptSet | null; selected: string | null; slug: string; eventId: string; now: number; allHref: string }) {
+  const [f, setF] = useState<TopFilter>('all');
+  const si = set && selected ? set.scripts.findIndex((s) => s.id === selected) : -1;
+  const counts = useMemo(() => topMarketCounts(rows), [rows]);
+  const shown = useMemo(() => topMarketRows(rows, f, si), [rows, f, si]);
+  return (
+    <section className="fx-card" id="ov-markets" aria-labelledby="ov-markets-h" data-testid="top-markets">
+      <h2 className="fx-card__t" id="ov-markets-h"><Icon name="grid" size={17} /> Top markets by script fit</h2>
+      <p className="fx-card__sub">Contracts that win in the most simulated games come first, then the largest model–market gaps (research evidence, not an edge).</p>
+      <div className="lsd-top__chips" role="group" aria-label="Market type">
+        {TOP_FILTERS.filter(([k]) => k === 'all' || counts[k] > 0).map(([k, l]) => (
+          <button key={k} type="button" className={`mboard__kind${f === k ? ' is-on' : ''}`} aria-pressed={f === k} onClick={() => setF(k)}>{l} <small>{counts[k]}</small></button>
+        ))}
+      </div>
+      <div className="tscroll"><table className="mtab">
+        <thead>
+          <tr>
+            <th scope="col">Market</th>
+            <th scope="col" className="r">YES ask</th>
+            <th scope="col" className="r">Model <small>research</small></th>
+            <th scope="col" className="r"><abbr title="Model probability minus the market midpoint, in percentage points">Model − Mkt</abbr></th>
+            <th scope="col">Script fit</th>
+            <th scope="col">Price age</th>
+          </tr>
+        </thead>
+        <tbody>
+          {shown.map((r) => (
+            <tr key={r.m.market_id} data-group={r.group}>
+              <th scope="row"><Link to={routes.market(slug, r.m.market_id, eventId)} className="mtab__m">{r.label}</Link></th>
+              <td className="r"><span className="fx-num fr-gold">{c(r.ask)}</span></td>
+              <td className="r fx-num">{r.model != null ? pc(r.model) : '—'}</td>
+              <td className="r fx-num">{gapText(r.gap)}</td>
+              <td>{r.fit && set ? <><FitDots fits={r.fit.fits} set={set} /> <small className="fx-num">{r.fit.full}/{set.scripts.length}</small></> : <small className="muted">not margin-settled</small>}</td>
+              <td><FreshChip at={r.m.captured_at} now={now} label="Price" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+      {!shown.length && <p className="lsd-top__empty">No contract of this type has a two-sided price between 8¢ and 92¢.</p>}
+      <p className="fr-note">{counts.all} priced contracts · <Link to={allHref}>Every market on this game →</Link></p>
+    </section>
   );
 }
 

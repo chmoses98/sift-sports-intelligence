@@ -32,7 +32,7 @@ import { FormPanel, H2HPanel, Info, InjuryList, LineHistoryPanel, PanelHead } fr
 import { familyGlyph, Glyph } from './glyphs';
 import { FreshPill, ResearchPill } from './kit';
 import { BasisChip, FindingCard, LinesPanel, ScriptMatrix, ScriptsUnavailable, TierChip, teamResolver } from './parts';
-import { FrozenNote, GoalieMatchup, MarketFit, PlayerResearch, ReviewSection, ScriptCard, ScriptList, Section, SpecialTeams, SummaryStrip, ThesisSection } from './story';
+import { FrozenNote, GoalieMatchup, MarketFit, NhlScriptChart, NhlSurvivors, PlayerResearch, ReviewSection, ScriptCard, ScriptList, Section, SpecialTeams, SummaryStrip, ThesisSection } from './story';
 import { GameOpportunities } from '../game/GameOpportunities';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -294,6 +294,10 @@ export function NhlGameView({ eventId }: { eventId: string }) {
         s ? (
           <div className="nhg__story">
             <FrozenNote phase={phase} generatedAt={s.generatedAt} />
+            {pregame && <NhlSurvivors s={s} ids={ids} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} selected={selected} />}
+            <Section id="n-scripts-split" title="How the simulations split" sub="Hover or tap a script for its numbers; choose one to see it in full.">
+              <NhlScriptChart s={s} ids={ids} hrefFor={(id) => `${href('script', id)}`} selected={selected} />
+            </Section>
             <Section id="n-scripts-all" title="How it could play out" sub={`Seven mutually exclusive game scripts from ${s.nDraws.toLocaleString('en-US')} simulated games · ${s.versions.script}. Probabilities are written numbers; colour only identifies the script.`}>
               <ScriptList s={s} ids={ids} hrefFor={(id) => `${href('script', id)}`} selected={selected} />
             </Section>
@@ -313,6 +317,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
       {tab === 'markets' && (
         <div className="nhg__story">
           <FrozenNote phase={phase} generatedAt={s?.generatedAt ?? null} />
+          {s && pregame && <NhlSurvivors s={s} ids={ids} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} />}
           {s ? <MarketFit s={s} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} pregame={pregame} /> : unavailable}
           {s?.rules && (
             <details className="layer">

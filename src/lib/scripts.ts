@@ -47,8 +47,13 @@ export interface GameScript {
    * to catch up." Never more than the publication carries — no score-state or scoring narrative is inferred.
    */
   story: string;
-  /** The compact form for tiles and the priorities rail, under the title: "By 14 or more. The Buccaneers throw more to catch up." */
+  /** One tight sentence for tiles, cards and the priorities rail, naming the teams: "Cowboys by 14 or more." */
   line: string;
+  /**
+   * The expandable detail behind the tight sentence (null when the simulation shows nothing more): how the teams play in
+   * games that end this way, from the conditional pass rates — "The Cowboys lean on the run while the Buccaneers throw to catch up."
+   */
+  detail: string | null;
   /** Share of simulated games (0..1). */
   share: number;
   home: MarginRange;
@@ -63,6 +68,8 @@ export interface ScriptSet {
   fav: 'home' | 'away';
   homeAbbr: string;
   awayAbbr: string;
+  /** The teams as the titles say them ("Bills", "Iowa State"). */
+  names: { home: string; away: string };
   /** Volume over every simulated game (share-weighted), for comparison. */
   overall: { home: TeamVolume; away: TeamVolume };
   source: string | null;
@@ -147,27 +154,32 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
       : { 'fav-big': ['trail14+'], fav: ['trail7-13'], close: ['within6'], dog: ['lead7-13', 'lead14+'] };
   const mk = (id: ScriptId, index: 1 | 2 | 3 | 4, title: string, canonical: string, summary: string, leader: 'home' | 'away' | null): GameScript => {
     const s = sum(keys[id]);
-    return { id, index, name: title, canonical, summary, story: summary, line: summary, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
+    return { id, index, name: title, canonical, summary, story: summary, line: summary, detail: null, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
   };
-  // DISPLAY LANGUAGE. The four margin buckets are the model's; only their titles are written for a casual fan:
-  // "Win Big" (14+), "Win Comfortably" (7–13, or 7+ for the underdog), "Close Game Either Way" (6 or fewer).
-  // No title implies scoring (the publication simulates no joint margin × points script) or game flow. Index is
-  // the script's colour identity and never changes; the list itself is ordered most likely first.
+  // DISPLAY LANGUAGE. The four margin buckets are the model's; only their titles are written for a casual fan, and
+  // every one names a team (owner item 8): "Win Big" (14+), "Win Comfortably" (7–13, or 7+ for the underdog) and, for
+  // the one-score bucket, "<underdog> Keep It Close" — the bucket is the underdog finishing within 6 either way, which
+  // includes the underdog winning a one-score game. No title implies scoring (the publication simulates no joint
+  // margin × points script) or game flow. Index is the script's colour identity and never changes; the list itself is
+  // ordered most likely first. A college name is one singular name ("Iowa State Wins Big"); a club nickname is plural.
   const abbr = { home: homeAbbr, away: awayAbbr };
+  const one = sport === 'CFB';
+  const v = (plural: string, singular: string) => (one ? singular : plural);
   const scripts = sortScripts([
-    mk('fav-big', 1, `${name[fav]} Win Big`, `${abbr[fav]} by 14+`, `${name[fav]} win by 14 or more.`, fav),
-    mk('fav', 2, `${name[fav]} Win Comfortably`, `${abbr[fav]} by 7–13`, `${name[fav]} win by 7 to 13.`, fav),
-    mk('close', 3, 'Close Game Either Way', 'Within 6 either way', 'Decided by 6 points or fewer, either way.', null),
-    mk('dog', 4, `${name[dog]} Win Comfortably`, `${abbr[dog]} by 7+`, `${name[dog]} win by 7 or more.`, dog),
+    mk('fav-big', 1, `${name[fav]} ${v('Win', 'Wins')} Big`, `${abbr[fav]} by 14+`, `${name[fav]} ${v('win', 'wins')} by 14 or more.`, fav),
+    mk('fav', 2, `${name[fav]} ${v('Win', 'Wins')} Comfortably`, `${abbr[fav]} by 7–13`, `${name[fav]} ${v('win', 'wins')} by 7 to 13.`, fav),
+    mk('close', 3, `${name[dog]} ${v('Keep', 'Keeps')} It Close`, 'Within 6 either way', `${name[fav]} or ${name[dog]} by 6 points or fewer.`, null),
+    mk('dog', 4, `${name[dog]} ${v('Win', 'Wins')} Comfortably`, `${abbr[dog]} by 7+`, `${name[dog]} ${v('win', 'wins')} by 7 or more.`, dog),
   ]);
   const all = sum(['lead14+', 'lead7-13', 'within6', 'trail7-13', 'trail14+']);
-  const margin: Record<ScriptId, string> = { 'fav-big': 'By 14 or more.', fav: 'By 7 to 13.', close: 'Decided by 6 points or fewer, either way.', dog: 'By 7 or more.' };
+  const margin: Record<ScriptId, string> = { 'fav-big': `${name[fav]} by 14 or more.`, fav: `${name[fav]} by 7 to 13.`, close: `Either team by 6 or fewer.`, dog: `${name[dog]} by 7 or more.` };
   for (const sc of scripts) {
     const clause = scriptClause(sc, all, name);
     sc.story = clause ? `${sc.summary} ${clause}` : sc.summary;
-    sc.line = clause ? `${margin[sc.id]} ${clause}` : margin[sc.id];
+    sc.line = margin[sc.id];
+    sc.detail = clause;
   }
-  return { scripts, fav, homeAbbr, awayAbbr, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
+  return { scripts, fav, homeAbbr, awayAbbr, names: name, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
 }
 
 /** Pass-rate shift (share of plays) that counts as a real change in how a team plays in a script: 3 points. */

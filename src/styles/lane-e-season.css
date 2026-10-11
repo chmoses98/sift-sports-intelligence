@@ -34,3 +34,7 @@ a.swk__a:focus-visible { outline: 2px solid #8fd0ff; outline-offset: 2px; }
   .sn-week .fx-card__h { flex-wrap: wrap; }
   .swk-grid { grid-template-columns: 1fr; }
 }
+.ex-tile__ats { font-weight: 700; }
+.ex-tile__ats--covered { color: var(--tier-good); }
+.ex-tile__ats--not_covered { color: #ff9aa6; }
+.ex-tile__ats--push, .ex-tile__ats--pk { color: var(--tier-mid); }

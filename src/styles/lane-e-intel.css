@@ -32,3 +32,22 @@
 .tm-means { display: grid; gap: 10px; margin-top: 10px; }
 .tm-means__t { margin: 0; font-size: 0.92rem; line-height: 1.45; color: var(--text-hi); }
 .tm-means .dleads { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+
+/* ---------- Intelligence audit fixes (issue 52) ---------- */
+/* Model Pulse / Lab: the error bars say which way is better and mark the leader. */
+.cbars__head { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
+.cbars__row { grid-template-columns: 54px 1fr auto auto; }
+.cbars__row.is-lead .cbars__k, .cbars__row.is-lead b { color: var(--text-hi); }
+.cbars__lead { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--tier-good); padding: 1px 6px; border-radius: 999px; background: var(--tier-good-bg); border: 1px solid rgba(34, 217, 138, 0.3); }
+.pfam__more { align-self: center; font-size: 0.74rem; font-weight: 600; color: #8fd0ff; }
+.labx__mean { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--glass-line); font-size: 0.9rem; line-height: 1.5; color: var(--text-2); }
+.labx__mean b { color: var(--text-hi); }
+
+/* The Intelligence sub-navigation: a 2 × 2 grid on phones, so Model Lab is never scrolled out of sight. */
+@media (max-width: 719px) {
+  .intelnav { width: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+  .intelnav .gtab { justify-content: center; padding: 0 8px; }
+}
+
+/* The Terminal's board: a "show more" instead of an endless phone list. */
+.term__more { display: flex; justify-content: center; padding: 10px 0 2px; }

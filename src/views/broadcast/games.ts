@@ -118,6 +118,8 @@ export function phaseWord(g: GameRow): string {
 /** A board competition word fit for a tile: "regular" → "Regular season"; real names pass through. */
 export function competitionWord(c: string | null | undefined, sportLabel: string): string {
   if (!c) return sportLabel;
+  const wk = /^\d{4}\s+(?:reg\s+|post\s+)?week\s+(\d+)$/i.exec(c.trim());
+  if (wk) return `${sportLabel} · Week ${wk[1]}`;
   const k = c.trim().toLowerCase();
   if (k === 'regular' || k === 'reg' || k === 'regular_season') return `${sportLabel} · Regular season`;
   if (k === 'preseason' || k === 'pre') return `${sportLabel} · Preseason`;

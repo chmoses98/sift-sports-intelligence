@@ -22,6 +22,7 @@ import { PMark } from '../broadcast/parts';
 import { cleanRank, KeyMatchups, QuickStats, RankingsTable, SeasonTimeline, teamRankings, type SearchItem } from './hub';
 import { EXPLORE_PHOTO } from './photos';
 import { LAB_TOOLS, labHref, type LabToolKey } from './labTools';
+import '../../styles/lane-e-season.css';
 
 function useExplorer(slug: string) {
   return useAsync(`explore:v2:${slug}`, async () => {

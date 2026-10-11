@@ -37,6 +37,8 @@ import { MarketCompare } from './MarketCompare';
 import { areaPairs, gameEnvironment, mainLines, researchFair, SHORT_KIND, SIG_BARS, SIG_SHORT, type Spread } from './terminalModel';
 
 const SIG_WORD = { high: 'High significance', medium: 'Notable', low: 'Context' } as const;
+/** Sports whose game page has Scripts / Matchups / Markets tabs; soccer, tennis and NBA pages are one screen. */
+const TABBED_GAMES = new Set(['NFL', 'CFB', 'NHL', 'MLB']);
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 const signed = (v: number, d = 1) => `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v).toFixed(d)}`;
@@ -126,10 +128,10 @@ export function SelectedHero({ d, game, spec, pinned, onPin, onBack }: { d: Disc
         )}
         {ev && (
           <nav className="tm-hero__tabs" aria-label="Open this game">
-            <Link to={routes.game(d.slug, ev.event_id)}>Overview</Link>
-            <Link to={routes.game(d.slug, ev.event_id, { tab: 'script' })}>Scripts</Link>
-            <Link to={routes.game(d.slug, ev.event_id, { tab: 'matchup' })}>Matchups</Link>
-            <Link to={routes.game(d.slug, ev.event_id, { tab: 'markets' })}>Markets</Link>
+            <Link to={routes.game(d.slug, ev.event_id)}>{TABBED_GAMES.has(d.sport) ? 'Overview' : `Open the ${d.sport === 'SOCCER' || d.sport === 'TENNIS' ? 'match' : 'game'}`}</Link>
+            {TABBED_GAMES.has(d.sport) && d.sport !== 'MLB' && <Link to={routes.game(d.slug, ev.event_id, { tab: 'script' })}>Scripts</Link>}
+            {TABBED_GAMES.has(d.sport) && <Link to={routes.game(d.slug, ev.event_id, { tab: 'matchup' })}>Matchups</Link>}
+            {TABBED_GAMES.has(d.sport) && <Link to={routes.game(d.slug, ev.event_id, { tab: 'markets' })}>Markets</Link>}
           </nav>
         )}
         <section className="tm-insight" aria-labelledby="tm-hero-t">
@@ -151,7 +153,7 @@ export function SelectedHero({ d, game, spec, pinned, onPin, onBack }: { d: Disc
         <div className="tm-hero__acts">
           <button type="button" className={`btn btn--sm btn--glass${why ? ' is-on' : ''}`} aria-expanded={why} aria-controls="tm-why" onClick={() => setWhy((x) => !x)}><Icon name="info" size={14} /> Why?</button>
           {d.href && <Link to={d.href} className="btn btn--sm btn--glass"><Icon name="research" size={14} /> Research</Link>}
-          {ev && <Link to={routes.game(d.slug, ev.event_id, { tab: 'markets' })} className="btn btn--sm btn--glass"><Icon name="chart" size={14} /> Markets</Link>}
+          {ev && TABBED_GAMES.has(d.sport) && <Link to={routes.game(d.slug, ev.event_id, { tab: 'markets' })} className="btn btn--sm btn--glass"><Icon name="chart" size={14} /> Markets</Link>}
           {o?.marketId ? (
             <SaveButton ref_kind="MARKET" sport={o.sport} id={o.marketId} extra={{ market_id: o.marketId, event_id: o.eventId }} label={{ label: `${o.what.side === 'NO' ? 'NO · ' : ''}${o.what.title}`, sub: o.eventLabel, href: o.href }} kickoff={o.startTime} />
           ) : ev ? (

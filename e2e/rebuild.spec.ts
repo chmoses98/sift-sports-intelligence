@@ -28,7 +28,7 @@ test('every new destination opens from the navigation and survives back/forward 
   const go = async (label: string | RegExp, heading: RegExp) => {
     await nav.getByRole('link', { name: label }).first().click();
     await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
-    await noHorizontalOverflow(page, label);
+    await noHorizontalOverflow(page, String(label));
   };
   await go('Games', /^Games$/);
   await go(/Research Lab|Explore/, /^Research Lab$/);

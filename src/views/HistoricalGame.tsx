@@ -15,7 +15,10 @@ import { HeroArt, heroVars } from '../components/HeroArt';
 import { resolveHero } from '../lib/hero/resolve';
 import { heroTeam } from '../lib/hero/input';
 import { heroData } from './game/Hero';
+import '../styles/lane-e-cards.css';
+import '../styles/lane-e-season.css';
 import { useVisit } from '../state/trail';
+import { atsOf, findLeagueGame, LEAGUE_SOURCE, totalResultOf, useLeagueSchedule } from '../history/league';
 
 function Around({ prof, eventId, slug, label }: { prof: EntityProfileDoc; eventId: string; slug: string; label: string }) {
   const games = [...prof.games].sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc));
@@ -68,6 +71,7 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
   const oppSeries = useAsync(opp.data ? `hseries:${sport.code}:${oppId}` : null, () => Promise.all(opp.data!.series.map((s) => repo.series(s.series_id))));
   const tAbbr = team.data?.entity.short_name ?? '';
   const oAbbr = opp.data?.entity.short_name ?? dir.data?.team(oppId)?.abbr ?? '';
+  const league = useLeagueSchedule(sport.code);
   const label = row ? `${row.home_away === 'AWAY' ? `${tAbbr} @ ${oAbbr}` : `${oAbbr} @ ${tAbbr}`} · ${row.competition?.replace(/ REG week /, ' W')}` : null;
   useVisit(label, 'history');
 
@@ -90,6 +94,10 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
   const homeScore = row.home_away === 'AWAY' ? res?.against : res?.for;
   const awayScore = row.home_away === 'AWAY' ? res?.for : res?.against;
   const sPF = series.data?.find((s) => s.metric_id === 'met_nfl.points_for');
+  // Against the closing line: the league schedule's published final and closing spread/total (NFL; never estimated).
+  const lgame = findLeagueGame(league.data?.games, away.abbr, home.abbr, row.start_time_utc);
+  const ats = lgame ? atsOf(lgame) : null;
+  const tot = lgame ? totalResultOf(lgame) : null;
   const plStatus = capStatus(caps, 'player_game_logs');
   // The hero for the game AS IT WAS: the date decides the venue and photo era (a 2023 Bills game is the old
   // Highmark Stadium); a neutral-site game in the team's list shows both teams and nobody at home.
@@ -136,6 +144,13 @@ export function HistoricalGameView({ eventId, teamId }: { eventId: string; teamI
           <span><Icon name="clock" size={14} /> {new Date(row.start_time_utc).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}</span>
           <span>Result source: {sport.code === 'NFL' ? 'nflverse schedule (schedule_cache.csv)' : `the ${sport.label} publication's team game list`} · <QualityBadge status={capStatus(caps, 'historical_results')} /></span>
         </div>
+        {(ats || tot) && (
+          <div className="mh__meta mh__ats" aria-label="Result against the closing line">
+            {ats && <span className={`gc-ats gc-ats--${ats.cover ?? 'pk'}`}>{ats.favourite ? `Closing spread ${ats.text}` : 'Closing spread: pick’em'}</span>}
+            {tot && <span className={`gc-ats gc-ats--tot-${tot.result}`}>{tot.points} points · closing total {tot.line} · {tot.result === 'push' ? 'push' : tot.result}</span>}
+            <span className="muted small">Closing lines: {LEAGUE_SOURCE}</span>
+          </div>
+        )}
         <div className="mh__actions">
           {sPF && (
             <SaveButton

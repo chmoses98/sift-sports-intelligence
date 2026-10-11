@@ -14,7 +14,9 @@ import { routes } from '../../lib/routes';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
 import { ScriptDot, TierChip } from './parts';
+import { rankWords, sportUnit } from '../../insights/sportUnits';
 import '../../styles/nhl.css';
+import '../../styles/wave2-units.css';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -53,19 +55,22 @@ function SeasonTable({ p, goalie }: { p: EntityProfileDoc; goalie: boolean }) {
   return (
     <div className="tscroll" tabIndex={0} role="region" aria-label="Season numbers">
       <table className="nsc__t">
-        <thead><tr><th scope="col">Window</th>{cols.map(([, l]) => <th key={l} scope="col" className="r">{l}</th>)}</tr></thead>
+        <thead><tr><th scope="col">Window</th>{cols.map(([k, l]) => <th key={l} scope="col" className="r"><abbr title={sportUnit(`met_nhl.${k}`).long}>{l}</abbr></th>)}</tr></thead>
         <tbody>
           {windows.map((w) => (
             <tr key={w}>
               <th scope="row">{w === 'L10' ? 'Last 10 games' : w}</th>
               {cols.map(([k, l, f]) => {
                 const o = obsOf(p, k, w);
-                return <td key={l} className="r num">{o?.value != null ? f(o.value) : '—'}{o?.context?.rank != null && <small className="muted"> #{o.context.rank}</small>}</td>;
+                return <td key={l} className="r num">{o?.value != null ? f(o.value) : '—'}{o?.context?.rank != null && <small className="muted" title={o.context.universe_label ?? undefined}> {rankWords(o.context)}</small>}</td>;
               })}
             </tr>
           ))}
         </tbody>
       </table>
+      <p className="su-key">{goalie
+        ? 'GS starts · SV% share of shots saved, all situations · EV SV% share of even-strength shots saved · GAA goals against per 60 minutes. Raw, not opponent-adjusted; rank among the goalies the publication ranks.'
+        : 'GP games played · G, A, P and SOG are totals in the window, not per game · TOI/GP minutes of ice time per game · P/60 points per 60 minutes. Raw, not opponent-adjusted; rank among the skaters the publication ranks.'}</p>
     </div>
   );
 }

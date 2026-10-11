@@ -13,6 +13,7 @@ import { nbaInjuries, nbaModelVsMarket, nbaTeam, nbaVenue } from '../../lib/nba'
 import { routes } from '../../lib/routes';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
+import { healthLabel } from '../../lib/plainLabels';
 import { useVisit } from '../../state/trail';
 import { sides } from '../home/cards';
 import { useVisibleOnce } from '../shared/useVisible';
@@ -83,7 +84,7 @@ export function NbaHomeView() {
         logo={`${import.meta.env.BASE_URL}leagues/nba.webp`}
         title="NBA"
         sub={<><b>{items.length}</b> games{preseason ? ' (preseason)' : ''} · <b>{markets}</b> Kalshi markets · <b>{priced}</b> priced by the model · research only</>}
-        status={<>{health && <Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}>{health.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill>}<Pill tone="research" title="Out-of-sample walk-forward: the raw Kalshi price has lower log loss than the model in every family">market beats model 8/8 families</Pill></>}
+        status={<>{health && <Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}><span title={healthLabel(health.overall_status).meaning}>{healthLabel(health.overall_status).word}</span></Pill>}<Pill tone="research" title="Out-of-sample walk-forward: the raw Kalshi price has lower log loss than the model in every family">market beats model 8/8 families</Pill></>}
       />
       <div className="skgrid">
         <Section id="nb-slate" title="Slate" sub="Tipoff, both clubs, last season's net-rating ranks and the injury report once a game's research is read. Tap a game for the matchup, the roster and every market.">

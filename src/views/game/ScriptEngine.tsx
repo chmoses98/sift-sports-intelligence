@@ -38,6 +38,7 @@ import {
   groupedSurvivors,
   winsWhenText,
   type Compat,
+  findingLabel,
   type Engine,
   type EngineScript,
   type Expression,
@@ -49,6 +50,13 @@ import { Info, PanelHead, ViewAll } from './panels';
 import { ScriptMarkets } from './ScriptMarkets';
 import { SurvivorBoard, type BoardItem, type BoardScript, type Cell } from './ScriptSurvivors';
 import { splitSentence } from '../../lib/scriptNames';
+import { formatUnitValue, sportUnit, unitText, valueAndUnit } from '../../insights/sportUnits';
+import '../../styles/wave2-units.css';
+
+/** A CFB engine metric's unit, from the engine's own registry entry (ids are bare: `success_rate`). */
+const cfbUnit = (id: string, reg?: { unit?: string } | null) => sportUnit(id, reg ?? null, 'CFB');
+const cfbVal = (v: number | null | undefined, id: string, reg?: { unit?: string } | null) => formatUnitValue(v, cfbUnit(id, reg));
+
 
 const COMPAT_WORD: Record<Compat, string> = {
   SUPPORTED: 'supports',
@@ -234,7 +242,7 @@ function WhyThisBet({ engine, e, m, marketsByTicker, now }: { engine: Engine; e:
                 const row = metricAt(engine, ref);
                 if (!row) return null;
                 const reg = engine.registry[row.metric_id];
-                return <li key={ref}>{row.team} {row.unit} · {reg?.name ?? row.metric_id}: {fmtMetric(row.adjusted, reg?.unit)} adj. ({row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'}, {row.games} g)</li>;
+                return <li key={ref}>{row.team} {row.unit} · {reg?.name ?? row.metric_id}: {row.adjusted_available ? `${valueAndUnit(row.adjusted, cfbUnit(row.metric_id, reg))} (adjusted)` : `${valueAndUnit(row.raw, cfbUnit(row.metric_id, reg))} (raw, not adjusted)`} ({row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'}, {row.games} games)</li>;
               })}
             </ul>
           </div>
@@ -383,7 +391,7 @@ export function EngineEdgesPanel({ engine, homeAbbr, awayAbbr, to }: { engine: E
             not a forecast. Hatched = within its own uncertainty.
           </Info>
         }
-        sub={`${awayAbbr} @ ${homeAbbr} · season to date, adjusted for opponents`}
+        sub={`${awayAbbr} @ ${homeAbbr} · season to date, adjusted for opponents · unit: standard deviations across FBS (+ favours the offense)`}
       />
       <Scroll label="Matchup edges by dimension"><table className="etab">
         <thead>
@@ -483,7 +491,7 @@ function FindingChip({ engine, code }: { engine: Engine; code: string }) {
   if (!f) return null;
   return (
     <details className="fchip">
-      <summary>{code.replace(/_/g, ' ').toLowerCase()}<span className={`fchip__s fchip__s--${f.strength.toLowerCase()}`}>{f.strength.toLowerCase()}</span></summary>
+      <summary title={code}>{findingLabel(engine, code)}<span className={`fchip__s fchip__s--${f.strength.toLowerCase()}`}>{f.strength.toLowerCase()}</span></summary>
       <p className="small">{f.statement}</p>
       {f.metric_refs.length > 0 && <MetricMini engine={engine} refs={f.metric_refs} />}
     </details>
@@ -499,9 +507,9 @@ function MetricMini({ engine, refs }: { engine: Engine; refs: string[] }) {
         const reg = engine.registry[row.metric_id];
         return (
           <li key={ref}>
-            <span>{row.team} {row.unit} · {reg?.name ?? row.metric_id}</span>
-            <span className="num">{fmtMetric(row.raw, reg?.unit)} raw → {fmtMetric(row.adjusted, reg?.unit)} adj.</span>
-            <span className="muted">{row.rank ? `#${row.rank}/${row.universe_size}` : 'unranked'} · {row.games} g · {row.quality.toLowerCase().replace(/_/g, ' ')}</span>
+            <span>{row.team} {row.unit} · {reg?.name ?? row.metric_id} <span className="muted">({unitText(cfbUnit(row.metric_id, reg))})</span></span>
+            <span className="num">{cfbVal(row.raw, row.metric_id, reg)} raw → {row.adjusted_available ? `${cfbVal(row.adjusted, row.metric_id, reg)} adjusted` : 'no adjusted value'}</span>
+            <span className="muted">{row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'} · {row.games} games{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</span>
           </li>
         );
       })}
@@ -809,7 +817,7 @@ function ExprList({ title, list, engine, marketsByTicker, slug, eventId, now }: 
             );
           })}
         </ul>
-      ) : <p className="muted small">None.</p>}
+      ) : <p className="muted small">No published contract is contradicted by this script.</p>}
     </div>
   );
 }
@@ -833,15 +841,15 @@ function MetricTable({ engine, dimension }: { engine: Engine; dimension: string 
           const reg = engine.registry[id];
           return (
             <tr key={id}>
-              <th scope="row">{reg.name}{reg.secondary_evidence ? <span className="mettab__tag">secondary</span> : null}{reg.regression_prone ? <span className="mettab__tag">regression-prone</span> : null}</th>
+              <th scope="row">{reg.name}{reg.secondary_evidence ? <span className="mettab__tag">secondary</span> : null}{reg.regression_prone ? <span className="mettab__tag">regression-prone</span> : null}<span className="mettab__u" title={cfbUnit(id, reg).long}>{unitText(cfbUnit(id, reg))}</span></th>
               {sides.map(([side, unit]) => {
                 const row: MetricRow | undefined = engine.teams[side].metrics[`${unit}.${id}`];
                 return (
                   <td key={`${side}${unit}`} title={row ? `raw ${fmtMetric(row.raw, reg.unit)} · ${row.adjusted_available ? `adjusted ${fmtMetric(row.adjusted, reg.unit)} ± ${fmtMetric(row.standard_error, reg.unit)}` : `not adjusted: ${row.adjusted_unavailable_reason ?? ''}`} · ${row.direction.replace(/_/g, ' ')} · ${row.games} games, prior weight ${row.prior_weight ?? '—'} · ${row.source ?? ''} · observed ${row.observed_at ?? '—'} · ${row.quality}` : 'not published'}>
                     {row ? (
                       <>
-                        <span className="num">{fmtMetric(row.adjusted_available ? row.adjusted : row.raw, reg.unit)}</span>
-                        <span className="mettab__sub">{row.adjusted_available ? 'adj' : 'raw'} · {row.rank ? `#${row.rank}/${row.universe_size}` : 'unranked'}{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</span>
+                        <span className="num">{cfbVal(row.adjusted_available ? row.adjusted : row.raw, id, reg)}</span>
+                        <span className="mettab__sub">{row.adjusted_available ? 'adjusted' : 'raw · not adjusted'} · {row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'}{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</span>
                       </>
                     ) : '—'}
                   </td>

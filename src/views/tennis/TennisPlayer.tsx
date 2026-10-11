@@ -8,6 +8,7 @@ import { routes } from '../../lib/routes';
 import { tennisRating } from '../../lib/tennis';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
+import { sportUnit, unitText } from '../../insights/sportUnits';
 import { Authority, KV, Pill, Section, SportHeader, TextMark } from '../shared/kit';
 
 export function TennisPlayerView() {
@@ -20,14 +21,14 @@ export function TennisPlayerView() {
   if (!p) return <div className="page"><ErrorState error={prof.error} what="this player's profile" /></div>;
   const r = tennisRating(p);
   const next = [...p.games].filter((g) => g.status === 'SCHEDULED').sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc))[0] ?? null;
-  const metricRows = p.metrics.filter((o) => !o.split).map((o) => ({ k: metrics.get(o.metric_id)?.name ?? o.metric_id, v: <><b className="num">{o.display_value ?? (o.value != null ? (Math.abs(o.value) >= 10 ? Math.round(o.value).toLocaleString('en-US') : o.value.toFixed(3)) : '—')}</b>{o.context?.rank != null ? <span className="muted"> · #{o.context.rank}{o.context.universe_size ? ` of ${o.context.universe_size}` : ''}</span> : null}</> }));
+  const metricRows = p.metrics.filter((o) => !o.split).map((o) => ({ k: metrics.get(o.metric_id)?.name ?? o.metric_id, v: <><b className="num">{o.display_value ?? (o.value != null ? (Math.abs(o.value) >= 10 ? Math.round(o.value).toLocaleString('en-US') : o.value.toFixed(3)) : '—')}</b> <span className="muted">{unitText(sportUnit(o.metric_id, metrics.get(o.metric_id))) || sportUnit(o.metric_id, metrics.get(o.metric_id)).long}</span>{o.context?.rank != null ? <span className="muted"> · #{o.context.rank}{o.context.universe_size ? ` of ${o.context.universe_size}` : ''}</span> : null}</> }));
   return (
     <div className="page tennis-player">
       <SportHeader
         logo={null}
         title={p.entity.display_name}
         sub={<>{r.tour ?? ''}{r.discipline ? ` · ${r.discipline}` : ''}{r.lastMatch ? ` · last match ${r.lastMatch}` : ''}{r.elo != null ? <> · Elo <b className="num">{Math.round(r.elo)}</b>{r.eloRank != null ? ` (#${r.eloRank}${r.eloUniverse ? ` of ${r.eloUniverse}` : ''})` : ''}</> : ''}</>}
-        status={<><Pill tone={r.identity === 'MAPPED' ? 'ok' : 'warn'}>identity {r.identity?.toLowerCase().replace(/_/g, ' ') ?? 'unknown'}</Pill><Authority value="RESEARCH_ONLY" /></>}
+        status={<><Pill tone={r.identity === 'MAPPED' ? 'ok' : 'warn'}>{r.identity === 'MAPPED' ? 'rating matched' : r.identity ? `rating ${r.identity.toLowerCase().replace(/_/g, ' ')}` : 'rating match not stated'}</Pill><Authority value="RESEARCH_ONLY" /></>}
       />
       <div className="skgrid">
         <div className="stack">
@@ -57,7 +58,7 @@ export function TennisPlayerView() {
             ) : <p className="muted">No scheduled match on the current slate.</p>}
           </Section>
           <Section id="tp-markets" title="Contracts on this player" sub="Match-winner and other contracts the publication lists for this player; open the match for prices beside the model.">
-            {p.markets.length === 0 ? <p className="muted">None listed.</p> : (
+            {p.markets.length === 0 ? <p className="muted">No Kalshi contract names this player on the current board. Contracts appear once Kalshi lists the player's next match.</p> : (
               <ul className="lims">{p.markets.map((m) => <li key={m.market_id}><Link to={m.event_id ? routes.market(slug, m.market_id, m.event_id) : '#'}>{m.yes_description}</Link> <span className="muted">· {m.market_family.replace(/_/g, ' ')}</span></li>)}</ul>
             )}
           </Section>

@@ -140,3 +140,15 @@ export function modelVersionShort(v: unknown): string | null {
   }
   return /^v?\d[\d.]*$/i.test(s) ? `v${s.replace(/^v/i, '')}` : humanize(s);
 }
+
+/**
+ * Publication prose with its enum constants written as words: "only OPPONENT_ADJUSTED, MODEL and AVAILABILITY findings"
+ * → "only opponent-adjusted, model and availability findings". Underscored constants are always rewritten; bare
+ * all-caps words are rewritten only when listed in `words` (so team codes such as "NYR" stay as they are).
+ */
+export function plainCodes(text: string, words: string[] = ['RAW', 'MODEL', 'AVAILABILITY', 'RESEARCH', 'PARTIAL', 'UNAVAILABLE', 'VERIFIED', 'UNKNOWN']): string {
+  const known = new Set(words);
+  return text
+    .replace(/\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/g, (c) => (c === 'OPPONENT_ADJUSTED' ? 'opponent-adjusted' : c.replace(/_/g, ' ').toLowerCase()))
+    .replace(/\b[A-Z]{3,}\b/g, (c) => (known.has(c) ? c.toLowerCase() : c));
+}

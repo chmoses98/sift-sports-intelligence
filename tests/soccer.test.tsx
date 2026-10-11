@@ -145,7 +145,7 @@ describe('soccer screens render from the real publication', () => {
   it('a fixture the engine did not run says PASS and still shows the matchup and markets', async () => {
     renderScreen(routes.game('soccer', SAN_FLA), '/:sport/game/:eventId', <GameRoute />, {}, 'soccer');
     expect(await screen.findByRole('heading', { name: 'No script-engine read for this fixture.' })).toBeInTheDocument();
-    expect(screen.getByText(/fixture not on the model board/)).toBeInTheDocument();
+    expect(screen.getByText(/fixture not on the model board/i)).toBeInTheDocument();
     expect(await screen.findByText('No Kalshi contract is published for this game yet.')).toBeInTheDocument();
     expect(document.querySelectorAll('.skrk__row').length).toBeGreaterThan(5);
   });

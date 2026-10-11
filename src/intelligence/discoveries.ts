@@ -17,6 +17,7 @@ import type { Opportunity, SportVerdict } from '../opportunity/types';
 import { ago } from '../lib/format';
 import { scrutiny } from '../opportunity/scrutiny';
 import { betPhrase } from '../lib/betWords';
+import { authorityLabel } from '../lib/plainLabels';
 
 export type DiscoveryKind = 'market' | 'mismatch' | 'context' | 'freshness' | 'model';
 export type Significance = 'high' | 'medium' | 'low';
@@ -94,11 +95,11 @@ export function marketDiscovery(o: Opportunity): Discovery {
       { label: 'Break-even after fee', value: cents(o.price.breakEven) },
       { label: 'Publication fair', value: pct(o.price.fair) },
       { label: 'Bet up to', value: o.price.betUpTo == null ? 'Not published' : cents(o.price.betUpTo) },
-      { label: 'Authority', value: o.authority || '—' },
+      { label: 'Authority', value: o.authority ? authorityLabel(o.authority) : '—' },
       ...(o.confidence.record ? [{ label: 'Family record', value: o.confidence.record.line }] : []),
       ...(x ? x.checks.map((c) => ({ label: `Check · ${c.label}`, value: `${c.ok === true ? 'Pass' : c.ok === false ? 'Fail' : 'Unverified'} — ${c.note}` })) : []),
     ],
-    method: `${o.authority || 'Publication'} candidate, repriced on the current quote where one exists; break-even includes Kalshi's fee.`,
+    method: `${o.authority ? authorityLabel(o.authority) : 'Publication'} candidate, repriced on the current quote where one exists; break-even includes Kalshi's fee.`,
     source: `${o.sport} publication · recommendations`,
     observedAt: o.price.observedAt,
     eventId: o.eventId,

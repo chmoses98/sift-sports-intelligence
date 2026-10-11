@@ -19,6 +19,9 @@ import { BasisTag, ModeToggle } from '../components/statviz';
 import { basisOf, formatStat, unitLine } from '../insights/units';
 import { useStatMode } from '../state/statMode';
 import { TeamBasicsStratum, TeamDepthStratum, TeamSchemeStratum, CompareTeamPicker } from './stats/TeamSections';
+import { footingOf, formatUnitValue, sportUnit } from '../insights/sportUnits';
+import { qualityLabel } from '../lib/plainLabels';
+import { FootTag, UnitWords } from '../components/StatUnit';
 
 const CbbTeamView = lazy(() => import('./cbb/Team').then((m) => ({ default: m.CbbTeamView })));
 
@@ -34,17 +37,21 @@ function scaleOf(o: Observation): number | null {
   return Math.max(Math.abs(c.best_value ?? 0), Math.abs(c.worst_value ?? 0));
 }
 
+const SPORT_UNITS = new Set(['NHL', 'SOCCER', 'CBB']);
+
 export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabel }: { o: Observation; slug: string; teamId: string; oppId?: string | null; eventId?: string | null; sportCode: string; teamLabel: string }) {
   const { metrics } = useSport();
   const def = metrics.get(o.metric_id);
-  const fmt = metricFormatter(def, scaleOf(o));
   const ctx = o.context;
+  // NHL, soccer, CBB: the publication's denominator and footing on the value (insights/sportUnits); NFL keeps its own.
+  const su = SPORT_UNITS.has(sportCode) ? sportUnit(o.metric_id, def) : null;
+  const fmt = su ? (v: number | null | undefined) => formatUnitValue(v, su) : metricFormatter(def, scaleOf(o));
   return (
     <li className="mrow2">
       <Link className="mrow2__main" to={routes.metric(slug, o.metric_id, { team: teamId, opp: oppId, event: eventId })}>
         <span className="mrow2__name">
           {def?.name ?? o.metric_id}
-          <span className="mrow2__win">{sportCode === 'NFL' && basisOf(o) !== 'other' && <><BasisTag basis={basisOf(o) as 'adjusted' | 'raw' | 'season'} /> {unitLine(o.metric_id, def)} · </>}{windowName(o.window.label)}{o.split ? ` · ${o.split.value.replace(/_/g, ' ')}` : ''}</span>
+          <span className="mrow2__win">{sportCode === 'NFL' && basisOf(o) !== 'other' && <><BasisTag basis={basisOf(o) as 'adjusted' | 'raw' | 'season'} /> {unitLine(o.metric_id, def)} · </>}{su && <><FootTag f={footingOf(o.metric_id, def, o)} /> <UnitWords u={su} /> · </>}{windowName(o.window.label)}{o.split ? ` · ${o.split.value.replace(/_/g, ' ')}` : ''}</span>
         </span>
         <span className="mrow2__val num">{o.display_value ?? (sportCode === 'NFL' ? formatStat(o.metric_id, o.value, def) : fmt(o.value))}</span>
         <span className="mrow2__meter"><ContextMeter value={o.value} ctx={ctx} label={`${def?.name}: position among ${ctx?.universe_size} teams`} /></span>
@@ -320,7 +327,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
       )}
 
       {tab === 'schedule' && (
-        <Stratum title="Schedule & results" sub={`${p.games.length} games across the last ${seasons.length} seasons (historical_results ${caps.get('historical_results')?.status ?? ''}).`}>
+        <Stratum title="Schedule & results" sub={`${p.games.length} games across the last ${seasons.length} seasons.${caps.get('historical_results')?.status ? ` Results history: ${qualityLabel(caps.get('historical_results')!.status).word.toLowerCase()}.` : ''}`}>
           <div className="seg" role="tablist" aria-label="Seasons">
             {seasons.map((s) => (
               <button key={s} type="button" role="tab" aria-selected={curSeason === s} className={`seg__b${curSeason === s ? ' is-on' : ''}`} onClick={() => setSeason(s)}>{s}</button>

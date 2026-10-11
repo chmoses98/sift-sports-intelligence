@@ -6,7 +6,9 @@
 // on the same market clock as every Sift game. Once the puck drops the pregame research is frozen and labelled so.
 import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import type { EntityProfileDoc, EventResearchDoc, Market, MatchupRow, MetricDef } from '../../contract/types';
+import type { EntityProfileDoc, EventResearchDoc, Market, MatchupRow, MetricDef, Observation } from '../../contract/types';
+import { footingOf, formatUnitValue, rankWords, sportUnit, valueAndUnit } from '../../insights/sportUnits';
+import { FootTag, UnitWords } from '../../components/StatUnit';
 import { Icon } from '../../components/Icon';
 import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../../components/LiveQuote';
 import { MarketBoard, latestPrices } from '../../components/MarketBoard';
@@ -15,6 +17,10 @@ import { useAsync } from '../../data/hooks';
 import { injuryRows, marketLabel, priceRow } from '../../lib/gamedata';
 import { DesignationKey, InjurySource } from '../../components/InjurySource';
 import { DataState } from '../../components/DataState';
+import { plainCodes } from '../../lib/plainLabels';
+import { plainClubTitle } from '../../lib/betWords';
+
+const sentenceCase = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 import { kickoff } from '../../lib/format';
 import { describeNhlMarket } from '../../lib/marketLabel';
 import { FAMILY_WORD, evText, familyGroup, isNhlScripts, probText, readFindings, readLearning, readNhl, type NhlFinding, type NhlScripts } from '../../lib/nhl';
@@ -138,24 +144,44 @@ function FindingsByBasis({ findings, r, slug }: { findings: NhlFinding[]; r: Eve
   );
 }
 
-/** Opponent-adjusted rows first (rank of 32), raw rows separately and labelled raw. */
+/** One side's value in a matchup row: its rank in the publication's own universe, the value in its unit, its footing. */
+function MatchupCell({ o, def }: { o: Observation | null | undefined; def: MetricDef | undefined }) {
+  if (!o) return <span className="muted">—</span>;
+  const u = sportUnit(o.metric_id, def);
+  const f = footingOf(o.metric_id, def, o);
+  const raw = f.kind === 'adjusted' ? ((o.extensions ?? {}) as { raw_value?: number | null }).raw_value ?? null : null;
+  const rank = rankWords(o.context);
+  return (
+    <span className="su-cell" aria-label={`${rank ? `${rank}, ` : ''}${valueAndUnit(o.value, u)}, ${f.word}${raw != null ? `; raw ${formatUnitValue(raw, u)}` : ''}`}>
+      <span className="su-cell__top">{rank && <b className="su-cell__rank num" title={o.context?.universe_label ?? undefined}>{rank}</b>}<span className="su-cell__val num">{formatUnitValue(o.value, u)}</span></span>
+      <span className="su-cell__sub"><UnitWords u={u} />{raw != null ? <> · raw <span className="num">{formatUnitValue(raw, u)}</span></> : null}</span>
+    </span>
+  );
+}
+
+/** Opponent-adjusted rows first, raw rows separately; every value carries its unit, its rank universe and its footing. */
 function AdjustedMatchup({ rows, metrics, slug, homeAbbr, awayAbbr, homeId, awayId, eventId }: { rows: MatchupRow[]; metrics: Map<string, MetricDef>; slug: string; homeAbbr: string; awayAbbr: string; homeId: string; awayId: string; eventId: string }) {
-  const adj = rows.filter((r) => metrics.get(r.metric_id)?.category === 'opponent_adjusted');
-  const raw = rows.filter((r) => metrics.get(r.metric_id)?.category !== 'opponent_adjusted');
-  const cell = (o: any) => (o ? <><b className="num">{o.context?.rank != null ? `#${o.context.rank}` : '—'}</b> <span className="muted num">{fmt(o.value, metrics.get(o.metric_id)?.unit)}</span></> : '—');
+  const adjusted = (r: MatchupRow) => footingOf(r.metric_id, metrics.get(r.metric_id), r.home ?? r.away).kind === 'adjusted';
+  const adj = rows.filter(adjusted);
+  const raw = rows.filter((r) => !adjusted(r));
   const table = (rs: MatchupRow[], label: string) => (
     <div className="tscroll" tabIndex={0} role="region" aria-label={label}>
-      <table className="nsc__t">
-        <thead><tr><th scope="col">Metric</th><th scope="col">Window</th><th scope="col" className="r">{awayAbbr}</th><th scope="col" className="r">{homeAbbr}</th></tr></thead>
+      <table className="nsc__t nsc__t--units">
+        <thead><tr><th scope="col">Metric · unit</th><th scope="col" className="su-basis">Basis</th><th scope="col" className="r">{awayAbbr}</th><th scope="col" className="r">{homeAbbr}</th></tr></thead>
         <tbody>
-          {rs.map((r) => (
-            <tr key={r.metric_id + (r.note ?? '')}>
-              <th scope="row"><Link to={routes.metric(slug, r.metric_id, { team: homeId, opp: awayId, event: eventId })}>{metrics.get(r.metric_id)?.name ?? r.name}</Link></th>
-              <td className="muted small">{(r.note ?? '').replace(/^window /, '')}</td>
-              <td className="r">{cell(r.away)}</td>
-              <td className="r">{cell(r.home)}</td>
-            </tr>
-          ))}
+          {rs.map((r) => {
+            const def = metrics.get(r.metric_id);
+            const u = sportUnit(r.metric_id, def);
+            const f = footingOf(r.metric_id, def, r.home ?? r.away);
+            return (
+              <tr key={r.metric_id + (r.note ?? '')}>
+                <th scope="row"><span className="su-name"><Link to={routes.metric(slug, r.metric_id, { team: homeId, opp: awayId, event: eventId })}>{def?.name ?? r.name}</Link><span className="su-name__u">{u.stated ? u.long : 'unit not stated by the publication'}</span><FootTag f={f} className="su-ph" /></span></th>
+                <td className="su-basis"><FootTag f={f} /></td>
+                <td className="r"><MatchupCell o={r.away} def={def} /></td>
+                <td className="r"><MatchupCell o={r.home} def={def} /></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -164,22 +190,16 @@ function AdjustedMatchup({ rows, metrics, slug, homeAbbr, awayAbbr, homeId, away
     <>
       {adj.length > 0 ? (
         <section className="panel">
-          <PanelHead title="Opponent-adjusted team strength" sub="5v5, recency-weighted; league rank of 32 (#1 = best at that job)" info={<Info label="How the adjustment works">Weighted ridge regression of each team's 5v5 rates on its own offense and its opponents' defense (and vice versa), fit only on games before this run. A research layer (nhl-oppadj-1.0): walk-forward checks show a modest, consistent improvement over raw rates; it is not a model input.</Info>} />
+          <PanelHead title="Opponent-adjusted team strength" sub="5v5, recency-weighted, opponents removed · rank among the teams the publication ranks (#1 = best at that job) · raw value on the same games beside it" info={<Info label="How the adjustment works">Weighted ridge regression of each team's 5v5 rates on its own offense and its opponents' defense (and vice versa), fit only on games before this run. A research layer (nhl-oppadj-1.0): walk-forward checks show a modest, consistent improvement over raw rates; it is not a model input.</Info>} />
           {table(adj, 'Opponent-adjusted matchup')}
         </section>
-      ) : <Notice title="No opponent-adjusted metrics in this publication" />}
+      ) : <DataState title="No opponent-adjusted team metrics for this game" detail="The NHL publication did not include its opponent-adjusted 5v5 ratings for this game, so only the raw metrics below are shown. They usually arrive with the next research run." />}
       <details className="layer">
-        <summary className="layer__s">Raw team metrics ({raw.length}) <span className="muted">— not opponent-adjusted</span></summary>
+        <summary className="layer__s">Raw team metrics ({raw.length}) <span className="muted">— not opponent-adjusted; each row says its window</span></summary>
         <div className="layer__b">{table(raw, 'Raw matchup metrics')}</div>
       </details>
     </>
   );
-}
-
-function fmt(v: number | null | undefined, unit: string | null | undefined): string {
-  if (v == null) return '—';
-  if (unit === 'share') return `${(v * 100).toFixed(1)}%`;
-  return Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2);
 }
 
 export function NhlGameView({ eventId }: { eventId: string }) {
@@ -365,7 +385,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
         <>
           <Stratum id="g-nhl-find" title="Every finding" sub="Grouped by what it rests on.">
             <FindingsByBasis findings={fnd.findings} r={r} slug={slug} />
-            {fnd.rule && <p className="muted small">{fnd.rule}.</p>}
+            {fnd.rule && <p className="muted small">{sentenceCase(plainCodes(fnd.rule))}.</p>}
           </Stratum>
           <SpecialTeams s={s} p={proj} ids={ids} matchup={r.matchup} lineups={r.context?.lineups ?? []} />
           {capShown(caps, 'matchup_metrics') && <AdjustedMatchup rows={r.matchup} metrics={metrics} slug={slug} homeAbbr={homeAbbr} awayAbbr={awayAbbr} homeId={homeP.participant_id} awayId={awayP.participant_id} eventId={eventId} />}
@@ -389,7 +409,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
 
       <details className="gnotes">
         <summary>Publication notes, provenance & full-game export</summary>
-        {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
+        {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{plainClubTitle(n)}</li>)}</ul>}
         <p className="small muted"><QualityBadge quality={r.quality} /> {r.quality.source} · generated {r.quality.generated_at}</p>
         {s && <p className="small muted">Scripts: {s.versions.script} · survival {s.versions.survival} · candidates {s.versions.candidates} · {s.drawSource}{s.frozen ? ` · frozen from ${s.frozenFromRun}` : ''}</p>}
         {proj && <p className="small muted">Projection: {proj.source}.</p>}

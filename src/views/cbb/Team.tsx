@@ -11,7 +11,6 @@ import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';
 import { TermInfo } from '../../components/Gloss';
 import { ErrorState, Notice, QualityBadge, Skeleton, Stratum } from '../../components/ui';
-import { metricFormatter } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
@@ -22,6 +21,7 @@ import { Rotation, RosterCounts } from './Game';
 import { accent, confShort, identity } from './identity';
 import { AsOf, CbbMark, ConfidenceChip, StateLine } from './ui';
 import { MinutesComp, StatTile, TeamLogo } from './viz';
+import { formatUnitValue, sportUnit, unitText } from '../../insights/sportUnits';
 
 const GLANCE: { id: string; label: string; group: 'ratings' | 'roster' }[] = [
   { id: 'met_cbb.adj_off', label: 'Adj. offense', group: 'ratings' },
@@ -95,13 +95,13 @@ export function CbbTeamView({ teamId }: { teamId: string }) {
               <StatTile
                 key={g.id}
                 label={<>{g.label} {g.group === 'roster' ? <span className="ctiles__na">not adj.</span> : <span className="ctiles__adj">adj.</span>}</>}
-                value={metricFormatter(def, Math.abs(g.o!.value ?? 1))(g.o!.value)}
+                value={formatUnitValue(g.o!.value, sportUnit(g.id, def))}
                 rank={ctx?.rank ?? null}
                 size={ctx?.universe_size}
                 tone={tc}
                 directional={def?.higher_is_better != null}
                 href={routes.metric(slug, g.id, { team: p.entity.participant_id })}
-                note={ctx?.league_median != null ? `D-I median ${metricFormatter(def, Math.abs(ctx.league_median))(ctx.league_median)}` : undefined}
+                note={[unitText(sportUnit(g.id, def)), ctx?.league_median != null ? `D-I median ${formatUnitValue(ctx.league_median, sportUnit(g.id, def))}` : null].filter(Boolean).join(' · ')}
               />
             );
           })}

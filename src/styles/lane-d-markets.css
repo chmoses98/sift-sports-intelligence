@@ -43,6 +43,7 @@
 /* ---- top markets by script fit (own filters) */
 .lsd-top__chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .lsd-top__empty { padding: 14px 4px; color: var(--text-2); font-size: var(--fs-sm); }
+.lsd-top__more { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 0; }
 
 /* ---- price moves + unresolved questions (item 41) */
 .lsd-moves { display: grid; gap: 10px; }

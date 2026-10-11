@@ -113,8 +113,10 @@ async function awaitSha(want) {
 async function readGame(page) {
   await page.locator('.game').first().waitFor({ timeout: 60_000 });
   await page.locator('.skel').first().waitFor({ state: 'detached', timeout: 30_000 }).catch(() => {});
-  // The hero logos are held images: wait until both have loaded (or the page settles without them).
-  await page.waitForFunction(() => document.querySelectorAll('.gh .teammark--logo img, .gh img.teammark--logo').length >= 2 && [...document.querySelectorAll('.gh__team img.teammark--logo')].every((i) => i.complete), null, { timeout: 20_000 }).catch(() => {});
+  // The hero logos are held images: wait until both TEAM logos have loaded (or the page settles without them). Count
+  // only the two team blocks — the "home game" badge carries a third, small home logo, and counting it let the wait
+  // end with one team logo still pending (the intermittent deep-link failure).
+  await page.waitForFunction(() => { const imgs = [...document.querySelectorAll('.gh__team img.teammark--logo')]; return imgs.length >= 2 && imgs.every((i) => i.complete && i.naturalWidth > 0); }, null, { timeout: 20_000 }).catch(() => {});
   return page.evaluate((empty) => ({
     engine: !!document.querySelector('.game--engine'),
     // The engine's own title (data-canonical): environment scripts are shown in plain words ("Close, Low-Scoring

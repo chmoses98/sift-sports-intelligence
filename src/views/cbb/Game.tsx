@@ -25,11 +25,15 @@ import { HeroArt, heroVars } from '../../components/HeroArt';
 import { resolveHero } from '../../lib/hero/resolve';
 import type { HeroTeam } from '../../lib/hero/types';
 import { heroData } from '../game/Hero';
-import { AsOf, CbbMark, ConfidenceChip, IntegrityBadge, KV, RoleTag } from './ui';
+import { AsOf, CbbMark, ConfidenceChip, IntegrityBadge, KV, RoleTag, StateLine } from './ui';
 import { AxisKey, MarginAxis, MinuteBar, MinutesComp, TotalAxis, WinSplit } from './viz';
 import { GameOpportunities } from '../game/GameOpportunities';
+import { footingOf, formatUnitValue, sportUnit, unitText, valueAndUnit } from '../../insights/sportUnits';
+import '../../styles/wave2-units.css';
 
 type Side = 'home' | 'away';
+
+const EVENT_STATUS_WORD: Record<string, string> = { FINAL: 'Final', IN_PROGRESS: 'In progress', LIVE: 'In progress', POSTPONED: 'Postponed', CANCELLED: 'Cancelled', CANCELED: 'Cancelled', DELAYED: 'Delayed', SUSPENDED: 'Suspended' };
 
 export function CbbGameView({ eventId }: { eventId: string }) {
   const { sport, repo, slug } = useSport();
@@ -172,7 +176,7 @@ function Hero({ r, c, home, away, slug, now, primary, colors }: { r: EventResear
         {c.neutral_site && <span className="cgh__tag">Neutral site</span>}
         {c.conference_game && <span className="cgh__tag">Conference game</span>}
         {c.tbd && <span className="cgh__tag cgh__tag--warn"><Icon name="info" size={12} /> Tip time TBD</span>}
-        {ev.status !== 'SCHEDULED' && <span className="cgh__tag cgh__tag--st">{ev.status.toLowerCase()}</span>}
+        {ev.status !== 'SCHEDULED' && <span className="cgh__tag cgh__tag--st">{EVENT_STATUS_WORD[ev.status] ?? ev.status.replace(/_/g, ' ').toLowerCase()}</span>}
       </div>
       <h1 className="sr-only">{an} {c.neutral_site ? 'vs' : 'at'} {hn}</h1>
       <div className={`cgh__board${primary || final ? ' has-score' : ''}`}>
@@ -359,17 +363,19 @@ function Matchup({ r, c, an, hn, slug }: { r: EventResearchDoc; c: CbbResearchEx
 }
 
 function MuCell({ o, def, side, tone, href }: { o: Observation | null | undefined; def: MetricDef | undefined; side: 'l' | 'r'; tone: Side; href: string | null }) {
-  if (!o) return <span className={`cmu__c cmu__c--${side} muted`}>—</span>;
-  const unit = def?.unit === '%' ? '%' : '';
+  if (!o) return <span className={`cmu__c cmu__c--${side} muted`} aria-label="Not published">—</span>;
+  const u = sportUnit(o.metric_id, def);
+  const f = footingOf(o.metric_id, def, o);
   const ctx = o.context;
   const directional = def?.higher_is_better != null;
   const pos = ctx?.rank != null && ctx.universe_size && ctx.universe_size > 1 ? (1 - (ctx.rank - 1) / (ctx.universe_size - 1)) * 100 : null;
   const inner = (
     <>
       <span className="cmu__nums">
-        <b className="num">{o.value?.toFixed(1)}{unit}</b>
-        {ctx?.rank != null && <span className="cmu__rk num">#{ctx.rank}<span className="muted">/{ctx.universe_size}</span></span>}
+        <b className="num">{formatUnitValue(o.value, u)}</b>
+        {ctx?.rank != null && <span className="cmu__rk num">#{ctx.rank}<span className="muted"> of {ctx.universe_size}</span></span>}
       </span>
+      <span className="cmu__u">{unitText(u)} · {f.kind === 'adjusted' ? 'adjusted' : f.word.toLowerCase()}</span>
       {pos != null && (
         <span className={`cmu__bar${directional ? '' : ' cmu__bar--pos'}`} aria-hidden="true">
           {directional ? <span className={`cmu__fill cmu__fill--${tone}`} style={{ width: `${Math.max(pos, 2)}%` }} /> : <span className="cmu__dot" style={{ [side === 'l' ? 'right' : 'left']: `${pos}%` } as CSSProperties} />}
@@ -377,7 +383,7 @@ function MuCell({ o, def, side, tone, href }: { o: Observation | null | undefine
       )}
     </>
   );
-  const label = `${def?.name ?? o.metric_id} ${o.value?.toFixed(1)}${unit}${ctx?.rank != null ? `, rank ${ctx.rank} of ${ctx.universe_size}` : ''}`;
+  const label = `${def?.name ?? o.metric_id} ${valueAndUnit(o.value, u)} (${f.word})${ctx?.rank != null ? `, rank ${ctx.rank} of ${ctx.universe_size}` : ''}`;
   return href
     ? <Link to={href} className={`cmu__c cmu__c--${side} cmu__v`} aria-label={label}>{inner}</Link>
     : <span className={`cmu__c cmu__c--${side}`} aria-label={label}>{inner}</span>;
@@ -386,10 +392,10 @@ function MuCell({ o, def, side, tone, href }: { o: Observation | null | undefine
 // ------------------------------------------------------------------ roster comparison (pre-projection)
 
 const TAPE = [
-  { id: 'met_cbb.returning_minutes_share', label: 'Returning minutes', fmt: (v: number | null) => pct0(v) },
-  { id: 'met_cbb.expected_returning_minutes', label: 'Minutes to returners', fmt: (v: number | null) => (v == null ? '—' : `${Math.round(v)}`) },
-  { id: 'met_cbb.expected_transfer_minutes', label: 'Minutes to transfers', fmt: (v: number | null) => (v == null ? '—' : `${Math.round(v)}`) },
-  { id: 'met_cbb.expected_first_d1_minutes', label: 'Minutes to first-D-I', fmt: (v: number | null) => (v == null ? '—' : `${Math.round(v)}`) },
+  { id: 'met_cbb.returning_minutes_share', label: 'Returning minutes' },
+  { id: 'met_cbb.expected_returning_minutes', label: 'Minutes to returners' },
+  { id: 'met_cbb.expected_transfer_minutes', label: 'Minutes to transfers' },
+  { id: 'met_cbb.expected_first_d1_minutes', label: 'Minutes to first-D-I' },
 ] as const;
 
 function TaleOfTape({ c, away, home, ap, hp, slug }: { c: CbbResearchExt; away: Participant; home: Participant; ap: EntityProfileDoc | undefined; hp: EntityProfileDoc | undefined; slug: string }) {
@@ -409,9 +415,11 @@ function TaleOfTape({ c, away, home, ap, hp, slug }: { c: CbbResearchExt; away: 
     const v = o?.value ?? fallback(s, row.id);
     const rank = o?.context?.rank;
     const size = o?.context?.universe_size;
+    const u = sportUnit(row.id, metrics.get(row.id));
     const body = (
       <>
-        <span className="cmu__nums"><b className="num">{row.fmt(v)}</b>{rank != null && <span className="cmu__rk num">#{rank}<span className="muted">/{size}</span></span>}</span>
+        <span className="cmu__nums"><b className="num">{formatUnitValue(v, u)}</b>{rank != null && <span className="cmu__rk num">#{rank}<span className="muted"> of {size}</span></span>}</span>
+        <span className="cmu__u">{unitText(u)}</span>
         {rank != null && size ? <span className="cmu__bar cmu__bar--pos" aria-hidden="true"><span className="cmu__dot" style={{ [s === 'away' ? 'right' : 'left']: `${(1 - (rank - 1) / (size - 1)) * 100}%` } as CSSProperties} /></span> : null}
       </>
     );
@@ -620,8 +628,8 @@ function Provenance({ r, c, now }: { r: EventResearchDoc; c: CbbResearchExt; now
         <KV k="Schedule source">{c.schedule.source === 'ESPN_FALLBACK' ? 'ESPN scoreboard (fallback: SportsDataverse did not list the game yet)' : 'SportsDataverse schedule (ESPN)'}{c.schedule.source_observed_at ? ` · observed ${c.schedule.source_observed_at.slice(0, 16).replace('T', ' ')} UTC` : ''}</KV>
         <KV k="Reconciled fields">{c.schedule.reconciled_fields.length ? c.schedule.reconciled_fields.join(', ') + ' (from ESPN’s latest observation of the same game)' : 'none'}</KV>
         <KV k="Listed tip">{c.schedule.listed_start} · {c.schedule.time_state}</KV>
-        <KV k="Projection state">{c.projection_state}</KV>
-        <KV k="Integrity">{c.integrity.status}{c.integrity.scoreboard ? ` · scoreboard ${c.integrity.scoreboard}` : ''}</KV>
+        <KV k="Projection state"><StateLine state={c.projection_state} compact /></KV>
+        <KV k="Integrity"><IntegrityBadge i={c.integrity} />{c.integrity.scoreboard ? <span className="muted small"> · scoreboard {c.integrity.scoreboard.replace(/_/g, ' ').toLowerCase()}</span> : null}</KV>
         {c.proster && <KV k="Roster archive commit">{shortSha(c.proster.truth_archive_commit)} · snapshot {c.proster.truth_snapshot}</KV>}
       </dl>
       {c.models_detail.map((m) => (

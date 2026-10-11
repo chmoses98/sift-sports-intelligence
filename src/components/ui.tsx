@@ -285,8 +285,8 @@ export function Notice({ tone = 'info', title, children }: { tone?: 'info' | 'wa
 export function ErrorState({ error, what }: { error: Error | undefined; what: string }) {
   const nf = error?.name === 'NotFoundError';
   return (
-    <Notice tone={nf ? 'info' : 'error'} title={nf ? `${what} is not published` : `Could not load ${what}`}>
-      {nf ? 'The publication does not include this document. Nothing is shown in its place.' : error?.message}
+    <Notice tone={nf ? 'info' : 'error'} title={nf ? `${what.charAt(0).toUpperCase()}${what.slice(1)}: not in this publication` : `Could not load ${what}`}>
+      {nf ? 'The sport’s publication has not published this yet, so Sift shows nothing in its place rather than a guess. It appears here after a publication run that includes it.' : error?.message}
     </Notice>
   );
 }

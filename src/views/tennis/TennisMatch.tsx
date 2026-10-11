@@ -17,6 +17,10 @@ import { tennisRecordText } from '../../lib/tennis';
 import { useVisit } from '../../state/trail';
 import { Authority, centsOf, Deep, KV, MarketFamilies, pct0, pct1, Pill, Section, signedPts, TextMark } from '../shared/kit';
 import { GameOpportunities } from '../game/GameOpportunities';
+import { formatUnitValue, sportUnit } from '../../insights/sportUnits';
+import '../../styles/wave2-units.css';
+
+const IDENTITY_WORD: Record<string, string> = { MAPPED: 'matched to a rated player', UNMAPPED: 'not matched to a rated player', AMBIGUOUS: 'several rated players match this name' };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -83,7 +87,7 @@ function ModelPanel({ t }: { t: TennisMatch }) {
 }
 
 export function TennisMatchView({ eventId }: { eventId: string }) {
-  const { sport, repo, slug } = useSport();
+  const { sport, repo, slug, metrics } = useSport();
   const research = useAsync(`er:${sport.code}:${eventId}`, () => repo.eventResearch(eventId));
   const detail = useAsync(`ed:${sport.code}:${eventId}`, () => repo.eventDetail(eventId));
   const now = useNow(15_000);
@@ -137,7 +141,11 @@ export function TennisMatchView({ eventId }: { eventId: string }) {
         {rowsAB.length === 0 ? <p className="muted">No matchup metrics published for this match{t.discipline === 'doubles' ? ' (doubles pairs carry no per-player rating)' : ''}.</p> : (
           <div className="tscroll"><table className="dtable">
             <thead><tr><th scope="col">Metric</th><th scope="col" className="r">{t.a.name}</th><th scope="col" className="r">{t.b.name}</th></tr></thead>
-            <tbody>{rowsAB.map((x) => <tr key={x.metricId}><th scope="row">{x.name}</th><td className="r num">{x.aDisplay ?? (x.a != null ? (Math.abs(x.a) >= 10 ? Math.round(x.a).toLocaleString('en-US') : x.a.toFixed(3)) : '—')}</td><td className="r num">{x.bDisplay ?? (x.b != null ? (Math.abs(x.b) >= 10 ? Math.round(x.b).toLocaleString('en-US') : x.b.toFixed(3)) : '—')}</td></tr>)}</tbody>
+            <tbody>{rowsAB.map((x) => {
+              const u = sportUnit(x.metricId, metrics.get(x.metricId));
+              const val = (v: number | null, d: string | null | undefined) => d ?? (v == null ? '—' : u.scale !== 'none' ? formatUnitValue(v, u) : Math.abs(v) >= 10 ? Math.round(v).toLocaleString('en-US') : v.toFixed(3));
+              return <tr key={x.metricId}><th scope="row"><span className="su-name">{x.name}<span className="su-name__u">{u.stated ? (u.short || u.long) : 'unit not stated'}</span></span></th><td className="r num">{val(x.a, x.aDisplay)}</td><td className="r num">{val(x.b, x.bDisplay)}</td></tr>;
+            })}</tbody>
           </table></div>
         )}
         {(ra || rb) && (
@@ -149,7 +157,7 @@ export function TennisMatchView({ eventId }: { eventId: string }) {
                     { k: 'Surface Elo', v: rr.surfaceElo.length ? rr.surfaceElo.map((s) => `${s.surface} ${Math.round(s.value)}`).join(' · ') : null },
                     { k: 'Matches rated', v: rr.matchesRated != null ? `${rr.matchesRated} (${Object.entries(rr.surfaceMatches).map(([s, nn]) => `${s} ${nn}`).join(', ')})` : null },
                     { k: 'Ratings as of', v: rr.ratingsAsOf },
-                    { k: 'Identity', v: rr.identity?.toLowerCase().replace(/_/g, ' ') },
+                    { k: 'Identity', v: rr.identity ? IDENTITY_WORD[rr.identity] ?? rr.identity.toLowerCase().replace(/_/g, ' ') : null },
                   ]} />
                 </div>
               ) : null)}
@@ -184,7 +192,7 @@ export function TennisMatchView({ eventId }: { eventId: string }) {
       <details className="gnotes">
         <summary>Publication notes & provenance</summary>
         {notes.length > 0 && <ul className="notes">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
-        {t.model.validity && <p className="small muted">Model validity: {Object.entries(t.model.validity).map(([k, v]) => `${k} ${v.toLowerCase().replace(/_/g, ' ')}`).join(' · ')}</p>}
+        {t.model.validity && <p className="small muted">Model validity: {Object.entries(t.model.validity).map(([k, v]) => `${k.replace(/_/g, ' ').toLowerCase()} ${v.toLowerCase().replace(/_/g, ' ')}`).join(' · ')}</p>}
         <p className="small muted"><QualityBadge quality={r.quality} /> {r.quality.source ?? ''} · generated {r.quality.generated_at} · {r.quality.limitations.join(' · ')}</p>
       </details>
     </div>

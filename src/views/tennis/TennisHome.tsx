@@ -13,6 +13,7 @@ import { routes } from '../../lib/routes';
 import { boardPlayers, LEVEL_WORD, readTennis, SURFACE_WORD, TIER_WORD, tournamentOf, tournamentTier } from '../../lib/tennis';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
+import { healthLabel } from '../../lib/plainLabels';
 import { tennisRecordText } from '../../lib/tennis';
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -104,7 +105,7 @@ export function TennisHomeView() {
       <SportHeader
         title="Tennis"
         sub={<><b>{items.length}</b> matches across <b>{new Set(items.map(tournamentOf)).size}</b> tournaments · <b>{markets}</b> Kalshi markets, <b>{priced}</b> priced by the model · every model number is research only</>}
-        status={health ? <><Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}>{health.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill><Pill tone="research" title={cap(tennisRecordText(metrics))}>no evidence of edge</Pill></> : null}
+        status={health ? <><Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}><span title={healthLabel(health.overall_status).meaning}>{healthLabel(health.overall_status).word}</span></Pill><Pill tone="research" title={cap(tennisRecordText(metrics))}>no evidence of edge</Pill></> : null}
       />
       <div className="skchips" role="group" aria-label="Tour and level">
         {[['', 'Both tours'], ['ATP', 'ATP'], ['WTA', 'WTA']].map(([v, l]) => <button key={v} type="button" className={`skchip${(tour ?? '') === v ? ' is-on' : ''}`} onClick={() => set('tour', v || null)}>{l}</button>)}

@@ -17,9 +17,10 @@ import { useVisit } from '../../state/trail';
 import { useVisibleOnce } from '../shared/useVisible';
 import { Pill, Section, SportHeader, TextMark } from '../shared/kit';
 import { SportOpportunities } from '../home/SportOpportunities';
+import { healthLabel } from '../../lib/plainLabels';
 
 const fmtAge = (iso: string | null | undefined, now: number) => {
-  if (!iso) return 'unknown';
+  if (!iso) return 'time not published';
   const m = Math.max(0, Math.round((now - Date.parse(iso)) / 60000));
   return m < 60 ? `${m}m ago` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m ago`;
 };
@@ -124,7 +125,7 @@ export function soccerStatus(h: HealthDoc | null | undefined, now: number) {
   if (!h) return null;
   return (
     <>
-      <Pill tone={h.overall_status === 'HEALTHY' ? 'ok' : 'research'} title="The publication's overall status">{h.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill>
+      <Pill tone={h.overall_status === 'HEALTHY' ? 'ok' : 'research'} title={`The publication's overall status: ${healthLabel(h.overall_status).meaning}`}>{healthLabel(h.overall_status).word}</Pill>
       <Pill tone="neutral" title={h.last_model_generated ?? ''}>Model {fmtAge(h.last_model_generated, now)}</Pill>
       <Pill tone="neutral" title={h.last_market_capture ?? ''}>Prices {fmtAge(h.last_market_capture, now)}</Pill>
     </>

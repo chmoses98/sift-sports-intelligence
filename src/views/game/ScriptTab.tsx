@@ -282,7 +282,7 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
     const b = set.overall[side][k];
     return v != null && b ? (v - b) / b : null;
   };
-  const leanWord = (x: number | null) => (x == null ? 'no change' : Math.abs(x) < 0.03 ? 'about the same' : `${x > 0 ? 'more' : 'less'} (${x > 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%)`);
+  const leanWord = (x: number | null) => (x == null ? 'not published' : Math.abs(x) < 0.03 ? 'about the same' : `${x > 0 ? 'more' : 'less'} (${x > 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%)`);
   const others = set.scripts.filter((x) => x.id !== s.id).sort((a, b) => b.share - a.share);
   const band = marginBand(r);
   const scripts = boardScripts(set);

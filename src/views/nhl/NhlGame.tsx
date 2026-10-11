@@ -13,6 +13,8 @@ import { MarketBoard, latestPrices } from '../../components/MarketBoard';
 import { ErrorState, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../../components/ui';
 import { useAsync } from '../../data/hooks';
 import { injuryRows, marketLabel, priceRow } from '../../lib/gamedata';
+import { DesignationKey, InjurySource } from '../../components/InjurySource';
+import { DataState } from '../../components/DataState';
 import { kickoff } from '../../lib/format';
 import { describeNhlMarket } from '../../lib/marketLabel';
 import { FAMILY_WORD, evText, familyGroup, isNhlScripts, probText, readFindings, readLearning, readNhl, type NhlFinding, type NhlScripts } from '../../lib/nhl';
@@ -338,7 +340,8 @@ export function NhlGameView({ eventId }: { eventId: string }) {
           <GoalieMatchup goalies={goalies} profiles={goalieProfs.data ?? new Map()} p={proj} s={s} markets={quoted} start={ev.start_time_utc} now={now} slug={slug} ids={ids} />
           <PlayerResearch players={players} s={s} ids={ids} slug={slug} known={knownPlayer} />
           <LinesPanel r={r} homeAbbr={homeAbbr} awayAbbr={awayAbbr} full />
-          <Section id="n-inj" title="Injuries" sub="ESPN designations, name-matched by the publication. Injuries enter the model only through who is in the projected lineup.">
+          <Section id="n-inj" title="Injuries" sub="Injuries enter the model only through who is in the projected lineup.">
+            {(r.context?.injuries ?? []).length > 0 ? <InjurySource rows={r.context?.injuries ?? []} sport="NHL" now={now} /> : <DataState title="No injury list for this game" detail="The NHL publication carries no injury rows for this game. That usually means none were listed at the last capture, not that every player is confirmed." />}
             <div className="injcols injcols--full">
               {[awayAbbr, homeAbbr].map((tm) => (
                 <div key={tm} className="injcol">
@@ -348,6 +351,7 @@ export function NhlGameView({ eventId }: { eventId: string }) {
               ))}
             </div>
             {injuries.some((x) => !x.team) && <InjuryList rows={injuries.filter((x) => !x.team)} />}
+            <DesignationKey statuses={injuries.map((x) => x.status)} />
           </Section>
         </div>
       )}

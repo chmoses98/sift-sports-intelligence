@@ -19,6 +19,9 @@ import { HistoricalGameView } from './HistoricalGame';
 import { metricFormatter } from '../lib/format';
 import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
 import { injuryRows, marketLabel, priceRow } from '../lib/gamedata';
+import { DesignationKey, InjurySource } from '../components/InjurySource';
+import { DataState } from '../components/DataState';
+import { injurySourceName } from '../lib/injurySource';
 import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
 import { GameHero } from './game/Hero';
 import { CfbHeroStats, NflHeroStats } from './game/HeroStats';
@@ -421,7 +424,7 @@ function Availability({ r }: { r: EventResearchDoc }) {
         <li key={k} className="avail__row">
           <span className={`pl__inj pl__inj--${i.status.toLowerCase()}`}>{statusWord(i.status)}</span>
           <span className="avail__d">{i.detail}</span>
-          <span className="avail__src">{i.source} · {i.as_of?.slice(5, 16).replace('T', ' ')}</span>
+          <span className="avail__src">{injurySourceName(i.source).name}{i.as_of ? ` · ${kickoff(i.as_of)}` : ''}</span>
         </li>
       ))}
     </ul>
@@ -804,6 +807,7 @@ export function GameView({ eventId }: { eventId: string }) {
 
       {tab === 'injuries' && (
         <Stratum id="g-availability" title="Injuries & availability" sub="What matters first; every designation below.">
+          {(r.context?.injuries ?? []).length > 0 ? <InjurySource rows={r.context?.injuries ?? []} sport={sport.code} now={now} /> : <DataState title="No injury list in this publication for this game" detail="The publication carries no injury rows for this game yet. Designations usually appear during game week; check back after the next capture." />}
           {importantInjuries.length > 0 && (
             <ul className="newsl newsl--game">
               {importantInjuries.map((n) => <li key={n.id} className={`newsl__i newsl__i--${n.level}`}><b>{n.headline}</b><span>{n.detail}</span></li>)}
@@ -818,7 +822,7 @@ export function GameView({ eventId }: { eventId: string }) {
             ))}
           </div>
           {injuries.some((x) => !x.team) && <Availability r={r} />}
-          {injuries[0]?.asOf && <p className="muted small">Designations as of {kickoff(injuries[0].asOf)} (ESPN via the publication). They resolve at the inactive release, 90 minutes before kickoff.</p>}
+          <DesignationKey statuses={injuries.map((x) => x.status)} />
         </Stratum>
       )}
 

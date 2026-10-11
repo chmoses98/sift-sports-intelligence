@@ -4,6 +4,7 @@ import type { SportConfig } from '../data/sports';
 import { HealthPill } from '../components/SourceBanner';
 import { FreshnessChip, Notice, QualityBadge, Skeleton, Stratum } from '../components/ui';
 import { exactTime } from '../lib/format';
+import { availabilitySentence, capabilityLabel } from '../lib/plainLabels';
 import { useAllSports } from '../state/allSports';
 import { useVisit } from '../state/trail';
 
@@ -15,9 +16,9 @@ export function CapabilityTable({ items }: { items: { capability: string; status
       <tbody>
         {[...items].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status) || a.capability.localeCompare(b.capability)).map((c) => (
           <tr key={c.capability}>
-            <td>{c.capability.replace(/_/g, ' ')}</td>
+            <td>{capabilityLabel(c.capability)}</td>
             <td><QualityBadge status={c.status} /></td>
-            <td className="small">{c.summary ?? ''}{c.limitations[0] ? <span className="muted"> — {c.limitations[0]}</span> : null}</td>
+            <td className="small">{availabilitySentence(c.capability, c.status).replace(/^[^:]+: /, '').replace(/^\w/, (x) => x.toUpperCase())}{c.summary ? <span className="muted"> {c.summary}</span> : null}{c.limitations[0] ? <span className="muted"> — {c.limitations[0]}</span> : null}</td>
           </tr>
         ))}
       </tbody>
@@ -45,14 +46,14 @@ export function SportOverview({ sport }: { sport: SportConfig }) {
         )}
       </header>
       <Notice title={`${sport.label} is not explorable in Sift yet`}>
-        This first Sift release builds the NFL vertical slice (and an MLB beta). {sport.label} publishes {s?.liveExplorer ? 'a research explorer' : 'its v1 board'} that a later Sift release will open; until then Sift shows only its real health and capability manifest, never a placeholder explorer.
+        {sport.label} publishes {s?.liveExplorer ? 'research files' : 'its game board'}, but Sift has no screens for it yet. Until it does, this page shows the publication's real health and which kinds of data it provides — never placeholder research.
       </Notice>
       {all.loading && <Skeleton lines={6} />}
       {h && (
-        <Stratum title="Live health" sub={`${sport.repo}@${sport.branch} · exported ${exactTime(h.last_export_attempt)}`}>
+        <Stratum title="Live health" sub={`Last published ${exactTime(h.last_export_attempt)}`}>
           <ul className="healthlist">
             {Object.entries(h.components ?? {}).map(([k, c]) => (
-              <li key={k}><span className="healthlist__k">{k.replace(/_/g, ' ')}</span><span className={`hpill hpill--${c.status.toLowerCase()}`}>{c.status.replace(/_/g, " ").toLowerCase()}</span><FreshnessChip asOf={c.as_of} component={k} thresholds={h.thresholds?.[k]} /></li>
+              <li key={k}><span className="healthlist__k">{k.replace(/_/g, ' ')}</span><HealthPill status={c.status} /><FreshnessChip asOf={c.as_of} component={k} thresholds={h.thresholds?.[k]} /></li>
             ))}
           </ul>
           {h.errors.length > 0 && <ul className="lims">{h.errors.map((e) => <li key={e}>{e}</li>)}</ul>}

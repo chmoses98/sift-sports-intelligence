@@ -19,6 +19,7 @@ import {
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
+import { soccerWeatherLine } from '../../lib/venue';
 import { Authority, centsOf, Deep, KV, MarketFamilies, pct0, Pill, RankRows, Section, signedPts, TextMark, ThreeWay } from '../shared/kit';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -191,7 +192,7 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
           </div>
           <span className="skh__sub">
             {venue?.name ? `${venue.name}${venue.city ? `, ${venue.city}` : ''}` : 'Venue not published'}
-            {wx?.temperature_2m != null ? ` · ${Math.round(wx.temperature_2m)}°C${wx.precipitation_probability != null ? `, ${wx.precipitation_probability}% rain` : ''}${wx.wind_speed_10m != null ? `, wind ${Math.round(wx.wind_speed_10m)} km/h` : ''}` : ''}
+            {soccerWeatherLine(venue?.name, wx) ? ` · ${soccerWeatherLine(venue?.name, wx)}` : ''}
             {` · lineups ${(ok ? engine.lineupStatus : x.lineup_status) ?? 'unknown'}`}
           </span>
         </div>

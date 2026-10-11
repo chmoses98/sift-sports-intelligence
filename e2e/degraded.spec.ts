@@ -239,7 +239,10 @@ test('offline with previously loaded research: it still renders; the banner is a
   await page.goto(`./#/nfl/game/${NEBUF}`);
   await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();
   await page.locator('.gh__team--home .gh__name').click();
+  // The game page's own h1 names both teams, so wait for the team route itself before going offline.
+  await expect(page).toHaveURL(/#\/nfl\/team\//);
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
+  await expect(page.locator('.gh__team--home')).toHaveCount(0);
   await context.setOffline(true);
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'What Matters' })).toBeVisible();

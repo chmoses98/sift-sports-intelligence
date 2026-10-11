@@ -147,7 +147,7 @@ test.describe('player page', () => {
     // …but the provenance is one tap away.
     await page.getByText('About this data: source, quality and support').click();
     await expect(page.locator('.pldet--about')).toContainText('support state');
-    await expect(page.locator('.pldet--about')).toContainText('RESEARCH_ONLY');
+    await expect(page.locator('.pldet--about')).toContainText('Research only');
   });
 
   test('QB receiving usage stays absent; relevant usage and role remain', async ({ page }) => {

@@ -101,6 +101,12 @@ Per-lane detail (what changed, tests, screenshots, limitations): `docs/sprint/la
     "#12/130", and wave 2 writes them "#12 of 130". The same game shows all 104 ranks (checked on the deployed build
     with live data). The pattern now accepts both forms (PR #60).
 
+- Production check run 38166378902 on `d5f4946` (PR #60 deployed): `production-check.mjs` passed, `cfb-production-check.mjs`
+  passed (the rank-pattern fix holds), `sprint-production-check.mjs` 223 PASS · 0 N/A · 1 FAIL — again only WebKit
+  reporting requests cut off by navigation ("/…/SNAPSHOT.json due to access control checks") as page errors. The
+  #60 exclusion expected the message to start with "https://"; WebKit's starts with the path, so the pattern now
+  matches that form too (PR #61). No sprint item failed in either run.
+
 ## Progress log
 
 - 06:45Z — baseline verified; lanes defined; Playwright port made configurable (`SIFT_E2E_PORT`) so lanes can

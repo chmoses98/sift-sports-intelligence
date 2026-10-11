@@ -180,16 +180,18 @@ const AREA_PLAYERS: Partial<Record<MatchupInsight['area'], string>> = {
 export function mismatchMeaning(ins: MatchupInsight): string {
   const o = ins.offense.team.nick;
   const d = ins.defense.team.nick;
+  /** Possessive: "Lions’", "Texans’"; a nickname not ending in s takes "’s" ("Heat’s"). */
+  const pos = (n: string) => (/s$/i.test(n) ? `${n}’` : `${n}’s`);
   const offEdge = ins.side === 'offense';
   const where: Record<string, string> = {
     run: offEdge ? `${o} should find room on the ground: it would show in their lead back’s rushing line and in scripts where they lean on the run.` : `${d} should be able to shut down the ${o} run game, pushing ${o} toward the pass.`,
-    pass: offEdge ? `${o}’s passing game has the better of this matchup: it would show in the quarterback’s and lead receivers’ yardage.` : `${d} pass defense has the better of this matchup: it would show in a quieter day for ${o}’s quarterback and receivers.`,
-    protection: offEdge ? `${o}’s line should keep its quarterback clean, which usually means more time and fewer sacks.` : `${d}’s pass rush should get home against ${o}’s protection: sacks and hurried throws are where it would show.`,
+    pass: offEdge ? `${pos(o)} passing game has the better of this matchup: it would show in the quarterback’s and lead receivers’ yardage.` : `${pos(d)} pass defense has the better of this matchup: it would show in a quieter day for ${pos(o)} quarterback and receivers.`,
+    protection: offEdge ? `${pos(o)} line should keep its quarterback clean, which usually means more time and fewer sacks.` : `${pos(d)} pass rush should get home against ${pos(o)} protection: sacks and hurried throws are where it would show.`,
     explosive: offEdge ? `${o} create big plays and ${d} allow them: long gains, and so the game total, are where it would show.` : `${d} limit big plays and ${o} rely on them: expect fewer long gains from ${o}.`,
     turnovers: `The turnover battle leans ${ins.beneficiary.nick}: context for the margin, not a market of its own.`,
     early: offEdge ? `${o} should stay ahead of the chains on early downs, which keeps drives alive.` : `${d} should win early downs and put ${o} in long-yardage spots.`,
     redzone: offEdge ? `${o} finish drives well and ${d} struggle to stop it: touchdown props are where it would show.` : `${d} tighten up in the red zone: field goals instead of touchdowns for ${o}.`,
-    overall: offEdge ? `${o}’s offense is clearly the stronger unit in this matchup.` : `${d}’s defense is clearly the stronger unit in this matchup.`,
+    overall: offEdge ? `${pos(o)} offense is clearly the stronger unit in this matchup.` : `${pos(d)} defense is clearly the stronger unit in this matchup.`,
   };
   return `${where[ins.area] ?? ''} It describes the matchup; it is not a priced edge, and the market may already reflect it.`.trim();
 }

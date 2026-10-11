@@ -24,7 +24,7 @@
 
 /* Intelligence: discoveries beside the featured game's matchup edges on wide screens. */
 .bhome__intelgrid { display: grid; gap: var(--s-4); align-items: start; }
-.bhome--v3 .bhome__intel .dgrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+.bhome--v3 .bhome__intel .dgrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); align-items: start; }
 @media (min-width: 1100px) {
   .bhome__intel.has-edges .bhome__intelgrid { grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); }
   .bhome__intel.has-edges .dgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

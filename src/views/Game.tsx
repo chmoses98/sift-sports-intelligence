@@ -26,7 +26,7 @@ import { GameTabs } from './game/GameTabs';
 import { GameInfoCard, GameReadCard, MarketContextCard, MatchupAdvantagesCard, PropExplorerCard, RelatedResearchCard, ScriptsCard } from './game/Dashboard';
 import { FxCard } from '../components/fx';
 import { CfbMatchupCard, CfbScriptsCard } from './game/CfbDashboard';
-import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel, SurvivorsPanel } from './game/panels';
+import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
 import { EngineConfidencePanel, EngineDetailNotice, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
 import { GameReadV2Panel } from './game/GameReadV2';
@@ -735,7 +735,6 @@ export function GameView({ eventId }: { eventId: string }) {
           {set ? (
             <>
               <ScriptTab r={r} set={set} selected={selected} hrefFor={hrefFor} rows={rows} slug={slug} eventId={eventId} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} />
-              <SurvivorsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} to={href('markets')} />
               {context.some((c) => c.kind === 'qb-change') && (
                 <p className="gsec__note"><b>Context:</b> {context.filter((c) => c.kind === 'qb-change').map((c) => c.headline).join('; ')}. The simulation's scripts are its own; season numbers behind the matchups include those games.</p>
               )}

@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { DigDeeper, TeamMark } from '../../components/ui';
 import { routes } from '../../lib/routes';
+import { scriptLower } from '../../lib/scriptNames';
 import {
   BASIS_HELP,
   BASIS_WORD,
@@ -280,9 +281,7 @@ export function ScriptsUnavailable({ status, reason }: { status: string; reason:
 }
 
 /** A script label mid-sentence: "tight, low-event game", but "VGK controls and pulls away" keeps its abbreviation. */
-export function lowerLabel(label: string): string {
-  return /^[A-Z]{2,3}\b/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1);
-}
+export const lowerLabel = scriptLower;
 
 /** Team of a named player from the game's own rosters and line combinations (injury lists name no team). */
 export function teamResolver(r: EventResearchDoc, rosters: { abbr: string; names: string[] }[]): (name: string) => string | null {

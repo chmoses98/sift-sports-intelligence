@@ -113,7 +113,7 @@ function Expressions({ engine, byTicker, names, slug, eventId }: { engine: Socce
                 <td className="r num">{pct0(e.fairProbability)}</td>
                 <td className="r num">{signedPts(e.feeAdjustedEv ?? e.overallEdge)}</td>
                 <td className="r num">{signedPts(e.worstCaseEdge)}</td>
-                <td className="small">{e.supportingScripts} support · {e.opposingScripts} oppose{e.counterCase ? ` · beaten by ${SOCCER_SCRIPT_TITLE[e.counterCase.script]?.toLowerCase() ?? e.counterCase.script}` : ''}</td>
+                <td className="small">{e.supportingScripts} support · {e.opposingScripts} oppose{e.counterCase ? ` · beaten by “${engine.byId.get(e.counterCase.script)?.title ?? SOCCER_SCRIPT_TITLE[e.counterCase.script] ?? e.counterCase.script}”` : ''}</td>
               </tr>
             );
           })}

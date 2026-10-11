@@ -46,6 +46,8 @@ import {
 import { quoteFreshness, quoteAgeMs, formatQuoteAge } from '../../live/freshness';
 import { Info, PanelHead, ViewAll } from './panels';
 import { ScriptMarkets } from './ScriptMarkets';
+import { SurvivorBoard, type BoardItem, type BoardScript, type Cell } from './ScriptSurvivors';
+import { splitSentence } from '../../lib/scriptNames';
 
 const COMPAT_WORD: Record<Compat, string> = {
   SUPPORTED: 'supports',
@@ -188,7 +190,7 @@ export function EngineScriptsPanel({ engine, selected, hrefFor, title = 'Likely 
                   {art && <LeadArt engine={engine} s={s} />}
                   <span className="eng-scard__role">{ROLE_WORD[s.role]}{art && <span className="eng-scard__rank"> · #{s.rank} by evidence</span>}</span>
                   <span className="scard__name" data-canonical={s.title}>{scriptTitle(s)}</span>
-                  <span className="scard__d">{s.summary}</span>
+                  <span className="scard__d">{splitSentence(s.summary).lead}</span>
                   <span className="eng-scard__arch">{ARCHETYPE_WORD[s.archetype] ?? s.archetype}</span>
                 </Link>
               </li>
@@ -570,6 +572,29 @@ function TheaterHead({ compare, setView, canCompare }: { compare: boolean; setVi
   );
 }
 
+const COMPAT_CELLS: Record<string, Cell> = { SUPPORTED: 'yes', PARTIAL: 'part', CONTRADICTED: 'no' };
+
+/** The engine's scripts for the shared script graphics: role colour, the lead team's logo, no share (ranked only). */
+export function engineBoardScripts(engine: Engine): BoardScript[] {
+  return engine.scripts.map((x) => {
+    const side = x.lead_side ?? (x.outcome_shape.winner_lean === 'HOME' ? 'home' : x.outcome_shape.winner_lean === 'AWAY' ? 'away' : null);
+    return { id: x.script_id, name: scriptTitle(x), tone: ROLE_INDEX[x.role], share: null, team: side ? cfbCodeOfEspn(engine.teams[side].team_id) : null };
+  });
+}
+
+/** The engine's featured survivors (ladder rungs with identical support folded), as survivor-board items. */
+export function engineBoardItems(engine: Engine, marketsByTicker: Map<string, Market>, slug: string, eventId: string): BoardItem[] {
+  return groupedSurvivors(engine)
+    .filter((e) => e.authority !== 'RESEARCH_UNCALIBRATED')
+    .map((e) => {
+      const m = marketsByTicker.get(e.ticker);
+      return {
+        key: e.id, label: m?.yes_description || e.wins_when || e.ticker, href: m ? routes.market(slug, m.market_id, eventId) : null, side: e.side, ask: sidePrice(e, m), at: m?.captured_at ?? null,
+        cells: e.compat.map((c) => COMPAT_CELLS[c] ?? null), similar: e.similar,
+      };
+    });
+}
+
 export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, slug, eventId, now }: { engine: Engine; selected: string | null; hrefFor: (id: string | null) => string; marketsByTicker: Map<string, Market>; slug: string; eventId: string; now: number }) {
   const [sp, setSp] = useSearchParams();
   if (!engine.scripts.length) {
@@ -591,13 +616,21 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
       <TheaterHead compare={compare} setView={setView} canCompare={canCompare} />
       {compare ? <EngineCompare engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} /> : (
         <>
+          <SurvivorBoard
+            sport="CFB" scripts={engineBoardScripts(engine)} items={engineBoardItems(engine, marketsByTicker, slug, eventId)} now={now} selected={s.script_id}
+            title="Bets that survive the most scripts" verb="is supported"
+            sub="The engine’s best and multi-script contracts, by how many of its scripts support them. Scripts are ranked, never priced: a count, not a probability."
+            empty={!engine.expressions.length && engine.detail.state !== 'inline' ? `The script-to-market map is not available for this game: ${engine.detail.reason ?? 'not published'}.` : 'No contract is supported by more than one script the engine built.'}
+            footer={engine.scoringResearchOnly ? 'Totals and team totals are research only and never listed here.' : undefined}
+          />
           <div className="stab__pick"><EngineScriptsPanel engine={engine} selected={s.script_id} hrefFor={hrefFor} title="Scripts" art /></div>
           <div className="fx-bento fr-th__grid">
             <section className={`fx-card fx-span-4 fr-sel fr-sel--s${ROLE_INDEX[s.role]}`} aria-labelledby="eng-sel-h">
               <span className="fr-sel__tag">{ROLE_WORD[s.role]} · rank {s.rank} of {engine.scripts.length}</span>
               <h2 className="fr-sel__name" id="eng-sel-h">{scriptTitle(s)}</h2>
               <p className="fr-sel__pct">Ranked by matchup evidence · <b className="fr-sel__np">no probability published</b></p>
-              <p className="fr-sel__story">{s.summary}</p>
+              <p className="fr-sel__story">{splitSentence(s.summary).lead}</p>
+              {splitSentence(s.summary).rest && <details className="lsd-more"><summary>More</summary><p>{splitSentence(s.summary).rest}</p></details>}
               <ul className="fr-rows">
                 <li><span className="fr-rows__ic fr-rows__ic--cyan"><Icon name="football" size={16} /></span><div><b>Game flow</b><p>{s.causal_chain[0]?.step ?? s.summary}</p></div></li>
                 <li><span className="fr-rows__ic fr-rows__ic--red"><Icon name="bolt" size={16} /></span><div><b>Outcome shape</b><p>{[s.outcome_shape.winner_lean === 'HOME' ? `${home} lean` : s.outcome_shape.winner_lean === 'AWAY' ? `${away} lean` : 'No winner lean', marginBandText(s.outcome_shape.bands.home_margin, home, away), SCORING_ENV_WORD[s.outcome_shape.total_environment] ? `${SCORING_ENV_WORD[s.outcome_shape.total_environment].toLowerCase()} scoring` : null].filter(Boolean).join(' · ')}</p></div></li>

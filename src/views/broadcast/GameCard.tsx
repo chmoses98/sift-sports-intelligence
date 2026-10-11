@@ -41,7 +41,7 @@ export function useCardFacts(g: GameRow, load: boolean): { facts: CardFacts; loa
 const TONE: Record<string, string> = { elite: 'good', strong: 'good', average: 'mid', weak: 'bad', poor: 'bad' };
 export function Rank({ k, r, unit }: { k: string; r: RankChip | null; unit: string }) {
   if (!r) return null;
-  return <span className={`gc-rk gc-rk--${TONE[tierOf(r.rank, r.of)] ?? 'mid'}`} title={`Opponent-adjusted ${unit} EPA per play: #${r.rank} of ${r.of} (the publication’s ranked teams)`}><i>{k}</i>#{r.rank}</span>;
+  return <span className={`gc-rk gc-rk--${TONE[tierOf(r.rank, r.of)] ?? 'mid'}`} title={`${unit === 'offense' ? 'Offense' : 'Defense'}, ${r.basis ?? 'opponent-adjusted'}: #${r.rank} of ${r.of} (#1 best)`}><i>{k}</i>#{r.rank}</span>;
 }
 
 function TeamRow({ g, p, s, size }: { g: GameRow; p: GameRow['home']; s: SideFacts; size: 'sm' | 'md' }) {

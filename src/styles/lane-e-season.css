@@ -38,3 +38,9 @@ a.swk__a:focus-visible { outline: 2px solid #8fd0ff; outline-offset: 2px; }
 .ex-tile__ats--covered { color: var(--tier-good); }
 .ex-tile__ats--not_covered { color: #ff9aa6; }
 .ex-tile__ats--push, .ex-tile__ats--pk { color: var(--tier-mid); }
+.mh__ats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* Historical game hero: two equal halves around the result, names wrap by word (never mid-word). */
+@media (min-width: 720px) {
+  .mh--hist .mh__teams { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .mh--hist .mh__name { font-size: clamp(1.8rem, 3.2vw, 3rem); overflow-wrap: normal; word-break: normal; }
+}

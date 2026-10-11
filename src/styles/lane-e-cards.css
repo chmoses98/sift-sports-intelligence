@@ -37,7 +37,7 @@
 .gc-tag--division { color: #ffd9a0; background: rgba(240, 160, 50, 0.14); border-color: rgba(240, 160, 50, 0.4); }
 .gc-tag--primetime { color: var(--gold-2); background: var(--gold-bg); border-color: var(--gold-line); }
 .gc-tag--close { color: #bfefff; background: rgba(31, 178, 236, 0.14); border-color: rgba(31, 178, 236, 0.4); }
-.gc-edge { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.7rem; }
+.gc-edge { display: inline-block; max-width: 100%; white-space: normal; text-align: left; line-height: 1.35; border-radius: 9px; font-size: 0.7rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .gc-edge small { font-weight: 600; font-size: inherit; opacity: 0.9; }
 .gc-foot__mk { font-size: 0.72rem; color: var(--text-3); }
 

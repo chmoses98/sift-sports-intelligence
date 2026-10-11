@@ -49,7 +49,7 @@ export function GameRail({ groups, viewAll, empty }: { groups: RailGroup[]; view
         {groups.map((x) => {
           const nav = navSport(x.slug);
           return [
-            <li key={`h:${x.slug}`} className="rail__grp" aria-hidden={groups.length < 2 ? true : undefined}>
+            <li key={`h:${x.slug}`} className="rail__grp">
               <Link to={routes.games({ sport: x.slug })} className="rail__grpa" aria-label={`${nav?.label ?? x.sport}: ${x.total} games today`}>
                 {nav && <SportMark slug={x.slug} icon={nav.icon} size={20} />}<b>{nav?.label ?? x.sport}</b><small className="bnum">{x.total}</small>
               </Link>

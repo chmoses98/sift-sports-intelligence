@@ -98,9 +98,16 @@ describe('weeks', () => {
 
 describe('game card facts', () => {
   it('reads the opponent-adjusted ranks direction-aware from the game’s research', () => {
-    expect(sideRanks(neBuf, 'BUF')).toEqual({ off: { rank: 1, of: 32 }, def: { rank: 19, of: 32 } });
-    expect(sideRanks(neBuf, 'NE')).toEqual({ off: { rank: 16, of: 32 }, def: { rank: 4, of: 32 } });
+    expect(sideRanks(neBuf, 'BUF')).toMatchObject({ off: { rank: 1, of: 32 }, def: { rank: 19, of: 32 } });
+    expect(sideRanks(neBuf, 'NE')).toMatchObject({ off: { rank: 16, of: 32 }, def: { rank: 4, of: 32 } });
+    expect(sideRanks(neBuf, 'BUF', 'SOCCER')).toEqual({ off: null, def: null });
     expect(sideRanks(neBuf, 'KC')).toEqual({ off: null, def: null });
+  });
+  it('ranks NHL sides on the opponent-adjusted 5v5 attack and defense, and reads its expected goals', () => {
+    const nhl = JSON.parse(readFileSync(join(ROOT, 'tests/fixtures/nhl/app/latest/explorer/events/evt_4f20f09608cc97c362a7.json'), 'utf-8')) as EventResearchDoc;
+    expect(sideRanks(nhl, 'SEA', 'NHL')).toMatchObject({ off: { rank: 22, of: 32 }, def: { rank: 24, of: 32 } });
+    expect(sideRanks(nhl, 'VGK', 'NHL')).toMatchObject({ off: { rank: 6 }, def: { rank: 2 } });
+    expect(modelRead('NHL', nhl, 'VGK', 'SEA')!.text).toBe('VGK 3.1–3.1 SEA');
   });
   it('labels the model read and the market read from published fields', () => {
     expect(modelRead('NFL', neBuf, 'NE', 'BUF')!.text).toBe('NE 22–29 BUF');

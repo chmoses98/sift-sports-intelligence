@@ -19,7 +19,7 @@ import { atsOf, finalOf, resultLine, totalResultOf, type AtsResult, type LeagueG
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export interface RankChip { rank: number; of: number }
+export interface RankChip { rank: number; of: number; /** What is ranked, in words (for titles). */ basis?: string }
 export interface SideFacts {
   abbr: string;
   record: string | null;
@@ -55,17 +55,24 @@ const num = (v: unknown): number | null => (v == null || v === '' || !Number.isF
 const half = (v: number) => Math.round(v * 2) / 2;
 const fmtPts = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
-/** The NFL opponent-adjusted offense/defense EPA-per-play ranks for one side, when the game's research carries them. */
-export function sideRanks(r: EventResearchDoc | null | undefined, abbr: string | null | undefined): { off: RankChip | null; def: RankChip | null } {
-  if (!r || !abbr) return { off: null, def: null };
+/** The opponent-adjusted offense/defense metrics a card ranks, per sport (only sports that publish them). */
+export const CARD_RANKS: Record<string, { off: string; def: string; basis: string }> = {
+  NFL: { off: 'met_nfl.adj_off_epa', def: 'met_nfl.adj_def_epa', basis: 'opponent-adjusted EPA per play' },
+  NHL: { off: 'met_nhl.oa_xgf60_5v5', def: 'met_nhl.oa_xga60_5v5', basis: 'opponent-adjusted 5v5 expected goals per 60' },
+};
+
+/** One side's opponent-adjusted offense/defense league ranks, when the game's research carries them (direction-aware). */
+export function sideRanks(r: EventResearchDoc | null | undefined, abbr: string | null | undefined, sport = 'NFL'): { off: RankChip | null; def: RankChip | null } {
+  const spec = CARD_RANKS[sport];
+  if (!r || !abbr || !spec) return { off: null, def: null };
   const g = gameSides(r);
   if (!g || (g.home.abbr !== abbr && g.away.abbr !== abbr)) return { off: null, def: null };
   const side = g.byAbbr(abbr);
   const chip = (metric: string): RankChip | null => {
     const v = rankView(matchupObs(r, metric, side)?.context);
-    return v && v.directional ? { rank: v.rank, of: v.of } : null;
+    return v && v.directional ? { rank: v.rank, of: v.of, basis: spec.basis } : null;
   };
-  return { off: chip('met_nfl.adj_off_epa'), def: chip('met_nfl.adj_def_epa') };
+  return { off: chip(spec.off), def: chip(spec.def) };
 }
 
 /** Home line → "DET −5.5" (half-point rounded, as books quote it); "Pick’em" inside half a point. */
@@ -176,7 +183,7 @@ export function cardFacts(x: FactsInput): CardFacts {
   const lg = x.league ?? null;
   const fin = lg ? finalOf(lg) : null;
   const side = (abbr: string, isHome: boolean): SideFacts => {
-    const rk = x.sport === 'NFL' ? sideRanks(r, abbr) : { off: null, def: null };
+    const rk = sideRanks(r, abbr, x.sport);
     const score = fin ? (isHome ? fin.home : fin.away) : null;
     return { abbr, record: x.records?.get(abbr)?.text ?? null, off: rk.off, def: rk.def, score, won: fin ? (fin.winner == null ? null : fin.winner === abbr) : null };
   };

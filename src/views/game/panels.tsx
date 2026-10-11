@@ -149,7 +149,7 @@ export const SIM_SHARE_INFO = <><b>Sim share:</b> {glossLine(term('sim_share'))}
 export function CastLayer({ cast }: { cast: CastMember[] }) {
   return (
     <span className={`scard__art${cast.length > 1 ? ' scard__art--split' : ''}`} aria-hidden="true">
-      {cast.map((c) => <span key={c.team} className="scard__frame" style={{ ['--tc' as string]: teamColors('NFL', c.team)[0] }}><CastImage c={c} /></span>)}
+      {cast.map((c) => <span key={c.team} className={`scard__frame${c.photo ? '' : ' scard__frame--brand'}`} style={{ ['--tc' as string]: teamColors('NFL', c.team)[0], ['--tc2' as string]: teamColors('NFL', c.team)[1] }}><CastImage c={c} /></span>)}
     </span>
   );
 }

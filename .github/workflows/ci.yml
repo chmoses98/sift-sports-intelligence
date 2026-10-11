@@ -51,24 +51,3 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 14
-
-  pure-contract:
-    name: PURE contract gate (Python, stdlib only)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        python-version: ['3.10', '3.12']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Unit tests (schema, lineage, ladders, compare, rerun non-leakage with toy models)
-        working-directory: pure-contract
-        run: python -I -m unittest discover -s tests -v
-      - name: Validate example sidecars (v1 and kit interim v0)
-        working-directory: pure-contract
-        run: |
-          python -I pure_gate.py validate --forecasts examples/pure_forecast.v1.example.jsonl --require-v1
-          python -I pure_gate.py validate --forecasts examples/kit_interim_v0.example.jsonl

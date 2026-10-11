@@ -134,3 +134,12 @@
 .lsd-more[open] summary::after { content: '−'; }
 .lsd-more p { margin: 4px 0 0; }
 .lsd-surv--bare { margin: 0; padding: 0; border: 0; background: none; }
+@media (max-width: 640px) {
+  /* Phones: a survivor row names only the scripts it wins in; the sentence above counts the rest. */
+  .lsd-sv__chips .lsd-chip--no, .lsd-sv__chips .lsd-chip--part { display: none; }
+  .lsd-chart__b { grid-template-columns: minmax(0, 1fr) 48px; grid-template-areas: 'id v' 'tr tr'; row-gap: 6px; }
+  .lsd-chart__id { grid-area: id; }
+  .lsd-chart__track { grid-area: tr; }
+  .lsd-chart__v { grid-area: v; }
+  .lsd-chart__n { white-space: normal; }
+}

@@ -106,7 +106,7 @@ export function SurvivorBoard({ sport, scripts, items, now, title = 'Survives th
                   {x.note && <p className="lsd-sv__note">{x.note}</p>}
                 </div>
                 <div className="lsd-sv__px">
-                  <span className="lsd-sv__side">{x.side === 'YES' ? 'Price' : 'NO price'}</span>
+                  <span className="lsd-sv__side">{x.side} ask</span>
                   <b className="fx-num lsd-price">{cents(x.ask)}</b>
                   <FreshChip at={x.at} now={now} label="Price" />
                 </div>
@@ -192,7 +192,7 @@ export interface ExpressionRow {
 
 const BASIS_WORD: Record<ExpressionRow['basis'], string> = { fit: 'Settles on the margin', volume: 'Volume lean', published: 'Published link' };
 
-export function ExpressionList({ rows, missing, now, empty }: { rows: ExpressionRow[]; missing: string[]; now: number; empty: string }) {
+export function ExpressionList({ rows, missing, now, empty, note }: { rows: ExpressionRow[]; missing: string[]; now: number; empty: string; note?: ReactNode }) {
   const fams = [...new Set(rows.map((r) => r.family))];
   return (
     <div className="lsd-expr" data-testid="script-expressions">
@@ -219,6 +219,7 @@ export function ExpressionList({ rows, missing, now, empty }: { rows: Expression
           </ul>
         </div>
       ))}
+      {note && rows.some((r) => r.basis === 'volume') && <p className="lsd-note">{note}</p>}
       {missing.length > 0 && (
         <details className="lsd-expr__miss">
           <summary>Not linked to this script ({missing.length})</summary>

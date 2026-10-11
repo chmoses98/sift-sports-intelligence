@@ -23,7 +23,7 @@ import { teamColors, teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
 import { Info, ScriptGlyph, SIM_SHARE_INFO } from './panels';
 import { ExpressionList, ScriptShareChart, SurvivorBoard, type BoardItem, type BoardScript, type ExpressionRow } from './ScriptSurvivors';
-import { multiScriptSurvivors, scriptExpressions } from '../../lib/scriptExpressions';
+import { multiScriptSurvivors, scriptExpressions, VOLUME_LEAN_NOTE } from '../../lib/scriptExpressions';
 import { useNow } from '../../live/hooks';
 import { ScriptCompareStudio } from './ScriptCompare';
 
@@ -335,7 +335,7 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
 
             <section className="fx-card fx-span-7" aria-labelledby="stab-mk">
               <h3 className="fx-card__t" id="stab-mk"><Icon name="layers" size={16} /> Ways to bet {s.name}</h3>
-              <ExpressionList rows={exprRows} missing={expr.missing} now={now} empty="No priced contract expresses this script." />
+              <ExpressionList rows={exprRows} missing={expr.missing} now={now} empty="No priced contract expresses this script." note={VOLUME_LEAN_NOTE} />
               <details className="lsd-more">
                 <summary>Contracts this script beats ({loses.length})</summary>
                 <MarketList rows={loses} slug={slug} eventId={eventId} empty="No priced margin market loses in every game of this script." />

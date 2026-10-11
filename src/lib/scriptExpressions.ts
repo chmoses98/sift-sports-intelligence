@@ -79,6 +79,11 @@ export interface ScriptExpressions {
 }
 
 const LEAN = 0.05;
+/** Player props listed per script: the strongest volume leans, one per player. */
+export const MAX_PROPS = 4;
+
+/** What a volume lean is, said once beside the list. */
+export const VOLUME_LEAN_NOTE = 'Volume lean: the team’s attempts move with this script, so the prop leans the same way. A direction, not a script price — player projections are not split by script.';
 
 const lean = (s: GameScript, set: ScriptSet, side: 'home' | 'away', k: keyof TeamVolume): number | null => {
   const v = s.volume[side][k];
@@ -127,6 +132,8 @@ export function scriptExpressions(r: EventResearchDoc, rows: PriceRow[], set: Sc
   } else missing.push(s.leader ? 'No priced full-game spread wins in every game of this script.' : 'No spread wins in every one-score game: either team can win it.');
 
   // Volume-led props: the team whose attempts move most in this script, its main rung, YES when up and NO when down.
+  // One contract per player (his first-listed stat), the strongest leans first, at most MAX_PROPS.
+  const props: { lean: number; player: string; x: ScriptExpression }[] = [];
   for (const side of ['home', 'away'] as const) {
     const tid = r.participants.find((p) => p.home_away === (side === 'home' ? 'HOME' : 'AWAY'))?.participant_id;
     const players = new Set(r.players.filter((p) => p.team_id === tid).map((p) => p.participant_id));
@@ -146,11 +153,17 @@ export function scriptExpressions(r: EventResearchDoc, rows: PriceRow[], set: Sc
       const up = l > 0;
       const ask = up ? main.m.yes_ask : main.m.no_ask;
       if (!tradable(ask)) continue;
-      items.push({
-        row: main, kind: 'prop', side: up ? 'YES' : 'NO', ask, basis: 'volume',
-        why: `${names[side]} ${ps.volWord} ${up ? '+' : '−'}${Math.round(Math.abs(l) * 100)}% in this script. A direction, not a script price.`,
+      props.push({
+        lean: Math.abs(l), player: main.m.player_id!,
+        x: { row: main, kind: 'prop', side: up ? 'YES' : 'NO', ask, basis: 'volume', why: `${names[side]} ${ps.volWord} ${up ? '+' : '−'}${Math.round(Math.abs(l) * 100)}% in this script.` },
       });
     }
+  }
+  const seenPlayer = new Set<string>();
+  for (const p of props.sort((a, b) => b.lean - a.lean || a.x.row.m.market_id.localeCompare(b.x.row.m.market_id))) {
+    if (seenPlayer.has(p.player) || seenPlayer.size >= MAX_PROPS) continue;
+    seenPlayer.add(p.player);
+    items.push(p.x);
   }
   if (!items.some((x) => x.kind === 'prop')) missing.push('No player prop leans with this script: neither team’s attempts move 5% or more, or the prop is not priced.');
   missing.push('Totals and team totals: the simulation publishes no points by script, so no total is linked.');

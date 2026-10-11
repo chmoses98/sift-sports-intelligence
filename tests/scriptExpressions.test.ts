@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { EventResearchDoc, Market } from '../src/contract/types';
 import { marketLabel, priceRow } from '../src/lib/gamedata';
 import { gameScripts, scriptFit } from '../src/lib/scripts';
-import { multiScriptSurvivors, scriptExpressions, survivalWords, tradable } from '../src/lib/scriptExpressions';
+import { MAX_PROPS, multiScriptSurvivors, scriptExpressions, survivalWords, tradable } from '../src/lib/scriptExpressions';
 import { readSnapshot } from './helpers';
 
 const r = readSnapshot<EventResearchDoc>('explorer/events/evt_0cb333291f580a201a70.json');
@@ -58,10 +58,12 @@ describe('market expressions per script (item 14)', () => {
       const x = scriptExpressions(r, rows, set, s.id, set.names);
       for (const e of x.items.filter((y) => y.kind === 'prop')) {
         expect(e.basis).toBe('volume');
-        expect(e.why).toMatch(/A direction, not a script price/);
         expect(e.ask).toBe(e.side === 'YES' ? e.row.m.yes_ask : e.row.m.no_ask);
         expect(e.why).toMatch(e.side === 'YES' ? /\+\d+%/ : /−\d+%/);
       }
+      const props = x.items.filter((y) => y.kind === 'prop');
+      expect(props.length).toBeLessThanOrEqual(MAX_PROPS);
+      expect(new Set(props.map((y) => y.row.m.player_id)).size).toBe(props.length);
     }
   });
   it('a one-score script links no spread and says why', () => {

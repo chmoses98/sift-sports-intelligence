@@ -9,6 +9,7 @@ import { Icon } from '../../components/Icon';
 import { Notice, Stratum } from '../../components/ui';
 import { MarginMap, type MarginSeg } from '../../components/fxResearch';
 import { cfbCodeOfEspn } from '../../lib/cfbTeams';
+import { cfbMarketHeading } from '../../lib/cfbMarkets';
 import { teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
 import { routes } from '../../lib/routes';
@@ -582,6 +583,13 @@ export function engineBoardScripts(engine: Engine): BoardScript[] {
   });
 }
 
+/** A contract's YES words for the board: a bare-team moneyline reads "UAB to win" (its NO side then reads "UAB not to win"). */
+function boardLabel(e: Expression, m: Market | undefined): string {
+  const d = (m?.yes_description ?? '').trim();
+  if (m && d && !/\d/.test(d) && /moneyline$/i.test(cfbMarketHeading(m) ?? '')) return `${d} to win`;
+  return d || e.wins_when || e.ticker;
+}
+
 /** The engine's featured survivors (ladder rungs with identical support folded), as survivor-board items. */
 export function engineBoardItems(engine: Engine, marketsByTicker: Map<string, Market>, slug: string, eventId: string): BoardItem[] {
   return groupedSurvivors(engine)
@@ -589,7 +597,7 @@ export function engineBoardItems(engine: Engine, marketsByTicker: Map<string, Ma
     .map((e) => {
       const m = marketsByTicker.get(e.ticker);
       return {
-        key: e.id, label: m?.yes_description || e.wins_when || e.ticker, href: m ? routes.market(slug, m.market_id, eventId) : null, side: e.side, ask: sidePrice(e, m), at: m?.captured_at ?? null,
+        key: e.id, label: boardLabel(e, m), href: m ? routes.market(slug, m.market_id, eventId) : null, side: e.side, ask: sidePrice(e, m), at: m?.captured_at ?? null,
         cells: e.compat.map((c) => COMPAT_CELLS[c] ?? null), similar: e.similar,
       };
     });

@@ -124,7 +124,10 @@ test('hit rates read history against today\'s line, with the n of games played @
   const summary = perf.locator('.hsum2');
   // Game logs load after the publication: wait for the summary or the plain "no game log" state.
   await expect(summary.or(perf.getByText(/No game log|No priced line/)).first()).toBeVisible();
-  if (await summary.count()) {
+  // The empty state can show for a moment before the logs arrive (slow WebKit runners): give the summary time to
+  // replace it, and accept the empty state only when it persists.
+  const hasSummary = await summary.waitFor({ timeout: 10_000 }).then(() => true).catch(() => false);
+  if (hasSummary) {
     await expect(summary).toContainText(/over today’s line of/);
     await expect(summary).toContainText(/n = \d+ games? played/);
     await expect(summary).not.toContainText(/chance/i);

@@ -27,6 +27,23 @@ import { multiScriptSurvivors, scriptExpressions, VOLUME_LEAN_NOTE } from '../..
 import { useNow } from '../../live/hooks';
 import { ScriptCompareStudio } from './ScriptCompare';
 
+/**
+ * Under the split chart when the close game is split by winner: the tie share (no winner, so no script) and what the split
+ * is worth. Evidence: nfl-edge-finder research/game_script_v2/CLOSE_SPLIT_CALIBRATION.md (2021–2025, 1,424 games).
+ */
+export function CloseSplitNote({ tie }: { tie: number }) {
+  return (
+    <p className="fr-note" data-testid="close-split-note">
+      Ties after overtime: {(tie * 100).toFixed(1)}% of simulated games, no winner, so not a script.{' '}
+      <Info label="About the close-game split">
+        One-score games are split by who wins them, from the same simulated games, so the shares still add up to the whole simulation. Over
+        2021–2025 the split was about as accurate as the point spread alone at saying who wins a close game, no better. Read these as simulation
+        shares, not odds.
+      </Info>
+    </p>
+  );
+}
+
 export function rangeText(s: GameScript, set: ScriptSet): string {
   const fav = set.fav === 'home' ? set.names.home : set.names.away;
   const dog = set.fav === 'home' ? set.names.away : set.names.home;
@@ -34,13 +51,16 @@ export function rangeText(s: GameScript, set: ScriptSet): string {
     case 'fav-big': return `The ${fav} win by 14 or more points.`;
     case 'fav': return `The ${fav} win by 7 to 13 points.`;
     case 'close': return `The final margin is 6 points or fewer either way — the ${fav} winning a one-score game or the ${dog} winning one.`;
+    case 'fav-close': return `The ${fav} win by 1 to 6 points.`;
+    case 'dog-close': return `The ${dog} win by 1 to 6 points.`;
     case 'dog': return `The ${dog} win by 7 or more points.`;
   }
 }
 
 /** The script list as the shared script graphics read it: tone = colour identity, team = the side the script belongs to. */
 export function boardScripts(set: ScriptSet): (BoardScript & { share: number })[] {
-  return set.scripts.map((s) => ({ id: s.id, name: s.name, tone: s.index, share: s.share, team: s.leader ? (s.leader === 'home' ? set.homeAbbr : set.awayAbbr) : null }));
+  // The survivor graphics' tones 5..7 are NHL's extra scripts; the NFL's fifth script (underdog by 1–6) is tone 8.
+  return set.scripts.map((s) => ({ id: s.id, name: s.name, tone: s.index === 5 ? 8 : s.index, share: s.share, team: s.leader ? (s.leader === 'home' ? set.homeAbbr : set.awayAbbr) : null }));
 }
 
 /** The NFL multi-script survivors as survivor-board items (exact fit: margin-settled contracts only). */
@@ -331,6 +351,7 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
                 sport={sportCode} scripts={scripts} selected={s.id} hrefFor={(id) => hrefFor(id as ScriptId)} details={details}
                 label={`Share of simulated games by script: ${set.scripts.map((x) => `${x.name} ${sharePct(x.share)}`).join(', ')}`}
               />
+              {set.tie != null && <CloseSplitNote tie={set.tie} />}
             </section>
 
             <section className="fx-card fx-span-7" aria-labelledby="stab-mk">

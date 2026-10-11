@@ -25,6 +25,7 @@ import './styles/fidelity-game.css';
 import './styles/fidelity-home.css';
 import './styles/fidelity-research.css';
 import './styles/fidelity-hubs.css';
+import './styles/script-5.css';
 import './styles/lane-a-brand.css';
 import './styles/lane-a-hero.css';
 import './styles/lane-a-type.css';

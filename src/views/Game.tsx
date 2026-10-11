@@ -296,7 +296,7 @@ const TABS: [GameTab, string][] = [
   ['overview', 'Overview'], ['matchup', 'Matchups'], ['script', 'Scripts'], ['props', 'Props'], ['players', 'Players'], ['markets', 'Markets'], ['trends', 'Trends'], ['injuries', 'Injuries'],
 ];
 type GameTab = 'overview' | 'script' | 'markets' | 'matchup' | 'props' | 'players' | 'trends' | 'injuries';
-const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'dog'];
+const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'fav-close', 'dog-close', 'dog'];
 /** Script-engine games (CFB) carry no player projections, player props research or published injury lists:
  * those tabs are not offered. */
 const ENGINE_TABS = TABS.filter(([k]) => k !== 'players' && k !== 'injuries' && k !== 'props');

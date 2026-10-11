@@ -192,3 +192,4 @@
 .gbx__v small { font-size: 0.68rem; color: var(--text-3); }
 .gbx__r--a .gbx__v:first-child b, .gbx__r--h .gbx__v:last-child b { color: #fff; }
 .gbx__r--a .gbx__v:first-child small, .gbx__r--h .gbx__v:last-child small { color: var(--tier-good); }
+.bld__seg { flex-wrap: wrap; overflow: visible; }

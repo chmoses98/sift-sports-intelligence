@@ -66,8 +66,8 @@ export function MatchupTab({ r, g, profiles, ctx, insights, context, scheme, pro
     <div className="mx">
       <div className="mx__bar">
         <ModeToggle note={mode === 'adjusted'
-          ? <>Showing <b>opponent-adjusted</b> ratings — the publication's primary footing: each team's result after accounting for who it played (recency-weighted, games before this week). Where only a raw version exists, the value says <i>Raw only</i>.</>
-          : <>Showing <b>raw</b> results over the publication's last 34 games (they span seasons). Where only an adjusted version exists, the value says <i>Adjusted only</i>. Box-score basics are always raw.</>} />
+          ? <><b>Adjusted</b>: results after accounting for who each team played — the publication's primary footing. A value with no adjusted version says <i>Raw only</i>.</>
+          : <><b>Raw</b>: what happened, over the publication's last 34 games. A value with no raw version says <i>Adjusted only</i>. Box-score basics are always raw.</>} />
         <nav className="mx__jump" aria-label="Matchup sections">
           {JUMPS.map(([id, l]) => <button key={id} type="button" className="mx__j" onClick={() => jump(id)}>{l}</button>)}
         </nav>

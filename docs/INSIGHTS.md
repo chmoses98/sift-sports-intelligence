@@ -122,3 +122,28 @@ The research tray holds findings, not games. A finding is a contract `research_t
 rests on (METRIC for a matchup, MARKET for a prop, TEAM for context/scheme, PLAYER otherwise), with
 `extra.x = finding:<kind>:<key>` (so findings stay distinct) and the finding written out as the contract
 `note`, which the packet prints beside the item. The packet format is unchanged.
+
+## The basics, units, unit by unit, scheme meets players (repair sprint 2026-10-11, lane C)
+
+* **Basics** (`insights/basics.ts`): points, total/passing (net of sack yards)/rushing yards, yards per play,
+  turnovers (interceptions + fumbles lost), sacks per game, third-down and red-zone TD rates — sums of nflverse
+  play-by-play counts (`history/teams.json`, written per team-week by `scripts/history/build-nfl-history.mjs`)
+  divided by games, over the weeks before the game; ranked of 32, #1 = best for the job, ties share. Raw results.
+* **Units** (`insights/units.ts`): every team metric's denominator from the registry descriptions ("sacks per
+  dropback", "turnovers per play"). A rate is never written as a per-game count; adjusted ratings read as a
+  difference from league average ("+1.8 pts", "−0.034 EPA / dropback"); raw values carry their window (last 34).
+* **Adjusted / Raw** (`state/statMode.ts`): one app-wide choice, adjusted by default (the publication's matchup
+  rows are opponent-adjusted). Each value carries an Adjusted / Raw / Box score tag; where only one version is
+  published the tag says "… only".
+* **Unit by unit** (`insights/unitAnalysis.ts`): passing game, run game, line vs pass rush, receivers vs coverage,
+  downs, red zone, turnovers, special teams; the conclusion compares the two published ranks (slight ≥ 0.2,
+  clear ≥ 0.35, major ≥ 0.55 strength gap with the top/bottom-40% rule) and is labelled an observation.
+* **Scheme meets players** (`insights/schemePlayers.ts`): stacked boxes → lead back, blitz rate → quarterback,
+  pass rate over expected → lead receiver; each chain shows the charted tendency with its sample, the player's
+  published projection (research simulation), the simulated script that moves his volume, and his priced prop with
+  the bet status read from the opportunity layer (Validated only when the publication flags it ACTIONABLE).
+* **Box counts and backs** (investigation, weeks 1–4 2026): designed runs into 8+ man boxes averaged 2.9 yards
+  (288 runs) against 4.3 into lighter boxes (2,809); a defense's stacked-box rate showed no relationship with the
+  yards per carry it allowed (r ≈ 0.01, 32 teams) and a weak negative one with opponents' designed runs per game
+  (r ≈ −0.30, plausibly game script); backs have a median of 6 charted stacked-box carries. Surfaced as an
+  observation with samples only; nothing adjusts a projection.

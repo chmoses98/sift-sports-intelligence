@@ -67,3 +67,22 @@ test('the Season navigator shows a whole week, finals against the closing spread
   await expect(page.locator('.sn-grid .wcell[data-cell="bye"]')).toHaveCount(1);
   await noHorizontalOverflow(page, 'season');
 });
+
+// Found by scripts/sprint-production-check.mjs on live data (2026-10-11): an opened discovery's research links are
+// single ellipsised lines, and their full label width became the card's minimum width, pushing the phone page sideways
+// (Home and the Terminal's selected discovery). Narrowest supported phone width, so the bundled labels are long enough.
+test('an opened discovery and the Terminal’s selected one never push a phone page sideways @journey', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'phone layout');
+  await page.clock.install({ time: NOW });
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('./#/');
+  const card = page.locator('.bhome__intel .dcard--x').first();
+  await card.scrollIntoViewIfNeeded();
+  await card.getByRole('button', { name: /What it means/ }).click();
+  await expect(card.getByRole('list', { name: 'Research this leads to' })).toBeVisible();
+  await noHorizontalOverflow(page, 'home-discovery-320');
+  await page.goto('./#/intelligence');
+  await page.locator('button.trow').first().click();
+  await expect(page.locator('.tm-means')).toBeVisible();
+  await noHorizontalOverflow(page, 'terminal-selected-320');
+});

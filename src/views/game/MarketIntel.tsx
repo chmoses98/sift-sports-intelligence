@@ -253,7 +253,10 @@ const listable = (r: PriceRow) => r.ask != null && r.ask >= 0.08 && r.ask <= 0.9
  * script, else the share of simulated games it always wins in), then the model–market gap, then closeness to even
  * money. Each chip's count is exactly what the chip shows, so no chip opens an empty table.
  */
-export function topMarketRows(rows: PriceRow[], f: TopFilter, si: number, n = 8): PriceRow[] {
+/** How many rows the Top markets table shows before "Show all". */
+export const TOP_MARKETS_SHOWN = 8;
+
+export function topMarketRows(rows: PriceRow[], f: TopFilter, si: number, n = TOP_MARKETS_SHOWN): PriceRow[] {
   const score = (r: PriceRow) => (r.fit ? (si >= 0 ? (r.fit.fits[si] === 'yes' ? 2 : r.fit.fits[si] === 'part' ? 1 : 0) : r.fit.coverage) : -1);
   return rows
     .filter((r) => listable(r) && (f === 'all' || r.group === f))
@@ -269,16 +272,19 @@ export function topMarketCounts(rows: PriceRow[]): Record<TopFilter, number> {
 
 export function TopMarkets({ rows, set, selected, slug, eventId, now, allHref }: { rows: PriceRow[]; set: ScriptSet | null; selected: string | null; slug: string; eventId: string; now: number; allHref: string }) {
   const [f, setF] = useState<TopFilter>('all');
+  // The table opens on the top TOP_MARKETS_SHOWN; "Show all" lists every contract the chip counts (#38: a chip never
+  // counts a contract the reader cannot reach).
+  const [all, setAll] = useState(false);
   const si = set && selected ? set.scripts.findIndex((s) => s.id === selected) : -1;
   const counts = useMemo(() => topMarketCounts(rows), [rows]);
-  const shown = useMemo(() => topMarketRows(rows, f, si), [rows, f, si]);
+  const shown = useMemo(() => topMarketRows(rows, f, si, all ? Infinity : TOP_MARKETS_SHOWN), [rows, f, si, all]);
   return (
     <section className="fx-card" id="ov-markets" aria-labelledby="ov-markets-h" data-testid="top-markets">
       <h2 className="fx-card__t" id="ov-markets-h"><Icon name="grid" size={17} /> Top markets by script fit</h2>
       <p className="fx-card__sub">Contracts that win in the most simulated games come first, then the largest model–market gaps (research evidence, not an edge).</p>
       <div className="lsd-top__chips" role="group" aria-label="Market type">
         {TOP_FILTERS.filter(([k]) => k === 'all' || counts[k] > 0).map(([k, l]) => (
-          <button key={k} type="button" className={`mboard__kind${f === k ? ' is-on' : ''}`} aria-pressed={f === k} onClick={() => setF(k)}>{l} <small>{counts[k]}</small></button>
+          <button key={k} type="button" className={`mboard__kind${f === k ? ' is-on' : ''}`} aria-pressed={f === k} onClick={() => { setF(k); setAll(false); }}>{l} <small>{counts[k]}</small></button>
         ))}
       </div>
       <div className="tscroll"><table className="mtab">
@@ -305,6 +311,9 @@ export function TopMarkets({ rows, set, selected, slug, eventId, now, allHref }:
           ))}
         </tbody>
       </table></div>
+      {!all && counts[f] > shown.length && (
+        <p className="lsd-top__more"><button type="button" className="btn btn--sm btn--glass" onClick={() => setAll(true)}>Show all {counts[f]}</button> <small className="muted">Showing the top {shown.length} of {counts[f]}.</small></p>
+      )}
       {!shown.length && <p className="lsd-top__empty">No contract of this type has a two-sided price between 8¢ and 92¢.</p>}
       <p className="fr-note">{counts.all} priced contracts · <Link to={allHref}>Every market on this game →</Link></p>
     </section>

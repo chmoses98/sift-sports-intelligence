@@ -201,4 +201,10 @@ describe('discoveries lead somewhere', () => {
     const mb = marketDiscovery(opp({ confidence: { ...opp().confidence, calibration: 'MARKET_BEATS_MODEL' } }));
     expect(mb.meaning).toMatch(/disagreement, not an edge/);
   });
+  it('a market finding names its authority in words, never the publication code (#35)', () => {
+    const d = marketDiscovery(opp());
+    expect(d.facts.find((f) => f.label === 'Authority')?.value).toBe('Research only');
+    expect(d.method).toMatch(/^Research only candidate/);
+    expect(d.method).not.toMatch(/RESEARCH_ONLY/);
+  });
 });

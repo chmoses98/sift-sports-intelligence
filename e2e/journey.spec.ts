@@ -68,6 +68,9 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 
   // 4. Open one team's profile
   await page.locator('.gh__team--home .gh__name').click();
+  // The game page's own h1 also names the home team: wait for the team route and the game hero to be gone.
+  await expect(page).toHaveURL(/#\/nfl\/team\//);
+  await expect(page.locator('.gh__team--home')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await shot(page, '04-team');
 

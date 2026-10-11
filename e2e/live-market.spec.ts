@@ -27,6 +27,9 @@ test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 
   // 4. go to a team, spend minutes there, come back: the last known 51¢ is shown at once (never 46¢,
   //    never the publication's 63¢) even before the provider answers again...
   await page.locator('.gh__team--home .gh__name').click();
+  // The game page's own h1 also names the home team: wait for the team route and the game hero to be gone.
+  await expect(page).toHaveURL(/#\/nfl\/team\//);
+  await expect(page.locator('.gh__team--home')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await page.clock.fastForward(4 * 60_000);
   market.fail = 'hang';

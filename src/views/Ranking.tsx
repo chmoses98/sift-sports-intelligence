@@ -8,6 +8,7 @@ import { WINDOW_EXPLAIN, windowName } from '../lib/nfl';
 import { routes } from '../lib/routes';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
+import { statFormatter, unitInfo, unitLine } from '../insights/units';
 
 export function RankingView() {
   const { rankingId = '' } = useParams();
@@ -26,7 +27,7 @@ export function RankingView() {
   if (rk.loading) return <div className="page"><Skeleton lines={12} tall /></div>;
   if (!d) return <div className="page"><ErrorState error={rk.error} what="this ranking" /></div>;
   const scale = Math.max(Math.abs(d.summary.min ?? 0), Math.abs(d.summary.max ?? 0));
-  const fmt = metricFormatter(def, scale);
+  const fmt = statFormatter(d.metric_id, def, metricFormatter(def, scale));
   const togglePin = (id: string) => {
     const n = new Set(pins);
     if (n.has(id)) n.delete(id);
@@ -55,6 +56,7 @@ export function RankingView() {
           <div className="ehead__meta">
             <QualityBadge quality={d.quality} />
             <span className="chip">{windowName(d.window.label)} — {WINDOW_EXPLAIN[d.window.label] ?? d.window.kind.toLowerCase()}</span>
+            {sport.code === 'NFL' && unitInfo(d.metric_id) && <span className="chip">{unitLine(d.metric_id, def)}</span>}
             <span className="chip">{d.higher_is_better === false ? 'rank 1 = lowest value (lower is better)' : d.higher_is_better ? 'rank 1 = highest value' : 'ranked high to low; no better direction'}</span>
           </div>
         </div>

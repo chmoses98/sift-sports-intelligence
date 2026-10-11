@@ -5,6 +5,7 @@ import type { MetricDef, Observation } from '../contract/types';
 import { compareAdjustment, unitOf } from '../lib/adjustment';
 import { metricFormatter } from '../lib/format';
 import { WINDOW_EXPLAIN } from '../lib/nfl';
+import { statFormatter } from '../insights/units';
 
 const signed = (fmt: (v: number | null) => string, v: number | null) => (v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(v)).replace(/^[+−-]/, '')}`);
 
@@ -18,8 +19,9 @@ export function AdjustmentCompare({ raw, adj, rawDef, adjDef, team, rawHref, adj
     hib,
     { unit: unitOf(adj.metric_id), team },
   );
-  const fRaw = metricFormatter(rawDef, null);
-  const fDev = metricFormatter(adjDef, null);
+  // Unit-aware where the denominator is known (an adjusted share reads "+1.8 pts", a raw share "8.1%").
+  const fRaw = statFormatter(raw.metric_id, rawDef, metricFormatter(rawDef, null));
+  const fDev = statFormatter(adj.metric_id, adjDef, metricFormatter(adjDef, null));
   const rank = (o: Observation) => (o.context?.rank != null ? `#${o.context.rank}` : '—');
   const move = c.rankMove == null ? null : c.rankMove === 0 ? 'Same rank' : `${c.rankMove > 0 ? '↑' : '↓'} ${Math.abs(c.rankMove)} ${Math.abs(c.rankMove) === 1 ? 'rank' : 'ranks'}`;
   return (

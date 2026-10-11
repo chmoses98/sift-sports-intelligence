@@ -17,7 +17,7 @@ async function shot(page: Page, name: string) {
  */
 async function clipboardFor(context: BrowserContext, browserName: string) {
   if (browserName === 'chromium') {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://localhost:4173' });
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: `http://localhost:${process.env.SIFT_E2E_PORT || 4173}` });
     return (page: Page) => page.evaluate(() => navigator.clipboard.readText());
   }
   await context.addInitScript(() => {

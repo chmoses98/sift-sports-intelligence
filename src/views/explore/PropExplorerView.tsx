@@ -33,7 +33,7 @@ import { gameScripts, sharePct, type ScriptSet, type TeamVolume } from '../../li
 import { teamColors } from '../../lib/teams';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
-import { EXPLORE_STEP, useVisit } from '../../state/trail';
+import { PROPS_STEP, useVisit } from '../../state/trail';
 import { MarketCarousel } from '../props/MarketCarousel';
 import { HitDots, HitSummary } from '../props/HitRate';
 import { PerfChart } from '../props/PerfChart';
@@ -399,12 +399,12 @@ const CAPS: Record<string, { have: string[]; missing: string[]; where: string }>
 
 export function PropExplorerView() {
   const { sport, slug } = useSport();
-  useVisit('Prop explorer', 'explore', EXPLORE_STEP);
+  useVisit('Prop explorer', 'explore', PROPS_STEP);
   const cap = CAPS[sport.code];
   return (
     <div className="page pexp">
       <header className="bhome__mast">
-        <div><span className="eyebrow2">Explore · {sport.label}</span><h1 className="bhome__h">Prop explorer</h1></div>
+        <div><span className="eyebrow2">Props · {sport.label}</span><h1 className="bhome__h">Prop explorer</h1></div>
         <p className="bhome__sum">Pick a game, filter, then read one prop in full</p>
       </header>
       {sport.code === 'NFL' ? <NflExplorer /> : (

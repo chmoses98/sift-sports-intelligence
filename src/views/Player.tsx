@@ -533,7 +533,7 @@ function GenericPlayerView() {
           <dl className="facts facts--slim">
             <div className="fact"><dt>Profile quality</dt><dd><QualityBadge quality={p.quality} /></dd></div>
             <div className="fact"><dt>Player markets</dt><dd><QualityBadge status={capStatus(caps, 'player_props')} /></dd></div>
-            <div className="fact"><dt>Model prices</dt><dd><QualityBadge status={capStatus(caps, 'raw_projections')} /> authority RESEARCH_ONLY</dd></div>
+            <div className="fact"><dt>Model prices</dt><dd><QualityBadge status={capStatus(caps, 'raw_projections')} /> Research only</dd></div>
             <div className="fact"><dt>Projected ranges</dt><dd><QualityBadge status={capStatus(caps, 'projection_distributions')} /></dd></div>
             <div className="fact"><dt>Usage</dt><dd><QualityBadge status={capStatus(caps, 'usage')} /> projected, not observed usage</dd></div>
             <div className="fact"><dt>Game logs</dt><dd><QualityBadge status={capStatus(caps, 'player_game_logs')} /></dd></div>

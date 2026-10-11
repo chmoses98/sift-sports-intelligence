@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { modelVersionLabel } from '../lib/plainLabels';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { LadderChart } from '../charts/LadderChart';
 import { PriceHistory } from '../charts/PriceHistory';
@@ -168,7 +169,7 @@ export function MarketView() {
         {mp ? (
           <div className="evid">
             <div className="pxgrid">
-              <Px k="Model fair P(YES)" v={cents(mp.fair_probability)} sub={mp.model_version ?? undefined} />
+              <Px k="Model fair P(YES)" v={cents(mp.fair_probability)} sub={modelVersionLabel(mp.model_version) ?? undefined} />
               <Px k="Market mid" v={cents(mid)} />
               <Px k="Model − market" v={mp.fair_probability != null && mid != null ? `${signed((mp.fair_probability - mid) * 100, 1)}¢` : '—'} sub="research signal, not an edge claim" />
               {v2 != null && <Px k="Shadow v2 P(YES)" v={cents(v2)} sub="research arm" />}

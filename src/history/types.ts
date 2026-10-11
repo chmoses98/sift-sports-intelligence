@@ -43,6 +43,8 @@ export interface PlayerHistoryDoc {
   team: string;
   games: GameLogRow[];
   vs_blitz: BlitzSplit | null;
+  /** Designed runs against 8+ vs 7-or-fewer defenders in the box (documents built before 2026-10-11 lack it). */
+  vs_box?: BoxSplit | null;
   /** The season before: box scores and snaps only (no play-by-play, so no longest plays). */
   prior?: { season: number; games: GameLogRow[] } | null;
   /** Per-game ranks within the position: one entry per completed week this season, one for last season. */
@@ -82,7 +84,32 @@ export interface UnitCounts {
   motion: number;
   charted_rushes: number;
   stacked_box_rushes: number;
+  // Box score (documents built before 2026-10-11 lack these; readers check before using them).
+  points?: number;
+  /** Gross passing yards on completions; net = pass_yds − sack_yds. */
+  pass_yds?: number;
+  rush_yds?: number;
+  sacks?: number;
+  sack_yds?: number;
+  ints?: number;
+  fum_lost?: number;
+  third_att?: number;
+  third_conv?: number;
+  /** Drives that reached the opponent 20, and those that ended in a touchdown. */
+  rz_trips?: number;
+  rz_td?: number;
+  /** Designed runs by charted box count: 8+ defenders (stacked) vs 7 or fewer (light). */
+  stacked_box_rush_yds?: number;
+  stacked_box_rush_epa?: number;
+  light_box_rushes?: number;
+  light_box_rush_yds?: number;
+  light_box_rush_epa?: number;
+  screens?: number;
+  rpo?: number;
 }
+
+/** A rusher's designed runs by charted box count (FTN n_defense_box). */
+export interface BoxSplit { car_stacked: number; yds_stacked: number; car_light: number; yds_light: number }
 
 export interface TeamWeek {
   week: number;

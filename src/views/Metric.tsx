@@ -18,6 +18,8 @@ import { useDirectory } from '../state/directory';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { protocolForSport } from '../packet/protocols';
+import { BasisTag } from '../components/statviz';
+import { basisOf, statFormatter, unitInfo, unitLine } from '../insights/units';
 
 function obsFor(p: EntityProfileDoc | undefined, metricId: string): Observation | undefined {
   if (!p) return undefined;
@@ -67,8 +69,10 @@ export function MetricView() {
   if (team.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   const rk = ranking.data;
   const scale = rk ? Math.max(Math.abs(rk.summary.min ?? 0), Math.abs(rk.summary.max ?? 0)) : o?.context ? Math.max(Math.abs(o.context.best_value ?? 0), Math.abs(o.context.worst_value ?? 0)) : null;
-  const fmt = metricFormatter(def, scale);
+  const fmt = statFormatter(metricId, def, metricFormatter(def, scale));
   const ctx = o?.context ?? null;
+  const unitText = sport.code === 'NFL' && unitInfo(metricId) ? unitLine(metricId, def) : unitLabel(o?.unit ?? def.unit);
+  const tag = o ? basisOf(o) : 'other';
   const name = (id: string | null | undefined) => dir.data?.team(id)?.name ?? id ?? '—';
   const tName = team.data?.entity.display_name;
   const oName = opp.data?.entity.display_name;
@@ -88,7 +92,7 @@ export function MetricView() {
           <PlainEnglish metricId={metricId} def={def} />
           <div className="ehead__meta">
             <QualityBadge quality={def.quality} />
-            <span className="chip">{unitLabel(def.unit) || def.stat_type}</span>
+            <span className="chip">{(sport.code === 'NFL' && unitInfo(metricId) ? unitLine(metricId, def) : unitLabel(def.unit)) || def.stat_type}</span>
             <span className="chip">{def.higher_is_better === true ? 'higher is better' : def.higher_is_better === false ? 'lower is better' : 'no better direction'}</span>
           </div>
         </div>
@@ -103,7 +107,7 @@ export function MetricView() {
             <TeamMark sport={sport.code} abbr={team.data?.entity.short_name} size="lg" />
             <div>
               <div className="answer__rank"><span className="num">{ordinal(ctx.rank ?? 0)}</span><span className="answer__of">of {ctx.universe_size}</span></div>
-              <div className="answer__val"><span className="num">{fmt(o.value)}</span> <span className="muted">{unitLabel(o.unit)}</span></div>
+              <div className="answer__val"><span className="num">{fmt(o.value)}</span> <span className="muted">{unitText}</span>{tag !== 'other' && <BasisTag basis={tag} />}</div>
             </div>
           </div>
           <dl className="facts">
@@ -165,10 +169,10 @@ export function MetricView() {
       )}
 
       {series.data && (
-        <Stratum n="03" title={`${tName} by game`} sub="Each column is a game; tap one to open it.">
+        <Stratum n="03" title={`${tName}: ${def.name}, game by game`} sub="Each column is a game; tap one to open it.">
           <TrendChart
             points={series.data.points} format={fmt} unit={series.data.unit ?? ''} rollingWindow={series.data.rolling_window}
-            title={`${tName} ${def.name} by game`} opponentLabel={(id) => dir.data?.team(id)?.abbr ?? '?'}
+            title={`${tName} ${def.name}, game by game`} opponentLabel={(id) => dir.data?.team(id)?.abbr ?? '?'}
             outcome={(p) => (team.data?.games.find((g) => g.event_id === p.event_id)?.result?.outcome as 'W' | 'L' | 'T' | null) ?? null}
             renderDetail={(p) => (
               <div className="pointdetail__a">

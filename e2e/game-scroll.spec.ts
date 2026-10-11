@@ -69,7 +69,9 @@ test('a new screen opens at the top and back returns to the reader’s place @jo
   expect(before).toBeGreaterThan(300);
   await player.click();
   await expect(page).toHaveURL(/\/nfl\/player\//);
-  await page.locator('main h1').first().waitFor();
+  // The router keeps the game page on screen (its own h1 included) while the player screen's code loads, so wait for
+  // the player page itself before reading the position.
+  await page.locator('main .fr-plhero__name').first().waitFor();
   expect(await scrollY(page), 'the player page opens at the top').toBeLessThan(5);
   await page.goBack();
   await expect(page).toHaveURL(/tab=players/);

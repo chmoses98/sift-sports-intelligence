@@ -190,6 +190,20 @@ async function navCheck(page, ctx) {
   check((await navEl.getByRole('link', { name: 'Props' }).getAttribute('href')) === '#/props', '#4 nav: Props opens #/props');
 }
 
+// #43: sport screens explain missing data in words — no raw availability codes reach the reader.
+const RAW_STATE = /\b(PARTIAL|UNAVAILABLE|NOT_PUBLISHED|PENDING_WINDOW|NOT_IN_MODEL|NO_CURRENT_GAMES)\b|\bN\/A\b/;
+async function sportScreensCheck(page, ctx) {
+  for (const slug of ['nhl', 'soccer', 'cbb', 'tennis', 'nba', 'mlb', 'cfb']) {
+    await page.goto(BASE + `#/${slug}`);
+    await page.locator('main h1').first().waitFor({ timeout: 60_000 }).catch(() => {});
+    await page.waitForTimeout(2500);
+    const t = await mainText(page);
+    const raw = t.match(RAW_STATE)?.[0];
+    check(!raw && !BROKEN.test(t), `#43 ${slug.toUpperCase()} home states data availability in words${raw ? ` (found "${raw}")` : ''}`);
+    await overflow(page, ctx, `${slug.toUpperCase()} home`);
+  }
+}
+
 async function homeCheck(page, ctx) {
   await page.goto(BASE + '#/');
   await page.getByRole('heading', { name: /^Today on SIFT$/i }).waitFor({ timeout: 60_000 });
@@ -230,6 +244,14 @@ async function homeCheck(page, ctx) {
     const leads = await dcard.getByRole('list', { name: 'Research this leads to' }).getByRole('link').count();
     check(mean.length > 10 && leads > 0, `#51 Home discovery expands "What it means" with ${leads} research link(s)`);
   } else na('#51 Home discovery expands', 'no expandable discovery on Home');
+  // #15: the featured hero carries one-phrase tags; long caveats live behind info buttons, not in the panel text.
+  const fh = page.locator('.bhome .fh2').first();
+  if (await fh.count()) {
+    const panelText = ((await fh.locator('.fh2__cell').allTextContents()).join(' ')).replace(/\s+/g, ' ');
+    const longest = Math.max(0, ...(await fh.locator('.fh2__s, .fh2__tag').allTextContents()).map((x) => x.trim().length));
+    const infos = await fh.getByRole('button').filter({ hasText: '' }).count();
+    check(!/has been shown redundant|Treat it as structure/i.test(panelText) && longest <= 90, `#15 featured hero: concise panel copy (longest sub-line ${longest} chars), caveats behind info buttons (${infos} buttons)`);
+  } else na('#15 featured hero copy', 'no featured game on Home right now');
   await cleanText(page, '#35', 'Home');
   await overflow(page, ctx, 'Home');
   await page.screenshot({ path: `production-sprint-${dev}-home.png` });
@@ -734,6 +756,7 @@ for (const [name, type, device, depth] of DEVICES) {
       await step(page, 'research lab', () => researchLabCheck(page, ctx));
       await step(page, 'season', () => seasonCheck(page, ctx));
       await step(page, 'intelligence', () => marketBoardCheck(page, ctx));
+      await step(page, 'sport screens', () => sportScreensCheck(page, ctx));
     }
     console.log(`  player photos requested: ${sink.playerImages}`);
     check(sink.blocked.length === 0, `#11/#36 no blocklisted player image requested${sink.blocked.length ? ` (${[...new Set(sink.blocked)].slice(0, 3).join(', ')})` : ''}`);

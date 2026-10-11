@@ -1,0 +1,34 @@
+/* Lane E — intelligence cards that lead somewhere (issue 51): a discovery opens in place to its plainly explained
+   conclusion, its key facts and the research it leads to (a script, a player, a stat, a market, the evidence). */
+
+.dcard--x { cursor: default; position: relative; }
+.dcard--x:hover { transform: none; }
+.dcard__ta { color: var(--text-hi); text-decoration: none; }
+.dcard__ta:hover { color: #fff; text-decoration: underline; text-decoration-color: rgba(143, 208, 255, 0.5); text-underline-offset: 3px; }
+.dcard__ta::after { content: ''; }
+.dcard__more { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin: 2px 0 -4px; padding: 0 10px 0 6px; border-radius: 9px; border: 1px solid transparent; background: none; color: #8fd0ff; font: inherit; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+.dcard__more:hover { color: #fff; background: rgba(60, 150, 230, 0.1); }
+.dcard__more:focus-visible { outline: 2px solid var(--ice, #8fd0ff); outline-offset: 2px; }
+.dcard__chev { transition: transform var(--t-fast, 120ms) ease; }
+.dcard.is-open .dcard__chev { transform: rotate(180deg); }
+.dcard__x { display: grid; gap: 10px; padding-top: 10px; margin-top: 2px; border-top: 1px solid var(--glass-line); }
+.dcard__mean { margin: 0; font-size: 0.9rem; line-height: 1.45; color: var(--text-hi); }
+.dcard__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; margin: 0; }
+.dcard__facts div { min-width: 0; }
+.dcard__facts dt { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+.dcard__facts dd { margin: 1px 0 0; font-size: 0.82rem; color: var(--text-hi); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+.dleads { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.dlead { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 10px; border-radius: 10px; color: var(--text-hi); background: rgba(4, 20, 34, 0.55); border: 1px solid var(--glass-line); font-size: 0.84rem; font-weight: 600; }
+.dlead span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dlead svg:first-child { color: #6fc0ff; flex: none; }
+.dlead .chev { color: var(--text-3); flex: none; }
+.dlead:hover { color: #fff; border-color: var(--glass-line-hi); background: rgba(30, 140, 242, 0.12); }
+.dlead--player svg:first-child { color: var(--gold-2); }
+.dlead--script svg:first-child { color: #b9a4ff; }
+.dlead--evidence svg:first-child { color: var(--tier-good); }
+
+/* The Terminal's selected discovery: the conclusion and where it leads, under the insight. */
+.tm-means { display: grid; gap: 10px; margin-top: 10px; }
+.tm-means__t { margin: 0; font-size: 0.92rem; line-height: 1.45; color: var(--text-hi); }
+.tm-means .dleads { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }

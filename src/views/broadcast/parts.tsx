@@ -1,7 +1,6 @@
 // Broadcast building blocks shared by Home, Games and the Terminal: participant marks for every sport, the
-// today's-games rail and its tiles, the featured matchup hero with glass number panels, and compact discovery
-// cards. Everything drawn is a published field; a missing number is left out, never filled.
-import { useMemo, useRef, type ReactNode } from 'react';
+// featured matchup hero with glass number panels, and compact discovery cards (the rail lives in rail.tsx). Everything drawn is a published field; a missing number is left out, never filled.
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { BoardItem } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
@@ -19,12 +18,12 @@ import { heroInputFor } from '../../lib/hero/input';
 import { kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { gameScripts, sharePct } from '../../lib/scripts';
-import { teamColors } from '../../lib/teams';
 import { matchupInsights } from '../../insights/matchups';
 import { atWord, gameWeather, splitName, weatherLine } from '../game/Hero';
 import { KIND_WORD, type Discovery } from '../../intelligence/discoveries';
-import { phaseWord, type GameRow } from './games';
+import type { GameRow } from './games';
 import { halfRound, heroNumbers, spreadText } from './numbers';
+import '../../styles/lane-e-intel.css';
 
 type Participant = BoardItem['participants'][number];
 
@@ -38,46 +37,6 @@ export function PMark({ sport, p, size = 'md' }: { sport: string; p: Participant
   const words = (p.display_name ?? p.short_name ?? '?').replace(/[^\p{L}\s-]/gu, '').split(/\s+/).filter(Boolean);
   const text = (sport === 'TENNIS' ? words.slice(-1)[0]?.slice(0, 3) : words.map((w) => w[0]).join('').slice(0, 3)) ?? '?';
   return <span className={`pmark pmark--text pmark--${size}`} aria-hidden="true">{text.toUpperCase()}</span>;
-}
-
-const shortOf = (sport: string, p: Participant | undefined) => (!p ? '' : sport === 'SOCCER' || sport === 'TENNIS' || sport === 'CBB' ? p.display_name : p.short_name ?? p.display_name);
-
-/** One game in the rail: logos, names, clock word, and how many candidates its own publication flags. */
-export function RailTile({ g }: { g: GameRow }) {
-  const nav = navSport(g.slug);
-  const homeCol = TEAM_LOGO_SPORTS.has(g.sport) ? teamColors(g.sport, g.home?.short_name)[0] : nav?.accent;
-  const awayCol = TEAM_LOGO_SPORTS.has(g.sport) ? teamColors(g.sport, g.away?.short_name)[0] : nav?.accent;
-  const sep = g.sport === 'SOCCER' || g.sport === 'TENNIS' ? 'v' : '@';
-  const first = g.sport === 'SOCCER' ? g.home : g.away;
-  const second = g.sport === 'SOCCER' ? g.away : g.home;
-  return (
-    <Link to={routes.game(g.slug, g.item.event_id)} className={`rtile rtile--${g.phase.toLowerCase()}`} style={{ ['--ca' as string]: awayCol, ['--ch' as string]: homeCol }} aria-label={`${g.label}, ${nav?.label ?? g.sport}, ${phaseWord(g)}${g.candidates ? `, ${g.candidates} research candidates` : ''}`}>
-      <span className="rtile__top">
-        <span className="rtile__sport">{nav && <SportMark slug={g.slug} icon={nav.icon} size={13} />}{g.sport === 'SOCCER' || g.sport === 'TENNIS' ? (g.item.competition ?? nav?.label) : nav?.label}</span>
-        <span className={`rtile__clock${g.phase === 'STARTED' && !g.stale ? ' is-live' : ''}`}>{phaseWord(g)}</span>
-      </span>
-      <span className="rtile__row"><PMark sport={g.sport} p={first} size="sm" /><span className="rtile__n">{shortOf(g.sport, first)}</span></span>
-      <span className="rtile__row"><PMark sport={g.sport} p={second} size="sm" /><span className="rtile__n">{sep === '@' ? '' : ''}{shortOf(g.sport, second)}</span></span>
-      <span className="rtile__foot">{g.candidates > 0 ? <span className="rtile__flag">{g.candidates} {g.candidates === 1 ? 'candidate' : 'candidates'}</span> : g.item.markets_available ? <span>{g.item.markets_available} markets</span> : <span>Research</span>}</span>
-    </Link>
-  );
-}
-
-/** Today's games as a horizontal rail with scroll buttons on wide screens and a View all link. */
-export function GameRail({ rows, viewAll, empty }: { rows: GameRow[]; viewAll: string; empty?: ReactNode }) {
-  const ref = useRef<HTMLUListElement>(null);
-  const scroll = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * Math.max(240, ref.current.clientWidth * 0.8), behavior: 'smooth' });
-  if (!rows.length) return <>{empty ?? null}</>;
-  return (
-    <div className="rail">
-      <button type="button" className="rail__btn rail__btn--l" onClick={() => scroll(-1)} aria-label="Scroll games left"><Icon name="arrowLeft" size={18} /></button>
-      <ul className="rail__list" ref={ref}>
-        {rows.map((g) => <li key={`${g.slug}:${g.item.event_id}`}><RailTile g={g} /></li>)}
-        <li className="rail__end"><Link to={viewAll} className="rail__all"><Icon name="grid" size={20} /><span>View all</span><b className="bnum">{rows.length}</b></Link></li>
-      </ul>
-      <button type="button" className="rail__btn rail__btn--r" onClick={() => scroll(1)} aria-label="Scroll games right"><Icon name="arrowRight" size={18} /></button>
-    </div>
-  );
 }
 
 /** The one game's research document, through its sport's own resolved source (one fetch, memoised). */
@@ -189,21 +148,67 @@ export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
 
 const SIG_WORD = { high: 'High significance', medium: 'Notable', low: 'Context' } as const;
 
-/** A discovery as a compact card: kind, significance and evidence as two separate words, the why, where it leads. */
-export function DiscoveryCard({ d, active, onSelect }: { d: Discovery; active?: boolean; onSelect?: () => void }) {
+const LEAD_ICON: Record<string, string> = { script: 'layers', player: 'star', stat: 'chart', market: 'chart', evidence: 'shield', game: 'compare', data: 'info' };
+
+/** Where a finding leads, as a short list of links (script, player, stat, market, evidence). */
+export function LeadLinks({ d, max = 4 }: { d: Discovery; max?: number }) {
+  if (!d.leads.length) return null;
+  return (
+    <ul className="dleads" aria-label="Research this leads to">
+      {d.leads.slice(0, max).map((l) => (
+        <li key={l.href + l.label}><Link to={l.href} className={`dlead dlead--${l.kind}`}><Icon name={LEAD_ICON[l.kind] ?? 'arrowRight'} size={14} /><span>{l.label}</span><Icon name="chevronRight" size={14} className="chev" /></Link></li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * A discovery as a compact card: kind, significance and evidence as two separate words, the why, where it leads.
+ * `expandable` (Home): the card opens in place to the plainly explained conclusion, its key facts and the research it
+ * leads to; the title still opens the Terminal for the full connected view.
+ */
+export function DiscoveryCard({ d, active, onSelect, expandable }: { d: Discovery; active?: boolean; onSelect?: () => void; expandable?: boolean }) {
+  const [open, setOpen] = useState(false);
   const nav = navSport(d.slug);
+  const top = (
+    <span className="dcard__top">
+      <span className="dcard__kind">{nav && <SportMark slug={d.slug} icon={nav.icon} size={13} />}{KIND_WORD[d.kind]}</span>
+      <span className={`dcard__sig dcard__sig--${d.significance}`}>{SIG_WORD[d.significance]}</span>
+    </span>
+  );
+  const foot = (
+    <span className="dcard__foot">
+      {d.evidence ? <span className={`dword dword--${d.evidence.tone}`}>{d.evidence.word}</span> : <span className="dcard__noev">Not a betting signal</span>}
+      {d.evidence && <span className="dcard__basis">{d.evidence.basis}</span>}
+    </span>
+  );
+  if (expandable) {
+    const id = `dx-${d.id.replace(/[^a-z0-9]/gi, '')}`;
+    return (
+      <article className={`dcard dcard--x${open ? ' is-open' : ''}`}>
+        {top}
+        <Link to={routes.intelligence({ d: d.id })} className="dcard__t dcard__ta">{d.title}</Link>
+        <span className="dcard__why">{d.why}</span>
+        {foot}
+        <button type="button" className="dcard__more" aria-expanded={open} aria-controls={id} onClick={() => setOpen((x) => !x)}>
+          <Icon name="chevronDown" size={14} className="dcard__chev" />{open ? 'Hide summary' : 'What it means'}
+        </button>
+        {open && (
+          <div className="dcard__x" id={id}>
+            <p className="dcard__mean">{d.meaning}</p>
+            {d.facts.length > 0 && <dl className="dcard__facts">{d.facts.slice(0, 4).map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>}
+            <LeadLinks d={d} />
+          </div>
+        )}
+      </article>
+    );
+  }
   const body = (
     <>
-      <span className="dcard__top">
-        <span className="dcard__kind">{nav && <SportMark slug={d.slug} icon={nav.icon} size={13} />}{KIND_WORD[d.kind]}</span>
-        <span className={`dcard__sig dcard__sig--${d.significance}`}>{SIG_WORD[d.significance]}</span>
-      </span>
+      {top}
       <span className="dcard__t">{d.title}</span>
       <span className="dcard__why">{d.why}</span>
-      <span className="dcard__foot">
-        {d.evidence ? <span className={`dword dword--${d.evidence.tone}`}>{d.evidence.word}</span> : <span className="dcard__noev">Not a betting signal</span>}
-        {d.evidence && <span className="dcard__basis">{d.evidence.basis}</span>}
-      </span>
+      {foot}
     </>
   );
   if (onSelect) return <button type="button" className={`dcard${active ? ' is-on' : ''}`} onClick={onSelect} aria-pressed={!!active}>{body}</button>;

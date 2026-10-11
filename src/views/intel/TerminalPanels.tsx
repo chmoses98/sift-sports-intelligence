@@ -30,7 +30,7 @@ import { teamColors } from '../../lib/teams';
 import { formatQuoteAgo, quoteAgeMs, quoteFreshness } from '../../live/freshness';
 import type { LiveQuote } from '../../live/types';
 import type { Opportunity } from '../../opportunity/types';
-import { PMark } from '../broadcast/parts';
+import { LeadLinks, PMark } from '../broadcast/parts';
 import { halfRound, heroNumbers, spreadText } from '../broadcast/numbers';
 import { gameWeather, weatherLine } from '../game/Hero';
 import { MarketCompare } from './MarketCompare';
@@ -143,6 +143,10 @@ export function SelectedHero({ d, game, spec, pinned, onPin, onBack }: { d: Disc
             <span className="tm-insight__evk">Betting evidence</span>
             {d.evidence ? <><span className={`dword dword--${d.evidence.tone}`}>{d.evidence.word}</span><span className="muted small">{d.evidence.basis}</span></> : <span className="muted small">None — significance is not a bet</span>}
           </p>
+          <div className="tm-means">
+            <p className="tm-means__t"><b>What it means.</b> {d.meaning}</p>
+            <LeadLinks d={d} />
+          </div>
         </section>
         <div className="tm-hero__acts">
           <button type="button" className={`btn btn--sm btn--glass${why ? ' is-on' : ''}`} aria-expanded={why} aria-controls="tm-why" onClick={() => setWhy((x) => !x)}><Icon name="info" size={14} /> Why?</button>

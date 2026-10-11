@@ -16,31 +16,25 @@ import { useNow } from '../../live/hooks';
 import { useAllOpportunities } from '../../opportunity/load';
 import { useVisit } from '../../state/trail';
 import { competitionWord, DAY_WORD, gameRows, inDay, phaseWord, slateOrder, type DayWindow, type GameRow } from './games';
-import { PMark } from './parts';
-
-const nameOf = (g: GameRow, p: GameRow['home']) => (!p ? '' : g.sport === 'SOCCER' || g.sport === 'TENNIS' || g.sport === 'CBB' ? p.display_name : p.short_name ?? p.display_name);
+import { CardBody, CardFoot, factsLabel, useCardFacts } from './GameCard';
 
 function SlateTile({ g }: { g: GameRow }) {
   const spec = useMemo(() => resolveHero(heroInputFor(g.item, null, g.sport)), [g.item, g.sport]);
   const [ref, inView] = useInView<HTMLLIElement>();
-  const first = g.sport === 'SOCCER' ? g.home : g.away;
-  const second = g.sport === 'SOCCER' ? g.away : g.home;
+  const { facts } = useCardFacts(g, inView);
   const day = Number.isFinite(g.startMs) ? new Date(g.startMs).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+  const fallback = g.candidates > 0 ? null : g.item.markets_available ? `${g.item.markets_available} markets` : 'Research only';
   return (
-    <li ref={ref} className={`stile stile--${g.phase.toLowerCase()}${spec.photo ? '' : ' stile--nophoto'}`} style={heroVars(spec)}>
+    <li ref={ref} className={`stile gc-tile stile--${g.phase.toLowerCase()}${spec.photo ? '' : ' stile--nophoto'}`} style={heroVars(spec)}>
       <div className="stile__img" aria-hidden="true"><HeroArt spec={spec} variant="tile" load={inView} /></div>
-      <Link to={routes.game(g.slug, g.item.event_id)} className="stile__a" aria-label={`${g.label}, ${day} ${phaseWord(g)}${g.candidates ? `, ${g.candidates} research candidates` : ''}`}>
+      <Link to={routes.game(g.slug, g.item.event_id)} className="stile__a" aria-label={`${g.label}, ${day} ${phaseWord(g)}. ${factsLabel(facts)}`}>
         <span className="stile__top">
           <span className="stile__comp">{competitionWord(g.item.competition, navSport(g.slug)?.label ?? g.sport)}</span>
           <span className={`stile__clock${g.phase === 'STARTED' && !g.stale ? ' is-live' : ''}`}>{g.phase === 'PREGAME' ? `${day} · ${phaseWord(g)}` : phaseWord(g)}</span>
         </span>
-        <span className="stile__teams">
-          <span className="stile__team"><PMark sport={g.sport} p={first} size="md" /><span>{nameOf(g, first)}</span></span>
-          <span className="stile__vs">{g.sport === 'SOCCER' || g.sport === 'TENNIS' ? 'v' : '@'}</span>
-          <span className="stile__team"><PMark sport={g.sport} p={second} size="md" /><span>{nameOf(g, second)}</span></span>
-        </span>
+        <CardBody g={g} f={facts} size="md" />
         <span className="stile__foot">
-          {g.candidates > 0 ? <span className="dword dword--research">{g.candidates} to review</span> : <span className="stile__mk">{g.item.markets_available ? `${g.item.markets_available} markets` : 'Research only'}</span>}
+          <CardFoot f={facts} fallback={fallback} />
           <Icon name="chevronRight" size={16} className="chev" />
         </span>
       </Link>

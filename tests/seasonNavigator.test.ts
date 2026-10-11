@@ -61,12 +61,12 @@ describe('breadcrumbs follow the destination hierarchy', () => {
   const props = s('/nfl/props?game=e1', 'Prop explorer', 'explore');
   const season = s('/nfl/season', 'Season', 'season');
 
-  it('Season reached from a game and the prop explorer reads Explore › Season, not BUF @ LA › Prop explorer › Season', () => {
+  it('Season reached from a game and the prop explorer reads Research Lab › Season, not BUF @ LA › Prop explorer › Season', () => {
     let t = nextTrail([nfl], bufla);
     t = nextTrail(t, props, EXPLORE_STEP);
-    expect(t.map((x) => x.label)).toEqual(['Explore', 'Prop explorer']);
+    expect(t.map((x) => x.label)).toEqual(['Research Lab', 'Prop explorer']);
     t = nextTrail(t, season, EXPLORE_STEP);
-    expect(t.map((x) => x.label)).toEqual(['Explore', 'Season']);
+    expect(t.map((x) => x.label)).toEqual(['Research Lab', 'Season']);
   });
 
   it('a direct link and a refresh give the same crumb', () => {

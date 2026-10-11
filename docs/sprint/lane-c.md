@@ -36,7 +36,10 @@ Branch `sprint/lane-c`, worktree `/home/user/lanes/c`. Real-data screenshots (li
 
 ## Commits
 
-See `git log sprint/lane-c` (history builder + data; main implementation; polish + report).
+- `dcd7b1d` History: team box-score counts, red-zone trips, box-count rush splits
+- `34d14c3` Matchups, basics, units, schemes: readable stats across game, team and compare
+- `e2e88ca` Lane C: shorter footing note, wrapping builder controls, screenshots, INSIGHTS and sprint report
+- (this report's commit)
 
 ## Cross-lane edits
 

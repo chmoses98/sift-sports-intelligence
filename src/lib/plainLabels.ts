@@ -53,9 +53,9 @@ export function authorityLabel(a: string | null | undefined): string {
  * model 0.5.0", "DATA_ONLY_V1" → "Data-only model v1", "projection_v2.0" → "Projection model v2.0",
  * "dc_laplace_v1" → "Dixon–Coles model v1". Unknown codes are de-underscored, never dropped.
  */
-export function modelVersionLabel(v: string | null | undefined): string | null {
-  if (!v) return null;
-  const s = v.trim();
+export function modelVersionLabel(v: unknown): string | null {
+  if (v == null || v === '') return null;
+  const s = String(v).trim();
   let m = /^shadow[-_ ]?v?(\d[\w.]*)/i.exec(s);
   if (m) return `Trial model ${m[1]}`;
   m = /^pure[-_ ]?v?(\d[\d.]*)/i.exec(s);
@@ -124,9 +124,9 @@ export function availabilitySentence(name: string, status: string | null | undef
  * model's kind in brackets when it has one. "shadow-0.4.0" → "v0.4.0 (trial)", "pure-0.5.0" → "v0.5.0
  * (market-independent)", "DATA_ONLY_V1" → "v1 (data-only)", "projection_v2.0" → "v2.0".
  */
-export function modelVersionShort(v: string | null | undefined): string | null {
-  if (!v) return null;
-  const s = v.trim();
+export function modelVersionShort(v: unknown): string | null {
+  if (v == null || v === '') return null;
+  const s = String(v).trim();
   const kinds: [RegExp, string | null][] = [
     [/^shadow[-_ ]?v?(\d[\d.]*)/i, 'trial'],
     [/^pure[-_ ]?v?(\d[\d.]*)/i, 'market-independent'],

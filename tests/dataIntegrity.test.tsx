@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { designation, injuryAge, injurySource, injurySourceName, spanWords } from '../src/lib/injurySource';
-import { availabilitySentence, authorityLabel, capabilityLabel, healthLabel, humanize, modelVersionLabel, qualityLabel } from '../src/lib/plainLabels';
+import { availabilitySentence, authorityLabel, capabilityLabel, healthLabel, humanize, modelVersionLabel, modelVersionShort, qualityLabel } from '../src/lib/plainLabels';
 import { DesignationKey, InjurySource } from '../src/components/InjurySource';
 import { DataState } from '../src/components/DataState';
 import { QualityBadge } from '../src/components/ui';
@@ -83,6 +83,9 @@ describe('plain labels', () => {
     expect(modelVersionLabel('projection_v2.0')).toBe('Projection model v2.0');
     expect(modelVersionLabel('ledger ELO (projection_v2.0)')).toBe('Elo ledger (projection model v2.0)');
     expect(modelVersionLabel(null)).toBeNull();
+    expect(() => modelVersionShort({ id: 'x' })).not.toThrow(); // never throws on a non-string
+    expect(modelVersionShort('shadow-0.4.0')).toBe('v0.4.0 (trial)');
+    expect(modelVersionShort(2)).toBe('v2');
   });
 
   it('capability availability is a sentence: what, and what it means for the screens', () => {

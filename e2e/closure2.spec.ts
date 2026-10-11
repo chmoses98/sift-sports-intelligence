@@ -6,13 +6,13 @@ import { ALLEN, BUF, expect, ML_ID, NEBUF, noHorizontalOverflow, NOW, test } fro
 const FINAL_GAME = 'evt_0e858f7285b411adf630'; // a 2026 week-1 game, FINAL in this publication
 const AFTER_KICKOFF = new Date('2026-10-04T17:30:00Z'); // NE @ BUF kicked off at 17:00Z
 async function expectTray(page: Page, isMobile: boolean, n: number) {
-  // The My Board count on the destination bar (header on wide screens, tab bar on phones); it hides at zero.
-  const badge = isMobile ? page.locator('.bottombar__n') : page.locator('.dnav__n [aria-hidden="true"]');
+  // The My Board count: its header tab on wide screens, the header bookmark on phones; it hides at zero.
+  const badge = isMobile ? page.locator('.topbar__boardn') : page.locator('.dnav__n [aria-hidden="true"]');
   if (n === 0) await expect(badge).toHaveCount(0);
   else await expect(badge).toHaveText(String(n));
 }
 async function openBoard(page: Page, isMobile: boolean) {
-  await (isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
+  await (isMobile ? page.getByRole('banner') : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
   await expect(page.getByRole('heading', { name: /^My Board$/, level: 1 })).toBeVisible();
 }
 

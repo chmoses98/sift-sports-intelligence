@@ -1,7 +1,8 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { createHashRouter, Outlet, RouterProvider, ScrollRestoration } from 'react-router';
+import { createHashRouter, Outlet, RouterProvider } from 'react-router';
 import { Skeleton } from './components/ui';
 import { Shell } from './components/Shell';
+import { ScrollManager } from './components/ScrollManager';
 import { SportLayout } from './components/SportLayout';
 import { TrailProvider } from './state/trail';
 import { TrayProvider } from './state/tray';
@@ -51,7 +52,7 @@ function Root() {
           <Outlet />
         </Page>
       </Shell>
-      <ScrollRestoration />
+      <ScrollManager />
     </TrailProvider>
   );
 }

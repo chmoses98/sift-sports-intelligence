@@ -26,7 +26,8 @@ describe('destinations', () => {
     expect(destinationOf('/explore')).toBe('explore');
     expect(destinationOf('/nfl/player/p1')).toBe('explore');
     expect(destinationOf('/nfl/season')).toBe('explore');
-    expect(destinationOf('/nfl/props')).toBe('explore');
+    expect(destinationOf('/nfl/props')).toBe('props');
+    expect(destinationOf('/props')).toBe('props');
     expect(destinationOf('/intelligence')).toBe('intelligence');
     expect(destinationOf('/intelligence/pulse')).toBe('intelligence');
     expect(destinationOf('/nhl/scorecard')).toBe('intelligence');

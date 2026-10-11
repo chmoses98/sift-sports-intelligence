@@ -4,14 +4,25 @@
 // replacing its analysis when another prop is picked. No sideways scroll anywhere.
 import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
 
-const DESTS = ['Home', 'Games', 'Explore', 'Intelligence', 'My Board'];
+// Wide screens: six header tabs. Phones: five tabs (short words; the accessible name is the full label) and
+// My Board as a bookmark in the header.
+const DESTS = ['Home', 'Games', 'Props', 'Research Lab', 'Intelligence', 'My Board'];
 
-test('five destinations, one search, and Home’s sections @smoke', async ({ page, isMobile }) => {
+test('six destinations, one search, and Home’s sections @smoke', async ({ page, isMobile }) => {
   await page.clock.install({ time: NOW });
   await page.goto('./#/');
   await expect(page.getByRole('heading', { name: /^Today on SIFT$/ })).toBeVisible();
   const nav = isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' });
-  for (const d of DESTS) await expect(nav.getByRole('link', { name: isMobile && d === 'Intelligence' ? 'Intel' : d, exact: false }).first()).toBeVisible();
+  for (const d of DESTS) {
+    const where = isMobile && d === 'My Board' ? page.getByRole('banner') : nav;
+    await expect(where.getByRole('link', { name: d, exact: false }).first()).toBeVisible();
+  }
+  if (isMobile) {
+    await expect(nav.getByRole('link')).toHaveCount(5);
+    for (const w of ['Home', 'Games', 'Props', 'Lab', 'Intel']) await expect(nav.getByText(w, { exact: true })).toBeVisible();
+  }
+  // Props is the top-level Player Prop Explorer (route /props).
+  await expect(nav.getByRole('link', { name: 'Props' })).toHaveAttribute('href', '#/props');
   await expect(page.locator('.searchbtn')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: /Today’s games/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: /SIFT Intelligence/ })).toBeVisible();
@@ -30,9 +41,11 @@ test('every new destination opens from the navigation and survives back/forward 
     await noHorizontalOverflow(page, label);
   };
   await go('Games', /^Games$/);
-  await go('Explore', /^Explore$/);
-  await go(isMobile ? 'Intel' : 'Intelligence', /^Terminal$/);
-  await go('My Board', /^My Board$/);
+  // The Research Lab tab opens /explore (its page heading is the Research Lab redesign's, lane E).
+  await go('Research Lab', /^(Research Lab|Explore)$/);
+  await go('Intelligence', /^Terminal$/);
+  await (isMobile ? page.getByRole('banner') : nav).getByRole('link', { name: 'My Board' }).click();
+  await expect(page.getByRole('heading', { name: /^My Board$/, level: 1 })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('heading', { name: /^Terminal$/, level: 1 })).toBeVisible();
   await page.goForward();

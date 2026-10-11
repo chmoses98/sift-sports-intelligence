@@ -20,7 +20,9 @@ test('Home reads hero, games, intelligence, lab, board; cards carry records and 
   await expect(rail.getByRole('link', { name: /NFL: \d+ games today/ })).toBeVisible();
   const card = rail.locator('.rtile.gc').first();
   await expect(card).toBeVisible();
-  // Records come from published finals; ranks from the game's research once the card is on screen.
+  // Records come from published finals; ranks from the game's research once the card is on screen (short phone
+  // viewports, e.g. iPhone 15 Pro at 659 px, start with the rail below the load margin, so bring it into view).
+  await card.scrollIntoViewIfNeeded();
   await expect(card.locator('.gc-team__rec').first()).toHaveText(/^\d+–\d+(–\d+)?$/);
   await expect(card.locator('.gc-rk').first()).toBeVisible();
   await noHorizontalOverflow(page, 'home');

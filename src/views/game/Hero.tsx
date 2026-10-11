@@ -6,7 +6,8 @@ import { Link } from 'react-router';
 import type { EntityProfileDoc, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';
-import { recordOf, weatherIcon } from '../../lib/gamedata';
+import { recordOf } from '../../lib/gamedata';
+import { CONTEXT_NOTE, CONTEXT_TITLE, venueWeather, venueWeatherLine, type GameWeather } from '../../lib/venue';
 import { displayName, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
@@ -35,68 +36,49 @@ export function splitName(full: string, abbr?: string | null, sport?: string): {
   return w.length > 1 ? { city: w.slice(0, -1).join(' '), nick: w[w.length - 1] } : { city: '', nick: n };
 }
 
-export interface GameWeather {
-  kind: 'outdoor' | 'indoor' | 'retractable' | 'none';
-  icon: string;
-  temp: number | null;
-  condition: string | null;
-  wind: string | null;
-  precip: number | null;
-  /** A condition that plausibly matters for the game (shown with more weight, never as a pick). */
-  flag: string | null;
+// ------------------------------------------------------------------ weather (lane F: the decision lives in lib/venue.ts)
+export type { GameWeather } from '../../lib/venue';
+
+/** The kickoff-time conditions the publication captured, read honestly for the roof the game is under (lib/venue.ts). */
+export function gameWeather(r: EventResearchDoc, venue: (Pick<HeroVenue, 'roof'> & Partial<Pick<HeroVenue, 'id' | 'name'>>) | null): GameWeather {
+  return venueWeather(r, venue);
 }
 
-/**
- * The roof the game is actually played under, from the publication's own capture when it has one
- * ('dome' / 'closed' / 'open' / 'outdoors'), else the venue's construction.
- */
-export function roofState(published: string | null | undefined, v: Pick<HeroVenue, 'roof'> | null): 'outdoors' | 'indoor' | 'roof-open' | 'roof-closed' | 'retractable' | 'unknown' {
-  const p = (published ?? '').toLowerCase();
-  if (p === 'dome') return 'indoor';
-  if (p === 'closed') return 'roof-closed';
-  if (p === 'open') return 'roof-open';
-  if (p === 'outdoors' || p === 'outdoor') return 'outdoors';
-  if (v?.roof === 'dome') return 'indoor';
-  if (v?.roof === 'retractable') return 'retractable';
-  if (v?.roof === 'outdoor') return 'outdoors';
-  return 'unknown';
-}
-
-/** The kickoff-time conditions the publication captured, read honestly for the roof the game is under. */
-export function gameWeather(r: EventResearchDoc, venue: Pick<HeroVenue, 'roof'> | null): GameWeather {
-  const w = r.context?.weather as any;
-  const pubVenue = r.context?.venue as any;
-  const roof = roofState(pubVenue?.roof ?? w?.roof, venue);
-  if (roof === 'indoor' || roof === 'roof-closed') return { kind: 'indoor', icon: 'dome', temp: null, condition: roof === 'roof-closed' ? 'Roof closed' : 'Indoor', wind: null, precip: null, flag: null };
-  if (!w?.available || w.temperature_f == null) return { kind: roof === 'retractable' ? 'retractable' : 'none', icon: roof === 'retractable' ? 'dome' : 'partly', temp: null, condition: roof === 'retractable' ? 'Retractable roof' : null, wind: null, precip: null, flag: null };
-  const mph = Math.max(0, ...String(w.wind ?? '').replace(/to/g, ' ').split(/\s+/).map(Number).filter((x) => Number.isFinite(x)));
-  const precip = w.precipitation_probability ?? null;
-  const t = Number(w.temperature_f);
-  const flag = mph >= 15 ? `Wind ${mph} mph` : precip != null && precip >= 50 ? (/snow/i.test(w.short_forecast ?? '') ? 'Snow likely' : 'Rain likely') : t <= 32 ? 'Freezing' : t >= 90 ? 'Heat' : null;
-  return { kind: 'outdoor', icon: weatherIcon(w.short_forecast), temp: t, condition: w.short_forecast ?? null, wind: w.wind ? `Wind ${w.wind}${w.wind_direction ? ` ${w.wind_direction}` : ''}` : null, precip, flag };
-}
-
+/** The kickoff conditions tile: domes say indoors, retractable roofs say so (outside forecast as context only), open air shows the forecast labelled as context. */
 export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boolean }) {
-  if (wx.kind === 'none') return <div className="wx wx--none"><span className="wx__d"><span className="wx__c">Forecast not published yet</span></span></div>;
+  const conflict = wx.conflict ? <span className="wx__s wx__conflict" title={wx.conflict}>Roof record disputed</span> : null;
+  if (wx.kind === 'none') {
+    return (
+      <div className="wx wx--none" data-roof={wx.roof}>
+        <span className="wx__d"><span className="wx__c">{wx.withheld ? 'Forecast withheld' : wx.note ?? 'Forecast not published yet'}</span>{wx.withheld && <span className="wx__s">{wx.withheld}</span>}{conflict}</span>
+      </div>
+    );
+  }
   if (wx.kind !== 'outdoor') {
     return (
-      <div className={`wx wx--indoor${compact ? ' wx--compact' : ''}`}>
+      <div className={`wx wx--indoor${wx.kind === 'retractable' ? ' wx--retract' : ''}${compact ? ' wx--compact' : ''}`} data-roof={wx.roof} role="group" aria-label={[wx.condition, wx.note, wx.outside ? `outside: ${wx.outside}` : null].filter(Boolean).join('. ')}>
         <Icon name="dome" size={compact ? 26 : 34} className="wx__ic" />
-        <span className="wx__d"><span className="wx__c">{wx.condition}</span><span className="wx__s">{wx.kind === 'retractable' ? 'Roof status not published yet' : 'No weather exposure'}</span></span>
+        <span className="wx__d">
+          <span className="wx__c">{wx.condition}</span>
+          <span className="wx__s">{wx.note}</span>
+          {wx.outside && !compact && <span className="wx__s wx__out">Outside: {wx.outside}</span>}
+          {conflict}
+        </span>
       </div>
     );
   }
   return (
-    <div className={`wx${wx.flag ? ' wx--flag' : ''}${compact ? ' wx--compact' : ''}`} aria-label={`Kickoff forecast: ${wx.temp} degrees, ${wx.condition ?? ''}${wx.wind ? `, ${wx.wind}` : ''}${wx.precip != null ? `, ${wx.precip}% chance of precipitation` : ''}`} role="group">
+    <div className={`wx${wx.flag ? ' wx--flag' : ''}${compact ? ' wx--compact' : ''}`} data-roof={wx.roof} aria-label={`Kickoff forecast: ${wx.temp} degrees, ${wx.condition ?? ''}${wx.wind ? `, ${wx.wind}` : ''}${wx.precip != null ? `, ${wx.precip}% chance of precipitation` : ''}`} role="group">
       <Icon name={wx.icon} size={compact ? 30 : 40} className="wx__ic" />
       <span className="wx__t">{wx.temp}°</span>
       <span className="wx__d">
         <span className="wx__c">{wx.condition}</span>
         {wx.wind && <span className="wx__s">{wx.wind}</span>}
         {wx.precip != null && wx.precip >= 20 && <span className="wx__s">{wx.precip}% precipitation</span>}
+        {conflict}
       </span>
       {wx.flag && <span className="wx__flag">{wx.flag}</span>}
-      {!compact && <span className="wx__note" title="Audited 2026-10-10: the NFL, CFB and soccer publications capture the forecast for context; it does not enter their simulations or probabilities.">Context only · not in the projection</span>}
+      {!compact && <span className="wx__note" title={CONTEXT_TITLE}>{wx.note ?? CONTEXT_NOTE}</span>}
     </div>
   );
 }
@@ -123,11 +105,9 @@ function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { si
   );
 }
 
-/** Kickoff conditions in one quiet line ("67° Mostly Sunny · wind 6 mph", "Indoor"). */
+/** Kickoff conditions in one quiet line ("67° Mostly Sunny · wind 6 mph", "Indoors · dome", "Retractable roof · roof status not announced"). */
 export function weatherLine(wx: GameWeather): string | null {
-  if (wx.kind === 'indoor' || wx.kind === 'retractable') return wx.condition;
-  if (wx.kind !== 'outdoor') return null;
-  return [`${wx.temp}° ${wx.condition ?? ''}`.trim(), wx.wind?.replace(/^Wind/, 'wind'), wx.precip != null && wx.precip >= 30 ? `${wx.precip}% precipitation` : null].filter(Boolean).join(' · ');
+  return venueWeatherLine(wx);
 }
 
 /** What the hero says once a game has begun, in the sport's own words. */

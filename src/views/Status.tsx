@@ -14,6 +14,7 @@ import { CapabilityTable } from './SportOverview';
 import { LiveDiagnostics } from '../components/LiveDiagnostics';
 import { allPlayerImages } from '../lib/players';
 import { PHOTOS, venueById } from '../lib/hero/registry';
+import { InjurySourcesSection, VenueFactsSection } from './status/DataFacts';
 
 interface RouterHealth { overall_status: string; generated_at: string; last_poll_at: string; errors: string[]; warnings: string[]; delivered: number; failed: number; thresholds: Record<string, { fresh_after_seconds: number; stale_after_seconds: number }> }
 
@@ -29,14 +30,15 @@ export function StatusView() {
         <div className="eyebrow">Data & provenance</div>
         <h1 className="h-display">Where every number comes from</h1>
         <p className="lede">
-          Sift is a static app. Your browser reads each sport's published <code>edge_finder.app.v1</code> files straight from GitHub
-          (registry: <code>kalshi-bet-router</code>), lazily, one document at a time. Health and freshness below are recomputed now with each publication's own thresholds.
+          Your browser reads each sport's published research directly, one document at a time; nothing passes through a Sift server.
+          Health and freshness below are recomputed now with each publication's own limits.
         </p>
+        <p className="muted small">Technical detail: publications use the <code>edge_finder.app.v1</code> format, served from GitHub; the list of sports comes from the <code>kalshi-bet-router</code> registry.</p>
       </header>
       <Stratum title="Sports">
         {all.loading && <Skeleton lines={7} />}
         <table className="dtable statustable">
-          <thead><tr><th>Sport</th><th>Live health</th><th>Markets</th><th>Model</th><th>Run</th><th>Explorer</th><th>Capabilities</th></tr></thead>
+          <thead><tr><th>Sport</th><th>Live health</th><th>Markets</th><th>Model</th><th>Run</th><th>Research files</th><th>What it provides</th></tr></thead>
           <tbody>
             {(all.data ?? []).map((s) => {
               const h = s.source?.liveHealth;
@@ -47,11 +49,11 @@ export function StatusView() {
                   <td>{h ? <FreshnessChip asOf={h.last_market_capture} component="market_data" thresholds={h.thresholds?.market_data} /> : '—'}</td>
                   <td>{h ? <FreshnessChip asOf={h.last_model_generated} component="model" thresholds={h.thresholds?.model} /> : '—'}</td>
                   <td><code className="small">{h?.payload_run_id ?? '—'}</code></td>
-                  <td>{s.liveExplorer ? 'live' : s.source?.mode === 'snapshot' ? 'snapshot (live missing)' : 'none'}</td>
+                  <td>{s.liveExplorer ? 'live' : s.source?.mode === 'snapshot' ? 'saved copy (live missing)' : 'not published'}</td>
                   <td>
                     {s.caps ? (
                       <button type="button" className="linklike" aria-expanded={open === s.sport.code} onClick={() => setOpen(open === s.sport.code ? null : s.sport.code)}>
-                        {s.counts.VERIFIED ?? 0}V · {s.counts.PARTIAL ?? 0}P · {s.counts.RESEARCH ?? 0}R · {s.counts.UNAVAILABLE ?? 0}U
+                        {s.counts.VERIFIED ?? 0} verified · {s.counts.PARTIAL ?? 0} incomplete · {s.counts.RESEARCH ?? 0} research · {s.counts.UNAVAILABLE ?? 0} not published
                       </button>
                     ) : '—'}
                   </td>
@@ -62,7 +64,7 @@ export function StatusView() {
         </table>
         {open && all.data?.find((s) => s.sport.code === open)?.caps && <CapabilityTable items={all.data.find((s) => s.sport.code === open)!.caps!.items} />}
       </Stratum>
-      <Stratum id="opportunities" title="How opportunities are decided" sub="The global Home and every sport home show only what a publication itself flags; Sift adds no probability, no bet-up-to and no stake (docs/OPPORTUNITIES.md).">
+      <Stratum id="opportunities" title="How opportunities are decided" sub="The global Home and every sport home show only what a publication itself flags; Sift adds no probability, no bet-up-to and no stake.">
         <ul className="lims">
           <li><b>Source.</b> A sport's own <code>recommendations.json</code> rows (research candidates, or actionable recommendations when the publication's authority permits a bet), the CFB research-signals Value Watch, and nothing else. A row the publication marks PASS, expired or above its bet-up-to stays a PASS.</li>
           <li><b>Identity.</b> Where a Kalshi ticker carries a team or player code, it must be the side the publication names. A row whose ticker belongs to the other side is a PASS: its price and its probability describe different contracts.</li>
@@ -80,8 +82,10 @@ export function StatusView() {
             <HealthPill status={router.data.overall_status} /> <FreshnessChip asOf={router.data.last_poll_at} component="router" thresholds={router.data.thresholds?.router} label="last poll" />
             <p className="muted small">Generated {exactTime(router.data.generated_at)} · {router.data.delivered} delivered · {router.data.failed} failed · {router.data.errors.length} errors, {router.data.warnings.length} warnings.</p>
           </div>
-        ) : router.loading ? <Skeleton lines={2} /> : <p className="muted">router_health.json could not be read.</p>}
+        ) : router.loading ? <Skeleton lines={2} /> : <p className="muted">The bet router's health report could not be read, so its delivery status is unknown.</p>}
       </Stratum>
+      <VenueFactsSection />
+      <InjurySourcesSection />
       <Stratum id="photo-credits" title="Game photo credits" sub="Each game hero photograph shows the HOME team's own game at its own venue, reviewed for that identity before approval: free-licence Wikimedia Commons photographs, cropped, resized and colour graded by Sift, fetched once and served with the app — never fetched at runtime. A team without an approved photograph has Sift's designed team-identity hero instead.">
         <table className="dtable">
           <thead><tr><th scope="col">Team · venue</th><th scope="col">Photo</th><th scope="col">Licence</th><th scope="col">Changes</th></tr></thead>

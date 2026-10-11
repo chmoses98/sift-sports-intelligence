@@ -17,6 +17,10 @@ import { useVisit } from '../state/trail';
 import { HistoricalGameView } from './HistoricalGame';
 import { NewlyListed, QuoteSummaryChip, RefreshQuotes, useQuoteViews } from '../components/LiveQuote';
 import { injuryRows, marketLabel, priceRow } from '../lib/gamedata';
+import { DesignationKey, InjurySource } from '../components/InjurySource';
+import { DataState } from '../components/DataState';
+import { injurySourceName } from '../lib/injurySource';
+import { modelVersionShort } from '../lib/plainLabels';
 import { gameScripts, scriptFit, type ScriptId } from '../lib/scripts';
 import { GameHero } from './game/Hero';
 import { CfbHeroStats, NflHeroStats } from './game/HeroStats';
@@ -132,7 +136,7 @@ function MarketModel({ ext, homeAbbr, awayAbbr }: { ext: any; homeAbbr: string; 
       <p className="mm__note">
         {mi?.label && <span>{mi.label}. </span>}
         {mv?.caveat && <span>{mv.caveat} </span>}
-        {mv?.model_version && <span className="muted">Model {mv.model_version}, features to {mv.feature_cutoff?.slice(0, 16).replace('T', ' ')} UTC.</span>}
+        {mv?.model_version && <span className="muted">Model {modelVersionShort(mv.model_version)}, using data up to {mv.feature_cutoff?.slice(0, 16).replace('T', ' ')} UTC.</span>}
       </p>
       {ext?.real_money_status && <p className="mm__auth"><Icon name="info" size={14} /> {ext.real_money_status}</p>}
     </div>
@@ -182,7 +186,7 @@ function Environment({ ext, homeAbbr, awayAbbr }: { ext: any; homeAbbr: string; 
         </tbody>
       </table>
       <p className="muted small">
-        {gsi?.authority} Source: {gsi?.script_source}. Not simulated: {(gsi?.not_simulated ?? []).join(', ')}.
+        {/^context only/i.test(gsi?.authority ?? '') ? 'Context only: these script inputs never create a bet or change an edge, a threshold, a stake or a model probability.' : gsi?.authority} Source: the publication's game simulation{gsi?.script_source ? <span title={gsi.script_source}> (run {String(gsi.script_source).split('.')[0]})</span> : null}. Not simulated: {(gsi?.not_simulated ?? []).join(', ')}.
       </p>
     </div>
   );
@@ -216,7 +220,7 @@ function Unusual({ r, ext, slug, known }: { r: EventResearchDoc; ext: any; slug:
           </ul>
         </div>
       )}
-      <p className="muted small">Questions and moves are written by the repository's handicap packet; Sift links them to the evidence.</p>
+      <p className="muted small">Questions and moves are written by the sport's own handicapping notes; Sift links them to the evidence.</p>
     </div>
   );
 }
@@ -270,7 +274,7 @@ function Players({ r, slug, sportCode, homeAbbr, awayAbbr, homeId }: { r: EventR
           <Icon name="compare" size={14} /> Compare {qbs[0].display_name} and {qbs[1].display_name}
         </Link>
       )}
-      <p className="muted small">Projections are the repository's coherent simulation (RESEARCH: projectable, not yet validated). Depth order is the Sleeper depth chart — a stated intention, not measured snaps.</p>
+      <p className="muted small">Projections come from the publication's game simulation: research grade, not yet validated. Depth order is the Sleeper depth chart — a stated intention, not measured snaps.</p>
     </div>
   );
 }
@@ -286,7 +290,7 @@ function Availability({ r }: { r: EventResearchDoc }) {
         <li key={k} className="avail__row">
           <span className={`pl__inj pl__inj--${i.status.toLowerCase()}`}>{statusWord(i.status)}</span>
           <span className="avail__d">{i.detail}</span>
-          <span className="avail__src">{i.source} · {i.as_of?.slice(5, 16).replace('T', ' ')}</span>
+          <span className="avail__src">{injurySourceName(i.source).name}{i.as_of ? ` · ${kickoff(i.as_of)}` : ''}</span>
         </li>
       ))}
     </ul>
@@ -659,6 +663,7 @@ export function GameView({ eventId }: { eventId: string }) {
 
       {tab === 'injuries' && (
         <Stratum id="g-availability" title="Injuries & availability" sub="What matters first; every designation below.">
+          {(r.context?.injuries ?? []).length > 0 ? <InjurySource rows={r.context?.injuries ?? []} sport={sport.code} now={now} /> : <DataState title="No injury list in this publication for this game" detail="The publication carries no injury rows for this game yet. Designations usually appear during game week; check back after the next capture." />}
           {importantInjuries.length > 0 && (
             <ul className="newsl newsl--game">
               {importantInjuries.map((n) => <li key={n.id} className={`newsl__i newsl__i--${n.level}`}><b>{n.headline}</b><span>{n.detail}</span></li>)}
@@ -673,7 +678,7 @@ export function GameView({ eventId }: { eventId: string }) {
             ))}
           </div>
           {injuries.some((x) => !x.team) && <Availability r={r} />}
-          {injuries[0]?.asOf && <p className="muted small">Designations as of {kickoff(injuries[0].asOf)} (ESPN via the publication). They resolve at the inactive release, 90 minutes before kickoff.</p>}
+          <DesignationKey statuses={injuries.map((x) => x.status)} />
         </Stratum>
       )}
 

@@ -58,8 +58,8 @@ function ResearchUnavailable({ sport, source }: { sport: SportConfig; source: Sp
       <Notice tone="error" title={`${sport.label} research is unavailable right now`}>
         <p>
           {offline ? 'You are offline and this research has not been opened on this device before. ' : ''}
-          Sift could not read a research explorer for {sport.label} ({source.mode === 'live-v1' ? 'the live publication has only the v1 board' : source.reason}).
-          Nothing is shown in its place: no stale or invented research.
+          Sift could not read {sport.label}'s research files ({source.mode === 'live-v1' ? 'the publication currently carries only its game board' : source.reason.replace(/\.$/, '')}).
+          Nothing is shown in its place: no stale or invented research. Details are on Data & provenance.
         </p>
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => window.location.reload()}>Try again</button>
       </Notice>

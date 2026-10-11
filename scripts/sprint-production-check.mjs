@@ -114,7 +114,10 @@ async function roofGames() {
 
 // ------------------------------------------------------------------ page helpers
 function watch(page, sink) {
-  page.on('pageerror', (e) => sink.errors.push(`pageerror: ${e.message}`));
+  // WebKit reports a failed request to a data host ("…raw.githubusercontent.com/… due to access control checks", e.g. a
+  // rate-limited answer without CORS headers) as a page error even when the app catches the rejection; only that exact
+  // network message is excluded — every other page error counts.
+  page.on('pageerror', (e) => !/^(Fetch API cannot load )?https?:\/\/raw\.githubusercontent\.com\/\S+ due to access control checks\.?$/.test(e.message.trim()) && sink.errors.push(`pageerror: ${e.message}`));
   page.on('console', (m) => m.type() === 'error' && !/Failed to load resource|access control checks|blocked by CORS policy|net::ERR/.test(m.text()) && sink.errors.push(m.text()));
   page.on('request', (r) => {
     if (r.resourceType() !== 'image' && !/\.(webp|jpe?g|png)(\?|$)/i.test(r.url())) return;

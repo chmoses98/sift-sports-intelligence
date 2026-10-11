@@ -8,7 +8,7 @@ import type { EventDetailDoc, EventResearchDoc } from '../src/contract/types';
 import { filterGroups, groupMarkets, kindOf, latestPrices, MarketBoard } from '../src/components/MarketBoard';
 import { marketLabel, priceRow } from '../src/lib/gamedata';
 import { gameScripts, scriptFit } from '../src/lib/scripts';
-import { TOP_FILTERS, topMarketCounts, topMarketRows } from '../src/views/game/MarketIntel';
+import { TOP_FILTERS, TOP_MARKETS_SHOWN, TopMarkets, topMarketCounts, topMarketRows } from '../src/views/game/MarketIntel';
 import { eventCards, kindCounts, marketKind } from '../src/lib/marketBrowse';
 import type { Featured } from '../src/opportunity/rank';
 import type { Opportunity } from '../src/opportunity/types';
@@ -78,6 +78,27 @@ describe('Top markets chips', () => {
     }
     // Player props show even when the model prices none of them (the old table hid every unpriced prop).
     expect(counts.props).toBeGreaterThan(0);
+  });
+  it('the rendered table reaches every contract a chip counts (top rows first, then "Show all")', () => {
+    render(<MemoryRouter><TopMarkets rows={rows} set={set} selected={null} slug="nfl" eventId="evt_0cb333291f580a201a70" now={Date.parse('2026-10-04T12:00:00Z')} allHref="#" /></MemoryRouter>);
+    const card = screen.getByTestId('top-markets');
+    const chips = within(within(card).getByRole('group', { name: 'Market type' })).getAllByRole('button');
+    expect(chips.length).toBeGreaterThan(1);
+    let capped = 0;
+    for (const chip of chips) {
+      fireEvent.click(chip);
+      const n = Number(chip.querySelector('small')!.textContent);
+      const bodyRows = () => card.querySelectorAll('tbody tr').length;
+      expect(bodyRows()).toBe(Math.min(n, TOP_MARKETS_SHOWN));
+      const more = within(card).queryByRole('button', { name: `Show all ${n}` });
+      if (n > TOP_MARKETS_SHOWN) {
+        capped++;
+        fireEvent.click(more!);
+        expect(bodyRows()).toBe(n);
+      } else expect(more).toBeNull();
+    }
+    // The fixture has chips with more contracts than the opening table shows (the case the old chips miscounted).
+    expect(capped).toBeGreaterThan(0);
   });
   it('script-fit ordering: with a script selected, contracts that always win in it come first', () => {
     const i = set.scripts.findIndex((s) => s.id === 'fav-big');

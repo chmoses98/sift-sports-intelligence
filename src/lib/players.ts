@@ -3,10 +3,29 @@
 // and credited in player-images.json (shown on Data & provenance). Never AI imagery, never hot-linked.
 // A player without a pinned photo has none: screens fall back to the team's logo and colour, never to
 // initials or a silhouette.
+//
+// Only game-day frames in the player's CURRENT team uniform are shown. player-image-blocklist.json names every
+// reviewed file that is not one (press conferences, interviews, draft/announcement events, training camp,
+// college or former-team uniforms); NON_GAME_FILE catches the same contexts by file name, so a regenerated
+// manifest can never bring one back. A player with no approved photo shows the team-branded graphic.
 import manifest from './player-images.json';
+import blocklist from './player-image-blocklist.json';
 
 interface PlayerImage { name: string; team: string; slot: string; participant_id?: string; focus?: string; file: string; source: string; artist: string; license: string; license_url: string | null; modifications?: string; review_asset?: boolean }
-const IMAGES = (manifest as { players: Record<string, PlayerImage> }).players;
+
+/** File-name words that mark a frame that is not game action (shared with scripts/players/fetch.mjs). */
+export const NON_GAME_FILE = /press[ _-]?conference|interview|podium|draft|announcement|signing|poll|party|softball|charity|training[ _-]?camp|minicamp|\bcamp\b|practice|offseason|gala|ceremony|award|visit|meets/i;
+
+const BLOCKED = new Set((blocklist as { files: { file: string }[] }).files.map((f) => f.file));
+
+/** Whether a Commons file may be shown as a player photo. */
+export function playerImageAllowed(file: string): boolean {
+  return !BLOCKED.has(file) && !NON_GAME_FILE.test(file);
+}
+
+const IMAGES: Record<string, PlayerImage> = Object.fromEntries(
+  Object.entries((manifest as { players: Record<string, PlayerImage> }).players).filter(([, p]) => playerImageAllowed(p.file)),
+);
 
 export interface PlayerPhoto {
   src: string;

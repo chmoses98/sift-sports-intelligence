@@ -19,6 +19,7 @@ import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFromResearch } from '../../lib/hero/input';
 import type { HeroSpec, HeroVenue } from '../../lib/hero/types';
 import { HeroArt, heroVars } from '../../components/HeroArt';
+import { accentOnDark } from '../../lib/hero/accent';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -83,7 +84,7 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
   );
 }
 
-function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean }) {
+function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won, accent }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean; accent: string }) {
   // Broadcast identity (approved reference 02): the club's city small, its code huge in the condensed face, the
   // record under it, the logo toward the centre. College names are not "City Nickname" ("Iowa St.", "Florida
   // International") and CFB never shows contract codes: CFB's huge line is the school's canonical name.
@@ -91,13 +92,14 @@ function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won }: { si
   const rec = recordOf(prof);
   const college = sportCode === 'CFB';
   return (
-    <div className={`gh__team gh__team--${side}`}>
+    <div className={`gh__team gh__team--${side}`} style={{ ['--tc' as string]: accent }}>
       <TeamMark sport={sportCode} abbr={abbr} size="xl" />
       <div className="gh__tn">
         {!college && <span className="gh__city"><span className="gh__cityname">{city || nick}</span></span>}
         <Link to={routes.team(slug, pid)} className={`gh__name${college ? ' gh__name--school' : ''}${college && nick.length > 9 ? ' gh__name--long' : ''}`}>
           {college ? nick : abbr}{!college && <span className="sr-only"> {name}</span>}
         </Link>
+        <i className="gh__rule" aria-hidden="true" />
         {rec && <span className="gh__rec num">{rec.text}<span className="sr-only"> record</span></span>}
       </div>
       {score != null && <span className={`gh__score num${won ? ' is-win' : ''}`}>{score}</span>}
@@ -144,8 +146,11 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
   const venue = spec.venue;
   const wx = gameWeather(r, venue);
   const venueName = venue?.name ?? null;
-  const [hc, hc2] = teamColors(sportCode, homeAbbr);
-  const [ac, ac2] = teamColors(sportCode, awayAbbr);
+  const [hc, hc2] = spec.home?.colors ?? teamColors(sportCode, homeAbbr);
+  const [ac, ac2] = spec.away?.colors ?? teamColors(sportCode, awayAbbr);
+  // Each club's own colour as the hero's accent, lifted only as far as 3:1 on the dark frame needs.
+  const hAccent = accentOnDark([hc, hc2]);
+  const aAccent = accentOnDark([ac, ac2]);
   const d = new Date(ev.start_time_utc);
   const day = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
@@ -156,8 +161,9 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
   return (
-    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: brighter(hc, hc2), ['--fx-away' as string]: brighter(ac, ac2) }} {...heroData(spec)}>
+    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hAccent, ['--fx-away' as string]: aAccent }} {...heroData(spec)}>
       <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /><span className="gh__light" /></div>
+      <span className="gh__edge" aria-hidden="true" />
       <HeroIdentity spec={spec} sportCode={sportCode} />
       <div className="gh__in">
         <h1 className="sr-only">{awayP.display_name} {atWord(spec)} {homeP.display_name}</h1>
@@ -169,9 +175,9 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
           {!stats && wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
         </p>
         <div className="gh__teams">
-          <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} />
+          <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} accent={aAccent} />
           <span className="gh__at" aria-hidden="true">{final ? 'final' : atWord(spec)}</span>
-          <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} />
+          <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} accent={hAccent} />
         </div>
       </div>
       {stats && <div className="gh__stats">{stats}</div>}

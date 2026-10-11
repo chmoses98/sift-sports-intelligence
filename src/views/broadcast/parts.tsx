@@ -18,8 +18,12 @@ import { heroInputFor } from '../../lib/hero/input';
 import { kickoff, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
 import { gameScripts, sharePct } from '../../lib/scripts';
+import { teamColors } from '../../lib/teams';
 import { matchupInsights } from '../../insights/matchups';
-import { atWord, gameWeather, splitName, weatherLine } from '../game/Hero';
+import { atWord, gameWeather, heroData, splitName, weatherLine } from '../game/Hero';
+import { Info } from '../game/panels';
+import { accentOnDark } from '../../lib/hero/accent';
+import { marketTag, modelTag } from '../../lib/hero/copy';
 import { KIND_WORD, type Discovery } from '../../intelligence/discoveries';
 import type { GameRow } from './games';
 import { halfRound, heroNumbers, spreadText } from './numbers';
@@ -50,20 +54,36 @@ export function useGameResearch(slug: string | null, eventId: string | null) {
   });
 }
 
-function Stat({ k, v, sub, tone }: { k: string; v: ReactNode; sub?: ReactNode; tone?: 'model' | 'market' }) {
+function Cell({ k, info, v, sub, tag, className }: { k: string; info?: ReactNode; v: ReactNode; sub?: ReactNode; tag?: ReactNode; className?: string }) {
   return (
-    <div className={`hstat${tone ? ` hstat--${tone}` : ''}`}>
-      <span className="hstat__k">{k}</span>
-      <span className="hstat__v bnum">{v}</span>
-      {sub && <span className="hstat__s">{sub}</span>}
+    <div className={`fh2__cell${className ? ` ${className}` : ''}`}>
+      <span className="fh2__k">{k}{info}</span>
+      <span className="fh2__v bnum">{v}</span>
+      {sub && <span className="fh2__s">{sub}</span>}
+      {tag && <span className="fh2__tag">{tag}</span>}
     </div>
   );
 }
 
+/** A team's side of the featured matchup: logo, city small, name large, and a rule in the club's own colour. */
+function FeaturedSide({ sport, p, city, nick, accent, side }: { sport: string; p: Participant | undefined; city: string; nick: string; accent: string; side: 'away' | 'home' }) {
+  return (
+    <span className={`fh2__team fh2__team--${side}`} style={{ ['--tc' as string]: accent }}>
+      <span className="fh2__logo"><PMark sport={sport} p={p} size="lg" /></span>
+      <span className="fh2__nm">
+        {city && <small>{city}</small>}
+        <b>{nick}</b>
+        <i className="fh2__rule" aria-hidden="true" />
+      </span>
+    </span>
+  );
+}
+
 /**
- * The featured matchup: the home venue's licensed photograph (or the designed team-branded fallback), real logos,
- * and glass panels with only the numbers this game's publication carries — model and market side by side,
- * each labelled, the model's own caveat beside it.
+ * The featured matchup, broadcast style: the home venue's licensed photograph (or the team-branded graphic), both
+ * clubs in their own colours, then one scoreboard strip with only the numbers this game's publication carries —
+ * the Sift projection, the market, the model's win chance and the key matchup. Each limitation is one short phrase;
+ * the publication's full wording is one tap away (the info buttons), never a paragraph on the hero.
  */
 export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
   const research = useGameResearch(g.slug, g.item.event_id);
@@ -77,71 +97,98 @@ export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
   const a = splitName(g.away?.display_name ?? '', g.away?.short_name, g.sport);
   const h = splitName(g.home?.display_name ?? '', g.home?.short_name, g.sport);
   const nav = navSport(g.slug);
+  const logoSport = TEAM_LOGO_SPORTS.has(g.sport) || g.sport === 'CBB';
+  const awayCol = accentOnDark(spec.away?.colors ?? (TEAM_LOGO_SPORTS.has(g.sport) ? teamColors(g.sport, g.away?.short_name) : [nav?.accent ?? '#8fd0ff', '#8fd0ff']));
+  const homeCol = accentOnDark(spec.home?.colors ?? (TEAM_LOGO_SPORTS.has(g.sport) ? teamColors(g.sport, g.home?.short_name) : [nav?.accent ?? '#8fd0ff', '#8fd0ff']));
   const winModel = n && n.home.modelWin != null && n.away.modelWin != null;
   const winMarket = n && n.home.marketWin != null && n.away.marketWin != null;
+  const hasModel = n && (n.modelSpread != null || (n.away.modelScore != null && n.home.modelScore != null));
+  const hasMarket = n && (n.marketSpread != null || n.marketTotal != null || winMarket);
+  const tag = modelTag(n?.caveat);
+  const modelInfo = n && (n.caveat || n.modelVersion) ? (
+    <Info label="About the Sift model">
+      {n.caveat && <span>{n.caveat}</span>}
+      {n.modelVersion && <span>Model version {n.modelVersion}. Research evidence, not a pick.</span>}
+    </Info>
+  ) : null;
+  const wxText = wx ? weatherLine(wx) : null;
+  const venue = spec.venue?.name ?? g.item.competition ?? '';
   return (
-    <article className={`fhero fhero--${spec.kind}${spec.photo ? '' : ' fhero--nophoto'}`} style={heroVars(spec)} aria-labelledby="fhero-t">
+    <article className={`fhero fh2 fhero--${spec.kind}${spec.photo ? '' : ' fhero--nophoto'}${logoSport ? '' : ' fh2--text'}`} style={{ ...heroVars(spec), ['--fa' as string]: awayCol, ['--fh' as string]: homeCol }} aria-labelledby="fhero-t" {...heroData(spec)}>
       <div className="fhero__img" aria-hidden="true"><HeroArt spec={spec} variant="hero" /></div>
       <div className="fhero__shade" aria-hidden="true" />
-      <div className="fhero__in">
-        <div className="fhero__top">
-          <span className="fhero__eyebrow"><Icon name="star" size={13} /> Featured matchup · {nav?.label ?? g.sport}</span>
-          <span className="fhero__when">{kickoff(g.item.start_time_utc)}{g.startMs > now ? ` · ${until(g.item.start_time_utc, now)}` : ''}</span>
+      <div className="fh2__edge" aria-hidden="true" />
+      <div className="fhero__in fh2__in">
+        <div className="fh2__top">
+          <span className="fh2__eyebrow">{nav && <SportMark slug={g.slug} icon={nav.icon} size={14} />}<span>Featured · {nav?.label ?? g.sport}</span></span>
+          <span className="fh2__when"><b>{kickoff(g.item.start_time_utc)}</b>{g.startMs > now ? <span> · {until(g.item.start_time_utc, now)}</span> : null}</span>
         </div>
-        <h2 className="fhero__match" id="fhero-t">
-          <span className="fhero__team"><PMark sport={g.sport} p={g.away} size="lg" /><span className="fhero__nm"><small>{a.city}</small>{a.nick || g.away?.display_name}</span></span>
-          <span className="fhero__at">{atWord(spec)}</span>
-          <span className="fhero__team fhero__team--home"><span className="fhero__nm"><small>{h.city}</small>{h.nick || g.home?.display_name}</span><PMark sport={g.sport} p={g.home} size="lg" /></span>
+        <h2 className="fh2__match" id="fhero-t">
+          <FeaturedSide sport={g.sport} p={g.away} city={a.city} nick={a.nick || g.away?.display_name || ''} accent={awayCol} side="away" />
+          <span className="fh2__at">{atWord(spec)}</span>
+          <FeaturedSide sport={g.sport} p={g.home} city={h.city} nick={h.nick || g.home?.display_name || ''} accent={homeCol} side="home" />
         </h2>
-        <p className="fhero__venue">{spec.venue?.name ?? g.item.competition ?? ''}{wx && weatherLine(wx) ? ` · ${weatherLine(wx)}` : ''}{wx?.kind === 'outdoor' ? <span className="fhero__wxnote"> · weather shown for context, not in the projection</span> : null}</p>
-        <div className="fhero__panels">
-          {n && (n.modelSpread != null || n.away.modelScore != null) && (
-            <div className="glass fhero__panel">
-              <span className="eyebrow2">SIFT model{n.modelVersion ? ` · ${n.modelVersion}` : ''}</span>
-              <div className="fhero__stats">
-                {n.away.modelScore != null && n.home.modelScore != null && <Stat tone="model" k="Projected score" v={`${n.away.abbr} ${Math.round(n.away.modelScore)} – ${Math.round(n.home.modelScore)} ${n.home.abbr}`} />}
-                {n.modelSpread != null && <Stat tone="model" k="Spread" v={spreadText(n.modelSpread, n)} />}
-                {n.modelTotal != null && <Stat tone="model" k="Total" v={halfRound(n.modelTotal)} />}
+        {(venue || wxText) && (
+          <p className="fh2__venue">
+            {venue && <span className="fh2__vn">{venue}</span>}
+            {wxText && (
+              <span className={wx?.flag ? 'fh2__wx is-flag' : 'fh2__wx'}>
+                {wxText}
+                {wx?.kind === 'outdoor' && <Info label="Is weather in the projection?" align="end"><span>Weather is shown for context. It is not an input to this game’s projection.</span></Info>}
+              </span>
+            )}
+          </p>
+        )}
+        {(hasModel || hasMarket || winModel || insight || lead) && (
+          <div className="fh2__board">
+            {hasModel && (
+              <Cell
+                className="fh2__cell--model"
+                k="Sift projection"
+                info={modelInfo}
+                v={n!.away.modelScore != null && n!.home.modelScore != null ? <><small>{n!.away.abbr}</small> {Math.round(n!.away.modelScore)}<span className="fh2__dash">–</span>{Math.round(n!.home.modelScore)} <small>{n!.home.abbr}</small></> : spreadText(n!.modelSpread, n!)}
+                sub={[n!.modelSpread != null && n!.away.modelScore != null ? spreadText(n!.modelSpread, n!) : null, n!.modelTotal != null ? `Total ${halfRound(n!.modelTotal)}` : null].filter(Boolean).join(' · ') || undefined}
+                tag={tag}
+              />
+            )}
+            {hasMarket && (
+              <Cell
+                className="fh2__cell--market"
+                k="Market"
+                info={n!.marketBasis ? <Info label="Where the market numbers come from"><span>{n!.marketBasis}.</span></Info> : null}
+                v={n!.marketSpread != null ? spreadText(n!.marketSpread, n!) : winMarket ? `${n!.away.abbr} ${sharePct(n!.away.marketWin!)} · ${n!.home.abbr} ${sharePct(n!.home.marketWin!)}` : `Total ${halfRound(n!.marketTotal!)}`}
+                sub={[n!.marketSpread != null && n!.marketTotal != null ? `Total ${halfRound(n!.marketTotal)}` : null, n!.marketSpread != null && winMarket ? `To win ${n!.away.abbr} ${sharePct(n!.away.marketWin!)} · ${n!.home.abbr} ${sharePct(n!.home.marketWin!)}` : null].filter(Boolean).join(' · ') || undefined}
+                tag={marketTag(n!.marketBasis)}
+              />
+            )}
+            {winModel && (
+              <div className="fh2__cell fh2__cell--win">
+                <span className="fh2__k">Model win chance</span>
+                <span className="fh2__wl bnum"><b>{n!.away.abbr} {sharePct(n!.away.modelWin!)}</b><b>{sharePct(n!.home.modelWin!)} {n!.home.abbr}</b></span>
+                <span className="fh2__wbar" role="img" aria-label={`Model win chance: ${n!.away.abbr} ${sharePct(n!.away.modelWin!)}, ${n!.home.abbr} ${sharePct(n!.home.modelWin!)}`}>
+                  <i style={{ width: `${n!.away.modelWin! * 100}%` }} />
+                  <i style={{ width: `${n!.home.modelWin! * 100}%` }} />
+                </span>
+                {tag && !hasModel && <span className="fh2__tag">{tag}</span>}
               </div>
-            </div>
-          )}
-          {n && (n.marketSpread != null || winMarket) && (
-            <div className="glass fhero__panel">
-              <span className="eyebrow2">Market</span>
-              <div className="fhero__stats">
-                {n.marketSpread != null && <Stat tone="market" k="Spread" v={spreadText(n.marketSpread, n)} />}
-                {n.marketTotal != null && <Stat tone="market" k="Total" v={halfRound(n.marketTotal)} />}
-                {winMarket && <Stat tone="market" k="To win" v={`${n.away.abbr} ${sharePct(n.away.marketWin!)} · ${n.home.abbr} ${sharePct(n.home.marketWin!)}`} />}
+            )}
+            {(insight || lead) && (
+              <div className="fh2__cell fh2__cell--read">
+                <span className="fh2__k">{insight ? 'Key matchup' : 'Most likely script'}</span>
+                {insight && <span className="fh2__read">{insight.headline}</span>}
+                {lead && <span className="fh2__s"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />{insight ? 'Most likely: ' : ''}<b>{lead.name}</b> · {sharePct(lead.share)} of simulations</span>}
               </div>
-              {n.marketBasis && <span className="fhero__basis">{n.marketBasis}</span>}
-            </div>
-          )}
-          {winModel && (
-            <div className="glass fhero__panel fhero__panel--win">
-              <span className="eyebrow2">Model win probability</span>
-              <div className="wsplit" role="img" aria-label={`Model win probability: ${n!.away.abbr} ${sharePct(n!.away.modelWin!)}, ${n!.home.abbr} ${sharePct(n!.home.modelWin!)}`}>
-                <span className="wsplit__a" style={{ width: `${n!.away.modelWin! * 100}%` }}><b>{n!.away.abbr} {sharePct(n!.away.modelWin!)}</b></span>
-                <span className="wsplit__h" style={{ width: `${n!.home.modelWin! * 100}%` }}><b>{n!.home.abbr} {sharePct(n!.home.modelWin!)}</b></span>
-              </div>
-              {n!.caveat && <span className="fhero__basis">{n!.caveat}</span>}
-            </div>
-          )}
-          {(insight || lead) && (
-            <div className="glass fhero__panel fhero__panel--read">
-              <span className="eyebrow2">Key matchup</span>
-              {insight && <p className="fhero__read">{insight.headline}</p>}
-              {lead && <p className="fhero__script"><i className={`sdot sdot--s${lead.index}`} aria-hidden="true" />Most likely script: <b>{lead.name}</b> · {sharePct(lead.share)} of simulations</p>}
-            </div>
-          )}
-          {research.loading && <div className="glass fhero__panel fhero__panel--load"><span className="eyebrow2">Reading this game’s research…</span></div>}
-        </div>
-        <div className="fhero__cta">
+            )}
+          </div>
+        )}
+        {research.loading && <div className="fh2__board fh2__board--load"><span className="fh2__k">Reading this game’s research…</span></div>}
+        <div className="fh2__cta">
           <Link to={routes.game(g.slug, g.item.event_id)} className="btn btn--primary">Open matchup <Icon name="arrowRight" size={16} /></Link>
           {g.sport === 'NFL' && <Link to={routes.game(g.slug, g.item.event_id, { tab: 'props' })} className="btn btn--glass">Player props</Link>}
-          {set && <Link to={routes.game(g.slug, g.item.event_id, { tab: 'scripts' })} className="btn btn--glass">Game scripts</Link>}
+          {set && <Link to={routes.game(g.slug, g.item.event_id, { tab: 'script' })} className="btn btn--glass">Game scripts</Link>}
         </div>
       </div>
-      {spec.photo && <span className="fhero__credit">Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}</span>}
+      {spec.photo && <span className="fh2__credit">Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}</span>}
     </article>
   );
 }

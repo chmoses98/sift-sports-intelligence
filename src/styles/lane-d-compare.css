@@ -1,6 +1,7 @@
 /* LANE D — Market Comparison Studio (owner item 39): one clean side-by-side table. */
-.lsc { gap: 12px; }
-.lsc__scroll { overflow-x: auto; margin: 0 -4px; padding: 0 4px; scrollbar-width: thin; }
+.lsc { gap: 12px; min-width: 0; max-width: 100%; }
+.lsc > * { min-width: 0; }
+.lsc__scroll { position: relative; overflow-x: auto; max-width: 100%; min-width: 0; scrollbar-width: thin; }
 .lsc__t { width: 100%; min-width: calc(150px + var(--n, 3) * 210px); border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 0.86rem; }
 .lsc__t th, .lsc__t td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .lsc__t tbody tr:hover td, .lsc__t tbody tr:hover th { background: rgba(255, 255, 255, 0.02); }

@@ -20,6 +20,8 @@ import { overlayMarket } from '../live/overlay';
 import { isFullGame, periodWords } from '../lib/period';
 import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { isMlbTicker, mlbPlayerKey } from '../lib/mlb';
+import { priceMove } from '../lib/priceMoves';
+import '../styles/lane-d-markets.css';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -213,7 +215,10 @@ export function MarketView() {
       <Stratum n={sn(4)} title="Price history" sub="Every capture of this ticker.">
         {hist.loading && <Skeleton lines={3} />}
         {hseries ? (
-          <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
+          <>
+            {(() => { const mv = priceMove(hseries.points, { v: mid ?? null, at: view?.observedAt ?? m.captured_at ?? null }); return mv ? <p className="lsd-move__s" data-testid="market-move"><b>{mv.words}.</b> Range {Math.round(mv.lo * 100)}¢–{Math.round(mv.hi * 100)}¢. A move is the market changing its mind, not evidence for either side.</p> : null; })()}
+            <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
+          </>
         ) : (
           !hist.loading && (
             <p className="muted">

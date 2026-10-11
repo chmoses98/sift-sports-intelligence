@@ -51,3 +51,9 @@
 
 /* The Terminal's board: a "show more" instead of an endless phone list. */
 .term__more { display: flex; justify-content: center; padding: 10px 0 2px; }
+
+/* Phone width (sprint production check, 2026-10-11): a lead's label is one ellipsised line, so its full width must
+   never become the card's minimum width — an opened discovery (Home) or the Terminal's selected one pushed the page
+   sideways (409–417 px at 390 px) on live data with long lead labels. */
+.dleads { grid-template-columns: minmax(0, 1fr); }
+.dleads > li, .dcard__x > *, .tm-means > *, .dgrid > * { min-width: 0; }

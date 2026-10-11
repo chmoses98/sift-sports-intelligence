@@ -275,3 +275,7 @@
 .pexa__warn { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 9px 12px; border-radius: 12px; border: 1px solid rgba(240, 192, 72, 0.5); background: rgba(240, 192, 72, 0.08); color: var(--text); font-size: 0.88rem; line-height: 1.4; }
 .pexa__warn svg { color: var(--fx-gold); flex: none; margin-top: 2px; }
 .tprow__hit--under b { color: #ffb0b9; }
+.hsum2__avg { margin: 0; font-size: 0.86rem; color: var(--text-2); }
+.hsum2__avg b { color: #fff; }
+.pcard__g.is-push { border-color: var(--gold-line); color: var(--gold-2); }
+.pcard__g.is-push::after { content: '='; font-size: 0.6rem; margin-left: 2px; }

@@ -109,6 +109,31 @@ touchdowns, other) with family and team chips and a priced-lines switch. Each ro
 Players the publication lists OUT / IR / DOUBTFUL / SUSPENDED are hidden and named under the board. Order is the
 documented interest rule (role size, matchup extremity, separation; props without a priced line sink).
 
+## Hit rates and the Player Prop Explorer (`history/hitRate.ts`, `views/props/*`, `/props`)
+
+* **Eligible game** = a game he played with the stat recorded: a history row exists, the stat reads a value, and he
+  took at least one offensive snap (where no snap count was joined, any recorded touch counts). Rows with zero
+  offensive snaps (special teams only, inactive) are skipped and reported, never counted as zeros; games he missed
+  have no row. "Last 5 / Last 10" are the last 5 / 10 games **played** (spanning seasons); season, last season and
+  All count every eligible game. Every window shows its n.
+* **Against the CURRENT line**: over = value > line, under = value < line, **push** = equal (whole-number lines only)
+  and counted on its own. Written "7 of 10 over 54.5" / "Last 10: 7/10 over" — history, never "70% chance".
+* **Explorer** (`/nfl/props`): the rail groups every market under its player; the analysis carries the player's market
+  carousel (scroll-snap, arrow buttons on pointer devices, ←/→/Home/End), the game-log chart against today's line
+  (over blue ▲, under red ▼, push gold =; tooltip with opponent, date, value), the window's usage from game-log fields
+  only (snap share, targets, target share, air-yard share, catch rate, carries, yards per carry, attempts, completion
+  rate, sacks; routes, yards after contact and per-play air yards are not published and say so), the matchup in one
+  plain sentence from the player's side, and every ladder rung with its Last 5 / Last 10 / season history.
+* **Role disagreement**: a main line outside the simulation's own 5th–95th range means the market and the simulation
+  price different roles (a backup projected for spot snaps against a starter's line). The explorer says so; the
+  slate board never ranks such a prop.
+* **Top props on the slate** (`/props`): ranked by one stated criterion — *Projection vs line* (|projection − line| in
+  widths of the published middle-50% range; touchdown ladders only under their own filter, because their simulated
+  quartiles collapse to zero) labelled **Research**, or *Last 10 history* (the larger of games over and under as a
+  share of games played, n ≥ 5) labelled **History**. Ticked rows go to My Board together as ordinary MARKET items;
+  props of games already kicked off are refused and counted. MLB and NHL are labelled entry points to their game pages:
+  their publications carry no simulated player distributions or per-prop opponent ranks.
+
 ## News (`insights/news.ts`) — requirement 17
 
 importance = severity (out/IR 3, doubtful 2.5, questionable 1.3) × role (QB starter 3, skill starter 2, WR2 1.6,

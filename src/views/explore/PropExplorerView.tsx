@@ -285,7 +285,7 @@ function PropAnalysis({ row, playerRows, hits, hist, win, onWin, onPick, r, scri
               </div>
               {h ? (
                 <>
-                  <HitSummary h={h} windowName={winName} unit={hdef.unit} />
+                  <HitSummary h={h} windowName={winName} unit={hdef.unit} projection={shownWin !== 'prior' ? row.projection : null} />
                   <PerfChart h={h} statLabel={hdef.label} unit={hdef.unit} season={season} sport={sportCode} projection={row.projection != null && shownWin !== 'prior' ? { value: row.projection, typical: row.range?.typical ?? null } : null} />
                 </>
               ) : <p className="fr-note">No priced line to compare with. {wgames.length} game{wgames.length === 1 ? '' : 's'} played in this window.</p>}

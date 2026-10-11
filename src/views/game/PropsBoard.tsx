@@ -9,7 +9,8 @@ import { Layer, PlayerFace, RankBadge } from '../../components/insight';
 import { QuantileDist } from '../../components/fxResearch';
 import { DigDeeper, TeamMark } from '../../components/ui';
 import type { EventDetailDoc, EventResearchDoc, Market, ModelPrice } from '../../contract/types';
-import { hitRecord, pregameRows, statDef, windowRows } from '../../history/stats';
+import { pregameRows, statDef } from '../../history/stats';
+import { hitPhrase, hitRate } from '../../history/hitRate';
 import type { PlayerHistoryDoc } from '../../history/types';
 import { nameKey } from '../../insights/context';
 import type { GameSides } from '../../insights/game';
@@ -19,27 +20,29 @@ import { routes } from '../../lib/routes';
 import type { Finding } from '../../research/findings';
 import { useScorecard } from '../Scorecard';
 import { usePropHistories } from './matters';
+import '../../styles/lane-b-props.css';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 
 interface Ctx { r: EventResearchDoc; g: GameSides; slug: string; sport: string; label: string }
 
-/** The last five games before this one against today's line (the history layer; lines in the past are not published). */
+/** The last five games he played before this one against today's line (history/hitRate.ts; past lines are not published). */
 function LastGames({ row, hist, kickoff, week }: { row: PropRow; hist: PlayerHistoryDoc | null | undefined; kickoff: string; week: number | null }) {
   const def = statDef(row.def.stat);
   if (!def || !hist || row.line == null) return null;
-  const rec = hitRecord(windowRows(pregameRows(hist, kickoff, week), 'last5'), def, row.line);
-  if (!rec.values.length) return null;
+  const rec = hitRate(pregameRows(hist, kickoff, week), def, row.line, 'last5');
+  if (!rec.n) return null;
+  const word = { over: " (over today's line)", under: " (under today's line)", push: " (equal to today's line: a push)" } as const;
   return (
     <p className="pb__hist">
-      <span className="pb__k">Last {rec.values.length}</span>
-      {rec.values.map((x) => (
-        <span key={x.row.game_id} className={`pcard__g ${x.v > row.line! ? 'is-over' : 'is-under'}`} title={`${x.row.season ?? ''} week ${x.row.week} vs ${x.row.opp}: ${x.v}`}>
-          {x.v}<span className="sr-only">{x.v > row.line! ? " (above today's line)" : " (below today's line)"}</span>
+      <span className="pb__k">Last {rec.n} played</span>
+      {rec.games.map((x) => (
+        <span key={x.row.game_id} className={`pcard__g is-${x.result}`} title={`${x.row.season ?? ''} week ${x.row.week} vs ${x.row.opp}: ${x.v}`}>
+          {x.v}<span className="sr-only">{word[x.result]}</span>
         </span>
       ))}
-      <span className="pcard__hr">{rec.over} of {rec.values.length} above today's {row.line}</span>
+      <span className="pcard__hr">{hitPhrase(rec)}</span>
     </p>
   );
 }

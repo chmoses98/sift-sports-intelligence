@@ -39,7 +39,7 @@ export function PerfChart({ h, statLabel, unit, season, sport = 'NFL', projectio
   const bw = Math.min(44, geo.x.bandwidth());
   const y0 = geo.y(0);
   const ly = geo.y(h.line);
-  const dense = geo.x.bandwidth() < 30;
+  const dense = geo.x.bandwidth() < 22;
   const cx = (k: string) => (geo.x(k) ?? 0) + geo.x.bandwidth() / 2;
   const pick = (i: number) => setSel(sel === i ? null : i);
   const onKey = (e: KeyboardEvent) => {

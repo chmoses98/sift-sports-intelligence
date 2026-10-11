@@ -109,6 +109,8 @@ test('hit rates read history against today\'s line, with the n of games played @
   await expect(page.locator('#pexa-t')).toBeVisible();
   const perf = page.locator('.pexa__perf');
   const summary = perf.locator('.hsum2');
+  // Game logs load after the publication: wait for the summary or the plain "no game log" state.
+  await expect(summary.or(perf.getByText(/No game log|No priced line/)).first()).toBeVisible();
   if (await summary.count()) {
     await expect(summary).toContainText(/over today’s line of/);
     await expect(summary).toContainText(/n = \d+ games? played/);

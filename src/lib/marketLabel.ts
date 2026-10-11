@@ -15,6 +15,7 @@ import type { Market } from '../contract/types';
 import { describeMlbMarket, isMlbTicker, mlbNick } from './mlb';
 import { isFullGame } from './period';
 import { cfbName } from './cfbTeams';
+import { plainClubTitle } from './betWords';
 
 export interface LabelContext {
   /** Team abbreviation for a participant id. */
@@ -347,7 +348,7 @@ const NHL_PERIOD: Record<string, string> = { P1: '1st period', P2: '2nd period',
  * clubs share abbreviations (CAR, SEA, DAL …) with football teams.
  */
 export function describeNhlMarket(m: MarketLike): MarketLabel | null {
-  const d = cleanDescription(m.yes_description).replace(/^Full Game: /, '');
+  const d = plainClubTitle(cleanDescription(m.yes_description).replace(/^Full Game: /, ''));
   if (!d) return null;
   const fam = m.market_family ?? '';
   const per = NHL_PERIOD[m.period ?? ''] ?? null;
@@ -378,7 +379,7 @@ export function describeMarket(m: MarketLike, ctx: LabelContext = {}): MarketLab
   if (/^KXNHL/.test(m.kalshi_ticker)) {
     const nhl = describeNhlMarket(m);
     if (nhl) return nhl;
-    if (m.title) return { title: m.title, short: m.title, subject: null };
+    if (m.title) return { title: plainClubTitle(m.title), short: plainClubTitle(m.title), subject: null };
   }
   const ext = (m.extensions ?? {}) as { stat?: string; subject?: string };
   const p = parseKalshiTicker(m.kalshi_ticker);
@@ -398,8 +399,8 @@ export function describeMarket(m: MarketLike, ctx: LabelContext = {}): MarketLab
   }
   const fromT = fromTicker(m.kalshi_ticker, ctx);
   if (fromT) return fromT;
-  if (m.title) return { title: m.title, short: m.title, subject: null };
-  const clean = cleanDescription(m.yes_description);
+  if (m.title) return { title: plainClubTitle(m.title), short: plainClubTitle(m.title), subject: null };
+  const clean = plainClubTitle(cleanDescription(m.yes_description));
   if (clean && !/^YES on KX/.test(m.yes_description ?? '') && !/^heterogeneous/.test(clean)) return { title: clean, short: clean, subject: null };
   return { title: 'Kalshi contract', short: 'Contract', subject: null };
 }

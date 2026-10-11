@@ -6,7 +6,10 @@ import type { ReactNode } from 'react';
 import type { Market, MatchupRow, MetricDef, ModelPrice, Projection } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { QuoteChip, QuoteSummaryChip, useQuoteViews } from '../../components/LiveQuote';
-import { metricFormatter } from '../../lib/format';
+import { DataState } from '../../components/DataState';
+import { authorityLabel } from '../../lib/plainLabels';
+import { FootTag } from '../../components/StatUnit';
+import { footingOf, formatUnitValue, rankWords, sportUnit, unitText, valueAndUnit } from '../../insights/sportUnits';
 import { routes } from '../../lib/routes';
 import { useLiveQuotes } from '../../live/hooks';
 import type { QuoteView } from '../../live/overlay';
@@ -38,7 +41,7 @@ export function Pill({ tone = 'neutral', children, title }: { tone?: 'neutral' |
 export function Authority({ value }: { value: string | null | undefined }) {
   const v = (value ?? 'RESEARCH_ONLY').toUpperCase();
   const tone = v === 'ACTIONABLE' || v === 'LIVE' ? 'ok' : 'research';
-  return <Pill tone={tone} title="The publication's own authority for this number">{v.replace(/_/g, ' ').toLowerCase()}</Pill>;
+  return <Pill tone={tone} title="The publication's own authority for this number">{authorityLabel(v).toLowerCase()}</Pill>;
 }
 
 export function KV({ rows }: { rows: { k: ReactNode; v: ReactNode }[] }) {
@@ -164,40 +167,51 @@ export function RowQuote({ view, now }: { view: QuoteView; now: number }) {
 }
 
 /**
- * Ranked matchup rows from the publication's event research: each side's value and its rank in the publication's
- * own universe ("of 20 Premier League teams"), with bars from rank. Higher-is-better comes from the metric registry.
+ * Ranked matchup rows from the publication's event research: each side's value in its own unit (the registry's
+ * denominator, or "unit not stated"), its rank in the publication's own universe ("#3 of 20") where one is published,
+ * and whether the value is raw or opponent-adjusted. Bars come from rank; higher-is-better from the metric registry.
  */
 export function RankRows({ rows, metrics, left, right, leftId, rightId, slug, eventId, universeNoun }: {
   rows: MatchupRow[]; metrics: Map<string, MetricDef>; left: { label: string; side: 'home' | 'away' }; right: { label: string; side: 'home' | 'away' };
   leftId: string; rightId: string; slug: string; eventId: string; universeNoun?: string;
 }) {
   const shown = rows.filter((r) => r.home || r.away);
-  if (!shown.length) return <p className="muted">No matchup metrics published for this game.</p>;
+  if (!shown.length) return <DataState title="No matchup statistics for this game yet" detail="The publication lists no team statistics for these two sides. They appear once both have results in the publication's archive for this competition." />;
   const strength = (c: { rank: number | null; universe_size: number | null } | null | undefined) => (c?.rank != null && c.universe_size ? ((c.universe_size - c.rank + 1) / c.universe_size) * 100 : null);
+  const ranked = shown.some((r) => r[left.side]?.context?.rank != null || r[right.side]?.context?.rank != null);
   const u = shown[0][left.side]?.context?.universe_size ?? shown[0][right.side]?.context?.universe_size ?? null;
   const ulabel = shown[0][left.side]?.context?.universe_label ?? shown[0][right.side]?.context?.universe_label ?? null;
   return (
     <div className="skrk">
-      <div className="skrk__head" aria-hidden="true"><span>{left.label}</span><span>{u ? `rank of ${u}${universeNoun ? ` ${universeNoun}` : ulabel ? ` · ${ulabel}` : ''} · #1 is best` : 'published value'}</span><span>{right.label}</span></div>
+      <div className="skrk__head" aria-hidden="true"><span>{left.label}</span><span>{ranked && u ? `value · rank of ${u}${universeNoun ? ` ${universeNoun}` : ulabel ? ` · ${ulabel}` : ''} · #1 is best` : 'value in its unit · no league rank published'}</span><span>{right.label}</span></div>
       <ul className="skrk__rows">
         {shown.map((r) => {
           const def = metrics.get(r.metric_id);
           const a = r[left.side];
           const b = r[right.side];
-          const scale = Math.max(Math.abs(a?.context?.best_value ?? 0), Math.abs(a?.context?.worst_value ?? 0), Math.abs(b?.context?.best_value ?? 0), Math.abs(b?.context?.worst_value ?? 0));
-          const fmt = metricFormatter(def, scale);
+          const unit = sportUnit(r.metric_id, def);
+          const foot = footingOf(r.metric_id, def, a ?? b);
           const pa = strength(a?.context);
           const pb = strength(b?.context);
+          const val = (o: typeof a) => (o ? formatUnitValue(o.value, unit) : '—');
+          // the publication's display value beside the number (soccer points per game: "the W-D-L record")
+          const rec = (o: typeof a) => (o?.display_value && o.display_value !== val(o) ? `${/W-D-L/.test(def?.description ?? '') ? 'W-D-L ' : ''}${o.display_value}` : null);
+          const rk = (o: typeof a) => (o?.context?.rank != null ? `#${o.context.rank}${o.context.universe_size ? `/${o.context.universe_size}` : ''}` : '');
+          const name = def?.name ?? r.name;
+          const said = (o: typeof a, who: string) => `${who}: ${valueAndUnit(o?.value, unit)}${rec(o) ? ` (${rec(o)})` : ''}${o?.context?.rank != null ? `, ${rankWords(o.context)}` : ''}`;
           return (
             <li key={r.metric_id}>
-              <Link to={routes.metric(slug, r.metric_id, { team: leftId, opp: rightId, event: eventId })} className="skrk__row">
-                <span className="skrk__v"><span className="skrk__rank num">{a?.context?.rank != null ? `#${a.context.rank}` : ''}</span><span className="num skrk__raw">{a?.display_value ?? fmt(a?.value ?? null)}</span></span>
+              <Link to={routes.metric(slug, r.metric_id, { team: leftId, opp: rightId, event: eventId })} className="skrk__row" aria-label={`${name} (${foot.word}). ${said(a, left.label)}. ${said(b, right.label)}.`}>
+                <span className="skrk__v"><span className="num skrk__val">{val(a)}</span><span className="skrk__rank num">{[rk(a), rec(a)].filter(Boolean).join(' · ')}</span></span>
                 <span className="skrk__bars">
                   <span className="skrk__half skrk__half--l"><span style={{ width: `${pa ?? 0}%` }} /></span>
-                  <span className="skrk__name" title={def?.description}>{def?.short_name ?? r.name}</span>
+                  <span className="skrk__name" title={def?.description}>
+                    <span className="skrk__nm">{name}</span>
+                    <span className="skrk__u">{unitText(unit)}{unit.stated && !unit.short ? unit.long : ''} · <FootTag f={foot} /></span>
+                  </span>
                   <span className="skrk__half skrk__half--r"><span style={{ width: `${pb ?? 0}%` }} /></span>
                 </span>
-                <span className="skrk__v skrk__v--r"><span className="num skrk__raw">{b?.display_value ?? fmt(b?.value ?? null)}</span><span className="skrk__rank num">{b?.context?.rank != null ? `#${b.context.rank}` : ''}</span></span>
+                <span className="skrk__v skrk__v--r"><span className="num skrk__val">{val(b)}</span><span className="skrk__rank num">{[rec(b), rk(b)].filter(Boolean).join(' · ')}</span></span>
               </Link>
             </li>
           );

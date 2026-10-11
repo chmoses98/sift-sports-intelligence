@@ -2,6 +2,7 @@
 // publishes. Model figures come from `extensions.model_view` (NFL's shadow model, with its caveat); market figures
 // from `extensions.market_implied` (midpoint-inferred, labelled research) or, failing that, the game-winner
 // contracts' own market probability. Anything not published stays null and is simply not drawn.
+import { modelVersionShort } from '../../lib/plainLabels';
 import type { EventResearchDoc } from '../../contract/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -55,7 +56,8 @@ export function heroNumbers(r: EventResearchDoc | null | undefined): HeroNumbers
     modelTotal: num(mv?.model_total),
     marketSpread: num(mi?.implied_spread),
     marketTotal: num(mi?.implied_total_median),
-    modelVersion: mv?.model_version ?? null,
+    // Plain words for people ("v0.4.0 (trial)", not the publication's "shadow-0.4.0"); the raw code stays in the packet.
+    modelVersion: modelVersionShort(mv?.model_version),
     caveat: mv?.caveat ?? null,
     marketBasis: mi ? 'Market-implied from contract midpoints (research, not executable)' : away.marketWin != null ? 'Game-winner contracts, publication capture' : null,
   };

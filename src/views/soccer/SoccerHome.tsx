@@ -160,7 +160,7 @@ export function SoccerHomeView() {
           <SportOpportunities now={now} />
           <Section id="sc-status" title="Model status" sub="What the soccer publication says about itself.">
             <dl className="skkv">
-              <div><dt>Authority</dt><dd>Every soccer model family is RESEARCH_ONLY: nothing on these pages permits a bet. The international pool is not validated.</dd></div>
+              <div><dt>Authority</dt><dd>Every soccer model family is research only: nothing on these pages permits a bet. The international pool is not validated.</dd></div>
               <div><dt>Model</dt><dd>Dixon-Coles goal rates (dc_laplace) simulated over worlds (world_sim_v2); scripts and expressions are research presentation.</dd></div>
               <div><dt>Lineups</dt><dd>A confirmed XI changes the lineup status and freshness, not the team rates: no validated player-strength layer exists.</dd></div>
               <div><dt>Calibration</dt><dd>Published per fixture and per market family (Brier, log loss against the market); open a fixture to read it.</dd></div>

@@ -104,7 +104,7 @@ export function NbaHomeView() {
                 <tbody>{families.map((f) => <tr key={f.family}><th scope="row">{f.family.replace(/_/g, ' ')}</th><td className="r num">{f.nOos.toLocaleString('en-US')}</td><td className="r num">{f.marketLogLoss?.toFixed(3) ?? '—'}</td><td className="r num">{f.modelLogLoss?.toFixed(3) ?? '—'}</td><td className="r num">{f.hybridLogLoss?.toFixed(3) ?? '—'}{f.hybridBeatsMarket ? <span className="muted" title="The publication's hybrid (market-anchored) variant beat the calibrated market in this family out of sample"> ✓</span> : null}</td></tr>)}</tbody>
               </table></div>
             )}
-            <p className="muted small">Lower log loss is better; ✓ marks the one family where the publication's market-anchored hybrid beat the calibrated market (rebounds), still research authority. Research tables do not run on a schedule in the NBA repository; the model-vs-market study is the latest it published.</p>
+            <p className="muted small">Lower log loss is better; ✓ marks the one family where the publication's market-anchored hybrid beat the calibrated market (rebounds), still research authority. The NBA publication does not refresh its research tables on a schedule; the model-vs-market study is the latest it published.</p>
           </Section>
         </div>
       </div>

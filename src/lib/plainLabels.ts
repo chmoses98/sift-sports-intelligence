@@ -118,3 +118,25 @@ export function availabilitySentence(name: string, status: string | null | undef
   if (s === 'UNAVAILABLE') return `${what}: not published for this sport yet, so Sift does not show it.${tail}`;
   return `${what}: no status published.${tail}`;
 }
+
+/**
+ * The short form for places that already say "model" ("SIFT model · v0.4.0 (trial)"): the version number with the
+ * model's kind in brackets when it has one. "shadow-0.4.0" → "v0.4.0 (trial)", "pure-0.5.0" → "v0.5.0
+ * (market-independent)", "DATA_ONLY_V1" → "v1 (data-only)", "projection_v2.0" → "v2.0".
+ */
+export function modelVersionShort(v: string | null | undefined): string | null {
+  if (!v) return null;
+  const s = v.trim();
+  const kinds: [RegExp, string | null][] = [
+    [/^shadow[-_ ]?v?(\d[\d.]*)/i, 'trial'],
+    [/^pure[-_ ]?v?(\d[\d.]*)/i, 'market-independent'],
+    [/^data[_-]?only[_-]?v?(\d[\d.]*)/i, 'data-only'],
+    [/^dc[_-]laplace[_-]?v?(\d[\d.]*)/i, 'Dixon–Coles'],
+    [/^projection[_-]?v?(\d[\d.]*)/i, null],
+  ];
+  for (const [re, kind] of kinds) {
+    const m = re.exec(s);
+    if (m) return `v${m[1]}${kind ? ` (${kind})` : ''}`;
+  }
+  return /^v?\d[\d.]*$/i.test(s) ? `v${s.replace(/^v/i, '')}` : humanize(s);
+}

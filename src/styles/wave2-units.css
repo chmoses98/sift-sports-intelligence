@@ -28,11 +28,11 @@
 /* CFB metric table: unit under the metric name. */
 .mettab__u { display: block; font-size: 0.72rem; color: var(--text-2); font-weight: 400; margin-top: 2px; }
 
-.su-ph { display: none; }
+.svtag.su-ph { display: none; }
 @media (max-width: 560px) {
   .su-cell__top { gap: 4px; }
-  .su-basis { display: none; }
-  .su-name__u { display: none; }
-  .su-ph { display: inline-block; justify-self: start; margin: 2px 0 0; }
+  .nsc__t .su-basis { display: none; }
+  .nsc__t--units .su-name__u { display: none; }
+  .svtag.su-ph { display: inline-block; justify-self: start; margin: 2px 0 0; }
   .skrk__u { font-size: 0.66rem; }
 }

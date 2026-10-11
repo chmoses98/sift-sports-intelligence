@@ -13,6 +13,14 @@ import { rankView } from '../../lib/rank';
 import { RankBadge } from '../../components/insight';
 import type { QuoteView } from '../../live/overlay';
 import { PanelHead } from './panels';
+import type { Market, MarketHistoryDoc } from '../../contract/types';
+import type { PriceRow } from '../../lib/gamedata';
+import { readableNote, tickerTitle } from '../../lib/marketLabel';
+import { isFullGame } from '../../lib/period';
+import { priceMove, sparkPath, type PricePoint } from '../../lib/priceMoves';
+import { routes } from '../../lib/routes';
+import { splitSentence } from '../../lib/scriptNames';
+import '../../styles/lane-d-markets.css';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -85,3 +93,80 @@ export function SchemeTable({ doc, g }: { doc: TeamHistoryDoc; g: GameSides }) {
 }
 
 
+
+// ------------------------------------------------------------------ price moves and unresolved questions (owner item 41)
+
+export function Spark({ points, label }: { points: PricePoint[]; label: string }) {
+  const w = 140;
+  const h = 40;
+  const p = sparkPath(points, w, h);
+  return (
+    <svg className="lsd-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img" aria-label={label}>
+      <path className="a" d={p.area} />
+      <path className="l" d={p.line} />
+      <circle className="o" cx={p.first[0]} cy={p.first[1]} r={2.5} />
+      <circle cx={p.last[0]} cy={p.last[1]} r={3} />
+    </svg>
+  );
+}
+
+/** The contracts whose movement is worth a line: the publication's own biggest movers, then the main game lines. */
+export function moveCandidates(r: EventResearchDoc, hist: MarketHistoryDoc | undefined, rows: PriceRow[]): string[] {
+  if (!hist) return [];
+  const have = new Set(hist.series.map((x) => x.kalshi_ticker));
+  const pub = (((r.extensions as any)?.game_script_inputs?.market_baseline?.game_line_moves ?? []) as { ticker: string }[]).map((m) => m.ticker);
+  const main = (fams: string[]) => rows
+    .filter((x) => fams.includes(x.m.market_family) && isFullGame(x.m.period) && have.has(x.m.kalshi_ticker) && x.mid != null)
+    .sort((a, b) => Math.abs((a.mid ?? 0) - 0.5) - Math.abs((b.mid ?? 0) - 0.5))[0]?.m.kalshi_ticker;
+  const fav = rows.filter((x) => x.m.market_family === 'game_winner' && isFullGame(x.m.period) && have.has(x.m.kalshi_ticker) && x.mid != null).sort((a, b) => (b.mid ?? 0) - (a.mid ?? 0))[0]?.m.kalshi_ticker;
+  return [...new Set([...pub, fav, main(['spread']), main(['total'])].filter((t): t is string => !!t && have.has(t)))].slice(0, 6);
+}
+
+export function PriceMovesPanel({ r, hist, loading, rows, known, slug }: { r: EventResearchDoc; hist: MarketHistoryDoc | undefined; loading: boolean; rows: PriceRow[]; known: Map<string, Market>; slug: string }) {
+  const questions = (r.context?.notes ?? []).filter((n) => n.startsWith('packet key question:')).map((n) => readableNote(n.replace('packet key question: ', ''), known));
+  const tickers = moveCandidates(r, hist, rows);
+  const moves = tickers.map((t) => {
+    const series = hist!.series.find((x) => x.kalshi_ticker === t)!;
+    const row = rows.find((x) => x.m.kalshi_ticker === t);
+    const mv = priceMove(series.points, row ? { v: row.mid, at: row.m.captured_at ?? null } : null);
+    return mv ? { t, mv, label: row?.label ?? tickerTitle(t, known), id: row?.m.market_id ?? series.market_id } : null;
+  }).filter((x): x is NonNullable<typeof x> => !!x);
+  if (!loading && !moves.length && !questions.length) return null;
+  return (
+    <section className="fx-card" id="g-moves" aria-labelledby="g-moves-h" data-testid="price-moves">
+      <h2 className="fx-card__t" id="g-moves-h"><Icon name="trend" size={17} /> How prices moved</h2>
+      <p className="fx-card__sub">The YES price since the contract was first captured: where it opened, where it is now and when. A move is the market changing its mind, not evidence for either side.</p>
+      {loading && <p className="lsd-note">Loading price history…</p>}
+      {!loading && !moves.length && <p className="lsd-note">No capture history is published for this game’s main lines.</p>}
+      <div className="lsd-moves">
+        {moves.map(({ t, mv, label, id }) => {
+          const d = Math.round(mv.change * 100);
+          return (
+            <Link key={t} to={routes.market(slug, id, r.event.event_id)} className="lsd-move" data-testid="price-move">
+              <span><span className="lsd-move__t">{label}</span><span className="lsd-move__s">{mv.words}</span></span>
+              <Spark points={mv.points} label={`${label}: ${mv.words}`} />
+              <span className="lsd-move__v"><b className="num">{Math.round(mv.now * 100)}¢</b><small className={`num lsd-move__d--${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}`}>{d > 0 ? '▲' : d < 0 ? '▼' : '±'} {Math.abs(d)}¢</small></span>
+            </Link>
+          );
+        })}
+      </div>
+      {questions.length > 0 && (
+        <>
+          <h3 className="fx-card__t" style={{ marginTop: 18 }}><Icon name="research" size={16} /> What would change the read</h3>
+          <ol className="lsd-q" data-testid="open-questions">
+            {questions.map((q, i) => {
+              const sp = splitSentence(q);
+              return (
+                <li key={q}>
+                  <span className="lsd-q__n" aria-hidden="true">{i + 1}</span>
+                  <div><span className="lsd-q__t">{sp.lead}</span>{sp.rest && <details><summary>Why it matters</summary>{sp.rest}</details>}</div>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="lsd-note">Open questions written by the publication’s handicap packet; unresolved until the news or the price answers them.</p>
+        </>
+      )}
+    </section>
+  );
+}

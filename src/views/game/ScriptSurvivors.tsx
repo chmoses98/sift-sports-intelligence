@@ -68,20 +68,22 @@ export function rankSurvivors(items: BoardItem[], scripts: BoardScript[]): (Boar
     .sort((a, b) => b.full - a.full || (b.coverage ?? 0) - (a.coverage ?? 0) || b.part - a.part || a.key.localeCompare(b.key));
 }
 
-export function SurvivorBoard({ sport, scripts, items, now, title = 'Survives the most scripts', sub, verb = 'wins', selected, empty, limit = 4, footer, id = 'lsd-surv' }: {
+export function SurvivorBoard({ sport, scripts, items, now, title = 'Survives the most scripts', sub, verb = 'wins', selected, empty, limit = 4, footer, id = 'lsd-surv', bare }: {
   sport: string; scripts: BoardScript[]; items: BoardItem[]; now: number; title?: string; sub?: ReactNode; verb?: string; selected?: string | null; empty: ReactNode; limit?: number; footer?: ReactNode; id?: string;
+  /** Inside a card that already carries the heading: no frame, no header of its own. */
+  bare?: boolean;
 }) {
   const ranked = rankSurvivors(items, scripts).filter((x) => x.full >= 1).slice(0, limit);
   const total = scripts.length;
   return (
-    <section className="lsd-surv" aria-labelledby={`${id}-h`} data-testid="survivor-board">
-      <header className="lsd-surv__h">
+    <section className={`lsd-surv${bare ? ' lsd-surv--bare' : ''}`} aria-labelledby={bare ? undefined : `${id}-h`} aria-label={bare ? title : undefined} data-testid="survivor-board">
+      {!bare && <header className="lsd-surv__h">
         <span className="lsd-surv__ic" aria-hidden="true"><Icon name="shield" size={18} /></span>
         <div>
           <h2 className="lsd-surv__t" id={`${id}-h`}>{title}</h2>
           {sub && <p className="lsd-surv__sub">{sub}</p>}
         </div>
-      </header>
+      </header>}
       {ranked.length === 0 ? <p className="lsd-note">{empty}</p> : (
         <ol className="lsd-surv__l">
           {ranked.map((x, k) => {

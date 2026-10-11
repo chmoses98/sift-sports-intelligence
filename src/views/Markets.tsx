@@ -27,7 +27,13 @@ import type { Opportunity } from '../opportunity/types';
 import { useSport } from '../state/sport';
 import { PanelHead, ViewAll } from './game/panels';
 import { sides } from './home/cards';
-import { OpportunityBoard } from './home/Opportunities';
+import { OpportunityBoard, PassCard } from './home/Opportunities';
+import { FreshChip } from '../components/fxResearch';
+import { decisionOf } from '../lib/decision';
+import { eventCards, hasBackedBet, KIND_ORDER, KIND_WORD, kindCounts, type MarketKind } from '../lib/marketBrowse';
+import { tierWord, type Featured } from '../opportunity/rank';
+import type { SportVerdict } from '../opportunity/types';
+import '../styles/lane-d-markets.css';
 import { Pill } from './shared/kit';
 import { betPhrase } from '../lib/betWords';
 
@@ -116,6 +122,79 @@ interface GameRow {
   best: Opportunity | null;
 }
 
+const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
+const pctw = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
+
+/**
+ * KALSHI-STYLE BROWSING: one card per game, its featured contracts as rows in conventional betting words with the
+ * executable price of the side, the fee-aware break-even, the decision word and the price's age. Games keep the
+ * documented ranking; a game's contracts are one exposure. Sports with nothing to feature keep their PASS card.
+ */
+export function BrowseBoard({ featured, verdicts, now, loading, emptyText }: { featured: Featured[]; verdicts: SportVerdict[]; now: number; loading: boolean; emptyText?: string }) {
+  const all = eventCards(featured, null);
+  const [more, setMore] = useState(false);
+  const CAP = 12;
+  const cards = more ? all : all.slice(0, CAP);
+  const passing = verdicts.filter((v) => !v.loaded || v.opportunities === 0);
+  return (
+    <div className="lmb" data-testid="browse-board">
+      {featured.length > 0 && !hasBackedBet(featured) && <p className="oppboard__lede" role="note"><b>No validated or research-backed bet right now.</b> What follows are signals to read, not edges to take.</p>}
+      {cards.length > 0 && (
+        <div className="lmb__grid">
+          {cards.map((c) => {
+            const nav = navSport(c.slug);
+            return (
+              <article key={c.key} className="lmb__card" data-testid="event-card">
+                <header className="lmb__h">
+                  <span className="lmb__sport" style={{ ['--accent' as string]: nav?.accent }}>{nav && <SportMark slug={c.slug} icon={nav.icon} size={14} />}{nav?.label ?? c.sport}</span>
+                  <span className="lmb__when num">{dayLabel(c.startTime)} · {timeLabel(c.startTime)}</span>
+                </header>
+                <Link to={c.gameHref} className="lmb__ev">{c.eventLabel}</Link>
+                {c.competition && <span className="lmb__comp">{c.competition}</span>}
+                <ul className="lmb__rows">
+                  {c.items.slice(0, 3).map((f) => {
+                    const o = f.lead;
+                    const words = betPhrase(o.what.side, o.what.title);
+                    const d = decisionOf(o.status, o.confidence.calibration);
+                    return (
+                      <li key={o.id}>
+                        <Link to={o.href} className="lmb__row" title={words.exact}>
+                          <span className="lmb__rt">
+                            <b>{words.text}</b>
+                            <small><span className={`dword dword--${d.tone}`}>{d.word}</span> {tierWord(o.rank.tier, o.status)}{f.related.length ? ` · +${f.related.length} related` : ''}</small>
+                          </span>
+                          <span className="lmb__px">
+                            <span className={`lmb__btn lmb__btn--${o.what.side.toLowerCase()}`}><small>{o.what.side === 'YES' ? 'Yes' : 'No'}</small>{cents(o.price.ask)}</span>
+                            <small className="lmb__be">break-even {pctw(o.price.breakEven)}{o.price.fair != null ? ` · model ${pctw(o.price.fair)}` : ''}</small>
+                            <FreshChip at={o.price.observedAt} now={now} label="Price" />
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <footer className="lmb__f">
+                  {c.items.length > 1 && <span className="lmb__exp" role="note">{c.items.length} contracts on one game: one exposure, not diversification.</span>}
+                  {c.items.length > 3 && <Link to={c.gameHref}>+{c.items.length - 3} more on this game</Link>}
+                  <Link to={c.gameHref} className="lmb__open">Open game <Icon name="arrowRight" size={14} /></Link>
+                </footer>
+              </article>
+            );
+          })}
+        </div>
+      )}
+      {!more && all.length > CAP && <button type="button" className="btn btn--sm lmb__all" onClick={() => setMore(true)}>Show all {all.length} games with an opportunity</button>}
+      {cards.length === 0 && !loading && (
+        <div className="oppboard__none">
+          <h3 className="oppboard__nt">No opportunity clears the bar right now.</h3>
+          <p className="muted">{emptyText ?? 'Every publication Sift reads either recommends nothing, marks its candidates research-only and past their validity window, or prices nothing at all. A pass is a result, not a failure.'}</p>
+        </div>
+      )}
+      {passing.length > 0 && <div className="oppboard__passes lmb__passes">{passing.map((v) => <PassCard key={v.slug} v={v} />)}</div>}
+    </div>
+  );
+}
+
 export function MarketsView() {
   useVisit('Market board', 'intel');
   const now = useNow(30_000);
@@ -125,6 +204,8 @@ export function MarketsView() {
   const win = (['today', 'tomorrow', 'week'].includes(sp.get('when') ?? '') ? sp.get('when') : 'today') as Window;
   const status = (sp.get('status') === 'all' ? 'all' : 'live') as StatusFilter;
   const [q, setQ] = useState('');
+  const view = sp.get('view') === 'cards' ? 'cards' : 'browse';
+  const kind = (KIND_ORDER.includes(sp.get('type') as MarketKind) ? sp.get('type') : null) as MarketKind | null;
   const set = (k: string, v: string | null) => {
     // Functional update: quick successive taps build on each other's params (see views/game/PropsBoard.tsx).
     setSp((prev) => {
@@ -144,7 +225,9 @@ export function MarketsView() {
   }, [all.bundles, all.opportunities]);
 
   const shownOpps = useMemo(() => all.opportunities.filter((o) => (!sportFilter || o.slug === sportFilter) && inWindow(o.startTime, now, win) && (status === 'all' || isLive(o)) && matches(`${o.eventLabel} ${o.what.title} ${o.competition ?? ''}`, q)), [all.opportunities, sportFilter, win, status, q, now]);
-  const featured = useMemo(() => featureOpportunities(shownOpps.filter(isLive)), [shownOpps]);
+  const featuredAll = useMemo(() => featureOpportunities(shownOpps.filter(isLive)), [shownOpps]);
+  const counts = useMemo(() => kindCounts(featuredAll), [featuredAll]);
+  const featured = useMemo(() => (kind ? featuredAll.filter((f) => eventCards([f], kind).length > 0) : featuredAll), [featuredAll, kind]);
   const passes = useMemo(() => shownOpps.filter((o) => !isLive(o)), [shownOpps]);
   const shownGames = useMemo(() => games.filter((g) => (!sportFilter || g.slug === sportFilter) && inWindow(g.item.start_time_utc, now, win) && matches(`${g.label} ${g.item.competition ?? ''}`, q)).sort((a, b) => (b.opps > 0 ? 1 : 0) - (a.opps > 0 ? 1 : 0) || a.item.start_time_utc.localeCompare(b.item.start_time_utc)), [games, sportFilter, win, q, now]);
   const byDay = useMemo(() => {
@@ -189,7 +272,27 @@ export function MarketsView() {
           </div>
           <label className="ghome__search"><Icon name="search" size={16} /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Team, player or competition" aria-label="Filter games and opportunities by team, player or competition" /></label>
         </div>
+        <div className="ghome__row">
+          <div className="skchips" role="group" aria-label="Market type">
+            <button type="button" className={`skchip${!kind ? ' is-on' : ''}`} aria-pressed={!kind} onClick={() => set('type', null)}>All markets <small>{featuredAll.length}</small></button>
+            {KIND_ORDER.filter((k) => counts[k] > 0).map((k) => (
+              <button key={k} type="button" className={`skchip${kind === k ? ' is-on' : ''}`} aria-pressed={kind === k} onClick={() => set('type', kind === k ? null : k)}>{KIND_WORD[k]} <small>{counts[k]}</small></button>
+            ))}
+          </div>
+          <div className="seg seg--tight" role="group" aria-label="View">
+            <button type="button" className={`seg__b${view === 'browse' ? ' is-on' : ''}`} aria-pressed={view === 'browse'} onClick={() => set('view', null)}>Browse</button>
+            <button type="button" className={`seg__b${view === 'cards' ? ' is-on' : ''}`} aria-pressed={view === 'cards'} onClick={() => set('view', 'cards')}>Full cards</button>
+          </div>
+        </div>
       </div>
+
+      {(!sportFilter || sportFilter === 'nfl') && (
+        <Link to={routes.parlays('nfl')} className="lsd-promo lmb__promo">
+          <span className="lsd-promo__ic" aria-hidden="true"><Icon name="parlays" size={18} /></span>
+          <span><b>NFL teasers & parlays</b><small>This week's Stanford Wong teaser legs, each with the Kalshi contract that settles the teased line. Research, never combined into a bet.</small></span>
+          <Icon name="arrowRight" size={16} />
+        </Link>
+      )}
 
       <section className="sksec" aria-labelledby="opps-h">
         <div className="sksec__h">
@@ -197,7 +300,8 @@ export function MarketsView() {
           <span className="ghome__count">{featured.length} featured{passes.length && status === 'all' ? ` · ${passes.length} passes` : ''}</span>
         </div>
         {all.loading && <Skeleton lines={5} tall />}
-        {!all.loading && <OpportunityBoard featured={featured} verdicts={verdicts} now={now} loading={all.loading} emptyText={sportFilter || q ? 'Nothing matches these filters. Clear a filter or widen the window.' : undefined} />}
+        {!all.loading && view === 'cards' && <OpportunityBoard featured={featured} verdicts={verdicts} now={now} loading={all.loading} emptyText={sportFilter || q || kind ? 'Nothing matches these filters. Clear a filter or widen the window.' : undefined} />}
+        {!all.loading && view === 'browse' && <BrowseBoard featured={featured} verdicts={verdicts} now={now} loading={all.loading} emptyText={sportFilter || q || kind ? 'Nothing matches these filters. Clear a filter or widen the window.' : undefined} />}
         {status === 'all' && passes.length > 0 && (
           <details className="skdeep">
             <summary className="skdeep__s">{passes.length} contracts the publications judged and passed on<Icon name="chevronDown" size={14} /></summary>

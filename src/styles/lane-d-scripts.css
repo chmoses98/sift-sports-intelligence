@@ -133,3 +133,4 @@
 .lsd-more summary::after { content: '+'; font-weight: 700; }
 .lsd-more[open] summary::after { content: '−'; }
 .lsd-more p { margin: 4px 0 0; }
+.lsd-surv--bare { margin: 0; padding: 0; border: 0; background: none; }

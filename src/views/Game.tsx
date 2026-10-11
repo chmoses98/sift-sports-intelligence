@@ -26,7 +26,7 @@ import { GameTabs } from './game/GameTabs';
 import { GameInfoCard, GameReadCard, MarketContextCard, MatchupAdvantagesCard, PropExplorerCard, RelatedResearchCard, ScriptsCard } from './game/Dashboard';
 import { FxCard } from '../components/fx';
 import { CfbMatchupCard, CfbScriptsCard } from './game/CfbDashboard';
-import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId, MarketsPanel } from './game/panels';
+import { FormPanel, H2HPanel, Info, InjuriesPanel, InjuryList, LineHistoryPanel, marketFavoriteId } from './game/panels';
 import { ScriptTab } from './game/ScriptTab';
 import { EngineConfidencePanel, EngineDetailNotice, EngineEdgesPanel, EngineMatchupTab, EngineReadPanel, EngineScriptTab, EngineScriptsPanel, EngineSurvivorsPanel } from './game/ScriptEngine';
 import { GameReadV2Panel } from './game/GameReadV2';
@@ -36,7 +36,7 @@ import { loadScriptResearch, trimInfo } from '../data/scriptResearch';
 import { liveStore, useLiveQuotes, useNow } from '../live/hooks';
 import { type ReactNode } from 'react';
 import type { Market } from '../contract/types';
-import { tickerTitle, readableNote } from '../lib/marketLabel';
+import { tickerTitle } from '../lib/marketLabel';
 import { useTeamHistory } from '../history/load';
 import { qbStarts } from '../history/team';
 import type { PlayerHistoryDoc, TeamHistoryDoc } from '../history/types';
@@ -49,9 +49,9 @@ import { propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, SchemeCard, usePropHistories } from './game/matters';
 import { PropsBoard } from './game/PropsBoard';
-import { EngineMarketIntel, MarketIntel } from './game/MarketIntel';
+import { EngineMarketIntel, MarketIntel, TopMarkets } from './game/MarketIntel';
 import { GameOpportunities } from './game/GameOpportunities';
-import { LinesPanel, SchemeTable } from './game/lines';
+import { LinesPanel, PriceMovesPanel, SchemeTable } from './game/lines';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
 
@@ -323,39 +323,6 @@ function Environment({ ext, homeAbbr, awayAbbr }: { ext: any; homeAbbr: string; 
   );
 }
 
-function Unusual({ r, ext, slug, known }: { r: EventResearchDoc; ext: any; slug: string; known: Map<string, Market> }) {
-  const questions = (r.context?.notes ?? []).filter((n) => n.startsWith('packet key question:')).map((n) => n.replace('packet key question: ', ''));
-  const moves = (ext?.game_script_inputs?.market_baseline?.game_line_moves ?? []) as { family: string; move: number; ticker: string; player_name: string | null }[];
-  if (!questions.length && !moves.length) return null;
-  return (
-    <div className="unusual">
-      {questions.length > 0 && (
-        <ol className="unusual__q">
-          {questions.map((q) => (
-            <li key={q}>{readableNote(q, known)}</li>
-          ))}
-        </ol>
-      )}
-      {moves.length > 0 && (
-        <div className="unusual__moves">
-          <div className="eyebrow">Largest price moves since first capture</div>
-          <ul>
-            {moves.map((m) => (
-              <li key={m.ticker}>
-                <Link to={routes.market(slug, `mkt_kalshi_${m.ticker}`, r.event.event_id)} className="mrow">
-                  <span className="mrow__d">{tickerTitle(m.ticker, known)}</span>
-                  <span className={`mrow__p num ${m.move > 0 ? 'up' : 'down'}`}>{m.move > 0 ? '▲' : '▼'} {Math.abs(Math.round(m.move * 1000) / 10)}¢</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <p className="muted small">Questions and moves are written by the repository's handicap packet; Sift links them to the evidence.</p>
-    </div>
-  );
-}
-
 function Players({ r, slug, sportCode, homeAbbr, awayAbbr, homeId }: { r: EventResearchDoc; slug: string; sportCode: string; homeAbbr: string; awayAbbr: string; homeId: string }) {
   const lineups = r.context?.lineups ?? [];
   const injuries = r.context?.injuries ?? [];
@@ -478,7 +445,7 @@ export function GameView({ eventId }: { eventId: string }) {
   const awayP = r?.participants.find((p) => p.home_away === 'AWAY');
   const homeProf = useAsync(homeP ? `prof:${sport.code}:${homeP.participant_id}` : null, () => repo.profile(homeP!.participant_id));
   const awayProf = useAsync(awayP ? `prof:${sport.code}:${awayP.participant_id}` : null, () => repo.profile(awayP!.participant_id));
-  const wantsHistory = tab === 'overview' || tab === 'trends';
+  const wantsHistory = tab === 'overview' || tab === 'trends' || tab === 'markets';
   const hist = useAsync(r?.market_history_path && wantsHistory ? `mh:${sport.code}:${eventId}` : null, () => repo.marketHistory(eventId));
   const teamHist = useTeamHistory(sport.code);
   const ev = r?.event;
@@ -757,7 +724,8 @@ export function GameView({ eventId }: { eventId: string }) {
       {tab === 'markets' && (
         <>
           <MarketIntel r={r} rows={rows} set={set} slug={slug} eventId={eventId} now={now} homeAbbr={homeAbbr} awayAbbr={awayAbbr}>
-            <MarketsPanel rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref={href('markets')} />
+            <TopMarkets rows={rows} set={set} selected={selected} slug={slug} eventId={eventId} now={now} allHref="#g-markets" />
+            <PriceMovesPanel r={r} hist={hist.data} loading={hist.loading} rows={rows} known={known} slug={slug} />
           </MarketIntel>
           {Boolean(ext?.market_implied || ext?.model_view) && (
             <Stratum id="g-market-vs-model" title="Market and simulation" sub="What the prices imply next to what Sift's simulation reconstructs.">
@@ -770,11 +738,6 @@ export function GameView({ eventId }: { eventId: string }) {
             {detail.data && <MarketBoard markets={quoted} prices={prices} sportSlug={slug} playerName={playerName} />}
             <NewlyListed quotes={listedLater} now={now} />
           </Stratum>
-          {(ext?.game_script_inputs?.market_baseline?.game_line_moves?.length > 0 || (r.context?.notes ?? []).some((n) => n.startsWith('packet key question:'))) && (
-            <Stratum id="g-unusual" title="Open questions & price moves" sub="The publication's own questions for this game, and where prices moved.">
-              <Unusual r={r} ext={ext} slug={slug} known={known} />
-            </Stratum>
-          )}
         </>
       )}
 

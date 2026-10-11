@@ -1,8 +1,14 @@
-// NFL structures (first pass): Stafford Wong teaser candidates from this week's market-implied spreads.
-// Review only — Sift never places bets and Kalshi lists no teaser product, so no combined price or
-// modelled value is shown; that needs leg-level pricing and a correlation model (redesign phase 4).
+// NFL structures: Stanford Wong teaser candidates from this week's market-implied spreads, each with the real Kalshi
+// contract that settles the TEASED line on its own (the favourite winning by more than the teased number, or the
+// underdog not losing by more than it), priced at that side's executable ask with its age.
+// Review only — Sift never places bets and Kalshi lists no teaser product, so no combined price or modelled value is
+// shown; legs are never multiplied together, and two legs from the same game are flagged as correlated.
 import { Link } from 'react-router';
-import type { EventResearchDoc } from '../contract/types';
+import type { EventResearchDoc, Market } from '../contract/types';
+import { FreshChip } from '../components/fxResearch';
+import { useLiveQuotes, useNow } from '../live/hooks';
+import { overlayMarket } from '../live/overlay';
+import { isFullGame } from '../lib/period';
 import { useAsync } from '../data/hooks';
 import { Notice, Skeleton, TeamMark } from '../components/ui';
 import { routes } from '../lib/routes';
@@ -12,7 +18,7 @@ import { PanelHead } from './game/panels';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-interface Leg { eventId: string; game: string; team: string; line: number; teased: number; kind: 'favorite' | 'underdog'; total: number | null }
+interface Leg { eventId: string; game: string; team: string; teamId: string | null; oppId: string | null; line: number; teased: number; kind: 'favorite' | 'underdog'; total: number | null }
 
 /** Wong teaser legs: a 6-point tease that crosses both 3 and 7 (favourites −7.5…−8.5, underdogs +1.5…+2.5). */
 export function wongLegs(docs: EventResearchDoc[]): Leg[] {
@@ -26,12 +32,29 @@ export function wongLegs(docs: EventResearchDoc[]): Leg[] {
     const hs = Math.round(Number(mi.implied_spread) * 2) / 2; // home line, negative = home favoured
     const game = `${short(away?.participant_id)} @ ${short(home?.participant_id)}`;
     const total = mi.implied_total_median != null ? Number(mi.implied_total_median) : null;
-    for (const [team, line] of [[short(home?.participant_id), hs], [short(away?.participant_id), -hs]] as [string, number][]) {
-      if (line <= -7.5 && line >= -8.5) out.push({ eventId: r.event.event_id, game, team, line, teased: line + 6, kind: 'favorite', total });
-      if (line >= 1.5 && line <= 2.5) out.push({ eventId: r.event.event_id, game, team, line, teased: line + 6, kind: 'underdog', total });
+    const sidesOf: [string, number, string | null, string | null][] = [[short(home?.participant_id), hs, home?.participant_id ?? null, away?.participant_id ?? null], [short(away?.participant_id), -hs, away?.participant_id ?? null, home?.participant_id ?? null]];
+    for (const [team, line, teamId, oppId] of sidesOf) {
+      if (line <= -7.5 && line >= -8.5) out.push({ eventId: r.event.event_id, game, team, teamId, oppId, line, teased: line + 6, kind: 'favorite', total });
+      if (line >= 1.5 && line <= 2.5) out.push({ eventId: r.event.event_id, game, team, teamId, oppId, line, teased: line + 6, kind: 'underdog', total });
     }
   }
   return out;
+}
+
+/**
+ * The Kalshi contract that settles a teased line on its own, when the game lists it: a favourite teased to −1.5 is YES on
+ * "<team> wins by more than 1.5"; an underdog teased to +8.5 is NO on "<opponent> wins by more than 8.5". Only an exact
+ * rung counts — Sift never interpolates a price between rungs.
+ */
+export function teasedContract(leg: Leg, markets: Market[]): { m: Market; side: 'YES' | 'NO'; ask: number | null } | null {
+  const spreads = markets.filter((m) => m.market_family === 'spread' && isFullGame(m.period) && m.threshold != null);
+  const at = Math.abs(leg.teased);
+  if (leg.teased < 0) {
+    const m = spreads.find((x) => x.participant_id === leg.teamId && Math.abs((x.threshold ?? 0) - at) < 1e-6);
+    return m ? { m, side: 'YES', ask: m.yes_ask != null && m.yes_ask > 0 && m.yes_ask < 1 ? m.yes_ask : null } : null;
+  }
+  const m = spreads.find((x) => x.participant_id === leg.oppId && Math.abs((x.threshold ?? 0) - at) < 1e-6);
+  return m ? { m, side: 'NO', ask: m.no_ask != null && m.no_ask > 0 && m.no_ask < 1 ? m.no_ask : null } : null;
 }
 
 const fmt = (v: number) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : 'PK');
@@ -49,22 +72,32 @@ export function ParlaysView() {
     return m;
   });
   const legs = docs.data ? wongLegs([...docs.data.values()]) : [];
+  const now = useNow(30_000);
+  const legEvents = [...new Set(legs.map((l) => l.eventId))];
+  const details = useAsync(legEvents.length ? `wongDetail:${sport.code}:${legEvents.join(',')}` : null, async () => {
+    const out = await Promise.allSettled(legEvents.map((id) => repo.eventDetail(id)));
+    return new Map(legEvents.map((id, k) => [id, out[k].status === 'fulfilled' ? (out[k] as PromiseFulfilledResult<{ markets: Market[] }>).value.markets : []]));
+  });
+  // The teased-line contracts refresh at game cadence like every price on a game page (a live quote wins only when newer).
+  const legMarkets = legs.map((l) => teasedContract(l, details.data?.get(l.eventId) ?? [])?.m).filter((m): m is Market => !!m);
+  const live = useLiveQuotes(legMarkets.map((m) => m.kalshi_ticker), 'game');
+  const sameGame = new Set(legEvents.filter((id) => legs.filter((l) => l.eventId === id).length > 1));
   return (
     <div className="page parlays">
       <header className="shead">
         <div className="shead__t">
           <div className="eyebrow">{sport.label} · Structures</div>
           <h1 className="h-display shead__h">Parlays & Teasers</h1>
-          <div className="shead__comp">Ready-to-review structures from this week's lines. Review only — Sift never places bets.</div>
+          <div className="shead__comp">Teaser legs from this week's lines, each with the Kalshi contract that settles the teased line on its own. Review only — Sift never places bets. <Link to="/intelligence/markets">Market board</Link></div>
         </div>
       </header>
       <section className="panel" aria-labelledby="wong-h">
-        <PanelHead title="Stafford Wong Teaser Legs" sub="6-point teasers that cross both 3 and 7: favorites −7.5 to −8.5, underdogs +1.5 to +2.5 (market-implied line)" />
+        <PanelHead title="Stanford Wong Teaser Legs" sub="6-point teasers that cross both 3 and 7: favorites −7.5 to −8.5, underdogs +1.5 to +2.5 (market-implied line)" />
         {(board.loading || docs.loading) && <Skeleton lines={4} />}
         {docs.data && !legs.length && <p className="muted">No game this week sits in the Wong window on the market-implied line.</p>}
         {legs.length > 0 && (
           <div className="tscroll"><table className="mtab">
-            <thead><tr><th scope="col">Leg</th><th scope="col">Game</th><th scope="col" className="r">Line</th><th scope="col" className="r">Teased</th><th scope="col" className="r">Total</th><th scope="col">Why it qualifies</th></tr></thead>
+            <thead><tr><th scope="col">Leg</th><th scope="col">Game</th><th scope="col" className="r">Line</th><th scope="col" className="r">Teased</th><th scope="col" className="r">Total</th><th scope="col">Teased line alone on Kalshi</th><th scope="col">Why it qualifies</th></tr></thead>
             <tbody>
               {legs.map((l) => (
                 <tr key={`${l.eventId}${l.team}`}>
@@ -73,15 +106,21 @@ export function ParlaysView() {
                   <td className="r num">{fmt(l.line)}</td>
                   <td className="r num">{fmt(l.teased)}</td>
                   <td className="r num">{l.total != null ? l.total.toFixed(1) : '—'}</td>
-                  <td className="small">{l.kind === 'favorite' ? 'Favorite teased through 7 and 3' : 'Underdog teased through 3 and 7'}{l.total != null && l.total > 49 ? ' · high total (weaker for Wong)' : ''}</td>
+                  <td className="small">{(() => {
+                    if (details.loading) return '…';
+                    const x = teasedContract(l, (details.data?.get(l.eventId) ?? []).map((m) => overlayMarket(m, live.quote(m.kalshi_ticker))));
+                    if (!x) return <span className="muted">No contract at {fmt(l.teased)} listed</span>;
+                    return <><Link to={routes.market(slug, x.m.market_id, l.eventId)}>{x.side === 'YES' ? `${l.team} ${fmt(l.teased)}` : `${l.team} ${fmt(l.teased)} (NO on the other side)`}</Link> <b className="num">{x.ask != null ? `${Math.round(x.ask * 100)}¢` : 'no offer'}</b> <FreshChip at={x.m.captured_at} now={now} label="Price" /></>;
+                  })()}</td>
+                  <td className="small">{l.kind === 'favorite' ? 'Favorite teased through 7 and 3' : 'Underdog teased through 3 and 7'}{l.total != null && l.total > 49 ? ' · high total (weaker for Wong)' : ''}{sameGame.has(l.eventId) ? ' · same game as another leg: correlated, never combine' : ''}</td>
                 </tr>
               ))}
             </tbody>
           </table></div>
         )}
         <Notice title="Correlation and pricing">
-          Legs from the same game are correlated and should not be combined. Kalshi lists no teaser contract, so Sift shows no combined price or
-          modelled value here — that needs per-leg pricing and a correlation model (next redesign phase).
+          Legs from the same game are correlated and are never combined. Kalshi lists no teaser contract: each leg's price is the single contract that
+          settles the teased line alone, never multiplied into a teaser price, and no modelled value is shown.
         </Notice>
       </section>
     </div>

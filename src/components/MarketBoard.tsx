@@ -4,7 +4,7 @@
 import { describeMarket } from '../lib/marketLabel';
 import { isMlbPlayerMarket, isMlbTicker, mlbKind, mlbNick, mlbPeriod, mlbPlayerKey, mlbPlayerName, mlbTeamOf, propFamily, PROP_FAMILY_LABEL } from '../lib/mlb';
 import { inningWords, periodCode, periodWords } from '../lib/period';
-import { betPhrase } from '../lib/betWords';
+import { betPhrase, plainClubTitle } from '../lib/betWords';
 import '../styles/lane-d-markets.css';
 import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { MarketIcon } from './MarketIcon';
@@ -100,7 +100,7 @@ export function groupMarkets(markets: AnyMarket[], playerName: (id: string | nul
     if (g.ladder) g.rows.sort((a, b) => Number(rung(a)) - Number(rung(b)) || a.kalshi_ticker.localeCompare(b.kalshi_ticker));
     if (g.ladder && !g.subject && !isMlbTicker(g.rows[0].kalshi_ticker)) {
       const r0 = String(rung(g.rows[0])).replace('.', '\\.');
-      const sample = humanize(g.rows[0].yes_description).replace(new RegExp(`${r0}(\\.0)?(?![\\d.])`), 'X');
+      const sample = plainClubTitle(humanize(g.rows[0].yes_description)).replace(new RegExp(`${r0}(\\.0)?(?![\\d.])`), 'X');
       g.title = `${g.title} — ${sample.replace(/ ?· [A-Z]+$/, '')}`;
     }
   }

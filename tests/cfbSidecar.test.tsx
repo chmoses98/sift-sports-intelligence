@@ -121,7 +121,7 @@ describe('the same run with its research sidecar (cfb-edge-finder #127)', () => 
     render(<MemoryRouter><EngineDetailNotice engine={e} /><EngineMatchupTab engine={e} homeAbbr="MIZZ" awayAbbr="TXAM" /></MemoryRouter>);
     expect(screen.queryByTestId('engine-detail-unavailable')).toBeNull();
     expect(document.querySelectorAll('.mettab tbody tr').length).toBeGreaterThan(20);
-    expect(document.body.textContent).toMatch(/#\d+\/\d+/);
+    expect(document.body.textContent).toMatch(/#\d+ of \d+/);
     expect(document.querySelectorAll('.etab .num')).not.toHaveLength(0);
     expect([...document.querySelectorAll('.etab .num')].some((n) => n.textContent !== '—')).toBe(true);
   });

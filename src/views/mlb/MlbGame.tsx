@@ -156,7 +156,7 @@ export function MlbGameView({ eventId, teamId }: { eventId: string; teamId: stri
 function lineupLine(r: EventResearchDoc | null): string | null {
   const ls = (r?.context?.lineups ?? []) as { team?: string; status?: string; official?: boolean }[];
   if (!ls.length) return null;
-  return `Lineups: ${ls.map((l) => `${l.team ?? '?'} ${(l.status ?? 'unknown').toLowerCase()}${l.official ? ' (official)' : ''}`).join(' · ')}`;
+  return `Lineups: ${ls.map((l) => `${l.team ?? '?'} ${l.status ? l.status.replace(/_/g, ' ').toLowerCase() : 'not announced'}${l.official ? ' (official)' : ''}`).join(' · ')}`;
 }
 
 const CAT_ORDER = ['projection', 'offense', 'form', 'pitching', 'projection_input', 'adjustment'];

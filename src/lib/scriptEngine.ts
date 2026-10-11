@@ -622,3 +622,9 @@ export function historicalWinsText(r: HistoricalRange): string {
 export function seasonsText(seasons: number[]): string {
   return seasons.length ? `${Math.min(...seasons)}–${Math.max(...seasons)}` : '—';
 }
+
+/** "away_disruption_advantage" → "Louisiana Tech disruption advantage": the side words become the team's name. */
+export function findingLabel(engine: Pick<Engine, 'teams'>, code: string): string {
+  const t = code.replace(/_/g, ' ').toLowerCase().replace(/\b(home|away)\b/g, (side) => engine.teams[side as 'home' | 'away']?.name ?? side);
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}

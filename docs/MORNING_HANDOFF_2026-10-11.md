@@ -1,12 +1,21 @@
 # SIFT repair sprint — morning handoff (2026-10-11)
 
-**Production:** `main` @ `__DEPLOY_SHA__` (PR #57 on top of PR #56), live on GitHub Pages.
+**Production:** `main` @ `e191d47` (PRs #56, #57, #58, #59), live on GitHub Pages.
 **Tracker (all 52 items, with files, tests and limitations):** [`docs/REPAIR_SPRINT_2026-10-11.md`](REPAIR_SPRINT_2026-10-11.md).
 **Lane reports:** [`docs/sprint/`](sprint/) (lane-a … lane-f, wave2).
 
 ## 1. Counts
 
-__COUNTS__
+| Status | Count |
+|---|---|
+| Fixed and verified in production | **52** |
+| Implemented, not deployed | 0 |
+| Partial | 0 |
+| Blocked | 0 |
+| Not started | 0 |
+
+Several items still have stated limits; see the tracker's last column. For example, MLB and NHL props are entry
+points only, CFB publishes no rankings, and coverage shells are not published.
 
 "Verified in production" means the item's check passed in `scripts/sprint-production-check.mjs`. That script runs on
 GitHub after every Pages deploy, against the live site (Chromium desktop, Chromium phone, WebKit iPhone), and picks
@@ -20,6 +29,9 @@ same bundle are in `docs/screenshots/2026-10-11/`.
 |---|---|---|
 | [#56](https://github.com/chmoses98/sift-sports-intelligence/pull/56) | `0aec8bd` | Lanes A–F, plus the integration fixes. |
 | [#57](https://github.com/chmoses98/sift-sports-intelligence/pull/57) | `c44f321` | **Wave 2:** issues 6 and 43 across NHL, soccer, CBB and CFB; Kalshi short club names spelled out. **Live check:** a feature check covering all 52 items, plus three defects it found (#38, #51/#52, #35). **Check fixes:** the existing production checks follow the new navigation; CFB logo-wait fix. **Test fix:** the WebKit scroll e2e race. |
+| [#58](https://github.com/chmoses98/sift-sports-intelligence/pull/58) | `9a28cb9` | Hit-rate e2e race; it blocked the #57 deploy. |
+| [#59](https://github.com/chmoses98/sift-sports-intelligence/pull/59) | `e191d47` | Team-page navigation e2e race; it blocked the #58 deploy. **Production.** |
+| [#60](https://github.com/chmoses98/sift-sports-intelligence/pull/60) | — | Final tracker and handoff; production-check pattern fixes (below). |
 | [nfl-edge-finder#138](https://github.com/chmoses98/nfl-edge-finder/pull/138) | draft, **not merged** | Upstream weather context: authoritative roof types (retractable stadiums were read as open air) and a venue check (the London game got Jacksonville's forecast). 3090 tests pass. Left for your review because it changes a scheduled data pipeline. The PR lists its risks. |
 
 Lane commits (on `sprint/lane-*`, merged through #56):
@@ -53,11 +65,26 @@ All paths are under `docs/screenshots/2026-10-11/`. The "before" shots sit next 
 - **Unit (vitest):** 952 passing (baseline 793).
 - **Playwright, local** (Chromium desktop and phone, non-visual): 412 passed, 0 failed.
 - **CI on PR #57's head** (lint, typecheck, unit, build, and Chromium plus WebKit acceptance, including visual): green.
-- **Live production check after the #57 deploy:** __PRODCHECK__
+- **Live production check after the `e191d47` deploy** (run 38161043189):
+  - `production-check.mjs` passed.
+  - `sprint-production-check.mjs`: 223 PASS · 0 N/A · 1 FAIL. Every item's checks passed on Chromium desktop and
+    phone. The only FAIL was WebKit reporting a transient raw.githubusercontent.com request failure as a page error;
+    the app catches it. The check now ignores exactly that network message.
+  - `cfb-production-check.mjs`: 546 ok · 3 FAIL, all one stale pattern. The check counted CFB ranks written "#12/130",
+    and wave 2 writes "#12 of 130". All 104 ranks are present on the deployed build. Fixed in #60.
 
 ## 5. Outstanding defects and next actions
 
-__OUTSTANDING__
+| # | Defect / gap | Next action |
+|---|---|---|
+| 1 | Upstream NFL weather context: retractable roofs read as open air; the London game got Jacksonville's forecast. Sift already corrects both on screen. | Review and merge [nfl-edge-finder#138](https://github.com/chmoses98/nfl-edge-finder/pull/138) (draft; risks listed in it). |
+| 2 | CFB export drops the venue and weather context it captures (`scripts/app_export.py`). | Export `context.venue` / `context.weather` upstream; Sift's venue table covers indoor CFB venues meanwhile. |
+| 3 | 30 of 55 player photos were removed (not game-day frames). Those players show the team-branded graphic. | Pin licensed game-day photos in `scripts/players/players.json`. |
+| 4 | The WebKit iPhone pass of the new sprint check has run only on CI (WebKit is not installed in this environment). | Watch the next scheduled production checks. |
+| 5 | Injury freshness thresholds (fresh ≤ 6 h, aging ≤ 24 h) are a product choice. | Tune in `src/lib/injurySource.ts` if wanted. |
+| 6 | The NBA and tennis matchup rows show the registry unit as published, without Sift's own denominator wording. | Extend `src/insights/sportUnits.ts` when those registries carry denominators. |
+| 7 | NFL totals cannot be linked to scripts until the simulation publishes points by script. MLB and NHL props have no simulated player distributions. | Upstream publication work. |
+| 8 | Issue text: the brief gave only numbers and lanes, so each tracker row's description is the lane deliverable it was matched to. | Correct any row whose matching is wrong. |
 
 ## 6. Research gates
 

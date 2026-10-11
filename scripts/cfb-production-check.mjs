@@ -414,7 +414,7 @@ for (const [name, type, device] of BROWSERS) {
       await page.waitForFunction(() => document.querySelectorAll('table.mettab').length > 0 || document.querySelector('[data-testid="engine-detail-unavailable"]'), null, { timeout: 60_000 }).catch(() => {});
       const st = await page.evaluate(() => ({
         tables: document.querySelectorAll('table.mettab').length,
-        ranks: (document.querySelector('main')?.innerText.match(/#\d+\/\d+/g) ?? []).length,
+        ranks: (document.querySelector('main')?.innerText.match(/#\d+(\/| of )\d+/g) ?? []).length, // "#12/130" or "#12 of 130"
         unavailable: document.querySelector('[data-testid="engine-detail-unavailable"]')?.textContent?.trim() ?? null,
         provenance: document.querySelector('[data-testid="engine-detail-provenance"]')?.textContent ?? '',
       }));

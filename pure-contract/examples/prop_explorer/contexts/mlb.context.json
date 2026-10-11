@@ -1,0 +1,387 @@
+{
+  "capture": {
+    "builder": "pure-contract/prop_explorer.py convert (prop_explorer 1.0.0)",
+    "capture_mode": "historical_research_replay",
+    "captured_at": "2026-10-11T03:00:00Z"
+  },
+  "coverage": {
+    "mlb_pitcher_workload_joint_v1": {
+      "pitcher_batters_faced": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8762,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_outs": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8721,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_strikeouts": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8689,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      }
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "pitcher_batters_faced": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.9587,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_outs": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8604,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_strikeouts": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.9013,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      }
+    }
+  },
+  "drivers": {
+    "mlb_pitcher_workload_joint_v1": {
+      "bullpen_pitches_1d": {
+        "label": "Own bullpen pitches, previous day",
+        "matchup_role": "not_matchup",
+        "role": "team_environment"
+      },
+      "bullpen_pitches_3d": {
+        "label": "Own bullpen pitches, previous 3 days",
+        "matchup_role": "not_matchup",
+        "role": "team_environment"
+      },
+      "days_rest": {
+        "label": "Days since previous start",
+        "matchup_role": "not_matchup",
+        "role": "rest_schedule"
+      },
+      "k_rate_hist_bf": {
+        "label": "Batters faced behind the strikeout rate",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "k_rate_hist_k": {
+        "label": "Strikeouts behind the strikeout rate",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "last_bf": {
+        "label": "Batters faced in previous start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "last_pitches": {
+        "label": "Pitches in previous start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "max_pitches_last3": {
+        "label": "Most pitches in the last three starts",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "n_hist": {
+        "label": "Prior starts in the recency window",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "opp_k_rate": {
+        "label": "Opponent batters' strikeout rate this season",
+        "matchup_role": "opponent_input",
+        "null_value_reason": "the opponent has no same-season plate appearances before the cutoff (opp_pa = 0), so the source leaves the rate null",
+        "role": "opponent"
+      },
+      "opp_nonout_rate": {
+        "label": "Opponent batters' reach-base (non-out) rate this season",
+        "matchup_role": "opponent_input",
+        "null_value_reason": "the opponent has no same-season plate appearances before the cutoff (opp_pa = 0), so the source leaves the rate null",
+        "role": "opponent"
+      },
+      "opp_pa": {
+        "label": "Opponent plate appearances this season",
+        "matchup_role": "opponent_input",
+        "role": "opponent"
+      },
+      "outs_per_bf_hist_bf": {
+        "label": "Batters faced behind the outs-per-batter rate",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "outs_per_bf_hist_outs": {
+        "label": "Outs behind the outs-per-batter rate",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "pitches_per_bf": {
+        "label": "Pitches per batter faced (history)",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "season_starts": {
+        "label": "Starts this season before the game",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "w_bf": {
+        "label": "Recency-weighted batters faced per start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "w_outs": {
+        "label": "Recency-weighted outs per start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "w_pitches": {
+        "label": "Recency-weighted pitches per start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      }
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "history_starts": {
+        "label": "Prior starts in history",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "k_rate": {
+        "label": "Strikeout rate per batter faced, after the opponent factor",
+        "matchup_role": "opponent_adjusted",
+        "role": "efficiency"
+      },
+      "mu_outs": {
+        "label": "Expected outs (workload curve)",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "nonout_per_out": {
+        "label": "Batters reaching base per out recorded",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "opponent_k_factor": {
+        "label": "Opponent strikeout tendency factor",
+        "matchup_role": "opponent_input",
+        "role": "opponent"
+      }
+    }
+  },
+  "game_defaults": {
+    "season": "2025",
+    "season_type": "regular"
+  },
+  "notes": [
+    "season and season_type: the source population is the 2025-2026 regular season (results doc) and this sample's kickoffs are 2025-03-18..2025-03-30, i.e. season 2025."
+  ],
+  "null_reasons": {
+    "distribution.pmf": "the source sidecar publishes quantiles and a threshold ladder, not the full probability mass function",
+    "game.away_team_id": "not carried by the source sidecar; resolve from the schedule by game_id",
+    "game.home_team_id": "not carried by the source sidecar; resolve from the schedule by game_id",
+    "game.is_home": "the source sidecar does not carry the player's team, so home/away is not known from it",
+    "game.opponent_team_id": "the source sidecar does not carry the player's team, so the opponent is not known from it",
+    "game.week": "MLB has no schedule weeks",
+    "game_script": "the source model publishes no projection conditional on game script",
+    "player.name": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.position": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_abbr": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_id": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "provenance.conversion": "the source rows are already pure_forecast.v1 and are copied byte for byte",
+    "validation.source_verdict": "the source evaluated this model only as a comparator and issued no verdict on it"
+  },
+  "units": {
+    "pitcher_batters_faced": "batters faced",
+    "pitcher_outs": "outs",
+    "pitcher_strikeouts": "strikeouts"
+  },
+  "validation": {
+    "mlb_pitcher_workload_joint_v1": {
+      "caveats": [
+        "Research collection only: no production, publication, staking or authority change, and the challenger is not wired into any export (source results doc).",
+        "The 2026 postseason is BLOCKED_DATA; the postseason diagnostic is on market-selected outcomes and is worse than the champion.",
+        "Lineup-confirmed subgroup is BLOCKED_DATA: no as-of lineup status before 2026-07-30; neither arm reads lineups.",
+        "Challenger minus champion p10-p90 coverage: -0.0824 [-0.0881, -0.0767] for batters faced and -0.0323 [-0.0362, -0.0290] for strikeouts; the champion's intervals covered 0.959 and 0.901 against a nominal 0.80."
+      ],
+      "compared_against": [
+        "pitcher_prop_projection@params_asof_2026-10-07",
+        "naive_recent5_v1"
+      ],
+      "evidence": [
+        {
+          "commit": "58bbd6e14e00d2cb269e3c1f9215de018337c3a9",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_WORKLOAD_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/58bbd6e14e00d2cb269e3c1f9215de018337c3a9/docs/research/PITCHER_WORKLOAD_PREREG.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_WORKLOAD_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_RESULTS.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "source_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #283",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/283"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/challenger.pure_v1.sample300.jsonl",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/challenger.pure_v1.sample300.jsonl"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+        "season_type": "regular",
+        "seasons": [
+          "2025",
+          "2026"
+        ],
+        "statistics": [
+          "pitcher_batters_faced",
+          "pitcher_outs",
+          "pitcher_strikeouts"
+        ]
+      },
+      "source_verdict": "ACCEPTED_CHALLENGER for 2025–2026 regular-season research collection only. The 2026 postseason is BLOCKED_DATA.",
+      "status": "RESEARCH_HISTORICAL_ACCEPTED"
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "caveats": [
+        "Incumbent comparator in the W1-D holdout; the preregistered test was of the challenger, and this champion is unchanged.",
+        "178 starter-games (1.9%) were excluded from scoring because this model's date-ordered history contained a suspended game completed after the forecast cutoff."
+      ],
+      "compared_against": [
+        "mlb_pitcher_workload_joint_v1",
+        "naive_recent5_v1"
+      ],
+      "evidence": [
+        {
+          "commit": "58bbd6e14e00d2cb269e3c1f9215de018337c3a9",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_WORKLOAD_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/58bbd6e14e00d2cb269e3c1f9215de018337c3a9/docs/research/PITCHER_WORKLOAD_PREREG.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_WORKLOAD_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_RESULTS.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "source_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #283",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/283"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/champion.pure_v1.sample300.jsonl",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/champion.pure_v1.sample300.jsonl"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+        "season_type": "regular",
+        "seasons": [
+          "2025",
+          "2026"
+        ],
+        "statistics": [
+          "pitcher_batters_faced",
+          "pitcher_outs",
+          "pitcher_strikeouts"
+        ]
+      },
+      "source_verdict": null,
+      "status": "NOT_VALIDATED"
+    }
+  },
+  "workload": {
+    "measure": "batters_faced",
+    "statistic": "pitcher_batters_faced",
+    "unit": "batters faced"
+  }
+}

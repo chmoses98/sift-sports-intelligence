@@ -9,8 +9,11 @@ and has nothing to do with wagers, staking or model authority.
 | `schema/pure_forecast.v1.schema.json` | JSON Schema (2020-12) for one JSONL line, v1 and the kit interim format (v0) |
 | `pure_gate.py` | Normative validator + `validate` / `compare` / `rerun` / `mutation` CLI (Python 3.10+, stdlib only) |
 | `tests/` | Unit tests, including the 13 ported kit tests and synthetic toy upstream models for `rerun` |
-| `examples/` | **Synthetic** example rows (not forecasts of any real player or game) |
+| `examples/*.example.jsonl` | **Synthetic** example rows (not forecasts of any real player or game) |
 | `ADOPTION.md` | How each sport repo emits the sidecar and where market quotes go |
+| `PROP_EXPLORER.md` | The Combined Player Prop Explorer contract (`prop_explorer_projection.v1`), built on top of v1 rows |
+| `prop_explorer.py`, `schema/prop_explorer_projection.v1.schema.json`, `types/` | Its validator/converter (stdlib), JSON Schema and TypeScript declarations |
+| `examples/prop_explorer/` | Explorer examples built from **real** committed research outputs of the sport repos |
 
 The vendored `src/contract/` protocols and `kalshi-bet-router/contract/edge_finder_contract` are not part of
 this and are unchanged. This directory isn't imported by the app build.

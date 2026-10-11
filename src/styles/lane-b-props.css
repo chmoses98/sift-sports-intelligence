@@ -279,3 +279,14 @@
 .hsum2__avg b { color: #fff; }
 .pcard__g.is-push { border-color: var(--gold-line); color: var(--gold-2); }
 .pcard__g.is-push::after { content: '='; font-size: 0.6rem; margin-left: 2px; }
+/* Secondary filters: always shown beside the rail on wide screens, one tap away on phones. */
+.pex__moreb { display: none; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(98, 186, 255, 0.24); background: rgba(3, 14, 24, 0.7); color: var(--text-2); font: 600 0.84rem var(--font-sans); cursor: pointer; justify-self: start; }
+.pex__moreb:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+.pex__moren { color: var(--gold-2); }
+.pex__more { display: grid; gap: 8px; }
+@media (max-width: 999px) {
+  .pexp .pex__moreb { display: inline-flex; }
+  .pexp .pex__more:not(.is-open) { display: none; }
+}
+.tprow__shift { color: var(--gold-2); font-weight: 600; }
+.tprow__crit { white-space: normal; }

@@ -12,7 +12,7 @@
 // Selection lives in the address, so changing the prop replaces every panel at once (nothing from the previous prop
 // stays on screen). Built on the game prop board (src/insights/propBoard.ts): no probability is derived from a mean;
 // the shadow model's P(over) appears only where the publication priced it, labelled research.
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
@@ -91,6 +91,7 @@ function NflExplorer() {
   const winName = hitWindowLabel(win, season, [...docs.values()].find((d) => d?.prior)?.prior?.season ?? null);
   const teams = data.data ? [data.data.b.rows[0]?.team, data.data.b.rows[0]?.opp].filter((t): t is Side => !!t).sort((a, b) => Number(a.home) - Number(b.home)) : [];
   const pickRow = (r: PropRow) => set({ prop: r.id }, true);
+  const [more, setMore] = useState(false);
   return (
     <>
       <div className="pex__games gtabs2" role="group" aria-label="Game">
@@ -120,6 +121,8 @@ function NflExplorer() {
               <button type="button" className={`fr-chip${!fam ? ' is-on' : ''}`} aria-pressed={!fam} onClick={() => set({ cat: null, prop: null })}>All <small>{rows.length}</small></button>
               {PROP_FAMILY_ORDER.filter((f) => data.data?.b.byFamily[f]).map((f) => <button key={f} type="button" className={`fr-chip${fam === f ? ' is-on' : ''}`} aria-pressed={fam === f} onClick={() => set({ cat: fam === f ? null : f, prop: null })}>{PROP_FAMILY_LABEL[f]} <small>{data.data?.b.byFamily[f]}</small></button>)}
             </div>
+            <button type="button" className="pex__moreb" aria-expanded={more} aria-controls="pex-more" onClick={() => setMore((m) => !m)}><Icon name="sliders" size={15} /> {more ? 'Fewer filters' : 'More filters'}{pos || read || band || !priced ? <span className="pex__moren"> · {[pos, read, band, !priced ? 'all lines' : null].filter(Boolean).length} on</span> : null}</button>
+            <div id="pex-more" className={`pex__more${more ? ' is-open' : ''}`}>
             <div className="pex__sels">
               <label className="term__sel"><span>Position</span>
                 <select value={pos ?? ''} onChange={(e) => set({ pos: e.target.value || null, prop: null })}><option value="">All</option>{positions.map((p) => <option key={p} value={p}>{p}</option>)}</select>
@@ -132,6 +135,7 @@ function NflExplorer() {
               </label>
             </div>
             <label className="pex__chk"><input type="checkbox" checked={priced} onChange={(e) => set({ priced: e.target.checked ? null : '0', prop: null })} /> Priced lines only</label>
+            </div>
           </div>
           {data.loading ? <Skeleton lines={8} /> : (
             <ol className="pex__list pex__players" aria-label={`${groups.length} players, ${shown.length} props`}>
@@ -330,7 +334,7 @@ function PropAnalysis({ row, playerRows, hits, hist, win, onWin, onPick, r, scri
 
         <section className="fx-card fx-span-6 fr-mu" aria-labelledby="pexa-mu">
           <h3 className="fx-card__t" id="pexa-mu"><Icon name="compare" size={16} /> Matchup: {row.opp.abbr} {def.defUnit ?? 'defense'}</h3>
-          {mu ? <p className="fr-mu__lead"><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p> : <p className="fr-mu__lead"><span>No opposing-unit rank is published for {def.label.toLowerCase()}.</span></p>}
+          {row.matchup ? <p className="fr-mu__lead"><MatchupWord tier={row.matchup.rank.tier} /> <span>{row.opp.abbr} {row.matchup.label.replace(`${row.opp.nick} `, '')} <b>#{row.matchup.rank.rank} of {row.matchup.rank.of}</b></span></p> : <p className="fr-mu__lead"><span>No opposing-unit rank is published for {def.label.toLowerCase()}.</span></p>}
           {pairs.length ? (
             <div className="fr-mu__rows">
               <div className="fr-mu__head"><span><TeamMark sport="NFL" abbr={row.team.abbr} size="sm" /> {row.team.abbr} offense</span><span>{row.opp.abbr} defense <TeamMark sport="NFL" abbr={row.opp.abbr} size="sm" /></span></div>

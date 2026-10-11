@@ -89,7 +89,7 @@ export function PerfChart({ h, statLabel, unit, season, sport = 'NFL', projectio
             );
           })()}
           <line x1={M.left} x2={width - M.right} y1={ly} y2={ly} className="pchart__line" />
-          <text x={width - M.right} y={ly - 6} className="pchart__lineLab" textAnchor="end">Line {lineText(h.line)}</text>
+          <text x={M.left + 4} y={ly - 6} className="pchart__lineLab" textAnchor="start">Line {lineText(h.line)}</text>
           {act && <line x1={cx(act.row.game_id)} x2={cx(act.row.game_id)} y1={M.top - 14} y2={height - M.bottom} className="pchart__cross" />}
         </svg>
         <div className="pchart__x" aria-hidden="true">

@@ -15,7 +15,7 @@ import { Skeleton, TeamMark } from '../../components/ui';
 import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';
 import type { HitRate } from '../../history/hitRate';
-import { statDef } from '../../history/stats';
+import { roleShift, statDef } from '../../history/stats';
 import { fmtValue, PROP_FAMILY_LABEL, PROP_FAMILY_ORDER, propBoard, type PropFamily, type PropRow } from '../../insights/propBoard';
 import { playerPhoto } from '../../lib/players';
 import { routes } from '../../lib/routes';
@@ -78,7 +78,8 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
       const g = rankByGap(all, { touchdowns: fam === 'touchdowns' });
       return { ranked: g.ranked.map((d) => ({ d, h: null })), setAside: g.setAside };
     }
-    const withH = all.map((d) => ({ d, h: hitFor(docs.get(histKey(d.row.name, d.row.team.abbr)), d.row, d.kickoff, 'last10') }));
+    // Anytime-touchdown ladders sit at 0.5 and land under in most games for most players: they rank only on their own.
+    const withH = all.filter((d) => (fam === 'touchdowns') === (d.row.family === 'touchdowns')).map((d) => ({ d, h: hitFor(docs.get(histKey(d.row.name, d.row.team.abbr)), d.row, d.kickoff, 'last10') }));
     return { ranked: rankByHistory(withH.filter((x) => x.h && x.h.n > 0)), setAside: [] };
   }, [all, sort, docs, fam]);
   const shown = ranked.slice(0, limit);
@@ -173,7 +174,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
                     return (
                       <>
                         <span className={`tprow__hit tprow__hit--${hs.side}`}><HitDots h={h} /> <b className="num">{hs.side === 'under' ? h.under : h.over}/{h.n}</b> {hs.side === 'under' ? 'under' : 'over'}</span>
-                        <small className="tprow__crit">{hs.text}{h.n < 10 ? ` · only ${h.n} played` : ''}</small>
+                        <small className="tprow__crit">{hs.text}{h.n < 10 ? ` · only ${h.n} played` : ''}{(() => { const sh = roleShift(h.games.map((x) => x.row)); return sh ? <b className="tprow__shift"> · role changed: {sh.metric} {sh.metric === 'carries' ? `${Math.round(sh.from * 10) / 10} → ${Math.round(sh.to * 10) / 10}/g` : `${Math.round(sh.from * 100)}% → ${Math.round(sh.to * 100)}%`} in his last 2</b> : null; })()}</small>
                       </>
                     );
                   })() : <small className="tprow__crit">—</small>}
@@ -186,7 +187,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
         </ol>
       )}
       {ranked.length > limit && <button type="button" className="btn btn--sm tprops__more" onClick={() => setLimit((l) => l + PAGE)}>Show {Math.min(PAGE, ranked.length - limit)} more</button>}
-      {sort === 'gap' && fam !== 'touchdowns' && <p className="fr-note">Touchdown props rank under the Touchdowns filter only: their simulated range collapses to zero, so the gap is not comparable with yards.</p>}
+      {fam !== 'touchdowns' && <p className="fr-note">Touchdown props rank under the Touchdowns filter only: {sort === 'gap' ? 'their simulated range collapses to zero, so the gap is not comparable with yards.' : 'an anytime-touchdown line lands under in most games for most players, which would crowd out every other market.'}</p>}
       {setAside.length > 0 && (
         <details className="tprops__aside">
           <summary>{setAside.length} prop{setAside.length === 1 ? '' : 's'} not ranked: the line sits outside the simulation’s 5th–95th range</summary>

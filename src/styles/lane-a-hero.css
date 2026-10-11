@@ -130,3 +130,6 @@
 @media (max-width: 719px) {
   .gh--bc .gh__rule { width: 36px; height: 3px; margin: 5px 0 4px; }
 }
+
+/* Info popovers inside the hero read as body text, not as the uppercase label they hang from. */
+.fh2 .popover__panel { font-family: var(--font-sans); font-weight: 400; font-size: var(--fs-xs); letter-spacing: 0; text-transform: none; color: var(--text); text-shadow: none; line-height: 1.5; z-index: 60; }

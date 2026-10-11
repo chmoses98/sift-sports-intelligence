@@ -135,6 +135,19 @@
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   /* Deprecated alias kept so in-flight branches that still say var(--font-serif) render Barlow, not a serif. */
   --font-serif: var(--font-display);
+  /* Barlow Condensed (the same family, condensed width; latin 600/700 self-hosted): the broadcast voice for page
+     titles, section titles, eyebrows and display numerals. Reading text stays Barlow. */
+  --font-cond: 'Barlow Condensed', 'Barlow', 'Barlow Fallback', system-ui, sans-serif;
+
+  /* ---- the type scale (src/styles/lane-a-type.css applies it to every page): one page title, two heading tiers,
+     one eyebrow, so hierarchy is the same on every screen. */
+  --fs-page: clamp(2.2rem, 4.6vw, 3.4rem);      /* h1: the screen's name */
+  --fs-section: clamp(1.3rem, 2.2vw, 1.6rem);   /* h2: a section of the page */
+  --fs-panel: 1.06rem;                          /* a panel or card title */
+  --fs-eyebrow: 0.78rem;                        /* the small uppercase marker above a title */
+  --ls-page: 0.01em;
+  --ls-section: 0.045em;
+  --ls-eyebrow: 0.14em;
 
   --fw-body: 400;
   --fw-ui: 500;

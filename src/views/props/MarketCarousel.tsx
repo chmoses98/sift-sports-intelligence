@@ -10,7 +10,7 @@ import { HitDots } from './HitRate';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 
-export function MarketCarousel({ rows, selectedId, onSelect, hits, hitLabel, label, size = 'md' }: {
+export function MarketCarousel({ rows, selectedId, onSelect, hits, hitLabel, label, size = 'md', pending = false }: {
   rows: PropRow[];
   selectedId: string | null;
   onSelect: (row: PropRow) => void;
@@ -19,6 +19,8 @@ export function MarketCarousel({ rows, selectedId, onSelect, hits, hitLabel, lab
   hitLabel?: string;
   label: string;
   size?: 'sm' | 'md';
+  /** Game logs still loading: say nothing yet rather than "no game log". */
+  pending?: boolean;
 }) {
   const track = useRef<HTMLUListElement>(null);
   const [edge, setEdge] = useState({ prev: false, next: false });
@@ -76,7 +78,7 @@ export function MarketCarousel({ rows, selectedId, onSelect, hits, hitLabel, lab
                 {size === 'md' && <span className="pmk__px">{r.main ? <>O {cents(r.main.yesAsk)} · U {cents(r.main.noAsk)}</> : 'No priced line'}</span>}
                 {h && h.n > 0 ? (
                   <span className="pmk__hit">{size === 'md' && <HitDots h={h} max={10} />}<span className="pmk__hn">{h.over}/{h.n}</span>{size === 'sm' && ' over'}</span>
-                ) : <span className="pmk__hit pmk__hit--none">{r.line == null ? '' : 'No game log'}</span>}
+                ) : <span className="pmk__hit pmk__hit--none">{r.line == null || pending ? '' : 'No game log'}</span>}
                 {size === 'md' && alts > 0 && <span className="pmk__alt">+{alts} alt line{alts === 1 ? '' : 's'}</span>}
               </button>
             </li>

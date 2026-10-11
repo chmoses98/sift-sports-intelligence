@@ -86,7 +86,7 @@ function NflExplorer() {
   const sel = shown.find((r) => r.id === selId) ?? (selId ? rows.find((r) => r.id === selId) : undefined) ?? groups[0]?.lead ?? null;
   // Every market of the selected player (priced or not), so his carousel is complete whatever the rail's filters.
   const selRows = useMemo(() => (sel ? groupByPlayer(rows.filter((r) => r.playerId === sel.playerId))[0]?.rows ?? [] : []), [rows, sel]);
-  const { docs, hits } = usePropHits(sport.code, rows, game?.start_time_utc ?? null, win);
+  const { docs, hits, loading: histLoading } = usePropHits(sport.code, rows, game?.start_time_utc ?? null, win);
   const season = [...docs.values()].find(Boolean)?.season ?? (game ? new Date(game.start_time_utc).getFullYear() : new Date().getFullYear());
   const winName = hitWindowLabel(win, season, [...docs.values()].find((d) => d?.prior)?.prior?.season ?? null);
   const teams = data.data ? [data.data.b.rows[0]?.team, data.data.b.rows[0]?.opp].filter((t): t is Side => !!t).sort((a, b) => Number(a.home) - Number(b.home)) : [];
@@ -148,7 +148,7 @@ function NflExplorer() {
                       <span className="pex__rb"><b>{g.name}</b><small>{g.team.abbr} {g.role ?? ''} · {g.rows.length} market{g.rows.length === 1 ? '' : 's'}{g.injury ? <span className="fr-inj"> · {g.injury.toLowerCase().replace(/_/g, ' ')}</span> : null}</small></span>
                       <Icon name="chevronRight" size={16} />
                     </button>
-                    <MarketCarousel rows={g.rows} selectedId={sel?.id ?? null} onSelect={pickRow} hits={hits} hitLabel={winName} label={`${g.name} markets`} size="sm" />
+                    <MarketCarousel rows={g.rows} selectedId={sel?.id ?? null} onSelect={pickRow} hits={hits} hitLabel={winName} label={`${g.name} markets`} size="sm" pending={histLoading} />
                   </li>
                 );
               })}
@@ -159,7 +159,7 @@ function NflExplorer() {
         <div className="pex__main">
           {data.loading && <Skeleton lines={10} tall />}
           {sel && data.data && game && (
-            <PropAnalysis key={sel.id} row={sel} playerRows={selRows} hits={hits} hist={docs.get(histKey(sel.name, sel.team.abbr)) ?? null} win={win} onWin={(w) => set({ win: w === 'last10' ? null : w })} onPick={pickRow}
+            <PropAnalysis key={sel.id} histLoading={histLoading} row={sel} playerRows={selRows} hits={hits} hist={docs.get(histKey(sel.name, sel.team.abbr)) ?? null} win={win} onWin={(w) => set({ win: w === 'last10' ? null : w })} onPick={pickRow}
               r={data.data.r} scripts={data.data.scripts} kickoff={game.start_time_utc} slug={slug} sportCode={sport.code} eventId={game.event_id} now={now} />
           )}
           {!data.loading && !sel && data.data && <div className="bempty"><h3>Pick a player</h3><p>Choose a player and one of his markets to see the full analysis.</p></div>}
@@ -202,8 +202,8 @@ function pointsOf(row: PropRow): QPoint[] | null {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function PropAnalysis({ row, playerRows, hits, hist, win, onWin, onPick, r, scripts, kickoff, slug, sportCode, eventId, now }: {
-  row: PropRow; playerRows: PropRow[]; hits: Map<string, HitRate | null>; hist: PlayerHistoryDoc | null; win: HitWindow; onWin: (w: HitWindow) => void; onPick: (r: PropRow) => void;
+function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, onPick, r, scripts, kickoff, slug, sportCode, eventId, now }: {
+  histLoading: boolean; row: PropRow; playerRows: PropRow[]; hits: Map<string, HitRate | null>; hist: PlayerHistoryDoc | null; win: HitWindow; onWin: (w: HitWindow) => void; onPick: (r: PropRow) => void;
   r: EventResearchDoc; scripts: ScriptSet | null; kickoff: string; slug: string; sportCode: string; eventId: string; now: number;
 }) {
   const hdef = statDef(row.def.stat);
@@ -275,14 +275,14 @@ function PropAnalysis({ row, playerRows, hits, hist, win, onWin, onPick, r, scri
       {playerRows.length > 1 && (
         <section className="fx-card pexa__mk" aria-labelledby="pexa-mk">
           <h3 className="fx-card__t" id="pexa-mk"><Icon name="layers" size={16} /> All {row.name.split(' ').slice(-1)[0]} markets <small className="pexa__mkn">{playerRows.length} stats · {playerRows.reduce((n, x) => n + x.ladder.length, 0)} lines</small></h3>
-          <MarketCarousel rows={playerRows} selectedId={row.id} onSelect={onPick} hits={hits} hitLabel={winName} label={`${row.name}: every market`} />
+          <MarketCarousel rows={playerRows} selectedId={row.id} onSelect={onPick} hits={hits} hitLabel={winName} label={`${row.name}: every market`} pending={histLoading} />
         </section>
       )}
 
       <div className="fx-bento fr-pexa__grid">
         <section className="fx-card fx-span-8 fr-perf pexa__perf" aria-labelledby="pexa-hist">
           <h3 className="fx-card__t" id="pexa-hist"><Icon name="chart" size={16} /> Game by game vs today’s line</h3>
-          {hist && hdef && hrows && wins.length ? (
+          {histLoading && !hist ? <Skeleton lines={5} /> : hist && hdef && hrows && wins.length ? (
             <>
               <div className="fr-seg pexa__wins" role="group" aria-label="History window">
                 {wins.map((w) => <button key={w.w} type="button" className={`fr-seg__b${w.w === shownWin ? ' is-on' : ''}`} aria-pressed={w.w === shownWin} onClick={() => onWin(w.w)}>{hitWindowShort(w.w, season, prior)} <small className="pexa__wn">{w.n}</small></button>)}

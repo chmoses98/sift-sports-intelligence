@@ -21,10 +21,9 @@ import { playerPhoto } from '../../lib/players';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
 import { useTray } from '../../state/tray';
-import { usePropHistories } from '../game/matters';
 import { HitDots } from './HitRate';
 import { historySide, rankByGap, rankByHistory, type DiscoveryRow, type DiscoverySort } from './model';
-import { histKey, hitFor } from './useHits';
+import { histKey, hitFor, usePlayerHistories } from './useHits';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const PAGE = 20;
@@ -70,8 +69,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
     for (const d of all) if (statDef(d.row.def.stat)) m.set(histKey(d.row.name, d.row.team.abbr), { name: d.row.name, team: d.row.team.abbr });
     return [...m.values()];
   }, [all, sort]);
-  const docs = usePropHistories(sportCode, histPlayers);
-  const histLoading = sort === 'history' && histPlayers.length > 0 && ![...docs.values()].some(Boolean);
+  const { docs, loading: histLoading } = usePlayerHistories(sportCode, histPlayers);
 
   const { ranked, setAside } = useMemo((): { ranked: { d: DiscoveryRow; h: HitRate | null }[]; setAside: DiscoveryRow[] } => {
     if (sort === 'gap') {

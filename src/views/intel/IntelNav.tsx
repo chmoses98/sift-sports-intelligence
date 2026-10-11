@@ -2,6 +2,7 @@
 import { Link, useLocation } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { routes } from '../../lib/routes';
+import '../../styles/lane-e-intel.css';
 
 const TABS = [
   { to: routes.intelligence(), path: '/intelligence', label: 'Terminal', icon: 'layers' },

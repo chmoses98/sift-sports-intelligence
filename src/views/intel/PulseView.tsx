@@ -28,8 +28,9 @@ export function CompareBars({ c }: { c: Comparison }) {
   const max = Math.max(c.model, c.market) * 1.08 || 1;
   return (
     <div className="cbars" role="img" aria-label={`${c.label}: model ${fmt(c.model)}, market ${fmt(c.market)}; lower is better; ${LEADER_WORD[c.leader]}`}>
-      <span className="cbars__row"><span className="cbars__k">Model</span><span className="cbars__t"><span className="cbars__f cbars__f--model" style={{ width: `${(c.model / max) * 100}%` }} /></span><b className="bnum">{fmt(c.model)}</b></span>
-      <span className="cbars__row"><span className="cbars__k">Market</span><span className="cbars__t"><span className="cbars__f cbars__f--market" style={{ width: `${(c.market / max) * 100}%` }} /></span><b className="bnum">{fmt(c.market)}</b></span>
+      <span className="cbars__head">Forecast error · the shorter bar is better</span>
+      <span className={`cbars__row${c.leader === 'model' ? ' is-lead' : ''}`}><span className="cbars__k">Model</span><span className="cbars__t"><span className="cbars__f cbars__f--model" style={{ width: `${(c.model / max) * 100}%` }} /></span><b className="bnum">{fmt(c.model)}</b>{c.leader === 'model' && <span className="cbars__lead">Better</span>}</span>
+      <span className={`cbars__row${c.leader === 'market' ? ' is-lead' : ''}`}><span className="cbars__k">Market</span><span className="cbars__t"><span className="cbars__f cbars__f--market" style={{ width: `${(c.market / max) * 100}%` }} /></span><b className="bnum">{fmt(c.market)}</b>{c.leader === 'market' && <span className="cbars__lead">Better</span>}</span>
       <span className="cbars__foot">{c.metric} · lower is better{c.n ? ` · n = ${c.n.toLocaleString()}` : ''}</span>
     </div>
   );
@@ -68,6 +69,7 @@ function PulseCard({ e }: { e: SportEvidence }) {
       {e.families.length > 0 && (
         <div className="pfam" role="group" aria-label="By market family">
           {e.families.slice(0, 6).map((f) => <span key={f.label} className={`pfam__c pfam__c--${leaderTone(f.leader)}`} title={`${f.label}: model ${fmt(f.model)} vs market ${fmt(f.market)} (${f.metric}, n ${f.n ?? '—'})`}>{f.label}</span>)}
+          {e.families.length > 6 && <Link to={routes.lab(e.slug)} className="pfam__more">+{e.families.length - 6} more in Model Lab</Link>}
         </div>
       )}
       <footer className="pcard__f">
@@ -163,6 +165,13 @@ function FamilyBars({ f, max }: { f: Comparison; max: number }) {
   );
 }
 
+/** The headline comparison in plain words: what a reader should take from it, never stronger than the record. */
+export function meaningOf(leader: Comparison['leader'], label: string): string {
+  if (leader === 'market') return `The market’s prices have landed closer to what actually happened than the ${label} model’s. Where the model disagrees with the market, the market has usually been right, so a gap is a question to research, not an edge.`;
+  if (leader === 'model') return `On this published sample the ${label} model has landed closer than the market. That is past accuracy on these rows, not a promise, and the publication still decides whether any bet is permitted.`;
+  return `The ${label} model and the market have been about as accurate as each other: the model’s disagreements are not, on this record, a reason to bet.`;
+}
+
 export function LabView() {
   useVisit('Advanced Model Lab', 'intel');
   const ev = useEvidence();
@@ -206,6 +215,7 @@ export function LabView() {
             <FxCard title="Headline comparison" icon="bolt" id="lab-head" className="fx-span-6">
               <p className="tpanel__lead">{cur.verdict}</p>
               {cur.headline && <CompareBars c={cur.headline} />}
+              {cur.headline && <p className="labx__mean"><b>What this means.</b> {meaningOf(cur.headline.leader, cur.label)}</p>}
               {cur.headline?.note && <p className="tm-note">{cur.headline.note}</p>}
             </FxCard>
             {cur.bins && cur.bins.length > 2 ? (

@@ -86,8 +86,8 @@ export function nextTrail(prev: TrailStep[], s: TrailStep, parent?: TrailStep | 
   return [...without, s].slice(-MAX);
 }
 
-/** The Explore hub, as the parent of the tools under it (Season, Prop explorer). */
-export const EXPLORE_STEP: TrailStep = { href: '/explore', label: 'Explore', kind: 'explore' };
+/** The Research Lab hub (route /explore), as the parent of the tools under it (Season, Prop explorer). */
+export const EXPLORE_STEP: TrailStep = { href: '/explore', label: 'Research Lab', kind: 'explore' };
 
 const ENTITY_KINDS = new Set<TrailKind>(['game', 'team', 'player', 'metric', 'ranking', 'market', 'history', 'compare']);
 

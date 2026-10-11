@@ -24,7 +24,7 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['scorecard', './#/nfl/scorecard', (p) => p.getByRole('heading', { name: 'Model Scorecard', level: 1 }).waitFor()],
   ['status', './#/status', (p) => p.getByRole('heading', { name: 'Live market quotes' }).waitFor()],
   ['games', './#/games?day=week', (p) => p.locator('.stile').first().waitFor()],
-  ['explore', './#/explore', (p) => p.getByRole('heading', { name: 'Stats Lab' }).waitFor()],
+  ['explore', './#/explore', (p) => p.getByRole('heading', { name: 'Stats & rankings' }).waitFor()],
   ['terminal', './#/intelligence', (p) => p.locator('.term__list .trow').first().waitFor()],
   ['market-board', './#/intelligence/markets', (p) => p.getByRole('heading', { name: 'Market board' }).waitFor()],
   ['pulse', './#/intelligence/pulse', (p) => p.locator('.pcard').first().waitFor()],

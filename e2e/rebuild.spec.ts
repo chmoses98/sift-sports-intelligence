@@ -4,7 +4,8 @@
 // replacing its analysis when another prop is picked. No sideways scroll anywhere.
 import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
 
-const DESTS = ['Home', 'Games', 'Explore', 'Intelligence', 'My Board'];
+// The research destination's nav label is being renamed from Explore to Research Lab (lane A); either reads.
+const DESTS: (string | RegExp)[] = ['Home', 'Games', /Research Lab|Explore/, 'Intelligence', 'My Board'];
 
 test('five destinations, one search, and Home’s sections @smoke', async ({ page, isMobile }) => {
   await page.clock.install({ time: NOW });
@@ -24,13 +25,13 @@ test('every new destination opens from the navigation and survives back/forward 
   await page.clock.install({ time: NOW });
   await page.goto('./#/');
   const nav = isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' });
-  const go = async (label: string, heading: RegExp) => {
+  const go = async (label: string | RegExp, heading: RegExp) => {
     await nav.getByRole('link', { name: label }).first().click();
     await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
-    await noHorizontalOverflow(page, label);
+    await noHorizontalOverflow(page, String(label));
   };
   await go('Games', /^Games$/);
-  await go('Explore', /^Explore$/);
+  await go(/Research Lab|Explore/, /^Research Lab$/);
   await go(isMobile ? 'Intel' : 'Intelligence', /^Terminal$/);
   await go('My Board', /^My Board$/);
   await page.goBack();

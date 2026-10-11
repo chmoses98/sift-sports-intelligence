@@ -1,8 +1,10 @@
-// EXPLORE — research without starting from a game (approved reference 11). One sport at a time: a photo masthead
-// with the sport selector, visual tool tiles (only tools that exist for the sport; the rest say why they are not
-// there), the interactive team rankings table, key matchups this week, quick stats, the season timeline, the Stats
-// Lab (every published ranking) and a player finder over the publication's own search index.
-import { useMemo, useState } from 'react';
+// RESEARCH LAB (route /explore) — research without starting from a game. One sport at a time: a photo masthead with
+// the sport selector, then the seven tool categories every research path starts from (src/views/explore/labTools.ts:
+// Teams · Players · Props · Matchup compare · Season · Stats & rankings · Model Pulse; a tool the sport does not
+// publish says why), then the tools that live here: the interactive team rankings table, key matchups this week,
+// quick stats, the season timeline, Stats & rankings (every published ranking), the player finder and the team grid.
+// ?tool=<key> scrolls to a tool, so Home and other screens can link straight to one.
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import type { BoardItem } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
@@ -19,6 +21,8 @@ import { useVisit } from '../../state/trail';
 import { PMark } from '../broadcast/parts';
 import { cleanRank, KeyMatchups, QuickStats, RankingsTable, SeasonTimeline, teamRankings, type SearchItem } from './hub';
 import { EXPLORE_PHOTO } from './photos';
+import { LAB_TOOLS, labHref, type LabToolKey } from './labTools';
+import '../../styles/lane-e-season.css';
 
 function useExplorer(slug: string) {
   return useAsync(`explore:v2:${slug}`, async () => {
@@ -34,10 +38,13 @@ function useExplorer(slug: string) {
 
 const rankGroup = (label: string) => (/\(ADJ/i.test(label) ? 'Opponent-adjusted' : /\(L\d+\)/.test(label) ? 'Recent form' : /\(SEASON\)|season/i.test(label) ? 'This season' : 'Other rankings');
 
-interface Tool { key: string; title: string; sub: string; icon: string; tone: string; to?: string; off?: string; art?: React.ReactNode }
+interface Tool { key: LabToolKey; title: string; sub: string; icon: string; tone: string; to?: string; off?: string; art?: React.ReactNode }
+
+/** The hub section each in-page tool scrolls to. */
+const SECTION: Partial<Record<LabToolKey, string>> = { teams: 'teams', players: 'players', stats: 'stats' };
 
 export function ExploreView() {
-  useVisit('Explore', 'explore');
+  useVisit('Research Lab', 'explore');
   const [sp, setSp] = useSearchParams();
   const slug = sp.get('sport') ?? 'nfl';
   const ex = useExplorer(slug);
@@ -59,18 +66,35 @@ export function ExploreView() {
   const code = ex.data?.sport.code ?? slug.toUpperCase();
   const avail = !!ex.data?.available;
   const lead = teams.slice(0, 2);
-  const tools: Tool[] = [
-    { key: 'rank', title: 'Team rankings', sub: teamRk.length ? `${teamRk.length} team rankings, opponent-adjusted first` : 'No team rankings published', icon: 'shield', tone: 'cyan', to: teamRk.length ? '#rankings' : undefined, off: teamRk.length ? undefined : 'Not published' },
-    { key: 'players', title: 'Players', sub: nPlayers ? `Find any of ${nPlayers.toLocaleString()} players` : 'No player index published', icon: 'star', tone: 'violet', to: nPlayers ? '#players' : undefined, off: nPlayers ? undefined : 'Not published' },
-    { key: 'compare', title: 'Matchup tools', sub: 'Two teams side by side, rank by rank', icon: 'compare', tone: 'green', to: avail ? routes.compare(slug, '') : undefined, off: avail ? undefined : 'Needs research explorer', art: lead.length === 2 ? <span className="ex-tool__marks">{lead.map((t) => <PMark key={t.participant_id} sport={code} p={{ participant_id: t.participant_id, display_name: t.display_name, short_name: t.short_name, participant_type: 'TEAM' } as never} size="md" />)}</span> : undefined },
-    { key: 'props', title: 'Prop explorer', sub: slug === 'nfl' ? 'Every published player prop: projection, range, line, price' : 'Player props are published for NFL only', icon: 'sliders', tone: 'gold', to: slug === 'nfl' ? routes.props(slug) : undefined, off: slug === 'nfl' ? undefined : 'NFL only' },
-    { key: 'stats', title: 'Stats Lab', sub: rankings.length || rq ? `${items.filter((i) => i.kind === 'RANKING').length} published rankings, filterable` : 'No rankings published', icon: 'chart', tone: 'cyan', to: items.some((i) => i.kind === 'RANKING') ? '#stats' : undefined, off: items.some((i) => i.kind === 'RANKING') ? undefined : 'Not published' },
-    { key: 'season', title: slug === 'nfl' ? 'Season navigator' : 'Schedule', sub: slug === 'nfl' ? 'The 18-week grid, results and weekly form' : 'The calendar, day by day', icon: 'grid', tone: 'green', to: routes.season(slug) },
-    { key: 'pulse', title: 'Model evidence', sub: 'How this sport’s model has performed', icon: 'bolt', tone: 'red', to: routes.pulse(slug) },
-  ];
+  const nRankings = items.filter((i) => i.kind === 'RANKING').length;
+  const art = lead.length === 2 ? <span className="ex-tool__marks">{lead.map((t) => <PMark key={t.participant_id} sport={code} p={{ participant_id: t.participant_id, display_name: t.display_name, short_name: t.short_name, participant_type: 'TEAM' } as never} size="md" />)}</span> : undefined;
+  // What each category says for this sport: a count from the publication, or why the tool is not here.
+  const detail: Record<LabToolKey, Pick<Tool, 'sub' | 'off' | 'art'>> = {
+    teams: teams.length ? { sub: `${teams.length} ${code === 'TENNIS' ? 'players' : 'teams'}${teamRk.length ? `, ${teamRk.length} team rankings` : ''}` } : { sub: 'No team research published', off: 'Not published' },
+    players: nPlayers ? { sub: `Find any of ${nPlayers.toLocaleString()} players` } : { sub: 'No player index published', off: 'Not published' },
+    props: { sub: 'Every published prop: projection, range, line, price' },
+    compare: avail ? { sub: 'Two teams side by side, rank by rank', art } : { sub: 'Needs the sport’s research explorer', off: 'Not published' },
+    season: { sub: slug === 'nfl' ? 'Week by week: matchups, scores, results against the spread' : 'The calendar, day by day' },
+    stats: nRankings ? { sub: `${nRankings} published rankings, opponent-adjusted first` } : { sub: 'No rankings published', off: 'Not published' },
+    pulse: { sub: `How the ${nav?.label ?? code} model has done against the market` },
+  };
+  const tools: Tool[] = LAB_TOOLS.map((t) => {
+    const d = detail[t.key];
+    const sec = SECTION[t.key];
+    return { ...t, ...d, title: t.key === 'season' && slug !== 'nfl' ? 'Schedule' : t.title, to: d.off ? undefined : sec ? `#${sec}` : labHref(t.key, slug) };
+  });
+  // ?tool=<key>: scroll to the tool's section once the sport's research has loaded.
+  const toolParam = sp.get('tool') as LabToolKey | null;
+  const loaded = !!ex.data;
+  useEffect(() => {
+    const id = toolParam ? SECTION[toolParam] : null;
+    if (!id || !loaded) return;
+    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    return () => window.clearTimeout(t);
+  }, [toolParam, loaded]);
   return (
     <div className="page explore exh">
-      <HubMast title="Explore" eyebrow="Research tools" sub="Teams, players, stats and seasons — straight from each sport’s publication." photo={hubPhoto(EXPLORE_PHOTO[slug])}>
+      <HubMast title="Research Lab" eyebrow="SIFT research" sub="Teams, players, props, matchups and seasons, from each sport’s publication." photo={hubPhoto(EXPLORE_PHOTO[slug])}>
         <div className="tm-chips exh__sports" role="group" aria-label="Sport">
           {NAV_SPORTS.filter((s) => s.status !== 'planned').map((s) => (
             <button key={s.slug} type="button" className={`tm-chip${slug === s.slug ? ' is-on' : ''}`} aria-pressed={slug === s.slug} onClick={() => setSp({ sport: s.slug }, { replace: true })}><SportMark slug={s.slug} icon={s.icon} size={15} />{s.label}</button>
@@ -90,7 +114,7 @@ export function ExploreView() {
                 {t.off ? <span className="ex-tool__off">{t.off}</span> : <Icon name="chevronRight" size={16} className="ex-tool__go" />}
               </>
             );
-            return <li key={t.key}>{t.to ? (t.to.startsWith('#') ? <a href={t.to} className={`ex-tool ex-tool--${t.tone}`} onClick={(e) => { e.preventDefault(); document.getElementById(t.to!.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{body}</a> : <Link to={t.to} className={`ex-tool ex-tool--${t.tone}`}>{body}</Link>) : <div className={`ex-tool ex-tool--${t.tone} is-off`} aria-disabled="true">{body}</div>}</li>;
+            return <li key={t.key}>{t.to ? (t.to.startsWith('#') ? <button type="button" className={`ex-tool ex-tool--${t.tone}`} onClick={() => { setSp((prev) => { const n = new URLSearchParams(prev); n.set('tool', t.key); return n; }, { replace: true }); document.getElementById(t.to!.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{body}</button> : <Link to={t.to} className={`ex-tool ex-tool--${t.tone}`}>{body}</Link>) : <div className={`ex-tool ex-tool--${t.tone} is-off`} aria-disabled="true">{body}</div>}</li>;
           })}
         </ul>
       </section>
@@ -107,7 +131,7 @@ export function ExploreView() {
       {avail && (
         <div className="explore__cols exh__cols">
           <section className="fx-card" aria-labelledby="stats-h" id="stats">
-            <header className="fx-card__h"><h2 className="fx-card__t" id="stats-h"><Icon name="chart" size={17} /><span>Stats Lab</span></h2><small className="muted">{rankings.length}</small></header>
+            <header className="fx-card__h"><h2 className="fx-card__t" id="stats-h"><Icon name="chart" size={17} /><span>Stats &amp; rankings</span></h2><small className="muted">{rankings.length}</small></header>
             <label className="explore__q"><Icon name="search" size={15} /><input type="search" value={rq} onChange={(e) => setRq(e.target.value)} placeholder="Filter rankings (EPA, rush, sack…)" aria-label="Filter rankings" /></label>
             {groups.map(([g, rs]) => (
               <div key={g} className="explore__grp">
@@ -126,7 +150,7 @@ export function ExploreView() {
         </div>
       )}
       {teams.length > 0 && (
-        <section className="fx-card exh__teams" aria-labelledby="teams-h">
+        <section className="fx-card exh__teams" aria-labelledby="teams-h" id="teams">
           <header className="fx-card__h"><h2 className="fx-card__t" id="teams-h"><Icon name="shield" size={17} /><span>{code === 'TENNIS' ? 'Players' : 'Teams'}</span></h2><small className="muted">{teams.length}</small></header>
           <ul className="tgrid">
             {teams.slice(0, 400).map((t) => (

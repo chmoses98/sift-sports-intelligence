@@ -119,8 +119,16 @@ function blank() {
     charted_db: 0, blitz_db: 0, blitz_db_epa: 0, noblitz_db: 0, noblitz_db_epa: 0,
     blitz_targets: 0, blitz_rb_targets: 0, noblitz_targets: 0, noblitz_rb_targets: 0,
     charted_plays: 0, play_action: 0, motion: 0, charted_rushes: 0, stacked_box_rushes: 0,
+    // Box-score basics (counts only; per-game values are computed in the app over the weeks it needs).
+    points: 0, pass_yds: 0, rush_yds: 0, sacks: 0, sack_yds: 0, ints: 0, fum_lost: 0,
+    third_att: 0, third_conv: 0, rz_trips: 0, rz_td: 0,
+    // Designed runs by the charted box count: 8+ defenders ("stacked") vs 7 or fewer ("light").
+    stacked_box_rush_yds: 0, stacked_box_rush_epa: 0, light_box_rushes: 0, light_box_rush_yds: 0, light_box_rush_epa: 0,
+    screens: 0, rpo: 0,
   };
 }
+const drives = new Map(); // game|posteam|fixed_drive -> { week, team, opp, inside20, td }
+const playerBox = new Map(); // gsis -> { car_stacked, yds_stacked, car_light, yds_light }
 for (const p of pbp) {
   if (!isRealPlay(p)) continue;
   const g = games.get(p.game_id);
@@ -131,10 +139,20 @@ for (const p of pbp) {
   const db = yes(p.qb_dropback);
   const rush = p.play_type === 'run' && !yes(p.qb_scramble);
   const ch = ftnBy.get(`${p.game_id}|${p.play_id}`);
+  const sack = yes(p.sack);
   for (const u of [off, def]) {
     u.plays++;
     if (db) { u.dropbacks++; u.db_epa += epa; }
     if (rush) { u.rushes++; u.rush_epa += epa; u.rush_success += yes(p.success) ? 1 : 0; }
+    // Box score: rushing yards on every run (scrambles and kneels included, as official totals count them);
+    // passing yards gross on completions; sacks and the yards they cost, so net passing = pass_yds − sack_yds.
+    if (p.play_type === 'run' || p.play_type === 'qb_kneel') u.rush_yds += int(p.rushing_yards ?? p.yards_gained);
+    if (p.play_type === 'pass') {
+      if (sack) { u.sacks++; u.sack_yds += -int(p.yards_gained); } else u.pass_yds += int(p.passing_yards);
+    }
+    if (yes(p.interception)) u.ints++;
+    if (yes(p.fumble_lost) && p.fumbled_1_team === p.posteam) u.fum_lost++;
+    if (int(p.down) === 3 && (yes(p.third_down_converted) || yes(p.third_down_failed))) { u.third_att++; if (yes(p.third_down_converted)) u.third_conv++; }
   }
   if (db && p.passer_player_id) {
     const k = `${p.game_id}|${p.posteam}|${p.passer_player_id}`;
@@ -152,11 +170,24 @@ for (const p of pbp) {
     l.rush = Math.max(l.rush, int(p.rushing_yards ?? p.yards_gained)); longest.set(k, l);
   }
   if (!ch) continue;
+  const boxN = num(ch.n_defense_box);
+  const rushYds = int(p.rushing_yards ?? p.yards_gained);
+  if (rush && boxN != null && p.rusher_player_id) {
+    const b = playerBox.get(p.rusher_player_id) ?? { car_stacked: 0, yds_stacked: 0, car_light: 0, yds_light: 0 };
+    if (boxN >= 8) { b.car_stacked++; b.yds_stacked += rushYds; } else { b.car_light++; b.yds_light += rushYds; }
+    playerBox.set(p.rusher_player_id, b);
+  }
   for (const u of [off, def]) {
     u.charted_plays++;
     if (yes(ch.is_play_action)) u.play_action++;
     if (yes(ch.is_motion)) u.motion++;
-    if (rush) { u.charted_rushes++; if (int(ch.n_defense_box) >= 8) u.stacked_box_rushes++; }
+    if (yes(ch.is_rpo)) u.rpo++;
+    if (db && yes(ch.is_screen_pass)) u.screens++;
+    if (rush) {
+      u.charted_rushes++;
+      if (int(ch.n_defense_box) >= 8) { u.stacked_box_rushes++; u.stacked_box_rush_yds += rushYds; u.stacked_box_rush_epa += epa; }
+      else if (boxN != null) { u.light_box_rushes++; u.light_box_rush_yds += rushYds; u.light_box_rush_epa += epa; }
+    }
     if (db) {
       u.charted_db++;
       const blitz = int(ch.n_blitzers) > 0;
@@ -186,6 +217,33 @@ for (const p of pbp) {
   }
 }
 function newSplit() { return { db_blitz: 0, epa_blitz: 0, db_noblitz: 0, epa_noblitz: 0, tgt_blitz: 0, tgt_noblitz: 0 }; }
+
+// ------------------------------------------------------------------ drives: red-zone trips and touchdowns
+// A red-zone trip is a drive that reached the opponent's 20 (nflverse drive_inside20); it is a touchdown trip when
+// the drive's result (fixed_drive_result) is a touchdown.
+for (const p of pbp) {
+  if (p.play_deleted === '1' || !p.posteam || !p.defteam || !p.fixed_drive) continue;
+  const k = `${p.game_id}|${p.posteam}|${p.fixed_drive}`;
+  const d = drives.get(k) ?? { week: int(p.week), game_id: p.game_id, team: p.posteam, opp: p.defteam, inside20: false, td: false };
+  if (yes(p.drive_inside20)) d.inside20 = true;
+  if (p.fixed_drive_result === 'Touchdown') d.td = true;
+  drives.set(k, d);
+}
+for (const d of drives.values()) {
+  if (!d.inside20) continue;
+  const off = tw(d.team, d.week, d.game_id).off;
+  const def = tw(d.opp, d.week, d.game_id).def;
+  for (const u of [off, def]) { u.rz_trips++; if (d.td) u.rz_td++; }
+}
+// Points: each team's final score (offense = scored, defense = allowed), for completed games only.
+for (const u of teamWeek.values()) {
+  const g = games.get(u.game_id);
+  if (!g || g.home_score == null) continue;
+  const mine = g.home === u.team ? g.home_score : g.away_score;
+  const theirs = g.home === u.team ? g.away_score : g.home_score;
+  u.off.points = mine;
+  u.def.points = theirs;
+}
 
 // ------------------------------------------------------------------ snaps (PFR ids → join by name + team + week)
 const snapBy = new Map(snaps.map((s) => [`${norm(s.player)}|${s.team}|${s.week}`, s]));
@@ -304,8 +362,10 @@ for (const p of byPlayer.values()) {
     ...ranksNow.filter((x) => x.m.has(p.gsis)).map((x) => ({ season: SEASON, through_week: x.w, ...x.m.get(p.gsis) })),
     ...(ranksPrior.has(p.gsis) ? [{ season: PRIOR, through_week: null, ...ranksPrior.get(p.gsis) }] : []),
   ];
+  const box = playerBox.get(p.gsis);
   writeFileSync(join(OUT, 'players', `${p.gsis}.json`), JSON.stringify({
     kind: 'sift_player_history', sport: 'NFL', season: SEASON, gsis: p.gsis, name: p.name, position: p.position, team: p.team, games: p.games, vs_blitz: blitz,
+    vs_box: box && box.car_stacked + box.car_light > 0 ? box : null,
     prior: p.prior.length ? { season: PRIOR, games: p.prior } : null,
     ranks,
   }));
@@ -348,6 +408,8 @@ writeFileSync(join(OUT, 'index.json'), JSON.stringify({
     'Counts and ratios of published rows only; nothing is modelled or adjusted.',
     'Snap counts are joined to players by name, team and week (PFR rows carry no GSIS id).',
     'A blitz is an FTN-charted dropback with at least one blitzer. Man/zone coverage is not in any 2026 file published yet.',
+    'Team box score per week: points (final score), passing yards gross with sacks and sack yards separate (net = gross − sack yards), rushing yards on every run including scrambles and kneels, interceptions, fumbles lost by the offense, third downs, and red-zone trips (drives that reached the opponent 20) with touchdown trips.',
+    'Box count splits: designed runs against 8+ defenders in the box (FTN n_defense_box) versus 7 or fewer, with yards and EPA; per rusher in vs_box.',
     'Prior season: weekly box scores and snap counts (no play-by-play, so no longest plays or blitz splits); home/away from the game id; dates and scores only when the schedule file is available.',
     'Player ranks: per-game averages over regular-season games within a position, among players with at least half the games of the most-played player; #1 = most. Ties share a rank.',
     'No historical betting lines are published here: comparisons in the app are against the CURRENT line only.',

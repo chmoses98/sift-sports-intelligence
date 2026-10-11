@@ -32,6 +32,7 @@ const SCREENS: [string, string, (p: Page) => Promise<unknown>][] = [
   ['board-empty', './#/board', (p) => p.getByText('Your board is empty').waitFor()],
   ['season', './#/nfl/season', (p) => p.locator('.wcell').first().waitFor()],
   ['props', './#/nfl/props', (p) => p.locator('#pexa-t').waitFor()],
+  ['props-hub', './#/props', (p) => p.locator('.tprops .tprow').first().waitFor()],
 ];
 
 async function scan(page: Page, name: string) {

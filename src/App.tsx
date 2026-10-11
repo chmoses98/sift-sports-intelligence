@@ -37,6 +37,7 @@ const LabView = lazy(() => import('./views/intel/PulseView').then((x) => ({ defa
 const ExploreView = lazy(() => import('./views/explore/ExploreView').then((x) => ({ default: x.ExploreView })));
 const SeasonView = lazy(() => import('./views/explore/SeasonView').then((x) => ({ default: x.SeasonView })));
 const PropExplorerView = lazy(() => import('./views/explore/PropExplorerView').then((x) => ({ default: x.PropExplorerView })));
+const PropsHubView = lazy(() => import('./views/props/PropsHub').then((x) => ({ default: x.PropsHubView })));
 const SportsView = lazy(() => import('./views/Sports').then((x) => ({ default: x.SportsView })));
 
 // Every screen is its own chunk: a phone downloads the code for the screen it opens.
@@ -77,6 +78,7 @@ export const routeTree = [
       { path: 'design', element: <DesignView /> },
       { path: 'design/heroes', element: <HeroGalleryView /> },
       { path: 'sports', element: <SportsView /> },
+      { path: 'props', element: <PropsHubView /> },
       { path: 'news', element: <NewsView /> },
       { path: 'settings', element: <SettingsView /> },
       {

@@ -1,0 +1,1458 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json",
+  "title": "Combined Player Prop Explorer records (one JSONL line)",
+  "description": "prop_explorer_projection.v1 (record_type 'projection') and prop_explorer_market_comparison.v1 (record_type 'market_comparison'), in separate files. Structural rules only; cross-field rules (identity equals the embedded forecast, explorer_id, quantile agreement, pmf consistency, lineage-equal drivers, sibling workload, script tiling and mixture, status evidence and scope, freshness arithmetic, change deltas, null reasons, market and overstatement vocabulary) are enforced by prop_explorer.py, the normative validator.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/projection"
+    },
+    {
+      "$ref": "#/$defs/market_comparison"
+    }
+  ],
+  "$defs": {
+    "nonempty": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "null_reasons": {
+      "type": "object",
+      "description": "Dotted path of every null field (outside the embedded forecast) -> why the source does not provide it. Every null needs a reason and every reason a null.",
+      "additionalProperties": {
+        "$ref": "#/$defs/nonempty"
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "sport",
+        "game_id",
+        "player_id",
+        "statistic",
+        "model_version",
+        "model_frozen_hash",
+        "conditional_on_playing",
+        "as_of"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sport": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "game_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "player_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "statistic": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "model_version": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "model_frozen_hash": {
+          "type": "string",
+          "pattern": "^(sha256:[0-9a-f]{64}|git:[0-9a-f]{7,40})$"
+        },
+        "conditional_on_playing": {
+          "type": "boolean"
+        },
+        "as_of": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "description": "Equal, field by field, to the embedded pure_forecast.v1 row."
+    },
+    "capture": {
+      "type": "object",
+      "required": [
+        "captured_at",
+        "capture_mode",
+        "builder"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "captured_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "capture_mode": {
+          "enum": [
+            "prospective_pregame",
+            "historical_research_replay"
+          ]
+        },
+        "builder": {
+          "$ref": "#/$defs/nonempty"
+        }
+      },
+      "description": "When the explorer record was built. prospective_pregame: as_of <= captured_at < kickoff. historical_research_replay: built later from a historical research output."
+    },
+    "player": {
+      "type": "object",
+      "required": [
+        "name",
+        "position",
+        "team_id",
+        "team_abbr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "position": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "team_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "team_abbr": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "game": {
+      "type": "object",
+      "required": [
+        "kickoff",
+        "season",
+        "season_type",
+        "week",
+        "home_team_id",
+        "away_team_id",
+        "opponent_team_id",
+        "is_home"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kickoff": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "season": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "season_type": {
+          "oneOf": [
+            {
+              "enum": [
+                "preseason",
+                "regular",
+                "play_in",
+                "postseason"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "week": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "home_team_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "away_team_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opponent_team_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_home": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "quantile": {
+      "type": "object",
+      "required": [
+        "q",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "q": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "required": [
+        "unit",
+        "quantiles",
+        "pmf"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quantiles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/quantile"
+          },
+          "description": "q strictly ascending; includes and agrees with every quantile of the forecast (p10, median, p90 and forecast.projection.quantiles)."
+        },
+        "pmf": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "probability"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "probability": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              },
+              "description": "values strictly ascending; sums to 1; its mean and P(X >= t) agree with the forecast within 1e-3."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "required": [
+        "measure",
+        "unit",
+        "mean",
+        "median",
+        "p10",
+        "p90",
+        "lineage"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "measure": {
+          "enum": [
+            "snaps",
+            "snap_share",
+            "routes_run",
+            "targets",
+            "carries",
+            "touches",
+            "pass_attempts",
+            "minutes",
+            "plate_appearances",
+            "batters_faced",
+            "pitches",
+            "outs_recorded",
+            "time_on_ice",
+            "shifts"
+          ]
+        },
+        "unit": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "mean": {
+          "type": "number"
+        },
+        "median": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "p10": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "p90": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lineage": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "self"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "kind",
+                "statistic",
+                "model_signature"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "sibling_forecast"
+                },
+                "statistic": {
+                  "$ref": "#/$defs/nonempty"
+                },
+                "model_signature": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "kind",
+                "feature"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "feature"
+                },
+                "feature": {
+                  "$ref": "#/$defs/nonempty"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "driver": {
+      "type": "object",
+      "required": [
+        "feature",
+        "label",
+        "role",
+        "matchup_role",
+        "value",
+        "source",
+        "observed_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "label": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "role": {
+          "enum": [
+            "opportunity",
+            "efficiency",
+            "workload",
+            "team_environment",
+            "participation",
+            "rest_schedule",
+            "history_depth",
+            "opponent",
+            "other"
+          ]
+        },
+        "matchup_role": {
+          "oneOf": [
+            {
+              "enum": [
+                "opponent_input",
+                "opponent_adjusted",
+                "not_matchup"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "description": "One entry of the forecast's feature_lineage, named and classified; value/source/observed_at equal the lineage entry."
+    },
+    "scenario": {
+      "type": "object",
+      "required": [
+        "scenario_id",
+        "label",
+        "margin_min",
+        "margin_max",
+        "probability",
+        "probability_kind",
+        "projection"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "scenario_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "label": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "margin_min": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "margin_max": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "probability_kind": {
+          "enum": [
+            "simulation_share",
+            "model_probability"
+          ]
+        },
+        "projection": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "mean",
+                "median",
+                "p10",
+                "p90"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "mean": {
+                  "type": "number"
+                },
+                "median": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "p10": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "p90": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "game_script": {
+      "type": "object",
+      "required": [
+        "conditioning",
+        "perspective_team_id",
+        "exhaustive",
+        "source",
+        "scenarios"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "conditioning": {
+          "enum": [
+            "team_final_margin"
+          ]
+        },
+        "perspective_team_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exhaustive": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "model_version",
+            "model_frozen_hash",
+            "class",
+            "description"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "model_version": {
+              "$ref": "#/$defs/nonempty"
+            },
+            "model_frozen_hash": {
+              "type": "string",
+              "pattern": "^(sha256:[0-9a-f]{64}|git:[0-9a-f]{7,40})$"
+            },
+            "class": {
+              "const": "sports_only"
+            },
+            "description": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/scenario"
+          }
+        }
+      },
+      "description": "Sports-only script scenarios (never a market spread or total). Exhaustive: probabilities sum to 1, margins tile the integers, and the probability-weighted scenario means match the forecast mean within max(2%, 0.05)."
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "observed",
+        "n_rows",
+        "n_games",
+        "scope",
+        "evidence_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "observed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "n_rows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "n_games": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scope": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/nonempty"
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": [
+        "p10_p90_width",
+        "interval_nominal_coverage",
+        "holdout_interval_coverage"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "p10_p90_width": {
+          "type": "number"
+        },
+        "interval_nominal_coverage": {
+          "const": 0.8
+        },
+        "holdout_interval_coverage": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/coverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "required": [
+        "as_of",
+        "source_max_observed_at",
+        "staleness_seconds",
+        "oldest_input_observed_at",
+        "kickoff_lead_seconds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "source_max_observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "staleness_seconds": {
+          "type": "integer"
+        },
+        "oldest_input_observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "kickoff_lead_seconds": {
+          "type": "integer"
+        }
+      },
+      "description": "Computed from the forecast: staleness = as_of - source_max_observed_at; lead = kickoff - as_of."
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "repo",
+        "commit",
+        "path",
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "kind": {
+          "enum": [
+            "preregistration",
+            "results",
+            "scorecard",
+            "source_audit",
+            "rerun",
+            "pull_request",
+            "shadow_collection",
+            "sidecar_sample",
+            "other"
+          ]
+        },
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "path": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "status",
+        "research_only",
+        "scope",
+        "source_verdict",
+        "compared_against",
+        "evidence",
+        "caveats"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "RESEARCH_HISTORICAL_ACCEPTED",
+            "SHADOW_PROSPECTIVE",
+            "INCONCLUSIVE",
+            "REJECTED",
+            "BLOCKED_DATA",
+            "NOT_VALIDATED"
+          ]
+        },
+        "research_only": {
+          "const": true
+        },
+        "scope": {
+          "type": "object",
+          "required": [
+            "season_type",
+            "seasons",
+            "statistics",
+            "population"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "season_type": {
+              "oneOf": [
+                {
+                  "enum": [
+                    "preseason",
+                    "regular",
+                    "play_in",
+                    "postseason"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seasons": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/nonempty"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "statistics": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/nonempty"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "population": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/nonempty"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "source_verdict": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "compared_against": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonempty"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "caveats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonempty"
+          }
+        }
+      },
+      "description": "Status is a closed enum; labels such as 'validated' or 'profitable' are refused. RESEARCH_HISTORICAL_ACCEPTED needs preregistration + results evidence, the source verdict, and a scope covering this statistic."
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prior",
+        "model_changed",
+        "delta",
+        "method",
+        "attributed_drivers"
+      ],
+      "properties": {
+        "prior": {
+          "type": "object",
+          "required": [
+            "explorer_id",
+            "as_of",
+            "model_version",
+            "model_signature"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "explorer_id": {
+              "$ref": "#/$defs/nonempty"
+            },
+            "as_of": {
+              "$ref": "#/$defs/timestamp"
+            },
+            "model_version": {
+              "$ref": "#/$defs/nonempty"
+            },
+            "model_signature": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        "model_changed": {
+          "type": "boolean"
+        },
+        "delta": {
+          "type": "object",
+          "required": [
+            "mean",
+            "median",
+            "p10",
+            "p90"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "mean": {
+              "type": "number"
+            },
+            "median": {
+              "type": "number"
+            },
+            "p10": {
+              "type": "number"
+            },
+            "p90": {
+              "type": "number"
+            }
+          }
+        },
+        "method": {
+          "enum": [
+            "driver_value_diff",
+            "producer_attribution"
+          ]
+        },
+        "attributed_drivers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "feature",
+              "prior_value",
+              "current_value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "feature": {
+                "$ref": "#/$defs/nonempty"
+              },
+              "prior_value": {
+                "type": [
+                  "number",
+                  "string",
+                  "boolean",
+                  "null"
+                ]
+              },
+              "current_value": {
+                "type": [
+                  "number",
+                  "string",
+                  "boolean",
+                  "null"
+                ]
+              },
+              "contribution": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "unattributed": {
+          "type": "number"
+        }
+      },
+      "description": "driver_value_diff lists drivers whose value changed (no attribution, no contribution). producer_attribution gives contributions + unattributed summing to delta.mean."
+    },
+    "forecast_ref": {
+      "type": "object",
+      "required": [
+        "uri",
+        "model_signature"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "model_signature": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "repo",
+        "commit",
+        "path",
+        "file_sha256",
+        "selection",
+        "conversion"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "path": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "file_sha256": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "selection": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "conversion": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "projection": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "record_type",
+        "explorer_id",
+        "research_only",
+        "identity",
+        "capture",
+        "player",
+        "game",
+        "distribution",
+        "expected_workload",
+        "drivers",
+        "game_script",
+        "uncertainty",
+        "freshness",
+        "validation",
+        "change_explanation",
+        "null_reasons"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "prop_explorer_projection.v1"
+        },
+        "record_type": {
+          "const": "projection"
+        },
+        "explorer_id": {
+          "type": "string",
+          "description": "sport|game_id|player_id|statistic|model_version|cond or unc|as_of"
+        },
+        "research_only": {
+          "const": true
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "capture": {
+          "$ref": "#/$defs/capture"
+        },
+        "player": {
+          "$ref": "#/$defs/player"
+        },
+        "game": {
+          "$ref": "#/$defs/game"
+        },
+        "distribution": {
+          "$ref": "#/$defs/distribution"
+        },
+        "expected_workload": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/workload"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "drivers": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/driver"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "game_script": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/game_script"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/uncertainty"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "validation": {
+          "$ref": "#/$defs/validation"
+        },
+        "change_explanation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/change"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "null_reasons": {
+          "$ref": "#/$defs/null_reasons"
+        },
+        "forecast": {
+          "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/pure_forecast.v1.schema.json#/$defs/v1",
+          "description": "The embedded pure_forecast.v1 row (holds the mean, median, p10/p90, quantiles and the monotone threshold ladder)."
+        },
+        "forecast_ref": {
+          "$ref": "#/$defs/forecast_ref"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "forecast"
+          ]
+        },
+        {
+          "required": [
+            "forecast_ref"
+          ]
+        }
+      ],
+      "patternProperties": {
+        "^x_": {}
+      },
+      "additionalProperties": false,
+      "description": "One model's forecast of one player-game-statistic at one cutoff, for the Combined Player Prop Explorer. No market price, line, recommendation or stake: market vocabulary anywhere in its keys is refused."
+    },
+    "rung": {
+      "type": "object",
+      "required": [
+        "at_least",
+        "yes_bid",
+        "yes_ask",
+        "no_bid",
+        "no_ask",
+        "quote_probability"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "at_least": {
+          "type": "number"
+        },
+        "yes_bid": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "yes_ask": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "no_bid": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "no_ask": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quote_probability": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "market_comparison": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "record_type",
+        "research_only",
+        "identity",
+        "projection_explorer_id",
+        "venue",
+        "market_ref",
+        "listed_at",
+        "quoted_at",
+        "captured_at",
+        "rungs",
+        "null_reasons"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x_": {}
+      },
+      "properties": {
+        "schema_version": {
+          "const": "prop_explorer_market_comparison.v1"
+        },
+        "record_type": {
+          "const": "market_comparison"
+        },
+        "research_only": {
+          "const": true
+        },
+        "identity": {
+          "type": "object",
+          "required": [
+            "sport",
+            "game_id",
+            "player_id",
+            "statistic"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sport": {
+              "$ref": "#/$defs/nonempty"
+            },
+            "game_id": {
+              "$ref": "#/$defs/nonempty"
+            },
+            "player_id": {
+              "$ref": "#/$defs/nonempty"
+            },
+            "statistic": {
+              "$ref": "#/$defs/nonempty"
+            }
+          }
+        },
+        "projection_explorer_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "venue": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "market_ref": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "listed_at": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quoted_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "captured_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "rungs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/rung"
+          }
+        },
+        "null_reasons": {
+          "$ref": "#/$defs/null_reasons"
+        }
+      },
+      "description": "Optional, written by the downstream market reader, keyed by the same identity, for side-by-side display only. Carries no model output or recommendation; never feeds a PURE model, its population or its scoring. Kept in its own file."
+    }
+  }
+}

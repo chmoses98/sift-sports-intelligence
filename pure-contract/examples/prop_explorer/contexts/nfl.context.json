@@ -1,0 +1,351 @@
+{
+  "capture": {
+    "builder": "pure-contract/prop_explorer.py convert (prop_explorer 1.0.0)",
+    "capture_mode": "historical_research_replay",
+    "captured_at": "2026-10-11T03:00:00Z"
+  },
+  "coverage": {
+    "pure-ewm-baseline-1.0.0": {
+      "receiving_yards": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 5765,
+        "observed": 0.8791,
+        "scope": "2025 regular season, every scored player-game"
+      },
+      "receptions": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 5765,
+        "observed": 0.9429,
+        "scope": "2025 regular season, every scored player-game"
+      },
+      "snap_share": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 6251,
+        "observed": 0.821,
+        "scope": "2025 regular season, every scored player-game"
+      },
+      "targets": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 5765,
+        "observed": 0.9289,
+        "scope": "2025 regular season, every scored player-game"
+      }
+    },
+    "pure-player-v1.0.0": {
+      "receiving_yards": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 5765,
+        "observed": 0.876,
+        "scope": "2025 regular season, every scored player-game"
+      },
+      "receptions": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 5765,
+        "observed": 0.9308,
+        "scope": "2025 regular season, every scored player-game"
+      },
+      "snap_share": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 6251,
+        "observed": 0.8119,
+        "scope": "2025 regular season, every scored player-game"
+      },
+      "targets": {
+        "evidence_id": "scorecard",
+        "n_games": 272,
+        "n_rows": 5765,
+        "observed": 0.9101,
+        "scope": "2025 regular season, every scored player-game"
+      }
+    }
+  },
+  "drivers": {
+    "pure-ewm-baseline-1.0.0": {
+      "e_receiving_yards": {
+        "label": "Receiving yards, player EWM",
+        "matchup_role": "not_matchup",
+        "role": "opportunity"
+      },
+      "e_receptions": {
+        "label": "Receptions, player EWM",
+        "matchup_role": "not_matchup",
+        "role": "opportunity"
+      },
+      "e_snap_share": {
+        "label": "Snap share, player EWM",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "e_targets": {
+        "label": "Targets, player EWM",
+        "matchup_role": "not_matchup",
+        "role": "opportunity"
+      }
+    },
+    "pure-player-v1.0.0": {
+      "e_snap_share": {
+        "label": "Snap share, player EWM",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "e_targets": {
+        "label": "Targets, player EWM",
+        "matchup_role": "not_matchup",
+        "role": "opportunity"
+      },
+      "mu_receptions": {
+        "label": "Expected receptions",
+        "matchup_role": "opponent_adjusted",
+        "role": "opportunity"
+      },
+      "mu_targets": {
+        "label": "Expected targets",
+        "matchup_role": "opponent_adjusted",
+        "role": "opportunity"
+      },
+      "r_cr": {
+        "label": "Catch rate (player EWM and opponent allowed rate)",
+        "matchup_role": "opponent_adjusted",
+        "role": "efficiency"
+      },
+      "r_ypr": {
+        "label": "Yards per reception (player EWM and opponent allowed rate)",
+        "matchup_role": "opponent_adjusted",
+        "role": "efficiency"
+      },
+      "share_t": {
+        "label": "Predicted target share",
+        "matchup_role": "not_matchup",
+        "role": "opportunity"
+      },
+      "snap_mean": {
+        "label": "Predicted snap share",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "vol_pa": {
+        "label": "Predicted team pass attempts",
+        "matchup_role": "opponent_adjusted",
+        "role": "team_environment"
+      }
+    }
+  },
+  "game_defaults": {
+    "season_type": "regular"
+  },
+  "game_id_pattern": "^(?P<season>\\d{4})_(?P<week>\\d{2})_(?P<away_team_id>[A-Z]{2,3})_(?P<home_team_id>[A-Z]{2,3})$",
+  "notes": [
+    "season, week, home and away come from the nflverse game_id convention <season>_<week>_<away>_<home>; season_type: the source population is the regular season (RESULTS.md)."
+  ],
+  "null_reasons": {
+    "distribution.pmf": "the source sidecar publishes quantiles and a threshold ladder, not the full probability mass function",
+    "game.is_home": "the source sidecar does not carry the player's team, so home/away is not known from it",
+    "game.opponent_team_id": "the source sidecar does not carry the player's team, so the opponent is not known from it",
+    "game_script": "neither source arm publishes a player projection conditional on game script",
+    "player.name": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.position": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_abbr": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_id": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "provenance.conversion": "the source rows are already pure_forecast.v1 and are copied byte for byte",
+    "validation.source_verdict": "the source evaluated this model only as a comparator and issued no verdict on it"
+  },
+  "units": {
+    "receiving_yards": "yards",
+    "receptions": "receptions",
+    "snap_share": "share of team offensive snaps",
+    "targets": "targets"
+  },
+  "validation": {
+    "pure-ewm-baseline-1.0.0": {
+      "caveats": [
+        "The simplest sports-only comparator for PURE_PLAYER_V1: the player's own EWM with no environment, role or opponent model.",
+        "Conditional on playing; no participation model, so participation_probability is null."
+      ],
+      "compared_against": [
+        "pure-player-v1.0.0"
+      ],
+      "evidence": [
+        {
+          "commit": "dfd7a269063f13a445186df759cd636ac56d46a2",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PURE_PLAYER_V1_PREREGISTRATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/dfd7a269063f13a445186df759cd636ac56d46a2/docs/research/PURE_PLAYER_V1_PREREGISTRATION.md"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "results",
+          "kind": "results",
+          "path": "research/pure_player_v1/RESULTS.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/RESULTS.md"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "research/pure_player_v1/results.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/results.json"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "source_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PURE_PLAYER_V1_DEPENDENCY_AUDIT.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/docs/research/PURE_PLAYER_V1_DEPENDENCY_AUDIT.md"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "research/pure_player_v1/pure_gate_rerun.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/pure_gate_rerun.json"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #135",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/pull/135"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "every eligible skill player-game in sports data, conditional on own participation (primary scope 2024+2025)",
+        "season_type": "regular",
+        "seasons": [
+          "2024",
+          "2025"
+        ],
+        "statistics": [
+          "snap_share",
+          "targets",
+          "receptions",
+          "receiving_yards",
+          "carries",
+          "rushing_yards",
+          "passing_attempts",
+          "completions",
+          "passing_yards"
+        ]
+      },
+      "source_verdict": null,
+      "status": "NOT_VALIDATED"
+    },
+    "pure-player-v1.0.0": {
+      "caveats": [
+        "Not the most accurate arm in the source repository: DATA_PLAYER_V4 (as-is with market_env=False, and with the closing line) is slightly more accurate on most player statistics; this is the most accurate arm whose inputs are football-only and point-in-time provable from the committed sources.",
+        "Conditional on playing; no participation model, so participation_probability is null.",
+        "Abstained inputs: injury reports, depth charts, weather, target-game QB identity, routes / play-by-play."
+      ],
+      "compared_against": [
+        "pure-ewm-baseline-1.0.0"
+      ],
+      "evidence": [
+        {
+          "commit": "dfd7a269063f13a445186df759cd636ac56d46a2",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PURE_PLAYER_V1_PREREGISTRATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/dfd7a269063f13a445186df759cd636ac56d46a2/docs/research/PURE_PLAYER_V1_PREREGISTRATION.md"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "results",
+          "kind": "results",
+          "path": "research/pure_player_v1/RESULTS.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/RESULTS.md"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "research/pure_player_v1/results.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/results.json"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "source_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PURE_PLAYER_V1_DEPENDENCY_AUDIT.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/docs/research/PURE_PLAYER_V1_DEPENDENCY_AUDIT.md"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "research/pure_player_v1/pure_gate_rerun.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/pure_gate_rerun.json"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #135",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/pull/135"
+        },
+        {
+          "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "every eligible skill player-game in sports data, conditional on own participation (primary scope 2024+2025)",
+        "season_type": "regular",
+        "seasons": [
+          "2024",
+          "2025"
+        ],
+        "statistics": [
+          "snap_share",
+          "targets",
+          "receptions",
+          "receiving_yards",
+          "carries",
+          "rushing_yards",
+          "passing_attempts",
+          "completions",
+          "passing_yards"
+        ]
+      },
+      "source_verdict": "ACCEPTED_CHALLENGER (preregistered rule, primary scope 2024+2025, PURE_PLAYER_V1 vs PURE_EWM_BASELINE). Research collection only; nothing here authorises live use.",
+      "status": "RESEARCH_HISTORICAL_ACCEPTED"
+    }
+  },
+  "workload": {
+    "measure": "snap_share",
+    "statistic": "snap_share",
+    "unit": "share of team offensive snaps"
+  }
+}

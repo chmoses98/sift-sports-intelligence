@@ -79,7 +79,7 @@ export const VENUE_FACTS: VenueFact[] = [
   { id: 'northwest-stadium', name: 'Northwest Stadium', aliases: ['FedExField', 'FedEx Field', 'Commanders Field'], city: 'Landover, MD', country: 'US', tz: ET, roof: 'open', surface: 'grass', tenants: NFL('WAS') },
 
   // ------------------------------------------------------------------ NFL international and neutral sites
-  { id: 'tottenham-hotspur-stadium', name: 'Tottenham Hotspur Stadium', aliases: ['Tottenham Stadium'], city: 'London, UK', country: 'GB', tz: 'Europe/London', roof: 'open', surface: null, tenants: [] },
+  { id: 'tottenham-hotspur-stadium', name: 'Tottenham Hotspur Stadium', aliases: ['Tottenham Stadium'], city: 'London, UK', country: 'GB', tz: 'Europe/London', roof: 'open', surface: null, tenants: [], note: 'nflverse lists grass; NFL games are played on the artificial field beneath the retractable football pitch.' },
   { id: 'wembley-stadium', name: 'Wembley Stadium', city: 'London, UK', country: 'GB', tz: 'Europe/London', roof: 'open', surface: 'grass', tenants: [], note: 'Roof over the stands only.' },
   { id: 'allianz-arena', name: 'Allianz Arena', aliases: ['FC Bayern Munich Stadium', 'Fußball Arena München', 'Munich Football Arena'], city: 'Munich, Germany', country: 'DE', tz: 'Europe/Berlin', roof: 'open', surface: null, tenants: [], note: 'Roof over the stands only; nflverse lists it as a dome.' },
   { id: 'deutsche-bank-park', name: 'Deutsche Bank Park', aliases: ['Frankfurt Stadium', 'Commerzbank-Arena', 'Waldstadion'], city: 'Frankfurt, Germany', country: 'DE', tz: 'Europe/Berlin', roof: 'retractable', surface: null, tenants: [] },

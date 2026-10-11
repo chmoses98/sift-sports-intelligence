@@ -37,7 +37,15 @@
 
 /* Status: venue facts table. */
 .venuefacts td, .venuefacts th { white-space: nowrap; }
+.venuefacts th[scope='row'] { white-space: normal; min-width: 12rem; }
+@media (max-width: 640px) {
+  .venuefacts th:nth-child(n + 4), .venuefacts td:nth-child(n + 4) { display: none; }
+  .venuefacts th[scope='row'] { min-width: 0; }
+  .venuefacts th[scope='row'] .muted { display: block; }
+  .venuefacts td { white-space: normal; }
+}
 .venuefacts__wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 .venuefacts__flag { color: var(--gold-2); }
 .dfacts__h { margin: var(--s-6) 0 var(--s-2); font-size: var(--fs-md); font-weight: 600; color: var(--text-hi); }
 .venuefacts__wrap { margin-top: var(--s-3); }
+.livediag__sum { margin: 0 0 var(--s-3); color: var(--text); font-size: var(--fs-sm); line-height: 1.5; }

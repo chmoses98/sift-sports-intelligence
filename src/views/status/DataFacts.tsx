@@ -2,6 +2,7 @@
 // corrects, and where each sport's injury list comes from with the age rule Sift applies to it.
 import { useMemo, useState } from 'react';
 import { Stratum } from '../../components/ui';
+import { canonicalTeam } from '../../lib/hero/registry';
 import { ROOF_WORD, SURFACE_WORD, VENUE_FACTS, type VenueFact } from '../../lib/venueFacts';
 import { INJURY_FRESH_MS, INJURY_STALE_MS } from '../../lib/injurySource';
 import '../../styles/lane-f-data.css';
@@ -33,7 +34,7 @@ export function VenueFactsSection() {
                 <th scope="row">{v.name}<span className="muted small"> · {v.city}</span></th>
                 <td>{ROOF_WORD[v.roof]}</td>
                 <td>{v.surface ? SURFACE_WORD[v.surface] : <span className="muted">Not confirmed</span>}</td>
-                <td className="small">{v.tenants.length ? v.tenants.map((t) => `${t.sport} ${t.team}`).join(', ') : <span className="muted">Neutral site</span>}</td>
+                <td className="small">{v.tenants.length ? [...new Set(v.tenants.map((t) => `${t.sport} ${canonicalTeam(t.sport, t.team) ?? t.team}`))].join(', ') : <span className="muted">Neutral site</span>}</td>
                 <td className="small muted">{v.note ?? ''}</td>
               </tr>
             ))}

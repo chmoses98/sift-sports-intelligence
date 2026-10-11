@@ -361,6 +361,14 @@ async function scriptsCheck(page, ctx) {
     const on = (await bars.nth(pick).getAttribute('class')) ?? '';
     check(now2 === want && /is-on/.test(on), `#29 the simulation split control selects a script ("${cur}" → "${now2}")`);
   } else na('#29 split control selects a script', 'only one script in the split');
+  // #14: the selected script lists the priced contracts it favours (or says plainly that none are linked).
+  const ways = page.locator('#stab-mk');
+  if (await ways.count()) {
+    const sec = page.locator('section, article, div').filter({ has: ways }).last();
+    const ex = await sec.locator('.lsd-ex__t').count();
+    const miss = await sec.locator('.lsd-expr__miss').count();
+    check(ex > 0 || miss > 0, `#14 "${((await ways.textContent()) ?? '').trim()}" lists ${ex} priced expression(s)${miss ? ' and names what is not linked' : ''}`);
+  } else na('#14 ways to bet a script', 'no "Ways to bet" section on this game');
   await cleanText(page, '#35', 'Scripts tab');
   await overflow(page, ctx, 'Scripts tab');
   await page.screenshot({ path: `production-sprint-${dev}-scripts.png` });
@@ -372,6 +380,11 @@ async function matchupsCheck(page, ctx) {
   await page.waitForFunction(() => !/Loading box scores/.test(document.querySelector('#mx-basics')?.textContent ?? ''), null, { timeout: 60_000 }).catch(() => {});
   const basics = await page.locator('#mx-basics').innerText();
   check(/the basics/i.test(basics) && /#\d+/.test(basics), '#5 Matchups: The Basics with ranked box-score numbers');
+  // #6: every basic says its denominator; ranks say "of N". #49: turnovers are a per-game count, never a percentage.
+  check(/per game/i.test(basics) && /rank|#1 = best/i.test(basics), '#6 The Basics state their unit (per game) and what the rank means');
+  // Each turnover row's values (.bx__v) must be plain per-game counts.
+  const toVals = await page.locator('#mx-basics tr').evaluateAll((rows) => rows.filter((r) => /^(Turnovers|Takeaways) per game/.test((r.querySelector('th, td:nth-child(2)')?.textContent ?? '').trim()) || /(Turnovers|Takeaways) per game/.test(r.querySelector('[scope=row], .bx__m, .bx__l')?.textContent ?? '')).flatMap((r) => [...r.querySelectorAll('.bx__v')].map((v) => (v.textContent ?? '').trim())));
+  check(toVals.length >= 2 && toVals.every((t) => /^\d+(\.\d+)?$/.test(t)), `#49 turnovers/takeaways read as per-game counts, never a percentage (${toVals.join(' · ')})`);
   // #7: adjusted / raw toggle switches the labels.
   const group = page.getByRole('group', { name: 'Team numbers: opponent-adjusted or raw' }).first();
   const subOf = async () => ((await page.locator('#mx-all .stratum__sub').textContent()) ?? '').trim();
@@ -392,6 +405,12 @@ async function matchupsCheck(page, ctx) {
   const schemeRows = await scheme.locator('.scb').count();
   const schemeText = await scheme.innerText();
   check(schemeRows > 0 || /No scheme tendencies are published/.test(schemeText), `#24 scheme tendencies board${schemeRows ? '' : ' (honest empty state)'}`);
+  const chains = await scheme.locator('.spl__chain').count();
+  const steps = await scheme.locator('.spl__step').count();
+  const obsTag = await scheme.locator('.spl .lc-tier--obs').count();
+  check((chains > 0 && steps >= chains * 2 && obsTag > 0) || /No charted tendency in this game is unusual enough/.test(schemeText), `#25 scheme meets players: ${chains} scheme→player chain(s), ${steps} labelled steps${chains ? '' : ' (honest empty state)'}`);
+  const viz = await page.locator('#g-matchup .svd, #g-matchup .svm, #g-matchup .svp, #g-matchup .svx').count();
+  check(viz > 0, `#47 statistical visualisations on the Matchups tab (${viz} rank/percentile/diverging marks)`);
   // #10: build a matchup — choosing other sides changes the duel.
   const bld = page.locator('#mx-build .bld');
   const t0 = ((await bld.locator('.bld__t').textContent()) ?? '').trim();
@@ -539,6 +558,17 @@ async function marketsCheck(page, ctx) {
   const mv = await moves.getByTestId('price-move').count();
   const mt = (await moves.innerText().catch(() => '')) ?? '';
   check((await moves.count()) === 1 && (mv > 0 ? /Opened \d+¢/.test(mt) : /No capture history/.test(mt)), `#41 price moves present (${mv} lines) or an honest empty state`);
+  // #37: the full market board has one search across every section.
+  const filter = page.locator('input.mboard__filter').first();
+  if (await filter.count()) {
+    await filter.scrollIntoViewIfNeeded().catch(() => {});
+    const q = T.home.nick || T.home.abbr;
+    await filter.fill(q);
+    await page.waitForTimeout(600);
+    const hits = await page.locator('.mboard').first().innerText().then((t) => t.split(q).length - 1).catch(() => 0);
+    check(hits > 0, `#37 the market board search finds "${q}" across sections (${hits} matches)`);
+    await filter.fill('');
+  } else na('#37 market board search', 'the full market board is not on this tab');
   await cleanText(page, '#35', 'Markets tab');
   await overflow(page, ctx, 'Markets tab');
   const teaser = page.getByRole('link', { name: /Teasers & parlays/ }).first();

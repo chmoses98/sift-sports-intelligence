@@ -59,6 +59,10 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // A new deploy must take over at once. Without these the new worker installs and then waits for every open
+        // tab to close, so a returning visitor keeps the previous app shell (and the previous hero) after a deploy.
+        skipWaiting: true,
+        clientsClaim: true,
         // The app shell is precached; research data is NOT (it is large and changes every run).
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         globIgnores: ['data/**'],

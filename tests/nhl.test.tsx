@@ -297,8 +297,9 @@ describe('NHL screens', () => {
     renderScreen(routes.player('nhl', KEMPE), '/:sport/player/:playerId', <PlayerView />, {}, 'nhl');
     await screen.findByRole('heading', { name: 'Current role' }, { timeout: 6000 });
     const role = screen.getByRole('heading', { name: 'Current role' });
-    const priced = await screen.findByRole('heading', { name: /what the model prices/ }, { timeout: 6000 });
+    const priced = await screen.findByRole('heading', { name: /Next game: his markets/ }, { timeout: 6000 });
     expect(role.compareDocumentPosition(priced) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(await screen.findByRole('columnheader', { name: 'Last 10' }, { timeout: 6000 })).toBeTruthy();
     await waitFor(() => expect(screen.getByText(/on the .*line/)).toBeTruthy(), { timeout: 6000 });
     clearAsyncMemo();
     document.body.innerHTML = '';

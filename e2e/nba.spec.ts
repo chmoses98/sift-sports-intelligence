@@ -62,3 +62,22 @@ test('a game page: PASS first, then matchup ranks, injuries, rosters and every m
   await expect(page.getByRole('heading', { name: /Dallas Mavericks/, level: 1 })).toBeVisible();
   await noHorizontalOverflow(page, 'nba team');
 });
+
+test('an NBA player page shows his published game log and his record against the lines Kalshi posted @journey', async ({ page }) => {
+  await page.goto('./#/nba/player/prt_9a64cfe911b69f694ade');
+  await expect(page.getByRole('heading', { name: /Gilgeous-Alexander/, level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Game log' })).toBeVisible();
+  const log = page.getByRole('region', { name: /game log$/ });
+  await expect(log.locator('tbody tr')).toHaveCount(10);
+  await expect(page.getByText('2025-26 regular season')).toBeVisible();
+  await page.getByRole('button', { name: /Show all 82 games/ }).click();
+  await expect(log.locator('tbody tr')).toHaveCount(82);
+  await expect(page.getByRole('heading', { name: 'Against the lines Kalshi posted' })).toBeVisible();
+  const rec = page.getByRole('region', { name: 'Record against posted lines' });
+  await expect(rec.getByRole('rowheader', { name: 'Points' })).toBeVisible();
+  await expect(page.getByText(/not a probability for the next one/)).toBeVisible();
+  const text = await page.locator('main').innerText();
+  expect(text).not.toMatch(/undefined|NaN|play-by-play/);
+  expect(text).not.toMatch(BANNED);
+  await noHorizontalOverflow(page, 'nba player');
+});

@@ -164,6 +164,18 @@ test('skater and goalie pages are research first @journey', async ({ page }) => 
   await expect(page.getByText(/Projected starter|Confirmed starter|starter/i).first()).toBeVisible();
 });
 
+test('a skater page measures each of his contracts against his game log @journey', async ({ page }) => {
+  await page.goto(`./#/nhl/player/${KEMPE}`);
+  await expect(page.getByRole('heading', { name: /Adrian Kempe/, level: 1 })).toBeVisible();
+  const t = page.getByRole('region', { name: 'His markets for the next game' });
+  await expect(t).toBeVisible();
+  for (const h of ['Last 5', 'Last 10', '2026-27']) await expect(t.getByRole('columnheader', { name: h })).toBeVisible();
+  await expect(t.getByRole('rowheader', { name: /Adrian Kempe to score a goal/ })).toBeVisible();
+  await expect(t.locator('td.nhist').first()).toHaveText(/^\d+\/\d+/);
+  await expect(page.getByText(/History against today’s line, not a probability/)).toBeVisible();
+  await noHorizontalOverflow(page, 'nhl skater markets');
+});
+
 test('the scorecard reports real counts and what is not yet known @journey', async ({ page }) => {
   await page.goto('./#/nhl/scorecard');
   await expect(page.getByRole('heading', { name: /Projection vs market/ })).toBeVisible();

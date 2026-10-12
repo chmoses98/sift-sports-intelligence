@@ -76,6 +76,10 @@ for arm in ("challenger", "challenger_regime"):
 hit_doc = show(ARGS.mlb, HIT, "docs/research/HITTER_W2_RESULTS.md")
 assert "**Verdict: `REJECTED`, under the strict preregistered rule.**" in hit_doc
 assert "every arm's rows are labelled\n`BLOCKED_NOT_VALIDATED_POSTSEASON`" in show(ARGS.mlb, SHD, "docs/research/PITCHER_SHADOW_COLLECTION.md")
+LSH = "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e"   # PR #288 head: leash-conditioned BF | outs variant
+lsh = json.loads(show(ARGS.mlb, LSH, "data/research/pitcher_long_leash/holdout_2025_2026.json"))
+assert lsh["decision"]["verdict"] == "REJECTED" and lsh["decision"]["checks"]["4_no_tier_regression_vs_challenger"] is False
+assert 'MODEL_VERSION = "mlb_pitcher_workload_joint_leash_v1"' in show(ARGS.mlb, LSH, "lib/research/pitcher_workload_joint_leash.py")
 hit_stats = sorted({json.loads(l)["statistic"] for l in show(ARGS.mlb, HIT, "data/research/hitter_w2/holdout_2026/challenger.sample300.jsonl").splitlines() if l.strip()})
 mlb_lane_ev = [
     ev("pst_prereg", "preregistration", R, "b42beb1fa", "docs/research/PITCHER_POSTSEASON_PREREG.md",
@@ -90,6 +94,11 @@ mlb_lane_ev = [
     ev("hitter_results", "results", R, HIT, "docs/research/HITTER_W2_RESULTS.md"),
     ev("hitter_scorecard", "scorecard", R, HIT, "data/research/hitter_w2/holdout_2026/scorecard.json"),
     ev("hitter_pr", "pull_request", R, HIT, "PR #285", f"https://github.com/{R}/pull/285"),
+    ev("leash_prereg", "preregistration", R, "3ddd1a99", "docs/research/PITCHER_LONG_LEASH_PREREG.md",
+       f"https://github.com/{R}/blob/{LSH}/docs/research/PITCHER_LONG_LEASH_PREREG.md"),
+    ev("leash_results", "results", R, LSH, "docs/research/PITCHER_LONG_LEASH_RESULTS.md"),
+    ev("leash_scorecard", "scorecard", R, LSH, "data/research/pitcher_long_leash/holdout_2025_2026.json"),
+    ev("leash_pr", "pull_request", R, LSH, "PR #288", f"https://github.com/{R}/pull/288"),
 ]
 pst_scope = {"season_type": "postseason", "seasons": ["2026"], "statistics": stats,
              "population": f"every actual starter of the {pst_sc['decision']['challenger']['n_starts']} scored starts in the 25 final 2026 "
@@ -113,6 +122,13 @@ mlb_strict = [
      "evidence_ids": ["pst_prereg", "pst_results", "pst_scorecard", "pst_pr"],
      "summary": "The same challenger plus one sports-only postseason outs-location term (PR #284, open): REJECTED "
                 "under the strict rule. The postseason stays blocked."},
+    {"model_version": "mlb_pitcher_workload_joint_leash_v1", "lane": "mlb_pitcher_props",
+     "rule": "strict_preregistered", "verdict": "REJECTED", "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+     "scope": scope, "row_label": None, "promoted": False,
+     "evidence_ids": ["leash_prereg", "leash_results", "leash_scorecard", "leash_pr"],
+     "summary": "Leash-conditioned batters-faced-given-outs variant of the regular-season challenger (PR #288, open): "
+                "REJECTED under the strict rule (mid-leash strikeouts MAE vs the frozen challenger +0.0011 "
+                "[+0.0001, +0.0022]) on the reused 2025-2026 holdout. The frozen challenger and the champion are unchanged."},
     {"model_version": "MLB_HITTER_W2_PURE_V1", "lane": "mlb_hitter_props", "rule": "strict_preregistered",
      "verdict": "REJECTED", "disposition": "REJECTED_INCUMBENT_UNCHANGED",
      "scope": {"season_type": "regular", "seasons": ["2026"], "statistics": hit_stats,
@@ -125,7 +141,7 @@ mlb_strict = [
                 "hitter engine is unchanged and no MLB hitter challenger is accepted."},
 ]
 MLB_STRICT_CAVEATS = [
-    "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; the MLB hitter sports-only challenger was REJECTED (PR #285).",
+    "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; its long-leash variant was REJECTED (PR #288); the MLB hitter sports-only challenger was REJECTED (PR #285).",
 ]
 own = "not_matchup"
 mlb = {
@@ -213,6 +229,50 @@ nscope = {"season_type": "regular", "seasons": ["2024", "2025"], "statistics": a
 def nfl_cov(side):
     return {s: {"observed": res[s][f"cov80_{side}"], "n_rows": res[s]["n_player_games"], "n_games": res[s]["n_games"],
                 "scope": "2025 regular season, every scored player-game", "evidence_id": "scorecard"} for s in ("snap_share", "targets", "receptions", "receiving_yards")}
+# Strict preregistered verdicts on the NFL PURE player lane's later challengers, and the xpass dependency audit,
+# read or asserted at pinned commits (#137 merged, #153 open draft).
+V11 = "f674da41c74003a4a5d16083bf3b3fe841ea66ce"   # PR #137 head (merged): PURE_PLAYER_V1_1
+V12 = "352255738d734bde13ae0454c57ea06b3a3c1bbc"   # PR #153 head (draft): PURE_PLAYER_V1_2
+v11 = json.loads(show(ARGS.nfl, V11, "research/pure_player_v1_1/holdout_2023_2024.json"))
+v12 = json.loads(show(ARGS.nfl, V12, "research/pure_player_v1_2/holdout_2024_2025_2026.json"))
+assert v11["decision"]["verdict"] == "REJECTED" and v12["decision"]["verdict"] == "REJECTED"
+xpass_doc = show(ARGS.nfl, V12, "docs/research/PURE_PLAYER_V1_XPASS_VERIFICATION.md")
+assert "## Finding 1 — nflfastR `xpass` is indirectly market-informed (VERIFIED)" in xpass_doc
+assert "## Finding 2 — PURE_PLAYER_V1 consumes no expected-pass-rate or win-probability input (VERIFIED)" in xpass_doc
+nfl_lane_ev = [
+    ev("v11_prereg", "preregistration", R, "4441249", "docs/research/PURE_PLAYER_V1_1_PREREGISTRATION.md",
+       f"https://github.com/{R}/blob/{V11}/docs/research/PURE_PLAYER_V1_1_PREREGISTRATION.md"),
+    ev("v11_results", "results", R, V11, "research/pure_player_v1_1/RESULTS.md"),
+    ev("v11_scorecard", "scorecard", R, V11, "research/pure_player_v1_1/holdout_2023_2024.json"),
+    ev("v11_pr", "pull_request", R, V11, "PR #137", f"https://github.com/{R}/pull/137"),
+    ev("v12_prereg", "preregistration", R, "cc452fd", "docs/research/PURE_PLAYER_V1_2_PREREGISTRATION.md",
+       f"https://github.com/{R}/blob/{V12}/docs/research/PURE_PLAYER_V1_2_PREREGISTRATION.md"),
+    ev("v12_results", "results", R, V12, "research/pure_player_v1_2/RESULTS.md"),
+    ev("v12_scorecard", "scorecard", R, V12, "research/pure_player_v1_2/holdout_2024_2025_2026.json"),
+    ev("v12_pr", "pull_request", R, V12, "PR #153", f"https://github.com/{R}/pull/153"),
+    ev("xpass_audit", "source_audit", R, V12, "docs/research/PURE_PLAYER_V1_XPASS_VERIFICATION.md"),
+]
+nfl_strict = [
+    {"model_version": "PURE_PLAYER_V1_1", "lane": "nfl_player_props", "rule": "strict_preregistered",
+     "verdict": "REJECTED", "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+     "scope": {"season_type": "regular", "seasons": ["2023", "2024"], "statistics": all9,
+               "population": "every eligible skill player-game of the 2023 and 2024 regular seasons (544 games)"},
+     "row_label": None, "promoted": False, "evidence_ids": ["v11_prereg", "v11_results", "v11_scorecard", "v11_pr"],
+     "summary": "PIT availability ablation (PR #137, merged): REJECTED under the strict rule, because receptions "
+                "p10-p90 coverage moved further from 0.80 with a CI above 0. PURE_PLAYER_V1 stays the PURE arm."},
+    {"model_version": "PURE_PLAYER_V1_2", "lane": "nfl_player_props", "rule": "strict_preregistered",
+     "verdict": "REJECTED", "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+     "scope": {"season_type": "regular", "seasons": ["2024", "2025"], "statistics": all9,
+               "population": "every eligible skill player-game of the 2024 and 2025 regular seasons (primary window; 2026 weeks 1-5 non-inferiority only)"},
+     "row_label": None, "promoted": False, "evidence_ids": ["v12_prereg", "v12_results", "v12_scorecard", "v12_pr"],
+     "summary": "PR #153 (open research draft): REJECTED under the strict rule (MAE lower on 5 of 9 statistics, "
+                "fewer than the required 6; receiving yards MAE and completions Brier worse with CIs above 0). "
+                "PURE_PLAYER_V1 stays the PURE arm."},
+]
+NFL_CAVEATS = [
+    "Strict-rule status (machine-readable in strict_rule_verdicts): the later sports-only challengers PURE_PLAYER_V1_1 (PR #137) and PURE_PLAYER_V1_2 (PR #153) were both REJECTED; nothing is promoted.",
+    "Dependency audit (xpass_audit): nflfastR xpass takes vegas_wp, which is built from the closing spread_line, so pass_oe / PROE and PROE-based team ratings are indirectly market-derived. PURE_PLAYER_V1 reads none of them (no play-by-play, no xpass, no win probability) and has no direct or indirect sportsbook input.",
+]
 OA, NM = "opponent_adjusted", "not_matchup"
 nfl = {
     "notes": ["season, week, home and away come from the nflverse game_id convention <season>_<week>_<away>_<home>; "
@@ -247,15 +307,17 @@ nfl = {
             "status": "RESEARCH_HISTORICAL_ACCEPTED", "research_only": True, "scope": nscope,
             "source_verdict": "ACCEPTED_CHALLENGER (preregistered rule, primary scope 2024+2025, PURE_PLAYER_V1 vs PURE_EWM_BASELINE). Research collection only; nothing here authorises live use.",
             "compared_against": ["pure-ewm-baseline-1.0.0"],
-            "evidence": nfl_ev + [ev("sample", "sidecar_sample", R, C, "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz")],
-            "caveats": ["Not the most accurate arm in the source repository: DATA_PLAYER_V4 (as-is with market_env=False, and with the closing line) is slightly more accurate on most player statistics; this is the most accurate arm whose inputs are football-only and point-in-time provable from the committed sources.",
+            "evidence": nfl_ev + [ev("sample", "sidecar_sample", R, C, "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz")] + nfl_lane_ev,
+            "strict_rule_verdicts": nfl_strict,
+            "caveats": [*NFL_CAVEATS, "Not the most accurate arm in the source repository: DATA_PLAYER_V4 (as-is with market_env=False, and with the closing line) is slightly more accurate on most player statistics; this is the most accurate arm whose inputs are football-only and point-in-time provable from the committed sources.",
                         "Conditional on playing; no participation model, so participation_probability is null.",
                         "Abstained inputs: injury reports, depth charts, weather, target-game QB identity, routes / play-by-play."]},
         "pure-ewm-baseline-1.0.0": {
             "status": "NOT_VALIDATED", "research_only": True, "scope": nscope, "source_verdict": None,
             "compared_against": ["pure-player-v1.0.0"],
-            "evidence": nfl_ev + [ev("sample", "sidecar_sample", R, C, "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz")],
-            "caveats": ["The simplest sports-only comparator for PURE_PLAYER_V1: the player's own EWM with no environment, role or opponent model.",
+            "evidence": nfl_ev + [ev("sample", "sidecar_sample", R, C, "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz")] + nfl_lane_ev,
+            "strict_rule_verdicts": nfl_strict,
+            "caveats": [*NFL_CAVEATS, "The simplest sports-only comparator for PURE_PLAYER_V1: the player's own EWM with no environment, role or opponent model.",
                         "Conditional on playing; no participation model, so participation_probability is null."]},
     },
     "coverage": {"pure-player-v1.0.0": nfl_cov("a"), "pure-ewm-baseline-1.0.0": nfl_cov("b")},

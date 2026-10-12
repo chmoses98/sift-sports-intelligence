@@ -165,6 +165,8 @@
   "validation": {
     "pure-ewm-baseline-1.0.0": {
       "caveats": [
+        "Strict-rule status (machine-readable in strict_rule_verdicts): the later sports-only challengers PURE_PLAYER_V1_1 (PR #137) and PURE_PLAYER_V1_2 (PR #153) were both REJECTED; nothing is promoted.",
+        "Dependency audit (xpass_audit): nflfastR xpass takes vegas_wp, which is built from the closing spread_line, so pass_oe / PROE and PROE-based team ratings are indirectly market-derived. PURE_PLAYER_V1 reads none of them (no play-by-play, no xpass, no win probability) and has no direct or indirect sportsbook input.",
         "The simplest sports-only comparator for PURE_PLAYER_V1: the player's own EWM with no environment, role or opponent model.",
         "Conditional on playing; no participation model, so participation_probability is null."
       ],
@@ -227,6 +229,78 @@
           "path": "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz",
           "repo": "chmoses98/nfl-edge-finder",
           "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz"
+        },
+        {
+          "commit": "4441249",
+          "id": "v11_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PURE_PLAYER_V1_1_PREREGISTRATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/f674da41c74003a4a5d16083bf3b3fe841ea66ce/docs/research/PURE_PLAYER_V1_1_PREREGISTRATION.md"
+        },
+        {
+          "commit": "f674da41c74003a4a5d16083bf3b3fe841ea66ce",
+          "id": "v11_results",
+          "kind": "results",
+          "path": "research/pure_player_v1_1/RESULTS.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/f674da41c74003a4a5d16083bf3b3fe841ea66ce/research/pure_player_v1_1/RESULTS.md"
+        },
+        {
+          "commit": "f674da41c74003a4a5d16083bf3b3fe841ea66ce",
+          "id": "v11_scorecard",
+          "kind": "scorecard",
+          "path": "research/pure_player_v1_1/holdout_2023_2024.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/f674da41c74003a4a5d16083bf3b3fe841ea66ce/research/pure_player_v1_1/holdout_2023_2024.json"
+        },
+        {
+          "commit": "f674da41c74003a4a5d16083bf3b3fe841ea66ce",
+          "id": "v11_pr",
+          "kind": "pull_request",
+          "path": "PR #137",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/pull/137"
+        },
+        {
+          "commit": "cc452fd",
+          "id": "v12_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PURE_PLAYER_V1_2_PREREGISTRATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/docs/research/PURE_PLAYER_V1_2_PREREGISTRATION.md"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "v12_results",
+          "kind": "results",
+          "path": "research/pure_player_v1_2/RESULTS.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/research/pure_player_v1_2/RESULTS.md"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "v12_scorecard",
+          "kind": "scorecard",
+          "path": "research/pure_player_v1_2/holdout_2024_2025_2026.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/research/pure_player_v1_2/holdout_2024_2025_2026.json"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "v12_pr",
+          "kind": "pull_request",
+          "path": "PR #153",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/pull/153"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "xpass_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PURE_PLAYER_V1_XPASS_VERIFICATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/docs/research/PURE_PLAYER_V1_XPASS_VERIFICATION.md"
         }
       ],
       "research_only": true,
@@ -250,10 +324,84 @@
         ]
       },
       "source_verdict": null,
-      "status": "NOT_VALIDATED"
+      "status": "NOT_VALIDATED",
+      "strict_rule_verdicts": [
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "v11_prereg",
+            "v11_results",
+            "v11_scorecard",
+            "v11_pr"
+          ],
+          "lane": "nfl_player_props",
+          "model_version": "PURE_PLAYER_V1_1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every eligible skill player-game of the 2023 and 2024 regular seasons (544 games)",
+            "season_type": "regular",
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "statistics": [
+              "snap_share",
+              "targets",
+              "receptions",
+              "receiving_yards",
+              "carries",
+              "rushing_yards",
+              "passing_attempts",
+              "completions",
+              "passing_yards"
+            ]
+          },
+          "summary": "PIT availability ablation (PR #137, merged): REJECTED under the strict rule, because receptions p10-p90 coverage moved further from 0.80 with a CI above 0. PURE_PLAYER_V1 stays the PURE arm.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "v12_prereg",
+            "v12_results",
+            "v12_scorecard",
+            "v12_pr"
+          ],
+          "lane": "nfl_player_props",
+          "model_version": "PURE_PLAYER_V1_2",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every eligible skill player-game of the 2024 and 2025 regular seasons (primary window; 2026 weeks 1-5 non-inferiority only)",
+            "season_type": "regular",
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "statistics": [
+              "snap_share",
+              "targets",
+              "receptions",
+              "receiving_yards",
+              "carries",
+              "rushing_yards",
+              "passing_attempts",
+              "completions",
+              "passing_yards"
+            ]
+          },
+          "summary": "PR #153 (open research draft): REJECTED under the strict rule (MAE lower on 5 of 9 statistics, fewer than the required 6; receiving yards MAE and completions Brier worse with CIs above 0). PURE_PLAYER_V1 stays the PURE arm.",
+          "verdict": "REJECTED"
+        }
+      ]
     },
     "pure-player-v1.0.0": {
       "caveats": [
+        "Strict-rule status (machine-readable in strict_rule_verdicts): the later sports-only challengers PURE_PLAYER_V1_1 (PR #137) and PURE_PLAYER_V1_2 (PR #153) were both REJECTED; nothing is promoted.",
+        "Dependency audit (xpass_audit): nflfastR xpass takes vegas_wp, which is built from the closing spread_line, so pass_oe / PROE and PROE-based team ratings are indirectly market-derived. PURE_PLAYER_V1 reads none of them (no play-by-play, no xpass, no win probability) and has no direct or indirect sportsbook input.",
         "Not the most accurate arm in the source repository: DATA_PLAYER_V4 (as-is with market_env=False, and with the closing line) is slightly more accurate on most player statistics; this is the most accurate arm whose inputs are football-only and point-in-time provable from the committed sources.",
         "Conditional on playing; no participation model, so participation_probability is null.",
         "Abstained inputs: injury reports, depth charts, weather, target-game QB identity, routes / play-by-play."
@@ -317,6 +465,78 @@
           "path": "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz",
           "repo": "chmoses98/nfl-edge-finder",
           "url": "https://github.com/chmoses98/nfl-edge-finder/blob/762d69df61d153f4f1ec4fb9edd03344b2708db1/research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz"
+        },
+        {
+          "commit": "4441249",
+          "id": "v11_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PURE_PLAYER_V1_1_PREREGISTRATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/f674da41c74003a4a5d16083bf3b3fe841ea66ce/docs/research/PURE_PLAYER_V1_1_PREREGISTRATION.md"
+        },
+        {
+          "commit": "f674da41c74003a4a5d16083bf3b3fe841ea66ce",
+          "id": "v11_results",
+          "kind": "results",
+          "path": "research/pure_player_v1_1/RESULTS.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/f674da41c74003a4a5d16083bf3b3fe841ea66ce/research/pure_player_v1_1/RESULTS.md"
+        },
+        {
+          "commit": "f674da41c74003a4a5d16083bf3b3fe841ea66ce",
+          "id": "v11_scorecard",
+          "kind": "scorecard",
+          "path": "research/pure_player_v1_1/holdout_2023_2024.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/f674da41c74003a4a5d16083bf3b3fe841ea66ce/research/pure_player_v1_1/holdout_2023_2024.json"
+        },
+        {
+          "commit": "f674da41c74003a4a5d16083bf3b3fe841ea66ce",
+          "id": "v11_pr",
+          "kind": "pull_request",
+          "path": "PR #137",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/pull/137"
+        },
+        {
+          "commit": "cc452fd",
+          "id": "v12_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PURE_PLAYER_V1_2_PREREGISTRATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/docs/research/PURE_PLAYER_V1_2_PREREGISTRATION.md"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "v12_results",
+          "kind": "results",
+          "path": "research/pure_player_v1_2/RESULTS.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/research/pure_player_v1_2/RESULTS.md"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "v12_scorecard",
+          "kind": "scorecard",
+          "path": "research/pure_player_v1_2/holdout_2024_2025_2026.json",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/research/pure_player_v1_2/holdout_2024_2025_2026.json"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "v12_pr",
+          "kind": "pull_request",
+          "path": "PR #153",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/pull/153"
+        },
+        {
+          "commit": "352255738d734bde13ae0454c57ea06b3a3c1bbc",
+          "id": "xpass_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PURE_PLAYER_V1_XPASS_VERIFICATION.md",
+          "repo": "chmoses98/nfl-edge-finder",
+          "url": "https://github.com/chmoses98/nfl-edge-finder/blob/352255738d734bde13ae0454c57ea06b3a3c1bbc/docs/research/PURE_PLAYER_V1_XPASS_VERIFICATION.md"
         }
       ],
       "research_only": true,
@@ -340,7 +560,79 @@
         ]
       },
       "source_verdict": "ACCEPTED_CHALLENGER (preregistered rule, primary scope 2024+2025, PURE_PLAYER_V1 vs PURE_EWM_BASELINE). Research collection only; nothing here authorises live use.",
-      "status": "RESEARCH_HISTORICAL_ACCEPTED"
+      "status": "RESEARCH_HISTORICAL_ACCEPTED",
+      "strict_rule_verdicts": [
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "v11_prereg",
+            "v11_results",
+            "v11_scorecard",
+            "v11_pr"
+          ],
+          "lane": "nfl_player_props",
+          "model_version": "PURE_PLAYER_V1_1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every eligible skill player-game of the 2023 and 2024 regular seasons (544 games)",
+            "season_type": "regular",
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "statistics": [
+              "snap_share",
+              "targets",
+              "receptions",
+              "receiving_yards",
+              "carries",
+              "rushing_yards",
+              "passing_attempts",
+              "completions",
+              "passing_yards"
+            ]
+          },
+          "summary": "PIT availability ablation (PR #137, merged): REJECTED under the strict rule, because receptions p10-p90 coverage moved further from 0.80 with a CI above 0. PURE_PLAYER_V1 stays the PURE arm.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "v12_prereg",
+            "v12_results",
+            "v12_scorecard",
+            "v12_pr"
+          ],
+          "lane": "nfl_player_props",
+          "model_version": "PURE_PLAYER_V1_2",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every eligible skill player-game of the 2024 and 2025 regular seasons (primary window; 2026 weeks 1-5 non-inferiority only)",
+            "season_type": "regular",
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "statistics": [
+              "snap_share",
+              "targets",
+              "receptions",
+              "receiving_yards",
+              "carries",
+              "rushing_yards",
+              "passing_attempts",
+              "completions",
+              "passing_yards"
+            ]
+          },
+          "summary": "PR #153 (open research draft): REJECTED under the strict rule (MAE lower on 5 of 9 statistics, fewer than the required 6; receiving yards MAE and completions Brier worse with CIs above 0). PURE_PLAYER_V1 stays the PURE arm.",
+          "verdict": "REJECTED"
+        }
+      ]
     }
   },
   "workload": {

@@ -570,6 +570,22 @@ class StrictRuleVerdictTests(unittest.TestCase):
                 self.assertEqual(v["status"], "RESEARCH_HISTORICAL_ACCEPTED")
                 self.assertEqual(r["game"]["season_type"], "regular")
 
+    def test_more_lane_verdicts_in_the_examples(self):
+        mlb = gate.load_jsonl(EXAMPLES / "mlb.prop_explorer_projection.v1.jsonl")[0]["validation"]
+        leash = next(e for e in mlb["strict_rule_verdicts"] if e["model_version"] == "mlb_pitcher_workload_joint_leash_v1")
+        self.assertEqual((leash["verdict"], leash["disposition"], leash["scope"]["season_type"]),
+                         ("REJECTED", "REJECTED_INCUMBENT_UNCHANGED", "regular"))
+        for r in gate.load_jsonl(EXAMPLES / "nfl.prop_explorer_projection.v1.jsonl"):
+            v = r["validation"]
+            by = {e["model_version"]: e for e in v["strict_rule_verdicts"]}
+            self.assertEqual({k: e["verdict"] for k, e in by.items()},
+                             {"PURE_PLAYER_V1_1": "REJECTED", "PURE_PLAYER_V1_2": "REJECTED"})
+            self.assertTrue(all(e["promoted"] is False for e in by.values()))
+            self.assertIn("xpass_audit", {e["id"] for e in v["evidence"]})
+            self.assertTrue(any("vegas_wp" in c and "indirectly market-derived" in c for c in v["caveats"]))
+            # The verdicts are on other model versions: they don't bind these rows.
+            self.assertNotIn(r["identity"]["model_version"], by)
+
     def test_mlb_postseason_row_cannot_claim_accepted(self):
         rows = gate.load_jsonl(EXAMPLES / "mlb.prop_explorer_projection.v1.jsonl")
         r = next(x for x in rows if x["identity"]["model_version"] == "mlb_pitcher_workload_joint_v1")

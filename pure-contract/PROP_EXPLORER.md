@@ -107,11 +107,18 @@ The MLB examples carry the MLB lanes' verdicts (all from open edge-finder-api re
 | `mlb_pitcher_workload_joint_v1` | pitcher props | 2025–2026 regular season | `ACCEPTED_CHALLENGER` → `PRESERVED_NOT_PROMOTED` | #283 |
 | `mlb_pitcher_workload_joint_v1` | pitcher props | 2026 postseason (46 starts, 25 games) | `REJECTED` → `SCOPE_BLOCKED`, row label `BLOCKED_NOT_VALIDATED_POSTSEASON` | #284, #286 |
 | `mlb_pitcher_workload_joint_v1+postseason_regime_v1` | pitcher props | 2026 postseason | `REJECTED` → `SCOPE_BLOCKED`, row label `BLOCKED_NOT_VALIDATED_POSTSEASON` | #284 |
+| `mlb_pitcher_workload_joint_leash_v1` | pitcher props | 2025–2026 regular season (reused holdout) | `REJECTED` → `REJECTED_INCUMBENT_UNCHANGED` | #288 |
 | `MLB_HITTER_W2_PURE_V1` | hitter props | 2026 regular season (43,686 player-games) | `REJECTED` → `REJECTED_INCUMBENT_UNCHANGED` | #285 |
 
+The NFL examples carry the NFL PURE player lane's later challengers (nfl-edge-finder), both `REJECTED` →
+`REJECTED_INCUMBENT_UNCHANGED` with `PURE_PLAYER_V1` kept as the PURE arm: `PURE_PLAYER_V1_1` (2023–2024 holdout,
+#137, merged) and `PURE_PLAYER_V1_2` (primary 2024–2025, #153, open draft). They also cite the xpass dependency
+audit (`source_audit` evidence): nflfastR `xpass` takes `vegas_wp`, built from the closing `spread_line`, so
+`pass_oe` / PROE and PROE-based team ratings are indirectly market-derived, and `PURE_PLAYER_V1` reads none of them.
+
 So an MLB pitcher-challenger row for a postseason game can only be `REJECTED`, and no MLB hitter challenger has any
-accepted status. `make_contexts.py` reads the #284 verdicts from its scorecard and asserts the #285 and #286 wording
-at the pinned commits instead of typing them in.
+accepted status. `make_contexts.py` reads the #284, #288, #137 and #153 verdicts from their committed scorecards and
+asserts the #285, #286 and xpass-audit wording at the pinned commits instead of typing them in.
 
 Mapping from sport-repo verdicts: `ACCEPTED_CHALLENGER` (research only, historical holdout) →
 `RESEARCH_HISTORICAL_ACCEPTED`, limited to its evaluated scope. `REJECTED`, `INCONCLUSIVE` and `BLOCKED_DATA`
@@ -247,7 +254,7 @@ tested, and the like).
 |---|---|
 | `projection_id`, `role` | Unique id; `champion`, `challenger`, `baseline`, `best_accuracy`, `other` |
 | `model` | `model_id` (stable family id for the explorer), `model_version`, `model_frozen_hash` |
-| `provenance` | `market_informed` (bool), `market_derived_inputs [{input, dependency: direct\|indirect, market_source: sportsbook\|kalshi\|other_exchange\|settlement\|unknown, derivation}]`, `source {repo, commit, path}` or null. `market_informed` is true **exactly** when the list is nonempty. An indirect input counts: NFL PROE, expected pass rate or team ratings fitted to sportsbook lines, a parameter fitted on settlement values. A driver whose name or label uses market vocabulary must be listed (an undisclosed market input is refused) |
+| `provenance` | `market_informed` (bool), `market_derived_inputs [{input, dependency: direct\|indirect, market_source: sportsbook\|kalshi\|other_exchange\|settlement\|unknown, derivation}]`, `source {repo, commit, path}` or null. `market_informed` is true **exactly** when the list is nonempty. An indirect input counts: NFL PROE / `pass_oe` and PROE-based team ratings (nflfastR `xpass` takes `vegas_wp`, which is built from the closing spread), ratings fitted to sportsbook lines, a parameter fitted on settlement values (the MLB champion's postseason outs shift). A driver whose name or label uses market vocabulary must be listed (an undisclosed market input is refused) |
 | `explorer_projection` | The embedded `prop_explorer_projection.v1` record, required when `market_informed` is false (it's the proof, through `pure_gate`, that the inputs are sports-only), and null when true |
 | `outcome` | `unit, mean, median, p10, p90, quantiles, thresholds, pmf`: the threshold ladder P(X ≥ t) (strikes strictly ascending, probabilities non-increasing), quantiles including 0.1/0.5/0.9, optional pmf (v1 consistency rules) |
 | `expected_workload`, `game_script`, `uncertainty` | v1 shapes and rules |

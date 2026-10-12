@@ -118,7 +118,7 @@ def market_informed_entry(rec_like: dict, *, accuracy="ACCURACY_ACCEPTED_RESEARC
         {"feature": "targets_ewm", "label": "Targets, player EWM", "role": "opportunity", "matchup_role": "not_matchup",
          "value": 6.1, "source": "pbp", "observed_at": "2026-10-14T04:00:00Z", "importance_rank": 2,
          "importance_basis": "producer_attribution"},
-        {"feature": "team_proe", "label": "Team pass rate over expected (fitted to sportsbook lines)",
+        {"feature": "team_proe", "label": "Team pass rate over expected (xpass uses the sportsbook spread)",
          "role": "team_environment", "matchup_role": "opponent_adjusted", "value": 0.031, "source": "team_model",
          "observed_at": SMO, "importance_rank": 1, "importance_basis": "producer_attribution"},
         {"feature": "implied_team_total", "label": "Implied team total from the consensus sportsbook line",
@@ -133,11 +133,12 @@ def market_informed_entry(rec_like: dict, *, accuracy="ACCURACY_ACCEPTED_RESEARC
         "model": {"model_id": "syn.best_accuracy", "model_version": "SYN_BEST_ACCURACY_V1", "model_frozen_hash": HASH},
         "provenance": {"market_informed": True, "market_derived_inputs": [
             {"input": "team_proe", "dependency": "indirect", "market_source": "sportsbook",
-             "derivation": "team pass-rate-over-expected model fitted with closing spreads and totals as features"},
+             "derivation": "pass rate over expected from nflfastR xpass, whose features include vegas_wp (win "
+                           "probability built from the closing spread_line)"},
             {"input": "implied_team_total", "dependency": "direct", "market_source": "sportsbook",
              "derivation": "consensus pregame total and spread converted to the team's implied points"},
             {"input": "team_ratings", "dependency": "indirect", "market_source": "sportsbook",
-             "derivation": "team strength ratings regressed on historical closing lines (enters through team_proe)"}],
+             "derivation": "PROE-based team ratings (indirect through xpass / vegas_wp; enter through team_proe)"}],
             "source": None},
         "explorer_projection": None,
         "outcome": outcome,

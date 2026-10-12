@@ -211,7 +211,7 @@
     "mlb_pitcher_workload_joint_v1": {
       "caveats": [
         "Research collection only: no production, publication, staking or authority change, and the challenger is not wired into any export (source results doc).",
-        "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; the MLB hitter sports-only challenger was REJECTED (PR #285).",
+        "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; its long-leash variant was REJECTED (PR #288); the MLB hitter sports-only challenger was REJECTED (PR #285).",
         "The 2026 postseason is not in this status's scope: the #283 market-selected diagnostic was worse than the champion, and the later sports-only postseason evaluation (46 starts in 25 games) REJECTED the challenger under the strict rule.",
         "Lineup-confirmed subgroup is BLOCKED_DATA: no as-of lineup status before 2026-07-30; neither arm reads lineups.",
         "Challenger minus champion p10-p90 coverage: -0.0824 [-0.0881, -0.0767] for batters faced and -0.0323 [-0.0362, -0.0290] for strikeouts; the champion's intervals covered 0.959 and 0.901 against a nominal 0.80."
@@ -356,6 +356,38 @@
           "path": "PR #285",
           "repo": "chmoses98/edge-finder-api",
           "url": "https://github.com/chmoses98/edge-finder-api/pull/285"
+        },
+        {
+          "commit": "3ddd1a99",
+          "id": "leash_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_LONG_LEASH_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_PREREG.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_LONG_LEASH_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_RESULTS.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_long_leash/holdout_2025_2026.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/data/research/pitcher_long_leash/holdout_2025_2026.json"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_pr",
+          "kind": "pull_request",
+          "path": "PR #288",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/288"
         }
       ],
       "research_only": true,
@@ -464,6 +496,35 @@
         {
           "disposition": "REJECTED_INCUMBENT_UNCHANGED",
           "evidence_ids": [
+            "leash_prereg",
+            "leash_results",
+            "leash_scorecard",
+            "leash_pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_leash_v1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+            "season_type": "regular",
+            "seasons": [
+              "2025",
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Leash-conditioned batters-faced-given-outs variant of the regular-season challenger (PR #288, open): REJECTED under the strict rule (mid-leash strikeouts MAE vs the frozen challenger +0.0011 [+0.0001, +0.0022]) on the reused 2025-2026 holdout. The frozen challenger and the champion are unchanged.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
             "hitter_prereg",
             "hitter_results",
             "hitter_scorecard",
@@ -497,7 +558,7 @@
     "pitcher_prop_projection@params_asof_2026-10-07": {
       "caveats": [
         "Incumbent comparator in the W1-D holdout; the preregistered test was of the challenger, and this champion is unchanged.",
-        "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; the MLB hitter sports-only challenger was REJECTED (PR #285).",
+        "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; its long-leash variant was REJECTED (PR #288); the MLB hitter sports-only challenger was REJECTED (PR #285).",
         "In the postseason this champion applies a frozen postseason_shift_outs (-1.209) fitted on settlement-evidence values, an indirect market dependency; its prospective postseason rows are labelled BLOCKED_NOT_VALIDATED_POSTSEASON (PR #286).",
         "178 starter-games (1.9%) were excluded from scoring because this model's date-ordered history contained a suspended game completed after the forecast cutoff."
       ],
@@ -641,6 +702,38 @@
           "path": "PR #285",
           "repo": "chmoses98/edge-finder-api",
           "url": "https://github.com/chmoses98/edge-finder-api/pull/285"
+        },
+        {
+          "commit": "3ddd1a99",
+          "id": "leash_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_LONG_LEASH_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_PREREG.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_LONG_LEASH_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_RESULTS.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_long_leash/holdout_2025_2026.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/data/research/pitcher_long_leash/holdout_2025_2026.json"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_pr",
+          "kind": "pull_request",
+          "path": "PR #288",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/288"
         }
       ],
       "research_only": true,
@@ -744,6 +837,35 @@
             ]
           },
           "summary": "The same challenger plus one sports-only postseason outs-location term (PR #284, open): REJECTED under the strict rule. The postseason stays blocked.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "leash_prereg",
+            "leash_results",
+            "leash_scorecard",
+            "leash_pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_leash_v1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+            "season_type": "regular",
+            "seasons": [
+              "2025",
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Leash-conditioned batters-faced-given-outs variant of the regular-season challenger (PR #288, open): REJECTED under the strict rule (mid-leash strikeouts MAE vs the frozen challenger +0.0011 [+0.0001, +0.0022]) on the reused 2025-2026 holdout. The frozen challenger and the champion are unchanged.",
           "verdict": "REJECTED"
         },
         {

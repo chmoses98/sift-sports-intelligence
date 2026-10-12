@@ -4,7 +4,9 @@
 // without a priced market gets no invented projection.
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router';
-import type { EntityProfileDoc, EventResearchDoc, Observation } from '../../contract/types';
+import type { EntityProfileDoc, EventResearchDoc, Observation, ResearchMarket } from '../../contract/types';
+import { logHitText, readBoxLog, type LogHit } from '../../history/boxLog';
+import { nhlContractHistory, nhlPlayerMarkets, nhlPregame, nhlSeasonLabel, nhlSeasonOf } from '../../history/nhlProps';
 import { EntityLink, ErrorState, SaveButton, Skeleton, Stratum, TeamMark } from '../../components/ui';
 import { useAsync } from '../../data/hooks';
 import { kickoff } from '../../lib/format';
@@ -17,6 +19,7 @@ import { ScriptDot, TierChip } from './parts';
 import { rankWords, sportUnit } from '../../insights/sportUnits';
 import '../../styles/nhl.css';
 import '../../styles/wave2-units.css';
+import '../../styles/lane-b-props.css';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -98,19 +101,39 @@ function GameLog({ p, goalie, n = 10 }: { p: EntityProfileDoc; goalie: boolean; 
   );
 }
 
-function PricedMarkets({ s, r, pid, slug, eventId }: { s: NhlScripts; r: EventResearchDoc; pid: string; slug: string; eventId: string }) {
-  const mine = r.markets.filter((m) => m.player_id === pid);
-  const priced = mine.map((m) => ({ m, row: s.markets.get(m.kalshi_ticker) })).filter((x) => x.row);
+/** "3/5" with one dot per game (filled = reached today's count), for the history columns. */
+function HistCell({ h }: { h: LogHit | null }) {
+  if (!h || !h.n) return <td className="r num muted">—</td>;
+  return (
+    <td className="r num nhist" title={`${h.over} of ${h.n} games reached today’s count`}>
+      <span className="nhist__n">{logHitText(h)}</span>
+      <span className="hdots" aria-hidden="true">{h.results.slice(-10).map((r, i) => <i key={i} className={`hdots__d hdots__d--${r}`} />)}</span>
+    </td>
+  );
+}
+
+/**
+ * His contracts for the next game: the NHL joint simulation's P(YES) where it prices one, the market's, and — for
+ * every count contract — how many of his recent games reached today's count, from the published game log.
+ */
+export function PlayerMarkets({ s, mine, p, kickoffIso, slug, eventId }: { s: NhlScripts | null; mine: ResearchMarket[]; p: EntityProfileDoc; kickoffIso: string; slug: string; eventId: string }) {
+  const season = nhlSeasonOf(kickoffIso);
+  const pregame = nhlPregame(readBoxLog((p.extensions as any)?.game_log) ?? [], kickoffIso);
   if (!mine.length) return <p className="muted small">No Kalshi market lists this player for the next game.</p>;
+  const priced = s ? mine.filter((m) => s.markets.get(m.kalshi_ticker)) : [];
+  const hist = new Map(mine.map((m) => [m.market_id, nhlContractHistory(m, pregame, season)]));
+  const anyHist = [...hist.values()].some(Boolean);
+  const seasonWord = nhlSeasonLabel(season);
   return (
     <>
-      <div className="tscroll" tabIndex={0} role="region" aria-label="Model-priced markets">
+      <div className="tscroll" tabIndex={0} role="region" aria-label="His markets for the next game">
         <table className="nsc__t">
-          <thead><tr><th scope="col">Market</th><th scope="col" className="r">Model P(YES)</th><th scope="col" className="r">Market P(YES)</th><th scope="col">Best side after fee</th></tr></thead>
+          <thead><tr><th scope="col">Market</th><th scope="col" className="r">Model P(YES)</th><th scope="col" className="r">Market P(YES)</th><th scope="col">Best side after fee</th>{anyHist && <><th scope="col" className="r">Last 5</th><th scope="col" className="r">Last 10</th><th scope="col" className="r">{seasonWord}</th></>}</tr></thead>
           <tbody>
             {mine.map((m) => {
-              const row = s.markets.get(m.kalshi_ticker);
+              const row = s?.markets.get(m.kalshi_ticker);
               const best = row ? ([['YES', row.yes], ['NO', row.no]] as const).filter(([, sd]) => sd?.ev != null).sort((a, b) => (b[1]!.ev ?? -9) - (a[1]!.ev ?? -9))[0] : null;
+              const h = hist.get(m.market_id) ?? null;
               return (
                 <tr key={m.kalshi_ticker}>
                   <th scope="row"><Link to={routes.market(slug, m.market_id, eventId)}>{describeNhlMarket(m as any)?.title ?? m.yes_description}</Link> <span className="muted small">{FAMILY_WORD[m.market_family] ?? ''}</span></th>
@@ -120,14 +143,22 @@ function PricedMarkets({ s, r, pid, slug, eventId }: { s: NhlScripts; r: EventRe
                       <td className="r num">{probText(row.pYesMid, 1)}</td>
                       <td>{best ? <><b className="num">{best[0]} {evText(best[1]!.ev)}</b> <TierChip tier={best[1]!.tier} /></> : '—'}</td>
                     </>
-                  ) : <td colSpan={3} className="muted small">Model does not price this market</td>}
+                  ) : (
+                    <>
+                      <td className="r muted small">not priced</td>
+                      <td className="r num">{m.market_probability != null ? probText(m.market_probability, 1) : '—'}</td>
+                      <td className="muted small">—</td>
+                    </>
+                  )}
+                  {anyHist && (h ? <><HistCell h={h.last5} /><HistCell h={h.last10} /><HistCell h={h.season} /></> : <td colSpan={3} className="muted small">{m.market_family === 'first_goal' ? 'The game log has no goal order' : 'Not in the game log'}</td>)}
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      <p className="muted small">{priced.length ? 'Probabilities are the NHL joint simulation’s, conditional on him playing; they are not a guarantee of role or ice time.' : 'The model prices none of these contracts.'}</p>
+      <p className="muted small">{priced.length ? 'Model probabilities are the NHL joint simulation’s, conditional on him playing; they are not a guarantee of role or ice time. ' : s ? 'The model prices none of these contracts. ' : 'No model prices are published for this game. '}
+        {anyHist ? `History columns: games he played that reached today’s count (filled dot), from the published game log; ${seasonWord} counts only this season’s games. History against today’s line, not a probability.` : ''}</p>
     </>
   );
 }
@@ -215,13 +246,14 @@ export function NhlPlayerView() {
       </Stratum>
 
       {next && (
-        <Stratum n="04" title="Next game: what the model prices" sub="Only contracts the NHL joint simulation prices carry a model probability.">
-          {er.loading ? <Skeleton lines={3} /> : r && isNhlScripts(s) ? (
+        <Stratum n="04" title="Next game: his markets" sub="Every contract that names him, the model’s probability only where the NHL joint simulation prices it, and his recent games against each count.">
+          {er.loading ? <Skeleton lines={3} /> : r ? (
             <>
-              <PricedMarkets s={s} r={r} pid={playerId} slug={slug} eventId={r.event.event_id} />
-              {goalie && role?.goalie && <><h3 className="nfsec__h">Saves by game script</h3><GoalieScripts s={s} side={role.goalie.team === homeAbbr ? 'home' : 'away'} /></>}
+              <PlayerMarkets s={isNhlScripts(s) ? s : null} mine={nhlPlayerMarkets(r.markets, playerId, name)} p={p} kickoffIso={next.start_time_utc} slug={slug} eventId={r.event.event_id} />
+              {s && !isNhlScripts(s) && <p className="muted small">{s.reason}. No projection is shown in its place.</p>}
+              {goalie && role?.goalie && isNhlScripts(s) && <><h3 className="nfsec__h">Saves by game script</h3><GoalieScripts s={s} side={role.goalie.team === homeAbbr ? 'home' : 'away'} /></>}
             </>
-          ) : <p className="muted">{s && !isNhlScripts(s) ? `${s.reason}.` : 'No research published for the next game yet.'} No projection is shown in its place.</p>}
+          ) : <p className="muted">No research published for the next game yet. No projection is shown in its place.</p>}
         </Stratum>
       )}
     </div>

@@ -532,6 +532,119 @@ class ValidationStatusTests(unittest.TestCase):
             px.validate_projection(r)
 
 
+def strict(verdict="REJECTED", disposition="REJECTED_INCUMBENT_UNCHANGED", season_type="regular", model="TEST_V1",
+           row_label=None, stats=("receiving_yards",), evidence_ids=("prereg", "results")):
+    return {"model_version": model, "lane": "test_lane", "rule": "strict_preregistered", "verdict": verdict,
+            "disposition": disposition, "row_label": row_label, "promoted": False,
+            "scope": {"season_type": season_type, "seasons": ["2026"], "statistics": list(stats),
+                      "population": "synthetic test population"},
+            "evidence_ids": list(evidence_ids), "summary": "synthetic strict-rule verdict"}
+
+
+class StrictRuleVerdictTests(unittest.TestCase):
+    """validation.strict_rule_verdicts: the strict preregistered rule's verdicts, machine-readable."""
+
+    def test_mlb_examples_carry_the_strict_rule_caveat(self):
+        rows = gate.load_jsonl(EXAMPLES / "mlb.prop_explorer_projection.v1.jsonl")
+        self.assertEqual(len(rows), 6)
+        for r in rows:
+            v = r["validation"]
+            by = {(e["model_version"], e["scope"]["season_type"]): e for e in v["strict_rule_verdicts"]}
+            hitter = by[("MLB_HITTER_W2_PURE_V1", "regular")]
+            self.assertEqual((hitter["verdict"], hitter["disposition"], hitter["lane"]),
+                             ("REJECTED", "REJECTED_INCUMBENT_UNCHANGED", "mlb_hitter_props"))
+            self.assertIn("hitter_rbis", hitter["scope"]["statistics"])
+            post = by[("mlb_pitcher_workload_joint_v1", "postseason")]
+            self.assertEqual((post["verdict"], post["disposition"], post["row_label"]),
+                             ("REJECTED", "SCOPE_BLOCKED", "BLOCKED_NOT_VALIDATED_POSTSEASON"))
+            regime = by[("mlb_pitcher_workload_joint_v1+postseason_regime_v1", "postseason")]
+            self.assertEqual((regime["verdict"], regime["row_label"]), ("REJECTED", "BLOCKED_NOT_VALIDATED_POSTSEASON"))
+            reg = by[("mlb_pitcher_workload_joint_v1", "regular")]
+            self.assertEqual((reg["verdict"], reg["disposition"]), ("ACCEPTED_CHALLENGER", "PRESERVED_NOT_PROMOTED"))
+            self.assertTrue(all(e["promoted"] is False for e in v["strict_rule_verdicts"]))
+            ev = {e["id"]: e for e in v["evidence"]}
+            self.assertEqual(ev["hitter_pr"]["url"], "https://github.com/chmoses98/edge-finder-api/pull/285")
+            self.assertEqual(ev["pst_pr"]["url"], "https://github.com/chmoses98/edge-finder-api/pull/284")
+            self.assertTrue(any("strict_rule_verdicts" in c and "PR #285" in c for c in v["caveats"]))
+            if r["identity"]["model_version"] == "mlb_pitcher_workload_joint_v1":
+                self.assertEqual(v["status"], "RESEARCH_HISTORICAL_ACCEPTED")
+                self.assertEqual(r["game"]["season_type"], "regular")
+
+    def test_mlb_postseason_row_cannot_claim_accepted(self):
+        rows = gate.load_jsonl(EXAMPLES / "mlb.prop_explorer_projection.v1.jsonl")
+        r = next(x for x in rows if x["identity"]["model_version"] == "mlb_pitcher_workload_joint_v1")
+        r["game"]["season"], r["game"]["season_type"] = "2026", "postseason"
+        with self.assertRaisesRegex(gate.GateError, "must be REJECTED: the strict preregistered rule returned REJECTED"):
+            px.validate_projection(r)
+        r["validation"].pop("strict_rule_verdicts")
+        with self.assertRaisesRegex(gate.GateError, "season_type 'regular' does not cover"):
+            px.validate_projection(r)
+        r = next(x for x in gate.load_jsonl(EXAMPLES / "mlb.prop_explorer_projection.v1.jsonl")
+                 if x["identity"]["model_version"] == "mlb_pitcher_workload_joint_v1")
+        r["game"]["season"], r["game"]["season_type"] = "2026", "postseason"
+        r["validation"]["status"] = "REJECTED"
+        px.validate_projection(r)
+        r["validation"]["status"] = "BLOCKED_DATA"
+        with self.assertRaisesRegex(gate.GateError, "must be REJECTED"):
+            px.validate_projection(r)
+
+    def test_binding_negative_verdict_forces_status(self):
+        r = valid_row()
+        r["validation"]["strict_rule_verdicts"] = [strict()]
+        with self.assertRaisesRegex(gate.GateError, "must be REJECTED"):
+            px.validate_projection(r)
+        r["validation"]["status"] = "REJECTED"
+        px.validate_projection(r)
+        r = valid_row()
+        r["validation"]["strict_rule_verdicts"] = [strict(verdict="INCONCLUSIVE")]
+        with self.assertRaisesRegex(gate.GateError, "must be INCONCLUSIVE"):
+            px.validate_projection(r)
+        # A verdict on another model, statistic or season type does not bind this row.
+        for e in (strict(model="OTHER_V1"), strict(stats=("receptions",)),
+                  strict(season_type="postseason", disposition="SCOPE_BLOCKED",
+                         row_label="BLOCKED_NOT_VALIDATED_POSTSEASON"),
+                  strict(verdict="ACCEPTED_CHALLENGER", disposition="PRESERVED_NOT_PROMOTED")):
+            r = valid_row()
+            r["validation"]["strict_rule_verdicts"] = [e]
+            px.validate_projection(r)
+        # A negative verdict on this statistic needs the season type known.
+        r = valid_row()
+        r["validation"]["strict_rule_verdicts"] = [strict(season_type="postseason", disposition="SCOPE_BLOCKED")]
+        r["game"]["season_type"] = None
+        r["validation"]["scope"]["season_type"] = None
+        set_null(r, "game.season_type")
+        set_null(r, "validation.scope.season_type")
+        with self.assertRaisesRegex(gate.GateError, "season_type must be known"):
+            px.validate_projection(r)
+
+    def test_shape_rules(self):
+        cases = (({"promoted": True}, "promoted must be false"),
+                 ({"verdict": "ACCEPTED_CHALLENGER"}, "allows disposition"),
+                 ({"verdict": "BLOCKED_DATA"}, "allows disposition"),
+                 ({"row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON"}, "postseason scope"),
+                 ({"evidence_ids": ["nowhere"]}, "not entries of validation.evidence"),
+                 ({"evidence_ids": ["results"]}, "preregistration and results"),
+                 ({"rule": "lenient"}, "rule"),
+                 ({"summary": "a proven winner"}, "overstates"))
+        for patch, msg in cases:
+            r = valid_row()
+            r["validation"]["status"] = "REJECTED"
+            r["validation"]["strict_rule_verdicts"] = [{**strict(), **patch}]
+            with self.assertRaisesRegex(gate.GateError, msg, msg=patch):
+                px.validate_projection(r)
+        r = valid_row()
+        e = strict()
+        e["scope"]["statistics"] = None
+        r["validation"]["strict_rule_verdicts"] = [e]
+        set_null(r, "validation.strict_rule_verdicts[0].scope.statistics")
+        with self.assertRaisesRegex(gate.GateError, "statistics the verdict covers"):
+            px.validate_projection(r)
+        # Optional and additive: v1 rows without the field stay valid.
+        r = valid_row()
+        self.assertNotIn("strict_rule_verdicts", r["validation"])
+        px.validate_projection(r)
+
+
 class ChangeExplanationTests(unittest.TestCase):
     def rows(self):
         early = forecast(as_of="2026-10-11T12:00:00Z", mean=55.0, targets_ewm=5.5, smo="2026-10-11T11:55:00Z")
@@ -732,9 +845,15 @@ class SchemaAndTypesSyncTests(unittest.TestCase):
                              ("coverage", px.COVERAGE_FIELDS), ("freshness", px.FRESHNESS_FIELDS),
                              ("validation", px.VALIDATION_FIELDS), ("evidence", px.EVIDENCE_FIELDS),
                              ("change", px.CHANGE_FIELDS), ("provenance", px.PROVENANCE_FIELDS),
-                             ("market_comparison", px.MARKET_REQUIRED), ("rung", px.RUNG_FIELDS)):
+                             ("market_comparison", px.MARKET_REQUIRED), ("rung", px.RUNG_FIELDS),
+                             ("strict_verdict", px.STRICT_VERDICT_FIELDS)):
             self.assertEqual(d[name]["required"], list(fields), name)
         self.assertEqual(d["validation"]["properties"]["status"]["enum"], list(px.VALIDATION_STATUSES))
+        self.assertEqual(sorted(d["validation"]["properties"]), sorted(px.VALIDATION_FIELDS + px.VALIDATION_OPTIONAL))
+        sv = d["strict_verdict"]["properties"]
+        self.assertEqual(sv["verdict"]["enum"], list(px.STRICT_VERDICTS))
+        self.assertEqual(sv["disposition"]["enum"], list(px.STRICT_DISPOSITIONS))
+        self.assertEqual(sv["row_label"]["oneOf"][0]["enum"], list(px.STRICT_ROW_LABELS))
 
     def test_schema_validates_examples_when_jsonschema_is_available(self):
         try:
@@ -767,7 +886,9 @@ class SchemaAndTypesSyncTests(unittest.TestCase):
                              ("ExplorerGameScript", px.SCRIPT_FIELDS), ("GameScriptScenario", px.SCENARIO_FIELDS),
                              ("ExplorerUncertainty", px.UNCERTAINTY_FIELDS),
                              ("HoldoutIntervalCoverage", px.COVERAGE_FIELDS),
-                             ("ExplorerFreshness", px.FRESHNESS_FIELDS), ("ExplorerValidation", px.VALIDATION_FIELDS),
+                             ("ExplorerFreshness", px.FRESHNESS_FIELDS),
+                             ("ExplorerValidation", px.VALIDATION_FIELDS + px.VALIDATION_OPTIONAL),
+                             ("StrictRuleVerdict", px.STRICT_VERDICT_FIELDS),
                              ("ExplorerEvidence", px.EVIDENCE_FIELDS),
                              ("ExplorerChangeExplanation", px.CHANGE_FIELDS + ("unattributed",)),
                              ("ExplorerProvenance", px.PROVENANCE_FIELDS),

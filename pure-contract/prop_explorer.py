@@ -89,12 +89,26 @@ FRESHNESS_FIELDS = ("as_of", "source_max_observed_at", "staleness_seconds", "old
                     "kickoff_lead_seconds")
 VALIDATION_FIELDS = ("status", "research_only", "scope", "source_verdict", "compared_against", "evidence",
                      "caveats")
+VALIDATION_OPTIONAL = ("strict_rule_verdicts",)
 VALIDATION_STATUSES = ("RESEARCH_HISTORICAL_ACCEPTED", "SHADOW_PROSPECTIVE", "INCONCLUSIVE", "REJECTED",
                        "BLOCKED_DATA", "NOT_VALIDATED")
 SCOPE_FIELDS = ("season_type", "seasons", "statistics", "population")
 EVIDENCE_FIELDS = ("id", "kind", "repo", "commit", "path", "url")
 EVIDENCE_KINDS = ("preregistration", "results", "scorecard", "source_audit", "rerun", "pull_request",
                   "shadow_collection", "sidecar_sample", "other")
+# Machine-readable outcome of a strict preregistered test, for this model or for a sibling lane of the same sport
+# (validation.strict_rule_verdicts). `promoted` is always false in this research contract.
+STRICT_VERDICT_FIELDS = ("model_version", "lane", "rule", "verdict", "disposition", "scope", "row_label", "promoted",
+                         "evidence_ids", "summary")
+STRICT_RULES = ("strict_preregistered",)
+STRICT_VERDICTS = ("ACCEPTED_CHALLENGER", "REJECTED", "INCONCLUSIVE", "BLOCKED_DATA")
+STRICT_DISPOSITIONS = ("PRESERVED_NOT_PROMOTED", "REJECTED_INCUMBENT_UNCHANGED", "SCOPE_BLOCKED")
+STRICT_ROW_LABELS = ("BLOCKED_NOT_VALIDATED_POSTSEASON",)
+# Which dispositions each verdict allows.
+STRICT_DISPOSITION_OF = {"ACCEPTED_CHALLENGER": ("PRESERVED_NOT_PROMOTED",),
+                         "REJECTED": ("REJECTED_INCUMBENT_UNCHANGED", "SCOPE_BLOCKED"),
+                         "INCONCLUSIVE": ("REJECTED_INCUMBENT_UNCHANGED", "SCOPE_BLOCKED"),
+                         "BLOCKED_DATA": ("SCOPE_BLOCKED",)}
 CHANGE_FIELDS = ("prior", "model_changed", "delta", "method", "attributed_drivers")
 CHANGE_PRIOR_FIELDS = ("explorer_id", "as_of", "model_version", "model_signature")
 CHANGE_METHODS = ("driver_value_diff", "producer_attribution")
@@ -248,8 +262,8 @@ def explorer_id(identity: dict) -> str:
 
 def null_paths(obj: Any, path: str = "") -> list[str]:
     """Dotted paths of every null value in an explorer record, excluding the embedded forecast (pure_gate owns
-    its nulls), null_reasons itself, x_ metadata, change-explanation values that mirror lineage, and scenario
-    margin bounds (null means unbounded)."""
+    its nulls), null_reasons itself, x_ metadata, change-explanation values that mirror lineage, scenario
+    margin bounds (null means unbounded) and strict-verdict row labels (null means no label)."""
     out: list[str] = []
     if obj is None:
         return [path]
@@ -261,6 +275,8 @@ def null_paths(obj: Any, path: str = "") -> list[str]:
                 continue
             if path.startswith("game_script.scenarios[") and k in ("margin_min", "margin_max"):
                 continue  # null = unbounded by definition
+            if path.startswith("validation.strict_rule_verdicts[") and k == "row_label":
+                continue  # null = the source puts no label on rows
             out.extend(null_paths(v, f"{path}.{k}" if path else k))
     elif isinstance(obj, list):
         for i, v in enumerate(obj):
@@ -503,19 +519,98 @@ def _validate_game_script(s: Any, forecast: dict) -> None:
         raise GateError("game_script probabilities sum above 1")
 
 
-def _validate_validation(v: Any, forecast: dict, row: dict) -> set[str]:
-    _obj(v, "validation", VALIDATION_FIELDS)
-    status = _enum(v["status"], VALIDATION_STATUSES, "validation.status")
-    if v["research_only"] is not True:
-        raise GateError("validation.research_only must be true")
-    scope = _obj(v["scope"], "validation.scope", SCOPE_FIELDS)
-    _enum(scope["season_type"], SEASON_TYPES, "validation.scope.season_type", nullable=True)
+def _validate_scope(scope: Any, loc: str) -> dict:
+    scope = _obj(scope, loc, SCOPE_FIELDS)
+    _enum(scope["season_type"], SEASON_TYPES, f"{loc}.season_type", nullable=True)
     for f in ("seasons", "statistics"):
         if scope[f] is not None and (not isinstance(scope[f], list) or not scope[f]
                                      or not all(isinstance(x, str) and x for x in scope[f])):
-            raise GateError(f"validation.scope.{f} must be a nonempty list of strings or null")
-    _str_or_null(scope["population"], "validation.scope.population")
-    _scan_overstatement(scope["population"], "validation.scope.population")
+            raise GateError(f"{loc}.{f} must be a nonempty list of strings or null")
+    _str_or_null(scope["population"], f"{loc}.population")
+    _scan_overstatement(scope["population"], f"{loc}.population")
+    return scope
+
+
+def validate_strict_verdicts(entries: Any, evidence: dict[str, dict], loc: str) -> list[dict]:
+    """Shape of ``strict_rule_verdicts`` (shared by v1 and v2). ``evidence`` maps evidence id -> evidence entry."""
+    if not isinstance(entries, list):
+        raise GateError(f"{loc} must be a list")
+    seen = set()
+    for i, e in enumerate(entries):
+        el = f"{loc}[{i}]"
+        _obj(e, el, STRICT_VERDICT_FIELDS)
+        mv = gate.nonempty_str(e["model_version"], f"{el}.model_version")
+        gate.nonempty_str(e["lane"], f"{el}.lane")
+        _enum(e["rule"], STRICT_RULES, f"{el}.rule")
+        verdict = _enum(e["verdict"], STRICT_VERDICTS, f"{el}.verdict")
+        disp = _enum(e["disposition"], STRICT_DISPOSITIONS, f"{el}.disposition")
+        if disp not in STRICT_DISPOSITION_OF[verdict]:
+            raise GateError(f"{el}: verdict {verdict} allows disposition {list(STRICT_DISPOSITION_OF[verdict])}, "
+                            f"got {disp}")
+        scope = _validate_scope(e["scope"], f"{el}.scope")
+        if scope["season_type"] is None or not scope["statistics"]:
+            raise GateError(f"{el}.scope needs a season_type and the statistics the verdict covers")
+        label = _enum(e["row_label"], STRICT_ROW_LABELS, f"{el}.row_label", nullable=True)
+        if label == "BLOCKED_NOT_VALIDATED_POSTSEASON" and (scope["season_type"] != "postseason"
+                                                            or disp != "SCOPE_BLOCKED"):
+            raise GateError(f"{el}: row_label BLOCKED_NOT_VALIDATED_POSTSEASON needs a postseason scope and "
+                            "disposition SCOPE_BLOCKED")
+        if e["promoted"] is not False:
+            raise GateError(f"{el}.promoted must be false: a research contract records no promotion")
+        ids = e["evidence_ids"]
+        if not isinstance(ids, list) or not ids or not all(isinstance(x, str) for x in ids):
+            raise GateError(f"{el}.evidence_ids must be a nonempty list of evidence ids")
+        missing = [x for x in ids if x not in evidence]
+        if missing:
+            raise GateError(f"{el}.evidence_ids {missing} are not entries of validation.evidence")
+        kinds = {evidence[x]["kind"] for x in ids}
+        if verdict != "BLOCKED_DATA" and not {"preregistration", "results"} <= kinds:
+            raise GateError(f"{el}: a {verdict} verdict cites preregistration and results evidence")
+        gate.nonempty_str(e["summary"], f"{el}.summary")
+        _scan_overstatement(e["summary"], f"{el}.summary")
+        key = (mv, verdict, scope["season_type"], tuple(scope["statistics"]), tuple(scope["seasons"] or ()))
+        if key in seen:
+            raise GateError(f"{el}: duplicate strict-rule verdict")
+        seen.add(key)
+    return entries
+
+
+NEGATIVE_VERDICTS = ("REJECTED", "INCONCLUSIVE", "BLOCKED_DATA")
+
+
+def binding_strict_verdicts(entries: list[dict], model_version: str, statistic: str, game: Any) -> list[dict]:
+    """The strict verdicts on this row's own model version whose scope covers this row. A negative verdict on the
+    statistic needs the row's season type to be known."""
+    game = game if isinstance(game, dict) else {}
+    gst, season = game.get("season_type"), game.get("season")
+    out = []
+    for e in entries:
+        sc = e["scope"]
+        if e["model_version"] != model_version or statistic not in sc["statistics"]:
+            continue
+        if gst is None:
+            if e["verdict"] in NEGATIVE_VERDICTS:
+                raise GateError(f"game.season_type must be known: model {model_version!r} has a {e['verdict']} "
+                                f"strict-rule verdict for {sc['season_type']} games")
+            continue
+        if gst != sc["season_type"]:
+            continue
+        if sc["seasons"] and season is not None and str(season) not in sc["seasons"]:
+            continue
+        out.append(e)
+    return out
+
+
+# v1 status a binding negative strict verdict forces (the row label maps to the v1 status of its verdict).
+V1_STATUS_OF_VERDICT = {"REJECTED": "REJECTED", "INCONCLUSIVE": "INCONCLUSIVE", "BLOCKED_DATA": "BLOCKED_DATA"}
+
+
+def _validate_validation(v: Any, forecast: dict, row: dict) -> set[str]:
+    _obj(v, "validation", VALIDATION_FIELDS, optional=VALIDATION_OPTIONAL)
+    status = _enum(v["status"], VALIDATION_STATUSES, "validation.status")
+    if v["research_only"] is not True:
+        raise GateError("validation.research_only must be true")
+    scope = _validate_scope(v["scope"], "validation.scope")
     _str_or_null(v["source_verdict"], "validation.source_verdict")
     _scan_overstatement(v["source_verdict"], "validation.source_verdict")
     if v["compared_against"] is not None and (not isinstance(v["compared_against"], list)
@@ -544,6 +639,15 @@ def _validate_validation(v: Any, forecast: dict, row: dict) -> set[str]:
         if e["url"] is not None and not (isinstance(e["url"], str) and e["url"].startswith("https://")):
             raise GateError(f"{loc}.url must be an https URL or null")
     stat = forecast["statistic"]
+    if "strict_rule_verdicts" in v:
+        by_id = {e["id"]: e for e in v["evidence"]}
+        entries = validate_strict_verdicts(v["strict_rule_verdicts"], by_id, "validation.strict_rule_verdicts")
+        for e in binding_strict_verdicts(entries, forecast["model_version"], stat, row.get("game")):
+            want = V1_STATUS_OF_VERDICT.get(e["verdict"])
+            if want is not None and status != want:
+                raise GateError(f"validation.status must be {want}: the strict preregistered rule returned "
+                                f"{e['verdict']} for {forecast['model_version']!r} on {e['scope']['season_type']} "
+                                f"{stat} ({e['lane']})")
     if status == "RESEARCH_HISTORICAL_ACCEPTED":
         need = {"preregistration", "results"} - kinds
         if need:

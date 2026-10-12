@@ -46,7 +46,7 @@ path in `null_reasons` says why. A missing key is refused, and so is an unexplai
 | `game_script` | Sports-only script scenarios: `conditioning: team_final_margin`, `perspective_team_id`, `exhaustive`, `source {model_version, model_frozen_hash, class: sports_only, description}`, `scenarios [{scenario_id, label, margin_min, margin_max, probability, probability_kind: simulation_share or model_probability, projection {mean, median, p10, p90} or null}]`. When exhaustive, probabilities sum to 1, margin bands tile the integers (open at both ends), and if every scenario is projected, Σ p·mean matches the forecast mean within max(2%, 0.05). A market spread or total never defines or weights a scenario |
 | `uncertainty` | `p10_p90_width` (= p90 − p10), `interval_nominal_coverage: 0.8`, `holdout_interval_coverage {observed, n_rows, n_games, scope, evidence_id}` or null, taken from the source's scorecard; `evidence_id` names an evidence entry |
 | `freshness` | `as_of`, `source_max_observed_at`, `staleness_seconds` (= as_of − source_max_observed_at), `oldest_input_observed_at` (earliest lineage time), `kickoff_lead_seconds` (= kickoff − as_of). All recomputed and checked |
-| `validation` | `status` (closed enum below), `research_only: true`, `scope {season_type, seasons, statistics, population}`, `source_verdict` (the source's verdict, verbatim), `compared_against`, `evidence [{id, kind, repo, commit (pinned hex), path, url}]`, `caveats` |
+| `validation` | `status` (closed enum below), `research_only: true`, `scope {season_type, seasons, statistics, population}`, `source_verdict` (the source's verdict, verbatim), `compared_against`, `evidence [{id, kind, repo, commit (pinned hex), path, url}]`, `caveats`, and optionally `strict_rule_verdicts` (below) |
 | `change_explanation` | Null for a first capture. Otherwise: `prior {explorer_id, as_of (< this as_of), model_version, model_signature}`, `model_changed`, `delta {mean, median, p10, p90}` (current − prior, checked against the prior row when it's in the file), `method`, `attributed_drivers`. `driver_value_diff` lists the drivers whose value changed and makes no attribution. `producer_attribution` adds `contribution` per driver plus `unattributed`, summing to `delta.mean` |
 | `provenance` | Optional: `repo, commit, path, file_sha256, selection, conversion` of the source row |
 | `null_reasons` | `{dotted path: reason}`. Every null outside the embedded forecast needs a reason, and every reason must name a null. Scenario margin bounds (null = unbounded) and change-explanation values that mirror lineage are exempt |
@@ -61,6 +61,39 @@ path in `null_reasons` says why. A missing key is refused, and so is an unexplai
 | `INCONCLUSIVE` / `REJECTED` | The preregistered test was inconclusive or failed | `results` evidence |
 | `BLOCKED_DATA` | The evaluation can't be run | a caveat naming the missing data |
 | `NOT_VALIDATED` | No acceptance test of its own (an incumbent or a baseline used as a comparator) | none |
+
+#### Strict-rule verdicts (`validation.strict_rule_verdicts`, optional, additive)
+
+A machine-readable list of what each strict preregistered test returned, for this row's model or for a sibling
+lane of the same sport, so a caveat such as "the MLB hitter challenger was rejected" can't be lost in prose. Each
+entry: `model_version, lane, rule ("strict_preregistered"), verdict, disposition, scope {season_type, seasons,
+statistics, population}, row_label, promoted (always false), evidence_ids, summary`.
+
+| `verdict` | Allowed `disposition` |
+|---|---|
+| `ACCEPTED_CHALLENGER` | `PRESERVED_NOT_PROMOTED` (kept for research collection; nothing is promoted) |
+| `REJECTED`, `INCONCLUSIVE` | `REJECTED_INCUMBENT_UNCHANGED`, or `SCOPE_BLOCKED` when the scope stays blocked |
+| `BLOCKED_DATA` | `SCOPE_BLOCKED` |
+
+Rules: `evidence_ids` name `validation.evidence` entries (preregistration + results unless `BLOCKED_DATA`);
+`row_label: BLOCKED_NOT_VALIDATED_POSTSEASON` needs a postseason scope and `SCOPE_BLOCKED`; the summary gets the
+overstatement check. A negative verdict on **this row's own model version** whose scope covers the row (statistic,
+season type, season) **forces** `validation.status` (`REJECTED` → `REJECTED`, `INCONCLUSIVE` → `INCONCLUSIVE`,
+`BLOCKED_DATA` → `BLOCKED_DATA`), and if its statistic matches, the row's `game.season_type` must be known. Verdicts on
+other model versions are lane context and bind nothing.
+
+The MLB examples carry the MLB lanes' verdicts (all from open edge-finder-api research PRs, pinned at their heads):
+
+| Model version | Lane | Scope | Verdict → disposition | Source |
+|---|---|---|---|---|
+| `mlb_pitcher_workload_joint_v1` | pitcher props | 2025–2026 regular season | `ACCEPTED_CHALLENGER` → `PRESERVED_NOT_PROMOTED` | #283 |
+| `mlb_pitcher_workload_joint_v1` | pitcher props | 2026 postseason (46 starts, 25 games) | `REJECTED` → `SCOPE_BLOCKED`, row label `BLOCKED_NOT_VALIDATED_POSTSEASON` | #284, #286 |
+| `mlb_pitcher_workload_joint_v1+postseason_regime_v1` | pitcher props | 2026 postseason | `REJECTED` → `SCOPE_BLOCKED`, row label `BLOCKED_NOT_VALIDATED_POSTSEASON` | #284 |
+| `MLB_HITTER_W2_PURE_V1` | hitter props | 2026 regular season (43,686 player-games) | `REJECTED` → `REJECTED_INCUMBENT_UNCHANGED` | #285 |
+
+So an MLB pitcher-challenger row for a postseason game can only be `REJECTED`, and no MLB hitter challenger has any
+accepted status. `make_contexts.py` reads the #284 verdicts from its scorecard and asserts the #285 and #286 wording
+at the pinned commits instead of typing them in.
 
 Mapping from sport-repo verdicts: `ACCEPTED_CHALLENGER` (research only, historical holdout) →
 `RESEARCH_HISTORICAL_ACCEPTED`, limited to its evaluated scope. `REJECTED`, `INCONCLUSIVE` and `BLOCKED_DATA`
@@ -140,7 +173,7 @@ verbatim from a sport repository's committed research output, pinned by commit a
 
 | Sport | Source (repo @ commit) | Arms → status |
 |---|---|---|
-| MLB | `edge-finder-api` @ `6a50874` (PR #283), `data/research/pitcher_workload_joint/holdout_2025_2026/*.pure_v1.sample300.jsonl` | `mlb_pitcher_workload_joint_v1` → `RESEARCH_HISTORICAL_ACCEPTED` (2025–2026 regular season; postseason BLOCKED_DATA in caveats); champion `pitcher_prop_projection@params_asof_2026-10-07` → `NOT_VALIDATED` |
+| MLB | `edge-finder-api` @ `6a50874` (PR #283), `data/research/pitcher_workload_joint/holdout_2025_2026/*.pure_v1.sample300.jsonl` | `mlb_pitcher_workload_joint_v1` → `RESEARCH_HISTORICAL_ACCEPTED` (2025–2026 regular season only; preserved, not promoted). Strict-rule verdicts: its 2026 postseason test `REJECTED` (#284), postseason rows `BLOCKED_NOT_VALIDATED_POSTSEASON` (#286), and the MLB hitter sports-only challenger `REJECTED` (#285). Champion `pitcher_prop_projection@params_asof_2026-10-07` → `NOT_VALIDATED` |
 | NFL | `nfl-edge-finder` @ `762d69d` (PR #135), `research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.*` (v0, converted with the repo's own `pure_player_v1_v1sidecar.py --frozen git:0441dfc`) | `pure-player-v1.0.0` → `RESEARCH_HISTORICAL_ACCEPTED` (primary scope 2024+2025); `pure-ewm-baseline-1.0.0` → `NOT_VALIDATED` |
 | NBA | `nba-edge-finder` @ `1742b74` (PR #21), `docs/research/w1_nba/sidecars_sample/pure_sim_{rotation,challenger}_unc.v1.jsonl.gz` | champion `NBA_BASELINE_2026_PRESEASON_V1:sim-rotation` → `NOT_VALIDATED`; `sim_challenger` (RATE_PRIOR_5) → `REJECTED` |
 

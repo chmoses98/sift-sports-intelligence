@@ -955,9 +955,151 @@
           "items": {
             "$ref": "#/$defs/nonempty"
           }
+        },
+        "strict_rule_verdicts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/strict_verdict"
+          },
+          "description": "Optional (additive). Strict preregistered verdicts that bear on this row or its sport's lanes."
         }
       },
       "description": "Status is a closed enum; labels such as 'validated' or 'profitable' are refused. RESEARCH_HISTORICAL_ACCEPTED needs preregistration + results evidence, the source verdict, and a scope covering this statistic."
+    },
+    "strict_verdict": {
+      "type": "object",
+      "required": [
+        "model_version",
+        "lane",
+        "rule",
+        "verdict",
+        "disposition",
+        "scope",
+        "row_label",
+        "promoted",
+        "evidence_ids",
+        "summary"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model_version": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "lane": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "rule": {
+          "enum": [
+            "strict_preregistered"
+          ]
+        },
+        "verdict": {
+          "enum": [
+            "ACCEPTED_CHALLENGER",
+            "REJECTED",
+            "INCONCLUSIVE",
+            "BLOCKED_DATA"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "PRESERVED_NOT_PROMOTED",
+            "REJECTED_INCUMBENT_UNCHANGED",
+            "SCOPE_BLOCKED"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "required": [
+            "season_type",
+            "seasons",
+            "statistics",
+            "population"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "season_type": {
+              "oneOf": [
+                {
+                  "enum": [
+                    "preseason",
+                    "regular",
+                    "play_in",
+                    "postseason"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seasons": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/nonempty"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "statistics": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/nonempty"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "population": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/nonempty"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "row_label": {
+          "oneOf": [
+            {
+              "enum": [
+                "BLOCKED_NOT_VALIDATED_POSTSEASON"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "promoted": {
+          "const": false
+        },
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonempty"
+          }
+        },
+        "summary": {
+          "$ref": "#/$defs/nonempty"
+        }
+      },
+      "description": "Machine-readable outcome of a strict preregistered test, for this row's model or a sibling lane of the same sport. A negative verdict whose scope covers the row forces validation.status (REJECTED -> REJECTED, INCONCLUSIVE -> INCONCLUSIVE, BLOCKED_DATA -> BLOCKED_DATA). promoted is always false."
     },
     "change": {
       "type": "object",

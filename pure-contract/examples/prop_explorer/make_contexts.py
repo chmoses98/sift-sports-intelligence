@@ -61,6 +61,72 @@ def mlb_cov(arm):
     return {s: {"observed": sc["stats"][s]["overall"][arm]["p10_p90_coverage"], "n_rows": sc["stats"][s]["overall"][arm]["n"],
                 "n_games": sc["stats"][s]["overall"][arm]["games"],
                 "scope": "2025-2026 regular-season holdout, every scored starter-game", "evidence_id": "scorecard"} for s in stats}
+# Strict preregistered verdicts for the MLB lanes (machine-readable caveats). The verdicts are read from the
+# sources at pinned commits (open research PRs #284, #285 and #286 at their heads), never typed in.
+PST = "61445e84d652c8f5ab168e2fa0d018b9518b6138"   # PR #284 head: sports-only postseason evaluation
+HIT = "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43"   # PR #285 head: hitter engine audit + challenger
+SHD = "5b4229b3b27c3d74de3814626970e27d4f9ebc2e"   # PR #286 head: prospective pitcher shadow collection
+PD = "data/research/pitcher_postseason/eval_2026"
+pst_sc = json.loads(show(ARGS.mlb, PST, f"{PD}/scorecard.json"))
+assert pst_sc["versions"]["challenger"] == "mlb_pitcher_workload_joint_v1"
+assert pst_sc["versions"]["challenger_regime"] == "mlb_pitcher_workload_joint_v1+postseason_regime_v1"
+for arm in ("challenger", "challenger_regime"):
+    assert pst_sc["decision"][arm]["verdict"] == "REJECTED" and pst_sc["decision"][arm]["postseason_status"] == "BLOCKED"
+    assert pst_sc["decision"][arm]["n_starts"] == 46
+hit_doc = show(ARGS.mlb, HIT, "docs/research/HITTER_W2_RESULTS.md")
+assert "**Verdict: `REJECTED`, under the strict preregistered rule.**" in hit_doc
+assert "every arm's rows are labelled\n`BLOCKED_NOT_VALIDATED_POSTSEASON`" in show(ARGS.mlb, SHD, "docs/research/PITCHER_SHADOW_COLLECTION.md")
+hit_stats = sorted({json.loads(l)["statistic"] for l in show(ARGS.mlb, HIT, "data/research/hitter_w2/holdout_2026/challenger.sample300.jsonl").splitlines() if l.strip()})
+mlb_lane_ev = [
+    ev("pst_prereg", "preregistration", R, "b42beb1fa", "docs/research/PITCHER_POSTSEASON_PREREG.md",
+       f"https://github.com/{R}/blob/{PST}/docs/research/PITCHER_POSTSEASON_PREREG.md"),
+    ev("pst_results", "results", R, PST, "docs/research/PITCHER_POSTSEASON_RESULTS.md"),
+    ev("pst_scorecard", "scorecard", R, PST, f"{PD}/scorecard.json"),
+    ev("pst_pr", "pull_request", R, PST, "PR #284", f"https://github.com/{R}/pull/284"),
+    ev("shadow", "shadow_collection", R, SHD, "docs/research/PITCHER_SHADOW_COLLECTION.md"),
+    ev("shadow_pr", "pull_request", R, SHD, "PR #286", f"https://github.com/{R}/pull/286"),
+    ev("hitter_prereg", "preregistration", R, "cd9e62e41", "docs/research/HITTER_W2_PREREG.md",
+       f"https://github.com/{R}/blob/{HIT}/docs/research/HITTER_W2_PREREG.md"),
+    ev("hitter_results", "results", R, HIT, "docs/research/HITTER_W2_RESULTS.md"),
+    ev("hitter_scorecard", "scorecard", R, HIT, "data/research/hitter_w2/holdout_2026/scorecard.json"),
+    ev("hitter_pr", "pull_request", R, HIT, "PR #285", f"https://github.com/{R}/pull/285"),
+]
+pst_scope = {"season_type": "postseason", "seasons": ["2026"], "statistics": stats,
+             "population": f"every actual starter of the {pst_sc['decision']['challenger']['n_starts']} scored starts in the 25 final 2026 "
+                           "postseason games through ALDS Game 5 (sports-defined, not market-selected)"}
+mlb_strict = [
+    {"model_version": "mlb_pitcher_workload_joint_v1", "lane": "mlb_pitcher_props", "rule": "strict_preregistered",
+     "verdict": "ACCEPTED_CHALLENGER", "disposition": "PRESERVED_NOT_PROMOTED", "scope": scope, "row_label": None,
+     "promoted": False, "evidence_ids": ["prereg", "results", "scorecard", "pr"],
+     "summary": "Passed its preregistered rule on the 2025-2026 regular-season chronological holdout (PR #283). "
+                "Preserved for research collection only; not promoted, and the champion is unchanged."},
+    {"model_version": "mlb_pitcher_workload_joint_v1", "lane": "mlb_pitcher_props", "rule": "strict_preregistered",
+     "verdict": "REJECTED", "disposition": "SCOPE_BLOCKED", "scope": pst_scope,
+     "row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON", "promoted": False,
+     "evidence_ids": ["pst_prereg", "pst_results", "pst_scorecard", "pst_pr", "shadow"],
+     "summary": "Sports-only 2026 postseason evaluation (PR #284, open): REJECTED under the strict rule (significant "
+                "worsening vs the champion on outs, batters faced and strikeouts MAE). The postseason stays blocked; "
+                "prospective postseason rows are labelled BLOCKED_NOT_VALIDATED_POSTSEASON (PR #286)."},
+    {"model_version": pst_sc["versions"]["challenger_regime"], "lane": "mlb_pitcher_props",
+     "rule": "strict_preregistered", "verdict": "REJECTED", "disposition": "SCOPE_BLOCKED", "scope": pst_scope,
+     "row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON", "promoted": False,
+     "evidence_ids": ["pst_prereg", "pst_results", "pst_scorecard", "pst_pr"],
+     "summary": "The same challenger plus one sports-only postseason outs-location term (PR #284, open): REJECTED "
+                "under the strict rule. The postseason stays blocked."},
+    {"model_version": "MLB_HITTER_W2_PURE_V1", "lane": "mlb_hitter_props", "rule": "strict_preregistered",
+     "verdict": "REJECTED", "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+     "scope": {"season_type": "regular", "seasons": ["2026"], "statistics": hit_stats,
+               "population": "every starting batter in every 2026 regular-season game with a final feed (43,686 player-games)"},
+     "row_label": None, "promoted": False,
+     "evidence_ids": ["hitter_prereg", "hitter_results", "hitter_scorecard", "hitter_pr"],
+     "summary": "MLB hitter sports-only challenger (PR #285, open): REJECTED under the strict preregistered rule. It "
+                "improved every proper score but failed the preregistered MAE of the mean for home runs, RBI and runs "
+                "vs the incumbent, and for home runs vs the baseline; the metric is not changed post hoc. The incumbent "
+                "hitter engine is unchanged and no MLB hitter challenger is accepted."},
+]
+MLB_STRICT_CAVEATS = [
+    "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; the MLB hitter sports-only challenger was REJECTED (PR #285).",
+]
 own = "not_matchup"
 mlb = {
     "notes": ["season and season_type: the source population is the 2025-2026 regular season (results doc) and this "
@@ -106,16 +172,21 @@ mlb = {
             "status": "RESEARCH_HISTORICAL_ACCEPTED", "research_only": True, "scope": scope,
             "source_verdict": "ACCEPTED_CHALLENGER for 2025–2026 regular-season research collection only. The 2026 postseason is BLOCKED_DATA.",
             "compared_against": ["pitcher_prop_projection@params_asof_2026-10-07", "naive_recent5_v1"],
-            "evidence": mlb_ev + [ev("sample", "sidecar_sample", R, C, f"{D}/challenger.pure_v1.sample300.jsonl")],
+            "evidence": mlb_ev + [ev("sample", "sidecar_sample", R, C, f"{D}/challenger.pure_v1.sample300.jsonl")] + mlb_lane_ev,
+            "strict_rule_verdicts": mlb_strict,
             "caveats": ["Research collection only: no production, publication, staking or authority change, and the challenger is not wired into any export (source results doc).",
-                        "The 2026 postseason is BLOCKED_DATA; the postseason diagnostic is on market-selected outcomes and is worse than the champion.",
+                        *MLB_STRICT_CAVEATS,
+                        "The 2026 postseason is not in this status's scope: the #283 market-selected diagnostic was worse than the champion, and the later sports-only postseason evaluation (46 starts in 25 games) REJECTED the challenger under the strict rule.",
                         "Lineup-confirmed subgroup is BLOCKED_DATA: no as-of lineup status before 2026-07-30; neither arm reads lineups.",
                         "Challenger minus champion p10-p90 coverage: -0.0824 [-0.0881, -0.0767] for batters faced and -0.0323 [-0.0362, -0.0290] for strikeouts; the champion's intervals covered 0.959 and 0.901 against a nominal 0.80."]},
         "pitcher_prop_projection@params_asof_2026-10-07": {
             "status": "NOT_VALIDATED", "research_only": True, "scope": scope, "source_verdict": None,
             "compared_against": ["mlb_pitcher_workload_joint_v1", "naive_recent5_v1"],
-            "evidence": mlb_ev + [ev("sample", "sidecar_sample", R, C, f"{D}/champion.pure_v1.sample300.jsonl")],
+            "evidence": mlb_ev + [ev("sample", "sidecar_sample", R, C, f"{D}/champion.pure_v1.sample300.jsonl")] + mlb_lane_ev,
+            "strict_rule_verdicts": mlb_strict,
             "caveats": ["Incumbent comparator in the W1-D holdout; the preregistered test was of the challenger, and this champion is unchanged.",
+                        *MLB_STRICT_CAVEATS,
+                        "In the postseason this champion applies a frozen postseason_shift_outs (-1.209) fitted on settlement-evidence values, an indirect market dependency; its prospective postseason rows are labelled BLOCKED_NOT_VALIDATED_POSTSEASON (PR #286).",
                         "178 starter-games (1.9%) were excluded from scoring because this model's date-ordered history contained a suspended game completed after the forecast cutoff."]},
     },
     "coverage": {"mlb_pitcher_workload_joint_v1": mlb_cov("challenger"),

@@ -247,6 +247,33 @@ export interface ExplorerValidation {
   compared_against: string[] | null;
   evidence: ExplorerEvidence[];
   caveats: string[];
+  /** Optional: strict preregistered verdicts bearing on this model or its sport's lanes (machine-readable caveats). */
+  strict_rule_verdicts?: StrictRuleVerdict[];
+}
+
+export type StrictVerdict = 'ACCEPTED_CHALLENGER' | 'REJECTED' | 'INCONCLUSIVE' | 'BLOCKED_DATA';
+export type StrictDisposition = 'PRESERVED_NOT_PROMOTED' | 'REJECTED_INCUMBENT_UNCHANGED' | 'SCOPE_BLOCKED';
+
+export interface StrictRuleVerdict {
+  model_version: string;
+  /** e.g. mlb_pitcher_props, mlb_hitter_props. */
+  lane: string;
+  rule: 'strict_preregistered';
+  verdict: StrictVerdict;
+  disposition: StrictDisposition;
+  scope: {
+    season_type: SeasonType;
+    seasons: string[] | null;
+    statistics: string[];
+    population: string | null;
+  };
+  /** The source's row label for rows in this scope, e.g. postseason rows of every MLB pitcher arm. */
+  row_label: 'BLOCKED_NOT_VALIDATED_POSTSEASON' | null;
+  /** Always false: this research contract records no promotion. */
+  promoted: false;
+  /** Ids of validation.evidence entries; a non-BLOCKED_DATA verdict cites preregistration and results. */
+  evidence_ids: string[];
+  summary: string;
 }
 
 export interface AttributedDriver {

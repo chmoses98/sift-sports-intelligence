@@ -199,3 +199,37 @@ describe('soccer weather line', () => {
     expect(soccerWeatherLine('Anfield', null)).toBeNull();
   });
 });
+
+describe('upstream roof and venue fields (nfl-edge-finder PR #138), read when present', () => {
+  it('roof_status CLOSED / OPEN settles a retractable roof the per-game roof field leaves blank; UNKNOWN keeps it open', () => {
+    const closed = venueWeather(doc({ venue: { name: 'State Farm Stadium', roof: '' }, weather: wxRow({ roof: '', roof_type: 'retractable', roof_status: 'CLOSED' }) }), v('state-farm-stadium'));
+    expect(closed).toMatchObject({ kind: 'indoor', condition: 'Roof closed', temp: null });
+    const open = venueWeather(doc({ venue: { name: 'State Farm Stadium', roof: '' }, weather: wxRow({ roof: '', roof_type: 'retractable', roof_status: 'OPEN', wind: '6 mph' }) }), v('state-farm-stadium'));
+    expect(open.kind).toBe('outdoor');
+    expect(open.note).toMatch(/^Roof open/);
+    const unknown = venueWeather(doc({ venue: { name: 'State Farm Stadium', roof: '' }, weather: wxRow({ roof: '', roof_type: 'retractable', roof_status: 'UNKNOWN', material: false }) }), v('state-farm-stadium'));
+    expect(unknown).toMatchObject({ kind: 'retractable', flag: null });
+  });
+
+  it('roof_status OPEN on an open-air stadium is not read as "roof open"', () => {
+    const wx = venueWeather(doc({ venue: { name: 'MetLife Stadium', roof: '' }, weather: wxRow({ roof: '', roof_type: 'open', roof_status: 'OPEN', period_start: '2026-10-11T13:00:00-04:00' }) }, '2026-10-11T17:00:00Z'), v('metlife-stadium'));
+    expect(wx).toMatchObject({ kind: 'outdoor', roof: 'outdoors', note: 'Context only · not in the projection' });
+  });
+
+  it('roof_type stands in for construction when Sift does not know the venue', () => {
+    const wx = venueWeather(doc({ venue: { name: 'Some New Stadium', roof: '' }, weather: wxRow({ roof: '', roof_type: 'dome', stadium: 'Some New Stadium' }) }), null);
+    expect(wx).toMatchObject({ kind: 'indoor', roofSource: 'publication', temp: null });
+  });
+
+  it('venue_is_home_stadium: false withholds any forecast, even in the same time zone (backlog 6.6)', () => {
+    // A same-zone wrong venue: the offset check alone would pass this Eastern forecast for an Eastern stadium.
+    const wx = venueWeather(doc({ venue: { name: 'MetLife Stadium', roof: 'outdoors' }, weather: wxRow({ venue_is_home_stadium: false, period_start: '2026-10-11T13:00:00-04:00' }) }, '2026-10-11T17:00:00Z'), v('metlife-stadium'));
+    expect(wx.kind).toBe('none');
+    expect(wx.temp).toBeNull();
+    expect(wx.withheld).toMatch(/not at the home team’s stadium/);
+    // PR #138's shape: no forecast fields at all, only the note.
+    const bare = venueWeather(doc({ venue: { name: 'Tottenham Hotspur Stadium', roof: 'outdoors' }, weather: { available: true, roof: 'outdoors', venue_is_home_stadium: false, material: false } }), v('tottenham-hotspur-stadium'));
+    expect(bare).toMatchObject({ kind: 'none', note: expect.stringMatching(/captured no forecast for this venue/) });
+    expect(venueWeatherLine(bare)).toBeNull();
+  });
+});

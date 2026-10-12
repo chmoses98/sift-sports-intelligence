@@ -86,7 +86,7 @@ describe('soccer, CBB and CFB units', () => {
     expect(none.stated).toBe(false);
     expect(unitText(none)).toBe('unit not stated');
     expect(valueAndUnit(1.5, none)).toBe('1.50 (unit not stated)');
-    expect(sportUnit('met_nba.team_off_rtg', def('met_nba.team_off_rtg', { unit: 'points/100 poss' })).short).toBe('points/100 poss');
+    expect(sportUnit('met_mlb.team_runs_allowed', def('met_mlb.team_runs_allowed', { unit: 'runs/9' })).short).toBe('runs/9');
     expect(windowWords({ kind: 'SEASON', n: null, start: null, end: null, label: 'SEASON' })).toBe('season');
   });
 });

@@ -16,6 +16,12 @@
 // A published forecast is withheld when it cannot be for this venue: its kickoff period carries a UTC offset that
 // does not match the venue's time zone (the NFL capture reads the US National Weather Service at the HOME TEAM's
 // stadium, so a London game arrived with a Jacksonville forecast).
+//
+// Upstream fields (nfl-edge-finder PR #138, read when present, ignored when absent): the weather block's
+// `roof_type` (the home stadium's physical roof: dome / retractable / open) stands in for construction when Sift's own
+// tables do not know the venue; `roof_status` (CLOSED / OPEN / UNKNOWN) stands in for a blank per-game roof; and
+// `venue_is_home_stadium: false` withholds any forecast, because the capture only has the home team's coordinates.
+// That last check also covers a wrong venue in the SAME time zone, which the offset check cannot see (backlog 6.6).
 import type { EventResearchDoc } from '../contract/types';
 import type { HeroVenue } from './hero/types';
 import { weatherIcon } from './gamedata';
@@ -140,6 +146,18 @@ function constructionOf(venue: Pick<HeroVenue, 'roof'> & Partial<Pick<HeroVenue,
   return { fact: null, roof: null, from: null };
 }
 
+/** PR #138's `weather.roof_type` (physical roof of the home stadium), or null. */
+export function upstreamRoofType(raw: unknown): RoofType | null {
+  const t = String(raw ?? '').trim().toLowerCase();
+  return t === 'dome' || t === 'retractable' || t === 'open' ? t : null;
+}
+
+/** PR #138's `weather.roof_status` as a publication roof word; UNKNOWN (or anything else) is "not published". */
+export function upstreamRoofStatus(raw: unknown): 'closed' | 'open' | null {
+  const t = String(raw ?? '').trim().toUpperCase();
+  return t === 'CLOSED' ? 'closed' : t === 'OPEN' ? 'open' : null;
+}
+
 const noWeather = { temp: null, wind: null, precip: null, flag: null, outside: null } as const;
 
 function outsideLine(t: number, cond: string | null, wind: string | null, precip: number | null): string {
@@ -155,8 +173,13 @@ export function venueWeather(r: Pick<EventResearchDoc, 'context'> & { event?: { 
   const w = (r.context as any)?.weather as any;
   const pubVenue = (r.context as any)?.venue as any;
   const pubName = (typeof pubVenue?.name === 'string' && pubVenue.name) || (typeof w?.stadium === 'string' && w.stadium) || null;
-  const { fact, roof: construction, from } = constructionOf(venue, pubName);
-  const pubRoof = publishedRoof(pubVenue?.roof) ?? publishedRoof(w?.roof);
+  const c0 = constructionOf(venue, pubName);
+  const upType = upstreamRoofType(w?.roof_type);
+  const { fact } = c0;
+  const construction = c0.roof ?? upType;
+  const from: GameWeather['roofSource'] = c0.roof ? c0.from : upType ? 'publication' : null;
+  // roof_status only adds information for a retractable roof (upstream writes OPEN for every open-air stadium too).
+  const pubRoof = publishedRoof(pubVenue?.roof) ?? publishedRoof(w?.roof) ?? (construction === 'retractable' ? upstreamRoofStatus(w?.roof_status) : null);
   const { state, conflict, source } = resolveRoof(pubRoof, construction);
   const roofSource = source === 'venue table' ? from : source;
   const base = { roof: state, conflict, roofSource, venue: fact, withheld: null as string | null };
@@ -168,7 +191,10 @@ export function venueWeather(r: Pick<EventResearchDoc, 'context'> & { event?: { 
   }
 
   const has = !!w?.available && w.temperature_f != null;
-  const withheld = has ? forecastMismatch(w, fact, r.event?.start_time_utc) : null;
+  const elsewhere = w?.venue_is_home_stadium === false;
+  const withheld = elsewhere
+    ? 'The game is not at the home team’s stadium and the publication captured no forecast for this venue, so none is shown.'
+    : has ? forecastMismatch(w, fact, r.event?.start_time_utc) : null;
   const t = has ? Number(w.temperature_f) : null;
   const wind = has && w.wind ? `Wind ${w.wind}${w.wind_direction ? ` ${w.wind_direction}` : ''}` : null;
   const precip = has ? (w.precipitation_probability ?? null) : null;
@@ -185,6 +211,7 @@ export function venueWeather(r: Pick<EventResearchDoc, 'context'> & { event?: { 
   }
 
   if (!has || withheld) {
+    if (withheld && !has) return { ...base, withheld, ...noWeather, kind: 'none', icon: 'partly', condition: null, note: withheld };
     const reason = withheld ?? (w?.available === false && w?.reason ? `No forecast captured yet (${String(w.reason).replace(/\.$/, '')}).` : null);
     return { ...base, withheld, ...noWeather, kind: 'none', icon: 'partly', condition: null, note: reason ?? (w == null ? 'No forecast in this publication' : 'Forecast not published yet') };
   }

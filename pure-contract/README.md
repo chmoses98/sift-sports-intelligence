@@ -15,6 +15,9 @@ and has nothing to do with wagers, staking or model authority.
 | `prop_explorer.py`, `schema/prop_explorer_projection.v1.schema.json`, `types/` | Its validator/converter (stdlib), JSON Schema and TypeScript declarations |
 | `prop_explorer_v2.py`, `schema/prop_explorer_projection.v2.schema.json`, `types/prop_explorer_projection.v2.d.ts` | The v2 explorer **row** (`prop_explorer_projection.v2`): projections side by side with provenance (`market_informed`), Kalshi quotes, fee-aware edges, bet-up-to prices and computed display labels; upgrader from v1 |
 | `examples/prop_explorer/` | Explorer examples built from **real** committed research outputs of the sport repos (v1 and v2), plus **synthetic** v2 display-rule fixtures |
+| `accuracy_scorecard.py` | Projection accuracy scorecard (MAE/RMSE/bias, coverage, PIT, CRPS, Brier/log/RPS, clustered head-to-heads, breakdowns; stdlib only). See `SCORECARDS.md` |
+| `value_scorecard.py` | Betting value scorecard (executable Kalshi prices at or before as_of, fees, slippage, one decision per player-game-stat, verdict; stdlib only). See `SCORECARDS.md` |
+| `SCORECARDS.md` | Metrics, approximations, anti-hindsight rules, the accuracy vs betting-value promotion split, vendoring |
 
 The vendored `src/contract/` protocols and `kalshi-bet-router/contract/edge_finder_contract` are not part of
 this and are unchanged. This directory isn't imported by the app build.

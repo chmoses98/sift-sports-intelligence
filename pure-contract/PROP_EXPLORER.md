@@ -288,6 +288,14 @@ and strict verdicts are the v1 ones; evidence starts with the v1 evidence and ca
 | `VALUE_BLOCKED_DATA` | Can't be evaluated | a caveat |
 | `VALUE_NOT_TESTED` | No value test (`value_scope` is null) | none |
 
+`value_scorecard.py` (see `SCORECARDS.md`) produces the `value_results` evidence. Its verdict maps to
+`value_status` as follows: `VALIDATED_VALUE` → `VALIDATED_VALUE` (still subject to every rule above);
+`POSITIVE_BUT_INCONCLUSIVE` → `VALUE_INCONCLUSIVE`; `NO_EVIDENCE_OF_VALUE` → `VALUE_REJECTED`; `INSUFFICIENT_SAMPLE` →
+`VALUE_BLOCKED_DATA`, with a caveat giving the sample. `NOT_INDEPENDENT_EVIDENCE` (a market-informed source) never
+becomes a value status of that projection: it stays market-informed, so its rows are `MARKET_INFORMED`. Accuracy
+statuses come from `accuracy_scorecard` head-to-heads under the source's preregistered rule, and they say nothing
+about value.
+
 A v1 status maps to the v2 accuracy statuses `RESEARCH_HISTORICAL_ACCEPTED` → `ACCURACY_ACCEPTED_RESEARCH` or
 `ACCURACY_PROMOTED`; `SHADOW_PROSPECTIVE` → `ACCURACY_SHADOW_PROSPECTIVE`; `INCONCLUSIVE` → `ACCURACY_INCONCLUSIVE`;
 `REJECTED`, `BLOCKED_DATA` and `NOT_VALIDATED` → their counterparts or `BLOCKED_NOT_VALIDATED_POSTSEASON`. A binding

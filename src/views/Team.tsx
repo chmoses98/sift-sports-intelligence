@@ -10,7 +10,11 @@ import { ContextMeter, EntityLink, ErrorState, Notice, QualityBadge, RankPill, S
 import { displayName, kickoff, metricFormatter, ordinal, shortDate } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER, windowName, statusWord } from '../lib/nfl';
 import { routes } from '../lib/routes';
-import { teamAccent } from '../lib/teams';
+import { teamColors } from '../lib/teams';
+import { accentOnDark } from '../lib/hero/accent';
+import { heroInputForTeam } from '../lib/hero/input';
+import { resolveHero } from '../lib/hero/resolve';
+import { HeroArt, heroVars } from '../components/HeroArt';
 import { useDirectory } from '../state/directory';
 import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
@@ -202,6 +206,10 @@ function GenericTeamView({ teamId }: { teamId: string }) {
   const cat = catPick ?? (mode === 'raw' ? 'offense' : 'opponent-adjusted');
   const [season, setSeason] = useState<string | null>(null);
 
+  // The club's identity behind the header: its colours as light, livery and logo watermark (or its verified home-venue
+  // photo), with its colour as an accent lifted only as far as 3:1 on the dark frame needs. Text never sits on raw colour.
+  const heroSpec = useMemo(() => (p ? resolveHero(heroInputForTeam(sport.code, p.entity.short_name, p.entity.display_name, new Date().toISOString())) : null), [p, sport.code]);
+
   const prices = useMemo(() => {
     const m = new Map<string, ModelPrice>();
     for (const pr of p?.projections ?? []) {
@@ -227,8 +235,9 @@ function GenericTeamView({ teamId }: { teamId: string }) {
   const setTab = (t: string) => setSp((prev) => { const n = new URLSearchParams(prev); n.set('tab', t); return n; }, { replace: true });
 
   return (
-    <div className="page team" style={{ ['--team' as string]: teamAccent(sport.code, abbr) }}>
-      <header className="ehead">
+    <div className="page team" style={{ ['--team' as string]: accentOnDark(teamColors(sport.code, abbr)) }}>
+      <header className={`ehead ehead--art${heroSpec ? ` ehead--${heroSpec.kind}` : ''}`} style={heroSpec ? heroVars(heroSpec) : undefined} data-hero-kind={heroSpec?.kind}>
+        {heroSpec && <div className="ehead__art" aria-hidden="true"><HeroArt spec={heroSpec} /></div>}
         <TeamMark sport={sport.code} abbr={abbr} size="lg" />
         <div className="ehead__t">
           <div className="eyebrow">
@@ -250,6 +259,11 @@ function GenericTeamView({ teamId }: { teamId: string }) {
           {sport.code === 'NFL' && <CompareTeamPicker teamId={teamId} />}
           <SaveButton ref_kind="TEAM" sport={sport.code} id={teamId} label={{ label: p.entity.display_name, sub: `${sport.label} team`, href: routes.team(slug, teamId) }} />
         </div>
+        {heroSpec?.photo && (
+          <Link to={`${routes.status()}#photo-credits`} className="ehead__credit">
+            Photo: {heroSpec.photo.credit.artist.slice(0, 40)} · {heroSpec.photo.credit.license}
+          </Link>
+        )}
       </header>
 
       <nav className="tabs" role="tablist" aria-label="Team sections">

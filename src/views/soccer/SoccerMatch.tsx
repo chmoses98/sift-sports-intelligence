@@ -4,6 +4,9 @@
 // every market with the model's probability beside the price; then rest, head-to-head, calibration and provenance.
 // Every word about authority is the publication's: all soccer model families are RESEARCH_ONLY.
 import { useMemo } from 'react';
+import { HeroArt, heroVars } from '../../components/HeroArt';
+import { heroInputFromResearch } from '../../lib/hero/input';
+import { resolveHero } from '../../lib/hero/resolve';
 import { Link } from 'react-router';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
@@ -178,6 +181,9 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
   const board = r ? soccerBoard(r) : null;
   const markets = useMemo(() => detail.data?.markets ?? [], [detail.data]);
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
+  // The home club's branded identity (src/lib/hero). Soccer lists the home side on the LEFT, so the art is mirrored
+  // (hero.css .skh--mirror) to keep the home identity under the home name.
+  const heroSpec = useMemo(() => (r ? resolveHero(heroInputFromResearch(r, 'SOCCER')) : null), [r]);
   const byTicker = useMemo(() => new Map(markets.map((m) => [m.kalshi_ticker, m])), [markets]);
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   if (!r || !homeP || !awayP) return <div className="page"><ErrorState error={research.error} what="this match's research" /></div>;
@@ -196,7 +202,8 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
   const notes = r.context?.notes ?? [];
   return (
     <div className="page soccer-match">
-      <header className="skh">
+      <header className={`skh${heroSpec ? ` skh--art skh--mirror skh--${heroSpec.kind}` : ''}`} style={heroSpec ? heroVars(heroSpec) : undefined} data-hero-art={heroSpec?.kind}>
+        {heroSpec && <div className="skh__art" aria-hidden="true"><HeroArt spec={heroSpec} /></div>}
         <div className="skh__title">
           <span className="eyebrow">{comp}{x.stage ? ` · ${x.stage}` : ''}{ok && engine.context?.knockout ? ' · knockout' : ''}</span>
           <div className="skvs">

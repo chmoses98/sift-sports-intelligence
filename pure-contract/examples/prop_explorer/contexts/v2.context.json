@@ -1,0 +1,62 @@
+{
+  "capture": {
+    "builder": "pure-contract/prop_explorer_v2.py upgrade (prop_explorer 2.0.0)",
+    "capture_mode": "historical_research_replay",
+    "captured_at": "2026-10-12T00:00:00Z"
+  },
+  "models": {
+    "NBA_BASELINE_2026_PRESEASON_V1:sim-rotation": {
+      "extra_caveats": [
+        "Betting value against executable Kalshi prices has not been tested for this model version (value_status VALUE_NOT_TESTED): any model-market disagreement is RESEARCH, not an opportunity."
+      ],
+      "model_id": "nba.sim_rotation",
+      "role": "champion"
+    },
+    "mlb_pitcher_workload_joint_v1": {
+      "extra_caveats": [
+        "Betting value against executable Kalshi prices has not been tested for this model version (value_status VALUE_NOT_TESTED): any model-market disagreement is RESEARCH, not an opportunity."
+      ],
+      "model_id": "mlb.pitcher_workload_joint",
+      "role": "challenger"
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "extra_caveats": [
+        "Betting value against executable Kalshi prices has not been tested for this model version (value_status VALUE_NOT_TESTED): any model-market disagreement is RESEARCH, not an opportunity."
+      ],
+      "model_id": "mlb.pitcher_prop_projection",
+      "role": "champion"
+    },
+    "pure-ewm-baseline-1.0.0": {
+      "extra_caveats": [
+        "Betting value against executable Kalshi prices has not been tested for this model version (value_status VALUE_NOT_TESTED): any model-market disagreement is RESEARCH, not an opportunity."
+      ],
+      "model_id": "nfl.pure_ewm_baseline",
+      "role": "baseline"
+    },
+    "pure-player-v1.0.0": {
+      "extra_caveats": [
+        "Betting value against executable Kalshi prices has not been tested for this model version (value_status VALUE_NOT_TESTED): any model-market disagreement is RESEARCH, not an opportunity."
+      ],
+      "model_id": "nfl.pure_player",
+      "role": "challenger"
+    },
+    "sim_challenger": {
+      "extra_caveats": [
+        "Betting value against executable Kalshi prices has not been tested for this model version (value_status VALUE_NOT_TESTED): any model-market disagreement is RESEARCH, not an opportunity."
+      ],
+      "model_id": "nba.sim_challenger",
+      "role": "challenger"
+    }
+  },
+  "notes": [
+    "Context for upgrading the committed v1 examples to prop_explorer_projection.v2 (prop_explorer_v2.py upgrade).",
+    "Every projection in these sources is sports-only (pure_forecast.v1, pure_gate validated), so market_informed is false and market_derived_inputs is empty for each.",
+    "No source holds a Kalshi quote for these historical player-games, so market and market_evaluation are null with a reason; nothing is priced.",
+    "model_id is a stable family id for the explorer (sport.model family); model_version stays the source's own version string."
+  ],
+  "null_reasons": {
+    "best_validated_projection_id": "no projection of this player-game-statistic has an accepted or promoted accuracy status (the challenger was REJECTED and the champion is NOT_TESTED)",
+    "market": "no Kalshi quote for this historical player-game is committed with the source research output; nothing is priced",
+    "market_evaluation": "no market quotes in this row, so nothing is priced"
+  }
+}

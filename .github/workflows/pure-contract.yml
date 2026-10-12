@@ -38,7 +38,7 @@ jobs:
         run: |
           python -I pure_gate.py validate --forecasts examples/pure_forecast.v1.example.jsonl --require-v1
           python -I pure_gate.py validate --forecasts examples/kit_interim_v0.example.jsonl
-      - name: Prop explorer examples (validate; rebuild byte-for-byte from real research sources)
+      - name: Prop explorer examples, v1 and v2 (validate; rebuild byte-for-byte from real research sources)
         working-directory: pure-contract
         run: |
           for f in examples/prop_explorer/sources/*.v1.jsonl; do
@@ -46,7 +46,10 @@ jobs:
           done
           for s in mlb nfl nba; do
             python -I prop_explorer.py validate --projections "examples/prop_explorer/$s.prop_explorer_projection.v1.jsonl"
+            python -I prop_explorer_v2.py validate --rows "examples/prop_explorer/$s.prop_explorer_projection.v2.jsonl"
+            python -I prop_explorer_v2.py validate --rows "examples/prop_explorer/$s.prop_explorer_projection.v1.jsonl" > /dev/null
           done
+          python -I prop_explorer_v2.py validate --rows examples/prop_explorer/synthetic.prop_explorer_projection.v2.example.jsonl
           python -I examples/prop_explorer/build_examples.py --check
 
   prop-explorer-types:
@@ -59,4 +62,4 @@ jobs:
         with:
           node-version: '22'
       - name: Type-check the declarations (no app build, no npm ci)
-        run: npx --yes -p typescript@5.9.3 tsc --noEmit --strict pure-contract/types/prop_explorer_projection.v1.d.ts
+        run: npx --yes -p typescript@5.9.3 tsc --noEmit --strict pure-contract/types/prop_explorer_projection.v1.d.ts pure-contract/types/prop_explorer_projection.v2.d.ts

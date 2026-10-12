@@ -519,6 +519,29 @@ def _validate_game_script(s: Any, forecast: dict) -> None:
         raise GateError("game_script probabilities sum above 1")
 
 
+def validate_evidence(evidence: Any, loc: str, kinds: tuple[str, ...] = EVIDENCE_KINDS) -> dict[str, dict]:
+    """Pinned evidence entries. Returns them by id."""
+    if not isinstance(evidence, list):
+        raise GateError(f"{loc} must be a list")
+    by_id: dict[str, dict] = {}
+    for i, e in enumerate(evidence):
+        el = f"{loc}[{i}]"
+        _obj(e, el, EVIDENCE_FIELDS)
+        eid = gate.nonempty_str(e["id"], f"{el}.id")
+        if eid in by_id:
+            raise GateError(f"duplicate evidence id {eid!r}")
+        by_id[eid] = e
+        _enum(e["kind"], kinds, f"{el}.kind")
+        if not isinstance(e["repo"], str) or not REPO_RE.match(e["repo"]):
+            raise GateError(f"{el}.repo must be 'owner/name'")
+        if not isinstance(e["commit"], str) or not COMMIT_RE.match(e["commit"]):
+            raise GateError(f"{el}.commit must be a 7-40 hex commit id (evidence is pinned)")
+        gate.nonempty_str(e["path"], f"{el}.path")
+        if e["url"] is not None and not (isinstance(e["url"], str) and e["url"].startswith("https://")):
+            raise GateError(f"{el}.url must be an https URL or null")
+    return by_id
+
+
 def _validate_scope(scope: Any, loc: str) -> dict:
     scope = _obj(scope, loc, SCOPE_FIELDS)
     _enum(scope["season_type"], SEASON_TYPES, f"{loc}.season_type", nullable=True)
@@ -620,27 +643,10 @@ def _validate_validation(v: Any, forecast: dict, row: dict) -> set[str]:
         raise GateError("validation.caveats must be a list of nonempty strings")
     for i, c in enumerate(v["caveats"]):
         _scan_overstatement(c, f"validation.caveats[{i}]")
-    if not isinstance(v["evidence"], list):
-        raise GateError("validation.evidence must be a list")
-    ids, kinds = set(), set()
-    for i, e in enumerate(v["evidence"]):
-        loc = f"validation.evidence[{i}]"
-        _obj(e, loc, EVIDENCE_FIELDS)
-        eid = gate.nonempty_str(e["id"], f"{loc}.id")
-        if eid in ids:
-            raise GateError(f"duplicate evidence id {eid!r}")
-        ids.add(eid)
-        kinds.add(_enum(e["kind"], EVIDENCE_KINDS, f"{loc}.kind"))
-        if not isinstance(e["repo"], str) or not REPO_RE.match(e["repo"]):
-            raise GateError(f"{loc}.repo must be 'owner/name'")
-        if not isinstance(e["commit"], str) or not COMMIT_RE.match(e["commit"]):
-            raise GateError(f"{loc}.commit must be a 7-40 hex commit id (evidence is pinned)")
-        gate.nonempty_str(e["path"], f"{loc}.path")
-        if e["url"] is not None and not (isinstance(e["url"], str) and e["url"].startswith("https://")):
-            raise GateError(f"{loc}.url must be an https URL or null")
+    by_id = validate_evidence(v["evidence"], "validation.evidence")
+    ids, kinds = set(by_id), {e["kind"] for e in by_id.values()}
     stat = forecast["statistic"]
     if "strict_rule_verdicts" in v:
-        by_id = {e["id"]: e for e in v["evidence"]}
         entries = validate_strict_verdicts(v["strict_rule_verdicts"], by_id, "validation.strict_rule_verdicts")
         for e in binding_strict_verdicts(entries, forecast["model_version"], stat, row.get("game")):
             want = V1_STATUS_OF_VERDICT.get(e["verdict"])
@@ -736,6 +742,35 @@ def _validate_change(c: Any, row: dict, forecast: dict) -> None:
         raise GateError("driver_value_diff lists changed drivers only; it makes no attribution (no `unattributed`)")
 
 
+def _validate_player_game(player: Any, game: Any, kickoff) -> None:
+    """Player and game facts, cross-checked with each other when known. ``kickoff`` is the forecast's (datetime)."""
+    player = _obj(player, "player", PLAYER_FIELDS)
+    for f in PLAYER_FIELDS:
+        _str_or_null(player[f], f"player.{f}")
+    game = _obj(game, "game", GAME_FIELDS)
+    if gate.iso_utc(game["kickoff"], "game.kickoff") != kickoff:
+        raise GateError("game.kickoff must equal the forecast's kickoff")
+    _str_or_null(game["season"], "game.season")
+    _enum(game["season_type"], SEASON_TYPES, "game.season_type", nullable=True)
+    _int_or_null(game["week"], "game.week")
+    for f in ("home_team_id", "away_team_id", "opponent_team_id"):
+        _str_or_null(game[f], f"game.{f}")
+    if game["is_home"] is not None and not isinstance(game["is_home"], bool):
+        raise GateError("game.is_home must be boolean or null")
+    home, away, opp, team = game["home_team_id"], game["away_team_id"], game["opponent_team_id"], player["team_id"]
+    if home is not None and home == away:
+        raise GateError("game.home_team_id equals away_team_id")
+    if home is not None and away is not None:
+        for name, t in (("player.team_id", team), ("game.opponent_team_id", opp)):
+            if t is not None and t not in (home, away):
+                raise GateError(f"{name} {t!r} is neither the home nor the away team")
+        if team is not None:
+            if opp is not None and opp == team:
+                raise GateError("game.opponent_team_id equals the player's team")
+            if game["is_home"] is not None and game["is_home"] != (team == home):
+                raise GateError("game.is_home disagrees with player.team_id and game.home_team_id")
+
+
 def validate_projection(row: dict, resolver: Resolver | None = None) -> dict:
     """Validate one explorer projection. Returns {forecast, sibling, warnings} for file-level checks."""
     if not isinstance(row, dict):
@@ -774,31 +809,7 @@ def validate_projection(row: dict, resolver: Resolver | None = None) -> dict:
     if mode == "prospective_pregame" and captured >= kickoff:
         raise GateError("a prospective_pregame capture must be taken before kickoff")
 
-    player = _obj(row["player"], "player", PLAYER_FIELDS)
-    for f in PLAYER_FIELDS:
-        _str_or_null(player[f], f"player.{f}")
-    game = _obj(row["game"], "game", GAME_FIELDS)
-    if gate.iso_utc(game["kickoff"], "game.kickoff") != kickoff:
-        raise GateError("game.kickoff must equal the forecast's kickoff")
-    _str_or_null(game["season"], "game.season")
-    _enum(game["season_type"], SEASON_TYPES, "game.season_type", nullable=True)
-    _int_or_null(game["week"], "game.week")
-    for f in ("home_team_id", "away_team_id", "opponent_team_id"):
-        _str_or_null(game[f], f"game.{f}")
-    if game["is_home"] is not None and not isinstance(game["is_home"], bool):
-        raise GateError("game.is_home must be boolean or null")
-    home, away, opp, team = game["home_team_id"], game["away_team_id"], game["opponent_team_id"], player["team_id"]
-    if home is not None and home == away:
-        raise GateError("game.home_team_id equals away_team_id")
-    if home is not None and away is not None:
-        for name, t in (("player.team_id", team), ("game.opponent_team_id", opp)):
-            if t is not None and t not in (home, away):
-                raise GateError(f"{name} {t!r} is neither the home nor the away team")
-        if team is not None:
-            if opp is not None and opp == team:
-                raise GateError("game.opponent_team_id equals the player's team")
-            if game["is_home"] is not None and game["is_home"] != (team == home):
-                raise GateError("game.is_home disagrees with player.team_id and game.home_team_id")
+    _validate_player_game(row["player"], row["game"], kickoff)
 
     _validate_distribution(row["distribution"], forecast)
     sibling = _validate_workload(row["expected_workload"], forecast)

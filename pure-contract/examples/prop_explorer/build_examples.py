@@ -6,7 +6,10 @@
 For every sport, each `sources/<sport>_<arm>.v1.jsonl` (verbatim pure_forecast.v1 rows from a sport repository's
 committed research output, see sources/SOURCES.json) is converted with `contexts/<sport>.context.json` by
 `prop_explorer.convert`, with the row provenance taken from SOURCES.json. Output:
-`<sport>.prop_explorer_projection.v1.jsonl`. `--check` rebuilds in memory and fails if a committed example differs.
+`<sport>.prop_explorer_projection.v1.jsonl`. Those v1 records are then upgraded with `contexts/v2.context.json` by
+`prop_explorer_v2.upgrade` into `<sport>.prop_explorer_projection.v2.jsonl`. The SYNTHETIC display-rule fixtures of
+`synthetic_v2.py` go to `synthetic.prop_explorer_projection.v2.example.jsonl`. `--check` rebuilds in memory and fails
+if a committed example differs.
 """
 from __future__ import annotations
 
@@ -18,7 +21,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1]))
 import prop_explorer as px  # noqa: E402
+import prop_explorer_v2 as v2  # noqa: E402
 import pure_gate as gate  # noqa: E402
+
+sys.path.insert(0, str(HERE))
+import synthetic_v2  # noqa: E402
 
 
 def build() -> dict[str, str]:
@@ -31,9 +38,16 @@ def build() -> dict[str, str]:
         rows = gate.load_jsonl(HERE / "sources" / entry["file"])
         out.setdefault(sport, []).extend(px.convert(rows, ctx))
     texts = {}
+    v2ctx = json.loads((HERE / "contexts" / "v2.context.json").read_text(encoding="utf-8"))
     for sport, rows in out.items():
         px.validate_projection_file(rows)
         texts[f"{sport}.prop_explorer_projection.v1.jsonl"] = px.dumps_jsonl(rows)
+        # Upgrade from the serialised v1 text, exactly as a reader of the committed file would.
+        v1rows = [json.loads(line) for line in texts[f"{sport}.prop_explorer_projection.v1.jsonl"].splitlines()]
+        texts[f"{sport}.prop_explorer_projection.v2.jsonl"] = v2.dumps_jsonl(v2.upgrade(v1rows, v2ctx))
+    syn = synthetic_v2.build_synthetic()
+    v2.validate_file(syn)
+    texts["synthetic.prop_explorer_projection.v2.example.jsonl"] = v2.dumps_jsonl(syn)
     return texts
 
 

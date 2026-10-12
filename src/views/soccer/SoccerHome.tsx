@@ -17,9 +17,10 @@ import { useVisit } from '../../state/trail';
 import { useVisibleOnce } from '../shared/useVisible';
 import { Pill, Section, SportHeader, TextMark } from '../shared/kit';
 import { SportOpportunities } from '../home/SportOpportunities';
+import { healthLabel } from '../../lib/plainLabels';
 
 const fmtAge = (iso: string | null | undefined, now: number) => {
-  if (!iso) return 'unknown';
+  if (!iso) return 'time not published';
   const m = Math.max(0, Math.round((now - Date.parse(iso)) / 60000));
   return m < 60 ? `${m}m ago` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m ago`;
 };
@@ -124,7 +125,7 @@ export function soccerStatus(h: HealthDoc | null | undefined, now: number) {
   if (!h) return null;
   return (
     <>
-      <Pill tone={h.overall_status === 'HEALTHY' ? 'ok' : 'research'} title="The publication's overall status">{h.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill>
+      <Pill tone={h.overall_status === 'HEALTHY' ? 'ok' : 'research'} title={`The publication's overall status: ${healthLabel(h.overall_status).meaning}`}>{healthLabel(h.overall_status).word}</Pill>
       <Pill tone="neutral" title={h.last_model_generated ?? ''}>Model {fmtAge(h.last_model_generated, now)}</Pill>
       <Pill tone="neutral" title={h.last_market_capture ?? ''}>Prices {fmtAge(h.last_market_capture, now)}</Pill>
     </>
@@ -160,7 +161,7 @@ export function SoccerHomeView() {
           <SportOpportunities now={now} />
           <Section id="sc-status" title="Model status" sub="What the soccer publication says about itself.">
             <dl className="skkv">
-              <div><dt>Authority</dt><dd>Every soccer model family is RESEARCH_ONLY: nothing on these pages permits a bet. The international pool is not validated.</dd></div>
+              <div><dt>Authority</dt><dd>Every soccer model family is research only: nothing on these pages permits a bet. The international pool is not validated.</dd></div>
               <div><dt>Model</dt><dd>Dixon-Coles goal rates (dc_laplace) simulated over worlds (world_sim_v2); scripts and expressions are research presentation.</dd></div>
               <div><dt>Lineups</dt><dd>A confirmed XI changes the lineup status and freshness, not the team rates: no validated player-strength layer exists.</dd></div>
               <div><dt>Calibration</dt><dd>Published per fixture and per market family (Brier, log loss against the market); open a fixture to read it.</dd></div>

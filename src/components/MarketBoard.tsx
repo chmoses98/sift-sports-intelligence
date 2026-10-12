@@ -3,7 +3,9 @@
 // bid/ask in cents; "fair" is the model's P(YES) — evidence, labelled as such, never a pick.
 import { describeMarket } from '../lib/marketLabel';
 import { isMlbPlayerMarket, isMlbTicker, mlbKind, mlbNick, mlbPeriod, mlbPlayerKey, mlbPlayerName, mlbTeamOf, propFamily, PROP_FAMILY_LABEL } from '../lib/mlb';
-import { inningWords, periodCode } from '../lib/period';
+import { inningWords, periodCode, periodWords } from '../lib/period';
+import { betPhrase, plainClubTitle } from '../lib/betWords';
+import '../styles/lane-d-markets.css';
 import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { MarketIcon } from './MarketIcon';
 import { useMemo, useState } from 'react';
@@ -98,7 +100,7 @@ export function groupMarkets(markets: AnyMarket[], playerName: (id: string | nul
     if (g.ladder) g.rows.sort((a, b) => Number(rung(a)) - Number(rung(b)) || a.kalshi_ticker.localeCompare(b.kalshi_ticker));
     if (g.ladder && !g.subject && !isMlbTicker(g.rows[0].kalshi_ticker)) {
       const r0 = String(rung(g.rows[0])).replace('.', '\\.');
-      const sample = humanize(g.rows[0].yes_description).replace(new RegExp(`${r0}(\\.0)?(?![\\d.])`), 'X');
+      const sample = plainClubTitle(humanize(g.rows[0].yes_description)).replace(new RegExp(`${r0}(\\.0)?(?![\\d.])`), 'X');
       g.title = `${g.title} — ${sample.replace(/ ?· [A-Z]+$/, '')}`;
     }
   }
@@ -124,84 +126,145 @@ const SECTIONS: { id: MarketGroup['section']; label: string }[] = [
 const sectionLabel = (id: MarketGroup['section'], groups: MarketGroup[]) =>
   id === 'periods' && groups.some((g) => g.section === 'periods' && isMlbTicker(g.rows[0]?.kalshi_ticker)) ? 'Innings' : SECTIONS.find((s) => s.id === id)!.label;
 
+/** The narrower family a group belongs to inside its section, for the second row of chips ("Receiving yards", "Spread"). */
+export function kindOf(g: MarketGroup): string {
+  if (g.section === 'players') return g.title.replace(/ — .*$/, '');
+  if (g.section === 'periods') return g.period && !isMlbTicker(g.rows[0]?.kalshi_ticker) ? periodWords(g.period) || g.period : g.title.replace(/ — .*$/, '').replace(/ · .*$/, '');
+  return g.title.replace(/ — .*$/, '').replace(/ · .*$/, '');
+}
+
+export interface BoardFilter { section: MarketGroup['section']; kind: string | null; q: string }
+
+/**
+ * The groups a filter shows. A search spans every section (a viewer searching a player should not have to guess the
+ * tab first); otherwise the chosen section, narrowed to one kind when a kind chip is on.
+ */
+export function filterGroups(groups: MarketGroup[], f: BoardFilter, multiSection: boolean): MarketGroup[] {
+  const q = f.q.trim().toLowerCase();
+  if (q) return groups.filter((g) => `${g.title} ${g.subject ?? ''} ${g.rows.map((r) => `${r.yes_description} ${r.kalshi_ticker}`).join(' ')}`.toLowerCase().includes(q));
+  return groups.filter((g) => (!multiSection || g.section === f.section) && (!f.kind || kindOf(g) === f.kind));
+}
+
+const contracts = (gs: MarketGroup[]) => gs.reduce((a, g) => a + g.rows.length, 0);
+
+/** YES and NO in conventional words beside the exact YES bid / ask: "Bears to win 48¢ · Bears not to win 54¢". */
+function YesNo({ m, title }: { m: AnyMarket; title: string }) {
+  const yes = m.yes_ask != null && m.yes_ask > 0 && m.yes_ask < 1 ? m.yes_ask : null;
+  const noAsk = (m as { no_ask?: number | null }).no_ask;
+  const no = noAsk != null && noAsk > 0 && noAsk < 1 ? noAsk : null;
+  if (yes == null && no == null) return null;
+  const nw = betPhrase('NO', title);
+  return (
+    <span className="mrow__yn" aria-label={`Yes ${cents(yes)}, no ${cents(no)}`}>
+      <span className="mrow__y" title={`YES: ${title}`}><small>Yes</small>{cents(yes)}</span>
+      <span className="mrow__n" title={nw.rewritten ? `NO: ${nw.text}` : `NO on ${title}`}><small>No</small>{cents(no)}</span>
+    </span>
+  );
+}
+
 export function MarketBoard({
   markets, prices, sportSlug, playerName, initialSection, compact,
 }: { markets: AnyMarket[]; prices: Map<string, ModelPrice>; sportSlug: string; playerName: (id: string | null) => string | null; initialSection?: MarketGroup['section']; compact?: boolean }) {
   const groups = useMemo(() => groupMarkets(markets, playerName), [markets, playerName]);
   const present = SECTIONS.filter((s) => groups.some((g) => g.section === s.id));
-  const [section, setSection] = useState<MarketGroup['section']>(initialSection && present.some((p) => p.id === initialSection) ? initialSection : present[0]?.id ?? 'lines');
+  const [section, setSectionState] = useState<MarketGroup['section']>(initialSection && present.some((p) => p.id === initialSection) ? initialSection : present[0]?.id ?? 'lines');
+  const [kind, setKind] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
-  const f = filter.trim().toLowerCase();
-  const shown = groups
-    .filter((g) => present.length <= 1 || g.section === section)
-    .filter((g) => !f || `${g.title} ${g.subject ?? ''} ${g.rows.map((r) => r.yes_description).join(' ')}`.toLowerCase().includes(f));
-  const bySubject = new Map<string, MarketGroup[]>();
-  for (const g of shown) {
-    const k = g.subject ?? '';
-    bySubject.set(k, [...(bySubject.get(k) ?? []), g]);
-  }
+  const setSection = (s: MarketGroup['section']) => { setSectionState(s); setKind(null); };
+  const multi = present.length > 1;
+  const inSection = groups.filter((g) => !multi || g.section === section);
+  const kinds = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const g of inSection) m.set(kindOf(g), (m.get(kindOf(g)) ?? 0) + g.rows.length);
+    return [...m.entries()];
+  }, [inSection]);
+  const searching = filter.trim().length > 0;
+  const shown = filterGroups(groups, { section, kind, q: filter }, multi);
+  // Searching spans every section: say which section each match sits in.
+  const blocks = searching && multi
+    ? present.map((s) => ({ id: s.id, label: sectionLabel(s.id, groups), gs: shown.filter((g) => g.section === s.id) })).filter((b) => b.gs.length)
+    : [{ id: section, label: null as string | null, gs: shown }];
   return (
     <div className="mboard">
       <div className="mboard__bar">
-        {present.length > 1 && (
+        {multi && (
           <div className="seg" role="tablist" aria-label="Market sections">
             {present.map((s) => (
-              <button key={s.id} type="button" role="tab" aria-selected={section === s.id} className={`seg__b${section === s.id ? ' is-on' : ''}`} onClick={() => setSection(s.id)}>
-                {sectionLabel(s.id, groups)} <span className="seg__n">{groups.filter((g) => g.section === s.id).reduce((a, g) => a + g.rows.length, 0)}</span>
+              <button key={s.id} type="button" role="tab" aria-selected={!searching && section === s.id} className={`seg__b${!searching && section === s.id ? ' is-on' : ''}`} onClick={() => { setSection(s.id); setFilter(''); }}>
+                {sectionLabel(s.id, groups)} <span className="seg__n">{contracts(groups.filter((g) => g.section === s.id))}</span>
               </button>
             ))}
           </div>
         )}
         {!compact && (
-          <input className="mboard__filter" type="search" placeholder="Filter markets (player, stat, team…)" aria-label="Filter markets" value={filter} onChange={(e) => setFilter(e.target.value)} />
+          <input className="mboard__filter" type="search" placeholder="Search every market (player, stat, team…)" aria-label="Filter markets" value={filter} onChange={(e) => setFilter(e.target.value)} />
         )}
       </div>
-      <p className="mboard__key">YES bid / ask in cents · <span className="fairkey">◆ fair</span> = model P(YES), research evidence only · tap any price for the full contract</p>
-      {[...bySubject.entries()].map(([subject, gs]) => (
-        <div key={subject || 'all'} className="mboard__subject">
-          {subject && <h4 className="mboard__who">{subject}</h4>}
-          {gs.map((g) => (
-            <div key={g.key} className="mgroup">
-              <div className="mgroup__title">{g.rows[0] && <MarketIcon m={g.rows[0]} />}{g.title}</div>
-              {g.ladder ? (
-                <ol className="ladderrow">
-                  {g.rows.map((m) => {
-                    const mp = prices.get(m.market_id);
-                    const st = notOpen(m);
-                    return (
-                      <li key={m.market_id}>
-                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`rungcell${st ? ' is-notopen' : ''}`} aria-label={`${describeMarket(m, { playerName }).title}: ${st ? `${st}, ` : ''}bid ${cents(m.yes_bid)}, ask ${cents(m.yes_ask)}${mp?.fair_probability != null ? `, model fair ${cents(mp.fair_probability)}` : ''}`}>
-                          <span className="rungcell__x num">{rung(m)}</span>
-                          {st && <span className="rungcell__st">{st}</span>}
-                          <span className="rungcell__p num">{cents(m.yes_bid)}<span className="rungcell__sl">/</span>{cents(m.yes_ask)}</span>
-                          {mp?.fair_probability != null && <span className="rungcell__f num">◆ {cents(mp.fair_probability)}</span>}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ol>
-              ) : (
-                <ul className="mrows">
-                  {g.rows.map((m) => {
-                    const mp = prices.get(m.market_id);
-                    const st = notOpen(m);
-                    return (
-                      <li key={m.market_id}>
-                        <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`mrow${st ? ' is-notopen' : ''}`}>
-                          <span className="mrow__d">{describeMarket(m, { playerName }).title}{st && <span className="rungcell__st"> {st}</span>}</span>
-                          <span className="mrow__p num">{cents(m.yes_bid)} / {cents(m.yes_ask)}</span>
-                          <span className="mrow__f num">{mp?.fair_probability != null ? `◆ ${cents(mp.fair_probability)}` : ''}</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+      {!searching && kinds.length > 1 && (
+        <div className="mboard__kinds" role="group" aria-label="Market type">
+          <button type="button" className={`mboard__kind${!kind ? ' is-on' : ''}`} aria-pressed={!kind} onClick={() => setKind(null)}>All <small>{contracts(inSection)}</small></button>
+          {kinds.map(([k, n]) => (
+            <button key={k} type="button" className={`mboard__kind${kind === k ? ' is-on' : ''}`} aria-pressed={kind === k} onClick={() => setKind(kind === k ? null : k)}>{k} <small>{n}</small></button>
           ))}
         </div>
-      ))}
-      {!shown.length && <p className="muted">No markets match.</p>}
+      )}
+      <p className="mboard__key">{searching ? <><b>{contracts(shown)}</b> contracts match “{filter.trim()}” across every section · </> : null}YES bid / ask in cents, then what YES and NO cost · <span className="fairkey">◆ fair</span> = model P(YES), research evidence only · tap any price for the full contract</p>
+      {blocks.map((b) => {
+        const bySubject = new Map<string, MarketGroup[]>();
+        for (const g of b.gs) bySubject.set(g.subject ?? '', [...(bySubject.get(g.subject ?? '') ?? []), g]);
+        return (
+          <div key={b.id} className="mboard__block">
+            {b.label && <h3 className="mboard__sec">{b.label} <small>{contracts(b.gs)}</small></h3>}
+            {[...bySubject.entries()].map(([subject, gs]) => (
+              <div key={subject || 'all'} className="mboard__subject">
+                {subject && <h4 className="mboard__who">{subject}</h4>}
+                {gs.map((g) => (
+                  <div key={g.key} className="mgroup">
+                    <div className="mgroup__title">{g.rows[0] && <MarketIcon m={g.rows[0]} />}{g.title}</div>
+                    {g.ladder ? (
+                      <ol className="ladderrow">
+                        {g.rows.map((m) => {
+                          const mp = prices.get(m.market_id);
+                          const st = notOpen(m);
+                          return (
+                            <li key={m.market_id}>
+                              <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`rungcell${st ? ' is-notopen' : ''}`} aria-label={`${describeMarket(m, { playerName }).title}: ${st ? `${st}, ` : ''}bid ${cents(m.yes_bid)}, ask ${cents(m.yes_ask)}${mp?.fair_probability != null ? `, model fair ${cents(mp.fair_probability)}` : ''}`}>
+                                <span className="rungcell__x num">{rung(m)}</span>
+                                {st && <span className="rungcell__st">{st}</span>}
+                                <span className="rungcell__p num">{cents(m.yes_bid)}<span className="rungcell__sl">/</span>{cents(m.yes_ask)}</span>
+                                {mp?.fair_probability != null && <span className="rungcell__f num">◆ {cents(mp.fair_probability)}</span>}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    ) : (
+                      <ul className="mrows">
+                        {g.rows.map((m) => {
+                          const mp = prices.get(m.market_id);
+                          const st = notOpen(m);
+                          const title = describeMarket(m, { playerName }).title;
+                          return (
+                            <li key={m.market_id}>
+                              <Link to={routes.market(sportSlug, m.market_id, m.event_id ?? '')} className={`mrow mrow--yn${st ? ' is-notopen' : ''}`}>
+                                <span className="mrow__d">{title}{st && <span className="rungcell__st"> {st}</span>}</span>
+                                <span className="mrow__p num">{cents(m.yes_bid)} / {cents(m.yes_ask)}</span>
+                                <YesNo m={m} title={title} />
+                                <span className="mrow__f num">{mp?.fair_probability != null ? `◆ ${cents(mp.fair_probability)}` : ''}</span>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+      {!shown.length && <p className="muted">{searching ? `No market matches “${filter.trim()}”. Try a player’s surname, a stat or a team.` : 'No markets match.'}</p>}
     </div>
   );
 }

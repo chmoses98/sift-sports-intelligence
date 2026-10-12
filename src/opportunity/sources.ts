@@ -186,8 +186,8 @@ export function soccerOpportunities(x: SportInputs): Opportunity[] {
     const confidence: Confidence = {
       calibration: studied ? 'MARKET_BEATS_MODEL' : 'RESEARCH',
       note: studied
-        ? `RESEARCH_ONLY. The publication’s own walk-forward study of ${ext.model_version} (12,248 matches, 2019–2026) finds the de-vigged market reliably better in 112 of 116 subgroups and the model better in none; the bigger the gap, the bigger the model’s error. A gap here is a model disagreement, not an edge.`
-        : 'Every soccer model family is RESEARCH_ONLY and this model version has no published comparison with the market.',
+        ? `Research only. The publication’s own walk-forward study of ${ext.model_version} (12,248 matches, 2019–2026) finds the de-vigged market reliably better in 112 of 116 subgroups and the model better in none; the bigger the gap, the bigger the model’s error. A gap here is a model disagreement, not an edge.`
+        : 'Every soccer model family is research only and this model version has no published comparison with the market.',
       inputs: fresh(ext.freshness), support: label ?? (ext.best_expression ? 'BEST_EXPRESSION' : null), supportNote: label ? `Script robustness ${String(label).toLowerCase()}` : ext.best_expression ? 'Best expression on this fixture' : null, edgeShare: n(ext.model_posterior_edge_share),
     };
     const orientation = soccerOrientation(ticker, desc, { home: names.home, away: names.away });
@@ -248,7 +248,7 @@ export function tennisOpportunities(x: SportInputs): Opportunity[] {
     const tags = ((ext.discrepancy_reason_tags ?? []) as string[]).map((t) => t.replace(/_/g, ' ').toLowerCase());
     const risk = `${x.tennisRecord ? `On ${x.tennisRecord.n.toLocaleString('en-US')} settled rows the Kalshi mid has ${x.tennisRecord.market < x.tennisRecord.model ? 'beaten' : 'been scored against'} this model (Brier ${x.tennisRecord.market.toFixed(4)} vs ${x.tennisRecord.model.toFixed(4)})` : "The publication's own settled record has the Kalshi mid beating this model (Model Pulse shows the current numbers)"}: a gap is more often the model's error than the market's.${tags.length ? ` Flags: ${tags.join(', ')}.` : ''}${ext.display_status ? ` Publication: ${String(ext.display_status).toLowerCase()}.` : ''}`;
     const confidence: Confidence = {
-      calibration: 'MARKET_BEATS_MODEL', note: 'RESEARCH_ONLY; the publication reports no evidence of edge on settled rows.', inputs: { start: String(ext.start_status ?? 'unknown'), discrepancy: String(ext.discrepancy_band ?? 'unknown') },
+      calibration: 'MARKET_BEATS_MODEL', note: 'Research only: the publication reports no evidence of edge on settled rows.', inputs: { start: String(ext.start_status ?? 'unknown'), discrepancy: String(ext.discrepancy_band ?? 'unknown') },
       support: ext_conf, supportNote: ext_conf === 'AGREES_WITH_MODEL' ? 'Sharp references agree with the model' : ext_conf === 'NO_EXTERNAL_REFERENCE' ? 'No sharp reference to check against' : 'Sharp references side with the market', edgeShare: null,
     };
     const orientation = family === 'match_winner' || family === 'exact_set_score' ? tennisOrientation(ticker, subj?.display_name ?? null, opp?.display_name ?? null) : { state: 'UNVERIFIED' as const, reason: null };
@@ -290,7 +290,7 @@ export function nhlOpportunities(x: SportInputs): Opportunity[] {
     const risk = `${hv ? 'A goal-scorer contract settles on a single event and is high variance: the publication’s NHL home never features these.' : 'The NHL model is under prospective tracking; nothing is validated yet.'}${record?.adverse ? ' Its past candidates in this family have done worse than the model expected.' : ''}${ext.portfolio_impact?.delta_p10 != null ? ` Portfolio 10th percentile moves ${ext.portfolio_impact.delta_p10}.` : ''}`;
     const alternatives = ext.best_alternative_bet_id ? [`Best alternative expression: ${String(ext.best_alternative_bet_id).replace('|', ' · ')}`] : [];
     const confidence: Confidence = {
-      calibration: 'RESEARCH', note: 'RESEARCH_ONLY under prospective tracking (the learning scorecard counts settled games).', inputs: { price: String(r.data_freshness ?? 'unknown'), lines: String(r.lineup_status ?? 'unknown') },
+      calibration: 'RESEARCH', note: 'Research only, under prospective tracking (the learning scorecard counts settled games).', inputs: { price: String(r.data_freshness ?? 'unknown'), lines: String(r.lineup_status ?? 'unknown') },
       support: String(ext.family_reliability ?? r.confidence ?? ''), supportNote: ext.family_reliability ? `Family reliability ${String(ext.family_reliability).replace(/_/g, ' ').toLowerCase()}` : null, edgeShare: null, record,
     };
     out.push(base('NHL', x.sport.slug, item, r, title, null, family, why, evidence, risk, alternatives, confidence, price, `${item.event_id}:${ext.primary_thesis_key ?? 'thesis'}`, hv, x.now));
@@ -316,7 +316,7 @@ export function mlbOpportunities(x: SportInputs): Opportunity[] {
     const why = `${eventLabel(item, 'MLB')}: the publication's slate ledger lists ${side} on “${title}” (${String(ext.market_name ?? '').replace(/_/g, ' ')}) with a bet-up-to of ${cents(r.bet_up_to_price)}.`;
     const evidence = [r.fair_probability != null ? `Fair probability ${pct(r.fair_probability)}` : 'No fair probability is published for this row', `Native status ${String(ext.native_status ?? 'unknown').toLowerCase()} · confidence ${String(r.confidence ?? 'unknown').toLowerCase()}`];
     const risk = ext.real_money_eligible === false ? 'Not real-money eligible by the publication’s own flag; the MLB model is research-only.' : null;
-    const confidence: Confidence = { calibration: 'RESEARCH', note: 'RESEARCH_ONLY: the MLB slate ledger is a paper record.', inputs: { price: String(r.data_freshness ?? 'unknown') }, support: String(ext.native_status ?? ''), supportNote: null, edgeShare: null };
+    const confidence: Confidence = { calibration: 'RESEARCH', note: 'Research only: the MLB slate ledger is a paper record.', inputs: { price: String(r.data_freshness ?? 'unknown') }, support: String(ext.native_status ?? ''), supportNote: null, edgeShare: null };
     const marketName = String(ext.market_name ?? '');
     const sideWord = /_Home(_|$)/.test(marketName) ? 'home' : /_Away(_|$)/.test(marketName) ? 'away' : null;
     const orientation = mlbOrientation(ticker, sideWord, { home: home?.short_name, away: away?.short_name });

@@ -58,7 +58,7 @@ export function metricFormatter(m: Pick<MetricDef, 'unit' | 'stat_type'> | null 
 
 export function unitLabel(unit: string | null | undefined): string {
   if (!unit) return '';
-  if (unit === 'share') return '% of plays';
+  if (unit === 'share') return '% share';
   if (unit === 'deviation from league mean') return 'vs league mean';
   return unit;
 }

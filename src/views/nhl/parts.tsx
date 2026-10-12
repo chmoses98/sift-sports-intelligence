@@ -7,6 +7,8 @@ import { Link } from 'react-router';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { DigDeeper, TeamMark } from '../../components/ui';
 import { routes } from '../../lib/routes';
+import { plainClubTitle } from '../../lib/betWords';
+import { scriptLower } from '../../lib/scriptNames';
 import {
   BASIS_HELP,
   BASIS_WORD,
@@ -117,7 +119,7 @@ function featuredGameRows(s: NhlScripts, markets: Market[]): MatrixRow[] {
     return cands;
   };
   for (const { m, r } of pick('game_winner', () => true)) {
-    out.push({ key: `${m.kalshi_ticker}|yes`, label: `${m.yes_description.replace(/ wins$/, '')} to win`, side: 'yes', row: r, market: m, ev: evAt(r, 'yes', r.yes?.cost ?? null), mass: r.yes?.mass ?? null, tier: r.yes?.tier ?? null });
+    out.push({ key: `${m.kalshi_ticker}|yes`, label: `${plainClubTitle(m.yes_description.replace(/ wins$/, ''))} to win`, side: 'yes', row: r, market: m, ev: evAt(r, 'yes', r.yes?.cost ?? null), mass: r.yes?.mass ?? null, tier: r.yes?.tier ?? null });
   }
   const tot = pick('game_total', (_, r) => r.pYes != null).sort((a, b) => Math.abs((a.r.pYes ?? 0) - 0.5) - Math.abs((b.r.pYes ?? 0) - 0.5))[0];
   if (tot) {
@@ -128,7 +130,7 @@ function featuredGameRows(s: NhlScripts, markets: Market[]): MatrixRow[] {
     }
   }
   for (const { m, r } of pick('game_spread', (m) => Number(m.line ?? m.threshold) === 1.5)) {
-    out.push({ key: `${m.kalshi_ticker}|yes`, label: `${m.yes_description.replace(/ wins by over 1\.5 goals?/, '')} −1.5`, side: 'yes', row: r, market: m, ev: evAt(r, 'yes', r.yes?.cost ?? null), mass: r.yes?.mass ?? null, tier: r.yes?.tier ?? null });
+    out.push({ key: `${m.kalshi_ticker}|yes`, label: `${plainClubTitle(m.yes_description.replace(/ wins by over 1\.5 goals?/, ''))} −1.5`, side: 'yes', row: r, market: m, ev: evAt(r, 'yes', r.yes?.cost ?? null), mass: r.yes?.mass ?? null, tier: r.yes?.tier ?? null });
   }
   return out;
 }
@@ -280,9 +282,7 @@ export function ScriptsUnavailable({ status, reason }: { status: string; reason:
 }
 
 /** A script label mid-sentence: "tight, low-event game", but "VGK controls and pulls away" keeps its abbreviation. */
-export function lowerLabel(label: string): string {
-  return /^[A-Z]{2,3}\b/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1);
-}
+export const lowerLabel = scriptLower;
 
 /** Team of a named player from the game's own rosters and line combinations (injury lists name no team). */
 export function teamResolver(r: EventResearchDoc, rosters: { abbr: string; names: string[] }[]): (name: string) => string | null {

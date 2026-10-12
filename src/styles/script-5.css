@@ -1,0 +1,30 @@
+/* SCRIPT 5 — the underdog wins a one-score game (NFL sim-script-1.1.0 close-game split). Generated from every
+   script-4 rule by mirroring its selector (s4 → s5) and colour (script-4 → script-5), so the fifth script renders
+   wherever the other four do. Palette: rose, amber, cyan, green, violet in margin order (favourite 14+ → underdog 7+);
+   dataviz validate_palette --mode dark --surface #081622 passes all checks on adjacent pairs. Across all pairs green
+   and amber are close for deutan readers; a script colour is always beside the script's name and team logo. */
+:root {
+  --script-5: #5aa83c;
+  --script-5-hi: #74d04f;
+  --script-5-deep: #1f5214;
+}
+/* broadcast.css */ .scmp__col--s5 { --sc: var(--script-5-hi); }
+/* fidelity-game.css */ .gscr__i--s5 { --sc: var(--script-5-hi); --sd: var(--script-5-deep); }
+/* fidelity-hubs.css */ .tm-sc__row--s5 { --sc: var(--script-5); }
+/* fidelity-research.css */ .fr-dot--s5 { background: var(--script-5-hi); }
+/* fidelity-research.css */ .frbar--s5 i { background: linear-gradient(90deg, var(--script-5-deep), var(--script-5-hi)); }
+/* fidelity-research.css */ .frmm__seg--s5 rect { fill: color-mix(in srgb, var(--script-5) 40%, transparent); stroke: var(--script-5-hi); }
+/* fidelity-research.css */ .fr-sc--s5 { --s: var(--script-5); --shi: var(--script-5-hi); --sdeep: var(--script-5-deep); }
+/* fidelity-research.css */ .fr-sel--s5 { --shi: var(--script-5-hi); }
+/* fidelity-research.css */ .fr-chip--s5.is-on { border-color: var(--script-5-hi); background: color-mix(in srgb, var(--script-5) 45%, #06121e); box-shadow: 0 0 14px -4px var(--script-5-hi); }
+/* fidelity-research.css */ .fr-cmp__head--s5 { --shi: var(--script-5-hi); }
+/* fidelity-research.css */ .fr-cmpbar--s5 i { background: linear-gradient(90deg, var(--script-5-deep), var(--script-5-hi)); }
+/* fidelity-research.css */ .fr-cmp__pv--s5 b { color: var(--script-5-hi); }
+/* fidelity-research.css */ .fr-cmp__mkc--s5 { --shi: var(--script-5-hi); }
+/* fidelity-research.css */ .fr-fit--yes.fr-fit--s5 { background: var(--script-5-hi); }
+/* fidelity-research.css */ .fr-rows__ic--s5 { background: color-mix(in srgb, var(--script-5) 22%, transparent); color: var(--script-5-hi); border-color: color-mix(in srgb, var(--script-5-hi) 50%, transparent); }
+/* game.css */ .scard--s5 { --sc: var(--script-5); --sh: var(--script-5-hi); --sd: var(--script-5-deep); }
+/* game.css */ .sdot--s5 { background: var(--script-5); }
+/* game.css */ .fitcell--s5 { --sc: var(--script-5); }
+/* home.css */ .sotab__bar--s5 { background: var(--script-5); }
+/* lane-d-scripts.css: survivor chips and the split chart (tones 5..7 there are NHL's extra scripts) */ .lsd-t8 { --lsd-tone: var(--script-5-hi); --lsd-deep: var(--script-5-deep); }

@@ -13,6 +13,7 @@ import { nbaInjuries, nbaModelVsMarket, nbaTeam, nbaVenue } from '../../lib/nba'
 import { routes } from '../../lib/routes';
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
+import { healthLabel } from '../../lib/plainLabels';
 import { useVisit } from '../../state/trail';
 import { sides } from '../home/cards';
 import { useVisibleOnce } from '../shared/useVisible';
@@ -83,7 +84,7 @@ export function NbaHomeView() {
         logo={`${import.meta.env.BASE_URL}leagues/nba.webp`}
         title="NBA"
         sub={<><b>{items.length}</b> games{preseason ? ' (preseason)' : ''} · <b>{markets}</b> Kalshi markets · <b>{priced}</b> priced by the model · research only</>}
-        status={<>{health && <Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}>{health.overall_status.replace(/_/g, ' ').toLowerCase()}</Pill>}<Pill tone="research" title="Out-of-sample walk-forward: the raw Kalshi price has lower log loss than the model in every family">market beats model 8/8 families</Pill></>}
+        status={<>{health && <Pill tone={health.overall_status === 'HEALTHY' ? 'ok' : 'research'}><span title={healthLabel(health.overall_status).meaning}>{healthLabel(health.overall_status).word}</span></Pill>}<Pill tone="research" title="Out-of-sample walk-forward: the raw Kalshi price has lower log loss than the model in every family">market beats model 8/8 families</Pill></>}
       />
       <div className="skgrid">
         <Section id="nb-slate" title="Slate" sub="Tipoff, both clubs, last season's net-rating ranks and the injury report once a game's research is read. Tap a game for the matchup, the roster and every market.">
@@ -104,7 +105,7 @@ export function NbaHomeView() {
                 <tbody>{families.map((f) => <tr key={f.family}><th scope="row">{f.family.replace(/_/g, ' ')}</th><td className="r num">{f.nOos.toLocaleString('en-US')}</td><td className="r num">{f.marketLogLoss?.toFixed(3) ?? '—'}</td><td className="r num">{f.modelLogLoss?.toFixed(3) ?? '—'}</td><td className="r num">{f.hybridLogLoss?.toFixed(3) ?? '—'}{f.hybridBeatsMarket ? <span className="muted" title="The publication's hybrid (market-anchored) variant beat the calibrated market in this family out of sample"> ✓</span> : null}</td></tr>)}</tbody>
               </table></div>
             )}
-            <p className="muted small">Lower log loss is better; ✓ marks the one family where the publication's market-anchored hybrid beat the calibrated market (rebounds), still research authority. Research tables do not run on a schedule in the NBA repository; the model-vs-market study is the latest it published.</p>
+            <p className="muted small">Lower log loss is better; ✓ marks the one family where the publication's market-anchored hybrid beat the calibrated market (rebounds), still research authority. The NBA publication does not refresh its research tables on a schedule; the model-vs-market study is the latest it published.</p>
           </Section>
         </div>
       </div>

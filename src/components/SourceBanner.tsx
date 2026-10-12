@@ -5,6 +5,7 @@ import type { SportSource } from '../data/source';
 import { ago, exactTime } from '../lib/format';
 import { routes } from '../lib/routes';
 import { FreshnessChip } from './ui';
+import { authorityLabel, healthLabel } from '../lib/plainLabels';
 import { liveMode, LiveStatusChip, type LiveMode } from './LiveQuote';
 import { liveStore, useLiveVersion, useNow } from '../live/hooks';
 
@@ -12,10 +13,11 @@ const HEALTH_GLYPH: Record<string, string> = { HEALTHY: '●', RESEARCH_ONLY: '�
 
 export function HealthPill({ status }: { status: string | null | undefined }) {
   const s = status ?? 'UNKNOWN';
+  const h = healthLabel(s);
   return (
-    <span className={`hpill hpill--${s.toLowerCase()}`}>
+    <span className={`hpill hpill--${s.toLowerCase()}`} title={h.meaning} data-health={s}>
       <span aria-hidden="true">{HEALTH_GLYPH[s] ?? '◌'}</span>
-      {s.replace('_', ' ')}
+      {h.word}
     </span>
   );
 }
@@ -63,7 +65,7 @@ export function SourceBanner({ source, shown }: { source: SportSource; shown: He
             {moved && <span className="srcbar__moved">Live has a newer run</span>}
           </p>
           <div className="srcbar__chips">
-            {h ? <HealthPill status={h.overall_status} /> : <span className="hpill hpill--unknown">health not readable</span>}
+            {h ? <HealthPill status={h.overall_status} /> : <span className="hpill hpill--unknown" title="The publication's health file could not be read, so freshness cannot be checked.">Health unknown</span>}
             {h && <FreshnessChip asOf={h.last_market_capture} component="market_data" thresholds={h.thresholds?.market_data} label="market capture" />}
             {h && <FreshnessChip asOf={h.last_model_generated} component="model" thresholds={h.thresholds?.model} label="model" />}
             <LiveStatusChip now={now} />
@@ -72,16 +74,16 @@ export function SourceBanner({ source, shown }: { source: SportSource; shown: He
           {source.mode === 'snapshot' && source.snapshot && (
             <>
               <p>
-                Research graph built from production run <code>{source.snapshot.run_id}</code> (v1 published {exactTime(source.snapshot.v1_generated_at)}),
-                with the sport repository's own exporter. {source.snapshot.note}
+                The research screens use a saved copy of {source.sport.label}'s published run <code>{source.snapshot.run_id}</code> (published {exactTime(source.snapshot.v1_generated_at)}),
+                rebuilt with the publication's own tools because its live research files are missing. {source.snapshot.note}
               </p>
-              <p className="muted">Upstream issue: {source.snapshot.reason}</p>
+              <p className="muted">Why the live research is missing: {source.snapshot.reason}</p>
             </>
           )}
           {live && (
             <p className="muted">
-              Live publication: {live.overall_status}, run <code>{live.payload_run_id}</code>, exported {exactTime(live.last_export_attempt)}, markets captured{' '}
-              {exactTime(live.last_market_capture)}; bet authority {live.bet_authority ?? 'none'}.
+              Live publication: {healthLabel(live.overall_status).word.toLowerCase()}, newest run <code>{live.payload_run_id}</code>, exported {exactTime(live.last_export_attempt)}, markets captured{' '}
+              {exactTime(live.last_market_capture)}; bet authority: {live.bet_authority ? authorityLabel(live.bet_authority).toLowerCase() : 'none'}.
             </p>
           )}
           <Link to={routes.status()}>All sports, health and capabilities →</Link>

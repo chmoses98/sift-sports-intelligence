@@ -8,6 +8,8 @@
 // formatting, plus EV at a live ask (P(side | script) − haircut − cost), shown only beside the published value.
 import type { EventResearchDoc, MetricDef } from '../contract/types';
 import { describeNhlMarket } from './marketLabel';
+import { plainClubTitle } from './betWords';
+import { nhlScriptWords } from './scriptNames';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -222,7 +224,11 @@ export function readNhl(r: EventResearchDoc | null | undefined): NhlScripts | Nh
   if (!x) return { status: 'ABSENT', reason: 'This publication carries no NHL script layer for the game.' };
   if (x.status !== 'OK') return { status: x.status === 'FAILED' ? 'FAILED' : 'NOT_SIMULATED', reason: String(x.reason ?? 'not simulated') };
   const order: string[] = x.script_order ?? [];
-  const scripts = (x.scripts ?? []).map(decodeScript).sort((a: NhlScript, b: NhlScript) => b.probability - a.probability || a.code - b.code);
+  // Team-specific words (owner item 8): each club named in its own scripts, never a bare tricode or "one team".
+  const code = (ha: string) => r.event.participants.find((p) => p.participant_id === r.participants?.find((q) => q.home_away === ha)?.participant_id)?.short_name ?? '';
+  const pair = { home: code('HOME'), away: code('AWAY') };
+  const named = (sc: NhlScript): NhlScript => ({ ...sc, ...nhlScriptWords(sc, pair) } as NhlScript);
+  const scripts = (x.scripts ?? []).map(decodeScript).map(named).sort((a: NhlScript, b: NhlScript) => b.probability - a.probability || a.code - b.code);
   const markets = new Map<string, NhlMarketRow>();
   for (const row of x.markets ?? []) {
     const [ticker, family, team, pYes, pYesMid, byScript, yes, no] = row as any[];
@@ -289,7 +295,7 @@ export function probText(v: number | null | undefined, dp = 0): string {
 
 /** Readable side of a candidate, in hockey language when the market is known ("Florida −1.5 — NO"). */
 export function candidateTitle(c: Pick<NhlCandidate, 'title' | 'side'> & { market_family?: string; family?: string }, m?: { kalshi_ticker: string; yes_description?: string; market_family?: string; period?: string | null } | null): string {
-  const t = (m ? describeNhlMarket(m as any)?.title : null) ?? c.title.replace(/^Full Game: /, 'Game total: ');
+  const t = (m ? describeNhlMarket(m as any)?.title : null) ?? plainClubTitle(c.title.replace(/^Full Game: /, 'Game total: '));
   return c.side === 'no' ? `${t} — NO` : t;
 }
 
@@ -370,4 +376,24 @@ export function learningLine(l: Learning | null): string | null {
   const parts = [`${f(c.games_projected)} games projected`, `${f(c.games_settled)} settled`, `${f(c.market_snapshots)} market snapshots`];
   if (c.script_forecasts) parts.push(`${f(c.script_forecasts_settled)} of ${f(c.script_forecasts)} script forecasts settled`);
   return parts.join(' · ');
+}
+
+const REASON_WORD: Record<string, string> = {
+  NOT_SELECTED_BY_OPTIMIZER: 'not picked by the research portfolio optimizer',
+  SUPERSEDED_BY_HIGHER_FIDELITY_EXPRESSION: 'replaced by a closer way to bet the same idea',
+};
+
+/**
+ * A governance reason as words: "SUPERSEDED_BY_HIGHER_FIDELITY_EXPRESSION (KXNHLSPREAD-…-NYR3|no)" → "replaced by a
+ * closer way to bet the same idea (NO on NY Rangers −2.5)". The referenced contract is named from the published market
+ * list; an unknown code is de-underscored, never dropped.
+ */
+export function governanceReason(reason: string, known: Map<string, { kalshi_ticker: string; yes_description?: string; market_family?: string; period?: string | null }>): string {
+  const m = /^([A-Z0-9_]+)\s*(?:\(([^|)]+)(?:\|(yes|no))?\))?$/.exec(reason.trim());
+  if (!m) return reason;
+  const word = REASON_WORD[m[1]] ?? m[1].replace(/_/g, ' ').toLowerCase();
+  if (!m[2]) return word;
+  const ref = known.get(m[2]);
+  const title = ref ? describeNhlMarket(ref as any)?.title ?? plainClubTitle(ref.yes_description ?? '') : null;
+  return title ? `${word} (${m[3] === 'no' ? 'NO on ' : ''}${title})` : word;
 }

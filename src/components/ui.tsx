@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { qualityLabel } from '../lib/plainLabels';
 import { Link } from 'react-router';
 import { statusFor } from '../contract/freshness';
 import type { FreshnessState, ObservationContext, Quality, QualityStatus, Thresholds } from '../contract/types';
@@ -126,16 +127,18 @@ const Q_GLYPH: Record<string, string> = { VERIFIED: '●', PARTIAL: '◐', RESEA
 
 export function QualityBadge({ status, quality, compact }: { status?: QualityStatus | string; quality?: Quality | null; compact?: boolean }) {
   const s = (status ?? quality?.status ?? 'UNKNOWN') as string;
+  // Plain words, with what the status means one hover away; the publication's code stays on Data & provenance.
+  const q = qualityLabel(s);
   const badge = (
-    <span className={`qbadge qbadge--${s.toLowerCase()}`}>
+    <span className={`qbadge qbadge--${s.toLowerCase()}`} title={quality ? undefined : q.meaning} data-quality={s}>
       <span aria-hidden="true">{Q_GLYPH[s] ?? '?'}</span>
-      {!compact && <span>{s}</span>}
-      {compact && <span className="sr-only">{s}</span>}
+      {!compact && <span>{q.word}</span>}
+      {compact && <span className="sr-only">{q.word}</span>}
     </span>
   );
   if (!quality) return badge;
   return (
-    <Popover label={`Provenance: ${s}`} trigger={badge}>
+    <Popover label={`Provenance: ${q.word}`} trigger={badge}>
       <Provenance quality={quality} />
     </Popover>
   );
@@ -144,7 +147,8 @@ export function QualityBadge({ status, quality, compact }: { status?: QualitySta
 export function Provenance({ quality }: { quality: Quality }) {
   return (
     <span className="pv">
-      <span className="pv__row"><span>Status</span><b>{quality.status}{quality.production ? ' · production' : ''}</b></span>
+      <span className="pv__row"><span>Status</span><b>{qualityLabel(quality.status).word}{quality.production ? ' · production' : ''}</b></span>
+      <span className="pv__note">{qualityLabel(quality.status).meaning}</span>
       {quality.source && <span className="pv__row"><span>Source</span><b>{quality.source}</b></span>}
       {quality.methodology_version && <span className="pv__row"><span>Method</span><b>{quality.methodology_version}{quality.source_version ? ` · src ${quality.source_version}` : ''}</b></span>}
       <span className="pv__row"><span>Generated</span><b>{exactTime(quality.generated_at)}</b></span>
@@ -281,8 +285,8 @@ export function Notice({ tone = 'info', title, children }: { tone?: 'info' | 'wa
 export function ErrorState({ error, what }: { error: Error | undefined; what: string }) {
   const nf = error?.name === 'NotFoundError';
   return (
-    <Notice tone={nf ? 'info' : 'error'} title={nf ? `${what} is not published` : `Could not load ${what}`}>
-      {nf ? 'The publication does not include this document. Nothing is shown in its place.' : error?.message}
+    <Notice tone={nf ? 'info' : 'error'} title={nf ? `${what.charAt(0).toUpperCase()}${what.slice(1)}: not in this publication` : `Could not load ${what}`}>
+      {nf ? 'The sport’s publication has not published this yet, so Sift shows nothing in its place rather than a guess. It appears here after a publication run that includes it.' : error?.message}
     </Notice>
   );
 }

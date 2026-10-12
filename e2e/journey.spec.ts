@@ -17,7 +17,7 @@ async function shot(page: Page, name: string) {
  */
 async function clipboardFor(context: BrowserContext, browserName: string) {
   if (browserName === 'chromium') {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://localhost:4173' });
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: `http://localhost:${process.env.SIFT_E2E_PORT || 4173}` });
     return (page: Page) => page.evaluate(() => navigator.clipboard.readText());
   }
   await context.addInitScript(() => {
@@ -68,6 +68,9 @@ test('the full research journey ends in a real handicap packet on the clipboard 
 
   // 4. Open one team's profile
   await page.locator('.gh__team--home .gh__name').click();
+  // The game page's own h1 also names the home team: wait for the team route and the game hero to be gone.
+  await expect(page).toHaveURL(/#\/nfl\/team\//);
+  await expect(page.locator('.gh__team--home')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
   await shot(page, '04-team');
 
@@ -127,11 +130,11 @@ test('the full research journey ends in a real handicap packet on the clipboard 
   } else {
     await page.reload();
   }
-  const trayCount = isMobile ? page.locator('.bottombar__n') : page.locator('.dnav__n [aria-hidden="true"]');
+  const trayCount = isMobile ? page.locator('.topbar__boardn') : page.locator('.dnav__n [aria-hidden="true"]');
   await expect(trayCount).toHaveText('1');
 
   // 12. Open My Board: the saved market sits under its game
-  await (isMobile ? page.getByRole('navigation', { name: 'Destinations' }) : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
+  await (isMobile ? page.getByRole('banner') : page.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name: /My Board/ }).click();
   const board = page.locator('.bgame').first();
   await expect(board.locator('.bentry')).toHaveCount(1);
   await shot(page, '12-board');

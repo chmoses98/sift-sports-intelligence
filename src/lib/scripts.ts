@@ -8,6 +8,12 @@
 // own distribution, not calibrated probabilities (the publication validates no calibration for them),
 // so Sift calls them "sim share" and shows whole percents.
 //
+// WHO WINS THE CLOSE GAME. `within6` pools both teams' one-score wins. From sim-script-1.1.0 the publication also
+// splits exactly those rows by result (team_volume[TEAM].by_close_result: win1-6 · tie · lose1-6, shares summing to
+// within6). When both teams carry it, Sift shows two winner-specific scripts in place of the pooled one — "<favourite>
+// win by 1–6" and "<underdog> win by 1–6" — and reports the simulated tie share beside them (ties settle neither
+// winner's moneyline, so they are not folded into either). Earlier publications keep the pooled one-score script.
+//
 // Script fit is exact only where a market settles on the final margin (moneyline, full-game spread):
 // for those, each bucket is a closed integer range and either always, never or partly satisfies the
 // market. Totals, team totals, props and period markets need a joint (margin × points) script output the
@@ -16,7 +22,7 @@ import type { EventResearchDoc, Market } from '../contract/types';
 import { isFullGame } from './period';
 import { cfbName } from './cfbTeams';
 
-export type ScriptId = 'fav-big' | 'fav' | 'close' | 'dog';
+export type ScriptId = 'fav-big' | 'fav' | 'close' | 'fav-close' | 'dog-close' | 'dog';
 export type Fit = 'yes' | 'part' | 'no';
 
 /** A range of HOME final margin (home points − away points), inclusive; null = unbounded. */
@@ -34,7 +40,8 @@ export interface TeamVolume {
 
 export interface GameScript {
   id: ScriptId;
-  index: 1 | 2 | 3 | 4;
+  /** Colour identity: 1 fav 14+, 2 fav 7–13, 3 one-score (pooled) or favourite by 1–6, 4 underdog by 7+, 5 underdog by 1–6. */
+  index: 1 | 2 | 3 | 4 | 5;
   /** The DISPLAY title, plain words a casual fan reads instantly ("Cowboys Win Big"). Presentation only. */
   name: string;
   /** The canonical model bucket this script is, unchanged by wording ("DAL by 14+"): for debugging, packets, tests. */
@@ -47,8 +54,13 @@ export interface GameScript {
    * to catch up." Never more than the publication carries — no score-state or scoring narrative is inferred.
    */
   story: string;
-  /** The compact form for tiles and the priorities rail, under the title: "By 14 or more. The Buccaneers throw more to catch up." */
+  /** One tight sentence for tiles, cards and the priorities rail, naming the teams: "Cowboys by 14 or more." */
   line: string;
+  /**
+   * The expandable detail behind the tight sentence (null when the simulation shows nothing more): how the teams play in
+   * games that end this way, from the conditional pass rates — "The Cowboys lean on the run while the Buccaneers throw to catch up."
+   */
+  detail: string | null;
   /** Share of simulated games (0..1). */
   share: number;
   home: MarginRange;
@@ -63,6 +75,13 @@ export interface ScriptSet {
   fav: 'home' | 'away';
   homeAbbr: string;
   awayAbbr: string;
+  /** The teams as the titles say them ("Bills", "Iowa State"). */
+  names: { home: string; away: string };
+  /**
+   * Share of simulated games that end tied after overtime, when the close game is split by winner (null when the
+   * pooled one-score script is shown, which already holds the ties). The scripts plus this sum to the whole simulation.
+   */
+  tie: number | null;
   /** Volume over every simulated game (share-weighted), for comparison. */
   overall: { home: TeamVolume; away: TeamVolume };
   source: string | null;
@@ -78,6 +97,7 @@ interface Bucket {
   pass_rate_mean?: number;
 }
 type Buckets = Partial<Record<'lead14+' | 'lead7-13' | 'within6' | 'trail7-13' | 'trail14+', Bucket>>;
+type CloseBuckets = Partial<Record<'win1-6' | 'tie' | 'lose1-6', Bucket>>;
 
 /** A team's own-perspective bucket for the HOME-margin range. */
 const MIRROR: Record<string, keyof Buckets> = { 'lead14+': 'trail14+', 'lead7-13': 'trail7-13', within6: 'within6', 'trail7-13': 'lead7-13', 'trail14+': 'lead14+' };
@@ -112,7 +132,7 @@ const nick = (name: string | undefined, abbr: string, sport?: string) => {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function gameScripts(r: EventResearchDoc): ScriptSet | null {
   const gsi = (r.extensions as any)?.game_script_inputs;
-  const tv = gsi?.team_volume as Record<string, { by_final_margin?: Buckets }> | undefined;
+  const tv = gsi?.team_volume as Record<string, { by_final_margin?: Buckets; by_close_result?: CloseBuckets }> | undefined;
   const homeP = r.participants.find((p) => p.home_away === 'HOME');
   const awayP = r.participants.find((p) => p.home_away === 'AWAY');
   const short = (pid?: string) => r.event.participants.find((p) => p.participant_id === pid)?.short_name ?? '';
@@ -123,6 +143,7 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
   if (!homeP || !awayP || !hb) return null;
   const total = Object.values(hb).reduce((a, b) => a + (b?.share_of_rows ?? 0), 0);
   if (!(total > 0.95 && total < 1.05)) return null;
+  const split = closeSplit(hb, tv?.[homeAbbr]?.by_close_result, tv?.[awayAbbr]?.by_close_result);
 
   // Home-margin bucket k ↔ the away team's own bucket MIRROR[k].
   const sum = (keys: (keyof Buckets)[]) => {
@@ -141,33 +162,84 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
   const dog = fav === 'home' ? 'away' : 'home';
   const sport = (r.event as { sport?: string }).sport ?? (r as { sport?: string }).sport;
   const name = { home: nick(homeP.display_name, homeAbbr, sport), away: nick(awayP.display_name, awayAbbr, sport) };
-  const keys: Record<ScriptId, (keyof Buckets)[]> =
+  type PooledId = 'fav-big' | 'fav' | 'close' | 'dog';
+  const keys: Record<PooledId, (keyof Buckets)[]> =
     fav === 'home'
       ? { 'fav-big': ['lead14+'], fav: ['lead7-13'], close: ['within6'], dog: ['trail7-13', 'trail14+'] }
       : { 'fav-big': ['trail14+'], fav: ['trail7-13'], close: ['within6'], dog: ['lead7-13', 'lead14+'] };
-  const mk = (id: ScriptId, index: 1 | 2 | 3 | 4, title: string, canonical: string, summary: string, leader: 'home' | 'away' | null): GameScript => {
+  const mk = (id: PooledId, index: GameScript['index'], title: string, canonical: string, summary: string, leader: 'home' | 'away' | null): GameScript => {
     const s = sum(keys[id]);
-    return { id, index, name: title, canonical, summary, story: summary, line: summary, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
+    return { id, index, name: title, canonical, summary, story: summary, line: summary, detail: null, share: s.share, home: span(keys[id]), leader, volume: { home: s.home, away: s.away } };
   };
-  // DISPLAY LANGUAGE. The four margin buckets are the model's; only their titles are written for a casual fan:
-  // "Win Big" (14+), "Win Comfortably" (7–13, or 7+ for the underdog), "Close Game Either Way" (6 or fewer).
-  // No title implies scoring (the publication simulates no joint margin × points script) or game flow. Index is
-  // the script's colour identity and never changes; the list itself is ordered most likely first.
+  // A close win, from the split: the winner's own win1-6 bucket and the loser's lose1-6 bucket are the same rows.
+  const mkClose = (id: 'fav-close' | 'dog-close', index: 3 | 5, side: 'home' | 'away', title: string, canonical: string, summary: string): GameScript => {
+    const h = split!.home[side === 'home' ? 'win1-6' : 'lose1-6']!;
+    const a = split!.away[side === 'home' ? 'lose1-6' : 'win1-6'];
+    const ph = pool([h]);
+    const pa = pool([a]);
+    const vol = (x: typeof ph): TeamVolume => ({ plays: x.plays, passAtt: x.passAtt, rushAtt: x.rushAtt, passRate: x.passRate });
+    return { id, index, name: title, canonical, summary, story: summary, line: summary, detail: null, share: h.share_of_rows ?? 0,
+      home: side === 'home' ? { lo: 1, hi: 6 } : { lo: -6, hi: -1 }, leader: side, volume: { home: vol(ph), away: vol(pa) } };
+  };
+  // DISPLAY LANGUAGE. The four margin buckets are the model's; only their titles are written for a casual fan, and
+  // every one names a team (owner item 8): "Win Big" (14+), "Win Comfortably" (7–13, or 7+ for the underdog) and, for
+  // the POOLED one-score bucket, "<underdog> Keep It Close" — the bucket is the underdog finishing within 6 either way, which
+  // includes the underdog winning a one-score game. No title implies scoring (the publication simulates no joint
+  // margin × points script) or game flow. Index is the script's colour identity and never changes; the list itself is
+  // ordered most likely first. A college name is one singular name ("Iowa State Wins Big"); a club nickname is plural.
   const abbr = { home: homeAbbr, away: awayAbbr };
+  const one = sport === 'CFB';
+  const v = (plural: string, singular: string) => (one ? singular : plural);
+  // With the split published, the one-score game becomes two scripts, one per winner ("Bears Win a Close One"), and
+  // the pooled script is not shown. Without it, the pooled script keeps its 1.0.0 title (the underdog finishing within 6).
+  const close = split
+    ? [
+        mkClose('fav-close', 3, fav, `${name[fav]} ${v('Win', 'Wins')} a Close One`, `${abbr[fav]} by 1–6`, `${name[fav]} ${v('win', 'wins')} by 1 to 6.`),
+        mkClose('dog-close', 5, dog, `${name[dog]} ${v('Win', 'Wins')} a Close One`, `${abbr[dog]} by 1–6`, `${name[dog]} ${v('win', 'wins')} by 1 to 6.`),
+      ]
+    : [mk('close', 3, `${name[dog]} ${v('Keep', 'Keeps')} It Close`, 'Within 6 either way', `${name[fav]} or ${name[dog]} by 6 points or fewer.`, null)];
   const scripts = sortScripts([
-    mk('fav-big', 1, `${name[fav]} Win Big`, `${abbr[fav]} by 14+`, `${name[fav]} win by 14 or more.`, fav),
-    mk('fav', 2, `${name[fav]} Win Comfortably`, `${abbr[fav]} by 7–13`, `${name[fav]} win by 7 to 13.`, fav),
-    mk('close', 3, 'Close Game Either Way', 'Within 6 either way', 'Decided by 6 points or fewer, either way.', null),
-    mk('dog', 4, `${name[dog]} Win Comfortably`, `${abbr[dog]} by 7+`, `${name[dog]} win by 7 or more.`, dog),
+    mk('fav-big', 1, `${name[fav]} ${v('Win', 'Wins')} Big`, `${abbr[fav]} by 14+`, `${name[fav]} ${v('win', 'wins')} by 14 or more.`, fav),
+    mk('fav', 2, `${name[fav]} ${v('Win', 'Wins')} Comfortably`, `${abbr[fav]} by 7–13`, `${name[fav]} ${v('win', 'wins')} by 7 to 13.`, fav),
+    ...close,
+    mk('dog', 4, `${name[dog]} ${v('Win', 'Wins')} Comfortably`, `${abbr[dog]} by 7+`, `${name[dog]} ${v('win', 'wins')} by 7 or more.`, dog),
   ]);
   const all = sum(['lead14+', 'lead7-13', 'within6', 'trail7-13', 'trail14+']);
-  const margin: Record<ScriptId, string> = { 'fav-big': 'By 14 or more.', fav: 'By 7 to 13.', close: 'Decided by 6 points or fewer, either way.', dog: 'By 7 or more.' };
+  const margin: Record<ScriptId, string> = {
+    'fav-big': `${name[fav]} by 14 or more.`, fav: `${name[fav]} by 7 to 13.`, close: `Either team by 6 or fewer.`,
+    'fav-close': `${name[fav]} by 1 to 6.`, 'dog-close': `${name[dog]} by 1 to 6.`, dog: `${name[dog]} by 7 or more.`,
+  };
   for (const sc of scripts) {
     const clause = scriptClause(sc, all, name);
     sc.story = clause ? `${sc.summary} ${clause}` : sc.summary;
-    sc.line = clause ? `${margin[sc.id]} ${clause}` : margin[sc.id];
+    sc.line = margin[sc.id];
+    sc.detail = clause;
   }
-  return { scripts, fav, homeAbbr, awayAbbr, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
+  return { scripts, fav, homeAbbr, awayAbbr, names: name, tie: split ? split.tie : null, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
+}
+
+/** Slack between the split's shares and within6 (each is rounded to 4 places by the publication). */
+const SPLIT_TOL = 0.002;
+
+/**
+ * The publication's split of the one-score bucket by winner, or null when it is absent or does not re-attribute
+ * within6 exactly (then the pooled script is shown — never a guessed split). Both teams must carry it, and the home
+ * team's close win must be the away team's close loss.
+ */
+function closeSplit(hb: Buckets, home: CloseBuckets | undefined, away: CloseBuckets | undefined): { home: CloseBuckets; away: CloseBuckets; tie: number } | null {
+  if (!home || !away) return null;
+  const sh = (b: Bucket | undefined) => b?.share_of_rows;
+  const [hw, ht, hl, aw, al] = [sh(home['win1-6']), sh(home.tie), sh(home['lose1-6']), sh(away['win1-6']), sh(away['lose1-6'])];
+  if ([hw, ht, hl, aw, al].some((x) => typeof x !== 'number' || !Number.isFinite(x) || x < 0)) return null;
+  const w6 = hb.within6?.share_of_rows;
+  if (w6 == null || Math.abs(hw! + ht! + hl! - w6) > SPLIT_TOL) return null;
+  if (Math.abs(hw! - al!) > SPLIT_TOL || Math.abs(hl! - aw!) > SPLIT_TOL) return null;
+  return { home, away, tie: ht! };
+}
+
+/** The share of simulated games decided by six points or fewer (either winner, ties included). */
+export function oneScoreShare(set: ScriptSet): number {
+  return set.scripts.filter((s) => s.id === 'close' || s.id === 'fav-close' || s.id === 'dog-close').reduce((a, s) => a + s.share, 0) + (set.tie ?? 0);
 }
 
 /** Pass-rate shift (share of plays) that counts as a real change in how a team plays in a script: 3 points. */

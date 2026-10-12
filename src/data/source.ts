@@ -94,7 +94,7 @@ async function doResolve(sport: SportConfig, pref: SourcePreference): Promise<Sp
   }
   const base = { sport, liveHealth, liveError, snapshot: null as SnapshotInfo | null };
   if (liveExplorer) {
-    return { ...base, mode: 'live', root: sport.rawBase, reason: `Live ${sport.label} publication from ${sport.repo}@${sport.branch}.` };
+    return { ...base, mode: 'live', root: sport.rawBase, reason: `Live ${sport.label} research, read straight from the publication.` };
   }
   if (sport.snapshotBase) {
     // The bundled snapshot is same-origin; one retry absorbs a transient failure (a reload racing the
@@ -112,15 +112,15 @@ async function doResolve(sport: SportConfig, pref: SourcePreference): Promise<Sp
       });
       const why =
         pref === 'snapshot'
-          ? 'Snapshot selected in settings.'
-          : `The live ${sport.label} root publishes no research explorer, so the research graph comes from a same-run snapshot.`;
+          ? 'You chose the saved snapshot in Settings.'
+          : `The live ${sport.label} publication has no research files right now, so research screens use a saved copy built from the same run.`;
       return { ...base, snapshot: info, mode: 'snapshot', root: sport.snapshotBase, reason: why };
     } catch {
       /* fall through */
     }
   }
   if (liveHealth) {
-    return { ...base, mode: 'live-v1', root: sport.rawBase, reason: `${sport.label} publishes the v1 board but no research explorer.` };
+    return { ...base, mode: 'live-v1', root: sport.rawBase, reason: `${sport.label} publishes its game board but no research files yet.` };
   }
   return { ...base, mode: 'unavailable', root: null, reason: liveError ?? `${sport.label} could not be read.` };
 }

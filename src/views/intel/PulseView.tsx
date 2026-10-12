@@ -15,6 +15,7 @@ import { routes } from '../../lib/routes';
 import { useVisit } from '../../state/trail';
 import { fmt, loadEvidence, type Bin, type Comparison, type SportEvidence } from '../../intelligence/evidence';
 import { IntelNav } from './IntelNav';
+import { modelVersionLabel } from '../../lib/plainLabels';
 
 const LEADER_WORD = { market: 'Market leads', model: 'Model leads', even: 'About even' } as const;
 const leaderTone = (l: Comparison['leader']) => (l === 'model' ? 'good' : l === 'even' ? 'mid' : 'bad');
@@ -28,8 +29,9 @@ export function CompareBars({ c }: { c: Comparison }) {
   const max = Math.max(c.model, c.market) * 1.08 || 1;
   return (
     <div className="cbars" role="img" aria-label={`${c.label}: model ${fmt(c.model)}, market ${fmt(c.market)}; lower is better; ${LEADER_WORD[c.leader]}`}>
-      <span className="cbars__row"><span className="cbars__k">Model</span><span className="cbars__t"><span className="cbars__f cbars__f--model" style={{ width: `${(c.model / max) * 100}%` }} /></span><b className="bnum">{fmt(c.model)}</b></span>
-      <span className="cbars__row"><span className="cbars__k">Market</span><span className="cbars__t"><span className="cbars__f cbars__f--market" style={{ width: `${(c.market / max) * 100}%` }} /></span><b className="bnum">{fmt(c.market)}</b></span>
+      <span className="cbars__head">Forecast error · the shorter bar is better</span>
+      <span className={`cbars__row${c.leader === 'model' ? ' is-lead' : ''}`}><span className="cbars__k">Model</span><span className="cbars__t"><span className="cbars__f cbars__f--model" style={{ width: `${(c.model / max) * 100}%` }} /></span><b className="bnum">{fmt(c.model)}</b>{c.leader === 'model' && <span className="cbars__lead">Better</span>}</span>
+      <span className={`cbars__row${c.leader === 'market' ? ' is-lead' : ''}`}><span className="cbars__k">Market</span><span className="cbars__t"><span className="cbars__f cbars__f--market" style={{ width: `${(c.market / max) * 100}%` }} /></span><b className="bnum">{fmt(c.market)}</b>{c.leader === 'market' && <span className="cbars__lead">Better</span>}</span>
       <span className="cbars__foot">{c.metric} · lower is better{c.n ? ` · n = ${c.n.toLocaleString()}` : ''}</span>
     </div>
   );
@@ -43,7 +45,7 @@ function PulseCard({ e }: { e: SportEvidence }) {
     <article className={`fx-card pcard pcard--${c ? leaderTone(c.leader) : 'none'}`} aria-labelledby={`pc-${e.slug}`}>
       <header className="pcard__h">
         <h2 className="pcard__t" id={`pc-${e.slug}`}>{nav && <SportMark slug={e.slug} icon={nav.icon} size={22} />}{e.label}</h2>
-        {c ? <span className={`tier tier--${leaderTone(c.leader)}`}>{LEADER_WORD[c.leader]}</span> : <span className="tier tier--none">{e.state === 'error' ? 'Unavailable' : 'No record published'}</span>}
+        {c ? <span className={`tier tier--${leaderTone(c.leader)}`}>{LEADER_WORD[c.leader]}</span> : <span className="tier tier--none">{e.state === 'error' ? 'Could not be read' : 'No record published'}</span>}
       </header>
       {c ? (
         <>
@@ -68,6 +70,7 @@ function PulseCard({ e }: { e: SportEvidence }) {
       {e.families.length > 0 && (
         <div className="pfam" role="group" aria-label="By market family">
           {e.families.slice(0, 6).map((f) => <span key={f.label} className={`pfam__c pfam__c--${leaderTone(f.leader)}`} title={`${f.label}: model ${fmt(f.model)} vs market ${fmt(f.market)} (${f.metric}, n ${f.n ?? '—'})`}>{f.label}</span>)}
+          {e.families.length > 6 && <Link to={routes.lab(e.slug)} className="pfam__more">+{e.families.length - 6} more in Model Lab</Link>}
         </div>
       )}
       <footer className="pcard__f">
@@ -163,6 +166,13 @@ function FamilyBars({ f, max }: { f: Comparison; max: number }) {
   );
 }
 
+/** The headline comparison in plain words: what a reader should take from it, never stronger than the record. */
+export function meaningOf(leader: Comparison['leader'], label: string): string {
+  if (leader === 'market') return `The market’s prices have landed closer to what actually happened than the ${label} model’s. Where the model disagrees with the market, the market has usually been right, so a gap is a question to research, not an edge.`;
+  if (leader === 'model') return `On this published sample the ${label} model has landed closer than the market. That is past accuracy on these rows, not a promise, and the publication still decides whether any bet is permitted.`;
+  return `The ${label} model and the market have been about as accurate as each other: the model’s disagreements are not, on this record, a reason to bet.`;
+}
+
 export function LabView() {
   useVisit('Advanced Model Lab', 'intel');
   const ev = useEvidence();
@@ -206,6 +216,7 @@ export function LabView() {
             <FxCard title="Headline comparison" icon="bolt" id="lab-head" className="fx-span-6">
               <p className="tpanel__lead">{cur.verdict}</p>
               {cur.headline && <CompareBars c={cur.headline} />}
+              {cur.headline && <p className="labx__mean"><b>What this means.</b> {meaningOf(cur.headline.leader, cur.label)}</p>}
               {cur.headline?.note && <p className="tm-note">{cur.headline.note}</p>}
             </FxCard>
             {cur.bins && cur.bins.length > 2 ? (
@@ -246,7 +257,7 @@ export function LabView() {
               </FxCard>
             ))}
             <FxCard title="Source and limitations" icon="shield" id="lab-src" className="fx-span-12">
-              <p className="tpanel__note">Source: <code>{cur.source}</code>{cur.modelVersion ? ` · model ${cur.modelVersion}` : ''}{cur.asOf ? ` · evaluated ${new Date(cur.asOf).toLocaleString()}` : ''}</p>
+              <p className="tpanel__note"><span title={cur.source}>Source: the publication’s own evaluation record</span>{cur.modelVersion ? ` · model ${modelVersionLabel(cur.modelVersion) ?? ''}` : ''}{cur.asOf ? ` · evaluated ${new Date(cur.asOf).toLocaleString()}` : ''}</p>
               {cur.limitations.length > 0 && <ul className="tpanel__list">{cur.limitations.slice(0, 8).map((l) => <li key={l}>{l}</li>)}</ul>}
               <p className="tpanel__note">Not shown, because no publication provides it yet: feature ablations and a time series of these scores. Model changes are promoted only by their publication after out-of-sample and prospective checks; SIFT never promotes one.</p>
             </FxCard>

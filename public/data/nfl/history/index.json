@@ -2,7 +2,7 @@
  "kind": "sift_history_index",
  "sport": "NFL",
  "season": 2026,
- "built_at": "2026-10-06T20:34:11Z",
+ "built_at": "2026-10-11T06:59:26Z",
  "sources": [
   {
    "key": "stats",
@@ -17,12 +17,12 @@
   {
    "key": "snaps",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2026.csv",
-   "rows": 5876
+   "rows": 5970
   },
   {
    "key": "ftn",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/ftn_charting/ftn_charting_2026.csv",
-   "rows": 8246
+   "rows": 10829
   },
   {
    "key": "prior_stats",
@@ -37,7 +37,7 @@
   {
    "key": "prior_schedule",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
-   "rows": 0
+   "rows": 7548
   }
  ],
  "prior_season": 2025,
@@ -52,12 +52,14 @@
   "1": 2675,
   "2": 2649,
   "3": 2741,
-  "4": 181
+  "4": 2764
  },
  "notes": [
   "Counts and ratios of published rows only; nothing is modelled or adjusted.",
   "Snap counts are joined to players by name, team and week (PFR rows carry no GSIS id).",
   "A blitz is an FTN-charted dropback with at least one blitzer. Man/zone coverage is not in any 2026 file published yet.",
+  "Team box score per week: points (final score), passing yards gross with sacks and sack yards separate (net = gross − sack yards), rushing yards on every run including scrambles and kneels, interceptions, fumbles lost by the offense, third downs, and red-zone trips (drives that reached the opponent 20) with touchdown trips.",
+  "Box count splits: designed runs against 8+ defenders in the box (FTN n_defense_box) versus 7 or fewer, with yards and EPA; per rusher in vs_box.",
   "Prior season: weekly box scores and snap counts (no play-by-play, so no longest plays or blitz splits); home/away from the game id; dates and scores only when the schedule file is available.",
   "Player ranks: per-game averages over regular-season games within a position, among players with at least half the games of the most-played player; #1 = most. Ties share a rank.",
   "No historical betting lines are published here: comparisons in the app are against the CURRENT line only."

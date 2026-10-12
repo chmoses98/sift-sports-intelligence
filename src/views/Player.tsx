@@ -26,10 +26,14 @@ import { playerPhoto } from '../lib/players';
 import { rankView } from '../lib/rank';
 import { describeMarket, overLine } from '../lib/marketLabel';
 import { usePlayerHistory } from '../history/load';
-import { hitRecord, playerTier, pregameRows, rankFor, statsForPosition, statDef, windowLabel, windowRows, windowsFor, type HistoryWindow } from '../history/stats';
+import { playerTier, pregameRows, rankFor, statsForPosition, statDef } from '../history/stats';
+import { hitRate, hitWindowLabel, hitWindows, hitWindowShort, windowGames, type HitWindow } from '../history/hitRate';
 import { mainLine as pickMainLine } from '../insights/props';
 import type { Market } from '../contract/types';
 import { GameBars, HistorySummary, LogTable, Splits, UsageRows } from './player/history';
+import { HitSummary } from './props/HitRate';
+import { PerfChart } from './props/PerfChart';
+import '../styles/lane-b-props.css';
 import type { Finding } from '../research/findings';
 import { overlayMarket } from '../live/overlay';
 
@@ -109,7 +113,7 @@ function GenericPlayerView() {
   useVisit(parentStep === undefined ? null : p?.entity.display_name, 'player', parentStep);
   const [stat, setStat] = useState<string | null>(null);
   const [hs, setHs] = useState<string | null>(null);
-  const [hw, setHw] = useState<HistoryWindow>('last5');
+  const [hw, setHw] = useState<HitWindow>('last5');
   const gsis = (p?.entity.source_ids?.gsis_id as string | undefined) ?? ((p?.extensions as any)?.gsis_id as string | undefined) ?? null;
   const hist = usePlayerHistory(sport.code, gsis);
 
@@ -284,14 +288,16 @@ function GenericPlayerView() {
         const result = kicked && wk != null ? all.find((r) => r.week === wk) ?? null : null;
         // Every game a pregame view may use: last season, then this season before this game.
         const hrows = hist.data ? pregameRows(hist.data, game?.start_time_utc, wk) : { prior: [], current: [] };
-        const wins = windowsFor(hrows);
-        const win = wins.includes(hw) ? hw : wins[0] ?? 'last5';
-        const wrows = windowRows(hrows, win);
         const season = hist.data?.season ?? new Date(now).getUTCFullYear();
-        const winName = windowLabel(win, season, hist.data?.prior?.season ?? null);
+        const priorSeason = hist.data?.prior?.season ?? null;
         const options = statsForPosition(pos).filter((d) => (STAT_TO_SIM[d.key] && sims.some((o) => o.metric_id === STAT_TO_SIM[d.key])) || [...hrows.prior, ...all].some((r) => (d.get(r) ?? 0) > 0));
         const cur = statDef(hs && options.some((o) => o.key === hs) ? hs : options[0]?.key) ?? null;
         if (!cur) return null;
+        // Windows count games he PLAYED (history/hitRate.ts): a row with no offensive snap is skipped, never a zero.
+        const wins = hitWindows(hrows, cur);
+        const win: HitWindow = wins.some((w) => w.w === hw) ? hw : wins[0]?.w ?? 'last5';
+        const wrows = windowGames(hrows, cur, win).games.map((g) => g.row);
+        const winName = hitWindowLabel(win, season, priorSeason);
         const sObs = STAT_TO_SIM[cur.key] ? sims.find((o) => o.metric_id === STAT_TO_SIM[cur.key]) : undefined;
         const qq = quantilesOf(sObs);
         const ml = pickMainLine((byStat.get(cur.key) ?? []) as unknown as Market[]);
@@ -299,12 +305,13 @@ function GenericPlayerView() {
         const defId = /rush|carries/.test(cur.key) ? 'met_nfl.adj_def_rush_epa' : 'met_nfl.adj_def_db_epa';
         const defObs = opp.data?.metrics.find((x) => x.metric_id === defId);
         const defRank = rankView(defObs?.context);
-        const rec = line != null ? hitRecord(windowRows(hrows, 'last5'), cur, line) : null;
+        const rec = line != null ? hitRate(hrows, cur, line, 'last5') : null;
+        const hwin = line != null ? hitRate(hrows, cur, line, win) : null;
         const rank = hist.data ? rankFor(hist.data, cur.key, wk, win === 'prior' ? 'prior' : 'current') : null;
         const f = (v: number) => (cur.unit === 'rec' || cur.unit === 'TD' || cur.unit === 'INT' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)));
         const finding: Finding | null = sObs?.value != null && qq ? {
           key: `proj:${playerId}:${cur.key}`, kind: 'projection', sport: sport.code, title: `${p.entity.display_name} ${cur.label.toLowerCase()}`,
-          statement: `Projection ${f(sObs.value)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.values.length ? `; ${rec.over} of his last ${rec.values.length} games above today's line of ${line}` : ''}.`,
+          statement: `Projection ${f(sObs.value)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.n ? `; ${rec.over} of his last ${rec.n} games played over today's line of ${line}${rec.push ? ` (${rec.push} push${rec.push > 1 ? 'es' : ''})` : ''}` : ''}.`,
           href: routes.player(slug, playerId), anchor: ml ? { ref_kind: 'MARKET', id: ml.market_id, extra: { market_id: ml.market_id, event_id: ml.event_id } } : { ref_kind: 'PLAYER', id: playerId },
           kickoff: game?.start_time_utc ?? null,
         } : null;
@@ -329,7 +336,7 @@ function GenericPlayerView() {
                   </dl>
                   <QuantileDist points={quantilePoints(qq)} line={line} projection={sObs.value} format={f} unit={cur.unit} minSpan={cur.unit === 'yds' ? 8 : 3} label={`${p.entity.display_name} ${cur.label.toLowerCase()}: simulated distribution`} />
                   <div className="pthis__x">
-                    {rec && rec.values.length > 0 && <span className="pthis__rec"><b>{rec.over} of his last {rec.values.length}</b> games above today's line</span>}
+                    {rec && rec.n > 0 && <span className="pthis__rec"><b>{rec.over} of his last {rec.n}</b> games played over today's line{rec.push ? ` · ${rec.push} push${rec.push > 1 ? 'es' : ''}` : ''}</span>}
                     {finding && <DigDeeper finding={finding} />}
                   </div>
                 </div>
@@ -342,8 +349,8 @@ function GenericPlayerView() {
                 <h2 id="pgame-h" className="gsec__t">Game by Game</h2>
                 {wins.length > 1 && (
                   <div className="seg seg--sm seg--scroll" role="tablist" aria-label="Games shown">
-                    {wins.map((w) => (
-                      <button key={w} type="button" role="tab" aria-selected={w === win} className={`seg__b${w === win ? ' is-on' : ''}`} onClick={() => setHw(w)}>{windowLabel(w, season, hist.data?.prior?.season ?? null)}</button>
+                    {wins.map(({ w, n }) => (
+                      <button key={w} type="button" role="tab" aria-selected={w === win} className={`seg__b${w === win ? ' is-on' : ''}`} onClick={() => setHw(w)}>{hitWindowShort(w, season, priorSeason)} <small className="pexa__wn">{n}</small></button>
                     ))}
                   </div>
                 )}
@@ -353,14 +360,18 @@ function GenericPlayerView() {
               {!hist.loading && !hist.data && <p className="muted small">No {sport.label} game log for this player yet (rookie, no snaps, or not in the play-by-play).</p>}
               {hist.data && wrows.length > 0 && (
                 <>
-                  <HistorySummary rows={wrows} stat={cur} line={line} projection={!kicked && sObs?.value != null ? sObs.value : null} windowName={winName} unit={cur.unit} />
+                  {hwin ? <HitSummary h={hwin} windowName={winName} unit={cur.unit} projection={!kicked && sObs?.value != null ? sObs.value : null} /> : <HistorySummary rows={wrows} stat={cur} line={line} projection={!kicked && sObs?.value != null ? sObs.value : null} windowName={winName} unit={cur.unit} />}
                   {rank && (
                     <p className="hsum__rank">
                       {cur.label} per game: <b className="num">#{rank.rank}</b> of {rank.of} {rank.position}s <span className="hsum__tier">{playerTier(rank.rank, rank.of)}</span>
                       <span className="muted"> · {rank.season}{rank.through_week != null ? `, through week ${rank.through_week}` : ', full season'} · {rank.per_game} per game, min {rank.min_games} games</span>
                     </p>
                   )}
-                  <GameBars rows={wrows} stat={cur} line={line} season={win === 'prior' ? hist.data.prior?.season ?? season : season} upcoming={!kicked && win !== 'prior' && sObs?.value != null && qq ? { projection: sObs.value, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />
+                  {hwin ? (
+                    <PerfChart h={hwin} statLabel={cur.label} unit={cur.unit} season={season} sport={sport.code} projection={!kicked && win !== 'prior' && sObs?.value != null ? { value: sObs.value, typical: qq ? [qq.p25, qq.p75] : null } : null} />
+                  ) : (
+                    <GameBars rows={wrows} stat={cur} line={line} season={win === 'prior' ? priorSeason ?? season : season} upcoming={!kicked && win !== 'prior' && sObs?.value != null && qq ? { projection: sObs.value, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />
+                  )}
                 </>
               )}
               {hist.data && wrows.length === 0 && <p className="muted small">No games in this window.</p>}
@@ -522,7 +533,7 @@ function GenericPlayerView() {
           <dl className="facts facts--slim">
             <div className="fact"><dt>Profile quality</dt><dd><QualityBadge quality={p.quality} /></dd></div>
             <div className="fact"><dt>Player markets</dt><dd><QualityBadge status={capStatus(caps, 'player_props')} /></dd></div>
-            <div className="fact"><dt>Model prices</dt><dd><QualityBadge status={capStatus(caps, 'raw_projections')} /> authority RESEARCH_ONLY</dd></div>
+            <div className="fact"><dt>Model prices</dt><dd><QualityBadge status={capStatus(caps, 'raw_projections')} /> Research only</dd></div>
             <div className="fact"><dt>Projected ranges</dt><dd><QualityBadge status={capStatus(caps, 'projection_distributions')} /></dd></div>
             <div className="fact"><dt>Usage</dt><dd><QualityBadge status={capStatus(caps, 'usage')} /> projected, not observed usage</dd></div>
             <div className="fact"><dt>Game logs</dt><dd><QualityBadge status={capStatus(caps, 'player_game_logs')} /></dd></div>

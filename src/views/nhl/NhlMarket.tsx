@@ -5,7 +5,7 @@
 import { Link } from 'react-router';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Stratum } from '../../components/ui';
-import { centsText, evAt, evText, isNhlScripts, probText, readNhl, sideProbabilities, survivalText, TIER_HELP } from '../../lib/nhl';
+import { centsText, evAt, evText, governanceReason, isNhlScripts, probText, readNhl, sideProbabilities, survivalText, TIER_HELP } from '../../lib/nhl';
 import { routes } from '../../lib/routes';
 import { lowerLabel, ResearchOnly, ScriptDot, StatusChip, TierChip } from './parts';
 
@@ -32,6 +32,7 @@ export function NhlMarketResearch({ r, m, slug }: { r: EventResearchDoc | null |
     );
   }
   const cands = s.candidates.filter((c) => c.ticker === m.kalshi_ticker);
+  const known = new Map((r?.markets ?? []).map((x) => [x.kalshi_ticker, x]));
   const sides = (['yes', 'no'] as const).map((side) => ({ side, sd: side === 'yes' ? row.yes : row.no, p: sideProbabilities(row, side), ev: evAt(row, side, (side === 'yes' ? row.yes : row.no)?.cost ?? null), cand: cands.find((c) => c.side === side) }));
   const idx = (id: string) => s.order.indexOf(id);
   const failOf = (id: string | null) => (id ? s.byId.get(id) : undefined);
@@ -51,7 +52,7 @@ export function NhlMarketResearch({ r, m, slug }: { r: EventResearchDoc | null |
       {cands.map((c) => (
         <div key={c.bet_id} className="nunav" role="note">
           <b>Research candidate ({c.side.toUpperCase()}):</b> fair {probText(c.p_model, 1)}, conservative {probText(c.p_conservative, 1)}, edge after fee {evText(c.ev_adjusted)}, bet up to {centsText(c.bet_up_to_cents)} · <TierChip tier={c.robustness} /> <StatusChip status={c.governance.status} />
-          {c.governance.reasons.length > 0 && <span className="muted"> · {c.governance.reasons.map((x) => x.replace(/_/g, ' ').toLowerCase()).join('; ')}</span>}
+          {c.governance.reasons.length > 0 && <span className="muted"> · {c.governance.reasons.map((x) => governanceReason(x, known)).join('; ')}</span>}
           {failOf(c.survival.failure_script) && <> · fails mainly if <b>{lowerLabel(failOf(c.survival.failure_script)!.label)}</b></>}
           <span className="muted"> · {c.governance.stake_kind}</span>
           <div className="small"><Link to={routes.game(slug, r!.event.event_id, { tab: 'candidates' })}>Why, with the evidence for and against →</Link></div>

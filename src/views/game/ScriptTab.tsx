@@ -22,17 +22,53 @@ import { sharePct, type GameScript, type ScriptId, type ScriptSet, type TeamVolu
 import { teamColors, teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
 import { Info, ScriptGlyph, SIM_SHARE_INFO } from './panels';
+import { ExpressionList, ScriptShareChart, SurvivorBoard, type BoardItem, type BoardScript, type ExpressionRow } from './ScriptSurvivors';
+import { multiScriptSurvivors, scriptExpressions, VOLUME_LEAN_NOTE } from '../../lib/scriptExpressions';
+import { useNow } from '../../live/hooks';
 import { ScriptCompareStudio } from './ScriptCompare';
 
+/**
+ * Under the split chart when the close game is split by winner: the tie share (no winner, so no script) and what the split
+ * is worth. Evidence: nfl-edge-finder research/game_script_v2/CLOSE_SPLIT_CALIBRATION.md (2021–2025, 1,424 games).
+ */
+export function CloseSplitNote({ tie }: { tie: number }) {
+  return (
+    <p className="fr-note" data-testid="close-split-note">
+      Ties after overtime: {(tie * 100).toFixed(1)}% of simulated games, no winner, so not a script.{' '}
+      <Info label="About the close-game split">
+        One-score games are split by who wins them, from the same simulated games, so the shares still add up to the whole simulation. Over
+        2021–2025 the split was about as accurate as the point spread alone at saying who wins a close game, no better. Read these as simulation
+        shares, not odds.
+      </Info>
+    </p>
+  );
+}
+
 export function rangeText(s: GameScript, set: ScriptSet): string {
-  const fav = set.fav === 'home' ? set.homeAbbr : set.awayAbbr;
-  const dog = set.fav === 'home' ? set.awayAbbr : set.homeAbbr;
+  const fav = set.fav === 'home' ? set.names.home : set.names.away;
+  const dog = set.fav === 'home' ? set.names.away : set.names.home;
   switch (s.id) {
-    case 'fav-big': return `${fav} wins by 14 or more points.`;
-    case 'fav': return `${fav} wins by 7 to 13 points.`;
-    case 'close': return `The final margin is 6 points or fewer either way — including ${dog} winning a one-score game.`;
-    case 'dog': return `${dog} wins by 7 or more points.`;
+    case 'fav-big': return `The ${fav} win by 14 or more points.`;
+    case 'fav': return `The ${fav} win by 7 to 13 points.`;
+    case 'close': return `The final margin is 6 points or fewer either way — the ${fav} winning a one-score game or the ${dog} winning one.`;
+    case 'fav-close': return `The ${fav} win by 1 to 6 points.`;
+    case 'dog-close': return `The ${dog} win by 1 to 6 points.`;
+    case 'dog': return `The ${dog} win by 7 or more points.`;
   }
+}
+
+/** The script list as the shared script graphics read it: tone = colour identity, team = the side the script belongs to. */
+export function boardScripts(set: ScriptSet): (BoardScript & { share: number })[] {
+  // The survivor graphics' tones 5..7 are NHL's extra scripts; the NFL's fifth script (underdog by 1–6) is tone 8.
+  return set.scripts.map((s) => ({ id: s.id, name: s.name, tone: s.index === 5 ? 8 : s.index, share: s.share, team: s.leader ? (s.leader === 'home' ? set.homeAbbr : set.awayAbbr) : null }));
+}
+
+/** The NFL multi-script survivors as survivor-board items (exact fit: margin-settled contracts only). */
+export function survivorItems(rows: PriceRow[], set: ScriptSet, slug: string, eventId: string): BoardItem[] {
+  return multiScriptSurvivors(rows, set, 2, 6).map((x) => ({
+    key: x.row.m.market_id, label: x.row.label, href: routes.market(slug, x.row.m.market_id, eventId), side: 'YES', ask: x.row.ask, at: x.row.m.captured_at ?? null,
+    cells: x.fits, similar: x.similar,
+  }));
 }
 
 export const VOL: { k: keyof TeamVolume; label: string; fmt: (v: number) => string; pct?: boolean }[] = [
@@ -228,33 +264,52 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
   homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; sportCode: string;
 }) {
   const [sp, setSp] = useSearchParams();
+  const now = useNow(15_000);
   const compare = sp.get('view') === 'compare';
   const setView = (v: 'single' | 'compare') => setSp((p) => { const n = new URLSearchParams(p); if (v === 'compare') n.set('view', 'compare'); else n.delete('view'); return n; }, { replace: true });
   const s = set.scripts.find((x) => x.id === selected) ?? [...set.scripts].sort((a, b) => b.share - a.share)[0];
   const i = set.scripts.indexOf(s);
   const priced = rows.filter((x) => x.fit && x.ask != null && x.ask > 0.03 && x.ask < 0.97);
-  const wins = priced.filter((x) => x.fit!.fits[i] === 'yes').sort((a, b) => (b.ask ?? 0) - (a.ask ?? 0)).slice(0, 6);
+  const winsIn = (k: number) => priced.filter((x) => x.fit!.fits[k] === 'yes');
   const loses = priced.filter((x) => x.fit!.fits[i] === 'no').sort((a, b) => (b.ask ?? 0) - (a.ask ?? 0)).slice(0, 6);
   const leader = s.leader ?? set.fav;
   const trailer = leader === 'home' ? 'away' : 'home';
   const abbr = { home: set.homeAbbr, away: set.awayAbbr };
   const prof = { home: homeProf, away: awayProf };
   const players = keyPlayers(r, set);
-  const lean = (side: 'home' | 'away', k: 'passAtt' | 'rushAtt') => {
-    const v = s.volume[side][k];
+  const lean = (sc: GameScript, side: 'home' | 'away', k: 'passAtt' | 'rushAtt') => {
+    const v = sc.volume[side][k];
     const b = set.overall[side][k];
     return v != null && b ? (v - b) / b : null;
   };
-  const leanWord = (x: number | null) => (x == null ? 'no change' : Math.abs(x) < 0.03 ? 'about the same' : `${x > 0 ? 'more' : 'less'} (${x > 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%)`);
+  const leanWord = (x: number | null) => (x == null ? 'not published' : Math.abs(x) < 0.03 ? 'about the same' : `${x > 0 ? 'more' : 'less'} (${x > 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%)`);
   const others = set.scripts.filter((x) => x.id !== s.id).sort((a, b) => b.share - a.share);
   const band = marginBand(r);
+  const scripts = boardScripts(set);
+  const expr = scriptExpressions(r, rows, set, s.id, set.names);
+  const exprRows: ExpressionRow[] = expr.items.map((x) => ({
+    key: `${x.row.m.market_id}${x.side}`, family: x.kind === 'moneyline' ? 'Moneyline' : x.kind === 'spread' ? 'Spread' : 'Player props', label: x.row.label, side: x.side, ask: x.ask,
+    at: x.row.m.captured_at ?? null, href: routes.market(slug, x.row.m.market_id, eventId), why: x.why, basis: x.basis,
+  }));
+  const details = (id: string) => {
+    const k = set.scripts.findIndex((x) => x.id === id);
+    const sc = set.scripts[k];
+    const n = winsIn(k).length;
+    return (
+      <>
+        <p><b>{sc.line}</b> {rangeText(sc, set)}</p>
+        <p>{(['away', 'home'] as const).map((side) => `${set.names[side]} pass ${leanWord(lean(sc, side, 'passAtt'))}`).join(' · ')}.</p>
+        <p>{n ? <><b>{n}</b> priced margin {n === 1 ? 'contract wins' : 'contracts win'} in every game of it.</> : 'No priced margin contract wins in every game of it.'}</p>
+      </>
+    );
+  };
   return (
     <div className="fr-theater">
       <header className="fr-th__h">
         <span className="fr-th__ic" aria-hidden="true"><Icon name="layers" size={22} /></span>
         <div className="fr-th__tt">
           <h2 className="fr-th__t">SIFT Game Script Theater</h2>
-          <p className="fr-th__sub">How this game could end, how each team plays when it does, and which markets each ending settles. Shares are of simulated games, not odds. <Info label="What is sim share?">{SIM_SHARE_INFO}</Info></p>
+          <p className="fr-th__sub">How {set.names.away} at {set.names.home} could end, and which priced contracts each ending pays. Shares are of simulated games, not odds. <Info label="What is sim share?">{SIM_SHARE_INFO}</Info></p>
         </div>
         <div className="fr-seg fr-th__mode" role="group" aria-label="Theater mode">
           <button type="button" className={`fr-seg__b${!compare ? ' is-on' : ''}`} aria-pressed={!compare} onClick={() => setView('single')}><Icon name="eye" size={15} /> Single script</button>
@@ -266,6 +321,13 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
         <ScriptCompareStudio r={r} set={set} rows={rows} slug={slug} />
       ) : (
         <>
+          <SurvivorBoard
+            sport={sportCode} scripts={scripts} items={survivorItems(rows, set, slug, eventId)} now={now} selected={s.id}
+            title="Bets that survive the most scripts"
+            sub={<>Priced moneylines and spreads that win in every game of two or more scripts. Exact, because they settle on the final margin. <Info label="Why two of four is the ceiling">The four scripts are ranges of the final margin, so a side can always win in at most two of them; the third (a one-score game) it wins only in part. Surviving many scripts is not a reason on its own: read the price next to it.</Info></>}
+            empty="No priced margin contract wins in every game of two or more scripts on this game."
+          />
+
           <h3 className="fr-k fr-th__pick">Choose a script</h3>
           <TheaterCards r={r} set={set} current={[s.id]} hrefFor={(id) => hrefFor(id)} />
           <div className="fx-bento fr-th__grid">
@@ -273,39 +335,50 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
               <span className="fr-sel__tag">Selected script</span>
               <h2 className="fr-sel__name" id="stab-h">{s.name}</h2>
               <p className="fr-sel__pct"><b className="fx-num">{sharePct(s.share)}</b> of simulated games <ShareBar value={s.share} tone={s.index} label={`${sharePct(s.share)} of simulated games`} /></p>
-              <p className="fr-sel__story">{s.story}</p>
-              <ul className="fr-rows">
-                <li><span className="fr-rows__ic fr-rows__ic--cyan"><Icon name="football" size={16} /></span><div><b>Game flow</b><p>{rangeText(s, set)} Score paths are not simulated, only the final margin.</p></div></li>
-                <li><span className="fr-rows__ic fr-rows__ic--red"><Icon name="bolt" size={16} /></span><div><b>Volume impact</b><p>{(['away', 'home'] as const).map((side) => `${abbr[side]} pass ${leanWord(lean(side, 'passAtt'))}, run ${leanWord(lean(side, 'rushAtt'))}`).join('; ')}.</p></div></li>
-                <li><span className="fr-rows__ic fr-rows__ic--gold"><Icon name="chart" size={16} /></span><div><b>Markets to investigate</b><p>{wins.length ? wins.slice(0, 3).map((w) => w.label).join(' · ') : 'No priced margin market wins in every game of this script.'}</p></div></li>
-                <li><span className="fr-rows__ic fr-rows__ic--violet"><Icon name="shield" size={16} /></span><div><b>How this script fails</b><p>{sharePct(1 - s.share)} of simulated games end another way{others[0] ? `, most often ${others[0].name.toLowerCase()} (${sharePct(others[0].share)})` : ''}.</p></div></li>
-              </ul>
+              <p className="fr-sel__story">{s.summary}</p>
+              <details className="lsd-more">
+                <summary>How it plays</summary>
+                {s.detail && <p>{s.detail}</p>}
+                <p>{rangeText(s, set)} Score paths are not simulated, only the final margin.</p>
+                <p>{(['away', 'home'] as const).map((side) => `${set.names[side]} pass ${leanWord(lean(s, side, 'passAtt'))}, run ${leanWord(lean(s, side, 'rushAtt'))}`).join('; ')}.</p>
+                <p>{sharePct(1 - s.share)} of simulated games end another way{others[0] ? `, most often ${others[0].name} (${sharePct(others[0].share)})` : ''}.</p>
+              </details>
             </section>
 
-            <section className="fx-card fx-span-4" aria-labelledby="stab-mm">
+            <section className="fx-card fx-span-8" aria-labelledby="stab-sim">
+              <h3 className="fx-card__t" id="stab-sim"><Icon name="chart" size={16} /> How the simulations split <small className="fr-k">hover or tap a script · choose to select</small></h3>
+              <ScriptShareChart
+                sport={sportCode} scripts={scripts} selected={s.id} hrefFor={(id) => hrefFor(id as ScriptId)} details={details}
+                label={`Share of simulated games by script: ${set.scripts.map((x) => `${x.name} ${sharePct(x.share)}`).join(', ')}`}
+              />
+              {set.tie != null && <CloseSplitNote tie={set.tie} />}
+            </section>
+
+            <section className="fx-card fx-span-7" aria-labelledby="stab-mk">
+              <h3 className="fx-card__t" id="stab-mk"><Icon name="layers" size={16} /> Ways to bet {s.name}</h3>
+              <ExpressionList rows={exprRows} missing={expr.missing} now={now} empty="No priced contract expresses this script." note={VOLUME_LEAN_NOTE} />
+              <details className="lsd-more">
+                <summary>Contracts this script beats ({loses.length})</summary>
+                <MarketList rows={loses} slug={slug} eventId={eventId} empty="No priced margin market loses in every game of this script." />
+              </details>
+            </section>
+
+            <section className="fx-card fx-span-5" aria-labelledby="stab-mm">
               <h3 className="fx-card__t" id="stab-mm"><Icon name="chart" size={16} /> Where it ends</h3>
               <MarginMap segs={scriptSegs(set, [s.id], false)} band={band} homeAbbr={set.homeAbbr} awayAbbr={set.awayAbbr} label={`Final margin of each script, ${s.name} selected`} />
-              <p className="fr-note">Each script is a range of final margins. The simulation publishes the final margin and total only; score-state paths are not simulated, so there is no quarter-by-quarter flow to draw.</p>
-            </section>
-
-            <section className="fx-card fx-span-4" aria-labelledby="stab-vol">
-              <h3 className="fx-card__t" id="stab-vol"><Icon name="grid" size={16} /> Key game metrics</h3>
-              <VolumeTable s={s} set={set} />
-              <p className="fr-note">Simulated averages in games that end this way; the arrow is the change against every simulated game.</p>
+              <p className="fr-note">Each script is a range of final margins over the simulation’s published bands.</p>
             </section>
 
             <section className="fx-card fx-span-8" aria-labelledby="stab-pl">
               <h3 className="fx-card__t" id="stab-pl"><Icon name="star" size={16} /> Impacted players · this script</h3>
               {players.length ? <div className="fr-pimps">{players.map((p) => <PlayerImpact key={p.pid} p={p} s={s} set={set} slug={slug} />)}</div> : <p className="fr-note">No projected players published for this game.</p>}
-              <p className="fr-note">Each card shows his <b>team’s</b> volume in this script against all simulated games. The publication does not split player projections by script, so no player number is adjusted here.</p>
+              <p className="fr-note">His <b>team’s</b> volume in this script against all simulated games. Player projections are not split by script.</p>
             </section>
 
-            <section className="fx-card fx-span-4" aria-labelledby="stab-mk">
-              <h3 className="fx-card__t" id="stab-mk"><Icon name="layers" size={16} /> Markets that win here</h3>
-              <MarketList rows={wins} slug={slug} eventId={eventId} empty="No priced margin market wins in every game of this script." />
-              <h4 className="fr-k fr-th__sub2">Markets that lose</h4>
-              <MarketList rows={loses} slug={slug} eventId={eventId} empty="No priced margin market loses in every game of this script." />
-              <p className="fr-note">Exact only for markets that settle on the final margin (moneyline, spread). Totals and props need a joint score output the publication does not carry.</p>
+            <section className="fx-card fx-span-4" aria-labelledby="stab-vol">
+              <h3 className="fx-card__t" id="stab-vol"><Icon name="grid" size={16} /> Key game metrics</h3>
+              <VolumeTable s={s} set={set} />
+              <p className="fr-note">Simulated averages in games that end this way, against every simulated game.</p>
             </section>
 
             <section className="fx-card fx-span-6" aria-labelledby="stab-ev">

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { modelVersionLabel } from '../lib/plainLabels';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { LadderChart } from '../charts/LadderChart';
 import { PriceHistory } from '../charts/PriceHistory';
@@ -20,6 +21,8 @@ import { overlayMarket } from '../live/overlay';
 import { isFullGame, periodWords } from '../lib/period';
 import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { isMlbTicker, mlbPlayerKey } from '../lib/mlb';
+import { priceMove } from '../lib/priceMoves';
+import '../styles/lane-d-markets.css';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -166,7 +169,7 @@ export function MarketView() {
         {mp ? (
           <div className="evid">
             <div className="pxgrid">
-              <Px k="Model fair P(YES)" v={cents(mp.fair_probability)} sub={mp.model_version ?? undefined} />
+              <Px k="Model fair P(YES)" v={cents(mp.fair_probability)} sub={modelVersionLabel(mp.model_version) ?? undefined} />
               <Px k="Market mid" v={cents(mid)} />
               <Px k="Model − market" v={mp.fair_probability != null && mid != null ? `${signed((mp.fair_probability - mid) * 100, 1)}¢` : '—'} sub="research signal, not an edge claim" />
               {v2 != null && <Px k="Shadow v2 P(YES)" v={cents(v2)} sub="research arm" />}
@@ -213,7 +216,10 @@ export function MarketView() {
       <Stratum n={sn(4)} title="Price history" sub="Every capture of this ticker.">
         {hist.loading && <Skeleton lines={3} />}
         {hseries ? (
-          <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
+          <>
+            {(() => { const mv = priceMove(hseries.points, { v: mid ?? null, at: view?.observedAt ?? m.captured_at ?? null }); return mv ? <p className="lsd-move__s" data-testid="market-move"><b>{mv.words}.</b> Range {Math.round(mv.lo * 100)}¢–{Math.round(mv.hi * 100)}¢. A move is the market changing its mind, not evidence for either side.</p> : null; })()}
+            <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
+          </>
         ) : (
           !hist.loading && (
             <p className="muted">

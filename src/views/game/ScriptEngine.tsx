@@ -9,6 +9,7 @@ import { Icon } from '../../components/Icon';
 import { Notice, Stratum } from '../../components/ui';
 import { MarginMap, type MarginSeg } from '../../components/fxResearch';
 import { cfbCodeOfEspn } from '../../lib/cfbTeams';
+import { cfbMarketHeading } from '../../lib/cfbMarkets';
 import { teamLogo } from '../../lib/teams';
 import { useHeldImage } from '../../lib/useImage';
 import { routes } from '../../lib/routes';
@@ -37,6 +38,7 @@ import {
   groupedSurvivors,
   winsWhenText,
   type Compat,
+  findingLabel,
   type Engine,
   type EngineScript,
   type Expression,
@@ -46,6 +48,15 @@ import {
 import { quoteFreshness, quoteAgeMs, formatQuoteAge } from '../../live/freshness';
 import { Info, PanelHead, ViewAll } from './panels';
 import { ScriptMarkets } from './ScriptMarkets';
+import { SurvivorBoard, type BoardItem, type BoardScript, type Cell } from './ScriptSurvivors';
+import { splitSentence } from '../../lib/scriptNames';
+import { formatUnitValue, sportUnit, unitText, valueAndUnit } from '../../insights/sportUnits';
+import '../../styles/wave2-units.css';
+
+/** A CFB engine metric's unit, from the engine's own registry entry (ids are bare: `success_rate`). */
+const cfbUnit = (id: string, reg?: { unit?: string } | null) => sportUnit(id, reg ?? null, 'CFB');
+const cfbVal = (v: number | null | undefined, id: string, reg?: { unit?: string } | null) => formatUnitValue(v, cfbUnit(id, reg));
+
 
 const COMPAT_WORD: Record<Compat, string> = {
   SUPPORTED: 'supports',
@@ -188,7 +199,7 @@ export function EngineScriptsPanel({ engine, selected, hrefFor, title = 'Likely 
                   {art && <LeadArt engine={engine} s={s} />}
                   <span className="eng-scard__role">{ROLE_WORD[s.role]}{art && <span className="eng-scard__rank"> · #{s.rank} by evidence</span>}</span>
                   <span className="scard__name" data-canonical={s.title}>{scriptTitle(s)}</span>
-                  <span className="scard__d">{s.summary}</span>
+                  <span className="scard__d">{splitSentence(s.summary).lead}</span>
                   <span className="eng-scard__arch">{ARCHETYPE_WORD[s.archetype] ?? s.archetype}</span>
                 </Link>
               </li>
@@ -231,7 +242,7 @@ function WhyThisBet({ engine, e, m, marketsByTicker, now }: { engine: Engine; e:
                 const row = metricAt(engine, ref);
                 if (!row) return null;
                 const reg = engine.registry[row.metric_id];
-                return <li key={ref}>{row.team} {row.unit} · {reg?.name ?? row.metric_id}: {fmtMetric(row.adjusted, reg?.unit)} adj. ({row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'}, {row.games} g)</li>;
+                return <li key={ref}>{row.team} {row.unit} · {reg?.name ?? row.metric_id}: {row.adjusted_available ? `${valueAndUnit(row.adjusted, cfbUnit(row.metric_id, reg))} (adjusted)` : `${valueAndUnit(row.raw, cfbUnit(row.metric_id, reg))} (raw, not adjusted)`} ({row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'}, {row.games} games)</li>;
               })}
             </ul>
           </div>
@@ -380,7 +391,7 @@ export function EngineEdgesPanel({ engine, homeAbbr, awayAbbr, to }: { engine: E
             not a forecast. Hatched = within its own uncertainty.
           </Info>
         }
-        sub={`${awayAbbr} @ ${homeAbbr} · season to date, adjusted for opponents`}
+        sub={`${awayAbbr} @ ${homeAbbr} · season to date, adjusted for opponents · unit: standard deviations across FBS (+ favours the offense)`}
       />
       <Scroll label="Matchup edges by dimension"><table className="etab">
         <thead>
@@ -480,7 +491,7 @@ function FindingChip({ engine, code }: { engine: Engine; code: string }) {
   if (!f) return null;
   return (
     <details className="fchip">
-      <summary>{code.replace(/_/g, ' ').toLowerCase()}<span className={`fchip__s fchip__s--${f.strength.toLowerCase()}`}>{f.strength.toLowerCase()}</span></summary>
+      <summary title={code}>{findingLabel(engine, code)}<span className={`fchip__s fchip__s--${f.strength.toLowerCase()}`}>{f.strength.toLowerCase()}</span></summary>
       <p className="small">{f.statement}</p>
       {f.metric_refs.length > 0 && <MetricMini engine={engine} refs={f.metric_refs} />}
     </details>
@@ -496,9 +507,9 @@ function MetricMini({ engine, refs }: { engine: Engine; refs: string[] }) {
         const reg = engine.registry[row.metric_id];
         return (
           <li key={ref}>
-            <span>{row.team} {row.unit} · {reg?.name ?? row.metric_id}</span>
-            <span className="num">{fmtMetric(row.raw, reg?.unit)} raw → {fmtMetric(row.adjusted, reg?.unit)} adj.</span>
-            <span className="muted">{row.rank ? `#${row.rank}/${row.universe_size}` : 'unranked'} · {row.games} g · {row.quality.toLowerCase().replace(/_/g, ' ')}</span>
+            <span>{row.team} {row.unit} · {reg?.name ?? row.metric_id} <span className="muted">({unitText(cfbUnit(row.metric_id, reg))})</span></span>
+            <span className="num">{cfbVal(row.raw, row.metric_id, reg)} raw → {row.adjusted_available ? `${cfbVal(row.adjusted, row.metric_id, reg)} adjusted` : 'no adjusted value'}</span>
+            <span className="muted">{row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'} · {row.games} games{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</span>
           </li>
         );
       })}
@@ -570,6 +581,36 @@ function TheaterHead({ compare, setView, canCompare }: { compare: boolean; setVi
   );
 }
 
+const COMPAT_CELLS: Record<string, Cell> = { SUPPORTED: 'yes', PARTIAL: 'part', CONTRADICTED: 'no' };
+
+/** The engine's scripts for the shared script graphics: role colour, the lead team's logo, no share (ranked only). */
+export function engineBoardScripts(engine: Engine): BoardScript[] {
+  return engine.scripts.map((x) => {
+    const side = x.lead_side ?? (x.outcome_shape.winner_lean === 'HOME' ? 'home' : x.outcome_shape.winner_lean === 'AWAY' ? 'away' : null);
+    return { id: x.script_id, name: scriptTitle(x), tone: ROLE_INDEX[x.role], share: null, team: side ? cfbCodeOfEspn(engine.teams[side].team_id) : null };
+  });
+}
+
+/** A contract's YES words for the board: a bare-team moneyline reads "UAB to win" (its NO side then reads "UAB not to win"). */
+function boardLabel(e: Expression, m: Market | undefined): string {
+  const d = (m?.yes_description ?? '').trim();
+  if (m && d && !/\d/.test(d) && /moneyline$/i.test(cfbMarketHeading(m) ?? '')) return `${d} to win`;
+  return d || e.wins_when || e.ticker;
+}
+
+/** The engine's featured survivors (ladder rungs with identical support folded), as survivor-board items. */
+export function engineBoardItems(engine: Engine, marketsByTicker: Map<string, Market>, slug: string, eventId: string): BoardItem[] {
+  return groupedSurvivors(engine)
+    .filter((e) => e.authority !== 'RESEARCH_UNCALIBRATED')
+    .map((e) => {
+      const m = marketsByTicker.get(e.ticker);
+      return {
+        key: e.id, label: boardLabel(e, m), href: m ? routes.market(slug, m.market_id, eventId) : null, side: e.side, ask: sidePrice(e, m), at: m?.captured_at ?? null,
+        cells: e.compat.map((c) => COMPAT_CELLS[c] ?? null), similar: e.similar,
+      };
+    });
+}
+
 export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, slug, eventId, now }: { engine: Engine; selected: string | null; hrefFor: (id: string | null) => string; marketsByTicker: Map<string, Market>; slug: string; eventId: string; now: number }) {
   const [sp, setSp] = useSearchParams();
   if (!engine.scripts.length) {
@@ -591,13 +632,21 @@ export function EngineScriptTab({ engine, selected, hrefFor, marketsByTicker, sl
       <TheaterHead compare={compare} setView={setView} canCompare={canCompare} />
       {compare ? <EngineCompare engine={engine} marketsByTicker={marketsByTicker} slug={slug} eventId={eventId} now={now} /> : (
         <>
+          <SurvivorBoard
+            sport="CFB" scripts={engineBoardScripts(engine)} items={engineBoardItems(engine, marketsByTicker, slug, eventId)} now={now} selected={s.script_id}
+            title="Bets that survive the most scripts" verb="is supported"
+            sub="The engine’s best and multi-script contracts, by how many of its scripts support them. Scripts are ranked, never priced: a count, not a probability."
+            empty={!engine.expressions.length && engine.detail.state !== 'inline' ? `The script-to-market map is not available for this game: ${engine.detail.reason ?? 'not published'}.` : 'No contract is supported by more than one script the engine built.'}
+            footer={engine.scoringResearchOnly ? 'Totals and team totals are research only and never listed here.' : undefined}
+          />
           <div className="stab__pick"><EngineScriptsPanel engine={engine} selected={s.script_id} hrefFor={hrefFor} title="Scripts" art /></div>
           <div className="fx-bento fr-th__grid">
             <section className={`fx-card fx-span-4 fr-sel fr-sel--s${ROLE_INDEX[s.role]}`} aria-labelledby="eng-sel-h">
               <span className="fr-sel__tag">{ROLE_WORD[s.role]} · rank {s.rank} of {engine.scripts.length}</span>
               <h2 className="fr-sel__name" id="eng-sel-h">{scriptTitle(s)}</h2>
               <p className="fr-sel__pct">Ranked by matchup evidence · <b className="fr-sel__np">no probability published</b></p>
-              <p className="fr-sel__story">{s.summary}</p>
+              <p className="fr-sel__story">{splitSentence(s.summary).lead}</p>
+              {splitSentence(s.summary).rest && <details className="lsd-more"><summary>More</summary><p>{splitSentence(s.summary).rest}</p></details>}
               <ul className="fr-rows">
                 <li><span className="fr-rows__ic fr-rows__ic--cyan"><Icon name="football" size={16} /></span><div><b>Game flow</b><p>{s.causal_chain[0]?.step ?? s.summary}</p></div></li>
                 <li><span className="fr-rows__ic fr-rows__ic--red"><Icon name="bolt" size={16} /></span><div><b>Outcome shape</b><p>{[s.outcome_shape.winner_lean === 'HOME' ? `${home} lean` : s.outcome_shape.winner_lean === 'AWAY' ? `${away} lean` : 'No winner lean', marginBandText(s.outcome_shape.bands.home_margin, home, away), SCORING_ENV_WORD[s.outcome_shape.total_environment] ? `${SCORING_ENV_WORD[s.outcome_shape.total_environment].toLowerCase()} scoring` : null].filter(Boolean).join(' · ')}</p></div></li>
@@ -768,7 +817,7 @@ function ExprList({ title, list, engine, marketsByTicker, slug, eventId, now }: 
             );
           })}
         </ul>
-      ) : <p className="muted small">None.</p>}
+      ) : <p className="muted small">No published contract is contradicted by this script.</p>}
     </div>
   );
 }
@@ -792,15 +841,15 @@ function MetricTable({ engine, dimension }: { engine: Engine; dimension: string 
           const reg = engine.registry[id];
           return (
             <tr key={id}>
-              <th scope="row">{reg.name}{reg.secondary_evidence ? <span className="mettab__tag">secondary</span> : null}{reg.regression_prone ? <span className="mettab__tag">regression-prone</span> : null}</th>
+              <th scope="row">{reg.name}{reg.secondary_evidence ? <span className="mettab__tag">secondary</span> : null}{reg.regression_prone ? <span className="mettab__tag">regression-prone</span> : null}<span className="mettab__u" title={cfbUnit(id, reg).long}>{unitText(cfbUnit(id, reg))}</span></th>
               {sides.map(([side, unit]) => {
                 const row: MetricRow | undefined = engine.teams[side].metrics[`${unit}.${id}`];
                 return (
                   <td key={`${side}${unit}`} title={row ? `raw ${fmtMetric(row.raw, reg.unit)} · ${row.adjusted_available ? `adjusted ${fmtMetric(row.adjusted, reg.unit)} ± ${fmtMetric(row.standard_error, reg.unit)}` : `not adjusted: ${row.adjusted_unavailable_reason ?? ''}`} · ${row.direction.replace(/_/g, ' ')} · ${row.games} games, prior weight ${row.prior_weight ?? '—'} · ${row.source ?? ''} · observed ${row.observed_at ?? '—'} · ${row.quality}` : 'not published'}>
                     {row ? (
                       <>
-                        <span className="num">{fmtMetric(row.adjusted_available ? row.adjusted : row.raw, reg.unit)}</span>
-                        <span className="mettab__sub">{row.adjusted_available ? 'adj' : 'raw'} · {row.rank ? `#${row.rank}/${row.universe_size}` : 'unranked'}{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</span>
+                        <span className="num">{cfbVal(row.adjusted_available ? row.adjusted : row.raw, id, reg)}</span>
+                        <span className="mettab__sub">{row.adjusted_available ? 'adjusted' : 'raw · not adjusted'} · {row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'}{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</span>
                       </>
                     ) : '—'}
                   </td>

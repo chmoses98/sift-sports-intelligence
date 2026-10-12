@@ -55,6 +55,7 @@ describe('soccer candidates', () => {
   it('normalise with the publication’s price, fee, break-even, bet-up-to, worst case and thesis, as research candidates', () => {
     const opps = soccerOpportunities(soccerInputs());
     expect(opps.length).toBeGreaterThan(5);
+    for (const o of opps) expect(o.confidence.note).not.toMatch(/RESEARCH_ONLY/);
     const ars = opps.find((o) => o.ticker === 'KXEPLGAME-26OCT10ARSLEE-ARS')!;
     expect(ars.what).toEqual({ title: 'Arsenal to win', side: 'NO', subject: null });
     expect(ars.eventLabel).toBe('Arsenal v Leeds United');
@@ -110,6 +111,8 @@ describe('NHL and MLB candidates', () => {
     const inputs = { sport: { code: 'NHL' as const, slug: 'nhl', label: 'NHL' }, board: readNhl<BoardDoc>('board.json').items, recommendations: readNhl<ItemsDoc<Recommendation>>('recommendations.json').items as never, now: Date.parse('2026-10-06T22:50:00Z') };
     const opps = nhlOpportunities(inputs);
     expect(opps.length).toBeGreaterThan(0);
+    // #35: the Terminal shows this note verbatim, so it is in words.
+    for (const o of opps) expect(o.confidence.note).not.toMatch(/RESEARCH_ONLY/);
     const goals = opps.filter((o) => o.family === 'player_goals');
     expect(goals.length).toBeGreaterThan(0);
     expect(goals.every((o) => o.rank.highVariance)).toBe(true);

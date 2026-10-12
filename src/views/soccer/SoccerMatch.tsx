@@ -19,6 +19,19 @@ import {
 import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
+import { soccerWeatherLine } from '../../lib/venue';
+import { DataState } from '../../components/DataState';
+import { FootTag } from '../../components/StatUnit';
+import { qualityLabel } from '../../lib/plainLabels';
+import type { Footing } from '../../insights/sportUnits';
+
+const ADJ: Footing = { kind: 'adjusted', word: 'Adjusted', detail: 'Opponent- and schedule-adjusted Dixon–Coles rating, as published.' };
+const RAW: Footing = { kind: 'raw', word: 'Raw', detail: 'Unadjusted goals per match: not opponent-adjusted.' };
+const ENGINE_STATE_WORD: Record<string, string> = { ABSENT: 'Not run for this match', UNAVAILABLE: 'Not available', FAILED: 'Engine run failed' };
+const LINEUP_WORD: Record<string, string> = { unknown: 'lineups not announced', unconfirmed: 'lineups not confirmed yet', confirmed: 'lineups confirmed', official: 'official lineups' };
+const lineupWords = (s: string | null) => (s ? LINEUP_WORD[s.toLowerCase()] ?? `lineups ${s.replace(/_/g, ' ').toLowerCase()}` : 'lineups not announced');
+const sentence = (t: string) => { const s = t.trim(); return s ? `${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.!?]$/.test(s) ? '' : '.'}` : ''; };
+const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
 import { Authority, centsOf, Deep, KV, MarketFamilies, pct0, Pill, RankRows, Section, signedPts, TextMark, ThreeWay } from '../shared/kit';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -113,7 +126,7 @@ function Expressions({ engine, byTicker, names, slug, eventId }: { engine: Socce
                 <td className="r num">{pct0(e.fairProbability)}</td>
                 <td className="r num">{signedPts(e.feeAdjustedEv ?? e.overallEdge)}</td>
                 <td className="r num">{signedPts(e.worstCaseEdge)}</td>
-                <td className="small">{e.supportingScripts} support · {e.opposingScripts} oppose{e.counterCase ? ` · beaten by ${SOCCER_SCRIPT_TITLE[e.counterCase.script]?.toLowerCase() ?? e.counterCase.script}` : ''}</td>
+                <td className="small">{e.supportingScripts} support · {e.opposingScripts} oppose{e.counterCase ? ` · beaten by “${engine.byId.get(e.counterCase.script)?.title ?? SOCCER_SCRIPT_TITLE[e.counterCase.script] ?? e.counterCase.script}”` : ''}</td>
               </tr>
             );
           })}
@@ -126,25 +139,27 @@ function Expressions({ engine, byTicker, names, slug, eventId }: { engine: Socce
 function Strength({ engine, names }: { engine: SoccerEngine; names: SoccerNames }) {
   const mu = engine.matchup;
   if (!mu?.home || !mu?.away) return null;
-  const pc = (v: number | null) => (v == null ? '—' : `${Math.round(v * 100)}th`);
+  // "MAJOR_AWAY_DEFENSIVE_EDGE" → "major Le Havre defensive edge"; "HOME_ATTACK_vs_AWAY_DEFENSE" → "Lille attack vs Le Havre defense".
+  const sided = (code: string) => code.replace(/_/g, ' ').toLowerCase().replace(/\b(home|away)\b/g, (w) => (w === 'home' ? names.home : names.away));
+  const pc = (v: number | null) => (v == null ? '—' : ordinal(Math.round(v * 100)));
   const side = (s: NonNullable<typeof mu.home>, name: string) => (
     <div className="skpanel">
       <h3 className="skpanel__t">{name}</h3>
       <KV rows={[
-        { k: 'Attack', v: <><b className="num">{pc(s.attack.percentile)}</b> percentile in the pool</> },
-        { k: 'Defence', v: <><b className="num">{pc(s.defence.percentile)}</b> percentile</> },
-        { k: 'Net rating', v: <><b className="num">{pc(s.netRating.percentile)}</b> percentile</> },
+        { k: 'Attack', v: <><b className="num">{pc(s.attack.percentile)}</b> percentile in the pool <FootTag f={ADJ} /></> },
+        { k: 'Defence', v: <><b className="num">{pc(s.defence.percentile)}</b> percentile <FootTag f={ADJ} /></> },
+        { k: 'Net rating', v: <><b className="num">{pc(s.netRating.percentile)}</b> percentile <FootTag f={ADJ} /></> },
         { k: 'Schedule', v: s.scheduleStrength ? <>opponents at the <b className="num">{pc(s.scheduleStrength.percentile)}</b> percentile over {s.scheduleStrength.matches} matches</> : null },
         { k: 'Sample', v: `${s.effectiveMatches ?? '—'} effective matches · ${s.sampleQuality?.toLowerCase() ?? 'unknown'} quality` },
-        { k: 'Raw form', v: s.rawForm ? <span className="muted">{s.rawForm.gf?.toFixed(2)} for, {s.rawForm.ga?.toFixed(2)} against per match (unadjusted context, not a strength estimate)</span> : null },
+        { k: 'Raw form', v: s.rawForm ? <span className="muted">{s.rawForm.gf?.toFixed(2)} goals for, {s.rawForm.ga?.toFixed(2)} against per match <FootTag f={RAW} /> context, not a strength estimate</span> : null },
       ]} />
     </div>
   );
   return (
     <div className="stack">
-      {engine.glance.primaryMismatch && <p className="muted">Primary mismatch: <b>{engine.glance.primaryMismatch.label.replace(/_/g, ' ').toLowerCase()}</b> ({engine.glance.primaryMismatch.matchup.replace(/_/g, ' ').toLowerCase()}, advantage {engine.glance.primaryMismatch.side.toLowerCase()}, evidence {engine.glance.primaryMismatch.evidenceQuality?.toLowerCase()}).</p>}
+      {engine.glance.primaryMismatch && <p className="muted">Primary mismatch: <b>{sided(engine.glance.primaryMismatch.label)}</b> ({sided(engine.glance.primaryMismatch.matchup)}, advantage {sided(engine.glance.primaryMismatch.side)}{engine.glance.primaryMismatch.evidenceQuality ? `, evidence ${engine.glance.primaryMismatch.evidenceQuality.toLowerCase()}` : ''}).</p>}
       <div className="skgrid">{side(mu.home, names.home)}{side(mu.away, names.away)}</div>
-      <p className="muted small">{mu.metricKind ?? 'Dixon-Coles latent goal rates'} · pool {mu.pool} · {mu.evidenceStatus?.replace(/_/g, ' ').toLowerCase()}. Percentiles are against the competition pool; higher is better for attack and defence alike.</p>
+      <p className="muted small">{(mu.metricKind ?? 'Dixon-Coles latent goal rates').replace(/^DIXON_COLES_LATENT_LOG_RATE\b/, 'Dixon–Coles goal-rate ratings')} · pool {mu.pool}{mu.evidenceStatus ? ` · ${mu.evidenceStatus.replace(/_/g, ' ').toLowerCase()}` : ''}. Unit: percentile within the competition pool (100th = best); higher is better for attack and defence alike.</p>
     </div>
   );
 }
@@ -191,8 +206,8 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
           </div>
           <span className="skh__sub">
             {venue?.name ? `${venue.name}${venue.city ? `, ${venue.city}` : ''}` : 'Venue not published'}
-            {wx?.temperature_2m != null ? ` · ${Math.round(wx.temperature_2m)}°C${wx.precipitation_probability != null ? `, ${wx.precipitation_probability}% rain` : ''}${wx.wind_speed_10m != null ? `, wind ${Math.round(wx.wind_speed_10m)} km/h` : ''}` : ''}
-            {` · lineups ${(ok ? engine.lineupStatus : x.lineup_status) ?? 'unknown'}`}
+            {soccerWeatherLine(venue?.name, wx) ? ` · ${soccerWeatherLine(venue?.name, wx)}` : ''}
+            {` · ${lineupWords((ok ? engine.lineupStatus : x.lineup_status) ?? null)}`}
           </span>
         </div>
         <div className="skh__right">
@@ -215,9 +230,9 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
       <Section id="sm-opp" title="The research read" sub="The one expression the publication's script engine rates strongest at the price it saw, and the script that beats it. Research only.">
         {ok ? <Headline e={engine.glance.bestRobust ?? engine.glance.bestScriptSpecific} engine={engine} names={names} byTicker={byTicker} slug={slug} eventId={eventId} /> : (
           <div className="skopp skopp--pass">
-            <div className="skopp__eyebrow">Pass <Pill tone="neutral">{engine.status.toLowerCase()}</Pill></div>
+            <div className="skopp__eyebrow">Pass <Pill tone="neutral">{ENGINE_STATE_WORD[engine.status] ?? 'No read'}</Pill></div>
             <h2 className="skopp__t">No script-engine read for this fixture.</h2>
-            <p className="skopp__why">{engine.reason} Sift shows the markets and the matchup below without inventing a thesis.</p>
+            <p className="skopp__why">{sentence(engine.reason)} {started ? 'The match has kicked off, so no pregame read will be added.' : 'If the publication adds this fixture to its model board, the read appears after its next run.'} Sift shows the matchup below without inventing a thesis.</p>
           </div>
         )}
       </Section>
@@ -229,7 +244,7 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
         </Section>
       )}
 
-      <Section id="sm-matchup" title="Matchup" sub={ok && engine.matchup ? 'Opponent- and schedule-adjusted attack and defence (percentiles in the competition pool), then every published metric with its league rank.' : 'Every published metric with its league rank.'}>
+      <Section id="sm-matchup" title="Matchup" sub={ok && engine.matchup ? 'Opponent- and schedule-adjusted attack and defence (percentiles in the competition pool), then every published team statistic in its unit, with its league rank where one is published.' : 'Every published team statistic in its unit, with its league rank where one is published.'}>
         {ok && <Strength engine={engine} names={names} />}
         <div style={{ marginTop: 'var(--s-4)' }}>
           <RankRows rows={r.matchup} metrics={metrics} left={{ label: names.home, side: 'home' }} right={{ label: names.away, side: 'away' }} leftId={homeP.participant_id} rightId={awayP.participant_id} slug={slug} eventId={eventId} />
@@ -242,9 +257,11 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
         </Section>
       )}
 
-      <Section id="sm-markets" title="Markets" sub={`Every Kalshi contract on this match (${markets.length}), by family, with the model's probability where the publication prices it.`}>
+      <Section id="sm-markets" title="Markets" sub={detail.data ? `Every Kalshi contract on this match (${markets.length}), by family, with the model's probability where the publication prices it.` : 'Every Kalshi contract on this match, by family, with the model\'s probability where the publication prices it.'}>
         {detail.loading && <Skeleton lines={5} />}
-        {detail.error && <ErrorState error={detail.error} what="this match's markets" />}
+        {detail.error && (detail.error.name === 'NotFoundError'
+          ? <DataState title="No Kalshi markets for this match" detail={`The soccer publication lists no Kalshi contracts for this fixture${board ? '' : ' (it is not on its model board)'}, so there are no prices to show. Contracts appear here once Kalshi lists them and the publication captures them.`} />
+          : <ErrorState error={detail.error} what="this match's markets" />)}
         {detail.data && <MarketFamilies markets={markets} prices={prices} projections={r.projections} title={title} familyLabel={soccerFamilyLabel} order={SOCCER_FAMILY_ORDER} slug={slug} eventId={eventId} now={now} authority="RESEARCH_ONLY" />}
       </Section>
 
@@ -256,13 +273,13 @@ export function SoccerMatchView({ eventId }: { eventId: string }) {
                 <KV rows={[
                   { k: names.home, v: `${rest.home.restDays ?? '—'} days' rest · ${rest.home.matches14d ?? '—'} matches in 14 days · ${rest.home.matches28d ?? '—'} in 28` },
                   { k: names.away, v: `${rest.away.restDays ?? '—'} days' rest · ${rest.away.matches14d ?? '—'} matches in 14 days · ${rest.away.matches28d ?? '—'} in 28` },
-                  { k: 'Note', v: <span className="muted">Ledger context ({rest.quality?.toLowerCase()}); the publication's research found about no signal in rest.</span> },
+                  { k: 'Note', v: <span className="muted">Ledger context{rest.quality ? ` (${qualityLabel(rest.quality).word.toLowerCase()})` : ''}; the publication's research found about no signal in rest.</span> },
                 ]} />
               </div>
             )}
             {h2h && (
               <div className="skpanel"><h3 className="skpanel__t">Head to head</h3>
-                <p style={{ margin: '0 0 8px' }}>{h2h.n} meetings: {names.home} {h2h.homeWins}W {h2h.draws}D {h2h.awayWins}L · goals {h2h.homeGoals}–{h2h.awayGoals}</p>
+                <p style={{ margin: '0 0 8px' }}>{h2h.n} meeting{h2h.n === 1 ? '' : 's'}: {names.home} {h2h.homeWins}W {h2h.draws}D {h2h.awayWins}L · goals {h2h.homeGoals}–{h2h.awayGoals}</p>
                 <ul className="lims">{h2h.recent.map((g) => <li key={g.date}>{g.date} · {g.score}{g.venueSide ? ` (${names.home} ${g.venueSide.toLowerCase()})` : ''}</li>)}</ul>
               </div>
             )}

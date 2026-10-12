@@ -8,7 +8,8 @@ import type { EntityProfileDoc, EventResearchDoc, Market, MatchupRow, Observatio
 import { Icon } from '../../components/Icon';
 import { DigDeeper } from '../../components/ui';
 import { describeNhlMarket } from '../../lib/marketLabel';
-import { candidateTitle, centsText, evText, type NhlCandidate, type NhlScript, type NhlScripts } from '../../lib/nhl';
+import { plainClubTitle } from '../../lib/betWords';
+import { candidateTitle, centsText, evText, liveAskCents, type NhlCandidate, type NhlScript, type NhlScripts } from '../../lib/nhl';
 import {
   FIT_HELP,
   FIT_TITLE,
@@ -30,11 +31,13 @@ import {
   type Thesis,
 } from '../../lib/nhlStory';
 import { nhlTeam } from '../../lib/nhlTeams';
+import { rankWords } from '../../insights/sportUnits';
 import { routes } from '../../lib/routes';
 import { Info } from '../game/panels';
 import { familyGlyph, Glyph, SCRIPT_GLYPH } from './glyphs';
 import { GoalieBadge, Stat, TeamChip, WinSplit } from './kit';
 import { ScriptDot, SideAsk, StatusChip, TierChip, lowerLabel, scriptFinding } from './parts';
+import { ScriptShareChart, SurvivorBoard, type BoardItem, type BoardScript } from '../game/ScriptSurvivors';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -116,7 +119,7 @@ export function ReviewSection({ phase, ids, s }: { phase: PhaseView; ids: SideId
         <ul className="nrev__l">
           {s?.scripts[0] && <li><span>Most likely pregame script</span><b><ScriptDot tone={s.scripts[0].tone} />{s.scripts[0].label} · {pct(s.scripts[0].probability)}</b></li>}
           {o?.realized_script ? (
-            <li><span>Script that happened</span><b>{rs && <ScriptDot tone={rs.tone} />}{o.realized_label ?? rs?.label ?? o.realized_script}{o.p_realized != null ? ` · forecast ${pct(o.p_realized)}` : ''}{rank && (o.n_scripts ?? s?.scripts.length) ? ` (ranked ${rank} of ${o.n_scripts ?? s!.scripts.length})` : ''}</b></li>
+            <li><span>Script that happened</span><b>{rs && <ScriptDot tone={rs.tone} />}{rs?.label ?? o.realized_label ?? o.realized_script}{o.p_realized != null ? ` · forecast ${pct(o.p_realized)}` : ''}{rank && (o.n_scripts ?? s?.scripts.length) ? ` (ranked ${rank} of ${o.n_scripts ?? s!.scripts.length})` : ''}</b></li>
           ) : <li><span>Script that happened</span><b className="muted">Not yet reviewed by the publisher</b></li>}
           {o?.brier != null && o?.base_rate_brier != null && <li><span>Script forecast score</span><b>Brier <span className="num">{Number(o.brier).toFixed(3)}</span> vs <span className="num">{Number(o.base_rate_brier).toFixed(3)}</span> for league base rates (lower is better)</b></li>}
           {s && <li><span>Research candidates</span><b>{s.candidates.filter((c) => c.governance.status !== 'REJECTED').length} tracked pregame; results settle into the scorecard</b></li>}
@@ -205,8 +208,8 @@ function GoalieCard({ g, prof, factor, faces, saves, savesMarket, s, start, now,
       {!confirmed && <p className="ngc__warn" role="note"><Glyph name="alert" size={14} />Not confirmed. The projection assumes this starter; a different goalie changes the read.</p>}
       <dl className="ngc__kv">
         {st?.sv != null && <div><dt>Save %</dt><dd className="num">{sv3(st.sv)}<small>{st.svSeason}{st.starts != null ? ` · ${st.starts} start${st.starts === 1 ? '' : 's'}` : ''}{st.starts != null && st.starts < 20 ? ': small sample' : ''}</small></dd></div>}
-        {st?.ev != null && <div><dt>Even-strength SV%</dt><dd className="num">{sv3(st.ev)}</dd></div>}
-        {st?.gaa != null && <div><dt>GAA</dt><dd className="num">{st.gaa.toFixed(2)}</dd></div>}
+        {st?.ev != null && <div><dt>Even-strength SV%</dt><dd className="num">{sv3(st.ev)}<small>of even-strength shots saved</small></dd></div>}
+        {st?.gaa != null && <div><dt>GAA</dt><dd className="num">{st.gaa.toFixed(2)}<small>goals against per 60 minutes</small></dd></div>}
         {st?.cur && st.cur.starts ? <div><dt>{st.cur.season}</dt><dd className="num">{sv3(st.cur.sv)}<small>{st.cur.starts} start{st.cur.starts === 1 ? '' : 's'}: tiny sample</small></dd></div> : null}
         {st?.lastStart && <div><dt>Workload</dt><dd>Last start {new Date(`${st.lastStart}T12:00:00Z`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{rest != null && rest >= 0 ? (rest > 30 ? ' (first start since then)' : ` (${rest} day${rest === 1 ? '' : 's'} rest)`) : ''} · {st.startsLast7} in the last 7 days{st.recentSa != null ? ` · faced ${st.recentSa.toFixed(0)} shots a start lately` : ''}</dd></div>}
         {factor != null && <div><dt>Model goalie factor</dt><dd className="num">{factor.toFixed(2)}<small>{factor < 1 ? 'saves more than average' : factor > 1 ? 'allows more than average' : 'average'} (opponent goals ×{factor.toFixed(2)})</small></dd></div>}
@@ -285,7 +288,7 @@ export function ScriptList({ s, ids, hrefFor, selected }: { s: NhlScripts; ids: 
 }
 
 function marketName(title: string, m: Market | undefined): string {
-  return (m ? describeNhlMarket(m)?.title : null) ?? title.replace(/^Full Game: /, 'Game: ');
+  return (m ? describeNhlMarket(m)?.title : null) ?? plainClubTitle(title.replace(/^Full Game: /, 'Game: '));
 }
 
 /** One script in full: what creates it, what breaks it, its numbers, the markets it lifts and the ideas it breaks. */
@@ -451,7 +454,7 @@ export function ConflictCheck({ s, conflicts, marketsByTicker, n }: { s: NhlScri
           {conflicts.slice(0, 4).map((c) => (
             <li key={c.a.bet_id + c.b.bet_id}>
               <b>{candidateTitle(c.a, marketsByTicker.get(c.a.ticker))}</b> vs <b>{candidateTitle(c.b, marketsByTicker.get(c.b.ticker))}</b>
-              <span>{c.source === 'MODEL' ? `${c.text}. Both hold in ${pct(c.together)} of simulated games.` : c.text}</span>
+              <span>{c.source === 'MODEL' ? `${plainClubTitle(c.text)}. Both hold in ${pct(c.together)} of simulated games.` : plainClubTitle(c.text)}</span>
             </li>
           ))}
           {conflicts.length > 4 && <li className="nsl__muted">+{conflicts.length - 4} more pairs</li>}
@@ -475,16 +478,16 @@ export function SpecialTeams({ s, p, ids, matchup, lineups }: { s: NhlScripts | 
   const side = (team: string, home: boolean) => {
     const ppv = home ? pp?.home?.value : pp?.away?.value;
     const pkv = home ? pk?.home?.value : pk?.away?.value;
-    const ppr = home ? pp?.home?.context?.rank : pp?.away?.context?.rank;
-    const pkr = home ? pk?.home?.context?.rank : pk?.away?.context?.rank;
+    const ppr = rankWords(home ? pp?.home?.context : pp?.away?.context);
+    const pkr = rankWords(home ? pk?.home?.context : pk?.away?.context);
     const unit = pp1(team);
     return (
       <div className="nspt__team">
         <TeamChip abbr={team} size="md" name="nick" />
         <div className="nspt__nums">
-          {ppv != null && <Stat glyph="powerPlay" label="Power play" value={<span className="num">{pct(ppv)}</span>} sub={ppr ? `#${ppr} of 32 · raw, season` : 'raw, season'} />}
-          {pkv != null && <Stat glyph="penaltyKill" label="Penalty kill" value={<span className="num">{pct(pkv)}</span>} sub={pkr ? `#${pkr} of 32 · raw, season` : 'raw, season'} />}
-          {p?.ppGoals && <Stat glyph="goal" label="PP goals" value={<span className="num">{(home ? p.ppGoals.home : p.ppGoals.away).toFixed(2)}</span>} sub="model expectation" />}
+          {ppv != null && <Stat glyph="powerPlay" label="Power play" value={<span className="num">{pct(ppv)}</span>} sub={`of chances scored${ppr ? ` · ${ppr}` : ''} · raw`} />}
+          {pkv != null && <Stat glyph="penaltyKill" label="Penalty kill" value={<span className="num">{pct(pkv)}</span>} sub={`killed${pkr ? ` · ${pkr}` : ''} · raw`} />}
+          {p?.ppGoals && <Stat glyph="goal" label="PP goals" value={<span className="num">{(home ? p.ppGoals.home : p.ppGoals.away).toFixed(2)}</span>} sub="this game · model" />}
         </div>
         {unit.length > 0 && <p className="nspt__unit"><span>PP1</span>{unit.join(' · ')}</p>}
       </div>
@@ -496,7 +499,7 @@ export function SpecialTeams({ s, p, ids, matchup, lineups }: { s: NhlScripts | 
         {side(ids.away, false)}
         {side(ids.home, true)}
       </div>
-      <p className="nsl__muted">PP% and PK% are raw season rates (not opponent-adjusted): context, never the reason for an edge.</p>
+      <p className="nsl__muted">Power play: goals per power-play opportunity. Penalty kill: share of times shorthanded without allowing a goal. Both are raw season rates (not opponent-adjusted): context, never the reason for an edge. PP goals: the model's expected power-play goals in this game.</p>
     </Section>
   );
 }
@@ -569,4 +572,59 @@ export function PlayerResearch({ players, s, ids, slug, known, limit, to }: { pl
       <p className="nsl__muted">Shots-on-goal props are not in the publication; Sift shows only markets the model prices.</p>
     </Section>
   );
+}
+
+// ------------------------------------------------------------------ survivors + interactive split (owner items 16, 28, 29)
+
+const HIGH_VARIANCE_FAMILIES = new Set(['player_goals', 'first_goal']);
+
+/** The scripts in the shared script-graphics shape: tone, the controlling club's logo, the simulation share. */
+export function nhlBoardScripts(s: NhlScripts, ids: SideIds): (BoardScript & { share: number })[] {
+  return s.scripts.map((x) => ({ id: x.id, name: x.label, tone: x.tone, share: x.probability, team: x.id === 'HOME_CONTROL' ? ids.home : x.id === 'AWAY_CONTROL' ? ids.away : null }));
+}
+
+/**
+ * The research candidates that hold up in the most scripts ("holds" = stays at least +1¢ after fees and the haircut
+ * in that script, the publication's own survival bit), goal-scorer contracts excluded (high variance, never featured).
+ */
+export function NhlSurvivors({ s, ids, marketsByTicker, slug, eventId, now, selected }: { s: NhlScripts; ids: SideIds; marketsByTicker: Map<string, Market>; slug: string; eventId: string; now: number; selected?: string | null }) {
+  const scripts = nhlBoardScripts(s, ids);
+  const items: BoardItem[] = s.candidates
+    .filter((c) => c.governance.status !== 'REJECTED' && !HIGH_VARIANCE_FAMILIES.has(c.family) && c.survival.survives)
+    .map((c) => {
+      const m = marketsByTicker.get(c.ticker);
+      const live = liveAskCents(m, c.side);
+      const base = (m ? describeNhlMarket(m)?.title : null) ?? plainClubTitle(c.title.replace(/^Full Game: /, 'Game total: '));
+      return {
+        key: c.bet_id, label: base, href: m ? routes.market(slug, m.market_id, eventId) : null, side: c.side === 'yes' ? 'YES' : 'NO',
+        ask: live != null ? live / 100 : c.price.ask_cents != null ? c.price.ask_cents / 100 : null, at: live != null ? m?.captured_at ?? null : c.price.observed_at_utc,
+        cells: scripts.map((x) => (c.survival.survives![s.order.indexOf(x.id)] ? 'yes' : 'no')),
+        note: <>{c.robustness_word || c.robustness} · holds in {c.survival.mass_survived != null ? `${Math.round(c.survival.mass_survived * 100)}% of simulated games` : 'an unpublished share of games'}</>,
+      } as BoardItem;
+    });
+  return (
+    <SurvivorBoard
+      sport="NHL" scripts={scripts} items={items} now={now} selected={selected} verb="holds" id="n-surv"
+      title="Research ideas that survive the most scripts"
+      sub="Each idea stays positive after Kalshi's fee in the scripts marked ✓ (the model's own survival check). Research only: nothing is placed. Goal-scorer ideas are high variance and never listed here."
+      empty="No research idea on this game survives a script."
+      footer="Ideas on one game share its scripts: two that hold in the same scripts are one exposure, not diversification."
+    />
+  );
+}
+
+/** The seven scripts as an interactive chart: hover or tap for the script's numbers; choosing one selects it. */
+export function NhlScriptChart({ s, ids, hrefFor, selected }: { s: NhlScripts; ids: SideIds; hrefFor: (id: string) => string; selected: string | null }) {
+  const scripts = nhlBoardScripts(s, ids);
+  const details = (id: string) => {
+    const x = s.byId.get(id)!;
+    return (
+      <>
+        <p>{x.summary}</p>
+        {x.homeGoals != null && <p>Goals <b>{ids.away} {x.awayGoals?.toFixed(1)} – {ids.home} {x.homeGoals.toFixed(1)}</b>{x.pOvertime != null ? <> · overtime <b>{pct(x.pOvertime)}</b></> : null}</p>}
+        {x.helps.length > 0 && <p>Lifts most: <b>{marketName(x.helps[0].title, undefined)}{x.helps[0].side === 'no' ? ' — NO' : ''}</b> ({pct(x.helps[0].p)} → {pct(x.helps[0].p_given_script)})</p>}
+      </>
+    );
+  };
+  return <ScriptShareChart sport="NHL" scripts={scripts} selected={selected} hrefFor={hrefFor} details={details} label={`Share of simulated games by script: ${s.scripts.map((x) => `${x.label} ${pct(x.probability)}`).join(', ')}`} />;
 }

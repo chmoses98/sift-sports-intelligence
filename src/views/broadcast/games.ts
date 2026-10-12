@@ -5,7 +5,7 @@ import type { BoardItem } from '../../contract/types';
 import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFor } from '../../lib/hero/input';
 import { eventPhase, type EventPhase } from '../../opportunity/lifecycle';
-import { isLive } from '../../opportunity/rank';
+import { compareOpportunities, isLive } from '../../opportunity/rank';
 import { eventLabel } from '../../opportunity/sources';
 import type { SportBundle } from '../../opportunity/load';
 import type { Opportunity } from '../../opportunity/types';
@@ -24,6 +24,8 @@ export interface GameRow {
   /** Live candidates (not PASS) the publication flags on this game. */
   candidates: number;
   best: Opportunity | null;
+  /** Every row the publication judged on this game (candidates and passes), best first. */
+  opps: Opportunity[];
 }
 
 export type DayWindow = 'today' | 'tomorrow' | 'week';
@@ -44,9 +46,13 @@ export function inDay(startMs: number, now: number, w: DayWindow): boolean {
 
 export function gameRows(bundles: SportBundle[], opportunities: Opportunity[], now: number): GameRow[] {
   const byEvent = new Map<string, Opportunity[]>();
-  for (const o of opportunities) if (isLive(o)) byEvent.set(o.eventId, [...(byEvent.get(o.eventId) ?? []), o]);
+  const allBy = new Map<string, Opportunity[]>();
+  for (const o of opportunities) {
+    allBy.set(o.eventId, [...(allBy.get(o.eventId) ?? []), o]);
+    if (isLive(o)) byEvent.set(o.eventId, [...(byEvent.get(o.eventId) ?? []), o]);
+  }
   return bundles.flatMap((b) => b.board.map((item) => {
-    const os = byEvent.get(item.event_id) ?? [];
+    const os = [...(byEvent.get(item.event_id) ?? [])].sort(compareOpportunities);
     const p = eventPhase(item, now);
     return {
       sport: b.sport.code,
@@ -60,6 +66,7 @@ export function gameRows(bundles: SportBundle[], opportunities: Opportunity[], n
       home: item.participants.find((x) => x.participant_id === item.home_participant) ?? item.participants[0],
       candidates: os.length,
       best: os[0] ?? null,
+      opps: [...(allBy.get(item.event_id) ?? [])].sort(compareOpportunities),
     };
   }));
 }
@@ -111,9 +118,38 @@ export function phaseWord(g: GameRow): string {
 /** A board competition word fit for a tile: "regular" → "Regular season"; real names pass through. */
 export function competitionWord(c: string | null | undefined, sportLabel: string): string {
   if (!c) return sportLabel;
+  const wk = /^\d{4}\s+(?:reg\s+|post\s+)?week\s+(\d+)$/i.exec(c.trim());
+  if (wk) return `${sportLabel} · Week ${wk[1]}`;
   const k = c.trim().toLowerCase();
   if (k === 'regular' || k === 'reg' || k === 'regular_season') return `${sportLabel} · Regular season`;
   if (k === 'preseason' || k === 'pre') return `${sportLabel} · Preseason`;
   if (k === 'postseason' || k === 'playoffs' || k === 'post') return `${sportLabel} · Playoffs`;
   return c;
+}
+
+/** How many of a sport's games Home's rail shows before a "more" tile: the deep slates (tennis, soccer) are capped. */
+export const RAIL_CAP: Record<string, number> = { NFL: 16, CFB: 12, NHL: 10, MLB: 10, NBA: 10, CBB: 8, SOCCER: 6, TENNIS: 4 };
+
+export interface RailGroup { slug: string; sport: string; games: GameRow[]; total: number }
+
+/**
+ * Home's rail as sport groups: the sports with the richest published research first (FEATURE_PREF), each sport's
+ * games in slate order with games its own publication flags pulled forward, capped per sport so a 198-match tennis
+ * day cannot bury twelve NFL games. A single-sport filter shows that sport uncapped.
+ */
+export function railGroups(rows: GameRow[], sportSlug: string | null = null): RailGroup[] {
+  const by = new Map<string, GameRow[]>();
+  for (const g of rows) if (!sportSlug || g.slug === sportSlug) by.set(g.sport, [...(by.get(g.sport) ?? []), g]);
+  const pref = (s: string) => { const i = FEATURE_PREF.indexOf(s); return i < 0 ? 99 : i; };
+  const flagged = (g: GameRow) => (g.phase === 'PREGAME' || (g.phase === 'STARTED' && !g.stale)) && g.candidates > 0;
+  return [...by.entries()]
+    .sort(([a], [b]) => pref(a) - pref(b) || a.localeCompare(b))
+    .map(([sport, gs]) => {
+      const ordered = [...gs].sort((a, b) => slateOrder(a, b));
+      const cap = sportSlug ? ordered.length : RAIL_CAP[sport] ?? 8;
+      // Flagged games inside the cap first, so a capped sport still shows what its publication points at.
+      const pick = [...ordered.filter(flagged), ...ordered.filter((g) => !flagged(g))].slice(0, cap);
+      const keep = new Set(pick);
+      return { slug: gs[0].slug, sport, games: ordered.filter((g) => keep.has(g)), total: gs.length };
+    });
 }

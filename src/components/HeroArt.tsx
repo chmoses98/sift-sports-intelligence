@@ -2,9 +2,10 @@
 // - photo: the approved photograph of the home team's identity at its venue, chosen by size (phones never download
 //   the 2400 px file), art-directed per breakpoint (--focus-d / --focus-m), over the team's branded wash so the
 //   first paint is the team's colours rather than an empty box;
-// - branded: Sift's designed identity — the home team's colours as light, its livery stripes and its logo as a
-//   watermark (never a stadium it might not be playing in); neutral sites and unconfirmed home sides split the
-//   frame between both teams so nobody is shown at home.
+// - branded: Sift's designed identity — the home team's colours as light, its livery stripes, its logo as a
+//   watermark and its name set large in outline (never a stadium it might not be playing in), with a quieter band
+//   and glow in the visitors' colours; neutral sites and unconfirmed home sides split the frame between both teams
+//   so nobody is shown at home.
 // Purely decorative (aria-hidden): what the hero says is in its text (the identity line), never only in the art.
 import type { CSSProperties } from 'react';
 import type { HeroSpec } from '../lib/hero/types';
@@ -53,6 +54,8 @@ export function HeroArt({ spec, variant = 'hero', load = true }: { spec: HeroSpe
         <>
           <span className="hart__rays" />
           <span className="hart__livery" />
+          {!split && spec.away && <span className="hart__livery hart__livery--away" />}
+          {variant === 'hero' && !split && spec.home?.short && <span className="hart__word">{spec.home.short}</span>}
           {variant !== 'tile' && (split ? <><Watermark src={spec.away?.logo} side="away" /><Watermark src={spec.home?.logo} side="home" /></> : <Watermark src={spec.home?.logo} side="home" />)}
           <span className="hart__grain" />
         </>

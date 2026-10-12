@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { NAV_SPORTS, navSport, STATUS_WORD, type NavSport } from '../data/nav';
-import { DESTINATIONS, destinationOf, type Destination } from '../lib/destinations';
+import { DESTINATIONS, destination, destinationOf, PHONE_TABS, type Destination } from '../lib/destinations';
 import { routes } from '../lib/routes';
 import { useSearch } from '../search/useSearch';
 import { useTrail, type TrailStep } from '../state/trail';
@@ -103,8 +103,8 @@ function TrailBar({ sport }: { sport: NavSport | undefined }) {
   const loc = useLocation();
   const here = loc.pathname + loc.search;
   const inSport = (s: TrailStep) => !sport || s.href === `/${sport.slug}` || s.href.startsWith(`/${sport.slug}/`) || s.href.startsWith(`/${sport.slug}?`);
-  // A destination hub that is not sport-scoped (Explore, Intelligence) still names where a sport tool sits.
-  const isHub = (s: TrailStep) => s.href === '/explore' || s.href === '/intelligence';
+  // A destination hub that is not sport-scoped (Research Lab, Props, Intelligence) still names where a sport tool sits.
+  const isHub = (s: TrailStep) => s.href === '/explore' || s.href === '/props' || s.href === '/intelligence';
   const shown = steps.filter((s) => s.kind !== 'home' && s.kind !== 'sport' && (inSport(s) || isHub(s))).slice(-5);
   if (!sport && !shown.length) return null;
   const atRoot = sport && loc.pathname === `/${sport.slug}`;
@@ -173,7 +173,8 @@ function useOnline() {
 const STRIP_SPORTS = NAV_SPORTS.filter((s) => s.status !== 'planned');
 
 /**
- * The five destinations. Desktop: glass tabs in the header, the active one lit. Phones: the bottom tab bar.
+ * The six destinations. Desktop: glass tabs in the header, the active one lit. Phones: five in the bottom tab
+ * bar, with My Board as a bookmark (and its count) in the phone header.
  * Both read destinationOf() so they always agree with the address.
  */
 function DestinationTabs({ active, count }: { active: Destination | null; count: number }) {
@@ -281,7 +282,7 @@ function SportsSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
         </ul>
         <div className="sheet__h"><span className="eyebrow">More</span></div>
         <ul className="sheet__work">
-          {[{ to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
+          {[{ to: routes.board(), label: 'My Board', icon: 'bookmark' }, { to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
             <li key={w.label}>
               <NavLink to={w.to} className="sheet__wa" onClick={onClose}><Icon name={w.icon} size={18} /> {w.label}</NavLink>
             </li>
@@ -331,6 +332,10 @@ export function Shell({ children }: { children: ReactNode }) {
               <span>{sport?.label ?? 'Sports'}</span>
               <Icon name="chevronDown" size={14} />
             </button>
+            <Link to={routes.board()} className={`topbar__board${active === 'board' ? ' is-on' : ''}`} aria-current={active === 'board' ? 'page' : undefined} aria-label={count ? `My Board, ${count === 1 ? '1 saved item' : `${count} saved items`}` : 'My Board'}>
+              <Icon name="bookmark" size={18} />
+              {count > 0 && <span className="topbar__boardn" aria-hidden="true">{count}</span>}
+            </Link>
             <Link to={routes.settings()} className="topbar__icon" aria-label="Settings"><Icon name="settings" size={17} /></Link>
           </div>
         </header>
@@ -342,7 +347,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </main>
         <footer className="foot">
           <span className="foot__brand">SIFT</span>
-          <span>Reads the published <code>edge_finder.app.v1</code> contract. Projections and model prices are research evidence, not bets.</span>
+          <span>Projections and model prices are research, not bets.</span>
           <Link to={routes.pulse()}>Model Pulse</Link>
           <Link to={routes.status()}>Data & provenance</Link>
           <Link to={routes.design()}>Design system</Link>
@@ -350,11 +355,10 @@ export function Shell({ children }: { children: ReactNode }) {
         </footer>
       </div>
       <nav className="bottombar" aria-label="Destinations">
-        {DESTINATIONS.map((d) => (
-          <Link key={d.id} to={d.to} className={`bottombar__a${active === d.id ? ' active' : ''}${d.id === 'board' ? ' bottombar__board' : ''}`} aria-current={active === d.id ? 'page' : undefined}>
-            <span className="bottombar__ic"><Icon name={d.icon} />{d.id === 'board' && count > 0 && <span className="bottombar__n" aria-hidden="true">{count}</span>}</span>
-            <span>{d.id === 'intelligence' ? 'Intel' : d.label}</span>
-            {d.id === 'board' && count > 0 && <span className="sr-only">{count === 1 ? '1 saved item' : `${count} saved items`}</span>}
+        {PHONE_TABS.map(destination).map((d) => (
+          <Link key={d.id} to={d.to} className={`bottombar__a${active === d.id ? ' active' : ''}`} aria-current={active === d.id ? 'page' : undefined} aria-label={d.short === d.label ? undefined : d.label}>
+            <span className="bottombar__ic"><Icon name={d.icon} /></span>
+            <span aria-hidden={d.short === d.label ? undefined : true}>{d.short}</span>
           </Link>
         ))}
       </nav>

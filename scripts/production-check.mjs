@@ -591,8 +591,11 @@ async function designCheck(browser, device, name) {
     const railTiles = await page.locator('.rtile').count();
     check(railTiles > 0 || /No games today/.test(homeText), `Home: today's games rail (${railTiles} tiles) or an honest empty state`);
     check((await page.locator('.fhero').count()) > 0 || /No upcoming game to feature/.test(homeText), 'Home: the featured matchup hero (or its honest empty state)');
+    // Wide screens: six header tabs (Home · Games · Props · Research Lab · Intelligence · My Board). Phones: a five-tab
+    // bar (Home · Games · Props · Lab · Intel) with My Board as a bookmark in the header.
+    const wide = (device.viewport?.width ?? 0) >= 900;
     const dests = await page.locator('.dnav__a:visible, .bottombar__a:visible').count();
-    check(dests === 5, `Home: exactly five primary destinations visible (got ${dests})`);
+    check(dests === (wide ? 6 : 5), `Home: exactly ${wide ? 'six' : 'five'} primary destinations visible (got ${dests})`);
     check((await page.locator('.searchbtn:visible').count()) === 1, 'Home: exactly one search control');
     await page.screenshot({ path: `production-${name}-home.png` });
 
@@ -604,7 +607,7 @@ async function designCheck(browser, device, name) {
     check(cards > 0, `Market board: ${cards} opportunity / No Edge cards (every explorable sport accounted for)`);
 
     // Every new destination opens without an error screen, undefined or sideways scroll.
-    for (const [path, heading] of [['games', /^Games$/], ['explore', /^Explore$/], ['intelligence', /^Terminal$/], ['intelligence/pulse', /^Model Pulse$/], ['intelligence/lab', /^Advanced Model Lab$/], ['board', /^My Board$/], ['nfl/season', /^Season navigator$/], ['nfl/props', /^Prop explorer$/]]) {
+    for (const [path, heading] of [['games', /^Games$/], ['explore', /^Research Lab$/], ['props', /^Player prop explorer$/i], ['intelligence', /^Terminal$/], ['intelligence/pulse', /^Model Pulse$/], ['intelligence/lab', /^Advanced Model Lab$/], ['board', /^My Board$/], ['nfl/season', /^Season navigator$/], ['nfl/props', /^Prop explorer$/]]) {
       await page.goto(BASE + `#/${path}`);
       const ok = await page.getByRole('heading', { name: heading }).first().waitFor({ timeout: 60_000 }).then(() => true).catch(() => false);
       await page.waitForTimeout(3000);

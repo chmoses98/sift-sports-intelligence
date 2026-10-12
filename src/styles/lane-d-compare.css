@@ -1,0 +1,28 @@
+/* LANE D — Market Comparison Studio (owner item 39): one clean side-by-side table. */
+.lsc { gap: 12px; min-width: 0; max-width: 100%; }
+.lsc > * { min-width: 0; }
+.lsc__scroll { position: relative; overflow-x: auto; max-width: 100%; min-width: 0; scrollbar-width: thin; }
+.lsc__t { width: 100%; min-width: calc(150px + var(--n, 3) * 210px); border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 0.86rem; }
+.lsc__t th, .lsc__t td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.lsc__t tbody tr:hover td, .lsc__t tbody tr:hover th { background: rgba(255, 255, 255, 0.02); }
+.lsc__k { width: 150px; position: sticky; left: 0; z-index: 1; background: rgba(3, 14, 23, 0.97); color: var(--text-2); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.lsc__h { display: table-cell; background: rgba(6, 22, 37, 0.8); border-top: 2px solid transparent; }
+.lsc__h.is-lead { border-top-color: var(--cobalt-hi, #1e8cf2); background: linear-gradient(180deg, rgba(30, 140, 242, 0.16), rgba(6, 22, 37, 0.8)); }
+.lsc__sel { display: grid; gap: 4px; margin-bottom: 8px; color: var(--text-3); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.lsc__sel select { min-height: 36px; width: 100%; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--navy-1); color: var(--text-hi); font: inherit; font-size: 0.82rem; text-transform: none; letter-spacing: 0; }
+.lsc__name { display: block; color: var(--text-hi); font-size: 1rem; font-weight: 700; text-decoration: none; line-height: 1.25; }
+.lsc__name:hover { text-decoration: underline; }
+.lsc__ev { display: block; margin-top: 2px; color: var(--text-2); font-size: 0.76rem; font-weight: 500; }
+.lsc__px { display: inline-block; padding: 2px 8px; border-radius: 6px; background: linear-gradient(180deg, #f6cf62, #e2ad2e); color: #1a1204; font-size: 1rem; font-variant-numeric: tabular-nums; }
+.lsc__st { display: block; margin-top: 4px; color: var(--text-2); }
+.lsc__st--stale, .lsc__st--expired, .lsc__st--no_quote, .lsc__st--above_bet_up_to { color: var(--aging); }
+.lsc__pos { color: var(--pos); font-weight: 600; }
+.lsc__neg { color: var(--neg); font-weight: 600; }
+.lsc__corr { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; }
+.lsc__corr--bad { background: rgba(255, 81, 101, 0.14); color: #ff9aa6; border: 1px solid rgba(255, 81, 101, 0.35); }
+.lsc__corr--warn { background: rgba(240, 192, 72, 0.12); color: var(--gold-2); border: 1px solid rgba(240, 192, 72, 0.3); }
+.lsc__corr--ok { color: var(--text-2); }
+@media (max-width: 640px) {
+  .lsc__k { width: 104px; }
+  .lsc__t { min-width: calc(104px + var(--n, 3) * 176px); }
+}

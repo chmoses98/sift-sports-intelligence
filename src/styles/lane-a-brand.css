@@ -1,0 +1,21 @@
+/* ==========================================================================
+   LANE A · team-branded graphics (repair sprint 2026-10-11)
+   When a script card has no approved game-day photo of its player, the frame is the team's own identity:
+   both team colours as a lit field and livery bands, the logo large and legible — never a weak photo.
+   ========================================================================== */
+.scard__frame--brand {
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--tc) 70%, transparent) 0%, transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--tc) 55%, #02070d) 0%, #02070d 85%);
+}
+.scard__frame--brand::before {
+  content: ''; position: absolute; top: -20%; bottom: -20%; right: 14%; width: 46px; transform: skewX(-16deg); opacity: 0.7;
+  background: linear-gradient(90deg, transparent 0 6px, var(--tc2) 6px 11px, transparent 11px 18px, color-mix(in srgb, var(--tc) 80%, #fff 8%) 18px 40px, transparent 40px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 70%, transparent 100%);
+}
+.scard__art--split .scard__frame--brand::before { right: 8%; width: 30px; }
+.scard__frame--brand .scard__img--logo {
+  padding: 10% 18% 26%; opacity: 0.9; object-position: 50% 40%;
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.6)) saturate(1.05);
+}

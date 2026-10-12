@@ -21,7 +21,7 @@ describe('game scripts', () => {
     expect(set.fav).toBe('home');
     expect(byId('fav-big').name).toBe('Bills Win Big');
     expect(byId('fav').name).toBe('Bills Win Comfortably');
-    expect(byId('close').name).toBe('Close Game Either Way');
+    expect(byId('close').name).toBe('Patriots Keep It Close');
     expect(byId('dog').name).toBe('Patriots Win Comfortably');
     // The canonical model bucket is kept beside the display title, unchanged by wording.
     expect(set.scripts.map((s) => [s.id, s.canonical])).toEqual(expect.arrayContaining([['fav-big', 'BUF by 14+'], ['fav', 'BUF by 7–13'], ['close', 'Within 6 either way'], ['dog', 'NE by 7+']]));
@@ -44,6 +44,21 @@ describe('game scripts', () => {
       const shift = (s.volume[trail].passRate ?? 0) - (set.overall[trail].passRate ?? 0);
       expect(/throw/.test(s.story)).toBe(shift >= 0.03);
     }
+  });
+
+  it('names the actual teams in every title and tight line, with the volume clause one layer down (items 8, 13)', () => {
+    for (const s of set.scripts) {
+      expect(s.name).toMatch(/Bills|Patriots/);
+      expect(s.name).not.toMatch(/\b(home|away|favou?rite|underdog)\b/i);
+      // One tight sentence on cards; the conditional-volume clause is the expandable detail.
+      expect(s.line.split('. ').length).toBe(1);
+      expect(s.story).toBe(s.detail ? `${s.summary} ${s.detail}` : s.summary);
+    }
+    expect(byId('fav-big').line).toBe('Bills by 14 or more.');
+    expect(byId('close').line).toBe('Either team by 6 or fewer.');
+    expect(byId('close').summary).toBe('Bills or Patriots by 6 points or fewer.');
+    expect(byId('close').detail).toBeNull();
+    expect(byId('dog').summary).toBe('Patriots win by 7 or more.');
   });
 
   it('always lists scripts from most to least likely (colour identity stays with the script)', () => {

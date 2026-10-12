@@ -28,6 +28,7 @@ import { GameHero } from '../game/Hero';
 import { GameTabs } from '../game/GameTabs';
 import { PanelHead } from '../game/panels';
 import { marketImplied, MlbPlayerProps } from './PlayerProps';
+import { qualityLabel } from '../../lib/plainLabels';
 import { GameOpportunities } from '../game/GameOpportunities';
 
 type Tab = 'overview' | 'props' | 'matchup' | 'markets' | 'trends';
@@ -114,7 +115,7 @@ export function MlbGameView({ eventId, teamId }: { eventId: string; teamId: stri
             </Stratum>
           </div>
         ) : tab === 'props' ? (
-          <Stratum id="g-mlb-props" title="Player props" sub={<>Pitchers, then hitters, by club. Market = Kalshi's price; Model only where a projection is published ({capStatus(caps, 'player_props')} in the capability manifest).</>} actions={<span className="gquote"><QuoteSummaryChip views={propViews} now={now} /></span>}>
+          <Stratum id="g-mlb-props" title="Player props" sub={<>Pitchers, then hitters, by club. Market = Kalshi's price; Model only where a projection is published (player props: {qualityLabel(capStatus(caps, 'player_props')).word.toLowerCase()} in this publication).</>} actions={<span className="gquote"><QuoteSummaryChip views={propViews} now={now} /></span>}>
             {detail.error ? <ErrorState error={detail.error} what="this game's markets" /> : <MlbPlayerProps markets={quoted} teamOrder={teamOrder} slug={slug} eventId={eventId} canLink={canLink} abbrOf={abbrOf} />}
           </Stratum>
         ) : tab === 'matchup' && r ? (
@@ -155,7 +156,7 @@ export function MlbGameView({ eventId, teamId }: { eventId: string; teamId: stri
 function lineupLine(r: EventResearchDoc | null): string | null {
   const ls = (r?.context?.lineups ?? []) as { team?: string; status?: string; official?: boolean }[];
   if (!ls.length) return null;
-  return `Lineups: ${ls.map((l) => `${l.team ?? '?'} ${(l.status ?? 'unknown').toLowerCase()}${l.official ? ' (official)' : ''}`).join(' · ')}`;
+  return `Lineups: ${ls.map((l) => `${l.team ?? '?'} ${l.status ? l.status.replace(/_/g, ' ').toLowerCase() : 'not announced'}${l.official ? ' (official)' : ''}`).join(' · ')}`;
 }
 
 const CAT_ORDER = ['projection', 'offense', 'form', 'pitching', 'projection_input', 'adjustment'];

@@ -10,7 +10,7 @@ import { publicationView, QuoteChip } from '../components/LiveQuote';
 import { ErrorState, Skeleton, TeamMark } from '../components/ui';
 import { compact } from '../lib/format';
 import { routes } from '../lib/routes';
-import { gameScripts, sharePct } from '../lib/scripts';
+import { gameScripts, oneScoreShare, sharePct } from '../lib/scripts';
 import { useNow } from '../live/hooks';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
@@ -30,7 +30,7 @@ function ScriptOutlook({ items, research, slug, sportCode }: { items: BoardItem[
     .map((i) => ({ i, r: research.get(i.event_id) }))
     .map((x) => ({ ...x, set: x.r ? gameScripts(x.r) : null }))
     .filter((x) => x.set)
-    .sort((a, b) => (b.set!.scripts.find((s) => s.id === 'close')?.share ?? 0) - (a.set!.scripts.find((s) => s.id === 'close')?.share ?? 0));
+    .sort((a, b) => oneScoreShare(b.set!) - oneScoreShare(a.set!));
   if (!rows.length) return null;
   return (
     <section className="panel" aria-labelledby="so-h">

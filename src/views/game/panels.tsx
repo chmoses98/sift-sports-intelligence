@@ -54,7 +54,7 @@ export function ViewAll({ to, children = 'View all' }: { to: string; children?: 
 
 /** Bars that sketch where the final margin lands in a script (decorative; the label carries meaning). */
 export function ScriptGlyph({ id }: { id: ScriptId }) {
-  const h: Record<ScriptId, number[]> = { 'fav-big': [5, 9, 13, 18], fav: [6, 11, 15, 11], close: [10, 16, 16, 10], dog: [18, 13, 9, 5] };
+  const h: Record<ScriptId, number[]> = { 'fav-big': [5, 9, 13, 18], fav: [6, 11, 15, 11], close: [10, 16, 16, 10], 'fav-close': [9, 14, 17, 10], 'dog-close': [10, 17, 14, 9], dog: [18, 13, 9, 5] };
   return (
     <svg className="sglyph" width="30" height="20" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
       {h[id].map((v, i) => <rect key={i} x={i * 7.5} y={20 - v} width="5.5" height={v} rx="1" />)}

@@ -5,7 +5,7 @@ import { useVisit } from '../state/trail';
 
 const SWATCHES: [string, string][] = [
   ['--black', 'page · near-black'], ['--slate', 'panel'], ['--deep-blue', 'selected surface'], ['--blue', 'navigation state'],
-  ['--gold', 'gold · price + action'], ['--ice', 'cyan · signal'], ['--teal', 'teal · coverage'], ['--ivory', 'ivory · text'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'],
+  ['--gold', 'gold · price + action'], ['--ice', 'cyan · signal'], ['--teal', 'teal · coverage'], ['--ivory', 'ivory · text'], ['--script-1', 'script: fav 14+'], ['--script-2', 'script: fav 7–13'], ['--script-3', 'script: one score'], ['--script-4', 'script: dog 7+'], ['--script-5', 'script: dog 1–6'],
   ['--mark-focus', 'chart: viewing'], ['--mark-opp', 'chart: opponent'], ['--mark-compare', 'chart: pinned'], ['--mark-context', 'chart: context'],
   ['--fresh', 'FRESH'], ['--aging', 'AGING'], ['--stale', 'STALE'], ['--q-research', 'RESEARCH'],
 ];

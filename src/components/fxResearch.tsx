@@ -208,7 +208,7 @@ export interface MarginSeg {
   lo: number | null;
   hi: number | null;
   /** Script identity colour 1..4. */
-  tone: 1 | 2 | 3 | 4;
+  tone: 1 | 2 | 3 | 4 | 5;
   label: string;
   on?: boolean;
   dim?: boolean;
@@ -282,7 +282,7 @@ function marginWords(lo: number | null, hi: number | null, home: string, away: s
 }
 
 /** A horizontal share bar (0..1) in a script's identity colour. Only for published shares. */
-export function ShareBar({ value, tone, label }: { value: number; tone: 1 | 2 | 3 | 4; label: string }) {
+export function ShareBar({ value, tone, label }: { value: number; tone: 1 | 2 | 3 | 4 | 5; label: string }) {
   const v = Math.max(0, Math.min(1, value));
   return (
     <span className={`frbar frbar--s${tone}`} role="img" aria-label={label}>

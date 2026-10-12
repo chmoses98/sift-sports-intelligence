@@ -412,6 +412,9 @@ for (const [name, type, device] of BROWSERS) {
       await page.goto(`${BASE}#/cfb/game/${sidecarGame.eventId}?tab=matchup`);
       await page.locator('.game--engine').waitFor({ timeout: 60_000 });
       await page.waitForFunction(() => document.querySelectorAll('table.mettab').length > 0 || document.querySelector('[data-testid="engine-detail-unavailable"]'), null, { timeout: 60_000 }).catch(() => {});
+      // The tables alone do not mean the sidecar was read: a light trim (expression correlations only) leaves them in
+      // the event, so they paint before the sidecar arrives. Wait for the provenance line to settle on its outcome.
+      await page.waitForFunction(() => /verified\)|unavailable:|Published whole/.test(document.querySelector('[data-testid="engine-detail-provenance"]')?.textContent ?? ''), null, { timeout: 60_000 }).catch(() => {});
       const st = await page.evaluate(() => ({
         tables: document.querySelectorAll('table.mettab').length,
         ranks: (document.querySelector('main')?.innerText.match(/#\d+(\/| of )\d+/g) ?? []).length, // "#12/130" or "#12 of 130"

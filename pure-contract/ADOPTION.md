@@ -60,3 +60,7 @@ Use `pure_gate.py compare` on matched player-game-stat rows only, against **spor
 (`{sport, game_id, player_id, statistic, actual, played[, source, observed_at]}`, never market settlement).
 Report the full sample and exclusion counts and the game-clustered paired CIs. Compare against the simplest
 sports-only baseline and the current champion, on a preregistered chronological holdout.
+
+For the fuller accuracy scorecard (PIT, ladder Brier/log/RPS, the pregame market-listed cohort, breakdowns,
+several comparators) use `accuracy_scorecard.py`. Betting value against executable Kalshi quotes is a
+separate question with a separate promotion gate, answered by `value_scorecard.py` (see `SCORECARDS.md`).

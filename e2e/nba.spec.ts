@@ -62,3 +62,20 @@ test('a game page: PASS first, then matchup ranks, injuries, rosters and every m
   await expect(page.getByRole('heading', { name: /Dallas Mavericks/, level: 1 })).toBeVisible();
   await noHorizontalOverflow(page, 'nba team');
 });
+
+test('a team page reads strength raw or opponent-adjusted, and the metric and ranking pages print NBA units @journey', async ({ page }) => {
+  const MIL = 'prt_8848b90e0c224d6f089f';
+  await page.goto(`./#/nba/team/${MIL}`);
+  const region = page.getByRole('region', { name: 'Opponent-adjusted and raw strength' });
+  await expect(region.getByRole('columnheader', { name: 'Adjusted rank' })).toBeVisible();
+  await expect(region.getByRole('row', { name: /Offense/ })).toContainText('111.8');
+  await page.getByRole('group', { name: 'Team numbers: opponent-adjusted or raw' }).getByRole('button', { name: /Raw/ }).click();
+  await expect(region.getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
+  await expect(region.getByRole('row', { name: /Offense/ })).toContainText('115.0');
+  await expect(region.getByRole('row', { name: /Offense/ })).toContainText('#24 of 30');
+  await region.getByRole('link', { name: /Offense/ }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Offensive rating');
+  await expect(page.locator('.answer__val')).toContainText('115.0');
+  await expect(page.locator('.answer__val')).toContainText('pts / 100 poss');
+  await noHorizontalOverflow(page, 'nba metric');
+});

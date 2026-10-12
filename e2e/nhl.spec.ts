@@ -151,9 +151,15 @@ test('a market page shows the contract in every script with the failure script c
 
 test('a team page separates opponent-adjusted strength from raw numbers @journey', async ({ page }) => {
   await page.goto(`./#/nhl/team/${LAK}`);
-  const region = page.getByRole('region', { name: 'Opponent-adjusted strength' });
+  const region = page.getByRole('region', { name: 'Opponent-adjusted and raw strength' });
   await expect(region).toBeVisible();
   await expect(region.getByRole('columnheader', { name: 'Raw (same games)' })).toBeVisible();
+  // The app-wide Adjusted / Raw toggle: raw leads, adjusted stays beside it, and the choice is remembered.
+  await page.getByRole('group', { name: 'Team numbers: opponent-adjusted or raw' }).getByRole('button', { name: /Raw/ }).click();
+  await expect(region.getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
+  await expect(region.getByRole('columnheader', { name: 'Adjusted', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('region', { name: 'Opponent-adjusted and raw strength' }).getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
 });
 
 test('skater and goalie pages are research first @journey', async ({ page }) => {

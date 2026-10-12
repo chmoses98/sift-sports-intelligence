@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Stratum } from '../../components/ui';
 import { canonicalTeam } from '../../lib/hero/registry';
 import { ROOF_WORD, SURFACE_WORD, VENUE_FACTS, type VenueFact } from '../../lib/venueFacts';
-import { INJURY_FRESH_MS, INJURY_STALE_MS } from '../../lib/injurySource';
+import { INJURY_FRESH_MS, INJURY_STALE_MS, injuryCadence } from '../../lib/injurySource';
 import '../../styles/lane-f-data.css';
 
 type Group = 'NFL' | 'CFB' | 'MLB' | 'International';
@@ -61,7 +61,7 @@ const hours = (ms: number) => Math.round(ms / 3600_000);
 
 export function InjurySourcesSection() {
   return (
-    <Stratum id="injury-sources" title="Injury reports" sub={`Every injury list shows its source, when it was captured and its age: fresh up to ${hours(INJURY_FRESH_MS)} hours, aging up to ${hours(INJURY_STALE_MS)} hours, stale after that. This rule is for injury lists only; market prices keep their own 15- and 30-minute rule.`}>
+    <Stratum id="injury-sources" title="Injury reports" sub={`Every injury list shows its source, when it was captured and its age. The fresh and stale lines follow each sport's report cadence: NFL fresh up to ${hours(injuryCadence('NFL').freshMs)} hours and stale after ${hours(injuryCadence('NFL').staleMs)} (one report a day in game week); NBA ${hours(injuryCadence('NBA').freshMs)} and ${hours(injuryCadence('NBA').staleMs)} (statuses move through tip-off); NHL ${hours(injuryCadence('NHL').freshMs)} and ${hours(injuryCadence('NHL').staleMs)} (about once a day); any other list ${hours(INJURY_FRESH_MS)} and ${hours(INJURY_STALE_MS)}. This rule is for injury lists only; market prices keep their own 15- and 30-minute rule.`}>
       <table className="dtable">
         <thead><tr><th scope="col">Sport</th><th scope="col">Source</th><th scope="col">What to know</th></tr></thead>
         <tbody>

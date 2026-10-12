@@ -1,4 +1,4 @@
-// UNITS, DENOMINATORS AND FOOTING for the NHL, soccer, CBB and CFB stat sections (issue 6, beyond the NFL helpers in
+// UNITS, DENOMINATORS AND FOOTING for the NHL, NBA, soccer, CBB and CFB stat sections (issue 6, beyond the NFL helpers in
 // insights/units.ts). Every denominator below is the publication's own: it is copied from the metric registry's
 // `description` / `unit` (explorer/metrics.json, or the CFB Script Engine's metric_registry) — Sift writes it down in
 // fan words and never converts one measure into another. A rate stays a rate ("% of shot attempts"), a per-60 rate
@@ -137,6 +137,52 @@ const CFB: Record<string, SportUnit> = {
   turnovers_per_game: U('turnovers / game', 'giveaways per game'),
 };
 
+// ---- NBA (met_nba.*): descriptions in the NBA publication's metric registry. `fraction` values are 0–1 shares;
+// "minus implied" market measures are probability differences, printed in percentage points.
+const NBA: Record<string, SportUnit> = {
+  team_off_rtg: U('pts / 100 poss', 'points scored per 100 stored possessions, regular season (raw, not opponent-adjusted)'),
+  team_def_rtg: U('pts allowed / 100 poss', 'points allowed per 100 stored possessions, regular season (raw, not opponent-adjusted)'),
+  team_net_rtg: U('pts / 100 poss', 'point differential per 100 stored possessions (raw, not opponent-adjusted)', 'none', 1, true),
+  team_adj_off_ppp: U('pts / 100 poss (adj.)', 'points per 100 possessions with each opponent removed (EWM, half-life 25 games; model input)'),
+  team_adj_def_ppp: U('pts allowed / 100 poss (adj.)', 'points allowed per 100 possessions with each opponent removed (EWM; model input)'),
+  team_adj_net_ppp: U('pts / 100 poss (adj.)', 'adjusted offense minus adjusted defense per 100 possessions (model input)', 'none', 1, true),
+  team_sos_opp_net_rtg: U('opp. net rtg', 'mean season net rating of the opponents faced (points per 100 possessions)', 'none', 2, true),
+  team_pts: U('pts / game', 'points scored per game'),
+  team_opp_pts: U('pts allowed / game', 'points allowed per game'),
+  team_margin: U('pts / game', 'final margin per game (points scored minus allowed)', 'none', 1, true),
+  team_total: U('pts / game', 'combined points per game'),
+  team_first_half_pts: U('1st-half pts / game', 'first-half (Q1 + Q2) points per game'),
+  team_possessions: U('poss / game', 'estimated possessions per game (FGA + 0.44 × FTA − OREB + TOV)'),
+  team_tov_rate: U('turnovers / 100 poss', 'turnovers per 100 stored possessions'),
+  team_fta_rate: U('FTA per FGA', 'free-throw attempts per field-goal attempt', 'none', 3),
+  team_win_pct: U('of games won', 'share of games won', 'fraction'),
+  team_mkt_ml_implied_win_prob: U('implied win chance', 'mean pre-tip moneyline implied win probability (T−30 min market mid)', 'fraction'),
+  team_mkt_ml_win_minus_implied: U('pts vs implied', 'wins minus moneyline-implied probability, in percentage points', 'fraction', 1, true),
+  team_mkt_spread_cover_minus_implied: U('pts vs implied', 'spread YES settlements minus implied probability, in percentage points', 'fraction', 1, true),
+  team_mkt_total_over_minus_implied: U('pts vs implied', 'game-total OVER settlements minus implied probability, in percentage points', 'fraction', 1, true),
+  team_mkt_team_total_over_minus_implied: U('pts vs implied', 'team-total OVER settlements minus implied probability, in percentage points', 'fraction', 1, true),
+  team_shot_share_rim: U('of located shots', 'share of located non-free-throw attempts at the rim', 'fraction'),
+  team_shot_share_paint_non_rim: U('of located shots', 'share of located non-free-throw attempts in the paint, away from the rim', 'fraction'),
+  team_shot_share_midrange: U('of located shots', 'share of located non-free-throw attempts from midrange', 'fraction'),
+  team_shot_share_corner_three: U('of located shots', 'share of located non-free-throw attempts from the corner three', 'fraction'),
+  team_shot_share_above_break_three: U('of located shots', 'share of located non-free-throw attempts from above-the-break three', 'fraction'),
+  player_pts: U('pts / game', 'points per game'),
+  player_reb: U('reb / game', 'rebounds per game'),
+  player_ast: U('ast / game', 'assists per game'),
+  player_stl: U('stl / game', 'steals per game'),
+  player_blk: U('blk / game', 'blocks per game'),
+  player_tov: U('tov / game', 'turnovers per game'),
+  player_fg3m: U('threes / game', 'three-pointers made per game'),
+  player_fga: U('FGA / game', 'field-goal attempts per game'),
+  player_fta: U('FTA / game', 'free-throw attempts per game'),
+  player_min: U('min / game', 'minutes per game'),
+  player_plus_minus: U('+/− / game', 'plus-minus per game', 'none', 1, true),
+  player_fg_pct: U('of field goals made', 'field-goal percentage', 'fraction'),
+  player_fg3_pct: U('of threes made', 'three-point percentage', 'fraction'),
+  player_ft_pct: U('of free throws made', 'free-throw percentage', 'fraction'),
+  player_start_rate: U('of games started', 'share of games started', 'fraction', 0),
+};
+
 const NOT_STATED: SportUnit = { short: '', long: 'unit not stated by the publication', scale: 'none', dp: 2, stated: false };
 
 /** A registry unit Sift has no specific entry for, written as published (never guessed). */
@@ -147,10 +193,14 @@ function fromRegistryUnit(unit: string | null | undefined): SportUnit {
   if (u === 'probability') return U('probability', 'probability', 'fraction');
   if (u === '%') return { short: '', long: 'percent', scale: 'percent', dp: 1, stated: true };
   if (u === 'rate') return { short: '', long: 'rate (the publication does not state the denominator)', scale: 'fraction', dp: 1, stated: true };
+  if (u === 'pct points') return U('pct pts', 'percentage points', 'none', 1, true);
+  // Whole counts and rating points read as whole numbers; everything else keeps two decimals.
+  if (/^(elo points|pitches|outs|PA|games|starts|degrees)$/i.test(u)) return U(u, u, 'none', 0);
+  if (/^(mph|innings|minutes|points|runs|goals|shots)$/i.test(u)) return U(u, u, 'none', 1);
   return U(u, u, 'none', 2);
 }
 
-const TABLES: [RegExp, Record<string, SportUnit>][] = [[/^met_nhl\./, NHL], [/^met_soccer\./, SOCCER], [/^met_cbb\./, CBB]];
+const TABLES: [RegExp, Record<string, SportUnit>][] = [[/^met_nhl\./, NHL], [/^met_nba\./, NBA], [/^met_soccer\./, SOCCER], [/^met_cbb\./, CBB]];
 
 /**
  * The unit of a metric outside the NFL: the publication's own denominator in fan words, or the registry's unit as
@@ -178,6 +228,17 @@ export function valueAndUnit(v: number | null | undefined, u: SportUnit): string
   if (t === '—') return t;
   if (!u.stated) return `${t} (unit not stated)`;
   return u.short ? `${t} ${u.short}` : t;
+}
+
+/**
+ * Metric and Ranking pages (backlog 5.4): outside the NFL a value is printed in its publication's unit (NHL shares as
+ * "52.3%", NBA ratings as "115.0", win rates as "39.0%") instead of the generic decimal formatter. The NFL keeps its
+ * own helpers (insights/units.ts), so this returns null there.
+ */
+export function sportMetricFormat(sport: string, metricId: string, def?: { unit?: string | null } | null): { fmt: (v: number | null | undefined) => string; unit: SportUnit; words: string } | null {
+  if (sport === 'NFL') return null;
+  const u = sportUnit(metricId, def, sport);
+  return { fmt: (v) => formatUnitValue(v, u), unit: u, words: u.stated ? u.short || u.long : 'unit not stated' };
 }
 
 /** What a unit cell says when there is nothing after the number. */
@@ -218,7 +279,7 @@ export function footingOf(metricId: string, def: DefLike | null | undefined, o?:
   const cbb = ((def?.extensions ?? {}) as { cbb?: { adjusted?: boolean } }).cbb;
   const cat = String(def?.category ?? '').toLowerCase();
   const win = windowWords(o?.window);
-  if (ext.basis === 'OPPONENT_ADJUSTED' || cat === 'opponent_adjusted' || cat === 'opponent-adjusted' || cbb?.adjusted === true || /opponent-adjusted by construction/i.test(def?.description ?? '')) {
+  if (ext.basis === 'OPPONENT_ADJUSTED' || /^met_nba\.team_adj_/.test(metricId) || cat === 'opponent_adjusted' || cat === 'opponent-adjusted' || cbb?.adjusted === true || /opponent-adjusted by construction/i.test(def?.description ?? '')) {
     return { kind: 'adjusted', word: 'Adjusted', detail: `Opponent-adjusted${win ? ` (${win})` : ''}: the opponents' strength is removed. Compare only with other adjusted values.` };
   }
   if (cat === 'model_inputs' || cat === 'matchup' || cat === 'model' || cat === 'projection') {

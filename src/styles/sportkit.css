@@ -169,3 +169,15 @@
 .skvs__sub { font-size: 0.78rem; color: var(--text-3); }
 .skvs__mid { display: grid; gap: 4px; justify-items: center; color: var(--text-3); font-size: 0.78rem; text-align: center; }
 .skvs__mid b { font-family: var(--font-display); font-weight: var(--fw-ui); color: var(--sand-dim); font-size: 1.2rem; }
+
+/* Rank rows (NBA, soccer, CBB …): the metric name sits above a butterfly of two thin bars that meet on ONE centre
+   baseline (the name's width no longer shifts where each bar starts), each side's bar in its series colour with a
+   swatch beside the team label as the legend. Labels and numbers stay neutral text, never series-coloured. */
+.skrk__bars { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "name name" "l r"; row-gap: 6px; column-gap: 3px; }
+.skrk__bars .skrk__name { grid-area: name; max-width: none; justify-self: center; }
+.skrk__half--l { grid-area: l; }
+.skrk__half--r { grid-area: r; }
+.skrk__half { height: 5px; border-radius: 3px; }
+.skrk__head > span:first-child::before, .skrk__head > span:last-child::after { content: ''; display: inline-block; width: 10px; height: 4px; border-radius: 2px; vertical-align: middle; }
+.skrk__head > span:first-child::before { background: var(--mark-focus); margin-right: 6px; }
+.skrk__head > span:last-child::after { background: var(--mark-opp); margin-left: 6px; }

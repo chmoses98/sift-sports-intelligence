@@ -11,6 +11,9 @@ and has nothing to do with wagers, staking or model authority.
 | `tests/` | Unit tests, including the 13 ported kit tests and synthetic toy upstream models for `rerun` |
 | `examples/` | **Synthetic** example rows (not forecasts of any real player or game) |
 | `ADOPTION.md` | How each sport repo emits the sidecar and where market quotes go |
+| `accuracy_scorecard.py` | Projection accuracy scorecard (MAE/RMSE/bias, coverage, PIT, CRPS, Brier/log/RPS, clustered head-to-heads, breakdowns; stdlib only). See `SCORECARDS.md` |
+| `value_scorecard.py` | Betting value scorecard (executable Kalshi prices at or before as_of, fees, slippage, one decision per player-game-stat, verdict; stdlib only). See `SCORECARDS.md` |
+| `SCORECARDS.md` | Metrics, approximations, anti-hindsight rules, the accuracy vs betting-value promotion split, vendoring |
 
 The vendored `src/contract/` protocols and `kalshi-bet-router/contract/edge_finder_contract` are not part of
 this and are unchanged. This directory isn't imported by the app build.

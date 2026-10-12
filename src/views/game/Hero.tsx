@@ -161,9 +161,10 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       ? ev.competition?.replace(/^MLB\s+\d{4}\s*/i, '').replace(/^\w/, (c) => c.toUpperCase()) ?? null
       : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
-  // Team-colour clash (src/styles/clash-hero.css): opposing floodlights in each club's own hot/cool pair. NFL for now.
-  const clash = sportCode === 'NFL';
+  // Team-colour clash (src/styles/clash-hero.css): opposing floodlights in each club's own hot/cool pair.
   const art = heroArtwork(sportCode, awayAbbr, homeAbbr);
+  // The clash layer is opt-in per matchup (today only the artwork matchup), so every other hero keeps its own look.
+  const clash = !!art;
   const hp = clashPalette([hc, hc2]);
   const ap = clashPalette([ac, ac2]);
   const clashVars = clash ? { ['--ch-hot' as string]: hp.hot, ['--ch-cool' as string]: hp.cool, ['--ca-hot' as string]: ap.hot, ['--ca-cool' as string]: ap.cool } : {};

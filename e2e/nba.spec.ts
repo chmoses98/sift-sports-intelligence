@@ -62,3 +62,13 @@ test('a game page: PASS first, then matchup ranks, injuries, rosters and every m
   await expect(page.getByRole('heading', { name: /Dallas Mavericks/, level: 1 })).toBeVisible();
   await noHorizontalOverflow(page, 'nba team');
 });
+
+test('the NBA game header carries the home club\'s branded identity art @smoke', async ({ page }) => {
+  await page.goto(`./#/nba/game/${DAL_HOU}`);
+  const head = page.locator('header.skh--art');
+  await expect(head).toBeVisible();
+  await expect(head.locator('.skh__art [data-hero-art]')).toHaveAttribute('aria-hidden', 'true');
+  // The club names stay real text over the art, never only in the decorative layer.
+  await expect(head.locator('.skvs__name').first()).toBeVisible();
+  await noHorizontalOverflow(page, 'nba game hero art');
+});

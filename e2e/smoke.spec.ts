@@ -127,3 +127,12 @@ test('copy falls back to selecting the packet text when the clipboard is blocked
   await expect.poll(() => page.evaluate(() => window.getSelection()?.toString().length ?? 0)).toBeGreaterThan(10_000);
   await expect(page.getByLabel('Packet text')).toContainText('EDGE FINDER HANDICAP PACKET');
 });
+
+test('the team page header is framed in the club\'s identity art with an accessible accent rule @smoke', async ({ page }) => {
+  await page.goto(`./#/nfl/team/${BUF}`);
+  await expect(page.getByRole('heading', { name: /Buffalo Bills/i, level: 1 })).toBeVisible();
+  const head = page.locator('header.ehead--art');
+  await expect(head.locator('.ehead__art [data-hero-art]')).toHaveAttribute('aria-hidden', 'true');
+  const accent = await page.locator('.page.team').evaluate((el) => getComputedStyle(el).getPropertyValue('--team').trim());
+  expect(accent).toMatch(/^#[0-9a-f]{6}$/i);
+});

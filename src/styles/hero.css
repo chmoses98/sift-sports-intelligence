@@ -157,4 +157,8 @@
 @media (max-width: 720px) {
   .ehead--art .hart__logo, .skh--art .hart__logo { opacity: 0.11; }
   .ehead--art .hart__livery, .skh--art .hart__livery { opacity: 0.3; }
+  /* The framed header is narrower than the bare one: marks shrink so a logo never meets the frame's edge. */
+  .skh--art { padding: var(--s-3); }
+  .skh--art .skvs { gap: 6px; padding: var(--s-3) 0; }
+  .skh--art .skvs .teammark--xl { width: 56px; height: 56px; }
 }

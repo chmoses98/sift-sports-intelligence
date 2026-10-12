@@ -32,7 +32,7 @@ interface HubSport {
 export const HUB_SPORTS: HubSport[] = [
   { slug: 'nfl', icon: 'football', mode: 'explorer', blurb: 'Every player prop with projection, game logs and matchup', tab: 'props', horizonDays: 8 },
   { slug: 'mlb', icon: 'baseball', mode: 'game', blurb: 'Pitcher and hitter ladders on each game page', tab: 'props', horizonDays: 3 },
-  { slug: 'nhl', icon: 'hockey', mode: 'game', blurb: 'Goal-scorer and assist markets on each game page', tab: 'markets', horizonDays: 3 },
+  { slug: 'nhl', icon: 'hockey', mode: 'game', blurb: 'Goal, assist and point contracts; player pages add his games against each count', tab: 'markets', horizonDays: 3 },
 ];
 
 /** A market about one player, for any sport: MLB's own reader, else a player id or a player_* family. */
@@ -122,7 +122,7 @@ function GamePageProps({ s }: { s: HubSport }) {
       <CapabilityState title={<span id="phub-gp">{sport.label} props live on each game page</span>} tone="cyan" icon="info">
         {sport.code === 'MLB'
           ? 'Pitcher and hitter prop ladders, with the market’s price and the publication’s projection where it releases one, are on every game’s Player props tab. The MLB publication carries no simulated player distributions or per-prop opponent ranks, so there is no combined explorer to fill.'
-          : 'Goal-scorer and assist markets are on every game’s Markets tab, with skater research on the Players tab. The NHL publication carries no ladder of player-stat lines with simulated distributions, so there is no combined explorer to fill.'}
+          : 'Goal, assist and point contracts are on every game’s Markets tab, with skater research on the Players tab. Each player page lists the contracts that name him, how many of his last 5, last 10 and this season’s games reached each count (history against today’s line, not a probability), and the NHL joint simulation’s research P(YES) where it prices the contract. The publication carries no ladder of player-stat lines with simulated distributions, so there is no combined explorer to fill.'}
       </CapabilityState>
       {repo.loading || board.loading ? <Skeleton lines={6} /> : !games.length ? (
         <p className="fr-note">No {sport.label} games in the next {s.horizonDays} days are listed in the publication.</p>

@@ -394,7 +394,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
 /** What each sport's publication carries toward the Combined Prop Explorer. Only NFL has every part today. */
 const CAPS: Record<string, { have: string[]; missing: string[]; where: string }> = {
   MLB: { have: ['Pitcher and hitter prop ladders with their captured asks', 'Published projections where the MLB publication ships them'], missing: ['Five-quantile simulated distributions for player stats', 'Opponent unit ranks per prop', 'Script-conditional team volume'], where: 'MLB pitcher and hitter props live on each game’s Player Props section.' },
-  NHL: { have: ['Player-goal candidates priced as research', 'Skater and goalie research on game and player pages'], missing: ['A ladder of player-stat lines with simulated distributions', 'Opponent unit ranks per prop'], where: 'NHL skater and goalie research is on each game and player page.' },
+  NHL: { have: ['Player-goal candidates priced as research', 'Skater and goalie research on game and player pages', 'Each player’s last 5, last 10 and season games against today’s count, on his player page'], missing: ['A ladder of player-stat lines with simulated distributions', 'Opponent unit ranks per prop'], where: 'NHL skater and goalie research is on each game and player page.' },
 };
 
 export function PropExplorerView() {

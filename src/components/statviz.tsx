@@ -6,6 +6,7 @@
 //  - PercentileStrip: where each team sits among every ranked team (low → high or worst → best);
 //  - DivergingBar: an opponent-adjusted rating as a bar either side of league average.
 // Every graphic has its meaning in text beside it (rank of N, value with unit), never by colour alone.
+import { accentOnDark } from '../lib/hero/accent';
 import type { ReactNode } from 'react';
 import { TeamMark } from './ui';
 import { setStatMode, useStatMode, type StatMode } from '../state/statMode';
@@ -61,7 +62,7 @@ export function DuelRow({ label, unit, left, right, note }: { label: ReactNode; 
   const rs = strength(right.rank, right.of);
   const lead = ls != null && rs != null ? (ls > rs + 0.2 ? 'l' : rs > ls + 0.2 ? 'r' : 'even') : 'none';
   const side = (s: DuelSide, st: number | null, cls: 'l' | 'r') => (
-    <span className={`svd__side svd__side--${cls}`} style={s.color ? { ['--tc' as string]: s.color } : undefined}>
+    <span className={`svd__side svd__side--${cls}`} style={s.color ? { ['--tc' as string]: accentOnDark([s.color]) } : undefined}>
       <span className="svd__top">
         {cls === 'l' && <TeamMark sport={s.sport ?? 'NFL'} abbr={s.abbr} size="sm" />}
         <b className="svd__rk num">{s.rank != null ? `#${s.rank}` : '—'}</b>

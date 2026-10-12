@@ -9,6 +9,7 @@ import { routes } from '../lib/routes';
 import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { statFormatter, unitInfo, unitLine } from '../insights/units';
+import { formatUnitValue, sportMetricFormat } from '../insights/sportUnits';
 
 export function RankingView() {
   const { rankingId = '' } = useParams();
@@ -27,7 +28,11 @@ export function RankingView() {
   if (rk.loading) return <div className="page"><Skeleton lines={12} tall /></div>;
   if (!d) return <div className="page"><ErrorState error={rk.error} what="this ranking" /></div>;
   const scale = Math.max(Math.abs(d.summary.min ?? 0), Math.abs(d.summary.max ?? 0));
-  const fmt = statFormatter(d.metric_id, def, metricFormatter(def, scale));
+  // Outside the NFL values print in the publication's unit (insights/sportUnits), never the generic decimal formatter.
+  const sf = sportMetricFormat(sport.code, d.metric_id, def);
+  const fmt = sf?.fmt ?? statFormatter(d.metric_id, def, metricFormatter(def, scale));
+  // A spread has no sign: a signed unit (margins, deviations) prints its standard deviation unsigned.
+  const fmtSd = sf ? (v: number | null | undefined) => formatUnitValue(v, { ...sf.unit, signed: false }) : fmt;
   const togglePin = (id: string) => {
     const n = new Set(pins);
     if (n.has(id)) n.delete(id);
@@ -57,6 +62,7 @@ export function RankingView() {
             <QualityBadge quality={d.quality} />
             <span className="chip">{windowName(d.window.label)} — {WINDOW_EXPLAIN[d.window.label] ?? d.window.kind.toLowerCase()}</span>
             {sport.code === 'NFL' && unitInfo(d.metric_id) && <span className="chip">{unitLine(d.metric_id, def)}</span>}
+            {sf && <span className="chip" title={sf.unit.long}>{sf.words}</span>}
             <span className="chip">{d.higher_is_better === false ? 'rank 1 = lowest value (lower is better)' : d.higher_is_better ? 'rank 1 = highest value' : 'ranked high to low; no better direction'}</span>
           </div>
         </div>
@@ -72,7 +78,7 @@ export function RankingView() {
         <div><span className="summary__k">Teams</span><b className="num">{d.universe.size}</b></div>
         <div><span className="summary__k">Mean</span><b className="num">{fmt(d.summary.mean)}</b></div>
         <div><span className="summary__k">Median</span><b className="num">{fmt(d.summary.median)}</b></div>
-        <div><span className="summary__k">Std dev</span><b className="num">{fmt(d.summary.stdev)}</b></div>
+        <div><span className="summary__k">Std dev</span><b className="num">{fmtSd(d.summary.stdev)}</b></div>
         {fEntry && <div className="summary--focus"><span className="summary__k">{fEntry.short_name}</span><b className="num">{ordinal(fEntry.rank)} · {fmt(fEntry.value)}</b></div>}
         {oEntry && <div className="summary--opp"><span className="summary__k">{oEntry.short_name}</span><b className="num">{ordinal(oEntry.rank)} · {fmt(oEntry.value)}</b></div>}
       </div>

@@ -18,7 +18,8 @@ export function shortName(sport: string, code: string, name: string): string {
   if (sport === 'NHL') return nhlTeam(code)?.name ?? n.split(' ').slice(-1)[0];
   if (sport === 'MLB') return mlbClub(code)?.nick ?? n.split(' ').slice(-1)[0];
   if (sport === 'CFB') return cfbName(code, n);
-  if (sport === 'CBB' || sport === 'TENNIS') return n;
+  // Club names are whole names: 'Argentinos Juniors' is never 'Juniors', 'Manchester United' never 'United'.
+  if (sport === 'CBB' || sport === 'TENNIS' || sport === 'SOCCER') return n;
   const w = n.split(' ');
   return w.length > 1 ? w[w.length - 1] : n;
 }
@@ -97,4 +98,10 @@ export function heroInputFromBoard(item: { start_time_utc: string; home_particip
 /** The hero input for a game: from its research when read, else its board row (identity only). */
 export function heroInputFor(item: Parameters<typeof heroInputFromBoard>[0], r: EventResearchDoc | null | undefined, sport: string): HeroInput {
   return r ? heroInputFromResearch(r, sport) : heroInputFromBoard(item, sport);
+}
+
+/** A team page's identity: the club at home on `date` (its own venue's approved photo when one is verified, else its
+ * branded identity) and no opponent — a profile never implies a matchup. */
+export function heroInputForTeam(sport: string, code: string | null | undefined, name: string | null | undefined, date: string): HeroInput {
+  return { sport, date, home: heroTeam(sport, code, name), away: null, homeVerified: !!code, venueName: null, neutral: null };
 }

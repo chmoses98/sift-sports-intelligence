@@ -32,6 +32,7 @@ import { mainLine as pickMainLine } from '../insights/props';
 import type { Market } from '../contract/types';
 import { GameBars, HistorySummary, LogTable, Splits, UsageRows } from './player/history';
 import { HitSummary } from './props/HitRate';
+import { NbaPlayerHistory } from './player/NbaLog';
 import { PerfChart } from './props/PerfChart';
 import '../styles/lane-b-props.css';
 import type { Finding } from '../research/findings';
@@ -292,7 +293,7 @@ function GenericPlayerView() {
         const priorSeason = hist.data?.prior?.season ?? null;
         const options = statsForPosition(pos).filter((d) => (STAT_TO_SIM[d.key] && sims.some((o) => o.metric_id === STAT_TO_SIM[d.key])) || [...hrows.prior, ...all].some((r) => (d.get(r) ?? 0) > 0));
         const cur = statDef(hs && options.some((o) => o.key === hs) ? hs : options[0]?.key) ?? null;
-        if (!cur) return null;
+        if (!cur) return sport.code === 'NBA' ? <NbaPlayerHistory p={p} /> : null;
         // Windows count games he PLAYED (history/hitRate.ts): a row with no offensive snap is skipped, never a zero.
         const wins = hitWindows(hrows, cur);
         const win: HitWindow = wins.some((w) => w.w === hw) ? hw : wins[0]?.w ?? 'last5';

@@ -25,8 +25,8 @@
 .htp__group--valid { padding: 12px; border-radius: 16px; border: 1px solid rgba(31, 224, 143, 0.35); background: rgba(31, 224, 143, 0.04); }
 .htp__gh { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; font-size: 0.86rem; font-weight: 600; color: var(--text-2); }
 
-/* ---- cards */
-.htp__cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: start; gap: 12px; margin: 0; padding: 0; list-style: none; min-width: 0; }
+/* ---- cards: every card in a row is the same height, its explorer link pinned to the foot (a tidy grid, not masonry). */
+.htp__cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: stretch; gap: 12px; margin: 0; padding: 0; list-style: none; min-width: 0; }
 .htp-card { --tc: #1e8cf2; position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 14px 14px 12px; border-radius: 14px; border: 1px solid var(--panel-line); background: radial-gradient(120% 70% at 0% 0%, color-mix(in srgb, var(--tc) 16%, transparent) 0%, transparent 55%), var(--panel-raised); box-shadow: var(--shadow-1); overflow: hidden; }
 .htp-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, var(--tc), color-mix(in srgb, var(--tc) 30%, transparent)); }
 .htp-card__h { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
@@ -40,7 +40,7 @@
 .htp-card__when { font-size: 0.74rem; color: var(--text-3); }
 .htp-card__inj { align-self: start; padding: 2px 8px; border-radius: 99px; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #ffd0d6; border: 1px solid rgba(255, 81, 101, 0.55); background: var(--neg-bg); white-space: nowrap; }
 .htp-card__props { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.htp-card__go { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; font-size: 0.82rem; font-weight: 600; color: #8fd0ff; }
+.htp-card__go { margin-top: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; font-size: 0.82rem; font-weight: 600; color: #8fd0ff; }
 .htp-card__go:hover { color: #fff; }
 
 /* ---- one prop */

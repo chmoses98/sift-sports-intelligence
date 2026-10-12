@@ -151,9 +151,15 @@ test('a market page shows the contract in every script with the failure script c
 
 test('a team page separates opponent-adjusted strength from raw numbers @journey', async ({ page }) => {
   await page.goto(`./#/nhl/team/${LAK}`);
-  const region = page.getByRole('region', { name: 'Opponent-adjusted strength' });
+  const region = page.getByRole('region', { name: 'Opponent-adjusted and raw strength' });
   await expect(region).toBeVisible();
   await expect(region.getByRole('columnheader', { name: 'Raw (same games)' })).toBeVisible();
+  // The app-wide Adjusted / Raw toggle: raw leads, adjusted stays beside it, and the choice is remembered.
+  await page.getByRole('group', { name: 'Team numbers: opponent-adjusted or raw' }).getByRole('button', { name: /Raw/ }).click();
+  await expect(region.getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
+  await expect(region.getByRole('columnheader', { name: 'Adjusted', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('region', { name: 'Opponent-adjusted and raw strength' }).getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
 });
 
 test('skater and goalie pages are research first @journey', async ({ page }) => {
@@ -162,6 +168,18 @@ test('skater and goalie pages are research first @journey', async ({ page }) => 
   await page.goto(`./#/nhl/player/${KUEMPER}`);
   await expect(page.getByRole('heading', { name: /Kuemper/, level: 1 })).toBeVisible();
   await expect(page.getByText(/Projected starter|Confirmed starter|starter/i).first()).toBeVisible();
+});
+
+test('a skater page measures each of his contracts against his game log @journey', async ({ page }) => {
+  await page.goto(`./#/nhl/player/${KEMPE}`);
+  await expect(page.getByRole('heading', { name: /Adrian Kempe/, level: 1 })).toBeVisible();
+  const t = page.getByRole('region', { name: 'His markets for the next game' });
+  await expect(t).toBeVisible();
+  for (const h of ['Last 5', 'Last 10', '2026-27']) await expect(t.getByRole('columnheader', { name: h })).toBeVisible();
+  await expect(t.getByRole('rowheader', { name: /Adrian Kempe to score a goal/ })).toBeVisible();
+  await expect(t.locator('td.nhist').first()).toHaveText(/^\d+\/\d+/);
+  await expect(page.getByText(/History against today’s line, not a probability/)).toBeVisible();
+  await noHorizontalOverflow(page, 'nhl skater markets');
 });
 
 test('the scorecard reports real counts and what is not yet known @journey', async ({ page }) => {

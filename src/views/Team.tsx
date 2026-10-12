@@ -1,7 +1,7 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { TrendChart } from '../charts/TrendChart';
-import type { EntityProfileDoc, MetricDef, ModelPrice, Observation, SeriesDoc } from '../contract/types';
+import type { EntityProfileDoc, ModelPrice, Observation, SeriesDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';
 import { MarketBoard } from '../components/MarketBoard';
@@ -10,7 +10,11 @@ import { ContextMeter, EntityLink, ErrorState, Notice, QualityBadge, RankPill, S
 import { displayName, kickoff, metricFormatter, ordinal, shortDate } from '../lib/format';
 import { categoryLabel, CATEGORY_ORDER, windowName, statusWord } from '../lib/nfl';
 import { routes } from '../lib/routes';
-import { teamAccent } from '../lib/teams';
+import { teamColors } from '../lib/teams';
+import { accentOnDark } from '../lib/hero/accent';
+import { heroInputForTeam } from '../lib/hero/input';
+import { resolveHero } from '../lib/hero/resolve';
+import { HeroArt, heroVars } from '../components/HeroArt';
 import { useDirectory } from '../state/directory';
 import { capShown, useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
@@ -22,6 +26,7 @@ import { TeamBasicsStratum, TeamDepthStratum, TeamSchemeStratum, CompareTeamPick
 import { footingOf, formatUnitValue, sportUnit } from '../insights/sportUnits';
 import { qualityLabel } from '../lib/plainLabels';
 import { FootTag, UnitWords } from '../components/StatUnit';
+import { AdjRawStrength } from './stats/AdjRawStrength';
 
 const CbbTeamView = lazy(() => import('./cbb/Team').then((m) => ({ default: m.CbbTeamView })));
 
@@ -37,13 +42,13 @@ function scaleOf(o: Observation): number | null {
   return Math.max(Math.abs(c.best_value ?? 0), Math.abs(c.worst_value ?? 0));
 }
 
-const SPORT_UNITS = new Set(['NHL', 'SOCCER', 'CBB']);
+const SPORT_UNITS = new Set(['NHL', 'NBA', 'SOCCER', 'CBB']);
 
 export function MetricRow({ o, slug, teamId, oppId, eventId, sportCode, teamLabel }: { o: Observation; slug: string; teamId: string; oppId?: string | null; eventId?: string | null; sportCode: string; teamLabel: string }) {
   const { metrics } = useSport();
   const def = metrics.get(o.metric_id);
   const ctx = o.context;
-  // NHL, soccer, CBB: the publication's denominator and footing on the value (insights/sportUnits); NFL keeps its own.
+  // NHL, NBA, soccer, CBB: the publication's denominator and footing on the value (insights/sportUnits); NFL keeps its own.
   const su = SPORT_UNITS.has(sportCode) ? sportUnit(o.metric_id, def) : null;
   const fmt = su ? (v: number | null | undefined) => formatUnitValue(v, su) : metricFormatter(def, scaleOf(o));
   return (
@@ -150,38 +155,6 @@ function seasonRecord(p: EntityProfileDoc): string | null {
   return `${gs.filter((g) => g.result!.outcome === 'W').length}–${gs.filter((g) => g.result!.outcome === 'L').length}`;
 }
 
-/** NHL: opponent-adjusted 5v5 strength next to the raw number on the same games — never one mistaken for the other. */
-function NhlStrength({ p, slug, metrics }: { p: EntityProfileDoc; slug: string; metrics: Map<string, MetricDef> }) {
-  const rows = p.metrics.filter((o) => metrics.get(o.metric_id)?.category === 'opponent_adjusted');
-  if (!rows.length) return null;
-  const f = (v: number | null | undefined, unit: string | null | undefined) => (v == null ? '—' : unit === 'share' ? `${(v * 100).toFixed(1)}%` : v.toFixed(2));
-  return (
-    <Stratum title="Opponent-adjusted strength" sub="5v5, recency-weighted, each opponent's strength removed (nhl-oppadj-1.0, a research layer). Raw is the same games without the adjustment.">
-      <div className="tscroll" tabIndex={0} role="region" aria-label="Opponent-adjusted strength">
-        <table className="mtab">
-          <thead><tr><th scope="col">Metric</th><th scope="col" className="r">Adjusted rank</th><th scope="col" className="r">Adjusted</th><th scope="col" className="r">Raw (same games)</th><th scope="col" className="r">Schedule effect</th></tr></thead>
-          <tbody>
-            {rows.map((o) => {
-              const d = metrics.get(o.metric_id);
-              const x = (o.extensions ?? {}) as { raw_value?: number | null; schedule_effect?: number | null; status?: string };
-              return (
-                <tr key={o.metric_id}>
-                  <th scope="row"><Link to={routes.metric(slug, o.metric_id, { team: p.entity.participant_id })}>{d?.short_name ?? d?.name}</Link>{x.status === 'PRIOR_HEAVY' && <span className="muted small"> · mostly last season</span>}</th>
-                  <td className="r num">{o.context?.rank != null ? `#${o.context.rank} of ${o.context.universe_size}` : '—'}</td>
-                  <td className="r num">{f(o.value, d?.unit)}</td>
-                  <td className="r num muted">{f(x.raw_value, d?.unit)}</td>
-                  <td className="r num muted">{x.schedule_effect == null ? '—' : `${x.schedule_effect > 0 ? '+' : ''}${d?.unit === 'share' ? (x.schedule_effect * 100).toFixed(1) + ' pts' : x.schedule_effect.toFixed(2)}`}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <p className="muted small">A positive schedule effect means the raw number was flattered by weaker opponents.</p>
-    </Stratum>
-  );
-}
-
 export function TeamView() {
   const { sport } = useSport();
   const { teamId = '' } = useParams();
@@ -201,6 +174,10 @@ function GenericTeamView({ teamId }: { teamId: string }) {
   const [catPick, setCat] = useState<string | null>(null);
   const cat = catPick ?? (mode === 'raw' ? 'offense' : 'opponent-adjusted');
   const [season, setSeason] = useState<string | null>(null);
+
+  // The club's identity behind the header: its colours as light, livery and logo watermark (or its verified home-venue
+  // photo), with its colour as an accent lifted only as far as 3:1 on the dark frame needs. Text never sits on raw colour.
+  const heroSpec = useMemo(() => (p ? resolveHero(heroInputForTeam(sport.code, p.entity.short_name, p.entity.display_name, new Date().toISOString())) : null), [p, sport.code]);
 
   const prices = useMemo(() => {
     const m = new Map<string, ModelPrice>();
@@ -227,8 +204,9 @@ function GenericTeamView({ teamId }: { teamId: string }) {
   const setTab = (t: string) => setSp((prev) => { const n = new URLSearchParams(prev); n.set('tab', t); return n; }, { replace: true });
 
   return (
-    <div className="page team" style={{ ['--team' as string]: teamAccent(sport.code, abbr) }}>
-      <header className="ehead">
+    <div className="page team" style={{ ['--team' as string]: accentOnDark(teamColors(sport.code, abbr)) }}>
+      <header className={`ehead ehead--art${heroSpec ? ` ehead--${heroSpec.kind}` : ''}`} style={heroSpec ? heroVars(heroSpec) : undefined} data-hero-kind={heroSpec?.kind}>
+        {heroSpec && <div className="ehead__art" aria-hidden="true"><HeroArt spec={heroSpec} /></div>}
         <TeamMark sport={sport.code} abbr={abbr} size="lg" />
         <div className="ehead__t">
           <div className="eyebrow">
@@ -250,6 +228,11 @@ function GenericTeamView({ teamId }: { teamId: string }) {
           {sport.code === 'NFL' && <CompareTeamPicker teamId={teamId} />}
           <SaveButton ref_kind="TEAM" sport={sport.code} id={teamId} label={{ label: p.entity.display_name, sub: `${sport.label} team`, href: routes.team(slug, teamId) }} />
         </div>
+        {heroSpec?.photo && (
+          <Link to={`${routes.status()}#photo-credits`} className="ehead__credit">
+            Photo: {heroSpec.photo.credit.artist.slice(0, 40)} · {heroSpec.photo.credit.license}
+          </Link>
+        )}
       </header>
 
       <nav className="tabs" role="tablist" aria-label="Team sections">
@@ -262,7 +245,7 @@ function GenericTeamView({ teamId }: { teamId: string }) {
 
       {tab === 'overview' && (
         <>
-          {sport.code === 'NHL' && <NhlStrength p={p} slug={slug} metrics={metrics} />}
+          {(sport.code === 'NHL' || sport.code === 'NBA') && <AdjRawStrength sport={sport.code} p={p} slug={slug} metrics={metrics} />}
           {sport.code === 'NFL' && <TeamBasicsStratum abbr={abbr} nick={nick} />}
           <Stratum title="Where they stand out" sub={`Ranks among ${obs.find((o) => o.context)?.context?.universe_size ?? ''} teams on every published, directional metric.`}>
             <Standouts obs={obs} slug={slug} teamId={teamId} oppId={oppId} />

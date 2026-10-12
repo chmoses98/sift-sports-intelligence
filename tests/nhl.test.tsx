@@ -2,7 +2,7 @@
 // evidence, research candidates stay RESEARCH_ONLY with their survival and status visible, the learning state is
 // read from real counts, hockey markets read as hockey, NFL lookups never leak into hockey, and the NHL screens
 // (home, game, scripts, candidates, market, team, player, scorecard) render from a trimmed real publication.
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EventResearchDoc, MetricDef, MetricRegistryDoc } from '../src/contract/types';
 import { clearAsyncMemo } from '../src/data/hooks';
@@ -36,6 +36,7 @@ import { SportHomeView } from '../src/views/SportHome';
 import { TeamView } from '../src/views/Team';
 import { readNhl as readFixture, useDiskFetch } from './helpers';
 import { renderScreen } from './render';
+import { setStatMode } from '../src/state/statMode';
 
 const FLA_LAK = 'evt_5938c3f8a7c1b24c0118';
 const LAK = 'prt_1513313ad992fb9eb71f';
@@ -287,18 +288,25 @@ describe('NHL screens', () => {
 
   it('a team page separates opponent-adjusted strength from raw numbers', async () => {
     renderScreen(routes.team('nhl', LAK), '/:sport/team/:teamId', <TeamView />, {}, 'nhl');
-    await screen.findByRole('heading', { name: 'Opponent-adjusted strength' }, { timeout: 6000 });
-    const region = screen.getByRole('region', { name: 'Opponent-adjusted strength' });
+    await screen.findByRole('heading', { name: 'Team strength: adjusted or raw' }, { timeout: 6000 });
+    const region = screen.getByRole('region', { name: 'Opponent-adjusted and raw strength' });
     expect(within(region).getByRole('columnheader', { name: 'Raw (same games)' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: /Next game/ })).toBeTruthy();
+    // The app-wide Adjusted / Raw toggle (backlog 5.1): raw leads, adjusted stays beside it.
+    fireEvent.click(screen.getByRole('button', { name: /Raw/ }));
+    expect(within(region).getByRole('columnheader', { name: 'Raw rank' })).toBeTruthy();
+    expect(within(region).getByRole('columnheader', { name: 'Adjusted' })).toBeTruthy();
+    expect(within(region).getAllByText('not ranked').length).toBeGreaterThan(0);
+    setStatMode('adjusted');
   });
 
   it('a skater page is research first: role, production, game log; a goalie page shows start status and saves by script', async () => {
     renderScreen(routes.player('nhl', KEMPE), '/:sport/player/:playerId', <PlayerView />, {}, 'nhl');
     await screen.findByRole('heading', { name: 'Current role' }, { timeout: 6000 });
     const role = screen.getByRole('heading', { name: 'Current role' });
-    const priced = await screen.findByRole('heading', { name: /what the model prices/ }, { timeout: 6000 });
+    const priced = await screen.findByRole('heading', { name: /Next game: his markets/ }, { timeout: 6000 });
     expect(role.compareDocumentPosition(priced) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(await screen.findByRole('columnheader', { name: 'Last 10' }, { timeout: 6000 })).toBeTruthy();
     await waitFor(() => expect(screen.getByText(/on the .*line/)).toBeTruthy(), { timeout: 6000 });
     clearAsyncMemo();
     document.body.innerHTML = '';

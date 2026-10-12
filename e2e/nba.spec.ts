@@ -62,3 +62,49 @@ test('a game page: PASS first, then matchup ranks, injuries, rosters and every m
   await expect(page.getByRole('heading', { name: /Dallas Mavericks/, level: 1 })).toBeVisible();
   await noHorizontalOverflow(page, 'nba team');
 });
+
+test('an NBA player page shows his published game log and his record against the lines Kalshi posted @journey', async ({ page }) => {
+  await page.goto('./#/nba/player/prt_9a64cfe911b69f694ade');
+  await expect(page.getByRole('heading', { name: /Gilgeous-Alexander/, level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Game log' })).toBeVisible();
+  const log = page.getByRole('region', { name: /game log$/ });
+  await expect(log.locator('tbody tr')).toHaveCount(10);
+  await expect(page.getByText('2025-26 regular season')).toBeVisible();
+  await page.getByRole('button', { name: /Show all 82 games/ }).click();
+  await expect(log.locator('tbody tr')).toHaveCount(82);
+  await expect(page.getByRole('heading', { name: 'Against the lines Kalshi posted' })).toBeVisible();
+  const rec = page.getByRole('region', { name: 'Record against posted lines' });
+  await expect(rec.getByRole('rowheader', { name: 'Points' })).toBeVisible();
+  await expect(page.getByText(/not a probability for the next one/)).toBeVisible();
+  const text = await page.locator('main').innerText();
+  expect(text).not.toMatch(/undefined|NaN|play-by-play/);
+  expect(text).not.toMatch(BANNED);
+  await noHorizontalOverflow(page, 'nba player');
+});
+
+test('a team page reads strength raw or opponent-adjusted, and the metric and ranking pages print NBA units @journey', async ({ page }) => {
+  const MIL = 'prt_8848b90e0c224d6f089f';
+  await page.goto(`./#/nba/team/${MIL}`);
+  const region = page.getByRole('region', { name: 'Opponent-adjusted and raw strength' });
+  await expect(region.getByRole('columnheader', { name: 'Adjusted rank' })).toBeVisible();
+  await expect(region.getByRole('row', { name: /Offense/ })).toContainText('111.8');
+  await page.getByRole('group', { name: 'Team numbers: opponent-adjusted or raw' }).getByRole('button', { name: /Raw/ }).click();
+  await expect(region.getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
+  await expect(region.getByRole('row', { name: /Offense/ })).toContainText('115.0');
+  await expect(region.getByRole('row', { name: /Offense/ })).toContainText('#24 of 30');
+  await region.getByRole('link', { name: /Offense/ }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Offensive rating');
+  await expect(page.locator('.answer__val')).toContainText('115.0');
+  await expect(page.locator('.answer__val')).toContainText('pts / 100 poss');
+  await noHorizontalOverflow(page, 'nba metric');
+});
+
+test('the NBA game header carries the home club\'s branded identity art @smoke', async ({ page }) => {
+  await page.goto(`./#/nba/game/${DAL_HOU}`);
+  const head = page.locator('header.skh--art');
+  await expect(head).toBeVisible();
+  await expect(head.locator('.skh__art [data-hero-art]')).toHaveAttribute('aria-hidden', 'true');
+  // The club names stay real text over the art, never only in the decorative layer.
+  await expect(head.locator('.skvs__name').first()).toBeVisible();
+  await noHorizontalOverflow(page, 'nba game hero art');
+});

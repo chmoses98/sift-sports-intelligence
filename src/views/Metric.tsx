@@ -20,6 +20,8 @@ import { useVisit } from '../state/trail';
 import { protocolForSport } from '../packet/protocols';
 import { BasisTag } from '../components/statviz';
 import { basisOf, statFormatter, unitInfo, unitLine } from '../insights/units';
+import { footingOf, sportMetricFormat } from '../insights/sportUnits';
+import { FootTag } from '../components/StatUnit';
 
 function obsFor(p: EntityProfileDoc | undefined, metricId: string): Observation | undefined {
   if (!p) return undefined;
@@ -69,11 +71,17 @@ export function MetricView() {
   if (team.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   const rk = ranking.data;
   const scale = rk ? Math.max(Math.abs(rk.summary.min ?? 0), Math.abs(rk.summary.max ?? 0)) : o?.context ? Math.max(Math.abs(o.context.best_value ?? 0), Math.abs(o.context.worst_value ?? 0)) : null;
-  const fmt = statFormatter(metricId, def, metricFormatter(def, scale));
+  // Outside the NFL a value prints in its publication's unit (insights/sportUnits); the NFL keeps its own helpers.
+  const sf = sportMetricFormat(sport.code, metricId, def);
+  const fmt = sf?.fmt ?? statFormatter(metricId, def, metricFormatter(def, scale));
   const ctx = o?.context ?? null;
-  const unitText = sport.code === 'NFL' && unitInfo(metricId) ? unitLine(metricId, def) : unitLabel(o?.unit ?? def.unit);
-  const tag = o ? basisOf(o) : 'other';
-  const name = (id: string | null | undefined) => dir.data?.team(id)?.name ?? id ?? '—';
+  const unitText = sport.code === 'NFL' && unitInfo(metricId) ? unitLine(metricId, def) : sf ? (sf.unit.stated ? sf.unit.short : 'unit not stated') : unitLabel(o?.unit ?? def.unit);
+  const tag = o && sport.code === 'NFL' ? basisOf(o) : 'other';
+  const foot = o && sport.code !== 'NFL' ? footingOf(metricId, def, o) : null;
+  const cpSf = cpId ? sportMetricFormat(sport.code, cpId, cpDef) : null;
+  // The directory lists only the teams on the published slate; the ranking names every team it ranks. A raw id is
+  // never printed as a name.
+  const name = (id: string | null | undefined) => dir.data?.team(id)?.name ?? rk?.entries.find((e) => e.entity_id === id)?.display_name ?? (id ? 'Team not named' : '—');
   const tName = team.data?.entity.display_name;
   const oName = opp.data?.entity.display_name;
   const protocol = protocolForSport(sport.code);
@@ -92,7 +100,7 @@ export function MetricView() {
           <PlainEnglish metricId={metricId} def={def} />
           <div className="ehead__meta">
             <QualityBadge quality={def.quality} />
-            <span className="chip">{(sport.code === 'NFL' && unitInfo(metricId) ? unitLine(metricId, def) : unitLabel(def.unit)) || def.stat_type}</span>
+            <span className="chip" title={sf?.unit.long}>{(sport.code === 'NFL' && unitInfo(metricId) ? unitLine(metricId, def) : sf ? sf.words : unitLabel(def.unit)) || def.stat_type}</span>
             <span className="chip">{def.higher_is_better === true ? 'higher is better' : def.higher_is_better === false ? 'lower is better' : 'no better direction'}</span>
           </div>
         </div>
@@ -107,7 +115,7 @@ export function MetricView() {
             <TeamMark sport={sport.code} abbr={team.data?.entity.short_name} size="lg" />
             <div>
               <div className="answer__rank"><span className="num">{ordinal(ctx.rank ?? 0)}</span><span className="answer__of">of {ctx.universe_size}</span></div>
-              <div className="answer__val"><span className="num">{fmt(o.value)}</span> <span className="muted">{unitText}</span>{tag !== 'other' && <BasisTag basis={tag} />}</div>
+              <div className="answer__val"><span className="num">{fmt(o.value)}</span> <span className="muted">{unitText}</span>{tag !== 'other' && <BasisTag basis={tag} />}{foot && <FootTag f={foot} />}</div>
             </div>
           </div>
           <dl className="facts">
@@ -132,7 +140,7 @@ export function MetricView() {
               <Link className="vscard vscard--opp" to={routes.metric(slug, cpId!, { team: oppId, opp: teamId, event: eventId })}>
                 <span className="eyebrow">Opponent counterpart</span>
                 <span className="vscard__t">{oName} · {cpDef.name}</span>
-                <span className="vscard__v"><span className="num">{metricFormatter(cpDef, scale)(oppCp.value)}</span> <RankPill rank={oppCp.context?.rank} size={oppCp.context?.universe_size} hib={oppCp.context?.higher_is_better} /></span>
+                <span className="vscard__v"><span className="num">{(cpSf?.fmt ?? metricFormatter(cpDef, scale))(oppCp.value)}</span> <RankPill rank={oppCp.context?.rank} size={oppCp.context?.universe_size} hib={oppCp.context?.higher_is_better} /></span>
               </Link>
             )}
             {oppSame && (

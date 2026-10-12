@@ -2,20 +2,22 @@
 // injury list, and what the official designations mean. Used wherever a sport's injuries are listed.
 import { Icon } from './Icon';
 import { exactTime } from '../lib/format';
-import { designation, designationTiming, injurySource } from '../lib/injurySource';
+import { designation, designationTiming, injuryCadence, injurySource, spanWords } from '../lib/injurySource';
 import '../styles/lane-f-data.css';
 
 export function InjurySource({ rows, sport, now, compact }: { rows: { source?: string | null; as_of?: string | null; asOf?: string | null }[]; sport: string; now: number; compact?: boolean }) {
-  const s = injurySource(rows, now);
+  const s = injurySource(rows, now, sport);
   const timing = designationTiming(sport);
-  const note = [s.caveat, 'Designations are each team’s official game status as the source lists them; Sift does not grade them.', timing, s.age === 'stale' ? 'This capture is more than a day old: designations may have changed since.' : null].filter(Boolean).join(' ');
+  const c = injuryCadence(sport);
+  const ageRule = `Fresh within ${spanWords(c.freshMs)} of capture, stale after ${spanWords(c.staleMs)}.`;
+  const note = [s.caveat, 'Designations are each team’s official game status as the source lists them; Sift does not grade them.', timing, `${c.cadence} ${ageRule}`, s.age === 'stale' ? `This capture is more than ${spanWords(c.staleMs)} old: designations may have changed since.` : null].filter(Boolean).join(' ');
   return (
     <div className={`injsrc injsrc--${s.age}${compact ? ' injsrc--compact' : ''}`} role="note" aria-label="Injury list source" data-injury-age={s.age}>
       <div className="injsrc__top">
         <Icon name="medic" size={16} className="injsrc__ic" />
         <span className="injsrc__name">{s.name}</span>
         <span className="injsrc__when" title={s.asOf ? exactTime(s.asOf) : undefined}>{s.ageText}</span>
-        <span className={`injsrc__age injsrc__age--${s.age}`}>{s.ageWord}</span>
+        <span className={`injsrc__age injsrc__age--${s.age}`} title={ageRule}>{s.ageWord}</span>
       </div>
       {!compact && <p className="injsrc__note">{note}</p>}
     </div>

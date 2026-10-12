@@ -117,3 +117,48 @@
   text-transform: uppercase; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--hc1) 55%, #fff 25%); opacity: 0.22; }
 .hart--branded .hart__logo--home { opacity: 0.22; }
 @media (max-width: 720px) { .hart__word { font-size: 6.5rem; bottom: 4%; -webkit-text-stroke-width: 1.5px; } }
+
+/* ------------------------------------------------------------------ team page header with the club's identity (2026-10-12)
+   The club's branded identity (or its verified home-venue photo) behind the header; its colour as the accent rule,
+   lifted by accentOnDark (src/lib/hero/accent.ts) to 3:1 on the dark frame. Text stays ivory on the dark side of the
+   wash with a shadow, never on raw team colour. */
+.team .ehead--art { border-left: 0; margin: var(--s-2) 0 var(--s-3); padding: var(--s-5) var(--s-4) var(--s-4);
+  isolation: isolate; overflow: hidden; border-radius: var(--r-3); border: 1px solid var(--panel-line);
+  box-shadow: inset 4px 0 0 var(--team, var(--cobalt)); min-height: 168px; align-content: end; }
+.ehead--art > :not(.ehead__art):not(.ehead__credit) { position: relative; z-index: 1; }
+.ehead__art { position: absolute; inset: 0; z-index: 0; }
+.ehead--art .h-display, .ehead--art .eyebrow, .ehead--art .ehead__rec, .ehead--art .ehead__meta > a { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85); }
+.ehead--art .teammark--lg { filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.6)); }
+.ehead--art .hart__word { font-size: clamp(4rem, 11vw, 9rem); }
+.ehead__credit { position: absolute; right: 10px; bottom: 6px; z-index: 1; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 10px; color: rgba(236, 244, 252, 0.72); text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
+@media (min-width: 720px) { .team .ehead--art { padding: var(--s-6) var(--s-6) var(--s-5); min-height: 200px; } }
+@media (max-width: 720px) { .ehead--art .hart__word { font-size: 4.5rem; } }
+
+/* ------------------------------------------------------------------ sport-kit game headers with hero art (NBA, soccer, tennis)
+   The same branded identity the NFL/NHL/MLB/CFB heroes use, behind the matchup line, so every game page opens on
+   the home club's (or, for tennis, the event's) identity rather than a bare dark block. */
+.skh--art { position: relative; isolation: isolate; overflow: hidden; padding: var(--s-4); border-radius: var(--r-3); border: 1px solid var(--panel-line); }
+.skh--art > :not(.skh__art) { position: relative; z-index: 1; }
+.skh__art { position: absolute; inset: 0; z-index: 0; }
+.skh--art .skvs__name, .skh--art .skvs__mid, .skh--art .skvs__sub, .skh--art .skh__sub, .skh--art .eyebrow { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9); }
+.skh--art .skvs__sub, .skh--art .skvs__mid { color: rgba(236, 244, 252, 0.82); }
+.skh--art .skh__sub { color: rgba(236, 244, 252, 0.88); }
+.skh--art .teammark { filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.6)); }
+.skh--art .hart__word { font-size: clamp(4rem, 10vw, 9rem); }
+@media (min-width: 720px) { .skh--art { padding: var(--s-5) var(--s-6); } }
+@media (max-width: 720px) { .skh--art .hart__word { font-size: 4.5rem; } }
+/* Soccer lists the home side first (left): the art is mirrored so the home identity sits under the home name; the
+   outlined name and any watermark are turned back so they never read backwards. */
+.skh--mirror .hart { transform: scaleX(-1); }
+.skh--mirror .hart__word { transform: scaleX(-1); }
+.skh--mirror .hart__logo--home { transform: translateY(-48%) rotate(6deg) scaleX(-1); }
+/* Phones: the header text covers most of the frame, so the watermark and livery step back further. */
+@media (max-width: 720px) {
+  .ehead--art .hart__logo, .skh--art .hart__logo { opacity: 0.11; }
+  .ehead--art .hart__livery, .skh--art .hart__livery { opacity: 0.3; }
+  /* The framed header is narrower than the bare one: marks shrink so a logo never meets the frame's edge. */
+  .skh--art { padding: var(--s-3); }
+  .skh--art .skvs { gap: 6px; padding: var(--s-3) 0; }
+  .skh--art .skvs .teammark--xl { width: 56px; height: 56px; }
+}

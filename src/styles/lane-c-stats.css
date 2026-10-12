@@ -33,11 +33,15 @@
 .svd__top { display: inline-flex; align-items: center; gap: 6px; }
 .svd__rk { font-family: var(--font-cond, var(--font-display)); font-size: 1.3rem; font-weight: 700; color: #fff; line-height: 1; }
 .svd__of { font-size: 0.72rem; color: var(--text-3); }
-.svd__bar { position: relative; width: 100%; height: 8px; border-radius: 4px; background: rgba(120, 160, 200, 0.12); overflow: hidden; }
-.svd__bar i { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: color-mix(in srgb, var(--tc) 55%, #6d8aa6); opacity: 0.55; }
+.svd__bar { position: relative; width: 100%; height: 6px; border-radius: 3px; background: rgba(120, 160, 200, 0.12); overflow: hidden; }
+/* Each unit's bar in its club colour (accentOnDark: >= 3:1 on the dark surface), growing from the centre line out
+   so both sides share one baseline. The stronger unit is drawn solid; the other (and an even pair) at a lower weight.
+   The rank and value beside each bar carry the meaning in text. No glow: the mark is the data; numbers stay ivory. */
+.svd__bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--tc); opacity: 0.8; }
 .svd__side--l .svd__bar i { right: 0; }
 .svd__side--r .svd__bar i { left: 0; }
-.svd--l .svd__side--l .svd__bar i, .svd--r .svd__side--r .svd__bar i { opacity: 1; background: color-mix(in srgb, var(--tc) 70%, #fff); box-shadow: 0 0 10px color-mix(in srgb, var(--tc) 60%, transparent); }
+.svd--l .svd__side--l .svd__bar i, .svd--r .svd__side--r .svd__bar i { opacity: 1; }
+.svd--l .svd__side--r .svd__bar i, .svd--r .svd__side--l .svd__bar i { opacity: 0.55; }
 .svd--l .svd__side--r .svd__rk, .svd--r .svd__side--l .svd__rk { color: var(--text-2); }
 .svd__val { font-size: 0.8rem; color: var(--text-2); }
 .svd__val .num { color: var(--text-hi); font-weight: 600; }

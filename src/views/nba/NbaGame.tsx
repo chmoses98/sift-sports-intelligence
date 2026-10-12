@@ -2,6 +2,9 @@
 // prices in this publication); the opponent-ranked matchup; the injury report; the roster the publication projects;
 // every market with prices only (the model prices none); and the publication's own caveats.
 import { useMemo } from 'react';
+import { HeroArt, heroVars } from '../../components/HeroArt';
+import { heroInputFromResearch } from '../../lib/hero/input';
+import { resolveHero } from '../../lib/hero/resolve';
 import { Link } from 'react-router';
 import type { Market } from '../../contract/types';
 import { latestPrices } from '../../components/MarketBoard';
@@ -33,6 +36,8 @@ export function NbaGameView({ eventId }: { eventId: string }) {
   useVisit(r ? `${short(awayP?.participant_id)} @ ${short(homeP?.participant_id)}` : null, 'game');
   const markets = useMemo(() => detail.data?.markets ?? [], [detail.data]);
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
+  // The home club's branded identity (src/lib/hero): the same one decision every game hero renders.
+  const heroSpec = useMemo(() => (r ? resolveHero(heroInputFromResearch(r, 'NBA')) : null), [r]);
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   if (!r || !homeP || !awayP) return <div className="page"><ErrorState error={research.error} what="this game's research" /></div>;
   const homeAbbr = short(homeP.participant_id);
@@ -50,7 +55,8 @@ export function NbaGameView({ eventId }: { eventId: string }) {
   const notes = r.context?.notes ?? [];
   return (
     <div className="page nba-game" style={{ ['--team' as string]: teamAccent('NBA', homeAbbr) }}>
-      <header className="skh">
+      <header className={`skh${heroSpec ? ` skh--art skh--${heroSpec.kind}` : ''}`} style={heroSpec ? heroVars(heroSpec) : undefined} data-hero-art={heroSpec?.kind}>
+        {heroSpec && <div className="skh__art" aria-hidden="true"><HeroArt spec={heroSpec} /></div>}
         <div className="skh__title">
           <span className="eyebrow">NBA{r.event.competition ? ` · ${r.event.competition}` : ''}{r.event.season ? ` · ${r.event.season}` : ''}</span>
           <div className="skvs">

@@ -2,7 +2,10 @@
 // status; the model's chance for each player with its validity and uncertainty; the sharp-reference triangulation;
 // every market with the model's probability beside the price; and the research candidates the publication flags,
 // all RESEARCH_ONLY by its own authority.
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
+import { HeroArt, heroVars } from '../../components/HeroArt';
+import { heroInputFromResearch } from '../../lib/hero/input';
+import { resolveHero } from '../../lib/hero/resolve';
 import { Link } from 'react-router';
 import type { EntityProfileDoc, Market } from '../../contract/types';
 import { latestPrices } from '../../components/MarketBoard';
@@ -86,6 +89,14 @@ function ModelPanel({ t }: { t: TennisMatch }) {
   );
 }
 
+/** Decorative light for a tennis hero, keyed to the PUBLISHED surface only (none published: Sift's neutral navy). */
+const SURFACE_LIGHT: Record<string, [string, string]> = { clay: ['#b8582a', '#e08a4f'], grass: ['#2f7d3a', '#8cc152'], hard: ['#1f5fa8', '#4b92db'], carpet: ['#4a4f8f', '#7a7fc0'] };
+function surfaceVars(surface: string | null | undefined): CSSProperties {
+  const k = Object.keys(SURFACE_LIGHT).find((s) => (surface ?? '').toLowerCase().includes(s));
+  if (!k) return {};
+  return { ['--hc1' as string]: SURFACE_LIGHT[k][0], ['--hc2' as string]: SURFACE_LIGHT[k][1] };
+}
+
 export function TennisMatchView({ eventId }: { eventId: string }) {
   const { sport, repo, slug, metrics } = useSport();
   const research = useAsync(`er:${sport.code}:${eventId}`, () => repo.eventResearch(eventId));
@@ -98,6 +109,8 @@ export function TennisMatchView({ eventId }: { eventId: string }) {
   useVisit(t ? `${t.a.name} v ${t.b.name}` : null, 'game');
   const markets = useMemo(() => detail.data?.markets ?? [], [detail.data]);
   const prices = useMemo(() => latestPrices(detail.data?.model_prices ?? []), [detail.data]);
+  // Tennis has no home side: the event is the identity (src/lib/hero: context 'event'), lit in the published surface's colour.
+  const heroSpec = useMemo(() => (r ? resolveHero({ ...heroInputFromResearch(r, 'TENNIS'), eventName: t?.competition ?? null }) : null), [r, t]);
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
   if (!r || !t) return <div className="page"><ErrorState error={research.error} what="this match's research" /></div>;
   const recs = detail.data?.recommendations ?? [];
@@ -109,7 +122,8 @@ export function TennisMatchView({ eventId }: { eventId: string }) {
   const rowsAB = t.rows;
   return (
     <div className="page tennis-match">
-      <header className="skh">
+      <header className={`skh${heroSpec ? ' skh--art' : ''}`} style={heroSpec ? { ...heroVars(heroSpec), ...surfaceVars(t.surface) } : undefined} data-hero-art={heroSpec?.kind}>
+        {heroSpec && <div className="skh__art" aria-hidden="true"><HeroArt spec={heroSpec} /></div>}
         <div className="skh__title">
           <span className="eyebrow">{t.competition ?? 'Tennis'}{t.tour ? ` · ${t.tour}` : ''}{t.level ? ` · ${LEVEL_WORD[t.level] ?? t.level.replace(/_/g, ' ')}` : ''}{t.round ? ` · ${t.round}` : ''}{t.discipline === 'doubles' ? ' · doubles' : ''}</span>
           <div className="skvs">

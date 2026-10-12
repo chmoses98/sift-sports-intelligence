@@ -98,3 +98,13 @@ test('a team page reads strength raw or opponent-adjusted, and the metric and ra
   await expect(page.locator('.answer__val')).toContainText('pts / 100 poss');
   await noHorizontalOverflow(page, 'nba metric');
 });
+
+test('the NBA game header carries the home club\'s branded identity art @smoke', async ({ page }) => {
+  await page.goto(`./#/nba/game/${DAL_HOU}`);
+  const head = page.locator('header.skh--art');
+  await expect(head).toBeVisible();
+  await expect(head.locator('.skh__art [data-hero-art]')).toHaveAttribute('aria-hidden', 'true');
+  // The club names stay real text over the art, never only in the decorative layer.
+  await expect(head.locator('.skvs__name').first()).toBeVisible();
+  await noHorizontalOverflow(page, 'nba game hero art');
+});

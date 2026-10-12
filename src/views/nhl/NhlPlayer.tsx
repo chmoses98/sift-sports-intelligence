@@ -101,6 +101,12 @@ function GameLog({ p, goalie, n = 10 }: { p: EntityProfileDoc; goalie: boolean; 
   );
 }
 
+/** On his own page the market needs no name: "Andrei Svechnikov 2+ assists" → "2+ assists", "… to score a goal" → "To score a goal". */
+function ownTitle(title: string, name: string): string {
+  const t = title.startsWith(`${name} `) ? title.slice(name.length + 1) : title;
+  return t ? t[0].toUpperCase() + t.slice(1) : title;
+}
+
 /** "3/5" with one dot per game (filled = reached today's count), for the history columns. */
 function HistCell({ h }: { h: LogHit | null }) {
   if (!h || !h.n) return <td className="r num muted">—</td>;
@@ -127,7 +133,7 @@ export function PlayerMarkets({ s, mine, p, kickoffIso, slug, eventId }: { s: Nh
   return (
     <>
       <div className="tscroll" tabIndex={0} role="region" aria-label="His markets for the next game">
-        <table className="nsc__t">
+        <table className="nsc__t nmk__t">
           <thead><tr><th scope="col">Market</th><th scope="col" className="r">Model P(YES)</th><th scope="col" className="r">Market P(YES)</th><th scope="col">Best side after fee</th>{anyHist && <><th scope="col" className="r">Last 5</th><th scope="col" className="r">Last 10</th><th scope="col" className="r">{seasonWord}</th></>}</tr></thead>
           <tbody>
             {mine.map((m) => {
@@ -136,7 +142,7 @@ export function PlayerMarkets({ s, mine, p, kickoffIso, slug, eventId }: { s: Nh
               const h = hist.get(m.market_id) ?? null;
               return (
                 <tr key={m.kalshi_ticker}>
-                  <th scope="row"><Link to={routes.market(slug, m.market_id, eventId)}>{describeNhlMarket(m as any)?.title ?? m.yes_description}</Link> <span className="muted small">{FAMILY_WORD[m.market_family] ?? ''}</span></th>
+                  <th scope="row"><Link to={routes.market(slug, m.market_id, eventId)} aria-label={describeNhlMarket(m as any)?.title ?? m.yes_description}>{ownTitle(describeNhlMarket(m as any)?.title ?? m.yes_description, p.entity.display_name)}</Link> <span className="muted small">{FAMILY_WORD[m.market_family] ?? ''}</span></th>
                   {row ? (
                     <>
                       <td className="r num">{probText(row.pYes, 1)}</td>

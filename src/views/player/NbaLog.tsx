@@ -13,6 +13,8 @@ const day = (iso: string) => {
   const d = new Date(`${iso.slice(0, 10)}T12:00:00Z`);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
 };
+/** A tip time (UTC) as its Eastern calendar date, the date the box log uses. */
+const etDay = (iso: string) => new Date(iso).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 const r1 = (v: number | null) => (v == null ? '—' : (Math.round(v * 10) / 10).toFixed(1));
 const cents = (v: number | null) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const n0 = (v: unknown) => (num(v) == null ? '—' : String(Math.round(num(v)!)));
@@ -105,15 +107,15 @@ export function NbaPlayerHistory({ p }: { p: EntityProfileDoc }) {
           </div>
           {recent.length > 0 && (
             <>
-              <h3 className="nfsec__h">Most recent posted lines</h3>
+              <h3 className="nfsec__h nbalog__sub">Most recent posted lines</h3>
               <div className="lab__tw" tabIndex={0} role="region" aria-label="Most recent posted lines">
-                <table className="fr-t">
+                <table className="fr-t nbalog__rt">
                   <thead><tr><th scope="col">Date</th><th scope="col">Stat</th><th scope="col" className="r">Line</th><th scope="col" className="r">Over mid, T−30m</th><th scope="col" className="r">His result</th><th scope="col">Settled</th></tr></thead>
                   <tbody>{recent.map((l) => {
                     const g = byEvent.get(l.eventId);
                     return (
                       <tr key={`${l.eventId}-${l.stat}`}>
-                        <th scope="row">{day(l.tip)}{g ? <small className="muted"> {g.home === true ? 'vs' : '@'} {String(g.opp ?? '')}</small> : null}</th>
+                        <th scope="row">{day(g?.date_et ? String(g.date_et) : etDay(l.tip))}{g ? <small className="muted"> {g.home === true ? 'vs' : '@'} {String(g.opp ?? '')}</small> : null}</th>
                         <td>{NBA_STAT_LABEL[l.stat] ?? l.stat}</td>
                         <td className="r fx-num">{l.line}</td>
                         <td className="r fx-num">{cents(l.mid)}</td>

@@ -305,3 +305,6 @@
 @media (max-width: 720px) {
   .nbalog .nbalog__avg { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+.nbalog__sub { margin-top: 18px; }
+.nbalog__rt th, .nbalog__rt td { white-space: nowrap; }
+.nmk__t th[scope='row'] { min-width: 10.5em; }

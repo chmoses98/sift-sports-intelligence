@@ -2,12 +2,14 @@
 //   1  the featured matchup hero (lane A's visuals: licensed venue photo, glass panels with published numbers)
 //   2  today's games: one rail of sport groups (richest research first, deep slates capped), each card with records,
 //      ranks, the model's and the market's read, a contextual tag and the validated-market indicator
+//   2a Top props: the Player Prop Explorer's slate ranking, at most ten props that qualify, one card per player,
+//      multi-select to My Board (home/HomeTopProps.tsx; loaded on its own so Home's first paint stays light)
 //   3  SIFT Intelligence: the day's most significant findings (each one opens in place and leads somewhere) beside
 //      the featured game's matchup edges
 //   4  the Research Lab: the same seven tools as the Research Lab hub
 //   5  My Board
 // Nothing here is invented activity: counts and numbers are the publications' own, read at load.
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { NAV_SPORTS } from '../data/nav';
 import { Icon } from '../components/Icon';
@@ -31,6 +33,8 @@ import { gameSides } from '../insights/game';
 import { teamColors } from '../lib/teams';
 import { nflVsRows } from './game/Dashboard';
 import { LAB_TOOLS, labHref } from './explore/labTools';
+
+const HomeTopProps = lazy(() => import('./home/HomeTopProps'));
 
 /** The featured game's published unit ranks as rank-vs-rank bars: a graphic preview of the matchup, one tap from it. */
 function FeaturedEdges({ r, slug }: { r: EventResearchDoc; slug: string }) {
@@ -117,6 +121,10 @@ export function HomeView() {
           <GameRail groups={groups} viewAll={routes.games({ sport: sportFilter })} empty={<div className="bempty"><h3>No games today{sportFilter ? ' in this sport' : ''}</h3><p>The publications list nothing starting today. <Link to={routes.games({ day: 'week' })}>See the next seven days</Link>.</p></div>} />
         )}
       </section>
+
+      <Suspense fallback={<section className="bsec bhome__props" aria-label="Top props"><Skeleton lines={4} tall /></section>}>
+        <HomeTopProps opportunities={all.opportunities} now={now} />
+      </Suspense>
 
       <section className={`bsec bhome__intel${edges ? ' has-edges' : ''}`} aria-labelledby="intel-h">
         <div className="bsec__h">

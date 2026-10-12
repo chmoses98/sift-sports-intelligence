@@ -122,6 +122,8 @@ export interface DiscoveryRow {
   eventId: string;
   kickoff: string;
   game: string;
+  /** When the game's research (the projection) was published, when the document says. */
+  publishedAt?: string | null;
 }
 
 /**

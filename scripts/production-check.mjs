@@ -277,7 +277,22 @@ try {
 } catch (e) {
   check(false, `live-quote feed index is reachable (${String(e)})`);
 }
-const sel = selectTarget(board ?? {}, now, index);
+// A game whose every Kalshi market is settled is over, even while the publication (which refreshes on its own clock)
+// still lists it inside the lookback: the strict live path then moves to the next current game, which must pass every
+// live assertion. Only when no other current game remains is the finished one kept (and judged strictly).
+const SETTLED = ['finalized', 'settled', 'determined', 'closed', 'inactive'];
+let sel = selectTarget(board ?? {}, now, index);
+for (const over = new Set(); sel.mode === 'CURRENT' && sel.feed.covered; ) {
+  const file = (index?.games ?? []).find((g) => g.key === sel.feed.key)?.file;
+  const game = file ? await getJson(`${FEED}/${file}`).catch(() => null) : null;
+  const ms = game?.markets ?? [];
+  if (!ms.length || !ms.every((m) => SETTLED.includes(m.status))) break;
+  over.add(sel.target.event_id);
+  const next = selectTarget({ ...board, items: board.items.filter((it) => !over.has(it.event_id)) }, now, index);
+  console.log(`game over: ${sel.target.event_id} (${sel.feed.key}) — all ${ms.length} markets settled; the publication still lists it as ${sel.target.status}${next.mode === 'CURRENT' ? `; strict live checks move to ${next.target.event_id}` : '; no other current game, so it stays the target'}`);
+  if (next.mode !== 'CURRENT') break;
+  sel = next;
+}
 const pub = sel.publication;
 console.log(`NFL publication: ${pub.status} | generated ${pub.generated_at} (${pub.age_seconds}s old) | ${pub.eligible_games} current event(s) | latest ${JSON.stringify(pub.latest_event)}`);
 for (const r of pub.reasons) console.log(`  reason: ${r}`);

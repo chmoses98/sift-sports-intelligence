@@ -19,21 +19,24 @@ export const isLayout = (v: unknown): v is Layout => v === 'discovery' || v === 
 /** Old workspace links (?ws=football / props / market) open the closest preset. */
 export const layoutFromWorkspace = (ws: string | null): Layout | null => (ws === 'football' || ws === 'props' ? 'matchups' : ws === 'market' ? 'markets' : null);
 
-export type PanelId = 'matchup' | 'projection' | 'scripts' | 'markets' | 'context' | 'evidence' | 'same' | 'compare';
+export type PanelId = 'chain' | 'matchup' | 'projection' | 'scripts' | 'markets' | 'context' | 'evidence' | 'same' | 'compare';
 /** Each preset's panels in reading order, with their span on the 12-column desktop grid. */
 export const LAYOUT_PANELS: Record<Layout, { id: PanelId; span: 4 | 5 | 6 | 7 | 8 | 12 }[]> = {
   discovery: [
+    { id: 'chain', span: 12 },
     { id: 'matchup', span: 4 }, { id: 'projection', span: 4 }, { id: 'scripts', span: 4 },
     { id: 'markets', span: 7 }, { id: 'context', span: 5 },
     { id: 'evidence', span: 6 }, { id: 'same', span: 6 }, { id: 'compare', span: 12 },
   ],
   matchups: [
     { id: 'matchup', span: 8 }, { id: 'scripts', span: 4 },
+    { id: 'chain', span: 12 },
     { id: 'context', span: 6 }, { id: 'projection', span: 6 },
     { id: 'markets', span: 12 }, { id: 'evidence', span: 6 }, { id: 'same', span: 6 },
   ],
   markets: [
     { id: 'markets', span: 8 }, { id: 'projection', span: 4 },
+    { id: 'chain', span: 12 },
     { id: 'compare', span: 12 },
     { id: 'context', span: 6 }, { id: 'evidence', span: 6 },
     { id: 'matchup', span: 6 }, { id: 'scripts', span: 6 }, { id: 'same', span: 12 },

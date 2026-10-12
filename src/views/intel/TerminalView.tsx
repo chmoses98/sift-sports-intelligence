@@ -23,6 +23,12 @@ import { useLiveQuotes, useNow } from '../../live/hooks';
 import { useAllOpportunities } from '../../opportunity/load';
 import { useVisit } from '../../state/trail';
 import { buildDiscoveries, type Discovery, type DiscoveryKind } from '../../intelligence/discoveries';
+import { buildChain, chainRows } from '../../intelligence/chain';
+import { useTeamHistory } from '../../history/load';
+import { blitzLink, boxLink } from '../../insights/schemePlayers';
+import { gameSides } from '../../insights/game';
+import { gameScripts } from '../../lib/scripts';
+import { ChainCard } from './ChainCard';
 import { gameRows, type GameRow } from '../broadcast/games';
 import { PMark, useGameResearch } from '../broadcast/parts';
 import { IntelNav } from './IntelNav';
@@ -54,6 +60,15 @@ function useNflResearch(eventIds: string[]) {
     if (!repo.hasExplorer) return [];
     const out = await Promise.allSettled(eventIds.map((id) => repo.eventResearch(id)));
     return out.flatMap((o) => (o.status === 'fulfilled' ? [o.value] : []));
+  });
+}
+
+/** The selected NFL game's published contracts and model prices (event detail), for the matchup-to-market chain. */
+function useEventDetail(eventId: string | null) {
+  return useAsync(eventId ? `terminal:ed:${eventId}` : null, async () => {
+    const sport = sportByCode('NFL');
+    if (!sport) return null;
+    return new SportRepo(await resolveSource(sport)).eventDetail(eventId!).catch(() => null);
   });
 }
 
@@ -123,16 +138,31 @@ export function TerminalView() {
   const tickers = useMemo(() => mainLines(r).map((m) => m.kalshi_ticker), [r]);
   const live = useLiveQuotes(tickers, 'slate');
   const sel = (id: string) => set('d', id);
+  // The matchup-to-market chain for a selected NFL mismatch: its markets, scripts, the opportunity layer's calls and,
+  // where Sift's charting layer has one for the area, the scheme tendency (observation only).
+  const ins = selected?.kind === 'mismatch' ? selected.insight ?? null : null;
+  const detail = useEventDetail(ins ? selected!.eventId : null);
+  const teamHist = useTeamHistory(ins ? 'NFL' : '');
+  const chain = useMemo(() => {
+    if (!ins || !r || !detail.data || r.event.event_id !== detail.data.event.event_id) return null;
+    const set = gameScripts(r);
+    const g = gameSides(r);
+    const doc = teamHist.data ?? null;
+    const off = g ? g.byAbbr(ins.offense.team.abbr) : null;
+    const scheme = g && doc && off ? (ins.area === 'run' ? boxLink(r, g, doc, off, []) : ins.area === 'pass' || ins.area === 'protection' ? blitzLink(r, g, doc, off, []) : null) : null;
+    return buildChain({ ins, r, set, rows: chainRows(r, detail.data.markets, detail.data.model_prices, set), opps, scheme });
+  }, [ins, r, detail.data, teamHist.data, opps]);
 
   const panel = (id: PanelId) => {
     if (!selected) return null;
     switch (id) {
+      case 'chain': return ins && selected.eventId ? <ChainCard c={chain} slug={selected.slug} eventId={selected.eventId} now={now} loading={detail.loading || research.loading} /> : null;
       case 'matchup': return <MatchupPanel key={`mu:${selected.id}`} d={selected} r={r} loading={research.loading} />;
       case 'projection': return <ProjectionPanel key={`pm:${selected.id}`} d={selected} r={r} />;
       case 'scripts': return <ScriptsPanel d={selected} r={r} loading={research.loading} />;
       case 'markets': return <MarketsPanel d={selected} r={r} opps={opps} quote={live.quote} now={now} />;
       case 'context': return <ContextPanel d={selected} r={r} spec={spec} />;
-      case 'evidence': return <EvidencePanel d={selected} />;
+      case 'evidence': return <EvidencePanel d={selected} chain={chain} />;
       case 'same': return <SamePanel d={selected} all={discoveries} onSelect={sel} />;
       case 'compare': return selected.opportunity && opps.length >= 2 ? <ComparePanel d={selected} opps={opps} /> : null;
     }

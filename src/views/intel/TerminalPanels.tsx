@@ -16,6 +16,7 @@ import { SportMark } from '../../components/SportMark';
 import { SaveButton } from '../../components/ui';
 import { navSport } from '../../data/nav';
 import { KIND_WORD, type Discovery } from '../../intelligence/discoveries';
+import { chainEvidenceLine, judgmentWords, type IntelChain } from '../../intelligence/chain';
 import { gameSides } from '../../insights/game';
 import { betPhrase } from '../../lib/betWords';
 import { decisionOf } from '../../lib/decision';
@@ -415,7 +416,7 @@ export function ContextPanel({ d, r, spec }: { d: Discovery; r: EventResearchDoc
   );
 }
 
-export function EvidencePanel({ d }: { d: Discovery }) {
+export function EvidencePanel({ d, chain }: { d: Discovery; chain?: IntelChain | null }) {
   const c = d.opportunity?.confidence;
   return (
     <FxCard title="Model evidence & method" icon="shield" id="tm-ev" className="tm-p tm-p--ev" action={{ to: routes.pulse(d.slug), label: `${navSport(d.slug)?.label ?? d.sport} in Model Pulse` }}>
@@ -424,6 +425,11 @@ export function EvidencePanel({ d }: { d: Discovery }) {
           <p className="tm-lead">{c.calibration === 'MARKET_BEATS_MODEL' ? 'The market has the better settled record for this model.' : c.calibration === 'VALIDATED' ? 'Validated by its publication.' : c.calibration === 'RESEARCH' ? 'Research model: calibration published, not promoted.' : 'No settled record published yet.'}</p>
           {c.record && <p className={`tm-note${c.record.adverse ? ' tm-neg' : ''}`}>Track record: {c.record.line}</p>}
           {c.note && <p className="tm-note">{c.note}</p>}
+        </>
+      ) : chain ? (
+        <>
+          <p className="tm-lead">{chainEvidenceLine(chain)}</p>
+          {chain.markets.map((m) => <p key={m.marketId + m.side} className="tm-note"><b>{m.side === 'NO' ? 'NO · ' : ''}{m.label}</b>: {judgmentWords(m.judgment)}</p>)}
         </>
       ) : <p className="tm-lead">A matchup or data finding carries no model price, so there is no model record to weigh.</p>}
       <dl className="tm-facts">{d.facts.slice(0, 6).map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>

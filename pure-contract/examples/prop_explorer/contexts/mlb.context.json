@@ -1,0 +1,910 @@
+{
+  "capture": {
+    "builder": "pure-contract/prop_explorer.py convert (prop_explorer 1.0.0)",
+    "capture_mode": "historical_research_replay",
+    "captured_at": "2026-10-11T03:00:00Z"
+  },
+  "coverage": {
+    "mlb_pitcher_workload_joint_v1": {
+      "pitcher_batters_faced": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8762,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_outs": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8721,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_strikeouts": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8689,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      }
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "pitcher_batters_faced": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.9587,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_outs": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.8604,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      },
+      "pitcher_strikeouts": {
+        "evidence_id": "scorecard",
+        "n_games": 4839,
+        "n_rows": 9025,
+        "observed": 0.9013,
+        "scope": "2025-2026 regular-season holdout, every scored starter-game"
+      }
+    }
+  },
+  "drivers": {
+    "mlb_pitcher_workload_joint_v1": {
+      "bullpen_pitches_1d": {
+        "label": "Own bullpen pitches, previous day",
+        "matchup_role": "not_matchup",
+        "role": "team_environment"
+      },
+      "bullpen_pitches_3d": {
+        "label": "Own bullpen pitches, previous 3 days",
+        "matchup_role": "not_matchup",
+        "role": "team_environment"
+      },
+      "days_rest": {
+        "label": "Days since previous start",
+        "matchup_role": "not_matchup",
+        "role": "rest_schedule"
+      },
+      "k_rate_hist_bf": {
+        "label": "Batters faced behind the strikeout rate",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "k_rate_hist_k": {
+        "label": "Strikeouts behind the strikeout rate",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "last_bf": {
+        "label": "Batters faced in previous start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "last_pitches": {
+        "label": "Pitches in previous start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "max_pitches_last3": {
+        "label": "Most pitches in the last three starts",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "n_hist": {
+        "label": "Prior starts in the recency window",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "opp_k_rate": {
+        "label": "Opponent batters' strikeout rate this season",
+        "matchup_role": "opponent_input",
+        "null_value_reason": "the opponent has no same-season plate appearances before the cutoff (opp_pa = 0), so the source leaves the rate null",
+        "role": "opponent"
+      },
+      "opp_nonout_rate": {
+        "label": "Opponent batters' reach-base (non-out) rate this season",
+        "matchup_role": "opponent_input",
+        "null_value_reason": "the opponent has no same-season plate appearances before the cutoff (opp_pa = 0), so the source leaves the rate null",
+        "role": "opponent"
+      },
+      "opp_pa": {
+        "label": "Opponent plate appearances this season",
+        "matchup_role": "opponent_input",
+        "role": "opponent"
+      },
+      "outs_per_bf_hist_bf": {
+        "label": "Batters faced behind the outs-per-batter rate",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "outs_per_bf_hist_outs": {
+        "label": "Outs behind the outs-per-batter rate",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "pitches_per_bf": {
+        "label": "Pitches per batter faced (history)",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "season_starts": {
+        "label": "Starts this season before the game",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "w_bf": {
+        "label": "Recency-weighted batters faced per start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "w_outs": {
+        "label": "Recency-weighted outs per start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "w_pitches": {
+        "label": "Recency-weighted pitches per start",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      }
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "history_starts": {
+        "label": "Prior starts in history",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "k_rate": {
+        "label": "Strikeout rate per batter faced, after the opponent factor",
+        "matchup_role": "opponent_adjusted",
+        "role": "efficiency"
+      },
+      "mu_outs": {
+        "label": "Expected outs (workload curve)",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "nonout_per_out": {
+        "label": "Batters reaching base per out recorded",
+        "matchup_role": "not_matchup",
+        "role": "efficiency"
+      },
+      "opponent_k_factor": {
+        "label": "Opponent strikeout tendency factor",
+        "matchup_role": "opponent_input",
+        "role": "opponent"
+      }
+    }
+  },
+  "game_defaults": {
+    "season": "2025",
+    "season_type": "regular"
+  },
+  "notes": [
+    "season and season_type: the source population is the 2025-2026 regular season (results doc) and this sample's kickoffs are 2025-03-18..2025-03-30, i.e. season 2025."
+  ],
+  "null_reasons": {
+    "distribution.pmf": "the source sidecar publishes quantiles and a threshold ladder, not the full probability mass function",
+    "game.away_team_id": "not carried by the source sidecar; resolve from the schedule by game_id",
+    "game.home_team_id": "not carried by the source sidecar; resolve from the schedule by game_id",
+    "game.is_home": "the source sidecar does not carry the player's team, so home/away is not known from it",
+    "game.opponent_team_id": "the source sidecar does not carry the player's team, so the opponent is not known from it",
+    "game.week": "MLB has no schedule weeks",
+    "game_script": "the source model publishes no projection conditional on game script",
+    "player.name": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.position": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_abbr": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_id": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "provenance.conversion": "the source rows are already pure_forecast.v1 and are copied byte for byte",
+    "validation.source_verdict": "the source evaluated this model only as a comparator and issued no verdict on it"
+  },
+  "units": {
+    "pitcher_batters_faced": "batters faced",
+    "pitcher_outs": "outs",
+    "pitcher_strikeouts": "strikeouts"
+  },
+  "validation": {
+    "mlb_pitcher_workload_joint_v1": {
+      "caveats": [
+        "Research collection only: no production, publication, staking or authority change, and the challenger is not wired into any export (source results doc).",
+        "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; its long-leash variant was REJECTED (PR #288); the MLB hitter sports-only challenger was REJECTED (PR #285).",
+        "The 2026 postseason is not in this status's scope: the #283 market-selected diagnostic was worse than the champion, and the later sports-only postseason evaluation (46 starts in 25 games) REJECTED the challenger under the strict rule.",
+        "Lineup-confirmed subgroup is BLOCKED_DATA: no as-of lineup status before 2026-07-30; neither arm reads lineups.",
+        "Challenger minus champion p10-p90 coverage: -0.0824 [-0.0881, -0.0767] for batters faced and -0.0323 [-0.0362, -0.0290] for strikeouts; the champion's intervals covered 0.959 and 0.901 against a nominal 0.80."
+      ],
+      "compared_against": [
+        "pitcher_prop_projection@params_asof_2026-10-07",
+        "naive_recent5_v1"
+      ],
+      "evidence": [
+        {
+          "commit": "58bbd6e14e00d2cb269e3c1f9215de018337c3a9",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_WORKLOAD_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/58bbd6e14e00d2cb269e3c1f9215de018337c3a9/docs/research/PITCHER_WORKLOAD_PREREG.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_WORKLOAD_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_RESULTS.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "source_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #283",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/283"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/challenger.pure_v1.sample300.jsonl",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/challenger.pure_v1.sample300.jsonl"
+        },
+        {
+          "commit": "b42beb1fa",
+          "id": "pst_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_POSTSEASON_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/61445e84d652c8f5ab168e2fa0d018b9518b6138/docs/research/PITCHER_POSTSEASON_PREREG.md"
+        },
+        {
+          "commit": "61445e84d652c8f5ab168e2fa0d018b9518b6138",
+          "id": "pst_results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_POSTSEASON_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/61445e84d652c8f5ab168e2fa0d018b9518b6138/docs/research/PITCHER_POSTSEASON_RESULTS.md"
+        },
+        {
+          "commit": "61445e84d652c8f5ab168e2fa0d018b9518b6138",
+          "id": "pst_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_postseason/eval_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/61445e84d652c8f5ab168e2fa0d018b9518b6138/data/research/pitcher_postseason/eval_2026/scorecard.json"
+        },
+        {
+          "commit": "61445e84d652c8f5ab168e2fa0d018b9518b6138",
+          "id": "pst_pr",
+          "kind": "pull_request",
+          "path": "PR #284",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/284"
+        },
+        {
+          "commit": "5b4229b3b27c3d74de3814626970e27d4f9ebc2e",
+          "id": "shadow",
+          "kind": "shadow_collection",
+          "path": "docs/research/PITCHER_SHADOW_COLLECTION.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/5b4229b3b27c3d74de3814626970e27d4f9ebc2e/docs/research/PITCHER_SHADOW_COLLECTION.md"
+        },
+        {
+          "commit": "5b4229b3b27c3d74de3814626970e27d4f9ebc2e",
+          "id": "shadow_pr",
+          "kind": "pull_request",
+          "path": "PR #286",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/286"
+        },
+        {
+          "commit": "cd9e62e41",
+          "id": "hitter_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/HITTER_W2_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/fd1c6e92a6bb81438ff26ea4eee32dc63626ee43/docs/research/HITTER_W2_PREREG.md"
+        },
+        {
+          "commit": "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43",
+          "id": "hitter_results",
+          "kind": "results",
+          "path": "docs/research/HITTER_W2_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/fd1c6e92a6bb81438ff26ea4eee32dc63626ee43/docs/research/HITTER_W2_RESULTS.md"
+        },
+        {
+          "commit": "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43",
+          "id": "hitter_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/hitter_w2/holdout_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/fd1c6e92a6bb81438ff26ea4eee32dc63626ee43/data/research/hitter_w2/holdout_2026/scorecard.json"
+        },
+        {
+          "commit": "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43",
+          "id": "hitter_pr",
+          "kind": "pull_request",
+          "path": "PR #285",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/285"
+        },
+        {
+          "commit": "3ddd1a99",
+          "id": "leash_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_LONG_LEASH_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_PREREG.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_LONG_LEASH_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_RESULTS.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_long_leash/holdout_2025_2026.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/data/research/pitcher_long_leash/holdout_2025_2026.json"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_pr",
+          "kind": "pull_request",
+          "path": "PR #288",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/288"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+        "season_type": "regular",
+        "seasons": [
+          "2025",
+          "2026"
+        ],
+        "statistics": [
+          "pitcher_batters_faced",
+          "pitcher_outs",
+          "pitcher_strikeouts"
+        ]
+      },
+      "source_verdict": "ACCEPTED_CHALLENGER for 2025–2026 regular-season research collection only. The 2026 postseason is BLOCKED_DATA.",
+      "status": "RESEARCH_HISTORICAL_ACCEPTED",
+      "strict_rule_verdicts": [
+        {
+          "disposition": "PRESERVED_NOT_PROMOTED",
+          "evidence_ids": [
+            "prereg",
+            "results",
+            "scorecard",
+            "pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_v1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+            "season_type": "regular",
+            "seasons": [
+              "2025",
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Passed its preregistered rule on the 2025-2026 regular-season chronological holdout (PR #283). Preserved for research collection only; not promoted, and the champion is unchanged.",
+          "verdict": "ACCEPTED_CHALLENGER"
+        },
+        {
+          "disposition": "SCOPE_BLOCKED",
+          "evidence_ids": [
+            "pst_prereg",
+            "pst_results",
+            "pst_scorecard",
+            "pst_pr",
+            "shadow"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_v1",
+          "promoted": false,
+          "row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON",
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every actual starter of the 46 scored starts in the 25 final 2026 postseason games through ALDS Game 5 (sports-defined, not market-selected)",
+            "season_type": "postseason",
+            "seasons": [
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Sports-only 2026 postseason evaluation (PR #284, open): REJECTED under the strict rule (significant worsening vs the champion on outs, batters faced and strikeouts MAE). The postseason stays blocked; prospective postseason rows are labelled BLOCKED_NOT_VALIDATED_POSTSEASON (PR #286).",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "SCOPE_BLOCKED",
+          "evidence_ids": [
+            "pst_prereg",
+            "pst_results",
+            "pst_scorecard",
+            "pst_pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_v1+postseason_regime_v1",
+          "promoted": false,
+          "row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON",
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every actual starter of the 46 scored starts in the 25 final 2026 postseason games through ALDS Game 5 (sports-defined, not market-selected)",
+            "season_type": "postseason",
+            "seasons": [
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "The same challenger plus one sports-only postseason outs-location term (PR #284, open): REJECTED under the strict rule. The postseason stays blocked.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "leash_prereg",
+            "leash_results",
+            "leash_scorecard",
+            "leash_pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_leash_v1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+            "season_type": "regular",
+            "seasons": [
+              "2025",
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Leash-conditioned batters-faced-given-outs variant of the regular-season challenger (PR #288, open): REJECTED under the strict rule (mid-leash strikeouts MAE vs the frozen challenger +0.0011 [+0.0001, +0.0022]) on the reused 2025-2026 holdout. The frozen challenger and the champion are unchanged.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "hitter_prereg",
+            "hitter_results",
+            "hitter_scorecard",
+            "hitter_pr"
+          ],
+          "lane": "mlb_hitter_props",
+          "model_version": "MLB_HITTER_W2_PURE_V1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every starting batter in every 2026 regular-season game with a final feed (43,686 player-games)",
+            "season_type": "regular",
+            "seasons": [
+              "2026"
+            ],
+            "statistics": [
+              "hitter_hits",
+              "hitter_home_runs",
+              "hitter_plate_appearances",
+              "hitter_rbis",
+              "hitter_runs_scored",
+              "hitter_total_bases"
+            ]
+          },
+          "summary": "MLB hitter sports-only challenger (PR #285, open): REJECTED under the strict preregistered rule. It improved every proper score but failed the preregistered MAE of the mean for home runs, RBI and runs vs the incumbent, and for home runs vs the baseline; the metric is not changed post hoc. The incumbent hitter engine is unchanged and no MLB hitter challenger is accepted.",
+          "verdict": "REJECTED"
+        }
+      ]
+    },
+    "pitcher_prop_projection@params_asof_2026-10-07": {
+      "caveats": [
+        "Incumbent comparator in the W1-D holdout; the preregistered test was of the challenger, and this champion is unchanged.",
+        "Strict-rule status (machine-readable in strict_rule_verdicts): the regular-season challenger is preserved for research and not promoted; its 2026 postseason evaluation was REJECTED (PR #284) and postseason rows are BLOCKED_NOT_VALIDATED_POSTSEASON; its long-leash variant was REJECTED (PR #288); the MLB hitter sports-only challenger was REJECTED (PR #285).",
+        "In the postseason this champion applies a frozen postseason_shift_outs (-1.209) fitted on settlement-evidence values, an indirect market dependency; its prospective postseason rows are labelled BLOCKED_NOT_VALIDATED_POSTSEASON (PR #286).",
+        "178 starter-games (1.9%) were excluded from scoring because this model's date-ordered history contained a suspended game completed after the forecast cutoff."
+      ],
+      "compared_against": [
+        "mlb_pitcher_workload_joint_v1",
+        "naive_recent5_v1"
+      ],
+      "evidence": [
+        {
+          "commit": "58bbd6e14e00d2cb269e3c1f9215de018337c3a9",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_WORKLOAD_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/58bbd6e14e00d2cb269e3c1f9215de018337c3a9/docs/research/PITCHER_WORKLOAD_PREREG.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_WORKLOAD_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_RESULTS.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/scorecard.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "source_audit",
+          "kind": "source_audit",
+          "path": "docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/docs/research/PITCHER_WORKLOAD_SOURCE_AUDIT.md"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/pure_gate_rerun_report.json"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #283",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/283"
+        },
+        {
+          "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "data/research/pitcher_workload_joint/holdout_2025_2026/champion.pure_v1.sample300.jsonl",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/6a50874bb9f2dbb9b8576a5765433661871e9f02/data/research/pitcher_workload_joint/holdout_2025_2026/champion.pure_v1.sample300.jsonl"
+        },
+        {
+          "commit": "b42beb1fa",
+          "id": "pst_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_POSTSEASON_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/61445e84d652c8f5ab168e2fa0d018b9518b6138/docs/research/PITCHER_POSTSEASON_PREREG.md"
+        },
+        {
+          "commit": "61445e84d652c8f5ab168e2fa0d018b9518b6138",
+          "id": "pst_results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_POSTSEASON_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/61445e84d652c8f5ab168e2fa0d018b9518b6138/docs/research/PITCHER_POSTSEASON_RESULTS.md"
+        },
+        {
+          "commit": "61445e84d652c8f5ab168e2fa0d018b9518b6138",
+          "id": "pst_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_postseason/eval_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/61445e84d652c8f5ab168e2fa0d018b9518b6138/data/research/pitcher_postseason/eval_2026/scorecard.json"
+        },
+        {
+          "commit": "61445e84d652c8f5ab168e2fa0d018b9518b6138",
+          "id": "pst_pr",
+          "kind": "pull_request",
+          "path": "PR #284",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/284"
+        },
+        {
+          "commit": "5b4229b3b27c3d74de3814626970e27d4f9ebc2e",
+          "id": "shadow",
+          "kind": "shadow_collection",
+          "path": "docs/research/PITCHER_SHADOW_COLLECTION.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/5b4229b3b27c3d74de3814626970e27d4f9ebc2e/docs/research/PITCHER_SHADOW_COLLECTION.md"
+        },
+        {
+          "commit": "5b4229b3b27c3d74de3814626970e27d4f9ebc2e",
+          "id": "shadow_pr",
+          "kind": "pull_request",
+          "path": "PR #286",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/286"
+        },
+        {
+          "commit": "cd9e62e41",
+          "id": "hitter_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/HITTER_W2_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/fd1c6e92a6bb81438ff26ea4eee32dc63626ee43/docs/research/HITTER_W2_PREREG.md"
+        },
+        {
+          "commit": "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43",
+          "id": "hitter_results",
+          "kind": "results",
+          "path": "docs/research/HITTER_W2_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/fd1c6e92a6bb81438ff26ea4eee32dc63626ee43/docs/research/HITTER_W2_RESULTS.md"
+        },
+        {
+          "commit": "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43",
+          "id": "hitter_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/hitter_w2/holdout_2026/scorecard.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/fd1c6e92a6bb81438ff26ea4eee32dc63626ee43/data/research/hitter_w2/holdout_2026/scorecard.json"
+        },
+        {
+          "commit": "fd1c6e92a6bb81438ff26ea4eee32dc63626ee43",
+          "id": "hitter_pr",
+          "kind": "pull_request",
+          "path": "PR #285",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/285"
+        },
+        {
+          "commit": "3ddd1a99",
+          "id": "leash_prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PITCHER_LONG_LEASH_PREREG.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_PREREG.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_results",
+          "kind": "results",
+          "path": "docs/research/PITCHER_LONG_LEASH_RESULTS.md",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/docs/research/PITCHER_LONG_LEASH_RESULTS.md"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_scorecard",
+          "kind": "scorecard",
+          "path": "data/research/pitcher_long_leash/holdout_2025_2026.json",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/blob/9e75fabd501fdfa8cca7ee1679c4feeb5426a17e/data/research/pitcher_long_leash/holdout_2025_2026.json"
+        },
+        {
+          "commit": "9e75fabd501fdfa8cca7ee1679c4feeb5426a17e",
+          "id": "leash_pr",
+          "kind": "pull_request",
+          "path": "PR #288",
+          "repo": "chmoses98/edge-finder-api",
+          "url": "https://github.com/chmoses98/edge-finder-api/pull/288"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+        "season_type": "regular",
+        "seasons": [
+          "2025",
+          "2026"
+        ],
+        "statistics": [
+          "pitcher_batters_faced",
+          "pitcher_outs",
+          "pitcher_strikeouts"
+        ]
+      },
+      "source_verdict": null,
+      "status": "NOT_VALIDATED",
+      "strict_rule_verdicts": [
+        {
+          "disposition": "PRESERVED_NOT_PROMOTED",
+          "evidence_ids": [
+            "prereg",
+            "results",
+            "scorecard",
+            "pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_v1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+            "season_type": "regular",
+            "seasons": [
+              "2025",
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Passed its preregistered rule on the 2025-2026 regular-season chronological holdout (PR #283). Preserved for research collection only; not promoted, and the champion is unchanged.",
+          "verdict": "ACCEPTED_CHALLENGER"
+        },
+        {
+          "disposition": "SCOPE_BLOCKED",
+          "evidence_ids": [
+            "pst_prereg",
+            "pst_results",
+            "pst_scorecard",
+            "pst_pr",
+            "shadow"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_v1",
+          "promoted": false,
+          "row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON",
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every actual starter of the 46 scored starts in the 25 final 2026 postseason games through ALDS Game 5 (sports-defined, not market-selected)",
+            "season_type": "postseason",
+            "seasons": [
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Sports-only 2026 postseason evaluation (PR #284, open): REJECTED under the strict rule (significant worsening vs the champion on outs, batters faced and strikeouts MAE). The postseason stays blocked; prospective postseason rows are labelled BLOCKED_NOT_VALIDATED_POSTSEASON (PR #286).",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "SCOPE_BLOCKED",
+          "evidence_ids": [
+            "pst_prereg",
+            "pst_results",
+            "pst_scorecard",
+            "pst_pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_v1+postseason_regime_v1",
+          "promoted": false,
+          "row_label": "BLOCKED_NOT_VALIDATED_POSTSEASON",
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every actual starter of the 46 scored starts in the 25 final 2026 postseason games through ALDS Game 5 (sports-defined, not market-selected)",
+            "season_type": "postseason",
+            "seasons": [
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "The same challenger plus one sports-only postseason outs-location term (PR #284, open): REJECTED under the strict rule. The postseason stays blocked.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "leash_prereg",
+            "leash_results",
+            "leash_scorecard",
+            "leash_pr"
+          ],
+          "lane": "mlb_pitcher_props",
+          "model_version": "mlb_pitcher_workload_joint_leash_v1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "starter-games in the 2025 and 2026 regular seasons with at least 3 prior starts and observed batters faced (9,025 scored after 178 exclusions)",
+            "season_type": "regular",
+            "seasons": [
+              "2025",
+              "2026"
+            ],
+            "statistics": [
+              "pitcher_batters_faced",
+              "pitcher_outs",
+              "pitcher_strikeouts"
+            ]
+          },
+          "summary": "Leash-conditioned batters-faced-given-outs variant of the regular-season challenger (PR #288, open): REJECTED under the strict rule (mid-leash strikeouts MAE vs the frozen challenger +0.0011 [+0.0001, +0.0022]) on the reused 2025-2026 holdout. The frozen challenger and the champion are unchanged.",
+          "verdict": "REJECTED"
+        },
+        {
+          "disposition": "REJECTED_INCUMBENT_UNCHANGED",
+          "evidence_ids": [
+            "hitter_prereg",
+            "hitter_results",
+            "hitter_scorecard",
+            "hitter_pr"
+          ],
+          "lane": "mlb_hitter_props",
+          "model_version": "MLB_HITTER_W2_PURE_V1",
+          "promoted": false,
+          "row_label": null,
+          "rule": "strict_preregistered",
+          "scope": {
+            "population": "every starting batter in every 2026 regular-season game with a final feed (43,686 player-games)",
+            "season_type": "regular",
+            "seasons": [
+              "2026"
+            ],
+            "statistics": [
+              "hitter_hits",
+              "hitter_home_runs",
+              "hitter_plate_appearances",
+              "hitter_rbis",
+              "hitter_runs_scored",
+              "hitter_total_bases"
+            ]
+          },
+          "summary": "MLB hitter sports-only challenger (PR #285, open): REJECTED under the strict preregistered rule. It improved every proper score but failed the preregistered MAE of the mean for home runs, RBI and runs vs the incumbent, and for home runs vs the baseline; the metric is not changed post hoc. The incumbent hitter engine is unchanged and no MLB hitter challenger is accepted.",
+          "verdict": "REJECTED"
+        }
+      ]
+    }
+  },
+  "workload": {
+    "measure": "batters_faced",
+    "statistic": "pitcher_batters_faced",
+    "unit": "batters faced"
+  }
+}

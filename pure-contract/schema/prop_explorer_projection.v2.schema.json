@@ -1,0 +1,1284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v2.schema.json",
+  "title": "Combined Player Prop Explorer row, v2 (one JSONL line)",
+  "description": "prop_explorer_projection.v2 (record_type 'explorer_row'). Structural rules only; the display rules (best validated / sports-only / primary selection, REJECTED and BLOCKED exclusion, market-informed labelling, RESEARCH vs VALIDATED_OPPORTUNITY), the edge, fee and bet-up-to arithmetic, mirroring of the embedded v1 record, strict-rule verdicts, freshness and null reasons are enforced by prop_explorer_v2.py, the normative validator.",
+  "$ref": "#/$defs/row",
+  "$defs": {
+    "nonempty": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]00:00)$"
+    },
+    "null_reasons": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/nonempty"
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "sport",
+        "game_id",
+        "player_id",
+        "statistic",
+        "conditional_on_playing",
+        "snapshot_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sport": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "game_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "player_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "statistic": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "conditional_on_playing": {
+          "type": "boolean"
+        },
+        "snapshot_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "description": "One player-game-statistic at one snapshot. row_id = sport|game_id|player_id|statistic|cond or unc|snapshot_at."
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "model_id",
+        "model_version",
+        "model_frozen_hash"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "model_version": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "model_frozen_hash": {
+          "type": "string",
+          "pattern": "^(sha256:[0-9a-f]{64}|git:[0-9a-f]{7,40})$"
+        }
+      }
+    },
+    "market_input": {
+      "type": "object",
+      "required": [
+        "input",
+        "dependency",
+        "market_source",
+        "derivation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "dependency": {
+          "enum": [
+            "direct",
+            "indirect"
+          ]
+        },
+        "market_source": {
+          "enum": [
+            "sportsbook",
+            "kalshi",
+            "other_exchange",
+            "settlement",
+            "unknown"
+          ]
+        },
+        "derivation": {
+          "$ref": "#/$defs/nonempty"
+        }
+      },
+      "description": "One market-derived input. indirect: derived from market data upstream (e.g. NFL PROE, expected pass rate or team ratings fitted to sportsbook lines)."
+    },
+    "model_provenance": {
+      "type": "object",
+      "required": [
+        "market_informed",
+        "market_derived_inputs",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "market_informed": {
+          "type": "boolean"
+        },
+        "market_derived_inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/market_input"
+          }
+        },
+        "source": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "repo",
+                "commit",
+                "path"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "repo": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+                },
+                "commit": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{7,40}$"
+                },
+                "path": {
+                  "$ref": "#/$defs/nonempty"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "description": "market_informed is true exactly when market_derived_inputs is nonempty. A sports-only projection embeds its v1 record."
+    },
+    "threshold": {
+      "type": "object",
+      "required": [
+        "at_least",
+        "probability"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "at_least": {
+          "type": "number"
+        },
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "required": [
+        "unit",
+        "mean",
+        "median",
+        "p10",
+        "p90",
+        "quantiles",
+        "thresholds",
+        "pmf"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mean": {
+          "type": "number"
+        },
+        "median": {
+          "type": "number"
+        },
+        "p10": {
+          "type": "number"
+        },
+        "p90": {
+          "type": "number"
+        },
+        "quantiles": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/quantile"
+          }
+        },
+        "thresholds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/threshold"
+          }
+        },
+        "pmf": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "probability"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "probability": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "description": "Outcome probabilities: P(X >= at_least) ladder (strictly ascending strikes, non-increasing), quantiles including 0.1/0.5/0.9, optional pmf."
+    },
+    "matchup": {
+      "type": "object",
+      "required": [
+        "opponent_team_id",
+        "opponent_adjusted",
+        "opponent_inputs",
+        "opponent_adjusted_by"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "opponent_team_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opponent_adjusted": {
+          "type": "boolean"
+        },
+        "opponent_inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonempty"
+          }
+        },
+        "opponent_adjusted_by": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonempty"
+          }
+        }
+      },
+      "description": "Derived from the drivers' matchup_role; opponent_team_id mirrors game.opponent_team_id."
+    },
+    "driver": {
+      "type": "object",
+      "required": [
+        "feature",
+        "label",
+        "role",
+        "matchup_role",
+        "value",
+        "source",
+        "observed_at",
+        "importance_rank",
+        "importance_basis"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "label": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "role": {
+          "enum": [
+            "opportunity",
+            "efficiency",
+            "workload",
+            "team_environment",
+            "participation",
+            "rest_schedule",
+            "history_depth",
+            "opponent",
+            "other"
+          ]
+        },
+        "matchup_role": {
+          "oneOf": [
+            {
+              "enum": [
+                "opponent_input",
+                "opponent_adjusted",
+                "not_matchup"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {},
+        "source": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "importance_rank": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "importance_basis": {
+          "enum": [
+            "not_ranked",
+            "producer_attribution",
+            "model_structure"
+          ]
+        }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": [
+        "status",
+        "metrics",
+        "sample_size",
+        "scope",
+        "evidence_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "CALIBRATED",
+            "ASSESSED",
+            "MISCALIBRATED",
+            "NOT_ASSESSED"
+          ]
+        },
+        "metrics": {
+          "type": "object",
+          "required": [
+            "interval_coverage_80",
+            "threshold_ece",
+            "brier",
+            "log_loss",
+            "crps",
+            "calibration_slope"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "interval_coverage_80": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "threshold_ece": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "brier": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "log_loss": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "crps": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "calibration_slope": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "sample_size": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "n_rows",
+                "n_games"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "n_rows": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "n_games": {
+                  "oneOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scope": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "description": "CALIBRATED: passed a preregistered calibration criterion (cites calibration/results/value_results evidence). ASSESSED: metrics reported, no pass/fail rule. NOT_ASSESSED: all null."
+    },
+    "projection_freshness": {
+      "type": "object",
+      "required": [
+        "as_of",
+        "inputs_max_observed_at",
+        "staleness_seconds",
+        "oldest_input_observed_at",
+        "kickoff_lead_seconds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "inputs_max_observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "staleness_seconds": {
+          "type": "integer"
+        },
+        "oldest_input_observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "kickoff_lead_seconds": {
+          "type": "integer"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "repo",
+        "commit",
+        "path",
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "kind": {
+          "enum": [
+            "preregistration",
+            "results",
+            "scorecard",
+            "source_audit",
+            "rerun",
+            "pull_request",
+            "shadow_collection",
+            "sidecar_sample",
+            "other",
+            "value_results",
+            "calibration",
+            "promotion_decision"
+          ]
+        },
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "path": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "accuracy_status",
+        "value_status",
+        "research_only",
+        "accuracy_scope",
+        "value_scope",
+        "source_verdict",
+        "compared_against",
+        "evidence",
+        "caveats",
+        "strict_rule_verdicts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "accuracy_status": {
+          "enum": [
+            "ACCURACY_PROMOTED",
+            "ACCURACY_ACCEPTED_RESEARCH",
+            "ACCURACY_SHADOW_PROSPECTIVE",
+            "ACCURACY_NOT_TESTED",
+            "ACCURACY_INCONCLUSIVE",
+            "ACCURACY_REJECTED",
+            "ACCURACY_BLOCKED_DATA",
+            "BLOCKED_NOT_VALIDATED_POSTSEASON"
+          ]
+        },
+        "value_status": {
+          "enum": [
+            "VALIDATED_VALUE",
+            "VALUE_SHADOW_PROSPECTIVE",
+            "VALUE_NOT_TESTED",
+            "VALUE_INCONCLUSIVE",
+            "VALUE_REJECTED",
+            "VALUE_BLOCKED_DATA"
+          ]
+        },
+        "research_only": {
+          "const": true
+        },
+        "accuracy_scope": {
+          "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/validation/properties/scope"
+        },
+        "value_scope": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/validation/properties/scope"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_verdict": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "compared_against": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonempty"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "caveats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonempty"
+          }
+        },
+        "strict_rule_verdicts": {
+          "type": "array",
+          "items": {
+            "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/strict_verdict"
+          }
+        }
+      },
+      "description": "accuracy_status (is it the most accurate projection we can show?) and value_status (has betting value against executable Kalshi prices been demonstrated?) are separate. VALIDATED_VALUE needs a sports-only, CALIBRATED projection with preregistration + value_results evidence."
+    },
+    "projection": {
+      "type": "object",
+      "required": [
+        "projection_id",
+        "role",
+        "model",
+        "provenance",
+        "explorer_projection",
+        "outcome",
+        "expected_workload",
+        "matchup",
+        "game_script",
+        "drivers",
+        "uncertainty",
+        "calibration",
+        "freshness",
+        "validation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "projection_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "role": {
+          "enum": [
+            "champion",
+            "challenger",
+            "baseline",
+            "best_accuracy",
+            "other"
+          ]
+        },
+        "model": {
+          "$ref": "#/$defs/model"
+        },
+        "provenance": {
+          "$ref": "#/$defs/model_provenance"
+        },
+        "explorer_projection": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/projection"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome": {
+          "$ref": "#/$defs/outcome"
+        },
+        "expected_workload": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/workload"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "matchup": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/matchup"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "game_script": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/game_script"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "drivers": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/driver"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uncertainty": {
+          "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/uncertainty"
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibration"
+        },
+        "freshness": {
+          "$ref": "#/$defs/projection_freshness"
+        },
+        "validation": {
+          "$ref": "#/$defs/validation"
+        }
+      }
+    },
+    "quote": {
+      "type": "object",
+      "required": [
+        "contract_ticker",
+        "at_least",
+        "yes_bid",
+        "yes_ask",
+        "no_bid",
+        "no_ask",
+        "last_price",
+        "observed_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "contract_ticker": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+        },
+        "at_least": {
+          "type": "number"
+        },
+        "yes_bid": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "yes_ask": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "no_bid": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "no_ask": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_price": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "description": "One Kalshi contract (YES pays when the statistic >= at_least). Prices in dollars; null = no resting order."
+    },
+    "market": {
+      "type": "object",
+      "required": [
+        "venue",
+        "event_ticker",
+        "captured_at",
+        "quotes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "venue": {
+          "enum": [
+            "kalshi"
+          ]
+        },
+        "event_ticker": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "captured_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "quotes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/quote"
+          }
+        }
+      }
+    },
+    "fee_model": {
+      "type": "object",
+      "required": [
+        "name",
+        "rate",
+        "multiplier",
+        "rounding",
+        "price_tick"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "enum": [
+            "kalshi_general_taker",
+            "flat_per_contract"
+          ]
+        },
+        "rate": {
+          "type": "number",
+          "minimum": 0
+        },
+        "multiplier": {
+          "type": "number",
+          "minimum": 0
+        },
+        "rounding": {
+          "enum": [
+            "ceil_cent",
+            "none"
+          ]
+        },
+        "price_tick": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.5
+        }
+      },
+      "description": "kalshi_general_taker: fee = ceil_cent(rate x multiplier x P x (1 - P)) per contract (rate 0.07 on the general schedule)."
+    },
+    "evaluation_rung": {
+      "type": "object",
+      "required": [
+        "contract_ticker",
+        "at_least",
+        "side",
+        "model_probability",
+        "executable_price",
+        "spread",
+        "fee_per_contract",
+        "edge_after_fees",
+        "bet_up_to_price",
+        "quote_age_seconds",
+        "display_label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "contract_ticker": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "at_least": {
+          "type": "number"
+        },
+        "side": {
+          "enum": [
+            "yes",
+            "no"
+          ]
+        },
+        "model_probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "executable_price": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "spread": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fee_per_contract": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "edge_after_fees": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bet_up_to_price": {
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quote_age_seconds": {
+          "type": "integer"
+        },
+        "display_label": {
+          "enum": [
+            "VALIDATED_OPPORTUNITY",
+            "NO_EDGE",
+            "RESEARCH",
+            "MARKET_INFORMED",
+            "NOT_EXECUTABLE",
+            "STALE_QUOTE"
+          ]
+        }
+      },
+      "description": "Recomputed by the validator: edge_after_fees = model_probability - ask - fee(ask) - slippage; bet_up_to_price = highest tick price with edge >= min_edge and > 0."
+    },
+    "market_evaluation": {
+      "type": "object",
+      "required": [
+        "evaluated_projection_id",
+        "fee_model",
+        "slippage_per_contract",
+        "min_edge",
+        "max_quote_age_seconds",
+        "rungs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "evaluated_projection_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "fee_model": {
+          "$ref": "#/$defs/fee_model"
+        },
+        "slippage_per_contract": {
+          "type": "number",
+          "minimum": 0
+        },
+        "min_edge": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_quote_age_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rungs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evaluation_rung"
+          }
+        }
+      }
+    },
+    "row_freshness": {
+      "type": "object",
+      "required": [
+        "snapshot_at",
+        "projections_as_of_max",
+        "inputs_max_observed_at",
+        "market_observed_at_max",
+        "kickoff_lead_seconds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "snapshot_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "projections_as_of_max": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "inputs_max_observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "market_observed_at_max": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kickoff_lead_seconds": {
+          "type": "integer"
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "record_type",
+        "row_id",
+        "research_only",
+        "identity",
+        "capture",
+        "player",
+        "game",
+        "projections",
+        "best_validated_projection_id",
+        "sports_only_projection_id",
+        "primary_projection_id",
+        "market",
+        "market_evaluation",
+        "display_label",
+        "freshness",
+        "null_reasons"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "prop_explorer_projection.v2"
+        },
+        "record_type": {
+          "const": "explorer_row"
+        },
+        "row_id": {
+          "$ref": "#/$defs/nonempty"
+        },
+        "research_only": {
+          "const": true
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "capture": {
+          "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/capture"
+        },
+        "player": {
+          "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/player"
+        },
+        "game": {
+          "$ref": "https://github.com/chmoses98/sift-sports-intelligence/pure-contract/schema/prop_explorer_projection.v1.schema.json#/$defs/game"
+        },
+        "projections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/projection"
+          }
+        },
+        "best_validated_projection_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sports_only_projection_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primary_projection_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nonempty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "market": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/market"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "market_evaluation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/market_evaluation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "display_label": {
+          "enum": [
+            "VALIDATED_OPPORTUNITY",
+            "MARKET_INFORMED",
+            "RESEARCH",
+            "NO_ELIGIBLE_PROJECTION"
+          ]
+        },
+        "freshness": {
+          "$ref": "#/$defs/row_freshness"
+        },
+        "null_reasons": {
+          "$ref": "#/$defs/null_reasons"
+        }
+      },
+      "description": "One player-game-statistic for the Combined Player Prop Explorer, every projection side by side with current Kalshi quotes, fee-aware edges and computed display labels. A display record: it never feeds a PURE model.",
+      "patternProperties": {
+        "^x_": {}
+      }
+    }
+  }
+}

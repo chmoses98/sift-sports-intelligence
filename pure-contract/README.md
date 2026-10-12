@@ -9,8 +9,12 @@ and has nothing to do with wagers, staking or model authority.
 | `schema/pure_forecast.v1.schema.json` | JSON Schema (2020-12) for one JSONL line, v1 and the kit interim format (v0) |
 | `pure_gate.py` | Normative validator + `validate` / `compare` / `rerun` / `mutation` CLI (Python 3.10+, stdlib only) |
 | `tests/` | Unit tests, including the 13 ported kit tests and synthetic toy upstream models for `rerun` |
-| `examples/` | **Synthetic** example rows (not forecasts of any real player or game) |
+| `examples/*.example.jsonl` | **Synthetic** example rows (not forecasts of any real player or game) |
 | `ADOPTION.md` | How each sport repo emits the sidecar and where market quotes go |
+| `PROP_EXPLORER.md` | The Combined Player Prop Explorer contract (`prop_explorer_projection.v1` and `.v2`), built on top of pure_forecast.v1 rows |
+| `prop_explorer.py`, `schema/prop_explorer_projection.v1.schema.json`, `types/` | Its validator/converter (stdlib), JSON Schema and TypeScript declarations |
+| `prop_explorer_v2.py`, `schema/prop_explorer_projection.v2.schema.json`, `types/prop_explorer_projection.v2.d.ts` | The v2 explorer **row** (`prop_explorer_projection.v2`): projections side by side with provenance (`market_informed`), Kalshi quotes, fee-aware edges, bet-up-to prices and computed display labels; upgrader from v1 |
+| `examples/prop_explorer/` | Explorer examples built from **real** committed research outputs of the sport repos (v1 and v2), plus **synthetic** v2 display-rule fixtures |
 | `accuracy_scorecard.py` | Projection accuracy scorecard (MAE/RMSE/bias, coverage, PIT, CRPS, Brier/log/RPS, clustered head-to-heads, breakdowns; stdlib only). See `SCORECARDS.md` |
 | `value_scorecard.py` | Betting value scorecard (executable Kalshi prices at or before as_of, fees, slippage, one decision per player-game-stat, verdict; stdlib only). See `SCORECARDS.md` |
 | `SCORECARDS.md` | Metrics, approximations, anti-hindsight rules, the accuracy vs betting-value promotion split, vendoring |

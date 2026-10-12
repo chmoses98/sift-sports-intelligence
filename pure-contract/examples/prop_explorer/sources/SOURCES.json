@@ -1,0 +1,74 @@
+[
+  {
+    "arm": "challenger",
+    "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+    "conversion": null,
+    "file": "mlb_challenger.v1.jsonl",
+    "file_sha256": "3a56dac687d10a199e64309d2e0aed72f671a7ff1e1273dd47d52afb4b9dd7ac",
+    "path": "data/research/pitcher_workload_joint/holdout_2025_2026/challenger.pure_v1.sample300.jsonl",
+    "repo": "chmoses98/edge-finder-api",
+    "rows": 3,
+    "selection": "first (game_id, player_id) in sorted order with statistics ['pitcher_batters_faced', 'pitcher_outs', 'pitcher_strikeouts'] in every arm (challenger, champion): game_id=778510, player_id=608379; all of that player-game's rows",
+    "sport": "MLB"
+  },
+  {
+    "arm": "champion",
+    "commit": "6a50874bb9f2dbb9b8576a5765433661871e9f02",
+    "conversion": null,
+    "file": "mlb_champion.v1.jsonl",
+    "file_sha256": "762847c93fbfb9750537729c5da546faee468fe475fb1b2de9af27980a80c82f",
+    "path": "data/research/pitcher_workload_joint/holdout_2025_2026/champion.pure_v1.sample300.jsonl",
+    "repo": "chmoses98/edge-finder-api",
+    "rows": 3,
+    "selection": "first (game_id, player_id) in sorted order with statistics ['pitcher_batters_faced', 'pitcher_outs', 'pitcher_strikeouts'] in every arm (challenger, champion): game_id=778510, player_id=608379; all of that player-game's rows",
+    "sport": "MLB"
+  },
+  {
+    "arm": "pure_player_v1",
+    "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+    "conversion": "pure_forecast.v0 -> v1 with chmoses98/nfl-edge-finder:scripts/research/pure_player_v1_v1sidecar.py at 762d69df61d1 --frozen git:0441dfc",
+    "file": "nfl_pure_player_v1.v1.jsonl",
+    "file_sha256": "7a7e17ed97d5f427398732b2922c6688609fe78b92b563c9a5a7d90c4709869e",
+    "path": "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_PLAYER_V1.forecasts.jsonl.gz",
+    "repo": "chmoses98/nfl-edge-finder",
+    "rows": 4,
+    "selection": "first (game_id, player_id) in sorted order with statistics ['receiving_yards', 'receptions', 'snap_share', 'targets'] in every arm (pure_player_v1, pure_ewm_baseline): game_id=2025_15_ARI_HOU, player_id=00-0033439; all of that player-game's rows",
+    "sport": "NFL"
+  },
+  {
+    "arm": "pure_ewm_baseline",
+    "commit": "762d69df61d153f4f1ec4fb9edd03344b2708db1",
+    "conversion": "pure_forecast.v0 -> v1 with chmoses98/nfl-edge-finder:scripts/research/pure_player_v1_v1sidecar.py at 762d69df61d1 --frozen git:0441dfc",
+    "file": "nfl_pure_ewm_baseline.v1.jsonl",
+    "file_sha256": "72a3b22f8cb751b5b5acebc2340188530288744150a9ca813b1af7a5c4d4671f",
+    "path": "research/pure_player_v1/sidecars/SAMPLE_2025_wk15-18.PURE_EWM_BASELINE.forecasts.jsonl.gz",
+    "repo": "chmoses98/nfl-edge-finder",
+    "rows": 4,
+    "selection": "first (game_id, player_id) in sorted order with statistics ['receiving_yards', 'receptions', 'snap_share', 'targets'] in every arm (pure_player_v1, pure_ewm_baseline): game_id=2025_15_ARI_HOU, player_id=00-0033439; all of that player-game's rows",
+    "sport": "NFL"
+  },
+  {
+    "arm": "sim_rotation_unc",
+    "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+    "conversion": null,
+    "file": "nba_sim_rotation_unc.v1.jsonl",
+    "file_sha256": "3fba69b57d6a17254d53ec1b8775a6191b554a9d6f201df1183770252031c9ee",
+    "path": "docs/research/w1_nba/sidecars_sample/pure_sim_rotation_unc.v1.jsonl.gz",
+    "repo": "chmoses98/nba-edge-finder",
+    "rows": 5,
+    "selection": "first (game_id, player_id) in sorted order with statistics ['assists', 'minutes', 'points', 'rebounds', 'threes'] in every arm (sim_rotation_unc, sim_challenger_unc): game_id=espn:401810557, player_id=-2999547; all of that player-game's rows",
+    "sport": "NBA"
+  },
+  {
+    "arm": "sim_challenger_unc",
+    "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+    "conversion": null,
+    "file": "nba_sim_challenger_unc.v1.jsonl",
+    "file_sha256": "bb140fcd6ffb6b7f91ba78762c487a46b5ed24345a55557567fffdf1f6416465",
+    "path": "docs/research/w1_nba/sidecars_sample/pure_sim_challenger_unc.v1.jsonl.gz",
+    "repo": "chmoses98/nba-edge-finder",
+    "rows": 5,
+    "selection": "first (game_id, player_id) in sorted order with statistics ['assists', 'minutes', 'points', 'rebounds', 'threes'] in every arm (sim_rotation_unc, sim_challenger_unc): game_id=espn:401810557, player_id=-2999547; all of that player-game's rows",
+    "sport": "NBA"
+  }
+]

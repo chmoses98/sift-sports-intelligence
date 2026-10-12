@@ -1,0 +1,319 @@
+{
+  "capture": {
+    "builder": "pure-contract/prop_explorer.py convert (prop_explorer 1.0.0)",
+    "capture_mode": "historical_research_replay",
+    "captured_at": "2026-10-11T03:00:00Z"
+  },
+  "coverage": {
+    "NBA_BASELINE_2026_PRESEASON_V1:sim-rotation": {
+      "assists": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8869,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "minutes": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8185,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "points": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8435,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "rebounds": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8685,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "threes": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.927,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      }
+    },
+    "sim_challenger": {
+      "assists": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8853,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "minutes": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8181,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "points": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8432,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "rebounds": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.8675,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      },
+      "threes": {
+        "evidence_id": "scorecard",
+        "n_games": 501,
+        "n_rows": 14763,
+        "observed": 0.9259,
+        "scope": "2026-02-01..2026-04-12 holdout, unconditional, every eligible player-game"
+      }
+    }
+  },
+  "drivers": {
+    "NBA_BASELINE_2026_PRESEASON_V1:sim-rotation": {
+      "ewm5_min_mean": {
+        "label": "Minutes mean, EWM-5 (feature layer)",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "n_prior_played_team": {
+        "label": "Prior games played for this team",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "p_play_feature": {
+        "label": "Participation probability (feature layer)",
+        "matchup_role": "not_matchup",
+        "role": "participation"
+      },
+      "p_start": {
+        "label": "Probability of starting (feature layer)",
+        "matchup_role": "not_matchup",
+        "role": "participation"
+      }
+    },
+    "sim_challenger": {
+      "ewm5_min_mean": {
+        "label": "Minutes mean, EWM-5 (feature layer)",
+        "matchup_role": "not_matchup",
+        "role": "workload"
+      },
+      "n_prior_played_team": {
+        "label": "Prior games played for this team",
+        "matchup_role": "not_matchup",
+        "role": "history_depth"
+      },
+      "p_play_feature": {
+        "label": "Participation probability (feature layer)",
+        "matchup_role": "not_matchup",
+        "role": "participation"
+      },
+      "p_start": {
+        "label": "Probability of starting (feature layer)",
+        "matchup_role": "not_matchup",
+        "role": "participation"
+      }
+    }
+  },
+  "game_defaults": {
+    "season": "2025-26",
+    "season_type": "regular"
+  },
+  "notes": [
+    "season and season_type: the holdout is the 2025-26 regular season (MATCHED_DECOMPOSITION.md)."
+  ],
+  "null_reasons": {
+    "distribution.pmf": "the source sidecar publishes quantiles and a threshold ladder, not the full probability mass function",
+    "game.away_team_id": "not carried by the source sidecar; resolve from the schedule by game_id",
+    "game.home_team_id": "not carried by the source sidecar; resolve from the schedule by game_id",
+    "game.is_home": "the source sidecar does not carry the player's team, so home/away is not known from it",
+    "game.opponent_team_id": "the source sidecar does not carry the player's team, so the opponent is not known from it",
+    "game.week": "NBA has no schedule weeks",
+    "game_script": "neither source arm publishes a player projection conditional on game script",
+    "player.name": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.position": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_abbr": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "player.team_id": "not carried by the source sidecar (pure_forecast.v1 identifies the player by player_id only); the explorer resolves it from its own player registry",
+    "provenance.conversion": "the source rows are already pure_forecast.v1 and are copied byte for byte",
+    "validation.source_verdict": "the source evaluated this model only as a comparator and issued no verdict on it"
+  },
+  "units": {
+    "assists": "assists",
+    "minutes": "minutes",
+    "points": "points",
+    "rebounds": "rebounds",
+    "threes": "three-pointers made"
+  },
+  "validation": {
+    "NBA_BASELINE_2026_PRESEASON_V1:sim-rotation": {
+      "caveats": [
+        "Incumbent champion in a diagnostic holdout: on the full population it has lower unconditional MAE/CRPS than EWM-5 for minutes, points, rebounds and assists (threes MAE tie); conditional on actually playing, EWM-5 has the lower MAE on minutes, points, rebounds and threes.",
+        "No injury reports are read (none are committed historically); inputs are box rows dated strictly before the game date from a retrospective backfill (2026-09-19)."
+      ],
+      "compared_against": [
+        "EWM5_BASELINE_W1",
+        "sim_challenger"
+      ],
+      "evidence": [
+        {
+          "commit": "5f50cb3b0251d1176cadc67fdbae3511bad1f233",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PREREG_W1_NBA_DECOMPOSITION.md",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/5f50cb3b0251d1176cadc67fdbae3511bad1f233/docs/research/PREREG_W1_NBA_DECOMPOSITION.md"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "results",
+          "kind": "results",
+          "path": "docs/research/MATCHED_DECOMPOSITION.md",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/MATCHED_DECOMPOSITION.md"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "docs/research/w1_nba/scorecard_holdout.json",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/w1_nba/scorecard_holdout.json"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "docs/research/w1_nba/pg_rerun.json",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/w1_nba/pg_rerun.json"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #21",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/pull/21"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "docs/research/w1_nba/sidecars_sample/pure_sim_rotation_unc.v1.jsonl.gz",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/w1_nba/sidecars_sample/pure_sim_rotation_unc.v1.jsonl.gz"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "every eligible player-game (pre-tip roster rule), 2026-02-01..2026-04-12, 501 games",
+        "season_type": "regular",
+        "seasons": [
+          "2025-26"
+        ],
+        "statistics": [
+          "minutes",
+          "points",
+          "rebounds",
+          "assists",
+          "threes"
+        ]
+      },
+      "source_verdict": "Champion: frozen NBA_BASELINE_2026_PRESEASON_V1 (digest 5a4cbda0…193be78), unchanged.",
+      "status": "NOT_VALIDATED"
+    },
+    "sim_challenger": {
+      "caveats": [
+        "RATE_PRIOR_5: threes p10-p90 coverage and threes bias worsen with CIs excluding zero, the gate's 3-quantile CRPS CI spans zero, and it over-corrects the bottom usage tercile.",
+        "The sidecar's model_frozen_hash is the champion's parameter digest; the challenger is the champion with BuildConfig.player_prior_minutes 60 -> 5 (preregistration)."
+      ],
+      "compared_against": [
+        "NBA_BASELINE_2026_PRESEASON_V1:sim-rotation",
+        "EWM5_BASELINE_W1"
+      ],
+      "evidence": [
+        {
+          "commit": "5f50cb3b0251d1176cadc67fdbae3511bad1f233",
+          "id": "prereg",
+          "kind": "preregistration",
+          "path": "docs/research/PREREG_W1_NBA_DECOMPOSITION.md",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/5f50cb3b0251d1176cadc67fdbae3511bad1f233/docs/research/PREREG_W1_NBA_DECOMPOSITION.md"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "results",
+          "kind": "results",
+          "path": "docs/research/MATCHED_DECOMPOSITION.md",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/MATCHED_DECOMPOSITION.md"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "scorecard",
+          "kind": "scorecard",
+          "path": "docs/research/w1_nba/scorecard_holdout.json",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/w1_nba/scorecard_holdout.json"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "rerun",
+          "kind": "rerun",
+          "path": "docs/research/w1_nba/pg_rerun.json",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/w1_nba/pg_rerun.json"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "pr",
+          "kind": "pull_request",
+          "path": "PR #21",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/pull/21"
+        },
+        {
+          "commit": "1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6",
+          "id": "sample",
+          "kind": "sidecar_sample",
+          "path": "docs/research/w1_nba/sidecars_sample/pure_sim_challenger_unc.v1.jsonl.gz",
+          "repo": "chmoses98/nba-edge-finder",
+          "url": "https://github.com/chmoses98/nba-edge-finder/blob/1742b74b4148a5b97e55ad2ff78cc5cdd9d6b0a6/docs/research/w1_nba/sidecars_sample/pure_sim_challenger_unc.v1.jsonl.gz"
+        }
+      ],
+      "research_only": true,
+      "scope": {
+        "population": "every eligible player-game (pre-tip roster rule), 2026-02-01..2026-04-12, 501 games",
+        "season_type": "regular",
+        "seasons": [
+          "2025-26"
+        ],
+        "statistics": [
+          "minutes",
+          "points",
+          "rebounds",
+          "assists",
+          "threes"
+        ]
+      },
+      "source_verdict": "REJECTED — strict criteria applied (2026-10-11 review). Not promoted.",
+      "status": "REJECTED"
+    }
+  },
+  "workload": {
+    "measure": "minutes",
+    "statistic": "minutes",
+    "unit": "minutes"
+  }
+}

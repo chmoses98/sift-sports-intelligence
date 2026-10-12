@@ -28,6 +28,7 @@ import './styles/fidelity-hubs.css';
 import './styles/script-5.css';
 import './styles/lane-a-brand.css';
 import './styles/lane-a-hero.css';
+import './styles/clash-hero.css';
 import './styles/lane-a-type.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

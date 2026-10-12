@@ -10,7 +10,7 @@ import { recordOf } from '../../lib/gamedata';
 import { CONTEXT_NOTE, CONTEXT_TITLE, venueWeather, venueWeatherLine, type GameWeather } from '../../lib/venue';
 import { displayName, until } from '../../lib/format';
 import { routes } from '../../lib/routes';
-import { teamColors } from '../../lib/teams';
+import { teamColors, teamLogo } from '../../lib/teams';
 import { mlbClub } from '../../lib/mlb';
 import { nhlTeam } from '../../lib/nhlTeams';
 import { cfbName } from '../../lib/cfbTeams';
@@ -19,7 +19,7 @@ import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFromResearch } from '../../lib/hero/input';
 import type { HeroSpec, HeroVenue } from '../../lib/hero/types';
 import { HeroArt, heroVars } from '../../components/HeroArt';
-import { accentOnDark } from '../../lib/hero/accent';
+import { accentOnDark, clashPalette } from '../../lib/hero/accent';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -160,9 +160,15 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       ? ev.competition?.replace(/^MLB\s+\d{4}\s*/i, '').replace(/^\w/, (c) => c.toUpperCase()) ?? null
       : ev.competition?.replace(/^\d{4}\s*(REG\s*)?/i, '').replace(/^week/i, 'Week');
   const wl = weatherLine(wx);
+  // Team-colour clash (src/styles/clash-hero.css): opposing floodlights in each club's own hot/cool pair. NFL for now.
+  const clash = sportCode === 'NFL';
+  const hp = clashPalette([hc, hc2]);
+  const ap = clashPalette([ac, ac2]);
+  const clashVars = clash ? { ['--ch-hot' as string]: hp.hot, ['--ch-cool' as string]: hp.cool, ['--ca-hot' as string]: ap.hot, ['--ca-cool' as string]: ap.cool } : {};
   return (
-    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hAccent, ['--fx-away' as string]: aAccent }} {...heroData(spec)}>
+    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}${clash ? ' gh--clash' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hAccent, ['--fx-away' as string]: aAccent, ...clashVars }} {...heroData(spec)}>
       <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /><span className="gh__light" /></div>
+      {clash && <ClashLayer away={teamLogo(sportCode, awayAbbr)} home={teamLogo(sportCode, homeAbbr)} />}
       <span className="gh__edge" aria-hidden="true" />
       <HeroIdentity spec={spec} sportCode={sportCode} />
       <div className="gh__in">
@@ -187,6 +193,22 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
         </Link>
       )}
     </header>
+  );
+}
+
+/** The decorative clash layer: a floodlit half-frame per club, light shafts, a dark neutral core and each club's mark scaled up behind the names. */
+function ClashLayer({ away, home }: { away: string | null; home: string | null }) {
+  return (
+    <div className="gh__clash" aria-hidden="true">
+      <span className="gh__flood gh__flood--away" />
+      <span className="gh__flood gh__flood--home" />
+      <span className="gh__shafts gh__shafts--away" />
+      <span className="gh__shafts gh__shafts--home" />
+      {away && <img className="gh__big gh__big--away" src={away} alt="" decoding="async" draggable={false} />}
+      {home && <img className="gh__big gh__big--home" src={home} alt="" decoding="async" draggable={false} />}
+      <span className="gh__core" />
+      <span className="gh__bokeh" />
+    </div>
   );
 }
 

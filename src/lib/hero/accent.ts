@@ -61,3 +61,25 @@ export function accentOnDark(colors: readonly [string, string] | readonly string
   }
   return '#ffffff';
 }
+
+/** HSL saturation × lightness weight: how "lit" a colour reads against black (navy and black score low, gold and red high). */
+function vividness(hex: string): number {
+  const c = rgb(hex);
+  if (!c) return 0;
+  const [r, g, b] = c.map((v) => v / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  return (mx - mn) * (0.35 + mx);
+}
+
+/**
+ * The team-colour clash palette: each club's two colours split into the one that lights the frame ("hot": gold,
+ * red, orange — the most vivid) and the one that fills it ("cool": the royal blue, lifted to be visible). Two clubs
+ * therefore read as different even when both are blue (Rams gold + blue against Bills red + blue).
+ */
+export function clashPalette(colors: readonly string[]): { hot: string; cool: string } {
+  const valid = colors.filter((c) => rgb(c));
+  if (!valid.length) return { hot: '#8fd0ff', cool: '#3b6fd8' };
+  const [first, second = first] = [...valid].sort((a, b) => vividness(b) - vividness(a));
+  const cool = lift(second, 0.28);
+  return { hot: accentOnDark([first]), cool: contrast(cool, SURFACE) >= 3 ? cool : accentOnDark([second]) };
+}

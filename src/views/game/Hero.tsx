@@ -20,6 +20,7 @@ import { heroInputFromResearch } from '../../lib/hero/input';
 import type { HeroSpec, HeroVenue } from '../../lib/hero/types';
 import { HeroArt, heroVars } from '../../components/HeroArt';
 import { accentOnDark, clashPalette } from '../../lib/hero/accent';
+import { heroArtwork } from '../../lib/hero/artwork';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -84,7 +85,7 @@ export function WeatherBlock({ wx, compact }: { wx: GameWeather; compact?: boole
   );
 }
 
-function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won, accent }: { side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean; accent: string }) {
+function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won, accent, full }: { full?: boolean; side: 'away' | 'home'; pid: string; name: string; abbr: string; prof?: EntityProfileDoc | null; sportCode: string; slug: string; score?: number | null; won?: boolean; accent: string }) {
   // Broadcast identity (approved reference 02): the club's city small, its code huge in the condensed face, the
   // record under it, the logo toward the centre. College names are not "City Nickname" ("Iowa St.", "Florida
   // International") and CFB never shows contract codes: CFB's huge line is the school's canonical name.
@@ -97,7 +98,7 @@ function Side({ side, pid, name, abbr, prof, sportCode, slug, score, won, accent
       <div className="gh__tn">
         {!college && <span className="gh__city"><span className="gh__cityname">{city || nick}</span></span>}
         <Link to={routes.team(slug, pid)} className={`gh__name${college ? ' gh__name--school' : ''}${college && nick.length > 9 ? ' gh__name--long' : ''}`}>
-          {college ? nick : abbr}{!college && <span className="sr-only"> {name}</span>}
+          {college || full ? nick : abbr}{!college && <span className="sr-only"> {name}</span>}
         </Link>
         <i className="gh__rule" aria-hidden="true" />
         {rec && <span className="gh__rec num">{rec.text}<span className="sr-only"> record</span></span>}
@@ -162,12 +163,14 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
   const wl = weatherLine(wx);
   // Team-colour clash (src/styles/clash-hero.css): opposing floodlights in each club's own hot/cool pair. NFL for now.
   const clash = sportCode === 'NFL';
+  const art = heroArtwork(sportCode, awayAbbr, homeAbbr);
   const hp = clashPalette([hc, hc2]);
   const ap = clashPalette([ac, ac2]);
   const clashVars = clash ? { ['--ch-hot' as string]: hp.hot, ['--ch-cool' as string]: hp.cool, ['--ca-hot' as string]: ap.hot, ['--ca-cool' as string]: ap.cool } : {};
   return (
-    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}${clash ? ' gh--clash' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hAccent, ['--fx-away' as string]: aAccent, ...clashVars }} {...heroData(spec)}>
+    <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}${clash ? ' gh--clash' : ''}${art ? ' gh--art' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hAccent, ['--fx-away' as string]: aAccent, ...clashVars }} {...heroData(spec)}>
       <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /><span className="gh__light" /></div>
+      {art && <ArtworkLayer art={art} />}
       {clash && <ClashLayer away={teamLogo(sportCode, awayAbbr)} home={teamLogo(sportCode, homeAbbr)} />}
       <span className="gh__edge" aria-hidden="true" />
       <HeroIdentity spec={spec} sportCode={sportCode} />
@@ -181,18 +184,29 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
           {!stats && wl && <span className={wx.flag ? 'gh__wx gh__wx--flag' : 'gh__wx'}><Icon name={wx.icon} size={15} /> {wl}{wx.flag ? ` · ${wx.flag}` : ''}</span>}
         </p>
         <div className="gh__teams">
-          <Side side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} accent={aAccent} />
+          <Side full={!!art} side="away" pid={awayP.participant_id} name={awayP.display_name} abbr={awayAbbr} prof={awayProf} sportCode={sportCode} slug={slug} score={final ? res?.away_score : null} won={final && res?.away_score > res?.home_score} accent={aAccent} />
           <span className="gh__at" aria-hidden="true">{final ? 'final' : atWord(spec)}</span>
-          <Side side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} accent={hAccent} />
+          <Side full={!!art} side="home" pid={homeP.participant_id} name={homeP.display_name} abbr={homeAbbr} prof={homeProf} sportCode={sportCode} slug={slug} score={final ? res?.home_score : null} won={final && res?.home_score > res?.away_score} accent={hAccent} />
         </div>
       </div>
       {stats && <div className="gh__stats">{stats}</div>}
+      {art && <span className="gh__artnote">{art.label}</span>}
       {spec.photo && (
         <Link to={`${routes.status()}#photo-credits`} className="gh__credit">
           Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}
         </Link>
       )}
     </header>
+  );
+}
+
+/** The approved matchup artwork behind the hero (decorative; the label says what it is). */
+function ArtworkLayer({ art }: { art: NonNullable<ReturnType<typeof heroArtwork>> }) {
+  return (
+    <div className="gh__art" aria-hidden="true">
+      <img src={art.srcSmall} srcSet={`${art.srcSmall} 1200w, ${art.src} 2171w`} sizes="100vw" alt="" decoding="async" fetchPriority="high" draggable={false} />
+      <span className="gh__artshade" />
+    </div>
   );
 }
 

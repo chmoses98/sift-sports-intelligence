@@ -83,3 +83,51 @@
   .gh__flood, .gh__shafts { animation: gh-clash-breathe 9s ease-in-out infinite alternate; }
   @keyframes gh-clash-breathe { from { opacity: 0.92; } to { opacity: 1; } }
 }
+
+/* ==========================================================================
+   Approved matchup artwork (lib/hero/artwork.ts, Rams–Bills only). The image is the backdrop; every number and name
+   stays live text above it. The clash layer stays on as a quiet colour wash, the photographic gradients step aside.
+   ========================================================================== */
+.gh--art { min-height: 620px; background: #020a14; }
+.gh--art .gh__bg, .gh--art .gh__clash .gh__big, .gh--art .gh__clash .gh__core, .gh--art .gh__clash .gh__bokeh, .gh--art .gh__clash .gh__shafts { display: none; }
+.gh__art { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.gh__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 8%; }
+/* Shade only where text sits: a soft dark pool behind the centre column and a floor under the stat strip. */
+.gh__artshade { position: absolute; inset: 0; background:
+  radial-gradient(26% 46% at 50% 38%, rgba(1, 8, 18, 0.55), transparent 100%),
+  linear-gradient(180deg, rgba(1, 6, 12, 0.35) 0, transparent 22%, transparent 52%, rgba(1, 6, 12, 0.78) 80%, rgba(1, 6, 12, 0.96) 100%); }
+.gh--art .gh__clash { opacity: 0.4; z-index: 0; }
+.gh--art .gh__in { z-index: 1; width: min(560px, 100%); margin: 0 auto; padding-top: 44px; min-height: 0; }
+.gh--art .gh__meta { text-shadow: 0 2px 16px rgba(0, 0, 0, 1), 0 0 28px rgba(0, 0, 0, 0.8); }
+.gh--art .gh__teams { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; }
+.gh--art .gh__team, .gh--art .gh__team--away, .gh--art .gh__team--home { flex-direction: column !important; align-items: center; text-align: center; gap: 4px; }
+.gh--art .gh__tn { justify-items: center; }
+.gh--art .gh__team .gh__rule { justify-self: center; }
+.gh--art .gh__team .teammark--xl { width: 96px; height: 96px; }
+.gh--art .gh__name { font-size: clamp(2.6rem, 4.4vw, 3.9rem); text-shadow: 0 3px 24px rgba(0, 0, 0, 1), 0 0 40px rgba(0, 0, 0, 0.8); }
+.gh--art .gh__city, .gh--art .gh__rec { text-shadow: 0 2px 14px rgba(0, 0, 0, 1); }
+.gh--art .gh__at { font-size: 1.5rem; padding-bottom: 60px; }
+.gh--art .gh__stats { z-index: 1; }
+.gh--art .gh__id { z-index: 2; }
+.gh__artnote { position: absolute; right: 14px; top: 14px; z-index: 2; font-size: 0.66rem; letter-spacing: 0.04em; color: rgba(236, 244, 252, 0.7); background: rgba(2, 10, 20, 0.6); padding: 3px 8px; border-radius: 999px; }
+.gh--art .ghs .fx-stat { background: linear-gradient(180deg, rgba(8, 24, 44, 0.72), rgba(2, 10, 20, 0.86)); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+
+@media (min-width: 1100px) {
+  .gh--art { min-height: 640px; }
+  .gh--art .gh__in { padding-top: 70px; }
+  .gh--art .gh__team .teammark--xl { width: 112px; height: 112px; }
+}
+@media (max-width: 719px) {
+  .gh--art { min-height: 0; }
+  .gh__art { bottom: auto; height: 205px; }
+  .gh__art img { object-position: 50% 12%; }
+  .gh__artshade { background: linear-gradient(180deg, rgba(1, 6, 12, 0.3) 0, transparent 25%, rgba(2, 11, 20, 0.5) 62%, #020b14 100%); }
+  .gh--art .gh__in { padding: 128px 12px 8px; }
+  .gh--art .gh__meta { font-size: 0.74rem; }
+  .gh--art .gh__lg { font-size: 0.95rem; }
+  .gh--art .gh__team .teammark--xl { width: 60px; height: 60px; }
+  .gh--art .gh__name { font-size: 2.1rem; }
+  .gh--art .gh__city { display: block; font-size: 0.7rem; }
+  .gh--art .gh__at { font-size: 0.95rem; padding-bottom: 30px; }
+  .gh__artnote { position: static; align-self: flex-end; margin: 0 12px 8px; font-size: 0.6rem; }
+}

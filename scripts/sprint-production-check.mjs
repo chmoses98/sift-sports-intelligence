@@ -260,6 +260,46 @@ async function homeCheck(page, ctx) {
   await page.screenshot({ path: `production-sprint-${dev}-home.png` });
 }
 
+// #22: Home's Top Props — at most 10 props, never padded, each with a line, freshness and an authority word; multi-select
+// saves to My Board; every prop opens the explorer. An honest empty state passes.
+async function homeTopPropsCheck(page, ctx, deep) {
+  await page.goto(BASE + '#/');
+  const sec = page.locator('section.htp');
+  await sec.waitFor({ timeout: 60_000 });
+  await sec.locator('.htp-pick, .htp__empty').first().waitFor({ timeout: 90_000 });
+  const picks = sec.locator('.htp-pick');
+  const n = await picks.count();
+  const empty = await sec.locator('.htp__empty').count();
+  check((n > 0 && n <= 10) || (n === 0 && empty > 0), `#22 Home Top Props: ${n} props shown (≤ 10${empty ? ', honest empty state' : ''})`);
+  const text = await sec.innerText();
+  check(!/% chance|best bet|\block\b|guaranteed/i.test(text) && !BROKEN.test(text), '#22 Home Top Props never reads as a chance or a pick; no undefined/NaN');
+  if (n > 0) {
+    const auth = (await sec.locator('.htp-pick .htp-auth').allTextContents()).map((t) => t.trim());
+    check(auth.length === n && auth.every((w) => ['Validated', 'Research candidate', 'Research only'].includes(w)), `#22 every prop carries its authority word (${[...new Set(auth)].join(' / ')})`);
+    const lines = await sec.locator('.htp-pick .htp-num--line').count();
+    check(lines === n, `#22 every prop shows its market line (${lines}/${n})`);
+    const fresh = await sec.locator('.htp-pick .htp-pick__foot').allTextContents();
+    check(fresh.length === n && fresh.every((t) => /ago|now|Line/i.test(t)), '#22 every prop shows the age of its line');
+    const href = (await sec.locator('.htp-pick a[href*="props?"]').first().getAttribute('href')) ?? '';
+    check(/#\/nfl\/props\?game=/.test(href), `#22 a prop opens the Player Prop Explorer (${href.slice(0, 60)})`);
+    check((await sec.getByRole('link', { name: /Open the Player Prop Explorer/ }).getAttribute('href')) === '#/props', '#22 the section header opens /props');
+    if (deep && n >= 2) {
+      const boxes = sec.locator('.htp-pick__chk input[type="checkbox"]:not([disabled])');
+      if ((await boxes.count()) >= 2) {
+        await boxes.nth(0).check();
+        await boxes.nth(1).check();
+        await sec.getByRole('button', { name: /Add selected to My Board/ }).click();
+        await sec.getByRole('link', { name: 'Open My Board' }).waitFor({ timeout: 10_000 });
+        const saved = await page.evaluate(() => Object.keys(localStorage).map((k) => localStorage.getItem(k) ?? '').join('').match(/"ref_kind":"MARKET"/g)?.length ?? 0);
+        check(saved >= 2, `#22 "Add selected to My Board" saves the selected props (${saved} market items on My Board)`);
+        await page.evaluate(() => localStorage.clear()); // later checks start from an empty My Board (reload drops
+        await page.reload({ waitUntil: 'domcontentloaded' }); // the in-memory board too)
+      } else na('#22 multi-select to My Board', 'fewer than two props can still be saved (games kicked off)');
+    }
+  }
+  await overflow(page, ctx, 'Home Top Props');
+}
+
 async function propsHubCheck(page, ctx) {
   await page.getByRole('navigation', { name: ctx.phone ? 'Destinations' : 'Primary' }).getByRole('link', { name: 'Props' }).click();
   await page.getByRole('heading', { name: /^Player prop explorer$/, level: 1 }).waitFor({ timeout: 60_000 });
@@ -361,6 +401,19 @@ async function scriptsCheck(page, ctx) {
   const teamWords = [T.home, T.away].flatMap((t) => [t.nick, t.city, t.abbr]).filter(Boolean);
   const generic = names.filter((n) => /Close Game Either Way|Home team|Away team|^Favou?rite|^Underdog/i.test(n) || !teamWords.some((w) => n.includes(w)));
   check(names.length >= 2 && generic.length === 0, `#8/#13 script titles name a team (${names.join(' · ')})`);
+  // #14: when the publication splits the one-score game by winner (sim-script-1.1.0 by_close_result on both teams),
+  // the Scripts tab shows two winner-specific close scripts and the tie share; otherwise the pooled script stays.
+  const er = await getJson(`${NFL_RAW}/explorer/events/${encodeURIComponent(T.id)}.json`).catch(() => null);
+  const tv = er?.extensions?.game_script_inputs?.team_volume ?? {};
+  const split = Object.values(tv).filter((t) => t?.by_close_result?.['win1-6'] && t?.by_close_result?.['lose1-6']).length >= 2;
+  const close = names.filter((n) => /Wins? a Close One$/.test(n));
+  if (split) {
+    check(close.length === 2 && [T.home, T.away].every((t) => close.some((n) => [t.nick, t.city].filter(Boolean).some((w) => n.includes(w)))), `#14 one-score game split by winner: two close scripts, one per team (${close.join(' · ')})`);
+    const note = page.getByTestId('close-split-note');
+    check((await note.count()) === 1 && /Ties after overtime: \d+(\.\d)?% of simulated games/.test(await note.innerText()), '#14 the simulated tie share is stated under the split chart');
+  } else {
+    check(close.length === 0 && names.some((n) => /Keeps? It Close$/.test(n)), `#14 no split published for this game: the pooled one-score script is kept, nothing guessed (${names.join(' · ')})`);
+  }
   const boardEl = page.getByTestId('survivor-board');
   check((await boardEl.count()) >= 1, '#16 the survivors board leads the Scripts tab');
   const surv = boardEl.first().getByTestId('survivor');
@@ -732,6 +785,7 @@ for (const [name, type, device, depth] of DEVICES) {
   try {
     await step(page, 'nav', () => navCheck(page, ctx));
     await step(page, 'home', () => homeCheck(page, ctx));
+    await step(page, 'home top props', () => homeTopPropsCheck(page, ctx, depth === 'full'));
     if (!T) {
       na('#1/#3/#8/#5/#17/#27/#38 game-page checks', 'the NFL board lists no game');
     } else {

@@ -192,7 +192,7 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
       </div>
       {stats && <div className="gh__stats">{stats}</div>}
       {art && <span className="gh__artnote">{art.label}</span>}
-      {spec.photo && (
+      {spec.photo && !art && (
         <Link to={`${routes.status()}#photo-credits`} className="gh__credit">
           Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}
         </Link>

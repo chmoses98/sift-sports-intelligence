@@ -268,8 +268,18 @@ async function homeTopPropsCheck(page, ctx, deep) {
   await sec.waitFor({ timeout: 60_000 });
   await sec.locator('.htp-pick, .htp__empty').first().waitFor({ timeout: 90_000 });
   const picks = sec.locator('.htp-pick');
-  const n = await picks.count();
-  const empty = await sec.locator('.htp__empty').count();
+  // Read the section once it has settled: two equal readings a second apart that show picks or the empty state.
+  // A reading with neither (the section back on its skeleton) is logged, so a real flicker stays visible.
+  const read = async () => [await picks.count(), await sec.locator('.htp__empty').count()];
+  let [n, empty] = await read();
+  for (let i = 0, prev = ''; i < 30; i++) {
+    if ((n > 0 || empty > 0) && prev === `${n}/${empty}`) break;
+    if (n === 0 && empty === 0) console.log(`  note: Home Top Props showed neither picks nor its empty state at reading ${i + 1} (skeleton or re-render)`);
+    prev = `${n}/${empty}`;
+    await page.waitForTimeout(1_000);
+    await sec.waitFor({ timeout: 60_000 });
+    [n, empty] = await read();
+  }
   check((n > 0 && n <= 10) || (n === 0 && empty > 0), `#22 Home Top Props: ${n} props shown (≤ 10${empty ? ', honest empty state' : ''})`);
   const text = await sec.innerText();
   check(!/% chance|best bet|\block\b|guaranteed/i.test(text) && !BROKEN.test(text), '#22 Home Top Props never reads as a chance or a pick; no undefined/NaN');

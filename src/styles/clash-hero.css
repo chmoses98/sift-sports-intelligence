@@ -131,3 +131,42 @@
   .gh--art .gh__at { font-size: 0.95rem; padding-bottom: 30px; }
   .gh__artnote { margin: 0 12px 8px; font-size: 0.6rem; }
 }
+
+/* ==========================================================================
+   Homepage featured matchup with the approved artwork (views/broadcast/parts.tsx FeaturedHero, .fh2--art). Same
+   artwork, same gate (lib/hero/artwork.ts) and the same layout idea as the game-page hero: players on the outside,
+   the matchup in a dark centre column, the glass board along the foot.
+   ========================================================================== */
+.fhero.fh2.fh2--art { min-height: 620px; background: #020a14; }
+.fh2__art { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; }
+.fh2__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 8%; }
+.fhero.fh2.fh2--art .fhero__shade { background:
+  radial-gradient(28% 40% at 50% 46%, rgba(1, 8, 18, 0.62), transparent 100%),
+  linear-gradient(180deg, rgba(1, 6, 12, 0.3) 0, transparent 24%, transparent 50%, rgba(1, 6, 12, 0.78) 80%, rgba(1, 6, 12, 0.96) 100%); }
+.fh2--art .fh2__edge { background: linear-gradient(90deg, var(--fa) 0 50%, var(--fh) 50% 100%); }
+.fh2--art .fhero__in { min-height: 620px; }
+.fh2--art .fh2__top { justify-content: center; gap: 10px; }
+.fh2--art .fh2__match { width: min(560px, 100%); margin: auto auto 0; gap: 8px; }
+.fh2--art .fh2__team, .fh2--art .fh2__team--home { flex-direction: column; align-items: center; text-align: center; gap: 4px; }
+.fh2--art .fh2__nm, .fh2--art .fh2__team--home .fh2__nm { justify-items: center; }
+.fh2--art .fh2__rule { margin-inline: auto; }
+.fh2--art .fh2__logo .teammark--xl, .fh2--art .fh2__logo img { width: 104px; height: 104px; }
+.fh2--art .fh2__nm b { font-size: clamp(2.6rem, 4.2vw, 3.9rem); text-shadow: 0 3px 24px #000, 0 0 40px rgba(0, 0, 0, 0.8); }
+.fh2--art .fh2__nm small, .fh2--art .fh2__at, .fh2--art .fh2__venue { text-shadow: 0 2px 14px #000; }
+.fh2--art .fh2__at { align-self: center; padding-bottom: 40px; color: #fff; }
+.fh2--art .fh2__board { background: linear-gradient(180deg, rgba(8, 24, 44, 0.72), rgba(2, 10, 20, 0.86)); }
+.fh2--art .fh2__credit--art { z-index: 2; color: rgba(236, 244, 252, 0.9); font-size: 0.68rem; max-width: 90%; background: rgba(2, 10, 20, 0.72); padding: 3px 9px; border-radius: 999px; }
+.fh2--art .fh2__cta { position: relative; z-index: 2; }
+@media (min-width: 1100px) { .fhero.fh2.fh2--art, .fh2--art .fhero__in { min-height: 660px; } }
+@media (max-width: 719px) {
+  .fhero.fh2.fh2--art, .fh2--art .fhero__in { min-height: 0; }
+  .fh2__art { bottom: auto; height: 215px; }
+  .fh2__art img { bottom: auto; height: 172px; object-position: 50% 10%; -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent); mask-image: linear-gradient(180deg, #000 70%, transparent); }
+  .fhero.fh2.fh2--art .fhero__shade { background: linear-gradient(180deg, rgba(1, 6, 12, 0.3) 0, transparent 25%, rgba(2, 11, 20, 0.5) 62%, #020b14 100%); }
+  .fhero.fh2.fh2--art .fhero__in { padding-top: 176px; }   /* the pills sit under the artwork, not on the helmets */
+  .fh2--art .fh2__match { margin-top: 0; }
+  .fh2--art .fh2__credit--art { bottom: 8px; right: 10px; font-size: 0.6rem; }
+  .fh2--art .fh2__logo .teammark--xl, .fh2--art .fh2__logo img { width: 64px; height: 64px; }
+  .fh2--art .fh2__nm b { font-size: 2.1rem; }
+  .fh2--art .fh2__at { padding-bottom: 28px; }
+}

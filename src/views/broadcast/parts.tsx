@@ -23,6 +23,7 @@ import { matchupInsights } from '../../insights/matchups';
 import { atWord, gameWeather, heroData, splitName, weatherLine } from '../game/Hero';
 import { Info } from '../game/panels';
 import { accentOnDark } from '../../lib/hero/accent';
+import { heroArtwork } from '../../lib/hero/artwork';
 import { marketTag, modelTag } from '../../lib/hero/copy';
 import { KIND_WORD, type Discovery } from '../../intelligence/discoveries';
 import type { GameRow } from './games';
@@ -113,9 +114,15 @@ export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
   ) : null;
   const wxText = wx ? weatherLine(wx) : null;
   const venue = spec.venue?.name ?? g.item.competition ?? '';
+  // Approved illustrative artwork for exactly this matchup (lib/hero/artwork.ts, the same matcher the game page uses).
+  const art = heroArtwork(g.sport, g.away?.short_name, g.home?.short_name);
   return (
-    <article className={`fhero fh2 fhero--${spec.kind}${spec.photo ? '' : ' fhero--nophoto'}${logoSport ? '' : ' fh2--text'}`} style={{ ...heroVars(spec), ['--fa' as string]: awayCol, ['--fh' as string]: homeCol }} aria-labelledby="fhero-t" {...heroData(spec)}>
-      <div className="fhero__img" aria-hidden="true"><HeroArt spec={spec} variant="hero" /></div>
+    <article className={`fhero fh2 fhero--${spec.kind}${spec.photo ? '' : ' fhero--nophoto'}${logoSport ? '' : ' fh2--text'}${art ? ' fh2--art' : ''}`} style={{ ...heroVars(spec), ['--fa' as string]: awayCol, ['--fh' as string]: homeCol }} aria-labelledby="fhero-t" {...heroData(spec)}>
+      {art ? (
+        <div className="fh2__art" aria-hidden="true"><img src={art.srcSmall} srcSet={`${art.srcSmall} 1200w, ${art.src} 2171w`} sizes="100vw" alt="" decoding="async" fetchPriority="high" draggable={false} /></div>
+      ) : (
+        <div className="fhero__img" aria-hidden="true"><HeroArt spec={spec} variant="hero" /></div>
+      )}
       <div className="fhero__shade" aria-hidden="true" />
       <div className="fh2__edge" aria-hidden="true" />
       <div className="fhero__in fh2__in">
@@ -188,7 +195,7 @@ export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
           {set && <Link to={routes.game(g.slug, g.item.event_id, { tab: 'script' })} className="btn btn--glass">Game scripts</Link>}
         </div>
       </div>
-      {spec.photo && <span className="fh2__credit">Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}</span>}
+      {art ? <span className="fh2__credit fh2__credit--art">{art.label}</span> : spec.photo && <span className="fh2__credit">Photo: {spec.photo.credit.artist.slice(0, 40)} · {spec.photo.credit.license}</span>}
     </article>
   );
 }

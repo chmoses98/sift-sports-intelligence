@@ -86,7 +86,7 @@ function FeaturedSide({ sport, p, city, nick, accent, side }: { sport: string; p
  * the Sift projection, the market, the model's win chance and the key matchup. Each limitation is one short phrase;
  * the publication's full wording is one tap away (the info buttons), never a paragraph on the hero.
  */
-export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
+export function FeaturedHero({ g, now, scope = 'today' }: { g: GameRow; now: number; scope?: 'today' | 'upcoming' }) {
   const research = useGameResearch(g.slug, g.item.event_id);
   const r = research.data ?? null;
   const spec = useMemo(() => resolveHero(heroInputFor(g.item, r, g.sport)), [g.item, r, g.sport]);
@@ -127,7 +127,7 @@ export function FeaturedHero({ g, now }: { g: GameRow; now: number }) {
       <div className="fh2__edge" aria-hidden="true" />
       <div className="fhero__in fh2__in">
         <div className="fh2__top">
-          <span className="fh2__eyebrow">{nav && <SportMark slug={g.slug} icon={nav.icon} size={14} />}<span>Featured · {nav?.label ?? g.sport}</span></span>
+          <span className="fh2__eyebrow">{nav && <SportMark slug={g.slug} icon={nav.icon} size={14} />}<span>{scope === 'upcoming' ? `Upcoming ${nav?.label ?? g.sport} feature` : `Featured · ${nav?.label ?? g.sport}`}</span></span>
           <span className="fh2__when"><b>{kickoff(g.item.start_time_utc)}</b>{g.startMs > now ? <span> · {until(g.item.start_time_utc, now)}</span> : null}</span>
         </div>
         <h2 className="fh2__match" id="fhero-t">

@@ -37,7 +37,7 @@ export function RailTile({ g }: { g: GameRow }) {
 }
 
 /** Today's games as one horizontal rail of sport groups, with scroll buttons on wide screens and a View all link. */
-export function GameRail({ groups, viewAll, empty }: { groups: RailGroup[]; viewAll: string; empty?: ReactNode }) {
+export function GameRail({ groups, viewAll, empty, day, dayWord = 'today' }: { groups: RailGroup[]; viewAll: string; empty?: ReactNode; day?: 'tomorrow' | 'week'; dayWord?: string }) {
   const ref = useRef<HTMLUListElement>(null);
   const scroll = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * Math.max(240, ref.current.clientWidth * 0.8), behavior: 'smooth' });
   const total = groups.reduce((n, x) => n + x.total, 0);
@@ -50,13 +50,13 @@ export function GameRail({ groups, viewAll, empty }: { groups: RailGroup[]; view
           const nav = navSport(x.slug);
           return [
             <li key={`h:${x.slug}`} className="rail__grp">
-              <Link to={routes.games({ sport: x.slug })} className="rail__grpa" aria-label={`${nav?.label ?? x.sport}: ${x.total} games today`}>
+              <Link to={routes.games({ sport: x.slug, day })} className="rail__grpa" aria-label={`${nav?.label ?? x.sport}: ${x.total} games ${dayWord}`}>
                 {nav && <SportMark slug={x.slug} icon={nav.icon} size={20} />}<b>{nav?.label ?? x.sport}</b><small className="bnum">{x.total}</small>
               </Link>
             </li>,
             ...x.games.map((g) => <li key={`${g.slug}:${g.item.event_id}`}><RailTile g={g} /></li>),
             ...(x.total > x.games.length ? [
-              <li key={`m:${x.slug}`} className="rail__end"><Link to={routes.games({ sport: x.slug })} className="rail__all rail__all--more"><Icon name="grid" size={18} /><span>{x.total - x.games.length} more {nav?.label ?? x.sport}</span></Link></li>,
+              <li key={`m:${x.slug}`} className="rail__end"><Link to={routes.games({ sport: x.slug, day })} className="rail__all rail__all--more"><Icon name="grid" size={18} /><span>{x.total - x.games.length} more {nav?.label ?? x.sport}</span></Link></li>,
             ] : []),
           ];
         })}

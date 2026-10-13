@@ -97,7 +97,7 @@ describe('My Board', () => {
 
 describe('slates', () => {
   const now = new Date(2026, 9, 10, 12, 0).getTime();
-  it('keeps today a local calendar day, with games from the last three hours', () => {
+  it('keeps today a local calendar day (live and finished games of today included)', () => {
     expect(inDay(new Date(2026, 9, 10, 20, 0).getTime(), now, 'today')).toBe(true);
     expect(inDay(new Date(2026, 9, 11, 1, 0).getTime(), now, 'today')).toBe(false);
     expect(inDay(new Date(2026, 9, 11, 1, 0).getTime(), now, 'tomorrow')).toBe(true);

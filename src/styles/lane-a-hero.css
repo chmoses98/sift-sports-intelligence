@@ -26,7 +26,7 @@
 
 /* The matchup: logo, city, the club name huge in Barlow Condensed, a rule in the club colour. */
 .fh2__match { margin: auto 0 0; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--s-5); }
-.fh2__team { display: flex; align-items: center; gap: var(--s-4); min-width: 0; }
+.fh2__team { display: flex; align-items: center; gap: var(--s-4); min-width: 0; container-type: inline-size; }
 .fh2__team--home { flex-direction: row-reverse; text-align: right; }
 .fh2__logo { flex: 0 0 auto; display: grid; place-items: center; filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.65)); }
 .fh2__logo .teammark--xl, .fh2__logo img { width: 96px; height: 96px; }
@@ -34,8 +34,11 @@
 .fh2__nm { display: grid; justify-items: start; min-width: 0; }
 .fh2__team--home .fh2__nm { justify-items: end; }
 .fh2__nm small { font-family: var(--font-cond); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(236, 244, 252, 0.82); }
-.fh2__nm b { font-family: var(--font-cond); font-weight: 700; font-size: clamp(2.4rem, 4.4vw, 4.1rem); line-height: 0.92; letter-spacing: 0.005em; text-transform: uppercase; color: #fff;
-  text-shadow: 0 4px 26px rgba(0, 0, 0, 0.75); overflow-wrap: anywhere; }
+/* Fit, never break: the size is the lesser of the design size and what lets the LONGEST word (--nm-chars, set per team) fit the
+   team's column, so "INTERNATIONAL" is never split into "INTERNATIONA / L"; multi-word names wrap between words, balanced. */
+.fh2__nm b { --nm-max: clamp(2.4rem, 4.4vw, 4.1rem); --nm-avail: calc(100cqw - 96px - var(--s-4)); font-size: max(0.8rem, min(var(--nm-max), calc(var(--nm-avail) / (var(--nm-chars, 8) * 0.56))));
+  text-wrap: balance; word-break: normal; hyphens: manual; font-family: var(--font-cond); font-weight: 700; line-height: 0.92; letter-spacing: 0.005em; text-transform: uppercase; color: #fff;
+  text-shadow: 0 4px 26px rgba(0, 0, 0, 0.75); overflow-wrap: normal; }
 .fh2__rule { display: block; width: 64px; height: 4px; margin-top: 10px; border-radius: 2px; background: var(--tc); box-shadow: 0 0 16px color-mix(in srgb, var(--tc) 70%, transparent); }
 .fh2__at { font-family: var(--font-cond); font-weight: 600; font-size: 1.3rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(236, 244, 252, 0.8); text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9); }
 .fh2--text .fh2__logo { display: none; }
@@ -100,7 +103,7 @@
   .fh2__logo .teammark--xl, .fh2__logo img { width: 64px; height: 64px; }
   .fh2__logo .pmark--lg { width: 56px; height: 56px; font-size: 1.15rem; }
   .fh2__nm small { font-size: 0.74rem; letter-spacing: 0.14em; }
-  .fh2__nm b { font-size: clamp(1.45rem, 7.2vw, 2rem); }
+  .fh2__nm b { --nm-max: clamp(1.45rem, 7.2vw, 2rem); --nm-avail: 100cqw; }
   .fh2__rule { width: 40px; height: 3px; margin: 7px auto 0; }
   .fh2__at { font-size: 0.95rem; padding-bottom: 34px; }
   .fh2__venue { font-size: 0.82rem; }

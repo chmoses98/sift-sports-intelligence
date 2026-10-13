@@ -151,7 +151,7 @@
 .fh2--art .fh2__nm, .fh2--art .fh2__team--home .fh2__nm { justify-items: center; }
 .fh2--art .fh2__rule { margin-inline: auto; }
 .fh2--art .fh2__logo .teammark--xl, .fh2--art .fh2__logo img { width: 104px; height: 104px; }
-.fh2--art .fh2__nm b { font-size: clamp(2.6rem, 4.2vw, 3.9rem); text-shadow: 0 3px 24px #000, 0 0 40px rgba(0, 0, 0, 0.8); }
+.fh2--art .fh2__nm b { --nm-max: clamp(2.6rem, 4.2vw, 3.9rem); --nm-avail: 100cqw; text-shadow: 0 3px 24px #000, 0 0 40px rgba(0, 0, 0, 0.8); }
 .fh2--art .fh2__nm small, .fh2--art .fh2__at, .fh2--art .fh2__venue { text-shadow: 0 2px 14px #000; }
 .fh2--art .fh2__at { align-self: center; padding-bottom: 40px; color: #fff; }
 .fh2--art .fh2__board { background: linear-gradient(180deg, rgba(8, 24, 44, 0.72), rgba(2, 10, 20, 0.86)); }
@@ -167,6 +167,6 @@
   .fh2--art .fh2__match { margin-top: 0; }
   .fh2--art .fh2__credit--art { bottom: 8px; right: 10px; font-size: 0.6rem; }
   .fh2--art .fh2__logo .teammark--xl, .fh2--art .fh2__logo img { width: 64px; height: 64px; }
-  .fh2--art .fh2__nm b { font-size: 2.1rem; }
+  .fh2--art .fh2__nm b { --nm-max: 2.1rem; }
   .fh2--art .fh2__at { padding-bottom: 28px; }
 }

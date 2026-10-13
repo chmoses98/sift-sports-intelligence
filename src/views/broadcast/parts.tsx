@@ -68,8 +68,10 @@ function Cell({ k, info, v, sub, tag, className }: { k: string; info?: ReactNode
 
 /** A team's side of the featured matchup: logo, city small, name large, and a rule in the club's own colour. */
 function FeaturedSide({ sport, p, city, nick, accent, side }: { sport: string; p: Participant | undefined; city: string; nick: string; accent: string; side: 'away' | 'home' }) {
+  // The longest word sets the type size (src/styles/lane-a-hero.css .fh2__nm b): a name is never broken inside a word.
+  const longest = Math.max(1, ...nick.split(/\s+/).map((w) => w.length));
   return (
-    <span className={`fh2__team fh2__team--${side}`} style={{ ['--tc' as string]: accent }}>
+    <span className={`fh2__team fh2__team--${side}`} style={{ ['--tc' as string]: accent, ['--nm-chars' as string]: longest }}>
       <span className="fh2__logo"><PMark sport={sport} p={p} size="lg" /></span>
       <span className="fh2__nm">
         {city && <small>{city}</small>}

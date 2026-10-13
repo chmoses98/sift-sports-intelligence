@@ -22,7 +22,7 @@ import { useVisit } from '../state/trail';
 import { buildDiscoveries } from '../intelligence/discoveries';
 import { matchupInsights } from '../insights/matchups';
 import { mismatchDiscovery } from '../intelligence/discoveries';
-import { featuredGame, gameRows, inDay, railGroups, slateOrder } from './broadcast/games';
+import { featuredGame, featuredScope, gameRows, inDay, inLater, railGroups, slateOrder } from './broadcast/games';
 import { DiscoveryCard, FeaturedHero, useGameResearch } from './broadcast/parts';
 import { GameRail } from './broadcast/rail';
 import { BoardPreview } from './board/BoardPreview';
@@ -69,7 +69,14 @@ export function HomeView() {
   const sportFilter = sp.get('sport');
   const rows = useMemo(() => gameRows(all.bundles, all.opportunities, now), [all.bundles, all.opportunities, now]);
   const today = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'today')).sort(slateOrder), [rows, now]);
+  const tomorrow = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'tomorrow')).sort(slateOrder), [rows, now]);
+  const later = useMemo(() => rows.filter((g) => inLater(g.startMs, now)).sort(slateOrder), [rows, now]);
   const groups = useMemo(() => railGroups(today, sportFilter), [today, sportFilter]);
+  const tomorrowGroups = useMemo(() => railGroups(tomorrow, sportFilter), [tomorrow, sportFilter]);
+  const laterGroups = useMemo(() => railGroups(later, sportFilter), [later, sportFilter]);
+  const tomorrowTotal = tomorrowGroups.reduce((n, x) => n + x.total, 0);
+  const laterTotal = laterGroups.reduce((n, x) => n + x.total, 0);
+  const tomorrowWord = new Date(new Date(now).getFullYear(), new Date(now).getMonth(), new Date(now).getDate() + 1).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
   const counts = useMemo(() => {
     const m = new Map<string, number>();
     for (const g of today) m.set(g.slug, (m.get(g.slug) ?? 0) + 1);
@@ -101,7 +108,7 @@ export function HomeView() {
       </header>
 
       <section className="bsec bhome__feat" aria-label="Featured matchup">
-        {all.loading ? <div className="fhero fhero--skel"><Skeleton lines={5} tall /></div> : featured ? <FeaturedHero g={featured} now={now} /> : <div className="bempty"><h3>No upcoming game to feature</h3><p>Every listed game has started or finished. Open <Link to={routes.games()}>Games</Link> for finals.</p></div>}
+        {all.loading ? <div className="fhero fhero--skel"><Skeleton lines={5} tall /></div> : featured ? <FeaturedHero g={featured} now={now} scope={featuredScope(featured, now)} /> : <div className="bempty"><h3>No upcoming game to feature</h3><p>Every listed game has started or finished. Open <Link to={routes.games()}>Games</Link> for finals.</p></div>}
       </section>
 
       <section className="bsec bhome__games" aria-labelledby="rail-h">
@@ -121,6 +128,25 @@ export function HomeView() {
           <GameRail groups={groups} viewAll={routes.games({ sport: sportFilter })} empty={<div className="bempty"><h3>No games today{sportFilter ? ' in this sport' : ''}</h3><p>The publications list nothing starting today. <Link to={routes.games({ day: 'week' })}>See the next seven days</Link>.</p></div>} />
         )}
       </section>
+
+      {!all.loading && tomorrowTotal > 0 && (
+        <section className="bsec bhome__games bhome__games--next" aria-labelledby="tomorrow-h">
+          <div className="bsec__h">
+            <h2 className="bsec__t" id="tomorrow-h"><Icon name="clock" size={20} /> Tomorrow · {tomorrowWord} <small className="bnum">{tomorrowTotal}</small></h2>
+            <Link to={routes.games({ sport: sportFilter, day: 'tomorrow' })} className="bsec__more">All tomorrow <Icon name="arrowRight" size={14} /></Link>
+          </div>
+          <GameRail groups={tomorrowGroups} viewAll={routes.games({ sport: sportFilter, day: 'tomorrow' })} day="tomorrow" dayWord="tomorrow" />
+        </section>
+      )}
+      {!all.loading && laterTotal > 0 && (
+        <section className="bsec bhome__games bhome__games--next" aria-labelledby="later-h">
+          <div className="bsec__h">
+            <h2 className="bsec__t" id="later-h"><Icon name="clock" size={20} /> Later this week <small className="bnum">{laterTotal}</small></h2>
+            <Link to={routes.games({ sport: sportFilter, day: 'week' })} className="bsec__more">Next 7 days <Icon name="arrowRight" size={14} /></Link>
+          </div>
+          <GameRail groups={laterGroups} viewAll={routes.games({ sport: sportFilter, day: 'week' })} day="week" dayWord="later this week" />
+        </section>
+      )}
 
       <Suspense fallback={<section className="bsec bhome__props" aria-label="Top props"><Skeleton lines={4} tall /></section>}>
         <HomeTopProps opportunities={all.opportunities} now={now} />

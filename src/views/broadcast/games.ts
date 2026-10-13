@@ -31,17 +31,35 @@ export interface GameRow {
 export type DayWindow = 'today' | 'tomorrow' | 'week';
 export const DAY_WORD: Record<DayWindow, string> = { today: 'Today', tomorrow: 'Tomorrow', week: 'Next 7 days' };
 
-const DAY = 86_400_000;
+/** The local calendar day (year, month, day) a timestamp falls on, as one comparable number. */
+function dayNum(ms: number): number {
+  const d = new Date(ms);
+  return d.getFullYear() * 10_000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
 
-/** Local calendar window for a start time. Today keeps games that started in the last three hours. */
+/** The local calendar day `n` days after `ms`'s own day. Built from calendar fields, never `+ n * 24h`, so a 23- or 25-hour
+ *  daylight-saving day cannot shift the boundary. */
+function dayNumPlus(ms: number, n: number): number {
+  const d = new Date(ms);
+  return dayNum(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n).getTime());
+}
+
+/**
+ * Whether a start time falls on the user's local calendar day (today), the next one (tomorrow) or one of the next seven
+ * (week = today through six days on). It is the SCHEDULED local date that decides, so live and finished games of today
+ * stay in Today and a game that starts after local midnight is tomorrow's, whatever its UTC date.
+ */
 export function inDay(startMs: number, now: number, w: DayWindow): boolean {
   if (!Number.isFinite(startMs)) return false;
-  const d0 = new Date(now);
-  d0.setHours(0, 0, 0, 0);
-  const dayStart = d0.getTime();
-  if (w === 'today') return startMs >= Math.min(now - 3 * 3600_000, dayStart) && startMs < dayStart + DAY;
-  if (w === 'tomorrow') return startMs >= dayStart + DAY && startMs < dayStart + 2 * DAY;
-  return startMs >= Math.min(now - 3 * 3600_000, dayStart) && startMs < dayStart + 7 * DAY;
+  const k = dayNum(startMs);
+  if (w === 'today') return k === dayNum(now);
+  if (w === 'tomorrow') return k === dayNumPlus(now, 1);
+  return k >= dayNum(now) && k <= dayNumPlus(now, 6);
+}
+
+/** Games after tomorrow and within the next seven local days ("later this week"). */
+export function inLater(startMs: number, now: number): boolean {
+  return Number.isFinite(startMs) && dayNum(startMs) > dayNumPlus(now, 1) && dayNum(startMs) <= dayNumPlus(now, 6);
 }
 
 export function gameRows(bundles: SportBundle[], opportunities: Opportunity[], now: number): GameRow[] {
@@ -86,22 +104,42 @@ export function hasVenuePhoto(g: GameRow): boolean {
   }
 }
 
-/** Sports whose venue art and research make the richest featured hero, in order of preference. */
-const FEATURE_PREF = ['NFL', 'CFB', 'NHL', 'MLB', 'NBA', 'SOCCER', 'CBB', 'TENNIS'];
+/** Sports whose venue art and research make the richest featured hero, in order of preference. CFB leads for now. */
+const FEATURE_PREF = ['CFB', 'NFL', 'NHL', 'MLB', 'NBA', 'SOCCER', 'CBB', 'TENNIS'];
 
 /**
- * The featured matchup: a pregame game within 36 hours, preferring one whose home venue has a licensed photograph,
- * then the sport order above (the richest published research first), then a game whose own publication flags a
- * candidate, then the most markets listed, then the earliest start. A documented rule over published fields,
- * never a hidden score; null when nothing is upcoming.
+ * The featured matchup. Only a game that has not started is eligible. Selection, in order:
+ *  1. a CFB game scheduled for the user's local TODAY (the featured card is then an ordinary "Featured" card);
+ *  2. otherwise the next CFB game on a later day (the card says "Upcoming CFB Feature": it is never passed off as today's);
+ *  3. with no CFB game at all, the same two steps over every sport (today first, then the next day with games).
+ * Within a step: a game whose home venue has a licensed photograph, then the sport order above, then a game whose own
+ * publication flags a candidate, then the most markets listed, then the earliest start. A documented rule over
+ * published fields, never a hidden score (and no market-volume or best-bet ranking yet); null when nothing is upcoming.
  */
 export function featuredGame(rows: GameRow[], now: number): GameRow | null {
-  const soon = rows.filter((g) => g.phase === 'PREGAME' && g.startMs > now && g.startMs - now < 36 * 3600_000 && g.home && g.away);
-  const pool = soon.length ? soon : rows.filter((g) => g.phase === 'PREGAME' && g.startMs > now && g.home && g.away);
-  if (!pool.length) return null;
+  const open = rows.filter((g) => g.phase === 'PREGAME' && g.startMs > now && g.home && g.away);
+  if (!open.length) return null;
   const pref = (g: GameRow) => { const i = FEATURE_PREF.indexOf(g.sport); return i < 0 ? 99 : i; };
-  const photo = new Map(pool.map((g) => [g, hasVenuePhoto(g)]));
-  return [...pool].sort((a, b) => Number(photo.get(b)) - Number(photo.get(a)) || pref(a) - pref(b) || (b.candidates > 0 ? 1 : 0) - (a.candidates > 0 ? 1 : 0) || b.item.markets_available - a.item.markets_available || a.startMs - b.startMs)[0];
+  const best = (pool: GameRow[]): GameRow => {
+    const photo = new Map(pool.map((g) => [g, hasVenuePhoto(g)]));
+    return [...pool].sort((a, b) => pref(a) - pref(b) || Number(photo.get(b)) - Number(photo.get(a)) || (b.candidates > 0 ? 1 : 0) - (a.candidates > 0 ? 1 : 0) || b.item.markets_available - a.item.markets_available || a.startMs - b.startMs)[0];
+  };
+  const cfb = open.filter((g) => g.sport === 'CFB');
+  const todayCfb = cfb.filter((g) => inDay(g.startMs, now, 'today'));
+  if (todayCfb.length) return best(todayCfb);
+  if (cfb.length) {
+    const next = dayNum(Math.min(...cfb.map((g) => g.startMs)));
+    return best(cfb.filter((g) => dayNum(g.startMs) === next));
+  }
+  const today = open.filter((g) => inDay(g.startMs, now, 'today'));
+  if (today.length) return best(today);
+  const first = Math.min(...open.map((g) => g.startMs));
+  return best(open.filter((g) => dayNum(g.startMs) === dayNum(first)));
+}
+
+/** "today" when the featured game is scheduled for the user's local today; "upcoming" when it is a later day's game. */
+export function featuredScope(g: GameRow, now: number): 'today' | 'upcoming' {
+  return inDay(g.startMs, now, 'today') ? 'today' : 'upcoming';
 }
 
 /** Clock words for a tile: "7:30 PM", "Live", "Final", "Postponed". */

@@ -14,6 +14,12 @@
 // win by 1–6" and "<underdog> win by 1–6" — and reports the simulated tie share beside them (ties settle neither
 // winner's moneyline, so they are not folded into either). Earlier publications keep the pooled one-score script.
 //
+// CALIBRATION GATE. The split is shown ONLY when the publication explicitly authorises it:
+// extensions.game_script_inputs.calibration_gates.close_win_split = { status: 'SHOW', displayable: true } (nfl-edge-finder
+// nfl_edge/handicap/script_block.close_split_gate, from research/game_script_v2/close_split_calibration.json). A missing,
+// malformed or SUPPRESS gate — including every publication that predates the gate — keeps the pooled script. Authorisation is never
+// inferred from the shares adding up: shares that sum to within6 say the arithmetic holds, not that the split is calibrated.
+//
 // Script fit is exact only where a market settles on the final margin (moneyline, full-game spread):
 // for those, each bucket is a closed integer range and either always, never or partly satisfies the
 // market. Totals, team totals, props and period markets need a joint (margin × points) script output the
@@ -87,6 +93,8 @@ export interface ScriptSet {
   source: string | null;
   /** What the simulator does not model (from the publication). */
   notSimulated: string[];
+  /** Whether the close game is split by winner, and the publication's calibration gate behind it. */
+  closeSplit: { shown: boolean; gate: 'SHOW' | 'SUPPRESS' | 'MISSING' | 'INVALID' };
 }
 
 interface Bucket {
@@ -143,7 +151,8 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
   if (!homeP || !awayP || !hb) return null;
   const total = Object.values(hb).reduce((a, b) => a + (b?.share_of_rows ?? 0), 0);
   if (!(total > 0.95 && total < 1.05)) return null;
-  const split = closeSplit(hb, tv?.[homeAbbr]?.by_close_result, tv?.[awayAbbr]?.by_close_result);
+  const auth = closeSplitAuthorization(gsi?.calibration_gates);
+  const split = auth === 'SHOW' ? closeSplit(hb, tv?.[homeAbbr]?.by_close_result, tv?.[awayAbbr]?.by_close_result) : null;
 
   // Home-margin bucket k ↔ the away team's own bucket MIRROR[k].
   const sum = (keys: (keyof Buckets)[]) => {
@@ -215,7 +224,22 @@ export function gameScripts(r: EventResearchDoc): ScriptSet | null {
     sc.line = margin[sc.id];
     sc.detail = clause;
   }
-  return { scripts, fav, homeAbbr, awayAbbr, names: name, tie: split ? split.tie : null, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [] };
+  return { scripts, fav, homeAbbr, awayAbbr, names: name, tie: split ? split.tie : null, overall: { home: all.home, away: all.away }, source: gsi?.script_source ?? null, notSimulated: gsi?.not_simulated ?? [], closeSplit: { shown: !!split, gate: auth } };
+}
+
+/**
+ * The publication's explicit authorisation to show the close-win split. Only `{ status: 'SHOW', displayable: true }` authorises;
+ * SUPPRESS, an absent gate (older publications) and anything malformed or unknown do not (fail closed).
+ */
+export function closeSplitAuthorization(gates: unknown): 'SHOW' | 'SUPPRESS' | 'MISSING' | 'INVALID' {
+  if (gates == null) return 'MISSING';
+  const g = typeof gates === 'object' ? (gates as Record<string, unknown>).close_win_split : undefined;
+  if (g == null) return 'MISSING';
+  if (typeof g !== 'object') return 'INVALID';
+  const { status, displayable } = g as { status?: unknown; displayable?: unknown };
+  if (status === 'SHOW' && displayable === true) return 'SHOW';
+  if (status === 'SUPPRESS' && displayable === false) return 'SUPPRESS';
+  return 'INVALID';
 }
 
 /** Slack between the split's shares and within6 (each is rounded to 4 places by the publication). */

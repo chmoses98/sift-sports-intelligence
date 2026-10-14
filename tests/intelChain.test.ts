@@ -21,10 +21,12 @@ const BUF = { 'win1-6': { share_of_rows: 0.2259, pass_rate_mean: 0.5871, pass_at
 const NE = { 'win1-6': { share_of_rows: 0.1358, pass_rate_mean: 0.6012, pass_att_mean: 31.2, rush_att_mean: 28.4, plays_mean: 62.8 }, tie: { share_of_rows: 0.0024 }, 'lose1-6': { share_of_rows: 0.2259, pass_rate_mean: 0.6355, pass_att_mean: 32.6, rush_att_mean: 26.9, plays_mean: 62.5 } };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function withSplit(): EventResearchDoc {
+function withSplit(gate: 'SHOW' | 'SUPPRESS' | null = 'SHOW'): EventResearchDoc {
   const r = structuredClone(base) as any;
   r.extensions.game_script_inputs.team_volume.BUF.by_close_result = BUF;
   r.extensions.game_script_inputs.team_volume.NE.by_close_result = NE;
+  // The split is displayed only on the publication's explicit calibration authorisation (calibration-gates-1.0.0).
+  if (gate) r.extensions.game_script_inputs.calibration_gates = { version: 'calibration-gates-1.0.0', close_win_split: { status: gate, displayable: gate === 'SHOW' } };
   return r as EventResearchDoc;
 }
 
@@ -99,6 +101,20 @@ describe('the matchup-to-market chain', () => {
     expect(c.counter.source).toBe('publication');
     expect(c.counter.text).toMatch(/other side \(NO\)/);
     expect(judge('x', 'y', 'YES', [], null)).toEqual({ kind: 'none' });
+  });
+
+  it('keeps the pooled close game, four scripts and no tie share, when the split is suppressed, ungated or malformed', () => {
+    for (const r of [withSplit('SUPPRESS'), withSplit(null)]) {
+      const c = chainFor(r, 'run');
+      expect(c.scripts?.list.map((s) => s.id).sort()).toEqual(['close', 'dog', 'fav', 'fav-big']);
+      expect(c.scripts?.total).toBe(4);
+      expect(c.scripts?.tie).toBeNull();
+      expect(c.markets.find((m) => m.marketId === mlBuf.market_id)!.survival).not.toMatch(/of 5 scripts/);
+    }
+    // status and displayable must agree: a half-authorisation is not an authorisation
+    const half = withSplit('SHOW') as any;
+    half.extensions.game_script_inputs.calibration_gates.close_win_split.displayable = 'true';
+    expect(chainFor(half, 'run').scripts?.tie).toBeNull();
   });
 
   it('reads the split close-game scripts: five scripts, the tie share stated, exact fits re-derived', () => {

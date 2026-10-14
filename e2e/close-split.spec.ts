@@ -1,6 +1,7 @@
 // Owner item #14: the NFL one-score game split by winner. The bundled NE @ BUF publication predates sim-script-1.1.0,
 // so the test attaches `by_close_result` with shares that satisfy the upstream identities (tests/closeSplit.test.ts):
-// BUF by 1–6 = 0.2259, tie 0.0024, NE by 1–6 = 0.1358 (sum = within6 0.3641). Without it the pooled script stays.
+// BUF by 1–6 = 0.2259, tie 0.0024, NE by 1–6 = 0.1358 (sum = within6 0.3641). Without it the pooled script stays. The split is shown
+// only with the publication's explicit calibration authorisation (calibration_gates.close_win_split = SHOW); shares that add up are not enough.
 import { expect, NEBUF, noHorizontalOverflow, NOW, test } from './fixtures';
 
 const BUF = { 'win1-6': { share_of_rows: 0.2259, pass_rate_mean: 0.5871, pass_att_mean: 32.4, rush_att_mean: 29.6, plays_mean: 64.4 }, tie: { share_of_rows: 0.0024, n_rows: 48, note: 'too few rows' }, 'lose1-6': { share_of_rows: 0.1358, pass_rate_mean: 0.6281, pass_att_mean: 34.4, rush_att_mean: 27.0, plays_mean: 64.2 } };
@@ -14,6 +15,7 @@ test('the one-score game is two winner-specific scripts with exact fits, and the
     const doc = await resp.json();
     doc.extensions.game_script_inputs.team_volume.BUF.by_close_result = BUF;
     doc.extensions.game_script_inputs.team_volume.NE.by_close_result = NE;
+    doc.extensions.game_script_inputs.calibration_gates = { version: 'calibration-gates-1.0.0', close_win_split: { status: 'SHOW', displayable: true } };
     await route.fulfill({ response: resp, json: doc });
   });
   await page.goto(`./#/nfl/game/${NEBUF}?tab=script`);
@@ -39,4 +41,29 @@ test('without the split the pooled one-score script is kept, never guessed @jour
   await expect(page.getByText('Patriots Keep It Close').filter({ visible: true }).first()).toBeVisible();
   await expect(page.getByText('Bills Win a Close One')).toHaveCount(0);
   await expect(page.getByTestId('close-split-note')).toHaveCount(0);
+  await expect(page.getByTestId('close-split-held-note')).toBeVisible();
 });
+
+for (const [name, gates] of [
+  ['an explicit DO NOT SHOW SPLIT gate', { version: 'calibration-gates-1.0.0', close_win_split: { status: 'SUPPRESS', displayable: false } }],
+  ['no gate at all (a legacy publication)', undefined],
+  ['a malformed gate', { close_win_split: { status: 'SHOW', displayable: 'true' } }],
+] as const) {
+  test(`${name} keeps the pooled script even when valid split shares are attached @journey`, async ({ page }) => {
+    await page.context().route(new RegExp(`/data/nfl/app/latest/explorer/events/${NEBUF}\\.json`), async (route) => {
+      const resp = await route.fetch();
+      const doc = await resp.json();
+      doc.extensions.game_script_inputs.team_volume.BUF.by_close_result = BUF;
+      doc.extensions.game_script_inputs.team_volume.NE.by_close_result = NE;
+      if (gates) doc.extensions.game_script_inputs.calibration_gates = gates;
+      await route.fulfill({ response: resp, json: doc });
+    });
+    await page.goto(`./#/nfl/game/${NEBUF}?tab=script`);
+    await expect(page.getByRole('heading', { name: 'Choose a script' })).toBeVisible();
+    await expect(page.getByText('Patriots Keep It Close').filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('Bills Win a Close One')).toHaveCount(0);
+    await expect(page.getByText('Patriots Win a Close One')).toHaveCount(0);
+    await expect(page.getByTestId('close-split-note')).toHaveCount(0);
+    await expect(page.getByTestId('close-split-held-note')).toBeVisible();
+  });
+}

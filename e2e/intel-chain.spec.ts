@@ -33,6 +33,7 @@ test('with the close game split, the chain reads five scripts and the tie share 
     const doc = await resp.json();
     doc.extensions.game_script_inputs.team_volume.BUF.by_close_result = BUF;
     doc.extensions.game_script_inputs.team_volume.NE.by_close_result = NE;
+    doc.extensions.game_script_inputs.calibration_gates = { version: 'calibration-gates-1.0.0', close_win_split: { status: 'SHOW', displayable: true } };
     await route.fulfill({ response: resp, json: doc });
   });
   await page.goto(`./#/intelligence?d=${encodeURIComponent(RUN)}`);

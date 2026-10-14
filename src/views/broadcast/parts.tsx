@@ -27,6 +27,7 @@ import { heroArtwork } from '../../lib/hero/artwork';
 import { marketTag, modelTag } from '../../lib/hero/copy';
 import { KIND_WORD, type Discovery } from '../../intelligence/discoveries';
 import type { GameRow } from './games';
+import { featuredView } from './lifecycle';
 import { halfRound, heroNumbers, spreadText } from './numbers';
 import '../../styles/lane-e-intel.css';
 
@@ -67,7 +68,7 @@ function Cell({ k, info, v, sub, tag, className }: { k: string; info?: ReactNode
 }
 
 /** A team's side of the featured matchup: logo, city small, name large, and a rule in the club's own colour. */
-function FeaturedSide({ sport, p, city, nick, accent, side }: { sport: string; p: Participant | undefined; city: string; nick: string; accent: string; side: 'away' | 'home' }) {
+function FeaturedSide({ sport, p, city, nick, accent, side, score, won }: { sport: string; p: Participant | undefined; city: string; nick: string; accent: string; side: 'away' | 'home'; score?: number | null; won?: boolean }) {
   // The longest word sets the type size (src/styles/lane-a-hero.css .fh2__nm b): a name is never broken inside a word.
   const longest = Math.max(1, ...nick.split(/\s+/).map((w) => w.length));
   return (
@@ -77,6 +78,7 @@ function FeaturedSide({ sport, p, city, nick, accent, side }: { sport: string; p
         {city && <small>{city}</small>}
         <b>{nick}</b>
         <i className="fh2__rule" aria-hidden="true" />
+        {score != null && <span className={`fh2__score bnum${won ? ' is-win' : ''}`}><span className="sr-only">{won ? 'Final score, winner: ' : 'Final score: '}</span>{score}</span>}
       </span>
     </span>
   );
@@ -118,8 +120,11 @@ export function FeaturedHero({ g, now, scope = 'today' }: { g: GameRow; now: num
   const venue = spec.venue?.name ?? g.item.competition ?? '';
   // Approved illustrative artwork for exactly this matchup (lib/hero/artwork.ts, the same matcher the game page uses).
   const art = heroArtwork(g.sport, g.away?.short_name, g.home?.short_name);
+  // The game's own status (live / final) is read apart from the research on it (src/views/broadcast/lifecycle.ts).
+  const view = featuredView(g, (r?.extensions as { result?: unknown } | undefined)?.result);
+  const label = nav?.label ?? g.sport;
   return (
-    <article className={`fhero fh2 fhero--${spec.kind}${spec.photo ? '' : ' fhero--nophoto'}${logoSport ? '' : ' fh2--text'}${art ? ' fh2--art' : ''}`} style={{ ...heroVars(spec), ['--fa' as string]: awayCol, ['--fh' as string]: homeCol }} aria-labelledby="fhero-t" {...heroData(spec)}>
+    <article className={`fhero fh2 fhero--${spec.kind}${spec.photo ? '' : ' fhero--nophoto'}${logoSport ? '' : ' fh2--text'}${art ? ' fh2--art' : ''} fh2--${view.state}`} style={{ ...heroVars(spec), ['--fa' as string]: awayCol, ['--fh' as string]: homeCol }} aria-labelledby="fhero-t" {...heroData(spec)}>
       {art ? (
         <div className="fh2__art" aria-hidden="true"><img src={art.srcSmall} srcSet={`${art.srcSmall} 1200w, ${art.src} 2171w`} sizes="100vw" alt="" decoding="async" fetchPriority="high" draggable={false} /></div>
       ) : (
@@ -129,14 +134,15 @@ export function FeaturedHero({ g, now, scope = 'today' }: { g: GameRow; now: num
       <div className="fh2__edge" aria-hidden="true" />
       <div className="fhero__in fh2__in">
         <div className="fh2__top">
-          <span className="fh2__eyebrow">{nav && <SportMark slug={g.slug} icon={nav.icon} size={14} />}<span>{scope === 'upcoming' ? `Upcoming ${nav?.label ?? g.sport} feature` : `Featured · ${nav?.label ?? g.sport}`}</span></span>
+          <span className="fh2__eyebrow">{nav && <SportMark slug={g.slug} icon={nav.icon} size={14} />}<span>{view.state === 'pregame' ? (scope === 'upcoming' ? `Upcoming ${label} feature` : `Featured · ${label}`) : <>{view.state === 'live' && <i className="fh2__dot" aria-hidden="true" />}{view.word} · {label}</>}</span></span>
           <span className="fh2__when"><b>{kickoff(g.item.start_time_utc)}</b>{g.startMs > now ? <span> · {until(g.item.start_time_utc, now)}</span> : null}</span>
         </div>
         <h2 className="fh2__match" id="fhero-t">
-          <FeaturedSide sport={g.sport} p={g.away} city={a.city} nick={a.nick || g.away?.display_name || ''} accent={awayCol} side="away" />
-          <span className="fh2__at">{atWord(spec)}</span>
-          <FeaturedSide sport={g.sport} p={g.home} city={h.city} nick={h.nick || g.home?.display_name || ''} accent={homeCol} side="home" />
+          <FeaturedSide sport={g.sport} p={g.away} city={a.city} nick={a.nick || g.away?.display_name || ''} accent={awayCol} side="away" score={view.scores?.away} won={view.scores?.winner === 'away'} />
+          <span className={`fh2__at${view.state === 'pregame' ? '' : ` fh2__at--${view.state}`}`}>{view.state === 'pregame' ? atWord(spec) : view.state === 'live' ? 'Live' : view.state === 'final' ? 'Final' : 'Started'}</span>
+          <FeaturedSide sport={g.sport} p={g.home} city={h.city} nick={h.nick || g.home?.display_name || ''} accent={homeCol} side="home" score={view.scores?.home} won={view.scores?.winner === 'home'} />
         </h2>
+        {view.statusLine && <p className="fh2__status" role="status">{view.state === 'live' && <i className="fh2__dot" aria-hidden="true" />}{view.statusLine}</p>}
         {(venue || wxText) && (
           <p className="fh2__venue">
             {venue && <span className="fh2__vn">{venue}</span>}
@@ -148,6 +154,7 @@ export function FeaturedHero({ g, now, scope = 'today' }: { g: GameRow; now: num
             )}
           </p>
         )}
+        {view.researchLine && (hasModel || hasMarket || winModel || insight || lead) && <p className="fh2__research">{view.researchLine}</p>}
         {(hasModel || hasMarket || winModel || insight || lead) && (
           <div className="fh2__board">
             {hasModel && (

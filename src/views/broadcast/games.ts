@@ -107,39 +107,76 @@ export function hasVenuePhoto(g: GameRow): boolean {
 /** Sports whose venue art and research make the richest featured hero, in order of preference. CFB leads for now. */
 const FEATURE_PREF = ['CFB', 'NFL', 'NHL', 'MLB', 'NBA', 'SOCCER', 'CBB', 'TENNIS'];
 
+/** Where a game stands for the featured card: live now, still to come today, finished (or awaiting a result) today, or a later day's game. */
+export type FeatureTier = 'live' | 'today' | 'recent' | 'upcoming';
+const TIER_ORDER: FeatureTier[] = ['live', 'today', 'recent', 'upcoming'];
+
 /**
- * The featured matchup. Only a game that has not started is eligible. Selection, in order:
- *  1. a CFB game scheduled for the user's local TODAY (the featured card is then an ordinary "Featured" card);
- *  2. otherwise the next CFB game on a later day (the card says "Upcoming CFB Feature": it is never passed off as today's);
- *  3. with no CFB game at all, the same two steps over every sport (today first, then the next day with games).
- * Within a step: a game whose home venue has a licensed photograph, then the sport order above, then a game whose own
- * publication flags a candidate, then the most markets listed, then the earliest start. A documented rule over
- * published fields, never a hidden score (and no market-volume or best-bet ranking yet); null when nothing is upcoming.
+ * The tier a game can be featured in, or null when it cannot be featured (cancelled, postponed, suspended, no teams,
+ * yesterday's final). It is read from the publication's own status word and start time (eventPhase), never guessed:
+ *  - live: in play (started, not stale);
+ *  - today: not started, scheduled for the user's local today;
+ *  - recent: finished, or started with no final reported (awaiting a result), and scheduled for today;
+ *  - upcoming: not started, scheduled for a later day.
  */
-export function featuredGame(rows: GameRow[], now: number): GameRow | null {
-  const open = rows.filter((g) => g.phase === 'PREGAME' && g.startMs > now && g.home && g.away);
-  if (!open.length) return null;
-  const pref = (g: GameRow) => { const i = FEATURE_PREF.indexOf(g.sport); return i < 0 ? 99 : i; };
-  const best = (pool: GameRow[]): GameRow => {
-    const photo = new Map(pool.map((g) => [g, hasVenuePhoto(g)]));
-    return [...pool].sort((a, b) => pref(a) - pref(b) || Number(photo.get(b)) - Number(photo.get(a)) || (b.candidates > 0 ? 1 : 0) - (a.candidates > 0 ? 1 : 0) || b.item.markets_available - a.item.markets_available || a.startMs - b.startMs)[0];
-  };
-  const cfb = open.filter((g) => g.sport === 'CFB');
-  const todayCfb = cfb.filter((g) => inDay(g.startMs, now, 'today'));
-  if (todayCfb.length) return best(todayCfb);
-  if (cfb.length) {
-    const next = dayNum(Math.min(...cfb.map((g) => g.startMs)));
-    return best(cfb.filter((g) => dayNum(g.startMs) === next));
-  }
-  const today = open.filter((g) => inDay(g.startMs, now, 'today'));
-  if (today.length) return best(today);
-  const first = Math.min(...open.map((g) => g.startMs));
-  return best(open.filter((g) => dayNum(g.startMs) === dayNum(first)));
+export function featureTier(g: GameRow, now: number): FeatureTier | null {
+  if (!g.home || !g.away) return null;
+  const today = inDay(g.startMs, now, 'today');
+  if (g.phase === 'STARTED' && !g.stale) return 'live';
+  if (g.phase === 'PREGAME' && g.startMs > now) return today ? 'today' : 'upcoming';
+  if ((g.phase === 'FINAL' || (g.phase === 'STARTED' && g.stale)) && today) return 'recent';
+  return null;
 }
 
-/** "today" when the featured game is scheduled for the user's local today; "upcoming" when it is a later day's game. */
+/**
+ * The featured matchup, in a fixed priority: CFB first — a live CFB game, else an upcoming CFB game today, else a CFB
+ * game completed today, else the next CFB game on a later day (the card says "Upcoming CFB feature"). Only with no
+ * suitable CFB game at all does the same four steps run over every sport. Within a step: the sport order (FEATURE_PREF),
+ * a game whose home venue has a licensed photograph, a game whose own publication flags a candidate, the most markets
+ * listed, then the earliest start (the most recent start for "completed today"; the earliest day for "upcoming"). A
+ * documented rule over published fields, never a hidden score (no market-volume or best-bet ranking yet); null when
+ * nothing qualifies.
+ */
+export function featuredGame(rows: GameRow[], now: number): GameRow | null {
+  const pref = (g: GameRow) => { const i = FEATURE_PREF.indexOf(g.sport); return i < 0 ? 99 : i; };
+  const best = (pool: GameRow[], latestFirst = false): GameRow => {
+    const photo = new Map(pool.map((g) => [g, hasVenuePhoto(g)]));
+    return [...pool].sort((a, b) => pref(a) - pref(b) || Number(photo.get(b)) - Number(photo.get(a)) || (b.candidates > 0 ? 1 : 0) - (a.candidates > 0 ? 1 : 0) || b.item.markets_available - a.item.markets_available || (latestFirst ? b.startMs - a.startMs : a.startMs - b.startMs))[0];
+  };
+  const pick = (pool: GameRow[]): GameRow | null => {
+    for (const tier of TIER_ORDER) {
+      const c = pool.filter((g) => featureTier(g, now) === tier);
+      if (!c.length) continue;
+      if (tier === 'upcoming') {
+        const day = dayNum(Math.min(...c.map((g) => g.startMs)));
+        return best(c.filter((g) => dayNum(g.startMs) === day));
+      }
+      return best(c, tier === 'recent');
+    }
+    return null;
+  };
+  return pick(rows.filter((g) => g.sport === 'CFB')) ?? pick(rows);
+}
+
+/** The game id the featured card is keyed on (a board event id is only unique within its sport). */
+export const featuredKey = (g: GameRow): string => `${g.slug}:${g.item.event_id}`;
+
+/**
+ * Keeps the featured matchup steady while a page stays open. The game already featured stays featured for as long as it
+ * can still be (it moves on its own from pregame to live to final); the choice is only remade when it can no longer be
+ * featured (yesterday's final after local midnight, a postponement) or on a fresh visit (`prevKey` null).
+ */
+export function keepFeatured(prevKey: string | null, rows: GameRow[], now: number): GameRow | null {
+  if (prevKey) {
+    const prev = rows.find((g) => featuredKey(g) === prevKey);
+    if (prev && featureTier(prev, now) !== null) return prev;
+  }
+  return featuredGame(rows, now);
+}
+
+/** "today" when the featured game is scheduled for the user's local today (or is live now); "upcoming" when it is a later day's game. */
 export function featuredScope(g: GameRow, now: number): 'today' | 'upcoming' {
-  return inDay(g.startMs, now, 'today') ? 'today' : 'upcoming';
+  return featureTier(g, now) === 'upcoming' ? 'upcoming' : 'today';
 }
 
 /** Clock words for a tile: "7:30 PM", "Live", "Final", "Postponed". */

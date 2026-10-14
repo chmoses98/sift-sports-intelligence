@@ -124,9 +124,9 @@ describe('featured game: a later-day game is never presented as today’s', () =
     });
   });
 
-  it('never features a started or finished game, and returns null when nothing is upcoming', () => {
+  it('returns null when nothing can be featured: yesterday’s final and a game with no teams do not qualify', () => {
     inTZ('America/Chicago', () => {
-      expect(featuredGame([row('live', 'CFB', '2026-10-13T15:00:00Z', { phase: 'STARTED' }), row('done', 'CFB', '2026-10-13T12:00:00Z', { phase: 'FINAL' })], now)).toBeNull();
+      expect(featuredGame([row('done', 'CFB', '2026-10-12T20:00:00Z', { phase: 'FINAL' }), row('noteams', 'CFB', '2026-10-14T23:30:00Z', { home: undefined })], now)).toBeNull();
     });
   });
 });

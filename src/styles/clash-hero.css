@@ -170,3 +170,33 @@
   .fh2--art .fh2__nm b { --nm-max: 2.1rem; }
   .fh2--art .fh2__at { padding-bottom: 28px; }
 }
+
+/* ==========================================================================
+   Featured card lifecycle (views/broadcast/parts.tsx FeaturedHero, lifecycle.ts): Pregame → Live → Final on the same hero.
+   Additive only: a status chip, a centre word, the final score under each name, one status line and a muted research line.
+   Game status (live / final / score) and research status are separate lines and never share a label.
+   ========================================================================== */
+.fh2__eyebrow, .fh2__at, .fh2__status, .fh2__score, .fh2__research { transition: opacity 0.3s ease, color 0.3s ease; }
+.fh2__dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ff4d5e; box-shadow: 0 0 10px rgba(255, 77, 94, 0.8); flex: none; }
+.fh2__eyebrow .fh2__dot { margin-right: 8px; }
+.fh2--live .fh2__eyebrow { border-color: rgba(255, 77, 94, 0.55); }
+.fh2--final .fh2__eyebrow, .fh2--awaiting .fh2__eyebrow { border-color: rgba(236, 244, 252, 0.34); }
+.fh2__at--live { color: #ff8793; letter-spacing: 0.16em; }
+.fh2__at--final, .fh2__at--awaiting { color: #fff; letter-spacing: 0.16em; }
+.fh2__status { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-family: var(--font-cond); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(236, 244, 252, 0.92); text-shadow: 0 2px 14px #000; }
+.fh2--live .fh2__status { color: #ffb3bb; }
+.fh2__research { margin: 0; text-align: center; font-size: 0.74rem; letter-spacing: 0.02em; color: rgba(236, 244, 252, 0.66); text-shadow: 0 2px 10px #000; }
+.fh2__score { display: block; margin-top: 6px; font-family: var(--font-cond); font-weight: 700; font-size: clamp(2.1rem, 3.6vw, 3.2rem); line-height: 1; color: rgba(236, 244, 252, 0.62); text-shadow: 0 3px 22px #000; }
+.fh2__score.is-win { color: #fff; text-shadow: 0 3px 22px #000, 0 0 26px color-mix(in srgb, var(--tc) 70%, transparent); }
+.fh2--art .fh2__score { text-align: center; }
+@media (max-width: 719px) {
+  .fh2__status { font-size: 0.8rem; letter-spacing: 0.08em; }
+  .fh2__score { font-size: 1.9rem; margin-top: 4px; }
+  .fh2__research { font-size: 0.7rem; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fh2__dot { animation: fh2-pulse 1.6s ease-in-out infinite; }
+  .fh2__status, .fh2__score { animation: fh2-in 0.35s ease both; }
+  @keyframes fh2-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes fh2-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+}

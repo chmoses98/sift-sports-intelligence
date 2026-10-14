@@ -9,7 +9,7 @@
 //   4  the Research Lab: the same seven tools as the Research Lab hub
 //   5  My Board
 // Nothing here is invented activity: counts and numbers are the publications' own, read at load.
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { NAV_SPORTS } from '../data/nav';
 import { Icon } from '../components/Icon';
@@ -22,7 +22,7 @@ import { useVisit } from '../state/trail';
 import { buildDiscoveries } from '../intelligence/discoveries';
 import { matchupInsights } from '../insights/matchups';
 import { mismatchDiscovery } from '../intelligence/discoveries';
-import { featuredGame, featuredScope, gameRows, inDay, inLater, railGroups, slateOrder } from './broadcast/games';
+import { featuredKey, featuredScope, gameRows, inDay, inLater, keepFeatured, railGroups, slateOrder } from './broadcast/games';
 import { DiscoveryCard, FeaturedHero, useGameResearch } from './broadcast/parts';
 import { GameRail } from './broadcast/rail';
 import { BoardPreview } from './board/BoardPreview';
@@ -82,7 +82,16 @@ export function HomeView() {
     for (const g of today) m.set(g.slug, (m.get(g.slug) ?? 0) + 1);
     return m;
   }, [today]);
-  const featured = useMemo(() => featuredGame(sportFilter ? rows.filter((g) => g.slug === sportFilter) : rows, now), [rows, sportFilter, now]);
+  // The featured matchup stays put while the page is open (it moves on its own pregame → live → final); it is only
+  // chosen again on a fresh visit, when the sport filter changes, or when it can no longer be featured.
+  const featKept = useRef<{ filter: string; key: string | null }>({ filter: '', key: null });
+  const featured = useMemo(() => {
+    const filter = sportFilter ?? '';
+    const prev = featKept.current.filter === filter ? featKept.current.key : null;
+    const g = keepFeatured(prev, sportFilter ? rows.filter((r) => r.slug === sportFilter) : rows, now);
+    featKept.current = { filter, key: g ? featuredKey(g) : null };
+    return g;
+  }, [rows, sportFilter, now]);
   const featResearch = useGameResearch(featured?.slug ?? null, featured?.item.event_id ?? null);
   const discoveries = useMemo(() => {
     const ds = buildDiscoveries({ opportunities: all.opportunities, verdicts: all.verdicts, research: [], now });

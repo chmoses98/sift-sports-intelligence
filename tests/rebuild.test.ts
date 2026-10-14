@@ -110,10 +110,11 @@ describe('slates', () => {
     expect(phaseWord(rows[0])).toBe('In play');
     expect(phaseWord(rows[2])).toBe('Awaiting result');
   });
-  it('features only an upcoming game', () => {
+  it('features a game in play or still to come, never an old one (a game that kicked off stays featured as live)', () => {
     const r = (id: string, t: number, sport = 'NFL'): GameRow => ({ ...gameRows([{ sport: sportByCode(sport)!, board: [board({ event_id: id, start_time_utc: new Date(t).toISOString() })], recommendations: null, theses: null, signals: null, modelState: null, marketCaptureAt: null, error: null }], [], now)[0] });
-    expect(featuredGame([r('past', now - 3600_000)], now)).toBeNull();
-    expect(featuredGame([r('past', now - 3600_000), r('soon', now + 3600_000)], now)!.item.event_id).toBe('soon');
+    expect(featuredGame([r('yesterday', now - 20 * 3600_000)], now)).toBeNull();
+    expect(featuredGame([r('yesterday', now - 20 * 3600_000), r('soon', now + 3600_000)], now)!.item.event_id).toBe('soon');
+    expect(featuredGame([r('live', now - 3600_000), r('soon', now + 3600_000)], now)!.item.event_id).toBe('live');
   });
 });
 

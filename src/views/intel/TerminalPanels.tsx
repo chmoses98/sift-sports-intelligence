@@ -56,6 +56,11 @@ export function Importance({ sig, compact }: { sig: Discovery['significance']; c
   );
 }
 
+/** Research findings carry a significance; a publication-health notice is data quality, never rated as a finding. */
+export function ImportanceOrQuality({ d, compact }: { d: Discovery; compact?: boolean }) {
+  return d.kind === 'freshness' ? <span className="tm-imp tm-imp--dq"><b>Data quality</b></span> : <Importance sig={d.significance} compact={compact} />;
+}
+
 /** A type chip in the discovery's own colour family. */
 export function KindChip({ d }: { d: Discovery }) {
   return <span className={`tm-kind tm-kind--${d.kind}`}>{SHORT_KIND[d.kind] ?? KIND_WORD[d.kind]}</span>;
@@ -138,7 +143,7 @@ export function SelectedHero({ d, game, spec, pinned, onPin, onBack }: { d: Disc
         <section className="tm-insight" aria-labelledby="tm-hero-t">
           <div className="tm-insight__top">
             <span className="tm-insight__k"><Icon name="bolt" size={14} /> Key insight · {KIND_WORD[d.kind]}</span>
-            <Importance sig={d.significance} />
+            <ImportanceOrQuality d={d} />
           </div>
           <h2 className="tm-insight__t" id="tm-hero-t">{d.title}</h2>
           <p className="tm-insight__why">{d.why}</p>

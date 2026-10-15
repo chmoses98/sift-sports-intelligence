@@ -23,7 +23,6 @@ function PanelHeading({ icon, title, link, label = 'View all' }: { icon: string;
 }
 const evidence = (x: MatchupInsight) => `${x.offense.team.abbr} ${x.offense.unit} ${x.offense.rank.text} vs ${x.defense.team.abbr} ${x.defense.unit} ${x.defense.rank.text}`;
 export function CommandOverview({ insights, context, set, cards, href }: { insights: MatchupInsight[]; context: ContextNote[]; set: ScriptSet | null; cards: PropCard[]; href: (tab: 'matchup' | 'script' | 'props', id?: string) => string }) {
-  const lead = insights[0];
   const players = [...new Map(cards.map((p) => [p.playerId, p])).values()];
   const photographed = [...players].sort((a,b) => Number(!!playerPhoto(b.playerId,b.name,b.team.abbr)) - Number(!!playerPhoto(a.playerId,a.name,a.team.abbr)));
   const featured = photographed.slice(0,4);
@@ -31,9 +30,10 @@ export function CommandOverview({ insights, context, set, cards, href }: { insig
   return <div className="s2-command-overview">
     <section className="s2-read s2-glass gdash__read">
       <PanelHeading icon="brain" title="The Game Read" />
-      <p className="s2-read__lead">{lead ? <>{lead.headline}. <span>{evidence(lead)}. {insights[1] ? `${insights[1].headline}.` : ''}</span></> : context[0]?.headline ?? 'Explore the published matchup evidence for this game.'}</p>
+      {insights.length ? <ul className="s2-read__lines">{insights.slice(0,2).map((x) => <li key={x.id}><strong>{x.headline}</strong><span>{evidence(x)}</span></li>)}</ul>
+        : <p className="s2-read__lead">{context[0]?.headline ?? 'Explore the published matchup evidence for this game.'}</p>}
       <div className="s2-read__tiles">{insights.slice(0,2).map((x,i) => <Link to={href('matchup')} key={x.id}><Icon name={i ? 'shield' : 'trend'} size={32} /><strong>{x.areaLabel}</strong><span>{x.beneficiary.abbr} {x.side} advantage</span></Link>)}<Link to={href(note ? 'matchup' : 'script')}><Icon name={note ? 'alert' : 'football'} size={32} /><strong>{note ? 'Availability matters' : 'Game environment'}</strong><span>{note?.headline ?? set?.scripts[0]?.name ?? 'Read the matchup'}</span></Link></div>
-      <span className="s2-panel-foot">Opponent-adjusted matchup evidence · research, not a bet</span>
+      <span className="s2-panel-foot">Opponent-adjusted unit rankings describe the matchup. They are not a forecast of the result or a betting recommendation.</span>
     </section>
     <section className="s2-scripts s2-glass gdash__scripts">
       <PanelHeading icon="chart" title="Game Scripts" link={href('script')} label="Details" />

@@ -1,0 +1,121 @@
+/* Release-candidate refinement: Home hierarchy. Scoped to .sift2-home; no token or component changes. */
+.sift2-home__header{align-items:center;margin-bottom:12px;gap:10px}
+.sift2-home__header h1{font-size:clamp(1.9rem,3vw,2.6rem);margin:2px 0 0}
+.sift2-home__header p{margin:2px 0 0;font-size:.95rem}
+.sift2-home__coverage{padding:8px 14px;margin:0 0 12px;font-size:.84rem;border-radius:10px}
+.sift2-home__coverage summary{min-height:24px;display:flex;align-items:center}
+.sift2-home__coverage[open]{padding-bottom:12px}
+.sift2-home .s2-broadcast--compact{min-height:0;height:auto}
+.sift2-home .s2-broadcast--compact .s2-broadcast__matchup{padding:84px 30px 14px}
+.sift2-home .s2-broadcast--compact .s2-club__logo{width:88px;height:68px}
+.sift2-home .s2-broadcast--compact .s2-club>strong{font-size:24px}
+.sift2-home .s2-broadcast--compact .s2-broadcast__when>strong{font-size:26px}
+.sift2-home .s2-broadcast--compact .s2-broadcast__footer{margin:0 12px 12px;padding:12px 16px}
+.sift2-home__section{margin-top:22px}
+.sift2-home__findings{margin:8px 0 14px;gap:10px}
+.sift2-home__findings li{padding-bottom:10px}
+.sift2-home__findings p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:1100px){
+  .app--sift2 .sift2-home__layout{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+  .app--sift2 .sift2-home__aside{display:contents}
+  .app--sift2 .sift2-home__main>:first-child{grid-row:1;grid-column:1}
+  .app--sift2 .sift2-home__intel{grid-row:2;grid-column:1;margin-top:16px}
+  .app--sift2 .sift2-home__slate{grid-row:3;grid-column:1}
+  .app--sift2 .sift2-home__props{grid-row:4;grid-column:1}
+  .app--sift2 .sift2-home__more{grid-column:1;margin-top:16px}
+  .app--sift2 .sift2-home__more:nth-of-type(2){grid-row:5}
+  .app--sift2 .sift2-home__more:nth-of-type(3){grid-row:6}
+}
+@media(max-width:720px){
+  .sift2-home__header{flex-direction:row;align-items:center;margin-bottom:8px}
+  .sift2-home__header>div{min-width:0}
+  .sift2-home__preview{display:none}
+  .sift2-home__header h1{font-size:1.9rem}
+  .sift2-home .s2-broadcast--compact .s2-broadcast__matchup{padding:52px 10px 10px;grid-template-columns:1fr 112px 1fr;gap:4px}
+  .sift2-home .s2-broadcast--compact .s2-club__logo{width:56px;height:44px}
+  .sift2-home .s2-broadcast--compact .s2-club>strong{font-size:17px}
+  .sift2-home .s2-broadcast--compact .s2-club__city{font-size:10px;margin-top:4px}
+  .sift2-home .s2-broadcast--compact .s2-broadcast__when>strong{font-size:21px}
+  .sift2-home .s2-broadcast--compact .s2-broadcast__footer{flex-direction:column;gap:8px;padding:10px 12px;margin:0 8px 8px}
+  .sift2-home .s2-broadcast--compact .s2-feature-story p{display:none}
+  .sift2-home .s2-broadcast--compact .s2-feature-story strong{font-size:14px}
+  .sift2-home .s2-broadcast--compact .s2-broadcast__footer nav a{padding:5px 9px;min-height:32px;display:inline-flex;align-items:center}
+}
+
+/* Prop rows: opponent context line (all sizes). */
+.tprow__ctx{font-size:.7rem;color:var(--text-3)}
+.tprow__ctx b{color:var(--text-2);font-weight:600}
+.tprops__sub .tprops__auth{vertical-align:1px}
+
+/* Player Prop Explorer on phones: real props within the first screen. */
+@media(max-width:719px){
+  .app--sift2 .phub__mast{margin-bottom:6px}
+  .app--sift2 .phub__mast .eyebrow2{display:none}
+  .app--sift2 .phub__mast h1{font-size:24px}
+  .app--sift2 .phub__mast .bhome__sum{display:none}
+  .app--sift2 .phub__sports{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}
+  .app--sift2 .phub__sport{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;min-height:0;text-align:center}
+  .app--sift2 .phub__sic,.app--sift2 .phub__sb small{display:none}
+  .app--sift2 .phub__sb b{font-size:15px}
+  .app--sift2 .phub__mode{font-size:9px;padding:2px 6px;letter-spacing:.04em;white-space:normal;line-height:1.15}
+  .app--sift2 .phub__games{margin-bottom:6px}
+  .app--sift2 .phub__gh{margin-bottom:4px}
+  .app--sift2 .phub__k{font-size:13px}
+  .app--sift2 .phub__g{padding:6px 10px;min-height:0}
+  .app--sift2 .tprops{padding:12px 10px}
+  .app--sift2 .tprops__h{gap:8px;margin-bottom:6px}
+  .app--sift2 .tprops__t{font-size:19px;margin:0}
+  .app--sift2 .tprops__sub{font-size:12px;margin:2px 0 0;line-height:1.35}
+  .app--sift2 .tprops__long{display:none}
+  .app--sift2 .tprops__filters{gap:6px;margin-bottom:6px}
+  .app--sift2 .tprow{grid-template-columns:36px 46px minmax(0,1fr) 38px;gap:2px 8px;padding:8px 8px 8px 2px}
+  .app--sift2 .tprow>.pface{width:44px;height:44px;border-radius:8px}
+  .app--sift2 .tprow__go{width:38px;height:38px}
+  .app--sift2 .tprow__who b{font-size:15px}
+  .app--sift2 .tprow__why{gap:1px}
+}
+
+/* Game Read: plain-English lines. */
+.s2-read__lines{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}
+.s2-read__lines li{display:grid;gap:2px}
+.s2-read__lines strong{font:600 18px/1.25 Barlow,sans-serif;color:#fff}
+.s2-read__lines span{font-size:13px;color:#b7c8db}
+@media(max-width:719px){
+  .app--sift2 .sift2-command>.s2-broadcast{height:250px;min-height:250px}
+  .app--sift2 .sift2-command[data-game-tab=props]>.s2-broadcast{height:202px;min-height:202px}
+  .s2-read__lines strong{font-size:16px}
+}
+
+/* Intelligence: data-quality notices stay visible but never read as research. */
+.tm-imp--dq b{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:#e9c46a;border:1px solid #6b5520;border-radius:100px;padding:2px 8px;white-space:nowrap}
+.term__feeds{border-left:3px solid #c9a227;padding:6px 10px;font-size:.78rem;line-height:1.4;background:#1a15060f;border-radius:4px;margin:6px 0}
+.trow__ins small{display:block;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* Research Lab: tool-card art stays a small badge, never over the title; selectors use the full card width. */
+.ex-tool__art{right:12px;top:14px;opacity:.85}
+.ex-tool__art .teammark,.ex-tool__art .pmark,.ex-tool__art img{width:28px;height:28px}
+.ex-tool__art .pmark--text{font-size:.7rem}
+.ex-tool__marks > * + * { margin-left: -6px; }
+.ex-rk__ctl{flex-wrap:wrap}
+.ex-rk__ctl .ex-rk__sel{flex:1 1 100%;width:100%}
+.ex-rk__sel select{width:100%;font-size:.86rem}
+@media(max-width:719px){.ex-tool__art{display:none}}
+
+/* Slate cards: never break a team name mid-word; the name steps down instead. */
+.sift2-home .s2-match-card__match strong{overflow-wrap:normal;word-break:normal;hyphens:none}
+@media(max-width:720px){
+  .sift2-home .s2-match-card__match strong{font-size:13px}
+  .sift2-home__section{margin-top:14px}
+  .sift2-home__section-head{margin-bottom:8px}
+  .sift2-home__section h2{font-size:1.25rem}
+  .sift2-home__coverage{margin-bottom:8px;font-size:.78rem}
+}
+
+/* Research Lab: card descriptions are read in full, not clipped mid-phrase. */
+.ex-tool__s{display:block;-webkit-line-clamp:unset;overflow:visible}
+
+/* Intelligence on phones: the findings, not the introduction, come first. */
+@media(max-width:719px){
+  .term__mast .hubm__sub{font-size:.8rem;line-height:1.3}
+  .app--sift2 .trow__ins small{-webkit-line-clamp:3}
+}

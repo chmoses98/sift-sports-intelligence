@@ -141,6 +141,13 @@ describe('discoveries', () => {
     expect(ds[0].title).toMatch(/^MLB market capture is 1d old$/);
     expect(buildDiscoveries({ opportunities: [opp()], verdicts: [], research: [], now }).length).toBe(1);
   });
+  it('list data-quality notices after every research finding, even a high-severity one', () => {
+    const now = Date.parse('2026-10-10T08:00:00Z');
+    const failed: SportVerdict = { sport: 'NBA', slug: 'nba', label: 'NBA', games: 0, opportunities: 0, passes: 0, passReason: null, modelState: null, marketCaptureAt: null, loaded: false, error: 'HTTP 404' };
+    const ds = buildDiscoveries({ opportunities: [opp()], verdicts: [failed], research: [], now });
+    expect(ds.map((d) => d.kind)).toEqual([expect.not.stringMatching(/^freshness$/), 'freshness']);
+    expect(ds[1].significance).toBe('high');
+  });
 });
 
 describe('NHL thesis words', () => {

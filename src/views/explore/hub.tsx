@@ -95,7 +95,7 @@ export function RankingsTable({ slug, code, repo, items }: { slug: string; code:
           </div>
         )}
         <label className="hubm__select ex-rk__sel"><span className="sr-only">Metric</span>
-          <select value={cur?.id ?? ''} onChange={(e) => setPick(e.target.value)} aria-label="Ranking metric">
+          <select value={cur?.id ?? ''} onChange={(e) => setPick(e.target.value)} aria-label="Ranking metric" title={cur ? cleanRank(cur.label) : undefined}>
             {pool.slice(0, 60).map((r) => <option key={r.id} value={r.id}>{cleanRank(r.label)} · {rankWindow(r)}</option>)}
           </select>
         </label>
@@ -137,7 +137,7 @@ export function QuickStats({ code, repo, items }: { code: string; repo: SportRep
   return (
     <FxCard title={`${code} quick stats`} icon="chart" id="quick" className="ex-qs">
       <label className="hubm__select ex-rk__sel"><span>Statistic</span>
-        <select value={cur?.id ?? ''} onChange={(e) => setPick(e.target.value)}>
+        <select value={cur?.id ?? ''} onChange={(e) => setPick(e.target.value)} title={cur ? cleanRank(cur.label) : undefined}>
           {all.slice(0, 60).map((r) => <option key={r.id} value={r.id}>{cleanRank(r.label)} · {rankWindow(r)}</option>)}
         </select>
       </label>

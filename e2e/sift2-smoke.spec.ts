@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 // Smoke checks cover actual browser layout, not model performance or price accuracy.
 test('SIFT 2.0 Home renders published-data states without horizontal overflow @smoke', async ({ page }) => {
   await page.goto('#/design/sift2/home');
-  await expect(page.getByRole('heading', { level: 1, name: "Today's command center" })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Today', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: "Today's games" })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Player Prop Explorer' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'What matters today' })).toBeVisible();

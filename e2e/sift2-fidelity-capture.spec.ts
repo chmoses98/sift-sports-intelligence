@@ -22,8 +22,8 @@ test('matched reference captures and density measurements @smoke', async ({ page
   await page.evaluate(() => document.fonts.ready);
   await noHorizontalOverflow(page,'Matched Command');
   const metrics = await page.evaluate(() => Object.fromEntries(['.s2-broadcast','.sift2-command>.gtabs','.s2-read','.s2-scripts','.s2-drivers','.s2-featured-players'].map((s)=>{const r=document.querySelector(s)!.getBoundingClientRect();return [s,{x:r.x,y:r.y,width:r.width,height:r.height}];})));
-  expect(metrics['.s2-broadcast'].height).toBe(isMobile ? 310 : 454);
-  expect(metrics['.s2-read'].y).toBe(isMobile ? 361 : 508);
+  expect(metrics['.s2-broadcast'].height).toBe(isMobile ? 250 : 454);
+  expect(metrics['.s2-read'].y).toBe(isMobile ? 301 : 508);
   if(!isMobile) expect(metrics['.s2-featured-players'].y).toBe(814);
   writeFileSync(test.info().outputPath('matched-geometry.json'),JSON.stringify(metrics,null,2));
   await page.screenshot({ path:test.info().outputPath('matched-overview.png'),scale:'css' });

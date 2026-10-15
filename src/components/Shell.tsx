@@ -12,6 +12,7 @@ import { Icon, SiftWordmark } from './Icon';
 import { Sift2Navigation } from './sift2/Navigation';
 import '../styles/sift2-reference.css';
 import '../styles/sift2-fidelity.css';
+import '../styles/sift2-refine.css';
 import '../styles/sift2-assets.css';
 import { SearchResults } from './SearchResults';
 

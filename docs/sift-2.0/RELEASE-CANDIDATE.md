@@ -22,7 +22,7 @@ Current integrated source: `d26e128f0997acd222e02d90d577ce68bbb5b115`. [CI run 3
 - [x] Connected Home, Games, Props, Intelligence, Lab and Board, saved-research fresh-load persistence, scoped search, failure states, existing Home/workspace/reference accessibility and responsive checks passed on all four projects.
 - [x] Reference-size imagery/crop/geometry and corrupt-photo fallback checks: **8/8 passed** across those projects. Full suite: **826 passed, 3 failed, 5 existing skips** out of 834 tests. No accessibility checks or timeout budgets were weakened.
 - [x] Representative live-publication review recorded separately: October 15 checks found NFL/Tennis healthy, MLB stale, and CFB/NBA/NHL/Soccer/CBB research-only. This is dated source-health evidence, not a current opportunity verdict.
-- [ ] Full CI rerun after the three reviewed Terminal baseline updates.
+- [x] Full CI rerun after the three reviewed Terminal baseline updates: head `ace0e4d`, runs [38801241090](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/38801241090) and [38801247616](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/38801247616) both **passed** (lint, typecheck, tests, build, base-path, Chromium + WebKit acceptance incl. visual). Local re-verification on the same commit: lint and typecheck clean, 1,105/1,105 unit tests pass. Verified October 15.
 - [ ] Owner visual/release approval. No merge or deployment.
 
 ### Terminal screenshot diagnosis

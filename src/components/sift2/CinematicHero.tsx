@@ -3,6 +3,8 @@ import '../../styles/sift2-hero.css';
 
 export interface CinematicHeroProps {
   eyebrow: string;
+  /** Heading hierarchy is supplied by the host page. */
+  headingLevel?: 1 | 2;
   title: string;
   subtitle?: string;
   /** Only use a verified/licensed venue photo. No background image is required. */
@@ -19,7 +21,7 @@ export interface CinematicHeroProps {
 
 /** Visual shell only: callers supply verified event identity, score, venue, and market data. */
 export function CinematicHero({
-  eyebrow, title, subtitle, imageUrl, imageAlt = '', desktopFocus = 'center 45%',
+  eyebrow, title, headingLevel = 1, subtitle, imageUrl, imageAlt = '', desktopFocus = 'center 45%',
   mobileFocus = 'center 45%', homeColor = '#245f9a', awayColor = '#12334f',
   children, className = '',
 }: CinematicHeroProps) {
@@ -37,7 +39,7 @@ export function CinematicHero({
       <div className="sift2-hero__content">
         <div className="sift2-hero__copy">
           <span className="sift2-hero__eyebrow">{eyebrow}</span>
-          <h1 className="sift2-hero__title">{title}</h1>
+          {headingLevel === 1 ? <h1 className="sift2-hero__title">{title}</h1> : <h2 className="sift2-hero__title">{title}</h2>}
           {subtitle && <p className="sift2-hero__subtitle">{subtitle}</p>}
         </div>
         {children && <div className="sift2-hero__details">{children}</div>}

@@ -4,7 +4,7 @@ import type { PropCard } from '../../insights/props';
 import { broadcastPlayerPhoto as playerPhoto } from './playerArt';
 import { routes } from '../../lib/routes';
 import { formatQuoteAgo, quoteAgeMs } from '../../live/freshness';
-import { PlayerFace } from '../insight';
+import { PlayerArt } from './PlayerArt';
 
 const cents = (v: number | null | undefined) => v == null ? '—' : `${Math.round(v * 100)}¢`;
 const family = (s: string) => s.startsWith('passing') ? 'Pass' : s.startsWith('rushing') ? 'Rush' : 'Rec';
@@ -31,9 +31,9 @@ export function PlayerSnapshot({ cards, slug, eventId, now, loading = false, sho
     <label className="s2-player-search"><span className="sr-only">Search players, props or markets</span><input type="search" placeholder="Search players, props or markets…" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
     <div className="s2-filter-strip" role="group" aria-label="Player stat"><button aria-pressed={stat === 'All'} onClick={() => setStat('All')}>All</button>{families.map((f) => <button key={f} aria-pressed={stat === f} onClick={() => setStat(f)}>{f}</button>)}<button aria-controls="s2-full-props" onClick={() => { const node = document.getElementById('s2-full-props'); if (node instanceof HTMLDetailsElement) { node.open = true; node.scrollIntoView({ block: 'start' }); } }}>Alt lines & full research ↓</button></div>
     <div className="s2-player-list">{shown.map((rows) => {
-      const p = rows[0]; const photo = playerPhoto(p.playerId, p.name, p.team.abbr);
+      const p = rows[0];
       return <article className="s2-player" key={p.playerId}>
-        <div className="s2-player__photo"><PlayerFace photo={photo} team={p.team.abbr} size="xl" /></div>
+        <div className="s2-player__photo"><PlayerArt id={p.playerId} name={p.name} team={p.team.abbr} surface="portrait" /></div>
         <div className="s2-player__body"><Link className="s2-player__name" to={routes.player(slug,p.playerId)}>{p.name}<span aria-hidden="true">›</span></Link><span className="s2-player__role">{p.team.abbr} · {p.role ?? 'Player'}</span>
           <div className="s2-player__markets">{rows.slice(0,3).map((c) => <Link key={c.id} to={`/design/sift2${routes.props(slug, { game: eventId, player: c.playerId, stat: c.stat })}`}>
             <span>{c.statLabel}</span><strong>{c.line ?? 'No line'}</strong><span className="s2-player__prices"><i>O {cents(c.market?.yes_ask)}</i><i>U {cents(c.market?.no_ask)}</i></span><small>{c.market?.captured_at ? `Captured ${formatQuoteAgo(quoteAgeMs(c.market.captured_at,now))}` : 'Quote time unavailable'}</small>

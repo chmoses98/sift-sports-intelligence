@@ -10,7 +10,7 @@ import { sharePct } from '../../lib/scripts';
 import { broadcastPlayerPhoto as playerPhoto } from './playerArt';
 import { routes } from '../../lib/routes';
 import { Icon } from '../Icon';
-import { PlayerFace } from '../insight';
+import { PlayerArt } from './PlayerArt';
 import { topContracts } from '../../views/game/Dashboard';
 import { centsText } from '../../lib/gamedata';
 import { formatQuoteAgo, quoteAgeMs } from '../../live/freshness';
@@ -43,8 +43,9 @@ export function CommandOverview({ insights, context, set, cards, href }: { insig
     <section className="s2-drivers s2-glass">
       <PanelHeading icon="target" title="Key Matchup Drivers" link={href('matchup')} />
       <div className="s2-driver-list">{insights.slice(0,3).map((x) => {
-        const p = photographed.find((c) => c.team.abbr === x.beneficiary.abbr);
-        return <Link to={href('matchup')} className="s2-driver" key={x.id}><div className="s2-driver__art"><PlayerFace photo={p ? playerPhoto(p.playerId,p.name,p.team.abbr) : null} team={x.beneficiary.abbr} size="xl" /></div><span><strong>{x.areaLabel} · {x.beneficiary.abbr}</strong><small>{evidence(x)}</small></span><Icon name="chevronRight" size={14} /></Link>;
+        // Illustration must match the unit: no quarterback photo representing a run defense.
+        const p = x.side==='offense' ? photographed.find((c) => c.team.abbr === x.beneficiary.abbr && (x.area==='run' ? c.role==='RB' : x.area==='pass'||x.area==='protection' ? c.role==='QB' : true)) : undefined;
+        return <Link to={href('matchup')} className="s2-driver" key={x.id}><div className="s2-driver__art"><PlayerArt id={p?.playerId ?? ''} name={p?.name ?? ''} team={x.beneficiary.abbr} surface="driver" /></div><span><strong>{x.areaLabel} · {x.beneficiary.abbr}</strong><small>{evidence(x)}</small></span><Icon name="chevronRight" size={14} /></Link>;
       })}</div>
       {!insights.length && <p>Ranked matchup drivers are not published for this game.</p>}
     </section>
@@ -53,7 +54,7 @@ export function CommandOverview({ insights, context, set, cards, href }: { insig
       <div className="s2-featured-player-grid">{featured.map((p) => {
         const photo=playerPhoto(p.playerId,p.name,p.team.abbr);
         const stats=[...new Set(cards.filter((c) => c.playerId===p.playerId).map((c) => c.statLabel))].slice(0,3);
-        return <Link to={href('props')} className={`s2-featured-player${photo ? ' has-photo' : ''}`} key={p.playerId}><PlayerFace photo={photo} team={p.team.abbr} size="xl" /><div><strong>{p.name}</strong><small>{p.role ?? 'Player'} · {p.team.abbr}</small><span>{stats.map((s) => <i key={s}>{s}</i>)}</span></div><Icon name="chart" size={16} /></Link>;
+        return <Link to={href('props')} className={`s2-featured-player${photo ? ' has-photo' : ''}`} key={p.playerId}><PlayerArt id={p.playerId} name={p.name} team={p.team.abbr} surface="wide" /><div><strong>{p.name}</strong><small>{p.role ?? 'Player'} · {p.team.abbr}</small><span>{stats.map((s) => <i key={s}>{s}</i>)}</span></div><Icon name="chart" size={16} /></Link>;
       })}</div>
       {!featured.length && <p>No player snapshots were published for this game.</p>}
     </section>

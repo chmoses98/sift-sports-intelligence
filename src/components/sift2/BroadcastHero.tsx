@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { HeroSpec, HeroTeam } from '../../lib/hero/types';
-import { broadcastHeroSpec } from './heroArt';
-import { HeroArt, heroVars } from '../HeroArt';
+import { broadcastHeroSpec, broadcastArtVars } from './heroArt';
+import { VenueArt } from './VenueArt';
 
 interface Side { team: HeroTeam | null; record?: string | null; score?: number | null }
 export interface BroadcastHeroProps {
@@ -33,8 +33,8 @@ export function BroadcastHero({ spec: originalSpec, start, title, sport, away, h
   const spec = broadcastHeroSpec(originalSpec);
   const date = new Date(start);
   const dated = Number.isFinite(date.getTime());
-  return <header className={`s2-broadcast${compact ? ' s2-broadcast--compact' : ''}`} style={heroVars(spec)} data-hero-photo={spec.photo?.id} data-hero-kind={spec.kind} data-hero-context={spec.context}>
-    <div className="s2-broadcast__art"><HeroArt key={spec.photo?.id ?? spec.reason} spec={spec} /></div>
+  return <header className={`s2-broadcast${compact ? ' s2-broadcast--compact' : ''}`} style={broadcastArtVars(spec)} data-hero-photo={spec.photo?.id} data-hero-kind={spec.kind} data-hero-context={spec.context}>
+    <div className="s2-broadcast__art"><VenueArt key={spec.photo?.id ?? spec.reason} spec={spec} /></div>
     <div className="s2-broadcast__top"><span>{sport} <i>/</i> {compact ? 'FEATURED MATCHUP' : 'GAME COMMAND CENTER'}</span>{actions}</div>
     {level === 1 ? <h1 className="sr-only">{title}</h1> : <h2 className="sr-only">{title}</h2>}
     <div className="s2-broadcast__matchup">

@@ -1,18 +1,29 @@
-import type { HeroSpec } from '../../lib/hero/types';
-const BASE = `${import.meta.env.BASE_URL}sift2/venues/`;
-/** A licence/source check and a broadcast art-direction check are separate gates. */
-const NOT_FEATURE_QUALITY = new Set(['nfl-chi-soldier-field','nfl-bal-mt-bank-stadium','nfl-gb-lambeau-field']);
-export function broadcastHeroSpec(spec: HeroSpec): HeroSpec {
-  // The original resolver must first establish home identity, physical venue and era. Never use KC art away.
-  if (spec.context === 'home' && spec.home?.code === 'KC' && spec.venue?.id === 'arrowhead-stadium' && spec.photo) {
-    return { ...spec, photo: {
-      id: 'sift2-arrowhead-night', srcset: [2400,1200].map((w) => ({ src: `${BASE}arrowhead-night-${w}.webp`, w })),
-      card: `${BASE}arrowhead-night-720.webp`, width: 2400, height: 1800,
-      focus: { desktop: '50% 66%', mobile: '58% 64%' }, identity: 'Chiefs end zone, Arrowhead bowl and Chiefs midfield flag during a night-game entrance',
-      credit: { artist: 'Kj1595', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/', source: 'https://commons.wikimedia.org/wiki/File:Arrowhead_Stadium_(October_27,_2019_-_7).jpg', file: 'File:Arrowhead Stadium (October 27, 2019 - 7).jpg', modifications: 'Resized to WebP by SIFT. CSS contrast and saturation for presentation; no relighting or synthetic content.' },
-    } };
-  }
-  // Retain the truthful venue/team metadata, but do not feature flat field-level or washed-out frames.
-  if (spec.photo && NOT_FEATURE_QUALITY.has(spec.photo.id)) return { ...spec, kind: 'branded', photo: null, reason: 'branded:featured-asset-quality-pending' };
-  return spec;
+import type { CSSProperties } from 'react';
+import type { HeroSpec, HeroPhoto } from '../../lib/hero/types';
+import { heroVars } from '../HeroArt';
+import { VENUE_ART, type ArtSurface } from './venueArt';
+import { canonicalTeam } from '../../lib/hero/registry';
+
+export const venueArtProfile = (spec: HeroSpec) => spec.context === 'home'
+  ? VENUE_ART.find((p)=>p.sport===spec.sport && p.team===canonicalTeam(spec.sport,spec.home?.code) && p.venue===spec.venue?.id) ?? null : null;
+
+export function broadcastHeroSpec(spec: HeroSpec, surface: ArtSurface = 'hero'): HeroSpec {
+  const profile=venueArtProfile(spec);
+  // Core resolver remains authoritative for identity/era. No override of branded/neutral/unverified outcomes.
+  if (!profile || !spec.photo || spec.kind !== 'photo') return spec;
+  if (profile.quality==='replacement-needed' || profile.quality==='context' && surface==='hero')
+    return {...spec,kind:'branded',photo:null,reason:'branded:featured-asset-quality-pending'};
+  return {...spec,photo:{...(profile.photo ?? spec.photo),focus:profile[surface]}};
+}
+
+export function broadcastArtVars(spec: HeroSpec, surface: ArtSurface = 'hero'): CSSProperties {
+  const focus=venueArtProfile(spec)?.[surface] ?? spec.photo?.focus;
+  return {...heroVars(spec),['--focus-d' as string]:focus?.desktop ?? '50% 45%', ['--focus-m' as string]:focus?.mobile ?? '50% 45%'};
+}
+
+/** Container-aware resolution; cap DPR at two and tolerate only a 2.5% up-scale. */
+export function venueImageSource(photo: HeroPhoto, width: number, dpr: number): string {
+  const sources=[...photo.srcset,{src:photo.card,w:720}].sort((a,b)=>a.w-b.w);
+  const need=Math.max(1,width)*Math.min(2,Math.max(1,dpr));
+  return (sources.find((s)=>s.w*1.025>=need) ?? sources[sources.length-1]).src;
 }

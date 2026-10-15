@@ -8,7 +8,8 @@ import { useGameResearch, PMark } from './broadcast/parts';
 import { useCardFacts } from './broadcast/GameCard';
 import { heroInputFor } from '../lib/hero/input';
 import { resolveHero } from '../lib/hero/resolve';
-import { HeroArt, heroVars } from '../components/HeroArt';
+import { broadcastHeroSpec, broadcastArtVars } from '../components/sift2/heroArt';
+import { VenueArt } from '../components/sift2/VenueArt';
 import { BroadcastHero } from '../components/sift2/BroadcastHero';
 import { routes } from '../lib/routes';
 import { matchupInsights } from '../insights/matchups';
@@ -30,8 +31,9 @@ export function PublishedMatchup({ game, feature = false, selected = false }: { 
     <div className="s2-feature-story"><span>GAME RESEARCH</span><strong>{insight?.headline ?? facts.tag?.text ?? `${game.label} · the matchup in focus`}</strong><p>{insight ? `${insight.offense.team.abbr} ${insight.offense.unit} ${insight.offense.rank.text} versus ${insight.defense.team.abbr} ${insight.defense.unit} ${insight.defense.rank.text}. Matchup evidence, not a betting edge.` : game.candidates ? `${game.candidates} published research candidates. Review authority and price before acting.` : 'Explore matchup drivers, player research and every published market.'}</p></div>
     <nav aria-label="Featured game research shortcuts"><Link to={gameHref(game)}>Game research →</Link><Link to={gameHref(game, 'matchup')}>Matchups</Link>{hasPlayerProps && <Link to={gameHref(game, 'props')}>Player props</Link>}<Link to={gameHref(game, 'markets')}>{game.item.markets_available} markets</Link></nav>
   </BroadcastHero>;
-  return <article className={`s2-match-card${selected ? ' is-featured' : ''}`} style={heroVars(spec)}>
-    <div className="s2-match-card__art"><HeroArt spec={spec} variant="card" /></div>
+  const cardArt=broadcastHeroSpec(spec,'card');
+  return <article className={`s2-match-card${selected ? ' is-featured' : ''}`} style={broadcastArtVars(cardArt,'card')}>
+    <div className="s2-match-card__art"><VenueArt key={cardArt.photo?.id ?? cardArt.reason} spec={cardArt} surface="card" /></div>
     <div className="s2-match-card__top"><span>{game.sport}</span><span>{phaseWord(game)}</span></div>
     <Link className="s2-match-card__match" to={gameHref(game)} aria-label={title}>
       <div><PMark sport={game.sport} p={game.away} size="md" /><strong>{spec.away?.short ?? game.away?.display_name}</strong>{facts.away.record && <small>{facts.away.record}</small>}</div>

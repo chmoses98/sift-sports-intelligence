@@ -31,7 +31,7 @@ export function Sift2HomePreview() {
       {all.error ? <p role="alert" className="sift2-surface sift2-home__status">Published research is temporarily unavailable. Do not interpret missing games or findings as a no-edge verdict.</p> : null}
       <div className="sift2-home__layout">
         <div className="sift2-home__main">
-          {all.loading ? <div className="sift2-surface sift2-home__status" role="status">Loading published slate…</div> : featured ? (
+          {all.error ? <div className="sift2-surface sift2-home__status" role="status">Featured game unavailable while the publication is offline.</div> : all.loading ? <div className="sift2-surface sift2-home__status" role="status">Loading published slate…</div> : featured ? (
             <CinematicHero headingLevel={2} eyebrow={`${featured.sport} / ${phaseWord(featured)} · PUBLISHED MATCHUP`} title={featured.label}
               subtitle="Published matchup identity. Open the game for current research, venue context and market evidence.">
               <div className="sift2-home__hero-card sift2-surface">
@@ -45,7 +45,7 @@ export function Sift2HomePreview() {
           <section aria-labelledby="sift2-games-title" className="sift2-home__section">
             <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">THE SLATE</span><h2 id="sift2-games-title">Today's games</h2></div><Link to="/games">Open real games →</Link></div>
             <div className="sift2-home__cards">
-              {all.loading ? <p role="status">Loading today's games…</p> : today.length ? today.slice(0, 6).map((g) => (
+              {all.error ? <p role="status">Today's slate cannot be verified until the feed recovers.</p> : all.loading ? <p role="status">Loading today's games…</p> : today.length ? today.slice(0, 6).map((g) => (
                 <article className="sift2-surface" key={`${g.slug}:${g.item.event_id}`}>
                   <span className="sift2-home__eyebrow">{g.sport} · {phaseWord(g)}</span>
                   <h3>{g.label}</h3>
@@ -58,12 +58,12 @@ export function Sift2HomePreview() {
           <section aria-labelledby="sift2-explorer-title" className="sift2-home__section">
             <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">PLAYER RESEARCH</span><h2 id="sift2-explorer-title">Player Prop Explorer</h2></div><Link to="/props">Open current prop board →</Link></div>
             <div className="sift2-surface sift2-home__explorer"><div><h3>Find the player. Understand the matchup. Compare the markets.</h3><p>Ranked props below come from the existing evidence-gated SIFT board, not invented sample selections.</p></div><Link to="/props">Explore props →</Link></div>
-            <Suspense fallback={<p role="status">Loading player research…</p>}><HomeTopProps opportunities={all.opportunities} now={now} /></Suspense>
+            {all.error ? <p role="status">Player research is unavailable while the publication is offline.</p> : <Suspense fallback={<p role="status">Loading player research…</p>}><HomeTopProps opportunities={all.opportunities} now={now} /></Suspense>}
           </section>
         </div>
         <aside className="sift2-home__aside" aria-label="Intelligence and saved research">
           <section className="sift2-surface"><span className="sift2-home__eyebrow">INTELLIGENCE</span><h2>What matters today</h2>
-            {all.loading ? <p role="status">Loading published findings…</p> : discoveries.length ? (
+            {all.error ? <p role="status">Intelligence findings are unavailable until the publication recovers.</p> : all.loading ? <p role="status">Loading published findings…</p> : discoveries.length ? (
               <ul className="sift2-home__findings">{discoveries.map((d) => (
                 <li key={d.id}>
                   <span className="sift2-home__eyebrow">{d.sport} · {d.kind === 'market' ? (d.evidence?.word ?? 'Research only') : 'Research finding'}</span>

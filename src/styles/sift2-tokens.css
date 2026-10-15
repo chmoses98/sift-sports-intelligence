@@ -1,0 +1,55 @@
+/**
+ * SIFT 2.0 visual foundation.
+ * Additive, opt-in tokens: legacy UI retains its existing variables until
+ * each redesigned screen has passed screenshot and accessibility review.
+ */
+:root {
+  --sift2-font-body: 'Barlow', system-ui, sans-serif;
+  --sift2-font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  --sift2-canvas: #07111f;
+  --sift2-surface: #0d1b2e;
+  --sift2-surface-raised: #13263e;
+  --sift2-glass: rgba(16, 34, 56, .78);
+  --sift2-glass-border: rgba(179, 212, 255, .16);
+  --sift2-text: #f2f7ff;
+  --sift2-text-muted: #a8bed7;
+  --sift2-accent: #60b8ff;
+  --sift2-accent-soft: rgba(96, 184, 255, .14);
+  --sift2-positive: #55c9a4;
+  --sift2-warning: #f4c477;
+  --sift2-negative: #f48b9a;
+  --sift2-radius-sm: 10px;
+  --sift2-radius-md: 16px;
+  --sift2-radius-lg: 24px;
+  --sift2-space-1: 4px;
+  --sift2-space-2: 8px;
+  --sift2-space-3: 12px;
+  --sift2-space-4: 16px;
+  --sift2-space-6: 24px;
+  --sift2-space-8: 32px;
+  --sift2-motion-fast: 140ms;
+  --sift2-motion-standard: 240ms;
+}
+
+/* Opt in by adding .sift2-surface to an approved redesigned container. */
+.sift2-surface {
+  color: var(--sift2-text);
+  background: var(--sift2-glass);
+  border: 1px solid var(--sift2-glass-border);
+  border-radius: var(--sift2-radius-md);
+  box-shadow: 0 14px 44px rgba(0, 5, 14, .28);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.sift2-surface :focus-visible {
+  outline: 2px solid var(--sift2-accent);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sift2-surface,
+  .sift2-surface * {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

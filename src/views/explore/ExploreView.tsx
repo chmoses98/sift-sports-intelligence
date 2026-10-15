@@ -29,10 +29,12 @@ function useExplorer(slug: string) {
     const sport = sportBySlug(slug);
     if (!sport) return null;
     const repo = new SportRepo(await resolveSource(sport));
-    const board = ((await repo.board().catch(() => null))?.items ?? []) as BoardItem[];
-    if (!repo.hasExplorer) return { sport, repo, teams: [], items: [] as SearchItem[], available: false, board };
+    const publication = await repo.board().catch(() => null);
+    const board = (publication?.items ?? []) as BoardItem[];
+    const boardUnavailable = publication == null;
+    if (!repo.hasExplorer) return { sport, repo, teams: [], items: [] as SearchItem[], available: false, board, boardUnavailable };
     const [idx, si] = await Promise.all([repo.index(), repo.searchIndex().catch(() => null)]);
-    return { sport, repo, teams: idx.teams, items: ((si?.items ?? []) as unknown as SearchItem[]), available: true, board };
+    return { sport, repo, teams: idx.teams, items: ((si?.items ?? []) as unknown as SearchItem[]), available: true, board, boardUnavailable };
   });
 }
 
@@ -120,13 +122,14 @@ export function ExploreView() {
       </section>
       {ex.loading && <Skeleton lines={8} tall />}
       {ex.error && <p role="alert" className="fr-note">Research is unavailable. The publication could not be read; missing research is not a no-opportunity verdict.</p>}
+      {ex.data?.boardUnavailable && <p role="alert" className="fr-note">Schedule and matchup publication unavailable. Other published research remains accessible; this is not evidence of an empty slate or no opportunities.</p>}
       {ex.data && !avail && <div className="bempty"><h3>{nav?.label} has no research explorer yet</h3><p>Its publication carries the board and markets but not team and player research documents. Open <Link to={routes.sport(slug)}>{nav?.label}</Link> for what it does publish.</p></div>}
       {ex.data && (
         <div className="fx-bento exh__bento">
           {avail && teamRk.length > 0 && <div className="fx-span-5"><RankingsTable key={`rk:${slug}`} slug={slug} code={code} repo={ex.data.repo} items={items} /></div>}
-          <div className={avail && teamRk.length > 0 ? 'fx-span-4' : 'fx-span-6'}><KeyMatchups key={`km:${slug}`} slug={slug} code={code} repo={ex.data.repo} board={ex.data.board} available={avail} /></div>
+          {!ex.data.boardUnavailable && <div className={avail && teamRk.length > 0 ? 'fx-span-4' : 'fx-span-6'}><KeyMatchups key={`km:${slug}`} slug={slug} code={code} repo={ex.data.repo} board={ex.data.board} available={avail} /></div>}
           {avail && teamRk.length > 0 && <div className="fx-span-3"><QuickStats key={`qs:${slug}`} code={code} repo={ex.data.repo} items={items} /></div>}
-          <div className={avail && teamRk.length > 0 ? 'fx-span-12' : 'fx-span-6'}><SeasonTimeline key={`tl:${slug}`} slug={slug} code={code} repo={ex.data.repo} board={ex.data.board} /></div>
+          {!ex.data.boardUnavailable && <div className={avail && teamRk.length > 0 ? 'fx-span-12' : 'fx-span-6'}><SeasonTimeline key={`tl:${slug}`} slug={slug} code={code} repo={ex.data.repo} board={ex.data.board} /></div>}
         </div>
       )}
       {avail && (

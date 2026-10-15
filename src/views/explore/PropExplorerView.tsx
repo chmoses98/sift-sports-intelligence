@@ -348,7 +348,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
           <h3 className="fx-card__t" id="pexa-sens"><Icon name="layers" size={16} /> Game script sensitivity</h3>
           {scripts ? (
             <>
-              <table className="fr-t">
+              <div className="lab__tw" tabIndex={0} role="region" aria-label="Game script sensitivity"><table className="fr-t">
                 <caption className="sr-only">{vol.label} for {row.team.abbr} in each simulated script</caption>
                 <thead><tr><th scope="col">Script</th><th scope="col">Sim share</th><th scope="col" className="r">{vol.label.replace('Team ', `${row.team.abbr} `)}</th><th scope="col" className="r">vs avg</th></tr></thead>
                 <tbody>
@@ -366,7 +366,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
               <p className="fr-note">Team volume in simulated games that end each way. Player projections by script are not published, so no player number is shown per script.</p>
             </>
           ) : <CapabilityState title="No script summary for this game">The publication attached no simulated scripts, so Sift shows no script sensitivity.</CapabilityState>}

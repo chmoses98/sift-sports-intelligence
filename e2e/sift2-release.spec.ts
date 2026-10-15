@@ -21,8 +21,30 @@ for(const [slug,id,now,root]of sports)test(`${slug} workspace home, game and dee
  const internal=await page.locator('main a[href]').evaluateAll(els=>els.map(e=>e.getAttribute('href')!).filter(h=>h.startsWith('#/')));expect(internal.filter(h=>!h.startsWith('#/design'))).toEqual([]);
  const deep=page.locator('main a[href*="/market/"],main a[href*="/team/"],main a[href*="/player/"]').filter({visible:true}).first();if(await deep.count()){await deep.click();await expect(page).toHaveURL(/#\/design\/sift2\//);await expect(page.getByRole('heading',{level:1}).first()).toBeVisible();await expect(page.locator('main .skel')).toHaveCount(0);await noHorizontalOverflow(page,slug+' research');}
 });
+test('saved research survives a fresh load and search keeps workspace context @smoke',async({page,context,browserName})=>{
+ await page.clock.install({time:NOW});
+ await page.goto('#/design/sift2/nfl/game/evt_8e764f246d2916e5a347?tab=props');
+ await page.locator('.s2-player').first().locator('.s2-player__markets>a').first().click();
+ const name=(await page.locator('#pexa-t').innerText()).split('\n')[0];
+ await page.getByRole('button',{name:/^Save .* to My Board$/}).first().click();
+ await expect(page.getByRole('status').filter({hasText:'to My Board'})).toBeVisible();
+ // A new document proves persistence, including WebKit where long-journey reloads are unstable.
+ const fresh=await context.newPage();await fresh.clock.install({time:NOW});await fresh.goto('#/design/sift2/board');
+ const entry=fresh.locator('.bentry').first();await expect(entry).toContainText(name);await expect(entry.locator('.bentry__t')).toHaveAttribute('href',/^#\/design\/sift2\//);
+ await fresh.screenshot({path:test.info().outputPath('saved-board.png'),scale:'css'});
+ await entry.locator('.bentry__t').click();await expect(fresh.locator('#pexa-t')).toContainText(name);await noHorizontalOverflow(fresh,'Saved prop');
+ await fresh.goto('#/design/sift2/search?q=Josh%20Allen');const result=fresh.locator('main a[href*="/player/"]').first();await expect(result).toBeVisible();await expect(result).toHaveAttribute('href',/^#\/design\/sift2\//);await result.click();await expect(fresh).toHaveURL(/#\/design\/sift2\/nfl\/player\//);await noHorizontalOverflow(fresh,`${browserName} search result`);await fresh.close();
+});
+test('failed Lab schedule publication is unavailable, not an empty slate @smoke',async({page,errors})=>{
+ // Only the deliberately failed schedule endpoint is expected to log an HTTP error.
+ errors.allow(/503.*\/data\/nfl\/app\/latest\/board\.json/);
+ await page.clock.install({time:NOW});await page.route('**/data/nfl/app/latest/board.json',route=>route.fulfill({status:503,body:'unavailable'}));
+ await page.goto('#/design/sift2/lab?sport=nfl');await expect(page.getByRole('alert')).toContainText('not evidence of an empty slate');await expect(page.getByRole('heading',{name:'Stats & rankings',exact:true})).toBeVisible();await noHorizontalOverflow(page,'Partial Lab publication');
+ await page.goto('#/design/sift2/intelligence?sport=NFL');await expect(page.getByRole('alert')).toContainText('not a no-opportunity verdict');await noHorizontalOverflow(page,'Unavailable Intelligence publication');
+});
 test('connected Home, Games, Props, Intelligence, Lab and Board @smoke',async({page})=>{
  await page.clock.install({time:NOW});
  for(const path of ['home','games','props','intelligence','lab','board']){await page.goto(`#/design/sift2/${path}`);await expect(page.getByRole('heading',{level:1}).first()).toBeVisible();await expect(page.locator('main .skel')).toHaveCount(0);if(path==='home')await expect(page.locator('.sift2-home__cards .s2-match-card').first()).toBeVisible();await noHorizontalOverflow(page,path);await page.evaluate(()=>document.fonts.ready);await page.screenshot({path:test.info().outputPath(`${path}.png`),scale:'css'});}
  await page.goto('#/design/sift2/nfl/game/evt_8e764f246d2916e5a347?tab=props');const player=page.locator('.s2-player').first();await expect(player).toBeVisible();const name=(await player.locator('.s2-player__name').innerText()).replace('›','').trim();await player.locator('.s2-player__markets>a').first().click();await expect(page).toHaveURL(/#\/design\/sift2\/nfl\/props\?/);await expect(page.locator('#pexa-t')).toContainText(name);await noHorizontalOverflow(page,'Focused prop');
+ await page.screenshot({path:test.info().outputPath('focused-prop.png'),scale:'css'});
 });

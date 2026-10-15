@@ -105,6 +105,7 @@ export function TerminalView() {
   const urlLayout = sp.get('layout');
   const layout: Layout = isLayout(urlLayout) ? urlLayout : layoutFromWorkspace(sp.get('ws')) ?? prefs.layout;
   const sport = sp.get('sport');
+  const unavailable = all.bundles.filter((b) => (!sport || b.sport.code === sport || b.sport.slug === sport) && b.error);
   const kind = (sp.get('kind') as DiscoveryKind | null) ?? null;
   const selectedId = sp.get('d');
   const nflIds = useMemo(() => {
@@ -208,12 +209,13 @@ export function TerminalView() {
             {TYPE_FILTERS.filter((t) => counts.get(t.kind)).map((t) => <button key={t.kind} type="button" className={kind === t.kind ? 'is-on' : undefined} aria-pressed={kind === t.kind} onClick={() => set('kind', kind === t.kind ? null : t.kind)}>{t.label} <small>{counts.get(t.kind)}</small></button>)}
           </div>
           <div className="tboard__head" aria-hidden="true"><span>Sport</span><span>Matchup</span><span>Type</span><span>Insight</span><span>Importance</span></div>
+          {!all.loading && (all.error || unavailable.length > 0) && <p role="alert" className="fr-note">{all.error ? 'Discovery publications are unavailable.' : `Publication unavailable: ${unavailable.map((b) => b.sport.label).join(', ')}.`} Available research remains visible. Missing publications are not a no-opportunity verdict.</p>}
           {loading && !discoveries.length ? <Skeleton lines={6} /> : shown.length ? (
             <div className="tboard__scroll" role="region" aria-label="Discoveries">
               <ol className="term__list">{shown.slice(0, limit).map((d) => <li key={d.id}><BoardRow d={d} g={d.eventId ? games.get(d.eventId) : undefined} active={selected?.id === d.id} onSelect={() => sel(d.id)} /></li>)}</ol>
               {shown.length > limit && <div className="term__more"><button type="button" className="btn btn--sm btn--glass" onClick={() => setLimit((n) => n + BOARD_PAGE)}>Show {Math.min(BOARD_PAGE, shown.length - limit)} more · {shown.length - limit} left</button></div>}
             </div>
-          ) : <div className="bempty"><h3>No discoveries match</h3><p>Change the sport or type. An empty board is an honest result on a quiet day.</p></div>}
+          ) : <div className="bempty"><h3>No discoveries match</h3><p>{all.error || unavailable.length > 0 ? 'Some research could not be read. Check Sources for publication status or select another sport.' : 'Change the sport or type. An empty board is an honest result on a quiet day.'}</p></div>}
           {nfl.loading && <p className="muted term__loading">Reading NFL matchup research…</p>}
         </section>
         <div className="term__main">

@@ -56,3 +56,7 @@ Reference prices, schedules, scores, records, broadcast networks, weather and sc
 ### Visual fidelity milestone after second rejected implementation
 
 The owner has not approved the prior screenshots. Freeze expansion into other screens while Games and Game Command Center are compared directly with the original three mockups. `VISUAL-FIDELITY.md` records the ten largest differences, matched viewport measurements, successive visual corrections, imagery quality gates and unresolved assets. Technical tests and design acceptance are explicitly separate. All work remains in draft PR #93, with no production merge/deployment authorization.
+
+### Owner continuation — integration milestone
+
+The latest owner direction supersedes the expansion freeze above: preserve the improved compositions, stop repeated minor visual iterations, and complete the connected release candidate across Home, Games, Game Command Center, Props, Intelligence, Research Lab and all supported sports. Stadium/player photography collection is a separate workstream; use existing approved assets and branded fallbacks, retaining `ASSET-POLISH.md` as the procurement ledger. Preserve opponent-adjusted research, market restrictions, data integrations and accessibility. `RELEASE-CANDIDATE.md` tracks verification and remaining release gates. This direction is not final visual approval and does not authorize production merges or deployments.

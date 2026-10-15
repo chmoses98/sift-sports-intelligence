@@ -27,3 +27,9 @@
 .sift2-home__status{padding:24px;color:var(--sift2-text-muted)}
 .sift2-home__cards article{min-width:0;overflow-wrap:anywhere}
 .sift2-home__cards article h3{line-height:1.2}
+
+.sift2-home__findings{list-style:none;padding:0;margin:12px 0 20px;display:grid;gap:14px}
+.sift2-home__findings li{padding:0 0 14px;border-bottom:1px solid var(--sift2-glass-border);min-width:0;overflow-wrap:anywhere}
+.sift2-home__findings strong{display:block;margin:7px 0;font-size:1rem;line-height:1.35}
+.sift2-home__findings p{font-size:.87rem;margin:6px 0 9px}
+.sift2-home .htp{margin-top:18px}

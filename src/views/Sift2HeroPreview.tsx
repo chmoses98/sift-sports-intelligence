@@ -11,7 +11,7 @@ export function Sift2HeroPreview() {
       <header className="sift2-preview__head">
         <div>
           <p className="sift2-preview__kicker">SIFT 2.0 / DESIGN LAB</p>
-          <h1>Game Command Center — Hero Study</h1>
+          <h2>Game Command Center — Hero Study</h2>
           <p>Visual-only concept. Matchup, venue context and research below are illustrative, not live or verified.</p>
         </div>
         <button type="button" aria-pressed={compact} onClick={() => setCompact((v) => !v)}>

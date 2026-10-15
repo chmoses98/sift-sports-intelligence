@@ -152,7 +152,8 @@
   box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.6);
   transform: translateY(105%); transition: transform var(--t-med) var(--ease);
 }
-.sheet.is-open { transform: none; }
+.sheet[aria-hidden="true"] { visibility: hidden; }
+.sheet.is-open { transform: none; visibility: visible; }
 .sheet__grip { width: 40px; height: 4px; border-radius: 2px; background: var(--line-3); margin: 4px auto 6px; }
 .sheet__h { display: flex; justify-content: space-between; align-items: center; min-height: 40px; margin-top: 4px; }
 .sheet__sports { list-style: none; margin: 0 0 var(--s-3); padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }

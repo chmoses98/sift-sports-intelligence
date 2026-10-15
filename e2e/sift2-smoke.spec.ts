@@ -1,4 +1,7 @@
-import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { test, expect, NOW } from './fixtures';
+
+test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 
 // SIFT 2.0 remains isolated from the production Home route.
 // Smoke checks cover actual browser layout, not model performance or price accuracy.
@@ -12,6 +15,14 @@ test('SIFT 2.0 Home renders published-data states without horizontal overflow @s
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.getByRole('link', { name: /Open current prop board/ })).toHaveAttribute('href', /props/);
   await expect(page.getByRole('link', { name: /Open intelligence/ })).toHaveAttribute('href', /intelligence/);
+  await expect(page.getByText('Loading published slate…')).toBeHidden();
+  const accessibility = await new AxeBuilder({ page }).include('.sift2-home').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(accessibility.violations).toEqual([]);
+  await page.evaluate(() => document.fonts.ready);
+  await expect(page.locator('.sift2-home__marks')).toBeVisible();
+  await expect(page.locator('.sheet[aria-hidden="true"]')).toBeHidden();
+  await page.screenshot({ path: test.info().outputPath('sift2-home.png'), fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('sift2-home-viewport.png') });
 });
 
 test('SIFT 2.0 hero preview preserves heading and phone toggle @smoke', async ({ page }) => {

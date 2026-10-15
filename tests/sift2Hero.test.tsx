@@ -1,7 +1,9 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { CinematicHero } from '../src/components/sift2/CinematicHero';
 import { Sift2HeroPreview } from '../src/views/Sift2HeroPreview';
+
+afterEach(cleanup);
 
 describe('SIFT 2.0 cinematic hero', () => {
   it('renders semantic title and supplied content without inventing scores or prices', () => {

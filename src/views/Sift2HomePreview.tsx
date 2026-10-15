@@ -46,14 +46,14 @@ export function Sift2HomePreview() {
                   <span className="sift2-home__eyebrow">{g.sport} · {phaseWord(g)}</span>
                   <h3>{g.label}</h3>
                   <p>{g.candidates > 0 ? `${g.candidates} flagged for research review` : 'No flagged candidates'}</p>
-                  <Link to={routes.game(g.slug, g.item.event_id)}>View game →</Link>
+                  <Link to={`/design/sift2${routes.game(g.slug, g.item.event_id)}`}>View game →</Link>
                 </article>
               )) : <div className="sift2-surface sift2-home__status">No games published for today. <Link to="/games?day=week">See the next seven days →</Link></div>}
             </div>
           </section>
           <section aria-labelledby="sift2-explorer-title" className="sift2-home__section">
-            <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">PLAYER RESEARCH</span><h2 id="sift2-explorer-title">Player Prop Explorer</h2></div><Link to="/props">Open current prop board →</Link></div>
-            <div className="sift2-surface sift2-home__explorer"><div><h3>Find the player. Understand the matchup. Compare the markets.</h3><p>Ranked props below come from the existing evidence-gated SIFT board, not invented sample selections.</p></div><Link to="/props">Explore props →</Link></div>
+            <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">PLAYER RESEARCH</span><h2 id="sift2-explorer-title">Player Prop Explorer</h2></div><Link to="/design/sift2/props">Open current prop board →</Link></div>
+            <div className="sift2-surface sift2-home__explorer"><div><h3>Find the player. Understand the matchup. Compare the markets.</h3><p>Ranked props below come from the existing evidence-gated SIFT board, not invented sample selections.</p></div><Link to="/design/sift2/props">Explore props →</Link></div>
             {unavailable ? <p role="status">Player research is unavailable while the publication is offline.</p> : all.loading ? <p role="status">Loading published player research…</p> : <Suspense fallback={<p role="status">Loading player research…</p>}><HomeTopProps opportunities={all.opportunities} now={now} /></Suspense>}
           </section>
         </div>
@@ -68,9 +68,9 @@ export function Sift2HomePreview() {
                 </li>
               ))}</ul>
             ) : <p>No findings flagged in the current publications. SIFT does not manufacture signals.</p>}
-            <Link to="/intelligence">Open intelligence →</Link></section>
+            <Link to="/design/sift2/intelligence">Open intelligence →</Link></section>
           <section className="sift2-surface"><span className="sift2-home__eyebrow">MY BOARD</span><h2>Your research, organized</h2><p>Keep interesting games and markets in one place.</p><Link to="/board">Open My Board →</Link></section>
-          <section className="sift2-surface"><span className="sift2-home__eyebrow">RESEARCH LAB</span><h2>Go deeper</h2><p>Explore matchup drivers, evidence and historical context.</p><Link to="/explore">Explore research →</Link></section>
+          <section className="sift2-surface"><span className="sift2-home__eyebrow">RESEARCH LAB</span><h2>Go deeper</h2><p>Explore matchup drivers, evidence and historical context.</p><Link to="/design/sift2/lab">Explore research →</Link></section>
         </aside>
       </div>
     </main>

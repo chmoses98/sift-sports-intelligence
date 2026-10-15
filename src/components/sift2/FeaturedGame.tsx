@@ -24,7 +24,7 @@ export function Sift2FeaturedGame({ game }: { game: GameRow }) {
       <span className="sift2-home__eyebrow">GAME INTELLIGENCE</span>
       <strong>{game.candidates > 0 ? `${game.candidates} research candidate${game.candidates === 1 ? '' : 's'}` : 'Explore game research'}</strong>
       <p>Review the evidence, market freshness and research restrictions.</p>
-      <Link to={routes.game(game.slug, game.item.event_id)}>Open game research →</Link>
+      <Link to={`/design/sift2${routes.game(game.slug, game.item.event_id)}`}>Open game research →</Link>
       {spec.photo && <small className="sift2-home__credit">Photo: {spec.photo.credit.artist} · <a href={spec.photo.credit.licenseUrl ?? spec.photo.credit.source}>{spec.photo.credit.license}</a></small>}
     </div>
   </CinematicHero>;

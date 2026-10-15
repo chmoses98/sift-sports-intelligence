@@ -1,0 +1,22 @@
+/* All styles are opt-in: production destinations keep their own presentation. */
+.sift2-workspace{font-family:var(--sift2-font-body);color:var(--sift2-text);min-width:0;background:radial-gradient(ellipse at 100% 0,rgba(30,110,220,.08),transparent 55%)}
+.sift2-workspace__bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:16px;padding-bottom:16px}
+.sift2-workspace__bar>a{color:var(--sift2-accent);font-size:.72rem;letter-spacing:.14em;font-weight:700}
+.sift2-workspace__bar nav{display:flex;flex-wrap:wrap;gap:8px}
+.sift2-workspace__bar nav a{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid var(--sift2-glass-border);border-radius:10px;color:var(--sift2-text-muted);font-weight:600;font-size:.9rem}
+.sift2-workspace__bar nav a.active{background:var(--sift2-accent-soft);color:var(--sift2-text);border-color:var(--sift2-accent)}
+.sift2-workspace a:focus-visible,.sift2-workspace summary:focus-visible{outline:2px solid var(--sift2-accent);outline-offset:3px}
+.sift2-command .gh{border-radius:var(--sift2-radius-lg);border:1px solid var(--sift2-glass-border)}
+.sift2-command .gtabs{border-radius:12px}
+.sift2-command__more{margin:12px 0 24px;color:var(--sift2-text-muted);font-size:.9rem}
+.sift2-command__more summary{cursor:pointer;display:list-item;min-height:40px;padding:10px 4px}
+.sift2-command__more .gtabs{position:static}
+.sift2-command .fx-card{border-color:var(--sift2-glass-border)}
+.sift2-workspace .page{min-width:0}
+@media(max-width:720px){.sift2-workspace__bar{gap:10px}.sift2-workspace__bar nav{gap:6px}.sift2-workspace__bar nav a{font-size:.8rem;padding:7px 9px}.sift2-command .gh{border-radius:18px}}
+
+@media(max-width:720px){.sift2-command>.gtabs .fx-tab{flex:1;justify-content:center;padding:10px 6px;font-size:.82rem;gap:4px;min-height:44px}}
+@media(max-width:420px){.sift2-command>.gtabs .fx-tab svg{display:none}}
+
+.sift2-command__evidence{border:1px solid var(--sift2-glass-border);border-radius:16px;background:var(--sift2-glass);padding:16px 20px}
+.sift2-command__evidence>summary{cursor:pointer;min-height:30px;line-height:1.5;color:var(--sift2-text);font-weight:600}

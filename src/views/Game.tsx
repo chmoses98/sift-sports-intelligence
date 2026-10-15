@@ -70,7 +70,7 @@ const SoccerMatchView = lazy(() => import('./soccer/SoccerMatch').then((m) => ({
 const TennisMatchView = lazy(() => import('./tennis/TennisMatch').then((m) => ({ default: m.TennisMatchView })));
 const NbaGameView = lazy(() => import('./nba/NbaGame').then((m) => ({ default: m.NbaGameView })));
 
-export function GameRoute() {
+export function GameRoute({ sift2 = false }: { sift2?: boolean }) {
   const { eventId = '' } = useParams();
   const [sp] = useSearchParams();
   const { repo, sport } = useSport();
@@ -98,7 +98,7 @@ export function GameRoute() {
     if (!dir.data.hasEventResearch(eventId)) return <div className="page"><Notice title="This game has no research page">The CBB publication keeps research for games in its current window (recent results and the coming week). Nothing is reconstructed for older games.</Notice></div>;
     return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><CbbGameView eventId={eventId} /></Suspense>;
   }
-  if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} />;
+  if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} sift2={sift2} />;
   return <HistoricalGameView eventId={eventId} teamId={sp.get('team')} />;
 }
 
@@ -301,7 +301,12 @@ const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'fav-close', 'dog-clo
  * those tabs are not offered. */
 const ENGINE_TABS = TABS.filter(([k]) => k !== 'players' && k !== 'injuries' && k !== 'props');
 
-export function GameView({ eventId }: { eventId: string }) {
+/** Keep the overview concise without removing the full matchup explanation. */
+function OverviewResearchDetails({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  return enabled ? <details className="sift2-command__evidence"><summary>Full matchup evidence and context</summary>{children}</details> : <>{children}</>;
+}
+
+export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: boolean }) {
   const { sport, repo, slug, metrics, caps } = useSport();
   const [sp] = useSearchParams();
   const tab = (TABS.find(([k]) => k === sp.get('tab'))?.[0] ?? 'overview') as GameTab;
@@ -372,7 +377,10 @@ export function GameView({ eventId }: { eventId: string }) {
   const ext = r.extensions as any;
   const homeAbbr = short(homeP.participant_id);
   const awayAbbr = short(awayP.participant_id);
-  const href = (t: GameTab, script: ScriptId | null = selected) => routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
+  const href = (t: GameTab, script: ScriptId | null = selected) => {
+    const path = routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
+    return sift2 ? `/design/sift2${path}` : path;
+  };
   const hrefFor = (id: ScriptId | null) => href(tab, id);
   const injuries = injuryRows(r);
   const favAbbr = set ? (set.fav === 'home' ? homeAbbr : awayAbbr) : homeAbbr;
@@ -486,10 +494,13 @@ export function GameView({ eventId }: { eventId: string }) {
 
   return (
     <MarketIconProvider value={iconCtx}>
-    <div className="page game">
+    <div className={`page game${sift2 ? ' sift2-command' : ''}`}>
       <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
 
-      <GameTabs tabs={TABS} current={tab} href={(k) => href(k)} />
+      {sift2 ? <>
+        <GameTabs tabs={TABS.filter(([k]) => ['overview', 'matchup', 'props', 'markets'].includes(k)).map(([k, label]) => [k, k === 'props' ? 'Players' : k === 'matchup' ? 'Matchups' : label] as [GameTab, string])} current={tab} href={(k) => href(k)} />
+        <details className="sift2-command__more" open={!['overview', 'matchup', 'props', 'markets'].includes(tab)}><summary>More game research</summary><GameTabs tabs={TABS.filter(([k]) => !['overview', 'matchup', 'props', 'markets'].includes(k)).map(([k, label]) => [k, k === 'players' ? 'Player usage' : label] as [GameTab, string])} current={tab} href={(k) => href(k)} /></details>
+      </> : <GameTabs tabs={TABS} current={tab} href={(k) => href(k)} />}
 
       {engine && !isEngine(engine) && (
         <Notice tone="research" title="No script engine read for this game">
@@ -521,6 +532,7 @@ export function GameView({ eventId }: { eventId: string }) {
             ]} />
           </div>
 
+          <OverviewResearchDetails enabled={sift2}>
           <section className="gsec gsec--fx" aria-labelledby="g-matters-h">
             <div className="gsec__h">
               <h2 id="g-matters-h" className="gsec__t">What Matters</h2>
@@ -529,6 +541,8 @@ export function GameView({ eventId }: { eventId: string }) {
             {matters.length ? <div className="mgrid">{matters}</div> : <p className="muted">No unit in this game holds a clear ranked edge over the unit it faces — an evenly matched game on the published ratings. <Link to={href('matchup')}>See every matchup →</Link></p>}
             {insights.length > 3 || matters.length >= 5 ? <p className="gsec__more"><Link to={href('matchup')}>Every matchup, scheme and metric →</Link></p> : null}
           </section>
+
+          </OverviewResearchDetails>
 
           <details className="gmore">
             <summary className="gmore__s"><Icon name="layers" size={18} /><span>Form, injuries and the lines</span><small>Recent results, availability, market and model lines, line history</small></summary>

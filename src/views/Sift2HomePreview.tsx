@@ -25,9 +25,10 @@ export function Sift2HomePreview() {
     <main className="sift2-home page">
       <header className="sift2-home__header">
         <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h1>Today's command center</h1>
-          <p>{dateLabel} · {all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sports`} · Explore evidence, not fabricated picks.</p></div>
+          <p>{dateLabel} · {all.error ? 'Published feed unavailable' : all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sports`} · Explore evidence, not fabricated picks.</p></div>
         <span className="sift2-home__preview">DESIGN PREVIEW · PUBLISHED SLATE</span>
       </header>
+      {all.error ? <p role="alert" className="sift2-surface sift2-home__status">Published research is temporarily unavailable. Do not interpret missing games or findings as a no-edge verdict.</p> : null}
       <div className="sift2-home__layout">
         <div className="sift2-home__main">
           {all.loading ? <div className="sift2-surface sift2-home__status" role="status">Loading published slate…</div> : featured ? (

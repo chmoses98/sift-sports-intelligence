@@ -38,3 +38,37 @@ The local execution server has recovered; the cleared scratch checkout was resto
 Fixture captures reuse existing publications, not current odds. Existing CBB and MLB prop fixture extensions are test-only, not live research. Unsupported upstream capabilities remain explicitly unavailable. No invented scores, odds, projections, conditional prop probabilities or research findings.
 
 This is a reviewable integration candidate, not yet an approved release. The completed CI evidence supersedes the earlier interrupted local matrix, but its three screenshot failures must be resolved by a clean rerun. Photography procurement remains documented in `ASSET-POLISH.md`; no additional imagery is invented or substituted. The portable screenshot review includes dated fixture labels and source/licence registers.
+
+## Refinement pass — October 15 (after owner screenshot review)
+
+Owner verdict on 458e710: architecture and visual foundation approved for refinement; not yet visually or functionally approved. Work is in PR #93 (`c8ab36d`, plus the follow-up recorded below). No merge or deployment.
+
+### Findings that needed no code fix (Priority 1)
+
+- **October 4 slate:** a test artifact. The e2e fixtures install a fixed clock (`NOW = 2026-10-04T15:00Z`). Real users get `Date.now()` via `useNow`; Home/Games decide "today" from the viewer's local calendar day (`inDay`/`dayNum`).
+- **UTC kickoff times:** a test artifact. Hero kickoffs use `toLocaleTimeString(undefined, { timeZoneName: 'short' })` in the browser zone; Playwright defaults to UTC. Captures made with a non-UTC zone show "8:30 AM CDT". New `e2e/sift2-time.spec.ts` pins both behaviours (Chicago: Sunday Oct 4 with CDT; Auckland: the same published games under the local Monday with an NZ zone label).
+- **Unavailable feeds:** the fixtures deliberately block all non-NFL feeds, so 6 sports show as unavailable. The failure handling (explicit notices; never an empty-slate or no-findings verdict) is unchanged and covered by `tests/sift2Home.test.tsx` and `e2e/sift2-release.spec.ts`.
+- **Data-state vocabulary:** published data (NFL fixture slate), historical preview fixtures (fixed-clock captures), unavailable data (failed feeds), research-only (Research/History labels, "not a validated edge") remain distinct. Home Intelligence now lists research findings only and says feeds are unavailable instead of presenting publication failures as findings.
+
+### Changes
+
+- Home: compact header and feed notice, proportionate featured card, Intelligence and the slate ahead of the lower sections on narrow screens, slate names no longer break mid-word.
+- Player Prop Explorer (phone): compact header and sport selector, short research caption (research-only label kept), denser rows with the face/name overlap fixed, price/badge collision fixed, an opponent-adjusted context line per prop from the published matchup rank. No projection-vs-line distance is presented as EV.
+- Command Center: Game Read is short plain-English lines plus an explicit "not a forecast or betting recommendation" caveat; phone hero 310px to 250px (the two fidelity geometry assertions in `sift2-fidelity-capture.spec.ts` were updated deliberately, desktop unchanged).
+- Intelligence: data-quality notices sort after research findings and read "Data quality" rather than "High"; board rows show the matchup evidence; the unavailable-feed notice is compact but still an alert.
+- Research Lab: tool-card logos are small badges; descriptions are no longer clipped; long stat labels are readable via title.
+- All new CSS lives in `src/styles/sift2-refine.css`, scoped to `.app--sift2`. Shared view components were edited (props rows, Intelligence, Lab), so these refinements also apply wherever those components render.
+
+### Verification
+
+- CI on `c8ab36d` (runs 38819601461 and 38819605893): lint, typecheck, unit/integration, build, base-path check and the Chromium + WebKit acceptance suite **passed**, including all `@visual` comparisons at the existing 1% tolerance. No baselines were updated.
+- Local: lint, typecheck, 1,106 unit tests, and the SIFT 2.0 browser specs on desktop and phone pass.
+- Local full-suite visual failures (60) are environmental: the untouched 458e710 fails the same tests with identical pixel counts. Local screenshots are not a valid comparison for the CI-rendered baselines; CI is the reference.
+- Two real regressions of this pass were found by the existing guards and fixed before CI: the phone Game Read density limit (310px) and the required "DESIGN PREVIEW" label.
+
+### Not verified / requires external runtime validation
+
+- No live-feed verification. Browser tests use committed fixtures with external feeds blocked and a fixed clock. The live publication feeds, live Kalshi relay quotes and a real-clock "today" slate need validation against production feeds from a deployed preview. The Vercel preview is blocked by the account's deployment rate limit.
+- Games phone hero remains tall (about 300px). It was not in this pass's priorities.
+- Prop context line covers NFL only (the explorer's data); MLB/NHL props remain on game pages.
+- Photography gaps remain in `ASSET-POLISH.md`. Owner visual approval is still open.

@@ -57,7 +57,7 @@
   .app--sift2 .phub__sport{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;min-height:0;text-align:center}
   .app--sift2 .phub__sic,.app--sift2 .phub__sb small{display:none}
   .app--sift2 .phub__sb b{font-size:15px}
-  .app--sift2 .phub__mode{font-size:9px;padding:2px 6px;letter-spacing:.04em;white-space:normal;line-height:1.15}
+  .app--sift2 .phub__mode{padding:2px 6px;line-height:1.15}
   .app--sift2 .phub__games{margin-bottom:6px}
   .app--sift2 .phub__gh{margin-bottom:4px}
   .app--sift2 .phub__k{font-size:13px}
@@ -68,7 +68,13 @@
   .app--sift2 .tprops__sub{font-size:12px;margin:2px 0 0;line-height:1.35}
   .app--sift2 .tprops__long{display:none}
   .app--sift2 .tprops__filters{gap:6px;margin-bottom:6px}
-  .app--sift2 .tprow{grid-template-columns:36px 46px minmax(0,1fr) 38px;gap:2px 8px;padding:8px 8px 8px 2px}
+  .app--sift2 .tprow{grid-template-columns:36px 46px minmax(0,1fr) auto;gap:2px 8px;padding:8px 8px 8px 2px}
+  .app--sift2 .tprow__go{justify-self:end}
+  .app--sift2 .tprow__auth{justify-self:end;align-self:center}
+  .app--sift2 .phub__mode{white-space:nowrap;font-size:8.5px;letter-spacing:.02em}
+  .app--sift2 .tprops__filters .term__sel{display:flex;align-items:center;gap:8px}
+  .app--sift2 .tprops__filters .term__sel>span{flex:0 0 auto;margin:0}
+  .app--sift2 .tprops__filters .term__sel select{flex:1;min-height:38px;font-size:14px}
   .app--sift2 .tprow>.pface{width:44px;height:44px;border-radius:8px}
   .app--sift2 .tprow__go{width:38px;height:38px}
   .app--sift2 .tprow__who b{font-size:15px}

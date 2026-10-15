@@ -33,3 +33,9 @@
 .sift2-home__findings strong{display:block;margin:7px 0;font-size:1rem;line-height:1.35}
 .sift2-home__findings p{font-size:.87rem;margin:6px 0 9px}
 .sift2-home .htp{margin-top:18px}
+
+/* Guard long published names and narrow phone widths without clipping navigation. */
+.sift2-home__layout,.sift2-home__main,.sift2-home__aside,.sift2-home__cards>*{min-width:0}
+.sift2-home__header h1,.sift2-home__cards h3,.sift2-home__findings strong{overflow-wrap:anywhere}
+.sift2-home__section-head>a,.sift2-home__explorer>a{min-height:36px;display:inline-flex;align-items:center}
+@media(max-width:720px){.sift2-home__header h1{font-size:clamp(2rem,10vw,3rem)}.sift2-home__cards{gap:12px}.sift2-home__aside{gap:12px}}

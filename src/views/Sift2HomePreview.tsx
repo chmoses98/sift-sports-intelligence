@@ -24,14 +24,14 @@ export function Sift2HomePreview() {
   return (
     <main className="sift2-home page">
       <header className="sift2-home__header">
-        <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h2>Today's command center</h2>
+        <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h1>Today's command center</h1>
           <p>{dateLabel} · {all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sports`} · Explore evidence, not fabricated picks.</p></div>
         <span className="sift2-home__preview">DESIGN PREVIEW · PUBLISHED SLATE</span>
       </header>
       <div className="sift2-home__layout">
         <div className="sift2-home__main">
           {all.loading ? <div className="sift2-surface sift2-home__status" role="status">Loading published slate…</div> : featured ? (
-            <CinematicHero eyebrow={`${featured.sport} / ${phaseWord(featured)} · PUBLISHED MATCHUP`} title={featured.label}
+            <CinematicHero headingLevel={2} eyebrow={`${featured.sport} / ${phaseWord(featured)} · PUBLISHED MATCHUP`} title={featured.label}
               subtitle="Published matchup identity. Open the game for current research, venue context and market evidence.">
               <div className="sift2-home__hero-card sift2-surface">
                 <span className="sift2-home__eyebrow">GAME INTELLIGENCE</span>

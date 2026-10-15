@@ -16,6 +16,12 @@ describe('SIFT 2.0 cinematic hero', () => {
     expect(container.textContent).not.toMatch(/\d+%|\$\d+/);
   });
 
+  it('supports an embedded secondary heading without losing the hero label', () => {
+    render(<CinematicHero eyebrow="NFL" title="Visitors at Hosts" headingLevel={2} />);
+    expect(screen.getByRole('heading', { level: 2, name: 'Visitors at Hosts' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+  });
+
   it('renders a supplied image decoratively and respects caller focus', () => {
     const { container } = render(
       <CinematicHero eyebrow="NFL" title="Visitors at Hosts"

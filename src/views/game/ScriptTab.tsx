@@ -44,6 +44,15 @@ export function CloseSplitNote({ tie }: { tie: number }) {
   );
 }
 
+/** Shown where the split would be when the publication holds it back: the pooled one-score script stays, nothing is estimated. */
+export function CloseSplitHeldNote() {
+  return (
+    <p className="fr-note" data-testid="close-split-held-note">
+      The one-score script pools both teams’ close wins. Splitting it by winner is held back: over 2021–2025 that split was not shown to be more accurate than the point spread alone.
+    </p>
+  );
+}
+
 export function rangeText(s: GameScript, set: ScriptSet): string {
   const fav = set.fav === 'home' ? set.names.home : set.names.away;
   const dog = set.fav === 'home' ? set.names.away : set.names.home;
@@ -351,7 +360,7 @@ export function ScriptTab({ r, set, selected, hrefFor, rows, slug, eventId, home
                 sport={sportCode} scripts={scripts} selected={s.id} hrefFor={(id) => hrefFor(id as ScriptId)} details={details}
                 label={`Share of simulated games by script: ${set.scripts.map((x) => `${x.name} ${sharePct(x.share)}`).join(', ')}`}
               />
-              {set.tie != null && <CloseSplitNote tie={set.tie} />}
+              {set.tie != null ? <CloseSplitNote tie={set.tie} /> : set.scripts.some((x) => x.id === 'close') && <CloseSplitHeldNote />}
             </section>
 
             <section className="fx-card fx-span-7" aria-labelledby="stab-mk">

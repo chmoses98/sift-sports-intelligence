@@ -8,7 +8,7 @@
 // lead7+ + win1-6 + tie/2 = the published p_home_win (0.7293 − 0.2577 − 0.2445 = 0.2271 = 0.2259 + 0.0024/2).
 import { describe, expect, it } from 'vitest';
 import type { EventResearchDoc, Market } from '../src/contract/types';
-import { gameScripts, oneScoreShare, scriptFit, sharePct } from '../src/lib/scripts';
+import { closeSplitAuthorization, gameScripts, oneScoreShare, scriptFit, sharePct } from '../src/lib/scripts';
 import { marketLabel, priceRow } from '../src/lib/gamedata';
 import { multiScriptSurvivors, scriptExpressions, survivalWords } from '../src/lib/scriptExpressions';
 import { readSnapshot } from './helpers';
@@ -22,12 +22,19 @@ const market = (t: string) => detail.markets.find((m) => m.kalshi_ticker === t)!
 const BUF = { 'win1-6': { share_of_rows: 0.2259, pass_rate_mean: 0.5871, pass_att_mean: 32.4, rush_att_mean: 29.6, plays_mean: 64.4 }, tie: { share_of_rows: 0.0024, n_rows: 48, note: 'too few rows' }, 'lose1-6': { share_of_rows: 0.1358, pass_rate_mean: 0.6281, pass_att_mean: 34.4, rush_att_mean: 27.0, plays_mean: 64.2 } };
 const NE = { 'win1-6': { share_of_rows: 0.1358, pass_rate_mean: 0.6012, pass_att_mean: 31.2, rush_att_mean: 28.4, plays_mean: 62.8 }, tie: { share_of_rows: 0.0024, n_rows: 48, note: 'too few rows' }, 'lose1-6': { share_of_rows: 0.2259, pass_rate_mean: 0.6355, pass_att_mean: 32.6, rush_att_mean: 26.9, plays_mean: 62.5 } };
 
+// The publication's calibration gate (nfl-edge-finder calibration-gates-1.0.0). The split is shown only on an explicit SHOW.
+const gate = (status: string, displayable: unknown) => ({ version: 'calibration-gates-1.0.0', close_win_split: { status, displayable, reason: 'test', artifact: 'research/game_script_v2/close_split_calibration.json', artifact_sha256: null, verdict: null } });
+const SHOW = gate('SHOW', true);
+const SUPPRESS = gate('SUPPRESS', false);
+const NO_GATE = Symbol('legacy publication: no calibration_gates key');
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function withSplit(buf: unknown, ne: unknown): EventResearchDoc {
+function withSplit(buf: unknown, ne: unknown, gates: unknown = SHOW): EventResearchDoc {
   const r = structuredClone(base) as any;
   const tv = r.extensions.game_script_inputs.team_volume;
   if (buf) tv.BUF.by_close_result = buf;
   if (ne) tv.NE.by_close_result = ne;
+  if (gates !== NO_GATE) r.extensions.game_script_inputs.calibration_gates = gates;
   return r as EventResearchDoc;
 }
 
@@ -125,5 +132,72 @@ describe('the close game, split by winner', () => {
     // a share is missing
     expect(ids(withSplit({ 'win1-6': BUF['win1-6'], 'lose1-6': BUF['lose1-6'] }, NE))).toContain('close');
     expect(gameScripts(withSplit(BUF, null))!.tie).toBeNull();
+  });
+});
+
+describe('the calibration gate: no authorisation, no split', () => {
+  const pooled = gameScripts(base)!;
+  const ids = (r: EventResearchDoc) => gameScripts(r)!.scripts.map((s) => s.id);
+  const shape = (set: NonNullable<ReturnType<typeof gameScripts>>) => JSON.stringify({ scripts: set.scripts, tie: set.tie, overall: set.overall, fav: set.fav });
+
+  it('an explicit SHOW authorises the split', () => {
+    const set = gameScripts(withSplit(BUF, NE, SHOW))!;
+    expect(set.scripts.map((s) => s.id)).toContain('fav-close');
+    expect(set.closeSplit).toEqual({ shown: true, gate: 'SHOW' });
+  });
+
+  it('an explicit DO NOT SHOW SPLIT keeps the pooled script even though the shares are valid', () => {
+    const set = gameScripts(withSplit(BUF, NE, SUPPRESS))!;
+    expect(set.scripts.map((s) => s.id)).toContain('close');
+    expect(set.scripts.map((s) => s.id)).not.toContain('fav-close');
+    expect(set.scripts.map((s) => s.id)).not.toContain('dog-close');
+    expect(set.tie).toBeNull();
+    expect(set.closeSplit).toEqual({ shown: false, gate: 'SUPPRESS' });
+  });
+
+  it('a missing gate (a legacy publication) is suppression, and valid-looking shares do not authorise themselves', () => {
+    const set = gameScripts(withSplit(BUF, NE, NO_GATE))!;
+    expect(set.scripts.map((s) => s.id)).toContain('close');
+    expect(set.scripts.map((s) => s.id)).not.toContain('fav-close');
+    expect(set.closeSplit).toEqual({ shown: false, gate: 'MISSING' });
+    expect(ids(withSplit(BUF, NE, {}))).toContain('close');                      // gates object without the split gate
+    expect(ids(withSplit(BUF, NE, { close_win_split: null }))).toContain('close');
+  });
+
+  it.each([
+    ['a string gate', 'SHOW'],
+    ['a string close_win_split', { close_win_split: 'SHOW' }],
+    ['SHOW that is not displayable', gate('SHOW', false)],
+    ['SHOW with a truthy string', gate('SHOW', 'true')],
+    ['SHOW with a number', gate('SHOW', 1)],
+    ['SHOW with no displayable flag', gate('SHOW', undefined)],
+    ['SUPPRESS that claims to be displayable', gate('SUPPRESS', true)],
+    ['an unknown status', gate('MAYBE', true)],
+    ['a lower-case status', gate('show', true)],
+    ['an array', []],
+  ])('a malformed gate (%s) suppresses the split', (_name, gates) => {
+    const set = gameScripts(withSplit(BUF, NE, gates))!;
+    expect(set.scripts.map((s) => s.id)).toContain('close');
+    expect(set.scripts.map((s) => s.id)).not.toContain('fav-close');
+    expect(set.closeSplit.shown).toBe(false);
+  });
+
+  it('leaves every other script probability unchanged, and a suppressed publication reads exactly like one with no split data', () => {
+    expect(shape(gameScripts(withSplit(BUF, NE, SUPPRESS))!)).toBe(shape(pooled));
+    expect(shape(gameScripts(withSplit(BUF, NE, NO_GATE))!)).toBe(shape(pooled));
+    const shown = gameScripts(withSplit(BUF, NE, SHOW))!;
+    for (const id of ['fav-big', 'fav', 'dog']) expect(shown.scripts.find((s) => s.id === id)!.share).toBe(pooled.scripts.find((s) => s.id === id)!.share);
+    expect(pooled.scripts.find((s) => s.id === 'close')!.share).toBeCloseTo(0.3641, 4);
+    expect(oneScoreShare(gameScripts(withSplit(BUF, NE, SUPPRESS))!)).toBeCloseTo(0.3641, 4);
+  });
+
+  it('closeSplitAuthorization reads only an exact SHOW or SUPPRESS', () => {
+    expect(closeSplitAuthorization(SHOW)).toBe('SHOW');
+    expect(closeSplitAuthorization(SUPPRESS)).toBe('SUPPRESS');
+    expect(closeSplitAuthorization(undefined)).toBe('MISSING');
+    expect(closeSplitAuthorization(null)).toBe('MISSING');
+    expect(closeSplitAuthorization({})).toBe('MISSING');
+    expect(closeSplitAuthorization('SHOW')).toBe('MISSING');
+    expect(closeSplitAuthorization(gate('SHOW', 'true'))).toBe('INVALID');
   });
 });

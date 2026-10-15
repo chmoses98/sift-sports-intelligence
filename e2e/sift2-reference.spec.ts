@@ -50,6 +50,7 @@ test('Game Command Center preserves venue identity and four primary tabs @smoke'
   await page.locator('.sift2-command>.gtabs').getByRole('link', { name: 'Players', exact: true }).click();
   await expect(page).toHaveURL(/tab=props/);
   await expect(page.locator('.s2-player-list .s2-player').first()).toBeVisible();
+  await expect(page.locator('#s2-full-props [data-testid="props-board"]')).toHaveCount(0);
   const query = page.getByRole('searchbox', { name: 'Search players, props or markets' });
   await query.fill('zz-no-player');
   await expect(page.getByText(/No published player snapshots match/)).toBeVisible();
@@ -61,5 +62,6 @@ test('Game Command Center preserves venue identity and four primary tabs @smoke'
   await page.screenshot({ path: test.info().outputPath('command-players.png'), fullPage: true, scale: 'css' });
   await page.getByRole('button', { name: 'Alt lines & full research' }).click();
   await expect(page.locator('#s2-full-props')).toHaveAttribute('open');
+  await expect(page.locator('#s2-full-props [data-testid="props-board"]')).toBeVisible();
   await expect(page).toHaveURL(/tab=props/);
 });

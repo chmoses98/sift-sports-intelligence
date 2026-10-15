@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
+import { ResearchDetails } from '../components/sift2/ResearchDetails';
 import { Link, useParams, useSearchParams } from '../routing';
 import { PriceHistory } from '../charts/PriceHistory';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
@@ -591,7 +592,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
       )}
 
       {tab === 'props' && (
-        sift2 ? <><div className="s2-players-view"><PlayerSnapshot showNotes={false} loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} title="Market Snapshot" /><PlayerSnapshotNotes /></div><details className="sift2-command__evidence" id="s2-full-props"><summary>Full prop research and alternate lines</summary><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></details></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
+        sift2 ? <><div className="s2-players-view"><PlayerSnapshot showNotes={false} loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} title="Market Snapshot" /><PlayerSnapshotNotes /></div><ResearchDetails key={eventId} id="s2-full-props" summary="Full prop research and alternate lines"><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></ResearchDetails></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
       )}
 
       {tab === 'markets' && (

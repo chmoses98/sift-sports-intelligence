@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router';
 import { Icon } from '../Icon';
 const ITEMS = [
-  ['home','Home','home'],['games','Games','grid'],['props','Player Props','target'],['lab','Research Lab','research'],['intelligence','Intelligence','bolt'],['board','My Board','bookmark'],
+  ['home','Home','home'],['games','Games','calendar'],['props','Player Props','target'],['lab','Research Lab','research'],['intelligence','Intelligence','bolt'],['board','My Board','bookmark'],
 ] as const;
 export function Sift2Navigation() {
   const { pathname } = useLocation();

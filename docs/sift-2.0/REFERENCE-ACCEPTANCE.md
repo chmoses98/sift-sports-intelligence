@@ -1,4 +1,6 @@
-# Reference-driven SIFT 2.0 review candidate
+# Previous reference-driven SIFT 2.0 pass — visually rejected
+
+The owner rejected this pass. Current visual-fidelity evidence and unresolved asset requirements are in VISUAL-FIDELITY.md; these historical test results do not imply design acceptance.
 
 The owner's three supplied Games, Game Command Center and mobile mockups supersede the previous dashboard screenshots. The implementation is ready for visual review, not visually approved. This document supersedes the presentation status in WORKSPACE-ACCEPTANCE.md.
 

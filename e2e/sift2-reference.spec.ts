@@ -4,11 +4,11 @@ test.use({ timezoneId: 'America/Chicago' });
 const CHI = 'evt_6cec3c5b2b52dd5a55a4';
 test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 
-test('Games broadcast layout uses the actual approved venue and filters @smoke', async ({ page, isMobile }) => {
+test('Games broadcast layout preserves venue identity and rejects flat feature photography and filters @smoke', async ({ page, isMobile }) => {
   if (!isMobile) await page.setViewportSize({ width: 1536, height: 1024 });
   await page.goto(`#/design/sift2/games?game=${CHI}`);
   await expect(page.getByRole('heading', { level: 1, name: 'Games', exact: true })).toBeVisible();
-  await expect(page.locator('.s2-games__lead .s2-broadcast[data-hero-kind="photo"] .hart__photo')).toBeVisible();
+  await expect(page.locator('.s2-games__lead .s2-broadcast[data-hero-kind="branded"]')).toBeVisible();
   await expect(page.locator('.s2-games__lead .s2-broadcast')).toContainText('Soldier Field');
   await noHorizontalOverflow(page, 'Games reference layout');
   const a11y = await new AxeBuilder({ page }).include('.s2-games').withTags(['wcag2a','wcag2aa']).analyze();
@@ -23,14 +23,21 @@ test('Games broadcast layout uses the actual approved venue and filters @smoke',
   await noHorizontalOverflow(page, 'Filtered games');
 });
 
-test('Game Command Center presents approved venue art and four primary tabs @smoke', async ({ page, isMobile }) => {
+test('Game Command Center preserves venue identity and four primary tabs @smoke', async ({ page, isMobile }) => {
   if (!isMobile) await page.setViewportSize({ width: 1536, height: 1024 });
   await page.goto(`#/design/sift2/nfl/game/${CHI}`);
-  await expect(page.locator('.sift2-command .s2-broadcast[data-hero-kind="photo"] .hart__photo')).toBeVisible();
+  await expect(page.locator('.sift2-command .s2-broadcast[data-hero-kind="branded"]')).toBeVisible();
   await expect(page.locator('.sift2-command .gov--dash')).toBeVisible();
   const a11y = await new AxeBuilder({ page }).include('.sift2-command').withTags(['wcag2a','wcag2aa']).analyze();
   expect(a11y.violations).toEqual([]);
   await noHorizontalOverflow(page, 'Photo game reference layout');
+  const tabs = (await page.locator('.sift2-command>.gtabs').boundingBox())!;
+  const read = (await page.locator('.s2-read').boundingBox())!;
+  expect(read.y - (tabs.y + tabs.height)).toBeLessThan(16);
+  if (isMobile) {
+    expect((await page.locator('.s2-broadcast').boundingBox())!.height).toBeLessThanOrEqual(320);
+    expect((await page.locator('.s2-read').boundingBox())!.height).toBeLessThan(310);
+  }
   if (!isMobile) {
     expect((await page.locator('.gdash__read').boundingBox())!.width).toBeGreaterThan(230);
     expect((await page.locator('.gdash__scripts').boundingBox())!.width).toBeGreaterThan(230);
@@ -48,6 +55,8 @@ test('Game Command Center presents approved venue art and four primary tabs @smo
   await expect(page.getByText(/No published player snapshots match/)).toBeVisible();
   await query.fill('');
   await noHorizontalOverflow(page, 'Game player research');
+  const playerA11y = await new AxeBuilder({ page }).include('.s2-players-view').withTags(['wcag2a','wcag2aa']).analyze();
+  expect(playerA11y.violations).toEqual([]);
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await page.screenshot({ path: test.info().outputPath('command-players.png'), fullPage: true, scale: 'css' });
   await page.getByRole('button', { name: 'Alt lines & full research' }).click();

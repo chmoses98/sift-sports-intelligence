@@ -52,3 +52,7 @@ The three owner-supplied references (Games desktop, Game Command Center desktop,
 Required composition: a restrained desktop left navigation rail; venue-led cinematic hero with actual home identity; two team marks and a centered kickoff/venue block; compact slate beside the Games feature; photographic/branded matchup cards; four directly reachable phone game tabs; the game read, simulation-share rows and matchup drivers directly below; player-first photographic cards, with full research one layer deeper. Dark navy, thin blue borders, focused electric-blue selection, Barlow body typography, and limited glass effects support that hierarchy.
 
 Reference prices, schedules, scores, records, broadcast networks, weather and script percentages are illustrative and must not be copied. Existing conservative venue/neutral-site and licensed-photo resolution wins over a reference's visual example. Never substitute the mockup stadium picture for another game. Owner visual approval remains a release gate.
+
+### Visual fidelity milestone after second rejected implementation
+
+The owner has not approved the prior screenshots. Freeze expansion into other screens while Games and Game Command Center are compared directly with the original three mockups. `VISUAL-FIDELITY.md` records the ten largest differences, matched viewport measurements, successive visual corrections, imagery quality gates and unresolved assets. Technical tests and design acceptance are explicitly separate. All work remains in draft PR #93, with no production merge/deployment authorization.

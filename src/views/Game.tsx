@@ -55,7 +55,8 @@ import { EngineMarketIntel, MarketIntel, TopMarkets } from './game/MarketIntel';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, PriceMovesPanel } from './game/lines';
 import { MatchupTab } from './game/MatchupTab';
-import { PlayerSnapshot } from '../components/sift2/PlayerSnapshot';
+import { CommandOverview, CommandRail, CommandMarkets } from '../components/sift2/CommandOverview';
+import { PlayerSnapshot, PlayerSnapshotNotes } from '../components/sift2/PlayerSnapshot';
 import { DepthChart } from './stats/DepthChart';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
@@ -495,11 +496,11 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
 
   return (
     <MarketIconProvider value={iconCtx}>
-    <div className={`page game${sift2 ? ' sift2-command' : ''}`}>
-      <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
+    <div className={`page game${sift2 ? ' sift2-command' : ''}`} data-game-tab={tab}>
+      <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} cinematicRail={sift2 ? <CommandRail r={r} rows={rows} now={now} slug={slug} eventId={eventId}><NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} /></CommandRail> : undefined} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
 
       {sift2 ? <>
-        <GameTabs tabs={TABS.filter(([k]) => ['overview', 'matchup', 'props', 'markets'].includes(k)).map(([k, label]) => [k, k === 'props' ? 'Players' : k === 'matchup' ? 'Matchups' : label] as [GameTab, string])} current={tab} href={(k) => href(k)} />
+        <GameTabs tabs={(['overview','matchup','props','script','markets','injuries','trends','players'] as GameTab[]).map((k) => [k, ({ overview:'Overview', matchup:'Matchups', props:'Players', script:'Game Scripts', markets:'Markets', injuries:'Injuries', trends:'Trends', players:'Player Usage' } as Record<string,string>)[k]] as [GameTab,string])} current={tab} href={(k) => href(k)} />
         <details className="sift2-command__more" open={!['overview', 'matchup', 'props', 'markets'].includes(tab)}><summary>More game research</summary><GameTabs tabs={TABS.filter(([k]) => !['overview', 'matchup', 'props', 'markets'].includes(k)).map(([k, label]) => [k, k === 'players' ? 'Player usage' : label] as [GameTab, string])} current={tab} href={(k) => href(k)} /></details>
       </> : <GameTabs tabs={TABS} current={tab} href={(k) => href(k)} />}
 
@@ -512,8 +513,8 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
         // The Visual Intelligence Dashboard (approved references 01 option 1 and 02): graphics first, the detail one
         // tap down. The verdict leads (No Edge / Watch / Back semantics are the opportunity layer's own).
         <div className="gov gov--dash">
-          <GameOpportunities compact={sift2} eventId={eventId} now={now} />
-          <div className="fx-bento gdash">
+          <>{!sift2 && <GameOpportunities eventId={eventId} now={now} />}</>
+          {sift2 ? <CommandOverview insights={insights} context={context} set={set} cards={allProps} href={(t,id) => href(t, id as ScriptId | undefined)} /> : <div className="fx-bento gdash">
             <GameReadCard insights={insights} context={context} set={set} fullHref={href('matchup')} scriptHref={href('script')} />
             {set ? (
               <ScriptsCard set={set} r={r} hrefFor={(id) => routes.game(slug, eventId, { tab: 'script', script: id })} allHref={href('script')} />
@@ -531,7 +532,8 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
               { to: href('injuries'), icon: 'medic', t: 'Injuries', s: `${injuries.filter((x) => x.status !== 'ACTIVE').length} designations` },
               { to: routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id }), icon: 'research', t: 'Handicap packet', s: 'Every number, exportable' },
             ]} />
-          </div>
+          </div>}
+          {sift2 && <GameOpportunities compact eventId={eventId} now={now} />}
 
           <OverviewResearchDetails enabled={sift2}>
           {sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}
@@ -589,7 +591,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
       )}
 
       {tab === 'props' && (
-        sift2 ? <><PlayerSnapshot loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><details className="sift2-command__evidence" id="s2-full-props"><summary>Full prop research and alternate lines</summary><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></details></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
+        sift2 ? <><div className="s2-players-view"><PlayerSnapshot showNotes={false} loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} title="Market Snapshot" /><PlayerSnapshotNotes /></div><details className="sift2-command__evidence" id="s2-full-props"><summary>Full prop research and alternate lines</summary><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></details></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
       )}
 
       {tab === 'markets' && (

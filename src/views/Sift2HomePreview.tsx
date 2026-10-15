@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
+import { buildDiscoveries } from '../intelligence/discoveries';
 import { Link } from 'react-router';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
@@ -8,6 +9,8 @@ import { CinematicHero } from '../components/sift2/CinematicHero';
 import '../styles/sift2-tokens.css';
 import '../styles/sift2-home.css';
 
+const HomeTopProps = lazy(() => import('./home/HomeTopProps'));
+
 /** Isolated design study using the real published slate; never fabricates odds or projections. */
 export function Sift2HomePreview() {
   const now = useNow(30_000);
@@ -15,6 +18,7 @@ export function Sift2HomePreview() {
   const rows = useMemo(() => gameRows(all.bundles, all.opportunities, now), [all.bundles, all.opportunities, now]);
   const today = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'today')).sort(slateOrder), [rows, now]);
   const featured = useMemo(() => featuredGame(rows, now), [rows, now]);
+  const discoveries = useMemo(() => buildDiscoveries({ opportunities: all.opportunities, verdicts: all.verdicts, research: [], now }).slice(0, 3), [all.opportunities, all.verdicts, now]);
   const sports = useMemo(() => new Set(today.map((g) => g.sport)).size, [today]);
   const dateLabel = new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   return (
@@ -52,11 +56,22 @@ export function Sift2HomePreview() {
           </section>
           <section aria-labelledby="sift2-explorer-title" className="sift2-home__section">
             <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">PLAYER RESEARCH</span><h2 id="sift2-explorer-title">Player Prop Explorer</h2></div><Link to="/props">Open current prop board →</Link></div>
-            <div className="sift2-surface sift2-home__explorer"><div><h3>Find the player. Understand the matchup. Compare the markets.</h3><p>Player-first discovery, alternate lines, game context and verified executable quotes. No hypothetical edges presented as picks.</p></div><Link to="/props">Explore props →</Link></div>
+            <div className="sift2-surface sift2-home__explorer"><div><h3>Find the player. Understand the matchup. Compare the markets.</h3><p>Ranked props below come from the existing evidence-gated SIFT board, not invented sample selections.</p></div><Link to="/props">Explore props →</Link></div>
+            <Suspense fallback={<p role="status">Loading player research…</p>}><HomeTopProps opportunities={all.opportunities} now={now} /></Suspense>
           </section>
         </div>
         <aside className="sift2-home__aside" aria-label="Intelligence and saved research">
-          <section className="sift2-surface"><span className="sift2-home__eyebrow">INTELLIGENCE</span><h2>What matters today</h2><p>Evidence-backed findings, uncertainty and model-versus-market disagreements—clearly distinguished.</p><Link to="/intelligence">Open intelligence →</Link></section>
+          <section className="sift2-surface"><span className="sift2-home__eyebrow">INTELLIGENCE</span><h2>What matters today</h2>
+            {all.loading ? <p role="status">Loading published findings…</p> : discoveries.length ? (
+              <ul className="sift2-home__findings">{discoveries.map((d) => (
+                <li key={d.id}>
+                  <span className="sift2-home__eyebrow">{d.sport} · {d.kind === 'market' ? (d.evidence?.word ?? 'Research only') : 'Research finding'}</span>
+                  <strong>{d.title}</strong><p>{d.why}</p>
+                  {d.href || d.gameHref ? <Link to={(d.href ?? d.gameHref)!}>View evidence →</Link> : null}
+                </li>
+              ))}</ul>
+            ) : <p>No findings flagged in the current publications. SIFT does not manufacture signals.</p>}
+            <Link to="/intelligence">Open intelligence →</Link></section>
           <section className="sift2-surface"><span className="sift2-home__eyebrow">MY BOARD</span><h2>Your research, organized</h2><p>Keep interesting games and markets in one place.</p><Link to="/board">Open My Board →</Link></section>
           <section className="sift2-surface"><span className="sift2-home__eyebrow">RESEARCH LAB</span><h2>Go deeper</h2><p>Explore matchup drivers, evidence and historical context.</p><Link to="/explore">Explore research →</Link></section>
         </aside>

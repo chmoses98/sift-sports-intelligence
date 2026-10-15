@@ -1,7 +1,7 @@
 // The lines, quietly: the market's spread, total and win chance, with Sift's simulation as a small second
 // number where it differs — context near the bottom of the game, not the argument the page opens with.
 // Plus the scheme table (charted tendencies for both teams, rank first).
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc } from '../../contract/types';
 import { QuoteSummaryChip } from '../../components/LiveQuote';
 import { Icon } from '../../components/Icon';

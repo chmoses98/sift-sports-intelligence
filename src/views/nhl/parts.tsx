@@ -3,7 +3,7 @@
 // note. Everything renders the NHL publication's structured research as published (lib/nhl.ts); Sift adds wording,
 // never a probability. The game story itself lives in story.tsx.
 import { Fragment, useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { DigDeeper, TeamMark } from '../../components/ui';
 import { routes } from '../../lib/routes';

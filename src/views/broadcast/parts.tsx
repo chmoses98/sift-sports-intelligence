@@ -1,7 +1,7 @@
 // Broadcast building blocks shared by Home, Games and the Terminal: participant marks for every sport, the
 // featured matchup hero with glass number panels, and compact discovery cards (the rail lives in rail.tsx). Everything drawn is a published field; a missing number is left out, never filled.
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { SportRepo } from '../../data/repo';

@@ -7,7 +7,7 @@
 //     newer research run);
 //   * key updates since saved across every game, and the slate research packets ("Build NFL slate research packet").
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { navSport } from '../../data/nav';
 import { HeroArt, heroVars } from '../../components/HeroArt';

@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { createHashRouter, Outlet, RouterProvider } from 'react-router';
+import { createHashRouter, Navigate, Outlet, RouterProvider } from './routing';
 import { Skeleton } from './components/ui';
 import { Shell } from './components/Shell';
 import { ScrollManager } from './components/ScrollManager';
@@ -87,13 +87,37 @@ export const routeTree = [
       { path: 'design/sift2/hero', element: <Sift2HeroPreview /> },
       { path: 'design/sift2/home', element: <Sift2HomePreview /> },
       { path: 'design/sift2', element: <Sift2Workspace />, children: [
+        { index: true, element: <Navigate to="home" replace /> },
         { path: 'games', element: <Sift2Games /> },
         { path: 'props', element: <Sift2Props /> },
         { path: 'intelligence', element: <Sift2Intelligence /> },
         { path: 'lab', element: <Sift2Lab /> },
+        { path: 'search', element: <SearchView /> },
+        { path: 'board', element: <BoardView /> },
+        { path: 'tray', element: <TrayView /> },
+        { path: 'packet', element: <PacketView /> },
+        { path: 'sports', element: <SportsView /> },
+        { path: 'news', element: <NewsView /> },
+        { path: 'settings', element: <SettingsView /> },
+        { path: 'status', element: <StatusView /> },
+        { path: 'intelligence/markets', element: <MarketsView /> },
+        { path: 'intelligence/pulse', element: <PulseView /> },
+        { path: 'intelligence/lab', element: <LabView /> },
         { path: ':sport', element: <SportLayout />, children: [
+          { index: true, element: <SportHomeView /> },
           { path: 'game/:eventId', element: <GameRoute sift2 /> },
           { path: 'props', element: <PropExplorerView /> },
+          { path: 'slate', element: <SlateView /> },
+          { path: 'parlays', element: <ParlaysView /> },
+          { path: 'scorecard', element: <ScorecardView /> },
+          { path: 'team/:teamId', element: <TeamView /> },
+          { path: 'player/:playerId', element: <PlayerView /> },
+          { path: 'metric/:metricId', element: <MetricView /> },
+          { path: 'ranking/:rankingId', element: <RankingView /> },
+          { path: 'market/:marketId', element: <MarketView /> },
+          { path: 'compare', element: <CompareView /> },
+          { path: 'season', element: <SeasonView /> },
+          { path: '*', element: <NotFound /> },
         ] },
       ] },
       { path: 'sports', element: <SportsView /> },

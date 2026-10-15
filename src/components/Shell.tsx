@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router';
+import { Link, NavLink, useLocation, useNavigate } from '../routing';
 import { NAV_SPORTS, navSport, STATUS_WORD, type NavSport } from '../data/nav';
 import { DESTINATIONS, destination, destinationOf, PHONE_TABS, type Destination } from '../lib/destinations';
 import { routes } from '../lib/routes';
+import { workspacePath } from '../lib/workspaceRoutes';
 import { useSearch } from '../search/useSearch';
 import { useTrail, type TrailStep } from '../state/trail';
 import { useTray } from '../state/tray';
@@ -95,7 +96,7 @@ function usePaletteKeys(setOpen: (o: boolean) => void) {
 /** The sport whose screens are on view, from the address (#/nfl/…). */
 function useSportContext(): NavSport | undefined {
   const loc = useLocation();
-  return navSport(loc.pathname.split('/')[1]);
+  return navSport(workspacePath(loc.pathname).split('/')[1]);
 }
 
 /**
@@ -303,7 +304,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const online = useOnline();
   const sport = useSportContext();
   const preview = loc.pathname.startsWith('/design/sift2/');
-  const active = destinationOf(loc.pathname);
+  const active = destinationOf(workspacePath(loc.pathname));
   const [sheet, setSheet] = useState(false);
   const [search, setSearch] = useState(false);
   const closeSheet = useCallback(() => setSheet(false), []);

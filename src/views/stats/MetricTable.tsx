@@ -7,7 +7,7 @@
 // number is drawn: the publication's advantage_to_offense subtracts a defensive rating that is already "allowed above
 // average", which reverses the defense's effect (docs/MATCHUP_MATH.md). Ranks only, until it is fixed upstream.
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, MetricDef, Observation } from '../../contract/types';
 import { TeamMark } from '../../components/ui';
 import { BasisTag } from '../../components/statviz';

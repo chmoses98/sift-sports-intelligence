@@ -1,7 +1,8 @@
 // The Intelligence destination's own sub-navigation: Terminal · Market board · Model Pulse · Model Lab.
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from '../../routing';
 import { Icon } from '../../components/Icon';
 import { routes } from '../../lib/routes';
+import { workspacePath } from '../../lib/workspaceRoutes';
 import '../../styles/lane-e-intel.css';
 
 const TABS = [
@@ -12,7 +13,8 @@ const TABS = [
 ];
 
 export function IntelNav() {
-  const loc = useLocation();
+  const location = useLocation();
+  const loc={...location,pathname:workspacePath(location.pathname)};
   return (
     <nav className="gtabs2 intelnav" aria-label="Intelligence">
       {TABS.map((t) => (

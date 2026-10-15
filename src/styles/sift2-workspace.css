@@ -1,4 +1,5 @@
 /* All styles are opt-in: production destinations keep their own presentation. */
+@media(max-width:719px){.app--sift2 .sift2-workspace .page:not(.sift2-command):not(.s2-games){padding-left:16px;padding-right:16px}}
 .sift2-workspace{font-family:var(--sift2-font-body);color:var(--sift2-text);min-width:0;background:radial-gradient(ellipse at 100% 0,rgba(30,110,220,.08),transparent 55%)}
 .sift2-workspace__bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:16px;padding-bottom:16px}
 .sift2-workspace__bar>a{color:var(--sift2-accent);font-size:.72rem;letter-spacing:.14em;font-weight:700}

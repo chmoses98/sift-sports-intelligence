@@ -3,7 +3,7 @@
 // publication's authority and record) → RISK (what beats it) → the evidence and related expressions one tap below.
 // A sport with nothing that qualifies gets a PASS card with the precise missing prerequisite.
 import { useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { Icon } from '../../components/Icon';
 import { SportMark } from '../../components/SportMark';
 import { navSport } from '../../data/nav';

@@ -3,7 +3,7 @@
 // sport is scored on its own published metric, model beside market, with the sample size, the date and the source.
 // A sport with no published record says why.
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import { useAsync } from '../../data/hooks';
 import { navSport } from '../../data/nav';
 import { FxCard, StatStrip, type FxTone } from '../../components/fx';

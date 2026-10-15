@@ -2,7 +2,7 @@
 // goalie on each team's own line, the model's win probability beside each team, then the projected total, the most
 // likely script and how much research the game carries. Rows stay short so a whole slate reads at a glance.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { ErrorState, Skeleton } from '../../components/ui';

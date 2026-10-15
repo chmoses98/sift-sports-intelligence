@@ -5,7 +5,7 @@
 // MLB and NHL are entry points, clearly labelled: their publications carry no simulated player distributions or
 // per-prop opponent ranks, so Sift does not build an explorer it would have to fill with invented numbers.
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { Skeleton, TeamMark } from '../../components/ui';
@@ -81,7 +81,7 @@ function NflHub() {
   const board = useAsync(repo.data ? `props:board:${repo.data.source.root}` : null, () => repo.data!.board());
   const games = useMemo(() => upcoming(board.data?.items, now, 8), [board.data, now]);
   if (repo.loading || board.loading) return <Skeleton lines={8} tall />;
-  if (!repo.data || board.error) return <CapabilityState title="NFL props are unavailable right now" tone="gold">The NFL publication could not be read, so there are no props to explore. Try again shortly.</CapabilityState>;
+  if (!repo.data || board.error) return <CapabilityState title="NFL props are unavailable right now" tone="gold">The NFL publication could not be read. Available props cannot be verified; this is not a no-opportunity verdict.</CapabilityState>;
   return (
     <>
       <section className="phub__games" aria-labelledby="phub-g">
@@ -124,7 +124,7 @@ function GamePageProps({ s }: { s: HubSport }) {
           ? 'Pitcher and hitter prop ladders, with the market’s price and the publication’s projection where it releases one, are on every game’s Player props tab. The MLB publication carries no simulated player distributions or per-prop opponent ranks, so there is no combined explorer to fill.'
           : 'Goal, assist and point contracts are on every game’s Markets tab, with skater research on the Players tab. Each player page lists the contracts that name him, how many of his last 5, last 10 and this season’s games reached each count (history against today’s line, not a probability), and the NHL joint simulation’s research P(YES) where it prices the contract. The publication carries no ladder of player-stat lines with simulated distributions, so there is no combined explorer to fill.'}
       </CapabilityState>
-      {repo.loading || board.loading ? <Skeleton lines={6} /> : !games.length ? (
+      {repo.loading || board.loading ? <Skeleton lines={6} /> : repo.error || board.error || !repo.data ? <p role="alert" className="fr-note">Player research is unavailable. Missing games are not evidence that no opportunities exist.</p> : !games.length ? (
         <p className="fr-note">No {sport.label} games in the next {s.horizonDays} days are listed in the publication.</p>
       ) : (
         <ul className="phub__gl phub__gl--cards">

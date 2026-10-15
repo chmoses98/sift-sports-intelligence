@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc } from '../../contract/types';
 import type { MatchupInsight } from '../../insights/matchups';
 import type { ContextNote } from '../../insights/context';

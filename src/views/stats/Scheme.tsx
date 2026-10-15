@@ -2,7 +2,7 @@
 // charted plays, and a strip showing where both teams sit in the league. SchemePlayers: each unusual tendency
 // connected to the player it shapes, his published projection, the simulated script that moves his volume, and the
 // market on him — with the bet status read from the publication's own opportunity layer, never inferred.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { Opportunity } from '../../opportunity/types';
 import { BasisTag, PercentileStrip } from '../../components/statviz';
 import { PlayerFace } from '../../components/insight';

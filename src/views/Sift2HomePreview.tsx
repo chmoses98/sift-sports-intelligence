@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { buildDiscoveries } from '../intelligence/discoveries';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { gameRows, inDay, featuredGame, slateOrder } from './broadcast/games';

@@ -7,8 +7,8 @@
 // team's key players (team volume, never a script-conditional player projection: the publication does not split
 // player projections by script), the margin markets it settles and breaks, the unit ranks behind it, and how it fails.
 // Compare lives in ScriptCompare.tsx. Shares are SIMULATION SHARES (lib/scripts.ts), labelled as such, never odds.
-import { useSearchParams } from 'react-router';
-import { Link } from 'react-router';
+import { useSearchParams } from '../../routing';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { PlayerFace } from '../../components/insight';

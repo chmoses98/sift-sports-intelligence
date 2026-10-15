@@ -7,7 +7,7 @@
 // Rows can be ticked and saved together to My Board (the research tray: one MARKET item per prop, the same item a
 // single Save makes). Games that have kicked off are not on the board: pregame research cannot be saved after kickoff.
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { PlayerFace } from '../../components/insight';

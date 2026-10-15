@@ -4,7 +4,7 @@
 // probability under a "Model" / "Model (research)" label. Any other status is shown as that status and its reason,
 // never as a model number, and the market price never stands in for one. No edge, no confidence, no
 // model-minus-market figure is computed for a prop, anywhere.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { Market } from '../../contract/types';
 import { Notice, TeamMark } from '../../components/ui';
 import { cents, pct } from '../../lib/format';

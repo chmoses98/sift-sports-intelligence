@@ -2,7 +2,7 @@
 // designed branded hero (src/lib/hero: the one decision; src/components/HeroArt: the one look) — then both teams with
 // their logos and records, kickoff, venue and the kickoff-time weather. Neutral sites and unconfirmed home sides
 // say so and show both teams; indoor games say so instead of showing meaningless outdoor conditions.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { finalScores } from '../broadcast/lifecycle';
 import { BroadcastHero } from '../../components/sift2/BroadcastHero';
 import { SaveButton } from '../../components/ui';

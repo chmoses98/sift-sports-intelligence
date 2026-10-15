@@ -11,7 +11,7 @@
 // correlations, and a studio over up to three of them. No CFB price is a fair price: the engine publishes none.
 // Nothing here changes an opportunity's status, a price rule, contract identity, fees or settlement.
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';

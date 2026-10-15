@@ -1,6 +1,6 @@
 import { usageFor } from '../lib/usage';
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams } from '../routing';
 import { LadderChart, type Rung } from '../charts/LadderChart';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
 import type { Observation, ResearchMarket } from '../contract/types';

@@ -6,7 +6,7 @@
 // archive (and, for national ranks, the teams' published profiles); nothing here computes a projection, a
 // rating or an edge.
 import type { CSSProperties, MouseEvent, ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, MetricDef, Observation, Participant } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';

@@ -4,7 +4,7 @@
 // from the nflverse history layer. Weeks the publication has not listed yet say so; nothing is filled in.
 // Other sports: a date strip over the publication's board (their calendars are daily, not weekly).
 import { useCallback, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, ExplorerIndexDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { FxCard } from '../../components/fx';

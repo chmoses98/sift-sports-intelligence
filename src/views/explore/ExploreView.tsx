@@ -5,7 +5,7 @@
 // quick stats, the season timeline, Stats & rankings (every published ranking), the player finder and the team grid.
 // ?tool=<key> scrolls to a tool, so Home and other screens can link straight to one.
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { NAV_SPORTS, navSport } from '../../data/nav';
@@ -119,6 +119,7 @@ export function ExploreView() {
         </ul>
       </section>
       {ex.loading && <Skeleton lines={8} tall />}
+      {ex.error && <p role="alert" className="fr-note">Research is unavailable. The publication could not be read; missing research is not a no-opportunity verdict.</p>}
       {ex.data && !avail && <div className="bempty"><h3>{nav?.label} has no research explorer yet</h3><p>Its publication carries the board and markets but not team and player research documents. Open <Link to={routes.sport(slug)}>{nav?.label}</Link> for what it does publish.</p></div>}
       {ex.data && (
         <div className="fx-bento exh__bento">

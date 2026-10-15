@@ -9,7 +9,7 @@ import '../styles/lane-d-markets.css';
 import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { MarketIcon } from './MarketIcon';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { Market, ModelPrice, ResearchMarket } from '../contract/types';
 import { cents, familyLabel } from '../lib/format';
 import { STAT_LABEL } from '../lib/nfl';

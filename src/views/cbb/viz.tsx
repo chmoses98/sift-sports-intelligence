@@ -4,7 +4,7 @@
 // fetched from a third party at runtime) with a monogram in the school's colors as the fallback. Names are
 // always written next to a mark and every bar carries its number, so color is never the only signal.
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { fmt1, marginWords } from './data';
 import { accent, identity } from './identity';
 

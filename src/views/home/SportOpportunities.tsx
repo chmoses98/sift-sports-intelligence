@@ -1,7 +1,7 @@
 // The opportunities panel every sport home opens with: the sport's own candidate layer through the shared opportunity
 // system (src/opportunity), featured one per thesis, or an honest PASS with the missing prerequisite.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { Skeleton } from '../../components/ui';
 import { useSportOpportunities } from '../../opportunity/load';
 import { featureOpportunities, isLive } from '../../opportunity/rank';

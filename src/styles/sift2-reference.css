@@ -1,4 +1,5 @@
 /* Approved October 15 references: venue-led broadcast, restrained glass, persistent desktop rail. */
+.s2-sidebar{overflow-y:auto}.s2-sidebar__utilities{margin-top:auto;display:grid;padding:8px 14px 14px;gap:3px}.s2-sidebar__utilities>a{display:flex;align-items:center;gap:9px;min-height:36px;font-size:12px;color:#b7c8de;padding:6px 3px}.s2-sidebar__utilities>.s2-sidebar__settings{margin:0}
 .app--sift2{--s2-blue:#2da8ff;--s2-edge:#1c344a;--s2-panel:rgba(5,18,31,.92);--maxw:1720px;background:#020c15;color:#edf4fc;padding-left:132px;font-family:Barlow,system-ui,sans-serif}
 .app--sift2 .topbar,.app--sift2 .sstrip__wrap,.app--sift2 .crumbs,.app--sift2>.bottombar{display:none}
 .app--sift2 .page{padding:22px 24px 40px;max-width:1720px}

@@ -2,7 +2,7 @@
 // (today / tomorrow / next seven days), a sport filter, and one section per sport with venue art on each tile.
 // Tiles read the board only (no per-game document is downloaded to draw the grid).
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import { NAV_SPORTS, navSport } from '../../data/nav';
 import { HeroArt, heroVars } from '../../components/HeroArt';
 import { Icon } from '../../components/Icon';

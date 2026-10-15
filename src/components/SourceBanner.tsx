@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { HealthDoc } from '../contract/types';
 import type { SportSource } from '../data/source';
 import { ago, exactTime } from '../lib/format';

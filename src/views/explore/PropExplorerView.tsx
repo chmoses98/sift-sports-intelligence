@@ -13,7 +13,7 @@
 // stays on screen). Built on the game prop board (src/insights/propBoard.ts): no probability is derived from a mean;
 // the shadow model's P(over) appears only where the publication priced it, labelled research.
 import { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';
@@ -39,6 +39,7 @@ import { HitDots, HitSummary } from '../props/HitRate';
 import { PerfChart } from '../props/PerfChart';
 import { groupByPlayer, matchupSentence, NOT_IN_HISTORY, roleDisagreement, supportMetrics } from '../props/model';
 import { histKey, usePropHits } from '../props/useHits';
+import { selectProp } from '../props/selection';
 import '../../styles/lane-b-props.css';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
@@ -68,7 +69,7 @@ function NflExplorer() {
     const [r, d] = await Promise.all([repo.eventResearch(gameId!), repo.eventDetail(gameId!)]);
     return { r, b: propBoard(r, d), scripts: gameScripts(r) };
   });
-  const set = (patch: Record<string, string | null>, push = false) => setSp((prev) => { const n = new URLSearchParams(prev); for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; }, { replace: !push });
+  const set = (patch: Record<string, string | null>, push = false) => setSp((prev) => { const n = new URLSearchParams(prev); if(Object.keys(patch).some(k=>k!=='win')){n.delete('player');n.delete('stat');} for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; }, { replace: !push });
   const fam = (sp.get('cat') as PropFamily | null) ?? null;
   const team = sp.get('team');
   const pos = sp.get('pos');
@@ -80,10 +81,9 @@ function NflExplorer() {
   const win: HitWindow = winParam && HIT_WINDOWS.includes(winParam) ? winParam : 'last10';
   const rows = useMemo(() => data.data?.b.rows ?? [], [data.data]);
   const positions = [...new Set(rows.map((r) => r.role).filter(Boolean))] as string[];
-  const shown = rows.filter((r) => (!fam || r.family === fam) && (!team || r.team.abbr === team) && (!pos || r.role === pos) && (!read || r.read === read) && (!priced || r.main) && (!q || r.name.toLowerCase().includes(q)) && (!band || (r.main?.yesAsk != null && BANDS.find((b) => b.id === band)!.test(r.main.yesAsk))));
+  const shown = rows.filter((r) => (!fam || r.family === fam) && (!team || r.team.abbr === team) && (!pos || r.role === pos) && (!read || r.read === read) && (!priced || r.main) && (!q || r.name.toLowerCase().includes(q)) && (!band || (r.main?.yesAsk != null && (BANDS.find((b) => b.id === band)?.test(r.main.yesAsk) ?? true))));
   const groups = groupByPlayer(shown);
-  const selId = sp.get('prop');
-  const sel = shown.find((r) => r.id === selId) ?? (selId ? rows.find((r) => r.id === selId) : undefined) ?? groups[0]?.lead ?? null;
+  const sel = selectProp(rows,sp,groups[0]?.lead ?? null);
   // Every market of the selected player (priced or not), so his carousel is complete whatever the rail's filters.
   const selRows = useMemo(() => (sel ? groupByPlayer(rows.filter((r) => r.playerId === sel.playerId))[0]?.rows ?? [] : []), [rows, sel]);
   const { docs, hits, loading: histLoading } = usePropHits(sport.code, rows, game?.start_time_utc ?? null, win);

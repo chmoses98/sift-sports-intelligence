@@ -6,7 +6,7 @@ import { useMemo, type CSSProperties } from 'react';
 import { HeroArt, heroVars } from '../../components/HeroArt';
 import { heroInputFromResearch } from '../../lib/hero/input';
 import { resolveHero } from '../../lib/hero/resolve';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, Market } from '../../contract/types';
 import { latestPrices } from '../../components/MarketBoard';
 import { ErrorState, QualityBadge, Skeleton } from '../../components/ui';

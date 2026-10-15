@@ -1,5 +1,5 @@
 import { scaleLinear } from 'd3-scale';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from '../routing';
 import { useWidth } from '../charts/useWidth';
 import type { EntityProfileDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';

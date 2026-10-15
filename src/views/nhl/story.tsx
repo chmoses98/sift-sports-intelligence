@@ -3,7 +3,7 @@
 // Every number is the publication's (lib/nhl.ts) or an exact identity over it (lib/nhlStory.ts); the words are fixed
 // templates. Missing inputs are omitted, never defaulted.
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, Market, MatchupRow, Observation } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { DigDeeper } from '../../components/ui';

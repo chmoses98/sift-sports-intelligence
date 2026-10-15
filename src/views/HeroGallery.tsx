@@ -3,7 +3,7 @@
 // a past season). It is how a person reviews the whole set at once — and how the review sheets are rendered.
 // Illustrative matchups, not sports data: each team is shown hosting the next team in the list.
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../routing';
 import names from '../../scripts/heroes/team-names.json';
 import cfbData from '../lib/cfb-teams.json';
 import cbbData from '../lib/cbb-teams.json';

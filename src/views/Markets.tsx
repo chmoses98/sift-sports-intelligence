@@ -4,7 +4,7 @@
 // then today's games across sports in one list they can narrow by sport, day, status and name. Everything shown
 // comes from a publication's own candidate layer (src/opportunity); nothing is ranked by a hidden score.
 import { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../routing';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { NAV_SPORTS, navSport } from '../data/nav';

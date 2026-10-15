@@ -6,7 +6,7 @@
 // Layout presets (Discovery · Matchups · Markets) reorder the panels; the preset lives in the address and in this
 // browser, as do pins. Phones: the discovery cards, then one focused discovery with a way back.
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from '../../routing';
 import type { EventResearchDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { SportRepo } from '../../data/repo';
@@ -117,8 +117,8 @@ export function TerminalView() {
   const sportScoped = discoveries.filter((d) => !sport || d.slug === sport);
   const counts = kindCounts(sportScoped);
   const shown = sportScoped.filter((d) => !kind || d.kind === kind);
-  const selected = discoveries.find((d) => d.id === selectedId) ?? (selectedId ? null : shown[0] ?? null);
-  const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); if (k === 'layout') n.delete('ws'); return n; }, { replace: k !== 'd' });
+  const selected = shown.find((d) => d.id === selectedId) ?? (selectedId ? null : shown[0] ?? null);
+  const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); if (k === 'layout') n.delete('ws'); if(k==='sport'||k==='kind') n.delete('d'); return n; }, { replace: k !== 'd' });
   const setLayout = (l: Layout) => { setPrefs((p) => ({ ...p, layout: l })); set('layout', l === 'discovery' ? null : l); };
   const togglePin = (id: string) => setPrefs((p) => ({ ...p, pins: p.pins.includes(id) ? p.pins.filter((x) => x !== id) : [id, ...p.pins].slice(0, 12) }));
   const pinned = prefs.pins.map((id) => discoveries.find((d) => d.id === id)).filter((d): d is Discovery => !!d);
@@ -137,7 +137,7 @@ export function TerminalView() {
   const opps = useMemo(() => (selected?.eventId ? all.opportunities.filter((o) => o.eventId === selected.eventId) : []), [all.opportunities, selected?.eventId]);
   const tickers = useMemo(() => mainLines(r).map((m) => m.kalshi_ticker), [r]);
   const live = useLiveQuotes(tickers, 'slate');
-  const sel = (id: string) => set('d', id);
+  const sel = (id: string) => setSp(prev=>{const n=new URLSearchParams(prev);n.set('d',id);const d=discoveries.find(d=>d.id===id);if(d&&n.get('sport')&&n.get('sport')!==d.slug)n.set('sport',d.slug);if(d&&n.get('kind')&&n.get('kind')!==d.kind)n.delete('kind');return n;});
   // The matchup-to-market chain for a selected NFL mismatch: its markets, scripts, the opportunity layer's calls and,
   // where Sift's charting layer has one for the area, the scheme tendency (observation only).
   const ins = selected?.kind === 'mismatch' ? selected.insight ?? null : null;
@@ -230,3 +230,4 @@ export function TerminalView() {
     </div>
   );
 }
+

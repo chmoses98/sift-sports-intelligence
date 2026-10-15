@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet } from '../routing';
 import { Skeleton } from '../components/ui';
 import '../styles/sift2-tokens.css';
 import '../styles/sift2-workspace.css';

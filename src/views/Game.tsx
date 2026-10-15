@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useParams, useSearchParams } from '../routing';
 import { PriceHistory } from '../charts/PriceHistory';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
 import type { EventResearchDoc } from '../contract/types';

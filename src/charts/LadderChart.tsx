@@ -5,7 +5,7 @@
 import { scaleLinear } from 'd3-scale';
 import { line as d3line } from 'd3-shape';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '../routing';
 import { useWidth } from './useWidth';
 
 export interface Rung {

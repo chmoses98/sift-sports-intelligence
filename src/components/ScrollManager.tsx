@@ -2,7 +2,7 @@
 // EVERY navigation, including a filter tap or a tab switch on the same screen, and restored back-navigation
 // positions before the page had loaded, so they clamped short). The rules are in src/lib/scroll.ts.
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { useLocation, useNavigationType } from 'react-router';
+import { useLocation, useNavigationType } from '../routing';
 import { scrollDecision, tabScrollTarget } from '../lib/scroll';
 
 const STORE = 'sift.scroll.v1';

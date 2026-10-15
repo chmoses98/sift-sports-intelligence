@@ -7,7 +7,7 @@
 //   markets     the publication's judged contracts and the game's main lines, each with its quote's age
 //   context     injuries, weather, the model's own caveat and the finding's risk
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { FxCard, VsBar } from '../../components/fx';
 import { HeroArt, heroVars } from '../../components/HeroArt';

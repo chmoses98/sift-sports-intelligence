@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { PropCard } from '../../insights/props';
 import { broadcastPlayerPhoto as playerPhoto } from './playerArt';
 import { routes } from '../../lib/routes';

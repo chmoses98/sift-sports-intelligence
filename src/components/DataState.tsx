@@ -1,7 +1,7 @@
 // A data-availability state that tells the reader what is missing, why it matters and when it may arrive — instead
 // of a bare "partial", "unavailable" or "N/A". Detailed provenance stays on Data & provenance (Status).
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { routes } from '../lib/routes';
 import '../styles/lane-f-data.css';
 

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { modelVersionLabel } from '../lib/plainLabels';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useParams, useSearchParams } from '../routing';
 import { LadderChart } from '../charts/LadderChart';
 import { PriceHistory } from '../charts/PriceHistory';
 import type { Market } from '../contract/types';

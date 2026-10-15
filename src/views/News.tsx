@@ -3,7 +3,7 @@
 // (insights/news.ts sets the importance; nothing here is invented — sources are the publication's injury
 // and depth-chart captures, nflverse play-by-play for starts, and the kickoff forecast).
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { EventResearchDoc } from '../contract/types';
 import { useAsync, useRepo } from '../data/hooks';
 import { sportByCode } from '../data/sports';

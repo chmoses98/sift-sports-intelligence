@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../routing';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { NAV_SPORTS } from '../data/nav';

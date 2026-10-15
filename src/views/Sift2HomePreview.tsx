@@ -1,35 +1,53 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router';
+import { useNow } from '../live/hooks';
+import { useAllOpportunities } from '../opportunity/load';
+import { gameRows, inDay, featuredGame, phaseWord, slateOrder } from './broadcast/games';
+import { routes } from '../lib/routes';
 import { CinematicHero } from '../components/sift2/CinematicHero';
 import '../styles/sift2-tokens.css';
 import '../styles/sift2-home.css';
 
-/** Isolated design study: content intentionally contains no fabricated odds or projections. */
+/** Isolated design study using the real published slate; never fabricates odds or projections. */
 export function Sift2HomePreview() {
+  const now = useNow(30_000);
+  const all = useAllOpportunities(now);
+  const rows = useMemo(() => gameRows(all.bundles, all.opportunities, now), [all.bundles, all.opportunities, now]);
+  const today = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'today')).sort(slateOrder), [rows, now]);
+  const featured = useMemo(() => featuredGame(rows, now), [rows, now]);
+  const sports = useMemo(() => new Set(today.map((g) => g.sport)).size, [today]);
+  const dateLabel = new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   return (
     <main className="sift2-home page">
       <header className="sift2-home__header">
         <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h1>Today's command center</h1>
-          <p>Explore the slate, discover evidence, and find the best market expression.</p></div>
-        <span className="sift2-home__preview">DESIGN PREVIEW · NOT LIVE DATA</span>
+          <p>{dateLabel} · {all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sports`} · Explore evidence, not fabricated picks.</p></div>
+        <span className="sift2-home__preview">DESIGN PREVIEW · PUBLISHED SLATE</span>
       </header>
       <div className="sift2-home__layout">
         <div className="sift2-home__main">
-          <CinematicHero eyebrow="FEATURED MATCHUP · ILLUSTRATIVE" title="Buffalo Bills at Kansas City Chiefs"
-            subtitle="A premium broadcast experience backed by research—not invented betting signals."
-            homeColor="#b51f36" awayColor="#16477d">
-            <div className="sift2-home__hero-card sift2-surface">
-              <span className="sift2-home__eyebrow">THE GAME READ</span>
-              <strong>Evidence before conviction</strong>
-              <p>Real game scripts, opponent-adjusted matchups and verified prices will appear here.</p>
-              <Link to="/design/sift2/hero">Explore hero study →</Link>
-            </div>
-          </CinematicHero>
+          {all.loading ? <div className="sift2-surface sift2-home__status" role="status">Loading published slate…</div> : featured ? (
+            <CinematicHero eyebrow={`${featured.sport} / ${phaseWord(featured)} · PUBLISHED MATCHUP`} title={featured.label}
+              subtitle="Published matchup identity. Open the game for current research, venue context and market evidence.">
+              <div className="sift2-home__hero-card sift2-surface">
+                <span className="sift2-home__eyebrow">GAME INTELLIGENCE</span>
+                <strong>{featured.candidates > 0 ? `${featured.candidates} research candidate${featured.candidates === 1 ? '' : 's'}` : 'No flagged research candidates'}</strong>
+                <p>Candidate status is not a validated betting edge. Prices and scripts belong in the game research view.</p>
+                <Link to={routes.game(featured.slug, featured.item.event_id)}>Open game research →</Link>
+              </div>
+            </CinematicHero>
+          ) : <div className="sift2-surface sift2-home__status">No eligible featured matchup in the published slate. <Link to="/games">Browse games →</Link></div>}
           <section aria-labelledby="sift2-games-title" className="sift2-home__section">
             <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">THE SLATE</span><h2 id="sift2-games-title">Today's games</h2></div><Link to="/games">Open real games →</Link></div>
             <div className="sift2-home__cards">
-              <article className="sift2-surface"><span className="sift2-home__eyebrow">NFL</span><h3>Matchup intelligence</h3><p>Game-by-game context, weather and verified research.</p><Link to="/games?sport=nfl">Browse NFL games →</Link></article>
-              <article className="sift2-surface"><span className="sift2-home__eyebrow">CFB</span><h3>College football</h3><p>Schedule-strength-aware matchups and uncertainty.</p><Link to="/games?sport=cfb">Browse CFB games →</Link></article>
-              <article className="sift2-surface"><span className="sift2-home__eyebrow">ALL SPORTS</span><h3>Across the slate</h3><p>One place for upcoming games across supported sports.</p><Link to="/games">Browse all games →</Link></article>
+              {all.loading ? <p role="status">Loading today's games…</p> : today.length ? today.slice(0, 6).map((g) => (
+                <article className="sift2-surface" key={`${g.slug}:${g.item.event_id}`}>
+                  <span className="sift2-home__eyebrow">{g.sport} · {phaseWord(g)}</span>
+                  <h3>{g.label}</h3>
+                  <p>{g.candidates > 0 ? `${g.candidates} flagged for research review` : 'No flagged candidates'}</p>
+                  <Link to={routes.game(g.slug, g.item.event_id)}>View game →</Link>
+                </article>
+              )) : <div className="sift2-surface sift2-home__status">No games published for today. <Link to="/games?day=week">See the next seven days →</Link></div>}
             </div>
           </section>
           <section aria-labelledby="sift2-explorer-title" className="sift2-home__section">

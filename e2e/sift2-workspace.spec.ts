@@ -15,7 +15,10 @@ test('Game Command Center keeps primary tabs and deep research available @smoke'
   const a11y = await new AxeBuilder({ page }).include('.sift2-command').withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations).toEqual([]);
   await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   await page.screenshot({ path: test.info().outputPath('sift2-game-overview.png'), fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('sift2-game-viewport.png') });
   await expect(game.getByRole('link', { name: 'Overview', exact: true })).toBeVisible();
   await game.getByRole('link', { name: 'Matchups', exact: true }).click();
   await expect(page).toHaveURL(/design\/sift2\/nfl\/game\/.*tab=matchup/);

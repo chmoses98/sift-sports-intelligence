@@ -19,7 +19,7 @@ test('SIFT 2.0 Home renders published-data states without horizontal overflow @s
   const accessibility = await new AxeBuilder({ page }).include('.sift2-home').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(accessibility.violations).toEqual([]);
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.locator('.sift2-home__marks')).toBeVisible();
+  await expect(page.locator('.s2-broadcast')).toBeVisible();
   await expect(page.locator('.sheet[aria-hidden="true"]')).toBeHidden();
   await page.screenshot({ path: test.info().outputPath('sift2-home.png'), fullPage: true });
   await page.screenshot({ path: test.info().outputPath('sift2-home-viewport.png') });

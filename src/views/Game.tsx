@@ -55,6 +55,7 @@ import { EngineMarketIntel, MarketIntel, TopMarkets } from './game/MarketIntel';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, PriceMovesPanel } from './game/lines';
 import { MatchupTab } from './game/MatchupTab';
+import { PlayerSnapshot } from '../components/sift2/PlayerSnapshot';
 import { DepthChart } from './stats/DepthChart';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
@@ -402,7 +403,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
     const etab = ENGINE_TABS.some(([k]) => k === tab) ? tab : 'overview';
     return (
       <div className="page page--hero game game--engine">
-        <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<CfbHeroStats r={r} engine={engine} markets={quoted.length ? quoted : r.markets} now={now} />} />
+        <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<CfbHeroStats r={r} engine={engine} markets={quoted.length ? quoted : r.markets} now={now} />} />
         <GameTabs tabs={ENGINE_TABS} current={etab} href={(k) => ehref(k)} />
         {etab !== 'trends' && <EngineDetailNotice engine={engine} />}
         {etab === 'overview' && engine.claimsV2 && (
@@ -495,7 +496,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
   return (
     <MarketIconProvider value={iconCtx}>
     <div className={`page game${sift2 ? ' sift2-command' : ''}`}>
-      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
+      <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
 
       {sift2 ? <>
         <GameTabs tabs={TABS.filter(([k]) => ['overview', 'matchup', 'props', 'markets'].includes(k)).map(([k, label]) => [k, k === 'props' ? 'Players' : k === 'matchup' ? 'Matchups' : label] as [GameTab, string])} current={tab} href={(k) => href(k)} />
@@ -511,7 +512,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
         // The Visual Intelligence Dashboard (approved references 01 option 1 and 02): graphics first, the detail one
         // tap down. The verdict leads (No Edge / Watch / Back semantics are the opportunity layer's own).
         <div className="gov gov--dash">
-          <GameOpportunities eventId={eventId} now={now} />
+          <GameOpportunities compact={sift2} eventId={eventId} now={now} />
           <div className="fx-bento gdash">
             <GameReadCard insights={insights} context={context} set={set} fullHref={href('matchup')} scriptHref={href('script')} />
             {set ? (
@@ -521,7 +522,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
             )}
             <MatchupAdvantagesCard r={r} g={g} sport={sport.code} href={href('matchup')} wide={!watch.length} />
             {watch.length > 0 && <PropExplorerCard all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
-            <BasicsCard g={g} sport={sport.code} href={href('matchup')} />
+            {!sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}
             <MarketContextCard rows={rows} slug={slug} eventId={eventId} now={now} allHref={href('markets')} chip={<QuoteSummaryChip views={views} now={now} />} />
             <GameInfoCard r={r} sport={sport.code} />
             <RelatedResearchCard links={[
@@ -533,6 +534,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
           </div>
 
           <OverviewResearchDetails enabled={sift2}>
+          {sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}
           <section className="gsec gsec--fx" aria-labelledby="g-matters-h">
             <div className="gsec__h">
               <h2 id="g-matters-h" className="gsec__t">What Matters</h2>
@@ -587,7 +589,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
       )}
 
       {tab === 'props' && (
-        <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
+        sift2 ? <><PlayerSnapshot loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><details className="sift2-command__evidence" id="s2-full-props"><summary>Full prop research and alternate lines</summary><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></details></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
       )}
 
       {tab === 'markets' && (

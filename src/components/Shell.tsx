@@ -8,6 +8,8 @@ import { useTrail, type TrailStep } from '../state/trail';
 import { useTray } from '../state/tray';
 import { SportMark } from './SportMark';
 import { Icon, SiftWordmark } from './Icon';
+import { Sift2Navigation } from './sift2/Navigation';
+import '../styles/sift2-reference.css';
 import { SearchResults } from './SearchResults';
 
 /**
@@ -298,6 +300,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const online = useOnline();
   const sport = useSportContext();
+  const preview = loc.pathname.startsWith('/design/sift2/');
   const active = destinationOf(loc.pathname);
   const [sheet, setSheet] = useState(false);
   const [search, setSearch] = useState(false);
@@ -313,13 +316,14 @@ export function Shell({ children }: { children: ReactNode }) {
   // Explore and Intelligence carry their own sport selectors; the strip would be a second one.
   const showStrip = active === 'home' || active === 'games' || !!sport;
   return (
-    <div className="app">
+    <div className={`app${preview ? ' app--sift2' : ''}`}>
+      {preview && <Sift2Navigation />}
       <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>
       <div className="app__col">
         <header className="topbar">
           <div className="topbar__in">
-            <Link to={routes.home()} className="topbar__brand" aria-label="Sift home">
-              <SiftWordmark compact />
+            <Link to={preview ? '/design/sift2/home' : routes.home()} className="topbar__brand" aria-label="Sift home">
+              {preview ? <span className="s2-brand">SIFT<span>2.0</span></span> : <SiftWordmark compact />}
             </Link>
             <DestinationTabs active={active} count={count} />
             <button type="button" className="searchbtn" onClick={() => setSearch(true)} aria-label="Search Sift" aria-haspopup="dialog">

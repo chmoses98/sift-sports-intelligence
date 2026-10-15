@@ -39,7 +39,7 @@ for (const [slug, title] of [['props', 'Player prop explorer'], ['intelligence',
     await expect(page.getByRole('heading', { level: 1, name: title, exact: true })).toBeVisible();
     await expect(page.locator('.sift2-workspace .skel')).toHaveCount(0);
     await noHorizontalOverflow(page, `SIFT 2.0 ${slug}`);
-    await expect(page.getByRole('navigation', { name: 'SIFT 2.0 preview destinations' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'SIFT 2.0 navigation' }).filter({ visible: true })).toBeVisible();
     const a11y = await new AxeBuilder({ page }).include('.sift2-workspace').withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(a11y.violations).toEqual([]);
     await page.evaluate(() => document.fonts.ready);

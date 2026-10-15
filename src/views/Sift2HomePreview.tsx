@@ -3,8 +3,8 @@ import { buildDiscoveries } from '../intelligence/discoveries';
 import { Link } from 'react-router';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
-import { gameRows, inDay, featuredGame, phaseWord, slateOrder } from './broadcast/games';
-import { routes } from '../lib/routes';
+import { gameRows, inDay, featuredGame, slateOrder } from './broadcast/games';
+import { PublishedMatchup } from './Sift2Games';
 import { Sift2FeaturedGame } from '../components/sift2/FeaturedGame';
 import '../styles/sift2-tokens.css';
 import '../styles/sift2-home.css';
@@ -25,7 +25,7 @@ export function Sift2HomePreview() {
   const sports = useMemo(() => new Set(today.map((g) => g.sport)).size, [today]);
   const dateLabel = new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   return (
-    <main className="sift2-home page">
+    <div className="sift2-home page">
       <header className="sift2-home__header">
         <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h1>Today's command center</h1>
           <p>{dateLabel} · {unavailable ? 'Published feed unavailable' : all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sport${sports === 1 ? '' : 's'}`} · Your sports research, in focus.</p></div>
@@ -37,18 +37,13 @@ export function Sift2HomePreview() {
         <div className="sift2-home__main">
           {unavailable ? <div className="sift2-surface sift2-home__status" role="status">Featured game unavailable while the publication is offline.</div> : all.loading ? <div className="sift2-surface sift2-home__status" role="status">Loading published slate…</div> : featured ? (
             <Sift2FeaturedGame game={featured} />
-          ) : <div className="sift2-surface sift2-home__status">No eligible featured matchup in the published slate. <Link to="/games">Browse games →</Link></div>}
+          ) : <div className="sift2-surface sift2-home__status">No eligible featured matchup in the published slate. <Link to="/design/sift2/games">Browse games →</Link></div>}
           <section aria-labelledby="sift2-games-title" className="sift2-home__section">
-            <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">THE SLATE</span><h2 id="sift2-games-title">Today's games</h2></div><Link to="/games">Open real games →</Link></div>
+            <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">THE SLATE</span><h2 id="sift2-games-title">Today's games</h2></div><Link to="/design/sift2/games">Open real games →</Link></div>
             <div className="sift2-home__cards">
               {unavailable ? <p role="status">Today's slate cannot be verified until the feed recovers.</p> : all.loading ? <p role="status">Loading today's games…</p> : today.length ? today.slice(0, 6).map((g) => (
-                <article className="sift2-surface" key={`${g.slug}:${g.item.event_id}`}>
-                  <span className="sift2-home__eyebrow">{g.sport} · {phaseWord(g)}</span>
-                  <h3>{g.label}</h3>
-                  <p>{g.candidates > 0 ? `${g.candidates} flagged for research review` : 'No flagged candidates'}</p>
-                  <Link to={`/design/sift2${routes.game(g.slug, g.item.event_id)}`}>View game →</Link>
-                </article>
-              )) : <div className="sift2-surface sift2-home__status">No games published for today. <Link to="/games?day=week">See the next seven days →</Link></div>}
+                <PublishedMatchup key={`${g.slug}:${g.item.event_id}`} game={g} />
+              )) : <div className="sift2-surface sift2-home__status">No games published for today. <Link to="/design/sift2/games?day=week">See the next seven days →</Link></div>}
             </div>
           </section>
           <section aria-labelledby="sift2-explorer-title" className="sift2-home__section">
@@ -73,6 +68,6 @@ export function Sift2HomePreview() {
           <section className="sift2-surface"><span className="sift2-home__eyebrow">RESEARCH LAB</span><h2>Go deeper</h2><p>Explore matchup drivers, evidence and historical context.</p><Link to="/design/sift2/lab">Explore research →</Link></section>
         </aside>
       </div>
-    </main>
+    </div>
   );
 }

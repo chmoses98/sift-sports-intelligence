@@ -12,6 +12,7 @@ import { SportHomeView } from './views/SportHome';
 
 const CompareView = lazy(() => import('./views/Compare').then((x) => ({ default: x.CompareView })));
 const DesignView = lazy(() => import('./views/Design').then((x) => ({ default: x.DesignView })));
+const Sift2Games = lazy(() => import('./views/Sift2Games').then((x) => ({ default: x.Sift2Games })));
 const Sift2Workspace = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Workspace })));
 const Sift2Props = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Props })));
 const Sift2Intelligence = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Intelligence })));
@@ -86,6 +87,7 @@ export const routeTree = [
       { path: 'design/sift2/hero', element: <Sift2HeroPreview /> },
       { path: 'design/sift2/home', element: <Sift2HomePreview /> },
       { path: 'design/sift2', element: <Sift2Workspace />, children: [
+        { path: 'games', element: <Sift2Games /> },
         { path: 'props', element: <Sift2Props /> },
         { path: 'intelligence', element: <Sift2Intelligence /> },
         { path: 'lab', element: <Sift2Lab /> },

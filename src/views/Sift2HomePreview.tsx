@@ -24,7 +24,7 @@ export function Sift2HomePreview() {
   return (
     <main className="sift2-home page">
       <header className="sift2-home__header">
-        <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h1>Today's command center</h1>
+        <div><span className="sift2-home__eyebrow">SIFT SPORTS INTELLIGENCE / 2.0</span><h2>Today's command center</h2>
           <p>{dateLabel} · {all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sports`} · Explore evidence, not fabricated picks.</p></div>
         <span className="sift2-home__preview">DESIGN PREVIEW · PUBLISHED SLATE</span>
       </header>

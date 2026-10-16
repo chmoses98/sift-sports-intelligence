@@ -10,10 +10,10 @@
   .app--sift2 .sift2-command > nav.gtabs.gtabs--fx {
     position: sticky; top: var(--safe-t, 0px); z-index: 30;
     display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;
-    height: auto; min-height: 54px; margin: 0; padding: 7px 14px;
+    height: auto; min-height: 51px; margin: 0; padding: 5px 14px;
     overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch;
     scroll-padding-inline: 14px;
-    background: #04111e; border: 0; border-bottom: 1px solid #18364d; border-radius: 0; box-shadow: 0 8px 14px -10px #000;
+    background: #04111e; border: 0; border-radius: 0; box-shadow: 0 1px 0 #18364d, 0 8px 14px -10px #000;
   }
   .app--sift2 .sift2-command > nav.gtabs.gtabs--fx::-webkit-scrollbar { display: none; }
   /* The safe-area inset above the bar, painted in the bar's colour. */

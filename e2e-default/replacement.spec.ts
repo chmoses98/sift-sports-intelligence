@@ -4,6 +4,11 @@ import { test, expect, NOW, NEBUF } from '../e2e/fixtures';
 // stand-ins), so this proves routing and compatibility, not live data.
 test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 
+// WebKit reports a fetch that is still in flight when the page navigates or reloads as a pageerror ("Fetch API cannot
+// load … due to access control checks"). Aborting a request on purpose is not an application error; any other page
+// error still fails these tests.
+const ABORTED_FETCH = /^Fetch API cannot load .* due to access control checks\.?$/;
+
 test('the root address opens SIFT 2.0 Home', async ({ page }) => {
   await page.goto('#/');
   await expect(page).toHaveURL(/#\/design\/sift2\/home$/);
@@ -25,7 +30,7 @@ const CLASSIC: [string, RegExp, (p: import('@playwright/test').Page) => Promise<
 for (const [from, to, shows] of CLASSIC) {
   test(`classic address ${from.replace(NEBUF, '<event>')} lands on SIFT 2.0 and survives a refresh`, async ({ page }) => {
     const errors: string[] = [];
-    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('pageerror', (e) => { if (!ABORTED_FETCH.test(e.message)) errors.push(e.message); });
     await page.goto(from);
     await expect(page).toHaveURL(to);
     await shows(page);
@@ -53,7 +58,7 @@ test('?ui=classic keeps the classic interface reachable, remembered in this brow
 
 test('an unknown address renders a page, never a crash or a blank screen', async ({ page }) => {
   const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('pageerror', (e) => { if (!ABORTED_FETCH.test(e.message)) errors.push(e.message); });
   await page.goto('#/zz-not-a-sport/x/y');
   await expect(page.locator('.app--sift2')).toBeVisible();
   await expect(page.locator('body')).not.toBeEmpty();

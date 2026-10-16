@@ -254,6 +254,29 @@ test.describe('Game Command Center', () => {
   });
 });
 
+test.describe('Game tab strips follow the current tab only where SIFT 2.0 asks for it', () => {
+  test('SIFT 2.0: opening a game on a tab that is off-screen brings that tab into view @smoke', async ({ page }) => {
+    test.skip(!isPhone(), 'the strip scrolls sideways on phones');
+    await page.clock.install({ time: NOW });
+    await page.goto(`${SIFT}/nfl/game/${NEBUF}?tab=markets`);
+    const bar = page.locator('.sift2-command > nav.gtabs');
+    const current = bar.locator('[aria-current="page"]');
+    await expect(current).toContainText('Markets');
+    await expect.poll(async () => { const b = (await current.boundingBox())!; return b.x >= 0 && b.x + b.width <= page.viewportSize()!.width; }).toBe(true);
+    expect(await bar.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  });
+
+  test('the classic game page keeps its tab strip exactly as laid out (nothing scrolls it) @smoke', async ({ page }) => {
+    await page.clock.install({ time: NOW });
+    await page.goto(`./#/nfl/game/${NEBUF}?tab=markets`);
+    const strip = page.locator('nav.gtabs--fx').first();
+    await expect(strip.locator('[aria-current="page"]')).toContainText('Markets');
+    expect(await page.locator('.sift2-command').count()).toBe(0);
+    await page.waitForTimeout(300);
+    expect(await strip.evaluate((el) => el.scrollLeft)).toBe(0);
+  });
+});
+
 test.describe('Prop explorer game picker', () => {
   test('a searchable sheet of matchup tiles on phones; the native select on desktop @smoke', async ({ page }) => {
     await page.clock.install({ time: NOW });

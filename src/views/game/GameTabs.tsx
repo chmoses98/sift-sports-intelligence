@@ -19,11 +19,13 @@ const TAB_ICON: Record<string, string> = {
   goalies: 'hockey',
 };
 
-export function GameTabs<K extends string>({ tabs, current, href }: { tabs: readonly (readonly [K, string])[]; current: K | null; href: (k: K) => string }) {
+/** `followCurrent`: SIFT 2.0's sticky tab strip keeps its current tab in view (see IconTabs). */
+export function GameTabs<K extends string>({ tabs, current, href, followCurrent = false }: { tabs: readonly (readonly [K, string])[]; current: K | null; href: (k: K) => string; followCurrent?: boolean }) {
   return (
     <IconTabs
       className="gtabs gtabs--fx"
       label="Game sections"
+      followCurrent={followCurrent}
       items={tabs.map(([k, l]) => ({ to: href(k), label: l, icon: TAB_ICON[k] ?? 'layers', current: current === k }))}
     />
   );

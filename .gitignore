@@ -2,9 +2,12 @@ node_modules
 dist
 dev-dist
 test-results
+webkit-results
+recheck-results
 playwright-report
 *.tsbuildinfo
 .DS_Store
 production-*.png
 review/
 .curation-tmp/
+dist-default

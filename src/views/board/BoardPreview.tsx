@@ -1,7 +1,7 @@
 // Home's My Board preview: up to three saved games with their item counts and the first change since saved;
 // an elegant empty state for a new viewer.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { navSport } from '../../data/nav';
 import { Icon } from '../../components/Icon';
 import { SportMark } from '../../components/SportMark';

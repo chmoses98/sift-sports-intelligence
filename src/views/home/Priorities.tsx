@@ -3,7 +3,7 @@
 // game or market it is about. A section with nothing that qualifies is left out (the Top SIFT Edge says so in one
 // line instead); nothing is filled in to keep the layout.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc, Market, Recommendation } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';

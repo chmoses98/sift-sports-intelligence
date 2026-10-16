@@ -3,7 +3,7 @@
 // is published, or the final score with the result against the closing spread and total. A week summary counts how
 // favourites and totals have gone — published finals against published closing lines: history, not a forecast.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { TeamMark } from '../../components/ui';
 import { useInView } from '../../lib/useImage';
 import { routes } from '../../lib/routes';

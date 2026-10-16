@@ -3,7 +3,7 @@
 // (each bar under its own team), both teams placed on one league strip, and — for opponent-adjusted ratings — each
 // rating as a bar either side of league average. The sentence beneath compares ranks; it is an observation.
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, MetricDef, Observation } from '../../contract/types';
 import { BasisTag, DivergingBar, DuelRow, PercentileStrip } from '../../components/statviz';
 import { TeamMark } from '../../components/ui';

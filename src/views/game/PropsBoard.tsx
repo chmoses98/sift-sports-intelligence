@@ -4,7 +4,7 @@
 // read describes where the published projection sits against the line; the price shows what each side costs
 // after Kalshi's fee; confidence is the publication's own scorecard, which rates its prop pricing research only.
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import { Layer, PlayerFace, RankBadge } from '../../components/insight';
 import { QuantileDist } from '../../components/fxResearch';
 import { DigDeeper, TeamMark } from '../../components/ui';

@@ -9,7 +9,7 @@
 // Props can be ticked and saved together to My Board (the tray's own MARKET item; games that kicked off are refused).
 // The slate re-reads on the research clock while Home stays open (data/hooks.ts `revalidate`).
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { Icon } from '../../components/Icon';
 import { PlayerFace, RangeBar } from '../../components/insight';
 import { FreshChip, CapabilityState } from '../../components/fxResearch';

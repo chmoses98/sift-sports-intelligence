@@ -13,6 +13,9 @@
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { isEligibleEvent, selectTarget } from './live-quotes/slate.mjs';
+// The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
+// default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
+const CLASSIC_UI = () => { try { localStorage.setItem('sift.ui', 'classic'); } catch { /* no storage */ } };
 
 const BASE = (process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/').replace(/\/?$/, '/');
 const NFL_RAW = (process.env.SIFT_NFL_RAW ?? 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest').replace(/\/+$/, '');
@@ -790,6 +793,7 @@ for (const [name, type, device, depth] of DEVICES) {
   const ctx = { phone: device.viewport.width < 600 };
   const sink = { errors: [], blocked: [], playerImages: 0 };
   const context = await browser.newContext({ ...device, serviceWorkers: 'block', ...(PROXY ? { ignoreHTTPSErrors: true } : {}) });
+  await context.addInitScript(CLASSIC_UI);
   const page = await context.newPage();
   watch(page, sink);
   try {

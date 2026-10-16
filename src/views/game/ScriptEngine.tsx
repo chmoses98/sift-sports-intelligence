@@ -3,7 +3,7 @@
 // with market fit computed only afterwards. Copy is generated upstream from structured football findings;
 // Sift adds no reasoning of its own and never turns script counts into probabilities.
 import { Fragment, useMemo, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { Notice, Stratum } from '../../components/ui';

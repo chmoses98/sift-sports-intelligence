@@ -3,7 +3,7 @@
 // Sample sizes lead. Populations never mix: model-vs-market contracts, shadow research candidates, and actual
 // routed wagers (only in the accounting ledger, not here). Nothing is called profitable or proven.
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { Notice } from '../../components/ui';
 import { evText, probText, readLearning, STAGE_WORD, type Learning } from '../../lib/nhl';
 import { routes } from '../../lib/routes';

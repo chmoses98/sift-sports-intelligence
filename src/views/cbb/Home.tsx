@@ -3,7 +3,7 @@
 // own top fives, nothing re-ranked), roster storylines, conferences to explore, and the compact research
 // status — with methodology one tap away. Useful before November: every block reads real preseason data.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventDoc, HealthDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';

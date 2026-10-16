@@ -21,7 +21,12 @@ test.beforeEach(async ({ page, market }) => {
 const SCREENS: { name: string; url: string; wait: (p: Page) => Promise<unknown>; full?: boolean }[] = [
   { name: 'home', url: './#/', wait: (p) => p.getByRole('heading', { name: /^Today on SIFT$/ }).waitFor(), full: true },
   { name: 'games', url: './#/games?day=week', wait: (p) => p.locator('.stile').first().waitFor() },
-  { name: 'terminal', url: './#/intelligence', wait: (p) => p.locator('.term__list .trow').first().waitFor() },
+  { name: 'terminal', url: './#/intelligence', wait: async (p) => {
+    await p.locator('.term__list .trow').first().waitFor();
+    // The default fixture deliberately blocks other sports' publications. Wait for the
+    // honest partial-publication notice, not an intermediate board before reads settle.
+    await expect(p.getByRole('alert').filter({ hasText: 'Publication unavailable:' })).toContainText('Missing publications are not a no-opportunity verdict.');
+  } },
   { name: 'pulse', url: './#/intelligence/pulse', wait: (p) => p.locator('.pcard').first().waitFor() },
   { name: 'season', url: './#/nfl/season', wait: (p) => p.locator('.wcell').first().waitFor() },
   { name: 'props', url: './#/nfl/props', wait: (p) => p.locator('#pexa-t').waitFor(), full: true },

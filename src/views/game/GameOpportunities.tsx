@@ -2,7 +2,7 @@
 // the shared opportunity system. Opportunities render as the same cards the home shows; a game with none says so in
 // one line with the sport's precise reason, so the page never implies a bet it does not have.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { MarketCompare } from '../intel/MarketCompare';
 import { useSportOpportunities } from '../../opportunity/load';
 import { featureOpportunities, isLive } from '../../opportunity/rank';
@@ -10,13 +10,15 @@ import type { Opportunity } from '../../opportunity/types';
 import { useSport } from '../../state/sport';
 import { OpportunityCard } from '../home/Opportunities';
 
-export function GameOpportunities({ eventId, now, children }: { eventId: string; now: number; children?: React.ReactNode }) {
+export function GameOpportunities({ eventId, now, children, compact = false }: { eventId: string; now: number; children?: React.ReactNode; compact?: boolean }) {
   const { sport, repo, slug } = useSport();
   const o = useSportOpportunities(repo, now);
   const mine = useMemo(() => o.opportunities.filter((x: Opportunity) => x.eventId === eventId), [o.opportunities, eventId]);
   const live = useMemo(() => featureOpportunities(mine.filter(isLive)), [mine]);
   const passes = mine.filter((x) => x.status === 'PASS');
   if (o.loading) return null;
+  if (o.error || o.verdict?.loaded === false) return <p className="gopp" role="alert">Game research publication unavailable. Missing opportunities cannot be interpreted as a no-edge verdict.</p>;
+  if (compact && live.length === 0) return <details className="gopp gopp--quiet"><summary>No validated opportunity published · research context</summary><p>{passes.length > 0 ? `${passes.length} candidates judged and passed: ${passes[0].statusReason}` : o.verdict?.passReason ?? 'The publication flags no opportunity on this game.'} The research below is for exploring the matchup, not a betting recommendation.</p></details>;
   return (
     <section className="gopp" aria-labelledby="gopp-h" data-testid="game-opportunities">
       <div className="gopp__h">

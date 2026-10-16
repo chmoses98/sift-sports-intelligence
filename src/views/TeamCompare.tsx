@@ -4,7 +4,7 @@
 // teams' scheme tendencies. Every number is the publication's (team profiles) or nflverse's (box score, charting);
 // nothing is combined into a rating Sift invented.
 import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from '../routing';
 import type { EntityProfileDoc, MetricDef, Observation } from '../contract/types';
 import { BasisTag, DuelRow, ModeToggle } from '../components/statviz';
 import { EntityLink, Notice, Skeleton, Stratum, TeamMark } from '../components/ui';

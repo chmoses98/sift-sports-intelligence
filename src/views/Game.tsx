@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { ResearchDetails } from '../components/sift2/ResearchDetails';
+import { Link, useParams, useSearchParams } from '../routing';
 import { PriceHistory } from '../charts/PriceHistory';
 import { RangeStrip, type RangeRow } from '../charts/RangeStrip';
 import type { EventResearchDoc } from '../contract/types';
@@ -55,6 +56,8 @@ import { EngineMarketIntel, MarketIntel, TopMarkets } from './game/MarketIntel';
 import { GameOpportunities } from './game/GameOpportunities';
 import { LinesPanel, PriceMovesPanel } from './game/lines';
 import { MatchupTab } from './game/MatchupTab';
+import { CommandOverview, CommandRail, CommandMarkets } from '../components/sift2/CommandOverview';
+import { PlayerSnapshot, PlayerSnapshotNotes } from '../components/sift2/PlayerSnapshot';
 import { DepthChart } from './stats/DepthChart';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
@@ -70,7 +73,7 @@ const SoccerMatchView = lazy(() => import('./soccer/SoccerMatch').then((m) => ({
 const TennisMatchView = lazy(() => import('./tennis/TennisMatch').then((m) => ({ default: m.TennisMatchView })));
 const NbaGameView = lazy(() => import('./nba/NbaGame').then((m) => ({ default: m.NbaGameView })));
 
-export function GameRoute() {
+export function GameRoute({ sift2 = false }: { sift2?: boolean }) {
   const { eventId = '' } = useParams();
   const [sp] = useSearchParams();
   const { repo, sport } = useSport();
@@ -98,7 +101,7 @@ export function GameRoute() {
     if (!dir.data.hasEventResearch(eventId)) return <div className="page"><Notice title="This game has no research page">The CBB publication keeps research for games in its current window (recent results and the coming week). Nothing is reconstructed for older games.</Notice></div>;
     return <Suspense fallback={<div className="page"><Skeleton lines={8} tall /></div>}><CbbGameView eventId={eventId} /></Suspense>;
   }
-  if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} />;
+  if (dir.data.hasEventResearch(eventId)) return <GameView eventId={eventId} sift2={sift2} />;
   return <HistoricalGameView eventId={eventId} teamId={sp.get('team')} />;
 }
 
@@ -301,7 +304,12 @@ const SCRIPT_IDS: ScriptId[] = ['fav-big', 'fav', 'close', 'fav-close', 'dog-clo
  * those tabs are not offered. */
 const ENGINE_TABS = TABS.filter(([k]) => k !== 'players' && k !== 'injuries' && k !== 'props');
 
-export function GameView({ eventId }: { eventId: string }) {
+/** Keep the overview concise without removing the full matchup explanation. */
+function OverviewResearchDetails({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  return enabled ? <details className="sift2-command__evidence"><summary>Full matchup evidence and context</summary>{children}</details> : <>{children}</>;
+}
+
+export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: boolean }) {
   const { sport, repo, slug, metrics, caps } = useSport();
   const [sp] = useSearchParams();
   const tab = (TABS.find(([k]) => k === sp.get('tab'))?.[0] ?? 'overview') as GameTab;
@@ -372,7 +380,10 @@ export function GameView({ eventId }: { eventId: string }) {
   const ext = r.extensions as any;
   const homeAbbr = short(homeP.participant_id);
   const awayAbbr = short(awayP.participant_id);
-  const href = (t: GameTab, script: ScriptId | null = selected) => routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
+  const href = (t: GameTab, script: ScriptId | null = selected) => {
+    const path = routes.game(slug, eventId, { tab: t === 'overview' ? null : t, script });
+    return sift2 ? `/design/sift2${path}` : path;
+  };
   const hrefFor = (id: ScriptId | null) => href(tab, id);
   const injuries = injuryRows(r);
   const favAbbr = set ? (set.fav === 'home' ? homeAbbr : awayAbbr) : homeAbbr;
@@ -394,7 +405,7 @@ export function GameView({ eventId }: { eventId: string }) {
     const etab = ENGINE_TABS.some(([k]) => k === tab) ? tab : 'overview';
     return (
       <div className="page page--hero game game--engine">
-        <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<CfbHeroStats r={r} engine={engine} markets={quoted.length ? quoted : r.markets} now={now} />} />
+        <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<CfbHeroStats r={r} engine={engine} markets={quoted.length ? quoted : r.markets} now={now} />} />
         <GameTabs tabs={ENGINE_TABS} current={etab} href={(k) => ehref(k)} />
         {etab !== 'trends' && <EngineDetailNotice engine={engine} />}
         {etab === 'overview' && engine.claimsV2 && (
@@ -486,10 +497,13 @@ export function GameView({ eventId }: { eventId: string }) {
 
   return (
     <MarketIconProvider value={iconCtx}>
-    <div className="page game">
-      <GameHero r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
+    <div className={`page game${sift2 ? ' sift2-command' : ''}`} data-game-tab={tab}>
+      <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} cinematicRail={sift2 ? <CommandRail r={r} rows={rows} now={now} slug={slug} eventId={eventId} chip={<QuoteSummaryChip views={views} now={now} />}><NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} /></CommandRail> : undefined} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
 
-      <GameTabs tabs={TABS} current={tab} href={(k) => href(k)} />
+      {sift2 ? <>
+        <GameTabs tabs={(['overview','matchup','props','script','markets','injuries','trends','players'] as GameTab[]).map((k) => [k, ({ overview:'Overview', matchup:'Matchups', props:'Players', script:'Game Scripts', markets:'Markets', injuries:'Injuries', trends:'Trends', players:'Player Usage' } as Record<string,string>)[k]] as [GameTab,string])} current={tab} href={(k) => href(k)} />
+        <details className="sift2-command__more" open={!['overview', 'matchup', 'props', 'markets'].includes(tab)}><summary>More game research</summary><GameTabs tabs={TABS.filter(([k]) => !['overview', 'matchup', 'props', 'markets'].includes(k)).map(([k, label]) => [k, k === 'players' ? 'Player usage' : label] as [GameTab, string])} current={tab} href={(k) => href(k)} /></details>
+      </> : <GameTabs tabs={TABS} current={tab} href={(k) => href(k)} />}
 
       {engine && !isEngine(engine) && (
         <Notice tone="research" title="No script engine read for this game">
@@ -500,8 +514,8 @@ export function GameView({ eventId }: { eventId: string }) {
         // The Visual Intelligence Dashboard (approved references 01 option 1 and 02): graphics first, the detail one
         // tap down. The verdict leads (No Edge / Watch / Back semantics are the opportunity layer's own).
         <div className="gov gov--dash">
-          <GameOpportunities eventId={eventId} now={now} />
-          <div className="fx-bento gdash">
+          <>{!sift2 && <GameOpportunities eventId={eventId} now={now} />}</>
+          {sift2 ? <CommandOverview insights={insights} context={context} set={set} cards={allProps} href={(t,id) => href(t, id as ScriptId | undefined)} /> : <div className="fx-bento gdash">
             <GameReadCard insights={insights} context={context} set={set} fullHref={href('matchup')} scriptHref={href('script')} />
             {set ? (
               <ScriptsCard set={set} r={r} hrefFor={(id) => routes.game(slug, eventId, { tab: 'script', script: id })} allHref={href('script')} />
@@ -510,7 +524,7 @@ export function GameView({ eventId }: { eventId: string }) {
             )}
             <MatchupAdvantagesCard r={r} g={g} sport={sport.code} href={href('matchup')} wide={!watch.length} />
             {watch.length > 0 && <PropExplorerCard all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
-            <BasicsCard g={g} sport={sport.code} href={href('matchup')} />
+            {!sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}
             <MarketContextCard rows={rows} slug={slug} eventId={eventId} now={now} allHref={href('markets')} chip={<QuoteSummaryChip views={views} now={now} />} />
             <GameInfoCard r={r} sport={sport.code} />
             <RelatedResearchCard links={[
@@ -519,8 +533,11 @@ export function GameView({ eventId }: { eventId: string }) {
               { to: href('injuries'), icon: 'medic', t: 'Injuries', s: `${injuries.filter((x) => x.status !== 'ACTIVE').length} designations` },
               { to: routes.packet({ sport: slug, scope: 'GAME', event: ev.event_id }), icon: 'research', t: 'Handicap packet', s: 'Every number, exportable' },
             ]} />
-          </div>
+          </div>}
+          {sift2 && <GameOpportunities compact eventId={eventId} now={now} />}
 
+          <OverviewResearchDetails enabled={sift2}>
+          {sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}
           <section className="gsec gsec--fx" aria-labelledby="g-matters-h">
             <div className="gsec__h">
               <h2 id="g-matters-h" className="gsec__t">What Matters</h2>
@@ -529,6 +546,8 @@ export function GameView({ eventId }: { eventId: string }) {
             {matters.length ? <div className="mgrid">{matters}</div> : <p className="muted">No unit in this game holds a clear ranked edge over the unit it faces — an evenly matched game on the published ratings. <Link to={href('matchup')}>See every matchup →</Link></p>}
             {insights.length > 3 || matters.length >= 5 ? <p className="gsec__more"><Link to={href('matchup')}>Every matchup, scheme and metric →</Link></p> : null}
           </section>
+
+          </OverviewResearchDetails>
 
           <details className="gmore">
             <summary className="gmore__s"><Icon name="layers" size={18} /><span>Form, injuries and the lines</span><small>Recent results, availability, market and model lines, line history</small></summary>
@@ -573,7 +592,7 @@ export function GameView({ eventId }: { eventId: string }) {
       )}
 
       {tab === 'props' && (
-        <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
+        sift2 ? <><div className="s2-players-view"><PlayerSnapshot showNotes={false} loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} title="Market Snapshot" chip={<QuoteSummaryChip views={views} now={now} />} /><PlayerSnapshotNotes /></div><ResearchDetails key={eventId} id="s2-full-props" summary="Full prop research and alternate lines"><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></ResearchDetails></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
       )}
 
       {tab === 'markets' && (

@@ -31,7 +31,7 @@ export const LAB_TOOLS: LabTool[] = [
 /** Where a tool opens for a sport. Hub sections are addressed with ?tool= so a link from anywhere lands on them. */
 export function labHref(key: LabToolKey, slug = 'nfl'): string {
   switch (key) {
-    case 'props': return PROPS_ROUTE;
+    case 'props': return slug==='nfl'?PROPS_ROUTE:['nhl','mlb'].includes(slug)?`${PROPS_ROUTE}?sport=${slug}`:routes.props(slug);
     case 'compare': return routes.compare(slug, '');
     case 'season': return routes.season(slug);
     case 'pulse': return routes.pulse(slug);

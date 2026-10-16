@@ -2,7 +2,7 @@
 // layer 3 (one tap) the season numbers that support it, rank first; layer 4 (links) the full league
 // comparison and methodology. Each card can be saved on its own as a research finding.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, Market, MetricDef, Observation } from '../../contract/types';
 import { EdgeVs, Layer, PlayerFace, RangeBar, RankBadge } from '../../components/insight';
 import { DigDeeper, TeamMark } from '../../components/ui';

@@ -5,7 +5,7 @@
 // schedule behind a disclosure. Ratings and projections are kept apart: a projection is one game's pre-tip
 // view, never a season power rating.
 import type { CSSProperties } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { Observation } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';

@@ -9,7 +9,7 @@
 //    own game log (real games before this one) against today's line — a range strip when too few games exist;
 //  - market rows are the game's own contracts with the quote's age, no model gap (that lives on the Markets tab).
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc, Market, Observation } from '../../contract/types';
 import { FxCard, Histogram, VsBar, binSamples } from '../../components/fx';
 import { Icon } from '../../components/Icon';

@@ -2,7 +2,7 @@
 // matchup → scheme → player → game scripts → markets (with the opportunity layer's call) → counterargument → survival.
 // Every link says when the publication carries nothing for it. The card never shows a bet the opportunity layer did not make.
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { FxCard } from '../../components/fx';
 import { Icon } from '../../components/Icon';
 import type { IntelChain, Judgment } from '../../intelligence/chain';

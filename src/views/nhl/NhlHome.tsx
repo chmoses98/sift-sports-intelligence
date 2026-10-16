@@ -3,7 +3,7 @@
 // contracts are never featured), and the model's honest research status. Loads the board, then each listed game's
 // event research on demand (never team, player, ranking or series documents).
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { ErrorState, Skeleton, TeamMark } from '../../components/ui';

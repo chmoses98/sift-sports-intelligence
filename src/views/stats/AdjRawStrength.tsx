@@ -2,7 +2,7 @@
 // (state/statMode.ts, the same one the NFL Matchups tab and team pages use) picks which value leads; the other footing
 // stays beside it, tagged, so the two are never confused. When a measure publishes only one footing, that one is shown
 // with a "Raw only" / "Adjusted only" tag. Pairing and fallback rules live in insights/adjRaw.ts.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, MetricDef } from '../../contract/types';
 import { BasisTag, ModeToggle } from '../../components/statviz';
 import { Stratum } from '../../components/ui';

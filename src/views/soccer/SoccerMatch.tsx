@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { HeroArt, heroVars } from '../../components/HeroArt';
 import { heroInputFromResearch } from '../../lib/hero/input';
 import { resolveHero } from '../../lib/hero/resolve';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { latestPrices } from '../../components/MarketBoard';

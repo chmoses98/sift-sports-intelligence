@@ -114,7 +114,7 @@ describe('tennis screens render from the real publication', () => {
     expect(screen.getByText(/Why this is not a bet/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Serve, return and rating' })).toBeInTheDocument();
     expect(await screen.findByText('Match winner', { exact: false })).toBeInTheDocument();
-    expect(screen.getByText('Arthur Fery to win the match')).toBeInTheDocument();
+    expect(await screen.findByText('Arthur Fery to win the match')).toBeInTheDocument();
     const text = document.body.textContent ?? '';
     expect(text).not.toMatch(/undefined|NaN/);
     expect(text).not.toMatch(BANNED);

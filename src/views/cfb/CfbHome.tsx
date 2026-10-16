@@ -7,7 +7,7 @@
 // The order is SIFT priority (cfbSignals.ts priorityTier): deterministic, by signal, never by return, popularity or
 // price, and no game is hidden because its price is unattractive.
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { publicationView, QuoteChip } from '../../components/LiveQuote';

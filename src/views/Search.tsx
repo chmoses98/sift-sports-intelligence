@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from '../routing';
 import { Icon } from '../components/Icon';
 import { SearchResults } from '../components/SearchResults';
 import { useSearch } from '../search/useSearch';

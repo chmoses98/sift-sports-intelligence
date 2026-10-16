@@ -2,7 +2,7 @@
 // games with their script outlook, where the model and market disagree most on game lines, recent
 // results and the way into structures. The full slate is one link away.
 import { lazy, Suspense, useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import { Icon } from '../components/Icon';

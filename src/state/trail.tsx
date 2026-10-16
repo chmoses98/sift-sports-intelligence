@@ -4,7 +4,8 @@
 // `recent` is a separate, longer memory of entities opened this session ("pick up where you left off"),
 // unaffected by the resets.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from '../routing';
+import { workspaceTarget } from '../lib/workspaceRoutes';
 
 export type TrailKind = 'home' | 'sport' | 'slate' | 'parlays' | 'news' | 'settings' | 'game' | 'team' | 'player' | 'metric' | 'ranking' | 'market' | 'history' | 'tray' | 'packet' | 'search' | 'compare' | 'status' | 'intel' | 'board' | 'explore' | 'season';
 
@@ -123,7 +124,7 @@ export function useVisit(label: string | null | undefined, kind: TrailKind, pare
   const { visit } = useTrail();
   const loc = useLocation();
   const href = loc.pathname + loc.search;
-  const pHref = parent?.href;
+  const pHref = parent?.href ? workspaceTarget(parent.href,loc.pathname) : undefined;
   const pLabel = parent?.label;
   const pKind = parent?.kind;
   useEffect(() => {

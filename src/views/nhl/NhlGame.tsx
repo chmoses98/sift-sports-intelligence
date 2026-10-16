@@ -5,7 +5,7 @@
 // publication's NHL_SCRIPT_V1 block and basis-labelled findings (lib/nhl.ts, lib/nhlStory.ts); live Kalshi quotes ride
 // on the same market clock as every Sift game. Once the puck drops the pregame research is frozen and labelled so.
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, Market, MatchupRow, MetricDef, Observation } from '../../contract/types';
 import { footingOf, formatUnitValue, rankWords, sportUnit, valueAndUnit } from '../../insights/sportUnits';
 import { FootTag, UnitWords } from '../../components/StatUnit';

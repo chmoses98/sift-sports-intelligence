@@ -1,6 +1,6 @@
 import { matchupInsights } from '../insights/matchups';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { BoardItem, EventResearchDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';
 import type { SportRepo } from '../data/repo';

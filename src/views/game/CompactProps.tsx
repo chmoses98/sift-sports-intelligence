@@ -3,7 +3,7 @@
 // link into the full Combined Prop Explorer with this game selected. Same cards and numbers as before; nothing new
 // is derived.
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';
 import { propsToWatch, type PropCard } from '../../insights/props';

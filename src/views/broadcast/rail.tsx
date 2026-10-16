@@ -2,7 +2,7 @@
 // a broadcast card with records, ranks, the model's and market's read or the final against the closing spread, one
 // contextual tag and the validated-market indicator (GameCard.tsx). Scroll buttons on wide screens.
 import { useRef, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { navSport } from '../../data/nav';
 import { Icon } from '../../components/Icon';
 import { SportMark } from '../../components/SportMark';

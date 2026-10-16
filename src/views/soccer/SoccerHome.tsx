@@ -3,7 +3,7 @@
 // honest status of the model (RESEARCH_ONLY everywhere). Research documents load per fixture as rows scroll into
 // view; the board alone draws the page.
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, HealthDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { ErrorState, Skeleton } from '../../components/ui';

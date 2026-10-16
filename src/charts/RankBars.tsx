@@ -2,7 +2,7 @@
 // researching is the signal (cyan), its opponent gold, pinned comparisons cobalt, everyone else muted
 // context. League mean and median are drawn through the whole universe. Every row is a link.
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { RankingEntry } from '../contract/types';
 import { displayName, ordinal } from '../lib/format';
 

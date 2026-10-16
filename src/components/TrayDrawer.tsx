@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { isFrozen } from '../lib/lifecycle';
 import { routes } from '../lib/routes';
 import { useNow } from '../live/hooks';

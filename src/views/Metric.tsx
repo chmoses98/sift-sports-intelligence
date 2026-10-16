@@ -1,7 +1,7 @@
 // A metric is never a bare number: what it is, compared with whom, over what window, against what
 // competition, how trustworthy it is, why it might matter, and where to go next.
 import type { ReactNode } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useParams, useSearchParams } from '../routing';
 import { DotStrip } from '../charts/DotStrip';
 import { RankBars } from '../charts/RankBars';
 import { TrendChart } from '../charts/TrendChart';

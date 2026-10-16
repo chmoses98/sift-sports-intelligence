@@ -1,7 +1,7 @@
 // The "Markets this script settles" cards of the CFB Scripts tab: for the selected script, each supported contract
 // with WHAT (side, price after fee), WHY (the script and the football conditions it requires), RISK (the scripts it
 // loses in), and ALTERNATIVES (the other rungs of its thesis). Counts stay counts; nothing here is a probability.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { Market } from '../../contract/types';
 import { routes } from '../../lib/routes';
 import { LABEL_WORD, orderedLabels, type Engine } from '../../lib/scriptEngine';

@@ -1,6 +1,6 @@
 // Raw vs opponent-adjusted for one team and metric: both values and ranks, what moved, and one plain line
 // on what it means (lib/adjustment.ts does the arithmetic and respects higher_is_better).
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { MetricDef, Observation } from '../contract/types';
 import { compareAdjustment, unitOf } from '../lib/adjustment';
 import { metricFormatter } from '../lib/format';

@@ -1,7 +1,7 @@
 // A completed game that has no event-research document (most of the last four seasons). Everything
 // here comes from the two teams' published game lists and per-game series; nothing is synthesized —
 // in particular there is no player box score, because the NFL publication does not carry player game logs.
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { TrendChart } from '../charts/TrendChart';
 import type { EntityProfileDoc, ProfileGame, SeriesDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';

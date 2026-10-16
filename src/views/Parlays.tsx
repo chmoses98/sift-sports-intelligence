@@ -3,7 +3,7 @@
 // underdog not losing by more than it), priced at that side's executable ask with its age.
 // Review only — Sift never places bets and Kalshi lists no teaser product, so no combined price or modelled value is
 // shown; legs are never multiplied together, and two legs from the same game are flagged as correlated.
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { EventResearchDoc, Market } from '../contract/types';
 import { FreshChip } from '../components/fxResearch';
 import { useLiveQuotes, useNow } from '../live/hooks';

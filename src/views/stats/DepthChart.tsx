@@ -3,7 +3,7 @@
 // his season per game from the game logs (games before this one only). The depth order is the publication's
 // captured depth chart (Sleeper) — a stated intention, not measured snaps — and the page says so.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc } from '../../contract/types';
 import { PlayerFace } from '../../components/insight';
 import { TeamMark } from '../../components/ui';

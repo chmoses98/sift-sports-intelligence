@@ -3,7 +3,7 @@
 // status: every tennis model number is RESEARCH_ONLY and the Kalshi mid has beaten the model on settled rows.
 // Tennis is an individual sport: no home or away side, and a match's start time is often a day placeholder.
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { ErrorState, Skeleton } from '../../components/ui';

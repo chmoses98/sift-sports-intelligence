@@ -231,5 +231,7 @@ export function buildDiscoveries(input: { opportunities: Opportunity[]; verdicts
   const fresh = freshnessDiscoveries(input.verdicts, input.now);
   const sig = { high: 0, medium: 1, low: 2 } as const;
   const ev = (d: Discovery) => (d.evidence ? { back: 0, research: 1, watch: 2, noedge: 3 }[d.evidence.tone] : 4);
-  return [...markets, ...mismatches, ...fresh].sort((a, b) => sig[a.significance] - sig[b.significance] || ev(a) - ev(b) || a.title.localeCompare(b.title));
+  // Data-quality notices are monitoring, not research: they follow every research finding whatever their severity.
+  const dq = (d: Discovery) => (d.kind === 'freshness' ? 1 : 0);
+  return [...markets, ...mismatches, ...fresh].sort((a, b) => dq(a) - dq(b) || sig[a.significance] - sig[b.significance] || ev(a) - ev(b) || a.title.localeCompare(b.title));
 }

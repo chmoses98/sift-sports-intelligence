@@ -3,7 +3,7 @@
 // and the publication's own out-of-sample study shows the raw Kalshi price beating the model in 8 of 8 families.
 // Preseason games say so; nothing on this page ranks a bet.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { ErrorState, Skeleton, TeamMark } from '../../components/ui';

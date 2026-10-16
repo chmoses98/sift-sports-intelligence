@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useParams, useSearchParams } from '../routing';
 import { TrendChart } from '../charts/TrendChart';
 import type { EntityProfileDoc, ModelPrice, Observation, SeriesDoc } from '../contract/types';
 import { useAsync } from '../data/hooks';

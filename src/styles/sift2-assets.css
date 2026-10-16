@@ -1,0 +1,27 @@
+/* Asset polish only. Composition / breakpoints remain in sift2-fidelity.css. */
+.s2-venue-art{position:absolute;inset:0;overflow:hidden;isolation:isolate}
+.s2-venue-art>.hart{position:absolute;inset:0;z-index:0}
+.app--sift2 .s2-venue-art>.hart__photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--focus-d,50% 45%);z-index:1;opacity:1;transition:none;filter:contrast(1.06) saturate(1.05) brightness(.98)}
+.app--sift2 .s2-venue-art[data-art-tone=night]>.hart__photo{filter:contrast(1.14) saturate(1.1) brightness(.96)}
+.app--sift2 .s2-venue-art[data-art-tone=indoor]>.hart__photo{filter:contrast(1.07) saturate(1.04) brightness(1.02)}
+.s2-venue-art__atmosphere,.s2-venue-art__shade{position:absolute;inset:0;pointer-events:none;z-index:2}
+.s2-venue-art__atmosphere{background:linear-gradient(115deg,#0a203621,transparent 48%,#0413230d);box-shadow:inset 0 0 80px #010a1533}
+.s2-venue-art__shade{z-index:3;background:linear-gradient(180deg,#010a154d 0,transparent 24%,transparent 43%,#010a1555 66%,#010a15e6 100%)}
+.s2-venue-art[data-art-surface=card] .s2-venue-art__shade{background:linear-gradient(180deg,#010a151a,transparent 25%,#010a1580 49%,#010a15f5 80%)}
+.s2-venue-art:not(.is-loaded) .s2-venue-art__shade{opacity:.45}
+.app--sift2 .s2-player-art{overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 40% 18%,color-mix(in srgb,var(--tc) 55%,#09283e),#03111f 90%)}
+.app--sift2 .s2-player-art>.pface{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:transparent}
+.app--sift2 .s2-player-art>.pface>img{object-fit:cover;object-position:var(--player-focus);transform:scale(var(--player-zoom,1));transform-origin:var(--player-focus);filter:contrast(1.04) saturate(1.02)}
+.app--sift2 .s2-player-art .pface--logo{background:repeating-linear-gradient(135deg,transparent 0 24px,#ffffff05 24px 25px),radial-gradient(ellipse at 45% 15%,color-mix(in srgb,var(--tc) 55%,#12334c),#041323 85%)}
+.app--sift2 .s2-player-art .pface--logo .teammark{width:64%;height:64%;max-width:96px;max-height:86px;filter:drop-shadow(0 5px 8px #0008)}
+.app--sift2 .s2-player-art .pface--logo img{object-fit:contain;width:100%;height:100%;transform:none}
+.sift2-command .s2-glass{box-shadow:inset 0 1px 0 #9ed4ff0d,0 5px 20px #00000012}
+.sift2-command .s2-driver,.sift2-command .s2-featured-player,.sift2-command .s2-player{box-shadow:inset 0 1px 0 #8bc7ff0b}
+.sift2-command .s2-player__name,.sift2-command .s2-featured-player strong{letter-spacing:-.015em;text-shadow:0 1px 7px #010916aa}
+.sift2-command .s2-script-rows b,.sift2-command .s2-player__markets strong{font-variant-numeric:tabular-nums}
+.sift2-command .s2-player__markets>a{background:linear-gradient(145deg,#102a40a6,#061728);border-color:#274763}
+@media(max-width:719px){
+ .app--sift2 .s2-venue-art>.hart__photo{object-position:var(--focus-m,50% 45%)}
+ .sift2-command[data-game-tab=props] .s2-venue-art__shade{background:linear-gradient(180deg,#010a1555,transparent 35%,#010a1522 68%,#010a15c7)}
+ .sift2-command .s2-player__photo{border-right:1px solid #36546d66}
+}

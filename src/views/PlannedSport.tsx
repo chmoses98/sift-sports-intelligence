@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { NAV_SPORTS } from '../data/nav';
 import { Icon } from '../components/Icon';
 import { routes } from '../lib/routes';

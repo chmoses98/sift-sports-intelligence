@@ -9,7 +9,7 @@
 //                   families with nothing linked said plainly.
 // Every number is the publication's or a stated arithmetic on it (a sum of published script shares).
 import { useId, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';
 import { FreshChip } from '../../components/fxResearch';

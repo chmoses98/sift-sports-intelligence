@@ -8,7 +8,7 @@
 //    extrapolates or invents a tail. Fewer than three bins renders an honest "not enough data" state.
 //  - VsBar draws two published ranks against their universe; a missing rank renders as "unranked", never as a bar.
 import { useId, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { Icon } from './Icon';
 
 export type FxTone = 'cyan' | 'gold' | 'green' | 'red' | 'violet' | 'muted' | 'home' | 'away';

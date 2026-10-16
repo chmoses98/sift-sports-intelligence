@@ -2,7 +2,7 @@
 // packet.py) in the browser from the published root, then copies its clipboard text. The copy is a
 // separate tap after the build so iOS keeps the user gesture that clipboard writes require.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../routing';
 import { useRepo } from '../data/hooks';
 import { sportBySlug } from '../data/sports';
 import { Icon } from '../components/Icon';

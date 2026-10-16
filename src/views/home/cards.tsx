@@ -2,7 +2,7 @@
 // over its stadium), game tiles, slate rows, the script bar and the model–market gaps. Everything shown
 // comes from the board and each game's own event research; nothing is ranked as a pick.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';

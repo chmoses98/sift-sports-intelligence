@@ -2,7 +2,10 @@
 // designed branded hero (src/lib/hero: the one decision; src/components/HeroArt: the one look) — then both teams with
 // their logos and records, kickoff, venue and the kickoff-time weather. Neutral sites and unconfirmed home sides
 // say so and show both teams; indoor games say so instead of showing meaningless outdoor conditions.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
+import { finalScores } from '../broadcast/lifecycle';
+import { BroadcastHero } from '../../components/sift2/BroadcastHero';
+import { SaveButton } from '../../components/ui';
 import type { EntityProfileDoc, EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';
@@ -126,12 +129,14 @@ export function startedWords(sportCode: string): string {
  * passes one, the sourced numbers strip (`stats`, views/game/HeroStats.tsx). The hero never computes a number itself:
  * prices, projections and probabilities arrive through `stats`, and only where a publication carries them.
  */
-export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalScore, stats }: {
+export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalScore, stats, cinematicRail, cinematic = false }: {
   r: EventResearchDoc; homeProf?: EntityProfileDoc | null; awayProf?: EntityProfileDoc | null; sportCode: string; slug: string; now: number;
   /** A sport's own final score when it is not published as extensions.result (NHL: the publisher's postmortem). */
   finalScore?: { home: number; away: number } | null;
   /** The sourced stat strip under the matchup; without one the hero carries the conditions line instead. */
   stats?: ReactNode;
+  cinematic?: boolean;
+  cinematicRail?: ReactNode;
 }) {
   const ev = r.event;
   const homeP = r.participants.find((p) => p.home_away === 'HOME')!;
@@ -168,6 +173,14 @@ export function GameHero({ r, homeProf, awayProf, sportCode, slug, now, finalSco
   const hp = clashPalette([hc, hc2]);
   const ap = clashPalette([ac, ac2]);
   const clashVars = clash ? { ['--ch-hot' as string]: hp.hot, ['--ch-cool' as string]: hp.cool, ['--ca-hot' as string]: ap.hot, ['--ca-cool' as string]: ap.cool } : {};
+  if (cinematic) return <>
+    <BroadcastHero spec={spec} start={ev.start_time_utc} sport={sportCode} title={`${awayP.display_name} ${atWord(spec)} ${homeP.display_name}`}
+      away={{ team: spec.away, record: recordOf(awayProf)?.text, score: final ? finalScores(res)?.away : null }}
+      home={{ team: spec.home, record: recordOf(homeProf)?.text, score: final ? finalScores(res)?.home : null }}
+      status={final ? 'Final' : started ? 'Live — score unavailable · pregame research frozen' : undefined}
+      actions={<SaveButton ref_kind="EVENT" sport={sportCode} id={ev.event_id} label={{ label: `${awayP.display_name} at ${homeP.display_name}`, href: routes.game(slug, ev.event_id) }} kickoff={ev.start_time_utc} eventStatus={ev.status} text="Save" />} />
+    {cinematicRail ?? (stats && <aside className="s2-command-snapshot" aria-label="Published market and research snapshot"><h2>At a glance</h2>{stats}<Link to={`?tab=markets`}>Explore all markets →</Link><small>Published research and captured market context. Model disagreement is not a validated edge.</small></aside>)}
+  </>;
   return (
     <header className={`gh gh--bc gh--${spec.kind} gh--ctx-${spec.context}${stats ? ' gh--stats' : ''}${clash ? ' gh--clash' : ''}${art ? ' gh--art' : ''}`} style={{ ...heroVars(spec), ['--home' as string]: hc, ['--away' as string]: ac, ['--fx-home' as string]: hAccent, ['--fx-away' as string]: aAccent, ...clashVars }} {...heroData(spec)}>
       <div className="gh__bg" aria-hidden="true"><HeroArt spec={spec} /><span className="gh__light" /></div>

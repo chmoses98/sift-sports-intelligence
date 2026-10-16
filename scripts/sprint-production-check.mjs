@@ -305,7 +305,7 @@ async function homeTopPropsCheck(page, ctx, deep) {
         await sec.getByRole('link', { name: 'Open My Board' }).waitFor({ timeout: 10_000 });
         const saved = await page.evaluate(() => Object.keys(localStorage).map((k) => localStorage.getItem(k) ?? '').join('').match(/"ref_kind":"MARKET"/g)?.length ?? 0);
         check(saved >= 2, `#22 "Add selected to My Board" saves the selected props (${saved} market items on My Board)`);
-        await page.evaluate(() => localStorage.clear()); // later checks start from an empty My Board (reload drops
+        await page.evaluate(() => { localStorage.clear(); localStorage.setItem('sift.ui', 'classic'); }); // later checks start from an empty My Board (reload drops
         await page.reload({ waitUntil: 'domcontentloaded' }); // the in-memory board too)
       } else na('#22 multi-select to My Board', 'fewer than two props can still be saved (games kicked off)');
     }
@@ -329,7 +329,7 @@ async function propsHubCheck(page, ctx) {
   const boxes = tp.locator('.tprow input[type=checkbox]:not([disabled])');
   const n = Math.min(2, await boxes.count());
   if (n >= 2) {
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => { localStorage.clear(); localStorage.setItem('sift.ui', 'classic'); });
     for (let i = 0; i < n; i++) await boxes.nth(i).check();
     await tp.getByRole('button', { name: `Add ${n} to My Board` }).click();
     const bar = ((await tp.locator('.tprops__bar').textContent()) ?? '').trim();
@@ -337,7 +337,7 @@ async function propsHubCheck(page, ctx) {
     await page.getByRole('heading', { name: /^My Board$/, level: 1 }).waitFor({ timeout: 30_000 });
     const saved = await page.getByRole('button', { name: /from My Board$/ }).count();
     check(new RegExp(`Added ${n} props`).test(bar) && saved === n, `#48 multi-select adds ${n} props to My Board ("${bar}"; board lists ${saved})`);
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => { localStorage.clear(); localStorage.setItem('sift.ui', 'classic'); });
   } else na('#48 multi-select add-to-board', `${await boxes.count()} selectable prop row(s) on the slate`);
 }
 
@@ -833,7 +833,7 @@ for (const [name, type, device, depth] of DEVICES) {
     check(sink.blocked.length === 0, `#11/#36 no blocklisted player image requested${sink.blocked.length ? ` (${[...new Set(sink.blocked)].slice(0, 3).join(', ')})` : ''}`);
     check(sink.errors.length === 0, `no console errors / page errors${sink.errors.length ? ` (${sink.errors.slice(0, 3).join(' | ')})` : ''}`);
   } finally {
-    await page.evaluate(() => localStorage.clear()).catch(() => {});
+    await page.evaluate(() => { localStorage.clear(); localStorage.setItem('sift.ui', 'classic'); }).catch(() => {});
     await browser.close();
   }
 }

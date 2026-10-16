@@ -4,10 +4,12 @@ import { test, expect, NOW, NEBUF } from '../e2e/fixtures';
 // stand-ins), so this proves routing and compatibility, not live data.
 test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 
-// WebKit reports a fetch that is still in flight when the page navigates or reloads as a pageerror ("Fetch API cannot
-// load … due to access control checks"). Aborting a request on purpose is not an application error. The shared `errors`
-// fixture still fails these tests on any other page or console error.
-const ABORTED_FETCH = /Fetch API cannot load .* due to access control checks/;
+// WebKit reports a bundled-data fetch that is still in flight when the page navigates or reloads as a pageerror. Playwright
+// splits its text at the first colon, so the error's name is "Fetch API cannot load http" and its message is only
+// "/localhost:<port>/…/data/…json due to access control checks.". Aborting a request on purpose is not an application
+// error; this allows exactly that (a same-origin /data/ file), and the shared `errors` fixture still fails these tests
+// on any other page or console error.
+const ABORTED_FETCH = /\/data\/\S+\.json due to access control checks/;
 
 test('the root address opens SIFT 2.0 Home', async ({ page }) => {
   await page.goto('#/');

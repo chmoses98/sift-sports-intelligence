@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { buildDiscoveries } from '../intelligence/discoveries';
-import { Link } from '../routing';
+import { Link, useSearchParams } from '../routing';
+import { NAV_SPORTS } from '../data/nav';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { useNflResearch } from '../intelligence/useNflResearch';
@@ -20,7 +21,14 @@ export function Sift2HomePreview() {
   const unavailable = !!all.error || (!all.loading && all.bundles.length > 0 && failedFeeds.length === all.bundles.length);
   const partial = !unavailable && failedFeeds.length > 0;
   const rows = useMemo(() => gameRows(all.bundles, all.opportunities, now), [all.bundles, all.opportunities, now]);
-  const today = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'today')).sort(slateOrder), [rows, now]);
+  const [sp, setSp] = useSearchParams();
+  const sportFilter = sp.get('sport');
+  const todayAll = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'today')).sort(slateOrder), [rows, now]);
+  const today = useMemo(() => (sportFilter ? todayAll.filter((g) => g.slug === sportFilter) : todayAll), [todayAll, sportFilter]);
+  const tomorrow = useMemo(() => rows.filter((g) => inDay(g.startMs, now, 'tomorrow')), [rows, now]);
+  const counts = useMemo(() => { const m = new Map<string, number>(); for (const g of todayAll) m.set(g.slug, (m.get(g.slug) ?? 0) + 1); return m; }, [todayAll]);
+  const setSport = (v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set('sport', v); else n.delete('sport'); return n; }, { replace: true });
+  const tomorrowKey = (() => { const d = new Date(now); d.setDate(d.getDate() + 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
   const featured = useMemo(() => featuredGame(rows, now), [rows, now]);
   const nflIds = useMemo(() => {
     const b = all.bundles.find((x) => x.sport.code === 'NFL');
@@ -29,13 +37,13 @@ export function Sift2HomePreview() {
   const nfl = useNflResearch(nflIds);
   // Research findings only: publication failures are already shown in the coverage notice and listed on Intelligence.
   const discoveries = useMemo(() => buildDiscoveries({ opportunities: all.opportunities, verdicts: all.verdicts, research: (nfl.data ?? []).map((r) => ({ r, slug: 'nfl' })), now }).filter((d) => d.kind !== 'freshness').slice(0, 3), [all.opportunities, all.verdicts, nfl.data, now]);
-  const sports = useMemo(() => new Set(today.map((g) => g.sport)).size, [today]);
+  const sports = useMemo(() => new Set(todayAll.map((g) => g.sport)).size, [todayAll]);
   const dateLabel = new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   return (
     <div className="sift2-home page">
       <header className="sift2-home__header">
         <div><span className="sift2-home__eyebrow">SIFT 2.0 · COMMAND CENTER</span><h1>Today</h1>
-          <p>{dateLabel} · {unavailable ? 'Published feed unavailable' : all.loading ? 'Loading published games…' : `${today.length} games across ${sports} sport${sports === 1 ? '' : 's'}`}</p></div>
+          <p>{dateLabel} · {unavailable ? 'Published feed unavailable' : all.loading ? 'Loading published games…' : `${todayAll.length} games across ${sports} sport${sports === 1 ? '' : 's'}`}</p></div>
         <span className="sift2-home__preview">DESIGN PREVIEW · PUBLISHED SLATE</span>
       </header>
       {unavailable ? <p role="alert" className="sift2-surface sift2-home__status">Published research is temporarily unavailable. Do not interpret missing games or findings as a no-edge verdict.</p> : null}
@@ -47,11 +55,16 @@ export function Sift2HomePreview() {
           ) : <div className="sift2-surface sift2-home__status">No eligible featured matchup in the published slate. <Link to="/design/sift2/games">Browse games →</Link></div>}
           <section aria-labelledby="sift2-games-title" className="sift2-home__section sift2-home__slate">
             <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">THE SLATE</span><h2 id="sift2-games-title">Today's games</h2></div><Link to="/design/sift2/games">Open real games →</Link></div>
+            {!unavailable && !all.loading && todayAll.length > 0 ? <div className="sift2-home__chips" role="group" aria-label="Filter today's games by sport">
+              <button type="button" aria-pressed={!sportFilter} onClick={() => setSport(null)}>All <small>{todayAll.length}</small></button>
+              {NAV_SPORTS.filter((x) => x.status !== 'planned' && counts.get(x.slug)).map((x) => <button key={x.slug} type="button" aria-pressed={sportFilter === x.slug} onClick={() => setSport(sportFilter === x.slug ? null : x.slug)}>{x.label} <small>{counts.get(x.slug)}</small></button>)}
+            </div> : null}
             <div className="sift2-home__cards">
               {unavailable ? <p role="status">Today's slate cannot be verified until the feed recovers.</p> : all.loading ? <p role="status">Loading today's games…</p> : today.length ? today.slice(0, 6).map((g) => (
                 <PublishedMatchup key={`${g.slug}:${g.item.event_id}`} game={g} />
-              )) : <div className="sift2-surface sift2-home__status">No games published for today. <Link to="/design/sift2/games?day=week">See the next seven days →</Link></div>}
+              )) : <div className="sift2-surface sift2-home__status">No games published for today{sportFilter ? ' in this sport' : ''}. <Link to="/design/sift2/games">See other days →</Link></div>}
             </div>
+            {!unavailable && !all.loading && tomorrow.length > 0 ? <p className="sift2-home__next"><Link to={`/design/sift2/games?date=${tomorrowKey}`}>Tomorrow · {tomorrow.length} game{tomorrow.length === 1 ? '' : 's'} →</Link></p> : null}
           </section>
           <section aria-labelledby="sift2-explorer-title" className="sift2-home__section sift2-home__props">
             <div className="sift2-home__section-head"><div><span className="sift2-home__eyebrow">PLAYER RESEARCH</span><h2 id="sift2-explorer-title">Player Prop Explorer</h2></div><Link to="/design/sift2/props">Open current prop board →</Link></div>

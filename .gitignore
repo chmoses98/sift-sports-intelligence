@@ -10,3 +10,4 @@ playwright-report
 production-*.png
 review/
 .curation-tmp/
+dist-default

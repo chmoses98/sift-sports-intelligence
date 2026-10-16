@@ -1,5 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { createHashRouter, Navigate, Outlet, RouterProvider } from './routing';
+import { createHashRouter, Navigate, Outlet, RouterProvider, useLocation } from './routing';
+import { workspaceTarget } from './lib/workspaceRoutes';
+import { resolveUi } from './lib/uiMode';
 import { Skeleton } from './components/ui';
 import { Shell } from './components/Shell';
 import { ScrollManager } from './components/ScrollManager';
@@ -65,23 +67,21 @@ function Root() {
   );
 }
 
+/** Classic addresses answer with SIFT 2.0 when it is the chosen interface (see lib/uiMode.ts); design routes never pass here. */
+export function UiGate() {
+  const loc = useLocation();
+  if (resolveUi(loc.search) !== 'sift2') return <Outlet />;
+  const q = new URLSearchParams(loc.search);
+  q.delete('ui');
+  const qs = q.toString();
+  return <Navigate replace to={workspaceTarget(`${loc.pathname}${qs ? `?${qs}` : ''}${loc.hash}`, '/design/sift2/home')} />;
+}
+
 export const routeTree = [
   {
     path: '/',
     element: <Root />,
     children: [
-      { index: true, element: <HomeView /> },
-      { path: 'search', element: <SearchView /> },
-      { path: 'games', element: <GamesView /> },
-      { path: 'explore', element: <ExploreView /> },
-      { path: 'board', element: <BoardView /> },
-      { path: 'intelligence', element: <TerminalView /> },
-      { path: 'intelligence/markets', element: <MarketsView /> },
-      { path: 'intelligence/pulse', element: <PulseView /> },
-      { path: 'intelligence/lab', element: <LabView /> },
-      { path: 'tray', element: <TrayView /> },
-      { path: 'packet', element: <PacketView /> },
-      { path: 'status', element: <StatusView /> },
       { path: 'design', element: <DesignView /> },
       { path: 'design/heroes', element: <HeroGalleryView /> },
       { path: 'design/sift2/hero', element: <Sift2HeroPreview /> },
@@ -120,6 +120,19 @@ export const routeTree = [
           { path: '*', element: <NotFound /> },
         ] },
       ] },
+      { element: <UiGate />, children: [
+      { index: true, element: <HomeView /> },
+      { path: 'search', element: <SearchView /> },
+      { path: 'games', element: <GamesView /> },
+      { path: 'explore', element: <ExploreView /> },
+      { path: 'board', element: <BoardView /> },
+      { path: 'intelligence', element: <TerminalView /> },
+      { path: 'intelligence/markets', element: <MarketsView /> },
+      { path: 'intelligence/pulse', element: <PulseView /> },
+      { path: 'intelligence/lab', element: <LabView /> },
+      { path: 'tray', element: <TrayView /> },
+      { path: 'packet', element: <PacketView /> },
+      { path: 'status', element: <StatusView /> },
       { path: 'sports', element: <SportsView /> },
       { path: 'props', element: <PropsHubView /> },
       { path: 'news', element: <NewsView /> },
@@ -145,6 +158,7 @@ export const routeTree = [
         ],
       },
       { path: '*', element: <NotFound /> },
+      ] },
     ],
   },
 ];

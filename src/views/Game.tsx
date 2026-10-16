@@ -498,7 +498,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
   return (
     <MarketIconProvider value={iconCtx}>
     <div className={`page game${sift2 ? ' sift2-command' : ''}`} data-game-tab={tab}>
-      <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} cinematicRail={sift2 ? <CommandRail r={r} rows={rows} now={now} slug={slug} eventId={eventId}><NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} /></CommandRail> : undefined} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
+      <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} cinematicRail={sift2 ? <CommandRail r={r} rows={rows} now={now} slug={slug} eventId={eventId} chip={<QuoteSummaryChip views={views} now={now} />}><NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} /></CommandRail> : undefined} stats={<NflHeroStats r={r} markets={quoted.length ? quoted : r.markets} now={now} />} />
 
       {sift2 ? <>
         <GameTabs tabs={(['overview','matchup','props','script','markets','injuries','trends','players'] as GameTab[]).map((k) => [k, ({ overview:'Overview', matchup:'Matchups', props:'Players', script:'Game Scripts', markets:'Markets', injuries:'Injuries', trends:'Trends', players:'Player Usage' } as Record<string,string>)[k]] as [GameTab,string])} current={tab} href={(k) => href(k)} />
@@ -592,7 +592,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
       )}
 
       {tab === 'props' && (
-        sift2 ? <><div className="s2-players-view"><PlayerSnapshot showNotes={false} loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} title="Market Snapshot" /><PlayerSnapshotNotes /></div><ResearchDetails key={eventId} id="s2-full-props" summary="Full prop research and alternate lines"><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></ResearchDetails></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
+        sift2 ? <><div className="s2-players-view"><PlayerSnapshot showNotes={false} loading={detail.loading} cards={allProps} slug={slug} eventId={eventId} now={now} /><CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} title="Market Snapshot" chip={<QuoteSummaryChip views={views} now={now} />} /><PlayerSnapshotNotes /></div><ResearchDetails key={eventId} id="s2-full-props" summary="Full prop research and alternate lines"><PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} /></ResearchDetails></> : <PropsBoard r={r} g={g} detail={detail.data} slug={slug} sport={sport.code} label={ctx.label} loading={detail.loading} />
       )}
 
       {tab === 'markets' && (

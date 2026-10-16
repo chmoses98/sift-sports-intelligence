@@ -60,18 +60,18 @@ export function CommandOverview({ insights, context, set, cards, href }: { insig
     </section>
   </div>;
 }
-export function CommandMarkets({ rows, now, slug, eventId, href, title = 'Markets at a glance' }: { rows: PriceRow[]; now: number; slug: string; eventId: string; href: string; title?: string }) {
+export function CommandMarkets({ rows, now, slug, eventId, href, title = 'Markets at a glance', chip }: { rows: PriceRow[]; now: number; slug: string; eventId: string; href: string; title?: string; chip?: ReactNode }) {
   const top=topContracts(rows);
   const groups=[['To win',top.filter((x)=>x.m.market_family==='game_winner'||x.m.market_family==='game_moneyline')],['Spread',top.filter((x)=>x.group==='spreads'&&x.m.market_family!=='game_winner'&&x.m.market_family!=='game_moneyline')],['Total',top.filter((x)=>x.group==='totals')]] as const;
-  return <section className="s2-market-snapshot s2-glass"><PanelHeading icon="chart" title={title} link={href} label="All markets" /><div className="s2-market-groups">{groups.map(([title,xs]) => <div key={title}><h3>{title}</h3>{xs.length ? xs.map((x) => <Link key={x.m.market_id} to={routes.market(slug,x.m.market_id,eventId)}><span>{x.label}</span><b>{centsText(x.ask)}</b><small>{x.m.captured_at ? formatQuoteAgo(quoteAgeMs(x.m.captured_at,now)) : 'Time unavailable'}</small></Link>) : <span className="s2-market-missing">No published quote</span>}</div>)}</div><p className="s2-panel-foot">YES asks · before fees · open a market for freshness and terms</p></section>;
+  return <section className="s2-market-snapshot s2-glass"><PanelHeading icon="chart" title={title} link={href} label="All markets" />{chip && <div className="gquote s2-market-chip">{chip}</div>}<div className="s2-market-groups">{groups.map(([title,xs]) => <div key={title}><h3>{title}</h3>{xs.length ? xs.map((x) => <Link key={x.m.market_id} to={routes.market(slug,x.m.market_id,eventId)}><span>{x.label}</span><b>{centsText(x.ask)}</b><small>{x.m.captured_at ? formatQuoteAgo(quoteAgeMs(x.m.captured_at,now)) : 'Time unavailable'}</small></Link>) : <span className="s2-market-missing">No published quote</span>}</div>)}</div><p className="s2-panel-foot">YES asks · before fees · open a market for freshness and terms</p></section>;
 }
-export function CommandRail({ r, rows, now, slug, eventId, children }: { r: EventResearchDoc; rows: PriceRow[]; now: number; slug: string; eventId: string; children: ReactNode }) {
+export function CommandRail({ r, rows, now, slug, eventId, chip, children }: { r: EventResearchDoc; rows: PriceRow[]; now: number; slug: string; eventId: string; chip?: ReactNode; children: ReactNode }) {
   const spec=resolveHero(heroInputFromResearch(r,'NFL')); const wx=venueWeather(r,spec.venue);const line=venueWeatherLine(wx);
   const href=(tab:string)=>`/design/sift2${routes.game(slug,eventId,{tab})}`;
   return <aside className="s2-command-rail" aria-label="Market context and quick research">
     {line && <div className="s2-rail-weather s2-glass"><Icon name={wx.icon} size={28}/><span><b>{wx.kind==='outdoor' ? `${wx.temp}°` : 'Roof'}</b><small>{line}</small></span></div>}
-    <CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} />
-    <section className="s2-rail-links s2-glass"><PanelHeading icon="bolt" title="Quick links"/>{[['props','users','All player props'],['matchup','target','Team matchups'],['script','trend','Game scripts'],['injuries','medic','Injury report'],['trends','chart','Line movement']].map(([tab,icon,label])=><Link key={tab} to={href(tab)}><Icon name={icon} size={19}/>{label}<Icon name="chevronRight" size={13}/></Link>)}</section>
+    <CommandMarkets rows={rows} now={now} slug={slug} eventId={eventId} href={href('markets')} chip={chip} />
+    <section className="s2-rail-links s2-glass"><PanelHeading icon="bolt" title="Quick links"/>{[['props','users','All player props'],['matchup','target','Team matchups'],['script','trend','Game scripts'],['injuries','medic','Injury report'],['trends','chart','Line movement']].map(([tab,icon,label])=><Link key={tab} to={href(tab)}><Icon name={icon} size={19}/>{label}<Icon name="chevronRight" size={13}/></Link>)}<Link to={routes.packet({ sport: slug, scope: 'GAME', event: eventId })}><Icon name="research" size={19}/>Handicap packet<Icon name="chevronRight" size={13}/></Link></section>
     <details className="s2-model-details s2-glass"><summary>Model & source context</summary>{children}<p className="s2-panel-foot">Research model. Disagreement is not a validated edge.</p></details>
   </aside>;
 }

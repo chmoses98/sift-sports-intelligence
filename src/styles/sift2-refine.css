@@ -132,3 +132,16 @@
   .app--sift2 .term__mast .hubm__sub{font-size:.8rem;line-height:1.3}
   .app--sift2 .trow__ins small{-webkit-line-clamp:3}
 }
+
+/* Parity restorations: card indicator, Home sport filter, quote chip in the market panel. */
+.app--sift2 .s2-match-card__edge,.app--sift2 .s2-match-card__tag{display:inline-flex;align-items:center;gap:4px;margin:2px 14px 8px;font-size:11px;max-width:calc(100% - 28px)}
+.app--sift2 .s2-match-card__tag{color:#b9d0e8}
+.sift2-home__chips{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;margin:0 -2px;scrollbar-width:none}
+.sift2-home__chips button{flex:0 0 auto;border:1px solid #214666;border-radius:999px;background:#06182a;color:#cfe3f7;font:500 13px Barlow,sans-serif;padding:6px 12px;min-height:34px;cursor:pointer}
+.sift2-home__chips button[aria-pressed=true]{background:#0f3558;border-color:#409ade;color:#fff}
+.sift2-home__chips small{opacity:.75;margin-left:2px}
+.sift2-home__next{margin:10px 0 0;font-size:.95rem}
+.app--sift2 .s2-market-chip{margin:0 0 8px}
+.app--sift2 .s2-market-chip{max-width:100%;min-width:0;overflow:hidden}
+.app--sift2 .s2-market-chip .qchip,.app--sift2 .s2-market-chip button{max-width:100%;white-space:normal;text-align:left}
+.app--sift2 .s2-rail-links a{min-width:0}

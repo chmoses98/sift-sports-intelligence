@@ -288,7 +288,7 @@ function SportsSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
         </ul>
         <div className="sheet__h"><span className="eyebrow">More</span></div>
         <ul className="sheet__work">
-          {[{ to: routes.board(), label: 'My Board', icon: 'bookmark' }, { to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
+          {[{ to: routes.board(), label: 'My Board', icon: 'bookmark' }, { to: routes.explore(), label: 'Research Lab', icon: 'research' }, { to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
             <li key={w.label}>
               <NavLink to={w.to} className="sheet__wa" onClick={onClose}><Icon name={w.icon} size={18} /> {w.label}</NavLink>
             </li>

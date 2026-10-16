@@ -41,6 +41,8 @@ export function PublishedMatchup({ game, feature = false, selected = false }: { 
       <div><PMark sport={game.sport} p={game.home} size="md" /><strong>{spec.home?.short ?? game.home?.display_name}</strong>{facts.home.record && <small>{facts.home.record}</small>}</div>
     </Link>
     <p>{spec.venue?.name ?? 'Venue not verified'}</p>
+    {facts.edge ? <span className={`dword dword--${facts.edge.tone} gc-edge s2-match-card__edge`} title={facts.edge.title}>{facts.edge.word}{facts.edge.text ? <small> · {facts.edge.text}</small> : null}</span>
+      : facts.tag ? <span className="s2-match-card__tag" title={facts.tag.title}>{facts.tag.text}</span> : null}
     <div className="s2-match-card__actions"><Link to={gameHref(game)}>Game research</Link><Link to={gameHref(game, hasPlayerProps ? 'props' : 'markets')}>{hasPlayerProps ? 'Player props' : 'Markets'}</Link></div>
   </article>;
 }
@@ -49,7 +51,9 @@ export function Sift2Games() {
   const now = useNow(30_000);
   const all = useAllOpportunities(now);
   const [sp, setSp] = useSearchParams();
-  const day = sp.get('date') ?? dateKey(now);
+  // Classic addresses carry `day=tomorrow|week` (routes.games); SIFT 2.0 selects a calendar date.
+  const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1);
+  const day = sp.get('date') ?? (sp.get('day') === 'tomorrow' ? dateKey(+tomorrow) : dateKey(now));
   const sport = sp.get('sport');
   const week = Math.max(-52, Math.min(52, Number(sp.get('week')) || 0));
   const status = sp.get('status') ?? 'all';

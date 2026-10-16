@@ -17,6 +17,9 @@
 // its failures are reported as "MLB: …": they fail the run without stopping or masking the NFL and NHL checks.
 import { chromium, webkit } from '@playwright/test';
 import { honestPublicationStates, isEligibleEvent, publicationStatus, selectTarget, sportCoverage, sportEntry, sportGames } from './live-quotes/slate.mjs';
+// The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
+// default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
+const CLASSIC_UI = () => { try { localStorage.setItem('sift.ui', 'classic'); } catch { /* no storage */ } };
 
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
 const NFL_BOARD = process.env.SIFT_NFL_BOARD_URL ?? 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json';
@@ -79,6 +82,7 @@ async function fallbackProof(browser, device, name, eventId) {
   console.log(`  -- fallback proof (relay forced to HTTP 429 in this browser; target ${eventId})`);
   const gameUrl = gameUrlOf(eventId);
   const ctx = await browser.newContext(device);
+  await ctx.addInitScript(CLASSIC_UI);
   const page = await ctx.newPage();
   const errs = watchErrors(page);
   const feed = [];
@@ -131,6 +135,7 @@ async function fallbackProof(browser, device, name, eventId) {
 
   // Restore: interception removed, provider state rebuilt by a real document load in a clean context.
   const rctx = await browser.newContext(device);
+  await rctx.addInitScript(CLASSIC_UI);
   const rpage = await rctx.newPage();
   const relay = watchRelay(rpage);
   const rdiag = (k) => diagCell(rpage, k);
@@ -530,6 +535,7 @@ async function footballCheck(page, name) {
 async function designCheck(browser, device, name) {
   console.log('  -- Barlow + NFL home + every sport page');
   const ctx = await browser.newContext(device);
+  await ctx.addInitScript(CLASSIC_UI);
   const page = await ctx.newPage();
   const fonts = () => page.evaluate(async () => {
     await document.fonts.ready;
@@ -660,7 +666,9 @@ async function designCheck(browser, device, name) {
 for (const [name, type, device] of [['chromium-phone', chromium, { viewport: { width: 390, height: 844 } }], ['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]]) {
   console.log(`\n${name}`);
   const browser = await type.launch();
-  const page = await (await browser.newContext(device)).newPage();
+  const pctx = await browser.newContext(device);
+  await pctx.addInitScript(CLASSIC_UI);
+  const page = await pctx.newPage();
   const errs = watchErrors(page);
   try {
     await page.goto(BASE + '#/');

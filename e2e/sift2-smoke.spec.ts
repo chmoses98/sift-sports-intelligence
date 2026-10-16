@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
 // Smoke checks cover actual browser layout, not model performance or price accuracy.
 test('SIFT 2.0 Home renders published-data states without horizontal overflow @smoke', async ({ page }) => {
   await page.goto('#/design/sift2/home');
-  await expect(page.getByRole('heading', { level: 1, name: "Today's command center" })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Today', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: "Today's games" })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Player Prop Explorer' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'What matters today' })).toBeVisible();
@@ -19,7 +19,7 @@ test('SIFT 2.0 Home renders published-data states without horizontal overflow @s
   const accessibility = await new AxeBuilder({ page }).include('.sift2-home').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(accessibility.violations).toEqual([]);
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.locator('.sift2-home__marks')).toBeVisible();
+  await expect(page.locator('.s2-broadcast')).toBeVisible();
   await expect(page.locator('.sheet[aria-hidden="true"]')).toBeHidden();
   await page.screenshot({ path: test.info().outputPath('sift2-home.png'), fullPage: true });
   await page.screenshot({ path: test.info().outputPath('sift2-home-viewport.png') });

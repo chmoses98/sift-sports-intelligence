@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { getJson } from '../data/fetcher';
 import { useAsync } from '../data/hooks';
 import { getSourcePreference, setSourcePreference, type SourcePreference } from '../data/source';

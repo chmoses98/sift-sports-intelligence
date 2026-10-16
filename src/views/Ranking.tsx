@@ -1,4 +1,4 @@
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useParams, useSearchParams } from '../routing';
 import { RankBars } from '../charts/RankBars';
 import { useAsync } from '../data/hooks';
 import { PlainEnglish } from './Metric';

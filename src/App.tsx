@@ -1,5 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { createHashRouter, Outlet, RouterProvider } from 'react-router';
+import { createHashRouter, Navigate, Outlet, RouterProvider, useLocation } from './routing';
+import { workspaceTarget } from './lib/workspaceRoutes';
+import { resolveUi } from './lib/uiMode';
 import { Skeleton } from './components/ui';
 import { Shell } from './components/Shell';
 import { ScrollManager } from './components/ScrollManager';
@@ -12,6 +14,11 @@ import { SportHomeView } from './views/SportHome';
 
 const CompareView = lazy(() => import('./views/Compare').then((x) => ({ default: x.CompareView })));
 const DesignView = lazy(() => import('./views/Design').then((x) => ({ default: x.DesignView })));
+const Sift2Games = lazy(() => import('./views/Sift2Games').then((x) => ({ default: x.Sift2Games })));
+const Sift2Workspace = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Workspace })));
+const Sift2Props = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Props })));
+const Sift2Intelligence = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Intelligence })));
+const Sift2Lab = lazy(() => import('./views/Sift2Workspace').then((x) => ({ default: x.Sift2Lab })));
 const Sift2HomePreview = lazy(() => import('./views/Sift2HomePreview').then((x) => ({ default: x.Sift2HomePreview })));
 const Sift2HeroPreview = lazy(() => import('./views/Sift2HeroPreview').then((x) => ({ default: x.Sift2HeroPreview })));
 const HeroGalleryView = lazy(() => import('./views/HeroGallery').then((x) => ({ default: x.HeroGalleryView })));
@@ -60,11 +67,60 @@ function Root() {
   );
 }
 
+/** Classic addresses answer with SIFT 2.0 when it is the chosen interface (see lib/uiMode.ts); design routes never pass here. */
+export function UiGate() {
+  const loc = useLocation();
+  if (resolveUi(loc.search) !== 'sift2') return <Outlet />;
+  const q = new URLSearchParams(loc.search);
+  q.delete('ui');
+  const qs = q.toString();
+  return <Navigate replace to={workspaceTarget(`${loc.pathname}${qs ? `?${qs}` : ''}${loc.hash}`, '/design/sift2/home')} />;
+}
+
 export const routeTree = [
   {
     path: '/',
     element: <Root />,
     children: [
+      { path: 'design', element: <DesignView /> },
+      { path: 'design/heroes', element: <HeroGalleryView /> },
+      { path: 'design/sift2/hero', element: <Sift2HeroPreview /> },
+      { path: 'design/sift2/home', element: <Sift2HomePreview /> },
+      { path: 'design/sift2', element: <Sift2Workspace />, children: [
+        { index: true, element: <Navigate to="home" replace /> },
+        { path: 'games', element: <Sift2Games /> },
+        { path: 'props', element: <Sift2Props /> },
+        { path: 'intelligence', element: <Sift2Intelligence /> },
+        { path: 'lab', element: <Sift2Lab /> },
+        { path: 'search', element: <SearchView /> },
+        { path: 'board', element: <BoardView /> },
+        { path: 'tray', element: <TrayView /> },
+        { path: 'packet', element: <PacketView /> },
+        { path: 'sports', element: <SportsView /> },
+        { path: 'news', element: <NewsView /> },
+        { path: 'settings', element: <SettingsView /> },
+        { path: 'status', element: <StatusView /> },
+        { path: 'intelligence/markets', element: <MarketsView /> },
+        { path: 'intelligence/pulse', element: <PulseView /> },
+        { path: 'intelligence/lab', element: <LabView /> },
+        { path: ':sport', element: <SportLayout />, children: [
+          { index: true, element: <SportHomeView /> },
+          { path: 'game/:eventId', element: <GameRoute sift2 /> },
+          { path: 'props', element: <PropExplorerView /> },
+          { path: 'slate', element: <SlateView /> },
+          { path: 'parlays', element: <ParlaysView /> },
+          { path: 'scorecard', element: <ScorecardView /> },
+          { path: 'team/:teamId', element: <TeamView /> },
+          { path: 'player/:playerId', element: <PlayerView /> },
+          { path: 'metric/:metricId', element: <MetricView /> },
+          { path: 'ranking/:rankingId', element: <RankingView /> },
+          { path: 'market/:marketId', element: <MarketView /> },
+          { path: 'compare', element: <CompareView /> },
+          { path: 'season', element: <SeasonView /> },
+          { path: '*', element: <NotFound /> },
+        ] },
+      ] },
+      { element: <UiGate />, children: [
       { index: true, element: <HomeView /> },
       { path: 'search', element: <SearchView /> },
       { path: 'games', element: <GamesView /> },
@@ -77,10 +133,6 @@ export const routeTree = [
       { path: 'tray', element: <TrayView /> },
       { path: 'packet', element: <PacketView /> },
       { path: 'status', element: <StatusView /> },
-      { path: 'design', element: <DesignView /> },
-      { path: 'design/heroes', element: <HeroGalleryView /> },
-      { path: 'design/sift2/hero', element: <Sift2HeroPreview /> },
-      { path: 'design/sift2/home', element: <Sift2HomePreview /> },
       { path: 'sports', element: <SportsView /> },
       { path: 'props', element: <PropsHubView /> },
       { path: 'news', element: <NewsView /> },
@@ -106,6 +158,7 @@ export const routeTree = [
         ],
       },
       { path: '*', element: <NotFound /> },
+      ] },
     ],
   },
 ];

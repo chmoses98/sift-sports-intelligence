@@ -32,6 +32,9 @@
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
+// The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
+// default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
+const CLASSIC_UI = () => { try { localStorage.setItem('sift.ui', 'classic'); } catch { /* no storage */ } };
 
 const BASE = (process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/').replace(/\/?$/, '/');
 const CFB_RAW = (process.env.SIFT_CFB_RAW ?? 'https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main').replace(/\/+$/, '');
@@ -330,6 +333,7 @@ for (const [name, type, device] of BROWSERS) {
   console.log(`\n${name}`);
   const browser = await type.launch();
   const ctx = await browser.newContext(device);
+  await ctx.addInitScript(CLASSIC_UI);
   // SIFT_BRIDGE_RAW=1 (sandboxes whose browser cannot reach raw.githubusercontent.com directly): the browser's
   // live-publication requests are answered by this process's own fetch of the same URL. Still live data.
   if (process.env.SIFT_BRIDGE_RAW === '1') {

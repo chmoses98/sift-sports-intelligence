@@ -4,7 +4,7 @@
 // outside the 30-hour capture window stays on the slate and says its projection is pending; filters are
 // the reader's choice (kept in the URL) and never hide a game by default.
 import { useMemo, type CSSProperties } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { EventDoc } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';

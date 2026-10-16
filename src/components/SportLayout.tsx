@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Outlet, useParams } from 'react-router';
+import { Outlet, useParams } from '../routing';
 import type { CapabilityManifestDoc, HealthDoc, MetricDef } from '../contract/types';
 import { useAsync, useRepo } from '../data/hooks';
 import { explorable, sportBySlug } from '../data/sports';

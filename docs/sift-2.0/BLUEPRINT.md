@@ -44,3 +44,19 @@ Status: planning baseline; not authorization to deploy or replace existing scree
 
 ## Reference
 The approved mockups in the SIFT 2.0 design conversation are visual targets. Do not treat their illustrative prices, scores, or projections as real data.
+
+## Approved visual standard — October 15 owner correction
+
+The three owner-supplied references (Games desktop, Game Command Center desktop, and paired mobile Overview/Players) are the visual acceptance standard. Earlier technical-pass screenshots are explicitly **not visually approved**. Do not carry their generic panel composition forward as an approved design.
+
+Required composition: a restrained desktop left navigation rail; venue-led cinematic hero with actual home identity; two team marks and a centered kickoff/venue block; compact slate beside the Games feature; photographic/branded matchup cards; four directly reachable phone game tabs; the game read, simulation-share rows and matchup drivers directly below; player-first photographic cards, with full research one layer deeper. Dark navy, thin blue borders, focused electric-blue selection, Barlow body typography, and limited glass effects support that hierarchy.
+
+Reference prices, schedules, scores, records, broadcast networks, weather and script percentages are illustrative and must not be copied. Existing conservative venue/neutral-site and licensed-photo resolution wins over a reference's visual example. Never substitute the mockup stadium picture for another game. Owner visual approval remains a release gate.
+
+### Visual fidelity milestone after second rejected implementation
+
+The owner has not approved the prior screenshots. Freeze expansion into other screens while Games and Game Command Center are compared directly with the original three mockups. `VISUAL-FIDELITY.md` records the ten largest differences, matched viewport measurements, successive visual corrections, imagery quality gates and unresolved assets. Technical tests and design acceptance are explicitly separate. All work remains in draft PR #93, with no production merge/deployment authorization.
+
+### Owner continuation — integration milestone
+
+The latest owner direction supersedes the expansion freeze above: preserve the improved compositions, stop repeated minor visual iterations, and complete the connected release candidate across Home, Games, Game Command Center, Props, Intelligence, Research Lab and all supported sports. Stadium/player photography collection is a separate workstream; use existing approved assets and branded fallbacks, retaining `ASSET-POLISH.md` as the procurement ledger. Preserve opponent-adjusted research, market restrictions, data integrations and accessibility. `RELEASE-CANDIDATE.md` tracks verification and remaining release gates. This direction is not final visual approval and does not authorize production merges or deployments.

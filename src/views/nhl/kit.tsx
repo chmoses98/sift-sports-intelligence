@@ -1,6 +1,6 @@
 // Small NHL building blocks shared by the slate and the game page: team identity (logo + tricode, always together),
 // game phase, freshness, the win-probability split, goalie status and the compact research-status pill.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { TeamMark } from '../../components/ui';
 import { nhlTeam } from '../../lib/nhlTeams';
 import { STAGE_WORD, learningLine, type Learning } from '../../lib/nhl';

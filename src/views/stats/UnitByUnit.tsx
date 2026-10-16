@@ -2,7 +2,7 @@
 // a plain conclusion first, then rank against rank for each published measure (in the reader's footing, tagged
 // Adjusted or Raw), then the box-score basics beside it. Conclusions are observations from published ranks.
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, MetricDef } from '../../contract/types';
 import { BasisTag, DuelRow } from '../../components/statviz';
 import { TeamMark } from '../../components/ui';

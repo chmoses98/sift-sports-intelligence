@@ -1,6 +1,6 @@
 // Settings: data source, the research path, and where the technical detail lives.
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { clearAsyncMemo } from '../data/hooks';
 import { getSourcePreference, setSourcePreference, type SourcePreference } from '../data/source';
 import { routes } from '../lib/routes';

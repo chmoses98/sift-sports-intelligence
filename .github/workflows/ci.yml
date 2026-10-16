@@ -42,6 +42,12 @@ jobs:
         run: npx playwright test
         env:
           CI: 'true'
+      - name: Release configuration — SIFT 2.0 as the default interface (classic addresses redirect, refresh, escape hatch)
+        run: |
+          npm run build:e2e:default
+          npx playwright test -c playwright.default.config.ts
+        env:
+          CI: 'true'
       - name: Journey screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -8,7 +8,7 @@
 //    (the page's detail notice carries the full reason) instead of drawing bars it does not have.
 // Text stays short on purpose (the CFB overview's visible-word budget): the detail is one tap away.
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { FxCard, VsBar } from '../../components/fx';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';

@@ -6,9 +6,9 @@
 // Layout presets (Discovery · Matchups · Markets) reorder the panels; the preset lives in the address and in this
 // browser, as do pins. Phones: the discovery cards, then one focused discovery with a way back.
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
-import type { EventResearchDoc } from '../../contract/types';
+import { useSearchParams } from '../../routing';
 import { useAsync } from '../../data/hooks';
+import { useNflResearch } from '../../intelligence/useNflResearch';
 import { SportRepo } from '../../data/repo';
 import { resolveSource } from '../../data/source';
 import { sportByCode } from '../../data/sports';
@@ -32,7 +32,7 @@ import { ChainCard } from './ChainCard';
 import { gameRows, type GameRow } from '../broadcast/games';
 import { PMark, useGameResearch } from '../broadcast/parts';
 import { IntelNav } from './IntelNav';
-import { ComparePanel, ContextPanel, EvidencePanel, Importance, KindChip, MarketsPanel, MatchupPanel, ProjectionPanel, SamePanel, ScriptsPanel, SelectedHero } from './TerminalPanels';
+import { ComparePanel, ContextPanel, EvidencePanel, ImportanceOrQuality, KindChip, MarketsPanel, MatchupPanel, ProjectionPanel, SamePanel, ScriptsPanel, SelectedHero } from './TerminalPanels';
 import { isLayout, kindCounts, LAYOUT_PANELS, LAYOUTS, layoutFromWorkspace, mainLines, TYPE_FILTERS, type Layout, type PanelId } from './terminalModel';
 
 const PREF_KEY = 'sift.terminal.v2';
@@ -50,19 +50,6 @@ function savePrefs(p: Prefs) {
   try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch { /* not persisted */ }
 }
 
-/** NFL event research for the coming week's games (the matchup mismatches), read once and memoised. */
-function useNflResearch(eventIds: string[]) {
-  const key = eventIds.join(',');
-  return useAsync(key ? `terminal:nfl:${key}` : null, async () => {
-    const sport = sportByCode('NFL');
-    if (!sport) return [] as EventResearchDoc[];
-    const repo = new SportRepo(await resolveSource(sport));
-    if (!repo.hasExplorer) return [];
-    const out = await Promise.allSettled(eventIds.map((id) => repo.eventResearch(id)));
-    return out.flatMap((o) => (o.status === 'fulfilled' ? [o.value] : []));
-  });
-}
-
 /** The selected NFL game's published contracts and model prices (event detail), for the matchup-to-market chain. */
 function useEventDetail(eventId: string | null) {
   return useAsync(eventId ? `terminal:ed:${eventId}` : null, async () => {
@@ -76,6 +63,9 @@ function useEventDetail(eventId: string | null) {
 const shortWhen = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
 const sep = (sport: string) => (sport === 'SOCCER' || sport === 'TENNIS' ? 'v' : '@');
 
+/** The matchup evidence itself ("Bears pass protection (#3 NFL) against Jets pass rush (#24 NFL)…") says more than a repeated caveat. */
+const firstSentence = (t: string) => (t.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? t).slice(0, 140);
+
 /** One discovery as a board row (desktop: a dense table row; phones: a card). */
 function BoardRow({ d, g, active, onSelect }: { d: Discovery; g: GameRow | undefined; active: boolean; onSelect: () => void }) {
   const nav = navSport(d.slug);
@@ -88,8 +78,8 @@ function BoardRow({ d, g, active, onSelect }: { d: Discovery; g: GameRow | undef
         <span className="trow__gl"><b>{label}</b><small>{g ? shortWhen(g.item.start_time_utc) : d.opportunity ? shortWhen(d.opportunity.startTime) : 'Publication health'}</small></span>
       </span>
       <span className="trow__type"><KindChip d={d} /></span>
-      <span className="trow__ins"><b>{d.title}</b><small>{d.evidence ? <><span className={`dword dword--${d.evidence.tone}`}>{d.evidence.word}</span> {d.evidence.basis}</> : 'Not a betting signal'}</small></span>
-      <span className="trow__imp"><Importance sig={d.significance} /></span>
+      <span className="trow__ins"><b>{d.title}</b><small>{d.evidence ? <><span className={`dword dword--${d.evidence.tone}`}>{d.evidence.word}</span> {d.evidence.basis}</> : d.kind === 'freshness' ? 'Publication health, not research' : firstSentence(d.why)}</small></span>
+      <span className="trow__imp"><ImportanceOrQuality d={d} /></span>
     </button>
   );
 }
@@ -105,6 +95,7 @@ export function TerminalView() {
   const urlLayout = sp.get('layout');
   const layout: Layout = isLayout(urlLayout) ? urlLayout : layoutFromWorkspace(sp.get('ws')) ?? prefs.layout;
   const sport = sp.get('sport');
+  const unavailable = all.bundles.filter((b) => (!sport || b.sport.code === sport || b.sport.slug === sport) && b.error);
   const kind = (sp.get('kind') as DiscoveryKind | null) ?? null;
   const selectedId = sp.get('d');
   const nflIds = useMemo(() => {
@@ -117,8 +108,8 @@ export function TerminalView() {
   const sportScoped = discoveries.filter((d) => !sport || d.slug === sport);
   const counts = kindCounts(sportScoped);
   const shown = sportScoped.filter((d) => !kind || d.kind === kind);
-  const selected = discoveries.find((d) => d.id === selectedId) ?? (selectedId ? null : shown[0] ?? null);
-  const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); if (k === 'layout') n.delete('ws'); return n; }, { replace: k !== 'd' });
+  const selected = shown.find((d) => d.id === selectedId) ?? (selectedId ? null : shown[0] ?? null);
+  const set = (k: string, v: string | null) => setSp((prev) => { const n = new URLSearchParams(prev); if (v) n.set(k, v); else n.delete(k); if (k === 'layout') n.delete('ws'); if(k==='sport'||k==='kind') n.delete('d'); return n; }, { replace: k !== 'd' });
   const setLayout = (l: Layout) => { setPrefs((p) => ({ ...p, layout: l })); set('layout', l === 'discovery' ? null : l); };
   const togglePin = (id: string) => setPrefs((p) => ({ ...p, pins: p.pins.includes(id) ? p.pins.filter((x) => x !== id) : [id, ...p.pins].slice(0, 12) }));
   const pinned = prefs.pins.map((id) => discoveries.find((d) => d.id === id)).filter((d): d is Discovery => !!d);
@@ -137,7 +128,7 @@ export function TerminalView() {
   const opps = useMemo(() => (selected?.eventId ? all.opportunities.filter((o) => o.eventId === selected.eventId) : []), [all.opportunities, selected?.eventId]);
   const tickers = useMemo(() => mainLines(r).map((m) => m.kalshi_ticker), [r]);
   const live = useLiveQuotes(tickers, 'slate');
-  const sel = (id: string) => set('d', id);
+  const sel = (id: string) => setSp(prev=>{const n=new URLSearchParams(prev);n.set('d',id);const d=discoveries.find(d=>d.id===id);if(d&&n.get('sport')&&n.get('sport')!==d.slug)n.set('sport',d.slug);if(d&&n.get('kind')&&n.get('kind')!==d.kind)n.delete('kind');return n;});
   // The matchup-to-market chain for a selected NFL mismatch: its markets, scripts, the opportunity layer's calls and,
   // where Sift's charting layer has one for the area, the scheme tendency (observation only).
   const ins = selected?.kind === 'mismatch' ? selected.insight ?? null : null;
@@ -208,12 +199,13 @@ export function TerminalView() {
             {TYPE_FILTERS.filter((t) => counts.get(t.kind)).map((t) => <button key={t.kind} type="button" className={kind === t.kind ? 'is-on' : undefined} aria-pressed={kind === t.kind} onClick={() => set('kind', kind === t.kind ? null : t.kind)}>{t.label} <small>{counts.get(t.kind)}</small></button>)}
           </div>
           <div className="tboard__head" aria-hidden="true"><span>Sport</span><span>Matchup</span><span>Type</span><span>Insight</span><span>Importance</span></div>
+          {!all.loading && (all.error || unavailable.length > 0) && <p role="alert" className="fr-note term__feeds">{all.error ? 'Discovery publications are unavailable.' : `Publication unavailable: ${unavailable.map((b) => b.sport.label).join(', ')}.`} Available research remains visible. Missing publications are not a no-opportunity verdict.</p>}
           {loading && !discoveries.length ? <Skeleton lines={6} /> : shown.length ? (
             <div className="tboard__scroll" role="region" aria-label="Discoveries">
               <ol className="term__list">{shown.slice(0, limit).map((d) => <li key={d.id}><BoardRow d={d} g={d.eventId ? games.get(d.eventId) : undefined} active={selected?.id === d.id} onSelect={() => sel(d.id)} /></li>)}</ol>
               {shown.length > limit && <div className="term__more"><button type="button" className="btn btn--sm btn--glass" onClick={() => setLimit((n) => n + BOARD_PAGE)}>Show {Math.min(BOARD_PAGE, shown.length - limit)} more · {shown.length - limit} left</button></div>}
             </div>
-          ) : <div className="bempty"><h3>No discoveries match</h3><p>Change the sport or type. An empty board is an honest result on a quiet day.</p></div>}
+          ) : <div className="bempty"><h3>No discoveries match</h3><p>{all.error || unavailable.length > 0 ? 'Some research could not be read. Check Sources for publication status or select another sport.' : 'Change the sport or type. An empty board is an honest result on a quiet day.'}</p></div>}
           {nfl.loading && <p className="muted term__loading">Reading NFL matchup research…</p>}
         </section>
         <div className="term__main">
@@ -230,3 +222,4 @@ export function TerminalView() {
     </div>
   );
 }
+

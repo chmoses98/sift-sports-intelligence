@@ -3,7 +3,7 @@
 // signal lit. Dots are links (tab-reachable); values, not ranks, so clusters and outliers are visible.
 import { scaleLinear } from 'd3-scale';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '../routing';
 import type { RankingEntry } from '../contract/types';
 import { useWidth } from './useWidth';
 

@@ -29,23 +29,23 @@ export const REVALIDATE_CHECK_MS = 60_000;
  */
 export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: { revalidate?: boolean } = {}): Async<T> {
   const initial = key != null && memo.has(key) ? (memo.get(key) as T) : undefined;
-  const [state, setState] = useState<Async<T>>({ data: initial, error: undefined, loading: key != null && initial === undefined });
+  const [state, setState] = useState<{key: string | null; result: Async<T>}>({ key, result: {data: initial, error: undefined, loading: key != null && initial === undefined} });
   const loaderRef = useRef(loader);
   loaderRef.current = loader;
   useEffect(() => {
     if (key == null) {
-      setState({ data: undefined, error: undefined, loading: false });
+      setState({ key, result: {data: undefined, error: undefined, loading: false} });
       return;
     }
     let alive = true;
     if (memo.has(key)) {
-      setState({ data: memo.get(key) as T, error: undefined, loading: false });
+      setState({ key, result: {data: memo.get(key) as T, error: undefined, loading: false} });
       if (Date.now() - (memoAt.get(key) ?? 0) <= RESEARCH_REVALIDATE_MS) return;
       memoAt.set(key, Date.now()); // one background re-load per period, however many screens mount
       loaderRef.current().then(
         (data) => {
           memo.set(key, data);
-          if (alive) setState({ data, error: undefined, loading: false });
+          if (alive) setState({ key, result: {data, error: undefined, loading: false} });
         },
         () => {
           /* keep the copy on screen */
@@ -55,15 +55,15 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: 
         alive = false;
       };
     }
-    setState((s) => ({ data: s.data, error: undefined, loading: true }));
+    setState((s) => ({ key, result: {data: s.key === key ? s.result.data : undefined, error: undefined, loading: true} }));
     loaderRef.current().then(
       (data) => {
         memo.set(key, data);
         memoAt.set(key, Date.now());
-        if (alive) setState({ data, error: undefined, loading: false });
+        if (alive) setState({ key, result: {data, error: undefined, loading: false} });
       },
       (error: Error) => {
-        if (alive) setState({ data: undefined, error, loading: false });
+        if (alive) setState({ key, result: {data: undefined, error, loading: false} });
       },
     );
     return () => {
@@ -81,7 +81,7 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: 
       loaderRef.current().then(
         (data) => {
           memo.set(key, data);
-          if (alive) setState({ data, error: undefined, loading: false });
+          if (alive) setState({ key, result: {data, error: undefined, loading: false} });
         },
         () => {
           /* keep the copy on screen */
@@ -96,7 +96,9 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: 
       document.removeEventListener('visibilitychange', check);
     };
   }, [key, revalidate]);
-  return state;
+  // Stale-while-revalidate applies only to the same research identity. A new game,
+  // player or sport must never briefly inherit the previous key's research/errors.
+  return state.key === key ? state.result : {data: initial, error: undefined, loading: key != null && initial === undefined};
 }
 
 export function clearAsyncMemo(): void {

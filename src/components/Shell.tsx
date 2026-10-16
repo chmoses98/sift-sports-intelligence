@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router';
+import { Link, NavLink, useLocation, useNavigate } from '../routing';
 import { NAV_SPORTS, navSport, STATUS_WORD, type NavSport } from '../data/nav';
 import { DESTINATIONS, destination, destinationOf, PHONE_TABS, type Destination } from '../lib/destinations';
 import { routes } from '../lib/routes';
+import { workspacePath } from '../lib/workspaceRoutes';
 import { useSearch } from '../search/useSearch';
 import { useTrail, type TrailStep } from '../state/trail';
 import { useTray } from '../state/tray';
 import { SportMark } from './SportMark';
 import { Icon, SiftWordmark } from './Icon';
+import { Sift2Navigation } from './sift2/Navigation';
+import '../styles/sift2-reference.css';
+import '../styles/sift2-fidelity.css';
+import '../styles/sift2-refine.css';
+import '../styles/sift2-assets.css';
 import { SearchResults } from './SearchResults';
 
 /**
@@ -91,7 +97,7 @@ function usePaletteKeys(setOpen: (o: boolean) => void) {
 /** The sport whose screens are on view, from the address (#/nfl/…). */
 function useSportContext(): NavSport | undefined {
   const loc = useLocation();
-  return navSport(loc.pathname.split('/')[1]);
+  return navSport(workspacePath(loc.pathname).split('/')[1]);
 }
 
 /**
@@ -282,7 +288,7 @@ function SportsSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
         </ul>
         <div className="sheet__h"><span className="eyebrow">More</span></div>
         <ul className="sheet__work">
-          {[{ to: routes.board(), label: 'My Board', icon: 'bookmark' }, { to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
+          {[{ to: routes.board(), label: 'My Board', icon: 'bookmark' }, { to: routes.explore(), label: 'Research Lab', icon: 'research' }, { to: routes.pulse(), label: 'Model Pulse', icon: 'chart' }, { to: routes.news(), label: 'News', icon: 'news' }, { to: routes.status(), label: 'Data & provenance', icon: 'info' }, { to: routes.settings(), label: 'Settings', icon: 'settings' }].map((w) => (
             <li key={w.label}>
               <NavLink to={w.to} className="sheet__wa" onClick={onClose}><Icon name={w.icon} size={18} /> {w.label}</NavLink>
             </li>
@@ -298,7 +304,8 @@ export function Shell({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const online = useOnline();
   const sport = useSportContext();
-  const active = destinationOf(loc.pathname);
+  const preview = loc.pathname.startsWith('/design/sift2/');
+  const active = destinationOf(workspacePath(loc.pathname));
   const [sheet, setSheet] = useState(false);
   const [search, setSearch] = useState(false);
   const closeSheet = useCallback(() => setSheet(false), []);
@@ -313,13 +320,14 @@ export function Shell({ children }: { children: ReactNode }) {
   // Explore and Intelligence carry their own sport selectors; the strip would be a second one.
   const showStrip = active === 'home' || active === 'games' || !!sport;
   return (
-    <div className="app">
+    <div className={`app${preview ? ' app--sift2' : ''}`}>
+      {preview && <Sift2Navigation />}
       <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>
       <div className="app__col">
         <header className="topbar">
           <div className="topbar__in">
-            <Link to={routes.home()} className="topbar__brand" aria-label="Sift home">
-              <SiftWordmark compact />
+            <Link to={preview ? '/design/sift2/home' : routes.home()} className="topbar__brand" aria-label="Sift home">
+              {preview ? <span className="s2-brand">SIFT<span>2.0</span></span> : <SiftWordmark compact />}
             </Link>
             <DestinationTabs active={active} count={count} />
             <button type="button" className="searchbtn" onClick={() => setSearch(true)} aria-label="Search Sift" aria-haspopup="dialog">

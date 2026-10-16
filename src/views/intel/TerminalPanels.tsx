@@ -7,7 +7,7 @@
 //   markets     the publication's judged contracts and the game's main lines, each with its quote's age
 //   context     injuries, weather, the model's own caveat and the finding's risk
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
 import { FxCard, VsBar } from '../../components/fx';
 import { HeroArt, heroVars } from '../../components/HeroArt';
@@ -54,6 +54,11 @@ export function Importance({ sig, compact }: { sig: Discovery['significance']; c
       <span className="sr-only">Significance: {SIG_WORD[sig]}</span>
     </span>
   );
+}
+
+/** Research findings carry a significance; a publication-health notice is data quality, never rated as a finding. */
+export function ImportanceOrQuality({ d, compact }: { d: Discovery; compact?: boolean }) {
+  return d.kind === 'freshness' ? <span className="tm-imp tm-imp--dq"><b>Data quality</b></span> : <Importance sig={d.significance} compact={compact} />;
 }
 
 /** A type chip in the discovery's own colour family. */
@@ -138,7 +143,7 @@ export function SelectedHero({ d, game, spec, pinned, onPin, onBack }: { d: Disc
         <section className="tm-insight" aria-labelledby="tm-hero-t">
           <div className="tm-insight__top">
             <span className="tm-insight__k"><Icon name="bolt" size={14} /> Key insight · {KIND_WORD[d.kind]}</span>
-            <Importance sig={d.significance} />
+            <ImportanceOrQuality d={d} />
           </div>
           <h2 className="tm-insight__t" id="tm-hero-t">{d.title}</h2>
           <p className="tm-insight__why">{d.why}</p>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { Icon } from '../components/Icon';
 import { TrayList } from '../components/TrayDrawer';
 import { Notice, Stratum } from '../components/ui';

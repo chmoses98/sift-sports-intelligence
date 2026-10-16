@@ -9,7 +9,7 @@
 // game's own claims_v2 (headline and chips) and shows no Value Watch badge. Historical results are counts of past
 // games ("566 of 628 past games"), never a percentage or a chance.
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { Market } from '../../contract/types';
 import { useCfbSignals } from '../../data/cfbSignals';
 import {

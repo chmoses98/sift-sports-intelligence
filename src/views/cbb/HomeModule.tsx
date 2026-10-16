@@ -1,6 +1,6 @@
 // The CBB module on Sift's global Home: one line of research status with the way in. Quiet when the CBB
 // publication cannot be read (the Home never shows a broken CBB block).
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { useAsync, useRepo } from '../../data/hooks';
 import { sportByCode } from '../../data/sports';
 import { SportMark } from '../../components/SportMark';

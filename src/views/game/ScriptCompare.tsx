@@ -4,7 +4,7 @@
 // rush attempts, pass rate) against its all-games average, the key players' team-volume lean in each, and the priced
 // contracts that win in one script but not the other. Every number is the publication's; nothing is adjusted. The pair
 // lives in the address (?view=compare&a=…&b=…), so a comparison is shareable. Phones get a focused stacked view.
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { EventResearchDoc } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { PlayerFace } from '../../components/insight';

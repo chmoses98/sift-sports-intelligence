@@ -3,7 +3,7 @@
 // NHL joint simulation actually prices a contract — the model's probability and its script survival. A player
 // without a priced market gets no invented projection.
 import { useMemo } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams } from '../../routing';
 import type { EntityProfileDoc, EventResearchDoc, Observation, ResearchMarket } from '../../contract/types';
 import { logHitText, readBoxLog, type LogHit } from '../../history/boxLog';
 import { nhlContractHistory, nhlPlayerMarkets, nhlPregame, nhlSeasonLabel, nhlSeasonOf } from '../../history/nhlProps';

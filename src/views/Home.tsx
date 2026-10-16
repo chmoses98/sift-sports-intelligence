@@ -10,7 +10,7 @@
 //   5  My Board
 // Nothing here is invented activity: counts and numbers are the publications' own, read at load.
 import { lazy, Suspense, useMemo, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../routing';
 import { NAV_SPORTS } from '../data/nav';
 import { Icon } from '../components/Icon';
 import { SportMark } from '../components/SportMark';

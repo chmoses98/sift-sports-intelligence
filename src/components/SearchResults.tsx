@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import type { SearchEntry } from '../contract/types';
 import type { SportConfig } from '../data/sports';
 import { cents, familyLabel, ordinal } from '../lib/format';

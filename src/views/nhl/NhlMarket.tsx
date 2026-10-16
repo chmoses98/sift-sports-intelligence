@@ -2,7 +2,7 @@
 // probability, the side's executable price, survival, robustness, research status), then its behaviour in every
 // game script with the failure script called out, then the model evidence and the family's calibration record.
 // Unsupported contracts say "Model does not price this market" and keep their live quote above.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { EventResearchDoc, Market } from '../../contract/types';
 import { Stratum } from '../../components/ui';
 import { centsText, evAt, evText, governanceReason, isNhlScripts, probText, readNhl, sideProbabilities, survivalText, TIER_HELP } from '../../lib/nhl';

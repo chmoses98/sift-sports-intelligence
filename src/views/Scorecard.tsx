@@ -2,7 +2,7 @@
 // met_nfl.incumbent_fair_probability → extensions.scorecard). Bad results are shown as plainly as good ones.
 // The compact panel sits on the sport home; the full view (calibration bands, market types) is one link away.
 import { lazy, Suspense } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { TermInfo } from '../components/Gloss';
 import { Icon } from '../components/Icon';
 import { Notice, Skeleton } from '../components/ui';

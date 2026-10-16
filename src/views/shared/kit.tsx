@@ -1,7 +1,7 @@
 // Small building blocks shared by the sport verticals that read the generic contract shapes (Soccer, Tennis, NBA):
 // a sport header, a grouped market board with the model's probability beside the market's, a ranked matchup table,
 // and a few chips. Every number shown comes from a published document; authority words come from the publication.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { ReactNode } from 'react';
 import type { Market, MatchupRow, MetricDef, ModelPrice, Projection } from '../../contract/types';
 import { Icon } from '../../components/Icon';

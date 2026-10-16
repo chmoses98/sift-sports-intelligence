@@ -6,7 +6,7 @@
 // mlb.player_prop.v1 objects. Football-only tabs (scripts, players, injuries) are not offered; a deep link to one says
 // plainly that MLB does not publish it. Nothing here computes a projection, a fair price or an edge.
 import { useMemo, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from '../../routing';
 import type { EventDoc, EventResearchDoc, Market, MatchupRow } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import { Icon } from '../../components/Icon';

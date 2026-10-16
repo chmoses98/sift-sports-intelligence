@@ -1,5 +1,5 @@
 // Every sport in Sift with what it can honestly open today.
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { NAV_SPORTS, STATUS_WORD } from '../data/nav';
 import { SportMark } from '../components/SportMark';
 import { HealthPill } from '../components/SourceBanner';

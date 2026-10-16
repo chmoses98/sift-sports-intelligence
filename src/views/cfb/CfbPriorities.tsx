@@ -2,7 +2,7 @@
 // (views/home/Priorities.tsx), CFB's own evidence (lib/cfbPriorities.ts). At most five items, each a link into its
 // game (or the Value Watch filter). Value and football reads are different things and look different: only the
 // Top Value Signal carries the gold "Value signal" mark and a price; a CONTROL read says plainly it is not a bet.
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { ReactNode } from 'react';
 import { Icon } from '../../components/Icon';
 import { TeamMark } from '../../components/ui';

@@ -1,6 +1,6 @@
 // A tennis player page: the rating profile the publication holds (overall and surface Elo with their ranks, structural
 // serve and return ability, serve-point evidence), the scheduled match, and the contracts listed on the player.
-import { Link, useParams } from 'react-router';
+import { Link, useParams } from '../../routing';
 import { ErrorState, QualityBadge, Skeleton } from '../../components/ui';
 import { useAsync } from '../../data/hooks';
 import { kickoff } from '../../lib/format';

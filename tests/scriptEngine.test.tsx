@@ -1,7 +1,7 @@
 // The CFB Script Engine on Sift: the payload decodes faithfully, the game page shows the three questions
 // separately, and nothing on it turns script survival into a probability or a price verdict.
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { EventResearchDoc } from '../src/contract/types';
 import { clearAsyncMemo } from '../src/data/hooks';
 import { routes } from '../src/lib/routes';
@@ -39,6 +39,9 @@ beforeEach(() => {
   clearAsyncMemo();
   localStorage.clear();
 });
+// Vitest globals are disabled, so Testing Library cannot auto-register cleanup.
+// Unmount prior games before clearing their data memo in the next test.
+afterEach(cleanup);
 
 describe('payload decoding', () => {
   it('decodes every metric row with every field the contract requires', () => {
@@ -251,6 +254,7 @@ describe('CFB game page', () => {
 
   it('a game without a read keeps its markets and says why', async () => {
     renderScreen(routes.game('cfb', ALBY_STON), '/:sport/game/:eventId', <GameRoute />, {}, 'cfb');
-    expect(await screen.findByText('No script engine read for this game', {}, { timeout: 4000 })).toBeTruthy();
+    // Use the shared publication-loading budget (tests/setup), including the fallback read.
+    expect(await screen.findByText('No script engine read for this game')).toBeTruthy();
   });
 });

@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { qualityLabel } from '../lib/plainLabels';
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { statusFor } from '../contract/freshness';
 import type { FreshnessState, ObservationContext, Quality, QualityStatus, Thresholds } from '../contract/types';
 import { ago, exactTime, ordinal } from '../lib/format';

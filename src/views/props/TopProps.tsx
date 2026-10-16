@@ -7,7 +7,7 @@
 // Rows can be ticked and saved together to My Board (the research tray: one MARKET item per prop, the same item a
 // single Save makes). Games that have kicked off are not on the board: pregame research cannot be saved after kickoff.
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
 import { PlayerFace } from '../../components/insight';
@@ -75,8 +75,8 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
           <h2 className="tprops__t" id="tprops-h">Top props on the slate</h2>
           <p className="tprops__sub">
             {sort === 'gap'
-              ? <>Ranked by how far the <b>published projection</b> sits from the line, measured in its own middle-50% range. <span className="tprops__auth">Research</span> — the publication rates its prop pricing research only; not a validated edge.</>
-              : <>Ranked by how one-sided his <b>last 10 games played</b> were against today’s line (most over or most under first). <span className="tprops__auth tprops__auth--hist">History</span> — past games, not a probability.</>}
+              ? <><span className="tprops__long">Ranked by how far the <b>published projection</b> sits from the line, measured in its own middle-50% range. </span><span className="tprops__auth">Research</span> <span className="tprops__long">— the publication rates its prop pricing research only; </span>not a validated edge.</>
+              : <><span className="tprops__long">Ranked by how one-sided his <b>last 10 games played</b> were against today’s line (most over or most under first). </span><span className="tprops__auth tprops__auth--hist">History</span> — past games, not a probability.</>}
           </p>
         </div>
         <div className="fr-seg" role="group" aria-label="Rank by">
@@ -140,6 +140,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
                       </>
                     );
                   })() : <small className="tprow__crit">—</small>}
+                  {r.matchup && <small className="tprow__ctx">vs {r.matchup.label} <b>{r.matchup.rank.text}</b> · opponent-adjusted</small>}
                 </span>
                 <span className="tprow__auth">{sort === 'gap' ? <span className="tprops__auth" title={r.main?.modelState ? `Shadow model: ${r.main.modelState.toLowerCase().replace(/_/g, ' ')}` : 'Research only'}>Research</span> : <span className="tprops__auth tprops__auth--hist">History</span>}</span>
                 <Link className="tprow__go" to={propHref(slug, d)} aria-label={`Analyse ${r.name} ${r.def.label.toLowerCase()}`}><Icon name="arrowRight" size={16} /></Link>

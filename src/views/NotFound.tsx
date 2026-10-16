@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from '../routing';
 import { Notice } from '../components/ui';
 import { routes } from '../lib/routes';
 

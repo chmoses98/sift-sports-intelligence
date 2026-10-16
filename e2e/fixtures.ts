@@ -222,7 +222,9 @@ export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExt
         // handles it and the test asserts that handling. Anything else is a failure.
         const network = /Failed to load resource|net::ERR_|Fetch API cannot load|due to access control checks|The network connection was lost|Load failed|cancelled|Could not connect/i.test(text);
         if (network && (EXPECTED_ERROR_HOSTS.includes(hostOf(where)) || EXPECTED_ERROR_HOSTS.some((h) => text.includes(h)))) return;
-        if (extra.some((re) => re.test(text))) return;
+        // Include the source URL so injected failures can be allowed for one endpoint,
+        // rather than suppressing every same-status error across the application.
+        if (extra.some((re) => re.test(`${text}${where ? ` @ ${where}` : ''}`))) return;
         log.console.push(`${text}${where ? ` @ ${where}` : ''}`);
       });
       page.on('pageerror', (err) => {

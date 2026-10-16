@@ -6,7 +6,7 @@
 // the fee, the break-even and the publication's fair and limit (src/opportunity) — and shared dependencies and
 // contradictions come from the settlement rules (src/opportunity/correlation.ts). Nothing here re-prices anything.
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../routing';
 import { decisionOf } from '../../lib/decision';
 import { betPhrase } from '../../lib/betWords';
 import { contradicts } from '../../opportunity/correlation';

@@ -2,7 +2,7 @@
 // game, and a picker to compare it with any other team. Each reads only published documents (the team profile, the
 // nflverse history layer, the next game's research).
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '../../routing';
 import type { EntityProfileDoc } from '../../contract/types';
 import { Skeleton, Stratum } from '../../components/ui';
 import { useAsync } from '../../data/hooks';

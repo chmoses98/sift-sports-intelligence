@@ -35,6 +35,9 @@ for (const [from, to, shows] of CLASSIC) {
     await page.goto(from);
     await expect(page).toHaveURL(to);
     await shows(page);
+    // Let the route's own chunks and data finish before reloading: a reload mid-download aborts them on purpose, and
+    // WebKit reports that as errors (a failed CSS preload, a cut-off data fetch). That is the test's doing, not the app's.
+    await page.waitForLoadState('networkidle');
     await page.reload();
     await expect(page).toHaveURL(to);
     await shows(page);

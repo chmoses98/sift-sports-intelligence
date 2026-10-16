@@ -66,12 +66,19 @@ test('an unknown address renders a page, never a crash or a blank screen', async
   await expect(page.locator('body')).not.toBeEmpty();
 });
 
-test('a classic Games address with day=tomorrow opens tomorrow on the SIFT 2.0 date strip', async ({ page }) => {
+test('a classic Games address with day=tomorrow opens tomorrow on the SIFT 2.0 date strip', async ({ page, isMobile }) => {
   await page.goto('#/games?day=tomorrow&sport=nfl');
   await expect(page).toHaveURL(/#\/design\/sift2\/games\?day=tomorrow&sport=nfl$/);
   const tomorrow = new Date(NOW); tomorrow.setDate(tomorrow.getDate() + 1);
   const label = tomorrow.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  await expect(page.getByRole('group', { name: 'Game date' }).getByRole('button', { pressed: true })).toContainText(label);
+  // Desktop shows the seven-day strip with tomorrow pressed; phones show the day stepper, labelled "Tomorrow" with the date.
+  const stepper = page.locator('.s2-daybar');
+  if (isMobile) {
+    await expect(stepper).toContainText('Tomorrow');
+    await expect(stepper).toContainText(label);
+  } else {
+    await expect(page.getByRole('group', { name: 'Game date' }).getByRole('button', { pressed: true })).toContainText(label);
+  }
 });
 
 test('phone: Research Lab, Settings and Sources are reachable from the header Sports sheet', async ({ page, isMobile }) => {

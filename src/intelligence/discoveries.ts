@@ -47,6 +47,8 @@ export interface Discovery {
   method: string;
   source: string;
   observedAt: string | null;
+  /** The game's scheduled start as the publication states it (ISO with an offset); null for findings not tied to one game. */
+  startsAt: string | null;
   eventId: string | null;
   gameHref: string | null;
   href: string | null;
@@ -102,6 +104,7 @@ export function marketDiscovery(o: Opportunity): Discovery {
     method: `${o.authority ? authorityLabel(o.authority) : 'Publication'} candidate, repriced on the current quote where one exists; break-even includes Kalshi's fee.`,
     source: `${o.sport} publication · recommendations`,
     observedAt: o.price.observedAt,
+    startsAt: o.startTime ?? null,
     eventId: o.eventId,
     gameHref: o.gameHref,
     href: o.href,
@@ -152,6 +155,7 @@ export function mismatchDiscovery(ins: MatchupInsight, r: EventResearchDoc, slug
     method: 'League ranks of the publication’s opponent-adjusted EPA ratings (rank 1 = best for the unit’s job); a major edge is a strength gap of 0.55 or more, clear 0.35.',
     source: `${r.sport ?? 'NFL'} event research · matchup`,
     observedAt: r.generated_at ?? null,
+    startsAt: ev.start_time_utc ?? null,
     eventId: ev.event_id,
     gameHref: routes.game(slug, ev.event_id),
     href: routes.game(slug, ev.event_id, { tab: 'matchup' }),
@@ -218,7 +222,7 @@ function base(v: SportVerdict, kind: DiscoveryKind, title: string, why: string, 
     id: `${kind}:${v.slug}`, kind, sport: v.sport, slug: v.slug, title, why, significance, evidence: null,
     facts: [{ label: 'Games listed', value: String(v.games) }, { label: 'Market capture', value: v.marketCaptureAt ? ago(v.marketCaptureAt, now) : 'Not published' }, { label: 'Model state', value: v.modelState ?? '—' }],
     method: 'Publication health and the market-capture clock as published; quotes are FRESH under 15 minutes and STALE over 30.',
-    source: `${v.label} health.json`, observedAt: v.marketCaptureAt, eventId: null, gameHref: null, href: routes.status(), players: [], risk: null, workspaces: ['market'],
+    source: `${v.label} health.json`, observedAt: v.marketCaptureAt, startsAt: null, eventId: null, gameHref: null, href: routes.status(), players: [], risk: null, workspaces: ['market'],
     meaning: `Every ${v.label} price on SIFT is as old as that capture until a live quote replaces it, so a candidate may already have moved.`,
     leads: [{ kind: 'data', label: 'Data & provenance', href: routes.status() }, { kind: 'game', label: `${v.label} home`, href: routes.sport(v.slug) }],
   };

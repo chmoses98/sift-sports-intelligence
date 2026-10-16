@@ -225,6 +225,52 @@ describe('Home Top Props section', () => {
   });
 });
 
+describe('Home Top Props on a phone (SIFT 2.0 rows)', () => {
+  const phone = (m: boolean) => { window.matchMedia = ((q: string) => ({ matches: m && q.includes('719'), media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, onchange: null, dispatchEvent: () => false })) as unknown as typeof window.matchMedia; };
+  it('renders three full-width rows with player, team, market, line, projection, research status and value signal, and a See all props link', async () => {
+    phone(true);
+    const { container } = wrap(<TopPropsPreview repo={ready(nflRepo())} opportunities={[]} now={NOW} phoneRows />);
+    await waitFor(() => expect(container.querySelectorAll('.htp-row')).toHaveLength(3));
+    const t = homeTopProps(slate, { now: NOW });
+    expect(container.querySelectorAll('.htp-card')).toHaveLength(0);
+    const rows = [...container.querySelectorAll('.htp-row')];
+    rows.forEach((row, i) => {
+      const p = t.picks[i];
+      expect(row.querySelector('.htp-row__name')!.textContent).toBe(p.d.row.name);
+      expect(row.querySelector('.htp-row__team')!.textContent).toContain(p.d.row.team.abbr);
+      expect(row.querySelector('.htp-row__stat')!.textContent).toBe(p.d.row.def.label);
+      expect(row.querySelector('.htp-num--line b')!.textContent).toBe(String(p.d.row.line));
+      expect(row.querySelector('.htp-num--proj')).not.toBeNull();
+      expect(row.querySelector('.htp-auth')!.textContent).toBe('Research only');
+      expect(row.querySelector('.htp-str')!.textContent).toMatch(/Lean|Outside mid-50%/);
+      expect(row.querySelector('.frfresh')!.textContent).toMatch(/^Line .* ago/);
+      expect(row.querySelector('.htp-pick__go')!.getAttribute('href')).toBe(propHref('nfl', p.d));
+    });
+    const all = screen.getByRole('link', { name: /See all props/ });
+    expect(all.getAttribute('href')).toBe('/props');
+    expect(container.querySelector('.htp')!.textContent).not.toMatch(/best bet|lock|% chance/i);
+    // the research-only warning survives the shorter lede
+    expect(container.querySelector('.htp__lede--phone')!.textContent).toContain('Research only');
+    expect(container.querySelector('.htp__how')).not.toBeNull();
+  });
+  it('rows can still be ticked and saved to My Board', async () => {
+    phone(true);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(NOW);
+    const { container } = wrap(<TopPropsPreview repo={ready(nflRepo())} opportunities={[]} now={NOW} phoneRows />);
+    await waitFor(() => expect(container.querySelectorAll('.htp-row')).toHaveLength(3));
+    fireEvent.click(container.querySelector<HTMLInputElement>('.htp-row input[type=checkbox]')!);
+    fireEvent.click(screen.getByRole('button', { name: /Add selected to My Board/ }));
+    expect(JSON.parse(localStorage.getItem(TRAY_KEY)!).tray.items).toHaveLength(1);
+  });
+  it('keeps the card layout when SIFT 2.0 rows are not requested, even on a phone (classic Home)', async () => {
+    phone(true);
+    const { container } = wrap(<TopPropsPreview repo={ready(nflRepo())} opportunities={[]} now={NOW} />);
+    await waitFor(() => expect(container.querySelectorAll('.htp-pick')).toHaveLength(HOME_TOP_PROPS));
+    expect(container.querySelectorAll('.htp-row')).toHaveLength(0);
+  });
+});
+
 describe('useAsync revalidate', () => {
   function Probe({ loader }: { loader: () => Promise<number> }) {
     const a = useAsync('probe', loader, { revalidate: true });

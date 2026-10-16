@@ -80,7 +80,6 @@
 @media(min-width:1251px){.sift2-command .s2-drivers{grid-row:1;min-height:296px}.sift2-command .s2-featured-players{grid-column:1/-1}}
 @media(max-width:719px){.app--sift2 .sift2-command>.s2-broadcast{height:310px;min-height:310px}.app--sift2 .sift2-command[data-game-tab=props]>.s2-broadcast{height:202px;min-height:202px}}
 @media(min-width:720px){.app--sift2 .sift2-command>.gtabs{grid-template-columns:repeat(8,minmax(0,1fr))}.app--sift2 .sift2-command>.gtabs .fx-tab{font-size:13px}}
-@media(max-width:719px){.app--sift2 .sift2-command>.gtabs .fx-tab:nth-child(4),.app--sift2 .sift2-command>.gtabs .fx-tab:nth-child(n+6){display:none}}
 .sift2-command .s2-broadcast button{background:#04172ed9;border-color:#409ade;color:#eef6ff;font:500 14px Barlow,sans-serif;box-shadow:0 0 9px #139cff22}
 @media(min-width:1251px){.sift2-command .s2-drivers{z-index:1}.s2-featured-players .s2-panel-heading{width:68.5%}}
 .s2-games .s2-match-card__match{padding-top:44px;padding-bottom:8px}

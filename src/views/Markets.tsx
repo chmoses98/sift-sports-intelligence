@@ -35,6 +35,9 @@ import { tierWord, type Featured } from '../opportunity/rank';
 import type { SportVerdict } from '../opportunity/types';
 import '../styles/lane-d-markets.css';
 import { Pill } from './shared/kit';
+import { BottomSheet } from '../components/BottomSheet';
+import { usePhone } from '../lib/useMediaQuery';
+import '../styles/market-controls.css';
 import { betPhrase } from '../lib/betWords';
 
 function YourResearch() {
@@ -235,6 +238,7 @@ export function MarketsView() {
     for (const g of [...shownGames].sort((a, b) => a.item.start_time_utc.localeCompare(b.item.start_time_utc))) m.set(dayLabel(g.item.start_time_utc), [...(m.get(dayLabel(g.item.start_time_utc)) ?? []), g]);
     return [...m.entries()];
   }, [shownGames]);
+  const phone = usePhone();
   const [showAll, setShowAll] = useState(false);
   const GAME_CAP = 24;
   const verdicts = useMemo(() => all.verdicts.filter((v) => !sportFilter || v.slug === sportFilter).map((v) => ({ ...v, opportunities: featured.filter((f) => f.lead.slug === v.slug).length })), [all.verdicts, sportFilter, featured]);
@@ -253,38 +257,48 @@ export function MarketsView() {
         <span className="hbar__m">{today}{!all.loading && <> · <b>{games.filter((g) => inWindow(g.item.start_time_utc, now, win)).length}</b> games {WINDOW_WORD[win].toLowerCase()} across {countBySport.size} sports · <b>{liveCount}</b> {liveCount === 1 ? 'opportunity' : 'opportunities'} the publications flag</>}</span>
       </header>
 
-      <div className="ghome__filters" role="group" aria-label="Filters">
-        <div className="ghome__row">
-          <div className="skchips" role="group" aria-label="Sport">
-            <button type="button" className={`skchip${!sportFilter ? ' is-on' : ''}`} onClick={() => set('sport', null)}>All sports</button>
-            {NAV_SPORTS.filter((s) => s.status !== 'planned').map((s) => (
-              <button key={s.slug} type="button" className={`skchip${sportFilter === s.slug ? ' is-on' : ''}`} style={{ ['--accent' as string]: s.accent }} onClick={() => set('sport', sportFilter === s.slug ? null : s.slug)} aria-pressed={sportFilter === s.slug}>
-                <SportMark slug={s.slug} icon={s.icon} size={14} />{s.label}{countBySport.get(s.slug) ? <small>{countBySport.get(s.slug)}</small> : null}
-              </button>
-            ))}
+      {phone ? (
+        <PhoneControls
+          sportFilter={sportFilter} setSport={(v) => set('sport', v)} countBySport={countBySport}
+          win={win} setWin={(w) => set('when', w === 'today' ? null : w)}
+          status={status} setStatus={(v) => set('status', v ? 'all' : null)}
+          kind={kind} setKind={(k) => set('type', k)} kindCounts={counts} allCount={featuredAll.length}
+          q={q} setQ={setQ} view={view} setView={(v) => set('view', v === 'cards' ? 'cards' : null)} resultCount={featured.length}
+        />
+      ) : (
+    <div className="ghome__filters" role="group" aria-label="Filters">
+          <div className="ghome__row">
+            <div className="skchips" role="group" aria-label="Sport">
+              <button type="button" className={`skchip${!sportFilter ? ' is-on' : ''}`} onClick={() => set('sport', null)}>All sports</button>
+              {NAV_SPORTS.filter((s) => s.status !== 'planned').map((s) => (
+                <button key={s.slug} type="button" className={`skchip${sportFilter === s.slug ? ' is-on' : ''}`} style={{ ['--accent' as string]: s.accent }} onClick={() => set('sport', sportFilter === s.slug ? null : s.slug)} aria-pressed={sportFilter === s.slug}>
+                  <SportMark slug={s.slug} icon={s.icon} size={14} />{s.label}{countBySport.get(s.slug) ? <small>{countBySport.get(s.slug)}</small> : null}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="ghome__row">
+            <div className="skchips" role="group" aria-label="When">
+              {(['today', 'tomorrow', 'week'] as Window[]).map((w) => <button key={w} type="button" className={`skchip${win === w ? ' is-on' : ''}`} onClick={() => set('when', w === 'today' ? null : w)} aria-pressed={win === w}>{WINDOW_WORD[w]}</button>)}
+              <span aria-hidden="true" style={{ width: 6 }} />
+              <button type="button" className={`skchip${status === 'all' ? ' is-on' : ''}`} onClick={() => set('status', status === 'all' ? null : 'all')} aria-pressed={status === 'all'}>Include passes</button>
+            </div>
+            <label className="ghome__search"><Icon name="search" size={16} /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Team, player or competition" aria-label="Filter games and opportunities by team, player or competition" /></label>
+          </div>
+          <div className="ghome__row">
+            <div className="skchips" role="group" aria-label="Market type">
+              <button type="button" className={`skchip${!kind ? ' is-on' : ''}`} aria-pressed={!kind} onClick={() => set('type', null)}>All markets <small>{featuredAll.length}</small></button>
+              {KIND_ORDER.filter((k) => counts[k] > 0).map((k) => (
+                <button key={k} type="button" className={`skchip${kind === k ? ' is-on' : ''}`} aria-pressed={kind === k} onClick={() => set('type', kind === k ? null : k)}>{KIND_WORD[k]} <small>{counts[k]}</small></button>
+              ))}
+            </div>
+            <div className="seg seg--tight" role="group" aria-label="View">
+              <button type="button" className={`seg__b${view === 'browse' ? ' is-on' : ''}`} aria-pressed={view === 'browse'} onClick={() => set('view', null)}>Browse</button>
+              <button type="button" className={`seg__b${view === 'cards' ? ' is-on' : ''}`} aria-pressed={view === 'cards'} onClick={() => set('view', 'cards')}>Full cards</button>
+            </div>
           </div>
         </div>
-        <div className="ghome__row">
-          <div className="skchips" role="group" aria-label="When">
-            {(['today', 'tomorrow', 'week'] as Window[]).map((w) => <button key={w} type="button" className={`skchip${win === w ? ' is-on' : ''}`} onClick={() => set('when', w === 'today' ? null : w)} aria-pressed={win === w}>{WINDOW_WORD[w]}</button>)}
-            <span aria-hidden="true" style={{ width: 6 }} />
-            <button type="button" className={`skchip${status === 'all' ? ' is-on' : ''}`} onClick={() => set('status', status === 'all' ? null : 'all')} aria-pressed={status === 'all'}>Include passes</button>
-          </div>
-          <label className="ghome__search"><Icon name="search" size={16} /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Team, player or competition" aria-label="Filter games and opportunities by team, player or competition" /></label>
-        </div>
-        <div className="ghome__row">
-          <div className="skchips" role="group" aria-label="Market type">
-            <button type="button" className={`skchip${!kind ? ' is-on' : ''}`} aria-pressed={!kind} onClick={() => set('type', null)}>All markets <small>{featuredAll.length}</small></button>
-            {KIND_ORDER.filter((k) => counts[k] > 0).map((k) => (
-              <button key={k} type="button" className={`skchip${kind === k ? ' is-on' : ''}`} aria-pressed={kind === k} onClick={() => set('type', kind === k ? null : k)}>{KIND_WORD[k]} <small>{counts[k]}</small></button>
-            ))}
-          </div>
-          <div className="seg seg--tight" role="group" aria-label="View">
-            <button type="button" className={`seg__b${view === 'browse' ? ' is-on' : ''}`} aria-pressed={view === 'browse'} onClick={() => set('view', null)}>Browse</button>
-            <button type="button" className={`seg__b${view === 'cards' ? ' is-on' : ''}`} aria-pressed={view === 'cards'} onClick={() => set('view', 'cards')}>Full cards</button>
-          </div>
-        </div>
-      </div>
+      )}
 
       {(!sportFilter || sportFilter === 'nfl') && (
         <Link to={routes.parlays('nfl')} className="lsd-promo lmb__promo">
@@ -296,7 +310,7 @@ export function MarketsView() {
 
       <section className="sksec" aria-labelledby="opps-h">
         <div className="sksec__h">
-          <div><h2 id="opps-h" className="sksec__t">{WINDOW_WORD[win]}’s opportunities</h2><p className="sksec__s">Only what a publication itself flags, with its executable price, the fee-aware break-even, its own bet-up-to, the evidence and what beats it. Research candidates are research only. <Link to="/status">How this is decided</Link>.</p></div>
+          <div><h2 id="opps-h" className="sksec__t">{WINDOW_WORD[win]}’s opportunities</h2><p className="sksec__s">{phone ? <>What a publication flags, with its price, fee-aware break-even and evidence. Research candidates are research only. <Link to="/status">How this is decided</Link>.</> : <>Only what a publication itself flags, with its executable price, the fee-aware break-even, its own bet-up-to, the evidence and what beats it. Research candidates are research only. <Link to="/status">How this is decided</Link>.</>}</p></div>
           <span className="ghome__count">{featured.length} featured{passes.length && status === 'all' ? ` · ${passes.length} passes` : ''}</span>
         </div>
         {all.loading && <Skeleton lines={5} tall />}
@@ -346,6 +360,62 @@ export function MarketsView() {
         </section>
         <YourResearch />
       </div>
+    </div>
+  );
+}
+
+/** Phone filters: sport chips and search stay on screen; day, market type and passes live in one bottom sheet, with the active ones shown beside it. */
+function PhoneControls(p: {
+  sportFilter: string | null; setSport: (v: string | null) => void; countBySport: Map<string, number>;
+  win: Window; setWin: (w: Window) => void; status: StatusFilter; setStatus: (includePasses: boolean) => void;
+  kind: MarketKind | null; setKind: (k: MarketKind | null) => void; kindCounts: Record<MarketKind, number>; allCount: number;
+  q: string; setQ: (v: string) => void; view: 'browse' | 'cards'; setView: (v: 'browse' | 'cards') => void; resultCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const active = (p.win !== 'today' ? 1 : 0) + (p.kind ? 1 : 0) + (p.status === 'all' ? 1 : 0);
+  const reset = () => { p.setWin('today'); p.setKind(null); p.setStatus(false); };
+  return (
+    <div className="mkc" role="group" aria-label="Filters">
+      <div className="skchips mkc__sports" role="group" aria-label="Sport">
+        <button type="button" className={`skchip${!p.sportFilter ? ' is-on' : ''}`} aria-pressed={!p.sportFilter} onClick={() => p.setSport(null)}>All sports</button>
+        {NAV_SPORTS.filter((s) => s.status !== 'planned' && (p.countBySport.get(s.slug) || p.sportFilter === s.slug)).map((s) => (
+          <button key={s.slug} type="button" className={`skchip${p.sportFilter === s.slug ? ' is-on' : ''}`} style={{ ['--accent' as string]: s.accent }} onClick={() => p.setSport(p.sportFilter === s.slug ? null : s.slug)} aria-pressed={p.sportFilter === s.slug}>
+            <SportMark slug={s.slug} icon={s.icon} size={14} />{s.label}{p.countBySport.get(s.slug) ? <small>{p.countBySport.get(s.slug)}</small> : null}
+          </button>
+        ))}
+      </div>
+      <div className="mkc__row">
+        <label className="ghome__search mkc__search"><Icon name="search" size={16} /><input type="search" value={p.q} onChange={(e) => p.setQ(e.target.value)} placeholder="Team, player or competition" aria-label="Filter games and opportunities by team, player or competition" /></label>
+        <button type="button" className={`mkc__btn${active ? ' is-on' : ''}`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+          <Icon name="sliders" size={16} /> Filters{active ? <b className="mkc__n" aria-label={`${active} active`}>{active}</b> : null}
+        </button>
+      </div>
+      <div className="mkc__row mkc__row--sum">
+        <div className="mkc__active" role="group" aria-label="Active filters">
+          <button type="button" className="mkc__tag" onClick={() => setOpen(true)} aria-label={`Day: ${WINDOW_WORD[p.win]}. Change`}>{WINDOW_WORD[p.win]}</button>
+          {p.kind && <button type="button" className="mkc__tag is-removable" onClick={() => p.setKind(null)} aria-label={`Remove market type filter: ${KIND_WORD[p.kind]}`}>{KIND_WORD[p.kind]} <Icon name="close" size={12} /></button>}
+          {p.status === 'all' && <button type="button" className="mkc__tag is-removable" onClick={() => p.setStatus(false)} aria-label="Remove filter: include passes">Passes <Icon name="close" size={12} /></button>}
+        </div>
+        <div className="seg seg--tight mkc__view" role="group" aria-label="View">
+          <button type="button" className={`seg__b${p.view === 'browse' ? ' is-on' : ''}`} aria-pressed={p.view === 'browse'} onClick={() => p.setView('browse')}>Browse</button>
+          <button type="button" className={`seg__b${p.view === 'cards' ? ' is-on' : ''}`} aria-pressed={p.view === 'cards'} onClick={() => p.setView('cards')}>Full cards</button>
+        </div>
+      </div>
+      <BottomSheet open={open} onClose={() => setOpen(false)} title="Filters" className="mkc__sheet"
+        footer={<><button type="button" className="btn" onClick={reset} disabled={!active}>Reset</button><button type="button" className="btn btn--primary mkc__done" onClick={() => setOpen(false)}>Show {p.resultCount} featured</button></>}>
+        <fieldset className="mkc__group"><legend>Day</legend>
+          <div className="mkc__opts" role="group" aria-label="Day">{(['today', 'tomorrow', 'week'] as Window[]).map((w) => <button key={w} type="button" className={`skchip${p.win === w ? ' is-on' : ''}`} aria-pressed={p.win === w} onClick={() => p.setWin(w)} data-autofocus={p.win === w ? '' : undefined}>{WINDOW_WORD[w]}</button>)}</div>
+        </fieldset>
+        <fieldset className="mkc__group"><legend>Market type</legend>
+          <div className="mkc__opts" role="group" aria-label="Market type">
+            <button type="button" className={`skchip${!p.kind ? ' is-on' : ''}`} aria-pressed={!p.kind} onClick={() => p.setKind(null)}>All markets <small>{p.allCount}</small></button>
+            {KIND_ORDER.filter((k) => p.kindCounts[k] > 0 || p.kind === k).map((k) => <button key={k} type="button" className={`skchip${p.kind === k ? ' is-on' : ''}`} aria-pressed={p.kind === k} onClick={() => p.setKind(p.kind === k ? null : k)}>{KIND_WORD[k]} <small>{p.kindCounts[k]}</small></button>)}
+          </div>
+        </fieldset>
+        <fieldset className="mkc__group"><legend>Passes</legend>
+          <label className="mkc__switch"><input type="checkbox" checked={p.status === 'all'} onChange={(e) => p.setStatus(e.target.checked)} /><span><b>Include passes</b><small>Also list contracts the publications judged and passed on.</small></span></label>
+        </fieldset>
+      </BottomSheet>
     </div>
   );
 }

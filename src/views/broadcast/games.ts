@@ -107,6 +107,30 @@ export function hasVenuePhoto(g: GameRow): boolean {
 /** Sports whose venue art and research make the richest featured hero, in order of preference. CFB leads for now. */
 const FEATURE_PREF = ['CFB', 'NFL', 'NHL', 'MLB', 'NBA', 'SOCCER', 'CBB', 'TENNIS'];
 
+/** How many games Home's "Today's games" preview shows; the Games page lists every one. */
+export const HOME_PREVIEW = 6;
+
+/**
+ * The few games worth a place on Home's preview: still to come or in play first (soonest first), then, only to fill the
+ * list, games already over; never the featured game (it has its own hero) and never more than `limit`. A first pass takes
+ * at most two games per sport, so one 40-game NBA night cannot push every other sport off a mixed slate; a second pass
+ * fills what is left. Every game stays on the Games page: this only chooses what Home previews.
+ */
+export function previewGames(rows: GameRow[], opts: { exclude?: GameRow | null; limit?: number } = {}): GameRow[] {
+  const limit = opts.limit ?? HOME_PREVIEW;
+  const pool = rows.filter((g) => g !== opts.exclude).sort(slateOrder);
+  const over = (g: GameRow) => g.phase === 'FINAL' || g.phase === 'POSTPONED' || g.phase === 'CANCELLED' || g.phase === 'SUSPENDED';
+  const ordered = [...pool.filter((g) => !over(g)), ...pool.filter(over)];
+  const picked = new Set<GameRow>();
+  const perSport = new Map<string, number>();
+  for (const g of ordered) {
+    if (picked.size >= limit) break;
+    if ((perSport.get(g.sport) ?? 0) < 2) { picked.add(g); perSport.set(g.sport, (perSport.get(g.sport) ?? 0) + 1); }
+  }
+  for (const g of ordered) { if (picked.size >= limit) break; picked.add(g); }
+  return pool.filter((g) => picked.has(g));
+}
+
 /** Where a game stands for the featured card: live now, still to come today, finished (or awaiting a result) today, or a later day's game. */
 export type FeatureTier = 'live' | 'today' | 'recent' | 'upcoming';
 const TIER_ORDER: FeatureTier[] = ['live', 'today', 'recent', 'upcoming'];

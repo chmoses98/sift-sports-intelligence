@@ -19,8 +19,8 @@
   .app--sift2 .sift2-home__layout{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
   .app--sift2 .sift2-home__aside{display:contents}
   .app--sift2 .sift2-home__main>:first-child{grid-row:1;grid-column:1}
-  .app--sift2 .sift2-home__intel{grid-row:2;grid-column:1;margin-top:16px}
-  .app--sift2 .sift2-home__slate{grid-row:3;grid-column:1}
+  .app--sift2 .sift2-home__slate{grid-row:2;grid-column:1}
+  .app--sift2 .sift2-home__intel{grid-row:3;grid-column:1;margin-top:22px}
   .app--sift2 .sift2-home__props{grid-row:4;grid-column:1}
   .app--sift2 .sift2-home__more{grid-column:1;margin-top:16px}
   .app--sift2 .sift2-home__more:nth-of-type(2){grid-row:5}

@@ -2,6 +2,7 @@
 // section. Every tab stays a link to its own URL (?tab=…), so the keys, routes and query parameters are unchanged;
 // the accessible name of each link is its visible word (icons are decorative).
 import { IconTabs } from '../../components/fx';
+import '../../styles/sift2-game-nav.css';
 
 const TAB_ICON: Record<string, string> = {
   overview: 'grid',

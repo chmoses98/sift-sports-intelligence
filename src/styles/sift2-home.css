@@ -50,3 +50,9 @@
 .sift2-home__coverage summary{cursor:pointer;min-height:24px;line-height:1.5}
 .sift2-home__coverage p{margin-bottom:0}
 @media(max-width:720px){.sift2-home__header{gap:12px;margin-bottom:18px}.sift2-home__header p{margin-bottom:0}.sift2-home .sift2-hero__title{font-size:2.7rem}.sift2-home__hero-card{padding:16px}.sift2-home__coverage{padding:14px 16px}.sift2-home .sift2-hero{min-height:0}}
+
+/* Home: findings are placed by the game's local day; "Coming up" is its own sub-list, never worded as today's. */
+.sift2-home__coming{margin-top:4px;padding-top:12px;border-top:1px solid var(--sift2-glass-border)}
+.sift2-home__coming h3{font-size:1.05rem;margin:0 0 4px;color:var(--sift2-text);font-family:var(--sift2-font-display);letter-spacing:.08em;text-transform:uppercase}
+.sift2-home__finding-note{font-size:.8rem!important;color:var(--sift2-text-muted)}
+@media(max-width:720px){.sift2-home__explorer,.sift2-home .htp .bsec__more{display:none}.sift2-home__slate .sift2-home__section-head{margin-bottom:8px}.sift2-home__section{margin-top:24px}}

@@ -8,6 +8,13 @@ import { expect, NEBUF, NOW, test } from './fixtures';
 import { installSlates } from './slates';
 
 const SIFT = '#/design/sift2';
+/**
+ * The venue art (stadium photo, and the team-crest watermark behind a hero that has no photo) is decorative, fetched after first paint
+ * and held as a blob (useHeldImage), so how much of it has appeared at capture time varies from one render to the next on a loaded CI
+ * runner (iPhone Home and Games: the crest's blur present in one run, absent in another). The screens are compared for layout, text and
+ * controls with that art masked; the art itself is checked by hero.spec.ts.
+ */
+const ART = '.s2-venue-art';
 
 /** Fonts loaded, no skeletons, and every image the screen has already started (stadium art, logos) decoded: a half-loaded photo is noise. */
 async function ready(page: Page) {
@@ -48,7 +55,7 @@ for (const s of SCREENS) {
     await s.wait(page);
     await ready(page);
     // Phones are compared viewport by viewport (a full-page capture would include the fixed bottom bar mid-page).
-    await expect(page).toHaveScreenshot(`${s.name}.png`, { fullPage: !!s.full && !isMobile, mask: (s.mask ?? []).map((m) => page.locator(m)) });
+    await expect(page).toHaveScreenshot(`${s.name}.png`, { fullPage: !!s.full && !isMobile, mask: [page.locator(ART), ...(s.mask ?? []).map((m) => page.locator(m))] });
   });
 }
 
@@ -66,5 +73,5 @@ test('sift2-game-markets @visual', async ({ page }) => {
     const stuck = tabs ? parseFloat(getComputedStyle(tabs).top) + tabs.offsetHeight : 0;
     window.scrollTo(0, Math.round(bar.getBoundingClientRect().top + window.scrollY - stuck - 8));
   });
-  await expect(page).toHaveScreenshot('sift2-game-markets.png', { mask: [board.locator('.gquote')] });
+  await expect(page).toHaveScreenshot('sift2-game-markets.png', { mask: [board.locator('.gquote'), page.locator(ART)] });
 });

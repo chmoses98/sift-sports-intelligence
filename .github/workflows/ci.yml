@@ -17,7 +17,7 @@ jobs:
   verify:
     name: Lint · typecheck · test · build · acceptance (Chromium + WebKit)
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

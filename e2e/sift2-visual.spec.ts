@@ -13,7 +13,16 @@ const SIFT = '#/design/sift2';
 async function ready(page: Page) {
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator('.skel')).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => [...document.images].filter((i) => !i.complete).length)).toBe(0);
+  // Logos and photos are fetched after first paint and held as blobs (useHeldImage), so an <img> can mount a moment after the
+  // page looks ready: capture only once the set of images has stopped changing and every one is decoded. A shot taken earlier
+  // differs from one taken later (the crest's blur appears behind the hero).
+  const images = () => page.evaluate(() => `${document.images.length}:${[...document.images].filter((i) => !i.complete).length}`);
+  await expect.poll(async () => {
+    const before = await images();
+    await page.waitForTimeout(500);
+    return before === (await images()) && before.endsWith(':0');
+  }).toBe(true);
+  await page.waitForLoadState('networkidle');
   await page.mouse.move(0, 0);
 }
 
@@ -49,6 +58,8 @@ test('sift2-game-markets @visual', async ({ page }) => {
   await page.goto(`${SIFT}/nfl/game/${NEBUF}?tab=markets`);
   const board = page.locator('#g-markets');
   await expect(board.locator('.mboard__bar')).toBeVisible();
+  // Prices are the publication's capture until the first live quote lands, at an engine-dependent moment: capture after it.
+  await expect(board.locator('.gquote .qchip')).toHaveAttribute('data-quote-source', 'live');
   await ready(page);
   await board.locator('.mboard__bar').evaluate((bar) => {
     const tabs = document.querySelector<HTMLElement>('.sift2-command > nav.gtabs');

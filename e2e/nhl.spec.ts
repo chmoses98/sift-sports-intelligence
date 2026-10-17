@@ -6,7 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, NHL_FIXTURE, noHorizontalOverflow, test } from './fixtures';
+import { expect, NHL_FIXTURE, noHorizontalOverflow, reloadWhenSettled, test } from './fixtures';
 
 /** The real 2026-10-07 slate after puck drop: frozen pregame research, two finals with publisher reviews. */
 const NHL_FINAL_FIXTURE = join(NHL_FIXTURE, '..', '..', '..', 'nhl-final', 'app', 'latest');
@@ -92,7 +92,7 @@ test('an unconfirmed goalie is obvious on the slate and the game page @journey',
 test('direct links, refresh and back/forward keep the NHL route @journey', async ({ page }) => {
   await page.goto(`./#/nhl/game/${FLA_LAK}?tab=script`);
   await expect(page.getByRole('heading', { name: 'Which markets survive which scripts' })).toBeVisible();
-  await page.reload();
+  await reloadWhenSettled(page);
   await expect(page.getByRole('heading', { name: 'Which markets survive which scripts' })).toBeVisible();
   await page.getByRole('link', { name: 'Story' }).click();
   await expect(page.getByRole('heading', { name: 'How this game is most likely to play' })).toBeVisible();
@@ -158,7 +158,7 @@ test('a team page separates opponent-adjusted strength from raw numbers @journey
   await page.getByRole('group', { name: 'Team numbers: opponent-adjusted or raw' }).getByRole('button', { name: /Raw/ }).click();
   await expect(region.getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
   await expect(region.getByRole('columnheader', { name: 'Adjusted', exact: true })).toBeVisible();
-  await page.reload();
+  await reloadWhenSettled(page);
   await expect(page.getByRole('region', { name: 'Opponent-adjusted and raw strength' }).getByRole('columnheader', { name: 'Raw rank' })).toBeVisible();
 });
 

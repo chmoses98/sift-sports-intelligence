@@ -318,6 +318,7 @@ precached. Offline, every document you already opened still renders, with an off
 | Accessibility | axe-core WCAG 2.0/2.1 A+AA on 11 screens; gate: zero critical/serious; moderate findings attached to the report; exceptions list (empty) in the spec | `e2e/a11y.spec.ts` |
 | Responsive smoke | 8 screens: no horizontal overflow, bottom bar on screen, footer reachable, chart labels inside the screen, touch targets, packet controls not covered, tray sheet on screen, safe area, clipboard fallback | `e2e/smoke.spec.ts` |
 | Visual regression | 11 screens (home, slate, game, game markets, team, metric, ranking, player, market, tray, packet) | `e2e/visual.spec.ts` |
+| Visual regression, SIFT 2.0 (the shipped interface) | 6 screens (Home, Games, Game Command Center, its Markets tab, Market board, Player Prop Explorer) on Chromium phone and desktop and WebKit iPhone | `e2e/sift2-visual.spec.ts` |
 
 **Matrix** (`playwright.config.ts`): Chromium phone 390×844 and desktop 1280×900 run everything; WebKit
 iPhone 15 Pro (393×852, touch) runs the journey, market gates tagged `@live`, visual and smoke; WebKit

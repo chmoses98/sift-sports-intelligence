@@ -15,6 +15,7 @@ import sys
 import numpy as np
 import pandas as pd
 
+from .integrity import VALID, quote_status, sample_accounting
 from .disagreement import (Rules, UNRESOLVED, MODEL_ERROR, VALIDATED_SIGNAL, cluster_mean, diagnose_segment,
                            encompassing, executable_ev, logistic_fit, logit, paired_brier, row_status, z)
 
@@ -33,9 +34,13 @@ def load(eval_dir: str) -> pd.DataFrame:
     d = pd.DataFrame(rows)
     d["obs"] = pd.to_datetime(d.observed_at)
     d["ko"] = pd.to_datetime(d.kickoff_utc)
+    raw = int(len(d))
     d = d[d.obs < d.ko]  # point-in-time: only quotes seen before kickoff
     # one row per contract: the latest pre-kickoff observation (the model prediction is the one stored with it)
-    return d.sort_values(["ticker", "obs"]).groupby("ticker").tail(1).reset_index(drop=True)
+    out = d.sort_values(["ticker", "obs"]).groupby("ticker").tail(1).reset_index(drop=True)
+    out.attrs["raw_snapshot_rows"] = raw
+    out.attrs["pre_kickoff_snapshot_rows"] = int(len(d))
+    return out
 
 
 def prepare(d: pd.DataFrame, family="PLAYER_STAT") -> pd.DataFrame:
@@ -47,8 +52,12 @@ def prepare(d: pd.DataFrame, family="PLAYER_STAT") -> pd.DataFrame:
     p["period"] = p.week
     p["stale"] = p.close_is_stale.fillna(False).astype(bool)
     p["bad_identity"] = p.support_state.ne("SUPPORTED")
-    p = p[(p.yes_ask < 0.97) & (p.yes_bid_t > 0.02) & (p.width <= 0.10)]  # two-sided, tradable books only
-    return p.reset_index(drop=True)
+    p["quote_status"] = quote_status(p, bid="yes_bid_t", ask="yes_ask", max_width=0.10)
+    return p.reset_index(drop=True)   # quarantined rows stay in the frame (and the accounting); they are not scored
+
+
+def executable(p: pd.DataFrame) -> pd.DataFrame:
+    return p[p.quote_status == VALID].reset_index(drop=True)
 
 
 def ladder_one_rung(p: pd.DataFrame) -> pd.DataFrame:
@@ -59,9 +68,14 @@ def ladder_one_rung(p: pd.DataFrame) -> pd.DataFrame:
 
 def main(eval_dir, out):
     d = load(eval_dir)
-    p = prepare(d)
+    allp = prepare(d)
+    acct = sample_accounting(allp, snapshot_col="obs")
+    acct["raw_snapshot_rows_all_families"] = d.attrs.get("raw_snapshot_rows")
+    acct["pre_kickoff_snapshot_rows_all_families"] = d.attrs.get("pre_kickoff_snapshot_rows")
+    acct["snapshot_rows"] = "see raw_snapshot_rows_all_families: scoring uses ONE latest pre-kickoff row per contract"
+    p = executable(allp)
     res = {"n_contracts": int(len(p)), "n_clusters": int(p.cl.nunique()), "n_games": int(p.game_id.nunique()),
-           "splits": SPLITS, "overall": {}, "by_stat": {}, "diagnosis": {}}
+           "accounting": acct, "splits": SPLITS, "overall": {}, "by_stat": {}, "diagnosis": {}}
     holdout_weeks = sum(SPLITS.values(), [])
     res["overall"]["paired_brier"] = paired_brier(p)
     res["overall"]["paired_brier_one_rung"] = paired_brier(ladder_one_rung(p))

@@ -254,6 +254,26 @@ test.describe('Game Command Center', () => {
   });
 });
 
+test.describe('Game Markets tab', () => {
+  // The market board's sticky filter bar bleeds 8px past a padded column (margin: 0 -8px). SIFT 2.0's game column has no side
+  // padding, so the bar ended up 8px past the right edge of every viewport narrower than 1280 (393px phone: scrollWidth 402).
+  test('never scrolls sideways, and the filter bar stays inside the content column at every width @smoke', async ({ page }) => {
+    await page.clock.install({ time: NOW });
+    await page.goto(`${SIFT}/nfl/game/${NEBUF}?tab=markets`);
+    const bar = page.locator('.mboard__bar');
+    await expect(bar).toBeVisible();
+    for (const width of isPhone() ? [375, 393, 430] : [1024, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await noHorizontalOverflow(page, `game Markets tab at ${width}px`);
+      const column = (await page.locator('.mboard').boundingBox())!;
+      const box = (await bar.boundingBox())!;
+      expect(box.x, `filter bar starts inside the column at ${width}px`).toBeGreaterThanOrEqual(column.x - 0.5);
+      expect(box.x + box.width, `filter bar ends inside the column at ${width}px`).toBeLessThanOrEqual(column.x + column.width + 0.5);
+      await expect(bar.getByRole('searchbox', { name: 'Filter markets' })).toBeVisible();
+    }
+  });
+});
+
 test.describe('Game tab strips follow the current tab only where SIFT 2.0 asks for it', () => {
   test('SIFT 2.0: opening a game on a tab that is off-screen brings that tab into view @smoke', async ({ page }) => {
     test.skip(!isPhone(), 'the strip scrolls sideways on phones');

@@ -1,0 +1,2 @@
+/* Applied while sift2-visual.spec.ts captures a screen: the decorative venue art is not painted (see the spec). */
+.s2-venue-art { visibility: hidden !important; }

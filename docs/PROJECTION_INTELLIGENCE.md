@@ -124,3 +124,27 @@ Visual baselines (`visual-baselines.yml`) will differ by the added line and need
 ### Limitations
 
 Four NFL weeks; no segment can resolve yet. NBA/MLB/NHL adapters are not built (NBA has 0 settled prospective pairs). The raw URL for the contract is only live after the workflow is merged and has run once.
+
+---
+
+## Addendum 2 — multisport evaluation, challenger settlement, integrity enforcement (2026-10-17)
+
+**Correction to the previous addendum.** The D2 repair had been edited into `nfl_edge/research/player_distributions.py` and `nfl_edge/shadow/prospective.py`, which a repo test freezes as Week-1 code artifacts; the targeted pin test I ran did not cover that guard and the claim "frozen files untouched" was wrong until now. Fixed: both files are byte-identical to `main` again, the repair lives only in `nfl_edge/shadow/challenger.py`, and every number was re-run from the refactored code (identical). Full NFL suite: 3,252 passed.
+
+**Challenger pipeline (NFL).** `postgame-settle.yml` settles `ledger_challenger` into its own write-once corpus `evaluations_challenger` (idempotent: `unchanged` on re-run; non-blocking; `settle_games.py` gained `--ledger-name/--eval-name`, defaults unchanged). `research/intelligence/paired_arms.py` scores incumbent vs challenger vs market **only where both arms priced the same ticker against the same quote observation** (others are dropped and counted) per frozen split; no challenger corpus yet = `INSUFFICIENT_EVIDENCE`. The diagnosis workflow now runs it and publishes only when the contract changed.
+
+**Remaining receptions under-prediction (development data only).** Opportunity (targets) accounts for all of it (3.87 projected vs 4.46); catch rate, distribution shape and player effects do not. It is a listing-selection effect (~+7%) plus a 2026 league level shift (~+3.5%), not a code defect; a training-population floor was tested and **not** adopted. Two hypotheses frozen for the validation weeks (`research/mean_defect/FINDINGS.md`).
+
+**Sport adapters** (`research/intelligence/adapters/`, one shared `evaluate_frame`, per-sport reports in `docs/integrity/`):
+
+| sport | snapshots → contracts → independent units | quote quarantine | status | result |
+|---|---|---|---|---|
+| NHL | 213,837 rows → 13,403 contracts (after dedup/exclusions) → 7,759 units, 113 games | VALID 11,362 · ONE_SIDED 1,758 · TOO_WIDE 281 · CROSSED 2 | EVALUATED (7,359 scored units) | market better (Brier +0.0025, model weight -0.10), EV at ask -0.030, 12/12 UNRESOLVED |
+| MLB (hitters) | 11,876 → 7,751 → 2,186 units, 78 games | VALID 5,888 · ONE_SIDED 1,806 · TOO_WIDE 43 · placeholder 8 · crossed 6; archive field `executableKalshiPrice` = mid on 5,888 (field defect, counted) | EVALUATED (1,958 units, one window) | market equal/slightly better, EV -0.018, 12/12 UNRESOLVED; 11,216 retroactive pitcher rows excluded |
+| NBA | 5,168 forecasts / 34,884 rungs, all preseason; 336 prop tickers | TOO_WIDE 250 · placeholder 51 · ONE_SIDED 28 · VALID 7 | INSUFFICIENT_EVIDENCE (0 joinable settled rows; funnel stops at `NO_SHADOW_LISTING_FOR_EVENT`) | accumulates automatically once the shadow store writes regular-season `market/listings` |
+
+Policy refined during this work: an archive's mislabelled "executable price" **field** is a counted defect, never used for pricing, and does not by itself discard an observation's real two-sided bid/ask (the first MLB pass wrongly quarantined every row for it). NHL's archive stores only asks, so `yes_bid` is derived as `1 - no_ask` (documented in the adapter). MLB `p_model` can be generated after the quote it is paired with (both pre-first-pitch); NHL/NBA/MLB adapters never reconstruct a forecast.
+
+**Automation.** NFL: challenger ledger step (`shadow-price.yml`), challenger settlement (`postgame-settle.yml`), diagnosis + paired scoring + calibration alerts (`disagreement-diagnosis.yml`). NBA/NHL/MLB: read-only daily `projection-intelligence` workflows on branches `claude/projection-intelligence-{nba,nhl,mlb}` (sparse blobless checkouts; job summary + artifact; nothing pushed; errors fail the job). All inert until merged. None has run on GitHub Actions (this environment cannot trigger them): YAML parses and every shell step passes `bash -n`.
+
+**SIFT.** Playwright (phone + desktop, chromium): home-top-props, props-hub, nfl-home and the new `e2e/intelligence.spec.ts` (missing contract, invalid authority, none validated, validated listed, explorer reliability, Home) all pass. The redundant duplicated "No validated opportunities" wording was fixed after viewing the render. Local `@visual` runs fail for **every** page, including untouched CFB/NHL pages, so they reflect this sandbox's fonts, not the change; intentional baselines must be reviewed through `visual-baselines.yml`.

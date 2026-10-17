@@ -12,7 +12,7 @@ export function ValidationState({ compact = false }: { compact?: boolean }) {
   return (
     <p className={`intel${compact ? ' intel--compact' : ''}${ok ? ' intel--ok' : ''}`} role="note" data-testid="validation-state">
       <span className="intel__tag">{ok ? 'Validated' : 'No validated opportunities'}</span>{' '}
-      {ok ? `${status!.validated.length} segment(s) passed out-of-sample tests at executable prices. Research authority only.` : (status?.message || NO_VALIDATED_WORDS)}
+      {ok ? `${status!.validated.length} segment(s) passed out-of-sample tests at executable prices. Research authority only.` : (status?.message || NO_VALIDATED_WORDS).replace(/^No validated opportunities\.\s*/i, '')}
     </p>
   );
 }

@@ -19,7 +19,9 @@ from .integrity import VALID, quote_status, sample_accounting
 from .disagreement import (Rules, UNRESOLVED, MODEL_ERROR, VALIDATED_SIGNAL, cluster_mean, diagnose_segment,
                            encompassing, executable_ev, logistic_fit, logit, paired_brier, row_status, z)
 
-SPLITS = {"discovery": [1, 2], "validation": [3], "holdout": [4]}
+# Frozen chronology. Weeks 1-4 are DISCOVERY (the defects were found on them); validation and the untouched holdout are
+# weeks that had not been played when the rules were written. Segments stay UNRESOLVED until those weeks accrue.
+SPLITS = {"discovery": [1, 2, 3, 4], "validation": [5, 6, 7, 8], "holdout": list(range(9, 19))}
 KEEP = ["ticker", "game_id", "player_id", "stat", "family", "threshold", "week", "observed_at", "kickoff_utc",
         "yes_bid_t", "yes_ask_t", "no_ask_t", "mid_t", "width_t", "model_event_probability", "settled_yes",
         "settlement_kind", "availability_state", "close_mid", "close_is_stale", "support_state", "model_version"]
@@ -66,7 +68,7 @@ def ladder_one_rung(p: pd.DataFrame) -> pd.DataFrame:
     return p.loc[i.values]
 
 
-def main(eval_dir, out):
+def main(eval_dir, out, contract_out=None):
     d = load(eval_dir)
     allp = prepare(d)
     acct = sample_accounting(allp, snapshot_col="obs")
@@ -102,8 +104,11 @@ def main(eval_dir, out):
     counts = pd.Series([v.status for v in verdicts.values()]).value_counts().to_dict()
     res["status_counts"] = counts
     json.dump(res, open(out, "w"), indent=1, default=float)
+    if contract_out:
+        from .contract import build_contract
+        json.dump(build_contract(res), open(contract_out, "w"), indent=1, default=float)
     print(json.dumps({"status_counts": counts, "overall": res["overall"]}, indent=1, default=float))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)

@@ -23,6 +23,7 @@ import { cleanRank, KeyMatchups, QuickStats, RankingsTable, SeasonTimeline, team
 import { EXPLORE_PHOTO } from './photos';
 import { LAB_TOOLS, labHref, type LabToolKey } from './labTools';
 import '../../styles/lane-e-season.css';
+import { ProjectionScorecard } from '../../components/ProjectionScorecard';
 
 function useExplorer(slug: string) {
   return useAsync(`explore:v2:${slug}`, async () => {
@@ -132,6 +133,7 @@ export function ExploreView() {
           {!ex.data.boardUnavailable && <div className={avail && teamRk.length > 0 ? 'fx-span-12' : 'fx-span-6'}><SeasonTimeline key={`tl:${slug}`} slug={slug} code={code} repo={ex.data.repo} board={ex.data.board} /></div>}
         </div>
       )}
+      {ex.data && <ProjectionScorecard sport={code} />}
       {avail && (
         <div className="explore__cols exh__cols">
           <section className="fx-card" aria-labelledby="stats-h" id="stats">

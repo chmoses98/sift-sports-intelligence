@@ -13,6 +13,7 @@
 // stays on screen). Built on the game prop board (src/insights/propBoard.ts): no probability is derived from a mean;
 // the shadow model's P(over) appears only where the publication priced it, labelled research.
 import { ReliabilityLine } from '../../components/IntelligenceNote';
+import { FoundationProjection } from '../../components/FoundationProjection';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
@@ -249,6 +250,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
           <ReliabilityLine stat={row.def.stat} />
+          <FoundationProjection sport={sportCode} stat={row.def.stat} playerId={row.playerId} name={row.name} team={row.team.abbr} incumbent={row.projection} now={now} />
           {roleDisagreement(row) && <p className="pexa__warn" role="note"><Icon name="alert" size={16} /> <span>The line sits outside the simulation’s 5th–95th range: the market and the simulation are pricing different roles. Treat this gap as a data question, not a finding.</span></p>}
           {mu && <p className={`pexa__mu pexa__mu--${mu.word}`}><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p>}
           <div className="pexa__acts">

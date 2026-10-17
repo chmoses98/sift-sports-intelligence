@@ -21,6 +21,7 @@ import type { Finding } from '../../research/findings';
 import { useScorecard } from '../Scorecard';
 import { usePropHistories } from './matters';
 import '../../styles/lane-b-props.css';
+import { FoundationProjection } from '../../components/FoundationProjection';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
@@ -84,6 +85,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
         <div><dt>Over / Under</dt><dd className="num">{row.main ? <>{cents(row.main.yesAsk)} <span className="muted">/</span> {cents(row.main.noAsk)}</> : '—'}</dd></div>
       </dl>
       <p className="pb__why">{why}</p>
+      <FoundationProjection compact sport={ctx.sport} stat={def.stat} playerId={row.playerId} name={row.name} team={row.team.abbr} incumbent={row.projection} />
       {row.range && row.projection != null && !flatRange && (
         <QuantileDist compact points={[{ p: 0.05, v: row.range.full[0] }, { p: 0.25, v: row.range.typical[0] }, ...(row.range.median != null ? [{ p: 0.5, v: row.range.median }] : []), { p: 0.75, v: row.range.typical[1] }, { p: 0.95, v: row.range.full[1] }]} line={row.line} projection={row.projection} format={fmt} unit={def.unit} minSpan={def.count ? 3 : 8} bins={20} height={84} label={`${row.name} ${def.label.toLowerCase()} projected range`} />
       )}

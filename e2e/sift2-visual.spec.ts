@@ -4,17 +4,20 @@
 // a fixed clock, animations off, fonts and held images settled. Baselines live in e2e/__screenshots__/<project>/ and are rendered on
 // CI's Linux runners (the visual-baselines workflow), so they match what CI compares against.
 import type { Page } from '@playwright/test';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, NEBUF, NOW, test } from './fixtures';
 import { installSlates } from './slates';
 
 const SIFT = '#/design/sift2';
 /**
- * The venue art (stadium photo, and the team-crest watermark behind a hero that has no photo) is decorative, fetched after first paint
+ * The venue art (stadium photo, and the team-crest watermark behind a hero without a photo) is decorative, fetched after first paint
  * and held as a blob (useHeldImage), so how much of it has appeared at capture time varies from one render to the next on a loaded CI
  * runner (iPhone Home and Games: the crest's blur present in one run, absent in another). The screens are compared for layout, text and
- * controls with that art masked; the art itself is checked by hero.spec.ts.
+ * controls with that art not painted (sift2-visual.css, applied during the capture; the text and controls above it stay); the art
+ * itself is checked by hero.spec.ts. Masking its frame instead would hide the team names and times drawn over it.
  */
-const ART = '.s2-venue-art';
+const NO_ART = join(dirname(fileURLToPath(import.meta.url)), 'sift2-visual.css');
 
 /** Fonts loaded, no skeletons, and every image the screen has already started (stadium art, logos) decoded: a half-loaded photo is noise. */
 async function ready(page: Page) {
@@ -55,7 +58,7 @@ for (const s of SCREENS) {
     await s.wait(page);
     await ready(page);
     // Phones are compared viewport by viewport (a full-page capture would include the fixed bottom bar mid-page).
-    await expect(page).toHaveScreenshot(`${s.name}.png`, { fullPage: !!s.full && !isMobile, mask: [page.locator(ART), ...(s.mask ?? []).map((m) => page.locator(m))] });
+    await expect(page).toHaveScreenshot(`${s.name}.png`, { fullPage: !!s.full && !isMobile, stylePath: NO_ART, mask: (s.mask ?? []).map((m) => page.locator(m)) });
   });
 }
 
@@ -73,5 +76,5 @@ test('sift2-game-markets @visual', async ({ page }) => {
     const stuck = tabs ? parseFloat(getComputedStyle(tabs).top) + tabs.offsetHeight : 0;
     window.scrollTo(0, Math.round(bar.getBoundingClientRect().top + window.scrollY - stuck - 8));
   });
-  await expect(page).toHaveScreenshot('sift2-game-markets.png', { mask: [board.locator('.gquote'), page.locator(ART)] });
+  await expect(page).toHaveScreenshot('sift2-game-markets.png', { stylePath: NO_ART, mask: [board.locator('.gquote')] });
 });

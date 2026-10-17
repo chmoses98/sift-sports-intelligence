@@ -40,8 +40,13 @@ def prepare(df: pd.DataFrame, max_width=0.10, max_age_min=None) -> pd.DataFrame:
     d["mid"] = (d.yes_bid + d.yes_ask) / 2
     age = ((pd.to_datetime(d.start_utc) - pd.to_datetime(d.observed_at)).dt.total_seconds() / 60.0) if max_age_min else None
     d["pre_start"] = pd.to_datetime(d.observed_at) < pd.to_datetime(d.start_utc)
-    d["quote_status"] = quote_status(d, bid="yes_bid", ask="yes_ask", max_width=max_width,
-                                     reported_exec=d["reported_exec"] if "reported_exec" in d else None)
+    # The archive's own "executable price" field is never used for pricing here (scoring uses the real bid/ask). When it
+    # is really the mid it is a FIELD defect: counted and reported, but it does not make an otherwise valid two-sided
+    # quote unusable.
+    d["quote_status"] = quote_status(d, bid="yes_bid", ask="yes_ask", max_width=max_width)
+    if "reported_exec" in d:
+        flagged = quote_status(d, bid="yes_bid", ask="yes_ask", max_width=max_width, reported_exec=d["reported_exec"])
+        d["exec_field_is_mid"] = (flagged == "ASK_EQUALS_MID")
     d.loc[~d.pre_start, "quote_status"] = "NOT_PRE_START"
     d["pm"] = d.p_model
     return d
@@ -50,6 +55,8 @@ def prepare(df: pd.DataFrame, max_width=0.10, max_age_min=None) -> pd.DataFrame:
 def evaluate_frame(df: pd.DataFrame, sport: str, *, raw_snapshot_rows=None, min_units=MIN_UNITS_FOR_ANY_CLAIM, rules: Rules = Rules(min_clusters_per_split=100)) -> dict:
     d = prepare(df)
     acct = sample_accounting(d, snapshot_col="observed_at")
+    if "exec_field_is_mid" in d:
+        acct["archive_executable_field_is_mid"] = int(d.exec_field_is_mid.sum())
     if raw_snapshot_rows is not None:
         acct["raw_snapshot_rows"] = int(raw_snapshot_rows)
     ok = d[(d.quote_status == VALID) & d.pm.notna() & d.y.notna()].reset_index(drop=True)

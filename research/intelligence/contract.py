@@ -14,7 +14,17 @@ NONE_VALIDATED = ("No validated opportunities. Projection gaps against the marke
                   "tests so far, trading the gap has not paid at the executable price after fees.")
 
 
-def build_contract(res: dict, sport: str = "NFL", source: dict | None = None, now: datetime | None = None) -> dict:
+def calibration_alerts(by_stat: dict, z_alert: float = 3.0) -> list:
+    """Stats whose mean (outcome - model probability) is significantly non-zero: the projection is drifting or defective there."""
+    out = []
+    for stat, x in by_stat.items():
+        b = x.get("bias", {})
+        if b.get("se") and b["se"] > 0 and abs(b["mean"] / b["se"]) >= z_alert:
+            out.append({"stat": stat, "bias": round(b["mean"], 4), "z": round(b["mean"] / b["se"], 1), "direction": "model_low" if b["mean"] > 0 else "model_high"})
+    return sorted(out, key=lambda a: -abs(a["z"]))
+
+
+def build_contract(res: dict, sport: str = "NFL", source: dict | None = None, now: datetime | None = None, paired: dict | None = None) -> dict:
     diag = res.get("diagnosis", {})
     validated = sorted(k for k, v in diag.items() if v["status"] == "VALIDATED_SIGNAL")
     model_error = sorted(k for k, v in diag.items() if v["status"] == "MODEL_ERROR")
@@ -37,6 +47,9 @@ def build_contract(res: dict, sport: str = "NFL", source: dict | None = None, no
         "projection_accuracy": {"by_stat": acc, "overall_brier_model_minus_market": res.get("overall", {}).get("paired_brier")},
         "betting_signals": {"validated_segments": validated, "model_error_segments": model_error,
                             "n_segments": len(diag), "status_counts": res.get("status_counts", {}), "segments": seg},
+        "calibration_alerts": calibration_alerts(by_stat),
+        "challenger": ({"status": paired.get("status"), "accounting": paired.get("accounting"), "by_split": paired.get("by_split")} if paired else
+                       {"status": "INSUFFICIENT_EVIDENCE", "note": "no paired challenger evaluation published yet"}),
         "no_validated_opportunities": len(validated) == 0,
         "message": NONE_VALIDATED if not validated else
         f"{len(validated)} segment(s) passed out-of-sample validation at executable prices. Research authority only.",

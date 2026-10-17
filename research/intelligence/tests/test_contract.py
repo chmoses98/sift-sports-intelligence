@@ -18,3 +18,11 @@ def test_validated_segments_are_listed_and_model_errors_are_not_validated():
     assert c["betting_signals"]["validated_segments"] == ["receptions|all"] and not c["no_validated_opportunities"]
     c = build_contract(_res("MODEL_ERROR"))
     assert c["no_validated_opportunities"] and c["betting_signals"]["model_error_segments"] == ["receptions|all"]
+
+
+def test_calibration_alert_fires_only_on_significant_bias():
+    from research.intelligence.contract import calibration_alerts
+    a = calibration_alerts({"r": {"bias": {"mean": .15, "se": .02}}, "t": {"bias": {"mean": .01, "se": .02}}})
+    assert [x["stat"] for x in a] == ["r"] and a[0]["direction"] == "model_low"
+    c = build_contract(_res("UNRESOLVED"))
+    assert c["challenger"]["status"] == "INSUFFICIENT_EVIDENCE"

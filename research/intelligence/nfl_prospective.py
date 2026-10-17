@@ -10,6 +10,7 @@ from __future__ import annotations
 import glob
 import gzip
 import json
+import os
 import sys
 
 import numpy as np
@@ -68,7 +69,7 @@ def ladder_one_rung(p: pd.DataFrame) -> pd.DataFrame:
     return p.loc[i.values]
 
 
-def main(eval_dir, out, contract_out=None):
+def main(eval_dir, out, contract_out=None, paired_path=None):
     d = load(eval_dir)
     allp = prepare(d)
     acct = sample_accounting(allp, snapshot_col="obs")
@@ -106,9 +107,10 @@ def main(eval_dir, out, contract_out=None):
     json.dump(res, open(out, "w"), indent=1, default=float)
     if contract_out:
         from .contract import build_contract
-        json.dump(build_contract(res), open(contract_out, "w"), indent=1, default=float)
+        paired = json.load(open(paired_path)) if paired_path and os.path.exists(paired_path) else None
+        json.dump(build_contract(res, paired=paired), open(contract_out, "w"), indent=1, default=float)
     print(json.dumps({"status_counts": counts, "overall": res["overall"]}, indent=1, default=float))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None, sys.argv[4] if len(sys.argv) > 4 else None)

@@ -11,3 +11,7 @@ production-*.png
 review/
 .curation-tmp/
 dist-default
+
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,0 +1,2273 @@
+{
+ "n_contracts": 17405,
+ "n_clusters": 3995,
+ "n_games": 64,
+ "splits": {
+  "discovery": [
+   1,
+   2
+  ],
+  "validation": [
+   3
+  ],
+  "holdout": [
+   4
+  ]
+ },
+ "overall": {
+  "paired_brier": {
+   "model": 0.18676524734227004,
+   "market": 0.16241555587474862,
+   "diff": 0.024349691467521396,
+   "se": 0.002079009587533131,
+   "clusters": 3995,
+   "n": 17405
+  },
+  "paired_brier_one_rung": {
+   "model": 0.23698762046868196,
+   "market": 0.21068366082603254,
+   "diff": 0.026303959642649418,
+   "se": 0.0028147909996879667,
+   "clusters": 3995,
+   "n": 3995
+  },
+  "encompassing_all": {
+   "a": 0.04674559679391075,
+   "b_model": 0.05857494146921704,
+   "b_market": 0.8996632703551432,
+   "se_a": 0.045578302150769696,
+   "se_model": 0.04327128367617803,
+   "se_market": 0.04243611163446359,
+   "n": 17405
+  },
+  "recal_params": [
+   0.2208551105938524,
+   0.7766713119706266
+  ],
+  "recal_vs_market_later_weeks": {
+   "model": 0.1803278351204477,
+   "market": 0.162939425372286,
+   "diff": 0.017388409748161682,
+   "se": 0.0024372610286208436,
+   "clusters": 2003,
+   "n": 8797
+  },
+  "recal_encompassing_later_weeks": {
+   "a": 0.11251793570128062,
+   "b_model": 0.12773425652058107,
+   "b_market": 0.8488267324686511,
+   "se_a": 0.055870500078760224,
+   "se_model": 0.07435633583721282,
+   "se_market": 0.05635617231064303,
+   "n": 8797
+  }
+ },
+ "by_stat": {
+  "attempts": {
+   "paired_brier": {
+    "model": 0.23937552875821952,
+    "market": 0.2196141304347826,
+    "diff": 0.019761398323436916,
+    "se": 0.007439776459443202,
+    "clusters": 127,
+    "n": 437
+   },
+   "bias": {
+    "mean": -0.08835517651373209,
+    "se": 0.04007361300351651,
+    "n": 437,
+    "clusters": 127
+   }
+  },
+  "carries": {
+   "paired_brier": {
+    "model": 0.295840956905739,
+    "market": 0.21342387755102044,
+    "diff": 0.08241707935471863,
+    "se": 0.015435291573562852,
+    "clusters": 241,
+    "n": 735
+   },
+   "bias": {
+    "mean": 0.23824268424302447,
+    "se": 0.028415522494393972,
+    "n": 735,
+    "clusters": 241
+   }
+  },
+  "completions": {
+   "paired_brier": {
+    "model": 0.20786498753658933,
+    "market": 0.20162211751662973,
+    "diff": 0.006242870019959606,
+    "se": 0.005739355243220642,
+    "clusters": 127,
+    "n": 451
+   },
+   "bias": {
+    "mean": -0.03400505446708656,
+    "se": 0.03644397351551546,
+    "n": 451,
+    "clusters": 127
+   }
+  },
+  "interceptions": {
+   "paired_brier": {
+    "model": 0.15590274976244525,
+    "market": 0.15693638613861385,
+    "diff": -0.0010336363761686011,
+    "se": 0.0027204225567021654,
+    "clusters": 127,
+    "n": 303
+   },
+   "bias": {
+    "mean": -0.03012229032367571,
+    "se": 0.02653908758380747,
+    "n": 303,
+    "clusters": 127
+   }
+  },
+  "passing_tds": {
+   "paired_brier": {
+    "model": 0.1644995192741418,
+    "market": 0.16302437106918238,
+    "diff": 0.0014751482049594014,
+    "se": 0.0017570703224077469,
+    "clusters": 128,
+    "n": 477
+   },
+   "bias": {
+    "mean": 0.04657275328429489,
+    "se": 0.026118419567196235,
+    "n": 477,
+    "clusters": 128
+   }
+  },
+  "passing_yards": {
+   "paired_brier": {
+    "model": 0.17520843505011643,
+    "market": 0.17276084195672625,
+    "diff": 0.002447593093390203,
+    "se": 0.00424552890454795,
+    "clusters": 128,
+    "n": 1063
+   },
+   "bias": {
+    "mean": -0.021942300794703058,
+    "se": 0.027598067220047463,
+    "n": 1063,
+    "clusters": 128
+   }
+  },
+  "receiving_yards": {
+   "paired_brier": {
+    "model": 0.1827754198573411,
+    "market": 0.16145959425597534,
+    "diff": 0.021315825601365787,
+    "se": 0.00371572062564293,
+    "clusters": 743,
+    "n": 5188
+   },
+   "bias": {
+    "mean": 0.1028487908004805,
+    "se": 0.01246445133733909,
+    "n": 5188,
+    "clusters": 743
+   }
+  },
+  "receptions": {
+   "paired_brier": {
+    "model": 0.2029140302766544,
+    "market": 0.16322429078014183,
+    "diff": 0.03968973949651256,
+    "se": 0.005240520491422606,
+    "clusters": 740,
+    "n": 4089
+   },
+   "bias": {
+    "mean": 0.15233262307766818,
+    "se": 0.011976761628878275,
+    "n": 4089,
+    "clusters": 740
+   }
+  },
+  "rushing_yards": {
+   "paired_brier": {
+    "model": 0.17497986212135028,
+    "market": 0.153236706746827,
+    "diff": 0.02174315537452327,
+    "se": 0.005539871109465677,
+    "clusters": 358,
+    "n": 2994
+   },
+   "bias": {
+    "mean": 0.06170157631216229,
+    "se": 0.01665211126038958,
+    "n": 2994,
+    "clusters": 358
+   }
+  },
+  "touchdowns": {
+   "paired_brier": {
+    "model": 0.13252780915925624,
+    "market": 0.12604731714628295,
+    "diff": 0.006480492012973264,
+    "se": 0.002052010181699494,
+    "clusters": 1276,
+    "n": 1668
+   },
+   "bias": {
+    "mean": 0.04468994682715844,
+    "se": 0.009817296460250565,
+    "n": 1668,
+    "clusters": 1276
+   }
+  }
+ },
+ "diagnosis": {
+  "attempts|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.1922872406682534,
+      "se": 0.0608934302732608,
+      "n": 191,
+      "clusters": 59
+     },
+     "market_bias": {
+      "mean": -0.09798429319371729,
+      "se": 0.060264491021771505,
+      "n": 191,
+      "clusters": 59
+     },
+     "ev": {
+      "mean": -0.13931937172774872,
+      "se": 0.06006850953001334,
+      "n": 191,
+      "clusters": 59
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.03607567031234226,
+      "se": 0.07577043801347869,
+      "n": 79,
+      "clusters": 30
+     },
+     "market_bias": {
+      "mean": 0.06215189873417721,
+      "se": 0.07259415124504695,
+      "n": 79,
+      "clusters": 30
+     },
+     "ev": {
+      "mean": 0.03468354430379746,
+      "se": 0.07243672280471646,
+      "n": 79,
+      "clusters": 30
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.08648216798940012,
+      "se": 0.07385187994548321,
+      "n": 66,
+      "clusters": 29
+     },
+     "market_bias": {
+      "mean": 0.011212121212121208,
+      "se": 0.07236320561611768,
+      "n": 66,
+      "clusters": 29
+     },
+     "ev": {
+      "mean": -0.017121212121212134,
+      "se": 0.07250460108496624,
+      "n": 66,
+      "clusters": 29
+     }
+    }
+   }
+  },
+  "attempts|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.041247680725206494,
+      "se": 0.1120597689200251,
+      "n": 55,
+      "clusters": 28
+     },
+     "market_bias": {
+      "mean": -0.07036363636363635,
+      "se": 0.11179208952785694,
+      "n": 55,
+      "clusters": 28
+     },
+     "ev": {
+      "mean": 0.02945454545454543,
+      "se": 0.11177906532933171,
+      "n": 55,
+      "clusters": 28
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.14536366838993312,
+      "se": 0.11801530461192679,
+      "n": 17,
+      "clusters": 10
+     },
+     "market_bias": {
+      "mean": 0.09676470588235295,
+      "se": 0.11868858742919108,
+      "n": 17,
+      "clusters": 10
+     },
+     "ev": {
+      "mean": -0.1258823529411765,
+      "se": 0.11956357854635215,
+      "n": 17,
+      "clusters": 10
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.2231342051851182,
+      "se": 0.10773875872820435,
+      "n": 29,
+      "clusters": 18
+     },
+     "market_bias": {
+      "mean": 0.15568965517241382,
+      "se": 0.1027145243489205,
+      "n": 29,
+      "clusters": 18
+     },
+     "ev": {
+      "mean": -0.1844827586206897,
+      "se": 0.10275275396953448,
+      "n": 29,
+      "clusters": 18
+     }
+    }
+   }
+  },
+  "attempts|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.15851823336391369,
+      "se": 0.05805403241353264,
+      "n": 246,
+      "clusters": 63
+     },
+     "market_bias": {
+      "mean": -0.0918089430894309,
+      "se": 0.05730678690079051,
+      "n": 246,
+      "clusters": 63
+     },
+     "ev": {
+      "mean": -0.10158536585365854,
+      "se": 0.04882273436183184,
+      "n": 246,
+      "clusters": 63
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.003945787417147684,
+      "se": 0.06661356443486222,
+      "n": 96,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.06828125,
+      "se": 0.06350268654424546,
+      "n": 96,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": 0.006249999999999985,
+      "se": 0.06280405431460022,
+      "n": 96,
+      "clusters": 32
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.008032303821768613,
+      "se": 0.0745743553535507,
+      "n": 95,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.05531578947368421,
+      "se": 0.06831631578433028,
+      "n": 95,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": -0.0682105263157895,
+      "se": 0.05366303728492092,
+      "n": 95,
+      "clusters": 32
+     }
+    }
+   }
+  },
+  "carries|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.056780728962877614,
+      "se": 0.08206655325670642,
+      "n": 35,
+      "clusters": 26
+     },
+     "market_bias": {
+      "mean": 0.14157142857142857,
+      "se": 0.08918146005752825,
+      "n": 35,
+      "clusters": 26
+     },
+     "ev": {
+      "mean": 0.10114285714285715,
+      "se": 0.08977246654795736,
+      "n": 35,
+      "clusters": 26
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.17872673239423997,
+      "se": 0.06585047001615785,
+      "n": 18,
+      "clusters": 17
+     },
+     "market_bias": {
+      "mean": -0.12000000000000001,
+      "se": 0.06597704660722808,
+      "n": 18,
+      "clusters": 17
+     },
+     "ev": {
+      "mean": -0.1488888888888889,
+      "se": 0.06588702715061534,
+      "n": 18,
+      "clusters": 17
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.03639519371502927,
+      "se": 0.09973352032023387,
+      "n": 18,
+      "clusters": 18
+     },
+     "market_bias": {
+      "mean": 0.10194444444444443,
+      "se": 0.10133434829929724,
+      "n": 18,
+      "clusters": 18
+     },
+     "ev": {
+      "mean": 0.08055555555555553,
+      "se": 0.10103216410855985,
+      "n": 18,
+      "clusters": 18
+     }
+    }
+   }
+  },
+  "carries|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.2214425234972105,
+      "se": 0.04549780269262608,
+      "n": 364,
+      "clusters": 121
+     },
+     "market_bias": {
+      "mean": -0.02539835164835165,
+      "se": 0.042543187833516675,
+      "n": 364,
+      "clusters": 121
+     },
+     "ev": {
+      "mean": -0.011043956043956048,
+      "se": 0.04265630636264893,
+      "n": 364,
+      "clusters": 121
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.3599668839965884,
+      "se": 0.0520802188830236,
+      "n": 142,
+      "clusters": 56
+     },
+     "market_bias": {
+      "mean": 0.07147887323943662,
+      "se": 0.050523419534215505,
+      "n": 142,
+      "clusters": 56
+     },
+     "ev": {
+      "mean": -0.10014084507042255,
+      "se": 0.05051133818685933,
+      "n": 142,
+      "clusters": 56
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.2782445507635941,
+      "se": 0.049154080699626575,
+      "n": 158,
+      "clusters": 61
+     },
+     "market_bias": {
+      "mean": -0.033449367088607594,
+      "se": 0.04741659722185016,
+      "n": 158,
+      "clusters": 61
+     },
+     "ev": {
+      "mean": 0.007721518987341756,
+      "se": 0.04744846749349936,
+      "n": 158,
+      "clusters": 61
+     }
+    }
+   }
+  },
+  "carries|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.20699850643279535,
+      "se": 0.04280834267141824,
+      "n": 399,
+      "clusters": 124
+     },
+     "market_bias": {
+      "mean": -0.01075187969924812,
+      "se": 0.040832091504783584,
+      "n": 399,
+      "clusters": 124
+     },
+     "ev": {
+      "mean": -0.0012030075187970024,
+      "se": 0.03879689451121623,
+      "n": 399,
+      "clusters": 124
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.29936385215262024,
+      "se": 0.053765989924074144,
+      "n": 160,
+      "clusters": 56
+     },
+     "market_bias": {
+      "mean": 0.0499375,
+      "se": 0.04806275543685447,
+      "n": 160,
+      "clusters": 56
+     },
+     "ev": {
+      "mean": -0.10562500000000004,
+      "se": 0.043994982069159035,
+      "n": 160,
+      "clusters": 56
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.25350995742908183,
+      "se": 0.047462377809869505,
+      "n": 176,
+      "clusters": 61
+     },
+     "market_bias": {
+      "mean": -0.019602272727272732,
+      "se": 0.04611952250033177,
+      "n": 176,
+      "clusters": 61
+     },
+     "ev": {
+      "mean": 0.015170454545454536,
+      "se": 0.041469265812578184,
+      "n": 176,
+      "clusters": 61
+     }
+    }
+   }
+  },
+  "completions|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.0911169233203484,
+      "se": 0.054371317700286276,
+      "n": 207,
+      "clusters": 58
+     },
+     "market_bias": {
+      "mean": -0.013719806763285025,
+      "se": 0.05411295946377979,
+      "n": 207,
+      "clusters": 58
+     },
+     "ev": {
+      "mean": -0.05198067632850242,
+      "se": 0.05378802822130901,
+      "n": 207,
+      "clusters": 58
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.03287350733175475,
+      "se": 0.0726160934628615,
+      "n": 64,
+      "clusters": 30
+     },
+     "market_bias": {
+      "mean": 0.06734375000000001,
+      "se": 0.07223418260836514,
+      "n": 64,
+      "clusters": 30
+     },
+     "ev": {
+      "mean": 0.039218749999999976,
+      "se": 0.07257153453053818,
+      "n": 64,
+      "clusters": 30
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.06038516260630927,
+      "se": 0.08449403496881616,
+      "n": 55,
+      "clusters": 25
+     },
+     "market_bias": {
+      "mean": 0.03227272727272726,
+      "se": 0.08513628000090559,
+      "n": 55,
+      "clusters": 25
+     },
+     "ev": {
+      "mean": 0.0072727272727272614,
+      "se": 0.08541664160895392,
+      "n": 55,
+      "clusters": 25
+     }
+    }
+   }
+  },
+  "completions|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.023101387250178233,
+      "se": 0.08508782803366258,
+      "n": 64,
+      "clusters": 33
+     },
+     "market_bias": {
+      "mean": -0.058359375,
+      "se": 0.08492859699569681,
+      "n": 64,
+      "clusters": 33
+     },
+     "ev": {
+      "mean": 0.016406249999999983,
+      "se": 0.08504630483549734,
+      "n": 64,
+      "clusters": 33
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.136255968558442,
+      "se": 0.05501900647644599,
+      "n": 30,
+      "clusters": 20
+     },
+     "market_bias": {
+      "mean": 0.08200000000000002,
+      "se": 0.05708981330873076,
+      "n": 30,
+      "clusters": 20
+     },
+     "ev": {
+      "mean": -0.11233333333333334,
+      "se": 0.05669288007388692,
+      "n": 30,
+      "clusters": 20
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.20454263556430766,
+      "se": 0.09408470288584038,
+      "n": 31,
+      "clusters": 20
+     },
+     "market_bias": {
+      "mean": 0.15532258064516127,
+      "se": 0.08849600039637028,
+      "n": 31,
+      "clusters": 20
+     },
+     "ev": {
+      "mean": -0.18387096774193548,
+      "se": 0.08796970134016807,
+      "n": 31,
+      "clusters": 20
+     }
+    }
+   }
+  },
+  "completions|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.07505421369492074,
+      "se": 0.051312145320297965,
+      "n": 271,
+      "clusters": 63
+     },
+     "market_bias": {
+      "mean": -0.024261992619926204,
+      "se": 0.05118350995612871,
+      "n": 271,
+      "clusters": 63
+     },
+     "ev": {
+      "mean": -0.03583025830258304,
+      "se": 0.039559362422410024,
+      "n": 271,
+      "clusters": 63
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.021103984973627178,
+      "se": 0.058082920062632055,
+      "n": 94,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.07202127659574467,
+      "se": 0.05634875803065586,
+      "n": 94,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": -0.009148936170212767,
+      "se": 0.04856903734498964,
+      "n": 94,
+      "clusters": 32
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.035112066966820094,
+      "se": 0.07504402207666126,
+      "n": 86,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.07662790697674417,
+      "se": 0.06985234926507694,
+      "n": 86,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": -0.061627906976744196,
+      "se": 0.06091835536416538,
+      "n": 86,
+      "clusters": 32
+     }
+    }
+   }
+  },
+  "interceptions|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.06558504559991643,
+      "se": 0.042155348984752664,
+      "n": 118,
+      "clusters": 60
+     },
+     "market_bias": {
+      "mean": -0.018686440677966102,
+      "se": 0.04280434605628181,
+      "n": 118,
+      "clusters": 60
+     },
+     "ev": {
+      "mean": -0.04516949152542374,
+      "se": 0.042862830019532026,
+      "n": 118,
+      "clusters": 60
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.03255931941707833,
+      "se": 0.06500176060006789,
+      "n": 57,
+      "clusters": 28
+     },
+     "market_bias": {
+      "mean": 0.07973684210526315,
+      "se": 0.06405691103838032,
+      "n": 57,
+      "clusters": 28
+     },
+     "ev": {
+      "mean": 0.0529824561403509,
+      "se": 0.06403912502438566,
+      "n": 57,
+      "clusters": 28
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.024531488459926188,
+      "se": 0.06488205373013758,
+      "n": 61,
+      "clusters": 30
+     },
+     "market_bias": {
+      "mean": 0.011065573770491801,
+      "se": 0.06569799534665835,
+      "n": 61,
+      "clusters": 30
+     },
+     "ev": {
+      "mean": -0.011475409836065579,
+      "se": 0.06560964595418972,
+      "n": 61,
+      "clusters": 30
+     }
+    }
+   }
+  },
+  "interceptions|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.027099061917902355,
+      "se": 0.08090389691814083,
+      "n": 24,
+      "clusters": 16
+     },
+     "market_bias": {
+      "mean": 0.011874999999999997,
+      "se": 0.08091238617239706,
+      "n": 24,
+      "clusters": 16
+     },
+     "ev": {
+      "mean": -0.04416666666666665,
+      "se": 0.0802632307722021,
+      "n": 24,
+      "clusters": 16
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.1328907587507408,
+      "se": 0.05136915666138599,
+      "n": 20,
+      "clusters": 11
+     },
+     "market_bias": {
+      "mean": -0.14625000000000002,
+      "se": 0.05323923746871286,
+      "n": 20,
+      "clusters": 11
+     },
+     "ev": {
+      "mean": 0.11950000000000002,
+      "se": 0.052715857433982806,
+      "n": 20,
+      "clusters": 11
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.011302551781895223,
+      "se": 0.07327252233063691,
+      "n": 23,
+      "clusters": 13
+     },
+     "market_bias": {
+      "mean": 0.0008695652173912972,
+      "se": 0.07288917158250396,
+      "n": 23,
+      "clusters": 13
+     },
+     "ev": {
+      "mean": -0.023913043478260856,
+      "se": 0.07282539938266348,
+      "n": 23,
+      "clusters": 13
+     }
+    }
+   }
+  },
+  "interceptions|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.04992012601944002,
+      "se": 0.0381536824581596,
+      "n": 142,
+      "clusters": 63
+     },
+     "market_bias": {
+      "mean": -0.013521126760563393,
+      "se": 0.038534126788349624,
+      "n": 142,
+      "clusters": 63
+     },
+     "ev": {
+      "mean": -0.045000000000000005,
+      "se": 0.03743605646968247,
+      "n": 142,
+      "clusters": 63
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.010414726860277279,
+      "se": 0.05180315278811039,
+      "n": 77,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.02103896103896104,
+      "se": 0.05266543204631274,
+      "n": 77,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": 0.07025974025974024,
+      "se": 0.0493799324457504,
+      "n": 77,
+      "clusters": 32
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.014719786965141753,
+      "se": 0.05360225228340157,
+      "n": 84,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.00827380952380952,
+      "se": 0.054153836682315507,
+      "n": 84,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": -0.014880952380952384,
+      "se": 0.048803284843271746,
+      "n": 84,
+      "clusters": 32
+     }
+    }
+   }
+  },
+  "passing_tds|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.006880988686748815,
+      "se": 0.04523552045105028,
+      "n": 94,
+      "clusters": 51
+     },
+     "market_bias": {
+      "mean": 0.02324468085106382,
+      "se": 0.045250271742787666,
+      "n": 94,
+      "clusters": 51
+     },
+     "ev": {
+      "mean": -1.3877787807814457e-17,
+      "se": 0.04516354767876018,
+      "n": 94,
+      "clusters": 51
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.04035385770657395,
+      "se": 0.08721321040567652,
+      "n": 34,
+      "clusters": 19
+     },
+     "market_bias": {
+      "mean": 0.05352941176470588,
+      "se": 0.08742253665269549,
+      "n": 34,
+      "clusters": 19
+     },
+     "ev": {
+      "mean": 0.034999999999999996,
+      "se": 0.08729704038674224,
+      "n": 34,
+      "clusters": 19
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.01769924703901386,
+      "se": 0.057535926594925006,
+      "n": 28,
+      "clusters": 15
+     },
+     "market_bias": {
+      "mean": -0.005357142857142856,
+      "se": 0.0575971549595814,
+      "n": 28,
+      "clusters": 15
+     },
+     "ev": {
+      "mean": -0.023928571428571434,
+      "se": 0.0573154989547112,
+      "n": 28,
+      "clusters": 15
+     }
+    }
+   }
+  },
+  "passing_tds|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.05714014741364683,
+      "se": 0.05076501422236974,
+      "n": 138,
+      "clusters": 57
+     },
+     "market_bias": {
+      "mean": 0.027137681159420293,
+      "se": 0.050465617052655114,
+      "n": 138,
+      "clusters": 57
+     },
+     "ev": {
+      "mean": -0.05268115942028986,
+      "se": 0.05045805763269547,
+      "n": 138,
+      "clusters": 57
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.15572872271527713,
+      "se": 0.06304318960267408,
+      "n": 85,
+      "clusters": 29
+     },
+     "market_bias": {
+      "mean": 0.12529411764705883,
+      "se": 0.06372060749578062,
+      "n": 85,
+      "clusters": 29
+     },
+     "ev": {
+      "mean": -0.14729411764705883,
+      "se": 0.06371569425339049,
+      "n": 85,
+      "clusters": 29
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.004391261619986373,
+      "se": 0.04777403614142811,
+      "n": 98,
+      "clusters": 28
+     },
+     "market_bias": {
+      "mean": -0.04535714285714287,
+      "se": 0.04843806124549633,
+      "n": 98,
+      "clusters": 28
+     },
+     "ev": {
+      "mean": 0.024285714285714285,
+      "se": 0.048402782736621845,
+      "n": 98,
+      "clusters": 28
+     }
+    }
+   }
+  },
+  "passing_tds|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.03677652275705884,
+      "se": 0.03922360597637245,
+      "n": 232,
+      "clusters": 64
+     },
+     "market_bias": {
+      "mean": 0.025560344827586214,
+      "se": 0.03893311715224816,
+      "n": 232,
+      "clusters": 64
+     },
+     "ev": {
+      "mean": -0.031336206896551734,
+      "se": 0.03100632784258656,
+      "n": 232,
+      "clusters": 64
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.12276447556993336,
+      "se": 0.05557212589833641,
+      "n": 119,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.10478991596638658,
+      "se": 0.05550933204564065,
+      "n": 119,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": -0.09521008403361345,
+      "se": 0.05163377921684403,
+      "n": 119,
+      "clusters": 32
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.007348591713103603,
+      "se": 0.0408284253452009,
+      "n": 126,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": -0.03646825396825398,
+      "se": 0.04140654108232874,
+      "n": 126,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": 0.013571428571428564,
+      "se": 0.03792116111954734,
+      "n": 126,
+      "clusters": 32
+     }
+    }
+   }
+  },
+  "passing_yards|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.0639155601642851,
+      "se": 0.04146694780625232,
+      "n": 432,
+      "clusters": 60
+     },
+     "market_bias": {
+      "mean": 0.007881944444444445,
+      "se": 0.04268160999805214,
+      "n": 432,
+      "clusters": 60
+     },
+     "ev": {
+      "mean": -0.016319444444444456,
+      "se": 0.04272527183337846,
+      "n": 432,
+      "clusters": 60
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.011478549462742944,
+      "se": 0.05503193752360145,
+      "n": 200,
+      "clusters": 28
+     },
+     "market_bias": {
+      "mean": 0.064925,
+      "se": 0.05421975605886965,
+      "n": 200,
+      "clusters": 28
+     },
+     "ev": {
+      "mean": 0.04264999999999999,
+      "se": 0.0541538508890283,
+      "n": 200,
+      "clusters": 28
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.03927326119212893,
+      "se": 0.06352986234375128,
+      "n": 198,
+      "clusters": 26
+     },
+     "market_bias": {
+      "mean": 0.030530303030303036,
+      "se": 0.060221580406762086,
+      "n": 198,
+      "clusters": 26
+     },
+     "ev": {
+      "mean": 0.009141414141414127,
+      "se": 0.06021023673098653,
+      "n": 198,
+      "clusters": 26
+     }
+    }
+   }
+  },
+  "passing_yards|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.0011736102260279226,
+      "se": 0.08264799894309315,
+      "n": 99,
+      "clusters": 24
+     },
+     "market_bias": {
+      "mean": -0.024545454545454547,
+      "se": 0.08324319828020249,
+      "n": 99,
+      "clusters": 24
+     },
+     "ev": {
+      "mean": 0.0012121212121212121,
+      "se": 0.08364317801025033,
+      "n": 99,
+      "clusters": 24
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.09596123939208862,
+      "se": 0.07857535209507639,
+      "n": 50,
+      "clusters": 15
+     },
+     "market_bias": {
+      "mean": 0.0682,
+      "se": 0.07913855928505575,
+      "n": 50,
+      "clusters": 15
+     },
+     "ev": {
+      "mean": -0.0894,
+      "se": 0.07905775776517535,
+      "n": 50,
+      "clusters": 15
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.11519996782814587,
+      "se": 0.1041478166834727,
+      "n": 84,
+      "clusters": 16
+     },
+     "market_bias": {
+      "mean": 0.07940476190476191,
+      "se": 0.1049099656652728,
+      "n": 84,
+      "clusters": 16
+     },
+     "ev": {
+      "mean": -0.10059523809523808,
+      "se": 0.10492917248403497,
+      "n": 84,
+      "clusters": 16
+     }
+    }
+   }
+  },
+  "passing_yards|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.05221790848088121,
+      "se": 0.03925455064891534,
+      "n": 531,
+      "clusters": 64
+     },
+     "market_bias": {
+      "mean": 0.0018361581920903949,
+      "se": 0.0401609059388426,
+      "n": 531,
+      "clusters": 64
+     },
+     "ev": {
+      "mean": -0.013050847457627118,
+      "se": 0.0356555279557518,
+      "n": 531,
+      "clusters": 64
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.010009408308223377,
+      "se": 0.04860299116435553,
+      "n": 250,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.06558000000000001,
+      "se": 0.04737232586930979,
+      "n": 250,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": 0.016239999999999997,
+      "se": 0.04458311015944071,
+      "n": 250,
+      "clusters": 32
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.006740041069229541,
+      "se": 0.05963218602867268,
+      "n": 282,
+      "clusters": 32
+     },
+     "market_bias": {
+      "mean": 0.04508865248226951,
+      "se": 0.056124754525344614,
+      "n": 282,
+      "clusters": 32
+     },
+     "ev": {
+      "mean": -0.023546099290780144,
+      "se": 0.048844266369713764,
+      "n": 282,
+      "clusters": 32
+     }
+    }
+   }
+  },
+  "receiving_yards|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.06910986258054018,
+      "se": 0.028548404361491145,
+      "n": 498,
+      "clusters": 124
+     },
+     "market_bias": {
+      "mean": -0.013423694779116473,
+      "se": 0.028255131801398187,
+      "n": 498,
+      "clusters": 124
+     },
+     "ev": {
+      "mean": -0.03879518072289158,
+      "se": 0.028197798319118568,
+      "n": 498,
+      "clusters": 124
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.025185980362228858,
+      "se": 0.04361718816606977,
+      "n": 200,
+      "clusters": 52
+     },
+     "market_bias": {
+      "mean": 0.037575,
+      "se": 0.041036240476362146,
+      "n": 200,
+      "clusters": 52
+     },
+     "ev": {
+      "mean": 0.016249999999999983,
+      "se": 0.04096897805645384,
+      "n": 200,
+      "clusters": 52
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.0628490794499754,
+      "se": 0.053692391484422376,
+      "n": 195,
+      "clusters": 51
+     },
+     "market_bias": {
+      "mean": -2.5641025641029648e-05,
+      "se": 0.052853893364605574,
+      "n": 195,
+      "clusters": 51
+     },
+     "ev": {
+      "mean": -0.020615384615384622,
+      "se": 0.052892125208942924,
+      "n": 195,
+      "clusters": 51
+     }
+    }
+   }
+  },
+  "receiving_yards|model_below_market": {
+   "status": "MODEL_ERROR",
+   "reasons": [
+    "model under-predicts in every split (z disc/val/hold = 5.9/5.5/6.0) while the market does not"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.11731099344164468,
+      "se": 0.019716956130700958,
+      "n": 2077,
+      "clusters": 325
+     },
+     "market_bias": {
+      "mean": 0.010209436687530089,
+      "se": 0.019381693085953295,
+      "n": 2077,
+      "clusters": 325
+     },
+     "ev": {
+      "mean": -0.036027924891670685,
+      "se": 0.019403236949498595,
+      "n": 2077,
+      "clusters": 325
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.14007125123933098,
+      "se": 0.02543811485523642,
+      "n": 1027,
+      "clusters": 157
+     },
+     "market_bias": {
+      "mean": 0.011845180136319376,
+      "se": 0.02533793297696445,
+      "n": 1027,
+      "clusters": 157
+     },
+     "ev": {
+      "mean": -0.034547224926971765,
+      "se": 0.02533783432069336,
+      "n": 1027,
+      "clusters": 157
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.16606288530823166,
+      "se": 0.027736772146794694,
+      "n": 1191,
+      "clusters": 174
+     },
+     "market_bias": {
+      "mean": 0.031872376154492024,
+      "se": 0.028135679957577014,
+      "n": 1191,
+      "clusters": 174
+     },
+     "ev": {
+      "mean": -0.0540302267002519,
+      "se": 0.028148153180005988,
+      "n": 1191,
+      "clusters": 174
+     }
+    }
+   }
+  },
+  "receiving_yards|all": {
+   "status": "MODEL_ERROR",
+   "reasons": [
+    "model under-predicts in every split (z disc/val/hold = 4.6/4.9/5.2) while the market does not"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.08125756186919882,
+      "se": 0.017605984720373575,
+      "n": 2575,
+      "clusters": 371
+     },
+     "market_bias": {
+      "mean": 0.005638834951456307,
+      "se": 0.016818822048758855,
+      "n": 2575,
+      "clusters": 371
+     },
+     "ev": {
+      "mean": -0.036563106796116504,
+      "se": 0.01631536020760127,
+      "n": 2575,
+      "clusters": 371
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.11313445717224707,
+      "se": 0.023320687472993453,
+      "n": 1227,
+      "clusters": 177
+     },
+     "market_bias": {
+      "mean": 0.016039119804400977,
+      "se": 0.022751933225228928,
+      "n": 1227,
+      "clusters": 177
+     },
+     "ev": {
+      "mean": -0.026267318663406685,
+      "se": 0.021757238534185225,
+      "n": 1227,
+      "clusters": 177
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.1338566565002588,
+      "se": 0.025943801896053668,
+      "n": 1386,
+      "clusters": 195
+     },
+     "market_bias": {
+      "mean": 0.027384559884559883,
+      "se": 0.025591360234770214,
+      "n": 1386,
+      "clusters": 195
+     },
+     "ev": {
+      "mean": -0.04932900432900433,
+      "se": 0.024971824612022887,
+      "n": 1386,
+      "clusters": 195
+     }
+    }
+   }
+  },
+  "receptions|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.042594322600941245,
+      "se": 0.03587565681154409,
+      "n": 200,
+      "clusters": 106
+     },
+     "market_bias": {
+      "mean": 0.002424999999999996,
+      "se": 0.03609601920322576,
+      "n": 200,
+      "clusters": 106
+     },
+     "ev": {
+      "mean": -0.02415000000000001,
+      "se": 0.036029386092895785,
+      "n": 200,
+      "clusters": 106
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.0029653135743730316,
+      "se": 0.05216807646359346,
+      "n": 110,
+      "clusters": 53
+     },
+     "market_bias": {
+      "mean": 0.051909090909090884,
+      "se": 0.05073332420548675,
+      "n": 110,
+      "clusters": 53
+     },
+     "ev": {
+      "mean": 0.030363636363636367,
+      "se": 0.05062397944342959,
+      "n": 110,
+      "clusters": 53
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.04550008659907929,
+      "se": 0.04034487982480525,
+      "n": 130,
+      "clusters": 65
+     },
+     "market_bias": {
+      "mean": 0.011346153846153841,
+      "se": 0.038503622443563104,
+      "n": 130,
+      "clusters": 65
+     },
+     "ev": {
+      "mean": -0.007615384615384624,
+      "se": 0.03844614254540408,
+      "n": 130,
+      "clusters": 65
+     }
+    }
+   }
+  },
+  "receptions|model_below_market": {
+   "status": "MODEL_ERROR",
+   "reasons": [
+    "model under-predicts in every split (z disc/val/hold = 8.7/7.3/8.0) while the market does not"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.1533227608576822,
+      "se": 0.01769361343880655,
+      "n": 1745,
+      "clusters": 345
+     },
+     "market_bias": {
+      "mean": -0.013091690544412608,
+      "se": 0.016981092800296978,
+      "n": 1745,
+      "clusters": 345
+     },
+     "ev": {
+      "mean": -0.014246418338108881,
+      "se": 0.016992202304787856,
+      "n": 1745,
+      "clusters": 345
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.18125898149133202,
+      "se": 0.024708586048287656,
+      "n": 916,
+      "clusters": 164
+     },
+     "market_bias": {
+      "mean": 0.0010644104803493397,
+      "se": 0.02523389488903575,
+      "n": 916,
+      "clusters": 164
+     },
+     "ev": {
+      "mean": -0.024159388646288218,
+      "se": 0.025221613458635106,
+      "n": 916,
+      "clusters": 164
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.20654525434526236,
+      "se": 0.025932621128716714,
+      "n": 988,
+      "clusters": 179
+     },
+     "market_bias": {
+      "mean": 0.01878036437246964,
+      "se": 0.02572071612076131,
+      "n": 988,
+      "clusters": 179
+     },
+     "ev": {
+      "mean": -0.041082995951417005,
+      "se": 0.025723551563897645,
+      "n": 988,
+      "clusters": 179
+     }
+    }
+   }
+  },
+  "receptions|all": {
+   "status": "MODEL_ERROR",
+   "reasons": [
+    "model under-predicts in every split (z disc/val/hold = 7.9/6.9/7.3) while the market does not"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.1331770453349446,
+      "se": 0.016875801487652935,
+      "n": 1945,
+      "clusters": 370
+     },
+     "market_bias": {
+      "mean": -0.011496143958868894,
+      "se": 0.015963262166311838,
+      "n": 1945,
+      "clusters": 370
+     },
+     "ev": {
+      "mean": -0.015264781491002574,
+      "se": 0.015384569893721509,
+      "n": 1945,
+      "clusters": 370
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.16150783874549618,
+      "se": 0.023377937963927,
+      "n": 1026,
+      "clusters": 177
+     },
+     "market_bias": {
+      "mean": 0.00651559454191033,
+      "se": 0.023528730848804694,
+      "n": 1026,
+      "clusters": 177
+     },
+     "ev": {
+      "mean": -0.01831384015594542,
+      "se": 0.022836341075013075,
+      "n": 1026,
+      "clusters": 177
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.17723765656103657,
+      "se": 0.024287531882317307,
+      "n": 1118,
+      "clusters": 193
+     },
+     "market_bias": {
+      "mean": 0.017915921288014305,
+      "se": 0.02346749375170803,
+      "n": 1118,
+      "clusters": 193
+     },
+     "ev": {
+      "mean": -0.03719141323792487,
+      "se": 0.022863598841841522,
+      "n": 1118,
+      "clusters": 193
+     }
+    }
+   }
+  },
+  "rushing_yards|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in discovery,validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.08442224957384176,
+      "se": 0.032799707355443124,
+      "n": 439,
+      "clusters": 96
+     },
+     "market_bias": {
+      "mean": -0.02395216400911162,
+      "se": 0.032730035502673255,
+      "n": 439,
+      "clusters": 96
+     },
+     "ev": {
+      "mean": -0.04890660592255126,
+      "se": 0.03267900065804098,
+      "n": 439,
+      "clusters": 96
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.06749570722987386,
+      "se": 0.04574976002481253,
+      "n": 238,
+      "clusters": 52
+     },
+     "market_bias": {
+      "mean": 0.0011974789915966317,
+      "se": 0.045312570388507625,
+      "n": 238,
+      "clusters": 52
+     },
+     "ev": {
+      "mean": -0.02100840336134455,
+      "se": 0.04533539922938798,
+      "n": 238,
+      "clusters": 52
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.10664587405136362,
+      "se": 0.04509944559164994,
+      "n": 214,
+      "clusters": 45
+     },
+     "market_bias": {
+      "mean": -0.04128504672897196,
+      "se": 0.0467309553998608,
+      "n": 214,
+      "clusters": 45
+     },
+     "ev": {
+      "mean": -0.06280373831775703,
+      "se": 0.046781237944252846,
+      "n": 214,
+      "clusters": 45
+     }
+    }
+   }
+  },
+  "rushing_yards|model_below_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.12326928171751857,
+      "se": 0.026807355677743307,
+      "n": 1006,
+      "clusters": 138
+     },
+     "market_bias": {
+      "mean": -0.0013121272365805173,
+      "se": 0.026830928968409152,
+      "n": 1006,
+      "clusters": 138
+     },
+     "ev": {
+      "mean": -0.02542743538767396,
+      "se": 0.026854709232817707,
+      "n": 1006,
+      "clusters": 138
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.1372198777803545,
+      "se": 0.040437209163812396,
+      "n": 495,
+      "clusters": 70
+     },
+     "market_bias": {
+      "mean": 0.002535353535353526,
+      "se": 0.039594660048964433,
+      "n": 495,
+      "clusters": 70
+     },
+     "ev": {
+      "mean": -0.025777777777777792,
+      "se": 0.03964989318914893,
+      "n": 495,
+      "clusters": 70
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.11420157059822769,
+      "se": 0.04082768478962447,
+      "n": 602,
+      "clusters": 75
+     },
+     "market_bias": {
+      "mean": -0.03325581395348838,
+      "se": 0.037999464419005806,
+      "n": 602,
+      "clusters": 75
+     },
+     "ev": {
+      "mean": 0.010647840531561457,
+      "se": 0.03797584172603723,
+      "n": 602,
+      "clusters": 75
+     }
+    }
+   }
+  },
+  "rushing_yards|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "too few independent clusters in validation,holdout (< 100)"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.060171300930731586,
+      "se": 0.023059310643487266,
+      "n": 1445,
+      "clusters": 173
+     },
+     "market_bias": {
+      "mean": -0.008190311418685122,
+      "se": 0.022076465267253816,
+      "n": 1445,
+      "clusters": 173
+     },
+     "ev": {
+      "mean": -0.032560553633218005,
+      "se": 0.020171004662282794,
+      "n": 1445,
+      "clusters": 173
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.07075015167880697,
+      "se": 0.03400898037209058,
+      "n": 733,
+      "clusters": 90
+     },
+     "market_bias": {
+      "mean": 0.002100954979536149,
+      "se": 0.03177665842720441,
+      "n": 733,
+      "clusters": 90
+     },
+     "ev": {
+      "mean": -0.024229195088676683,
+      "se": 0.029108634219015474,
+      "n": 733,
+      "clusters": 90
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.056283245653359376,
+      "se": 0.03397457781506789,
+      "n": 816,
+      "clusters": 95
+     },
+     "market_bias": {
+      "mean": -0.03536151960784314,
+      "se": 0.030748427770798302,
+      "n": 816,
+      "clusters": 95
+     },
+     "ev": {
+      "mean": -0.008615196078431383,
+      "se": 0.030397191748993014,
+      "n": 816,
+      "clusters": 95
+     }
+    }
+   }
+  },
+  "touchdowns|model_above_market": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "net EV at the executable ask is not significantly positive in both validation and the untouched holdout"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": -0.0426060047447053,
+      "se": 0.01958901216223251,
+      "n": 249,
+      "clusters": 247
+     },
+     "market_bias": {
+      "mean": 0.007309236947791158,
+      "se": 0.01928981590514548,
+      "n": 249,
+      "clusters": 247
+     },
+     "ev": {
+      "mean": -0.009759036144578319,
+      "se": 0.01928694704662161,
+      "n": 249,
+      "clusters": 247
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": -0.03224794580861503,
+      "se": 0.03154693449045292,
+      "n": 104,
+      "clusters": 104
+     },
+     "market_bias": {
+      "mean": 0.01139423076923077,
+      "se": 0.031002922175111938,
+      "n": 104,
+      "clusters": 104
+     },
+     "ev": {
+      "mean": -0.004903846153846158,
+      "se": 0.031085656790693788,
+      "n": 104,
+      "clusters": 104
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": -0.022929118861100016,
+      "se": 0.029257903043529765,
+      "n": 113,
+      "clusters": 113
+     },
+     "market_bias": {
+      "mean": 0.01632743362831859,
+      "se": 0.029150356339637713,
+      "n": 113,
+      "clusters": 113
+     },
+     "ev": {
+      "mean": 0.00044247787610618525,
+      "se": 0.02918032924311484,
+      "n": 113,
+      "clusters": 113
+     }
+    }
+   }
+  },
+  "touchdowns|model_below_market": {
+   "status": "MODEL_ERROR",
+   "reasons": [
+    "model under-predicts in every split (z disc/val/hold = 3.5/3.6/3.8) while the market does not"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.061273269155486754,
+      "se": 0.017509722874996005,
+      "n": 573,
+      "clusters": 407
+     },
+     "market_bias": {
+      "mean": -0.003237347294938925,
+      "se": 0.01734882110363453,
+      "n": 573,
+      "clusters": 407
+     },
+     "ev": {
+      "mean": -0.01661431064572426,
+      "se": 0.01735650754155494,
+      "n": 573,
+      "clusters": 407
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.08538806122361005,
+      "se": 0.023941258415813346,
+      "n": 309,
+      "clusters": 210
+     },
+     "market_bias": {
+      "mean": 0.011391585760517796,
+      "se": 0.023909019198163788,
+      "n": 309,
+      "clusters": 210
+     },
+     "ev": {
+      "mean": -0.030906148867313916,
+      "se": 0.023902455888396998,
+      "n": 309,
+      "clusters": 210
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.09250627856357108,
+      "se": 0.02421578013628085,
+      "n": 320,
+      "clusters": 216
+     },
+     "market_bias": {
+      "mean": 0.009781249999999997,
+      "se": 0.023929686044331707,
+      "n": 320,
+      "clusters": 216
+     },
+     "ev": {
+      "mean": -0.029187499999999998,
+      "se": 0.023937760191327293,
+      "n": 320,
+      "clusters": 216
+     }
+    }
+   }
+  },
+  "touchdowns|all": {
+   "status": "UNRESOLVED",
+   "reasons": [
+    "net EV at the executable ask is not significantly positive in both validation and the untouched holdout"
+   ],
+   "splits": {
+    "discovery": {
+     "model_bias": {
+      "mean": 0.029806189835355587,
+      "se": 0.01377057314268859,
+      "n": 822,
+      "clusters": 637
+     },
+     "market_bias": {
+      "mean": -4.2579075425790925e-05,
+      "se": 0.01348028451267062,
+      "n": 822,
+      "clusters": 637
+     },
+     "ev": {
+      "mean": -0.014537712895377135,
+      "se": 0.013373499926730944,
+      "n": 822,
+      "clusters": 637
+     }
+    },
+    "validation": {
+     "model_bias": {
+      "mean": 0.05576543475544685,
+      "se": 0.019816834033542674,
+      "n": 413,
+      "clusters": 312
+     },
+     "market_bias": {
+      "mean": 0.011392251815980626,
+      "se": 0.019502350957382692,
+      "n": 413,
+      "clusters": 312
+     },
+     "ev": {
+      "mean": -0.02435835351089588,
+      "se": 0.019501867263839387,
+      "n": 413,
+      "clusters": 312
+     }
+    },
+    "holdout": {
+     "model_bias": {
+      "mean": 0.06238110556359918,
+      "se": 0.01972210154987426,
+      "n": 433,
+      "clusters": 327
+     },
+     "market_bias": {
+      "mean": 0.01148960739030023,
+      "se": 0.019236089649202398,
+      "n": 433,
+      "clusters": 327
+     },
+     "ev": {
+      "mean": -0.021454965357967672,
+      "se": 0.019253944630031942,
+      "n": 433,
+      "clusters": 327
+     }
+    }
+   }
+  }
+ },
+ "status_counts": {
+  "UNRESOLVED": 25,
+  "MODEL_ERROR": 5
+ }
+}

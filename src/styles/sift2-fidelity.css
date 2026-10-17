@@ -93,3 +93,8 @@
 .sift2-command .s2-player-explorer>.s2-filter-strip{margin:6px 0}.sift2-command .s2-filter-strip button{min-height:32px;padding:6px 10px}.sift2-command .s2-player-explorer>header{margin:8px 0}.sift2-command .s2-player-search{margin-bottom:8px}
 .sift2-command .s2-player{height:110px;min-height:110px}.sift2-command .s2-player__photo{min-height:110px}.sift2-command .s2-player__name{font-size:17px}.sift2-command .s2-player__role{font-size:10px;margin-bottom:5px}.sift2-command .s2-player-note{margin:6px 0}.sift2-command .s2-players-view .s2-market-snapshot{margin-top:12px;margin-bottom:6px}
 }
+
+/* The market board's sticky filter bar bleeds 8px past a padded column (lane-d-markets.css: margin 0 -8px, padding 8px). The SIFT 2.0
+   game column has no side padding, so the bleed ran 8px past the viewport (393px phone: scrollWidth 402) and, from 720px, 8px over the
+   side rail. Inside it the bar already spans the column: no bleed, and no padding either, so the controls keep their places. */
+.sift2-command .mboard__bar { margin-inline: 0; padding-inline: 0; }

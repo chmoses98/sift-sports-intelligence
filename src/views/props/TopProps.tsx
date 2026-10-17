@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { Link } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
+import { ValidationState } from '../../components/IntelligenceNote';
 import { GamePicker, type PickGame } from '../../components/GamePicker';
 import { PlayerFace } from '../../components/insight';
 import { Skeleton, TeamMark } from '../../components/ui';
@@ -87,6 +88,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
           <button type="button" className={`fr-seg__b${sort === 'history' ? ' is-on' : ''}`} aria-pressed={sort === 'history'} onClick={() => { setSort('history'); setLimit(PAGE); }}>Last 10 history</button>
         </div>
       </header>
+      <ValidationState />
 
       <div className="tprops__filters">
         <GamePicker games={pickGames} value={game} onChange={(id) => { setGame(id); setLimit(PAGE); }} />

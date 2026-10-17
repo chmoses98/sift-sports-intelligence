@@ -1,0 +1,8 @@
+/* Quiet inline statements; colours come from the existing tokens used by the props board. */
+.intel { margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--gold-line, rgba(255, 207, 99, 0.35)); background: var(--gold-bg, rgba(255, 207, 99, 0.08)); font-size: 0.82rem; line-height: 1.4; color: inherit; min-width: 0; overflow-wrap: anywhere; }
+.intel--compact { margin-top: 6px; padding: 6px 8px; font-size: 0.78rem; }
+.intel__tag { display: inline-block; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-2, #ffcf63); }
+.intel--ok { border-color: rgba(98, 220, 150, 0.45); background: rgba(40, 160, 100, 0.12); }
+.intel--ok .intel__tag { color: #9be8bd; }
+.intel--line { background: transparent; border-style: dashed; }
+.intel--ok.intel--line { border-color: rgba(98, 220, 150, 0.35); }

@@ -72,3 +72,55 @@ Receptions are under-predicted at **every** threshold (mean model 0.199 vs hit r
 ## 5. What this does not establish
 
 No projection model here is shown to be reliable enough to trade; the only usable conclusion is negative. Four NFL weeks cannot validate a signal and the segment tests are underpowered by design (they refuse to resolve rather than guess). No new expense, authority or deployment was made.
+
+---
+
+## Addendum — Phase 4–6 (2026-10-17, branch `claude/zen-noether-cwo3jg`; engine fixes on `nfl-edge-finder` branch `claude/projection-intelligence-4a`)
+
+### 4A — the NFL under-prediction was two structural defects, not a market effect
+
+Full write-up and numbers: `nfl-edge-finder/research/mean_defect/FINDINGS.md`. Settlement interpretation, threshold semantics and
+player mapping were tested and **ruled out** (100% settlement agreement with box scores; ticker/name agreement 4,040/4,040).
+
+* **D1** — the live pricer loaded only seasons < target, so completed games of the current season never reached a player's EWMA (it
+  decayed each week; Travis Kelce's EWMA targets fell 4.91 → 4.58 across games of 5, 11, 2, 4 targets). Dominant 2026 defect.
+* **D2** — `shrink_w` (a season-boundary calendar variable) was a feature of the Poisson count models, cutting established players
+  8–20% in weeks 1–6 in every season 2021–2026; raw-EWMA exp link also over-projected the top usage tail.
+
+Repair is a **separate challenger** (`shadow-0.5.0`, `price_slate_challenger.py`, own ledger, non-blocking workflow step); the incumbent files
+stay byte-pinned and the shadow-0.4.0 archive is untouched. Ladder Brier improves in every stat and window (selection 2021–24 included), and on
+the real 2026 contracts: receptions 0.2031 → 0.1765 (z −7.9), carries 0.2958 → 0.2571, receiving yards 0.1829 → 0.1728, rushing yards unchanged.
+**The market still beats the repaired model in every stat and the model still carries no incremental information (encompassing b_model ≈ 0,
+EV at the ask < 0).** Improved accuracy ≠ betting value. Residual under-prediction on listed receptions (0.285 vs 0.352) is *not* recalibrated away.
+10 regression tests (`tests/test_mean_defect_regressions.py`); incumbent pin test still green.
+
+### 4B — data integrity (`research/intelligence/integrity.py`)
+
+Per-capture cents/dollars inference, quote quarantine (one-sided, placeholder 0.00/0.98, crossed, too wide, stale, ask-equals-mid) that flags and never
+deletes, and sample accounting that reports snapshots, contracts, independent player-stat-games and executable opportunities separately. NFL 2026: 542,474
+snapshots → 20,339 contracts → 4,012 independent units (games 64); 18,897 contracts have a valid executable quote (876 one-sided, 564 too wide, 2 placeholder).
+
+### 4C — circumstance research (pre-registered before any join)
+
+`nfl-edge-finder/research/circumstances/PREREGISTRATION.md` (C1–C7, Bonferroni z ≥ 2.69). Result on 2026 weeks 1–4 (discovery evidence only): **0 of 14 supported.**
+Directional but underpowered (not claims): heavy-underdog pass catchers (C6, EV +0.017/+0.027 at the ask, z ≈ 1.3/1.6) and high implied totals (C5, z ≈ 0.8/1.1) —
+carried to weeks 5+ as the only untouched test. Rising/falling role (C1/C2), soft/hard opponent (C3/C4) and model gap × role change (C7) did not predict price errors.
+Injury/availability could not be tested (no point-in-time injury join in the evaluation rows; `QUESTIONABLE` n=77).
+
+### 5 — automation
+
+`nfl-edge-finder/.github/workflows/disagreement-diagnosis.yml` (inert until merged): every 6 h, sparse blobless fetch of `data/shadow/evaluations` only, runs the diagnosis,
+publishes `sift.disagreement_status.v1` (timestamped + `latest.json`) to `market-data/data/intelligence/nfl/`. Frozen chronology: weeks 1–4 discovery, 5–8 validation, 9+ untouched
+holdout; every segment is UNRESOLVED until those weeks accrue. The challenger ledger is written by a non-blocking step in `shadow-price.yml`. **Not yet done:** settling/evaluating the
+challenger ledger through the existing evaluation pipeline (it currently only reads `data/shadow/ledger`), so challenger projection scoring starts when that is wired.
+
+### 6 — SIFT integration (design preserved)
+
+`src/lib/intelligence.ts`, `src/data/intelligence.ts`, `src/components/IntelligenceNote.tsx`, `src/styles/intelligence.css`; one line each in Top Props, Home Top Props and the Player Prop Explorer.
+Top Props / Home show the informative **No validated opportunities** state unless the contract lists a VALIDATED_SIGNAL segment (a missing, unreachable or unrecognised contract is the same safe state);
+the Explorer shows a per-stat **Projection reliability** line from the engine's own scorecard. Gap size can never produce "Validated". 6 new tests; full suite 1,168 passed; typecheck and lint clean on changed files.
+Visual baselines (`visual-baselines.yml`) will differ by the added line and need the repository's own regeneration workflow; I did not regenerate screenshots.
+
+### Limitations
+
+Four NFL weeks; no segment can resolve yet. NBA/MLB/NHL adapters are not built (NBA has 0 settled prospective pairs). The raw URL for the contract is only live after the workflow is merged and has run once.

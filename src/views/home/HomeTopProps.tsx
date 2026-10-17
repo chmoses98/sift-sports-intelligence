@@ -36,6 +36,7 @@ import { addedNotice, addPropsToBoard, cents, onBoard, propHref, rowKey, upcomin
 import { histKey, hitFor, usePlayerHistories } from '../props/useHits';
 import '../../styles/lane-b-props.css';
 import '../../styles/home-top-props.css';
+import { FoundationProjection } from '../../components/FoundationProjection';
 
 /** How many ranked props the phone layout shows as rows; the rest stay one tap away in the explorer. */
 export const PHONE_PROP_ROWS = 3;
@@ -267,6 +268,7 @@ function PickRow({ x, h, histLoading, tray, picked, toggle, now }: { x: HomePick
           {gap != null && <span className="htp-num htp-num--gap"><small>{up ? 'Above line' : 'Below line'}</small><b className="num">{up ? '+' : '−'}{unitless(Math.abs(gap), r)}</b><i title="Distance from the line in widths of his simulated middle-50% range">{Math.abs(r.separation ?? 0).toFixed(1)}× range</i></span>}
         </div>
         {r.range && r.projection != null && <RangeBar typical={r.range.typical} full={r.range.full} projection={r.projection} line={r.line} format={(v) => unitless(v, r)} label={`${r.name} ${r.def.label.toLowerCase()} simulation`} />}
+        <FoundationProjection variant="micro" sport={SPORT} stat={r.def.stat} playerId={r.playerId} name={r.name} team={r.team.abbr} now={now} />
         <p className="htp-pick__hist">
           {hs && h ? (
             <><span className={`htp-pick__hk htp-pick__hk--${hs.side}`}>Last {h.n}</span> <HitDots h={h} /> <span>{hs.text}</span><span className="sr-only">: history against today’s line, not a chance</span></>
@@ -329,6 +331,7 @@ function PropRow({ x, hits, tray, picked, toggle, now }: { x: HomePick; hits: Hi
         {r.projection != null && <span className={`htp-num htp-num--proj htp-num--${up ? 'up' : 'down'}`}><small>Projection</small><b className="num"><span aria-hidden="true">{up ? '▲' : '▼'}</span> {unitless(r.projection, r)}</b></span>}
         {gap != null && <span className="htp-num htp-num--gap"><small>{up ? 'Above line' : 'Below line'}</small><b className="num">{up ? '+' : '−'}{unitless(Math.abs(gap), r)}</b></span>}
       </div>
+      <FoundationProjection variant="micro" sport={SPORT} stat={r.def.stat} playerId={r.playerId} name={r.name} team={r.team.abbr} now={now} />
       <div className="htp-row__foot">
         <FreshChip at={r.main?.market.captured_at} now={now} label="Line" />
         {hs && h ? <span className="htp-row__hist"><span className={`htp-pick__hk htp-pick__hk--${hs.side}`}>Last {h.n}</span> <HitDots h={h} /><span className="sr-only">: history against today’s line, not a chance</span></span> : null}

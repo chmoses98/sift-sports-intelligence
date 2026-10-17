@@ -52,8 +52,14 @@ export interface PlayerProjection {
   readiness: Readiness;
   gate: { status: GateStatus; findings: GateFinding[] };
   dataAsOf: string | null;
+  /** point-in-time availability call behind the projection (null when the feed predates pf_core 1.2.0) */
+  participation: { status: Participation; certainty: string; source: string; capturedUtc: string | null; reasons: string[] } | null;
+  /** 'shadow' unless the engine marks the family production (SIFT still requires PROMOTED_FAMILIES) */
+  role: 'shadow' | 'production';
 }
-export interface TeamProjection { gameId: string; team: string; family: string; mean: number; p10: number | null; p90: number | null }
+export type Participation = 'CONFIRMED_ACTIVE' | 'LIKELY_ACTIVE' | 'UNCERTAIN' | 'LIKELY_OUT' | 'CONFIRMED_OUT' | 'UNVERIFIED';
+const PARTICIPATION: Participation[] = ['CONFIRMED_ACTIVE', 'LIKELY_ACTIVE', 'UNCERTAIN', 'LIKELY_OUT', 'CONFIRMED_OUT', 'UNVERIFIED'];
+export interface TeamProjection { gameId: string; team: string; family: string; mean: number; p10: number | null; p90: number | null; startUtc: string | null; home: string; away: string }
 export interface FamilyInfo { readiness: Readiness; model: string; reason: string }
 export interface ProjectionDoc {
   sport: ProjSport; generatedAt: string; dataAsOf: string | null; modelVersion: string;
@@ -85,6 +91,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
     const mean = num(p.mean);
     if (mean == null || !p.family || !p.player_id) continue;
     const g = isObj(p.gate) ? p.gate : {};
+    const pa = isObj(p.participation) ? p.participation : null;
     const opp = isObj(p.opportunity) ? p.opportunity : null;
     const oa = isObj(p.opponent_adjustment) ? p.opponent_adjustment : null;
     players.push({
@@ -97,13 +104,19 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
       readiness: asReadiness(p.readiness ?? families[str(p.family)]?.readiness),
       gate: { status: asGate(g.status), findings: (Array.isArray(g.findings) ? g.findings : []).filter(isObj).map((f) => ({ check: str(f.check), severity: asGate(f.severity), what: str(f.what), category: str(f.category), action: str(f.action) })) },
       dataAsOf: str(p.data_asof_utc) || str(raw.data_asof_utc) || null,
+      participation: pa ? {
+        status: PARTICIPATION.includes(pa.status as Participation) ? (pa.status as Participation) : 'UNVERIFIED',
+        certainty: str(pa.certainty), source: str(pa.source), capturedUtc: str(pa.captured_utc) || null,
+        reasons: Array.isArray(pa.reasons) ? pa.reasons.map(str).filter(Boolean) : [],
+      } : null,
+      role: p.role === 'production' ? 'production' : 'shadow',
     });
   }
   const teams: TeamProjection[] = [];
   for (const gm of Array.isArray(raw.games) ? raw.games : []) {
     if (!isObj(gm)) continue;
     for (const t of Array.isArray(gm.teams) ? gm.teams : []) {
-      if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90) });
+      if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90), startUtc: str(gm.start_utc) || null, home: str(gm.home), away: str(gm.away) });
     }
   }
   return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), families, players, teams };
@@ -152,6 +165,7 @@ export function displayState(doc: ProjectionDoc | null, p: PlayerProjection | nu
     const f = p.gate.findings.find((x) => x.severity === 'BLOCK');
     return { kind: 'withheld', reason: f ? f.what : 'the quality gate blocked this projection' };
   }
+  if (p.participation?.status === 'CONFIRMED_OUT') return { kind: 'withheld', reason: 'confirmed out before the game' };
   const probs = coherenceProblems(p);
   if (probs.length) return { kind: 'withheld', reason: probs[0] };
   const asOf = p.dataAsOf ? Date.parse(p.dataAsOf) : NaN;
@@ -212,4 +226,90 @@ export function decodeSummary(raw: unknown): FoundationSummary | null {
     };
   }).filter((f) => f.family);
   return { sport, generatedAt: str(raw.generated_utc), splits, families };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Words and lookups shared by every surface (one wording, one lookup: no page can contradict another).
+
+export const PARTICIPATION_WORDS: Record<Participation, string> = {
+  CONFIRMED_ACTIVE: 'Confirmed to play',
+  LIKELY_ACTIVE: 'Expected to play (not yet confirmed)',
+  UNCERTAIN: 'Participation uncertain — projection assumes he plays',
+  LIKELY_OUT: 'Likely out — projection only applies if he plays',
+  CONFIRMED_OUT: 'Confirmed out',
+  UNVERIFIED: 'Availability not verified — projection assumes he plays',
+};
+
+/** Exact capture/update time in the viewer's zone, e.g. "Oct 20, 5:42 PM". */
+export function fmtWhen(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  return new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+/**
+ * The independent team projections for one game, matched by both team codes (and the start date when the feed gives
+ * one). Null unless exactly one game matches, so a mis-join never shows another game's numbers.
+ */
+export function findTeamProjections(doc: ProjectionDoc | null, q: { home: string; away: string; startUtc?: string | null }): TeamProjection[] | null {
+  if (!doc) return null;
+  const H = q.home.toUpperCase(), A = q.away.toUpperCase();
+  const byGame = new Map<string, TeamProjection[]>();
+  for (const t of doc.teams) byGame.set(t.gameId, [...(byGame.get(t.gameId) ?? []), t]);
+  const hits = [...byGame.values()].filter((ts) => {
+    const codes = new Set(ts.map((t) => t.team.toUpperCase()));
+    if (!codes.has(H) || !codes.has(A)) return false;
+    const s = ts[0].startUtc, w = q.startUtc;
+    return !s || !w || Math.abs(Date.parse(s) - Date.parse(w)) < 18 * 3.6e6;
+  });
+  return hits.length === 1 ? hits[0] : null;
+}
+
+// Live (prospective) scorecard: settled pregame forecasts scored against final results. `sift.prospective_scorecard.v1`.
+export const SCORECARD_SCHEMA = 'sift.prospective_scorecard.v1';
+export const scorecardUrl = (sport: ProjSport, view: 'season' | 'weekly' | 'daily' = 'season'): string =>
+  env[`VITE_SIFT_PF_SCORECARD_${sport}_URL`] ??
+  `https://raw.githubusercontent.com/chmoses98/${REPO[sport]}/projection-data/scorecards/${sport.toLowerCase()}/${view}.json`;
+
+export interface LiveFamily {
+  family: string; n: number; games: number; mae: number; bias: number; cover80: number | null;
+  vsIncumbent: { diff: number; lo: number; hi: number; n: number } | null;
+  status: 'OK' | 'WATCH' | 'ALERT' | 'INSUFFICIENT'; note: string;
+}
+export interface LiveScorecard { sport: ProjSport; generatedAt: string; archived: number; settled: number; families: LiveFamily[] }
+
+export function decodeScorecard(raw: unknown): LiveScorecard | null {
+  if (!isObj(raw) || raw.schema !== SCORECARD_SCHEMA || raw.authority !== 'research_only') return null;
+  const sport = str(raw.sport).toUpperCase() as ProjSport;
+  if (!(sport in REPO) || !Array.isArray(raw.families)) return null;
+  const alerts = new Map<string, { status: string; what: string }>();
+  for (const a of Array.isArray(raw.alerts) ? raw.alerts : []) if (isObj(a)) alerts.set(str(a.family), { status: str(a.status), what: str(a.what) });
+  const fams: LiveFamily[] = [];
+  for (const f of raw.families) {
+    if (!isObj(f) || !Array.isArray(f.models)) continue;
+    const m = f.models.find((x) => isObj(x) && x.model_role === 'challenger') as Record<string, unknown> | undefined;
+    if (!m || num(m.n) == null || num(m.mae) == null) continue;
+    const pc = isObj(f.paired) && isObj(f.paired.crps_diff) ? f.paired.crps_diff : isObj(f.paired) && isObj(f.paired.mae_diff) ? f.paired.mae_diff : null;
+    const ci = pc && Array.isArray(pc.ci95) ? pc.ci95 : null;
+    const al = alerts.get(str(f.family));
+    const st = al?.status;
+    fams.push({
+      family: str(f.family), n: num(m.n)!, games: num(m.n_games) ?? 0, mae: num(m.mae)!, bias: num(m.bias) ?? 0, cover80: num(m.cover_80),
+      vsIncumbent: pc && ci && num(pc.mean_diff) != null ? { diff: num(pc.mean_diff)!, lo: num(ci[0]) ?? NaN, hi: num(ci[1]) ?? NaN, n: num(pc.n_obs) ?? 0 } : null,
+      status: st === 'OK' || st === 'WATCH' || st === 'ALERT' || st === 'INSUFFICIENT' ? st : 'INSUFFICIENT', note: al?.what ?? '',
+    });
+  }
+  const cap = isObj(raw.capture) ? raw.capture : {};
+  const set = isObj(raw.settlement) ? raw.settlement : {};
+  return { sport, generatedAt: str(raw.generated_utc), archived: num(cap.forecasts_archived) ?? 0, settled: num(set.settled) ?? 0, families: fams };
+}
+
+/** Plain words for a live comparison: "better" only when the game-clustered interval excludes zero. */
+export function liveVerdict(f: LiveFamily): string {
+  const v = f.vsIncumbent;
+  if (!v || !Number.isFinite(v.lo) || !Number.isFinite(v.hi)) return 'no incumbent comparison yet';
+  if (v.hi < 0) return 'more accurate than the production model so far';
+  if (v.lo > 0) return 'less accurate than the production model so far';
+  return 'not yet distinguishable from the production model';
 }

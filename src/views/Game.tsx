@@ -61,6 +61,7 @@ import { PlayerSnapshot, PlayerSnapshotNotes } from '../components/sift2/PlayerS
 import { DepthChart } from './stats/DepthChart';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
+import { FoundationTeams } from '../components/FoundationProjection';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -535,6 +536,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
             ]} />
           </div>}
           {sift2 && <GameOpportunities compact eventId={eventId} now={now} />}
+          <FoundationTeams sport={sport.code} home={homeAbbr} away={awayAbbr} startUtc={ev.start_time_utc} now={now} />
 
           <OverviewResearchDetails enabled={sift2}>
           {sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}

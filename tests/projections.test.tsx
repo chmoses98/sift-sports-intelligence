@@ -116,7 +116,7 @@ describe('components', () => {
         families: [{ family: 'receiving_yards', readiness: 'SHADOW VALIDATION', readiness_reason: 'beat baselines', best_model: 'C', holdout: { n_obs: 9000, mae: 18.2, cover_80: 0.8 } }] };
     });
     render(<ProjectionScorecard sport="NFL" />);
-    await waitFor(() => expect(screen.getByTestId('projection-scorecard')).toHaveTextContent(/Receiving yards.*held-out error 18\.20, 80% range caught 80%/));
+    await waitFor(() => expect(screen.getByTestId('projection-scorecard')).toHaveTextContent(/Receiving yards.*average miss 18\.20, 80% range caught 80%/));
   });
 });
 

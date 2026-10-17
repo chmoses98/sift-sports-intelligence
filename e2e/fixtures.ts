@@ -257,6 +257,16 @@ export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExt
 
 export { expect };
 
+/**
+ * Reload once the page's own requests have finished. The app holds logos and photos as blobs fetched after first paint, and a
+ * reload cancels any still in flight; WebKit reports that as a failed resource ("Failed to load resource @ blob:...", "Load
+ * request cancelled"), which the error guard rightly counts. The reload, not the page, caused it, so the test waits first.
+ */
+export async function reloadWhenSettled(page: Page) {
+  await page.waitForLoadState('networkidle');
+  await page.reload();
+}
+
 /** Mobile is not a squeezed desktop: no screen may scroll sideways. */
 export async function noHorizontalOverflow(page: Page, name: string) {
   const [sw, cw, wide] = await page.evaluate(() => {

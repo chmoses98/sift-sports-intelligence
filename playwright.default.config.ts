@@ -13,7 +13,7 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
   use: { baseURL: `http://localhost:${port}/sift-sports-intelligence/`, trace: 'retain-on-failure', serviceWorkers: 'block' },
   webServer: {
-    command: `npx vite preview --outDir dist-default --port ${port} --strictPort`,
+    command: `node scripts/e2e-preview.mjs --outDir dist-default --port ${port}`,
     url: `http://localhost:${port}/sift-sports-intelligence/`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

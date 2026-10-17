@@ -2,7 +2,7 @@
 // on in-app navigation, direct links, back/forward and refresh. The featured game carries no decorative
 // script bar. On phones, nothing visible is left under the fixed tab bar at the end of a page.
 import type { Page } from '@playwright/test';
-import { ALLEN, expect, NEBUF, NOW, test } from './fixtures';
+import { ALLEN, expect, NEBUF, NOW, reloadWhenSettled, test } from './fixtures';
 
 const ATLNO = 'evt_639f74e87ff25310c542';
 const BIJAN = 'prt_5927da3683214ca87558';
@@ -44,7 +44,7 @@ test('a direct link with another game in the path, back/forward and refresh neve
   await page.goForward();
   await expect(page.getByRole('heading', { name: 'Bijan Robinson', level: 1 })).toBeVisible();
   await expectCrumbs(page, ['NFL', 'ATL @ NO', 'Bijan Robinson']);
-  await page.reload();
+  await reloadWhenSettled(page);
   await expect(page.getByRole('heading', { name: 'Bijan Robinson', level: 1 })).toBeVisible();
   await expectCrumbs(page, ['NFL', 'ATL @ NO', 'Bijan Robinson']);
   // The ATL @ NO step is a real link to his game.

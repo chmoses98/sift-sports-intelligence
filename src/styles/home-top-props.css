@@ -3,9 +3,9 @@
    One card per player, each with its qualifying props: the line, the projection and its simulated range, the last
    10 games against today's line, the line's age and the authority word. Team colour is an accent only (the top rule
    and the glow, lib/hero/accent.ts); text never sits on it. Wide screens: a grid. Phones: a horizontal snap row
-   inside the section (the page never scrolls sideways).
+   inside the section (classic Home) or, in SIFT 2.0, three full-width rows (the page never scrolls sideways).
    ========================================================================== */
-.htp { display: grid; gap: 12px; min-width: 0; }
+.htp { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
 .htp .bsec__h { margin-bottom: 0; }
 .htp__lede { display: grid; gap: 8px; min-width: 0; }
 .htp__sub { margin: 0; max-width: 78ch; font-size: 0.9rem; line-height: 1.5; color: var(--text-2); }
@@ -88,7 +88,9 @@
 .htp__bar.is-on { display: flex; }
 .htp__bar > span { margin-right: auto; color: var(--text); }
 
-/* ---- phones: one card per swipe, the next one peeking */
+/* ---- phones, classic Home: one card per swipe, the next one peeking. (SIFT 2.0 Home passes `phoneRows` and renders the
+   `PropRow` rows below instead. The .htp track is `minmax(0, 1fr)`: with the old auto track, these percentage columns
+   resolved against the content's own width and each card collapsed to a sliver.) */
 @media (max-width: 719px) {
   .htp__cards { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 88%; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: 2px; padding: 2px 2px 8px; scrollbar-width: thin; }
   .htp__cards > li { scroll-snap-align: start; }
@@ -103,6 +105,37 @@
 @media (prefers-reduced-motion: reduce) {
   .htp__cards { scroll-behavior: auto; }
 }
+
+/* ---- SIFT 2.0 phone rows (HomeTopProps `PropRow`): three full-width rows */
+.htp__lede--phone { gap: 6px; }
+.htp__lede--phone .htp__sub { font-size: 0.86rem; line-height: 1.45; }
+.htp__how > summary { display: inline-flex; align-items: center; min-height: 36px; cursor: pointer; font-size: 0.84rem; font-weight: 600; color: #8fd0ff; }
+.htp__how[open] > summary { margin-bottom: 4px; }
+.htp__how .htp__meta { margin-top: 6px; }
+.htp-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 0; padding: 0; list-style: none; min-width: 0; }
+.htp-row { --tc: #1e8cf2; position: relative; display: grid; gap: 8px; min-width: 0; padding: 12px 12px 10px; border-radius: 14px; border: 1px solid var(--panel-line); background: radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, var(--tc) 14%, transparent) 0%, transparent 60%), var(--panel-raised); box-shadow: var(--shadow-1); overflow: hidden; }
+.htp-row::before { content: ''; position: absolute; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, var(--tc), color-mix(in srgb, var(--tc) 30%, transparent)); }
+.htp-row.is-picked { border-color: rgba(240, 192, 72, 0.7); box-shadow: 0 0 18px -8px rgba(240, 192, 72, 0.8); }
+.htp-row.is-saved { opacity: 0.9; }
+.htp-row__who { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; min-width: 0; }
+.htp-row__who .pface--md { width: 40px; height: 40px; border: 2px solid color-mix(in srgb, var(--tc) 70%, transparent); }
+.htp-row__id { display: grid; gap: 1px; min-width: 0; }
+.htp-row__name { font-family: var(--font-cond); font-weight: 700; font-size: 1.14rem; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-hi); line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.htp-row__team { display: inline-flex; align-items: center; gap: 5px; min-width: 0; font-size: 0.76rem; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.htp-row__team b { color: var(--text); }
+.htp-row__team .teammark { width: 16px; height: 16px; flex: none; }
+.htp-row__chk { display: grid; place-items: center; width: 44px; height: 44px; margin: -6px -8px -6px 0; cursor: pointer; }
+.htp-row__chk input { width: 20px; height: 20px; margin: 0; accent-color: var(--gold); cursor: pointer; }
+.htp-row__mk { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0; }
+.htp-row__rk { font-family: var(--font-cond); font-weight: 700; font-size: 0.92rem; color: var(--text-3); }
+.htp-row__stat { font-family: var(--font-cond); font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-hi); }
+.htp-row .htp-pick__nums { gap: 6px; }
+.htp-row .htp-num { padding: 4px 8px; }
+.htp-row .htp-num b { font-size: 1.2rem; }
+.htp-row__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0; }
+.htp-row__hist { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; }
+.htp__all { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; border-radius: 12px; border: 1px solid rgba(98, 186, 255, 0.4); background: rgba(31, 95, 214, 0.14); font-size: 0.95rem; font-weight: 700; color: #cfe8ff; }
+.htp__all:hover { color: #fff; border-color: var(--line-3); }
 
 /* ---- strength: 'Lean' (line inside the simulated middle-50% range) vs 'Outside mid-50%'. Dashed vs solid, plus words. */
 .htp-str { display: inline-flex; align-items: center; min-height: 20px; padding: 0 7px; border-radius: 6px; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; border: 1px dashed var(--line-3); color: var(--text-2); }

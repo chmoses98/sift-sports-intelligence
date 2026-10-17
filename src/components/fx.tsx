@@ -7,7 +7,7 @@
 //  - Histogram draws counts the caller computed from real samples or published quantile bins; it never smooths,
 //    extrapolates or invents a tail. Fewer than three bins renders an honest "not enough data" state.
 //  - VsBar draws two published ranks against their universe; a missing rank renders as "unranked", never as a bar.
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Link } from '../routing';
 import { Icon } from './Icon';
 
@@ -227,9 +227,20 @@ export function Histogram({
 }
 
 /** Illuminated icon tabs (game sections, hubs). Links, so every tab is a direct, shareable URL. */
-export function IconTabs({ items, label, className }: { items: { to: string; label: string; icon?: string; current?: boolean; badge?: ReactNode }[]; label: string; className?: string }) {
+export function IconTabs({ items, label, className, followCurrent = false }: { items: { to: string; label: string; icon?: string; current?: boolean; badge?: ReactNode }[]; label: string; className?: string; followCurrent?: boolean }) {
+  const nav = useRef<HTMLElement>(null);
+  const current = items.find((t) => t.current)?.to;
+  // Opt-in (SIFT 2.0's sticky game tabs): a strip that scrolls sideways brings its current tab into view, centred, but only
+  // when that tab is not already fully visible, and never scrolls the page. Strips that do not opt in are left exactly as laid out.
+  useEffect(() => {
+    const el = nav.current;
+    const tab = el?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!followCurrent || !el || !tab || el.scrollWidth <= el.clientWidth) return;
+    const fullyVisible = tab.offsetLeft >= el.scrollLeft && tab.offsetLeft + tab.offsetWidth <= el.scrollLeft + el.clientWidth;
+    if (!fullyVisible) el.scrollTo({ left: tab.offsetLeft - (el.clientWidth - tab.offsetWidth) / 2, behavior: 'auto' });
+  }, [current, followCurrent]);
   return (
-    <nav className={`fx-tabs${className ? ` ${className}` : ''}`} aria-label={label}>
+    <nav ref={nav} className={`fx-tabs${className ? ` ${className}` : ''}`} aria-label={label}>
       {items.map((t) => (
         <Link key={t.to} to={t.to} className="fx-tab" aria-current={t.current ? 'page' : undefined}>
           {t.icon && <Icon name={t.icon} size={16} />}

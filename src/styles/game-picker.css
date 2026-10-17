@@ -1,0 +1,25 @@
+/* GamePicker (components/GamePicker.tsx): phone trigger + sheet of two-column matchup tiles. */
+.gpick { display: grid; gap: 4px; min-width: 0; }
+.gpick__l { font: 600 12px Barlow, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: #8fb6d8; }
+.gpick__btn { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #2a5278; background: #081a2b; color: #f2f7ff; font: 600 15px Barlow, sans-serif; text-align: left; cursor: pointer; min-width: 0; }
+.gpick__marks { display: inline-flex; gap: 2px; flex: none; }
+.gpick__marks .teammark { width: 24px; height: 24px; }
+.gpick__v { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gpick__search { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 12px; margin: 0 0 10px; border-radius: 12px; border: 1px solid #2a5278; background: #081a2b; color: #8fb6d8; }
+.gpick__search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: #f2f7ff; font: 500 16px Barlow, sans-serif; }
+.gpick__sports { margin: 0 -16px 10px; padding: 0 16px 2px; }
+.gpick__all { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; margin: 0 0 6px; padding: 0 14px; border-radius: 12px; border: 1px solid #20364c; background: #081726; color: #f2f7ff; font: 600 15px Barlow, sans-serif; cursor: pointer; text-align: left; }
+.gpick__all svg:last-child { margin-left: auto; color: #6fe0a8; }
+.gpick__all.is-on, .gpick__tile.is-on { border-color: #39a9ff; background: linear-gradient(145deg, #164b7c, #06203b); }
+.gpick__day h3 { margin: 14px 0 8px; font: 600 12px/1 Barlow, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8fb6d8; }
+.gpick__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gpick__tile { position: relative; display: grid; gap: 6px; width: 100%; min-height: 58px; padding: 9px 10px; border-radius: 12px; border: 1px solid #20364c; background: #081726; color: #f2f7ff; text-align: left; cursor: pointer; min-width: 0; }
+.gpick__tile > svg { position: absolute; top: 8px; right: 8px; color: #6fe0a8; }
+.gpick__teams { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.gpick__teams > span { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.gpick__teams i { font: 500 12px Barlow, sans-serif; font-style: normal; color: #6f8aa5; }
+.gpick__teams .teammark { width: 22px; height: 22px; }
+.gpick__teams b { font: 700 14px/1 Barlow, sans-serif; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gpick__when { font: 500 12px Barlow, sans-serif; color: #93abc4; }
+.gpick__none { margin: 18px 0; color: #a8bed7; font-size: 14px; }
+.gpick__none button { border: 0; background: none; color: #8fd0ff; font: 600 14px Barlow, sans-serif; text-decoration: underline; cursor: pointer; padding: 6px 0; }

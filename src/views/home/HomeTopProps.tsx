@@ -24,6 +24,7 @@ import { accentOnDark } from '../../lib/hero/accent';
 import { playerPhoto } from '../../lib/players';
 import { routes } from '../../lib/routes';
 import { teamColors } from '../../lib/teams';
+import { usePhone } from '../../lib/useMediaQuery';
 import { formatQuoteAgo, quoteAgeMs } from '../../live/freshness';
 import type { Opportunity } from '../../opportunity/types';
 import { useTray } from '../../state/tray';
@@ -35,6 +36,8 @@ import { histKey, hitFor, usePlayerHistories } from '../props/useHits';
 import '../../styles/lane-b-props.css';
 import '../../styles/home-top-props.css';
 
+/** How many ranked props the phone layout shows as rows; the rest stay one tap away in the explorer. */
+export const PHONE_PROP_ROWS = 3;
 /** The coming NFL slate: the same horizon as the props hub. */
 const SLATE_DAYS = 8;
 const SLUG = 'nfl';
@@ -43,13 +46,14 @@ const SPORT = 'NFL';
 const kickoffWord = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
 const unitless = (v: number, r: PropRow) => fmtValue(v, r.def).replace(/ \S+$/, '');
 
-export default function HomeTopProps({ opportunities, now }: { opportunities: Opportunity[]; now: number }) {
+/** `phoneRows`: SIFT 2.0's phone layout (three full-width rows). The classic Home keeps its card carousel. */
+export default function HomeTopProps({ opportunities, now, phoneRows = false }: { opportunities: Opportunity[]; now: number; phoneRows?: boolean }) {
   const repo = useRepo(sportBySlug(SLUG));
-  return <TopPropsPreview repo={repo} opportunities={opportunities} now={now} />;
+  return <TopPropsPreview repo={repo} opportunities={opportunities} now={now} phoneRows={phoneRows} />;
 }
 
 /** The section for an already-resolved NFL source (tests pass a disk-backed one). */
-export function TopPropsPreview({ repo, opportunities, now }: { repo: Async<SportRepo>; opportunities: Opportunity[]; now: number }) {
+export function TopPropsPreview({ repo, opportunities, now, phoneRows = false }: { repo: Async<SportRepo>; opportunities: Opportunity[]; now: number; phoneRows?: boolean }) {
   const board = useAsync(repo.data ? `props:board:${repo.data.source.root}` : null, () => repo.data!.board(), { revalidate: true });
   const games = useMemo(() => upcomingGames(board.data?.items, now, SLATE_DAYS), [board.data, now]);
   const slate = useSlateProps(repo.data, games, { revalidate: true });
@@ -61,6 +65,7 @@ export function TopPropsPreview({ repo, opportunities, now }: { repo: Async<Spor
   const histPlayers = useMemo(() => (top?.players ?? []).map((p) => ({ name: p.row.name, team: p.row.team.abbr })), [histKeyList]); // eslint-disable-line react-hooks/exhaustive-deps
   const hist = usePlayerHistories(SPORT, histPlayers);
 
+  const phone = usePhone() && phoneRows;
   const tray = useTray();
   const [picked, setPicked] = useState<Set<string>>(() => new Set());
   const [notice, setNotice] = useState<string | null>(null);
@@ -88,7 +93,16 @@ export function TopPropsPreview({ repo, opportunities, now }: { repo: Async<Spor
   } else if (!top.picks.length) {
     body = <div className="bempty htp__empty"><h3>No prop qualifies right now</h3><p>{top.priced} priced props were read; none has a simulated projection off its line that can be ranked. Sift does not fill this space with weaker props.</p><Why top={top} open /></div>;
   } else {
-    body = (
+    body = phone ? (
+      <>
+        <ol className="htp-rows" aria-label={`Top ${Math.min(PHONE_PROP_ROWS, top.picks.length)} ranked props`}>
+          {top.picks.slice(0, PHONE_PROP_ROWS).map((x) => <PropRow key={rowKey(x.d)} x={x} hits={hist} tray={tray} picked={picked} toggle={toggle} now={now} />)}
+        </ol>
+        {top.picks.length < PHONE_PROP_ROWS && <p className="htp__few" role="note"><b>Only {top.picks.length} prop{top.picks.length === 1 ? '' : 's'} qualif{top.picks.length === 1 ? 'ies' : 'y'}.</b> Sift shows what clears the bar and does not fill the section.</p>}
+        <Link to={PROPS_PATH} className="htp__all">See all props{top.qualifying > PHONE_PROP_ROWS ? <> <b className="num">({top.qualifying})</b></> : null} <Icon name="arrowRight" size={15} /></Link>
+        <Why top={top} />
+      </>
+    ) : (
       <>
         {top.validated.length > 0 && (
           <div className="htp__group htp__group--valid">
@@ -117,6 +131,17 @@ export function TopPropsPreview({ repo, opportunities, now }: { repo: Async<Spor
         <h2 className="bsec__t" id="htp-h"><Icon name="target" size={20} /> Top props</h2>
         <Link to={PROPS_PATH} className="bsec__more">Open the Player Prop Explorer <Icon name="arrowRight" size={14} /></Link>
       </div>
+      {phone ? (
+        <div className="htp__lede htp__lede--phone">
+          <p className="htp__sub"><b className="htp__sport">NFL · coming slate</b>{validatedN ? <>Validated props come first and say so.</> : <><span className="htp-auth htp-auth--research">Research only</span> No prop is validated today.</>}</p>
+          <details className="htp__how">
+            <summary>How props are ranked</summary>
+            <p className="htp__sub">Ranked by how far the <b>published projection</b> sits from the market line, in widths of its own middle-50% range. {validatedN ? null : <>The NFL publication rates its prop pricing research only.</>}</p>
+            <p className="htp__legend"><span className="htp-str htp-str--lean">Lean</span> the line sits inside the simulated middle-50% range, close to a coin flip · <b>Last 10</b> is history against today’s line, not a chance</p>
+            {top && top.picks.length > 0 && <p className="htp__meta"><span><b className="num">{top.picks.length}</b> shown{top.qualifying > top.picks.length ? <> of <b className="num">{top.qualifying}</b> qualifying</> : null}</span><span><b className="num">{top.priced}</b> priced props · <b className="num">{games.length}</b> game{games.length === 1 ? '' : 's'}</span>{published && <span>Projections published {formatQuoteAgo(quoteAgeMs(published, now))}</span>}</p>}
+          </details>
+        </div>
+      ) : (
       <div className="htp__lede">
         <p className="htp__sub">
           <b className="htp__sport">NFL · coming slate</b> Ranked by how far the <b>published projection</b> sits from the market line, in widths of its own middle-50% range.{' '}
@@ -132,6 +157,7 @@ export function TopPropsPreview({ repo, opportunities, now }: { repo: Async<Spor
           </p>
         )}
       </div>
+      )}
       {body}
       {slate.data?.unreadable ? <p className="fr-note">{slate.data.unreadable} game{slate.data.unreadable === 1 ? '’s' : 's’'} research could not be read, so {slate.data.unreadable === 1 ? 'its props are' : 'their props are'} not ranked.</p> : null}
 
@@ -251,6 +277,60 @@ function PickRow({ x, h, histLoading, tray, picked, toggle, now }: { x: HomePick
           <span className="htp-pick__ask">Over {cents(r.main?.yesAsk)} · Under {cents(r.main?.noAsk)}</span>
           <Link to={propHref(SLUG, d)} className="htp-pick__go" aria-label={`Analyse ${label} in the explorer`}>Explore <Icon name="arrowRight" size={13} /></Link>
         </div>
+      </div>
+    </li>
+  );
+}
+
+
+/** Phone layout: one ranked prop as a full-width row. Every field the card shows survives; nothing is hidden by overflow. */
+function PropRow({ x, hits, tray, picked, toggle, now }: { x: HomePick; hits: Hist; tray: Tray; picked: Set<string>; toggle: (k: string) => void; now: number }) {
+  const d = x.d;
+  const r = d.row;
+  const k = rowKey(d);
+  const saved = onBoard(tray, d);
+  const on = saved || picked.has(k);
+  const accent = accentOnDark(teamColors(SPORT, r.team.abbr));
+  const home = d.game.endsWith(`@ ${r.team.abbr}`);
+  const gap = r.projection != null && r.line != null ? r.projection - r.line : null;
+  const up = (gap ?? 0) >= 0;
+  const label = `${r.name} ${r.def.label.toLowerCase()} ${r.line ?? ''}`.trim();
+  const h = hitFor(hits.docs.get(histKey(r.name, r.team.abbr)), r, d.kickoff, 'last10');
+  const hs = h && h.n >= HISTORY_MIN_GAMES ? historySide(h) : null;
+  const typ = r.range ? `${unitless(r.range.typical[0], r)}–${unitless(r.range.typical[1], r)}` : '';
+  const strengthText = x.strength === 'separated'
+    ? `The line sits outside his simulated middle-50% range (${typ}).`
+    : `A lean: the line sits inside his simulated middle-50% range (${typ}), close to a coin flip on the simulation’s own numbers.`;
+  return (
+    <li className={`htp-row${picked.has(k) ? ' is-picked' : ''}${saved ? ' is-saved' : ''}`} style={{ ['--tc' as string]: accent }}>
+      <div className="htp-row__who">
+        <PlayerFace photo={playerPhoto(r.playerId, r.name, r.team.abbr)} team={r.team.abbr} size="md" name={r.name} />
+        <div className="htp-row__id">
+          <Link to={propHref(SLUG, d)} className="htp-row__name">{r.name}</Link>
+          <span className="htp-row__team"><TeamMark sport={SPORT} abbr={r.team.abbr} size="sm" /><b>{r.team.abbr}</b>{r.role ? ` · ${r.role}` : ''} · {home ? 'vs' : '@'} {r.opp.abbr} · {kickoffWord(d.kickoff)}</span>
+        </div>
+        <label className="htp-row__chk" title={saved ? 'Already on My Board' : 'Select to save to My Board'}>
+          <input type="checkbox" checked={on} disabled={saved} onChange={() => toggle(k)} />
+          <span className="sr-only">{saved ? 'Already on My Board:' : 'Select'} {label}</span>
+        </label>
+      </div>
+      <div className="htp-row__mk">
+        <span className="htp-row__rk num" title="Position in the slate ranking">#{x.rank}</span>
+        <b className="htp-row__stat">{r.def.label}</b>
+        <span className={`htp-auth htp-auth--${x.authority.level}`} title={x.authority.detail}>{x.authority.word}</span>
+        <span className={`htp-str htp-str--${x.strength}`} title={strengthText}>{x.strength === 'separated' ? 'Outside mid-50%' : 'Lean'}<span className="sr-only">: {strengthText}</span></span>
+        {saved && <span className="htp-pick__saved">On My Board</span>}
+        {r.injury && <span className="htp-card__inj" title="Listed on the injury report; the projection assumes he plays">{r.injury.toLowerCase().replace(/_/g, ' ')}</span>}
+      </div>
+      <div className="htp-pick__nums">
+        <span className="htp-num htp-num--line"><small>Line</small><b className="num">{r.line}</b></span>
+        {r.projection != null && <span className={`htp-num htp-num--proj htp-num--${up ? 'up' : 'down'}`}><small>Projection</small><b className="num"><span aria-hidden="true">{up ? '▲' : '▼'}</span> {unitless(r.projection, r)}</b></span>}
+        {gap != null && <span className="htp-num htp-num--gap"><small>{up ? 'Above line' : 'Below line'}</small><b className="num">{up ? '+' : '−'}{unitless(Math.abs(gap), r)}</b></span>}
+      </div>
+      <div className="htp-row__foot">
+        <FreshChip at={r.main?.market.captured_at} now={now} label="Line" />
+        {hs && h ? <span className="htp-row__hist"><span className={`htp-pick__hk htp-pick__hk--${hs.side}`}>Last {h.n}</span> <HitDots h={h} /><span className="sr-only">: history against today’s line, not a chance</span></span> : null}
+        <Link to={propHref(SLUG, d)} className="htp-pick__go" aria-label={`Analyse ${label} in the explorer`}>Explore <Icon name="arrowRight" size={13} /></Link>
       </div>
     </li>
   );

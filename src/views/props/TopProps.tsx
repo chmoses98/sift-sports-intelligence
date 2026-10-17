@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { Link } from '../../routing';
 import type { BoardItem } from '../../contract/types';
 import { Icon } from '../../components/Icon';
+import { GamePicker, type PickGame } from '../../components/GamePicker';
 import { PlayerFace } from '../../components/insight';
 import { Skeleton, TeamMark } from '../../components/ui';
 import type { SportRepo } from '../../data/repo';
@@ -23,10 +24,11 @@ import { useTray } from '../../state/tray';
 import { HitDots } from './HitRate';
 import { historySide, type DiscoveryRow, type DiscoverySort } from './model';
 import { rankSlate } from './ranking';
-import { addedNotice, addPropsToBoard, cents, gameName, onBoard, propHref, rowKey, useSlateProps } from './slate';
+import { addedNotice, addPropsToBoard, cents, onBoard, propHref, rowKey, useSlateProps } from './slate';
 import { histKey, hitFor, usePlayerHistories } from './useHits';
 
 const PAGE = 20;
+const sideOf = (g: BoardItem, id: string | null) => { const p = g.participants.find((x) => x.participant_id === id); return { abbr: p?.short_name ?? p?.display_name ?? '?', name: p?.display_name }; };
 export { rowKey, useSlateProps };
 
 export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | undefined; games: BoardItem[]; slug: string; sportCode: string }) {
@@ -67,6 +69,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
 
   const gameIds = [...new Set((slate.data?.rows ?? []).map((d) => d.eventId))];
   const gamesWithProps = games.filter((g) => gameIds.includes(g.event_id));
+  const pickGames: PickGame[] = gamesWithProps.map((g) => ({ id: g.event_id, sport: sportCode, startMs: Date.parse(g.start_time_utc), away: sideOf(g, g.away_participant), home: sideOf(g, g.home_participant) }));
 
   return (
     <section className="tprops fx-card" aria-labelledby="tprops-h">
@@ -86,12 +89,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
       </header>
 
       <div className="tprops__filters">
-        <label className="term__sel"><span>Game</span>
-          <select value={game} onChange={(e) => { setGame(e.target.value); setLimit(PAGE); }}>
-            <option value="">All games ({gamesWithProps.length})</option>
-            {gamesWithProps.map((g) => <option key={g.event_id} value={g.event_id}>{gameName(g)} · {new Date(g.start_time_utc).toLocaleDateString(undefined, { weekday: 'short' })}</option>)}
-          </select>
-        </label>
+        <GamePicker games={pickGames} value={game} onChange={(id) => { setGame(id); setLimit(PAGE); }} />
         <div className="fr-chips" role="group" aria-label="Prop type">
           <button type="button" className={`fr-chip${!fam ? ' is-on' : ''}`} aria-pressed={!fam} onClick={() => setFam('')}>All</button>
           {PROP_FAMILY_ORDER.filter((f) => f !== 'other').map((f) => <button key={f} type="button" className={`fr-chip${fam === f ? ' is-on' : ''}`} aria-pressed={fam === f} onClick={() => setFam(fam === f ? '' : f)}>{PROP_FAMILY_LABEL[f]}</button>)}

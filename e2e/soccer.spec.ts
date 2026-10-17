@@ -31,6 +31,21 @@ test.beforeEach(async ({ page, market }) => {
   await serve(page);
 });
 
+/** Pick the "This week" window: an inline chip on desktop, inside the Filters sheet on phones. */
+async function chooseThisWeek(page: import('@playwright/test').Page) {
+  const filters = page.getByRole('button', { name: /^Filters/ });
+  // Wait for whichever control this layout has before choosing the path (isVisible does not wait).
+  await expect(filters.or(page.getByRole('button', { name: 'This week' })).first()).toBeVisible();
+  if (await filters.isVisible()) {
+    await filters.click();
+    await page.getByRole('dialog', { name: 'Filters' }).getByRole('button', { name: 'This week' }).click();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', { name: 'Filters' })).toBeHidden();
+  } else {
+    await page.getByRole('button', { name: 'This week' }).click();
+  }
+}
+
 test('the Soccer tab opens a real home: competitions, fixtures, research candidates, honest status @smoke', async ({ page }) => {
   await page.goto('./#/soccer');
   await expect(page.getByRole('heading', { name: 'Soccer', level: 1 })).toBeVisible();
@@ -84,7 +99,7 @@ test('model disagreement is never shown as an edge: the board says first that no
   // subgroups: its gaps are signals to read, not research-backed bets, and the board leads by saying so.
   await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
   await page.goto('./#/intelligence/markets');
-  await page.getByRole('button', { name: 'This week' }).click();
+  await chooseThisWeek(page);
   // The board opens on the Kalshi-style browse view; the full research cards are one tap away.
   await expect(page.getByTestId('browse-board').getByRole('note').filter({ hasText: 'No validated or research-backed bet right now' })).toBeVisible();
   await page.getByRole('button', { name: 'Full cards' }).click();
@@ -107,7 +122,7 @@ test('the market board features the soccer research candidates with their price,
   await page.clock.setFixedTime(new Date('2026-10-09T06:10:00Z'));
   await page.goto('./#/intelligence/markets');
   await expect(page.getByRole('heading', { name: 'Market board' })).toBeVisible();
-  await page.getByRole('button', { name: 'This week' }).click();
+  await chooseThisWeek(page);
   // Browse view: the fixture's game is one event card with its contracts in betting words, price and break-even.
   const ev = page.getByTestId('event-card').first();
   await expect(ev).toBeVisible();

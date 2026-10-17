@@ -1,0 +1,16 @@
+/* BottomSheet (components/BottomSheet.tsx): a modal sheet above everything, including the phone tab bar. */
+.bsheet { position: fixed; inset: 0; z-index: 90; display: flex; align-items: flex-end; justify-content: center; }
+.bsheet__scrim { position: absolute; inset: 0; background: rgba(1, 7, 13, 0.72); animation: bsheet-fade 160ms ease-out; }
+.bsheet__panel { position: relative; display: flex; flex-direction: column; width: 100%; max-width: 560px; max-height: min(88dvh, 88vh); outline: none; border-radius: 18px 18px 0 0; border: 1px solid #24405a; border-bottom: 0; background: #061321; box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.6); animation: bsheet-rise 220ms cubic-bezier(0.2, 0.8, 0.2, 1); color: #f2f7ff; font-family: Barlow, system-ui, sans-serif; }
+.bsheet__grip { width: 40px; height: 4px; margin: 8px auto 0; border-radius: 2px; background: #2f4b66; flex: none; }
+.bsheet__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 16px 8px; flex: none; }
+.bsheet__head h2 { margin: 0; font: 700 22px/1.1 'Barlow Condensed', Barlow, sans-serif; letter-spacing: 0.05em; text-transform: uppercase; }
+.bsheet__close { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -8px; border: 0; border-radius: 10px; background: transparent; color: #cfe3f7; cursor: pointer; }
+.bsheet__close:hover { background: #0d2740; }
+.bsheet__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 16px 12px; }
+.bsheet__foot { flex: none; display: flex; gap: 10px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #17324a; background: #061321; }
+.bsheet :focus-visible { outline: 2px solid #60b8ff; outline-offset: 2px; }
+@keyframes bsheet-rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes bsheet-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bsheet__scrim, .bsheet__panel { animation: none; } }
+@media (min-width: 720px) { .bsheet { align-items: center; } .bsheet__panel { border-radius: 18px; border-bottom: 1px solid #24405a; } }

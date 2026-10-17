@@ -11,6 +11,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from '../../routing';
 import { Icon } from '../../components/Icon';
+import { ValidationState } from '../../components/IntelligenceNote';
 import { PlayerFace, RangeBar } from '../../components/insight';
 import { FreshChip, CapabilityState } from '../../components/fxResearch';
 import { Skeleton, TeamMark } from '../../components/ui';
@@ -131,6 +132,7 @@ export function TopPropsPreview({ repo, opportunities, now, phoneRows = false }:
         <h2 className="bsec__t" id="htp-h"><Icon name="target" size={20} /> Top props</h2>
         <Link to={PROPS_PATH} className="bsec__more">Open the Player Prop Explorer <Icon name="arrowRight" size={14} /></Link>
       </div>
+      <ValidationState compact />
       {phone ? (
         <div className="htp__lede htp__lede--phone">
           <p className="htp__sub"><b className="htp__sport">NFL · coming slate</b>{validatedN ? <>Validated props come first and say so.</> : <><span className="htp-auth htp-auth--research">Research only</span> No prop is validated today.</>}</p>

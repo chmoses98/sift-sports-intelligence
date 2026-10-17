@@ -115,9 +115,7 @@
 @media(max-width:719px){.app--sift2 .ex-tool__art{display:none}}
 
 /* Slate cards: never break a team name mid-word; the name steps down instead. */
-.sift2-home .s2-match-card__match strong{overflow-wrap:normal;word-break:normal;hyphens:none}
 @media(max-width:720px){
-  .sift2-home .s2-match-card__match strong{font-size:13px}
   .sift2-home__section{margin-top:14px}
   .sift2-home__section-head{margin-bottom:8px}
   .sift2-home__section h2{font-size:1.25rem}
@@ -134,8 +132,6 @@
 }
 
 /* Parity restorations: card indicator, Home sport filter, quote chip in the market panel. */
-.app--sift2 .s2-match-card__edge,.app--sift2 .s2-match-card__tag{display:inline-flex;align-items:center;gap:4px;margin:2px 14px 8px;font-size:11px;max-width:calc(100% - 28px)}
-.app--sift2 .s2-match-card__tag{color:#b9d0e8}
 .sift2-home__chips{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;margin:0 -2px;scrollbar-width:none}
 .sift2-home__chips button{flex:0 0 auto;border:1px solid #214666;border-radius:999px;background:#06182a;color:#cfe3f7;font:500 13px Barlow,sans-serif;padding:6px 12px;min-height:34px;cursor:pointer}
 .sift2-home__chips button[aria-pressed=true]{background:#0f3558;border-color:#409ade;color:#fff}

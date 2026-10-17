@@ -29,7 +29,7 @@ export default defineConfig({
     serviceWorkers: 'block',
   },
   webServer: {
-    command: `npx vite preview --port ${port} --strictPort`,
+    command: `node scripts/e2e-preview.mjs --port ${port}`,
     url: `http://localhost:${port}/sift-sports-intelligence/`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

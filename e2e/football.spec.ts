@@ -47,7 +47,7 @@ test('the NFL props board groups every prop by family and opens a card into pric
   await expect(page).toHaveURL(/family=rushing/);
   const bijan = board.locator('.pb__card').filter({ hasText: 'Bijan Robinson' }).filter({ hasText: 'Rushing yards' });
   await expect(bijan).toBeVisible();
-  await expect(bijan.locator('.pb__read')).toContainText(/Sim (above|below|on) the line/);
+  await expect(bijan.locator('.pb__read')).toContainText(/Projection (above|below|on) the line/);
   await expect(bijan.locator('.pb__nums').getByText('89.5', { exact: true })).toBeVisible();
   await expect(bijan.locator('.pb__nums')).toContainText(/\d+¢ \/ \d+¢/);
   for (const card of await board.locator('.pb__card').all()) await expect(card.locator('.pcard__s')).toContainText(/ATL/);

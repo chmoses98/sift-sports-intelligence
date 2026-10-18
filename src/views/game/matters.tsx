@@ -216,7 +216,7 @@ export function PropCardView({ c, ctx, hist }: { c: PropCard; ctx: GameCtx; hist
   const fmt = (v: number) => (c.unit === 'rec' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)));
   const finding: Finding = {
     key: `prop:${c.id}`, kind: 'prop', sport: ctx.sport, title: `${c.name} ${c.statLabel.toLowerCase()}`,
-    statement: `Projection ${valueText(c.projection, c.unit)} (typical ${rangeText(c.range.typical, c.unit)}, low ${fmt(c.range.full[0])}, high ${fmt(c.range.full[1])})${c.line != null ? `; market line ${c.line} (${c.marketTitle})` : ''}${c.matchup ? `; matchup: ${c.matchup.label} ${c.matchup.rank.text}` : ''}. ${ctx.label}.`,
+    statement: `Projection ${valueText(c.projection, c.unit)} (${c.range ? `typical ${rangeText(c.range.typical, c.unit)}, low ${fmt(c.range.full[0])}, high ${fmt(c.range.full[1])}` : `realistic range ${fmt(c.band?.lo ?? c.projection)}–${fmt(c.band?.hi ?? c.projection)}`})${c.line != null ? `; market line ${c.line} (${c.marketTitle})` : ''}${c.matchup ? `; matchup: ${c.matchup.label} ${c.matchup.rank.text}` : ''}. ${ctx.label}.`,
     href: routes.player(ctx.slug, c.playerId),
     anchor: c.market ? { ref_kind: 'MARKET', id: c.market.market_id, extra: { market_id: c.market.market_id, event_id: ctx.r.event.event_id } } : { ref_kind: 'PLAYER', id: c.playerId },
     kickoff: ctx.r.event.start_time_utc, eventStatus: ctx.r.event.status,
@@ -233,9 +233,9 @@ export function PropCardView({ c, ctx, hist }: { c: PropCard; ctx: GameCtx; hist
       <dl className="pcard__nums">
         <div><dt>Projection</dt><dd className="num">{valueText(c.projection, c.unit)}</dd></div>
         <div><dt>Line</dt><dd className="num">{c.line != null ? c.line : '—'}</dd></div>
-        <div><dt>Typical range</dt><dd className="num">{rangeText(c.range.typical, c.unit)}</dd></div>
+        <div><dt>{c.range ? 'Typical range' : 'Realistic range (80%)'}</dt><dd className="num">{c.range ? rangeText(c.range.typical, c.unit) : `${fmt(c.band?.lo ?? c.projection)}–${fmt(c.band?.hi ?? c.projection)}`}</dd></div>
       </dl>
-      <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />
+      {c.range && <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />}
       {c.matchup && (
         <p className="pcard__mu">
           <span>Matchup</span> <TeamMark sport={ctx.sport} abbr={c.opp.abbr} size="sm" /> {c.matchup.label} <RankBadge rank={c.matchup.rank} compact against />

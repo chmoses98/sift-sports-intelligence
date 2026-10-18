@@ -16,6 +16,7 @@ import { dayLabel, timeLabel } from '../lib/format';
 import { routes } from '../lib/routes';
 import { playerPhoto } from '../lib/players';
 import { propCards, propsToWatch, valueText } from '../insights/props';
+import { useAuthority } from '../data/projections';
 import { useTrail, useVisit } from '../state/trail';
 import { useTray } from '../state/tray';
 import { useNow } from '../live/hooks';
@@ -63,7 +64,8 @@ function YourResearch() {
 export function FeaturedProps({ item, r, slug }: { item: BoardItem; r: EventResearchDoc | undefined; slug: string }) {
   const { repo } = useSport();
   const detail = useAsync(r ? `ed:NFL:${item.event_id}` : null, () => repo.eventDetail(item.event_id));
-  const cards = useMemo(() => (r && detail.data ? propsToWatch(propCards(r, detail.data.markets), 3) : []), [r, detail.data]);
+  const { authority, ready } = useAuthority('NFL');
+  const cards = useMemo(() => (r && detail.data && ready ? propsToWatch(propCards(r, detail.data.markets, undefined, authority), 3) : []), [r, detail.data, authority, ready]);
   if (!cards.length) return null;
   return (
     <section className="panel" aria-labelledby="hprops-h">
@@ -78,7 +80,7 @@ export function FeaturedProps({ item, r, slug }: { item: BoardItem; r: EventRese
               <span className="hprop__b">
                 <span className="hprop__n">{c.name} <span className="hprop__s">{c.statLabel}</span></span>
                 <span className="hprop__v">Projection <b className="num">{valueText(c.projection, c.unit)}</b>{c.line != null && <> · line <b className="num">{c.line}</b></>}</span>
-                <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={(v) => (c.unit === 'rec' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)))} label={`${c.name} ${c.statLabel.toLowerCase()}`} />
+                {c.range && <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={(v) => (c.unit === 'rec' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)))} label={`${c.name} ${c.statLabel.toLowerCase()}`} />}
               </span>
             </Link>
           </li>

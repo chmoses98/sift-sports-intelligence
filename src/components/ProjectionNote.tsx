@@ -53,7 +53,7 @@ export function ProjectionNote({ resolution, variant = 'full', showValue = false
   return (
     <div className={`intel intel--line intel--${tone}${variant === 'compact' ? ' intel--compact' : ''} pf`} role="note" data-testid="projection-note" data-state="shown" data-reliability={v.reliability}>
       {(showValue || range) && <p className="pf__row" data-testid="projection-range">{showValue && <strong className="fx-num">{fmt(v.mean)}</strong>}{range && <>{showValue ? ' · ' : ''}realistic range {range} (80% of outcomes)</>}</p>}
-      <p className="pf__row" data-testid="projection-reliability"><span className="intel__tag">{RELIABILITY_WORDS[v.reliability]}</span>{v.reliabilityWhy.length > 0 && <> {v.reliabilityWhy.slice(0, 2).join('. ')}.</>}</p>
+      <p className="pf__row" data-testid="projection-reliability-level"><span className="intel__tag">{RELIABILITY_WORDS[v.reliability]}</span>{v.reliabilityWhy.length > 0 && <> {v.reliabilityWhy.slice(0, 2).join('. ')}.</>}</p>
       {v.availability && <p className="pf__row pf__muted" data-testid="projection-availability">{v.availability.words}{v.availability.source && v.availability.status !== 'UNVERIFIED' ? ` (${v.availability.source.replace(/_/g, ' ')}${fmtWhen(v.availability.capturedUtc) ? `, ${fmtWhen(v.availability.capturedUtc)}` : ''})` : ''}.</p>}
       <p className="pf__row pf__muted" data-testid="projection-updated">Updated {when ?? 'at an unknown time'}{v.ageHours != null ? ` (${fmtAge(v.ageHours)})` : ''}{ctx ? ` · ${ctx}` : ''}</p>
       {variant === 'full' && v.adjustments.length > 0 && <p className="pf__row pf__muted">{v.adjustments.slice(0, 3).join(' · ')}</p>}

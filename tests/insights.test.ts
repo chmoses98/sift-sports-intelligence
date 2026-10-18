@@ -146,8 +146,8 @@ describe('props to watch and projected ranges', () => {
   it('shows the actual range in plain numbers and the line', () => {
     const cards = propCards(r, d.markets);
     const bijan = cards.find((c) => c.name === 'Bijan Robinson' && c.stat === 'rushing_yards')!;
-    expect(rangeText(bijan.range.typical, bijan.unit)).toBe('55–121 yds');
-    expect(bijan.range.full).toEqual([19, 186]);
+    expect(rangeText(bijan.range!.typical, bijan.unit)).toBe('55–121 yds');
+    expect(bijan.range!.full).toEqual([19, 186]);
     expect(bijan.line).toBe(89.5);
     expect(bijan.marketTitle).toBe('Bijan Robinson over 89.5 rushing yards');
     expect(bijan.matchup?.label).toBe('Saints run defense');

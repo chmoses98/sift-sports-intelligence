@@ -249,8 +249,8 @@ function MiniDist({ c, values }: { c: PropCard; values: number[] }) {
   }
   return (
     <div className="gpx__dist gpx__dist--range">
-      <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />
-      <span className="gpx__dk">Projected range · too few logged games to plot</span>
+      {c.range && <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />}
+      <span className="gpx__dk">{c.range ? 'Projected range' : `Realistic range ${fmt(c.band?.lo ?? c.projection)}–${fmt(c.band?.hi ?? c.projection)}`} · too few logged games to plot</span>
     </div>
   );
 }

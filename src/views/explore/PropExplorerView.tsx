@@ -248,10 +248,10 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
           </div>
           <dl className="fr-tiles pexa__nums">
             <div className="fr-tile"><dt>Market line</dt><dd className="fx-num">{row.line ?? '—'}</dd><dd className="fr-tile__s">{row.main ? <>Over {cents(row.main.yesAsk)} · Under {cents(row.main.noAsk)}</> : 'No priced line'}</dd></div>
-            <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projection != null ? 'simulation mean · research' : 'not published'}</dd></div>
+            <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projectionStatus.kind === 'withheld' ? 'withheld' : row.projection != null ? (row.projectionStatus.kind === 'authoritative' ? 'projection · research' : 'simulation mean · research') : 'not published'}</dd></div>
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
-          <ReliabilityLine stat={row.def.stat} />
+          {row.projectionStatus.kind === 'legacy' && <ReliabilityLine stat={row.def.stat} />}
           <ProjectionNote variant="full" resolution={row.projectionStatus} />
           {roleDisagreement(row) && <p className="pexa__warn" role="note"><Icon name="alert" size={16} /> <span>The line sits outside the simulation’s 5th–95th range: the market and the simulation are pricing different roles. Treat this gap as a data question, not a finding.</span></p>}
           {mu && <p className={`pexa__mu pexa__mu--${mu.word}`}><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p>}

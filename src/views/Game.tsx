@@ -62,6 +62,7 @@ import { DepthChart } from './stats/DepthChart';
 
 import { newlyListed, overlayMarket } from '../live/overlay';
 import { TeamProjections } from '../components/ProjectionNote';
+import { useAuthority } from '../data/projections';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -373,7 +374,8 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
   const keyHist = usePropHistories(sport.code, keyPlayers);
   const context = useMemo(() => (r && g ? contextNotes(r, teamHist.data ?? null, keyHist, g) : []), [r, g, teamHist.data, keyHist]);
   const scheme = useMemo(() => schemeInsights(teamHist.data ?? null, g), [teamHist.data, g]);
-  const allProps = useMemo(() => (r && detail.data ? propCards(r, detail.data.markets, g) : []), [r, detail.data, g]);
+  const { authority: projAuthority, ready: projReady } = useAuthority(sport.code);
+  const allProps = useMemo(() => (r && detail.data && projReady ? propCards(r, detail.data.markets, g, projAuthority) : []), [r, detail.data, g, projAuthority, projReady]);
   const watch = useMemo(() => propsToWatch(allProps, 4), [allProps]);
 
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;

@@ -8,6 +8,7 @@ import type { EventDetailDoc, EventResearchDoc } from '../src/contract/types';
 import { NotFoundError, setFetchJson } from '../src/data/fetcher';
 import { clearAsyncMemo } from '../src/data/hooks';
 import { propBoard, type PropRow } from '../src/insights/propBoard';
+import { cardRange, propCards } from '../src/insights/props';
 import { makeAuthority } from '../src/lib/projectionAuthority';
 import { parseRollback } from '../src/lib/projectionApprovals';
 import { projectionsUrl, summaryUrl } from '../src/lib/projections';
@@ -111,6 +112,30 @@ describe('NFL prop board: one projection per stat', () => {
 
   it('without an authority the board is the established simulation (existing callers unchanged)', () => {
     expect(rowOf(propBoard(ev, det)).projection).toBe(target.projection);
+  });
+});
+
+describe('Props to watch cards: the same value as the board', () => {
+  const cardOf = (cards: ReturnType<typeof propCards>) => cards.find((c) => c.id === target.id);
+  it('a promoted stat’s card carries the board’s projection and range; a withheld one has no card', () => {
+    const a = makeAuthority('NFL', feedFor(target), NOW);
+    const c = cardOf(propCards(ev, det.markets, undefined, a))!;
+    expect(c.projection).toBe(rowOf(propBoard(ev, det, undefined, a)).projection);
+    expect(c.range).toEqual({ typical: [5, 9], full: [3, 12], median: 7 });
+    expect(c.line).toBe(target.line);
+    expect(cardOf(propCards(ev, det.markets, undefined, makeAuthority('NFL', feedFor(target, { participation: part('CONFIRMED_OUT') }), NOW)))).toBeUndefined();
+  });
+  it('without the full quantile set the card shows the 80% range and no quartile bar', () => {
+    const c = cardOf(propCards(ev, det.markets, undefined, makeAuthority('NFL', feedFor(target, { quantiles: undefined }), NOW)))!;
+    expect(c.range).toBeNull();
+    expect(c.band).toEqual({ lo: 4, hi: 11 });
+    expect(cardRange(c, String)).toEqual({ label: 'Realistic range (80%)', text: '4–11' });
+  });
+  it('stats on the established model keep their cards unchanged', () => {
+    const legacyCards = propCards(ev, det.markets);
+    const withAuth = propCards(ev, det.markets, undefined, makeAuthority('NFL', feedFor(target), NOW));
+    const pick = (cs: typeof legacyCards) => cs.filter((c) => c.stat !== 'receptions').map((c) => [c.id, c.projection, c.range]);
+    expect(pick(withAuth)).toEqual(pick(legacyCards));
   });
 });
 

@@ -5,6 +5,12 @@ freshness (in season), distribution coherence and gate status mix. Writes a mark
 exits 1 if any *published* feed is invalid, incoherent or stale in season. A feed that has never been published is
 reported as NOT PUBLISHED (warning) until its workflow has run once.
 
+Promotion checks (read from src/lib/projectionApprovals.ts, the single record of which engine SIFT shows):
+  * a PROMOTED family must be READY in the feed and must not have vanished from it while the feed has rows;
+  * for APPROVED_PENDING_LIVE_INPUTS families it reports whether the live availability inputs are now verified. That
+    line is information for the owner: nothing here activates a family, because activation is a reviewed change to the
+    approvals table.
+
 Usage: python research/projection_foundation/monitor.py [--now 2026-10-17T00:00:00Z] [--file SPORT=path ...]
 """
 from __future__ import annotations
@@ -12,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -31,6 +38,52 @@ def in_season(sport: str, now: datetime) -> bool:
 
 def url(sport: str) -> str:
     return f"https://raw.githubusercontent.com/chmoses98/{REPO[sport]}/projection-data/projections/{sport.lower()}/latest.json"
+
+
+APPROVALS_TS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "lib", "projectionApprovals.ts")
+_ROW = re.compile(r"row\(\s*'([A-Z]+)'\s*,\s*'([a-z0-9_]+)'\s*,\s*'([A-Z_]+)'")
+_LIST = re.compile(r"\.\.\.\[([^\]]*)\]\.map\(\(f\) =>\s*row\('([A-Z]+)'\s*,\s*f\s*,\s*'([A-Z_]+)'")
+
+
+def decisions(path: str = APPROVALS_TS) -> dict[str, dict[str, str]]:
+    """{sport: {family: decision}} parsed from the approvals table (both the single-row and the mapped-list forms)."""
+    src = open(path, encoding="utf-8").read()
+    out: dict[str, dict[str, str]] = {}
+    for sport, family, decision in _ROW.findall(src):
+        out.setdefault(sport, {})[family] = decision
+    for names, sport, decision in _LIST.findall(src):
+        for fam in re.findall(r"'([a-z0-9_]+)'", names):
+            out.setdefault(sport, {})[fam] = decision
+    return out
+
+
+def promotion_findings(sport: str, doc: dict, dec: dict[str, dict[str, str]]) -> tuple[list[str], list[str]]:
+    """(problems, notes) for one published feed against the approvals table."""
+    problems, notes = [], []
+    fams = doc.get("families") or {}
+    rows = {}
+    for p in doc.get("players", []):
+        rows[p.get("family")] = rows.get(p.get("family"), 0) + 1
+    for g in doc.get("games", []):
+        for t in g.get("teams", []):
+            rows[t.get("family")] = rows.get(t.get("family"), 0) + 1
+    has_rows = bool(doc.get("players") or doc.get("games"))
+    for fam, decision in sorted(dec.get(sport, {}).items()):
+        if decision == "PROMOTED":
+            info = fams.get(fam)
+            if info is not None and info.get("readiness") != "READY":
+                problems.append(f"promoted {fam} is {info.get('readiness')} in the feed")
+            if has_rows and not rows.get(fam):
+                notes.append(f"promoted {fam} has no rows in this run")
+        elif decision == "APPROVED_PENDING_LIVE_INPUTS":
+            players = [p for p in doc.get("players", []) if p.get("family") == fam]
+            if not players:
+                notes.append(f"{fam}: approved, waiting on live inputs; no rows yet")
+                continue
+            ok = sum(1 for p in players if ((p.get("participation") or {}).get("status")) in ("CONFIRMED_ACTIVE", "LIKELY_ACTIVE"))
+            official = sum(1 for p in players if "official" in str((p.get("participation") or {}).get("source", "")))
+            notes.append(f"{fam}: approved, waiting on live inputs; availability verified for {ok}/{len(players)} rows, {official} from an official report")
+    return problems, notes
 
 
 def check(sport: str, doc: dict | None, now: datetime) -> tuple[str, list[str], dict]:
@@ -63,7 +116,12 @@ def check(sport: str, doc: dict | None, now: datetime) -> tuple[str, list[str], 
         problems.append(f"{incoherent} incoherent player distributions")
     if gates.get("MISSING"):
         problems.append(f"{gates['MISSING']} projections without a gate status")
-    stats = {"players": len(doc.get("players", [])), "gate": gates, "age_h": None if age_h is None else round(age_h, 1)}
+    try:
+        extra_problems, notes = promotion_findings(sport, doc, decisions())
+    except OSError:
+        extra_problems, notes = [], []
+    problems += extra_problems
+    stats = {"players": len(doc.get("players", [])), "gate": gates, "age_h": None if age_h is None else round(age_h, 1), "notes": notes}
     return ("FAIL" if problems else "OK"), problems, stats
 
 
@@ -76,6 +134,7 @@ def main() -> int:
     local = dict(x.split("=", 1) for x in a.file)
     lines = ["## Projection Foundation feeds", "", "| Sport | Status | Players | Gate mix | Age (h) | Problems |", "|---|---|---|---|---|---|"]
     failed = False
+    notes_by_sport: dict[str, list[str]] = {}
     for sport in REPO:
         doc = None
         if sport in local:
@@ -97,7 +156,12 @@ def main() -> int:
             continue
         status, probs, st = check(sport, doc, now)
         failed |= status == "FAIL"
+        if st.get("notes"):
+            notes_by_sport[sport] = st["notes"]
         lines.append(f"| {sport} | {status} | {st.get('players', '')} | {st.get('gate', '')} | {st.get('age_h', '')} | {'; '.join(probs)} |")
+    lines += ["", "### Promotion notes", ""]
+    for sport, notes in notes_by_sport.items():
+        lines += [f"- **{sport}**: {n}" for n in notes]
     text = "\n".join(lines) + "\n"
     print(text)
     if os.environ.get("GITHUB_STEP_SUMMARY"):

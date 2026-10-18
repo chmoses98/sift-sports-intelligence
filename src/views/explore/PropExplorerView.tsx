@@ -72,7 +72,7 @@ function NflExplorer() {
     const [r, d] = await Promise.all([repo.eventResearch(gameId!), repo.eventDetail(gameId!)]);
     const authority = await loadAuthority(sport.code);
     return { r, b: propBoard(r, d, undefined, authority), scripts: gameScripts(r) };
-  });
+  }, { revalidate: true });   // the projection feed refreshes on the research clock: a withheld or updated projection reaches an open page
   const set = (patch: Record<string, string | null>, push = false) => setSp((prev) => { const n = new URLSearchParams(prev); if(Object.keys(patch).some(k=>k!=='win')){n.delete('player');n.delete('stat');} for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; }, { replace: !push });
   const fam = (sp.get('cat') as PropFamily | null) ?? null;
   const team = sp.get('team');

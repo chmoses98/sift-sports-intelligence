@@ -159,11 +159,12 @@ export type DisplayState =
   | { kind: 'withheld'; reason: string }
   | { kind: 'shown'; p: PlayerProjection; stale: boolean; ageHours: number | null; review: GateFinding[]; info: FamilyInfo | null };
 
-export function findProjection(doc: ProjectionDoc | null, q: { playerId?: string | null; name?: string | null; team?: string | null; stat: string; gameId?: string | null }): PlayerProjection | null {
+export function findProjection(doc: ProjectionDoc | null, q: { playerId?: string | null; name?: string | null; team?: string | null; stat: string; gameId?: string | null; opponent?: string | null }): PlayerProjection | null {
   if (!doc) return null;
   const fam = familyOf(q.stat);
-  const cands = doc.players.filter((p) => p.family === fam && (!q.gameId || !p.gameId || p.gameId === q.gameId));
-  if (q.playerId) { const byId = cands.find((p) => p.playerId === q.playerId); if (byId) return byId; }
+  // a player listed for two games in the window is matched to the right one by opponent; if it still cannot be told, no match
+  const cands = doc.players.filter((p) => p.family === fam && (!q.gameId || !p.gameId || p.gameId === q.gameId) && (!q.opponent || !p.opponent || teamKey(p.opponent) === teamKey(q.opponent)));
+  if (q.playerId) { const ids = cands.filter((p) => p.playerId === q.playerId); if (ids.length === 1) return ids[0]; if (ids.length > 1) return null; }
   // name join only with a team match (19 active NFL players share a normalised name with another)
   if (q.name && q.team) {
     const nk = nameKey(q.name);

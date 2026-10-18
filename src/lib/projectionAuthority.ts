@@ -55,7 +55,7 @@ export type Resolution =
   | { kind: 'withheld'; code: WithheldCode; reason: string }
   | { kind: 'authoritative'; value: AuthoritativeValue };
 
-export interface StatQuery { stat: string; playerId?: string | null; name?: string | null; team?: string | null; gameId?: string | null }
+export interface StatQuery { stat: string; playerId?: string | null; name?: string | null; team?: string | null; gameId?: string | null; opponent?: string | null }
 export interface TeamQuery { family: string; home: string; away: string; startUtc?: string | null }
 
 export interface ProjectionAuthority {

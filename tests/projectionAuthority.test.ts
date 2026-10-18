@@ -75,6 +75,17 @@ describe('critical checks withhold the promoted number and never substitute the 
   });
 });
 
+describe('a player listed for two games', () => {
+  const two = [nflPlayer({ game_id: 'g1', opponent: 'PIT', mean: 6.4 }), nflPlayer({ game_id: 'g2', opponent: 'BAL', mean: 3.1 })];
+  it('is matched to the right game by opponent, and left unmatched when it cannot be told', () => {
+    const a = nfl(two);
+    const r = a.resolve({ ...q, opponent: 'BAL' });
+    expect(r.kind === 'authoritative' && r.value.mean).toBe(3.1);
+    expect(a.resolve({ ...q, opponent: 'PIT' }).kind === 'authoritative').toBe(true);
+    expect(a.resolve(q)).toMatchObject({ kind: 'withheld', code: 'NOT_PROJECTED' });   // never the wrong game's number
+  });
+});
+
 describe('reliability is data quality, lowered with a stated reason', () => {
   const rel = (over: object) => { const r = nfl([nflPlayer(over)]).resolve(q); return r.kind === 'authoritative' ? r.value : null; };
   it('first games with a new team are LOW and say why, with no unvalidated correction applied', () => {

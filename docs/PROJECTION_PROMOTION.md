@@ -184,3 +184,29 @@ stale or incoherent, and reports live-input readiness for approved-pending famil
 * No betting recommendation, threshold, staking rule or execution safeguard changed.
 * Merging a SIFT pull request deploys SIFT (`deploy.yml` runs on every push to `main`), so the SIFT release is prepared on a
   branch and waits for explicit deployment approval.
+
+## 7. Ledger
+
+| Date | Change | Evidence | By |
+|---|---|---|---|
+| 2026-10-18 | Foundation infrastructure merged and its workflows run on `main`: nfl-edge-finder#167, cfb-edge-finder#166, nba-edge-finder#32, NHL-edge-finder#44, edge-finder-api#296 (after #297 pinned the MLB opponent-quality test fixture) | CI green on every head; first `projection-data` publishes: NFL, CFB, NBA (archive only), NHL | owner-authorized |
+| 2026-10-18 | First promotion: NFL targets, receptions, completions, team pass/rush attempts; CFB team points, plays, team passing/rushing yards, points per play, success rate; MLB pitcher strikeouts, batters faced, outs | §3 matrix, `tests/projectionApprovals.test.ts` | owner-authorized |
+| 2026-10-18 | NBA (7 stats) approved on history, activation held for live availability; NFL passing yards, team points held; NHL retained | §3–§4 | owner-authorized |
+
+## 8. Release readiness (SIFT)
+
+The SIFT release is the branch `claude/dreamy-gates-0en25g`. It includes everything in sift-sports-intelligence#104 (the feed
+decoder, accuracy card plumbing, feed monitor) and replaces its shadow presentation, so #104 should be closed rather than
+merged separately. Merging to `main` **deploys** (see `deploy.yml`), so the merge is the deployment and needs explicit approval.
+
+Before deployment:
+
+1. CI green on the release head: lint, typecheck, unit tests, build, and the Chromium + WebKit acceptance suite.
+2. Visual baselines: the CFB game screenshots change on purpose (the engine's baseline points line is gone); review the
+   diffs, then regenerate with a commit message containing `[update-visual-baselines]`. No other baseline should change.
+3. The three promoted sports' feeds are published and pass `monitor.py` (NFL, CFB, MLB). A promoted stat whose feed is missing is
+   withheld, so a deployment without a feed would show reasons instead of numbers.
+4. `VITE_SIFT_PROJECTION_ENGINES` is empty (no family rolled back).
+
+After deployment: confirm one number per stat on Home, Games, the Game Command Center, Player Snapshot, Prop Explorer and the
+Research Lab, and that the feed monitor workflow is active.

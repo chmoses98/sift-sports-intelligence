@@ -91,7 +91,7 @@ export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides |
       if (s.stat === 'passing_yards' && p.role !== 'QB') continue;
       if (s.stat !== 'passing_yards' && p.role === 'QB') continue;
       // one engine per stat: a stat whose projection is withheld has no card (the prop board says why)
-      const res = authority ? authority.resolve({ stat: s.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr }) : { kind: 'legacy' as const };
+      const res = authority ? authority.resolve({ stat: s.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }) : { kind: 'legacy' as const };
       if (res.kind === 'withheld') continue;
       const d = res.kind === 'legacy' ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === s.sim) : null;
       const auth = res.kind === 'authoritative' ? res.value : null;

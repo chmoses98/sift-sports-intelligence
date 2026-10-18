@@ -98,10 +98,11 @@ export function TeamProjections({ sport, home, away, startUtc, now }: { sport: s
           {lead.teams.map((t, i) => <span key={t.team}>{i ? ' · ' : ''}{t.team} <strong className="fx-num">{fmt(t.value.mean)}</strong>{t.value.p10 != null && t.value.p90 != null ? ` (${fmt(t.value.p10, t.value.mean)}–${fmt(t.value.p90, t.value.mean)})` : ''}</span>)}
         </p>
       )}
-      {lead?.kind === 'withheld' && <p className="pf__row"><span className="intel__tag">Projected score withheld</span> {lead.reason}.</p>}
+      {lead?.kind === 'withheld' && <p className="pf__row" data-testid="team-projections-withheld"><span className="intel__tag">Projected score withheld</span> {lead.reason}.</p>}
+      {/* a secondary family that is withheld says nothing: the lead line already states why projections are missing */}
       {rest.map(({ family, r }) => r.kind === 'authoritative'
         ? <p key={family} className="pf__row pf__muted" data-testid={`team-${family}`}>{TEAM_LABEL[family]}: {r.teams.map((t) => `${t.team} ${teamFmt(family, t.value.mean)}`).join(' · ')}</p>
-        : r.kind === 'withheld' ? <p key={family} className="pf__row pf__muted">{TEAM_LABEL[family]} withheld: {r.reason}.</p> : null)}
+        : null)}
       {lead?.kind === 'authoritative' && <p className="pf__row pf__muted" data-testid="team-projections-updated">Updated {when ?? 'at an unknown time'} · {RELIABILITY_WORDS[lead.teams[0].value.reliability]}. A projection, not a betting signal.</p>}
     </div>
   );

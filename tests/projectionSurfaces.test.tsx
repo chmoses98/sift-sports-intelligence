@@ -26,7 +26,7 @@ afterEach(() => { cleanup(); clearAsyncMemo(); setFetchJson(null); });
 const legacy = propBoard(ev, det);
 const target = legacy.rows.find((r) => r.def.stat === 'receptions' && r.main && r.projection != null && r.role !== 'RB')!;
 const feedFor = (row: PropRow, over: Record<string, unknown> = {}, families: Record<string, object> = { receptions: {} }) => decoded('NFL', [nflPlayer({
-  player_id: 'gsis-1', name: row.name, team: row.team.abbr, family: 'receptions', mean: 7.3, median: 7, p10: 4, p90: 11,
+  player_id: 'gsis-1', name: row.name, team: row.team.abbr, opponent: row.opp.abbr, family: 'receptions', mean: 7.3, median: 7, p10: 4, p90: 11,
   quantiles: { p05: 3, p25: 5, p50: 7, p75: 9, p95: 12 },
   thresholds: Object.fromEntries(row.ladder.map((x, i) => [String(x.threshold), Math.max(0.01, 0.95 - i * 0.1)])), ...over })], families);
 const board = (over: Record<string, unknown> = {}, rb?: { sport: string; family: string }[]) =>

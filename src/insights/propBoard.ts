@@ -208,7 +208,7 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       if (def.positions && !p.role) continue;
       const markets = byPlayerStat.get(`${p.participant_id}|${def.stat}`) ?? [];
       // ONE engine per stat: the approved one. Without an authority the board is the legacy simulation (existing callers).
-      const res: Resolution = authority ? authority.resolve({ stat: def.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr }) : { kind: 'legacy' };
+      const res: Resolution = authority ? authority.resolve({ stat: def.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }) : { kind: 'legacy' };
       const d = res.kind === 'legacy' && def.sim ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === def.sim) : null;
       const auth: AuthoritativeValue | null = res.kind === 'authoritative' ? res.value : null;
       const range: PropRange | null = auth ? (auth.quantiles ? { typical: [auth.quantiles.p25, auth.quantiles.p75], full: [auth.quantiles.p05, auth.quantiles.p95], median: auth.quantiles.p50 } : null) : d ? rangeOf(d) : null;

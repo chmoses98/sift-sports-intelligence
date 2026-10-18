@@ -222,7 +222,7 @@ shadow" label.
 | nfl-edge-finder | [#167](https://github.com/chmoses98/nfl-edge-finder/pull/167) | 81cf86c | Tests and Projection Foundation (pr-dry-run with cold rebuild + reproduce): **green** |
 | cfb-edge-finder | [#166](https://github.com/chmoses98/cfb-edge-finder/pull/166) | 5bd79afd2 | `test` and projection-foundation `run` dry run: **green** (`publish` skipped on PRs by design) |
 | nba-edge-finder | [#32](https://github.com/chmoses98/nba-edge-finder/pull/32) | 10983f6f | ci and projection-foundation dry run: **green** |
-| edge-finder-api (MLB) | [#296](https://github.com/chmoses98/edge-finder-api/pull/296) | 050ff93f | Projection Foundation dry run: green. PR Checks (`test`): **1 failure that is not this PR's**. `test_capability_statuses_match_the_audit` reads main's live `data/oppquality.json`, which went all-null in the postseason; it fails on `main` too (explained on the PR) |
+| edge-finder-api (MLB) | [#296](https://github.com/chmoses98/edge-finder-api/pull/296) | 523fd738 | PR Checks `test` and projection-foundation dry run: **green** after the owner merged `main` (the earlier `oppquality.json` data failure from `main` no longer occurs) |
 | NHL-edge-finder | [#44](https://github.com/chmoses98/NHL-edge-finder/pull/44) | 8bf5a46a | test, gate, pr-dry-run, pr-replay, pr-repro: **green** |
 
 **Engineering fixes made during validation:**
@@ -262,8 +262,6 @@ shadow" label.
 4. **MLB:** no injury / IL source; regular-season lineups and late scratches will only be exercised on live data next season.
 5. **NHL:** the season constant is hard-coded to 2026 (rollover is a code change). The two PR-only verification jobs
    (`pr-replay`, `pr-repro`) can be removed after merge if their runner time is not wanted.
-6. **Main-branch test failure (MLB repo):** a fixture should pin `oppquality.json`. A patch is proposed on the PR and is
-   outside this PR's scope.
 
 ---
 

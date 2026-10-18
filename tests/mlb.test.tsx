@@ -288,7 +288,11 @@ describe('MLB screens', () => {
     expect(within(row).queryByLabelText(/^Model/)).toBeNull();                            // not beside the previous model's number
     expect(within(sec).getAllByText('Proj. 7.4 K (p10–p90 4–11)').length).toBeGreaterThan(0);
     expect(within(sec).queryAllByText('Proj. 6.2 K (p10–p90 3–9)')).toHaveLength(0);       // the publisher's expected value is gone
-    expect(within(sec).queryAllByText('Opp lineup K%')).toHaveLength(0);                  // and so are its drivers
+    // its drivers go with it; the only drivers left on the page belong to Tyler Mahle, whom the feed does not serve: the approved
+    // fallback keeps the publisher's one number for him (with its note), never beside a promoted one
+    expect(within(sec).getAllByText('Opp lineup K%')).toHaveLength(1);
+    expect(within(sec).getAllByText('Proj. 4.6 K (p10–p90 2–7)').length).toBeGreaterThan(0);
+    expect(within(sec).getAllByText(/Shown because projections for this game have not been published yet/)).toHaveLength(1);
     expect(within(sec).getAllByTestId('projection-note').length).toBeGreaterThan(0);
 
     // outs is promoted too: the selected projection replaces "no model for this market"
@@ -304,10 +308,12 @@ describe('MLB screens', () => {
       expect(within(r).queryByLabelText(/^Model/)).toBeNull();
       expect(r.querySelectorAll('td')[2].textContent).not.toMatch(/\d+%/);
     }
-    // every legacy model number on the page belongs to a published hitter *_PROJECTION; pitchers carry only the selected one
-    const hitterProjected = new Set(detail(LADATL).markets.filter((m) => readPlayerProp(m)?.modelProbabilityYes != null && readPlayerProp(m)?.family?.startsWith('hitter_')).map((m) => readPlayerProp(m)!.yesSemantics));
-    for (const el of within(sec).queryAllByLabelText(/^Model/)) expect(hitterProjected.has(el.closest('tr')!.querySelector('.pp__yes')!.textContent)).toBe(true);
-    expect(within(sec).queryAllByLabelText(/^Model/)).toHaveLength(hitterProjected.size);
+    // every established model number on the page belongs to a published hitter *_PROJECTION, or to the one pitcher the feed does not
+    // serve (Mahle: the approved fallback keeps the publisher's number, and only that); Glasnow carries only the selected one
+    const projected = new Set(detail(LADATL).markets.filter((m) => readPlayerProp(m)?.modelProbabilityYes != null && (readPlayerProp(m)?.family?.startsWith('hitter_') || (readPlayerProp(m)?.family === 'pitcher_strikeouts' && /Mahle/.test(readPlayerProp(m)?.playerName ?? '')))).map((m) => readPlayerProp(m)!.yesSemantics));
+    for (const el of within(sec).queryAllByLabelText(/^Model/)) expect(projected.has(el.closest('tr')!.querySelector('.pp__yes')!.textContent)).toBe(true);
+    expect(within(sec).queryAllByLabelText(/^Model/)).toHaveLength(projected.size);
+    for (const el of within(sec).queryAllByLabelText(/^Model/)) expect(el.closest('tr')!.querySelector('.pp__yes')!.textContent).not.toMatch(/Glasnow/);
     for (const el of within(sec).queryAllByLabelText(/^Projection \d/)) expect(el.closest('tr')!.querySelector('.pp__yes')!.textContent).toMatch(/Glasnow|Mahle/);
 
     // unsupported markets: listed apart, with their price and "No projection published"

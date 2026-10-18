@@ -241,6 +241,11 @@ Findings and fixes from this check:
 | 2026-10-18 | Foundation infrastructure merged and its workflows run on `main`: nfl-edge-finder#167, cfb-edge-finder#166, nba-edge-finder#32, NHL-edge-finder#44, edge-finder-api#296 (after #297 pinned the MLB opponent-quality test fixture) | CI green on every head; first `projection-data` publishes: NFL, CFB, NBA (archive only), NHL | owner-authorized |
 | 2026-10-18 | First promotion: NFL targets, receptions, completions, team pass/rush attempts; CFB team points, plays, team passing/rushing yards, points per play, success rate; MLB pitcher strikeouts, batters faced, outs | §3 matrix, `tests/projectionApprovals.test.ts` | owner-authorized |
 | 2026-10-18 | NBA (7 stats) approved on history, activation held for live availability; NFL passing yards, team points held; NHL retained | §3–§4 | owner-authorized |
+| 2026-10-18 | Approved legacy fallback (§1a) for NFL receptions and completions and MLB strikeouts and outs: the established number is shown, alone, only when it independently passes freshness, availability and quality, and never for a player ruled out or a structural defect | `tests/projectionAuthority.test.ts`, `tests/projectionSurfaces.test.tsx`, `tests/mlb.test.tsx` | owner-approved |
+| 2026-10-18 | Absolute publication standard for the no-incumbent families (`docs/PROJECTION_ABSOLUTE_ACCURACY.md`): CFB success rate does not meet it and is withheld; CFB passing and rushing yards and NFL pass attempts publish with caveats | `absolute_evidence.json`; TypeScript and Python verdicts must agree | owner-approved |
+| 2026-10-18 | CFB join fixed: the feed names teams and ESPN ids, not SIFT codes, so no CFB game would have matched; the join now uses ESPN ids | `tests/projectionAuthority.test.ts`, `e2e/cfb.spec.ts` | found in verification |
+| 2026-10-18 | Production data path verified for NFL, CFB, MLB (§7) | `scripts/verify-projection-feeds.ts` | verification |
+| 2026-10-18 | NHL season derived from the calendar (NHL-edge-finder#45), so 2027-28 needs no code change; smoke `--date auto` no longer picks a slate the archive still shows as live | `test_nhl_season.py`, pr-replay on the PR | owner-requested |
 
 ## 9. Release readiness (SIFT)
 
@@ -248,14 +253,30 @@ The SIFT release is the branch `claude/dreamy-gates-0en25g`. It includes everyth
 decoder, accuracy card plumbing, feed monitor) and replaces its shadow presentation, so #104 should be closed rather than
 merged separately. Merging to `main` **deploys** (see `deploy.yml`), so the merge is the deployment and needs explicit approval.
 
-Before deployment:
+### Checklist
 
-1. CI green on the release head: lint, typecheck, unit tests, build, and the Chromium + WebKit acceptance suite.
-2. Visual baselines: the CFB game screenshots change on purpose (the engine's baseline points line is gone); review the
-   diffs, then regenerate with a commit message containing `[update-visual-baselines]`. No other baseline should change.
-3. The three promoted sports' feeds are published and pass `monitor.py` (NFL, CFB, MLB). A promoted stat whose feed is missing is
-   withheld, so a deployment without a feed would show reasons instead of numbers.
-4. `VITE_SIFT_PROJECTION_ENGINES` is empty (no family rolled back).
+| # | Item | Status |
+|---|---|---|
+| 1 | Lint, typecheck, unit tests (1255), Python monitor tests (36) | done, see the release commit's CI |
+| 2 | Chromium + WebKit/iPhone acceptance suite on the release head | see the release commit's CI |
+| 3 | Visual baselines: only intended screens changed (CFB game, NFL completions fallback); reviewed, noise restored | see the release commit |
+| 4 | Fallback (§1a) tested for fresh, stale, ruled-out, defective and unreliable cases; exactly one number everywhere | done |
+| 5 | Absolute publication standard documented and enforced (`PROJECTION_ABSOLUTE_ACCURACY.md`) | done |
+| 6 | NFL and MLB feeds verified through the production path; CFB in-window behaviour verified by feed-shape replay (§7) | done; CFB in-window verified live after its Tuesday run |
+| 7 | NHL season rollover fix merged (NHL-edge-finder#45) | see that PR |
+| 8 | `VITE_SIFT_PROJECTION_ENGINES` empty (no family rolled back) | confirm at release |
+| 9 | Betting safeguards unchanged (Kalshi routing, validated-signal requirement, thresholds, staking, MODEL_ERROR / VALIDATED_SIGNAL / UNRESOLVED) | unchanged; no diff touches them |
+| 10 | Owner approval to merge and deploy | **pending, not requested** |
+
+### Known blockers and limits
+
+- **NBA stays held** until the official injury report has been seen live with a real slate (no NBA games in the publication window yet).
+- **CFB success rate is withheld**: it does not meet the absolute publication standard.
+- **CFB in-window projections** cannot be seen until the feed's first in-season run (Tuesday); until then every CFB game shows a withheld reason, never a number.
+- **Receptions fallback** is limited to players with known segments (§1a).
+- **No prospective forecasts have settled yet**, so there is no live scorecard; the evidence is historical.
+- **iPhone Safari** is verified by CI (WebKit) only, not on a device.
+- **CFB defensive-rating replacement** is a separate piece of work and is not part of this release.
 
 After deployment: confirm one number per stat on Home, Games, the Game Command Center, Player Snapshot, Prop Explorer and the
 Research Lab, and that the feed monitor workflow is active.

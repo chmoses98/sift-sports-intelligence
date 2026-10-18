@@ -21,6 +21,7 @@ import { breakEven, kalshiFee } from '../opportunity/pricing';
 import { nameKey } from './context';
 import { gameSides, matchupObs, type GameSides, type Side } from './game';
 import { mainLine, rangeOf, type PropRange } from './props';
+import { thresholdProbability, typicalWidth, type AuthoritativeValue, type ProjectionAuthority, type Resolution } from '../lib/projectionAuthority';
 
 export type PropFamily = 'passing' | 'rushing' | 'receiving' | 'touchdowns' | 'other';
 export const PROP_FAMILY_ORDER: PropFamily[] = ['passing', 'rushing', 'receiving', 'touchdowns', 'other'];
@@ -82,9 +83,9 @@ export interface Rung {
   modelState: ShadowState | null;
 }
 
-export type PropRead = 'ABOVE' | 'BELOW' | 'ON' | 'NO_SIM' | 'NO_LINE';
+export type PropRead = 'ABOVE' | 'BELOW' | 'ON' | 'NO_SIM' | 'NO_LINE' | 'WITHHELD';
 export const PROP_READ_WORD: Record<PropRead, string> = {
-  ABOVE: 'Sim above the line', BELOW: 'Sim below the line', ON: 'Sim on the line', NO_SIM: 'No simulation', NO_LINE: 'No priced line',
+  ABOVE: 'Projection above the line', BELOW: 'Projection below the line', ON: 'Projection on the line', NO_SIM: 'No projection', NO_LINE: 'No priced line', WITHHELD: 'Projection withheld',
 };
 
 export interface PropRow {
@@ -96,9 +97,21 @@ export interface PropRow {
   opp: Side;
   def: PropStatDef;
   family: PropFamily;
-  /** The simulation's mean and range, when it simulates this stat. For touchdowns the mean is expected TDs. */
+  /**
+   * THE projection for this stat: one number from the one approved engine (see lib/projectionAuthority.ts). For a stat
+   * whose approved engine is the legacy simulation it is the simulation's mean; for a promoted stat it is the
+   * foundation model's mean; when a promoted projection is withheld it is null and `projectionStatus` says why. For
+   * touchdowns the mean is expected TDs.
+   */
   projection: number | null;
   range: PropRange | null;
+  /** how `projection` was selected; pages render reliability, availability and withheld reasons from this, never from another source */
+  projectionStatus: Resolution;
+  /**
+   * The selected projection's realistic 80% range (p10–p90) when the feed does not publish the full quantile set. It is a
+   * description of the one projection, not a second one. Null for established-model stats (which carry `range`).
+   */
+  band: { lo: number; hi: number; median: number | null } | null;
   /** The main line (rung nearest a coin flip), when a two-sided quote exists. */
   main: Rung | null;
   line: number | null;
@@ -138,9 +151,13 @@ function shadowOf(mp: ModelPrice | undefined, m: Market): { p: number | null; st
   return { p: typeof p === 'number' && Number.isFinite(p) ? p : null, state };
 }
 
-function rungOf(m: Market, prices: Map<string, ModelPrice>): Rung | null {
+function rungOf(m: Market, prices: Map<string, ModelPrice>, res: Resolution): Rung | null {
   if (m.threshold == null) return null;
-  const sh = shadowOf(prices.get(m.market_id), m);
+  // the rung probability comes from the same engine as the expected value: the legacy simulation's own price when the
+  // stat is legacy, the selected projection's distribution when promoted, nothing when withheld
+  const sh = res.kind === 'legacy' ? shadowOf(prices.get(m.market_id), m)
+    : res.kind === 'authoritative' ? { p: thresholdProbability(res.value, m.threshold), state: 'PROJECTION' as ShadowState }
+    : { p: null, state: null };
   return {
     market: m, threshold: m.threshold, line: overLine(m.threshold),
     yesBid: m.yes_bid ?? null, yesAsk: ask(m.yes_ask), noAsk: ask(m.no_ask),
@@ -161,7 +178,7 @@ export function injuryByName(r: EventResearchDoc): Map<string, string> {
 }
 
 /** The whole board for a game. `markets` are the game's markets (live-overlaid when the view has quotes). */
-export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'markets' | 'model_prices'> | { markets: Market[]; model_prices?: ModelPrice[] }, g: GameSides | null = gameSides(r)): PropBoard {
+export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'markets' | 'model_prices'> | { markets: Market[]; model_prices?: ModelPrice[] }, g: GameSides | null = gameSides(r), authority: ProjectionAuthority | null = null): PropBoard {
   const empty: PropBoard = { rows: [], byFamily: { passing: 0, rushing: 0, receiving: 0, touchdowns: 0, other: 0 }, sidelined: [] };
   if (!g) return empty;
   const prices = new Map<string, ModelPrice>();
@@ -190,21 +207,26 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       if (def.positions && p.role && !def.positions.includes(p.role)) continue;
       if (def.positions && !p.role) continue;
       const markets = byPlayerStat.get(`${p.participant_id}|${def.stat}`) ?? [];
-      const d = def.sim ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === def.sim) : null;
-      const range = d ? rangeOf(d) : null;
-      const projection = d?.mean ?? null;
+      // ONE engine per stat: the approved one. Without an authority the board is the legacy simulation (existing callers).
+      const res: Resolution = authority ? authority.resolve({ stat: def.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr }) : { kind: 'legacy' };
+      const d = res.kind === 'legacy' && def.sim ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === def.sim) : null;
+      const auth: AuthoritativeValue | null = res.kind === 'authoritative' ? res.value : null;
+      const range: PropRange | null = auth ? (auth.quantiles ? { typical: [auth.quantiles.p25, auth.quantiles.p75], full: [auth.quantiles.p05, auth.quantiles.p95], median: auth.quantiles.p50 } : null) : d ? rangeOf(d) : null;
+      const band = auth && !range && auth.p10 != null && auth.p90 != null ? { lo: auth.p10, hi: auth.p90, median: auth.median } : null;
+      const projection = auth ? auth.mean : d?.mean ?? null;
       if (!markets.length && projection == null) continue;
-      const ladder = markets.map((m) => rungOf(m, prices)).filter((x): x is Rung => !!x).sort((a, b) => a.threshold - b.threshold);
+      const ladder = markets.map((m) => rungOf(m, prices, res)).filter((x): x is Rung => !!x).sort((a, b) => a.threshold - b.threshold);
       const mainM = mainLine(markets);
       const main = mainM ? ladder.find((x) => x.market.market_id === mainM.market_id) ?? null : null;
       const line = main ? Number(main.line) : null;
       const defObs = def.def ? matchupObs(r, def.def, opp) : null;
       const rank = rankView(defObs?.context);
       // Separation: projection minus line, in widths of the typical (25th–75th) band. Not a probability.
-      const width = range ? Math.max(def.count ? 0.5 : 1, range.typical[1] - range.typical[0]) : null;
+      const rawWidth = range ? range.typical[1] - range.typical[0] : auth ? typicalWidth(auth) : null;
+      const width = rawWidth != null ? Math.max(def.count ? 0.5 : 1, rawWidth) : null;
       const separation = projection != null && line != null && width ? (projection - line) / width : null;
       // Touchdown ladders settle on counts whose simulated quartiles collapse to 0: the mean (expected TDs) is the read.
-      const read: PropRead = projection == null ? 'NO_SIM' : line == null ? 'NO_LINE' : separation == null ? 'NO_SIM' : Math.abs(separation) < 0.15 ? 'ON' : separation > 0 ? 'ABOVE' : 'BELOW';
+      const read: PropRead = res.kind === 'withheld' ? 'WITHHELD' : projection == null ? 'NO_SIM' : line == null ? 'NO_LINE' : separation == null ? 'NO_SIM' : Math.abs(separation) < 0.15 ? 'ON' : separation > 0 ? 'ABOVE' : 'BELOW';
       const price = main
         ? { overAsk: main.yesAsk, underAsk: main.noAsk, overBreakEven: breakEven(main.yesAsk, kalshiFee(main.yesAsk)), underBreakEven: breakEven(main.noAsk, kalshiFee(main.noAsk)), spread: main.yesAsk != null && main.yesBid != null ? Math.round((main.yesAsk - main.yesBid) * 100) / 100 : null }
         : null;
@@ -216,13 +238,15 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       if (range && line != null && range.typical[0] <= line && line <= range.typical[1]) risks.push(`The line sits inside the typical range (${fmtRange(range.typical, def)}): the simulation calls this close to a coin flip.`);
       if (price?.spread != null && price.spread >= 0.04) risks.push(`Wide quote: ${Math.round(price.spread * 100)}¢ between bid and ask.`);
       if (main && (main.market.volume ?? 0) < 50) risks.push('Thin market: little volume traded on this line.');
-      if (!def.sim) risks.push('The publication simulates no distribution for this stat: market prices only.');
+      if (res.kind === 'withheld') risks.push(`Projection withheld: ${res.reason}.`);
+      else if (res.kind === 'authoritative') { if (res.value.reliability !== 'HIGH') risks.push(...res.value.reliabilityWhy.map((w) => `${w}.`)); }
+      else if (!def.sim) risks.push('The publication simulates no distribution for this stat: market prices only.');
       else if (!d) risks.push('No simulation row for this player and stat this week.');
       if (def.stat === 'touchdowns') risks.push('Touchdowns are high variance: an expected 0.5 TD is a near coin flip on one score, not a trend.');
       const reasons: string[] = [];
       if (rank && rank.tier !== 'average') reasons.push(`${opp.nick} ${def.defUnit} ${rank.text}`);
       if (read === 'ABOVE' || read === 'BELOW') reasons.push(`Projection ${read === 'ABOVE' ? 'above' : 'below'} the line by ${fmtValue(Math.abs(projection! - line!), def)}`);
-      if (main?.modelP != null && main.marketP != null && Math.abs(main.modelP - main.marketP) >= 0.08) reasons.push(`Shadow model ${Math.round(main.modelP * 100)}% vs market ${Math.round(main.marketP * 100)}% on the over (research)`);
+      if (main?.modelP != null && main.marketP != null && Math.abs(main.modelP - main.marketP) >= 0.08) reasons.push(`${res.kind === 'authoritative' ? 'Projection' : 'Shadow model'} ${Math.round(main.modelP * 100)}% vs market ${Math.round(main.marketP * 100)}% on the over (research)`);
       if (p.role && projection != null && isFeatured(def, projection)) reasons.push('Featured role');
       const extreme = rank ? Math.abs(rank.strength - 0.5) * 2 : 0;
       const sep = separation != null ? Math.min(1, Math.abs(separation)) : 0;
@@ -233,7 +257,7 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       seen.add(id);
       rows.push({
         id, playerId: p.participant_id, name: p.display_name, role: p.role ?? null, team, opp, def, family: def.family,
-        projection, range, main, line, ladder, read, separation, matchup: rank && def.defUnit && def.def ? { label: `${opp.nick} ${def.defUnit}`, rank, metricId: def.def } : null,
+        projection, range, projectionStatus: res, band, main, line, ladder, read, separation, matchup: rank && def.defUnit && def.def ? { label: `${opp.nick} ${def.defUnit}`, rank, metricId: def.def } : null,
         price, risks, injury, interest, reasons,
         marketTitle: main ? describeMarket(main.market, { playerName: () => p.display_name }).title : null,
       });

@@ -21,7 +21,8 @@ import type { Finding } from '../../research/findings';
 import { useScorecard } from '../Scorecard';
 import { usePropHistories } from './matters';
 import '../../styles/lane-b-props.css';
-import { FoundationProjection } from '../../components/FoundationProjection';
+import { ProjectionNote } from '../../components/ProjectionNote';
+import { useAuthority } from '../../data/projections';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
@@ -85,7 +86,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
         <div><dt>Over / Under</dt><dd className="num">{row.main ? <>{cents(row.main.yesAsk)} <span className="muted">/</span> {cents(row.main.noAsk)}</> : '—'}</dd></div>
       </dl>
       <p className="pb__why">{why}</p>
-      <FoundationProjection compact sport={ctx.sport} stat={def.stat} playerId={row.playerId} name={row.name} team={row.team.abbr} incumbent={row.projection} />
+      <ProjectionNote variant="compact" resolution={row.projectionStatus} />
       {row.range && row.projection != null && !flatRange && (
         <QuantileDist compact points={[{ p: 0.05, v: row.range.full[0] }, { p: 0.25, v: row.range.typical[0] }, ...(row.range.median != null ? [{ p: 0.5, v: row.range.median }] : []), { p: 0.75, v: row.range.typical[1] }, { p: 0.95, v: row.range.full[1] }]} line={row.line} projection={row.projection} format={fmt} unit={def.unit} minSpan={def.count ? 3 : 8} bins={20} height={84} label={`${row.name} ${def.label.toLowerCase()} projected range`} />
       )}
@@ -103,7 +104,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
                 <li><span>Over ask</span><b>{cents(row.main.yesAsk)}</b><small>break-even {pct(row.price?.overBreakEven)}</small></li>
                 <li><span>Under ask</span><b>{cents(row.main.noAsk)}</b><small>break-even {pct(row.price?.underBreakEven)}</small></li>
                 <li><span>Market P(over)</span><b>{pct(row.main.marketP)}</b><small>the quote's own probability</small></li>
-                <li><span>Shadow model P(over)</span><b>{pct(row.main.modelP)}</b><small>{row.main.modelState ? row.main.modelState.toLowerCase().replace(/_/g, ' ') : 'not priced'}</small></li>
+                <li><span>{row.projectionStatus.kind === 'authoritative' ? 'Projection' : 'Shadow model'} P(over)</span><b>{pct(row.main.modelP)}</b><small>{row.main.modelState ? row.main.modelState.toLowerCase().replace(/_/g, ' ') : 'not priced'}</small></li>
               </ul>
               <p className="pb__note">Break-even is the ask plus Kalshi's taker fee (round-up of 7% × P × (1 − P)). No bet-up-to is shown: the publication prices no limit for NFL props and Sift does not invent one.</p>
             </section>
@@ -154,7 +155,8 @@ export function PropsBoard({ r, g, detail, slug, sport, label, loading }: { r: E
   const family = (PROP_FAMILY_ORDER.find((f) => f === sp.get('family')) ?? 'all') as PropFamily | 'all';
   const team = sp.get('team') ?? 'both';
   const [pricedOnly, setPricedOnly] = useState(true);
-  const board = useMemo(() => (detail ? propBoard(r, detail, g) : null), [r, detail, g]);
+  const { authority, ready } = useAuthority(sport);
+  const board = useMemo(() => (detail && ready ? propBoard(r, detail, g, authority) : null), [r, detail, g, authority, ready]);
   const rows = useMemo(() => (board ? filterBoard(board.rows, { family, team, pricedOnly }) : []), [board, family, team, pricedOnly]);
   const players = useMemo(() => rows.slice(0, 24).map((x) => ({ name: x.name, team: x.team.abbr })), [rows]);
   const hist = usePropHistories(sport, players);

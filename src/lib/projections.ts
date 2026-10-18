@@ -1,12 +1,12 @@
 // Projection Foundation contract (`sift.projections.v1`), published by each sport repo's projection-foundation workflow
 // to its `projection-data` branch (see research/projection_foundation/CONTRACT.md).
 //
-// What this module guarantees for every page that shows a projection (Home, Game Command Center, Player Prop Explorer,
-// Research Lab):
+// What this module guarantees for every page that shows a projection (Home, Games, Game Command Center, Player Snapshot,
+// Player Prop Explorer, Research Lab):
 //   * one decoder and one lookup, so two pages can never show different numbers for the same player-stat;
 //   * a projection the engine's quality gate BLOCKed, or that fails SIFT's own coherence re-check, is never shown as a number;
-//   * the engine's independent projection only becomes the headline number for a family the owner has explicitly promoted
-//     (PROMOTED_FAMILIES, empty by default). Until then it is shown as a shadow challenger beside the incumbent;
+//   * which engine's number SIFT shows for a stat is decided in projectionApprovals.ts and resolved in projectionAuthority.ts.
+//     This module is only the decoder and the shared lookups: it never decides what is displayed;
 //   * projection confidence is never worded as betting value.
 import { nameKey } from '../history/boxLog';
 
@@ -23,12 +23,6 @@ export const projectionsUrl = (sport: ProjSport): string =>
   env[`VITE_SIFT_PROJECTIONS_${sport}_URL`] ??
   `https://raw.githubusercontent.com/chmoses98/${REPO[sport]}/projection-data/projections/${sport.toLowerCase()}/latest.json`;
 
-/**
- * Families the owner has approved to replace the incumbent's headline number. Promotion is a human decision recorded
- * here in code review — never automatic, whatever the published readiness says.
- */
-export const PROMOTED_FAMILIES: ReadonlySet<string> = new Set<string>([]);
-
 /** Hours after which a projection is shown as stale (matches pf_core.gate.MAX_STALENESS_H). */
 export const MAX_AGE_H: Record<ProjSport, number> = { NFL: 192, CFB: 192, NBA: 48, MLB: 36, NHL: 48 };
 
@@ -37,14 +31,22 @@ const FAMILY_ALIAS: Record<string, string> = {
   pts: 'points', reb: 'rebounds', ast: 'assists', '3pm': 'threes', threes_made: 'threes', three_pointers: 'threes',
   strikeouts: 'pitcher_strikeouts', ks: 'pitcher_strikeouts', sog: 'shots', shots_on_goal: 'shots',
   pass_yards: 'passing_yards', rush_yards: 'rushing_yards', rec_yards: 'receiving_yards', pass_attempts: 'passing_attempts',
-  attempts: 'passing_attempts', pass_tds: 'passing_tds', passing_touchdowns: 'passing_tds', touchdowns: 'anytime_td',
+  attempts: 'passing_attempts', pitcher_outs: 'outs', outs_recorded: 'outs', pass_tds: 'passing_tds', passing_touchdowns: 'passing_tds', touchdowns: 'anytime_td',
 };
 export const familyOf = (stat: string): string => FAMILY_ALIAS[stat.toLowerCase()] ?? stat.toLowerCase();
+
+/** Team codes the sources spell differently, folded to one key so a name+team join cannot miss on spelling alone. */
+const TEAM_ALIAS: Record<string, string> = {
+  ARI: 'AZ', OAK: 'ATH', CHW: 'CWS', WAS: 'WSH', WSN: 'WSH', KCR: 'KC', SDP: 'SD', SFG: 'SF', TBR: 'TB', JAC: 'JAX', LAR: 'LA',
+};
+export const teamKey = (t: string): string => { const u = (t ?? '').toUpperCase(); return TEAM_ALIAS[u] ?? u; };
 
 export interface GateFinding { check: string; severity: GateStatus; what: string; category: string; action: string }
 export interface PlayerProjection {
   playerId: string; name: string; team: string; opponent: string; gameId: string; family: string;
   mean: number; median: number | null; p10: number | null; p90: number | null;
+  /** p05/p25/p50/p75/p95 from the same distribution, when the feed publishes them (additive, CONTRACT 3.1b) */
+  quantiles: { p05: number; p25: number; p50: number; p75: number; p95: number } | null;
   thresholds: { k: number; p: number }[];
   opportunity: { family: string; mean: number; p10: number | null; p90: number | null } | null;
   opponentAdjustment: { factor: number; sampleGames: number | null } | null;
@@ -54,7 +56,9 @@ export interface PlayerProjection {
   dataAsOf: string | null;
   /** point-in-time availability call behind the projection (null when the feed predates pf_core 1.2.0) */
   participation: { status: Participation; certainty: string; source: string; capturedUtc: string | null; reasons: string[] } | null;
-  /** 'shadow' unless the engine marks the family production (SIFT still requires PROMOTED_FAMILIES) */
+  /** engine-published player segments (NFL: first four games with a new team, backup tier, rookie); null when not published */
+  segments: { newTeamFirst4: boolean; backup: boolean; rookie: boolean; tier: string } | null;
+  /** the engine's own label; SIFT’s approvals, not this field, decide what is displayed */
   role: 'shadow' | 'production';
 }
 export type Participation = 'CONFIRMED_ACTIVE' | 'LIKELY_ACTIVE' | 'UNCERTAIN' | 'LIKELY_OUT' | 'CONFIRMED_OUT' | 'UNVERIFIED';
@@ -72,6 +76,15 @@ const str = (x: unknown): string => (typeof x === 'string' ? x : x == null ? '' 
 const READINESS: Readiness[] = ['READY', 'SHADOW VALIDATION', 'NEEDS IMPROVEMENT', 'INSUFFICIENT DATA'];
 const asReadiness = (x: unknown): Readiness => (READINESS.includes(x as Readiness) ? (x as Readiness) : 'INSUFFICIENT DATA');
 const asGate = (x: unknown): GateStatus => (x === 'PASS' || x === 'REVIEW' || x === 'BLOCK' ? x : 'REVIEW');
+
+function decodeQuantiles(x: unknown): PlayerProjection['quantiles'] {
+  if (!isObj(x)) return null;
+  const v = ['p05', 'p25', 'p50', 'p75', 'p95'].map((k) => num(x[k]));
+  if (v.some((n) => n == null)) return null;
+  const [p05, p25, p50, p75, p95] = v as number[];
+  // a malformed (unordered) set is ignored rather than drawn
+  return p05 <= p25 && p25 <= p50 && p50 <= p75 && p75 <= p95 ? { p05, p25, p50, p75, p95 } : null;
+}
 
 /** Strict decode; anything unrecognised is null, which every consumer treats as "no projection published". */
 export function decodeProjections(raw: unknown): ProjectionDoc | null {
@@ -96,7 +109,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
     const oa = isObj(p.opponent_adjustment) ? p.opponent_adjustment : null;
     players.push({
       playerId: str(p.player_id), name: str(p.name), team: str(p.team), opponent: str(p.opponent), gameId: str(p.game_id),
-      family: str(p.family), mean, median: num(p.median), p10: num(p.p10), p90: num(p.p90),
+      family: str(p.family), mean, median: num(p.median), p10: num(p.p10), p90: num(p.p90), quantiles: decodeQuantiles(p.quantiles),
       thresholds: isObj(p.thresholds) ? Object.entries(p.thresholds).map(([k, v]) => ({ k: Number(k), p: num(v) ?? NaN })).filter((t) => Number.isFinite(t.k)).sort((a, b) => a.k - b.k) : [],
       opportunity: opp && num(opp.mean) != null ? { family: str(opp.family), mean: num(opp.mean)!, p10: num(opp.p10), p90: num(opp.p90) } : null,
       opponentAdjustment: oa && num(oa.factor) != null ? { factor: num(oa.factor)!, sampleGames: num(oa.sample_games) } : null,
@@ -109,6 +122,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
         certainty: str(pa.certainty), source: str(pa.source), capturedUtc: str(pa.captured_utc) || null,
         reasons: Array.isArray(pa.reasons) ? pa.reasons.map(str).filter(Boolean) : [],
       } : null,
+      segments: isObj(p.segments) ? { newTeamFirst4: p.segments.new_team_first4 === true, backup: p.segments.backup === true, rookie: p.segments.rookie === true, tier: str(p.segments.tier) } : null,
       role: p.role === 'production' ? 'production' : 'shadow',
     });
   }
@@ -153,7 +167,7 @@ export function findProjection(doc: ProjectionDoc | null, q: { playerId?: string
   // name join only with a team match (19 active NFL players share a normalised name with another)
   if (q.name && q.team) {
     const nk = nameKey(q.name);
-    const hits = cands.filter((p) => nameKey(p.name) === nk && p.team.toUpperCase() === q.team!.toUpperCase());
+    const hits = cands.filter((p) => nameKey(p.name) === nk && teamKey(p.team) === teamKey(q.team!));
     if (hits.length === 1) return hits[0];
   }
   return null;
@@ -172,27 +186,6 @@ export function displayState(doc: ProjectionDoc | null, p: PlayerProjection | nu
   const ageHours = Number.isFinite(asOf) ? (nowMs - asOf) / 3.6e6 : null;
   const stale = ageHours == null || ageHours > MAX_AGE_H[doc.sport];
   return { kind: 'shown', p, stale, ageHours, review: p.gate.findings.filter((f) => f.severity === 'REVIEW'), info: doc.families[p.family] ?? null };
-}
-
-/** Whether the independent projection may be the headline number (owner-promoted family, gate not BLOCK, not stale). */
-export function isPrimary(sport: ProjSport, st: DisplayState): boolean {
-  return st.kind === 'shown' && !st.stale && st.p.readiness === 'READY' && PROMOTED_FAMILIES.has(`${sport}:${st.p.family}`);
-}
-
-export const READINESS_WORDS: Record<Readiness, string> = {
-  READY: 'Validated on held-out seasons',
-  'SHADOW VALIDATION': 'Shadow validation — beat simple baselines historically, still being checked live',
-  'NEEDS IMPROVEMENT': 'Needs improvement — historical tests found material errors',
-  'INSUFFICIENT DATA': 'Insufficient data to validate',
-};
-
-/** Incumbent (published simulation) vs independent challenger: a plain agreement statement, never a bet signal. */
-export function agreement(incumbent: number | null, challenger: number): { tone: 'ok' | 'caution'; words: string } | null {
-  if (incumbent == null || !Number.isFinite(incumbent)) return null;
-  const scale = Math.max(Math.abs(incumbent), Math.abs(challenger), 1);
-  const rel = Math.abs(challenger - incumbent) / scale;
-  if (rel <= 0.1) return { tone: 'ok', words: 'The independent model agrees with the published projection.' };
-  return { tone: 'caution', words: `The two SIFT models disagree by ${Math.round(rel * 100)}% — treat this projection as uncertain, not as an edge.` };
 }
 
 export const fmtAge = (h: number | null): string => (h == null ? 'unknown age' : h < 1 ? 'under an hour ago' : h < 48 ? `${Math.round(h)}h ago` : `${Math.round(h / 24)} days ago`);
@@ -254,11 +247,11 @@ export function fmtWhen(iso: string | null | undefined): string | null {
  */
 export function findTeamProjections(doc: ProjectionDoc | null, q: { home: string; away: string; startUtc?: string | null }): TeamProjection[] | null {
   if (!doc) return null;
-  const H = q.home.toUpperCase(), A = q.away.toUpperCase();
+  const H = teamKey(q.home), A = teamKey(q.away);
   const byGame = new Map<string, TeamProjection[]>();
   for (const t of doc.teams) byGame.set(t.gameId, [...(byGame.get(t.gameId) ?? []), t]);
   const hits = [...byGame.values()].filter((ts) => {
-    const codes = new Set(ts.map((t) => t.team.toUpperCase()));
+    const codes = new Set(ts.map((t) => teamKey(t.team)));
     if (!codes.has(H) || !codes.has(A)) return false;
     const s = ts[0].startUtc, w = q.startUtc;
     return !s || !w || Math.abs(Date.parse(s) - Date.parse(w)) < 18 * 3.6e6;
@@ -303,13 +296,4 @@ export function decodeScorecard(raw: unknown): LiveScorecard | null {
   const cap = isObj(raw.capture) ? raw.capture : {};
   const set = isObj(raw.settlement) ? raw.settlement : {};
   return { sport, generatedAt: str(raw.generated_utc), archived: num(cap.forecasts_archived) ?? 0, settled: num(set.settled) ?? 0, families: fams };
-}
-
-/** Plain words for a live comparison: "better" only when the game-clustered interval excludes zero. */
-export function liveVerdict(f: LiveFamily): string {
-  const v = f.vsIncumbent;
-  if (!v || !Number.isFinite(v.lo) || !Number.isFinite(v.hi)) return 'no incumbent comparison yet';
-  if (v.hi < 0) return 'more accurate than the production model so far';
-  if (v.lo > 0) return 'less accurate than the production model so far';
-  return 'not yet distinguishable from the production model';
 }

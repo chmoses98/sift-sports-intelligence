@@ -9,6 +9,7 @@ import type { BoardDoc, BoardItem, EventDetailDoc, EventResearchDoc } from '../s
 import { ageAsyncMemo, clearAsyncMemo, REVALIDATE_CHECK_MS, useAsync, type Async } from '../src/data/hooks';
 import type { SportRepo } from '../src/data/repo';
 import { propBoard } from '../src/insights/propBoard';
+import { makeAuthority } from '../src/lib/projectionAuthority';
 import type { Opportunity } from '../src/opportunity/types';
 import { TRAY_KEY, TrayProvider } from '../src/state/tray';
 import { TrailProvider } from '../src/state/trail';
@@ -23,7 +24,9 @@ const ATL_NO = 'evt_639f74e87ff25310c542'; // Monday night, 2026-10-06T00:15Z
 const board = readSnapshot<BoardDoc>('board.json');
 const games = upcomingGames(board.items, NOW, 8);
 const rowsOf = (g: BoardItem, research?: EventResearchDoc): DiscoveryRow[] =>
-  propBoard(research ?? readSnapshot<EventResearchDoc>(`explorer/events/${g.event_id}.json`), readSnapshot<EventDetailDoc>(g.detail_path)).rows
+  // the screens resolve against the projection feed, which these tests do not serve: promoted stats are withheld (never
+  // shown from the previous model), established-model stats are unchanged — the expectation side must resolve the same way
+  propBoard(research ?? readSnapshot<EventResearchDoc>(`explorer/events/${g.event_id}.json`), readSnapshot<EventDetailDoc>(g.detail_path), undefined, makeAuthority('NFL', null, NOW)).rows
     .map((row) => ({ row, eventId: g.event_id, kickoff: g.start_time_utc, game: gameName(g) }));
 const slate = games.flatMap((g) => rowsOf(g));
 
@@ -59,7 +62,7 @@ describe('homeTopProps', () => {
   it('accounts for every row on the slate: shown, ranked below the top ten, or excluded with a reason', () => {
     const excluded = Object.values(t.excluded).reduce((a, b) => a + b, 0);
     expect(t.picks.length + (t.qualifying - t.picks.length) + excluded).toBe(t.considered);
-    expect(t.excluded.roleDisagreement).toBe(2);
+    expect(t.excluded.roleDisagreement).toBe(1); // was 2: the second was a receptions row, whose projection is now withheld without a feed rather than read from the old model
     expect(t.excluded.touchdowns).toBeGreaterThan(0);
   });
   it('groups the picks one card per player, no pick lost', () => {

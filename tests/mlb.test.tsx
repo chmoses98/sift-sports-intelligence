@@ -16,6 +16,7 @@ import { describeMarket } from '../src/lib/marketLabel';
 import { describeMlbMarket, isMlbPlayerMarket, mlbNick, readPlayerProp } from '../src/lib/mlb';
 import { inningWords, isFullGame } from '../src/lib/period';
 import { routes } from '../src/lib/routes';
+import { projectionsUrl } from '../src/lib/projections';
 import { teamColors } from '../src/lib/teams';
 import { GameRoute } from '../src/views/Game';
 import { splitName } from '../src/views/game/Hero';
@@ -259,26 +260,43 @@ describe('MLB screens', () => {
     expect(within(screen.getByRole('navigation', { name: 'Game sections' })).queryByRole('link', { current: 'page' })).toBeNull();
   });
 
-  it('Player Props: market for every rung, a model number only for published projections, statuses with reasons', async () => {
+  it('Player Props: market for every rung; one projection per stat (the selected model for promoted pitcher stats, the publisher’s for the rest), statuses with reasons', async () => {
+    // the projection feed serves Tyler Glasnow (the probable starter): strikeouts and outs are promoted MLB stats
+    const feedDoc = {
+      schema: 'sift.projections.v1', sport: 'MLB', generated_utc: '2026-10-07T15:00:00Z', data_asof_utc: new Date().toISOString(),
+      model: { id: 'pf-mlb', version: 'pf-1.2.1', authority: 'research_only' },
+      families: { pitcher_strikeouts: { readiness: 'READY', model: 'F', reason: '' }, outs: { readiness: 'READY', model: 'F', reason: '' } }, games: [],
+      players: [
+        { player_id: '607192', name: 'Tyler Glasnow', team: 'LAD', opponent: 'ATL', game_id: 'g', family: 'pitcher_strikeouts', mean: 7.4, median: 7, p10: 4, p90: 11, thresholds: { '5': 0.86, '7': 0.58, '9': 0.27 },
+          readiness: 'READY', gate: { status: 'PASS', findings: [] }, participation: { status: 'CONFIRMED_ACTIVE', certainty: 'CONFIRMED', source: 'mlb_lineup_card', captured_utc: new Date().toISOString(), reasons: [] }, data_asof_utc: new Date().toISOString() },
+        { player_id: '607192', name: 'Tyler Glasnow', team: 'LAD', opponent: 'ATL', game_id: 'g', family: 'outs', mean: 17.2, median: 17, p10: 14, p90: 21, thresholds: { '15': 0.8, '18': 0.43, '21': 0.1 },
+          readiness: 'READY', gate: { status: 'PASS', findings: [] }, participation: { status: 'CONFIRMED_ACTIVE', certainty: 'CONFIRMED', source: 'mlb_lineup_card', captured_utc: new Date().toISOString(), reasons: [] }, data_asof_utc: new Date().toISOString() },
+      ],
+    };
+    setFetchJson(async (url: string) => (url === projectionsUrl('MLB') ? feedDoc : readDisk(url)));
     renderScreen(`${routes.game('mlb', LADATL)}?tab=props`, '/:sport/game/:eventId', <GameRoute />, {}, 'mlb');
     const sec = (await screen.findByRole('heading', { name: 'Player props', level: 2 })).closest('section')!;
     await within(sec).findByRole('region', { name: 'Pitchers' });
     expect(within(sec).getByRole('region', { name: 'Hitters' })).toBeInTheDocument();
     expect(within(sec).getAllByText('Research — not validated for betting').length).toBeGreaterThan(1);
 
-    // RESEARCH_PROJECTION: Glasnow 7+ K shows the market and the research model, each labelled
+    // promoted pitcher stat: the market, and the selected projection's probability from its own distribution
     const ks = detail(LADATL).markets.find((m) => m.kalshi_ticker === 'KXMLBKS-26OCT071800LADATL-LADTGLASNOW31-7')!;
-    const pp = readPlayerProp(ks)!;
-    const row = within(sec).getAllByRole('row').find((r) => r.textContent?.includes('Tyler Glasnow records 7+ strikeouts'))!;
-    expect(within(row).getByLabelText(`Model (research) ${Math.round(pp.modelProbabilityYes! * 100)}%`)).toBeInTheDocument();
+    const row = await waitFor(() => within(sec).getAllByRole('row').find((r) => r.textContent?.includes('Tyler Glasnow records 7+ strikeouts'))!);
+    await waitFor(() => expect(within(row).getByLabelText('Projection 58%')).toBeInTheDocument());
     expect(within(row).getByLabelText(new RegExp(`^Market ${Math.round(((ks.yes_bid! + ks.yes_ask!) / 2) * 100)}%`))).toBeInTheDocument();
-    expect(within(sec).getAllByText('Proj. 6.2 K (p10–p90 3–9)').length).toBeGreaterThan(0);
-    expect(within(sec).getAllByText('Opp lineup K%').length).toBeGreaterThan(0);
+    expect(within(row).queryByLabelText(/^Model/)).toBeNull();                            // not beside the previous model's number
+    expect(within(sec).getAllByText('Proj. 7.4 K (p10–p90 4–11)').length).toBeGreaterThan(0);
+    expect(within(sec).queryAllByText('Proj. 6.2 K (p10–p90 3–9)')).toHaveLength(0);       // the publisher's expected value is gone
+    expect(within(sec).queryAllByText('Opp lineup K%')).toHaveLength(0);                  // and so are its drivers
+    expect(within(sec).getAllByTestId('projection-note').length).toBeGreaterThan(0);
 
-    // NO_MODEL_SUPPORT and LINEUP_UNCONFIRMED: status + reason, never a model number, never the market as one
+    // outs is promoted too: the selected projection replaces "no model for this market"
     const outs = within(sec).getAllByRole('row').find((r) => r.textContent?.includes('Tyler Glasnow records 18+ outs recorded'))!;
-    expect(within(outs).getByText('Not projected — no model for this market')).toBeInTheDocument();
-    expect(within(outs).queryByLabelText(/^Model/)).toBeNull();
+    expect(within(outs).getByLabelText('Projection 43%')).toBeInTheDocument();
+    expect(within(outs).queryByText('Not projected — no model for this market')).toBeNull();
+
+    // hitters stay on the publisher’s projection: LINEUP_UNCONFIRMED shows status + reason, never a model number
     const betts = within(sec).getAllByRole('row').filter((r) => r.textContent?.includes('Mookie Betts records'));
     expect(betts.length).toBeGreaterThan(5);
     for (const r of betts) {
@@ -286,10 +304,11 @@ describe('MLB screens', () => {
       expect(within(r).queryByLabelText(/^Model/)).toBeNull();
       expect(r.querySelectorAll('td')[2].textContent).not.toMatch(/\d+%/);
     }
-    // every model number on the page belongs to a published *_PROJECTION
-    const projected = new Set(detail(LADATL).markets.filter((m) => readPlayerProp(m)?.modelProbabilityYes != null).map((m) => readPlayerProp(m)!.yesSemantics));
-    for (const el of within(sec).queryAllByLabelText(/^Model/)) expect(projected.has(el.closest('tr')!.querySelector('.pp__yes')!.textContent)).toBe(true);
-    expect(within(sec).queryAllByLabelText(/^Model/)).toHaveLength(projected.size);
+    // every legacy model number on the page belongs to a published hitter *_PROJECTION; pitchers carry only the selected one
+    const hitterProjected = new Set(detail(LADATL).markets.filter((m) => readPlayerProp(m)?.modelProbabilityYes != null && readPlayerProp(m)?.family?.startsWith('hitter_')).map((m) => readPlayerProp(m)!.yesSemantics));
+    for (const el of within(sec).queryAllByLabelText(/^Model/)) expect(hitterProjected.has(el.closest('tr')!.querySelector('.pp__yes')!.textContent)).toBe(true);
+    expect(within(sec).queryAllByLabelText(/^Model/)).toHaveLength(hitterProjected.size);
+    for (const el of within(sec).queryAllByLabelText(/^Projection \d/)) expect(el.closest('tr')!.querySelector('.pp__yes')!.textContent).toMatch(/Glasnow|Mahle/);
 
     // unsupported markets: listed apart, with their price and "No projection published"
     const other = within(sec).getByRole('region', { name: 'Other player markets' });

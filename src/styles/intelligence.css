@@ -6,7 +6,7 @@
 .intel--ok .intel__tag { color: #9be8bd; }
 .intel--line { background: transparent; border-style: dashed; }
 .intel--ok.intel--line { border-color: rgba(98, 220, 150, 0.35); }
-/* Projection Foundation block (src/components/FoundationProjection.tsx) */
+/* Projection note (src/components/ProjectionNote.tsx) */
 .pf { display: grid; gap: 2px; }
 .pf__row { margin: 0; }
 .pf__muted { opacity: 0.8; font-size: 0.95em; }

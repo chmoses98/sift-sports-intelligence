@@ -5,6 +5,7 @@ import type { BoardItem } from '../../contract/types';
 import { useAsync } from '../../data/hooks';
 import type { SportRepo } from '../../data/repo';
 import { propBoard, type PropRow } from '../../insights/propBoard';
+import { loadAuthority } from '../../data/projections';
 import { routes } from '../../lib/routes';
 import type { useTray } from '../../state/tray';
 import type { DiscoveryRow } from './model';
@@ -35,10 +36,12 @@ export function gameName(b: BoardItem) {
 export function useSlateProps(repo: SportRepo | undefined, games: BoardItem[], opts: { revalidate?: boolean } = {}) {
   const key = games.map((g) => g.event_id).join(',');
   return useAsync(repo && key ? `props:slate:${repo.source.root}:${key}` : null, async () => {
+    // one feed read for the slate: every game resolves against the same projections, so a stat has one value everywhere
+    const authority = await loadAuthority('NFL');
     const out = await Promise.all(games.map(async (g) => {
       try {
         const [r, d] = await Promise.all([repo!.eventResearch(g.event_id), repo!.eventDetail(g.event_id)]);
-        return propBoard(r, d).rows.map((row): DiscoveryRow => ({ row, eventId: g.event_id, kickoff: g.start_time_utc, game: gameName(g), publishedAt: r.generated_at ?? null }));
+        return propBoard(r, d, undefined, authority).rows.map((row): DiscoveryRow => ({ row, eventId: g.event_id, kickoff: g.start_time_utc, game: gameName(g), publishedAt: r.generated_at ?? null }));
       } catch {
         return null;
       }

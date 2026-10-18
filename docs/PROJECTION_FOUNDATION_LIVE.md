@@ -223,7 +223,7 @@ shadow" label.
 | cfb-edge-finder | [#166](https://github.com/chmoses98/cfb-edge-finder/pull/166) | 5bd79afd2 | `test` and projection-foundation `run` dry run: **green** (`publish` skipped on PRs by design) |
 | nba-edge-finder | [#32](https://github.com/chmoses98/nba-edge-finder/pull/32) | 10983f6f | ci and projection-foundation dry run: **green** |
 | edge-finder-api (MLB) | [#296](https://github.com/chmoses98/edge-finder-api/pull/296) | 050ff93f | Projection Foundation dry run: green. PR Checks (`test`): **1 failure that is not this PR's**. `test_capability_statuses_match_the_audit` reads main's live `data/oppquality.json`, which went all-null in the postseason; it fails on `main` too (explained on the PR) |
-| NHL-edge-finder | [#44](https://github.com/chmoses98/NHL-edge-finder/pull/44) | 8bf5a46a | test, gate, pr-dry-run, pr-replay, pr-repro: **green** on a4fdf202; the pf_core 1.2.1 commit on top is re-running |
+| NHL-edge-finder | [#44](https://github.com/chmoses98/NHL-edge-finder/pull/44) | 8bf5a46a | test, gate, pr-dry-run, pr-replay, pr-repro: **green** |
 
 **Engineering fixes made during validation:**
 * **CFB:** the pinned-requirements path was resolved twice under the job's working directory. Fixed, plus a contract test

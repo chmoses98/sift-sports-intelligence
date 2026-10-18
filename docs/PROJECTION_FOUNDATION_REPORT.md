@@ -17,6 +17,12 @@ How to read the numbers:
 * **Baseline A** = season average shrunk toward the position average. **Incumbent** = the model SIFT/the repo uses today,
   re-run on the same games.
 
+> **Update 2026-10-18 — live integration.** The live shadow operation (pregame availability capture, immutable forecast
+> archive, settlement, live scorecards, SIFT display) is reported separately in
+> [`PROJECTION_FOUNDATION_LIVE.md`](PROJECTION_FOUNDATION_LIVE.md). Everything in *this* report is **historical**
+> (walk-forward backtests). No prospective forecast has been settled yet: the live record starts with the first
+> scheduled run after merge.
+
 ---
 
 ## 1. Executive summary
@@ -415,7 +421,7 @@ the injury feed addresses. NBA READY assumes the live official injury report is 
 ## 13. Next development actions (concrete roadmap)
 
 **Decisions only you can make** (nothing below happens without your approval):
-1. Merge the six `claude/loving-davinci-53ho9c` branches (pull requests not yet opened — say the word and I'll open them).
+1. Merge the six `claude/loving-davinci-53ho9c` pull requests (opened 2026-10-17; status in `PROJECTION_FOUNDATION_LIVE.md` §8).
    The workflows then start publishing to each repo's `projection-data` branch and SIFT starts showing the shadow projections.
 2. After ~3–4 weeks of live record: approve promotions family by family by adding them to `PROMOTED_FAMILIES` in
    `src/lib/projections.ts` (empty today). Candidates first: MLB strikeouts/BF/outs, NFL targets/receptions, CFB team points.

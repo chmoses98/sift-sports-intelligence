@@ -38,10 +38,28 @@ export interface Approval {
    */
   requiresVerifiedParticipation?: boolean;
   /**
-   * Explicitly approved alternative when the foundation projection is unavailable (feed missing, player outside the
-   * model's population). None is approved today: an unavailable promoted projection is withheld, never swapped.
+   * Explicitly approved alternative when the foundation feed is temporarily missing, stale or has not yet published the
+   * game. Null (the default) means an unavailable promoted projection is withheld, never swapped. Even with an approval the
+   * established number is used only if IT independently passes the freshness, availability and quality checks in
+   * projectionFallback.ts, and never when the player is out, a structural defect is detected, or the information needed to
+   * rule one out is unreliable. Exactly one number is ever shown.
    */
-  fallback: null;
+  fallback: FallbackApproval | null;
+}
+
+export type FallbackTrigger = 'FEED_UNAVAILABLE' | 'STALE' | 'NOT_PUBLISHED';
+export interface FallbackApproval {
+  engine: 'legacy';
+  approvedOn: string;
+  /** why this family may fall back, in the owner's terms */
+  approval: string;
+  /** the only situations in which it may be used */
+  triggers: readonly FallbackTrigger[];
+  /**
+   * The foundation feed must have positively shown the player is not in a documented defect segment (an NFL player's first
+   * games with a new team run high). With no feed row there is no such evidence, so the established number is not used.
+   */
+  requiresKnownSegments?: boolean;
 }
 
 const D = '2026-10-18';
@@ -49,6 +67,12 @@ const row = (sport: ProjSport, family: string, decision: Decision, competing: bo
   sport, family, decision, engine: decision === 'PROMOTED' ? 'foundation' : 'legacy', competingProductionNumber: competing,
   liveInputs, reason, approvedOn: D, fallback: null,
 });
+/** Approve the established model as the fallback for a promoted row that has a production number SIFT already shows. */
+const withFallback = (a: Approval, approval: string, extra: Partial<FallbackApproval> = {}): Approval => ({
+  ...a, fallback: { engine: 'legacy', approvedOn: D, approval, triggers: ['FEED_UNAVAILABLE', 'STALE', 'NOT_PUBLISHED'], ...extra },
+});
+const FB_NFL = 'Owner-approved 2026-10-18: while the feed is missing, stale or has not yet published a game, the established simulation may be shown if it is fresh, the player is listed available, and its projection is coherent.';
+const FB_MLB = 'Owner-approved 2026-10-18: while the feed is missing, stale or has not yet published a game, the established projection may be shown if it is fresh, the publisher projects him as the starter, and it is coherent.';
 
 const NFL_LIVE = 'Ready: ESPN, Sleeper and nflverse injuries plus the roster inactive list (coverage 0.997); player segments published with each row.';
 const NFL_NEWTEAM = 'Ready. First games with a new team run high (targets +18% on development/validation); SIFT lowers the reliability of those rows and says why, and applies no unvalidated correction.';
@@ -62,8 +86,9 @@ export const APPROVALS: readonly Approval[] = [
   row('NFL', 'team_rush_attempts', 'PROMOTED', false, NFL_LIVE, 'READY; beats the season-average baseline (CI excludes 0). No competing production number is displayed.'),
   row('NFL', 'team_points', 'HELD', true, NFL_LIVE, 'No incumbent comparison exists and the projection is essentially the closing implied team total, so promoting it would turn SIFT’s projection into a copy of the market. Keeps projection quality separate from market value; revisit with a live record.'),
   row('NFL', 'targets', 'PROMOTED', false, NFL_NEWTEAM, 'READY; beats the incumbent by 8.2% of its holdout CRPS (CI excludes 0).'),
-  row('NFL', 'receptions', 'PROMOTED', true, NFL_NEWTEAM, 'READY; beats the incumbent by 6.1% of its holdout CRPS (CI excludes 0).'),
-  row('NFL', 'completions', 'PROMOTED', true, NFL_LIVE, 'READY; beats the incumbent by 2.7% of its holdout CRPS (CI excludes 0).'),
+  // receptions has a documented first-games-with-a-new-team defect, so its fallback needs the feed's own segment flag
+  withFallback(row('NFL', 'receptions', 'PROMOTED', true, NFL_NEWTEAM, 'READY; beats the incumbent by 6.1% of its holdout CRPS (CI excludes 0).'), FB_NFL, { requiresKnownSegments: true }),
+  withFallback(row('NFL', 'completions', 'PROMOTED', true, NFL_LIVE, 'READY; beats the incumbent by 2.7% of its holdout CRPS (CI excludes 0).'), FB_NFL),
   row('NFL', 'passing_yards', 'HELD', true, NFL_LIVE, 'READY and 1.3% better than the incumbent, but the interval versus the incumbent includes 0 [-1.194, 0.087]: not a credible win yet. Incumbent kept; revisit with the live paired record.'),
   row('NFL', 'passing_attempts', 'HELD', true, NFL_LIVE, 'SHADOW VALIDATION: the validation gain over baseline was not significant; needs a further untouched season.'),
   row('NFL', 'receiving_yards', 'HELD', true, NFL_NEWTEAM, 'Subgroup failure: first game with a new team runs +6.3 yds on a 21.5 mean. The tenure correction is verified on development data but not adopted (not holdout-tested).'),
@@ -98,9 +123,9 @@ export const APPROVALS: readonly Approval[] = [
   row('NBA', 'team_points', 'HELD', true, NBA_PENDING, 'SHADOW VALIDATION and no incumbent comparison; not in the initial promotion set.'),
 
   // ---- MLB -------------------------------------------------------------------------------------------------------------
-  { ...row('MLB', 'pitcher_strikeouts', 'PROMOTED', true, MLB_LIVE, 'READY; beats the production pitcher engine by 2.6% of its holdout CRPS (CI excludes 0) on the 2026 holdout.'), requiresVerifiedParticipation: true },
+  { ...withFallback(row('MLB', 'pitcher_strikeouts', 'PROMOTED', true, MLB_LIVE, 'READY; beats the production pitcher engine by 2.6% of its holdout CRPS (CI excludes 0) on the 2026 holdout.'), FB_MLB), requiresVerifiedParticipation: true },
   { ...row('MLB', 'batters_faced', 'PROMOTED', true, MLB_LIVE, 'READY; beats the production pitcher engine by 11.6% of its holdout RPS (CI excludes 0).'), requiresVerifiedParticipation: true },
-  { ...row('MLB', 'outs', 'PROMOTED', true, MLB_LIVE, 'READY; beats the production pitcher engine by 3.8% of its holdout CRPS (CI excludes 0).'), requiresVerifiedParticipation: true },
+  { ...withFallback(row('MLB', 'outs', 'PROMOTED', true, MLB_LIVE, 'READY; beats the production pitcher engine by 3.8% of its holdout CRPS (CI excludes 0).'), FB_MLB), requiresVerifiedParticipation: true },
   ...['pitcher_walks', 'pitcher_hits_allowed', 'pitcher_runs_allowed'].map((f) =>
     row('MLB', f, 'HELD', false, MLB_LIVE, 'SHADOW VALIDATION and no incumbent comparison; not in the initial promotion set.')),
   ...['plate_appearances', 'hits', 'total_bases', 'home_runs', 'runs', 'rbis', 'hits_runs_rbis'].map((f) =>

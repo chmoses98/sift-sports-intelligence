@@ -21,7 +21,8 @@ import { breakEven, kalshiFee } from '../opportunity/pricing';
 import { nameKey } from './context';
 import { gameSides, matchupObs, type GameSides, type Side } from './game';
 import { mainLine, rangeOf, type PropRange } from './props';
-import { thresholdProbability, typicalWidth, type AuthoritativeValue, type ProjectionAuthority, type Resolution } from '../lib/projectionAuthority';
+import { thresholdProbability, typicalWidth, usesEstablished, type AuthoritativeValue, type ProjectionAuthority, type Resolution } from '../lib/projectionAuthority';
+import type { LegacyCandidate } from '../lib/projectionFallback';
 
 export type PropFamily = 'passing' | 'rushing' | 'receiving' | 'touchdowns' | 'other';
 export const PROP_FAMILY_ORDER: PropFamily[] = ['passing', 'rushing', 'receiving', 'touchdowns', 'other'];
@@ -155,7 +156,7 @@ function rungOf(m: Market, prices: Map<string, ModelPrice>, res: Resolution): Ru
   if (m.threshold == null) return null;
   // the rung probability comes from the same engine as the expected value: the legacy simulation's own price when the
   // stat is legacy, the selected projection's distribution when promoted, nothing when withheld
-  const sh = res.kind === 'legacy' ? shadowOf(prices.get(m.market_id), m)
+  const sh = usesEstablished(res) ? shadowOf(prices.get(m.market_id), m)
     : res.kind === 'authoritative' ? { p: thresholdProbability(res.value, m.threshold), state: 'PROJECTION' as ShadowState }
     : { p: null, state: null };
   return {
@@ -208,8 +209,18 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       if (def.positions && !p.role) continue;
       const markets = byPlayerStat.get(`${p.participant_id}|${def.stat}`) ?? [];
       // ONE engine per stat: the approved one. Without an authority the board is the legacy simulation (existing callers).
-      const res: Resolution = authority ? authority.resolve({ stat: def.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }) : { kind: 'legacy' };
-      const d = res.kind === 'legacy' && def.sim ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === def.sim) : null;
+      // The established simulation's own row is looked up first: it is the candidate an approved fallback is checked on,
+      // and the number shown only if the resolution says the established model answers this stat.
+      const dEstablished = def.sim ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === def.sim) : null;
+      const rangeEstablished = dEstablished ? rangeOf(dEstablished) : null;
+      const mainEarly = mainLine(markets);
+      const candidate: LegacyCandidate | null = dEstablished && dEstablished.mean != null ? {
+        mean: dEstablished.mean, interval: rangeEstablished ? { lo: rangeEstablished.full[0], hi: rangeEstablished.full[1] } : null,
+        generatedAt: r.generated_at ?? null, designation: injuries.get(key) ?? null,
+        line: mainEarly?.threshold != null ? Number(overLine(mainEarly.threshold)) : null, checkLine: true,
+      } : null;
+      const res: Resolution = authority ? authority.resolve({ stat: def.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }, candidate) : { kind: 'legacy' };
+      const d = usesEstablished(res) ? dEstablished ?? null : null;
       const auth: AuthoritativeValue | null = res.kind === 'authoritative' ? res.value : null;
       const range: PropRange | null = auth ? (auth.quantiles ? { typical: [auth.quantiles.p25, auth.quantiles.p75], full: [auth.quantiles.p05, auth.quantiles.p95], median: auth.quantiles.p50 } : null) : d ? rangeOf(d) : null;
       const band = auth && !range && auth.p10 != null && auth.p90 != null ? { lo: auth.p10, hi: auth.p90, median: auth.median } : null;

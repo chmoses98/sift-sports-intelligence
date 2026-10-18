@@ -16,6 +16,7 @@ import { routes } from '../../lib/routes';
 import { ProjectionNote } from '../../components/ProjectionNote';
 import { useAuthority } from '../../data/projections';
 import { thresholdProbability, type ProjectionAuthority, type Resolution } from '../../lib/projectionAuthority';
+import type { LegacyCandidate } from '../../lib/projectionFallback';
 import '../../styles/mlb.css';
 
 /** The selected projection's answer for a rung (set by applyAuthority for a stat whose approved engine is the foundation model). */
@@ -133,8 +134,15 @@ export function applyAuthority(b: PropBoard, authority: ProjectionAuthority | nu
     families: p.families.map((f): FamilyBlock => {
       const stat = AUTHORITY_STAT[f.family];
       if (!stat) return f;
-      const res = authority.resolve({ stat, name: p.name, team: p.team });
+      // the publisher's own projection is the candidate an approved fallback is checked on
+      const e = f.expected;
+      const candidate: LegacyCandidate | null = e && e.mean != null ? {
+        mean: e.mean, interval: e.p10 != null && e.p90 != null ? { lo: e.p10, hi: e.p90 } : null, generatedAt: f.generatedAt, designation: null,
+        starter: f.rows.some((r) => r.pp && isProjected(r.pp.status)) && !f.rows.some((r) => r.pp?.status === 'PLAYER_NOT_STARTING'),
+      } : null;
+      const res = authority.resolve({ stat, name: p.name, team: p.team }, candidate);
       if (res.kind === 'legacy') return f;
+      if (res.kind === 'fallback') return { ...f, selected: res };    // the publisher's number stands alone, with the reason it is shown
       const v = res.kind === 'authoritative' ? res.value : null;
       return {
         ...f, selected: res,

@@ -11,7 +11,8 @@ import { rankView, type RankView } from '../lib/rank';
 import { gameSides, matchupObs, type GameSides, type Side } from './game';
 import { nameKey } from './context';
 import { isFullGame } from '../lib/period';
-import { typicalWidth, type ProjectionAuthority } from '../lib/projectionAuthority';
+import { typicalWidth, usesEstablished, type ProjectionAuthority } from '../lib/projectionAuthority';
+import type { LegacyCandidate } from '../lib/projectionFallback';
 
 export const PROP_STATS: { stat: string; sim: string; label: string; unit: string; star: number; def: string; defUnit: string }[] = [
   { stat: 'rushing_yards', sim: 'met_nfl.sim_rushing_yards', label: 'Rushing yards', unit: 'yds', star: 80, def: 'met_nfl.adj_def_rush_epa', defUnit: 'run defense' },
@@ -76,6 +77,12 @@ export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides |
   if (!g) return [];
   const out: PropCard[] = [];
   const out_ = new Set((r.context?.injuries ?? []).filter((i) => ['OUT', 'INJURED_RESERVE', 'DOUBTFUL', 'SUSPENDED'].includes(i.status)).map((i) => nameKey(/^(.+?) \(/.exec(i.detail ?? '')?.[1])));
+  // the listed designation of every player, for the established-model fallback's availability check
+  const injuryDesignation = new Map<string, string>();
+  for (const i of r.context?.injuries ?? []) {
+    const nm = /^(.+?) \(/.exec(i.detail ?? '')?.[1];
+    if (nm) injuryDesignation.set(nameKey(nm), i.status);
+  }
   const byPlayerStat = new Map<string, Market[]>();
   for (const m of markets) {
     const stat = (m.extensions as { stat?: string } | null)?.stat;
@@ -91,9 +98,18 @@ export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides |
       if (s.stat === 'passing_yards' && p.role !== 'QB') continue;
       if (s.stat !== 'passing_yards' && p.role === 'QB') continue;
       // one engine per stat: a stat whose projection is withheld has no card (the prop board says why)
-      const res = authority ? authority.resolve({ stat: s.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }) : { kind: 'legacy' as const };
+      const dEstablished = r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === s.sim);
+      const rangeEstablished = dEstablished ? rangeOf(dEstablished) : null;
+      const mainEarly = mainLine(byPlayerStat.get(`${p.participant_id}|${s.stat}`) ?? []);
+      const nameKeyP = nameKey(p.display_name);
+      const candidate: LegacyCandidate | null = dEstablished && dEstablished.mean != null ? {
+        mean: dEstablished.mean, interval: rangeEstablished ? { lo: rangeEstablished.full[0], hi: rangeEstablished.full[1] } : null,
+        generatedAt: r.generated_at ?? null, designation: injuryDesignation.get(nameKeyP) ?? null,
+        line: mainEarly?.threshold != null ? Number(overLine(mainEarly.threshold)) : null, checkLine: true,
+      } : null;
+      const res = authority ? authority.resolve({ stat: s.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }, candidate) : { kind: 'legacy' as const };
       if (res.kind === 'withheld') continue;
-      const d = res.kind === 'legacy' ? r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === s.sim) : null;
+      const d = usesEstablished(res) ? dEstablished : null;
       const auth = res.kind === 'authoritative' ? res.value : null;
       const range: PropRange | null = auth ? (auth.quantiles ? { typical: [auth.quantiles.p25, auth.quantiles.p75], full: [auth.quantiles.p05, auth.quantiles.p95], median: auth.quantiles.p50 } : null) : d ? rangeOf(d) : null;
       const band = auth && !range && auth.p10 != null && auth.p90 != null ? { lo: auth.p10, hi: auth.p90 } : null;

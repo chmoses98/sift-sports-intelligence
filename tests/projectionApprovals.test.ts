@@ -47,8 +47,13 @@ describe('promotion approvals vs the frozen holdout evidence', () => {
     for (const f of ['minutes', 'points', 'rebounds', 'assists', 'threes', 'pra', 'fga']) expect(decision('NBA', f)).toBe('APPROVED_PENDING_LIVE_INPUTS');
   });
 
-  it('never approves an automatic fallback to the other engine', () => {
-    for (const a of APPROVALS) expect(a.fallback).toBeNull();
+  it('approves a fallback to the established model only where it is explicit, bounded and narrow', () => {
+    const withFb = APPROVALS.filter((a) => a.fallback);
+    expect(withFb.map((a) => `${a.sport}:${a.family}`).sort()).toEqual(['MLB:outs', 'MLB:pitcher_strikeouts', 'NFL:completions', 'NFL:receptions']);
+    for (const a of withFb) {
+      expect(a.fallback!.triggers).toEqual(['FEED_UNAVAILABLE', 'STALE', 'NOT_PUBLISHED']);   // never OUT, GATE_BLOCK, INCOHERENT, FAMILY_NOT_READY, NOT_PROJECTED
+    }
+    for (const a of APPROVALS.filter((x) => !x.fallback)) expect(a.fallback).toBeNull();
   });
 
   it('requires a verified starter for every promoted MLB pitcher stat', () => {

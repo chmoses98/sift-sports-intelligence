@@ -115,6 +115,36 @@ describe('NFL prop board: one projection per stat', () => {
   });
 });
 
+describe('fallback on the board: one number, never two', () => {
+  const qbRow = legacy.rows.find((r) => r.def.stat === 'completions' && r.main && r.projection != null)!;
+  const withFresh = (over: Partial<EventResearchDoc> = {}) => ({ ...ev, generated_at: new Date(NOW - 5 * 3.6e6).toISOString(), ...over }) as EventResearchDoc;
+  const rowFor = (b: ReturnType<typeof propBoard>) => b.rows.find((r) => r.id === qbRow.id)!;
+  it('feed missing: the established simulation is shown alone — its mean, range and rung probabilities — labelled as the established projection', () => {
+    const r = rowFor(propBoard(withFresh(), det, undefined, makeAuthority('NFL', null, NOW)));
+    expect(r.projectionStatus).toMatchObject({ kind: 'fallback', trigger: 'FEED_UNAVAILABLE' });
+    expect(r.projection).toBe(qbRow.projection);
+    expect(r.range).toEqual(qbRow.range);
+    expect(r.ladder.map((x) => x.modelP)).toEqual(qbRow.ladder.map((x) => x.modelP));
+    expect(r.band).toBeNull();
+  });
+  it('the established number is not used when the publication is stale or lists the player questionable', () => {
+    const staleDoc = withFresh({ generated_at: new Date(NOW - 20 * 864e5).toISOString() });
+    expect(rowFor(propBoard(staleDoc, det, undefined, makeAuthority('NFL', null, NOW))).projection).toBeNull();
+    const injured = withFresh({ context: { ...ev.context, injuries: [...(ev.context?.injuries ?? []), { status: 'QUESTIONABLE', detail: `${qbRow.name} (QB, ${qbRow.team.abbr}): knee` }] } as EventResearchDoc['context'] });
+    const r = rowFor(propBoard(injured, det, undefined, makeAuthority('NFL', null, NOW)));
+    expect(r.projection).toBeNull();
+    expect(r.projectionStatus).toMatchObject({ kind: 'withheld' });
+    expect(JSON.stringify(r.projectionStatus)).toMatch(/listed questionable/);
+  });
+  it('receptions never fall back without the feed’s own evidence; a fresh feed row always wins over the established number', () => {
+    const rec = propBoard(withFresh(), det, undefined, makeAuthority('NFL', null, NOW)).rows.find((r) => r.id === target.id)!;
+    expect(rec.projectionStatus).toMatchObject({ kind: 'withheld', code: 'FEED_UNAVAILABLE' });
+    expect(rec.projection).toBeNull();
+    const live = rowOf(propBoard(withFresh(), det, undefined, makeAuthority('NFL', feedFor(target), NOW)));
+    expect(live.projectionStatus.kind).toBe('authoritative');
+  });
+});
+
 describe('Props to watch cards: the same value as the board', () => {
   const cardOf = (cards: ReturnType<typeof propCards>) => cards.find((c) => c.id === target.id);
   it('a promoted stat’s card carries the board’s projection and range; a withheld one has no card', () => {
@@ -173,7 +203,45 @@ describe('MLB pitcher block', () => {
   });
 });
 
+describe('MLB pitcher fallback', () => {
+  const markets = () => readMlb<EventDetailDoc>('event_detail/evt_f809f61380cdbb0eb4f0.json').markets;
+  const base = () => mlbBoard(markets(), ['LAD', 'ATL']);
+  const fam = (b: ReturnType<typeof base>) => b.pitchers.find((p) => p.name === 'Tyler Glasnow')!.families.find((f) => f.family === 'pitcher_strikeouts')!;
+  it('with the feed missing and a fresh publisher projection the publisher’s number stands alone, with the reason', () => {
+    const before = fam(base());
+    const fresh = base();
+    fam(fresh).generatedAt = new Date(NOW - 3 * 3.6e6).toISOString();
+    const after = fam(applyAuthority(fresh, makeAuthority('MLB', null, NOW)));
+    expect(after.selected).toMatchObject({ kind: 'fallback', trigger: 'FEED_UNAVAILABLE' });
+    expect(after.expected).toEqual(before.expected);
+    expect(after.rows.every((r) => r.sel === undefined)).toBe(true);        // its own rung probabilities, no second set
+  });
+  it('a stale publisher projection is not used', () => {
+    const b = base();
+    fam(b).generatedAt = new Date(NOW - 5 * 864e5).toISOString();
+    const after = fam(applyAuthority(b, makeAuthority('MLB', null, NOW)));
+    expect(after.selected).toMatchObject({ kind: 'withheld' });
+    expect(after.expected).toBeNull();
+  });
+});
+
 describe('components', () => {
+  it('shows the established projection alone, with why, when it is the approved fallback', () => {
+    render(<ProjectionNote resolution={{ kind: 'fallback', trigger: 'STALE', reason: 'inputs are 9 days ago, older than the 192h freshness limit' }} variant="full" />);
+    const el = screen.getByTestId('projection-note');
+    expect(el).toHaveAttribute('data-state', 'fallback');
+    expect(el).toHaveTextContent('Established projection');
+    expect(el).toHaveTextContent(/Shown because inputs are 9 days ago/);
+    expect(el).toHaveTextContent('Moderate reliability');
+    expect(el.textContent).not.toMatch(/shadow|independent|incumbent|challenger|disagree|agrees/i);
+    expect(el.textContent).not.toMatch(/\b\d+\.\d\b/);                   // the note carries no second number
+  });
+  it('Player Snapshot shows nothing (not a withheld notice) where another surface may fall back', async () => {
+    setFetchJson(async () => { throw new NotFoundError('x'); });
+    const r = render(<PlayerProjectionNote sport="NFL" stat="completions" playerId="1" now={NOW} />);
+    await new Promise((res) => setTimeout(res, 30));
+    expect(r.container).toBeEmptyDOMElement();
+  });
   it('ProjectionNote renders nothing for an established-model stat', () => {
     const r = render(<ProjectionNote resolution={{ kind: 'legacy' }} />);
     expect(r.container).toBeEmptyDOMElement();

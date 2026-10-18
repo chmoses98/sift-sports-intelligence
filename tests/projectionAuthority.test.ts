@@ -149,3 +149,138 @@ describe('team projections', () => {
     expect(teams('CFB', { team_points: {} }).resolveTeams({ family: 'team_points', home: 'MICH', away: 'IOWA' }).kind).toBe('withheld');
   });
 });
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The approved established-model fallback.
+import { approvalFor, APPROVALS } from '../src/lib/projectionApprovals';
+import { legacyFallbackProblems, type LegacyCandidate } from '../src/lib/projectionFallback';
+import { usesEstablished } from '../src/lib/projectionAuthority';
+
+const good = (over: Partial<LegacyCandidate> = {}): LegacyCandidate => ({
+  mean: 21.9, interval: { lo: 14, hi: 30 }, generatedAt: new Date(NOW - 5 * 3.6e6).toISOString(), designation: null, line: 23.5, checkLine: true, ...over,
+});
+const QB = { stat: 'completions', playerId: '00-0036900', name: "Ja'Marr Chase", team: 'CIN', opponent: 'PIT' };
+const qb = (over: object = {}) => nflPlayer({ family: 'completions', mean: 22, p10: 17, p90: 27, thresholds: { '18': 0.9, '22': 0.5 }, ...over });
+const stale = new Date(NOW - 12 * 864e5).toISOString();
+
+describe('which stats may fall back (explicit approvals)', () => {
+  it('only promoted stats that already have a production number SIFT shows, never a descriptive baseline', () => {
+    const fb = APPROVALS.filter((a) => a.fallback).map((a) => `${a.sport}:${a.family}`).sort();
+    expect(fb).toEqual(['MLB:outs', 'MLB:pitcher_strikeouts', 'NFL:completions', 'NFL:receptions']);
+    for (const a of APPROVALS.filter((x) => x.fallback)) {
+      expect(a.decision).toBe('PROMOTED');
+      expect(a.competingProductionNumber).toBe(true);
+      expect(a.fallback!.engine).toBe('legacy');
+      expect(a.fallback!.approval).toMatch(/Owner-approved/);
+    }
+    expect(approvalFor('CFB', 'team_points')!.fallback).toBeNull();      // the script engine's baseline points are "not a projection"
+    expect(approvalFor('NFL', 'receptions')!.fallback!.requiresKnownSegments).toBe(true);
+  });
+});
+
+describe('fallback happens only when the feed is missing, stale or has not published the game, and the established number passes its own checks', () => {
+  it('feed missing: the established projection is shown alone, with the trigger', () => {
+    const r = makeAuthority('NFL', null, NOW).resolve(QB, good());
+    expect(r).toEqual({ kind: 'fallback', trigger: 'FEED_UNAVAILABLE', reason: 'the projection feed is unavailable right now' });
+    expect(usesEstablished(r)).toBe(true);
+    expect(JSON.stringify(r)).not.toMatch(/\b22\b|21\.9/);                  // the resolution carries no number: the page reads the established one
+  });
+  it('feed stale', () => {
+    const a = makeAuthority('NFL', decoded('NFL', [qb({ data_asof_utc: stale })], { completions: {} }), NOW);
+    expect(a.resolve(QB, good())).toMatchObject({ kind: 'fallback', trigger: 'STALE' });
+  });
+  it('game not yet in the feed (outside its window) — but a player missing from a game the feed covers is NOT a fallback case', () => {
+    const doc = decoded('NFL', [qb({ team: 'BAL', opponent: 'CLE', player_id: 'x', name: 'Someone Else' })], { completions: {} });
+    const a = makeAuthority('NFL', doc, NOW);
+    expect(a.resolve({ ...QB, team: 'CIN', opponent: 'PIT' }, good())).toMatchObject({ kind: 'fallback', trigger: 'NOT_PUBLISHED' });
+    const covered = makeAuthority('NFL', decoded('NFL', [qb({ player_id: 'other', name: 'Other QB' })], { completions: {} }), NOW);
+    expect(covered.resolve({ ...QB, playerId: 'zzz', name: 'Backup QB' }, good())).toMatchObject({ kind: 'withheld', code: 'NOT_PROJECTED' });
+  });
+  it('a fresh, healthy feed row is always the number: the established model is not even consulted', () => {
+    const a = makeAuthority('NFL', decoded('NFL', [qb()], { completions: {} }), NOW);
+    expect(a.resolve(QB, good()).kind).toBe('authoritative');
+    expect(a.resolve(QB, null).kind).toBe('authoritative');
+  });
+  it('a stat with no approval is withheld, however good the established number is', () => {
+    const r = makeAuthority('NFL', null, NOW).resolve({ stat: 'targets', playerId: 'p', name: 'X', team: 'CIN' }, good());
+    expect(r).toMatchObject({ kind: 'withheld', code: 'FEED_UNAVAILABLE' });
+    expect((r as { fallbackEligible?: boolean }).fallbackEligible).toBeUndefined();
+  });
+  it('without an established candidate to check the page cannot fall back: eligible but withheld', () => {
+    const r = makeAuthority('NFL', null, NOW).resolve(QB);
+    expect(r).toMatchObject({ kind: 'withheld', code: 'FEED_UNAVAILABLE', fallbackEligible: true });
+  });
+});
+
+describe('the fallback never applies to a structural problem, an absent player, or unverifiable information', () => {
+  const stalePlayer = (over: object) => makeAuthority('NFL', decoded('NFL', [qb({ data_asof_utc: stale, ...over })], { completions: {} }), NOW).resolve(QB, good());
+  it('player out (confirmed or likely), even though the feed is stale', () => {
+    expect(stalePlayer({ participation: part('CONFIRMED_OUT') })).toMatchObject({ kind: 'withheld', code: 'OUT' });
+    expect(stalePlayer({ participation: part('LIKELY_OUT') })).toMatchObject({ kind: 'withheld', code: 'OUT' });
+  });
+  it('quality gate BLOCK, an incoherent distribution, a family no longer READY', () => {
+    expect(stalePlayer({ gate: { status: 'BLOCK', findings: [{ check: 'x', severity: 'BLOCK', what: 'bad input', category: 'c', action: '' }] } })).toMatchObject({ code: 'GATE_BLOCK' });
+    expect(stalePlayer({ p10: 30, p90: 10 })).toMatchObject({ code: 'INCOHERENT' });
+    const a = makeAuthority('NFL', decoded('NFL', [qb()], { completions: { readiness: 'NEEDS IMPROVEMENT' } }), NOW);
+    expect(a.resolve(QB, good())).toMatchObject({ kind: 'withheld', code: 'FAMILY_NOT_READY' });
+  });
+  it('a first game with a new team (a documented defect) on a stale row', () => {
+    const r = stalePlayer({ segments: { new_team_first4: true, tier: 'starter', backup: false, rookie: false } });
+    expect(r).toMatchObject({ kind: 'withheld', code: 'STALE' });
+    expect((r as { fallbackEligible?: boolean }).fallbackEligible).toBeUndefined();
+  });
+  it('receptions: no feed row means no evidence the player is outside the new-team defect, so no fallback; a stale row that shows he is not is enough', () => {
+    const recQ = { stat: 'receptions', playerId: '00-0036900', team: 'CIN', opponent: 'PIT' };
+    expect(makeAuthority('NFL', null, NOW).resolve(recQ, good())).toMatchObject({ kind: 'withheld', code: 'FEED_UNAVAILABLE' });
+    const notYet = makeAuthority('NFL', decoded('NFL', [nflPlayer({ team: 'BAL', opponent: 'CLE', player_id: 'x', name: 'S' })], { receptions: {} }), NOW);
+    expect(notYet.resolve(recQ, good()).kind).toBe('withheld');
+    const staleOk = makeAuthority('NFL', decoded('NFL', [nflPlayer({ data_asof_utc: stale })], { receptions: {} }), NOW);
+    expect(staleOk.resolve(recQ, good())).toMatchObject({ kind: 'fallback', trigger: 'STALE' });
+    const staleNew = makeAuthority('NFL', decoded('NFL', [nflPlayer({ data_asof_utc: stale, segments: { new_team_first4: true, tier: 'starter', backup: false, rookie: false } })], { receptions: {} }), NOW);
+    expect(staleNew.resolve(recQ, good()).kind).toBe('withheld');
+    const noSegments = makeAuthority('NFL', decoded('NFL', [nflPlayer({ data_asof_utc: stale, segments: undefined })], { receptions: {} }), NOW);
+    expect(noSegments.resolve(recQ, good()).kind).toBe('withheld');       // segments not published = cannot rule the defect out
+  });
+  it('MLB: an unconfirmed starter is withheld by the feed check, and the fallback needs the publisher to project him as a starter', () => {
+    const mq = { stat: 'pitcher_strikeouts', name: 'Tyler Glasnow', team: 'LAD' };
+    const cand = good({ mean: 7.4, interval: { lo: 4, hi: 11 }, line: null, checkLine: false, starter: true });
+    expect(makeAuthority('MLB', null, NOW).resolve(mq, cand)).toMatchObject({ kind: 'fallback' });
+    expect(makeAuthority('MLB', null, NOW).resolve(mq, { ...cand, starter: false })).toMatchObject({ kind: 'withheld' });
+    const unverified = makeAuthority('MLB', decoded('MLB', [mlbPitcher({ participation: part('UNVERIFIED'), data_asof_utc: stale })], { pitcher_strikeouts: {} }), NOW);
+    expect(unverified.resolve(mq, cand)).toMatchObject({ kind: 'withheld', code: 'OUT' });
+  });
+});
+
+describe('the established projection must pass its own freshness, availability and quality checks', () => {
+  const run = (c: LegacyCandidate | null) => makeAuthority('NFL', null, NOW).resolve(QB, c);
+  const reason = (r: ReturnType<typeof run>) => (r.kind === 'withheld' ? r.reason : '');
+  it('freshness: old, undated or future-dated publications fail', () => {
+    expect(reason(run(good({ generatedAt: stale })))).toMatch(/published 288h ago, older than the 192h/);
+    expect(reason(run(good({ generatedAt: null })))).toMatch(/publication time is unknown/);
+    expect(reason(run(good({ generatedAt: new Date(NOW + 5 * 3.6e6).toISOString() })))).toMatch(/in the future/);
+  });
+  it('availability: any designation beyond active/probable/available fails (injury, doubtful, questionable, suspended)', () => {
+    for (const d of ['QUESTIONABLE', 'DOUBTFUL', 'OUT', 'INJURED_RESERVE', 'SUSPENDED']) expect(run(good({ designation: d })).kind, d).toBe('withheld');
+    for (const d of [null, 'ACTIVE', 'PROBABLE', 'AVAILABLE']) expect(run(good({ designation: d })).kind, String(d)).toBe('fallback');
+  });
+  it('quality: missing, negative or NaN mean; inverted range; mean outside its range; line outside the simulated range; no range', () => {
+    expect(run(good({ mean: null })).kind).toBe('withheld');
+    expect(run(good({ mean: -1 })).kind).toBe('withheld');
+    expect(run(good({ mean: Number.NaN })).kind).toBe('withheld');
+    expect(reason(run(good({ interval: { lo: 30, hi: 14 } })))).toMatch(/inverted/);
+    expect(reason(run(good({ mean: 60 })))).toMatch(/outside its own range/);
+    expect(reason(run(good({ line: 45 })))).toMatch(/pricing different roles/);
+    expect(reason(run(good({ interval: null })))).toMatch(/no range/);
+    expect(run(null)).toMatchObject({ kind: 'withheld' });
+  });
+  it('a failed check keeps the withheld reason and adds why the established number was not used; no number either way', () => {
+    const r = run(good({ designation: 'QUESTIONABLE' }));
+    expect(r).toMatchObject({ kind: 'withheld', code: 'FEED_UNAVAILABLE' });
+    expect(reason(r)).toBe('the projection feed is unavailable right now, and the established projection could not be used: the player is listed questionable');
+    expect((r as { fallbackEligible?: boolean }).fallbackEligible).toBeUndefined();
+  });
+  it('legacyFallbackProblems is pure and sport-aware (MLB freshness limit is 36h)', () => {
+    expect(legacyFallbackProblems('MLB', 'outs', good({ generatedAt: new Date(NOW - 40 * 3.6e6).toISOString(), checkLine: false }), NOW)[0]).toMatch(/older than the 36h/);
+    expect(legacyFallbackProblems('NFL', 'completions', good({ generatedAt: new Date(NOW - 40 * 3.6e6).toISOString() }), NOW)).toEqual([]);
+  });
+});

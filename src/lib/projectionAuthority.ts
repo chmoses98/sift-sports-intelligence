@@ -7,22 +7,28 @@
 //      gate not BLOCK, not confirmed/likely out, coherent, fresh) and returns EITHER one authoritative value with its
 //      range, reliability, availability and update time, OR a withheld reason.
 //
-// A withheld promoted projection is never replaced by the legacy number: the page shows the reason and no value. There
-// is no automatic fallback (Approval.fallback is null for every family). Probabilities for a rung come from the same
-// published distribution as the expected value (thresholdProbability), never from the other engine.
+// A withheld promoted projection is never silently replaced by the legacy number: the page shows the reason and no value.
+// The one exception is an explicit, per-stat fallback approval (Approval.fallback), usable only when the feed is missing,
+// stale or has not yet published the game, and only if the established projection independently passes the freshness,
+// availability and quality checks in projectionFallback.ts. It is never used when the player is out, the feed shows a
+// structural defect for him, or what is needed to rule one out is missing. The result is `kind: 'fallback'`: the page
+// shows the established number alone, labelled as such. Probabilities for a rung come from the same published
+// distribution as the expected value (thresholdProbability), never from the other engine.
+//
 //
 // Reliability describes the projection's data quality, never betting value, and nothing here changes betting authority.
 import {
   coherenceProblems, familyOf, teamKey, findProjection, findTeamProjections, fmtAge, MAX_AGE_H, PARTICIPATION_WORDS,
   type GateFinding, type Participation, type PlayerProjection, type ProjectionDoc, type ProjSport,
 } from './projections';
-import { approvalFor, engineFor } from './projectionApprovals';
+import { approvalFor, engineFor, type FallbackTrigger } from './projectionApprovals';
+import { legacyFallbackProblems, type LegacyCandidate } from './projectionFallback';
 
 export type Reliability = 'HIGH' | 'MODERATE' | 'LOW';
 export const RELIABILITY_WORDS: Record<Reliability, string> = { HIGH: 'High reliability', MODERATE: 'Moderate reliability', LOW: 'Low reliability' };
 
 export type WithheldCode =
-  | 'FEED_UNAVAILABLE' | 'FAMILY_NOT_PUBLISHED' | 'FAMILY_NOT_READY' | 'NOT_PROJECTED' | 'GATE_BLOCK' | 'OUT' | 'INCOHERENT' | 'STALE';
+  | 'FEED_UNAVAILABLE' | 'FAMILY_NOT_PUBLISHED' | 'FAMILY_NOT_READY' | 'NOT_PUBLISHED' | 'NOT_PROJECTED' | 'GATE_BLOCK' | 'OUT' | 'INCOHERENT' | 'STALE';
 
 export interface Availability { status: Participation; words: string; source: string | null; capturedUtc: string | null }
 export interface AuthoritativeValue {
@@ -51,22 +57,36 @@ export interface AuthoritativeValue {
   modelVersion: string;
 }
 export type Resolution =
+  /** the stat's approved engine is the established model: the page shows its own number */
   | { kind: 'legacy' }
-  | { kind: 'withheld'; code: WithheldCode; reason: string }
+  /**
+   * a promoted stat whose feed is missing / stale / unpublished, shown from the established model under an explicit
+   * approval after it passed its own checks. The page shows the established number ALONE and says why.
+   */
+  | { kind: 'fallback'; trigger: FallbackTrigger; reason: string }
+  /** `fallbackEligible`: an approval covers this situation and no structural defect was found, but no established
+   *  candidate was supplied to check (callers that show no established number ignore it) */
+  | { kind: 'withheld'; code: WithheldCode; reason: string; fallbackEligible?: boolean }
   | { kind: 'authoritative'; value: AuthoritativeValue };
+
+/** Whether the page should read the established model's numbers for this row (its own stat, or an approved fallback). */
+export const usesEstablished = (r: Resolution): boolean => r.kind === 'legacy' || r.kind === 'fallback';
 
 export interface StatQuery { stat: string; playerId?: string | null; name?: string | null; team?: string | null; gameId?: string | null; opponent?: string | null }
 export interface TeamQuery { family: string; home: string; away: string; startUtc?: string | null }
 
 export interface ProjectionAuthority {
   sport: ProjSport;
-  /** the stat's player projection, or why there is none */
-  resolve(q: StatQuery): Resolution;
+  /**
+   * The stat's player projection, or why there is none. `legacy` is the established publication's own candidate for this
+   * player and stat: `undefined` = the caller shows no established number (no fallback is attempted); `null` = it has none.
+   */
+  resolve(q: StatQuery, legacy?: LegacyCandidate | null): Resolution;
   /** both teams' projections for one game family (e.g. team_points), or why there is none */
   resolveTeams(q: TeamQuery): { kind: 'legacy' } | { kind: 'withheld'; code: WithheldCode; reason: string } | { kind: 'authoritative'; teams: { team: string; value: AuthoritativeValue }[] };
 }
 
-const withheld = (code: WithheldCode, reason: string): Resolution => ({ kind: 'withheld', code, reason });
+const withheld = (code: WithheldCode, reason: string, fallbackEligible = false): Resolution => ({ kind: 'withheld', code, reason, ...(fallbackEligible ? { fallbackEligible } : {}) });
 
 function ageOf(iso: string | null, nowMs: number): number | null {
   const t = iso ? Date.parse(iso) : NaN;
@@ -107,38 +127,62 @@ function playerValue(sport: ProjSport, doc: ProjectionDoc, p: PlayerProjection, 
  */
 export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs: number, rollback?: { sport: string; family: string }[]): ProjectionAuthority {
   const maxAge = MAX_AGE_H[sport];
+  /** an approved fallback covers this situation (trigger) and, where the family needs it, the feed showed no defect segment */
+  const eligible = (family: string, code: FallbackTrigger, p?: PlayerProjection): boolean => {
+    const fb = approvalFor(sport, family)?.fallback;
+    if (!fb || !fb.triggers.includes(code)) return false;
+    if (fb.requiresKnownSegments && !(p && p.segments && !p.segments.newTeamFirst4)) return false;
+    return true;
+  };
   const gateFamily = (family: string): Resolution | null => {
-    if (!doc) return withheld('FEED_UNAVAILABLE', 'the projection feed is unavailable right now');
+    if (!doc) return withheld('FEED_UNAVAILABLE', 'the projection feed is unavailable right now', eligible(family, 'FEED_UNAVAILABLE'));
     const info = doc.families[family];
     if (!info) return withheld('FAMILY_NOT_PUBLISHED', 'the projection model has not published this stat');
     if (info.readiness !== 'READY') return withheld('FAMILY_NOT_READY', 'the projection model is not currently validated for this stat');
     return null;
   };
+  const foundation = (q: StatQuery): Resolution => {
+    const family = familyOf(q.stat);
+    if (engineFor(sport, family, rollback) === 'legacy') return { kind: 'legacy' };
+    const blocked = gateFamily(family);
+    if (blocked) return blocked;
+    const d = doc!;
+    const p = findProjection(d, q);
+    if (!p) {
+      // a game the feed has no rows for at all is "not published yet"; a player missing from a game it does cover is outside the population
+      const covered = (!!q.team && d.players.some((x) => teamKey(x.team) === teamKey(q.team!) && (!q.opponent || !x.opponent || teamKey(x.opponent) === teamKey(q.opponent))))
+        || (!!q.playerId && d.players.some((x) => x.playerId === q.playerId));
+      return covered
+        ? withheld('NOT_PROJECTED', 'this player is outside the projection model’s population for this game')
+        : withheld('NOT_PUBLISHED', 'projections for this game have not been published yet', eligible(family, 'NOT_PUBLISHED'));
+    }
+    if (p.gate.status === 'BLOCK') {
+      const f = p.gate.findings.find((x) => x.severity === 'BLOCK');
+      return withheld('GATE_BLOCK', f ? f.what : 'the quality gate blocked this projection');
+    }
+    const status = p.participation?.status;
+    if (status === 'CONFIRMED_OUT') return withheld('OUT', 'confirmed out before the game');
+    if (status === 'LIKELY_OUT') return withheld('OUT', 'likely out before the game');
+    if (approvalFor(sport, family)?.requiresVerifiedParticipation && status !== 'CONFIRMED_ACTIVE' && status !== 'LIKELY_ACTIVE') {
+      return withheld('OUT', 'the starter is not confirmed or listed as the probable starter');
+    }
+    const probs = coherenceProblems(p);
+    if (probs.length) return withheld('INCOHERENT', probs[0]);
+    const age = ageOf(p.dataAsOf, nowMs);
+    if (age == null || age > maxAge) {
+      // a stale row that already shows a structural defect (first games with a new team) is not a reason to use the other engine
+      return withheld('STALE', `inputs are ${fmtAge(age)}, older than the ${maxAge}h freshness limit`, !p.segments?.newTeamFirst4 && eligible(family, 'STALE', p));
+    }
+    return { kind: 'authoritative', value: playerValue(sport, d, p, nowMs, p.gate.findings.filter((f) => f.severity === 'REVIEW')) };
+  };
   return {
     sport,
-    resolve(q) {
-      const family = familyOf(q.stat);
-      if (engineFor(sport, family, rollback) === 'legacy') return { kind: 'legacy' };
-      const blocked = gateFamily(family);
-      if (blocked) return blocked;
-      const d = doc!;
-      const p = findProjection(d, q);
-      if (!p) return withheld('NOT_PROJECTED', 'this player is outside the projection model’s population for this game');
-      if (p.gate.status === 'BLOCK') {
-        const f = p.gate.findings.find((x) => x.severity === 'BLOCK');
-        return withheld('GATE_BLOCK', f ? f.what : 'the quality gate blocked this projection');
-      }
-      const status = p.participation?.status;
-      if (status === 'CONFIRMED_OUT') return withheld('OUT', 'confirmed out before the game');
-      if (status === 'LIKELY_OUT') return withheld('OUT', 'likely out before the game');
-      if (approvalFor(sport, family)?.requiresVerifiedParticipation && status !== 'CONFIRMED_ACTIVE' && status !== 'LIKELY_ACTIVE') {
-        return withheld('OUT', 'the starter is not confirmed or listed as the probable starter');
-      }
-      const probs = coherenceProblems(p);
-      if (probs.length) return withheld('INCOHERENT', probs[0]);
-      const age = ageOf(p.dataAsOf, nowMs);
-      if (age == null || age > maxAge) return withheld('STALE', `inputs are ${fmtAge(age)}, older than the ${maxAge}h freshness limit`);
-      return { kind: 'authoritative', value: playerValue(sport, d, p, nowMs, p.gate.findings.filter((f) => f.severity === 'REVIEW')) };
+    resolve(q, legacy) {
+      const r = foundation(q);
+      if (r.kind !== 'withheld' || !r.fallbackEligible || legacy === undefined) return r;
+      const problems = legacyFallbackProblems(sport, familyOf(q.stat), legacy, nowMs);
+      if (problems.length) return { kind: 'withheld', code: r.code, reason: `${r.reason}, and the established projection could not be used: ${problems[0]}` };
+      return { kind: 'fallback', trigger: r.code as FallbackTrigger, reason: r.reason };
     },
     resolveTeams(q) {
       const family = q.family;
@@ -147,7 +191,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
       if (blocked) return blocked;
       const d = doc!;
       const ts = findTeamProjections(d, { home: q.home, away: q.away, startUtc: q.startUtc })?.filter((t) => t.family === family) ?? [];
-      if (ts.length !== 2) return withheld('NOT_PROJECTED', 'projections for this game have not been published yet') as { kind: 'withheld'; code: WithheldCode; reason: string };
+      if (ts.length !== 2) return withheld('NOT_PUBLISHED', 'projections for this game have not been published yet') as { kind: 'withheld'; code: WithheldCode; reason: string };
       const age = ageOf(d.dataAsOf ?? d.generatedAt, nowMs);
       if (age == null || age > maxAge) return withheld('STALE', `inputs are ${fmtAge(age)}, older than the ${maxAge}h freshness limit`) as { kind: 'withheld'; code: WithheldCode; reason: string };
       const order = [teamKey(q.away), teamKey(q.home)];

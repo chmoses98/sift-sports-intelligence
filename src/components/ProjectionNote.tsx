@@ -26,6 +26,15 @@ interface NoteProps {
 
 export function ProjectionNote({ resolution, variant = 'full', showValue = false }: NoteProps) {
   if (resolution.kind === 'legacy') return null;
+  if (resolution.kind === 'fallback') {
+    // the established projection, alone, with the reason it is shown (it has passed its own freshness, availability and quality checks)
+    if (variant === 'micro') return <small className="pf-micro pf-micro--caution" data-testid="projection-note" data-state="fallback" title={`Shown because ${resolution.reason}.`}>Established projection · {RELIABILITY_WORDS.MODERATE}</small>;
+    return (
+      <p className={`intel intel--line intel--caution${variant === 'compact' ? ' intel--compact' : ''}`} role="note" data-testid="projection-note" data-state="fallback">
+        <span className="intel__tag">Established projection</span> Shown because {resolution.reason}. It passed its own freshness, availability and quality checks. {RELIABILITY_WORDS.MODERATE}.
+      </p>
+    );
+  }
   if (resolution.kind === 'withheld') {
     if (variant === 'micro') return <small className="pf-micro pf-micro--withheld" data-testid="projection-note" data-state="withheld">Projection withheld ({resolution.reason})</small>;
     return (
@@ -70,7 +79,11 @@ interface PlayerProps {
 export function PlayerProjectionNote({ sport, stat, playerId, name, team, gameId, variant = 'micro', showValue = true, now }: PlayerProps) {
   const { authority, ready } = useAuthority(sport, now);
   if (!ready || !authority) return null;
-  return <ProjectionNote resolution={authority.resolve({ stat, playerId, name, team, gameId })} variant={variant} showValue={showValue} />;
+  // this surface shows no established number of its own: where another surface may fall back to it, show nothing here
+  // rather than a withheld notice that would contradict it
+  const res = authority.resolve({ stat, playerId, name, team, gameId });
+  if (res.kind === 'withheld' && res.fallbackEligible) return null;
+  return <ProjectionNote resolution={res} variant={variant} showValue={showValue} />;
 }
 
 const TEAM_LABEL: Record<string, string> = {

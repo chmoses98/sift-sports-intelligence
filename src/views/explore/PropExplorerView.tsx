@@ -15,6 +15,7 @@
 import { ReliabilityLine } from '../../components/IntelligenceNote';
 import { ProjectionNote } from '../../components/ProjectionNote';
 import { loadAuthority } from '../../data/projections';
+import { usesEstablished } from '../../lib/projectionAuthority';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
@@ -251,7 +252,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
             <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projectionStatus.kind === 'withheld' ? 'withheld' : row.projection != null ? (row.projectionStatus.kind === 'authoritative' ? 'projection · research' : 'simulation mean · research') : 'not published'}</dd></div>
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
-          {row.projectionStatus.kind === 'legacy' && <ReliabilityLine stat={row.def.stat} />}
+          {usesEstablished(row.projectionStatus) && <ReliabilityLine stat={row.def.stat} />}
           <ProjectionNote variant="full" resolution={row.projectionStatus} />
           {roleDisagreement(row) && <p className="pexa__warn" role="note"><Icon name="alert" size={16} /> <span>The line sits outside the simulation’s 5th–95th range: the market and the simulation are pricing different roles. Treat this gap as a data question, not a finding.</span></p>}
           {mu && <p className={`pexa__mu pexa__mu--${mu.word}`}><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p>}

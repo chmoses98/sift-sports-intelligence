@@ -26,7 +26,7 @@ const games = upcomingGames(board.items, NOW, 8);
 const rowsOf = (g: BoardItem, research?: EventResearchDoc): DiscoveryRow[] =>
   // the screens resolve against the projection feed, which these tests do not serve: promoted stats are withheld (never
   // shown from the previous model), established-model stats are unchanged — the expectation side must resolve the same way
-  propBoard(research ?? readSnapshot<EventResearchDoc>(`explorer/events/${g.event_id}.json`), readSnapshot<EventDetailDoc>(g.detail_path), undefined, makeAuthority('NFL', null, NOW)).rows
+  propBoard(research ?? readSnapshot<EventResearchDoc>(`explorer/events/${g.event_id}.json`), readSnapshot<EventDetailDoc>(g.detail_path), undefined, makeAuthority('NFL', null, Date.now())).rows
     .map((row) => ({ row, eventId: g.event_id, kickoff: g.start_time_utc, game: gameName(g) }));
 const slate = games.flatMap((g) => rowsOf(g));
 

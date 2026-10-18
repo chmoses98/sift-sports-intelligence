@@ -1,0 +1,49 @@
+<!doctype html><meta charset=utf-8>
+<style>
+:root{--l1:#0b2a5a;--l2:#c60c30;--r1:#0a3d9e;--r2:#c60c30}
+html,body{margin:0;background:#07111f;font-family:Barlow,Arial,sans-serif}
+.hero{position:relative;overflow:hidden;isolation:isolate;background:#030a14;width:var(--w);height:var(--h)}
+.layer{position:absolute;inset:0}
+/* L1 team-colour light fields anchored to the outer edges, centre left dark for text */
+.lf-l{background:radial-gradient(60% 120% at 0% 30%,color-mix(in srgb,var(--l1) 85%,#fff 8%) 0%,transparent 62%),radial-gradient(35% 70% at 0% 100%,color-mix(in srgb,var(--l2) 60%,#000) 0%,transparent 70%)}
+.lf-r{background:radial-gradient(60% 120% at 100% 30%,color-mix(in srgb,var(--r1) 85%,#fff 8%) 0%,transparent 62%),radial-gradient(35% 70% at 100% 100%,color-mix(in srgb,var(--r2) 60%,#000) 0%,transparent 70%)}
+/* floodlight cones */
+.cones{background:
+ conic-gradient(from 198deg at 6% -8%,transparent 0 4deg,#9cc8ff30 8deg,transparent 14deg 40deg),
+ conic-gradient(from 160deg at 94% -8%,transparent 0 4deg,#ffb0b830 8deg,transparent 14deg 40deg),
+ conic-gradient(from 214deg at 22% -12%,transparent 0 3deg,#bcd8ff1f 6deg,transparent 10deg),
+ conic-gradient(from 146deg at 78% -12%,transparent 0 3deg,#ffd0d01f 6deg,transparent 10deg);mix-blend-mode:screen;filter:blur(2px)}
+/* playing-surface perspective: line-art only, not a specific field */
+.surface{display:block;position:absolute;left:-20%;right:-20%;bottom:-6%;height:46%;transform:perspective(380px) rotateX(62deg);transform-origin:50% 100%;
+ background:repeating-linear-gradient(90deg,#9fcbff44 0 2px,transparent 2px 9.09%),linear-gradient(0deg,#0a2a4a66,transparent);opacity:1;
+ -webkit-mask:linear-gradient(0deg,#000 20%,transparent 95%);mask:linear-gradient(0deg,#000 20%,transparent 95%)}
+.haze{background:radial-gradient(70% 28% at 50% 78%,#3a76b855,transparent 70%)}
+.bokeh{background:
+ radial-gradient(circle at 12% 14%,#fff9 0 1.6px,#a9d0ff55 2px,transparent 7px),
+ radial-gradient(circle at 17% 9%,#fff8 0 1.4px,#a9d0ff44 2px,transparent 6px),
+ radial-gradient(circle at 23% 12%,#fff8 0 1.5px,#a9d0ff44 2px,transparent 6px),
+ radial-gradient(circle at 88% 11%,#fff9 0 1.6px,#ffc0c855 2px,transparent 7px),
+ radial-gradient(circle at 83% 8%,#fff8 0 1.4px,#ffc0c844 2px,transparent 6px),
+ radial-gradient(circle at 77% 13%,#fff8 0 1.5px,#ffc0c844 2px,transparent 6px)}
+.grain{opacity:.16;mix-blend-mode:overlay}
+.vig{background:radial-gradient(120% 120% at 50% 40%,transparent 55%,#00040acc 100%)}
+.shade{background:linear-gradient(180deg,#010a154d 0,transparent 24%,transparent 43%,#010a1555 66%,#010a15e6 100%)}
+.txt{position:absolute;inset:0;display:grid;grid-template-columns:1fr var(--mid) 1fr;align-items:end;padding:0 var(--pad) var(--pb);text-align:center;color:#f2f7ff}
+.txt .n{font:800 var(--fs) 'Barlow Condensed',Arial Narrow,sans-serif;text-transform:uppercase;letter-spacing:.01em;line-height:1}
+.txt .c{font:600 calc(var(--fs)*.5) Arial;opacity:.85;letter-spacing:.14em;text-transform:uppercase}
+.txt .mid b{font:800 var(--fsm) 'Barlow Condensed',Arial Narrow,sans-serif}
+.txt .mid{font:500 12px Arial;text-transform:uppercase;display:grid;gap:4px}
+.crest{width:var(--cr);height:var(--cr);margin:0 auto 8px;border-radius:50%;border:2px dashed #ffffff55;display:grid;place-items:center;font:700 11px Arial;color:#ffffff88}
+.tag{position:absolute;left:14px;top:12px;font:700 11px Arial;letter-spacing:.14em;color:#cfe3ff;text-transform:uppercase}
+</style>
+<body>
+<div class=hero id=h style="--w:1352px;--h:454px;--mid:300px;--pad:15%;--pb:18px;--fs:27px;--fsm:34px;--cr:84px">
+ <div class="layer lf-l"></div><div class="layer lf-r"></div><div class="layer haze"></div><div class="surface"></div><div class="layer cones"></div><div class="layer bokeh"></div>
+ <svg class="layer grain" width="100%" height="100%"><filter id=g><feTurbulence type=fractalNoise baseFrequency=.9 numOctaves=2 seed=7 /><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 0"/></filter><rect width=100% height=100% filter=url(#g) /></svg>
+ <div class="layer vig"></div><div class="layer shade"></div>
+ <div class=tag>NFL / Game command center</div>
+ <div class=txt><div><div class=crest>logo</div><div class=n>New England<br>Patriots</div><div class=c>1-2</div></div>
+ <div class=mid><span>Sun, Oct 4</span><b>5:00 PM UTC</b><span>Highmark Stadium</span></div>
+ <div><div class=crest>logo</div><div class=n>Buffalo<br>Bills</div><div class=c>3-0</div></div></div>
+</div>
+</body>

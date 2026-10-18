@@ -147,7 +147,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
       if (blocked) return blocked;
       const d = doc!;
       const ts = findTeamProjections(d, { home: q.home, away: q.away, startUtc: q.startUtc })?.filter((t) => t.family === family) ?? [];
-      if (ts.length !== 2) return withheld('NOT_PROJECTED', 'this game is not in the projection model’s slate') as { kind: 'withheld'; code: WithheldCode; reason: string };
+      if (ts.length !== 2) return withheld('NOT_PROJECTED', 'projections for this game have not been published yet') as { kind: 'withheld'; code: WithheldCode; reason: string };
       const age = ageOf(d.dataAsOf ?? d.generatedAt, nowMs);
       if (age == null || age > maxAge) return withheld('STALE', `inputs are ${fmtAge(age)}, older than the ${maxAge}h freshness limit`) as { kind: 'withheld'; code: WithheldCode; reason: string };
       const order = [teamKey(q.away), teamKey(q.home)];

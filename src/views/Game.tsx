@@ -411,6 +411,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
         <GameHero cinematic={sift2} r={r} homeProf={homeProf.data} awayProf={awayProf.data} sportCode={sport.code} slug={slug} now={now} stats={<CfbHeroStats r={r} engine={engine} markets={quoted.length ? quoted : r.markets} now={now} />} />
         <GameTabs tabs={ENGINE_TABS} current={etab} href={(k) => ehref(k)} />
         {etab !== 'trends' && <EngineDetailNotice engine={engine} />}
+        {etab === 'overview' && <TeamProjections sport={sport.code} home={homeAbbr} away={awayAbbr} startUtc={ev.start_time_utc} now={now} />}
         {etab === 'overview' && engine.claimsV2 && (
           // V2 games: a five-second Quick Read, the best research, and every panel below in a closed Deep Dive.
           <CfbOverview

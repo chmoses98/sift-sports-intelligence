@@ -346,3 +346,27 @@ for (const [name, url] of [
 // No game in the CFB fixture publishes NO_SUPPORTED_CLAIM (the no-claim Quick Read is covered from
 // tests/fixtures/cfb-v2/no_claim.json in tests/cfbGamePage.test.tsx).
 test.skip('cfb-game-noclaim @visual', () => {});
+
+// One projected score per CFB game: team points are promoted to the Projection Foundation model, so the page shows its
+// projected score and no longer prints the script engine's descriptive baseline points beside it.
+test('a CFB game shows one projected score, and the engine’s baseline points are gone @journey', async ({ page, context }) => {
+  const [away, home] = ['UGA', 'ALA'];   // Georgia at Alabama
+  const iso = new Date(CFB_NOW.getTime() - 4 * 3600_000).toISOString();
+  await context.route(/raw\.githubusercontent\.com\/chmoses98\/cfb-edge-finder\/projection-data\/projections\/cfb\/latest\.json/, (r) => r.fulfill({ headers: { 'access-control-allow-origin': '*' }, json: {
+    schema: 'sift.projections.v1', sport: 'CFB', generated_utc: iso, data_asof_utc: iso, model: { id: 'pf-cfb', version: 'pf-1.2.1', authority: 'research_only' },
+    families: { team_points: { readiness: 'READY', model: 'G', reason: '' }, plays: { readiness: 'READY', model: 'F', reason: '' } },
+    games: [{ game_id: 'x', start_utc: null, home, away, teams: [
+      { team: away, family: 'team_points', mean: 27.4, p10: 17, p90: 38 }, { team: home, family: 'team_points', mean: 24.1, p10: 14, p90: 34 },
+      { team: away, family: 'plays', mean: 68, p10: 60, p90: 76 }, { team: home, family: 'plays', mean: 70, p10: 62, p90: 78 }] }],
+    players: [] } }));
+  await page.goto(`./#/cfb/game/${UGA_ALA}`);
+  const line = page.getByTestId('team-projections');
+  await expect(line).toBeVisible();
+  await expect(line).toContainText('Projected score');
+  await expect(line).toContainText(`${away} 27 (17–38)`);
+  await expect(line).toContainText(`${home} 24 (14–34)`);
+  await expect(page.getByTestId('team-plays')).toContainText(`${away} 68`);
+  await expect(line).not.toContainText(/shadow|independent|incumbent/i);
+  await expect(page.getByText(/scoring baseline [\d—]/)).toHaveCount(0);       // the engine's baseline points line (script point ranges stay descriptive scenarios)
+  await noHorizontalOverflow(page, 'cfb game with one projected score');
+});

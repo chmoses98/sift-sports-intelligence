@@ -73,7 +73,7 @@ export type Resolution =
 export const usesEstablished = (r: Resolution): boolean => r.kind === 'legacy' || r.kind === 'fallback';
 
 export interface StatQuery { stat: string; playerId?: string | null; name?: string | null; team?: string | null; gameId?: string | null; opponent?: string | null }
-export interface TeamQuery { family: string; home: string; away: string; startUtc?: string | null }
+export interface TeamQuery { family: string; home: string; away: string; startUtc?: string | null; homeId?: string | null; awayId?: string | null }
 
 export interface ProjectionAuthority {
   sport: ProjSport;
@@ -200,12 +200,13 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
       if (blocked) return blocked;
       if (approvalFor(sport, family)?.publication?.standard === 'NOT_MET') return withheld('FAMILY_NOT_READY', PUBLICATION_WITHHELD) as { kind: 'withheld'; code: WithheldCode; reason: string };
       const d = doc!;
-      const ts = findTeamProjections(d, { home: q.home, away: q.away, startUtc: q.startUtc })?.filter((t) => t.family === family) ?? [];
+      const ts = findTeamProjections(d, { home: q.home, away: q.away, startUtc: q.startUtc, homeId: q.homeId, awayId: q.awayId })?.filter((t) => t.family === family) ?? [];
       if (ts.length !== 2) return withheld('NOT_PUBLISHED', 'projections for this game have not been published yet') as { kind: 'withheld'; code: WithheldCode; reason: string };
       const age = ageOf(d.dataAsOf ?? d.generatedAt, nowMs);
       if (age == null || age > maxAge) return withheld('STALE', `inputs are ${fmtAge(age)}, older than the ${maxAge}h freshness limit`) as { kind: 'withheld'; code: WithheldCode; reason: string };
       const order = [teamKey(q.away), teamKey(q.home)];
-      const teams = ts.slice().sort((a, b) => order.indexOf(teamKey(a.team)) - order.indexOf(teamKey(b.team))).map((t) => ({
+      const rank = (t: { team: string; teamId: string | null }) => (q.awayId && t.teamId ? (t.teamId === q.awayId ? 0 : 1) : order.indexOf(teamKey(t.team)));
+      const teams = ts.slice().sort((a, b) => rank(a) - rank(b)).map((t) => ({
         team: t.team,
         value: { sport, family, mean: t.mean, median: null, p10: t.p10, p90: t.p90, quantiles: null, thresholds: [], ...(({ level, why }) => ({ reliability: level, reliabilityWhy: why }))(applyPublication(sport, family, { level: 'HIGH', why: [] })), updatedAt: d.dataAsOf ?? d.generatedAt, ageHours: age, availability: null, opportunity: null, opponentFactor: null, adjustments: [], modelVersion: d.modelVersion },
       }));

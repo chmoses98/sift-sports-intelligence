@@ -63,7 +63,8 @@ export interface PlayerProjection {
 }
 export type Participation = 'CONFIRMED_ACTIVE' | 'LIKELY_ACTIVE' | 'UNCERTAIN' | 'LIKELY_OUT' | 'CONFIRMED_OUT' | 'UNVERIFIED';
 const PARTICIPATION: Participation[] = ['CONFIRMED_ACTIVE', 'LIKELY_ACTIVE', 'UNCERTAIN', 'LIKELY_OUT', 'CONFIRMED_OUT', 'UNVERIFIED'];
-export interface TeamProjection { gameId: string; team: string; family: string; mean: number; p10: number | null; p90: number | null; startUtc: string | null; home: string; away: string }
+/** `teamId`/`homeId`/`awayId`: the source's own team ids (CFB publishes ESPN ids and team NAMES, not SIFT's contract codes), null when not published */
+export interface TeamProjection { gameId: string; team: string; teamId: string | null; family: string; mean: number; p10: number | null; p90: number | null; startUtc: string | null; home: string; away: string; homeId: string | null; awayId: string | null }
 export interface FamilyInfo { readiness: Readiness; model: string; reason: string }
 export interface ProjectionDoc {
   sport: ProjSport; generatedAt: string; dataAsOf: string | null; modelVersion: string;
@@ -130,7 +131,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
   for (const gm of Array.isArray(raw.games) ? raw.games : []) {
     if (!isObj(gm)) continue;
     for (const t of Array.isArray(gm.teams) ? gm.teams : []) {
-      if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90), startUtc: str(gm.start_utc) || null, home: str(gm.home), away: str(gm.away) });
+      if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), teamId: str(t.team_id) || null, family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90), startUtc: str(gm.start_utc) || null, home: str(gm.home), away: str(gm.away), homeId: str(gm.home_id) || null, awayId: str(gm.away_id) || null });
     }
   }
   return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), families, players, teams };
@@ -246,14 +247,19 @@ export function fmtWhen(iso: string | null | undefined): string | null {
  * The independent team projections for one game, matched by both team codes (and the start date when the feed gives
  * one). Null unless exactly one game matches, so a mis-join never shows another game's numbers.
  */
-export function findTeamProjections(doc: ProjectionDoc | null, q: { home: string; away: string; startUtc?: string | null }): TeamProjection[] | null {
+export function findTeamProjections(doc: ProjectionDoc | null, q: { home: string; away: string; startUtc?: string | null; homeId?: string | null; awayId?: string | null }): TeamProjection[] | null {
   if (!doc) return null;
   const H = teamKey(q.home), A = teamKey(q.away);
   const byGame = new Map<string, TeamProjection[]>();
   for (const t of doc.teams) byGame.set(t.gameId, [...(byGame.get(t.gameId) ?? []), t]);
   const hits = [...byGame.values()].filter((ts) => {
-    const codes = new Set(ts.map((t) => teamKey(t.team)));
-    if (!codes.has(H) || !codes.has(A)) return false;
+    // the source's team ids decide when both sides have them (CFB publishes names and ESPN ids, not SIFT's codes); codes otherwise
+    const ids = new Set(ts.map((t) => t.teamId).filter((x): x is string => !!x));
+    if (q.homeId && q.awayId && ids.size >= 2) { if (!ids.has(q.homeId) || !ids.has(q.awayId)) return false; }
+    else {
+      const codes = new Set(ts.map((t) => teamKey(t.team)));
+      if (!codes.has(H) || !codes.has(A)) return false;
+    }
     const s = ts[0].startUtc, w = q.startUtc;
     return !s || !w || Math.abs(Date.parse(s) - Date.parse(w)) < 18 * 3.6e6;
   });

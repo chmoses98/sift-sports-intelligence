@@ -33,8 +33,10 @@ export const mlbPitcher = (over: Obj = {}): Record<string, unknown> => ({
   participation: part('CONFIRMED_ACTIVE', { source: 'mlb_lineup_card' }), role: 'shadow', data_asof_utc: FRESH, ...over,
 });
 
+// The CFB feed's real shape: teams by NAME plus ESPN ids (home_id / away_id / team_id), not SIFT's contract codes (PSU, OSU).
 export const cfbGame = {
-  game_id: 'g1', start_utc: '2026-10-18T23:30:00Z', home: 'OSU', away: 'PSU',
-  teams: [{ team: 'PSU', family: 'team_points', mean: 21.4, p10: 10, p90: 33 }, { team: 'OSU', family: 'team_points', mean: 28.3, p10: 17, p90: 40 },
-          { team: 'PSU', family: 'plays', mean: 66, p10: 58, p90: 74 }, { team: 'OSU', family: 'plays', mean: 70, p10: 62, p90: 78 }],
+  game_id: 'g1', start_utc: '2026-10-18T23:30:00Z', home: 'Ohio State', away: 'Penn State', home_id: '194', away_id: '213',
+  teams: [
+    { team: 'Penn State', team_id: '213', family: 'team_points', mean: 21.4, p10: 10, p90: 33 }, { team: 'Ohio State', team_id: '194', family: 'team_points', mean: 28.3, p10: 17, p90: 40 },
+    { team: 'Penn State', team_id: '213', family: 'plays', mean: 66, p10: 58, p90: 74 }, { team: 'Ohio State', team_id: '194', family: 'plays', mean: 70, p10: 62, p90: 78 }],
 };

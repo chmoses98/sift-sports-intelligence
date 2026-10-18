@@ -28,11 +28,38 @@ the live-input status, the reason, and the date. `src/lib/projectionAuthority.ts
 | quality gate | the engine's gate says BLOCK (carries the gate's own reason) | withheld |
 | availability | confirmed or likely out; for MLB pitchers also anything other than a confirmed or probable starter | withheld |
 | coherence | inverted range, mean below its own 10th percentile, non-monotone alternate lines | withheld |
+| published for this game | the feed has no rows at all for the game (outside its publication window, e.g. next week's games) | withheld ("not published yet") |
+| publication standard | the family does not meet the absolute standard (`PROJECTION_ABSOLUTE_ACCURACY.md`): currently CFB success rate | withheld |
 | freshness | inputs older than the sport's limit (NFL/CFB 192 h, NBA/NHL 48 h, MLB 36 h) or of unknown age | withheld |
 
-A withheld projection shows the reason and **no number from either engine**. There is no automatic fallback: every
-approval has `fallback: null`. If a fallback is ever approved it must be named per stat in the approvals table, and the
-fallback must pass its own checks.
+A withheld projection shows the reason and **no number from either engine**, with one explicit exception (§1a).
+
+### 1a. The approved established-model fallback
+
+The owner approved a narrow fallback (2026-10-18). When a promoted projection is **missing, stale or not yet published for the
+game**, SIFT may show the established model's number for that player and stat instead, still as **exactly one number**, labelled
+"Established projection" with the reason. It exists only where the stat's row in `projectionApprovals.ts` carries a `fallback`
+approval (today NFL receptions and completions, MLB pitcher strikeouts and outs: the stats that have an established number SIFT
+already shows; never CFB team points, whose script-engine baseline is "not a projection").
+
+The established number must **independently pass its own checks** (`src/lib/projectionFallback.ts`):
+
+| Check | Fails when |
+|---|---|
+| freshness | the established publication's own timestamp is older than the sport's limit, undated, or in the future |
+| availability | the publication lists the player with any designation beyond active / probable / available (injury, doubtful, questionable, suspended); for MLB pitchers, the publisher does not project him as a starter |
+| quality | the mean is missing, negative or not a number; its range is inverted or does not contain the mean; or (NFL) the market line sits outside the simulated 5th–95th range, i.e. the market and the simulation are pricing different roles |
+
+It is **never** used when the player is confirmed or likely out, the quality gate blocked the projection, the distribution is
+incoherent, the family is no longer READY or no longer meets the publication standard, the player is outside the model's population
+for a game it covers (the established model may be projecting a different player, e.g. a replaced probable pitcher), the starter is not
+the confirmed or probable one, or the feed shows a documented structural defect (a first game with a new team, found on a stale row).
+Where a family has a documented defect that only the feed can rule out (NFL receptions: first games with a new team), the fallback also
+needs the feed's own segment flag from a stale row that shows the player is not in that segment; with no feed row at all, receptions are
+withheld. That requirement is one flag (`requiresKnownSegments`) the owner can relax.
+
+A fallback row shows Moderate reliability and says why. If any check fails, nothing is shown, and the withheld reason says the established
+projection could not be used and why. A fresh, healthy feed row always wins: the established model is not even consulted.
 
 A shown projection carries: the expected value, a realistic 80% range (a description of the same projection, not a second
 one), a reliability level (High / Moderate / Low, with the reasons it is not High), availability and its source, the update
@@ -136,6 +163,7 @@ with the 95% interval of the score difference (challenger − incumbent, negativ
 * **CFB spreads, totals and player stats** — spread/total behavior is retained (the model stays behind the closing line); player stats lack a pregame availability feed (ESPN returns stale records, player coverage 9.2%).
 * **MLB hitters** — held until point-in-time lineup integrity is established over a live record; hitters are archived only from a posted lineup card, and there is no injury/IL source.
 * **NHL shots, assists, points, goals** — significant but marginal (0.15–0.95%); **goalie saves** — the challenger is worse than the incumbent saves model.
+* **CFB success rate** stays on the matrix as promoted but its number is **withheld**: on the 2026 games so far the 80% range caught 73.2% (see `PROJECTION_ABSOLUTE_ACCURACY.md`). It is the one family that failed the absolute publication standard.
 * **NBA (all seven candidates)** — the strongest historical result in the study (minutes +25.2%, PRA +14.4%, FGA +16.5%, points +10.8%), approved on history and **not yet live**: see §4.
 
 ## 4. Live-data status
@@ -163,7 +191,7 @@ family's availability as verified from an official report on a real slate, chang
 `requiresVerifiedParticipation: true` if the family is a starter-dependent stat, and note the date here. Nothing activates
 automatically.
 
-**Roll back one family without reverting the deployment.** Build with `VITE_SIFT_PROJECTION_ENGINES="NFL:receptions=legacy"`
+**Roll back one family without reverting the deployment.** (A rolled-back family is on the established model outright; its fallback approval is moot.) Build with `VITE_SIFT_PROJECTION_ENGINES="NFL:receptions=legacy"`
 (several entries separated by `;`, `SPORT:*=legacy` for a whole sport). Only a move *back* to the established model is
 honoured; a promotion is never created by configuration. For a permanent rollback, change the row's decision to `RETAINED`
 or `HELD` in the same file. The established model's code and archives are untouched either way, and historical forecast
@@ -185,7 +213,28 @@ stale or incoherent, and reports live-input readiness for approved-pending famil
 * Merging a SIFT pull request deploys SIFT (`deploy.yml` runs on every push to `main`), so the SIFT release is prepared on a
   branch and waits for explicit deployment approval.
 
-## 7. Ledger
+## 7. Production data path verification (2026-10-18)
+
+`scripts/verify-projection-feeds.ts` reads the same URLs SIFT's browser reads, through SIFT's own fetcher, decoder, authority and row
+builders, against the live research publications (`NODE_USE_ENV_PROXY=1 npx vite-node scripts/verify-projection-feeds.ts --cfb-sample <feed.json>`).
+Run at 19:07 UTC:
+
+| | NFL | CFB | MLB |
+|---|---|---|---|
+| HTTP / CORS / cache | 200 · `access-control-allow-origin: *` · `max-age=300` | same | same |
+| Decodes through `decodeProjections` | yes · 349 players, 30 team rows | yes · 0 rows (no games in its window) | yes · 138 players, 3 team rows |
+| Feed age | 0.3 h | 12 h (generated 15:55Z, empty slate) | 3.9 h |
+| Current games | 5 pregame games in the feed; per game 9–12 receptions rows **authoritative**, 0–6 withheld "outside the model's population" (low-usage players), 2 completions rows authoritative; the other 76–77 stat rows stay on the established model | n/a today (Sunday) | TB @ CLE: the feed's confirmed starters are Rasmussen (TB) and Messick (CLE); SIFT's markets are for Nick Martinez (TB), who is outside the model's population, so his two pitcher stats are **withheld** and the established projection is **not** substituted (correct: it is for a pitcher who is not starting) |
+| Games outside the window | the board lists no NFL game beyond this week yet; covered by tests (not published → fallback only if the established number passes its checks) | 110 upcoming games (Oct 20–Nov 1): all **withheld, "projections for this game have not been published yet"**; the horizon is the rest of the week, so Tuesday 10:41Z publishes Oct 20–25 | no further games on the board |
+
+Findings and fixes from this check:
+
+* **CFB team join was wrong and is fixed.** The CFB feed names teams by display name and ESPN id (`"Mississippi State"`, `team_id "344"`), not SIFT's contract codes (`MSST`), so every CFB game would have stayed "not published". SIFT now joins on the ESPN id (from its own identity map, `cfbTeam(code).e`). On a real feed document from the past Saturday, **35 of the 35** feed games that SIFT lists matched by id (17 feed games are not on SIFT's board at all, so they have no page); 107 of 110 upcoming board games have both team ids (the three codes without an identity entry are FCS schools the FBS feed does not cover).
+* The unit and e2e fixtures used code-like names that hid this; they now use the feed's real shape.
+* A game with **no rows at all** in a feed is now "not published yet" (`NOT_PUBLISHED`), distinct from a player missing from a game the feed covers ("outside the model's population").
+* Not verified live: a CFB team projection in an in-window game (the first slate with games in the window is Tuesday), and the NFL/MLB fallback on a real outage. The same code paths are covered by the unit tests with the feeds' real field shapes.
+
+## 8. Ledger
 
 | Date | Change | Evidence | By |
 |---|---|---|---|
@@ -193,7 +242,7 @@ stale or incoherent, and reports live-input readiness for approved-pending famil
 | 2026-10-18 | First promotion: NFL targets, receptions, completions, team pass/rush attempts; CFB team points, plays, team passing/rushing yards, points per play, success rate; MLB pitcher strikeouts, batters faced, outs | §3 matrix, `tests/projectionApprovals.test.ts` | owner-authorized |
 | 2026-10-18 | NBA (7 stats) approved on history, activation held for live availability; NFL passing yards, team points held; NHL retained | §3–§4 | owner-authorized |
 
-## 8. Release readiness (SIFT)
+## 9. Release readiness (SIFT)
 
 The SIFT release is the branch `claude/dreamy-gates-0en25g`. It includes everything in sift-sports-intelligence#104 (the feed
 decoder, accuracy card plumbing, feed monitor) and replaces its shadow presentation, so #104 should be closed rather than

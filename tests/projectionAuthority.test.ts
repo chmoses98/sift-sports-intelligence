@@ -138,14 +138,14 @@ describe('team projections', () => {
   const teams = (sport: string, families: Record<string, object>, over: Record<string, unknown> = {}) =>
     makeAuthority('CFB', decoded(sport, [], families, [{ ...cfbGame, ...over }]), NOW);
   it('returns both teams for a promoted CFB family, away first', () => {
-    const r = teams('CFB', { team_points: {}, plays: {} }).resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', startUtc: '2026-10-18T23:30:00Z' });
+    const r = teams('CFB', { team_points: {}, plays: {} }).resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213', startUtc: '2026-10-18T23:30:00Z' });
     expect(r.kind).toBe('authoritative');
-    if (r.kind === 'authoritative') expect(r.teams.map((t) => t.team)).toEqual(['PSU', 'OSU']);
+    if (r.kind === 'authoritative') expect(r.teams.map((t) => t.team)).toEqual(['Penn State', 'Ohio State']);       // away first, the feed's own names
   });
   it('keeps the established model for held team families and withholds a stale or unmatched game', () => {
     const nflTeams = makeAuthority('NFL', decoded('NFL', [], { team_points: {} }, [{ ...cfbGame }]), NOW);
-    expect(nflTeams.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU' })).toEqual({ kind: 'legacy' });   // NFL team points: held
-    expect(makeAuthority('CFB', decoded('CFB', [], { team_points: {} }, [cfbGame]), NOW + 20 * 864e5).resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU' }).kind).toBe('withheld');
+    expect(nflTeams.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' })).toEqual({ kind: 'legacy' });   // NFL team points: held
+    expect(makeAuthority('CFB', decoded('CFB', [], { team_points: {} }, [cfbGame]), NOW + 20 * 864e5).resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' }).kind).toBe('withheld');
     expect(teams('CFB', { team_points: {} }).resolveTeams({ family: 'team_points', home: 'MICH', away: 'IOWA' }).kind).toBe('withheld');
   });
 });
@@ -287,20 +287,34 @@ describe('the established projection must pass its own freshness, availability a
 
 describe('a family that does not meet the publication standard is withheld', () => {
   it('CFB success rate: withheld for the team line even with a fresh feed; plays still shown', () => {
-    const game = { ...cfbGame, teams: [...cfbGame.teams, { team: 'PSU', family: 'success_rate', mean: 0.43, p10: 0.35, p90: 0.51 }, { team: 'OSU', family: 'success_rate', mean: 0.47, p10: 0.39, p90: 0.55 }] };
+    const game = { ...cfbGame, teams: [...cfbGame.teams, { team: 'Penn State', team_id: '213', family: 'success_rate', mean: 0.43, p10: 0.35, p90: 0.51 }, { team: 'Ohio State', team_id: '194', family: 'success_rate', mean: 0.47, p10: 0.39, p90: 0.55 }] };
     const a = makeAuthority('CFB', decoded('CFB', [], { team_points: {}, plays: {}, success_rate: {} }, [game]), NOW);
-    const sr = a.resolveTeams({ family: 'success_rate', home: 'OSU', away: 'PSU' });
+    const sr = a.resolveTeams({ family: 'success_rate', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' });
     expect(sr).toMatchObject({ kind: 'withheld', code: 'FAMILY_NOT_READY', reason: 'the projection does not yet meet SIFT’s publication standard for this stat' });
-    expect(a.resolveTeams({ family: 'plays', home: 'OSU', away: 'PSU' }).kind).toBe('authoritative');
+    expect(a.resolveTeams({ family: 'plays', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' }).kind).toBe('authoritative');
   });
   it('families published with caveats never read as High reliability and say why', () => {
     const a = makeAuthority('CFB', decoded('CFB', [], { team_passing_yards: {}, team_points: {} }, [{ ...cfbGame, teams: [
-      { team: 'PSU', family: 'team_passing_yards', mean: 230, p10: 150, p90: 310 }, { team: 'OSU', family: 'team_passing_yards', mean: 250, p10: 170, p90: 330 },
-      { team: 'PSU', family: 'team_points', mean: 21.4, p10: 10, p90: 33 }, { team: 'OSU', family: 'team_points', mean: 28.3, p10: 17, p90: 40 }] }]), NOW);
-    const yds = a.resolveTeams({ family: 'team_passing_yards', home: 'OSU', away: 'PSU' });
-    const pts = a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU' });
+      { team: 'Penn State', team_id: '213', family: 'team_passing_yards', mean: 230, p10: 150, p90: 310 }, { team: 'Ohio State', team_id: '194', family: 'team_passing_yards', mean: 250, p10: 170, p90: 330 },
+      { team: 'Penn State', team_id: '213', family: 'team_points', mean: 21.4, p10: 10, p90: 33 }, { team: 'Ohio State', team_id: '194', family: 'team_points', mean: 28.3, p10: 17, p90: 40 }] }]), NOW);
+    const yds = a.resolveTeams({ family: 'team_passing_yards', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' });
+    const pts = a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' });
     expect(yds.kind === 'authoritative' && yds.teams[0].value).toMatchObject({ reliability: 'MODERATE' });
     expect(yds.kind === 'authoritative' && yds.teams[0].value.reliabilityWhy.join(' ')).toMatch(/slightly wide/);
     expect(pts.kind === 'authoritative' && pts.teams[0].value.reliability).toBe('HIGH');
+  });
+});
+
+describe('CFB team join uses the feed’s ESPN ids (it publishes names, not SIFT’s contract codes)', () => {
+  const a = makeAuthority('CFB', decoded('CFB', [], { team_points: {} }, [cfbGame]), NOW);
+  it('matches by id when codes and names differ, and never by a code that merely looks similar', () => {
+    expect(a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' }).kind).toBe('authoritative');
+    expect(a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU' })).toMatchObject({ kind: 'withheld', code: 'NOT_PUBLISHED' });   // no ids, names are not codes
+    expect(a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '999' })).toMatchObject({ code: 'NOT_PUBLISHED' });
+    expect(a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '213', awayId: '194' }).kind).toBe('authoritative');      // sides swapped: still the same game
+  });
+  it('orders by the away id', () => {
+    const r = a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU', homeId: '194', awayId: '213' });
+    expect(r.kind === 'authoritative' && r.teams.map((t) => t.team)).toEqual(['Penn State', 'Ohio State']);
   });
 });

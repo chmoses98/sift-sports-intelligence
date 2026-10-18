@@ -286,8 +286,8 @@ describe('components', () => {
     setFetchJson(async () => feed('CFB', [], { team_points: {}, plays: {} }, [cfbGame]));
     render(<TeamProjections sport="CFB" home="OSU" away="PSU" startUtc="2026-10-18T23:30:00Z" now={NOW} />);
     const el = await screen.findByTestId('team-projections');
-    expect(el).toHaveTextContent(/Projected score PSU 21 \(10–33\) · OSU 28 \(17–40\)/);
-    expect(screen.getByTestId('team-plays')).toHaveTextContent('Plays: PSU 66 · OSU 70');
+    expect(el).toHaveTextContent(/Projected score Penn State 21 \(10–33\) · Ohio State 28 \(17–40\)/);
+    expect(screen.getByTestId('team-plays')).toHaveTextContent('Plays: Penn State 66 · Ohio State 70');
     expect(screen.getAllByTestId('team-projections-updated')).toHaveLength(1);
     expect(el.textContent).not.toMatch(/shadow|independent|incumbent|betting signal edge/i);
   });

@@ -9,6 +9,7 @@
 //     their own (Player Snapshot).
 // Reliability is the projection's data quality, never betting value.
 import { useAuthority } from '../data/projections';
+import { cfbTeam } from '../lib/cfbTeams';
 import { fmtAge, fmtWhen } from '../lib/projections';
 import { RELIABILITY_WORDS, type AuthoritativeValue, type Resolution } from '../lib/projectionAuthority';
 import '../styles/intelligence.css';
@@ -98,7 +99,9 @@ const teamFmt = (family: string, v: number) => (family === 'success_rate' ? `${(
 export function TeamProjections({ sport, home, away, startUtc, now }: { sport: string; home: string; away: string; startUtc?: string | null; now?: number }) {
   const { authority, ready } = useAuthority(sport, now);
   if (!ready || !authority) return null;
-  const families = Object.keys(TEAM_LABEL).map((family) => ({ family, r: authority.resolveTeams({ family, home, away, startUtc }) })).filter((x) => x.r.kind !== 'legacy');
+  // CFB's feed names teams by ESPN id; SIFT's own identity map gives the id of its contract code
+  const ids = sport.toUpperCase() === 'CFB' ? { homeId: cfbTeam(home)?.e ?? null, awayId: cfbTeam(away)?.e ?? null } : {};
+  const families = Object.keys(TEAM_LABEL).map((family) => ({ family, r: authority.resolveTeams({ family, home, away, startUtc, ...ids }) })).filter((x) => x.r.kind !== 'legacy');
   if (!families.length) return null;
   const points = families.find((x) => x.family === 'team_points');
   const rest = families.filter((x) => x.family !== 'team_points');

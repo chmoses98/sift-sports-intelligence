@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import evidence from '../research/projection_foundation/promotion/evidence.json';
 import { APPROVALS, approvalFor, engineFor, parseRollback } from '../src/lib/projectionApprovals';
-import { evidenceVerdict, PROMOTION_POLICY, type EvidenceFile } from '../src/lib/projectionPolicy';
+import absolute from '../research/projection_foundation/promotion/absolute_evidence.json';
+import { ABSOLUTE_STANDARD, absoluteVerdict, evidenceVerdict, PROMOTION_POLICY, type AbsoluteEvidenceFile, type EvidenceFile } from '../src/lib/projectionPolicy';
 
 const ev = evidence as unknown as EvidenceFile;
 
@@ -80,5 +81,54 @@ describe('rollback of one family without reverting the deployment', () => {
     expect(engineFor('NFL', 'completions', rb)).toBe('foundation');   // only that family moved
     expect(engineFor('MLB', 'outs', parseRollback('MLB:*=legacy'))).toBe('legacy');
     expect(engineFor('CFB', 'plays', parseRollback('MLB:*=legacy'))).toBe('foundation');
+  });
+});
+
+describe('absolute publication standard for families promoted without an incumbent comparison', () => {
+  const abs = absolute as unknown as AbsoluteEvidenceFile & { rules: Record<string, number> };
+
+  it('uses exactly the rules the evidence script documents', () => {
+    expect(abs.rules).toEqual(ABSOLUTE_STANDARD);
+  });
+
+  it('records a publication verdict for every promoted family that has no incumbent comparison, and for CFB team points', () => {
+    const noIncumbent = APPROVALS.filter((a) => a.decision === 'PROMOTED' && !ev.sports[a.sport].families[a.family].vsIncumbent).map((a) => `${a.sport}:${a.family}`);
+    expect(noIncumbent.sort()).toEqual(['CFB:plays', 'CFB:points_per_play', 'CFB:success_rate', 'CFB:team_passing_yards', 'CFB:team_rushing_yards', 'NFL:team_pass_attempts', 'NFL:team_rush_attempts']);
+    for (const k of [...noIncumbent, 'CFB:team_points']) {
+      const [sport, family] = k.split(':');
+      expect(approvalFor(sport, family)!.publication, k).toBeDefined();
+      expect(abs.families[k], k).toBeDefined();
+    }
+  });
+
+  it('the recorded standard equals the verdict recomputed from the per-period numbers (TypeScript and Python agree)', () => {
+    for (const [k, f] of Object.entries(abs.families)) {
+      const v = absoluteVerdict(f.periods);
+      expect(v, k).toEqual(f.verdict);
+      const [sport, family] = k.split(':');
+      expect(approvalFor(sport, family)!.publication!.standard, k).toBe(v.status);
+    }
+  });
+
+  it('a family that fails the standard is withheld, however well it beats the baseline', () => {
+    const f = abs.families['CFB:success_rate'];
+    expect(f.verdict.status).toBe('NOT_MET');
+    expect(f.verdict.failures.join(' ')).toMatch(/2026 to date.*80% range covers 0\.732/);
+    // it beat the baseline on every period; that alone was not enough
+    for (const p of f.periods) expect(p.crps).toBeLessThan(p.baselineCrps);
+  });
+
+  it('a verdict is NOT_MET if calibration, bias, information or stability fails, and cannot be decided by a small sample', () => {
+    const base = abs.families['CFB:plays'].periods;
+    const mutate = (i: number, over: object) => base.map((p, j) => (j === i ? { ...p, ...over } : p));
+    expect(absoluteVerdict(base).status).toBe('MET');
+    expect(absoluteVerdict(mutate(1, { cover80: 0.74 })).status).toBe('NOT_MET');                // under-coverage
+    expect(absoluteVerdict(mutate(1, { cover90: 0.97 })).status).toBe('NOT_MET');                // over-coverage
+    expect(absoluteVerdict(mutate(1, { pitVar: 1.4 })).status).toBe('NOT_MET');                  // PIT
+    expect(absoluteVerdict(mutate(1, { bias: 2 })).status).toBe('NOT_MET');                      // bias 0.15 x RMSE
+    expect(absoluteVerdict(mutate(1, { crps: base[1].baselineCrps * 0.995 })).status).toBe('NOT_MET');   // under 1%
+    expect(absoluteVerdict(mutate(2, { vsBaseline: { diff: -0.1, lo: -0.3, hi: 0.1 } })).status).toBe('NOT_MET'); // not confirmed later
+    expect(absoluteVerdict(mutate(3, { clusters: 80, cover80: 0.6 })).status).not.toBe('NOT_MET');      // 80 games cannot decide
+    expect(absoluteVerdict(mutate(0, { cover80: 0.2 })).status).toBe('MET');                      // the selection split never decides
   });
 });

@@ -284,3 +284,23 @@ describe('the established projection must pass its own freshness, availability a
     expect(legacyFallbackProblems('NFL', 'completions', good({ generatedAt: new Date(NOW - 40 * 3.6e6).toISOString() }), NOW)).toEqual([]);
   });
 });
+
+describe('a family that does not meet the publication standard is withheld', () => {
+  it('CFB success rate: withheld for the team line even with a fresh feed; plays still shown', () => {
+    const game = { ...cfbGame, teams: [...cfbGame.teams, { team: 'PSU', family: 'success_rate', mean: 0.43, p10: 0.35, p90: 0.51 }, { team: 'OSU', family: 'success_rate', mean: 0.47, p10: 0.39, p90: 0.55 }] };
+    const a = makeAuthority('CFB', decoded('CFB', [], { team_points: {}, plays: {}, success_rate: {} }, [game]), NOW);
+    const sr = a.resolveTeams({ family: 'success_rate', home: 'OSU', away: 'PSU' });
+    expect(sr).toMatchObject({ kind: 'withheld', code: 'FAMILY_NOT_READY', reason: 'the projection does not yet meet SIFT’s publication standard for this stat' });
+    expect(a.resolveTeams({ family: 'plays', home: 'OSU', away: 'PSU' }).kind).toBe('authoritative');
+  });
+  it('families published with caveats never read as High reliability and say why', () => {
+    const a = makeAuthority('CFB', decoded('CFB', [], { team_passing_yards: {}, team_points: {} }, [{ ...cfbGame, teams: [
+      { team: 'PSU', family: 'team_passing_yards', mean: 230, p10: 150, p90: 310 }, { team: 'OSU', family: 'team_passing_yards', mean: 250, p10: 170, p90: 330 },
+      { team: 'PSU', family: 'team_points', mean: 21.4, p10: 10, p90: 33 }, { team: 'OSU', family: 'team_points', mean: 28.3, p10: 17, p90: 40 }] }]), NOW);
+    const yds = a.resolveTeams({ family: 'team_passing_yards', home: 'OSU', away: 'PSU' });
+    const pts = a.resolveTeams({ family: 'team_points', home: 'OSU', away: 'PSU' });
+    expect(yds.kind === 'authoritative' && yds.teams[0].value).toMatchObject({ reliability: 'MODERATE' });
+    expect(yds.kind === 'authoritative' && yds.teams[0].value.reliabilityWhy.join(' ')).toMatch(/slightly wide/);
+    expect(pts.kind === 'authoritative' && pts.teams[0].value.reliability).toBe('HIGH');
+  });
+});

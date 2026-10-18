@@ -86,6 +86,7 @@ export interface ProjectionAuthority {
   resolveTeams(q: TeamQuery): { kind: 'legacy' } | { kind: 'withheld'; code: WithheldCode; reason: string } | { kind: 'authoritative'; teams: { team: string; value: AuthoritativeValue }[] };
 }
 
+const PUBLICATION_WITHHELD = 'the projection does not yet meet SIFT’s publication standard for this stat';
 const withheld = (code: WithheldCode, reason: string, fallbackEligible = false): Resolution => ({ kind: 'withheld', code, reason, ...(fallbackEligible ? { fallbackEligible } : {}) });
 
 function ageOf(iso: string | null, nowMs: number): number | null {
@@ -110,8 +111,15 @@ function reliabilityOf(p: PlayerProjection, review: GateFinding[]): { level: Rel
   return { level, why };
 }
 
+/** A family published "with caveats" never reads as High reliability, and says why. */
+function applyPublication(sport: ProjSport, family: string, rel: { level: Reliability; why: string[] }): { level: Reliability; why: string[] } {
+  const pub = approvalFor(sport, family)?.publication;
+  if (pub?.standard !== 'MET_WITH_CAVEATS') return rel;
+  return { level: rel.level === 'HIGH' ? 'MODERATE' : rel.level, why: pub.caveat ? [...rel.why, pub.caveat] : rel.why };
+}
+
 function playerValue(sport: ProjSport, doc: ProjectionDoc, p: PlayerProjection, nowMs: number, review: GateFinding[]): AuthoritativeValue {
-  const rel = reliabilityOf(p, review);
+  const rel = applyPublication(sport, p.family, reliabilityOf(p, review));
   const part = p.participation;
   return {
     sport, family: p.family, mean: p.mean, median: p.median, p10: p.p10, p90: p.p90, quantiles: p.quantiles, thresholds: p.thresholds,
@@ -146,6 +154,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
     if (engineFor(sport, family, rollback) === 'legacy') return { kind: 'legacy' };
     const blocked = gateFamily(family);
     if (blocked) return blocked;
+    if (approvalFor(sport, family)?.publication?.standard === 'NOT_MET') return withheld('FAMILY_NOT_READY', PUBLICATION_WITHHELD);
     const d = doc!;
     const p = findProjection(d, q);
     if (!p) {
@@ -189,6 +198,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
       if (engineFor(sport, family, rollback) === 'legacy') return { kind: 'legacy' };
       const blocked = gateFamily(family) as ReturnType<ProjectionAuthority['resolveTeams']> | null;
       if (blocked) return blocked;
+      if (approvalFor(sport, family)?.publication?.standard === 'NOT_MET') return withheld('FAMILY_NOT_READY', PUBLICATION_WITHHELD) as { kind: 'withheld'; code: WithheldCode; reason: string };
       const d = doc!;
       const ts = findTeamProjections(d, { home: q.home, away: q.away, startUtc: q.startUtc })?.filter((t) => t.family === family) ?? [];
       if (ts.length !== 2) return withheld('NOT_PUBLISHED', 'projections for this game have not been published yet') as { kind: 'withheld'; code: WithheldCode; reason: string };
@@ -197,7 +207,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
       const order = [teamKey(q.away), teamKey(q.home)];
       const teams = ts.slice().sort((a, b) => order.indexOf(teamKey(a.team)) - order.indexOf(teamKey(b.team))).map((t) => ({
         team: t.team,
-        value: { sport, family, mean: t.mean, median: null, p10: t.p10, p90: t.p90, quantiles: null, thresholds: [], reliability: 'HIGH' as Reliability, reliabilityWhy: [], updatedAt: d.dataAsOf ?? d.generatedAt, ageHours: age, availability: null, opportunity: null, opponentFactor: null, adjustments: [], modelVersion: d.modelVersion },
+        value: { sport, family, mean: t.mean, median: null, p10: t.p10, p90: t.p90, quantiles: null, thresholds: [], ...(({ level, why }) => ({ reliability: level, reliabilityWhy: why }))(applyPublication(sport, family, { level: 'HIGH', why: [] })), updatedAt: d.dataAsOf ?? d.generatedAt, ageHours: age, availability: null, opportunity: null, opponentFactor: null, adjustments: [], modelVersion: d.modelVersion },
       }));
       return { kind: 'authoritative', teams };
     },

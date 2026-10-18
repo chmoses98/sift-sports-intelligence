@@ -26,8 +26,10 @@ export function ProjectionScorecard({ sport }: { sport: string }) {
   const { card } = useLiveScorecard(sport);
   const rows = APPROVALS.filter((a) => a.sport === code);
   if (rows.length === 0 || (!summary && !card)) return null;
-  const live = rows.filter((a) => engineFor(code, a.family) === 'foundation');
-  const kept = rows.filter((a) => engineFor(code, a.family) === 'legacy' && a.decision !== 'PROMOTED');
+  // a promoted stat that does not yet meet the publication standard is not live: its number is withheld
+  const notMet = (a: Approval) => a.publication?.standard === 'NOT_MET';
+  const live = rows.filter((a) => engineFor(code, a.family) === 'foundation' && !notMet(a));
+  const kept = rows.filter((a) => (engineFor(code, a.family) === 'legacy' && a.decision !== 'PROMOTED') || (engineFor(code, a.family) === 'foundation' && notMet(a)));
   const hist = new Map((summary?.families ?? []).map((f) => [f.family, f]));
   const liveFam = new Map((card?.families ?? []).map((f) => [f.family, f]));
   return (
@@ -69,7 +71,7 @@ export function ProjectionScorecard({ sport }: { sport: string }) {
         <>
           <h3 className="pfs__h">Not changed</h3>
           <ul className="pfs__list" data-testid="pfs-not-changed">
-            {kept.map((a) => <li key={a.family} className="intel intel--line intel--compact"><strong>{label(a.family)}</strong> — {NOT_CHANGED_WORD[a.decision]}</li>)}
+            {kept.map((a) => <li key={a.family} className="intel intel--line intel--compact"><strong>{label(a.family)}</strong> — {notMet(a) ? 'Withheld until it meets SIFT’s publication standard' : NOT_CHANGED_WORD[a.decision]}</li>)}
           </ul>
         </>
       )}

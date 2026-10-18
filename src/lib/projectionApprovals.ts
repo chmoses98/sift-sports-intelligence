@@ -11,6 +11,7 @@
 //
 // Ledger of changes: docs/PROJECTION_PROMOTION.md.
 import type { ProjSport } from './projections';
+import type { PublicationStandard } from './projectionPolicy';
 
 export type Engine = 'foundation' | 'legacy';
 export type Decision =
@@ -37,6 +38,13 @@ export interface Approval {
    * pitchers, whose projection is meaningless unless the pitcher is the (probable or confirmed) starter.
    */
   requiresVerifiedParticipation?: boolean;
+  /**
+   * Absolute publication standard (calibration, bias, information, stability), recorded for promoted families that have no
+   * incumbent comparison or a displayed projected score. NOT_MET keeps the promotion on record but WITHHOLDS the number until
+   * the evidence changes; MET_WITH_CAVEATS publishes it with the caveat shown as a reliability reason. Checked against
+   * research/projection_foundation/promotion/absolute_evidence.json by tests/projectionApprovals.test.ts.
+   */
+  publication?: { standard: PublicationStandard; caveat?: string };
   /**
    * Explicitly approved alternative when the foundation feed is temporarily missing, stale or has not yet published the
    * game. Null (the default) means an unavailable promoted projection is withheld, never swapped. Even with an approval the
@@ -80,7 +88,7 @@ const NBA_PENDING = 'Pending: the official NBA injury report path has not run on
 const MLB_LIVE = 'Ready: probable pitchers archived pregame (PROJECTED), replaced probables become NOT_STARTING, posted lineup cards CONFIRMED; the probable with a posted card was the actual starter 1011/1014 times. SIFT withholds a pitcher who is not the confirmed or probable starter.';
 const CFB_TEAM = 'Ready for team-level families: they do not depend on player availability. QB-change rows are lowered to REVIEW. Player availability is not available (ESPN returns stale records), so CFB player families stay out.';
 
-export const APPROVALS: readonly Approval[] = [
+const RAW_APPROVALS: readonly Approval[] = [
   // ---- NFL -------------------------------------------------------------------------------------------------------------
   row('NFL', 'team_pass_attempts', 'PROMOTED', false, NFL_LIVE, 'READY; beats the season-average baseline (CI excludes 0). No competing production number is displayed.'),
   row('NFL', 'team_rush_attempts', 'PROMOTED', false, NFL_LIVE, 'READY; beats the season-average baseline (CI excludes 0). No competing production number is displayed.'),
@@ -141,6 +149,26 @@ export const APPROVALS: readonly Approval[] = [
   row('NHL', 'saves', 'RETAINED', true, 'As above.', 'The challenger is worse than the incumbent goalie-saves model on holdout.'),
   row('NHL', 'team_goals', 'RETAINED', true, 'As above.', 'Statistically tied with the incumbent.'),
 ];
+
+/**
+ * Absolute publication standard per family (docs/PROJECTION_ABSOLUTE_ACCURACY.md). Recorded for every promoted family with no
+ * incumbent comparison and for CFB's displayed team points. The status must equal the verdict recomputed from the frozen
+ * per-period evidence (tests/projectionApprovals.test.ts), so it cannot drift from the numbers.
+ */
+const PUBLICATION: Record<string, NonNullable<Approval['publication']>> = {
+  'NFL:team_pass_attempts': { standard: 'MET_WITH_CAVEATS', caveat: 'Low information: team pass attempts are mostly game-script noise (the model explains about 8% of the variance); read the range, not the point.' },
+  'NFL:team_rush_attempts': { standard: 'MET_WITH_CAVEATS', caveat: 'Low information: team rush attempts are mostly game-script noise (the model explains about 9% of the variance); not yet confirmed on 2026 games.' },
+  'CFB:team_points': { standard: 'MET' },
+  'CFB:plays': { standard: 'MET' },
+  'CFB:points_per_play': { standard: 'MET' },
+  'CFB:team_passing_yards': { standard: 'MET_WITH_CAVEATS', caveat: 'Ranges run slightly wide (80% ranges contain about 83% of outcomes), so they overstate the risk a little.' },
+  'CFB:team_rushing_yards': { standard: 'MET_WITH_CAVEATS', caveat: 'Ranges run slightly wide (80% ranges contain about 83–84% of outcomes), so they overstate the risk a little.' },
+  // 2026 games to date: the 80% range caught 73.2% and the 90% range 85.1% (more than 3 standard errors under). Withheld until the
+  // 2026 ESPN-source discrepancy is explained or enough live games show the ranges are calibrated.
+  'CFB:success_rate': { standard: 'NOT_MET' },
+};
+
+export const APPROVALS: readonly Approval[] = RAW_APPROVALS.map((a) => (PUBLICATION[`${a.sport}:${a.family}`] ? { ...a, publication: PUBLICATION[`${a.sport}:${a.family}`] } : a));
 
 const BY_KEY = new Map(APPROVALS.map((a) => [`${a.sport}:${a.family}`, a]));
 export const approvalFor = (sport: string, family: string): Approval | null => BY_KEY.get(`${sport.toUpperCase()}:${family}`) ?? null;

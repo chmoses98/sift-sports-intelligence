@@ -54,7 +54,11 @@ These are unchanged from the study (holdout, frozen winners; details in `PROJECT
   (0.9913 vs 0.9911), consistent with the 1.1.0 out-of-support scoring fix.
 * **NBA:** minutes, unconditional, team points and reconciliation stages are identical. Points: 18 of 972 values differ in
   the 4th decimal (same scoring fix). The LightGBM stages were not recomputed (the machine ran out of memory).
-* **NHL:** *pending: NHL final report not yet in*
+* **NHL:** the runner's `pr-repro` job rebuilds the whole study.
+  * Sample sizes, chosen models and readiness are identical for all 6 families.
+  * Saves and team goals holdout match to 6 decimals.
+  * The ridge/LightGBM rungs differ by ≤ 1.4e-4 CRPS (e.g. shots 0.684681 vs 0.684741).
+  * The prospective split is not comparable because 2026-27 data has grown.
 
 **Leakage:** every sport's point-in-time and no-leakage tests pass, locally and on the runners. No holdout was tuned after
 the freeze. NBA's history was squashed, so for NBA this rests on a code audit rather than commit timestamps.
@@ -75,7 +79,7 @@ All families above are published and archived in shadow, with these exceptions a
 * CFB: the script engine's frozen artifacts.
 * MLB: team runs (only when `createdAt` precedes the start), the production pitcher engine and hitter snapshots.
 * NBA: the shadow sim-rotation arm.
-* NHL: the frozen incumbent saves model and the archived NHL production forecasts (*pending: NHL final report not yet in*).
+* NHL: the production player simulation (PLAYER_SIM_V1), archived unchanged: its own mean and ladder, no invented distribution.
 
 Most incumbents publish only a mean, so live paired comparison against them is MAE (and rung Brier), not CRPS.
 
@@ -104,7 +108,7 @@ observation is **UNVERIFIED**, never active, and goes to gate REVIEW. CONFIRMED_
 | CFB | ESPN injuries (REPORTED / UNKNOWN when stale); projected QB from the last game (PROJECTED) | runner: 42/42 team lists read, **0 listings, player coverage 9.2%**, newest capture 0 min old | ESPN returns references that resolve to stale 2022 records; depth chart endpoint 400. **No CFB player can be CONFIRMED.** QB flags send changes to REVIEW |
 | NBA | official NBA injury report PDF (REPORTED, official OUT → CONFIRMED_OUT); ESPN injuries and starters (PROJECTED); minutes restrictions parsed | replay of the real 2026-01-15 report: 8/9 games covered, capture < 5 min old | **the official report has not yet run live:** no report was published at the dry run, so all 2,037 rows were REVIEW. ESPN pregame starters unverified. cdn.nba.com blocks runners |
 | MLB | statsapi probables (PROJECTED) and posted lineup cards (CONFIRMED); a replaced probable becomes NOT_STARTING | runner: probables 2/2, lineups 2/2, participation CONFIRMED_ACTIVE 132/144; recorded captures 74 min (median) before first pitch; probable with posted lineup = actual starter **1011/1014 (99.7%)** | no injury / IL source; hitters whose card posts after the last pre-start run are not archived |
-| NHL | *pending: NHL final report not yet in* | dry run: goalie/lines/injury captures, 0 unresolved goalies and lines, 443 unresolved injury rows | *pending: NHL final report not yet in* |
+| NHL | DailyFaceoff goalies ("Confirmed" = CONFIRMED, otherwise PROJECTED) and lines/PP units (PROJECTED); ESPN injuries (REPORTED); official pregame roster (CONFIRMED, guarded: pregame state, 17–19 skaters, ≥ 1 goalie) | live dry run: 32 goalie, 117 injury, 484 line observations; official roster accepted for 13/16 teams (237 CONFIRMED_ACTIVE, 11 scratches); replay coverage 1.0. Historically, DailyFaceoff lineups 3 h before puck drop dressed 98.1% (UNCERTAIN players 71%); goalie start rates 3 h out: Confirmed 124/124, Probable 59/59, Projected 77% | roster endpoint unproven on early-morning runs; the repo's data-archive copy lagged the direct fetch by ~50 min |
 
 **Fixes made in this phase:**
 * **MLB probable-pitcher overwrite:** projections now use only the archived pregame observation, never the post-game
@@ -122,11 +126,11 @@ observation is **UNVERIFIED**, never active, and goes to gate REVIEW. CONFIRMED_
 
 | Sport | Real runner execution (PR dry run, read-only) | Local replay of recorded games (results → settle → correction) |
 |---|---|---|
-| NFL | run 39080845443: 13 games, 863 players, gate **751 PASS / 60 REVIEW / 52 BLOCK**, **1,629** forecasts archived (941 challenger, 688 incumbent), 0 late, guard OK, reproduce OK | 17 offline tests on the real SEA@DEN game pass; full TNF replay rerun under pf_core 1.2.1 *pending* |
+| NFL | run 39080845443: 13 games, 863 players, gate **751 PASS / 60 REVIEW / 52 BLOCK**, **1,629** forecasts archived (941 challenger, 688 incumbent), 0 late, guard OK, reproduce OK | TNF replay (SEA@DEN, state rebuilt with the game hidden, pf_core 1.2.1): **27/27 checks**, 136 settled, re-runs add nothing, a stat correction appends 2 records (challenger + incumbent) and leaves settlements untouched. ESPN moved exactly the 5 official inactives to Out before kickoff; none of them had a projection, so nothing needed blocking (the BLOCK path is pinned by a unit test) |
 | CFB | runs 39075255180, 39075772663, 39077155306: 21 games, 1,278 forecasts, 0 late; gate 158 PASS / 998 REVIEW | real week-3 and week-6 data: 3,446 forecasts, 3,384 settled + 62 void; re-run adds nothing; 6 corrections, originals untouched |
 | NBA | run 39079478003: real opening-night slate, 291 players, **2,328** forecasts, 0 late; all REVIEW (no official report yet) | 2026-10-16 replay: 2,066 forecasts, 1,340 settled + 726 void; re-run adds nothing; 3 corrections |
 | MLB | run 39080349680: 144 forecasts, gate 135 PASS, coverage 1.0; latest head run 39085989790 green | 2026-09-12: 816 forecasts (810 challenger + 6 incumbent), K actuals equal the feed 12/12, re-run archives nothing, 1 correction; 2026-10-15 postseason: 12 settled paired keys |
-| NHL | dry runs green before the correction-replay step; replay-job fix in progress | 2026-10-15 replay: 3,541 settled + 163 void; re-run adds nothing; correction step being fixed |
+| NHL | live dry run, 10 games: 1,845 challenger + 1,758 incumbent forecasts, 0 late; gate PASS 534 / REVIEW 46 / BLOCK 8 (BLOCK only from confirmed scratches). Run 39087142038 green on every job, incl. `pr-replay` and `pr-repro` | 2026-10-15 replay on the runner: 2,112 challenger + 3,054 incumbent forecasts, none for started games, 3,704 settlements (163 void), 2 corrections appended with originals untouched, re-runs add no files, guard clean |
 
 What these executions prove:
 * the chain runs end to end on the real runner with real live feeds;
@@ -206,22 +210,20 @@ shadow" label.
   line, the Research Lab accuracy summary) run on **phone and desktop Chromium and iPhone WebKit** in CI.
 * Visuals: CI compares 113 committed baselines (phone / desktop / iPhone). None changed; with no published feed every page
   renders as before.
-* CI result: green on the integration commit (35be093, Chromium + WebKit). 
+* CI result: green on the integration commit (35be093) and on the pf_core 1.2.1 commit (5232449), Chromium + WebKit.
 
 ---
 
 ## 8. Pull requests, checks and blockers
 
-Workflow names are given as `name (workflow file)`.
-
 | Repo | PR | Head | Checks |
 |---|---|---|---|
-| sift-sports-intelligence | [#104](https://github.com/chmoses98/sift-sports-intelligence/pull/104) | latest | lint · typecheck · unit · build · acceptance (Chromium + WebKit): green on 35be093; latest run pending |
-| nfl-edge-finder | [#167](https://github.com/chmoses98/nfl-edge-finder/pull/167) | latest | Tests and Projection Foundation (pr-dry-run with reproduce): green on 3a92fd0 |
-| cfb-edge-finder | [#166](https://github.com/chmoses98/cfb-edge-finder/pull/166) | latest | ci and projection-foundation (`run` dry run): install-path fix pushed, run pending |
-| nba-edge-finder | [#32](https://github.com/chmoses98/nba-edge-finder/pull/32) | latest | ci and projection-foundation dry run: green on 74dcd279 |
-| edge-finder-api (MLB) | [#296](https://github.com/chmoses98/edge-finder-api/pull/296) | latest | Projection Foundation dry run: green. PR Checks (`test`): **1 failure that is not this PR's**. `test_capability_statuses_match_the_audit` reads main's live `data/oppquality.json`, which went all-null in the postseason; it fails on `main` too (explained on the PR) |
-| NHL-edge-finder | [#44](https://github.com/chmoses98/NHL-edge-finder/pull/44) | latest | pr-replay red on 549c70b5 (correction-replay step; fix in progress) |
+| sift-sports-intelligence | [#104](https://github.com/chmoses98/sift-sports-intelligence/pull/104) | 5232449 + this report | lint · typecheck · unit · build · acceptance (Chromium + WebKit): **green** |
+| nfl-edge-finder | [#167](https://github.com/chmoses98/nfl-edge-finder/pull/167) | 81cf86c | Tests and Projection Foundation (pr-dry-run with cold rebuild + reproduce): **green** |
+| cfb-edge-finder | [#166](https://github.com/chmoses98/cfb-edge-finder/pull/166) | 5bd79afd2 | `test` and projection-foundation `run` dry run: **green** (`publish` skipped on PRs by design) |
+| nba-edge-finder | [#32](https://github.com/chmoses98/nba-edge-finder/pull/32) | 10983f6f | ci and projection-foundation dry run: **green** |
+| edge-finder-api (MLB) | [#296](https://github.com/chmoses98/edge-finder-api/pull/296) | 050ff93f | Projection Foundation dry run: green. PR Checks (`test`): **1 failure that is not this PR's**. `test_capability_statuses_match_the_audit` reads main's live `data/oppquality.json`, which went all-null in the postseason; it fails on `main` too (explained on the PR) |
+| NHL-edge-finder | [#44](https://github.com/chmoses98/NHL-edge-finder/pull/44) | 8bf5a46a | test, gate, pr-dry-run, pr-replay, pr-repro: **green** on a4fdf202; the pf_core 1.2.1 commit on top is re-running |
 
 **Engineering fixes made during validation:**
 * **CFB:** the pinned-requirements path was resolved twice under the job's working directory. Fixed, plus a contract test
@@ -234,6 +236,23 @@ Workflow names are given as `name (workflow file)`.
   * committed-change archive guard.
 * **NFL:** the state cache is keyed on the pinned requirements, so a cold rebuild and reproduce check are forced when
   versions change.
+* **NFL:** re-runs no longer rewrite projection files: timestamped copies are write-once, and the "latest" file only moves
+  forward in time. Availability coverage is now counted over projected players only.
+* **NHL:** the stat-correction replay read the old data archive, because the archive path was fixed at import; it now
+  honours `--data-archive`.
+* **NHL, upstream data defect:** the 2026-27 `player_events` ingestion leaves the goalie `starter` flag False for 124 of the
+  first 240 team-games. So the study's prospective saves sample (n=116) silently lost about half the games. The live runner
+  uses an opt-in repair (the goalie in net for the first shot against), which agrees with the flag on 116/116 flagged
+  games. The ingestion itself is not changed.
+
+**Known limitations of the live core (fail-safe, documented, not fixed here):**
+* An injury designation is never withdrawn by a later list that simply omits the player. A stale OUT therefore stays in
+  force until the freshness window expires. This withholds a projection rather than wrongly showing one.
+* A REPORTED OUT resolves to the CONFIRMED_OUT class (BLOCK). The certainty field still says REPORTED.
+* Each run's forecast is a new version (its id includes the generation time), and settlement uses the latest pregame
+  version. The sport runners skip identical re-forecasts.
+* Settlement keeps only the standard forecast fields. Segment flags (e.g. NFL new-team) are joined back from the forecast
+  archive when scoring.
 
 **Blockers (none is solvable from this sandbox without your decision or more time):**
 1. **Merge:** scheduled runs, `projection-data` and any settled live record all need the merge.
@@ -241,7 +260,9 @@ Workflow names are given as `name (workflow file)`.
    reports are a possible free source and are untested.
 3. **NBA:** the official injury report path has not run live yet; first reports are expected around 2026-10-19/20.
 4. **MLB:** no injury / IL source; regular-season lineups and late scratches will only be exercised on live data next season.
-5. **Main-branch test failure (MLB repo):** a fixture should pin `oppquality.json`. A patch is proposed on the PR and is
+5. **NHL:** the season constant is hard-coded to 2026 (rollover is a code change). The two PR-only verification jobs
+   (`pr-replay`, `pr-repro`) can be removed after merge if their runner time is not wanted.
+6. **Main-branch test failure (MLB repo):** a fixture should pin `oppquality.json`. A patch is proposed on the PR and is
    outside this PR's scope.
 
 ---

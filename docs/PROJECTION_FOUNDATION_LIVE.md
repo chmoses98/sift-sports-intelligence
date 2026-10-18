@@ -1,5 +1,7 @@
 # Projection Foundation: live integration and validation
 
+> **Superseded in part.** SIFT no longer shows a shadow projection beside the established one: it shows one authoritative number per stat, chosen by `PROJECTION_PROMOTION.md`. §7 below describes the earlier shadow presentation and §3's promotion criteria were replaced by the owner-approved policy there. The historical and live-integration evidence in this report stands.
+
 *2026-10-18 · branch `claude/loving-davinci-53ho9c` in all six repos · nothing is merged or deployed · betting authority unchanged*
 
 This report covers the work after the historical study: moving the projections into live shadow operation. That means

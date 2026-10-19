@@ -40,3 +40,56 @@ export const cfbGame = {
     { team: 'Penn State', team_id: '213', family: 'team_points', mean: 21.4, p10: 10, p90: 33 }, { team: 'Ohio State', team_id: '194', family: 'team_points', mean: 28.3, p10: 17, p90: 40 },
     { team: 'Penn State', team_id: '213', family: 'plays', mean: 66, p10: 58, p90: 74 }, { team: 'Ohio State', team_id: '194', family: 'plays', mean: 70, p10: 62, p90: 78 }],
 };
+
+/**
+ * A coherent published distribution for a count outcome: a negative-binomial pmf (mean `mu`, var = mu + alpha·mu²) read the way the
+ * NFL publisher reads its own — mean, median, p10/p90, the seven quantiles (smallest x with F(x) ≥ level) and P(X ≥ k) for every
+ * integer line, all from the one pmf, rounded as published. Use `declare` on the document (`feedWithDistribution`).
+ */
+export function pmfDistribution(mu: number, alpha = 0.15, K = 40): { mean: number; median: number; p10: number; p90: number; quantiles: Record<string, number>; thresholds: Record<string, number> } {
+  const r = 1 / alpha, p = r / (r + mu);
+  const lg = (n: number): number => { let s = 0; for (let i = 2; i <= n; i++) s += Math.log(i); return s; };
+  const pmf = Array.from({ length: K }, (_, x) => Math.exp(gammaLn(x + r) - gammaLn(r) - lg(x) + r * Math.log(p) + x * Math.log(1 - p)));
+  const z = pmf.reduce((a, b) => a + b, 0);
+  const P = pmf.map((v) => v / z);
+  const cdf: number[] = [];
+  P.reduce((a, v, i) => (cdf[i] = a + v), 0);
+  const q = (lvl: number) => cdf.findIndex((c) => c >= lvl - 1e-12);
+  const mean = P.reduce((a, v, i) => a + v * i, 0);
+  const thresholds: Record<string, number> = {};
+  for (let k = 1; k < K; k++) { const s = 1 - cdf[k - 1]; if (s >= 1e-3 && s <= 1 - 1e-3) thresholds[String(k)] = Math.round(s * 1e4) / 1e4; }
+  const quantiles = { p05: q(0.05), p10: q(0.1), p25: q(0.25), p50: q(0.5), p75: q(0.75), p90: q(0.9), p95: q(0.95) };
+  return { mean: Math.round(mean * 1000) / 1000, median: quantiles.p50, p10: quantiles.p10, p90: quantiles.p90, quantiles, thresholds };
+}
+function gammaLn(x: number): number {
+  const c = [76.1800917294715, -86.5053203294168, 24.0140982408309, -1.23173957245015, 0.120865097386618e-2, -0.5395239384953e-5];
+  let y = x, t = x + 5.5; t -= (x + 0.5) * Math.log(t);
+  let s = 1.00000000019002;
+  for (const cj of c) s += cj / ++y;
+  return -t + Math.log((2.506628274631 * s) / x);
+}
+
+/**
+ * The distribution artifact (`sift.projection_distributions.v1`) the NFL publisher writes beside its feed, for the rows of `feedDoc` that
+ * carry a `__dist` (a `pmfDistribution`): the feed's own rows keep only their study rungs and no quantiles, exactly as published.
+ */
+export function distributionArtifact(feedDoc: Record<string, any>, rows: { player_id: string; family: string; game_id: string; dist: ReturnType<typeof pmfDistribution> }[]): Record<string, unknown> { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return {
+    schema: 'sift.projection_distributions.v1', sport: 'NFL',
+    projection: { schema: 'sift.projections.v1', generated_utc: feedDoc.generated_utc },
+    distribution: { quantile_rule: 'smallest integer x with P(X <= x) >= level, from the same integer pmf as the mean and the threshold probabilities', levels: [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95] },
+    rows: rows.map((r) => ({ player_id: r.player_id, family: r.family, game_id: r.game_id, mean: r.dist.mean, median: r.dist.median, p10: r.dist.p10, p90: r.dist.p90, quantiles: r.dist.quantiles, survival: r.dist.thresholds })),
+    excluded: [],
+  };
+}
+
+/** The feed row of a `pmfDistribution`: mean, median, range and the study's three rungs only (no quantiles). */
+export const feedSummary = (d: ReturnType<typeof pmfDistribution>, rungs: number[] = [3, 5, 7]) => ({
+  mean: d.mean, median: d.median, p10: d.p10, p90: d.p90, quantiles: undefined, thresholds: Object.fromEntries(rungs.map((k) => [String(k), d.thresholds[String(k)]])),
+});
+
+/** A `sift.projections.v1` document that declares the pmf basis of its quantiles (a publisher that embeds them in the feed). */
+export const feedWithDistribution = (sport: string, players: Obj[], families: Record<string, Obj> = {}, games: Obj[] = []): Record<string, unknown> => ({
+  ...feed(sport, players, families, games),
+  distribution: { schema: 'sift.projection_distribution.v1', quantile_rule: 'smallest integer x with P(X <= x) >= level, from the same integer pmf as the mean and the threshold probabilities', levels: [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95] },
+});

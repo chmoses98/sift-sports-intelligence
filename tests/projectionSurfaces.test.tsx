@@ -313,7 +313,7 @@ describe('Research Lab card', () => {
     const card = await screen.findByTestId('projection-scorecard');
     await waitFor(() => expect(screen.getByTestId('pfs-live-in-sift')).toHaveTextContent(/Receptions\s*1\.55\s*81%/));
     expect(screen.getAllByTestId('pfs-live-empty').length).toBeGreaterThan(0);                      // no live games settled yet, and it says so
-    expect(screen.getByTestId('pfs-not-changed')).toHaveTextContent(/Passing tds — Established model kept/);
+    expect(screen.getByTestId('pfs-not-changed')).toHaveTextContent(/Passing tds — Current projection kept/);
     expect(screen.getByTestId('pfs-not-changed')).toHaveTextContent(/Receiving yards — Not yet validated for live use/);
     expect(card.textContent).not.toMatch(/shadow|incumbent|production model|versus|challenger/i);
   });

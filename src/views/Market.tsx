@@ -22,6 +22,8 @@ import { isFullGame, periodWords } from '../lib/period';
 import { cfbMarketHeading } from '../lib/cfbMarkets';
 import { isMlbTicker, mlbPlayerKey } from '../lib/mlb';
 import { priceMove } from '../lib/priceMoves';
+import { useAuthority } from '../data/projections';
+import { simView, type SimView } from '../lib/simStat';
 import '../styles/lane-d-markets.css';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -62,6 +64,8 @@ export function MarketView() {
   const research = useAsync(eventId ? `er:${sport.code}:${eventId}` : null, () => repo.eventResearch(eventId));
   const hist = useAsync(research.data?.market_history_path ? `mh:${sport.code}:${eventId}` : null, () => repo.marketHistory(eventId));
   const player = useAsync(m?.player_id ? `prof:${sport.code}:${m.player_id}` : null, () => repo.profile(m!.player_id!));
+  // the one projection per stat (NFL player stats): a promoted stat's probability and range are the projection's own, never the established model's
+  const { authority: projAuthority, ready: projReady } = useAuthority(sport.code === 'NFL' ? 'NFL' : null, now);
   const team = useAsync(m?.participant_id ? `prof:${sport.code}:${m.participant_id}` : null, () => repo.profile(m!.participant_id!));
   const recs = useAsync(`recs:${sport.code}:${repo.source.root}`, () => repo.recommendations());
   const title = m ? describeMarket(m, { playerName: () => player.data?.entity.display_name ?? null, abbrOf: () => team.data?.entity.short_name ?? null }).title : null;
@@ -93,7 +97,20 @@ export function MarketView() {
   const x = (m.extensions ?? {}) as any;
   const stat = (x.stat as string | undefined) ?? null;
   const simObs = stat && STAT_TO_SIM[stat] ? player.data?.metrics.find((o) => o.metric_id === STAT_TO_SIM[stat]) : undefined;
-  const q = quantilesOf(simObs);
+  const gsis = (player.data?.entity.source_ids?.gsis_id as string | undefined) ?? null;
+  const teamAbbr = player.data?.team?.short_name ?? (player.data?.entity.metadata?.team as string | undefined) ?? null;
+  const oppAbbr = ev.participants.find((pp) => pp.short_name && pp.short_name !== teamAbbr)?.short_name ?? null;
+  const simStat = Boolean(stat && m.market_family === 'player_stat' && STAT_TO_SIM[stat] && sport.code === 'NFL');
+  // the player profile and the projection feed both load asynchronously: until they have, no model number is shown (never a flash of the established one)
+  const sv: SimView | null = simStat && !player.data ? { state: 'loading' } : stat && simStat ? simView(projAuthority, projReady, {
+    stat, obs: simObs, playerId: gsis, name: player.data?.entity.display_name ?? null, team: teamAbbr, opponent: oppAbbr,
+    designation: player.data?.availability.map((a) => a.status).find((st) => !/^(ACTIVE|PROBABLE|AVAILABLE)$/i.test(st)) ?? null, line: m.threshold != null ? Number(m.threshold) - 0.5 : null,
+  }) : null;
+  const q = sv ? (sv.state === 'shown' && sv.q ? { ...sv.q, mean: sv.value } : null) : quantilesOf(simObs);
+  /** the model's probability for a line: the projection's own for a promoted stat (none off its ladder or when withheld), else the pricing model's fair price */
+  const simLoading = sv?.state === 'loading';
+  const promoted = sv?.state === 'withheld' || (sv?.state === 'shown' && sv.engine === 'projection');
+  const modelP = (marketId: string, line: unknown): number | null => (simLoading ? null : promoted ? (sv!.state === 'shown' ? sv!.probAtLeast(Number(line)) ?? null : null) : prices.get(marketId)?.fair_probability ?? null);
   const series = m.kalshi_ticker.split('-')[0];
   const siblings = detail.data.markets
     .map((o) => overlayMarket(o, live.quote(o.kalshi_ticker)))
@@ -104,7 +121,6 @@ export function MarketView() {
   const subject = player.data?.entity.display_name ?? team.data?.entity.display_name ?? x.subject ?? null;
   // NHL inserts its research stratum as 02; the rest renumber after it.
   const sn = (k: number) => String(sport.code === 'NHL' ? k + 1 : k).padStart(2, '0');
-  const v2 = x.shadow_v2_p_yes ?? (mp?.extensions as any)?.shadow_v2?.p_yes ?? null;
 
   return (
     <div className="page market">
@@ -169,11 +185,11 @@ export function MarketView() {
         {mp ? (
           <div className="evid">
             <div className="pxgrid">
-              <Px k="Model fair P(YES)" v={cents(mp.fair_probability)} sub={modelVersionLabel(mp.model_version) ?? undefined} />
+              <Px k={promoted ? 'Projected probability of YES' : 'Model fair P(YES)'} v={cents(modelP(m.market_id, rungOf(m)))} sub={promoted ? 'from the projection’s distribution' : modelVersionLabel(mp.model_version) ?? undefined} />
               <Px k="Market mid" v={cents(mid)} />
-              <Px k="Model − market" v={mp.fair_probability != null && mid != null ? `${signed((mp.fair_probability - mid) * 100, 1)}¢` : '—'} sub="research signal, not an edge claim" />
-              {v2 != null && <Px k="Shadow v2 P(YES)" v={cents(v2)} sub="research arm" />}
-              {mp.projection_value != null && <Px k="Projection" v={`${mp.projection_value} ${mp.projection_unit ?? ''}`} />}
+              <Px k="Model − market" v={modelP(m.market_id, rungOf(m)) != null && mid != null ? `${signed((modelP(m.market_id, rungOf(m))! - mid) * 100, 1)}¢` : '—'} sub="research signal, not an edge claim" />
+              {promoted ? (sv!.state === 'shown' && <Px k="Projection" v={`${Math.round(sv!.value * 100) / 100} ${mp.projection_unit ?? ''}`} />)
+                : mp.projection_value != null && <Px k="Projection" v={`${mp.projection_value} ${mp.projection_unit ?? ''}`} />}
             </div>
             <div className="chips">
               <FreshnessChip asOf={mp.generated_at} component="model" label="model" />
@@ -196,7 +212,7 @@ export function MarketView() {
         <Stratum n={sn(3)} title="Projection evidence" sub={stat && subject ? `${subject}'s ${STAT_LABEL[stat] ?? stat}: the whole ladder, this rung highlighted.` : 'The whole ladder, this rung highlighted.'}>
           {siblings.length >= 2 && (
             <LadderChart
-              rungs={siblings.map((o) => ({ x: Number(rungOf(o)), bid: o.yes_bid, ask: o.yes_ask, fair: prices.get(o.market_id)?.fair_probability ?? null, href: routes.market(slug, o.market_id, ev.event_id), ticker: o.kalshi_ticker }))}
+              rungs={siblings.map((o) => ({ x: Number(rungOf(o)), bid: o.yes_bid, ask: o.yes_ask, fair: modelP(o.market_id, rungOf(o)), href: routes.market(slug, o.market_id, ev.event_id), ticker: o.kalshi_ticker }))}
               quantiles={q}
               unit={stat ? STAT_LABEL[stat] ?? stat : cfbMarketHeading(m) ?? familyLabel(m.market_family)}
               title={`${title} ladder`}
@@ -205,9 +221,9 @@ export function MarketView() {
           )}
           {q && thr != null && simObs && (
             <p className="evid__q">
-              Simulated {STAT_LABEL[stat!] ?? stat}: median <b className="num">{metricFormatter(metrics.get(simObs.metric_id))(q.p50)}</b>, 50% range{' '}
+              {sv?.state === 'shown' && sv.engine === 'projection' ? 'Projected' : 'Simulated'} {STAT_LABEL[stat!] ?? stat}: median <b className="num">{metricFormatter(metrics.get(simObs.metric_id))(q.p50)}</b>, 50% range{' '}
               <b className="num">{q.p25}–{q.p75}</b>, 90% range <b className="num">{q.p05}–{q.p95}</b>. This contract's line ({thr}) sits{' '}
-              {thr <= q.p05 ? 'below almost every simulated outcome (the lowest 5%)' : thr <= q.p25 ? 'in the lower quarter of simulated outcomes' : thr <= q.p50 ? 'just below the middle of the simulated outcomes' : thr <= q.p75 ? 'just above the middle of the simulated outcomes' : thr <= q.p95 ? 'in the upper quarter of simulated outcomes' : 'above almost every simulated outcome (the highest 5%)'}. <QualityBadge status={simObs.quality_status} />
+              {thr <= q.p05 ? 'below almost every outcome (the lowest 5%)' : thr <= q.p25 ? 'in the lower quarter of outcomes' : thr <= q.p50 ? 'just below the middle of the outcomes' : thr <= q.p75 ? 'just above the middle of the outcomes' : thr <= q.p95 ? 'in the upper quarter of outcomes' : 'above almost every outcome (the highest 5%)'}. {!promoted && <QualityBadge status={simObs.quality_status} />}
             </p>
           )}
         </Stratum>
@@ -218,7 +234,7 @@ export function MarketView() {
         {hseries ? (
           <>
             {(() => { const mv = priceMove(hseries.points, { v: mid ?? null, at: view?.observedAt ?? m.captured_at ?? null }); return mv ? <p className="lsd-move__s" data-testid="market-move"><b>{mv.words}.</b> Range {Math.round(mv.lo * 100)}¢–{Math.round(mv.hi * 100)}¢. A move is the market changing its mind, not evidence for either side.</p> : null; })()}
-            <PriceHistory points={hseries.points} fair={mp?.fair_probability ?? null} kickoff={ev.start_time_utc} title={`${title} price history`} />
+            <PriceHistory points={hseries.points} fair={modelP(m.market_id, rungOf(m))} kickoff={ev.start_time_utc} title={`${title} price history`} />
           </>
         ) : (
           !hist.loading && (
@@ -243,7 +259,7 @@ export function MarketView() {
         </dl>
         {mp && (
           <SaveButton text="Save projection" ref_kind="PROJECTION" sport={sport.code} id={mp.model_price_id} extra={{ market_id: m.market_id, event_id: ev.event_id }} kickoff={ev.start_time_utc} eventStatus={ev.status}
-            label={{ label: `Projection · ${title}`, sub: `fair ${cents(mp.fair_probability)} vs ${cents(mid)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
+            label={{ label: `Projection · ${title}`, sub: `model ${cents(modelP(m.market_id, rungOf(m)))} vs ${cents(mid)}`, href: routes.market(slug, m.market_id, ev.event_id) }} />
         )}
       </Stratum>
     </div>

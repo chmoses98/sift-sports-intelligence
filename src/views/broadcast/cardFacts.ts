@@ -96,7 +96,7 @@ export function modelRead(sport: string, r: EventResearchDoc | null | undefined,
     const a = num(ext.sim?.away_lambda);
     const h = num(ext.sim?.home_lambda);
     if (a == null || h == null) return null;
-    return { text: `${away} ${a.toFixed(1)}–${h.toFixed(1)} ${home}`, title: 'Research model expected goals (simulation means), not a calibrated forecast' };
+    return { text: `${away} ${a.toFixed(1)}–${h.toFixed(1)} ${home}`, title: 'Research model expected goals (expected values), not a calibrated forecast' };
   }
   return null;
 }

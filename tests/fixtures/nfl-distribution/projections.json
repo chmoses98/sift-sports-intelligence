@@ -1,0 +1,1137 @@
+{
+ "schema": "sift.projections.v1",
+ "sport": "NFL",
+ "generated_utc": "2026-10-19T01:34:27Z",
+ "data_asof_utc": "2026-10-19T01:34:16Z",
+ "mode": "live_upcoming",
+ "season": 2026,
+ "week": 6,
+ "model": {
+  "id": "pf-nfl",
+  "version": "pf-1.2.1+531bd04",
+  "authority": "research_only"
+ },
+ "role": "shadow",
+ "conditioning": "Player projections are CONDITIONAL ON THE PLAYER PARTICIPATING (DNP = void), the prop-settlement convention. Each row carries the point-in-time participation call (status, certainty, source, capture time). OUT players are written with gate BLOCK (numbers withheld by SIFT); QUESTIONABLE/DOUBTFUL/UNVERIFIED with REVIEW. passing_tds is NEEDS IMPROVEMENT (the frozen winner lost to the incumbent on holdout): shadow-only, not for display.",
+ "families": {
+  "team_pass_attempts": {
+   "readiness": "READY",
+   "model": "F",
+   "reason": "F_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.97, 80% coverage 0.81, no subgroup with >25% relative bias.",
+   "role": "shadow"
+  },
+  "team_rush_attempts": {
+   "readiness": "READY",
+   "model": "F",
+   "reason": "F_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 1.00, 80% coverage 0.80, no subgroup with >25% relative bias.",
+   "role": "shadow"
+  },
+  "team_points": {
+   "readiness": "READY",
+   "model": "F",
+   "reason": "F_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.97, 80% coverage 0.80, no subgroup with >25% relative bias. Mean is essentially the closing implied team total (stack weight on the market-driven D rung).",
+   "role": "shadow"
+  },
+  "targets": {
+   "readiness": "READY",
+   "model": "F_av",
+   "reason": "F_plus_availability beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.98, 80% coverage 0.81, no subgroup with >25% relative bias.",
+   "role": "shadow"
+  },
+  "receptions": {
+   "readiness": "READY",
+   "model": "F_av",
+   "reason": "F_plus_availability beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.98, 80% coverage 0.81, no subgroup with >25% relative bias.",
+   "role": "shadow"
+  },
+  "receiving_yards": {
+   "readiness": "SHADOW VALIDATION",
+   "model": "F_av",
+   "reason": "subgroup failure: team_changed=new team (1st game) bias +6.30 on mean 21.52 (n=506)",
+   "role": "shadow"
+  },
+  "carries": {
+   "readiness": "SHADOW VALIDATION",
+   "model": "F_av",
+   "reason": "subgroup failure: team_changed=new team (1st game) bias +2.21 on mean 6.22 (n=181)",
+   "role": "shadow"
+  },
+  "rushing_yards": {
+   "readiness": "SHADOW VALIDATION",
+   "model": "F_av",
+   "reason": "subgroup failure: team_changed=new team (1st game) bias +12.26 on mean 24.49 (n=181)",
+   "role": "shadow"
+  },
+  "passing_attempts": {
+   "readiness": "SHADOW VALIDATION",
+   "model": "F_qs",
+   "reason": "validation gain over baseline A not significant (CI crosses 0) although the frozen winner beat A and the incumbent on the 2024-25 holdout; needs a further untouched season before READY",
+   "role": "shadow"
+  },
+  "completions": {
+   "readiness": "READY",
+   "model": "F_qs",
+   "reason": "F_qb_starts_env_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.98, 80% coverage 0.81, no subgroup with >25% relative bias.",
+   "role": "shadow"
+  },
+  "passing_yards": {
+   "readiness": "READY",
+   "model": "F_qs",
+   "reason": "F_qb_starts_env_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.99, 80% coverage 0.81, no subgroup with >25% relative bias.",
+   "role": "shadow"
+  },
+  "passing_tds": {
+   "readiness": "NEEDS IMPROVEMENT",
+   "model": "D_qs",
+   "reason": "frozen winner is significantly worse than the incumbent shadow-0.4.0 on holdout",
+   "role": "shadow"
+  },
+  "anytime_td": {
+   "readiness": "SHADOW VALIDATION",
+   "model": "F_av",
+   "reason": "subgroup failure: team_changed=new team (1st game) bias +0.07 on mean 0.14 (n=607)",
+   "role": "shadow"
+  }
+ },
+ "games": [
+  {
+   "game_id": "2026_06_WAS_SF",
+   "start_utc": "2026-10-20T00:15:00Z",
+   "home": "SF",
+   "away": "WAS",
+   "closing_spread_home": -7.5,
+   "total_line": 52.5,
+   "teams": [
+    {
+     "team": "SF",
+     "family": "team_pass_attempts",
+     "mean": 32.77,
+     "p10": 23,
+     "p90": 43
+    },
+    {
+     "team": "SF",
+     "family": "team_rush_attempts",
+     "mean": 27.59,
+     "p10": 19,
+     "p90": 37
+    },
+    {
+     "team": "SF",
+     "family": "team_points",
+     "mean": 29.79,
+     "p10": 18,
+     "p90": 42
+    },
+    {
+     "team": "WAS",
+     "family": "team_pass_attempts",
+     "mean": 32.02,
+     "p10": 22,
+     "p90": 42
+    },
+    {
+     "team": "WAS",
+     "family": "team_rush_attempts",
+     "mean": 26.34,
+     "p10": 17,
+     "p90": 36
+    },
+    {
+     "team": "WAS",
+     "family": "team_points",
+     "mean": 22.9,
+     "p10": 11,
+     "p90": 35
+    }
+   ]
+  }
+ ],
+ "players": [
+  {
+   "player_id": "00-0033280",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "RB",
+   "family": "targets",
+   "mean": 5.88,
+   "median": 6,
+   "p10": 2,
+   "p90": 10,
+   "thresholds": {
+    "3": 0.8924,
+    "5": 0.651,
+    "7": 0.3758,
+    "9": 0.176
+   },
+   "opportunity": {
+    "family": "targets",
+    "mean": 5.88
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (depth)"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "RB1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033288",
+   "name": "George Kittle",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "TE",
+   "family": "targets",
+   "mean": 6.669,
+   "median": 6,
+   "p10": 3,
+   "p90": 11,
+   "thresholds": {
+    "3": 0.928,
+    "5": 0.7364,
+    "7": 0.4787,
+    "9": 0.2575
+   },
+   "opportunity": {
+    "family": "targets",
+    "mean": 6.67
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "TE1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033280",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "RB",
+   "family": "receptions",
+   "mean": 4.923,
+   "median": 5,
+   "p10": 2,
+   "p90": 8,
+   "thresholds": {
+    "3": 0.8364,
+    "5": 0.5266,
+    "7": 0.2433
+   },
+   "opportunity": {
+    "family": "targets",
+    "mean": 5.88,
+    "p10": 2,
+    "p90": 10
+   },
+   "opponent_adjustment": {
+    "factor": 1.004,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (depth)"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "RB1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033288",
+   "name": "George Kittle",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "TE",
+   "family": "receptions",
+   "mean": 5.077,
+   "median": 5,
+   "p10": 2,
+   "p90": 8,
+   "thresholds": {
+    "3": 0.8495,
+    "5": 0.5505,
+    "7": 0.264
+   },
+   "opportunity": {
+    "family": "targets",
+    "mean": 6.67,
+    "p10": 3,
+    "p90": 11
+   },
+   "opponent_adjustment": {
+    "factor": 1.004,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "TE1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033280",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "RB",
+   "family": "receiving_yards",
+   "mean": 41.913,
+   "median": 37,
+   "p10": 8,
+   "p90": 83,
+   "thresholds": {
+    "40": 0.47,
+    "60": 0.245,
+    "80": 0.115,
+    "100": 0.0475
+   },
+   "opportunity": {
+    "family": "targets",
+    "mean": 5.88,
+    "p10": 2,
+    "p90": 10
+   },
+   "opponent_adjustment": {
+    "factor": 1.046,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x1.05 (fitted elasticity on 2016-2021).",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (depth)"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "RB1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033288",
+   "name": "George Kittle",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "TE",
+   "family": "receiving_yards",
+   "mean": 63.319,
+   "median": 58,
+   "p10": 19,
+   "p90": 115,
+   "thresholds": {
+    "40": 0.705,
+    "60": 0.485,
+    "80": 0.295,
+    "100": 0.165
+   },
+   "opportunity": {
+    "family": "targets",
+    "mean": 6.67,
+    "p10": 3,
+    "p90": 11
+   },
+   "opponent_adjustment": {
+    "factor": 1.046,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x1.05 (fitted elasticity on 2016-2021).",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "TE1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033280",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "RB",
+   "family": "carries",
+   "mean": 14.373,
+   "median": 14,
+   "p10": 7,
+   "p90": 22,
+   "thresholds": {
+    "10": 0.805,
+    "15": 0.47,
+    "20": 0.1975
+   },
+   "opportunity": {
+    "family": "carries",
+    "mean": 14.2
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (depth)"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "RB1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033280",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "RB",
+   "family": "rushing_yards",
+   "mean": 57.941,
+   "median": 53,
+   "p10": 18,
+   "p90": 108,
+   "thresholds": {
+    "40": 0.67,
+    "60": 0.42,
+    "80": 0.2375,
+    "100": 0.1325
+   },
+   "opportunity": {
+    "family": "carries",
+    "mean": 14.37,
+    "p10": 7,
+    "p90": 22
+   },
+   "opponent_adjustment": {
+    "factor": 1.025,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x1.02 (fitted elasticity on 2016-2021).",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (depth)"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "RB1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0037834",
+   "name": "Brock Purdy",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "passing_attempts",
+   "mean": 31.716,
+   "median": 31,
+   "p10": 22,
+   "p90": 43,
+   "thresholds": {
+    "30": 0.5814,
+    "35": 0.3462,
+    "40": 0.1703
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 31.72
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (starter)",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0039910",
+   "name": "Jayden Daniels",
+   "team": "WAS",
+   "opponent": "SF",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "passing_attempts",
+   "mean": 30.298,
+   "median": 30,
+   "p10": 20,
+   "p90": 41,
+   "thresholds": {
+    "30": 0.5132,
+    "35": 0.2827,
+    "40": 0.1274
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 30.3
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread -7.5, total 52.5) and the opponent's schedule-adjusted defensive rating."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0037834",
+   "name": "Brock Purdy",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "completions",
+   "mean": 21.878,
+   "median": 22,
+   "p10": 14,
+   "p90": 30,
+   "thresholds": {
+    "18": 0.7775,
+    "22": 0.5,
+    "25": 0.3225
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 31.72,
+    "p10": 22,
+    "p90": 43
+   },
+   "opponent_adjustment": {
+    "factor": 1.003,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (starter)",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0039910",
+   "name": "Jayden Daniels",
+   "team": "WAS",
+   "opponent": "SF",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "completions",
+   "mean": 19.693,
+   "median": 20,
+   "p10": 12,
+   "p90": 27,
+   "thresholds": {
+    "18": 0.62,
+    "22": 0.39,
+    "25": 0.205
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 30.3,
+    "p10": 20,
+    "p90": 41
+   },
+   "opponent_adjustment": {
+    "factor": 1.013,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread -7.5, total 52.5) and the opponent's schedule-adjusted defensive rating."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0037834",
+   "name": "Brock Purdy",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "passing_yards",
+   "mean": 275.103,
+   "median": 272,
+   "p10": 190,
+   "p90": 370,
+   "thresholds": {
+    "200": 0.8625,
+    "250": 0.62,
+    "300": 0.3725
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 31.72,
+    "p10": 22,
+    "p90": 43
+   },
+   "opponent_adjustment": {
+    "factor": 1.048,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x1.05 (fitted elasticity on 2016-2021)."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (starter)",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0039910",
+   "name": "Jayden Daniels",
+   "team": "WAS",
+   "opponent": "SF",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "passing_yards",
+   "mean": 204.715,
+   "median": 205,
+   "p10": 111,
+   "p90": 302,
+   "thresholds": {
+    "200": 0.54,
+    "250": 0.2576,
+    "300": 0.1001
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 30.3,
+    "p10": 20,
+    "p90": 41
+   },
+   "opponent_adjustment": {
+    "factor": 0.966,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread -7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x0.97 (fitted elasticity on 2016-2021)."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "READY",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0037834",
+   "name": "Brock Purdy",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "passing_tds",
+   "mean": 2.3,
+   "median": 2,
+   "p10": 0,
+   "p90": 4,
+   "thresholds": {
+    "1": 0.895,
+    "2": 0.6625,
+    "3": 0.3975
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 31.72,
+    "p10": 22,
+    "p90": 43
+   },
+   "opponent_adjustment": {
+    "factor": 1.084,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x1.08 (fitted elasticity on 2016-2021)."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (starter)",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "NEEDS IMPROVEMENT",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0039910",
+   "name": "Jayden Daniels",
+   "team": "WAS",
+   "opponent": "SF",
+   "game_id": "2026_06_WAS_SF",
+   "position": "QB",
+   "family": "passing_tds",
+   "mean": 1.385,
+   "median": 1,
+   "p10": 0,
+   "p90": 3,
+   "thresholds": {
+    "1": 0.7725,
+    "2": 0.43,
+    "3": 0.1425
+   },
+   "opportunity": {
+    "family": "passing_attempts",
+    "mean": 30.3,
+    "p10": 20,
+    "p90": 41
+   },
+   "opponent_adjustment": {
+    "factor": 0.978,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread -7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Opponent efficiency factor x0.98 (fitted elasticity on 2016-2021)."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active",
+     "depth chart (PROJECTED) lists him as QB1"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "NEEDS IMPROVEMENT",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "QB",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033280",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "RB",
+   "family": "anytime_td",
+   "mean": 0.608,
+   "median": 1,
+   "p10": 0,
+   "p90": 1,
+   "thresholds": {
+    "1": 0.6077
+   },
+   "opportunity": {
+    "family": "touches",
+    "mean": 20.08
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "PROJECTED",
+    "source": "nflverse_depth",
+    "captured_utc": "2026-10-19T01:34:16Z",
+    "age_minutes": 0.2,
+    "reasons": [
+     "nflverse_depth: projected starting (depth)"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "RB1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  },
+  {
+   "player_id": "00-0033288",
+   "name": "George Kittle",
+   "team": "SF",
+   "opponent": "WAS",
+   "game_id": "2026_06_WAS_SF",
+   "position": "TE",
+   "family": "anytime_td",
+   "mean": 0.507,
+   "median": 1,
+   "p10": 0,
+   "p90": 1,
+   "thresholds": {
+    "1": 0.5074
+   },
+   "opportunity": {
+    "family": "touches",
+    "mean": 8.36
+   },
+   "opponent_adjustment": {
+    "factor": 1.0,
+    "sample_games": 5
+   },
+   "adjustments": [
+    "Team volume uses the market line (spread +7.5, total 52.5) and the opponent's schedule-adjusted defensive rating.",
+    "Teammates listed OUT/DOUBTFUL vacate 17% of team targets / 6% of carries; shares renormalised."
+   ],
+   "participation": {
+    "status": "LIKELY_ACTIVE",
+    "certainty": "REPORTED",
+    "source": "espn_injuries",
+    "captured_utc": "2026-10-19T01:16:17Z",
+    "age_minutes": 18.2,
+    "reasons": [
+     "espn_injuries: active"
+    ]
+   },
+   "role": "shadow",
+   "readiness": "SHADOW VALIDATION",
+   "gate": {
+    "status": "PASS",
+    "findings": []
+   },
+   "segments": {
+    "new_team_first4": false,
+    "tier": "TE1",
+    "backup": false,
+    "rookie": false
+   },
+   "data_asof_utc": "2026-10-19T01:34:16Z"
+  }
+ ],
+ "_provenance": "Real projections/nfl/latest.json (nfl-edge-finder projection-data, generated 2026-10-19T01:34:27Z, WAS @ SF, week 6) trimmed to George Kittle, Christian McCaffrey, Brock Purdy and Jayden Daniels. Unmodified rows: no quantiles, the study rungs only."
+}

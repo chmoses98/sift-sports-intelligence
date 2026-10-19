@@ -24,10 +24,15 @@ async function feed(sport: ProjSport) {
   const url = projectionsUrl(sport);
   const res = await fetch(url, { cache: 'no-cache' });
   const cors = res.headers.get('access-control-allow-origin');
-  const doc: ProjectionDoc | null = res.ok ? decodeProjections(await res.json()) : null;      // exactly what useProjections() does
+  let parseError: string | null = null;
+  let doc: ProjectionDoc | null = null;
+  if (res.ok) {
+    try { doc = decodeProjections(await res.json()); }                                          // exactly what useProjections() does: strict JSON.parse, then decode
+    catch (e) { parseError = String((e as Error).message).slice(0, 160); }                      // e.g. a bare NaN: the feed is unreadable in a browser
+  }
   const ageH = doc?.dataAsOf ? (NOW - Date.parse(doc.dataAsOf)) / 3.6e6 : null;
   return {
-    url, http: res.status, cors, cacheControl: res.headers.get('cache-control'), decoded: !!doc, doc,
+    url, http: res.status, cors, cacheControl: res.headers.get('cache-control'), decoded: !!doc, parseError, doc,
     summary: doc && { generatedAt: doc.generatedAt, dataAsOf: doc.dataAsOf, ageHours: ageH == null ? null : Math.round(ageH * 10) / 10, players: doc.players.length, teamRows: doc.teams.length,
       ready: Object.entries(doc.families).filter(([, v]) => v.readiness === 'READY').map(([k]) => k) },
   };

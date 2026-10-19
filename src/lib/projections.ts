@@ -144,6 +144,8 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
 export function coherenceProblems(p: PlayerProjection): string[] {
   const out: string[] = [];
   if (!Number.isFinite(p.mean)) out.push('mean is not a number');
+  // every projected stat is a count or a total: a negative value in the number or its range is a corrupt row, not a forecast
+  if (p.mean < 0 || (p.median != null && p.median < 0) || (p.p10 != null && p.p10 < 0) || (p.p90 != null && p.p90 < 0)) out.push('a projected value is negative');
   if (p.p10 != null && p.p90 != null && p.p10 > p.p90) out.push('range is inverted');
   // >=90% of the mass sits at or above p10, so the mean cannot sit far below it (skewed stats can sit above p90: HR, TDs)
   if (p.p10 != null && p.mean < p.p10 - Math.max(1, 0.15 * Math.abs(p.p10))) out.push('mean below its own 10th percentile');

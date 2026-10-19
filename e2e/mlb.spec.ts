@@ -81,8 +81,10 @@ test('MLB player props: market everywhere, one projection per stat, statuses wit
   await expect(betts.getByText('Not projected — lineup unconfirmed')).toBeVisible();
   await expect(betts.getByLabel(/^Model/)).toHaveCount(0);
   await expect(sec.getByRole('region', { name: 'Other player markets' }).getByText('No projection published').first()).toBeVisible();
-  // the promoted pitcher stat carries none of the previous publication's drivers, validation or provenance (unit-tested)
-  await expect(sec.getByText('Opp lineup K%')).toHaveCount(0);
+  // the promoted pitcher stat carries none of the previous publication's drivers, validation or provenance (unit-tested); the only
+  // drivers left are Tyler Mahle's, whom the feed does not serve: the approved fallback keeps the publisher's one number for him, with its note
+  await expect(sec.getByText('Opp lineup K%')).toHaveCount(1);
+  await expect(sec.getByText(/Shown because projections for this game have not been published yet/)).toHaveCount(1);
   expect(await sec.innerText()).not.toMatch(BANNED);
   await noHorizontalOverflow(page, 'mlb props');
   const axe = await new AxeBuilder({ page }).include('#g-mlb-props').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();

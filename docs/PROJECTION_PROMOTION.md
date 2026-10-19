@@ -280,3 +280,46 @@ merged separately. Merging to `main` **deploys** (see `deploy.yml`), so the merg
 
 After deployment: confirm one number per stat on Home, Games, the Game Command Center, Player Snapshot, Prop Explorer and the
 Research Lab, and that the feed monitor workflow is active.
+
+## 10. Published distributions, and one number on every surface (2026-10-19)
+
+**Distributions (NFL).** The NFL feed's player rows now carry `quantiles` (p05 p10 p25 p50 p75 p90 p95) and, for count families, every integer
+line `P(X ≥ k)` with 0.001 ≤ P ≤ 0.999, all read from the **same integer pmf** as the mean, median and p10/p90 (nfl-edge-finder PR #178,
+`research/projection_foundation/CONTRACT.md` §3.1b; the rewritable `projections/nfl/latest.json` view only: no archived forecast, outcome,
+settlement or frozen research file is touched). The document declares `distribution.schema = sift.projection_distribution.v1` and the rule
+(*smallest integer x with P(X ≤ x) ≥ level*). SIFT:
+
+* decodes the quantiles strictly (finite, non-negative, ordered; a half-valid set is no set) and, **only when the document declares the pmf basis**,
+  cross-checks them against the row's own median, range and threshold probabilities (`k ≤ q_a ⇒ P(X ≥ k) > 1 − a`, `k > q_a ⇒ P(X ≥ k) ≤ 1 − a`).
+  A self-contradicting row is **withheld whole** (`INCOHERENT`): which of its numbers is wrong cannot be known. Other sports' documents are not held to it;
+* draws exactly the published quantiles (seven blocks between them; nothing smoothed or extended past the outer quantiles) and never reconstructs a
+  distribution from p10/p90/mean: without quantiles the Explorer says *No published distribution* and still shows the prediction range;
+* reads the expected value, median, middle 50%, prediction range (80%), 90% range, the drawing and the probability of the over from the one selected
+  projection (`PropRow.distribution`, `PropRow.predictionRange`, `rungOf`). The probability of a line off its published ladder is none, never the
+  other engine's.
+
+Live check (2026-10-19, WAS @ SF, real event, player ids and live Kalshi ladders, production-like build, Chromium desktop and 390 px): George Kittle
+receptions 5.1 expected (median 5, middle 50% 3–7, 80% 2–8, 90% 1–10), over 5.5 at 40% (market 46%); Christian McCaffrey 4.9 (3–6, 2–8, 1–9), over 4.5
+at 53%; Brock Purdy completions 21.9 (18–26, 14–30, 11–33). The live feed does not publish quantiles until nfl-edge-finder#178 is merged and has run, so the
+quantile and ladder fields for those four rows were derived by the publisher's own code from their archived pmfs (which reproduce the published means and
+thresholds exactly) and served in place of the feed; every other value was live.
+
+**Surfaces.** The pages that read the established simulation directly now ask the projection authority (`src/lib/simStat.ts`): the Player page (props
+table, this-game card, ranges, line probabilities), the Market page (probability of the line, projection), Compare, the depth chart and the game roster list.
+For a promoted stat they show the selected projection or a withheld reason; otherwise they are unchanged. The Market page no longer shows a "Shadow v2"
+probability.
+
+**Wording.** *Shadow model P(over)* → *Probability of over*; *SIFT projection* → *Projected receptions*; *simulation mean* → *expected value*;
+*Established model kept* → *Current projection kept*. The approved fallback label *Established projection* is unchanged. Internal model ids, shadow
+tracking, audit logs and benchmarking are untouched. Documented exceptions (`tests/uiTerminology.test.ts`): the NHL research-candidate ledger ("shadow"
+results of never-placed candidates, publisher-supplied status words), the CBB model roster comparison, and tennis "Challenger" tournaments: none shows a
+projection for a stat that has an approved engine.
+
+**Open items.** (1) The "COPY FOR CHATGPT" packet prints each market's pricing-model `fair` and `proj` (pinned to the router's packet.py by golden tests);
+for a promoted stat that is a second number outside the app's screens. (2) The game page's win-probability ring still shows the repository's model score and the
+simulation's share beside the market (three published numbers with three authorities, labelled); win probability is not a promoted stat.
+
+| Date | Change | Evidence |
+|---|---|---|
+| 2026-10-19 | NFL distributions consumed from the feed; Explorer, Player, Market, Compare and depth chart read one projection; development vocabulary removed from screens | `tests/nflDistribution.test.ts`, `tests/projectionPages.test.tsx`, `tests/uiTerminology.test.ts`, `e2e/projection-surfaces.spec.ts`, `e2e-default/projection-surfaces.spec.ts` |
+

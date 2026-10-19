@@ -322,7 +322,9 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
         <section className="fx-card fx-span-8 fr-dist" aria-labelledby="pexa-dist">
           <h3 className="fx-card__t" id="pexa-dist"><Icon name="chart" size={16} /> Projection distribution</h3>
           <div className="fr-dist__body">
-            <QuantileDist points={points} line={row.line} projection={row.projection} format={fmt} unit={def.unit} label={`${row.name} ${def.label.toLowerCase()}: projected distribution`} minSpan={def.count ? 3 : 8} />
+            {row.projectionStatus.kind === 'withheld'
+              ? <CapabilityState title="Projection withheld">{`No distribution is drawn: ${row.projectionStatus.reason}.`}</CapabilityState>
+              : <QuantileDist points={points} line={row.line} projection={row.projection} format={fmt} unit={def.unit} label={`${row.name} ${def.label.toLowerCase()}: projected distribution`} minSpan={def.count ? 3 : 8} />}
             <dl className="fr-legend">
               {row.projection != null && <div><dt><i className="fr-dot fr-dot--cyan" />Expected value</dt><dd className="fx-num">{fmt(row.projection)}</dd></div>}
               {row.distribution?.p50 != null && <div><dt><i className="fr-dot fr-dot--cyan" />Median</dt><dd className="fx-num">{fmt(row.distribution.p50)}</dd></div>}

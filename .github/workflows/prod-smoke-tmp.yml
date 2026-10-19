@@ -1,0 +1,23 @@
+# One-off post-release smoke of the live site. Lives only on the release branch (never merged); read-only.
+name: Production smoke (release, one-off)
+on:
+  push:
+    branches: [claude/dreamy-gates-0en25g]
+    paths: ['.github/prod-smoke/**', '.github/workflows/prod-smoke-tmp.yml']
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Smoke the live site (desktop, Android-size Chromium, iPhone WebKit)
+        run: node .github/prod-smoke/smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: prod-smoke, path: smoke-out/, retention-days: 14 }

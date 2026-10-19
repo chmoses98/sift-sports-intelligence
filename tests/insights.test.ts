@@ -14,7 +14,9 @@ import { whatMatters } from '../src/insights/matters';
 import { gameSides } from '../src/insights/game';
 import { matchupInsights } from '../src/insights/matchups';
 import { injuryNews, levelOf, splitNews } from '../src/insights/news';
-import { propCards, propsToWatch, rangeText } from '../src/insights/props';
+import { pricedPropCount, propCards, propsToWatch, rangeText } from '../src/insights/props';
+import { pricedLabel } from '../src/views/game/Dashboard';
+import { makeAuthority } from '../src/lib/projectionAuthority';
 import { schemeInsights } from '../src/insights/scheme';
 import { rankView, tierWord } from '../src/lib/rank';
 import { makeTrayItem } from '../src/packet/tray';
@@ -229,3 +231,22 @@ describe('what matters: one importance scale', () => {
   });
 });
 
+
+describe('the Explorer’s "priced player props" count', () => {
+  it('counts every priced prop, and says how many of them carry a published projection', () => {
+    const r = ev(NE_BUF), d = readSnapshot<EventDetailDoc>(`event_detail/${NE_BUF}.json`);
+    const withAll = propCards(r, d.markets).filter((c) => c.market).length;          // no authority: every established projection stands
+    const total = pricedPropCount(d.markets);
+    expect(total).toBeGreaterThanOrEqual(withAll);
+    // with the NFL feed absent, receptions are withheld: fewer cards, the same priced total
+    const noFeed = propCards(r, d.markets, undefined, makeAuthority('NFL', null, Date.now())).filter((c) => c.market).length;
+    expect(noFeed).toBeLessThan(withAll);
+    expect(pricedPropCount(d.markets)).toBe(total);
+    expect(pricedLabel(total, noFeed)).toBe(`All ${total} priced player props on this game (${noFeed} with a published projection) →`);
+  });
+  it('is the plain total when every priced prop has a projection, and never reports fewer than it shows', () => {
+    expect(pricedLabel(20, 20)).toBe('All 20 priced player props on this game →');
+    expect(pricedLabel(0, 0)).toBe('All 0 priced player props on this game →');
+    expect(pricedLabel(18, 20)).toBe('All 20 priced player props on this game →');
+  });
+});

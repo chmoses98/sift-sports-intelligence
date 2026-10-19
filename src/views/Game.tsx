@@ -48,7 +48,7 @@ import { gameSides, type GameSides } from '../insights/game';
 import { matchupInsights } from '../insights/matchups';
 import { injuryNews, splitNews } from '../insights/news';
 import { whatMatters } from '../insights/matters';
-import { propCards, propsToWatch } from '../insights/props';
+import { pricedPropCount, propCards, propsToWatch } from '../insights/props';
 import { schemeInsights } from '../insights/scheme';
 import { ContextCard, MatchupCard, SchemeCard, usePropHistories } from './game/matters';
 import { PropsBoard } from './game/PropsBoard';
@@ -376,6 +376,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
   const scheme = useMemo(() => schemeInsights(teamHist.data ?? null, g), [teamHist.data, g]);
   const { authority: projAuthority, ready: projReady } = useAuthority(sport.code);
   const allProps = useMemo(() => (r && detail.data && projReady ? propCards(r, detail.data.markets, g, projAuthority) : []), [r, detail.data, g, projAuthority, projReady]);
+  const pricedProps = useMemo(() => (detail.data ? pricedPropCount(detail.data.markets) : 0), [detail.data]);
   const watch = useMemo(() => propsToWatch(allProps, 4), [allProps]);
 
   if (research.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
@@ -527,7 +528,7 @@ export function GameView({ eventId, sift2 = false }: { eventId: string; sift2?: 
               <FxCard title="Likely Game Scripts" icon="play" className="fx-span-7"><p className="muted small">The publication attached no simulation script summary for this game, so Sift shows no scripts rather than inventing them.</p></FxCard>
             )}
             <MatchupAdvantagesCard r={r} g={g} sport={sport.code} href={href('matchup')} wide={!watch.length} />
-            {watch.length > 0 && <PropExplorerCard all={allProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
+            {watch.length > 0 && <PropExplorerCard all={allProps} pricedTotal={pricedProps} ctx={ctx} slug={slug} eventId={eventId} propsHref={href('props')} />}
             {!sift2 && <BasicsCard g={g} sport={sport.code} href={href('matchup')} />}
             <MarketContextCard rows={rows} slug={slug} eventId={eventId} now={now} allHref={href('markets')} chip={<QuoteSummaryChip views={views} now={now} />} />
             <GameInfoCard r={r} sport={sport.code} />

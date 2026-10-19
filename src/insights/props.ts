@@ -72,6 +72,19 @@ export function mainLine(markets: Market[]): Market | null {
     .sort((a, b) => Math.abs(mid(a)! - 0.5) - Math.abs(mid(b)! - 0.5))[0] ?? null;
 }
 
+/** How many player props carry a priced line for this game (one per player and stat), whether or not a projection is published for
+ *  them: the total the Explorer's "All N priced props" link stands for. */
+export function pricedPropCount(markets: Market[]): number {
+  const byPlayerStat = new Map<string, Market[]>();
+  for (const m of markets) {
+    const stat = (m.extensions as { stat?: string } | null)?.stat;
+    if (m.market_family !== 'player_stat' || !m.player_id || !stat || !isFullGame(m.period)) continue;
+    const k = `${m.player_id}|${stat}`;
+    byPlayerStat.set(k, [...(byPlayerStat.get(k) ?? []), m]);
+  }
+  return [...byPlayerStat.values()].filter((ms) => mainLine(ms) != null).length;
+}
+
 /** Every prop candidate for a game, most interesting first. */
 export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides | null = gameSides(r), authority: ProjectionAuthority | null = null): PropCard[] {
   if (!g) return [];

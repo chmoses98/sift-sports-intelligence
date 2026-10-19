@@ -255,7 +255,13 @@ function MiniDist({ c, values }: { c: PropCard; values: number[] }) {
   );
 }
 
-export function PropExplorerCard({ all, ctx, slug, eventId, propsHref }: { all: PropCard[]; ctx: GameCtx; slug: string; eventId: string; propsHref: string }) {
+/** "All 34 priced player props on this game (20 with a published projection) →": the total priced, and how many of them carry a projection. */
+export function pricedLabel(total: number, projected: number): string {
+  const all = Math.max(total, projected);
+  return projected < all ? `All ${all} priced player props on this game (${projected} with a published projection) →` : `All ${all} priced player props on this game →`;
+}
+
+export function PropExplorerCard({ all, pricedTotal, ctx, slug, eventId, propsHref }: { all: PropCard[]; pricedTotal: number; ctx: GameCtx; slug: string; eventId: string; propsHref: string }) {
   const [team, setTeam] = useState<string>('');
   const [cat, setCat] = useState<string>('');
   const teams = useMemo(() => [...new Set(all.map((c) => c.team.abbr))], [all]);
@@ -301,7 +307,7 @@ export function PropExplorerCard({ all, ctx, slug, eventId, propsHref }: { all: 
           })}
         </ul>
       ) : <p className="muted small">No published projection in this filter.</p>}
-      <p className="gdash__fine"><Link to={propsHref}>All {all.filter((c) => c.market).length} priced player props on this game →</Link></p>
+      <p className="gdash__fine"><Link to={propsHref}>{pricedLabel(pricedTotal, all.filter((c) => c.market).length)}</Link></p>
     </FxCard>
   );
 }

@@ -77,7 +77,7 @@ for (const state of ['promoted', 'withheld', 'unavailable'] as const) {
 
 test('Game Command Center: the Player Snapshot shows one projection for Olave, with its reliability, and no second value', async ({ page, context }) => {
   await serve(context);
-  await page.goto(`${ROOT}/nfl/game/${GAME}`);
+  await page.goto(`${ROOT}/nfl/game/${GAME}?tab=props`);
   await expect(page.locator('.sift2-command')).toBeVisible();
   const snap = page.locator('.s2-player-explorer');
   await expect(snap).toBeVisible();

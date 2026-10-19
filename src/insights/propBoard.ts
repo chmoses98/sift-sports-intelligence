@@ -21,6 +21,7 @@ import { breakEven, kalshiFee } from '../opportunity/pricing';
 import { nameKey } from './context';
 import { gameSides, matchupObs, type GameSides, type Side } from './game';
 import { mainLine, rangeOf, type PropRange } from './props';
+import type { Quantiles } from '../lib/projections';
 import { thresholdProbability, typicalWidth, usesEstablished, type AuthoritativeValue, type ProjectionAuthority, type Resolution } from '../lib/projectionAuthority';
 import type { LegacyCandidate } from '../lib/projectionFallback';
 
@@ -113,6 +114,13 @@ export interface PropRow {
    * description of the one projection, not a second one. Null for established-model stats (which carry `range`).
    */
   band: { lo: number; hi: number; median: number | null } | null;
+  /**
+   * The selected projection's published quantiles (the one distribution its mean, range and rung probabilities come from).
+   * Null for a stat on the established model and when the feed publishes none: no distribution is then drawn or reconstructed.
+   */
+  distribution: Quantiles | null;
+  /** The selected projection's 80% prediction range (p10–p90): from its quantiles when published, else its own range; null if neither. */
+  predictionRange: { lo: number; hi: number } | null;
   /** The main line (rung nearest a coin flip), when a two-sided quote exists. */
   main: Rung | null;
   line: number | null;
@@ -224,6 +232,8 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       const auth: AuthoritativeValue | null = res.kind === 'authoritative' ? res.value : null;
       const range: PropRange | null = auth ? (auth.quantiles ? { typical: [auth.quantiles.p25, auth.quantiles.p75], full: [auth.quantiles.p05, auth.quantiles.p95], median: auth.quantiles.p50 } : null) : d ? rangeOf(d) : null;
       const band = auth && !range && auth.p10 != null && auth.p90 != null ? { lo: auth.p10, hi: auth.p90, median: auth.median } : null;
+      const distribution = auth?.quantiles ?? null;
+      const predictionRange = auth ? (distribution?.p10 != null && distribution.p90 != null ? { lo: distribution.p10, hi: distribution.p90 } : auth.p10 != null && auth.p90 != null ? { lo: auth.p10, hi: auth.p90 } : null) : null;
       const projection = auth ? auth.mean : d?.mean ?? null;
       if (!markets.length && projection == null) continue;
       const ladder = markets.map((m) => rungOf(m, prices, res)).filter((x): x is Rung => !!x).sort((a, b) => a.threshold - b.threshold);
@@ -257,7 +267,7 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       const reasons: string[] = [];
       if (rank && rank.tier !== 'average') reasons.push(`${opp.nick} ${def.defUnit} ${rank.text}`);
       if (read === 'ABOVE' || read === 'BELOW') reasons.push(`Projection ${read === 'ABOVE' ? 'above' : 'below'} the line by ${fmtValue(Math.abs(projection! - line!), def)}`);
-      if (main?.modelP != null && main.marketP != null && Math.abs(main.modelP - main.marketP) >= 0.08) reasons.push(`${res.kind === 'authoritative' ? 'Projection' : 'Shadow model'} ${Math.round(main.modelP * 100)}% vs market ${Math.round(main.marketP * 100)}% on the over (research)`);
+      if (main?.modelP != null && main.marketP != null && Math.abs(main.modelP - main.marketP) >= 0.08) reasons.push(`Projected probability of over ${Math.round(main.modelP * 100)}% vs market ${Math.round(main.marketP * 100)}% (research)`);
       if (p.role && projection != null && isFeatured(def, projection)) reasons.push('Featured role');
       const extreme = rank ? Math.abs(rank.strength - 0.5) * 2 : 0;
       const sep = separation != null ? Math.min(1, Math.abs(separation)) : 0;
@@ -268,7 +278,7 @@ export function propBoard(r: EventResearchDoc, detail: Pick<EventDetailDoc, 'mar
       seen.add(id);
       rows.push({
         id, playerId: p.participant_id, name: p.display_name, role: p.role ?? null, team, opp, def, family: def.family,
-        projection, range, projectionStatus: res, band, main, line, ladder, read, separation, matchup: rank && def.defUnit && def.def ? { label: `${opp.nick} ${def.defUnit}`, rank, metricId: def.def } : null,
+        projection, range, projectionStatus: res, band, distribution, predictionRange, main, line, ladder, read, separation, matchup: rank && def.defUnit && def.def ? { label: `${opp.nick} ${def.defUnit}`, rank, metricId: def.def } : null,
         price, risks, injury, interest, reasons,
         marketTitle: main ? describeMarket(main.market, { playerName: () => p.display_name }).title : null,
       });

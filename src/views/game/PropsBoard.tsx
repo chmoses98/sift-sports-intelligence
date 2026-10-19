@@ -104,7 +104,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
                 <li><span>Over ask</span><b>{cents(row.main.yesAsk)}</b><small>break-even {pct(row.price?.overBreakEven)}</small></li>
                 <li><span>Under ask</span><b>{cents(row.main.noAsk)}</b><small>break-even {pct(row.price?.underBreakEven)}</small></li>
                 <li><span>Market P(over)</span><b>{pct(row.main.marketP)}</b><small>the quote's own probability</small></li>
-                <li><span>{row.projectionStatus.kind === 'authoritative' ? 'Projection' : 'Shadow model'} P(over)</span><b>{pct(row.main.modelP)}</b><small>{row.main.modelState ? row.main.modelState.toLowerCase().replace(/_/g, ' ') : 'not priced'}</small></li>
+                <li><span>Probability of over</span><b>{pct(row.main.modelP)}</b><small>{row.main.modelP == null ? 'not priced' : row.projectionStatus.kind === 'authoritative' ? 'from the projection' : 'research estimate'}</small></li>
               </ul>
               <p className="pb__note">Break-even is the ask plus Kalshi's taker fee (round-up of 7% × P × (1 − P)). No bet-up-to is shown: the publication prices no limit for NFL props and Sift does not invent one.</p>
             </section>
@@ -177,7 +177,7 @@ export function PropsBoard({ r, g, detail, slug, sport, label, loading }: { r: E
     <section className="pb" aria-labelledby="pb-h" data-testid="props-board">
       <div className="gsec__h">
         <h2 id="pb-h" className="gsec__t">Player props</h2>
-        <p className="gsec__sub">Every player prop of the game by family. Each card reads where the simulation's projection sits against the main line, then opens into the price after fees, the shadow model next to the market, the risks and the other lines. {scorecard}</p>
+        <p className="gsec__sub">Every player prop of the game by family. Each card reads where the projection sits against the main line, then opens into the price after fees, the probability of the over next to the market, the risks and the other lines. {scorecard}</p>
       </div>
       <div className="pb__filters">
         <div className="skchips" role="group" aria-label="Prop family">

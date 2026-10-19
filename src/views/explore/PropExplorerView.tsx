@@ -1,9 +1,11 @@
 // THE COMBINED PROP EXPLORER (approved reference 03) — every published NFL player prop, filterable from a player rail
 // (team toggle, prop-type chips, search, faces), with one selected prop analysed in full:
-//   HEADER        the market line with both asks, the simulation's projection and the projection − line gap — the
-//                 last two only where the publication simulates the stat (labelled research)
-//   DISTRIBUTION  the simulation's five published quantiles drawn as blocks (components/fxResearch QuantileDist),
-//                 with the line and projection marked; no bell curve is fitted and no probability is read off it
+//   HEADER        the market line with both asks, the projected value and the projection − line gap — the last two
+//                 only where a projection is published for the stat
+//   DISTRIBUTION  the selected projection's published quantiles (p05…p95) drawn as blocks (components/fxResearch
+//                 QuantileDist), with the line and projection marked; no bell curve is fitted and no probability is
+//                 read off the drawing. The expected value, the prediction range, the drawing and the probability of
+//                 the over are all read from the one selected projection (see lib/projectionAuthority.ts)
 //   SIFT READ     the board's own reasons and the first published risk
 //   RECENT FORM   the player's real game logs against today's line (Last 5 · Last 10 · season · last season)
 //   MATCHUP       his offense's published unit ranks against the opponent's, unit by unit
@@ -11,7 +13,7 @@
 //   LADDER        every rung with the captured asks, the main line lit, and the capture's age
 // Selection lives in the address, so changing the prop replaces every panel at once (nothing from the previous prop
 // stays on screen). Built on the game prop board (src/insights/propBoard.ts): no probability is derived from a mean;
-// the shadow model's P(over) appears only where the publication priced it, labelled research.
+// the probability of the over appears only where the selected projection prices the line, labelled research.
 import { ReliabilityLine } from '../../components/IntelligenceNote';
 import { ProjectionNote } from '../../components/ProjectionNote';
 import { loadAuthority } from '../../data/projections';
@@ -24,7 +26,7 @@ import { Icon } from '../../components/Icon';
 import { PlayerFace } from '../../components/insight';
 import { SaveButton, Skeleton, TeamMark } from '../../components/ui';
 import { VsBar } from '../../components/fx';
-import { CapabilityState, FreshChip, QuantileDist, ShareBar, type QPoint } from '../../components/fxResearch';
+import { CapabilityState, FreshChip, QuantileDist, ShareBar, quantilePoints, type QPoint } from '../../components/fxResearch';
 import { pregameRows, statDef } from '../../history/stats';
 import { HIT_WINDOWS, hitRate, hitWindowLabel, hitWindows, hitWindowShort, windowGames, type HitRate, type HitWindow } from '../../history/hitRate';
 import type { PlayerHistoryDoc } from '../../history/types';
@@ -199,6 +201,8 @@ const SCRIPT_VOL: Record<PropFamily, { k: keyof TeamVolume; label: string; pct?:
 };
 
 function pointsOf(row: PropRow): QPoint[] | null {
+  // a promoted projection draws exactly the quantiles it published (up to seven); the established model's row has its five
+  if (row.distribution) return quantilePoints(row.distribution);
   if (!row.range) return null;
   const pts: QPoint[] = [{ p: 0.05, v: row.range.full[0] }, { p: 0.25, v: row.range.typical[0] }];
   if (row.range.median != null) pts.push({ p: 0.5, v: row.range.median });
@@ -249,7 +253,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
           </div>
           <dl className="fr-tiles pexa__nums">
             <div className="fr-tile"><dt>Market line</dt><dd className="fx-num">{row.line ?? '—'}</dd><dd className="fr-tile__s">{row.main ? <>Over {cents(row.main.yesAsk)} · Under {cents(row.main.noAsk)}</> : 'No priced line'}</dd></div>
-            <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projectionStatus.kind === 'withheld' ? 'withheld' : row.projection != null ? (row.projectionStatus.kind === 'authoritative' ? 'projection · research' : 'simulation mean · research') : 'not published'}</dd></div>
+            <div className="fr-tile fr-tile--cyan"><dt>Projected {def.label.toLowerCase()}</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projectionStatus.kind === 'withheld' ? 'withheld' : row.projection != null ? 'expected value · research' : 'not published'}</dd></div>
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
           {usesEstablished(row.projectionStatus) && <ReliabilityLine stat={row.def.stat} />}
@@ -318,15 +322,17 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
         <section className="fx-card fx-span-8 fr-dist" aria-labelledby="pexa-dist">
           <h3 className="fx-card__t" id="pexa-dist"><Icon name="chart" size={16} /> Projection distribution</h3>
           <div className="fr-dist__body">
-            <QuantileDist points={points} line={row.line} projection={row.projection} format={fmt} unit={def.unit} label={`${row.name} ${def.label.toLowerCase()}: simulated distribution`} minSpan={def.count ? 3 : 8} />
+            <QuantileDist points={points} line={row.line} projection={row.projection} format={fmt} unit={def.unit} label={`${row.name} ${def.label.toLowerCase()}: projected distribution`} minSpan={def.count ? 3 : 8} />
             <dl className="fr-legend">
-              {row.projection != null && <div><dt><i className="fr-dot fr-dot--cyan" />SIFT projection</dt><dd className="fx-num">{fmt(row.projection)}</dd></div>}
+              {row.projection != null && <div><dt><i className="fr-dot fr-dot--cyan" />Expected value</dt><dd className="fx-num">{fmt(row.projection)}</dd></div>}
+              {row.distribution?.p50 != null && <div><dt><i className="fr-dot fr-dot--cyan" />Median</dt><dd className="fx-num">{fmt(row.distribution.p50)}</dd></div>}
               {row.range && <div><dt><i className="fr-dot fr-dot--blue" />Middle 50%</dt><dd className="fx-num">{fmt(row.range.typical[0])}–{fmt(row.range.typical[1])}</dd></div>}
+              {row.predictionRange && <div><dt><i className="fr-dot fr-dot--blue" />Prediction range (80%)</dt><dd className="fx-num">{fmt(row.predictionRange.lo)}–{fmt(row.predictionRange.hi)}</dd></div>}
               {row.range && <div><dt><i className="fr-dot fr-dot--dim" />90% range</dt><dd className="fx-num">{fmt(row.range.full[0])}–{fmt(row.range.full[1])}</dd></div>}
               <div><dt><i className="fr-dot fr-dot--line" />Market line</dt><dd className="fx-num">{row.line ?? '—'}</dd></div>
               {row.main?.modelP != null ? (
-                <div className="fr-legend__p"><dt><i className="fr-dot fr-dot--violet" />{row.projectionStatus.kind === 'authoritative' ? 'Projection' : 'Shadow model'} P(over)</dt><dd className="fx-num">{pct(row.main.modelP)}</dd><dd className="fr-tile__s">research · {String(row.main.modelState ?? '').toLowerCase().replace(/_/g, ' ')} · market {pct(row.main.marketP)}</dd></div>
-              ) : <div className="fr-legend__p"><dt>Probability over</dt><dd className="fr-tile__s">No validated probability is published for this prop.</dd></div>}
+                <div className="fr-legend__p"><dt><i className="fr-dot fr-dot--violet" />Probability of over</dt><dd className="fx-num">{pct(row.main.modelP)}</dd><dd className="fr-tile__s">research · {row.projectionStatus.kind === 'authoritative' ? 'from the projection' : 'research estimate'} · market {pct(row.main.marketP)}</dd></div>
+              ) : <div className="fr-legend__p"><dt>Probability of over</dt><dd className="fr-tile__s">No validated probability is published for this prop.</dd></div>}
             </dl>
           </div>
         </section>

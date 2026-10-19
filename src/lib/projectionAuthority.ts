@@ -19,7 +19,7 @@
 // Reliability describes the projection's data quality, never betting value, and nothing here changes betting authority.
 import {
   coherenceProblems, familyOf, teamKey, findProjection, findTeamProjections, fmtAge, MAX_AGE_H, PARTICIPATION_WORDS,
-  type GateFinding, type Participation, type PlayerProjection, type ProjectionDoc, type ProjSport,
+  type GateFinding, type Participation, type PlayerProjection, type ProjectionDoc, type ProjSport, type Quantiles,
 } from './projections';
 import { approvalFor, engineFor, type FallbackTrigger } from './projectionApprovals';
 import { legacyFallbackProblems, type LegacyCandidate } from './projectionFallback';
@@ -39,8 +39,8 @@ export interface AuthoritativeValue {
   /** realistic 80% prediction range — a description of the same projection, not a second projection */
   p10: number | null;
   p90: number | null;
-  /** p05/p25/p50/p75/p95 of the same distribution, when published */
-  quantiles: { p05: number; p25: number; p50: number; p75: number; p95: number } | null;
+  /** p05/p25/p50/p75/p95 (and p10/p90) of the same distribution, when published */
+  quantiles: Quantiles | null;
   /** P(X ≥ k) from the same distribution as the mean */
   thresholds: { k: number; p: number }[];
   reliability: Reliability;

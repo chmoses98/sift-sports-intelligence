@@ -139,7 +139,7 @@ test('the Research Lab shows accuracy for the stats live in SIFT and says what i
   await expect(card).toBeVisible();
   await expect(page.getByTestId('pfs-live-in-sift')).toContainText('Receptions');
   await expect(page.getByTestId('pfs-live-in-sift')).toContainText('1.55');
-  await expect(page.getByTestId('pfs-not-changed')).toContainText('Passing tds — Established model kept');
+  await expect(page.getByTestId('pfs-not-changed')).toContainText('Passing tds — Current projection kept');
   await expect(card).not.toContainText(/shadow|incumbent|production model|challenger|versus/i);
   await expect(page.getByTestId('pfs-live-empty').first()).toBeVisible();   // no settled live games yet, and it says so
   await noHorizontalOverflow(page, 'research lab with the accuracy card');

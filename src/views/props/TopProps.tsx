@@ -142,7 +142,7 @@ export function TopProps({ repo, games, slug, sportCode }: { repo: SportRepo | u
                   })() : <small className="tprow__crit">—</small>}
                   {r.matchup && <small className="tprow__ctx">vs {r.matchup.label} <b>{r.matchup.rank.text}</b> · opponent-adjusted</small>}
                 </span>
-                <span className="tprow__auth">{sort === 'gap' ? <span className="tprops__auth" title={r.main?.modelState ? `Shadow model: ${r.main.modelState.toLowerCase().replace(/_/g, ' ')}` : 'Research only'}>Research</span> : <span className="tprops__auth tprops__auth--hist">History</span>}</span>
+                <span className="tprow__auth">{sort === 'gap' ? <span className="tprops__auth" title="Research only: a projection is not a bet recommendation">Research</span> : <span className="tprops__auth tprops__auth--hist">History</span>}</span>
                 <Link className="tprow__go" to={propHref(slug, d)} aria-label={`Analyse ${r.name} ${r.def.label.toLowerCase()}`}><Icon name="arrowRight" size={16} /></Link>
               </li>
             );

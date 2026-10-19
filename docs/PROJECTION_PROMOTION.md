@@ -280,3 +280,37 @@ merged separately. Merging to `main` **deploys** (see `deploy.yml`), so the merg
 
 After deployment: confirm one number per stat on Home, Games, the Game Command Center, Player Snapshot, Prop Explorer and the
 Research Lab, and that the feed monitor workflow is active.
+
+## 11. NBA activation: verification and the exact remaining requirement (2026-10-19)
+
+The seven NBA families (minutes, points, rebounds, assists, threes, PRA, FGA) stay on the established engine. Nothing in this section changes
+`PROJECTION_APPROVALS`; activation is the single approval-record change below, made only after the checks pass on a live slate.
+
+**What was built (independent of the live report).** nba-edge-finder#36 adds an activation-readiness report to every scoring run
+(`nba/live/activation_check.py`: availability provenance and timestamps, strict-before-cutoff observations, identity, status mapping for
+OUT / QUESTIONABLE / PROBABLE / AVAILABLE / unknown, ruled-out rows withheld, uncertainty lowering reliability, the engine receiving availability
+before it forecasts, quality gates). Verdicts are READY / PENDING / BLOCKED; PENDING means the live evidence does not exist yet and is never
+reported as a pass. SIFT's side is `scripts/verify-nba-activation.ts` (`src/lib/nbaActivation.ts`): it reads the live feed through SIFT's own decoder
+and authority in a preview mode that exists only for this check (the application never sets it) and asks what a reader would see if the families were promoted.
+
+**Live result, 2026-10-19 20:15 UTC (feed generated 20:09, 721 player rows, model pf-1.2.1):** not ready.
+
+| Check | Result |
+|---|---|
+| S1 hold intact | pass |
+| S2 feed readable by SIFT / S9 fresh | pass (inputs 0.5 h old) |
+| S3 all seven families published and READY | pass |
+| S4 ruled-out players withheld | pass |
+| S6 uncertain availability shown at Low reliability | pass |
+| S8 identity (ESPN ids, distinct team / opponent, one row per player-game-family) | pass |
+| S5 rows the engine BLOCKed are withheld | **pending**: no blocked row in the feed yet |
+| S7 players listed or confirmed available get a projection | **pending**: the official report has published no player-level rows for a live slate |
+
+**Exact remaining requirement.** One pre-game run of the Projection Foundation on a day with an NBA slate, in which the official NBA injury report has
+player-level rows (about 18:00 ET and each update), must archive its observations with provenance and timestamps and produce a feed in which
+`activation_check` reports READY and `verify-nba-activation.ts` exits 0 (S5 and S7 pass). The first slate games are 2026-10-20. No test was
+written to pass without that data and none of the pending checks is waived.
+
+**Activation (needs explicit approval, one change).** Change the seven NBA rows from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED` in `src/lib/projectionApprovals.ts`, update the
+matrix in §3, and re-run `npx vitest run`, the Playwright suites and `scripts/verify-nba-activation.ts` on that head. No correction is applied to the
+established model's historical minutes under-projection: the Foundation minutes model is the one that removes it, and it is selected only through approval.

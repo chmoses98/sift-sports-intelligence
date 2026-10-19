@@ -4,7 +4,7 @@
 // distribution is not drawn or not shown, and no page carries development vocabulary.
 import type { Page } from '@playwright/test';
 import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
-import { BANNED, CORS, doc, DIST, GAME, LEGACY_MEAN, OLAVE, OLAVE_PROP, PROJ, SELECTED_MEAN } from './projectionDoc';
+import { artifact, BANNED, CORS, DISTS, doc, DIST, embedded, GAME, LEGACY_MEAN, OLAVE, OLAVE_PROP, PROJ, SELECTED_MEAN, serve } from './projectionDoc';
 
 const EXPLORER = `./#/nfl/props?game=${GAME}&prop=${encodeURIComponent(OLAVE_PROP)}`;
 const pct = (p: number) => `${Math.round(p * 100)}%`;
@@ -17,7 +17,7 @@ async function openExplorer(page: Page) {
 const legend = (page: Page, label: string) => page.locator('.fr-legend > div', { has: page.getByText(label, { exact: true }) }).first();
 
 test('the Explorer draws the published distribution and reads value, range and probability from it @journey', async ({ page, context }) => {
-  await context.route(PROJ, (r) => r.fulfill({ json: doc(), headers: CORS }));
+  await serve(context);
   await openExplorer(page);
   const tile = page.locator('.fr-tile', { has: page.getByText('Projected receptions', { exact: true }) });
   await expect(tile).toContainText(SELECTED_MEAN);
@@ -40,8 +40,8 @@ test('the Explorer draws the published distribution and reads value, range and p
   await page.screenshot({ path: 'test-results/projection-distribution.png', fullPage: false });
 });
 
-test('no published quantiles: the prediction range stays, nothing is drawn, nothing is reconstructed @journey', async ({ page, context }) => {
-  await context.route(PROJ, (r) => r.fulfill({ json: doc({ quantiles: undefined }), headers: CORS }));
+test('no published artifact: the prediction range stays, nothing is drawn, nothing is reconstructed @journey', async ({ page, context }) => {
+  await serve(context, { artifact: null });
   await openExplorer(page);
   await expect(page.locator('.frd--none')).toContainText('No published distribution');
   await expect(legend(page, 'Prediction range (80%)')).toContainText('3–13');
@@ -49,9 +49,29 @@ test('no published quantiles: the prediction range stays, nothing is drawn, noth
   await expect(page.locator('.fr-tile', { has: page.getByText('Projected receptions', { exact: true }) })).toContainText(SELECTED_MEAN);
 });
 
-test('a distribution that contradicts its own probabilities or median withholds the projection @journey', async ({ page, context }) => {
-  await context.route(PROJ, (r) => r.fulfill({ json: doc({ quantiles: { ...DIST.quantiles, p50: 9 } }), headers: CORS }));
+test('an artifact for another feed, or whose row does not reproduce the published row, is not drawn @journey', async ({ page, context }) => {
+  const feed = doc();
+  await serve(context, { feed, artifact: artifact(feed, {}, { projection: { schema: 'sift.projections.v1', generated_utc: '2026-01-01T00:00:00Z' } }) });
   await openExplorer(page);
+  await expect(page.locator('.frd--none')).toContainText('No published distribution');
+  await expect(page.locator('.fr-tile', { has: page.getByText('Projected receptions', { exact: true }) })).toContainText(SELECTED_MEAN);
+  await context.unroute(PROJ);
+  await context.unroute(DISTS);
+  await serve(context, { feed, artifact: artifact(feed, { mean: 7.9 }) });
+  await page.reload();
+  await expect(page.locator('.frd--none')).toContainText('No published distribution');
+});
+
+test('a distribution that contradicts itself is dropped; one embedded in the feed withholds the projection @journey', async ({ page, context }) => {
+  const feed = doc();
+  await serve(context, { feed, artifact: artifact(feed, { quantiles: { ...DIST.quantiles, p50: 9 } }) });
+  await openExplorer(page);
+  await expect(page.locator('.frd--none')).toContainText('No published distribution');       // the artifact row is dropped; the projection itself stands
+  await expect(page.locator('.fr-tile', { has: page.getByText('Projected receptions', { exact: true }) })).toContainText(SELECTED_MEAN);
+  await context.unroute(PROJ);
+  await context.unroute(DISTS);
+  await serve(context, { feed: embedded({ quantiles: { ...DIST.quantiles, p50: 9 } }), artifact: null });
+  await page.reload();
   await expect(page.getByTestId('projection-note').first()).toContainText('Projection withheld');
   await expect(page.locator('.frd')).toHaveCount(0);
   await expect(page.locator('.pexa').first().getByText(SELECTED_MEAN, { exact: true })).toHaveCount(0);
@@ -65,7 +85,8 @@ test('a malformed or stale document shows no number from either engine @journey'
   await expect(page.locator('.pexa').first().getByText(LEGACY_MEAN, { exact: true })).toHaveCount(0);
   const old = new Date(NOW.getTime() - 400 * 3600_000).toISOString();
   await context.unroute(PROJ);
-  await context.route(PROJ, (r) => r.fulfill({ json: doc({ data_asof_utc: old }), headers: CORS }));
+  await context.unroute(DISTS);
+  await serve(context, { feed: doc({ data_asof_utc: old }) });
   await page.reload();
   // stale inputs: the selected projection is not shown; the approved established fallback (one number, labelled) may stand in if it passes its own checks
   await expect(page.getByTestId('projection-note').first()).toContainText(/Projection withheld|Established projection/);
@@ -84,7 +105,7 @@ const SURFACES: [string, string, string?][] = [
 for (const state of ['promoted', 'withheld', 'unavailable'] as const) {
   for (const [name, url] of SURFACES) {
     test(`${name}: no development vocabulary and no second projection (${state} feed) @journey`, async ({ page, context }) => {
-      if (state !== 'unavailable') await context.route(PROJ, (r) => r.fulfill({ json: doc({}, { gate: state === 'withheld' ? 'BLOCK' : 'PASS' }), headers: CORS }));
+      if (state !== 'unavailable') await serve(context, { feed: doc({}, { gate: state === 'withheld' ? 'BLOCK' : 'PASS' }) });
       await page.clock.install({ time: NOW });
       await page.goto(url);
       await page.waitForLoadState('networkidle');
@@ -95,7 +116,7 @@ for (const state of ['promoted', 'withheld', 'unavailable'] as const) {
 
 for (const state of ['promoted', 'withheld'] as const) {
   test(`Player page: one projection for Olave's receptions, or a reason (${state}) @journey`, async ({ page, context }) => {
-    await context.route(PROJ, (r) => r.fulfill({ json: doc({}, { gate: state === 'withheld' ? 'BLOCK' : 'PASS' }), headers: CORS }));
+    await serve(context, { feed: doc({}, { gate: state === 'withheld' ? 'BLOCK' : 'PASS' }) });
     await page.clock.install({ time: NOW });
     await page.goto(`./#/nfl/player/${OLAVE}`);
     await expect(page.locator('.fr-plprops')).toBeVisible();
@@ -116,7 +137,7 @@ for (const state of ['promoted', 'withheld'] as const) {
 }
 
 test('Market page: a promoted stat shows the projection’s probability of the line and no second model price @journey', async ({ page, context }) => {
-  await context.route(PROJ, (r) => r.fulfill({ json: doc(), headers: CORS }));
+  await serve(context);
   await page.clock.install({ time: NOW });
   await page.goto(`./#/nfl/market/mkt_kalshi_KXNFLREC-26OCT05ATLNO-NOCOLAVE12-7?event=${GAME}`);
   const px = page.locator('.px', { has: page.getByText('Projected probability of YES', { exact: true }) });

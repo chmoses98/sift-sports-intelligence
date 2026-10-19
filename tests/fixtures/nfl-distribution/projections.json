@@ -147,20 +147,6 @@
    ]
   }
  ],
- "distribution": {
-  "schema": "sift.projection_distribution.v1",
-  "basis": "integer pmf (one per player row): mean, median, p10/p90, quantiles and thresholds are all read from it",
-  "quantile_rule": "smallest integer x with P(X <= x) >= level, from the same integer pmf as the mean and the threshold probabilities",
-  "levels": [
-   0.05,
-   0.1,
-   0.25,
-   0.5,
-   0.75,
-   0.9,
-   0.95
-  ]
- },
  "players": [
   {
    "player_id": "00-0033280",
@@ -283,21 +269,9 @@
    "p10": 2,
    "p90": 8,
    "thresholds": {
-    "1": 0.9873,
-    "2": 0.9378,
     "3": 0.8364,
-    "4": 0.6909,
     "5": 0.5266,
-    "6": 0.3713,
-    "7": 0.2433,
-    "8": 0.1492,
-    "9": 0.0861,
-    "10": 0.0471,
-    "11": 0.0245,
-    "12": 0.0122,
-    "13": 0.0058,
-    "14": 0.0027,
-    "15": 0.0012
+    "7": 0.2433
    },
    "opportunity": {
     "family": "targets",
@@ -335,16 +309,7 @@
     "backup": false,
     "rookie": false
    },
-   "data_asof_utc": "2026-10-19T01:34:16Z",
-   "quantiles": {
-    "p05": 1,
-    "p10": 2,
-    "p25": 3,
-    "p50": 5,
-    "p75": 6,
-    "p90": 8,
-    "p95": 9
-   }
+   "data_asof_utc": "2026-10-19T01:34:16Z"
   },
   {
    "player_id": "00-0033288",
@@ -359,21 +324,9 @@
    "p10": 2,
    "p90": 8,
    "thresholds": {
-    "1": 0.9887,
-    "2": 0.9438,
     "3": 0.8495,
-    "4": 0.7109,
     "5": 0.5505,
-    "6": 0.3951,
-    "7": 0.264,
-    "8": 0.1653,
-    "9": 0.0975,
-    "10": 0.0544,
-    "11": 0.029,
-    "12": 0.0147,
-    "13": 0.0072,
-    "14": 0.0034,
-    "15": 0.0015
+    "7": 0.264
    },
    "opportunity": {
     "family": "targets",
@@ -411,16 +364,7 @@
     "backup": false,
     "rookie": false
    },
-   "data_asof_utc": "2026-10-19T01:34:16Z",
-   "quantiles": {
-    "p05": 1,
-    "p10": 2,
-    "p25": 3,
-    "p50": 5,
-    "p75": 7,
-    "p90": 8,
-    "p95": 10
-   }
+   "data_asof_utc": "2026-10-19T01:34:16Z"
   },
   {
    "player_id": "00-0033280",
@@ -765,44 +709,9 @@
    "p10": 14,
    "p90": 30,
    "thresholds": {
-    "2": 0.9975,
-    "3": 0.9975,
-    "4": 0.995,
-    "5": 0.995,
-    "6": 0.99,
-    "7": 0.9875,
-    "8": 0.98,
-    "9": 0.975,
-    "10": 0.9725,
-    "11": 0.965,
-    "12": 0.945,
-    "13": 0.935,
-    "14": 0.9175,
-    "15": 0.8925,
-    "16": 0.86,
-    "17": 0.815,
     "18": 0.7775,
-    "19": 0.7275,
-    "20": 0.655,
-    "21": 0.58,
     "22": 0.5,
-    "23": 0.4425,
-    "24": 0.38,
-    "25": 0.3225,
-    "26": 0.2725,
-    "27": 0.2325,
-    "28": 0.1675,
-    "29": 0.145,
-    "30": 0.125,
-    "31": 0.0975,
-    "32": 0.0675,
-    "33": 0.0525,
-    "34": 0.0375,
-    "35": 0.0275,
-    "36": 0.0225,
-    "37": 0.015,
-    "38": 0.0075,
-    "39": 0.0025
+    "25": 0.3225
    },
    "opportunity": {
     "family": "passing_attempts",
@@ -840,16 +749,7 @@
     "backup": false,
     "rookie": false
    },
-   "data_asof_utc": "2026-10-19T01:34:16Z",
-   "quantiles": {
-    "p05": 11,
-    "p10": 14,
-    "p25": 18,
-    "p50": 22,
-    "p75": 26,
-    "p90": 30,
-    "p95": 33
-   }
+   "data_asof_utc": "2026-10-19T01:34:16Z"
   },
   {
    "player_id": "00-0039910",
@@ -864,44 +764,9 @@
    "p10": 12,
    "p90": 27,
    "thresholds": {
-    "2": 0.995,
-    "3": 0.9925,
-    "4": 0.99,
-    "5": 0.9825,
-    "6": 0.975,
-    "7": 0.975,
-    "8": 0.97,
-    "9": 0.9675,
-    "10": 0.9525,
-    "11": 0.94,
-    "12": 0.9225,
-    "13": 0.8925,
-    "14": 0.875,
-    "15": 0.83,
-    "16": 0.775,
-    "17": 0.71,
     "18": 0.62,
-    "19": 0.5775,
-    "20": 0.515,
-    "21": 0.4475,
     "22": 0.39,
-    "23": 0.3325,
-    "24": 0.2725,
-    "25": 0.205,
-    "26": 0.1575,
-    "27": 0.12,
-    "28": 0.09,
-    "29": 0.0625,
-    "30": 0.0425,
-    "31": 0.0325,
-    "32": 0.025,
-    "33": 0.0175,
-    "34": 0.015,
-    "35": 0.01,
-    "36": 0.005,
-    "37": 0.005,
-    "38": 0.0025,
-    "39": 0.0025
+    "25": 0.205
    },
    "opportunity": {
     "family": "passing_attempts",
@@ -939,16 +804,7 @@
     "backup": false,
     "rookie": false
    },
-   "data_asof_utc": "2026-10-19T01:34:16Z",
-   "quantiles": {
-    "p05": 10,
-    "p10": 12,
-    "p25": 16,
-    "p50": 20,
-    "p75": 24,
-    "p90": 27,
-    "p95": 29
-   }
+   "data_asof_utc": "2026-10-19T01:34:16Z"
   },
   {
    "player_id": "00-0037834",
@@ -1277,5 +1133,5 @@
    "data_asof_utc": "2026-10-19T01:34:16Z"
   }
  ],
- "_provenance": "Real projections/nfl/latest.json (nfl-edge-finder projection-data, generated 2026-10-19T01:34:27Z, WAS @ SF, week 6) trimmed to George Kittle, Christian McCaffrey, Brock Purdy and Jayden Daniels. Receptions and completions rows carry the quantiles and count ladder the PUBLISHER CODE (nfl/live/distribution.py, nfl-edge-finder PR #178) derives from the real archived pmf of that forecast; every other field is as published."
+ "_provenance": "Real projections/nfl/latest.json (nfl-edge-finder projection-data, generated 2026-10-19T01:34:27Z, WAS @ SF, week 6) trimmed to George Kittle, Christian McCaffrey, Brock Purdy and Jayden Daniels. Unmodified rows: no quantiles, the study rungs only."
 }

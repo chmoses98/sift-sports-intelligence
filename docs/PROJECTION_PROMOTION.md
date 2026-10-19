@@ -283,26 +283,32 @@ Research Lab, and that the feed monitor workflow is active.
 
 ## 10. Published distributions, and one number on every surface (2026-10-19)
 
-**Distributions (NFL).** The NFL feed's player rows now carry `quantiles` (p05 p10 p25 p50 p75 p90 p95) and, for count families, every integer
-line `P(X ≥ k)` with 0.001 ≤ P ≤ 0.999, all read from the **same integer pmf** as the mean, median and p10/p90 (nfl-edge-finder PR #178,
-`research/projection_foundation/CONTRACT.md` §3.1b; the rewritable `projections/nfl/latest.json` view only: no archived forecast, outcome,
-settlement or frozen research file is touched). The document declares `distribution.schema = sift.projection_distribution.v1` and the rule
-(*smallest integer x with P(X ≤ x) ≥ level*). SIFT:
+**Distributions (NFL).** Each player row of the NFL feed is the summary of one integer pmf (archived write-once). The feed itself carries no quantiles
+and only the study's three rungs, so the Explorer had nothing to draw. The NFL publisher now writes a **separate, versioned artifact** beside the feed
+(`projections/nfl/distributions/latest.json`, `sift.projection_distributions.v1`; nfl-edge-finder PR #178, `research/projection_foundation/
+CONTRACT_DISTRIBUTIONS.md`): p05 p10 p25 p50 p75 p90 p95 (*smallest integer x with P(X ≤ x) ≥ level*) and, for count families, P(X ≥ k) for every integer line,
+all read from the same pmf as the mean, median and p10/p90, and only for rows whose pmf reproduces the published row. It is a new artifact rather than a
+change to the feed because the feed's writer is recorded research under the repository's append-only guard (the guard was respected, not weakened).
+SIFT (`src/lib/projections.ts`, `src/data/projections.ts`):
 
-* decodes the quantiles strictly (finite, non-negative, ordered; a half-valid set is no set) and, **only when the document declares the pmf basis**,
-  cross-checks them against the row's own median, range and threshold probabilities (`k ≤ q_a ⇒ P(X ≥ k) > 1 − a`, `k > q_a ⇒ P(X ≥ k) ≤ 1 − a`).
-  A self-contradicting row is **withheld whole** (`INCOHERENT`): which of its numbers is wrong cannot be known. Other sports' documents are not held to it;
+* fetches the artifact beside the feed (NFL only; optional and additive: a missing, unreadable or mismatched artifact leaves the feed as published) and
+  joins it **only when it describes exactly the feed that was read** (`projection.generated_utc` equal) and **only to rows it reproduces** (mean, median,
+  p10/p90 equal; every feed rung reproduced by the ladder to its 4-decimal rounding). Rows that fail keep no distribution;
+* decodes it strictly (integers, ordered, non-negative, finite; a self-contradicting row is dropped alone), and cross-checks quantiles against the row's own
+  median, range and line probabilities (`k ≤ q_a ⇒ P(X ≥ k) > 1 − a`, `k > q_a ⇒ P(X ≥ k) ≤ 1 − a`). A feed that embeds its own quantiles and declares the
+  pmf basis is held to the same rules, and a self-contradicting row is **withheld whole** (`INCOHERENT`): which of its numbers is wrong cannot be known;
 * draws exactly the published quantiles (seven blocks between them; nothing smoothed or extended past the outer quantiles) and never reconstructs a
-  distribution from p10/p90/mean: without quantiles the Explorer says *No published distribution* and still shows the prediction range;
+  distribution from p10/p90/mean: without one the Explorer says *No published distribution* and still shows the prediction range; a withheld projection shows
+  its reason instead of a chart;
 * reads the expected value, median, middle 50%, prediction range (80%), 90% range, the drawing and the probability of the over from the one selected
-  projection (`PropRow.distribution`, `PropRow.predictionRange`, `rungOf`). The probability of a line off its published ladder is none, never the
-  other engine's.
+  projection (`PropRow.distribution`, `PropRow.predictionRange`, `rungOf`). The probability of a line off the published ladder is none, never the other
+  engine's.
 
 Live check (2026-10-19, WAS @ SF, real event, player ids and live Kalshi ladders, production-like build, Chromium desktop and 390 px): George Kittle
 receptions 5.1 expected (median 5, middle 50% 3–7, 80% 2–8, 90% 1–10), over 5.5 at 40% (market 46%); Christian McCaffrey 4.9 (3–6, 2–8, 1–9), over 4.5
-at 53%; Brock Purdy completions 21.9 (18–26, 14–30, 11–33). The live feed does not publish quantiles until nfl-edge-finder#178 is merged and has run, so the
-quantile and ladder fields for those four rows were derived by the publisher's own code from their archived pmfs (which reproduce the published means and
-thresholds exactly) and served in place of the feed; every other value was live.
+at 53%; Brock Purdy completions 21.9 (18–26, 14–30, 11–33). The live repository does not publish the artifact until nfl-edge-finder#178 is merged and has run,
+so for that check the live feed was served unmodified and the artifact was the one the publisher code builds from the real 2026-10-19 archive
+(72 of 72 rows reproduce); every other value was live.
 
 **Surfaces.** The pages that read the established simulation directly now ask the projection authority (`src/lib/simStat.ts`): the Player page (props
 table, this-game card, ranges, line probabilities), the Market page (probability of the line, projection), Compare, the depth chart and the game roster list.

@@ -6,12 +6,12 @@ import { cleanup, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { clearAsyncMemo } from '../src/data/hooks';
 import { setFetchJson } from '../src/data/fetcher';
-import { projectionsUrl } from '../src/lib/projections';
+import { distributionsUrl, projectionsUrl } from '../src/lib/projections';
 import { cents } from '../src/lib/format';
 import { routes } from '../src/lib/routes';
 import { MarketView } from '../src/views/Market';
 import { PlayerView } from '../src/views/Player';
-import { feedWithDistribution, nflPlayer, part, pmfDistribution } from './support/projectionFeed';
+import { distributionArtifact, feed, feedSummary, nflPlayer, part, pmfDistribution } from './support/projectionFeed';
 import { readDisk } from './helpers';
 import { renderScreen } from './render';
 import { CONFUSING } from './support/terminology';
@@ -25,18 +25,21 @@ afterEach(() => { cleanup(); clearAsyncMemo(); setFetchJson(readDisk); });
 
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000).toISOString();
 const dist = pmfDistribution(7.3);
+/** The feed as the NFL publisher writes it (study rungs, no quantiles) and the distribution artifact beside it. */
 function feedFor(over: Record<string, unknown> = {}) {
   const asOf = hoursAgo(3);
   return {
-    ...feedWithDistribution('NFL', [nflPlayer({
+    ...feed('NFL', [nflPlayer({
       player_id: '00-0037239', name: 'Chris Olave', team: 'NO', opponent: 'ATL', game_id: '2026_05_ATL_NO', family: 'receptions',
-      ...dist, participation: part('CONFIRMED_ACTIVE', { captured_utc: asOf }), data_asof_utc: asOf, ...over,
+      ...feedSummary(dist), participation: part('CONFIRMED_ACTIVE', { captured_utc: asOf }), data_asof_utc: asOf, ...over,
     })], { receptions: {} }),
     generated_utc: asOf, data_asof_utc: asOf,
   };
 }
-const serve = (doc: unknown | null) => setFetchJson(async (url) => {
+const artifactFor = (f: Record<string, unknown>) => distributionArtifact(f, [{ player_id: '00-0037239', family: 'receptions', game_id: '2026_05_ATL_NO', dist }]);
+const serve = (doc: Record<string, unknown> | null, art: Record<string, unknown> | null | 'auto' = 'auto') => setFetchJson(async (url) => {
   if (url === projectionsUrl('NFL')) { if (doc == null) throw new Error('feed down'); return doc; }
+  if (url === distributionsUrl('NFL')) { const a = art === 'auto' ? (doc ? artifactFor(doc) : null) : art; if (a == null) throw new Error('no artifact'); return a; }
   return readDisk(url);
 });
 

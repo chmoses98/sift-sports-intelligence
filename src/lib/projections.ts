@@ -158,6 +158,70 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
   return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), families, players, teams };
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// The distribution artifact (`sift.projection_distributions.v1`, nfl-edge-finder `projections/nfl/distributions/latest.json`): the
+// quantiles and the full integer line ladder of each row's pmf, published beside the projection feed. It is joined to the feed's rows
+// here and ONLY when it describes exactly the feed that was read (same `generated_utc`) and a row's pmf reproduces that row's published
+// mean, median, range and thresholds. Anything else leaves the row exactly as the feed published it (no distribution is drawn, none is
+// reconstructed from p10 / p90 / mean).
+export const DISTRIBUTIONS_SCHEMA = 'sift.projection_distributions.v1';
+/** Sports whose publisher writes the artifact. */
+const DISTRIBUTION_SPORTS = new Set<ProjSport>(['NFL']);
+export const distributionsUrl = (sport: ProjSport): string | null =>
+  !DISTRIBUTION_SPORTS.has(sport) ? null
+    : env[`VITE_SIFT_DISTRIBUTIONS_${sport}_URL`] ?? `https://raw.githubusercontent.com/chmoses98/${REPO[sport]}/projection-data/projections/${sport.toLowerCase()}/distributions/latest.json`;
+
+export interface DistributionRow {
+  playerId: string; family: string; gameId: string;
+  mean: number; median: number; p10: number; p90: number;
+  quantiles: Required<Quantiles>;
+  /** P(X ≥ k) for every published integer line, from the same pmf */
+  survival: { k: number; p: number }[];
+}
+export interface DistributionDoc { projectionGeneratedAt: string; rows: Map<string, DistributionRow> }
+const distKey = (gameId: string, playerId: string, family: string) => `${gameId}|${playerId}|${family}`;
+const PMF_RULE = 'smallest integer x with P(X <= x) >= level';
+
+/** Strict decode. A malformed artifact is null; a malformed ROW is dropped (that row then has no distribution). */
+export function decodeDistributions(raw: unknown): DistributionDoc | null {
+  if (!isObj(raw) || raw.schema !== DISTRIBUTIONS_SCHEMA || !isObj(raw.projection) || !str(raw.projection.generated_utc)) return null;
+  const rule = isObj(raw.distribution) ? raw.distribution.quantile_rule : null;
+  if (typeof rule !== 'string' || !rule.startsWith(PMF_RULE)) return null;
+  const rows = new Map<string, DistributionRow>();
+  for (const r of Array.isArray(raw.rows) ? raw.rows : []) {
+    if (!isObj(r) || !r.player_id || !r.family || !r.game_id) continue;
+    const mean = num(r.mean), median = num(r.median), p10 = num(r.p10), p90 = num(r.p90);
+    const q = isObj(r.quantiles) ? r.quantiles : null;
+    if (mean == null || median == null || p10 == null || p90 == null || !q || !isObj(r.survival)) continue;
+    const qs = ['p05', 'p10', 'p25', 'p50', 'p75', 'p90', 'p95'].map((k) => num(q[k]));
+    if (qs.some((v) => v == null)) continue;
+    const [p05, q10, p25, p50, p75, q90, p95] = qs as number[];
+    if (p05 < 0 || [p05, q10, p25, p50, p75, q90, p95].some((v, i, a) => !Number.isInteger(v) || (i > 0 && v < a[i - 1]))) continue;
+    const survival = Object.entries(r.survival).map(([k, v]) => ({ k: Number(k), p: num(v) ?? NaN })).filter((t) => Number.isInteger(t.k)).sort((a, b) => a.k - b.k);
+    if (survival.length !== Object.keys(r.survival).length || survival.some((t) => !(t.p >= 0 && t.p <= 1))) continue;
+    if (survival.some((t, i) => i > 0 && t.p > survival[i - 1].p + 1e-9)) continue;
+    const row: DistributionRow = { playerId: str(r.player_id), family: str(r.family), gameId: str(r.game_id), mean, median, p10, p90, quantiles: { p05, p10: q10, p25, p50, p75, p90: q90, p95 }, survival };
+    // the row must cohere with itself: p50 = median, p10 / p90 = its range, and every line consistent with every quantile
+    if (quantileProblems({ quantiles: row.quantiles, quantileBasis: 'pmf', median, p10, p90, thresholds: survival }).length) continue;
+    rows.set(distKey(row.gameId, row.playerId, row.family), row);
+  }
+  return { projectionGeneratedAt: str(raw.projection.generated_utc), rows };
+}
+
+/** The feed with each reproducible row's quantiles and line ladder attached (new object; the inputs are not modified). */
+export function attachDistributions(doc: ProjectionDoc | null, d: DistributionDoc | null): ProjectionDoc | null {
+  if (!doc || !d || d.projectionGeneratedAt !== doc.generatedAt) return doc;
+  const players = doc.players.map((p) => {
+    const r = d.rows.get(distKey(p.gameId, p.playerId, p.family));
+    if (!r || Math.abs(r.mean - p.mean) > 1e-9) return p;
+    if ((p.median != null && r.median !== p.median) || (p.p10 != null && r.p10 !== p.p10) || (p.p90 != null && r.p90 !== p.p90)) return p;
+    // the feed's own thresholds must be reproduced by the ladder (same pmf), else the two disagree and neither is trusted
+    for (const t of p.thresholds) { const s = r.survival.find((x) => x.k === t.k); if (!s || Math.abs(s.p - t.p) > 1.5e-4) return p; }
+    return { ...p, quantiles: r.quantiles, quantileBasis: 'pmf' as const, thresholds: r.survival };
+  });
+  return { ...doc, players };
+}
+
 /**
  * SIFT's own defensive re-check of a published projection (the engine's gate runs first; this catches a broken or
  * tampered document). Returns the reasons the number must not be shown; empty = displayable.

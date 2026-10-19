@@ -38,7 +38,7 @@ async function open(page: Page, url = EXPLORER) {
   await page.goto(url);
   await expect(page.locator('#pexa-t')).toContainText('Chris Olave');
 }
-const tile = (page: Page) => page.locator('.fr-tile', { has: page.getByText('SIFT projection', { exact: true }) }).first();
+const tile = (page: Page) => page.locator('.fr-tile', { has: page.getByText(/^Projected /) }).first();
 
 test('a promoted stat shows exactly one projection, with reliability, availability and update time @journey', async ({ page, context }) => {
   await context.route(PROJ, (r) => r.fulfill({ json: doc(), headers: CORS }));
@@ -54,7 +54,7 @@ test('a promoted stat shows exactly one projection, with reliability, availabili
   // the previous model's mean, its "simulation" caption and every comparison phrase are gone from the analysis
   await expect(card).not.toContainText(/shadow|independent|incumbent|production model|agrees|disagree/i);
   await expect(card.getByText(LEGACY_MEAN, { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Projection P(over)').first()).toBeVisible();
+  await expect(page.getByText('Probability of over').first()).toBeVisible();
   await noHorizontalOverflow(page, 'explorer with the selected projection');
   await page.screenshot({ path: 'test-results/projection-explorer.png', fullPage: false });
 });
@@ -86,7 +86,7 @@ test('a stat on the established model is unchanged by the feed @journey', async 
   await page.goto(sel);
   await expect(page.locator('#pexa-t')).toContainText('Passing TDs');
   await expect(page.getByTestId('projection-note')).toHaveCount(0);
-  await expect(tile(page)).toContainText('simulation mean');
+  await expect(tile(page)).toContainText('expected value');
 });
 
 test('Home and the Explorer agree on the selected number for the same player and stat @journey', async ({ page, context }) => {

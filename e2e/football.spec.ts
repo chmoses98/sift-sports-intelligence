@@ -52,11 +52,11 @@ test('the NFL props board groups every prop by family and opens a card into pric
   await expect(bijan.locator('.pb__nums')).toContainText(/\d+¢ \/ \d+¢/);
   for (const card of await board.locator('.pb__card').all()) await expect(card.locator('.pcard__s')).toContainText(/ATL/);
 
-  // One tap down: price after fee with break-evens, the shadow model with its own support word, the other lines.
+  // One tap down: price after fee with break-evens, the probability of the over beside the market's, the other lines.
   await bijan.getByText('Evidence, price, risk and the other lines').click();
   await expect(bijan.getByText(/break-even \d+%/).first()).toBeVisible();
-  await expect(bijan.getByText('Shadow model P(over)')).toBeVisible();
-  await expect(bijan.getByText(/projectable not yet validated|not priced/).first()).toBeVisible();
+  await expect(bijan.getByText('Probability of over', { exact: true })).toBeVisible();
+  await expect(bijan.getByText(/research estimate|from the projection|not priced/).first()).toBeVisible();
   await expect(bijan.getByRole('heading', { name: 'The other lines' })).toBeVisible();
   expect(await bijan.locator('.pb__ladder tbody tr').count()).toBeGreaterThan(3);
   await expect(bijan.getByText(/No bet-up-to is shown/)).toBeVisible();

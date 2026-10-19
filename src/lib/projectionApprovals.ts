@@ -191,8 +191,12 @@ const env = (import.meta as { env?: Record<string, string | undefined> }).env ??
 const ROLLBACK = parseRollback(env.VITE_SIFT_PROJECTION_ENGINES);
 
 /** The engine whose number SIFT shows for (sport, family). Unknown families are legacy: nothing is promoted by default. */
-export function engineFor(sport: string, family: string, rollback: { sport: string; family: string }[] = ROLLBACK): Engine {
+export function engineFor(sport: string, family: string, rollback: { sport: string; family: string }[] = ROLLBACK, previewPending = false): Engine {
   const s = sport.toUpperCase();
   if (rollback.some((r) => r.sport === s && (r.family === '*' || r.family === family))) return 'legacy';
-  return approvalFor(s, family)?.engine ?? 'legacy';
+  const a = approvalFor(s, family);
+  // PREVIEW ONLY (scripts/verify-nba-activation.ts): what a family approved on history but waiting on live inputs WOULD resolve to
+  // if it were promoted. The app never passes this; a promotion is only ever a reviewed change to APPROVALS.
+  if (previewPending && a?.decision === 'APPROVED_PENDING_LIVE_INPUTS') return 'foundation';
+  return a?.engine ?? 'legacy';
 }

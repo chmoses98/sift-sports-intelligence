@@ -133,7 +133,7 @@ function playerValue(sport: ProjSport, doc: ProjectionDoc, p: PlayerProjection, 
  * Builds the authority for one sport. `doc` is the decoded `sift.projections.v1` feed, or null when it is missing,
  * unreachable or unrecognised; `nowMs` is injected so freshness is testable.
  */
-export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs: number, rollback?: { sport: string; family: string }[]): ProjectionAuthority {
+export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs: number, rollback?: { sport: string; family: string }[], opts: { previewPending?: boolean } = {}): ProjectionAuthority {
   const maxAge = MAX_AGE_H[sport];
   /** an approved fallback covers this situation (trigger) and, where the family needs it, the feed showed no defect segment */
   const eligible = (family: string, code: FallbackTrigger, p?: PlayerProjection): boolean => {
@@ -151,7 +151,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
   };
   const foundation = (q: StatQuery): Resolution => {
     const family = familyOf(q.stat);
-    if (engineFor(sport, family, rollback) === 'legacy') return { kind: 'legacy' };
+    if (engineFor(sport, family, rollback, opts.previewPending) === 'legacy') return { kind: 'legacy' };
     const blocked = gateFamily(family);
     if (blocked) return blocked;
     if (approvalFor(sport, family)?.publication?.standard === 'NOT_MET') return withheld('FAMILY_NOT_READY', PUBLICATION_WITHHELD);
@@ -195,7 +195,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
     },
     resolveTeams(q) {
       const family = q.family;
-      if (engineFor(sport, family, rollback) === 'legacy') return { kind: 'legacy' };
+      if (engineFor(sport, family, rollback, opts.previewPending) === 'legacy') return { kind: 'legacy' };
       const blocked = gateFamily(family) as ReturnType<ProjectionAuthority['resolveTeams']> | null;
       if (blocked) return blocked;
       if (approvalFor(sport, family)?.publication?.standard === 'NOT_MET') return withheld('FAMILY_NOT_READY', PUBLICATION_WITHHELD) as { kind: 'withheld'; code: WithheldCode; reason: string };

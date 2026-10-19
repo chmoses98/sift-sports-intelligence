@@ -103,7 +103,7 @@ export function PropRowCard({ row, ctx, hist, scorecard }: { row: PropRow; ctx: 
               <ul className="opp__nums">
                 <li><span>Over ask</span><b>{cents(row.main.yesAsk)}</b><small>break-even {pct(row.price?.overBreakEven)}</small></li>
                 <li><span>Under ask</span><b>{cents(row.main.noAsk)}</b><small>break-even {pct(row.price?.underBreakEven)}</small></li>
-                <li><span>Market P(over)</span><b>{pct(row.main.marketP)}</b><small>the quote's own probability</small></li>
+                <li><span>Market probability of over</span><b>{pct(row.main.marketP)}</b><small>the quote's own probability</small></li>
                 <li><span>Probability of over</span><b>{pct(row.main.modelP)}</b><small>{row.main.modelP == null ? 'not priced' : row.projectionStatus.kind === 'authoritative' ? 'from the projection' : 'research estimate'}</small></li>
               </ul>
               <p className="pb__note">Break-even is the ask plus Kalshi's taker fee (round-up of 7% × P × (1 − P)). No bet-up-to is shown: the publication prices no limit for NFL props and Sift does not invent one.</p>

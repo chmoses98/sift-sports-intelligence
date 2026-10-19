@@ -11,6 +11,11 @@ import { useSport } from '../state/sport';
 import { useVisit } from '../state/trail';
 import { quantilesOf } from './Player';
 import { TeamCompareView } from './TeamCompare';
+import { useAuthority } from '../data/projections';
+import { STAT_TO_SIM } from '../lib/nfl';
+import { simView } from '../lib/simStat';
+
+const STAT_OF_SIM = Object.fromEntries(Object.entries(STAT_TO_SIM).map(([k, v]) => [v, k]));
 
 function PairRange({ label, a, b, fmt }: { label: string; a: ReturnType<typeof quantilesOf>; b: ReturnType<typeof quantilesOf>; fmt: (v: number) => string }) {
   const [ref, width] = useWidth<HTMLDivElement>();
@@ -62,6 +67,8 @@ function PlayerCompareView() {
   const dir = useDirectory(repo);
   const pa = useAsync(a ? `prof:${sport.code}:${a}` : null, () => repo.profile(a!));
   const pb = useAsync(b ? `prof:${sport.code}:${b}` : null, () => repo.profile(b!));
+  // the one projection per stat: a promoted stat's range is the selected projection's, never the established simulation's
+  const { authority, ready } = useAuthority(sport.code === 'NFL' ? 'NFL' : null);
   useVisit(pa.data && pb.data ? `${pa.data.entity.display_name} vs ${pb.data.entity.display_name}` : null, 'compare');
   if (!a) return <div className="page"><Notice title="Pick a player to compare from their profile." /></div>;
   if (pa.loading || pb.loading) return <div className="page"><Skeleton lines={8} tall /></div>;
@@ -79,7 +86,15 @@ function PlayerCompareView() {
         </div>
       </div>
     ) : null;
-  const sims = [...new Set([...(A?.metrics ?? []), ...(B?.metrics ?? [])].filter((o) => quantilesOf(o)).map((o) => o.metric_id))];
+  const rangeOf = (P: EntityProfileDoc | undefined, mid: string): ReturnType<typeof quantilesOf> => {
+    const o = P?.metrics.find((x) => x.metric_id === mid);
+    const stat = STAT_OF_SIM[mid];
+    if (!P || !stat) return quantilesOf(o);
+    const opp = P.games[0]?.opponent_id ? dir.data?.team(P.games[0].opponent_id)?.abbr ?? null : null;
+    const v = simView(authority, ready, { stat, obs: o, playerId: (P.entity.source_ids?.gsis_id as string | undefined) ?? null, name: P.entity.display_name, team: P.team?.short_name ?? null, opponent: opp, designation: P.availability.map((x) => x.status).find((st) => !/^(ACTIVE|PROBABLE|AVAILABLE)$/i.test(st)) ?? null });
+    return v.state === 'shown' && v.q ? { ...v.q, mean: v.value } : null;
+  };
+  const sims = [...new Set([...(A?.metrics ?? []), ...(B?.metrics ?? [])].filter((o) => o.metric_id.startsWith('met_nfl.sim_') ? (rangeOf(A, o.metric_id) || rangeOf(B, o.metric_id)) : quantilesOf(o)).map((o) => o.metric_id))];
   const shares = [...new Set([...(A?.metrics ?? []), ...(B?.metrics ?? [])].filter((o) => o.metric_id.startsWith('met_nfl.proj_')).map((o) => o.metric_id))];
   return (
     <div className="page compare">
@@ -105,10 +120,10 @@ function PlayerCompareView() {
       </header>
       {A && B && (
         <>
-          <Stratum n="01" title="Projected distributions, same axis" sub="Each player's simulated range for the same stat in their own game this week. RESEARCH.">
+          <Stratum n="01" title="Projected distributions, same axis" sub="Each player's projected range for the same stat in their own game this week. RESEARCH.">
             {sims.map((mid) => (
               <PairRange key={mid} label={metrics.get(mid)?.name.replace('Simulated ', '') ?? mid}
-                a={quantilesOf(A.metrics.find((o) => o.metric_id === mid))} b={quantilesOf(B.metrics.find((o) => o.metric_id === mid))}
+                a={rangeOf(A, mid)} b={rangeOf(B, mid)}
                 fmt={(v) => metricFormatter(metrics.get(mid))(v)} />
             ))}
             {!sims.length && <p className="muted">Neither player has a simulated distribution in this publication.</p>}

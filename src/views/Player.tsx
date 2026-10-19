@@ -37,6 +37,8 @@ import { PerfChart } from './props/PerfChart';
 import '../styles/lane-b-props.css';
 import type { Finding } from '../research/findings';
 import { overlayMarket } from '../live/overlay';
+import { useAuthority } from '../data/projections';
+import { simView, simValue, type SimView } from '../lib/simStat';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -123,6 +125,8 @@ function GenericPlayerView() {
   const live = useLiveQuotes(playerTickers, 'game');
   const quoteViews = useQuoteViews(p?.markets ?? []);
   const now = useNow(15_000);
+  // the one projection per stat: NFL only (the simulations this page reads are NFL's)
+  const { authority, ready } = useAuthority(sport.code === 'NFL' ? 'NFL' : null, now);
   const fair = useMemo(() => new Map((p?.projections ?? []).filter((x) => x.market_id).map((x) => [x.market_id!, x])), [p]);
   const byStat = useMemo(() => {
     const m = new Map<string, ResearchMarket[]>();
@@ -139,6 +143,13 @@ function GenericPlayerView() {
   const teamAbbr = p.team?.short_name ?? (p.entity.metadata?.team as string) ?? '';
   const ext = (p.extensions ?? {}) as any;
   const sims = p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.sim_'));
+  // ONE number per simulated stat: the approved engine's (lib/simStat.ts), never the established simulation's beside a promoted projection
+  const designation = p.availability.map((a) => a.status).find((st) => !/^(ACTIVE|PROBABLE|AVAILABLE)$/i.test(st)) ?? null;
+  const simOf = (statKey: string, line: number | null = null): SimView => simView(authority, ready, {
+    stat: statKey, obs: STAT_TO_SIM[statKey] ? sims.find((o) => o.metric_id === STAT_TO_SIM[statKey]) : undefined,
+    playerId: gsis, name: p.entity.display_name, team: teamAbbr, opponent: gameOppAbbr, designation, line,
+  });
+  const statOfSim = Object.fromEntries(Object.entries(STAT_TO_SIM).map(([k, v]) => [v, k]));
   // Usage that makes football sense for this position (lib/usage.ts): never receiving usage on a QB, etc.
   const shares = usageFor(pos, p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.proj_')), (id) => metrics.get(id)?.name);
   const qbObs = [...p.metrics.filter((o) => o.metric_id.startsWith('met_nfl.qb_')), ...Object.values(p.splits ?? {}).flat()];
@@ -150,25 +161,30 @@ function GenericPlayerView() {
   const simObs = activeStat && STAT_TO_SIM[activeStat] ? sims.find((o) => o.metric_id === STAT_TO_SIM[activeStat]) : undefined;
   const simDef = simObs ? metrics.get(simObs.metric_id) : undefined;
   const fmtStat = metricFormatter(simDef);
-  const q = quantilesOf(simObs);
+  const simA: SimView = activeStat && simObs ? simOf(activeStat) : { state: 'none' };
+  const q = simA.state === 'shown' && simA.q ? { ...simA.q, mean: simA.value } : null;
   const marketMean = (simObs?.extensions as any)?.market_mean as number | undefined;
+  // a promoted stat's line probability is its projection's own (null off its ladder, never the pricing model's); otherwise the pricing model's fair price
+  const fairFor = (marketId: string, x: number): number | null => simA.state === 'withheld' ? null : simA.state === 'shown' && simA.engine === 'projection' ? simA.probAtLeast(x) ?? null : fair.get(marketId)?.fair_probability ?? null;
   const rungs: Rung[] = ladderMarkets.map((m) => ({
-    x: Number(m.threshold ?? m.line), bid: m.yes_bid, ask: m.yes_ask, fair: fair.get(m.market_id)?.fair_probability ?? null,
+    x: Number(m.threshold ?? m.line), bid: m.yes_bid, ask: m.yes_ask, fair: fairFor(m.market_id, Number(m.threshold ?? m.line)),
     href: routes.market(slug, m.market_id, m.event_id ?? ''), ticker: m.kalshi_ticker,
   }));
   // The main line: the rung the market prices closest to a coin flip (two-sided quotes only).
   const mid = (m: ResearchMarket) => (m.yes_bid != null && m.yes_ask != null ? (m.yes_bid + m.yes_ask) / 2 : null);
   const main = ladderMarkets.filter((m) => mid(m) != null).sort((a, b) => Math.abs(mid(a)! - 0.5) - Math.abs(mid(b)! - 0.5))[0];
-  const mainFair = main ? fair.get(main.market_id)?.fair_probability ?? null : null;
+  const mainFair = main ? fairFor(main.market_id, Number(main.threshold ?? main.line)) : null;
   const mainLine = main ? Number(main.threshold ?? main.line) : null;
   const cents = (v: number) => `${Math.round(v * 100)}¢`;
   const distRows: RangeRow[] = sims
-    .filter((o) => quantilesOf(o))
-    .map((o) => {
-      const qq = quantilesOf(o)!;
+    .flatMap((o): RangeRow[] => {
+      const v = statOfSim[o.metric_id] ? simOf(statOfSim[o.metric_id]) : null;
+      // a stat on a promoted projection draws that projection's range; withheld, loading or rangeless = no row, not the old simulation's
+      const qq = v ? (v.state === 'shown' ? v.q : null) : quantilesOf(o);
+      if (!qq) return [];
       const x = (o.extensions ?? {}) as Record<string, number>;
       const f = metricFormatter(metrics.get(o.metric_id));
-      return { label: metrics.get(o.metric_id)?.name.replace('Simulated ', '') ?? o.metric_id, mean: o.value, r50: [qq.p25, qq.p75], r90: [qq.p05, qq.p95], market: x.market_mean ?? null, format: (v: number) => f(v) };
+      return [{ label: metrics.get(o.metric_id)?.name.replace('Simulated ', '') ?? o.metric_id, mean: v?.state === 'shown' ? v.value : o.value, r50: [qq.p25, qq.p75], r90: [qq.p05, qq.p95], market: x.market_mean ?? null, format: (val: number) => f(val) }];
     });
   const others = (dir.data?.index.players_by_team[p.team?.participant_id ?? ''] ?? []).filter((id) => id !== playerId);
   const samePos = (dir.data ? Object.values(dir.data.index.players_by_team).flat() : []).filter((id) => id !== playerId && dir.data!.player(id)?.context?.position === pos);
@@ -203,9 +219,9 @@ function GenericPlayerView() {
     const ms = (byStat.get(st) ?? []) as unknown as Market[];
     const ml = pickMainLine(ms);
     const ln = ml?.threshold != null ? Number(overLine(ml.threshold)) : null;
-    const so = STAT_TO_SIM[st] ? sims.find((o) => o.metric_id === STAT_TO_SIM[st]) : undefined;
-    const proj = so?.value ?? null;
-    return { stat: st, label: STAT_LABEL[st] ?? st.replace(/_/g, ' '), line: ln, ask: ml?.yes_ask ?? null, proj, gap: proj != null && ln != null ? proj - ln : null };
+    const sv = STAT_TO_SIM[st] ? simOf(st, ln) : null;
+    const proj = sv ? simValue(sv) : null;
+    return { stat: st, label: STAT_LABEL[st] ?? st.replace(/_/g, ' '), line: ln, ask: ml?.yes_ask ?? null, proj, withheld: sv?.state === 'withheld' ? sv.reason : null, gap: proj != null && ln != null ? proj - ln : null };
   }).filter((x) => x.line != null || x.proj != null);
   return (
     <div className="page player">
@@ -257,7 +273,7 @@ function GenericPlayerView() {
       {showMarkets && propRows.length > 0 && (
         <section className="fx-card fr-plprops" aria-labelledby="plprops-h">
           <h2 className="fx-card__t" id="plprops-h"><Icon name="layers" size={17} /> Player prop markets</h2>
-          <p className="fx-card__sub">Every stat Kalshi lists for {p.entity.display_name}: the main line (rung nearest even), its ask, and the simulation’s projection where it publishes one. Select a row to read it below.</p>
+          <p className="fx-card__sub">Every stat Kalshi lists for {p.entity.display_name}: the main line (rung nearest even), its ask, and Sift’s projection where one is published. Select a row to read it below.</p>
           <div className="lab__tw" tabIndex={0} role="region" aria-label="Player prop markets"><table className="fr-t">
             <thead><tr><th scope="col">Prop</th><th scope="col" className="r">Line</th><th scope="col" className="r">Over ask</th><th scope="col" className="r">Projection</th><th scope="col" className="r">Proj − line</th><th scope="col"><span className="sr-only">Read</span></th></tr></thead>
             <tbody>
@@ -266,7 +282,7 @@ function GenericPlayerView() {
                   <th scope="row">{x.label}</th>
                   <td className="r fx-num">{x.line ?? '—'}</td>
                   <td className="r fx-num fr-gold">{x.ask != null ? `${Math.round(x.ask * 100)}¢` : '—'}</td>
-                  <td className="r fx-num">{x.proj != null ? fmtProj(x.proj, x.stat) : <small className="muted">not published</small>}</td>
+                  <td className="r fx-num">{x.proj != null ? fmtProj(x.proj, x.stat) : <small className="muted" title={x.withheld ?? undefined}>{x.withheld ? 'withheld' : 'not published'}</small>}</td>
                   <td className={`r fx-num fr-d fr-d--${x.gap == null || Math.abs(x.gap) < 0.05 ? 'flat' : x.gap > 0 ? 'up' : 'down'}`}>{x.gap == null ? '—' : `${x.gap > 0 ? '+' : x.gap < 0 ? '−' : ''}${fmtProj(Math.abs(x.gap), x.stat)}`}</td>
                   <td className="r"><button type="button" className="btn btn--sm" aria-pressed={x.stat === activeStat} onClick={() => { setStat(x.stat); setHs(x.stat); }}>Read</button></td>
                 </tr>
@@ -299,10 +315,11 @@ function GenericPlayerView() {
         const win: HitWindow = wins.some((w) => w.w === hw) ? hw : wins[0]?.w ?? 'last5';
         const wrows = windowGames(hrows, cur, win).games.map((g) => g.row);
         const winName = hitWindowLabel(win, season, priorSeason);
-        const sObs = STAT_TO_SIM[cur.key] ? sims.find((o) => o.metric_id === STAT_TO_SIM[cur.key]) : undefined;
-        const qq = quantilesOf(sObs);
         const ml = pickMainLine((byStat.get(cur.key) ?? []) as unknown as Market[]);
         const line = ml?.threshold != null ? Number(overLine(ml.threshold)) : null;
+        const vw: SimView = STAT_TO_SIM[cur.key] ? simOf(cur.key, line) : { state: 'none' };
+        const sVal = simValue(vw);
+        const qq = vw.state === 'shown' ? vw.q : null;
         const defId = /rush|carries/.test(cur.key) ? 'met_nfl.adj_def_rush_epa' : 'met_nfl.adj_def_db_epa';
         const defObs = opp.data?.metrics.find((x) => x.metric_id === defId);
         const defRank = rankView(defObs?.context);
@@ -310,9 +327,9 @@ function GenericPlayerView() {
         const hwin = line != null ? hitRate(hrows, cur, line, win) : null;
         const rank = hist.data ? rankFor(hist.data, cur.key, wk, win === 'prior' ? 'prior' : 'current') : null;
         const f = (v: number) => (cur.unit === 'rec' || cur.unit === 'TD' || cur.unit === 'INT' ? (Math.round(v * 10) / 10).toString() : String(Math.round(v)));
-        const finding: Finding | null = sObs?.value != null && qq ? {
+        const finding: Finding | null = sVal != null && qq ? {
           key: `proj:${playerId}:${cur.key}`, kind: 'projection', sport: sport.code, title: `${p.entity.display_name} ${cur.label.toLowerCase()}`,
-          statement: `Projection ${f(sObs.value)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.n ? `; ${rec.over} of his last ${rec.n} games played over today's line of ${line}${rec.push ? ` (${rec.push} push${rec.push > 1 ? 'es' : ''})` : ''}` : ''}.`,
+          statement: `Projection ${f(sVal!)} ${cur.unit} (typical ${f(qq.p25)}–${f(qq.p75)}, low ${f(qq.p05)}, high ${f(qq.p95)})${line != null ? `; line ${line}` : ''}${defRank ? `; ${oppAbbr} ${/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense ${defRank.text}` : ''}${rec && rec.n ? `; ${rec.over} of his last ${rec.n} games played over today's line of ${line}${rec.push ? ` (${rec.push} push${rec.push > 1 ? 'es' : ''})` : ''}` : ''}.`,
           href: routes.player(slug, playerId), anchor: ml ? { ref_kind: 'MARKET', id: ml.market_id, extra: { market_id: ml.market_id, event_id: ml.event_id } } : { ref_kind: 'PLAYER', id: playerId },
           kickoff: game?.start_time_utc ?? null,
         } : null;
@@ -327,20 +344,25 @@ function GenericPlayerView() {
                   ))}
                 </div>
               </div>
-              {sObs?.value != null && qq ? (
+              {vw.state === 'shown' ? (
                 <div className="pthis__card">
                   <dl className="pthis__nums">
-                    <div><dt>Projection</dt><dd className="num">{f(sObs.value)} <small>{cur.unit}</small></dd></div>
-                    <div><dt>Projected range</dt><dd className="num">{f(qq.p25)}–{f(qq.p75)} <small>{cur.unit}</small></dd><dd className="pthis__s">typical (middle half of simulations)</dd></div>
+                    <div><dt>Projection</dt><dd className="num">{f(vw.value)} <small>{cur.unit}</small></dd></div>
+                    {qq ? <div><dt>Projected range</dt><dd className="num">{f(qq.p25)}–{f(qq.p75)} <small>{cur.unit}</small></dd><dd className="pthis__s">typical (middle half of outcomes)</dd></div>
+                      : vw.band ? <div><dt>Prediction range</dt><dd className="num">{f(vw.band.lo)}–{f(vw.band.hi)} <small>{cur.unit}</small></dd><dd className="pthis__s">80% of outcomes</dd></div> : null}
                     <div><dt>Line</dt><dd className="num">{line ?? '—'}</dd><dd className="pthis__s">{ml ? 'market rung nearest even' : 'no priced line'}</dd></div>
                     {defRank && <div><dt>Matchup</dt><dd><RankBadge rank={defRank} compact /></dd><dd className="pthis__s">{oppAbbr} {/rush|carries/.test(cur.key) ? 'run' : 'pass'} defense</dd></div>}
                   </dl>
-                  <QuantileDist points={quantilePoints(qq)} line={line} projection={sObs.value} format={f} unit={cur.unit} minSpan={cur.unit === 'yds' ? 8 : 3} label={`${p.entity.display_name} ${cur.label.toLowerCase()}: simulated distribution`} />
+                  <QuantileDist points={quantilePoints(vw.distribution ?? qq)} line={line} projection={vw.value} format={f} unit={cur.unit} minSpan={cur.unit === 'yds' ? 8 : 3} label={`${p.entity.display_name} ${cur.label.toLowerCase()}: projected distribution`} />
                   <div className="pthis__x">
                     {rec && rec.n > 0 && <span className="pthis__rec"><b>{rec.over} of his last {rec.n}</b> games played over today's line{rec.push ? ` · ${rec.push} push${rec.push > 1 ? 'es' : ''}` : ''}</span>}
                     {finding && <DigDeeper finding={finding} />}
                   </div>
                 </div>
+              ) : vw.state === 'withheld' ? (
+                <p className="muted small" data-testid="player-projection-withheld">Projection withheld for {cur.label.toLowerCase()}: {vw.reason}.</p>
+              ) : vw.state === 'loading' ? (
+                <Skeleton lines={2} />
               ) : (
                 <p className="muted small">No projection published for {cur.label.toLowerCase()} in this game.</p>
               )}
@@ -361,7 +383,7 @@ function GenericPlayerView() {
               {!hist.loading && !hist.data && <p className="muted small">No {sport.label} game log for this player yet (rookie, no snaps, or not in the play-by-play).</p>}
               {hist.data && wrows.length > 0 && (
                 <>
-                  {hwin ? <HitSummary h={hwin} windowName={winName} unit={cur.unit} projection={!kicked && sObs?.value != null ? sObs.value : null} /> : <HistorySummary rows={wrows} stat={cur} line={line} projection={!kicked && sObs?.value != null ? sObs.value : null} windowName={winName} unit={cur.unit} />}
+                  {hwin ? <HitSummary h={hwin} windowName={winName} unit={cur.unit} projection={!kicked && sVal != null ? sVal : null} /> : <HistorySummary rows={wrows} stat={cur} line={line} projection={!kicked && sVal != null ? sVal : null} windowName={winName} unit={cur.unit} />}
                   {rank && (
                     <p className="hsum__rank">
                       {cur.label} per game: <b className="num">#{rank.rank}</b> of {rank.of} {rank.position}s <span className="hsum__tier">{playerTier(rank.rank, rank.of)}</span>
@@ -369,14 +391,14 @@ function GenericPlayerView() {
                     </p>
                   )}
                   {hwin ? (
-                    <PerfChart h={hwin} statLabel={cur.label} unit={cur.unit} season={season} sport={sport.code} projection={!kicked && win !== 'prior' && sObs?.value != null ? { value: sObs.value, typical: qq ? [qq.p25, qq.p75] : null } : null} />
+                    <PerfChart h={hwin} statLabel={cur.label} unit={cur.unit} season={season} sport={sport.code} projection={!kicked && win !== 'prior' && sVal != null ? { value: sVal, typical: qq ? [qq.p25, qq.p75] : null } : null} />
                   ) : (
-                    <GameBars rows={wrows} stat={cur} line={line} season={win === 'prior' ? priorSeason ?? season : season} upcoming={!kicked && win !== 'prior' && sObs?.value != null && qq ? { projection: sObs.value, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />
+                    <GameBars rows={wrows} stat={cur} line={line} season={win === 'prior' ? priorSeason ?? season : season} upcoming={!kicked && win !== 'prior' && sVal != null && qq ? { projection: sVal, typical: [qq.p25, qq.p75], label: 'Next game' } : null} sport={sport.code} />
                   )}
                 </>
               )}
               {hist.data && wrows.length === 0 && <p className="muted small">No games in this window.</p>}
-              {result && <p className="pgame__res"><b>Result of this game:</b> {f(cur.get(result) ?? 0)} {cur.unit}{sObs?.value != null ? ` (projected ${f(sObs.value)})` : ''}.</p>}
+              {result && <p className="pgame__res"><b>Result of this game:</b> {f(cur.get(result) ?? 0)} {cur.unit}{sVal != null ? ` (projected ${f(sVal)})` : ''}.</p>}
               {hist.data && wrows.length > 0 && (
                 <>
                   <Layer summary="Usage & role, game by game"><UsageRows rows={wrows} pos={pos} season={season} /></Layer>
@@ -384,7 +406,7 @@ function GenericPlayerView() {
                   <Layer summary="Full game log"><LogTable rows={wrows} pos={pos} season={season} stat={cur} line={line} /><p className="muted small">Source: nflverse weekly player stats and play-by-play ({season}); {hist.data.prior ? `${hist.data.prior.season} from weekly box scores and the schedule; ` : ''}snap counts from Pro Football Reference via nflverse. Games before this one only. Longest plays are published for {season} only.</p></Layer>
                 </>
               )}
-              {showRange && distRows.length > 1 && <Layer summary="Projected ranges for every stat in this game"><RangeStrip rows={distRows} caption={`${p.entity.display_name} projected ranges`} /><p className="plcav">Low-end and high-end are the 5th and 95th of every 100 simulated games; the typical range is the middle half.</p></Layer>}
+              {showRange && distRows.length > 1 && <Layer summary="Projected ranges for every stat in this game"><RangeStrip rows={distRows} caption={`${p.entity.display_name} projected ranges`} /><p className="plcav">Low-end and high-end are the 5th and 95th of every 100 outcomes; the typical range is the middle half.</p></Layer>}
             </section>
           </>
         );
@@ -489,7 +511,7 @@ function GenericPlayerView() {
           <div className="mctx">
             <dl className="mctx__nums" aria-label={`${statLabel}: market context`}>
               <div><dt>Main line</dt><dd>{main && mainLine != null ? <><b>Over <span className="num">{overLine(mainLine)}</span></b> <span className="mctx__s">at {cents(mid(main)!)}</span></> : '—'}</dd></div>
-              {marketMean != null && <div><dt>Market-implied average</dt><dd><b className="num">{fmtStat(marketMean)}</b>{simObs?.value != null && <span className="mctx__s"> · projection {fmtStat(simObs.value)}</span>}</dd></div>}
+              {marketMean != null && <div><dt>Market-implied average</dt><dd><b className="num">{fmtStat(marketMean)}</b>{simA.state === 'shown' && <span className="mctx__s"> · projection {fmtStat(simA.value)}</span>}</dd></div>}
             </dl>
             {main && <Link className="btn btn--sm btn--ghost" to={routes.market(slug, main.market_id, main.event_id ?? '')}>Open this line <Icon name="arrowRight" size={14} /></Link>}
           </div>
@@ -513,7 +535,7 @@ function GenericPlayerView() {
               Research evidence, not a betting signal.
               <Info label="About fair prices on player props">
                 <span>Fair prices here are {capStatus(caps, 'raw_projections')} research evidence. The publication notes its pricing has been shown redundant to the closing market on player props; see the Model Scorecard on the {sport.label} home.</span>
-                <span>The projection is the game simulation’s average; the fair price is the pricing model’s probability for one line. They are separate published outputs and can disagree.</span>
+                <span>{simA.state === 'shown' && simA.engine === 'projection' ? 'For this stat the probability of each line is read from Sift’s projection, the same distribution as the expected value.' : 'The projection is the expected value for the stat; the fair price is the pricing model’s probability for one line.'}</span>
               </Info>
             </p>
           </Layer>

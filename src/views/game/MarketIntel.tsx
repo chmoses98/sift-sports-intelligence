@@ -151,14 +151,14 @@ export function MarketIntel({ r, rows, set, slug, eventId, now, homeAbbr, awayAb
               <QuantileDist points={totalPts} line={mi?.implied_total_median ?? env?.centre?.total ?? null} projection={env.total.mean} label="Simulated total points" format={(v) => String(Math.round(v))} bins={22} height={150} />
             </>
           ) : <CapabilityState title="No simulated total">The publication attached no game environment for this game.</CapabilityState>}
-          <p className="fr-note">Model score is the shadow model’s (research); the range is the simulation’s published middle half and nine-in-ten bands, marked against the market’s centre.</p>
+          <p className="fr-note">Model score is the research model’s; the range is the published middle half and nine-in-ten bands of simulated totals, marked against the market’s centre.</p>
         </section>
 
         <section className="fx-card fx-span-4" id="mi-win" aria-labelledby="mi-win-h">
           <h2 className="fx-card__t" id="mi-win-h"><Icon name="compare" size={17} /> Win probability · {homeAbbr}</h2>
           <div className="fr-rings">
             {mi?.win_probability?.[homeAbbr] != null && <figure><Ring value={mi.win_probability[homeAbbr]} label={`Market-implied ${homeAbbr} win ${pc(mi.win_probability[homeAbbr])}`} tone="cyan" size={84} /><figcaption>Market<small>midpoints</small></figcaption></figure>}
-            {mv?.model_win_probability?.[homeAbbr] != null && <figure><Ring value={mv.model_win_probability[homeAbbr]} label={`Shadow model ${homeAbbr} win ${pc(mv.model_win_probability[homeAbbr])}, research`} tone="gold" size={84} /><figcaption>Model<small>research</small></figcaption></figure>}
+            {mv?.model_win_probability?.[homeAbbr] != null && <figure><Ring value={mv.model_win_probability[homeAbbr]} label={`Model ${homeAbbr} win ${pc(mv.model_win_probability[homeAbbr])}, research`} tone="gold" size={84} /><figcaption>Model<small>research</small></figcaption></figure>}
             {env?.p_home_win != null && <figure><Ring value={env.p_home_win} label={`${homeAbbr} won ${pc(env.p_home_win)} of simulated games`} tone="violet" size={84} /><figcaption>Simulation<small>share of games</small></figcaption></figure>}
           </div>
           {!mi?.win_probability && !mv?.model_win_probability && env?.p_home_win == null && <p className="fr-note">No win probability is published for this game.</p>}

@@ -1,9 +1,9 @@
 // Research visuals for the prop, script and market surfaces (approved references 03–08), built on the fx kit.
 //
 // Data honesty, enforced here rather than left to each caller:
-//  - QuantileDist draws ONLY published quantiles. The publication ships five quantiles per simulated stat (5th, 25th,
-//    50th, 75th, 95th), not the simulation's samples, so the chart is the exact piecewise-uniform reading of those
-//    quantiles: each block holds the share of simulated games the publication places between two quantiles, spread
+//  - QuantileDist draws ONLY published quantiles. A publication ships five to seven quantiles per stat (5th, 10th, 25th,
+//    50th, 75th, 90th, 95th), not samples, so the chart is the exact piecewise-uniform reading of those
+//    quantiles: each block holds the share of outcomes the publication places between two quantiles, spread
 //    evenly across that span. Nothing is smoothed into a bell curve, no tail beyond the outer quantiles is invented
 //    (the 5% beyond each end is written, not drawn), and no probability is read off the area.
 //  - MarginMap places scripts on the final-margin axis they are defined by, over the simulation's own published
@@ -19,10 +19,10 @@ export interface QPoint {
   v: number;
 }
 
-/** Five published quantiles (p05..p95) as points, or null when any is missing. */
-export function quantilePoints(q: { p05?: number | null; p25?: number | null; p50?: number | null; p75?: number | null; p95?: number | null } | null | undefined): QPoint[] | null {
+/** Published quantiles (p05..p95, with p10 and p90 when published) as points, or null when fewer than three are present. */
+export function quantilePoints(q: { p05?: number | null; p10?: number | null; p25?: number | null; p50?: number | null; p75?: number | null; p90?: number | null; p95?: number | null } | null | undefined): QPoint[] | null {
   if (!q) return null;
-  const pts: [number, number | null | undefined][] = [[0.05, q.p05], [0.25, q.p25], [0.5, q.p50], [0.75, q.p75], [0.95, q.p95]];
+  const pts: [number, number | null | undefined][] = [[0.05, q.p05], [0.1, q.p10], [0.25, q.p25], [0.5, q.p50], [0.75, q.p75], [0.9, q.p90], [0.95, q.p95]];
   const out = pts.filter((x): x is [number, number] => x[1] != null && Number.isFinite(x[1])).map(([p, v]) => ({ p, v }));
   return out.length >= 3 ? out : null;
 }
@@ -97,8 +97,8 @@ export function QuantileDist({
         <span className="frd__none-h">{points ? 'Range too narrow to draw' : 'No published distribution'}</span>
         <span className="frd__none-p">
           {points
-            ? `The simulation places this stat between ${format(points[0].v)} and ${format(points[points.length - 1].v)}${unit ? ` ${unit}` : ''} in nine of ten games: too narrow a spread for a distribution chart.`
-            : 'The publication does not simulate this stat, so Sift draws no distribution rather than inventing one.'}
+            ? `The projection places this stat between ${format(points[0].v)} and ${format(points[points.length - 1].v)}${unit ? ` ${unit}` : ''} in nine of ten games: too narrow a spread for a distribution chart.`
+            : 'No distribution is published for this projection, so Sift draws none rather than inventing one.'}
         </span>
       </div>
     );
@@ -120,7 +120,7 @@ export function QuantileDist({
   const q = (p: number) => points.find((pt) => Math.abs(pt.p - p) < 1e-6)?.v ?? null;
   const p25 = q(0.25);
   const p75 = q(0.75);
-  const desc = `Middle half of simulated games ${p25 != null && p75 != null ? `${format(p25)} to ${format(p75)}` : 'not published'}; nine in ten between ${format(lo)} and ${format(hi)}${unit ? ` ${unit}` : ''}.${projection != null ? ` Projection ${format(projection)}.` : ''}${line != null ? ` Market line ${format(line)}.` : ''}`;
+  const desc = `Middle half of outcomes ${p25 != null && p75 != null ? `${format(p25)} to ${format(p75)}` : 'not published'}; nine in ten between ${format(lo)} and ${format(hi)}${unit ? ` ${unit}` : ''}.${projection != null ? ` Projection ${format(projection)}.` : ''}${line != null ? ` Market line ${format(line)}.` : ''}`;
   const lineX = line != null ? x(line) : null;
   const projX = projection != null ? x(projection) : null;
   const near = lineX != null && projX != null && Math.abs(lineX - projX) < 80;
@@ -158,10 +158,12 @@ export function QuantileDist({
           </g>
         )}
       </svg>
-      {!compact && <figcaption className="frd__cap">Drawn from the five published quantiles (5th · 25th · 50th · 75th · 95th): each block is the share of simulated games between two quantiles. Samples are not published.</figcaption>}
+      {!compact && <figcaption className="frd__cap">Drawn from the {points.length} published quantiles ({points.map((q) => ordinal(Math.round(q.p * 100))).join(' · ')}): each block is the share of outcomes the projection places between two quantiles. Nothing is smoothed or extended past the outer quantiles.</figcaption>}
     </figure>
   );
 }
+
+const ordinal = (n: number): string => `${n}${n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th'}`;
 
 function niceTicks(lo: number, hi: number, n: number): number[] {
   const span = hi - lo;

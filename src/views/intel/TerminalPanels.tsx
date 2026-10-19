@@ -100,7 +100,7 @@ export function RangeChart({ s, markers, label, format = (v) => String(halfRound
         ))}
         {ticks.map((t, i) => <text key={i} x={x(t)} y={90} textAnchor="middle" className="tm-range__t">{tickFormat(t)}</text>)}
       </svg>
-      <figcaption className="tm-range__key"><span className="k k--r50">50% of simulations</span><span className="k k--r90">90%</span><span className="k k--mean">Simulation mean</span></figcaption>
+      <figcaption className="tm-range__key"><span className="k k--r50">50% of simulations</span><span className="k k--r90">90%</span><span className="k k--mean">Expected value</span></figcaption>
     </figure>
   );
 }

@@ -16,6 +16,9 @@ import { playerPhoto } from '../../lib/players';
 import { routes } from '../../lib/routes';
 import { teamAccent } from '../../lib/teams';
 import { usePropHistories } from '../game/matters';
+import { useAuthority } from '../../data/projections';
+import { obsFromDistribution, simView } from '../../lib/simStat';
+import { STAT_TO_SIM } from '../../lib/nfl';
 import '../../styles/lane-c-views.css';
 
 interface LineupRow { player?: string; position?: string; slot?: string; depth_chart_order?: number | null; injury_status?: string | null; status?: string | null; team?: string }
@@ -98,7 +101,11 @@ function seasonLine(pos: string, rows: GameLogRow[]): string | null {
   return `${f1(avg((g) => g.receiving.rec))} rec · ${Math.round(avg((g) => g.receiving.yds))} yds · ${f1(avg((g) => g.receiving.tgt))} targets per game`;
 }
 
+const STAT_OF_SIM = Object.fromEntries(Object.entries(STAT_TO_SIM).map(([k, v]) => [v, k]));
+
 export function DepthChart({ r, teams, slug, sport = 'NFL' }: { r: EventResearchDoc; teams: Side[]; slug: string; sport?: string }) {
+  // the one projection per stat: a promoted stat (receptions) shows the selected projection, never the established simulation's number
+  const { authority, ready } = useAuthority(sport === 'NFL' ? 'NFL' : null);
   const charts = useMemo(() => teams.map((t) => ({ t, groups: depthChart(r, t) })), [r, teams]);
   const players = useMemo(() => charts.flatMap((c) => c.groups.flatMap((g) => g.players.filter((p) => p.starter || p.order === 2 || p.projectedOnly).map((p) => ({ name: p.name, team: c.t.abbr })))), [charts]);
   const hist = usePropHistories(sport, players);
@@ -110,10 +117,14 @@ export function DepthChart({ r, teams, slug, sport = 'NFL' }: { r: EventResearch
     const line = seasonLine(p.pos, rows);
     return line ? { line, games: rows.length } : null;
   };
-  const proj = (p: DepthPlayer) => {
+  const proj = (p: DepthPlayer, team: string, opp: string | null) => {
     if (!p.pid) return null;
-    const parts = (MAIN[p.pos] ?? []).map((m) => ({ m, d: r.distributions.find((d) => d.entity_id === p.pid && d.metric_id === m.sim) })).filter((x) => x.d?.mean != null);
-    return parts.length ? parts.map((x) => `${x.m.unit === 'rec' ? (Math.round(x.d!.mean! * 10) / 10).toFixed(1) : Math.round(x.d!.mean!)} ${x.m.label}`).join(' · ') : null;
+    const parts = (MAIN[p.pos] ?? []).flatMap((m) => {
+      const d = r.distributions.find((x) => x.entity_id === p.pid && x.metric_id === m.sim);
+      const v = simView(authority, ready, { stat: STAT_OF_SIM[m.sim] ?? m.sim, obs: obsFromDistribution(d, r.generated_at), name: p.name, team, opponent: opp, designation: p.injury });
+      return v.state === 'shown' ? [{ m, mean: v.value }] : [];
+    });
+    return parts.length ? parts.map((x) => `${x.m.unit === 'rec' ? (Math.round(x.mean * 10) / 10).toFixed(1) : Math.round(x.mean)} ${x.m.label}`).join(' · ') : null;
   };
   return (
     <div className={`dch${teams.length > 1 ? ' dch--two' : ''}`}>
@@ -126,7 +137,7 @@ export function DepthChart({ r, teams, slug, sport = 'NFL' }: { r: EventResearch
               <ol className="dch__l">
                 {g.players.map((p) => {
                   const s = p.starter || p.order === 2 || p.projectedOnly ? season(p, t.abbr) : null;
-                  const pr = proj(p);
+                  const pr = proj(p, t.abbr, teams.find((o) => o.abbr !== t.abbr)?.abbr ?? null);
                   const body = (
                     <>
                       <span className="dch__slot">{p.projectedOnly ? '—' : `${p.slot}${p.order ?? ''}`}</span>

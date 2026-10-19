@@ -4,15 +4,27 @@ import { getJson } from './fetcher';
 import { useAsync } from './hooks';
 import { useMemo } from 'react';
 import { makeAuthority, type ProjectionAuthority } from '../lib/projectionAuthority';
-import { decodeProjections, decodeScorecard, decodeSummary, projectionsUrl, scorecardUrl, summaryUrl, type FoundationSummary, type LiveScorecard, type ProjectionDoc, type ProjSport } from '../lib/projections';
+import { attachDistributions, decodeDistributions, decodeProjections, decodeScorecard, decodeSummary, distributionsUrl, projectionsUrl, scorecardUrl, summaryUrl, type FoundationSummary, type LiveScorecard, type ProjectionDoc, type ProjSport } from '../lib/projections';
 
 const SPORTS = new Set(['NFL', 'CFB', 'NBA', 'MLB', 'NHL']);
+
+/**
+ * One sport's projection feed with its distribution artifact joined (where the publisher writes one). The artifact is optional and
+ * additive: a missing, unreadable or mismatched artifact leaves the feed exactly as published (rows then have no distribution).
+ */
+export async function loadProjectionDoc(code: ProjSport): Promise<ProjectionDoc | null> {
+  const du = distributionsUrl(code);
+  const [doc, dist] = await Promise.all([
+    getJson<unknown>(projectionsUrl(code)).then(decodeProjections, () => null),
+    du ? getJson<unknown>(du).then(decodeDistributions, () => null) : Promise.resolve(null),
+  ]);
+  return attachDistributions(doc, dist);
+}
 
 export function useProjections(sport: string | null | undefined): { doc: ProjectionDoc | null; loading: boolean } {
   const code = sport ? sport.toUpperCase() : null;
   const ok = code != null && SPORTS.has(code);
-  const r = useAsync<ProjectionDoc | null>(ok ? `projections:${code}` : null,
-    () => getJson<unknown>(projectionsUrl(code as ProjSport)).then(decodeProjections, () => null), { revalidate: true });
+  const r = useAsync<ProjectionDoc | null>(ok ? `projections:${code}` : null, () => loadProjectionDoc(code as ProjSport), { revalidate: true });
   return { doc: r.data ?? null, loading: r.loading };
 }
 
@@ -52,6 +64,6 @@ export function useAuthority(sport: string | null | undefined, now: number = Dat
 export async function loadAuthority(sport: string, now: number = Date.now()): Promise<ProjectionAuthority | null> {
   const code = sport.toUpperCase();
   if (!SPORTS.has(code)) return null;
-  const doc = await getJson<unknown>(projectionsUrl(code as ProjSport)).then(decodeProjections, () => null);
+  const doc = await loadProjectionDoc(code as ProjSport);
   return makeAuthority(code as ProjSport, doc, now);
 }

@@ -11,6 +11,9 @@
 import { nameKey } from '../history/boxLog';
 
 export const PROJECTIONS_SCHEMA = 'sift.projections.v1';
+export const DISTRIBUTION_SCHEMA = 'sift.projection_distribution.v1';
+/** Quantiles of the one distribution a projection is read from. p10 and p90 are present when the feed publishes the 80% range's ends. */
+export interface Quantiles { p05: number; p10?: number; p25: number; p50: number; p75: number; p90?: number; p95: number }
 export type ProjSport = 'NFL' | 'CFB' | 'NBA' | 'MLB' | 'NHL';
 export type Readiness = 'READY' | 'SHADOW VALIDATION' | 'NEEDS IMPROVEMENT' | 'INSUFFICIENT DATA';
 export type GateStatus = 'PASS' | 'REVIEW' | 'BLOCK';
@@ -45,8 +48,14 @@ export interface GateFinding { check: string; severity: GateStatus; what: string
 export interface PlayerProjection {
   playerId: string; name: string; team: string; opponent: string; gameId: string; family: string;
   mean: number; median: number | null; p10: number | null; p90: number | null;
-  /** p05/p25/p50/p75/p95 from the same distribution, when the feed publishes them (additive, CONTRACT 3.1b) */
-  quantiles: { p05: number; p25: number; p50: number; p75: number; p95: number } | null;
+  /** p05/p25/p50/p75/p95 (and p10/p90 when published) from the same distribution, when the feed publishes them (additive, CONTRACT 3.1b) */
+  quantiles: Quantiles | null;
+  /**
+   * 'pmf' when the document declares (`distribution.schema = sift.projection_distribution.v1`) that the quantiles, mean,
+   * range and thresholds are read from one integer pmf with the lower-quantile rule; only then are the quantiles
+   * cross-checked against the row's own median, range and probabilities. null = published without that declaration.
+   */
+  quantileBasis: 'pmf' | null;
   thresholds: { k: number; p: number }[];
   opportunity: { family: string; mean: number; p10: number | null; p90: number | null } | null;
   opponentAdjustment: { factor: number; sampleGames: number | null } | null;
@@ -83,8 +92,19 @@ function decodeQuantiles(x: unknown): PlayerProjection['quantiles'] {
   const v = ['p05', 'p25', 'p50', 'p75', 'p95'].map((k) => num(x[k]));
   if (v.some((n) => n == null)) return null;
   const [p05, p25, p50, p75, p95] = v as number[];
-  // a malformed (unordered) set is ignored rather than drawn
-  return p05 <= p25 && p25 <= p50 && p50 <= p75 && p75 <= p95 ? { p05, p25, p50, p75, p95 } : null;
+  // p10 / p90 are optional, but a present one must be a finite number: a half-valid set is no set
+  const p10 = x.p10 === undefined ? undefined : num(x.p10), p90 = x.p90 === undefined ? undefined : num(x.p90);
+  if (p10 === null || p90 === null) return null;
+  const ordered = [p05, p10, p25, p50, p75, p90, p95].filter((n): n is number => n !== undefined);
+  // a malformed (unordered or negative) set is ignored rather than drawn: every projected stat is a count or a total
+  if (ordered[0] < 0 || ordered.some((n, i) => i > 0 && n < ordered[i - 1])) return null;
+  return { p05, ...(p10 !== undefined ? { p10 } : {}), p25, p50, p75, ...(p90 !== undefined ? { p90 } : {}), p95 };
+}
+
+/** Whether the document declares the pmf basis for its quantiles (see PlayerProjection.quantileBasis). */
+function declaresPmfBasis(raw: Record<string, unknown>): boolean {
+  const d = raw.distribution;
+  return isObj(d) && d.schema === DISTRIBUTION_SCHEMA && typeof d.quantile_rule === 'string' && d.quantile_rule.startsWith('smallest integer x with P(X <= x) >= level');
 }
 
 /** Strict decode; anything unrecognised is null, which every consumer treats as "no projection published". */
@@ -99,6 +119,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
   if (isObj(raw.families)) for (const [k, v] of Object.entries(raw.families)) {
     if (isObj(v)) families[k] = { readiness: asReadiness(v.readiness), model: str(v.model), reason: str(v.reason) };
   }
+  const pmfBasis = declaresPmfBasis(raw);
   const players: PlayerProjection[] = [];
   for (const p of Array.isArray(raw.players) ? raw.players : []) {
     if (!isObj(p)) continue;
@@ -110,7 +131,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
     const oa = isObj(p.opponent_adjustment) ? p.opponent_adjustment : null;
     players.push({
       playerId: str(p.player_id), name: str(p.name), team: str(p.team), opponent: str(p.opponent), gameId: str(p.game_id),
-      family: str(p.family), mean, median: num(p.median), p10: num(p.p10), p90: num(p.p90), quantiles: decodeQuantiles(p.quantiles),
+      family: str(p.family), mean, median: num(p.median), p10: num(p.p10), p90: num(p.p90), quantiles: decodeQuantiles(p.quantiles), quantileBasis: pmfBasis ? 'pmf' : null,
       thresholds: isObj(p.thresholds) ? Object.entries(p.thresholds).map(([k, v]) => ({ k: Number(k), p: num(v) ?? NaN })).filter((t) => Number.isFinite(t.k)).sort((a, b) => a.k - b.k) : [],
       opportunity: opp && num(opp.mean) != null ? { family: str(opp.family), mean: num(opp.mean)!, p10: num(opp.p10), p90: num(opp.p90) } : null,
       opponentAdjustment: oa && num(oa.factor) != null ? { factor: num(oa.factor)!, sampleGames: num(oa.sample_games) } : null,
@@ -137,6 +158,70 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
   return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), families, players, teams };
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// The distribution artifact (`sift.projection_distributions.v1`, nfl-edge-finder `projections/nfl/distributions/latest.json`): the
+// quantiles and the full integer line ladder of each row's pmf, published beside the projection feed. It is joined to the feed's rows
+// here and ONLY when it describes exactly the feed that was read (same `generated_utc`) and a row's pmf reproduces that row's published
+// mean, median, range and thresholds. Anything else leaves the row exactly as the feed published it (no distribution is drawn, none is
+// reconstructed from p10 / p90 / mean).
+export const DISTRIBUTIONS_SCHEMA = 'sift.projection_distributions.v1';
+/** Sports whose publisher writes the artifact. */
+const DISTRIBUTION_SPORTS = new Set<ProjSport>(['NFL']);
+export const distributionsUrl = (sport: ProjSport): string | null =>
+  !DISTRIBUTION_SPORTS.has(sport) ? null
+    : env[`VITE_SIFT_DISTRIBUTIONS_${sport}_URL`] ?? `https://raw.githubusercontent.com/chmoses98/${REPO[sport]}/projection-data/projections/${sport.toLowerCase()}/distributions/latest.json`;
+
+export interface DistributionRow {
+  playerId: string; family: string; gameId: string;
+  mean: number; median: number; p10: number; p90: number;
+  quantiles: Required<Quantiles>;
+  /** P(X ≥ k) for every published integer line, from the same pmf */
+  survival: { k: number; p: number }[];
+}
+export interface DistributionDoc { projectionGeneratedAt: string; rows: Map<string, DistributionRow> }
+const distKey = (gameId: string, playerId: string, family: string) => `${gameId}|${playerId}|${family}`;
+const PMF_RULE = 'smallest integer x with P(X <= x) >= level';
+
+/** Strict decode. A malformed artifact is null; a malformed ROW is dropped (that row then has no distribution). */
+export function decodeDistributions(raw: unknown): DistributionDoc | null {
+  if (!isObj(raw) || raw.schema !== DISTRIBUTIONS_SCHEMA || !isObj(raw.projection) || !str(raw.projection.generated_utc)) return null;
+  const rule = isObj(raw.distribution) ? raw.distribution.quantile_rule : null;
+  if (typeof rule !== 'string' || !rule.startsWith(PMF_RULE)) return null;
+  const rows = new Map<string, DistributionRow>();
+  for (const r of Array.isArray(raw.rows) ? raw.rows : []) {
+    if (!isObj(r) || !r.player_id || !r.family || !r.game_id) continue;
+    const mean = num(r.mean), median = num(r.median), p10 = num(r.p10), p90 = num(r.p90);
+    const q = isObj(r.quantiles) ? r.quantiles : null;
+    if (mean == null || median == null || p10 == null || p90 == null || !q || !isObj(r.survival)) continue;
+    const qs = ['p05', 'p10', 'p25', 'p50', 'p75', 'p90', 'p95'].map((k) => num(q[k]));
+    if (qs.some((v) => v == null)) continue;
+    const [p05, q10, p25, p50, p75, q90, p95] = qs as number[];
+    if (p05 < 0 || [p05, q10, p25, p50, p75, q90, p95].some((v, i, a) => !Number.isInteger(v) || (i > 0 && v < a[i - 1]))) continue;
+    const survival = Object.entries(r.survival).map(([k, v]) => ({ k: Number(k), p: num(v) ?? NaN })).filter((t) => Number.isInteger(t.k)).sort((a, b) => a.k - b.k);
+    if (survival.length !== Object.keys(r.survival).length || survival.some((t) => !(t.p >= 0 && t.p <= 1))) continue;
+    if (survival.some((t, i) => i > 0 && t.p > survival[i - 1].p + 1e-9)) continue;
+    const row: DistributionRow = { playerId: str(r.player_id), family: str(r.family), gameId: str(r.game_id), mean, median, p10, p90, quantiles: { p05, p10: q10, p25, p50, p75, p90: q90, p95 }, survival };
+    // the row must cohere with itself: p50 = median, p10 / p90 = its range, and every line consistent with every quantile
+    if (quantileProblems({ quantiles: row.quantiles, quantileBasis: 'pmf', median, p10, p90, thresholds: survival }).length) continue;
+    rows.set(distKey(row.gameId, row.playerId, row.family), row);
+  }
+  return { projectionGeneratedAt: str(raw.projection.generated_utc), rows };
+}
+
+/** The feed with each reproducible row's quantiles and line ladder attached (new object; the inputs are not modified). */
+export function attachDistributions(doc: ProjectionDoc | null, d: DistributionDoc | null): ProjectionDoc | null {
+  if (!doc || !d || d.projectionGeneratedAt !== doc.generatedAt) return doc;
+  const players = doc.players.map((p) => {
+    const r = d.rows.get(distKey(p.gameId, p.playerId, p.family));
+    if (!r || Math.abs(r.mean - p.mean) > 1e-9) return p;
+    if ((p.median != null && r.median !== p.median) || (p.p10 != null && r.p10 !== p.p10) || (p.p90 != null && r.p90 !== p.p90)) return p;
+    // the feed's own thresholds must be reproduced by the ladder (same pmf), else the two disagree and neither is trusted
+    for (const t of p.thresholds) { const s = r.survival.find((x) => x.k === t.k); if (!s || Math.abs(s.p - t.p) > 1.5e-4) return p; }
+    return { ...p, quantiles: r.quantiles, quantileBasis: 'pmf' as const, thresholds: r.survival };
+  });
+  return { ...doc, players };
+}
+
 /**
  * SIFT's own defensive re-check of a published projection (the engine's gate runs first; this catches a broken or
  * tampered document). Returns the reasons the number must not be shown; empty = displayable.
@@ -153,6 +238,41 @@ export function coherenceProblems(p: PlayerProjection): string[] {
     const t = p.thresholds[i];
     if (!(t.p >= 0 && t.p <= 1)) { out.push('a threshold probability is outside 0–1'); break; }
     if (i > 0 && t.p > p.thresholds[i - 1].p + 1e-9) { out.push('alternate thresholds are not coherent (a higher line is more likely)'); break; }
+  }
+  if (!out.length) out.push(...quantileProblems(p));
+  return out;
+}
+
+/** Published probabilities are rounded to 4 decimals. */
+const PROB_TOL = 1.5e-4;
+const QUANTILE_LEVELS: [keyof Quantiles, number][] = [['p05', 0.05], ['p10', 0.1], ['p25', 0.25], ['p50', 0.5], ['p75', 0.75], ['p90', 0.9], ['p95', 0.95]];
+
+/**
+ * When a document declares that its quantiles come from the same integer pmf as the row's median, range and threshold
+ * probabilities, those numbers must agree with each other (the same rules the publisher validates before it publishes):
+ *   p50 = median, p10 / p90 = the row's range; and for an integer line k and quantile q_a (smallest x with F(x) ≥ a):
+ *   k ≤ q_a ⇒ P(X ≥ k) > 1 − a, and k > q_a ⇒ P(X ≥ k) ≤ 1 − a.
+ * A row that contradicts itself is withheld whole: which of its numbers is wrong cannot be known. Documents that do not
+ * declare the basis are not held to this (their quantiles keep only the ordering check applied at decode).
+ */
+export function quantileProblems(p: Pick<PlayerProjection, 'quantiles' | 'quantileBasis' | 'median' | 'p10' | 'p90' | 'thresholds'>): string[] {
+  const q = p.quantiles;
+  if (!q || p.quantileBasis !== 'pmf') return [];
+  const out: string[] = [];
+  if (QUANTILE_LEVELS.some(([k]) => q[k] !== undefined && !Number.isInteger(q[k]))) out.push('published quantiles are not on the integer support');
+  if (p.median != null && q.p50 !== p.median) out.push('the published median disagrees with the distribution’s median');
+  if (p.p10 != null && q.p10 !== undefined && q.p10 !== p.p10) out.push('the published range disagrees with the distribution’s 10th percentile');
+  if (p.p90 != null && q.p90 !== undefined && q.p90 !== p.p90) out.push('the published range disagrees with the distribution’s 90th percentile');
+  for (const [key, level] of QUANTILE_LEVELS) {
+    const qa = q[key];
+    if (qa === undefined) continue;
+    for (const t of p.thresholds) {
+      if (!Number.isInteger(t.k)) continue;
+      if (t.k <= qa ? !(t.p > 1 - level - PROB_TOL) : !(t.p <= 1 - level + PROB_TOL)) {
+        out.push('the published probabilities contradict the published distribution');
+        return out;
+      }
+    }
   }
   return out;
 }

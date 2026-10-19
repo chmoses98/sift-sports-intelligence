@@ -16,7 +16,7 @@ const STATUS_WORD = { OK: 'On track', WATCH: 'Watch', ALERT: 'Drifting', INSUFFI
 const NOT_CHANGED_WORD: Record<Approval['decision'], string> = {
   PROMOTED: '',
   APPROVED_PENDING_LIVE_INPUTS: 'Validated; waiting on live availability data',
-  RETAINED: 'Established model kept',
+  RETAINED: 'Current projection kept',
   HELD: 'Not yet validated for live use',
 };
 

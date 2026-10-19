@@ -9,7 +9,8 @@ import { Icon } from '../components/Icon';
 import { MarketBoard, latestPrices } from '../components/MarketBoard';
 import { ErrorState, Notice, QualityBadge, Skeleton, Stratum, TeamMark } from '../components/ui';
 import { kickoff, pct, signed } from '../lib/format';
-import { statusWord } from '../lib/nfl';
+import { statusWord, STAT_TO_SIM } from '../lib/nfl';
+import { engineFor } from '../lib/projectionApprovals';
 import { routes } from '../lib/routes';
 import { useDirectory } from '../state/directory';
 import { MarketIconProvider } from '../components/MarketIcon';
@@ -201,7 +202,8 @@ function Players({ r, slug, sportCode, homeAbbr, awayAbbr, homeId }: { r: EventR
   const lineups = r.context?.lineups ?? [];
   const injuries = r.context?.injuries ?? [];
   const keyDist = (pid: string) => {
-    const ds = r.distributions.filter((d) => d.entity_id === pid && d.metric_id);
+    // a stat whose approved engine is the Projection Foundation model is never shown here from the established simulation (one number per stat)
+    const ds = r.distributions.filter((d) => d.entity_id === pid && d.metric_id && !(sportCode === 'NFL' && ['receptions', 'completions'].some((st) => STAT_TO_SIM[st] === d.metric_id && engineFor('NFL', st) !== 'legacy')));
     const pref = ['met_nfl.sim_passing_yards', 'met_nfl.sim_rushing_yards', 'met_nfl.sim_receiving_yards', 'met_nfl.sim_receptions'];
     return ds.sort((a, b) => (pref.indexOf(a.metric_id) + 99) % 99 - ((pref.indexOf(b.metric_id) + 99) % 99))[0];
   };

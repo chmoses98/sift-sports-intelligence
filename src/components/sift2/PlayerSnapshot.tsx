@@ -5,6 +5,7 @@ import { broadcastPlayerPhoto as playerPhoto } from './playerArt';
 import { routes } from '../../lib/routes';
 import { formatQuoteAgo, quoteAgeMs } from '../../live/freshness';
 import { PlayerArt } from './PlayerArt';
+import { PlayerProjectionNote } from '../ProjectionNote';
 
 const cents = (v: number | null | undefined) => v == null ? '—' : `${Math.round(v * 100)}¢`;
 const family = (s: string) => s.startsWith('passing') ? 'Pass' : s.startsWith('rushing') ? 'Rush' : 'Rec';
@@ -36,7 +37,7 @@ export function PlayerSnapshot({ cards, slug, eventId, now, loading = false, sho
         <div className="s2-player__photo"><PlayerArt id={p.playerId} name={p.name} team={p.team.abbr} surface="portrait" /></div>
         <div className="s2-player__body"><Link className="s2-player__name" to={routes.player(slug,p.playerId)}>{p.name}<span aria-hidden="true">›</span></Link><span className="s2-player__role">{p.team.abbr} · {p.role ?? 'Player'}</span>
           <div className="s2-player__markets">{rows.slice(0,3).map((c) => <Link key={c.id} to={`/design/sift2${routes.props(slug, { game: eventId, player: c.playerId, stat: c.stat })}`}>
-            <span>{c.statLabel}</span><strong>{c.line ?? 'No line'}</strong><span className="s2-player__prices"><i>O {cents(c.market?.yes_ask)}</i><i>U {cents(c.market?.no_ask)}</i></span><small>{c.market?.captured_at ? `Captured ${formatQuoteAgo(quoteAgeMs(c.market.captured_at,now))}` : 'Quote time unavailable'}</small>
+            <span>{c.statLabel}</span><strong>{c.line ?? 'No line'}</strong><span className="s2-player__prices"><i>O {cents(c.market?.yes_ask)}</i><i>U {cents(c.market?.no_ask)}</i></span><small>{c.market?.captured_at ? `Captured ${formatQuoteAgo(quoteAgeMs(c.market.captured_at,now))}` : 'Quote time unavailable'}</small><PlayerProjectionNote variant="micro" sport={slug.toUpperCase()} stat={c.stat} playerId={c.playerId} name={p.name} team={p.team.abbr} now={now} />
           </Link>)}</div>
         </div>
       </article>;

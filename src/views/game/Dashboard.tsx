@@ -249,13 +249,19 @@ function MiniDist({ c, values }: { c: PropCard; values: number[] }) {
   }
   return (
     <div className="gpx__dist gpx__dist--range">
-      <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />
-      <span className="gpx__dk">Projected range · too few logged games to plot</span>
+      {c.range && <RangeBar typical={c.range.typical} full={c.range.full} projection={c.projection} line={c.line} format={fmt} label={`${c.name} ${c.statLabel.toLowerCase()} projected range`} />}
+      <span className="gpx__dk">{c.range ? 'Projected range' : `Realistic range ${fmt(c.band?.lo ?? c.projection)}–${fmt(c.band?.hi ?? c.projection)}`} · too few logged games to plot</span>
     </div>
   );
 }
 
-export function PropExplorerCard({ all, ctx, slug, eventId, propsHref }: { all: PropCard[]; ctx: GameCtx; slug: string; eventId: string; propsHref: string }) {
+/** "All 34 priced player props on this game (20 with a published projection) →": the total priced, and how many of them carry a projection. */
+export function pricedLabel(total: number, projected: number): string {
+  const all = Math.max(total, projected);
+  return projected < all ? `All ${all} priced player props on this game (${projected} with a published projection) →` : `All ${all} priced player props on this game →`;
+}
+
+export function PropExplorerCard({ all, pricedTotal, ctx, slug, eventId, propsHref }: { all: PropCard[]; pricedTotal: number; ctx: GameCtx; slug: string; eventId: string; propsHref: string }) {
   const [team, setTeam] = useState<string>('');
   const [cat, setCat] = useState<string>('');
   const teams = useMemo(() => [...new Set(all.map((c) => c.team.abbr))], [all]);
@@ -301,7 +307,7 @@ export function PropExplorerCard({ all, ctx, slug, eventId, propsHref }: { all: 
           })}
         </ul>
       ) : <p className="muted small">No published projection in this filter.</p>}
-      <p className="gdash__fine"><Link to={propsHref}>All {all.filter((c) => c.market).length} priced player props on this game →</Link></p>
+      <p className="gdash__fine"><Link to={propsHref}>{pricedLabel(pricedTotal, all.filter((c) => c.market).length)}</Link></p>
     </FxCard>
   );
 }

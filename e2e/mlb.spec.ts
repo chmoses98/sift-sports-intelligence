@@ -54,21 +54,37 @@ test('MLB home → slate → game: baseball lines and starting pitchers', async 
   await noHorizontalOverflow(page, 'mlb matchup');
 });
 
-test('MLB player props: market everywhere, a model only for published projections, statuses with reasons', async ({ page }) => {
+// The projection feed for the probable starter: strikeouts is a promoted MLB stat, so its expected value and rung
+// probabilities come from the selected model; the publisher's per-rung model number is not shown beside it.
+const MLB_PROJ = /raw\.githubusercontent\.com\/chmoses98\/edge-finder-api\/projection-data\/projections\/mlb\/latest\.json/;
+const mlbFeed = () => ({
+  schema: 'sift.projections.v1', sport: 'MLB', generated_utc: '2026-10-07T18:00:00Z', data_asof_utc: '2026-10-07T18:00:00Z',
+  model: { id: 'pf-mlb', version: 'pf-1.2.1', authority: 'research_only' }, families: { pitcher_strikeouts: { readiness: 'READY', model: 'F', reason: '' } }, games: [],
+  players: [{ player_id: '607192', name: 'Tyler Glasnow', team: 'LAD', opponent: 'ATL', game_id: 'g', family: 'pitcher_strikeouts', mean: 7.4, median: 7, p10: 4, p90: 11,
+    thresholds: { '5': 0.86, '7': 0.58, '9': 0.27 }, readiness: 'READY', gate: { status: 'PASS', findings: [] },
+    participation: { status: 'CONFIRMED_ACTIVE', certainty: 'CONFIRMED', source: 'mlb_lineup_card', captured_utc: '2026-10-07T18:00:00Z', reasons: [] }, data_asof_utc: '2026-10-07T18:00:00Z' }],
+});
+
+test('MLB player props: market everywhere, one projection per stat, statuses with reasons', async ({ page }) => {
+  await page.context().route(MLB_PROJ, (r) => r.fulfill({ json: mlbFeed(), headers: { 'access-control-allow-origin': '*' } }));
   await page.goto(`./#/mlb/game/${LADATL}?tab=props`);
   const sec = page.locator('#g-mlb-props');
   await expect(sec.getByRole('region', { name: 'Pitchers' })).toBeVisible();
   await expect(sec.getByRole('region', { name: 'Hitters' })).toBeVisible();
   await expect(sec.getByText('Research — not validated for betting').first()).toBeVisible();
   const ks = sec.getByRole('row').filter({ hasText: 'Tyler Glasnow records 7+ strikeouts' });
-  await expect(ks.getByLabel(/^Model \(research\) \d+%$/)).toBeVisible();
+  await expect(ks.getByLabel('Projection 58%')).toBeVisible();
+  await expect(ks.getByLabel(/^Model/)).toHaveCount(0);                // never beside the previous model's number
+  await expect(sec.getByText('Proj. 7.4 K (p10–p90 4–11)').first()).toBeVisible();
   await expect(ks.getByLabel(/^Market \d+%/)).toBeVisible();
   const betts = sec.getByRole('row').filter({ has: page.getByText('Mookie Betts records 1+ hits', { exact: true }) });
   await expect(betts.getByText('Not projected — lineup unconfirmed')).toBeVisible();
   await expect(betts.getByLabel(/^Model/)).toHaveCount(0);
   await expect(sec.getByRole('region', { name: 'Other player markets' }).getByText('No projection published').first()).toBeVisible();
-  await sec.getByText('Limitations, validation & provenance').first().click();
-  await expect(sec.getByText(/Validation: RESEARCH/).first()).toBeVisible();
+  // the promoted pitcher stat carries none of the previous publication's drivers, validation or provenance (unit-tested); the only
+  // drivers left are Tyler Mahle's, whom the feed does not serve: the approved fallback keeps the publisher's one number for him, with its note
+  await expect(sec.getByText('Opp lineup K%')).toHaveCount(1);
+  await expect(sec.getByText(/Shown because projections for this game have not been published yet/)).toHaveCount(1);
   expect(await sec.innerText()).not.toMatch(BANNED);
   await noHorizontalOverflow(page, 'mlb props');
   const axe = await new AxeBuilder({ page }).include('#g-mlb-props').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();

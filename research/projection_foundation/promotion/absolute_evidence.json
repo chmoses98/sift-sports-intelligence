@@ -1,0 +1,805 @@
+{
+ "families": {
+  "CFB:plays": {
+   "family": "plays",
+   "meanOutcome": null,
+   "meanOutcomeSource": "not recorded by the study; bias is judged in units of the RMSE",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 5.6236,
+     "baselineRmse": 10.07,
+     "bias": 0.3596,
+     "clusters": 1465,
+     "corr": null,
+     "cover50": 0.5085,
+     "cover80": 0.801,
+     "cover90": 0.8959,
+     "crps": 5.3682,
+     "independent": false,
+     "mae": 7.5845,
+     "n": 2930,
+     "name": "validation (chose the model)",
+     "pitVar": 0.9837,
+     "rmse": 9.5795,
+     "vsBaseline": {
+      "diff": -0.2554,
+      "hi": -0.1983,
+      "lo": -0.3201
+     }
+    },
+    {
+     "baselineCrps": 5.2819,
+     "baselineRmse": 9.4657,
+     "bias": 0.4929,
+     "clusters": 1502,
+     "corr": null,
+     "cover50": 0.5353,
+     "cover80": 0.8189,
+     "cover90": 0.9118,
+     "crps": 5.0789,
+     "independent": true,
+     "mae": 7.1325,
+     "n": 3004,
+     "name": "holdout 2023-24",
+     "pitVar": 0.9302,
+     "rmse": 9.0923,
+     "vsBaseline": {
+      "diff": -0.203,
+      "hi": -0.1544,
+      "lo": -0.2559
+     }
+    },
+    {
+     "baselineCrps": 5.2413,
+     "baselineRmse": 9.2539,
+     "bias": -0.1547,
+     "clusters": 762,
+     "corr": null,
+     "cover50": 0.5177,
+     "cover80": 0.8215,
+     "cover90": 0.9173,
+     "crps": 5.0509,
+     "independent": true,
+     "mae": 7.1687,
+     "n": 1524,
+     "name": "holdout 2025",
+     "pitVar": 0.9626,
+     "rmse": 8.9118,
+     "vsBaseline": {
+      "diff": -0.1904,
+      "hi": -0.1166,
+      "lo": -0.2597
+     }
+    },
+    {
+     "baselineCrps": 5.3481,
+     "baselineRmse": 9.5464,
+     "bias": 0.3636,
+     "clusters": 339,
+     "corr": null,
+     "cover50": 0.5044,
+     "cover80": 0.823,
+     "cover90": 0.9218,
+     "crps": 5.084,
+     "independent": true,
+     "mae": 7.2256,
+     "n": 678,
+     "name": "2026 to date (ESPN source)",
+     "pitVar": 0.9568,
+     "rmse": 9.0686,
+     "vsBaseline": {
+      "diff": -0.2641,
+      "hi": -0.1546,
+      "lo": -0.3738
+     }
+    }
+   ],
+   "sport": "CFB",
+   "verdict": {
+    "caveats": [],
+    "failures": [],
+    "status": "MET"
+   }
+  },
+  "CFB:points_per_play": {
+   "family": "points_per_play",
+   "meanOutcome": null,
+   "meanOutcomeSource": "not recorded by the study; bias is judged in units of the RMSE",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 0.1049,
+     "baselineRmse": 0.1884,
+     "bias": 0.0056,
+     "clusters": 1465,
+     "corr": null,
+     "cover50": 0.5,
+     "cover80": 0.8102,
+     "cover90": 0.9048,
+     "crps": 0.0957,
+     "independent": false,
+     "mae": 0.1364,
+     "n": 2930,
+     "name": "validation (chose the model)",
+     "pitVar": 0.9878,
+     "rmse": 0.172,
+     "vsBaseline": {
+      "diff": -0.0093,
+      "hi": -0.0076,
+      "lo": -0.0109
+     }
+    },
+    {
+     "baselineCrps": 0.1091,
+     "baselineRmse": 0.1958,
+     "bias": -0.0053,
+     "clusters": 1502,
+     "corr": null,
+     "cover50": 0.5097,
+     "cover80": 0.7963,
+     "cover90": 0.8878,
+     "crps": 0.0986,
+     "independent": true,
+     "mae": 0.1388,
+     "n": 3004,
+     "name": "holdout 2023-24",
+     "pitVar": 1.0112,
+     "rmse": 0.1779,
+     "vsBaseline": {
+      "diff": -0.0105,
+      "hi": -0.0088,
+      "lo": -0.012
+     }
+    },
+    {
+     "baselineCrps": 0.1073,
+     "baselineRmse": 0.1956,
+     "bias": 0.0072,
+     "clusters": 762,
+     "corr": null,
+     "cover50": 0.5,
+     "cover80": 0.8031,
+     "cover90": 0.899,
+     "crps": 0.097,
+     "independent": true,
+     "mae": 0.1369,
+     "n": 1524,
+     "name": "holdout 2025",
+     "pitVar": 0.9895,
+     "rmse": 0.1757,
+     "vsBaseline": {
+      "diff": -0.0102,
+      "hi": -0.008,
+      "lo": -0.0126
+     }
+    },
+    {
+     "baselineCrps": 0.1098,
+     "baselineRmse": 0.1975,
+     "bias": 0.005,
+     "clusters": 339,
+     "corr": null,
+     "cover50": 0.472,
+     "cover80": 0.8068,
+     "cover90": 0.8968,
+     "crps": 0.0967,
+     "independent": true,
+     "mae": 0.1375,
+     "n": 678,
+     "name": "2026 to date (ESPN source)",
+     "pitVar": 1.0128,
+     "rmse": 0.1728,
+     "vsBaseline": {
+      "diff": -0.0131,
+      "hi": -0.009,
+      "lo": -0.0178
+     }
+    }
+   ],
+   "sport": "CFB",
+   "verdict": {
+    "caveats": [],
+    "failures": [],
+    "status": "MET"
+   }
+  },
+  "CFB:success_rate": {
+   "family": "success_rate",
+   "meanOutcome": null,
+   "meanOutcomeSource": "not recorded by the study; bias is judged in units of the RMSE",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 0.0478,
+     "baselineRmse": 0.0853,
+     "bias": 0.0019,
+     "clusters": 1466,
+     "corr": null,
+     "cover50": 0.4891,
+     "cover80": 0.7947,
+     "cover90": 0.8936,
+     "crps": 0.0436,
+     "independent": false,
+     "mae": 0.0613,
+     "n": 2932,
+     "name": "validation (chose the model)",
+     "pitVar": 1.0212,
+     "rmse": 0.0777,
+     "vsBaseline": {
+      "diff": -0.0042,
+      "hi": -0.0035,
+      "lo": -0.0049
+     }
+    },
+    {
+     "baselineCrps": 0.0468,
+     "baselineRmse": 0.0833,
+     "bias": -0.0012,
+     "clusters": 1498,
+     "corr": null,
+     "cover50": 0.4863,
+     "cover80": 0.7967,
+     "cover90": 0.8932,
+     "crps": 0.0427,
+     "independent": true,
+     "mae": 0.0603,
+     "n": 2996,
+     "name": "holdout 2023-24",
+     "pitVar": 1.0181,
+     "rmse": 0.0757,
+     "vsBaseline": {
+      "diff": -0.0041,
+      "hi": -0.0035,
+      "lo": -0.0047
+     }
+    },
+    {
+     "baselineCrps": 0.0466,
+     "baselineRmse": 0.0834,
+     "bias": 0.0019,
+     "clusters": 762,
+     "corr": null,
+     "cover50": 0.5007,
+     "cover80": 0.8136,
+     "cover90": 0.9055,
+     "crps": 0.0415,
+     "independent": true,
+     "mae": 0.0585,
+     "n": 1524,
+     "name": "holdout 2025",
+     "pitVar": 0.9811,
+     "rmse": 0.0736,
+     "vsBaseline": {
+      "diff": -0.0051,
+      "hi": -0.0041,
+      "lo": -0.006
+     }
+    },
+    {
+     "baselineCrps": 0.0549,
+     "baselineRmse": 0.0981,
+     "bias": 0.0005,
+     "clusters": 339,
+     "corr": null,
+     "cover50": 0.4484,
+     "cover80": 0.7316,
+     "cover90": 0.851,
+     "crps": 0.0491,
+     "independent": true,
+     "mae": 0.0689,
+     "n": 678,
+     "name": "2026 to date (ESPN source)",
+     "pitVar": 1.1536,
+     "rmse": 0.0867,
+     "vsBaseline": {
+      "diff": -0.0058,
+      "hi": -0.0039,
+      "lo": -0.0078
+     }
+    }
+   ],
+   "sport": "CFB",
+   "verdict": {
+    "caveats": [],
+    "failures": [
+     "2026 to date (ESPN source): the 80% range covers 0.732, more than 3 standard errors under nominal",
+     "2026 to date (ESPN source): the 90% range covers 0.851, more than 3 standard errors under nominal"
+    ],
+    "status": "NOT_MET"
+   }
+  },
+  "CFB:team_passing_yards": {
+   "family": "team_passing_yards",
+   "meanOutcome": null,
+   "meanOutcomeSource": "not recorded by the study; bias is judged in units of the RMSE",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 48.0382,
+     "baselineRmse": 85.7143,
+     "bias": 2.6306,
+     "clusters": 1465,
+     "corr": null,
+     "cover50": 0.5263,
+     "cover80": 0.8126,
+     "cover90": 0.8939,
+     "crps": 47.0429,
+     "independent": false,
+     "mae": 66.7029,
+     "n": 2930,
+     "name": "validation (chose the model)",
+     "pitVar": 0.9742,
+     "rmse": 83.6905,
+     "vsBaseline": {
+      "diff": -0.9953,
+      "hi": -0.5855,
+      "lo": -1.4001
+     }
+    },
+    {
+     "baselineCrps": 45.241,
+     "baselineRmse": 80.3063,
+     "bias": 2.0859,
+     "clusters": 1502,
+     "corr": null,
+     "cover50": 0.5419,
+     "cover80": 0.8346,
+     "cover90": 0.9164,
+     "crps": 43.9798,
+     "independent": true,
+     "mae": 62.2496,
+     "n": 3004,
+     "name": "holdout 2023-24",
+     "pitVar": 0.9137,
+     "rmse": 77.9141,
+     "vsBaseline": {
+      "diff": -1.2611,
+      "hi": -0.8934,
+      "lo": -1.6213
+     }
+    },
+    {
+     "baselineCrps": 45.0747,
+     "baselineRmse": 80.4134,
+     "bias": 1.1202,
+     "clusters": 762,
+     "corr": null,
+     "cover50": 0.5459,
+     "cover80": 0.8314,
+     "cover90": 0.916,
+     "crps": 43.4801,
+     "independent": true,
+     "mae": 61.4864,
+     "n": 1524,
+     "name": "holdout 2025",
+     "pitVar": 0.9049,
+     "rmse": 77.0906,
+     "vsBaseline": {
+      "diff": -1.5946,
+      "hi": -1.0525,
+      "lo": -2.1373
+     }
+    },
+    {
+     "baselineCrps": 45.4359,
+     "baselineRmse": 80.3542,
+     "bias": 0.9158,
+     "clusters": 339,
+     "corr": null,
+     "cover50": 0.5236,
+     "cover80": 0.823,
+     "cover90": 0.9071,
+     "crps": 44.1091,
+     "independent": true,
+     "mae": 62.4589,
+     "n": 678,
+     "name": "2026 to date (ESPN source)",
+     "pitVar": 0.9337,
+     "rmse": 77.5069,
+     "vsBaseline": {
+      "diff": -1.3268,
+      "hi": -0.5511,
+      "lo": -2.1218
+     }
+    }
+   ],
+   "sport": "CFB",
+   "verdict": {
+    "caveats": [
+     "holdout 2023-24: 80% range covers 0.835 (ranges slightly wide, i.e. conservative)",
+     "holdout 2025: 80% range covers 0.831 (ranges slightly wide, i.e. conservative)"
+    ],
+    "failures": [],
+    "status": "MET_WITH_CAVEATS"
+   }
+  },
+  "CFB:team_points": {
+   "family": "team_points",
+   "meanOutcome": null,
+   "meanOutcomeSource": "not recorded by the study; bias is judged in units of the RMSE",
+   "model": "G_game_ridge",
+   "periods": [
+    {
+     "baselineCrps": 7.1838,
+     "baselineRmse": 12.8044,
+     "bias": 0.2848,
+     "clusters": 1466,
+     "corr": null,
+     "cover50": 0.5068,
+     "cover80": 0.8179,
+     "cover90": 0.9059,
+     "crps": 6.4396,
+     "independent": false,
+     "mae": 9.1724,
+     "n": 2932,
+     "name": "validation (chose the model)",
+     "pitVar": 0.9808,
+     "rmse": 11.4329,
+     "vsBaseline": {
+      "diff": -0.7441,
+      "hi": -0.6144,
+      "lo": -0.8712
+     }
+    },
+    {
+     "baselineCrps": 7.2641,
+     "baselineRmse": 12.9231,
+     "bias": -0.0871,
+     "clusters": 1502,
+     "corr": null,
+     "cover50": 0.5196,
+     "cover80": 0.8089,
+     "cover90": 0.9038,
+     "crps": 6.351,
+     "independent": true,
+     "mae": 8.9863,
+     "n": 3004,
+     "name": "holdout 2023-24",
+     "pitVar": 0.9698,
+     "rmse": 11.275,
+     "vsBaseline": {
+      "diff": -0.9132,
+      "hi": -0.7834,
+      "lo": -1.0332
+     }
+    },
+    {
+     "baselineCrps": 7.0898,
+     "baselineRmse": 12.7342,
+     "bias": 0.261,
+     "clusters": 762,
+     "corr": null,
+     "cover50": 0.5236,
+     "cover80": 0.8189,
+     "cover90": 0.9154,
+     "crps": 6.171,
+     "independent": true,
+     "mae": 8.7884,
+     "n": 1524,
+     "name": "holdout 2025",
+     "pitVar": 0.9429,
+     "rmse": 10.9801,
+     "vsBaseline": {
+      "diff": -0.9188,
+      "hi": -0.7445,
+      "lo": -1.0989
+     }
+    },
+    {
+     "baselineCrps": 7.4009,
+     "baselineRmse": 13.3319,
+     "bias": -0.0279,
+     "clusters": 339,
+     "corr": null,
+     "cover50": 0.5029,
+     "cover80": 0.8274,
+     "cover90": 0.913,
+     "crps": 6.2606,
+     "independent": true,
+     "mae": 8.9321,
+     "n": 678,
+     "name": "2026 to date (ESPN source)",
+     "pitVar": 0.9692,
+     "rmse": 11.1393,
+     "vsBaseline": {
+      "diff": -1.1403,
+      "hi": -0.8065,
+      "lo": -1.4618
+     }
+    }
+   ],
+   "sport": "CFB",
+   "verdict": {
+    "caveats": [],
+    "failures": [],
+    "status": "MET"
+   }
+  },
+  "CFB:team_rushing_yards": {
+   "family": "team_rushing_yards",
+   "meanOutcome": null,
+   "meanOutcomeSource": "not recorded by the study; bias is judged in units of the RMSE",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 43.9361,
+     "baselineRmse": 78.8868,
+     "bias": 2.0401,
+     "clusters": 1465,
+     "corr": null,
+     "cover50": 0.5038,
+     "cover80": 0.814,
+     "cover90": 0.9092,
+     "crps": 40.6821,
+     "independent": false,
+     "mae": 58.0661,
+     "n": 2930,
+     "name": "validation (chose the model)",
+     "pitVar": 0.9802,
+     "rmse": 72.9123,
+     "vsBaseline": {
+      "diff": -3.254,
+      "hi": -2.6314,
+      "lo": -3.8441
+     }
+    },
+    {
+     "baselineCrps": 41.259,
+     "baselineRmse": 74.0007,
+     "bias": -0.7524,
+     "clusters": 1502,
+     "corr": null,
+     "cover50": 0.5459,
+     "cover80": 0.8349,
+     "cover90": 0.9168,
+     "crps": 38.2041,
+     "independent": true,
+     "mae": 53.7504,
+     "n": 3004,
+     "name": "holdout 2023-24",
+     "pitVar": 0.9057,
+     "rmse": 68.601,
+     "vsBaseline": {
+      "diff": -3.0549,
+      "hi": -2.5361,
+      "lo": -3.5799
+     }
+    },
+    {
+     "baselineCrps": 41.4517,
+     "baselineRmse": 74.208,
+     "bias": -0.542,
+     "clusters": 762,
+     "corr": null,
+     "cover50": 0.5374,
+     "cover80": 0.8425,
+     "cover90": 0.9364,
+     "crps": 37.6623,
+     "independent": true,
+     "mae": 53.4749,
+     "n": 1524,
+     "name": "holdout 2025",
+     "pitVar": 0.9108,
+     "rmse": 67.3304,
+     "vsBaseline": {
+      "diff": -3.7894,
+      "hi": -3.0546,
+      "lo": -4.5406
+     }
+    },
+    {
+     "baselineCrps": 42.5127,
+     "baselineRmse": 78.0061,
+     "bias": 0.8268,
+     "clusters": 339,
+     "corr": null,
+     "cover50": 0.5265,
+     "cover80": 0.8333,
+     "cover90": 0.9174,
+     "crps": 38.8305,
+     "independent": true,
+     "mae": 55.2538,
+     "n": 678,
+     "name": "2026 to date (ESPN source)",
+     "pitVar": 0.9356,
+     "rmse": 70.2947,
+     "vsBaseline": {
+      "diff": -3.6822,
+      "hi": -2.5788,
+      "lo": -4.8617
+     }
+    }
+   ],
+   "sport": "CFB",
+   "verdict": {
+    "caveats": [
+     "holdout 2023-24: 80% range covers 0.835 (ranges slightly wide, i.e. conservative)",
+     "holdout 2025: 80% range covers 0.843 (ranges slightly wide, i.e. conservative)",
+     "2026 to date (ESPN source): 80% range covers 0.833 (ranges slightly wide, i.e. conservative)"
+    ],
+    "failures": [],
+    "status": "MET_WITH_CAVEATS"
+   }
+  },
+  "NFL:team_pass_attempts": {
+   "family": "team_pass_attempts",
+   "meanOutcome": 32.39889705882353,
+   "meanOutcomeSource": "holdout 2024-25 (recorded by the study)",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 4.31592,
+     "baselineRmse": 7.7071,
+     "bias": 0.4493,
+     "clusters": 543,
+     "corr": null,
+     "cover50": 0.5147,
+     "cover80": 0.8287,
+     "cover90": 0.9061,
+     "crps": 4.257,
+     "independent": false,
+     "mae": 6.0788,
+     "n": 1086,
+     "name": "validation (chose the model)",
+     "pitVar": 0.9529,
+     "rmse": 7.6106,
+     "vsBaseline": {
+      "diff": -0.05892,
+      "hi": -0.0101,
+      "lo": -0.10494
+     }
+    },
+    {
+     "baselineCrps": 4.361046648322082,
+     "baselineRmse": 7.803700935190785,
+     "bias": 1.0905098885762903,
+     "clusters": 544,
+     "corr": 0.28074714679971885,
+     "cover50": 0.49724264705882354,
+     "cover80": 0.8051470588235294,
+     "cover90": 0.9044117647058824,
+     "crps": 4.301023778269477,
+     "independent": true,
+     "mae": 6.129800813631533,
+     "n": 1088,
+     "name": "holdout 2024-25",
+     "pitVar": 0.9663299972772896,
+     "rmse": 7.668023322607826,
+     "vsBaseline": {
+      "diff": -0.06002287005260483,
+      "hi": -0.017695508831508368,
+      "lo": -0.1037799000953357
+     }
+    },
+    {
+     "baselineCrps": 4.473291243421259,
+     "baselineRmse": 8.1002295677567,
+     "bias": -0.06940431822581383,
+     "clusters": 64,
+     "corr": 0.345770194087525,
+     "cover50": 0.5390625,
+     "cover80": 0.7890625,
+     "cover90": 0.8828125,
+     "crps": 4.403826621517578,
+     "independent": true,
+     "mae": 6.154404045680341,
+     "n": 128,
+     "name": "2026 weeks 1-4",
+     "pitVar": 0.9600365999061026,
+     "rmse": 7.9939217428468705,
+     "vsBaseline": {
+      "diff": -0.06946462190368112,
+      "hi": 0.028546029903424783,
+      "lo": -0.16934918031927218
+     }
+    }
+   ],
+   "sport": "NFL",
+   "verdict": {
+    "caveats": [
+     "holdout 2024-25: bias +1.09 is 0.14 \u00d7 RMSE",
+     "holdout 2024-25: low information: squared error is only 3.4% below the baseline's",
+     "2026 weeks 1-4 (64 games, too few to decide): did not confirm the improvement over the baseline"
+    ],
+    "failures": [],
+    "status": "MET_WITH_CAVEATS"
+   }
+  },
+  "NFL:team_rush_attempts": {
+   "family": "team_rush_attempts",
+   "meanOutcome": 26.919117647058822,
+   "meanOutcomeSource": "holdout 2024-25 (recorded by the study)",
+   "model": "F_stack",
+   "periods": [
+    {
+     "baselineCrps": 4.2102,
+     "baselineRmse": 7.4348,
+     "bias": -0.1347,
+     "clusters": 543,
+     "corr": null,
+     "cover50": 0.4816,
+     "cover80": 0.7845,
+     "cover90": 0.8969,
+     "crps": 4.13696,
+     "independent": false,
+     "mae": 5.8674,
+     "n": 1086,
+     "name": "validation (chose the model)",
+     "pitVar": 1.0239,
+     "rmse": 7.3112,
+     "vsBaseline": {
+      "diff": -0.07324,
+      "hi": -0.02322,
+      "lo": -0.11996
+     }
+    },
+    {
+     "baselineCrps": 4.109435421486304,
+     "baselineRmse": 7.2684573404830894,
+     "bias": -0.038726376853415324,
+     "clusters": 544,
+     "corr": 0.3017041561864607,
+     "cover50": 0.5055147058823529,
+     "cover80": 0.8042279411764706,
+     "cover90": 0.8961397058823529,
+     "crps": 4.007667523930298,
+     "independent": true,
+     "mae": 5.735836194098006,
+     "n": 1088,
+     "name": "holdout 2024-25",
+     "pitVar": 0.9953541900085167,
+     "rmse": 7.101056506443426,
+     "vsBaseline": {
+      "diff": -0.10176789755600665,
+      "hi": -0.06004709507129734,
+      "lo": -0.14614031494750573
+     }
+    },
+    {
+     "baselineCrps": 3.7035130224885346,
+     "baselineRmse": 6.576486384539302,
+     "bias": 0.03566078275619877,
+     "clusters": 64,
+     "corr": 0.18252801983554912,
+     "cover50": 0.53125,
+     "cover80": 0.84375,
+     "cover90": 0.9453125,
+     "crps": 3.7783433610929347,
+     "independent": true,
+     "mae": 5.418547448972626,
+     "n": 128,
+     "name": "2026 weeks 1-4",
+     "pitVar": 0.92967541150475,
+     "rmse": 6.706140062707894,
+     "vsBaseline": {
+      "diff": 0.07483033860439964,
+      "hi": 0.19377292203140464,
+      "lo": -0.05217096810945098
+     }
+    }
+   ],
+   "sport": "NFL",
+   "verdict": {
+    "caveats": [
+     "holdout 2024-25: low information: squared error is only 4.6% below the baseline's",
+     "2026 weeks 1-4 (64 games, too few to decide): did not confirm the improvement over the baseline"
+    ],
+    "failures": [],
+    "status": "MET_WITH_CAVEATS"
+   }
+  }
+ },
+ "rules": {
+  "biasCaveatOverRmse": 0.1,
+  "biasOverRmse": 0.15,
+  "lowInfoMseSkill": 0.05,
+  "materialCrpsGain": 0.01,
+  "minClusters": 300,
+  "overCoverage": 0.05,
+  "pitBand": 0.1,
+  "underCoverageSE": 3,
+  "wideRange80": 0.83
+ },
+ "schema": "sift.absolute_evidence.v1"
+}

@@ -13,9 +13,15 @@ import {
   propFamily, PROP_FAMILY_LABEL, propUnit, readPlayerProp, statusWords, type ExpectedStat, type PlayerProp, type PropValidation,
 } from '../../lib/mlb';
 import { routes } from '../../lib/routes';
+import { ProjectionNote } from '../../components/ProjectionNote';
+import { useAuthority } from '../../data/projections';
+import { thresholdProbability, type ProjectionAuthority, type Resolution } from '../../lib/projectionAuthority';
+import type { LegacyCandidate } from '../../lib/projectionFallback';
 import '../../styles/mlb.css';
 
-export interface PropRow { m: Market; pp: PlayerProp | null; threshold: number | null }
+/** The selected projection's answer for a rung (set by applyAuthority for a stat whose approved engine is the foundation model). */
+export type RungSelection = { kind: 'prob'; p: number | null } | { kind: 'withheld'; reason: string };
+export interface PropRow { m: Market; pp: PlayerProp | null; threshold: number | null; sel?: RungSelection }
 
 export interface FamilyBlock {
   family: string;
@@ -30,6 +36,8 @@ export interface FamilyBlock {
   provenance: PlayerProp['provenance'];
   generatedAt: string | null;
   inputsAsOf: string | null;
+  /** how the one number for this stat was selected (see lib/projectionAuthority.ts); absent when the stat has no promoted engine */
+  selected?: Resolution;
 }
 
 export interface PlayerBlock {
@@ -110,6 +118,44 @@ export function propBoard(markets: Market[], teamOrder: string[], abbrOf?: (pid:
   return { projected, pitchers: all.filter((p) => p.role === 'PITCHER'), hitters: all.filter((p) => p.role === 'HITTER'), other: projected ? props.filter((m) => !readPlayerProp(m)) : [] };
 }
 
+/** The SIFT stat key the authority knows each MLB pitcher family by. */
+const AUTHORITY_STAT: Record<string, string> = { pitcher_strikeouts: 'pitcher_strikeouts', pitcher_outs: 'outs' };
+
+/**
+ * One engine per stat: for a pitcher stat whose approved engine is the Projection Foundation model, the expected value,
+ * its range and every rung probability come from that model and the previous publication's numbers are dropped; when the
+ * promoted projection is withheld nothing is shown for it (no fallback to the previous model). Stats whose approved engine
+ * is the existing model are untouched. Pure: the authority decides, this only applies its answer.
+ */
+export function applyAuthority(b: PropBoard, authority: ProjectionAuthority | null): PropBoard {
+  if (!authority) return b;
+  const pitchers = b.pitchers.map((p) => ({
+    ...p,
+    families: p.families.map((f): FamilyBlock => {
+      const stat = AUTHORITY_STAT[f.family];
+      if (!stat) return f;
+      // the publisher's own projection is the candidate an approved fallback is checked on
+      const e = f.expected;
+      const candidate: LegacyCandidate | null = e && e.mean != null ? {
+        mean: e.mean, interval: e.p10 != null && e.p90 != null ? { lo: e.p10, hi: e.p90 } : null, generatedAt: f.generatedAt, designation: null,
+        starter: f.rows.some((r) => r.pp && isProjected(r.pp.status)) && !f.rows.some((r) => r.pp?.status === 'PLAYER_NOT_STARTING'),
+      } : null;
+      const res = authority.resolve({ stat, name: p.name, team: p.team }, candidate);
+      if (res.kind === 'legacy') return f;
+      if (res.kind === 'fallback') return { ...f, selected: res };    // the publisher's number stands alone, with the reason it is shown
+      const v = res.kind === 'authoritative' ? res.value : null;
+      return {
+        ...f, selected: res,
+        expected: v ? { stat, mean: v.mean, median: v.median, p10: v.p10, p90: v.p90, unit: f.expected?.unit ?? null } : null,
+        drivers: [], limitations: [], validation: null, provenance: null, inputsAsOf: null, generatedAt: v?.updatedAt ?? null,
+        // the previous publication's per-rung status and probability are replaced, never shown beside the selected ones
+        rows: f.rows.map((r): PropRow => ({ ...r, sel: res.kind === 'authoritative' ? { kind: 'prob', p: r.threshold != null ? thresholdProbability(res.value, r.threshold) : null } : { kind: 'withheld', reason: res.kind === 'withheld' ? res.reason : '' } })),
+      };
+    }),
+  }));
+  return { ...b, pitchers };
+}
+
 /** The market's implied probability: the bid/ask midpoint, only when both sides are quoted. */
 export function marketImplied(m: Pick<Market, 'yes_bid' | 'yes_ask'>): number | null {
   return m.yes_bid != null && m.yes_ask != null ? (m.yes_bid + m.yes_ask) / 2 : null;
@@ -125,7 +171,12 @@ function MarketCell({ m }: { m: Market }) {
   );
 }
 
-function ModelCell({ pp }: { pp: PlayerProp | null }) {
+function ModelCell({ pp, sel }: { pp: PlayerProp | null; sel?: RungSelection }) {
+  if (sel) {
+    if (sel.kind === 'withheld') return <span className="pp__none">Projection withheld</span>;
+    if (sel.p == null) return <span className="pp__none">Projection: no probability for this line</span>;
+    return <span className="pp__model" aria-label={`Projection ${pct(sel.p, 0)}`}><b className="num">{pct(sel.p, 0)}</b><span className="pp__ml">Projection</span></span>;
+  }
   if (!pp) return <span className="pp__none">No projection published</span>;
   const label = modelLabel(pp.status);
   if (label && pp.modelProbabilityYes != null) {
@@ -142,7 +193,7 @@ function ModelCell({ pp }: { pp: PlayerProp | null }) {
 
 function Family({ f, slug, eventId }: { f: FamilyBlock; slug: string; eventId: string }) {
   const exp = expectedLine(f.expected, propUnit(f.family));
-  const modelHead = f.verified && !f.research ? 'Model' : f.research ? 'Model (research)' : 'Model';
+  const modelHead = f.selected ? 'Projection' : f.verified && !f.research ? 'Model' : f.research ? 'Model (research)' : 'Model';
   const hasDetails = f.limitations.length > 0 || f.validation || f.provenance;
   return (
     <div className="pp__fam">
@@ -151,6 +202,7 @@ function Family({ f, slug, eventId }: { f: FamilyBlock; slug: string; eventId: s
         {exp && <span className="pp__exp num">{exp}</span>}
         {f.research && <span className="pp__research">Research — not validated for betting</span>}
       </div>
+      {f.selected && <ProjectionNote resolution={f.selected} variant="compact" />}
       {f.drivers.length > 0 && (
         <ul className="pp__drivers" aria-label={`${f.label}: key drivers`}>
           {f.drivers.map((d) => <li key={d.label}><span>{d.label}</span> <b className="num">{d.value}</b></li>)}
@@ -161,12 +213,12 @@ function Family({ f, slug, eventId }: { f: FamilyBlock; slug: string; eventId: s
           <tr><th scope="col">Line</th><th scope="col">YES means</th><th scope="col">Market</th><th scope="col">{modelHead}</th></tr>
         </thead>
         <tbody>
-          {f.rows.map(({ m, pp, threshold }) => (
+          {f.rows.map(({ m, pp, threshold, sel }) => (
             <tr key={m.market_id}>
               <th scope="row" className="num"><Link to={routes.market(slug, m.market_id, eventId)}>{threshold != null ? `${threshold}+` : '—'}</Link></th>
               <td className="pp__yes">{pp?.yesSemantics ?? describeMlbMarket(m).title}</td>
               <td><MarketCell m={m} /></td>
-              <td><ModelCell pp={pp} /></td>
+              <td><ModelCell pp={pp} sel={sel} /></td>
             </tr>
           ))}
         </tbody>
@@ -216,7 +268,8 @@ export function MlbPlayerProps({ markets, teamOrder, slug, eventId, canLink, abb
   markets: Market[]; teamOrder: string[]; slug: string; eventId: string; canLink: (id: string | null) => boolean;
   abbrOf?: (pid: string | null) => string | null; limit?: { role: 'PITCHER' | 'HITTER' | null };
 }) {
-  const b = propBoard(markets, teamOrder, abbrOf);
+  const { authority, ready } = useAuthority('MLB');
+  const b = applyAuthority(propBoard(markets, teamOrder, abbrOf), ready ? authority : null);
   const groups: [string, PlayerBlock[]][] = [['Pitchers', b.pitchers], ['Hitters', b.hitters]];
   const shown = limit?.role ? groups.filter(([k]) => (limit.role === 'PITCHER' ? k === 'Pitchers' : k === 'Hitters')) : groups;
   if (!b.pitchers.length && !b.hitters.length && !b.other.length) return <p className="muted">No player-prop market is published for this game.</p>;

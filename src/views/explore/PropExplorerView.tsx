@@ -13,6 +13,9 @@
 // stays on screen). Built on the game prop board (src/insights/propBoard.ts): no probability is derived from a mean;
 // the shadow model's P(over) appears only where the publication priced it, labelled research.
 import { ReliabilityLine } from '../../components/IntelligenceNote';
+import { ProjectionNote } from '../../components/ProjectionNote';
+import { loadAuthority } from '../../data/projections';
+import { usesEstablished } from '../../lib/projectionAuthority';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
@@ -68,8 +71,9 @@ function NflExplorer() {
   const game = games.find((g) => g.event_id === gameId) ?? null;
   const data = useAsync(gameId ? `props:game:${gameId}` : null, async () => {
     const [r, d] = await Promise.all([repo.eventResearch(gameId!), repo.eventDetail(gameId!)]);
-    return { r, b: propBoard(r, d), scripts: gameScripts(r) };
-  });
+    const authority = await loadAuthority(sport.code);
+    return { r, b: propBoard(r, d, undefined, authority), scripts: gameScripts(r) };
+  }, { revalidate: true });   // the projection feed refreshes on the research clock: a withheld or updated projection reaches an open page
   const set = (patch: Record<string, string | null>, push = false) => setSp((prev) => { const n = new URLSearchParams(prev); if(Object.keys(patch).some(k=>k!=='win')){n.delete('player');n.delete('stat');} for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; }, { replace: !push });
   const fam = (sp.get('cat') as PropFamily | null) ?? null;
   const team = sp.get('team');
@@ -245,10 +249,11 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
           </div>
           <dl className="fr-tiles pexa__nums">
             <div className="fr-tile"><dt>Market line</dt><dd className="fx-num">{row.line ?? '—'}</dd><dd className="fr-tile__s">{row.main ? <>Over {cents(row.main.yesAsk)} · Under {cents(row.main.noAsk)}</> : 'No priced line'}</dd></div>
-            <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projection != null ? 'simulation mean · research' : 'not published'}</dd></div>
+            <div className="fr-tile fr-tile--cyan"><dt>SIFT projection</dt><dd className="fx-num">{row.projection != null ? fmt(row.projection) : '—'}</dd><dd className="fr-tile__s">{row.projectionStatus.kind === 'withheld' ? 'withheld' : row.projection != null ? (row.projectionStatus.kind === 'authoritative' ? 'projection · research' : 'simulation mean · research') : 'not published'}</dd></div>
             <div className={`fr-tile fr-tile--${gap == null ? 'muted' : gap > 0 ? 'green' : gap < 0 ? 'red' : 'muted'}`}><dt>Gap</dt><dd className="fx-num">{gap == null ? '—' : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt(Math.abs(gap))}`}</dd><dd className="fr-tile__s">{gap == null ? 'needs a projection and a line' : 'projection − line, not an edge'}</dd></div>
           </dl>
-          <ReliabilityLine stat={row.def.stat} />
+          {usesEstablished(row.projectionStatus) && <ReliabilityLine stat={row.def.stat} />}
+          <ProjectionNote variant="full" resolution={row.projectionStatus} />
           {roleDisagreement(row) && <p className="pexa__warn" role="note"><Icon name="alert" size={16} /> <span>The line sits outside the simulation’s 5th–95th range: the market and the simulation are pricing different roles. Treat this gap as a data question, not a finding.</span></p>}
           {mu && <p className={`pexa__mu pexa__mu--${mu.word}`}><MatchupWord tier={row.matchup!.rank.tier} /> <span>{mu.text}</span></p>}
           <div className="pexa__acts">
@@ -320,7 +325,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
               {row.range && <div><dt><i className="fr-dot fr-dot--dim" />90% range</dt><dd className="fx-num">{fmt(row.range.full[0])}–{fmt(row.range.full[1])}</dd></div>}
               <div><dt><i className="fr-dot fr-dot--line" />Market line</dt><dd className="fx-num">{row.line ?? '—'}</dd></div>
               {row.main?.modelP != null ? (
-                <div className="fr-legend__p"><dt><i className="fr-dot fr-dot--violet" />Shadow model P(over)</dt><dd className="fx-num">{pct(row.main.modelP)}</dd><dd className="fr-tile__s">research · {String(row.main.modelState ?? '').toLowerCase().replace(/_/g, ' ')} · market {pct(row.main.marketP)}</dd></div>
+                <div className="fr-legend__p"><dt><i className="fr-dot fr-dot--violet" />{row.projectionStatus.kind === 'authoritative' ? 'Projection' : 'Shadow model'} P(over)</dt><dd className="fx-num">{pct(row.main.modelP)}</dd><dd className="fr-tile__s">research · {String(row.main.modelState ?? '').toLowerCase().replace(/_/g, ' ')} · market {pct(row.main.marketP)}</dd></div>
               ) : <div className="fr-legend__p"><dt>Probability over</dt><dd className="fr-tile__s">No validated probability is published for this prop.</dd></div>}
             </dl>
           </div>

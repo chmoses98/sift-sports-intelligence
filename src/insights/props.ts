@@ -11,6 +11,8 @@ import { rankView, type RankView } from '../lib/rank';
 import { gameSides, matchupObs, type GameSides, type Side } from './game';
 import { nameKey } from './context';
 import { isFullGame } from '../lib/period';
+import { typicalWidth, usesEstablished, type ProjectionAuthority } from '../lib/projectionAuthority';
+import type { LegacyCandidate } from '../lib/projectionFallback';
 
 export const PROP_STATS: { stat: string; sim: string; label: string; unit: string; star: number; def: string; defUnit: string }[] = [
   { stat: 'rushing_yards', sim: 'met_nfl.sim_rushing_yards', label: 'Rushing yards', unit: 'yds', star: 80, def: 'met_nfl.adj_def_rush_epa', defUnit: 'run defense' },
@@ -37,8 +39,12 @@ export interface PropCard {
   stat: string;
   statLabel: string;
   unit: string;
+  /** THE projection for this stat (one engine: see lib/projectionAuthority.ts) */
   projection: number;
-  range: PropRange;
+  /** the legacy simulation's quartile/90% range, or the selected model's when the feed publishes the full quantile set */
+  range: PropRange | null;
+  /** the selected model's realistic 80% range (p10–p90) when it publishes no quantile set; null otherwise */
+  band: { lo: number; hi: number } | null;
   /** The over line nearest a coin flip ("79.5"), and its market. */
   line: number | null;
   market: Market | null;
@@ -66,11 +72,30 @@ export function mainLine(markets: Market[]): Market | null {
     .sort((a, b) => Math.abs(mid(a)! - 0.5) - Math.abs(mid(b)! - 0.5))[0] ?? null;
 }
 
+/** How many player props carry a priced line for this game (one per player and stat), whether or not a projection is published for
+ *  them: the total the Explorer's "All N priced props" link stands for. */
+export function pricedPropCount(markets: Market[]): number {
+  const byPlayerStat = new Map<string, Market[]>();
+  for (const m of markets) {
+    const stat = (m.extensions as { stat?: string } | null)?.stat;
+    if (m.market_family !== 'player_stat' || !m.player_id || !stat || !isFullGame(m.period)) continue;
+    const k = `${m.player_id}|${stat}`;
+    byPlayerStat.set(k, [...(byPlayerStat.get(k) ?? []), m]);
+  }
+  return [...byPlayerStat.values()].filter((ms) => mainLine(ms) != null).length;
+}
+
 /** Every prop candidate for a game, most interesting first. */
-export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides | null = gameSides(r)): PropCard[] {
+export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides | null = gameSides(r), authority: ProjectionAuthority | null = null): PropCard[] {
   if (!g) return [];
   const out: PropCard[] = [];
   const out_ = new Set((r.context?.injuries ?? []).filter((i) => ['OUT', 'INJURED_RESERVE', 'DOUBTFUL', 'SUSPENDED'].includes(i.status)).map((i) => nameKey(/^(.+?) \(/.exec(i.detail ?? '')?.[1])));
+  // the listed designation of every player, for the established-model fallback's availability check
+  const injuryDesignation = new Map<string, string>();
+  for (const i of r.context?.injuries ?? []) {
+    const nm = /^(.+?) \(/.exec(i.detail ?? '')?.[1];
+    if (nm) injuryDesignation.set(nameKey(nm), i.status);
+  }
   const byPlayerStat = new Map<string, Market[]>();
   for (const m of markets) {
     const stat = (m.extensions as { stat?: string } | null)?.stat;
@@ -85,20 +110,35 @@ export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides |
     for (const s of PROP_STATS) {
       if (s.stat === 'passing_yards' && p.role !== 'QB') continue;
       if (s.stat !== 'passing_yards' && p.role === 'QB') continue;
-      const d = r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === s.sim);
-      const range = d ? rangeOf(d) : null;
-      if (!d || d.mean == null || !range) continue;
+      // one engine per stat: a stat whose projection is withheld has no card (the prop board says why)
+      const dEstablished = r.distributions.find((x) => x.entity_id === p.participant_id && x.metric_id === s.sim);
+      const rangeEstablished = dEstablished ? rangeOf(dEstablished) : null;
+      const mainEarly = mainLine(byPlayerStat.get(`${p.participant_id}|${s.stat}`) ?? []);
+      const nameKeyP = nameKey(p.display_name);
+      const candidate: LegacyCandidate | null = dEstablished && dEstablished.mean != null ? {
+        mean: dEstablished.mean, interval: rangeEstablished ? { lo: rangeEstablished.full[0], hi: rangeEstablished.full[1] } : null,
+        generatedAt: r.generated_at ?? null, designation: injuryDesignation.get(nameKeyP) ?? null,
+        line: mainEarly?.threshold != null ? Number(overLine(mainEarly.threshold)) : null, checkLine: true,
+      } : null;
+      const res = authority ? authority.resolve({ stat: s.stat, playerId: p.participant_id, name: p.display_name, team: team.abbr, opponent: opp.abbr }, candidate) : { kind: 'legacy' as const };
+      if (res.kind === 'withheld') continue;
+      const d = usesEstablished(res) ? dEstablished : null;
+      const auth = res.kind === 'authoritative' ? res.value : null;
+      const range: PropRange | null = auth ? (auth.quantiles ? { typical: [auth.quantiles.p25, auth.quantiles.p75], full: [auth.quantiles.p05, auth.quantiles.p95], median: auth.quantiles.p50 } : null) : d ? rangeOf(d) : null;
+      const band = auth && !range && auth.p10 != null && auth.p90 != null ? { lo: auth.p10, hi: auth.p90 } : null;
+      const mean = auth ? auth.mean : d?.mean ?? null;
+      if (mean == null || (!range && !band)) continue;
       const main = mainLine(byPlayerStat.get(`${p.participant_id}|${s.stat}`) ?? []);
       const line = main?.threshold != null ? Number(overLine(main.threshold)) : null;
       const defObs = matchupObs(r, s.def, opp);
       const rank = rankView(defObs?.context);
-      const star = Math.min(1, d.mean / s.star);
+      const star = Math.min(1, mean / s.star);
       const extreme = rank ? Math.abs(rank.strength - 0.5) * 2 : 0;
-      const width = Math.max(1, range.typical[1] - range.typical[0]);
-      const sep = line != null ? Math.min(1, Math.abs(d.mean - line) / width) : 0;
+      const width = Math.max(1, range ? range.typical[1] - range.typical[0] : (auth ? typicalWidth(auth) : null) ?? 1);
+      const sep = line != null ? Math.min(1, Math.abs(mean - line) / width) : 0;
       const reasons: string[] = [];
       if (rank && rank.tier !== 'average') reasons.push(`${opp.nick} ${s.defUnit} ${rank.text}`);
-      if (line != null && sep >= 0.35) reasons.push(`Projection ${d.mean > line ? 'above' : 'below'} the line`);
+      if (line != null && sep >= 0.35) reasons.push(`Projection ${mean > line ? 'above' : 'below'} the line`);
       if (star >= 0.85) reasons.push('Featured role');
       out.push({
         id: `${p.participant_id}|${s.stat}`,
@@ -109,8 +149,9 @@ export function propCards(r: EventResearchDoc, markets: Market[], g: GameSides |
         stat: s.stat,
         statLabel: s.label,
         unit: s.unit,
-        projection: d.mean,
+        projection: mean,
         range,
+        band,
         line,
         market: main,
         marketTitle: main ? describeMarket(main, { playerName: () => p.display_name }).title : null,
@@ -153,4 +194,11 @@ export function rangeText(r: [number, number], unit: string): string {
 
 export function valueText(v: number, unit: string): string {
   return unit === 'rec' || unit === 'TD' ? `${(Math.round(v * 10) / 10).toFixed(1)} ${unit}` : `${Math.round(v)} ${unit}`;
+}
+
+/** The range line for a card: the quartile range when there is one, else the selected model's realistic 80% range. */
+export function cardRange(c: Pick<PropCard, 'range' | 'band'>, fmt: (v: number) => string): { label: string; text: string } | null {
+  if (c.range) return { label: 'Typical range', text: `${fmt(c.range.typical[0])}–${fmt(c.range.typical[1])}` };
+  if (c.band) return { label: 'Realistic range (80%)', text: `${fmt(c.band.lo)}–${fmt(c.band.hi)}` };
+  return null;
 }

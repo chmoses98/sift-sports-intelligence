@@ -2,6 +2,7 @@
 // survival cells, the live price token), different depth: a descriptive matchup layer and frozen scripts,
 // with market fit computed only afterwards. Copy is generated upstream from structured football findings;
 // Sift adds no reasoning of its own and never turns script counts into probabilities.
+import { engineFor } from '../../lib/projectionApprovals';
 import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import type { Market } from '../../contract/types';
@@ -420,7 +421,10 @@ export function EngineEdgesPanel({ engine, homeAbbr, awayAbbr, to }: { engine: E
         </tbody>
       </table></Scroll>
       <p className="small muted eng-edges__pace">
-        Possession environment {fmtEdge(engine.dimensions.pace?.possession_environment)} · scoring baseline {engine.baseline.home_points ?? '—'}–{engine.baseline.away_points ?? '—'} ({homeAbbr}–{awayAbbr}), descriptive and uncalibrated, not a projection
+        Possession environment {fmtEdge(engine.dimensions.pace?.possession_environment)}
+        {/* the engine's baseline points are shown only while the established model is the approved CFB team-points engine:
+            a promoted projection is the one points number on the page */}
+        {engineFor('CFB', 'team_points') === 'legacy' && <> · scoring baseline {engine.baseline.home_points ?? '—'}–{engine.baseline.away_points ?? '—'} ({homeAbbr}–{awayAbbr}), descriptive and uncalibrated, not a projection</>}
       </p>
       {to && <div className="ov-surv__foot"><ViewAll to={to}>Every metric</ViewAll></div>}
     </section>

@@ -1,0 +1,29 @@
+name: Projection Foundation feed monitor
+
+# Reads each sport's published sift.projections.v1 feed and fails (visibly) when a published feed is malformed,
+# incoherent or stale in season. Read-only: it changes nothing and never touches betting authority.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: projection-foundation-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: research/projection_foundation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check feeds
+        run: python research/projection_foundation/monitor.py

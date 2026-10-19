@@ -1,0 +1,1175 @@
+{
+ "schema": "sift.promotion_evidence.v1",
+ "sports": {
+  "CFB": {
+   "codeSha": "94c15a7e48d451c6ef84ef9496b276bd73e3deb1",
+   "families": {
+    "carries": {
+     "bias": -0.0202,
+     "cover80": 0.7882,
+     "crps": 2.7881,
+     "mae": 4.0242,
+     "model": "E_lgbm",
+     "n": 11766,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Historical walk-forward accuracy and calibration pass (beats the season average on 2023-24 and 2025, 80% coverage ~0.80-0.84), but participation cannot be verified pre-game: there is no historical injury/depth-chart data, receivers/rushers absent from the box are scored as 0 (DNP and zero-catch games are indistinguishable), and no prospective record exists yet. Display as research projections conditional on playing; build the prospective record via projection-data.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.2672,
+      "hi": -0.2461,
+      "lo": -0.2876
+     },
+     "vsIncumbent": null
+    },
+    "epa_per_play": {
+     "bias": -0.0019,
+     "cover80": 0.7911,
+     "crps": 0.0933,
+     "mae": 0.132,
+     "model": "F_stack",
+     "n": 2996,
+     "readiness": "INSUFFICIENT DATA",
+     "reason": "Validated 2016-2025 on CFBD EPA, but the live 2026 source (ESPN game log) carries no EPA, so it cannot be projected forward. Remedy: compute EPA from the sportsdataverse espn_cfb_pbp release (has an EPA column) inside the weekly job, or restore a CFBD key.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.0077,
+      "hi": -0.0064,
+      "lo": -0.0091
+     },
+     "vsIncumbent": null
+    },
+    "game_total": {
+     "bias": -0.1742,
+     "cover80": 0.8103,
+     "crps": 9.0988,
+     "mae": 12.8761,
+     "model": "G_game_ridge",
+     "n": 1502,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Point and distribution accuracy pass on holdout and 2025 (beats baseline and the retired engine, calibrated coverage), and the model matches the archived v2 research models, but it stays behind the closing line and its probabilities AT the closing number are less informative than the line itself (Brier ~0.26 vs 0.25 for a coin flip). Show distributions; never present cover/over probabilities at market numbers as edges.",
+     "relGain": 0.0496,
+     "vsBaseline": {
+      "diff": -0.7824,
+      "hi": -0.6103,
+      "lo": -0.9452
+     },
+     "vsIncumbent": {
+      "diff": -0.4749,
+      "hi": -0.321,
+      "lo": -0.6412
+     }
+    },
+    "margin": {
+     "bias": -0.4172,
+     "cover80": 0.8003,
+     "crps": 8.8525,
+     "mae": 12.442,
+     "model": "G_game_ridge",
+     "n": 1502,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Point and distribution accuracy pass on holdout and 2025 (beats baseline and the retired engine, calibrated coverage), and the model matches the archived v2 research models, but it stays behind the closing line and its probabilities AT the closing number are less informative than the line itself (Brier ~0.26 vs 0.25 for a coin flip). Show distributions; never present cover/over probabilities at market numbers as edges.",
+     "relGain": 0.1137,
+     "vsBaseline": {
+      "diff": -1.362,
+      "hi": -1.1165,
+      "lo": -1.5922
+     },
+     "vsIncumbent": {
+      "diff": -1.1357,
+      "hi": -0.9284,
+      "lo": -1.353
+     }
+    },
+    "passing_attempts": {
+     "bias": -0.4197,
+     "cover80": 0.8169,
+     "crps": 5.2417,
+     "mae": 7.36,
+     "model": "F_stack",
+     "n": 2698,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Historical walk-forward accuracy and calibration pass (beats the season average on 2023-24 and 2025, 80% coverage ~0.80-0.84), but participation cannot be verified pre-game: there is no historical injury/depth-chart data, receivers/rushers absent from the box are scored as 0 (DNP and zero-catch games are indistinguishable), and no prospective record exists yet. Display as research projections conditional on playing; build the prospective record via projection-data.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.2777,
+      "hi": -0.2217,
+      "lo": -0.3357
+     },
+     "vsIncumbent": null
+    },
+    "passing_yards": {
+     "bias": -3.3327,
+     "cover80": 0.841,
+     "crps": 47.4389,
+     "mae": 66.9006,
+     "model": "F_stack",
+     "n": 2698,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Historical walk-forward accuracy and calibration pass (beats the season average on 2023-24 and 2025, 80% coverage ~0.80-0.84), but participation cannot be verified pre-game: there is no historical injury/depth-chart data, receivers/rushers absent from the box are scored as 0 (DNP and zero-catch games are indistinguishable), and no prospective record exists yet. Display as research projections conditional on playing; build the prospective record via projection-data.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -1.8409,
+      "hi": -1.3972,
+      "lo": -2.2917
+     },
+     "vsIncumbent": null
+    },
+    "player_week1": {
+     "bias": null,
+     "cover80": null,
+     "crps": null,
+     "mae": null,
+     "model": null,
+     "n": null,
+     "readiness": "INSUFFICIENT DATA",
+     "reason": "Week-1 player projections need a depth chart / returning-player table (no in-season role exists yet). Remedy: preseason rosters (sportsdataverse espn_cfb_rosters) joined to last season's usage.",
+     "relGain": null,
+     "vsBaseline": null,
+     "vsIncumbent": null
+    },
+    "plays": {
+     "bias": 0.4929,
+     "cover80": 0.8189,
+     "crps": 5.0789,
+     "mae": 7.1325,
+     "model": "F_stack",
+     "n": 3004,
+     "readiness": "READY",
+     "reason": "holdout 2023-24 beats the A baseline (-0.203 [-0.256, -0.154] CRPS) (no incumbent exists); 80% coverage 0.82, PIT variance ratio 0.93; 2025 confirms.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.203,
+      "hi": -0.1544,
+      "lo": -0.2559
+     },
+     "vsIncumbent": null
+    },
+    "points_per_play": {
+     "bias": -0.0053,
+     "cover80": 0.7963,
+     "crps": 0.0986,
+     "mae": 0.1388,
+     "model": "F_stack",
+     "n": 3004,
+     "readiness": "READY",
+     "reason": "holdout 2023-24 beats the A baseline (-0.010 [-0.012, -0.009] CRPS) (no incumbent exists); 80% coverage 0.80, PIT variance ratio 1.01; 2025 confirms.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.0105,
+      "hi": -0.0088,
+      "lo": -0.012
+     },
+     "vsIncumbent": null
+    },
+    "receiving_yards": {
+     "bias": 0.4111,
+     "cover80": 0.8146,
+     "crps": 13.1518,
+     "mae": 19.6308,
+     "model": "F_stack",
+     "n": 21529,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Historical walk-forward accuracy and calibration pass (beats the season average on 2023-24 and 2025, 80% coverage ~0.80-0.84), but participation cannot be verified pre-game: there is no historical injury/depth-chart data, receivers/rushers absent from the box are scored as 0 (DNP and zero-catch games are indistinguishable), and no prospective record exists yet. Display as research projections conditional on playing; build the prospective record via projection-data.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.3511,
+      "hi": -0.3111,
+      "lo": -0.3929
+     },
+     "vsIncumbent": null
+    },
+    "receptions": {
+     "bias": 0.0066,
+     "cover80": 0.8023,
+     "crps": 0.9214,
+     "mae": 1.3661,
+     "model": "F_stack",
+     "n": 21529,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Historical walk-forward accuracy and calibration pass (beats the season average on 2023-24 and 2025, 80% coverage ~0.80-0.84), but participation cannot be verified pre-game: there is no historical injury/depth-chart data, receivers/rushers absent from the box are scored as 0 (DNP and zero-catch games are indistinguishable), and no prospective record exists yet. Display as research projections conditional on playing; build the prospective record via projection-data.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.0306,
+      "hi": -0.0272,
+      "lo": -0.0339
+     },
+     "vsIncumbent": null
+    },
+    "rushing_yards": {
+     "bias": -0.3079,
+     "cover80": 0.8191,
+     "crps": 17.3859,
+     "mae": 25.3629,
+     "model": "F_stack",
+     "n": 11766,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Historical walk-forward accuracy and calibration pass (beats the season average on 2023-24 and 2025, 80% coverage ~0.80-0.84), but participation cannot be verified pre-game: there is no historical injury/depth-chart data, receivers/rushers absent from the box are scored as 0 (DNP and zero-catch games are indistinguishable), and no prospective record exists yet. Display as research projections conditional on playing; build the prospective record via projection-data.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.9984,
+      "hi": -0.8899,
+      "lo": -1.1011
+     },
+     "vsIncumbent": null
+    },
+    "success_rate": {
+     "bias": -0.0012,
+     "cover80": 0.7967,
+     "crps": 0.0427,
+     "mae": 0.0603,
+     "model": "F_stack",
+     "n": 2996,
+     "readiness": "READY",
+     "reason": "holdout 2023-24 beats the A baseline (-0.004 [-0.005, -0.003] CRPS) (no incumbent exists); 80% coverage 0.80, PIT variance ratio 1.02; 2025 confirms.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.0041,
+      "hi": -0.0035,
+      "lo": -0.0047
+     },
+     "vsIncumbent": null
+    },
+    "targets": {
+     "bias": null,
+     "cover80": null,
+     "crps": null,
+     "mae": null,
+     "model": null,
+     "n": null,
+     "readiness": "INSUFFICIENT DATA",
+     "reason": "ESPN/CFBD player box scores carry no targets in any season; receiving opportunity can only be measured as completions x reception share. Remedy: charting data (e.g. PFF college) or play-by-play target attribution from the sportsdataverse espn_cfb_pbp release (pass plays carry the intended receiver in ESPN text) - a parser job.",
+     "relGain": null,
+     "vsBaseline": null,
+     "vsIncumbent": null
+    },
+    "team_passing_yards": {
+     "bias": 2.0859,
+     "cover80": 0.8346,
+     "crps": 43.9798,
+     "mae": 62.2496,
+     "model": "F_stack",
+     "n": 3004,
+     "readiness": "READY",
+     "reason": "holdout 2023-24 beats the A baseline (-1.261 [-1.621, -0.893] CRPS) (no incumbent exists); 80% coverage 0.83, PIT variance ratio 0.91; 2025 confirms.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -1.2611,
+      "hi": -0.8934,
+      "lo": -1.6213
+     },
+     "vsIncumbent": null
+    },
+    "team_points": {
+     "bias": -0.0871,
+     "cover80": 0.8089,
+     "crps": 6.351,
+     "mae": 8.9863,
+     "model": "G_game_ridge",
+     "n": 3004,
+     "readiness": "READY",
+     "reason": "holdout 2023-24 beats the A baseline (-0.913 [-1.033, -0.783] CRPS) and the incumbent (-0.625 [-0.729, -0.523]); 80% coverage 0.81, PIT variance ratio 0.97; 2025 confirms.",
+     "relGain": 0.0895,
+     "vsBaseline": {
+      "diff": -0.9132,
+      "hi": -0.7834,
+      "lo": -1.0332
+     },
+     "vsIncumbent": {
+      "diff": -0.6246,
+      "hi": -0.5234,
+      "lo": -0.7292
+     }
+    },
+    "team_rushing_yards": {
+     "bias": -0.7524,
+     "cover80": 0.8349,
+     "crps": 38.2041,
+     "mae": 53.7504,
+     "model": "F_stack",
+     "n": 3004,
+     "readiness": "READY",
+     "reason": "holdout 2023-24 beats the A baseline (-3.055 [-3.580, -2.536] CRPS) (no incumbent exists); 80% coverage 0.83, PIT variance ratio 0.91; 2025 confirms.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -3.0549,
+      "hi": -2.5361,
+      "lo": -3.5799
+     },
+     "vsIncumbent": null
+    }
+   },
+   "holdout": "2023-2024 seasons (scored once for the frozen winner, baseline, incumbents, market)",
+   "pfCore": "1.0.0"
+  },
+  "MLB": {
+   "codeSha": "7e66d2379fb876130183a1aae8a411c1e041afdc",
+   "families": {
+    "batters_faced": {
+     "bias": 0.0456,
+     "cover80": 0.8078,
+     "crps": 1.8919,
+     "mae": 2.6168,
+     "model": "E",
+     "n": 4854,
+     "readiness": "READY",
+     "reason": "holdout CRPS vs baseline -0.3785 [-0.42755, -0.33174]; 80% PIT coverage 0.8078, PIT variance ratio 0.9757; incumbent: better (-0.2488 [-0.26765, -0.22882], rung RPS over incumbent rungs 15..30 (matched n=4524)); ready for research-only publication in place of the incumbent; prospective (archived pregame) confirmation still recommended",
+     "relGain": 0.1162,
+     "vsBaseline": {
+      "diff": -0.37846,
+      "hi": -0.33174,
+      "lo": -0.42755
+     },
+     "vsIncumbent": {
+      "diff": -0.24885,
+      "hi": -0.22882,
+      "lo": -0.26765
+     }
+    },
+    "game_total": {
+     "bias": 0.0543,
+     "cover80": 0.7923,
+     "crps": 2.4765,
+     "mae": 3.5513,
+     "model": "D_convolution",
+     "n": 2427,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Convolution of the two team-run distributions; holdout cover80 0.7923, PIT var 1.0272; no archived pregame total projection to compare against except the incumbent team projections.",
+     "relGain": null,
+     "vsBaseline": null,
+     "vsIncumbent": null
+    },
+    "hits": {
+     "bias": 0.0058,
+     "cover80": 0.8014,
+     "crps": 0.4518,
+     "mae": 0.6828,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0028 [-0.00353, -0.00215]; 80% PIT coverage 0.8014, PIT variance ratio 1.0009; incumbent: better (-0.0110 [-0.01401, -0.0081], CRPS vs production hitter engine rerun, matched n=8883 (2026-08-16..2026-09-27)); inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required",
+     "relGain": 0.0238,
+     "vsBaseline": {
+      "diff": -0.00284,
+      "hi": -0.00215,
+      "lo": -0.00353
+     },
+     "vsIncumbent": {
+      "diff": -0.01101,
+      "hi": -0.0081,
+      "lo": -0.01401
+     }
+    },
+    "hits_runs_rbis": {
+     "bias": 0.0014,
+     "cover80": 0.8032,
+     "crps": 0.9911,
+     "mae": 1.493,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0059 [-0.00752, -0.00427]; 80% PIT coverage 0.8032, PIT variance ratio 1.0011; incumbent: none; inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.00587,
+      "hi": -0.00427,
+      "lo": -0.00752
+     },
+     "vsIncumbent": null
+    },
+    "home_runs": {
+     "bias": 0.0047,
+     "cover80": 0.8031,
+     "crps": 0.1074,
+     "mae": 0.2166,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0006 [-0.00075, -0.00043]; 80% PIT coverage 0.8031, PIT variance ratio 0.9883; incumbent: better (-0.0026 [-0.00343, -0.0019], CRPS vs production hitter engine rerun, matched n=8883 (2026-08-16..2026-09-27)); inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required; NOTE MAE of the mean is worse than the incumbent (+0.0279 [0.0264, 0.0296]) because the incumbent's downward-biased mean sits nearer the modal 0 for this zero-heavy count; CRPS/Brier/bias all favour the new model",
+     "relGain": 0.024,
+     "vsBaseline": {
+      "diff": -0.00059,
+      "hi": -0.00043,
+      "lo": -0.00075
+     },
+     "vsIncumbent": {
+      "diff": -0.00264,
+      "hi": -0.0019,
+      "lo": -0.00343
+     }
+    },
+    "outs": {
+     "bias": 0.0642,
+     "cover80": 0.8193,
+     "crps": 1.936,
+     "mae": 2.7091,
+     "model": "F",
+     "n": 4854,
+     "readiness": "READY",
+     "reason": "holdout CRPS vs baseline -0.2552 [-0.28619, -0.22407]; 80% PIT coverage 0.8193, PIT variance ratio 0.9605; incumbent: better (-0.0763 [-0.09137, -0.06308], rung RPS over incumbent rungs 9..21 (matched n=4524)); ready for research-only publication in place of the incumbent; prospective (archived pregame) confirmation still recommended",
+     "relGain": 0.0379,
+     "vsBaseline": {
+      "diff": -0.25521,
+      "hi": -0.22407,
+      "lo": -0.28619
+     },
+     "vsIncumbent": {
+      "diff": -0.07631,
+      "hi": -0.06308,
+      "lo": -0.09137
+     }
+    },
+    "pitcher_hits_allowed": {
+     "bias": 0.0403,
+     "cover80": 0.7963,
+     "crps": 1.1613,
+     "mae": 1.6691,
+     "model": "F",
+     "n": 4854,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0749 [-0.08634, -0.0634]; 80% PIT coverage 0.7963, PIT variance ratio 1.0032; incumbent: none; no incumbent engine exists for this family (Kalshi lists <100 markets); prospective shadow needed",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.07489,
+      "hi": -0.0634,
+      "lo": -0.08634
+     },
+     "vsIncumbent": null
+    },
+    "pitcher_runs_allowed": {
+     "bias": 0.0585,
+     "cover80": 0.8057,
+     "crps": 1.0923,
+     "mae": 1.6138,
+     "model": "F",
+     "n": 4854,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0319 [-0.03857, -0.0256]; 80% PIT coverage 0.8057, PIT variance ratio 0.9855; incumbent: none; no incumbent engine exists for this family (Kalshi lists <100 markets); prospective shadow needed",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.03187,
+      "hi": -0.0256,
+      "lo": -0.03857
+     },
+     "vsIncumbent": null
+    },
+    "pitcher_strikeouts": {
+     "bias": 0.0606,
+     "cover80": 0.802,
+     "crps": 1.2049,
+     "mae": 1.7335,
+     "model": "F",
+     "n": 4854,
+     "readiness": "READY",
+     "reason": "holdout CRPS vs baseline -0.0658 [-0.07666, -0.05521]; 80% PIT coverage 0.802, PIT variance ratio 0.9956; incumbent: better (-0.0323 [-0.03901, -0.02553], rung RPS over incumbent rungs 2..10 (matched n=4524)); ready for research-only publication in place of the incumbent; prospective (archived pregame) confirmation still recommended",
+     "relGain": 0.0261,
+     "vsBaseline": {
+      "diff": -0.06577,
+      "hi": -0.05521,
+      "lo": -0.07666
+     },
+     "vsIncumbent": {
+      "diff": -0.03235,
+      "hi": -0.02553,
+      "lo": -0.03901
+     }
+    },
+    "pitcher_walks": {
+     "bias": -0.0196,
+     "cover80": 0.8063,
+     "crps": 0.6806,
+     "mae": 1.0,
+     "model": "D",
+     "n": 4854,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0114 [-0.01527, -0.00744]; 80% PIT coverage 0.8063, PIT variance ratio 0.9887; incumbent: none; no incumbent engine exists for this family (Kalshi lists <100 markets); prospective shadow needed",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.01135,
+      "hi": -0.00744,
+      "lo": -0.01527
+     },
+     "vsIncumbent": null
+    },
+    "plate_appearances": {
+     "bias": -0.0017,
+     "cover80": 0.7799,
+     "crps": 0.3662,
+     "mae": 0.5718,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0234 [-0.02539, -0.02159]; 80% PIT coverage 0.7799, PIT variance ratio 1.0404; incumbent: better (-0.0888 [-0.10382, -0.07561], CRPS vs production hitter engine rerun, matched n=8883 (2026-08-16..2026-09-27)); inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required",
+     "relGain": 0.1952,
+     "vsBaseline": {
+      "diff": -0.02341,
+      "hi": -0.02159,
+      "lo": -0.02539
+     },
+     "vsIncumbent": {
+      "diff": -0.08884,
+      "hi": -0.07561,
+      "lo": -0.10382
+     }
+    },
+    "rbis": {
+     "bias": -0.0019,
+     "cover80": 0.8001,
+     "crps": 0.3476,
+     "mae": 0.6256,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0013 [-0.00175, -0.00092]; 80% PIT coverage 0.8001, PIT variance ratio 0.9963; incumbent: better (-0.0139 [-0.01661, -0.0111], CRPS vs production hitter engine rerun, matched n=8883 (2026-08-16..2026-09-27)); inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required; NOTE MAE of the mean is worse than the incumbent (+0.0473 [0.0436, 0.0513]) because the incumbent's downward-biased mean sits nearer the modal 0 for this zero-heavy count; CRPS/Brier/bias all favour the new model",
+     "relGain": 0.0385,
+     "vsBaseline": {
+      "diff": -0.00134,
+      "hi": -0.00092,
+      "lo": -0.00175
+     },
+     "vsIncumbent": {
+      "diff": -0.0139,
+      "hi": -0.0111,
+      "lo": -0.01661
+     }
+    },
+    "runs": {
+     "bias": 0.0018,
+     "cover80": 0.8009,
+     "crps": 0.3164,
+     "mae": 0.5748,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0024 [-0.0029, -0.00184]; 80% PIT coverage 0.8009, PIT variance ratio 0.9951; incumbent: better (-0.0091 [-0.01162, -0.00648], CRPS vs production hitter engine rerun, matched n=8883 (2026-08-16..2026-09-27)); inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required; NOTE MAE of the mean is worse than the incumbent (+0.0152 [0.0121, 0.0187]) because the incumbent's downward-biased mean sits nearer the modal 0 for this zero-heavy count; CRPS/Brier/bias all favour the new model",
+     "relGain": 0.0279,
+     "vsBaseline": {
+      "diff": -0.0024,
+      "hi": -0.00184,
+      "lo": -0.0029
+     },
+     "vsIncumbent": {
+      "diff": -0.00908,
+      "hi": -0.00648,
+      "lo": -0.01162
+     }
+    },
+    "team_runs": {
+     "bias": 0.0272,
+     "cover80": 0.7895,
+     "crps": 1.7248,
+     "mae": 2.4983,
+     "model": "D",
+     "n": 4854,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0197 [-0.02723, -0.01228]; 80% PIT coverage 0.7895, PIT variance ratio 1.0418; incumbent: parity (-0.0169 [-0.04966, 0.01403], CRPS vs archived production projection (NB alpha 0.2815), matched n=614); incumbent parity (difference not significant); needs prospective archived-forecast evidence",
+     "relGain": 0.0097,
+     "vsBaseline": {
+      "diff": -0.01971,
+      "hi": -0.01228,
+      "lo": -0.02723
+     },
+     "vsIncumbent": {
+      "diff": -0.01694,
+      "hi": 0.01403,
+      "lo": -0.04966
+     }
+    },
+    "total_bases": {
+     "bias": 0.0234,
+     "cover80": 0.8036,
+     "crps": 0.8652,
+     "mae": 1.3329,
+     "model": "F",
+     "n": 43686,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "holdout CRPS vs baseline -0.0050 [-0.00622, -0.00385]; 80% PIT coverage 0.8036, PIT variance ratio 1.0058; incumbent: better (-0.0142 [-0.01753, -0.01094], CRPS vs production hitter engine rerun, matched n=8883 (2026-08-16..2026-09-27)); inputs use the post-game official batting order (equivalent to a confirmed lineup); where an archived pregame lineup exists (527 games) it gives the same slot 99.5% of the time, but a prospective confirmed-lineup shadow is still required",
+     "relGain": 0.0161,
+     "vsBaseline": {
+      "diff": -0.00502,
+      "hi": -0.00385,
+      "lo": -0.00622
+     },
+     "vsIncumbent": {
+      "diff": -0.01418,
+      "hi": -0.01094,
+      "lo": -0.01753
+     }
+    }
+   },
+   "holdout": "2026 regular season (frozen winners scored once; incumbent comparisons on matched rows)",
+   "pfCore": "1.0.0"
+  },
+  "NBA": {
+   "codeSha": "78af92a34e434803b86ab7fa3fb722cd6e215438",
+   "families": {
+    "assists": {
+     "bias": 0.0003,
+     "cover80": 0.7971,
+     "crps": 0.8995,
+     "mae": 1.3227,
+     "model": "E_lightgbm+mixture",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.037 [-0.040, -0.035]) and incumbent (-0.089 [-0.094, -0.085]) in holdout CRPS; holdout cover_80 0.7971, PIT variance ratio 1.0078, bias +0.000. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.0901,
+     "vsBaseline": {
+      "diff": -0.0374,
+      "hi": -0.0347,
+      "lo": -0.04
+     },
+     "vsIncumbent": {
+      "diff": -0.0891,
+      "hi": -0.0849,
+      "lo": -0.0938
+     }
+    },
+    "fga": {
+     "bias": 0.0002,
+     "cover80": 0.7995,
+     "crps": 1.9143,
+     "mae": 2.7234,
+     "model": "E_lightgbm+mixture",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.161 [-0.170, -0.152]) and incumbent (-0.378 [-0.392, -0.366]) in holdout CRPS; holdout cover_80 0.7995, PIT variance ratio 0.9955, bias +0.000. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.165,
+     "vsBaseline": {
+      "diff": -0.1605,
+      "hi": -0.1518,
+      "lo": -0.1697
+     },
+     "vsIncumbent": {
+      "diff": -0.3784,
+      "hi": -0.3659,
+      "lo": -0.3918
+     }
+    },
+    "minutes": {
+     "bias": 0.0855,
+     "cover80": 0.8001,
+     "crps": 3.3916,
+     "mae": 4.7645,
+     "model": "E_lightgbm",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.505 [-0.529, -0.479]) and incumbent (-1.145 [-1.181, -1.110]) in holdout CRPS; holdout cover_80 0.8001, PIT variance ratio 0.9898, bias +0.086. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.2524,
+     "vsBaseline": {
+      "diff": -0.5051,
+      "hi": -0.4788,
+      "lo": -0.5295
+     },
+     "vsIncumbent": {
+      "diff": -1.1452,
+      "hi": -1.1101,
+      "lo": -1.1811
+     }
+    },
+    "points": {
+     "bias": -0.0327,
+     "cover80": 0.7924,
+     "crps": 3.1655,
+     "mae": 4.5181,
+     "model": "E_lightgbm+empirical",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.175 [-0.187, -0.165]) and incumbent (-0.383 [-0.401, -0.366]) in holdout CRPS; holdout cover_80 0.7924, PIT variance ratio 1.0151, bias -0.033. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.1079,
+     "vsBaseline": {
+      "diff": -0.1755,
+      "hi": -0.1647,
+      "lo": -0.187
+     },
+     "vsIncumbent": {
+      "diff": -0.383,
+      "hi": -0.3661,
+      "lo": -0.4009
+     }
+    },
+    "pra": {
+     "bias": -0.0284,
+     "cover80": 0.7706,
+     "crps": 4.1764,
+     "mae": 5.9226,
+     "model": "E_lightgbm+nb",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.308 [-0.326, -0.289]) and incumbent (-0.700 [-0.728, -0.672]) in holdout CRPS; holdout cover_80 0.7706, PIT variance ratio 1.0683, bias -0.028. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.1436,
+     "vsBaseline": {
+      "diff": -0.3078,
+      "hi": -0.2894,
+      "lo": -0.3258
+     },
+     "vsIncumbent": {
+      "diff": -0.7003,
+      "hi": -0.6725,
+      "lo": -0.7278
+     }
+    },
+    "rebounds": {
+     "bias": 0.0052,
+     "cover80": 0.7894,
+     "crps": 1.2954,
+     "mae": 1.8696,
+     "model": "F_stack+mixture",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.058 [-0.063, -0.054]) and incumbent (-0.159 [-0.166, -0.152]) in holdout CRPS; holdout cover_80 0.7894, PIT variance ratio 1.0245, bias +0.005. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.1093,
+     "vsBaseline": {
+      "diff": -0.058,
+      "hi": -0.0537,
+      "lo": -0.0627
+     },
+     "vsIncumbent": {
+      "diff": -0.159,
+      "hi": -0.1524,
+      "lo": -0.1663
+     }
+    },
+    "team_points": {
+     "bias": 0.7016,
+     "cover80": 0.7939,
+     "crps": 6.698,
+     "mae": 9.4604,
+     "model": "D_ratings_plus_rest",
+     "n": 4924,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "beats baseline (-0.339 [-0.420, -0.251]); no incumbent for this family; holdout cover_80 0.7939, PIT variance ratio 1.0018, bias +0.702",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.3394,
+      "hi": -0.2508,
+      "lo": -0.4201
+     },
+     "vsIncumbent": null
+    },
+    "threes": {
+     "bias": -0.0062,
+     "cover80": 0.7916,
+     "crps": 0.5812,
+     "mae": 0.8816,
+     "model": "F_stack+mixture",
+     "n": 52796,
+     "readiness": "READY",
+     "reason": "beats baseline (-0.014 [-0.015, -0.012]) and incumbent (-0.036 [-0.038, -0.034]) in holdout CRPS; holdout cover_80 0.7916, PIT variance ratio 1.0212, bias -0.006. Conditional on playing; needs the live injury feed for participation.",
+     "relGain": 0.0582,
+     "vsBaseline": {
+      "diff": -0.0137,
+      "hi": -0.0123,
+      "lo": -0.015
+     },
+     "vsIncumbent": {
+      "diff": -0.0359,
+      "hi": -0.0337,
+      "lo": -0.0381
+     }
+    }
+   },
+   "holdout": "2024-25 and 2025-26 regular seasons (evaluated once for frozen candidates; 2025-26 also has archived point-in-time injury reports)",
+   "pfCore": "1.0.0"
+  },
+  "NFL": {
+   "codeSha": "baac85fac4c3eff49ea0e872ac84c774b74dbdc2",
+   "families": {
+    "anytime_td": {
+     "bias": -0.0074,
+     "cover80": 0.7983,
+     "crps": 0.17248,
+     "mae": 0.3434,
+     "model": "F_plus_availability",
+     "n": 6965,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "subgroup failure: team_changed=new team (1st game) bias +0.07 on mean 0.14 (n=607)",
+     "relGain": 0.0065,
+     "vsBaseline": {
+      "diff": -0.00629,
+      "hi": -0.00499,
+      "lo": -0.00764
+     },
+     "vsIncumbent": {
+      "diff": -0.00112,
+      "hi": -5e-05,
+      "lo": -0.00208
+     }
+    },
+    "carries": {
+     "bias": 0.1002,
+     "cover80": 0.8166,
+     "crps": 2.75989,
+     "mae": 3.9748,
+     "model": "F_plus_availability",
+     "n": 1957,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "subgroup failure: team_changed=new team (1st game) bias +2.21 on mean 6.22 (n=181)",
+     "relGain": 0.0779,
+     "vsBaseline": {
+      "diff": -0.27421,
+      "hi": -0.22053,
+      "lo": -0.33239
+     },
+     "vsIncumbent": {
+      "diff": -0.23317,
+      "hi": -0.18079,
+      "lo": -0.2854
+     }
+    },
+    "completions": {
+     "bias": 0.5556,
+     "cover80": 0.8057,
+     "crps": 3.33569,
+     "mae": 4.6845,
+     "model": "F_qb_starts_env_stack",
+     "n": 1050,
+     "readiness": "READY",
+     "reason": "F_qb_starts_env_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.98, 80% coverage 0.81, no subgroup with >25% relative bias.",
+     "relGain": 0.0265,
+     "vsBaseline": {
+      "diff": -0.13604,
+      "hi": -0.07798,
+      "lo": -0.19371
+     },
+     "vsIncumbent": {
+      "diff": -0.0907,
+      "hi": -0.04308,
+      "lo": -0.13656
+     }
+    },
+    "passing_attempts": {
+     "bias": 1.1945,
+     "cover80": 0.8038,
+     "crps": 4.82097,
+     "mae": 6.7773,
+     "model": "F_qb_starts_env_stack",
+     "n": 1050,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "validation gain over baseline A not significant (CI crosses 0) although the frozen winner beat A and the incumbent on the 2024-25 holdout; needs a further untouched season before READY",
+     "relGain": 0.0273,
+     "vsBaseline": {
+      "diff": -0.19609,
+      "hi": -0.1109,
+      "lo": -0.2802
+     },
+     "vsIncumbent": {
+      "diff": -0.13548,
+      "hi": -0.06844,
+      "lo": -0.20258
+     }
+    },
+    "passing_tds": {
+     "bias": 0.0257,
+     "cover80": 0.7924,
+     "crps": 0.61867,
+     "mae": 0.9275,
+     "model": "D_qb_starts_env",
+     "n": 1050,
+     "readiness": "NEEDS IMPROVEMENT",
+     "reason": "frozen winner is significantly worse than the incumbent shadow-0.4.0 on holdout",
+     "relGain": -0.0203,
+     "vsBaseline": {
+      "diff": -0.01286,
+      "hi": -0.00382,
+      "lo": -0.02222
+     },
+     "vsIncumbent": {
+      "diff": 0.01231,
+      "hi": 0.02086,
+      "lo": 0.00446
+     }
+    },
+    "passing_yards": {
+     "bias": 9.0412,
+     "cover80": 0.8114,
+     "crps": 41.4338,
+     "mae": 58.2794,
+     "model": "F_qb_starts_env_stack",
+     "n": 1050,
+     "readiness": "READY",
+     "reason": "F_qb_starts_env_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.99, 80% coverage 0.81, no subgroup with >25% relative bias.",
+     "relGain": 0.0134,
+     "vsBaseline": {
+      "diff": -1.36782,
+      "hi": -0.64954,
+      "lo": -2.13117
+     },
+     "vsIncumbent": {
+      "diff": -0.56307,
+      "hi": 0.08706,
+      "lo": -1.19364
+     }
+    },
+    "receiving_yards": {
+     "bias": 0.9652,
+     "cover80": 0.811,
+     "crps": 14.32178,
+     "mae": 20.9771,
+     "model": "F_plus_availability",
+     "n": 6160,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "subgroup failure: team_changed=new team (1st game) bias +6.30 on mean 21.52 (n=506)",
+     "relGain": 0.0222,
+     "vsBaseline": {
+      "diff": -0.37679,
+      "hi": -0.30612,
+      "lo": -0.44915
+     },
+     "vsIncumbent": {
+      "diff": -0.32533,
+      "hi": -0.25231,
+      "lo": -0.40583
+     }
+    },
+    "receptions": {
+     "bias": 0.0731,
+     "cover80": 0.8057,
+     "crps": 1.06262,
+     "mae": 1.5517,
+     "model": "F_plus_availability",
+     "n": 6160,
+     "readiness": "READY",
+     "reason": "F_plus_availability beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.98, 80% coverage 0.81, no subgroup with >25% relative bias.",
+     "relGain": 0.061,
+     "vsBaseline": {
+      "diff": -0.0429,
+      "hi": -0.0363,
+      "lo": -0.05046
+     },
+     "vsIncumbent": {
+      "diff": -0.06901,
+      "hi": -0.05756,
+      "lo": -0.08175
+     }
+    },
+    "rushing_yards": {
+     "bias": -0.326,
+     "cover80": 0.8068,
+     "crps": 16.76486,
+     "mae": 24.2582,
+     "model": "F_plus_availability",
+     "n": 1957,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "subgroup failure: team_changed=new team (1st game) bias +12.26 on mean 24.49 (n=181)",
+     "relGain": 0.0143,
+     "vsBaseline": {
+      "diff": -0.73764,
+      "hi": -0.51059,
+      "lo": -0.98453
+     },
+     "vsIncumbent": {
+      "diff": -0.24328,
+      "hi": -0.03062,
+      "lo": -0.45216
+     }
+    },
+    "targets": {
+     "bias": 0.1713,
+     "cover80": 0.8104,
+     "crps": 1.37302,
+     "mae": 1.9961,
+     "model": "F_plus_availability",
+     "n": 6160,
+     "readiness": "READY",
+     "reason": "F_plus_availability beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.98, 80% coverage 0.81, no subgroup with >25% relative bias.",
+     "relGain": 0.0823,
+     "vsBaseline": {
+      "diff": -0.08279,
+      "hi": -0.07178,
+      "lo": -0.0956
+     },
+     "vsIncumbent": {
+      "diff": -0.12313,
+      "hi": -0.10731,
+      "lo": -0.14092
+     }
+    },
+    "team_pass_attempts": {
+     "bias": 1.0905,
+     "cover80": 0.8051,
+     "crps": 4.30102,
+     "mae": 6.1298,
+     "model": "F_stack",
+     "n": 1088,
+     "readiness": "READY",
+     "reason": "F_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.97, 80% coverage 0.81, no subgroup with >25% relative bias.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.06002,
+      "hi": -0.0177,
+      "lo": -0.10378
+     },
+     "vsIncumbent": null
+    },
+    "team_points": {
+     "bias": -0.6624,
+     "cover80": 0.7996,
+     "crps": 5.06242,
+     "mae": 7.1675,
+     "model": "F_stack",
+     "n": 1088,
+     "readiness": "READY",
+     "reason": "F_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 0.97, 80% coverage 0.80, no subgroup with >25% relative bias. Mean is essentially the closing implied team total (stack weight on the market-driven D rung).",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.35155,
+      "hi": -0.25897,
+      "lo": -0.45311
+     },
+     "vsIncumbent": null
+    },
+    "team_rush_attempts": {
+     "bias": -0.0387,
+     "cover80": 0.8042,
+     "crps": 4.00767,
+     "mae": 5.7358,
+     "model": "F_stack",
+     "n": 1088,
+     "readiness": "READY",
+     "reason": "F_stack beats baseline A on validation and holdout (game-clustered 95% CIs exclude 0), holdout PIT variance ratio 1.00, 80% coverage 0.80, no subgroup with >25% relative bias.",
+     "relGain": null,
+     "vsBaseline": {
+      "diff": -0.10177,
+      "hi": -0.06005,
+      "lo": -0.14614
+     },
+     "vsIncumbent": null
+    }
+   },
+   "holdout": "2024-2025 regular seasons (evaluated once, frozen candidates only)",
+   "pfCore": "1.0.0"
+  },
+  "NHL": {
+   "codeSha": "322f533262ba7610aaee50ebbf72e73806991d7b",
+   "families": {
+    "assists": {
+     "bias": 0.002112,
+     "cover80": 0.798722,
+     "crps": 0.211742,
+     "mae": 0.399044,
+     "model": "F_stack",
+     "n": 94228,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Beats baseline on validation and holdout, calibrated (80% coverage 0.799, PIT var 0.996), better than the incumbent on holdout; prospective 2026-27 vs incumbent -0.0041 [-0.0070, -0.0014] (better). READY requires a live shadow record from the daily workflow (none yet: it is inert until merged).",
+     "relGain": 0.0095,
+     "vsBaseline": {
+      "diff": -0.002008,
+      "hi": -0.001753,
+      "lo": -0.002299
+     },
+     "vsIncumbent": {
+      "diff": -0.002028,
+      "hi": -0.001563,
+      "lo": -0.002473
+     }
+    },
+    "goals": {
+     "bias": -0.001165,
+     "cover80": 0.799412,
+     "crps": 0.136874,
+     "mae": 0.265154,
+     "model": "F_stack",
+     "n": 94228,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Beats baseline on validation and holdout, calibrated (80% coverage 0.799, PIT var 0.997), better than the incumbent on holdout; prospective 2026-27 vs incumbent -0.0002 [-0.0008, +0.0004] (tie). READY requires a live shadow record from the daily workflow (none yet: it is inert until merged).",
+     "relGain": 0.0015,
+     "vsBaseline": {
+      "diff": -0.001174,
+      "hi": -0.001015,
+      "lo": -0.001338
+     },
+     "vsIncumbent": {
+      "diff": -0.000209,
+      "hi": -2.7e-05,
+      "lo": -0.000387
+     }
+    },
+    "points": {
+     "bias": 0.002944,
+     "cover80": 0.801492,
+     "crps": 0.295848,
+     "mae": 0.521084,
+     "model": "F_stack",
+     "n": 94228,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Beats baseline on validation and holdout, calibrated (80% coverage 0.801, PIT var 0.992), better than the incumbent on holdout; prospective 2026-27 vs incumbent -0.0032 [-0.0061, -0.0004] (better). READY requires a live shadow record from the daily workflow (none yet: it is inert until merged).",
+     "relGain": 0.0071,
+     "vsBaseline": {
+      "diff": -0.002941,
+      "hi": -0.00249,
+      "lo": -0.003409
+     },
+     "vsIncumbent": {
+      "diff": -0.002105,
+      "hi": -0.001524,
+      "lo": -0.002694
+     }
+    },
+    "saves": {
+     "bias": 0.175377,
+     "cover80": 0.810034,
+     "crps": 3.826675,
+     "mae": 5.349943,
+     "model": "F_stack",
+     "n": 5222,
+     "readiness": "NEEDS IMPROVEMENT",
+     "reason": "Beats our own baseline but the incumbent (PLAYER_SIM_V1 walk-forward 2024-25 + 2025-26) is better on holdout (rung RPS over 14+..40+ (CRPS restricted to the incumbent's published rungs): +0.0278 [+0.0118, +0.0432]).",
+     "relGain": -0.0073,
+     "vsBaseline": {
+      "diff": -0.086667,
+      "hi": -0.058437,
+      "lo": -0.112099
+     },
+     "vsIncumbent": {
+      "diff": 0.027781,
+      "hi": 0.043175,
+      "lo": 0.011795
+     }
+    },
+    "shots": {
+     "bias": 0.039595,
+     "cover80": 0.804474,
+     "crps": 0.684681,
+     "mae": 1.019303,
+     "model": "F_stack",
+     "n": 94228,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Beats baseline on validation and holdout, calibrated (80% coverage 0.804, PIT var 0.991), better than the incumbent on holdout; prospective 2026-27 vs incumbent -0.0082 [-0.0128, -0.0037] (better). READY requires a live shadow record from the daily workflow (none yet: it is inert until merged).",
+     "relGain": 0.0027,
+     "vsBaseline": {
+      "diff": -0.006337,
+      "hi": -0.005666,
+      "lo": -0.007027
+     },
+     "vsIncumbent": {
+      "diff": -0.001871,
+      "hi": -0.001194,
+      "lo": -0.002571
+     }
+    },
+    "team_goals": {
+     "bias": 0.043268,
+     "cover80": 0.796798,
+     "crps": 0.953332,
+     "mae": 1.379345,
+     "model": "F_stack",
+     "n": 5246,
+     "readiness": "SHADOW VALIDATION",
+     "reason": "Beats baseline on validation and holdout, calibrated (80% coverage 0.797, PIT var 1.002), statistically tied with the incumbent on holdout. READY requires a live shadow record from the daily workflow (none yet: it is inert until merged).",
+     "relGain": 0.0014,
+     "vsBaseline": {
+      "diff": -0.008642,
+      "hi": -0.004231,
+      "lo": -0.012695
+     },
+     "vsIncumbent": {
+      "diff": -0.001338,
+      "hi": 0.000935,
+      "lo": -0.003786
+     }
+    }
+   },
+   "holdout": "2024-25 and 2025-26 regular seasons (evaluated once for frozen candidates) (saves re-scored once after a validation-motivated drift fix; disclosed)",
+   "pfCore": "1.0.0"
+  }
+ }
+}

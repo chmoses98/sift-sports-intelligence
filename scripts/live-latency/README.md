@@ -28,7 +28,8 @@ cd sift-latency
 | `api-web.nhle.com` | NHL scoreboard (`nhl-web`) | NHL nights |
 | `cdn.nba.com` | NBA scoreboard JSON (`nba-cdn`) | NBA nights |
 | `statsapi.mlb.com` | MLB schedule/linescore (`mlb-statsapi`) | MLB nights |
-| `api.elections.kalshi.com` | Kalshi live-data sampler (`kalshi-discover.mjs`, ≤ 8 requests) | once |
+| `api.elections.kalshi.com`, `external-api.kalshi.com` | Kalshi live-data sampler (`kalshi-discover.mjs`) — **terms-restricted, see below** | once, optional |
+| `raw.githubusercontent.com` | SIFT's public quote feed, for the Kalshi identity check | with the sampler |
 | `site.api.espn.com` | ESPN feeds — **off by default**; its terms reportedly bar automated access. Only with `--ack-prohibited` after you have read them | normally never |
 
 Inbound: the mark page listens on port **8787** on your Mac so your phone can reach it. A macOS firewall prompt
@@ -116,17 +117,32 @@ Add an entry to `EXTRACTORS` in `feeds.mjs` written **from a recorded sample** o
 1,000 calls per rolling 30 days at 1 QPS, enough for roughly 80 minutes of one game at 5 s, so use it for payload shape and
 spot latency, and ask sales for a push evaluation for the real benchmark (`docs/LIVE_VENDOR_EVALUATION.md`).
 
-## Kalshi live data (read-only, once)
+## Kalshi live data: one command, no tapping — read the warning first
+
+**Kalshi's own terms restrict this** (Developer Agreement §3.1 no collecting/caching/sharing API data; §3.5 no monitoring or
+benchmarking the API; Data Terms: no public display without written authorization). Details: `docs/LIVE_VENDOR_EVALUATION.md` §5.
+The script therefore **refuses to run** without `--ack-kalshi-terms`, and **skips its cadence (latency) stage** without
+`--ack-benchmark`. Recommended: send `docs/outreach/kalshi.md` first. If you decide to run a short read-only sample on your own
+responsibility, it is one command (new clone or `git pull` in an existing one):
 
 ```bash
-node scripts/live-latency/kalshi-discover.mjs --contact YOUR_EMAIL --out kalshi-sample
+git clone --branch claude/live-scores-infrastructure https://github.com/chmoses98/sift-sports-intelligence.git sift-latency && cd sift-latency && \
+node scripts/live-latency/kalshi-discover.mjs --contact YOUR_EMAIL --ack-kalshi-terms --out kalshi-sample
+# add  --ack-benchmark --minutes 5  to also measure update cadence (needs a live game; best 7–10 pm ET with the NHL/NBA slate)
 ```
 
-Samples Kalshi's `milestones` / `live_data` endpoints during a live slate to see what a first-party feed carries (scores? clocks?
-player stats?). The query parameter names are unverified; the script prints every status so a wrong name is visible. Send me the
-folder.
+What it does automatically (no taps): lists open events per sport and maps them to Kalshi milestones; maps SIFT's real games (from
+SIFT's public quote feed) to milestones; fetches `live_data`, `game_stats` (play-by-play) and `include_player_stats`; reports which
+of score / clock / period / status / timestamp / players / plays each payload contains; and, with `--ack-benchmark`, polls one batch
+request every 3 s for the chosen minutes and reports how often score and clock fields change and how old any provider timestamp is.
+About 60–200 requests in total, 1.2 s apart. It prints a plain summary and saves `kalshi-sample/` (raw responses, `schema-*.json`,
+`report.md`; public market metadata only, no credentials). Zip it (`zip -r kalshi-sample.zip kalshi-sample`) and send it back.
+
+Domains: `api.elections.kalshi.com` (falls back to `external-api.kalshi.com`), and `raw.githubusercontent.com` (SIFT's own quote feed,
+for the identity check; skip with `--no-sift-feed`). Stops at the first 429 or a 401/403 on live data (a 401/403 would mean live data is
+not public, which is itself a blocker: SIFT holds no credential by design).
 
 ## Files
 
 `probe.mjs` run + mark page · `analyze.mjs` matching and statistics · `feeds.mjs` extractors + rights table · `policy.mjs` run rules ·
-`doctor.mjs` preflight · `kalshi-discover.mjs` sampler · tests: `tests/live/latency-harness.test.ts`.
+`doctor.mjs` preflight · `kalshi-discover.mjs` + `kalshi-lib.mjs` Kalshi test · tests: `tests/live/latency-harness.test.ts`, `tests/live/kalshi-livedata.test.ts`.

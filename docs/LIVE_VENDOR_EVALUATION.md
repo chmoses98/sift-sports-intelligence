@@ -4,16 +4,19 @@ Status: **plan + drafts. Nothing purchased, sent, merged or deployed.** Continue
 `docs/LIVE_PUSH_ARCHITECTURE.md` (push architecture). Everything about vendors below comes from **search summaries of their own
 pages and press**, because the session had no access to the vendors' sites; re-read each cited page before relying on it.
 
-## 1. What Real said (owner-verified, not re-read here)
+## 1. What Real said (owner-verified)
 
-The owner verified that the TBPN interview of 2026-09-23 ([transcript](https://www.tbpndigest.com/story/2026-09-23/real-a-social-live-sports-stats-app-with-15m-mau-and-50m-daily-notifications-pitches-second-screen-dominance/transcript))
-has Real's founders naming **Genius Sports, Sportradar and additional scraping**. I could not open that page (host blocked in
-this session; search surfaced only a TBPN Digest company profile: real-time play-by-play, 18+ leagues), so this document does
-**not quote it** and I have not seen what they said about latency, which sports each source covers, or what "scraping" means.
-What it implies for SIFT, as a working hypothesis only: Real's speed is probably a *blend* of licensed official feeds for the
-leagues that have them, plus unofficial collection for the rest. That makes "match Real" a per-league question, and is why the
-benchmark compares every candidate against Real **game by game**, not in aggregate. Open item: paste the lines about latency and
-which sports use which source into this section.
+The owner verified the TBPN interview of 2026-09-23 ([transcript](https://www.tbpndigest.com/story/2026-09-23/real-a-social-live-sports-stats-app-with-15m-mau-and-50m-daily-notifications-pitches-second-screen-dominance/transcript)).
+As the owner reports it: Real's founders **discuss low latency and name Genius Sports, Sportradar and additional scraping, but do not
+disclose which source covers which sport, nor any measured delay.** I could not open the page from this session (host blocked), so
+nothing here is quoted from it, and this document makes no claim beyond that summary.
+
+**Correction to my earlier note.** I previously suggested Real's speed is "probably a blend of licensed feeds for some leagues and
+unofficial collection for the rest, so the benchmark is per league". The transcript does not say that, and I have no basis for
+a per-league mapping. What can be said is narrower: Real itself uses licensed official-data vendors *and* scraping, so a
+scraping-only or free-feed approach is not a like-for-like copy of Real, and Real's latency is unknown until measured. The
+benchmark compares every candidate against Real game by game because Real's own sourcing is undisclosed, not because we know
+it varies by league.
 
 ## 2. Sportradar: the 30-day trial and the push-feed evaluation
 
@@ -81,15 +84,63 @@ wagering) rather than leave them to discover it.
 Genius is the only licensed route to *official NFL real-time*. Because Genius has no self-serve path and the longest lead time, send
 its inquiry first; run the Sportradar trial for evidence while waiting. Neither answers price until sales replies.
 
-## 5. A lead worth one evening: Kalshi's own live data
+## 5. Kalshi's own live sports data: technically promising, contractually closed
 
-Kalshi documents `GET /live_data/milestone/{id}`, a batch variant, and `/milestones`, with an option for **player-level statistics for pro
-football, pro basketball and college men's basketball** ([docs](https://docs.kalshi.com/api-reference/live-data/get-live-data)).
-SIFT already reads Kalshi's public API; Kalshi settles contracts on licensed official data (Genius soccer, Aug 2026). Unknown:
-the response fields (score? clock? period?), update speed, whether the data may be re-displayed beyond Kalshi's terms, and the rate
-limit. `scripts/live-latency/kalshi-discover.mjs` samples it read-only (≤ 8 requests) so we can read the actual schema. If it carries
-live score and clock, it is the only cheap source with a plausible licence path (a first-party, documented API), and it would slot
-in as one more provider adapter.
+### What the API offers (docs.kalshi.com, via search; not fetched)
+
+* `GET /live_data/milestone/{id}` → `{ live_data: { type, details, milestone_id } }`; `type` names the schema of the flexible `details`;
+  `include_player_stats` for pro football, pro basketball and college men's basketball milestones with player mappings.
+* `GET /live_data/batch?milestone_ids=…` (≤ 100 ids).
+* `GET /live_data/milestone/{id}/game_stats` → `{ pbp }` play-by-play by period, **sourced from Sportradar** (it returns null for
+  unsupported types or milestones without a Sportradar id). Supported: pro football, college football, pro basketball, college men's and
+  women's basketball, WNBA, soccer, pro hockey, pro baseball. **Tennis is not listed.**
+* Milestones are found with `related_event_ticker` (or `with_milestones` on events); a sports milestone's `details` carries team ids.
+* Field-level contents (score, clock, period names, timestamps) and update frequency are **not documented in anything I could read**.
+  They are what `scripts/live-latency/kalshi-discover.mjs` would establish.
+
+### Identity: SIFT → Kalshi → milestone (checked on the real feed, 2026-10-20)
+
+SIFT's live-quote feed (`raw.githubusercontent.com/…/live-quotes/index.json`, readable from this session) keys each game as
+`26OCT20ANANYI` (date + away + home, from Kalshi's own tickers). That game's file holds 233 Kalshi markets across 20 events, including
+`KXNHLGAME-26OCT20ANANYI`. So the chain is deterministic: **SIFT feed game key + the sport's game-winner series = Kalshi event ticker →
+`/milestones?related_event_ticker=` → milestone id → live data.** Implemented and unit-tested as `gameEventTicker()`; the final hop
+(event → milestone) is what the sampler would verify and I could not. Tonight's feed lists 11 NHL games (2026-10-20), NFL Thursday
+`26OCT22NECHI` and the Sunday 2026-10-25 slate; the feed carries no NBA, CFB, CBB, soccer or tennis games, so those need Kalshi's own
+event lists (the sampler uses series `KXNBAGAME`, `KXNCAAFGAME`, `KXEPLGAME`, `KXATPMATCH`, … whose names beyond NFL/NHL/MLB/EPL/NCAAF/
+ATP/WTA are unverified).
+
+### Rights: read first-hand from Kalshi's own PDFs (2026-10-20)
+
+Sources: [Developer Agreement v1.1](https://kalshi-public-docs.s3.amazonaws.com/Kalshi-Developer-Agreement.pdf), [Data Terms of Use](https://kalshi-public-docs.s3.amazonaws.com/kalshi-data-terms-of-service.pdf).
+
+| Clause | Text | Consequence for SIFT |
+|---|---|---|
+| Dev. Agreement §1 | "Accessing or using Kalshi's API shall be considered a binding acceptance of this Agreement." | Binds API users; whether it also binds an unauthenticated public-endpoint reader is **unclear** (§4.1.1 says you must be a Member). |
+| §3 | "Use of Kalshi APIs is expressly limited to facilitating a members own trading on the Exchange; all other usages are disallowed." | A public scoreboard is not "your own trading". |
+| **§3.1** | Prohibits "Collecting, caching, aggregating, or storing data or content accessed via the API except for purposes of facilitating your own trading on Kalshi. You may not share such data or content with third parties in any manner without prior written authorization from Kalshi." | **Public display of Kalshi live data is not permitted without Kalshi's written authorization.** |
+| **§3.5** | Prohibits "Accessing the API for purposes of monitoring the availability, performance, or functionality of any of Kalshi's services or for any other benchmarking or competitive purposes." | A latency/cadence test of Kalshi's API is itself within this clause. |
+| §3.7 / §6.4 | No sublicensing; no public statements relating to Kalshi/its API without prior written approval. | Any attribution or announcement needs sign-off. |
+| Data Terms §I–II | Personal, non-commercial use "in the form in which it is presented on the Website"; "publicly displaying, … collecting, … scraping … or otherwise transfer[ring] … to any third person" prohibited **without prior written authorization from Kalshi "and/or an applicable third party provider"**. | Third-party-provider data (Sportradar's) needs the provider's authorization too. |
+
+**Conclusion: Kalshi's published terms do not permit independent public display of its sports data.** A public API is not a
+redistribution licence, and here the paper says so explicitly. The game data is also Sportradar-sourced, so even Kalshi's
+permission may not be enough: the underlying vendor's rights would need to cover SIFT. Kalshi publishes no licensing programme I could
+find (it licenses media data through negotiated deals, e.g. its Fox partnership).
+
+**Flag for the owner (I changed nothing):** the same clauses read against SIFT's existing Kalshi infrastructure raise questions that
+need a lawyer's read, not mine. §3.1 ("caching", "storing", "sharing with third parties") vs the relay's 5 s cache and the
+`live-quotes` branch, which republishes Kalshi market data publicly every 3 minutes; §3.5 ("monitoring … performance … or
+benchmarking") vs `live-provider-smoke.yml`, `relay-smoke.yml`, `kalshi-probe.mjs` and `kalshi-rate-probe.mjs`. Whether these clauses
+bind a reader of Kalshi's unauthenticated public market-data endpoints is exactly the open question in §1 above. I recommend
+raising it in the same message as the licence request (`docs/outreach/kalshi.md`), since a licence conversation will surface it anyway.
+
+### The test, and what is being done about it
+
+`kalshi-discover.mjs` is ready as a **one-command, no-tapping** test of coverage, identity mapping, fields, play-by-play, player stats and
+update cadence. Because of the clauses above it **refuses to run without `--ack-kalshi-terms`** (collection) and **skips the cadence stage
+without `--ack-benchmark`** (§3.5). Recommended order: send the Kalshi inquiry first; run the sample only once the owner has chosen to
+accept that risk or Kalshi has agreed. It has not been run (no access from this session). Technical verdict is therefore **unproven**,
+but it no longer decides the outcome: even a perfect result would not authorise public display.
 
 ## 6. Establishing the comparison with evidence
 
@@ -108,13 +159,14 @@ No latency has been measured by anyone in this work. The comparison is built onl
    emits the same `sift.live_game/1` deltas; vendors and the kill switch are configuration. Adding Sportradar or Genius changes
    one adapter file and the rights table, not the contract, matcher, freshness rules or UI slots.
 
-Sequencing: (a) the owner's own-machine benchmark on the free league feeds (NHL, NBA, MLB) gives the first real Real-vs-feed numbers
-and validates the harness; (b) Kalshi live-data sample; (c) Sportradar trial payloads and, if granted, a push evaluation re-run
-through the same harness (a stream consumer logs the same `change` records); (d) Genius when it replies.
+Sequencing: (a) send the Kalshi, Sportradar and Genius inquiries (drafts in `docs/outreach/`; nothing sent); (b) the owner's own-machine benchmark on the free
+league feeds (NHL, NBA, MLB) for the first real Real-vs-feed numbers and to validate the harness; (c) the Kalshi sample only after the §5
+decision; (d) Sportradar trial payloads and, if granted, a push evaluation re-run through the same harness (a stream consumer logs the same
+`change` records); (e) Genius when it replies.
 
 ## 7. Decisions needed
 
-1. Review and send (or edit) the two drafts in `docs/outreach/`; I have sent nothing.
+1. Review and send (or edit) the three drafts in `docs/outreach/` (Genius, Sportradar, Kalshi); I have sent nothing.
 2. Fill in the owner placeholders (name, entity, contact, whether SIFT is or will be commercial, expected audience).
 3. Choose the benchmark night and run the harness on your MacBook.
-4. Paste Real's founders' latency and per-sport source statements into §1.
+4. Decide whether to run the Kalshi sample before Kalshi answers (see §5), and whether to have the existing Kalshi relay/feed reviewed against Kalshi's Developer Agreement.

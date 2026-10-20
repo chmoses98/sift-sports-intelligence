@@ -1,6 +1,6 @@
 # Outreach drafts — NOT SENT
 
-`genius-sports.md` and `sportradar.md` are drafts for the owner to edit and send. Nothing has been sent, and no account has been
+`genius-sports.md`, `sportradar.md` and `kalshi.md` are drafts for the owner to edit and send. Nothing has been sent, and no account has been
 created, by anyone but the owner. Before sending:
 
 1. Replace every `[PLACEHOLDER]`; delete the bracketed guidance.

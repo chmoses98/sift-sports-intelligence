@@ -72,7 +72,8 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
       const player = new URL(href.replace(/^#/, 'https://x'), 'https://x').searchParams.get('player');
       check(!!player, `${tag}: the Snapshot has no ${t.label} tile; opening the Explorer by address (player ${player})`);
       if (!player) return;
-      await page.goto(`${BASE}#/design/sift2/nfl/props?game=${encodeURIComponent(eventId)}&player=${encodeURIComponent(player)}&stat=${t.family}`, { waitUntil: 'domcontentloaded' });
+      // a hash-only change within the loaded app: navigate in-page (a second page.goto to the same document can stall in WebKit)
+      await page.evaluate((h) => { location.hash = h; }, `#/design/sift2/nfl/props?game=${encodeURIComponent(eventId)}&player=${encodeURIComponent(player)}&stat=${t.family}`);
     }
     await page.locator('#pexa-t').waitFor({ timeout: 60_000 });
     check((await page.locator('#pexa-t').innerText()).includes(t.name), `${tag}: the Explorer opens on the player`);

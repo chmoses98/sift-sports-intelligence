@@ -353,16 +353,24 @@ and authority in a preview mode that exists only for this check (the application
   **`activation_check` is still BLOCKED on one check, D5**: of 581 eligible (confirmed or likely active) rows 100% are not blocked but only 9% pass the
   quality gate (the threshold proposed in the check is 50%).
 
-**Why D5 fails, exactly.** 504 of the 526 eligible REVIEW rows carry one finding, `team_consistency` (the engine normalises minutes and points to the team's total;
-"roles carried over from previous teams overlapped; early-season roster uncertainty"), and 105 also carry a `confidence` or `role` finding. It is the engine's
-own model-assumption review, it is not an availability problem, and SIFT already presents REVIEW rows at Low reliability with the reason (S6, S7 pass). The 50%
-threshold in D5 is a proposal in the code ("for the owner to adjust"), and it has **not** been changed to fit this result.
+**Why D5 failed, and what was checked before treating it as the documented effect (2026-10-20).** 504 of the 526 eligible REVIEW rows (433 of
+the 75 players' minutes rows, by family) carry one finding, `team_consistency`: for 5 of the 6 teams the sum of p(play) x E[minutes | play] came to
+274–298 against the 241.5 minutes a game offers, so the engine scaled minutes by 0.81–0.88 and raised its documented REVIEW ("roles carried over from
+previous teams overlapped; early-season roster uncertainty"). A read-only roster audit from a GitHub runner (nba-edge-finder#38,
+`nba/live/roster_audit.py`) found **0 roster, team or availability errors**: every projected player is on the team's current ESPN roster (none missing,
+none on two teams), every "New team" move is dated in ESPN's transaction log (Jaylen Brown to PHI, Paul George to BOS, John Collins and Taurean Prince to
+DET, Tobias Harris to SAS, LeBron James to PHI), the official report's 16 designations map to the right teams and all 11 OUT rows are BLOCK. The league's
+own roster endpoint refuses runner traffic, so Basketball-Reference was the independent page: it contradicts nothing, and does not list 17 players
+the feed has (two-way, rookie or recently signed); 5 are corroborated by the official report or a dated transaction, **12 are confirmed only by ESPN's
+roster**. The carried-over roles are not the whole overshoot: without them NYK is +6% and SAS +4% over budget, and deep-bench players with a middling
+p(play) add 28–57 minutes per team.
 
-**Exact remaining requirement.** An owner decision on D5, and one more pass of both verifiers on the run before the first game:
-(a) accept REVIEW-at-Low-reliability for rows whose only finding is `team_consistency` (change D5 to count "not blocked and not an availability finding"),
-or (b) wait until the early-season roster uncertainty clears (the gate's own rule) and require D5 as written. Either way the report must read READY and
-`verify-nba-activation.ts` must exit 0 on a pre-game run with the official report's player-level rows. Neither verifier has been relaxed, and no test was
-written to pass without live data.
+**D5 as proposed (nba-edge-finder#38, NOT merged; needs the owner's approval).** Eligible rows are counted in four separate categories: clean PASS 55
+(9%), eligible REVIEW whose only finding is the documented normalisation (within a 0.75 scale bound, and only with a clean same-slate roster audit)
+433 (75%), other REVIEW 93 (16%, never accepted), BLOCKED 0. PASS keeps its meaning and the 50% and 95% bars are unchanged (accepted 84% with the audit;
+without it D5 is PENDING). With that audit as evidence `activation_check` reads **READY** and SIFT's `verify-nba-activation.ts` reads **READY (S1–S9)**
+on the same feed (2026-10-20 06:08 UTC). Nothing is activated: all seven families remain `APPROVED_PENDING_LIVE_INPUTS` until the owner approves the D5
+policy and the promotion, and decides whether the 12 uncorroborated players should hold it.
 
 **Activation (needs explicit approval, one change).** Change the seven NBA rows from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED` in `src/lib/projectionApprovals.ts`, update the
 matrix in §3, and re-run `npx vitest run`, the Playwright suites and `scripts/verify-nba-activation.ts` on that head. No correction is applied to the

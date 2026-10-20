@@ -16,6 +16,7 @@
 // board lists current games, the feed lists MLB and at least one MLB game file quotes the publication's tickers) and
 // its failures are reported as "MLB: …": they fail the run without stopping or masking the NFL and NHL checks.
 import { chromium, webkit } from '@playwright/test';
+import { expectation, judgeRail } from './monitor-expectations.mjs';
 import { honestPublicationStates, isEligibleEvent, publicationStatus, selectTarget, sportCoverage, sportEntry, sportGames } from './live-quotes/slate.mjs';
 // The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
 // default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
@@ -554,11 +555,18 @@ async function designCheck(browser, device, name) {
     await page.goto(BASE + '#/nfl');
     const rail = page.getByRole('region', { name: 'Where to look first' });
     await rail.waitFor({ timeout: 60_000 });
-    await rail.locator('.prio__l').waitFor({ timeout: 60_000 });
+    // The rail is schedule-driven: a ranked list while a pregame game exists, "No upcoming games" once every game has kicked off. Expect what the
+    // publication's own schedule implies and judge the screen against THAT (scripts/monitor-expectations.mjs); a populated schedule with an empty
+    // rail, or an empty schedule with a list, or a rail that renders neither, still fails.
+    const railExp = expectation(board?.items ?? [], Date.now());
+    await rail.locator('.prio__l, .prio__state').first().waitFor({ timeout: 60_000 }).catch(() => {});
+    for (let i = 0; i < 30 && /Reading this week/.test(await rail.innerText().catch(() => '')); i++) await page.waitForTimeout(1000);
     await page.waitForTimeout(3000);
     const railText = (await rail.innerText()).replace(/\s+/g, ' ');
     console.log(`  NFL rail: ${railText.slice(0, 600)}`);
-    check(/Top SIFT edge/i.test(railText), 'NFL Slate Priorities: the Top SIFT Edge section is present (an edge, or plainly none)');
+    const railVerdict = judgeRail(railExp, { list: (await rail.locator('.prio__l').count()) > 0, items: await rail.locator('a.prio__a').count(), emptyState: /No upcoming games/.test(railText), waiting: /Reading this week/.test(railText) });
+    check(railVerdict.ok, `NFL Slate Priorities (${railVerdict.mode === 'EMPTY_SLATE' ? 'empty pregame slate' : 'pregame slate'}): ${railVerdict.msg}`);
+    if (railVerdict.mode === 'POPULATED') check(/Top SIFT edge/i.test(railText), 'NFL Slate Priorities: the Top SIFT Edge section is present (an edge, or plainly none)');
     const items = await rail.locator('a.prio__a').count();
     check(items <= 5, `NFL Slate Priorities: ${items} linked items (at most 5)`);
     // The multi-script section says what the data supports: the four scripts are final-margin buckets and a

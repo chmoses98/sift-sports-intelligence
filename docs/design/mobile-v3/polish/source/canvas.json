@@ -1,0 +1,29 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-20T07:00:00Z" },
+  "title": "SIFT Mobile Design Direction",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Home, live feed", "is_interactive": true, "radius": 40 },
+    "HomePublished.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Home, published data only", "is_interactive": true, "radius": 40 },
+    "Game.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Game, live", "is_interactive": true, "radius": 40 },
+    "GamePregame.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Game, pregame", "is_interactive": true, "radius": 40 },
+    "GameFinal.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 844, "title": "Game, final", "is_interactive": true, "radius": 40 },
+    "Signal.dc.html": { "x": 2350, "y": 0, "w": 390, "h": 844, "title": "Signals", "is_interactive": true, "radius": 40 },
+    "SignalSheet.dc.html": { "x": 2820, "y": 0, "w": 390, "h": 844, "title": "Signal sheet", "is_interactive": true, "radius": 40 },
+    "Data.dc.html": { "x": 0, "y": 1520, "w": 1640, "h": 1000, "title": "Live data audit" },
+    "Audit.dc.html": { "x": 1720, "y": 1520, "w": 1640, "h": 1100, "title": "Audit of the SIFT 2.0 phone build" },
+    "System.dc.html": { "x": 3440, "y": 1520, "w": 1640, "h": 1180, "title": "Design language" }
+  },
+  "order": ["Data.dc.html", "Audit.dc.html", "System.dc.html", "Main.dc.html", "HomePublished.dc.html", "Game.dc.html", "GamePregame.dc.html", "GameFinal.dc.html", "Signal.dc.html", "SignalSheet.dc.html"],
+  "notes": {
+    "t-phones": { "x": 0, "y": -260, "text": "SIFT, a sports companion with the models running quietly", "kind": "title1", "maxW": 3210 },
+    "n-home": { "x": 0, "y": 904, "w": 390, "text": "Home. Live games first, then upcoming by time. Teams you follow sit on top, a week of days sits below, and a signal chip appears only on rows that have one. Scores, clocks and plays are design samples, labelled Sample. Open Tweaks to switch the feed.", "size": "s", "fill": "gray" },
+    "n-hpub": { "x": 470, "y": 904, "w": 390, "text": "The same Home with the data SIFT has today: start times and an In play label, no scores. This is the state to ship until a live feed exists.", "size": "s", "fill": "gray" },
+    "n-game": { "x": 940, "y": 904, "w": 390, "text": "Game. Four tabs: Live, Matchups, Players, Markets. Swipe between them, tap the signal row for its sheet, tap a player for the ladder. After kickoff the research is frozen and says so.", "size": "s", "fill": "gray" },
+    "n-sig": { "x": 2350, "y": 904, "w": 390, "text": "Signals. The full list of research candidates. Tap a row for the sheet, tap or drag its handle between half and full.", "size": "s", "fill": "gray" },
+    "t-why": { "x": 0, "y": 1260, "text": "What is missing, what was found, and the language it is built in", "kind": "title1", "maxW": 5080 }
+  },
+  "designSystems": []
+}

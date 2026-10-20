@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Signals</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#05080D}
+.titleblock{padding:6px 16px 14px}
+.titleblock .sub{margin-top:8px}
+.legend{display:flex;gap:16px;align-items:center;padding:14px 16px 0;font:500 13px/16px var(--f-body);color:var(--tx2)}
+.legend i{display:inline-block;vertical-align:middle;margin-right:7px}
+.lg-dot{width:10px;height:10px;border-radius:50%;background:var(--model)}
+.lg-band{width:18px;height:6px;border-radius:3px;background:var(--model-soft)}
+.lg-tick{width:2px;height:14px;border-radius:1px;background:var(--mkt)}
+.sigbtn{display:grid;grid-template-columns:40px 1fr auto;column-gap:12px;row-gap:12px;padding:14px 16px 16px;width:100%;align-items:center;text-align:left}
+.sigbtn.on{background:var(--bg2)}
+.passcard{display:flex;gap:12px;align-items:flex-start;padding:18px 16px}
+.passcard .ic{color:var(--ok);margin-top:1px}
+.passcard b{display:block;font:600 16px/20px var(--f-body)}
+.passcard .passcard__s{display:block;margin-top:2px;font:400 15px/20px var(--f-body);color:var(--tx2)}
+.emptynote{padding:22px 16px 0;font:400 13px/18px var(--f-body);color:var(--tx3)}
+.howto{padding:30px 16px 0}
+.howto__r{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.howto__r:first-of-type{margin-top:10px;border-top:1px solid var(--line)}
+.howto__r i{margin:6px 0 0}
+.howto__r b{display:block;font:600 16px/20px var(--f-body)}
+.howto__s{font:400 13px/18px var(--f-body);color:var(--tx2)}
+</style>
+</helmet>
+
+<div class="app">
+<main class="scroll" id="sc" inert="{{bgInert}}">
+  <header class="top">
+    <span class="brand">SIFT</span>
+    <button class="ibtn" aria-label="Search"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="ibtn" aria-label="My Board"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </header>
+
+  <div class="titleblock">
+    <h1 class="h1">Signals</h1>
+    <div class="sub">Where a published model and the market disagree.</div>
+  </div>
+
+  <div class="chips" role="group" aria-label="Sport">
+    <sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+      <button class="chip {{c.cls}}" aria-pressed="{{c.sel}}" onClick="{{c.pick}}">{{c.label}} <i>{{c.n}}</i></button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{showList}}" hint-placeholder-val="{{ true }}">
+    <div class="legend" aria-hidden="true"><span><i class="lg-dot"></i>Model</span><span><i class="lg-band"></i>Range</span><span><i class="lg-tick"></i>Break-even</span></div>
+    <div class="group">
+      <sc-for list="{{sigs}}" as="s" hint-placeholder-count="3">
+        <button class="sigbtn {{s.cls}}" style="{{s.border}}" aria-haspopup="dialog" aria-label="{{s.aria}}" onClick="{{s.pick}}">
+          <span class="crest" style="{{s.crestStyle}}" aria-hidden="true">{{s.crest}}</span>
+          <span style="min-width:0"><div class="sig__t">{{s.title}}</div><div class="sig__m">{{s.meta}}</div></span>
+          <span class="sig__n"><div><b style="color:var(--model)">{{s.model}}</b><small>MODEL</small></div><div><b style="color:var(--mkt)">{{s.needs}}</b><small>NEEDS</small></div></span>
+          <span class="sig__g gauge" aria-hidden="true"><i class="gauge__band" style="left:{{s.lo}}%;width:{{s.bw}}%"></i><i class="gauge__tick" style="left:{{s.be}}%"></i><i class="gauge__dot" style="left:{{s.fair}}%"></i></span>
+        </button>
+      </sc-for>
+    </div>
+    <div class="emptynote">Flagged by the published model, never by SIFT. Research only.</div>
+    <div class="howto">
+      <h2 class="sec__t" style="padding:0;margin:0">How to read one</h2>
+      <div class="howto__r"><i class="lg-dot" aria-hidden="true"></i><div><b>Model</b><span class="howto__s">The model&rsquo;s chance that this side pays out.</span></div></div>
+      <div class="howto__r"><i class="lg-tick" aria-hidden="true"></i><div><b>Needs</b><span class="howto__s">The price at which it breaks even, fee included.</span></div></div>
+      <div class="howto__r"><i class="lg-band" aria-hidden="true"></i><div><b>Range</b><span class="howto__s">How unsure the model is. Wide means weak.</span></div></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{showPass}}" hint-placeholder-val="{{ false }}">
+    <div class="group" style="margin-top:20px">
+      <div class="passcard"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg><div><b>No NFL signal this week</b><span class="passcard__s">The publication recommends nothing. A pass is a result.</span></div></div>
+    </div>
+  </sc-if>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg>Games</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-props"/></svg>Props</a>
+  <a class="tab on" href="Signal.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg>Signals</a>
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="{{sheetSid}}" group="" frozen="{{false}}" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3"/></symbol>
+  <symbol id="i-props" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6.5 4 13L16 12h5"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+</defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const sheet = st.sheet === undefined ? 'ars' : st.sheet;   // open on the first signal, as a screenshot
+    const sport = st.sport || 'ALL';
+    const RAW = [
+      { id: 'ars', title: 'Arsenal don’t beat Leeds', meta: 'Arsenal v Leeds · Sat 6:30 AM', crest: 'ARS', crestStyle: 'background:#C8202B', fair: 47.3, lo: 30.8, hi: 64.6, be: 30.4 },
+      { id: 'leon', title: 'León fail to score', meta: 'Puebla v León · Fri 8:00 PM', crest: 'LEO', crestStyle: 'background:#1E8A52', fair: 39.1, lo: 25.6, hi: 51.9, be: 25.3 },
+      { id: 'btts', title: 'Not both teams score', meta: 'Puebla v León · Fri 8:00 PM', crest: 'P·L', crestStyle: 'background:linear-gradient(90deg,#2757B8 50%,#1E8A52 50%)', fair: 57.7, lo: 45.2, hi: 69.5, be: 46.7 }
+    ];
+    const sigs = RAW.map((s, i) => ({ ...s, model: Math.round(s.fair) + '%', needs: Math.round(s.be) + '¢', bw: Math.round((s.hi - s.lo) * 10) / 10,
+      aria: s.title + '. Model ' + Math.round(s.fair) + ' percent, needs ' + Math.round(s.be) + ' cents. Opens research.',
+      cls: sheet === s.id ? 'on' : '', border: i ? 'border-top:1px solid var(--line)' : '', pick: () => this.setState({ sheet: s.id, openKey: (st.openKey || 0) + 1 }) }));
+    const chips = [['ALL', 'All', 3], ['SOC', 'Soccer', 3], ['NFL', 'NFL', 0]].map(([k, label, n]) => ({ label, n, cls: sport === k ? 'on' : '', sel: sport === k, pick: () => this.setState({ sport: k, sheet: null }) }));
+    const open = !!sheet;
+    return { chips, sigs, showList: sport !== 'NFL', showPass: sport === 'NFL', sheetOpen: open, sheetSid: sheet || 'ars', openKey: st.openKey || 0,
+      closeSheet: () => this.setState({ sheet: null }), bgInert: open ? '' : undefined };
+  }
+}
+</script>
+</body>
+</html>

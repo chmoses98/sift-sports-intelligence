@@ -37,6 +37,9 @@ jobs:
         env:
           # After a deploy, the site must be serving exactly the commit that was deployed (version.json).
           SIFT_EXPECT_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+      - name: NFL — the published projection distribution in the live Explorer (Chromium desktop + WebKit iPhone)
+        if: always()
+        run: node scripts/nfl-distribution-production-check.mjs
       # The repair sprint's deliverables (docs/REPAIR_SPRINT_2026-10-11.md) on the live site: every line names its
       # tracker issue; a check that cannot apply today prints N/A (reason). Screenshots: production-sprint-*.png.
       - name: Sprint features (repair sprint 2026-10-11)

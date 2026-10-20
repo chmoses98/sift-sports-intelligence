@@ -353,9 +353,8 @@ and authority in a preview mode that exists only for this check (the application
   **`activation_check` is still BLOCKED on one check, D5**: of 581 eligible (confirmed or likely active) rows 100% are not blocked but only 9% pass the
   quality gate (the threshold proposed in the check is 50%).
 
-**Why D5 failed, and what was checked before treating it as the documented effect (2026-10-20).** 504 of the 526 eligible REVIEW rows (433 of
-the 75 players' minutes rows, by family) carry one finding, `team_consistency`: for 5 of the 6 teams the sum of p(play) x E[minutes | play] came to
-274–298 against the 241.5 minutes a game offers, so the engine scaled minutes by 0.81–0.88 and raised its documented REVIEW ("roles carried over from
+**Why D5 failed, and what was checked before treating it as the documented effect (2026-10-20).** Of the 581 eligible rows (83 players x 7 families) 526 are REVIEW; 504 of them carry one finding, `team_consistency` (433 carry nothing else, 71 also a
+`confidence` or `role` finding): for 5 of the 6 teams the sum of p(play) x E[minutes | play] came to 274–298 against the 241.5 minutes a game offers, so the engine scaled minutes by 0.81–0.88 and raised its documented REVIEW ("roles carried over from
 previous teams overlapped; early-season roster uncertainty"). A read-only roster audit from a GitHub runner (nba-edge-finder#38,
 `nba/live/roster_audit.py`) found **0 roster, team or availability errors**: every projected player is on the team's current ESPN roster (none missing,
 none on two teams), every "New team" move is dated in ESPN's transaction log (Jaylen Brown to PHI, Paul George to BOS, John Collins and Taurean Prince to

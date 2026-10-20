@@ -401,5 +401,5 @@ What this change adds to SIFT is the check that would catch the defect, so that 
   feed without P(play) (PENDING).
 
 Status of the engine, in one line: CONDITIONAL. Holdout CRPS −0.0136 [−0.0209, −0.0064] vs the established minutes forecast (−0.0685 [−0.0773, −0.0593] vs its injury-aware variant when the eligible
-set is known), no degradation for established starters, all seven families still READY under the original rules, 13-point drop in team-sum dispersion; promotion needs the pre-registered prospective test
+set is known), no degradation for established starters, all seven families still READY under the original rules, team-sum dispersion halved (SD 0.050 to 0.025); promotion needs the pre-registered prospective test
 on the archived pre-tip forecasts (`minutes-shadow-archive` branch), a live run of both verifiers on a JRM feed with real reports, and two explicit approvals (deploy the engine; promote the families).

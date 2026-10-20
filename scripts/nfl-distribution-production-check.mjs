@@ -22,6 +22,7 @@ const argv = process.argv.slice(2);
 const argOf = (n) => { const i = argv.indexOf(`--${n}`); return i > -1 ? argv[i + 1] : null; };
 
 const failures = [];
+let verified = 0;
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
 const pct = (p) => `${Math.round(p * 100)}%`;
 const getJson = async (url) => { const r = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`, { headers: { 'cache-control': 'no-cache' } }); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.json(); };
@@ -40,7 +41,7 @@ async function plannedGame() {
 
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
-async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
+async function explorerCheck(browser, device, deviceName, eventId, pub, t, plan) {
   const tag = `${deviceName} ${t.name} ${t.family}`;
   const ctx = await browser.newContext({ ...device, serviceWorkers: 'block' });
   const page = await ctx.newPage();
@@ -54,6 +55,7 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
     // does not list is simply not offered today (N/A for that player, never a pass).
     await snap.locator('.s2-player').first().waitFor({ timeout: 45_000 }).catch(() => {});
     const listed = await snap.locator('.s2-player').count();
+    if (!listed && !plan.pregame) { console.log(`  N/A  ${tag}: the game has started and the Snapshot offers no props for a started game`); return; }
     check(listed > 0, `${tag}: the Player Snapshot lists players (${listed})`);
     if (!listed) return;
     await snap.getByRole('searchbox').fill(t.name.split(' ').filter((w) => !/^(jr\.?|sr\.?|ii|iii|iv|v)$/i.test(w)).pop());
@@ -104,6 +106,7 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
     check((await overflow(page)) <= 1, `${tag}: no horizontal overflow`);
     check(errs.length === 0, `${tag}: no page errors${errs.length ? ` (${errs[0]})` : ''}`);
     await page.screenshot({ path: `production-nfl-dist-${deviceName}-${t.family}-${t.name.split(' ').pop()}.png` });
+    verified++;
   } catch (e) {
     check(false, `${tag}: ${String(e.message).split('\n')[0]}`);
   } finally { await ctx.close(); }
@@ -134,7 +137,7 @@ else devices.push(['chromium-phone', chromium, { viewport: { width: 390, height:
 for (const [name, type, device] of devices) {
   console.log(`\n== ${name}`);
   const browser = await type.launch(process.env.SIFT_CHROMIUM_ARGS ? { args: JSON.parse(process.env.SIFT_CHROMIUM_ARGS) } : {});
-  try { for (const t of plan.targets) await explorerCheck(browser, device, name, eventId, pub, t); } finally { await browser.close(); }
+  try { for (const t of plan.targets) await explorerCheck(browser, device, name, eventId, pub, t, plan); } finally { await browser.close(); }
 }
 if (failures.length) { console.log(`\n${failures.length} FAILED:`); failures.forEach((f) => console.log(`  - ${f}`)); process.exit(1); }
-console.log('\nAll NFL distribution production checks passed.');
+console.log(verified ? `\nAll NFL distribution production checks passed (${verified} player view(s) verified).` : '\nN/A  NFL distribution in the live Explorer: no player view could be opened today (see the N/A lines above); nothing was verified.');

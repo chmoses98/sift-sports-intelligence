@@ -2,6 +2,7 @@
 //
 //   distributionPlan({ items, feed, art, now }) -> { mode, reason, game, targets, problems, notes }
 //
+//   pregame            true while the game has not kicked off (the Snapshot lists its props); a started game's props are refused by the app
 //   mode 'NOT_APPLICABLE'  there is nothing to check today: no current NFL game on the schedule, or the feed publishes no promoted-family
 //                          (receptions / completions) projection for it. Reported as N/A with the reason, never counted as a pass.
 //   mode 'CHECK'           a current game has promoted-family projections: `targets` are the players to open in the live Explorer (the two
@@ -38,15 +39,16 @@ export function distributionPlan({ items, feed, art, now, perFamily = 2 }) {
   const notes = [];
   const game = currentGame(items, now);
   if (!game) return { mode: 'NOT_APPLICABLE', reason: 'no current NFL game on the schedule (every game has finished or none is listed)', game: null, targets: [], problems, notes };
-  if (!feed || !Array.isArray(feed.players)) return { mode: 'CHECK', reason: null, game, targets: [], problems: ['the projection feed is unreadable'], notes };
+  if (!feed || !Array.isArray(feed.players)) return { mode: 'CHECK', reason: null, game, pregame: Date.parse(game.start_time_utc) > now, targets: [], problems: ['the projection feed is unreadable'], notes };
   const teams = teamsOf(game);
+  const pregame = Date.parse(game.start_time_utc) > now;
   const rows = feed.players.filter((p) => FAMILIES.includes(p.family) && teams.some((t) => sameTeam(t, p.team)));
   if (!rows.length) {
-    return { mode: 'NOT_APPLICABLE', reason: `the feed (${feed.generated_utc}) publishes no receptions / completions projection for ${teams.join(' @ ')}`, game, targets: [], problems, notes };
+    return { mode: 'NOT_APPLICABLE', reason: `the feed (${feed.generated_utc}) publishes no receptions / completions projection for ${teams.join(' @ ')}`, game, pregame, targets: [], problems, notes };
   }
   if (!art) {
     problems.push('the distribution artifact is unreadable or missing');
-    return { mode: 'CHECK', reason: null, game, targets: [], problems, notes };
+    return { mode: 'CHECK', reason: null, game, pregame, targets: [], problems, notes };
   }
   if (art.schema !== 'sift.projection_distributions.v1') problems.push(`the artifact schema is ${art.schema}`);
   if (art.projection?.generated_utc !== feed.generated_utc) problems.push(`the artifact describes the feed of ${art.projection?.generated_utc}, not the current ${feed.generated_utc}`);
@@ -61,6 +63,6 @@ export function distributionPlan({ items, feed, art, now, perFamily = 2 }) {
     rows.filter((r) => r.family === family && have.has(keyOf(r))).sort((a, b) => b.mean - a.mean).slice(0, perFamily)
       .forEach((r) => targets.push({ name: r.name, family, label: LABEL[family], playerId: r.player_id, gameId: r.game_id, mean: r.mean, dist: have.get(keyOf(r)), row: r }));
   }
-  if (!targets.length && !problems.length) return { mode: 'NOT_APPLICABLE', reason: 'every promoted-family row for this game is honestly excluded from the artifact', game, targets, problems, notes };
-  return { mode: 'CHECK', reason: null, game, targets, problems, notes };
+  if (!targets.length && !problems.length) return { mode: 'NOT_APPLICABLE', reason: 'every promoted-family row for this game is honestly excluded from the artifact', game, pregame, targets, problems, notes };
+  return { mode: 'CHECK', reason: null, game, pregame, targets, problems, notes };
 }

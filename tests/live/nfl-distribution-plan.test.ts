@@ -36,8 +36,9 @@ describe('the plan', () => {
     expect(byFam('receptions')[0].mean).toBeGreaterThanOrEqual(byFam('receptions')[1].mean);
     for (const t of p.targets) expect(t.dist).toBeTruthy();
   });
-  it('after kick-off the game is still checked (the Explorer keeps working)', () => {
-    expect(plan({ now: KICK + 2 * H }).mode).toBe('CHECK');
+  it('after kick-off the game is still checked (the Explorer keeps working), and the plan says it is no longer pregame', () => {
+    expect(plan({ now: KICK + 2 * H })).toMatchObject({ mode: 'CHECK', pregame: false });
+    expect(plan()).toMatchObject({ mode: 'CHECK', pregame: true });
   });
   it('no current game: not applicable, with the reason (a finished week is not a failure)', () => {
     const p = plan({ items: [game('FINAL')], now: KICK + 4 * 86400e3 });

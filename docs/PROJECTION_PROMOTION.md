@@ -364,12 +364,18 @@ the feed has (two-way, rookie or recently signed); 5 are corroborated by the off
 roster**. The carried-over roles are not the whole overshoot: without them NYK is +6% and SAS +4% over budget, and deep-bench players with a middling
 p(play) add 28–57 minutes per team.
 
-**D5 as proposed (nba-edge-finder#38, NOT merged; needs the owner's approval).** Eligible rows are counted in four separate categories: clean PASS 55
-(9%), eligible REVIEW whose only finding is the documented normalisation (within a 0.75 scale bound, and only with a clean same-slate roster audit)
-433 (75%), other REVIEW 93 (16%, never accepted), BLOCKED 0. PASS keeps its meaning and the 50% and 95% bars are unchanged (accepted 84% with the audit;
-without it D5 is PENDING). With that audit as evidence `activation_check` reads **READY** and SIFT's `verify-nba-activation.ts` reads **READY (S1–S9)**
-on the same feed (2026-10-20 06:08 UTC). Nothing is activated: all seven families remain `APPROVED_PENDING_LIVE_INPUTS` until the owner approves the D5
-policy and the promotion, and decides whether the 12 uncorroborated players should hold it.
+**D5 as approved and merged (nba-edge-finder#38).** Eligible rows are counted in four separate categories: clean PASS, eligible REVIEW whose only finding is the documented
+normalisation (team minutes scale of at least 0.75, usage scale within bounds, and only with a roster audit of the same slate and feed, at most 6 hours old, covering
+every team, ESPN rosters read, with 0 errors), other REVIEW (any other finding, or the documented one without the audit: never accepted) and BLOCKED. PASS keeps its meaning;
+the 50% (clean PASS plus documented REVIEW) and 95% (not blocked) bars are unchanged; without the audit D5 is PENDING. On the six-team feed of 2026-10-20 06:08 UTC
+(clean PASS 55, documented REVIEW 433, other REVIEW 93, BLOCKED 0) `activation_check` read READY and SIFT's `verify-nba-activation.ts` read READY (S1-S9).
+
+**Same-day re-run on the full 20-team slate (feed of 2026-10-20 18:18 UTC).** `activation_check` reads **BLOCKED**, correctly: 13 of 20 teams had not yet submitted the official
+report (A5 PENDING), and 15 players reported OUT only by the ESPN aggregator (no official designation yet) are rated likely-out with a REVIEW gate instead of BLOCK (D3 FAIL: 105 of 203
+ruled-out rows not blocked). The roster audit counts those 15 as errors, so the documented REVIEW category is not accepted and D5 is PENDING (clean PASS 231, 34%; documented REVIEW 345,
+50%; other REVIEW 110, 16%; BLOCKED 0). SIFT's verifier still reads READY because it withholds those 15 rows (S4). All 39 players confirmed only by ESPN's roster were independently
+found on the team's page at nba.com and on at least one of CBS Sports or Basketball-Reference. Nothing is activated: all seven families remain `APPROVED_PENDING_LIVE_INPUTS`;
+promotion needs a separate approved change and a pre-game run of both verifiers that reads READY.
 
 **Activation (needs explicit approval, one change).** Change the seven NBA rows from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED` in `src/lib/projectionApprovals.ts`, update the
 matrix in §3, and re-run `npx vitest run`, the Playwright suites and `scripts/verify-nba-activation.ts` on that head. No correction is applied to the

@@ -92,8 +92,10 @@
   .app--sift2 .s2-read__lines{gap:5px;margin-bottom:6px}
   .app--sift2 .s2-read__lines li{gap:0}
   .app--sift2 .sift2-command .s2-read{padding:10px 12px}
-  .app--sift2 .s2-read__tiles>a{gap:4px;padding:8px 6px}
-  .app--sift2 .s2-read__tiles svg{width:24px;height:24px}
+  .app--sift2 .s2-read__tiles>a{gap:3px;padding:6px 5px}
+  .app--sift2 .s2-read__tiles svg{width:20px;height:20px}
+  .app--sift2 .s2-read__tiles strong{line-height:1.2}
+  .app--sift2 .s2-read__tiles span{line-height:1.25}
   .app--sift2 .s2-read__lines strong{font-size:var(--sift2-fs-body);line-height:1.2}
   .app--sift2 .s2-read__lines span{font-size:var(--sift2-fs-micro);line-height:1.3}
   .app--sift2 .s2-read .s2-panel-foot{font-size:var(--sift2-fs-micro);line-height:1.3}

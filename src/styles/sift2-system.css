@@ -176,3 +176,11 @@
     border-color: var(--sift2-line-strong);
   }
 }
+
+/* ==========================================================================
+   Fit at the 12px floor: places that were sized around 10 to 11px text
+   ========================================================================== */
+/* Four-letter crests (STBK, TAMU) set in the condensed face fit the 24 to 26px mark. */
+:root[data-ui='sift2'] .teammark--text { font-family: var(--sift2-font-display); letter-spacing: 0; }
+/* Percentile-strip labels are centred on their dot; give the end dots room so a label never leaves the column. */
+:root[data-ui='sift2'] .svp__track { margin-inline: 16px; }

@@ -55,16 +55,31 @@ const nba = (body) => (Array.isArray(body?.scoreboard?.games) ? body.scoreboard.
   return r ? [r] : [];
 });
 
-/** name -> { sport, url(dateYmd), extract }. A licensed vendor adds its own entry here (written from a recorded sample). */
+/**
+ * name -> { sport, url(dateYmd), extract, rights }.  `rights` is what is KNOWN about permission to call the endpoint, from
+ * search summaries only (nothing was read from the provider's own terms; re-read before relying on it):
+ *   TERMS_REPORTED_TO_PROHIBIT_AUTOMATION  a terms page is reported to bar automated access  -> off unless --ack-prohibited <id>
+ *   NON_COMMERCIAL_NOTICE_REPORTED         a notice reports non-commercial / non-bulk use only -> needs --ack-unlicensed
+ *   NO_LICENCE_PUBLISHED                   no developer licence found                          -> needs --ack-unlicensed
+ *   LICENSED_TRIAL                         a vendor trial/evaluation key under the vendor's written terms
+ * `minIntervalMs` is a hard floor the probe will not go under for that feed. A vendor feed is a new entry written from a
+ * recorded sample, with `auth: { header | query, env }` naming the environment variable that holds its key.
+ */
+const R = {
+  espn: { status: 'TERMS_REPORTED_TO_PROHIBIT_AUTOMATION', minIntervalMs: 15_000, note: 'ESPN/Disney terms reportedly bar automated access; no developer licence published.' },
+  mlb: { status: 'NON_COMMERCIAL_NOTICE_REPORTED', minIntervalMs: 5_000, note: 'MLB notice reportedly allows individual, non-commercial, non-bulk use only.' },
+  nhl: { status: 'NO_LICENCE_PUBLISHED', minIntervalMs: 5_000, note: 'No API terms published; site terms reportedly bar scraping.' },
+  nba: { status: 'NO_LICENCE_PUBLISHED', minIntervalMs: 5_000, note: 'No API licence; site terms reportedly personal, non-commercial.' },
+};
 export const EXTRACTORS = {
-  'espn-nfl': { sport: 'NFL', url: () => 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard', extract: espn('NFL') },
-  'espn-cfb': { sport: 'CFB', url: () => 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard', extract: espn('CFB') },
-  'espn-nba': { sport: 'NBA', url: () => 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard', extract: espn('NBA') },
-  'espn-cbb': { sport: 'CBB', url: () => 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard', extract: espn('CBB') },
-  'espn-nhl': { sport: 'NHL', url: () => 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard', extract: espn('NHL') },
-  'espn-mlb': { sport: 'MLB', url: () => 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard', extract: espn('MLB') },
-  'espn-ucl': { sport: 'SOCCER', url: () => 'https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard', extract: espn('SOCCER') },
-  'mlb-statsapi': { sport: 'MLB', url: (ymd) => `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${ymd}&hydrate=team,linescore`, extract: mlb },
-  'nhl-web': { sport: 'NHL', url: () => 'https://api-web.nhle.com/v1/score/now', extract: nhl },
-  'nba-cdn': { sport: 'NBA', url: () => 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json', extract: nba },
+  'espn-nfl': { sport: 'NFL', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard', extract: espn('NFL') },
+  'espn-cfb': { sport: 'CFB', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard', extract: espn('CFB') },
+  'espn-nba': { sport: 'NBA', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard', extract: espn('NBA') },
+  'espn-cbb': { sport: 'CBB', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard', extract: espn('CBB') },
+  'espn-nhl': { sport: 'NHL', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard', extract: espn('NHL') },
+  'espn-mlb': { sport: 'MLB', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard', extract: espn('MLB') },
+  'espn-ucl': { sport: 'SOCCER', rights: R.espn, url: () => 'https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard', extract: espn('SOCCER') },
+  'mlb-statsapi': { sport: 'MLB', rights: R.mlb, url: (ymd) => `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${ymd}&hydrate=team,linescore`, extract: mlb },
+  'nhl-web': { sport: 'NHL', rights: R.nhl, url: () => 'https://api-web.nhle.com/v1/score/now', extract: nhl },
+  'nba-cdn': { sport: 'NBA', rights: R.nba, url: () => 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json', extract: nba },
 };

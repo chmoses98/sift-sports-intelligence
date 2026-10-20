@@ -29,7 +29,7 @@ a live-game cache of 2–3 s is described as *an upper bound on staleness, not a
 product delivers anywhere from 2 s to 50 s depending on how the game is covered.
 
 `scripts/live-latency/` records the **first-seen time of every score change, per feed**, plus taps from a person watching Real
-on a phone (and optionally a "play happened" tap from the venue/OTA broadcast). `analyze.mjs` pairs them by order and reports,
+on a phone (and optionally a "play happened" tap from the venue/OTA broadcast). `analyze.mjs` matches feeds by resulting score and taps by team and time (revised from the first version's tap order; see the harness README) and reports,
 per source, median / p90 / max delay against the fastest source or against the truth taps, **each with its polling-window
 uncertainty**. Design points that keep it honest:
 
@@ -38,7 +38,7 @@ uncertainty**. Design points that keep it honest:
   error bar, which is exactly why the ± is mandatory);
 * relative latency (feed vs feed, Real vs feed) is always measurable; **absolute** latency needs a ground-truth clock, which
   is only as good as the human "play happened" taps (reaction error ±0.7 s is carried in the result);
-* marks that cannot be paired (different counts) are excluded, never forced; Real is only observed by a person.
+* taps with no matching score change, and score changes a feed never showed, are listed as unmatched / missed, never forced into a pair; Real is only observed by a person.
 
 Reference points from the search (all unverified, mostly low-quality): broadcast TV tends to run ~17 s behind the field and
 streaming 20–60 s; one developer measured a betting-data feed ≥4 s ahead of live TV; a vendor table lists Sportradar's

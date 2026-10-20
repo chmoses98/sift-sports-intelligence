@@ -380,3 +380,26 @@ promotion needs a separate approved change and a pre-game run of both verifiers 
 **Activation (needs explicit approval, one change).** Change the seven NBA rows from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED` in `src/lib/projectionApprovals.ts`, update the
 matrix in §3, and re-run `npx vitest run`, the Playwright suites and `scripts/verify-nba-activation.ts` on that head. No correction is applied to the
 established model's historical minutes under-projection: the Foundation minutes model is the one that removes it, and it is selected only through approval.
+
+## 12. NBA minutes reconstruction: a structural check, not a workaround (2026-10-20/21)
+
+The 2026-10-20 slate showed that the established NBA engine publishes player minutes that do not add up to the game (`sum p(play) x E[minutes | play]` averaged 272 per team
+against 241.5) and repairs it with a per-team scale of x0.71-0.88 that also cut established starters. The root cause is in the engine's structure, not in the scale
+(nba-edge-finder `research/projection_foundation/minutes_rebuild/PHASE1_ROOT_CAUSE.md`): every player is forecast from his own history, so the rotation fringe is over-counted on a
+healthy, deeper, rebuilt roster. A joint rotation model that allocates a fixed 240 + overtime across the eligible set was built and validated there (RESULTS_NBA.md §19). **It is not
+deployed and nothing here promotes anything**: the seven NBA rows stay `APPROVED_PENDING_LIVE_INPUTS`, the engine is off unless the publisher is run with
+`PF_NBA_MINUTES_ENGINE=jrm`, and betting authority, routing, thresholds and staking are untouched.
+
+What this change adds to SIFT is the check that would catch the defect, so that it cannot be waved through again:
+
+* The decoder keeps `participation.p_play` (`pPlay`) and the publisher's `model.minutes_engine` (`minutesEngine`, null for the established engine, `"jrm-0.1"` for the joint rotation model).
+* `verify-nba-activation.ts` check **S10**: for every team-game, `sum pPlay x minutes.mean` must be 241.5 within +-3% and no *minutes* normalisation note may be present
+  (the separate points reconciliation is allowed). It is **required when the feed declares the joint rotation model** and **informational (`INFO`, never blocks) for the established
+  engine**, whose normalisation is already governed by the audited D5 policy. Today's verdict on the published feed is unchanged.
+* Real feeds: the established engine's 2026-10-20 feed reports `S10 INFO: 13 of 26 team-games normalised (x0.71-x1.37)`; the same slate run through the joint rotation model reads
+  `S10 PASS: all 26 team-games within +-3% and none normalised`. Synthetic variants cover an off-budget team, a retained minutes normalisation, an allowed points reconciliation and a
+  feed without P(play) (PENDING).
+
+Status of the engine, in one line: CONDITIONAL. Holdout CRPS −0.0136 [−0.0209, −0.0064] vs the established minutes forecast (−0.0685 [−0.0773, −0.0593] vs its injury-aware variant when the eligible
+set is known), no degradation for established starters, all seven families still READY under the original rules, 13-point drop in team-sum dispersion; promotion needs the pre-registered prospective test
+on the archived pre-tip forecasts (`minutes-shadow-archive` branch), a live run of both verifiers on a JRM feed with real reports, and two explicit approvals (deploy the engine; promote the families).

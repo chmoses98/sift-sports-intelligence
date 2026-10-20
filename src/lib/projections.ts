@@ -64,7 +64,7 @@ export interface PlayerProjection {
   gate: { status: GateStatus; findings: GateFinding[] };
   dataAsOf: string | null;
   /** point-in-time availability call behind the projection (null when the feed predates pf_core 1.2.0) */
-  participation: { status: Participation; certainty: string; source: string; capturedUtc: string | null; reasons: string[] } | null;
+  participation: { status: Participation; certainty: string; source: string; capturedUtc: string | null; reasons: string[]; /** P(play) the engine published (null when absent) */ pPlay: number | null } | null;
   /** engine-published player segments (NFL: first four games with a new team, backup tier, rookie); null when not published */
   segments: { newTeamFirst4: boolean; backup: boolean; rookie: boolean; tier: string } | null;
   /** the engine's own label; SIFT’s approvals, not this field, decide what is displayed */
@@ -77,6 +77,8 @@ export interface TeamProjection { gameId: string; team: string; teamId: string |
 export interface FamilyInfo { readiness: Readiness; model: string; reason: string }
 export interface ProjectionDoc {
   sport: ProjSport; generatedAt: string; dataAsOf: string | null; modelVersion: string;
+  /** NBA: the minutes engine the publisher declares ("jrm-0.1" for the joint rotation model); null for the established engine, which declares nothing */
+  minutesEngine: string | null;
   families: Record<string, FamilyInfo>; players: PlayerProjection[]; teams: TeamProjection[];
 }
 
@@ -142,7 +144,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
       participation: pa ? {
         status: PARTICIPATION.includes(pa.status as Participation) ? (pa.status as Participation) : 'UNVERIFIED',
         certainty: str(pa.certainty), source: str(pa.source), capturedUtc: str(pa.captured_utc) || null,
-        reasons: Array.isArray(pa.reasons) ? pa.reasons.map(str).filter(Boolean) : [],
+        reasons: Array.isArray(pa.reasons) ? pa.reasons.map(str).filter(Boolean) : [], pPlay: num(pa.p_play),
       } : null,
       segments: isObj(p.segments) ? { newTeamFirst4: p.segments.new_team_first4 === true, backup: p.segments.backup === true, rookie: p.segments.rookie === true, tier: str(p.segments.tier) } : null,
       role: p.role === 'production' ? 'production' : 'shadow',
@@ -155,7 +157,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
       if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), teamId: str(t.team_id) || null, family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90), startUtc: str(gm.start_utc) || null, home: str(gm.home), away: str(gm.away), homeId: str(gm.home_id) || null, awayId: str(gm.away_id) || null });
     }
   }
-  return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), families, players, teams };
+  return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), minutesEngine: str(model.minutes_engine) || null, families, players, teams };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

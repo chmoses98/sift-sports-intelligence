@@ -19,7 +19,7 @@
 .sift2-command .s2-driver,.sift2-command .s2-featured-player,.sift2-command .s2-player{box-shadow:inset 0 1px 0 #8bc7ff0b}
 .sift2-command .s2-player__name,.sift2-command .s2-featured-player strong{letter-spacing:-.015em;text-shadow:0 1px 7px #010916aa}
 .sift2-command .s2-script-rows b,.sift2-command .s2-player__markets strong{font-variant-numeric:tabular-nums}
-.sift2-command .s2-player__markets>a{background:linear-gradient(145deg,#102a40a6,#061728);border-color:#274763}
+.sift2-command .s2-player__markets>a{background:linear-gradient(145deg,#102a40a6,#061728);border-color:var(--sift2-line-strong)}
 @media(max-width:719px){
  .app--sift2 .s2-venue-art>.hart__photo{object-position:var(--focus-m,50% 45%)}
  .sift2-command[data-game-tab=props] .s2-venue-art__shade{background:linear-gradient(180deg,#010a1555,transparent 35%,#010a1522 68%,#010a15c7)}

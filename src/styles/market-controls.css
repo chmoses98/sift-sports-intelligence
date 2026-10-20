@@ -3,26 +3,26 @@
 .mkc__sports { margin: 0 -14px; padding: 0 14px 2px; scroll-padding-inline: 14px; }
 .mkc__row { display: flex; gap: 8px; align-items: center; min-width: 0; }
 .mkc__search { flex: 1 1 0%; min-width: 0; min-height: 44px; }
-.mkc__btn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2); background: rgba(7, 21, 33, 0.6); color: var(--ivory, #f2f7ff); font: 600 14px Barlow, sans-serif; cursor: pointer; }
+.mkc__btn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2); background: rgba(7, 21, 33, 0.6); color: var(--ivory, #f2f7ff); font: 600 var(--sift2-fs-small, 14px) var(--font-sans); cursor: pointer; }
 .mkc__btn.is-on { border-color: var(--blue, #1e8cf2); background: var(--navy-4, #0f3558); }
-.mkc__n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--blue, #1e8cf2); color: #fff; font-size: 12px; }
+.mkc__n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--blue, #1e8cf2); color: #fff; font-size: var(--sift2-fs-micro, 12px); }
 .mkc__row--sum { justify-content: space-between; }
 .mkc__active { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
-.mkc__tag { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid #2a5278; background: #0a2036; color: #dbeaf9; font: 600 13px Barlow, sans-serif; cursor: pointer; }
+.mkc__tag { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid #2a5278; background: #0a2036; color: #dbeaf9; font: 600 var(--sift2-fs-caption, 13px) var(--font-sans); cursor: pointer; }
 .mkc__tag.is-removable { border-color: var(--blue, #1e8cf2); }
 .mkc__view { flex: none; }
 .mkc__sheet .mkc__group { margin: 0 0 18px; padding: 0; border: 0; min-width: 0; }
-.mkc__sheet legend { padding: 0 0 8px; font: 600 12px Barlow, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8fb6d8; }
+.mkc__sheet legend { padding: 0 0 8px; font: 600 var(--sift2-fs-micro, 12px) var(--font-sans); letter-spacing: 0.12em; text-transform: uppercase; color: #8fb6d8; }
 .mkc__opts { display: flex; flex-wrap: wrap; gap: 8px; }
-.mkc__sheet .skchip { min-height: 44px; padding: 0 16px; font-size: 14px; }
+.mkc__sheet .skchip { min-height: 44px; padding: 0 16px; font-size: var(--sift2-fs-small, 14px); }
 .mkc__switch { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; cursor: pointer; }
 .mkc__switch input { flex: none; width: 22px; height: 22px; margin-top: 2px; accent-color: #1e8cf2; }
-.mkc__switch b { display: block; font-size: 15px; }
-.mkc__switch small { display: block; font-size: 13px; color: #93abc4; }
+.mkc__switch b { display: block; font-size: var(--sift2-fs-body, 15px); }
+.mkc__switch small { display: block; font-size: var(--sift2-fs-caption, 13px); color: #93abc4; }
 .mkc__sheet .bsheet__foot .btn { min-height: 48px; }
 .mkc__done { flex: 1; }
 @media (max-width: 719px) {
-  .mktboard .hbar__m { font-size: 0.82rem; }
+  .mktboard .hbar__m { font-size: var(--sift2-fs-caption, 0.82rem); }
   .mktboard .lmb__promo small { display: none; }
   .mktboard .lmb__promo { padding-block: 10px; }
 }

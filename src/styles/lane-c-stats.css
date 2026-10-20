@@ -10,12 +10,12 @@
 .svm__b { display: grid; justify-items: start; gap: 1px; min-height: 44px; padding: 5px 14px; border: 0; border-radius: 9px; background: transparent; color: var(--text-2); cursor: pointer; text-align: left; }
 .svm__b:hover { color: var(--text-hi); }
 .svm__b.is-on { background: linear-gradient(180deg, #1e8cf2, #136bd0); color: #fff; box-shadow: 0 0 18px -4px rgba(30, 140, 242, 0.8); }
-.svm__l { font-weight: 700; font-size: 0.92rem; letter-spacing: 0.01em; }
-.svm__s { font-size: 0.7rem; opacity: 0.8; }
-.svm__n { margin: 0; flex: 1 1 260px; color: var(--text-2); font-size: 0.82rem; max-width: 70ch; }
+.svm__l { font-weight: 700; font-size: var(--sift2-fs-small, 0.92rem); letter-spacing: 0.01em; }
+.svm__s { font-size: var(--sift2-fs-micro, 0.7rem); opacity: 0.8; }
+.svm__n { margin: 0; flex: 1 1 260px; color: var(--text-2); font-size: var(--sift2-fs-caption, 0.82rem); max-width: 70ch; }
 
 /* ---- basis tag on a value */
-.svtag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 4px; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; vertical-align: 0.12em; white-space: nowrap; border: 1px solid; }
+.svtag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 4px; font-size: var(--sift2-fs-micro, 0.64rem); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; vertical-align: 0.12em; white-space: nowrap; border: 1px solid; }
 .svtag--adjusted { color: #8fd3ff; border-color: rgba(31, 178, 236, 0.45); background: rgba(31, 178, 236, 0.1); }
 .svtag--raw { color: #f5d48a; border-color: rgba(227, 178, 58, 0.45); background: rgba(227, 178, 58, 0.08); }
 .svtag--season, .svtag--box { color: #c9d6e2; border-color: rgba(172, 190, 206, 0.35); background: rgba(172, 190, 206, 0.06); }
@@ -25,14 +25,14 @@
 .svd { display: grid; gap: 6px; padding: 10px 0; border-top: 1px solid var(--line); min-width: 0; }
 .svd:first-child { border-top: 0; }
 .svd__h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; text-align: center; }
-.svd__label { font-weight: 600; color: var(--text-hi); font-size: 0.92rem; }
-.svd__unit { font-size: 0.74rem; color: var(--text-3); }
+.svd__label { font-weight: 600; color: var(--text-hi); font-size: var(--sift2-fs-small, 0.92rem); }
+.svd__unit { font-size: var(--sift2-fs-micro, 0.74rem); color: var(--text-3); }
 .svd__row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
 .svd__side { --tc: var(--cyan); display: grid; gap: 4px; min-width: 0; }
 .svd__side--r { justify-items: end; text-align: right; }
 .svd__top { display: inline-flex; align-items: center; gap: 6px; }
-.svd__rk { font-family: var(--font-cond, var(--font-display)); font-size: 1.3rem; font-weight: 700; color: #fff; line-height: 1; }
-.svd__of { font-size: 0.72rem; color: var(--text-3); }
+.svd__rk { font-family: var(--font-cond, var(--font-display)); font-size: var(--sift2-fs-h4, 1.3rem); font-weight: 700; color: #fff; line-height: 1; }
+.svd__of { font-size: var(--sift2-fs-micro, 0.72rem); color: var(--text-3); }
 .svd__bar { position: relative; width: 100%; height: 6px; border-radius: 3px; background: rgba(120, 160, 200, 0.12); overflow: hidden; }
 /* Each unit's bar in its club colour (accentOnDark: >= 3:1 on the dark surface), growing from the centre line out
    so both sides share one baseline. The stronger unit is drawn solid; the other (and an even pair) at a lower weight.
@@ -43,9 +43,9 @@
 .svd--l .svd__side--l .svd__bar i, .svd--r .svd__side--r .svd__bar i { opacity: 1; }
 .svd--l .svd__side--r .svd__bar i, .svd--r .svd__side--l .svd__bar i { opacity: 0.55; }
 .svd--l .svd__side--r .svd__rk, .svd--r .svd__side--l .svd__rk { color: var(--text-2); }
-.svd__val { font-size: 0.8rem; color: var(--text-2); }
+.svd__val { font-size: var(--sift2-fs-caption, 0.8rem); color: var(--text-2); }
 .svd__val .num { color: var(--text-hi); font-weight: 600; }
-.svd__note { margin: 0; font-size: 0.76rem; color: var(--text-3); text-align: center; }
+.svd__note { margin: 0; font-size: var(--sift2-fs-micro, 0.76rem); color: var(--text-3); text-align: center; }
 
 /* ---- percentile strip */
 .svp { display: grid; gap: 4px; padding: 14px 0 0; min-width: 0; }
@@ -54,10 +54,10 @@
 .svp__mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line-3); }
 .svp__m { --tc: var(--cyan); position: absolute; top: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; }
 .svp__dot { width: 14px; height: 14px; border-radius: 50%; background: var(--tc); border: 2px solid #fff; box-shadow: 0 0 10px color-mix(in srgb, var(--tc) 70%, transparent); }
-.svp__lab { position: absolute; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-hi); white-space: nowrap; }
+.svp__lab { position: absolute; font-size: var(--sift2-fs-micro, 0.66rem); font-weight: 700; letter-spacing: 0.04em; color: var(--text-hi); white-space: nowrap; }
 .svp__m--a .svp__lab { bottom: 16px; }
 .svp__m--b .svp__lab { top: 16px; }
-.svp__ends { display: flex; justify-content: space-between; margin-top: 12px; font-size: 0.66rem; color: var(--text-3); letter-spacing: 0.03em; }
+.svp__ends { display: flex; justify-content: space-between; margin-top: 12px; font-size: var(--sift2-fs-micro, 0.66rem); color: var(--text-3); letter-spacing: 0.03em; }
 
 /* ---- diverging bar around league average */
 .svx { display: inline-grid; grid-template-columns: minmax(60px, 1fr) auto; align-items: center; gap: 8px; width: 100%; min-width: 0; }
@@ -66,20 +66,20 @@
 .svx__bar { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: #6d8aa6; }
 .svx--good .svx__bar { background: var(--tier-good); }
 .svx--bad .svx__bar { background: var(--tier-bad); }
-.svx__t { font-size: 0.8rem; color: var(--text-hi); white-space: nowrap; }
+.svx__t { font-size: var(--sift2-fs-caption, 0.8rem); color: var(--text-hi); white-space: nowrap; }
 
 /* ---- shared section shell for lane-C panels */
 .lc-sec { margin: var(--s-6) 0; }
 .lc-sec__h { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px; margin-bottom: var(--s-3); }
-.lc-sec__t { margin: 0; font-family: var(--font-display); font-weight: var(--fw-display); font-size: 1.45rem; line-height: 1.1; color: #fff; }
-.lc-sec__sub { margin: 4px 0 0; color: var(--text-2); font-size: 0.86rem; max-width: 72ch; }
-.lc-fine { margin: 8px 0 0; color: var(--text-3); font-size: 0.76rem; max-width: 80ch; }
+.lc-sec__t { margin: 0; font-family: var(--font-display); font-weight: var(--fw-display); font-size: var(--sift2-fs-h3, 1.45rem); line-height: 1.1; color: #fff; }
+.lc-sec__sub { margin: 4px 0 0; color: var(--text-2); font-size: var(--sift2-fs-small, 0.86rem); max-width: 72ch; }
+.lc-fine { margin: 8px 0 0; color: var(--text-3); font-size: var(--sift2-fs-micro, 0.76rem); max-width: 80ch; }
 .lc-card { position: relative; min-width: 0; padding: 14px 16px 16px; border-radius: 14px; background: linear-gradient(165deg, rgba(18, 48, 80, 0.42) 0%, rgba(6, 22, 37, 0.72) 50%, rgba(2, 11, 20, 0.86) 100%); border: 1px solid var(--panel-line); }
 .lc-grid { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 900px) { .lc-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1200px) { .lc-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.lc-kicker { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan-2); }
-.lc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid var(--line-2); color: var(--text-2); white-space: nowrap; }
+.lc-kicker { font-size: var(--sift2-fs-micro, 0.7rem); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan-2); }
+.lc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: var(--sift2-fs-micro, 0.68rem); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid var(--line-2); color: var(--text-2); white-space: nowrap; }
 .lc-tier--obs { color: #8fd3ff; border-color: rgba(31, 178, 236, 0.4); }
 .lc-tier--model { color: #c4b2ff; border-color: rgba(146, 100, 239, 0.45); }
 .lc-tier--bet { color: #8ff0c4; border-color: rgba(30, 218, 139, 0.5); }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from '../routing';
 import { NAV_SPORTS, navSport, STATUS_WORD, type NavSport } from '../data/nav';
 import { DESTINATIONS, destination, destinationOf, PHONE_TABS, type Destination } from '../lib/destinations';
@@ -10,6 +10,7 @@ import { useTray } from '../state/tray';
 import { SportMark } from './SportMark';
 import { Icon, SiftWordmark } from './Icon';
 import { Sift2Navigation } from './sift2/Navigation';
+import '../styles/sift2-system.css';
 import '../styles/sift2-reference.css';
 import '../styles/sift2-fidelity.css';
 import '../styles/sift2-refine.css';
@@ -305,6 +306,15 @@ export function Shell({ children }: { children: ReactNode }) {
   const online = useOnline();
   const sport = useSportContext();
   const preview = loc.pathname.startsWith('/design/sift2/');
+  // The SIFT 2.0 token layer (sift2-system.css) is scoped to this attribute, so classic pages keep their values.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    if (preview) root.dataset.ui = 'sift2';
+    else delete root.dataset.ui;
+    return () => {
+      delete root.dataset.ui;
+    };
+  }, [preview]);
   const active = destinationOf(workspacePath(loc.pathname));
   const [sheet, setSheet] = useState(false);
   const [search, setSearch] = useState(false);

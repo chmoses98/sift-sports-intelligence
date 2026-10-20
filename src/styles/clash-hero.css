@@ -51,8 +51,8 @@
 .gh--clash .gh__team--away .gh__name { text-shadow: 0 3px 26px rgba(0, 0, 0, 0.9), 0 0 42px color-mix(in srgb, var(--ca-hot) 40%, transparent); }
 .gh--clash .gh__team--home .gh__name { text-shadow: 0 3px 26px rgba(0, 0, 0, 0.9), 0 0 42px color-mix(in srgb, var(--ch-hot) 40%, transparent); }
 .gh--clash .gh__at { font-size: 1.9rem; color: #fff; text-shadow: 0 0 18px rgba(255, 255, 255, 0.35), 0 2px 14px rgba(0, 0, 0, 0.9); }
-.gh--clash .gh__meta { font-size: 0.95rem; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95); }
-.gh--clash .gh__lg { font-size: 1.3rem; letter-spacing: 0.16em; }
+.gh--clash .gh__meta { font-size: var(--sift2-fs-body, 0.95rem); text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95); }
+.gh--clash .gh__lg { font-size: var(--sift2-fs-h4, 1.3rem); letter-spacing: 0.16em; }
 .gh--clash .gh__stats { background: linear-gradient(180deg, transparent, rgba(1, 6, 12, 0.7)); }
 
 @media (min-width: 1100px) {
@@ -77,7 +77,7 @@
   .gh--clash .gh__team .teammark--xl { width: 76px; height: 76px; }
   .gh--clash .gh__name { font-size: 2.6rem; }
   .gh--clash .gh__team .gh__rule { justify-self: center; }
-  .gh--clash .gh__at { font-size: 1.1rem; padding-bottom: 40px; }
+  .gh--clash .gh__at { font-size: var(--sift2-fs-lead, 1.1rem); padding-bottom: 40px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .gh__flood, .gh__shafts { animation: gh-clash-breathe 9s ease-in-out infinite alternate; }
@@ -106,10 +106,10 @@
 .gh--art .gh__team .teammark--xl { width: 96px; height: 96px; }
 .gh--art .gh__name { font-size: clamp(2.6rem, 4.4vw, 3.9rem); text-shadow: 0 3px 24px rgba(0, 0, 0, 1), 0 0 40px rgba(0, 0, 0, 0.8); }
 .gh--art .gh__city, .gh--art .gh__rec { text-shadow: 0 2px 14px rgba(0, 0, 0, 1); }
-.gh--art .gh__at { font-size: 1.5rem; padding-bottom: 60px; }
+.gh--art .gh__at { font-size: var(--sift2-fs-h3, 1.5rem); padding-bottom: 60px; }
 .gh--art .gh__stats { z-index: 1; }
 .gh--art .gh__id { z-index: 2; left: 50%; transform: translateX(-50%); white-space: nowrap; max-width: 92%; }
-.gh__artnote { position: relative; z-index: 2; align-self: flex-end; margin: 0 16px 8px; font-size: 0.68rem; letter-spacing: 0.04em; color: rgba(236, 244, 252, 0.78); }
+.gh__artnote { position: relative; z-index: 2; align-self: flex-end; margin: 0 16px 8px; font-size: var(--sift2-fs-micro, 0.68rem); letter-spacing: 0.04em; color: rgba(236, 244, 252, 0.78); }
 .gh--art .ghs .fx-stat { background: linear-gradient(180deg, rgba(8, 24, 44, 0.72), rgba(2, 10, 20, 0.86)); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 
 @media (min-width: 1100px) {
@@ -123,13 +123,13 @@
   .gh__art img { bottom: auto; height: 168px; object-position: 50% 10%; -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent); mask-image: linear-gradient(180deg, #000 70%, transparent); }
   .gh__artshade { background: linear-gradient(180deg, rgba(1, 6, 12, 0.3) 0, transparent 25%, rgba(2, 11, 20, 0.5) 62%, #020b14 100%); }
   .gh--art .gh__in { padding: 128px 12px 8px; }
-  .gh--art .gh__meta { font-size: 0.74rem; }
-  .gh--art .gh__lg { font-size: 0.95rem; }
+  .gh--art .gh__meta { font-size: var(--sift2-fs-micro, 0.74rem); }
+  .gh--art .gh__lg { font-size: var(--sift2-fs-body, 0.95rem); }
   .gh--art .gh__team .teammark--xl { width: 60px; height: 60px; }
   .gh--art .gh__name { font-size: 2.1rem; }
-  .gh--art .gh__city { display: block; font-size: 0.7rem; }
-  .gh--art .gh__at { font-size: 0.95rem; padding-bottom: 30px; }
-  .gh__artnote { margin: 0 12px 8px; font-size: 0.6rem; }
+  .gh--art .gh__city { display: block; font-size: var(--sift2-fs-micro, 0.7rem); }
+  .gh--art .gh__at { font-size: var(--sift2-fs-body, 0.95rem); padding-bottom: 30px; }
+  .gh__artnote { margin: 0 12px 8px; font-size: var(--sift2-fs-micro, 0.6rem); }
 }
 
 /* ==========================================================================
@@ -155,7 +155,7 @@
 .fh2--art .fh2__nm small, .fh2--art .fh2__at, .fh2--art .fh2__venue { text-shadow: 0 2px 14px #000; }
 .fh2--art .fh2__at { align-self: center; padding-bottom: 40px; color: #fff; }
 .fh2--art .fh2__board { background: linear-gradient(180deg, rgba(8, 24, 44, 0.72), rgba(2, 10, 20, 0.86)); }
-.fh2--art .fh2__credit--art { z-index: 2; color: rgba(236, 244, 252, 0.9); font-size: 0.68rem; max-width: 90%; background: rgba(2, 10, 20, 0.72); padding: 3px 9px; border-radius: 999px; }
+.fh2--art .fh2__credit--art { z-index: 2; color: rgba(236, 244, 252, 0.9); font-size: var(--sift2-fs-micro, 0.68rem); max-width: 90%; background: rgba(2, 10, 20, 0.72); padding: 3px 9px; border-radius: 999px; }
 .fh2--art .fh2__cta { position: relative; z-index: 2; }
 @media (min-width: 1100px) { .fhero.fh2.fh2--art, .fh2--art .fhero__in { min-height: 660px; } }
 @media (max-width: 719px) {
@@ -165,7 +165,7 @@
   .fhero.fh2.fh2--art .fhero__shade { background: linear-gradient(180deg, rgba(1, 6, 12, 0.3) 0, transparent 25%, rgba(2, 11, 20, 0.5) 62%, #020b14 100%); }
   .fhero.fh2.fh2--art .fhero__in { padding-top: 176px; }   /* the pills sit under the artwork, not on the helmets */
   .fh2--art .fh2__match { margin-top: 0; }
-  .fh2--art .fh2__credit--art { bottom: 8px; right: 10px; font-size: 0.6rem; }
+  .fh2--art .fh2__credit--art { bottom: 8px; right: 10px; font-size: var(--sift2-fs-micro, 0.6rem); }
   .fh2--art .fh2__logo .teammark--xl, .fh2--art .fh2__logo img { width: 64px; height: 64px; }
   .fh2--art .fh2__nm b { --nm-max: 2.1rem; }
   .fh2--art .fh2__at { padding-bottom: 28px; }
@@ -183,16 +183,16 @@
 .fh2--final .fh2__eyebrow, .fh2--awaiting .fh2__eyebrow { border-color: rgba(236, 244, 252, 0.34); }
 .fh2__at--live { color: #ff8793; letter-spacing: 0.16em; }
 .fh2__at--final, .fh2__at--awaiting { color: #fff; letter-spacing: 0.16em; }
-.fh2__status { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-family: var(--font-cond); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(236, 244, 252, 0.92); text-shadow: 0 2px 14px #000; }
+.fh2__status { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-family: var(--font-cond); font-weight: 600; font-size: var(--sift2-fs-small, 0.92rem); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(236, 244, 252, 0.92); text-shadow: 0 2px 14px #000; }
 .fh2--live .fh2__status { color: #ffb3bb; }
-.fh2__research { margin: 0; text-align: center; font-size: 0.74rem; letter-spacing: 0.02em; color: rgba(236, 244, 252, 0.66); text-shadow: 0 2px 10px #000; }
+.fh2__research { margin: 0; text-align: center; font-size: var(--sift2-fs-micro, 0.74rem); letter-spacing: 0.02em; color: rgba(236, 244, 252, 0.66); text-shadow: 0 2px 10px #000; }
 .fh2__score { display: block; margin-top: 6px; font-family: var(--font-cond); font-weight: 700; font-size: clamp(2.1rem, 3.6vw, 3.2rem); line-height: 1; color: rgba(236, 244, 252, 0.62); text-shadow: 0 3px 22px #000; }
 .fh2__score.is-win { color: #fff; text-shadow: 0 3px 22px #000, 0 0 26px color-mix(in srgb, var(--tc) 70%, transparent); }
 .fh2--art .fh2__score { text-align: center; }
 @media (max-width: 719px) {
-  .fh2__status { font-size: 0.8rem; letter-spacing: 0.08em; }
+  .fh2__status { font-size: var(--sift2-fs-caption, 0.8rem); letter-spacing: 0.08em; }
   .fh2__score { font-size: 1.9rem; margin-top: 4px; }
-  .fh2__research { font-size: 0.7rem; }
+  .fh2__research { font-size: var(--sift2-fs-micro, 0.7rem); }
 }
 @media (prefers-reduced-motion: no-preference) {
   .fh2__dot { animation: fh2-pulse 1.6s ease-in-out infinite; }

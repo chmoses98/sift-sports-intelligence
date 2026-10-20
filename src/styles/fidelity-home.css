@@ -34,22 +34,22 @@
 
 /* Discovery cards and lab tiles as lit glass, kinds as glowing badges. */
 .bhome--fx .dcard { border-color: var(--fx-edge); background: var(--fx-key), linear-gradient(165deg, rgba(18, 48, 80, 0.45), rgba(2, 11, 20, 0.85)); box-shadow: var(--fx-rim); }
-.bhome--fx .dcard__t { font-family: var(--font-cond); font-weight: 700; font-size: 1.22rem; line-height: 1.1; }
+.bhome--fx .dcard__t { font-family: var(--font-cond); font-weight: 700; font-size: var(--sift2-fs-h4, 1.22rem); line-height: 1.1; }
 .bhome--fx .dcard__why { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .bhome--fx .dcard.is-open .dcard__why { -webkit-line-clamp: unset; display: block; }
 .bhome--fx .labtile { min-height: 124px; }
-.bhome--fx .labtile__t { font-family: var(--font-cond); font-weight: 700; font-size: 1.12rem; letter-spacing: 0.02em; }
-.bhome__edges .gvs .fx-vs__label { font-size: 0.76rem; }
+.bhome--fx .labtile__t { font-family: var(--font-cond); font-weight: 700; font-size: var(--sift2-fs-lead, 1.12rem); letter-spacing: 0.02em; }
+.bhome__edges .gvs .fx-vs__label { font-size: var(--sift2-fs-micro, 0.76rem); }
 
 /* Phones: the hero first and compact, then the rail. */
 @media (max-width: 719px) {
   .bhome--fx .bhome__mast { margin: 0 0 var(--s-3); gap: 2px; }
-  .bhome--fx .bhome__h { font-size: 1.7rem; }
-  .bhome--fx .bhome__sum { font-size: 0.78rem; }
+  .bhome--fx .bhome__h { font-size: var(--sift2-fs-h2, 1.7rem); }
+  .bhome--fx .bhome__sum { font-size: var(--sift2-fs-micro, 0.78rem); }
   .bhome--v3 > .bsec { margin-top: var(--s-6, 24px); }
-  .bhome--v3 .bsec__t { font-size: 1.1rem; }
+  .bhome--v3 .bsec__t { font-size: var(--sift2-fs-lead, 1.1rem); }
   .bhome--v3 .bsec__t svg { width: 17px; height: 17px; }
-  .bhome--v3 .bhome__games .gtab { padding: 4px 9px; min-height: 32px; font-size: 0.78rem; }
+  .bhome--v3 .bhome__games .gtab { padding: 4px 9px; min-height: 32px; font-size: var(--sift2-fs-micro, 0.78rem); }
   .bhome--fx .fhero__img { height: 260px; }
   .bhome--fx .fhero__in { padding-top: 186px; padding-bottom: 26px; }
   .bhome--fx .fhero__shade { background: linear-gradient(180deg, rgba(1, 8, 15, 0.35) 0%, rgba(1, 8, 15, 0) 25%, rgba(1, 8, 15, 0.7) 200px, #020d17 260px, #020d17 100%); }

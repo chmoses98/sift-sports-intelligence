@@ -66,11 +66,11 @@
 .gh__id { position: absolute; left: var(--s-4); top: 12px; z-index: 1; display: inline-flex; align-items: center; gap: 8px; max-width: 60%;
   padding: 4px 11px 4px 6px; border-radius: 999px; background: rgba(1, 11, 19, 0.58); border: 1px solid rgba(236, 244, 252, 0.16);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  font-weight: 600; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ivory); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  font-weight: 600; font-size: var(--sift2-fs-micro, 0.72rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ivory); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gh__id .teammark { width: 20px; height: 20px; flex-shrink: 0; }
 .gh__id--plain { padding-left: 11px; }
 .gh__id i { width: 3px; align-self: stretch; border-radius: 2px; background: linear-gradient(180deg, var(--hc1), var(--hc2)); font-style: normal; }
-@media (min-width: 720px) { .gh__id { left: var(--s-6); top: 16px; font-size: 0.76rem; } }
+@media (min-width: 720px) { .gh__id { left: var(--s-6); top: 16px; font-size: var(--sift2-fs-micro, 0.76rem); } }
 
 /* ------------------------------------------------------------------ historical game header with hero art */
 .mh--art { isolation: isolate; overflow: hidden; margin-top: var(--s-2); padding: var(--s-5) var(--s-4) var(--s-4); border-radius: var(--r-3); border: 1px solid var(--panel-line); }
@@ -86,11 +86,11 @@
 @media (max-width: 480px) {
   .gh__team { flex-wrap: wrap; row-gap: 0; }
   .gh__team .gh__tn { flex: 1 1 0; }
-  .gh__team .gh__score { order: 3; flex-basis: 100%; margin: 2px 0 0; font-size: 1.7rem; line-height: 1; }
+  .gh__team .gh__score { order: 3; flex-basis: 100%; margin: 2px 0 0; font-size: var(--sift2-fs-h2, 1.7rem); line-height: 1; }
   .gh__team--home .gh__score { text-align: right; }
 }
 @media (max-width: 720px) {
-  .gh__credit { top: auto; bottom: 3px; right: 8px; max-width: 70%; font-size: 9px; }
+  .gh__credit { top: auto; bottom: 3px; right: 8px; max-width: 70%; font-size: var(--sift2-fs-micro, 9px); }
   .gh--photo .gh__in { padding-bottom: calc(var(--s-3) + 8px); }
 }
 
@@ -98,7 +98,7 @@
 .hg__nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
 .hg__nav .chip.is-on { background: var(--deep-blue); color: var(--ivory); }
 .hg__list { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: grid; gap: var(--s-5); }
-.hg__cap { margin-bottom: 6px; font-size: 0.86rem; }
+.hg__cap { margin-bottom: 6px; font-size: var(--sift2-fs-small, 0.86rem); }
 @media (min-width: 1100px) { .heroes-gallery .gh { min-height: 340px; } }
 
 /* ------------------------------------------------------------------ branded identity, broadcast treatment (2026-10-11)
@@ -131,7 +131,7 @@
 .ehead--art .teammark--lg { filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.6)); }
 .ehead--art .hart__word { font-size: clamp(4rem, 11vw, 9rem); }
 .ehead__credit { position: absolute; right: 10px; bottom: 6px; z-index: 1; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font-size: 10px; color: rgba(236, 244, 252, 0.72); text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
+  font-size: var(--sift2-fs-micro, 10px); color: rgba(236, 244, 252, 0.72); text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
 @media (min-width: 720px) { .team .ehead--art { padding: var(--s-6) var(--s-6) var(--s-5); min-height: 200px; } }
 @media (max-width: 720px) { .ehead--art .hart__word { font-size: 4.5rem; } }
 

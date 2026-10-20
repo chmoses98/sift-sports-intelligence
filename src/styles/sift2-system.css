@@ -1,0 +1,178 @@
+/* ==========================================================================
+   SIFT 2.0 visual system: typography and appearance tokens (October 2026 visual quality sprint)
+
+   One vocabulary for every SIFT 2.0 screen. It is defined only while the document carries data-ui="sift2" (Shell sets it for
+   /design/sift2/*), so the classic interface, which shares the component stylesheets, keeps the values it had. The component CSS
+   reads these tokens; the legacy token names (--fs-*, --line*, --panel*) are remapped below so the screens that already use
+   them take the new values without a rule of their own.
+
+   Rules that follow from the audit (docs/sift-2.0/VISUAL-SYSTEM.md):
+   - Nothing renders below 12px. The scale has eight text steps plus two display tiers.
+   - Barlow is the reading face, Barlow Condensed the broadcast face for display numerals and names. Weights are 400, 500, 600
+     and 700, the four that are self-hosted. Small text is set at 500, because 400 on a near-black ground reads thin.
+   - Scores, clocks, prices and statistics use tabular figures so columns align and live values do not jitter.
+   - Surfaces are four steps and borders three. Colour carries meaning (accent, positive, negative), never decoration.
+   ========================================================================== */
+
+:root[data-ui='sift2'] {
+  /* ---- families (the Barlow Fallback face matches Barlow's metrics, so the font swap does not move layout) */
+  --sift2-font-body: 'Barlow', 'Barlow Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --sift2-font-display: 'Barlow Condensed', 'Barlow', 'Barlow Fallback', system-ui, sans-serif;
+
+  /* ---- text scale (rem, 16px root). css-type-snap.mjs snaps ad-hoc sizes onto these. */
+  --sift2-fs-micro: 0.75rem;     /* 12  eyebrows, axis ticks, badges: the floor */
+  --sift2-fs-caption: 0.8125rem; /* 13  captions, meta lines, table headers */
+  --sift2-fs-small: 0.875rem;    /* 14  dense rows, controls */
+  --sift2-fs-body: 1rem;         /* 16  reading text, primary rows */
+  --sift2-fs-lead: 1.125rem;     /* 18  row titles, card titles */
+  --sift2-fs-h4: 1.25rem;        /* 20  panel titles */
+  --sift2-fs-h3: 1.5rem;         /* 24  section titles */
+  --sift2-fs-h2: 1.75rem;        /* 28  page sections, key figures */
+  /* ---- display tiers: titles and the numbers people come for (scores, kickoff, projections) */
+  --sift2-fs-title: clamp(1.75rem, 1.35rem + 1.6vw, 2.25rem);   /* page title */
+  --sift2-fs-figure: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem);   /* a headline statistic */
+  --sift2-fs-score: clamp(2.25rem, 1.7rem + 2.4vw, 3.5rem);     /* a score or kickoff time on a hero */
+
+  /* ---- leading, weight, tracking */
+  --sift2-lh-display: 1.08;
+  --sift2-lh-title: 1.2;
+  --sift2-lh-ui: 1.35;
+  --sift2-lh-body: 1.5;
+  --sift2-fw-body: 400;
+  --sift2-fw-ui: 500;
+  --sift2-fw-strong: 600;
+  --sift2-fw-display: 700;
+  --sift2-ls-display: -0.02em;   /* large Barlow titles */
+  --sift2-ls-condensed: 0.02em;  /* Barlow Condensed numerals and names */
+  --sift2-ls-label: 0.04em;
+  --sift2-ls-caps: 0.1em;        /* small capitals */
+  --sift2-ls-eyebrow: 0.14em;
+
+  /* ---- shape */
+  --sift2-r-xs: 6px;   /* chips, tags, small controls */
+  --sift2-r-sm: 10px;  /* buttons, inputs, rows */
+  --sift2-r-md: 14px;  /* cards */
+  --sift2-r-lg: 18px;  /* panels, sheets */
+  --sift2-r-pill: 999px;
+
+  /* ---- surfaces, deepest first */
+  --sift2-bg: #020c15;
+  --sift2-surface-0: #04111e;   /* inset: rows, tables, chart plots */
+  --sift2-surface-1: #061624;   /* card, panel */
+  --sift2-surface-2: #0a1f31;   /* raised: hover, tiles on a panel */
+  --sift2-surface-sel: #0d3358; /* selected */
+  --sift2-card: linear-gradient(150deg, #081c2c 0%, #061624 46%, #04111e 100%);
+
+  /* ---- borders */
+  --sift2-line-soft: #142a3c;   /* hairline between rows */
+  --sift2-line: #1d374e;        /* card and control edge */
+  --sift2-line-strong: #2b5578; /* hover, selected, emphasis */
+  --sift2-line-accent: #39a9ff;
+
+  /* ---- text: every step is at least 4.5:1 on every surface above */
+  --sift2-text: #f2f7ff;
+  --sift2-text-2: #b7c8de;
+  --sift2-text-3: #93abc4;
+  --sift2-accent: #5fb6ff;      /* links and key labels on dark */
+  --sift2-accent-strong: #2da8ff;
+  --sift2-focus: #8fd0ff;
+
+  /* ---- motion */
+  --sift2-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --sift2-t-fast: 120ms;
+  --sift2-t-med: 220ms;
+
+  /* ---- the legacy names the shared components use, remapped for SIFT 2.0 */
+  --fs-micro: var(--sift2-fs-micro);
+  --fs-xs: var(--sift2-fs-caption);
+  --fs-sm: var(--sift2-fs-small);
+  --fs-md: var(--sift2-fs-body);
+  --fs-lg: var(--sift2-fs-lead);
+  --fs-eyebrow: var(--sift2-fs-micro);
+  --ls-eyebrow: var(--sift2-ls-eyebrow);
+  --fw-ui: var(--sift2-fw-ui);
+  --fw-strong: var(--sift2-fw-strong);
+  --line: var(--sift2-line-soft);
+  --line-2: var(--sift2-line);
+  --line-3: var(--sift2-line-strong);
+  --panel-line: var(--sift2-line);
+  --panel-line-hi: var(--sift2-line-strong);
+  --text-2: var(--sift2-text-2);
+  --text-3: var(--sift2-text-3);
+  --r-1: var(--sift2-r-xs);
+  --r-2: var(--sift2-r-sm);
+  --r-3: var(--sift2-r-md);
+}
+
+/* ---- base: one reading face, tabular figures, legible small text */
+:root[data-ui='sift2'] body {
+  font-family: var(--sift2-font-body);
+  font-size: var(--sift2-fs-body);
+  line-height: var(--sift2-lh-body);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-rendering: optimizeLegibility;
+}
+:root[data-ui='sift2'] :is(h1, h2, h3, h4) { text-wrap: balance; }
+:root[data-ui='sift2'] p { text-wrap: pretty; }
+/* Light text on a near-black ground thins out at small sizes: caption-sized text takes the UI weight. */
+:root[data-ui='sift2'] :is(small, figcaption, caption, th, .small, .muted) { font-weight: var(--sift2-fw-ui); }
+
+/* ---- focus: one ring, everywhere */
+:root[data-ui='sift2'] :where(a, button, summary, input, select, textarea, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--sift2-focus);
+  outline-offset: 2px;
+}
+
+/* ---- motion: nothing moves for a reader who asked for stillness */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-ui='sift2'] *, :root[data-ui='sift2'] *::before, :root[data-ui='sift2'] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Controls: touch, press feedback, motion
+   ========================================================================== */
+
+/* Taps go straight through (no 300ms wait, no double-tap zoom) and nothing flashes grey on iOS. */
+:root[data-ui='sift2'] :is(a, button, summary, select, [role='button'], [role='tab']) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A control that sets its own duration keeps it; the rest share one easing so the app moves the same everywhere. */
+:root[data-ui='sift2'] :is(button, a.btn, [role='tab'], summary) {
+  transition-timing-function: var(--sift2-ease);
+}
+
+@media (pointer: coarse) {
+  /* Primary controls reach 44px. Rows grow by at most 10px; nothing is rearranged. */
+  :root[data-ui='sift2'] :is(
+    .seg__b, .fr-seg__b, .savebtn, .btn, .skchip, .tm-chip, .fr-chip, .mboard__kind, .srcbar__more,
+    .topbar__sport, .searchbtn, .topbar__board, .gtab, .fx-tab, .opp__more, .phead__more, .mx__j,
+    .hubm__preset, .fr-mi__ri, .tprow__go, .htp-pick__go, .breaks__a, .fr-mlist__a, .skip, summary, select
+  ) {
+    min-height: 44px;
+  }
+  :root[data-ui='sift2'] :is(.searchbtn, .topbar__board, .tprow__go, .ex-wk__c) {
+    min-width: 44px;
+  }
+  /* Small inline-level controls keep their look and layout: padding widens the hit area, the negative margin cancels it. */
+  :root[data-ui='sift2'] :is(.linklike, .popover__trigger, .mtab__m, .fx-card__a, .ex-rk__tm, .htp-row__name, .elink, .topbar__brand) {
+    padding-block: 10px;
+    margin-block: -10px;
+  }
+  /* A pressed control answers under the finger. */
+  :root[data-ui='sift2'] :is(.seg__b, .fr-seg__b, .btn, .savebtn, .skchip, .tm-chip, .fr-chip, .fx-tab, .gtab):active {
+    transform: scale(0.97);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-ui='sift2'] :is(.seg__b, .fr-seg__b, .btn, .savebtn, .skchip, .tm-chip, .fr-chip):hover {
+    border-color: var(--sift2-line-strong);
+  }
+}

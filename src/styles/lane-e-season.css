@@ -4,14 +4,14 @@
 .sn-grid .wcell[data-cell='final'] { border-color: rgba(47, 211, 138, 0.3); }
 .sn-grid .wcell[data-cell='bye'] { border-style: dashed; }
 .wcell__resline { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: baseline; min-width: 0; }
-.wcell__ats { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
+.wcell__ats { font-size: var(--sift2-fs-micro, 0.66rem); font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
 .wcell__ats--w { color: var(--tier-good); }
 .wcell__ats--l { color: #ff9aa6; }
 .wcell__ats--p { color: var(--tier-mid); }
 
 .sn-week__nav { display: inline-flex; align-items: center; gap: 8px; }
 .sn-week__nav .btn { min-width: 36px; min-height: 36px; padding: 0 8px; }
-.sn-week__sum { margin: 0 0 12px; font-size: 0.86rem; color: var(--text-2); }
+.sn-week__sum { margin: 0 0 12px; font-size: var(--sift2-fs-small, 0.86rem); color: var(--text-2); }
 .sn-week__sum b { color: var(--text-hi); }
 
 .swk-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 268px), 1fr)); }
@@ -22,10 +22,10 @@
 a.swk__a:hover { color: var(--text); border-color: var(--fx-edge-hi, rgba(120, 206, 255, 0.55)); transform: translateY(-1px); }
 a.swk__a:focus-visible { outline: 2px solid #8fd0ff; outline-offset: 2px; }
 .swk.is-mine .swk__a { border-color: rgba(110, 200, 255, 0.7); box-shadow: var(--fx-rim), 0 0 20px -8px rgba(62, 170, 255, 0.85); }
-.swk__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.74rem; font-weight: 600; color: var(--text-3); min-width: 0; }
+.swk__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: var(--sift2-fs-micro, 0.74rem); font-weight: 600; color: var(--text-3); min-width: 0; }
 .swk__when { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .swk .gc-team .teammark { width: 30px; height: 30px; }
-.swk .gc-team__n { font-family: var(--font-cond); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.02em; flex: 0 1 auto; }
+.swk .gc-team__n { font-family: var(--font-cond); font-weight: 700; font-size: var(--sift2-fs-lead, 1.15rem); letter-spacing: 0.02em; flex: 0 1 auto; }
 .swk .gc-team__rec { margin-right: auto; }
 .swk .gc-team.is-mine .gc-team__n { color: #bfe6ff; }
 .gc-ats--tot-over { color: #ffd59a; border-color: rgba(240, 160, 50, 0.4); background: rgba(240, 160, 50, 0.12); }

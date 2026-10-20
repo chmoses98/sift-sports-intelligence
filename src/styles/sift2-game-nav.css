@@ -13,12 +13,12 @@
     height: auto; min-height: 51px; margin: 0; padding: 5px 14px;
     overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch;
     scroll-padding-inline: 14px;
-    background: #04111e; border: 0; border-radius: 0; box-shadow: 0 1px 0 #18364d, 0 8px 14px -10px #000;
+    background: var(--sift2-surface-0); border: 0; border-radius: 0; box-shadow: 0 1px 0 #18364d, 0 8px 14px -10px #000;
   }
   .app--sift2 .sift2-command > nav.gtabs.gtabs--fx::-webkit-scrollbar { display: none; }
   /* The safe-area inset above the bar, painted in the bar's colour. */
-  .app--sift2 .sift2-command > nav.gtabs.gtabs--fx::before { content: ''; position: fixed; z-index: 30; top: 0; left: 0; right: 0; height: var(--safe-t, 0px); background: #04111e; pointer-events: none; }
-  .app--sift2 .sift2-command > nav.gtabs.gtabs--fx .fx-tab { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; white-space: nowrap; scroll-snap-align: center; font: 500 14px Barlow, sans-serif; border: 1px solid #18364d; border-radius: 8px; }
-  .app--sift2 .sift2-command > nav.gtabs.gtabs--fx .fx-tab[aria-current] { background: #07355c; border-color: #2da8ff; color: #fff; }
+  .app--sift2 .sift2-command > nav.gtabs.gtabs--fx::before { content: ''; position: fixed; z-index: 30; top: 0; left: 0; right: 0; height: var(--safe-t, 0px); background: var(--sift2-surface-0); pointer-events: none; }
+  .app--sift2 .sift2-command > nav.gtabs.gtabs--fx .fx-tab { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; white-space: nowrap; scroll-snap-align: center; font: 500 var(--sift2-fs-small) var(--font-sans); border: 1px solid var(--sift2-line); border-radius: var(--sift2-r-sm); }
+  .app--sift2 .sift2-command > nav.gtabs.gtabs--fx .fx-tab[aria-current] { background: var(--sift2-surface-2); border-color: #2da8ff; color: var(--sift2-text); }
   html:has(.sift2-command > nav.gtabs) { scroll-padding-top: calc(var(--safe-t, 0px) + 66px); }
 }

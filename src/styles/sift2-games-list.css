@@ -5,36 +5,36 @@
    The Games page groups rows by sport and start hour in plain document flow: no nested scroll container anywhere.
    ========================================================================== */
 .s2-gr-list, .s2-gg__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 0; padding: 0; list-style: none; min-width: 0; }
-.s2-gr { position: relative; isolation: isolate; min-width: 0; overflow: hidden; border-radius: 12px; border: 1px solid #1d354a; background: linear-gradient(145deg, #071725, #040e18); }
+.s2-gr { position: relative; isolation: isolate; min-width: 0; overflow: hidden; border-radius: var(--sift2-r-md); border: 1px solid var(--sift2-line); background: linear-gradient(145deg, #071725, #040e18); }
 .s2-gr.is-live { border-color: #2c7fbf; }
 .s2-gr.is-current { border-color: #39a9ff; box-shadow: 0 0 0 1px #39a9ff55; }
-.s2-gr__link { position: relative; z-index: 1; display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; grid-template-areas: 'time teams go' 'time meta go'; grid-template-rows: auto; align-items: center; column-gap: 12px; row-gap: 4px; min-height: 60px; padding: 8px 12px; color: var(--sift2-text, #f2f7ff); text-decoration: none; }
-.app--sift2 .s2-gr__link, .sift2-home .s2-gr__link { color: var(--sift2-text, #f2f7ff); font-weight: 500; text-decoration: none; }
+.s2-gr__link { position: relative; z-index: 1; display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; grid-template-areas: 'time teams go' 'time meta go'; grid-template-rows: auto; align-items: center; column-gap: 12px; row-gap: 4px; min-height: 60px; padding: 8px 12px; color: var(--sift2-text, var(--sift2-text)); text-decoration: none; }
+.app--sift2 .s2-gr__link, .sift2-home .s2-gr__link { color: var(--sift2-text, var(--sift2-text)); font-weight: 500; text-decoration: none; }
 .s2-gr__link:hover { background: rgba(60, 150, 230, 0.08); text-decoration: none; }
-.s2-gr__link:focus-visible { outline: 2px solid var(--sift2-accent, #60b8ff); outline-offset: -2px; border-radius: 12px; }
+.s2-gr__link:focus-visible { outline: 2px solid var(--sift2-accent, var(--sift2-focus)); outline-offset: -2px; border-radius: var(--sift2-r-md); }
 .s2-gr__time { grid-area: time; display: grid; gap: 2px; align-content: center; text-align: left; min-width: 0; }
-.s2-gr__time b { font: 700 15px/1.1 Barlow, sans-serif; white-space: nowrap; color: #fff; }
-.s2-gr__time small { font: 600 11px/1 Barlow, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #8fb6d8; }
+.s2-gr__time b { font: 700 var(--sift2-fs-body)/1.1 var(--font-sans); white-space: nowrap; color: var(--sift2-text); }
+.s2-gr__time small { font: 600 var(--sift2-fs-micro)/1 var(--font-sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--sift2-text-2); }
 .s2-gr.is-live .s2-gr__time small { color: #6fe0a8; }
 .s2-gr__teams { grid-area: teams; display: grid; gap: 4px; min-width: 0; }
 .s2-gr__team { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.s2-gr__team > :first-child { flex: none; width: 26px !important; height: 26px !important; font-size: 10px; }
+.s2-gr__team > :first-child { flex: none; width: 26px !important; height: 26px !important; font-size: var(--sift2-fs-micro); }
 .s2-gr__team img { object-fit: contain; }
-.s2-gr__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 15px/1.2 Barlow, sans-serif; color: #f2f7ff; }
-.s2-gr__meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; font: 400 12px/1.3 Barlow, sans-serif; color: #93abc4; }
+.s2-gr__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 var(--sift2-fs-body)/1.2 var(--font-sans); color: var(--sift2-text); }
+.s2-gr__meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; font: 400 var(--sift2-fs-micro)/1.3 var(--font-sans); color: var(--sift2-text-2); }
 .s2-gr__venue { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.s2-gr__chip { padding: 1px 8px; border-radius: 99px; border: 1px solid var(--gold-line, rgba(240, 192, 72, 0.5)); background: var(--gold-bg, rgba(240, 192, 72, 0.1)); color: var(--gold-2, #f0c048); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.s2-gr__chip { padding: 1px 8px; border-radius: 99px; border: 1px solid var(--gold-line, rgba(240, 192, 72, 0.5)); background: var(--gold-bg, rgba(240, 192, 72, 0.1)); color: var(--gold-2, #f0c048); font-size: var(--sift2-fs-micro); font-weight: 600; white-space: nowrap; }
 .s2-gr__sub { white-space: nowrap; }
-.s2-gr__go { grid-area: go; display: inline-flex; align-items: center; gap: 2px; font: 600 13px Barlow, sans-serif; color: #8fd0ff; }
+.s2-gr__go { grid-area: go; display: inline-flex; align-items: center; gap: 2px; font: 600 var(--sift2-fs-caption) var(--font-sans); color: var(--sift2-accent); }
 .s2-gr__go span { display: none; }
-.s2-gr__link:hover .s2-gr__go { color: #fff; }
+.s2-gr__link:hover .s2-gr__go { color: var(--sift2-text); }
 /* Artwork: the venue photograph or branded field, kept quiet behind the text (Home's preview only). */
 .s2-gr__art { position: absolute; inset: 0 0 0 38%; z-index: 0; opacity: 0.55; -webkit-mask-image: linear-gradient(90deg, transparent, #000 70%); mask-image: linear-gradient(90deg, transparent, #000 70%); pointer-events: none; }
 .s2-gr__art .s2-venue-art { position: absolute; inset: 0; display: block; }
 .s2-gr.has-art .s2-gr__link { background: linear-gradient(90deg, rgba(4, 14, 24, 0.9) 0%, rgba(4, 14, 24, 0.5) 100%); }
 .s2-gr.has-art .s2-gr__link:hover { background: linear-gradient(90deg, rgba(8, 24, 40, 0.9) 0%, rgba(8, 24, 40, 0.5) 100%); }
-.s2-gr-more { display: flex; align-items: center; justify-content: center; min-height: 46px; margin-top: 10px; border-radius: 12px; border: 1px solid rgba(98, 186, 255, 0.4); background: rgba(31, 95, 214, 0.14); font: 700 15px Barlow, sans-serif; color: #cfe8ff; text-decoration: none; }
-.sift2-home .s2-gr-more { color: #cfe8ff; font-weight: 700; }
+.s2-gr-more { display: flex; align-items: center; justify-content: center; min-height: 46px; margin-top: 10px; border-radius: var(--sift2-r-md); border: 1px solid rgba(98, 186, 255, 0.4); background: rgba(31, 95, 214, 0.14); font: 700 var(--sift2-fs-body) var(--font-sans); color: var(--sift2-text); text-decoration: none; }
+.sift2-home .s2-gr-more { color: var(--sift2-text); font-weight: 700; }
 @media (min-width: 720px) {
   .s2-gr-list, .s2-gg__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .s2-gr__go span { display: inline; }
@@ -42,24 +42,24 @@
 @media (min-width: 1180px) { .s2-gg__list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 380px) {
   .s2-gr__link { grid-template-columns: 54px minmax(0, 1fr) auto; column-gap: 8px; padding: 9px 10px; }
-  .s2-gr__name { font-size: 14px; }
+  .s2-gr__name { font-size: var(--sift2-fs-small); }
 }
 
 /* ---- grouped slate (Games page) */
 .s2-gg { display: grid; gap: 22px; min-width: 0; }
 .s2-gg__sport { display: grid; gap: 8px; min-width: 0; }
-.s2-gg__h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0; padding-bottom: 6px; border-bottom: 1px solid #1d354a; font: 700 22px/1.1 'Barlow Condensed', Barlow, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; }
-.s2-gg__h span { font: 500 13px Barlow, sans-serif; letter-spacing: 0; text-transform: none; color: #93abc4; }
+.s2-gg__h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0; padding-bottom: 6px; border-bottom: 1px solid var(--sift2-line); font: 700 var(--sift2-fs-h3)/1.1 var(--font-cond); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sift2-text); }
+.s2-gg__h span { font: 500 var(--sift2-fs-caption) var(--font-sans); letter-spacing: 0; text-transform: none; color: var(--sift2-text-2); }
 .s2-gg__slot { display: grid; gap: 6px; min-width: 0; }
-.s2-gg__t { margin: 6px 0 0; font: 600 12px/1 Barlow, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8fb6d8; }
-.s2-gg__more { min-height: 44px; border-radius: 10px; border: 1px solid #2a5278; background: #081a2b; color: #cfe8ff; font: 600 14px Barlow, sans-serif; cursor: pointer; }
-.s2-gg__more:hover { background: #0d2740; }
+.s2-gg__t { margin: 6px 0 0; font: 600 var(--sift2-fs-micro)/1 var(--font-sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--sift2-text-2); }
+.s2-gg__more { min-height: 44px; border-radius: var(--sift2-r-sm); border: 1px solid #2a5278; background: var(--sift2-surface-1); color: var(--sift2-text); font: 600 var(--sift2-fs-small) var(--font-sans); cursor: pointer; }
+.s2-gg__more:hover { background: var(--sift2-surface-2); }
 
 /* ---- Games page frame: the hero stands alone (the old side list and card grid are the grouped schedule below). */
 .app--sift2 .s2-games .s2-games__lead { grid-template-columns: minmax(0, 1fr); }
 .app--sift2 .s2-games .s2-matchups { margin-top: 20px; }
 .app--sift2 .s2-games .s2-matchups > header { height: auto; min-height: 36px; flex-wrap: wrap; gap: 4px 12px; }
-.app--sift2 .s2-games .s2-coverage { margin: 0 0 12px; padding: 10px 14px; border: 1px solid #1d354a; border-radius: 10px; color: #a8bed7; font-size: 13px; }
+.app--sift2 .s2-games .s2-coverage { margin: 0 0 12px; padding: 10px 14px; border: 1px solid var(--sift2-line); border-radius: var(--sift2-r-sm); color: var(--sift2-text-2); font-size: var(--sift2-fs-caption); }
 .app--sift2 .s2-games .s2-coverage summary { cursor: pointer; min-height: 24px; }
 .s2-filter-strip button small { opacity: 0.7; margin-left: 3px; }
 /* Day navigation: a stepper on phones (seven 38px buttons were unreadable), the date strip from 720px up. */
@@ -67,12 +67,12 @@
 @media (max-width: 719px) {
   .s2-games .s2-calendar, .s2-games .s2-calendar-tools { display: none; }
   .s2-daybar { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px auto; align-items: stretch; gap: 6px; width: 100%; order: 3; }
-  .s2-daybar__step { min-height: 46px; border-radius: 10px; border: 1px solid #20364c; background: #081726; color: #d6e2f3; font: 400 26px/1 Barlow, sans-serif; cursor: pointer; }
-  .s2-daybar__label { position: relative; display: grid; align-content: center; justify-items: center; gap: 2px; min-width: 0; min-height: 46px; border-radius: 10px; border: 1px solid #39a9ff66; background: #0a2036; cursor: pointer; }
-  .s2-daybar__day { font: 700 16px/1.1 Barlow, sans-serif; color: #fff; }
-  .s2-daybar__date { font: 500 12px/1.1 Barlow, sans-serif; color: #9fbad4; }
+  .s2-daybar__step { min-height: 46px; border-radius: var(--sift2-r-sm); border: 1px solid var(--sift2-line); background: var(--sift2-surface-1); color: var(--sift2-text); font: 400 var(--sift2-fs-h2)/1 var(--font-sans); cursor: pointer; }
+  .s2-daybar__label { position: relative; display: grid; align-content: center; justify-items: center; gap: 2px; min-width: 0; min-height: 46px; border-radius: var(--sift2-r-sm); border: 1px solid #39a9ff66; background: var(--sift2-surface-2); cursor: pointer; }
+  .s2-daybar__day { font: 700 var(--sift2-fs-body)/1.1 var(--font-sans); color: var(--sift2-text); }
+  .s2-daybar__date { font: 500 var(--sift2-fs-micro)/1.1 var(--font-sans); color: var(--sift2-text-2); }
   .s2-daybar__label input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; color-scheme: dark; }
-  .s2-daybar__today { min-height: 46px; padding: 0 14px; border-radius: 10px; border: 1px solid #2a5278; background: #081a2b; color: #cfe8ff; font: 600 14px Barlow, sans-serif; cursor: pointer; }
+  .s2-daybar__today { min-height: 46px; padding: 0 14px; border-radius: var(--sift2-r-sm); border: 1px solid #2a5278; background: var(--sift2-surface-1); color: var(--sift2-text); font: 600 var(--sift2-fs-small) var(--font-sans); cursor: pointer; }
   .s2-daybar:not(:has(.s2-daybar__today)) { grid-template-columns: 44px minmax(0, 1fr) 44px; }
   .app--sift2 .s2-games .s2-page-heading > div:first-child { padding-right: 0; }
   .s2-games__filters { gap: 8px; }
@@ -81,4 +81,4 @@
 @media (min-width: 720px) { .s2-daybar { display: none; } }
 
 /* A long school name in the Games page hero ("Stony Brook Seawolves") stays whole instead of breaking mid-word. */
-@media (max-width: 719px) { .app--sift2 .s2-games .s2-club > strong { font-size: 18px; overflow-wrap: break-word; hyphens: none; } }
+@media (max-width: 719px) { .app--sift2 .s2-games .s2-club > strong { font-size: var(--sift2-fs-lead); overflow-wrap: break-word; hyphens: none; } }

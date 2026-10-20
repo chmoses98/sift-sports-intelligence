@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game Command Center</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+
+/* header: transparent over the scoreboard, solid once it has scrolled away */
+.ghead{position:sticky;top:0;z-index:35;height:calc(var(--safe-top) + 52px);padding:var(--safe-top) 6px 0 6px;display:flex;align-items:center;gap:4px;border-bottom:1px solid transparent;transition:background .2s,border-color .2s}
+.ghead--solid{background:rgba(6,9,15,.985);border-bottom-color:var(--line)}
+.ghead__c{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font:700 20px/1 var(--f-cond);letter-spacing:.04em;opacity:0;transition:opacity .2s;white-space:nowrap}
+.ghead--title .ghead__c{opacity:1}
+.ghead__c img{width:22px;height:22px;object-fit:contain}
+.ghead__c small{font:600 13px/1 var(--f-body);color:var(--tx2);letter-spacing:.04em;margin-left:2px}
+.ghead__c .lv{color:var(--live);font:700 15px/1 var(--f-cond)}
+.ibtn--on{color:var(--mkt)}
+
+/* scoreboard */
+.ghero{position:relative;isolation:isolate;margin-top:calc(-1 * (var(--safe-top) + 52px));padding:calc(var(--safe-top) + 56px) 16px 0;height:300px}
+.ghero__bg{position:absolute;inset:0;z-index:-3;background:
+  radial-gradient(90% 80% at 0% 100%,rgba(196,24,64,.40) 0%,rgba(196,24,64,0) 62%),
+  radial-gradient(100% 90% at 100% 0%,rgba(30,96,236,.78) 0%,rgba(30,96,236,0) 64%),
+  radial-gradient(85% 75% at 0% 0%,rgba(28,70,150,.95) 0%,rgba(28,70,150,0) 66%),
+  linear-gradient(180deg,#0A1630,#070F1D)}
+.ghero__lines{position:absolute;inset:0;z-index:-2;opacity:.7;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,transparent 1px 39px);-webkit-mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.15) 75%,transparent);mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.15) 75%,transparent)}
+.ghero__fade{position:absolute;left:0;right:0;bottom:0;height:120px;z-index:-1;background:linear-gradient(180deg,rgba(6,9,15,0),#06090F 94%)}
+.gtop{display:flex;align-items:center;justify-content:space-between;height:24px}
+.gtop .cap{color:var(--tx2)}
+.gstat{display:inline-flex;align-items:center;gap:8px;font:700 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase}
+.gstat--live{color:var(--tx)}
+.gstat--live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px rgba(255,77,94,.25)}
+.sb{display:grid;grid-template-columns:auto 1fr auto 1fr auto;align-items:center;column-gap:10px;margin-top:14px}
+.sb__logo{display:flex;flex-direction:column;align-items:center;gap:6px;width:64px}
+.sb__logo img{width:60px;height:60px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
+.sb__logo b{font:700 15px/16px var(--f-cond);letter-spacing:.08em}
+.sb__logo small{font:500 12px/14px var(--f-body);color:var(--tx2)}
+.sb__n{font:700 56px/56px var(--f-cond)}
+.sb__n--l{text-align:right}
+.sb__n--lose{color:var(--tx2)}
+.sb__mid{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:74px;text-align:center}
+.sb__mid b{font:700 28px/28px var(--f-cond);letter-spacing:.02em}
+.sb__mid span{font:600 15px/18px var(--f-body);color:var(--tx2)}
+.sb__mid em{font:600 13px/16px var(--f-body);font-style:normal;color:var(--model)}
+.sb__time{font:700 44px/44px var(--f-cond)}
+.sbfoot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font:500 13px/16px var(--f-body);color:var(--tx2)}
+.clocks{display:inline-flex;gap:14px}
+.clocks > span{display:inline-flex;align-items:center;gap:6px}
+.clocks > span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.clocks > span.old::before{background:var(--tx3)}
+
+/* four tabs */
+.gtabs{position:sticky;top:calc(var(--safe-top) + 52px);z-index:34;display:grid;grid-template-columns:repeat(4,1fr);height:48px;background:rgba(6,9,15,.985);border-bottom:1px solid var(--line)}
+.gtab{position:relative;display:flex;align-items:center;justify-content:center;font:600 15px/1 var(--f-body);color:var(--tx3);text-align:center;min-height:44px}
+.gtab.on{color:var(--tx)}
+.gtab.on::after{content:"";position:absolute;left:22%;right:22%;bottom:-1px;height:3px;border-radius:2px 2px 0 0;background:var(--model)}
+.gtab .gtab__dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--live);margin-right:7px;vertical-align:1px}
+.pane{padding:20px 16px 0;min-height:780px;touch-action:pan-y}
+.read-h{margin:0;font:600 28px/32px var(--f-body);letter-spacing:-.005em;text-wrap:balance}
+.blk{margin-top:30px}
+.blk__h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;min-height:28px}
+.blk__h h3{margin:0;font:700 20px/22px var(--f-cond);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.note{font:400 12px/17px var(--f-body);color:var(--tx3);margin-top:10px}
+.frozen{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:11px;box-shadow:inset 0 0 0 1px var(--line2);font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--tx2)}
+
+/* now: down, distance and the field */
+.now{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.now b{font:700 28px/28px var(--f-cond);letter-spacing:.02em}
+.now span{font:500 15px/20px var(--f-body);color:var(--tx2)}
+.field{position:relative;height:12px;border-radius:6px;background:var(--bg3);margin:16px 0 8px;overflow:visible}
+.field__drive{position:absolute;top:0;bottom:0;border-radius:6px;background:var(--buf)}
+.field__ball{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--bg)}
+.field__gain{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--tx);transform:translateX(-50%)}
+.fieldl{display:flex;justify-content:space-between;font:600 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.sigline{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:22px;text-align:left}
+.sigline b{flex:1;font:600 16px/20px var(--f-body)}
+.sigline .sigchip{margin:0}
+.sigline > .ic{color:var(--tx3)}
+
+/* plays */
+.seg{display:flex;gap:2px;padding:3px;border-radius:10px;background:var(--bg2)}
+.seg button{position:relative;height:38px;min-width:44px;padding:0 12px;border-radius:8px;font:600 13px/1 var(--f-body);color:var(--tx2);text-align:center}
+.seg button.on{background:var(--bg3);color:var(--tx)}
+.seg button::after,.fmt button::after{content:"";position:absolute;inset:-3px 0}
+.play{display:grid;grid-template-columns:52px 1fr;column-gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.play:first-of-type{border-top:0}
+.play__t{display:flex;flex-direction:column;gap:2px;font:700 20px/18px var(--f-cond)}
+.play__t small{font:500 12px/14px var(--f-body);color:var(--tx3)}
+.play__x{font:400 15px/21px var(--f-body);display:flex;flex-direction:column;gap:4px}
+.play__x small{font:500 13px/16px var(--f-body);color:var(--tx2)}
+.play--sc .play__x{font-weight:600}
+.pill{display:inline-flex;align-self:flex-start;align-items:center;height:22px;padding:0 9px;border-radius:11px;background:var(--tx);color:#06090F;font:700 12px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase}
+.tstat{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:10px;min-height:40px}
+.tstat b{font:700 24px/1 var(--f-cond)}
+.tstat b:last-child{text-align:right}
+.tstat__m{text-align:center;font:500 13px/16px var(--f-body);color:var(--tx2)}
+.tstat__bar{display:grid;grid-template-columns:1fr 1fr;gap:3px;height:6px;margin-top:6px}
+.tstat__bar div{display:flex;background:var(--bg3);border-radius:3px;overflow:hidden}
+.tstat__bar div:first-child{justify-content:flex-end}
+.tstat__bar i{display:block;height:100%}
+.tbox{padding:6px 0 0}
+
+/* model vs market */
+.mvm{border-top:1px solid var(--line)}
+.mvm__r{display:grid;grid-template-columns:1fr 92px 92px;align-items:center;min-height:52px;border-bottom:1px solid var(--line)}
+.mvm__r--h{min-height:36px}
+.mvm__k{font:500 15px/18px var(--f-body);color:var(--tx2)}
+.mvm__v{text-align:right;font:700 24px/1 var(--f-cond)}
+.mvm__v small{font:600 12px/1 var(--f-body);color:var(--tx3);margin-left:3px}
+.mvm__r--h .cap:nth-child(2){color:var(--model);text-align:right}
+.mvm__r--h .cap:nth-child(3){color:var(--mkt);text-align:right}
+.verdict{display:flex;gap:12px;align-items:flex-start;margin-top:14px;color:var(--tx2);font:400 15px/20px var(--f-body)}
+.verdict b{color:var(--tx);font-weight:600}
+.verdict .ic{color:var(--ok)}
+.avail{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.avail .ic{color:var(--risk);margin-top:1px}
+.avail b{display:block;font:600 16px/20px var(--f-body)}
+.avail .avail__s{font:400 13px/18px var(--f-body);color:var(--tx2)}
+.linkrow{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:56px;border-bottom:1px solid var(--line);font:600 16px/20px var(--f-body);text-align:left}
+.linkrow small{display:block;font:400 13px/17px var(--f-body);color:var(--tx2);margin-top:1px}
+.linkrow .ic{color:var(--tx3)}
+
+/* scripts */
+.spec{display:flex;gap:3px;height:48px}
+.spec button{display:grid;place-items:center;border-radius:6px;font:700 20px/1 var(--f-cond);color:#fff;transition:opacity .15s}
+.spec button.dim{opacity:.38}
+.specl{display:grid;grid-template-columns:1fr auto 1fr;margin-top:8px;font:600 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.specl span:last-child{text-align:right}
+.scr{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:8px 0;border-top:1px solid var(--line);text-align:left}
+.scr i{width:10px;height:10px;border-radius:50%;flex:none}
+.scr__t{flex:1;min-width:0}
+.scr__t b{display:block;font:600 16px/20px var(--f-body)}
+.scr__m{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.scr__n{font:700 24px/1 var(--f-cond)}
+.scr.dim{opacity:.55}
+.duel{padding:14px 0;border-top:1px solid var(--line)}
+.duel__l{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.duel__k{font:600 16px/20px var(--f-body)}
+.duel__e{font:600 13px/17px var(--f-body);white-space:nowrap}
+.duel__d{margin-top:2px;font:400 13px/18px var(--f-body);color:var(--tx2)}
+
+/* players */
+.pl{border-top:1px solid var(--line);padding:14px 0}
+.pl:first-of-type{border-top:0}
+.pl__h{display:flex;align-items:center;gap:12px;width:100%;text-align:left}
+.av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;background:var(--bg3);display:grid;place-items:center;font:700 16px/1 var(--f-cond);letter-spacing:.04em;color:#fff}
+.pl__t{flex:1;min-width:0}
+.pl__t b{display:block;font:600 16px/20px var(--f-body)}
+.pl__s{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.pl__n{text-align:right}
+.pl__n b{display:block;font:700 28px/24px var(--f-cond)}
+.pl__n small{font:600 11px/12px var(--f-body);letter-spacing:.1em;color:var(--tx3)}
+.trk{position:relative;height:8px;border-radius:4px;background:var(--bg3);margin:30px 2px 30px}
+.trk__fill{position:absolute;top:0;bottom:0;left:0;border-radius:4px;background:var(--tx)}
+.trk__tick{position:absolute;top:-7px;bottom:-7px;width:3px;border-radius:2px;background:var(--mkt);transform:translateX(-50%)}
+.trk__dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--model);transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--bg)}
+.trk__lab{position:absolute;white-space:nowrap;font:600 12px/14px var(--f-body);transform:translateX(-50%)}
+.trk__lab--top{bottom:16px;color:var(--mkt)}
+.trk__lab--bot{top:16px;color:var(--model)}
+.trk__lab--now{top:16px;color:var(--tx)}
+.lad{margin-top:8px;border-top:1px solid var(--line)}
+.lad__r{display:grid;grid-template-columns:1fr 80px 80px;align-items:center;min-height:44px;border-bottom:1px solid var(--line);font:600 15px/1 var(--f-body)}
+.lad__r--h{min-height:30px}
+.lad__r--h .cap:nth-child(2){color:var(--mkt);text-align:right}
+.lad__r--h .cap:nth-child(3){color:var(--model);text-align:right}
+.lad__r b{font:700 20px/1 var(--f-cond);text-align:right}
+.lad__r--hit{background:linear-gradient(90deg,rgba(242,190,69,.10),rgba(242,190,69,0))}
+.pl__x{font:400 12px/16px var(--f-body);color:var(--tx3)}
+
+/* markets */
+.fmt{display:flex;gap:2px;padding:3px;border-radius:10px;background:var(--bg2)}
+.fmt button{position:relative;height:38px;min-width:44px;padding:0 12px;border-radius:8px;font:600 13px/1 var(--f-body);color:var(--tx2);text-align:center}
+.fmt button.on{background:var(--bg3);color:var(--tx)}
+.win2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wbtn{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:6px;padding:14px 14px 12px;border-radius:16px;background:var(--bg1);min-height:132px}
+.wbtn img{width:34px;height:34px;object-fit:contain}
+.wbtn__n{font:600 15px/16px var(--f-body);color:var(--tx2)}
+.wbtn__p{font:700 44px/40px var(--f-cond);color:var(--mkt)}
+.wbtn__m{font:500 12px/14px var(--f-body);color:var(--tx3)}
+.wbtn__m b{color:var(--model);font-weight:600}
+.wbtn__f{position:absolute;left:0;bottom:0;height:3px;background:var(--mkt);opacity:.8}
+.mk{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;min-height:64px;border-bottom:1px solid var(--line)}
+.mk:first-of-type{border-top:1px solid var(--line)}
+.mk b{display:block;font:600 16px/20px var(--f-body)}
+.mk__s{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.mk__p{font:700 24px/1 var(--f-cond);color:var(--mkt);min-width:64px;text-align:right}
+</style>
+</helmet>
+
+<div class="app">
+<main class="scroll" id="sc" onScroll="{{onScroll}}" inert="{{bgInert}}">
+
+  <header class="ghead {{headCls}}">
+    <a class="ibtn" href="Main.dc.html" aria-label="Back to Home"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+    <div class="ghead__c" aria-hidden="true"><img src="{{logo.NE}}" alt=""><span>{{head.mid}}</span><img src="{{logo.BUF}}" alt=""><small class="{{head.cls}}">{{head.right}}</small></div>
+    <button class="ibtn {{saveCls}}" aria-label="Save to My Board" aria-pressed="{{saved}}" onClick="{{toggleSave}}"><svg class="ic" viewBox="0 0 24 24" fill="{{saveFill}}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </header>
+
+  <section class="ghero" aria-label="Scoreboard">
+    <div class="ghero__bg"></div><div class="ghero__lines"></div><div class="ghero__fade"></div>
+    <div class="gtop"><span class="cap">NFL &middot; Week 4</span>
+      <span style="display:inline-flex;gap:8px;align-items:center"><sc-if value="{{hasSample}}" hint-placeholder-val="{{ true }}"><span class="sample">Sample</span></sc-if><span class="gstat {{statCls}}">{{statTxt}}</span></span></div>
+    <div class="sb">
+      <div class="sb__logo"><img src="{{logo.NE}}" alt=""><b>NE</b><small>1&ndash;2</small></div>
+      <sc-if value="{{showScore}}" hint-placeholder-val="{{ true }}"><div class="sb__n sb__n--l {{neLose}}">{{ne}}</div></sc-if><sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+      <div class="sb__mid">
+        <sc-if value="{{isLivePh}}" hint-placeholder-val="{{ true }}"><b>{{per}}</b><span>{{clk}}</span></sc-if>
+        <sc-if value="{{isPre}}" hint-placeholder-val="{{ false }}"><div class="sb__time">12:00</div><span>PM CDT</span><em>in 1h 59m</em></sc-if>
+        <sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}"><b>Final</b></sc-if>
+      </div>
+      <sc-if value="{{showScore}}" hint-placeholder-val="{{ true }}"><div class="sb__n {{bufLose}}">{{buf}}</div></sc-if><sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+      <div class="sb__logo"><img src="{{logo.BUF}}" alt=""><b>BUF</b><small>3&ndash;0</small></div>
+    </div>
+    <div class="sbfoot"><span>{{footTxt}}</span><span class="clocks"><span>Prices live</span><span class="old">{{researchTxt}}</span></span></div>
+  </section>
+
+  <nav class="gtabs" role="tablist" aria-label="Game sections">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+      <button class="gtab {{t.cls}}" role="tab" id="{{t.id}}" aria-controls="{{t.panel}}" aria-selected="{{t.sel}}" tabindex="{{t.ti}}" onClick="{{t.pick}}"><sc-if value="{{t.live}}" hint-placeholder-val="{{ false }}"><i class="gtab__dot" aria-hidden="true"></i></sc-if>{{t.label}}</button>
+    </sc-for>
+  </nav>
+
+  <div onPointerDown="{{swDown}}" onPointerUp="{{swUp}}">
+
+  <!-- LIVE -->
+  <sc-if value="{{tab.live}}" hint-placeholder-val="{{ true }}">
+  <div class="pane" role="tabpanel" id="panel-live" aria-labelledby="tab-live">
+    <sc-if value="{{isLivePh}}" hint-placeholder-val="{{ true }}">
+      <div class="now"><b>{{now.dd}}</b><span>{{now.where}}</span></div>
+      <div class="field" role="img" aria-label="{{now.alt}}"><i class="field__drive" style="left:{{now.from}}%;width:{{now.w}}%"></i><i class="field__gain" style="left:{{now.gain}}%"></i><i class="field__ball" style="left:{{now.ball}}%"></i></div>
+      <div class="fieldl"><span>NE</span><span>{{now.drive}}</span><span>BUF</span></div>
+    </sc-if>
+    <sc-if value="{{isPre}}" hint-placeholder-val="{{ false }}">
+      <h2 class="read-h">Buffalo&rsquo;s run game is the mismatch.</h2>
+    </sc-if>
+    <sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}">
+      <h2 class="read-h">Bills win a game that stayed close.</h2>
+    </sc-if>
+
+    <button class="sigline" aria-haspopup="dialog" onClick="{{openRun}}"><span class="sigchip {{sigCls}}" style="margin:0"><span class="sigchip__p"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg>1</span></span><b>Run game: Bills edge</b><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+
+    <sc-if value="{{hasPlays}}" hint-placeholder-val="{{ true }}">
+    <div class="blk">
+      <div class="blk__h"><h3>Plays</h3>
+        <div class="seg" role="group" aria-label="Filter plays"><sc-for list="{{playFilters}}" as="f" hint-placeholder-count="3"><button class="{{f.cls}}" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div></div>
+      <sc-for list="{{plays}}" as="p" hint-placeholder-count="6">
+        <div class="play {{p.cls}}"><div class="play__t"><span>{{p.t}}</span><small>{{p.team}}</small></div><div class="play__x"><span>{{p.x}}</span><sc-if value="{{p.score}}" hint-placeholder-val="{{ false }}"><span class="pill">{{p.pill}}</span></sc-if></div></div>
+      </sc-for>
+    </div>
+    <div class="blk">
+      <div class="blk__h"><h3>Team stats</h3></div>
+      <sc-for list="{{tstats}}" as="s" hint-placeholder-count="4">
+        <div class="tbox"><div class="tstat"><b>{{s.a}}</b><span class="tstat__m">{{s.k}}</span><b>{{s.h}}</b></div>
+        <div class="tstat__bar" aria-hidden="true"><div><i style="width:{{s.aw}}%;background:var(--ne)"></i></div><div><i style="width:{{s.hw}}%;background:var(--buf)"></i></div></div></div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isPre}}" hint-placeholder-val="{{ false }}">
+    <div class="blk">
+      <div class="blk__h"><h3>Model and market</h3></div>
+      <div class="mvm">
+        <div class="mvm__r mvm__r--h"><span class="cap">&nbsp;</span><span class="cap">SIFT model</span><span class="cap">Kalshi</span></div>
+        <div class="mvm__r"><span class="mvm__k">Bills win</span><span class="mvm__v" style="color:var(--model)">74<small>%</small></span><span class="mvm__v" style="color:var(--mkt)">74<small>&cent;</small></span></div>
+        <div class="mvm__r"><span class="mvm__k">Total points</span><span class="mvm__v" style="color:var(--model)">51</span><span class="mvm__v" style="color:var(--mkt)">50.5</span></div>
+      </div>
+      <div class="verdict"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg><span><b>No gap to chase.</b> Model and market agree.</span></div>
+    </div>
+    <div class="blk">
+      <div class="avail"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-alert"/></svg><div><b>Patriots without WR A.J. Brown</b><span class="avail__s">Out. He played 1 of NE&rsquo;s 3 games.</span></div></div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- MATCHUPS -->
+  <sc-if value="{{tab.matchups}}" hint-placeholder-val="{{ false }}">
+  <div class="pane" role="tabpanel" id="panel-matchups" aria-labelledby="tab-matchups">
+    <div class="blk__h" style="margin-top:0"><h3>Mismatches</h3><span class="frozen" style="{{frozenShow}}">Frozen at kickoff</span></div>
+    <div class="seg" role="group" aria-label="Filter by edge" style="display:inline-flex"><sc-for list="{{matchFilters}}" as="f" hint-placeholder-count="3"><button class="{{f.cls}}" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}} {{f.n}}</button></sc-for></div>
+    <div style="margin-top:8px">
+      <sc-for list="{{duelsAll}}" as="d" hint-placeholder-count="5">
+        <div class="duel">
+          <div class="duel__l"><span class="duel__k">{{d.k}}</span><span class="duel__e" style="color:{{d.ec}}">{{d.edge}}</span></div>
+          <div class="duel__d">{{d.detail}}</div>
+          <div class="duel__b"><b style="color:{{d.lc}}">#{{d.lr}}</b>
+            <div class="duel__t"><div class="duel__h"><i style="width:{{d.lw}}%;background:{{d.lc}}"></i></div><div class="duel__h"><i style="width:{{d.rw}}%;background:{{d.rc}}"></i></div></div>
+            <b style="color:{{d.rc}}">#{{d.rr}}</b></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div class="blk">
+      <div class="blk__h"><h3>How it could play out</h3><span class="frozen" style="{{frozenShow}}">Pregame</span></div>
+      <div class="spec">
+        <sc-for list="{{specSegs}}" as="s" hint-placeholder-count="4">
+          <button style="flex:{{s.share}};background:{{s.color}}" class="{{s.cls}}" aria-label="{{s.name}}, {{s.share}} percent of simulated games" aria-pressed="{{s.on}}" onClick="{{s.pick}}">{{s.share}}</button>
+        </sc-for>
+      </div>
+      <div class="specl"><span>Patriots win</span><span>Close</span><span>Bills win</span></div>
+      <div style="margin-top:8px">
+        <sc-for list="{{scripts}}" as="s" hint-placeholder-count="4">
+          <button class="scr {{s.cls}}" aria-pressed="{{s.on}}" onClick="{{s.pick}}"><i style="background:{{s.color}}"></i><span class="scr__t"><b>{{s.name}}</b><span class="scr__m">{{s.margin}}</span></span><span class="scr__n">{{s.share}}%</span></button>
+        </sc-for>
+      </div>
+      <div class="note">Share of simulated games. Not calibrated probabilities.</div>
+    </div>
+
+    <div class="blk">
+      <button class="linkrow" onClick="{{noop}}"><span>Injuries<small>3 out, 2 questionable</small></span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+      <button class="linkrow" onClick="{{noop}}"><span>Team form and trends</span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+      <button class="linkrow" onClick="{{noop}}"><span>Full matchup research</span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- PLAYERS -->
+  <sc-if value="{{tab.players}}" hint-placeholder-val="{{ false }}">
+  <div class="pane" role="tabpanel" id="panel-players" aria-labelledby="tab-players">
+    <div class="blk__h" style="margin-top:0"><h3>Props</h3><sc-if value="{{hasSample}}" hint-placeholder-val="{{ false }}"><span class="sample">Sample stats</span></sc-if></div>
+    <div>
+      <sc-for list="{{players}}" as="p" hint-placeholder-count="4">
+        <div class="pl">
+          <button class="pl__h" aria-expanded="{{p.open}}" onClick="{{p.pick}}">
+            <sc-if value="{{p.hasPhoto}}" hint-placeholder-val="{{ true }}"><img class="av" src="{{p.photo}}" alt="" style="object-position:{{p.pos}}"></sc-if>
+            <sc-if value="{{p.noPhoto}}" hint-placeholder-val="{{ false }}"><span class="av" style="background:{{p.tc}}" aria-hidden="true">{{p.init}}</span></sc-if>
+            <span class="pl__t"><b>{{p.name}}</b><span class="pl__s">{{p.sub}}</span></span>
+            <span class="pl__n"><b>{{p.big}}</b><small>{{p.bigLab}}</small></span>
+          </button>
+          <div class="trk" role="img" aria-label="{{p.alt}}">
+            <sc-if value="{{p.hasNow}}" hint-placeholder-val="{{ false }}"><i class="trk__fill" style="width:{{p.np}}%"></i></sc-if>
+            <i class="trk__tick" style="left:{{p.lp}}%"></i>
+            <sc-if value="{{p.hasProj}}" hint-placeholder-val="{{ true }}"><i class="trk__dot" style="left:{{p.pp}}%"></i></sc-if>
+            <span class="trk__lab trk__lab--top" style="left:{{p.lp}}%">Line {{p.line}}</span>
+            <sc-if value="{{p.hasProj}}" hint-placeholder-val="{{ true }}"><span class="trk__lab trk__lab--bot" style="left:{{p.pp}}%">{{p.projLab}} {{p.proj}}</span></sc-if>
+          </div>
+          <sc-if value="{{p.noProj}}" hint-placeholder-val="{{ false }}"><div class="pl__x">No projection published.</div></sc-if>
+          <sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
+            <div class="lad">
+              <div class="lad__r lad__r--h"><span class="cap">{{p.unit}}</span><span class="cap">Kalshi</span><span class="cap">{{modelLab}}</span></div>
+              <sc-for list="{{p.ladder}}" as="l" hint-placeholder-count="5">
+                <div class="lad__r {{l.cls}}"><span>{{l.t}}+</span><b style="color:var(--mkt)">{{l.ask}}&cent;</b><b style="color:var(--model)">{{l.model}}%</b></div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- MARKETS -->
+  <sc-if value="{{tab.markets}}" hint-placeholder-val="{{ false }}">
+  <div class="pane" role="tabpanel" id="panel-markets" aria-labelledby="tab-markets">
+    <div class="blk__h" style="margin-top:0"><span class="clocks"><span>{{priceLab}}</span></span>
+      <div class="fmt" role="group" aria-label="Price format"><sc-for list="{{fmts}}" as="f" hint-placeholder-count="4"><button class="{{f.cls}}" aria-pressed="{{f.on}}" aria-label="{{f.aria}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div>
+    </div>
+    <div class="blk" style="margin-top:18px">
+      <div class="blk__h"><h3>To win</h3></div>
+      <div class="win2">
+        <div class="wbtn"><img src="{{logo.NE}}" alt=""><span class="wbtn__n">Patriots</span><span class="wbtn__p">{{ne2.p}}</span><span class="wbtn__m">{{modelLab}} <b>26%</b></span><i class="wbtn__f" style="width:26%"></i></div>
+        <div class="wbtn"><img src="{{logo.BUF}}" alt=""><span class="wbtn__n">Bills</span><span class="wbtn__p">{{buf2.p}}</span><span class="wbtn__m">{{modelLab}} <b>74%</b></span><i class="wbtn__f" style="width:74%"></i></div>
+      </div>
+    </div>
+    <div class="blk" style="margin-top:26px">
+      <div class="blk__h"><h3>Spread and total</h3></div>
+      <div class="mk"><span><b>Bills &minus;6.5</b><span class="mk__s">Wins by 7 or more</span></span><span class="mk__p">{{spread.p}}</span></div>
+      <div class="mk"><span><b>Over 50.5</b><span class="mk__s">Total points</span></span><span class="mk__p">{{total.p}}</span></div>
+      <div class="note">No model price is published for spreads or totals.</div>
+    </div>
+    <div class="blk" style="margin-top:26px">
+      <button class="linkrow" onClick="{{goPlayers}}"><span>Player props<small>95 priced, ladders by line</small></span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+      <a class="linkrow" href="Signal.dc.html"><span>Signals<small>3 research candidates this week</small></span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></a>
+    </div>
+  </div>
+  </sc-if>
+
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+  <a class="tab on" href="Game.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg>Games</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-props"/></svg>Props</a>
+  <a class="tab" href="Signal.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg>Signals</a>
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="run" group="run" frozen="{{sheetFrozen}}" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3"/></symbol>
+  <symbol id="i-props" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6.5 4 13L16 12h5"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v5M12 17.8v.2"/></symbol>
+</defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"phase":{"editor":"enum","options":["live","pregame","final"],"default":"live"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const A = {
+      NE: '/_blob/c61b5ca4075061cc9f2a63327869e496', BUF: '/_blob/961b62e2bedcd9062a4b8b7d37dce2d3',
+      allen: '/_blob/c441009ab18f6f9bdcc5b7679f0f4c54', maye: '/_blob/4ede926ed7149b3b13bec47573e6a04d'
+    };
+    const st = this.state || {};
+    const ph = ['live', 'pregame', 'final'].indexOf(this.props.phase) > -1 ? this.props.phase : 'live';
+    const isLivePh = ph === 'live', isPre = ph === 'pregame', isFin = ph === 'final';
+    const tabKey = st.tab || 'live';
+    const set = (o) => () => this.setState(o);
+    const toTop = () => { const sc = document.getElementById('sc'); if (sc && sc.scrollTop > 232) sc.scrollTop = 232; };
+    const go = (k) => () => { this.setState({ tab: k }); toTop(); };
+    const ORDER = ['live', 'matchups', 'players', 'markets'];
+
+    const tabs = [['live', 'Live'], ['matchups', 'Matchups'], ['players', 'Players'], ['markets', 'Markets']]
+      .map(([k, label]) => ({ label, id: 'tab-' + k, panel: 'panel-' + k, cls: tabKey === k ? 'on' : '', sel: tabKey === k, ti: tabKey === k ? '0' : '-1', live: k === 'live' && isLivePh, pick: go(k) }));
+    const tab = { live: tabKey === 'live', matchups: tabKey === 'matchups', players: tabKey === 'players', markets: tabKey === 'markets' };
+
+    // swipe left or right to move between the four tabs
+    const swDown = (e) => { this._sx = e.clientX; this._sy = e.clientY; };
+    const swUp = (e) => {
+      if (this._sx === undefined) return;
+      const dx = e.clientX - this._sx, dy = e.clientY - this._sy; this._sx = undefined;
+      if (Math.abs(dx) > 70 && Math.abs(dy) < 40) { const i = ORDER.indexOf(tabKey) + (dx < 0 ? 1 : -1); if (i >= 0 && i < ORDER.length) go(ORDER[i])(); }
+    };
+
+    // sample live state: design only, there is no live feed yet
+    const sample = { live: { ne: 10, buf: 17, per: 'Q2', clk: '4:12' }, final: { ne: 20, buf: 27 } };
+    const sc = isFin ? sample.final : sample.live;
+    const showScore = !isPre;
+    const hasSample = !isPre;
+
+    const head = isPre ? { mid: 'NE @ BUF', right: '12:00 PM', cls: '' }
+      : isFin ? { mid: 'NE ' + sc.ne + ' · ' + sc.buf + ' BUF', right: 'Final', cls: '' }
+      : { mid: 'NE ' + sc.ne + ' · ' + sc.buf + ' BUF', right: sc.per + ' ' + sc.clk, cls: 'lv' };
+    const footTxt = isLivePh ? 'BUF ball' : 'Highmark Stadium';
+
+    // field: BUF drives toward the NE end zone (left). Ball at the NE 34, line to gain at the NE 28.
+    const now = { dd: '2nd & 6', where: 'NE 34', ball: 34, gain: 28, from: 34, w: 18, drive: '6 plays · 41 yds · 3:05',
+      alt: 'Bills have the ball on the Patriots 34. Second and 6.' };
+
+    // plays: sample
+    const PLAYS = [
+      { t: 'Q2 4:12', team: 'BUF', x: '2nd & 6. Cook rush for 4 yds', k: 'n' },
+      { t: 'Q2 4:50', team: 'BUF', x: '1st & 10. Allen pass to Moore for 14 yds', k: 'big' },
+      { t: 'Q2 5:02', team: 'NE', x: 'Punt, 48 yds, fair catch', k: 'n' },
+      { t: 'Q2 5:41', team: 'NE', x: '3rd & 4. Maye sacked for −6 yds', k: 'big' },
+      { t: 'Q2 8:55', team: 'BUF', x: 'Field goal good from 41 yds', k: 'sc', pill: 'FG +3 · BUF 17–10' },
+      { t: 'Q2 11:20', team: 'BUF', x: 'Allen pass to Moore for 22 yds, touchdown', k: 'sc', pill: 'TD +7 · BUF 14–10' },
+      { t: 'Q2 14:05', team: 'NE', x: 'Stevenson rush for 2 yds, touchdown', k: 'sc', pill: 'TD +7 · NE 10–7' },
+      { t: 'Q1 0:31', team: 'NE', x: 'Field goal good from 38 yds', k: 'sc', pill: 'FG +3 · NE 3–7' }
+    ];
+    const pf = st.pf || 'all';
+    const playFilters = [['all', 'All'], ['sc', 'Scoring'], ['big', 'Big']].map(([k, label]) => ({ label, on: pf === k, cls: pf === k ? 'on' : '', pick: set({ pf: k }) }));
+    const plays = PLAYS.filter((p) => pf === 'all' || (pf === 'sc' ? p.k === 'sc' : p.k === 'big' || p.k === 'sc'))
+      .map((p) => ({ ...p, cls: p.k === 'sc' ? 'play--sc' : '', score: !!p.pill }));
+    const TS = [['Total yards', 187, 142], ['First downs', 11, 8], ['Turnovers', 0, 1], ['Possession', '14:20', '9:40']];
+    const tstats = [['Total yards', 142, 187, 187], ['First downs', 8, 11, 11], ['Turnovers', 1, 0, 1]]
+      .map(([k, a, h, m]) => ({ k, a, h, aw: Math.round(a / (a + h || 1) * 100), hw: Math.round(h / (a + h || 1) * 100) }));
+    const hasPlays = !isPre;
+
+    // scripts: pregame research, frozen at kickoff
+    const sel = st.script || null;
+    const S = [
+      { id: 'ne', name: 'Patriots Win Comfortably', margin: 'Patriots by 7 or more.', share: 13, color: '#B83A52' },
+      { id: 'close', name: 'Patriots Keep It Close', margin: 'Either team by 6 or fewer.', share: 36, color: '#566679' },
+      { id: 'bc', name: 'Bills Win Comfortably', margin: 'Bills by 7 to 13.', share: 24, color: '#2E62CC' },
+      { id: 'bb', name: 'Bills Win Big', margin: 'Bills by 14 or more.', share: 26, color: '#1E49A8' }
+    ];
+    const pickS = (id) => () => this.setState({ script: st.script === id ? null : id });
+    const specSegs = S.map((s) => ({ ...s, cls: sel && sel !== s.id ? 'dim' : '', on: sel === s.id, pick: pickS(s.id) }));
+    const scripts = [S[1], S[3], S[2], S[0]].map((s) => ({ ...s, cls: sel && sel !== s.id ? 'dim' : '', on: sel === s.id, pick: pickS(s.id) }));
+
+    const NE = '#FF6A80', BUF = '#5D96FF';
+    const D = [
+      { k: 'Run game', detail: 'BUF rushing offense vs NE rushing defense', l: ['BUF', 1], r: ['NE', 21] },
+      { k: 'Big plays', detail: 'NE explosive offense vs BUF explosive defense', l: ['NE', 4], r: ['BUF', 24] },
+      { k: 'Early downs', detail: 'BUF early-down offense vs NE early-down defense', l: ['BUF', 2], r: ['NE', 5] },
+      { k: 'Ground game', detail: 'NE rushing offense vs BUF rushing defense', l: ['NE', 21], r: ['BUF', 31] },
+      { k: 'Pressure', detail: 'NE pressure offense vs BUF pressure defense', l: ['NE', 31], r: ['BUF', 22] }
+    ].map((d) => {
+      const lc = d.l[0] === 'BUF' ? BUF : NE, rc = d.r[0] === 'BUF' ? BUF : NE;
+      const ls = 33 - d.l[1], rs = 33 - d.r[1], gap = Math.abs(ls - rs);
+      const winner = ls >= rs ? d.l[0] : d.r[0];
+      const word = gap >= 18 ? 'Major edge' : gap >= 8 ? 'Clear edge' : 'Slight edge';
+      return { ...d, lr: d.l[1], rr: d.r[1], lc, rc, lw: Math.round(ls / 32 * 100), rw: Math.round(rs / 32 * 100), gap, winner, edge: word + ' · ' + winner, ec: winner === 'BUF' ? BUF : NE };
+    });
+    const mf = st.mf || 'all';
+    const nBuf = D.filter((d) => d.winner === 'BUF').length, nNe = D.filter((d) => d.winner === 'NE').length;
+    const matchFilters = [['all', 'All', D.length], ['BUF', 'Bills', nBuf], ['NE', 'Patriots', nNe]].map(([k, label, n]) => ({ label, n, on: mf === k, cls: mf === k ? 'on' : '', pick: set({ mf: k }) }));
+    const duelsAll = D.filter((d) => mf === 'all' || d.winner === mf).sort((a, b) => b.gap - a.gap);
+
+    // players: the Kalshi ladder beside the pregame shadow price. In play, the tracker also shows the stat so far (sample).
+    const open = st.open === undefined ? 'allen' : st.open;
+    const P = [
+      { id: 'allen', name: 'Josh Allen', sub: 'QB · BUF · Passing yards', photo: A.allen, pos: '30% 12%', tc: '#2E62CC', init: 'JA', unit: 'Yards', line: 249.5, proj: 222, now: 163, nowLab: '14 of 21',
+        rungs: [[200, 75, 70.5], [225, 62, 58.1], [250, 47, 44.8], [275, 31, 32.1], [300, 21, 21.2]], hit: 250 },
+      { id: 'maye', name: 'Drake Maye', sub: 'QB · NE · Passing yards', photo: A.maye, pos: '58% 14%', tc: '#B83A52', init: 'DM', unit: 'Yards', line: 249.5, proj: null, now: 98, nowLab: '9 of 17',
+        rungs: [[200, 67, 58.7], [225, 54, 45.4], [250, 40, 32.6], [275, 27, 21.6], [300, 18, 13.1]], hit: 250 },
+      { id: 'cook', name: 'James Cook III', sub: 'RB · BUF · Rushing yards', photo: null, tc: '#2E62CC', init: 'JC', unit: 'Yards', line: 79.5, proj: 85, now: 41, nowLab: '9 carries',
+        rungs: [[60, 76, 66.9], [70, 66, 58.8], [80, 55, 50.3], [90, 44, 41.5], [100, 37, 33.8]], hit: 80 },
+      { id: 'moore', name: 'DJ Moore', sub: 'WR · BUF · Receiving yards', photo: null, tc: '#2E62CC', init: 'DM', unit: 'Yards', line: 49.5, proj: 44, now: 52, nowLab: '4 catches',
+        rungs: [[25, 81, 74.7], [40, 64, 54.7], [50, 52, 42.3], [60, 40, 31.3], [70, 31, 22.7]], hit: 50 }
+    ];
+    const inPlay = !isPre;
+    const players = P.map((p) => {
+      const hi = p.line * 1.5, lo = 0, pc = (v) => Math.max(3, Math.min(97, Math.round((v - lo) / (hi - lo) * 1000) / 10));
+      const showNow = inPlay;
+      return { ...p, hasPhoto: !!p.photo, noPhoto: !p.photo, hasProj: p.proj != null, noProj: p.proj == null, open: open === p.id, hasNow: showNow,
+        big: showNow ? String(p.now) : String(p.line), bigLab: showNow ? p.nowLab.toUpperCase() : 'LINE',
+        lp: pc(p.line), pp: p.proj != null ? pc(p.proj) : 0, np: pc(p.now), projLab: inPlay ? 'Pregame' : 'Projection',
+        alt: p.name + (showNow ? ', ' + p.now + ' so far' : '') + ', line ' + p.line + (p.proj != null ? ', projection ' + p.proj : ''),
+        pick: () => this.setState({ open: open === p.id ? '' : p.id }),
+        ladder: p.rungs.map((r) => ({ t: r[0], ask: r[1], model: r[2].toFixed(0), cls: r[0] === p.hit ? 'lad__r--hit' : '' })) };
+    });
+
+    const fm = st.fmt || 'cents';
+    const price = (p) => {
+      if (fm === 'cents') return Math.round(p * 100) + '¢';
+      if (fm === 'pct') return Math.round(p * 100) + '%';
+      if (fm === 'dec') return (1 / p).toFixed(2);
+      const a = p >= 0.5 ? -(p / (1 - p)) * 100 : ((1 - p) / p) * 100;
+      return (a > 0 ? '+' : '−') + Math.round(Math.abs(a) / 5) * 5;
+    };
+    const fmts = [['cents', '¢', 'Cents'], ['pct', '%', 'Implied percent'], ['us', 'US', 'American odds'], ['dec', 'Dec', 'Decimal odds']].map(([k, label, aria]) => ({ label, aria, on: fm === k, cls: fm === k ? 'on' : '', pick: set({ fmt: k }) }));
+
+    const scrolled = !!st.cond;
+    const sheetOpen = !!st.sheet;
+    return {
+      tabs, tab, specSegs, scripts, duelsAll, matchFilters, players, fmts, plays, playFilters, tstats, hasPlays, now,
+      priceLab: isFin ? 'Closed' : 'Live prices', researchTxt: isPre ? 'Research 14h' : 'Research frozen', isLivePh, isPre, isFin, showScore, noScore: !showScore, hasSample, head, footTxt,
+      statTxt: isLivePh ? 'Live' : isFin ? 'Final' : 'Pregame', statCls: isLivePh ? 'gstat--live' : '',
+      ne: sc.ne, buf: sc.buf, per: sc.per, clk: sc.clk, neLose: sc.ne < sc.buf ? 'sb__n--lose' : '', bufLose: sc.buf < sc.ne ? 'sb__n--lose' : '',
+      modelLab: inPlay ? 'Pregame' : 'Model', frozenShow: inPlay ? '' : 'display:none',
+      ne2: { p: price(0.26) }, buf2: { p: price(0.74) }, spread: { p: price(0.53) }, total: { p: price(0.49) },
+      goPlayers: go('players'), noop: () => {},
+      logo: { NE: A.NE, BUF: A.BUF },
+      headCls: (st.bg ? 'ghead--solid ' : '') + (scrolled ? 'ghead--title' : ''),
+      onScroll: (e) => { const y = e.currentTarget.scrollTop; const c = y > 170, b = y > 24; if (c !== !!st.cond || b !== !!st.bg) this.setState({ cond: c, bg: b }); },
+      saved: !!st.saved, saveCls: st.saved ? 'ibtn--on' : '', saveFill: st.saved ? 'currentColor' : 'none', toggleSave: () => this.setState({ saved: !st.saved }),
+      sigCls: inPlay ? 'sigchip--frozen' : '', sheetOpen, sheetFrozen: inPlay, openKey: st.openKey || 0,
+      openRun: () => this.setState({ sheet: true, openKey: (st.openKey || 0) + 1 }), closeSheet: () => this.setState({ sheet: false }),
+      swDown, swUp, bgInert: sheetOpen ? '' : undefined
+    };
+  }
+}
+</script>
+</body>
+</html>

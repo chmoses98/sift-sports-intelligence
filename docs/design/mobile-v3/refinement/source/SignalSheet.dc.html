@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Signal sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+</style>
+</helmet>
+
+<div class="sheetroot">
+  <sc-if value="{{isOpen}}" hint-placeholder-val="{{ true }}"><button class="scrim" tabindex="-1" aria-label="Close research sheet" onClick="{{close}}"></button></sc-if>
+
+  <section class="sheet {{sheetCls}}" style="height:{{sheetH}}px" role="dialog" aria-modal="true" aria-label="{{d.title}}" onKeyDown="{{onKey}}">
+    <button class="grab" aria-label="Resize sheet" onPointerDown="{{gDown}}" onPointerUp="{{gUp}}"><i></i></button>
+    <div class="shead">
+      <span class="crest" style="{{d.crestStyle}}" aria-hidden="true">{{d.crest}}</span>
+      <div class="shead__t"><h2>{{d.title}}</h2><div class="shead__m">{{d.long}}</div></div>
+      <button class="ibtn" data-sheet-close="1" aria-label="Close" onClick="{{close}}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#sh-x"/></svg></button>
+    </div>
+    <div style="margin-top:12px;flex:none"><span class="auth {{authCls}}">{{d.authTxt}} <em>&middot; {{d.authSub}}</em></span></div>
+
+    <sc-if value="{{hasGroup}}" hint-placeholder-val="{{ false }}"><div class="stabs" style="margin:12px 16px 0;flex:none" role="group" aria-label="Signals on this game"><sc-for list="{{grpTabs}}" as="t" hint-placeholder-count="2"><button class="stab {{t.cls}}" aria-pressed="{{t.on}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div></sc-if>
+    <div class="sbody" id="sb">
+      <sc-if value="{{d.isMarket}}" hint-placeholder-val="{{ true }}">
+        <div class="sg" role="img" aria-label="{{d.gaugeLabel}}">
+          <div class="sg__lab sg__lab--top" style="left:{{g.be}}%">Break-even {{d.beTxt}}</div>
+          <div class="sg__track"><i class="sg__band" style="left:{{g.lo}}%;width:{{g.bw}}%"></i><i class="sg__tick" style="left:{{g.be}}%"></i><i class="sg__dot" style="left:{{g.fair}}%"></i></div>
+          <div class="sg__lab sg__lab--bot" style="left:{{g.fair}}%">Model {{d.fairTxt}}<small>range {{d.rangeTxt}}</small></div>
+          <div class="sg__axis" aria-hidden="true"><span style="left:0%">0</span><span style="left:25%">25</span><span style="left:50%">50</span><span style="left:75%">75</span><span style="left:100%">100%</span></div>
+        </div>
+        <div class="eq"><span><b>{{d.askTxt}}</b>ask</span><span class="eq__op">+</span><span><b>{{d.feeTxt}}</b>fee</span><span class="eq__op">=</span><span><b style="color:var(--mkt)">{{d.beTxt}}</b>to break even</span></div>
+        <div class="stats">
+          <div class="stat"><b style="color:var(--model)">{{d.gap}}</b><small>Model over break&#8209;even</small></div>
+          <div class="stat"><b>{{d.wce}}</b><small>Worst-case edge</small></div>
+          <div class="stat"><b>{{d.share}}</b><small>Of model draws positive</small></div>
+        </div>
+        <div class="skeptic"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#sh-alert"/></svg><span><b>Research-only model.</b> Its gaps have not been checked against settled results. {{d.lowEnd}}</span></div>
+      </sc-if>
+      <sc-if value="{{d.isRead}}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:10px" role="img" aria-label="{{d.duelLabel}}">
+          <div style="display:flex;justify-content:space-between;gap:12px;font:600 13px/17px var(--f-body)"><span style="color:{{d.lc}}">{{d.lt}}</span><span style="color:{{d.rc}};text-align:right">{{d.rt}}</span></div>
+          <div class="duel__b" style="margin-top:10px"><b style="color:{{d.lc}}">#{{d.lr}}</b>
+            <div class="duel__t" style="height:14px"><div class="duel__h" style="border-radius:7px"><i style="width:{{d.lw}}%;background:{{d.lc}}"></i></div><div class="duel__h" style="border-radius:7px"><i style="width:{{d.rw}}%;background:{{d.rc}}"></i></div></div>
+            <b style="color:{{d.rc}}">#{{d.rr}}</b></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b style="color:var(--model)">{{d.gapPlaces}}</b><small>Places apart</small></div>
+          <div class="stat"><b>{{d.edgeWord}}</b><small>Size of the edge</small></div>
+          <div class="stat"><b>32</b><small>Teams ranked</small></div>
+        </div>
+        <div class="skeptic"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#sh-alert"/></svg><span><b>A matchup read.</b> It compares two units. It does not forecast the result.</span></div>
+      </sc-if>
+
+      <div class="stabs" role="tablist" aria-label="Research detail">
+        <sc-for list="{{stabs}}" as="t" hint-placeholder-count="3"><button class="stab {{t.cls}}" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for>
+      </div>
+
+      <sc-if value="{{tab.why}}" hint-placeholder-val="{{ true }}">
+        <div class="sblock sblock--risk" role="tabpanel"><h3>{{d.riskHead}}</h3>
+          <ul class="risks"><sc-for list="{{d.risks}}" as="r" hint-placeholder-count="4"><li>{{r}}</li></sc-for></ul></div>
+        <div class="sblock"><h3>In plain English</h3><p>{{d.plain}}</p></div>
+      </sc-if>
+      <sc-if value="{{tab.price}}" hint-placeholder-val="{{ false }}">
+        <div class="sblock" style="margin-top:12px" role="tabpanel">
+          <div class="kv"><span class="kv__k">Contract</span><span class="kv__v"><span class="mono">{{d.ticker}}</span></span></div>
+          <div class="kv"><span class="kv__k">Side</span><span class="kv__v">{{d.side}}</span></div>
+          <div class="kv"><span class="kv__k">Ask</span><span class="kv__v" style="color:var(--mkt)">{{d.askTxt}}</span></div>
+          <div class="kv"><span class="kv__k">Fee per contract</span><span class="kv__v">{{d.feeTxt}}<em>Published by the model</em></span></div>
+          <div class="kv"><span class="kv__k">Break-even</span><span class="kv__v" style="color:var(--mkt)">{{d.beTxt}}</span></div>
+          <div class="kv"><span class="kv__k">Publication bets up to</span><span class="kv__v">{{d.upTo}}</span></div>
+          <div class="kv"><span class="kv__k">Size at the ask</span><span class="kv__v">{{d.size}} contracts</span></div>
+          <div class="kv"><span class="kv__k">Quote</span><span class="kv__v">Fresh<em>Valid 17 min from the research run</em></span></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{tab.sources}}" hint-placeholder-val="{{ false }}">
+        <div class="sblock" style="margin-top:12px" role="tabpanel">
+          <sc-for list="{{d.sources}}" as="s" hint-placeholder-count="6">
+            <div class="kv"><span class="kv__k">{{s.k}}</span><span class="kv__v {{s.cls}}">{{s.v}}<em>{{s.sub}}</em></span></div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div class="sfoot">
+      <button class="btnp {{copyCls}}" onClick="{{copy}}"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="{{copyIcon}}"/></svg>{{copyTxt}}</button>
+      <button class="btns {{saveCls}}" aria-label="Add to My Board" aria-pressed="{{saved}}" onClick="{{save}}"><svg class="ic" viewBox="0 0 24 24" fill="{{saveFill}}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#sh-board"/></svg></button>
+    </div>
+  </section>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="sh-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="sh-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v5M12 17.8v.2"/></symbol>
+    <symbol id="sh-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+    <symbol id="sh-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="sh-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  </defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"boolean","default":true},"sid":{"editor":"enum","options":["ars","leon","btts","run","chi","atl"],"default":"ars"},"frozen":{"editor":"boolean","default":false},"openKey":{"editor":null,"default":0},"onClose":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidUpdate(prev) {
+    if (prev.openKey !== this.props.openKey || (!prev.open && this.props.open)) {
+      this.setState({ detent: 'half', tab: 'why', copied: false, cur: undefined });
+      setTimeout(() => { const b = document.querySelector('[data-sheet-close]'); if (b) b.focus({ preventScroll: true }); }, 60);
+    }
+  }
+  renderVals() {
+    const st = this.state || {};
+    const P = this.props;
+    const isOpen = P.open === undefined ? true : !!P.open;
+    const grp = (P.group || '').split(',').filter(Boolean);
+    const sid = grp.indexOf(st.cur) > -1 ? st.cur : (P.sid || 'ars');
+    const detent = st.detent || 'half';
+    const H = { half: 612, full: 764 };
+    const close = () => { if (typeof P.onClose === 'function') P.onClose(); else this.setState({ detent: 'half' }); };
+
+    // Market candidates: the soccer publication's recommendations (fixture of 2026-10-09).
+    const M = {
+      ars: { title: 'Arsenal don’t beat Leeds', long: 'Arsenal v Leeds · Sat Oct 10 · 6:30 AM CDT', crest: 'ARS', crestStyle: 'background:#C8202B', side: 'NO on “Arsenal win”', ticker: 'KXEPLGAME-26OCT10ARSLEE-ARS',
+        ask: 29, fee: 1.4, be: 30.4, fair: 47.3, lo: 30.8, hi: 64.6, upTo: 34, size: '21,190', wce: 5.6, share: 91, lineup: 'Unknown', lineCls: 'fr--na',
+        plain: 'The model gives Arsenal a 53% chance to win, from expected goals of 1.51 to 0.81. The market prices an Arsenal win at 71%. This contract pays if Arsenal draw or lose.',
+        risks: ['The model is research-only and not validated for real money.', 'Lineups are unknown, so injuries and rotation are not priced.', 'Wide model uncertainty (standard deviation 0.11).', 'No closing-line comparison was run for this model.'] },
+      leon: { title: 'León fail to score', long: 'Puebla v León · Fri Oct 9 · 8:00 PM CDT', crest: 'LEO', crestStyle: 'background:#1E8A52', side: 'NO on “León score 1+”', ticker: 'KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO1',
+        ask: 24, fee: 1.3, be: 25.3, fair: 39.1, lo: 25.6, hi: 51.9, upTo: 28, size: '729', wce: 5.1, share: 91, lineup: 'Stale', lineCls: 'fr--stale',
+        plain: 'The model gives León a 39% chance of being held scoreless, from expected goals of 1.24 to 0.98. The market prices that at 24%. This contract pays if León score no goals.',
+        risks: ['The model is research-only and not validated for real money.', 'Lineups are stale and unconfirmed, so availability shocks are not priced.', 'Wide model uncertainty (standard deviation 0.10).', 'No closing-line comparison was run for this model.'] },
+      btts: { title: 'Not both teams score', long: 'Puebla v León · Fri Oct 9 · 8:00 PM CDT', crest: 'P·L', crestStyle: 'background:linear-gradient(90deg,#2757B8 50%,#1E8A52 50%)', side: 'NO on “both teams score”', ticker: 'KXLIGAMXBTTS-26OCT09PUELEO-BTTS',
+        ask: 45, fee: 1.7, be: 46.7, fair: 57.7, lo: 45.2, hi: 69.5, upTo: 48, size: '3,027', wce: 3.5, share: 87, lineup: 'Stale', lineCls: 'fr--stale',
+        plain: 'The model puts the chance that both teams score at 42%, so 58% that at least one is blanked. The market prices “not both” at 45%. This contract pays unless both sides score.',
+        risks: ['The model is research-only and not validated for real money.', 'Lineups are stale and unconfirmed, so availability shocks are not priced.', 'Wide model uncertainty (standard deviation 0.10).', 'No closing-line comparison was run for this model.'] }
+    };
+    // Matchup reads: the NFL publication's opponent-adjusted unit ranks (fixture of 2026-10-04).
+    const BUF = '#5D96FF', NE = '#FF6A80', CHI = '#FF8A3D', NYJ = '#4BC08B', ATL = '#FF6B6B', NO = '#8E9AAF';
+    const R = {
+      run: { title: 'Run game: Bills edge', long: 'NE @ BUF · Sun Oct 4 · 12:00 PM CDT', crest: 'BUF', crestStyle: 'background:#2E5FC4', lt: 'BUF rush offense', lr: 1, lc: BUF, rt: 'NE run defense', rr: 21, rc: NE,
+        plain: 'Buffalo’s rushing offense ranks first of 32 teams. New England’s run defense ranks 21st.', run: 'Run' },
+      chi: { title: 'Passing: Bears edge', long: 'NYJ @ CHI · Sun Oct 4 · 12:00 PM CDT', crest: 'CHI', crestStyle: 'background:#C25A1E', lt: 'CHI pass offense', lr: 9, lc: CHI, rt: 'NYJ pass defense', rr: 28, rc: NYJ,
+        plain: 'Chicago’s passing offense ranks 9th of 32 teams. The Jets’ pass defense ranks 28th.' },
+      atl: { title: 'Run defense: Falcons edge', long: 'ATL @ NO · Mon Oct 5 · 7:15 PM CDT', crest: 'ATL', crestStyle: 'background:#B53A3A', lt: 'ATL run defense', lr: 8, lc: ATL, rt: 'NO rush offense', rr: 22, rc: NO,
+        plain: 'Atlanta’s run defense ranks 8th of 32 teams. New Orleans’ rushing offense ranks 22nd.' }
+    };
+
+    const grpTabs = grp.map((id) => ({ label: (M[id] || R[id] || { title: id }).title, cls: sid === id ? 'on' : '', on: sid === id, pick: () => this.setState({ cur: id, tab: 'why' }) }));
+    const isMarket = !!M[sid];
+    let d;
+    const frozen = !!P.frozen;
+    if (isMarket) {
+      const m = M[sid], p1 = (v) => (Math.round(v * 10) / 10).toString();
+      const low = m.lo - m.be;
+      const lowEnd = low < 0 ? 'At the low end of its range the model is below break-even.' : low < 2 ? 'At the low end of its range the model barely clears break-even.' : 'Even at the low end of its range the model clears break-even.';
+      d = { ...m, isMarket: true, isRead: false, askTxt: m.ask + '¢', feeTxt: p1(m.fee) + '¢', beTxt: p1(m.be) + '¢', fairTxt: Math.round(m.fair) + '%', rangeTxt: Math.round(m.lo) + '–' + Math.round(m.hi) + '%',
+        gap: '+' + p1(m.fair - m.be) + ' pts', wce: '+' + p1(m.wce) + ' pts', share: m.share + '%', upTo: m.upTo + '¢', lowEnd, riskHead: 'What could make it lose',
+        authTxt: frozen ? 'Frozen at kickoff' : 'Research candidate', authSub: frozen ? 'Pregame research' : 'Research only, no bet',
+        gaugeLabel: 'Model ' + Math.round(m.fair) + ' percent, range ' + Math.round(m.lo) + ' to ' + Math.round(m.hi) + ' percent. Break-even ' + p1(m.be) + ' cents.',
+        sources: [
+          { k: 'Kalshi quote', v: 'Current', cls: 'fr', sub: '' }, { k: 'Model run', v: 'Current', cls: 'fr', sub: '' }, { k: 'Team context', v: 'Current', cls: 'fr', sub: '' },
+          { k: 'Lineups', v: m.lineup, cls: 'fr ' + m.lineCls, sub: '' }, { k: 'Sharp-book reference', v: 'Unavailable', cls: 'fr fr--na', sub: '' },
+          { k: 'Model', v: 'dc_laplace_v1', cls: '', sub: 'world_sim_v2 · research only' }, { k: 'Settled record', v: 'None published', cls: '', sub: 'for this kind of contract' },
+          { k: 'Published by', v: 'soccer-edge-finder', cls: '', sub: 'Run Oct 8, 3:57 PM CDT' }] };
+    } else {
+      const r = R[sid] || R.run;
+      const ls = 33 - r.lr, rs = 33 - r.rr, gap = Math.abs(ls - rs);
+      const word = gap >= 18 ? 'Major' : gap >= 8 ? 'Clear' : 'Slight';
+      d = { ...r, isMarket: false, isRead: true, lw: Math.round(ls / 32 * 100), rw: Math.round(rs / 32 * 100), gapPlaces: String(gap), edgeWord: word, riskHead: 'What it does not mean',
+        risks: ['Rankings describe the two units. They are not a forecast.', 'Injuries and lineup news after the research run are not included.', 'League rank hides the size of the gap between teams.'],
+        authTxt: frozen ? 'Frozen at kickoff' : 'SIFT read', authSub: frozen ? 'Pregame research' : 'Research only',
+        duelLabel: r.lt + ' ranks ' + r.lr + ' of 32. ' + r.rt + ' ranks ' + r.rr + ' of 32.',
+        sources: [
+          { k: 'Rankings', v: 'Opponent-adjusted', cls: '', sub: 'League rank of 32' }, { k: 'Data', v: 'nflverse play-by-play', cls: '', sub: 'Through week 3' },
+          { k: 'Research run', v: 'Oct 3, 7:41 PM CDT', cls: '', sub: '' }, { k: 'Status', v: frozen ? 'Frozen at kickoff' : 'Fresh', cls: frozen ? 'fr fr--na' : 'fr', sub: '' }] };
+    }
+    const g = { be: d.be || 0, fair: d.fair || 0, lo: d.lo || 0, bw: Math.round(((d.hi || 0) - (d.lo || 0)) * 10) / 10 };
+
+    const tabKey = st.tab || 'why';
+    const tabDefs = isMarket ? [['why', 'Why'], ['price', 'Price'], ['sources', 'Sources']] : [['why', 'Why'], ['sources', 'Sources']];
+    const stabs = tabDefs.map(([k, label]) => ({ label, cls: tabKey === k ? 'on' : '', sel: tabKey === k, pick: () => this.setState({ tab: k }) }));
+    const tabNow = tabDefs.some(([k]) => k === tabKey) ? tabKey : 'why';
+
+    const down = (e) => { this._y = e.clientY; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} };
+    const up = (e) => {
+      const dy = e.clientY - (this._y === undefined ? e.clientY : this._y);
+      if (dy < -28) this.setState({ detent: 'full' });
+      else if (dy > 28) { if (detent === 'full') this.setState({ detent: 'half' }); else close(); }
+      else this.setState({ detent: detent === 'half' ? 'full' : 'half' });
+    };
+
+    const copied = !!st.copied, saved = !!st.saved;
+    return {
+      d, g, stabs, isOpen, grpTabs, hasGroup: grp.length > 1,
+      tab: { why: tabNow === 'why', price: tabNow === 'price', sources: tabNow === 'sources' },
+      sheetH: isOpen ? H[detent] : 0, sheetCls: isOpen ? '' : 'sheet--closed', authCls: frozen ? 'auth--frozen' : '',
+      close, gDown: down, gUp: up, onKey: (e) => { if (e.key === 'Escape') close(); },
+      copy: () => this.setState({ copied: !copied }), copyTxt: copied ? 'Copied for ChatGPT' : 'Copy for ChatGPT', copyCls: copied ? 'btnp--done' : '', copyIcon: copied ? '#sh-check' : '#sh-copy',
+      save: () => this.setState({ saved: !saved }), saved, saveCls: saved ? 'btns--on' : '', saveFill: saved ? 'currentColor' : 'none'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -2,6 +2,8 @@
 
 Status: **design phase, for approval.** Nothing under `src/`, `public/` or any workflow was changed. No merge, no deploy.
 
+> **Refinement (October 20):** Home and Game were redesigned around a sports-companion-first brief. See [`refinement/README.md`](refinement/README.md) for the current direction and [`LIVE_DATA_AUDIT.md`](LIVE_DATA_AUDIT.md) for the missing live data. Sections 3 and 8 below describe the first concept and are superseded where they differ (Intel is now Signals; the game tabs are Live, Matchups, Players, Markets).
+
 Live, interactive canvas (Claude Design, private to the owner): https://claude.ai/artifact/HhTd3AprDr8CtBV8V3dvE4
 Press Play on a phone board to use it. Rendered phone captures are in `screenshots/` (390 by 844, 2x). The artboard sources are in `source/` for reference.
 

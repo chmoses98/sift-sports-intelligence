@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+.brand .sample{vertical-align:6px;margin-left:8px;font-size:11px}
+
+/* teams you follow: one tap from each live or next game */
+.following{display:flex;gap:6px;overflow-x:auto;padding:12px 10px 4px;scrollbar-width:none}
+.following::-webkit-scrollbar{display:none}
+.fol{flex:none;display:flex;flex-direction:column;align-items:center;gap:7px;width:68px;min-height:44px}
+.fol__ring{position:relative;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:var(--bg1);box-shadow:inset 0 0 0 2px var(--line2)}
+.fol__ring--live{box-shadow:inset 0 0 0 3px var(--live)}
+.fol__ring img{width:32px;height:32px;object-fit:contain}
+.fol__ring .crest{width:100%;height:100%;font-size:15px}
+.fol__t{font:600 12px/14px var(--f-body);color:var(--tx2);white-space:nowrap}
+.fol__t--live{font:700 16px/14px var(--f-cond);color:var(--tx);letter-spacing:.02em}
+.fol__add{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:var(--tx3);box-shadow:inset 0 0 0 1.5px var(--line2)}
+
+/* date strip */
+.days{display:flex;gap:6px;overflow-x:auto;padding:12px 16px 0;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-left:16px}
+.days::-webkit-scrollbar{display:none}
+.day{flex:none;scroll-snap-align:start;width:52px;height:62px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--tx2)}
+.day--on{background:var(--tx);color:#06090F}
+.day__w{font:600 11px/12px var(--f-body);letter-spacing:.1em;text-transform:uppercase}
+.day__n{font:700 24px/22px var(--f-cond)}
+.day__d{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.55}
+.day--none .day__w,.day--none .day__n{opacity:.45}
+.chips{padding-top:10px}
+
+/* games */
+.glabel{display:flex;align-items:center;gap:8px;padding:20px 16px 6px}
+.glabel .cap{display:flex;align-items:center;gap:8px}
+.glabel--live .cap:first-child{color:var(--tx)}
+.glabel--live .cap:first-child::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px rgba(255,77,94,.22)}
+.gm{display:flex;align-items:center;gap:4px;padding:0 8px 0 0;border-top:1px solid var(--line);margin-left:16px}
+.gm--first{border-top:0}
+.gm__main{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 36px 56px;align-items:center;column-gap:12px;min-height:76px;padding:10px 0;text-align:left}
+.gm__tm{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tm{display:flex;align-items:center;gap:10px;height:26px;font:600 16px/1 var(--f-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm .logo{width:26px;height:26px}
+.tm .crest{width:26px;height:26px;font-size:11px}
+.gm__sc{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.gm__sc b{height:26px;font:700 28px/26px var(--f-cond);min-width:30px;text-align:right}
+.gm__sc b.lose{color:var(--tx2)}
+.gm__st{display:flex;flex-direction:column;align-items:flex-end;gap:3px;width:56px;text-align:right}
+.gm__st b{font:700 20px/20px var(--f-cond)}
+.gm__st small{font:500 13px/14px var(--f-body);color:var(--tx2)}
+.gm__st .lvx{color:var(--live);font:700 11px/12px var(--f-body);letter-spacing:.1em;text-transform:uppercase}
+.gm__time{font:700 24px/22px var(--f-cond)}
+.gm__time small{font:600 11px/12px var(--f-body);color:var(--tx3);letter-spacing:.08em;margin-left:3px}
+.gm__none{width:44px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:56px 16px;color:var(--tx3);font:500 15px/20px var(--f-body)}
+.empty .ic{width:32px;height:32px}
+</style>
+</helmet>
+
+<div class="app">
+<main class="scroll" id="sc" inert="{{bgInert}}">
+
+  <header class="top">
+    <span class="brand">SIFT<sc-if value="{{isLive}}" hint-placeholder-val="{{ true }}"><span class="sample">Sample</span></sc-if></span>
+    <button class="ibtn" aria-label="Search"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="ibtn" aria-label="My Board"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </header>
+
+  <div class="following" role="list" aria-label="Teams you follow">
+    <sc-for list="{{follow}}" as="f" hint-placeholder-count="5">
+      <div role="listitem">
+      <a class="fol" href="{{f.href}}" aria-label="{{f.label}}">
+        <span class="fol__ring {{f.ring}}">
+          <sc-if value="{{f.hasLogo}}" hint-placeholder-val="{{ true }}"><img src="{{f.logo}}" alt=""></sc-if>
+          <sc-if value="{{f.noLogo}}" hint-placeholder-val="{{ false }}"><span class="crest" style="{{f.crestStyle}}" aria-hidden="true">{{f.crest}}</span></sc-if>
+        </span>
+        <span class="fol__t {{f.tcls}}">{{f.text}}</span>
+      </a>
+      </div>
+    </sc-for>
+    <div role="listitem"><button class="fol" aria-label="Follow a team"><span class="fol__add"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><use href="#i-plus"/></svg></span><span class="fol__t">Add</span></button></div>
+  </div>
+
+  <div class="days" role="group" aria-label="Day">
+    <sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+      <button class="day {{d.cls}}" aria-pressed="{{d.sel}}" aria-label="{{d.label}}" onClick="{{d.pick}}"><span class="day__w">{{d.w}}</span><span class="day__n">{{d.n}}</span><i class="day__d" style="{{d.dot}}"></i></button>
+    </sc-for>
+  </div>
+
+  <div class="chips" role="group" aria-label="Filter">
+    <sc-for list="{{chips}}" as="c" hint-placeholder-count="7">
+      <button class="chip {{c.cls}}" aria-pressed="{{c.sel}}" onClick="{{c.pick}}"><sc-if value="{{c.star}}" hint-placeholder-val="{{ false }}"><svg class="ic ic--xs" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-star"/></svg></sc-if>{{c.label}} <i>{{c.n}}</i></button>
+    </sc-for>
+  </div>
+
+  <div id="slate">
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+      <sc-if value="{{r.isHead}}" hint-placeholder-val="{{ true }}">
+        <h2 class="glabel {{r.cls}}" style="margin:0"><span class="cap">{{r.label}}</span><span class="cap" style="margin-left:auto;padding-right:0">{{r.count}}</span></h2>
+      </sc-if>
+      <sc-if value="{{r.isGame}}" hint-placeholder-val="{{ true }}">
+        <div class="gm {{r.cls}}">
+          <a class="gm__main" href="{{r.href}}" aria-label="{{r.label}}">
+            <span class="gm__tm">
+              <span class="tm"><sc-if value="{{r.aImg}}" hint-placeholder-val="{{ true }}"><img class="logo" src="{{r.aLogo}}" alt=""></sc-if><sc-if value="{{r.aMono}}" hint-placeholder-val="{{ false }}"><span class="crest" style="{{r.aCrest}}" aria-hidden="true">{{r.aCode}}</span></sc-if>{{r.aName}}</span>
+              <span class="tm"><sc-if value="{{r.hImg}}" hint-placeholder-val="{{ true }}"><img class="logo" src="{{r.hLogo}}" alt=""></sc-if><sc-if value="{{r.hMono}}" hint-placeholder-val="{{ false }}"><span class="crest" style="{{r.hCrest}}" aria-hidden="true">{{r.hCode}}</span></sc-if>{{r.hName}}</span>
+            </span>
+            <sc-if value="{{r.showScore}}" hint-placeholder-val="{{ false }}">
+              <span class="gm__sc"><b class="{{r.aLose}}">{{r.aScore}}</b><b class="{{r.hLose}}">{{r.hScore}}</b></span>
+            </sc-if>
+            <sc-if value="{{r.noScoreCol}}" hint-placeholder-val="{{ true }}"><span></span></sc-if>
+            <span class="gm__st">
+              <sc-if value="{{r.isUp}}" hint-placeholder-val="{{ true }}"><span class="gm__time">{{r.t}}<small>{{r.ap}}</small></span></sc-if>
+              <sc-if value="{{r.isLiveRow}}" hint-placeholder-val="{{ false }}"><b>{{r.per}}</b><small>{{r.clk}}</small></sc-if>
+              <sc-if value="{{r.isLiveNoScore}}" hint-placeholder-val="{{ false }}"><span class="lvx">In play</span><small>{{r.t}} {{r.ap}}</small></sc-if>
+              <sc-if value="{{r.isFinal}}" hint-placeholder-val="{{ false }}"><b>Final</b></sc-if>
+              <small class="cap" style="font-size:11px">{{r.sport}}</small>
+            </span>
+          </a>
+          <sc-if value="{{r.hasSig}}" hint-placeholder-val="{{ true }}"><button class="sigchip {{r.sigCls}}" aria-label="{{r.sigLabel}}" aria-haspopup="dialog" onClick="{{r.openSig}}"><span class="sigchip__p"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg>{{r.sigN}}</span></button></sc-if>
+          <sc-if value="{{r.noSig}}" hint-placeholder-val="{{ false }}"><span class="gm__none"></span></sc-if>
+        </div>
+      </sc-if>
+    </sc-for>
+    <sc-if value="{{showEmpty}}" hint-placeholder-val="{{ false }}"><div class="empty"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg><span>{{emptyTxt}}</span></div></sc-if>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab on" href="Main.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg>Games</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-props"/></svg>Props</a>
+  <a class="tab" href="Signal.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg>Signals</a>
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="{{sheetSid}}" group="{{sheetGroup}}" frozen="{{sheetFrozen}}" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3"/></symbol>
+  <symbol id="i-props" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6.5 4 13L16 12h5"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.2 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z"/></symbol>
+</defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"feed":{"editor":"enum","options":["live","published"],"default":"live"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const feed = this.props.feed === 'published' ? 'published' : 'live';
+    const isLive = feed === 'live';
+    const LOGO = {
+      'nfl-NE': '/_blob/c61b5ca4075061cc9f2a63327869e496', 'nfl-BUF': '/_blob/961b62e2bedcd9062a4b8b7d37dce2d3', 'nfl-IND': '/_blob/b604b5a9c326ad993a38c7349807566e', 'nfl-WAS': '/_blob/a1ade0f198b2654f31b95e3722c50560',
+      'nfl-TEN': '/_blob/bf57c7004df7553eb1aa6726b60588ab', 'nfl-BAL': '/_blob/06afede37fbf3732ab3ca4f5719e6970', 'nfl-GB': '/_blob/57cb56af4a85b5e11bdd7cec2777b588', 'nfl-TB': '/_blob/90206ac6d9b8cb20a5b1b836461e795c',
+      'nfl-NYJ': '/_blob/e21f55063204f1fc9f1bf37bcc5f5d34', 'nfl-CHI': '/_blob/fd60c2bfa71390f8df760564ec1a8a5b', 'nfl-MIA': '/_blob/c2cec33e2cfe21da149aa4dda22e5cc7', 'nfl-MIN': '/_blob/d6b5c9d2a73556a96c2c927f7cc70d42',
+      'nfl-LAC': '/_blob/5c84c675f33ac2a5d81d8a5c4e1b0ec4', 'nfl-SEA': '/_blob/4888968561fd417de177878e588e3748', 'nfl-KC': '/_blob/a33f28e71bda0ce2626b06c63441bd00', 'nfl-LV': '/_blob/327ce27d4ff88ff310f497c71b02bba8',
+      'nfl-DEN': '/_blob/5ba09fd484bf05069e26a426f4733efb', 'nfl-SF': '/_blob/e8c61bace8cb3f1276579df2288ad56b', 'nfl-DET': '/_blob/8a9c0d43ce07bd4a2e12e86c3635d541', 'nfl-CAR': '/_blob/67c33635796075ee5b5480f2919aa021',
+      'nfl-NO': '/_blob/440b52aa403ff96eb88036e737119e34', 'nfl-ATL': '/_blob/4bc56af0bd5c769363276690e0e8a941',
+      'mlb-LAD': '/_blob/d022684628ddb6ab97e42d45ed53ca34', 'mlb-ATL': '/_blob/9325f6b886601844773d309f400eec05', 'mlb-NYY': '/_blob/ec38cd307a6a69bda186fe98ba1f54e0', 'mlb-HOU': '/_blob/23757739b6113edf483c62bc1d1b8a27',
+      'nhl-BOS': '/_blob/a645869bd9d1e89b5c71d233dd86b3c2', 'nhl-TOR': '/_blob/8ec2a233cf0d315b6cdf5059b681915a', 'nhl-COL': '/_blob/bac6a58eacf21523fd188b3678fa7f2a', 'nhl-VGK': '/_blob/175bcf984e828113ef1f0f4c0dac0175',
+      'nba-BOS': '/_blob/1c83d5c062edd969dfadcd8bf6b029f2', 'nba-NYK': '/_blob/b45e5eea97525360a3b31fcc165e35c2', 'nba-GSW': '/_blob/3e69ea3f44c5dae313973ff3c9fca20a', 'nba-MIL': '/_blob/3ae24b6d84e7fa677d1ce7df308d620d',
+      'cfb-OSU': '/_blob/88e186d74dc73c087007770656e4f598', 'cfb-UGA': '/_blob/b380d3211d255b252852bc62ce81074e'
+    };
+    // soccer clubs have no crest files in the repository: monogram discs
+    const MONO = { ARS: ['ARS', 'background:#C8202B'], LEE: ['LEE', 'background:#1F4FA8'], PUE: ['PUE', 'background:#2757B8'], LEO: ['LEO', 'background:#1E8A52'] };
+    const team = (k, name) => MONO[k] ? { name, mono: MONO[k], k } : { name, logo: LOGO[k], k };
+
+    const day = st.day || 'sun';
+    const sport = st.sport || 'ALL';
+    const sheet = st.sheet || null;   // { sid, group, frozen }
+    const openKey = st.openKey || 0;
+    const FOLLOW_CODES = ['nfl-BUF', 'mlb-LAD', 'nfl-KC', 'nhl-BOS', 'ARS'];
+
+    // [day, sport, status, slot, period, clock, away, home, aScore, hScore, sig[id,...], href, sigFrozen]
+    const G = [
+      ['sun', 'NFL', 'live', 720, 'Q2', '4:12', team('nfl-NE', 'Patriots'), team('nfl-BUF', 'Bills'), 10, 17, ['run'], 'Game.dc.html'],
+      ['sun', 'NFL', 'live', 721, 'Q2', '11:03', team('nfl-TEN', 'Titans'), team('nfl-BAL', 'Ravens'), 7, 13, [], '#'],
+      ['sun', 'NFL', 'live', 722, 'Q1', '0:24', team('nfl-GB', 'Packers'), team('nfl-TB', 'Buccaneers'), 3, 0, [], '#'],
+      ['sun', 'NFL', 'live', 723, 'Q2', '7:40', team('nfl-NYJ', 'Jets'), team('nfl-CHI', 'Bears'), 6, 10, ['chi'], '#'],
+      ['sun', 'MLB', 'live', 730, 'T5', '2 out', team('mlb-NYY', 'Yankees'), team('mlb-HOU', 'Astros'), 2, 1, [], '#'],
+      ['sun', 'MLB', 'up', 790, '', '', team('mlb-LAD', 'Dodgers'), team('mlb-ATL', 'Braves'), null, null, [], '#', '1:10', 'PM'],
+      ['sun', 'NFL', 'up', 905, '', '', team('nfl-MIA', 'Dolphins'), team('nfl-MIN', 'Vikings'), null, null, [], '#', '3:05', 'PM'],
+      ['sun', 'NFL', 'up', 925, '', '', team('nfl-LAC', 'Chargers'), team('nfl-SEA', 'Seahawks'), null, null, [], '#', '3:25', 'PM'],
+      ['sun', 'NFL', 'up', 926, '', '', team('nfl-KC', 'Chiefs'), team('nfl-LV', 'Raiders'), null, null, [], '#', '3:25', 'PM'],
+      ['sun', 'NFL', 'up', 927, '', '', team('nfl-DEN', 'Broncos'), team('nfl-SF', '49ers'), null, null, [], '#', '3:25', 'PM'],
+      ['sun', 'NHL', 'up', 1080, '', '', team('nhl-BOS', 'Bruins'), team('nhl-TOR', 'Maple Leafs'), null, null, [], '#', '6:00', 'PM'],
+      ['sun', 'NBA', 'up', 1110, '', '', team('nba-BOS', 'Celtics'), team('nba-NYK', 'Knicks'), null, null, [], '#', '6:30', 'PM'],
+      ['sun', 'NFL', 'up', 1160, '', '', team('nfl-DET', 'Lions'), team('nfl-CAR', 'Panthers'), null, null, [], '#', '7:20', 'PM'],
+      ['sun', 'NFL', 'final', 900, 'F', '', team('nfl-IND', 'Colts'), team('nfl-WAS', 'Commanders'), 17, 20, [], '#'],
+      ['sun', 'CFB', 'final', 901, 'F', '', team('cfb-OSU', 'Ohio State'), team('cfb-UGA', 'Georgia'), 24, 27, [], '#'],
+      ['mon', 'NFL', 'up', 1155, '', '', team('nfl-ATL', 'Falcons'), team('nfl-NO', 'Saints'), null, null, ['atl'], '#', '7:15', 'PM'],
+      ['fri', 'SOC', 'up', 1200, '', '', team('PUE', 'Puebla'), team('LEO', 'León'), null, null, ['leon', 'btts'], '#', '8:00', 'PM'],
+      ['sat', 'SOC', 'up', 390, '', '', team('ARS', 'Arsenal'), team('LEE', 'Leeds United'), null, null, ['ars'], '#', '6:30', 'AM']
+    ];
+    const followHas = (g) => FOLLOW_CODES.indexOf(g[6].k) > -1 || FOLLOW_CODES.indexOf(g[7].k) > -1;
+
+    const mkRow = (g, first) => {
+      const live = g[2] === 'live', fin = g[2] === 'final', up = g[2] === 'up';
+      const showScore = (live && isLive) || (fin && isLive);
+      const a = g[8], h = g[9];
+      const sigs = g[10];
+      const frozen = live || fin;
+      const t = (x) => ({ img: !!x.logo, mono: !!x.mono, logo: x.logo, crest: x.mono ? x.mono[1] : '', code: x.mono ? x.mono[0] : '' });
+      const A = t(g[6]), H = t(g[7]);
+      return { isGame: true, cls: first ? 'gm--first' : '', href: g[11],
+        label: g[6].name + ' at ' + g[7].name + (live ? ', live' : fin ? ', final' : ', ' + g[12] + ' ' + g[13]) + (showScore ? ', ' + a + ' to ' + h : ''),
+        aName: g[6].name, hName: g[7].name, aImg: A.img, aMono: A.mono, aLogo: A.logo ? LOGO[g[6].k] : '', aCrest: A.crest, aCode: A.code,
+        hImg: H.img, hMono: H.mono, hLogo: H.logo ? LOGO[g[7].k] : '', hCrest: H.crest, hCode: H.code,
+        showScore, noScoreCol: !showScore, aScore: a, hScore: h, aLose: showScore && a < h ? 'lose' : '', hLose: showScore && h < a ? 'lose' : '',
+        isUp: up, isLiveRow: live && isLive, isLiveNoScore: live && !isLive, isFinal: fin, t: g[12] || (live ? '12:00' : ''), ap: g[13] || (live ? 'PM' : ''), per: g[4], clk: g[5], sport: g[1],
+        hasSig: sigs.length > 0, noSig: sigs.length === 0, sigN: sigs.length, sigCls: frozen ? 'sigchip--frozen' : '',
+        sigLabel: sigs.length + (sigs.length > 1 ? ' signals' : ' signal') + (frozen ? ', frozen at kickoff' : ''),
+        openSig: () => this.setState({ sheet: { sid: sigs[0], group: sigs.join(','), frozen }, openKey: openKey + 1 }) };
+    };
+
+    const dayRows = G.filter((g) => g[0] === day).filter((g) => sport === 'ALL' || (sport === 'FOL' ? followHas(g) : g[1] === sport));
+    const rows = [];
+    const push = (label, count, cls, list) => {
+      if (!list.length) return;
+      rows.push({ isHead: true, label, count, cls });
+      list.forEach((g, i) => rows.push(mkRow(g, i === 0)));
+    };
+    const live = dayRows.filter((g) => g[2] === 'live').sort((a, b) => a[3] - b[3]);
+    push('Live now', String(live.length), 'glabel--live', live);
+    const up = dayRows.filter((g) => g[2] === 'up').sort((a, b) => a[3] - b[3]);
+    push('Upcoming', up.length > 1 ? String(up.length) : '', '', up);
+    const fin = dayRows.filter((g) => g[2] === 'final');
+    push('Final', String(fin.length), '', fin);
+    const showEmpty = rows.length === 0;
+
+    // day strip: today and the next six days; counts come from the published schedule
+    const DAYS = [['sun', 'Sun', 4, 'Sunday October 4, today'], ['mon', 'Mon', 5, 'Monday October 5'], ['tue', 'Tue', 6, 'Tuesday October 6'], ['wed', 'Wed', 7, 'Wednesday October 7'], ['thu', 'Thu', 8, 'Thursday October 8'], ['fri', 'Fri', 9, 'Friday October 9'], ['sat', 'Sat', 10, 'Saturday October 10']];
+    const days = DAYS.map(([k, w, n, label]) => { const c = G.filter((g) => g[0] === k).length;
+      return { w, n, label: label + (c ? ', ' + c + (c === 1 ? ' game' : ' games') : ', no games'), cls: (day === k ? 'day--on ' : '') + (c ? '' : 'day--none'), sel: day === k, dot: c ? '' : 'visibility:hidden', pick: () => this.setState({ day: k }) }; });
+
+    const sunAll = G.filter((g) => g[0] === 'sun');
+    const chipDefs = [['FOL', 'Following', G.filter((g) => g[0] === day && followHas(g)).length, true], ['ALL', 'All', dayRows.length === 0 && sport !== 'ALL' ? G.filter((g) => g[0] === day).length : G.filter((g) => g[0] === day).length, false],
+      ['NFL', 'NFL', 0, false], ['MLB', 'MLB', 0, false], ['NHL', 'NHL', 0, false], ['NBA', 'NBA', 0, false], ['CFB', 'CFB', 0, false], ['SOC', 'Soccer', 0, false]];
+    const dayAll = G.filter((g) => g[0] === day);
+    const countFor = (k) => day === 'sun' ? { NFL: 14, MLB: 15, NHL: 10, NBA: 12, CFB: 6, SOC: 0 }[k] : dayAll.filter((g) => g[1] === k).length;
+    const chips = chipDefs.map(([k, label, n, star]) => ({ label, star, n: k === 'FOL' || k === 'ALL' ? (k === 'ALL' && day === 'sun' ? 57 : n) : countFor(k), cls: sport === k ? 'on' : '', sel: sport === k, pick: () => this.setState({ sport: k }) }))
+      .filter((c) => day !== 'sun' ? c.n > 0 || c.sel : true);
+
+    // teams you follow: next or live game for each
+    const F = [
+      ['nfl-BUF', 'Bills', 'live', '17–10', 'Game.dc.html'], ['mlb-LAD', 'Dodgers', 'up', '1:10 PM', '#'], ['nfl-KC', 'Chiefs', 'up', '3:25 PM', '#'], ['nhl-BOS', 'Bruins', 'up', '6:00 PM', '#'], ['ARS', 'Arsenal', 'up', 'Sat', '#']
+    ];
+    const follow = F.map(([k, name, s, text, href]) => { const m = MONO[k]; const lv = s === 'live';
+      return { label: name + (lv ? ', live' + (isLive ? ', ' + text.replace('–', ' to ') : '') : ', next ' + text), href, hasLogo: !m, noLogo: !!m, logo: m ? '' : LOGO[k], crest: m ? m[0] : '', crestStyle: m ? m[1] : '',
+        ring: lv ? 'fol__ring--live' : '', text: lv ? (isLive ? text : 'In play') : text, tcls: lv ? 'fol__t--live' : '' }; });
+
+    const sheetOpen = !!sheet;
+    return {
+      isLive, follow, days, chips, rows, showEmpty, emptyTxt: sport === 'FOL' ? 'None of your teams play this day' : 'No games published',
+      sheetOpen, sheetSid: sheet ? sheet.sid : 'ars', sheetGroup: sheet ? sheet.group : '', sheetFrozen: sheet ? sheet.frozen : false, openKey,
+      closeSheet: () => this.setState({ sheet: null }), bgInert: sheetOpen ? '' : undefined
+    };
+  }
+}
+</script>
+</body>
+</html>

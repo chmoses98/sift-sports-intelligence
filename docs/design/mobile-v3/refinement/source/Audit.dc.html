@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile audit</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+.au{width:1640px;min-height:1100px;box-sizing:border-box;padding:56px 64px;background:var(--bg);color:var(--tx);font:400 15px/21px var(--f-body);display:flex;flex-direction:column;gap:36px;-webkit-font-smoothing:antialiased}
+.au h1{margin:0;font:700 52px/48px var(--f-cond);letter-spacing:.03em;text-transform:uppercase}
+.au__sub{margin-top:10px;font:400 15px/21px var(--f-body);color:var(--tx2);max-width:760px}
+.au__body{display:grid;grid-template-columns:auto 1fr;gap:64px;min-height:0}
+.shots{display:flex;gap:24px}
+.shot{width:300px;display:flex;flex-direction:column;gap:14px}
+.shot img{width:300px;height:502px;object-fit:cover;border-radius:22px;display:block}
+.shot b{font:700 18px/20px var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+.shot ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.shot li{display:grid;grid-template-columns:22px 1fr;gap:8px;font:400 13px/18px var(--f-body);color:var(--tx2)}
+.shot li i{width:20px;height:20px;border-radius:50%;background:var(--mkt);color:#06090F;font:700 12px/20px var(--f-body);font-style:normal;text-align:center}
+.find{display:flex;flex-direction:column}
+.find__r{display:grid;grid-template-columns:128px 1fr;gap:20px;padding:15px 0;border-top:1px solid var(--line)}
+.find__r:first-child{border-top:0;padding-top:0}
+.find__k{font:600 12px/16px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--model)}
+.find__t{font:400 15px/21px var(--f-body);color:var(--tx2)}
+.find__t b{color:var(--tx);font-weight:600}
+.find__t span{display:block;margin-top:5px;font:500 13px/18px var(--f-body);color:var(--mkt)}
+.find__t span::before{content:"v3 ";font-weight:700;letter-spacing:.08em}
+</style>
+</helmet>
+
+<div class="au">
+  <div>
+    <h1>What is wrong with the phone experience today</h1>
+    <div class="au__sub">Captured in a real browser at iPhone 15 Pro size (393 by 852), on the current SIFT 2.0 build with the repository&rsquo;s own fixtures. Numbers are measured from those captures.</div>
+  </div>
+  <div class="au__body">
+    <div class="shots">
+      <div class="shot"><img src="{{img.home}}" alt="Current Home screen, top"><b>Home</b>
+        <ol>
+          <li><i>1</i><span>A build label and a preview pill sit above the first game. About three quarters of the screen passes before one game row appears.</span></li>
+          <li><i>2</i><span>Search, a Sports menu and a bookmark are three bordered buttons. Sport is chosen again in the chip row below.</span></li>
+          <li><i>3</i><span>The feature card spends its space on &ldquo;score unavailable&rdquo; and three equal outlined chips.</span></li>
+        </ol></div>
+      <div class="shot"><img src="{{img.game}}" alt="Current Game Command Center, top"><b>Game, top</b>
+        <ol>
+          <li><i>1</i><span>The hero takes about 40% of the screen before any research.</span></li>
+          <li><i>2</i><span>Seven or more section tabs scroll sideways. Three and a half are visible and &ldquo;Game Scripts&rdquo; is cut mid-word.</span></li>
+          <li><i>3</i><span>Matchup headlines are repeated as sentences, then again as tiles.</span></li>
+          <li><i>4</i><span>Tile copy is centered and ragged, with icons that carry no information.</span></li>
+        </ol></div>
+      <div class="shot"><img src="{{img.players}}" alt="Current Game Command Center, scrolled"><b>Game, scrolled</b>
+        <ol>
+          <li><i>1</i><span>Two of three matchup cards show a flat team logo where one shows a stadium photo.</span></li>
+          <li><i>2</i><span>Player names are set over crowd photographs, so legibility depends on the picture.</span></li>
+          <li><i>3</i><span>The tab strip is pinned but still hides half its tabs.</span></li>
+        </ol></div>
+    </div>
+    <div class="find">
+      <div class="find__r"><span class="find__k">Layout</span><div class="find__t"><b>Containers inside containers.</b> Featured Players is a panel holding two-column tiles holding chips, each with the same blue 1 px border and large radius. Containment stands in for spacing.<span>One grouped surface per section. Hairlines and space carry the structure.</span></div></div>
+      <div class="find__r"><span class="find__k">Density</span><div class="find__t"><b>Said three times.</b> The Bills run-game mismatch appears in the Game Read, the Key Matchup Drivers and the Matchup Advantages on one Overview. In the classic build, stat tiles cut their own text (&ldquo;NE&ndash;BUF &middot; researc&hellip;&rdquo;).<span>Each fact once, as a rank duel, with the sentence only where it adds meaning.</span></div></div>
+      <div class="find__r"><span class="find__k">Navigation</span><div class="find__t"><b>Hidden destinations.</b> Seven or more game tabs scroll sideways, and sport is picked from a menu and again from chips. The five bottom tabs are sound.<span>Four text tabs that always fit. One sport filter, in the content.</span></div></div>
+      <div class="find__r"><span class="find__k">Typography</span><div class="find__t"><b>No phone scale.</b> 134 distinct font-size values across 55 stylesheets. Wide-tracked blue eyebrows (&ldquo;SIFT 2.0 &middot; COMMAND CENTER&rdquo;, &ldquo;THE SLATE&rdquo;) repeat on every block and compete with the content.<span>Seven sizes. Condensed capitals for names and numerals, Barlow for reading.</span></div></div>
+      <div class="find__r"><span class="find__k">Spacing</span><div class="find__t"><b>Every layer re-adds padding.</b> In Featured Players the panel sits 9 px from the screen edge and the player name 32 px in, so the reading column narrows with each nesting level.<span>One 16 px gutter on every screen and 44 px minimum touch targets.</span></div></div>
+      <div class="find__r"><span class="find__k">Hierarchy</span><div class="find__t"><b>Everything is outlined in the same blue.</b> What the model says, what the market charges and what could go wrong share one palette, so SIFT&rsquo;s central distinction has no visual identity. Four &ldquo;In play&rdquo; rows look identical.<span>Model is ice, market is gold, risk is coral, on every screen.</span></div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { img: { home: '/_blob/5368115ac44e261aa95c1084f417f98a', game: '/_blob/063248f9a775f6830373702576019cf8', players: '/_blob/3951649de8e4ccab41c34255c7280776' } };
+  }
+}
+</script>
+</body>
+</html>

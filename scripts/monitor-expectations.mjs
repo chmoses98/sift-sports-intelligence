@@ -91,3 +91,13 @@ export function judgePropsHub(expect, facts) {
   }
   return { ok: true, mode: populated ? 'POPULATED' : 'EMPTY_SLATE', msg: 'a kick-off is within minutes: either state is correct' };
 }
+
+/**
+ * Text a prop board must never show: betting language, or a broken value. The value tokens are whole words, matched case-sensitively: the
+ * board legitimately prints sidelined players' publication keys ("kylemonangai (out)"), and a case-insensitive "NaN" matched inside one.
+ * Returns the offending text, or null.
+ */
+export function badBoardText(text) {
+  const m = /\b(?:bet up to|best bet)\b/i.exec(text ?? '') ?? /\b(?:undefined|NaN)\b/.exec(text ?? '');
+  return m ? m[0] : null;
+}

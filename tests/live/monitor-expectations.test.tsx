@@ -16,7 +16,7 @@ import { isActionable as appActionable } from '../../src/lib/priorities';
 import { SlatePriorities } from '../../src/views/home/Priorities';
 import { PropsHubView } from '../../src/views/props/PropsHub';
 import { upcomingGames as appUpcoming } from '../../src/views/props/slate';
-import { expectation, HUB_HORIZON_DAYS, isActionable, judgePropsHub, judgeRail, KICKOFF_TOLERANCE_MS, upcomingGames } from '../../scripts/monitor-expectations.mjs';
+import { badBoardText, expectation, HUB_HORIZON_DAYS, isActionable, judgePropsHub, judgeRail, KICKOFF_TOLERANCE_MS, upcomingGames } from '../../scripts/monitor-expectations.mjs';
 import { readDisk, ROOT } from '../helpers';
 import { renderScreen } from '../render';
 
@@ -168,5 +168,19 @@ describe('the facts the monitor reads come from the real components, in both con
       // the empty-slate expectation does not accept this populated hub
       expect(judgePropsHub(expectation(EMPTY_BOARD as never, NOW), facts).ok).toBe(false);
     }, 60_000);
+  });
+});
+
+describe('the prop-board text guard', () => {
+  it('flags betting language and broken values, as whole words', () => {
+    expect(badBoardText('Bet up to 12¢ on this')).toBe('Bet up to');
+    expect(badBoardText('the best bet of the night')).toBe('best bet');
+    expect(badBoardText('Projected: undefined')).toBe('undefined');
+    expect(badBoardText('P(over) NaN%')).toBe('NaN');
+    expect(badBoardText(null)).toBeNull();
+  });
+  it('does not flag a sidelined player whose publication key contains "nan" (the 2026-10-20 false positive)', () => {
+    expect(badBoardText('Not shown (publication lists them out): kylemonangai (out), tjedwards (out), dayoodeyingbo (injured reserve).')).toBeNull();
+    expect(badBoardText('Hernandez · Nandez · bettering · a bettor undefinedly')).toBeNull();
   });
 });

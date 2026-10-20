@@ -16,7 +16,7 @@
 // board lists current games, the feed lists MLB and at least one MLB game file quotes the publication's tickers) and
 // its failures are reported as "MLB: …": they fail the run without stopping or masking the NFL and NHL checks.
 import { chromium, webkit } from '@playwright/test';
-import { expectation, judgeRail } from './monitor-expectations.mjs';
+import { badBoardText, expectation, judgeRail } from './monitor-expectations.mjs';
 import { honestPublicationStates, isEligibleEvent, publicationStatus, selectTarget, sportCoverage, sportEntry, sportGames } from './live-quotes/slate.mjs';
 // The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
 // default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
@@ -512,7 +512,8 @@ async function footballCheck(page, name) {
     check(cards > 0 || /No player prop/.test(text), `NFL props board: ${cards} prop cards (or an honest empty state)`);
     check((await pb.getByRole('group', { name: 'Prop family' }).count()) === 1, 'NFL props board: family chips are present');
     check(/Research only|research-only/.test(text), 'NFL props board: the confidence line quotes the publication scorecard');
-    check(!/bet up to|best bet|undefined|NaN/i.test(text), 'NFL props board: no bet-up-to, no verdict language, no undefined / NaN');
+    const bad = badBoardText(text);
+    check(!bad, `NFL props board: no bet-up-to, no verdict language, no undefined / NaN${bad ? ` (found "${bad}")` : ''}`);
     check(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'NFL props board: no sideways scroll');
     await page.screenshot({ path: `production-${name}-nfl-props.png` });
   } else {

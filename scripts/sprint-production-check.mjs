@@ -233,8 +233,18 @@ async function homeCheck(page, ctx) {
     await card.locator('.gc-rk').first().waitFor({ timeout: 30_000 }).catch(() => {});
     const recs = await card.locator('.gc-team__rec').allTextContents();
     check(recs.length === 2 && recs.every((r) => /^\d+–\d+(–\d+)?$/.test(r.trim())), `#2 Home NFL game card shows both records (${recs.join(' / ')})`);
-    const ranks = await card.locator('.gc-rk').count();
-    check(ranks > 0, `#19 Home NFL game card shows O/D ranks once in view (${ranks} rank chips)`);
+    // A final shows its score instead of ranks (GameCard: "opponent-adjusted ranks (or final scores)"), so #19 is judged on a card that is not a
+    // final (the card says "Final"); when the rail holds only finals #19 is N/A with that reason (never a pass).
+    const openAt = await nflCards.evaluateAll((els) => els.findIndex((e) => !/\bfinal\b/i.test(e.innerText ?? '')));
+    if (openAt >= 0) {
+      const live = nflCards.nth(openAt);
+      await live.scrollIntoViewIfNeeded();
+      await live.locator('.gc-rk').first().waitFor({ timeout: 30_000 }).catch(() => {});
+      const ranks = await live.locator('.gc-rk').count();
+      check(ranks > 0, `#19 Home NFL game card shows O/D ranks once in view (${ranks} rank chips)`);
+    } else {
+      na('#19 Home NFL game card O/D ranks', 'every NFL card in the rail is a final, which shows its result instead of ranks');
+    }
   } else {
     na('#2/#19 Home NFL game card records and ranks', `no NFL group in today's rail (the board lists ${nflToday} NFL game(s) today, ET)`);
   }

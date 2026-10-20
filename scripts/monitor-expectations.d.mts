@@ -11,3 +11,4 @@ export function isActionable(item: SlateItem | undefined, now: number): boolean;
 export function expectation(items: SlateItem[] | undefined, now: number, opts?: { tolerance?: number }): Expectation;
 export function judgeRail(expect: Expectation, facts: RailFacts): Verdict;
 export function judgePropsHub(expect: Expectation, facts: HubFacts): Verdict;
+export function badBoardText(text: string | null | undefined): string | null;

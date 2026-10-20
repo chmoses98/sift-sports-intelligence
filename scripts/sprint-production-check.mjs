@@ -10,6 +10,7 @@
 // no game with two opportunities…) prints "N/A (reason)" and is never counted as a pass. Any FAIL exits 1.
 // SIFT_CHECK_PROXY=1 routes the browser through $HTTPS_PROXY (local development in a proxied sandbox only; CI never
 // sets it). Screenshots: production-sprint-*.png (the workflow's artifact glob is production-*.png).
+import { expectation, judgePropsHub } from './monitor-expectations.mjs';
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { isEligibleEvent, selectTarget } from './live-quotes/slate.mjs';
@@ -232,8 +233,18 @@ async function homeCheck(page, ctx) {
     await card.locator('.gc-rk').first().waitFor({ timeout: 30_000 }).catch(() => {});
     const recs = await card.locator('.gc-team__rec').allTextContents();
     check(recs.length === 2 && recs.every((r) => /^\d+–\d+(–\d+)?$/.test(r.trim())), `#2 Home NFL game card shows both records (${recs.join(' / ')})`);
-    const ranks = await card.locator('.gc-rk').count();
-    check(ranks > 0, `#19 Home NFL game card shows O/D ranks once in view (${ranks} rank chips)`);
+    // A final shows its score instead of ranks (GameCard: "opponent-adjusted ranks (or final scores)"), so #19 is judged on a card that is not a
+    // final (the card says "Final"); when the rail holds only finals #19 is N/A with that reason (never a pass).
+    const openAt = await nflCards.evaluateAll((els) => els.findIndex((e) => !/\bfinal\b/i.test(e.innerText ?? '')));
+    if (openAt >= 0) {
+      const live = nflCards.nth(openAt);
+      await live.scrollIntoViewIfNeeded();
+      await live.locator('.gc-rk').first().waitFor({ timeout: 30_000 }).catch(() => {});
+      const ranks = await live.locator('.gc-rk').count();
+      check(ranks > 0, `#19 Home NFL game card shows O/D ranks once in view (${ranks} rank chips)`);
+    } else {
+      na('#19 Home NFL game card O/D ranks', 'every NFL card in the rail is a final, which shows its result instead of ranks');
+    }
   } else {
     na('#2/#19 Home NFL game card records and ranks', `no NFL group in today's rail (the board lists ${nflToday} NFL game(s) today, ET)`);
   }
@@ -315,14 +326,30 @@ async function homeTopPropsCheck(page, ctx, deep) {
 
 async function propsHubCheck(page, ctx) {
   await page.getByRole('navigation', { name: ctx.phone ? 'Destinations' : 'Primary' }).getByRole('link', { name: 'Props' }).click();
-  await page.getByRole('heading', { name: /^Player prop explorer$/, level: 1 }).waitFor({ timeout: 60_000 });
+  const heading = await page.getByRole('heading', { name: /^Player prop explorer$/, level: 1 }).waitFor({ timeout: 60_000 }).then(() => true).catch(() => false);
+  // The hub's NFL section is schedule-driven: with a pregame game it carries the top-props board, with none it says so. Expect what the
+  // publication's own schedule implies, then judge the screen against that (monitor-expectations.mjs).
+  const exp = expectation(items, Date.now());
   const tp = page.locator('.tprops');
-  await tp.waitFor({ timeout: 60_000 });
-  await tp.locator('.tprow, .bempty').first().waitFor({ timeout: 90_000 }).catch(() => {});
+  await page.locator('.tprops, .phub__games .fr-note, .phub [role=alert]').first().waitFor({ timeout: 60_000 }).catch(() => {});
+  if (await tp.count()) await tp.locator('.tprow, .bempty').first().waitFor({ timeout: 90_000 }).catch(() => {});
+  const mainText = (await page.locator('main').innerText().catch(() => '')).replace(/\s+/g, ' ');
   const rows = await tp.locator('.tprow').count();
   const empty = await tp.locator('.bempty').count();
-  check((await tp.getByRole('heading', { name: 'Top props on the slate' }).count()) === 1 && (rows > 0 || empty > 0), `#4/#48 /props renders the Player Prop Explorer with the top-props board (${rows} rows${empty ? ', honest empty state' : ''})`);
-  check(!/% chance|best bet|\block\b/i.test(await tp.innerText()), '#32/#48 top-props board never reads as a chance or a pick');
+  const verdict = judgePropsHub(exp, {
+    heading, tiles: await page.locator('.phub__sport').count(), tprops: (await tp.count()) > 0, rows, boardEmpty: empty,
+    strip: await page.locator('.phub__gl a.phub__g').count(), note: /No upcoming NFL games are listed in the publication/.test(mainText),
+    unavailable: /NFL props are unavailable right now/.test(mainText),
+  });
+  check(verdict.ok, `#4/#48 /props renders the Player Prop Explorer (${verdict.mode === 'EMPTY_SLATE' ? 'empty pregame slate' : 'pregame slate'}): ${verdict.msg}`);
+  if (verdict.mode === 'EMPTY_SLATE') {
+    check(!/% chance|best bet|\block\b/i.test(mainText), '#32/#48 /props never reads as a chance or a pick');
+    await cleanText(page, '#35', '/props');
+    await overflow(page, ctx, '/props');
+    return na('#48 multi-select add-to-board', 'no pregame NFL game on the schedule, so the hub lists no top props (the empty state was verified above)');
+  }
+  check((await tp.getByRole('heading', { name: 'Top props on the slate' }).count()) === 1, '#4/#48 the top-props board has its heading');
+  check(!/% chance|best bet|\block\b/i.test(await tp.innerText().catch(() => '')), '#32/#48 top-props board never reads as a chance or a pick');
   await cleanText(page, '#35', '/props');
   await overflow(page, ctx, '/props');
   // #48: multi-select into My Board, then leave the device clean.

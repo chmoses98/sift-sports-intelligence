@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game Command Center</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+:root{--ne:#FF6A80;--buf:#5D96FF}
+
+/* header: transparent over the hero, solid once the hero has scrolled away */
+.ghead{position:sticky;top:0;z-index:35;height:calc(var(--safe-top) + 52px);padding:var(--safe-top) 6px 0 6px;display:flex;align-items:center;gap:4px;border-bottom:1px solid transparent;transition:background .2s,border-color .2s}
+.ghead--solid{background:rgba(6,9,15,.985);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom-color:var(--line)}
+.ghead__c{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font:700 20px/1 var(--f-cond);letter-spacing:.06em;opacity:0;transition:opacity .2s}
+.ghead--title .ghead__c{opacity:1}
+.ghead__c img{width:22px;height:22px;object-fit:contain}
+.ghead__c small{font:600 12px/1 var(--f-body);color:var(--tx2);letter-spacing:.06em;margin-left:4px}
+.ibtn--on{color:var(--mkt)}
+
+.ghero{position:relative;isolation:isolate;margin-top:calc(-1 * (var(--safe-top) + 52px));padding:calc(var(--safe-top) + 58px) 16px 0;height:318px}
+.ghero__bg{position:absolute;inset:0;z-index:-3;background:
+  radial-gradient(90% 80% at 0% 100%,rgba(196,24,64,.42) 0%,rgba(196,24,64,0) 62%),
+  radial-gradient(100% 90% at 100% 0%,rgba(30,96,236,.78) 0%,rgba(30,96,236,0) 64%),
+  radial-gradient(85% 75% at 0% 0%,rgba(28,70,150,.95) 0%,rgba(28,70,150,0) 66%),
+  linear-gradient(180deg,#0A1630,#070F1D)}
+.ghero__lines{position:absolute;inset:0;z-index:-2;opacity:.7;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,transparent 1px 39px);-webkit-mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.15) 75%,transparent);mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.15) 75%,transparent)}
+.ghero__fade{position:absolute;left:0;right:0;bottom:0;height:130px;z-index:-1;background:linear-gradient(180deg,rgba(6,9,15,0),#06090F 94%)}
+.ghero .cap{color:var(--tx2)}
+.gmid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin-top:12px}
+.hteam{display:flex;flex-direction:column;align-items:center;gap:5px}
+.hteam img{width:68px;height:68px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
+.hteam b{font:700 24px/20px var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+.hteam small{font:500 13px/14px var(--f-body);color:var(--tx2)}
+.hclock{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 4px;text-align:center}
+.hclock b{font:700 56px/48px var(--f-cond)}
+.hclock span{font:600 12px/14px var(--f-body);letter-spacing:.12em;color:var(--tx2)}
+.hclock em{font:600 13px/16px var(--f-body);font-style:normal;color:var(--model);margin-top:2px}
+.gvenue{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font:500 13px/16px var(--f-body);color:var(--tx2)}
+.clocks{display:inline-flex;gap:14px}
+.clocks span{display:inline-flex;align-items:center;gap:6px}
+.clocks span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.clocks span.old::before{background:var(--tx3)}
+
+/* section tabs: four, text only, always visible */
+.gtabs{position:sticky;top:calc(var(--safe-top) + 52px);z-index:34;display:grid;grid-template-columns:repeat(4,1fr);height:48px;background:rgba(6,9,15,.985);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.gtab{position:relative;display:grid;place-items:center;font:600 15px/1 var(--f-body);color:var(--tx3);text-align:center}
+.gtab.on{color:var(--tx)}
+.gtab.on::after{content:"";position:absolute;left:22%;right:22%;bottom:-1px;height:3px;border-radius:2px 2px 0 0;background:var(--model)}
+
+.pane{padding:22px 16px 0;min-height:760px}
+.eyebrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.read-h{margin:0;font:600 28px/31px var(--f-body);letter-spacing:-.005em;text-wrap:balance}
+.read-p{margin:10px 0 0;font:400 15px/21px var(--f-body);color:var(--tx2)}
+.blk{margin-top:34px}
+.blk__h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.blk__h h3{margin:0;font:700 20px/22px var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+.blk__h a,.blk__h button{font:600 15px/18px var(--f-body);color:var(--model)}
+.note{font:400 12px/17px var(--f-body);color:var(--tx3);margin-top:10px}
+
+/* model vs market: two columns, two colours */
+.mvm{border-top:1px solid var(--line)}
+.mvm__r{display:grid;grid-template-columns:1fr 92px 92px;align-items:center;min-height:52px;border-bottom:1px solid var(--line)}
+.mvm__r--h{min-height:36px}
+.mvm__k{font:500 15px/18px var(--f-body);color:var(--tx2)}
+.mvm__v{text-align:right;font:700 24px/1 var(--f-cond)}
+.mvm__v small{font:600 12px/1 var(--f-body);color:var(--tx3);margin-left:3px}
+.mvm__r--h .cap:nth-child(2){color:var(--model);text-align:right}
+.mvm__r--h .cap:nth-child(3){color:var(--mkt);text-align:right}
+.verdict{display:flex;gap:12px;align-items:flex-start;margin-top:14px;color:var(--tx2);font:400 15px/20px var(--f-body)}
+.verdict b{color:var(--tx);font-weight:600}
+.verdict .ic{color:var(--ok);margin-top:0}
+
+/* scripts: a spectrum from one team's win to the other's */
+.spec{display:flex;gap:3px;height:48px}
+.spec button{display:grid;place-items:center;border-radius:6px;font:700 20px/1 var(--f-cond);color:#fff;transition:opacity .15s,transform .15s}
+.spec button.dim{opacity:.38}
+.specl{display:grid;grid-template-columns:1fr auto 1fr;margin-top:8px;font:600 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.specl span:last-child{text-align:right}
+.scr{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:8px 0;border-top:1px solid var(--line)}
+.scr:first-of-type{border-top:0}
+.scr i{width:10px;height:10px;border-radius:50%;flex:none}
+.scr__t{flex:1;min-width:0}
+.scr__t b{display:block;font:600 16px/20px var(--f-body)}
+.scr__m{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.scr__n{font:700 24px/1 var(--f-cond)}
+.scr.dim{opacity:.45}
+
+/* matchup duels */
+.duel{padding:14px 0;border-top:1px solid var(--line)}
+.duel:first-of-type{border-top:0}
+.duel__l{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.duel__k{font:600 16px/20px var(--f-body)}
+.duel__e{font:600 13px/17px var(--f-body);white-space:nowrap}
+.duel__d{margin-top:2px;font:400 13px/18px var(--f-body);color:var(--tx2)}
+.duel__b{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:8px;margin-top:10px}
+.duel__b b{font:700 20px/1 var(--f-cond)}
+.duel__b b:last-child{text-align:right}
+.duel__t{display:grid;grid-template-columns:1fr 1fr;gap:3px;height:8px}
+.duel__h{display:flex;background:var(--bg3);border-radius:4px;overflow:hidden}
+.duel__h:first-child{justify-content:flex-end}
+.duel__h i{display:block;height:100%}
+.sw{display:flex;gap:8px;margin-bottom:6px}
+.sw .chip{height:36px;padding:0 13px;font-size:14px}
+
+/* availability */
+.avail{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.avail .ic{color:var(--risk);margin-top:1px}
+.avail b{display:block;font:600 15px/20px var(--f-body)}
+.avail__s{font:400 13px/18px var(--f-body);color:var(--tx2)}
+.linkrow{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:56px;border-bottom:1px solid var(--line);font:600 15px/20px var(--f-body)}
+.linkrow small{display:block;font:400 13px/17px var(--f-body);color:var(--tx2);margin-top:1px}
+.linkrow .ic{color:var(--tx3)}
+
+/* players */
+.pl{border-top:1px solid var(--line);padding:14px 0}
+.pl:first-of-type{border-top:0}
+.pl__h{display:flex;align-items:center;gap:12px;width:100%}
+.av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;background:var(--bg3);display:grid;place-items:center;font:700 16px/1 var(--f-cond);letter-spacing:.04em;color:#fff}
+.pl__t{flex:1;min-width:0}
+.pl__t b{display:block;font:600 16px/20px var(--f-body)}
+.pl__s{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.pl__n{text-align:right}
+.pl__n b{display:block;font:700 24px/22px var(--f-cond);color:var(--mkt)}
+.pl__n small{font:600 11px/12px var(--f-body);letter-spacing:.1em;color:var(--tx3)}
+.rb{position:relative;height:6px;border-radius:3px;background:var(--bg3);margin:32px 2px 34px}
+.rb__tick{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--mkt);transform:translateX(-50%)}
+.rb__dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--model);transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--bg)}
+.rb__lab{position:absolute;white-space:nowrap;font:600 12px/14px var(--f-body);transform:translateX(-50%)}
+.rb__lab--top{bottom:14px;color:var(--mkt)}
+.rb__lab--bot{top:14px;color:var(--model)}
+.pl__x{margin-top:6px;font:400 12px/16px var(--f-body);color:var(--tx3)}
+.lad{margin-top:8px;border-top:1px solid var(--line)}
+.lad__r{display:grid;grid-template-columns:1fr 80px 80px;align-items:center;min-height:42px;border-bottom:1px solid var(--line);font:600 15px/1 var(--f-body)}
+.lad__r--h{min-height:30px}
+.lad__r--h .cap:nth-child(2){color:var(--mkt);text-align:right}
+.lad__r--h .cap:nth-child(3){color:var(--model);text-align:right}
+.lad__r b{font:700 20px/1 var(--f-cond);text-align:right}
+.lad__r--hit{background:linear-gradient(90deg,rgba(242,190,69,.10),rgba(242,190,69,0))}
+
+/* markets */
+.fmt{display:flex;gap:2px;padding:3px;border-radius:10px;background:var(--bg2)}
+.fmt button{height:32px;padding:0 12px;border-radius:8px;font:600 13px/1 var(--f-body);color:var(--tx2);text-align:center}
+.fmt button.on{background:var(--bg3);color:var(--tx)}
+.win2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wbtn{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:6px;padding:14px 14px 12px;border-radius:16px;background:var(--bg1);min-height:132px}
+.wbtn img{width:34px;height:34px;object-fit:contain}
+.wbtn__n{font:600 15px/16px var(--f-body);color:var(--tx2)}
+.wbtn__p{font:700 44px/34px var(--f-cond);color:var(--mkt)}
+.wbtn__m{font:500 12px/14px var(--f-body);color:var(--tx3)}
+.wbtn__m b{color:var(--model);font-weight:600}
+.wbtn__f{position:absolute;left:0;bottom:0;height:3px;background:var(--mkt);opacity:.8}
+.mk{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;min-height:64px;border-bottom:1px solid var(--line)}
+.mk:first-of-type{border-top:1px solid var(--line)}
+.mk b{display:block;font:600 16px/20px var(--f-body)}
+.mk__s{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.mk__p{font:700 24px/1 var(--f-cond);color:var(--mkt);min-width:64px;text-align:right}
+</style>
+</helmet>
+
+<div class="app">
+<div class="scroll" id="sc" onScroll="{{onScroll}}">
+
+  <header class="ghead {{headCls}}">
+    <a class="ibtn" href="Main.dc.html" aria-label="Back to Today"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+    <div class="ghead__c"><img src="{{logo.NE}}" alt=""><span>NE @ BUF</span><img src="{{logo.BUF}}" alt=""><small>12:00 PM</small></div>
+    <button class="ibtn {{saveCls}}" aria-label="Save to My Board" aria-pressed="{{saved}}" onClick="{{toggleSave}}"><svg class="ic" viewBox="0 0 24 24" fill="{{saveFill}}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </header>
+
+  <section class="ghero">
+    <div class="ghero__bg"></div><div class="ghero__lines"></div><div class="ghero__fade"></div>
+    <span class="cap">NFL &middot; Week 4 &middot; Sun, Oct 4</span>
+    <div class="gmid">
+      <div class="hteam"><img src="{{logo.NE}}" alt=""><b>Patriots</b><small>1&ndash;2</small></div>
+      <div class="hclock"><b>12:00</b><span>PM CDT</span><em>in 1h 59m</em></div>
+      <div class="hteam"><img src="{{logo.BUF}}" alt=""><b>Bills</b><small>3&ndash;0</small></div>
+    </div>
+    <div class="gvenue"><span>Highmark Stadium &middot; 67&deg; sunny</span><span class="clocks"><span>Prices live</span><span class="old">Research 14h</span></span></div>
+  </section>
+
+  <nav class="gtabs" role="tablist" aria-label="Game sections">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+      <button class="gtab {{t.cls}}" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button>
+    </sc-for>
+  </nav>
+
+  <!-- READ -->
+  <sc-if value="{{tab.read}}" hint-placeholder-val="{{ true }}">
+  <div class="pane">
+    <h2 class="read-h">Buffalo&rsquo;s run game is the biggest mismatch on the field.</h2>
+    <p class="read-p">The Bills rush offense ranks #1 against a #21 Patriots run defense. New England will also be without WR A.J. Brown.</p>
+
+    <div class="blk">
+      <div class="blk__h"><h3>Model and market</h3></div>
+      <div class="mvm">
+        <div class="mvm__r mvm__r--h"><span class="cap">&nbsp;</span><span class="cap">SIFT model</span><span class="cap">Kalshi</span></div>
+        <div class="mvm__r"><span class="mvm__k">Bills win</span><span class="mvm__v" style="color:var(--model)">74<small>%</small></span><span class="mvm__v" style="color:var(--mkt)">74<small>&cent;</small></span></div>
+        <div class="mvm__r"><span class="mvm__k">Bills margin</span><span class="mvm__v" style="color:var(--model)">7<small>pts</small></span><span class="mvm__v" style="color:var(--mkt)">7<small>pts</small></span></div>
+        <div class="mvm__r"><span class="mvm__k">Total points</span><span class="mvm__v" style="color:var(--model)">51</span><span class="mvm__v" style="color:var(--mkt)">50.5</span></div>
+      </div>
+      <div class="verdict"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg><span><b>No gap to chase.</b> The model and the market agree, and the publication flags no opportunity on this game.</span></div>
+    </div>
+
+    <div class="blk">
+      <div class="blk__h"><h3>How it plays out</h3></div>
+      <div class="spec">
+        <sc-for list="{{specSegs}}" as="s" hint-placeholder-count="4">
+          <button style="flex:{{s.share}};background:{{s.color}}" class="{{s.cls}}" aria-label="{{s.name}}, {{s.share}} percent of simulated games" onClick="{{s.pick}}">{{s.share}}</button>
+        </sc-for>
+      </div>
+      <div class="specl"><span>Patriots win</span><span>Close</span><span>Bills win</span></div>
+      <div style="margin-top:8px">
+        <sc-for list="{{scripts}}" as="s" hint-placeholder-count="4">
+          <button class="scr {{s.cls}}" onClick="{{s.pick}}"><i style="background:{{s.color}}"></i><span class="scr__t"><b>{{s.name}}</b><span class="scr__m">{{s.margin}}</span></span><span class="scr__n">{{s.share}}%</span></button>
+        </sc-for>
+      </div>
+      <div class="note">Share of simulated games. Not calibrated probabilities.</div>
+    </div>
+
+    <div class="blk">
+      <div class="blk__h"><h3>Biggest mismatches</h3><button onClick="{{goMatchups}}">All 5</button></div>
+      <sc-for list="{{duelsTop}}" as="d" hint-placeholder-count="3">
+        <div class="duel">
+          <div class="duel__l"><span class="duel__k">{{d.k}}</span><span class="duel__e" style="color:{{d.ec}}">{{d.edge}}</span></div>
+          <div class="duel__b"><b style="color:{{d.lc}}">#{{d.lr}}</b>
+            <div class="duel__t"><div class="duel__h"><i style="width:{{d.lw}}%;background:{{d.lc}}"></i></div><div class="duel__h"><i style="width:{{d.rw}}%;background:{{d.rc}}"></i></div></div>
+            <b style="color:{{d.rc}}">#{{d.rr}}</b></div>
+        </div>
+      </sc-for>
+      <div class="note">League rank of 32, opponent-adjusted. Longer bar is the stronger unit.</div>
+    </div>
+
+    <div class="blk">
+      <div class="avail"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-alert"/></svg><div><b>Patriots without WR A.J. Brown</b><span class="avail__s">Out for this game. He played in 1 of the Patriots&rsquo; 3 games, so their season passing numbers were built with him.</span></div></div>
+      <button class="linkrow" onClick="{{goPlayers}}"><span>Props and players<small>95 priced props, 20 with a SIFT projection</small></span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+      <a class="linkrow" href="Signal.dc.html"><span>This weekend&rsquo;s signals<small>3 research candidates in soccer</small></span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></a>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- MATCHUPS -->
+  <sc-if value="{{tab.matchups}}" hint-placeholder-val="{{ false }}">
+  <div class="pane">
+    <h2 class="read-h">Where each side has the edge.</h2>
+    <p class="read-p">League rank of 32 for each unit, adjusted for opponent. A longer bar is the stronger unit.</p>
+    <div class="sw" style="margin-top:18px">
+      <sc-for list="{{matchFilters}}" as="f" hint-placeholder-count="3"><button class="chip {{f.cls}}" onClick="{{f.pick}}">{{f.label}} <i>{{f.n}}</i></button></sc-for>
+    </div>
+    <div style="margin-top:6px">
+      <sc-for list="{{duelsAll}}" as="d" hint-placeholder-count="5">
+        <div class="duel">
+          <div class="duel__l"><span class="duel__k">{{d.k}}</span><span class="duel__e" style="color:{{d.ec}}">{{d.edge}}</span></div>
+          <div class="duel__d">{{d.detail}}</div>
+          <div class="duel__b"><b style="color:{{d.lc}}">#{{d.lr}}</b>
+            <div class="duel__t"><div class="duel__h"><i style="width:{{d.lw}}%;background:{{d.lc}}"></i></div><div class="duel__h"><i style="width:{{d.rw}}%;background:{{d.rc}}"></i></div></div>
+            <b style="color:{{d.rc}}">#{{d.rr}}</b></div>
+        </div>
+      </sc-for>
+    </div>
+    <div class="note">Opponent-adjusted unit rankings describe the matchup. They are not a forecast of the result.</div>
+  </div>
+  </sc-if>
+
+  <!-- PLAYERS -->
+  <sc-if value="{{tab.players}}" hint-placeholder-val="{{ false }}">
+  <div class="pane">
+    <h2 class="read-h">Props, with the model beside the market.</h2>
+    <p class="read-p">Kalshi asks for each yardage line. SIFT shows its research projection only where one is published.</p>
+    <div style="margin-top:14px">
+      <sc-for list="{{players}}" as="p" hint-placeholder-count="4">
+        <div class="pl">
+          <button class="pl__h" aria-expanded="{{p.open}}" onClick="{{p.pick}}">
+            <sc-if value="{{p.hasPhoto}}" hint-placeholder-val="{{ true }}"><img class="av" src="{{p.photo}}" alt="" style="object-position:{{p.pos}}"></sc-if>
+            <sc-if value="{{p.noPhoto}}" hint-placeholder-val="{{ false }}"><span class="av" style="background:{{p.tc}}">{{p.init}}</span></sc-if>
+            <span class="pl__t"><b>{{p.name}}</b><span class="pl__s">{{p.sub}}</span></span>
+            <span class="pl__n"><b>{{p.line}}</b><small>LINE</small></span>
+          </button>
+          <sc-if value="{{p.hasProj}}" hint-placeholder-val="{{ true }}">
+            <div class="rb"><i class="rb__tick" style="left:{{p.lp}}%"></i><i class="rb__dot" style="left:{{p.pp}}%"></i>
+              <span class="rb__lab rb__lab--top" style="left:{{p.lp}}%">Line {{p.line}}</span><span class="rb__lab rb__lab--bot" style="left:{{p.pp}}%">Projection {{p.proj}}</span></div>
+            <div class="pl__x">{{p.hist}}</div>
+          </sc-if>
+          <sc-if value="{{p.noProj}}" hint-placeholder-val="{{ false }}"><div class="pl__x" style="margin-top:10px">No SIFT projection published for this prop.</div></sc-if>
+          <sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
+            <div class="lad">
+              <div class="lad__r lad__r--h"><span class="cap">{{p.unit}}</span><span class="cap">Kalshi</span><span class="cap">Model</span></div>
+              <sc-for list="{{p.ladder}}" as="l" hint-placeholder-count="5">
+                <div class="lad__r {{l.cls}}"><span>{{l.t}}+</span><b style="color:var(--mkt)">{{l.ask}}&cent;</b><b style="color:var(--model)">{{l.model}}%</b></div>
+              </sc-for>
+            </div>
+            <div class="pl__x">Model column is the research-only shadow price. Not a pick.</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- MARKETS -->
+  <sc-if value="{{tab.markets}}" hint-placeholder-val="{{ false }}">
+  <div class="pane">
+    <div class="eyebrow"><span class="clocks"><span>Prices live &middot; just now</span></span>
+      <div class="fmt" role="group" aria-label="Price format"><sc-for list="{{fmts}}" as="f" hint-placeholder-count="4"><button class="{{f.cls}}" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div>
+    </div>
+    <div class="blk" style="margin-top:20px">
+      <div class="blk__h"><h3>To win</h3><span class="cap">YES asks, before fees</span></div>
+      <div class="win2">
+        <div class="wbtn"><img src="{{logo.NE}}" alt=""><span class="wbtn__n">Patriots</span><span class="wbtn__p">{{ne.p}}</span><span class="wbtn__m">Model <b>26%</b></span><i class="wbtn__f" style="width:26%"></i></div>
+        <div class="wbtn"><img src="{{logo.BUF}}" alt=""><span class="wbtn__n">Bills</span><span class="wbtn__p">{{buf.p}}</span><span class="wbtn__m">Model <b>74%</b></span><i class="wbtn__f" style="width:74%"></i></div>
+      </div>
+    </div>
+    <div class="blk" style="margin-top:28px">
+      <div class="blk__h"><h3>Spread and total</h3></div>
+      <div class="mk"><span><b>Bills &minus;6.5</b><span class="mk__s">Wins by 7 or more</span></span><span class="mk__p">{{spread.p}}</span></div>
+      <div class="mk"><span><b>Over 50.5</b><span class="mk__s">Total points, full game</span></span><span class="mk__p">{{total.p}}</span></div>
+      <div class="note">SIFT publishes no model price for spreads or totals on this game, so none is shown.</div>
+    </div>
+    <div class="blk" style="margin-top:28px">
+      <button class="linkrow" onClick="{{goPlayers}}"><span>Player props<small>95 priced, ladder by yardage line</small></span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+
+<nav class="tabbar" aria-label="Primary">
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+  <a class="tab on" href="Game.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg>Games</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-props"/></svg>Props</a>
+  <a class="tab" href="Signal.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bolt"/></svg>Intel</a>
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg>Board</a>
+</nav>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3"/></symbol>
+  <symbol id="i-props" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v5M12 17.8v.2"/></symbol>
+</defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const A = {
+      NE: '/_blob/c61b5ca4075061cc9f2a63327869e496', BUF: '/_blob/961b62e2bedcd9062a4b8b7d37dce2d3',
+      allen: '/_blob/c441009ab18f6f9bdcc5b7679f0f4c54', maye: '/_blob/4ede926ed7149b3b13bec47573e6a04d'
+    };
+    const st = this.state || {};
+    const tabKey = st.tab || 'read';
+    const set = (o) => () => this.setState(o);
+    const toTop = () => { const sc = document.getElementById('sc'); if (sc && sc.scrollTop > 232) sc.scrollTop = 232; };
+    const go = (k) => () => { this.setState({ tab: k }); toTop(); };
+
+    const tabs = [['read', 'Read'], ['matchups', 'Matchups'], ['players', 'Players'], ['markets', 'Markets']]
+      .map(([k, label]) => ({ label, cls: tabKey === k ? 'on' : '', sel: tabKey === k, pick: go(k) }));
+    const tab = { read: tabKey === 'read', matchups: tabKey === 'matchups', players: tabKey === 'players', markets: tabKey === 'markets' };
+
+    // scripts, as published (simulation shares, not probabilities)
+    const sel = st.script || null;
+    const S = [
+      { id: 'ne', name: 'Patriots Win Comfortably', margin: 'Patriots by 7 or more.', share: 13, color: '#B83A52' },
+      { id: 'close', name: 'Patriots Keep It Close', margin: 'Either team by 6 or fewer.', share: 36, color: '#566679' },
+      { id: 'bc', name: 'Bills Win Comfortably', margin: 'Bills by 7 to 13.', share: 24, color: '#2E62CC' },
+      { id: 'bb', name: 'Bills Win Big', margin: 'Bills by 14 or more.', share: 26, color: '#1E49A8' }
+    ];
+    const pickS = (id) => () => this.setState({ script: st.script === id ? null : id });
+    const specSegs = S.map((s) => ({ ...s, cls: sel && sel !== s.id ? 'dim' : '', pick: pickS(s.id) }));
+    const scripts = [S[1], S[3], S[2], S[0]].map((s) => ({ ...s, cls: sel && sel !== s.id ? 'dim' : '', pick: pickS(s.id) }));
+
+    // matchup duels: strength = 33 - rank, longer bar wins
+    const NE = '#FF6A80', BUF = '#5D96FF';
+    const D = [
+      { k: 'Run game', detail: 'BUF rushing offense vs NE rushing defense', l: ['BUF', 1], r: ['NE', 21] },
+      { k: 'Big plays', detail: 'NE explosive offense vs BUF explosive defense', l: ['NE', 4], r: ['BUF', 24] },
+      { k: 'Early downs', detail: 'BUF early-down offense vs NE early-down defense', l: ['BUF', 2], r: ['NE', 5] },
+      { k: 'Ground game', detail: 'NE rushing offense vs BUF rushing defense', l: ['NE', 21], r: ['BUF', 31] },
+      { k: 'Pressure', detail: 'NE pressure offense vs BUF pressure defense', l: ['NE', 31], r: ['BUF', 22] }
+    ].map((d) => {
+      const lc = d.l[0] === 'BUF' ? BUF : NE, rc = d.r[0] === 'BUF' ? BUF : NE;
+      const ls = 33 - d.l[1], rs = 33 - d.r[1], gap = Math.abs(ls - rs);
+      const winner = ls >= rs ? d.l[0] : d.r[0];
+      const word = gap >= 18 ? 'Major edge' : gap >= 8 ? 'Clear edge' : 'Slight edge';
+      return { ...d, lr: d.l[1], rr: d.r[1], lc, rc, lw: Math.round(ls / 32 * 100), rw: Math.round(rs / 32 * 100), gap, winner,
+        edge: word + ' · ' + winner, ec: winner === 'BUF' ? BUF : NE };
+    });
+    const mf = st.mf || 'all';
+    const nBuf = D.filter((d) => d.winner === 'BUF').length, nNe = D.filter((d) => d.winner === 'NE').length;
+    const matchFilters = [['all', 'All', D.length], ['BUF', 'Bills edge', nBuf], ['NE', 'Patriots edge', nNe]]
+      .map(([k, label, n]) => ({ label, n, cls: mf === k ? 'on' : '', pick: set({ mf: k }) }));
+    const duelsAll = D.filter((d) => mf === 'all' || d.winner === mf).sort((a, b) => b.gap - a.gap);
+    const duelsTop = [...D].sort((a, b) => b.gap - a.gap).slice(0, 3);
+
+    // players: Kalshi ladder (YES ask) beside the research-only shadow price, real rungs from the publication
+    const open = st.open === undefined ? 'allen' : st.open;
+    const P = [
+      { id: 'allen', name: 'Josh Allen', sub: 'QB · BUF · Passing yards', photo: A.allen, pos: '30% 12%', tc: '#2E62CC', init: 'JA', unit: 'Yards', line: 249.5, proj: 222, hist: 'Last 21 games: 11 over 249.5',
+        rungs: [[200, 75, 70.5], [225, 62, 58.1], [250, 47, 44.8], [275, 31, 32.1], [300, 21, 21.2]], hit: 250 },
+      { id: 'maye', name: 'Drake Maye', sub: 'QB · NE · Passing yards', photo: A.maye, pos: '58% 14%', tc: '#B83A52', init: 'DM', unit: 'Yards', line: 249.5, proj: null, hist: '',
+        rungs: [[200, 67, 58.7], [225, 54, 45.4], [250, 40, 32.6], [275, 27, 21.6], [300, 18, 13.1]], hit: 250 },
+      { id: 'cook', name: 'James Cook III', sub: 'RB · BUF · Rushing yards', photo: null, tc: '#2E62CC', init: 'JC', unit: 'Yards', line: 79.5, proj: 85, hist: 'Last 22 games: 14 over 79.5',
+        rungs: [[60, 76, 66.9], [70, 66, 58.8], [80, 55, 50.3], [90, 44, 41.5], [100, 37, 33.8]], hit: 80 },
+      { id: 'moore', name: 'DJ Moore', sub: 'WR · BUF · Receiving yards', photo: null, tc: '#2E62CC', init: 'DM', unit: 'Yards', line: 49.5, proj: 44, hist: 'Last 22 games: 10 over 49.5',
+        rungs: [[25, 81, 74.7], [40, 64, 54.7], [50, 52, 42.3], [60, 40, 31.3], [70, 31, 22.7]], hit: 50 }
+    ];
+    const players = P.map((p) => {
+      const lo = p.line * 0.5, hi = p.line * 1.5, pc = (v) => Math.max(4, Math.min(96, Math.round((v - lo) / (hi - lo) * 1000) / 10));
+      return { ...p, hasPhoto: !!p.photo, noPhoto: !p.photo, hasProj: p.proj != null, noProj: p.proj == null, open: open === p.id,
+        lp: pc(p.line), pp: p.proj != null ? pc(p.proj) : 0, pick: () => this.setState({ open: open === p.id ? '' : p.id }),
+        ladder: p.rungs.map((r) => ({ t: r[0], ask: r[1], model: r[2].toFixed(0), cls: r[0] === p.hit ? 'lad__r--hit' : '' })) };
+    });
+
+    // price format: the provider's native price stays cents; the reader chooses how to see it
+    const fm = st.fmt || 'cents';
+    const price = (p) => {
+      if (fm === 'cents') return Math.round(p * 100) + '¢';
+      if (fm === 'pct') return Math.round(p * 100) + '%';
+      if (fm === 'dec') return (1 / p).toFixed(2);
+      const a = p >= 0.5 ? -(p / (1 - p)) * 100 : ((1 - p) / p) * 100;
+      return (a > 0 ? '+' : '−') + Math.round(Math.abs(a) / 5) * 5;
+    };
+    const fmts = [['cents', '¢'], ['pct', '%'], ['us', 'US'], ['dec', 'Dec']].map(([k, label]) => ({ label, on: fm === k, cls: fm === k ? 'on' : '', pick: set({ fmt: k }) }));
+
+    const scrolled = !!st.cond;
+    return {
+      tabs, tab, specSegs, scripts, duelsTop, duelsAll, matchFilters, players, fmts,
+      ne: { p: price(0.26) }, buf: { p: price(0.74) }, spread: { p: price(0.53) }, total: { p: price(0.49) },
+      goMatchups: go('matchups'), goPlayers: go('players'),
+      logo: { NE: A.NE, BUF: A.BUF },
+      headCls: (st.bg ? 'ghead--solid ' : '') + (st.cond ? 'ghead--title' : ''),
+      onScroll: (e) => { const y = e.currentTarget.scrollTop; const c = y > 170, b = y > 24; if (c !== !!st.cond || b !== !!st.bg) this.setState({ cond: c, bg: b }); },
+      saved: !!st.saved, saveCls: st.saved ? 'ibtn--on' : '', saveFill: st.saved ? 'currentColor' : 'none',
+      toggleSave: () => this.setState({ saved: !st.saved })
+    };
+  }
+}
+</script>
+</body>
+</html>

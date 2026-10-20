@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design language</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+.sy{width:1640px;box-sizing:border-box;padding:56px 64px 64px;background:var(--bg);color:var(--tx);font:400 15px/21px var(--f-body);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;gap:44px}
+.sy h1{margin:0;font:700 44px/44px var(--f-cond);letter-spacing:.03em;text-transform:uppercase}
+.sy__sub{margin-top:10px;color:var(--tx2);max-width:820px}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:56px}
+.sy h2{margin:0 0 14px;font:700 20px/22px var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+.sw{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.sw:first-of-type{border-top:0}
+.sw i{width:44px;height:44px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line2)}
+.sw b{display:block;font:600 15px/18px var(--f-body)}
+.sw span{font:400 13px/17px var(--f-body);color:var(--tx2)}
+.ty{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+.ty:first-of-type{border-top:0}
+.ty small{font:600 12px/16px var(--f-body);color:var(--tx3)}
+.ty div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rule{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.rule:first-of-type{border-top:0}
+.rule i{width:24px;height:24px;border-radius:50%;background:var(--bg3);font:700 13px/24px var(--f-body);font-style:normal;text-align:center;color:var(--tx)}
+.rule b{display:block;font:600 16px/20px var(--f-body)}
+.rule span{font:400 14px/20px var(--f-body);color:var(--tx2)}
+.spec{background:var(--bg1);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cap2{font:600 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px}
+.anat{position:relative;padding:34px 16px 44px;background:var(--bg2);border-radius:14px}
+.anat .gauge{height:10px}
+.anat .gauge__dot{width:16px;height:16px;box-shadow:0 0 0 4px var(--bg2)}
+.anat .gauge__tick{width:3px;top:-7px;bottom:-7px}
+.anat em{position:absolute;font:600 12px/15px var(--f-body);font-style:normal;white-space:nowrap}
+.guard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 56px}
+.guard div{padding:11px 0;border-top:1px solid var(--line);font:400 14px/20px var(--f-body);color:var(--tx2)}
+.guard div b{color:var(--tx);font-weight:600}
+</style>
+</helmet>
+
+<div class="sy">
+  <div>
+    <h1>One language for the phone</h1>
+    <div class="sy__sub">Dark ink ground, hairlines for structure, and three colors that always mean the same thing. Built on the Barlow pairing SIFT already ships, so it drops into the existing tokens and PWA shell.</div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h2>Color means source</h2>
+      <div class="sw"><i style="background:#62C9FF"></i><div><b>Model, ice</b><span>#62C9FF &middot; anything the SIFT model says</span></div></div>
+      <div class="sw"><i style="background:#F2BE45"></i><div><b>Market, gold</b><span>#F2BE45 &middot; anything a venue charges</span></div></div>
+      <div class="sw"><i style="background:#FF9170"></i><div><b>Risk, coral</b><span>#FF9170 &middot; what could make it lose</span></div></div>
+      <div class="sw"><i style="background:#FF4D5E"></i><div><b>Live</b><span>#FF4D5E &middot; game in progress, research frozen</span></div></div>
+      <div class="sw"><i style="background:#4BE0A0"></i><div><b>Fresh, and pass</b><span>#4BE0A0 &middot; current inputs, honest &ldquo;no signal&rdquo;</span></div></div>
+      <div class="sw"><i style="background:linear-gradient(90deg,#06090F 33%,#0B121B 33% 66%,#111B28 66%)"></i><div><b>Ink and two surfaces</b><span>#06090F ground &middot; #0B121B lists &middot; #111B28 sheets</span></div></div>
+      <div class="sw"><i style="background:linear-gradient(90deg,#F4F7FB 33%,#A9B9CA 33% 66%,#8497AB 66%)"></i><div><b>Text, three steps</b><span>#F4F7FB &middot; #A9B9CA &middot; #8497AB, all 4.5:1 or better</span></div></div>
+    </div>
+    <div>
+      <h2>Ten sizes</h2>
+      <div class="ty"><small>56</small><div style="font:700 56px/52px var(--f-cond)">12:00</div></div>
+      <div class="ty"><small>44</small><div style="font:700 44px/44px var(--f-cond);letter-spacing:.02em">TODAY &middot; 74&cent;</div></div>
+      <div class="ty"><small>28</small><div style="font:600 28px/32px var(--f-body)">Buffalo&rsquo;s run game</div></div>
+      <div class="ty"><small>24</small><div style="font:700 24px/28px var(--f-cond);letter-spacing:.05em">THE SLATE &middot; 47%</div></div>
+      <div class="ty"><small>20</small><div style="font:700 20px/24px var(--f-cond);letter-spacing:.06em">MODEL AND MARKET</div></div>
+      <div class="ty"><small>16</small><div style="font:600 16px/22px var(--f-body)">Arsenal don&rsquo;t beat Leeds</div></div>
+      <div class="ty"><small>15</small><div style="font:400 15px/22px var(--f-body);color:var(--tx2)">Body copy and buttons</div></div>
+      <div class="ty"><small>13</small><div style="font:400 13px/18px var(--f-body);color:var(--tx2)">Arsenal v Leeds &middot; Sat 6:30 AM</div></div>
+      <div class="ty"><small>12</small><div style="font:400 12px/17px var(--f-body);color:var(--tx3)">Notes and sources</div></div>
+      <div class="ty"><small>11</small><div style="font:600 11px/14px var(--f-body);letter-spacing:.1em;color:var(--tx3)">MODEL &middot; NEEDS &middot; IN PLAY</div></div>
+    </div>
+    <div>
+      <h2>Rules every screen follows</h2>
+      <div class="rule"><i>1</i><div><b>Two clocks, three colors.</b><span>Model is ice, market is gold, risk is coral. Prices and research carry separate freshness.</span></div></div>
+      <div class="rule"><i>2</i><div><b>One surface per section.</b><span>Rows sit on a single full-width list. Hairlines separate, space groups, borders are rare.</span></div></div>
+      <div class="rule"><i>3</i><div><b>Each fact once.</b><span>Rank first, sentence second, raw table one tap deeper.</span></div></div>
+      <div class="rule"><i>4</i><div><b>A pass is a result.</b><span>No signal, research frozen and projection not published are designed states, not blanks.</span></div></div>
+      <div class="rule"><i>5</i><div><b>Depth lives in a sheet.</b><span>A signal opens a bottom sheet with a half and a full stop. The list stays underneath.</span></div></div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h2>The signal gauge</h2>
+      <div class="anat">
+        <div class="gauge"><i class="gauge__band" style="left:30.8%;width:33.8%"></i><i class="gauge__tick" style="left:30.4%"></i><i class="gauge__dot" style="left:47.3%"></i></div>
+        <em style="left:8%;top:6px;color:var(--mkt)">Break-even, after fee</em>
+        <em style="left:42%;top:68px;color:var(--model)">Model estimate</em>
+        <em style="left:70%;top:6px;color:var(--tx3)">Model range</em>
+      </div>
+      <p style="margin:14px 0 0;color:var(--tx2);font:400 14px/20px var(--f-body)">The bar is a probability from 0 to 100%. If the dot and the whole band sit right of the gold tick, the model clears the price at every point of its own range. If the band crosses the tick, the read is weak, and the sheet says so in words.</p>
+    </div>
+    <div>
+      <h2>Rank duel</h2>
+      <div class="spec" style="padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 16px/20px var(--f-body)">Run game</span><span style="font:600 13px/17px var(--f-body);color:#5D96FF">Major edge &middot; BUF</span></div>
+        <div style="display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:8px;margin-top:10px">
+          <b style="font:700 20px/1 var(--f-cond);color:#5D96FF">#1</b>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;height:8px"><div style="display:flex;justify-content:flex-end;background:var(--bg3);border-radius:4px;overflow:hidden"><i style="display:block;width:100%;background:#5D96FF"></i></div><div style="display:flex;background:var(--bg3);border-radius:4px;overflow:hidden"><i style="display:block;width:38%;background:#FF6A80"></i></div></div>
+          <b style="font:700 20px/1 var(--f-cond);color:#FF6A80;text-align:right">#21</b>
+        </div>
+      </div>
+      <p style="margin:14px 0 0;color:var(--tx2);font:400 14px/20px var(--f-body)">Bars grow from the middle. Length is unit strength, color is the team that owns the unit, so the longer side wins at a glance with no legend.</p>
+    </div>
+    <div>
+      <h2>Price formats</h2>
+      <div class="spec" style="padding:6px 16px">
+        <div style="display:grid;grid-template-columns:1fr repeat(4,56px);align-items:center;min-height:46px"><span class="cap2" style="margin:0">Bills to win</span><b class="num" style="font-size:24px;color:var(--mkt);text-align:right">74&cent;</b><b class="num" style="font-size:24px;color:var(--mkt);text-align:right">74%</b><b class="num" style="font-size:24px;color:var(--mkt);text-align:right">&minus;285</b><b class="num" style="font-size:24px;color:var(--mkt);text-align:right">1.35</b></div>
+        <div style="display:grid;grid-template-columns:1fr repeat(4,56px);padding-bottom:8px"><span></span><span class="cap2" style="margin:0;text-align:right">Cents</span><span class="cap2" style="margin:0;text-align:right">Implied</span><span class="cap2" style="margin:0;text-align:right">US</span><span class="cap2" style="margin:0;text-align:right">Decimal</span></div>
+      </div>
+      <p style="margin:14px 0 0;color:var(--tx2);font:400 14px/20px var(--f-body)">The provider&rsquo;s native price stays in cents underneath. The reader chooses how it is shown. Fees are never folded into the ask.</p>
+    </div>
+  </div>
+
+  <div>
+    <h2>Research integrity, carried over unchanged</h2>
+    <div class="guard">
+      <div><b>Simulation shares are labelled as shares,</b> not calibrated probabilities, on every script view.</div>
+      <div><b>A gap is never called an edge.</b> The model figure, its range and the worst case sit beside the price, with the research-only warning.</div>
+      <div><b>Quote, model and lineup freshness stay separate,</b> and a stale or unavailable input is named in the Sources tab.</div>
+      <div><b>No score, clock or period is invented.</b> In-play games show their start time and a frozen-research state until the publication supplies more.</div>
+      <div><b>Missing values say why.</b> &ldquo;No model price published for spreads&rdquo; replaces an empty cell or a zero.</div>
+      <div><b>Copy for ChatGPT stays one tap</b> from every signal, and prices refresh before the packet is built.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":1130}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

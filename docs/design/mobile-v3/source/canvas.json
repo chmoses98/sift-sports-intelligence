@@ -1,0 +1,23 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-20T07:00:00Z" },
+  "title": "SIFT Mobile Design Direction",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Home", "is_interactive": true, "radius": 40 },
+    "Game.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Game Command Center", "is_interactive": true, "radius": 40 },
+    "Signal.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "SIFT Signal and research sheet", "is_interactive": true, "radius": 40 },
+    "Audit.dc.html": { "x": 0, "y": 1520, "w": 1640, "h": 1100, "title": "Audit of the current phone experience" },
+    "System.dc.html": { "x": 1720, "y": 1520, "w": 1640, "h": 1180, "title": "Design language" }
+  },
+  "order": ["Audit.dc.html", "System.dc.html", "Main.dc.html", "Game.dc.html", "Signal.dc.html"],
+  "notes": {
+    "t-phones": { "x": 0, "y": -260, "text": "SIFT on the phone: Home, Game, Signal", "kind": "title1", "maxW": 1330 },
+    "n-home": { "x": 0, "y": 904, "w": 390, "text": "Home. One hero, three signals, and a slate that finishes above the tab bar. Tap the hero to open the game, a signal to open its research sheet, and the sport chips to filter the slate. Press Play on the board to use it.", "size": "s", "fill": "gray" },
+    "n-game": { "x": 470, "y": 904, "w": 390, "text": "Game Command Center. The hero shrinks into a sticky header and four text tabs always fit. Try tapping a script, the Matchups filter, a player row for its ladder, and the price format switch under Markets.", "size": "s", "fill": "gray" },
+    "n-signal": { "x": 940, "y": 904, "w": 390, "text": "SIFT Signal. Tap a row to open the research sheet. Tap or drag the handle to move it between half and full, switch Why, Price and Sources, and try Copy for ChatGPT. All figures come from the soccer publication fixture.", "size": "s", "fill": "gray" },
+    "t-why": { "x": 0, "y": 1260, "text": "Why it changes, and what carries over", "kind": "title1", "maxW": 3360 }
+  },
+  "designSystems": []
+}

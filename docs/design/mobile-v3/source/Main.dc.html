@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+.titleblock{padding:6px 16px 16px}
+.titleblock .sub{margin-top:8px}
+
+/* hero: the game of the day, edge to edge, team identity as light */
+.hero{position:relative;display:block;margin-top:20px;height:284px;overflow:hidden;isolation:isolate;padding:0 16px}
+.hero__bg{position:absolute;inset:0;z-index:-3;background:
+  radial-gradient(90% 80% at 0% 100%,rgba(198,12,48,.50) 0%,rgba(198,12,48,0) 62%),
+  radial-gradient(100% 90% at 100% 0%,rgba(30,96,236,.80) 0%,rgba(30,96,236,0) 64%),
+  radial-gradient(85% 75% at 0% 0%,rgba(28,70,150,.95) 0%,rgba(28,70,150,0) 66%),
+  radial-gradient(60% 60% at 8% 55%,rgba(196,24,64,.32) 0%,rgba(196,24,64,0) 70%),
+  linear-gradient(180deg,#0A1630,#070F1D)}
+.hero__lines{position:absolute;inset:0;z-index:-2;opacity:.7;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,transparent 1px 39px);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.2) 70%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.2) 70%,transparent 100%)}
+.hero__fade{position:absolute;left:0;right:0;bottom:0;height:150px;z-index:-1;background:linear-gradient(180deg,rgba(6,9,15,0),#06090F 92%)}
+.hero__top{display:flex;justify-content:space-between;align-items:center;height:20px;padding-top:2px}
+.hero__live{display:inline-flex;align-items:center;gap:6px;font:600 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--tx2)}
+.hero__live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(75,224,160,.18)}
+.hero__mid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin-top:14px}
+.hteam{display:flex;flex-direction:column;align-items:center;gap:6px}
+.hteam img{width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
+.hteam b{font:700 24px/22px var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+.hteam small{font:500 13px/14px var(--f-body);color:var(--tx2)}
+.hclock{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 6px;text-align:center}
+.hclock b{font:700 56px/54px var(--f-cond);letter-spacing:.01em}
+.hclock span{font:600 12px/14px var(--f-body);letter-spacing:.12em;color:var(--tx2)}
+.hclock em{font:600 13px/16px var(--f-body);font-style:normal;color:var(--model);margin-top:3px}
+.hero__read{margin:18px 0 0;font:600 24px/26px var(--f-body);max-width:330px;text-wrap:balance}
+.hero__strip{display:flex;align-items:center;gap:16px;margin-top:12px;font:500 13px/16px var(--f-body);color:var(--tx2)}
+.hero__strip b{font:700 20px/16px var(--f-cond);margin-left:5px}
+.hero__go{margin-left:auto;display:inline-flex;align-items:center;color:var(--tx)}
+
+/* signals */
+.sigs-head{padding-top:30px}
+.sigs-head .sub{padding:0 16px;margin-top:3px}
+.passrow{display:flex;gap:12px;align-items:flex-start;padding:14px 16px 16px;color:var(--tx2)}
+.passrow .ic{color:var(--ok);margin-top:1px}
+.passrow b{display:block;font:600 15px/20px var(--f-body);color:var(--tx)}
+.passrow span{font:400 13px/18px var(--f-body)}
+
+/* slate */
+.slate-head{padding-top:34px}
+.slot{display:flex;align-items:center;justify-content:space-between;padding:22px 16px 8px}
+.slot--live .cap{color:var(--live)}
+.game{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;min-height:76px;border-top:1px solid var(--line)}
+.game--first{border-top:0}
+.game__tm{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+.tm{display:flex;align-items:center;gap:10px;font:600 16px/22px var(--f-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game__r{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right;flex:none}
+.game__t{font:700 24px/20px var(--f-cond)}
+.game__t small{font:600 11px/12px var(--f-body);color:var(--tx3);letter-spacing:.08em;margin-left:3px}
+.game__t--past{color:var(--tx3)}
+.lv{display:inline-flex;align-items:center;gap:6px;font:600 11px/14px var(--f-body);color:var(--live);letter-spacing:.1em;text-transform:uppercase}
+.lv::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px rgba(255,77,94,.2)}
+.game__x{font:500 12px/14px var(--f-body);color:var(--tx3)}
+.more{display:flex;justify-content:space-between;align-items:center;width:100%;height:60px;padding:0 16px;border-top:1px solid var(--line);font:600 15px/20px var(--f-body);color:var(--model)}
+</style>
+</helmet>
+
+<div class="app">
+<div class="scroll" id="sc">
+
+  <header class="top">
+    <span class="brand">SIFT</span>
+    <button class="ibtn" aria-label="Search"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="ibtn" aria-label="My Board, 4 saved"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </header>
+
+  <div class="titleblock">
+    <h1 class="h1">Today</h1>
+    <div class="sub">Sunday, October 4 &middot; 57 games</div>
+  </div>
+
+  <div class="chips" role="tablist" aria-label="Sport">
+    <sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+      <button class="chip {{c.cls}}" role="tab" aria-selected="{{c.sel}}" onClick="{{c.pick}}">{{c.label}} <i>{{c.n}}</i></button>
+    </sc-for>
+  </div>
+
+  <a class="hero" href="Game.dc.html" aria-label="Open New England Patriots at Buffalo Bills">
+    <div class="hero__bg"></div><div class="hero__lines"></div><div class="hero__fade"></div>
+    <div class="hero__top"><span class="cap" style="color:var(--tx2)">NFL &middot; Week 4 &middot; Game of the day</span><span class="hero__live">Prices live</span></div>
+    <div class="hero__mid">
+      <div class="hteam"><img src="{{logo.NE}}" alt=""><b>Patriots</b><small>1&ndash;2</small></div>
+      <div class="hclock"><b>12:00</b><span>PM CDT</span><em>in 1h 59m</em></div>
+      <div class="hteam"><img src="{{logo.BUF}}" alt=""><b>Bills</b><small>3&ndash;0</small></div>
+    </div>
+    <p class="hero__read">Buffalo&rsquo;s run game is the mismatch to watch.</p>
+    <div class="hero__strip">
+      <span>Model<b style="color:var(--model)">BUF 74%</b></span>
+      <span>Market<b style="color:var(--mkt)">BUF 74&cent;</b></span>
+      <span class="hero__go" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chev-r"/></svg></span>
+    </div>
+  </a>
+
+  <div class="sigs-head">
+    <div class="sec">
+      <h2 class="sec__t">Signals</h2>
+      <a class="sec__a" href="Signal.dc.html">See all 3<svg class="ic ic--xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></a>
+    </div>
+    <div class="sub">Model against the price to beat. Research only.</div>
+  </div>
+  <div class="group">
+    <sc-for list="{{sigs}}" as="s" hint-placeholder-count="3">
+      <a class="sig" href="Signal.dc.html" style="{{s.border}}">
+        <span class="crest" style="{{s.crestStyle}}">{{s.crest}}</span>
+        <span style="min-width:0"><div class="sig__t">{{s.title}}</div><div class="sig__m">{{s.meta}}</div></span>
+        <span class="sig__n"><div><b style="color:var(--model)">{{s.model}}</b><small>MODEL</small></div><div><b style="color:var(--mkt)">{{s.needs}}</b><small>NEEDS</small></div></span>
+        <span class="sig__g gauge"><i class="gauge__band" style="left:{{s.lo}}%;width:{{s.bw}}%"></i><i class="gauge__tick" style="left:{{s.be}}%"></i><i class="gauge__dot" style="left:{{s.fair}}%"></i></span>
+      </a>
+    </sc-for>
+    <div class="sep"></div>
+    <div class="passrow">
+      <svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg>
+      <div><b>NFL: no signal today</b><span>The publication recommends nothing this week.</span></div>
+    </div>
+  </div>
+
+  <div class="slate-head">
+    <div class="sec"><h2 class="sec__t">The slate</h2><a class="sec__a" href="#sc">All games<svg class="ic ic--xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></a></div>
+  </div>
+  <div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+      <sc-if value="{{r.isHead}}" hint-placeholder-val="{{ true }}">
+        <div class="slot {{r.cls}}"><span class="cap">{{r.label}}</span><span class="cap">{{r.count}}</span></div>
+      </sc-if>
+      <sc-if value="{{r.isGame}}" hint-placeholder-val="{{ true }}">
+        <button class="game {{r.cls}}">
+          <span class="game__tm">
+            <span class="tm"><img class="logo" src="{{r.aLogo}}" alt="">{{r.aName}}</span>
+            <span class="tm"><img class="logo" src="{{r.hLogo}}" alt="">{{r.hName}}</span>
+          </span>
+          <span class="game__r">
+            <sc-if value="{{r.live}}" hint-placeholder-val="{{ false }}"><span class="game__t game__t--past">{{r.t}}<small>{{r.ap}}</small></span></sc-if>
+            <sc-if value="{{r.upcoming}}" hint-placeholder-val="{{ true }}"><span class="game__t">{{r.t}}<small>{{r.ap}}</small></span></sc-if>
+            <span class="cap">{{r.sport}}</span>
+          </span>
+        </button>
+      </sc-if>
+      <sc-if value="{{r.isMore}}" hint-placeholder-val="{{ false }}">
+        <button class="more"><span>{{r.label}}</span><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+      </sc-if>
+    </sc-for>
+  </div>
+
+</div>
+
+<nav class="tabbar" aria-label="Primary">
+  <a class="tab on" href="Main.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg>Games</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-props"/></svg>Props</a>
+  <a class="tab" href="Signal.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bolt"/></svg>Intel</a>
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg>Board</a>
+</nav>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3"/></symbol>
+  <symbol id="i-props" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+</defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const LOGO = {
+      'nfl-NE': '/_blob/c61b5ca4075061cc9f2a63327869e496', 'nfl-BUF': '/_blob/961b62e2bedcd9062a4b8b7d37dce2d3', 'nfl-IND': '/_blob/b604b5a9c326ad993a38c7349807566e', 'nfl-WAS': '/_blob/a1ade0f198b2654f31b95e3722c50560',
+      'nfl-TEN': '/_blob/bf57c7004df7553eb1aa6726b60588ab', 'nfl-BAL': '/_blob/06afede37fbf3732ab3ca4f5719e6970', 'nfl-GB': '/_blob/57cb56af4a85b5e11bdd7cec2777b588', 'nfl-TB': '/_blob/90206ac6d9b8cb20a5b1b836461e795c',
+      'nfl-NYJ': '/_blob/e21f55063204f1fc9f1bf37bcc5f5d34', 'nfl-CHI': '/_blob/fd60c2bfa71390f8df760564ec1a8a5b', 'nfl-MIA': '/_blob/c2cec33e2cfe21da149aa4dda22e5cc7', 'nfl-MIN': '/_blob/d6b5c9d2a73556a96c2c927f7cc70d42',
+      'nfl-LAC': '/_blob/5c84c675f33ac2a5d81d8a5c4e1b0ec4', 'nfl-SEA': '/_blob/4888968561fd417de177878e588e3748', 'nfl-KC': '/_blob/a33f28e71bda0ce2626b06c63441bd00', 'nfl-LV': '/_blob/327ce27d4ff88ff310f497c71b02bba8',
+      'nfl-DEN': '/_blob/5ba09fd484bf05069e26a426f4733efb', 'nfl-SF': '/_blob/e8c61bace8cb3f1276579df2288ad56b',
+      'mlb-LAD': '/_blob/d022684628ddb6ab97e42d45ed53ca34', 'mlb-ATL': '/_blob/9325f6b886601844773d309f400eec05', 'mlb-NYY': '/_blob/ec38cd307a6a69bda186fe98ba1f54e0', 'mlb-HOU': '/_blob/23757739b6113edf483c62bc1d1b8a27',
+      'mlb-PHI': '/_blob/2b4fe00b27893f895ff830b6b3aba371', 'mlb-BAL': '/_blob/438bfbe7d359f8b86ae67fe0d1430c33',
+      'nhl-BOS': '/_blob/a645869bd9d1e89b5c71d233dd86b3c2', 'nhl-TOR': '/_blob/8ec2a233cf0d315b6cdf5059b681915a', 'nhl-COL': '/_blob/bac6a58eacf21523fd188b3678fa7f2a', 'nhl-VGK': '/_blob/175bcf984e828113ef1f0f4c0dac0175',
+      'nhl-NYR': '/_blob/d079f1391f08e15a6b28143ee8f3ea24', 'nhl-EDM': '/_blob/9c6dd603355b575289c977480602649f',
+      'nba-BOS': '/_blob/1c83d5c062edd969dfadcd8bf6b029f2', 'nba-NYK': '/_blob/b45e5eea97525360a3b31fcc165e35c2', 'nba-GSW': '/_blob/3e69ea3f44c5dae313973ff3c9fca20a', 'nba-MIL': '/_blob/3ae24b6d84e7fa677d1ce7df308d620d',
+      'cfb-OSU': '/_blob/88e186d74dc73c087007770656e4f598', 'cfb-UGA': '/_blob/b380d3211d255b252852bc62ce81074e'
+    };
+    const sport = (this.state && this.state.sport) || 'ALL';
+    const set = (k) => () => this.setState({ sport: k });
+    const chips = [['ALL', 'All', 57], ['NFL', 'NFL', 14], ['MLB', 'MLB', 15], ['NHL', 'NHL', 10], ['NBA', 'NBA', 12], ['CFB', 'CFB', 6]]
+      .map(([k, label, n]) => ({ label, n, cls: sport === k ? 'on' : '', sel: sport === k, pick: set(k) }));
+
+    // [sport, minutes after midnight, label, ampm, live?, away[logo,name], home[logo,name]]
+    const G = [
+      ['NFL', 510, '8:30', 'AM', true, ['nfl-IND', 'Indianapolis Colts'], ['nfl-WAS', 'Washington Commanders']],
+      ['CFB', 540, '9:00', 'AM', true, ['cfb-OSU', 'Ohio State'], ['cfb-UGA', 'Georgia']],
+      ['NFL', 720, '12:00', 'PM', false, ['nfl-TEN', 'Tennessee Titans'], ['nfl-BAL', 'Baltimore Ravens']],
+      ['NFL', 720, '12:00', 'PM', false, ['nfl-GB', 'Green Bay Packers'], ['nfl-TB', 'Tampa Bay Buccaneers']],
+      ['NFL', 720, '12:00', 'PM', false, ['nfl-NYJ', 'New York Jets'], ['nfl-CHI', 'Chicago Bears']],
+      ['MLB', 730, '12:10', 'PM', false, ['mlb-NYY', 'New York Yankees'], ['mlb-HOU', 'Houston Astros']],
+      ['MLB', 790, '1:10', 'PM', false, ['mlb-LAD', 'Los Angeles Dodgers'], ['mlb-ATL', 'Atlanta Braves']],
+      ['NFL', 905, '3:05', 'PM', false, ['nfl-MIA', 'Miami Dolphins'], ['nfl-MIN', 'Minnesota Vikings']],
+      ['NFL', 925, '3:25', 'PM', false, ['nfl-LAC', 'Los Angeles Chargers'], ['nfl-SEA', 'Seattle Seahawks']],
+      ['NFL', 925, '3:25', 'PM', false, ['nfl-KC', 'Kansas City Chiefs'], ['nfl-LV', 'Las Vegas Raiders']],
+      ['NHL', 1080, '6:00', 'PM', false, ['nhl-BOS', 'Boston Bruins'], ['nhl-TOR', 'Toronto Maple Leafs']],
+      ['NBA', 1110, '6:30', 'PM', false, ['nba-BOS', 'Boston Celtics'], ['nba-NYK', 'New York Knicks']],
+      ['MLB', 1120, '6:40', 'PM', false, ['mlb-PHI', 'Philadelphia Phillies'], ['mlb-BAL', 'Baltimore Orioles']],
+      ['NBA', 1140, '7:00', 'PM', false, ['nba-GSW', 'Golden State Warriors'], ['nba-MIL', 'Milwaukee Bucks']],
+      ['NHL', 1200, '8:00', 'PM', false, ['nhl-COL', 'Colorado Avalanche'], ['nhl-VGK', 'Vegas Golden Knights']],
+      ['NHL', 1260, '9:00', 'PM', false, ['nhl-NYR', 'New York Rangers'], ['nhl-EDM', 'Edmonton Oilers']]
+    ];
+    const pool = G.filter((g) => sport === 'ALL' || g[0] === sport);
+    const shown = pool.slice(0, sport === 'ALL' ? 9 : 6);
+    const rows = [];
+    let last = null;
+    shown.forEach((g, i) => {
+      const key = g[4] ? 'LIVE' : g[2] + ' ' + g[3];
+      if (key !== last) {
+        const n = shown.filter((x) => (x[4] ? 'LIVE' : x[2] + ' ' + x[3]) === key).length;
+        rows.push({ isHead: true, cls: g[4] ? 'slot--live' : '', label: g[4] ? 'In play' : g[2] + ' ' + g[3] + ' CDT', count: n + (n === 1 ? ' game' : ' games') });
+        last = key;
+      }
+      rows.push({ isGame: true, cls: (rows[rows.length - 1].isHead ? 'game--first' : ''), aLogo: LOGO[g[5][0]], aName: g[5][1], hLogo: LOGO[g[6][0]], hName: g[6][1],
+        live: g[4], upcoming: !g[4], t: g[2], ap: g[3], sport: g[0] });
+    });
+    const total = chips.find((c) => c.cls === 'on').n;
+    rows.push({ isMore: true, label: 'All ' + total + ' ' + (sport === 'ALL' ? '' : sport + ' ') + 'games' });
+
+    const sigs = [
+      { title: 'Arsenal don’t beat Leeds', meta: 'Arsenal v Leeds · Sat 6:30 AM', crest: 'ARS', crestStyle: 'background:#C8202B', model: '47%', needs: '30¢', lo: 30.8, bw: 33.8, be: 30.4, fair: 47.3 },
+      { title: 'León fail to score', meta: 'Puebla v León · Fri 8:00 PM', crest: 'LEO', crestStyle: 'background:#1E8A52', model: '39%', needs: '25¢', lo: 25.6, bw: 26.3, be: 25.3, fair: 39.1 },
+      { title: 'Not both teams score', meta: 'Puebla v León · Fri 8:00 PM', crest: 'P·L', crestStyle: 'background:linear-gradient(90deg,#2757B8 50%,#1E8A52 50%)', model: '58%', needs: '47¢', lo: 45.2, bw: 24.3, be: 46.7, fair: 57.7 }
+    ].map((s, i) => ({ ...s, border: i ? 'border-top:1px solid var(--line)' : '' }));
+
+    return { chips, rows, sigs, logo: { NE: LOGO['nfl-NE'], BUF: LOGO['nfl-BUF'] } };
+  }
+}
+</script>
+</body>
+</html>

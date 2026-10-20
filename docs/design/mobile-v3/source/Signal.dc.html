@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SIFT Signal</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#06090F}
+.titleblock{padding:6px 16px 14px}
+.titleblock .sub{margin-top:8px}
+.legend{display:flex;gap:16px;align-items:center;padding:14px 16px 0;font:500 13px/16px var(--f-body);color:var(--tx2)}
+.legend i{display:inline-block;vertical-align:middle;margin-right:7px}
+.lg-dot{width:10px;height:10px;border-radius:50%;background:var(--model)}
+.lg-band{width:18px;height:6px;border-radius:3px;background:var(--model-soft)}
+.lg-tick{width:2px;height:14px;border-radius:1px;background:var(--mkt)}
+.sigbtn{display:grid;grid-template-columns:40px 1fr auto;column-gap:12px;row-gap:12px;padding:14px 16px 16px;width:100%;align-items:center}
+.sigbtn.on{background:var(--bg2)}
+.passcard{display:flex;gap:12px;align-items:flex-start;padding:18px 16px}
+.passcard .ic{color:var(--ok);margin-top:1px}
+.passcard b{display:block;font:600 16px/20px var(--f-body)}
+.passcard .passcard__s{display:block;margin-top:2px;font:400 15px/20px var(--f-body);color:var(--tx2)}
+.howto{padding:34px 16px 0}
+.howto__r{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.howto__r:first-of-type{margin-top:10px;border-top:1px solid var(--line)}
+.howto__r i{margin:6px 0 0}
+.howto__r b{display:block;font:600 16px/20px var(--f-body)}
+.howto__s{font:400 13px/18px var(--f-body);color:var(--tx2)}
+.emptynote{padding:22px 16px 0;font:400 13px/18px var(--f-body);color:var(--tx3)}
+
+/* ---------- research sheet ---------- */
+.scrim{position:absolute;inset:0;z-index:50;width:100%;height:100%;background:rgba(2,5,9,.62);display:block}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:60;display:flex;flex-direction:column;overflow:hidden;background:var(--bg2);border-radius:26px 26px 0 0;border-top:1px solid var(--line2);box-shadow:0 -24px 60px rgba(0,0,0,.6);transition:height .32s cubic-bezier(.2,.85,.25,1)}
+.sheet--closed{visibility:hidden;border-top-width:0}
+.grab{flex:none;height:34px;width:100%;display:grid;place-items:center;touch-action:none;cursor:grab}
+.grab i{width:40px;height:5px;border-radius:3px;background:rgba(160,190,225,.32)}
+.shead{flex:none;display:flex;gap:12px;align-items:center;padding:0 8px 0 16px}
+.shead .crest{width:44px;height:44px}
+.shead__t{flex:1;min-width:0}
+.shead__t h2{margin:0;font:700 20px/25px var(--f-body);letter-spacing:-.01em}
+.shead__m{margin-top:3px;font:400 13px/17px var(--f-body);color:var(--tx2)}
+.sbody{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:14px 16px 24px}
+.sbody::-webkit-scrollbar{display:none}
+.auth{display:inline-flex;align-items:center;gap:8px;margin:0 16px;font:600 11px/14px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--model)}
+.auth::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--model)}
+.auth span{color:var(--tx3)}
+
+/* the gauge, large: model range and point estimate against the price you have to beat */
+.sg{position:relative;padding:40px 2px 0;margin-top:2px}
+.sg__lab{position:absolute;white-space:nowrap;font:600 13px/15px var(--f-body);transform:translateX(-50%)}
+.sg__lab small{display:block;font:500 12px/15px var(--f-body);color:var(--tx3)}
+.sg__lab--top{top:0;color:var(--mkt);text-align:center}
+.sg__lab--bot{top:64px;color:var(--model);text-align:center}
+.sg__track{position:relative;height:10px;border-radius:5px;background:var(--bg3)}
+.sg__band{position:absolute;top:0;bottom:0;border-radius:5px;background:var(--model-soft)}
+.sg__tick{position:absolute;top:-7px;bottom:-7px;width:3px;border-radius:2px;background:var(--mkt);transform:translateX(-50%)}
+.sg__dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--model);transform:translate(-50%,-50%);box-shadow:0 0 0 4px var(--bg2)}
+.sg__axis{position:relative;height:14px;margin:48px 2px 0;font:500 11px/13px var(--f-body);color:var(--tx3)}
+.sg__axis span{position:absolute;top:0;transform:translateX(-50%)}
+.sg__axis span:first-child{transform:none}
+.sg__axis span:last-child{transform:translateX(-100%)}
+.eq{display:flex;align-items:baseline;gap:8px;margin-top:20px;font:500 15px/18px var(--f-body);color:var(--tx2);flex-wrap:wrap}
+.eq b{font:700 24px/20px var(--f-cond);color:var(--tx);margin-right:3px}
+.eq .eq__op{color:var(--tx3);font:500 16px/18px var(--f-body)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.stat b{display:block;font:700 24px/24px var(--f-cond)}
+.stat small{display:block;margin-top:4px;font:500 12px/15px var(--f-body);color:var(--tx3)}
+.skeptic{display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:12px 14px;border-radius:12px;background:var(--risk-bg);font:400 13px/18px var(--f-body);color:var(--tx2)}
+.skeptic .ic{color:var(--risk);margin-top:0}
+.skeptic b{color:var(--tx);font-weight:600}
+
+.stabs{display:flex;gap:6px;margin-top:22px;padding:3px;border-radius:12px;background:var(--bg1)}
+.stab{flex:1;height:38px;border-radius:9px;text-align:center;font:600 15px/1 var(--f-body);color:var(--tx2);display:grid;place-items:center}
+.stab.on{background:var(--bg3);color:var(--tx)}
+.sblock{margin-top:22px}
+.sblock h3{margin:0 0 8px;font:700 20px/20px var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+.sblock p{margin:0;font:400 15px/22px var(--f-body);color:var(--tx2)}
+.sblock p b{color:var(--tx);font-weight:600}
+.sblock--risk h3{color:var(--risk)}
+.risks{margin:0;padding:0;list-style:none}
+.risks li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line);font:400 15px/21px var(--f-body);color:var(--tx)}
+.risks li:first-child{border-top:0}
+.risks li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--risk);margin-top:8px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:16px;min-height:46px;padding:10px 0;border-top:1px solid var(--line);font:400 15px/20px var(--f-body)}
+.kv:first-child{border-top:0}
+.kv__k{color:var(--tx2)}
+.kv__v{text-align:right;font:600 15px/20px var(--f-body);min-width:0}
+.kv__v em{display:block;font:400 12px/16px var(--f-body);color:var(--tx3);font-style:normal}
+.mono{font:500 12px/16px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--tx2);word-break:break-all}
+.fr{display:flex;align-items:center;gap:10px}
+.fr::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.fr--stale::before{background:var(--mkt)}
+.fr--na::before{background:transparent;border:1.5px solid var(--tx3)}
+.sfoot{flex:none;padding:12px 16px 26px;background:linear-gradient(rgba(17,27,40,0),var(--bg2) 22%);display:flex;gap:10px;align-items:stretch}
+.btnp{flex:1;height:52px;border-radius:14px;background:var(--model);color:#04131D;font:700 16px/1 var(--f-body);display:flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btnp--done{background:var(--bg3);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line2)}
+.btns{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--line2);color:var(--tx)}
+.btns--on{color:var(--mkt)}
+.fnote{padding:0 16px 0;margin-top:-4px;font:400 12px/16px var(--f-body);color:var(--tx3);text-align:center;background:var(--bg2)}
+</style>
+</helmet>
+
+<div class="app">
+<div class="scroll" id="sc">
+  <header class="top">
+    <span class="brand">SIFT</span>
+    <button class="ibtn" aria-label="Search"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="ibtn" aria-label="My Board"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </header>
+
+  <div class="titleblock">
+    <h1 class="h1">Signals</h1>
+    <div class="sub">Where a published model and the market disagree.</div>
+  </div>
+
+  <div class="chips" role="tablist" aria-label="Sport">
+    <sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+      <button class="chip {{c.cls}}" role="tab" aria-selected="{{c.sel}}" onClick="{{c.pick}}">{{c.label}} <i>{{c.n}}</i></button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{showList}}" hint-placeholder-val="{{ true }}">
+    <div class="legend"><span><i class="lg-dot"></i>Model</span><span><i class="lg-band"></i>Range</span><span><i class="lg-tick"></i>Break-even</span></div>
+    <div class="group">
+      <sc-for list="{{sigs}}" as="s" hint-placeholder-count="3">
+        <button class="sigbtn {{s.cls}}" style="{{s.border}}" aria-haspopup="dialog" onClick="{{s.pick}}">
+          <span class="crest" style="{{s.crestStyle}}">{{s.crest}}</span>
+          <span style="min-width:0"><div class="sig__t">{{s.title}}</div><div class="sig__m">{{s.meta}}</div></span>
+          <span class="sig__n"><div><b style="color:var(--model)">{{s.model}}</b><small>MODEL</small></div><div><b style="color:var(--mkt)">{{s.needs}}</b><small>NEEDS</small></div></span>
+          <span class="sig__g gauge"><i class="gauge__band" style="left:{{s.lo}}%;width:{{s.bw}}%"></i><i class="gauge__tick" style="left:{{s.be}}%"></i><i class="gauge__dot" style="left:{{s.fair}}%"></i></span>
+        </button>
+      </sc-for>
+    </div>
+    <div class="emptynote">Research candidates are flagged by the published model, never by SIFT. None is a recommendation to bet.</div>
+    <div class="howto">
+      <h2 class="sec__t" style="padding:0">How to read one</h2>
+      <div class="howto__r"><i class="lg-dot"></i><div><b>Model</b><span class="howto__s">The model&rsquo;s chance that this side pays out.</span></div></div>
+      <div class="howto__r"><i class="lg-tick"></i><div><b>Needs</b><span class="howto__s">The price at which the side breaks even, fee included.</span></div></div>
+      <div class="howto__r"><i class="lg-band"></i><div><b>Range</b><span class="howto__s">How unsure the model is. A wide band is a weak read.</span></div></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{showPass}}" hint-placeholder-val="{{ false }}">
+    <div class="group" style="margin-top:20px">
+      <div class="passcard"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg><div><b>No NFL signal this week</b><span class="passcard__s">The NFL publication recommends nothing: its model is research-only and behind the closing market on game outcomes, so no gap is called an edge.</span></div></div>
+    </div>
+    <div class="emptynote">A pass is a result. SIFT only surfaces a signal when the publication itself flags one.</div>
+  </sc-if>
+</div>
+
+<nav class="tabbar" aria-label="Primary">
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cal"/></svg>Games</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-props"/></svg>Props</a>
+  <a class="tab on" href="Signal.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bolt"/></svg>Intel</a>
+  <a class="tab" href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg>Board</a>
+</nav>
+
+<sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ true }}"><button class="scrim" aria-label="Close research sheet" onClick="{{close}}"></button></sc-if>
+
+<section class="sheet {{sheetCls}}" style="height:{{sheetH}}px" role="dialog" aria-label="Research">
+  <button class="grab" aria-label="Resize research sheet" onPointerDown="{{gDown}}" onPointerUp="{{gUp}}"><i></i></button>
+  <div class="shead">
+    <span class="crest" style="{{d.crestStyle}}">{{d.crest}}</span>
+    <div class="shead__t"><h2>{{d.title}}</h2><div class="shead__m">{{d.long}}</div></div>
+    <button class="ibtn" aria-label="Close" onClick="{{close}}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div style="margin-top:12px;flex:none"><span class="auth">Research candidate <span>&middot; Research only, no bet</span></span></div>
+
+  <div class="sbody" id="sb">
+    <div class="sg">
+      <div class="sg__lab sg__lab--top" style="left:{{g.be}}%">Break-even {{d.beTxt}}</div>
+      <div class="sg__track"><i class="sg__band" style="left:{{g.lo}}%;width:{{g.bw}}%"></i><i class="sg__tick" style="left:{{g.be}}%"></i><i class="sg__dot" style="left:{{g.fair}}%"></i></div>
+      <div class="sg__lab sg__lab--bot" style="left:{{g.fair}}%">Model {{d.fairTxt}}<small>range {{d.rangeTxt}}</small></div>
+      <div class="sg__axis"><span style="left:0%">0</span><span style="left:25%">25</span><span style="left:50%">50</span><span style="left:75%">75</span><span style="left:100%">100%</span></div>
+    </div>
+    <div class="eq"><span><b>{{d.askTxt}}</b>ask</span><span class="eq__op">+</span><span><b>{{d.feeTxt}}</b>fee</span><span class="eq__op">=</span><span><b style="color:var(--mkt)">{{d.beTxt}}</b>to break even</span></div>
+    <div class="stats">
+      <div class="stat"><b style="color:var(--model)">{{d.gap}}</b><small>Model over break&#8209;even</small></div>
+      <div class="stat"><b>{{d.wce}}</b><small>Worst-case edge</small></div>
+      <div class="stat"><b>{{d.share}}</b><small>Of model draws positive</small></div>
+    </div>
+    <div class="skeptic"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-alert"/></svg><span><b>Research-only model.</b> Its gaps to the market have not been checked against settled results. {{d.lowEnd}}</span></div>
+
+    <div class="stabs" role="tablist" aria-label="Research detail">
+      <sc-for list="{{stabs}}" as="t" hint-placeholder-count="3"><button class="stab {{t.cls}}" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for>
+    </div>
+
+    <sc-if value="{{tab.why}}" hint-placeholder-val="{{ true }}">
+      <div class="sblock sblock--risk"><h3>What could make it lose</h3>
+        <ul class="risks"><sc-for list="{{d.risks}}" as="r" hint-placeholder-count="4"><li>{{r}}</li></sc-for></ul></div>
+      <div class="sblock"><h3>In plain English</h3><p>{{d.plain}}</p></div>
+    </sc-if>
+    <sc-if value="{{tab.price}}" hint-placeholder-val="{{ false }}">
+      <div class="sblock" style="margin-top:12px">
+        <div class="kv"><span class="kv__k">Contract</span><span class="kv__v"><span class="mono">{{d.ticker}}</span></span></div>
+        <div class="kv"><span class="kv__k">Side</span><span class="kv__v">{{d.side}}</span></div>
+        <div class="kv"><span class="kv__k">Ask</span><span class="kv__v" style="color:var(--mkt)">{{d.askTxt}}</span></div>
+        <div class="kv"><span class="kv__k">Fee per contract</span><span class="kv__v">{{d.feeTxt}}<em>Published by the model</em></span></div>
+        <div class="kv"><span class="kv__k">Break-even</span><span class="kv__v" style="color:var(--mkt)">{{d.beTxt}}</span></div>
+        <div class="kv"><span class="kv__k">Publication bets up to</span><span class="kv__v">{{d.upTo}}</span></div>
+        <div class="kv"><span class="kv__k">Size at the ask</span><span class="kv__v">{{d.size}} contracts</span></div>
+        <div class="kv"><span class="kv__k">Quote</span><span class="kv__v">Fresh<em>Valid 17 min from the research run</em></span></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{tab.sources}}" hint-placeholder-val="{{ false }}">
+      <div class="sblock" style="margin-top:12px">
+        <div class="kv"><span class="kv__k">Kalshi quote</span><span class="kv__v fr">Current</span></div>
+        <div class="kv"><span class="kv__k">Model run</span><span class="kv__v fr">Current</span></div>
+        <div class="kv"><span class="kv__k">Team context</span><span class="kv__v fr">Current</span></div>
+        <div class="kv"><span class="kv__k">Lineups</span><span class="kv__v fr {{d.lineCls}}">{{d.lineTxt}}</span></div>
+        <div class="kv"><span class="kv__k">Sharp-book reference</span><span class="kv__v fr fr--na">Unavailable</span></div>
+        <div class="kv"><span class="kv__k">Model</span><span class="kv__v">dc_laplace_v1<em>world_sim_v2 &middot; research only</em></span></div>
+        <div class="kv"><span class="kv__k">Settled record</span><span class="kv__v">None published<em>for this kind of contract</em></span></div>
+        <div class="kv"><span class="kv__k">Published by</span><span class="kv__v">soccer-edge-finder<em>Run Oct 8, 3:57 PM CDT</em></span></div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div class="sfoot">
+    <button class="btnp {{copyCls}}" onClick="{{copy}}"><svg class="ic ic--s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="{{copyIcon}}"/></svg>{{copyTxt}}</button>
+    <button class="btns {{saveCls}}" aria-label="Add to My Board" aria-pressed="{{saved}}" onClick="{{save}}"><svg class="ic" viewBox="0 0 24 24" fill="{{saveFill}}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-board"/></svg></button>
+  </div>
+</section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3"/></symbol>
+  <symbol id="i-props" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v5M12 17.8v.2"/></symbol>
+</defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const sel = st.sel === undefined ? 0 : st.sel;
+    const detent = st.detent === undefined ? 'half' : st.detent;   // 'closed' | 'half' | 'full'
+    const tabKey = st.tab || 'why';
+    const sport = st.sport || 'ALL';
+    const H = { closed: 0, half: 612, full: 764 };
+
+    // Three research candidates, from the soccer publication's recommendations (fixture of 2026-10-09).
+    // fair/ask/break-even are probabilities in percent; lo/hi are the model's published range.
+    const RAW = [
+      { title: 'Arsenal don’t beat Leeds', meta: 'Arsenal v Leeds · Sat 6:30 AM', long: 'Arsenal v Leeds · Sat Oct 10 · 6:30 AM CDT',
+        crest: 'ARS', crestStyle: 'background:#C8202B', side: 'NO on “Arsenal win”', ticker: 'KXEPLGAME-26OCT10ARSLEE-ARS',
+        ask: 29, fee: 1.4, be: 30.4, fair: 47.3, lo: 30.8, hi: 64.6, upTo: 34, size: '21,190', wce: 5.6, share: 91, lineup: 'Unknown', lineStale: false,
+        plain: 'The model gives Arsenal a 53% chance to win, from expected goals of 1.51 to 0.81. The market prices an Arsenal win at 71%. This contract pays if Arsenal draw or lose.',
+        risks: ['The model is research-only and not validated for real money.', 'Lineups are unknown, so injuries and rotation are not priced.', 'Wide model uncertainty (standard deviation 0.11).', 'No closing-line comparison was run for this model.'] },
+      { title: 'León fail to score', meta: 'Puebla v León · Fri 8:00 PM', long: 'Puebla v León · Fri Oct 9 · 8:00 PM CDT',
+        crest: 'LEO', crestStyle: 'background:#1E8A52', side: 'NO on “León score 1+”', ticker: 'KXLIGAMXTEAMTOTAL-26OCT09PUELEO-LEO1',
+        ask: 24, fee: 1.3, be: 25.3, fair: 39.1, lo: 25.6, hi: 51.9, upTo: 28, size: '729', wce: 5.1, share: 91, lineup: 'Stale', lineStale: true,
+        plain: 'The model gives León a 39% chance of being held scoreless, from expected goals of 1.24 to 0.98. The market prices that at 24%. This contract pays if León score no goals.',
+        risks: ['The model is research-only and not validated for real money.', 'Lineups are stale and unconfirmed, so availability shocks are not priced.', 'Wide model uncertainty (standard deviation 0.10).', 'No closing-line comparison was run for this model.'] },
+      { title: 'Not both teams score', meta: 'Puebla v León · Fri 8:00 PM', long: 'Puebla v León · Fri Oct 9 · 8:00 PM CDT',
+        crest: 'P·L', crestStyle: 'background:linear-gradient(90deg,#2757B8 50%,#1E8A52 50%)', side: 'NO on “both teams score”', ticker: 'KXLIGAMXBTTS-26OCT09PUELEO-BTTS',
+        ask: 45, fee: 1.7, be: 46.7, fair: 57.7, lo: 45.2, hi: 69.5, upTo: 48, size: '3,027', wce: 3.5, share: 87, lineup: 'Stale', lineStale: true,
+        plain: 'The model puts the chance that both teams score at 42%, so 58% that at least one is blanked. The market prices “not both” at 45%. This contract pays unless both sides score.',
+        risks: ['The model is research-only and not validated for real money.', 'Lineups are stale and unconfirmed, so availability shocks are not priced.', 'Wide model uncertainty (standard deviation 0.10).', 'No closing-line comparison was run for this model.'] }
+    ];
+    const R = RAW[sel];
+    const p1 = (v) => (Math.round(v * 10) / 10).toString();
+    const low = R.lo - R.be;
+    const lowEnd = low < 0 ? 'At the low end of its range the model is below break-even.' : low < 2 ? 'At the low end of its range the model barely clears break-even.' : 'Even at the low end of its range the model clears break-even.';
+    const d = { ...R,
+      askTxt: R.ask + '¢', feeTxt: p1(R.fee) + '¢', beTxt: p1(R.be) + '¢', fairTxt: Math.round(R.fair) + '%', rangeTxt: Math.round(R.lo) + '–' + Math.round(R.hi) + '%',
+      gap: '+' + p1(R.fair - R.be) + ' pts', wce: '+' + p1(R.wce) + ' pts', share: R.share + '%', upTo: R.upTo + '¢', lowEnd,
+      lineTxt: R.lineup, lineCls: R.lineStale ? 'fr--stale' : 'fr--na' };
+    const g = { be: R.be, fair: R.fair, lo: R.lo, bw: Math.round((R.hi - R.lo) * 10) / 10 };
+
+    const open = (i) => () => this.setState({ sel: i, detent: 'half', tab: 'why', copied: false });
+    const sigs = RAW.map((s, i) => ({ title: s.title, meta: s.meta, crest: s.crest, crestStyle: s.crestStyle, model: Math.round(s.fair) + '%', needs: Math.round(s.be) + '¢',
+      lo: s.lo, bw: Math.round((s.hi - s.lo) * 10) / 10, be: s.be, fair: s.fair,
+      cls: detent !== 'closed' && sel === i ? 'on' : '', border: i ? 'border-top:1px solid var(--line)' : '', pick: open(i) }));
+
+    const chips = [['ALL', 'All', 3], ['SOC', 'Soccer', 3], ['NFL', 'NFL', 0]].map(([k, label, n]) => ({ label, n, cls: sport === k ? 'on' : '', sel: sport === k, pick: () => this.setState({ sport: k, detent: 'closed' }) }));
+    const stabs = [['why', 'Why'], ['price', 'Price'], ['sources', 'Sources']].map(([k, label]) => ({ label, cls: tabKey === k ? 'on' : '', sel: tabKey === k, pick: () => { this.setState({ tab: k }); } }));
+
+    // sheet: drag the handle, or tap it, to move between half and full
+    const down = (e) => { this._y = e.clientY; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} };
+    const up = (e) => {
+      const dy = e.clientY - (this._y === undefined ? e.clientY : this._y);
+      let next = detent;
+      if (dy < -28) next = 'full'; else if (dy > 28) next = detent === 'full' ? 'half' : 'closed'; else next = detent === 'half' ? 'full' : 'half';
+      this.setState({ detent: next });
+    };
+
+    const copied = !!st.copied, saved = !!st.saved;
+    return {
+      chips, sigs, stabs, d, g,
+      tab: { why: tabKey === 'why', price: tabKey === 'price', sources: tabKey === 'sources' },
+      showList: sport !== 'NFL', showPass: sport === 'NFL',
+      sheetOpen: detent !== 'closed', sheetH: H[detent], sheetCls: detent === 'closed' ? 'sheet--closed' : '',
+      close: () => this.setState({ detent: 'closed' }), gDown: down, gUp: up,
+      copy: () => this.setState({ copied: !copied }), copyTxt: copied ? 'Copied for ChatGPT' : 'Copy for ChatGPT', copyCls: copied ? 'btnp--done' : '', copyIcon: copied ? '#i-check' : '#i-copy',
+      save: () => this.setState({ saved: !saved }), saved, saveCls: saved ? 'btns--on' : '', saveFill: saved ? 'currentColor' : 'none'
+    };
+  }
+}
+</script>
+</body>
+</html>

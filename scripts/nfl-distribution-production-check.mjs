@@ -1,13 +1,18 @@
-// Post-release production check of the NFL projection distribution on the LIVE site: no fixtures, no mocks. For the promoted
-// NFL families (receptions, completions) it opens the real Player Prop Explorer from the game's Player Snapshot, in Chromium
-// desktop and WebKit iPhone, and proves that the drawn distribution, the expected value, the ranges and the probability of
-// the over all come from the one published projection (feed + distribution artifact read here straight from the publication),
-// with no development vocabulary and no horizontal overflow. Read-only.
+// Post-deploy production check of the NFL projection distribution on the LIVE site: no fixtures, no mocks. For the promoted NFL
+// families (receptions, completions) it opens the real Player Prop Explorer from the game's Player Snapshot, in Chromium desktop and
+// WebKit iPhone, and proves that the drawn distribution, the expected value, the ranges, the probability of the over and the single
+// "Projected <stat>" value all come from the one published projection (feed + distribution artifact read here straight from the
+// publication), with no development vocabulary and no horizontal overflow. Read-only, one short pass per device (it is a step of
+// production-check.yml, not a second acceptance suite).
+//
+// Schedule-aware (scripts/nfl-distribution-plan.mjs): the players come from the publication (the current game's two highest expected
+// values per family), and with no current game, or none the feed covers, the check says N/A with the reason instead of failing.
 //
 //   node scripts/nfl-distribution-production-check.mjs [--game EVENT_ID] [--no-webkit]
 //
 // Env: SIFT_URL (default production), SIFT_NFL_BOARD_URL, SIFT_PROJECTIONS_BASE.
 import { chromium, webkit } from '@playwright/test';
+import { distributionPlan } from './nfl-distribution-plan.mjs';
 
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
 const BOARD = process.env.SIFT_NFL_BOARD_URL ?? 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json';
@@ -21,29 +26,16 @@ const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(m
 const pct = (p) => `${Math.round(p * 100)}%`;
 const getJson = async (url) => { const r = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`, { headers: { 'cache-control': 'no-cache' } }); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.json(); };
 
-/** The player/family pairs to open, in the order the Snapshot offers them. */
-const TARGETS = [
-  { name: 'George Kittle', family: 'receptions', label: 'Receptions' },
-  { name: 'Christian McCaffrey', family: 'receptions', label: 'Receptions' },
-  { name: 'Brock Purdy', family: 'completions', label: 'Completions' },
-  { name: 'Jayden Daniels', family: 'completions', label: 'Completions' },
-];
-
 async function publication() {
-  const [feed, art] = await Promise.all([getJson(`${PUB}/latest.json`), getJson(`${PUB}/distributions/latest.json`)]);
-  check(art.schema === 'sift.projection_distributions.v1', `artifact schema ${art.schema}`);
-  check(art.projection?.generated_utc === feed.generated_utc, `artifact describes the current feed (${feed.generated_utc})`);
-  const rows = new Map(art.rows.map((r) => [`${r.game_id}|${r.player_id}|${r.family}`, r]));
-  return { feed, art, rows };
+  const [feed, art] = await Promise.all([getJson(`${PUB}/latest.json`), getJson(`${PUB}/distributions/latest.json`).catch(() => null)]);
+  return { feed, art, rows: new Map((art?.rows ?? []).map((r) => [`${r.game_id}|${r.player_id}|${r.family}`, r])) };
 }
 
-async function pickGame() {
+async function plannedGame() {
   const forced = argOf('game');
-  if (forced) return forced;
   const board = await getJson(BOARD);
-  const now = Date.now();
-  const games = board.items.filter((i) => i.start_time_utc && Date.parse(i.start_time_utc) > now - 6 * 3.6e6).sort((a, b) => a.start_time_utc.localeCompare(b.start_time_utc));
-  return games[0]?.event_id ?? null;
+  const items = forced ? board.items.filter((i) => i.event_id === forced) : board.items;
+  return items;
 }
 
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -58,9 +50,16 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
     await page.goto(`${BASE}#/design/sift2/nfl/game/${encodeURIComponent(eventId)}?tab=props`, { waitUntil: 'domcontentloaded' });
     const snap = page.locator('.s2-player-explorer');
     await snap.waitFor({ timeout: 60_000 });
-    await snap.getByRole('searchbox').fill(t.name.split(' ').pop());
+    // The Snapshot lists the players Kalshi prices. It must list some (an empty Snapshot beside published projections is broken); a player it
+    // does not list is simply not offered today (N/A for that player, never a pass).
+    await snap.locator('.s2-player').first().waitFor({ timeout: 45_000 }).catch(() => {});
+    const listed = await snap.locator('.s2-player').count();
+    check(listed > 0, `${tag}: the Player Snapshot lists players (${listed})`);
+    if (!listed) return;
+    await snap.getByRole('searchbox').fill(t.name.split(' ').filter((w) => !/^(jr\.?|sr\.?|ii|iii|iv|v)$/i.test(w)).pop());
+    await page.waitForTimeout(500);
     const card = snap.locator('.s2-player', { hasText: t.name });
-    await card.first().waitFor({ timeout: 30_000 });
+    if (!(await card.count())) { console.log(`  N/A  ${tag}: the Snapshot does not list ${t.name} today`); return; }
     const link = card.first().locator('.s2-player__markets > a', { has: page.getByText(t.label, { exact: true }) }).first();
     if (await link.count()) {
       check(true, `${tag}: the Player Snapshot offers ${t.label}`);
@@ -77,8 +76,8 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
     }
     await page.locator('#pexa-t').waitFor({ timeout: 60_000 });
     check((await page.locator('#pexa-t').innerText()).includes(t.name), `${tag}: the Explorer opens on the player`);
-    const pubRow = pub.feed.players.find((p) => p.name === t.name && p.family === t.family);
-    const dist = pubRow && pub.rows.get(`${pubRow.game_id}|${pubRow.player_id}|${pubRow.family}`);
+    const pubRow = t.row;
+    const dist = t.dist;
     check(!!pubRow && !!dist, `${tag}: published row and distribution exist (mean ${pubRow?.mean})`);
     if (!pubRow || !dist) return;
     const legend = (label) => page.locator('.fr-legend > div', { has: page.getByText(label, { exact: true }) }).first();
@@ -110,19 +109,32 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t) {
   } finally { await ctx.close(); }
 }
 
-const pub = await publication();
-const eventId = await pickGame();
-console.log(`feed ${pub.feed.generated_utc}, ${pub.feed.players.length} players, ${pub.art.rows.length} distributions (${pub.art.excluded.length} excluded); game ${eventId}`);
-check(!!eventId, 'a current NFL game is listed');
+let pub = await publication();
+const items = await plannedGame();
+let plan = distributionPlan({ items, feed: pub.feed, art: pub.art, now: Date.now() });
+if (plan.mode === 'CHECK' && plan.problems.some((x) => /describes the feed of/.test(x))) {
+  // the feed and the artifact are committed by the same run a few seconds apart: give a publication in progress one minute to settle
+  console.log('  the artifact describes another feed generation; waiting 60 s for a publication in progress');
+  await new Promise((r) => setTimeout(r, 60_000));
+  pub = await publication();
+  plan = distributionPlan({ items, feed: pub.feed, art: pub.art, now: Date.now() });
+}
+console.log(`feed ${pub.feed?.generated_utc}, ${pub.feed?.players?.length ?? 0} players; artifact ${pub.art ? `${pub.art.rows?.length ?? 0} distributions (${pub.art.excluded?.length ?? 0} excluded)` : 'MISSING'}; game ${plan.game?.event_id ?? 'none'}`);
+for (const n of plan.notes) console.log(`  note ${n}`);
+if (plan.mode === 'NOT_APPLICABLE') {
+  console.log(`  N/A  NFL distribution in the live Explorer (${plan.reason})`);
+  process.exit(0);
+}
+for (const x of plan.problems) check(false, `publication: ${x}`);
+check(plan.problems.length === 0, 'the distribution artifact describes the current feed and accounts for every promoted-family row');
+const eventId = plan.game.event_id;
 const devices = [['chromium-desktop', chromium, { viewport: { width: 1280, height: 900 } }]];
 if (!argv.includes('--no-webkit')) devices.push(['webkit-iphone', webkit, { viewport: { width: 393, height: 659 }, isMobile: true, hasTouch: true }]);
 else devices.push(['chromium-phone', chromium, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]);
-if (eventId) {
-  for (const [name, type, device] of devices) {
-    console.log(`\n== ${name}`);
-    const browser = await type.launch(process.env.SIFT_CHROMIUM_ARGS ? { args: JSON.parse(process.env.SIFT_CHROMIUM_ARGS) } : {});
-    try { for (const t of TARGETS) await explorerCheck(browser, device, name, eventId, pub, t); } finally { await browser.close(); }
-  }
+for (const [name, type, device] of devices) {
+  console.log(`\n== ${name}`);
+  const browser = await type.launch(process.env.SIFT_CHROMIUM_ARGS ? { args: JSON.parse(process.env.SIFT_CHROMIUM_ARGS) } : {});
+  try { for (const t of plan.targets) await explorerCheck(browser, device, name, eventId, pub, t); } finally { await browser.close(); }
 }
 if (failures.length) { console.log(`\n${failures.length} FAILED:`); failures.forEach((f) => console.log(`  - ${f}`)); process.exit(1); }
 console.log('\nAll NFL distribution production checks passed.');

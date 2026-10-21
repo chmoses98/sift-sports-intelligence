@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>States</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+<!--CSS:Home-->
+<!--CSS:Game-->
+body{margin:0;background:#0B0C10}
+.board{display:flex;gap:56px;padding:48px;width:max-content}
+.col{width:390px}
+.cap2{margin:20px 0 0;font:650 18px/24px var(--f-ui);color:var(--tx);letter-spacing:-.01em}
+.cap3{margin:6px 0 0;font:400 14px/21px var(--f-ui);color:var(--tx2);max-width:380px}
+.hb2{position:absolute;left:0;top:0;width:100%;height:340px;z-index:0;pointer-events:none;background:radial-gradient(70% 70% at 0% 0%,rgba(240,86,110,.34),transparent 70%),radial-gradient(75% 75% at 100% 0%,rgba(79,139,255,.42),transparent 72%),linear-gradient(180deg,#0A0D14,#07080B 92%)}
+.sk-c{width:52px;height:52px;border-radius:50%}
+.sk-b{height:10px;border-radius:5px}
+.sk-lg{display:flex;flex-direction:column;align-items:center;gap:8px;flex:none;width:54px}
+.sk-feat{margin:10px 16px 0;height:212px;border-radius:var(--r-xl);position:relative;overflow:hidden}
+.sk-row{display:flex;align-items:center;gap:12px;min-height:64px;padding:0 16px}
+.stale-fr{margin:0 16px 12px;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--r-m);background:var(--mkt-bg);font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.stale-fr b{display:block;color:var(--tx);font-weight:600}
+.stale-fr .ic{color:var(--mkt)}
+.stale-fr .btn{height:36px;padding:0 14px;font-size:14px;border-radius:12px;margin-left:auto}
+.dim{opacity:.38}
+</style>
+</helmet>
+
+<div class="board">
+  <!-- 1. loading -->
+  <div class="col">
+  <div class="app" aria-busy="true" aria-label="Home, loading">
+    <!--STATUS-->
+    <div class="scroll" style="overflow:hidden">
+      <div class="hb2" aria-hidden="true"></div>
+      <div class="page">
+        <header class="hhead"><span class="brand">SIFT</span><span class="gbtn" aria-hidden="true">[[ic magnifying-glass]]</span><span class="gbtn" aria-hidden="true">[[ic bookmark-simple]]</span></header>
+        <div class="leagues" aria-hidden="true">
+          <div class="sk-lg"><i class="skel sk-c"></i><i class="skel sk-b" style="width:26px"></i></div><div class="sk-lg"><i class="skel sk-c"></i><i class="skel sk-b" style="width:30px"></i></div><div class="sk-lg"><i class="skel sk-c"></i><i class="skel sk-b" style="width:28px"></i></div><div class="sk-lg"><i class="skel sk-c"></i><i class="skel sk-b" style="width:26px"></i></div><div class="sk-lg"><i class="skel sk-c"></i><i class="skel sk-b" style="width:30px"></i></div><div class="sk-lg"><i class="skel sk-c"></i><i class="skel sk-b" style="width:28px"></i></div>
+        </div>
+        <div class="days" aria-hidden="true"><i class="skel" style="flex:none;width:60px;height:54px;border-radius:17px"></i><i class="skel" style="flex:none;width:60px;height:54px;border-radius:17px;opacity:.6"></i><i class="skel" style="flex:none;width:60px;height:54px;border-radius:17px;opacity:.5"></i><i class="skel" style="flex:none;width:60px;height:54px;border-radius:17px;opacity:.4"></i><i class="skel" style="flex:none;width:60px;height:54px;border-radius:17px;opacity:.3"></i></div>
+        <div class="chips fchips" aria-hidden="true"><i class="skel" style="flex:none;width:118px;height:38px;border-radius:19px"></i><i class="skel" style="flex:none;width:112px;height:38px;border-radius:19px"></i><i class="skel" style="flex:none;width:76px;height:38px;border-radius:19px"></i></div>
+        <div class="sechead" style="margin-top:16px" aria-hidden="true"><i class="skel" style="width:118px;height:20px;border-radius:6px"></i></div>
+        <div class="sk-feat skel" aria-hidden="true"></div>
+        <div class="slate"><div class="grp" aria-hidden="true">
+          <div class="sk-row"><i class="skel" style="width:30px;height:30px;border-radius:50%"></i><i class="skel sk-b" style="width:44px"></i><i class="skel sk-b" style="width:22px;margin-left:auto"></i><i class="skel sk-b" style="width:46px;margin:0 14px"></i><i class="skel sk-b" style="width:22px"></i><i class="skel sk-b" style="width:44px"></i><i class="skel" style="width:30px;height:30px;border-radius:50%"></i></div>
+          <div class="sk-row"><i class="skel" style="width:30px;height:30px;border-radius:50%"></i><i class="skel sk-b" style="width:44px"></i><i class="skel sk-b" style="width:22px;margin-left:auto"></i><i class="skel sk-b" style="width:46px;margin:0 14px"></i><i class="skel sk-b" style="width:22px"></i><i class="skel sk-b" style="width:44px"></i><i class="skel" style="width:30px;height:30px;border-radius:50%"></i></div>
+          <div class="sk-row"><i class="skel" style="width:30px;height:30px;border-radius:50%"></i><i class="skel sk-b" style="width:44px"></i><i class="skel sk-b" style="width:22px;margin-left:auto"></i><i class="skel sk-b" style="width:46px;margin:0 14px"></i><i class="skel sk-b" style="width:22px"></i><i class="skel sk-b" style="width:44px"></i><i class="skel" style="width:30px;height:30px;border-radius:50%"></i></div>
+        </div></div>
+      </div>
+    </div>
+    <nav class="tabbar" aria-label="Primary"><span class="tab on">[[ic house-f]]Home</span><span class="tab">[[ic calendar-dots]]Games</span><span class="tab">[[ic target]]Props</span><span class="tab">[[ic pulse]]Signals</span><span class="tab">[[ic bookmark-simple]]Board</span></nav>
+  </div>
+  <h2 class="cap2">Loading</h2>
+  <p class="cap3">The frame of the screen appears at once. Only the data is a placeholder, shaped like the thing it will become, with one slow shimmer. Nothing shows a number until it is real.</p>
+  </div>
+
+  <!-- 2. empty -->
+  <div class="col">
+  <div class="app" aria-label="Home, no games on this day">
+    <!--STATUS-->
+    <div class="scroll" style="overflow:hidden">
+      <div class="hb2" aria-hidden="true"></div>
+      <div class="page">
+        <header class="hhead"><span class="brand">SIFT</span><span class="gbtn" aria-hidden="true">[[ic magnifying-glass]]</span><span class="gbtn" aria-hidden="true">[[ic bookmark-simple]]</span></header>
+        <div class="leagues" aria-hidden="true">
+          <div class="lg lg--on"><span class="lg__i">[[ic squares-four]]</span><span class="lg__t">All</span></div>
+          <div class="lg"><span class="lg__i"><img src="assets/l/nfl.webp" alt=""></span><span class="lg__t">NFL</span></div>
+          <div class="lg"><span class="lg__i"><img src="assets/l/nba.webp" alt=""></span><span class="lg__t">NBA</span></div>
+          <div class="lg"><span class="lg__i">[[ic football]]</span><span class="lg__t">CFB</span></div>
+          <div class="lg"><span class="lg__i"><img src="assets/l/nhl.webp" alt=""></span><span class="lg__t">NHL</span></div>
+          <div class="lg"><span class="lg__i"><img src="assets/l/mlb.webp" alt=""></span><span class="lg__t">MLB</span></div>
+        </div>
+        <div class="days" aria-hidden="true"><span class="day"><span class="day__w">Sun</span><span class="day__d">Oct 4</span></span><span class="day"><span class="day__w">Mon</span><span class="day__d">Oct 5</span></span><span class="day day--on"><span class="day__w">Tue</span><span class="day__d">Oct 6</span></span><span class="day day--none"><span class="day__w">Wed</span><span class="day__d">Oct 7</span></span><span class="day day--none"><span class="day__w">Thu</span><span class="day__d">Oct 8</span></span></div>
+        <div class="chips fchips" aria-hidden="true"><span class="chip"><span class="stack"><img src="assets/t/nfl-BUF.webp" alt=""><img src="assets/t/mlb-LAD.webp" alt=""><img src="assets/t/nfl-KC.webp" alt=""></span>Following <i>0</i></span><span class="chip on">All games <i>0</i></span></div>
+        <div class="empty" style="margin-top:24px">[[ic calendar-blank]]<h3>No games published for Tuesday</h3><p>SIFT lists what the schedule feeds publish. Nothing is listed for Oct 6.</p><span class="btn btn--sec">Go to Sunday · 57 games</span></div>
+        <div class="sechead" style="margin-top:26px"><h2>Your teams</h2></div>
+        <div class="yours"><div class="yt"><span class="yt__r"><img src="assets/t/nfl-BUF.webp" alt=""></span><b>Bills</b><small>Sun · live</small></div><div class="yt"><span class="yt__r"><img src="assets/t/mlb-LAD.webp" alt=""></span><b>Dodgers</b><small>Sun 1:10</small></div><div class="yt"><span class="yt__r"><img src="assets/t/nfl-KC.webp" alt=""></span><b>Chiefs</b><small>Sun 3:25</small></div><div class="yt"><span class="yt__r"><img src="assets/t/nhl-BOS.webp" alt=""></span><b>Bruins</b><small>Sun 6:00</small></div></div>
+      </div>
+    </div>
+    <nav class="tabbar" aria-label="Primary"><span class="tab on">[[ic house-f]]Home</span><span class="tab">[[ic calendar-dots]]Games</span><span class="tab">[[ic target]]Props</span><span class="tab">[[ic pulse]]Signals</span><span class="tab">[[ic bookmark-simple]]Board</span></nav>
+  </div>
+  <h2 class="cap2">Empty</h2>
+  <p class="cap3">An empty day says so, offers the nearest day with games, and keeps the teams you follow in view, because the reason to open the app is still there.</p>
+  </div>
+
+  <!-- 3. unavailable -->
+  <div class="col">
+  <div class="app" aria-label="Game markets, prices unavailable">
+    <!--STATUS-->
+    <div class="scroll" style="overflow:hidden">
+      <div class="hb2" aria-hidden="true"></div>
+      <div class="gpage">
+        <header class="ghead"><span class="gbtn">[[ic caret-left]]</span><span class="ghead__c" style="opacity:1"><img src="assets/t/nfl-NE.webp" alt=""><span>NE @ BUF</span><img src="assets/t/nfl-BUF.webp" alt=""><small>12:00 PM</small></span><span class="gbtn">[[ic dots-three]]</span></header>
+        <nav class="gtabs" style="--gi:3;position:relative;top:0"><span class="gtab">Live</span><span class="gtab">Matchups</span><span class="gtab">Players</span><span class="gtab on">Markets</span></nav>
+        <div class="pane" style="min-height:0">
+          <div class="stale-fr">[[ic cloud-slash]]<span><b>Kalshi prices are unavailable</b>Last quote 14 minutes ago. Prices are hidden until the feed returns.</span><span class="btn btn--sec">Retry</span></div>
+          <div class="blk" style="margin-top:14px"><div class="blk__h"><h3>To win</h3></div>
+            <div class="win2 dim">
+              <div class="wbtn" style="--gc:#F0566E;--gx:0%"><img src="assets/t/nfl-NE.webp" alt=""><span class="wbtn__n">Patriots</span><span class="wbtn__p" style="color:var(--tx3)">–</span><span class="wbtn__m">Model <b>26%</b></span></div>
+              <div class="wbtn" style="--gc:#4F8BFF;--gx:100%"><img src="assets/t/nfl-BUF.webp" alt=""><span class="wbtn__n">Bills</span><span class="wbtn__p" style="color:var(--tx3)">–</span><span class="wbtn__m">Model <b>74%</b></span></div>
+            </div>
+          </div>
+          <div class="blk"><div class="blk__h"><h3>Spread and total</h3></div>
+            <div class="grp dim"><div class="mk"><img src="assets/t/nfl-BUF.webp" alt=""><span class="mk__t"><b>Bills −6.5</b><span class="mk__s">Wins by 7 or more</span></span><span class="mk__p" style="color:var(--tx3)">–</span></div><div class="mk"><span class="mk__i">[[ic chart-line-up ic--s]]</span><span class="mk__t"><b>Over 50.5</b><span class="mk__s">Total points</span></span><span class="mk__p" style="color:var(--tx3)">–</span></div></div>
+            <div class="note">The model keeps its own timestamp: pregame research, 14 hours old.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="tabbar" aria-label="Primary"><span class="tab">[[ic house]]Home</span><span class="tab on">[[ic calendar-dots-f]]Games</span><span class="tab">[[ic target]]Props</span><span class="tab">[[ic pulse]]Signals</span><span class="tab">[[ic bookmark-simple]]Board</span></nav>
+  </div>
+  <h2 class="cap2">Unavailable or stale</h2>
+  <p class="cap3">When a feed is stale the number is removed, not dimmed into doubt. The row keeps its shape, says why, and the research that is still valid keeps its own clock.</p>
+  </div>
+</div>
+<!--SPRITE-->
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1560,"height":1040}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

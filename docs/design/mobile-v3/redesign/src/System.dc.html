@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design system</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0B0C10;color:var(--tx);font:400 15px/22px var(--f-ui);font-feature-settings:'tnum' 1;-webkit-font-smoothing:antialiased}
+.sys{width:1640px;padding:56px 64px 72px;box-sizing:border-box}
+.sys h1{margin:0;font:700 44px/48px var(--f-num);letter-spacing:-.04em}
+.sys .lead{margin:10px 0 0;font:400 18px/28px var(--f-ui);color:var(--tx2);max-width:900px}
+.g3{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:56px;margin-top:44px}
+.sec h2{margin:0 0 6px;font:650 20px/26px var(--f-ui);letter-spacing:-.015em}
+.sec .why{margin:0 0 18px;font:400 14px/21px var(--f-ui);color:var(--tx2)}
+.ty{display:grid;grid-template-columns:96px 1fr;align-items:baseline;gap:16px;padding:13px 0;border-top:1px solid var(--line)}
+.ty small{font:500 12px/16px var(--f-ui);color:var(--tx3)}
+.sw{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.sw div{height:72px;border-radius:14px;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font:600 12px/15px var(--f-ui);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.sw small{display:block;font:500 11px/14px var(--f-ui);opacity:.7}
+.sem{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sem div{padding:14px;border-radius:14px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line)}
+.sem b{display:block;font:700 22px/26px var(--f-num);letter-spacing:-.03em}
+.sem span{display:block;font:500 12px/16px var(--f-ui);color:var(--tx2);margin-top:2px}
+.tbl{width:100%;border-collapse:collapse;font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.tbl td,.tbl th{padding:8px 6px;border-top:1px solid var(--line);text-align:left}
+.tbl th{font:600 12px/16px var(--f-ui);color:var(--tx3)}
+.demo{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.icons{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-top:6px}
+.icons span{aspect-ratio:1;border-radius:12px;background:var(--s1);display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--line)}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:56px;padding-top:36px;border-top:1px solid var(--line2)}
+.rules div{font:400 14px/21px var(--f-ui);color:var(--tx2)}
+.rules b{display:block;color:var(--tx);font:650 16px/22px var(--f-ui);margin-bottom:4px}
+.rowd{display:flex;gap:14px;align-items:center;padding:12px 14px;background:var(--s1);border-radius:var(--r-l);box-shadow:var(--lit),inset 0 0 0 1px var(--line);width:360px;margin-bottom:14px}
+.rad{display:flex;gap:14px;margin:8px 0 18px}
+.rad div{width:66px;height:66px;background:var(--s3);display:grid;place-items:center;font:600 12px/1 var(--f-ui);color:var(--tx2);box-shadow:inset 0 0 0 1px var(--line2)}
+.mo{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;font:400 13px/19px var(--f-ui);color:var(--tx2)}
+.mo b{color:var(--tx);font-weight:600;display:block}
+</style>
+</helmet>
+<div class="sys">
+  <h1>SIFT mobile design system v4</h1>
+  <p class="lead">A live sports companion first. Graphite ground, light used the way a stadium uses it, one inverse selected state, and numerals set like a scoreboard. Colour keeps its meaning; team colour lives in the lighting, never in the chrome.</p>
+
+  <div class="g3">
+    <div class="sec">
+      <h2>Type: Sora and Geist</h2>
+      <p class="why">Sora carries numerals and display: wide, athletic, with tabular figures, so scores and prices align and never jitter. Geist carries everything that is read: names, labels, notes. Four weights. Sentence case; small capitals only for the single LIVE state.</p>
+      <div class="ty"><small>Score 54 · Sora 700</small><div class="num" style="font-size:54px;line-height:54px;letter-spacing:-.045em">10 – 17</div></div>
+      <div class="ty"><small>Display 34 · Sora 700</small><div class="num" style="font-size:34px;line-height:38px;letter-spacing:-.035em">Signals</div></div>
+      <div class="ty"><small>Figure 24–32 · Sora 700</small><div class="num" style="font-size:28px;line-height:32px"><span style="color:var(--mkt)">47¢</span> &nbsp;<span style="color:var(--model)">45%</span> &nbsp;249.5</div></div>
+      <div class="ty"><small>Heading 20 · Geist 650</small><div style="font:650 20px/26px var(--f-ui);letter-spacing:-.015em">Live now</div></div>
+      <div class="ty"><small>Title 17 · Geist 650</small><div style="font:650 17px/22px var(--f-ui);letter-spacing:-.015em">Josh Allen</div></div>
+      <div class="ty"><small>Body 15 · Geist 400</small><div style="font:400 15px/22px var(--f-ui);color:var(--tx2)">Allen pass to Moore for 14 yds</div></div>
+      <div class="ty"><small>Meta 13 · Geist 500</small><div style="font:500 13px/18px var(--f-ui);color:var(--tx2)">QB · BUF vs NE · 12:00 PM</div></div>
+      <div class="ty"><small>Caption 12 · Geist 600</small><div style="font:600 12px/16px var(--f-ui);color:var(--tx3)">Prices live · Research frozen</div></div>
+      <p class="why" style="margin-top:14px">Nothing under 12px. Tab labels are 11px, the iOS tab bar convention, and the only exception.</p>
+    </div>
+
+    <div class="sec">
+      <h2>Colour</h2>
+      <p class="why">Neutral graphite, not navy. Four surface steps, three text steps. Meaning is carried by four hues and never reused for decoration.</p>
+      <div class="sw">
+        <div style="background:#07080B">bg<small>#07080B</small></div><div style="background:#0E1116">s1<small>cards</small></div><div style="background:#151920">s2<small>raised</small></div><div style="background:#1D222B">s3<small>controls</small></div><div style="background:#272D38">s4<small>selected</small></div>
+      </div>
+      <div class="sw">
+        <div style="background:#F5F7FA;color:#0A0C10">text<small>18.7 : 1</small></div><div style="background:#B5BECB;color:#0A0C10">text 2<small>10.7 : 1</small></div><div style="background:#8995A5;color:#0A0C10">text 3<small>6.6 : 1</small></div><div style="background:#F5F7FA;color:#0A0C10">inverse<small>selected</small></div><div style="background:#0A0C10;color:#F5F7FA">on inverse<small>18.2 : 1</small></div>
+      </div>
+      <div class="sem">
+        <div><b style="color:#FF8591">Live</b><span>#FF4D5E dot, #FF8591 text. In play only.</span></div>
+        <div><b style="color:var(--model)">Model</b><span>#62C9FF. SIFT projections and ranges.</span></div>
+        <div><b style="color:var(--mkt)">Market</b><span>#F2BE45. Kalshi prices and break-even.</span></div>
+        <div><b style="color:var(--risk)">Risk</b><span>#FF9061. What could make it lose.</span></div>
+      </div>
+      <table class="tbl" style="margin-top:18px"><tr><th>Pair</th><th>Ratio</th></tr>
+        <tr><td>Market gold on s1</td><td>11.0 : 1</td></tr><tr><td>Model ice on s1</td><td>10.2 : 1</td></tr><tr><td>Risk on s1</td><td>8.5 : 1</td></tr><tr><td>Live text on s1</td><td>8.1 : 1</td></tr><tr><td>Text 3 on s3</td><td>5.2 : 1</td></tr></table>
+      <p class="why" style="margin-top:12px">Selected means inverse: a light pill with dark text. No glow. Ice is reserved for the model and never marks selection.</p>
+    </div>
+
+    <div class="sec">
+      <h2>Components</h2>
+      <p class="why">One grouped surface per section, hairlines instead of nested boxes, one selected state everywhere.</p>
+      <div class="demo"><span class="chip on">All games <i>57</i></span><span class="chip">Live <i>5</i></span><span class="chip">Signals <i>3</i></span></div>
+      <div class="demo"><div class="seg"><button class="on">All</button><button>Scoring</button><button>Big</button></div><span class="sigchip"><span class="sigchip__p">[[ic pulse]]2</span></span><span class="sigchip sigchip--frozen"><span class="sigchip__p">[[ic pulse]]1</span></span></div>
+      <div class="demo"><span class="badge badge--live">LIVE</span><span class="badge badge--final">FINAL</span><span class="badge badge--pre">PREGAME</span><span class="sample">Sample</span></div>
+      <div class="demo"><span class="btn" style="height:48px">Copy for ChatGPT</span><span class="btn btn--sec" style="height:48px">Retry</span></div>
+      <div class="rowd"><img class="crest" src="assets/t/nfl-TEN.webp" alt=""><b style="font:600 15px/20px var(--f-ui)">TEN</b><b class="num" style="font-size:22px;color:var(--tx3)">7</b><span style="margin:0 auto;text-align:center;font:600 14px/18px var(--f-ui)"><i style="font:650 12px/16px var(--f-ui);color:#FF8591;font-style:normal;display:block">Q2</i>11:03</span><b class="num" style="font-size:22px">13</b><b style="font:600 15px/20px var(--f-ui)">BAL</b><img class="crest" src="assets/t/nfl-BAL.webp" alt=""></div>
+      <h2 style="margin-top:22px">Icons: Phosphor</h2>
+      <p class="why">Regular weight, a 1.5 px stroke at 24 px. The active tab switches to the filled variant. League marks are the existing approved assets; CFB and Soccer use glyphs.</p>
+      <div class="icons">[[ic house ic--l]][[ic calendar-dots ic--l]][[ic target ic--l]][[ic pulse ic--l]][[ic bookmark-simple ic--l]][[ic magnifying-glass ic--l]][[ic bell-simple ic--l]][[ic star ic--l]][[ic house-f ic--l]][[ic calendar-dots-f ic--l]][[ic target-f ic--l]][[ic pulse-f ic--l]][[ic bookmark-simple-f ic--l]][[ic lock-simple ic--l]][[ic warning ic--l]][[ic cloud-slash ic--l]]</div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-top:40px;grid-template-columns:1fr 1fr 1fr">
+    <div class="sec">
+      <h2>Shape and depth</h2>
+      <p class="why">Four radii, four surface steps, one top highlight. Shadows only where something floats: the featured card and the sheet.</p>
+      <div class="rad"><div style="border-radius:10px">10</div><div style="border-radius:16px">16</div><div style="border-radius:22px">22</div><div style="border-radius:28px">28</div></div>
+      <table class="tbl"><tr><th>Radius</th><th>Used for</th></tr><tr><td>10</td><td>Small tags, ladder rows</td></tr><tr><td>16</td><td>Buttons, notes, banners</td></tr><tr><td>22</td><td>Grouped surfaces, cards</td></tr><tr><td>28</td><td>Featured card, sheet</td></tr></table>
+    </div>
+    <div class="sec">
+      <h2>Motion</h2>
+      <p class="why">Purposeful and quiet. Every transition is 160 to 340 ms on one easing curve. All of it stops under reduced motion.</p>
+      <div class="mo"><div><b>Press</b>Scale to 0.92 to 0.98, 160 ms</div><div><b>Tab underline</b>Slides between tabs, 340 ms</div><div><b>Sheet</b>Height 340 ms, scrim fades 260 ms</div><div><b>Rows</b>Rise 8 px, staggered 40 ms</div><div><b>Live</b>Red dot pulses every 2 s</div><div><b>Selection</b>Fill and colour cross-fade, 200 ms</div></div>
+    </div>
+    <div class="sec">
+      <h2>Touch and access</h2>
+      <p class="why">Every control has a 44 px hit area, even where it looks smaller. Focus is a 2px inverse ring. Colour is never the only signal: live has a word, frozen has a lock.</p>
+      <table class="tbl"><tr><th>Control</th><th>Visual</th><th>Hit</th></tr><tr><td>Chip</td><td>38</td><td>44</td></tr><tr><td>Segmented</td><td>34</td><td>44</td></tr><tr><td>Icon button</td><td>40</td><td>44</td></tr><tr><td>Tab</td><td>48</td><td>48</td></tr><tr><td>Signal chip</td><td>28</td><td>44</td></tr></table>
+    </div>
+  </div>
+
+  <div class="rules">
+    <div><b>Two clocks, four colours.</b>Prices and research carry separate freshness. Live, model, market and risk keep one meaning each.</div>
+    <div><b>Light, not chrome.</b>Team colour appears in the lighting and the crest. Controls stay graphite and inverse.</div>
+    <div><b>Models stay in the background.</b>One chip on a row, one row in a game. Reasoning is one tap away, in a sheet.</div>
+    <div><b>No fabricated imagery.</b>A photo is shown only where it is verified for that game. Otherwise the club’s own lighting and crest.</div>
+  </div>
+</div>
+<!--SPRITE-->
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":1560}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

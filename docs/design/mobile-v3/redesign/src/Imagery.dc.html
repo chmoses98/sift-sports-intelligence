@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Imagery</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0B0C10;color:var(--tx);font:400 15px/22px var(--f-ui);-webkit-font-smoothing:antialiased}
+.im{width:1640px;padding:56px 64px 64px;box-sizing:border-box}
+.im h1{margin:0;font:700 44px/48px var(--f-num);letter-spacing:-.04em}
+.im .lead{margin:10px 0 0;font:400 18px/28px var(--f-ui);color:var(--tx2);max-width:920px}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:44px}
+.tier__art{position:relative;height:300px;border-radius:var(--r-xl);overflow:hidden;isolation:isolate;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 18px 40px rgba(0,0,0,.4)}
+.tier__art>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.tier__sc{position:absolute;inset:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;padding:0 28px 26px}
+.tier__t{display:flex;flex-direction:column;align-items:center;gap:6px;font:650 16px/20px var(--f-ui)}
+.tier__t img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.55))}
+.tier__n{font:700 54px/54px var(--f-num);letter-spacing:-.045em;padding:0 16px 22px}
+.tier__tag{position:absolute;left:18px;top:16px;z-index:2}
+.tier__credit{position:absolute;right:14px;bottom:10px;z-index:2;font:500 11px/14px var(--f-ui);color:rgba(255,255,255,.7);display:flex;gap:6px;align-items:center}
+.tier h2{margin:22px 0 4px;font:650 20px/26px var(--f-ui);letter-spacing:-.015em}
+.tier p{margin:0 0 10px;font:400 14px/21px var(--f-ui);color:var(--tx2)}
+.tier dl{margin:12px 0 0;display:grid;grid-template-columns:96px 1fr;gap:8px 12px;font:400 13px/19px var(--f-ui);color:var(--tx2)}
+.tier dt{font:600 12px/19px var(--f-ui);color:var(--tx3)}
+.tier dd{margin:0}
+.never{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px;padding-top:32px;border-top:1px solid var(--line2)}
+.never div{font:400 14px/21px var(--f-ui);color:var(--tx2)}
+.never b{display:flex;align-items:center;gap:8px;color:var(--tx);font:650 16px/22px var(--f-ui);margin-bottom:4px}
+.never b .ic{color:var(--risk)}
+.cred{margin-top:40px;font:500 13px/20px var(--f-ui);color:var(--tx3);max-width:1100px}
+</style>
+</helmet>
+<div class="im">
+  <h1>Imagery system</h1>
+  <p class="lead">Imagery adds excitement, never facts. A photograph appears only where it is verified for that game; everywhere else the club’s own lighting and crest do the work. The three tiers below are decided by the same resolver rules the production hero already uses.</p>
+  <div class="tiers">
+    <div class="tier">
+      <div class="tier__art">
+        <img class="bg" src="assets/v/arrowhead-night-1200.webp" alt="Arrowhead Stadium at night" style="object-position:50% 62%;filter:saturate(1.1) contrast(1.05)">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,11,.5),rgba(7,8,11,.1) 40%,rgba(7,8,11,.85));z-index:-1"></div>
+        <span class="badge badge--final tier__tag" style="background:rgba(7,8,11,.6)">Tier 1 · Verified venue photo</span>
+        <div class="tier__sc"><span class="tier__t"><img src="assets/t/nfl-LV.webp" alt="">Raiders</span><span class="tier__n" style="font-size:30px;padding-bottom:30px;color:var(--tx2)">at</span><span class="tier__t"><img src="assets/t/nfl-KC.webp" alt="">Chiefs</span></div>
+        <span class="tier__credit">Kj1595 · CC BY-SA 4.0</span>
+      </div>
+      <h2>Verified venue photo</h2>
+      <p>A real photograph of that team’s home venue, in that era, with credit. Example shown for a Chiefs home game at Arrowhead.</p>
+      <dl><dt>Shown when</dt><dd>Home team, venue and date all match an approved photo</dd><dt>Never</dt><dd>Neutral sites, other tenants, a different era, or a frame with another team’s branding</dd><dt>Credit</dt><dd>Author and licence on the image, in the info sheet</dd></dl>
+    </div>
+    <div class="tier">
+      <div class="tier__art" style="background:#0B0E14">
+        <div style="position:absolute;inset:0;background:radial-gradient(70% 90% at 0% 10%,rgba(240,86,110,.6),transparent 70%),radial-gradient(75% 100% at 100% 0%,rgba(79,139,255,.7),transparent 72%);z-index:-1"></div>
+        <img src="assets/p/buf-allen-portrait.webp" alt="" style="position:absolute;right:-10px;top:0;width:60%;height:100%;object-fit:cover;object-position:38% 10%;opacity:.62;-webkit-mask-image:linear-gradient(90deg,transparent 4%,#000 64%);mask-image:linear-gradient(90deg,transparent 4%,#000 64%);z-index:-1">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,11,.25),rgba(7,8,11,0) 24%,rgba(7,8,11,.9));z-index:-1"></div>
+        <span class="badge badge--final tier__tag" style="background:rgba(7,8,11,.6)">Tier 2 · Club lighting</span>
+        <div class="tier__sc"><span class="tier__t"><img src="assets/t/nfl-NE.webp" alt="">Patriots</span><span class="tier__n">10 – 17</span><span class="tier__t"><img src="assets/t/nfl-BUF.webp" alt="">Bills</span></div>
+        <span class="tier__credit">Erik Drost · CC BY 2.0</span>
+      </div>
+      <h2>Club lighting, with a player in the game</h2>
+      <p>No verified venue photo exists, so the card is lit in the two clubs’ colours behind their crests. A portrait of a player in this game may sit behind the score, masked and darkened.</p>
+      <dl><dt>Shown when</dt><dd>No Tier 1 photo. The default for every game</dd><dt>Player photo</dt><dd>Only a player on one of the two rosters for this game</dd><dt>Credit</dt><dd>Required for the photo; the lighting is ours</dd></dl>
+    </div>
+    <div class="tier">
+      <div class="tier__art" style="background:#090B11">
+        <svg viewBox="0 0 520 300" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;z-index:-1" aria-hidden="true"><defs><radialGradient id="a" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(-10 -20) scale(330 280)"><stop offset="0" stop-color="#F0566E" stop-opacity=".55"/><stop offset="1" stop-color="#F0566E" stop-opacity="0"/></radialGradient><radialGradient id="b" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(540 -20) scale(350 290)"><stop offset="0" stop-color="#4F8BFF" stop-opacity=".78"/><stop offset="1" stop-color="#4F8BFF" stop-opacity="0"/></radialGradient><linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="f"><feGaussianBlur stdDeviation="6"/></filter><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0"/></filter></defs><rect width="520" height="300" fill="#080A0F"/><rect width="520" height="300" fill="url(#a)"/><rect width="520" height="300" fill="url(#b)"/><g filter="url(#f)"><polygon points="390,-20 416,-20 470,260 340,260" fill="url(#c)"/><polygon points="110,-20 136,-20 190,240 60,240" fill="url(#c)" opacity=".7"/></g><rect width="520" height="300" filter="url(#g)" opacity=".07"/></svg>
+        <span class="badge badge--final tier__tag" style="background:rgba(7,8,11,.6)">Tier 3 · SIFT night</span>
+        <div style="position:absolute;left:0;right:0;bottom:44px;text-align:center;font:700 40px/40px var(--f-num);letter-spacing:.16em">SIFT</div>
+      </div>
+      <h2>SIFT night</h2>
+      <p>The neutral backdrop: the app header, the Props and Signals screens, and any game that cannot be tied to a club or a venue. Original art, no photograph.</p>
+      <dl><dt>Shown when</dt><dd>Screens that are not one game, or a game with no identifiable home side</dd><dt>Made of</dt><dd>Two lights, two beams and film grain. No stadium, no people</dd></dl>
+    </div>
+  </div>
+  <div class="never">
+    <div><b>[[ic x ic--s]]No generic stadium</b>A stadium that is not the game’s stadium is worse than none.</div>
+    <div><b>[[ic x ic--s]]No synthetic composites</b>AI-generated heroes in the repository are not used as sports content.</div>
+    <div><b>[[ic x ic--s]]No unrelated players</b>A player portrait never appears on a game he is not part of.</div>
+    <div><b>[[ic x ic--s]]No imagery as data</b>A photo never carries a score, a time or a status. Those are text.</div>
+  </div>
+  <p class="cred">Photo credits for the prototype are in assets/p/CREDITS.md and assets/v/LICENSE.md. The player photos carry a review flag in the repository (review_asset) that must be cleared before production use.</p>
+</div>
+<!--SPRITE-->
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":900}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

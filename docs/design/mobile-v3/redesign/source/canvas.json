@@ -1,0 +1,29 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-21T07:00:00Z" },
+  "title": "SIFT Mobile Redesign v4",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Home.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Home, live", "is_interactive": true, "radius": 48 },
+    "HomePublished.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Home, published data only", "is_interactive": true, "radius": 48 },
+    "Game.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Game, live", "is_interactive": true, "radius": 48 },
+    "GamePregame.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Game, pregame", "is_interactive": true, "radius": 48 },
+    "GameFinal.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 844, "title": "Game, final", "is_interactive": true, "radius": 48 },
+    "Props.dc.html": { "x": 2350, "y": 0, "w": 390, "h": 844, "title": "Player props", "is_interactive": true, "radius": 48 },
+    "PropsDetail.dc.html": { "x": 2820, "y": 0, "w": 390, "h": 844, "title": "Player detail", "is_interactive": true, "radius": 48 },
+    "Signals.dc.html": { "x": 3290, "y": 0, "w": 390, "h": 844, "title": "Signals", "is_interactive": true, "radius": 48 },
+    "SignalSheet.dc.html": { "x": 3760, "y": 0, "w": 390, "h": 844, "title": "Signal sheet", "is_interactive": true, "radius": 48 },
+    "States.dc.html": { "x": 0, "y": 1000, "w": 1560, "h": 1040, "title": "Loading, empty, unavailable" },
+    "System.dc.html": { "x": 1660, "y": 1000, "w": 1640, "h": 1560, "title": "Design system" },
+    "Imagery.dc.html": { "x": 3400, "y": 1000, "w": 1640, "h": 1000, "title": "Imagery system" }
+  },
+  "order": ["System.dc.html", "Imagery.dc.html", "States.dc.html", "Home.dc.html", "HomePublished.dc.html", "Game.dc.html", "GamePregame.dc.html", "GameFinal.dc.html", "Props.dc.html", "PropsDetail.dc.html", "Signals.dc.html", "SignalSheet.dc.html"],
+  "notes": {
+    "t-phones": { "x": 0, "y": -240, "text": "SIFT, redesigned: a live sports companion with the models running quietly", "kind": "title1", "maxW": 4150 },
+    "n-home": { "x": 0, "y": 904, "w": 390, "text": "Home. Sport, day and filter at the top; the live game you follow, lit in both clubs’ colours; the rest as compact scoreboard rows. A chip appears only where a signal exists. Scores and clocks are labelled Sample.", "size": "s", "fill": "gray" },
+    "n-game": { "x": 940, "y": 904, "w": 390, "text": "Game. A compact scoreboard, four tabs, one signal row. Pregame and final are the same screen in their own state. After kickoff, research is frozen and says so.", "size": "s", "fill": "gray" },
+    "n-props": { "x": 2350, "y": 904, "w": 390, "text": "Props. Kalshi price beside the pregame model, player by player. The detail view shows the ladder with a neutral difference column; it never labels a gap an edge.", "size": "s", "fill": "gray" }
+  },
+  "designSystems": []
+}

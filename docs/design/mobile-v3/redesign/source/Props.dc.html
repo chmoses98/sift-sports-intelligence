@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Props</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#07080B}
+.pbg{position:absolute;left:0;top:0;width:100%;height:300px;z-index:0;pointer-events:none;background:radial-gradient(70% 90% at 12% 0%,rgba(242,190,69,.16),transparent 70%),radial-gradient(70% 90% at 96% 0%,rgba(98,201,255,.2),transparent 72%),linear-gradient(180deg,#0A0D13,#07080B)}
+.ppage{position:relative;z-index:1}
+.phead{position:sticky;top:0;z-index:40;height:calc(var(--safe-top) + 48px);padding:var(--safe-top) 16px 0;display:flex;align-items:center;gap:10px;transition:background-color .2s,box-shadow .2s}
+.phead--solid{background:rgba(9,11,15,.88);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 var(--line)}
+.phead__t{flex:1;font:650 17px/1 var(--f-ui);letter-spacing:-.01em;opacity:0;transition:opacity .2s}
+.phead--solid .phead__t{opacity:1}
+.ttl{padding:4px 16px 0;display:flex;align-items:flex-end;gap:10px}
+.ttl h1{margin:0;font:700 34px/38px var(--f-num);letter-spacing:-.035em;flex:1}
+.sub{padding:6px 16px 0;font:400 14px/20px var(--f-ui);color:var(--tx2);max-width:330px}
+.rowc{padding-top:16px}
+.gchip{position:relative;flex:none;height:46px;padding:0 14px 0 10px;border-radius:23px;display:inline-flex;align-items:center;gap:10px;background:var(--s2);color:var(--tx2);font:600 14px/1 var(--f-ui);transition:background-color .2s,color .2s,transform .16s var(--ease)}
+.gchip::after{content:"";position:absolute;inset:-2px 0}
+.gchip.on{background:var(--inv);color:var(--on-inv)}
+.gchip:active{transform:scale(.97)}
+.gchip .pair{display:inline-flex}
+.gchip .pair img{width:24px;height:24px;object-fit:contain}
+.gchip .pair img+img{margin-left:-6px}
+.gchip small{display:block;font:500 12px/14px var(--f-ui);opacity:.65;margin-top:2px}
+.gchip b{display:block;font:650 14px/16px var(--f-ui)}
+.segw{padding:14px 16px 0}
+.segw .seg{display:flex}
+.segw .seg button{flex:1}
+.list{margin-top:18px}
+.prow{display:flex;align-items:center;gap:14px;width:100%;padding:12px 8px 12px 14px;min-height:80px;text-align:left;transition:background-color .16s}
+.prow:active{background:rgba(255,255,255,.04)}
+.prow .av{width:54px;height:54px}
+.prow__t{flex:1;min-width:0}
+.prow__nm{display:block;font:650 17px/22px var(--f-ui);letter-spacing:-.015em}
+.prow__t > em{display:block;font:500 13px/18px var(--f-ui);color:var(--tx2);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow__p{display:flex;gap:10px;margin-top:5px;font:500 13px/16px var(--f-ui);color:var(--tx3)}
+.prow__p > span{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
+.prow__p b{display:inline;font:700 15px/16px var(--f-num);letter-spacing:-.03em}
+.prow__l{text-align:right;flex:none;min-width:68px}
+.prow__l b{display:block;font:700 24px/26px var(--f-num);letter-spacing:-.04em}
+.prow__l small{display:block;font:500 12px/16px var(--f-ui);color:var(--tx3)}
+.prow__c{width:20px;color:var(--tx3);display:grid;place-items:center}
+.av{position:relative;width:58px;height:58px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:var(--s3);box-shadow:0 0 0 2px var(--c,var(--buf)),0 0 0 4px var(--s1);font:700 17px/1 var(--f-num);color:#fff}
+.av img{width:100%;height:100%;object-fit:cover}
+.foot{padding:14px 16px 0;font:500 13px/18px var(--f-ui);color:var(--tx3)}
+
+/* player detail */
+.dhero{position:relative;height:326px;isolation:isolate;overflow:hidden}
+.dhero__ph{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:var(--pp,50% 14%);filter:saturate(1.05) contrast(1.04)}
+.dhero__g{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(7,8,11,.55) 0%,rgba(7,8,11,.05) 30%,rgba(7,8,11,.78) 74%,#07080B 100%),radial-gradient(80% 60% at 100% 0%,var(--tc),transparent 70%);opacity:1}
+.dnav{position:absolute;top:var(--safe-top);left:16px;right:16px;display:flex;gap:8px;align-items:center}
+.dnav .sp{flex:1}
+.dname{position:absolute;left:16px;right:16px;bottom:78px}
+.dname h1{margin:0;font:700 32px/36px var(--f-num);letter-spacing:-.04em;text-shadow:0 2px 16px rgba(0,0,0,.5)}
+.dname p{margin:2px 0 0;display:flex;align-items:center;gap:8px;font:500 14px/20px var(--f-ui);color:var(--tx2)}
+.dname p img{width:20px;height:20px;object-fit:contain}
+.dstats{position:absolute;left:16px;right:16px;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;border-radius:var(--r-m);overflow:hidden;background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.dstat{padding:10px 10px 9px;background:rgba(14,17,22,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.dstat b{display:block;font:700 20px/24px var(--f-num);letter-spacing:-.04em}
+.dstat small{display:block;font:500 12px/14px var(--f-ui);color:var(--tx3)}
+.dsec{padding:20px 16px 0}
+.ptype{display:flex;gap:6px;padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.ptype::-webkit-scrollbar{display:none}
+.ptype button{position:relative;flex:none;height:36px;padding:0 15px;border-radius:18px;background:var(--s2);font:600 14px/1 var(--f-ui);color:var(--tx2);transition:background-color .2s,color .2s}
+.ptype button::after{content:"";position:absolute;inset:-4px -2px}
+.ptype button.on{background:var(--inv);color:var(--on-inv)}
+.lad{margin:14px 16px 0;padding:6px 8px 8px;border-radius:var(--r-l);background:var(--s1);box-shadow:var(--lit),inset 0 0 0 1px var(--line)}
+.lad__r{display:grid;grid-template-columns:1fr 66px 66px 56px;align-items:center;min-height:48px;padding:0 10px;border-radius:12px}
+.lad__r--h{min-height:34px}
+.lad__r--h .lh{font:600 12px/16px var(--f-ui);color:var(--tx3);text-align:right}
+.lad__r--h .lh--k{text-align:left}
+.lad__r--h .lh--m{color:var(--mkt)}
+.lad__r--h .lh--p{color:var(--model)}
+.lad__k{display:flex;align-items:center;gap:8px;font:600 17px/20px var(--f-ui);letter-spacing:-.01em}
+.lad__tag{white-space:nowrap;font:600 12px/1 var(--f-ui);color:var(--tx3);font-style:normal;padding:4px 7px;border-radius:7px;background:rgba(255,255,255,.07);letter-spacing:0}
+.lad__r b{font:700 21px/24px var(--f-num);letter-spacing:-.04em;text-align:right}
+.lad__r .df{font:600 14px/20px var(--f-ui);color:var(--tx3);text-align:right}
+.lad__r--hit{background:var(--s3);box-shadow:inset 0 0 0 1px var(--line2)}
+.lad__r+.lad__r:not(.lad__r--hit){}
+.anote{display:flex;align-items:center;gap:6px;width:calc(100% - 32px);margin:12px 16px 0;padding:0 12px 0 4px;min-height:60px;border-radius:var(--r-l);background:var(--s1);box-shadow:var(--lit),inset 0 0 0 1px var(--line);text-align:left}
+.anote:active{background:var(--s2)}
+.anote b{flex:1;font:600 15px/20px var(--f-ui);letter-spacing:-.01em}
+.anote small{display:block;font:500 12px/16px var(--f-ui);color:var(--tx3);margin-top:1px}
+.anote .ic{color:var(--tx3)}
+.noproj{margin:14px 16px 0;padding:14px 16px;border-radius:var(--r-m);background:var(--s1);font:500 14px/20px var(--f-ui);color:var(--tx2);box-shadow:inset 0 0 0 1px var(--line)}
+@container (max-width: 380px){ .lad__r{grid-template-columns:1fr 56px 56px 46px} .dstat b{font-size:18px} .prow__l{min-width:60px} }
+</style>
+</helmet>
+
+<div class="app">
+<div class="status" aria-hidden="true"><span>9:41</span><span class="status__r">
+<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.3 0 4.4.9 6 2.4l1-1.1A10.4 10.4 0 0 0 8.5.8c-2.8 0-5.4 1.1-7.5 2.9l1 1.1a8.8 8.8 0 0 1 6.5-2.4Zm0 3.5c1.4 0 2.7.5 3.7 1.4l1-1.1a7.2 7.2 0 0 0-9.4 0l1 1.1c1-.9 2.3-1.4 3.7-1.4Zm0 3.4c.7 0 1.3.2 1.8.7L8.5 12 6.7 10c.5-.5 1.1-.7 1.8-.7Z"/></svg>
+<svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2.2"/><path d="M25 4.5v4c.8-.3 1.5-1.2 1.5-2s-.7-1.7-1.5-2Z" opacity=".5"/></svg></span></div>
+<main class="scroll" id="sc" onScroll="{{onScroll}}" inert="{{bgInert}}">
+
+  <!-- ===== EXPLORER ===== -->
+  <sc-if value="{{isList}}" hint-placeholder-val="{{ true }}">
+  <div class="pbg" aria-hidden="true"></div>
+  <div class="ppage">
+    <header class="phead {{headCls}}"><span class="phead__t">Props</span><span style="flex:1"></span><button class="gbtn" aria-label="Search players"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-magnifying-glass"/></svg></button><button class="gbtn" aria-label="Filters"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-sliders-horizontal"/></svg></button></header>
+    <div class="ttl"><h1>Props</h1><span class="sample">Sample lines</span></div>
+    <p class="sub" style="margin:0">Kalshi prices beside the pregame model, player by player. Research only.</p>
+
+    <div class="chips rowc" role="group" aria-label="Game">
+      <sc-for list="{{games}}" as="g" hint-placeholder-count="4">
+        <button class="gchip {{g.cls}}" aria-pressed="{{g.on}}" onClick="{{g.pick}}"><sc-if value="{{g.pair}}" hint-placeholder-val="{{ true }}"><span class="pair" aria-hidden="true"><img src="{{g.a}}" alt=""><img src="{{g.h}}" alt=""></span></sc-if><span><b>{{g.label}}</b><small>{{g.sub}}</small></span></button>
+      </sc-for>
+    </div>
+    <div class="segw"><div class="seg" role="group" aria-label="Prop type"><sc-for list="{{types}}" as="t" hint-placeholder-count="3"><button class="{{t.cls}}" aria-pressed="{{t.on}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div></div>
+
+    <div class="list">
+      <div class="grp" role="list">
+        <sc-for list="{{rows}}" as="p" hint-placeholder-count="5">
+          <div role="listitem"><button class="prow" aria-label="{{p.aria}}" onClick="{{p.open}}">
+            <span class="av" style="--c:{{p.tc}}"><sc-if value="{{p.hasPhoto}}" hint-placeholder-val="{{ true }}"><img src="{{p.photo}}" alt="" style="object-position:{{p.pos}}"></sc-if><sc-if value="{{p.noPhoto}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true">{{p.init}}</span></sc-if></span>
+            <span class="prow__t"><b class="prow__nm">{{p.name}}</b><em>{{p.sub}}</em>
+              <span class="prow__p"><span>Kalshi <b style="color:var(--mkt)">{{p.ask}}¢</b></span><sc-if value="{{p.hasModel}}" hint-placeholder-val="{{ true }}"><span>Model <b style="color:var(--model)">{{p.model}}%</b></span></sc-if><sc-if value="{{p.noModel}}" hint-placeholder-val="{{ false }}"><span>No projection</span></sc-if></span></span>
+            <span class="prow__l"><b>{{p.line}}</b><small>{{p.unit}}</small></span>
+            <span class="prow__c"><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></span>
+          </button></div>
+        </sc-for>
+      </div>
+    </div>
+    <div class="foot">Lines and prices are samples. Kalshi price shown at the rung nearest the line; the model is the pregame run, frozen at kickoff. Not betting advice.</div>
+  </div>
+  </sc-if>
+
+  <!-- ===== PLAYER DETAIL ===== -->
+  <sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+  <div class="ppage">
+    <section class="dhero" style="--tc:{{d.tint}};--pp:{{d.pos}}" aria-label="{{d.name}}">
+      <img class="dhero__ph" src="{{d.photo}}" alt="">
+      <div class="dhero__g"></div>
+      <div class="dnav"><button class="gbtn" aria-label="Back to props" onClick="{{back}}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-left"/></svg></button><span class="sp"></span><sc-if value="{{d.sample}}" hint-placeholder-val="{{ true }}"><span class="sample">Sample</span></sc-if><button class="gbtn {{saveCls}}" aria-label="Save to My Board" aria-pressed="{{saved}}" onClick="{{toggleSave}}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="{{saveIcon}}"/></svg></button></div>
+      <div class="dname"><h1>{{d.name}}</h1><p><img src="{{d.logo}}" alt="">{{d.sub}}</p></div>
+      <div class="dstats">
+        <div class="dstat"><b>{{d.s1}}</b><small>{{d.s1l}}</small></div>
+        <div class="dstat"><b>{{d.s2}}</b><small>{{d.s2l}}</small></div>
+        <div class="dstat"><b style="color:var(--mkt)">{{d.line}}</b><small>Line</small></div>
+        <div class="dstat"><b style="color:var(--model)">{{d.projTxt}}</b><small>Pregame</small></div>
+      </div>
+    </section>
+
+    <div class="dsec"></div>
+    <sc-if value="{{d.multi}}" hint-placeholder-val="{{ false }}"><div class="ptype" role="group" aria-label="Prop type"><sc-for list="{{d.types}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" aria-pressed="{{t.on}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div></sc-if>
+
+    <div class="lad" role="table" aria-label="{{d.name}} {{d.tlabel}} ladder">
+      <div class="lad__r lad__r--h" role="row"><span class="lh lh--k" role="columnheader">{{d.unit}}</span><span class="lh lh--m" role="columnheader">Kalshi</span><span class="lh lh--p" role="columnheader">Model</span><span class="lh" role="columnheader">Diff</span></div>
+      <sc-for list="{{d.ladder}}" as="l" hint-placeholder-count="5">
+        <div class="lad__r {{l.cls}}" role="row"><span class="lad__k" role="rowheader">{{l.tt}}<sc-if value="{{l.hit}}" hint-placeholder-val="{{ false }}"><em class="lad__tag">At the line</em></sc-if></span><b role="cell" style="color:var(--mkt)">{{l.ask}}¢</b><b role="cell" style="color:var(--model)">{{l.model}}%</b><span class="df" role="cell">{{l.diff}}</span></div>
+      </sc-for>
+    </div>
+    <p class="foot" style="margin:0">Diff is model minus Kalshi price, in points. It is context, not a recommendation: fees, uncertainty and research checks are in the sheet.</p>
+
+    <sc-if value="{{d.hasNote}}" hint-placeholder-val="{{ false }}"><button class="anote" aria-haspopup="dialog" onClick="{{openNote}}"><span class="sigchip sigchip--frozen"><span class="sigchip__p"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>1</span></span><b>Model sits below the 250+ price<small>Frozen at kickoff</small></b><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button></sc-if>
+    <sc-if value="{{d.noProj}}" hint-placeholder-val="{{ false }}"><div class="noproj">No pregame projection is published for this player. Prices are shown without a model comparison.</div></sc-if>
+  </div>
+  </sc-if>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-house"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-calendar-dots"/></svg>Games</a>
+  <a class="tab on" href="Props.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-target-f"/></svg>Props</a>
+  <a class="tab" href="Signals.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>Signals</a>
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bookmark-simple"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="allen" group="allen" frozen="true" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-magnifying-glass" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></symbol><symbol id="i-sliders-horizontal" viewBox="0 0 256 256"><path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"/></symbol><symbol id="i-caret-right" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></symbol><symbol id="i-caret-left" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></symbol><symbol id="i-pulse" viewBox="0 0 256 256"><path d="M240,128a8,8,0,0,1-8,8H204.94l-37.78,75.58A8,8,0,0,1,160,216h-.4a8,8,0,0,1-7.08-5.14L95.35,60.76,63.28,131.31A8,8,0,0,1,56,136H24a8,8,0,0,1,0-16H50.85L88.72,36.69a8,8,0,0,1,14.76.46l57.51,151,31.85-63.71A8,8,0,0,1,200,120h32A8,8,0,0,1,240,128Z"/></symbol><symbol id="i-house" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"/></symbol><symbol id="i-calendar-dots" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z"/></symbol><symbol id="i-target-f" viewBox="0 0 256 256"><path d="M221.87,83.16A104.1,104.1,0,1,1,195.67,49l22.67-22.68a8,8,0,0,1,11.32,11.32L167.6,99.71h0l-37.71,37.71-23.95,23.95a40,40,0,0,0,62-35.67,8,8,0,1,1,16-.9,56,56,0,0,1-95.5,42.79h0a56,56,0,0,1,73.13-84.43L184.3,60.39a87.88,87.88,0,1,0,23.13,29.67,8,8,0,0,1,14.44-6.9Z"/></symbol><symbol id="i-bookmark-simple" viewBox="0 0 256 256"><path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"/></symbol><symbol id="i-bookmark-simple-f" viewBox="0 0 256 256"><path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Z"/></symbol></defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["list","detail"],"default":"list"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const view = st.sel ? 'detail' : (this.props.view === 'detail' ? 'detail' : 'list');
+    const T = (k) => 'assets/t/nfl-' + k + '.webp';
+    const PH = (k) => 'assets/p/' + k + '.webp';
+    const BUF = '#4F8BFF', NE = '#F0566E', SF = '#E1493B', DET = '#58A8F0', SEA = '#69BE28', DEN = '#FB7A32', LV = '#B7BEC8';
+    // Sample lines: design only. [id, name, pos, team, opp, home, time, type, line, unit, ask@rung, model@rung, photo, focus, tint, game]
+    const R = [
+      ['allen', 'Josh Allen', 'QB', 'BUF', 'NE', true, '12:00 PM', 'pass', 249.5, 'pass yds', 47, 45, PH('buf-allen-portrait'), '36% 12%', BUF, 'buf'],
+      ['maye', 'Drake Maye', 'QB', 'NE', 'BUF', false, '12:00 PM', 'pass', 249.5, 'pass yds', 40, 33, PH('ne-maye'), '58% 14%', NE, 'buf'],
+      ['purdy', 'Brock Purdy', 'QB', 'SF', 'DEN', true, '3:25 PM', 'pass', 244.5, 'pass yds', 46, 44, PH('sf-brock-purdy'), '30% 16%', SF, 'sf'],
+      ['nix', 'Bo Nix', 'QB', 'DEN', 'SF', false, '3:25 PM', 'pass', 224.5, 'pass yds', 51, 49, PH('den-bo-nix'), '62% 10%', DEN, 'sf'],
+      ['darnold', 'Sam Darnold', 'QB', 'SEA', 'LAC', true, '3:25 PM', 'pass', 231.5, 'pass yds', 43, null, PH('sea-sam-darnold'), '44% 16%', SEA, 'sea'],
+      ['goff', 'Jared Goff', 'QB', 'DET', 'CAR', false, '7:20 PM', 'pass', 261.5, 'pass yds', 54, 52, PH('det-jared-goff'), '38% 12%', DET, 'det'],
+      ['cook', 'James Cook III', 'RB', 'BUF', 'NE', true, '12:00 PM', 'rush', 79.5, 'rush yds', 55, 50, null, '', BUF, 'buf'],
+      ['jeanty', 'Ashton Jeanty', 'RB', 'LV', 'KC', false, '3:25 PM', 'rush', 68.5, 'rush yds', 52, null, PH('lv-ashton-jeanty'), '44% 14%', LV, 'kc'],
+      ['moore', 'DJ Moore', 'WR', 'BUF', 'NE', true, '12:00 PM', 'rec', 49.5, 'rec yds', 52, 42, null, '', BUF, 'buf'],
+      ['kittle', 'George Kittle', 'TE', 'SF', 'DEN', true, '3:25 PM', 'rec', 54.5, 'rec yds', 48, 47, PH('sf-george-kittle'), '78% 12%', SF, 'sf']
+    ];
+    const GAMES = [['all', 'All games', '10 players', null, null], ['buf', 'NE @ BUF', '12:00 PM', T('NE'), T('BUF')], ['sf', 'DEN @ SF', '3:25 PM', T('DEN'), T('SF')], ['sea', 'LAC @ SEA', '3:25 PM', T('LAC'), T('SEA')], ['det', 'DET @ CAR', '7:20 PM', T('DET'), T('CAR')], ['kc', 'KC @ LV', '3:25 PM', T('KC'), T('LV')]];
+    const g = st.g || 'all', ty = st.ty || 'pass';
+    const games = GAMES.map(([k, label, sub, a, h]) => ({ label, sub, pair: !!a, a: a || '', h: h || '', cls: g === k ? 'on' : '', on: g === k, pick: () => this.setState({ g: k }) }));
+    const types = [['pass', 'Passing'], ['rush', 'Rushing'], ['rec', 'Receiving']].map(([k, label]) => ({ label, on: ty === k, cls: ty === k ? 'on' : '', pick: () => this.setState({ ty: k }) }));
+    const rows = R.filter((r) => r[7] === ty && (g === 'all' || r[15] === g)).map((r) => ({
+      name: r[1], sub: r[2] + ' · ' + r[3] + (r[5] ? ' vs ' : ' at ') + r[4], line: r[8], unit: r[9], ask: r[10], model: r[11], hasModel: r[11] != null, noModel: r[11] == null,
+      photo: r[12] || '', hasPhoto: !!r[12], noPhoto: !r[12], pos: r[13], init: r[1].split(' ').map((x) => x[0]).slice(0, 2).join(''), tc: r[14],
+      aria: r[1] + ', ' + r[9] + ' line ' + r[8] + ', Kalshi ' + r[10] + ' cents' + (r[11] != null ? ', model ' + r[11] + ' percent' : ', no projection'), open: () => this.setState({ sel: r[0] }) }));
+
+    // detail: ladders for the two Bills–Patriots quarterbacks come from the Game artboard; the others show the line rung only
+    const LAD = { allen: [[200, 75, 71], [225, 62, 58], [250, 47, 45], [275, 31, 32], [300, 21, 21]], maye: [[200, 67, 59], [225, 54, 45], [250, 40, 33], [275, 27, 22], [300, 18, 13]],
+      purdy: [[200, 71, 68], [225, 57, 55], [250, 44, 41], [275, 28, 27], [300, 17, 17]], nix: [[175, 72, 70], [200, 62, 59], [225, 51, 49], [250, 36, 35], [275, 24, 23]],
+      darnold: [[200, 66, null], [225, 52, null], [250, 38, null], [275, 24, null]], goff: [[225, 71, 69], [250, 60, 58], [275, 44, 42], [300, 28, 26]],
+      cook: [[60, 76, 67], [70, 66, 59], [80, 55, 50], [90, 44, 42], [100, 37, 34]], jeanty: [[50, 70, null], [60, 62, null], [70, 50, null], [80, 38, null]],
+      moore: [[25, 81, 75], [40, 64, 55], [50, 52, 42], [60, 40, 31], [70, 31, 23]], kittle: [[30, 82, 80], [45, 62, 60], [55, 47, 46], [65, 33, 32], [75, 22, 21]] };
+    const HIT = { allen: 250, maye: 250, purdy: 250, nix: 225, darnold: 225, goff: 250, cook: 80, jeanty: 70, moore: 50, kittle: 55 };
+    const sel = R.find((r) => r[0] === st.sel) || R[0];
+    const NOW = { allen: ['163', 'yards', '14 of 21', 'attempts'], maye: ['98', 'yards', '9 of 17', 'attempts'], cook: ['41', 'yards', '9', 'carries'], moore: ['52', 'yards', '4', 'catches'] };
+    const nw = NOW[sel[0]];
+    const projV = { allen: 222, cook: 85, moore: 44 }[sel[0]];
+    const hasProjDetail = sel[11] != null;
+    const detail = { name: sel[1], photo: sel[12] || PH('buf-allen-portrait'), pos: sel[13] || '36% 12%', tint: sel[14] + '55', logo: T(sel[3]), sample: true,
+      sub: sel[2] + ' · ' + sel[3] + (sel[5] ? ' vs ' : ' at ') + sel[4] + ' · ' + sel[6], line: String(sel[8]),
+      s1: nw ? nw[0] : '–', s1l: nw ? 'So far' : 'No live stat', s2: nw ? nw[2] : '–', s2l: nw ? nw[3] : 'Pregame only', projTxt: projV ? String(projV) : (hasProjDetail ? '–' : 'None'),
+      unit: sel[9].replace(' yds', ' yards'), tlabel: sel[9], multi: false, types: [], noProj: !hasProjDetail, hasNote: sel[0] === 'allen',
+      ladder: (LAD[sel[0]] || []).map((r) => ({ t: r[0], tt: r[0] + '+', ask: r[1], model: r[2] == null ? '–' : r[2], diff: r[2] == null ? '' : (r[2] - r[1] >= 0 ? '+' : '−') + Math.abs(r[2] - r[1]), cls: r[0] === HIT[sel[0]] ? 'lad__r--hit' : '', hit: r[0] === HIT[sel[0]] })) };
+
+    const sheetOpen = !!st.sheet;
+    return {
+      isList: view === 'list', isDetail: view === 'detail', games, types, rows, d: detail,
+      back: () => { this.setState({ sel: null }); const sc = document.getElementById('sc'); if (sc) sc.scrollTop = 0; },
+      headCls: st.solid ? 'phead--solid' : '', onScroll: (e) => { const s = e.currentTarget.scrollTop > 56; if (s !== !!st.solid) this.setState({ solid: s }); },
+      saved: !!st.saved, saveCls: st.saved ? 'gbtn--on' : '', saveIcon: st.saved ? '#i-bookmark-simple-f' : '#i-bookmark-simple', toggleSave: () => this.setState({ saved: !st.saved }),
+      openNote: () => this.setState({ sheet: true, openKey: (st.openKey || 0) + 1 }), closeSheet: () => this.setState({ sheet: false }), sheetOpen, openKey: st.openKey || 0,
+      bgInert: sheetOpen ? '' : undefined
+    };
+  }
+}
+</script>
+</body>
+</html>

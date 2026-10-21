@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#07080B}
+.gbg{position:absolute;left:0;top:0;width:100%;height:330px;z-index:0;pointer-events:none}
+.gpage{position:relative;z-index:1}
+.ghead{position:sticky;top:0;z-index:45;height:calc(var(--safe-top) + 48px);padding:var(--safe-top) 12px 0 16px;display:flex;align-items:center;gap:8px;transition:background-color .2s,box-shadow .2s}
+.ghead--solid{background:rgba(9,11,15,.84);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 var(--line)}
+.ghead__c{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:8px;font:700 17px/1 var(--f-num);letter-spacing:-.02em;opacity:0;transition:opacity .2s;white-space:nowrap}
+.ghead--title .ghead__c{opacity:1}
+.ghead__c img{width:22px;height:22px;object-fit:contain}
+.ghead__c small{font:650 14px/1 var(--f-ui);color:var(--tx2);margin-left:4px;letter-spacing:0}
+.ghead__c .lv{color:#FF8591}
+.ghead__sp{flex:1}
+
+/* ---- compact scoreboard (Concept A) ---- */
+.gsb{padding:2px 16px 20px}
+.gsb__meta{display:flex;align-items:center;gap:8px;min-height:26px}
+.gsb__meta .meta{flex:1;color:var(--tx);opacity:.8}
+.gsb__row{display:grid;grid-template-columns:76px auto 1fr auto 76px;align-items:center;column-gap:2px;margin-top:10px}
+.gsb__t{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.gsb__t img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.55))}
+.gsb__t b{font:650 15px/18px var(--f-ui);letter-spacing:-.01em}
+.gsb__t small{font:500 12px/14px var(--f-ui);color:var(--tx2);margin-top:-3px}
+.gsb__n{font:700 54px/54px var(--f-num);letter-spacing:-.045em;min-width:42px}
+.gsb__n--a{text-align:right}
+.gsb__n--lose{color:rgba(245,247,250,.5)}
+.gsb__c{display:flex;flex-direction:column;align-items:center;gap:1px;text-align:center;min-width:0}
+.gsb__c b{font:650 15px/20px var(--f-ui);color:#FF8591}
+.gsb__c span{font:650 17px/22px var(--f-ui);letter-spacing:-.01em}
+.gsb__c .fin{color:var(--tx);font:650 17px/22px var(--f-ui)}
+.gsb__c small{font:500 12px/16px var(--f-ui);color:var(--tx2);margin-top:2px}
+.gsb__ko{font:700 40px/42px var(--f-num);letter-spacing:-.04em}
+.gsb__ko-s{font:600 14px/18px var(--f-ui);color:var(--tx2)}
+.gsb__ko-e{font:600 13px/18px var(--f-ui);color:var(--model);margin-top:2px}
+.gsb__foot{display:flex;align-items:center;gap:14px;margin-top:14px;font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.gsb__foot .grow{flex:1}
+.stt{display:inline-flex;align-items:center;gap:6px}
+.stt::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.stt--old::before{background:var(--tx3)}
+
+/* ---- tabs ---- */
+.gtabs{position:sticky;top:calc(var(--safe-top) + 48px);z-index:44;display:grid;grid-template-columns:repeat(4,1fr);height:48px;background:rgba(8,10,14,.95);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 var(--line)}
+.gtabs::after{content:"";position:absolute;left:0;bottom:0;width:25%;height:3px;background:linear-gradient(var(--inv),var(--inv)) center/42% 100% no-repeat;border-radius:2px 2px 0 0;transform:translateX(calc(var(--gi,0) * 100%));transition:transform .34s var(--ease)}
+.gtab{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;font:600 15px/1 var(--f-ui);letter-spacing:-.005em;color:var(--tx3);min-height:44px;transition:color .2s}
+.gtab.on{color:var(--tx)}
+.gtab:active{color:var(--tx2)}
+.gtab__dot{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 2s ease-out infinite}
+.pane{padding:18px 0 0;min-height:760px;touch-action:pan-y}
+.blk{margin-top:26px}
+.blk__h{display:flex;align-items:center;gap:10px;padding:0 16px;margin-bottom:10px;min-height:32px}
+.blk__h h3{margin:0;font:650 20px/26px var(--f-ui);letter-spacing:-.015em;flex:1}
+.pill-note{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:var(--s3);font:600 12px/1 var(--f-ui);color:var(--tx2)}
+.pill-note .ic{width:13px;height:13px}
+.note{padding:10px 16px 0;font:500 13px/18px var(--f-ui);color:var(--tx3)}
+.read-h{margin:0;padding:0 16px;font:700 26px/32px var(--f-num);letter-spacing:-.03em;text-wrap:balance}
+
+/* situation + field */
+.sit{margin:0 16px;padding:16px 16px 14px;border-radius:var(--r-l);background:var(--s1);box-shadow:var(--lit),inset 0 0 0 1px var(--line)}
+.sit__h{display:flex;align-items:baseline;gap:10px}
+.sit__dd{font:700 26px/28px var(--f-num);letter-spacing:-.035em}
+.sit__w{flex:1;font:500 14px/20px var(--f-ui);color:var(--tx2)}
+.sit__w b{color:var(--tx);font-weight:600}
+.sit__y{font:650 17px/22px var(--f-ui);color:var(--tx)}
+.fld{position:relative;height:30px;margin:16px 0 0;border-radius:8px;overflow:hidden;background:var(--s3);box-shadow:inset 0 0 0 1px var(--line)}
+.fld__ez{position:absolute;top:0;bottom:0;width:8%}
+.fld__ez--a{left:0;background:linear-gradient(90deg,rgba(240,86,110,.55),rgba(240,86,110,.2))}
+.fld__ez--h{right:0;background:linear-gradient(270deg,rgba(79,139,255,.6),rgba(79,139,255,.22))}
+.fld__yd{position:absolute;left:8%;right:8%;top:0;bottom:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 1px,transparent 1px 11.11%)}
+.fld__drive{position:absolute;top:9px;bottom:9px;border-radius:5px;background:linear-gradient(90deg,rgba(79,139,255,.35),var(--buf))}
+.fld__gain{position:absolute;top:0;bottom:0;width:2px;background:var(--mkt);transform:translateX(-50%)}
+.fld__ball{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(7,8,11,.8),0 2px 8px rgba(0,0,0,.5)}
+.fldl{display:grid;grid-template-columns:8% repeat(9,1fr) 8%;margin-top:6px;font:500 12px/14px var(--f-ui);color:var(--tx3);text-align:center}
+.fldl span:first-child,.fldl span:last-child{font-weight:650;color:var(--tx2)}
+.sit__f{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.sigrow{display:flex;align-items:center;gap:6px;width:calc(100% - 32px);min-height:60px;margin:12px 16px 0;padding:0 10px 0 4px;border-radius:var(--r-l);background:var(--s1);box-shadow:var(--lit),inset 0 0 0 1px var(--line);text-align:left;transition:background-color .16s}
+.sigrow:active{background:var(--s2)}
+.sigrow b{flex:1;font:600 16px/22px var(--f-ui);letter-spacing:-.01em}
+.sigrow small{display:block;font:500 12px/16px var(--f-ui);color:var(--tx3);margin-top:1px}
+.sigrow .ic{color:var(--tx3)}
+
+/* plays */
+.play{display:grid;grid-template-columns:78px 1fr;column-gap:10px;padding:13px 16px 13px 0;position:relative}
+.play__t{padding-left:16px;display:flex;flex-direction:column;gap:3px}
+.play__t b{font:650 14px/16px var(--f-ui);letter-spacing:-.005em;white-space:nowrap}
+.play__t span{display:inline-flex;align-items:center;gap:5px;font:500 12px/14px var(--f-ui);color:var(--tx3)}
+.play__t img{width:14px;height:14px;object-fit:contain}
+.play__x{font:400 15px/21px var(--f-ui);display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+.play--sc::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0;background:var(--c,var(--buf))}
+.play--sc .play__x{font-weight:600}
+.pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;background:var(--inv);color:var(--on-inv);font:650 12px/1 var(--f-ui)}
+.tstat{padding:12px 16px 14px}
+.tstat__h{display:grid;grid-template-columns:56px 1fr 56px;align-items:baseline}
+.tstat__h b{font:700 20px/24px var(--f-num);letter-spacing:-.03em}
+.tstat__h b:last-child{text-align:right}
+.tstat__h span{text-align:center;font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.tstat__bar{display:grid;grid-template-columns:1fr 1fr;gap:3px;height:6px;margin-top:8px}
+.tstat__bar div{display:flex;background:var(--s3);border-radius:3px;overflow:hidden}
+.tstat__bar div:first-child{justify-content:flex-end}
+.tstat__bar i{display:block;height:100%;border-radius:3px}
+.tlegend{display:flex;justify-content:space-between;padding:12px 16px 4px;font:600 13px/16px var(--f-ui)}
+.tlegend span{display:inline-flex;align-items:center;gap:7px}
+.tlegend img{width:20px;height:20px;object-fit:contain}
+
+/* pregame: model and market */
+.mm{padding:4px 16px 8px}
+.mm__h,.mm__r{display:grid;grid-template-columns:1fr 78px 78px;align-items:center}
+.mm__h{height:30px}
+.mm__h span{font:600 12px/16px var(--f-ui);text-align:right;color:var(--tx3)}
+.mm__h span:nth-child(2){color:var(--model)}
+.mm__h span:nth-child(3){color:var(--mkt)}
+.mm__r{min-height:54px;border-top:1px solid var(--line)}
+.mm__k{font:500 15px/20px var(--f-ui);color:var(--tx2)}
+.mm__v{text-align:right;font:700 24px/26px var(--f-num);letter-spacing:-.035em}
+.mm__v small{font:600 12px/1 var(--f-ui);color:var(--tx3);margin-left:2px;letter-spacing:0}
+.verdict{display:flex;gap:10px;align-items:flex-start;margin:0 16px;padding:14px 4px 0;color:var(--tx2);font:400 14px/20px var(--f-ui)}
+.verdict b{color:var(--tx);font-weight:600}
+.verdict .ic{color:var(--ok);margin-top:0}
+.avail{display:flex;gap:12px;align-items:flex-start;margin:0 16px;padding:14px 16px;border-radius:var(--r-m);background:var(--risk-bg);font:500 14px/20px var(--f-ui);color:var(--tx2)}
+.avail .ic{color:var(--risk)}
+.avail b{display:block;color:var(--tx);font-weight:600}
+
+/* matchups */
+.duel{padding:15px 16px 16px}
+.duel__l{display:flex;align-items:baseline;gap:10px}
+.duel__k{flex:1;font:650 17px/22px var(--f-ui);letter-spacing:-.01em}
+.duel__e{display:inline-flex;align-items:center;gap:6px;font:650 13px/18px var(--f-ui)}
+.duel__e i{width:8px;height:8px;border-radius:50%}
+.duel__d{font:500 13px/18px var(--f-ui);color:var(--tx2);margin-top:2px}
+.duel__b{grid-template-columns:42px 1fr 42px;margin-top:12px}
+.spec{display:flex;gap:3px;height:44px;margin:0 16px}
+.spec button{border-radius:8px;font:700 14px/1 var(--f-num);letter-spacing:-.02em;color:#fff;text-align:center;display:grid;place-items:center;transition:opacity .2s,transform .16s var(--ease)}
+.spec button.dim{opacity:.32}
+.spec button:first-child{border-radius:12px 8px 8px 12px}.spec button:last-child{border-radius:8px 12px 12px 8px}
+.specl{display:grid;grid-template-columns:1fr auto 1fr;margin:8px 16px 0;font:600 12px/16px var(--f-ui);color:var(--tx3)}
+.specl span:last-child{text-align:right}
+.scr{display:flex;align-items:center;gap:14px;width:100%;min-height:62px;padding:8px 16px;text-align:left;transition:opacity .2s,background-color .16s}
+.scr.dim{opacity:.4}
+.scr:active{background:rgba(255,255,255,.03)}
+.scr i{width:10px;height:10px;border-radius:3px;flex:none}
+.scr__t{flex:1;display:flex;flex-direction:column}
+.scr__t b{font:600 16px/22px var(--f-ui);letter-spacing:-.01em}
+.scr__m{font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.scr__n{font:700 22px/24px var(--f-num);letter-spacing:-.03em}
+.scr__n small{font:600 12px/1 var(--f-ui);color:var(--tx3);margin-left:1px}
+.linkrow{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:0 16px;text-align:left;font:600 16px/22px var(--f-ui);letter-spacing:-.01em;transition:background-color .16s}
+.linkrow:active{background:rgba(255,255,255,.03)}
+.linkrow>span{flex:1}
+.linkrow small{display:block;font:500 13px/18px var(--f-ui);color:var(--tx3)}
+.linkrow .ic{color:var(--tx3)}
+
+/* players */
+.pcard{margin:0 16px 12px;border-radius:var(--r-l);background:var(--s1);box-shadow:var(--lit),inset 0 0 0 1px var(--line);overflow:hidden}
+.pcard__h{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px 4px;text-align:left}
+.av{position:relative;width:58px;height:58px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:var(--s3);box-shadow:0 0 0 2px var(--c,var(--buf)),0 0 0 4px var(--s1);font:700 18px/1 var(--f-num);color:#fff}
+.av img{width:100%;height:100%;object-fit:cover}
+.pcard__t{flex:1;min-width:0}
+.pcard__t b{display:block;font:650 18px/24px var(--f-ui);letter-spacing:-.015em}
+.pcard__t em{display:block;font:500 13px/18px var(--f-ui);color:var(--tx2);font-style:normal}
+.pcard__n{text-align:right}
+.pcard__n b{display:block;font:700 32px/32px var(--f-num);letter-spacing:-.04em}
+.pcard__n small{font:500 12px/16px var(--f-ui);color:var(--tx3)}
+.ptype{display:flex;gap:6px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none}
+.ptype::-webkit-scrollbar{display:none}
+.ptype button{position:relative;flex:none;height:32px;padding:0 13px;border-radius:16px;background:var(--s2);font:600 13px/1 var(--f-ui);color:var(--tx2);transition:background-color .2s,color .2s}
+.ptype button::after{content:"";position:absolute;inset:-6px -2px}
+.ptype button.on{background:var(--inv);color:var(--on-inv)}
+.trk{position:relative;height:6px;border-radius:3px;background:var(--s3);margin:40px 20px 0}
+.trk__fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,rgba(255,255,255,.55),#fff)}
+.trk__tick{position:absolute;top:-6px;bottom:-6px;width:3px;border-radius:2px;background:var(--mkt);transform:translateX(-50%)}
+.trk__dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--model);transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--s1)}
+.trk__lab{position:absolute;white-space:nowrap;font:650 12px/16px var(--f-ui);transform:translateX(-50%)}
+.trk__lab--top{top:-26px;color:var(--mkt)}
+.trk__lab--bot{top:14px;color:var(--model)}
+.pcard__x{padding:36px 16px 14px;font:500 13px/18px var(--f-ui);color:var(--tx3)}
+.pcard__x--s{padding-top:14px}
+.lad{margin:14px 0 0;padding:0 8px 8px}
+.lad__r{display:grid;grid-template-columns:1fr 84px 84px;align-items:center;min-height:46px;padding:0 8px;border-radius:12px}
+.lad__r--h{min-height:30px}
+.lad__r--h .lh{font:600 12px/16px var(--f-ui);color:var(--tx3);text-align:right}
+.lad__r--h .lh--k{text-align:left}
+.lad__r--h .lh--m{color:var(--mkt)}
+.lad__r--h .lh--p{color:var(--model)}
+.lad__k{display:flex;align-items:center;gap:8px;font:600 16px/20px var(--f-ui);letter-spacing:-.01em}
+.lad__tag{white-space:nowrap;font:600 12px/1 var(--f-ui);color:var(--tx3);letter-spacing:0;font-style:normal;padding:4px 7px;border-radius:7px;background:rgba(255,255,255,.07)}
+.lad__r b{font:700 20px/24px var(--f-num);letter-spacing:-.035em;text-align:right}
+.lad__r--hit{background:var(--s3);box-shadow:inset 0 0 0 1px var(--line2)}
+.pnote{display:flex;align-items:center;gap:4px;margin:2px 8px 10px;padding:0 6px 0 0;min-height:52px;border-top:1px solid var(--line);width:calc(100% - 16px);text-align:left}
+.pnote span{flex:1;font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.pcard__f{padding:8px 16px 14px;font:500 12px/16px var(--f-ui);color:var(--tx3)}
+
+/* markets */
+.mtop{display:flex;align-items:center;gap:12px;padding:0 16px}
+.mtop .meta{flex:1;display:inline-flex;align-items:center;gap:8px}
+.win2{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.wbtn{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:2px;padding:16px 16px 14px;border-radius:var(--r-l);background:var(--s1);box-shadow:var(--lit),inset 0 0 0 1px var(--line);isolation:isolate}
+.wbtn::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(90% 70% at var(--gx,0%) 0%,var(--gc),transparent 70%);opacity:.2}
+.wbtn img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));margin-bottom:6px}
+.wbtn__n{font:600 14px/18px var(--f-ui);color:var(--tx2)}
+.wbtn__p{font:700 44px/46px var(--f-num);letter-spacing:-.05em;color:var(--mkt)}
+.wbtn__m{margin-top:8px;font:500 13px/16px var(--f-ui);color:var(--tx2)}
+.wbtn__m b{color:var(--model);font:700 14px/16px var(--f-num);letter-spacing:-.02em}
+.cmp{display:grid;gap:5px;margin-top:12px}
+.cmp i{display:block;height:5px;border-radius:3px}
+.mk{display:flex;align-items:center;gap:14px;min-height:68px;padding:0 16px}
+.mk img{width:30px;height:30px;object-fit:contain}
+.mk__i{width:30px;height:30px;border-radius:9px;background:var(--s3);display:grid;place-items:center;color:var(--tx2)}
+.mk__t{flex:1}
+.mk__t b{display:block;font:600 16px/22px var(--f-ui);letter-spacing:-.01em}
+.mk__s{font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.mk__p{font:700 26px/28px var(--f-num);letter-spacing:-.04em;color:var(--mkt)}
+.stale{display:flex;gap:12px;align-items:center;margin:0 16px 12px;padding:12px 14px;border-radius:var(--r-m);background:var(--mkt-bg);font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.stale .ic{color:var(--mkt)}
+@container (max-width: 380px){ .gsb__row{grid-template-columns:68px auto 1fr auto 68px} .gsb__t img{width:50px;height:50px} .gsb__n{font-size:48px} .gsb__ko{font-size:34px} .lad__r{grid-template-columns:1fr 70px 70px} }
+</style>
+</helmet>
+
+<div class="app">
+<div class="status" aria-hidden="true"><span>9:41</span><span class="status__r">
+<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.3 0 4.4.9 6 2.4l1-1.1A10.4 10.4 0 0 0 8.5.8c-2.8 0-5.4 1.1-7.5 2.9l1 1.1a8.8 8.8 0 0 1 6.5-2.4Zm0 3.5c1.4 0 2.7.5 3.7 1.4l1-1.1a7.2 7.2 0 0 0-9.4 0l1 1.1c1-.9 2.3-1.4 3.7-1.4Zm0 3.4c.7 0 1.3.2 1.8.7L8.5 12 6.7 10c.5-.5 1.1-.7 1.8-.7Z"/></svg>
+<svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2.2"/><path d="M25 4.5v4c.8-.3 1.5-1.2 1.5-2s-.7-1.7-1.5-2Z" opacity=".5"/></svg></span></div>
+<main class="scroll" id="sc" onScroll="{{onScroll}}" inert="{{bgInert}}">
+  <svg class="gbg" viewBox="0 0 390 330" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+    <defs>
+      <radialGradient id="gL" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(-10 40) scale(260 250)"><stop offset="0" stop-color="#F0566E" stop-opacity=".5"/><stop offset=".6" stop-color="#F0566E" stop-opacity=".1"/><stop offset="1" stop-color="#F0566E" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gR" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 40) scale(270 260)"><stop offset="0" stop-color="#4F8BFF" stop-opacity=".7"/><stop offset=".6" stop-color="#4F8BFF" stop-opacity=".14"/><stop offset="1" stop-color="#4F8BFF" stop-opacity="0"/></radialGradient>
+      <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <linearGradient id="fadeG" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="#07080B" stop-opacity="0"/><stop offset=".96" stop-color="#07080B"/></linearGradient>
+      <filter id="b6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+      <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0"/></filter>
+    </defs>
+    <rect width="390" height="330" fill="#080A0F"/>
+    <rect width="390" height="330" fill="url(#gL)"/><rect width="390" height="330" fill="url(#gR)"/>
+    <g filter="url(#b6)"><polygon points="300,-20 322,-20 356,230 270,230" fill="url(#beam)"/><polygon points="76,-20 98,-20 132,210 48,210" fill="url(#beam)" opacity=".7"/></g>
+    <rect width="390" height="330" filter="url(#grain)" opacity=".06"/>
+    <rect width="390" height="330" fill="url(#fadeG)"/>
+  </svg>
+
+  <div class="gpage">
+  <header class="ghead {{headCls}}">
+    <a class="gbtn" href="Home.dc.html" aria-label="Back to Home"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-left"/></svg></a>
+    <div class="ghead__c" aria-hidden="true"><span>{{head.mid}}</span><small class="{{head.cls}}">{{head.right}}</small></div>
+    
+    <button class="gbtn {{saveCls}}" aria-label="Save to My Board" aria-pressed="{{saved}}" onClick="{{toggleSave}}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="{{saveIcon}}"/></svg></button>
+    <button class="gbtn" aria-label="More"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-dots-three"/></svg></button>
+  </header>
+
+  <section class="gsb" aria-label="Scoreboard">
+    <div class="gsb__meta"><span class="meta">NFL · Week 4 · Highmark Stadium</span><sc-if value="{{hasSample}}" hint-placeholder-val="{{ true }}"><span class="sample">Sample</span></sc-if><span class="badge {{badgeCls}}">{{badgeTxt}}</span></div>
+    <div class="gsb__row">
+      <div class="gsb__t"><img src="assets/t/nfl-NE.webp" alt=""><b>Patriots</b><small>1–2</small></div>
+      <sc-if value="{{showScore}}" hint-placeholder-val="{{ true }}"><div class="gsb__n gsb__n--a {{neLose}}">{{ne}}</div></sc-if><sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+      <div class="gsb__c">
+        <sc-if value="{{isLivePh}}" hint-placeholder-val="{{ true }}"><b>{{per}}</b><span>{{clk}}</span><small>BUF ball</small></sc-if>
+        <sc-if value="{{isPre}}" hint-placeholder-val="{{ false }}"><div class="gsb__ko">12:00</div><span class="gsb__ko-s">PM CDT</span><span class="gsb__ko-e">in 1h 59m</span></sc-if>
+        <sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}"><span class="fin">Final</span></sc-if>
+      </div>
+      <sc-if value="{{showScore}}" hint-placeholder-val="{{ true }}"><div class="gsb__n {{bufLose}}">{{buf}}</div></sc-if><sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+      <div class="gsb__t"><img src="assets/t/nfl-BUF.webp" alt=""><b>Bills</b><small>3–0</small></div>
+    </div>
+    <div class="gsb__foot"><span class="grow">{{footTxt}}</span><span class="stt">Prices live</span><span class="stt stt--old">{{researchTxt}}</span></div>
+  </section>
+
+  <nav class="gtabs" role="tablist" aria-label="Game sections" style="--gi:{{tabIdx}}">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+      <button class="gtab {{t.cls}}" role="tab" id="{{t.id}}" aria-controls="{{t.panel}}" aria-selected="{{t.sel}}" tabindex="{{t.ti}}" onClick="{{t.pick}}"><sc-if value="{{t.live}}" hint-placeholder-val="{{ false }}"><i class="gtab__dot" aria-hidden="true"></i></sc-if>{{t.label}}</button>
+    </sc-for>
+  </nav>
+
+  <div onPointerDown="{{swDown}}" onPointerUp="{{swUp}}">
+
+  <!-- LIVE -->
+  <sc-if value="{{tab.live}}" hint-placeholder-val="{{ true }}">
+  <div class="pane" role="tabpanel" id="panel-live" aria-labelledby="tab-live">
+    <sc-if value="{{isLivePh}}" hint-placeholder-val="{{ true }}">
+      <div class="sit">
+        <div class="sit__h"><span class="sit__dd">{{now.dd}}</span><span class="sit__w"><b>BUF ball</b></span><span class="sit__y">{{now.where}}</span></div>
+        <div class="fld" role="img" aria-label="{{now.alt}}"><i class="fld__ez fld__ez--a"></i><i class="fld__ez fld__ez--h"></i><i class="fld__yd"></i><i class="fld__drive" style="left:{{now.from}}%;width:{{now.w}}%"></i><i class="fld__gain" style="left:{{now.gain}}%"></i><i class="fld__ball" style="left:{{now.ball}}%"></i></div>
+        <div class="fldl" aria-hidden="true"><span>NE</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>40</span><span>30</span><span>20</span><span>10</span><span>BUF</span></div>
+        <div class="sit__f"><span>Drive</span><span>{{now.drive}}</span></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{isPre}}" hint-placeholder-val="{{ false }}"><h2 class="read-h">Buffalo’s run game is the mismatch.</h2></sc-if>
+    <sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}"><h2 class="read-h">Bills win a game that stayed close.</h2></sc-if>
+
+    <button class="sigrow" aria-haspopup="dialog" onClick="{{openRun}}"><span class="sigchip {{sigCls}}"><span class="sigchip__p"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>1</span></span><b>Run game: Bills edge<small>{{sigSub}}</small></b><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button>
+
+    <sc-if value="{{hasPlays}}" hint-placeholder-val="{{ true }}">
+    <div class="blk">
+      <div class="blk__h"><h3>Plays</h3>
+        <div class="seg" role="group" aria-label="Filter plays"><sc-for list="{{playFilters}}" as="f" hint-placeholder-count="3"><button class="{{f.cls}}" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div></div>
+      <div class="grp">
+        <sc-for list="{{plays}}" as="p" hint-placeholder-count="6">
+          <div class="play {{p.cls}}" style="--c:{{p.c}}"><div class="play__t"><b>{{p.t}}</b><span><img src="{{p.logo}}" alt="">{{p.team}}</span></div><div class="play__x"><span>{{p.x}}</span><sc-if value="{{p.score}}" hint-placeholder-val="{{ false }}"><span class="pill">{{p.pill}}</span></sc-if></div></div>
+        </sc-for>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk__h"><h3>Team stats</h3></div>
+      <div class="grp">
+        <div class="tlegend"><span><img src="assets/t/nfl-NE.webp" alt="">Patriots</span><span>Bills<img src="assets/t/nfl-BUF.webp" alt=""></span></div>
+        <sc-for list="{{tstats}}" as="s" hint-placeholder-count="3">
+          <div class="tstat"><div class="tstat__h"><b>{{s.a}}</b><span>{{s.k}}</span><b>{{s.h}}</b></div>
+          <div class="tstat__bar" aria-hidden="true"><div><i style="width:{{s.aw}}%;background:var(--ne)"></i></div><div><i style="width:{{s.hw}}%;background:var(--buf)"></i></div></div></div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isPre}}" hint-placeholder-val="{{ false }}">
+    <div class="blk">
+      <div class="blk__h"><h3>Model and market</h3></div>
+      <div class="grp mm">
+        <div class="mm__h"><span>&nbsp;</span><span>SIFT model</span><span>Kalshi</span></div>
+        <div class="mm__r"><span class="mm__k">Bills win</span><span class="mm__v" style="color:var(--model)">74<small>%</small></span><span class="mm__v" style="color:var(--mkt)">74<small>¢</small></span></div>
+        <div class="mm__r"><span class="mm__k">Total points</span><span class="mm__v" style="color:var(--model)">51</span><span class="mm__v" style="color:var(--mkt)">50.5</span></div>
+      </div>
+      <div class="verdict"><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-check-circle"/></svg><span><b>No gap to chase.</b> Model and market agree.</span></div>
+    </div>
+    <div class="blk"><div class="avail"><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-warning"/></svg><div><b>Patriots without WR A.J. Brown</b>Out. He played 1 of NE’s 3 games.</div></div></div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- MATCHUPS -->
+  <sc-if value="{{tab.matchups}}" hint-placeholder-val="{{ false }}">
+  <div class="pane" role="tabpanel" id="panel-matchups" aria-labelledby="tab-matchups">
+    <div class="blk__h"><h3>Mismatches</h3><span class="pill-note" style="{{frozenShow}}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-lock-simple"/></svg>Frozen at kickoff</span></div>
+    <div style="padding:0 16px 12px"><div class="seg" role="group" aria-label="Filter by edge" style="display:inline-flex"><sc-for list="{{matchFilters}}" as="f" hint-placeholder-count="3"><button class="{{f.cls}}" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}} {{f.n}}</button></sc-for></div></div>
+    <div class="grp">
+      <sc-for list="{{duelsAll}}" as="d" hint-placeholder-count="5">
+        <div class="duel">
+          <div class="duel__l"><span class="duel__k">{{d.k}}</span><span class="duel__e" style="color:{{d.ec}}"><i style="background:{{d.ec}}"></i>{{d.edge}}</span></div>
+          <div class="duel__d">{{d.detail}}</div>
+          <div class="duel__b"><b style="color:{{d.lc}}">#{{d.lr}}</b>
+            <div class="duel__t"><div class="duel__h"><i style="width:{{d.lw}}%;background:{{d.lc}}"></i></div><div class="duel__h"><i style="width:{{d.rw}}%;background:{{d.rc}}"></i></div></div>
+            <b style="color:{{d.rc}}">#{{d.rr}}</b></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div class="blk">
+      <div class="blk__h"><h3>How it could play out</h3><span class="pill-note" style="{{frozenShow}}">Pregame</span></div>
+      <div class="spec">
+        <sc-for list="{{specSegs}}" as="s" hint-placeholder-count="4">
+          <button style="flex:{{s.share}};background:{{s.color}}" class="{{s.cls}}" aria-label="{{s.name}}, {{s.share}} percent of simulated games" aria-pressed="{{s.on}}" onClick="{{s.pick}}">{{s.share}}</button>
+        </sc-for>
+      </div>
+      <div class="specl"><span>Patriots win</span><span>Close</span><span>Bills win</span></div>
+      <div class="grp" style="margin-top:12px">
+        <sc-for list="{{scripts}}" as="s" hint-placeholder-count="4">
+          <button class="scr {{s.cls}}" aria-pressed="{{s.on}}" onClick="{{s.pick}}"><i style="background:{{s.color}}"></i><span class="scr__t"><b>{{s.name}}</b><span class="scr__m">{{s.margin}}</span></span><span class="scr__n">{{s.share}}<small>%</small></span></button>
+        </sc-for>
+      </div>
+      <div class="note">Share of simulated games. Not calibrated probabilities.</div>
+    </div>
+
+    <div class="blk"><div class="grp">
+      <button class="linkrow" onClick="{{noop}}"><span>Injuries<small>3 out, 2 questionable</small></span><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button>
+      <button class="linkrow" onClick="{{noop}}"><span>Team form and trends</span><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button>
+      <button class="linkrow" onClick="{{noop}}"><span>Full matchup research</span><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button>
+    </div></div>
+  </div>
+  </sc-if>
+
+  <!-- PLAYERS -->
+  <sc-if value="{{tab.players}}" hint-placeholder-val="{{ false }}">
+  <div class="pane" role="tabpanel" id="panel-players" aria-labelledby="tab-players">
+    <div class="blk__h"><h3>Player props</h3><sc-if value="{{hasSample}}" hint-placeholder-val="{{ false }}"><span class="sample">Sample stats</span></sc-if></div>
+    <sc-for list="{{players}}" as="p" hint-placeholder-count="4">
+      <div class="pcard">
+        <button class="pcard__h" aria-expanded="{{p.open}}" onClick="{{p.pick}}">
+          <span class="av" style="--c:{{p.tc}}"><sc-if value="{{p.hasPhoto}}" hint-placeholder-val="{{ true }}"><img src="{{p.photo}}" alt="" style="object-position:{{p.pos}}"></sc-if><sc-if value="{{p.noPhoto}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true">{{p.init}}</span></sc-if></span>
+          <span class="pcard__t"><b>{{p.name}}</b><em>{{p.sub}}</em></span>
+          <span class="pcard__n"><b>{{p.big}}</b><small>{{p.bigLab}}</small></span>
+        </button>
+        <sc-if value="{{p.multi}}" hint-placeholder-val="{{ false }}"><div class="ptype" role="group" aria-label="Prop type"><sc-for list="{{p.types}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" aria-pressed="{{t.on}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div></sc-if>
+        <div class="trk" role="img" aria-label="{{p.alt}}">
+          <sc-if value="{{p.hasNow}}" hint-placeholder-val="{{ false }}"><i class="trk__fill" style="width:{{p.np}}%"></i></sc-if>
+          <i class="trk__tick" style="left:{{p.lp}}%"></i>
+          <sc-if value="{{p.hasProj}}" hint-placeholder-val="{{ true }}"><i class="trk__dot" style="left:{{p.pp}}%"></i></sc-if>
+          <span class="trk__lab trk__lab--top" style="left:{{p.lp}}%">Line {{p.line}}</span>
+          <sc-if value="{{p.hasProj}}" hint-placeholder-val="{{ true }}"><span class="trk__lab trk__lab--bot" style="left:{{p.pp}}%">{{p.projLab}} {{p.proj}}</span></sc-if>
+        </div>
+        <sc-if value="{{p.noProj}}" hint-placeholder-val="{{ false }}"><div class="pcard__x pcard__x--s">No projection published.</div></sc-if>
+        <sc-if value="{{p.hasProj}}" hint-placeholder-val="{{ true }}"><div style="height:30px"></div></sc-if>
+        <sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
+          <div class="lad">
+            <div class="lad__r lad__r--h"><span class="lh lh--k">{{p.unit}}</span><span class="lh lh--m">Kalshi</span><span class="lh lh--p">{{modelLab}}</span></div>
+            <sc-for list="{{p.ladder}}" as="l" hint-placeholder-count="5">
+              <div class="lad__r {{l.cls}}"><span class="lad__k">{{l.tt}}<sc-if value="{{l.hit}}" hint-placeholder-val="{{ false }}"><em class="lad__tag">At the line</em></sc-if></span><b style="color:var(--mkt)">{{l.ask}}¢</b><b style="color:var(--model)">{{l.model}}%</b></div>
+            </sc-for>
+          </div>
+          <sc-if value="{{p.hasNote}}" hint-placeholder-val="{{ false }}"><button class="pnote" aria-haspopup="dialog" onClick="{{p.openNote}}"><span class="sigchip sigchip--frozen"><span class="sigchip__p"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>1</span></span><span>Pregame model sits below the 250+ price</span><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button></sc-if>
+        </sc-if>
+      </div>
+    </sc-for>
+    <div class="note" style="padding-top:0">Kalshi prices and the pregame model are shown side by side for research. This is not betting advice.</div>
+  </div>
+  </sc-if>
+
+  <!-- MARKETS -->
+  <sc-if value="{{tab.markets}}" hint-placeholder-val="{{ false }}">
+  <div class="pane" role="tabpanel" id="panel-markets" aria-labelledby="tab-markets">
+    <div class="mtop"><span class="meta"><span class="stt">{{priceLab}}</span> · 12s ago</span>
+      <div class="seg" role="group" aria-label="Price format"><sc-for list="{{fmts}}" as="f" hint-placeholder-count="4"><button class="{{f.cls}}" aria-pressed="{{f.on}}" aria-label="{{f.aria}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div>
+    </div>
+    <div class="blk" style="margin-top:20px">
+      <div class="blk__h"><h3>To win</h3></div>
+      <div class="win2">
+        <div class="wbtn" style="--gc:#F0566E;--gx:0%"><img src="assets/t/nfl-NE.webp" alt=""><span class="wbtn__n">Patriots</span><span class="wbtn__p">{{ne2.p}}</span><span class="wbtn__m">{{modelLab}} <b>26%</b></span><span class="cmp" aria-hidden="true"><i style="width:26%;background:var(--mkt)"></i><i style="width:26%;background:var(--model)"></i></span></div>
+        <div class="wbtn" style="--gc:#4F8BFF;--gx:100%"><img src="assets/t/nfl-BUF.webp" alt=""><span class="wbtn__n">Bills</span><span class="wbtn__p">{{buf2.p}}</span><span class="wbtn__m">{{modelLab}} <b>74%</b></span><span class="cmp" aria-hidden="true"><i style="width:74%;background:var(--mkt)"></i><i style="width:74%;background:var(--model)"></i></span></div>
+      </div>
+      <div class="tlegend" style="justify-content:flex-start;gap:18px;padding-top:12px"><span><i style="width:14px;height:5px;border-radius:3px;background:var(--mkt);display:inline-block"></i>Kalshi price</span><span><i style="width:14px;height:5px;border-radius:3px;background:var(--model);display:inline-block"></i>{{modelLab}}</span></div>
+    </div>
+    <div class="blk">
+      <div class="blk__h"><h3>Spread and total</h3></div>
+      <div class="grp">
+        <div class="mk"><img src="assets/t/nfl-BUF.webp" alt=""><span class="mk__t"><b>Bills −6.5</b><span class="mk__s">Wins by 7 or more</span></span><span class="mk__p">{{spread.p}}</span></div>
+        <div class="mk"><span class="mk__i"><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-chart-line-up"/></svg></span><span class="mk__t"><b>Over 50.5</b><span class="mk__s">Total points</span></span><span class="mk__p">{{total.p}}</span></div>
+      </div>
+      <div class="note">No model price is published for spreads or totals.</div>
+    </div>
+    <div class="blk"><div class="grp">
+      <button class="linkrow" onClick="{{goPlayers}}"><span>Player props<small>95 priced, ladders by line</small></span><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></button>
+      <a class="linkrow" href="Signals.dc.html"><span>Signals<small>3 research candidates this week</small></span><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></a>
+    </div></div>
+  </div>
+  </sc-if>
+
+  </div>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-house"/></svg>Home</a>
+  <a class="tab on" href="Game.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-calendar-dots-f"/></svg>Games</a>
+  <a class="tab" href="Props.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-target"/></svg>Props</a>
+  <a class="tab" href="Signals.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>Signals</a>
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bookmark-simple"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="{{sheetSid}}" group="{{sheetSid}}" frozen="{{sheetFrozen}}" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-caret-left" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></symbol><symbol id="i-dots-three" viewBox="0 0 256 256"><path d="M140,128a12,12,0,1,1-12-12A12,12,0,0,1,140,128Zm56-12a12,12,0,1,0,12,12A12,12,0,0,0,196,116ZM60,116a12,12,0,1,0,12,12A12,12,0,0,0,60,116Z"/></symbol><symbol id="i-pulse" viewBox="0 0 256 256"><path d="M240,128a8,8,0,0,1-8,8H204.94l-37.78,75.58A8,8,0,0,1,160,216h-.4a8,8,0,0,1-7.08-5.14L95.35,60.76,63.28,131.31A8,8,0,0,1,56,136H24a8,8,0,0,1,0-16H50.85L88.72,36.69a8,8,0,0,1,14.76.46l57.51,151,31.85-63.71A8,8,0,0,1,200,120h32A8,8,0,0,1,240,128Z"/></symbol><symbol id="i-caret-right" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></symbol><symbol id="i-check-circle" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol><symbol id="i-warning" viewBox="0 0 256 256"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></symbol><symbol id="i-lock-simple" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></symbol><symbol id="i-chart-line-up" viewBox="0 0 256 256"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"/></symbol><symbol id="i-house" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"/></symbol><symbol id="i-calendar-dots-f" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM84,184a12,12,0,1,1,12-12A12,12,0,0,1,84,184Zm44,0a12,12,0,1,1,12-12A12,12,0,0,1,128,184Zm0-40a12,12,0,1,1,12-12A12,12,0,0,1,128,144Zm44,40a12,12,0,1,1,12-12A12,12,0,0,1,172,184Zm0-40a12,12,0,1,1,12-12A12,12,0,0,1,172,144Zm36-64H48V48H72v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24Z"/></symbol><symbol id="i-target" viewBox="0 0 256 256"><path d="M221.87,83.16A104.1,104.1,0,1,1,195.67,49l22.67-22.68a8,8,0,0,1,11.32,11.32l-96,96a8,8,0,0,1-11.32-11.32l27.72-27.72a40,40,0,1,0,17.87,31.09,8,8,0,1,1,16-.9,56,56,0,1,1-22.38-41.65L184.3,60.39a87.88,87.88,0,1,0,23.13,29.67,8,8,0,0,1,14.44-6.9Z"/></symbol><symbol id="i-bookmark-simple" viewBox="0 0 256 256"><path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"/></symbol><symbol id="i-bookmark-simple-f" viewBox="0 0 256 256"><path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Z"/></symbol></defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"phase":{"editor":"enum","options":["live","pregame","final"],"default":"live"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const A = { allen: 'assets/p/buf-allen-portrait.webp', maye: 'assets/p/ne-maye.webp', NE: 'assets/t/nfl-NE.webp', BUF: 'assets/t/nfl-BUF.webp' };
+    const st = this.state || {};
+    const ph = ['live', 'pregame', 'final'].indexOf(this.props.phase) > -1 ? this.props.phase : 'live';
+    const isLivePh = ph === 'live', isPre = ph === 'pregame', isFin = ph === 'final';
+    const tabKey = st.tab || 'live';
+    const set = (o) => () => this.setState(o);
+    const toTop = () => { const sc = document.getElementById('sc'); if (sc && sc.scrollTop > 232) sc.scrollTop = 232; };
+    const go = (k) => () => { this.setState({ tab: k }); toTop(); };
+    const ORDER = ['live', 'matchups', 'players', 'markets'];
+
+    const tabs = [['live', 'Live'], ['matchups', 'Matchups'], ['players', 'Players'], ['markets', 'Markets']]
+      .map(([k, label]) => ({ label, id: 'tab-' + k, panel: 'panel-' + k, cls: tabKey === k ? 'on' : '', sel: tabKey === k, ti: tabKey === k ? '0' : '-1', live: k === 'live' && isLivePh, pick: go(k) }));
+    const tabIdx = ORDER.indexOf(tabKey);
+    const tab = { live: tabKey === 'live', matchups: tabKey === 'matchups', players: tabKey === 'players', markets: tabKey === 'markets' };
+
+    // swipe left or right to move between the four tabs
+    const swDown = (e) => { this._sx = e.clientX; this._sy = e.clientY; };
+    const swUp = (e) => {
+      if (this._sx === undefined) return;
+      const dx = e.clientX - this._sx, dy = e.clientY - this._sy; this._sx = undefined;
+      if (Math.abs(dx) > 70 && Math.abs(dy) < 40) { const i = ORDER.indexOf(tabKey) + (dx < 0 ? 1 : -1); if (i >= 0 && i < ORDER.length) go(ORDER[i])(); }
+    };
+
+    // sample live state: design only, there is no live feed yet
+    const sample = { live: { ne: 10, buf: 17, per: 'Q2', clk: '4:12' }, final: { ne: 20, buf: 27 } };
+    const sc = isFin ? sample.final : sample.live;
+    const showScore = !isPre;
+    const hasSample = !isPre;
+    const head = isPre ? { mid: 'NE @ BUF', right: '12:00 PM', cls: '' }
+      : isFin ? { mid: 'NE ' + sc.ne + ' · ' + sc.buf + ' BUF', right: 'Final', cls: '' }
+      : { mid: 'NE ' + sc.ne + ' · ' + sc.buf + ' BUF', right: sc.per + ' ' + sc.clk, cls: 'lv' };
+    const footTxt = isLivePh ? 'Bills are driving' : 'Highmark Stadium';
+
+    // field: BUF drives toward the NE end zone (left). Ball at the NE 34, line to gain at the NE 28.
+    // Plotted on the 100 yard strip between the end zones (8% to 92%): yard y from the NE goal line sits at 8 + 0.84 * y.
+    const yd = (y) => Math.round((8 + 0.84 * y) * 10) / 10;
+    const now = { dd: '2nd & 6', where: 'NE 34', ball: yd(34), gain: yd(28), from: yd(34), w: Math.round(0.84 * 41 * 10) / 10, drive: '6 plays · 41 yds · 3:05',
+      alt: 'Bills have the ball on the Patriots 34. Second and 6. Drive: 6 plays, 41 yards.' };
+
+    const PLAYS = [
+      { t: 'Q2 4:12', team: 'BUF', x: '2nd & 6. Cook rush for 4 yds', k: 'n' },
+      { t: 'Q2 4:50', team: 'BUF', x: '1st & 10. Allen pass to Moore for 14 yds', k: 'big' },
+      { t: 'Q2 5:02', team: 'NE', x: 'Punt, 48 yds, fair catch', k: 'n' },
+      { t: 'Q2 5:41', team: 'NE', x: '3rd & 4. Maye sacked for −6 yds', k: 'big' },
+      { t: 'Q2 8:55', team: 'BUF', x: 'Field goal good from 41 yds', k: 'sc', pill: 'FG +3 · BUF 17–10' },
+      { t: 'Q2 11:20', team: 'BUF', x: 'Allen pass to Moore for 22 yds, touchdown', k: 'sc', pill: 'TD +7 · BUF 14–10' },
+      { t: 'Q2 14:05', team: 'NE', x: 'Stevenson rush for 2 yds, touchdown', k: 'sc', pill: 'TD +7 · NE 10–7' },
+      { t: 'Q1 0:31', team: 'NE', x: 'Field goal good from 38 yds', k: 'sc', pill: 'FG +3 · NE 3–7' }
+    ];
+    const pf = st.pf || 'all';
+    const playFilters = [['all', 'All'], ['sc', 'Scoring'], ['big', 'Big']].map(([k, label]) => ({ label, on: pf === k, cls: pf === k ? 'on' : '', pick: set({ pf: k }) }));
+    const plays = PLAYS.filter((p) => pf === 'all' || (pf === 'sc' ? p.k === 'sc' : p.k === 'big' || p.k === 'sc'))
+      .map((p) => ({ ...p, cls: p.k === 'sc' ? 'play--sc' : '', score: !!p.pill, logo: p.team === 'BUF' ? A.BUF : A.NE, c: p.team === 'BUF' ? '#4F8BFF' : '#F0566E' }));
+    const tstats = [['Total yards', 142, 187], ['First downs', 8, 11], ['Turnovers', 1, 0]]
+      .map(([k, a, h]) => ({ k, a, h, aw: Math.round(a / (a + h || 1) * 100), hw: Math.round(h / (a + h || 1) * 100) }));
+    const hasPlays = !isPre;
+
+    // scripts: pregame research, frozen at kickoff
+    const sel = st.script || null;
+    const S = [
+      { id: 'ne', name: 'Patriots Win Comfortably', margin: 'Patriots by 7 or more.', share: 13, color: '#D2455D' },
+      { id: 'close', name: 'Patriots Keep It Close', margin: 'Either team by 6 or fewer.', share: 36, color: '#5B6678' },
+      { id: 'bc', name: 'Bills Win Comfortably', margin: 'Bills by 7 to 13.', share: 24, color: '#3A74E6' },
+      { id: 'bb', name: 'Bills Win Big', margin: 'Bills by 14 or more.', share: 26, color: '#2A56B8' }
+    ];
+    const pickS = (id) => () => this.setState({ script: st.script === id ? null : id });
+    const specSegs = S.map((s) => ({ ...s, cls: sel && sel !== s.id ? 'dim' : '', on: sel === s.id, pick: pickS(s.id) }));
+    const scripts = [S[1], S[3], S[2], S[0]].map((s) => ({ ...s, cls: sel && sel !== s.id ? 'dim' : '', on: sel === s.id, pick: pickS(s.id) }));
+
+    const NE = '#F0566E', BUF = '#4F8BFF';
+    const D = [
+      { k: 'Run game', detail: 'BUF rushing offense vs NE rushing defense', l: ['BUF', 1], r: ['NE', 21] },
+      { k: 'Big plays', detail: 'NE explosive offense vs BUF explosive defense', l: ['NE', 4], r: ['BUF', 24] },
+      { k: 'Early downs', detail: 'BUF early-down offense vs NE early-down defense', l: ['BUF', 2], r: ['NE', 5] },
+      { k: 'Ground game', detail: 'NE rushing offense vs BUF rushing defense', l: ['NE', 21], r: ['BUF', 31] },
+      { k: 'Pressure', detail: 'NE pressure offense vs BUF pressure defense', l: ['NE', 31], r: ['BUF', 22] }
+    ].map((d) => {
+      const lc = d.l[0] === 'BUF' ? BUF : NE, rc = d.r[0] === 'BUF' ? BUF : NE;
+      const ls = 33 - d.l[1], rs = 33 - d.r[1], gap = Math.abs(ls - rs);
+      const winner = ls >= rs ? d.l[0] : d.r[0];
+      const word = gap >= 18 ? 'Major edge' : gap >= 8 ? 'Clear edge' : 'Slight edge';
+      return { ...d, lr: d.l[1], rr: d.r[1], lc, rc, lw: Math.round(ls / 32 * 100), rw: Math.round(rs / 32 * 100), gap, winner, edge: word + ' · ' + winner, ec: winner === 'BUF' ? BUF : NE };
+    });
+    const mf = st.mf || 'all';
+    const nBuf = D.filter((d) => d.winner === 'BUF').length, nNe = D.filter((d) => d.winner === 'NE').length;
+    const matchFilters = [['all', 'All', D.length], ['BUF', 'Bills', nBuf], ['NE', 'Patriots', nNe]].map(([k, label, n]) => ({ label, n, on: mf === k, cls: mf === k ? 'on' : '', pick: set({ mf: k }) }));
+    const duelsAll = D.filter((d) => mf === 'all' || d.winner === mf).sort((a, b) => b.gap - a.gap);
+
+    // players: the Kalshi ladder beside the pregame shadow price. In play, the tracker also shows the stat so far (sample).
+    const open = st.open === undefined ? 'allen' : st.open;
+    const ptype = st.ptype || {};
+    const P = [
+      { id: 'allen', name: 'Josh Allen', team: 'QB · BUF · vs NE', photo: A.allen, pos: '36% 12%', tc: BUF, init: 'JA',
+        types: [{ k: 'yds', label: 'Passing yards', unit: 'Yards', line: 249.5, proj: 222, now: 163, nowLab: '14 of 21', rungs: [[200, 75, 70.5], [225, 62, 58.1], [250, 47, 44.8], [275, 31, 32.1], [300, 21, 21.2]], hit: 250 },
+                { k: 'td', label: 'Passing TDs', unit: 'TDs', line: 1.5, proj: 1.6, now: 2, nowLab: 'touchdowns', rungs: [[1, 86, 83.9], [2, 55, 54.6], [3, 24, 25.1]], hit: 2 }], note: true },
+      { id: 'maye', name: 'Drake Maye', team: 'QB · NE · at BUF', photo: A.maye, pos: '58% 14%', tc: NE, init: 'DM',
+        types: [{ k: 'yds', label: 'Passing yards', unit: 'Yards', line: 249.5, proj: null, now: 98, nowLab: '9 of 17', rungs: [[200, 67, 58.7], [225, 54, 45.4], [250, 40, 32.6], [275, 27, 21.6], [300, 18, 13.1]], hit: 250 }] },
+      { id: 'cook', name: 'James Cook III', team: 'RB · BUF · vs NE', photo: null, tc: BUF, init: 'JC',
+        types: [{ k: 'yds', label: 'Rushing yards', unit: 'Yards', line: 79.5, proj: 85, now: 41, nowLab: '9 carries', rungs: [[60, 76, 66.9], [70, 66, 58.8], [80, 55, 50.3], [90, 44, 41.5], [100, 37, 33.8]], hit: 80 }] },
+      { id: 'moore', name: 'DJ Moore', team: 'WR · BUF · vs NE', photo: null, tc: BUF, init: 'DM',
+        types: [{ k: 'yds', label: 'Receiving yards', unit: 'Yards', line: 49.5, proj: 44, now: 52, nowLab: '4 catches', rungs: [[25, 81, 74.7], [40, 64, 54.7], [50, 52, 42.3], [60, 40, 31.3], [70, 31, 22.7]], hit: 50 }] }
+    ];
+    const inPlay = !isPre;
+    const players = P.map((p) => {
+      const tk = ptype[p.id] || p.types[0].k;
+      const t = p.types.find((x) => x.k === tk) || p.types[0];
+      const hi = t.line * 1.5, pc = (v) => Math.max(3, Math.min(97, Math.round(v / hi * 1000) / 10));
+      const isOpen = open === p.id;
+      return { id: p.id, name: p.name, sub: p.team, photo: p.photo, pos: p.pos, tc: p.tc, init: p.init, unit: t.unit, line: t.line, proj: t.proj,
+        hasPhoto: !!p.photo, noPhoto: !p.photo, hasProj: t.proj != null, noProj: t.proj == null, open: isOpen, hasNow: inPlay, hasNote: !!p.note && t.k === 'yds',
+        big: inPlay ? String(t.now) : String(t.line), bigLab: inPlay ? t.nowLab : 'line',
+        lp: pc(t.line), pp: t.proj != null ? pc(t.proj) : 0, np: pc(t.now), projLab: inPlay ? 'Pregame' : 'Projection',
+        alt: p.name + ', ' + t.label + (inPlay ? ', ' + t.now + ' so far' : '') + ', line ' + t.line + (t.proj != null ? ', projection ' + t.proj : ''),
+        multi: p.types.length > 1, types: p.types.map((x) => ({ label: x.label, on: x.k === t.k, cls: x.k === t.k ? 'on' : '', pick: () => this.setState({ ptype: { ...ptype, [p.id]: x.k }, open: p.id }) })),
+        pick: () => this.setState({ open: isOpen ? '' : p.id }),
+        openNote: () => this.setState({ sheet: 'allen', openKey: (st.openKey || 0) + 1 }),
+        ladder: t.rungs.map((r) => ({ t: r[0], tt: r[0] + '+', ask: r[1], model: r[2].toFixed(0), cls: r[0] === t.hit ? 'lad__r--hit' : '', hit: r[0] === t.hit })) };
+    });
+
+    const fm = st.fmt || 'cents';
+    const price = (p) => {
+      if (fm === 'cents') return Math.round(p * 100) + '¢';
+      if (fm === 'pct') return Math.round(p * 100) + '%';
+      if (fm === 'dec') return (1 / p).toFixed(2);
+      const a = p >= 0.5 ? -(p / (1 - p)) * 100 : ((1 - p) / p) * 100;
+      return (a > 0 ? '+' : '−') + Math.round(Math.abs(a) / 5) * 5;
+    };
+    const fmts = [['cents', '¢', 'Cents'], ['pct', '%', 'Implied percent'], ['us', 'US', 'American odds'], ['dec', 'Dec', 'Decimal odds']].map(([k, label, aria]) => ({ label, aria, on: fm === k, cls: fm === k ? 'on' : '', pick: set({ fmt: k }) }));
+
+    const scrolled = !!st.cond;
+    const sheet = st.sheet || null, sheetOpen = !!sheet;
+    return {
+      tabs, tab, tabIdx, specSegs, scripts, duelsAll, matchFilters, players, fmts, plays, playFilters, tstats, hasPlays, now,
+      priceLab: isFin ? 'Closed' : 'Live prices', researchTxt: isPre ? 'Research 14h' : 'Research frozen', isLivePh, isPre, isFin, showScore, noScore: !showScore, hasSample, head, footTxt,
+      badgeTxt: isLivePh ? 'LIVE' : isFin ? 'FINAL' : 'PREGAME', badgeCls: isLivePh ? 'badge--live' : isFin ? 'badge--final' : 'badge--pre',
+      ne: sc.ne, buf: sc.buf, per: sc.per, clk: sc.clk, neLose: sc.ne < sc.buf ? 'gsb__n--lose' : '', bufLose: sc.buf < sc.ne ? 'gsb__n--lose' : '',
+      modelLab: inPlay ? 'Pregame' : 'Model', frozenShow: inPlay ? '' : 'display:none',
+      ne2: { p: price(0.26) }, buf2: { p: price(0.74) }, spread: { p: price(0.53) }, total: { p: price(0.49) },
+      goPlayers: go('players'), noop: () => {},
+      headCls: (st.bg ? 'ghead--solid ' : '') + (scrolled ? 'ghead--title' : ''), spShow: scrolled ? 'display:none' : '',
+      onScroll: (e) => { const y = e.currentTarget.scrollTop; const c = y > 150, b = y > 24; if (c !== !!st.cond || b !== !!st.bg) this.setState({ cond: c, bg: b }); },
+      saved: !!st.saved, saveCls: st.saved ? 'gbtn--on' : '', saveIcon: st.saved ? '#i-bookmark-simple-f' : '#i-bookmark-simple', toggleSave: () => this.setState({ saved: !st.saved }),
+      sigCls: inPlay ? 'sigchip--frozen' : '', sigSub: inPlay ? 'Frozen at kickoff' : 'NE run defense ranks 21st of 32',
+      sheetOpen, sheetSid: sheet || 'run', sheetFrozen: inPlay, openKey: st.openKey || 0,
+      openRun: () => this.setState({ sheet: 'run', openKey: (st.openKey || 0) + 1 }), closeSheet: () => this.setState({ sheet: null }),
+      swDown, swUp, bgInert: sheetOpen ? '' : undefined
+    };
+  }
+}
+</script>
+</body>
+</html>

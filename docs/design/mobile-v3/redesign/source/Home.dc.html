@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#07080B}
+
+/* ---- stadium-night backdrop: club lighting, no photograph, so it is true for any game ---- */
+.hbg{position:absolute;left:0;top:0;width:100%;height:372px;z-index:0;pointer-events:none}
+.hhead{position:sticky;top:0;z-index:40;height:calc(var(--safe-top) + 48px);padding:var(--safe-top) 16px 0;display:flex;align-items:center;gap:10px}
+.hhead--solid{background:rgba(9,11,15,.82);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 var(--line)}
+.brand{flex:1;display:flex;align-items:center;gap:10px;font:700 22px/1 var(--f-num);letter-spacing:.14em}
+.brand .sample{letter-spacing:.04em}
+.page{position:relative;z-index:1;margin-top:calc(-1 * (var(--safe-top) + 48px));padding-top:calc(var(--safe-top) + 48px)}
+
+/* ---- sport selector ---- */
+.leagues{display:flex;gap:12px;overflow-x:auto;padding:10px 16px 2px;scrollbar-width:none;scroll-padding-left:16px}
+.leagues::-webkit-scrollbar{display:none}
+.lg{flex:none;width:54px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:44px}
+.lg__i{position:relative;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(18,22,29,.62);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);transition:transform .16s var(--ease),box-shadow .2s,background-color .2s}
+.lg__i img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
+.lg__i .ic{width:28px;height:28px;color:var(--tx)}
+.lg:active .lg__i{transform:scale(.93)}
+.lg__t{font:600 12px/14px var(--f-ui);color:var(--tx3);transition:color .2s}
+.lg--on .lg__i{background:rgba(245,247,250,.12);box-shadow:inset 0 0 0 2px var(--inv)}
+.lg--on .lg__t{color:var(--tx)}
+
+/* ---- date strip ---- */
+.days{display:flex;gap:4px;overflow-x:auto;padding:10px 16px 2px;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-left:16px}
+.days::-webkit-scrollbar{display:none}
+.day{flex:none;scroll-snap-align:start;width:60px;height:54px;border-radius:17px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--tx2);transition:transform .16s var(--ease),background-color .2s,color .2s}
+.day__w{font:500 13px/16px var(--f-ui);opacity:.85}
+.day__d{font:650 15px/20px var(--f-ui);letter-spacing:-.01em}
+.day--on{background:var(--inv);color:var(--on-inv)}
+.day--on .day__w{opacity:.7}
+.day--none{opacity:.42}
+.day:active{transform:scale(.95)}
+.fchips{padding-top:8px}
+.stack{display:inline-flex}
+.stack img{width:20px;height:20px;object-fit:contain;margin-left:-6px;border-radius:50%;background:var(--s3);padding:2px;box-shadow:0 0 0 2px var(--s2)}
+.chip.on .stack img{box-shadow:0 0 0 2px var(--inv);background:#E3E8EF}
+.stack img:first-child{margin-left:0}
+
+/* ---- featured live game ---- */
+.feat{position:relative;margin:10px 16px 0;border-radius:var(--r-xl);overflow:hidden;isolation:isolate;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.09);background:#0B0E14}
+.feat__bg{position:absolute;inset:0;z-index:-1}
+.feat__bg i{position:absolute;inset:0}
+.feat__a{background:radial-gradient(70% 90% at 0% 10%,rgba(240,86,110,.55),rgba(240,86,110,0) 70%)}
+.feat__b{background:radial-gradient(75% 100% at 100% 0%,rgba(79,139,255,.65),rgba(79,139,255,0) 72%)}
+.feat__ph{position:absolute;right:-8px;top:0;width:62%;height:100%;object-fit:cover;object-position:38% 10%;opacity:.58;-webkit-mask-image:linear-gradient(90deg,transparent 2%,#000 60%);mask-image:linear-gradient(90deg,transparent 2%,#000 60%);filter:saturate(1.1) contrast(1.05)}
+.feat__fade{background:linear-gradient(180deg,rgba(7,8,11,.25) 0%,rgba(7,8,11,0) 24%,rgba(7,8,11,.55) 56%,rgba(7,8,11,.94) 100%)!important}
+.feat__top{display:flex;align-items:center;gap:8px;padding:14px 16px 0}
+.feat__top .meta{flex:1;color:var(--tx);opacity:.82}
+.feat__fav{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px 0 7px;border-radius:12px;background:rgba(255,255,255,.12);font:600 12px/1 var(--f-ui);color:var(--tx)}
+.feat__fav .ic{width:13px;height:13px;color:var(--mkt)}
+.sbx{display:grid;grid-template-columns:76px 1fr 76px;align-items:center;column-gap:4px;padding:6px 12px 0}
+.sbx__t{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.sbx__t img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.55))}
+.sbx__t b{font:650 15px/18px var(--f-ui);letter-spacing:-.01em;text-shadow:0 1px 8px rgba(0,0,0,.7);display:inline-flex;align-items:center;gap:4px}
+.sbx__t b .ic{width:12px;height:12px;color:var(--mkt)}
+.sbx__t small{font:500 12px/14px var(--f-ui);color:var(--tx2);margin-top:-3px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.sbx__m{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:8px}
+.sbx__n{font:700 46px/46px var(--f-num);letter-spacing:-.04em}
+.sbx__n--a{text-align:right}
+.sbx__n--lose{color:rgba(245,247,250,.55)}
+.sbx__c{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:56px}
+.sbx__c b{font:650 15px/20px var(--f-ui);color:#FF8591}
+.sbx__c span{font:600 14px/18px var(--f-ui);color:var(--tx)}
+.sbx__sit{text-align:center;font:500 13px/18px var(--f-ui);color:var(--tx2);padding:12px 16px 0}
+.sbx__sit b{color:var(--tx);font-weight:600}
+.feat__foot{display:flex;align-items:center;gap:8px;padding:2px 6px 4px 16px;min-height:48px}
+.feat__foot .meta{flex:1}
+.fldbar{height:5px;border-radius:3px;background:rgba(255,255,255,.14);position:relative;overflow:hidden;margin:8px 16px 0}
+.fldbar i{position:absolute;top:0;bottom:0;border-radius:3px}
+
+/* ---- compact game rows ---- */
+.slate{margin-top:14px}
+.gr{display:flex;align-items:center;min-height:64px;padding:0 4px 0 14px;animation:rise .36s var(--ease) both}
+.gr:nth-child(2){animation-delay:.04s}.gr:nth-child(3){animation-delay:.08s}.gr:nth-child(4){animation-delay:.12s}.gr:nth-child(5){animation-delay:.16s}.gr:nth-child(6){animation-delay:.2s}
+.gr__main{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);align-items:center;column-gap:4px;min-height:64px;transition:background-color .16s}
+.gr__main:active{background:rgba(255,255,255,.04)}
+.gr__side{display:flex;align-items:center;gap:7px;min-width:0}
+.gr__side--h{flex-direction:row-reverse}
+.gr__side .crest{width:30px;height:30px}
+.gr__cw{position:relative;flex:none;display:grid;place-items:center}
+.gr__fav{position:absolute;right:-5px;top:-5px;width:15px;height:15px;border-radius:50%;background:var(--s1);display:grid;place-items:center;color:var(--mkt)}
+.gr__fav .ic{width:10px;height:10px}
+.gr__nm{flex:1;min-width:0;display:flex;align-items:center;gap:4px;font:600 15px/20px var(--f-ui);letter-spacing:-.01em;overflow:hidden;white-space:nowrap}
+.gr__side--h .gr__nm{justify-content:flex-end}
+.gr__nm span{overflow:hidden;text-overflow:ellipsis}
+.gr__s{font:700 22px/24px var(--f-num);letter-spacing:-.03em;min-width:24px;text-align:right}
+.gr__side--h .gr__s{text-align:left}
+.gr__s.lose{color:var(--tx3)}
+.gr__c{display:flex;flex-direction:column;align-items:center;gap:0;text-align:center}
+.gr__c i{font:650 12px/16px var(--f-ui);color:#FF8591;font-style:normal}
+.gr__c b{font:600 14px/18px var(--f-ui)}
+.gr__c .tm{font:700 16px/20px var(--f-num);letter-spacing:-.03em}
+.gr__c small{font:500 12px/14px var(--f-ui);color:var(--tx3)}
+.gr__t{width:44px;display:grid;place-items:center;flex:none}
+.bell{position:relative;width:44px;height:44px;display:grid;place-items:center;color:var(--tx3);transition:color .2s,transform .16s var(--ease)}
+.bell:active{transform:scale(.9)}
+.bell.on{color:var(--mkt)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;margin:8px 16px 0;padding:44px 24px 36px;border-radius:var(--r-l);background:var(--s1);box-shadow:inset 0 0 0 1px var(--line);text-align:center}
+.empty .ic{width:34px;height:34px;color:var(--tx3)}
+.empty h3{margin:4px 0 0;font:650 18px/24px var(--f-ui)}
+.empty p{margin:0;font:400 14px/20px var(--f-ui);color:var(--tx2);max-width:260px}
+.empty .btn{height:44px;margin-top:10px;font-size:15px}
+.yours{display:flex;gap:16px;overflow-x:auto;padding:16px 16px 4px;scrollbar-width:none}
+.yours::-webkit-scrollbar{display:none}
+.yt{flex:none;width:64px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:44px}
+.yt__r{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--s2);box-shadow:inset 0 0 0 1.5px var(--line2)}
+.yt__r--live{box-shadow:inset 0 0 0 2.5px var(--live)}
+.yt__r img{width:32px;height:32px;object-fit:contain}
+.yt b{font:600 13px/16px var(--f-ui)}
+.yt small{font:500 12px/14px var(--f-ui);color:var(--tx3);margin-top:-4px}
+@container (max-width: 380px){ .gr__side .crest{width:26px;height:26px} .gr__main{grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);column-gap:4px} .gr__nm{font-size:14px} .gr__s{font-size:20px;min-width:20px} .gr{padding-left:10px} .sbx{grid-template-columns:68px 1fr 68px} .sbx__n{font-size:42px} }
+</style>
+</helmet>
+
+<div class="app">
+<div class="status" aria-hidden="true"><span>9:41</span><span class="status__r">
+<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.3 0 4.4.9 6 2.4l1-1.1A10.4 10.4 0 0 0 8.5.8c-2.8 0-5.4 1.1-7.5 2.9l1 1.1a8.8 8.8 0 0 1 6.5-2.4Zm0 3.5c1.4 0 2.7.5 3.7 1.4l1-1.1a7.2 7.2 0 0 0-9.4 0l1 1.1c1-.9 2.3-1.4 3.7-1.4Zm0 3.4c.7 0 1.3.2 1.8.7L8.5 12 6.7 10c.5-.5 1.1-.7 1.8-.7Z"/></svg>
+<svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2.2"/><path d="M25 4.5v4c.8-.3 1.5-1.2 1.5-2s-.7-1.7-1.5-2Z" opacity=".5"/></svg></span></div>
+<main class="scroll" id="sc" onScroll="{{onScroll}}" inert="{{bgInert}}">
+  <svg class="hbg" viewBox="0 0 390 372" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+    <defs>
+      <radialGradient id="gL" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(-10 -20) scale(250 230)"><stop offset="0" stop-color="#F0566E" stop-opacity=".55"/><stop offset=".55" stop-color="#F0566E" stop-opacity=".12"/><stop offset="1" stop-color="#F0566E" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gR" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(410 -20) scale(270 250)"><stop offset="0" stop-color="#4F8BFF" stop-opacity=".78"/><stop offset=".55" stop-color="#4F8BFF" stop-opacity=".18"/><stop offset="1" stop-color="#4F8BFF" stop-opacity="0"/></radialGradient>
+      <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset=".7" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <linearGradient id="fadeG" x1="0" y1="0" x2="0" y2="1"><stop offset=".42" stop-color="#07080B" stop-opacity="0"/><stop offset=".92" stop-color="#07080B"/></linearGradient>
+      <filter id="b6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+      <filter id="b2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6"/></filter>
+      <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0"/></filter>
+    </defs>
+    <rect width="390" height="372" fill="#080A0F"/>
+    <rect width="390" height="372" fill="url(#gL)"/>
+    <rect width="390" height="372" fill="url(#gR)"/>
+    <g filter="url(#b6)">
+      <polygon points="296,-20 318,-20 360,250 262,250" fill="url(#beam)"/>
+      <polygon points="82,-20 104,-20 150,230 52,230" fill="url(#beam)" opacity=".7"/>
+    </g>
+    <g fill="#fff" filter="url(#b2)">
+      <circle cx="296" cy="10" r="3" opacity=".95"/><circle cx="308" cy="13" r="2.6" opacity=".9"/><circle cx="320" cy="10" r="3" opacity=".95"/><circle cx="332" cy="14" r="2.4" opacity=".8"/>
+      <circle cx="84" cy="9" r="2.6" opacity=".9"/><circle cx="96" cy="13" r="2.4" opacity=".8"/><circle cx="108" cy="10" r="2.8" opacity=".9"/>
+    </g>
+    <rect width="390" height="372" filter="url(#grain)" opacity=".07"/>
+    <rect width="390" height="372" fill="url(#fadeG)"/>
+  </svg>
+
+  <div class="page">
+    <header class="hhead {{headCls}}">
+      <span class="brand">SIFT<sc-if value="{{isLive}}" hint-placeholder-val="{{ true }}"><span class="sample">Sample</span></sc-if></span>
+      <button class="gbtn" aria-label="Search"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-magnifying-glass"/></svg></button>
+      <button class="gbtn" aria-label="My Board"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bookmark-simple"/></svg></button>
+    </header>
+
+    <div class="leagues" role="group" aria-label="Sport">
+      <sc-for list="{{leagues}}" as="l" hint-placeholder-count="6">
+        <button class="lg {{l.cls}}" aria-pressed="{{l.on}}" aria-label="{{l.label}}" onClick="{{l.pick}}">
+          <span class="lg__i"><sc-if value="{{l.logo}}" hint-placeholder-val="{{ true }}"><img src="{{l.logo}}" alt=""></sc-if><sc-if value="{{l.football}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-football"/></svg></sc-if><sc-if value="{{l.soccer}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-soccer-ball"/></svg></sc-if><sc-if value="{{l.all}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-squares-four"/></svg></sc-if></span>
+          <span class="lg__t">{{l.short}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div class="days" role="group" aria-label="Day">
+      <sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+        <button class="day {{d.cls}}" aria-pressed="{{d.sel}}" aria-label="{{d.label}}" onClick="{{d.pick}}"><span class="day__w">{{d.w}}</span><span class="day__d">{{d.n}}</span></button>
+      </sc-for>
+    </div>
+
+    <div class="chips fchips" role="group" aria-label="Filter">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+        <button class="chip {{c.cls}}" aria-pressed="{{c.sel}}" onClick="{{c.pick}}"><sc-if value="{{c.stack}}" hint-placeholder-val="{{ false }}"><span class="stack" aria-hidden="true"><img src="assets/t/nfl-BUF.webp" alt=""><img src="assets/t/mlb-LAD.webp" alt=""><img src="assets/t/nfl-KC.webp" alt=""></span></sc-if>{{c.label}} <i>{{c.n}}</i></button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{showYours}}" hint-placeholder-val="{{ false }}">
+      <div class="yours" role="list" aria-label="Teams you follow">
+        <sc-for list="{{follow}}" as="f" hint-placeholder-count="5">
+          <div role="listitem"><a class="yt" href="{{f.href}}" aria-label="{{f.label}}"><span class="yt__r {{f.ring}}"><img src="{{f.logo}}" alt=""></span><b>{{f.name}}</b><small>{{f.text}}</small></a></div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hasFeat}}" hint-placeholder-val="{{ true }}">
+    <div class="sechead" style="margin-top:16px"><h2><span class="livedot"></span>Live now</h2><span class="sechead__n">{{liveN}}</span><a class="sechead__a" href="Game.dc.html">View all <svg class="ic ic--xs" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-caret-right"/></svg></a></div>
+    <section class="feat" aria-label="Featured live game">
+      <div class="feat__bg" aria-hidden="true"><i class="feat__a"></i><i class="feat__b"></i><img class="feat__ph" src="assets/p/buf-allen-portrait.webp" alt=""><i class="feat__fade"></i></div>
+      <div class="feat__top"><span class="meta">NFL · Week 4</span><sc-if value="{{isLive}}" hint-placeholder-val="{{ true }}"><span class="badge badge--live">LIVE</span></sc-if><sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}"><span class="badge badge--pre">In play</span></sc-if></div>
+      <a class="sbx" href="Game.dc.html" aria-label="{{feat.label}}">
+        <span class="sbx__t"><img src="assets/t/nfl-NE.webp" alt=""><b>Patriots</b><small>1–2</small></span>
+        <span class="sbx__m">
+          <sc-if value="{{isLive}}" hint-placeholder-val="{{ true }}"><span class="sbx__n sbx__n--a {{feat.aLose}}">{{feat.a}}</span><span class="sbx__c"><b>{{feat.per}}</b><span>{{feat.clk}}</span></span><span class="sbx__n {{feat.hLose}}">{{feat.h}}</span></sc-if>
+          <sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}"><span></span><span class="sbx__c"><b>In play</b><span>12:00 PM</span></span><span></span></sc-if>
+        </span>
+        <span class="sbx__t"><img src="assets/t/nfl-BUF.webp" alt=""><b>Bills<svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-star-f"/></svg></b><small>3–0</small></span>
+      </a>
+      <sc-if value="{{isLive}}" hint-placeholder-val="{{ true }}"><div class="fldbar" role="img" aria-label="Bills drive from their own 41 to the Patriots 34"><i style="left:0;width:100%;background:linear-gradient(90deg,rgba(240,86,110,.5) 0 8%,transparent 8% 92%,rgba(79,139,255,.55) 92%)"></i><i style="left:46%;width:20%;background:var(--buf)"></i><i style="left:66%;width:3px;background:#fff"></i></div></sc-if>
+      <div class="feat__foot"><span class="meta"><sc-if value="{{isLive}}" hint-placeholder-val="{{ true }}"><b style="color:var(--tx);font-weight:600">BUF ball</b> · 2nd &amp; 6 · NE 34</sc-if><sc-if value="{{noScore}}" hint-placeholder-val="{{ false }}">Scores are not published yet</sc-if></span>
+        <button class="sigchip" aria-label="1 signal, frozen at kickoff" aria-haspopup="dialog" onClick="{{featSig}}"><span class="sigchip__p" style="box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);background:rgba(8,10,14,.5);color:var(--tx2)"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>1</span></button></div>
+    </section>
+    </sc-if>
+
+    <div class="slate" id="slate">
+      <sc-for list="{{blocks}}" as="b" hint-placeholder-count="3">
+        <div style="margin-bottom:22px">
+          <sc-if value="{{b.showHead}}" hint-placeholder-val="{{ true }}"><div class="sechead" style="margin-bottom:10px"><h2><sc-if value="{{b.live}}" hint-placeholder-val="{{ false }}"><span class="livedot"></span></sc-if>{{b.label}}</h2><span class="sechead__n">{{b.count}}</span></div></sc-if>
+          <div class="grp" role="list">
+            <sc-for list="{{b.rows}}" as="r" hint-placeholder-count="5">
+              <div class="gr" role="listitem">
+                <a class="gr__main" href="{{r.href}}" aria-label="{{r.label}}">
+                  <span class="gr__side"><span class="gr__cw"><img class="crest" src="{{r.aLogo}}" alt=""><sc-if value="{{r.aFav}}" hint-placeholder-val="{{ false }}"><i class="gr__fav"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-star-f"/></svg></i></sc-if></span><span class="gr__nm"><span>{{r.aName}}</span></span><sc-if value="{{r.showScore}}" hint-placeholder-val="{{ false }}"><b class="gr__s {{r.aLose}}">{{r.aScore}}</b></sc-if></span>
+                  <span class="gr__c">
+                    <sc-if value="{{r.isLiveRow}}" hint-placeholder-val="{{ false }}"><i>{{r.per}}</i><b>{{r.clk}}</b></sc-if>
+                    <sc-if value="{{r.isLiveNoScore}}" hint-placeholder-val="{{ false }}"><i>In play</i><small>{{r.t}} {{r.ap}}</small></sc-if>
+                    <sc-if value="{{r.isUp}}" hint-placeholder-val="{{ true }}"><span class="tm">{{r.t}}</span><small>{{r.ap}} · {{r.sport}}</small></sc-if>
+                    <sc-if value="{{r.isFinal}}" hint-placeholder-val="{{ false }}"><b>Final</b><small>{{r.sport}}</small></sc-if>
+                  </span>
+                  <span class="gr__side gr__side--h"><span class="gr__cw"><img class="crest" src="{{r.hLogo}}" alt=""><sc-if value="{{r.hFav}}" hint-placeholder-val="{{ false }}"><i class="gr__fav"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-star-f"/></svg></i></sc-if></span><span class="gr__nm"><span>{{r.hName}}</span></span><sc-if value="{{r.showScore}}" hint-placeholder-val="{{ false }}"><b class="gr__s {{r.hLose}}">{{r.hScore}}</b></sc-if></span>
+                </a>
+                <span class="gr__t">
+                  <sc-if value="{{r.hasSig}}" hint-placeholder-val="{{ false }}"><button class="sigchip {{r.sigCls}}" aria-label="{{r.sigLabel}}" aria-haspopup="dialog" onClick="{{r.openSig}}"><span class="sigchip__p"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>{{r.sigN}}</span></button></sc-if>
+                  <sc-if value="{{r.noSig}}" hint-placeholder-val="{{ true }}"><button class="bell {{r.bellCls}}" aria-label="{{r.bellLabel}}" aria-pressed="{{r.bellOn}}" onClick="{{r.toggleBell}}"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bell-simple"/></svg></button></sc-if>
+                </span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <sc-if value="{{showEmpty}}" hint-placeholder-val="{{ false }}">
+        <div class="empty"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-calendar-blank"/></svg><h3>{{emptyHead}}</h3><p>{{emptyTxt}}</p><button class="btn btn--sec" onClick="{{emptyAct}}">{{emptyBtn}}</button></div>
+      </sc-if>
+    </div>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab on" href="Home.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-house-f"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-calendar-dots"/></svg>Games</a>
+  <a class="tab" href="Props.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-target"/></svg>Props</a>
+  <a class="tab" href="Signals.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse"/></svg>Signals</a>
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bookmark-simple"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="{{sheetSid}}" group="{{sheetGroup}}" frozen="{{sheetFrozen}}" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-magnifying-glass" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></symbol><symbol id="i-bookmark-simple" viewBox="0 0 256 256"><path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"/></symbol><symbol id="i-football" viewBox="0 0 256 256"><path d="M229.06,53.89a32.92,32.92,0,0,0-26.95-26.95c-32.37-5.49-93.39-8-138.27,36.9s-42.39,105.9-36.9,138.27a32.92,32.92,0,0,0,27,26.95A206.58,206.58,0,0,0,88.27,232c32.09,0,72.05-8,103.89-39.84C237.05,147.28,234.55,86.26,229.06,53.89Zm-61.61-14a192,192,0,0,1,32,2.8A16.94,16.94,0,0,1,213.3,56.56,188.59,188.59,0,0,1,216,92.78L163.21,40C164.61,39.92,166,39.9,167.45,39.9ZM56.56,213.3A16.94,16.94,0,0,1,42.7,199.44,188.59,188.59,0,0,1,40,163.22L92.78,216A187.79,187.79,0,0,1,56.56,213.3Zm124.3-32.44c-11.61,11.6-33.27,27.73-67.37,33.27L41.87,142.51c5.54-34.1,21.67-55.76,33.27-67.37S108.4,47.4,142.5,41.86l71.63,71.63C208.59,147.59,192.46,169.25,180.86,180.86Zm-15.22-90.5a8,8,0,0,1,0,11.31L151.3,116l6.34,6.34a8,8,0,1,1-11.31,11.3L140,127.31,127.31,140l6.34,6.34a8,8,0,1,1-11.3,11.31L116,151.3l-14.34,14.34a8,8,0,1,1-11.31-11.31L104.7,140l-6.34-6.34a8,8,0,0,1,11.31-11.3l6.34,6.34L128.69,116l-6.34-6.34a8,8,0,0,1,11.3-11.31L140,104.7l14.34-14.34A8,8,0,0,1,165.64,90.36Z"/></symbol><symbol id="i-soccer-ball" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"/></symbol><symbol id="i-squares-four" viewBox="0 0 256 256"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48Z"/></symbol><symbol id="i-caret-right" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></symbol><symbol id="i-star-f" viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></symbol><symbol id="i-pulse" viewBox="0 0 256 256"><path d="M240,128a8,8,0,0,1-8,8H204.94l-37.78,75.58A8,8,0,0,1,160,216h-.4a8,8,0,0,1-7.08-5.14L95.35,60.76,63.28,131.31A8,8,0,0,1,56,136H24a8,8,0,0,1,0-16H50.85L88.72,36.69a8,8,0,0,1,14.76.46l57.51,151,31.85-63.71A8,8,0,0,1,200,120h32A8,8,0,0,1,240,128Z"/></symbol><symbol id="i-bell-simple" viewBox="0 0 256 256"><path d="M168,224a8,8,0,0,1-8,8H96a8,8,0,1,1,0-16h64A8,8,0,0,1,168,224Zm53.85-32A15.8,15.8,0,0,1,208,200H48a16,16,0,0,1-13.8-24.06C39.75,166.38,48,139.34,48,104a80,80,0,1,1,160,0c0,35.33,8.26,62.38,13.81,71.94A15.89,15.89,0,0,1,221.84,192ZM208,184c-7.73-13.27-16-43.95-16-80a64,64,0,1,0-128,0c0,36.06-8.28,66.74-16,80Z"/></symbol><symbol id="i-calendar-blank" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/></symbol><symbol id="i-house-f" viewBox="0 0 256 256"><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"/></symbol><symbol id="i-calendar-dots" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z"/></symbol><symbol id="i-target" viewBox="0 0 256 256"><path d="M221.87,83.16A104.1,104.1,0,1,1,195.67,49l22.67-22.68a8,8,0,0,1,11.32,11.32l-96,96a8,8,0,0,1-11.32-11.32l27.72-27.72a40,40,0,1,0,17.87,31.09,8,8,0,1,1,16-.9,56,56,0,1,1-22.38-41.65L184.3,60.39a87.88,87.88,0,1,0,23.13,29.67,8,8,0,0,1,14.44-6.9Z"/></symbol></defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"feed":{"editor":"enum","options":["live","published"],"default":"live"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const feed = this.props.feed === 'published' ? 'published' : 'live';
+    const isLive = feed === 'live';
+    const logo = (k) => 'assets/t/' + k + '.webp';
+    // Soccer clubs have no crest files in the repository: monogram discs
+    const MONO = { ARS: ['ARS', '#C8202B'], LEE: ['LEE', '#1F4FA8'], PUE: ['PUE', '#2757B8'], LEO: ['LEO', '#1E8A52'] };
+
+    const day = st.day || 'sun';
+    const lgSel = st.lg || 'ALL';
+    const flt = st.f || 'all';
+    const sheet = st.sheet || null;
+    const openKey = st.openKey || 0;
+    const bells = st.bells || {};
+    const FOLLOW = ['nfl-BUF', 'mlb-LAD', 'nfl-KC', 'nhl-BOS'];
+    const K = (code, name, short) => ({ k: code, name, short: short || name, code: code.split('-').pop(), logo: MONO[code] ? '' : logo(code) });
+
+    // [day, league, status, slot, period, clock, away, home, aScore, hScore, signals, href, time, ampm]
+    const G = [
+      ['sun', 'NFL', 'live', 720, 'Q2', '4:12', K('nfl-NE', 'Patriots'), K('nfl-BUF', 'Bills'), 10, 17, ['run'], 'Game.dc.html', true],
+      ['sun', 'NFL', 'live', 721, 'Q2', '11:03', K('nfl-TEN', 'Titans'), K('nfl-BAL', 'Ravens'), 7, 13, [], '#'],
+      ['sun', 'NFL', 'live', 722, 'Q1', '0:24', K('nfl-GB', 'Packers'), K('nfl-TB', 'Buccaneers', 'Bucs'), 3, 0, [], '#'],
+      ['sun', 'NFL', 'live', 723, 'Q2', '7:40', K('nfl-NYJ', 'Jets'), K('nfl-CHI', 'Bears'), 6, 10, ['chi'], '#'],
+      ['sun', 'MLB', 'live', 730, 'T5', '2 out', K('mlb-NYY', 'Yankees'), K('mlb-HOU', 'Astros'), 2, 1, [], '#'],
+      ['sun', 'MLB', 'up', 790, '', '', K('mlb-LAD', 'Dodgers'), K('mlb-ATL', 'Braves'), null, null, [], '#', '1:10', 'PM'],
+      ['sun', 'NFL', 'up', 905, '', '', K('nfl-MIA', 'Dolphins'), K('nfl-MIN', 'Vikings'), null, null, [], '#', '3:05', 'PM'],
+      ['sun', 'NFL', 'up', 925, '', '', K('nfl-LAC', 'Chargers'), K('nfl-SEA', 'Seahawks'), null, null, [], '#', '3:25', 'PM'],
+      ['sun', 'NFL', 'up', 926, '', '', K('nfl-KC', 'Chiefs'), K('nfl-LV', 'Raiders'), null, null, [], '#', '3:25', 'PM'],
+      ['sun', 'NFL', 'up', 927, '', '', K('nfl-DEN', 'Broncos'), K('nfl-SF', '49ers'), null, null, [], '#', '3:25', 'PM'],
+      ['sun', 'NHL', 'up', 1080, '', '', K('nhl-BOS', 'Bruins'), K('nhl-TOR', 'Maple Leafs', 'Leafs'), null, null, [], '#', '6:00', 'PM'],
+      ['sun', 'NBA', 'up', 1110, '', '', K('nba-BOS', 'Celtics'), K('nba-NYK', 'Knicks'), null, null, [], '#', '6:30', 'PM'],
+      ['sun', 'NFL', 'up', 1160, '', '', K('nfl-DET', 'Lions'), K('nfl-CAR', 'Panthers'), null, null, [], '#', '7:20', 'PM'],
+      ['sun', 'NFL', 'final', 900, 'F', '', K('nfl-IND', 'Colts'), K('nfl-WAS', 'Commanders', 'Commanders'), 17, 20, [], '#'],
+      ['sun', 'CFB', 'final', 901, 'F', '', K('cfb-OSU', 'Ohio State', 'Ohio St.'), K('cfb-UGA', 'Georgia'), 24, 27, [], '#'],
+      ['mon', 'NFL', 'up', 1155, '', '', K('nfl-ATL', 'Falcons'), K('nfl-NO', 'Saints'), null, null, ['atl'], '#', '7:15', 'PM'],
+      ['fri', 'SOC', 'up', 1200, '', '', K('PUE', 'Puebla'), K('LEO', 'León'), null, null, ['leon', 'btts'], '#', '8:00', 'PM'],
+      ['sat', 'SOC', 'up', 390, '', '', K('ARS', 'Arsenal'), K('LEE', 'Leeds', 'Leeds'), null, null, ['ars'], '#', '6:30', 'AM']
+    ];
+    const isFav = (t) => FOLLOW.indexOf(t.k) > -1 || t.k === 'ARS';
+    const hasFav = (g) => isFav(g[6]) || isFav(g[7]);
+    const logoOf = (t) => t.logo || '';
+
+    const mkRow = (g) => {
+      const live = g[2] === 'live', fin = g[2] === 'final', up = g[2] === 'up';
+      const showScore = (live || fin) && isLive;
+      const useCode = showScore || fin;
+      const sigs = g[10], frozen = live || fin;
+      const id = g[6].k + g[7].k;
+      const on = !!bells[id];
+      return { href: g[11], aName: useCode ? g[6].code : g[6].short, hName: useCode ? g[7].code : g[7].short, aLogo: logoOf(g[6]), hLogo: logoOf(g[7]), aFav: isFav(g[6]), hFav: isFav(g[7]),
+        label: g[6].name + ' at ' + g[7].name + (live ? ', live' : fin ? ', final' : ', ' + g[12] + ' ' + g[13]) + (showScore ? ', ' + g[8] + ' to ' + g[9] : '') + (hasFav(g) ? ', you follow a team' : ''),
+        showScore, aScore: g[8], hScore: g[9], aLose: showScore && g[8] < g[9] ? 'lose' : '', hLose: showScore && g[9] < g[8] ? 'lose' : '',
+        isUp: up, isLiveRow: live && isLive, isLiveNoScore: live && !isLive, isFinal: fin, t: g[12] || '12:00', ap: g[13] || 'PM', per: g[4], clk: g[5], sport: g[1],
+        hasSig: sigs.length > 0, noSig: sigs.length === 0, sigN: sigs.length, sigCls: frozen ? 'sigchip--frozen' : '',
+        sigLabel: sigs.length + (sigs.length > 1 ? ' signals' : ' signal') + (frozen ? ', frozen at kickoff' : ''),
+        openSig: () => this.setState({ sheet: { sid: sigs[0], group: sigs.join(','), frozen }, openKey: openKey + 1 }),
+        bellOn: on, bellCls: on ? 'on' : '', bellLabel: (on ? 'Alerts on for ' : 'Get alerts for ') + g[6].name + ' at ' + g[7].name,
+        toggleBell: () => this.setState({ bells: { ...bells, [id]: !on } }) };
+    };
+
+    const inLg = (g) => lgSel === 'ALL' || g[1] === lgSel;
+    const dayAll = G.filter((g) => g[0] === day);
+    const fltPass = (g) => flt === 'all' || (flt === 'fol' && hasFav(g)) || (flt === 'live' && g[2] === 'live') || (flt === 'sig' && g[10].length > 0);
+    const list = dayAll.filter(inLg).filter(fltPass);
+    const feat = list.find((g) => g[2] === 'live' && g[11] === 'Game.dc.html' && g[6].k === 'nfl-NE') || null;
+    const rest = list.filter((g) => g !== feat);
+    const live = rest.filter((g) => g[2] === 'live').sort((a, b) => a[3] - b[3]);
+    const up = rest.filter((g) => g[2] === 'up').sort((a, b) => a[3] - b[3]);
+    const fin = rest.filter((g) => g[2] === 'final');
+    const mkBlock = (label, arr, isL, head) => ({ label, count: arr.length ? String(arr.length) : '', rows: arr.map(mkRow), live: isL, showHead: head, tight: !head });
+    const blocks = [];
+    if (live.length) blocks.push(mkBlock('Live now', live, true, !feat));
+    if (up.length) blocks.push(mkBlock('Upcoming', up, false, true));
+    if (fin.length) blocks.push(mkBlock('Final', fin, false, true));
+    const showEmpty = !feat && blocks.length === 0;
+
+    const DAYS = [['sun', 'Sun', 'Oct 4', 'Sunday October 4, today'], ['mon', 'Mon', 'Oct 5', 'Monday October 5'], ['tue', 'Tue', 'Oct 6', 'Tuesday October 6'], ['wed', 'Wed', 'Oct 7', 'Wednesday October 7'], ['thu', 'Thu', 'Oct 8', 'Thursday October 8'], ['fri', 'Fri', 'Oct 9', 'Friday October 9'], ['sat', 'Sat', 'Oct 10', 'Saturday October 10']];
+    const days = DAYS.map(([k, w, n, label]) => { const c = G.filter((g) => g[0] === k).length;
+      return { w, n, label: label + (c ? ', ' + c + (c === 1 ? ' game' : ' games') : ', no games'), cls: (day === k ? 'day--on ' : '') + (c ? '' : 'day--none'), sel: day === k, pick: () => this.setState({ day: k }) }; });
+
+    const LG = [['ALL', 'All', 'All sports', null], ['NFL', 'NFL', 'NFL', 'assets/l/nfl.webp'], ['NBA', 'NBA', 'NBA', 'assets/l/nba.webp'], ['CFB', 'CFB', 'College football', null], ['NHL', 'NHL', 'NHL', 'assets/l/nhl.webp'], ['MLB', 'MLB', 'MLB', 'assets/l/mlb.webp'], ['SOC', 'Soccer', 'Soccer', null]];
+    const leagues = LG.map(([k, short, label, img]) => ({ short, label, logo: img || '', football: k === 'CFB', soccer: k === 'SOC', all: k === 'ALL', cls: lgSel === k ? 'lg--on' : '', on: lgSel === k, pick: () => this.setState({ lg: k }) }));
+
+    const cnt = (f) => dayAll.filter(inLg).filter((g) => f === 'all' || (f === 'fol' && hasFav(g)) || (f === 'live' && g[2] === 'live') || (f === 'sig' && g[10].length > 0)).length;
+    const bigDay = day === 'sun' && lgSel === 'ALL';
+    const CH = [['fol', 'Following', bigDay ? 4 : cnt('fol'), true], ['all', 'All games', bigDay ? 57 : cnt('all'), false], ['live', 'Live', cnt('live'), false], ['sig', 'Signals', bigDay ? 3 : cnt('sig'), false]];
+    const chips = CH.map(([k, label, n, stack]) => ({ label, n, stack, cls: flt === k ? 'on' : '', sel: flt === k, pick: () => this.setState({ f: flt === k && k !== 'all' ? 'all' : k }) }));
+
+    const F = [['nfl-BUF', 'Bills', 'live', '17–10', 'Game.dc.html'], ['mlb-LAD', 'Dodgers', 'up', '1:10 PM', '#'], ['nfl-KC', 'Chiefs', 'up', '3:25 PM', '#'], ['nhl-BOS', 'Bruins', 'up', '6:00 PM', '#']];
+    const follow = F.map(([k, name, s, text, href]) => ({ name, href, logo: logo(k), ring: s === 'live' ? 'yt__r--live' : '', text: s === 'live' ? (isLive ? text : 'In play') : text,
+      label: name + (s === 'live' ? ', live' : ', next ' + text) }));
+
+    const sheetOpen = !!sheet;
+    const sc = { a: 10, h: 17 };
+    return {
+      isLive, noScore: !isLive, leagues, days, chips, blocks, showEmpty, showYours: flt === 'fol' && !showEmpty, follow,
+      hasFeat: !!feat, liveN: String(list.filter((g) => g[2] === 'live').length),
+      feat: { a: sc.a, h: sc.h, aLose: sc.a < sc.h ? 'sbx__n--lose' : '', hLose: sc.h < sc.a ? 'sbx__n--lose' : '', per: 'Q2', clk: '4:12', label: 'Patriots at Bills, live, ' + sc.a + ' to ' + sc.h + ', second quarter 4:12' },
+      emptyHead: flt === 'fol' ? 'None of your teams play' : (lgSel !== 'ALL' ? 'No ' + (LG.find((x) => x[0] === lgSel) || [0, lgSel])[1] + ' games' : 'No games published'),
+      emptyTxt: flt === 'fol' ? 'Teams you follow are not on this day’s published schedule.' : 'Nothing is published for this day. Check the next game day.',
+      emptyBtn: 'Back to Sunday', emptyAct: () => this.setState({ day: 'sun', lg: 'ALL', f: 'all' }),
+      featSig: () => this.setState({ sheet: { sid: 'run', group: 'run', frozen: true }, openKey: openKey + 1 }),
+      headCls: st.solid ? 'hhead--solid' : '', onScroll: (e) => { const s = e.currentTarget.scrollTop > 40; if (s !== !!st.solid) this.setState({ solid: s }); },
+      sheetOpen, sheetSid: sheet ? sheet.sid : 'ars', sheetGroup: sheet ? sheet.group : '', sheetFrozen: sheet ? sheet.frozen : false, openKey,
+      closeSheet: () => this.setState({ sheet: null }), bgInert: sheetOpen ? '' : undefined
+    };
+  }
+}
+</script>
+</body>
+</html>

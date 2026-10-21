@@ -1,0 +1,6 @@
+/* Local copy of the Google Fonts request the artboards make (Geist 400-700, Sora 500-700), so the prototype renders offline. */
+@font-face { font-family: 'Geist'; font-weight: 400; font-display: swap; src: url(/_fonts/geist-sans-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Geist'; font-weight: 500; font-display: swap; src: url(/_fonts/geist-sans-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Geist'; font-weight: 600; font-display: swap; src: url(/_fonts/geist-sans-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Geist'; font-weight: 700; font-display: swap; src: url(/_fonts/geist-sans-latin-700-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Sora'; font-weight: 100 800; font-display: swap; src: url(/_fonts/sora-latin-wght-normal.woff2) format('woff2'); }

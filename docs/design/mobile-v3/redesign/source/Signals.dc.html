@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Signals</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="sift.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#07080B}
+.sbg{position:absolute;left:0;top:0;width:100%;height:300px;z-index:0;pointer-events:none;background:radial-gradient(80% 90% at 90% 0%,rgba(98,201,255,.24),transparent 70%),radial-gradient(60% 80% at 0% 0%,rgba(242,190,69,.12),transparent 70%),linear-gradient(180deg,#0A0D13,#07080B)}
+.spage{position:relative;z-index:1}
+.shd{position:sticky;top:0;z-index:40;height:calc(var(--safe-top) + 48px);padding:var(--safe-top) 16px 0;display:flex;align-items:center;gap:10px;transition:background-color .2s,box-shadow .2s}
+.shd--solid{background:rgba(9,11,15,.88);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 var(--line)}
+.shd__t{flex:1;font:650 17px/1 var(--f-ui);opacity:0;transition:opacity .2s}
+.shd--solid .shd__t{opacity:1}
+.ttl{padding:4px 16px 0}
+.ttl h1{margin:0;font:700 34px/38px var(--f-num);letter-spacing:-.035em}
+.ttl p{margin:6px 0 0;font:400 14px/20px var(--f-ui);color:var(--tx2);max-width:320px}
+.rowc{padding-top:16px}
+.legend{display:flex;gap:16px;align-items:center;padding:16px 16px 10px;font:500 13px/16px var(--f-ui);color:var(--tx2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.lg-dot{width:10px;height:10px;border-radius:50%;background:var(--model)}
+.lg-band{width:18px;height:6px;border-radius:3px;background:rgba(98,201,255,.32)}
+.lg-tick{width:3px;height:14px;border-radius:2px;background:var(--mkt)}
+.sigbtn{display:grid;grid-template-columns:44px 1fr auto;column-gap:12px;row-gap:14px;padding:14px 16px 16px;width:100%;align-items:center;text-align:left;transition:background-color .16s}
+.sigbtn:active{background:rgba(255,255,255,.04)}
+.sigbtn .mono{width:44px;height:44px;font-size:13px}
+.sg__t{font:650 17px/22px var(--f-ui);letter-spacing:-.015em}
+.sg__m{font:500 13px/18px var(--f-ui);color:var(--tx2)}
+.sg__n{display:flex;gap:14px;text-align:right}
+.sg__n div{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.sg__n b{font:700 24px/24px var(--f-num);letter-spacing:-.04em}
+.sg__n small{font:600 12px/14px var(--f-ui);color:var(--tx3)}
+.gauge{grid-column:1/-1;position:relative;height:6px;border-radius:3px;background:var(--s4)}
+.gauge__band{position:absolute;top:0;bottom:0;border-radius:3px;background:rgba(98,201,255,.34)}
+.gauge__dot{position:absolute;top:50%;width:13px;height:13px;border-radius:50%;background:var(--model);transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--s1)}
+.gauge__tick{position:absolute;top:-5px;bottom:-5px;width:3px;border-radius:2px;background:var(--mkt);transform:translateX(-50%)}
+.passcard{display:flex;gap:12px;align-items:flex-start;padding:18px 16px}
+.passcard .ic{color:var(--ok)}
+.passcard b{display:block;font:650 16px/22px var(--f-ui)}
+.passcard span.s{display:block;margin-top:2px;font:400 14px/20px var(--f-ui);color:var(--tx2)}
+.emptynote{padding:14px 16px 0;font:500 13px/18px var(--f-ui);color:var(--tx3)}
+.howto{padding:28px 0 0}
+.howto h2{margin:0 16px 10px;font:650 20px/26px var(--f-ui);letter-spacing:-.015em}
+.hr{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;padding:13px 16px}
+.hr i{margin:6px 0 0}
+.hr b{display:block;font:600 16px/22px var(--f-ui)}
+.hr .s{font:400 14px/20px var(--f-ui);color:var(--tx2)}
+</style>
+</helmet>
+
+<div class="app">
+<div class="status" aria-hidden="true"><span>9:41</span><span class="status__r">
+<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.3 0 4.4.9 6 2.4l1-1.1A10.4 10.4 0 0 0 8.5.8c-2.8 0-5.4 1.1-7.5 2.9l1 1.1a8.8 8.8 0 0 1 6.5-2.4Zm0 3.5c1.4 0 2.7.5 3.7 1.4l1-1.1a7.2 7.2 0 0 0-9.4 0l1 1.1c1-.9 2.3-1.4 3.7-1.4Zm0 3.4c.7 0 1.3.2 1.8.7L8.5 12 6.7 10c.5-.5 1.1-.7 1.8-.7Z"/></svg>
+<svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2.2"/><path d="M25 4.5v4c.8-.3 1.5-1.2 1.5-2s-.7-1.7-1.5-2Z" opacity=".5"/></svg></span></div>
+<main class="scroll" id="sc" onScroll="{{onScroll}}" inert="{{bgInert}}">
+  <div class="sbg" aria-hidden="true"></div>
+  <div class="spage">
+    <header class="shd {{headCls}}"><span class="shd__t">Signals</span><span style="flex:1"></span><button class="gbtn" aria-label="Search"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-magnifying-glass"/></svg></button><button class="gbtn" aria-label="My Board"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bookmark-simple"/></svg></button></header>
+    <div class="ttl"><h1>Signals</h1><p>Where a published model and the market disagree.</p></div>
+    <div class="chips rowc" role="group" aria-label="Sport">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+        <button class="chip {{c.cls}}" aria-pressed="{{c.sel}}" onClick="{{c.pick}}">{{c.label}} <i>{{c.n}}</i></button>
+      </sc-for>
+    </div>
+    <sc-if value="{{showList}}" hint-placeholder-val="{{ true }}">
+      <div class="legend" aria-hidden="true"><span><i class="lg-dot"></i>Model</span><span><i class="lg-band"></i>Range</span><span><i class="lg-tick"></i>Break-even</span></div>
+      <div class="grp">
+        <sc-for list="{{sigs}}" as="s" hint-placeholder-count="3">
+          <button class="sigbtn" aria-haspopup="dialog" aria-label="{{s.aria}}" onClick="{{s.pick}}">
+            <span class="mono" style="{{s.crestStyle}}" aria-hidden="true">{{s.crest}}</span>
+            <span style="min-width:0"><span class="sg__t" style="display:block">{{s.title}}</span><span class="sg__m" style="display:block">{{s.meta}}</span></span>
+            <span class="sg__n"><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><b style="color:var(--model)">{{s.model}}</b><small>Model</small></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><b style="color:var(--mkt)">{{s.needs}}</b><small>Needs</small></span></span>
+            <span class="gauge" aria-hidden="true"><i class="gauge__band" style="left:{{s.lo}}%;width:{{s.bw}}%"></i><i class="gauge__tick" style="left:{{s.be}}%"></i><i class="gauge__dot" style="left:{{s.fair}}%"></i></span>
+          </button>
+        </sc-for>
+      </div>
+      <div class="emptynote">Flagged by the published model, never by SIFT. Research only.</div>
+      <div class="howto">
+        <h2>How to read one</h2>
+        <div class="grp">
+          <div class="hr"><i class="lg-dot" aria-hidden="true"></i><div><b>Model</b><span class="s">The model’s chance that this side pays out.</span></div></div>
+          <div class="hr"><i class="lg-tick" aria-hidden="true"></i><div><b>Needs</b><span class="s">The price at which it breaks even, fee included.</span></div></div>
+          <div class="hr"><i class="lg-band" aria-hidden="true"></i><div><b>Range</b><span class="s">How unsure the model is. Wide means weak.</span></div></div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{showPass}}" hint-placeholder-val="{{ false }}">
+      <div class="grp" style="margin-top:20px"><div class="passcard"><svg class="ic ic--s" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-check-circle"/></svg><div><b>No NFL signal this week</b><span class="s">The publication recommends nothing. A pass is a result.</span></div></div></div>
+    </sc-if>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Primary" inert="{{bgInert}}">
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-house"/></svg>Home</a>
+  <a class="tab" href="Game.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-calendar-dots"/></svg>Games</a>
+  <a class="tab" href="Props.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-target"/></svg>Props</a>
+  <a class="tab on" href="Signals.dc.html" aria-current="page"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-pulse-f"/></svg>Signals</a>
+  <a class="tab" href="Home.dc.html"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-bookmark-simple"/></svg>Board</a>
+</nav>
+
+<dc-import name="SignalSheet" open="{{sheetOpen}}" sid="{{sheetSid}}" group="" frozen="{{false}}" open-key="{{openKey}}" on-close="{{closeSheet}}" hint-size="100%,100%"></dc-import>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-magnifying-glass" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></symbol><symbol id="i-bookmark-simple" viewBox="0 0 256 256"><path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"/></symbol><symbol id="i-check-circle" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol><symbol id="i-house" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"/></symbol><symbol id="i-calendar-dots" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z"/></symbol><symbol id="i-target" viewBox="0 0 256 256"><path d="M221.87,83.16A104.1,104.1,0,1,1,195.67,49l22.67-22.68a8,8,0,0,1,11.32,11.32l-96,96a8,8,0,0,1-11.32-11.32l27.72-27.72a40,40,0,1,0,17.87,31.09,8,8,0,1,1,16-.9,56,56,0,1,1-22.38-41.65L184.3,60.39a87.88,87.88,0,1,0,23.13,29.67,8,8,0,0,1,14.44-6.9Z"/></symbol><symbol id="i-pulse-f" viewBox="0 0 256 256"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm-8,96H188.64L159,188a8,8,0,0,1-6.95,4h-.46a8,8,0,0,1-6.89-4.84L103,89.92,79,132a8,8,0,0,1-7,4H48a8,8,0,0,1,0-16H67.36L97.05,68a8,8,0,0,1,14.3.82L153,166.08l24-42.05a8,8,0,0,1,6.95-4h24a8,8,0,0,1,0,16Z"/></symbol></defs></svg>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const sheet = st.sheet === undefined ? null : st.sheet;
+    const sport = st.sport || 'ALL';
+    const RAW = [
+      { id: 'ars', title: 'Arsenal don’t beat Leeds', meta: 'Arsenal v Leeds · Sat 6:30 AM', crest: 'ARS', crestStyle: 'background:#C8202B', fair: 47.3, lo: 30.8, hi: 64.6, be: 30.4 },
+      { id: 'leon', title: 'León fail to score', meta: 'Puebla v León · Fri 8:00 PM', crest: 'LEO', crestStyle: 'background:#1E8A52', fair: 39.1, lo: 25.6, hi: 51.9, be: 25.3 },
+      { id: 'btts', title: 'Not both teams score', meta: 'Puebla v León · Fri 8:00 PM', crest: 'P·L', crestStyle: 'background:linear-gradient(90deg,#2757B8 50%,#1E8A52 50%)', fair: 57.7, lo: 45.2, hi: 69.5, be: 46.7 }
+    ];
+    const sigs = RAW.map((s) => ({ ...s, model: Math.round(s.fair) + '%', needs: Math.round(s.be) + '¢', bw: Math.round((s.hi - s.lo) * 10) / 10,
+      aria: s.title + '. Model ' + Math.round(s.fair) + ' percent, needs ' + Math.round(s.be) + ' cents. Opens research.',
+      pick: () => this.setState({ sheet: s.id, openKey: (st.openKey || 0) + 1 }) }));
+    const chips = [['ALL', 'All', 3], ['SOC', 'Soccer', 3], ['NFL', 'NFL', 0]].map(([k, label, n]) => ({ label, n, cls: sport === k ? 'on' : '', sel: sport === k, pick: () => this.setState({ sport: k, sheet: null }) }));
+    const open = !!sheet;
+    return { chips, sigs, showList: sport !== 'NFL', showPass: sport === 'NFL', sheetOpen: open, sheetSid: sheet || 'ars', openKey: st.openKey || 0,
+      headCls: st.solid ? 'shd--solid' : '', onScroll: (e) => { const s = e.currentTarget.scrollTop > 56; if (s !== !!st.solid) this.setState({ solid: s }); },
+      closeSheet: () => this.setState({ sheet: null }), bgInert: open ? '' : undefined };
+  }
+}
+</script>
+</body>
+</html>

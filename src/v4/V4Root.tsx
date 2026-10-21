@@ -8,6 +8,7 @@ import '@fontsource-variable/sora';
 import './v4.css';
 import { Icon, type IconName } from './Icon';
 import { SheetHost } from './sheet';
+import { TrayProvider } from '../state/tray';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v4', label: 'Home', icon: 'house', end: true },
@@ -34,6 +35,8 @@ export function V4Root() {
   const onGame = pathname.startsWith('/v4/game/');
   return (
     <div className="v4" data-v4-shell>
+      {/* The one research tray provider for v4 (this route sits outside the classic root that mounts its own); it reads and writes the same local store. */}
+      <TrayProvider>
       <SheetHost>
         <div className="v4-col">
           <main className="v4-main" id="v4-main">
@@ -59,6 +62,7 @@ export function V4Root() {
           </div>
         </nav>
       </SheetHost>
+      </TrayProvider>
     </div>
   );
 }

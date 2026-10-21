@@ -7,6 +7,7 @@ import { Link } from '../routing';
 import { Icon } from './Icon';
 import { useSheet } from './sheet';
 import { Crest, gameHref } from './base';
+import { SaveControl } from './SaveControl';
 import { useNow } from '../live/hooks';
 import { quoteAgeMs, quoteFreshness } from '../live/freshness';
 import { agoWord, authorityWord, calibrationWord } from './words';
@@ -138,6 +139,10 @@ export function ResearchSheet({ o, g }: { o: Opportunity; g: GameRow | null }) {
         <p className="meta" style={{ marginTop: 18 }}>Research only. Sift reports what the publication states; it does not recommend a bet.</p>
       </div>
       <div className="v4-sfoot">
+        {o.marketId && (
+          <SaveControl sport={o.sport} id={o.marketId} extra={{ market_id: o.marketId, event_id: o.eventId }} kickoff={o.startTime} variant="button"
+            label={{ label: contractWords(o), sub: `${o.eventLabel}${o.competition ? ` · ${o.competition}` : ''}`, href: o.href, kickoff: o.startTime }} />
+        )}
         {g ? <Link to={gameHref(g, 'markets')} className="v4-btn" onClick={close}>Open game markets</Link> : <button type="button" className="v4-btn" onClick={close}>Done</button>}
       </div>
     </>

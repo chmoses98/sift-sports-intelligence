@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { ResearchSheet } from '../src/v4/ResearchSheet';
 import { SheetHost } from '../src/v4/sheet';
+import { TrayProvider } from '../src/state/tray';
 import type { Opportunity } from '../src/opportunity/types';
 
 const NOW = Date.parse('2026-10-11T20:00:00Z');
@@ -16,7 +17,7 @@ const opp = (over: Partial<Opportunity> = {}): Opportunity => ({
   rank: { tier: 3, tierWord: 'Research candidate', worstCaseEdge: null, evPerContract: 0.06, edgeShare: null, priceCurrent: true, highVariance: false, kickoff: '2026-10-11T23:00:00Z' }, ...over,
 } as Opportunity);
 
-const show = (o: Opportunity) => render(<MemoryRouter><SheetHost><ResearchSheet o={o} g={null} /></SheetHost></MemoryRouter>);
+const show = (o: Opportunity) => render(<MemoryRouter><TrayProvider><SheetHost><ResearchSheet o={o} g={null} /></SheetHost></TrayProvider></MemoryRouter>);
 
 describe('v4 research sheet', () => {
   beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(NOW); });

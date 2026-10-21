@@ -8,7 +8,7 @@ import { SportRepo } from '../data/repo';
 import { resolveSource } from '../data/source';
 import { sportBySlug } from '../data/sports';
 import { NAV_SPORTS } from '../data/nav';
-import type { EventResearchDoc, Market } from '../contract/types';
+import type { EventResearchDoc, Market, ModelPrice } from '../contract/types';
 import { useLiveQuotes, useNow } from '../live/hooks';
 import { classifyQuoteAge, formatQuoteAgo, quoteAgeMs, quoteFreshness, worstQuote } from '../live/freshness';
 import { overlayMarket } from '../live/overlay';
@@ -16,21 +16,20 @@ import { heroInputFor } from '../lib/hero/input';
 import { resolveHero } from '../lib/hero/resolve';
 import { gameSides } from '../insights/game';
 import { matchupInsights } from '../insights/matchups';
-import { propCards, rangeText } from '../insights/props';
+import { propBoard } from '../insights/propBoard';
 import { useAuthority } from '../data/projections';
 import { gameScripts, sharePct } from '../lib/scripts';
 import { gameWeather, weatherLine } from '../views/game/Hero';
 import { marketLabel, priceRow, centsText, type PriceRow } from '../lib/gamedata';
 import { latestPrices } from '../components/MarketBoard';
-import { broadcastPlayerPhoto } from '../components/sift2/playerArt';
 import { teamName } from '../components/sift2/GameList';
 import { competitionWord, type GameRow } from '../views/broadcast/games';
 import { useCardFacts } from '../views/broadcast/GameCard';
-import { routes } from '../lib/routes';
+import type { DiscoveryRow } from '../views/props/model';
 import { Icon } from './Icon';
-import { ExitLink } from './ExitLink';
+import { PlayerRowV4 } from './PropsUi';
+import { groupPlayers, propsExplorerHref } from './propsModel';
 import { agoWord, authorityWord } from './words';
-import { Crest } from './base';
 import { Scoreboard } from './Scoreboard';
 import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
@@ -272,58 +271,26 @@ function MatchupsTab({ research, loading, sport }: { research: EventResearchDoc 
 
 // ------------------------------------------------------------------ Players
 
-function PlayersTab({ g, research, markets, detail, sport, now }: { g: GameRow; research: EventResearchDoc | null; markets: Market[]; detail: { markets: Market[] } | null; sport: string; now: number }) {
+/** The game's players, from the same prop board (and the same one projection per stat) as the Props explorer; each row opens the player. */
+function PlayersTab({ g, research, markets, detail, sport, now }: { g: GameRow; research: EventResearchDoc | null; markets: Market[]; detail: { markets: Market[]; model_prices?: ModelPrice[] } | null; sport: string; now: number }) {
   const { authority, ready } = useAuthority(g.sport);
-  const sides = useMemo(() => (research ? gameSides(research) : null), [research]);
-  const cards = useMemo(() => (research && detail && ready && sides ? propCards(research, markets.length ? markets : detail.markets, sides, authority) : []), [research, detail, markets, ready, sides, authority]);
-  const players = useMemo(() => {
-    const m = new Map<string, typeof cards>();
-    for (const c of [...cards].sort((a, b) => b.interest - a.interest)) m.set(c.playerId, [...(m.get(c.playerId) ?? []), c]);
-    return [...m.values()].slice(0, 16);
-  }, [cards]);
-  const [open, setOpen] = useState<string | null>(null);
+  const rows = useMemo<DiscoveryRow[]>(() => {
+    if (!research || !detail || !ready) return [];
+    const board = propBoard(research, { markets: markets.length ? markets : detail.markets, model_prices: detail.model_prices ?? [] }, undefined, authority);
+    const game = `${g.away?.short_name ?? ''} @ ${g.home?.short_name ?? ''}`;
+    return board.rows.filter((r) => r.main).map((row) => ({ row, eventId: g.item.event_id, kickoff: g.item.start_time_utc, game, publishedAt: research.generated_at ?? null }));
+  }, [research, detail, markets, ready, authority, g]);
+  const players = useMemo(() => groupPlayers(rows).slice(0, 16), [rows]);
   if (!ready && research) return <div className="v4-card"><div className="v4-skel" style={{ height: 90 }} role="status" aria-label="Loading player research" /></div>;
   if (!players.length) return <Unavailable title="No player projections for this game">{sport} player projections are not published for this game. Where the publication has them they appear here with the Kalshi line beside the SIFT projection.</Unavailable>;
   return (
     <section aria-label="Players">
       <header className="v4-sechead"><h2>Players to watch</h2><span className="v4-sechead__n">{players.length}</span></header>
-      <p className="meta" style={{ padding: '0 16px 10px' }}>SIFT's projection and Kalshi's line are shown apart: one is a model, the other a market price.</p>
-      <ul className="v4-grp">
-        {players.map((rows) => {
-          const p = rows[0];
-          const photo = broadcastPlayerPhoto(p.playerId, p.name, p.team.abbr, 'portrait');
-          const isOpen = open === p.playerId;
-          return (
-            <li key={p.playerId}>
-              <button type="button" className="v4-player" style={{ width: '100%', minHeight: 72 }} aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : p.playerId)}>
-                <span className="v4-player__ph">{photo ? <img src={photo.src} alt="" style={{ objectPosition: photo.focus }} loading="lazy" /> : <Crest sport={g.sport} p={p.team.home ? g.home : g.away} size="sm" />}</span>
-                <span className="v4-player__t"><b>{p.name}</b><span>{p.team.abbr}{p.role ? ` · ${p.role}` : ''} · {rows.length} market{rows.length === 1 ? '' : 's'}</span></span>
-                <Icon name={isOpen ? 'caret-down' : 'caret-right'} size="s" />
-              </button>
-              {isOpen && (
-                <ul style={{ borderTop: '1px solid var(--line)' }}>
-                  {rows.map((c) => {
-                    const m = c.market;
-                    const fr = m ? quoteFreshness(m.captured_at, now) : 'UNKNOWN';
-                    return (
-                      <li key={c.id} className="v4-quote" style={{ alignItems: 'flex-start', flexDirection: 'column', gap: 4 }}>
-                        <b style={{ font: '600 15px/20px var(--f-ui)' }}>{c.statLabel}</b>
-                        <span style={{ font: '500 13px/18px var(--f-ui)', color: 'var(--model)' }}>SIFT projection {c.projection}{c.unit ? ` ${c.unit}` : ''}{c.range ? ` · typical ${rangeText(c.range.typical, c.unit)}` : c.band ? ` · range ${Math.round(c.band.lo)}–${Math.round(c.band.hi)}` : ''}</span>
-                        <span style={{ font: '500 13px/18px var(--f-ui)', color: m ? 'var(--mkt)' : 'var(--tx3)' }}>
-                          {m && c.line != null ? `Kalshi line ${c.line}${m.yes_ask != null ? ` · Yes ${centsText(m.yes_ask)}` : ''}${m.no_ask != null ? ` · No ${centsText(m.no_ask)}` : ''} · ${m.captured_at ? `${agoWord(quoteAgeMs(m.captured_at, now))}${fr === 'STALE' ? ' (stale)' : ''}` : 'capture time not published'}` : 'No Kalshi line published'}
-                        </span>
-                      </li>
-                    );
-                  })}
-                  <li style={{ padding: '4px 14px 12px' }}>
-                    <ExitLink className="v4-textlink" to={`/design/sift2${routes.props(g.slug, { game: g.item.event_id, player: p.playerId, stat: rows[0].stat })}`}>Full prop research in SIFT 2.0</ExitLink>
-                  </li>
-                </ul>
-              )}
-            </li>
-          );
-        })}
+      <p className="meta" style={{ padding: '0 16px 10px' }}>SIFT's projection and Kalshi's line are shown apart: one is a model, the other a market price. Tap a player for the full ladder.</p>
+      <ul className="v4-grp v4-plist" aria-label="Players with priced props">
+        {players.map((e) => <PlayerRowV4 key={e.key} e={e} now={now} sport={g.sport} slug={g.slug} />)}
       </ul>
+      <div style={{ padding: '12px 16px 0' }}><Link to={propsExplorerHref({ game: g.item.event_id })} className="v4-btn v4-btn--sec" style={{ width: '100%' }}>All props for this game</Link></div>
     </section>
   );
 }

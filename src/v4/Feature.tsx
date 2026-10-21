@@ -5,6 +5,7 @@ import { useMemo, type CSSProperties } from 'react';
 import { Link } from '../routing';
 import { Icon } from './Icon';
 import { gameHref } from './base';
+import { propsExplorerHref } from './propsModel';
 import { SignalChip, useFinal } from './parts';
 import { Scoreboard } from './Scoreboard';
 import { isLiveGame } from './model';
@@ -67,6 +68,11 @@ export function Feature({ g }: { g: GameRow }) {
           </p>
           {g.candidates > 0 ? <SignalChip g={g} /> : <Link to={gameHref(g)} className="v4-sig" aria-label={`Open ${teamName(g.away)} ${hosted ? 'at' : 'versus'} ${teamName(g.home)}`}><Icon name="caret-right" size="s" /></Link>}
         </div>
+        {['nfl', 'mlb', 'nhl'].includes(g.slug) && (
+          <Link to={propsExplorerHref({ sport: g.slug, game: g.slug === 'nfl' && (g.phase === 'PREGAME' || g.phase === 'NO_START') ? g.item.event_id : null })} className="v4-textlink v4-feature__props">
+            <Icon name="target" size="s" />Player props{g.slug === 'nfl' && (g.phase === 'PREGAME' || g.phase === 'NO_START') ? ' for this game' : ''}<Icon name="caret-right" size="xs" />
+          </Link>
+        )}
       </div>
     </div>
   );

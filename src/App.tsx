@@ -43,6 +43,7 @@ const V4Games = lazy(() => import('./v4/Games').then((x) => ({ default: x.V4Game
 const V4Game = lazy(() => import('./v4/Game').then((x) => ({ default: x.V4Game })));
 const V4Props = lazy(() => import('./v4/Props').then((x) => ({ default: x.V4Props })));
 const V4PropDetail = lazy(() => import('./v4/PropDetail').then((x) => ({ default: x.V4PropDetail })));
+const V4Board = lazy(() => import('./v4/Board').then((x) => ({ default: x.V4Board })));
 const V4Signals = lazy(() => import('./v4/Signals').then((x) => ({ default: x.V4Signals })));
 const V4Handoff = lazy(() => import('./v4/Handoff').then((x) => ({ default: x.V4Handoff })));
 const GamesView = lazy(() => import('./views/broadcast/GamesView').then((x) => ({ default: x.GamesView })));
@@ -99,7 +100,7 @@ export const routeTree = [
       { path: 'props', element: <V4Props /> },
       { path: 'props/:slug/:eventId/:playerId', element: <V4PropDetail /> },
       { path: 'signals', element: <V4Signals /> },
-      { path: 'board', element: <V4Handoff tab="board" /> },
+      { path: 'board', element: <V4Board /> },
       { path: '*', element: <V4Handoff tab="missing" /> },
     ],
   },

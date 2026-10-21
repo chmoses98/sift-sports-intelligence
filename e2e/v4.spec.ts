@@ -208,10 +208,11 @@ test.describe('v4 behaviour', () => {
     await expect(page.getByRole('link', { name: 'Browse games' })).toBeVisible();
   });
 
-  test('Board is an honest handoff, not a fake screen @smoke', async ({ page }) => {
+  test('Board is a real screen: an empty Board says so and offers the SIFT 2.0 Board as a real exit @smoke', async ({ page }) => {
     await open(page, '/board', { NBA: 3 });
-    await expect(page.getByRole('heading', { name: 'Board' })).toBeVisible();
-    await expect(page.getByText('Coming in v4')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Board', level: 1 })).toBeVisible();
+    await expect(page.getByText('Nothing saved yet')).toBeVisible();
+    await expect(page.getByText('Coming in v4')).toHaveCount(0);
     await expect(page.getByRole('link', { name: /Open in SIFT 2.0/ })).toHaveAttribute('href', '#/design/sift2/board');
   });
 

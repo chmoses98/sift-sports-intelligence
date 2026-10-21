@@ -3,12 +3,11 @@ import { Icon } from './Icon';
 import { ExitLink } from './ExitLink';
 
 const COPY: Record<string, { title: string; body: string; target?: string }> = {
-  board: { title: 'Board', body: 'The v4 board (saved research) is the next milestone. Your current board is in SIFT 2.0.', target: '/design/sift2/board' },
   missing: { title: 'Not found', body: 'That v4 address does not exist.' },
 };
 
 /** Tabs that are not part of milestone 1: said plainly, with the way to the current screen. Nothing is faked. */
-export function V4Handoff({ tab }: { tab: 'board' | 'missing' }) {
+export function V4Handoff({ tab }: { tab: 'missing' }) {
   const c = COPY[tab];
   return (
     <section className="v4-hand" aria-labelledby="v4-hand-h">

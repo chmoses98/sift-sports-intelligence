@@ -97,7 +97,7 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
   const diff = classifyDifference(mainView, projectionWhy(row), byMarket);
   const q = quoteView(side === 'over' ? row.main?.yesAsk : row.main?.noAsk, row.main?.market.captured_at, now);
   const save = propSave({ row, slug, eventId, kickoff, status });
-  const ctx = { row, slug, eventId, kickoff, status, game: gameLabel, researchAt: r.generated_at ?? null, side, marketId: null as string | null };
+  const ctx = { row, slug, eventId, kickoff, status, game: gameLabel, researchAt: r.generated_at ?? null, side, marketId: null as string | null, fromDetail: true };
 
   // Recent form: the player's real game logs against today's line (history, never a probability).
   const hist = usePlayerHistories('NFL', useMemo(() => [{ name: row.name, team: row.team.abbr }], [row.name, row.team.abbr]));
@@ -115,7 +115,7 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
 
   return (
     <div>
-      <div className="v4-hero" style={{ ['--tc' as string]: tc }}>
+      <div className={`v4-hero${photo ? '' : ' v4-hero--nophoto'}`} style={{ ['--tc' as string]: tc }}>
         {photo && <img className="v4-hero__img" src={photo.src} alt="" style={{ objectPosition: photo.focus }} decoding="async" />}
         <div className="v4-hero__shade" aria-hidden="true" />
         <div className="v4-gtop">
@@ -148,7 +148,7 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
         </div>
 
         <div className="v4-acts">
-          <button type="button" className="v4-btn" onClick={() => open(ctx)}><Icon name="pulse" size="s" />Research details</button>
+          <button type="button" className="v4-btn" aria-label="Research details" onClick={() => open(ctx)}><Icon name="pulse" size="s" />Research</button>
           <Link to={`/v4/game/${slug}/${encodeURIComponent(eventId)}?tab=players`} className="v4-btn v4-btn--sec">Game</Link>
         </div>
 

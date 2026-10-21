@@ -30,6 +30,8 @@ export interface PropCtx {
   side: PropSide;
   /** The rung the viewer picked (a market id); the main line when null. */
   marketId: string | null;
+  /** Opened from the player's own page: the sheet offers Done rather than a link back to it. */
+  fromDetail?: boolean;
 }
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
@@ -87,7 +89,7 @@ function ResearchOnly({ ctx, now }: { ctx: PropCtx; now: number }) {
       <div className="v4-shead">
         <div className="v4-shead__t">
           <h2 data-autofocus tabIndex={-1}>{title}</h2>
-          <p className="v4-shead__m">{ctx.game} · {row.team.abbr} {row.team.home ? 'vs' : 'at'} {row.opp.abbr}</p>
+          <p className="v4-shead__m">{ctx.game}</p>
         </div>
         <button type="button" className="v4-gbtn" onClick={close} aria-label="Close research"><Icon name="x" /></button>
       </div>
@@ -129,7 +131,9 @@ function ResearchOnly({ ctx, now }: { ctx: PropCtx; now: number }) {
       </div>
       <div className="v4-sfoot">
         {save && <SaveControl {...save} variant="button" />}
-        <Link to={v4PropHref(ctx.slug, ctx.eventId, row.playerId, row.def.stat)} className="v4-btn" onClick={close}>Open player</Link>
+        {ctx.fromDetail
+          ? <button type="button" className="v4-btn" onClick={close}>Done</button>
+          : <Link to={v4PropHref(ctx.slug, ctx.eventId, row.playerId, row.def.stat)} className="v4-btn" onClick={close}>Open player</Link>}
       </div>
     </>
   );

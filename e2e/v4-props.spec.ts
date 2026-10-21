@@ -143,6 +143,7 @@ test.describe('v4 Player detail', () => {
     await expect(page.locator('main')).not.toContainText(/recommend(ed)? bet|best bet|\block\b/i);
     await noHorizontalOverflow(page, 'v4 player detail');
     await shot(page, 'props-detail');
+    if (SHOTS) await page.screenshot({ path: `${SHOTS}/props-detail-full-${page.viewportSize()!.width}.png`, fullPage: true });
   });
 
   test('a gap is an investigated signal only where the publication holds one, else an unexplained difference; missing projections say why @smoke', async ({ page }) => {
@@ -181,6 +182,7 @@ test.describe('v4 Player detail', () => {
     await expect(dlg).toBeVisible();
     await expect(dlg).toContainText(/Research only|published signal/);
     await expect(dlg).toContainText(/does not recommend a bet/);
+    await page.waitForTimeout(500); // the sheet rises over 0.34 s: capture it settled
     await shot(page, 'props-research-sheet');
     const save = dlg.getByRole('button', { name: /^Save to My Board/ });
     await save.click();
@@ -206,7 +208,9 @@ test.describe('v4 Player detail', () => {
     const save = page.getByRole('button', { name: /cannot be saved after kickoff/ });
     await expect(save).toHaveAttribute('aria-disabled', 'true');
     await expect(page.getByText(/Pregame research · frozen at kickoff/).first()).toBeVisible();
-    await save.click();
+    // an aria-disabled control still takes a tap: it explains itself and saves nothing
+    await save.click({ force: true });
+    await expect(page.getByRole('status').filter({ hasText: /can’t be saved after kickoff/ })).toBeVisible();
     expect((await tray(page))?.tray?.items?.length ?? 0).toBe(0);
   });
 

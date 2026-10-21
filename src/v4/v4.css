@@ -527,3 +527,6 @@
 .v4-src dd { margin: 2px 0 0; font: 400 14px/20px var(--f-ui); color: var(--tx2); }
 
 .v4-feature__props { gap: 8px; align-self: flex-start; color: var(--tx); text-decoration: none; }
+
+.v4-hero--nophoto { min-height: 0; }
+.v4-hero--nophoto .v4-hero__in { padding-top: 18px; }

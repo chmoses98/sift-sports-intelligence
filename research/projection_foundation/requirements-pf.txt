@@ -1,0 +1,8 @@
+# Exact versions the sport repos run pf_core with (same pins as nfl-edge-finder/research/projection_foundation/requirements-pf.txt).
+# SIFT's CI installs exactly these to test the canonical pf_core, so the vendored library is tested on the numerical stack it ships on.
+numpy==2.5.3
+pandas==3.0.5
+scipy==1.18.1
+scikit-learn==1.9.1
+lightgbm==4.7.0
+pytest==9.1.1

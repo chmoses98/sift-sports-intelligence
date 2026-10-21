@@ -57,3 +57,35 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 14
+
+  projection-foundation:
+    name: Projection Foundation (pf_core) · Python tests + vendoring manifest
+    # Required on every pull request and branch push. Skipped inside deploy.yml's reuse of this workflow (push to main, schedule):
+    # a research-only library test must never block a SIFT deploy (same rule as pure-contract.yml); it already gated the PR.
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: research/projection_foundation/requirements-pf.txt
+      - name: Install the pinned numerical stack
+        run: pip install -r research/projection_foundation/requirements-pf.txt
+      - name: pf_core is exactly what MANIFEST.json says (the sport repos vendor byte-identical copies)
+        working-directory: research/projection_foundation
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, re, sys
+          m = json.load(open("pf_core/MANIFEST.json"))
+          bad = [f for f, h in m["sha256"].items() if hashlib.sha256(open(f"pf_core/{f}", "rb").read()).hexdigest() != h]
+          extra = sorted(set(f for f in os.listdir("pf_core") if f.endswith(".py")) - set(m["sha256"]))
+          v = re.search(r'^VERSION = "([^"]+)"', open("pf_core/__init__.py").read(), re.M).group(1)
+          print("manifest", m["version"], "VERSION", v, "mismatched", bad, "unlisted", extra)
+          sys.exit(1 if bad or extra or v != m["version"] else 0)
+          PY
+      - name: pf_core, live operation, scorecards and feed-monitor tests
+        working-directory: research/projection_foundation
+        run: python3 -m pytest tests -q -p no:cacheprovider

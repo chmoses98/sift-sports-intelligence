@@ -37,6 +37,11 @@ const ScorecardView = lazy(() => import('./views/Scorecard').then((x) => ({ defa
 const ParlaysView = lazy(() => import('./views/Parlays').then((x) => ({ default: x.ParlaysView })));
 const NewsView = lazy(() => import('./views/News').then((x) => ({ default: x.NewsView })));
 const SettingsView = lazy(() => import('./views/Settings').then((x) => ({ default: x.SettingsView })));
+const V4Root = lazy(() => import('./v4/V4Root').then((x) => ({ default: x.V4Root })));
+const V4Home = lazy(() => import('./v4/Home').then((x) => ({ default: x.V4Home })));
+const V4Games = lazy(() => import('./v4/Games').then((x) => ({ default: x.V4Games })));
+const V4Game = lazy(() => import('./v4/Game').then((x) => ({ default: x.V4Game })));
+const V4Handoff = lazy(() => import('./v4/Handoff').then((x) => ({ default: x.V4Handoff })));
 const GamesView = lazy(() => import('./views/broadcast/GamesView').then((x) => ({ default: x.GamesView })));
 const BoardView = lazy(() => import('./views/board/BoardView').then((x) => ({ default: x.BoardView })));
 const MarketsView = lazy(() => import('./views/Markets').then((x) => ({ default: x.MarketsView })));
@@ -70,7 +75,9 @@ function Root() {
 /** Classic addresses answer with SIFT 2.0 when it is the chosen interface (see lib/uiMode.ts); design routes never pass here. */
 export function UiGate() {
   const loc = useLocation();
-  if (resolveUi(loc.search) !== 'sift2') return <Outlet />;
+  const mode = resolveUi(loc.search);
+  if (mode === 'v4') return <Navigate replace to="/v4" />;
+  if (mode !== 'sift2') return <Outlet />;
   const q = new URLSearchParams(loc.search);
   q.delete('ui');
   const qs = q.toString();
@@ -78,6 +85,20 @@ export function UiGate() {
 }
 
 export const routeTree = [
+  // The v4 phone experience: its own shell (no classic chrome), one lazy chunk, reached with #/v4 or ?ui=v4.
+  {
+    path: '/v4',
+    element: <Suspense fallback={null}><V4Root /></Suspense>,
+    children: [
+      { index: true, element: <V4Home /> },
+      { path: 'games', element: <V4Games /> },
+      { path: 'game/:slug/:eventId', element: <V4Game /> },
+      { path: 'props', element: <V4Handoff tab="props" /> },
+      { path: 'signals', element: <V4Handoff tab="signals" /> },
+      { path: 'board', element: <V4Handoff tab="board" /> },
+      { path: '*', element: <V4Handoff tab="missing" /> },
+    ],
+  },
   {
     path: '/',
     element: <Root />,

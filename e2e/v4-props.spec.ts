@@ -146,6 +146,18 @@ test.describe('v4 Player detail', () => {
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/props-detail-full-${page.viewportSize()!.width}.png`, fullPage: true });
   });
 
+  test('the ladder opens on the main line and two rungs either side; every line is one tap away @smoke', async ({ page }) => {
+    await serve(page.context());
+    await open(page, OLAVE_URL);
+    const ladder = page.getByRole('region', { name: /Receptions/ });
+    await expect(ladder.locator('.v4-lad__row')).toHaveCount(5);
+    await expect(ladder.locator('.v4-lad__row.is-main')).toBeVisible();
+    await ladder.getByRole('button', { name: /^Show all \d+ lines/ }).click();
+    expect(await ladder.locator('.v4-lad__row').count()).toBeGreaterThan(7);
+    await ladder.getByRole('button', { name: 'Show fewer lines' }).click();
+    await expect(ladder.locator('.v4-lad__row')).toHaveCount(5);
+  });
+
   test('a gap is an investigated signal only where the publication holds one, else an unexplained difference; missing projections say why @smoke', async ({ page }) => {
     await serve(page.context());
     await open(page, OLAVE_URL);

@@ -59,7 +59,7 @@ export function usePropResearch() {
   return useCallback((ctx: PropCtx) => sheet.open(<PropResearch ctx={ctx} />, { label: `Research: ${ctx.row.name} ${ctx.row.def.label}` }), [sheet]);
 }
 
-function PropResearch({ ctx }: { ctx: PropCtx }) {
+export function PropResearch({ ctx }: { ctx: PropCtx }) {
   const now = useNow(30_000);
   const all = useAllOpportunities(now);
   const byMarket = useMemo(() => opportunitiesByMarket(all.opportunities, 'NFL'), [all.opportunities]);

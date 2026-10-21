@@ -94,6 +94,11 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
   const where = row.team.home ? 'vs' : 'at';
   const ladder = ladderViews(row, side, now);
   const mainView = ladder.find((x) => x.isMain) ?? null;
+  // Concise by default: the main line and two rungs either side; the whole ladder on request.
+  const [allRungs, setAllRungs] = useState(false);
+  const mi = ladder.findIndex((x) => x.isMain);
+  const trimmed = !allRungs && ladder.length > 7 && mi >= 0;
+  const visible = trimmed ? ladder.slice(Math.max(0, Math.min(mi - 2, ladder.length - 5)), Math.max(0, Math.min(mi - 2, ladder.length - 5)) + 5) : ladder;
   const diff = classifyDifference(mainView, projectionWhy(row), byMarket);
   const q = quoteView(side === 'over' ? row.main?.yesAsk : row.main?.noAsk, row.main?.market.captured_at, now);
   const save = propSave({ row, slug, eventId, kickoff, status });
@@ -165,7 +170,7 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
             <>
               <div className="v4-lad__head" aria-hidden="true"><span>{side === 'over' ? 'At least' : 'Fewer than'}</span><span>Kalshi {side === 'over' ? 'Yes' : 'No'}</span><span>Model</span><span>Diff</span></div>
               <ul className="v4-lad__rows">
-                {ladder.map((v) => (
+                {visible.map((v) => (
                   <li key={v.rung.market.market_id} className={`v4-lad__row${v.isMain ? ' is-main' : ''}`}
                     aria-label={`${side === 'over' ? 'At least' : 'Fewer than'} ${v.rung.market.threshold}: Kalshi ${side === 'over' ? 'yes' : 'no'} ${cents(v.quote.ask)}${v.quote.ask != null && !v.quote.executable ? ' (not current)' : ''}, break-even after fee ${pct(v.breakEven)}, model ${pct(v.model)}${v.points != null ? `, model minus break-even ${v.points} points` : ''}${v.isMain ? ', at the line' : ''}`}>
                     <span className="v4-lad__l"><b className="num">{v.rung.market.threshold}{side === 'over' ? '+' : ''}</b>{v.isMain && <em>At the line</em>}</span>
@@ -175,6 +180,7 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
                   </li>
                 ))}
               </ul>
+              {ladder.length > 7 && mi >= 0 && <button type="button" className="v4-btn v4-btn--sec v4-lad__all" aria-expanded={!trimmed} onClick={() => setAllRungs((a) => !a)}>{trimmed ? `Show all ${ladder.length} lines` : 'Show fewer lines'}</button>}
               <p className="v4-lad__note">Kalshi pays on the contract settling Yes at that count or more; Under is the No side of the same contract. BE is the probability that side needs to break even after Kalshi's fee. Diff is model minus BE in points, shown only for a current price. It is context, not a recommendation.</p>
             </>
           )}

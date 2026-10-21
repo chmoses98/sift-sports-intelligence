@@ -324,7 +324,7 @@ export const summaryUrl = (sport: ProjSport): string =>
 
 export interface FamilyScore {
   family: string; readiness: Readiness; reason: string; bestModel: string;
-  holdout: { n: number | null; mae: number | null; bias: number | null; cover80: number | null; vsBaseline: number | null } | null;
+  holdout: { n: number | null; mae: number | null; crps: number | null; bias: number | null; cover80: number | null; vsBaseline: number | null } | null;
 }
 export interface FoundationSummary { sport: ProjSport; generatedAt: string; splits: Record<string, string>; families: FamilyScore[] }
 
@@ -339,7 +339,7 @@ export function decodeSummary(raw: unknown): FoundationSummary | null {
     const vb = h && isObj(h.vs_baseline) ? num(h.vs_baseline.mean_diff) : null;
     return {
       family: str(f.family), readiness: asReadiness(f.readiness), reason: str(f.readiness_reason), bestModel: str(f.best_model),
-      holdout: h ? { n: num(h.n_obs), mae: num(h.mae), bias: num(h.bias), cover80: num(h.cover_80), vsBaseline: vb } : null,
+      holdout: h ? { n: num(h.n_obs), mae: num(h.mae), crps: num(h.crps), bias: num(h.bias), cover80: num(h.cover_80), vsBaseline: vb } : null,
     };
   }).filter((f) => f.family);
   return { sport, generatedAt: str(raw.generated_utc), splits, families };
@@ -394,12 +394,30 @@ export const scorecardUrl = (sport: ProjSport, view: 'season' | 'weekly' | 'dail
   env[`VITE_SIFT_PF_SCORECARD_${sport}_URL`] ??
   `https://raw.githubusercontent.com/chmoses98/${REPO[sport]}/projection-data/scorecards/${sport.toLowerCase()}/${view}.json`;
 
+/**
+ * Yes/no families (outcome 0/1, forecast = P(yes)). pf_core 1.3.0 scores them as probabilities: Brier is the primary metric, MAE is
+ * not a proper score for a probability and is not shown for them. A 1.3.0 card says so itself (`outcome_type`, `primary_metric`);
+ * this list (pf_core.prospective.BINARY_FAMILIES) is only the fallback for a card that predates 1.3.0 and carries neither.
+ */
+const YES_NO_FAMILIES: ReadonlySet<string> = new Set(['anytime_td', 'participation']);
+export const isYesNoFamily = (family: string): boolean => YES_NO_FAMILIES.has(family);
+
 export interface LiveFamily {
-  family: string; n: number; games: number; mae: number; bias: number; cover80: number | null;
+  family: string;
+  /** 'binary' = yes/no family scored by Brier; 'count' = count or continuous family scored by average miss (MAE) and 80% range. */
+  kind: 'binary' | 'count';
+  n: number; games: number;
+  /** Count/continuous only. */
+  mae: number | null;
+  /** Yes/no only; null when the card carries no Brier score (a card that predates pf_core 1.3.0). */
+  brier: number | null;
+  /** Count/continuous: forecast mean minus actual, in the stat's units. Yes/no: mean forecast probability minus observed rate. */
+  bias: number;
+  cover80: number | null;
   vsIncumbent: { diff: number; lo: number; hi: number; n: number } | null;
   status: 'OK' | 'WATCH' | 'ALERT' | 'INSUFFICIENT'; note: string;
 }
-export interface LiveScorecard { sport: ProjSport; generatedAt: string; archived: number; settled: number; families: LiveFamily[] }
+export interface LiveScorecard { sport: ProjSport; generatedAt: string; scoringVersion: string | null; archived: number; settled: number; families: LiveFamily[] }
 
 export function decodeScorecard(raw: unknown): LiveScorecard | null {
   if (!isObj(raw) || raw.schema !== SCORECARD_SCHEMA || raw.authority !== 'research_only') return null;
@@ -411,18 +429,29 @@ export function decodeScorecard(raw: unknown): LiveScorecard | null {
   for (const f of raw.families) {
     if (!isObj(f) || !Array.isArray(f.models)) continue;
     const m = f.models.find((x) => isObj(x) && x.model_role === 'challenger') as Record<string, unknown> | undefined;
-    if (!m || num(m.n) == null || num(m.mae) == null) continue;
-    const pc = isObj(f.paired) && isObj(f.paired.crps_diff) ? f.paired.crps_diff : isObj(f.paired) && isObj(f.paired.mae_diff) ? f.paired.mae_diff : null;
+    if (!m || num(m.n) == null) continue;
+    const family = str(f.family);
+    const outcome = str(m.outcome_type) || str(f.outcome_type);
+    const kind: LiveFamily['kind'] = outcome === 'binary' || (!outcome && isYesNoFamily(family)) ? 'binary' : 'count';
+    const mae = kind === 'count' ? num(m.mae) : null;
+    if (kind === 'count' && mae == null) continue;
+    const brier = kind === 'binary' ? num(m.brier) : null;
+    // the paired difference is on the card's own primary metric (Brier for yes/no, CRPS or MAE otherwise); older cards: CRPS, then MAE
+    const paired = isObj(f.paired) ? f.paired : null;
+    const primary = paired ? str(paired.primary_metric) : '';
+    const pick = (k: string) => (paired && isObj(paired[k]) ? (paired[k] as Record<string, unknown>) : null);
+    const pc = (primary ? pick(`${primary}_diff`) : null) ?? pick('crps_diff') ?? pick('mae_diff');
     const ci = pc && Array.isArray(pc.ci95) ? pc.ci95 : null;
-    const al = alerts.get(str(f.family));
+    const al = alerts.get(family);
     const st = al?.status;
     fams.push({
-      family: str(f.family), n: num(m.n)!, games: num(m.n_games) ?? 0, mae: num(m.mae)!, bias: num(m.bias) ?? 0, cover80: num(m.cover_80),
+      family, kind, n: num(m.n)!, games: num(m.n_games) ?? 0, mae, brier, bias: num(m.bias) ?? 0,
+      cover80: kind === 'count' ? num(m.cover_80) : null,   // an 80% range is undefined for a 0/1 outcome
       vsIncumbent: pc && ci && num(pc.mean_diff) != null ? { diff: num(pc.mean_diff)!, lo: num(ci[0]) ?? NaN, hi: num(ci[1]) ?? NaN, n: num(pc.n_obs) ?? 0 } : null,
       status: st === 'OK' || st === 'WATCH' || st === 'ALERT' || st === 'INSUFFICIENT' ? st : 'INSUFFICIENT', note: al?.what ?? '',
     });
   }
   const cap = isObj(raw.capture) ? raw.capture : {};
   const set = isObj(raw.settlement) ? raw.settlement : {};
-  return { sport, generatedAt: str(raw.generated_utc), archived: num(cap.forecasts_archived) ?? 0, settled: num(set.settled) ?? 0, families: fams };
+  return { sport, generatedAt: str(raw.generated_utc), scoringVersion: str(raw.scoring_version) || null, archived: num(cap.forecasts_archived) ?? 0, settled: num(set.settled) ?? 0, families: fams };
 }

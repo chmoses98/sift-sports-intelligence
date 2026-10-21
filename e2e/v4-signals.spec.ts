@@ -73,7 +73,9 @@ test.describe('v4 Signals feed', () => {
     await expect(page.locator('.v4-sg--stale')).toContainText(/validity window/);
     // a pass is never drawn as active: no save control, no price line
     await expect(page.locator('.v4-sg--passed .v4-save, .v4-sg--stale .v4-save')).toHaveCount(0);
+    await page.evaluate(() => window.scrollTo(0, 0));
     await shot(page, 'signals-feed');
+    if (SHOTS) await page.screenshot({ path: `${SHOTS}/signals-feed-full-${page.viewportSize()!.width}.png`, fullPage: true });
     await noHorizontalOverflow(page, 'v4 signals');
   });
 

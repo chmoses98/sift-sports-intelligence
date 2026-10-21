@@ -20,9 +20,9 @@ test('without a flag the root is SIFT 2.0 and v4 is not shown', async ({ page })
 test('?ui=v4 opens v4; Open in SIFT 2.0 exits cleanly, and the root answers with SIFT 2.0 again; #/v4 re-enters', async ({ page }) => {
   await page.goto('#/?ui=v4');
   await expect(page.locator('[data-v4-shell]')).toBeVisible();
-  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Signals' }).click();
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Board' }).click();
   await page.getByRole('link', { name: /Open in SIFT 2.0/ }).click();
-  await expect(page).toHaveURL(/#\/design\/sift2\/intelligence/);
+  await expect(page).toHaveURL(/#\/design\/sift2\/board/);
   expect(await pref(page)).toBeNull();
   await page.goto('#/');
   await expect(page).toHaveURL(/#\/design\/sift2\/home/);

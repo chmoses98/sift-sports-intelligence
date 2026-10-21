@@ -210,9 +210,10 @@ test.describe('v4 Signals feed: what was read', () => {
   });
 
   test('an unreadable publication is unavailable, never "no signals"; the others still show @smoke', async ({ page, market }) => {
-    await open(page, market, [rec()]);
+    // The failing feed is in place before the page loads (no reload: WebKit reports in-flight same-origin fetches cancelled by a
+    // reload as page errors, which made this test timing-dependent in CI).
     await page.context().route(/raw\.githubusercontent\.com\/chmoses98\/NHL-edge-finder\//, (r) => r.fulfill({ status: 500, body: 'x', headers: { 'access-control-allow-origin': '*' } }));
-    await page.reload();
+    await open(page, market, [rec()]);
     await expect(cards(page).first()).toBeVisible();
     const nhl = page.locator('.v4-sg__covrow', { hasText: 'NHL' });
     await expect(nhl).toHaveAttribute('data-state', 'unavailable');
@@ -329,6 +330,9 @@ test.describe('v4 Signals feed: published research from the fixtures', () => {
     await page.goto('#/v4/signals?sport=nhl');
     await expect(cards(page).first()).toBeVisible();
     await expect(cards(page).first().locator('.v4-sg__game')).toContainText(/@/);
+    // correlated expressions on one game are labelled as one exposure, and related expressions stay reachable
+    await expect(cards(page).first().locator('.v4-sg__flag')).toContainText(/one game exposure|cannot both win/);
+    await expect(cards(page).first().getByRole('button', { name: /related expressions?$/ })).toBeVisible();
     await shot(page, 'signals-nhl');
     await cards(page).first().locator('.v4-sg__main').click();
     const dlg = page.getByRole('dialog', { name: /^Research:/ });

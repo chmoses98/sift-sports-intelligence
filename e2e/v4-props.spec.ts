@@ -43,13 +43,24 @@ test.describe('v4 Prop Explorer', () => {
     await serve(page.context());
     await open(page);
     await expect(rows(page).first()).toBeVisible();
-    const all = await page.getByRole('group', { name: 'Game' }).getByRole('button').count();
-    expect(all).toBeGreaterThan(2);
+    const chips = page.getByRole('group', { name: 'Game' }).getByRole('button');
+    expect(await chips.count()).toBeGreaterThan(2);
+    // The list shows PAGE (20) players at a time, so what is on screen is min(20, the players the filter holds), never "more than the
+    // filtered list": the expectations come from the player counts the chips and the list itself state.
+    const PAGE = 20;
+    const allPlayers = Number(/(\d+) players/.exec((await chips.first().textContent())!)![1]);
+    const list = page.locator('.v4-plist');
+    await expect(rows(page)).toHaveCount(Math.min(PAGE, allPlayers));
+    await expect(list).toHaveAttribute('aria-label', new RegExp(`^${allPlayers} players`));
     // a game
-    await page.getByRole('group', { name: 'Game' }).getByRole('button').nth(1).click();
+    const gameChip = chips.nth(1);
+    const gamePlayers = Number(/· (\d+)$/.exec((await gameChip.textContent())!)![1]);
+    await gameChip.click();
     await expect(page).toHaveURL(/game=evt_/);
-    const inGame = await rows(page).count();
-    expect(inGame).toBeGreaterThan(0);
+    await expect(rows(page)).toHaveCount(Math.min(PAGE, gamePlayers));
+    await expect(list).toHaveAttribute('aria-label', new RegExp(`^${gamePlayers} players`));
+    expect(gamePlayers).toBeGreaterThan(0);
+    expect(gamePlayers).toBeLessThan(allPlayers);
     const names = await page.locator('.v4-prow__m').allTextContents();
     expect(new Set(names.map((n) => n.split('·')[1]?.trim().split(' ')[0])).size).toBeLessThanOrEqual(2);
     // a category
@@ -64,7 +75,15 @@ test.describe('v4 Prop Explorer', () => {
     await expect(page.getByText('No props match')).toBeVisible();
     await page.getByRole('button', { name: 'Clear filters' }).click();
     await expect(page.getByText('No props match')).toHaveCount(0);
-    expect(await rows(page).count()).toBeGreaterThan(inGame);
+    // clearing restores the whole slate: the first page of it, and a way to the rest when it is longer than a page
+    await expect(rows(page)).toHaveCount(Math.min(PAGE, allPlayers));
+    await expect(list).toHaveAttribute('aria-label', new RegExp(`^${allPlayers} players`));
+    if (allPlayers > PAGE) {
+      await page.getByRole('button', { name: /^Show \d+ more of \d+/ }).click();
+      await expect(rows(page)).toHaveCount(Math.min(2 * PAGE, allPlayers));
+    } else {
+      await expect(page.getByRole('button', { name: /^Show \d+ more/ })).toHaveCount(0);
+    }
     await noHorizontalOverflow(page, 'v4 props filtered');
   });
 

@@ -119,8 +119,13 @@ CONFIRMED_OUT is gate BLOCK. A player is never presented as active without an ob
 | `settlements/<sport>/<game_date>/…jsonl.gz` | `sift.settlement.v1` | settle step; one row per forecast_id, ever |
 | `corrections/<sport>/<game_date>/…jsonl.gz` | `sift.correction.v1` | settle step when a final stat changes |
 | `scorecards/<sport>/{daily,weekly,season}.{json,md}` | `sift.prospective_scorecard.v1` | score step (rewritable views) |
+| `scorecards/<sport>/<tag>_<YYYYMMDD>_v<scoring_version>_<hash>.json` | `sift.prospective_scorecard.v1` | score step; one write-once file per distinct evaluation, never overwritten (pf_core 1.3.0) |
 | `projections/<sport>/latest.json` | `sift.projections.v1` | publish step (rewritable view) |
 | `summary/<sport>/latest.json` | `sift.projection_foundation.sport_summary.v1` | publish step |
+
+Scoring (pf_core 1.3.0): yes/no families (`anytime_td`, `participation`) are scored as probabilities (Brier, equal to the Bernoulli CRPS, plus
+log loss and calibration; no interval coverage), and paired comparisons use Brier on identical non-void keys. Continuous and count families keep
+MAE/RMSE/bias, coverage, PIT and CRPS unchanged. Every card carries `scoring_version`.
 
 Model roles in the forecast archive: `challenger` (Projection Foundation frozen model) and `incumbent` (today's production
 model, archived unchanged from its own output). Paired comparisons use only keys both roles forecast before the start.

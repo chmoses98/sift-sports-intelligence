@@ -97,7 +97,8 @@ test.describe('v4 Prop Explorer', () => {
     await noHorizontalOverflow(page, 'v4 props mlb');
   });
 
-  test('an unreachable publication says so, not "no props" @smoke', async ({ page }) => {
+  test('an unreachable publication says so, not "no props" @smoke', async ({ page, errors }) => {
+    errors.allow(/status of 500/);
     await page.context().route(/raw\.githubusercontent\.com\/chmoses98\/nfl-edge-finder\//, (r) => r.fulfill({ status: 500, body: 'x', headers: { 'access-control-allow-origin': '*' } }));
     await page.context().route(/\/data\/nfl\/app\/latest\//, (r) => r.fulfill({ status: 500, body: 'x' }));
     await open(page);
@@ -175,7 +176,7 @@ test.describe('v4 Player detail', () => {
     await serve(page.context());
     await open(page, OLAVE_URL);
     await expect(page.locator('.v4-tile--model')).toBeVisible();
-    await page.getByRole('button', { name: 'Research details' }).click();
+    await page.getByRole('button', { name: 'Research details', exact: true }).click();
     const dlg = page.getByRole('dialog', { name: /^Research:/ });
     await expect(dlg).toBeVisible();
     await expect(dlg).toContainText(/Research only|published signal/);

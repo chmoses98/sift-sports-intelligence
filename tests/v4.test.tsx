@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { createMemoryRouter, Navigate, Outlet, RouterProvider } from 'react-router';
 import { UiGate } from '../src/App';
-import { resolveUi } from '../src/lib/uiMode';
-import { applyFilter, dateKey, dayStrip, followsGame, groupByPhase, pickFeature, shiftDay } from '../src/v4/model';
+import { exitV4, resolveUi } from '../src/lib/uiMode';
+import { applyFilter, dateKey, dayStrip, defaultGameTab, followsGame, groupByPhase, isGameTab, pickFeature, shiftDay } from '../src/v4/model';
 import { resetFollowCache, teamKey } from '../src/v4/follow';
 import { calibrationWord } from '../src/v4/words';
 import type { GameRow } from '../src/views/broadcast/games';
@@ -31,6 +31,51 @@ describe('?ui=v4 mode', () => {
   });
 });
 
+describe('leaving v4 on purpose (exitV4)', () => {
+  beforeEach(() => localStorage.clear());
+  it('drops a remembered v4 choice, so a classic address no longer redirects back into v4', () => {
+    resolveUi('?ui=v4');
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBeNull();
+    expect(resolveUi('')).not.toBe('v4');
+  });
+  it('gives back the classic choice made before v4, and the SIFT 2.0 one', () => {
+    localStorage.setItem('sift.ui', 'classic');
+    resolveUi('?ui=v4');
+    expect(localStorage.getItem('sift.ui')).toBe('v4');
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBe('classic');
+    expect(localStorage.getItem('sift.ui.before-v4')).toBeNull();
+    localStorage.setItem('sift.ui', 'sift2');
+    resolveUi('?ui=v4');
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBe('sift2');
+  });
+  it('does not disturb a classic or SIFT 2.0 choice when v4 was never remembered', () => {
+    localStorage.setItem('sift.ui', 'classic');
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBe('classic');
+    localStorage.clear();
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBeNull();
+  });
+  it('re-opening with ?ui=v4 again works after an exit; an explicit ?ui=classic replaces the saved choice', () => {
+    localStorage.setItem('sift.ui', 'classic');
+    resolveUi('?ui=v4'); exitV4();
+    expect(resolveUi('?ui=v4')).toBe('v4');
+    resolveUi('?ui=sift2');
+    expect(localStorage.getItem('sift.ui')).toBe('sift2');
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBe('sift2');
+  });
+  it('a repeated ?ui=v4 never overwrites the choice kept aside with v4 itself', () => {
+    localStorage.setItem('sift.ui', 'classic');
+    resolveUi('?ui=v4'); resolveUi('?ui=v4'); resolveUi('?ui=v4');
+    exitV4();
+    expect(localStorage.getItem('sift.ui')).toBe('classic');
+  });
+});
+
 describe('UiGate with v4', () => {
   afterEach(cleanup);
   const tree = [{ path: '/', element: <Outlet />, children: [
@@ -44,6 +89,18 @@ describe('UiGate with v4', () => {
   it('?ui=v4 on a classic address opens the v4 shell', async () => { open('/?ui=v4'); expect(await screen.findByText('v4 shell')).toBeTruthy(); });
   it('a remembered v4 choice sends later classic addresses to v4', async () => { localStorage.setItem('sift.ui', 'v4'); open('/games'); expect(await screen.findByText('v4 shell')).toBeTruthy(); });
   it('without the flag the default interface is unchanged', async () => { open('/'); expect(await screen.findByText('S2 home')).toBeTruthy(); });
+  it('after exitV4 a classic address answers with SIFT 2.0 again, not v4', async () => {
+    localStorage.setItem('sift.ui', 'v4');
+    exitV4();
+    open('/games');
+    expect(await screen.findByText('S2 home')).toBeTruthy();
+  });
+  it('after exitV4 a remembered classic choice still holds', async () => {
+    localStorage.setItem('sift.ui', 'classic');
+    resolveUi('?ui=v4'); exitV4();
+    open('/games');
+    expect(await screen.findByText('classic games')).toBeTruthy();
+  });
 });
 
 describe('v4 calendar helpers', () => {
@@ -59,6 +116,25 @@ describe('v4 calendar helpers', () => {
     expect(s.filter((d) => d.today)).toHaveLength(1);
     expect(s[3].key).toBe(dateKey(now));
     expect(s[0].key).toBe('2026-10-01');
+  });
+});
+
+describe('v4 game default tab', () => {
+  const g = (phase: string) => ({ phase }) as unknown as GameRow;
+  it('pregame opens Matchups; in play and final open Live', () => {
+    expect(defaultGameTab(g('PREGAME'))).toBe('matchups');
+    expect(defaultGameTab(g('NO_START'))).toBe('matchups');
+    expect(defaultGameTab(g('STARTED'))).toBe('live');
+    expect(defaultGameTab(g('FINAL'))).toBe('live');
+  });
+  it('postponed, cancelled and suspended games open the Live tab, where their status is explained', () => {
+    for (const p of ['POSTPONED', 'CANCELLED', 'SUSPENDED']) expect(defaultGameTab(g(p))).toBe('live');
+  });
+  it('only the four known tabs are accepted from an address', () => {
+    expect(isGameTab('players')).toBe(true);
+    expect(isGameTab('markets')).toBe(true);
+    expect(isGameTab('props')).toBe(false);
+    expect(isGameTab(null)).toBe(false);
   });
 });
 

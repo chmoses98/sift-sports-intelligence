@@ -71,3 +71,18 @@ export function pickFeature(rows: GameRow[], rule: GameRow | null): GameRow | nu
 
 /** "7:30 PM". */
 export const clock = (ms: number) => (Number.isFinite(ms) ? new Date(ms).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : 'Time TBC');
+
+export type GameTab = 'live' | 'matchups' | 'players' | 'markets';
+export const GAME_TABS: [GameTab, string][] = [['live', 'Live'], ['matchups', 'Matchups'], ['players', 'Players'], ['markets', 'Markets']];
+
+/**
+ * The tab a game opens on when the viewer has not chosen one: pregame research (Matchups) before kickoff; the Live tab
+ * for everything else. In play it is the live state; a final shows the published score and summary; a game awaiting a
+ * result, postponed, cancelled or suspended is explained there too, in words, which is the most informative state those
+ * phases have (Matchups would show pregame research as if it were current).
+ */
+export function defaultGameTab(g: Pick<GameRow, 'phase'>): GameTab {
+  return g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'matchups' : 'live';
+}
+
+export const isGameTab = (v: string | null): v is GameTab => GAME_TABS.some(([k]) => k === v);

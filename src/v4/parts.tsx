@@ -27,7 +27,10 @@ export function useSeen<T extends Element>(): [React.RefObject<T | null>, boolea
 /** The published final score for a finished game, or null (no score is ever estimated; in-play games have none in the contract). */
 export function useFinal(g: GameRow, load: boolean) {
   const r = useGameResearch(load && g.phase === 'FINAL' ? g.slug : null, load && g.phase === 'FINAL' ? g.item.event_id : null);
-  return g.phase === 'FINAL' ? finalScores(r.data?.extensions?.result) : null;
+  if (g.phase !== 'FINAL') return null;
+  // The published final: the research document's `extensions.result`, or the event's own published `home_score` / `away_score`
+  // (the NHL publication states it there). Both numbers or nothing.
+  return finalScores(r.data?.extensions?.result) ?? finalScores(r.data?.event?.extensions);
 }
 
 /** The research entry: how many published signals this game carries, one tap from the best one. A frozen chip is pregame research. */

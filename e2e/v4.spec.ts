@@ -289,3 +289,112 @@ test.describe('v4 research sheet on published research', () => {
     await noHorizontalOverflow(page, 'nhl game');
   });
 });
+
+// ---- default tabs, remembered selections, explicit mode exit, existing interfaces preserved ----
+const NHL_FINAL_FIXTURE = join(NHL_FIXTURE, '..', '..', '..', 'nhl-final', 'app', 'latest');
+const COL_WPG = 'evt_ced0054a8fcfd15477e5';
+
+test.describe('v4 game default tabs and remembered selection', () => {
+  test('pregame opens Matchups; in play opens Live @smoke', async ({ page }) => {
+    await open(page, `/game/nfl/${NEBUF}`);
+    await expect(page.getByRole('tab', { name: 'Matchups' })).toHaveAttribute('aria-selected', 'true');
+    await page.goto('#/v4');
+    await expect(page.locator('[data-featured]')).toBeVisible();
+    await page.getByRole('link', { name: /In play.*Open game$/ }).first().click();
+    await expect(page.getByRole('tab', { name: 'Live' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByText('Live score, clock and plays are unavailable')).toBeVisible();
+  });
+
+  test('a final opens Live with the published score and summary @smoke', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-10-08T05:00:00Z'));
+    await page.context().route(NHL_RAW, async (route) => {
+      const file = join(NHL_FINAL_FIXTURE, NHL_RAW.exec(route.request().url())![1].split('?')[0]);
+      if (!existsSync(file)) return route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } });
+      return route.fulfill({ status: 200, contentType: 'application/json', body: readFileSync(file, 'utf-8'), headers: { 'access-control-allow-origin': '*' } });
+    });
+    await page.goto(`#/v4/game/nhl/${COL_WPG}`);
+    await expect(page.getByRole('tab', { name: 'Live' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('heading', { name: 'Final' })).toBeVisible();
+    await expect(page.getByText(/won 3–2|won 2–3/)).toBeVisible();
+    await shot(page, 'game-final-live');
+    await noHorizontalOverflow(page, 'v4 final game');
+  });
+
+  test('a tab the viewer chose survives a status update; an unchosen default is not switched under them @smoke', async ({ page }) => {
+    await open(page, `/game/nfl/${NEBUF}`);
+    await expect(page.getByRole('tab', { name: 'Matchups' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('.v4-badge').first()).toHaveText('UPCOMING');
+    // kick off while the screen is open (the app re-reads the clock every 15 s)
+    await page.clock.fastForward(4 * 3600_000);
+    await expect(page.locator('.v4-badge').first()).toHaveText('LIVE');
+    await expect(page.getByRole('tab', { name: 'Matchups' })).toHaveAttribute('aria-selected', 'true');
+    // now choose one: it holds through the next status change and a reload
+    await page.getByRole('tab', { name: 'Markets' }).click();
+    await expect(page).toHaveURL(/tab=markets/);
+    await page.clock.fastForward(6 * 3600_000);
+    await expect(page.locator('.v4-badge').first()).toHaveText(/AWAITING RESULT|FINAL/);
+    await expect(page.getByRole('tab', { name: 'Markets' })).toHaveAttribute('aria-selected', 'true');
+    await page.reload();
+    await expect(page.getByRole('tab', { name: 'Markets' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('a tab in the address (a deep link, a reload) wins over the default, and changing tabs does not stack history @smoke', async ({ page }) => {
+    await open(page, `/game/nfl/${NEBUF}?tab=players`);
+    await expect(page.getByRole('tab', { name: 'Players' })).toHaveAttribute('aria-selected', 'true');
+    await page.reload();
+    await expect(page.getByRole('tab', { name: 'Players' })).toHaveAttribute('aria-selected', 'true');
+    await page.getByRole('tab', { name: 'Live' }).click();
+    await expect(page).toHaveURL(/tab=live/);
+    await page.reload();
+    await expect(page.getByRole('tab', { name: 'Live' })).toHaveAttribute('aria-selected', 'true');
+    // an unknown tab word in the address falls back to the game's default rather than showing nothing
+    await page.goto(`#/v4/game/nfl/${NEBUF}?tab=props`);
+    await expect(page.getByRole('tab', { name: 'Matchups' })).toHaveAttribute('aria-selected', 'true');
+  });
+});
+
+test.describe('v4 mode exit and the existing interfaces', () => {
+  const pref = (page: Page) => page.evaluate(() => localStorage.getItem('sift.ui'));
+
+  test('"Open in SIFT 2.0" is a real exit: the remembered v4 choice is forgotten, #/v4 still re-enters @smoke', async ({ page }) => {
+    await installSlates(page.context(), { NBA: 3 }, { now: NOW });
+    await page.goto('#/?ui=v4');
+    await expect(page.locator('[data-v4-shell]')).toBeVisible();
+    expect(await pref(page)).toBe('v4');
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Props' }).click();
+    await page.getByRole('link', { name: /Open in SIFT 2.0/ }).click();
+    await expect(page).toHaveURL(/#\/design\/sift2\/props/);
+    expect(await pref(page)).toBeNull();
+    // a classic address now answers with the build's own interface (classic in the e2e build, SIFT 2.0 in the default one), not v4
+    await page.goto('#/games');
+    await expect(page).not.toHaveURL(/#\/v4/);
+    await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
+    // and v4 is still one address away
+    await page.goto('#/v4');
+    await expect(page.locator('[data-v4-shell]')).toBeVisible();
+    expect(await pref(page)).toBeNull();
+  });
+
+  test('exiting v4 gives back a classic choice made before it, and leaves classic untouched otherwise @smoke', async ({ page }) => {
+    await installSlates(page.context(), { NBA: 3 }, { now: NOW });
+    await page.goto('#/?ui=classic');
+    await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
+    expect(await pref(page)).toBe('classic');
+    await page.goto('#/?ui=v4');
+    await expect(page.locator('[data-v4-shell]')).toBeVisible();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Board' }).click();
+    await page.getByRole('link', { name: /Open in SIFT 2.0/ }).click();
+    expect(await pref(page)).toBe('classic');
+    await page.goto('#/games');
+    await expect(page).not.toHaveURL(/design\/sift2/);
+    await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
+  });
+
+  test('visiting #/v4 directly never changes a remembered preference @smoke', async ({ page }) => {
+    await installSlates(page.context(), { NBA: 3 }, { now: NOW });
+    await page.goto('#/?ui=sift2');
+    await page.goto('#/v4');
+    await expect(page.locator('[data-v4-shell]')).toBeVisible();
+    expect(await pref(page)).toBe('sift2');
+  });
+});

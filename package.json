@@ -8,6 +8,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 4173 --strictPort",
+    "preview:lan": "node scripts/v4-lan-preview.mjs",
+    "dev:lan": "vite --host",
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",

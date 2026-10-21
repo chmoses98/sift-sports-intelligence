@@ -28,6 +28,7 @@ import { competitionWord, type GameRow } from '../views/broadcast/games';
 import { useCardFacts } from '../views/broadcast/GameCard';
 import { routes } from '../lib/routes';
 import { Icon } from './Icon';
+import { ExitLink } from './ExitLink';
 import { agoWord, authorityWord } from './words';
 import { Crest } from './base';
 import { Scoreboard } from './Scoreboard';
@@ -35,11 +36,11 @@ import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
 import { SlateStates, useSlate } from './slate';
 import { useStageColours } from './Feature';
-import { isLiveGame } from './model';
+import { defaultGameTab, GAME_TABS, isGameTab, isLiveGame, type GameTab } from './model';
 import type { Opportunity } from '../opportunity/types';
 
-type Tab = 'live' | 'matchups' | 'players' | 'markets';
-const TABS: [Tab, string][] = [['live', 'Live'], ['matchups', 'Matchups'], ['players', 'Players'], ['markets', 'Markets']];
+type Tab = GameTab;
+const TABS = GAME_TABS;
 
 /** One game's published research and market documents, through its sport's own resolved source. */
 function useGameData(slug: string, eventId: string) {
@@ -84,7 +85,14 @@ export function V4Game() {
   const live = useLiveQuotes(tickers, settled ? 'background' : 'game', events);
   const quoted = useMemo(() => (published ?? []).map((m) => overlayMarket(m as Market, live.quote(m.kalshi_ticker))), [published, live]);
 
-  const tab = (TABS.find(([k]) => k === sp.get('tab'))?.[0] ?? (g && isLiveGame(g) ? 'live' : 'matchups')) as Tab;
+  // A tab the viewer chose lives in the address (?tab=) and wins, so a status update never moves them off it. With no
+  // choice, the game's default is decided once when it first loads and then held: a game that kicks off while it is open
+  // does not switch tabs underneath the viewer.
+  const gameKey = `${slug}:${eventId}`;
+  const [auto, setAuto] = useState<{ key: string; tab: Tab } | null>(null);
+  if (g && auto?.key !== gameKey) setAuto({ key: gameKey, tab: defaultGameTab(g) });
+  const chosen = sp.get('tab');
+  const tab: Tab = isGameTab(chosen) ? chosen : auto?.key === gameKey ? auto.tab : 'matchups';
   const setTab = (t: Tab) => setSp((p) => { const n = new URLSearchParams(p); n.set('tab', t); return n; }, { replace: true });
   const back = () => (loc.key !== 'default' ? nav(-1) : nav('/v4'));
 
@@ -194,7 +202,7 @@ function LiveTab({ g, final, spec, research, awayN, homeN }: { g: GameRow; final
           <div className="v4-kv"><span className="v4-kv__k">{pre ? 'Kickoff' : 'Started'}</span><span className="v4-kv__v">{when}</span></div>
           {spec?.venue && <div className="v4-kv"><span className="v4-kv__k">Venue</span><span className="v4-kv__v">{spec.venue.name}{spec.venue.city && <em>{spec.venue.city}{spec.venue.roof ? ` · ${spec.venue.roof}` : ''}</em>}</span></div>}
           {wx && <div className="v4-kv"><span className="v4-kv__k">Conditions</span><span className="v4-kv__v">{wx}</span></div>}
-          {final && <div className="v4-kv"><span className="v4-kv__k">Final score</span><span className="v4-kv__v">{awayN} {final.away} · {homeN} {final.home}</span></div>}
+          {final && <div className="v4-kv"><span className="v4-kv__k">Result</span><span className="v4-kv__v">{final.winner === 'home' ? `${homeN} won ${final.home}–${final.away}` : final.winner === 'away' ? `${awayN} won ${final.away}–${final.home}` : `Tied ${final.home}–${final.away}`}<em>{awayN} {final.away} · {homeN} {final.home}</em></span></div>}
           {g.phase === 'FINAL' && !final && <div className="v4-kv"><span className="v4-kv__k">Final score</span><span className="v4-kv__v">Not published</span></div>}
         </div>
       </div>
@@ -208,6 +216,7 @@ function LiveTab({ g, final, spec, research, awayN, homeN }: { g: GameRow; final
           Score, clock and plays are not part of pregame research. The research below is what the publication has published so far.
         </Unavailable>
       )}
+      {g.phase === 'FINAL' && g.candidates > 0 && <p className="meta" style={{ padding: '0 16px' }}>Pregame research stays as published, frozen at kickoff. It is not a graded result.</p>}
       <Signals g={g} limit={3} />
     </>
   );
@@ -307,7 +316,7 @@ function PlayersTab({ g, research, markets, detail, sport, now }: { g: GameRow; 
                     );
                   })}
                   <li style={{ padding: '4px 14px 12px' }}>
-                    <a className="v4-textlink" href={`#/design/sift2${routes.props(g.slug, { game: g.item.event_id, player: p.playerId, stat: rows[0].stat })}`}>Full prop research in SIFT 2.0</a>
+                    <ExitLink className="v4-textlink" to={`/design/sift2${routes.props(g.slug, { game: g.item.event_id, player: p.playerId, stat: rows[0].stat })}`}>Full prop research in SIFT 2.0</ExitLink>
                   </li>
                 </ul>
               )}

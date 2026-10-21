@@ -1,5 +1,6 @@
 import { Link } from '../routing';
 import { Icon } from './Icon';
+import { ExitLink } from './ExitLink';
 
 const COPY: Record<string, { title: string; body: string; target?: string }> = {
   props: { title: 'Props', body: 'The v4 player-props explorer is the next milestone. Until it ships, the current SIFT 2.0 Props screen has the full published research.', target: '/design/sift2/props' },
@@ -17,9 +18,9 @@ export function V4Handoff({ tab }: { tab: 'props' | 'signals' | 'board' | 'missi
       <h1 id="v4-hand-h">{c.title}</h1>
       <p>{c.body}</p>
       {c.target
-        ? <a className="v4-btn" href={`#${c.target}`}>Open in SIFT 2.0 <Icon name="arrow-up-right" size="s" /></a>
+        ? <ExitLink className="v4-btn" to={c.target}>Open in SIFT 2.0 <Icon name="arrow-up-right" size="s" /></ExitLink>
         : <Link className="v4-btn" to="/v4">Back to Home</Link>}
-      {c.target && <p className="meta">This leaves the v4 preview. Return with <b>#/v4</b>.</p>}
+      {c.target && <p className="meta">This leaves the v4 preview and forgets the remembered v4 choice. Return any time with <b>#/v4</b>.</p>}
     </section>
   );
 }

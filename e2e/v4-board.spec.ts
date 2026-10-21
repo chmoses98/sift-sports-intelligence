@@ -20,6 +20,12 @@ const ALL: Name[] = ['legacyYes', 'v4No', 'game', 'team', 'gone', 'nhlGame', 'no
 const rows = (page: Page) => page.locator('.v4-bd__row');
 const row = (page: Page, label: string) => page.locator('.v4-bd__row', { hasText: label });
 const stored = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), TRAY_KEY);
+/** Reload only once the page has settled: WebKit reports same-origin image fetches cancelled by a reload mid-load (team crests) as page errors. */
+async function reload(page: Page) {
+  await page.waitForLoadState('networkidle');
+  await page.waitForFunction(() => [...document.images].every((i) => i.complete));
+  await page.reload();
+}
 const sheet = (page: Page) => page.getByRole('dialog', { name: /^Saved:|^Clear My Board/ });
 
 async function open(page: Page, market: Mock, names: Name[] = ALL, o: { now?: Date; observedAt?: string; query?: string; recs?: unknown[]; nhlDown?: boolean } = {}) {
@@ -61,7 +67,7 @@ test.describe('v4 Board: what is saved', () => {
     await page.getByRole('group', { name: 'Sport' }).getByRole('button', { name: /NHL/ }).click();
     await expect(page).toHaveURL(/sport=NHL/);
     await expect(page.locator('.v4-bd')).toHaveCount(1);
-    await page.reload();
+    await reload(page);
     await expect(page.getByRole('group', { name: 'Sport' }).getByRole('button', { name: /NHL/ })).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('group', { name: 'Sport' }).getByRole('button', { name: 'All sports' }).click();
     await page.getByRole('group', { name: 'Item type' }).getByRole('button', { name: /^Props/ }).click();
@@ -118,7 +124,7 @@ test.describe('v4 Board: what changed, on the saved side', () => {
     await expect(page.locator('main')).not.toContainText(/\b0¢/);
     // the live provider has no quote at all for the saved contract
     await page.context().route(/relay\.sift\.invalid/, (r) => r.abort());
-    await page.reload();
+    await reload(page);
     await expect(row(page, 'Chris Olave 7+ receptions').locator('.v4-bd__px')).toContainText(/No current quote for this contract|context only, not compared/);
     await expect(row(page, 'Chris Olave 7+ receptions').locator('.v4-bd__px')).not.toContainText('→ 0');
   });
@@ -276,7 +282,7 @@ test.describe('v4 Board: one tray, every interface', () => {
   test('the Board persists across a reload, with the same items and the same timestamps @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'v4No']);
     const before = (await stored(page)).tray.items.map((i: { item_id: string; added_at: string }) => `${i.item_id}|${i.added_at}`);
-    await page.reload();
+    await reload(page);
     await expect(rows(page)).toHaveCount(2);
     expect((await stored(page)).tray.items.map((i: { item_id: string; added_at: string }) => `${i.item_id}|${i.added_at}`)).toEqual(before);
   });

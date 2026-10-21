@@ -4,7 +4,7 @@ Branch `claude/loving-davinci-53ho9c` in all six repos. Nothing is merged or dep
 
 | Stage | NFL | CFB | NBA | MLB | NHL | SIFT |
 |---|---|---|---|---|---|---|
-| Shared core (`pf_core` 1.1.0, vendored, manifest-pinned) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ canonical |
+| Shared core (`pf_core` 1.3.0, vendored, manifest-pinned) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ canonical |
 | Data inventory | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Walk-forward dataset | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Model ladder A–F | ✅ | ✅ | ✅ | ✅ | ✅ | — |

@@ -208,11 +208,14 @@ test.describe('v4 behaviour', () => {
     await expect(page.getByRole('link', { name: 'Browse games' })).toBeVisible();
   });
 
-  test('Props, Signals and Board are honest handoffs, not fake screens @smoke', async ({ page }) => {
-    await open(page, '/props', { NBA: 3 });
-    await expect(page.getByRole('heading', { name: 'Props' })).toBeVisible();
+  test('Signals and Board are honest handoffs, not fake screens @smoke', async ({ page }) => {
+    await open(page, '/signals', { NBA: 3 });
+    await expect(page.getByRole('heading', { name: 'Signals' })).toBeVisible();
     await expect(page.getByText('Coming in v4')).toBeVisible();
-    await expect(page.getByRole('link', { name: /Open in SIFT 2.0/ })).toHaveAttribute('href', '#/design/sift2/props');
+    await expect(page.getByRole('link', { name: /Open in SIFT 2.0/ })).toHaveAttribute('href', '#/design/sift2/intelligence');
+    await open(page, '/board', { NBA: 3 });
+    await expect(page.getByRole('heading', { name: 'Board' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Open in SIFT 2.0/ })).toHaveAttribute('href', '#/design/sift2/board');
   });
 
   test('the research sheet is a labelled dialog: Escape closes it and focus returns', async ({ page }) => {
@@ -361,9 +364,9 @@ test.describe('v4 mode exit and the existing interfaces', () => {
     await page.goto('#/?ui=v4');
     await expect(page.locator('[data-v4-shell]')).toBeVisible();
     expect(await pref(page)).toBe('v4');
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Props' }).click();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Signals' }).click();
     await page.getByRole('link', { name: /Open in SIFT 2.0/ }).click();
-    await expect(page).toHaveURL(/#\/design\/sift2\/props/);
+    await expect(page).toHaveURL(/#\/design\/sift2\/intelligence/);
     expect(await pref(page)).toBeNull();
     // a classic address now answers with the build's own interface (classic in the e2e build, SIFT 2.0 in the default one), not v4
     await page.goto('#/games');

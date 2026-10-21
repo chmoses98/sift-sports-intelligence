@@ -62,3 +62,41 @@ describe('v4 research sheet', () => {
     expect(screen.getByText(/No executable Kalshi quote/)).toBeTruthy();
   });
 });
+
+describe('the sheet states where the opportunity stands now', () => {
+  beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(NOW); });
+  afterEach(() => { cleanup(); vi.useRealTimers(); });
+  it('a current signal says research and its authority', () => {
+    show(opp());
+    expect(screen.getByText('Research · Research only')).toBeTruthy();
+    expect(screen.getByText('Why it is flagged')).toBeTruthy();
+  });
+  it('a pass is "Passed by the publication" with its reason, and is not called research', () => {
+    show(opp({ status: 'PASS', statusReason: 'The ask is above the publication’s own bet-up-to price.' }));
+    expect(screen.getByText('Passed by the publication')).toBeTruthy();
+    expect(document.querySelector('.v4-sstate')!.textContent).toMatch(/above the publication’s own bet-up-to/);
+    expect(screen.queryByText(/^Research · /)).toBeNull();
+    expect(screen.getByText('What the publication said')).toBeTruthy();
+  });
+  it('a watch is not a priced contract signal', () => {
+    show(opp({ status: 'WATCH' }));
+    expect(screen.getByText(/Watch · a published game-level watch, not a priced contract signal/)).toBeTruthy();
+  });
+  it('an expired window or a stale quote is "No longer current" with why, even if the status word still says candidate', () => {
+    const { unmount } = show(opp({ price: { ...opp().price, expiresAt: new Date(NOW - 60_000).toISOString() } }));
+    expect(screen.getByText('No longer current')).toBeTruthy();
+    expect(document.querySelector('.v4-sstate')!.textContent).toMatch(/validity window/);
+    unmount();
+    show(opp({ price: { ...opp().price, observedAt: new Date(NOW - 3 * 3600_000).toISOString() } }));
+    expect(screen.getByText('No longer current')).toBeTruthy();
+    expect(document.querySelector('.v4-sstate')!.textContent).toMatch(/stale/);
+  });
+  it('links to the Signals feed for the same game, contract and side unless it was opened from there', () => {
+    const a = show(opp());
+    const link = screen.getByRole('link', { name: 'All signals on this game' });
+    expect(link.getAttribute('href')).toBe('/v4/signals?sport=nfl&game=e1&market=m1&side=NO');
+    a.unmount();
+    render(<MemoryRouter><TrayProvider><SheetHost><ResearchSheet o={opp()} g={null} signalsLink={false} /></SheetHost></TrayProvider></MemoryRouter>);
+    expect(screen.queryByRole('link', { name: 'All signals on this game' })).toBeNull();
+  });
+});

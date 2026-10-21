@@ -29,6 +29,7 @@ import type { DiscoveryRow } from '../views/props/model';
 import { Icon } from './Icon';
 import { PlayerRowV4 } from './PropsUi';
 import { groupPlayers, propsExplorerHref } from './propsModel';
+import { signalsHref } from './signalsModel';
 import { agoWord, authorityWord } from './words';
 import { Scoreboard } from './Scoreboard';
 import { useFinal } from './parts';
@@ -169,7 +170,7 @@ function Signals({ g, limit }: { g: GameRow; limit?: number }) {
   const frozen = g.phase !== 'PREGAME' && g.phase !== 'NO_START';
   return (
     <section aria-label="Published research">
-      <header className="v4-sechead"><h2>Research</h2><span className="v4-sechead__n">{list.length}</span></header>
+      <header className="v4-sechead"><h2>Research</h2><span className="v4-sechead__n">{list.length}</span><span className="v4-spacer" /><Link to={signalsHref({ sport: g.slug, game: g.item.event_id })} className="v4-textlink">All signals</Link></header>
       <ul className="v4-grp">
         {shown.map((o: Opportunity) => (
           <li key={o.id}>

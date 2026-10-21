@@ -106,6 +106,9 @@ export function saveStored(s: Stored, storage: Storage | undefined = globalThis.
   }
 }
 
+/** Fired on `window` after any provider in this page writes the tray, so every provider shows the same one. */
+const TRAY_CHANGED = 'sift:tray-changed';
+
 const Ctx = createContext<TrayApi | null>(null);
 
 export function TrayProvider({ children }: { children: ReactNode }) {
@@ -113,7 +116,18 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
-  useEffect(() => saveStored(stored), [stored]);
+  useEffect(() => {
+    saveStored(stored);
+    window.dispatchEvent(new Event(TRAY_CHANGED));
+  }, [stored]);
+
+  // Another provider in this same page wrote the tray (the app mounts one for the classic interfaces and v4 mounts its own): the
+  // browser's `storage` event fires only in OTHER tabs, so without this a save made in v4 would not show on My Board until a reload.
+  useEffect(() => {
+    const on = () => setStored((cur) => { const next = loadStored(); return JSON.stringify(cur) === JSON.stringify(next) ? cur : next; });
+    window.addEventListener(TRAY_CHANGED, on);
+    return () => window.removeEventListener(TRAY_CHANGED, on);
+  }, []);
 
   // Another tab changed the tray.
   useEffect(() => {

@@ -16,6 +16,7 @@ import { useAllOpportunities } from '../opportunity/load';
 import type { Opportunity } from '../opportunity/types';
 import { matchSignal, sideOfProp, type SignalMatch } from './signal';
 import { sideExtra, sideWord } from './saveSide';
+import { signalsHref } from './signalsModel';
 import { tickerOfMarketId } from '../state/tray';
 import { fmtValue, type PropRow } from '../insights/propBoard';
 import { isFrozen } from '../lib/lifecycle';
@@ -145,6 +146,8 @@ function ResearchOnly({ ctx, now, side, setSide, match, opps }: { ctx: PropCtx; 
         {row.risks.length > 0 && (
           <section className="v4-sblock v4-sblock--risk"><h3>Published risks</h3><ul className="v4-sbullets v4-sbullets--risk">{row.risks.slice(0, 5).map((x) => <li key={x}>{x}</li>)}</ul></section>
         )}
+
+        {rung && <Link to={signalsHref({ sport: ctx.slug, game: ctx.eventId, market: rung.market.market_id, side: sideOfProp(side) })} className="v4-textlink" onClick={close}>Signals on this game</Link>}
 
         <section className="v4-sblock"><h3>Sources</h3>
           <SourceList row={row} researchAt={ctx.researchAt} kickoff={ctx.kickoff} quoteAt={rung?.market.captured_at ?? null} frozen={frozen} now={now} />

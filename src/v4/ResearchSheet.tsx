@@ -9,6 +9,7 @@ import { useSheet } from './sheet';
 import { Crest, gameHref } from './base';
 import { SaveControl } from './SaveControl';
 import { sideExtra } from './saveSide';
+import { signalsHref, standingOf } from './signalsModel';
 import { useNow } from '../live/hooks';
 import { quoteAgeMs, quoteFreshness } from '../live/freshness';
 import { agoWord, authorityWord, calibrationWord } from './words';
@@ -25,12 +26,17 @@ export const contractWords = (o: Opportunity) => betPhrase(o.what.side, o.what.t
 /** Opens the research sheet for an opportunity (optionally with the game row it belongs to, for its crests and link). */
 export function useResearch() {
   const sheet = useSheet();
-  return useCallback((o: Opportunity, g?: GameRow) => sheet.open(<ResearchSheet o={o} g={g ?? null} />, { label: `Research: ${contractWords(o)}` }), [sheet]);
+  return useCallback((o: Opportunity, g?: GameRow, opts: { signalsLink?: boolean } = {}) => sheet.open(<ResearchSheet o={o} g={g ?? null} signalsLink={opts.signalsLink} />, { label: `Research: ${contractWords(o)}` }), [sheet]);
 }
 
 type Tab = 'evidence' | 'risks' | 'price' | 'source';
 
-export function ResearchSheet({ o, g }: { o: Opportunity; g: GameRow | null }) {
+/**
+ * The research sheet for one opportunity. It states where the opportunity stands NOW (current, watch, passed, or no longer
+ * current and why) from the same rules the Signals feed and the prop sheet use, re-read on the sheet's own clock, so a sheet
+ * left open never keeps calling a lapsed signal current. `signalsLink` adds the way to the Signals feed for the same game and contract.
+ */
+export function ResearchSheet({ o, g, signalsLink = true }: { o: Opportunity; g: GameRow | null; signalsLink?: boolean }) {
   const { close } = useSheet();
   const now = useNow(30_000);
   const phrase = betPhrase(o.what.side, o.what.title);
@@ -41,7 +47,8 @@ export function ResearchSheet({ o, g }: { o: Opportunity; g: GameRow | null }) {
   const age = quoteAgeMs(p.observedAt, now);
   const fresh = quoteFreshness(p.observedAt, now);
   const quoteLine = p.ask == null ? 'No executable quote' : p.observedAt ? `${cents(p.ask)} ask · ${agoWord(age)}` : `${cents(p.ask)} ask · capture time not published`;
-  const priceUsable = !frozen && p.state === 'CURRENT';
+  const st = standingOf(o, now);
+  const priceUsable = !frozen && p.state === 'CURRENT' && st.kind === 'current';
   const lo = p.fairLow ?? p.fair, hi = p.fairHigh ?? p.fair;
   const showGap = p.fair != null && p.ask != null;
   const pos = (v: number) => `${Math.max(2, Math.min(98, v * 100))}%`;
@@ -58,12 +65,17 @@ export function ResearchSheet({ o, g }: { o: Opportunity; g: GameRow | null }) {
         <button type="button" className="v4-gbtn" onClick={close} aria-label="Close research"><Icon name="x" /></button>
       </div>
       <div className="v4-sbody">
-        <span className={`v4-auth${frozen ? ' v4-auth--frozen' : ''}`}>
-          <Icon name={frozen ? 'lock-simple' : 'shield-check'} />
-          {frozen ? 'Pregame research · frozen at kickoff' : `Research · ${authorityWord(o.authority)}`}
+        <span className={`v4-auth${frozen || st.kind !== 'current' ? ' v4-auth--frozen' : ''}`}>
+          <Icon name={frozen ? 'lock-simple' : st.kind === 'current' ? 'shield-check' : 'info'} />
+          {frozen ? 'Pregame research · frozen at kickoff'
+            : st.kind === 'current' ? `Research · ${authorityWord(o.authority)}`
+            : st.kind === 'watch' ? 'Watch · a published game-level watch, not a priced contract signal'
+            : st.kind === 'passed' ? 'Passed by the publication'
+            : 'No longer current'}
         </span>
+        {st.why && <p className="v4-sstate" role="status">{st.why}</p>}
 
-        <section className="v4-sblock"><h3>Why it is flagged</h3><p>{o.why}</p></section>
+        <section className="v4-sblock"><h3>{st.kind === 'current' ? 'Why it is flagged' : 'What the publication said'}</h3><p>{o.why}</p></section>
 
         {showGap ? (
           <section className="v4-sblock" aria-label="Market price against the model's range">
@@ -137,6 +149,7 @@ export function ResearchSheet({ o, g }: { o: Opportunity; g: GameRow | null }) {
             </div>
           </>
         )}
+        {signalsLink && <Link to={signalsHref({ sport: o.slug, game: o.eventId, market: o.marketId, side: o.what.side })} className="v4-textlink" onClick={close} style={{ marginTop: 10 }}>All signals on this game</Link>}
         <p className="meta" style={{ marginTop: 18 }}>Research only. Sift reports what the publication states; it does not recommend a bet.</p>
       </div>
       <div className="v4-sfoot">

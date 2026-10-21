@@ -29,3 +29,15 @@ export async function serveRecommendations(ctx: BrowserContext, items: unknown[]
     body: JSON.stringify({ count: items.length, generated_at: FRESH_AT, items, kind: 'recommendations', run_id: 'run_v4_fixture', schema_version: 'edge_finder.app.v1', sport: 'NFL' }),
   }));
 }
+
+/** Another rung of the same Olave receptions ladder (bundled contracts: 4+ through 14+). */
+export const olaveRung = (n: number) => ({ ticker: `KXNFLREC-26OCT05ATLNO-NOCOLAVE12-${n}`, market: `mkt_kalshi_KXNFLREC-26OCT05ATLNO-NOCOLAVE12-${n}`, description: `Chris Olave ${n}+ receptions` });
+
+/** A recommendation on another rung. `current_price` must be the price the live mock quotes for that side (the bundled yes ask for YES). */
+export const recOn = (n: number, over: RecOver = {}) => {
+  const r = olaveRung(n);
+  return rec({ recommendation_id: `rec_v4_olave_${n}`, market_id: r.market, market_description: r.description, source_ids: { kalshi_ticker: r.ticker }, ...over });
+};
+
+/** A recommendation the publication permits as a bet (not research-only): the opportunity layer calls it ACTIONABLE while its price is current. */
+export const recActionable = (n: number, over: RecOver = {}) => recOn(n, { recommendation_id: `rec_v4_olave_${n}_act`, status: 'ACTIONABLE', authority: 'PUBLISHED_PLAYABLE', research_only: false, ...over });

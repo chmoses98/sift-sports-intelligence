@@ -173,7 +173,7 @@ export interface ModelFigure {
 export function modelFigure(r: Pick<PropRow, 'main' | 'projection' | 'projectionStatus' | 'def'>, fmt: (v: number) => string): ModelFigure {
   if (r.main?.modelP != null) return { kind: 'probability', text: `${Math.round(r.main.modelP * 100)}%` };
   if (r.projectionStatus.kind === 'withheld') return { kind: 'withheld', text: 'Projection withheld' };
-  if (r.projection != null) return { kind: 'projection', text: fmt(r.projection) };
+  if (r.projection != null) return { kind: 'projection', text: `Proj ${fmt(r.projection)}` };
   return { kind: 'none', text: 'No projection' };
 }
 

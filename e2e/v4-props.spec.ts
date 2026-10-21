@@ -201,7 +201,7 @@ test.describe('v4 Player detail', () => {
 
   test('after kickoff nothing new is saved as pregame research @smoke', async ({ page }) => {
     await serve(page.context());
-    await open(page, OLAVE_URL, new Date('2026-10-05T23:30:00Z'));
+    await open(page, OLAVE_URL, new Date('2026-10-06T03:00:00Z'));
     await expect(page.getByRole('heading', { name: 'Chris Olave', level: 1 })).toBeVisible();
     const save = page.getByRole('button', { name: /cannot be saved after kickoff/ });
     await expect(save).toHaveAttribute('aria-disabled', 'true');
@@ -273,7 +273,7 @@ test.describe('v4 Props navigation', () => {
     await page.locator('.v4-prow').first().getByRole('link').click();
     await expect(page).toHaveURL(new RegExp(`#/v4/props/nfl/${NEBUF}/prt_`));
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await page.getByRole('link', { name: 'Game' }).click();
+    await page.getByRole('link', { name: 'Game', exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`#/v4/game/nfl/${NEBUF}\\?tab=players`));
     await page.getByRole('link', { name: 'All props for this game' }).click();
     await expect(page).toHaveURL(new RegExp(`#/v4/props\\?game=${NEBUF}`));

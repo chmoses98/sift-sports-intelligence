@@ -1,7 +1,6 @@
 # Milestone 2B plan: the native v4 Signals feed
 
-Status: **plan only.** Nothing in this document is built. It is written so the owner can review it alongside PR #113. Board is not
-part of it.
+Status: **built** in Milestone 2B (see `docs/V4.md`, "Signals (milestone 2B)"). Owner decisions applied: passes shown in a collapsed group with the publication's reason; every sport `useAllOpportunities` returns; only the app's own ranking and grouping; side-aware Board comparisons approved; NBA projection engines untouched. Board is not part of it.
 
 ## What the tab is
 

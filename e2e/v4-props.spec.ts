@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, NEBUF, NHL_FIXTURE, noHorizontalOverflow, NOW, test } from './fixtures';
 import { BANNED, GAME, OLAVE, serve } from './projectionDoc';
+import { FRESH_AT, OLAVE_TICKER, rec, recNo, serveRecommendations } from './propSignals';
 import { installSlates } from './slates';
 
 test.use({ timezoneId: 'America/Chicago' });
@@ -158,12 +159,13 @@ test.describe('v4 Player detail', () => {
     await expect(ladder.locator('.v4-lad__row')).toHaveCount(5);
   });
 
-  test('a gap is an investigated signal only where the publication holds one, else an unexplained difference; missing projections say why @smoke', async ({ page }) => {
+  test('the difference is stated neutrally; missing projections say why @smoke', async ({ page }) => {
     await serve(page.context());
     await open(page, OLAVE_URL);
     await expect(page.locator('.v4-diff').first()).toBeVisible();
     const tag = await page.locator('.v4-diff__tag').first().textContent();
-    expect(tag).toMatch(/Unexplained difference|Investigated research signal|Model and market are close|Price not current|No projection to compare|No price to compare/);
+    expect(tag).toMatch(/Model (below|at|above) break-even|Price not current|No projection to compare|No price to compare/);
+    await expect(page.locator('main')).not.toContainText(/unexplained|close to|are close/i);
     // without a feed the promoted stat is withheld: a reason, no number, no comparison
     const p2 = await page.context().newPage();
     await p2.clock.install({ time: NOW });
@@ -192,7 +194,7 @@ test.describe('v4 Player detail', () => {
     await page.getByRole('button', { name: 'Research details', exact: true }).click();
     const dlg = page.getByRole('dialog', { name: /^Research:/ });
     await expect(dlg).toBeVisible();
-    await expect(dlg).toContainText(/Research only|published signal/);
+    await expect(dlg).toContainText(/Research only · no valid published signal for this side|Published research signal/);
     await expect(dlg).toContainText(/does not recommend a bet/);
     await page.waitForTimeout(500); // the sheet rises over 0.34 s: capture it settled
     await shot(page, 'props-research-sheet');
@@ -203,6 +205,7 @@ test.describe('v4 Player detail', () => {
     expect(t.tray.items.length).toBe(1);
     expect(t.tray.items[0].ref_kind).toBe('MARKET');
     expect(JSON.stringify(t.labels)).toMatch(/Chris Olave receptions/);
+    expect(Object.values(t.labels)[0]).toMatchObject({ side: 'YES' });
     await page.keyboard.press('Escape');
     await expect(dlg).toHaveCount(0);
     // the header control shows saved, and the tray survives a reload (same store as every interface)
@@ -266,6 +269,136 @@ test.describe('v4 Player detail', () => {
     await page.waitForLoadState('networkidle');
     const res = await new AxeBuilder({ page }).include('.v4').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     expect(res.violations).toEqual([]);
+  });
+});
+
+// The research sheet over a published opportunity. The bundled publication has no recommendations, so each test serves the
+// recommendation it is about (e2e/propSignals.ts) and prices the Olave 7+ contract (the 6.5 main line, which stays the main line while it is the price nearest 50¢) at 47¢ YES / 55¢ NO, which puts the model's 53% well above the
+// over's break-even, so a positive difference exists whether or not the publication has said anything about it.
+test.describe('v4 prop research sheet: published signals (controlled fixture)', () => {
+  const OLAVE_URL = `/props/nfl/${GAME}/${OLAVE}?stat=receptions`;
+  const research = (page: Page) => page.getByRole('button', { name: 'Research details', exact: true });
+  const sheet = (page: Page) => page.getByRole('dialog', { name: /^Research:/ });
+  async function setup(page: Page, market: { set(t: string, bid: number, ask?: number): void; observedAt: string | null }, items: unknown[], side?: 'under') {
+    await serve(page.context());
+    await serveRecommendations(page.context(), items);
+    market.set(OLAVE_TICKER, 0.45, 0.47);
+    market.observedAt = FRESH_AT;
+    await open(page, `${OLAVE_URL}${side ? '&side=under' : ''}`);
+    await expect(page.locator('.v4-tile--model')).toBeVisible();
+    await expect(page.locator('.v4-diff__tag').first()).toBeVisible();
+  }
+
+  test('research only: a positive difference says no published signal validates it; long explanations sit behind a disclosure @smoke', async ({ page, market }) => {
+    await setup(page, market, []);
+    const diff = page.locator('.v4-diff').first();
+    await expect(diff.locator('.v4-diff__tag')).toHaveText('Model above break-even');
+    await expect(diff.locator('.v4-diff__n')).toContainText(/Model \d+% vs break-even \d+% after fee for the over \(Yes\): \+\d+ points?\./);
+    await expect(diff).toContainText('No published signal validates this difference.');
+    await expect(diff).not.toContainText('Published research signal');
+    await expect(diff).not.toContainText(/No size of difference/);
+    await diff.getByRole('button', { name: /How to read this/ }).click();
+    await expect(diff).toContainText(/No size of difference is treated as meaningful/);
+    await research(page).click();
+    const dlg = sheet(page);
+    await expect(dlg).toContainText('Research only · no valid published signal for this side');
+    await expect(dlg).toContainText('No published signal validates this difference.');
+    await expect(dlg).not.toContainText('Why it is flagged');
+    await expect(dlg).toContainText('Model above break-even');
+    await page.waitForTimeout(500);
+    await shot(page, 'props-sheet-research-only');
+  });
+
+  test('a valid published signal on this contract and side is named, and the sheet opens the published evidence @smoke', async ({ page, market }) => {
+    await setup(page, market, [rec()]);
+    const diff = page.locator('.v4-diff').first();
+    await expect(diff).toContainText('Published research signal for this exact contract and side: research candidate.');
+    await expect(diff).not.toContainText('No published signal validates');
+    await research(page).click();
+    const dlg = sheet(page);
+    await expect(dlg).toContainText('Why it is flagged');
+    await expect(dlg).not.toContainText('Research only · no valid published signal');
+    await page.waitForTimeout(500);
+    await shot(page, 'props-sheet-published-signal');
+    await dlg.getByRole('button', { name: /^Save to My Board/ }).click();
+    const t = await tray(page);
+    expect(t.tray.items).toHaveLength(1);
+    expect(t.tray.items[0].extra.x).toBeNull();
+    expect(Object.values(t.labels)[0]).toMatchObject({ side: 'YES' });
+  });
+
+  test('a signal for the opposite side does not validate this side; the viewer can read the one that exists @smoke', async ({ page, market }) => {
+    await setup(page, market, [recNo()]);
+    const diff = page.locator('.v4-diff').first();
+    await expect(diff).toContainText('No published signal validates this difference.');
+    await expect(diff).toContainText("The publication's signal on this market is for the under (No), not this side.");
+    await research(page).click();
+    const dlg = sheet(page);
+    await expect(dlg).not.toContainText('Why it is flagged');
+    await dlg.getByRole('button', { name: /See the published signal for the under \(No\)/ }).click();
+    await expect(dlg).toContainText('Why it is flagged');
+    // saved as the under: a separate item that says so
+    await dlg.getByRole('button', { name: /^Save to My Board/ }).click();
+    const t = await tray(page);
+    expect(t.tray.items).toHaveLength(1);
+    expect(t.tray.items[0].extra.x).toBe('side=NO');
+    expect(Object.values(t.labels)[0]).toMatchObject({ side: 'NO', label: expect.stringMatching(/under 6\.5 receptions/) });
+    // and the player page, set to the under, validates it
+    await page.keyboard.press('Escape');
+    const lad = page.getByRole('region', { name: /Receptions/ });
+    await lad.getByRole('button', { name: 'Under' }).click();
+    await expect(page.locator('.v4-diff').first()).toContainText('Published research signal for this exact contract and side');
+  });
+
+  test('a PASS decision is reported as the publication’s decision, never as a signal @smoke', async ({ page, market }) => {
+    await setup(page, market, [rec({ status: 'PASS', reason_not_playable: 'The publication judged this contract not playable.' })]);
+    const diff = page.locator('.v4-diff').first();
+    await expect(diff).toContainText(/The publication reviewed this contract and passed: The publication judged this contract not playable\./);
+    await expect(diff).not.toContainText('Published research signal');
+    await research(page).click();
+    await expect(sheet(page)).not.toContainText('Why it is flagged');
+    await expect(sheet(page)).toContainText(/reviewed this contract and passed/);
+  });
+
+  test('an expired publication window is a pass, not a current signal @smoke', async ({ page, market }) => {
+    await setup(page, market, [rec({ expires_at: '2026-10-04T14:30:00Z' })]);
+    await expect(page.locator('.v4-diff').first()).toContainText(/reviewed this contract and passed/);
+    await expect(page.locator('.v4-diff').first()).not.toContainText('Published research signal');
+  });
+
+  test('a valid signal left open stops being presented as valid once its price is stale @smoke', async ({ page, market }) => {
+    await setup(page, market, [rec()]);
+    await research(page).click();
+    const dlg = sheet(page);
+    await expect(dlg).toContainText('Why it is flagged');
+    await page.clock.fastForward('45:00');
+    await expect(dlg).not.toContainText('Why it is flagged');
+    await expect(dlg).toContainText(/Research only · no valid published signal for this side/);
+    await expect(dlg).toContainText(/Price not current/);
+    await expect(dlg).toContainText(/no longer qualifies: The quote behind this signal is stale\./);
+  });
+
+  test('a model below break-even is described neutrally @smoke', async ({ page, market }) => {
+    await serve(page.context());
+    await serveRecommendations(page.context(), []);
+    market.observedAt = FRESH_AT; // the bundled 53¢/56¢ prices, quoted live
+    await open(page, OLAVE_URL);
+    const diff = page.locator('.v4-diff').first();
+    await expect(diff.locator('.v4-diff__tag')).toHaveText('Model below break-even');
+    await expect(diff).not.toContainText('No published signal validates');
+    await expect(diff.locator('.v4-diff__n')).toContainText(/−\d+ points?\./);
+  });
+
+  test('the under is saved as the under and the over stays a different item @smoke', async ({ page, market }) => {
+    await setup(page, market, [], 'under');
+    await research(page).click();
+    const dlg = sheet(page);
+    await dlg.getByRole('button', { name: /^Save to My Board: Chris Olave under 6\.5 receptions/ }).click();
+    await dlg.getByRole('button', { name: /^Over/ }).click();
+    await dlg.getByRole('button', { name: /^Save to My Board: Chris Olave receptions 7\+/ }).click();
+    const t = await tray(page);
+    expect(t.tray.items).toHaveLength(2);
+    expect(Object.values(t.labels).map((l) => (l as { side: string }).side).sort()).toEqual(['NO', 'YES']);
   });
 });
 

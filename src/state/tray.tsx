@@ -20,6 +20,12 @@ export interface TrayLabel {
    * saved" compares this same ticker only — a different threshold is a different contract, never a price move).
    */
   market?: MarketSnapshot | null;
+  /**
+   * Which side of the market was selected when the viewer saved it. Absent on older saves, which are read as YES
+   * (the side the saved ticker's headline price has always been). Set by v4 so My Board states and tracks the
+   * selected outcome, never the other one.
+   */
+  side?: 'YES' | 'NO';
   /** When the item was saved (ISO); older saves fall back to the tray item's added_at. */
   savedAt?: string;
 }

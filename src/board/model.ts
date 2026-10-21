@@ -104,14 +104,17 @@ export const PRICE_MOVE_CENTS = 2;
  * The saved market's own contract, then and now. Only the same ticker is compared; with no quote at save time
  * or no quote now, it says so instead of guessing.
  */
-export function marketChange(snap: MarketSnapshot | null | undefined, now: LiveQuote | undefined): Change | null {
+export function marketChange(snap: MarketSnapshot | null | undefined, now: LiveQuote | undefined, side: 'YES' | 'NO' = 'YES'): Change | null {
   if (!snap) return null;
   if (now && now.ticker !== snap.ticker) return null;
-  if (snap.yesAsk == null) return { kind: 'unpriced', text: 'No quote was on screen when you saved this, so there is no saved price to compare.', reassess: false };
-  if (!now || now.yesAsk == null) return { kind: 'unpriced', text: `Saved at YES ${c(snap.yesAsk)}; no current quote for this contract yet.`, reassess: false };
-  const d = Math.round((now.yesAsk - snap.yesAsk) * 100);
-  if (Math.abs(d) < PRICE_MOVE_CENTS) return { kind: 'price', text: `YES ask ${c(now.yesAsk)}, unchanged since saved (${c(snap.yesAsk)}).`, reassess: false };
-  return { kind: 'price', text: `YES ask ${d > 0 ? 'up' : 'down'} ${Math.abs(d)}¢ since saved: ${c(snap.yesAsk)} → ${c(now.yesAsk)}.`, reassess: Math.abs(d) >= 5 };
+  const word = side;
+  const then = side === 'NO' ? snap.noAsk : snap.yesAsk;
+  const cur = now ? (side === 'NO' ? now.noAsk : now.yesAsk) : null;
+  if (then == null) return { kind: 'unpriced', text: 'No quote was on screen when you saved this, so there is no saved price to compare.', reassess: false };
+  if (!now || cur == null) return { kind: 'unpriced', text: `Saved at ${word} ${c(then)}; no current quote for this contract yet.`, reassess: false };
+  const d = Math.round((cur - then) * 100);
+  if (Math.abs(d) < PRICE_MOVE_CENTS) return { kind: 'price', text: `${word} ask ${c(cur)}, unchanged since saved (${c(then)}).`, reassess: false };
+  return { kind: 'price', text: `${word} ask ${d > 0 ? 'up' : 'down'} ${Math.abs(d)}¢ since saved: ${c(then)} → ${c(cur)}.`, reassess: Math.abs(d) >= 5 };
 }
 
 /** The game's own lifecycle since the save, and whether the publication's research run is newer than the save. */

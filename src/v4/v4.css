@@ -479,8 +479,10 @@
 .v4-diff p { margin-top: 6px; font: 400 14px/21px var(--f-ui); color: var(--tx2); }
 .v4-diff__tag { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 13px; background: var(--s3); color: var(--tx); font: 650 12px/1 var(--f-ui); }
 .v4-diff--signal .v4-diff__tag { background: var(--model-bg); color: var(--model); }
-.v4-diff--unexplained { background: var(--risk-bg); box-shadow: none; }
-.v4-diff--unexplained .v4-diff__tag { background: rgba(255, 144, 97, 0.18); color: var(--risk); }
+.v4-diff p.v4-diff__n { color: var(--tx); }
+.v4-diff__n b { font-weight: 650; }
+.v4-diff__more { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-right: 12px; font: 600 14px/20px var(--f-ui); color: var(--tx2); }
+.v4-diff__d p { color: var(--tx3); font-size: 13px; line-height: 19px; }
 
 /* projection status, range bar */
 .v4-pstat { margin-top: 10px; font: 400 14px/21px var(--f-ui); color: var(--tx2); }

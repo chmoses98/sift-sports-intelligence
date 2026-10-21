@@ -1,11 +1,14 @@
 // Parts shared by the v4 player detail and the prop research sheet: how the one projection was selected, the range
 // bar, the model-versus-market difference, and the source list. Each says only what the published row says.
+import { useState } from 'react';
 import { Icon } from './Icon';
 import { fmtValue, type PropRow } from '../insights/propBoard';
 import { RELIABILITY_WORDS } from '../lib/projectionAuthority';
+import { propAuthority } from '../views/props/ranking';
 import { fmtWhen } from '../lib/projections';
 import { formatQuoteAgo, quoteAgeMs } from '../live/freshness';
-import type { Difference, RungView } from './propsModel';
+import type { Difference, Relation, RungView } from './propsModel';
+import type { SignalMatch } from './signal';
 
 /** How the projection for this stat was chosen, and what travels with it. A promoted stat that is withheld shows its reason and no number from either model. */
 export function ProjectionStatus({ row }: { row: PropRow }) {
@@ -55,40 +58,68 @@ export function RangeBar({ row }: { row: PropRow }) {
 }
 
 const sign = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(n)}`;
+const plural = (n: number) => (Math.abs(n) === 1 ? '' : 's');
 
-/** The model-versus-market difference, said in words. Never coloured buy/sell; a gap is an investigated signal only when the publication holds one for that contract. */
-export function DifferenceNote({ d, view, onOpen }: { d: Difference; view: RungView | null; onOpen?: () => void }) {
-  const side = view?.side === 'under' ? 'under' : 'over';
-  const be = view?.breakEven != null ? `${Math.round(view.breakEven * 100)}%` : null;
-  const model = view?.model != null ? `${Math.round(view.model * 100)}%` : null;
-  let tag: string, tone: 'signal' | 'unexplained' | 'plain', text: string;
-  switch (d.kind) {
-    case 'signal':
-      tag = 'Investigated research signal'; tone = 'signal';
-      text = `The publication flagged this contract for research review (${d.authority.word.toLowerCase()}). The model's ${model} for the ${side} is ${Math.abs(d.points)} point${Math.abs(d.points) === 1 ? '' : 's'} ${d.points > 0 ? 'above' : 'below'} the ${be} the ${side} needs to break even after Kalshi's fee.`;
-      break;
-    case 'unexplained':
-      tag = 'Unexplained difference'; tone = 'unexplained';
-      text = `The model's ${model} for the ${side} is ${Math.abs(d.points)} point${Math.abs(d.points) === 1 ? '' : 's'} ${d.points > 0 ? 'above' : 'below'} the ${be} the ${side} needs to break even after Kalshi's fee. The publication has not investigated or flagged this contract, so this is a question for research, not a finding.`;
-      break;
-    case 'close':
-      tag = 'Model and market are close'; tone = 'plain';
-      text = `Within ${Math.abs(d.points) || 0} point${Math.abs(d.points) === 1 ? '' : 's'} of the break-even after fee (${sign(d.points)} points).`;
-      break;
-    case 'stale':
-      tag = 'Price not current'; tone = 'plain'; text = `${d.why} A stale price is shown for context and is not compared with the model.`;
-      break;
-    case 'noProjection':
-      tag = 'No projection to compare'; tone = 'plain'; text = d.why;
-      break;
+const RELATION_TAG: Record<Relation, string> = { below: 'Model below break-even', at: 'Model at break-even', above: 'Model above break-even' };
+
+/** The one line a published signal's state adds, or null when there is nothing to add (no signal and no positive difference). */
+function signalLine(sig: SignalMatch, above: boolean): { text: string; valid: boolean } | null {
+  const none = above ? 'No published signal validates this difference.' : null;
+  switch (sig.kind) {
+    case 'valid': {
+      const a = propAuthority(sig.opp.marketId, new Map([[sig.opp.marketId ?? '', sig.opp]]));
+      return { text: `Published research signal for this exact contract and side: ${a.word.toLowerCase()}.`, valid: true };
+    }
+    case 'oppositeSide':
+      return { text: `${none ? `${none} ` : ''}The publication's signal on this market is for ${sig.has === 'YES' ? 'the over (Yes)' : 'the under (No)'}, not this side.`, valid: false };
+    case 'passed':
+      return { text: `${none ? `${none} ` : ''}The publication reviewed this contract and passed: ${sig.opp.statusReason}`, valid: false };
+    case 'ineligible':
+      return { text: `${none ? `${none} ` : ''}A published signal names this contract and side but no longer qualifies: ${sig.why}`, valid: false };
+    case 'watch':
+      return { text: `${none ? `${none} ` : ''}The publication lists a game-level watch, not a priced signal for this contract.`, valid: false };
     default:
-      tag = 'No price to compare'; tone = 'plain'; text = d.why;
+      return none ? { text: none, valid: false } : null;
   }
+}
+
+/**
+ * The model-versus-market difference, said neutrally: the numbers first, then what (if anything) the publication
+ * has published for this exact contract and side. No size of difference is labelled; the longer reading guide sits
+ * behind a disclosure. Never coloured buy/sell.
+ */
+export function DifferenceNote({ d, view, onOpen }: { d: Difference; view: RungView | null; onOpen?: () => void }) {
+  const [more, setMore] = useState(false);
+  const sideWord = view?.side === 'under' ? 'under (No)' : 'over (Yes)';
+  if (d.kind !== 'compared') {
+    const tag = d.kind === 'stale' ? 'Price not current' : d.kind === 'noProjection' ? 'No projection to compare' : 'No price to compare';
+    const sig = signalLine(d.signal, false);
+    return (
+      <div className="v4-diff v4-diff--plain">
+        <span className="v4-diff__tag">{tag}</span>
+        <p>{d.kind === 'stale' ? `${d.why} A stale price is shown for context and is not compared with the model.` : d.why}</p>
+        {sig && <p className="v4-diff__s">{sig.text}</p>}
+      </div>
+    );
+  }
+  const be = view?.breakEven != null ? `${Math.round(view.breakEven * 100)}%` : '—';
+  const model = view?.model != null ? `${Math.round(view.model * 100)}%` : '—';
+  const line = signalLine(d.signal, d.relation === 'above');
+  const valid = !!line?.valid;
   return (
-    <div className={`v4-diff v4-diff--${tone}`}>
-      <span className="v4-diff__tag">{tone === 'signal' && <Icon name="pulse" size="xs" />}{tag}</span>
-      <p>{text}</p>
-      {onOpen && (d.kind === 'signal' || d.kind === 'unexplained' || d.kind === 'close') && <button type="button" className="v4-textlink" onClick={onOpen}>Open research details</button>}
+    <div className={`v4-diff v4-diff--${valid ? 'signal' : 'plain'}`}>
+      <span className="v4-diff__tag">{valid && <Icon name="pulse" size="xs" />}{RELATION_TAG[d.relation]}</span>
+      <p className="v4-diff__n">Model <b className="num">{model}</b> vs break-even <b className="num">{be}</b> after fee for the {sideWord}: <b className="num">{sign(d.points)}</b> point{plural(d.points)}.</p>
+      {line && <p className="v4-diff__s">{line.text}</p>}
+      <button type="button" className="v4-diff__more" aria-expanded={more} onClick={() => setMore((m) => !m)}>How to read this<Icon name={more ? 'caret-up' : 'caret-down'} size="xs" /></button>
+      {more && (
+        <div className="v4-diff__d">
+          <p>Break-even is the Kalshi ask plus its taker fee: the probability this side needs to return its cost. The difference is the model's probability for the same side minus that figure, in percentage points, shown only for a current price.</p>
+          <p>No size of difference is treated as meaningful on its own. A difference carries more weight only where the publication supports it with its own uncertainty or calibration evidence, which appears in the published research signal when one exists for this exact contract and side.</p>
+          <p>This is research, not a recommendation to buy or avoid either side.</p>
+        </div>
+      )}
+      {onOpen && <button type="button" className="v4-textlink" onClick={onOpen}>Open research details</button>}
     </div>
   );
 }

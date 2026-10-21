@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import type { Opportunity } from '../src/opportunity/types';
+import { opp } from './support/v4Opportunity';
 
 const NOW = Date.parse('2026-10-04T15:00:00Z');
 let opportunities: Opportunity[] = [];
@@ -22,46 +23,90 @@ const row = {
   main: rung, line: 6.5, ladder: [rung], read: 'ABOVE', separation: 0.5, matchup: null, price: null, risks: ['Wide quote: 5¢ between bid and ask.'], injury: null, interest: 0.5, reasons: [], marketTitle: null,
 };
 const ctx = { row, slug: 'nfl', eventId: 'e1', kickoff: '2026-10-05T17:00:00Z', status: null, game: 'ATL @ NO', researchAt: iso(300), side: 'over' as const, marketId: null };
-const opp = {
-  id: 'o1', sport: 'NFL', slug: 'nfl', eventId: 'e1', eventLabel: 'ATL @ NO', competition: 'Week 5', startTime: '2026-10-05T17:00:00Z', marketId: 'mkt_kalshi_T-7', ticker: 'T-7', family: 'player_stat',
-  what: { title: 'Chris Olave 7+ receptions', side: 'YES', subject: null }, why: 'Published research flags this line.', evidence: ['Target share 28%'], risk: 'Thin market.', alternatives: [],
-  price: { side: 'YES', ask: 0.52, bid: 0.5, observedAt: iso(2), source: 'live', fair: 0.6, fairLow: null, fairHigh: null, fee: 0.02, feeSource: 'kalshi-schedule', breakEven: 0.54, evPerContract: 0.06, evSource: 'derived', betUpTo: 0.55, availableSize: 100, expiresAt: null, state: 'CURRENT' },
-  confidence: { calibration: 'RESEARCH', note: 'Research-only model.', inputs: {}, support: null, supportNote: null, edgeShare: null },
-  status: 'RESEARCH_CANDIDATE', authority: 'RESEARCH_ONLY', statusReason: '', phase: 'PREGAME', reprice: { side: 'YES', fair: 0.6 }, group: null, orientation: { state: 'OK' }, href: '/nfl/props?game=e1', gameHref: '',
-  rank: { tier: 3, tierWord: 'Research candidate', worstCaseEdge: null, evPerContract: 0.06, edgeShare: null, priceCurrent: true, highVariance: false, kickoff: '2026-10-05T17:00:00Z' },
-} as unknown as Opportunity;
-
 const show = () => render(<MemoryRouter><TrayProvider><SheetHost><PropResearch ctx={ctx as never} /></SheetHost></TrayProvider></MemoryRouter>);
 
 describe('the v4 prop research sheet', () => {
   beforeEach(() => { localStorage.clear(); opportunities = []; vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(NOW); });
   afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-  it('without a published opportunity it shows research-only details and says no signal covers the contract', () => {
+  it('without a published opportunity it shows research-only details and says no valid signal covers this side', () => {
     show();
     expect(screen.getByRole('heading', { name: 'Chris Olave receptions 7+' })).toBeTruthy();
-    expect(screen.getByText(/Research only · no published signal on this contract/)).toBeTruthy();
-    expect(screen.getByText(/No published research signal covers this contract/)).toBeTruthy();
-    expect(screen.getByText('Unexplained difference')).toBeTruthy();
+    expect(screen.getByText(/Research only · no valid published signal for this side/)).toBeTruthy();
+    expect(screen.getByText(/No valid published research signal covers this contract and side/)).toBeTruthy();
+    expect(screen.getByText('Model above break-even')).toBeTruthy();
+    expect(screen.getByText('No published signal validates this difference.')).toBeTruthy();
     expect(screen.getByText('Published risks')).toBeTruthy();
     expect(screen.queryByText('Why it is flagged')).toBeNull();
     expect(screen.getByRole('button', { name: /^Save to My Board/ })).toBeTruthy();
   });
 
-  it('with a published opportunity on that exact contract it opens the existing research sheet and offers Save', () => {
-    opportunities = [opp];
+  it('with a valid published signal on that exact contract and side it opens the existing research sheet and offers Save', () => {
+    opportunities = [opp()];
     show();
     expect(screen.getByText('Why it is flagged')).toBeTruthy();
     expect(screen.getByText('Published research flags this line.')).toBeTruthy();
-    expect(screen.queryByText(/No published research signal covers this contract/)).toBeNull();
+    expect(screen.queryByText(/No valid published research signal covers/)).toBeNull();
     expect(screen.getByRole('button', { name: /^Save to My Board/ })).toBeTruthy();
   });
 
   it('an opportunity on a different contract does not turn this prop into a signal', () => {
-    opportunities = [{ ...opp, marketId: 'mkt_kalshi_OTHER' } as Opportunity];
+    opportunities = [opp({ marketId: 'mkt_kalshi_OTHER' })];
     show();
-    expect(screen.getByText('Unexplained difference')).toBeTruthy();
+    expect(screen.getByText('No published signal validates this difference.')).toBeTruthy();
     expect(screen.queryByText('Why it is flagged')).toBeNull();
+  });
+
+  it('a signal for the OTHER side is not shown as this side’s; the viewer can go and read it', () => {
+    opportunities = [opp({ what: { side: 'NO' }, price: { side: 'NO', ask: 0.5 } })];
+    show();
+    expect(screen.queryByText('Why it is flagged')).toBeNull();
+    expect(screen.getByText(/The publication's signal on this market is for the under \(No\), not this side\./)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /See the published signal for the under \(No\)/ }));
+    expect(screen.getByText('Why it is flagged')).toBeTruthy();
+  });
+
+  it('a PASS decision is stated as the publication’s decision, not shown as a signal', () => {
+    opportunities = [opp({ status: 'PASS', statusReason: 'The ask is above the publication’s own bet-up-to price.' })];
+    show();
+    expect(screen.queryByText('Why it is flagged')).toBeNull();
+    expect(screen.getByText(/The publication reviewed this contract and passed: The ask is above/)).toBeTruthy();
+  });
+
+  it('a stale signal is not a valid signal, whatever its status word says', () => {
+    opportunities = [opp({ price: { observedAt: new Date(NOW - 60 * 60_000).toISOString() } })];
+    show();
+    expect(screen.queryByText('Why it is flagged')).toBeNull();
+    expect(screen.getByText(/A published signal names this contract and side but no longer qualifies: The quote behind this signal is stale\./)).toBeTruthy();
+  });
+
+  it('wording is neutral: below break-even says so without a verdict, and long explanations sit behind a disclosure', () => {
+    const rich = { ...rung, yesAsk: 0.7, modelP: 0.5, market: { ...rung.market, yes_ask: 0.7 } };
+    render(<MemoryRouter><TrayProvider><SheetHost><PropResearch ctx={{ ...ctx, row: { ...row, main: rich, ladder: [rich] } } as never} /></SheetHost></TrayProvider></MemoryRouter>);
+    expect(screen.getByText('Model below break-even')).toBeTruthy();
+    expect(screen.queryByText('No published signal validates this difference.')).toBeNull();
+    expect(screen.queryByText(/No size of difference is treated as meaningful/)).toBeNull();
+    const more = screen.getByRole('button', { name: /How to read this/ });
+    expect(more.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(more);
+    expect(more.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByText(/No size of difference is treated as meaningful/)).toBeTruthy();
+  });
+
+  it('a one-point difference gets the same neutral statement as any other: no "close" label', () => {
+    const near = { ...rung, yesAsk: 0.5, modelP: 0.53 };
+    render(<MemoryRouter><TrayProvider><SheetHost><PropResearch ctx={{ ...ctx, row: { ...row, main: near, ladder: [near] } } as never} /></SheetHost></TrayProvider></MemoryRouter>);
+    expect(screen.queryByText(/close/i)).toBeNull();
+    expect(document.querySelector('.v4-diff__n')!.textContent).toMatch(/^Model 53% vs break-even \d+% after fee for the over \(Yes\): [−+]?\d+ points?\.$/);
+  });
+
+  it('switching to the under compares the model with the NO side and saves the under', () => {
+    show();
+    fireEvent.click(screen.getByRole('button', { name: /^Under \(No\)/ }));
+    expect(document.querySelector('.v4-diff__n')!.textContent).toMatch(/after fee for the under \(No\)/);
+    fireEvent.click(screen.getByRole('button', { name: /^Save to My Board: Chris Olave under 6\.5 receptions/ }));
+    const s = JSON.parse(localStorage.getItem('sift.researchTray.v1')!);
+    expect(Object.values(s.labels)[0]).toMatchObject({ side: 'NO', label: 'Chris Olave under 6.5 receptions' });
   });
 
   it('a withheld projection shows its reason and compares nothing', () => {
@@ -69,7 +114,7 @@ describe('the v4 prop research sheet', () => {
     render(<MemoryRouter><TrayProvider><SheetHost><PropResearch ctx={{ ...ctx, row: withheld } as never} /></SheetHost></TrayProvider></MemoryRouter>);
     expect(screen.getAllByText(/Projection withheld/).length).toBeGreaterThan(0);
     expect(screen.getByText('No projection to compare')).toBeTruthy();
-    expect(screen.queryByText('Unexplained difference')).toBeNull();
+    expect(screen.queryByText('Model above break-even')).toBeNull();
   });
 
   it('a stale price is shown as context and never compared', () => {

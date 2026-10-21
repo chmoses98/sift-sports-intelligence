@@ -13,10 +13,13 @@ import { classifyDifference, projectionWhy, propHref as v4PropHref, rungView, ty
 import { agoWord } from './words';
 import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
+import type { Opportunity } from '../opportunity/types';
+import { matchSignal, sideOfProp, type SignalMatch } from './signal';
+import { sideExtra, sideWord } from './saveSide';
+import { tickerOfMarketId } from '../state/tray';
 import { fmtValue, type PropRow } from '../insights/propBoard';
 import { isFrozen } from '../lib/lifecycle';
 import { routes } from '../lib/routes';
-import { opportunitiesByMarket } from '../views/props/ranking';
 import { matchupSentence } from '../views/props/model';
 
 export interface PropCtx {
@@ -37,18 +40,29 @@ export interface PropCtx {
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 
-/** The tray item for a prop's contract: the same MARKET item the app's SaveButton writes, with the same link, so it is on My Board everywhere. */
-export function propSave(ctx: Pick<PropCtx, 'row' | 'slug' | 'eventId' | 'kickoff' | 'status'>, marketId?: string | null) {
+/**
+ * The tray item for ONE SIDE of a prop's contract: the same MARKET item the app's SaveButton writes, with the same
+ * link, so it is on My Board everywhere, plus the side the viewer selected (see saveSide.ts). The label says which
+ * side: "Chris Olave receptions 7+" for the over, "Chris Olave under 6.5 receptions" for the under.
+ */
+export function propSave(ctx: Pick<PropCtx, 'row' | 'slug' | 'eventId' | 'kickoff' | 'status'>, marketId: string | null | undefined, propSide: PropSide) {
   const { row } = ctx;
   const rung = row.ladder.find((x) => x.market.market_id === marketId) ?? row.main;
   if (!rung) return null;
+  const side = sideOfProp(propSide);
+  const mkt = rung.market;
+  const stat = row.def.label.toLowerCase();
+  // "n+" settles YES at n or more; its NO side is "fewer than n", i.e. under n − 0.5 for counting stats and yards alike.
+  const label = side === 'NO' ? `${row.name} under ${Math.round((rung.threshold - 0.5) * 10) / 10} ${stat}` : `${row.name} ${stat} ${rung.threshold}+`;
   return {
-    sport: 'NFL', id: rung.market.market_id, extra: { market_id: rung.market.market_id, event_id: ctx.eventId }, kickoff: ctx.kickoff, eventStatus: ctx.status,
+    sport: 'NFL', id: mkt.market_id, extra: sideExtra(mkt.market_id, ctx.eventId, side), kickoff: ctx.kickoff, eventStatus: ctx.status,
     label: {
-      label: `${row.name} ${row.def.label.toLowerCase()} ${rung.market.threshold}+`.trim(),
-      sub: `Over ${cents(rung.yesAsk)} · under ${cents(rung.noAsk)}`,
+      label,
+      sub: `Saved the ${sideWord(side)} · Over ${cents(rung.yesAsk)} · under ${cents(rung.noAsk)}`,
       href: `${routes.props(ctx.slug, { game: ctx.eventId })}&prop=${encodeURIComponent(row.id)}`,
       kickoff: ctx.kickoff,
+      side,
+      market: { ticker: tickerOfMarketId(mkt.market_id) ?? mkt.market_id, yesAsk: rung.yesAsk, yesBid: rung.yesBid, noAsk: rung.noAsk, noBid: null, observedAt: mkt.captured_at ?? null, source: 'publication' },
     },
   };
 }
@@ -59,29 +73,34 @@ export function usePropResearch() {
   return useCallback((ctx: PropCtx) => sheet.open(<PropResearch ctx={ctx} />, { label: `Research: ${ctx.row.name} ${ctx.row.def.label}` }), [sheet]);
 }
 
+/**
+ * The research for one side of a prop contract. Only a valid published signal for this exact market AND side opens the
+ * existing research sheet (src/v4/signal.ts decides, against the opportunity layer's own status, authority and price
+ * eligibility). Anything else is research only: the sheet says what the publication did or did not publish for this
+ * side (nothing, the other side, a pass, a signal that no longer qualifies) and never shows another side's signal as this one's.
+ */
 export function PropResearch({ ctx }: { ctx: PropCtx }) {
   const now = useNow(30_000);
   const all = useAllOpportunities(now);
-  const byMarket = useMemo(() => opportunitiesByMarket(all.opportunities, 'NFL'), [all.opportunities]);
+  const [side, setSide] = useState<PropSide>(ctx.side);
   const rung = ctx.row.ladder.find((x) => x.market.market_id === ctx.marketId) ?? ctx.row.main;
-  const opp = rung ? byMarket.get(rung.market.market_id) : undefined;
+  const match = useMemo(() => matchSignal(all.opportunities, rung?.market.market_id, sideOfProp(side), now), [all.opportunities, rung, side, now]);
   if (all.loading && !all.opportunities.length) {
     return <div className="v4-sbody" role="status" aria-label="Loading research"><div className="v4-skel" style={{ height: 120, marginTop: 24 }} /></div>;
   }
-  if (opp) return <ResearchSheet o={opp} g={null} />;
-  return <ResearchOnly ctx={ctx} now={now} />;
+  if (match.kind === 'valid') return <ResearchSheet o={match.opp} g={null} />;
+  return <ResearchOnly ctx={ctx} now={now} side={side} setSide={setSide} match={match} opps={all.opportunities} />;
 }
 
-function ResearchOnly({ ctx, now }: { ctx: PropCtx; now: number }) {
+function ResearchOnly({ ctx, now, side, setSide, match, opps }: { ctx: PropCtx; now: number; side: PropSide; setSide: (s: PropSide) => void; match: SignalMatch; opps: readonly Opportunity[] }) {
   const { close } = useSheet();
   const { row } = ctx;
-  const [side, setSide] = useState<PropSide>(ctx.side);
   const rung = row.ladder.find((x) => x.market.market_id === ctx.marketId) ?? row.main;
   const view = rung ? rungView(rung, side, rung.market.market_id === row.main?.market.market_id, now) : null;
   const frozen = isFrozen(ctx.kickoff, now, ctx.status);
-  const diff = classifyDifference(view, projectionWhy(row), new Map());
+  const diff = classifyDifference(view, projectionWhy(row), opps, now);
   const mu = matchupSentence(row);
-  const save = propSave(ctx, rung?.market.market_id ?? null);
+  const save = propSave(ctx, rung?.market.market_id ?? null, side);
   const fmt = (v: number) => fmtValue(v, row.def);
   const title = `${row.name} ${row.def.label.toLowerCase()} ${rung ? `${rung.market.threshold}+` : ''}`.trim();
   return (
@@ -94,7 +113,7 @@ function ResearchOnly({ ctx, now }: { ctx: PropCtx; now: number }) {
         <button type="button" className="v4-gbtn" onClick={close} aria-label="Close research"><Icon name="x" /></button>
       </div>
       <div className="v4-sbody">
-        <span className={`v4-auth v4-auth--frozen`}><Icon name={frozen ? 'lock-simple' : 'info'} />{frozen ? 'Pregame research · frozen at kickoff' : 'Research only · no published signal on this contract'}</span>
+        <span className={`v4-auth v4-auth--frozen`}><Icon name={frozen ? 'lock-simple' : 'info'} />{frozen ? 'Pregame research · frozen at kickoff' : 'Research only · no valid published signal for this side'}</span>
 
         {rung && (
           <section className="v4-sblock" aria-label="Model and market on the same side">
@@ -111,6 +130,9 @@ function ResearchOnly({ ctx, now }: { ctx: PropCtx; now: number }) {
           </section>
         )}
         <DifferenceNote d={diff} view={view} />
+        {match.kind === 'oppositeSide' && (
+          <button type="button" className="v4-btn v4-btn--sec" style={{ marginTop: 10 }} onClick={() => setSide(match.has === 'YES' ? 'over' : 'under')}>See the published signal for the {match.has === 'YES' ? 'over (Yes)' : 'under (No)'}</button>
+        )}
 
         <section className="v4-sblock"><h3>Projection</h3>
           {row.projection != null && <p style={{ marginBottom: 8 }}>SIFT projects <b className="num" style={{ color: 'var(--model)' }}>{fmt(row.projection)}</b> against a Kalshi line of <b className="num" style={{ color: 'var(--mkt)' }}>{row.line ?? '—'}</b>.</p>}
@@ -127,7 +149,7 @@ function ResearchOnly({ ctx, now }: { ctx: PropCtx; now: number }) {
         <section className="v4-sblock"><h3>Sources</h3>
           <SourceList row={row} researchAt={ctx.researchAt} kickoff={ctx.kickoff} quoteAt={rung?.market.captured_at ?? null} frozen={frozen} now={now} />
         </section>
-        <p className="meta" style={{ marginTop: 18 }}>Research only. No published research signal covers this contract, so nothing here is a signal or a recommendation, and SIFT does not recommend a bet.</p>
+        <p className="meta" style={{ marginTop: 18 }}>Research only. No valid published research signal covers this contract and side, so nothing here is a signal or a recommendation, and SIFT does not recommend a bet.</p>
       </div>
       <div className="v4-sfoot">
         {save && <SaveControl {...save} variant="button" />}

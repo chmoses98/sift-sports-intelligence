@@ -8,6 +8,7 @@ import { Icon } from './Icon';
 import { useSheet } from './sheet';
 import { Crest, gameHref } from './base';
 import { SaveControl } from './SaveControl';
+import { sideExtra } from './saveSide';
 import { useNow } from '../live/hooks';
 import { quoteAgeMs, quoteFreshness } from '../live/freshness';
 import { agoWord, authorityWord, calibrationWord } from './words';
@@ -140,8 +141,8 @@ export function ResearchSheet({ o, g }: { o: Opportunity; g: GameRow | null }) {
       </div>
       <div className="v4-sfoot">
         {o.marketId && (
-          <SaveControl sport={o.sport} id={o.marketId} extra={{ market_id: o.marketId, event_id: o.eventId }} kickoff={o.startTime} variant="button"
-            label={{ label: contractWords(o), sub: `${o.eventLabel}${o.competition ? ` · ${o.competition}` : ''}`, href: o.href, kickoff: o.startTime }} />
+          <SaveControl sport={o.sport} id={o.marketId} extra={sideExtra(o.marketId, o.eventId, o.what.side)} kickoff={o.startTime} variant="button"
+            label={{ label: contractWords(o), sub: `${o.eventLabel}${o.competition ? ` · ${o.competition}` : ''}`, href: o.href, kickoff: o.startTime, side: o.what.side }} />
         )}
         {g ? <Link to={gameHref(g, 'markets')} className="v4-btn" onClick={close}>Open game markets</Link> : <button type="button" className="v4-btn" onClick={close}>Done</button>}
       </div>

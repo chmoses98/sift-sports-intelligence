@@ -19,7 +19,7 @@ import { hitRate, hitWindows, hitWindowLabel, hitWindowShort, type HitWindow } f
 import { pregameRows, statDef } from '../history/stats';
 import { histKey, usePlayerHistories } from '../views/props/useHits';
 import { matchupSentence } from '../views/props/model';
-import { opportunitiesByMarket } from '../views/props/ranking';
+import type { Opportunity } from '../opportunity/types';
 import { useAllOpportunities } from '../opportunity/load';
 import { isFrozen } from '../lib/lifecycle';
 import { teamColors } from '../lib/teams';
@@ -51,7 +51,6 @@ export function V4PropDetail() {
   const { board } = usePropBoard(data.data);
   const open = usePropResearch();
   const opps = useAllOpportunities(now);
-  const byMarket = useMemo(() => opportunitiesByMarket(opps.opportunities, 'NFL'), [opps.opportunities]);
   const { rows, sel } = rowFor(board, decodeURIComponent(playerId), sp.get('stat'));
   const side: PropSide = sp.get('side') === 'under' ? 'under' : 'over';
   const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; }, { replace: true });
@@ -72,14 +71,14 @@ export function V4PropDetail() {
   if (!sel || data.data?.kind !== 'ok') {
     return frame(<div className="v4-note"><Icon name="magnifying-glass" /><div><b>No published props for this player</b>The publication lists no priced prop or projection for this player in this game (he may be out, or not part of the prop population).<br /><Link to={propsExplorerHref({ game: eventId })} className="v4-btn v4-btn--sec">Back to props</Link></div></div>);
   }
-  return <Detail key={`${eventId}|${sel.playerId}`} slug={slug} eventId={eventId} data={data.data} row={sel} rows={rows} side={side} now={now} set={set} byMarket={byMarket} back={back} open={open} stat={sp.get('stat')} sp={sp} />;
+  return <Detail key={`${eventId}|${sel.playerId}`} slug={slug} eventId={eventId} data={data.data} row={sel} rows={rows} side={side} now={now} set={set} opps={opps.opportunities} back={back} open={open} stat={sp.get('stat')} sp={sp} />;
 }
 
 type Loaded = Extract<NonNullable<ReturnType<typeof usePropGame>['data']>, { kind: 'ok' }>;
 
-function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back, open, sp }: {
+function Detail({ slug, eventId, data, row, rows, side, now, set, opps, back, open, sp }: {
   slug: string; eventId: string; data: Loaded; row: PropRow; rows: PropRow[]; side: PropSide; now: number; stat: string | null; sp: URLSearchParams;
-  set: (p: Record<string, string | null>) => void; byMarket: ReturnType<typeof opportunitiesByMarket>; back: () => void; open: ReturnType<typeof usePropResearch>;
+  set: (p: Record<string, string | null>) => void; opps: readonly Opportunity[]; back: () => void; open: ReturnType<typeof usePropResearch>;
 }) {
   const r = data.r;
   const g = gameSides(r);
@@ -99,9 +98,9 @@ function Detail({ slug, eventId, data, row, rows, side, now, set, byMarket, back
   const mi = ladder.findIndex((x) => x.isMain);
   const trimmed = !allRungs && ladder.length > 7 && mi >= 0;
   const visible = trimmed ? ladder.slice(Math.max(0, Math.min(mi - 2, ladder.length - 5)), Math.max(0, Math.min(mi - 2, ladder.length - 5)) + 5) : ladder;
-  const diff = classifyDifference(mainView, projectionWhy(row), byMarket);
+  const diff = classifyDifference(mainView, projectionWhy(row), opps, now);
   const q = quoteView(side === 'over' ? row.main?.yesAsk : row.main?.noAsk, row.main?.market.captured_at, now);
-  const save = propSave({ row, slug, eventId, kickoff, status });
+  const save = propSave({ row, slug, eventId, kickoff, status }, null, side);
   const ctx = { row, slug, eventId, kickoff, status, game: gameLabel, researchAt: r.generated_at ?? null, side, marketId: null as string | null, fromDetail: true };
 
   // Recent form: the player's real game logs against today's line (history, never a probability).

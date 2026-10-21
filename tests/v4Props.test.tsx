@@ -3,10 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { SaveControl } from '../src/v4/SaveControl';
+import { marketChange } from '../src/board/model';
+import { propSave } from '../src/v4/PropSheet';
+import { sideExtra } from '../src/v4/saveSide';
 import { TrayProvider, TRAY_KEY } from '../src/state/tray';
-import { classifyDifference, filterRows, groupPlayers, matchesSearch, modelFigure, orderRows, projectionWhy, propHref, propsExplorerHref, quoteView, rungView, statShort, CLOSE_POINTS } from '../src/v4/propsModel';
+import { classifyDifference, filterRows, groupPlayers, matchesSearch, modelFigure, orderRows, projectionWhy, propHref, propsExplorerHref, quoteView, rungView, statShort } from '../src/v4/propsModel';
 import type { PropRow, Rung } from '../src/insights/propBoard';
-import type { Opportunity } from '../src/opportunity/types';
+import { opp } from './support/v4Opportunity';
 import type { DiscoveryRow } from '../src/views/props/model';
 
 const NOW = Date.parse('2026-10-04T15:00:00Z');
@@ -68,27 +71,46 @@ describe('the ladder compares the model with the same side, fee included', () =>
   });
 });
 
-describe('a gap is investigated only where the publication holds a signal for that contract', () => {
-  const byMarket = new Map<string, Pick<Opportunity, 'status' | 'authority' | 'statusReason'>>([['mkt_kalshi_T-7', { status: 'RESEARCH_CANDIDATE', authority: 'RESEARCH_ONLY', statusReason: 'flagged' }]]);
+describe('the model-versus-break-even difference is stated, never graded by size', () => {
+  const MKT = 'mkt_kalshi_T-7';
+  const published = opp({ marketId: MKT });
   const wide = rungView(rung({ yesAsk: 0.4, modelP: 0.7 }), 'over', true, NOW);
-  it('unexplained when no opportunity covers the contract', () => {
-    expect(classifyDifference(wide, null, new Map()).kind).toBe('unexplained');
-  });
-  it('an investigated research signal when one does, named with its authority', () => {
-    const c = classifyDifference(wide, null, byMarket);
-    expect(c.kind).toBe('signal');
-    if (c.kind === 'signal') expect(c.authority.word).toBe('Research candidate');
-  });
-  it('close inside the threshold, whichever way the gap points', () => {
+  it('has no "close" classification: a one-point and a thirty-point difference are the same kind of statement', () => {
     const near = rungView(rung({ yesAsk: 0.5, modelP: 0.53 }), 'over', true, NOW);
-    expect(Math.abs(near.points!)).toBeLessThan(CLOSE_POINTS);
-    expect(classifyDifference(near, null, byMarket).kind).toBe('close');
+    const a = classifyDifference(near, null, [], NOW);
+    const b = classifyDifference(wide, null, [], NOW);
+    expect(a.kind).toBe('compared');
+    expect(b.kind).toBe('compared');
+    expect(Object.keys(a).sort()).toEqual(Object.keys(b).sort());
+  });
+  it('reports the sign of the difference and nothing about its significance', () => {
+    expect(classifyDifference(wide, null, [], NOW)).toMatchObject({ kind: 'compared', relation: 'above' });
+    const below = rungView(rung({ yesAsk: 0.7, modelP: 0.5 }), 'over', true, NOW);
+    expect(classifyDifference(below, null, [], NOW)).toMatchObject({ kind: 'compared', relation: 'below' });
+    expect(Math.sign((classifyDifference(below, null, [], NOW) as { points: number }).points)).toBe(-1);
+  });
+  it('a difference with no published signal says so: signal none', () => {
+    expect(classifyDifference(wide, null, [], NOW)).toMatchObject({ kind: 'compared', signal: { kind: 'none' } });
+  });
+  it('a valid published signal on the same market and side is attached', () => {
+    expect(classifyDifference(wide, null, [published], NOW)).toMatchObject({ signal: { kind: 'valid' } });
+  });
+  it('an opposite-side signal is not attached as this side’s', () => {
+    const no = opp({ marketId: MKT, what: { side: 'NO' }, price: { side: 'NO' } });
+    expect(classifyDifference(wide, null, [no], NOW)).toMatchObject({ signal: { kind: 'oppositeSide', has: 'NO' } });
+    const under = rungView(rung({ noAsk: 0.4, modelP: 0.3 }), 'under', true, NOW);
+    expect(classifyDifference(under, null, [published], NOW)).toMatchObject({ signal: { kind: 'oppositeSide', has: 'YES', wanted: 'NO' } });
+    expect(classifyDifference(under, null, [no], NOW)).toMatchObject({ signal: { kind: 'valid' } });
+  });
+  it('stale and passed signals are reported as what they are', () => {
+    expect(classifyDifference(wide, null, [opp({ marketId: MKT, price: { observedAt: iso(60) } })], NOW)).toMatchObject({ signal: { kind: 'ineligible' } });
+    expect(classifyDifference(wide, null, [opp({ marketId: MKT, status: 'PASS' })], NOW)).toMatchObject({ signal: { kind: 'passed' } });
   });
   it('says why there is nothing to compare instead of inventing a gap', () => {
-    expect(classifyDifference(null, null, byMarket).kind).toBe('noPrice');
-    expect(classifyDifference(rungView(rung({ modelP: null }), 'over', true, NOW), 'Projection withheld: x.', byMarket)).toMatchObject({ kind: 'noProjection', why: 'Projection withheld: x.' });
-    expect(classifyDifference(rungView(rung({ captured: iso(90) }), 'over', true, NOW), null, byMarket).kind).toBe('stale');
-    expect(classifyDifference(rungView(rung({ yesAsk: null }), 'over', true, NOW), null, byMarket).kind).toBe('noPrice');
+    expect(classifyDifference(null, null, [published], NOW).kind).toBe('noPrice');
+    expect(classifyDifference(rungView(rung({ modelP: null }), 'over', true, NOW), 'Projection withheld: x.', [published], NOW)).toMatchObject({ kind: 'noProjection', why: 'Projection withheld: x.' });
+    expect(classifyDifference(rungView(rung({ captured: iso(90) }), 'over', true, NOW), null, [published], NOW).kind).toBe('stale');
+    expect(classifyDifference(rungView(rung({ yesAsk: null }), 'over', true, NOW), null, [published], NOW).kind).toBe('noPrice');
   });
 });
 
@@ -185,5 +207,85 @@ describe('Save writes the research tray the rest of the app reads', () => {
     first.unmount();
     show('2026-10-04T12:00:00Z');
     expect(screen.getByRole('button', { name: /^Remove from My Board/ }).getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
+describe('Save keeps the selected side: the Board can never show the other outcome', () => {
+  const ctx = { row: row(), slug: 'nfl', eventId: 'e1', kickoff: '2026-10-05T17:00:00Z', status: null };
+  const MKT = 'mkt_kalshi_T-7';
+  const showSave = (side: 'over' | 'under', kickoff = ctx.kickoff) => {
+    const s = propSave(ctx, MKT, side)!;
+    return render(<MemoryRouter><TrayProvider><SaveControl {...s} kickoff={kickoff} /></TrayProvider></MemoryRouter>);
+  };
+  beforeEach(() => { localStorage.clear(); vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(NOW); });
+  afterEach(() => { cleanup(); vi.useRealTimers(); });
+  const stored = () => JSON.parse(localStorage.getItem(TRAY_KEY) ?? '{"tray":{"items":[]},"labels":{}}');
+
+  it('the over keeps the identity every earlier save of the market has; the under is a different item', () => {
+    expect(sideExtra(MKT, 'e1', 'YES')).toEqual({ market_id: MKT, event_id: 'e1' });
+    expect(sideExtra(MKT, 'e1', 'NO')).toEqual({ market_id: MKT, event_id: 'e1', x: 'side=NO' });
+  });
+  it('labels state the side: the over by its line, the under as "under 6.5"', () => {
+    expect(propSave(ctx, MKT, 'over')!.label).toMatchObject({ label: 'Chris Olave receptions 7+', side: 'YES' });
+    expect(propSave(ctx, MKT, 'under')!.label).toMatchObject({ label: 'Chris Olave under 6.5 receptions', side: 'NO' });
+    expect(propSave(ctx, MKT, 'under')!.label.sub).toMatch(/under \(No\)/);
+  });
+  it('saves the quote the viewer saw, for both sides, with its own capture time', () => {
+    const m = propSave(ctx, MKT, 'under')!.label.market!;
+    expect(m).toMatchObject({ ticker: 'T-7', yesAsk: 0.52, noAsk: 0.5, source: 'publication' });
+    expect(m.observedAt).toBe(iso(2));
+  });
+  it('saving the over and the under are two separate items, each with its side recorded', () => {
+    const a = showSave('over');
+    fireEvent.click(screen.getByRole('button', { name: /^Save to My Board/ }));
+    a.unmount();
+    showSave('under');
+    expect(screen.getByRole('button', { name: /^Save to My Board/ }).getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(screen.getByRole('button', { name: /^Save to My Board/ }));
+    const s = stored();
+    expect(s.tray.items).toHaveLength(2);
+    expect(Object.values(s.labels).map((l) => (l as { side: string }).side).sort()).toEqual(['NO', 'YES']);
+  });
+  it('removing the under leaves the over saved', () => {
+    const a = showSave('over');
+    fireEvent.click(screen.getByRole('button', { name: /^Save to My Board/ }));
+    a.unmount();
+    const b = showSave('under');
+    fireEvent.click(screen.getByRole('button', { name: /^Save to My Board/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Remove from My Board/ }));
+    b.unmount();
+    expect(stored().tray.items).toHaveLength(1);
+    showSave('over');
+    expect(screen.getByRole('button', { name: /^Remove from My Board/ })).toBeTruthy();
+  });
+  it('an earlier un-sided save of the market (SIFT 2.0, or v4 before sides) is the over: still shown saved, and the under is not', () => {
+    const first = render(<MemoryRouter><TrayProvider><SaveControl sport="NFL" id={MKT} extra={{ market_id: MKT, event_id: 'e1' }} label={{ label: 'Chris Olave receptions 7+', href: '/x', kickoff: ctx.kickoff }} kickoff={ctx.kickoff} /></TrayProvider></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: /^Save to My Board/ }));
+    first.unmount();
+    const o = showSave('over');
+    expect(screen.getByRole('button', { name: /^Remove from My Board/ })).toBeTruthy();
+    o.unmount();
+    showSave('under');
+    expect(screen.getByRole('button', { name: /^Save to My Board/ }).getAttribute('aria-pressed')).toBe('false');
+  });
+  it('the pregame freeze policy holds for both sides: nothing new after kickoff', () => {
+    showSave('under', '2026-10-04T12:00:00Z');
+    expect(screen.getByRole('button', { name: /cannot be saved after kickoff/ }).getAttribute('aria-disabled')).toBe('true');
+    expect(stored().tray.items).toHaveLength(0);
+  });
+});
+
+describe('My Board tracks the side that was saved', () => {
+  const snap = { ticker: 'T-7', yesAsk: 0.52, yesBid: 0.5, noAsk: 0.5, noBid: null, observedAt: iso(2), source: 'publication' };
+  const quote = (yes: number, no: number) => ({ ticker: 'T-7', yesAsk: yes, noAsk: no, yesBid: null, noBid: null, observedAt: iso(0) }) as never;
+  it('an under save compares the NO ask, not the YES ask', () => {
+    expect(marketChange(snap, quote(0.52, 0.58), 'NO')!.text).toMatch(/^NO ask up 8¢ since saved: 50¢ → 58¢/);
+  });
+  it('a save with no side keeps the YES wording it always had', () => {
+    expect(marketChange(snap, quote(0.58, 0.5))!.text).toMatch(/^YES ask up 6¢ since saved: 52¢ → 58¢/);
+    expect(marketChange(snap, quote(0.58, 0.5), 'YES')!.text).toMatch(/^YES ask up 6¢/);
+  });
+  it('says so when the saved side had no quote', () => {
+    expect(marketChange({ ...snap, noAsk: null }, quote(0.5, 0.5), 'NO')!.kind).toBe('unpriced');
   });
 });

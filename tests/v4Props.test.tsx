@@ -6,6 +6,7 @@ import { SaveControl } from '../src/v4/SaveControl';
 import { TrayProvider, TRAY_KEY } from '../src/state/tray';
 import { classifyDifference, filterRows, groupPlayers, matchesSearch, modelFigure, orderRows, projectionWhy, propHref, propsExplorerHref, quoteView, rungView, statShort, CLOSE_POINTS } from '../src/v4/propsModel';
 import type { PropRow, Rung } from '../src/insights/propBoard';
+import type { Opportunity } from '../src/opportunity/types';
 import type { DiscoveryRow } from '../src/views/props/model';
 
 const NOW = Date.parse('2026-10-04T15:00:00Z');
@@ -68,7 +69,7 @@ describe('the ladder compares the model with the same side, fee included', () =>
 });
 
 describe('a gap is investigated only where the publication holds a signal for that contract', () => {
-  const byMarket = new Map([['mkt_kalshi_T-7', { status: 'RESEARCH_CANDIDATE', authority: 'RESEARCH_ONLY', statusReason: 'flagged' }]]);
+  const byMarket = new Map<string, Pick<Opportunity, 'status' | 'authority' | 'statusReason'>>([['mkt_kalshi_T-7', { status: 'RESEARCH_CANDIDATE', authority: 'RESEARCH_ONLY', statusReason: 'flagged' }]]);
   const wide = rungView(rung({ yesAsk: 0.4, modelP: 0.7 }), 'over', true, NOW);
   it('unexplained when no opportunity covers the contract', () => {
     expect(classifyDifference(wide, null, new Map()).kind).toBe('unexplained');

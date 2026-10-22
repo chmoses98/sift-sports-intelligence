@@ -108,7 +108,7 @@ async function deployment() {
   for (const f of ['manifest.webmanifest', 'manifest-v4.webmanifest']) {
     try {
       const m = await getJson(`${BASE}${f}`);
-      check(f.includes('v4') ? m.start_url === `${new URL(BASE).pathname}#/v4` && m.short_name === 'SIFT v4' : m.start_url === `${new URL(BASE).pathname}#/` && m.short_name === 'Sift', `${f}: ${m.short_name} launches ${m.start_url}`);
+      check(f.includes('v4') ? m.start_url === `${new URL(BASE).pathname}v4/` && m.short_name === 'SIFT v4' : m.start_url === `${new URL(BASE).pathname}#/` && m.short_name === 'Sift', `${f}: ${m.short_name} launches ${m.start_url}`);
     } catch (e) { check(false, `${f} is published: ${first(e)}`); }
   }
 }
@@ -126,10 +126,15 @@ async function journey(browser, device, name) {
     await p0.waitForURL(/#\/design\/sift2\/home/, { timeout: 60_000 });
     check((await p0.locator('[data-v4-shell]').count()) === 0, tag('the root address is SIFT 2.0, not v4'));
     check(/\/manifest\.webmanifest$/.test((await p0.locator('link[rel="manifest"]').getAttribute('href')) ?? ''), tag('the root installs as SIFT (own manifest)'));
-    await p0.goto(`${BASE}#/v4`, { waitUntil: 'domcontentloaded' });
+    // The real iPhone installation URL is /v4/, not a fragment on SIFT 2.0's entrypoint.
+    await p0.goto(`${BASE}v4/`, { waitUntil: 'domcontentloaded' });
     await settled(p0);
-    check((await p0.evaluate(() => localStorage.getItem('sift.ui'))) === null, tag('opening #/v4 chose nothing for this device'));
-    check(/\/manifest-v4\.webmanifest$/.test((await p0.locator('link[rel="manifest"]').getAttribute('href')) ?? '') && (await p0.locator('meta[name="apple-mobile-web-app-title"]').getAttribute('content')) === 'SIFT v4', tag('#/v4 installs as "SIFT v4"'));
+    check(p0.url().includes('/v4/#/v4'), tag('the distinct /v4/ page boots v4 without a fragment'));
+    check((await p0.evaluate(() => localStorage.getItem('sift.ui'))) === null, tag('opening the /v4/ page chose nothing for this device'));
+    check(/\/manifest-v4\.webmanifest$/.test((await p0.locator('link[rel="manifest"]').getAttribute('href')) ?? '') && (await p0.locator('meta[name="apple-mobile-web-app-title"]').getAttribute('content')) === 'SIFT v4', tag('/v4/ installs as "SIFT v4"'));
+    await p0.reload({ waitUntil: 'domcontentloaded' });
+    await settled(p0);
+    check(p0.url().includes('/v4/#/v4') && (await p0.locator('[data-v4-shell]').count()) === 1, tag('relaunching the iPhone URL still opens v4'));
     await p0.getByRole('button', { name: /^SIFT v4 early access: about/ }).click();
     const dlg = p0.getByRole('dialog', { name: 'SIFT v4 early access' });
     check(await dlg.getByRole('link', { name: 'Return to SIFT 2.0' }).isVisible(), tag('the early-access sheet offers the way back to SIFT 2.0'));

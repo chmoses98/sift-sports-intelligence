@@ -94,8 +94,9 @@ jobs:
         run: |
           npx playwright install --with-deps chromium webkit
           npx vite build --outDir "$RUNNER_TEMP/dist"
-          npx vite preview --outDir "$RUNNER_TEMP/dist" --port 4199 --strictPort &
-          sleep 6
+          node scripts/e2e-preview.mjs --port 4199 --outDir "$RUNNER_TEMP/dist" > "$RUNNER_TEMP/preview.log" 2>&1 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:4199/sift-sports-intelligence/ && break; sleep 1; done
+          cat "$RUNNER_TEMP/preview.log"
           mkdir -p "$RUNNER_TEMP/out"
           node scripts/live-scores/real-browser.mjs http://127.0.0.1:4199/sift-sports-intelligence/ "$RUNNER_TEMP/out"
       - name: Verify once (production adapters and matcher against the real boards and feeds)

@@ -1,0 +1,30 @@
+{
+  "leagues": [{ "abbreviation": "NFL" }],
+  "events": [
+    { "id": "900001", "date": "2026-10-18T17:00Z",
+      "competitions": [{ "competitors": [
+        { "id": "11", "homeAway": "home", "score": "14", "team": { "id": "11", "abbreviation": "IND", "displayName": "Indianapolis Colts" } },
+        { "id": "33", "homeAway": "away", "score": "17", "team": { "id": "33", "abbreviation": "BAL", "displayName": "Baltimore Ravens" } } ],
+        "situation": { "shortDownDistanceText": "3rd & 7", "possessionText": "BAL 42", "possession": "33", "lastPlay": { "text": "Incomplete pass to the right." } },
+        "status": { "clock": 272, "displayClock": "4:32", "period": 3, "type": { "name": "STATUS_IN_PROGRESS", "state": "in", "completed": false, "shortDetail": "4:32 - 3rd", "detail": "4:32 - 3rd Quarter" } } }] },
+    { "id": "900002", "date": "2026-10-18T20:25Z",
+      "competitions": [{ "competitors": [
+        { "id": "28", "homeAway": "home", "score": "0", "team": { "id": "28", "abbreviation": "WSH", "displayName": "Washington Commanders" } },
+        { "id": "20", "homeAway": "away", "score": "0", "team": { "id": "20", "abbreviation": "NYJ", "displayName": "New York Jets" } } ],
+        "status": { "clock": 0, "displayClock": "0:00", "period": 0, "type": { "name": "STATUS_SCHEDULED", "state": "pre", "completed": false, "shortDetail": "10/18 - 4:25 PM EDT" } } }] },
+    { "id": "900003", "date": "2026-10-18T17:00Z",
+      "competitions": [{ "competitors": [
+        { "id": "2", "homeAway": "home", "score": "24", "team": { "id": "2", "abbreviation": "BUF", "displayName": "Buffalo Bills" } },
+        { "id": "17", "homeAway": "away", "score": "21", "team": { "id": "17", "abbreviation": "NE", "displayName": "New England Patriots" } } ],
+        "status": { "clock": 0, "displayClock": "0:00", "period": 4, "type": { "name": "STATUS_FINAL", "state": "post", "completed": true, "shortDetail": "Final" } } }] },
+    { "id": "900004", "date": "2026-10-18T17:00Z",
+      "competitions": [{ "competitors": [
+        { "id": "1", "homeAway": "home", "team": { "id": "1", "abbreviation": "ATL", "displayName": "Atlanta Falcons" } },
+        { "id": "5", "homeAway": "away", "team": { "id": "5", "abbreviation": "CLE", "displayName": "Cleveland Browns" } } ],
+        "status": { "type": { "name": "STATUS_SOMETHING_NEW", "state": "weird" } } }] },
+    { "id": "900005", "date": "2026-10-18T17:00Z",
+      "competitions": [{ "competitors": [
+        { "id": "7", "homeAway": "home", "score": "3", "team": { "id": "7", "abbreviation": "DEN", "displayName": "Denver Broncos" } } ],
+        "status": { "type": { "name": "STATUS_IN_PROGRESS", "state": "in" } } }] }
+  ]
+}

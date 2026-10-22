@@ -1,0 +1,16 @@
+{
+  "leagues": [{ "abbreviation": "MLB" }],
+  "events": [
+    { "id": "910001", "date": "2026-09-20T17:10Z",
+      "competitions": [{ "competitors": [
+        { "id": "20", "homeAway": "home", "score": "5", "team": { "id": "20", "abbreviation": "NYM", "displayName": "New York Mets" } },
+        { "id": "15", "homeAway": "away", "score": "3", "team": { "id": "15", "abbreviation": "ATL", "displayName": "Atlanta Braves" } } ],
+        "status": { "clock": 0, "displayClock": "0:00", "period": 9, "type": { "name": "STATUS_FINAL", "state": "post", "completed": true, "shortDetail": "Final" } } }] },
+    { "id": "910002", "date": "2026-09-20T21:10Z",
+      "competitions": [{ "competitors": [
+        { "id": "20", "homeAway": "home", "score": "1", "team": { "id": "20", "abbreviation": "NYM", "displayName": "New York Mets" } },
+        { "id": "15", "homeAway": "away", "score": "0", "team": { "id": "15", "abbreviation": "ATL", "displayName": "Atlanta Braves" } } ],
+        "situation": { "outs": 2, "onFirst": true, "onSecond": false, "onThird": true },
+        "status": { "clock": 0, "displayClock": "0:00", "period": 7, "type": { "name": "STATUS_IN_PROGRESS", "state": "in", "shortDetail": "Top 7th" } } }] }
+  ]
+}

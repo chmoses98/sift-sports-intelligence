@@ -34,10 +34,14 @@ import { agoWord, authorityWord, priceLine } from './words';
 import { Scoreboard } from './Scoreboard';
 import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
-import { SlateStates, useSlate } from './slate';
+import { SlateStates, useSlate, useSlateScores } from './slate';
+import { useDemoState } from '../live/scores/demo/state';
+import { LiveScoreCard } from './LiveScoreCard';
+import { liveWord, shownState } from './scoreState';
 import { useStageColours } from './Feature';
 import { defaultGameTab, GAME_TABS, isGameTab, isLiveGame, type GameTab } from './model';
 import type { Opportunity } from '../opportunity/types';
+import type { ScoreRead } from '../live/scores/store';
 
 type Tab = GameTab;
 const TABS = GAME_TABS;
@@ -62,6 +66,10 @@ export function V4Game() {
   const { slug = '', eventId = '' } = useParams();
   const { rows, loading: boardLoading, unavailable, failed } = useSlate();
   const g = useMemo(() => rows.find((r) => r.slug === slug && r.item.event_id === eventId) ?? null, [rows, slug, eventId]);
+  const gameRows = useMemo(() => (g ? [g] : []), [g]);
+  const scores = useSlateScores(gameRows);
+  const read = g ? scores(g) : null;
+  const demoOn = useDemoState().on;
   const data = useGameData(slug, eventId);
   const [sp, setSp] = useSearchParams();
   const nav = useNavigate();
@@ -70,7 +78,8 @@ export function V4Game() {
   const research = data.data?.research ?? null;
   const detail = data.data?.detail ?? null;
   const stage = useStageColours(g, research);
-  const final = useFinal(g ?? ({ phase: 'PREGAME' } as GameRow), !!g);
+  const shown = shownState(read);
+  const final = useFinal(g ?? ({ phase: 'PREGAME' } as GameRow), !!g && !shown);
   const { facts } = useCardFacts((g ?? ({ sport: '', item: {}, opps: [], phase: 'PREGAME' } as unknown as GameRow)), !!g);
 
   const spec = useMemo(() => {
@@ -90,7 +99,8 @@ export function V4Game() {
   // does not switch tabs underneath the viewer.
   const gameKey = `${slug}:${eventId}`;
   const [auto, setAuto] = useState<{ key: string; tab: Tab } | null>(null);
-  if (g && auto?.key !== gameKey) setAuto({ key: gameKey, tab: defaultGameTab(g) });
+  // With the Live Score Demo on, wait for its first read so the default tab reflects what the screen shows (display only).
+  if (g && auto?.key !== gameKey && (!demoOn || read)) setAuto({ key: gameKey, tab: defaultGameTab(g, read) });
   const chosen = sp.get('tab');
   const tab: Tab = isGameTab(chosen) ? chosen : auto?.key === gameKey ? auto.tab : 'matchups';
   const setTab = (t: Tab) => setSp((p) => { const n = new URLSearchParams(p); n.set('tab', t); return n; }, { replace: true });
@@ -126,7 +136,8 @@ export function V4Game() {
       </div>
     );
   }
-  const status = isLiveGame(g) ? 'LIVE' : g.phase === 'FINAL' ? 'FINAL' : g.phase === 'STARTED' ? 'AWAITING RESULT' : g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'UPCOMING' : g.phase;
+  const liveNow = isLiveGame(g, read);
+  const status = shown === 'over' ? 'FINAL' : shown === 'upcoming' ? 'UPCOMING' : liveNow ? (read?.game ? liveWord(read) : 'LIVE') : g.phase === 'FINAL' ? 'FINAL' : g.phase === 'STARTED' ? 'AWAITING RESULT' : g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'UPCOMING' : g.phase;
   const venue = spec?.venue?.name ?? null;
   return (
     <div>
@@ -134,10 +145,10 @@ export function V4Game() {
         {header}
         <div className="v4-gctx">
           <span className="meta">{competitionWord(g.item.competition, sport)}{venue ? ` · ${venue}` : ''}</span>
-          <span className={`v4-badge${isLiveGame(g) ? ' v4-badge--live' : ''}`}>{status}</span>
+          <span className={`v4-badge${liveNow && status === 'LIVE' ? ' v4-badge--live' : ''}`}>{status}{read?.demo && (shown === 'live' || shown === 'over') ? ' · DEMO' : ''}</span>
         </div>
         <div className="v4-gboard">
-          <Scoreboard g={g} away={awayN} home={homeN} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} />
+          <Scoreboard g={g} away={awayN} home={homeN} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} read={read} />
         </div>
         <div className="v4-gstat">
           <span><i className={`v4-dot${quoted.length === 0 ? ' v4-dot--off' : fresh === 'FRESH' ? '' : ' v4-dot--stale'}`} />{priceLine(quoted.length, fresh, freshest)}</span>
@@ -159,12 +170,12 @@ export function V4Game() {
               setTab(TABS[to][0]);
               document.getElementById(`v4t-${TABS[to][0]}`)?.focus();
             }}>
-            {k === 'live' && isLiveGame(g) && <i className="v4-livedot" aria-hidden="true" />}{label}
+            {k === 'live' && liveNow && <i className="v4-livedot" aria-hidden="true" />}{label}
           </button>
         ))}
       </div>
       <div className="v4-panel" role="tabpanel" id="v4-panel" aria-labelledby={`v4t-${tab}`} tabIndex={-1}>
-        {tab === 'live' && <LiveTab g={g} final={final} spec={spec} research={research} awayN={awayN} homeN={homeN} />}
+        {tab === 'live' && <LiveTab g={g} final={final} spec={spec} research={research} awayN={awayN} homeN={homeN} read={read} demoOn={demoOn} />}
         {tab === 'matchups' && <MatchupsTab research={research} loading={data.loading} sport={sport} />}
         {tab === 'players' && <PlayersTab g={g} research={research} markets={quoted} detail={detail} sport={sport} now={now} />}
         {tab === 'markets' && <MarketsTab g={g} research={research} markets={quoted} detail={detail} now={now} settled={settled} />}
@@ -202,24 +213,32 @@ function Signals({ g, limit }: { g: GameRow; limit?: number }) {
 
 // ------------------------------------------------------------------ Live
 
-function LiveTab({ g, final, spec, research, awayN, homeN }: { g: GameRow; final: ReturnType<typeof useFinal>; spec: ReturnType<typeof resolveHero> | null; research: EventResearchDoc | null; awayN: string; homeN: string }) {
-  const live = isLiveGame(g);
-  const pre = g.phase === 'PREGAME' || g.phase === 'NO_START';
+function LiveTab({ g, final, spec, research, awayN, homeN, read, demoOn }: { g: GameRow; final: ReturnType<typeof useFinal>; spec: ReturnType<typeof resolveHero> | null; research: EventResearchDoc | null; awayN: string; homeN: string; read: ScoreRead | null; demoOn: boolean }) {
+  const shown = shownState(read);
+  const live = isLiveGame(g, read);
+  const pre = shown ? shown === 'upcoming' : g.phase === 'PREGAME' || g.phase === 'NO_START';
+  const feedFinal = shown === 'over';
   const wx = research && spec?.venue !== undefined ? weatherLine(gameWeather(research, spec?.venue ?? null)) : null;
   const when = Number.isFinite(g.startMs) ? new Date(g.startMs).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Time to be confirmed';
   return (
     <>
       <div className="v4-card">
-        <h3>{live ? 'In play' : pre ? 'Game day' : g.phase === 'FINAL' ? 'Final' : g.phase === 'STARTED' ? 'Started, no final yet' : g.phase === 'POSTPONED' ? 'Postponed' : g.phase === 'CANCELLED' ? 'Cancelled' : 'Suspended'}</h3>
+        <h3>{live ? 'In play' : pre ? 'Game day' : feedFinal || g.phase === 'FINAL' ? 'Final' : g.phase === 'STARTED' ? 'Started, no final yet' : g.phase === 'POSTPONED' ? 'Postponed' : g.phase === 'CANCELLED' ? 'Cancelled' : 'Suspended'}</h3>
         <div style={{ marginTop: 8 }}>
-          <div className="v4-kv"><span className="v4-kv__k">{pre ? 'Kickoff' : 'Started'}</span><span className="v4-kv__v">{when}</span></div>
+          <div className="v4-kv"><span className="v4-kv__k">{g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'Kickoff' : 'Started'}</span><span className="v4-kv__v">{when}</span></div>
           {spec?.venue && <div className="v4-kv"><span className="v4-kv__k">Venue</span><span className="v4-kv__v">{spec.venue.name}{spec.venue.city && <em>{spec.venue.city}{spec.venue.roof ? ` · ${spec.venue.roof}` : ''}</em>}</span></div>}
           {wx && <div className="v4-kv"><span className="v4-kv__k">Conditions</span><span className="v4-kv__v">{wx}</span></div>}
           {final && <div className="v4-kv"><span className="v4-kv__k">Result</span><span className="v4-kv__v">{final.winner === 'home' ? `${homeN} won ${final.home}–${final.away}` : final.winner === 'away' ? `${awayN} won ${final.away}–${final.home}` : `Tied ${final.home}–${final.away}`}<em>{awayN} {final.away} · {homeN} {final.home}</em></span></div>}
           {g.phase === 'FINAL' && !final && <div className="v4-kv"><span className="v4-kv__k">Final score</span><span className="v4-kv__v">Not published</span></div>}
         </div>
       </div>
-      {(live || g.phase === 'STARTED') && (
+      {read && <LiveScoreCard g={g} read={read} awayN={awayN} homeN={homeN} />}
+      {demoOn && read && !read.game && (
+        <Unavailable title="Live — score unavailable" icon="hourglass-medium">
+          The demo feed has no data for this game right now (a simulated condition, DEMO). The screen says so rather than showing a number; nothing is estimated.
+        </Unavailable>
+      )}
+      {!read?.game && !demoOn && (live || g.phase === 'STARTED') && (
         <Unavailable title="Live score, clock and plays are unavailable" icon="hourglass-medium">
           SIFT's published research does not carry a live score, game clock, down and distance or play-by-play. They appear here when the live-score feed is connected; nothing is estimated in the meantime.
         </Unavailable>

@@ -1,0 +1,328 @@
+{
+ "leagues": [
+  {
+   "id": "90",
+   "name": "National Hockey League",
+   "abbreviation": "NHL",
+   "slug": "nhl",
+   "logos": [
+    {
+     "href": "https://a.espncdn.com/i/teamlogos/leagues/500/nhl.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "default"
+     ],
+     "lastUpdated": "2018-06-05T12:07Z"
+    },
+    {
+     "href": "https://a.espncdn.com/i/teamlogos/leagues/500-dark/nhl.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "dark"
+     ],
+     "lastUpdated": "2021-08-10T20:37Z"
+    }
+   ],
+   "calendarType": "day",
+   "calendarIsWhitelist": true,
+   "calendarStartDate": "2026-09-15T07:00Z",
+   "calendarEndDate": "2027-07-01T06:59Z"
+  }
+ ],
+ "events": [
+  {
+   "id": "401892552",
+   "date": "2026-10-22T23:00Z",
+   "name": "Nashville Predators at Boston Bruins",
+   "shortName": "NSH @ BOS",
+   "competitions": [
+    {
+     "id": "401892552",
+     "date": "2026-10-22T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "competitors": [
+      {
+       "id": "1",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "1",
+        "location": "Boston",
+        "name": "Bruins",
+        "abbreviation": "BOS",
+        "displayName": "Boston Bruins",
+        "shortDisplayName": "Bruins",
+        "isActive": true
+       },
+       "score": "0",
+       "probables": [
+        {
+         "name": "probableStartingGoalie",
+         "displayName": "Probable Starting Goalie",
+         "shortDisplayName": "Starter",
+         "abbreviation": "SG",
+         "playerId": 4712036,
+         "athlete": {
+          "id": "4712036",
+          "fullName": "Jeremy Swayman",
+          "displayName": "Jeremy Swayman",
+          "shortName": "J. Swayman",
+          "jersey": "1",
+          "position": "G",
+          "team": {
+           "id": "1"
+          }
+         },
+         "status": {
+          "id": "101",
+          "name": "Expected",
+          "type": "expected",
+          "abbreviation": "Expected"
+         },
+         "record": ""
+        }
+       ],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "27",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "27",
+        "location": "Nashville",
+        "name": "Predators",
+        "abbreviation": "NSH",
+        "displayName": "Nashville Predators",
+        "shortDisplayName": "Predators",
+        "isActive": true
+       },
+       "score": "0",
+       "probables": [
+        {
+         "name": "probableStartingGoalie",
+         "displayName": "Probable Starting Goalie",
+         "shortDisplayName": "Starter",
+         "abbreviation": "SG",
+         "playerId": 3042109,
+         "athlete": {
+          "id": "3042109",
+          "fullName": "Juuse Saros",
+          "displayName": "Juuse Saros",
+          "shortName": "J. Saros",
+          "jersey": "74",
+          "position": "G",
+          "team": {
+           "id": "27"
+          }
+         },
+         "status": {
+          "id": "101",
+          "name": "Expected",
+          "type": "expected",
+          "abbreviation": "Expected"
+         },
+         "record": ""
+        }
+       ],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Thu, October 22nd at 7:00 PM EDT",
+       "shortDetail": "10/22 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-22T23:00Z",
+     "broadcast": "ESPN+"
+    }
+   ],
+   "status": {
+    "clock": 0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Thu, October 22nd at 7:00 PM EDT",
+     "shortDetail": "10/22 - 7:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401892553",
+   "date": "2026-10-22T23:00Z",
+   "name": "New York Rangers at Toronto Maple Leafs",
+   "shortName": "NYR @ TOR",
+   "competitions": [
+    {
+     "id": "401892553",
+     "date": "2026-10-22T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "competitors": [
+      {
+       "id": "21",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "21",
+        "location": "Toronto",
+        "name": "Maple Leafs",
+        "abbreviation": "TOR",
+        "displayName": "Toronto Maple Leafs",
+        "shortDisplayName": "Maple Leafs",
+        "isActive": true
+       },
+       "score": "0",
+       "probables": [
+        {
+         "name": "probableStartingGoalie",
+         "displayName": "Probable Starting Goalie",
+         "shortDisplayName": "Starter",
+         "abbreviation": "SG",
+         "playerId": 5571,
+         "athlete": {
+          "id": "5571",
+          "fullName": "Sergei Bobrovsky",
+          "displayName": "Sergei Bobrovsky",
+          "shortName": "S. Bobrovsky",
+          "jersey": "72",
+          "position": "G",
+          "team": {
+           "id": "21"
+          }
+         },
+         "status": {
+          "id": "101",
+          "name": "Expected",
+          "type": "expected",
+          "abbreviation": "Expected"
+         },
+         "record": ""
+        }
+       ],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "13",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "13",
+        "location": "New York",
+        "name": "Rangers",
+        "abbreviation": "NYR",
+        "displayName": "New York Rangers",
+        "shortDisplayName": "Rangers",
+        "isActive": true
+       },
+       "score": "0",
+       "probables": [
+        {
+         "name": "probableStartingGoalie",
+         "displayName": "Probable Starting Goalie",
+         "shortDisplayName": "Starter",
+         "abbreviation": "SG",
+         "playerId": 4697705,
+         "athlete": {
+          "id": "4697705",
+          "fullName": "Dylan Garand",
+          "displayName": "Dylan Garand",
+          "shortName": "D. Garand",
+          "jersey": "33",
+          "position": "G",
+          "team": {
+           "id": "13"
+          }
+         },
+         "status": {
+          "id": "101",
+          "name": "Expected",
+          "type": "expected",
+          "abbreviation": "Expected"
+         },
+         "record": ""
+        }
+       ],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Thu, October 22nd at 7:00 PM EDT",
+       "shortDetail": "10/22 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-22T23:00Z",
+     "broadcast": "ESPN+"
+    }
+   ],
+   "status": {
+    "clock": 0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Thu, October 22nd at 7:00 PM EDT",
+     "shortDetail": "10/22 - 7:00 PM EDT"
+    }
+   }
+  }
+ ]
+}

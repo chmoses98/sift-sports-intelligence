@@ -1,0 +1,238 @@
+{
+ "leagues": [
+  {
+   "id": "23",
+   "name": "NCAA - Football",
+   "abbreviation": "NCAAF",
+   "midsizeName": "NCAA Football",
+   "slug": "college-football",
+   "logos": [
+    {
+     "href": "https://a.espncdn.com/redesign/assets/img/icons/NCAASports_Football.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "default"
+     ],
+     "lastUpdated": "2026-09-17T20:36Z"
+    },
+    {
+     "href": "https://a.espncdn.com/redesign/assets/img/icons/NCAASports_Football.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "dark"
+     ],
+     "lastUpdated": "2026-09-17T20:36Z"
+    }
+   ],
+   "calendarType": "list",
+   "calendarIsWhitelist": true,
+   "calendarStartDate": "2026-02-01T08:00Z",
+   "calendarEndDate": "2027-01-28T07:59Z"
+  }
+ ],
+ "events": [
+  {
+   "id": "401869845",
+   "date": "2026-10-22T23:00Z",
+   "name": "James Madison Dukes at App State Mountaineers",
+   "shortName": "JMU @ APP",
+   "week": {
+    "number": 8
+   },
+   "competitions": [
+    {
+     "id": "401869845",
+     "date": "2026-10-22T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "dateValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "playByPlayAvailable": false,
+     "competitors": [
+      {
+       "id": "2026",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2026",
+        "location": "App State",
+        "name": "Mountaineers",
+        "abbreviation": "APP",
+        "displayName": "App State Mountaineers",
+        "shortDisplayName": "App State",
+        "isActive": true,
+        "conferenceId": "37"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "256",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "256",
+        "location": "James Madison",
+        "name": "Dukes",
+        "abbreviation": "JMU",
+        "displayName": "James Madison Dukes",
+        "shortDisplayName": "James Madison",
+        "isActive": true,
+        "conferenceId": "37"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Thu, October 22nd at 7:00 PM EDT",
+       "shortDetail": "10/22 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-22T23:00Z",
+     "broadcast": "ESPNU"
+    }
+   ],
+   "status": {
+    "clock": 0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Thu, October 22nd at 7:00 PM EDT",
+     "shortDetail": "10/22 - 7:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401871056",
+   "date": "2026-10-22T23:00Z",
+   "name": "Liberty Flames at Kennesaw State Owls",
+   "shortName": "LIB @ KENN",
+   "week": {
+    "number": 8
+   },
+   "competitions": [
+    {
+     "id": "401871056",
+     "date": "2026-10-22T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "dateValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "playByPlayAvailable": false,
+     "competitors": [
+      {
+       "id": "338",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "338",
+        "location": "Kennesaw State",
+        "name": "Owls",
+        "abbreviation": "KENN",
+        "displayName": "Kennesaw State Owls",
+        "shortDisplayName": "Kennesaw St",
+        "isActive": true,
+        "conferenceId": "12"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "2335",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "2335",
+        "location": "Liberty",
+        "name": "Flames",
+        "abbreviation": "LIB",
+        "displayName": "Liberty Flames",
+        "shortDisplayName": "Liberty",
+        "isActive": true,
+        "conferenceId": "12"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Thu, October 22nd at 7:00 PM EDT",
+       "shortDetail": "10/22 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-22T23:00Z",
+     "broadcast": "CBSSN"
+    }
+   ],
+   "status": {
+    "clock": 0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Thu, October 22nd at 7:00 PM EDT",
+     "shortDetail": "10/22 - 7:00 PM EDT"
+    }
+   }
+  }
+ ],
+ "week": {
+  "number": 8
+ }
+}

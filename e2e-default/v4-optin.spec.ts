@@ -137,6 +137,22 @@ test.describe('v4 early access', () => {
     expect(await manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
   });
 
+  test('the Home Screen steps read as a numbered list and the sheet fits the phone', async ({ page }) => {
+    await page.goto('#/v4');
+    await page.getByRole('button', { name: /^SIFT v4 early access: about/ }).click();
+    const dlg = page.getByRole('dialog', { name: 'SIFT v4 early access' });
+    const steps = dlg.locator('.v4-ea__steps');
+    await expect(steps.locator('li')).toHaveCount(3);
+    // markers must actually render (a list reset once hid them): the list shows decimal numbering
+    expect(await steps.evaluate((el) => getComputedStyle(el).listStyleType)).toBe('decimal');
+    expect(await steps.locator('li').first().evaluate((el) => getComputedStyle(el).display)).toBe('list-item');
+    await dlg.getByRole('button', { name: 'Keep v4 on this device' }).waitFor();
+    for (const b of await dlg.getByRole('button').all()) {
+      const box = (await b.boundingBox())!;
+      expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(43.5);
+    }
+  });
+
   test('in the Home Screen app the icon is the choice: no prompt, and the sheet says which app this is', async ({ page }) => {
     await page.addInitScript(() => { Object.defineProperty(navigator, 'standalone', { value: true, configurable: true }); });
     await page.goto('#/v4');

@@ -90,6 +90,24 @@ describe('SportScore real NBA results', () => {
   });
 });
 
+describe('SportScore basketball in play, as recorded', () => {
+  // The recorded games are not NBA; only the competition name is changed so the NBA filter admits them.
+  const asNba = (m: Record<string, unknown>) => ({ ...m, competition: 'National Basketball Association' });
+  it('reads a game in play: live, scores from numeric strings, the quarter as a label, and no invented clock', () => {
+    const body = fx('sportscore-live-basketball.json');
+    const [a, b] = parseSportscore('NBA', { ...body, matches: body.matches.map(asNba) }, AT);
+    expect(a).toMatchObject({ phase: 'LIVE', score: { home: 73, away: 70 } });
+    expect(a.clock).toMatchObject({ periodLabel: '4th quarter', display: null, seconds: null, running: null });
+    expect(b).toMatchObject({ phase: 'LIVE', score: { home: 2, away: 11 } });
+    expect(b.clock?.periodLabel).toBe('1st quarter');
+  });
+  it('a live row without a score shows no score rather than 0-0', () => {
+    const body = fx('sportscore-live-basketball.json');
+    const m = asNba({ ...body.matches[0], home_score: null, away_score: '' });
+    expect(parseSportscore('NBA', { ...body, matches: [m] }, AT)[0].score).toBeNull();
+  });
+});
+
 describe('SportScore tennis, as recorded from real matches', () => {
   const row = (status: string, home_score: number, away_score: number, status_text: string | null = null) => ({
     matches: [{ home: 'Sandro Kopp', away: 'Samuele Pieri', time: '2026-10-22T13:20:00Z', status, status_text, home_score, away_score, slug: 'kopp-pieri' }],

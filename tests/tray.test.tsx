@@ -51,3 +51,18 @@ describe('research tray', () => {
     expect(loadStored().tray).toEqual(tray);
   });
 });
+
+describe('providers in one page share one tray', () => {
+  it('a save written by one TrayProvider appears in another without a reload', async () => {
+    const { render: r, screen: sc, fireEvent: fe, act, cleanup } = await import('@testing-library/react');
+    cleanup();
+    const { TrayProvider: TP, useTray: useT } = await import('../src/state/tray');
+    localStorage.clear();
+    const Probe = ({ tag }: { tag: string }) => { const t = useT(); return <><span data-testid={`n-${tag}`}>{t.tray.items.length}</span>{tag === 'a' && <button onClick={() => t.add({ ref_kind: 'MARKET', sport: 'NFL', id: 'mkt_x', extra: { market_id: 'mkt_x' }, label: { label: 'X', href: '/x' } })}>add</button>}</>; };
+    r(<><TP><Probe tag="a" /></TP><TP><Probe tag="b" /></TP></>);
+    expect(sc.getByTestId('n-b').textContent).toBe('0');
+    await act(async () => { fe.click(sc.getByText('add')); });
+    expect(sc.getByTestId('n-a').textContent).toBe('1');
+    expect(sc.getByTestId('n-b').textContent).toBe('1');
+  });
+});

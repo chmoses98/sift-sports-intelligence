@@ -85,6 +85,9 @@ jobs:
           # Optional read-only quote relay (relay/README.md). A public URL, not a secret; unset means
           # Sift reads quotes from the GitHub Actions quote feed only.
           VITE_SIFT_QUOTE_RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
+          # Pause switch for v4 early access: set the repository variable SIFT_V4 to "off", then re-run this workflow (docs/v4/ROLLBACK.md).
+          # Unset or any other value leaves v4 available at #/v4; SIFT 2.0 is the default either way.
+          VITE_SIFT_V4: ${{ vars.SIFT_V4 }}
       - name: Build identity (the Production check compares the deployed SHA with the one this run deployed)
         run: |
           printf '{"sha":"%s","run_id":"%s","built_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/version.json

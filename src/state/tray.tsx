@@ -20,6 +20,12 @@ export interface TrayLabel {
    * saved" compares this same ticker only — a different threshold is a different contract, never a price move).
    */
   market?: MarketSnapshot | null;
+  /**
+   * Which side of the market was selected when the viewer saved it. Absent on older saves, which are read as YES
+   * (the side the saved ticker's headline price has always been). Set by v4 so My Board states and tracks the
+   * selected outcome, never the other one.
+   */
+  side?: 'YES' | 'NO';
   /** When the item was saved (ISO); older saves fall back to the tray item's added_at. */
   savedAt?: string;
 }
@@ -65,6 +71,13 @@ export interface TrayAdd {
   eventStatus?: string | null;
 }
 
+/** A removed tray item exactly as it was stored, with where it sat: enough to put it back unchanged (identity, time, note, price snapshot, side). */
+export interface RemovedEntry {
+  item: TrayItem;
+  label: TrayLabel | undefined;
+  index: number;
+}
+
 interface TrayApi {
   tray: TrayDoc;
   labels: Record<string, TrayLabel>;
@@ -73,6 +86,11 @@ interface TrayApi {
   /** null when refused (the game has kicked off and the item is not already saved). */
   add: (a: TrayAdd) => TrayItem | null;
   remove: (itemId: string) => void;
+  /**
+   * Put a removed item back verbatim: the same item_id, added_at, note, label (side, saved time, price snapshot) and position.
+   * Nothing is re-created, so nothing gets a new timestamp. If the same item was saved again meanwhile it is left as it is.
+   */
+  restore: (removed: RemovedEntry) => void;
   clear: () => void;
   has: (ref_kind: RefKind, id: string, extra?: Partial<TrayExtra> | null) => boolean;
   setNote: (itemId: string, note: string) => void;
@@ -100,6 +118,20 @@ export function saveStored(s: Stored, storage: Storage | undefined = globalThis.
   }
 }
 
+/**
+ * Write a note straight to storage, now. For the moments a page is hidden or unloaded (the phone switches apps, a new deploy reloads
+ * the page): the provider persists in an effect after a state update, and that effect may never get to run. Only the note changes
+ * (blank is no note, as in `setNote`): the item keeps its identity, time, label and place.
+ */
+export function persistNoteNow(itemId: string, note: string, storage: Storage | undefined = globalThis.localStorage): void {
+  const s = loadStored(storage);
+  if (!s.tray.items.some((i) => i.item_id === itemId)) return;
+  saveStored({ tray: makeTray(s.tray.items.map((i) => (i.item_id === itemId ? { ...i, note: note.trim() ? note : null } : i)), new Date()), labels: s.labels }, storage);
+}
+
+/** Fired on `window` after any provider in this page writes the tray, so every provider shows the same one. */
+const TRAY_CHANGED = 'sift:tray-changed';
+
 const Ctx = createContext<TrayApi | null>(null);
 
 export function TrayProvider({ children }: { children: ReactNode }) {
@@ -107,7 +139,18 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
-  useEffect(() => saveStored(stored), [stored]);
+  useEffect(() => {
+    saveStored(stored);
+    window.dispatchEvent(new Event(TRAY_CHANGED));
+  }, [stored]);
+
+  // Another provider in this same page wrote the tray (the app mounts one for the classic interfaces and v4 mounts its own): the
+  // browser's `storage` event fires only in OTHER tabs, so without this a save made in v4 would not show on My Board until a reload.
+  useEffect(() => {
+    const on = () => setStored((cur) => { const next = loadStored(); return JSON.stringify(cur) === JSON.stringify(next) ? cur : next; });
+    window.addEventListener(TRAY_CHANGED, on);
+    return () => window.removeEventListener(TRAY_CHANGED, on);
+  }, []);
 
   // Another tab changed the tray.
   useEffect(() => {
@@ -139,6 +182,15 @@ export function TrayProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const restore = useCallback((r: RemovedEntry) => {
+    setStored((s) => {
+      if (s.tray.items.some((i) => i.item_id === r.item.item_id)) return s;
+      const items = [...s.tray.items];
+      items.splice(Math.min(Math.max(r.index, 0), items.length), 0, r.item);
+      return { tray: makeTray(items, new Date()), labels: r.label ? { ...s.labels, [r.item.item_id]: r.label } : s.labels };
+    });
+  }, []);
+
   const clear = useCallback(() => setStored({ tray: makeTray([], new Date()), labels: {} }), []);
 
   const setNote = useCallback((itemId: string, note: string) => {
@@ -157,8 +209,8 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   );
 
   const api = useMemo<TrayApi>(
-    () => ({ tray: stored.tray, labels: stored.labels, open, setOpen, add, remove, clear, has, setNote, lastAdded }),
-    [stored, open, add, remove, clear, has, setNote, lastAdded],
+    () => ({ tray: stored.tray, labels: stored.labels, open, setOpen, add, remove, restore, clear, has, setNote, lastAdded }),
+    [stored, open, add, remove, restore, clear, has, setNote, lastAdded],
   );
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }

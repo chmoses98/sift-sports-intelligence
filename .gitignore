@@ -11,6 +11,7 @@ production-*.png
 review/
 .curation-tmp/
 dist-default
+dist-lan
 
 __pycache__/
 *.pyc

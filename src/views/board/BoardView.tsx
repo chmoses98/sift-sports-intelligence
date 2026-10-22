@@ -73,16 +73,19 @@ function PriceThenNow({ e, quote, now }: { e: BoardEntry; quote: Quote; now: num
   const snap = e.label?.market;
   if (!snap) return <span className="bprice bprice--none">—</span>;
   const q = quote(snap.ticker);
-  const d = snap.yesAsk != null && q?.yesAsk != null ? Math.round((q.yesAsk - snap.yesAsk) * 100) : null;
+  const side = e.label?.side ?? 'YES';
+  const then = side === 'NO' ? snap.noAsk : snap.yesAsk;
+  const cur = side === 'NO' ? q?.noAsk : q?.yesAsk;
+  const d = then != null && cur != null ? Math.round((cur - then) * 100) : null;
   return (
     <span className="bprice">
       <span className="bprice__pair">
-        <span className="bprice__then" title="YES ask when you saved it">{cents(snap.yesAsk)}</span>
+        <span className="bprice__then" title={`${side} ask when you saved it`}>{cents(then)}</span>
         <Icon name="arrowRight" size={12} />
-        <b className="fx-num bprice__now" title="Latest YES ask for the same contract">{q?.yesAsk != null ? cents(q.yesAsk) : '—'}</b>
+        <b className="fx-num bprice__now" title={`Latest ${side} ask for the same contract`}>{cur != null ? cents(cur) : '—'}</b>
         {d != null && <span className={`bprice__d bprice__d--${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}`}>{d > 0 ? '+' : d < 0 ? '−' : '±'}{Math.abs(d)}¢</span>}
       </span>
-      <span className={`tm-fresh tm-fresh--${quoteFreshness(q?.observedAt ?? null, now).toLowerCase()}`}>{q ? formatQuoteAgo(quoteAgeMs(q.observedAt, now)) : snap.yesAsk == null ? 'no quote when saved' : 'no current quote'}</span>
+      <span className={`tm-fresh tm-fresh--${quoteFreshness(q?.observedAt ?? null, now).toLowerCase()}`}>{q ? formatQuoteAgo(quoteAgeMs(q.observedAt, now)) : then == null ? 'no quote when saved' : 'no current quote'}</span>
     </span>
   );
 }
@@ -118,7 +121,7 @@ function updatesFor(g: GameGroup, board: BoardItem | undefined, quote: Quote): G
     const snap = e.label?.market;
     if (!snap) continue;
     const q = quote(snap.ticker);
-    const c = marketChange(snap, q);
+    const c = marketChange(snap, q, e.label?.side);
     if (!c || c.kind !== 'price' || !/ up | down /.test(` ${c.text} `)) continue;
     out.push({ key: `${g.key}:${e.item.item_id}`, game: g, change: { ...c, text: `${e.label?.label ?? 'Saved market'}: ${c.text}` }, dir: /\bup\b/.test(c.text) ? 'up' : 'down', at: q?.observedAt ?? null });
   }

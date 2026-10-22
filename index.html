@@ -15,6 +15,21 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   </head>
   <body>
+    <script>
+      /* Opened on #/v4: this page installs as its own Home Screen app, "SIFT v4", which launches v4 (src/lib/installIdentity.ts keeps it
+         right as the address changes in the app). Runs here, not in the head: the build adds the manifest link at the end of the head.
+         On any other address nothing changes. */
+      (function () {
+        try {
+          if (!/^#\/v4(?:[\/?]|$)|[?&]ui=v4(?:&|$)/.test(location.hash + location.search)) return;
+          var link = document.querySelector('link[rel="manifest"]');
+          if (link) link.setAttribute('href', link.getAttribute('href').replace(/manifest\.webmanifest$/, 'manifest-v4.webmanifest'));
+          var title = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+          if (title) title.setAttribute('content', 'SIFT v4');
+          document.title = 'SIFT v4 \u00b7 early access';
+        } catch (e) { /* the page still works as SIFT */ }
+      })();
+    </script>
     <div id="root"></div>
     <noscript>Sift needs JavaScript: it reads the published research files directly in your browser.</noscript>
     <script type="module" src="/src/main.tsx"></script>

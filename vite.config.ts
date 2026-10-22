@@ -30,11 +30,53 @@ function preloadBarlow(): Plugin {
 // that base. Routing is hash-based (#/nfl/game/…), so deep links never hit the static server.
 const base = process.env.SIFT_BASE ?? '/sift-sports-intelligence/';
 
+/** The commit a build was made from, short ("dev" outside CI): v4's early-access sheet shows it so a phone can say which copy it runs. */
+const build = (process.env.GITHUB_SHA ?? '').slice(0, 7) || 'dev';
+
+/**
+ * v4's own Home Screen identity: a second manifest, "SIFT v4", that launches #/v4. index.html and src/lib/installIdentity.ts select it
+ * when the page is opened on v4; SIFT's own manifest (above, from VitePWA) is untouched and stays the default for every other address.
+ */
+function v4Manifest(): Plugin {
+  return {
+    name: 'sift-v4-manifest',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'manifest-v4.webmanifest',
+        source: JSON.stringify({
+          id: `${base}?app=v4`,
+          name: 'SIFT v4 (early access)',
+          short_name: 'SIFT v4',
+          description: 'SIFT v4 early access: a phone-first view of the published research. Research only, not betting advice.',
+          start_url: `${base}#/v4`,
+          scope: base,
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#07080b',
+          theme_color: '#07080b',
+          lang: 'en',
+          categories: ['sports', 'news', 'productivity'],
+          icons: [
+            { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+            { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+            { src: 'icons/sift.svg', sizes: 'any', type: 'image/svg+xml' },
+          ],
+        }),
+      });
+    },
+  };
+}
+
 export default defineConfig({
   base,
+  define: { __SIFT_BUILD__: JSON.stringify(build) },
   plugins: [
     react(),
     preloadBarlow(),
+    v4Manifest(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,

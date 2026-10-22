@@ -73,3 +73,11 @@ Chromium as Pixel 7 and desktop, WebKit as iPhone 15 Pro; 2026-10-22 16:00 to 16
 
 Not yet verified, and therefore not claimed: live NBA from SportScore (period and clock fields), and every ESPN sport in play (NHL, NBA, NFL Thursday night NE at CHI, CFB). The evening run
 covers exactly these games (NHL 23:00 UTC, NBA 23:00 to 02:30, NFL 00:15, CFB 23:00).
+
+## 4. Using it and turning it off
+
+- **Where:** SIFT v4 (`#/v4`), early access. Real scores are on by default: games in play show a score, a period label and how old it is; finals show Final; the source line under the slate names SportScore and carries its credit.
+- **Turn off:** "Turn off" in the source line on Home and Games, or Early access, Live scores, "Turn off live scores". `?livescores=0` also does it for that device, and `?livescores=1` turns it back on. The choice is remembered on the device. While off, nothing is requested.
+- **What is never shown:** a score for a game that is not matched by both teams, orientation and start time; a live tennis score; NFL, college football and NHL scores (no feed whose published terms permit this use); any estimate.
+- **Honest states:** "not answering" when the feed fails (the last answer stays, aged), "Updated Nm ago" when the answer is older than a minute, "Stale" after five, and "score unavailable" when a game cannot be matched.
+- **SIFT 2.0** never reads the feed.

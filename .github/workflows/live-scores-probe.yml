@@ -1,0 +1,85 @@
+name: Live-score feed probe (evaluation only)
+
+# A read-only probe of the candidate FREE score feeds, run from a GitHub runner (which, unlike the build sandbox, can reach them).
+# It fetches each scoreboard once (or, in `watch` mode, polls and logs every change), saves the real responses and the terms pages that
+# govern them, and publishes a report to the `live-scores-probe` branch for review. It publishes nothing to SIFT's app and is not
+# part of CI. Mode is read from scripts/live-scores/probe-config.json so a push can start it (workflow_dispatch needs the workflow on main).
+on:
+  push:
+    branches: ['claude/live-scores-real']
+    paths:
+      - 'scripts/live-scores/**'
+      - '.github/workflows/live-scores-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-scores-probe
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/live-scores
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read the mode
+        id: cfg
+        run: |
+          echo "mode=$(node -p "require('./scripts/live-scores/probe-config.json').mode")" >> "$GITHUB_OUTPUT"
+          echo "minutes=$(node -p "require('./scripts/live-scores/probe-config.json').minutes")" >> "$GITHUB_OUTPUT"
+          echo "interval=$(node -p "require('./scripts/live-scores/probe-config.json').interval")" >> "$GITHUB_OUTPUT"
+          echo "payloads=$(node -p "require('./scripts/live-scores/probe-config.json').publishPayloads")" >> "$GITHUB_OUTPUT"
+      - name: Probe (once)
+        if: steps.cfg.outputs.mode == 'once'
+        run: node scripts/live-scores/probe.mjs once --out "$RUNNER_TEMP/out"
+      - name: Probe (watch), publishing the log every 10 minutes
+        if: steps.cfg.outputs.mode == 'watch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          publish() {
+            ( cd "$RUNNER_TEMP/pub" && rm -rf .git && git init -q -b live-scores-probe \
+              && git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com" \
+              && git add -A && git commit -qm "probe $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              && git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" live-scores-probe ) || true
+          }
+          mkdir -p "$RUNNER_TEMP/out" "$RUNNER_TEMP/pub"
+          node scripts/live-scores/probe.mjs watch --out "$RUNNER_TEMP/out" --minutes "${{ steps.cfg.outputs.minutes }}" --interval "${{ steps.cfg.outputs.interval }}" &
+          pid=$!
+          while kill -0 $pid 2>/dev/null; do
+            sleep 600
+            cp -f "$RUNNER_TEMP/out/watch.jsonl" "$RUNNER_TEMP/pub/" 2>/dev/null || true
+            publish
+          done
+          cp -f "$RUNNER_TEMP/out/watch.jsonl" "$RUNNER_TEMP/pub/" 2>/dev/null || true
+          wait $pid || true
+      - name: Publish the report to the live-scores-probe branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/pub" "$RUNNER_TEMP/out"
+          cd "$RUNNER_TEMP/out"
+          for f in report.json watch.jsonl; do [ -f "$f" ] && cp -f "$f" "$RUNNER_TEMP/pub/"; done
+          [ -d terms ] && mkdir -p "$RUNNER_TEMP/pub/terms" && cp -f terms/*.txt "$RUNNER_TEMP/pub/terms/" 2>/dev/null || true
+          [ -d samples ] && mkdir -p "$RUNNER_TEMP/pub/samples" && cp -f samples/*.json "$RUNNER_TEMP/pub/samples/" 2>/dev/null || true
+          if [ "${{ steps.cfg.outputs.payloads }}" = "true" ] && [ -d payloads ]; then mkdir -p "$RUNNER_TEMP/pub/payloads" && cp -f payloads/* "$RUNNER_TEMP/pub/payloads/"; fi
+          cd "$RUNNER_TEMP/pub"
+          rm -rf .git && git init -q -b live-scores-probe \
+            && git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com" \
+            && git add -A && git commit -qm "probe $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            && git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" live-scores-probe
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-scores-probe
+          path: ${{ runner.temp }}/out
+          retention-days: 7

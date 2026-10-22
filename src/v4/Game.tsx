@@ -20,8 +20,9 @@ import { propBoard } from '../insights/propBoard';
 import { useAuthority } from '../data/projections';
 import { CfbPlayerProjections, CfbTeamProjections, NbaPlayerProjections } from './ProjectionPanels';
 import { gameScripts, sharePct } from '../lib/scripts';
+import { scriptMarketRows, scriptFitLine } from './scriptMarkets';
 import { gameWeather, weatherLine } from '../views/game/Hero';
-import { marketLabel, priceRow, centsText, type PriceRow } from '../lib/gamedata';
+import { marketLabel, priceRow, centsText, fitNames, type PriceRow } from '../lib/gamedata';
 import { latestPrices } from '../components/MarketBoard';
 import { teamName } from '../components/sift2/GameList';
 import { competitionWord, type GameRow } from '../views/broadcast/games';
@@ -166,7 +167,7 @@ export function V4Game() {
       </div>
       <div className="v4-panel" role="tabpanel" id="v4-panel" aria-labelledby={`v4t-${tab}`} tabIndex={-1}>
         {tab === 'live' && <LiveTab g={g} final={final} spec={spec} research={research} awayN={awayN} homeN={homeN} />}
-        {tab === 'matchups' && <>{g.sport === 'CFB' && <CfbTeamProjections g={g} />}<MatchupsTab research={research} loading={data.loading} sport={sport} /></>}
+        {tab === 'matchups' && <>{g.sport === 'CFB' && <CfbTeamProjections g={g} />}<MatchupsTab research={research} loading={data.loading} sport={sport} onMarkets={() => setTab('markets')} /></>}
         {tab === 'players' && (g.sport === 'NBA' ? <NbaPlayerProjections g={g} /> : g.sport === 'CFB' ? <CfbPlayerProjections g={g} /> : <PlayersTab g={g} research={research} markets={quoted} detail={detail} sport={sport} now={now} />)}
         {tab === 'markets' && <MarketsTab g={g} research={research} markets={quoted} detail={detail} now={now} settled={settled} />}
       </div>
@@ -238,7 +239,7 @@ function LiveTab({ g, final, spec, research, awayN, homeN }: { g: GameRow; final
 
 // ------------------------------------------------------------------ Matchups
 
-function MatchupsTab({ research, loading, sport }: { research: EventResearchDoc | null; loading: boolean; sport: string }) {
+function MatchupsTab({ research, loading, sport, onMarkets }: { research: EventResearchDoc | null; loading: boolean; sport: string; onMarkets: () => void }) {
   const sides = useMemo(() => (research ? gameSides(research) : null), [research]);
   const insights = useMemo(() => (research && sides ? matchupInsights(research, {}, sides).slice(0, 5) : []), [research, sides]);
   const scripts = useMemo(() => (research ? gameScripts(research) : null), [research]);
@@ -277,6 +278,7 @@ function MatchupsTab({ research, loading, sport }: { research: EventResearchDoc 
                 </li>
               ))}
             </ul>
+            <button type="button" className="v4-btn v4-btn--sec" style={{ marginTop: 14, width: '100%' }} onClick={onMarkets}>Compare these scripts with priced game lines</button>
           </div>
         </section>
       )}
@@ -318,7 +320,11 @@ const GROUP_WORD: Record<string, string> = { spreads: 'Winner and spread', total
 function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow; research: EventResearchDoc | null; markets: Market[]; detail: { markets: Market[]; model_prices: Parameters<typeof latestPrices>[0] } | null; now: number; settled: boolean }) {
   const [picked, setGroup] = useState<string | null>(null);
   const [more, setMore] = useState(false);
+  const [moreScripts, setMoreScripts] = useState(false);
   const prices = useMemo(() => latestPrices(detail?.model_prices ?? []), [detail]);
+  const scripts = useMemo(() => (research ? gameScripts(research) : null), [research]);
+  const homeId = research?.participants.find((p) => p.home_away === 'HOME')?.participant_id ?? null;
+  const awayId = research?.participants.find((p) => p.home_away === 'AWAY')?.participant_id ?? null;
   const rows = useMemo<PriceRow[]>(() => {
     if (!research) return [];
     const home = research.participants.find((p) => p.home_away === 'HOME');
@@ -327,6 +333,7 @@ function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow
     return markets.map((m) => priceRow(m, prices, marketLabel(m, abbr, () => null), null))
       .sort((a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group));
   }, [markets, prices, research]);
+  const scripted = useMemo(() => scriptMarketRows(markets, prices, scripts, homeId, awayId, now), [markets, prices, scripts, homeId, awayId, now]);
   const groups = useMemo(() => GROUP_ORDER.filter((k) => rows.some((r) => r.group === k)), [rows]);
   // Game lines first: the main winner / spread / total markets, not eight hundred alternates.
   const group = picked ?? groups[0] ?? 'all';
@@ -335,6 +342,30 @@ function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow
   return (
     <>
       <Signals g={g} />
+      {scripts && scripted.length > 0 && (
+        <section aria-label="Game scripts compared with market contracts">
+          <header className="v4-sechead"><h2>Scripts meet the markets</h2><span className="v4-sechead__n">{scripted.length}</span></header>
+          <p className="meta" style={{ padding: '0 16px 10px' }}>Both sides of current full-game winner/spread contracts, matched to published simulated margin scenarios. This is scenario compatibility, not calibrated win probability, an edge, or a bet recommendation.</p>
+          <ul className="v4-grp">
+            {(moreScripts ? scripted : scripted.slice(0, 4)).map((s) => {
+              const label = rows.find((r) => r.m.market_id === s.market.market_id)?.label ?? s.market.yes_description;
+              const d = s.modelMinusBreakEven;
+              return (
+                <li key={`${s.market.market_id}:${s.side}`} className="v4-quote">
+                  <span className="v4-quote__t">
+                    <b>{s.side} · {label}</b>
+                    <span>{scriptFitLine(s)}</span>
+                    <span>{fitNames(s.fit, scripts)}</span>
+                    <span>{d == null ? 'No published model fair value on this side' : `Model minus fee-inclusive break-even: ${d > 0 ? '+' : ''}${Math.round(d * 100)} pp (research only)`}</span>
+                  </span>
+                  <span className="v4-px" aria-label={`${s.side} ask ${centsText(s.ask)}`}>{centsText(s.ask)}<small>{s.side}</small></span>
+                </li>
+              );
+            })}
+          </ul>
+          {scripted.length > 4 && <div style={{ padding: '10px 16px 0' }}><button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%' }} aria-expanded={moreScripts} onClick={() => setMoreScripts((v) => !v)}>{moreScripts ? 'Show fewer script matches' : `Show all ${scripted.length} current script-side comparisons`}</button></div>}
+        </section>
+      )}
       <section aria-label="Kalshi markets">
         <header className="v4-sechead"><h2>Kalshi markets</h2><span className="v4-sechead__n">{rows.length}</span></header>
         {rows.length === 0 ? (

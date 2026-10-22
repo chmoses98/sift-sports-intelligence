@@ -6,6 +6,7 @@ name: Live-score feed probe (evaluation only)
 #   watch         poll the raw scoreboards and log every change
 #   verify        run the production adapters and matcher against the real boards and real feeds once, and cross-check scores
 #   verify-watch  the same, polling for N minutes through live games: every score/period/clock change per source, latency, accuracy
+#   oracle-test   whether the NBA's own scoreboard can be read from the runner (verification only)
 #   browser       the built app in real Chromium and WebKit with real internet: live scores on, screenshots, requests, CORS, console errors
 # Results go to the `live-scores-probe` branch for review. Nothing here publishes to SIFT's app, and it is not part of CI.
 on:
@@ -79,7 +80,7 @@ jobs:
 
   verify:
     needs: config
-    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser'
+    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser' || needs.config.outputs.mode == 'oracle-test'
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
@@ -99,6 +100,13 @@ jobs:
           cat "$RUNNER_TEMP/preview.log"
           mkdir -p "$RUNNER_TEMP/out"
           node scripts/live-scores/real-browser.mjs http://localhost:4199/sift-sports-intelligence/ "$RUNNER_TEMP/out"
+      - name: Can the NBA's own scoreboard be read from here (oracle test)
+        if: needs.config.outputs.mode == 'oracle-test'
+        run: |
+          npx playwright install --with-deps chromium
+          mkdir -p "$RUNNER_TEMP/out" "$RUNNER_TEMP/oracle"
+          node scripts/live-scores/oracle-nba.mjs "$RUNNER_TEMP/oracle" --once
+          cp "$RUNNER_TEMP/oracle/oracle-first.json" "$RUNNER_TEMP/out/"
       - name: Verify once (production adapters and matcher against the real boards and feeds)
         if: needs.config.outputs.mode == 'verify'
         env:

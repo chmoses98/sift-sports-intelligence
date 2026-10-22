@@ -2,7 +2,7 @@
 # Force-push the evidence files in $1 to the `live-scores-probe` branch (an evaluation branch: it is not part of the app and is deleted when the work is done).
 set -u
 SRC="$1"; PUB="$(mktemp -d)"; BR="${PROBE_BRANCH:-live-scores-probe}"
-for f in report.json live-verify.json watch.jsonl watch-summary.json real-browser.json; do [ -f "$SRC/$f" ] && cp -f "$SRC/$f" "$PUB/"; done
+for f in report.json live-verify.json watch.jsonl watch-summary.json real-browser.json oracle-first.json; do [ -f "$SRC/$f" ] && cp -f "$SRC/$f" "$PUB/"; done
 [ -d "$SRC/terms" ] && mkdir -p "$PUB/terms" && cp -f "$SRC"/terms/*.txt "$PUB/terms/" 2>/dev/null
 for f in "$SRC"/*.png; do [ -f "$f" ] && mkdir -p "$PUB/shots" && cp -f "$f" "$PUB/shots/"; done
 [ -d "$SRC/samples" ] && mkdir -p "$PUB/samples" && cp -f "$SRC"/samples/*.json "$PUB/samples/" 2>/dev/null

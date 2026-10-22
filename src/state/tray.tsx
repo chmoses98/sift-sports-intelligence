@@ -20,6 +20,12 @@ export interface TrayLabel {
    * saved" compares this same ticker only — a different threshold is a different contract, never a price move).
    */
   market?: MarketSnapshot | null;
+  /**
+   * Which side of the market was selected when the viewer saved it. Absent on older saves, which are read as YES
+   * (the side the saved ticker's headline price has always been). Set by v4 so My Board states and tracks the
+   * selected outcome, never the other one.
+   */
+  side?: 'YES' | 'NO';
   /** When the item was saved (ISO); older saves fall back to the tray item's added_at. */
   savedAt?: string;
 }
@@ -100,6 +106,9 @@ export function saveStored(s: Stored, storage: Storage | undefined = globalThis.
   }
 }
 
+/** Fired on `window` after any provider in this page writes the tray, so every provider shows the same one. */
+const TRAY_CHANGED = 'sift:tray-changed';
+
 const Ctx = createContext<TrayApi | null>(null);
 
 export function TrayProvider({ children }: { children: ReactNode }) {
@@ -107,7 +116,18 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
-  useEffect(() => saveStored(stored), [stored]);
+  useEffect(() => {
+    saveStored(stored);
+    window.dispatchEvent(new Event(TRAY_CHANGED));
+  }, [stored]);
+
+  // Another provider in this same page wrote the tray (the app mounts one for the classic interfaces and v4 mounts its own): the
+  // browser's `storage` event fires only in OTHER tabs, so without this a save made in v4 would not show on My Board until a reload.
+  useEffect(() => {
+    const on = () => setStored((cur) => { const next = loadStored(); return JSON.stringify(cur) === JSON.stringify(next) ? cur : next; });
+    window.addEventListener(TRAY_CHANGED, on);
+    return () => window.removeEventListener(TRAY_CHANGED, on);
+  }, []);
 
   // Another tab changed the tray.
   useEffect(() => {

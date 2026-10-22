@@ -10,6 +10,7 @@
 import type { GamePhase, LiveClock, LiveGame, LiveScoreProvider, LiveSport, ObservedEvent, ProviderBatch } from '../types';
 import { ScoreProviderError } from '../types';
 import { teamKey } from '../identity';
+import { withDeadline } from './net';
 
 // Provider JSON is untrusted and shape-unchecked here; every read below is guarded.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,11 +103,12 @@ export function sportscoreProvider(o: SportscoreOptions): LiveScoreProvider {
       let fetchedAt = new Date(now()).toISOString();
       for (const day of days) {
         let res: Response;
+        const dl = withDeadline(signal);
         try {
-          res = await fetchImpl(`${BASE}?sport=${s}&date=${day}&limit=200&src=sift-personal`, { signal });
+          res = await fetchImpl(`${BASE}?sport=${s}&date=${day}&limit=200&src=sift-personal`, { signal: dl.signal });
         } catch (e) {
-          throw new ScoreProviderError(e instanceof Error && e.name === 'TimeoutError' ? 'timeout' : 'network', String(e));
-        }
+          throw new ScoreProviderError(dl.signal.aborted && (dl.signal.reason as Error | undefined)?.name === 'TimeoutError' ? 'timeout' : 'network', String(e));
+        } finally { dl.done(); }
         fetchedAt = new Date(now()).toISOString();
         if (res.status === 429) throw new ScoreProviderError('rate_limited', 'SportScore 429', 429, Number(res.headers.get('retry-after') ?? 60) * 1000);
         if (!res.ok) throw new ScoreProviderError('http', `SportScore HTTP ${res.status}`, res.status);

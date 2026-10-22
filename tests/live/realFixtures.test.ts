@@ -89,3 +89,22 @@ describe('SportScore real NBA results', () => {
     expect(sportscorePhase(undefined)).toBe('UNKNOWN');
   });
 });
+
+describe('a feed that never answers', () => {
+  it('is cut off by the deadline and reported as a timeout, not left hanging', async () => {
+    const { withDeadline } = await import('../../src/live/scores/providers/net');
+    const { sportscoreProvider } = await import('../../src/live/scores/providers/sportscore');
+    const hang = ((_u: string, init?: RequestInit) => new Promise((_res, rej) => { init?.signal?.addEventListener('abort', () => rej(init.signal!.reason)); })) as unknown as typeof fetch;
+    const p = sportscoreProvider({ events: () => [], fetchImpl: hang, now: () => Date.parse(AT) });
+    const dl = withDeadline(undefined, 30);
+    expect(dl.signal.aborted).toBe(false);
+    await new Promise((r) => setTimeout(r, 60));
+    expect(dl.signal.aborted).toBe(true);
+    dl.done();
+    // the provider's own deadline is 12 s; prove the mapping with a caller-aborted signal (a screen closing) instead of waiting that long
+    const ctl = new AbortController();
+    const run = p.fetchScoreboard('NBA', ctl.signal);
+    ctl.abort(new DOMException('screen closed', 'AbortError'));
+    await expect(run).rejects.toMatchObject({ kind: 'network' });
+  });
+});

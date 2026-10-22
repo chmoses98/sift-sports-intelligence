@@ -57,7 +57,11 @@ export function parseSportscore(sport: LiveSport, body: Raw, fetchedAt: string):
     const phase = sportscorePhase(m.status);
     const hs = int(m.home_score);
     const as = int(m.away_score);
-    const scored = phase === 'LIVE' || phase === 'BREAK' || phase === 'FINAL' || phase === 'DELAYED' || phase === 'SUSPENDED';
+    let scored = phase === 'LIVE' || phase === 'BREAK' || phase === 'FINAL' || phase === 'DELAYED' || phase === 'SUSPENDED';
+    // Verified against real matches: the feed's tennis "score" is sets won, it reported a finished match as 0-0 and corrected it minutes
+    // later, and a live match went 0-0, 1-0, 0-0. Only a finished match with a plausible result (a winner with at least two sets) is shown;
+    // a live tennis match shows its set label and no score.
+    if (sport === 'TENNIS' && !(phase === 'FINAL' && hs != null && as != null && hs !== as && Math.max(hs, as) >= 2)) scored = false;
     const text = str(m.status_text);
     const clock: LiveClock | null = phase === 'LIVE' || phase === 'BREAK' ? { period: null, periodLabel: text, display: null, seconds: null, direction: null, running: null } : null;
     const slug = str(m.slug) ?? str(m.url) ?? `${home}|${away}|${start}`;

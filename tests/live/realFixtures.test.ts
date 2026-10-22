@@ -90,6 +90,25 @@ describe('SportScore real NBA results', () => {
   });
 });
 
+describe('SportScore tennis, as recorded from real matches', () => {
+  const row = (status: string, home_score: number, away_score: number, status_text: string | null = null) => ({
+    matches: [{ home: 'Sandro Kopp', away: 'Samuele Pieri', time: '2026-10-22T13:20:00Z', status, status_text, home_score, away_score, slug: 'kopp-pieri' }],
+    updated: AT,
+  });
+  it('shows no score while a match is live: the feed went 0-0, 1-0, 0-0 inside one set', () => {
+    const [g] = parseSportscore('TENNIS', row('live', 1, 0, '2nd set'), AT);
+    expect(g.phase).toBe('LIVE');
+    expect(g.score).toBeNull();
+    expect(g.clock?.periodLabel).toBe('2nd set');
+  });
+  it('refuses a finished match reported 0-0 (the feed corrected it to 2-1 minutes later) but shows a plausible result', () => {
+    expect(parseSportscore('TENNIS', row('finished', 0, 0), AT)[0].score).toBeNull();
+    expect(parseSportscore('TENNIS', row('finished', 1, 1), AT)[0].score).toBeNull();
+    expect(parseSportscore('TENNIS', row('finished', 2, 1), AT)[0].score).toEqual({ home: 2, away: 1 });
+    expect(parseSportscore('TENNIS', row('finished', 0, 2), AT)[0].score).toEqual({ home: 0, away: 2 });
+  });
+});
+
 describe('a feed that never answers', () => {
   it('is cut off by the deadline and reported as a timeout, not left hanging', async () => {
     const { withDeadline } = await import('../../src/live/scores/providers/net');

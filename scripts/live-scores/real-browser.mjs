@@ -19,7 +19,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 for (const [name, engine, dev] of profiles) {
   const browser = await engine.launch();
-  const run = { name, steps: [], requests: [], consoleErrors: [], pageErrors: [] };
+  const run = { name, steps: [], requests: [], failed: {}, consoleErrors: [], pageErrors: [] };
   for (const espn of [false, true]) {
     const ctx = await browser.newContext({ ...dev, serviceWorkers: 'block' });
     await ctx.addInitScript((e) => { try { localStorage.setItem('sift.v4.prompt', 'later'); if (e) localStorage.setItem('sift.v4.livescores.espn', '1'); } catch { /* ignore */ } }, espn);
@@ -27,6 +27,7 @@ for (const [name, engine, dev] of profiles) {
     const tag = `${name}${espn ? '-espn' : ''}`;
     page.on('response', async (r) => {
       const u = r.url();
+      if (r.status() >= 400) run.failed[`${r.status()} ${u.replace(/\?.*$/, '')}`] = (run.failed[`${r.status()} ${u.replace(/\?.*$/, '')}`] ?? 0) + 1;
       if (SCORE_HOSTS.test(u)) run.requests.push({ espn, url: u.replace(/\?.*$/, '?…'), query: u.split('?')[1] ?? '', status: r.status(), acao: r.headers()['access-control-allow-origin'] ?? null, cache: r.headers()['cache-control'] ?? null, at: new Date().toISOString() });
     });
     page.on('console', (m) => { if (m.type() === 'error') run.consoleErrors.push({ espn, text: m.text().slice(0, 300) }); });

@@ -25,7 +25,7 @@ export function LiveScoresSection() {
       </div>
       <p className="meta">Source: <SportscoreBadge /> (NBA games, and finished tennis matches). Its free tier is open to personal and early-stage projects on the condition that link is shown; terms: {SOURCES.sportscore.terms.replace('https://', '')}.</p>
 
-      <p className="v4-ea__said" role="status">{said}</p>
+      <p className="v4-ea__said" aria-live="polite" data-live-scores-said>{said}</p>
     </section>
   );
 }

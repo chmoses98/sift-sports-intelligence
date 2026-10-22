@@ -27,6 +27,8 @@ async function reload(page: Page) {
   await page.reload();
 }
 const sheet = (page: Page) => page.getByRole('dialog', { name: /^Saved:|^Clear My Board/ });
+/** The tray writes to storage a moment after the screen changes (a passive effect), so a read right after an action must poll, not look once. */
+const storedWith = async (page: Page, items: number) => { await expect.poll(async () => (await stored(page)).tray.items.length).toBe(items); return stored(page); };
 
 async function open(page: Page, market: Mock, names: Name[] = ALL, o: { now?: Date; observedAt?: string; query?: string; recs?: unknown[]; nhlDown?: boolean } = {}) {
   await serve(page.context());
@@ -298,7 +300,7 @@ test.describe('v4 Board: your notes', () => {
     await dlg.getByRole('button', { name: 'Save note' }).click();
     await expect(dlg.getByRole('status').filter({ hasText: 'Note saved.' })).toBeVisible();
     await expect(dlg).toContainText('Under hinges on the slot role. Recheck Friday.');
-    expect(await noteOf(page, 'Chris Olave under 6.5 receptions')).toBe('Under hinges on the slot role. Recheck Friday.');
+    await expect.poll(() => noteOf(page, 'Chris Olave under 6.5 receptions')).toBe('Under hinges on the slot role. Recheck Friday.');
     // nothing but that one note changed: same items, ids, timestamps, and every label (side, saved time, price snapshot)
     const after = await stored(page);
     expect(after.labels).toEqual(before.labels);
@@ -314,35 +316,35 @@ test.describe('v4 Board: your notes', () => {
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await dlg.getByRole('textbox').fill('Changed my mind: pass.');
     await dlg.getByRole('button', { name: 'Save note' }).click();
-    expect(await noteOf(page, 'Chris Olave under 6.5 receptions')).toBe('Changed my mind: pass.');
+    await expect.poll(() => noteOf(page, 'Chris Olave under 6.5 receptions')).toBe('Changed my mind: pass.');
     // clear it: blank is no note
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await dlg.getByRole('textbox').fill('   ');
     await dlg.getByRole('button', { name: 'Save note' }).click();
     await expect(dlg.getByRole('status').filter({ hasText: 'Note removed.' })).toBeVisible();
-    expect(await noteOf(page, 'Chris Olave under 6.5 receptions')).toBeNull();
+    await expect.poll(() => noteOf(page, 'Chris Olave under 6.5 receptions')).toBeNull();
     expect((await stored(page)).labels).toEqual(before.labels);
   });
 
   test('opening the editor never rewrites an existing note: Cancel, Save unchanged and Escape leave it byte for byte @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'noted']);
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
     const dlg = await openSheet(page, 'Atlanta Falcons');
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await dlg.getByRole('button', { name: 'Cancel' }).click();
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await dlg.getByRole('button', { name: 'Save note' }).click();
     await expect(dlg.getByRole('status').filter({ hasText: 'No changes to the note.' })).toBeVisible();
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await page.keyboard.press('Escape');
     await expect(sheet(page)).toHaveCount(0);
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
     // opening and closing the sheet alone is no write either
     await openSheet(page, 'Atlanta Falcons');
     await page.keyboard.press('Escape');
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
   });
 
   test('closing the sheet with unsaved edits keeps them; Cancel is the way to discard @smoke', async ({ page, market }) => {
@@ -352,13 +354,13 @@ test.describe('v4 Board: your notes', () => {
     await dlg.getByRole('textbox').fill('Moved to Sunday; secondary is the story.');
     await page.keyboard.press('Escape');
     await expect(sheet(page)).toHaveCount(0);
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
     dlg = await openSheet(page, 'Atlanta Falcons');
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await dlg.getByRole('textbox').fill('typed by mistake');
     await dlg.getByRole('button', { name: 'Cancel' }).click();
     await page.keyboard.press('Escape');
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
   });
 
   test('leaving the app or a reload saves a note being typed instead of losing it @smoke', async ({ page, market }) => {
@@ -372,12 +374,12 @@ test.describe('v4 Board: your notes', () => {
       Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Typed, then the phone went to the background.');
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Typed, then the phone went to the background.');
     await page.evaluate(() => { Reflect.deleteProperty(document, 'visibilityState'); });
     // and on the way out of the page
     await dlg.getByRole('textbox').fill('Second thought, written just before a reload.');
     await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
-    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Second thought, written just before a reload.');
+    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Second thought, written just before a reload.');
   });
 
   test('a note written in v4 is the note in SIFT 2.0, and the other way round @smoke', async ({ page, market }) => {
@@ -411,12 +413,12 @@ test.describe('v4 Board: Undo', () => {
     await expect(page.locator('[data-v4-undo-status]')).toContainText('Removed Atlanta Falcons from My Board. Undo is available.');
     // focus moves to Undo: the row it was on no longer exists
     await expect(undoBar(page).getByRole('button', { name: /^Undo/ })).toBeFocused();
-    expect((await stored(page)).tray.items).toHaveLength(3);
+    await storedWith(page, 3);
     await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
     await expect(undoBar(page)).toHaveCount(0);
     await expect(page.locator('[data-v4-undo-status]')).toContainText('Restored Atlanta Falcons to My Board.');
     await expect(row(page, 'Atlanta Falcons').locator('.v4-bd__main')).toBeFocused();
-    const after = await stored(page);
+    const after = await storedWith(page, 4);
     // verbatim: the same items in the same order (ids, timestamps, notes) and the same labels (sides, saved times, price snapshots)
     expect(after.tray.items).toEqual(before.tray.items);
     expect(after.labels).toEqual(before.labels);
@@ -424,7 +426,7 @@ test.describe('v4 Board: Undo', () => {
     // and it is still there after a reload
     await reload(page);
     await expect(row(page, 'Atlanta Falcons')).toHaveCount(1);
-    expect((await stored(page)).tray.items).toEqual(before.tray.items);
+    await expect.poll(async () => (await stored(page)).tray.items).toEqual(before.tray.items);
   });
 
   test('removing from the item sheet offers Undo too; a market keeps its side and saved price @smoke', async ({ page, market }) => {
@@ -438,7 +440,7 @@ test.describe('v4 Board: Undo', () => {
     await expect(rows(page)).toHaveCount(2);
     await expect(row(page, 'Chris Olave under 6.5 receptions').locator('.v4-sg__side')).toHaveText('NO');
     await expect(row(page, 'Chris Olave under 6.5 receptions').locator('.v4-bd__px')).toContainText('NO ask 50¢ when saved');
-    const after = await stored(page);
+    const after = await storedWith(page, 2);
     expect(after.tray.items).toEqual(before.tray.items);
     expect(after.labels).toEqual(before.labels);
   });
@@ -452,7 +454,7 @@ test.describe('v4 Board: Undo', () => {
     await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
     await expect(rows(page)).toHaveCount(2);
     await expect(row(page, 'ATL @ NO')).toHaveCount(0);
-    const mid = await stored(page);
+    const mid = await storedWith(page, 2);
     expect(mid.tray.items.map((i: { item_id: string }) => i.item_id)).toEqual(before.tray.items.map((i: { item_id: string }) => i.item_id).filter((_: string, k: number) => k !== 2));
     await page.getByRole('button', { name: 'Remove Chris Olave 7+ receptions from My Board' }).click();
     await undoBar(page).getByRole('button', { name: 'Dismiss' }).click();
@@ -493,7 +495,7 @@ test.describe('v4 Board: Undo', () => {
     await expect(row(page, 'ATL @ NO')).toHaveCount(1);
     await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
     await expect(page.locator('[data-v4-undo-status]')).toContainText('already saved again; nothing was changed');
-    const after = await stored(page);
+    const after = await storedWith(page, 2);
     const same = after.tray.items.filter((i: { item_id: string }) => i.item_id === gameItem.item_id);
     expect(same).toHaveLength(1);
     expect(same[0].added_at).toBe(RESAVED);

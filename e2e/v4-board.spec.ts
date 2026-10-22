@@ -278,6 +278,209 @@ test.describe('v4 Board: removing and clearing', () => {
   });
 });
 
+test.describe('v4 Board: your notes', () => {
+  const NOTE = '  Falcons pass rush vs the Saints line. Recheck Friday.  ';
+  const openSheet = async (page: Page, label: string) => { await row(page, label).locator('.v4-bd__main').click(); await expect(sheet(page)).toBeVisible(); return sheet(page); };
+  const noteOf = async (page: Page, label: string) => {
+    const s = await stored(page);
+    const it = s.tray.items.find((i: { item_id: string }) => s.labels[i.item_id]?.label === label);
+    return it.note as string | null;
+  };
+
+  test('a note can be added, edited and cleared; ids, timestamps, side and the price snapshot do not change @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'v4No', 'game']);
+    const before = await stored(page);
+    let dlg = await openSheet(page, 'Chris Olave under 6.5 receptions');
+    await expect(dlg).toContainText('No note yet');
+    await dlg.getByRole('button', { name: 'Add a note' }).click();
+    await expect(dlg.getByRole('textbox', { name: /^Note for Chris Olave under 6\.5 receptions/ })).toBeFocused();
+    await dlg.getByRole('textbox').fill('Under hinges on the slot role. Recheck Friday.');
+    await dlg.getByRole('button', { name: 'Save note' }).click();
+    await expect(dlg.getByRole('status').filter({ hasText: 'Note saved.' })).toBeVisible();
+    await expect(dlg).toContainText('Under hinges on the slot role. Recheck Friday.');
+    expect(await noteOf(page, 'Chris Olave under 6.5 receptions')).toBe('Under hinges on the slot role. Recheck Friday.');
+    // nothing but that one note changed: same items, ids, timestamps, and every label (side, saved time, price snapshot)
+    const after = await stored(page);
+    expect(after.labels).toEqual(before.labels);
+    expect(after.tray.items.map((i: { note: unknown }) => ({ ...i, note: null }))).toEqual(before.tray.items.map((i: { note: unknown }) => ({ ...i, note: null })));
+    expect(after.tray.items.filter((i: { note: unknown }) => i.note !== null)).toHaveLength(1);
+    await page.keyboard.press('Escape');
+    // the row shows it, and it survives a reload
+    await expect(row(page, 'Chris Olave under 6.5 receptions').locator('.v4-bd__nt')).toContainText('Under hinges on the slot role');
+    await reload(page);
+    await expect(row(page, 'Chris Olave under 6.5 receptions').locator('.v4-bd__nt')).toContainText('Recheck Friday');
+    // edit it
+    dlg = await openSheet(page, 'Chris Olave under 6.5 receptions');
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('textbox').fill('Changed my mind: pass.');
+    await dlg.getByRole('button', { name: 'Save note' }).click();
+    expect(await noteOf(page, 'Chris Olave under 6.5 receptions')).toBe('Changed my mind: pass.');
+    // clear it: blank is no note
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('textbox').fill('   ');
+    await dlg.getByRole('button', { name: 'Save note' }).click();
+    await expect(dlg.getByRole('status').filter({ hasText: 'Note removed.' })).toBeVisible();
+    expect(await noteOf(page, 'Chris Olave under 6.5 receptions')).toBeNull();
+    expect((await stored(page)).labels).toEqual(before.labels);
+  });
+
+  test('opening the editor never rewrites an existing note: Cancel, Save unchanged and Escape leave it byte for byte @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'noted']);
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    const dlg = await openSheet(page, 'Atlanta Falcons');
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('button', { name: 'Cancel' }).click();
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('button', { name: 'Save note' }).click();
+    await expect(dlg.getByRole('status').filter({ hasText: 'No changes to the note.' })).toBeVisible();
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await page.keyboard.press('Escape');
+    await expect(sheet(page)).toHaveCount(0);
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+    // opening and closing the sheet alone is no write either
+    await openSheet(page, 'Atlanta Falcons');
+    await page.keyboard.press('Escape');
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE);
+  });
+
+  test('closing the sheet with unsaved edits keeps them; Cancel is the way to discard @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'noted']);
+    let dlg = await openSheet(page, 'Atlanta Falcons');
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('textbox').fill('Moved to Sunday; secondary is the story.');
+    await page.keyboard.press('Escape');
+    await expect(sheet(page)).toHaveCount(0);
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
+    dlg = await openSheet(page, 'Atlanta Falcons');
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('textbox').fill('typed by mistake');
+    await dlg.getByRole('button', { name: 'Cancel' }).click();
+    await page.keyboard.press('Escape');
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
+  });
+
+  test('a note written in v4 is the note in SIFT 2.0, and the other way round @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'noted']);
+    const dlg = await openSheet(page, 'Chris Olave 7+ receptions');
+    await dlg.getByRole('button', { name: 'Add a note' }).click();
+    await dlg.getByRole('textbox').fill('Written in v4');
+    await dlg.getByRole('button', { name: 'Save note' }).click();
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => { location.hash = '#/board'; });
+    await expect(page.locator('.bentry')).toHaveCount(2);
+    await expect(page.getByLabel('Note for Chris Olave 7+ receptions')).toHaveValue('Written in v4');
+    await expect(page.getByLabel('Note for Atlanta Falcons')).toHaveValue(NOTE);
+    const box = page.getByLabel('Note for Atlanta Falcons');
+    await box.fill('Edited in SIFT 2.0');
+    await box.blur();
+    await page.evaluate(() => { location.hash = '#/v4/board'; });
+    await expect(row(page, 'Atlanta Falcons').locator('.v4-bd__nt')).toContainText('Edited in SIFT 2.0');
+  });
+});
+
+test.describe('v4 Board: Undo', () => {
+  const undoBar = (page: Page) => page.getByRole('group', { name: 'Undo remove' });
+
+  test('removing a row offers Undo, and Undo puts the item back exactly as it was, in the same place @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'noted', 'v4No', 'game']);
+    const before = await stored(page);
+    await page.getByRole('button', { name: 'Remove Atlanta Falcons from My Board' }).click();
+    await expect(row(page, 'Atlanta Falcons')).toHaveCount(0);
+    await expect(undoBar(page)).toContainText('Removed Atlanta Falcons');
+    await expect(page.locator('[data-v4-undo-status]')).toContainText('Removed Atlanta Falcons from My Board. Undo is available.');
+    // focus moves to Undo: the row it was on no longer exists
+    await expect(undoBar(page).getByRole('button', { name: /^Undo/ })).toBeFocused();
+    expect((await stored(page)).tray.items).toHaveLength(3);
+    await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
+    await expect(undoBar(page)).toHaveCount(0);
+    await expect(page.locator('[data-v4-undo-status]')).toContainText('Restored Atlanta Falcons to My Board.');
+    await expect(row(page, 'Atlanta Falcons').locator('.v4-bd__main')).toBeFocused();
+    const after = await stored(page);
+    // verbatim: the same items in the same order (ids, timestamps, notes) and the same labels (sides, saved times, price snapshots)
+    expect(after.tray.items).toEqual(before.tray.items);
+    expect(after.labels).toEqual(before.labels);
+    expect(after.tray.items.find((i: { id: string }) => i.id === 'prt_falcons').note).toBe('  Falcons pass rush vs the Saints line. Recheck Friday.  ');
+    // and it is still there after a reload
+    await reload(page);
+    await expect(row(page, 'Atlanta Falcons')).toHaveCount(1);
+    expect((await stored(page)).tray.items).toEqual(before.tray.items);
+  });
+
+  test('removing from the item sheet offers Undo too; a market keeps its side and saved price @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'v4No']);
+    const before = await stored(page);
+    await row(page, 'Chris Olave under 6.5 receptions').locator('.v4-bd__main').click();
+    await sheet(page).getByRole('button', { name: 'Remove' }).click();
+    await expect(sheet(page)).toHaveCount(0);
+    await expect(rows(page)).toHaveCount(1);
+    await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
+    await expect(rows(page)).toHaveCount(2);
+    await expect(row(page, 'Chris Olave under 6.5 receptions').locator('.v4-sg__side')).toHaveText('NO');
+    await expect(row(page, 'Chris Olave under 6.5 receptions').locator('.v4-bd__px')).toContainText('NO ask 50¢ when saved');
+    const after = await stored(page);
+    expect(after.tray.items).toEqual(before.tray.items);
+    expect(after.labels).toEqual(before.labels);
+  });
+
+  test('only the last removal can be undone, and it can be dismissed @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'v4No', 'game']);
+    const before = await stored(page);
+    await page.getByRole('button', { name: 'Remove ATL @ NO from My Board' }).click();
+    await page.getByRole('button', { name: 'Remove Chris Olave under 6.5 receptions from My Board' }).click();
+    await expect(undoBar(page)).toContainText('Removed Chris Olave under 6.5 receptions');
+    await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
+    await expect(rows(page)).toHaveCount(2);
+    await expect(row(page, 'ATL @ NO')).toHaveCount(0);
+    const mid = await stored(page);
+    expect(mid.tray.items.map((i: { item_id: string }) => i.item_id)).toEqual(before.tray.items.map((i: { item_id: string }) => i.item_id).filter((_: string, k: number) => k !== 2));
+    await page.getByRole('button', { name: 'Remove Chris Olave 7+ receptions from My Board' }).click();
+    await undoBar(page).getByRole('button', { name: 'Dismiss' }).click();
+    await expect(undoBar(page)).toHaveCount(0);
+    await expect(row(page, 'Chris Olave 7+ receptions')).toHaveCount(0);
+  });
+
+  test('leaving the Board ends the offer, and clearing the whole Board has no Undo @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'v4No', 'game']);
+    await page.getByRole('button', { name: 'Remove ATL @ NO from My Board' }).click();
+    await expect(undoBar(page)).toBeVisible();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Games' }).click();
+    await expect(undoBar(page)).toHaveCount(0);
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Board' }).click();
+    await expect(undoBar(page)).toHaveCount(0);
+    await expect(rows(page)).toHaveCount(2);
+    await page.getByRole('button', { name: 'Clear Board' }).click();
+    await sheet(page).getByRole('button', { name: 'Remove all 2' }).click();
+    await expect(page.getByText('Nothing saved yet')).toBeVisible();
+    await expect(undoBar(page)).toHaveCount(0);
+  });
+
+  test('if the same item was saved again meanwhile, Undo leaves the newer save alone and says so @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'game']);
+    const before = await stored(page);
+    const gameItem = before.tray.items.find((i: { ref_kind: string }) => i.ref_kind === 'EVENT');
+    await page.getByRole('button', { name: 'Remove ATL @ NO from My Board' }).click();
+    await expect(row(page, 'ATL @ NO')).toHaveCount(0);
+    // the same game saved again from SIFT 2.0 in this page while the offer is open: same identity, a newer time
+    const RESAVED = '2026-10-04T14:59:00Z';
+    await page.evaluate(([key, item, label, at]) => {
+      const s = JSON.parse(localStorage.getItem(key)!);
+      s.tray.items.push({ ...item, added_at: at });
+      s.labels[item.item_id] = { ...label, savedAt: at };
+      localStorage.setItem(key, JSON.stringify(s));
+      window.dispatchEvent(new Event('sift:tray-changed'));
+    }, [TRAY_KEY, gameItem, before.labels[gameItem.item_id], RESAVED] as const);
+    await expect(row(page, 'ATL @ NO')).toHaveCount(1);
+    await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
+    await expect(page.locator('[data-v4-undo-status]')).toContainText('already saved again; nothing was changed');
+    const after = await stored(page);
+    const same = after.tray.items.filter((i: { item_id: string }) => i.item_id === gameItem.item_id);
+    expect(same).toHaveLength(1);
+    expect(same[0].added_at).toBe(RESAVED);
+  });
+});
+
 test.describe('v4 Board: one tray, every interface', () => {
   test('the Board persists across a reload, with the same items and the same timestamps @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'v4No']);
@@ -351,6 +554,38 @@ test.describe('v4 Board: phone, accessibility and motion', () => {
     await page.waitForTimeout(450);
     res = await new AxeBuilder({ page }).include('[role="dialog"]').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     expect(res.violations).toEqual([]);
+  });
+
+  test('the note editor and the Undo bar have no accessibility violations and keep their controls at 44px @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'noted']);
+    await expect(rows(page).first()).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    await row(page, 'Atlanta Falcons').locator('.v4-bd__main').click();
+    await sheet(page).getByRole('button', { name: 'Edit note' }).click();
+    await expect(sheet(page).getByRole('textbox')).toBeFocused();
+    await page.waitForTimeout(450);
+    let res = await new AxeBuilder({ page }).include('[role="dialog"]').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    expect(res.violations).toEqual([]);
+    // the field is 16px or more (iOS Safari zooms the page on focus into anything smaller)
+    expect(await sheet(page).getByRole('textbox').evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
+    await sheet(page).getByRole('button', { name: 'Cancel' }).click();
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Remove Atlanta Falcons from My Board' }).click();
+    const bar = page.getByRole('group', { name: 'Undo remove' });
+    await expect(bar).toBeVisible();
+    res = await new AxeBuilder({ page }).include('.v4').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    expect(res.violations).toEqual([]);
+    for (const b of await bar.getByRole('button').all()) {
+      const box = (await b.boundingBox())!;
+      expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(43.5);
+    }
+    // the bar never sits on top of the tab bar or runs off the screen
+    const vp = page.viewportSize()!;
+    const bb = (await bar.boundingBox())!;
+    const tb = (await page.getByRole('navigation', { name: 'Primary' }).boundingBox())!;
+    expect(bb.y + bb.height).toBeLessThanOrEqual(tb.y);
+    expect(bb.x).toBeGreaterThanOrEqual(0);
+    expect(bb.x + bb.width).toBeLessThanOrEqual(vp.width);
   });
 
   test('with reduced motion nothing on the screen animates or transitions @smoke', async ({ page, market }) => {

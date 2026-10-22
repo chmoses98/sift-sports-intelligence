@@ -26,6 +26,8 @@ export const SEEDS: Record<string, Seed> = {
   game: { ref_kind: 'EVENT', sport: 'NFL', id: GAME, label: { label: 'ATL @ NO', href: `/nfl/game/${GAME}`, kickoff: '2026-10-06T00:15:00Z' } },
   /** A saved team: no v4 screen, so it opens the SIFT 2.0 page it was saved from. */
   team: { ref_kind: 'TEAM', sport: 'NFL', id: 'prt_saints', label: { label: 'New Orleans Saints', href: '/nfl/team/prt_saints' } },
+  /** An older save with a note typed in SIFT 2.0, padded with spaces the way an on-blur save leaves it: the editor must never rewrite it unless it is changed. */
+  noted: { ref_kind: 'TEAM', sport: 'NFL', id: 'prt_falcons', note: '  Falcons pass rush vs the Saints line. Recheck Friday.  ', label: { label: 'Atlanta Falcons', href: '/nfl/team/prt_falcons' } },
   /** A game that is no longer on the publication's board. */
   gone: { ref_kind: 'EVENT', sport: 'NFL', id: 'evt_0000000000gone', label: { label: 'Old game', href: '/nfl/game/evt_0000000000gone', kickoff: '2026-09-20T17:00:00Z' } },
   /** A game in a sport whose publication cannot be read. */

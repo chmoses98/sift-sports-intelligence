@@ -3,13 +3,14 @@
 // since I saved it, and what deserves another look. A price is compared only against a current quote of the SAME contract and
 // the SAVED side; a stale, missing or closed quote is said as such, never compared and never zero. A move is a move: nothing
 // here says a lower or higher ask is a profit. Nothing here prices, ranks or recommends.
-import { useMemo, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from '../routing';
 import { Icon } from './Icon';
 import { ExitLink } from './ExitLink';
 import { Crest } from './base';
 import { useSheet } from './sheet';
 import { useResearch } from './ResearchSheet';
+import { useBoardUndo } from './undo';
 import { entryView, gameState, lookAgain, type BoardCtx, type EntryView, type LookReason } from './boardModel';
 import { STANDING_LABEL } from './signalsModel';
 import { agoWord } from './words';
@@ -74,8 +75,12 @@ function priceWords(v: EntryView): { text: string; age?: string; tone: 'ok' | 'm
 
 function ItemRow({ v, now }: { v: EntryView; now: number }) {
   const sheet = useSheet();
-  const tray = useTray();
+  const undo = useBoardUndo();
   const e = v.entry;
+  const main = useRef<HTMLButtonElement>(null);
+  // Undo put this row back: focus returns to it, once.
+  const restored = undo.restoredId === e.item.item_id;
+  useEffect(() => { if (restored) main.current?.focus(); }, [restored]);
   const label = e.label?.label ?? e.item.id;
   const market = e.item.ref_kind === 'MARKET';
   const px = priceWords(v);
@@ -84,11 +89,12 @@ function ItemRow({ v, now }: { v: EntryView; now: number }) {
     ? <ExitLink to={t.to} className="v4-gbtn v4-bd__go"><Icon name="arrow-up-right" size="s" /><span className="sr">{`Open in SIFT 2.0: ${label}`}</span></ExitLink>
     : <Link to={t.to} className="v4-gbtn v4-bd__go" aria-label={`${t.label}: ${label}`}><Icon name="caret-right" size="s" /></Link>;
   return (
-    <li className="v4-bd__row" data-side={v.side} data-kind={e.group}>
-      <button type="button" className="v4-bd__main" aria-label={`Details: ${label}${market ? `, ${v.side} side` : ''}`}
+    <li className="v4-bd__row" data-side={v.side} data-kind={e.group} data-bd-item={e.item.item_id}>
+      <button ref={main} type="button" className="v4-bd__main" aria-label={`Details: ${label}${market ? `, ${v.side} side` : ''}`}
         onClick={() => sheet.open(<ItemSheet id={e.item.item_id} />, { label: `Saved: ${label}` })}>
         <span className="v4-bd__t"><b>{label}</b>{market && <span className={`v4-sg__side v4-sg__side--${v.side.toLowerCase()}`}>{v.side}</span>}</span>
         {px && <span className={`v4-bd__px v4-bd__px--${px.tone}`}>{px.text}{px.age && <em> · {px.age}</em>}</span>}
+        {e.item.note && <span className="v4-bd__nt"><b>Your note</b> {e.item.note}</span>}
         <span className="v4-bd__tags">
           <span className="v4-bd__saved">Saved {agoWord(Math.max(0, now - Date.parse(e.savedAt)))}</span>
           {v.frozen && <span className="v4-badge v4-badge--quiet"><Icon name="lock-simple" size="xs" />Frozen</span>}
@@ -97,7 +103,7 @@ function ItemRow({ v, now }: { v: EntryView; now: number }) {
         </span>
       </button>
       {openT}
-      <button type="button" className="v4-gbtn v4-bd__rm" aria-label={`Remove ${label} from My Board`} onClick={() => tray.remove(e.item.item_id)}><Icon name="trash" size="s" /></button>
+      <button type="button" className="v4-gbtn v4-bd__rm" aria-label={`Remove ${label} from My Board`} onClick={() => undo.removeItem(e.item.item_id)}><Icon name="trash" size="s" /></button>
     </li>
   );
 }
@@ -146,11 +152,64 @@ function Kv({ k, children, em }: { k: string; children: ReactNode; em?: ReactNod
   return <div className="v4-kv"><span className="v4-kv__k">{k}</span><span className="v4-kv__v">{children}{em && <em>{em}</em>}</span></div>;
 }
 
+/**
+ * Your note on a saved item. Writes through the tray's own setNote (the same call SIFT 2.0 uses), and only when the text was actually changed,
+ * so opening the editor never rewrites a note that SIFT 2.0 or an earlier version saved. Closing the sheet with unsaved edits saves them
+ * rather than losing them; Cancel is the one way to discard.
+ */
+function NoteEditor({ id, note, label }: { id: string; note: string | null; label: string }) {
+  const { setNote } = useTray();
+  const field = useId();
+  const [draft, setDraft] = useState<string | null>(null);
+  const [said, setSaid] = useState('');
+  // What setNote would store: blank text is no note. Compared this way so whitespace alone is never a change.
+  const kept = (t: string | null) => (t && t.trim() ? t : '');
+  const latest = useRef({ draft, note });
+  useEffect(() => { latest.current = { draft, note }; });
+  // Dismissing the sheet (Escape, scrim, swipe) while a note is being edited keeps the text instead of losing it.
+  useEffect(() => () => {
+    const { draft: d, note: n } = latest.current;
+    if (d !== null && kept(d) !== kept(n)) setNote(id, d);
+  }, [id, setNote]);
+  const editing = draft !== null;
+  const save = () => {
+    if (draft === null) return;
+    const changed = kept(draft) !== kept(note);
+    if (changed) setNote(id, draft);
+    setSaid(!changed ? 'No changes to the note.' : kept(draft) ? 'Note saved.' : 'Note removed.');
+    setDraft(null);
+  };
+  return (
+    <div className="v4-ned">
+      {!editing && (note
+        ? <p className="v4-ned__text">{note}</p>
+        : <p className="v4-pstat">No note yet. A note stays on this device and shows in SIFT 2.0 too.</p>)}
+      {editing && (
+        <>
+          <label className="v4-ned__lab" htmlFor={field}>Note for {label}</label>
+          <textarea id={field} className="v4-ned__ta" rows={4} autoFocus value={draft} onChange={(ev) => setDraft(ev.target.value)} />
+          <p className="meta">Closing this sheet saves your changes. Cancel discards them.</p>
+        </>
+      )}
+      <div className="v4-ned__acts">
+        {!editing && <button type="button" className="v4-btn v4-btn--sec" onClick={() => { setSaid(''); setDraft(note ?? ''); }}>{note ? 'Edit note' : 'Add a note'}</button>}
+        {editing && (
+          <>
+            <button type="button" className="v4-btn" onClick={save}>Save note</button>
+            <button type="button" className="v4-btn v4-btn--sec" onClick={() => { setDraft(null); setSaid('Changes discarded.'); }}>Cancel</button>
+          </>
+        )}
+      </div>
+      <p className="v4-ned__said" role="status">{said}</p>
+    </div>
+  );
+}
+
 function ItemSheet({ id }: { id: string }) {
   const { close } = useSheet();
   const open = useResearch();
+  const undo = useBoardUndo();
   const s = useBoardState();
-  const tray = s.tray;
   const v = s.views.get(id);
   if (!v) {
     return (
@@ -186,7 +245,10 @@ function ItemSheet({ id }: { id: string }) {
           {market && <Kv k="Side" em={v.sideRecorded ? undefined : 'Saved before sides were recorded: read as YES'}>{v.side}</Kv>}
           <Kv k="Saved">{agoWord(Math.max(0, s.now - Date.parse(e.savedAt)))}<em>{new Date(e.savedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</em></Kv>
           {e.label?.sub && <Kv k="Original context">{e.label.sub}</Kv>}
-          {e.item.note && <Kv k="Your note">{e.item.note}</Kv>}
+        </section>
+
+        <section className="v4-sblock"><h3>Your note</h3>
+          <NoteEditor id={id} note={e.item.note} label={label} />
         </section>
 
         <section className="v4-sblock"><h3>What changed since you saved it</h3>
@@ -219,7 +281,7 @@ function ItemSheet({ id }: { id: string }) {
           ? <ExitLink to={t.to} className="v4-btn">Open in SIFT 2.0</ExitLink>
           : <Link to={t.to} className="v4-btn" onClick={close}>{t.label}</Link>)}
         {opp && <button type="button" className="v4-btn v4-btn--sec" onClick={() => open(opp, undefined, { signalsLink: true })}>Research</button>}
-        <button type="button" className="v4-btn v4-btn--sec" onClick={() => { tray.remove(id); close(); }}><Icon name="trash" size="s" />Remove</button>
+        <button type="button" className="v4-btn v4-btn--sec" onClick={() => { undo.removeItem(id); close(); }}><Icon name="trash" size="s" />Remove</button>
       </div>
     </>
   );

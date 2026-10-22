@@ -71,6 +71,13 @@ export interface TrayAdd {
   eventStatus?: string | null;
 }
 
+/** A removed tray item exactly as it was stored, with where it sat: enough to put it back unchanged (identity, time, note, price snapshot, side). */
+export interface RemovedEntry {
+  item: TrayItem;
+  label: TrayLabel | undefined;
+  index: number;
+}
+
 interface TrayApi {
   tray: TrayDoc;
   labels: Record<string, TrayLabel>;
@@ -79,6 +86,11 @@ interface TrayApi {
   /** null when refused (the game has kicked off and the item is not already saved). */
   add: (a: TrayAdd) => TrayItem | null;
   remove: (itemId: string) => void;
+  /**
+   * Put a removed item back verbatim: the same item_id, added_at, note, label (side, saved time, price snapshot) and position.
+   * Nothing is re-created, so nothing gets a new timestamp. If the same item was saved again meanwhile it is left as it is.
+   */
+  restore: (removed: RemovedEntry) => void;
   clear: () => void;
   has: (ref_kind: RefKind, id: string, extra?: Partial<TrayExtra> | null) => boolean;
   setNote: (itemId: string, note: string) => void;
@@ -159,6 +171,15 @@ export function TrayProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const restore = useCallback((r: RemovedEntry) => {
+    setStored((s) => {
+      if (s.tray.items.some((i) => i.item_id === r.item.item_id)) return s;
+      const items = [...s.tray.items];
+      items.splice(Math.min(Math.max(r.index, 0), items.length), 0, r.item);
+      return { tray: makeTray(items, new Date()), labels: r.label ? { ...s.labels, [r.item.item_id]: r.label } : s.labels };
+    });
+  }, []);
+
   const clear = useCallback(() => setStored({ tray: makeTray([], new Date()), labels: {} }), []);
 
   const setNote = useCallback((itemId: string, note: string) => {
@@ -177,8 +198,8 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   );
 
   const api = useMemo<TrayApi>(
-    () => ({ tray: stored.tray, labels: stored.labels, open, setOpen, add, remove, clear, has, setNote, lastAdded }),
-    [stored, open, add, remove, clear, has, setNote, lastAdded],
+    () => ({ tray: stored.tray, labels: stored.labels, open, setOpen, add, remove, restore, clear, has, setNote, lastAdded }),
+    [stored, open, add, remove, restore, clear, has, setNote, lastAdded],
   );
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }

@@ -150,7 +150,9 @@ export function V4Game() {
           <button key={k} type="button" role="tab" id={`v4t-${k}`} aria-selected={tab === k} aria-controls="v4-panel" tabIndex={tab === k ? 0 : -1} className="v4-gtab" onClick={() => setTab(k)}
             onKeyDown={(e) => {
               // WAI-ARIA tabs: the arrow keys (and Home / End) select a tab AND move focus to it, or the roving tabindex strands focus on a tab that is no longer in the tab order.
-              const i = TABS.findIndex(([x]) => x === tab);
+              // The key is read from the tab that has focus (this one), never from the selection: that lives in the address, which the router applies a
+              // moment after focus has moved, so fast keys (key repeat, a screen reader) would otherwise be measured from a tab the viewer already left.
+              const i = TABS.findIndex(([x]) => x === k);
               const to = e.key === 'ArrowRight' ? (i + 1) % TABS.length : e.key === 'ArrowLeft' ? (i + TABS.length - 1) % TABS.length : e.key === 'Home' ? 0 : e.key === 'End' ? TABS.length - 1 : null;
               if (to == null) return;
               e.preventDefault();

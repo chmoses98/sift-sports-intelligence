@@ -97,16 +97,16 @@ function v4InstallPage(): Plugin {
       }
       const bootstrap = `<script>
       // Even if iOS drops the fragment on launch, this actual /v4/ path must open v4.
-      if (!/^#\\/v4(?:[\\/?]|$)/.test(location.hash)) {
+      if (!/^#\/v4(?:[/?]|$)/.test(location.hash)) {
         history.replaceState(null, '', location.pathname + location.search + '#/v4');
       }
     </script>`;
       const html = appHtml
         .replace('<head>', `<head>\n    ${bootstrap}`)
-        .replace(/<title>[^<]*<\\/title>/, '<title>SIFT v4 · early access</title>')
+        .replace(/<title>[^<]*<\/title>/, '<title>SIFT v4 · early access</title>')
         .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(")/, '$1SIFT v4$2')
         .replace(/<link rel="manifest" href="[^"]*"[^>]*>/, `<link rel="manifest" href="${base}manifest-v4.webmanifest">`)
-        .replace(/(href|src)="icons\\//g, `$1="${base}icons/`);
+        .replace(/(href|src)="icons\//g, `$1="${base}icons/`);
       const v4Directory = resolve(outputDirectory, 'v4');
       mkdirSync(v4Directory, { recursive: true });
       writeFileSync(resolve(v4Directory, 'index.html'), html);

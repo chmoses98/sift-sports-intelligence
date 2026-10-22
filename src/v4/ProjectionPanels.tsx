@@ -9,6 +9,7 @@ import { cfbTeam } from '../lib/cfbTeams';
 import { coherenceProblems, findTeamProjections, fmtWhen, MAX_AGE_H, type PlayerProjection, type ProjSport } from '../lib/projections';
 import type { GameRow } from '../views/broadcast/games';
 import { useSlate } from './slate';
+import { useNow } from '../live/hooks';
 import { Icon } from './Icon';
 import { clock } from './model';
 
@@ -66,10 +67,11 @@ export function eligibleNbaRows(doc: { players: PlayerProjection[]; families: Re
 
 export function NbaPlayerProjections({ g }: { g: GameRow }) {
   const { doc, loading } = useProjections('NBA');
+  const now = useNow(60_000);
   const [limit, setLimit] = useState(12);
   const match = useMemo(() => findTeamProjections(doc, teamsOf(g)), [doc, g]);
   const gameId = match?.[0]?.gameId ?? '';
-  const rows = useMemo(() => eligibleNbaRows(doc, gameId, Date.now()), [doc, gameId]);
+  const rows = useMemo(() => eligibleNbaRows(doc, gameId, now), [doc, gameId, now]);
   const players = useMemo(() => {
     const grouped = new Map<string, PlayerProjection[]>();
     for (const p of rows) grouped.set(p.playerId, [...(grouped.get(p.playerId) ?? []), p]);
@@ -126,17 +128,17 @@ const CFB_LABEL: Record<string, string> = {
  *  point-in-time participation feed exists, so every figure is conditional on playing. */
 export function CfbPlayerProjections({ g }: { g: GameRow }) {
   const { doc, loading } = useProjections('CFB');
+  const now = useNow(60_000);
   const [limit, setLimit] = useState(12);
   const match = useMemo(() => findTeamProjections(doc, teamsOf(g)), [doc, g]);
   const id = match?.[0]?.gameId ?? '';
   const items = useMemo(() => {
-    const now = Date.now();
     const families = new Set<string>(CFB_FAMILIES);
     const by = new Map<string, PlayerProjection[]>();
     for (const p of doc?.players ?? []) {
       if (p.gameId !== id || !families.has(p.family) || p.readiness !== 'SHADOW VALIDATION' || p.gate.status === 'BLOCK') continue;
       if (p.participation?.status === 'LIKELY_OUT' || p.participation?.status === 'CONFIRMED_OUT') continue;
-      if (!p.dataAsOf || !Number.isFinite(Date.parse(p.dataAsOf)) || Math.abs(now - Date.parse(p.dataAsOf)) > MAX_AGE_H.CFB * 3600_000) continue;
+      if (!p.dataAsOf || !Number.isFinite(Date.parse(p.dataAsOf)) || now - Date.parse(p.dataAsOf) > MAX_AGE_H.CFB * 3600_000 || Date.parse(p.dataAsOf) - now > 5 * 60_000) continue;
       if (coherenceProblems(p).length) continue;
       by.set(p.playerId, [...(by.get(p.playerId) ?? []), p]);
     }
@@ -144,7 +146,7 @@ export function CfbPlayerProjections({ g }: { g: GameRow }) {
       const priority = (rows: PlayerProjection[]) => Math.max(0, ...rows.filter((p) => p.family.endsWith('_yards')).map((p) => p.mean));
       return priority(b) - priority(a);
     });
-  }, [doc, id]);
+  }, [doc, id, now]);
   return <section aria-label="College player projection research">
     <header className="v4-sechead"><h2>College player research</h2><span className="v4-spacer" /><span className="meta">{items.length} players</span></header>
     <div className="v4-note" style={{ marginBottom: 12 }}><Icon name="info" /><div><b>Research preview · player availability unverified</b>These are published shadow forecasts, conditional on the player participating. They are not approved SIFT player projections, validated edges, or recommendations.</div></div>
@@ -189,7 +191,7 @@ export function ProjectionBrowser({ sport }: { sport: 'cfb' | 'nba' }) {
     && findTeamProjections(doc, teamsOf(g)) != null).sort((a, b) => a.startMs - b.startMs), [doc, slate.rows, slate.now, sport]);
   const selected = games.find((g) => g.item.event_id === chosen) ?? games[0];
   return <div className="v4-body">
-    <div className="v4-note"><Icon name="info" /><div><b>{sport === 'cfb' ? 'CFB team projections' : 'NBA player projections'}</b>{sport === 'cfb' ? 'Opponent-adjusted, approved team projected points. College player props are still held because participation is unverified.' : 'Seven player-stat families published as research previews. Production activation remains gated by live injury and model checks.'} No Kalshi market is required to browse.</div></div>
+    <div className="v4-note"><Icon name="info" /><div><b>{sport === 'cfb' ? 'CFB team projections' : 'NBA player projections'}</b>{sport === 'cfb' ? 'Approved projected team points plus conditional, research-only player estimates (participation unverified).' : 'Seven player-stat families published as research previews. Production activation remains gated by live injury and model checks.'} No Kalshi market is required to browse.</div></div>
     {loading || slate.loading ? <div className="v4-card" style={{ marginTop: 12 }}><div className="v4-skel" style={{ height: 80 }} role="status" aria-label="Loading projection games" /></div>
       : games.length === 0 ? <div className="v4-note" style={{ marginTop: 12 }}><Icon name="calendar-dots" /><div><b>No matched upcoming forecasts</b>The feed is missing, outside the publication window, or could not be safely matched to SIFT's game list. No estimates are substituted.</div></div>
       : <>

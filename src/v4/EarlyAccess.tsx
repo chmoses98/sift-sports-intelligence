@@ -77,9 +77,9 @@ export function EarlyAccessSheet() {
           ) : (
             <>
               <ol className="v4-ea__steps">
-                <li>Open this page in <b>Safari</b> (not inside another app) while you are on v4 Home.</li>
-                <li>Tap <b>Share</b>, then <b>Add to Home Screen</b>.</li>
-                <li>Keep the name <b>SIFT v4</b> and tap <b>Add</b>.</li>
+                <li>In <b>Safari</b>, open the dedicated <a href={`${import.meta.env.BASE_URL}v4/`}>SIFT v4 install page</a> (not the old #/v4 address).</li>
+                <li>Tap <b>Share</b>, then <b>Add to Home Screen</b>. Enable <b>Open as Web App</b> if offered.</li>
+                <li>Keep the name <b>SIFT v4</b>, tap <b>Add</b>, and remove any old broken v4 icon.</li>
               </ol>
               <p className="meta">On iPhone the Home Screen app keeps its own saved Board: Safari and the Home Screen app do not share saved research. Pick one place to use it day to day.</p>
             </>

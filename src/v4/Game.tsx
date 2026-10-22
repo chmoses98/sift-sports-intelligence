@@ -333,7 +333,7 @@ function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow
     return markets.map((m) => priceRow(m, prices, marketLabel(m, abbr, () => null), null))
       .sort((a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group));
   }, [markets, prices, research]);
-  const scripted = useMemo(() => scriptMarketRows(markets, prices, scripts, homeId, awayId, now), [markets, prices, scripts, homeId, awayId, now]);
+  const scripted = useMemo(() => (g.phase === 'PREGAME' || g.phase === 'NO_START' ? scriptMarketRows(markets, prices, scripts, homeId, awayId, now) : []), [g.phase, markets, prices, scripts, homeId, awayId, now]);
   const groups = useMemo(() => GROUP_ORDER.filter((k) => rows.some((r) => r.group === k)), [rows]);
   // Game lines first: the main winner / spread / total markets, not eight hundred alternates.
   const group = picked ?? groups[0] ?? 'all';

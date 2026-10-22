@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import type { Plugin } from 'vite';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 /**
  * Preload the two Barlow files every first paint needs (latin 400 body, latin 600 headings), by their hashed
@@ -46,11 +48,11 @@ function v4Manifest(): Plugin {
         type: 'asset',
         fileName: 'manifest-v4.webmanifest',
         source: JSON.stringify({
-          id: `${base}?app=v4`,
+          id: `${base}v4/`,
           name: 'SIFT v4 (early access)',
           short_name: 'SIFT v4',
           description: 'SIFT v4 early access: a phone-first view of the published research. Research only, not betting advice.',
-          start_url: `${base}#/v4`,
+          start_url: `${base}v4/`,
           scope: base,
           display: 'standalone',
           orientation: 'portrait',
@@ -70,6 +72,48 @@ function v4Manifest(): Plugin {
   };
 }
 
+
+/**
+ * iOS can ignore a manifest's start_url and drop a hash fragment when creating a Home Screen app.
+ * Give v4 a real, distinct address with a complete HTML app shell: /v4/ (not /#/v4).
+ * Copy Vite's *built* index to keep exactly the same hashed scripts/styles, then give this page
+ * its own manifest and bootstrap #/v4 before the React hash router starts.
+ *
+ * Do this in closeBundle, after Vite transforms index.html and injects the default PWA manifest.
+ * The existing SIFT root HTML/manifest and SIFT 2.0 default remain entirely unchanged.
+ */
+function v4InstallPage(): Plugin {
+  let outputDirectory: string;
+  return {
+    name: 'sift-v4-install-page',
+    apply: 'build',
+    configResolved(config) {
+      outputDirectory = resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      const appHtml = readFileSync(resolve(outputDirectory, 'index.html'), 'utf8');
+      if (!/<link rel="manifest" href="[^"]*manifest\.webmanifest"/.test(appHtml)) {
+        throw new Error('Cannot build the v4 install page: default manifest link was not found');
+      }
+      const bootstrap = `<script>
+      // Even if iOS drops the fragment on launch, this actual /v4/ path must open v4.
+      if (!/^#\\/v4(?:[\\/?]|$)/.test(location.hash)) {
+        history.replaceState(null, '', location.pathname + location.search + '#/v4');
+      }
+    </script>`;
+      const html = appHtml
+        .replace('<head>', `<head>\n    ${bootstrap}`)
+        .replace(/<title>[^<]*<\\/title>/, '<title>SIFT v4 · early access</title>')
+        .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(")/, '$1SIFT v4$2')
+        .replace(/<link rel="manifest" href="[^"]*"[^>]*>/, `<link rel="manifest" href="${base}manifest-v4.webmanifest">`)
+        .replace(/(href|src)="icons\\//g, `$1="${base}icons/`);
+      const v4Directory = resolve(outputDirectory, 'v4');
+      mkdirSync(v4Directory, { recursive: true });
+      writeFileSync(resolve(v4Directory, 'index.html'), html);
+    },
+  };
+}
+
 export default defineConfig({
   base,
   define: { __SIFT_BUILD__: JSON.stringify(build) },
@@ -77,6 +121,7 @@ export default defineConfig({
     react(),
     preloadBarlow(),
     v4Manifest(),
+    v4InstallPage(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,

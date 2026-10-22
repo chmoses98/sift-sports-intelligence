@@ -8,6 +8,7 @@ name: Live-score feed probe (evaluation only)
 #   verify-watch  the same, polling for N minutes through live games: every score/period/clock change per source, latency, accuracy
 #   oracle-test   whether the NBA's own scoreboard can be read from the runner (verification only)
 #   nba-verify    NBA games in play: SIFT's displayed state vs the NBA scoreboard every 30 s (the evening run); verdicts only
+#   live-site     the deployed GitHub Pages site in real Chromium and WebKit (same checks as browser, no local build)
 #   browser       the built app in real Chromium and WebKit with real internet: live scores on, screenshots, requests, CORS, console errors
 # Results go to the `live-scores-probe` branch for review. Nothing here publishes to SIFT's app, and it is not part of CI.
 on:
@@ -17,6 +18,19 @@ on:
       - 'scripts/live-scores/**'
       - '.github/workflows/live-scores-probe.yml'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'once | watch | verify | verify-watch | browser | live-site | nba-verify | oracle-test (empty: scripts/live-scores/probe-config.json)'
+        required: false
+        default: ''
+      minutes:
+        description: 'minutes (watch and nba-verify)'
+        required: false
+        default: '60'
+      tag:
+        description: 'suffix for the evidence branch (nba-verify)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -39,10 +53,17 @@ jobs:
           sparse-checkout: scripts/live-scores
       - id: cfg
         run: |
-          echo "mode=$(node -p "require('./scripts/live-scores/probe-config.json').mode")" >> "$GITHUB_OUTPUT"
-          echo "minutes=$(node -p "require('./scripts/live-scores/probe-config.json').minutes")" >> "$GITHUB_OUTPUT"
-          echo "interval=$(node -p "require('./scripts/live-scores/probe-config.json').interval")" >> "$GITHUB_OUTPUT"
-          echo "tag=$(node -p "require('./scripts/live-scores/probe-config.json').tag || ''")" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ github.event.inputs.mode }}" ]; then
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+            echo "minutes=${{ github.event.inputs.minutes }}" >> "$GITHUB_OUTPUT"
+            echo "interval=20" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=$(node -p "require('./scripts/live-scores/probe-config.json').mode")" >> "$GITHUB_OUTPUT"
+            echo "minutes=$(node -p "require('./scripts/live-scores/probe-config.json').minutes")" >> "$GITHUB_OUTPUT"
+            echo "interval=$(node -p "require('./scripts/live-scores/probe-config.json').interval")" >> "$GITHUB_OUTPUT"
+            echo "tag=$(node -p "require('./scripts/live-scores/probe-config.json').tag || ''")" >> "$GITHUB_OUTPUT"
+          fi
 
   probe:
     needs: config
@@ -83,7 +104,7 @@ jobs:
 
   verify:
     needs: config
-    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser' || needs.config.outputs.mode == 'oracle-test' || needs.config.outputs.mode == 'nba-verify'
+    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser' || needs.config.outputs.mode == 'oracle-test' || needs.config.outputs.mode == 'nba-verify' || needs.config.outputs.mode == 'live-site'
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
@@ -110,6 +131,12 @@ jobs:
           mkdir -p "$RUNNER_TEMP/out" "$RUNNER_TEMP/oracle"
           node scripts/live-scores/oracle-nba.mjs "$RUNNER_TEMP/oracle" --once
           cp "$RUNNER_TEMP/oracle/oracle-first.json" "$RUNNER_TEMP/out/"
+      - name: The deployed site in real Chromium and WebKit, with real feeds (live-site)
+        if: needs.config.outputs.mode == 'live-site'
+        run: |
+          npx playwright install --with-deps chromium webkit
+          mkdir -p "$RUNNER_TEMP/out"
+          node scripts/live-scores/real-browser.mjs https://chmoses98.github.io/sift-sports-intelligence/ "$RUNNER_TEMP/out"
       - name: NBA - what SIFT displays against the NBA scoreboard, every 30 s, publishing verdicts every 10 minutes
         if: needs.config.outputs.mode == 'nba-verify'
         env:
@@ -149,7 +176,7 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROBE_BRANCH: ${{ needs.config.outputs.mode == 'browser' && 'live-scores-probe-browser' || needs.config.outputs.mode == 'nba-verify' && format('live-scores-probe-nba{0}', needs.config.outputs.tag) || 'live-scores-probe' }}
+          PROBE_BRANCH: ${{ (needs.config.outputs.mode == 'browser' || needs.config.outputs.mode == 'live-site') && format('live-scores-probe-{0}', needs.config.outputs.mode) || needs.config.outputs.mode == 'nba-verify' && format('live-scores-probe-nba{0}', needs.config.outputs.tag) || 'live-scores-probe' }}
         run: bash scripts/live-scores/publish-branch.sh "$RUNNER_TEMP/out"
       - uses: actions/upload-artifact@v4
         if: always()

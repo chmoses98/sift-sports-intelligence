@@ -45,7 +45,7 @@ for (const [name, engine, dev] of profiles) {
       return f;
     };
     try {
-      await page.goto(`${base}#/v4?livescores=1`);
+      await page.goto(`${base}#/v4`);
       await page.waitForSelector('.v4-feature, .v4-skel', { timeout: 45000 });
       await wait(9000);
       await facts('home');

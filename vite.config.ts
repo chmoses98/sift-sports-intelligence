@@ -79,7 +79,8 @@ function v4Manifest(): Plugin {
  * Copy Vite's *built* index to keep exactly the same hashed scripts/styles, then give this page
  * its own manifest and bootstrap #/v4 before the React hash router starts.
  *
- * Do this in closeBundle, after Vite transforms index.html and injects the default PWA manifest.
+ * Do this in writeBundle, after Vite writes index.html but before Workbox builds the service worker,
+ * so /v4/index.html is precached and an installed app works without falling back to SIFT 2.0.
  * The existing SIFT root HTML/manifest and SIFT 2.0 default remain entirely unchanged.
  */
 function v4InstallPage(): Plugin {
@@ -90,7 +91,7 @@ function v4InstallPage(): Plugin {
     configResolved(config) {
       outputDirectory = resolve(config.root, config.build.outDir);
     },
-    closeBundle() {
+    writeBundle() {
       const appHtml = readFileSync(resolve(outputDirectory, 'index.html'), 'utf8');
       if (!/<link rel="manifest" href="[^"]*manifest\.webmanifest"/.test(appHtml)) {
         throw new Error('Cannot build the v4 install page: default manifest link was not found');

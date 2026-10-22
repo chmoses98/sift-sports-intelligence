@@ -18,7 +18,7 @@ import { gameSides } from '../insights/game';
 import { matchupInsights } from '../insights/matchups';
 import { propBoard } from '../insights/propBoard';
 import { useAuthority } from '../data/projections';
-import { CfbTeamProjections, NbaPlayerProjections } from './ProjectionPanels';
+import { CfbPlayerProjections, CfbTeamProjections, NbaPlayerProjections } from './ProjectionPanels';
 import { gameScripts, sharePct } from '../lib/scripts';
 import { gameWeather, weatherLine } from '../views/game/Hero';
 import { marketLabel, priceRow, centsText, type PriceRow } from '../lib/gamedata';
@@ -167,7 +167,7 @@ export function V4Game() {
       <div className="v4-panel" role="tabpanel" id="v4-panel" aria-labelledby={`v4t-${tab}`} tabIndex={-1}>
         {tab === 'live' && <LiveTab g={g} final={final} spec={spec} research={research} awayN={awayN} homeN={homeN} />}
         {tab === 'matchups' && <>{g.sport === 'CFB' && <CfbTeamProjections g={g} />}<MatchupsTab research={research} loading={data.loading} sport={sport} /></>}
-        {tab === 'players' && (g.sport === 'NBA' ? <NbaPlayerProjections g={g} /> : <PlayersTab g={g} research={research} markets={quoted} detail={detail} sport={sport} now={now} />)}
+        {tab === 'players' && (g.sport === 'NBA' ? <NbaPlayerProjections g={g} /> : g.sport === 'CFB' ? <CfbPlayerProjections g={g} /> : <PlayersTab g={g} research={research} markets={quoted} detail={detail} sport={sport} now={now} />)}
         {tab === 'markets' && <MarketsTab g={g} research={research} markets={quoted} detail={detail} now={now} settled={settled} />}
       </div>
     </div>

@@ -123,11 +123,11 @@ test.describe('real live scores: SportScore (NBA)', () => {
     await expect(page.locator('.v4-row--live', { has: page.locator('.v4-row__sc') })).toHaveCount(0);
     // outage: the last answer stays, with an honest note
     feed.mode = 'down';
-    await page.clock.fastForward(30_000);
+    await page.clock.fastForward(61_000);
     await expect(note(page)).toContainText(/not answering/);
     // recovery with a fresh time
-    feed.mode = 'ok'; feed.updated = new Date(NOW.getTime() + 6.6 * 60_000).toISOString(); feed.state[0] = { status: 'live', text: 'Q4', hs: '70', as: '66' };
-    await page.clock.fastForward(60_000);
+    feed.mode = 'ok'; feed.updated = new Date(NOW.getTime() + 7.6 * 60_000).toISOString(); feed.state[0] = { status: 'live', text: 'Q4', hs: '70', as: '66' };
+    await page.clock.fastForward(61_000);
     await expect(page.locator('.v4-row .v4-row__mid').filter({ hasText: /stale/ })).toHaveCount(0);
     await expect(page.locator('main')).toContainText('70');
   });
@@ -169,5 +169,43 @@ test.describe('real live scores: polling respects the feed\'s 60-second cache', 
     await expect.poll(() => seen.length).toBeGreaterThan(first);
     expect(seen.length - first).toBeLessThanOrEqual(2);
     expect(seen.length).toBeLessThanOrEqual(first * 2);
+  });
+});
+
+test.describe('real live scores: the SportScore credit is visible and crawlable', () => {
+  const visibleLink = async (link: import('@playwright/test').Locator) => {
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('href', 'https://sportscore.com/');
+    await expect(link).toHaveAttribute('rel', 'dofollow');
+    const s = await link.evaluate((el) => { const c = getComputedStyle(el); const r = el.getBoundingClientRect(); return { size: parseFloat(c.fontSize), opacity: parseFloat(c.opacity), vis: c.visibility, disp: c.display, w: r.width, h: r.height, color: c.color, bg: getComputedStyle(el.parentElement!).backgroundColor }; });
+    expect(s.size).toBeGreaterThanOrEqual(11);
+    expect(s.opacity).toBe(1);
+    expect(s.vis).toBe('visible');
+    expect(s.disp).not.toBe('none');
+    expect(s.w).toBeGreaterThan(40);
+    expect(s.h).toBeGreaterThan(8);
+    expect(s.color).not.toBe(s.bg);
+  };
+
+  test('a client that runs no script still gets the link in the page itself @smoke', async ({ browser, baseURL }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL });
+    const page = await ctx.newPage();
+    await page.goto('./');
+    await visibleLink(page.locator('a[href="https://sportscore.com/"]'));
+    await expect(page.locator('a[href="https://sportscore.com/"]')).toHaveText('Powered by SportScore');
+    await ctx.close();
+  });
+
+  test('wherever a SportScore score is on screen the link is on screen: Home, Games and every tab of the Game screen @smoke', async ({ page }) => {
+    await open(page, live(), '?livescores=1');
+    await visibleLink(note(page).getByRole('link', { name: 'Powered by SportScore' }));
+    await page.goto('#/v4/games?livescores=1&status=live');
+    await visibleLink(note(page).getByRole('link', { name: 'Powered by SportScore' }));
+    await scoreRows(page).filter({ hasNotText: /Final/ }).first().locator('a.v4-row__link').click();
+    for (const tab of ['Live', 'Matchups', 'Players', 'Markets']) {
+      const t = page.getByRole('tab', { name: new RegExp(`^${tab}`) });
+      if (await t.count()) await t.first().click();
+      await visibleLink(page.locator('[data-score-credit]').getByRole('link', { name: 'Powered by SportScore' }));
+    }
   });
 });

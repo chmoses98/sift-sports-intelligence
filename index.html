@@ -30,7 +30,9 @@
         } catch (e) { /* the page still works as SIFT */ }
       })();
     </script>
-    <div id="root"></div>
+    <div id="root"><!-- Replaced when the app starts. This is the page a crawler that does not run scripts sees: the credit SportScore's free tier asks for, as a plain, visible, followable link. -->
+      <p data-static-credit style="margin:0;padding:12px 16px;font:14px system-ui,-apple-system,sans-serif;color:#aab4c3">Live scores, when switched on: <a href="https://sportscore.com/" rel="dofollow" title="Sports data by SportScore" style="color:#cfd8e6">Powered by SportScore</a></p>
+    </div>
     <noscript>Sift needs JavaScript: it reads the published research files directly in your browser.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

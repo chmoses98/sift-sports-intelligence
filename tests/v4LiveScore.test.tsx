@@ -28,10 +28,10 @@ const game = (o: Partial<LiveGame> = {}, ageS = 3): LiveGame => ({
   home: { key: 'NBA:EHK', name: 'Example Hawks', abbr: 'EHK', providerTeamId: null }, away: { key: 'NBA:SBR', name: 'Sample Bears', abbr: 'SBR', providerTeamId: null },
   phase: 'LIVE', rawStatus: 'in', score: { home: 61, away: 58 },
   clock: { period: 3, periodLabel: '3rd Quarter', display: '4:32', seconds: 272, direction: 'down', running: true }, situation: null,
-  provenance: { provider: 'espn', providerGameId: '401000001', providerUpdatedAt: new Date(NOW - ageS * 1000).toISOString(), fetchedAt: new Date(NOW - ageS * 1000).toISOString(), attribution: null },
+  provenance: { provider: 'sportscore', providerGameId: '/basketball/match/x/', providerUpdatedAt: new Date(NOW - ageS * 1000).toISOString(), fetchedAt: new Date(NOW - ageS * 1000).toISOString(), attribution: null },
   ...o,
 });
-const read = (g: LiveGame | null, opts: { down?: boolean } = {}): ScoreRead => ({ game: g, match: null, source: 'espn', view: scoreView(g, NOW, { providerDown: opts.down }) });
+const read = (g: LiveGame | null, opts: { down?: boolean } = {}): ScoreRead => ({ game: g, match: null, source: 'sportscore', view: scoreView(g, NOW, { providerDown: opts.down }) });
 
 const inRouter = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
 
@@ -153,7 +153,7 @@ describe('the rows and scoreboard print a read', () => {
     const g = game({ recentPlays: [{ periodLabel: '3rd Quarter', clock: '5:10', text: 'Example Hawks: Basket', home: 61, away: 58 }] });
     inRouter(<LiveScoreCard read={read(g)} awayN="Bears" homeN="Hawks" />);
     expect(screen.getByText('In play')).toBeTruthy();
-    expect(screen.getByText('ESPN public scoreboard (unofficial)')).toBeTruthy();
+    expect(screen.getByText('Powered by SportScore').getAttribute('rel')).toBe('dofollow');
     expect(screen.getByText('Example Hawks: Basket')).toBeTruthy();
     expect(screen.getByText('Recent scoring')).toBeTruthy();
   });

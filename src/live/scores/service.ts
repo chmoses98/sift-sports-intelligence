@@ -118,8 +118,9 @@ export class LiveScoreService {
         if (err.retryAfterMs) nextAllowedAt = Math.max(nextAllowedAt, t + err.retryAfterMs);
       }
     }
-    // Every provider failed: keep the last-known-good, honestly aged, and back off (at least 15 s).
-    const s: SportSnapshot = { ...prev, sport, status: 'OUTAGE', fallback, lastAttemptAt: t, nextAllowedAt: Math.max(nextAllowedAt, t + 15_000), anomalies: [] };
+    // Every provider failed: keep the last-known-good, honestly aged, and back off (at least 15 s, and at least the slowest provider's own
+    // minimum interval, so an outage is never retried faster than the healthy feed is polled).
+    const s: SportSnapshot = { ...prev, sport, status: 'OUTAGE', fallback, lastAttemptAt: t, nextAllowedAt: Math.max(nextAllowedAt, t + Math.max(15_000, ...live.map((x) => x.minIntervalMs))), anomalies: [] };
     this.snaps.set(sport, s);
     return s;
   }

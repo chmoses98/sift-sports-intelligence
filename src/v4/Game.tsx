@@ -33,6 +33,7 @@ import { groupPlayers, propsExplorerHref } from './propsModel';
 import { signalsHref } from './signalsModel';
 import { agoWord, authorityWord, priceLine } from './words';
 import { Scoreboard } from './Scoreboard';
+import { SportscoreBadge } from './LiveScoresControl';
 import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
 import { SlateStates, useSlate, useSlateScores } from './slate';
@@ -151,6 +152,7 @@ export function V4Game() {
         <div className="v4-gboard">
           <Scoreboard g={g} away={awayN} home={homeN} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} read={read} />
         </div>
+        {read?.game && read.source === 'sportscore' && <p className="meta" data-score-credit style={{ margin: '6px 0 0' }}>Score data: <SportscoreBadge /></p>}
         <div className="v4-gstat">
           <span><i className={`v4-dot${quoted.length === 0 ? ' v4-dot--off' : fresh === 'FRESH' ? '' : ' v4-dot--stale'}`} />{priceLine(quoted.length, fresh, freshest)}</span>
           <span><i className={`v4-dot${frozen ? ' v4-dot--frozen' : ''}`} />{frozen ? 'Research frozen at kickoff' : 'Pregame research'}</span>

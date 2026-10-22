@@ -11,6 +11,7 @@ import { Feature, useStageColours } from './Feature';
 import { Group, SlateStates, useSlate, useSlateScores } from './slate';
 import { FollowSheet } from './FollowSheet';
 import { EarlyAccessCard, EarlyAccessPill } from './EarlyAccess';
+import { FeedNote } from './LiveScoresControl';
 import { useSheet } from './sheet';
 import { useFollowing } from './follow';
 import { applyFilter, dateKey, dayStrip, groupByPhase, isLiveGame, isOver, pickFeature, type SlateFilter } from './model';
@@ -107,6 +108,7 @@ export function V4Home() {
       <div style={{ paddingTop: 8 }}>
         <EarlyAccessCard />
       </div>
+      <FeedNote />
       <div style={{ paddingTop: 8 }} aria-live="polite">
         <SlateStates loading={loading} unavailable={unavailable} failed={failed} empty={empty} emptyText={emptyText} />
         {!loading && !unavailable && feature && (

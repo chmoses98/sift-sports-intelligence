@@ -34,7 +34,7 @@ export function dayStrip(now: number, back = 3, ahead = 10): DayCell[] {
   });
 }
 
-// Each takes the game's score read when a score feed (today the Live Score Demo) has one. The read only changes which group a game is
+// Each takes the game's score read when a score feed has one. The read only changes which group a game is
 // SHOWN in; the publication's own status (g.phase) is still what the research layer uses, and these are not used there.
 export const isLiveGame = (g: GameRow, r?: ScoreRead | null) => { const s = shownState(r); return s ? s === 'live' : g.phase === 'STARTED' && !g.stale; };
 export const isOver = (g: GameRow, r?: ScoreRead | null) => { const s = shownState(r); return s ? s === 'over' : g.phase === 'FINAL' || (g.phase === 'STARTED' && g.stale); };
@@ -67,9 +67,9 @@ export function groupByPhase(rows: GameRow[], scores: Scores = NO_SCORES): Group
 
 /** The featured game for the selected slate: the app's own rule when it applies, else the game with the most published research. */
 export function pickFeature(rows: GameRow[], rule: GameRow | null, scores: Scores = NO_SCORES): GameRow | null {
-  // With the Live Score Demo on, a game the demo has in play is featured first: that is the point of the preview.
-  const demoLive = rows.filter((g) => g.home && g.away && scores(g)?.demo && isLiveGame(g, scores(g)));
-  if (demoLive.length) return [...demoLive].sort((a, b) => b.candidates - a.candidates || a.startMs - b.startMs || a.item.event_id.localeCompare(b.item.event_id))[0];
+  // A game a score feed has in play (and matched with certainty) is featured first: that is the point of having one.
+  const inPlay = rows.filter((g) => g.home && g.away && scores(g)?.game && isLiveGame(g, scores(g)));
+  if (inPlay.length) return [...inPlay].sort((a, b) => b.candidates - a.candidates || a.startMs - b.startMs || a.item.event_id.localeCompare(b.item.event_id))[0];
   if (rule && rows.includes(rule)) return rule;
   const playable = rows.filter((g) => g.home && g.away);
   if (!playable.length) return null;

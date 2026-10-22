@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useSyncExternalStore } from 'react';
 import { scoreStore } from './runtime';
 import type { ScoreRead } from './store';
-import type { ObservedEvent } from './demo/provider';
+import type { ObservedEvent } from './types';
 
 /** Re-render whenever the score store has new reads (a refresh, or the clock moving a chip's age). */
 export function useScoreVersion(): number {

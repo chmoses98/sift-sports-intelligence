@@ -55,7 +55,7 @@ export function Feature({ g, read }: { g: GameRow; read?: ScoreRead | null }) {
   const colours = useStageColours(g, research.data);
   const status = live ? 'In play' : shown === 'over' ? 'Final' : shown === 'upcoming' ? 'Upcoming' : g.phase === 'FINAL' ? 'Final' : g.phase === 'STARTED' ? 'Awaiting result' : g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'Upcoming' : g.phase === 'POSTPONED' ? 'Postponed' : g.phase === 'CANCELLED' ? 'Cancelled' : 'Suspended';
   const fsc = feed?.game?.score ?? null;
-  const aria = `${teamName(g.away)} ${hosted ? 'at' : 'versus'} ${teamName(g.home)}. ${status}${feed ? ' (demo)' : ''}${fsc ? `, ${shown === 'over' ? 'final' : periodClock(feed) || 'score'} ${fsc.away} to ${fsc.home}` : final ? `, final ${final.away} to ${final.home}` : ''}. Open game`;
+  const aria = `${teamName(g.away)} ${hosted ? 'at' : 'versus'} ${teamName(g.home)}. ${status}${fsc ? `, ${shown === 'over' ? 'final' : periodClock(feed) || 'score'} ${fsc.away} to ${fsc.home}` : final ? `, final ${final.away} to ${final.home}` : ''}. Open game`;
   return (
     <div className="v4-feature" style={colours} data-featured={g.item.event_id} data-art={art?.kind ?? 'none'}>
       {art && <div className="v4-feature__art" aria-hidden="true"><VenueArt key={art.photo?.id ?? art.reason} spec={art} surface="card" /></div>}
@@ -63,7 +63,7 @@ export function Feature({ g, read }: { g: GameRow; read?: ScoreRead | null }) {
       <div className="v4-feature__in">
         <div className="v4-feature__top">
           <span className="meta">{competitionWord(g.item.competition, sport)}</span>
-          <span className={`v4-badge${live && word === 'LIVE' ? ' v4-badge--live' : ''}`}>{live ? word : status.toUpperCase()}{feed?.demo ? ' · DEMO' : ''}</span>
+          <span className={`v4-badge${live && word === 'LIVE' ? ' v4-badge--live' : ''}`}>{live ? word : status.toUpperCase()}</span>
         </div>
         <Scoreboard g={g} away={away} home={home} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} to={gameHref(g)} label={aria} read={read} />
         <div className="v4-feature__bot">

@@ -174,3 +174,7 @@ export interface LiveScoreProvider {
   readonly sports: readonly LiveSport[];
   fetchScoreboard(sport: LiveSport, signal?: AbortSignal): Promise<ProviderBatch>;
 }
+
+export interface ObservedTeam { abbr: string | null; name: string }
+/** A SIFT event a screen is showing, with its teams as the publication names them: what a provider is asked about, and matched against. */
+export interface ObservedEvent { ref: SiftEventRef; home: ObservedTeam; away: ObservedTeam; /** The publication's league word ("usa.mls"), when it has one. */ league?: string | null }

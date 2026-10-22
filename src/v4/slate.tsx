@@ -5,7 +5,7 @@ import { useNow } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { gameRows, slateOrder, type GameRow } from '../views/broadcast/games';
 import { useScores } from '../live/scores/hooks';
-import { useDemoState } from '../live/scores/demo/state';
+import { useFeedEnabled } from '../live/scores/feed';
 import { Icon } from './Icon';
 import { GameRowV4 } from './parts';
 import { NO_SCORES, observedFor, type Scores } from './scoreState';
@@ -23,32 +23,30 @@ export function useSlate() {
 }
 
 /**
- * The score reads for the games a screen shows. With the Live Score Demo off (the default) this reads nothing and returns
+ * The score reads for the games a screen shows. With live scores off (the default) this reads nothing and returns
  * NO_SCORES, so every screen is exactly what it was. Display only: the reads never reach research, signals or markets.
  */
 export function useSlateScores(rows: GameRow[]): Scores {
-  const on = useDemoState().on;
-  const evs = useMemo(() => (on ? observedFor(rows) : []), [on, rows]);
+  const on = useFeedEnabled();
+  const now = useNow(30_000);
+  const evs = useMemo(() => (on ? observedFor(rows, now) : []), [on, rows, now]);
   const read = useScores(evs);
   const scores = useCallback<Scores>((g) => (on ? read(g.item.event_id) : null), [on, read]);
   return on ? scores : NO_SCORES;
 }
-
-/** Said wherever games are listed while the Live Score Demo is on. */
-export const DEMO_NOTE = 'DEMO: every score and clock here is simulated, not a live result. Real status, research and prices are unchanged.';
 
 /** Said wherever games in play are listed: "in play" is the publication's status, never a score feed. */
 export const LIVE_SCORES_NOTE = 'Live scores are not available yet. In play is each game’s published status; no score, clock or play is shown or estimated.';
 
 export function Group({ title, rows, live = false, note, scores = NO_SCORES }: { title: string; rows: GameRow[]; live?: boolean; note?: string; scores?: Scores }) {
   const [all, setAll] = useState(false);
-  const demo = useDemoState().on;
+  const feedOn = useFeedEnabled();
   if (!rows.length) return null;
   const shown = all ? rows : rows.slice(0, CAP);
   return (
     <section className="v4-sec" aria-label={title}>
       <header className="v4-sechead"><h2>{live && <i className="v4-livedot" aria-hidden="true" />}{title}</h2><span className="v4-sechead__n">{rows.length}</span></header>
-      {(note || live) && <p className="meta" style={{ padding: '0 16px 8px' }}>{note ?? (demo ? DEMO_NOTE : LIVE_SCORES_NOTE)}</p>}
+      {(note || (live && !feedOn)) && <p className="meta" style={{ padding: '0 16px 8px' }}>{note ?? LIVE_SCORES_NOTE}</p>}
       <ul className="v4-grp">{shown.map((g) => <GameRowV4 key={`${g.slug}:${g.item.event_id}`} g={g} read={scores(g)} />)}</ul>
       {rows.length > CAP && !all && <div style={{ padding: '10px 16px 0' }}><button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%' }} onClick={() => setAll(true)}>Show all {rows.length}</button></div>}
     </section>

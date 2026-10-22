@@ -1,24 +1,17 @@
-// Wires the score store to the app: today the Live Score Demo is the only provider, and only while the viewer has it switched on.
-// A real feed is added here (behind its own flag) and the Demo stays the way to see every state; nothing else changes.
+// Wires the score store to the app. The chain is one provider today (ESPN's public scoreboard, read by this device), and only while the
+// viewer has live scores switched on. Replacing it with a licensed professional feed later means writing one adapter and changing the
+// list below: the contract, identity matching, freshness rules, store and screens do not change.
 import { ScoreStore } from './store';
-import { DemoProvider, type ObservedEvent } from './demo/provider';
-import { demoNow, demoState, subscribeDemo } from './demo/state';
-import type { LiveScoreProvider, LiveSport } from './types';
+import { espnProvider } from './providers/espn';
+import { feedEnabled, subscribeFeed } from './feed';
+import type { LiveScoreProvider } from './types';
 
-let observed: () => ObservedEvent[] = () => [];
+const espn = espnProvider();
 
-const demo = new DemoProvider({
-  events: (sport: LiveSport) => observed().filter((e) => e.ref.sport === sport),
-  state: demoState,
-  now: demoNow,
+export const scoreStore: ScoreStore = new ScoreStore({
+  providers: (): LiveScoreProvider[] => (feedEnabled() ? [espn] : []),
+  generation: () => (feedEnabled() ? 'on' : 'off'),
+  now: Date.now,
 });
-
-export const scoreStore = new ScoreStore({
-  providers: (): LiveScoreProvider[] => (demoState().on ? [demo] : []),
-  generation: () => (demoState().on ? `demo:${demoState().epoch}` : 'off'),
-  now: demoNow,
-});
-// The demo provider reads the events the store is showing, so it can only describe games that are on a screen.
-observed = () => scoreStore.allObserved();
-// A change of mode or scenario is felt at once, not on the next second.
-subscribeDemo(() => { void scoreStore.refreshNow(); });
+// Turning the feed on or off is felt at once, not on the next second.
+subscribeFeed(() => { void scoreStore.refreshNow(); });

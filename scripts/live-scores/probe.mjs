@@ -25,11 +25,13 @@ mkdirSync(join(OUT, 'payloads'), { recursive: true });
 mkdirSync(join(OUT, 'terms'), { recursive: true });
 mkdirSync(join(OUT, 'samples'), { recursive: true });
 
-async function get(url, { text = false, timeout = 20000 } = {}) {
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15';
+
+async function get(url, { text = false, timeout = 20000, browserUa = false } = {}) {
   const t0 = Date.now();
   const startedAt = new Date().toISOString();
   try {
-    const r = await fetch(url, { headers: { 'user-agent': UA, accept: text ? 'text/html,text/plain,*/*' : 'application/json,*/*', origin: ORIGIN }, redirect: 'follow', signal: AbortSignal.timeout(timeout) });
+    const r = await fetch(url, { headers: { 'user-agent': browserUa ? BROWSER_UA : UA, accept: text ? 'text/html,text/plain,*/*' : 'application/json,*/*', origin: ORIGIN }, redirect: 'follow', signal: AbortSignal.timeout(timeout) });
     const buf = Buffer.from(await r.arrayBuffer());
     const headers = {};
     for (const k of KEEP) { const v = r.headers.get(k); if (v != null) headers[k] = v; }
@@ -53,7 +55,7 @@ const shape = (v, depth = 0) => {
 async function once() {
   const report = { generatedAt: new Date().toISOString(), node: process.version, origin: ORIGIN, feeds: [], terms: [] };
   for (const t of feedTargets()) {
-    const r = await get(t.url, { text: t.expect === 'text' });
+    const r = await get(t.url, { text: t.expect === 'text', browserUa: !!t.browserUa });
     const file = `payloads/${t.id}.${t.expect === 'text' ? 'txt' : 'json'}`;
     writeFileSync(join(OUT, file), r.buf);
     let summary = null;
@@ -63,8 +65,8 @@ async function once() {
     console.log(`${String(r.status).padEnd(4)} ${String(r.ms).padStart(5)}ms ${String(r.bytes).padStart(8)}B  acao=${r.headers['access-control-allow-origin'] ?? '-'}  ${t.id}`);
     await new Promise((s) => setTimeout(s, 400));
   }
-  for (const [id, url] of TERMS) {
-    const r = await get(url, { text: true, timeout: 25000 });
+  for (const [id, url, o] of TERMS) {
+    const r = await get(url, { text: true, timeout: 25000, browserUa: !!o?.browserUa });
     const html = r.buf.toString('utf8');
     writeFileSync(join(OUT, 'terms', `${id}.html`), html.slice(0, 600_000));
     const text = /html/i.test(r.headers['content-type'] ?? '') || /^\s*</.test(html) ? stripHtml(html) : html;

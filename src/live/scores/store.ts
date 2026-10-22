@@ -7,8 +7,7 @@
 import { LiveScoreService, type SportSnapshot } from './service';
 import { scoreView } from './freshness';
 import { TeamDirectory, canonicalizeGame, pairGames } from './identity';
-import type { ObservedEvent } from './demo/provider';
-import type { LiveGame, LiveScoreProvider, LiveScoreView, LiveSport, MatchResult } from './types';
+import type { LiveGame, LiveScoreProvider, LiveScoreView, LiveSport, MatchResult, ObservedEvent } from './types';
 
 export interface ScoreRead {
   /** The matched provider game, or null (not matched, no data, or a refused identity). */
@@ -16,8 +15,8 @@ export interface ScoreRead {
   view: LiveScoreView;
   /** Why the game was or was not matched, for diagnostics. */
   match: MatchResult | null;
-  /** True when the answering provider is the simulation. */
-  demo: boolean;
+  /** The id of the provider whose answer this is (or would be), for the source line. */
+  source: string | null;
 }
 
 export interface ScoreDiagnostics {
@@ -29,6 +28,8 @@ export interface ScoreDiagnostics {
   matched: number;
   refused: Record<string, number>;
   anomalies: string[];
+  /** The newest successful provider answer across the sports on screen (epoch ms), or null if none yet. */
+  lastSuccessAt: number | null;
 }
 
 export interface StoreOptions {
@@ -48,7 +49,7 @@ export class ScoreStore {
   private subs = new Set<() => void>();
   private timer: ReturnType<typeof setInterval> | null = null;
   private version = 0;
-  private diag: ScoreDiagnostics = { providers: [], status: {}, observed: 0, offered: 0, matched: 0, refused: {}, anomalies: [] };
+  private diag: ScoreDiagnostics = { providers: [], status: {}, observed: 0, offered: 0, matched: 0, refused: {}, anomalies: [], lastSuccessAt: null };
 
   constructor(private o: StoreOptions) {
     this.gen = o.generation();
@@ -123,12 +124,13 @@ export class ScoreStore {
   private recompute() {
     const now = this.o.now();
     const next = new Map<string, ScoreRead>();
-    const diag: ScoreDiagnostics = { providers: this.o.providers().map((p) => p.id), status: {}, observed: 0, offered: 0, matched: 0, refused: {}, anomalies: [] };
+    const diag: ScoreDiagnostics = { providers: this.o.providers().map((p) => p.id), status: {}, observed: 0, offered: 0, matched: 0, refused: {}, anomalies: [], lastSuccessAt: null };
     const sports = [...new Set(this.allObserved().map((e) => e.ref.sport))];
     for (const sport of sports) {
       const evs = this.eventsFor(sport);
       const snap = this.service.snapshot(sport);
       diag.status[sport] = snap.status;
+      if (snap.lastSuccessAt != null) diag.lastSuccessAt = Math.max(diag.lastSuccessAt ?? 0, snap.lastSuccessAt);
       diag.observed += evs.length;
       diag.offered += snap.games.length;
       diag.anomalies.push(...snap.anomalies.map((a) => `${a.kind}: ${a.detail}`));
@@ -147,7 +149,7 @@ export class ScoreStore {
         const game = hit?.game ?? null;
         if (game) diag.matched++; else if (hit && !hit.result.ok) diag.refused[hit.result.reason] = (diag.refused[hit.result.reason] ?? 0) + 1;
         next.set(e.ref.eventId, {
-          game, match: hit?.result ?? null, demo: (game?.provenance.provider ?? snap.answeredBy ?? this.o.providers()[0]?.id) === 'demo',
+          game, match: hit?.result ?? null, source: game?.provenance.provider ?? snap.answeredBy ?? this.o.providers()[0]?.id ?? null,
           view: scoreView(game, now, { providerDown: down }),
         });
       }

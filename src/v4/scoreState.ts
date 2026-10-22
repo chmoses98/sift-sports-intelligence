@@ -2,9 +2,8 @@
 // header shows. It never touches a game's real phase (GameRow.phase), which alone decides research freezing, signals and saves.
 import type { GameRow } from '../views/broadcast/games';
 import { TeamDirectory } from '../live/scores/identity';
-import type { ObservedEvent } from '../live/scores/demo/provider';
 import type { ScoreRead } from '../live/scores/store';
-import type { LiveSport } from '../live/scores/types';
+import type { LiveSport, ObservedEvent } from '../live/scores/types';
 import { formatQuoteAge } from '../live/freshness';
 
 export type Scores = (g: GameRow) => ScoreRead | null;
@@ -13,10 +12,17 @@ export const NO_SCORES: Scores = () => null;
 /** Games a real publication already calls over are never simulated or overwritten: their published result is the truth. */
 const OVER = new Set(['FINAL', 'POSTPONED', 'CANCELLED', 'SUSPENDED']);
 
-/** The slate rows as score-store events: identity comes from the publication's own participants. */
-export function observedFor(rows: GameRow[]): ObservedEvent[] {
+/** A score feed is only asked about games that can be in play: from 45 minutes before the start to 7 hours after it. Everything else needs no request. */
+const BEFORE_MS = 45 * 60_000;
+const AFTER_MS = 7 * 3600_000;
+
+/**
+ * The slate rows as score-store events: identity comes from the publication's own participants. `now` limits the list to games that can be
+ * in play (see above), so a screen showing a whole week of games asks the feed about today's only.
+ */
+export function observedFor(rows: GameRow[], now: number = Date.now()): ObservedEvent[] {
   const bySport = new Map<LiveSport, GameRow[]>();
-  for (const g of rows) if (!OVER.has(g.phase) && g.home && g.away) bySport.set(g.sport as LiveSport, [...(bySport.get(g.sport as LiveSport) ?? []), g]);
+  for (const g of rows) if (!OVER.has(g.phase) && g.home && g.away && g.startMs - BEFORE_MS <= now && now <= g.startMs + AFTER_MS) bySport.set(g.sport as LiveSport, [...(bySport.get(g.sport as LiveSport) ?? []), g]);
   const out: ObservedEvent[] = [];
   for (const [sport, list] of bySport) {
     const teams = list.flatMap((g) => [g.home!, g.away!]).map((p) => ({ abbr: p.short_name ?? null, name: p.display_name }));
@@ -28,7 +34,7 @@ export function observedFor(rows: GameRow[]): ObservedEvent[] {
       const ak = dir.resolve({ abbr: g.away!.short_name ?? null, name: g.away!.display_name });
       if (!hk || !ak || hk === ak) continue;
       const ref = { eventId: g.item.event_id, sport, startUtc: g.item.start_time_utc, home: { key: hk, name: g.home!.display_name }, away: { key: ak, name: g.away!.display_name } };
-      out.push({ ref, home: { abbr: g.home!.short_name ?? null, name: g.home!.display_name }, away: { abbr: g.away!.short_name ?? null, name: g.away!.display_name } });
+      out.push({ league: g.item.league ?? null, ref, home: { abbr: g.home!.short_name ?? null, name: g.home!.display_name }, away: { abbr: g.away!.short_name ?? null, name: g.away!.display_name } });
     }
   }
   return out;

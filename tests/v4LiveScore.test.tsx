@@ -31,7 +31,7 @@ const game = (o: Partial<LiveGame> = {}, ageS = 3): LiveGame => ({
   provenance: { provider: 'demo', providerGameId: 'demo:evt_1', providerUpdatedAt: new Date(NOW - ageS * 1000).toISOString(), fetchedAt: new Date(NOW - ageS * 1000).toISOString(), attribution: 'DEMO · simulated, not a real game' },
   ...o,
 });
-const read = (g: LiveGame | null, opts: { down?: boolean; demo?: boolean } = {}): ScoreRead => ({ game: g, match: null, demo: opts.demo ?? true, view: scoreView(g, NOW, { providerDown: opts.down }) });
+const read = (g: LiveGame | null, opts: { down?: boolean } = {}): ScoreRead => ({ game: g, match: null, source: 'espn', view: scoreView(g, NOW, { providerDown: opts.down }) });
 
 const inRouter = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
 

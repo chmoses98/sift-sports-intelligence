@@ -7,7 +7,7 @@ import { isStandalone } from '../lib/installIdentity';
 import { Icon } from './Icon';
 import { ExitLink } from './ExitLink';
 import { useSheet } from './sheet';
-import { DemoSection } from './DemoBar';
+import { LiveScoresSection } from './LiveScoresControl';
 
 const PROMPT_KEY = 'sift.v4.prompt';
 const SIFT2_HOME = '/design/sift2/home';
@@ -66,13 +66,13 @@ export function EarlyAccessSheet() {
 
         <section className="v4-sblock"><h3>What to expect</h3>
           <ul className="v4-sbullets">
-            <li>Live scores, game clocks and plays are not available yet. A game shown as in play comes from its published status; no score is estimated. The Live Score Demo below is the one exception, and it is always labelled DEMO.</li>
+            <li>Live scores, game clocks and plays are off by default. Turn them on below to read real scores for games in play; a game with no verified match shows "score unavailable", and no score is ever estimated.</li>
             <li>Prices come from the market feed only when it has a current quote, and say how old it is. When it has none, the screen says so.</li>
             <li>Research only. SIFT does not recommend bets.</li>
           </ul>
         </section>
 
-        <DemoSection />
+        <LiveScoresSection />
 
         <section className="v4-sblock"><h3>{standalone ? 'You are in the Home Screen app' : 'Add to your iPhone Home Screen'}</h3>
           {standalone ? (

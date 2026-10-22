@@ -11,8 +11,7 @@ import { SheetHost } from './sheet';
 import { TrayProvider } from '../state/tray';
 import { UndoProvider } from './undo';
 import { EarlyAccessFooter } from './EarlyAccess';
-import { DemoBar } from './DemoBar';
-import { demoState, disableDemo, enableDemo } from '../live/scores/demo/state';
+import { disableFeed, enableFeed, feedEnabled } from '../live/scores/feed';
 import { isStandalone, setInstallIdentity } from '../lib/installIdentity';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
@@ -27,13 +26,13 @@ const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
 export function V4Root() {
   const { pathname } = useLocation();
   const [sp, setSp] = useSearchParams();
-  // `?livedemo=1` turns the Live Score Demo on and `?livedemo=0` off (an explicit opt-in, never the default); the parameter is then dropped from the address.
-  const ld = sp.get('livedemo');
+  // `?livescores=1` turns real live scores on for this device and `?livescores=0` off (an explicit opt-in, never the default); the parameter is then dropped from the address.
+  const ld = sp.get('livescores');
   useEffect(() => {
     if (ld !== '1' && ld !== '0') return;
-    if (ld === '1' && !demoState().on) enableDemo();
-    if (ld === '0') disableDemo();
-    setSp((p) => { const n = new URLSearchParams(p); n.delete('livedemo'); return n; }, { replace: true });
+    if (ld === '1' && !feedEnabled()) enableFeed();
+    if (ld === '0') disableFeed();
+    setSp((p) => { const n = new URLSearchParams(p); n.delete('livescores'); return n; }, { replace: true });
   }, [ld, setSp]);
   // The page background is the app's: no classic body colour shows behind the column or in overscroll.
   useEffect(() => {
@@ -65,7 +64,6 @@ export function V4Root() {
       <UndoProvider>
       <SheetHost>
         <div className="v4-col">
-          <DemoBar />
           <main className="v4-main" id="v4-main">
             <Suspense fallback={<div className="v4-hand"><div className="v4-skel" style={{ height: 120 }} role="status" aria-label="Loading" /></div>}>
               <Outlet />

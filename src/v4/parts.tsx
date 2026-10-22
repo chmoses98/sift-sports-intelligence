@@ -51,7 +51,7 @@ export function SignalChip({ g }: { g: GameRow }) {
 /** One game as a compact row: away, middle (time, live word or final score), home, then the signal chip or a chevron. */
 export function GameRowV4({ g, read }: { g: GameRow; read?: ScoreRead | null }) {
   const [ref, seen] = useSeen<HTMLLIElement>();
-  // A score feed's read (today only the Live Score Demo, always labelled DEMO) changes what is SHOWN; the publication's status is untouched.
+  // A score feed's read changes what is SHOWN; the publication's status is untouched.
   const shown = shownState(read);
   const feed = shown === 'live' || shown === 'over' ? read : null;
   const final = useFinal(g, seen && !feed);
@@ -60,7 +60,6 @@ export function GameRowV4({ g, read }: { g: GameRow; read?: ScoreRead | null }) 
   const h = g.home?.short_name ?? teamName(g.home);
   const when = phaseWord(g);
   const sc = feed?.game?.score ?? null;
-  const tag = feed?.demo ? 'DEMO' : '';
   let mid: ReactNode;
   if (feed && sc) {
     const over = shown === 'over';
@@ -71,11 +70,10 @@ export function GameRowV4({ g, read }: { g: GameRow; read?: ScoreRead | null }) 
           <span className={over && sc.home > sc.away ? 'lose' : ''}>{sc.away}</span><small className="over" style={{ font: '600 12px/16px var(--f-ui)' }}>{over ? 'F' : '–'}</small><span className={over && sc.away > sc.home ? 'lose' : ''}>{sc.home}</span>
         </span>
         <small>{line}</small>
-        {tag && <small className="v4-demotag">{tag}</small>}
       </>
     );
   } else if (feed) {
-    mid = <>{shown === 'over' ? 'Final' : 'Live'}<small>No score reported</small>{tag && <small className="v4-demotag">{tag}</small>}</>;
+    mid = <>{shown === 'over' ? 'Final' : 'Live'}<small>No score reported</small></>;
   } else if (final) {
     mid = <span className="v4-row__sc"><span className={final.winner === 'home' ? 'lose' : ''}>{final.away}</span><small className="over" style={{ font: '600 12px/16px var(--f-ui)' }}>F</small><span className={final.winner === 'away' ? 'lose' : ''}>{final.home}</span></span>;
   } else if (live) {
@@ -88,7 +86,7 @@ export function GameRowV4({ g, read }: { g: GameRow; read?: ScoreRead | null }) 
     mid = <>{when}</>;
   }
   const spoken = feed && sc
-    ? `${shown === 'over' ? 'final' : `${periodClock(feed) || 'in play'}`}, demo score ${sc.away} to ${sc.home}${ageChip(feed) ? `, ${ageChip(feed)}` : ''}`
+    ? `${shown === 'over' ? 'final' : `${periodClock(feed) || 'in play'}`}, score ${sc.away} to ${sc.home}${ageChip(feed) ? `, ${ageChip(feed)}` : ''}`
     : final ? `final ${final.away} to ${final.home}` : when;
   const label = `${teamName(g.away)} at ${teamName(g.home)}, ${spoken}. Open game`;
   return (

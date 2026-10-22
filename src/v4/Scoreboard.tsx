@@ -1,7 +1,6 @@
 // The compact scoreboard shared by the featured card and the game header: crest and name each side, the published final
 // score when there is one, otherwise the start time or the lifecycle word. The publication carries no live score, so an
-// in-play game says "Score unavailable" rather than showing zeroes, unless a score feed has a verified read for the game
-// (today only the Live Score Demo, whose every number is labelled DEMO).
+// in-play game says "Score unavailable" rather than showing zeroes, unless a score feed has a verified read for the game.
 import { Link } from '../routing';
 import { Crest } from './base';
 import { clock, isLiveGame } from './model';
@@ -24,14 +23,13 @@ export function Scoreboard({ g, away, home, awayRec, homeRec, final, hosted, to,
   const liveScore = feed && shown === 'live' && fs ? fs : null;
   const left = liveScore?.away ?? shownFinal?.away;
   const right = liveScore?.home ?? shownFinal?.home;
-  const tag = feed?.demo ? <small className="v4-demotag">DEMO</small> : null;
   const body = (
     <>
       <span className="v4-sb__team"><Crest sport={g.sport} p={g.away} size="lg" /><span className="v4-sb__name">{away}</span>{awayRec && <span className="v4-sb__rec">{awayRec}</span>}</span>
       {left != null && <span className={`v4-sb__score num${shownFinal?.winner === 'home' ? ' v4-sb__score--lose' : ''}${feed && (feed.view.mode === 'LAST_KNOWN' || feed.view.mode === 'DELAYED') ? ' v4-sb__score--aged' : ''}`}>{left}</span>}
       <span className="v4-sb__mid">
-        {feed && shown === 'live' ? <><b>{periodClock(feed) || 'Live'}</b><small>{fs ? chipLine(feed) : 'No score reported'}</small>{tag}</>
-          : feed && shown === 'over' ? <><b>{fs ? 'F' : 'Final'}</b><small>{fs ? 'Final' : 'No score reported'}</small>{tag}</>
+        {feed && shown === 'live' ? <><b>{periodClock(feed) || 'Live'}</b><small>{fs ? chipLine(feed) : 'No score reported'}</small></>
+          : feed && shown === 'over' ? <><b>{fs ? 'F' : 'Final'}</b><small>{fs ? 'Final' : 'No score reported'}</small></>
           : live ? <><b>Live</b><small>Score unavailable</small></>
           : shownFinal ? <><b>F</b><small>Final</small></>
           : g.phase === 'FINAL' && !shown ? <><b>Final</b><small>Score unavailable</small></>

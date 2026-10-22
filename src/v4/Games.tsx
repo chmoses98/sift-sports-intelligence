@@ -4,8 +4,9 @@ import { useSearchParams } from '../routing';
 import { NAV_SPORTS } from '../data/nav';
 import { groupGames } from '../components/sift2/GameList';
 import { GameRowV4 } from './parts';
-import { DEMO_NOTE, LIVE_SCORES_NOTE, SlateStates, useSlate, useSlateScores } from './slate';
-import { useDemoState } from '../live/scores/demo/state';
+import { LIVE_SCORES_NOTE, SlateStates, useSlate, useSlateScores } from './slate';
+import { useFeedEnabled } from '../live/scores/feed';
+import { FeedNote } from './LiveScoresControl';
 import { dateKey, dayStrip, isLiveGame, isOver, isUpcoming } from './model';
 
 type Status = 'all' | 'live' | 'upcoming' | 'final';
@@ -19,7 +20,7 @@ export function V4Games() {
   const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
   const inDay = useMemo(() => rows.filter((g) => Number.isFinite(g.startMs) && dateKey(g.startMs) === day), [rows, day]);
   const scores = useSlateScores(inDay);
-  const demo = useDemoState().on;
+  const feedOn = useFeedEnabled();
   const shown = useMemo(() => inDay.filter((g) => status === 'all' || (status === 'live' ? isLiveGame(g, scores(g)) : status === 'upcoming' ? isUpcoming(g, scores(g)) : isOver(g, scores(g)))), [inDay, status, scores]);
   const groups = useMemo(() => groupGames(shown), [shown]);
   const days = useMemo(() => dayStrip(now), [now]);
@@ -47,7 +48,7 @@ export function V4Games() {
       </div>
       <div style={{ paddingTop: 8 }} aria-live="polite">
         <SlateStates loading={loading} unavailable={unavailable} failed={failed} empty={empty} emptyText={status === 'all' ? `No published games ${day === today ? 'today' : 'on this day'}.` : `No ${status} games ${day === today ? 'today' : 'on this day'}.`} />
-        {!loading && !unavailable && shown.some((g) => isLiveGame(g, scores(g))) && <p className="meta" style={{ padding: '0 16px 12px' }}>{demo ? DEMO_NOTE : LIVE_SCORES_NOTE}</p>}
+        {!loading && !unavailable && (feedOn ? <FeedNote /> : shown.some((g) => isLiveGame(g, scores(g))) && <p className="meta" style={{ padding: '0 16px 12px' }}>{LIVE_SCORES_NOTE}</p>)}
         {!loading && !unavailable && groups.map((gr) => (
           <section key={gr.slug} className="v4-sec" aria-label={NAV_SPORTS.find((s) => s.slug === gr.slug)?.fullName ?? gr.sport}>
             <header className="v4-sechead"><h2>{NAV_SPORTS.find((s) => s.slug === gr.slug)?.label ?? gr.sport}</h2><span className="v4-sechead__n">{gr.games.length}</span></header>

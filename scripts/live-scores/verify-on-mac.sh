@@ -13,19 +13,11 @@ DAY=$(date -u +%Y%m%d); DASH=$(date -u +%Y-%m-%d)
 OUT="feed-check-$DAY"; mkdir -p "$OUT"
 UA="SIFT-personal-feed-probe/1.0 (+https://github.com/chmoses98/sift-sports-intelligence; read-only evaluation)"
 ORIGIN="https://chmoses98.github.io"
-E="https://site.api.espn.com/apis/site/v2/sports"
 FEEDS=(
-  "espn-nfl|$E/football/nfl?dates=$DAY|\"id\":\"[0-9]*\",\"uid\""
-  "espn-cfb|$E/football/college-football?groups=80&limit=400&dates=$DAY|\"id\":\"[0-9]*\",\"uid\""
-  "espn-nba|$E/basketball/nba?dates=$DAY|\"id\":\"[0-9]*\",\"uid\""
-  "espn-nhl|$E/hockey/nhl?dates=$DAY|\"id\":\"[0-9]*\",\"uid\""
-  "espn-mlb|$E/baseball/mlb?dates=$DAY|\"id\":\"[0-9]*\",\"uid\""
-  "espn-mls|$E/soccer/usa.1?dates=$DAY|\"id\":\"[0-9]*\",\"uid\""
-  "nhl-official|https://api-web.nhle.com/v1/score/now|\"gameState\""
+  "sportscore-nba|https://sportscore.com/api/v1/fixtures/?sport=basketball&date=$DASH&limit=200&src=sift-personal|\"home_score\""
+  "sportscore-widget|https://sportscore.com/api/widget/matches/?sport=basketball&limit=50&src=sift-personal|\"home_score\""
+  "sportscore-tennis|https://sportscore.com/api/v1/fixtures/?sport=tennis&date=$DASH&limit=200&src=sift-personal|\"home_score\""
   "nba-official|https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json|\"gameId\""
-  "mlb-official|https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=$DASH&hydrate=linescore,team|\"gamePk\""
-  "thesportsdb|https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=$DASH&l=4380|\"idEvent\""
-  "ncaa-fbs|https://ncaa-api.henrygd.me/scoreboard/football/fbs|\"gameID\""
 )
 printf '%-14s %-5s %-8s %-9s %-6s %s\n' FEED HTTP TIME_S BYTES GAMES CORS
 for row in "${FEEDS[@]}"; do
@@ -39,7 +31,8 @@ for row in "${FEEDS[@]}"; do
 done
 echo
 echo "Saved responses in $OUT/. Terms pages (open these and read them; they decide what SIFT may do):"
-echo "  ESPN        https://disneytermsofuse.com/"
+echo "  SportScore  https://sportscore.com/developers/terms/   (the feed SIFT reads)"
+echo "  (ESPN is not read by SIFT: its terms do not permit automated access.)"
 echo "  NHL         https://www.nhl.com/info/terms-of-service"
 echo "  NBA         https://www.nba.com/termsofuse"
 echo "  MLB         https://gdx.mlb.com/components/copyright.txt"

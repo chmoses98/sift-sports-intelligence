@@ -23,10 +23,6 @@ export const ESPN_LEAGUES = [
 export function feedTargets(now = new Date()) {
   const t = [];
   const sb = (p, q = '') => { const [path, query = ''] = p.split('?'); return `${ESPN}/${path}/scoreboard?${[query, q].filter(Boolean).join('&')}`; };
-  for (const [k, p] of ESPN_LEAGUES) t.push({ id: `espn-${k}`, group: 'espn', url: sb(p, `dates=${ymd(now)}`), expect: 'json' });
-  for (const [k, p] of ESPN_LEAGUES.slice(0, 5)) t.push({ id: `espn-${k}-nodate`, group: 'espn', url: sb(p), expect: 'json' });
-  t.push({ id: 'espn-cdn-nfl', group: 'espn', url: 'https://cdn.espn.com/core/nfl/scoreboard?xhr=1&limit=100', expect: 'json' });
-  t.push({ id: 'espn-web-header', group: 'espn', url: 'https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=football&league=nfl&limit=20', expect: 'json' });
   // SportScore (free tier, attribution): the endpoint named in its developer docs
   for (const sp of ['basketball', 'football', 'tennis']) t.push({ id: `sportscore-${sp}`, group: 'sportscore', url: `https://sportscore.com/api/widget/matches/?sport=${sp}&limit=50&src=sift-personal-probe`, expect: 'json' });
   // SportScore day fixtures (documented REST v1): by UTC date, with a live filter, and one match detail
@@ -73,7 +69,6 @@ export const TERMS = [
   ['nba-terms-browserua', 'https://www.nba.com/termsofuse', { browserUa: true }],
   ['espn-terms-legacy', 'https://www.espn.com/espn/news/story?page=termsofuse'],
   ['espn-robots', 'https://www.espn.com/robots.txt'],
-  ['espn-api-robots', 'https://site.api.espn.com/robots.txt'],
   ['nhl-terms', 'https://www.nhl.com/info/terms-of-service'],
   ['nhl-api-robots', 'https://api-web.nhle.com/robots.txt'],
   ['nba-terms', 'https://www.nba.com/termsofuse'],

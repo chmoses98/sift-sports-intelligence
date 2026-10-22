@@ -12,7 +12,6 @@ package hosts are on it). That is a property of the sandbox, not of the feeds. T
    broader level or add these under *Allowed domains* (leave "Allow package managers" ticked):
 
    ```
-   site.api.espn.com   site.web.api.espn.com   cdn.espn.com   sports.core.api.espn.com   www.espn.com   disneytermsofuse.com
    api-web.nhle.com    www.nhl.com
    cdn.nba.com         www.nba.com
    statsapi.mlb.com    gdx.mlb.com             www.mlb.com

@@ -32,6 +32,7 @@ jobs:
       mode: ${{ steps.cfg.outputs.mode }}
       minutes: ${{ steps.cfg.outputs.minutes }}
       interval: ${{ steps.cfg.outputs.interval }}
+      tag: ${{ steps.cfg.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,6 +42,7 @@ jobs:
           echo "mode=$(node -p "require('./scripts/live-scores/probe-config.json').mode")" >> "$GITHUB_OUTPUT"
           echo "minutes=$(node -p "require('./scripts/live-scores/probe-config.json').minutes")" >> "$GITHUB_OUTPUT"
           echo "interval=$(node -p "require('./scripts/live-scores/probe-config.json').interval")" >> "$GITHUB_OUTPUT"
+          echo "tag=$(node -p "require('./scripts/live-scores/probe-config.json').tag || ''")" >> "$GITHUB_OUTPUT"
 
   probe:
     needs: config
@@ -113,7 +115,7 @@ jobs:
         env:
           LIVE_NBA: '1'
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROBE_BRANCH: live-scores-probe-nba
+          PROBE_BRANCH: live-scores-probe-nba${{ needs.config.outputs.tag }}
           NBA_MINUTES: ${{ needs.config.outputs.minutes }}
           VERIFY_OUT: ${{ runner.temp }}/out
           ORACLE_OUT: ${{ runner.temp }}/oracle
@@ -147,7 +149,7 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROBE_BRANCH: ${{ needs.config.outputs.mode == 'browser' && 'live-scores-probe-browser' || needs.config.outputs.mode == 'nba-verify' && 'live-scores-probe-nba' || 'live-scores-probe' }}
+          PROBE_BRANCH: ${{ needs.config.outputs.mode == 'browser' && 'live-scores-probe-browser' || needs.config.outputs.mode == 'nba-verify' && format('live-scores-probe-nba{0}', needs.config.outputs.tag) || 'live-scores-probe' }}
         run: bash scripts/live-scores/publish-branch.sh "$RUNNER_TEMP/out"
       - uses: actions/upload-artifact@v4
         if: always()

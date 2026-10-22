@@ -1,6 +1,6 @@
 # Real live scores for SIFT: evidence, permissions and what is connected
 
-Status: **draft PR, not deployed.** Written 2026-10-22. Everything below comes from first-hand reads: requests made from a GitHub Actions runner
+Status: **approved by the owner for the current non-commercial v4 early access (2026-10-22): on by default in v4, one tap to turn off, SIFT 2.0 untouched. Real-game accuracy is measured while the app is in use (section 3).** Written 2026-10-22. Everything below comes from first-hand reads: requests made from a GitHub Actions runner
 (`.github/workflows/live-scores-probe.yml`, `scripts/live-scores/probe.mjs`, results on the `live-scores-probe` branch) and the providers' own terms
 pages saved verbatim by the probe. Nothing is from memory or search summaries unless marked.
 

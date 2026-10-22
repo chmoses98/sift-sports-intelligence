@@ -26,17 +26,13 @@ const decimal = (n: number) => n.toFixed(1);
 const range = (lo: number | null, hi: number | null) => lo != null && hi != null ? `${Math.round(lo)}–${Math.round(hi)}` : 'Not published';
 
 /**
- * Why a published 80% range may start below zero, by stat. The range itself is always shown exactly as published; this only says what the
- * negative bound means. Rushing yards are legitimately negative in college football (NCAA counts sacks against rushing: 17.7% of 93,347
- * player-game rushing lines in ESPN box scores 2016–2025 were below 0, 28% for quarterbacks). Receiving yards are rarely negative (2.4% of
- * 116,854 lines, 5.0% for one-catch lines), so a negative lower bound there is an artifact of the model's low-volume residuals, not a
- * calibrated outcome. Any other stat cannot be negative at all.
+ * What a published range that starts below zero means. The range is always shown exactly as published. Only rushing yards can be negative
+ * (NEGATIVE_FLOOR in lib/projections.ts): NCAA counts sacks against rushing, so 17.7% of 93,347 ESPN player-game rushing lines 2016–2025 were
+ * below 0 (28% for quarterbacks). Every other stat is withheld before it gets here if its range starts below zero.
  */
 export function rangeNote(family: string, p10: number | null): string | null {
-  if (p10 == null || p10 >= 0) return null;
-  if (family === 'rushing_yards') return 'A range starting below 0 is possible for rushing yards: NCAA counts sacks against rushing, and 1 in 6 college rushing lines is negative.';
-  if (family === 'receiving_yards') return 'The lower bound below 0 is a model artifact: receiving yards are negative in only about 2% of games, and zero is the realistic floor.';
-  return 'This stat cannot be negative: the lower bound below 0 is a model artifact.';
+  if (p10 == null || p10 >= 0 || family !== 'rushing_yards') return null;
+  return 'Rushing yards can be negative: NCAA counts sacks against rushing, and about 1 in 6 college rushing lines is below 0.';
 }
 /** The distinct notes for a player's published rows, in the order the rows are listed. */
 export const rangeNotes = (rows: { family: string; p10: number | null }[]): string[] =>
@@ -140,6 +136,30 @@ const CFB_LABEL: Record<string, string> = {
   passing_attempts: 'Pass att', carries: 'Carries', receptions: 'Catches',
 };
 
+/** One game's college player research rows, grouped by player and ordered by lead yardage. Rows that are stale, out, blocked or incoherent never
+ *  appear; the incoherent ones are counted so the screen can say how many were withheld, and how many of them are receiving-yards ranges that
+ *  start below 0 (a model artifact for that stat, see NEGATIVE_FLOOR) instead of dropping them silently. */
+export function cfbPlayerRows(doc: { players: PlayerProjection[] } | null, gameId: string, nowMs: number) {
+  const families = new Set<string>(CFB_FAMILIES);
+  const by = new Map<string, PlayerProjection[]>();
+  let withheld = 0;
+  let withheldNegativeReceiving = 0;
+  for (const p of doc?.players ?? []) {
+    if (p.gameId !== gameId || !families.has(p.family) || p.readiness !== 'SHADOW VALIDATION' || p.gate.status === 'BLOCK') continue;
+    if (p.participation?.status === 'LIKELY_OUT' || p.participation?.status === 'CONFIRMED_OUT') continue;
+    if (!p.dataAsOf || !Number.isFinite(Date.parse(p.dataAsOf)) || Math.abs(nowMs - Date.parse(p.dataAsOf)) > MAX_AGE_H.CFB * 3600_000) continue;
+    const problems = coherenceProblems(p);
+    if (problems.length) {
+      withheld += 1;
+      if (p.family === 'receiving_yards' && problems.every((x) => x === 'a projected value is negative')) withheldNegativeReceiving += 1;
+      continue;
+    }
+    by.set(p.playerId, [...(by.get(p.playerId) ?? []), p]);
+  }
+  const priority = (rows: PlayerProjection[]) => Math.max(0, ...rows.filter((p) => p.family.endsWith('_yards')).map((p) => p.mean));
+  return { items: [...by.values()].sort((a, b) => priority(b) - priority(a)), withheld, withheldNegativeReceiving };
+}
+
 /** The college player models are archived shadows. Do not promote them implicitly: no verified
  *  point-in-time participation feed exists, so every figure is conditional on playing. */
 export function CfbPlayerProjections({ g }: { g: GameRow }) {
@@ -147,22 +167,7 @@ export function CfbPlayerProjections({ g }: { g: GameRow }) {
   const [limit, setLimit] = useState(12);
   const match = useMemo(() => findTeamProjections(doc, teamsOf(g)), [doc, g]);
   const id = match?.[0]?.gameId ?? '';
-  const items = useMemo(() => {
-    const now = Date.now();
-    const families = new Set<string>(CFB_FAMILIES);
-    const by = new Map<string, PlayerProjection[]>();
-    for (const p of doc?.players ?? []) {
-      if (p.gameId !== id || !families.has(p.family) || p.readiness !== 'SHADOW VALIDATION' || p.gate.status === 'BLOCK') continue;
-      if (p.participation?.status === 'LIKELY_OUT' || p.participation?.status === 'CONFIRMED_OUT') continue;
-      if (!p.dataAsOf || !Number.isFinite(Date.parse(p.dataAsOf)) || Math.abs(now - Date.parse(p.dataAsOf)) > MAX_AGE_H.CFB * 3600_000) continue;
-      if (coherenceProblems(p).length) continue;
-      by.set(p.playerId, [...(by.get(p.playerId) ?? []), p]);
-    }
-    return [...by.values()].sort((a, b) => {
-      const priority = (rows: PlayerProjection[]) => Math.max(0, ...rows.filter((p) => p.family.endsWith('_yards')).map((p) => p.mean));
-      return priority(b) - priority(a);
-    });
-  }, [doc, id]);
+  const { items, withheld, withheldNegativeReceiving } = useMemo(() => cfbPlayerRows(doc, id, Date.now()), [doc, id]);
   return <section aria-label="College player projection research">
     <header className="v4-sechead"><h2>College player research</h2><span className="v4-spacer" /><span className="meta">{items.length} players</span></header>
     <div className="v4-note" style={{ marginBottom: 12 }}><Icon name="info" /><div><b>Research preview · player availability unverified</b>These are published shadow forecasts, conditional on the player participating. They are not approved SIFT player projections, validated edges, or recommendations.</div></div>
@@ -195,6 +200,10 @@ export function CfbPlayerProjections({ g }: { g: GameRow }) {
         </ul>
         {items.length > limit && <button className="v4-btn v4-btn--sec" style={{ marginTop: 12, width: '100%' }} type="button" onClick={() => setLimit((n) => n + 12)}>Show more players ({items.length - limit} remaining)</button>}
       </>}
+    {!loading && id && withheld > 0 && <p className="meta" style={{ marginTop: 12 }}>
+      {withheld} stat forecast{withheld === 1 ? '' : 's'} withheld because the published range failed a coherence check
+      {withheldNegativeReceiving > 0 ? `, ${withheldNegativeReceiving} of them receiving-yards ranges that start below 0: negative receiving games are only about 2% of the total, so that bound is a model artifact` : ''}.
+    </p>}
   </section>;
 }
 

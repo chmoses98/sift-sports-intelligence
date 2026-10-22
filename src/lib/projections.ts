@@ -226,11 +226,20 @@ export function attachDistributions(doc: ProjectionDoc | null, d: DistributionDo
  * SIFT's own defensive re-check of a published projection (the engine's gate runs first; this catches a broken or
  * tampered document). Returns the reasons the number must not be shown; empty = displayable.
  */
+/**
+ * Stats whose real outcomes can be negative, with the lowest value a projection of them may show. Rushing yards are net of sacks in college
+ * football (17.7% of 93,347 ESPN box-score lines 2016–2025 were below 0, 28% for quarterbacks), so a negative mean or range is a real forecast
+ * there. The floor is the lowest value the model's own distribution allows (cfb/project.py lattice from -30); anything below it is corrupt.
+ * Receiving yards are NOT listed: only 2.4% of lines are negative, so a published range that starts below 0 is a model artifact and stays withheld.
+ */
+export const NEGATIVE_FLOOR: Readonly<Record<string, number>> = { rushing_yards: -30 };
+
 export function coherenceProblems(p: PlayerProjection): string[] {
   const out: string[] = [];
   if (!Number.isFinite(p.mean)) out.push('mean is not a number');
-  // every projected stat is a count or a total: a negative value in the number or its range is a corrupt row, not a forecast
-  if (p.mean < 0 || (p.median != null && p.median < 0) || (p.p10 != null && p.p10 < 0) || (p.p90 != null && p.p90 < 0)) out.push('a projected value is negative');
+  // every other projected stat is a count or a total: a negative value in the number or its range is a corrupt row, not a forecast
+  const floor = NEGATIVE_FLOOR[p.family] ?? 0;
+  if (p.mean < floor || (p.median != null && p.median < floor) || (p.p10 != null && p.p10 < floor) || (p.p90 != null && p.p90 < floor)) out.push('a projected value is negative');
   if (p.p10 != null && p.p90 != null && p.p10 > p.p90) out.push('range is inverted');
   // >=90% of the mass sits at or above p10, so the mean cannot sit far below it (skewed stats can sit above p90: HR, TDs)
   if (p.p10 != null && p.mean < p.p10 - Math.max(1, 0.15 * Math.abs(p.p10))) out.push('mean below its own 10th percentile');

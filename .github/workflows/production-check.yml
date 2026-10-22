@@ -23,7 +23,23 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
+      # 2026-10-22: this step once stalled for 33 minutes (apt/CDN) and the job timeout then cancelled the live-site check before it ran. The
+      # browsers are cached per Playwright version and each attempt is bounded and retried, so a stalled mirror costs minutes, not the run.
+      # The checks themselves are unchanged.
+      - id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium-webkit
+      - name: Install Chromium and WebKit (bounded and retried)
+        timeout-minutes: 15
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 240 npx playwright install --with-deps chromium webkit; then exit 0; fi
+            echo "install attempt $attempt failed or stalled (240 s limit); retrying"; sleep 10
+          done
+          echo "Playwright could not be installed after 3 bounded attempts"; exit 1
       - name: Check the live site (Chromium phone + WebKit iPhone)
         run: node scripts/production-check.mjs
         env:
@@ -48,6 +64,13 @@ jobs:
         run: node scripts/v4-production-check.mjs
         env:
           SIFT_V4_PAUSED: ${{ vars.SIFT_V4 == 'off' && '1' || '0' }}
+          SIFT_EXPECT_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+      # v4 CFB and NBA projections on the live site: every number on the phone equals the published feed row (cfb-edge-finder / nba-edge-finder
+      # projection-data), with the quality labels, exclusions and one projection per player and stat. Screenshots: production-v4-projections-*.png.
+      - name: SIFT v4 CFB and NBA projections (Chromium phone + WebKit iPhone)
+        if: always()
+        run: node scripts/v4-projections-production-check.mjs
+        env:
           SIFT_EXPECT_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
       # The repair sprint's deliverables (docs/REPAIR_SPRINT_2026-10-11.md) on the live site: every line names its
       # tracker issue; a check that cannot apply today prints N/A (reason). Screenshots: production-sprint-*.png.

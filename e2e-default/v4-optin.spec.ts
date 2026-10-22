@@ -123,18 +123,24 @@ test.describe('v4 early access', () => {
   });
 
   test('moving between v4 and SIFT 2.0 inside the app keeps the install identity right', async ({ page }) => {
+    // The identity is set by the app as the address changes (no page load), so a read right after the screen appears must poll, not look once.
     await page.goto('#/v4');
     await expect(page.locator('[data-v4-shell]')).toBeVisible();
-    expect(await manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
-    expect(await appTitle(page)).toBe('SIFT v4');
+    await expect.poll(() => manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
+    await expect.poll(() => appTitle(page)).toBe('SIFT v4');
     await page.locator('.v4-eafoot').getByRole('link', { name: 'Return to SIFT 2.0' }).click();
     await expect(page).toHaveURL(/#\/design\/sift2\/home/);
-    expect(await manifestHref(page)).toMatch(/\/manifest\.webmanifest$/);
-    expect(await appTitle(page)).toBe('Sift');
+    await expect.poll(() => manifestHref(page)).toMatch(/\/manifest\.webmanifest$/);
+    await expect.poll(() => appTitle(page)).toBe('Sift');
     await expect(page).toHaveTitle(/Sift/);
     await page.evaluate(() => { location.hash = '#/v4'; });
     await expect(page.locator('[data-v4-shell]')).toBeVisible();
-    expect(await manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
+    await expect.poll(() => manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
+    await expect.poll(() => appTitle(page)).toBe('SIFT v4');
+    await expect(page).toHaveTitle(/SIFT v4/);
+    // and the other way again, in-app, to the classic interface
+    await page.evaluate(() => { location.hash = '#/design/sift2/home'; });
+    await expect.poll(() => manifestHref(page)).toMatch(/\/manifest\.webmanifest$/);
   });
 
   test('the Home Screen steps read as a numbered list and the sheet fits the phone', async ({ page }) => {

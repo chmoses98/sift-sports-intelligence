@@ -26,8 +26,8 @@ Open the v4 address in **Safari**, on v4 Home, then Share, **Add to Home Screen*
 
 ## What works today
 
-- **Home, Games, Game**: the published slate by league and day, lifecycle groups, the game page (Live, Matchups, Players, Markets).
-- **Props and player detail**: the NFL Prop Explorer with side-aware (YES / NO) pricing, projection where one is published, and the research sheet.
+- **Home, Games, Game**: the published slate by league and day (NFL, NHL, MLB, CFB, CBB, NBA, soccer, tennis), lifecycle groups, the game page (Live, Matchups, Players, Markets). Prices on a game say how old they are, and that age matches the quote feed's own observation time (checked against the feed itself).
+- **Props and player detail**: the NFL Prop Explorer with side-aware (YES / NO) pricing, projection where one is published, and the research sheet. The player page first shows the publication's older quote, labelled stale, and switches to the live quote within a few seconds once the feed answers.
 - **Signals**: the published research signals and where each stands (current, passed, no longer current).
 - **Save and Board**: save a side-specific market or prop; the Board groups by game and category, compares the saved price with the latest quote **of the same contract and side** when that quote is current, and says plainly when it is stale, missing, or the contract is closed. **Your notes** can be added, edited and cleared; **Undo** puts the last removed item back exactly as it was. Saved research is shared with SIFT 2.0 on the same device.
 - Prices say how old they are. Missing data is said, never replaced by zero.
@@ -36,6 +36,8 @@ Open the v4 address in **Safari**, on v4 Home, then Share, **Add to Home Screen*
 
 - **Live scores, game clocks and plays are unavailable.** A game "in play" is the publication's status; v4 shows "Score unavailable" and never estimates one. A final shows the published score only when one is published. The separate live-score integration is not part of this release.
 - **NBA projections are not active** and no betting or research authority has changed. SIFT does not recommend bets.
+- **Late-night games sit under their scheduled date**, as in SIFT 2.0: a game that kicked off at 11 pm is under that day's date after midnight, and a game with no start time is under no date.
+- Tennis signal explanations quote the model's internal name (`projection_v2`); that wording is shared with SIFT 2.0.
 - Items without a v4 screen (a saved team, metric, ranking) open the SIFT 2.0 page they came from.
 - Undo covers the last single removal while you stay on the Board; Clear Board is confirmed and cannot be undone.
 - No account, no sync across devices: the Board lives on the device.

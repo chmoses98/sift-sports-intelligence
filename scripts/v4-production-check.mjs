@@ -20,7 +20,10 @@ import { sha256 } from '@noble/hashes/sha2.js';
 
 const BASE = (process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/').replace(/\/?$/, '/');
 const FEED = (process.env.SIFT_FEED_URL ?? 'https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes').replace(/\/+$/, '');
-const BANNED = /\bshadow\b|incumbent|challenger|research arm|simulation mean|P\(over\)|legacy (model|projection)|best bet|guaranteed|recommended bet|\block\b/i;
+// Development vocabulary the NFL surfaces never show (the repo's own list, applied to the NFL player page only: "ATP Challenger" is a real tennis
+// tour on the cross-sport Signals page), and betting authority no screen may claim (applied everywhere).
+const DEV_WORDS = /\bshadow\b|incumbent|challenger|research arm|simulation mean|P\(over\)|legacy (model|projection)/i;
+const AUTHORITY = /best bet|guaranteed|recommended bet|sure thing|\block\b/i;
 const MISSING = /\bNaN\b|\bundefined\b|\[object|\bInfinity\b/;
 const TRAY_KEY = 'sift.researchTray.v1';
 const argv = process.argv.slice(2);
@@ -225,7 +228,7 @@ async function journey(browser, device, name) {
       const ladder = await page.locator('.v4-lad__row').count();
       check(ladder > 0, tag(`the player page lists the Kalshi ladder (${ladder} lines)`));
       const body = await page.locator('main').innerText();
-      check(!MISSING.test(body) && !BANNED.test(body), tag('the player page has no NaN/undefined and no development vocabulary'));
+      check(!MISSING.test(body) && !DEV_WORDS.test(body) && !AUTHORITY.test(body), tag('the player page has no NaN/undefined, no development vocabulary and no betting authority'));
       check(/SIFT projection/i.test(body), tag('the player page shows the SIFT projection or says it is withheld'));
       check((await overflow(page)) <= 1, tag('Player: no horizontal overflow'));
       await page.screenshot({ path: `production-v4-${name}-player.png` });
@@ -309,6 +312,15 @@ async function journey(browser, device, name) {
         }
       }
     }
+    // --- Signals: the published research signals, or the plain reason there are none (an unreadable publication is not "no signals")
+    await page.goto(`${BASE}#/v4/signals`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: 'Signals', level: 1 }).waitFor({ timeout: 60_000 });
+    await settled(page);
+    const nCards = await page.locator('.v4-sg').count();
+    const sgText = await page.locator('main').innerText();
+    check(nCards > 0 || /No published|no signals|unavailable|Nothing/i.test(sgText), tag(`Signals lists ${nCards} published signals or says why not`));
+    check(!MISSING.test(sgText) && !AUTHORITY.test(sgText), tag('Signals shows no NaN/undefined and claims no betting authority'));
+    check((await overflow(page)) <= 1, tag('Signals: no horizontal overflow'));
     // --- missing data is said
     await page.goto(`${BASE}#/v4/props/nfl/evt_00000000000000000000/prt_00000000000000000000?stat=receptions`, { waitUntil: 'domcontentloaded' });
     await page.locator('main').waitFor();

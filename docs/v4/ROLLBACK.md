@@ -42,6 +42,10 @@ Open a PR on `main` that reverts the v4 merge commit (`git revert -m 1 <merge sh
 
 Known consequence: this also removes the SIFT 2.0 Board's side reading. A save made on the **NO** side in v4 is a separate item that still exists, but the older SIFT 2.0 Board shows it against the YES ask. It is not lost, and re-deploying v4 restores the correct display. This is why level 1 is the better first step.
 
+## Knowing it is healthy
+
+The **Production check** workflow runs after every Pages deploy (and on demand: *Actions*, *Production check*, *Run workflow*). Its step *SIFT v4 early access* walks the journey on the live site with real data in Chromium phone and WebKit iPhone (SIFT 2.0 still default, `#/v4` installs as "SIFT v4", Home, Games, Game, Props, Research, Save, Board, Undo, the same research on SIFT 2.0, a pre-v4 save untouched, price ages against the quote feed, a returning visit offline). Parts that cannot apply today print `N/A` with the reason. When `SIFT_V4=off` it checks only the paused notice and that SIFT 2.0 is untouched, so a deliberate pause does not turn it red. Screenshots are the `production-check` artifact (`production-v4-*.png`). A red step here means the live site differs from what CI proved: use level 1.
+
 ## After any change
 
 - The service worker (`registerType: autoUpdate`) replaces cached files on the next load; an installed iPhone web app picks up the new version after one relaunch. The *v4 early access* sheet shows the build this copy runs and the latest published build.

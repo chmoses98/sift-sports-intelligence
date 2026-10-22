@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseEspnScoreboard, espnDay, espnSoccerPath } from '../../src/live/scores/providers/espn';
+import { parseEspnScoreboard, espnDay, espnSoccerPath } from '../../src/live/scores/reference/espn';
 import { parseSportscore, sportscorePhase } from '../../src/live/scores/providers/sportscore';
 import { TeamDirectory, canonicalizeGame, matchGameToEvent } from '../../src/live/scores/identity';
 import { scoreView } from '../../src/live/scores/freshness';

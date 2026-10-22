@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { canonicalizeGame, eventRefFromBoardItem, matchGameToEvent, pairGames, TeamDirectory, teamKey } from '../../src/live/scores/identity';
 import { scoreFreshness, scoreView } from '../../src/live/scores/freshness';
-import { espnProvider, parseEspnScoreboard } from '../../src/live/scores/providers/espn';
-import { parseOddsScores } from '../../src/live/scores/providers/oddsapi';
+import { espnProvider, parseEspnScoreboard } from '../../src/live/scores/reference/espn';
+import { parseOddsScores } from '../../src/live/scores/reference/oddsapi';
 import { LiveScoreService } from '../../src/live/scores/service';
 import { ScoreProviderError, type LiveGame, type LiveScoreProvider, type SiftEventRef } from '../../src/live/scores/types';
 

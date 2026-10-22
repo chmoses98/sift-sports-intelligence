@@ -4,7 +4,6 @@
 // does not read those feeds.
 import { SPORTS } from '../../../src/data/sports';
 import { TeamDirectory, canonicalizeGame, pairGames, teamKey } from '../../../src/live/scores/identity';
-import { espnProvider } from '../../../src/live/scores/providers/espn';
 import { sportscoreProvider } from '../../../src/live/scores/providers/sportscore';
 import { observedFromGames, type PublishedGame } from '../../../src/v4/scoreState';
 import type { GamePhase, LiveGame, LiveScoreProvider, LiveSport, ObservedEvent } from '../../../src/live/scores/types';
@@ -34,7 +33,6 @@ export function eventsNear(sport: LiveSport, games: PublishedGame[], now: number
 
 export const providers = (events: (s: LiveSport) => ObservedEvent[]): Record<string, LiveScoreProvider> => ({
   sportscore: sportscoreProvider({ events }),
-  espn: espnProvider({ events }),
 });
 
 export interface PairReport {

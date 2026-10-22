@@ -4,7 +4,7 @@
 // situation, so every LiveGame it produces has clock = null and situation = null. It identifies teams by full
 // name only, so identity matching leans on teamKey() name normalisation and the start-time window.
 //
-// Requires a key (server-side only; the key is a query parameter). Not wired to anything; here for the chain test.
+// Requires a key (server-side only; the key is a query parameter). DEVELOPMENT REFERENCE ONLY: not wired to anything, kept for the chain test.
 import type { GamePhase, LiveGame, LiveScoreProvider, LiveSport, ProviderBatch } from '../types';
 import { ScoreProviderError } from '../types';
 import { teamKey } from '../identity';

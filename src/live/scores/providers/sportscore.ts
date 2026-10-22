@@ -81,28 +81,73 @@ export function parseSportscore(sport: LiveSport, body: Raw, fetchedAt: string):
 
 const utcDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
+/**
+ * The free tier is "approximately 10,000 requests per 24 hours per IP", shared by every device behind one address, and the feed is edge-cached
+ * for 60 s. So: never faster than once a minute, at most TWO UTC days per refresh (a game window spans at most two), and a per-device daily
+ * allowance well under the tier. When the allowance is spent the feed reads as unavailable until the next UTC day; nothing is estimated.
+ */
+export const SPORTSCORE_MIN_INTERVAL_MS = 60_000;
+export const SPORTSCORE_MAX_DAYS = 2;
+export const SPORTSCORE_DAILY_ALLOWANCE = 1_500;
+const BUDGET_KEY = 'sift.v4.livescores.budget';
+
+export interface RequestBudget { take(n: number, nowMs: number): boolean }
+
+/** Counts this device's requests per UTC day in localStorage (in memory if storage is unavailable). */
+export function deviceBudget(cap = SPORTSCORE_DAILY_ALLOWANCE, storage: Pick<Storage, 'getItem' | 'setItem'> | null = safeStorage()): RequestBudget {
+  let mem = { day: '', n: 0 };
+  return {
+    take(n, nowMs) {
+      const day = utcDay(nowMs);
+      let cur = mem;
+      try { const raw = storage?.getItem(BUDGET_KEY); if (raw) { const j = JSON.parse(raw) as { day?: string; n?: number }; if (j && typeof j.day === 'string' && typeof j.n === 'number') cur = { day: j.day, n: j.n }; } } catch { /* use memory */ }
+      if (cur.day !== day) cur = { day, n: 0 };
+      if (cur.n + n > cap) return false;
+      cur = { day, n: cur.n + n };
+      mem = cur;
+      try { storage?.setItem(BUDGET_KEY, JSON.stringify(cur)); } catch { /* memory only */ }
+      return true;
+    },
+  };
+}
+function safeStorage(): Pick<Storage, 'getItem' | 'setItem'> | null { try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; } }
+
+/** The UTC days to ask about: those of the games on screen, nearest to now first, at most SPORTSCORE_MAX_DAYS. */
+export function sportscoreDays(starts: number[], nowMs: number): string[] {
+  const days = [...new Set(starts.filter(Number.isFinite).map(utcDay))];
+  const near = (d: string) => Math.abs(Date.parse(`${d}T12:00:00Z`) - nowMs);
+  days.sort((a, b) => near(a) - near(b));
+  const out = days.slice(0, SPORTSCORE_MAX_DAYS);
+  return out.length ? out : [utcDay(nowMs)];
+}
+
 export interface SportscoreOptions {
   /** The events the screens are showing: the dates asked about come from their start times. */
   events: (sport: LiveSport) => ObservedEvent[];
   fetchImpl?: typeof fetch;
   now?: () => number;
+  budget?: RequestBudget;
 }
 
 export function sportscoreProvider(o: SportscoreOptions): LiveScoreProvider {
   const fetchImpl = o.fetchImpl ?? fetch;
   const now = o.now ?? Date.now;
+  const budget = o.budget ?? deviceBudget();
   return {
     id: 'sportscore',
     label: 'SportScore (free tier, attribution)',
     // The feed is edge-cached for 60 s: asking more often only costs the shared quota.
-    minIntervalMs: 30_000,
+    minIntervalMs: SPORTSCORE_MIN_INTERVAL_MS,
     sports: Object.keys(SPORTSCORE_SPORT) as LiveSport[],
     async fetchScoreboard(sport, signal): Promise<ProviderBatch> {
       const s = SPORTSCORE_SPORT[sport];
       if (!s) throw new ScoreProviderError('unsupported', `SportScore has no ${sport}`);
       // UTC days of the games on screen (a late game can start on the next UTC day).
-      const days = [...new Set(o.events(sport).map((e) => utcDay(Date.parse(e.ref.startUtc))).filter((d) => d.length === 10))].slice(0, 3);
-      if (!days.length) days.push(utcDay(now()));
+      const days = sportscoreDays(o.events(sport).map((e) => Date.parse(e.ref.startUtc)), now());
+      if (!budget.take(days.length, now())) {
+        const t = now();
+        throw new ScoreProviderError('rate_limited', 'this device has used its daily request allowance for SportScore', null, Date.parse(`${utcDay(t)}T00:00:00Z`) + 86_400_000 - t);
+      }
       const games: LiveGame[] = [];
       let fetchedAt = new Date(now()).toISOString();
       for (const day of days) {

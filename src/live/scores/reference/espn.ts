@@ -1,17 +1,18 @@
-// ESPN scoreboard -> LiveGame. ESPN's site.api.espn.com scoreboard is UNOFFICIAL: it has no developer licence, no key, no
-// documented rate limit and no stability promise. Verified 2026-10-22 from a GitHub runner: it answers 200 with
-// `Access-Control-Allow-Origin: *` and 1-10 s cache lifetimes for NFL, CFB, NBA, NHL, MLB, MLS and more, so a browser can read it.
-// Its TERMS are the issue (Disney Terms of Use, read in full): a "personal, noncommercial" licence, with no right to "make
-// available to the public", and a ban on accessing the products "using a robot, spider, script, or other automated means". So this
-// adapter is OFF unless the viewer separately turns it on (src/live/scores/feed.ts), and is never part of any default.
-// Nothing here is ESPN-specific beyond parsing: replace the provider and the contract, matching and freshness code do not change.
+// DEVELOPMENT REFERENCE ONLY. This adapter is NOT wired into SIFT: nothing in the app imports it, there is no switch for it, and
+// no build of SIFT contacts ESPN (tests/live/scores-isolation.test.ts enforces both). It is kept as a worked example of a second
+// provider for the provider-independent contract (`sift.live_game/1`), and so that parsing shapes recorded on 2026-10-22 stay tested.
+//
+// Why it is not used: ESPN's site.api.espn.com scoreboard is UNOFFICIAL (no developer licence, no key, no documented rate limit).
+// The Disney Terms of Use, read in full, give a "personal, noncommercial" licence with no right to "make available to the public",
+// and forbid access "using a robot, spider, script, or other automated means". A publicly reachable endpoint is not permission.
+// If SIFT ever licenses a professional feed, it is one adapter beside this one, and the contract, matching and freshness code do not change.
 //
 // Parsing is defensive: every field is optional and a missing one is null. A status the adapter does not recognise
 // becomes phase UNKNOWN, never LIVE.
 import type { GamePhase, LiveClock, LiveGame, LiveScoreProvider, LiveSituation, LiveSport, ObservedEvent, ProviderBatch } from '../types';
 import { ScoreProviderError } from '../types';
 import { teamKey } from '../identity';
-import { withDeadline } from './net';
+import { withDeadline } from '../providers/net';
 
 // Provider JSON is untrusted and shape-unchecked here; every read below is guarded.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

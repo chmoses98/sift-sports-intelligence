@@ -8,7 +8,7 @@ import { join } from 'node:path';
 
 const [base, out] = process.argv.slice(2);
 mkdirSync(out, { recursive: true });
-const SCORE_HOSTS = /sportscore\.com|site\.api\.espn\.com/;
+const SCORE_HOSTS = /sportscore\.com|espn\.com/; // espn.com is listed only to prove the app never contacts it
 const profiles = [
   ['iphone-webkit', webkit, devices['iPhone 15 Pro']],
   ['pixel-chromium', chromium, devices['Pixel 7']],
@@ -20,7 +20,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 for (const [name, engine, dev] of profiles) {
   const browser = await engine.launch();
   const run = { name, steps: [], requests: [], failed: {}, consoleErrors: [], pageErrors: [] };
-  for (const espn of [false, true]) {
+  for (const espn of [false]) {
     const ctx = await browser.newContext({ ...dev, serviceWorkers: 'block' });
     await ctx.addInitScript((e) => { try { localStorage.setItem('sift.v4.prompt', 'later'); if (e) localStorage.setItem('sift.v4.livescores.espn', '1'); } catch { /* ignore */ } }, espn);
     const page = await ctx.newPage();

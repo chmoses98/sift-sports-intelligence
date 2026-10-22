@@ -33,4 +33,32 @@ describe('live scores stay out of models, betting and the market clock', () => {
     const bad = research.filter((n) => importsOf(join(SRC, 'v4', n)).some((i) => /live\/scores|scoreState|LiveScoreCard|DemoBar/.test(i)));
     expect(bad).toEqual([]);
   });
+
+  // The strongest form of the rule: an allowlist. Only the screens that DISPLAY a score (and the score module itself) may import score
+  // code. Everything else in the app (betting and opportunity code, packets, projections, signals, research, the Board, what is frozen
+  // or saved, the Kalshi quote store) is outside it, so a score cannot reach them.
+  it('only the v4 screens that display a score import score code', () => {
+    const DISPLAY = new Set(['EarlyAccess.tsx', 'Feature.tsx', 'Game.tsx', 'Games.tsx', 'Home.tsx', 'LiveScoreCard.tsx', 'LiveScoresControl.tsx', 'Scoreboard.tsx', 'V4Root.tsx', 'model.ts', 'parts.tsx', 'scoreState.ts', 'slate.tsx']);
+    const bad = walk(SRC)
+      .filter((f) => !relative(SRC, f).startsWith(join('live', 'scores')))
+      .filter((f) => !(relative(SRC, f).startsWith('v4') && DISPLAY.has(relative(join(SRC, 'v4'), f))))
+      .filter((f) => importsOf(f).some((i) => /live\/scores|scoreState|LiveScoreCard|LiveScoresControl/.test(i)))
+      .map((f) => relative(SRC, f));
+    expect(bad).toEqual([]);
+  });
+
+  // The score module itself reads no research, price or position state either (the first test), and the display files that import it
+  // are the only bridge. Research and signal decisions in v4 are made by files that appear in neither list.
+  it('ESPN is development reference only: nothing outside its own folder imports it or names its host', () => {
+    const files = walk(SRC).filter((f) => !relative(SRC, f).startsWith(join('live', 'scores', 'reference')));
+    expect(files.filter((f) => importsOf(f).some((i) => /reference\/espn|providers\/espn/.test(i))).map((f) => relative(SRC, f))).toEqual([]);
+    const scoreRelated = files.filter((f) => /^(live|v4)[\\/]/.test(relative(SRC, f)));
+    expect(scoreRelated.filter((f) => /espn\.com/i.test(readFileSync(f, 'utf-8'))).map((f) => relative(SRC, f))).toEqual([]);
+  });
+
+  it('the score code contacts exactly one host, sportscore.com, and only the documented endpoint', () => {
+    const files = walk(join(SRC, 'live', 'scores')).filter((f) => !relative(SRC, f).startsWith(join('live', 'scores', 'reference')));
+    const hosts = new Set(files.flatMap((f) => [...readFileSync(f, 'utf-8').matchAll(/https?:\/\/([a-z0-9.-]+)\//gi)].map((m) => m[1].toLowerCase())));
+    expect([...hosts].sort()).toEqual(['sportscore.com']);
+  });
 });

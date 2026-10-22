@@ -1,7 +1,7 @@
 // SIFT v4 real live scores: the user path in real browsers, with the feeds' network answers mocked (page.route), because e2e runs without the
 // internet. The mocks are TEST FIXTURES shaped like the real payloads recorded in tests/fixtures/live-scores/real; nothing here is shipped data.
 // What is proved: off by default (no request leaves the page), the opt-in, identity matching with decoys, labels and attribution, freshness
-// (live, stale, outage), ESPN behind its own switch, and that research is not touched.
+// (live, stale, outage), the 60-second polling limit, that ESPN is not reachable from the app at all, and that research is not touched.
 import type { Page, Request } from '@playwright/test';
 import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
 import { installSlates } from './slates';
@@ -35,8 +35,9 @@ async function open(page: Page, feed: Feed, path = '') {
     }
     return route.fulfill({ status: 200, headers: cors, body: JSON.stringify({ sport: 'basketball', date: '2026-10-04', count: matches.length, matches, updated: feed.updated }) });
   });
+  // ESPN must never be contacted by any build of SIFT; the route exists only to catch a regression.
   const espn: Request[] = [];
-  await page.route(/^https:\/\/site\.api\.espn\.com\//, (route) => { espn.push(route.request()); return route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' }, body: JSON.stringify({ leagues: [{ abbreviation: 'NBA' }], events: [] }) }); });
+  await page.route(/espn\.com\//, (route) => { espn.push(route.request()); return route.abort(); });
   await page.clock.install({ time: NOW });
   await page.addInitScript(() => { try { localStorage.setItem('sift.v4.prompt', 'later'); } catch { /* ignore */ } });
   await page.goto(`#/v4${path}`);
@@ -57,17 +58,16 @@ test.describe('real live scores: off by default', () => {
     await expect(page.locator('.v4-row__sc')).toHaveCount(0);
   });
 
-  test('early access offers it; ESPN is a separate switch that stays disabled until live scores are on @smoke', async ({ page }) => {
+  test('early access offers one switch, with the SportScore credit; there is no ESPN switch @smoke', async ({ page }) => {
     const { seen, espn } = await open(page, live());
     await page.getByRole('button', { name: /SIFT v4 early access/ }).first().click();
     const sec = page.locator('[data-live-scores-section]');
     await expect(sec).toContainText('Powered by SportScore');
-    await expect(sec).toContainText('robot, spider, script, or other automated means');
-    await expect(sec.locator('[data-espn-toggle]')).toBeDisabled();
+    await expect(sec.locator('[data-espn-toggle]')).toHaveCount(0);
+    await expect(sec).not.toContainText('ESPN');
     await sec.locator('[data-live-scores-on]').click();
-    await expect(sec.locator('[data-espn-toggle]')).toBeEnabled();
     await expect.poll(() => seen.length).toBeGreaterThan(0);
-    expect(espn).toHaveLength(0); // enabling the permitted feed never touches ESPN
+    expect(espn).toHaveLength(0);
   });
 });
 
@@ -144,15 +144,30 @@ test.describe('real live scores: SportScore (NBA)', () => {
   });
 });
 
-test.describe('real live scores: ESPN is its own, labelled choice', () => {
-  test('only after its own switch does ESPN get a request, and its scores are used only for games the permitted feed does not hold', async ({ page }) => {
-    const { espn } = await open(page, live(), '?livescores=1');
-    await page.clock.fastForward(20_000);
+test.describe('real live scores: ESPN is not reachable', () => {
+  test('a leftover ESPN setting from an earlier build does nothing and is cleared; no request ever goes to ESPN @smoke', async ({ page }) => {
+    await page.addInitScript(() => { try { localStorage.setItem('sift.v4.livescores.espn', '1'); } catch { /* ignore */ } });
+    const { seen, espn } = await open(page, live(), '?livescores=1');
+    await expect.poll(() => seen.length).toBeGreaterThan(0);
+    await page.clock.fastForward(120_000);
     expect(espn).toHaveLength(0);
-    await page.getByRole('button', { name: /SIFT v4 early access/ }).first().click();
-    await page.locator('[data-espn-toggle]').click();
-    await expect.poll(() => espn.length).toBeGreaterThan(0);
-    expect(espn.some((r) => r.url().includes('/apis/site/v2/sports/basketball/nba/scoreboard'))).toBe(true);
-    expect(espn.every((r) => r.headers()['authorization'] === undefined)).toBe(true);
+    expect(await page.evaluate(() => localStorage.getItem('sift.v4.livescores.espn'))).toBeNull();
+  });
+});
+
+test.describe('real live scores: polling respects the feed\'s 60-second cache', () => {
+  test('one request per day shown per minute, never faster, and at most two days @smoke', async ({ page }) => {
+    const { seen } = await open(page, live(), '?livescores=1');
+    await expect.poll(() => seen.length).toBeGreaterThan(0);
+    const days = (rs: Request[]) => new Set(rs.map((r) => new URL(r.url()).searchParams.get('date')));
+    const first = seen.length;
+    expect(days(seen).size).toBeLessThanOrEqual(2);
+    expect(seen.every((r) => new URL(r.url()).pathname === '/api/v1/fixtures/')).toBe(true);
+    await page.clock.fastForward(45_000);
+    expect(seen.length).toBe(first); // inside the minute: nothing
+    await page.clock.fastForward(20_000);
+    await expect.poll(() => seen.length).toBeGreaterThan(first);
+    expect(seen.length - first).toBeLessThanOrEqual(2);
+    expect(seen.length).toBeLessThanOrEqual(first * 2);
   });
 });

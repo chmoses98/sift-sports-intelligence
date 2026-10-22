@@ -116,6 +116,69 @@ export function NbaPlayerProjections({ g }: { g: GameRow }) {
   );
 }
 
+const CFB_FAMILIES = ['passing_yards', 'rushing_yards', 'receiving_yards', 'passing_attempts', 'carries', 'receptions'] as const;
+const CFB_LABEL: Record<string, string> = {
+  passing_yards: 'Pass yds', rushing_yards: 'Rush yds', receiving_yards: 'Rec yds',
+  passing_attempts: 'Pass att', carries: 'Carries', receptions: 'Catches',
+};
+
+/** The college player models are archived shadows. Do not promote them implicitly: no verified
+ *  point-in-time participation feed exists, so every figure is conditional on playing. */
+export function CfbPlayerProjections({ g }: { g: GameRow }) {
+  const { doc, loading } = useProjections('CFB');
+  const [limit, setLimit] = useState(12);
+  const match = useMemo(() => findTeamProjections(doc, teamsOf(g)), [doc, g]);
+  const id = match?.[0]?.gameId ?? '';
+  const items = useMemo(() => {
+    const now = Date.now();
+    const families = new Set<string>(CFB_FAMILIES);
+    const by = new Map<string, PlayerProjection[]>();
+    for (const p of doc?.players ?? []) {
+      if (p.gameId !== id || !families.has(p.family) || p.readiness !== 'SHADOW VALIDATION' || p.gate.status === 'BLOCK') continue;
+      if (p.participation?.status === 'LIKELY_OUT' || p.participation?.status === 'CONFIRMED_OUT') continue;
+      if (!p.dataAsOf || !Number.isFinite(Date.parse(p.dataAsOf)) || Math.abs(now - Date.parse(p.dataAsOf)) > MAX_AGE_H.CFB * 3600_000) continue;
+      if (coherenceProblems(p).length) continue;
+      by.set(p.playerId, [...(by.get(p.playerId) ?? []), p]);
+    }
+    return [...by.values()].sort((a, b) => {
+      const priority = (rows: PlayerProjection[]) => Math.max(0, ...rows.filter((p) => p.family.endsWith('_yards')).map((p) => p.mean));
+      return priority(b) - priority(a);
+    });
+  }, [doc, id]);
+  return <section aria-label="College player projection research">
+    <header className="v4-sechead"><h2>College player research</h2><span className="v4-spacer" /><span className="meta">{items.length} players</span></header>
+    <div className="v4-note" style={{ marginBottom: 12 }}><Icon name="info" /><div><b>Research preview · player availability unverified</b>These are published shadow forecasts, conditional on the player participating. They are not approved SIFT player projections, validated edges, or recommendations.</div></div>
+    {loading ? <div className="v4-card"><div className="v4-skel" style={{ height: 80 }} role="status" aria-label="Loading CFB player research" /></div>
+      : !id || !items.length ? <div className="v4-note"><Icon name="info" /><div><b>No current college player research</b>No matching, coherent, recent player rows are published for this matchup.</div></div>
+      : <>
+        <ul className="v4-grp" aria-label="Conditional CFB research previews">
+          {items.slice(0, limit).map((rows) => {
+            const p = rows[0];
+            const lead = rows.find((v) => v.family.endsWith('_yards')) ?? p;
+            return <li key={p.playerId}>
+              <details style={{ padding: '12px 16px' }}>
+                <summary style={{ cursor: 'pointer' }}>
+                  <span style={{ display: 'inline-flex', justifyContent: 'space-between', gap: 8, width: 'calc(100% - 20px)', verticalAlign: 'middle', alignItems: 'center' }}>
+                    <span><b style={{ display: 'block' }}>{p.name}</b><span className="meta">{p.team} · participation unconfirmed</span></span>
+                    <span className="num" style={{ whiteSpace: 'nowrap', textAlign: 'right' }}><b>{decimal(lead.mean)}</b><span className="meta" style={{ display: 'block' }}>{CFB_LABEL[lead.family]}</span></span>
+                  </span>
+                </summary>
+                <div style={{ marginTop: 12 }}>
+                  {CFB_FAMILIES.map((f) => {
+                    const v = rows.find((x) => x.family === f);
+                    return v ? <div key={f} className="v4-kv"><span className="v4-kv__k">{CFB_LABEL[f]}</span><span className="v4-kv__v num">{decimal(v.mean)}<em>80% range {range(v.p10, v.p90)}</em></span></div> : null;
+                  })}
+                  <p className="meta" style={{ marginTop: 9 }}>Shadow · assumes participation · updated {fmtWhen(p.dataAsOf) ?? 'unknown'}. Do not equate a market gap with an edge.</p>
+                </div>
+              </details>
+            </li>;
+          })}
+        </ul>
+        {items.length > limit && <button className="v4-btn v4-btn--sec" style={{ marginTop: 12, width: '100%' }} type="button" onClick={() => setLimit((n) => n + 12)}>Show more players ({items.length - limit} remaining)</button>}
+      </>}
+  </section>;
+}
+
 /** The v4 Props tab is projection-first for CFB/NBA; it must not vanish when Kalshi has no prop listing. */
 export function ProjectionBrowser({ sport }: { sport: 'cfb' | 'nba' }) {
   const { doc, loading } = useProjections(sport.toUpperCase() as ProjSport);
@@ -139,7 +202,7 @@ export function ProjectionBrowser({ sport }: { sport: 'cfb' | 'nba' }) {
           </li>)}
         </ul>
         {selected && <div style={{ marginTop: 18 }} key={selected.item.event_id}>
-          {sport === 'cfb' ? <CfbTeamProjections g={selected} /> : <NbaPlayerProjections g={selected} />}
+          {sport === 'cfb' ? <><CfbTeamProjections g={selected} /><div style={{ marginTop: 18 }}><CfbPlayerProjections g={selected} /></div></> : <NbaPlayerProjections g={selected} />}
           <Link className="v4-btn v4-btn--sec" style={{ display: 'block', textAlign: 'center', marginTop: 14 }} to={`/v4/game/${sport}/${encodeURIComponent(selected.item.event_id)}?tab=${sport === 'cfb' ? 'matchups' : 'players'}`}>Open game research</Link>
         </div>}
       </>}

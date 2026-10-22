@@ -1,6 +1,6 @@
 # SIFT v4 early access: rollback
 
-v4 is an **opt-in early-access** interface at `https://chmoses98.github.io/sift-sports-intelligence/#/v4`. SIFT 2.0 is the default for everyone and stays so at every step below. Nothing here deletes saved research.
+v4 is an **opt-in early-access** interface. Preview: `https://chmoses98.github.io/sift-sports-intelligence/#/v4`. Dedicated iPhone Home Screen install address: `https://chmoses98.github.io/sift-sports-intelligence/v4/`. SIFT 2.0 is the default for everyone and stays so at every step below. Nothing here deletes saved research.
 
 **Restore point (before v4): `main` @ `a2f1a64`** (immutable history).
 

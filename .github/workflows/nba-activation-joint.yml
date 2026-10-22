@@ -1,0 +1,82 @@
+name: NBA activation (joint verdict)
+
+# Judges the published NBA projection feed with BOTH activation gates on ONE feed and ONE fresh roster audit, then states a joint verdict:
+#   1. nba-edge-finder `nba.live.activation_check` (reads the projection-data archive and a same-slate roster audit of that feed)
+#   2. SIFT's `scripts/verify-nba-activation.ts` (reads the same feed file through SIFT's own decoder and authority)
+# Read-only. It changes no approval and cannot promote: promotion is a reviewed edit of src/lib/projectionApprovals.ts by a person, made only
+# when the joint verdict is READY and the owner approves (docs/PROJECTION_PROMOTION.md §11). Red = NOT READY: keep the research previews.
+on:
+  workflow_dispatch:
+    inputs:
+      nba_ref:
+        description: "nba-edge-finder ref that supplies activation_check and roster_audit"
+        default: main
+  pull_request:
+    paths:
+      - scripts/nba-activation-joint.mjs
+      - .github/workflows/nba-activation-joint.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nba-activation-joint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  joint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/checkout@v4
+        with:
+          repository: chmoses98/nba-edge-finder
+          ref: ${{ github.event.inputs.nba_ref || 'main' }}
+          path: nba-edge-finder
+      - uses: actions/checkout@v4
+        with:
+          repository: chmoses98/nba-edge-finder
+          ref: projection-data
+          path: archive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install the pinned numerical stack used by the NBA live package
+        run: pip install -q numpy==2.5.3 pandas==3.0.5 scipy==1.18.1 scikit-learn==1.9.1 lightgbm==4.7.0 pyarrow==26.0.0 pyyaml==6.0.1 httpx==0.28.1 pypdf==6.17.0 pydantic==2.13.5 orjson==3.13.0
+      - name: Roster audit of THIS feed (live ESPN rosters, independent roster page, transactions, availability alignment)
+        id: audit
+        working-directory: nba-edge-finder/research/projection_foundation
+        run: python -m nba.live.roster_audit --archive "$GITHUB_WORKSPACE/archive" --json "$RUNNER_TEMP/audit.json"
+      - name: nba-edge-finder activation check (same archive, that audit)
+        working-directory: nba-edge-finder/research/projection_foundation
+        run: |
+          python -m nba.live.activation_check --archive "$GITHUB_WORKSPACE/archive" --roster-audit "$RUNNER_TEMP/audit.json" --json "$RUNNER_TEMP/activation.json" | tee "$RUNNER_TEMP/activation.md" || true
+          test -s "$RUNNER_TEMP/activation.json"
+      - name: SIFT verification (the same feed file, through SIFT's decoder and authority)
+        run: npx vite-node scripts/verify-nba-activation.ts --feed "$GITHUB_WORKSPACE/archive/projections/nba/latest.json" --json > "$RUNNER_TEMP/sift.json" || true
+      - name: Joint verdict
+        # a pull request that only touches this check reports the verdict but is never failed by it (NOT READY is the normal state until the gates agree)
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        run: |
+          set +e
+          node scripts/nba-activation-joint.mjs --feed "$GITHUB_WORKSPACE/archive/projections/nba/latest.json" --activation "$RUNNER_TEMP/activation.json" \
+            --sift "$RUNNER_TEMP/sift.json" --audit "$RUNNER_TEMP/audit.json" --out "$RUNNER_TEMP/joint.json" | tee "$RUNNER_TEMP/joint.txt"
+          code=${PIPESTATUS[0]}
+          { echo '### NBA activation: joint verdict'; echo '```'; cat "$RUNNER_TEMP/joint.txt"; echo '```'; echo; cat "$RUNNER_TEMP/activation.md"; } >> "$GITHUB_STEP_SUMMARY"
+          exit $code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nba-activation-evidence
+          path: |
+            ${{ runner.temp }}/audit.json
+            ${{ runner.temp }}/activation.json
+            ${{ runner.temp }}/sift.json
+            ${{ runner.temp }}/joint.json
+          retention-days: 30

@@ -328,6 +328,21 @@ test.describe('v4 game default tabs and remembered selection', () => {
     await expect(page.locator('[role="tab"][tabindex="0"]')).toBeFocused();
   });
 
+  test('arrow-key presses that outrun the screen still walk the tabs in order @smoke', async ({ page }) => {
+    // The selected tab lives in the address, which the router applies a moment after the key is handled; focus moves at once. Each key must be
+    // read from the tab that has focus, not from the (possibly behind) selection, or fast keys (key repeat, a screen reader) land on the wrong tab.
+    await open(page, `/game/nfl/${NEBUF}`);
+    const tab = (name: string) => page.getByRole('tab', { name });
+    await tab('Matchups').focus();
+    for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowRight'); // Matchups + 7 = Live (Live, Matchups, Players, Markets wrap)
+    await expect(tab('Live')).toBeFocused();
+    await expect(tab('Live')).toHaveAttribute('aria-selected', 'true');
+    for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowLeft'); // Live - 5 = Markets
+    await expect(tab('Markets')).toBeFocused();
+    await expect(tab('Markets')).toHaveAttribute('aria-selected', 'true');
+    expect(await page.locator('[role="tab"][tabindex="0"]').count()).toBe(1);
+  });
+
   test('a final opens Live with the published score and summary @smoke', async ({ page }) => {
     await page.clock.setFixedTime(new Date('2026-10-08T05:00:00Z'));
     await page.context().route(NHL_RAW, async (route) => {

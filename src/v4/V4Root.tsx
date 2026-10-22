@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useLayoutEffect } from 'react';
 import { NavLink, Outlet, useLocation } from '../routing';
 import '@fontsource/geist-sans/400.css';
 import '@fontsource/geist-sans/500.css';
@@ -34,11 +34,15 @@ export function V4Root() {
     return () => { document.body.style.background = prev; if (prevTheme) meta?.setAttribute('content', prevTheme); };
   }, []);
   // On v4 the page installs as its own Home Screen app, "SIFT v4" (index.html does the same before the first paint); leaving v4 gives SIFT's own back.
-  useEffect(() => {
+  // A layout effect, so the identity is set and restored in the same commit as the screen, never a frame behind it (a passive effect runs after
+  // paint, and a viewer or a test that reads the page the moment v4 is visible could see the old identity).
+  useLayoutEffect(() => {
     setInstallIdentity('v4');
-    // The Home Screen app: ask the phone to keep this app's saved Board (a no-op where unsupported; never a prompt, so never in a browser tab).
-    if (isStandalone()) { try { navigator.storage?.persist?.()?.catch(() => {}); } catch { /* unsupported */ } }
     return () => setInstallIdentity('default');
+  }, []);
+  // The Home Screen app: ask the phone to keep this app's saved Board (a no-op where unsupported; never a prompt, so never in a browser tab).
+  useEffect(() => {
+    if (isStandalone()) { try { navigator.storage?.persist?.()?.catch(() => {}); } catch { /* unsupported */ } }
   }, []);
   // A new tab or game starts at the top; back/forward restore is the browser's.
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);

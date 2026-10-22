@@ -148,7 +148,7 @@ export class MarketMock {
 }
 
 /** Hosts a test deliberately blocks or fails; network errors for them are expected noise. */
-const EXPECTED_ERROR_HOSTS = ['raw.githubusercontent.com', 'relay.sift.invalid', 'chatgpt.com'];
+const EXPECTED_ERROR_HOSTS = ['raw.githubusercontent.com', 'relay.sift.invalid', 'chatgpt.com', 'sportscore.com'];
 
 export interface ErrorLog {
   console: string[];
@@ -176,6 +176,11 @@ export const test = base.extend<{ market: MarketMock; errors: ErrorLog; blockExt
   blockExternal: [
     async ({ context }, use) => {
       await context.route(/^https:\/\/raw\.githubusercontent\.com\//, (r) => r.abort());
+      // Real live scores are ON by default in v4 and would reach the real SportScore from a CI runner. Every spec but the live-score ones
+      // (e2e/v4-live-scores.spec.ts, which mocks the feed and removes this) runs with the viewer's own "off" setting and the host blocked,
+      // so what they assert about a game without a score stays deterministic.
+      await context.route(/^https:\/\/sportscore\.com\//, (r) => r.abort());
+      await context.addInitScript(() => { try { if (localStorage.getItem('sift.v4.livescores') === null) localStorage.setItem('sift.v4.livescores', '0'); } catch { /* storage unavailable */ } });
       await use();
     },
     { auto: true },

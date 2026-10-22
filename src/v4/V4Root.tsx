@@ -26,7 +26,7 @@ const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
 export function V4Root() {
   const { pathname } = useLocation();
   const [sp, setSp] = useSearchParams();
-  // `?livescores=1` turns real live scores on for this device and `?livescores=0` off (an explicit opt-in, never the default); the parameter is then dropped from the address.
+  // Real live scores are on by default in v4; `?livescores=0` turns them off for this device and `?livescores=1` back on; the parameter is then dropped from the address.
   const ld = sp.get('livescores');
   useEffect(() => {
     if (ld !== '1' && ld !== '0') return;

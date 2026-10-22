@@ -66,7 +66,7 @@ export function EarlyAccessSheet() {
 
         <section className="v4-sblock"><h3>What to expect</h3>
           <ul className="v4-sbullets">
-            <li>Live scores, game clocks and plays are off by default. Turn them on below to read real scores for games in play; a game with no verified match shows "score unavailable", and no score is ever estimated.</li>
+            <li>Real NBA scores are on by default here (NFL, college football and NHL scores are not available). A game with no verified match shows "score unavailable", and no score is ever estimated. You can turn live scores off below.</li>
             <li>Prices come from the market feed only when it has a current quote, and say how old it is. When it has none, the screen says so.</li>
             <li>Research only. SIFT does not recommend bets.</li>
           </ul>

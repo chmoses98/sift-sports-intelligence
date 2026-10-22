@@ -18,10 +18,10 @@ export function LiveScoresSection() {
   const [said, setSaid] = useState('');
   return (
     <section className="v4-sblock" data-live-scores-section><h3>Live scores</h3>
-      <p>Show real scores, periods and clocks for games in play. This device reads them while a game is on; nothing is requested while this is off. A score appears only when its game is matched to the SIFT game by both teams and start time, with its age, and is never estimated. Scores never feed research, prices or projections. NFL, college football and NHL scores are not offered: no free feed that permits this use covers them.</p>
+      <p>Real scores for games in play are on by default in v4 early access. This device reads them while a game is on; nothing is requested while this is off. A score appears only when its game is matched to the SIFT game by both teams and start time, with its age, and is never estimated. Scores never feed research, prices or projections. NFL, college football and NHL scores are not offered: no free feed that permits this use covers them.</p>
       <div className="v4-ea__acts">
         {!on && <button type="button" className="v4-btn" data-live-scores-on onClick={() => { enableFeed(); setSaid('Live scores are on.'); }}>Turn on live scores</button>}
-        {on && <button type="button" className="v4-btn v4-btn--sec" onClick={() => { disableFeed(); setSaid('Live scores are off.'); }}>Turn off live scores</button>}
+        {on && <button type="button" className="v4-btn v4-btn--sec" data-live-scores-off onClick={() => { disableFeed(); setSaid('Live scores are off.'); }}>Turn off live scores</button>}
       </div>
       <p className="meta">Source: <SportscoreBadge /> (NBA games, and finished tennis matches). Its free tier is open to personal and early-stage projects on the condition that link is shown; terms: {SOURCES.sportscore.terms.replace('https://', '')}.</p>
 
@@ -46,5 +46,5 @@ export function FeedNote() {
   else if (d.observed === 0) text = `Live scores on (${names.join(', ')}). No game is in its playing window right now.`;
   else if (age == null && down.length) text = `${down.join(', ')} ${down.length === 1 ? 'is' : 'are'} not answering. No live score is shown; nothing is estimated.`;
   else text = `Scores from ${names.join(', ')} · ${d.matched} of ${d.observed} games in play window matched${age ? ` · feed answered ${age} ago` : ''}${down.length ? ` · ${down.join(', ')} not answering now` : ''}`;
-  return <p className="meta" data-feed-note style={{ padding: '0 16px 8px' }}>{text}{d.providers.includes('sportscore') && <> · <SportscoreBadge /></>}</p>;
+  return <p className="meta" data-feed-note style={{ padding: '0 16px 8px' }}>{text}{d.providers.includes('sportscore') && <> · <SportscoreBadge /></>} · <button type="button" className="v4-textlink" data-feed-off onClick={disableFeed}>Turn off</button></p>;
 }

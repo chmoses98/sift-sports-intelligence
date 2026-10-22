@@ -1,6 +1,6 @@
 // SIFT v4 real live scores: the user path in real browsers, with the feeds' network answers mocked (page.route), because e2e runs without the
 // internet. The mocks are TEST FIXTURES shaped like the real payloads recorded in tests/fixtures/live-scores/real; nothing here is shipped data.
-// What is proved: off by default (no request leaves the page), the opt-in, identity matching with decoys, labels and attribution, freshness
+// What is proved: on by default in v4 with a one-tap off, identity matching with decoys, labels and attribution, freshness
 // (live, stale, outage), the 60-second polling limit, that ESPN is not reachable from the app at all, and that research is not touched.
 import type { Page, Request } from '@playwright/test';
 import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
@@ -39,6 +39,8 @@ async function open(page: Page, feed: Feed, path = '') {
   const espn: Request[] = [];
   await page.route(/espn\.com\//, (route) => { espn.push(route.request()); return route.abort(); });
   await page.clock.install({ time: NOW });
+  // The shared fixtures start every spec with the viewer's "off" setting; here the DEFAULT is what is under test, so clear it once per tab.
+  await page.addInitScript(() => { try { if (!sessionStorage.getItem('__ls')) { sessionStorage.setItem('__ls', '1'); localStorage.removeItem('sift.v4.livescores'); } } catch { /* ignore */ } });
   await page.addInitScript(() => { try { localStorage.setItem('sift.v4.prompt', 'later'); } catch { /* ignore */ } });
   await page.goto(`#/v4${path}`);
   return { seen, espn };
@@ -47,27 +49,45 @@ const live = (): Feed => ({ mode: 'ok', updated: NOW.toISOString(), state: { 0: 
 const note = (page: Page) => page.locator('[data-feed-note]');
 const scoreRows = (page: Page) => page.locator('.v4-row', { has: page.locator('.v4-row__sc') });
 
-test.describe('real live scores: off by default', () => {
-  test('nothing is requested and nothing changes until the viewer turns live scores on @smoke', async ({ page }) => {
+test.describe('real live scores: on by default in v4, one tap to turn off', () => {
+  test('with no setting at all the feed is read, the source and credit show, and a matched game carries its score @smoke', async ({ page }) => {
     const { seen, espn } = await open(page, live());
-    await expect(page.locator('[data-featured]')).toBeVisible();
-    await page.clock.fastForward(10_000);
-    expect(seen).toHaveLength(0);
+    await expect.poll(() => seen.length).toBeGreaterThan(0);
+    await expect(note(page)).toContainText('Scores from SportScore');
+    await expect(note(page).getByRole('link', { name: 'Powered by SportScore' })).toHaveAttribute('rel', 'dofollow');
+    await expect(page.locator('[data-featured]')).toContainText('LIVE');
     expect(espn).toHaveLength(0);
-    await expect(note(page)).toHaveCount(0);
-    await expect(page.locator('.v4-row__sc')).toHaveCount(0);
   });
 
-  test('early access offers one switch, with the SportScore credit; there is no ESPN switch @smoke', async ({ page }) => {
-    const { seen, espn } = await open(page, live());
+  test('the note has a Turn off: it stops requests, removes every score, and the choice survives a reload; early access turns it back on @smoke', async ({ page }) => {
+    const { seen } = await open(page, live());
+    await expect(note(page)).toBeVisible();
+    await note(page).locator('[data-feed-off]').click();
+    await expect(note(page)).toHaveCount(0);
+    await expect(page.locator('.v4-row__sc')).toHaveCount(0);
+    const before = seen.length;
+    await page.clock.fastForward(120_000);
+    expect(seen.length).toBe(before);
+    expect(await page.evaluate(() => localStorage.getItem('sift.v4.livescores'))).toBe('0');
+    await page.reload();
+    await expect(page.locator('[data-featured]')).toBeVisible();
+    await expect(note(page)).toHaveCount(0);
     await page.getByRole('button', { name: /SIFT v4 early access/ }).first().click();
     const sec = page.locator('[data-live-scores-section]');
     await expect(sec).toContainText('Powered by SportScore');
     await expect(sec.locator('[data-espn-toggle]')).toHaveCount(0);
     await expect(sec).not.toContainText('ESPN');
     await sec.locator('[data-live-scores-on]').click();
-    await expect.poll(() => seen.length).toBeGreaterThan(0);
-    expect(espn).toHaveLength(0);
+    await expect.poll(() => seen.length).toBeGreaterThan(before);
+  });
+
+  test('SIFT 2.0 is untouched: the classic home neither reads the feed nor shows a score @smoke', async ({ page }) => {
+    const { seen } = await open(page, live(), '');
+    await page.goto('#/');
+    await page.clock.fastForward(120_000);
+    const classic = seen.length;
+    await page.clock.fastForward(120_000);
+    expect(seen.length).toBe(classic);
   });
 });
 

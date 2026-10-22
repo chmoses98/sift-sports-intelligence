@@ -1,13 +1,14 @@
-// ESPN scoreboard -> LiveGame. ESPN's site.api.espn.com scoreboard is UNOFFICIAL: it has no published developer
-// licence, no key, no documented rate limit and no stability promise. This adapter exists because it is the only
-// free feed that covers the whole slate (including CFB and CBB), and because Sift's publications already carry ESPN
-// ids. It must only ever run server-side (relay or publisher), behind the kill switch in service.ts, and its use on a
-// public site is an owner decision (docs/LIVE_SCORES.md → Rights). Nothing here is ESPN-specific beyond parsing:
-// swap the provider and the contract, matching and freshness code do not change.
+// ESPN scoreboard -> LiveGame. ESPN's site.api.espn.com scoreboard is UNOFFICIAL: it has no developer licence, no key, no
+// documented rate limit and no stability promise. Verified 2026-10-22 from a GitHub runner: it answers 200 with
+// `Access-Control-Allow-Origin: *` and 1-10 s cache lifetimes for NFL, CFB, NBA, NHL, MLB, MLS and more, so a browser can read it.
+// Its TERMS are the issue (Disney Terms of Use, read in full): a "personal, noncommercial" licence, with no right to "make
+// available to the public", and a ban on accessing the products "using a robot, spider, script, or other automated means". So this
+// adapter is OFF unless the viewer separately turns it on (src/live/scores/feed.ts), and is never part of any default.
+// Nothing here is ESPN-specific beyond parsing: replace the provider and the contract, matching and freshness code do not change.
 //
 // Parsing is defensive: every field is optional and a missing one is null. A status the adapter does not recognise
 // becomes phase UNKNOWN, never LIVE.
-import type { GamePhase, LiveClock, LiveGame, LiveScoreProvider, LiveSituation, LiveSport, ProviderBatch } from '../types';
+import type { GamePhase, LiveClock, LiveGame, LiveScoreProvider, LiveSituation, LiveSport, ObservedEvent, ProviderBatch } from '../types';
 import { ScoreProviderError } from '../types';
 import { teamKey } from '../identity';
 
@@ -15,18 +16,31 @@ import { teamKey } from '../identity';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Raw = Record<string, any>;
 
-/** The scoreboard paths per sport. Soccer is per competition; the list is the owner's to extend. */
+/** The scoreboard path per sport. Soccer is per competition (see `espnSoccerPath`); tennis has a different shape and is not read here. */
 export const ESPN_PATHS: Partial<Record<LiveSport, string[]>> = {
   NFL: ['football/nfl'],
-  CFB: ['football/college-football'],
+  CFB: ['football/college-football?groups=80', 'football/college-football?groups=81'],
   NBA: ['basketball/nba'],
-  CBB: ['basketball/mens-college-basketball'],
+  CBB: ['basketball/mens-college-basketball?groups=50'],
   NHL: ['hockey/nhl'],
   MLB: ['baseball/mlb'],
-  SOCCER: ['soccer/eng.1', 'soccer/usa.1', 'soccer/uefa.champions'],
 };
 
 const BASE = 'https://site.api.espn.com/apis/site/v2/sports';
+
+/** The publication's league word ("usa.mls") as ESPN's soccer competition path, or null when it is not one ESPN is known to list. */
+export function espnSoccerPath(league: string | null | undefined): string | null {
+  const l = (league ?? '').trim().toLowerCase();
+  if (l === 'usa.mls') return 'soccer/usa.1';
+  return /^[a-z]{3}\.\d$|^uefa\.[a-z_]+$|^conmebol\.[a-z_.]+$/.test(l) ? `soccer/${l}` : null;
+}
+
+/** The US-Eastern calendar day ESPN files a game under (`dates=YYYYMMDD`). */
+export function espnDay(ms: number): string {
+  const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ms));
+  const g = (t: string) => p.find((x) => x.type === t)?.value ?? '';
+  return `${g('year')}${g('month')}${g('day')}`;
+}
 
 const int = (v: unknown): number | null => {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN;
@@ -136,38 +150,49 @@ export function parseEspnScoreboard(sport: LiveSport, body: Raw, fetchedAt: stri
 }
 
 export interface EspnOptions {
+  /** The events the screens are showing: the days and (for soccer) the competitions asked about come from them. */
+  events?: (sport: LiveSport) => ObservedEvent[];
   fetchImpl?: typeof fetch;
   now?: () => number;
-  /** The scoreboard paths per sport (default ESPN_PATHS). */
-  paths?: typeof ESPN_PATHS;
 }
 
 export function espnProvider(o: EspnOptions = {}): LiveScoreProvider {
-  const paths = o.paths ?? ESPN_PATHS;
   const fetchImpl = o.fetchImpl ?? fetch;
   const now = o.now ?? Date.now;
+  const events = o.events ?? (() => []);
   return {
     id: 'espn',
-    label: 'ESPN scoreboard (unofficial)',
+    label: 'ESPN public scoreboard (unofficial)',
+    // ESPN caches these answers for 1-10 s; 15 s is courtesy, not need.
     minIntervalMs: 15_000,
-    sports: (Object.keys(paths) as LiveSport[]).filter((s) => paths[s]?.length),
+    sports: [...(Object.keys(ESPN_PATHS) as LiveSport[]), 'SOCCER'],
     async fetchScoreboard(sport, signal): Promise<ProviderBatch> {
-      const list = paths[sport];
-      if (!list?.length) throw new ScoreProviderError('unsupported', `ESPN adapter has no scoreboard for ${sport}`);
-      const fetchedAt = new Date(now()).toISOString();
+      const evs = events(sport);
+      const days = [...new Set(evs.map((e) => espnDay(Date.parse(e.ref.startUtc))).filter((d) => /^\d{8}$/.test(d)))].slice(0, 3);
+      if (!days.length) days.push(espnDay(now()));
+      const paths = sport === 'SOCCER'
+        ? [...new Set(evs.map((e) => espnSoccerPath(e.league)).filter((x): x is string => !!x))].slice(0, 6)
+        : ESPN_PATHS[sport] ?? [];
+      if (!paths.length) throw new ScoreProviderError('unsupported', `ESPN adapter has no scoreboard for ${sport}`);
       const games: LiveGame[] = [];
-      for (const p of list) {
-        let res: Response;
-        try {
-          res = await fetchImpl(`${BASE}/${p}/scoreboard`, { headers: { Accept: 'application/json' }, signal });
-        } catch (e) {
-          throw new ScoreProviderError(e instanceof Error && e.name === 'TimeoutError' ? 'timeout' : 'network', String(e));
+      let fetchedAt = new Date(now()).toISOString();
+      for (const path of paths) {
+        for (const day of days) {
+          const [p, q] = path.split('?');
+          const url = `${BASE}/${p}/scoreboard?${q ? `${q}&` : ''}dates=${day}&limit=300`;
+          let res: Response;
+          try {
+            res = await fetchImpl(url, { signal });
+          } catch (e) {
+            throw new ScoreProviderError(e instanceof Error && e.name === 'TimeoutError' ? 'timeout' : 'network', String(e));
+          }
+          fetchedAt = new Date(now()).toISOString();
+          if (res.status === 429) throw new ScoreProviderError('rate_limited', 'ESPN 429', 429, Number(res.headers.get('retry-after') ?? 30) * 1000);
+          if (!res.ok) throw new ScoreProviderError('http', `ESPN HTTP ${res.status}`, res.status);
+          let body: Raw;
+          try { body = (await res.json()) as Raw; } catch { throw new ScoreProviderError('schema', 'ESPN answered non-JSON'); }
+          games.push(...parseEspnScoreboard(sport, body, fetchedAt));
         }
-        if (res.status === 429) throw new ScoreProviderError('rate_limited', 'ESPN 429', 429, Number(res.headers.get('retry-after') ?? 30) * 1000);
-        if (!res.ok) throw new ScoreProviderError('http', `ESPN HTTP ${res.status}`, res.status);
-        let body: Raw;
-        try { body = (await res.json()) as Raw; } catch { throw new ScoreProviderError('schema', 'ESPN answered non-JSON'); }
-        games.push(...parseEspnScoreboard(sport, body, fetchedAt));
       }
       return { provider: 'espn', games, fetchedAt };
     },

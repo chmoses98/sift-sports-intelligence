@@ -1,1 +1,1 @@
-{ "mode": "once", "minutes": 0, "interval": 20, "publishPayloads": false }
+{ "mode": "verify", "minutes": 0, "interval": 20 }

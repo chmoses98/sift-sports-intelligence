@@ -4,6 +4,7 @@
 import type { ScoreRead } from '../live/scores/store';
 import { periodClock, shownState } from './scoreState';
 import { SOURCES } from '../live/scores/sources';
+import { SportscoreBadge } from './LiveScoresControl';
 
 const time = (iso: string | null) => (iso && Number.isFinite(Date.parse(iso)) ? new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' }) : null);
 
@@ -26,7 +27,7 @@ export function LiveScoreCard({ read, awayN, homeN }: { read: ScoreRead; awayN: 
           {sc ? <div className="v4-kv"><span className="v4-kv__k">Score</span><span className="v4-kv__v num">{awayN} {sc.away} · {homeN} {sc.home}</span></div> : <div className="v4-kv"><span className="v4-kv__k">Score</span><span className="v4-kv__v">Not reported by the feed</span></div>}
           {!over && <div className="v4-kv"><span className="v4-kv__k">{game.clock?.display ? 'Period · clock' : 'Period'}</span><span className="v4-kv__v">{pc || game.clock?.periodLabel || 'Not reported'}{game.clock && game.clock.running === false && game.clock.display == null ? <em>Clock stopped</em> : null}</span></div>}
           <div className="v4-kv"><span className="v4-kv__k">Status</span><span className="v4-kv__v" data-live-label>{v.label}{aged && <em>{v.mode === 'DELAYED' ? 'Shown with its age; not labelled live' : 'The feed has stopped updating; this is the last answer it gave'}</em>}</span></div>
-          <div className="v4-kv"><span className="v4-kv__k">Source</span><span className="v4-kv__v">{src?.long ?? game.provenance.provider}<em>{game.provenance.attribution ?? 'Unofficial feed; personal early-access use'}</em></span></div>
+          <div className="v4-kv"><span className="v4-kv__k">Source</span><span className="v4-kv__v">{src?.long ?? game.provenance.provider}<em>{read.source === 'sportscore' ? <SportscoreBadge /> : (game.provenance.attribution ?? 'Unofficial feed; personal early-access use')}</em></span></div>
           {time(game.provenance.providerUpdatedAt) && <div className="v4-kv"><span className="v4-kv__k">As of</span><span className="v4-kv__v">{time(game.provenance.providerUpdatedAt)}<em>Feed's own time, or when SIFT read it</em></span></div>}
         </div>
       </div>

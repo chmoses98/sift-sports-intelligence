@@ -13,31 +13,52 @@ export const NO_SCORES: Scores = () => null;
 const OVER = new Set(['FINAL', 'POSTPONED', 'CANCELLED', 'SUSPENDED']);
 
 /** A score feed is only asked about games that can be in play: from 45 minutes before the start to 7 hours after it. Everything else needs no request. */
-const BEFORE_MS = 45 * 60_000;
-const AFTER_MS = 7 * 3600_000;
+export const BEFORE_MS = 45 * 60_000;
+export const AFTER_MS = 7 * 3600_000;
+
+/** The minimal shape of a published game that score matching needs: what a board item and a slate row both have. */
+export interface PublishedGame {
+  eventId: string;
+  startUtc: string;
+  league?: string | null;
+  home: { display_name: string; short_name?: string | null };
+  away: { display_name: string; short_name?: string | null };
+}
 
 /**
- * The slate rows as score-store events: identity comes from the publication's own participants. `now` limits the list to games that can be
- * in play (see above), so a screen showing a whole week of games asks the feed about today's only.
+ * The games of one sport as score-store events: identity comes from the publication's own participants (an individual sport such as
+ * tennis has no home/away ids on the board; callers order the two sides the way the screen does). A team the directory cannot resolve
+ * means no event, never a guess.
  */
-export function observedFor(rows: GameRow[], now: number = Date.now()): ObservedEvent[] {
-  const bySport = new Map<LiveSport, GameRow[]>();
-  for (const g of rows) if (!OVER.has(g.phase) && g.home && g.away && g.startMs - BEFORE_MS <= now && now <= g.startMs + AFTER_MS) bySport.set(g.sport as LiveSport, [...(bySport.get(g.sport as LiveSport) ?? []), g]);
+export function observedFromGames(sport: LiveSport, games: PublishedGame[]): ObservedEvent[] {
+  const dir = new TeamDirectory(sport, games.flatMap((g) => [g.home, g.away]).map((p) => ({ abbr: p.short_name ?? null, name: p.display_name })));
   const out: ObservedEvent[] = [];
-  for (const [sport, list] of bySport) {
-    const teams = list.flatMap((g) => [g.home!, g.away!]).map((p) => ({ abbr: p.short_name ?? null, name: p.display_name }));
-    const dir = new TeamDirectory(sport, teams);
-    for (const g of list) {
-      // Identity comes from the row's own two participants (an individual sport such as tennis has no home/away ids on the board; the row
-      // orders its two players the way the screen does). A team the directory cannot resolve means no match, never a guess.
-      const hk = dir.resolve({ abbr: g.home!.short_name ?? null, name: g.home!.display_name });
-      const ak = dir.resolve({ abbr: g.away!.short_name ?? null, name: g.away!.display_name });
-      if (!hk || !ak || hk === ak) continue;
-      const ref = { eventId: g.item.event_id, sport, startUtc: g.item.start_time_utc, home: { key: hk, name: g.home!.display_name }, away: { key: ak, name: g.away!.display_name } };
-      out.push({ league: g.item.league ?? null, ref, home: { abbr: g.home!.short_name ?? null, name: g.home!.display_name }, away: { abbr: g.away!.short_name ?? null, name: g.away!.display_name } });
-    }
+  for (const g of games) {
+    const hk = dir.resolve({ abbr: g.home.short_name ?? null, name: g.home.display_name });
+    const ak = dir.resolve({ abbr: g.away.short_name ?? null, name: g.away.display_name });
+    if (!hk || !ak || hk === ak) continue;
+    out.push({
+      league: g.league ?? null,
+      ref: { eventId: g.eventId, sport, startUtc: g.startUtc, home: { key: hk, name: g.home.display_name }, away: { key: ak, name: g.away.display_name } },
+      home: { abbr: g.home.short_name ?? null, name: g.home.display_name },
+      away: { abbr: g.away.short_name ?? null, name: g.away.display_name },
+    });
   }
   return out;
+}
+
+/**
+ * The slate rows as score-store events. `now` limits the list to games that can be in play (see above), so a screen showing a whole
+ * week of games asks the feed about today's only.
+ */
+export function observedFor(rows: GameRow[], now: number = Date.now()): ObservedEvent[] {
+  const bySport = new Map<LiveSport, PublishedGame[]>();
+  for (const g of rows) {
+    if (OVER.has(g.phase) || !g.home || !g.away || g.startMs - BEFORE_MS > now || now > g.startMs + AFTER_MS) continue;
+    const sport = g.sport as LiveSport;
+    bySport.set(sport, [...(bySport.get(sport) ?? []), { eventId: g.item.event_id, startUtc: g.item.start_time_utc, league: g.item.league ?? null, home: g.home, away: g.away }]);
+  }
+  return [...bySport].flatMap(([sport, games]) => observedFromGames(sport, games));
 }
 
 export type Shown = 'live' | 'upcoming' | 'over';

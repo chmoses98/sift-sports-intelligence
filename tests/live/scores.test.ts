@@ -221,11 +221,11 @@ describe('LiveScoreService chain', () => {
 describe('espnProvider (fetch seam)', () => {
   const body = JSON.stringify(fx('espn-nfl.synthetic.json'));
   it('parses a 200, maps 429 to rate_limited with Retry-After, and a non-JSON 200 to schema', async () => {
-    const ok = espnProvider({ now: () => T0, fetchImpl: (async () => new Response(body)) as typeof fetch, paths: { NFL: ['football/nfl'] } });
+    const ok = espnProvider({ now: () => T0, fetchImpl: (async () => new Response(body)) as typeof fetch });
     expect((await ok.fetchScoreboard('NFL')).games.length).toBe(4);
-    const lim = espnProvider({ fetchImpl: (async () => new Response('', { status: 429, headers: { 'retry-after': '12' } })) as typeof fetch, paths: { NFL: ['football/nfl'] } });
+    const lim = espnProvider({ fetchImpl: (async () => new Response('', { status: 429, headers: { 'retry-after': '12' } })) as typeof fetch });
     await expect(lim.fetchScoreboard('NFL')).rejects.toMatchObject({ kind: 'rate_limited', retryAfterMs: 12_000 });
-    const bad = espnProvider({ fetchImpl: (async () => new Response('<html>')) as typeof fetch, paths: { NFL: ['football/nfl'] } });
+    const bad = espnProvider({ fetchImpl: (async () => new Response('<html>')) as typeof fetch });
     await expect(bad.fetchScoreboard('NFL')).rejects.toMatchObject({ kind: 'schema' });
     await expect(ok.fetchScoreboard('TENNIS')).rejects.toMatchObject({ kind: 'unsupported' });
   });

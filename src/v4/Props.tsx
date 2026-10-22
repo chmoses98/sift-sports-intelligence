@@ -8,6 +8,7 @@ import { PlayerRowV4 } from './PropsUi';
 import { Crest } from './base';
 import { useSheet } from './sheet';
 import { PROP_SPORTS, propSport, useGamePropSport, useNflPropsSlate, type PropSport } from './propsData';
+import { ProjectionBrowser } from './ProjectionPanels';
 import { familyCounts, filterRows, groupPlayers, orderRows, SORT_WORDS, type PropSort } from './propsModel';
 import { agoWord } from './words';
 import { PROP_FAMILY_LABEL, PROP_FAMILY_ORDER, type PropFamily } from '../insights/propBoard';
@@ -88,7 +89,7 @@ export function V4Props() {
           ))}
         </div>
       </div>
-      {sport.mode === 'explorer' ? <NflExplorer searching={searching} sort={sort} /> : <GamePropsList s={sport} />}
+      {sport.mode === 'explorer' ? <NflExplorer searching={searching} sort={sort} /> : sport.mode === 'projection' ? <ProjectionBrowser sport={sport.slug as 'cfb' | 'nba'} /> : <GamePropsList s={sport} />}
     </div>
   );
 }

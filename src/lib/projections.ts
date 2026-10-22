@@ -73,7 +73,7 @@ export interface PlayerProjection {
 export type Participation = 'CONFIRMED_ACTIVE' | 'LIKELY_ACTIVE' | 'UNCERTAIN' | 'LIKELY_OUT' | 'CONFIRMED_OUT' | 'UNVERIFIED';
 const PARTICIPATION: Participation[] = ['CONFIRMED_ACTIVE', 'LIKELY_ACTIVE', 'UNCERTAIN', 'LIKELY_OUT', 'CONFIRMED_OUT', 'UNVERIFIED'];
 /** `teamId`/`homeId`/`awayId`: the source's own team ids (CFB publishes ESPN ids and team NAMES, not SIFT's contract codes), null when not published */
-export interface TeamProjection { gameId: string; team: string; teamId: string | null; family: string; mean: number; p10: number | null; p90: number | null; startUtc: string | null; home: string; away: string; homeId: string | null; awayId: string | null }
+export interface TeamProjection { gameId: string; team: string; teamId: string | null; family: string; mean: number; p10: number | null; p90: number | null; startUtc: string | null; home: string; away: string; homeId: string | null; awayId: string | null; gateStatus?: GateStatus }
 export interface FamilyInfo { readiness: Readiness; model: string; reason: string }
 export interface ProjectionDoc {
   sport: ProjSport; generatedAt: string; dataAsOf: string | null; modelVersion: string;
@@ -152,7 +152,7 @@ export function decodeProjections(raw: unknown): ProjectionDoc | null {
   for (const gm of Array.isArray(raw.games) ? raw.games : []) {
     if (!isObj(gm)) continue;
     for (const t of Array.isArray(gm.teams) ? gm.teams : []) {
-      if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), teamId: str(t.team_id) || null, family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90), startUtc: str(gm.start_utc) || null, home: str(gm.home), away: str(gm.away), homeId: str(gm.home_id) || null, awayId: str(gm.away_id) || null });
+      if (isObj(t) && num(t.mean) != null) teams.push({ gameId: str(gm.game_id), team: str(t.team), teamId: str(t.team_id) || null, family: str(t.family), mean: num(t.mean)!, p10: num(t.p10), p90: num(t.p90), startUtc: str(gm.start_utc) || null, home: str(gm.home), away: str(gm.away), homeId: str(gm.home_id) || null, awayId: str(gm.away_id) || null, gateStatus: asGate(isObj(t.gate) ? t.gate.status : gm.gate_status) });
     }
   }
   return { sport, generatedAt: str(raw.generated_utc), dataAsOf: str(raw.data_asof_utc) || null, modelVersion: str(model.version), families, players, teams };

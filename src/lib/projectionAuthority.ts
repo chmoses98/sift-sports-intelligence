@@ -202,6 +202,7 @@ export function makeAuthority(sport: ProjSport, doc: ProjectionDoc | null, nowMs
       const d = doc!;
       const ts = findTeamProjections(d, { home: q.home, away: q.away, startUtc: q.startUtc, homeId: q.homeId, awayId: q.awayId })?.filter((t) => t.family === family) ?? [];
       if (ts.length !== 2) return withheld('NOT_PUBLISHED', 'projections for this game have not been published yet') as { kind: 'withheld'; code: WithheldCode; reason: string };
+      if (ts.some((t) => t.gateStatus === 'BLOCK')) return withheld('GATE_BLOCK', 'the publisher quality gate blocked a team forecast') as { kind: 'withheld'; code: WithheldCode; reason: string };
       const age = ageOf(d.dataAsOf ?? d.generatedAt, nowMs);
       if (age == null || age > maxAge) return withheld('STALE', `inputs are ${fmtAge(age)}, older than the ${maxAge}h freshness limit`) as { kind: 'withheld'; code: WithheldCode; reason: string };
       const order = [teamKey(q.away), teamKey(q.home)];

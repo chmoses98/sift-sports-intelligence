@@ -118,6 +118,17 @@ export function saveStored(s: Stored, storage: Storage | undefined = globalThis.
   }
 }
 
+/**
+ * Write a note straight to storage, now. For the moments a page is hidden or unloaded (the phone switches apps, a new deploy reloads
+ * the page): the provider persists in an effect after a state update, and that effect may never get to run. Only the note changes
+ * (blank is no note, as in `setNote`): the item keeps its identity, time, label and place.
+ */
+export function persistNoteNow(itemId: string, note: string, storage: Storage | undefined = globalThis.localStorage): void {
+  const s = loadStored(storage);
+  if (!s.tray.items.some((i) => i.item_id === itemId)) return;
+  saveStored({ tray: makeTray(s.tray.items.map((i) => (i.item_id === itemId ? { ...i, note: note.trim() ? note : null } : i)), new Date()), labels: s.labels }, storage);
+}
+
 /** Fired on `window` after any provider in this page writes the tray, so every provider shows the same one. */
 const TRAY_CHANGED = 'sift:tray-changed';
 

@@ -20,7 +20,7 @@ import { navSport } from '../data/nav';
 import { useNow, useLiveQuotes } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { boardGroups, gameChanges, GROUP_WORD, type BoardGroupKey, type GameGroup } from '../board/model';
-import { tickerOfMarketId, useTray } from '../state/tray';
+import { persistNoteNow, tickerOfMarketId, useTray } from '../state/tray';
 import type { BoardItem } from '../contract/types';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
@@ -170,14 +170,19 @@ function NoteEditor({ id, note, label }: { id: string; note: string | null; labe
   // Dismissing the sheet (Escape, scrim, swipe) while a note is being edited keeps the text instead of losing it. So does leaving the
   // app or a reload (a new deploy takes over by reloading; a phone freezes a page it has backgrounded): an unsaved draft is written first.
   useEffect(() => {
-    const flush = () => {
+    // `durable`: the page is going away (hidden, unloaded), so storage is written now as well as the screen's own state; a state update and
+    // the effect that persists it may not get to run. Closing the sheet (unmount) keeps the page alive, so state alone is enough there.
+    const flush = (durable: boolean) => {
       const { draft: d, note: n } = latest.current;
-      if (d !== null && keptNote(d) !== keptNote(n)) setNote(id, d);
+      if (d === null || keptNote(d) === keptNote(n)) return;
+      if (durable) persistNoteNow(id, d);
+      setNote(id, d);
     };
-    const onHide = () => { if (document.visibilityState === 'hidden') flush(); };
+    const onHide = () => { if (document.visibilityState === 'hidden') flush(true); };
+    const onUnload = () => flush(true);
     document.addEventListener('visibilitychange', onHide);
-    window.addEventListener('pagehide', flush);
-    return () => { document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', flush); flush(); };
+    window.addEventListener('pagehide', onUnload);
+    return () => { document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', onUnload); flush(false); };
   }, [id, setNote]);
   const editing = draft !== null;
   const save = () => {
@@ -317,14 +322,19 @@ function ClearSheet({ n }: { n: number }) {
 
 // ------------------------------------------------------------------ the screen
 
-function Reasons({ reasons, open }: { reasons: LookReason[]; open: (r: LookReason) => void }) {
+const LOOK_CAP = 6;
+
+/** Exported for tests. The count in the heading is the count of reasons, so every one of them is reachable: the first few, then "Show all". */
+export function Reasons({ reasons, open }: { reasons: LookReason[]; open: (r: LookReason) => void }) {
+  const [all, setAll] = useState(false);
   if (!reasons.length) return null;
+  const shown = all ? reasons : reasons.slice(0, LOOK_CAP);
   return (
     <section className="v4-sec" aria-label="Worth another look">
       <header className="v4-sechead"><h2>Worth another look</h2><span className="v4-sechead__n">{reasons.length}</span></header>
       <p className="meta v4-sg__gnote">Changes since you saved, from what the publications and live quotes show. Nothing here says to act.</p>
       <ul className="v4-sg__list">
-        {reasons.slice(0, 6).map((r) => (
+        {shown.map((r) => (
           <li key={r.key} className="v4-sg">
             <button type="button" className="v4-sg__main v4-bd__why" onClick={() => open(r)} aria-label={`Details: ${r.entry.label?.label ?? r.entry.item.id}. ${r.text}`}>
               <span className="v4-sg__top"><span className="v4-sg__game">{r.game.title}</span></span>
@@ -334,6 +344,7 @@ function Reasons({ reasons, open }: { reasons: LookReason[]; open: (r: LookReaso
           </li>
         ))}
       </ul>
+      {reasons.length > LOOK_CAP && <div style={{ padding: '10px 16px 0' }}><button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%' }} aria-expanded={all} onClick={() => setAll((x) => !x)}>{all ? `Show the first ${LOOK_CAP}` : `Show all ${reasons.length}`}</button></div>}
     </section>
   );
 }

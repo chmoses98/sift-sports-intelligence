@@ -2,7 +2,7 @@
 // side or price snapshot is ever re-created.
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { saveStored, TRAY_KEY, TrayProvider, useTray, type RemovedEntry, type TrayLabel } from '../src/state/tray';
+import { persistNoteNow, saveStored, TRAY_KEY, TrayProvider, useTray, type RemovedEntry, type TrayLabel } from '../src/state/tray';
 import { makeTray, makeTrayItem } from '../src/packet/tray';
 
 const SAVED = '2026-10-04T13:00:00Z';
@@ -125,5 +125,28 @@ describe('tray restore (the basis of Board Undo)', () => {
     expect(after.items[3].note).toBe('new note');
     act(() => api.setNote(items[3].item_id, '   '));
     expect(raw().tray.items[3].note).toBeNull();
+  });
+});
+
+describe('persistNoteNow (a note written straight to storage when a page is going away)', () => {
+  beforeEach(() => { localStorage.clear(); saveStored({ tray: makeTray(items, SAVED), labels }); });
+  const stored = () => JSON.parse(localStorage.getItem(TRAY_KEY)!);
+
+  it('changes only the note: every id, time, label and place is exactly as it was', () => {
+    const before = stored();
+    persistNoteNow(items[3].item_id, 'written on the way out');
+    const after = stored();
+    expect(after.labels).toEqual(before.labels);
+    expect(after.tray.items.map((i: { note: string | null }) => ({ ...i, note: null }))).toEqual(before.tray.items.map((i: { note: string | null }) => ({ ...i, note: null })));
+    expect(after.tray.items[3].note).toBe('written on the way out');
+    expect(after.tray.items[1].note).toBe('  padded legacy note  '); // another item's note is never rewritten
+  });
+
+  it('blank is no note, as setNote stores it; an item that is not there changes nothing', () => {
+    persistNoteNow(items[1].item_id, '   ');
+    expect(stored().tray.items[1].note).toBeNull();
+    const before = localStorage.getItem(TRAY_KEY);
+    persistNoteNow('try_not_saved', 'x');
+    expect(localStorage.getItem(TRAY_KEY)).toBe(before);
   });
 });

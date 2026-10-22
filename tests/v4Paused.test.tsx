@@ -20,9 +20,16 @@ describe('v4 pause switch', () => {
     vi.stubEnv('VITE_SIFT_V4', '');
     vi.resetModules();
     expect((await import('../src/lib/v4Switch')).V4_ENABLED).toBe(true);
-    vi.stubEnv('VITE_SIFT_V4', 'off');
-    vi.resetModules();
-    expect((await import('../src/lib/v4Switch')).V4_ENABLED).toBe(false);
+    for (const off of ['off', 'OFF', ' Off ', 'oFf']) {
+      vi.stubEnv('VITE_SIFT_V4', off);
+      vi.resetModules();
+      expect((await import('../src/lib/v4Switch')).V4_ENABLED, `"${off}" pauses v4`).toBe(false);
+    }
+    for (const on of ['on', 'true', 'offline', '0']) {
+      vi.stubEnv('VITE_SIFT_V4', on);
+      vi.resetModules();
+      expect((await import('../src/lib/v4Switch')).V4_ENABLED, `"${on}" leaves v4 on`).toBe(true);
+    }
   });
 
   it('paused: every v4 address says so, offers SIFT 2.0 and forgets a kept v4 choice; SIFT 2.0 routes are still there', async () => {

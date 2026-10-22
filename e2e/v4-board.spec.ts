@@ -220,6 +220,20 @@ test.describe('v4 Board: opening a saved item keeps its context', () => {
     await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
   });
 
+  test('a sheet opened from inside the item sheet returns focus to the Board row, not to the top of the page @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes'], { recs: [rec()] });
+    const main = row(page, 'Chris Olave 7+ receptions').locator('.v4-bd__main');
+    await main.click();
+    await expect(sheet(page)).toBeVisible();
+    // "Research" opens the research sheet from inside the item sheet: the control that opened it is unmounted with the first sheet
+    await sheet(page).getByRole('button', { name: 'Research', exact: true }).click();
+    const research = page.getByRole('dialog', { name: /^Research:/ });
+    await expect(research).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(research).toHaveCount(0);
+    await expect(main).toBeFocused();
+  });
+
   test('the item sheet states the side, what was saved, the original context and the way on @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'v4No']);
     await row(page, 'Chris Olave 7+ receptions').locator('.v4-bd__main').click();
@@ -363,23 +377,32 @@ test.describe('v4 Board: your notes', () => {
     await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
   });
 
-  test('leaving the app or a reload saves a note being typed instead of losing it @smoke', async ({ page, market }) => {
+  test('leaving the app or a reload saves a note being typed instead of losing it, in the same moment @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'noted']);
     const dlg = await openSheet(page, 'Atlanta Falcons');
     await dlg.getByRole('button', { name: 'Edit note' }).click();
     await dlg.getByRole('textbox').fill('Typed, then the phone went to the background.');
     expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE); // still only a draft
-    // the page is hidden (another app, the lock button, a new deploy reloading it): the real events a phone sends
-    await page.evaluate(() => {
+    // the page is hidden (another app, the lock button, a new deploy reloading it). Storage is read in the SAME task as the event: the
+    // note must already be there, not "soon" (a frozen or unloading page never gets a later turn to write it).
+    const written = await page.evaluate(([key]) => {
       Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
       document.dispatchEvent(new Event('visibilitychange'));
-    });
-    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Typed, then the phone went to the background.');
+      const s = JSON.parse(localStorage.getItem(key)!);
+      return s.tray.items.map((i: { id: string; note: string | null }) => [i.id, i.note]);
+    }, [TRAY_KEY] as const);
+    expect(written).toContainEqual(['prt_falcons', 'Typed, then the phone went to the background.']);
     await page.evaluate(() => { Reflect.deleteProperty(document, 'visibilityState'); });
     // and on the way out of the page
     await dlg.getByRole('textbox').fill('Second thought, written just before a reload.');
-    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
-    await expect.poll(() => noteOf(page, 'Atlanta Falcons')).toBe('Second thought, written just before a reload.');
+    const unloaded = await page.evaluate(([key]) => {
+      window.dispatchEvent(new Event('pagehide'));
+      return JSON.parse(localStorage.getItem(key)!).tray.items.map((i: { id: string; note: string | null }) => [i.id, i.note]);
+    }, [TRAY_KEY] as const);
+    expect(unloaded).toContainEqual(['prt_falcons', 'Second thought, written just before a reload.']);
+    // identities and times are untouched by either write
+    const s = await stored(page);
+    expect(s.tray.items.find((i: { id: string }) => i.id === 'prt_falcons').added_at).toBe('2026-10-04T13:00:00Z');
   });
 
   test('a note written in v4 is the note in SIFT 2.0, and the other way round @smoke', async ({ page, market }) => {

@@ -10,7 +10,7 @@ import { sportBySlug } from '../data/sports';
 import { NAV_SPORTS } from '../data/nav';
 import type { EventResearchDoc, Market, ModelPrice } from '../contract/types';
 import { useLiveQuotes, useNow } from '../live/hooks';
-import { classifyQuoteAge, formatQuoteAgo, quoteAgeMs, quoteFreshness, worstQuote } from '../live/freshness';
+import { classifyQuoteAge, quoteAgeMs, quoteFreshness, worstQuote } from '../live/freshness';
 import { overlayMarket } from '../live/overlay';
 import { heroInputFor } from '../lib/hero/input';
 import { resolveHero } from '../lib/hero/resolve';
@@ -30,7 +30,7 @@ import { Icon } from './Icon';
 import { PlayerRowV4 } from './PropsUi';
 import { groupPlayers, propsExplorerHref } from './propsModel';
 import { signalsHref } from './signalsModel';
-import { agoWord, authorityWord } from './words';
+import { agoWord, authorityWord, priceLine } from './words';
 import { Scoreboard } from './Scoreboard';
 import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
@@ -102,7 +102,10 @@ export function V4Game() {
   const homeN = spec?.home?.short ?? (g ? teamName(g.home) : '');
   const frozen = !!g && g.phase !== 'PREGAME' && g.phase !== 'NO_START';
   const fresh = useMemo(() => worstQuote(quoted.filter((m) => m.captured_at).map((m) => quoteFreshness(m.captured_at, now))), [quoted, now]);
-  const freshest = useMemo(() => Math.min(...quoted.map((m) => quoteAgeMs(m.captured_at, now)).filter((x): x is number => x != null), Infinity), [quoted, now]);
+  const freshest = useMemo(() => {
+    const ages = quoted.map((m) => quoteAgeMs(m.captured_at, now)).filter((x): x is number => x != null && Number.isFinite(x));
+    return ages.length ? Math.min(...ages) : null;
+  }, [quoted, now]);
 
   const header = (
     <div className="v4-gtop">
@@ -137,7 +140,7 @@ export function V4Game() {
           <Scoreboard g={g} away={awayN} home={homeN} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} />
         </div>
         <div className="v4-gstat">
-          <span><i className={`v4-dot${quoted.length === 0 ? ' v4-dot--off' : fresh === 'FRESH' ? '' : ' v4-dot--stale'}`} />{quoted.length === 0 ? 'No prices published' : fresh === 'FRESH' ? `Prices live · ${formatQuoteAgo(freshest)}` : fresh === 'AGING' ? `Prices aging · ${formatQuoteAgo(freshest)}` : `Prices stale · ${formatQuoteAgo(freshest)}`}</span>
+          <span><i className={`v4-dot${quoted.length === 0 ? ' v4-dot--off' : fresh === 'FRESH' ? '' : ' v4-dot--stale'}`} />{priceLine(quoted.length, fresh, freshest)}</span>
           <span><i className={`v4-dot${frozen ? ' v4-dot--frozen' : ''}`} />{frozen ? 'Research frozen at kickoff' : 'Pregame research'}</span>
         </div>
       </div>
@@ -145,7 +148,15 @@ export function V4Game() {
       <div className="v4-gtabs" role="tablist" aria-label="Game sections">
         {TABS.map(([k, label]) => (
           <button key={k} type="button" role="tab" id={`v4t-${k}`} aria-selected={tab === k} aria-controls="v4-panel" tabIndex={tab === k ? 0 : -1} className="v4-gtab" onClick={() => setTab(k)}
-            onKeyDown={(e) => { const i = TABS.findIndex(([x]) => x === tab); if (e.key === 'ArrowRight') setTab(TABS[(i + 1) % 4][0]); if (e.key === 'ArrowLeft') setTab(TABS[(i + 3) % 4][0]); }}>
+            onKeyDown={(e) => {
+              // WAI-ARIA tabs: the arrow keys (and Home / End) select a tab AND move focus to it, or the roving tabindex strands focus on a tab that is no longer in the tab order.
+              const i = TABS.findIndex(([x]) => x === tab);
+              const to = e.key === 'ArrowRight' ? (i + 1) % TABS.length : e.key === 'ArrowLeft' ? (i + TABS.length - 1) % TABS.length : e.key === 'Home' ? 0 : e.key === 'End' ? TABS.length - 1 : null;
+              if (to == null) return;
+              e.preventDefault();
+              setTab(TABS[to][0]);
+              document.getElementById(`v4t-${TABS[to][0]}`)?.focus();
+            }}>
             {k === 'live' && isLiveGame(g) && <i className="v4-livedot" aria-hidden="true" />}{label}
           </button>
         ))}

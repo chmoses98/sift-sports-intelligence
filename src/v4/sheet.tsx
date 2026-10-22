@@ -10,14 +10,19 @@ const FOCUSABLE = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"]
 export function SheetHost({ children }: { children: ReactNode }) {
   const [sheet, setSheet] = useState<{ content: ReactNode; label: string } | null>(null);
   const opener = useRef<Element | null>(null);
+  const isOpen = useRef(false);
   const panel = useRef<HTMLDivElement>(null);
   const drag = useRef<{ y: number } | null>(null);
 
   const open = useCallback((content: ReactNode, opts?: { label: string }) => {
-    opener.current = document.activeElement;
+    // A sheet opened from inside another keeps the original opener: the control that is focused now is about to be unmounted, and
+    // returning focus to it would drop a keyboard or VoiceOver user to the top of the page.
+    if (!isOpen.current) opener.current = document.activeElement;
+    isOpen.current = true;
     setSheet({ content, label: opts?.label ?? 'Details' });
   }, []);
   const close = useCallback(() => {
+    isOpen.current = false;
     setSheet(null);
     (opener.current as HTMLElement | null)?.focus?.();
   }, []);

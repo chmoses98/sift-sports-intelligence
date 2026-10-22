@@ -306,6 +306,28 @@ test.describe('v4 game default tabs and remembered selection', () => {
     await expect(page.getByText('Live score, clock and plays are unavailable')).toBeVisible();
   });
 
+  test('the game sections are a real tablist: the arrow keys, Home and End select a tab and move focus with it @smoke', async ({ page }) => {
+    await open(page, `/game/nfl/${NEBUF}`);
+    const tab = (name: string) => page.getByRole('tab', { name });
+    await expect(tab('Matchups')).toHaveAttribute('aria-selected', 'true');
+    await tab('Matchups').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(tab('Players')).toHaveAttribute('aria-selected', 'true');
+    await expect(tab('Players')).toBeFocused();
+    await page.keyboard.press('End');
+    await expect(tab('Markets')).toBeFocused();
+    await expect(tab('Markets')).toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('ArrowRight'); // wraps
+    await expect(tab('Live')).toBeFocused();
+    await page.keyboard.press('ArrowLeft'); // wraps back
+    await expect(tab('Markets')).toBeFocused();
+    await page.keyboard.press('Home');
+    await expect(tab('Live')).toBeFocused();
+    // exactly one tab is in the tab order, and it is the selected, focused one
+    expect(await page.locator('[role="tab"][tabindex="0"]').count()).toBe(1);
+    await expect(page.locator('[role="tab"][tabindex="0"]')).toBeFocused();
+  });
+
   test('a final opens Live with the published score and summary @smoke', async ({ page }) => {
     await page.clock.setFixedTime(new Date('2026-10-08T05:00:00Z'));
     await page.context().route(NHL_RAW, async (route) => {

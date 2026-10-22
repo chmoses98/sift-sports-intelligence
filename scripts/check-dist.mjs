@@ -75,6 +75,7 @@ const js = assets.filter((f) => f.endsWith('.js'));
 const main = js.map((f) => [f, readFileSync(join(dist, 'assets', f), 'utf-8')]).find(([, t]) => t.includes('createHashRouter') || t.includes('HashRouter'));
 must(main, 'no hash router in the bundle (deep links would break on Pages)');
 const sw = readFileSync(join(dist, 'sw.js'), 'utf-8');
+must(sw.includes('v4/index.html'), 'service worker must precache the separate v4 install entrypoint');
 must(!sw.includes('data/nfl/app/latest/event_detail'), 'service worker precaches research data (it must not)');
 // Market clock: live quotes must never be answered from a service-worker cache.
 must(/live-quotes[\s\S]{0,400}NetworkOnly|NetworkOnly[\s\S]{0,400}live-quotes/.test(sw), 'service worker does not route the live-quote feed NetworkOnly');

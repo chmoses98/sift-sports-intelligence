@@ -90,6 +90,12 @@ export class ScoreStore {
   private start() { if (!this.timer && this.subs.size + this.observers.size > 0) this.timer = setInterval(() => { void this.tick(); }, 1000); }
   private stop() { if (this.timer) { clearInterval(this.timer); this.timer = null; } }
 
+  /** Refresh now, ignoring the provider's minimum interval and any back-off: for a deliberate change (the demo's feed scenario). */
+  refreshNow(): Promise<void> {
+    this.service.allowNow();
+    return this.tick();
+  }
+
   private inflight: Promise<void> | null = null;
   private again = false;
 

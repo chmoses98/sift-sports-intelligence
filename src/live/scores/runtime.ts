@@ -21,4 +21,4 @@ export const scoreStore = new ScoreStore({
 // The demo provider reads the events the store is showing, so it can only describe games that are on a screen.
 observed = () => scoreStore.allObserved();
 // A change of mode or scenario is felt at once, not on the next second.
-subscribeDemo(() => { void scoreStore.tick(); });
+subscribeDemo(() => { void scoreStore.refreshNow(); });

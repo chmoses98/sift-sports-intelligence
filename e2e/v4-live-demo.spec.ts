@@ -242,8 +242,10 @@ test.describe('Live Score Demo accessibility', () => {
     expect((await axe()).violations).toEqual([]);
     await page.locator('.v4-row--live a.v4-row__link, [data-featured]').first().click();
     await expect(page.locator('[data-live-score]')).toBeVisible();
+    await page.waitForTimeout(500);
     expect((await axe()).violations).toEqual([]);
     await openControls(page);
+    await page.waitForTimeout(700); // the sheet fades in: scan it settled, not mid-animation
     expect((await axe()).violations).toEqual([]);
   });
 });

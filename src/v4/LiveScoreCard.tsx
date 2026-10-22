@@ -49,7 +49,7 @@ export function LiveScoreCard({ g, read, awayN, homeN }: { g: GameRow; read: Sco
             {game.recentPlays.map((p, i) => (
               <li key={i} className="v4-quote">
                 <span className="v4-quote__t"><b>{p.text}</b><span>{[p.periodLabel, p.clock].filter(Boolean).join(' · ') || 'Time not reported'}</span></span>
-                <span className="v4-px num" aria-label={`Score ${p.away} to ${p.home}`}>{p.away}–{p.home}<small>after</small></span>
+                <span className="v4-playsc num" aria-label={`Score ${p.away} to ${p.home}`}>{p.away}–{p.home}<small>after</small></span>
               </li>
             ))}
           </ul>

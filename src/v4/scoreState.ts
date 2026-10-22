@@ -77,3 +77,14 @@ export function liveWord(r: ScoreRead | null | undefined): 'LIVE' | 'DELAYED' | 
   const m = r?.view.mode;
   return m === 'DELAYED' ? 'DELAYED' : m === 'LAST_KNOWN' ? 'STALE' : 'LIVE';
 }
+
+/**
+ * The short line under a score on a scoreboard or row, where space is tight: "LIVE · 12s", "Updated 2m ago", "Stale · 6m", "Final".
+ * The full sentence ("Last update 6m ago · provider unavailable") belongs on the Live tab card, which has room for it.
+ */
+export function chipLine(r: ScoreRead | null | undefined): string {
+  const v = r?.view;
+  if (!v?.game) return '';
+  const age = formatQuoteAge(v.ageMs);
+  return v.mode === 'DELAYED' ? `Updated ${age} ago` : v.mode === 'LAST_KNOWN' ? `Stale · ${age}` : v.mode === 'FINAL' ? 'Final' : v.label;
+}

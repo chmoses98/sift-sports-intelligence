@@ -81,6 +81,11 @@ export class LiveScoreService {
     return next;
   }
 
+  /** Forget every provider's minimum interval and back-off, so the next refresh runs at once (a mode or scenario change, never a retry loop). */
+  allowNow() {
+    for (const [k, s] of this.snaps) this.snaps.set(k, { ...s, nextAllowedAt: 0 });
+  }
+
   async refresh(sport: LiveSport, signal?: AbortSignal): Promise<SportSnapshot> {
     const t = this.now();
     const prev = this.snapshot(sport);

@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router';
 import { GameRowV4 } from '../src/v4/parts';
 import { Scoreboard } from '../src/v4/Scoreboard';
 import { LiveScoreCard } from '../src/v4/LiveScoreCard';
-import { ageChip, observedFor, periodClock, shownState } from '../src/v4/scoreState';
+import { ageChip, chipLine, liveWord, observedFor, periodClock, shownState } from '../src/v4/scoreState';
 import { applyFilter, defaultGameTab, groupByPhase, isLiveGame, isOver, isUpcoming, pickFeature } from '../src/v4/model';
 import { scoreView } from '../src/live/scores/freshness';
 import type { ScoreRead } from '../src/live/scores/store';
@@ -92,6 +92,18 @@ describe('what a score read lets v4 SHOW', () => {
   });
 });
 
+describe('badge and chip words never call old data live', () => {
+  it('LIVE only for a fresh score; DELAYED and STALE otherwise; short lines for tight spaces', () => {
+    expect(liveWord(read(game()))).toBe('LIVE');
+    expect(liveWord(read(game({}, 130)))).toBe('DELAYED');
+    expect(liveWord(read(game({}, 700)))).toBe('STALE');
+    expect(liveWord(read(game(), { down: true }))).toBe('STALE');
+    expect(chipLine(read(game({}, 130)))).toBe('Updated 2m ago');
+    expect(chipLine(read(game({}, 700), { down: true }))).toBe('Stale · 11m');
+    expect(chipLine(read(game({ phase: 'FINAL' })))).toBe('Final');
+  });
+});
+
 describe('the rows and scoreboard print a read, always under a DEMO label', () => {
   it('a live row shows both scores, the period and clock, and DEMO', () => {
     inRouter(<ul><GameRowV4 g={row()} read={read(game())} /></ul>);
@@ -137,7 +149,7 @@ describe('the rows and scoreboard print a read, always under a DEMO label', () =
     expect(screen.getByText(/^LIVE · /)).toBeTruthy();
     cleanup();
     inRouter(<Scoreboard g={row()} away="Bears" home="Hawks" final={null} hosted read={read(game({}, 700), { down: true })} />);
-    expect(screen.getByText(/Last update 11m ago · provider unavailable/)).toBeTruthy();
+    expect(screen.getByText('Stale · 11m')).toBeTruthy(); // the long sentence lives on the Live tab card, not in the scoreboard's narrow middle
     expect(screen.queryByText(/^LIVE/)).toBeNull();
   });
 

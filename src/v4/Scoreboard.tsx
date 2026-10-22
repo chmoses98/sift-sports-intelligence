@@ -9,7 +9,7 @@ import { teamName } from '../components/sift2/GameList';
 import type { GameRow } from '../views/broadcast/games';
 import type { FeaturedScores } from '../views/broadcast/lifecycle';
 import type { ScoreRead } from '../live/scores/store';
-import { periodClock, shownState } from './scoreState';
+import { chipLine, periodClock, shownState } from './scoreState';
 
 export function Scoreboard({ g, away, home, awayRec, homeRec, final, hosted, to, label, read }: {
   g: GameRow; away: string; home: string; awayRec?: string | null; homeRec?: string | null; final: FeaturedScores | null; hosted: boolean; to?: string; label?: string; read?: ScoreRead | null;
@@ -30,7 +30,7 @@ export function Scoreboard({ g, away, home, awayRec, homeRec, final, hosted, to,
       <span className="v4-sb__team"><Crest sport={g.sport} p={g.away} size="lg" /><span className="v4-sb__name">{away}</span>{awayRec && <span className="v4-sb__rec">{awayRec}</span>}</span>
       {left != null && <span className={`v4-sb__score num${shownFinal?.winner === 'home' ? ' v4-sb__score--lose' : ''}${feed && (feed.view.mode === 'LAST_KNOWN' || feed.view.mode === 'DELAYED') ? ' v4-sb__score--aged' : ''}`}>{left}</span>}
       <span className="v4-sb__mid">
-        {feed && shown === 'live' ? <><b>{periodClock(feed) || 'Live'}</b><small>{fs ? feed.view.label : 'No score reported'}</small>{tag}</>
+        {feed && shown === 'live' ? <><b>{periodClock(feed) || 'Live'}</b><small>{fs ? chipLine(feed) : 'No score reported'}</small>{tag}</>
           : feed && shown === 'over' ? <><b>{fs ? 'F' : 'Final'}</b><small>{fs ? 'Final' : 'No score reported'}</small>{tag}</>
           : live ? <><b>Live</b><small>Score unavailable</small></>
           : shownFinal ? <><b>F</b><small>Final</small></>
@@ -42,7 +42,9 @@ export function Scoreboard({ g, away, home, awayRec, homeRec, final, hosted, to,
       <span className="v4-sb__team"><Crest sport={g.sport} p={g.home} size="lg" /><span className="v4-sb__name">{home}</span>{homeRec && <span className="v4-sb__rec">{homeRec}</span>}</span>
     </>
   );
-  const cls = `v4-sb${left != null ? ' v4-sb--score' : ''}`;
+  // Three-digit scores (basketball) tighten the numerals so team names keep their room.
+  const wide = (left ?? 0) > 99 || (right ?? 0) > 99;
+  const cls = `v4-sb${left != null ? ' v4-sb--score' : ''}${wide ? ' v4-sb--wide' : ''}`;
   const aria = label ?? `${teamName(g.away)} ${hosted ? 'at' : 'versus'} ${teamName(g.home)}`;
   return to
     ? <Link to={to} aria-label={aria} className={cls} style={{ color: 'inherit' }}>{body}</Link>

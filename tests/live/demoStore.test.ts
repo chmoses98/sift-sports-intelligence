@@ -147,6 +147,21 @@ describe('Live Score Demo through the real identity, freshness and service code'
     }
   });
 
+  it('a deliberate scenario change takes effect at once, even inside an outage back-off', async () => {
+    const r = rig(); const list = events('NFL', 1); const e = list[0]; const L = 5 * MIN; const k = kickoffMs(e.ref.eventId, T0, L);
+    r.show(list);
+    await r.at(k + 0.3 * L);
+    r.st.scenario = 'outage';
+    await r.at(k + 0.3 * L + 3_000); // the service now backs off for 15 s
+    expect(r.store.read(e.ref.eventId)!.game).not.toBeNull();
+    r.st.scenario = 'nodata';
+    await r.at(k + 0.3 * L + 4_000);
+    expect(r.store.read(e.ref.eventId)!.game).not.toBeNull(); // still inside the back-off: a normal tick must not hammer a failing feed
+    await r.store.refreshNow();
+    expect(r.store.read(e.ref.eventId)!.game).toBeNull();
+    expect(r.store.read(e.ref.eventId)!.view.label).toBe('Live — score unavailable');
+  });
+
   it('restarting the demo (a new generation) forgets last-known scores', async () => {
     const r = rig(); const list = events('NFL', 1); const e = list[0]; const L = 5 * MIN; const k = kickoffMs(e.ref.eventId, T0, L);
     r.show(list);

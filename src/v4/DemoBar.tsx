@@ -26,20 +26,20 @@ export function DemoSheet() {
       <div className="v4-sbody" tabIndex={0}>
         <section className="v4-sblock"><h3>What this is</h3>
           <ul className="v4-sbullets">
-            <li>Every score, period, clock and scoring play is <b>simulated</b> from each game's teams and labelled DEMO. None of it is a real result.</li>
+            <li>Every score, period, clock and scoring play is simulated from each game's teams and labelled DEMO. None of it is a real result.</li>
             <li>Research, Kalshi prices, projections and signals are the real published ones and are not affected. A game's pregame research freezes at its real kickoff, not the demo's.</li>
             <li>It is device-local and off by default.</li>
           </ul>
         </section>
         <section className="v4-sblock"><h3>The feed</h3>
-          <div className="v4-seg" role="radiogroup" aria-label="Simulated feed behaviour" style={{ flexWrap: 'wrap', height: 'auto' }}>
-            {DEMO_SCENARIOS.map((s) => <button key={s.id} type="button" role="radio" aria-checked={st.scenario === s.id} data-demo-scenario={s.id} aria-pressed={st.scenario === s.id} onClick={() => setScenario(s.id)}>{s.label}</button>)}
+          <div className="v4-seg" role="group" aria-label="Simulated feed behaviour" style={{ flexWrap: 'wrap', height: 'auto' }}>
+            {DEMO_SCENARIOS.map((s) => <button key={s.id} type="button" data-demo-scenario={s.id} aria-pressed={st.scenario === s.id} onClick={() => setScenario(s.id)}>{s.label}</button>)}
           </div>
           <p className="meta" style={{ marginTop: 8 }}>{scenario?.hint}</p>
         </section>
         <section className="v4-sblock"><h3>Pace</h3>
-          <div className="v4-seg" role="radiogroup" aria-label="Length of a simulated game">
-            {([2, 5, 12] as const).map((m) => <button key={m} type="button" role="radio" aria-checked={st.gameMinutes === m} aria-pressed={st.gameMinutes === m} onClick={() => setGameMinutes(m)}>{m} min</button>)}
+          <div className="v4-seg" role="group" aria-label="Length of a simulated game">
+            {([2, 5, 12] as const).map((m) => <button key={m} type="button" aria-pressed={st.gameMinutes === m} onClick={() => setGameMinutes(m)}>{m} min</button>)}
           </div>
           <p className="meta" style={{ marginTop: 8 }}>How long one simulated game takes to play. Changing it restarts the demo.</p>
           <div className="v4-ea__acts">

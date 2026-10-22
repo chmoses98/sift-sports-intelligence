@@ -170,7 +170,7 @@ export function V4Game() {
               setTab(TABS[to][0]);
               document.getElementById(`v4t-${TABS[to][0]}`)?.focus();
             }}>
-            {k === 'live' && liveNow && <i className="v4-livedot" aria-hidden="true" />}{label}
+            {k === 'live' && liveNow && status === 'LIVE' && <i className="v4-livedot" aria-hidden="true" />}{label}
           </button>
         ))}
       </div>

@@ -25,6 +25,23 @@ function teamsOf(g: GameRow) {
 const decimal = (n: number) => n.toFixed(1);
 const range = (lo: number | null, hi: number | null) => lo != null && hi != null ? `${Math.round(lo)}–${Math.round(hi)}` : 'Not published';
 
+/**
+ * Why a published 80% range may start below zero, by stat. The range itself is always shown exactly as published; this only says what the
+ * negative bound means. Rushing yards are legitimately negative in college football (NCAA counts sacks against rushing: 17.7% of 93,347
+ * player-game rushing lines in ESPN box scores 2016–2025 were below 0, 28% for quarterbacks). Receiving yards are rarely negative (2.4% of
+ * 116,854 lines, 5.0% for one-catch lines), so a negative lower bound there is an artifact of the model's low-volume residuals, not a
+ * calibrated outcome. Any other stat cannot be negative at all.
+ */
+export function rangeNote(family: string, p10: number | null): string | null {
+  if (p10 == null || p10 >= 0) return null;
+  if (family === 'rushing_yards') return 'A range starting below 0 is possible for rushing yards: NCAA counts sacks against rushing, and 1 in 6 college rushing lines is negative.';
+  if (family === 'receiving_yards') return 'The lower bound below 0 is a model artifact: receiving yards are negative in only about 2% of games, and zero is the realistic floor.';
+  return 'This stat cannot be negative: the lower bound below 0 is a model artifact.';
+}
+/** The distinct notes for a player's published rows, in the order the rows are listed. */
+export const rangeNotes = (rows: { family: string; p10: number | null }[]): string[] =>
+  [...new Set(rows.map((r) => rangeNote(r.family, r.p10)).filter((n): n is string => n != null))];
+
 export function CfbTeamProjections({ g }: { g: GameRow }) {
   const { authority, ready } = useAuthority('CFB');
   const r = ready && authority ? authority.resolveTeams({ ...teamsOf(g), family: 'team_points' }) : null;
@@ -104,6 +121,7 @@ export function NbaPlayerProjections({ g }: { g: GameRow }) {
                       const x = by.get(f);
                       return x ? <div className="v4-kv" key={f}><span className="v4-kv__k">{NBA_LABEL[f]}</span><span className="v4-kv__v num">{decimal(x.mean)}<em>80% range {range(x.p10, x.p90)}{x.gate.status === 'REVIEW' ? ' · model review' : ''}</em></span></div> : null;
                     })}
+                    {rangeNotes(stats).map((n) => <p key={n} className="meta" style={{ marginTop: 9 }}>{n}</p>)}
                     <p className="meta" style={{ marginTop: 9 }}>Research only · participation {p.participation?.status?.toLowerCase().replace(/_/g, ' ') ?? 'unverified'} · updated {fmtWhen(p.dataAsOf) ?? 'unknown'}.</p>
                   </div>
                 </details>
@@ -168,6 +186,7 @@ export function CfbPlayerProjections({ g }: { g: GameRow }) {
                     const v = rows.find((x) => x.family === f);
                     return v ? <div key={f} className="v4-kv"><span className="v4-kv__k">{CFB_LABEL[f]}</span><span className="v4-kv__v num">{decimal(v.mean)}<em>80% range {range(v.p10, v.p90)}</em></span></div> : null;
                   })}
+                  {rangeNotes(rows).map((n) => <p key={n} className="meta" style={{ marginTop: 9 }}>{n}</p>)}
                   <p className="meta" style={{ marginTop: 9 }}>Shadow · assumes participation · updated {fmtWhen(p.dataAsOf) ?? 'unknown'}. Do not equate a market gap with an edge.</p>
                 </div>
               </details>

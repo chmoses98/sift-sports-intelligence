@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { eligibleNbaRows } from '../src/v4/ProjectionPanels';
+import { eligibleNbaRows, rangeNote, rangeNotes } from '../src/v4/ProjectionPanels';
 import { findTeamProjections, type PlayerProjection, type ProjectionDoc } from '../src/lib/projections';
 
 const NOW = Date.parse('2026-10-22T14:00:00Z');
@@ -56,5 +56,29 @@ describe('game identity join', () => {
   it('rejects a different game and a different date', () => {
     expect(findTeamProjections(source, { home: 'APP', away: 'JMU', homeId: '2026', awayId: '999', startUtc: '2026-10-22T23:00:00Z' })).toBeNull();
     expect(findTeamProjections(source, { home: 'APP', away: 'JMU', homeId: '2026', awayId: '256', startUtc: '2026-11-22T23:00:00Z' })).toBeNull();
+  });
+});
+
+describe('negative lower bounds in published ranges are explained, never altered', () => {
+  it('says nothing when the range does not start below zero', () => {
+    expect(rangeNote('rushing_yards', 0)).toBeNull();
+    expect(rangeNote('receiving_yards', 12)).toBeNull();
+    expect(rangeNote('rushing_yards', null)).toBeNull();
+  });
+  it('treats a negative rushing bound as legitimate (sacks count against rushing)', () => {
+    expect(rangeNote('rushing_yards', -3)).toMatch(/NCAA counts sacks against rushing/);
+    expect(rangeNote('rushing_yards', -3)).not.toMatch(/artifact/);
+  });
+  it('calls a negative receiving bound a model artifact, and any count stat that cannot be negative the same', () => {
+    expect(rangeNote('receiving_yards', -5)).toMatch(/model artifact/);
+    expect(rangeNote('receiving_yards', -5)).toMatch(/about 2%/);
+    expect(rangeNote('points', -1)).toMatch(/cannot be negative/);
+  });
+  it('lists each distinct note once, in row order', () => {
+    const rows = [
+      { family: 'rushing_yards', p10: -2 }, { family: 'receiving_yards', p10: -5 }, { family: 'rushing_yards', p10: -9 }, { family: 'carries', p10: 0 },
+    ];
+    expect(rangeNotes(rows)).toHaveLength(2);
+    expect(rangeNotes([{ family: 'passing_yards', p10: 97 }])).toEqual([]);
   });
 });

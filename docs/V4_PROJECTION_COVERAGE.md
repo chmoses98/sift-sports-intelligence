@@ -98,3 +98,25 @@ For a stat to get the NFL treatment on a player page, all of these must hold for
 - No v4 surface for NBA, MLB or NHL player projections exists or was added. MLB and NHL keep the market-only browsing that
   PR #113 ships; v4 still never shows a projection the approvals table does not authorise.
 - Anything marked **not verified** above is an open question for the owner or for a follow-up with real rows, not a finding.
+
+## CFB yardage ranges that start below zero (2026-10-22)
+
+The published CFB player feed has a negative 80% lower bound (`p10`) for 238 of 424 `rushing_yards` rows and 524 of 893 `receiving_yards` rows
+(feed `2026-10-21T20:56Z`); the lowest is -20. v4 shows every published number exactly as published and adds one line saying what a negative bound
+means for that stat (`rangeNote`, `src/v4/ProjectionPanels.tsx`). The two stats are not the same case. Evidence: ESPN player box scores,
+sportsdataverse `espn_cfb_player_box`, 2016-2019 and 2021-2025 (2020 not used):
+
+| stat | player-game lines | share below 0 | by role / volume |
+|---|---|---|---|
+| rushing yards | 93,347 | 17.7% | quarterbacks 28.4%; non-QBs 14.3%, falling to 0.9% at 5-8 carries |
+| receiving yards | 116,854 | 2.4% | 5.0% at one catch, 1.4% at two, 0.4% at three, about 0% above |
+
+- **Rushing: legitimate.** NCAA rushing yardage is net of sacks, so quarterbacks and low-carry players are often negative. A published rushing
+  `p10` of -3 (or -13 for a quarterback) is consistent with these frequencies; v4 says why and changes nothing.
+- **Receiving: a model artifact.** Fewer than 5% of even one-catch lines are negative, yet 59% of published receiving rows put at least 10% of their
+  probability below 0. The yardage distribution is a residual distribution fitted on all receivers in 6 bins (`cfb/project.py`, lattice from -30), so the
+  low-volume bins inherit negative residuals from higher-volume players. The upper bound and mean are unaffected by this reading, and coverage is, if
+  anything, conservative, but the lower bound is not a realistic floor; zero is. v4 does not clamp it (that would silently rewrite a published value);
+  it says the bound is a model artifact.
+- **Not done here:** correcting the distribution (fit the residuals within the low-volume bins or model zero-inflation) changes a validated model's
+  numbers and belongs in `cfb-edge-finder` with its own validation. The families remain unapproved shadow research.

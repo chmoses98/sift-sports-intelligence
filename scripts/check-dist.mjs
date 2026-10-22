@@ -27,7 +27,7 @@ const v4 = existsSync(join(dist, 'manifest-v4.webmanifest')) ? JSON.parse(readFi
 must(v4, 'no v4 manifest (manifest-v4.webmanifest)');
 if (v4) {
   must(v4.short_name === 'SIFT v4', `v4 manifest short_name ${v4.short_name}`);
-  must(v4.start_url === `${base}#/v4`, `v4 manifest start_url ${v4.start_url}`);
+  must(v4.start_url === `${base}v4/`, `v4 manifest start_url ${v4.start_url}`);
   must(v4.scope === base, `v4 manifest scope ${v4.scope}`);
   must(v4.display === 'standalone', 'v4 manifest display');
   must(v4.id && v4.id !== manifest.id, 'v4 manifest must be a different app identity from SIFT 2.0 (id)');
@@ -35,6 +35,25 @@ if (v4) {
 }
 must(/<link rel="manifest" href="[^"]*\/manifest\.webmanifest">/.test(html), 'index.html does not link SIFT\'s own manifest by default');
 must(html.includes("manifest-v4.webmanifest") && html.includes('SIFT v4'), 'index.html does not select the v4 identity on a #/v4 address');
+
+const v4Page = join(dist, 'v4', 'index.html');
+must(existsSync(v4Page), 'missing separate iPhone v4 install page at v4/index.html');
+if (existsSync(v4Page)) {
+  const v4Html = readFileSync(v4Page, 'utf8');
+  must(/<link rel="manifest" href="[^"]*\/manifest-v4\.webmanifest"/.test(v4Html), 'v4 install page must point directly to v4 manifest');
+  must(!/<link rel="manifest" href="[^"]*\/manifest\.webmanifest"/.test(v4Html), 'v4 install page must not link to default manifest');
+  must(/<meta name="apple-mobile-web-app-title" content="SIFT v4"/.test(v4Html), 'v4 install page Apple title');
+  must(v4Html.includes('SIFT v4 · early access'), 'v4 install page document title');
+  must(v4Html.includes("location.pathname + location.search + '#/v4'"), 'v4 install page must restore v4 route without hash');
+  for (const match of v4Html.matchAll(/(?:src|href)="([^"]+)"/g)) {
+    const u = match[1];
+    if (/^(https?:)?\/\//.test(u) || u.startsWith('#')) continue;
+    must(u.startsWith(base) || !u.startsWith('/'), `v4/index.html references ${u} outside ${base}`);
+    const local = u.startsWith(base) ? u.slice(base.length) : u.replace(/^\.\.\//, '');
+    must(existsSync(join(dist, local.split('?')[0])), `v4/index.html references missing file ${u}`);
+  }
+}
+
 must(existsSync(join(dist, 'sw.js')), 'no service worker');
 must(existsSync(join(dist, '404.html')), 'no 404.html deep-link fallback');
 must(existsSync(join(dist, 'icons/apple-touch-icon.png')), 'no apple touch icon');

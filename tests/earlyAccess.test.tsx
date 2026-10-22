@@ -121,7 +121,10 @@ describe('the early-access screens', () => {
 
   it('the sheet tells the truth about live scores and does not recommend bets', () => {
     render(<EarlyAccessSheet />);
-    expect(screen.getByText(/Live scores, game clocks and plays are not available yet/)).toBeTruthy();
+    expect(screen.getByText(/Live scores, game clocks and plays are off by default/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Turn on live scores' })).toBeTruthy();
+    // the unofficial feed is its own, separate, labelled choice and starts off
+    expect(screen.getByRole('button', { name: 'Turn on ESPN scores' }).hasAttribute('disabled')).toBe(true);
     expect(screen.getByText(/SIFT does not recommend bets/)).toBeTruthy();
   });
 

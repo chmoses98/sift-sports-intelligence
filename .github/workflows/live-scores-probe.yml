@@ -7,6 +7,7 @@ name: Live-score feed probe (evaluation only)
 #   verify        run the production adapters and matcher against the real boards and real feeds once, and cross-check scores
 #   verify-watch  the same, polling for N minutes through live games: every score/period/clock change per source, latency, accuracy
 #   oracle-test   whether the NBA's own scoreboard can be read from the runner (verification only)
+#   nba-verify    NBA games in play: SIFT's displayed state vs the NBA scoreboard every 30 s (the evening run); verdicts only
 #   browser       the built app in real Chromium and WebKit with real internet: live scores on, screenshots, requests, CORS, console errors
 # Results go to the `live-scores-probe` branch for review. Nothing here publishes to SIFT's app, and it is not part of CI.
 on:
@@ -80,7 +81,7 @@ jobs:
 
   verify:
     needs: config
-    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser' || needs.config.outputs.mode == 'oracle-test'
+    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser' || needs.config.outputs.mode == 'oracle-test' || needs.config.outputs.mode == 'nba-verify'
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
@@ -107,6 +108,21 @@ jobs:
           mkdir -p "$RUNNER_TEMP/out" "$RUNNER_TEMP/oracle"
           node scripts/live-scores/oracle-nba.mjs "$RUNNER_TEMP/oracle" --once
           cp "$RUNNER_TEMP/oracle/oracle-first.json" "$RUNNER_TEMP/out/"
+      - name: NBA - what SIFT displays against the NBA scoreboard, every 30 s, publishing verdicts every 10 minutes
+        if: needs.config.outputs.mode == 'nba-verify'
+        env:
+          LIVE_NBA: '1'
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROBE_BRANCH: live-scores-probe-nba
+          NBA_MINUTES: ${{ needs.config.outputs.minutes }}
+          VERIFY_OUT: ${{ runner.temp }}/out
+          ORACLE_OUT: ${{ runner.temp }}/oracle
+        run: |
+          mkdir -p "$RUNNER_TEMP/out" "$RUNNER_TEMP/oracle"
+          npx vitest run tests/live/nbaVerify.test.ts &
+          pid=$!
+          while kill -0 $pid 2>/dev/null; do sleep 600; bash scripts/live-scores/publish-branch.sh "$RUNNER_TEMP/out" || true; done
+          wait $pid || true
       - name: Verify once (production adapters and matcher against the real boards and feeds)
         if: needs.config.outputs.mode == 'verify'
         env:
@@ -131,7 +147,7 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROBE_BRANCH: ${{ needs.config.outputs.mode == 'browser' && 'live-scores-probe-browser' || 'live-scores-probe' }}
+          PROBE_BRANCH: ${{ needs.config.outputs.mode == 'browser' && 'live-scores-probe-browser' || needs.config.outputs.mode == 'nba-verify' && 'live-scores-probe-nba' || 'live-scores-probe' }}
         run: bash scripts/live-scores/publish-branch.sh "$RUNNER_TEMP/out"
       - uses: actions/upload-artifact@v4
         if: always()

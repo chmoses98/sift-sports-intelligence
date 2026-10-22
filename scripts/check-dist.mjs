@@ -22,6 +22,19 @@ must(manifest.scope === base, `manifest scope ${manifest.scope}`);
 must(manifest.display === 'standalone', 'manifest display');
 for (const i of manifest.icons) must(existsSync(join(dist, i.src)), `missing icon ${i.src}`);
 must(manifest.icons.some((i) => i.purpose === 'maskable'), 'no maskable icon');
+// v4 early access: its own Home Screen identity (SIFT v4, launches #/v4), selected only on a v4 address; SIFT's own manifest stays the default.
+const v4 = existsSync(join(dist, 'manifest-v4.webmanifest')) ? JSON.parse(readFileSync(join(dist, 'manifest-v4.webmanifest'), 'utf-8')) : null;
+must(v4, 'no v4 manifest (manifest-v4.webmanifest)');
+if (v4) {
+  must(v4.short_name === 'SIFT v4', `v4 manifest short_name ${v4.short_name}`);
+  must(v4.start_url === `${base}#/v4`, `v4 manifest start_url ${v4.start_url}`);
+  must(v4.scope === base, `v4 manifest scope ${v4.scope}`);
+  must(v4.display === 'standalone', 'v4 manifest display');
+  must(v4.id && v4.id !== manifest.id, 'v4 manifest must be a different app identity from SIFT 2.0 (id)');
+  for (const i of v4.icons) must(existsSync(join(dist, i.src)), `v4 manifest: missing icon ${i.src}`);
+}
+must(/<link rel="manifest" href="[^"]*\/manifest\.webmanifest">/.test(html), 'index.html does not link SIFT\'s own manifest by default');
+must(html.includes("manifest-v4.webmanifest") && html.includes('SIFT v4'), 'index.html does not select the v4 identity on a #/v4 address');
 must(existsSync(join(dist, 'sw.js')), 'no service worker');
 must(existsSync(join(dist, '404.html')), 'no 404.html deep-link fallback');
 must(existsSync(join(dist, 'icons/apple-touch-icon.png')), 'no apple touch icon');

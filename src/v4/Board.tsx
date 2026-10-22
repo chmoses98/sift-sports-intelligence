@@ -157,26 +157,34 @@ function Kv({ k, children, em }: { k: string; children: ReactNode; em?: ReactNod
  * so opening the editor never rewrites a note that SIFT 2.0 or an earlier version saved. Closing the sheet with unsaved edits saves them
  * rather than losing them; Cancel is the one way to discard.
  */
+/** What setNote would store: blank text is no note. Compared this way so whitespace alone is never a change. */
+const keptNote = (t: string | null) => (t && t.trim() ? t : '');
+
 function NoteEditor({ id, note, label }: { id: string; note: string | null; label: string }) {
   const { setNote } = useTray();
   const field = useId();
   const [draft, setDraft] = useState<string | null>(null);
   const [said, setSaid] = useState('');
-  // What setNote would store: blank text is no note. Compared this way so whitespace alone is never a change.
-  const kept = (t: string | null) => (t && t.trim() ? t : '');
   const latest = useRef({ draft, note });
   useEffect(() => { latest.current = { draft, note }; });
-  // Dismissing the sheet (Escape, scrim, swipe) while a note is being edited keeps the text instead of losing it.
-  useEffect(() => () => {
-    const { draft: d, note: n } = latest.current;
-    if (d !== null && kept(d) !== kept(n)) setNote(id, d);
+  // Dismissing the sheet (Escape, scrim, swipe) while a note is being edited keeps the text instead of losing it. So does leaving the
+  // app or a reload (a new deploy takes over by reloading; a phone freezes a page it has backgrounded): an unsaved draft is written first.
+  useEffect(() => {
+    const flush = () => {
+      const { draft: d, note: n } = latest.current;
+      if (d !== null && keptNote(d) !== keptNote(n)) setNote(id, d);
+    };
+    const onHide = () => { if (document.visibilityState === 'hidden') flush(); };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', flush);
+    return () => { document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', flush); flush(); };
   }, [id, setNote]);
   const editing = draft !== null;
   const save = () => {
     if (draft === null) return;
-    const changed = kept(draft) !== kept(note);
+    const changed = keptNote(draft) !== keptNote(note);
     if (changed) setNote(id, draft);
-    setSaid(!changed ? 'No changes to the note.' : kept(draft) ? 'Note saved.' : 'Note removed.');
+    setSaid(!changed ? 'No changes to the note.' : keptNote(draft) ? 'Note saved.' : 'Note removed.');
     setDraft(null);
   };
   return (
@@ -188,7 +196,7 @@ function NoteEditor({ id, note, label }: { id: string; note: string | null; labe
         <>
           <label className="v4-ned__lab" htmlFor={field}>Note for {label}</label>
           <textarea id={field} className="v4-ned__ta" rows={4} autoFocus value={draft} onChange={(ev) => setDraft(ev.target.value)} />
-          <p className="meta">Closing this sheet saves your changes. Cancel discards them.</p>
+          <p className="meta">Your changes are saved when you tap Save, close this sheet or leave the app. Cancel discards them.</p>
         </>
       )}
       <div className="v4-ned__acts">

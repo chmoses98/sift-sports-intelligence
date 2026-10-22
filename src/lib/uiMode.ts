@@ -20,15 +20,40 @@ const read = (): UiMode | null => {
 /** The classic or SIFT 2.0 choice a viewer had before opting into v4, kept so leaving v4 can give it back. */
 const BEFORE_V4 = 'sift.ui.before-v4';
 
+/** Fired on `window` when the remembered interface changes in this page, so open screens (the early-access sheet) follow it; other tabs get `storage`. */
+export const UI_CHANGED = 'sift:ui-changed';
+const announce = () => { try { window.dispatchEvent(new Event(UI_CHANGED)); } catch { /* no window */ } };
+
+/** Is v4 the interface this device opens? An explicit choice only: reaching `#/v4` never sets it. */
+export const isV4Remembered = (): boolean => read() === 'v4';
+
+/**
+ * Store v4 as the interface this device opens. v4 shares the one remembered key, so a classic / SIFT 2.0 choice made before is kept
+ * aside and exiting v4 restores it rather than erasing it. Writes only: `resolveUi` calls this while rendering, where announcing a
+ * change to other components is not allowed.
+ */
+function storeV4(): void {
+  try {
+    const cur = localStorage.getItem(KEY);
+    if (cur === 'classic' || cur === 'sift2') localStorage.setItem(BEFORE_V4, cur);
+    localStorage.setItem(KEY, 'v4');
+  } catch {
+    /* storage unavailable: v4 still opens for this load */
+  }
+}
+
+/** The viewer chose to keep v4 on this device ("Keep v4 on this device"): stored, and open screens are told. */
+export function rememberV4(): void {
+  storeV4();
+  announce();
+}
+
 /** The mode for an address: an explicit `?ui=` wins (and is remembered), then the remembered choice, then the build's. */
 export function resolveUi(search: string): UiMode {
   const q = new URLSearchParams(search).get('ui');
   try {
     if (q === 'v4') {
-      // v4 shares the one remembered key: keep a classic / SIFT 2.0 choice aside so exiting v4 restores it, not erases it.
-      const cur = localStorage.getItem(KEY);
-      if (cur === 'classic' || cur === 'sift2') localStorage.setItem(BEFORE_V4, cur);
-      localStorage.setItem(KEY, 'v4');
+      storeV4();
     } else if (q === 'classic' || q === 'sift2') {
       localStorage.setItem(KEY, q);
       localStorage.removeItem(BEFORE_V4);
@@ -60,4 +85,5 @@ export function exitV4(): void {
   } catch {
     /* storage unavailable: nothing was remembered */
   }
+  announce();
 }

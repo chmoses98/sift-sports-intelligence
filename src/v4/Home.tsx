@@ -10,6 +10,7 @@ import { Icon } from './Icon';
 import { Feature, useStageColours } from './Feature';
 import { Group, SlateStates, useSlate } from './slate';
 import { FollowSheet } from './FollowSheet';
+import { EarlyAccessCard, EarlyAccessPill } from './EarlyAccess';
 import { useSheet } from './sheet';
 import { useFollowing } from './follow';
 import { applyFilter, dateKey, dayStrip, groupByPhase, isLiveGame, pickFeature, type SlateFilter } from './model';
@@ -65,7 +66,7 @@ export function V4Home() {
       <div className="v4-stage" style={stage}>
         <header className="v4-top">
           <span className="v4-wordmark" aria-label="SIFT">SIFT</span>
-          <span className="v4-pill">v4 preview</span>
+          <EarlyAccessPill />
           <span className="v4-spacer" />
           <button type="button" className={`v4-gbtn${follow.list.length ? ' v4-gbtn--on' : ''}`} aria-label={`Following, ${follow.list.length} team${follow.list.length === 1 ? '' : 's'}. Manage`} onClick={() => sheet.open(<FollowSheet day={day} />, { label: 'Following' })}>
             <Icon name="bookmark-simple" filled={follow.list.length > 0} />
@@ -101,6 +102,9 @@ export function V4Home() {
         </div>
       </div>
 
+      <div style={{ paddingTop: 8 }}>
+        <EarlyAccessCard />
+      </div>
       <div style={{ paddingTop: 8 }} aria-live="polite">
         <SlateStates loading={loading} unavailable={unavailable} failed={failed} empty={empty} emptyText={emptyText} />
         {!loading && !unavailable && feature && (

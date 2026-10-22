@@ -4,7 +4,7 @@ import { useSearchParams } from '../routing';
 import { NAV_SPORTS } from '../data/nav';
 import { groupGames } from '../components/sift2/GameList';
 import { GameRowV4 } from './parts';
-import { SlateStates, useSlate } from './slate';
+import { LIVE_SCORES_NOTE, SlateStates, useSlate } from './slate';
 import { dateKey, dayStrip, isLiveGame, isOver, isUpcoming } from './model';
 
 type Status = 'all' | 'live' | 'upcoming' | 'final';
@@ -44,6 +44,7 @@ export function V4Games() {
       </div>
       <div style={{ paddingTop: 8 }} aria-live="polite">
         <SlateStates loading={loading} unavailable={unavailable} failed={failed} empty={empty} emptyText={status === 'all' ? `No published games ${day === today ? 'today' : 'on this day'}.` : `No ${status} games ${day === today ? 'today' : 'on this day'}.`} />
+        {!loading && !unavailable && shown.some(isLiveGame) && <p className="meta" style={{ padding: '0 16px 12px' }}>{LIVE_SCORES_NOTE}</p>}
         {!loading && !unavailable && groups.map((gr) => (
           <section key={gr.slug} className="v4-sec" aria-label={NAV_SPORTS.find((s) => s.slug === gr.slug)?.fullName ?? gr.sport}>
             <header className="v4-sechead"><h2>{NAV_SPORTS.find((s) => s.slug === gr.slug)?.label ?? gr.sport}</h2><span className="v4-sechead__n">{gr.games.length}</span></header>

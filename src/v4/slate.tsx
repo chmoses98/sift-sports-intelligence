@@ -19,6 +19,9 @@ export function useSlate() {
   return { now, rows, loading: all.loading, unavailable, failed };
 }
 
+/** Said wherever games in play are listed: "in play" is the publication's status, never a score feed. */
+export const LIVE_SCORES_NOTE = 'Live scores are not available yet. In play is each game’s published status; no score, clock or play is shown or estimated.';
+
 export function Group({ title, rows, live = false, note }: { title: string; rows: GameRow[]; live?: boolean; note?: string }) {
   const [all, setAll] = useState(false);
   if (!rows.length) return null;
@@ -26,7 +29,7 @@ export function Group({ title, rows, live = false, note }: { title: string; rows
   return (
     <section className="v4-sec" aria-label={title}>
       <header className="v4-sechead"><h2>{live && <i className="v4-livedot" aria-hidden="true" />}{title}</h2><span className="v4-sechead__n">{rows.length}</span></header>
-      {note && <p className="meta" style={{ padding: '0 16px 8px' }}>{note}</p>}
+      {(note || live) && <p className="meta" style={{ padding: '0 16px 8px' }}>{note ?? LIVE_SCORES_NOTE}</p>}
       <ul className="v4-grp">{shown.map((g) => <GameRowV4 key={`${g.slug}:${g.item.event_id}`} g={g} />)}</ul>
       {rows.length > CAP && !all && <div style={{ padding: '10px 16px 0' }}><button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%' }} onClick={() => setAll(true)}>Show all {rows.length}</button></div>}
     </section>

@@ -639,3 +639,17 @@
 .v4-undo__t b { color: var(--tx); font-weight: 600; overflow-wrap: anywhere; }
 .v4-undo__go { min-width: 64px; min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--inv); color: var(--on-inv); font: 650 14px/1 var(--f-ui); text-align: center; }
 .v4-undo__x { min-width: 44px; min-height: 44px; display: grid; place-items: center; color: var(--tx3); }
+
+/* ---------- early access ---------- */
+.v4-pillbtn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
+.v4-pillbtn .v4-pill { color: var(--tx2); }
+.v4-ea { margin-bottom: 8px; }
+.v4-ea__acts { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 4px; }
+.v4-ea__acts .v4-btn { flex: 1 1 150px; }
+.v4-ea .v4-textlink { margin-top: 4px; }
+.v4-ea__said { min-height: 20px; margin-top: 8px; font: 500 13px/20px var(--f-ui); color: var(--ok); }
+.v4-ea__steps { margin: 4px 0 0; padding-left: 22px; font: 400 15px/23px var(--f-ui); color: var(--tx2); }
+.v4-ea__steps li { padding: 4px 0 4px 4px; }
+.v4-ea__steps b { color: var(--tx); font-weight: 600; }
+.v4-eafoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin: 28px 16px 0; padding-top: 6px; border-top: 1px solid var(--line); }
+.v4-eafoot .v4-textlink { color: var(--tx3); }

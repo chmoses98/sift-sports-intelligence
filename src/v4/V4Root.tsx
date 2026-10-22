@@ -10,6 +10,8 @@ import { Icon, type IconName } from './Icon';
 import { SheetHost } from './sheet';
 import { TrayProvider } from '../state/tray';
 import { UndoProvider } from './undo';
+import { EarlyAccessFooter } from './EarlyAccess';
+import { isStandalone, setInstallIdentity } from '../lib/installIdentity';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v4', label: 'Home', icon: 'house', end: true },
@@ -31,6 +33,13 @@ export function V4Root() {
     meta?.setAttribute('content', '#07080B');
     return () => { document.body.style.background = prev; if (prevTheme) meta?.setAttribute('content', prevTheme); };
   }, []);
+  // On v4 the page installs as its own Home Screen app, "SIFT v4" (index.html does the same before the first paint); leaving v4 gives SIFT's own back.
+  useEffect(() => {
+    setInstallIdentity('v4');
+    // The Home Screen app: ask the phone to keep this app's saved Board (a no-op where unsupported; never a prompt, so never in a browser tab).
+    if (isStandalone()) { try { navigator.storage?.persist?.()?.catch(() => {}); } catch { /* unsupported */ } }
+    return () => setInstallIdentity('default');
+  }, []);
   // A new tab or game starts at the top; back/forward restore is the browser's.
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   const onGame = pathname.startsWith('/v4/game/');
@@ -45,6 +54,7 @@ export function V4Root() {
             <Suspense fallback={<div className="v4-hand"><div className="v4-skel" style={{ height: 120 }} role="status" aria-label="Loading" /></div>}>
               <Outlet />
             </Suspense>
+            <EarlyAccessFooter />
           </main>
         </div>
         <nav className="v4-tabbar" aria-label="Primary">

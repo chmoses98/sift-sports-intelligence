@@ -1,7 +1,8 @@
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { createHashRouter, Navigate, Outlet, RouterProvider, useLocation } from './routing';
 import { workspaceTarget } from './lib/workspaceRoutes';
-import { resolveUi } from './lib/uiMode';
+import { exitV4, resolveUi } from './lib/uiMode';
+import { V4_ENABLED } from './lib/v4Switch';
 import { Skeleton } from './components/ui';
 import { Shell } from './components/Shell';
 import { ScrollManager } from './components/ScrollManager';
@@ -76,6 +77,18 @@ function Root() {
   );
 }
 
+/** v4 early access is paused in this build (lib/v4Switch.ts): say so, forget a kept v4 choice, and offer SIFT 2.0, which is unchanged. */
+export function V4Paused() {
+  useEffect(() => { exitV4(); }, []);
+  return (
+    <main style={{ minHeight: '100dvh', boxSizing: 'border-box', padding: '72px 20px 40px', background: '#07080B', color: '#F5F7FA', font: '400 16px/24px system-ui, -apple-system, sans-serif' }}>
+      <h1 style={{ margin: '0 0 12px', font: '700 28px/32px system-ui, -apple-system, sans-serif' }}>SIFT v4 early access is paused</h1>
+      <p style={{ margin: '0 0 20px', maxWidth: '34ch', color: '#B5BECB' }}>SIFT 2.0 is unchanged and has everything you saved.</p>
+      <a href="#/design/sift2/home" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 48, padding: '0 20px', borderRadius: 16, background: '#F5F7FA', color: '#0A0C10', font: '650 15px/1 system-ui, -apple-system, sans-serif', textDecoration: 'none' }}>Open SIFT 2.0</a>
+    </main>
+  );
+}
+
 /** Classic addresses answer with SIFT 2.0 when it is the chosen interface (see lib/uiMode.ts); design routes never pass here. */
 export function UiGate() {
   const loc = useLocation();
@@ -90,7 +103,7 @@ export function UiGate() {
 
 export const routeTree = [
   // The v4 phone experience: its own shell (no classic chrome), one lazy chunk, reached with #/v4 or ?ui=v4.
-  {
+  ...(!V4_ENABLED ? [{ path: '/v4/*', element: <V4Paused /> }] : [{
     path: '/v4',
     element: <Suspense fallback={null}><V4Root /></Suspense>,
     children: [
@@ -103,7 +116,7 @@ export const routeTree = [
       { path: 'board', element: <V4Board /> },
       { path: '*', element: <V4Handoff tab="missing" /> },
     ],
-  },
+  }]),
   {
     path: '/',
     element: <Root />,

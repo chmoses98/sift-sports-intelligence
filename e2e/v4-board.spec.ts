@@ -361,6 +361,25 @@ test.describe('v4 Board: your notes', () => {
     expect(await noteOf(page, 'Atlanta Falcons')).toBe('Moved to Sunday; secondary is the story.');
   });
 
+  test('leaving the app or a reload saves a note being typed instead of losing it @smoke', async ({ page, market }) => {
+    await open(page, market, ['legacyYes', 'noted']);
+    const dlg = await openSheet(page, 'Atlanta Falcons');
+    await dlg.getByRole('button', { name: 'Edit note' }).click();
+    await dlg.getByRole('textbox').fill('Typed, then the phone went to the background.');
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe(NOTE); // still only a draft
+    // the page is hidden (another app, the lock button, a new deploy reloading it): the real events a phone sends
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Typed, then the phone went to the background.');
+    await page.evaluate(() => { Reflect.deleteProperty(document, 'visibilityState'); });
+    // and on the way out of the page
+    await dlg.getByRole('textbox').fill('Second thought, written just before a reload.');
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    expect(await noteOf(page, 'Atlanta Falcons')).toBe('Second thought, written just before a reload.');
+  });
+
   test('a note written in v4 is the note in SIFT 2.0, and the other way round @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'noted']);
     const dlg = await openSheet(page, 'Chris Olave 7+ receptions');

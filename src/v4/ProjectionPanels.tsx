@@ -2,7 +2,7 @@
 // contract is required to show a forecast. CFB team points use SIFT's promoted authority.
 // NBA's seven challenger families are labelled research previews until the audited activation
 // gate promotes them; preview values never claim betting authority or replace the incumbent.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '../routing';
 import { useAuthority, useProjections } from '../data/projections';
 import { cfbTeam } from '../lib/cfbTeams';
@@ -184,6 +184,16 @@ export function ProjectionBrowser({ sport }: { sport: 'cfb' | 'nba' }) {
   const { doc, loading } = useProjections(sport.toUpperCase() as ProjSport);
   const slate = useSlate();
   const [chosen, setChosen] = useState<string | null>(null);
+  // The list can run to 30 games, so the chosen game's forecasts are below the fold on a phone: bring them into view after the person picks one
+  // (never on the first paint, so the screen still opens at the top).
+  const detail = useRef<HTMLDivElement>(null);
+  const picked = useRef(false);
+  useEffect(() => {
+    if (!picked.current) return;
+    picked.current = false;
+    const calm = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    detail.current?.scrollIntoView?.({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+  }, [chosen]);
   const games = useMemo(() => slate.rows.filter((g) => g.sport === sport.toUpperCase()
     && Number.isFinite(g.startMs) && g.startMs >= slate.now - 2 * 3600_000
     && findTeamProjections(doc, teamsOf(g)) != null).sort((a, b) => a.startMs - b.startMs), [doc, slate.rows, slate.now, sport]);
@@ -196,12 +206,12 @@ export function ProjectionBrowser({ sport }: { sport: 'cfb' | 'nba' }) {
         <header className="v4-sechead" style={{ marginTop: 16 }}><h2>Games with forecasts</h2><span className="v4-spacer" /><span className="meta">{games.length}</span></header>
         <ul className="v4-grp" aria-label="Choose a projected game">
           {games.slice(0, 30).map((g) => <li key={g.item.event_id}>
-            <button type="button" className="v4-link" style={{ width: '100%', margin: 0, borderRadius: 0, boxShadow: 'none' }} aria-pressed={selected?.item.event_id === g.item.event_id} onClick={() => setChosen(g.item.event_id)}>
+            <button type="button" className="v4-link" style={{ width: '100%', margin: 0, borderRadius: 0, boxShadow: 'none' }} aria-pressed={selected?.item.event_id === g.item.event_id} onClick={() => { picked.current = true; setChosen(g.item.event_id); }}>
               <span className="v4-link__t"><b>{g.away?.display_name ?? g.away?.short_name} @ {g.home?.display_name ?? g.home?.short_name}</b><span>{new Date(g.startMs).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · {clock(g.startMs)}{selected?.item.event_id === g.item.event_id ? ' · Selected' : ''}</span></span><Icon name="caret-right" size="s" />
             </button>
           </li>)}
         </ul>
-        {selected && <div style={{ marginTop: 18 }} key={selected.item.event_id}>
+        {selected && <div ref={detail} style={{ marginTop: 18, scrollMarginTop: 12 }} key={selected.item.event_id}>
           {sport === 'cfb' ? <><CfbTeamProjections g={selected} /><div style={{ marginTop: 18 }}><CfbPlayerProjections g={selected} /></div></> : <NbaPlayerProjections g={selected} />}
           <Link className="v4-btn v4-btn--sec" style={{ display: 'block', textAlign: 'center', marginTop: 14 }} to={`/v4/game/${sport}/${encodeURIComponent(selected.item.event_id)}?tab=${sport === 'cfb' ? 'matchups' : 'players'}`}>Open game research</Link>
         </div>}

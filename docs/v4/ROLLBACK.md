@@ -49,7 +49,7 @@ The **Production check** workflow runs after every Pages deploy (and on demand: 
 ## After any change
 
 - The service worker (`registerType: autoUpdate`) replaces cached files on the next load; an installed iPhone web app picks up the new version after one relaunch. The *v4 early access* sheet shows the build this copy runs and the latest published build.
-- A deploy, including a rollback deploy, runs the full suite first. If it trips on a known live-market WebKit flake, re-run the failed jobs.
+- A deploy, including a rollback deploy, runs the full suite first, which takes 45 to 70 minutes on GitHub's runners (the gate job's limit is 90). If it trips on a single unrelated flaky test, re-run the failed jobs; read the failing test's name first, because a repeat failure of a different test is not a flake.
 - Check the live site: `https://chmoses98.github.io/sift-sports-intelligence/version.json` names the commit that is deployed.
 
 ## What is deliberately not part of v4

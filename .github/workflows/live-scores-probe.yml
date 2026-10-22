@@ -6,6 +6,7 @@ name: Live-score feed probe (evaluation only)
 #   watch         poll the raw scoreboards and log every change
 #   verify        run the production adapters and matcher against the real boards and real feeds once, and cross-check scores
 #   verify-watch  the same, polling for N minutes through live games: every score/period/clock change per source, latency, accuracy
+#   browser       the built app in real Chromium and WebKit with real internet: live scores on, screenshots, requests, CORS, console errors
 # Results go to the `live-scores-probe` branch for review. Nothing here publishes to SIFT's app, and it is not part of CI.
 on:
   push:
@@ -78,7 +79,7 @@ jobs:
 
   verify:
     needs: config
-    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch'
+    if: needs.config.outputs.mode == 'verify' || needs.config.outputs.mode == 'verify-watch' || needs.config.outputs.mode == 'browser'
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
@@ -88,6 +89,15 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Real browsers (Chromium and WebKit) against the built app, real boards and real feeds
+        if: needs.config.outputs.mode == 'browser'
+        run: |
+          npx playwright install --with-deps chromium webkit
+          npx vite build --outDir "$RUNNER_TEMP/dist"
+          npx vite preview --outDir "$RUNNER_TEMP/dist" --port 4199 --strictPort &
+          sleep 6
+          mkdir -p "$RUNNER_TEMP/out"
+          node scripts/live-scores/real-browser.mjs http://127.0.0.1:4199/sift-sports-intelligence/ "$RUNNER_TEMP/out"
       - name: Verify once (production adapters and matcher against the real boards and feeds)
         if: needs.config.outputs.mode == 'verify'
         env:

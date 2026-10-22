@@ -29,10 +29,13 @@ export const ESPN_PATHS: Partial<Record<LiveSport, string[]>> = {
 const BASE = 'https://site.api.espn.com/apis/site/v2/sports';
 
 /** The publication's league word ("usa.mls") as ESPN's soccer competition path, or null when it is not one ESPN is known to list. */
+const SOCCER: Record<string, string> = {
+  'usa.mls': 'usa.1', 'eng.premier_league': 'eng.1', 'ger.bundesliga': 'ger.1', 'ita.serie_a': 'ita.1', 'fra.ligue_1': 'fra.1', 'esp.la_liga': 'esp.1',
+  'mex.liga_mx': 'mex.1', 'bra.serie_a': 'bra.1', 'uefa.champions': 'uefa.champions', 'uefa.europa': 'uefa.europa',
+};
 export function espnSoccerPath(league: string | null | undefined): string | null {
   const l = (league ?? '').trim().toLowerCase();
-  if (l === 'usa.mls') return 'soccer/usa.1';
-  return /^[a-z]{3}\.\d$|^uefa\.[a-z_]+$|^conmebol\.[a-z_.]+$/.test(l) ? `soccer/${l}` : null;
+  return SOCCER[l] ? `soccer/${SOCCER[l]}` : null;
 }
 
 /** The US-Eastern calendar day ESPN files a game under (`dates=YYYYMMDD`). */

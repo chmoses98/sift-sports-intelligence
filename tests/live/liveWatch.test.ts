@@ -42,7 +42,7 @@ describe.skipIf(!RUN)('watch real feeds', () => {
           try { sources.push({ id: pid, sport, games: (await p.fetchScoreboard(sport)).games }); }
           catch (e) { appendFileSync(log, JSON.stringify({ t: Date.now(), provider: pid, sport, error: String(e).slice(0, 160) }) + '\n'); }
         })),
-        (async () => { if ((live.get('NHL') ?? []).length) { try { sources.push({ id: 'nhl-official', sport: 'NHL', games: await nhlOfficial() }); } catch (e) { appendFileSync(log, JSON.stringify({ t: Date.now(), provider: 'nhl-official', error: String(e).slice(0, 160) }) + '\n'); } } })(),
+        (async () => { if ((live.get('NHL') ?? []).length) { try { sources.push({ id: 'nhl-official', sport: 'NHL', games: await nhlOfficial([...new Set([started, started - 86400000].map((t) => new Date(t).toISOString().slice(0, 10)))]) }); } catch (e) { appendFileSync(log, JSON.stringify({ t: Date.now(), provider: 'nhl-official', error: String(e).slice(0, 160) }) + '\n'); } } })(),
         (async () => {
           if (!(live.get('MLB') ?? []).length) return;
           try { const d = (n: number) => new Date(started - n * 86400000).toISOString().slice(0, 10); sources.push({ id: 'mlb-official', sport: 'MLB', games: [...(await mlbOfficial(d(0))), ...(await mlbOfficial(d(1)))] }); }

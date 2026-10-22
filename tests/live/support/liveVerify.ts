@@ -71,12 +71,17 @@ export function pairReport(sport: LiveSport, provider: string, evs: ObservedEven
 const num = (x: unknown) => (x == null || x === '' || Number.isNaN(Number(x)) ? null : Number(x));
 const NHL_STATE: Record<string, GamePhase> = { FUT: 'SCHEDULED', PRE: 'SCHEDULED', LIVE: 'LIVE', CRIT: 'LIVE', FINAL: 'FINAL', OFF: 'FINAL', PPD: 'POSTPONED' };
 
-export async function nhlOfficial(): Promise<LiveGame[]> {
-  const r = await fetch('https://api-web.nhle.com/v1/score/now');
-  if (!r.ok) throw new Error(`nhl official HTTP ${r.status}`);
-  const j = (await r.json()) as { games?: Record<string, any>[] };
+/** The NHL's own scoreboard for each day asked (`score/now` is the last completed day, so the days of the games on screen are asked for by date). */
+export async function nhlOfficial(days: string[] = []): Promise<LiveGame[]> {
+  const urls = days.length ? days.map((d) => `https://api-web.nhle.com/v1/score/${d}`) : ['https://api-web.nhle.com/v1/score/now'];
+  const lists: Record<string, any>[][] = [];
+  for (const u of urls) {
+    const r = await fetch(u);
+    if (!r.ok) throw new Error(`nhl official HTTP ${r.status}`);
+    lists.push(((await r.json()) as { games?: Record<string, any>[] }).games ?? []);
+  }
   const at = new Date().toISOString();
-  return (j.games ?? []).map((g): LiveGame => ({
+  return lists.flat().map((g): LiveGame => ({
     schema: 'sift.live_game/1', sport: 'NHL', league: 'NHL', startUtc: g.startTimeUTC,
     home: { key: teamKey('NHL', g.homeTeam.abbrev), name: g.homeTeam.name?.default ?? g.homeTeam.abbrev, abbr: g.homeTeam.abbrev, providerTeamId: null },
     away: { key: teamKey('NHL', g.awayTeam.abbrev), name: g.awayTeam.name?.default ?? g.awayTeam.abbrev, abbr: g.awayTeam.abbrev, providerTeamId: null },
@@ -104,17 +109,21 @@ export async function mlbOfficial(day: string): Promise<LiveGame[]> {
   }));
 }
 
-/** Compare two feeds' view of the same games (matched by canonical team keys and start time): the accuracy check. */
-export function compareFeeds(a: LiveGame[], b: LiveGame[]) {
+/**
+ * Compare two feeds' view of the same SIFT games: only events BOTH matched with certainty (through the production matcher) are compared,
+ * so a disagreement is a real difference between the feeds, never a naming artefact.
+ */
+export function compareByEvent(a: ReturnType<typeof pairGames>, b: ReturnType<typeof pairGames>) {
   const rows: { game: string; a: string; b: string; agree: boolean; why?: string }[] = [];
-  for (const x of a) {
-    const y = b.find((z) => z.home.key === x.home.key && z.away.key === x.away.key && Math.abs(Date.parse(z.startUtc) - Date.parse(x.startUtc)) < 3 * 3600_000);
-    if (!y) continue;
+  const byB = new Map(b.map((p) => [p.event.eventId, p.game]));
+  for (const pa of a) {
+    const x = pa.game; const y = byB.get(pa.event.eventId);
+    if (!x || !y) continue;
     const sa = x.score ? `${x.score.away}-${x.score.home}` : '-';
     const sb = y.score ? `${y.score.away}-${y.score.home}` : '-';
     const samePhase = x.phase === y.phase;
     const sameScore = sa === sb;
-    rows.push({ game: `${x.away.name} @ ${x.home.name}`, a: `${x.phase} ${sa}`, b: `${y.phase} ${sb}`, agree: samePhase && sameScore, ...(samePhase && sameScore ? {} : { why: [!samePhase && 'phase', !sameScore && 'score'].filter(Boolean).join('+') }) });
+    rows.push({ game: `${pa.event.away.name} @ ${pa.event.home.name}`, a: `${x.phase} ${sa}`, b: `${y.phase} ${sb}`, agree: samePhase && sameScore, ...(samePhase && sameScore ? {} : { why: [!samePhase && 'phase', !sameScore && 'score'].filter(Boolean).join('+') }) });
   }
   return { compared: rows.length, agree: rows.filter((r) => r.agree).length, rows };
 }

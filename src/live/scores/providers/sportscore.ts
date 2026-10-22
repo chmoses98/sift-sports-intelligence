@@ -16,7 +16,8 @@ import { teamKey } from '../identity';
 type Raw = Record<string, any>;
 
 const BASE = 'https://sportscore.com/api/v1/fixtures/';
-export const SPORTSCORE_SPORT: Partial<Record<LiveSport, string>> = { NBA: 'basketball', SOCCER: 'football', TENNIS: 'tennis' };
+// Soccer is deliberately not read: the day list is capped at 200 rows and a football day has more, so the games SIFT lists can fall outside it.
+export const SPORTSCORE_SPORT: Partial<Record<LiveSport, string>> = { NBA: 'basketball', TENNIS: 'tennis' };
 /** Only these competitions are the sport SIFT means (SportScore's basketball also lists EuroLeague, CBA, ...). */
 const NBA_COMPETITION = /^national basketball association$|^nba$/i;
 

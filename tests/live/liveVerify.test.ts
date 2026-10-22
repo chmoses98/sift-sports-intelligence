@@ -5,7 +5,7 @@
 //   LIVE_VERIFY=1 npx vitest run tests/live/liveVerify.test.ts
 import { describe, expect, it } from 'vitest';
 import { writeFileSync } from 'node:fs';
-import { BOARD_SPORTS, compareFeeds, eventsNear, loadBoard, mlbOfficial, nhlOfficial, pairReport, providers, type PairReport } from './support/liveVerify';
+import { BOARD_SPORTS, compareByEvent, eventsNear, loadBoard, mlbOfficial, nhlOfficial, pairReport, providers, type PairReport } from './support/liveVerify';
 import type { LiveGame, LiveSport, ObservedEvent } from '../../src/live/scores/types';
 
 const RUN = process.env.LIVE_VERIFY === '1';
@@ -38,19 +38,16 @@ describe.skipIf(!RUN)('real feeds against real boards (one pass)', () => {
         } catch (e) { report.errors.push(`${pid} ${sport}: ${String(e)}`); }
       }
     }
-    // Accuracy: the same games from a second, independent source.
-    try {
-      const espnNhl = fetched.get('espn|NHL');
-      if (espnNhl) report.crossCheck['NHL espn vs official'] = compareFeeds(espnNhl, await nhlOfficial());
-    } catch (e) { report.errors.push(`nhl cross-check: ${String(e)}`); }
-    try {
-      const espnNba = fetched.get('espn|NBA'); const ssNba = fetched.get('sportscore|NBA');
-      if (espnNba && ssNba) report.crossCheck['NBA espn vs sportscore'] = compareFeeds(espnNba, ssNba);
-    } catch (e) { report.errors.push(`nba cross-check: ${String(e)}`); }
-    try {
-      const espnMlb = fetched.get('espn|MLB');
-      if (espnMlb) { const day = new Date(now).toISOString().slice(0, 10); report.crossCheck['MLB espn vs official'] = compareFeeds(espnMlb, await mlbOfficial(day)); }
-    } catch (e) { report.errors.push(`mlb cross-check: ${String(e)}`); }
+    // Accuracy: the same SIFT games from a second, independent feed, compared only where both were matched with certainty.
+    const pairsOf = (provider: string, sport: LiveSport, games: LiveGame[]) => pairReport(sport, provider, nearEvents.get(sport) ?? [], games).pairs;
+    const etDays = (sport: LiveSport) => [...new Set((nearEvents.get(sport) ?? []).flatMap((e) => { const t = Date.parse(e.ref.startUtc); return [new Date(t - 5 * 3600_000).toISOString().slice(0, 10), new Date(t).toISOString().slice(0, 10)]; }))];
+    const cross = (name: string, a: string, b: string, sport: LiveSport, other?: LiveGame[]) => {
+      const ga = fetched.get(`${a}|${sport}`); const gb = other ?? fetched.get(`${b}|${sport}`);
+      if (ga && gb) report.crossCheck[name] = compareByEvent(pairsOf(a, sport, ga), pairsOf(b, sport, gb));
+    };
+    try { cross('NBA espn vs sportscore', 'espn', 'sportscore', 'NBA'); } catch (e) { report.errors.push(`nba cross-check: ${String(e)}`); }
+    try { if (fetched.get('espn|NHL')) cross('NHL espn vs official', 'espn', 'nhl-official', 'NHL', await nhlOfficial(etDays('NHL'))); } catch (e) { report.errors.push(`nhl cross-check: ${String(e)}`); }
+    try { if (fetched.get('espn|MLB')) cross('MLB espn vs official', 'espn', 'mlb-official', 'MLB', (await Promise.all(etDays('MLB').map(mlbOfficial))).flat()); } catch (e) { report.errors.push(`mlb cross-check: ${String(e)}`); }
     writeFileSync(OUT, JSON.stringify(report, null, 1));
     console.log(JSON.stringify({ boards: report.boards, pairing: report.pairing.map((p) => `${p.provider}/${p.sport}: ${p.matched}/${p.events} matched, offered ${p.offered}, refused ${JSON.stringify(p.refused)}`), errors: report.errors, cross: Object.fromEntries(Object.entries(report.crossCheck).map(([k, v]) => [k, `${(v as { agree: number }).agree}/${(v as { compared: number }).compared} agree`])) }, null, 1));
     expect(report.boards).not.toEqual({});

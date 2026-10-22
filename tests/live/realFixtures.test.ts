@@ -51,7 +51,8 @@ describe('ESPN real scoreboard excerpts', () => {
     expect(espnDay(Date.parse('2026-10-23T00:15:00Z'))).toBe('20261022'); // 8:15 PM EDT Thursday
     expect(espnDay(Date.parse('2026-10-22T23:00:00Z'))).toBe('20261022');
     expect(espnSoccerPath('usa.mls')).toBe('soccer/usa.1');
-    expect(espnSoccerPath('eng.1')).toBe('soccer/eng.1');
+    expect(espnSoccerPath('eng.premier_league')).toBe('soccer/eng.1');
+    expect(espnSoccerPath('ger.bundesliga')).toBe('soccer/ger.1');
     expect(espnSoccerPath('uefa.champions')).toBe('soccer/uefa.champions');
     expect(espnSoccerPath('something.else')).toBeNull();
   });

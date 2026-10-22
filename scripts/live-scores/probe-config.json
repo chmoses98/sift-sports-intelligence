@@ -1,1 +1,1 @@
-{ "mode": "oracle-test", "run": 10 }
+{ "mode": "nba-verify", "minutes": 3, "tag": "-smoke", "run": 11 }

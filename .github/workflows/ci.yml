@@ -17,7 +17,10 @@ jobs:
   verify:
     name: Lint · typecheck · test · build · acceptance (Chromium + WebKit)
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # The gate is the acceptance suite (Chromium and WebKit, four projects) plus the release-configuration suite. On GitHub's runners it has taken
+    # 34 to 58 minutes for the suite alone (2026-10-22: a deploy gate was cancelled at exactly 60 minutes, in the release-configuration step, after
+    # the acceptance suite had passed). Every test still has to pass; this only keeps a slow runner from killing a gate that is passing.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

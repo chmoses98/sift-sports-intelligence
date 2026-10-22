@@ -2,7 +2,8 @@
 
 An opt-in preview for one person's daily use. **SIFT 2.0 is the default for everyone**; v4 only appears when you open it. This is not a general launch: real iPhone Safari, VoiceOver and on-device performance checks are still required before one.
 
-**Address:** `https://chmoses98.github.io/sift-sports-intelligence/#/v4`
+**Install address (iPhone Safari):** `https://chmoses98.github.io/sift-sports-intelligence/v4/`
+**Existing in-app preview:** `https://chmoses98.github.io/sift-sports-intelligence/#/v4`
 **Rollback:** [ROLLBACK.md](ROLLBACK.md)
 
 ## Choosing and remembering v4
@@ -17,12 +18,12 @@ Opening `#/v4` chooses nothing: the device still opens SIFT 2.0 afterwards. Thre
 
 ## On the iPhone Home Screen
 
-Open the v4 address in **Safari**, on v4 Home, then Share, **Add to Home Screen**, keep the name **SIFT v4**, Add.
+Open **the dedicated `/v4/` install address** in **Safari** (not inside an app), then Share, **Add to Home Screen**, enable **Open as Web App** if offered, keep the name **SIFT v4**, Add. Remove any older v4 shortcut that still opens SIFT 2.0, then install fresh.
 
-- The page installs as its own app ("SIFT v4", launch address `#/v4`), chosen from the address you add it from, so the icon opens v4 whichever way iOS picks its launch address. It is separate from any SIFT 2.0 icon.
+- The separate `/v4/` page has its own v4 manifest and title *before* the app runs. Its physical URL always starts v4 even if iOS drops the `#` fragment or ignores the manifest's `start_url`. The SIFT 2.0 entrypoint and existing icon are unchanged.
 - **The Home Screen app keeps its own saved Board.** iOS gives each Home Screen app storage separate from Safari (Apple, WWDC23 "What's new in web apps"). Research saved in Safari does not appear in the icon and the other way round. Pick one place for daily use.
 - In the Home Screen app there is no "keep v4" prompt: the icon is the choice. Return to SIFT 2.0 is still one tap.
-- Not verifiable without a device: whether iOS takes the launch address from the page or from the manifest. Both paths are set to v4; see the checklist.
+- Physical iPhone installation still needs a real-device check; Chromium and Playwright WebKit cannot fully emulate Add to Home Screen. See the checklist.
 
 ## What works today
 

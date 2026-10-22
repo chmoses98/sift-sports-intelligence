@@ -40,6 +40,8 @@ export function scriptMarketRows(
   const rows: ScriptMarketRow[] = [];
   for (const market of markets) {
     const fit = scriptFit(market, set, homeId, awayId);
+    // The source may have a fresh snapshot of a market that is no longer trading.
+    if (market.market_status && /^(closed|inactive|settled|suspended|halted|expired|final)$/i.test(market.market_status)) continue;
     if (!fit || !['FRESH', 'AGING'].includes(quoteFreshness(market.captured_at, now))) continue;
     const p = prices.get(market.market_id)?.fair_probability;
     const validModel = p != null && Number.isFinite(p) && p >= 0 && p <= 1 ? p : null;

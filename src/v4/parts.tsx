@@ -9,6 +9,8 @@ import { finalScores } from '../views/broadcast/lifecycle';
 import { teamName } from '../components/sift2/GameList';
 import { clock, isLiveGame } from './model';
 import { useResearch } from './ResearchSheet';
+import { ageChip, liveWord, periodClock, shownState, wideScore } from './scoreState';
+import type { ScoreRead } from '../live/scores/store';
 
 /** True once the element has been on screen (stays true): rows only fetch their extras when they are actually seen. */
 export function useSeen<T extends Element>(): [React.RefObject<T | null>, boolean] {
@@ -47,31 +49,53 @@ export function SignalChip({ g }: { g: GameRow }) {
 }
 
 /** One game as a compact row: away, middle (time, live word or final score), home, then the signal chip or a chevron. */
-export function GameRowV4({ g }: { g: GameRow }) {
+export function GameRowV4({ g, read }: { g: GameRow; read?: ScoreRead | null }) {
   const [ref, seen] = useSeen<HTMLLIElement>();
-  const final = useFinal(g, seen);
-  const live = isLiveGame(g);
+  // A score feed's read (today only the Live Score Demo, always labelled DEMO) changes what is SHOWN; the publication's status is untouched.
+  const shown = shownState(read);
+  const feed = shown === 'live' || shown === 'over' ? read : null;
+  const final = useFinal(g, seen && !feed);
+  const live = shown ? shown === 'live' : isLiveGame(g);
   const a = g.away?.short_name ?? teamName(g.away);
   const h = g.home?.short_name ?? teamName(g.home);
   const when = phaseWord(g);
+  const sc = feed?.game?.score ?? null;
+  const tag = feed?.demo ? 'DEMO' : '';
   let mid: ReactNode;
-  if (final) {
+  if (feed && sc) {
+    const over = shown === 'over';
+    const line = [over ? 'Final' : periodClock(feed) || 'Live', ageChip(feed)].filter(Boolean).join(' · ');
+    mid = (
+      <>
+        <span className={`v4-row__sc${wideScore(feed) ? ' v4-row__sc--tight' : ''}${feed.view.mode === 'LAST_KNOWN' || feed.view.mode === 'DELAYED' ? ' v4-row__sc--aged' : ''}`}>
+          <span className={over && sc.home > sc.away ? 'lose' : ''}>{sc.away}</span><small className="over" style={{ font: '600 12px/16px var(--f-ui)' }}>{over ? 'F' : '–'}</small><span className={over && sc.away > sc.home ? 'lose' : ''}>{sc.home}</span>
+        </span>
+        <small>{line}</small>
+        {tag && <small className="v4-demotag">{tag}</small>}
+      </>
+    );
+  } else if (feed) {
+    mid = <>{shown === 'over' ? 'Final' : 'Live'}<small>No score reported</small>{tag && <small className="v4-demotag">{tag}</small>}</>;
+  } else if (final) {
     mid = <span className="v4-row__sc"><span className={final.winner === 'home' ? 'lose' : ''}>{final.away}</span><small className="over" style={{ font: '600 12px/16px var(--f-ui)' }}>F</small><span className={final.winner === 'away' ? 'lose' : ''}>{final.home}</span></span>;
   } else if (live) {
     mid = <>In play<small>Score n/a</small></>;
-  } else if (g.phase === 'FINAL') {
-    mid = <>Final<small>Score n/a</small></>;
-  } else if (g.phase === 'PREGAME' || g.phase === 'NO_START') {
+  } else if (shown === 'upcoming' || (!shown && (g.phase === 'PREGAME' || g.phase === 'NO_START'))) {
     mid = <>{clock(g.startMs)}</>;
+  } else if (!shown && g.phase === 'FINAL') {
+    mid = <>Final<small>Score n/a</small></>;
   } else {
     mid = <>{when}</>;
   }
-  const label = `${teamName(g.away)} at ${teamName(g.home)}, ${final ? `final ${final.away} to ${final.home}` : when}. Open game`;
+  const spoken = feed && sc
+    ? `${shown === 'over' ? 'final' : `${periodClock(feed) || 'in play'}`}, demo score ${sc.away} to ${sc.home}${ageChip(feed) ? `, ${ageChip(feed)}` : ''}`
+    : final ? `final ${final.away} to ${final.home}` : when;
+  const label = `${teamName(g.away)} at ${teamName(g.home)}, ${spoken}. Open game`;
   return (
-    <li ref={ref} className={`v4-row${live ? ' v4-row--live' : ''}`}>
+    <li ref={ref} className={`v4-row${live && liveWord(feed) === 'LIVE' ? ' v4-row--live' : ''}`}>
       <Link to={gameHref(g)} className="v4-row__link" aria-label={label}>
         <span className="v4-row__team"><Crest sport={g.sport} p={g.away} size="sm" /><span className="nm">{a}</span></span>
-        <span className={`v4-row__mid${live ? ' v4-row__mid--live' : ''}`}>{mid}</span>
+        <span className={`v4-row__mid${live && liveWord(feed) === 'LIVE' ? ' v4-row__mid--live' : ''}`}>{mid}</span>
         <span className="v4-row__team v4-row__team--home"><span className="nm">{h}</span><Crest sport={g.sport} p={g.home} size="sm" /></span>
       </Link>
       <span className="v4-row__end">{g.candidates > 0 ? <SignalChip g={g} /> : <Icon name="caret-right" size="s" />}</span>

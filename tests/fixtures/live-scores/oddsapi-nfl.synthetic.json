@@ -1,0 +1,7 @@
+[
+  { "id": "abc123", "sport_key": "americanfootball_nfl", "sport_title": "NFL", "commence_time": "2026-10-18T17:00:00Z", "completed": false,
+    "home_team": "Indianapolis Colts", "away_team": "Baltimore Ravens",
+    "scores": [{ "name": "Indianapolis Colts", "score": "14" }, { "name": "Baltimore Ravens", "score": "17" }], "last_update": "2026-10-18T19:02:11Z" },
+  { "id": "abc124", "sport_key": "americanfootball_nfl", "sport_title": "NFL", "commence_time": "2026-10-18T20:25:00Z", "completed": false,
+    "home_team": "Washington Commanders", "away_team": "New York Jets", "scores": null, "last_update": null }
+]

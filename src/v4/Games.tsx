@@ -4,7 +4,8 @@ import { useSearchParams } from '../routing';
 import { NAV_SPORTS } from '../data/nav';
 import { groupGames } from '../components/sift2/GameList';
 import { GameRowV4 } from './parts';
-import { LIVE_SCORES_NOTE, SlateStates, useSlate } from './slate';
+import { DEMO_NOTE, LIVE_SCORES_NOTE, SlateStates, useSlate, useSlateScores } from './slate';
+import { useDemoState } from '../live/scores/demo/state';
 import { dateKey, dayStrip, isLiveGame, isOver, isUpcoming } from './model';
 
 type Status = 'all' | 'live' | 'upcoming' | 'final';
@@ -17,7 +18,9 @@ export function V4Games() {
   const status = (['live', 'upcoming', 'final'].includes(sp.get('status') ?? '') ? sp.get('status') : 'all') as Status;
   const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
   const inDay = useMemo(() => rows.filter((g) => Number.isFinite(g.startMs) && dateKey(g.startMs) === day), [rows, day]);
-  const shown = useMemo(() => inDay.filter((g) => status === 'all' || (status === 'live' ? isLiveGame(g) : status === 'upcoming' ? isUpcoming(g) : isOver(g))), [inDay, status]);
+  const scores = useSlateScores(inDay);
+  const demo = useDemoState().on;
+  const shown = useMemo(() => inDay.filter((g) => status === 'all' || (status === 'live' ? isLiveGame(g, scores(g)) : status === 'upcoming' ? isUpcoming(g, scores(g)) : isOver(g, scores(g)))), [inDay, status, scores]);
   const groups = useMemo(() => groupGames(shown), [shown]);
   const days = useMemo(() => dayStrip(now), [now]);
   const strip = useRef<HTMLDivElement>(null);
@@ -25,7 +28,7 @@ export function V4Games() {
     const el = strip.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
     if (el && strip.current) strip.current.scrollLeft = el.offsetLeft - (strip.current.clientWidth - el.offsetWidth) / 2;
   }, [day]);
-  const counts = { all: inDay.length, live: inDay.filter(isLiveGame).length, upcoming: inDay.filter(isUpcoming).length, final: inDay.filter(isOver).length };
+  const counts = { all: inDay.length, live: inDay.filter((g) => isLiveGame(g, scores(g))).length, upcoming: inDay.filter((g) => isUpcoming(g, scores(g))).length, final: inDay.filter((g) => isOver(g, scores(g))).length };
   const empty = !loading && !unavailable && shown.length === 0;
   return (
     <div>
@@ -44,11 +47,11 @@ export function V4Games() {
       </div>
       <div style={{ paddingTop: 8 }} aria-live="polite">
         <SlateStates loading={loading} unavailable={unavailable} failed={failed} empty={empty} emptyText={status === 'all' ? `No published games ${day === today ? 'today' : 'on this day'}.` : `No ${status} games ${day === today ? 'today' : 'on this day'}.`} />
-        {!loading && !unavailable && shown.some(isLiveGame) && <p className="meta" style={{ padding: '0 16px 12px' }}>{LIVE_SCORES_NOTE}</p>}
+        {!loading && !unavailable && shown.some((g) => isLiveGame(g, scores(g))) && <p className="meta" style={{ padding: '0 16px 12px' }}>{demo ? DEMO_NOTE : LIVE_SCORES_NOTE}</p>}
         {!loading && !unavailable && groups.map((gr) => (
           <section key={gr.slug} className="v4-sec" aria-label={NAV_SPORTS.find((s) => s.slug === gr.slug)?.fullName ?? gr.sport}>
             <header className="v4-sechead"><h2>{NAV_SPORTS.find((s) => s.slug === gr.slug)?.label ?? gr.sport}</h2><span className="v4-sechead__n">{gr.games.length}</span></header>
-            <ul className="v4-grp">{gr.games.map((g) => <GameRowV4 key={g.item.event_id} g={g} />)}</ul>
+            <ul className="v4-grp">{gr.games.map((g) => <GameRowV4 key={g.item.event_id} g={g} read={scores(g)} />)}</ul>
           </section>
         ))}
       </div>

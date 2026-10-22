@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useLayoutEffect } from 'react';
-import { NavLink, Outlet, useLocation } from '../routing';
+import { NavLink, Outlet, useLocation, useSearchParams } from '../routing';
 import '@fontsource/geist-sans/400.css';
 import '@fontsource/geist-sans/500.css';
 import '@fontsource/geist-sans/600.css';
@@ -11,6 +11,8 @@ import { SheetHost } from './sheet';
 import { TrayProvider } from '../state/tray';
 import { UndoProvider } from './undo';
 import { EarlyAccessFooter } from './EarlyAccess';
+import { DemoBar } from './DemoBar';
+import { demoState, disableDemo, enableDemo } from '../live/scores/demo/state';
 import { isStandalone, setInstallIdentity } from '../lib/installIdentity';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
@@ -24,6 +26,15 @@ const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
 /** The v4 shell: one phone-width column, five tabs, safe areas, one sheet host. The classic chrome never renders here. */
 export function V4Root() {
   const { pathname } = useLocation();
+  const [sp, setSp] = useSearchParams();
+  // `?livedemo=1` turns the Live Score Demo on and `?livedemo=0` off (an explicit opt-in, never the default); the parameter is then dropped from the address.
+  const ld = sp.get('livedemo');
+  useEffect(() => {
+    if (ld !== '1' && ld !== '0') return;
+    if (ld === '1' && !demoState().on) enableDemo();
+    if (ld === '0') disableDemo();
+    setSp((p) => { const n = new URLSearchParams(p); n.delete('livedemo'); return n; }, { replace: true });
+  }, [ld, setSp]);
   // The page background is the app's: no classic body colour shows behind the column or in overscroll.
   useEffect(() => {
     const prev = document.body.style.background;
@@ -54,6 +65,7 @@ export function V4Root() {
       <UndoProvider>
       <SheetHost>
         <div className="v4-col">
+          <DemoBar />
           <main className="v4-main" id="v4-main">
             <Suspense fallback={<div className="v4-hand"><div className="v4-skel" style={{ height: 120 }} role="status" aria-label="Loading" /></div>}>
               <Outlet />

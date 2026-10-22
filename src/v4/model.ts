@@ -2,6 +2,8 @@
 // Nothing here fetches or invents data; every word is derived from fields the publication states.
 import type { GameRow } from '../views/broadcast/games';
 import { teamKey } from './follow';
+import { shownState, NO_SCORES, type Scores } from './scoreState';
+import type { ScoreRead } from '../live/scores/store';
 
 export const dateKey = (ms: number) => {
   const d = new Date(ms);
@@ -32,9 +34,11 @@ export function dayStrip(now: number, back = 3, ahead = 10): DayCell[] {
   });
 }
 
-export const isLiveGame = (g: GameRow) => g.phase === 'STARTED' && !g.stale;
-export const isOver = (g: GameRow) => g.phase === 'FINAL' || (g.phase === 'STARTED' && g.stale);
-export const isUpcoming = (g: GameRow) => g.phase === 'PREGAME' || g.phase === 'NO_START';
+// Each takes the game's score read when a score feed (today the Live Score Demo) has one. The read only changes which group a game is
+// SHOWN in; the publication's own status (g.phase) is still what the research layer uses, and these are not used there.
+export const isLiveGame = (g: GameRow, r?: ScoreRead | null) => { const s = shownState(r); return s ? s === 'live' : g.phase === 'STARTED' && !g.stale; };
+export const isOver = (g: GameRow, r?: ScoreRead | null) => { const s = shownState(r); return s ? s === 'over' : g.phase === 'FINAL' || (g.phase === 'STARTED' && g.stale); };
+export const isUpcoming = (g: GameRow, r?: ScoreRead | null) => { const s = shownState(r); return s ? s === 'upcoming' : g.phase === 'PREGAME' || g.phase === 'NO_START'; };
 
 export type SlateFilter = 'following' | 'all' | 'live' | 'signals';
 
@@ -44,8 +48,8 @@ export function followsGame(g: GameRow, follow: readonly string[]): boolean {
   return (!!a && follow.includes(a)) || (!!h && follow.includes(h));
 }
 
-export function applyFilter(rows: GameRow[], filter: SlateFilter, follow: readonly string[]): GameRow[] {
-  if (filter === 'live') return rows.filter(isLiveGame);
+export function applyFilter(rows: GameRow[], filter: SlateFilter, follow: readonly string[], scores: Scores = NO_SCORES): GameRow[] {
+  if (filter === 'live') return rows.filter((g) => isLiveGame(g, scores(g)));
   if (filter === 'signals') return rows.filter((g) => g.candidates > 0);
   if (filter === 'following') return rows.filter((g) => followsGame(g, follow));
   return rows;
@@ -54,15 +58,18 @@ export function applyFilter(rows: GameRow[], filter: SlateFilter, follow: readon
 export interface Groups { live: GameRow[]; upcoming: GameRow[]; over: GameRow[]; other: GameRow[] }
 
 /** Live / upcoming / final, in the slate's order. Postponed, cancelled and suspended games sit apart, labelled as such. */
-export function groupByPhase(rows: GameRow[]): Groups {
+export function groupByPhase(rows: GameRow[], scores: Scores = NO_SCORES): Groups {
   const g: Groups = { live: [], upcoming: [], over: [], other: [] };
-  for (const r of rows) (isLiveGame(r) ? g.live : isUpcoming(r) ? g.upcoming : isOver(r) ? g.over : g.other).push(r);
+  for (const r of rows) { const s = scores(r); (isLiveGame(r, s) ? g.live : isUpcoming(r, s) ? g.upcoming : isOver(r, s) ? g.over : g.other).push(r); }
   g.upcoming.sort((a, b) => a.startMs - b.startMs);
   return g;
 }
 
 /** The featured game for the selected slate: the app's own rule when it applies, else the game with the most published research. */
-export function pickFeature(rows: GameRow[], rule: GameRow | null): GameRow | null {
+export function pickFeature(rows: GameRow[], rule: GameRow | null, scores: Scores = NO_SCORES): GameRow | null {
+  // With the Live Score Demo on, a game the demo has in play is featured first: that is the point of the preview.
+  const demoLive = rows.filter((g) => g.home && g.away && scores(g)?.demo && isLiveGame(g, scores(g)));
+  if (demoLive.length) return [...demoLive].sort((a, b) => b.candidates - a.candidates || a.startMs - b.startMs || a.item.event_id.localeCompare(b.item.event_id))[0];
   if (rule && rows.includes(rule)) return rule;
   const playable = rows.filter((g) => g.home && g.away);
   if (!playable.length) return null;
@@ -81,7 +88,9 @@ export const GAME_TABS: [GameTab, string][] = [['live', 'Live'], ['matchups', 'M
  * result, postponed, cancelled or suspended is explained there too, in words, which is the most informative state those
  * phases have (Matchups would show pregame research as if it were current).
  */
-export function defaultGameTab(g: Pick<GameRow, 'phase'>): GameTab {
+export function defaultGameTab(g: Pick<GameRow, 'phase'>, r?: ScoreRead | null): GameTab {
+  const s = shownState(r);
+  if (s) return s === 'upcoming' ? 'matchups' : 'live';
   return g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'matchups' : 'live';
 }
 

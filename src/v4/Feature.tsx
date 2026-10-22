@@ -18,6 +18,8 @@ import { useGameResearch } from '../views/broadcast/parts';
 import { useCardFacts } from '../views/broadcast/GameCard';
 import { competitionWord, type GameRow } from '../views/broadcast/games';
 import { NAV_SPORTS } from '../data/nav';
+import type { ScoreRead } from '../live/scores/store';
+import { liveWord, periodClock, shownState } from './scoreState';
 
 /** The two team colours the stage and card are lit with: the hero's own, else graphite. */
 export function useStageColours(g: GameRow | null, research: unknown) {
@@ -34,22 +36,26 @@ export function useStageColours(g: GameRow | null, research: unknown) {
   }, [g, research]);
 }
 
-export function Feature({ g }: { g: GameRow }) {
+export function Feature({ g, read }: { g: GameRow; read?: ScoreRead | null }) {
   const research = useGameResearch(g.slug, g.item.event_id);
   const { facts } = useCardFacts(g, true);
-  const final = useFinal(g, true);
+  const shown = shownState(read);
+  const feed = shown === 'live' || shown === 'over' ? read ?? null : null;
+  const final = useFinal(g, !feed);
   const spec = useMemo(() => {
     try { return resolveHero(heroInputFor(g.item, research.data ?? null, g.sport)); } catch { return null; }
   }, [g, research.data]);
   const art = useMemo(() => (spec ? broadcastHeroSpec(spec, 'card') : null), [spec]);
-  const live = isLiveGame(g);
+  const live = shown ? shown === 'live' : isLiveGame(g);
+  const word = feed ? liveWord(feed) : 'LIVE';
   const sport = NAV_SPORTS.find((s) => s.slug === g.slug)?.label ?? g.sport;
   const hosted = spec?.context === 'home' || spec?.context === 'home-elsewhere';
   const away = spec?.away?.short ?? teamName(g.away);
   const home = spec?.home?.short ?? teamName(g.home);
   const colours = useStageColours(g, research.data);
-  const status = live ? 'In play' : g.phase === 'FINAL' ? 'Final' : g.phase === 'STARTED' ? 'Awaiting result' : g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'Upcoming' : g.phase === 'POSTPONED' ? 'Postponed' : g.phase === 'CANCELLED' ? 'Cancelled' : 'Suspended';
-  const aria = `${teamName(g.away)} ${hosted ? 'at' : 'versus'} ${teamName(g.home)}. ${status}${final ? `, final ${final.away} to ${final.home}` : ''}. Open game`;
+  const status = live ? 'In play' : shown === 'over' ? 'Final' : shown === 'upcoming' ? 'Upcoming' : g.phase === 'FINAL' ? 'Final' : g.phase === 'STARTED' ? 'Awaiting result' : g.phase === 'PREGAME' || g.phase === 'NO_START' ? 'Upcoming' : g.phase === 'POSTPONED' ? 'Postponed' : g.phase === 'CANCELLED' ? 'Cancelled' : 'Suspended';
+  const fsc = feed?.game?.score ?? null;
+  const aria = `${teamName(g.away)} ${hosted ? 'at' : 'versus'} ${teamName(g.home)}. ${status}${feed ? ' (demo)' : ''}${fsc ? `, ${shown === 'over' ? 'final' : periodClock(feed) || 'score'} ${fsc.away} to ${fsc.home}` : final ? `, final ${final.away} to ${final.home}` : ''}. Open game`;
   return (
     <div className="v4-feature" style={colours} data-featured={g.item.event_id} data-art={art?.kind ?? 'none'}>
       {art && <div className="v4-feature__art" aria-hidden="true"><VenueArt key={art.photo?.id ?? art.reason} spec={art} surface="card" /></div>}
@@ -57,9 +63,9 @@ export function Feature({ g }: { g: GameRow }) {
       <div className="v4-feature__in">
         <div className="v4-feature__top">
           <span className="meta">{competitionWord(g.item.competition, sport)}</span>
-          <span className={`v4-badge${live ? ' v4-badge--live' : ''}`}>{live ? 'LIVE' : status.toUpperCase()}</span>
+          <span className={`v4-badge${live && word === 'LIVE' ? ' v4-badge--live' : ''}`}>{live ? word : status.toUpperCase()}{feed?.demo ? ' · DEMO' : ''}</span>
         </div>
-        <Scoreboard g={g} away={away} home={home} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} to={gameHref(g)} label={aria} />
+        <Scoreboard g={g} away={away} home={home} awayRec={facts.away.record} homeRec={facts.home.record} final={final} hosted={hosted} to={gameHref(g)} label={aria} read={read} />
         <div className="v4-feature__bot">
           <p>
             {g.candidates > 0

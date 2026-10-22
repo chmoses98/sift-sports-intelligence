@@ -654,3 +654,31 @@
 .v4-ea__steps b { color: var(--tx); font-weight: 600; }
 .v4-eafoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin: 28px 16px 0; padding-top: 6px; border-top: 1px solid var(--line); }
 .v4-eafoot .v4-textlink { color: var(--tx3); }
+
+/* Live Score Demo has its own hue (violet), so simulated numbers never wear a meaning v4 already gives a colour: gold is market, ice is model, red is live. */
+.v4 { --demo: #BBA6FF; --demo-bg: #1B1530; --demo-line: rgba(187, 166, 255, 0.45); }
+/* Live Score Demo: the bar that keeps simulated scores from being mistaken for live ones, and the DEMO tag on every number */
+.v4-demobar { position: sticky; top: 0; z-index: 70; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: calc(6px + var(--sat)) 12px 6px 16px; background: var(--demo-bg); border-bottom: 1px solid var(--demo-line); color: var(--demo); font: 600 13px/16px var(--f-ui); }
+.v4-demobar__t { flex: 1; min-width: 0; }
+.v4-demobar__t b { letter-spacing: 0.08em; margin-right: 4px; }
+.v4-demobar__b { flex: none; min-height: 32px; padding: 0 10px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--demo-line); color: var(--demo); font: 650 13px/1 var(--f-ui); }
+.v4 .v4-demotag { font: 700 10px/12px var(--f-ui); letter-spacing: 0.1em; color: var(--demo); }
+.v4-row__mid .v4-demotag, .v4-sb__mid .v4-demotag { color: var(--demo); }
+.v4-row__sc--tight { font-size: 16px; gap: 3px; }
+.v4-row__sc--aged, .v4-sb__score--aged { opacity: 0.72; }
+.v4-sb--wide { gap: 6px; }
+.v4-sb--wide .v4-sb__score { font-size: 32px; }
+.v4-sb--wide .v4-sb__mid { min-width: 0; }
+.v4-sb--wide .v4-sb__mid b { font-size: 17px; }
+.v4-sb--wide .v4-crest--lg { width: 52px; height: 52px; }
+.v4-sb--wide .v4-sb__name { font-size: 15px; }
+@media (max-width: 400px) {
+  .v4-sb--wide .v4-sb__score { font-size: 28px; }
+  .v4-sb--wide .v4-crest--lg { width: 44px; height: 44px; }
+  .v4-sb--wide .v4-sb__name { font-size: 14px; }
+  .v4-sb--wide .v4-sb__mid b { font-size: 15px; }
+}
+
+/* a scoring play's running score: neutral, never the gold of a market price */
+.v4-playsc { flex: none; text-align: right; font: 700 18px/20px var(--f-num); letter-spacing: -0.02em; }
+.v4-playsc small { display: block; font: 500 12px/14px var(--f-ui); color: var(--tx3); letter-spacing: 0; }

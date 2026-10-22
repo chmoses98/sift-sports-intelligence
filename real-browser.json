@@ -1,0 +1,2205 @@
+{
+ "at": "2026-10-22T16:20:04.544Z",
+ "base": "http://localhost:4199/sift-sports-intelligence/",
+ "runs": [
+  {
+   "name": "iphone-webkit",
+   "steps": [
+    {
+     "espn": false,
+     "label": "home",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 7s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "games",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 15s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nba",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 21s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonUPCOMINGCavaliers11:00 PMat76ersXfinity Mobile Arena",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nhl",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 28s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonUPCOMINGPanthers11:00 PMatPenguins4 published research signals4Player props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nfl",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 4s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-cfb",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 10s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "game",
+     "note": "no game with a score on screen right now"
+    },
+    {
+     "espn": true,
+     "label": "home",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 7s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "games",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 14s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nba",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 21s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonUPCOMINGCavaliers11:00 PMat76ersXfinity Mobile Arena",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nhl",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 27s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonUPCOMINGPanthers11:00 PMatPenguins4 published research signals4Player props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nfl",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 4s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-cfb",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 10s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "game",
+     "note": "no game with a score on screen right now"
+    }
+   ],
+   "requests": [
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:20:07.891Z"
+    },
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:20:38.404Z"
+    },
+    {
+     "espn": true,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:20:57.412Z"
+    },
+    {
+     "espn": true,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:21:27.880Z"
+    }
+   ],
+   "failed": {
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ABOSOT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BIGMAY.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22TOBMEJ.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ZARCOM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BASMAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23CHICER.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MOUPAU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23TSIDUC.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BOUMAR.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GAGMON.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GUTVAL.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22SARCOU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22XIABUT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ARSSEB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22FROBRE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22PALMAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22PANZHE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22YANYAO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ECUMEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22JMUAPP.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22LIBKENN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23AFAWYO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23AKRKENT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BYUUCF.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23COLOOKST.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23EMUOHIO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MOHCMU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MSUUCLA.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23NCSTSTAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23RUTGNW.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23UTSATULN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23VANUK.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23VTCLEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23WMUTOL.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24BSUWSU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24COLGRICH.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24INDMICH.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24ULMTROY.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24USUTXST.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT29FAUUNT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30ARMYMEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30AUBMISS.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30GTPITT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30MICHRUTG.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30SMUSYR.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30TEMECU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30USMULM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30UVAWAKE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30WASHNEB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31CSUUSU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31FIULIB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31NIUUNLV.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31ORSTFRES.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ANNTAG.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BOURUZ.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GIBKRU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BEJBOU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23STOSIN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23JOVSHN.json": 2
+   },
+   "consoleErrors": [
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+   ],
+   "pageErrors": []
+  },
+  {
+   "name": "pixel-chromium",
+   "steps": [
+    {
+     "espn": false,
+     "label": "home",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 8s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "games",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 15s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nba",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 21s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonUPCOMINGCavaliers11:00 PMat76ersXfinity Mobile Arena",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nhl",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 28s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonUPCOMINGPanthers11:00 PMatPenguins4 published research signals4Player props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nfl",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 3s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-cfb",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 10s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "game",
+     "note": "no game with a score on screen right now"
+    },
+    {
+     "espn": true,
+     "label": "home",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 8s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "games",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 15s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nba",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 21s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonUPCOMINGCavaliers11:00 PMat76ersXfinity Mobile Arena",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nhl",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 28s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonUPCOMINGPanthers11:00 PMatPenguins4 published research signals4Player props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nfl",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 4s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-cfb",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 11s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "game",
+     "note": "no game with a score on screen right now"
+    }
+   ],
+   "requests": [
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:21:46.218Z"
+    },
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:22:16.479Z"
+    },
+    {
+     "espn": true,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:22:35.025Z"
+    },
+    {
+     "espn": true,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:23:05.276Z"
+    }
+   ],
+   "failed": {
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ABOSOT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BIGMAY.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22TOBMEJ.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ZARCOM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BASMAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23CHICER.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MOUPAU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23TSIDUC.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BOUMAR.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GAGMON.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GUTVAL.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22SARCOU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22XIABUT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ARSSEB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22FROBRE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22PALMAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22PANZHE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22YANYAO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ECUMEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22JMUAPP.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22LIBKENN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23AFAWYO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23AKRKENT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BYUUCF.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23COLOOKST.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23EMUOHIO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MOHCMU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MSUUCLA.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23NCSTSTAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23RUTGNW.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23UTSATULN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23VANUK.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23VTCLEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23WMUTOL.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24BSUWSU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24COLGRICH.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24INDMICH.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24ULMTROY.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24USUTXST.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT29FAUUNT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30ARMYMEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30AUBMISS.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30GTPITT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30MICHRUTG.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30SMUSYR.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30TEMECU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30USMULM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30UVAWAKE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30WASHNEB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31CSUUSU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31FIULIB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31NIUUNLV.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31ORSTFRES.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ANNTAG.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BOURUZ.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GIBKRU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BEJBOU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23STOSIN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23JOVSHN.json": 2
+   },
+   "consoleErrors": [
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    }
+   ],
+   "pageErrors": []
+  },
+  {
+   "name": "desktop-chromium",
+   "steps": [
+    {
+     "espn": false,
+     "label": "home",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 8s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "games",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 15s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nba",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 20s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonUPCOMINGCavaliers11:00 PMat76ersXfinity Mobile Arena",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nhl",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 27s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonUPCOMINGPanthers11:00 PMatPenguins4 published research signals4Player props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nfl",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 3s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-cfb",
+     "note": "Scores from SportScore · 2 of 6 games in play window matched · feed answered 9s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "game",
+     "note": "no game with a score on screen right now"
+    },
+    {
+     "espn": true,
+     "label": "home",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 8s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "games",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 15s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nba",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 20s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonUPCOMINGCavaliers11:00 PMat76ersXfinity Mobile Arena",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nhl",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 27s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonUPCOMINGPanthers11:00 PMatPenguins4 published research signals4Player props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-nfl",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 2s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "home-cfb",
+     "note": "Scores from SportScore, ESPN · 2 of 6 games in play window matched · feed answered 8s ago · Powered by SportScore",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGJames Madison11:00 PMatApp State1 published research signal1",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow noopener"
+     ]
+    },
+    {
+     "espn": true,
+     "label": "game",
+     "note": "no game with a score on screen right now"
+    }
+   ],
+   "requests": [
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:23:23.889Z"
+    },
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:23:54.692Z"
+    },
+    {
+     "espn": true,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:24:11.277Z"
+    },
+    {
+     "espn": true,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-22&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-22T16:24:41.840Z"
+    }
+   ],
+   "failed": {
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ABOSOT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BIGMAY.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22TOBMEJ.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ZARCOM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BASMAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23CHICER.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MOUPAU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23TSIDUC.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BOUMAR.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GAGMON.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GUTVAL.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22SARCOU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22XIABUT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ARSSEB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22FROBRE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22PALMAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22PANZHE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22YANYAO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ECUMEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22JMUAPP.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22LIBKENN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23AFAWYO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23AKRKENT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BYUUCF.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23COLOOKST.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23EMUOHIO.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MOHCMU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23MSUUCLA.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23NCSTSTAN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23RUTGNW.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23UTSATULN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23VANUK.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23VTCLEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23WMUTOL.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24BSUWSU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24COLGRICH.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24INDMICH.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24ULMTROY.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT24USUTXST.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT29FAUUNT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30ARMYMEM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30AUBMISS.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30GTPITT.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30MICHRUTG.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30SMUSYR.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30TEMECU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30USMULM.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30UVAWAKE.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT30WASHNEB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31CSUUSU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31FIULIB.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31NIUUNLV.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT31ORSTFRES.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22ANNTAG.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22BOURUZ.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22GIBKRU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23BEJBOU.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23STOSIN.json": 2,
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT23JOVSHN.json": 2
+   },
+   "consoleErrors": [
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+     "espn": true,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    }
+   ],
+   "pageErrors": []
+  }
+ ]
+}

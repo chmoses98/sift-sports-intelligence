@@ -19,10 +19,10 @@ import { matchupInsights } from '../insights/matchups';
 import { propBoard } from '../insights/propBoard';
 import { useAuthority } from '../data/projections';
 import { CfbPlayerProjections, CfbTeamProjections, NbaPlayerProjections } from './ProjectionPanels';
-import { gameScripts, sharePct } from '../lib/scripts';
-import { scriptMarketRows, scriptFitLine } from './scriptMarkets';
+import { gameScripts, sharePct, scriptFit, type ScriptSet } from '../lib/scripts';
+import { scriptMarketRows, scriptFitLine, type ScriptMarketRow } from './scriptMarkets';
 import { gameWeather, weatherLine } from '../views/game/Hero';
-import { marketLabel, priceRow, centsText, fitNames, type PriceRow } from '../lib/gamedata';
+import { marketLabel, priceRow, centsText, type PriceRow } from '../lib/gamedata';
 import { latestPrices } from '../components/MarketBoard';
 import { teamName } from '../components/sift2/GameList';
 import { competitionWord, type GameRow } from '../views/broadcast/games';
@@ -34,6 +34,7 @@ import { groupPlayers, propsExplorerHref } from './propsModel';
 import { signalsHref } from './signalsModel';
 import { agoWord, authorityWord, priceLine } from './words';
 import { Scoreboard } from './Scoreboard';
+import { useSheet } from './sheet';
 import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
 import { SlateStates, useSlate } from './slate';
@@ -314,6 +315,37 @@ function PlayersTab({ g, research, markets, detail, sport, now }: { g: GameRow; 
 
 // ------------------------------------------------------------------ Markets
 
+function ScriptMarketSheet({ row, label, scripts }: { row: ScriptMarketRow; label: string; scripts: ScriptSet }) {
+  const { close } = useSheet();
+  const d = row.modelMinusBreakEven;
+  return (
+    <>
+      <div className="v4-shead">
+        <div className="v4-shead__t"><h2 data-autofocus tabIndex={-1}>{row.side} · {label}</h2><p className="v4-shead__m">How this exact side fits the published game scenarios</p></div>
+        <button type="button" className="v4-gbtn" aria-label="Close script detail" onClick={close}><Icon name="x" /></button>
+      </div>
+      <div className="v4-sbody">
+        <section className="v4-sblock">
+          <h3>Game script compatibility</h3>
+          <p>{scriptFitLine(row)}</p>
+          <ul className="v4-sbullets" style={{ marginTop: 12 }}>
+            {scripts.scripts.map((s, i) => (
+              <li key={s.id}>{s.name} · {sharePct(s.share)} of simulations · {row.fit.fits[i] === 'yes' ? 'Wins throughout this margin bucket' : row.fit.fits[i] === 'part' ? 'Only some outcomes in this bucket win' : 'Does not win in this bucket'}</li>
+            ))}
+          </ul>
+        </section>
+        <section className="v4-sblock">
+          <h3>Price cross-check</h3>
+          <div className="v4-kv"><span className="v4-kv__k">Current {row.side} ask</span><span className="v4-kv__v">{centsText(row.ask)}</span></div>
+          <div className="v4-kv"><span className="v4-kv__k">Published model fair</span><span className="v4-kv__v">{row.model == null ? 'Unavailable' : `${Math.round(row.model * 100)}%`}</span></div>
+          <div className="v4-kv"><span className="v4-kv__k">Model minus fee-adjusted break-even</span><span className="v4-kv__v">{d == null ? 'Unavailable' : `${d > 0 ? '+' : ''}${Math.round(d * 100)} pp`}</span></div>
+        </section>
+        <p className="meta">These are coarse simulated margin scenarios, not calibrated win probabilities. This comparison is research, not a validated betting edge or recommendation. Totals, props and partial-game markets need a separate joint simulation before they can be assessed this way.</p>
+      </div>
+    </>
+  );
+}
+
 const GROUP_ORDER = ['spreads', 'totals', 'team_totals', 'props', 'halves', 'more'];
 const GROUP_WORD: Record<string, string> = { spreads: 'Winner and spread', totals: 'Totals', team_totals: 'Team totals', props: 'Player props', halves: 'Halves and quarters', more: 'More markets' };
 
@@ -321,6 +353,7 @@ function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow
   const [picked, setGroup] = useState<string | null>(null);
   const [more, setMore] = useState(false);
   const [moreScripts, setMoreScripts] = useState(false);
+  const sheet = useSheet();
   const prices = useMemo(() => latestPrices(detail?.model_prices ?? []), [detail]);
   const scripts = useMemo(() => (research ? gameScripts(research) : null), [research]);
   const homeId = research?.participants.find((p) => p.home_away === 'HOME')?.participant_id ?? null;
@@ -330,9 +363,10 @@ function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow
     const home = research.participants.find((p) => p.home_away === 'HOME');
     const away = research.participants.find((p) => p.home_away === 'AWAY');
     const abbr = (pid: string | null) => research.event.participants.find((p) => p.participant_id === pid)?.short_name ?? (pid === home?.participant_id ? 'HOME' : pid === away?.participant_id ? 'AWAY' : null);
-    return markets.map((m) => priceRow(m, prices, marketLabel(m, abbr, () => null), null))
+    const pregame = g.phase === 'PREGAME' || g.phase === 'NO_START';
+    return markets.map((m) => priceRow(m, prices, marketLabel(m, abbr, () => null), pregame && scripts && home && away ? scriptFit(m, scripts, home.participant_id, away.participant_id) : null))
       .sort((a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group));
-  }, [markets, prices, research]);
+  }, [markets, prices, research, scripts, g.phase]);
   const scripted = useMemo(() => (g.phase === 'PREGAME' || g.phase === 'NO_START' ? scriptMarketRows(markets, prices, scripts, homeId, awayId, now) : []), [g.phase, markets, prices, scripts, homeId, awayId, now]);
   const groups = useMemo(() => GROUP_ORDER.filter((k) => rows.some((r) => r.group === k)), [rows]);
   // Game lines first: the main winner / spread / total markets, not eight hundred alternates.
@@ -347,23 +381,20 @@ function MarketsTab({ g, research, markets, detail, now, settled }: { g: GameRow
           <header className="v4-sechead"><h2>Scripts meet the markets</h2><span className="v4-sechead__n">{scripted.length}</span></header>
           <p className="meta" style={{ padding: '0 16px 10px' }}>Both sides of current full-game winner/spread contracts, matched to published simulated margin scenarios. This is scenario compatibility, not calibrated win probability, an edge, or a bet recommendation.</p>
           <ul className="v4-grp">
-            {(moreScripts ? scripted : scripted.slice(0, 4)).map((s) => {
+            {(moreScripts ? scripted : scripted.slice(0, 3)).map((s) => {
               const label = rows.find((r) => r.m.market_id === s.market.market_id)?.label ?? s.market.yes_description;
-              const d = s.modelMinusBreakEven;
               return (
                 <li key={`${s.market.market_id}:${s.side}`} className="v4-quote">
-                  <span className="v4-quote__t">
+                  <button type="button" className="v4-quote__t" onClick={() => sheet.open(<ScriptMarketSheet row={s} label={label} scripts={scripts} />, { label: `Script research: ${s.side} ${label}` })} aria-label={`Inspect script and price research: ${s.side} ${label}`}>
                     <b>{s.side} · {label}</b>
                     <span>{scriptFitLine(s)}</span>
-                    <span>{fitNames(s.fit, scripts)}</span>
-                    <span>{d == null ? 'No published model fair value on this side' : `Model minus fee-inclusive break-even: ${d > 0 ? '+' : ''}${Math.round(d * 100)} pp (research only)`}</span>
-                  </span>
+                  </button>
                   <span className="v4-px" aria-label={`${s.side} ask ${centsText(s.ask)}`}>{centsText(s.ask)}<small>{s.side}</small></span>
                 </li>
               );
             })}
           </ul>
-          {scripted.length > 4 && <div style={{ padding: '10px 16px 0' }}><button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%' }} aria-expanded={moreScripts} onClick={() => setMoreScripts((v) => !v)}>{moreScripts ? 'Show fewer script matches' : `Show all ${scripted.length} current script-side comparisons`}</button></div>}
+          {scripted.length > 3 && <div style={{ padding: '10px 16px 0' }}><button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%' }} aria-expanded={moreScripts} onClick={() => setMoreScripts((v) => !v)}>{moreScripts ? 'Show fewer script matches' : `Show all ${scripted.length} current script-side comparisons`}</button></div>}
         </section>
       )}
       <section aria-label="Kalshi markets">

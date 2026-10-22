@@ -18,9 +18,11 @@ import type { DiscoveryRow } from '../views/props/model';
 import type { ProjectionAuthority } from '../lib/projectionAuthority';
 
 /** The sports the Prop Explorer lists, as the existing /props hub does: NFL has the full explorer; MLB and NHL carry props on each game's page. */
-export interface PropSport { slug: 'nfl' | 'mlb' | 'nhl'; label: string; icon: 'football' | 'baseball' | 'hockey'; mode: 'explorer' | 'game'; horizonDays: number; note: string }
+export interface PropSport { slug: 'nfl' | 'mlb' | 'nhl' | 'cfb' | 'nba'; label: string; icon: 'football' | 'basketball' | 'baseball' | 'hockey'; mode: 'explorer' | 'game' | 'projection'; horizonDays: number; note: string }
 export const PROP_SPORTS: PropSport[] = [
   { slug: 'nfl', label: 'NFL', icon: 'football', mode: 'explorer', horizonDays: 8, note: 'Every player prop with the projection, the Kalshi ladder and the matchup.' },
+  { slug: 'cfb', label: 'CFB', icon: 'football', mode: 'projection', horizonDays: 8, note: 'Approved projected team points, independent of whether a player prop is listed.' },
+  { slug: 'nba', label: 'NBA', icon: 'basketball', mode: 'projection', horizonDays: 3, note: 'Published player-stat research previews while the production activation gate remains pending.' },
   { slug: 'mlb', label: 'MLB', icon: 'baseball', mode: 'game', horizonDays: 3, note: 'Pitcher and hitter ladders are on each game. The MLB publication carries no simulated player projection, so none is shown.' },
   { slug: 'nhl', label: 'NHL', icon: 'hockey', mode: 'game', horizonDays: 3, note: 'Goal, assist and point contracts are on each game. The NHL publication carries no simulated player projection, so none is shown.' },
 ];

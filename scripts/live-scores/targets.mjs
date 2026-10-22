@@ -29,6 +29,14 @@ export function feedTargets(now = new Date()) {
   t.push({ id: 'espn-web-header', group: 'espn', url: 'https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=football&league=nfl&limit=20', expect: 'json' });
   // SportScore (free tier, attribution): the endpoint named in its developer docs
   for (const sp of ['basketball', 'football', 'tennis']) t.push({ id: `sportscore-${sp}`, group: 'sportscore', url: `https://sportscore.com/api/widget/matches/?sport=${sp}&limit=50&src=sift-personal-probe`, expect: 'json' });
+  // SportScore day fixtures (documented REST v1): by UTC date, with a live filter, and one match detail
+  const sc = 'https://sportscore.com/api/v1';
+  for (const sp of ['basketball', 'football', 'tennis']) {
+    t.push({ id: `sportscore-fixtures-${sp}`, group: 'sportscore', url: `${sc}/fixtures/?sport=${sp}&date=${dash(now)}&limit=200&src=sift-personal-probe`, expect: 'json' });
+    t.push({ id: `sportscore-live-${sp}`, group: 'sportscore', url: `${sc}/fixtures/?sport=${sp}&status=live&limit=200&src=sift-personal-probe`, expect: 'json' });
+  }
+  t.push({ id: 'sportscore-fixtures-basketball-tomorrow', group: 'sportscore', url: `${sc}/fixtures/?sport=basketball&date=${dash(new Date(now.getTime() + 86400000))}&limit=200&src=sift-personal-probe`, expect: 'json' });
+  t.push({ id: 'sportscore-match-nba', group: 'sportscore', url: 'https://sportscore.com/api/widget/match/?sport=basketball&slug=memphis-grizzlies-vs-utah-jazz&src=sift-personal-probe', expect: 'json' });
   // NHL official
   t.push({ id: 'nhl-score-now', group: 'nhl', url: 'https://api-web.nhle.com/v1/score/now', expect: 'json' });
   t.push({ id: 'nhl-scoreboard-now', group: 'nhl', url: 'https://api-web.nhle.com/v1/scoreboard/now', expect: 'json' });
@@ -37,6 +45,7 @@ export function feedTargets(now = new Date()) {
   t.push({ id: 'nba-today', group: 'nba', url: 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json', expect: 'json' });
   t.push({ id: 'nba-today-browserua', group: 'nba', url: 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json', expect: 'json', browserUa: true });
   // MLB official
+  for (const back of [1, 2, 3, 4]) t.push({ id: `mlb-schedule-d${back}`, group: 'mlb', url: `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${dash(new Date(now.getTime() - back * 86400000))}&hydrate=linescore,team`, expect: 'json' });
   t.push({ id: 'mlb-schedule', group: 'mlb', url: `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${dash(now)}&hydrate=linescore,team`, expect: 'json' });
   // NFL legacy official scorestrip
   t.push({ id: 'nfl-scorestrip', group: 'nfl', url: 'https://static.nfl.com/liveupdate/scorestrip/ss.xml', expect: 'text' });

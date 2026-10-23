@@ -16,7 +16,7 @@ jobs:
       matrix:
         variant: [baseline, at-rest]
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -28,8 +28,16 @@ jobs:
         run: git checkout origin/claude/board-tap-at-rest -- e2e
       - run: npm run build:e2e
       - name: Install Chromium and WebKit
-        timeout-minutes: 65
-        run: timeout 3000 npx playwright install --with-deps chromium webkit
+        timeout-minutes: 80
+        run: timeout 4500 npx playwright install --with-deps chromium webkit
       - name: Board smoke on iPhone SE, repeated
-        run: npx playwright test e2e/v4-board.spec.ts --project=iphone-se --repeat-each=12 --workers=4 --reporter=line 2>&1 | tail -150
+        run: |
+          set +e
+          npx playwright test e2e/v4-board.spec.ts --project=iphone-se --repeat-each=12 --workers=4 --reporter=list > out.txt 2>&1
+          echo "exit: $?"
+          grep -cE '^\s+✘' out.txt | sed 's/^/failed results: /'
+          echo '---- failure blocks (with tap logs) ----'
+          sed -n '/^  1) /,$p' out.txt | head -400
+          echo '---- summary ----'
+          tail -12 out.txt
         env: { CI: 'true' }

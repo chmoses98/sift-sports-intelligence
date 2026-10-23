@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, NEBUF, NHL_FIXTURE, noHorizontalOverflow, NOW, test } from './fixtures';
+import { expect, NEBUF, NHL_FIXTURE, noHorizontalOverflow, NOW, reloadWhenSettled, settle, test } from './fixtures';
 import { installSlates, type SlateSpec } from './slates';
 
 test.use({ timezoneId: 'America/Chicago' });
@@ -98,7 +98,7 @@ test.describe('v4 Home', () => {
     await expect.poll(() => page.evaluate(() => localStorage.getItem('sift.v4.follow'))).toMatch(/^\["[A-Z]+:[A-Z]+"\]$/);
     await page.getByRole('button', { name: /^Following \d/ }).click();
     await expect(page.getByText(/None of the teams you follow play|\d/).first()).toBeVisible();
-    await page.reload();
+    await reloadWhenSettled(page);
     await expect(page.getByRole('button', { name: /^Following, 1 team/ })).toBeVisible();
   });
 
@@ -197,7 +197,7 @@ test.describe('v4 behaviour', () => {
     await page.getByRole('button', { name: 'Back' }).click();
     await expect(page).toHaveURL(/#\/v4$/);
     await page.goto(`#/v4/game/nfl/${NEBUF}`);
-    await page.reload();
+    await reloadWhenSettled(page);
     await page.getByRole('button', { name: 'Back' }).click();
     await expect(page).toHaveURL(/#\/v4$/);
   });
@@ -372,20 +372,21 @@ test.describe('v4 game default tabs and remembered selection', () => {
     await page.clock.fastForward(6 * 3600_000);
     await expect(page.locator('.v4-badge').first()).toHaveText(/AWAITING RESULT|FINAL/);
     await expect(page.getByRole('tab', { name: 'Markets' })).toHaveAttribute('aria-selected', 'true');
-    await page.reload();
+    await reloadWhenSettled(page);
     await expect(page.getByRole('tab', { name: 'Markets' })).toHaveAttribute('aria-selected', 'true');
   });
 
   test('a tab in the address (a deep link, a reload) wins over the default, and changing tabs does not stack history @smoke', async ({ page }) => {
     await open(page, `/game/nfl/${NEBUF}?tab=players`);
     await expect(page.getByRole('tab', { name: 'Players' })).toHaveAttribute('aria-selected', 'true');
-    await page.reload();
+    await reloadWhenSettled(page);
     await expect(page.getByRole('tab', { name: 'Players' })).toHaveAttribute('aria-selected', 'true');
     await page.getByRole('tab', { name: 'Live' }).click();
     await expect(page).toHaveURL(/tab=live/);
-    await page.reload();
+    await reloadWhenSettled(page);
     await expect(page.getByRole('tab', { name: 'Live' })).toHaveAttribute('aria-selected', 'true');
     // an unknown tab word in the address falls back to the game's default rather than showing nothing
+    await settle(page);
     await page.goto(`#/v4/game/nfl/${NEBUF}?tab=props`);
     await expect(page.getByRole('tab', { name: 'Matchups' })).toHaveAttribute('aria-selected', 'true');
   });

@@ -506,6 +506,9 @@ test.describe('v4 Board: Undo', () => {
     const gameItem = before.tray.items.find((i: { ref_kind: string }) => i.ref_kind === 'EVENT');
     await page.getByRole('button', { name: 'Remove ATL @ NO from My Board' }).click();
     await expect(row(page, 'ATL @ NO')).toHaveCount(0);
+    // the tray persists a moment AFTER the screen changes (a passive effect): reading storage before that read the old tray, so the "second save"
+    // below was built on it and the page's own later write replaced it (the row stayed gone on a slow WebKit runner, 2026-10-22). Wait for the removal.
+    await storedWith(page, before.tray.items.length - 1);
     // the same game saved again from SIFT 2.0 in this page while the offer is open: same identity, a newer time
     const RESAVED = '2026-10-04T14:59:00Z';
     await page.evaluate(([key, item, label, at]) => {

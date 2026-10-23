@@ -51,6 +51,12 @@ jobs:
           npx playwright test -c playwright.default.config.ts
         env:
           CI: 'true'
+      - name: Failure context (each failed test's page snapshot, readable from this log; the traces are artifacts)
+        if: failure()
+        run: |
+          for f in $(find test-results -name error-context.md 2>/dev/null | sort | head -20); do
+            echo "::group::$f"; head -120 "$f"; echo "::endgroup::"
+          done
       - name: Journey screenshots
         if: always()
         uses: actions/upload-artifact@v4

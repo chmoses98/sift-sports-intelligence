@@ -45,7 +45,7 @@ describe('Props → NBA/CFB game list on a phone', () => {
     choose(/Away T9A @ Home T9H/);
     expect(scroll).toHaveBeenCalledTimes(1);
     const target = scroll.mock.contexts[0] as HTMLElement;
-    expect(target.textContent).toContain('NBA player forecasts');        // the chosen game's panel, not the list
+    expect(target.textContent).toContain('NBA player projections');        // the chosen game's panel, not the list
     expect(target.querySelector('[aria-label="Choose a projected game"]')).toBeNull();
     expect(scroll.mock.calls[0][0]).toMatchObject({ block: 'start' });
     expect(screen.getByRole('button', { name: /Away T9A @ Home T9H/ }).getAttribute('aria-pressed')).toBe('true');

@@ -123,13 +123,13 @@ with the 95% interval of the score difference (challenger − incumbent, negativ
 | CFB | receptions | Established model | beats baseline [-0.0339, -0.0272] (no incumbent) | n/a (not promoted) | Held |
 | CFB | rushing yards | Established model | beats baseline [-1.1, -0.89] (no incumbent) | n/a (not promoted) | Held |
 | CFB | targets | Established model | no holdout | n/a (not promoted) | Held |
-| NBA | assists | Established model (until live inputs verified) | +9.0% vs incumbent [-0.0938, -0.0849] | Pending | Approved, activation pending |
-| NBA | fga | Established model (until live inputs verified) | +16.5% vs incumbent [-0.392, -0.366] | Pending | Approved, activation pending |
-| NBA | minutes | Established model (until live inputs verified) | +25.2% vs incumbent [-1.18, -1.11] | Pending | Approved, activation pending |
-| NBA | points | Established model (until live inputs verified) | +10.8% vs incumbent [-0.401, -0.366] | Pending | Approved, activation pending |
-| NBA | pra | Established model (until live inputs verified) | +14.4% vs incumbent [-0.728, -0.672] | Pending | Approved, activation pending |
-| NBA | rebounds | Established model (until live inputs verified) | +10.9% vs incumbent [-0.166, -0.152] | Pending | Approved, activation pending |
-| NBA | threes | Established model (until live inputs verified) | +5.8% vs incumbent [-0.0381, -0.0337] | Pending | Approved, activation pending |
+| NBA | assists | Projection Foundation | +9.0% vs incumbent [-0.0938, -0.0849] | Ready | **Promoted** (2026-10-23) |
+| NBA | fga | Projection Foundation | +16.5% vs incumbent [-0.392, -0.366] | Ready | **Promoted** (2026-10-23) |
+| NBA | minutes | Projection Foundation | +25.2% vs incumbent [-1.18, -1.11] | Ready | **Promoted** (2026-10-23) |
+| NBA | points | Projection Foundation | +10.8% vs incumbent [-0.401, -0.366] | Ready | **Promoted** (2026-10-23) |
+| NBA | pra | Projection Foundation | +14.4% vs incumbent [-0.728, -0.672] | Ready | **Promoted** (2026-10-23) |
+| NBA | rebounds | Projection Foundation | +10.9% vs incumbent [-0.166, -0.152] | Ready | **Promoted** (2026-10-23) |
+| NBA | threes | Projection Foundation | +5.8% vs incumbent [-0.0381, -0.0337] | Ready | **Promoted** (2026-10-23) |
 | NBA | team points | Established model | beats baseline [-0.42, -0.251] (no incumbent) | n/a (not promoted) | Held |
 | MLB | batters faced | Projection Foundation | +11.6% vs incumbent [-0.268, -0.229] | Ready | **Promoted** |
 | MLB | outs | Projection Foundation | +3.8% vs incumbent [-0.0914, -0.0631] | Ready | **Promoted** |
@@ -164,7 +164,8 @@ with the 95% interval of the score difference (challenger − incumbent, negativ
 * **MLB hitters** — held until point-in-time lineup integrity is established over a live record; hitters are archived only from a posted lineup card, and there is no injury/IL source.
 * **NHL shots, assists, points, goals** — significant but marginal (0.15–0.95%); **goalie saves** — the challenger is worse than the incumbent saves model.
 * **CFB success rate** stays on the matrix as promoted but its number is **withheld**: on the 2026 games so far the 80% range caught 73.2% (see `PROJECTION_ABSOLUTE_ACCURACY.md`). It is the one family that failed the absolute publication standard.
-* **NBA (all seven candidates)** — the strongest historical result in the study (minutes +25.2%, PRA +14.4%, FGA +16.5%, points +10.8%), approved on history and **not yet live**: see §4.
+* **NBA team points** — shadow validation only and no incumbent comparison; not part of the 2026-10-23 promotion and still HELD.
+* **NBA (the seven player families)** — the strongest historical result in the study (minutes +25.2%, PRA +14.4%, FGA +16.5%, points +10.8%); **promoted 2026-10-23** once the live official injury report and a clean roster audit were proven on three independent READY feeds (§11).
 
 ## 4. Live-data status
 
@@ -173,7 +174,7 @@ with the 95% interval of the score difference (challenger − incumbent, negativ
 | NFL | ESPN, Sleeper and nflverse injuries (REPORTED), depth chart (PROJECTED), roster inactive list (CONFIRMED) | **Ready.** The first run on `main` (manual dispatch, run 39097687041, which created `projection-data`) published 863 players; for receptions: 132 PASS, 8 BLOCK (confirmed out), 25 REVIEW. Official inactives arrive about 90 minutes before kickoff. The feed flags a player's first four games with a new team; SIFT lowers those to Low reliability. |
 | CFB | team-level families need no player availability | **Ready for team families.** The first publish had no games in its window (it is Sunday), so no CFB projection exists yet; the next scheduled run with a slate in its window is the first. Until then a CFB team projection is withheld with "not published yet", never replaced. CFB player availability is not usable. |
 | MLB | statsapi probables (PROJECTED), posted lineup cards (CONFIRMED); a replaced probable becomes NOT_STARTING | **Ready for pitchers.** The probable with a posted card was the actual starter 1011/1014 times. SIFT additionally requires a confirmed or probable starter, so an unverified pitcher is withheld. The regular season is over; postseason slates exercise it. Hitters: not ready (no IL source). |
-| NBA | official NBA injury report (REPORTED/CONFIRMED_OUT), ESPN injuries and starters (PROJECTED) | **Not yet proven live.** The first publish ran and created `projection-data`, but no projections were written: no NBA game is inside the run window, and the official-report path has not run on a slate (first reports are expected 2026-10-19/20). Activation is held for this reason alone. |
+| NBA | official NBA injury report (REPORTED/CONFIRMED_OUT), ESPN injuries and starters (PROJECTED) | **Proven live (2026-10-23).** At the 2026-10-18 publish no NBA game was in the window; since then the official injury report path has run on real slates and three independent feeds (00:39Z, 01:39Z and 16:03Z on 2026-10-23) read READY on both gates with zero roster-audit errors. The seven player families are promoted (§11). |
 | NHL | DailyFaceoff goalies/lines, ESPN injuries, official roster | Ready, but no NHL family is promoted. First publish (run 39097694994): 288 players, gate 258 PASS / 30 REVIEW. |
 
 The existing approximately 2.4-minute NBA minutes under-projection of the established model is acknowledged: the Projection
@@ -185,7 +186,7 @@ slates. The Research Lab accuracy card says so until games settle, and keeps his
 
 ## 5. Operations
 
-**Activate a pending family (NBA).** When `research/projection_foundation/monitor.py` (scheduled every six hours) reports the
+**Activate a pending family.** (Done for NBA on 2026-10-23, §11.) When `research/projection_foundation/monitor.py` (scheduled every six hours) reports the
 family's availability as verified from an official report on a real slate, change its row in
 `src/lib/projectionApprovals.ts` from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED`, add
 `requiresVerifiedParticipation: true` if the family is a starter-dependent stat, and note the date here. Nothing activates
@@ -246,6 +247,7 @@ Findings and fixes from this check:
 | 2026-10-18 | CFB join fixed: the feed names teams and ESPN ids, not SIFT codes, so no CFB game would have matched; the join now uses ESPN ids | `tests/projectionAuthority.test.ts`, `e2e/cfb.spec.ts` | found in verification |
 | 2026-10-18 | Production data path verified for NFL, CFB, MLB (§7) | `scripts/verify-projection-feeds.ts` | verification |
 | 2026-10-18 | NHL season derived from the calendar (NHL-edge-finder#45), so 2027-28 needs no code change; smoke `--date auto` no longer picks a slate the archive still shows as live | `test_nhl_season.py`, pr-replay on the PR | owner-requested |
+| 2026-10-23 | NBA promoted: minutes, points, rebounds, assists, threes, PRA, FGA move from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED`, each with an approved established-model fallback limited to a missing, stale or unpublished feed; team points stays `HELD`. The v4 Game → Players and Props → NBA surfaces now read the approved projection authority instead of showing raw Foundation rows as a research preview | §3, §11, `tests/nbaProjection.test.ts`, `tests/v4NbaPlayers.test.tsx`, `tests/nbaActivation.test.ts`, `e2e/v4-nba-projections.spec.ts`; three consecutive independent READY feeds and a final joint READY verdict immediately before activation | owner-authorized |
 
 ## 9. Release readiness (SIFT)
 
@@ -270,7 +272,7 @@ merged separately. Merging to `main` **deploys** (see `deploy.yml`), so the merg
 
 ### Known blockers and limits
 
-- **NBA stays held** until the official injury report has been seen live with a real slate (no NBA games in the publication window yet).
+- **NBA stayed held** at this release until the official injury report had been seen live with a real slate. Superseded: promoted 2026-10-23 (§11).
 - **CFB success rate is withheld**: it does not meet the absolute publication standard.
 - **CFB in-window projections** cannot be seen until the feed's first in-season run (Tuesday); until then every CFB game shows a withheld reason, never a number.
 - **Receptions fallback** is limited to players with known segments (§1a).
@@ -380,3 +382,22 @@ promotion needs a separate approved change and a pre-game run of both verifiers 
 **Activation (needs explicit approval, one change).** Change the seven NBA rows from `APPROVED_PENDING_LIVE_INPUTS` to `PROMOTED` in `src/lib/projectionApprovals.ts`, update the
 matrix in §3, and re-run `npx vitest run`, the Playwright suites and `scripts/verify-nba-activation.ts` on that head. No correction is applied to the
 established model's historical minutes under-projection: the Foundation minutes model is the one that removes it, and it is selected only through approval.
+
+### Activation, 2026-10-23
+
+**Decision.** The owner accepted the three consecutive independent READY feeds (nba-activation-joint: both `activation_check` and SIFT's `verify-nba-activation.ts` READY, D3 and D5 passing, zero roster-audit errors) and approved the promotion of the seven player families with the fallback policy below. NBA `team_points` stays `HELD`.
+
+**What changed.**
+
+* `src/lib/projectionApprovals.ts`: the seven NBA rows are `PROMOTED` (engine: Projection Foundation) with `approvedOn: 2026-10-23`. Each carries a fallback approval; `team_points` is `HELD`.
+* `src/lib/nbaActivation.ts` and `scripts/verify-nba-activation.ts`: S1 now asserts the promotion is in force *and narrow* (exactly these seven are promoted, with fallback; team points is HELD; no other NBA family is promoted), and S2–S9 are evaluated through the live authority rather than a preview. New S10 asserts that the fallback stays closed on a current feed. READY still needs both gates READY on the same feed (at most 6 hours old) with a same-slate roster audit.
+* `src/lib/nbaProjection.ts`: the v4 NBA surfaces resolve every player and stat through the authority, one projection each.
+* `src/v4/ProjectionPanels.tsx`, `src/v4/propsData.ts`: Game → Players and Props → NBA show "SIFT projection · approved for production" (or "· Low reliability" with the reason), a withheld count with reasons, and no "research preview" wording. Projection accuracy is never presented as betting value.
+
+**Fallback policy (owner-approved 2026-10-23).** The established NBA projection may be shown instead of SIFT's only when the cause is `FEED_UNAVAILABLE`, `STALE` or `NOT_PUBLISHED`, and only if it independently passes freshness (48 h), availability (listed ACTIVE / PROBABLE / AVAILABLE or no designation), participation and quality (finite, non-negative, coherent range containing the mean). Never for `GATE_BLOCK`, `INCOHERENT`, a ruled-out player, a family that is not READY, or any other disqualifying condition. Exactly one projection is shown for each player and stat, never beside the SIFT number, labelled:
+
+> **Established projection** — The current SIFT forecast is unavailable or not yet published. Showing the established model's projection instead.
+
+**Known limit: the fallback has no data today.** The established NBA publication (`nba-edge-finder` `app/latest`) carries `model_prices: 0` and no per-player projections, so there is no established number to fall back to. The mechanism is approved, implemented and tested (`NBA_ESTABLISHED_ROWS` in `src/lib/nbaProjection.ts` is empty); until the publication carries per-player rows, a stale, missing or unpublished feed shows no number and says why. Wiring a loader for such rows is the only change then needed.
+
+**Roll back one family without reverting the deployment.** Build with `VITE_SIFT_PROJECTION_ENGINES="NBA:points=legacy"` (several entries separated by `;`, `NBA:*=legacy` for the whole sport). A rolled-back NBA stat has no established per-player number to show, so it is withheld until the publication has one. For a permanent rollback, change the row to `RETAINED` or `HELD`.

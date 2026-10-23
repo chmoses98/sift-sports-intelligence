@@ -79,12 +79,17 @@ const row = (sport: ProjSport, family: string, decision: Decision, competing: bo
 const withFallback = (a: Approval, approval: string, extra: Partial<FallbackApproval> = {}): Approval => ({
   ...a, fallback: { engine: 'legacy', approvedOn: D, approval, triggers: ['FEED_UNAVAILABLE', 'STALE', 'NOT_PUBLISHED'], ...extra },
 });
+/** The owner's approval of the NBA fallback (2026-10-23); same triggers and independent checks as NFL and MLB. */
+const NBA_DATE = '2026-10-23';
+const FB_NBA = 'Owner-approved 2026-10-23: while the feed is missing, stale or has not yet published a game, the established NBA projection may be shown if it is fresh, the player is listed available, and its projection is coherent. Never for a player who is ruled out, a projection the quality gate blocked, or an incoherent one. Exactly one projection is shown for each player and stat.';
+/** Stamp a row (and its fallback approval) with the date the owner approved it, where that is not the original 2026-10-18 batch. */
+const approvedOn = (a: Approval, date: string): Approval => ({ ...a, approvedOn: date, fallback: a.fallback ? { ...a.fallback, approvedOn: date } : null });
 const FB_NFL = 'Owner-approved 2026-10-18: while the feed is missing, stale or has not yet published a game, the established simulation may be shown if it is fresh, the player is listed available, and its projection is coherent.';
 const FB_MLB = 'Owner-approved 2026-10-18: while the feed is missing, stale or has not yet published a game, the established projection may be shown if it is fresh, the publisher projects him as the starter, and it is coherent.';
 
 const NFL_LIVE = 'Ready: ESPN, Sleeper and nflverse injuries plus the roster inactive list (coverage 0.997); player segments published with each row.';
 const NFL_NEWTEAM = 'Ready. First games with a new team run high (targets +18% on development/validation); SIFT lowers the reliability of those rows and says why, and applies no unvalidated correction.';
-const NBA_PENDING = 'Pending: the official NBA injury report path has not run on live data (every captured row is REVIEW until it publishes, expected 2026-10-19/20) and ESPN pregame starters are unverified.';
+const NBA_LIVE = 'Ready: the official NBA injury report path runs on live data (CONFIRMED_OUT / LIKELY_ACTIVE / UNCERTAIN statuses), ESPN injuries and starters are read, and a same-slate roster audit of the published feed found 0 errors on three independent feeds (2026-10-23T00:39Z, 01:39Z and 16:03Z), each read READY by the repository activation check and by SIFT’s own verification.';
 const MLB_LIVE = 'Ready: probable pitchers archived pregame (PROJECTED), replaced probables become NOT_STARTING, posted lineup cards CONFIRMED; the probable with a posted card was the actual starter 1011/1014 times. SIFT withholds a pitcher who is not the confirmed or probable starter.';
 const CFB_TEAM = 'Ready for team-level families: they do not depend on player availability. QB-change rows are lowered to REVIEW. Player availability is not available (ESPN returns stale records), so CFB player families stay out.';
 
@@ -121,14 +126,14 @@ const RAW_APPROVALS: readonly Approval[] = [
   row('CFB', 'player_week1', 'HELD', false, 'Inadequate: no depth chart for week 1.', 'INSUFFICIENT DATA.'),
 
   // ---- NBA -------------------------------------------------------------------------------------------------------------
-  row('NBA', 'minutes', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 25.2% of its holdout CRPS and removes the incumbent’s −2.4 minute bias. Held only for live availability.'),
-  row('NBA', 'points', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 10.8% of its holdout CRPS.'),
-  row('NBA', 'rebounds', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 10.9% of its holdout CRPS.'),
-  row('NBA', 'assists', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 9.0% of its holdout CRPS.'),
-  row('NBA', 'threes', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 5.8% of its holdout CRPS.'),
-  row('NBA', 'pra', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 14.4% of its holdout CRPS.'),
-  row('NBA', 'fga', 'APPROVED_PENDING_LIVE_INPUTS', true, NBA_PENDING, 'READY; beats the incumbent by 16.5% of its holdout CRPS.'),
-  row('NBA', 'team_points', 'HELD', true, NBA_PENDING, 'SHADOW VALIDATION and no incumbent comparison; not in the initial promotion set.'),
+  approvedOn(withFallback(row('NBA', 'minutes', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 25.2% of its holdout CRPS (CI excludes 0) and removes the incumbent’s −2.4 minute bias.'), FB_NBA), NBA_DATE),
+  approvedOn(withFallback(row('NBA', 'points', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 10.8% of its holdout CRPS (CI excludes 0).'), FB_NBA), NBA_DATE),
+  approvedOn(withFallback(row('NBA', 'rebounds', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 10.9% of its holdout CRPS (CI excludes 0).'), FB_NBA), NBA_DATE),
+  approvedOn(withFallback(row('NBA', 'assists', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 9.0% of its holdout CRPS (CI excludes 0).'), FB_NBA), NBA_DATE),
+  approvedOn(withFallback(row('NBA', 'threes', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 5.8% of its holdout CRPS (CI excludes 0).'), FB_NBA), NBA_DATE),
+  approvedOn(withFallback(row('NBA', 'pra', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 14.4% of its holdout CRPS (CI excludes 0).'), FB_NBA), NBA_DATE),
+  approvedOn(withFallback(row('NBA', 'fga', 'PROMOTED', true, NBA_LIVE, 'READY; beats the incumbent by 16.5% of its holdout CRPS (CI excludes 0).'), FB_NBA), NBA_DATE),
+  row('NBA', 'team_points', 'HELD', true, NBA_LIVE, 'SHADOW VALIDATION and no incumbent comparison; not in the initial promotion set.'),
 
   // ---- MLB -------------------------------------------------------------------------------------------------------------
   { ...withFallback(row('MLB', 'pitcher_strikeouts', 'PROMOTED', true, MLB_LIVE, 'READY; beats the production pitcher engine by 2.6% of its holdout CRPS (CI excludes 0) on the 2026 holdout.'), FB_MLB), requiresVerifiedParticipation: true },

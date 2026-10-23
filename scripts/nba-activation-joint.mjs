@@ -1,6 +1,6 @@
 // Joint NBA activation verdict: the repository's `nba.live.activation_check` and SIFT's `scripts/verify-nba-activation.ts` judged on ONE feed.
-// Read-only. It changes no approval and cannot promote: promotion is a reviewed edit of src/lib/projectionApprovals.ts by a person, and only when
-// this reads READY.
+// Read-only. It changes no approval and cannot promote: a promotion (or re-activation) is a reviewed edit of src/lib/projectionApprovals.ts by a person,
+// made only when this reads READY on a fresh feed, immediately before the change.
 //
 //   node scripts/nba-activation-joint.mjs --feed FEED.json --activation ACTIVATION.json --sift SIFT.json [--audit AUDIT.json] [--out JOINT.json]
 //
@@ -31,7 +31,7 @@ const hoursSince = (iso) => (Date.now() - Date.parse(iso)) / 3.6e6;
 
 const checks = [
   gate('repository activation check READY', act.verdict === 'READY', `verdict ${act.verdict}${act.remaining?.length ? ` · remaining: ${act.remaining.join(' | ')}` : ''}`),
-  gate('SIFT verification READY', sift.ready === true, sift.ready ? 'S1-S9 pass' : `not ready: ${(sift.checks ?? []).filter((c) => c.status !== 'PASS').map((c) => `${c.id} ${c.status}: ${c.detail}`).join(' | ')}`),
+  gate('SIFT verification READY', sift.ready === true, sift.ready ? 'every SIFT check passes' : `not ready: ${(sift.checks ?? []).filter((c) => c.status !== 'PASS').map((c) => `${c.id} ${c.status}: ${c.detail}`).join(' | ')}`),
   gate('both judged the same feed', act.projection_generated_utc === feed.generated_utc && String(sift.checks?.find((c) => c.id === 'S2')?.detail ?? '').includes(feed.generated_utc),
     `feed ${feed.generated_utc} · activation check read ${act.projection_generated_utc} · SIFT read "${sift.checks?.find((c) => c.id === 'S2')?.detail ?? 'no S2'}"`),
   gate('the feed is current', Number.isFinite(hoursSince(feed.data_asof_utc)) && hoursSince(feed.data_asof_utc) <= 6, `inputs ${hoursSince(feed.data_asof_utc).toFixed(1)} h old (limit 6 h for a joint verdict; SIFT itself allows 48 h)`),
@@ -53,6 +53,6 @@ if (arg('--out')) writeFileSync(arg('--out'), JSON.stringify(out, null, 1));
 for (const c of checks) console.log(`${c.ok ? 'PASS' : 'FAIL'}  ${c.name}: ${c.detail}`);
 if (audit?.genuine_roster_errors) console.log(`\nroster audit errors (${audit.genuine_roster_errors}):\n${(audit.errors ?? []).slice(0, 20).map((e) => `  - ${e}`).join('\n')}`);
 console.log(ready
-  ? `\nJOINT: READY on feed ${feed.generated_utc}. Both gates independently read READY; promotion still needs a reviewed edit of projectionApprovals.ts and the owner's approval.`
+  ? `\nJOINT: READY on feed ${feed.generated_utc}. Both gates independently read READY; a promotion or re-activation still needs the reviewed edit of projectionApprovals.ts and the owner's approval.`
   : `\nJOINT: NOT READY on feed ${feed.generated_utc}. Keep the research previews; change nothing in projectionApprovals.ts.\n- ${problems.join('\n- ')}`);
 process.exit(ready ? 0 : 1);

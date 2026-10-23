@@ -166,7 +166,7 @@ const stale = new Date(NOW - 12 * 864e5).toISOString();
 describe('which stats may fall back (explicit approvals)', () => {
   it('only promoted stats that already have a production number SIFT shows, never a descriptive baseline', () => {
     const fb = APPROVALS.filter((a) => a.fallback).map((a) => `${a.sport}:${a.family}`).sort();
-    expect(fb).toEqual(['MLB:outs', 'MLB:pitcher_strikeouts', 'NFL:completions', 'NFL:receptions']);
+    expect(fb).toEqual(['MLB:outs', 'MLB:pitcher_strikeouts', 'NBA:assists', 'NBA:fga', 'NBA:minutes', 'NBA:points', 'NBA:pra', 'NBA:rebounds', 'NBA:threes', 'NFL:completions', 'NFL:receptions']);
     for (const a of APPROVALS.filter((x) => x.fallback)) {
       expect(a.decision).toBe('PROMOTED');
       expect(a.competingProductionNumber).toBe(true);

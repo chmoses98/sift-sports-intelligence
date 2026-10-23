@@ -2,7 +2,7 @@
 
 Audit for PR #113 (Milestone 2A). **Nothing here is activated.** No approval, feed, threshold or Kalshi route was changed;
 this is a reading of what exists so the owner can decide what, if anything, to promote next. v4 Props keeps NFL as the only
-sport with player research; MLB and NHL stay market-only browsing, and NBA has no v4 Props surface.
+sport with player research; MLB and NHL stay market-only browsing. (Update 2026-10-23: NBA is promoted and v4 Props → NBA and Game → Players show the approved projections; see the NBA section.)
 
 Sources read: `src/lib/projectionApprovals.ts` (the decision table), `src/lib/projections.ts` (feed contract, freshness),
 `src/data/projections.ts` (loader), `src/insights/propBoard.ts` (the NFL prop board), and, read-only, the live
@@ -31,7 +31,7 @@ For a stat to get the NFL treatment on a player page, all of these must hold for
 
 | Sport | Family | Decision | Number SIFT shows |
 |---|---|---|---|
-| NBA | minutes, points, rebounds, assists, threes, pra, fga | `APPROVED_PENDING_LIVE_INPUTS` | established (legacy) engine |
+| NBA | minutes, points, rebounds, assists, threes, pra, fga | `PROMOTED` 2026-10-23 (approved fallback for a missing, stale or unpublished feed only) | foundation |
 | NBA | team_points | `HELD` | established |
 | MLB | pitcher_strikeouts, batters_faced, outs | `PROMOTED` (participation must be verified; strikeouts and outs have an approved fallback) | foundation |
 | MLB | pitcher_walks, pitcher_hits_allowed, pitcher_runs_allowed | `HELD` | established |
@@ -41,26 +41,23 @@ For a stat to get the NFL treatment on a player page, all of these must hold for
 
 ## Findings by sport
 
-### NBA — closest to eligible, blocked by one owner decision and two input checks
+### NBA — promoted 2026-10-23 (seven player families); team points HELD
 
-- **Evidence is done.** All seven player families beat the incumbent on holdout (CRPS gains 5.8%–25.2%), and `minutes` also
-  removes the incumbent's −2.4 minute bias. They are held *only* for live availability inputs.
-- **The live feed is running.** On 2026-10-21 the feed (`pf-nba pf-1.2.1`, generated 15:38Z, 11 games) carries 2,660 player
-  rows across the seven families, all `READY`, each with a distribution (`thresholds`, p10/p90), an opportunity block and an
-  opponent adjustment. Participation is read from `nba_official_injury_report` (300 `LIKELY_ACTIVE`, 47 `CONFIRMED_OUT`,
-  29 `UNCERTAIN` (16 of them from ESPN injuries), 4 `LIKELY_OUT` in the points family).
-- **Not yet cleared in the approvals table.** The table still says the official injury report path "has not run on live
-  data" and that ESPN pregame starters are unverified. The feed above shows the report path now runs; no one has recorded
-  that as the live proof, and `LIKELY_ACTIVE` is a projection, not a confirmation. Gate status in the same feed is mixed
-  (96 `PASS`, 237 `REVIEW`, 47 `BLOCK` per family), so most rows would be withheld or shown with a reliability caveat.
-- **Identity.** Feed ids are `espn:<id>`. Whether they map one-to-one onto the NBA publication's participants and onto
-  Kalshi's NBA player markets is **not verified** here.
-- **Kalshi ladders.** Whether the NBA publication lists Kalshi player markets with capture times is **not verified** here.
-  The opportunity layer separately says the NBA publication prices no contract and its own study finds the market beating
-  its model in 8 of 8 families, so a v4 NBA surface would be research only.
-- **To enable (all outside this PR):** (a) the owner records the live-input proof and changes the approval rows, which is
-  the only way a promotion happens; (b) a basketball stat-definition set and matchup source for the board; (c) an identity
-  check against the NBA participants and Kalshi tickers; (d) the gate/participation states shown as v4 already does for NFL.
+- **Decision.** The owner accepted three consecutive independent READY feeds and promoted `minutes`, `points`, `rebounds`, `assists`, `threes`, `pra` and `fga`
+  (CRPS gains 5.8%–25.2% over the incumbent; `minutes` also removes the incumbent's −2.4 minute bias). `team_points` stays `HELD` (shadow validation, no incumbent
+  comparison). See `PROJECTION_PROMOTION.md` §11.
+- **What v4 shows.** Game → Players and Props → NBA resolve every player and stat through the approved authority (`src/lib/nbaProjection.ts`): one projection each,
+  labelled "SIFT projection · approved for production" (or "· Low reliability" with the reason for an uncertain player). A ruled-out player, a row the quality gate
+  blocked, an incoherent range, or a stat that is not READY has no number, and the panel says how many were withheld and why. The raw Foundation rows are no
+  longer shown as a "research preview". Reliability describes data quality, never betting value; projections are not bet recommendations.
+- **Fallback.** Approved only for a missing, stale or unpublished feed, and only if the established projection itself passes freshness, availability and quality.
+  Shown alone, never beside the SIFT number, as "Established projection — The current SIFT forecast is unavailable or not yet published. Showing the established
+  model's projection instead." Never for `GATE_BLOCK`, `INCOHERENT` or a ruled-out player.
+- **Finding: the fallback has no data today.** The established NBA publication carries `model_prices: 0` and no per-player projections. A stale or missing feed therefore
+  shows no number and the reason. Wiring a loader into `NBA_ESTABLISHED_ROWS` is the only change needed once rows exist.
+- **Props → NBA** lists only games the feed can be matched to by team and start time. With no feed it shows "No matched upcoming forecasts".
+- **Still not verified here.** That feed ids (`espn:<id>`) map one-to-one onto Kalshi's NBA player markets, and any Kalshi ladder comparison: v4 NBA shows projections only,
+  with no market price, edge or recommendation.
 
 ### MLB — pitchers only, and nothing to show today
 
@@ -94,8 +91,8 @@ For a stat to get the NFL treatment on a player page, all of these must hold for
 
 ## What is and is not changed by this audit
 
-- No approval row, engine choice, freshness window, fallback or `MAX_AGE_H` changed.
-- No v4 surface for NBA, MLB or NHL player projections exists or was added. MLB and NHL keep the market-only browsing that
+- (2026-10-23) The seven NBA player rows were promoted and the v4 NBA surfaces now read the authority; nothing else in the approvals table changed.
+- No v4 surface for MLB or NHL player projections exists or was added. MLB and NHL keep the market-only browsing that
   PR #113 ships; v4 still never shows a projection the approvals table does not authorise.
 - Anything marked **not verified** above is an open question for the owner or for a follow-up with real rows, not a finding.
 

@@ -1,0 +1,35 @@
+name: Repro iPhone SE Board Remove (temporary)
+
+# Temporary diagnostic, never merged: runs the v4 Board smoke tests on WebKit iPhone SE many times, on main as it is ("baseline") and with the
+# Board-at-rest change from claude/board-tap-at-rest ("at-rest"), so the Remove-button failure and its tap telemetry can be read from the log.
+on:
+  push:
+    branches: ['claude/repro-se-board']
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, at-rest]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Use the Board-at-rest tests
+        if: matrix.variant == 'at-rest'
+        run: git checkout origin/claude/board-tap-at-rest -- e2e
+      - run: npm run build:e2e
+      - name: Install Chromium and WebKit
+        timeout-minutes: 65
+        run: timeout 3000 npx playwright install --with-deps chromium webkit
+      - name: Board smoke on iPhone SE, repeated
+        run: npx playwright test e2e/v4-board.spec.ts --project=iphone-se --repeat-each=12 --workers=4 --reporter=line 2>&1 | tail -150
+        env: { CI: 'true' }

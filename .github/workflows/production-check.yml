@@ -15,7 +15,7 @@ jobs:
   check:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,22 +32,22 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium-webkit
-      - name: Install Chromium and WebKit (bounded and retried)
-        timeout-minutes: 20
+      - name: Install Chromium and WebKit (patient first attempt, then one retry)
+        timeout-minutes: 65
         run: |
-          # `timeout` cannot stop the root-owned apt-get that `playwright install --with-deps` starts through sudo: it keeps the dpkg lock, and
-          # every later attempt then fails instantly with "Could not get lock" (seen 2026-10-23). So after a stalled or failed attempt the
-          # stale apt processes are stopped (as root), a running dpkg is waited for, and the half-done state is repaired before the next attempt.
+          # 2026-10-23: the apt mirror was throttled (about 45 KB/s for 119 MB of system packages), and three 240 s attempts all gave up, so the
+          # live-site checks ran without a browser. A slow mirror needs about 45 minutes in one go; a genuine hang (33 minutes seen earlier) is
+          # still bounded. `timeout` cannot stop the root-owned apt-get that `playwright install --with-deps` starts through sudo: it keeps the
+          # dpkg lock and every later attempt then fails instantly ("Could not get lock"), so a stalled apt is cleared before the one retry.
           clear_apt() {
             sudo pkill -x apt-get || true; sudo pkill -x apt || true
             for _ in $(seq 1 60); do pgrep -x dpkg >/dev/null || break; sleep 5; done
             sudo dpkg --configure -a || true
           }
-          for attempt in 1 2 3; do
-            if timeout 240 npx playwright install --with-deps chromium webkit; then exit 0; fi
-            echo "install attempt $attempt failed or stalled (240 s limit); clearing apt and retrying"; clear_apt; sleep 10
-          done
-          echo "Playwright could not be installed after 3 bounded attempts"; exit 1
+          if timeout 2700 npx playwright install --with-deps chromium webkit; then exit 0; fi
+          echo "install attempt 1 failed or stalled (45 min limit); clearing apt and retrying once"; clear_apt; sleep 10
+          if timeout 900 npx playwright install --with-deps chromium webkit; then exit 0; fi
+          echo "Playwright could not be installed"; exit 1
       - name: Check the live site (Chromium phone + WebKit iPhone)
         run: node scripts/production-check.mjs
         env:

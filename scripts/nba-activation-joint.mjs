@@ -46,11 +46,12 @@ const out = {
   feed: { generated_utc: feed.generated_utc, data_asof_utc: feed.data_asof_utc, slate: feed.slate_date, games: feed.games?.length, rows: feed.players?.length, sha256: createHash('sha256').update(feedBytes).digest('hex') },
   activation_check: { verdict: act.verdict, remaining: act.remaining ?? [] },
   sift_verification: { ready: sift.ready, feedAgeHours: sift.feedAgeHours, checks: (sift.checks ?? []).map((c) => `${c.id} ${c.status}`) },
-  roster_audit: audit ? { feed_generated_utc: audit.feed_generated_utc, slate: audit.slate, checked_utc: audit.checked_utc, errors: audit.genuine_roster_errors, feed_sha256: audit.feed_sha256 } : null,
+  roster_audit: audit ? { feed_generated_utc: audit.feed_generated_utc, slate: audit.slate, checked_utc: audit.checked_utc, errors: audit.genuine_roster_errors, error_list: audit.errors ?? [], feed_sha256: audit.feed_sha256 } : null,
   checks,
 };
 if (arg('--out')) writeFileSync(arg('--out'), JSON.stringify(out, null, 1));
 for (const c of checks) console.log(`${c.ok ? 'PASS' : 'FAIL'}  ${c.name}: ${c.detail}`);
+if (audit?.genuine_roster_errors) console.log(`\nroster audit errors (${audit.genuine_roster_errors}):\n${(audit.errors ?? []).slice(0, 20).map((e) => `  - ${e}`).join('\n')}`);
 console.log(ready
   ? `\nJOINT: READY on feed ${feed.generated_utc}. Both gates independently read READY; promotion still needs a reviewed edit of projectionApprovals.ts and the owner's approval.`
   : `\nJOINT: NOT READY on feed ${feed.generated_utc}. Keep the research previews; change nothing in projectionApprovals.ts.\n- ${problems.join('\n- ')}`);

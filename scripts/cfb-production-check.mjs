@@ -48,6 +48,9 @@ const CFB_TEAMS = JSON.parse(readFileSync(new URL('../src/lib/cfb-teams.json', i
 const CFB_PUBLIC = JSON.parse(readFileSync(new URL('../src/lib/cfb-public-names.json', import.meta.url), 'utf-8')).names;
 /** The one public-facing name SIFT shows for a contract code (src/lib/cfbTeams.ts cfbName), or null when unknown. */
 const canonicalName = (code) => CFB_PUBLIC[code] ?? CFB_TEAMS[code]?.n ?? null;
+/** What the app shows for a school whose participant row carries no contract code: the publication's own name with "St." spelled out (src/lib/cfbTeams.ts expandState / cfbName). */
+const expandState = (name) => name?.replace(/\s+St\.?$/, ' State').replace(/\s+St\.?\s+\(/, ' State (') ?? name;
+const shownName = (code, published) => canonicalName(code) ?? expandState(published);
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
 
@@ -173,7 +176,7 @@ async function identityCheck(page, name, eventId, label) {
   const item = board.items.find((i) => i.event_id === eventId);
   const away = item?.participants.find((p) => p.participant_id === item.away_participant);
   const home = item?.participants.find((p) => p.participant_id === item.home_participant);
-  const want = `${canonicalName(away?.short_name) ?? away?.display_name} @ ${canonicalName(home?.short_name) ?? home?.display_name}`;
+  const want = `${shownName(away?.short_name, away?.display_name)} @ ${shownName(home?.short_name, home?.display_name)}`;
   for (const [tab, what] of [['', 'overview'], ['?tab=markets', 'Markets'], ['?tab=script', 'Scripts']]) {
     await page.goto(`${BASE}#/cfb/game/${eventId}${tab}`);
     await page.locator('.game').first().waitFor({ timeout: 60_000 });

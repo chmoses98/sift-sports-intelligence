@@ -6,7 +6,7 @@
 //   Research -> Save (YES and NO are different items) -> Board (note, remove, Undo, revisit the research on the saved side) ->
 //   the SAME saved research on the SIFT 2.0 Board, with a pre-v4 save (no side, with a note) untouched throughout.
 //
-// What it proves besides the journey: games in play say live scores are unavailable; the price age the Game page shows matches the quote
+// What it proves besides the journey: games in play show what the score provider (SportScore, NBA) really says, or say the score is unavailable; the price age the Game page shows matches the quote
 // feed's own observation time; missing data is said, never NaN/undefined/zero; no development vocabulary; no horizontal overflow; no page
 // errors. Chromium also does a returning visit with the service worker, offline. Schedule-aware: a part that cannot apply today (no props
 // priced, no game in play) prints N/A with the reason, never a pass.
@@ -17,6 +17,7 @@
 // SIFT_V4_PAUSED=1 (the repository variable SIFT_V4 is "off": check only that v4 says it is paused and SIFT 2.0 is untouched).
 import { chromium, webkit } from '@playwright/test';
 import { sha256 } from '@noble/hashes/sha2.js';
+import { findProviderGame, judgeGamePage, judgeRow, providerNba } from './live-score-expect.mjs';
 
 const BASE = (process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/').replace(/\/?$/, '/');
 const FEED = (process.env.SIFT_FEED_URL ?? 'https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes').replace(/\/+$/, '');
@@ -42,6 +43,29 @@ const trayItemId = (kind, id) => {
 };
 
 const getJson = async (url) => { const r = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`, { headers: { 'cache-control': 'no-cache' } }); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.json(); };
+/** SportScore's NBA games for today and yesterday (UTC), straight from the provider the app reads: the same URL, the same competition filter. [] when it cannot be read. */
+async function fetchProviderNba() {
+  const games = [];
+  let ok = false;
+  for (const d of [0, -1]) {
+    const day = new Date(Date.now() + d * 86_400_000).toISOString().slice(0, 10);
+    try { games.push(...providerNba(await getJson(`https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${day}&limit=200&src=sift-personal`))); ok = true; } catch (e) { console.log(`  (SportScore ${day}: ${first(e)})`); }
+  }
+  return { games, ok };
+}
+/** The Live tab as a user sees it: the score card's fields, the SportScore credit, and whether the page says the score is unavailable. */
+const readLivePage = (page) => page.evaluate(() => {
+  const c = document.querySelector('[data-live-score]');
+  const kv = (k) => [...(c?.querySelectorAll('.v4-kv') ?? [])].find((e) => e.querySelector('.v4-kv__k')?.textContent.trim().startsWith(k))?.querySelector('.v4-kv__v')?.textContent.replace(/\s+/g, ' ').trim() ?? null;
+  const visible = (a) => { const r = a.getBoundingClientRect(); const cs = getComputedStyle(a); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none'; };
+  return {
+    mode: c?.getAttribute('data-live-score') ?? null,
+    heading: c?.querySelector('h3')?.textContent ?? null,
+    score: kv('Score'), period: kv('Period'), status: kv('Status'), source: kv('Source'),
+    credit: [...document.querySelectorAll('a[href^="https://sportscore.com"]')].some((a) => /Powered by SportScore/.test(a.textContent ?? '') && /dofollow/.test(a.rel) && visible(a)),
+    unavailableTitle: /score unavailable|clock and plays are unavailable/i.test(document.querySelector('main')?.innerText ?? ''),
+  };
+});
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const tray = (page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), TRAY_KEY);
 const settled = (page) => page.waitForFunction(() => document.querySelector('[data-v4-shell]') && !document.querySelector('.v4-skel, [aria-label^="Loading"]'), null, { timeout: 60_000 });
@@ -133,7 +157,11 @@ async function journey(browser, device, name) {
     await p0.getByRole('button', { name: /^SIFT v4 early access: about/ }).click();
     const dlg = p0.getByRole('dialog', { name: 'SIFT v4 early access' });
     check(await dlg.getByRole('link', { name: 'Return to SIFT 2.0' }).isVisible(), tag('the early-access sheet offers the way back to SIFT 2.0'));
-    check(/Live scores, game clocks and plays are not available yet/.test(await dlg.innerText()), tag('the sheet says live scores are unavailable'));
+    {
+      const sheetText = await dlg.innerText();
+      check(/Real NBA scores are on by default here \(NFL, college football and NHL scores are not available\)/.test(sheetText), tag('the sheet says what is real: NBA scores on by default, NFL, college football and NHL not available'));
+      check(await dlg.locator('[data-live-scores-section] a[href^="https://sportscore.com"]').first().isVisible().catch(() => false), tag('the sheet credits SportScore with a visible link'));
+    }
     const build = await dlg.locator('[data-v4-build]').innerText();
     console.log(`  ${build}`);
     await p0.keyboard.press('Escape');
@@ -150,16 +178,30 @@ async function journey(browser, device, name) {
     check((await overflow(p0)) <= 1, tag('Home: no horizontal overflow'));
     await p0.screenshot({ path: `production-v4-${name}-home.png` });
 
-    // --- games in play (real status), if any: live scores are unavailable
-    const liveRows = p0.locator('.v4-row--live');
-    const nLive = await liveRows.count();
-    if (nLive) {
-      const t = await liveRows.evaluateAll((rs) => rs.map((r) => r.innerText.replace(/\s+/g, ' ')));
-      check(t.every((x) => /Score n\/a/.test(x)), tag(`${nLive} game(s) in play say "Score n/a"`));
-      check(t.every((x) => !/\b\d+\s*[–-]\s*\d+\b/.test(x)), tag('no in-play row shows a score'));
-      check(/Live scores are not available yet/.test(await p0.locator('main').innerText()), tag('Home says live scores are not available yet'));
-      live = await liveRows.first().locator('a[href*="/v4/game/"]').first().getAttribute('href');
-    } else na(tag('no game is in play right now (live-score labelling is covered by the fixtures suite)'));
+    // --- games in play, judged against what the score provider really says (NBA from SportScore; every other sport has no feed and must say so)
+    const rowsOf = () => p0.locator('.v4-row').evaluateAll((rs) => rs.map((r) => ({
+      href: r.querySelector('a[href*="/v4/game/"]')?.getAttribute('href') ?? '',
+      label: r.querySelector('a[href*="/v4/game/"]')?.getAttribute('aria-label') ?? '',
+      mid: (r.querySelector('.v4-row__mid')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      score: (r.querySelector('.v4-row__sc')?.textContent ?? '').replace(/\s+/g, ' ').trim() || null,
+    })));
+    const inPlayRows = (await rowsOf()).filter((r) => !/Final|^F\b/.test(r.mid) && /In play|^Live|\bLIVE\b|[Ss]tale|Updated \d/.test(r.mid) || (r.score && !/Final|^F\b/.test(r.mid) && /LIVE|[Ss]tale|Updated/.test(r.mid)));
+    if (inPlayRows.length) {
+      const tally = {};
+      for (const r of inPlayRows) {
+        const slug = /\/v4\/game\/([a-z]+)\//.exec(r.href)?.[1] ?? '?';
+        const j = judgeRow({ slug, mid: r.mid, score: r.score });
+        tally[`${slug}:${j.state}`] = (tally[`${slug}:${j.state}`] ?? 0) + 1;
+        check(j.ok, tag(`in-play ${slug} row "${r.mid}"${r.score ? ` ${r.score}` : ''}: ${j.why}`));
+      }
+      console.log(`  in-play rows by sport and state: ${JSON.stringify(tally)}`);
+      const noteText = await p0.locator('[data-feed-note]').first().innerText().catch(() => '');
+      check(/Scores from|not answering|No live score|No game is in its playing window|allowance/.test(noteText) && !/NaN|undefined/.test(noteText), tag(`Home states the score source and its state ("${noteText.replace(/\s+/g, ' ').slice(0, 90)}")`));
+      live = {
+        nba: inPlayRows.find((r) => /\/v4\/game\/nba\//.test(r.href)) ?? null,
+        other: inPlayRows.find((r) => !/\/v4\/game\/(nba|tennis)\//.test(r.href)) ?? null,
+      };
+    } else na(tag('no game is in play right now (every score state is covered by the fixtures suite, e2e/v4-live-scores.spec.ts)'));
 
     // --- Games
     await p0.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Games' }).click();
@@ -186,10 +228,24 @@ async function journey(browser, device, name) {
       check((await overflow(p0)) <= 1, tag('Game: no horizontal overflow'));
       check(!MISSING.test(await p0.locator('main').innerText()), tag('Game shows no NaN/undefined'));
       await p0.screenshot({ path: `production-v4-${name}-game.png` });
-      if (live && live !== pick) {
-        await p0.goto(`${BASE}${live.startsWith('#') ? live : `#${live}`}`);
+      for (const [kind, row] of Object.entries(live ?? {})) {
+        if (!row) continue;
+        const href = row.href;
+        const slug = /\/v4\/game\/([a-z]+)\//.exec(href)?.[1] ?? '?';
+        const sides = /^(.+?) at (.+?), /.exec(row.label);   // "Cleveland Cavaliers at Philadelphia 76ers, Q2 ..., Open game"
+        const query = sides ? { away: sides[1], home: sides[2], startMs: null } : null;
+        const providerBefore = slug === 'nba' ? await fetchProviderNba() : { games: [], ok: true };
+        await p0.goto(`${BASE}${href.startsWith('#') ? href : `#${href}`}`);
         await p0.getByRole('tablist', { name: 'Game sections' }).waitFor({ timeout: 60_000 });
-        check((await p0.getByText('Live score, clock and plays are unavailable').count()) > 0, tag('a game in play says its live score, clock and plays are unavailable'));
+        // the read arrives after the first provider answer: wait for a card or the unavailable statement
+        await p0.waitForFunction(() => document.querySelector('[data-live-score]') || /score unavailable|clock and plays are unavailable/i.test(document.querySelector('main')?.innerText ?? ''), null, { timeout: 45_000 }).catch(() => {});
+        const pageState = await readLivePage(p0);
+        const providerAfter = slug === 'nba' ? await fetchProviderNba() : { games: [], ok: true };
+        const found = (p) => (slug === 'nba' && query ? findProviderGame(p.games, query) : null);
+        const j = judgeGamePage({ slug, page: pageState, providers: [found(providerBefore), found(providerAfter)].filter(Boolean), providerOk: providerBefore.ok || providerAfter.ok });
+        check(j.ok, tag(`${slug.toUpperCase()} game in play (${j.state}): ${j.ok ? 'matches the provider and states its source and freshness' : j.problems.join('; ')}`));
+        if (j.note) na(tag(j.note));
+        await p0.screenshot({ path: `production-v4-${name}-live-${kind}.png` });
       }
     } else na(tag('no published game to open'));
   } catch (e) { check(false, tag(`home/games/game: ${first(e)}`)); }

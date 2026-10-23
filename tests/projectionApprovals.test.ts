@@ -29,7 +29,8 @@ describe('promotion approvals vs the frozen holdout evidence', () => {
     for (const a of APPROVALS) expect(a.engine).toBe(a.decision === 'PROMOTED' ? 'foundation' : 'legacy');
     expect(engineFor('NFL', 'receptions', [])).toBe('foundation');
     expect(engineFor('NFL', 'passing_tds', [])).toBe('legacy');
-    expect(engineFor('NBA', 'points', [])).toBe('legacy');          // approved on history, waiting on live availability
+    expect(engineFor('NBA', 'points', [])).toBe('foundation');      // promoted 2026-10-23 after three independent joint READY verdicts
+    expect(engineFor('NBA', 'team_points', [])).toBe('legacy');     // team points stay held
     expect(engineFor('NHL', 'shots', [])).toBe('legacy');           // significant but marginal
     expect(engineFor('MLB', 'hits', [])).toBe('legacy');            // hitters stay out
     expect(engineFor('XXX', 'anything', [])).toBe('legacy');
@@ -45,16 +46,31 @@ describe('promotion approvals vs the frozen holdout evidence', () => {
     for (const f of ['hits', 'total_bases', 'home_runs', 'rbis', 'runs', 'plate_appearances']) expect(decision('MLB', f)).toBe('HELD');
     for (const f of ['team_points', 'plays', 'team_passing_yards', 'team_rushing_yards', 'points_per_play', 'success_rate']) expect(decision('CFB', f)).toBe('PROMOTED');
     for (const f of ['game_total', 'margin']) expect(decision('CFB', f)).toBe('RETAINED');
-    for (const f of ['minutes', 'points', 'rebounds', 'assists', 'threes', 'pra', 'fga']) expect(decision('NBA', f)).toBe('APPROVED_PENDING_LIVE_INPUTS');
+    for (const f of ['minutes', 'points', 'rebounds', 'assists', 'threes', 'pra', 'fga']) expect(decision('NBA', f)).toBe('PROMOTED');
+    expect(decision('NBA', 'team_points')).toBe('HELD');
   });
 
   it('approves a fallback to the established model only where it is explicit, bounded and narrow', () => {
     const withFb = APPROVALS.filter((a) => a.fallback);
-    expect(withFb.map((a) => `${a.sport}:${a.family}`).sort()).toEqual(['MLB:outs', 'MLB:pitcher_strikeouts', 'NFL:completions', 'NFL:receptions']);
+    expect(withFb.map((a) => `${a.sport}:${a.family}`).sort()).toEqual(['MLB:outs', 'MLB:pitcher_strikeouts', 'NBA:assists', 'NBA:fga', 'NBA:minutes', 'NBA:points', 'NBA:pra', 'NBA:rebounds', 'NBA:threes', 'NFL:completions', 'NFL:receptions']);
     for (const a of withFb) {
       expect(a.fallback!.triggers).toEqual(['FEED_UNAVAILABLE', 'STALE', 'NOT_PUBLISHED']);   // never OUT, GATE_BLOCK, INCOHERENT, FAMILY_NOT_READY, NOT_PROJECTED
     }
     for (const a of APPROVALS.filter((x) => !x.fallback)) expect(a.fallback).toBeNull();
+  });
+
+  it('records the NBA promotion and its fallback as the owner approved them (2026-10-23), and keeps team points held with no fallback', () => {
+    for (const f of ['minutes', 'points', 'rebounds', 'assists', 'threes', 'pra', 'fga']) {
+      const a = approvalFor('NBA', f)!;
+      expect(a.decision).toBe('PROMOTED');
+      expect(a.approvedOn).toBe('2026-10-23');
+      expect(a.competingProductionNumber).toBe(true);
+      expect(a.fallback).toMatchObject({ engine: 'legacy', approvedOn: '2026-10-23', triggers: ['FEED_UNAVAILABLE', 'STALE', 'NOT_PUBLISHED'] });
+      expect(a.fallback!.approval).toMatch(/^Owner-approved 2026-10-23/);
+      expect(a.fallback!.approval).toMatch(/Never for a player who is ruled out, a projection the quality gate blocked, or an incoherent one/);
+      expect(a.requiresVerifiedParticipation).toBeUndefined();            // an uncertain or unverified player is shown at Low reliability, not hidden
+    }
+    expect(approvalFor('NBA', 'team_points')).toMatchObject({ decision: 'HELD', engine: 'legacy', fallback: null });
   });
 
   it('requires a verified starter for every promoted MLB pitcher stat', () => {

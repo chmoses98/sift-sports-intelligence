@@ -8,7 +8,7 @@
 //   - Props: the game picker is a searchable sheet on phones and the native select on desktop.
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
-import { expect, NEBUF, noHorizontalOverflow, NOW, test } from './fixtures';
+import { atRest, expect, NEBUF, noHorizontalOverflow, NOW, test } from './fixtures';
 import { installSlates, type SlateSpec } from './slates';
 
 test.use({ timezoneId: 'America/Chicago' });
@@ -313,8 +313,9 @@ test.describe('Prop explorer game picker', () => {
     // two columns of tiles with both marks, abbreviations and the time
     const tiles = sheet.locator('.gpick__tile');
     expect(await tiles.count()).toBeGreaterThan(8);
-    const a = (await tiles.nth(0).boundingBox())!;
-    const b = (await tiles.nth(1).boundingBox())!;
+    // the sheet rises over 220 ms: measure it at rest, and read both tiles in one call so both rects come from the same frame
+    await atRest(sheet);
+    const [a, b] = await tiles.evaluateAll((els) => els.slice(0, 2).map((el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width }; }));
     expect(Math.abs(a.y - b.y)).toBeLessThan(2);
     expect(b.x).toBeGreaterThan(a.x + a.width - 2);
     await expect(tiles.first().locator('img, .teammark').first()).toBeVisible();

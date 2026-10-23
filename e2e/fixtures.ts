@@ -10,7 +10,7 @@
 //   a test deliberately blocks or fails.
 // * External hosts are blocked (deterministic runs): Sift falls back to the bundled same-run NFL
 //   research snapshot, exactly as production does while NFL's live explorer is unpublished.
-import { test as base, expect, type Page, type Request } from '@playwright/test';
+import { test as base, expect, type Locator, type Page, type Request } from '@playwright/test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -270,6 +270,16 @@ export { expect };
 export async function reloadWhenSettled(page: Page) {
   await page.waitForLoadState('networkidle');
   await page.reload();
+}
+
+/**
+ * Resolve once every CSS / Web animation running in or on `locator` has finished. Bottom sheets rise over 220 ms (`bsheet-rise`) and a
+ * locator reports "visible" as soon as the sheet starts, so a geometry assertion made right after `toBeVisible()` measures a moving panel:
+ * two reads a few milliseconds apart (more on a loaded runner) differ by the distance travelled in between (2.40 px on a 2 px tolerance in
+ * e2e/sift2-mobile-ux.spec.ts, 2026-10-23). Wait for rest, then measure; never widen the tolerance to absorb motion.
+ */
+export async function atRest(locator: Locator) {
+  await locator.evaluate((el) => Promise.all([el, ...el.querySelectorAll('*')].flatMap((e) => e.getAnimations().map((a) => a.finished.catch(() => undefined)))));
 }
 
 /** Mobile is not a squeezed desktop: no screen may scroll sideways. */

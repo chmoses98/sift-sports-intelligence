@@ -10,6 +10,11 @@
    "e": "399",
    "n": "UAlbany",
    "why": "UAlbany Great Danes (University at Albany, FCS, CAA football): ESPN team id 399, the same id SIFT's committed CBB identity carries for UAlbany (src/lib/cbb-teams.json, name 'UAlbany'). Contract code ALBY (Kalshi 26OCT17ALBYSTON, yes label 'University at Albany'). The Script Engine could not identity-verify the game (FCS), so no verified pair exists."
+  },
+  "DSU": {
+   "e": "2169",
+   "n": "Delaware State",
+   "why": "Delaware State Hornets (FCS, MEAC): ESPN team id 2169, contract code DSU (Kalshi 26OCT23NCCUDSU, yes label 'Delaware St.'). The CFB publication's own Script Engine identity check passed for this game (identity.status PASS, espn_event_id 401867955) and names the home team 'Delaware State', team_id 2169 (away: North Carolina Central, 2428), but the Kalshi participant rows carry no short_name, so no code<->id pair was learned from them. Canonical SIFT name: 'Delaware State' (ESPN's name; the publication's 'Delaware St.' is its abbreviation)."
   }
  }
 }

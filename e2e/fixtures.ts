@@ -268,8 +268,18 @@ export { expect };
  * request cancelled"), which the error guard rightly counts. The reload, not the page, caused it, so the test waits first.
  */
 export async function reloadWhenSettled(page: Page) {
-  await page.waitForLoadState('networkidle');
+  await settle(page);
   await page.reload();
+}
+
+/**
+ * Wait until the page has nothing in flight: the network is idle and every <img> has finished. WebKit reports a same-origin image fetch that a
+ * navigation or reload cancels (team crests, e.g. teams/nfl/NE.webp) as a page error ("Fetch API cannot load ... due to access control checks"),
+ * which the error guard rightly counts. The navigation, not the page, caused it, so settle before navigating away from a screen that loads images.
+ */
+export async function settle(page: Page) {
+  await page.waitForLoadState('networkidle');
+  await page.waitForFunction(() => [...document.images].every((i) => i.complete));
 }
 
 /**

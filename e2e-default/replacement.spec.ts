@@ -84,6 +84,10 @@ test('a classic Games address with day=tomorrow opens tomorrow on the SIFT 2.0 d
 test('phone: Research Lab, Settings and Sources are reachable from the header Sports sheet', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'the Sports sheet is the phone navigation');
   await page.goto('#/');
+  // '#/' redirects to the default interface after the first render: a tap before that lands on a topbar that is then replaced, and the sheet it opened
+  // goes with it (the dialog never appeared on a slow WebKit runner, 2026-10-22). Wait for the redirect, then use the topbar.
+  await expect(page).toHaveURL(/#\/design\/sift2\/home/);
+  await expect(page.locator('.topbar__sport')).toBeVisible();
   await page.locator('.topbar__sport').click();
   const sheet = page.getByRole('dialog', { name: 'Sports and sections' });
   await sheet.getByRole('link', { name: 'Research Lab' }).click();

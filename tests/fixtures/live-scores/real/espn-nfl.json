@@ -1,0 +1,138 @@
+{
+ "leagues": [
+  {
+   "id": "28",
+   "name": "National Football League",
+   "abbreviation": "NFL",
+   "slug": "nfl",
+   "logos": [
+    {
+     "href": "https://a.espncdn.com/i/teamlogos/leagues/500/nfl.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "default"
+     ],
+     "lastUpdated": "2018-06-05T12:07Z"
+    },
+    {
+     "href": "https://a.espncdn.com/i/teamlogos/leagues/500-dark/nfl.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "dark"
+     ],
+     "lastUpdated": "2024-07-22T16:53Z"
+    }
+   ],
+   "calendarType": "list",
+   "calendarIsWhitelist": true,
+   "calendarStartDate": "2026-08-06T07:00Z",
+   "calendarEndDate": "2027-02-16T07:59Z"
+  }
+ ],
+ "events": [
+  {
+   "id": "401873010",
+   "date": "2026-10-23T00:15Z",
+   "name": "New England Patriots at Chicago Bears",
+   "shortName": "NE @ CHI",
+   "week": {
+    "number": 7
+   },
+   "competitions": [
+    {
+     "id": "401873010",
+     "date": "2026-10-23T00:15Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": false,
+     "playByPlayAvailable": false,
+     "competitors": [
+      {
+       "id": "3",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "3",
+        "location": "Chicago",
+        "name": "Bears",
+        "abbreviation": "CHI",
+        "displayName": "Chicago Bears",
+        "shortDisplayName": "Bears",
+        "isActive": true
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "17",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "17",
+        "location": "New England",
+        "name": "Patriots",
+        "abbreviation": "NE",
+        "displayName": "New England Patriots",
+        "shortDisplayName": "Patriots",
+        "isActive": true
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Thu, October 22nd at 8:15 PM EDT",
+       "shortDetail": "10/22 - 8:15 PM EDT"
+      },
+      "isTBDFlex": false
+     },
+     "startDate": "2026-10-23T00:15Z",
+     "broadcast": "Prime Video"
+    }
+   ],
+   "status": {
+    "clock": 0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Thu, October 22nd at 8:15 PM EDT",
+     "shortDetail": "10/22 - 8:15 PM EDT"
+    }
+   }
+  }
+ ],
+ "week": {
+  "number": 7
+ }
+}

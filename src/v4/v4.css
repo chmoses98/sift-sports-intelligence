@@ -654,3 +654,23 @@
 .v4-ea__steps b { color: var(--tx); font-weight: 600; }
 .v4-eafoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin: 28px 16px 0; padding-top: 6px; border-top: 1px solid var(--line); }
 .v4-eafoot .v4-textlink { color: var(--tx3); }
+
+/* a scoring play's running score: neutral, never the gold of a market price */
+.v4-playsc { flex: none; text-align: right; font: 700 18px/20px var(--f-num); letter-spacing: -0.02em; }
+.v4-playsc small { display: block; font: 500 12px/14px var(--f-ui); color: var(--tx3); letter-spacing: 0; }
+
+/* score layout: three-digit scores (basketball) tighten so names keep their room; an aged score is dimmed */
+.v4-row__sc--tight { font-size: 16px; gap: 3px; }
+.v4-row__sc--aged, .v4-sb__score--aged { opacity: 0.72; }
+.v4-sb--wide { gap: 6px; }
+.v4-sb--wide .v4-sb__score { font-size: 32px; }
+.v4-sb--wide .v4-sb__mid { min-width: 0; }
+.v4-sb--wide .v4-sb__mid b { font-size: 17px; }
+.v4-sb--wide .v4-crest--lg { width: 52px; height: 52px; }
+.v4-sb--wide .v4-sb__name { font-size: 15px; }
+@media (max-width: 400px) {
+  .v4-sb--wide .v4-sb__score { font-size: 28px; }
+  .v4-sb--wide .v4-crest--lg { width: 44px; height: 44px; }
+  .v4-sb--wide .v4-sb__name { font-size: 14px; }
+  .v4-sb--wide .v4-sb__mid b { font-size: 15px; }
+}

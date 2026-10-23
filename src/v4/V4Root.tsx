@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useLayoutEffect } from 'react';
-import { NavLink, Outlet, useLocation } from '../routing';
+import { NavLink, Outlet, useLocation, useSearchParams } from '../routing';
 import '@fontsource/geist-sans/400.css';
 import '@fontsource/geist-sans/500.css';
 import '@fontsource/geist-sans/600.css';
@@ -11,6 +11,7 @@ import { SheetHost } from './sheet';
 import { TrayProvider } from '../state/tray';
 import { UndoProvider } from './undo';
 import { EarlyAccessFooter } from './EarlyAccess';
+import { disableFeed, enableFeed, feedEnabled } from '../live/scores/feed';
 import { isStandalone, setInstallIdentity } from '../lib/installIdentity';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
@@ -24,6 +25,15 @@ const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
 /** The v4 shell: one phone-width column, five tabs, safe areas, one sheet host. The classic chrome never renders here. */
 export function V4Root() {
   const { pathname } = useLocation();
+  const [sp, setSp] = useSearchParams();
+  // Real live scores are on by default in v4; `?livescores=0` turns them off for this device and `?livescores=1` back on; the parameter is then dropped from the address.
+  const ld = sp.get('livescores');
+  useEffect(() => {
+    if (ld !== '1' && ld !== '0') return;
+    if (ld === '1' && !feedEnabled()) enableFeed();
+    if (ld === '0') disableFeed();
+    setSp((p) => { const n = new URLSearchParams(p); n.delete('livescores'); return n; }, { replace: true });
+  }, [ld, setSp]);
   // The page background is the app's: no classic body colour shows behind the column or in overscroll.
   useEffect(() => {
     const prev = document.body.style.background;

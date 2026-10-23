@@ -120,6 +120,12 @@ export default defineConfig({
             handler: 'NetworkOnly',
           },
           {
+            // SCORE CLOCK: live-score feeds are never cached by the service worker, for the same reason as quotes: a score served from
+            // cached bytes could look live. The app keeps what it last saw, with its real age, in memory (src/live/scores/store.ts).
+            urlPattern: ({ url }) => url.hostname === 'sportscore.com',
+            handler: 'NetworkOnly',
+          },
+          {
             // Live sport publications: network first so freshness is real; the cache answers offline.
             urlPattern: ({ url }) => url.hostname === 'raw.githubusercontent.com',
             handler: 'NetworkFirst',

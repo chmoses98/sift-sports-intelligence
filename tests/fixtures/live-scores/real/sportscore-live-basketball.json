@@ -1,0 +1,29 @@
+{
+ "sport": "basketball",
+ "date": "2026-10-22",
+ "count": 26,
+ "matches": [
+  {
+   "home": "Grodno GrSU",
+   "away": "Rubon",
+   "home_score": "73",
+   "away_score": "70",
+   "status": "live",
+   "status_text": "4th quarter",
+   "time": "2026-10-22T14:30:00+00:00",
+   "competition": "Belarus-Premier League",
+   "url": "/basketball/match/rubon-vs-grodno-grsu/"
+  },
+  {
+   "home": "BC Zalgiris II",
+   "away": "Jurbarko Jurbarkas-Karys",
+   "home_score": "2",
+   "away_score": "11",
+   "status": "live",
+   "status_text": "1st quarter",
+   "time": "2026-10-22T15:00:00+00:00",
+   "competition": "Nacionaline Krepsinio Lyga",
+   "url": "/basketball/match/jurbarko-jurbarkas-karys-vs-bc-zalgiris-ii/"
+  }
+ ]
+}

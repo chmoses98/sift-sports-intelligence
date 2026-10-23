@@ -121,7 +121,11 @@ describe('the early-access screens', () => {
 
   it('the sheet tells the truth about live scores and does not recommend bets', () => {
     render(<EarlyAccessSheet />);
-    expect(screen.getByText(/Live scores, game clocks and plays are not available yet/)).toBeTruthy();
+    expect(screen.getByText(/Real NBA scores are on by default here/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Turn off live scores' })).toBeTruthy();
+    // one feed only: there is no ESPN switch, and the SportScore credit is a real dofollow link
+    expect(screen.queryByText(/ESPN/)).toBeNull();
+    expect(document.querySelector('a[href="https://sportscore.com/"]')?.getAttribute('rel')).toBe('dofollow');
     expect(screen.getByText(/SIFT does not recommend bets/)).toBeTruthy();
   });
 

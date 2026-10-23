@@ -8,12 +8,13 @@ import { featuredGame } from '../views/broadcast/games';
 import { useGameResearch } from '../views/broadcast/parts';
 import { Icon } from './Icon';
 import { Feature, useStageColours } from './Feature';
-import { Group, SlateStates, useSlate } from './slate';
+import { Group, SlateStates, useSlate, useSlateScores } from './slate';
 import { FollowSheet } from './FollowSheet';
 import { EarlyAccessCard, EarlyAccessPill } from './EarlyAccess';
+import { FeedNote } from './LiveScoresControl';
 import { useSheet } from './sheet';
 import { useFollowing } from './follow';
-import { applyFilter, dateKey, dayStrip, groupByPhase, isLiveGame, pickFeature, type SlateFilter } from './model';
+import { applyFilter, dateKey, dayStrip, groupByPhase, isLiveGame, isOver, pickFeature, type SlateFilter } from './model';
 
 const LEAGUES = NAV_SPORTS.filter((s) => s.status === 'live' || s.status === 'beta');
 const FILTERS: SlateFilter[] = ['following', 'all', 'live', 'signals'];
@@ -30,18 +31,20 @@ export function V4Home() {
   const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
 
   const inDay = useMemo(() => rows.filter((g) => Number.isFinite(g.startMs) && dateKey(g.startMs) === day), [rows, day]);
+  const scores = useSlateScores(inDay);
   const counts = useMemo(() => { const m = new Map<string, number>(); for (const g of inDay) m.set(g.slug, (m.get(g.slug) ?? 0) + 1); return m; }, [inDay]);
   const inLeague = useMemo(() => (league ? inDay.filter((g) => g.slug === league) : inDay), [inDay, league]);
-  const shown = useMemo(() => applyFilter(inLeague, filter, follow.list), [inLeague, filter, follow.list]);
-  const liveN = inLeague.filter(isLiveGame).length;
+  const shown = useMemo(() => applyFilter(inLeague, filter, follow.list, scores), [inLeague, filter, follow.list, scores]);
+  const liveN = inLeague.filter((g) => isLiveGame(g, scores(g))).length;
   const sigN = inLeague.filter((g) => g.candidates > 0).length;
-  const folN = applyFilter(inLeague, 'following', follow.list).length;
+  const folN = applyFilter(inLeague, 'following', follow.list, scores).length;
 
   // The featured game stays put while the page is open unless it can no longer be featured.
   const rule = useMemo(() => featuredGame(shown, now), [shown, now]);
-  const feature = useMemo(() => pickFeature(shown, rule), [shown, rule]);
-  const featureLive = feature ? isLiveGame(feature) : false;
-  const groups = useMemo(() => groupByPhase(shown.filter((g) => g !== feature)), [shown, feature]);
+  const feature = useMemo(() => pickFeature(shown, rule, scores), [shown, rule, scores]);
+  const featureRead = feature ? scores(feature) : null;
+  const featureLive = feature ? isLiveGame(feature, featureRead) : false;
+  const groups = useMemo(() => groupByPhase(shown.filter((g) => g !== feature), scores), [shown, feature, scores]);
   const featureResearch = useGameResearch(feature?.slug ?? null, feature?.item.event_id ?? null);
   const stage = useStageColours(feature, featureResearch.data);
 
@@ -59,7 +62,7 @@ export function V4Home() {
     : filter === 'live' ? 'No game is in play right now.'
     : filter === 'signals' ? `No published research signals on ${dayWord}'s games.`
     : `No published games ${day === today ? 'today' : `on ${dayWord}`}${league ? ' in this league' : ''}.`;
-  const featureTitle = !feature ? '' : featureLive ? 'Live now' : feature.phase === 'FINAL' || feature.stale ? 'Final' : 'Up next';
+  const featureTitle = !feature ? '' : featureLive ? (featureRead?.game && featureRead.view.mode !== 'LIVE' ? 'In play' : 'Live now') : isOver(feature, featureRead) ? 'Final' : 'Up next';
 
   return (
     <div>
@@ -105,20 +108,21 @@ export function V4Home() {
       <div style={{ paddingTop: 8 }}>
         <EarlyAccessCard />
       </div>
+      <FeedNote />
       <div style={{ paddingTop: 8 }} aria-live="polite">
         <SlateStates loading={loading} unavailable={unavailable} failed={failed} empty={empty} emptyText={emptyText} />
         {!loading && !unavailable && feature && (
           <section className="v4-sec" aria-label={featureTitle}>
-            <header className="v4-sechead"><h2>{featureLive && <i className="v4-livedot" aria-hidden="true" />}{featureTitle}</h2></header>
-            <Feature key={`${feature.slug}:${feature.item.event_id}`} g={feature} />
+            <header className="v4-sechead"><h2>{featureTitle === 'Live now' && <i className="v4-livedot" aria-hidden="true" />}{featureTitle}</h2></header>
+            <Feature key={`${feature.slug}:${feature.item.event_id}`} g={feature} read={featureRead} />
           </section>
         )}
         {!loading && !unavailable && (
           <>
-            <Group title="Also live" rows={groups.live} live />
-            <Group title="Upcoming" rows={groups.upcoming} />
-            <Group title="Final" rows={groups.over} />
-            <Group title="Postponed, cancelled or suspended" rows={groups.other} />
+            <Group title="Also live" rows={groups.live} live scores={scores} />
+            <Group title="Upcoming" rows={groups.upcoming} scores={scores} />
+            <Group title="Final" rows={groups.over} scores={scores} />
+            <Group title="Postponed, cancelled or suspended" rows={groups.other} scores={scores} />
           </>
         )}
       </div>

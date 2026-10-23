@@ -1,0 +1,372 @@
+{
+ "at": "2026-10-23T02:34:52.638Z",
+ "base": "https://chmoses98.github.io/sift-sports-intelligence/",
+ "runs": [
+  {
+   "name": "iphone-webkit",
+   "steps": [
+    {
+     "espn": false,
+     "label": "home",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 7s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonLIVENuggets392nd quarterLIVE · 6s32ThunderPaycom Center",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "games",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 14s ago · Powered by SportScore · Turn off",
+     "scoredRows": [
+      "DEN39–322nd quarterOKC"
+     ],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nba",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 21s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonLIVENuggets392nd quarterLIVE · 20s32ThunderPaycom Center",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nhl",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 27s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonLIVERed WingsLiveScore unavailableCanucksRogers ArenaPlayer props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nfl",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 34s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NFL · Week 7LIVEPatriots4–2LiveScore unavailableBears4–2Soldier FieldPlayer props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-cfb",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 40s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGDuke11:00 PMatVirginiaScott Stadium",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "game",
+     "note": null,
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": "In playScoreNuggets 39 · Thunder 32Period2nd quarterStatusLIVE · 49sSourceSportScore free APIPowered by SportScore",
+     "overflowX": false,
+     "attribution": [
+      "dofollow",
+      "dofollow"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=basketball&date=2026-10-23&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-23T02:34:57.071Z"
+    },
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-23&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-23T02:34:57.073Z"
+    }
+   ],
+   "failed": {
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22DENOKC.json": 1
+   },
+   "consoleErrors": [
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+   ],
+   "pageErrors": []
+  },
+  {
+   "name": "pixel-chromium",
+   "steps": [
+    {
+     "espn": false,
+     "label": "home",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 8s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonLIVENuggets392nd quarterLIVE · 8s32ThunderPaycom Center",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "games",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 16s ago · Powered by SportScore · Turn off",
+     "scoredRows": [
+      "DEN39–322nd quarterOKC"
+     ],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nba",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 22s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonLIVENuggets392nd quarterLIVE · 21s32ThunderPaycom Center",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nhl",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 29s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonLIVERed WingsLiveScore unavailableCanucksRogers ArenaPlayer props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nfl",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 35s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NFL · Week 7LIVEPatriots4–2LiveScore unavailableBears4–2Soldier FieldPlayer props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-cfb",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 42s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGDuke11:00 PMatVirginiaScott Stadium",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "game",
+     "note": null,
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": "In playScoreNuggets 39 · Thunder 32Period2nd quarterStatusLIVE · 50sSourceSportScore free APIPowered by SportScore",
+     "overflowX": false,
+     "attribution": [
+      "dofollow",
+      "dofollow"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=basketball&date=2026-10-23&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-23T02:35:48.868Z"
+    },
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-23&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-23T02:35:48.882Z"
+    }
+   ],
+   "failed": {
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22DENOKC.json": 1
+   },
+   "consoleErrors": [
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    }
+   ],
+   "pageErrors": []
+  },
+  {
+   "name": "desktop-chromium",
+   "steps": [
+    {
+     "espn": false,
+     "label": "home",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 8s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonLIVENuggets402nd quarterLIVE · 8s34ThunderPaycom Center",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "games",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 15s ago · Powered by SportScore · Turn off",
+     "scoredRows": [
+      "DEN40–342nd quarterOKC"
+     ],
+     "featured": null,
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nba",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 21s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NBA · Regular seasonLIVENuggets402nd quarterLIVE · 21s34ThunderPaycom Center",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nhl",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 28s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NHL · Regular seasonLIVERed WingsLiveScore unavailableCanucksRogers ArenaPlayer props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-nfl",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 34s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "NFL · Week 7LIVEPatriots4–2LiveScore unavailableBears4–2Soldier FieldPlayer props",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "home-cfb",
+     "note": "Scores from SportScore · 2 of 11 games in play window matched · feed answered 40s ago · Powered by SportScore · Turn off",
+     "scoredRows": [],
+     "featured": "FBSUPCOMINGDuke11:00 PMatVirginiaScott Stadium",
+     "liveCard": null,
+     "overflowX": false,
+     "attribution": [
+      "dofollow"
+     ]
+    },
+    {
+     "espn": false,
+     "label": "game",
+     "note": null,
+     "scoredRows": [],
+     "featured": null,
+     "liveCard": "In playScoreNuggets 40 · Thunder 34Period2nd quarterStatusLIVE · 47sSourceSportScore free APIPowered by SportScore",
+     "overflowX": false,
+     "attribution": [
+      "dofollow",
+      "dofollow"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=basketball&date=2026-10-23&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-23T02:36:40.962Z"
+    },
+    {
+     "espn": false,
+     "url": "https://sportscore.com/api/v1/fixtures/?…",
+     "query": "sport=tennis&date=2026-10-23&limit=200&src=sift-personal",
+     "status": 200,
+     "acao": "*",
+     "cache": "max-age=60",
+     "at": "2026-10-23T02:36:40.970Z"
+    }
+   ],
+   "failed": {
+    "404 https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT22DENOKC.json": 1
+   },
+   "consoleErrors": [
+    {
+     "espn": false,
+     "text": "Failed to load resource: the server responded with a status of 404 ()"
+    }
+   ],
+   "pageErrors": []
+  }
+ ]
+}

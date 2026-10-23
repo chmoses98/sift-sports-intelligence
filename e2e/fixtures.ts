@@ -324,6 +324,24 @@ export async function afterTap(page: Page, check: () => Promise<void>) {
   }
 }
 
+/**
+ * Resolve once every element `locator` matches has stayed where it is for `still` consecutive samples (50 ms apart). A screen that loads its data
+ * after the first paint moves what is already on it: a full v4 Board sits 84 px lower about 150 ms after its heading appears, and a tap that lands
+ * between pointer-down and pointer-up on something that moves in between focuses the button and never clicks it (the iPhone SE Board "Remove" failure:
+ * button focused, no Undo bar, row still there). Playwright's own stability check only looks across two frames. Sampled from outside the page with
+ * real timers, because `page.clock.install` fakes the page's `requestAnimationFrame`.
+ */
+export async function layoutAtRest(locator: Locator, still = 6) {
+  let same = 0;
+  let prev: string | null = null;
+  await expect.poll(async () => {
+    const now = await locator.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)},${Math.round(r.height)}`; }).join('|'));
+    same = now === prev ? same + 1 : 0;
+    prev = now;
+    return same;
+  }, { intervals: [50], timeout: 10_000, message: 'the screen never came to rest' }).toBeGreaterThanOrEqual(still);
+}
+
 /** Mobile is not a squeezed desktop: no screen may scroll sideways. */
 export async function noHorizontalOverflow(page: Page, name: string) {
   const [sw, cw, wide] = await page.evaluate(() => {

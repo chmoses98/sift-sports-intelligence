@@ -4,7 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { afterTap, expect, noHorizontalOverflow, NOW, recordTaps, test } from './fixtures';
+import { afterTap, expect, layoutAtRest, noHorizontalOverflow, NOW, recordTaps, settle, test } from './fixtures';
 import { GAME, OLAVE, serve } from './projectionDoc';
 import { FRESH_AT, OLAVE_TICKER, rec, serveRecommendations } from './propSignals';
 import { seedTray, SEEDS, TRAY_KEY } from './boardSeed';
@@ -40,6 +40,10 @@ async function open(page: Page, market: Mock, names: Name[] = ALL, o: { now?: Da
   await page.clock.install({ time: o.now ?? NOW });
   await page.goto(`#/v4/board${o.query ?? ''}`);
   await expect(page.getByRole('heading', { name: 'Board', level: 1 })).toBeVisible();
+  // The Board fills in after its heading (an 84 px shift ~150 ms later with a full tray). Every test that follows taps something on it, so none starts
+  // before the data has landed and the buttons have stopped moving.
+  await settle(page);
+  await layoutAtRest(page.locator('.v4-bd__rm, .v4-bd__main'));
 }
 
 test.describe('v4 Board: what is saved', () => {

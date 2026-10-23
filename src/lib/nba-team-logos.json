@@ -1,96 +1,96 @@
 {
-  "generated_at": "2026-10-23T03:51:56.136Z",
+  "generated_at": "2026-10-09T06:59:21.254Z",
   "source": "ESPN team-logo CDN (a.espncdn.com/i/teamlogos/nba)",
   "teams": {
     "ATL": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/atl.png"
     },
     "BOS": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/bos.png"
     },
     "BKN": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/bkn.png"
     },
     "CHA": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/cha.png"
     },
     "CHI": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/chi.png"
     },
     "CLE": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/cle.png"
     },
     "DAL": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/dal.png"
     },
     "DEN": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/den.png"
     },
     "DET": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/det.png"
     },
     "GSW": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/gs.png"
     },
     "HOU": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/hou.png"
     },
     "IND": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/ind.png"
     },
     "LAC": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/lac.png"
     },
     "LAL": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/lal.png"
     },
     "MEM": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/mem.png"
     },
     "MIA": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/mia.png"
     },
     "MIL": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/mil.png"
     },
     "MIN": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/min.png"
     },
     "NOP": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/no.png"
     },
     "NYK": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/ny.png"
     },
     "OKC": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/okc.png"
     },
     "ORL": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/orl.png"
     },
     "PHI": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/phi.png"
     },
     "PHX": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/phx.png"
     },
     "POR": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/por.png"
     },
     "SAC": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/sac.png"
     },
     "SAS": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/sa.png"
     },
     "TOR": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/tor.png"
     },
     "UTA": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/utah.png"
     },
     "WAS": {
-      "source": "previously committed"
+      "source": "https://a.espncdn.com/i/teamlogos/nba/500-dark/wsh.png"
     }
   }
 }

@@ -292,6 +292,38 @@ export async function atRest(locator: Locator) {
   await locator.evaluate((el) => Promise.all([el, ...el.querySelectorAll('*')].flatMap((e) => e.getAnimations().map((a) => a.finished.catch(() => undefined)))));
 }
 
+/**
+ * Record what a tap really did in the page: pointer, focus and click events with their target, the scroll position and where every Remove button
+ * sat at that moment. On a WebKit CI run a tap on a Board Remove button focused the button and nothing else (no click, no Undo bar); a screen that moves
+ * between pointer-down and pointer-up produces exactly that, and the failure snapshot cannot show it. Read with `tapLog`; recording changes nothing.
+ */
+export async function recordTaps(page: Page) {
+  await page.evaluate(() => {
+    const w = window as unknown as { __taps?: string[] };
+    const log: string[] = (w.__taps = []);
+    const name = (n: EventTarget | null) => {
+      const el = n instanceof Element ? n : null;
+      return el ? `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? `.${el.className.split(' ')[0]}` : ''}[${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}]` : String(n);
+    };
+    const tops = () => [...document.querySelectorAll('.v4-bd__rm')].map((b) => Math.round(b.getBoundingClientRect().top)).join(',');
+    for (const type of ['pointerdown', 'pointerup', 'click', 'focusin', 'scroll', 'resize'] as const) {
+      window.addEventListener(type, (e) => log.push(`${Math.round(performance.now())}ms ${type} ${name(e.target)} scrollY=${Math.round(window.scrollY)} removeTops=${tops()}`), true);
+    }
+  });
+}
+
+/** Run an assertion that follows a tap; if it fails, put the recorded tap sequence in the failure so the CI log shows what the tap did. */
+export async function afterTap(page: Page, check: () => Promise<void>) {
+  try {
+    await check();
+  } catch (e) {
+    const log = await page.evaluate(() => (window as unknown as { __taps?: string[] }).__taps ?? []).catch(() => ['(page gone)']);
+    const err = e instanceof Error ? e : new Error(String(e));
+    err.message += `\n\ntap log (${log.length} events):\n${log.slice(-40).join('\n')}`;
+    throw err;
+  }
+}
+
 /** Mobile is not a squeezed desktop: no screen may scroll sideways. */
 export async function noHorizontalOverflow(page: Page, name: string) {
   const [sw, cw, wide] = await page.evaluate(() => {

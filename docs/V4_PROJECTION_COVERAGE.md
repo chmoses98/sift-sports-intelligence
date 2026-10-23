@@ -98,3 +98,28 @@ For a stat to get the NFL treatment on a player page, all of these must hold for
 - No v4 surface for NBA, MLB or NHL player projections exists or was added. MLB and NHL keep the market-only browsing that
   PR #113 ships; v4 still never shows a projection the approvals table does not authorise.
 - Anything marked **not verified** above is an open question for the owner or for a follow-up with real rows, not a finding.
+
+## CFB yardage ranges that start below zero (2026-10-22)
+
+The published CFB player feed has a negative 80% lower bound (`p10`) for 238 of 424 `rushing_yards` rows and 524 of 893 `receiving_yards` rows
+(feed `2026-10-21T20:56Z`); the lowest is -20, and 9 rushing means are negative. Until now v4's coherence rule treated *any* negative value in a
+row as "corrupt" and dropped the row without saying so, which hid 56% of the rushing forecasts (e.g. quarterbacks' rushing) as well as the receiving ones.
+The two stats are not the same case. Evidence: ESPN player box scores (sportsdataverse `espn_cfb_player_box`), 2016-2019 and 2021-2025:
+
+| stat | player-game lines | share below 0 | by role / volume |
+|---|---|---|---|
+| rushing yards | 93,347 | 17.7% | quarterbacks 28.4%; non-QBs 14.3%, falling to 0.9% at 5-8 carries |
+| receiving yards | 116,854 | 2.4% | 5.0% at one catch, 1.4% at two, 0.4% at three, about 0% above |
+
+- **Rushing: legitimate, now shown.** NCAA rushing yardage is net of sacks, so quarterbacks and low-carry players are often negative. A published
+  rushing `p10` of -3 (-13 for a quarterback) matches these frequencies. `NEGATIVE_FLOOR` (`src/lib/projections.ts`) lets `rushing_yards` carry a
+  negative mean, median or range down to -30, the lowest value the model's own lattice allows (`cfb/project.py`); anything lower is still corrupt.
+  The range is shown exactly as published, with one line saying why it can be negative.
+- **Receiving: a model artifact, still withheld, now said.** Fewer than 5% of even one-catch lines are negative, yet 59% of published receiving rows put
+  at least 10% of their probability below 0. The yardage distribution is a residual distribution fitted on all receivers in 6 bins (`cfb/project.py`,
+  lattice from -30), so low-volume bins inherit negative residuals from higher-volume players. The mean and upper bound are not implicated, but the lower
+  bound is not a realistic floor (zero is). v4 does not clamp it (that would silently rewrite a published value) and does not show it as a forecast; the
+  panel now says how many stat forecasts were withheld and that receiving-yards ranges starting below 0 are a model artifact.
+- **Not done here:** correcting the receiving distribution (fit the residuals within the low-volume bins, or model zero-inflation) changes a validated
+  model's numbers and belongs in `cfb-edge-finder` with its own validation. Until it ships, those receiving rows stay withheld. All CFB player
+  families remain unapproved shadow research.

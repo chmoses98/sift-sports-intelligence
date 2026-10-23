@@ -1,6 +1,6 @@
 // The research tray: contract research_tray items (references, never payloads) persisted in local
 // storage, plus a small label cache so the tray can render before any document is fetched.
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { isFrozen } from '../lib/lifecycle';
 import { makeTray, makeTrayItem, type RefKind, type TrayDoc, type TrayExtra, type TrayItem } from '../packet/tray';
 import { liveStore } from '../live/hooks';
@@ -139,7 +139,23 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
+  // The tray this provider last adopted from storage. It is already stored, so writing it back adds nothing; and the write is not harmless: it
+  // runs in a later effect, and if the tray changed in storage in between (a save from another screen) it would put the older one back.
+  const adopted = useRef<Stored | null>(null);
+  const adopt = useCallback(() => {
+    const next = loadStored();
+    setStored((cur) => {
+      if (JSON.stringify(cur) === JSON.stringify(next)) return cur;
+      adopted.current = next;
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
+    if (adopted.current === stored) {
+      adopted.current = null;
+      return;
+    }
     saveStored(stored);
     window.dispatchEvent(new Event(TRAY_CHANGED));
   }, [stored]);
@@ -147,19 +163,18 @@ export function TrayProvider({ children }: { children: ReactNode }) {
   // Another provider in this same page wrote the tray (the app mounts one for the classic interfaces and v4 mounts its own): the
   // browser's `storage` event fires only in OTHER tabs, so without this a save made in v4 would not show on My Board until a reload.
   useEffect(() => {
-    const on = () => setStored((cur) => { const next = loadStored(); return JSON.stringify(cur) === JSON.stringify(next) ? cur : next; });
-    window.addEventListener(TRAY_CHANGED, on);
-    return () => window.removeEventListener(TRAY_CHANGED, on);
-  }, []);
+    window.addEventListener(TRAY_CHANGED, adopt);
+    return () => window.removeEventListener(TRAY_CHANGED, adopt);
+  }, [adopt]);
 
   // Another tab changed the tray.
   useEffect(() => {
     const on = (e: StorageEvent) => {
-      if (e.key === TRAY_KEY) setStored(loadStored());
+      if (e.key === TRAY_KEY) adopt();
     };
     window.addEventListener('storage', on);
     return () => window.removeEventListener('storage', on);
-  }, []);
+  }, [adopt]);
 
   const add = useCallback((a: TrayAdd) => {
     if (isFrozen(a.kickoff, Date.now(), a.eventStatus)) return null;

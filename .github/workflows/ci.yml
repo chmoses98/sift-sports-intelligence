@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     # The gate is the acceptance suite (Chromium and WebKit, four projects) plus the release-configuration suite. On GitHub's runners it has taken
     # 34 to 58 minutes for the suite alone (2026-10-22: a deploy gate was cancelled at exactly 60 minutes, in the release-configuration step, after
-    # the acceptance suite had passed). Every test still has to pass; this only keeps a slow runner from killing a gate that is passing.
-    timeout-minutes: 90
+    # the acceptance suite had passed). Every test still has to pass; this only keeps a slow runner from killing a gate that is passing. (2026-10-23: the browser install alone took 47 minutes on a throttled mirror, so the limit now leaves room for a 45 minute install plus the suite.)
+    timeout-minutes: 135
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,8 +39,29 @@ jobs:
         run: npm run build:e2e
       - name: GitHub Pages build check (base path, manifest, service worker, hash routing)
         run: node scripts/check-dist.mjs
-      - name: Install Chromium and WebKit
-        run: npx playwright install --with-deps chromium webkit
+      # 2026-10-23: this step took 47 minutes on a throttled apt mirror (about 45 KB/s for the 119 MB of system packages; 08:49 to 09:36) inside the deploy gate,
+      # which left too little of the job limit for the acceptance suite, and the gate was cancelled while its tests were passing. Browsers are now cached
+      # per Playwright version. The first attempt is patient (a slow mirror finishes in about 45 minutes; a first try capped at four minutes gave up three
+      # times on the same slow mirror), but bounded, so a genuine hang (a 33 minute stall seen in the Production check) cannot take the whole job. After a
+      # stalled attempt the root-owned apt-get, which `timeout` cannot stop, is cleared so it does not hold the dpkg lock for the retry. No test is changed.
+      - id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium-webkit
+      - name: Install Chromium and WebKit (patient first attempt, then one retry)
+        timeout-minutes: 65
+        run: |
+          clear_apt() {
+            sudo pkill -x apt-get || true; sudo pkill -x apt || true
+            for _ in $(seq 1 60); do pgrep -x dpkg >/dev/null || break; sleep 5; done
+            sudo dpkg --configure -a || true
+          }
+          if timeout 2700 npx playwright install --with-deps chromium webkit; then exit 0; fi
+          echo "install attempt 1 failed or stalled (45 min limit); clearing apt and retrying once"; clear_apt; sleep 10
+          if timeout 900 npx playwright install --with-deps chromium webkit; then exit 0; fi
+          echo "Playwright could not be installed"; exit 1
       - name: Acceptance suite — journey, live market, degraded states, visual, accessibility, smoke
         run: npx playwright test
         env:

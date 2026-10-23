@@ -4,7 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { expect, noHorizontalOverflow, NOW, test } from './fixtures';
+import { afterTap, expect, noHorizontalOverflow, NOW, recordTaps, test } from './fixtures';
 import { GAME, OLAVE, serve } from './projectionDoc';
 import { FRESH_AT, OLAVE_TICKER, rec, serveRecommendations } from './propSignals';
 import { seedTray, SEEDS, TRAY_KEY } from './boardSeed';
@@ -258,8 +258,9 @@ test.describe('v4 Board: removing and clearing', () => {
     await open(page, market, ['legacyYes', 'v4No', 'game']);
     const before = await stored(page);
     expect(before.tray.items).toHaveLength(3);
+    await recordTaps(page);
     await page.getByRole('button', { name: 'Remove Chris Olave under 6.5 receptions from My Board' }).click();
-    await expect(row(page, 'Chris Olave under 6.5 receptions')).toHaveCount(0);
+    await afterTap(page, () => expect(row(page, 'Chris Olave under 6.5 receptions')).toHaveCount(0));
     const after = await stored(page);
     expect(after.tray.items).toHaveLength(2);
     const key = (i: { item_id: string; added_at: string }) => `${i.item_id}|${i.added_at}`;
@@ -471,9 +472,10 @@ test.describe('v4 Board: Undo', () => {
   test('only the last removal can be undone, and it can be dismissed @smoke', async ({ page, market }) => {
     await open(page, market, ['legacyYes', 'v4No', 'game']);
     const before = await stored(page);
+    await recordTaps(page);
     await page.getByRole('button', { name: 'Remove ATL @ NO from My Board' }).click();
     await page.getByRole('button', { name: 'Remove Chris Olave under 6.5 receptions from My Board' }).click();
-    await expect(undoBar(page)).toContainText('Removed Chris Olave under 6.5 receptions');
+    await afterTap(page, () => expect(undoBar(page)).toContainText('Removed Chris Olave under 6.5 receptions'));
     await undoBar(page).getByRole('button', { name: /^Undo/ }).click();
     await expect(rows(page)).toHaveCount(2);
     await expect(row(page, 'ATL @ NO')).toHaveCount(0);

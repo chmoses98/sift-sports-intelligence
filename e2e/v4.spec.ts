@@ -432,6 +432,9 @@ test.describe('v4 mode exit and the existing interfaces', () => {
   test('visiting #/v4 directly never changes a remembered preference @smoke', async ({ page }) => {
     await installSlates(page.context(), { NBA: 3 }, { now: NOW });
     await page.goto('#/?ui=sift2');
+    // '#/?ui=sift2' redirects to the SIFT 2.0 home after the first render; going to '#/v4' before that let the late redirect replace it (the SIFT 2.0 home
+    // was on screen instead of the v4 shell on an iPhone CI run, 2026-10-23), so the test waits for the redirect it set up
+    await expect(page).toHaveURL(/design\/sift2/);
     await page.goto('#/v4');
     await expect(page.locator('[data-v4-shell]')).toBeVisible();
     expect(await pref(page)).toBe('sift2');

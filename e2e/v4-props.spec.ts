@@ -66,7 +66,12 @@ test.describe('v4 Prop Explorer', () => {
     // a category
     await page.getByRole('group', { name: 'Prop category' }).getByRole('button', { name: /^Receiving/ }).click();
     await expect(page).toHaveURL(/cat=receiving/);
-    for (const t of await page.locator('.v4-prow__n small').allTextContents()) expect(t).toMatch(/rec|long rec|rush\+rec|receptions/);
+    // the URL changes before the filtered list has rendered, so reading the rows straight away read the previous list ("pass yds" on a desktop CI run,
+    // 2026-10-23); wait until the list is the filtered one, with every row still required to be a receiving stat
+    await expect.poll(async () => {
+      const subs = await page.locator('.v4-prow__n small').allTextContents();
+      return subs.length > 0 && subs.every((t) => /rec|long rec|rush\+rec|receptions/.test(t));
+    }, { message: 'every prop row under Receiving is a receiving stat' }).toBe(true);
     // search
     await page.getByRole('button', { name: 'Search players' }).click();
     const input = page.getByRole('searchbox', { name: /Search players/ });

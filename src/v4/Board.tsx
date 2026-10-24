@@ -17,7 +17,7 @@ import { agoWord } from './words';
 import { clock } from './model';
 import { SportMark } from '../components/SportMark';
 import { navSport } from '../data/nav';
-import { useNow, useLiveQuotes } from '../live/hooks';
+import { useNow, useLiveQuotes, useLiveAnswered } from '../live/hooks';
 import { useAllOpportunities } from '../opportunity/load';
 import { boardGroups, gameChanges, GROUP_WORD, type BoardGroupKey, type GameGroup } from '../board/model';
 import { persistNoteNow, tickerOfMarketId, useTray } from '../state/tray';
@@ -25,6 +25,14 @@ import type { BoardItem } from '../contract/types';
 
 const cents = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}¢`);
 const TYPE_ORDER: BoardGroupKey[] = ['thesis', 'players', 'props', 'markets', 'scripts', 'findings', 'other'];
+
+/**
+ * How long the Board waits for the publications and the first live quotes before it shows what is saved anyway. What changed since a save
+ * ("Worth another look") is computed from both, and it is inserted above the saved rows: arriving a moment after they were drawn it moved every
+ * Remove button down 360 px between a finger touching one and lifting off it, so the tap landed on nothing (iPhone SE, WebKit CI). The rows now wait
+ * for that first answer (every saved market's quote answered or failed, and the publications read); if it does not come (offline, slow relay) they appear after this long, with the unavailable note.
+ */
+const SETTLE_MS = 2500;
 
 /** Everything the Board and its item sheet read, in one place so both stay on the same clock and the same live quotes. */
 export function useBoardState() {
@@ -40,6 +48,10 @@ export function useBoardState() {
   const tickers = useMemo(() => [...new Set(tray.tray.items.filter((i) => i.ref_kind === 'MARKET').map((i) => tray.labels[i.item_id]?.market?.ticker ?? tickerOfMarketId(i.extra?.market_id ?? i.id)).filter((t): t is string => !!t))], [tray.tray.items, tray.labels]);
   const live = useLiveQuotes(tickers, 'slate');
   const loadingPubs = all.loading && all.bundles.length === 0;
+  const answered = useLiveAnswered(tickers);
+  const [waited, setWaited] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setWaited(true), SETTLE_MS); return () => clearTimeout(t); }, []);
+  const settling = !waited && (all.loading || !answered);
   const unavailable = !!all.error || (!all.loading && all.bundles.length > 0 && all.bundles.every((b) => b.error != null));
   const ctx: BoardCtx = useMemo(() => ({
     now, quote: live.quote, opps: all.opportunities,
@@ -50,7 +62,7 @@ export function useBoardState() {
     for (const g of groups) for (const e of g.entries) m.set(e.item.item_id, entryView(e, g, g.eventId ? boards.get(g.eventId) : undefined, ctx));
     return m;
   }, [groups, boards, ctx]);
-  return { tray, now, groups, boards, views, ctx, loadingPubs, unavailable };
+  return { tray, now, groups, boards, views, ctx, loadingPubs, unavailable, settling };
 }
 
 // ------------------------------------------------------------------ price words (neutral, side-aware)
@@ -364,6 +376,8 @@ export function V4Board() {
   const reasons = useMemo(() => lookAgain(s.groups, s.views, s.boards).filter((r) => !sport || r.game.sport === sport), [s.groups, s.views, s.boards, sport]);
   const openItem = (r: LookReason) => sheet.open(<ItemSheet id={r.entry.item.item_id} />, { label: `Saved: ${r.entry.label?.label ?? r.entry.item.id}` });
   const games = s.groups.filter((g) => g.eventId).length;
+  // While the rows are held, nothing below them is drawn either: the Clear Board button and the links would move down when the list replaces the placeholder.
+  const held = n > 0 && s.settling;
   return (
     <div>
       <div className="v4-stage">
@@ -394,16 +408,20 @@ export function V4Board() {
           <>
             {s.unavailable && <div className="v4-note v4-note--risk" role="alert" style={{ marginBottom: 16 }}><Icon name="cloud-slash" /><div><b>Publications are unavailable</b>Your saved research is shown as saved. Prices, game status and research updates could not be read, so nothing here says anything changed.</div></div>}
             <p className="meta v4-sg__sum" role="status">{n} saved item{n === 1 ? '' : 's'}{games ? ` · ${games} game${games === 1 ? '' : 's'}` : ''} · stored on this device</p>
-            <Reasons reasons={reasons} open={openItem} />
-            <div className="v4-bd__games">
-              {shown.length === 0 && <div className="v4-note"><Icon name="funnel-simple" /><div><b>Nothing matches these filters</b>Clear a filter to see the rest of your Board.</div></div>}
-              {shown.map((g) => <GameCard key={g.key} g={g} board={g.eventId ? s.boards.get(g.eventId) : undefined} views={s.views} ctx={s.ctx} type={type} focus={!!focusGame && g.eventId === focusGame} />)}
-            </div>
+            {s.settling
+              ? <div className="v4-card" aria-busy="true"><div className="v4-skel" style={{ height: 160 }} role="status" aria-label="Loading your Board" /></div>
+              : <>
+                <Reasons reasons={reasons} open={openItem} />
+              <div className="v4-bd__games">
+                {shown.length === 0 && <div className="v4-note"><Icon name="funnel-simple" /><div><b>Nothing matches these filters</b>Clear a filter to see the rest of your Board.</div></div>}
+                {shown.map((g) => <GameCard key={g.key} g={g} board={g.eventId ? s.boards.get(g.eventId) : undefined} views={s.views} ctx={s.ctx} type={type} focus={!!focusGame && g.eventId === focusGame} />)}
+              </div>
+              </>}
           </>
         )}
-        {n > 0 && <p style={{ padding: '0 16px', marginTop: 20 }}><button type="button" className="v4-btn v4-btn--sec" onClick={() => sheet.open(<ClearSheet n={n} />, { label: 'Clear My Board' })}><Icon name="trash" size="s" />Clear Board</button></p>}
-        <p className="v4-foot">Research only. A saved price against a later one is a move in an ask, not a profit or a loss. SIFT does not recommend a bet. This is the same Board as in SIFT 2.0 on this device.</p>
-        <p style={{ padding: '0 16px', marginTop: 12 }}><ExitLink to="/design/sift2/board" className="v4-textlink">Open in SIFT 2.0</ExitLink></p>
+        {n > 0 && !held && <p style={{ padding: '0 16px', marginTop: 20 }}><button type="button" className="v4-btn v4-btn--sec" onClick={() => sheet.open(<ClearSheet n={n} />, { label: 'Clear My Board' })}><Icon name="trash" size="s" />Clear Board</button></p>}
+        {!held && <p className="v4-foot">Research only. A saved price against a later one is a move in an ask, not a profit or a loss. SIFT does not recommend a bet. This is the same Board as in SIFT 2.0 on this device.</p>}
+        {!held && <p style={{ padding: '0 16px', marginTop: 12 }}><ExitLink to="/design/sift2/board" className="v4-textlink">Open in SIFT 2.0</ExitLink></p>}
       </div>
     </div>
   );

@@ -23,8 +23,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      - name: Use main plus the tap telemetry (no behaviour change)
-        run: git checkout origin/claude/board-tap-telemetry -- e2e
+      - name: Use the Board no-shift change (with telemetry)
+        run: git checkout origin/claude/board-no-shift -- e2e src
       - run: npm run build:e2e
       - name: Install Chromium and WebKit
         timeout-minutes: 80

@@ -8,8 +8,12 @@ import { engineFor } from './projectionApprovals';
 import { makeAuthority, type Resolution } from './projectionAuthority';
 import { MAX_AGE_H, teamKey, type ProjectionDoc } from './projections';
 
+/** The budget a game offers (240 + expected overtime) and the tolerance a conserving engine must meet; the joint rotation model makes the sum exact. */
+export const MINUTES_BUDGET = 241.5;
+export const MINUTES_TOLERANCE = 0.03;
 export const NBA_FAMILIES = ['minutes', 'points', 'rebounds', 'assists', 'threes', 'pra', 'fga'] as const;
-export type CheckStatus = 'PASS' | 'FAIL' | 'PENDING';
+/** INFO: reported, never required (a property of the established engine that its own approval already covers). */
+export type CheckStatus = 'PASS' | 'FAIL' | 'PENDING' | 'INFO';
 export interface NbaCheck { id: string; title: string; status: CheckStatus; detail: string }
 
 const bucket = (r: Resolution): string => (r.kind === 'withheld' ? `withheld:${r.code}` : r.kind === 'fallback' ? `fallback:${r.trigger}` : r.kind === 'authoritative' ? `authoritative:${r.value.reliability}` : 'legacy');
@@ -65,6 +69,28 @@ export function verifyNbaFeed(doc: ProjectionDoc | null, nowMs: number): { check
   add('S7', 'Players listed or confirmed available get a projection', bad.eligible.length ? 'FAIL' : eligible ? 'PASS' : 'PENDING',
     bad.eligible.length ? `withheld although available: ${list(bad.eligible)}` : eligible ? 'every available row resolves to a projection' : 'no player is listed available yet (the official report has not published player-level rows)');
   add('S8', 'Identity: ESPN player and game ids, a distinct team and opponent, one row per player, game and family', bad.identity.length ? 'FAIL' : 'PASS', bad.identity.length ? `problems: ${list(bad.identity)}` : 'identities are well-formed and unique');
-  const ready = checks.every((c) => c.status === 'PASS');
+  // S10 structural minutes integrity: the team's minutes must add up by construction (sum of p(play) x E[minutes | play] = 241.5) with no normalisation
+  // applied. Required when the feed declares the joint rotation model; reported for the established engine, whose team normalisation is covered by its own
+  // D5 policy (nba-edge-finder activation_check) and not required here.
+  const sums = new Map<string, number>();
+  const normalised = new Map<string, number>();
+  for (const p of rows) {
+    if (p.family !== 'minutes' || p.participation?.pPlay == null) continue;
+    const k = `${p.gameId}|${p.team}`;
+    sums.set(k, (sums.get(k) ?? 0) + p.participation.pPlay * p.mean);
+    const m = p.adjustments.map((a) => /Team reconciliation:.*expected minutes [\d.]+ vs [\d.]+ available: scaled x(\d+(?:\.\d+)?)/.exec(a)).find(Boolean);
+    if (m) normalised.set(k, Number(m[1]));
+  }
+  const off = [...sums].filter(([, v]) => Math.abs(v / MINUTES_BUDGET - 1) > MINUTES_TOLERANCE).map(([k, v]) => `${k.split('|')[1]} ${v / MINUTES_BUDGET - 1 >= 0 ? '+' : ''}${Math.round((v / MINUTES_BUDGET - 1) * 1000) / 10}%`);
+  const scales = [...normalised.values()];
+  const title = 'Team minutes are structurally coherent: sum of p x E[min | play] = 241.5 per team-game with no minutes normalisation';
+  if (doc.minutesEngine) {
+    if (!sums.size) add('S10', title, 'PENDING', 'no minutes rows with a published P(play)');
+    else add('S10', title, off.length || normalised.size ? 'FAIL' : 'PASS',
+      off.length || normalised.size ? `${off.length} team(s) off the budget (${list(off)}); ${normalised.size} team(s) normalised` : `all ${sums.size} team-games within ±${MINUTES_TOLERANCE * 100}% and none normalised (engine ${doc.minutesEngine})`);
+  } else {
+    add('S10', title, 'INFO', `established engine: ${normalised.size} of ${sums.size || '?'} team-games normalised${scales.length ? ` (x${Math.min(...scales)}-x${Math.max(...scales)})` : ''}; covered by its D5 policy, not required here`);
+  }
+  const ready = checks.every((c) => c.status === 'PASS' || c.status === 'INFO');
   return { checks, ready, tally };
 }

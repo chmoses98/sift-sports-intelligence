@@ -77,7 +77,7 @@ describe('the decision logic (SYNTHETIC variants of the real rows)', () => {
   }
   it('is READY only when ruled-out rows are withheld, uncertain rows are Low and available rows have a projection', () => {
     const v = verifyNbaFeed(decode(resolved()), NOW);
-    expect(v.checks.filter((c) => c.status !== 'PASS')).toEqual([]);
+    expect(v.checks.filter((c) => c.status !== 'PASS' && c.status !== 'INFO')).toEqual([]);
     expect(v.ready).toBe(true);
     const t = v.tally.points;
     expect(t['withheld:GATE_BLOCK']).toBeGreaterThan(0);                     // the ruled-out rows are withheld
@@ -110,5 +110,74 @@ describe('the decision logic (SYNTHETIC variants of the real rows)', () => {
   it('a malformed feed is unreadable, not a pass', () => {
     expect(verifyNbaFeed(decode({ schema: 'sift.projections.v1', sport: 'NBA', players: 'x', model: { authority: 'betting' } }), NOW).ready).toBe(false);
     expect(verifyNbaFeed(decode(null), NOW).ready).toBe(false);
+  });
+});
+
+describe('S10: structural minutes integrity (SYNTHETIC variants of the real rows)', () => {
+  const BUDGET = 241.5;
+  // the established engine's real feed: minutes were normalised on teams with a scale (x0.85 on PHI in the real rows)
+  function ready(): typeof real {
+    const d = clone();
+    for (const p of d.players) {
+      if (p.participation.status !== 'UNVERIFIED') continue;
+      p.participation = { ...p.participation, status: 'LIKELY_ACTIVE', certainty: 'REPORTED', source: 'nba_official_injury_report', captured_utc: '2026-10-19T18:50:00Z' };
+      p.gate = { status: 'PASS', findings: [] };
+    }
+    d.players.slice(0, 6).forEach((p: any, i: number) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+      const out = i % 2 === 0;                                                       // the observed players: ruled out (BLOCK) or uncertain (REVIEW)
+      p.participation = { ...p.participation, status: out ? 'LIKELY_OUT' : 'UNCERTAIN', certainty: 'PROJECTED', source: 'espn_injuries' };
+      p.gate = { status: out ? 'BLOCK' : 'REVIEW', findings: out ? [{ check: 'participation', severity: 'BLOCK', what: 'Ruled out before the game', category: 'availability', action: '' }] : [] };
+    });
+    return d;
+  }
+  /** what the joint rotation model guarantees: every team-game's sum of p x E[min | play] is the budget, and no normalisation note exists */
+  function conserving(): typeof real {
+    const d = ready();
+    d.model.minutes_engine = 'jrm-0.1';
+    const sums = new Map<string, number>();
+    const key = (p: any) => `${p.game_id}|${p.team}`; // eslint-disable-line @typescript-eslint/no-explicit-any
+    for (const p of d.players) if (p.family === 'minutes') sums.set(key(p), (sums.get(key(p)) ?? 0) + p.participation.p_play * p.mean);
+    for (const p of d.players) {
+      if (p.family === 'minutes') p.mean = (p.mean * BUDGET) / sums.get(key(p))!;
+      p.adjustments = p.adjustments.filter((a: string) => !a.startsWith('Team reconciliation'));
+    }
+    return d;
+  }
+  it('is informational for the established engine, which declares no engine: the normalised teams are reported and nothing changes', () => {
+    const v = verifyNbaFeed(decode(ready()), NOW);
+    const c = v.checks.find((x) => x.id === 'S10')!;
+    expect(c.status).toBe('INFO');
+    expect(c.detail).toMatch(/established engine: \d+ of \d+ team-games normalised \(x0\.\d+-x0\.\d+\)/);
+    expect(v.ready).toBe(true);                                                      // INFO never blocks (today's verdict is unchanged)
+  });
+  it('passes a joint-rotation-model feed whose teams add up with no normalisation', () => {
+    const v = verifyNbaFeed(decode(conserving()), NOW);
+    expect(status(v, 'S10')).toBe('PASS');
+    expect(v.checks.find((c) => c.id === 'S10')!.detail).toMatch(/none normalised \(engine jrm-0\.1\)/);
+    expect(v.ready).toBe(true);
+  });
+  it('fails a joint-rotation-model feed with a team off the budget', () => {
+    const d = conserving();
+    const team = d.players.find((p: any) => p.family === 'minutes').team; // eslint-disable-line @typescript-eslint/no-explicit-any
+    for (const p of d.players) if (p.family === 'minutes' && p.team === team) p.mean *= 1.08;
+    const v = verifyNbaFeed(decode(d), NOW);
+    expect(status(v, 'S10')).toBe('FAIL');
+    expect(v.checks.find((c) => c.id === 'S10')!.detail).toContain(team);
+    expect(v.ready).toBe(false);
+  });
+  it('fails a joint-rotation-model feed that still carries a team normalisation', () => {
+    const d = conserving();
+    d.players.find((p: any) => p.family === 'minutes').adjustments.push('Team reconciliation: expected minutes 285 vs 241.5 available: scaled x0.85.'); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(status(verifyNbaFeed(decode(d), NOW), 'S10')).toBe('FAIL');
+  });
+  it('allows the separate points reconciliation (scoring volume) on a joint-rotation-model feed: only a MINUTES normalisation fails', () => {
+    const d = conserving();
+    d.players.find((p: any) => p.family === 'points').adjustments.push('Team reconciliation: expected points 123 vs team projection 112: scoring volume scaled x0.91.'); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(status(verifyNbaFeed(decode(d), NOW), 'S10')).toBe('PASS');
+  });
+  it('cannot be passed without a published P(play): that is PENDING, not a pass', () => {
+    const d = conserving();
+    for (const p of d.players) delete p.participation.p_play;
+    expect(status(verifyNbaFeed(decode(d), NOW), 'S10')).toBe('PENDING');
   });
 });

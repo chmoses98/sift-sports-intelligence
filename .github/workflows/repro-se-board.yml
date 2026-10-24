@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [telemetry-a, telemetry-b]
+        variant: [focus-a, focus-b]
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
@@ -32,11 +32,11 @@ jobs:
       - name: Board smoke on iPhone SE, repeated
         run: |
           set +e
-          npx playwright test e2e/v4-board.spec.ts --project=iphone-se --repeat-each=24 --workers=4 --reporter=list > out.txt 2>&1
+          npx playwright test e2e/v4-board.spec.ts --project=iphone-se -g 'no saved price' --repeat-each=150 --workers=4 --reporter=list > out.txt 2>&1
           echo "exit: $?"
           grep -cE '^\s+✘' out.txt | sed 's/^/failed results: /'
           echo '---- failure blocks (with tap logs) ----'
-          grep -B2 -A62 'tap log (' out.txt | head -900
+          sed -n '/^  1) /,/^  2) /p' out.txt | head -120
           echo '---- summary ----'
           tail -12 out.txt
         env: { CI: 'true' }

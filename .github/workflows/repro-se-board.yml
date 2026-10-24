@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [baseline, at-rest]
+        variant: [telemetry-a, telemetry-b]
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
@@ -23,9 +23,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      - name: Use the Board-at-rest tests
-        if: matrix.variant == 'at-rest'
-        run: git checkout origin/claude/board-tap-at-rest -- e2e
+      - name: Use main plus the tap telemetry (no behaviour change)
+        run: git checkout origin/claude/board-tap-telemetry -- e2e
       - run: npm run build:e2e
       - name: Install Chromium and WebKit
         timeout-minutes: 80
@@ -33,7 +32,7 @@ jobs:
       - name: Board smoke on iPhone SE, repeated
         run: |
           set +e
-          npx playwright test e2e/v4-board.spec.ts --project=iphone-se --repeat-each=12 --workers=4 --reporter=list > out.txt 2>&1
+          npx playwright test e2e/v4-board.spec.ts --project=iphone-se --repeat-each=24 --workers=4 --reporter=list > out.txt 2>&1
           echo "exit: $?"
           grep -cE '^\s+✘' out.txt | sed 's/^/failed results: /'
           echo '---- failure blocks (with tap logs) ----'

@@ -299,17 +299,35 @@ export async function atRest(locator: Locator) {
  */
 export async function recordTaps(page: Page) {
   await page.evaluate(() => {
-    const w = window as unknown as { __taps?: string[] };
+    const w = window as unknown as { __taps?: string[]; __tapsOn?: boolean };
+    if (w.__tapsOn) return;                                                // recording once per document; a reload starts a fresh one
+    w.__tapsOn = true;
     const log: string[] = (w.__taps = []);
     const name = (n: EventTarget | null) => {
       const el = n instanceof Element ? n : null;
       return el ? `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? `.${el.className.split(' ')[0]}` : ''}[${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}]` : String(n);
     };
     const tops = () => [...document.querySelectorAll('.v4-bd__rm')].map((b) => Math.round(b.getBoundingClientRect().top)).join(',');
-    for (const type of ['pointerdown', 'pointerup', 'click', 'focusin', 'scroll', 'resize'] as const) {
-      window.addEventListener(type, (e) => log.push(`${Math.round(performance.now())}ms ${type} ${name(e.target)} scrollY=${Math.round(window.scrollY)} removeTops=${tops()}`), true);
+    const rows = () => document.querySelectorAll('.v4-bd__row').length;
+    const say = (what: string) => log.push(`${Math.round(performance.now())}ms ${what} rows=${rows()} scrollY=${Math.round(window.scrollY)} removeTops=${tops()}`);
+    for (const type of ['pointerdown', 'pointerup', 'click', 'focusin', 'focusout', 'scroll', 'resize', 'blur', 'storage', 'pagehide', 'visibilitychange'] as const) {
+      window.addEventListener(type, (e) => say(`${type} ${name(e.target)}`), true);
     }
+    // what the screen did between those events: rows and the Undo bar appearing or going, the status line changing
+    new MutationObserver((ms) => {
+      for (const m of ms) {
+        for (const n of m.removedNodes) if (n instanceof Element && (n.matches('.v4-bd__row, [role=group]') || n.querySelector('.v4-bd__row'))) say(`removed ${name(n)}`);
+        for (const n of m.addedNodes) if (n instanceof Element && (n.matches('.v4-bd__row, [role=group]') || n.querySelector('.v4-bd__row'))) say(`added ${name(n)}`);
+        if (m.type === 'characterData' && m.target.parentElement?.closest('[data-v4-undo-status]')) say('undo status changed');
+      }
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
   });
+}
+
+/** The recorded sequence, newest last ("(none)" when nothing was recorded or the page is gone). */
+export async function tapLog(page: Page, last = 60): Promise<string> {
+  const log = await page.evaluate(() => (window as unknown as { __taps?: string[] }).__taps ?? []).catch(() => ['(page gone)']);
+  return `tap log (${log.length} events):\n${log.slice(-last).join('\n') || '(none)'}`;
 }
 
 /** Run an assertion that follows a tap; if it fails, put the recorded tap sequence in the failure so the CI log shows what the tap did. */
@@ -317,9 +335,8 @@ export async function afterTap(page: Page, check: () => Promise<void>) {
   try {
     await check();
   } catch (e) {
-    const log = await page.evaluate(() => (window as unknown as { __taps?: string[] }).__taps ?? []).catch(() => ['(page gone)']);
     const err = e instanceof Error ? e : new Error(String(e));
-    err.message += `\n\ntap log (${log.length} events):\n${log.slice(-40).join('\n')}`;
+    err.message += `\n\n${await tapLog(page, 40)}`;
     throw err;
   }
 }

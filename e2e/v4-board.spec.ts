@@ -4,7 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { afterTap, expect, noHorizontalOverflow, NOW, recordTaps, test } from './fixtures';
+import { afterTap, expect, noHorizontalOverflow, NOW, recordTaps, tapLog, test } from './fixtures';
 import { GAME, OLAVE, serve } from './projectionDoc';
 import { FRESH_AT, OLAVE_TICKER, rec, serveRecommendations } from './propSignals';
 import { seedTray, SEEDS, TRAY_KEY } from './boardSeed';
@@ -40,7 +40,13 @@ async function open(page: Page, market: Mock, names: Name[] = ALL, o: { now?: Da
   await page.clock.install({ time: o.now ?? NOW });
   await page.goto(`#/v4/board${o.query ?? ''}`);
   await expect(page.getByRole('heading', { name: 'Board', level: 1 })).toBeVisible();
+  await recordTaps(page);
 }
+
+// Any failure on this screen prints what the page saw: the Board's taps are the one thing a failure snapshot cannot show.
+test.afterEach(async ({ page }, info) => {
+  if (info.status !== info.expectedStatus) console.log(`\n[${info.title}]\n${await tapLog(page)}`);
+});
 
 test.describe('v4 Board: what is saved', () => {
   test('saved items are organised by game and category with the exact contract and side @smoke', async ({ page, market }) => {

@@ -36,7 +36,7 @@ jobs:
           echo "exit: $?"
           grep -cE '^\s+✘' out.txt | sed 's/^/failed results: /'
           echo '---- failure blocks (with tap logs) ----'
-          sed -n '/^  1) /,$p' out.txt | head -400
+          grep -B1 -A62 '^tap log' out.txt | head -900
           echo '---- summary ----'
           tail -12 out.txt
         env: { CI: 'true' }

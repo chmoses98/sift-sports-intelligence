@@ -26,6 +26,17 @@ export function useLiveVersion(): number {
 const key = (xs: Iterable<string> | undefined) => [...new Set(xs ?? [])].sort().join(',');
 
 /**
+ * True once the store has an outcome for every one of these tickers: a quote, an explicit "not listed", or a failure. (A ticker with nothing to ask
+ * about counts as answered.) A screen that lays out content from quotes waits for this, or accepts the content arriving later and moving things.
+ */
+export function useLiveAnswered(tickers: Iterable<string> | undefined): boolean {
+  const s = liveStore();
+  useLiveVersion();
+  const tk = key(tickers);
+  return !tk || tk.split(',').every((t) => { const st = s.ticker(t); return !!st && (st.lastSuccessAt != null || st.lastError != null); });
+}
+
+/**
  * Keep these tickers (and, optionally, these provider events for inventory) refreshed while the
  * calling screen is mounted. Returns a lookup that always reads the newest quote.
  */

@@ -57,4 +57,17 @@ To delete a branch: open `https://github.com/chmoses98/sift-sports-intelligence/
 ### Known false failure in the CFB production check
 `scripts/cfb-production-check.mjs` `priorityCheck()` assumes the CFB home always has upcoming games. The run began at 02:40Z, after the Saturday slate had finished, so the rail correctly said "No upcoming games — Every game on this slate has kicked off or finished" (`src/views/cfb/CfbPriorities.tsx`). The check then looked for a "Top Value Signal" section and the `[data-priority="value"]` slot, which are not rendered in that state, and timed out. Everything else in that step passed on all three devices (identity, signals, deployed SHA, cards, overflow, Value Watch filter).
 
-This is a time-of-day assumption in the check, not a product defect and not caused by #144 (Board/live-quote code). It will recur whenever the check runs after a CFB slate has finished. The proposed fix is to assert the plain empty state ("No upcoming games") when the rail shows it, and to keep the Top Value Signal assertions whenever the rail has upcoming games. It is operational maintenance and needs the owner's go-ahead.
+This is a time-of-day assumption in the check, not a product defect and not caused by #144 (Board/live-quote code).
+
+Later scheduled re-runs on the same SHA behaved differently: run 223 (13:08Z) passed the CFB step and failed on the **NFL distribution** step instead (`the artifact describes the feed of 2026-10-25T13:12:30Z, not the current 2026-10-24T16:59:12Z`: a feed-timing mismatch in the live NFL publication, unrelated to #144 and to the CFB check). Run 222 was not examined.
+
+### Resolution: CFB check fix (#146)
+| | |
+|---|---|
+| Merge commit on `main` | `9f2dadaa2d62b36f706c7a8ef9c62b437d2a2617` (`scripts/cfb-production-check.mjs`, `scripts/cfb/priorities.mjs`, `tests/cfbProductionCheckRail.test.tsx`; the app is unchanged) |
+| Behaviour | With no upcoming game on the published board the check requires the plain "No upcoming games" state (no value slot, no item links). With upcoming games every earlier signal, priority and navigation assertion is unchanged. A board/rail mismatch fails. |
+| Regression coverage | The real `CfbSlatePriorities` rail rendered in both states through the check's own judging code, plus the mismatch and mid-run-kickoff cases. |
+| Deploy to GitHub Pages | run 199, success (16:53:14Z); live `version.json` = `9f2dadaa…` |
+| Production check (run 224) | `check` job passed: CFB step (the board had 230 upcoming games, so the upcoming-games path ran: 5 priority items, Top Value Signal present, on Chromium desktop, Chromium phone and WebKit iPhone), v4 early access, v4 projections (`version.json is served (9f2dada)`), sprint features (254 PASS · 0 N/A · 0 FAIL). The NFL distribution step reported N/A (the feed publishes no receptions/completions projection for PIT @ NO). |
+
+The "No upcoming games" branch is verified by the regression tests; production exercises it the next time the check runs after a slate has finished.

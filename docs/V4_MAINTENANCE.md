@@ -47,4 +47,14 @@ These served the iPhone SE Board investigation and are obsolete now that #144 is
 To delete a branch: open `https://github.com/chmoses98/sift-sports-intelligence/branches` → **All branches** → find the branch (the search box accepts the name) → click the trash can at the right of its row → confirm. Repeat for each of the three. (Cleanup does not block anything.)
 
 ## Deployment record for #144
-Filled in when the post-deploy checks complete: see the end of the PR description or the report that accompanies this file.
+| | |
+|---|---|
+| Merge commit on `main` | `77b3892a86900b3e258599cf126a422c55bab648` |
+| Deploy to GitHub Pages | run 196, success (02:29:27Z) |
+| Live build | production `version.json` = `77b3892a…` (the v4 projections production check logs `deployed commit is the intended one (77b3892 vs 77b3892)`) |
+| Production check (run 221) | v4 early-access journey (Board), v4 CFB/NBA projections, sprint features (252 PASS · 1 N/A · 0 FAIL) and the relay-smoke job passed. The `check` job is red because of one step, **CFB — Script Engine path and team logos**. |
+
+### Known false failure in the CFB production check
+`scripts/cfb-production-check.mjs` `priorityCheck()` assumes the CFB home always has upcoming games. The run began at 02:40Z, after the Saturday slate had finished, so the rail correctly said "No upcoming games — Every game on this slate has kicked off or finished" (`src/views/cfb/CfbPriorities.tsx`). The check then looked for a "Top Value Signal" section and the `[data-priority="value"]` slot, which are not rendered in that state, and timed out. Everything else in that step passed on all three devices (identity, signals, deployed SHA, cards, overflow, Value Watch filter).
+
+This is a time-of-day assumption in the check, not a product defect and not caused by #144 (Board/live-quote code). It will recur whenever the check runs after a CFB slate has finished. The proposed fix is to assert the plain empty state ("No upcoming games") when the rail shows it, and to keep the Top Value Signal assertions whenever the rail has upcoming games. It is operational maintenance and needs the owner's go-ahead.

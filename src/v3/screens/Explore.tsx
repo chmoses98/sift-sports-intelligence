@@ -48,7 +48,9 @@ export function Explore() {
   const input = useRef<HTMLInputElement>(null);
   // The field keeps its own text (so typing is never fought by the router) and mirrors it into the address for Back and reload.
   const [text, setText] = useState(q);
-  useEffect(() => { setText(q); }, [q]);
+  // Only an address change that did not come from typing (Back, a recent search, Clear) replaces the field: a late echo of an older keystroke must never overwrite newer text.
+  const typed = useRef(new Set([q]));
+  useEffect(() => { if (!typed.current.has(q)) { typed.current = new Set([q]); setText(q); } }, [q]);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   useEffect(() => { if (sp.get('focus') === '1') { input.current?.focus(); set({ focus: null }); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const sports = useMemo(() => sportsIn(games), [games]);
@@ -66,8 +68,8 @@ export function Explore() {
       <h1 className="v3-pgtitle">Explore</h1>
       <label className="v3-search">
         <Icon name="search" size={22} />
-        <input ref={input} type="search" value={text} onChange={(e) => { setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
-        {text && <button type="button" aria-label="Clear search" onClick={() => { setText(''); set({ q: null }); }}><Icon name="close" size={18} /></button>}
+        <input ref={input} type="search" value={text} onChange={(e) => { typed.current.add(e.target.value); setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
+        {text && <button type="button" aria-label="Clear search" onClick={() => { typed.current.add(''); setText(''); set({ q: null }); }}><Icon name="close" size={18} /></button>}
       </label>
       <div className="v3-rail v3-rail--box" role="tablist" aria-label="Sport">
         {[{ slug: 'all', label: 'All' }, ...sports].map((s) => <button key={s.slug} type="button" role="tab" aria-selected={sport === s.slug} className="v3-rail__t" onClick={() => set({ sport: s.slug === 'all' ? null : s.slug })}>{s.label}</button>)}

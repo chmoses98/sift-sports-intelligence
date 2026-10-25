@@ -4,6 +4,10 @@ import type { MetricDef, RankingDoc, SeriesDoc } from '../../contract/types';
 import { useAsync, useRepo } from '../../data/hooks';
 import { sportBySlug } from '../../data/sports';
 import { heroTeam } from '../../lib/hero/input';
+import { cfbTeam } from '../../lib/cfbTeams';
+import { mlbClub } from '../../lib/mlb';
+import { nbaTeam } from '../../lib/nba';
+import { nhlTeam } from '../../lib/nhlTeams';
 import { demoOn } from '../state/prefs';
 import type { V3Team } from '../model/types';
 
@@ -38,10 +42,18 @@ const TEAMS: Record<string, string[]> = {
   mlb: 'ATL AZ BAL BOS CHC CIN CLE COL CWS DET HOU KC LAA LAD MIA MIL MIN NYM NYY PHI PIT SD SEA SF STL TB TEX TOR WSH'.split(' '),
   cfb: 'UGA FLA LSU AUB TEX OKLA ALA TENN ND USC MICH ILL ORE WASH OSU PSU CLEM FSU MIA MISS ARK UK MIZZ TXAM SCAR UCLA UTAH COLO ASU BYU'.split(' '),
 };
-const NAMES: Record<string, Record<string, string>> = {
-  nfl: { SF: 'San Francisco 49ers', KC: 'Kansas City Chiefs', DEN: 'Denver Broncos', BUF: 'Buffalo Bills' },
-};
 const hash = (s: string) => { let h = 5; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+
+const NFL_NAMES: Record<string, string> = { ARI: 'Arizona Cardinals', ATL: 'Atlanta Falcons', BAL: 'Baltimore Ravens', BUF: 'Buffalo Bills', CAR: 'Carolina Panthers', CHI: 'Chicago Bears', CIN: 'Cincinnati Bengals', CLE: 'Cleveland Browns', DAL: 'Dallas Cowboys', DEN: 'Denver Broncos', DET: 'Detroit Lions', GB: 'Green Bay Packers', HOU: 'Houston Texans', IND: 'Indianapolis Colts', JAX: 'Jacksonville Jaguars', KC: 'Kansas City Chiefs', LV: 'Las Vegas Raiders', LAC: 'Los Angeles Chargers', LAR: 'Los Angeles Rams', MIA: 'Miami Dolphins', MIN: 'Minnesota Vikings', NE: 'New England Patriots', NO: 'New Orleans Saints', NYG: 'New York Giants', NYJ: 'New York Jets', PHI: 'Philadelphia Eagles', PIT: 'Pittsburgh Steelers', SEA: 'Seattle Seahawks', SF: 'San Francisco 49ers', TB: 'Tampa Bay Buccaneers', TEN: 'Tennessee Titans', WAS: 'Washington Commanders' };
+/** Full names for the sample rankings, from the repository's own identity tables. */
+export function sampleTeamName(slug: string, code: string): string {
+  if (slug === 'nfl') return NFL_NAMES[code] ?? code;
+  if (slug === 'nba') return nbaTeam(code) ? `${nbaTeam(code)!.city} ${nbaTeam(code)!.name}` : code;
+  if (slug === 'nhl') return nhlTeam(code) ? `${nhlTeam(code)!.city} ${nhlTeam(code)!.name}` : code;
+  if (slug === 'mlb') return mlbClub(code)?.nick ?? code;
+  if (slug === 'cfb') return cfbTeam(code)?.n ?? code;
+  return code;
+}
 
 export function toStatTeam(sport: string, slug: string, code: string, name: string): V3Team {
   const h = heroTeam(sport, code, name);
@@ -67,7 +79,7 @@ function demoStat(slug: string, id: string): StatVM {
   return {
     id, name: s.name, scope: `${sport} · TEAM STATISTIC`, description: s.desc, methodology: 'Sample methodology text.', source: 'Sample data', limitations: ['Sample values: not a real ranking.'],
     unit: s.unit || null, higherIsBetter: hi, adjusted: id === 'sample-5', window: 'SEASON', season: null, universe: `${sport} teams (sample)`,
-    summary: null, entries: vals.map((x, i) => ({ rank: i + 1, team: toStatTeam(sport, slug, x.c, NAMES[slug]?.[x.c] ?? x.c), value: x.v, entityId: x.c })),
+    summary: null, entries: vals.map((x, i) => ({ rank: i + 1, team: toStatTeam(sport, slug, x.c, sampleTeamName(slug, x.c)), value: x.v, entityId: x.c })),
     asOf: null, metricId: null, siblings: [], related: Object.keys(SAMPLE_STATS).filter((k) => k !== id).slice(0, 4).map((k) => ({ id: k, name: SAMPLE_STATS[k].name, route: `/v3/stat/${slug}/${k}` })),
     provenance: 'demo',
   };

@@ -187,3 +187,7 @@
 .v3-demo a::after { content: ''; position: absolute; left: -8px; right: -8px; top: 50%; height: 44px; transform: translateY(-50%); }
 .v3-sechead a, .v3-sechead button { min-height: 44px; }
 .v3-link, .v3 .v3-note a, .v3-state a, .v3-state button { min-height: 44px; display: inline-flex; align-items: center; }
+
+.v3-offline { display: flex; align-items: center; gap: 10px; padding: calc(var(--sat) + 8px) 14px 8px; background: rgba(250, 108, 101, 0.14); border-bottom: 1px solid rgba(250, 108, 101, 0.4); color: #ffb4ae; font: 500 13px/18px var(--f-ui); }
+.v3-offline svg { flex: none; }
+.v3-offline button { margin-left: auto; min-height: 44px; padding: 0 8px; color: #fff; font-weight: 600; }

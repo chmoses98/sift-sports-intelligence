@@ -35,6 +35,17 @@ const tabOf = (path: string): string => {
   return lastTab;
 };
 
+function OfflineStrip() {
+  const [online, setOnline] = useState(typeof navigator === 'undefined' || navigator.onLine !== false);
+  useEffect(() => {
+    const on = () => setOnline(true), off = () => setOnline(false);
+    window.addEventListener('online', on); window.addEventListener('offline', off);
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
+  }, []);
+  if (online) return null;
+  return <div className="v3-offline" role="status"><Icon name="wifiOff" size={16} /><span>You are offline. Showing the last data this device loaded; scores and prices are not live.</span><button type="button" onClick={() => location.reload()}>Retry</button></div>;
+}
+
 function DemoStrip() {
   const { demo } = useSlate();
   const nav = useNavigate();
@@ -56,6 +67,7 @@ function Shell() {
     <>
       <div className="v3-col">
         <DemoStrip />
+        <OfflineStrip />
         <main className="v3-main" id="v3-main">
           <Suspense fallback={<div className="v3-page"><div className="v3-skel" style={{ height: 160 }} role="status" aria-label="Loading" /></div>}>
             <Outlet />

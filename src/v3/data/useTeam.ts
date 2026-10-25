@@ -80,11 +80,11 @@ const hash = (s: string) => { let h = 11; for (const c of s) h = (h * 33 + c.cha
 function demoVM(team: V3Team, games: V3Game[]): TeamVM {
   const h = hash(team.id);
   const n = team.sport === 'NBA' ? 30 : team.sport === 'NFL' ? 32 : 134;
-  const names: [string, MetricGroup, string][] = [['Points per game', 'offense', 'Sample 28.4'], ['Yards per game', 'offense', 'Sample 362.1'], ['Success rate', 'offense', 'Sample 47.1%'], ['Points allowed per game', 'defense', 'Sample 19.6'], ['Explosive plays allowed', 'defense', 'Sample 12.8%'], ['Adjusted EPA per play', 'adjusted', 'Sample 0.04']];
-  const opps = games.filter((g) => g.away.id === team.id || g.home.id === team.id).flatMap((g) => [g.away, g.home]).filter((t) => t.id !== team.id);
-  const pool = opps.length ? opps : [team];
+  const names: [string, MetricGroup, string][] = [['Points per game', 'offense', '28.4'], ['Yards per game', 'offense', '362.1'], ['Success rate', 'offense', '47.1%'], ['Points allowed per game', 'defense', '19.6'], ['Explosive plays allowed', 'defense', '12.8%'], ['Adjusted EPA per play', 'adjusted', '0.04']];
+  const same = games.filter((g) => g.slug === team.slug).flatMap((g) => [g.away, g.home]).filter((t, i, a) => t.id !== team.id && a.findIndex((x) => x.id === t.id) === i);
+  const pool = (same.length ? same : [team]).sort((a, b) => (hash(a.id + team.id) % 97) - (hash(b.id + team.id) % 97));
   return {
-    team, league: team.sport === 'CFB' ? 'NCAAF' : team.sport, record: `Sample ${(h % 5) + 3}-${(h % 3) + 1}`, season: null,
+    team, league: team.sport === 'CFB' ? 'NCAAF' : team.sport, record: `${(h % 5) + 3}-${(h % 3) + 1}`, season: null,
     metrics: names.map(([name, group, value], i) => ({ id: `sample-${i}`, name, value, rank: ((h >> i) % n) + 1, n, higherIsBetter: true, group, window: 'SEASON', unit: null, route: `/v3/stat/${team.slug}/sample-${i}?team=${team.id}` })),
     results: pool.slice(0, 5).map((o, i) => { const f = 14 + ((h >> i) % 24), a = 10 + ((h >> (i + 3)) % 20); return { eventId: `sample-${i}`, date: new Date(Date.now() - (i + 1) * 7 * 864e5).toISOString(), oppId: o.id, oppName: o.name, home: i % 2 === 0, for: f, against: a, outcome: f > a ? 'W' : 'L', opp: o }; }),
     roster: [], injuries: [], asOf: null, provenance: 'demo',

@@ -131,8 +131,10 @@ export function GameDetail() {
   }, [g?.key]);
   const tabsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // Only scroll the tab strip when the selected tab is not fully in view (never to centre it: that clips the first tab for no reason).
     const el = tabsRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
-    if (el && tabsRef.current) tabsRef.current.scrollLeft = Math.max(0, el.offsetLeft - 24);
+    const box = tabsRef.current;
+    if (el && box && (el.offsetLeft < box.scrollLeft || el.offsetLeft + el.offsetWidth > box.scrollLeft + box.clientWidth)) box.scrollLeft = Math.max(0, el.offsetLeft - 16);
   }, [tab, g?.key]);
 
   if (!g) {

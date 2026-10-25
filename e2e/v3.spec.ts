@@ -93,7 +93,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await expect(page.getByRole('dialog')).toContainText(/not on the published slate|Open this game/);
     await page.keyboard.press('Escape');
     await expect(page.locator('.v3-bc__bar')).toHaveCount(5);
-    await page.getByRole('button', { name: /^Filters/ }).click();
+    await page.getByRole('button', { name: /^Research filters/ }).click();
     await page.getByRole('button', { name: 'Home', exact: true }).click();
     await page.getByRole('button', { name: 'Apply filters' }).click();
     await expect(page).toHaveURL(/site=home/);

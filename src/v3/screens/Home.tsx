@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import { heroTeam } from '../../lib/hero/input';
 import { useSlate } from '../data/useSlate';
@@ -7,7 +7,7 @@ import { useGameResearch } from '../../views/broadcast/parts';
 import { demoLens, lensFromResearch } from '../data/lens';
 import { pickFeatured, stripGames } from '../model/feature';
 import { clockTime, dayWord } from '../model/format';
-import { toggleFollow, useAlerts, useFollows } from '../state/prefs';
+import { setPrefs, toggleFollow, useAlerts, useFollows, usePrefs } from '../state/prefs';
 import type { V3Game, V3Team } from '../model/types';
 import { Brand } from '../ui/Brand';
 import { HeroBg } from '../ui/HeroBg';
@@ -16,6 +16,7 @@ import { LensSlot } from '../ui/Lens';
 import { GameStories } from '../ui/Stories';
 import { useSheet } from '../ui/Sheet';
 import { TeamLogo } from '../ui/TeamLogo';
+import { Welcome } from '../ui/Welcome';
 import { gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref } from '../ui/gamebits';
 import { sportsIn } from './Games';
 
@@ -141,6 +142,13 @@ export function Home() {
   }, [pool, featured]);
   const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; }, { replace: true });
   const hasAlerts = Object.keys(alerts).length > 0;
+  const prefs = usePrefs();
+  // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.
+  useEffect(() => {
+    if (demo || prefs.onboarded || loading || games.length === 0) return;
+    setPrefs({ onboarded: true });
+    sheet.open('Welcome to SIFT', <Welcome games={games} />, { tall: true });
+  }, [demo, prefs.onboarded, loading, games.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="v3-page v3-home">

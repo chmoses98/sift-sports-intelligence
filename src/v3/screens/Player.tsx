@@ -229,8 +229,11 @@ export function Player() {
                 )}
                 {(R.tab === 'overview' || R.tab === 'props') && R.stat && (
                   <>
-                    <div className="v3-pills" role="group" aria-label="Stat">
-                      {vm.stats.map((s) => <button key={s.key} type="button" className="v3-pill" aria-pressed={R.stat === s.key} onClick={() => { setSel(null); R.set({ stat: s.key, line: null }); }}>{s.short}</button>)}
+                    <div className="v3-pillrow">
+                      <div className="v3-pills" role="group" aria-label="Stat">
+                        {vm.stats.map((s) => <button key={s.key} type="button" className="v3-pill" aria-pressed={R.stat === s.key} onClick={() => { setSel(null); R.set({ stat: s.key, line: null }); }}>{s.short}</button>)}
+                      </div>
+                      <button type="button" className={`v3-iconbtn v3-pillrow__f${fAct ? ' is-on' : ''}`} aria-label={`Research filters${fAct ? `, ${fAct} applied` : ''}`} onClick={() => sheet.open('Research filters', <FiltersSheet vm={vm} filters={R.filters} set={R.set} />, { tall: true })}><Icon name="sliders" size={22} />{fAct > 0 && <i className="v3-badge v3-badge--f">{fAct}</i>}</button>
                     </div>
                     <section className={`v3-panel v3-linecard${price && quoteState(price.observedAt) === 'stale' && price.source === 'Kalshi' ? ' is-stale' : ''}`} aria-label="Selected line">
                       <div><h2>{statDef?.label}</h2><b className="num">{line ?? '—'}</b></div>
@@ -242,10 +245,9 @@ export function Player() {
                     <div className="v3-wins" role="group" aria-label="Window">
                       {chips.map(({ w, s }) => <button key={w} type="button" className="v3-win" aria-pressed={R.win === w} onClick={() => { setSel(null); R.set({ win: w === 'L10' ? null : w }); }}><span>{WIN_LABEL[w]}</span><b>{w === 'H2H' && !oppCode ? '—' : `${s.over}/${s.n}`}</b></button>)}
                     </div>
-                    <div className="v3-fbar">
+                    {chipsOf.length > 0 && <div className="v3-fbar" aria-label="Applied filters">
                       {chipsOf.map((c) => <button key={c} type="button" className="v3-fchip" aria-label={`Remove filter ${c}`} onClick={() => clear(c)}>{c}<Icon name="close" size={14} /></button>)}
-                      <button type="button" className="v3-fbtn" onClick={() => sheet.open('Research filters', <FiltersSheet vm={vm} filters={R.filters} set={R.set} />, { tall: true })}><Icon name="sliders" size={18} />Filters{fAct ? ` · ${fAct}` : ''}</button>
-                    </div>
+                    </div>}
                     {win.length === 0 ? (
                       <div className="v3-state"><Icon name="info" size={20} /><div><b>0 games match</b>{R.win === 'H2H' && !oppCode ? 'There is no coming opponent to compare against.' : 'No game fits the window and filters.'}<br />
                         {chipsOf.length > 0 && <button type="button" onClick={() => R.set({ site: null, opp: null, rest: null, script: null, min: null })}>Remove all filters</button>}</div></div>

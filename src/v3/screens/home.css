@@ -117,3 +117,11 @@
 .v3-lenscard--none .v3-lenscard__t span { font-size: 14px; color: var(--sift-muted); }
 .v3-mc--skel { min-height: 98px; padding: 8px; }
 .v3-mc--skel .v3-skel { width: 100%; height: 80px; }
+
+.v3-welcome { display: grid; gap: 12px; }
+.v3-welcome__p { font: 400 17px/25px var(--f-ui); color: #d4e6f2; }
+.v3-welcome__teams { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.v3-wt { position: relative; display: grid; justify-items: center; gap: 4px; min-height: 84px; padding: 8px 4px; border-radius: 14px; background: rgba(7, 33, 53, 0.82); border: 1px solid rgba(26, 82, 110, 0.9); font: 500 13px/16px var(--f-ui); text-align: center; }
+.v3-wt[aria-pressed='true'] { border-color: var(--sift-cyan); box-shadow: 0 0 0 1px rgba(22, 201, 220, 0.5) inset; background: linear-gradient(180deg, rgba(14, 76, 108, 0.7), rgba(7, 42, 66, 0.8)); }
+.v3-wt svg { position: absolute; top: 6px; right: 6px; color: var(--sift-cyan); }
+.v3-welcome .v3-btn--cyan { width: 100%; }

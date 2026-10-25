@@ -125,7 +125,7 @@ export function LinesBox({ g, loading }: { g: V3Game; loading?: boolean }) {
   return (
     <button type="button" className="v3-lines" aria-label={`${shown.map((l) => `${l.label} at ${l.price.ask ?? 'no'} cents`).join(', ')}. Kalshi market prices. Open market detail`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); open(g, first); }}>
       {shown.map((l) => (
-        <span key={l.kind} className="v3-lines__r"><b>{l.label}</b><em><PriceText p={l.price} compact /></em></span>
+        <span key={l.kind} className={`v3-lines__r${quoteState(l.price.observedAt) === 'stale' ? ' is-stale' : ''}`}><b>{l.label}</b><em><PriceText p={l.price} compact /></em></span>
       ))}
     </button>
   );

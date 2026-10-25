@@ -5,7 +5,7 @@ import { deriveProps } from '../data/adapt';
 import type { Lens } from '../data/lens';
 import { demoPairs, pairsFromResearch, type StatPair } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
-import { ago } from '../model/format';
+import { ago, quoteState } from '../model/format';
 import type { MarketLine, V3Game } from '../model/types';
 import { Icon } from '../ui/Icon';
 import { LensCard } from '../ui/Lens';
@@ -24,14 +24,14 @@ function MarketCard({ g, label, line }: { g: V3Game; label: string; line: Market
   }
   const alt = line.kind === 'moneyline' && line.alternates && line.alternates.length === 2 ? line.alternates : null;
   return (
-    <button type="button" className="v3-mc" aria-label={`${label}: ${line.label}, ${line.price.ask ?? 'no'} cents. Open market detail`} onClick={() => open(g, line)}>
+    <button type="button" className={`v3-mc${quoteState(line.price.observedAt) === 'stale' ? ' is-stale' : ''}`} aria-label={`${label}: ${line.label}, ${line.price.ask ?? 'no'} cents. Open market detail`} onClick={() => open(g, line)}>
       <span className="v3-mc__k">{label}</span>
       {alt ? (
         <span className="v3-mc__v v3-mc__v--ml">
           {alt.map((p, i) => <span key={p.ticker}><i>{i === 0 ? g.away.abbr : g.home.abbr}</i><b className="num">{p.ask != null ? `${p.ask}¢` : '—'}</b></span>)}
         </span>
       ) : (
-        <span className="v3-mc__v"><b>{line.label}</b><small><PriceText p={line.price} compact /> · {Math.round(line.price.implied ?? line.price.ask ?? 0)}%</small></span>
+        <span className="v3-mc__v"><b>{line.label}</b><small><PriceText p={line.price} compact /> · {Math.round(line.price.implied ?? line.price.ask ?? 0)}%{quoteState(line.price.observedAt) === 'stale' ? ' · last known' : ''}</small></span>
       )}
     </button>
   );
@@ -46,7 +46,7 @@ export function MarketsRow({ g }: { g: V3Game }) {
         <MarketCard g={g} label="Total" line={by('total')} />
         <MarketCard g={g} label="Moneyline" line={by('moneyline')} />
       </div>
-      <p className="v3-mcs__src">{g.lines[0]?.price.source === 'Sample' ? 'Sample prices' : g.lines.length ? `Kalshi prediction-market prices${g.lines[0]?.price.observedAt ? ` · ${ago(g.lines[0].price.observedAt)}` : ''}. Market-implied %, not a SIFT model number.` : 'No Kalshi lines are listed for this game.'}</p>
+      <p className="v3-mcs__src">{g.lines[0]?.price.source === 'Sample' ? 'Sample prices' : g.lines.length ? (quoteState(g.lines[0].price.observedAt) === 'stale' ? `Kalshi prices as last captured ${ago(g.lines[0].price.observedAt)}: last known, not current prices. ` : `Kalshi prediction-market prices · ${ago(g.lines[0].price.observedAt)}. `) + 'Market-implied %, not a SIFT model number.' : 'No Kalshi lines are listed for this game.'}</p>
     </section>
   );
 }
@@ -210,18 +210,23 @@ function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
   const [stat, setStat] = useState<string | null>(null);
   const [all, setAll] = useState(false);
   if (g.provenance === 'demo') {
+    const nba = g.sport === 'NBA';
+    const rows = nba
+      ? [{ player: 'Sample Guard', stat: 'Points', line: 27.5, ask: 52, team: 'home', link: true }, { player: 'Sample Guard', stat: 'Assists', line: 6.5, ask: 49, team: 'home', link: true }, { player: 'Sample Guard', stat: 'Rebounds', line: 4.5, ask: 51, team: 'home', link: true }]
+      : DEMO_PROPS.map((p) => ({ ...p, link: false }));
     return (
       <section aria-label="Player props">
         <h2 className="v3-h2">Player Props <small className="v3-tag">Sample</small></h2>
         <ul className="v3-props">
-          {DEMO_PROPS.map((p) => (
-            <li key={p.player}>
-              <div className="v3-prop__who"><TeamLogo team={g[p.team as 'away' | 'home']} size={34} /><span><b>{p.player}</b><small>{p.stat} · over {p.line}</small></span></div>
+          {rows.map((p) => (
+            <li key={p.player + p.stat}>
+              {p.link ? <Link to={`/v3/player/${g.slug}/sample-guard?stat=${p.stat === 'Points' ? 'pts' : p.stat === 'Assists' ? 'ast' : 'reb'}`} className="v3-prop__who"><TeamLogo team={g[p.team as 'away' | 'home']} size={34} /><span><b>{p.player}</b><small>{p.stat} · over {p.line}</small></span></Link>
+                : <div className="v3-prop__who"><TeamLogo team={g[p.team as 'away' | 'home']} size={34} /><span><b>{p.player}</b><small>{p.stat} · over {p.line}</small></span></div>}
               <span className="v3-prop__p num">{p.ask}¢</span>
             </li>
           ))}
         </ul>
-        <p className="v3-note v3-note--dim">Sample players and prices. Real player research opens from a real game.</p>
+        <p className="v3-note v3-note--dim">Sample players and prices. {nba ? 'Tap the sample guard to see player research.' : 'Only the sample NBA game links to a sample player page.'}</p>
       </section>
     );
   }

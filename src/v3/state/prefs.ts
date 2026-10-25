@@ -67,3 +67,15 @@ export function applyDemoParam(search: string): void {
     else if (q === '0') sessionStorage.removeItem(KEY);
   } catch { /* unavailable: demo cannot be switched on */ }
 }
+
+/** Recently opened entities (the Explore "Recent research" list): the route, a title and one line of context. */
+export interface Visit { route: string; title: string; subtitle: string; kind: 'player' | 'team' | 'game' | 'stat'; slug: string; logo?: string | null; abbr?: string }
+const visits = createStore<Visit[]>('visits', []);
+export const useVisits = () => useStore(visits);
+export const pushVisit = (v: Visit) => visits.set((l) => (l[0]?.route === v.route && l[0].title === v.title ? l : [v, ...l.filter((x) => x.route.split('?')[0] !== v.route.split('?')[0])].slice(0, 12)));
+export const clearVisits = () => visits.set([]);
+
+/** Wipe everything this device keeps (follows, alerts, saved research, recents, preferences). */
+export function clearAllLocal() {
+  follows.set({ teams: [], players: [], games: [] }); alerts.set({}); saved.set([]); recents.set([]); visits.set([]);
+}

@@ -98,7 +98,7 @@ export function MyTeams({ games, limit = 4 }: { games: V3Game[]; limit?: number 
   const suggest = useMemo(() => {
     if (teams.length) return [] as V3Team[];
     const seen = new Set<string>(); const out: V3Team[] = [];
-    for (const g of games) for (const t of [g.home, g.away]) { const k = `${t.slug}:${t.id}`; if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(t); } }
+    for (const g of games) for (const t of [g.home, g.away]) { if (!t.logo) continue; const k = `${t.slug}:${t.id}`; if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(t); } }
     return out;
   }, [games, teams.length, limit]);
   return (

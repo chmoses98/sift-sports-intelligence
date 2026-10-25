@@ -177,3 +177,5 @@
 
 /* icons never take the tap: the control around them is always the event target (WebKit drops the click when press and release land on a bare SVG) */
 .v3 :is(button, a) svg { pointer-events: none; }
+.v3 .is-stale { opacity: 0.62; }
+.v3 .is-stale em, .v3 .is-stale small { text-decoration: none; }

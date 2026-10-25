@@ -28,7 +28,8 @@ export function widestGap(rows: MatchupRow[]): { row: MatchupRow; gap: number } 
   for (const row of rows) {
     const h = rankOf(row.home), a = rankOf(row.away);
     if (!h || !a || h.n < 8 || a.n < 8) continue;
-    const gap = Math.abs(h.rank - a.rank) / (Math.max(h.n, a.n) - 1);
+    // Core offence/defence rows lead; special-teams and situational rows only when nothing else is ranked.
+    const gap = Math.abs(h.rank - a.rank) / (Math.max(h.n, a.n) - 1) * (/special|kick|punt|return|penalt/i.test(row.name) ? 0.35 : 1);
     if (!best || gap > best.gap) best = { row, gap };
   }
   return best;

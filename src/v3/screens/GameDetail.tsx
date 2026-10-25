@@ -6,7 +6,7 @@ import { useGameResearch } from '../../views/broadcast/parts';
 import { demoLens, lensFromResearch } from '../data/lens';
 import { switcherGames } from '../model/switcher';
 import { clockTime, dayWord } from '../model/format';
-import { useFollows } from '../state/prefs';
+import { pushVisit, useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { HeroBg } from '../ui/HeroBg';
@@ -118,6 +118,7 @@ export function GameDetail() {
   const lens = useMemo(() => (!g ? null : g.provenance === 'demo' ? demoLens(g) : lensFromResearch(research.data, g)), [g, research.data]);
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);
 
+  useEffect(() => { if (g) pushVisit({ route: gameHref(g), title: `${g.away.nick} at ${g.home.nick}`, subtitle: `${leagueLabel(g)} · ${g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Final' : dayWord(g.startMs)}`, kind: 'game', slug: g.slug, logo: g.home.logo }); }, [g?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   // collapse: the compact scoreboard appears once the hero and the rail have scrolled away
   const sentinel = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);

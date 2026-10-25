@@ -33,7 +33,7 @@
     radial-gradient(circle at 82% 9%, rgba(180, 225, 255, 0.5) 0 2px, transparent 3px),
     radial-gradient(circle at 91% 15%, rgba(180, 225, 255, 0.4) 0 1.5px, transparent 3px),
     linear-gradient(180deg, rgba(120, 190, 235, 0.18), transparent 38%); }
-.v3-herobg__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3, 21, 35, 0.1) 0%, rgba(3, 21, 35, 0.35) 45%, rgba(3, 21, 35, 0.86) 100%); }
+.v3-herobg__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3, 21, 35, 0.62) 0%, rgba(3, 21, 35, 0.18) 22%, rgba(3, 21, 35, 0.4) 55%, rgba(3, 21, 35, 0.9) 100%); }
 
 .v3-feat { position: relative; isolation: isolate; margin: 0 0 4px; padding: 12px 14px 14px; border-radius: 20px; border: 1px solid rgba(34, 98, 130, 0.8); box-shadow: 0 14px 40px rgba(0, 8, 18, 0.45), var(--lit); overflow: hidden; display: flex; flex-direction: column; }
 .v3-feat > :not(.v3-herobg):not(.v3-feat__hit) { position: relative; z-index: 1; }

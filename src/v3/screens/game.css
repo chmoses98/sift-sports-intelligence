@@ -177,3 +177,7 @@
 .v3-prop__who small { font: 400 12px/16px var(--f-ui); color: var(--sift-muted); }
 .v3-prop__p { flex: none; min-width: 64px; height: 44px; padding: 0 12px; border-radius: 12px; font-size: 16px; font-weight: 600; text-align: center; background: rgba(5, 29, 48, 0.85); border: 1px solid rgba(26, 82, 110, 0.9); color: var(--sift-cyan); }
 .v3-story--btn { width: 100%; text-align: left; }
+.v3-cb__mid--team { justify-content: flex-start; padding: 0 12px; }
+.v3-cb__mid--team b { font: 600 18px/22px var(--f-ui); }
+.v3-tabs--box { top: calc(var(--sat) + 0px); }
+.v3-tabs--box.is-stuck { top: calc(var(--sat) + 58px); }

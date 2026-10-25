@@ -16,7 +16,7 @@
 .v3-sw__all { flex: none; width: 42px; height: 72px; margin-top: 2px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #dcecf7; background: linear-gradient(180deg, rgba(10, 44, 70, 0.82), rgba(5, 29, 48, 0.88)); border: 1px solid rgba(23, 72, 97, 0.95); box-shadow: var(--lit); }
 
 /* ---- picker sheet (10) */
-.v3-pk { display: grid; gap: 12px; min-height: 100%; }
+.v3-pk { display: grid; gap: 12px; align-content: start; }
 .v3-pk__search { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 12px; border-radius: 14px; background: rgba(5, 29, 48, 0.85); border: 1px solid rgba(26, 82, 110, 0.9); color: var(--sift-muted); }
 .v3-pk__search input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: 0; color: var(--sift-text); font: 400 16px/1 var(--f-ui); -webkit-appearance: none; appearance: none; }
 .v3-pk__search input::placeholder { color: var(--sift-dim); }
@@ -44,20 +44,20 @@
 
 /* ---- Game Detail hero (06/07/08) */
 .v3-gd { position: relative; }
-.v3-gh { position: relative; isolation: isolate; padding: calc(var(--sat) + 4px) 14px 12px; min-height: 252px; overflow: hidden; border-radius: 0 0 22px 22px; }
+.v3-gh { position: relative; isolation: isolate; padding: calc(var(--sat) + 2px) 14px 12px; min-height: 232px; overflow: hidden; border-radius: 0 0 22px 22px; }
 .v3-gh > :not(.v3-herobg) { position: relative; z-index: 1; }
-.v3-gh__bar { display: flex; align-items: center; height: 52px; margin: 0 -8px; }
+.v3-gh__bar { display: flex; align-items: center; height: 48px; margin: 0 -8px; }
 .v3-gh__meta { display: grid; justify-items: center; gap: 4px; margin-top: -2px; text-align: center; }
 .v3-gh__lg { font: 600 14px/18px var(--f-ui); color: #e6f2fa; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6); }
 .v3-gh__st { display: inline-flex; align-items: center; gap: 8px; font: 500 15px/20px var(--f-ui); color: #f4d27a; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6); }
 .v3-gh__clk { color: #f4d27a; }
 .v3-gh__when { color: #e6f2fa; }
 .v3-gh__fin { font: 700 12px/1 var(--f-ui); letter-spacing: 0.08em; padding: 4px 7px; border-radius: 5px; background: rgba(160, 200, 225, 0.22); color: #e6f2fa; }
-.v3-gh__grid { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 6px; row-gap: 4px; align-items: center; margin-top: 12px; }
+.v3-gh__grid { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 6px; row-gap: 2px; align-items: center; margin-top: 8px; }
 .v3-gh__logo { justify-self: start; display: inline-flex; min-height: 44px; filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6)); }
 .v3-gh__logo--h { justify-self: end; }
 .v3-gh__sc { text-align: center; display: grid; justify-items: center; }
-.v3-gh__sc .num { font-size: 46px; line-height: 50px; font-weight: 800; letter-spacing: -0.035em; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.65); white-space: nowrap; }
+.v3-gh__sc .num { font-size: 44px; line-height: 48px; font-weight: 800; letter-spacing: -0.035em; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.65); white-space: nowrap; }
 .v3-gh__sc .num i { font-style: normal; font-weight: 400; margin: 0 7px; color: #b6cddd; }
 .v3-gh__at { font: 500 16px/22px var(--f-ui); color: #cfe4f2; }
 .v3-gh__tag { font: 600 10px/12px var(--f-ui); letter-spacing: 0.08em; text-transform: uppercase; color: #f5d38e; }
@@ -181,3 +181,5 @@
 .v3-cb__mid--team b { font: 600 18px/22px var(--f-ui); }
 .v3-tabs--box { top: calc(var(--sat) + 0px); }
 .v3-tabs--box.is-stuck { top: calc(var(--sat) + 58px); }
+.v3-drive h3 { display: inline-flex; align-items: center; gap: 10px; font-size: 18px; }
+.v3-field__yds { display: grid; grid-template-columns: repeat(9, 1fr); margin: 0 8%; text-align: center; font: 500 12px/14px var(--f-ui); color: var(--sift-muted); margin-top: -4px; }

@@ -46,6 +46,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
         {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? 'In play'}</span> : <span className="v3-gc__time">{statusWord(g)}</span>}
         <span className="v3-gc__net">{g.network ?? ''}</span>
       </header>
+      <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} className="v3-gc__star" />
       <div className="v3-gc__b">
         <div className="v3-gc__sides">
           <Side g={g} side="away" />
@@ -57,7 +58,6 @@ export function GameCard({ g: base }: { g: V3Game }) {
           <LinesBox g={g} loading={g.provenance === 'publication' && g.phase !== 'final' && x?.detailLoading} />
         )}
         <div className="v3-gc__act">
-          <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
           <AlertBell id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
         </div>
       </div>

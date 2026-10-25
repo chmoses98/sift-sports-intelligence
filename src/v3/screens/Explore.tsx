@@ -46,6 +46,9 @@ export function Explore() {
   const recents = useRecents();
   const visits = useVisits();
   const input = useRef<HTMLInputElement>(null);
+  // The field keeps its own text (so typing is never fought by the router) and mirrors it into the address for Back and reload.
+  const [text, setText] = useState(q);
+  useEffect(() => { setText(q); }, [q]);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   useEffect(() => { if (sp.get('focus') === '1') { input.current?.focus(); set({ focus: null }); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const sports = useMemo(() => sportsIn(games), [games]);
@@ -54,8 +57,8 @@ export function Explore() {
   // Worth a look: the publication's own busiest games (research signals, then priced contracts), never a duplicate of Recent research.
   const trending = useMemo(() => {
     const seen = new Set(visits.map((v) => v.route.split('?')[0]));
-    const pool = (sport === 'all' ? games : games.filter((g) => g.slug === sport)).filter((g) => g.phase !== 'final' && g.item);
-    return [...pool].sort((a, b) => b.signals - a.signals || (b.item?.markets_priced ?? 0) - (a.item?.markets_priced ?? 0) || a.startMs - b.startMs).filter((g) => !seen.has(gameHref(g))).slice(0, 4);
+    const pool = (sport === 'all' ? games : games.filter((g) => g.slug === sport)).filter((g) => g.phase !== 'final');
+    return [...pool].sort((a, b) => b.signals - a.signals || ((b.item?.markets_priced ?? b.lines.length) - (a.item?.markets_priced ?? a.lines.length)) || a.startMs - b.startMs).filter((g) => !seen.has(gameHref(g))).slice(0, 4);
   }, [games, sport, visits]);
 
   return (
@@ -63,8 +66,8 @@ export function Explore() {
       <h1 className="v3-pgtitle">Explore</h1>
       <label className="v3-search">
         <Icon name="search" size={22} />
-        <input ref={input} type="search" value={q} onChange={(e) => set({ q: e.target.value || null })} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
-        {q && <button type="button" aria-label="Clear search" onClick={() => set({ q: null })}><Icon name="close" size={18} /></button>}
+        <input ref={input} type="search" value={text} onChange={(e) => { setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
+        {text && <button type="button" aria-label="Clear search" onClick={() => { setText(''); set({ q: null }); }}><Icon name="close" size={18} /></button>}
       </label>
       <div className="v3-rail v3-rail--box" role="tablist" aria-label="Sport">
         {[{ slug: 'all', label: 'All' }, ...sports].map((s) => <button key={s.slug} type="button" role="tab" aria-selected={sport === s.slug} className="v3-rail__t" onClick={() => set({ sport: s.slug === 'all' ? null : s.slug })}>{s.label}</button>)}
@@ -108,7 +111,7 @@ export function Explore() {
             <section aria-label="What's trending">
               <div className="v3-sechead"><h2>What's Trending</h2><Link to="/v3/games">See games<Icon name="chevR" size={16} /></Link></div>
               <ul className="v3-hits">{trending.map((g: V3Game) => (
-                <li key={g.key} className="v3-hit"><Link to={gameHref(g)} className="v3-hit__l"><span className="v3-av v3-av--pair"><TeamLogo team={g.away} size={30} /><TeamLogo team={g.home} size={30} /></span><span className="v3-hit__t"><b>{g.away.nick} at {g.home.nick}</b><small>{g.signals > 0 ? `${g.signals} published research signal${g.signals === 1 ? '' : 's'}` : `${g.item?.markets_priced ?? 0} priced contracts`}</small></span><Icon name="chevR" size={20} /></Link></li>
+                <li key={g.key} className="v3-hit"><Link to={gameHref(g)} className="v3-hit__l"><span className="v3-av v3-av--pair"><TeamLogo team={g.away} size={30} /><TeamLogo team={g.home} size={30} /></span><span className="v3-hit__t"><b>{g.away.nick} at {g.home.nick}</b><small>{g.signals > 0 ? `${g.signals} published research signal${g.signals === 1 ? '' : 's'}` : `${g.item?.markets_priced ?? g.lines.length} priced contracts`}</small></span><Icon name="chevR" size={20} /></Link></li>
               ))}</ul>
             </section>
           )}

@@ -41,3 +41,10 @@ export function LensCard({ lens, to, className }: { lens: Lens; to: string; clas
     </button>
   );
 }
+
+/** A slot whose height is reserved from first paint: a skeleton while the research loads, then the Lens card, or a quiet "none" line. Nothing above a tappable control moves after first paint. */
+export function LensSlot({ lens, loading, to, className }: { lens: Lens | null; loading: boolean; to: string; className?: string }) {
+  if (lens) return <LensCard lens={lens} to={to} className={className} />;
+  if (loading) return <div className={`v3-lenscard v3-lenscard--skel${className ? ` ${className}` : ''}`} role="status" aria-label="Loading SIFT Lens"><i className="v3-skel" /></div>;
+  return <div className={`v3-lenscard v3-lenscard--none${className ? ` ${className}` : ''}`}><Icon name="lens" size={30} /><span className="v3-lenscard__t"><span>No SIFT Lens observation for this game yet.</span></span></div>;
+}

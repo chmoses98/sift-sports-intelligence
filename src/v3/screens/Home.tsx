@@ -12,7 +12,7 @@ import type { V3Game, V3Team } from '../model/types';
 import { Brand } from '../ui/Brand';
 import { HeroBg } from '../ui/HeroBg';
 import { Icon } from '../ui/Icon';
-import { LensCard } from '../ui/Lens';
+import { LensSlot } from '../ui/Lens';
 import { GameStories } from '../ui/Stories';
 import { useSheet } from '../ui/Sheet';
 import { TeamLogo } from '../ui/TeamLogo';
@@ -70,14 +70,14 @@ function Featured({ base }: { base: V3Game }) {
         <span className="v3-feat__net">{g.network ?? leagueLabel(g)}</span>
       </header>
       <div className="v3-feat__mid">
-        <Link to={teamHref(g.away)} className="v3-feat__team" aria-label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={60} /><b>{g.away.nick}</b>{g.away.record && <small>{g.away.record}</small>}</Link>
+        <Link to={teamHref(g.away)} className="v3-feat__team" aria-label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={54} /><b>{g.away.nick}</b>{g.away.record && <small>{g.away.record}</small>}</Link>
         <div className="v3-feat__sc">
           {g.score ? <span className="num">{g.score.away}<i>–</i>{g.score.home}</span> : <span className="v3-feat__at">{g.phase === 'pregame' ? 'at' : 'vs'}</span>}
         </div>
-        <Link to={teamHref(g.home)} className="v3-feat__team" aria-label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={60} /><b>{g.home.nick}</b>{g.home.record && <small>{g.home.record}</small>}</Link>
+        <Link to={teamHref(g.home)} className="v3-feat__team" aria-label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={54} /><b>{g.home.nick}</b>{g.home.record && <small>{g.home.record}</small>}</Link>
       </div>
       <p className="v3-feat__status">{g.phase === 'live' ? (g.situation?.text ?? src ?? 'In play') : g.phase === 'final' ? (src ?? 'Final') : `${leagueLabel(g)}${g.network ? ` · ${g.network}` : ''}`}</p>
-      {lens && <div className="v3-feat__lens"><LensCard lens={lens} to={`${gameHref(g)}?tab=matchup`} /></div>}
+      <div className="v3-feat__lens"><LensSlot lens={lens} loading={g.provenance === 'publication' && research.loading} to={`${gameHref(g)}?tab=matchup`} /></div>
       <Link to={gameHref(g)} className="v3-btn v3-btn--glass">Game Center<Icon name="chevR" size={18} /></Link>
     </article>
   );

@@ -108,7 +108,7 @@ export function Games() {
         {day !== today && <button type="button" onClick={() => set('date', null)}>Back to today</button>}
       </div>
 
-      {shown.length > 0 && st !== 'final' && <p className="v3-note v3-linesnote">Lines are Kalshi prediction-market prices in ¢ (market-implied %), not sportsbook odds.</p>}
+      {shown.length > 0 && st !== 'final' && <p className="v3-note v3-linesnote">Lines: Kalshi prediction-market prices in ¢, not sportsbook odds.</p>}
       {unavailable && <div className="v3-state v3-state--warn" role="alert"><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>A failed publication does not mean there are no games. Try again in a moment.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginBottom: 10 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
       {loading && !games.length && <div role="status" aria-label="Loading games" className="v3-gclist">{[0, 1, 2, 3].map((i) => <div key={i} className="v3-skel v3-gc-skel" />)}</div>}

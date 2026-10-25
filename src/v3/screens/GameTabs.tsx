@@ -8,7 +8,7 @@ import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
 import { ago, quoteState } from '../model/format';
 import type { MarketLine, V3Game } from '../model/types';
 import { Icon } from '../ui/Icon';
-import { LensCard } from '../ui/Lens';
+import { LensSlot } from '../ui/Lens';
 import { GameStories } from '../ui/Stories';
 import { TeamLogo } from '../ui/TeamLogo';
 import { PriceText, gameHref, useOpenLine } from '../ui/gamebits';
@@ -37,8 +37,9 @@ function MarketCard({ g, label, line }: { g: V3Game; label: string; line: Market
   );
 }
 
-export function MarketsRow({ g }: { g: V3Game }) {
+export function MarketsRow({ g, loading = false }: { g: V3Game; loading?: boolean }) {
   const by = (k: MarketLine['kind']) => g.lines.find((l) => l.kind === k);
+  if (loading) return <section aria-label="Market prices" role="status"><div className="v3-mcs">{[0, 1, 2].map((i) => <div key={i} className="v3-mc v3-mc--skel"><i className="v3-skel" /></div>)}</div><p className="v3-mcs__src">Loading Kalshi prices…</p></section>;
   return (
     <section aria-label="Market prices">
       <div className="v3-mcs">
@@ -59,7 +60,7 @@ function DriveCard({ g }: { g: V3Game }) {
   const pos = (y: number) => `${Math.max(2, Math.min(98, y))}%`;
   return (
     <section className="v3-panel v3-drive" aria-label="Current drive">
-      <header><h3>Current Drive</h3><span>{d.plays} plays · {d.yards} yards · {d.time}</span></header>
+      <header><h3><TeamLogo team={d.team === g.away.abbr ? g.away : g.home} size={26} />{d.team} Current Drive</h3><span>{d.plays} plays · {d.yards} yds · {d.time}</span></header>
       <div className="v3-field" role="img" aria-label={`Sample drive from the ${d.fromYard} to the ${d.toYard} yard line`}>
         <i className="v3-field__ez v3-field__ez--l" /><i className="v3-field__ez v3-field__ez--r" />
         <i className="v3-field__path" style={{ left: pos(d.fromYard), width: `${d.toYard - d.fromYard}%` }} />
@@ -67,6 +68,7 @@ function DriveCard({ g }: { g: V3Game }) {
         <i className="v3-field__ball" style={{ left: pos(d.ball) }} />
         <b className="v3-field__dn">1st &amp; 10</b>
       </div>
+      <div className="v3-field__yds" aria-hidden="true">{[10, 20, 30, 40, 50, 40, 30, 20, 10].map((y, i) => <span key={i}>{y}</span>)}</div>
       <p className="v3-drive__s">{d.down}</p>
     </section>
   );
@@ -266,8 +268,8 @@ export function GameTabBody({ tab, g, lens, detail, research, researchLoading, o
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: '2h ago', team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: '3h ago', team: g.home }];
   return (
     <>
-      <MarketsRow g={g} />
-      {lens && <LensCard lens={lens} to={`${gameHref(g)}?tab=matchup`} className="v3-gd__lens" />}
+      <MarketsRow g={g} loading={g.provenance === 'publication' && !detail} />
+      <LensSlot lens={lens} loading={g.provenance === 'publication' && researchLoading} to={`${gameHref(g)}?tab=matchup`} className="v3-gd__lens" />
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
       {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
       <section aria-label="Key storylines">

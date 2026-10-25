@@ -31,8 +31,12 @@ function lines(sport: string, away: V3Team, home: V3Team, o: { spread?: [V3Team,
     out.push({ kind: 'spread', label: `${t.abbr} −${v.toFixed(1)}`, line: v, teamId: t.id, price: price(`SAMPLE-${sport}-SPREAD-${t.abbr}${v}`, ask, `SAMPLE: ${t.abbr} wins by more than ${v}`) });
   }
   if (o.total) out.push({ kind: 'total', label: `O/U ${o.total[0].toFixed(1)}`, line: o.total[0], price: price(`SAMPLE-${sport}-TOTAL-${o.total[0]}`, o.total[1], `SAMPLE: total points over ${o.total[0]}`) });
-  if (o.ml) out.push({ kind: 'moneyline', label: `${o.ml[0].abbr} to win`, line: null, teamId: o.ml[0].id, price: price(`SAMPLE-${sport}-WIN-${o.ml[0].abbr}`, o.ml[1], `SAMPLE: ${o.ml[0].name} win`) });
-  void away; void home;
+  if (o.ml) {
+    const other = o.ml[0].id === away.id ? home : away;
+    const fav = price(`SAMPLE-${sport}-WIN-${o.ml[0].abbr}`, o.ml[1], `SAMPLE: ${o.ml[0].name} win`);
+    const dog = price(`SAMPLE-${sport}-WIN-${other.abbr}`, 101 - o.ml[1], `SAMPLE: ${other.name} win`);
+    out.push({ kind: 'moneyline', label: `${o.ml[0].abbr} to win`, line: null, teamId: o.ml[0].id, price: fav, alternates: o.ml[0].id === away.id ? [fav, dog] : [dog, fav] });
+  }
   return out;
 }
 

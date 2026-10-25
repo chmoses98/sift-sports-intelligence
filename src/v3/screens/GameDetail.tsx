@@ -70,12 +70,12 @@ function Hero({ g, back }: { g: V3Game; back: () => void }) {
         )}
       </div>
       <div className="v3-gh__grid">
-        <Link to={teamHref(g.away)} className="v3-gh__logo" aria-label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={76} /></Link>
+        <Link to={teamHref(g.away)} className="v3-gh__logo" aria-label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={66} /></Link>
         <div className="v3-gh__sc">
           {g.score ? <span className="num">{g.score.away}<i>–</i>{g.score.home}</span> : <span className="v3-gh__at">{g.phase === 'pregame' ? 'at' : '—'}</span>}
           {g.score?.source === 'demo' && <small className="v3-gh__tag">Sample score</small>}
         </div>
-        <Link to={teamHref(g.home)} className="v3-gh__logo v3-gh__logo--h" aria-label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={76} /></Link>
+        <Link to={teamHref(g.home)} className="v3-gh__logo v3-gh__logo--h" aria-label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={66} /></Link>
         <Link to={teamHref(g.away)} className="v3-gh__nm">{rankName(g.away)}{g.away.record && <em>({g.away.record})</em>}</Link>
         <div className="v3-gh__sit">{live ? (g.situation ? <>{g.situation.possession && <i className={`v3-gh__ball v3-gh__ball--${g.situation.possession}`} />}<span>{g.situation.text}</span></> : <span>{src ?? ''}</span>) : g.phase === 'final' ? <span>{src ?? ''}</span> : null}</div>
         <Link to={teamHref(g.home)} className="v3-gh__nm v3-gh__nm--h">{rankName(g.home)}{g.home.record && <em>({g.home.record})</em>}</Link>

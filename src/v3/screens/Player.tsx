@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams, useSearchParams } from '../.
 import { usePlayerVM, type PlayerVM } from '../data/usePlayer';
 import { useSlate } from '../data/useSlate';
 import { applyFilters, filtersActive, NO_FILTERS, referenceLine, resultOf, sliceWindow, smallSample, summarize, WINDOWS, type Filters, type Obs, type Window } from '../model/research';
-import { ago, clockTime, dayWord } from '../model/format';
+import { ago, clockTime, dayWord, quoteState } from '../model/format';
 import { pushVisit, removeSaved, saveResearch, useSaved } from '../state/prefs';
 import type { Price } from '../model/types';
 import { BarChart } from '../ui/BarChart';
@@ -232,10 +232,10 @@ export function Player() {
                     <div className="v3-pills" role="group" aria-label="Stat">
                       {vm.stats.map((s) => <button key={s.key} type="button" className="v3-pill" aria-pressed={R.stat === s.key} onClick={() => { setSel(null); R.set({ stat: s.key, line: null }); }}>{s.short}</button>)}
                     </div>
-                    <section className="v3-panel v3-linecard" aria-label="Selected line">
+                    <section className={`v3-panel v3-linecard${price && quoteState(price.observedAt) === 'stale' && price.source === 'Kalshi' ? ' is-stale' : ''}`} aria-label="Selected line">
                       <div><h2>{statDef?.label}</h2><b className="num">{line ?? '—'}</b></div>
                       <div className="v3-linecard__r">
-                        {price ? <><span className="v3-linecard__o">Over</span><b className="num">{price.ask}¢</b><small>{Math.round(price.implied ?? price.ask ?? 0)}% implied · {price.source}{price.source === 'Kalshi' ? ` · ${ago(price.observedAt)}` : ''}</small></> : <small className="v3-linecard__ref">Reference line · no market</small>}
+                        {price ? <><span className="v3-linecard__o">Over</span><b className="num">{price.ask}¢</b><small>{Math.round(price.implied ?? price.ask ?? 0)}% implied · {price.source}{price.source === 'Kalshi' ? ` · ${quoteState(price.observedAt) === 'stale' ? 'last known ' : ''}${ago(price.observedAt)}` : ''}</small></> : <small className="v3-linecard__ref">Reference line · no market</small>}
                       </div>
                       <button type="button" className="v3-iconbtn v3-linecard__c" aria-label="Choose a line" onClick={() => sheet.open('Choose a line', <LinesSheet vm={vm} stat={R.stat!} line={line} set={R.set} />, { tall: true })}><Icon name="chevD" size={22} /></button>
                     </section>

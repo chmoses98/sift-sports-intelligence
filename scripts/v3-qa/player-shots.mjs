@@ -1,7 +1,7 @@
 // Phone screenshots of every Player Research state (P1 to P4, the contract sheet) from REAL published documents with the page's clock pinned
 // to the capture (see e2e/support/playerFeeds.ts), so prices show exactly as they would on a live phone.
 //   BASE=http://localhost:5391/sift-sports-intelligence/ node --experimental-strip-types scripts/v3-qa/player-shots.mjs OUT_DIR [scene,scene] [route]
-// Scenes: p1 p1full p2 p3 p4 contract props. Default player: CeeDee Lamb (NFL). W/H set the viewport (default 390x844).
+// Scenes: p1 p1full p2 p3 p4 contract props trends log replay. Default player: CeeDee Lamb (NFL). W/H set the viewport (default 390x844).
 import { chromium } from '@playwright/test';
 import { existsSync, mkdirSync } from 'node:fs';
 
@@ -12,7 +12,7 @@ const exe = process.env.SIFT_CHROMIUM ?? ['/opt/pw-browsers/chromium-1243/chrome
 const W = Number(process.env.W ?? 390), H = Number(process.env.H ?? 844);
 mkdirSync(out, { recursive: true });
 const b = await chromium.launch(exe ? { executablePath: exe } : {});
-const want = (only ?? 'p1,p1full,p2,p3,p4,contract,props').split(',');
+const want = (only ?? 'p1,p1full,p2,p3,p4,contract,props,trends,log,replay').split(',');
 
 async function fresh() {
   const ctx = await b.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
@@ -65,6 +65,9 @@ for (const scene of want) {
       await page.evaluate(() => window.scrollTo(0, 600)); await page.waitForTimeout(400);
       await shot(page, 'p4-2');
     }
+    if (scene === 'trends') { await open(page, `${route}?tab=trends`); await shot(page, 'trends'); await page.evaluate(() => window.scrollTo(0, 700)); await page.waitForTimeout(400); await shot(page, 'trends-2'); }
+    if (scene === 'log') { await open(page, `${route}?tab=log`); await shot(page, 'log'); await page.evaluate(() => window.scrollTo(0, 700)); await page.waitForTimeout(400); await shot(page, 'log-2'); }
+    if (scene === 'replay') { await open(page, `${route}?tab=trends&view=replay`); await shot(page, 'replay'); await page.evaluate(() => window.scrollTo(0, 700)); await page.waitForTimeout(400); await shot(page, 'replay-2'); }
     if (scene === 'props') { await open(page, `${route}?tab=props`); await shot(page, 'props'); }
     if (scene === 'contract') {
       await open(page, route);

@@ -138,7 +138,7 @@ export function usePlayerView(): PlayerView {
   const siftLane: SiftLane = !stat || k == null ? { p: null, reason: 'not approved yet' } : sift.ready ? siftLaneFor(res, sport, stat, k) : { p: null, reason: 'loading' };
   const tonightModel = res?.kind === 'authoritative' && res.value.median != null && res.value.p10 != null && res.value.p90 != null ? { median: res.value.median, mean: res.value.mean, p10: res.value.p10, p90: res.value.p90 } : null;
 
-  const eventIdOf = usePlayerGames(slug, vm, state.obs ? all.find((o) => o.key === state.obs) ?? null : null);
+  const eventIdOf = usePlayerGames(slug, vm, state.obs ? all.find((o) => o.key === state.obs) ?? null : null, state.tab === 'log' || (state.tab === 'trends' && state.view === 'replay'));
 
   // The line only ever snaps to a listed rung; a stat change drops a line that is not on the new ladder.
   useEffect(() => { setDragLine(null); }, [stat, state.line]);

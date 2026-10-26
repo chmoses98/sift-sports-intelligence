@@ -16,14 +16,16 @@ import { useSheet } from '../ui/Sheet';
 import { FiltersSheet } from './player/FiltersSheet';
 import { Hero, GameStrip, MiniBar, useGone, useHeroRef } from './player/Header';
 import { LadderSheet } from './player/LadderSheet';
+import { LogTab } from './player/LogTab';
 import { MatchupTab } from './player/MatchupTab';
+import { TrendsTab } from './player/TrendsTab';
 import { ChartCard, Decision, FilterChips, LadderCard, ObsCard, StatPills } from './player/Overview';
 import { PropsTab } from './player/PropsTab';
 import { publishView } from './player/shared';
 import { filterPatch, usePlayerView } from './player/view';
 import './player.css';
 
-const TABS = (n: number) => [{ key: 'overview', label: 'Overview' }, { key: 'props', label: 'Props', badge: n || null }, { key: 'matchup', label: 'Matchup' }] as const;
+const TABS = (n: number) => [{ key: 'overview', label: 'Overview' }, { key: 'props', label: 'Props', badge: n || null }, { key: 'matchup', label: 'Matchup' }, { key: 'trends', label: 'Trends' }, { key: 'log', label: 'Log' }] as const;
 
 export function Player() {
   const v = usePlayerView();
@@ -64,7 +66,7 @@ export function Player() {
   }, [vm?.props, vm?.next, vm?.nextStartMs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The route that restores this exact research: the statistic and the line are written out (not left to defaults that can move).
-  const route = useMemo(() => routes.player({ slug: v.slug, id: v.pid }, { tab: v.state.tab, stat: v.stat, line: v.committedLine, win: v.win, ...filterPatch(v.filters) }), [v.slug, v.pid, v.state.tab, v.stat, v.committedLine, v.win, v.filters]);
+  const route = useMemo(() => routes.player({ slug: v.slug, id: v.pid }, { tab: v.state.tab, stat: v.stat, line: v.committedLine, win: v.win, ...filterPatch(v.filters), view: v.state.view, rmode: v.state.rmode }), [v.slug, v.pid, v.state.tab, v.state.view, v.state.rmode, v.stat, v.committedLine, v.win, v.filters]);
   const savedItem = findSaved(saved, route);
   const toggleSave = () => {
     if (!vm || !v.stat) return;
@@ -123,7 +125,7 @@ export function Player() {
   return (
     <div className="v3p" data-sport={vm.sport} data-tab={tab}>
       {top}
-      <Tabs tabs={TABS(vm.props.size)} value={tab} onChange={(k) => v.set({ tab: k, obs: null })} label="Player sections" />
+      <Tabs tabs={TABS(vm.props.size)} value={tab} onChange={(k) => v.set({ tab: k, obs: null, view: 'main', more: false })} label="Player sections" />
       <div className="v3p-body">
         {tab === 'overview' && (
           noLog ? (
@@ -141,6 +143,11 @@ export function Player() {
         )}
         {tab === 'props' && <PropsTab v={v} priceOnly={noLog} />}
         {tab === 'matchup' && <MatchupTab v={v} />}
+        {(tab === 'trends' || tab === 'log') && (
+          noLog ? <div className="v3-state"><Icon name="info" size={20} /><div><b>No game history</b>{vm.why}</div></div>
+            : !v.stat ? <div className="v3p-empty" role="status"><b>No statistic to show</b>This player has no published statistic for this sport yet.</div>
+            : tab === 'trends' ? <TrendsTab v={v} onFilters={openFilters} /> : <LogTab v={v} onFilters={openFilters} />
+        )}
       </div>
     </div>
   );

@@ -7,16 +7,16 @@ import { Lanes, LaneTrack, LaneMark, type LaneCell } from '../../ui/atoms';
 import { HitBars } from '../../ui/charts/HitBars';
 import { GameLink, PriceTap } from '../../nav/Targets';
 import { routes } from '../../nav/routes';
-import { rungWindow, sameLine, unitWord, type RungView } from '../../model/playerResearch';
+import { ledgerKey, rungWindow, sameLine, unitWord, type RungView } from '../../model/playerResearch';
 import { resultOf } from '../../model/research';
 import type { PlayerView } from './view';
 
-const fmt1 = (v: number | null | undefined) => (v == null ? '—' : String(Math.round(v * 10) / 10));
-const signedN = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 10) / 10)}`);
+export const fmt1 = (v: number | null | undefined) => (v == null ? '—' : String(Math.round(v * 10) / 10));
+export const signedN = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 10) / 10)}`);
 const pct = (over: number, n: number) => (n ? Math.round((100 * over) / n) : null);
-const shortDate = (d: string) => { const [, m, dd] = d.split('-'); return `${Number(m)}/${Number(dd)}`; };
+export const shortDate = (d: string) => { const [, m, dd] = d.split('-'); return `${Number(m)}/${Number(dd)}`; };
 
-export function StatPills({ v, onFilters }: { v: PlayerView; onFilters: () => void }) {
+export function StatPills({ v, onFilters, noFilters }: { v: PlayerView; onFilters: () => void; noFilters?: boolean }) {
   const vm = v.vm!;
   const n = v.filterCount;
   return (
@@ -24,9 +24,9 @@ export function StatPills({ v, onFilters }: { v: PlayerView; onFilters: () => vo
       <div className="v3p-pills__s" role="group" aria-label="Statistic">
         {vm.stats.map((s) => <button key={s.key} type="button" className="v3p-pill" data-stat={s.key} aria-pressed={v.stat === s.key} onClick={() => v.set({ stat: s.key, line: null, obs: null })}>{s.short}</button>)}
       </div>
-      <button type="button" className={`v3p-pill v3p-pill--f${n ? ' is-on' : ''}`} aria-label={`Research filters${n ? `, ${n} applied` : ''}`} onClick={onFilters}>
+      {!noFilters && <button type="button" className={`v3p-pill v3p-pill--f${n ? ' is-on' : ''}`} aria-label={`Research filters${n ? `, ${n} applied` : ''}`} onClick={onFilters}>
         <Icon name="sliders" size={19} />{n > 0 && <b>{n}</b>}
-      </button>
+      </button>}
     </div>
   );
 }
@@ -60,7 +60,7 @@ export function Decision({ v, onLadder, onFilters }: { v: PlayerView; onLadder: 
   const sift: LaneCell = {
     lane: 'sift', value: v.sift.p != null ? `${Math.round(v.sift.p * 100)}%` : null,
     sub: v.sift.p != null ? `P(${k}+)${res?.p10 != null && res.p90 != null ? ` · range ${res.p10}–${res.p90}` : ''}` : v.sift.reason,
-    wrap: (cell) => <button type="button" className="v3p-lane" onClick={() => v.set({ tab: 'matchup' })} aria-label="SIFT model: how the projection builds">{cell}</button>,
+    wrap: (cell) => <button type="button" className="v3p-lane" data-ledger={(v.stat && ledgerKey(vm.sport, v.stat)) || undefined} data-lane={v.sift.p != null ? 'value' : 'withheld'} onClick={() => v.set({ tab: 'matchup' })} aria-label="SIFT model: how the projection builds">{cell}</button>,
   };
   return (
     <section className="v3p-decide v3p-card" aria-label="Selected line">
@@ -79,7 +79,7 @@ export function Decision({ v, onLadder, onFilters }: { v: PlayerView; onLadder: 
         {hasRungs && <button type="button" className="v3p-dl__cv" aria-label="Alt lines" onClick={onLadder}><Icon name="chevD" size={20} /></button>}
       </div>
       <Lanes cells={[market, history, sift]} />
-      <p className="v3p-foot">Pre-fee market implied · observed frequency · approved model estimate</p>
+      <p className="v3p-foot">Pre-fee market implied · observed frequency · {v.sift.p != null ? 'approved model estimate' : `no approved model estimate (${v.sift.reason})`}</p>
     </section>
   );
 }
@@ -87,6 +87,15 @@ export function Decision({ v, onLadder, onFilters }: { v: PlayerView; onLadder: 
 /** The unit key of a statistic (the log's own unit), for "7+ catches". */
 const UNIT: Record<string, string> = { receptions: 'rec', receiving_yards: 'yds', rushing_yards: 'yds', passing_yards: 'yds', targets: 'tgt', carries: 'car', attempts: 'att', completions: 'cmp', longest_reception: 'yds', longest_rush: 'yds', rush_rec_yards: 'yds', touchdowns: 'TD', passing_tds: 'TD', interceptions: 'INT' };
 const statUnit = (key: string): string | null => UNIT[key] ?? null;
+
+/** The window chips with their hit counts at the line (L5, L10, this season, vs the coming opponent, all). */
+export function WindowChips({ v }: { v: PlayerView }) {
+  return (
+    <div className="v3p-wins" role="group" aria-label="Window">
+      {v.chips.map((c) => <button key={c.win} type="button" data-win={c.win} aria-pressed={v.win === c.win} onClick={() => v.set({ win: c.win, obs: null })}><span>{c.label}</span><b>{c.n ? `${c.over}/${c.n}` : '—'}</b></button>)}
+    </div>
+  );
+}
 
 export function ChartCard({ v, onLadder }: { v: PlayerView; onLadder: () => void }) {
   const vm = v.vm!;
@@ -115,9 +124,7 @@ export function ChartCard({ v, onLadder }: { v: PlayerView; onLadder: () => void
             <span className="z"><b><LaneMark lane="sift" />{cur.sift.p != null ? `${Math.round(cur.sift.p * 100)}%` : '—'}</b><small>SIFT model</small></span>
           </div>
         ) : (
-          <div className="v3p-wins" role="group" aria-label="Window">
-            {v.chips.map((c) => <button key={c.win} type="button" data-win={c.win} aria-pressed={v.win === c.win} onClick={() => v.set({ win: c.win, obs: null })}><span>{c.label}</span><b>{c.n ? `${c.over}/${c.n}` : '—'}</b></button>)}
-          </div>
+          <WindowChips v={v} />
         )}
       </div>
       {tiersWait ? (

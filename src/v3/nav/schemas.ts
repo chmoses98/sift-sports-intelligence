@@ -40,6 +40,8 @@ export const playerSchema = defineSchema({
     view: f.oneOf(['main', 'replay'] as const, 'main'),
     /** Replay's comparison: similar games (same venue side) or head-to-head (the coming opponent). */
     rmode: f.oneOf(['similar', 'h2h'] as const, 'similar'),
+    /** Log: every logged game instead of the first screenful. */
+    more: f.bool(false),
   },
   migrations: {
     // Version 1 to 2: the tab bar is Overview, Props, Matchup, Trends, Log. The old Game log tab is Log; the old Replay tab is Trends with

@@ -66,6 +66,25 @@ export function windowChips(all: Obs[], f: Filters, stat: string, line: number |
   return wins.map((win) => { const { games } = cutGames(all, win, f, ctx); return { win, label: labels[win], ...hitCount(games, stat, line) }; });
 }
 
+export interface WindowRow extends WindowChip { mean: number | null; median: number | null; vsLine: number | null }
+
+/** The Trends table: every window's hit count, average, median and distance from the line, filters applied inside each window. */
+export function windowTable(all: Obs[], f: Filters, stat: string, line: number | null, ctx: CutContext): WindowRow[] {
+  const labels = windowChips(all, f, stat, line, ctx);
+  return labels.map((c) => { const { games } = cutGames(all, c.win, f, ctx); const s = summarize(games, stat, line); return { ...c, mean: s.mean, median: s.median, vsLine: s.vsLine }; });
+}
+
+/** The comparable games of SIFT Replay: the games on the coming game's side of the venue (or every game when it is not known), or those against the coming opponent. Newest 20, oldest first. */
+export function replayGames(all: Obs[], mode: 'similar' | 'h2h', nextHome: boolean | null, opp: string | null): Obs[] {
+  const pool = mode === 'h2h' ? all.filter((o) => opp != null && o.opp === opp) : nextHome == null ? all : all.filter((o) => o.home === nextHome);
+  return [...pool].sort((a, b) => a.date.localeCompare(b.date)).slice(-20);
+}
+
+/** The other statistics of a logged game, in one line: "6 TGT · 70 YDS" (statistics the log has no value for are left out). */
+export function otherStats(o: Obs, stats: { key: string; short: string }[], except: string): string {
+  return stats.filter((s) => s.key !== except && o.v[s.key] != null).map((s) => `${Math.round((o.v[s.key] as number) * 10) / 10} ${s.short}`).join(' · ');
+}
+
 export const windowLabel = (w: Window, ctx: { opp: string | null; season: string | null; total: number }): string =>
   w === 'SEASON' ? ctx.season ?? 'Season' : w === 'H2H' ? `vs ${ctx.opp ?? 'opp.'}` : w === 'ALL' ? `All ${ctx.total}` : w;
 
@@ -96,6 +115,8 @@ export interface FacetOption {
   /** Games in the window that match this option together with the OTHER groups' applied filters. */
   n: number;
   over: number;
+  /** Average of the statistic over those games (null with none). */
+  mean: number | null;
   selected: boolean;
   /** Merged into the filters when the option is chosen. */
   patch: Partial<Filters>;
@@ -125,12 +146,12 @@ export function facets(pool: Obs[], f: Filters, c: FacetContext): FacetGroup[] {
   const count = (id: FacetGroup['id'], patch: Partial<Filters>) => {
     const next = { ...cleared(f, id), ...patch };
     const rows = pool.filter((r) => matchesFilters(r, next, c));
-    return { rows, ...hitCount(rows, c.stat, c.line) };
+    return { rows, ...hitCount(rows, c.stat, c.line), mean: summarize(rows, c.stat, c.line).mean };
   };
   const has = (fn: (r: Obs) => boolean) => pool.some(fn);
   const opt = (id: FacetGroup['id'], key: string, label: string, patch: Partial<Filters>, selected: boolean, locked: string | null = null): FacetOption => {
     const r = count(id, patch);
-    return { key, label, n: r.n, over: r.over, selected, patch, locked };
+    return { key, label, n: r.n, over: r.over, mean: r.mean, selected, patch, locked };
   };
   const any = (id: FacetGroup['id'], label = 'All'): FacetOption => { const keys = GROUP_KEYS[id]; const sel = keys.every((k) => f[k] == null); return opt(id, 'any', label, Object.fromEntries(keys.map((k) => [k, null])) as Partial<Filters>, sel); };
   const groups: FacetGroup[] = [];
@@ -159,7 +180,7 @@ export function facets(pool: Obs[], f: Filters, c: FacetContext): FacetGroup[] {
   groups.push({
     id: 'script', label: 'Game script',
     options: [opt('script', 'won', 'Team won', { script: 'won' }, f.script === 'won', margin ? null : 'needs data'), opt('script', 'lost', 'Team lost', { script: 'lost' }, f.script === 'lost', margin ? null : 'needs data'),
-      { key: 'fav', label: 'Favorite', n: 0, over: 0, selected: false, patch: {}, locked: 'needs data' }],
+      { key: 'fav', label: 'Favorite', n: 0, over: 0, mean: null, selected: false, patch: {}, locked: 'needs data' }],
     note: margin ? 'By the final score of each past game.' : 'The final score is not in this player’s log.',
   });
 
@@ -210,9 +231,23 @@ export interface RungView {
   sift: SiftLane;
 }
 
+/** The ledger record behind a SIFT model number: what permits it, in the ledger's own terms (src/lib/projectionApprovals.ts). */
+export interface LedgerProof { family: string; decision: string; engine: string; approvedOn: string; permitted: boolean; caveat: string | null }
+
+/** The ledger row for a (sport, stat), or null when the stat has no row (nothing is then approved). `permitted` only for PROMOTED to the foundation engine. */
+export function ledgerProof(sport: string, stat: string): LedgerProof | null {
+  const family = familyOf(projectionStat(sport, stat));
+  const a = approvalFor(sport, family);
+  if (!a) return null;
+  return { family, decision: a.decision, engine: a.engine, approvedOn: a.approvedOn, permitted: a.decision === 'PROMOTED' && a.engine === 'foundation' && a.publication?.standard !== 'NOT_MET', caveat: a.publication?.caveat ?? null };
+}
+export const ledgerPermits = (sport: string, stat: string): boolean => ledgerProof(sport, stat)?.permitted === true;
+/** "NFL:receptions:PROMOTED:2026-10-18": the record, as a stable string for the screen (data-ledger) and the tests. */
+export const ledgerKey = (sport: string, stat: string): string | null => { const p = ledgerProof(sport, stat); return p ? `${sport.toUpperCase()}:${p.family}:${p.decision}:${p.approvedOn}` : null; };
+
 /** The approval ledger's own state for a stat, in the few words a lane shows. */
 export function ledgerWords(sport: string, stat: string): string {
-  const a = approvalFor(sport, familyOf(stat));
+  const a = approvalFor(sport, familyOf(projectionStat(sport, stat)));
   return a?.decision === 'APPROVED_PENDING_LIVE_INPUTS' ? 'awaiting live inputs' : 'not approved yet';
 }
 
@@ -225,6 +260,9 @@ export function ledgerWords(sport: string, stat: string): string {
 export function siftLaneFor(res: Resolution | null, sport: string, stat: string, k: number): SiftLane {
   if (!res) return { p: null, reason: 'not approved yet' };
   if (res.kind === 'authoritative') {
+    // Belt and braces: the authority already routes through the ledger, but this lane re-checks the ledger row itself, so no resolution
+    // for a stat whose row is not PROMOTED to the foundation engine can ever put a number on the screen.
+    if (!ledgerPermits(sport, stat)) return { p: null, reason: ledgerWords(sport, stat) };
     const hit = res.value.thresholds.find((t) => t.k === k);
     return hit && Number.isFinite(hit.p) ? { p: hit.p, reason: null } : { p: null, reason: 'not published at this rung' };
   }

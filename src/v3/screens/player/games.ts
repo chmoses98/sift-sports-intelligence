@@ -7,8 +7,9 @@ import type { PlayerVM } from '../../data/usePlayer';
 import type { Obs } from '../../model/research';
 import { eventForObs, type ScheduledGame } from '../../model/playerResearch';
 
-export function usePlayerGames(slug: string, vm: PlayerVM | null, selected: Obs | null): (o: Obs) => string | null {
-  const need = !!selected && !selected.eventId && !!vm?.team;
+/** `selected`: the one logged game whose page is wanted; `all`: every row is listed (the Log), so the schedule is read as soon as the tab opens. */
+export function usePlayerGames(slug: string, vm: PlayerVM | null, selected: Obs | null, all = false): (o: Obs) => string | null {
+  const need = (all || (!!selected && !selected.eventId)) && !!vm?.team;
   const { profile } = useTeamProfile(need ? slug : '', need ? vm!.team!.abbr : null);
   const ti = useTeamIndex(need ? slug : '');
   const games = useMemo<ScheduledGame[]>(() => (profile ? profile.games.map((g) => ({ eventId: g.eventId, opponentCode: g.opponentId ? ti.byId.get(g.opponentId)?.short_name ?? null : null, startUtc: g.startUtc, status: g.status })) : []), [profile, ti.byId]);

@@ -10,7 +10,7 @@ import { LeagueStrip } from '../../ui/charts/LeagueStrip';
 import { LockedRow } from '../../ui/atoms';
 import { Icon } from '../../ui/Icon';
 import { StatLink, PlayerLink } from '../../nav/Targets';
-import { siftLaneFor } from '../../model/playerResearch';
+import { ledgerKey, ledgerProof, ledgerWords, siftLaneFor } from '../../model/playerResearch';
 import type { PlayerView } from './view';
 
 const ord = (n: number) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`; };
@@ -19,14 +19,14 @@ const f1 = (n: number) => (Math.round(n * 10) / 10).toFixed(1);
 
 // ------------------------------------------------------------------------------------------------ 1. how the projection builds
 
-interface Node { label: string; mean: number | null; p10: number | null; p90: number | null; why: string | null }
+interface Node { label: string; mean: number | null; p10: number | null; p90: number | null; why: string | null; ledger: string | null }
 
 function niceMax(v: number): number { const steps = [4, 6, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50, 60, 80, 100, 120, 140, 160, 200, 250, 300]; return steps.find((s) => s >= v) ?? Math.ceil(v / 50) * 50; }
 
 function NodeView({ n }: { n: Node }) {
   const max = n.p90 != null ? niceMax(n.p90 * 1.12) : 1;
   return (
-    <div className="v3p-cn">
+    <div className="v3p-cn" data-ledger={n.ledger ?? undefined}>
       <b className="num">{n.mean != null ? (n.mean >= 100 ? Math.round(n.mean) : f1(n.mean)) : '—'}</b>
       <span>{n.label}</span>
       {n.mean != null && n.p10 != null && n.p90 != null ? (
@@ -44,30 +44,36 @@ function ProjectionCard({ v }: { v: PlayerView }) {
   const vm = v.vm!;
   const a = v.modelReady.authority;
   const stat = v.stat!;
-  const value = (s: string) => { const r = v.modelReady.resolve(s); return r?.kind === 'authoritative' ? r.value : null; };
-  const why = (s: string) => { const r = v.modelReady.resolve(s); return r ? siftLaneFor(r, vm.sport, s, 0).reason ?? 'not approved yet' : 'not approved yet'; };
+  // A stage's number exists only when the authority resolved it AND the approval ledger row permits it (PROMOTED to the foundation engine).
+  const value = (s: string) => { const r = v.modelReady.resolve(s); return r?.kind === 'authoritative' && ledgerProof(vm.sport, s)?.permitted ? r.value : null; };
+  const why = (s: string) => { const r = v.modelReady.resolve(s); return r ? siftLaneFor(r, vm.sport, s, 0).reason ?? ledgerWords(vm.sport, s) : ledgerWords(vm.sport, s); };
   const mine = value(stat);
   const receiving = vm.sport === 'NFL' && ['receptions', 'targets', 'receiving_yards'].includes(stat);
   const teamAtt = useMemo(() => {
     if (!receiving || !a || !vm.next || !vm.team) return null;
     const r = a.resolveTeams({ family: 'team_pass_attempts', home: vm.next.home.abbr, away: vm.next.away.abbr, startUtc: new Date(vm.nextStartMs ?? vm.next.startMs).toISOString() });
-    if (r.kind !== 'authoritative') return null;
+    if (r.kind !== 'authoritative' || !ledgerProof(vm.sport, 'team_pass_attempts')?.permitted) return null;
     return r.teams.find((t) => teamKey(t.team) === teamKey(vm.team!.abbr))?.value ?? null;
   }, [receiving, a, vm.next, vm.team, vm.nextStartMs]);
 
   if (!mine && !receiving) {
     return (
       <section className="v3p-sec v3p-card" aria-label="How the projection builds">
-        <div className="v3p-sh"><h2>How the projection builds</h2><span className="v3p-chip is-cy">research-only</span></div>
+        <div className="v3p-sh"><h2>How the projection builds</h2><span className="v3p-chip is-cy" data-ledger-chip>not approved yet</span></div>
         <LockedRow title={`${v.statDef?.label}:`}>the SIFT model has no approved projection for this statistic yet ({why(stat)}), so there is nothing to build. “—” is never estimated.</LockedRow>
       </section>
     );
   }
   const tg = value('targets'), rc = value('receptions'), yd = value('receiving_yards');
-  const node = (label: string, x: { mean: number; p10: number | null; p90: number | null } | null, s?: string): Node => ({ label, mean: x?.mean ?? null, p10: x?.p10 ?? null, p90: x?.p90 ?? null, why: x ? null : s ? why(s) : 'not approved yet' });
+  // `ledger` is the record behind the stage (data-ledger): the one that permits the number, or the one that withholds it.
+  const node = (label: string, x: { mean: number; p10: number | null; p90: number | null } | null, s: string): Node =>
+    ({ label, mean: x?.mean ?? null, p10: x?.p10 ?? null, p90: x?.p90 ?? null, why: x ? null : s === 'team_pass_attempts' || !v.modelReady.resolve(s) ? ledgerWords(vm.sport, s) : why(s), ledger: ledgerKey(vm.sport, s) });
   const nodes: Node[] = receiving
     ? [node(`${vm.team?.abbr} pass att`, teamAtt, 'team_pass_attempts'), node(`${vm.name.split(' ').slice(-1)[0]} targets`, tg, 'targets'), node('Receptions', rc, 'receptions'), node('Rec yards', yd, 'receiving_yards')]
     : [node(v.statDef?.label ?? stat, mine, stat)];
+  const approved = nodes.filter((n) => n.mean != null).length;
+  const caveats = [...new Set(nodes.filter((n) => n.mean != null).map((n) => n.ledger?.split(':')[1]).map((fam) => (fam ? ledgerProof(vm.sport, fam)?.caveat : null)).filter((c): c is string => !!c))];
+  const chip = nodes.length === 1 ? (approved ? 'approved model' : 'not approved yet') : `${approved} of ${nodes.length} stages approved`;
   const edges = receiving ? [
     teamAtt && tg ? `${f1((tg.mean / teamAtt.mean) * 100)}%` : null,
     tg && rc ? `${Math.round((rc.mean / tg.mean) * 100)}%` : null,
@@ -77,12 +83,14 @@ function ProjectionCard({ v }: { v: PlayerView }) {
   const src = (mine ?? rc ?? tg)?.availability;
   return (
     <section className="v3p-sec v3p-card" aria-label="How the projection builds">
-      <div className="v3p-sh"><h2>How the projection builds</h2><span className="v3p-chip is-cy">research-only</span></div>
+      <div className="v3p-sh"><h2>How the projection builds</h2><span className="v3p-chip is-cy" data-ledger-chip>{chip}</span></div>
       <div className="v3p-chain" style={{ gridTemplateColumns: nodes.map((_, i) => (i ? '26px 1fr' : '1fr')).join(' ') }}>
         {nodes.map((n, i) => <Fragment key={n.label}>{i > 0 && <Edge text={edges[i - 1] ?? null} />}<NodeView n={n} /></Fragment>)}
       </div>
+      {caveats.map((c) => <p key={c} className="v3p-foot">{c}</p>)}
       {notes.length > 0 && <div className="v3p-adj">{notes.slice(0, 3).map((t) => <div key={t}><Icon name="info" size={12} /><span>{t}</span></div>)}</div>}
-      {receiving && !yd && <LockedRow title="Receiving yards:">the SIFT model does not have an approved projection for this statistic yet, so the chain stops at receptions.</LockedRow>}
+      {receiving && !yd && <LockedRow title="Receiving yards:">the SIFT model does not have an approved projection for this statistic yet, so the chain stops at receptions (the approval ledger holds it).</LockedRow>}
+      <p className="v3p-foot">Each stage with a number is promoted in SIFT’s approval ledger (that record is its permission to be shown); a stage that is held shows “—”. Every projection is research context and never a betting recommendation.</p>
       <p className="v3p-foot">{src?.words ? `${src.words}${src.source ? ` per ${src.source.replace(/_/g, ' ')}` : ''} · ` : ''}shares and rates are arithmetic on the published rows</p>
     </section>
   );

@@ -100,25 +100,58 @@ export const gameSchema = defineSchema({
   },
 });
 
+export const PROPS_VIEWS = ['home', 'list', 'compare'] as const;
+export const PROPS_SORTS = ['soon', 'price', 'hist', 'model', 'match', 'vol'] as const;
+
+/**
+ * Prop Discovery (PD1 to PD6). One address holds everything: the home, the list and the comparison are `view`s of the same route, so
+ * Back restores filters, sort, search, selections, the expanded row and the line exactly. A list address without `view` (a link from
+ * Team Research, `routes.props({ team: 'DAL' })`) opens the list: any list-state field also implies `view=list`.
+ * Adding a field or a value is not a version change.
+ */
 export const propsSchema = defineSchema({
   screen: 'props',
   version: 1,
   fields: {
+    /** home (PD1), list (PD2 and PD3), compare (PD5). Absent with no other field: the home. */
+    view: f.oneOf(PROPS_VIEWS, 'home'),
+    /** A sport slug ("nfl"), or "all". */
     sport: f.str('all', 8),
+    /** A statistic family ("receptions", "goals"). */
     fam: f.str(),
+    /** soon (default), price, hist, model, match, vol. */
     sort: f.str(null, 16),
+    /** Search text: replaced in place as it is typed, never a history entry per keystroke. */
     q: f.str(null, 60),
+    /** Hide players the publication lists out or doubtful. */
     hide: f.bool(true),
-    exp: f.str(),
-    cmp: f.list([], 4),
+    /** The expanded prop (PD3): its id, with `@k` when a rung other than the featured one is chosen. */
+    exp: f.str(null, 80),
+    /** Compare selection: up to three props (`id` or `id@k`). */
+    cmp: f.list([], 3),
+    /** Compare mode on: the avatars become tick boxes. */
+    cmpm: f.bool(false),
+    /** A team code, with `sport` when the code is ambiguous across sports ("DAL"). */
     team: f.str(),
+    /** A published player id. */
     player: f.str(),
+    /** A published game (event) id. */
     game: f.str(),
+    /** A shelf's filter: model (SIFT model published) or bottom3 (facing a bottom-3 defense). */
     preset: f.str(null, 16),
+    /** The rung's price range in cents, "35-75". */
     range: f.str(null, 16),
+    /** History at the rung: at least this many hits in the window. */
     hmin: f.int(null, { min: 0, max: 20 }),
+    /** The history window the threshold counts: L10 (default) or L5. */
+    hwin: f.oneOf(['L10', 'L5'] as const, 'L10'),
+    /** Opponent unit rank: bottom10 or top10. */
     orank: f.str(null, 16),
+    /** Only props with a published SIFT model estimate. */
     model: f.bool(false),
+    /** Arrived from a shelf's lanes: the expanded prop is listed first. */
+    pin: f.bool(false),
+    /** Reserved (the list is windowed, not paged). */
     more: f.int(null, { min: 1, max: 50 }),
   },
 });

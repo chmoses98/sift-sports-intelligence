@@ -5,7 +5,12 @@ name: Quote monitor
 # GitHub email the owner, when:
 #   * the newest feed `generated_at` is more than 10 minutes old (the live-quotes loop stalled), or
 #   * the feed heartbeat (health.json) sequence has not advanced, or
-#   * the relay answers anything but HTTP 200, or only with observations older than 60 s.
+#   * the relay answers anything but HTTP 200, or only with observations older than 60 s, or answers 200 without any
+#     of the open contracts it was asked about for every game tried.
+#
+# One transient failure inside a run (no answer, 429, 5xx, an unusable 200) is retried once, 5 s later (a 429's
+# Retry-After, at most 30 s), before it counts: a pass on the retry is a PASS with a ::notice. The monitor keeps no state
+# between runs, so a recovered system passes on its next run. Rules and drill: docs/quote-track/CI_DRILL.md.
 #
 # Isolation: no secrets, no writes (`contents: read` only), its own concurrency group, never touches the
 # live-quotes workflow or the `live-quotes` branch. The relay part is skipped when the SIFT_QUOTE_RELAY_URL

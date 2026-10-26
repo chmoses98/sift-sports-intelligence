@@ -11,7 +11,24 @@
 //      window closes (default 9 minutes: the feed publishes every ~3.5 min and raw.githubusercontent.com caches
 //      for up to 5, so a healthy loop shows a new sequence within ~8.5 minutes);
 //   3. the relay returns anything but HTTP 200 for one quote batch, or only observations older than 60 s
-//      (X-Sift-Observed-At, the time Kalshi's data was observed, not the time of the request).
+//      (X-Sift-Observed-At, the time Kalshi's data was observed, not the time of the request), or answers 200 without
+//      one of the open contracts it was asked about, for every game tried.
+//
+// The exact rules (docs/quote-track/CI_DRILL.md repeats them, tests/live/quote-monitor.test.ts pins each):
+//   * The monitor keeps NO state between runs. A run judges only what it sees now, so a system that has recovered
+//     passes on its very next run: there is nothing to "clear".
+//   * One transient failure inside a run is retried ONCE before it counts. Transient = no answer (network error or
+//     timeout), HTTP 429, HTTP 5xx, or an HTTP 200 that is unusable (not JSON, no markets[], no observation time,
+//     observation over 60 s old or in the future, none of the requested contracts returned). The retry waits 5 s
+//     (SIFT_MONITOR_RETRY_DELAY_S), or the relay's Retry-After on a 429, never more than 30 s. A pass on the retry is a
+//     PASS that says so (a ::notice, never an error). A failure on the retry is the failure, reported with both
+//     attempts. Other 4xx (403, 404, ...) are configuration errors and fail at once. Feed files get the same single
+//     retry (2 s) on a network error or 5xx.
+//   * Only contracts the feed itself lists as open (status active/open) are asked of the relay: a closed or settled
+//     market is never asserted. Up to 3 games are tried (SIFT_MONITOR_RELAY_GAMES): a game whose contracts the relay
+//     returns none of (HTTP 200, no requested ticker) is treated as delisted/closed while another game answers, and
+//     the check PASSes with that noted; it FAILs only when EVERY game tried comes back empty (after the one retry).
+//     If the feed lists no open contract at all the relay part is skipped, not passed.
 //
 // Degrading honestly. Until the heartbeat is deployed there is no health.json. That is reported as the distinct state
 // HEARTBEAT_NOT_PUBLISHED: NOT a failure by default (the feed freshness check still runs from index.json, which has
@@ -27,6 +44,8 @@
 //   SIFT_MONITOR_SEQUENCE_WINDOW_S   how long to wait for the sequence to advance (default 540; 0 = do not wait)
 //   SIFT_MONITOR_FEED_MAX_AGE_S      default 600
 //   SIFT_MONITOR_RELAY_MAX_AGE_S     default 60
+//   SIFT_MONITOR_RETRY_DELAY_S       wait before the single retry of a transient failure (default 5)
+//   SIFT_MONITOR_RELAY_GAMES         how many games to try before an empty relay answer is a failure (default 3)
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
@@ -43,10 +62,17 @@ export const LIMITS = {
   pollMs: 30_000,
   fetchTimeoutMs: 20_000,
   relayBatch: 25,
+  /** Wait before the one retry of a transient failure (a 429's Retry-After replaces it, capped below). */
+  retryDelayMs: 5_000,
+  retryAfterCapMs: 30_000,
+  /** Games tried before "the relay returned none of the open contracts" is a failure. */
+  relayGames: 3,
   /** An observation stamped further ahead than this is not believable (runner clock is NTP-synced). */
   futureToleranceMs: 5_000,
 };
 
+/** The one non-https relay URL accepted: this machine, for the local failure-injection drill (scripts/quote-monitor-drill.mjs). */
+const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?(\/|$)/;
 const iso = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
 const secs = (ms) => `${Math.round(ms / 1000)}s`;
 const flag = (v) => ['1', 'true', 'yes'].includes(String(v ?? '').trim().toLowerCase());
@@ -99,6 +125,8 @@ export async function runMonitor({ env = {}, fetchImpl = fetch, now = Date.now, 
     relayMaxAgeMs: num(env.SIFT_MONITOR_RELAY_MAX_AGE_S, LIMITS.relayMaxAgeMs / 1000) * 1000,
     sequenceWindowMs: num(env.SIFT_MONITOR_SEQUENCE_WINDOW_S, LIMITS.sequenceWindowMs / 1000) * 1000,
     pollMs: num(env.SIFT_MONITOR_POLL_S, LIMITS.pollMs / 1000) * 1000,
+    retryDelayMs: num(env.SIFT_MONITOR_RETRY_DELAY_S, LIMITS.retryDelayMs / 1000) * 1000,
+    relayGames: Math.max(1, Math.floor(num(env.SIFT_MONITOR_RELAY_GAMES, LIMITS.relayGames))),
   };
   const requireHeartbeat = flag(env.SIFT_MONITOR_REQUIRE_HEARTBEAT);
   const feedBase = (env.SIFT_FEED_URL ?? '').trim().replace(/\/+$/, '') || `https://raw.githubusercontent.com/${env.GITHUB_REPOSITORY || DEFAULT_REPO}/live-quotes`;
@@ -107,7 +135,7 @@ export async function runMonitor({ env = {}, fetchImpl = fetch, now = Date.now, 
   const ctx = { fetchImpl, timeoutMs: limits.fetchTimeoutMs, sleep };
 
   const checks = [];
-  const add = (id, status, title, detail) => checks.push({ id, status, title, detail });
+  const add = (id, status, title, detail, extra = {}) => checks.push({ id, status, title, detail, ...extra });
   const stamps = []; // every feed generated_at we saw, with where
 
   // ---- 1. the feed index (always present on a live feed)
@@ -198,36 +226,93 @@ export async function runMonitor({ env = {}, fetchImpl = fetch, now = Date.now, 
     add('heartbeat_advance', 'skip', 'Heartbeat sequence advances', health.kind === 'not_published' ? 'skipped: no heartbeat published yet' : 'skipped: heartbeat unreadable (see above)');
   }
 
-  // ---- 5. one relay quote batch
+  // ---- 5. one relay quote batch (one retry of a transient failure; several games before "empty" is a failure)
   if (!relayBase) {
     add('relay', 'skip', 'Relay quote batch', 'skipped: SIFT_QUOTE_RELAY_URL is not set');
-  } else if (!/^https:\/\//.test(relayBase)) {
-    add('relay', 'fail', 'Relay quote batch', 'SIFT_QUOTE_RELAY_URL is set but is not an https URL');
+  } else if (!/^https:\/\//.test(relayBase) && !LOOPBACK.test(relayBase)) {
+    add('relay', 'fail', 'Relay quote batch', 'SIFT_QUOTE_RELAY_URL is set but is not an https URL (plain http is accepted only for a loopback address, used by the local drill)');
+  } else if (!game) {
+    add('relay', 'skip', 'Relay quote batch', 'skipped: no game file to take tickers from');
   } else {
-    const tickers = relayTickers(game?.doc, limits.relayBatch);
-    if (!tickers.length) add('relay', 'skip', 'Relay quote batch', game ? 'skipped: the game file lists no tickers' : 'skipped: no game file to take tickers from');
-    else {
-      const url = `${relayBase}/markets?tickers=${tickers.map(encodeURIComponent).join(',')}&limit=1000`;
-      const r = await get(url, { ...ctx, headers: { Origin: origin } });
-      const at = now();
-      if (r.error) add('relay', 'fail', 'Relay quote batch', `relay unreachable: ${r.error}`);
-      else if (r.status !== 200) add('relay', 'fail', 'Relay quote batch', `relay answered HTTP ${r.status}${r.headers?.get('retry-after') ? ` (Retry-After ${r.headers.get('retry-after')})` : ''} for ${tickers.length} tickers: ${(r.text ?? '').slice(0, 160).replace(/\s+/g, ' ')}`);
-      else if (!r.json || !Array.isArray(r.json.markets)) add('relay', 'fail', 'Relay quote batch', 'relay answered HTTP 200 but the body has no markets[]');
-      else {
-        const stamp = r.headers.get('x-sift-observed-at');
-        const observed = stamp ? Date.parse(stamp) : NaN;
-        if (Number.isNaN(observed)) add('relay', 'fail', 'Relay quote batch', `relay answered HTTP 200 without a usable X-Sift-Observed-At (${JSON.stringify(stamp)}): there is no observation time to judge`);
-        else if (r.json.markets.length === 0) add('relay', 'fail', 'Relay quote batch', `relay answered HTTP 200 with no markets for ${tickers.length} tickers the feed lists`);
-        else if (at - observed > limits.relayMaxAgeMs) add('relay', 'fail', 'Relay quote batch', `relay answered HTTP 200 but its newest observation (${iso(observed)}) is ${secs(at - observed)} old; limit ${secs(limits.relayMaxAgeMs)} (${r.json.markets.length} markets)`);
-        else if (observed - at > limits.futureToleranceMs) add('relay', 'fail', 'Relay quote batch', `relay observation ${iso(observed)} is ${secs(observed - at)} in the future of this runner's clock`);
-        else add('relay', 'pass', 'Relay quote batch', `HTTP 200, ${r.json.markets.length} markets, newest observation ${secs(Math.max(0, at - observed))} old; limit ${secs(limits.relayMaxAgeMs)}`);
+    const games = [{ file: game.file, doc: game.doc }];
+    const more = (Array.isArray(indexDoc?.games) ? indexDoc.games : []).filter((g) => g?.file !== game.file && /^games\/[A-Za-z0-9._-]+\.json$/.test(g?.file ?? ''));
+    const loadMore = async () => {
+      // Lazily: extra game files are only read when the first game's contracts came back empty.
+      while (more.length && games.length < limits.relayGames) {
+        const g = more.shift();
+        const r = await getFeed(`${feedBase}/${g.file}`, ctx);
+        if (r.status === 200 && r.json?.schema === FEED_SCHEMA && Array.isArray(r.json.markets)) {
+          games.push({ file: g.file, doc: r.json });
+          return true;
+        }
       }
+      return false;
+    };
+    const rc = { ...ctx, relayBase, origin, limits, now, loadMore, games };
+    let first = await relayRound(rc);
+    if (first.verdict === 'skip') add('relay', 'skip', 'Relay quote batch', first.detail);
+    else if (first.verdict === 'pass') add('relay', 'pass', 'Relay quote batch', first.detail);
+    else if (!first.transient) add('relay', 'fail', 'Relay quote batch', first.detail);
+    else {
+      const wait = first.retryAfterMs != null ? Math.min(limits.retryAfterCapMs, Math.max(limits.retryDelayMs, first.retryAfterMs)) : limits.retryDelayMs;
+      await sleep(wait);
+      const second = await relayRound(rc);
+      if (second.verdict === 'pass') add('relay', 'pass', 'Relay quote batch', `${second.detail}; recovered on the single retry after ${secs(wait)} (first attempt: ${first.detail})`, { recovered: true });
+      else if (second.verdict === 'skip') add('relay', 'skip', 'Relay quote batch', second.detail);
+      else add('relay', 'fail', 'Relay quote batch', second.detail === first.detail ? `${second.detail}; the same on the single retry after ${secs(wait)}` : `${second.detail}; the single retry after ${secs(wait)} failed too (first attempt: ${first.detail})`);
     }
   }
 
   const failed = checks.filter((c) => c.status === 'fail');
   const status = failed.length ? 'FAIL' : checks.some((c) => c.id === 'heartbeat' && c.status === 'note') ? 'PASS_HEARTBEAT_NOT_PUBLISHED' : 'PASS';
   return { ok: !failed.length, status, checks };
+}
+
+/**
+ * One pass over the games: ask the relay for the feed's open contracts, game by game. A pass as soon as one game's
+ * batch is answered usably; "empty" (HTTP 200, none of the requested contracts) moves on to the next game; every
+ * other problem ends the round at once. verdict: 'pass' | 'fail' | 'skip'. `transient` tells the caller whether one
+ * retry makes sense.
+ */
+async function relayRound(rc) {
+  const { relayBase, origin, limits, now } = rc;
+  const empties = [];
+  let asked = 0;
+  for (let i = 0; i < rc.games.length || (await rc.loadMore() && i < rc.games.length); i++) {
+    const g = rc.games[i];
+    const tickers = openTickers(g.doc, limits.relayBatch);
+    if (!tickers.length) {
+      empties.push(`${g.file}: the feed lists no open contract`);
+      continue;
+    }
+    asked++;
+    const url = `${relayBase}/markets?tickers=${tickers.map(encodeURIComponent).join(',')}&limit=1000`;
+    const r = await get(url, { ...rc, headers: { Origin: origin } });
+    const at = now();
+    const fail = (detail, transient, retryAfterMs = null) => ({ verdict: 'fail', detail, transient, retryAfterMs });
+    if (r.error) return fail(`relay unreachable: ${r.error}`, true);
+    if (r.status === 429) {
+      const ra = Number(r.headers?.get('retry-after'));
+      return fail(`relay answered HTTP 429${r.headers?.get('retry-after') ? ` (Retry-After ${r.headers.get('retry-after')})` : ''} for ${tickers.length} tickers: ${(r.text ?? '').slice(0, 160).replace(/\s+/g, ' ')}`, true, Number.isFinite(ra) && ra > 0 ? ra * 1000 : null);
+    }
+    if (r.status !== 200) return fail(`relay answered HTTP ${r.status} for ${tickers.length} tickers: ${(r.text ?? '').slice(0, 160).replace(/\s+/g, ' ')}`, r.status >= 500);
+    if (!r.json || !Array.isArray(r.json.markets)) return fail('relay answered HTTP 200 but the body has no markets[]', true);
+    const stamp = r.headers.get('x-sift-observed-at');
+    const observed = stamp ? Date.parse(stamp) : NaN;
+    if (Number.isNaN(observed)) return fail(`relay answered HTTP 200 without a usable X-Sift-Observed-At (${JSON.stringify(stamp)}): there is no observation time to judge`, true);
+    const wanted = new Set(tickers);
+    const got = r.json.markets.filter((m) => wanted.has(m?.ticker));
+    if (got.length === 0) {
+      empties.push(`${g.file}: HTTP 200 with no market for any of the ${tickers.length} requested open contracts${r.json.markets.length ? ` (${r.json.markets.length} unrelated)` : ''}`);
+      continue;
+    }
+    if (at - observed > limits.relayMaxAgeMs) return fail(`relay answered HTTP 200 but its newest observation (${iso(observed)}) is ${secs(at - observed)} old; limit ${secs(limits.relayMaxAgeMs)} (${got.length} markets)`, true);
+    if (observed - at > limits.futureToleranceMs) return fail(`relay observation ${iso(observed)} is ${secs(observed - at)} in the future of this runner's clock`, true);
+    const note = empties.length ? `; ${empties.length} other game(s) came back empty and are treated as delisted or closed (${empties.join('; ')})` : '';
+    return { verdict: 'pass', detail: `HTTP 200, ${got.length} of ${tickers.length} requested markets from ${g.file}, newest observation ${secs(Math.max(0, at - observed))} old; limit ${secs(limits.relayMaxAgeMs)}${note}` };
+  }
+  if (!asked) return { verdict: 'skip', detail: `skipped: the feed lists no open contract to ask the relay about (${empties.join('; ') || 'no game'})` };
+  return { verdict: 'fail', transient: true, retryAfterMs: null, detail: `relay answered HTTP 200 with no markets for the ${asked} game(s) tried, though the feed lists their contracts as open (${empties.join('; ')})` };
 }
 
 async function readHeartbeat(feedBase, ctx) {
@@ -248,6 +333,12 @@ export function relayTickers(doc, max = LIMITS.relayBatch) {
   return [...new Set([...open, ...ms].map((m) => m.ticker))].slice(0, max);
 }
 
+/** Up to `max` tickers the feed itself lists as open (status active/open). A closed or settled contract is never asserted against the relay. */
+export function openTickers(doc, max = LIMITS.relayBatch) {
+  const ms = Array.isArray(doc?.markets) ? doc.markets : [];
+  return [...new Set(ms.filter((m) => typeof m?.ticker === 'string' && ['active', 'open'].includes(String(m.status ?? '').toLowerCase())).map((m) => m.ticker))].slice(0, max);
+}
+
 /** Human-readable report; failures also become GitHub annotations so they show on the run and in the email. */
 export function report(result) {
   const lines = [];
@@ -256,6 +347,7 @@ export function report(result) {
   for (const c of result.checks) {
     if (c.status === 'fail') lines.push(`::error title=Quote monitor: ${c.title}::${c.detail}`);
     if (c.status === 'note') lines.push(`::notice title=Quote monitor: heartbeat not published yet::${c.detail}`);
+    if (c.recovered) lines.push(`::notice title=Quote monitor: transient failure recovered::${c.title}: ${c.detail}`);
   }
   lines.push(`RESULT: ${result.status === 'PASS_HEARTBEAT_NOT_PUBLISHED' ? 'PASS (heartbeat not published yet: not a failure)' : result.status}`);
   return lines.join('\n');

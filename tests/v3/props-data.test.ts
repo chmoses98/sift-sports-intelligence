@@ -168,11 +168,11 @@ describe('the opponent chip', () => {
   });
   it('builds the chip text from the opposing team', () => {
     const ranks = new Map([['nfl:adj_def_db_epa', map]]);
-    const m = matchupOf({ slug: 'nfl', oppUnit: { metric: 'adj_def_db_epa', chip: 'pass D', short: 'pass D', perGame: false }, opp: 'DAL', team: 'PHI' }, ranks)!;
+    const m = matchupOf({ slug: 'nfl', oppUnit: { metric: 'adj_def_db_epa', chip: 'pass D', long: 'pass defense', short: 'pass D', perGame: false }, opp: 'DAL', team: 'PHI' }, ranks)!;
     expect(m.text).toBe('DAL pass D · 28th of 28');
     expect(m).toMatchObject({ statId: 'adj_def_db_epa', oppCode: 'DAL', selfCode: 'PHI' });
     expect(matchupOf({ slug: 'nfl', oppUnit: null, opp: 'DAL', team: 'PHI' }, ranks)).toBeNull();
-    expect(matchupOf({ slug: 'nfl', oppUnit: { metric: 'nope', chip: 'x', short: 'x', perGame: false }, opp: 'DAL', team: 'PHI' }, ranks)).toBeNull();
+    expect(matchupOf({ slug: 'nfl', oppUnit: { metric: 'nope', chip: 'x', long: 'x', short: 'x', perGame: false }, opp: 'DAL', team: 'PHI' }, ranks)).toBeNull();
   });
   it('prefers the sport\'s adjusted view, then the season, then the latest season-shaped window', () => {
     expect(pickWindow(['SEASON', 'ADJ_RIDGE', 'L6'])).toBe('ADJ_RIDGE');

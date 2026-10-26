@@ -14,10 +14,10 @@ export interface FamilyDef {
   oppUnit: OppUnit | null;
 }
 
-const passD: OppUnit = { metric: 'adj_def_db_epa', chip: 'pass D', short: 'pass D', perGame: false };
-const runD: OppUnit = { metric: 'adj_def_rush_epa', chip: 'run D', short: 'run D', perGame: false };
-const allD: OppUnit = { metric: 'adj_def_epa', chip: 'defense', short: 'defense', perGame: false };
-const goalsAgainst: OppUnit = { metric: 'ga_per_game', chip: 'goals against', short: 'goals vs', perGame: true };
+const passD: OppUnit = { metric: 'adj_def_db_epa', chip: 'pass D', long: 'pass defense', short: 'pass D', perGame: false };
+const runD: OppUnit = { metric: 'adj_def_rush_epa', chip: 'run D', long: 'run defense', short: 'run D', perGame: false };
+const allD: OppUnit = { metric: 'adj_def_epa', chip: 'defense', long: 'defense', short: 'defense', perGame: false };
+const goalsAgainst: OppUnit = { metric: 'ga_per_game', chip: 'goals against', long: 'goals against', short: 'goals vs', perGame: true };
 
 const nfl = (stat: string, label: string, abbr: string, oppUnit: OppUnit | null): FamilyDef => ({ fam: stat, label, abbr, playerStat: stat, history: { kind: 'nfl', stat }, oppUnit });
 const nhl = (fam: string, label: string, abbr: string, col: string, playerStat: string, oppUnit: OppUnit | null = goalsAgainst): FamilyDef => ({ fam, label, abbr, playerStat, history: { kind: 'nhl', col }, oppUnit });

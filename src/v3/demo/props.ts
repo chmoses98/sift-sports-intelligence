@@ -8,7 +8,6 @@ import type { Prop, PropRung, UnitRank, Universe } from '../data/props/types';
 import type { V3Game } from '../model/types';
 
 const hash = (s: string) => { let h = 7; for (const c of s) h = (h * 33 + c.charCodeAt(0)) >>> 0; return h; };
-const pick = <T,>(xs: T[], s: string) => xs[hash(s) % xs.length];
 
 const FIRST = ['Alex', 'Jordan', 'Chris', 'Taylor', 'Sam', 'Devon', 'Riley', 'Casey', 'Morgan', 'Jamie', 'Drew', 'Quinn', 'Reese', 'Parker', 'Blake', 'Cameron'];
 const LAST = ['Sample', 'Example', 'Placeholder', 'Fictional', 'Mockup', 'Trial', 'Pilot', 'Demo'];
@@ -72,7 +71,8 @@ export function demoUniverse(games: V3Game[]): Universe {
     for (const side of ['away', 'home'] as const) {
       const team = g[side]; const opp = side === 'away' ? g.home : g.away;
       for (let i = 0; i < perTeam; i++) {
-        const name = `${pick(FIRST, `${team.abbr}${i}f`)} ${pick(LAST, `${team.abbr}${i}l`)}${i > 7 ? ` ${i}` : ''}`;
+        const seed = hash(team.abbr);
+        const name = `${FIRST[(seed + i) % FIRST.length]} ${LAST[(seed + i * 3) % LAST.length]}${i >= FIRST.length ? ` ${i}` : ''}`;
         const pos = g.slug === 'nfl' ? POS[i % POS.length] : null;
         const pid = `sample-${g.slug}-${team.abbr}-${i}`.toLowerCase();
         for (const s of specs) {
@@ -91,7 +91,7 @@ export function demoUniverse(games: V3Game[]): Universe {
             playerId: pid, histId: g.slug === 'mlb' ? null : `${pid}~${s.stat}~${s.mu}`, name, team: team.abbr, opp: opp.abbr, position: pos,
             stat: s.stat, fam: fam.fam, label: fam.label, abbr: fam.abbr, playerStat: fam.playerStat,
             history: g.slug === 'mlb' ? null : { kind: 'nhl', col: s.stat }, oppUnit: fam.oppUnit, rungs, featured,
-            playerPage: g.slug !== 'mlb', out,
+            playerPage: g.slug !== 'mlb', out, availKnown: true,
             model: published ? { state: 'published', byK } : { state: 'none', reason: `SIFT’s model for ${fam.label.toLowerCase()} is not approved for display` },
             provenance: 'demo',
           });

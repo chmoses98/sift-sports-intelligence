@@ -21,6 +21,8 @@ export interface GameCtx {
   awayId?: string | null;
   homeId?: string | null;
   provenance?: 'publication' | 'demo';
+  /** The game's injury rows were readable (default true). */
+  availKnown?: boolean;
 }
 
 /** What the caller knows about published identity. Every function may return null: the join then falls through. */
@@ -153,7 +155,7 @@ export function parseGameProps(g: GameCtx, markets: Market[], hints: IdentityHin
       stat, fam: fam.fam, label: fam.label, abbr: fam.abbr, playerStat: fam.playerStat, history: fam.history, oppUnit: fam.oppUnit,
       rungs, featured,
       playerPage: !!hints.hasPlayerPage?.(first.player_id),
-      out: hints.outOf?.(name, team) ?? null,
+      out: hints.outOf?.(name, team) ?? null, availKnown: g.availKnown ?? true,
       model: { state: 'none', reason: 'not evaluated' },
       provenance: g.provenance ?? 'publication',
     });

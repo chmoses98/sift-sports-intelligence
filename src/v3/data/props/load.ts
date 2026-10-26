@@ -115,7 +115,7 @@ export async function loadUniverse(games: V3Game[]): Promise<Universe> {
     if (!injuryRows) availabilityGaps++;
     const ctx: GameCtx = {
       slug: g.slug, sportLabel: CAPABILITIES[g.slug]?.label ?? g.sport, eventId: g.eventId, key: g.key, startMs: g.startMs, away: g.away, home: g.home,
-      awayId: detail.event.away_participant, homeId: detail.event.home_participant,
+      awayId: detail.event.away_participant, homeId: detail.event.home_participant, availKnown: !!injuryRows,
     };
     const props = parseGameProps(ctx, detail.markets, hintsFor(c, sidelinedByName(injuryRows)));
     const authority = authorities.get(g.slug) ?? null;

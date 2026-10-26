@@ -23,6 +23,8 @@ export interface OppUnit {
   metric: string;
   /** The chip's words: "pass D", "goals against". */
   chip: string;
+  /** The peek's words: "pass defense", "goals against". */
+  long: string;
   /** The compare-row words: "pass D", "goals vs". */
   short: string;
   /** Unit of the ranking's own value ("goals per game"), when the peek prints it. */
@@ -74,6 +76,8 @@ export interface Prop {
   playerPage: boolean;
   /** Availability when the publication says he is OUT, DOUBTFUL, SUSPENDED or on IR. */
   out: string | null;
+  /** The game's availability (injury) rows were readable: only then does "Listed" mean anything. */
+  availKnown: boolean;
   model: ModelLane;
   provenance: 'publication' | 'demo';
 }

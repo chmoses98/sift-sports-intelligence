@@ -219,6 +219,19 @@ test.describe('Overview (G2) @v3', () => {
   });
 });
 
+test.describe('missing quotes @v3', () => {
+  test('with no usable quote every price in the Matchup tab and the Lens prints a dash and is still the addressed contract target', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-10-27T03:00:00Z'));
+    await matchup(page, '&lens=1');
+    const km = page.getByTestId('key-matchups');
+    const prices = km.locator('.mx-kp');
+    expect(await prices.count()).toBeGreaterThan(0);
+    for (const p of await prices.all()) { await expect(p).toContainText('—'); await expect(p).toHaveAttribute('data-tap', 'price'); await expect(p).toHaveAttribute('data-dest', /sheet=contract&tk=KXNFL/); }
+    await expect(page.getByTestId('sift-lens')).not.toContainText('to win.'); // the market line needs both win prices to pass the gate
+    await expect(page.getByTestId('sift-lens')).not.toContainText(/\d+¢/);
+  });
+});
+
 test.describe('Expanded unit (G2) @v3', () => {
   test('strips open the statistic, the player row opens the player, the team total row opens the game', async ({ page }) => {
     await matchup(page, '&dir=DAL&unit=pass');
@@ -254,6 +267,30 @@ test.describe('quality @v3', () => {
   }
 });
 
+test.describe('missing data and laziness @v3', () => {
+  test('team profiles that are not published give the locked "No matchup rows" state, never a substitute; the Overview still works', async ({ page }) => {
+    await page.route(/\/explorer\/teams\/prt_/, (r) => r.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }));
+    await open(page, '?v=1&tab=matchup');
+    await expect(page.getByText('No matchup rows.')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.mx-tug')).toHaveCount(0);
+    await expect(page.getByTestId('sift-lens')).toHaveCount(0);
+    await page.getByRole('tab', { name: 'Overview' }).click();
+    await expect(page.getByTestId('win-price')).toBeVisible();
+    await expect(page.getByTestId('game-teams')).toBeVisible();
+  });
+  test('the Overview loads no team profile; the Matchup tab loads both, once', async ({ page }) => {
+    const profiles: string[] = [];
+    page.on('request', (r) => { if (/\/explorer\/teams\/prt_/.test(r.url())) profiles.push(r.url()); });
+    await open(page);
+    await expect(page.getByTestId('game-teams')).toBeVisible();
+    await page.waitForTimeout(1500);
+    expect(profiles).toHaveLength(0);
+    await page.getByRole('tab', { name: 'Matchup' }).click();
+    await expect(page.getByTestId('tug-rows')).toBeVisible({ timeout: 30_000 });
+    expect(new Set(profiles).size).toBe(2);
+  });
+});
+
 test.describe('a completed game @v3', () => {
   test('uses the same route, shows no price or props row, and keeps both team rows', async ({ page }) => {
     await page.goto('./#/v3/game/nfl/evt_0e858f7285b411adf630');
@@ -263,5 +300,8 @@ test.describe('a completed game @v3', () => {
     await expect(page.getByTestId('win-price')).toHaveCount(0);
     await expect(page.locator('a.mx-prow')).toHaveCount(0);
     await expect(page.getByRole('tab', { selected: true })).toHaveText('Recap');
+    await expect(page.locator('.v3-gh__fin')).toHaveText('FINAL');
+    await expect(page.locator('.v3-gh__sc .num')).toContainText(/\d+.\d+/); // the final score is the hero's
+    await expect(page.getByText('Result not reported yet')).toHaveCount(0);
   });
 });

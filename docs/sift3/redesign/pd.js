@@ -113,8 +113,8 @@
      <div class="fg" ${st('wire', 'WIRE')}><div class="fl">History at that rung</div><div class="row"><span class="stp">${I('back', 14)}</span><span class="stv"><b class="num">6 of 10</b> or better</span><span class="stp">${I('chevR', 14)}</span><span class="seg sm on">L10</span><span class="seg sm">L5</span></div></div>
      <div class="fg"><div class="fl">Opponent unit rank</div><div class="row"><span class="seg sm on">Any</span><span class="seg sm">Bottom 10</span><span class="seg sm">Top 10</span></div></div>
      <div class="fg" ${st('wire', 'WIRE')}><div class="fl">SIFT model and availability</div>
-       <div class="tog2"><span>SIFT model published only<small>${nm((p) => p.model.status === 'published')} props today</small></span><i class="sw2"></i></div>
-       <div class="tog2"><span>Hide out and doubtful<small>${nm((p) => p.avail === 'OUT' || p.avail === 'DOUBTFUL')} props hidden</small></span><i class="sw2 on"></i></div></div>
+       <div class="tog2"><span>SIFT model published only<small>${nm((p) => p.model.status === 'published')} props today</small></span><i class="tgl"></i></div>
+       <div class="tog2"><span>Hide out and doubtful<small>${nm((p) => p.avail === 'OUT' || p.avail === 'DOUBTFUL')} props hidden</small></span><i class="tgl on"></i></div></div>
      <div class="fg locked" ${st('new', 'NEW DATA')}><div class="fl">${I('lock', 13)} Needs more data</div><div class="row"><span class="fc off"><b>Price move since open</b><em>no prop price history</em></span><span class="fc off"><b>Teammate out</b><em>needs data</em></span></div></div>
      <div class="apply">Show ${matched.length} props</div></div>${chrome('Explore').replace(/<nav.*?<\/nav>/s, '')}`;
   }
@@ -122,18 +122,18 @@
   /* ---------- PD5: compare */
   function pd5() {
     const cols = [find('CeeDee Lamb', 'rec'), find('Dallas Goedert', 'rec'), find('Kirill Marchenko', 'points')];
-    const cell = (f) => cols.map((p) => `<div class="cc">${f(p)}</div>`).join('');
+    const cell = (f) => cols.map((p) => `<div class="pcell">${f(p)}</div>`).join('');
     const rowC = (cap, f, tag = '') => `<div class="crow" ${tag}><div class="cap">${cap}</div>${cell(f)}</div>`;
     const spark = (p) => { const hv = hist(p); const mx = Math.max(...hv.vals, p.featured) + 0.5; return `<svg width="84" height="38" viewBox="0 0 92 40">${hv.vals.map((v, i) => `<rect x="${i * 9.2 + 1}" y="${40 - 2 - (v / mx) * 34}" width="6.6" height="${Math.max(2, (v / mx) * 34)}" rx="1.6" fill="${v >= p.featured ? TH.go0 : TH.gu0}"/>`).join('')}<line x1="0" x2="92" y1="${40 - 2 - ((p.featured - 0.5) / mx) * 34}" y2="${40 - 2 - ((p.featured - 0.5) / mx) * 34}" stroke="#fff" stroke-dasharray="3 3" stroke-width="1"/></svg>`; };
     return `<div class="scr"><div class="pdh slim"><div class="tt"><span class="ib back">${I('back', 24)}</span><h1>Compare</h1><span class="cnt">3</span><span class="tr"><span class="chip">Add prop ${I('chevR', 11)}</span></span></div></div>
      <div class="cmp5">
-      <div class="crow chd" ${st('ok', 'BUILT')}><div class="cap"></div>${cols.map((p) => `<div class="cc hd">${av(p, 36)}<b>${p.name.split(' ').slice(-1)[0]}</b><span>${ABBR[p.fam]} ${p.featured}+</span><small>${gm(p)}</small></div>`).join('')}</div>
+      <div class="crow chd" ${st('ok', 'BUILT')}><div class="cap"></div>${cols.map((p) => `<div class="pcell hd">${av(p, 36)}<b>${p.name.split(' ').slice(-1)[0]}</b><span>${ABBR[p.fam]} ${p.featured}+</span><small>${gm(p)}</small></div>`).join('')}</div>
       ${rowC('Market', (p) => `<b class="num m">${asks(p)}%</b><small>${asks(p)}¢ ask</small>`, st('ok', 'BUILT'))}
       ${rowC('History<br><small>last 10</small>', (p) => { const h = hist(p); return `<b class="num h">${h.h}/${h.n}</b>${spark(p)}`; }, st('wire', 'WIRE'))}
       ${rowC('SIFT model', (p) => { const m = mdl(p); return m != null ? `<b class="num z">${m}%</b><small>P(${p.featured}+) published</small>` : `<b class="num z off">—</b><small class="wd">not approved</small>`; }, st('wire', 'WIRE'))}
       ${rowC('Opponent', (p) => `<b class="un">${p.opp} ${p.sport === 'NFL' ? 'pass D' : 'goals vs'}</b><span class="rk"><b class="num">${ord(p.matchup.rank)}</b> of ${p.matchup.n}</span><span class="mini-trk"><i style="left:${100 * (p.matchup.n - p.matchup.rank) / (p.matchup.n - 1)}%"></i></span>`, st('wire', 'WIRE'))}
       ${rowC('Status', (p) => (p.avail ? `<span class="chip bad">${p.avail}</span>` : `<span class="chip ok"><span class="dot"></span>Listed</span>`), st('wire', 'WIRE'))}
-      <div class="crow acts5"><div class="cap"></div>${cols.map(() => `<div class="cc"><span class="btn sm">Research</span><span class="btn sm ghost">Contract</span></div>`).join('')}</div>
+      <div class="crow acts5"><div class="cap"></div>${cols.map(() => `<div class="pcell"><span class="btn sm">Research</span><span class="btn sm ghost">Contract</span></div>`).join('')}</div>
      </div>
      <p class="cnote">“—” means no approved estimate, never a blank to fill. Goals vs = opponent goals allowed per game.</p></div>${chrome('Explore')}`;
   }

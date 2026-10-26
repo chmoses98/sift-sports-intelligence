@@ -1,0 +1,27 @@
+<title>SIFT Research Walkthrough</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="theme-b.css"><link rel="stylesheet" href="pd.css"><link rel="stylesheet" href="tr.css"><link rel="stylesheet" href="sd.css"><link rel="stylesheet" href="proto.css">
+<div class="wt">
+<header class="wth">
+  <div class="wtt"><b>SIFT 3.0 research walkthrough</b><span>Interactive prototype · demo navigation on real published data</span></div>
+  <div class="wtb">
+    <button id="bJ" class="wbtn pri">Journeys</button>
+    <button id="bS" class="wbtn" aria-pressed="false">Data status</button>
+    <button id="bQ" class="wbtn" aria-pressed="false">Simulate no quote</button>
+    <button id="bR" class="wbtn">Reset</button>
+  </div>
+</header>
+<section id="coach" class="coach" hidden></section>
+<section id="jlist" class="jlist" hidden></section>
+<main class="wtm"><div id="stage" class="stage"><div id="phone" class="phone thB"></div></div>
+<aside id="legend" class="wlegend"><b>What is real and what is demo</b>
+  <span><i class="k real"></i>Real published data: rankings, team profiles, game logs, Kalshi contracts captured 2026-10-26, game schedule.</span>
+  <span><i class="k demo"></i>Demo: the navigation, the back stack, saved research, the “no quote” switch, and screens marked <em>Stand-in</em>.</span>
+  <span><i class="k int"></i>Integrated in v3 today: tap <em>Data status</em> to see BUILT / WIRE / NEW on every block.</span>
+  <span><i class="k int"></i>Checked in Chromium by an automated suite (every journey, every tap target, Back state). Not yet checked on iPhone Safari.</span>
+</aside></main>
+</div>
+<script src="data.js"></script><script src="props.js"></script><script src="teams.js"></script><script src="stats.js"></script><script src="walk-data.js"></script>
+<script>window.PROTO = true;</script>
+<script src="mock.js"></script>
+<script src="proto-core.js"></script><script src="proto-pd.js"></script><script src="proto-player.js"></script><script src="proto-team.js"></script><script src="proto-stat.js"></script><script src="proto-game.js"></script><script src="proto-boot.js"></script>

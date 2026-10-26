@@ -1,0 +1,59 @@
+/* Treatment B: ink and graphite. Same markup, same layout, same data as the approved midnight-navy treatment (A); only colour changes.
+   Rules of the palette:
+   - Foundation is near-black navy (ink). Surfaces are neutral graphite/slate, not blue. Borders are slate hairlines, never cyan.
+   - Vibrant cyan is reserved for: the selected tab / window / direction, primary actions, the SIFT lane and SIFT highlights.
+   - Semantic colours stay strong and are never reused as decoration: green hit / coral miss, periwinkle market, ivory history,
+     cyan SIFT, ice (offense) against amber (defense). Team identity and player photography keep their own colour. */
+.phone.thB {
+  --bg: #080b10; --text: #f3f6f9; --muted: #a4acb6; --dim: #7d8895; --cyan: #19cde0;
+  --off: #eaf1f7; --def: #ff9b52; --even: #3a424d;
+  --card: linear-gradient(180deg, #181c21 0%, #131619 100%);
+  --lit: inset 0 1px 0 rgba(255, 255, 255, .05);
+  --his: #f0f2f5;
+  --s-chip: #1b1f25; --s-chip-bd: #2b3038; --s-bd: #272b32; --s-hair: #21252b; --s-hair2: #1b1f24; --s-raise: #1f242b; --s-raise-bd: #39414b;
+  --t2: #d6dadf; --t3: #c3c8ce;
+  background: radial-gradient(110% 38% at 8% -6%, rgba(72, 88, 116, .13), transparent 62%), linear-gradient(180deg, #0c1015 0%, #090c10 40%, #06080b 100%);
+}
+.thB .tb { background: rgba(15, 18, 22, .92); border-color: #2b3038; box-shadow: 0 10px 30px rgba(0, 0, 0, .55), var(--lit); }
+.thB .card { border-color: var(--s-bd); }
+.thB .chip { color: var(--t2); background: var(--s-chip); border-color: var(--s-chip-bd); }
+.thB .chip.ok { color: #86efbd; border-color: rgba(52, 211, 140, .4); background: rgba(16, 48, 38, .7); }
+.thB .chip.cy { color: #5fe0ee; border-color: rgba(25, 205, 224, .42); background: rgba(25, 205, 224, .08); }
+/* hero: team colour over ink; the photograph stays the loudest thing on the screen */
+.thB .hero .glow { background: radial-gradient(70% 90% at 18% 35%, rgba(38, 62, 124, .42), transparent 70%), radial-gradient(60% 80% at 90% 20%, rgba(150, 160, 175, .14), transparent 70%), linear-gradient(180deg, #0e1217, #0a0d11); }
+.thB .hero .shade { background: linear-gradient(180deg, rgba(5, 7, 10, .22), rgba(5, 7, 10, 0) 40%, rgba(5, 7, 10, .78) 100%); }
+.thB .who .f { color: #e9edf1; } .thB .who .m { color: #cfd6de; }
+.thB .gstrip .c span { color: var(--muted); }
+.thB .tabs { border-bottom-color: var(--s-hair); }
+.thB .tabs a.on::after { box-shadow: none; }
+.thB .pill { color: var(--t2); background: var(--s-chip); border-color: var(--s-chip-bd); }
+.thB .pill.on { background: var(--cyan); box-shadow: none; }
+.thB .decide { border-color: var(--s-raise-bd); background: linear-gradient(180deg, #1c2127 0%, #16191e 100%); }
+.thB .dl .r .o { color: #6fe8ae; }
+.thB .dl .cv { background: var(--s-chip); border-color: var(--s-chip-bd); }
+.thB .trio, .thB .trio > div { border-color: var(--s-hair); }
+.thB .trio .s, .thB .dl .k, .thB .dl .v small { color: var(--muted); }
+.thB .wins div { color: var(--t2); background: var(--s-chip); border-color: var(--s-chip-bd); }
+.thB .wins .on { border-color: var(--cyan); box-shadow: none; background: var(--s-raise); }
+.thB .sum { border-top-color: var(--s-hair); }
+.thB .pos { color: #6fe8ae; } .thB .neg { color: #ff8f86; }
+/* game header and matchup */
+.thB .glow2 { background: radial-gradient(48% 74% at 18% 60%, rgba(34, 63, 134, .5), transparent 72%), radial-gradient(48% 74% at 84% 60%, rgba(8, 92, 76, .5), transparent 72%), linear-gradient(180deg, #0e1217, #090c10); }
+.thB .gl0 span { color: var(--muted); }
+.thB .sw2 .t { border-color: var(--s-bd); }
+.thB .sw2 .t.on { border-color: var(--cyan); box-shadow: none; background: var(--s-raise); }
+.thB .sw2 .t b { color: var(--muted); }
+.thB .seg2 { background: #0f1215; border-color: var(--s-bd); }
+.thB .sg.on { background: var(--s-raise); border-color: var(--cyan); box-shadow: none; }
+.thB .sg .s2 { color: var(--muted); }
+.thB .gb i { background: var(--even); } .thB .gb i.off { background: var(--off); } .thB .gb i.def { background: var(--def); }
+.thB .lgn { color: var(--muted); }
+.thB .tugs { border-color: var(--s-bd); }
+.thB .tug { border-bottom-color: var(--s-hair2); }
+.thB .th span { color: var(--dim); }
+.thB .rail { background: rgba(255, 255, 255, .10); } .thB .rail::after { background: rgba(255, 255, 255, .22); }
+.thB .gapf { opacity: .72; }
+.thB .mkr { background: #0a0d11; }
+.thB .mkr.o { box-shadow: 0 0 8px rgba(234, 241, 247, .18); } .thB .mkr.d { box-shadow: 0 0 8px rgba(255, 155, 82, .25); }
+.thB .tv { color: var(--muted); } .thB .tv em { color: var(--muted); }
+.thB .mode .note { color: var(--dim); }

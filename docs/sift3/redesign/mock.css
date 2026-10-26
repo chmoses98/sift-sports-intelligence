@@ -14,7 +14,7 @@
   --mkt: #93a9ff;   /* Market lane: Kalshi price / implied probability */
   --his: #eef6fb;   /* History lane: observed frequency */
   --sift: #16c9dc;  /* SIFT lane: published model output only */
-  --off: #16c9dc; --def: #ff9b52;
+  --off: #16c9dc; --def: #ff9b52; --even: #34506a;
   --f-ui: 'Geist Sans', -apple-system, 'SF Pro Text', Arial, sans-serif;
   --f-num: 'Sora Variable', 'Geist Sans', -apple-system, Arial, sans-serif;
   --card: linear-gradient(180deg, rgba(11, 46, 72, .74) 0%, rgba(6, 31, 50, .82) 100%);

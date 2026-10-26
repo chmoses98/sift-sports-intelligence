@@ -4,6 +4,12 @@
 const D = window.D;
 const Q = new URLSearchParams(location.search);
 const SCREEN = Q.get('s') || 'p1', ANNOT = Q.has('annot'), LONG = Q.get('h');
+/* Colour treatments for the SVG parts (HTML parts are themed in theme-b.css). A = the current approved midnight-navy palette. */
+const THEMES = {
+  A: { grid: 'rgba(120,170,200,.14)', axis: '#7593a8', sub: '#8fa9bb', div: 'rgba(160,200,225,.35)', go0: '#2ee8c6', go1: '#12a58f', gu0: '#ff7e72', gu1: '#d4514a', hit: '#7ff0cf', miss: '#ffa39c', rungOff: 'rgba(160,200,225,.55)', stripDot: 'rgba(150,190,215,.6)', stripLine: 'rgba(120,170,200,.28)', bg: '#031523' },
+  B: { grid: 'rgba(255,255,255,.07)', axis: '#6e7a87', sub: '#8a95a1', div: 'rgba(255,255,255,.22)', go0: '#46e49b', go1: '#1c9a62', gu0: '#ff7468', gu1: '#cf453c', hit: '#8af2bc', miss: '#ff9f97', rungOff: 'rgba(255,255,255,.35)', stripDot: 'rgba(190,200,212,.55)', stripLine: 'rgba(255,255,255,.14)', bg: '#070b11' },
+};
+const THEME = Q.get('t') === 'B' ? 'B' : 'A', TH = THEMES[THEME];
 const $ = (s, el = document) => el.querySelector(s);
 const lg = (t, s = 28, cls = '') => `<img class="lg ${cls}" src="assets/teams/${t}.webp" width="${s}" height="${s}" alt="${t}">`;
 const f1 = (n) => (Math.round(n * 10) / 10).toFixed(1);
@@ -42,19 +48,19 @@ function barChart({ games, k, w = 338, h = 190, scrub = false, ymax = null, proj
   const step = mx > 12 ? 5 : 2, top = Math.ceil(mx / step) * step;
   const y = (v) => T + ph - (v / top) * ph, cx = (i) => L + sw * i + sw / 2;
   let s = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>
-  <linearGradient id="go" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ee8c6"/><stop offset="1" stop-color="#12a58f"/></linearGradient>
-  <linearGradient id="gu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7e72"/><stop offset="1" stop-color="#d4514a"/></linearGradient>
+  <linearGradient id="go" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${TH.go0}"/><stop offset="1" stop-color="${TH.go1}"/></linearGradient>
+  <linearGradient id="gu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${TH.gu0}"/><stop offset="1" stop-color="${TH.gu1}"/></linearGradient>
   <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(22,201,220,.10)"/><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(22,201,220,.55)" stroke-width="2"/></pattern></defs>`;
-  for (let v = 0; v <= top; v += step) s += `<line x1="${L}" x2="${w - R}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(120,170,200,.14)"/><text x="${L - 5}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="#7593a8">${v}</text>`;
+  for (let v = 0; v <= top; v += step) s += `<line x1="${L}" x2="${w - R}" y1="${y(v)}" y2="${y(v)}" stroke="${TH.grid}"/><text x="${L - 5}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="${TH.axis}">${v}</text>`;
   games.forEach((g, i) => {
     const v = recOf(g), hit = v >= k, x = cx(i);
     const prev = games[i - 1];
-    if (prev && prev.season !== g.season) s += `<line x1="${L + sw * i}" x2="${L + sw * i}" y1="${T - 8}" y2="${h - B + 4}" stroke="rgba(160,200,225,.35)" stroke-dasharray="3 4"/><text x="${L + sw * i - 4}" y="${T - 4}" text-anchor="end" font-size="9.5" fill="#7593a8">${prev.season}</text><text x="${L + sw * i + 4}" y="${T - 4}" font-size="9.5" fill="#7593a8">${g.season}</text>`;
+    if (prev && prev.season !== g.season) s += `<line x1="${L + sw * i}" x2="${L + sw * i}" y1="${T - 8}" y2="${h - B + 4}" stroke="${TH.div}" stroke-dasharray="3 4"/><text x="${L + sw * i - 4}" y="${T - 4}" text-anchor="end" font-size="9.5" fill="${TH.axis}">${prev.season}</text><text x="${L + sw * i + 4}" y="${T - 4}" font-size="9.5" fill="${TH.axis}">${g.season}</text>`;
     s += `<rect x="${x - bw / 2}" y="${y(v)}" width="${bw}" height="${Math.max(2, y(0) - y(v))}" rx="4" fill="url(#${hit ? 'go' : 'gu'})" ${sel === i ? 'stroke="#fff" stroke-width="1.6"' : ''} opacity="${sel != null && sel !== i ? .55 : 1}"/>`;
-    s += `<text x="${x}" y="${y(v) - 4}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${hit ? '#7ff0cf' : '#ffa39c'}">${v}</text>`;
+    s += `<text x="${x}" y="${y(v) - 4}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${hit ? TH.hit : TH.miss}">${v}</text>`;
     s += `<image href="assets/teams/${g.opp}.webp" x="${x - 8}" y="${h - B + 8}" width="16" height="16"/>`;
-    if (!g.home) s += `<text x="${x - 11}" y="${h - B + 20}" text-anchor="end" font-size="8.5" fill="#7593a8">@</text>`;
-    s += `<text x="${x}" y="${h - B + 33}" text-anchor="middle" font-size="9" fill="#8fa9bb">W${g.week}</text>`;
+    if (!g.home) s += `<text x="${x - 11}" y="${h - B + 20}" text-anchor="end" font-size="8.5" fill="${TH.axis}">@</text>`;
+    s += `<text x="${x}" y="${h - B + 33}" text-anchor="middle" font-size="9" fill="${TH.sub}">W${g.week}</text>`;
   });
   if (proj) { // the published projection range for tonight: ghost bar with p10..p90 whisker and median tick; never coloured as a hit/miss
     const x = cx(games.length), v = PRJ.median;
@@ -68,7 +74,7 @@ function barChart({ games, k, w = 338, h = 190, scrub = false, ymax = null, proj
   s += `<line x1="${L}" x2="${w - R + 2}" y1="${ly}" y2="${ly}" stroke="#fff" stroke-width="1.5" stroke-dasharray="6 4"/>`;
   s += `<g transform="translate(${w - R + 5},${ly - 11})"><rect width="38" height="22" rx="6" fill="#fff"/><text x="19" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#031523">${k - 0.5}</text></g>`;
   if (scrub) { // drag handle on the line with the ladder rungs as snap points on the right edge
-    for (const r of ladder) { const ry = y(r.k - 0.5); if (r.k < 3 || ry < T - 2) continue; s += `<line x1="${w - R - 2}" x2="${w - R + 4}" y1="${ry}" y2="${ry}" stroke="${r.k === k ? '#fff' : 'rgba(160,200,225,.55)'}" stroke-width="${r.k === k ? 2 : 1.2}"/>`; }
+    for (const r of ladder) { const ry = y(r.k - 0.5); if (r.k < 3 || ry < T - 2) continue; s += `<line x1="${w - R - 2}" x2="${w - R + 4}" y1="${ry}" y2="${ry}" stroke="${r.k === k ? '#fff' : TH.rungOff}" stroke-width="${r.k === k ? 2 : 1.2}"/>`; }
     s += `<circle cx="${L + 70}" cy="${ly}" r="15" fill="rgba(255,255,255,.14)"/><circle cx="${L + 70}" cy="${ly}" r="8" fill="#fff" stroke="#031523" stroke-width="2"/>`;
   }
   return s + '</svg>';
@@ -216,7 +222,7 @@ function tugRow(r, offT, defT, open = false) {
    <div class="tv"><div><span style="color:var(--off)">${offT} offense <em>· ${ord(o.rank)}</em></span><b>${fmtV(u.off, o.value)}</b></div><div style="text-align:right"><span style="color:var(--def)">${defT} defense <em>· ${ord(d.rank)}</em></span><b>${fmtV(u.def, d.value)} allowed</b></div></div></div>`;
 }
 
-const edgeMeter = (offT, defT) => { const rs = UNITS.map((u) => unitFor(u, offT, defT)), c = (t) => rs.filter((r) => r.tag === t).length; return { rs, html: `<div class="gb">${rs.map((r) => `<i class="${r.tag}"></i>`).join('')}</div><div class="lgn"><span style="--c:var(--off)">${c('off')} ${offT}</span><span style="--c:#34506a">${c('even')} even</span><span style="--c:var(--def)">${c('def')} ${defT}</span></div>` }; };
+const edgeMeter = (offT, defT) => { const rs = UNITS.map((u) => unitFor(u, offT, defT)), c = (t) => rs.filter((r) => r.tag === t).length; return { rs, html: `<div class="gb">${rs.map((r) => `<i class="${r.tag}"></i>`).join('')}</div><div class="lgn"><span style="--c:var(--off)">${c('off')} ${offT}</span><span style="--c:var(--even)">${c('even')} even</span><span style="--c:var(--def)">${c('def')} ${defT}</span></div>` }; };
 
 function headerHtml(compact = false) {
   if (compact) return `<div class="cbar"><span class="ib">${I('back', 24)}</span><div class="cm">${lg('DAL', 28)}<b>DAL</b><span>at</span><b>PHI</b>${lg('PHI', 28)}</div><span class="cs">Mon 8:15 PM</span><span class="ib">${I('bell', 21)}</span></div>`;
@@ -289,5 +295,5 @@ function matchupLower() {
 }
 
 const SCREENS = { p1: playerOverview, p2: playerScrub, p3: playerBuilder, p4: playerMatchup, g1: matchupMain, g2: matchupExpanded, g3: matchupLower };
-document.body.innerHTML = `<div class="phone ${ANNOT ? 'annot' : ''}" id="phone" ${LONG ? `style="height:${LONG}px"` : ''}>${(SCREENS[SCREEN] || playerOverview)()}</div>`;
+document.body.innerHTML = `<div class="phone ${ANNOT ? 'annot' : ''} th${THEME}" id="phone" ${LONG ? `style="height:${LONG}px"` : ''}>${(SCREENS[SCREEN] || playerOverview)()}</div>`;
 if (LONG) document.querySelectorAll('.tb,.hi').forEach((e) => e.remove());

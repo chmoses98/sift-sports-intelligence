@@ -9,7 +9,7 @@ import { MAX_AGE_MS, type QuoteContext } from '../../src/live/quoteUsable';
 import { CADENCE_MS, HISTORY_LIMIT, MAX_ROW_TICKERS, PRIMARY_TIMEOUT_MS, QuoteStore } from '../../src/live/store';
 import { ProviderError } from '../../src/live/types';
 import { FakeClock, FakeEnv } from './fakes';
-import { EVENT, FAR, HOUR, NEAR, T, U, rig } from './support/delivery';
+import { EVENT, FAR, NEAR, T, U, rig } from './support/delivery';
 
 let store: QuoteStore | null = null;
 afterEach(() => store?.dispose());

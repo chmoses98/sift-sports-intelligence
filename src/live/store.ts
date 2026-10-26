@@ -734,7 +734,7 @@ export class QuoteStore {
     const t = this.now();
     if (r.clockSkewMs != null && Number.isFinite(r.clockSkewMs)) this.clockSkew = r.clockSkewMs;
     let outcome: RefreshOutcomeKind = 'ok';
-    let observationAgeMs: number | null = null;
+    let observationAgeMs: number | null;
     let unusableTickers = 0;
     if (kind === 'tickers' && chain === 'delivery') {
       // Judged per REQUESTED ticker: the freshest observation elsewhere in the batch (or for an unrelated

@@ -5,6 +5,7 @@ import { liveWins, quoteView } from '../../src/live/overlay';
 import { FallbackProvider } from '../../src/live/providers/fallback';
 import { QuoteStore } from '../../src/live/store';
 import { ProviderError } from '../../src/live/types';
+import { FAR, T as TICKER, rig } from './support/delivery';
 import { FakeClock, FakeEnv, FakeProvider, quote } from './fakes';
 
 const T = 'KXNHLGOAL-26OCT26TORCGY-TOR19';
@@ -25,7 +26,7 @@ describe('an older observation never replaces a newer one', () => {
       const r = await old(t, s);
       return { ...r, quotes: r.quotes.map((q) => ({ ...q, observedAt: new Date(clock.now() - 3 * 60_000).toISOString() })) };
     };
-    store = new QuoteStore({ provider: new FallbackProvider([relay, feed], { now: clock.now, timers: clock }), now: clock.now, timers: clock, env: new FakeEnv(), persistence: null });
+    store = new QuoteStore({ provider: new FallbackProvider([relay, feed]), now: clock.now, timers: clock, env: new FakeEnv(), persistence: null });
     await store.refreshNow([T]);
     const newer = store.quote(T)!;
     expect(newer.yesBid).toBe(0.41);
@@ -34,6 +35,20 @@ describe('an older observation never replaces a newer one', () => {
     await store.refreshNow([T]);
     expect(store.diagnostics().answeredBy).toBe('quote-feed');
     expect(store.quote(T)).toEqual(newer);
+  });
+
+  it('the same holds on the delivery chain: a later, older feed answer never replaces the newer relay quote', async () => {
+    const r = rig();
+    store = r.store;
+    r.feed.staleBy = 3 * 60_000;
+    const first = await r.store.refreshContract(TICKER, FAR);
+    const newer = r.store.quote(TICKER)!;
+    expect(first.quote?.source).toBe('kalshi-relay');
+    r.relay.failWith = new ProviderError('http', 'HTTP 503', 503);
+    await r.clock.advance(5_000);
+    await r.store.refreshContract(TICKER, FAR);
+    expect(r.store.diagnostics().answeredBy).toBe('quote-feed');
+    expect(r.store.quote(TICKER)).toEqual(newer); // held with its own, newer observation time
   });
 
   it('a publication capture newer than the live quote wins in the overlay; an equal one does not', () => {

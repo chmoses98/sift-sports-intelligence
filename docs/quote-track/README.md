@@ -217,7 +217,7 @@ Fake clock, no network. `tests/live/quoteStore.test.ts` unless noted.
 
 ## Production isolation
 
-Changed files (38 changes against `origin/main`; test files counted):
+Changed files (30 files against `origin/main`, test files and docs counted; `git diff origin/main --stat`):
 
 ```
 .github/workflows/quote-monitor.yml           new (comment text and no behaviour beyond the monitor)
@@ -259,7 +259,22 @@ What remains shared with the production path, and why it is safe:
 
 ## Verification
 
-RESULTS_PLACEHOLDER
+Run on this branch after the last code change:
+
+- `npx tsc -b`: clean (exit 0).
+- `npx eslint .`: clean (exit 0). (A first full run found one `no-useless-assignment` in `store.ts`; fixed, re-run clean.)
+- `npx vitest run`: **149 files passed, 3 skipped; 1847 tests passed, 3 skipped, 0 failed** (194 s). After the one-line lint fix the
+  `tests/live` directory was re-run: 27 files passed, 415 tests passed, 3 skipped. Before these corrections the track had 145
+  files and 1760 tests.
+- New tests in the track: 211 (quoteUsable 42, quoteStore 34, quoteMissingTickers 27, productionChainCharacterisation 10,
+  feed-heartbeat 10, quoteInvisible 9, quote-monitor 63, quote-monitor-drill 6, quote-monitor-workflow 7, quoteNewerWins 3).
+  87 of them are new in this correction round.
+- `node scripts/quote-monitor-drill.mjs`: **15 of 15 scenarios matched** (loopback fake feed and relay).
+- Characterisation: 10 passed on `origin/main` (scratch worktree), 2 failed on this branch before the isolation, 10 passed after.
+- Read-only check of production, made once before these corrections: `health.json` on the `live-quotes` branch answered 404;
+  `index.json` was 111 s old; the monitor run against the live feed passed its feed checks. The relay could not be reached from this
+  environment (DNS `ENOTFOUND`), so the relay half of the monitor has only run against fakes.
+- Not run: any GitHub Actions workflow, component tests for the missing-price states (UI branch), the heartbeat inside the real loop.
 
 ## Not proven
 

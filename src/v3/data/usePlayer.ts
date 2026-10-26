@@ -78,7 +78,7 @@ const mkTeam = (sport: string, slug: string, code: string, name: string): V3Team
   return { id: code, slug, sport, name: h?.name ?? name, nick: h?.short ?? name, abbr: code, logo: h?.logo ?? null, colors: h?.colors ?? ['#1d2d52', '#3f5079'] };
 };
 
-function nflObs(rows: GameLogRow[], stats: PlayerStat[], defaultSeason: number): Omit<Obs, 'rest'>[] {
+export function nflObs(rows: GameLogRow[], stats: PlayerStat[], defaultSeason: number): Omit<Obs, 'rest'>[] {
   return rows.filter((r) => r.date).map((r) => {
     const v: Record<string, number | null> = {};
     for (const s of stats) { const d = NFL_STATS.find((x) => x.key === s.key)!; v[s.key] = skipReason(r, d) ? null : d.get(r); }
@@ -87,7 +87,7 @@ function nflObs(rows: GameLogRow[], stats: PlayerStat[], defaultSeason: number):
   });
 }
 
-function boxObs(rows: BoxRow[], stats: PlayerStat[]): Omit<Obs, 'rest'>[] {
+export function boxObs(rows: BoxRow[], stats: PlayerStat[]): Omit<Obs, 'rest'>[] {
   return nbaPlayed(rows).map((r) => {
     const v: Record<string, number | null> = {};
     for (const s of stats) v[s.key] = s.key === 'pra' ? ((num(r.pts) ?? 0) + (num(r.reb) ?? 0) + (num(r.ast) ?? 0)) : num(r[s.key]);

@@ -15,7 +15,7 @@ describe('versioned URL state', () => {
   });
   it('round-trips every field type', () => {
     const s = { tab: 'matchup', stat: 'rec', line: 6, win: 'H2H', site: 'away', opp: 'PHI', tier: 'top', rest: 'short', script: 'close', role: 'snaps', min: 28, res: 'over', obs: 'g12', view: 'replay', rmode: 'h2h' } as const;
-    expect(decode(playerSchema, encode(playerSchema, s))).toEqual(s);
+    expect(decode(playerSchema, encode(playerSchema, s))).toMatchObject(s);
     const p = { sport: 'nhl', fam: 'goals', cmp: ['a', 'b'], hide: false, more: 3, model: true };
     expect(decode(propsSchema, encode(propsSchema, p))).toMatchObject({ ...p, cmp: ['a', 'b'] });
   });

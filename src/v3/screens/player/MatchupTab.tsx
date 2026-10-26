@@ -54,7 +54,7 @@ function ProjectionCard({ v }: { v: PlayerView }) {
     const r = a.resolveTeams({ family: 'team_pass_attempts', home: vm.next.home.abbr, away: vm.next.away.abbr, startUtc: new Date(vm.nextStartMs ?? vm.next.startMs).toISOString() });
     if (r.kind !== 'authoritative' || !ledgerProof(vm.sport, 'team_pass_attempts')?.permitted) return null;
     return r.teams.find((t) => teamKey(t.team) === teamKey(vm.team!.abbr))?.value ?? null;
-  }, [receiving, a, vm.next, vm.team, vm.nextStartMs]);
+  }, [receiving, a, vm.next, vm.team, vm.nextStartMs, vm.sport]);
 
   if (!mine && !receiving) {
     return (

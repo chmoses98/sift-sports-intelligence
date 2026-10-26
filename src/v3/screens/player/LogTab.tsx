@@ -25,7 +25,7 @@ export function GameRows({ v, rows }: { v: PlayerView; rows: Obs[] }) {
         const val = o.v[stat];
         const r = val != null && v.line != null ? resultOf(val, v.line) : null;
         const eventId = v.eventIdOf(o);
-        const when = [o.week != null ? `Wk ${o.week}` : null, shortDate(o.date), margin(o.margin)].filter(Boolean).join(' · ');
+        const when = [o.week != null ? `Wk ${o.week}` : null, `${shortDate(o.date)}${o.season != null && vm.season != null && o.season !== vm.season ? ` ’${o.date.slice(2, 4)}` : ''}`, margin(o.margin)].filter(Boolean).join(' · ');
         const others = otherStats(o, vm.stats, stat);
         const inner = (
           <>
@@ -60,7 +60,7 @@ export function LogTab({ v, onFilters }: { v: PlayerView; onFilters: () => void 
       <StatPills v={v} onFilters={onFilters} />
       <FilterChips v={v} />
       <section className="v3p-logc v3p-card" aria-label={`${v.statDef?.label} game log`}>
-        <WindowChips v={v} />
+        <div className="v3p-top"><WindowChips v={v} /></div>
         {games.length === 0 ? (
           <div className="v3p-empty" role="status"><b>0 games match</b>No game fits the window and filters.
             {v.filterCount > 0 && <button type="button" className="v3p-link" onClick={() => v.set({ site: 'any', opp: null, tier: 'any', rest: 'any', script: 'any', role: 'any', min: null, obs: null })}>Remove all filters</button>}

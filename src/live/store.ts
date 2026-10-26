@@ -16,7 +16,7 @@
 //   refresh outcome is kept in a bounded in-memory history. All of that is internal diagnostics; none of it
 //   is ever shown as freshness text.
 import { AvailabilityMeter, NO_PROVIDER } from './availability';
-import { assessBatch, maxAgeMs, quoteUsable, type QuoteContext, type Usability } from './quoteUsable';
+import { assessBatch, assessTickers, maxAgeMs, quoteUsable, type QuoteContext, type Usability } from './quoteUsable';
 import { ProviderError, type FallbackNote, type FetchOptions, type LiveQuote, type ProviderResult, type QuoteProvider } from './types';
 
 export type Cadence = 'detail' | 'game' | 'slate' | 'background';
@@ -63,7 +63,17 @@ export interface Timers {
 }
 
 export interface StoreOptions {
+  /**
+   * The production chain: packet preflight (refreshNow without a context), legacy scopes and inventory. Its
+   * behaviour is exactly what it was before the quote-delivery track.
+   */
   provider: QuoteProvider | null;
+  /**
+   * The quote-delivery chain (src/live/providers/deliveryChain.ts): used ONLY for tickers in a scope registered
+   * with a QuoteContext (addRowsScope / addContractScope) and for refreshContract. Absent = those entry points
+   * use `provider` too (with the same policy), never the other way round.
+   */
+  deliveryProvider?: QuoteProvider | null;
   now?: () => number;
   env?: Env;
   timers?: Timers;
@@ -109,7 +119,12 @@ export interface EventState {
   tickers: Set<string>;
 }
 
-export type RefreshOutcomeKind = 'ok' | 'over_limit' | 'rate_limited' | 'timeout' | 'error';
+/**
+ * ok: every requested ticker has a usable observation. partial: some do. over_limit: the answer held observations
+ * but none inside the limit of any requested ticker. no_quotes: the answer held nothing for the requested tickers
+ * (empty 200, delisted). The rest are failures of the call itself.
+ */
+export type RefreshOutcomeKind = 'ok' | 'partial' | 'over_limit' | 'no_quotes' | 'rate_limited' | 'timeout' | 'error';
 
 /** One provider call, for diagnostics (never rendered). */
 export interface RefreshOutcome {
@@ -121,8 +136,10 @@ export interface RefreshOutcome {
   /** Why an earlier provider was skipped ("rate_limited: ... (HTTP 429)"), or the failure when none answered. */
   fallbackReason: string | null;
   latencyMs: number | null;
-  /** Age of the newest believable observation in the answer, at receipt. */
+  /** Age of the newest believable observation among the requested tickers in the answer, at receipt. */
   observationAgeMs: number | null;
+  /** Requested tickers without a usable observation after this call (delivery chain only; 0 on the production chain). */
+  unusableTickers: number;
   outcome: RefreshOutcomeKind;
 }
 
@@ -173,11 +190,21 @@ export interface RefreshResult {
   missing: string[];
   /** Tickers whose request failed or timed out (they keep their last-known-good quote). */
   failed: string[];
+  /**
+   * Delivery chain only (a scope with a context, refreshContract): requested tickers that the sources answered
+   * for but that still have no observation inside their limit (absent from every answer, stale, untimed). The
+   * screen withholds their price. Absent on the production path.
+   */
+  unusable?: string[];
   error: string | null;
   timedOut: boolean;
   startedAt: number;
   finishedAt: number;
 }
+
+type Chain = 'legacy' | 'delivery';
+interface Backoff { failures: number; until: number; reason: string | null; rateLimited: boolean }
+const noBackoff = (): Backoff => ({ failures: 0, until: 0, reason: null, rateLimited: false });
 
 const defaultTimers: Timers = { set: (fn, ms) => setTimeout(fn, ms), clear: (h) => clearTimeout(h as ReturnType<typeof setTimeout>) };
 
@@ -231,6 +258,7 @@ export function localPersistence(storage: Storage | undefined = globalThis.local
 
 export class QuoteStore {
   readonly provider: QuoteProvider | null;
+  readonly deliveryProvider: QuoteProvider | null;
   private quotes = new Map<string, LiveQuote>();
   private tickerState = new Map<string, TickerState>();
   private eventState = new Map<string, EventState>();
@@ -253,7 +281,8 @@ export class QuoteStore {
   private history: RefreshOutcome[] = [];
   private clockSkew = 0;
   readonly meter = new AvailabilityMeter();
-  private backoff = { failures: 0, until: 0, reason: null as string | null, rateLimited: false };
+  /** Backoff is per chain, so a failing delivery chain never delays the production chain (packet preflight) or vice versa. */
+  private backoffs: Record<Chain, Backoff> = { legacy: noBackoff(), delivery: noBackoff() };
   private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'inventoryProviderLabel' | 'lastOutcome' | 'clockSkewMs'> = {
     answeredBy: null, fallback: null, inventoryAnsweredBy: null, inventoryFallback: null,
     requests: 0, batches: 0, tickersRequested: 0, tickersRefreshed: 0, tickersFailed: 0, tickersMissing: 0,
@@ -262,6 +291,7 @@ export class QuoteStore {
 
   constructor(o: StoreOptions) {
     this.provider = o.provider;
+    this.deliveryProvider = o.deliveryProvider ?? null;
     this.now = o.now ?? Date.now;
     this.env = o.env ?? browserEnv();
     this.timers = o.timers ?? defaultTimers;
@@ -325,9 +355,9 @@ export class QuoteStore {
       provider: this.provider?.id ?? 'none',
       providerLabel: this.provider?.label ?? 'No live provider configured',
       inventoryProviderLabel: (this.provider as { inventoryLabel?: string } | null)?.inventoryLabel ?? this.provider?.label ?? 'No live provider configured',
-      backoffUntil: this.backoff.until > this.now() ? this.backoff.until : null,
-      backoffReason: this.backoff.until > this.now() ? this.backoff.reason : null,
-      consecutiveFailures: this.backoff.failures,
+      backoffUntil: this.activeBackoff()?.until ?? null,
+      backoffReason: this.activeBackoff()?.reason ?? null,
+      consecutiveFailures: Math.max(this.backoffs.legacy.failures, this.backoffs.delivery.failures),
       lastOutcome: this.history[this.history.length - 1] ?? null,
       clockSkewMs: this.clockSkew,
       online: this.env.isOnline(),
@@ -336,6 +366,20 @@ export class QuoteStore {
       trackedTickers: tickers.size,
       trackedEvents: events.size,
     };
+  }
+
+  /** The backoff that ends last among those still running (diagnostics). */
+  private activeBackoff(): Backoff | null {
+    const t = this.now();
+    const live = Object.values(this.backoffs).filter((b) => b.until > t);
+    return live.length ? live.reduce((a, b) => (b.until > a.until ? b : a)) : null;
+  }
+
+  /** The delivery chain serves tickers shown through a scope with a context (or an explicit one); everything else is the production chain. */
+  private chainOf(ticker: string, explicit?: QuoteContext): Chain {
+    if (explicit) return 'delivery';
+    for (const s of this.scopes.values()) if (s.context && s.tickers.has(ticker)) return 'delivery';
+    return 'legacy';
   }
 
   // ---------------------------------------------------------------- usability and diagnostics
@@ -493,16 +537,29 @@ export class QuoteStore {
   private tick() {
     if (!this.provider || !this.scopes.size || !this.active()) return;
     const t = this.now();
-    if (this.backoff.until > t) {
-      this.schedule(this.backoff.until - t);
+    const { legacy, delivery } = this.backoffs;
+    const blockedL = legacy.until > t;
+    const blockedD = delivery.until > t;
+    const blockedWait = Math.min(blockedL ? legacy.until - t : Infinity, blockedD ? delivery.until - t : Infinity);
+    if (blockedL && (blockedD || !this.hasDeliveryScope())) {
+      this.schedule(blockedWait);
       return;
     }
     const p = this.plan();
-    if (p.tickers.length || p.events.length) {
-      void this.run(p.tickers, p.events, { force: false }).finally(() => this.schedule(0));
+    // A chain in backoff is left alone; the other keeps its cadence.
+    const tickers = p.tickers.filter((x) => (this.chainOf(x) === 'delivery' ? !blockedD : !blockedL));
+    const events = blockedL ? [] : p.events;
+    if (tickers.length || events.length) {
+      void this.run(tickers, events, { force: false }).finally(() => this.schedule(0));
       return;
     }
-    if (Number.isFinite(p.nextAt)) this.schedule(Math.max(250, p.nextAt - t));
+    if (Number.isFinite(blockedWait)) this.schedule(Math.min(blockedWait, Number.isFinite(p.nextAt) ? Math.max(250, p.nextAt - t) : Infinity));
+    else if (Number.isFinite(p.nextAt)) this.schedule(Math.max(250, p.nextAt - t));
+  }
+
+  private hasDeliveryScope(): boolean {
+    for (const s of this.scopes.values()) if (s.context && s.tickers.size) return true;
+    return false;
   }
 
   // ---------------------------------------------------------------- fetching
@@ -519,7 +576,8 @@ export class QuoteStore {
     const base: RefreshResult = { requested: want, refreshed: [], missing: [], failed: [], error: null, timedOut: false, startedAt, finishedAt: startedAt };
     if (!this.provider) return { ...base, failed: want, error: 'no live quote provider configured', finishedAt: this.now() };
     if (!this.env.isOnline()) return { ...base, failed: want, error: 'offline', finishedAt: this.now() };
-    if (this.backoff.rateLimited && this.backoff.until > startedAt) {
+    const bo = this.backoffs[opts.context ? 'delivery' : 'legacy'];
+    if (bo.rateLimited && bo.until > startedAt) {
       return { ...base, failed: want, error: 'provider is rate limiting; waiting before asking again', finishedAt: this.now() };
     }
     const timeoutMs = opts.timeoutMs ?? REQUEST_TIMEOUT_MS;
@@ -559,20 +617,22 @@ export class QuoteStore {
   }
 
   /**
-   * Policy for one quote batch: the loosest maximum age any scope showing these tickers accepts (a relay
-   * answer whose newest observation is older than that is a failed refresh), and the relay's share of the
-   * time. Undefined when any ticker is in a legacy (context-less) scope and nothing was asked for
-   * explicitly: those batches behave exactly as before.
+   * Policy for one delivery-chain quote batch: each requested ticker's own maximum observation age (the loosest
+   * among the scopes showing it, or the explicit context), and the relay's share of the time. Only called for
+   * tickers on the delivery chain; the production chain never gets a policy.
    */
-  private policyFor(ids: string[], explicit?: QuoteContext, primaryTimeoutMs?: number): FetchOptions | undefined {
+  private policyFor(ids: string[], explicit?: QuoteContext, primaryTimeoutMs?: number): FetchOptions {
     const t = this.now();
+    const maxAgeByTicker: Record<string, number> = {};
     let loosest = 0;
     for (const id of ids) {
       const ctxs = explicit ? [explicit] : [...this.scopes.values()].filter((s) => s.context && s.tickers.has(id)).map((s) => s.context!);
-      if (!ctxs.length) return primaryTimeoutMs != null ? { primaryTimeoutMs } : undefined;
-      for (const c of ctxs) loosest = Math.max(loosest, maxAgeMs(c, t, this.clockSkew));
+      let own = 0;
+      for (const c of ctxs) own = Math.max(own, maxAgeMs(c, t, this.clockSkew));
+      maxAgeByTicker[id] = own;
+      loosest = Math.max(loosest, own);
     }
-    return { maxAgeMs: loosest, primaryTimeoutMs: primaryTimeoutMs ?? PRIMARY_TIMEOUT_MS, clockSkewMs: this.clockSkew };
+    return { maxAgeMs: loosest, maxAgeByTicker, primaryTimeoutMs: primaryTimeoutMs ?? PRIMARY_TIMEOUT_MS, clockSkewMs: this.clockSkew };
   }
 
   private async run(tickers: string[], events: string[], o: { force: boolean; signal?: AbortSignal; context?: QuoteContext; primaryTimeoutMs?: number }): Promise<RefreshResult> {
@@ -580,6 +640,7 @@ export class QuoteStore {
     const provider = this.provider!;
     const res: RefreshResult = { requested: [...tickers], refreshed: [], missing: [], failed: [], error: null, timedOut: false, startedAt, finishedAt: startedAt };
     if (!provider) return res;
+    const delivery = this.deliveryProvider ?? provider;
     const todoTickers = o.force ? tickers : tickers.filter((x) => !this.inflightTickers.has(x));
     const todoEvents = o.force ? events : events.filter((x) => !this.inflightEvents.has(x));
     todoTickers.forEach((x) => this.inflightTickers.add(x));
@@ -588,16 +649,23 @@ export class QuoteStore {
     for (const e of todoEvents) this.touchEvent(e, startedAt);
     this.bump();
 
-    const batches: { kind: 'tickers' | 'events'; ids: string[] }[] = [];
+    const batches: { kind: 'tickers' | 'events'; ids: string[]; chain: Chain }[] = [];
     // Inventory first (an event listing also refreshes every ticker in it), as ONE provider call: the
     // provider groups events its own cheapest way (Kalshi: one listing per series; feed: one file per
-    // game), so splitting here would list the same series twice.
-    if (todoEvents.length) batches.push({ kind: 'events', ids: todoEvents });
-    for (let i = 0; i < todoTickers.length; i += provider.maxBatch) batches.push({ kind: 'tickers', ids: todoTickers.slice(i, i + provider.maxBatch) });
+    // game), so splitting here would list the same series twice. Always the production chain.
+    if (todoEvents.length) batches.push({ kind: 'events', ids: todoEvents, chain: 'legacy' });
+    // Tickers shown through a scope with a context (or asked for with one) go to the delivery chain; every
+    // other ticker (packet preflight, legacy scopes) goes to the production chain, as it always did.
+    const viaDelivery = todoTickers.filter((x) => this.chainOf(x, o.context) === 'delivery');
+    const viaLegacy = todoTickers.filter((x) => this.chainOf(x, o.context) === 'legacy');
+    for (let i = 0; i < viaLegacy.length; i += provider.maxBatch) batches.push({ kind: 'tickers', ids: viaLegacy.slice(i, i + provider.maxBatch), chain: 'legacy' });
+    for (let i = 0; i < viaDelivery.length; i += delivery.maxBatch) batches.push({ kind: 'tickers', ids: viaDelivery.slice(i, i + delivery.maxBatch), chain: 'delivery' });
 
+    const halted = new Set<Chain>();
     try {
       for (const b of batches) {
         if (o.signal?.aborted) break;
+        if (halted.has(b.chain)) continue;
         let ids = b.ids;
         if (b.kind === 'tickers') {
           // Covered by an event listing that just answered in this run.
@@ -617,14 +685,15 @@ export class QuoteStore {
         if (b.kind === 'tickers') this.diag.tickersRequested += ids.length;
         let policy: FetchOptions | undefined;
         try {
-          policy = b.kind === 'tickers' ? this.policyFor(ids, o.context, o.primaryTimeoutMs) : undefined;
-          const r: ProviderResult = b.kind === 'tickers' ? await provider.fetchQuotes(ids, ctrl.signal, policy) : await provider.fetchEventMarkets(ids, ctrl.signal);
-          this.onSuccess(b.kind, ids, r, t0, res, policy);
+          policy = b.kind === 'tickers' && b.chain === 'delivery' ? this.policyFor(ids, o.context, o.primaryTimeoutMs) : undefined;
+          const p = b.chain === 'delivery' ? delivery : provider;
+          const r: ProviderResult = b.kind === 'tickers' ? await p.fetchQuotes(ids, ctrl.signal, policy) : await p.fetchEventMarkets(ids, ctrl.signal);
+          this.onSuccess(b.kind, ids, r, t0, res, policy, b.chain);
         } catch (e) {
           const err = e instanceof ProviderError ? e : new ProviderError('network', String((e as Error)?.message ?? e));
           const timedOut = err.kind === 'aborted' && !o.signal?.aborted;
-          this.onFailure(b.kind, ids, timedOut ? new ProviderError('timeout', `no answer within ${REQUEST_TIMEOUT_MS / 1000}s`) : err, res, t0);
-          if (err.kind === 'rate_limited' || err.kind === 'blocked' || err.kind === 'network' || timedOut) break; // don't hammer a failing provider
+          this.onFailure(b.kind, ids, timedOut ? new ProviderError('timeout', `no answer within ${REQUEST_TIMEOUT_MS / 1000}s`) : err, res, t0, b.chain);
+          if (err.kind === 'rate_limited' || err.kind === 'blocked' || err.kind === 'network' || timedOut) halted.add(b.chain); // don't hammer a failing provider
         } finally {
           this.timers.clear(kill);
           o.signal?.removeEventListener('abort', onAbort);
@@ -638,6 +707,7 @@ export class QuoteStore {
     res.failed = [...new Set([...res.failed, ...tickers.filter((x) => !answered.has(x))])].filter((x) => !answered.has(x));
     res.refreshed = [...new Set(res.refreshed)].filter((x) => tickers.includes(x));
     res.missing = [...new Set(res.missing)].filter((x) => tickers.includes(x));
+    if (res.unusable) res.unusable = [...new Set(res.unusable)].filter((x) => tickers.includes(x));
     res.finishedAt = this.now();
     this.bump();
     return res;
@@ -660,20 +730,35 @@ export class QuoteStore {
     if (this.history.length > HISTORY_LIMIT) this.history.splice(0, this.history.length - HISTORY_LIMIT);
   }
 
-  private onSuccess(kind: 'tickers' | 'events', ids: string[], r: ProviderResult, t0: number, res: RefreshResult, policy?: FetchOptions) {
+  private onSuccess(kind: 'tickers' | 'events', ids: string[], r: ProviderResult, t0: number, res: RefreshResult, policy: FetchOptions | undefined, chain: Chain) {
     const t = this.now();
     if (r.clockSkewMs != null && Number.isFinite(r.clockSkewMs)) this.clockSkew = r.clockSkewMs;
-    // A 200 whose newest observation is over the limit is a failed refresh: kept (honest age) but recorded as such.
-    const a = r.quotes.length ? assessBatch(r.quotes, policy?.maxAgeMs ?? Infinity, t, this.clockSkew) : null;
+    let outcome: RefreshOutcomeKind = 'ok';
+    let observationAgeMs: number | null = null;
+    let unusableTickers = 0;
+    if (kind === 'tickers' && chain === 'delivery') {
+      // Judged per REQUESTED ticker: the freshest observation elsewhere in the batch (or for an unrelated
+      // ticker) says nothing about a ticker that has none of its own.
+      const limitFor = (x: string) => policy?.maxAgeByTicker?.[x] ?? policy?.maxAgeMs ?? Infinity;
+      const a = assessTickers(ids, r.quotes, limitFor, t, this.clockSkew);
+      unusableTickers = a.unusable.length;
+      observationAgeMs = a.newestAgeMs;
+      outcome = !a.unusable.length ? 'ok' : a.usable.length ? 'partial' : r.quotes.some((q) => ids.includes(q.ticker)) ? 'over_limit' : 'no_quotes';
+      (res.unusable ??= []).push(...a.unusable.map((u) => u.ticker));
+    } else {
+      // Production chain: unchanged accounting (batch-level; nothing here decides display).
+      const a = r.quotes.length ? assessBatch(r.quotes, Infinity, t, this.clockSkew) : null;
+      observationAgeMs = a?.newestAgeMs ?? null;
+    }
     this.record({
-      at: t, kind, tickers: ids.length, provider: r.answeredBy ?? this.provider?.id ?? null,
+      at: t, kind, tickers: ids.length, provider: r.answeredBy ?? (chain === 'delivery' ? this.deliveryProvider : this.provider)?.id ?? null,
       fallbackReason: r.fallback ? r.fallback.error : null, latencyMs: r.latencyMs ?? t - t0,
-      observationAgeMs: a?.newestAgeMs ?? null, outcome: a && !a.ok && policy?.maxAgeMs != null ? 'over_limit' : 'ok',
+      observationAgeMs, unusableTickers, outcome,
     });
     this.diag.requests += r.requests;
     this.diag.lastLatencyMs = r.latencyMs ?? t - t0;
     this.diag.lastSuccessAt = t;
-    this.backoff = { failures: 0, until: 0, reason: null, rateLimited: false };
+    this.backoffs[chain] = noBackoff();
     // A listing from a provider other than the quote primary updates inventory and (newer-wins) quotes,
     // but does not count as the quote refresh: the quote primary is still asked for those tickers.
     const quoteGrade = kind === 'tickers' || r.refreshesQuotes !== false;
@@ -718,10 +803,10 @@ export class QuoteStore {
     this.persistSoon();
   }
 
-  private onFailure(kind: 'tickers' | 'events', ids: string[], err: ProviderError, res: RefreshResult, t0: number) {
+  private onFailure(kind: 'tickers' | 'events', ids: string[], err: ProviderError, res: RefreshResult, t0: number, chain: Chain) {
     const t = this.now();
     this.record({
-      at: t, kind, tickers: ids.length, provider: null, fallbackReason: `${err.kind}: ${err.message}`, latencyMs: t - t0, observationAgeMs: null,
+      at: t, kind, tickers: ids.length, provider: null, fallbackReason: `${err.kind}: ${err.message}`, latencyMs: t - t0, observationAgeMs: null, unusableTickers: 0,
       outcome: err.kind === 'rate_limited' ? 'rate_limited' : err.kind === 'timeout' || err.kind === 'aborted' ? 'timeout' : err.kind === 'stale' ? 'over_limit' : 'error',
     });
     this.diag.lastErrorAt = t;
@@ -737,11 +822,11 @@ export class QuoteStore {
     } else {
       for (const e of ids) this.eventState.get(e)!.lastError = err.message;
     }
-    const failures = this.backoff.failures + 1;
+    const failures = this.backoffs[chain].failures + 1;
     let wait = Math.min(BACKOFF_MAX_MS, BACKOFF_BASE_MS * 2 ** (failures - 1));
     wait = Math.round(wait * (0.8 + 0.4 * this.random()));
     if (err.kind === 'rate_limited') wait = Math.max(wait, err.retryAfterMs ?? 30_000);
-    this.backoff = { failures, until: t + wait, reason: err.kind, rateLimited: err.kind === 'rate_limited' };
+    this.backoffs[chain] = { failures, until: t + wait, reason: err.kind, rateLimited: err.kind === 'rate_limited' };
   }
 
   /** Keep the newer observation: a slow or cached answer never overwrites a fresher quote. */

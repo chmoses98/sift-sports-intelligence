@@ -103,16 +103,27 @@ export function quoteUsable(quote: LiveQuote | null | undefined, ctx: QuoteConte
   const limitMs = MAX_AGE_MS[key];
   const no = (reason: UnusableReason, ageMs: number | null = null): Usability => ({ usable: false, reason, ageMs, limitMs, context: key });
   if (!quote) return no('no_quote');
+  const obs = observationAge(quote, now, skew);
+  if (!obs.ok) return no(obs.reason, obs.ageMs);
+  if (obs.ageMs > limitMs) return no('too_old', obs.ageMs);
+  return { usable: true, reason: null, ageMs: obs.ageMs, limitMs, context: key };
+}
+
+type ObservationReason = 'missing_observed_at' | 'unparseable_observed_at' | 'untimed_observation' | 'future_observed_at';
+
+/**
+ * The believable age of a quote's observation on the (skew-corrected) clock, or why it has none. A timestamp up
+ * to 5 s ahead counts as age 0 (clock noise); further ahead is rejected.
+ */
+export function observationAge(quote: LiveQuote, now: number, skew = 0): { ok: true; ageMs: number } | { ok: false; reason: ObservationReason; ageMs: number | null } {
   const raw = quote.observedAt as unknown;
-  if (raw == null || raw === '') return no('missing_observed_at');
-  if (quote.observedVia === 'received') return no('untimed_observation');
+  if (raw == null || raw === '') return { ok: false, reason: 'missing_observed_at', ageMs: null };
+  if (quote.observedVia === 'received') return { ok: false, reason: 'untimed_observation', ageMs: null };
   const observed = typeof raw === 'string' || typeof raw === 'number' ? quoteTimeMs(raw) : null;
-  if (observed == null) return no('unparseable_observed_at');
+  if (observed == null) return { ok: false, reason: 'unparseable_observed_at', ageMs: null };
   const age = now + skew - observed;
-  if (age < -FUTURE_TOLERANCE_MS) return no('future_observed_at', age);
-  const ageMs = Math.max(0, age);
-  if (ageMs > limitMs) return no('too_old', ageMs);
-  return { usable: true, reason: null, ageMs, limitMs, context: key };
+  if (age < -FUTURE_TOLERANCE_MS) return { ok: false, reason: 'future_observed_at', ageMs: age };
+  return { ok: true, ageMs: Math.max(0, age) };
 }
 
 export interface BatchAssessment {
@@ -138,4 +149,49 @@ export function assessBatch(quotes: readonly LiveQuote[], limitMs: number, now: 
   if (newest == null) return { ok: false, newestAgeMs: null, reason: 'no_observations' };
   const newestAgeMs = Math.max(0, now + clockSkewMs - newest);
   return newestAgeMs > limitMs ? { ok: false, newestAgeMs, reason: 'too_old' } : { ok: true, newestAgeMs, reason: 'ok' };
+}
+
+export interface TickerAssessment {
+  /** Requested tickers with an observation inside their own limit. */
+  usable: string[];
+  /** Requested tickers without one, with why (absent from the answer, untimed, future-dated, too old). */
+  unusable: { ticker: string; reason: 'absent' | ObservationReason | 'too_old'; ageMs: number | null }[];
+  /** Age of the newest believable observation among the REQUESTED tickers; null when none has one. */
+  newestAgeMs: number | null;
+}
+
+/**
+ * Judge each REQUESTED ticker on its own: does `quotes` hold an observation for it that is inside its limit?
+ * Quotes for tickers nobody asked for (a fresh unrelated ticker in the same batch) count for nothing, and a
+ * fresh observation of ticker A says nothing about ticker B. `limitFor` gives each ticker's maximum age
+ * (Infinity = any believable observation).
+ */
+export function assessTickers(requested: readonly string[], quotes: readonly LiveQuote[], limitFor: (ticker: string) => number, now: number, clockSkewMs = 0): TickerAssessment {
+  const best = new Map<string, { q: LiveQuote; age: number | null }>();
+  for (const q of quotes) {
+    const o = observationAge(q, now, clockSkewMs);
+    const age = o.ok ? o.ageMs : null;
+    const cur = best.get(q.ticker);
+    // Newest believable observation per ticker; an unbelievable one only if nothing better is held.
+    if (!cur || (age != null && (cur.age == null || age < cur.age))) best.set(q.ticker, { q, age });
+  }
+  const usable: string[] = [];
+  const unusable: TickerAssessment['unusable'] = [];
+  let newest: number | null = null;
+  for (const ticker of requested) {
+    const b = best.get(ticker);
+    if (!b) {
+      unusable.push({ ticker, reason: 'absent', ageMs: null });
+      continue;
+    }
+    const o = observationAge(b.q, now, clockSkewMs);
+    if (!o.ok) {
+      unusable.push({ ticker, reason: o.reason, ageMs: o.ageMs });
+      continue;
+    }
+    if (newest == null || o.ageMs < newest) newest = o.ageMs;
+    if (o.ageMs > limitFor(ticker)) unusable.push({ ticker, reason: 'too_old', ageMs: o.ageMs });
+    else usable.push(ticker);
+  }
+  return { usable, unusable, newestAgeMs: newest };
 }

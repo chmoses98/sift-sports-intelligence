@@ -66,10 +66,17 @@ export interface FetchOptions {
    */
   primaryTimeoutMs?: number;
   /**
-   * The loosest maximum observation age any caller of these tickers accepts. A provider whose newest
-   * observation is older is a failed refresh (even on HTTP 200) and the next provider is asked.
+   * The loosest maximum observation age any caller of these tickers accepts (the default for a ticker with
+   * no entry in `maxAgeByTicker`).
    */
   maxAgeMs?: number;
+  /**
+   * The maximum observation age for each REQUESTED ticker (its context's limit; the loosest across the scopes
+   * showing it). The delivery chain judges every requested ticker against its own limit: a ticker with no
+   * usable observation (absent from the answer, stale, untimed) is asked of the next provider, whatever the
+   * rest of the batch looks like.
+   */
+  maxAgeByTicker?: Record<string, number>;
   /** Device clock correction for the age check (see ProviderResult.clockSkewMs). */
   clockSkewMs?: number;
 }

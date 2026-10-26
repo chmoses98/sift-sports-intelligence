@@ -3,53 +3,23 @@
 // bound) and every failure row (relay success, relay 429 + Retry-After, relay timeout, 200 with old data,
 // both failing), plus the refresh-outcome history and the availability meter. Fake clock, no network.
 import { afterEach, describe, expect, it } from 'vitest';
-import { FallbackProvider } from '../../src/live/providers/fallback';
+import { DeliveryProvider } from '../../src/live/providers/deliveryChain';
 import { KalshiApiProvider } from '../../src/live/providers/kalshi';
 import { MAX_AGE_MS, type QuoteContext } from '../../src/live/quoteUsable';
 import { CADENCE_MS, HISTORY_LIMIT, MAX_ROW_TICKERS, PRIMARY_TIMEOUT_MS, QuoteStore } from '../../src/live/store';
-import { ProviderError, type FetchOptions, type ProviderResult } from '../../src/live/types';
-import { FakeClock, FakeEnv, FakeProvider } from './fakes';
-
-const T = 'KXNHLGOAL-26OCT26TORCGY-TOR19';
-const U = 'KXNHLGOAL-26OCT26TORCGY-CGY7';
-const EVENT = 'KXNHLGOAL-26OCT26TORCGY';
-const HOUR = 3_600_000;
-
-/** A fake whose observations are `staleBy` ms behind the clock, like a relay/feed answer with old data. */
-class Aged extends FakeProvider {
-  staleBy = 0;
-  seen: (FetchOptions | undefined)[] = [];
-  constructor(private c: FakeClock, id: string) {
-    super(c);
-    Object.defineProperty(this, 'id', { value: id });
-  }
-  override async fetchQuotes(tickers: string[], signal?: AbortSignal, opts?: FetchOptions): Promise<ProviderResult> {
-    this.seen.push(opts);
-    const r = await super.fetchQuotes(tickers, signal);
-    return { ...r, quotes: r.quotes.map((q) => ({ ...q, source: this.id, observedAt: new Date(this.c.now() - this.staleBy).toISOString() })) };
-  }
-}
+import { ProviderError } from '../../src/live/types';
+import { FakeClock, FakeEnv } from './fakes';
+import { EVENT, FAR, HOUR, NEAR, T, U, rig } from './support/delivery';
 
 let store: QuoteStore | null = null;
 afterEach(() => store?.dispose());
 
 function setup() {
-  const clock = new FakeClock();
-  const env = new FakeEnv();
-  const relay = new Aged(clock, 'kalshi-relay');
-  const feed = new Aged(clock, 'quote-feed');
-  feed.staleBy = 3 * 60_000; // the feed is published every ~3.5 min: its observations are minutes old
-  feed.minIntervalMs = 60_000;
-  relay.minIntervalMs = 10_000;
-  for (const p of [relay, feed]) p.prices.set(T, 0.41).set(U, 0.57);
-  for (const p of [relay, feed]) p.events.set(EVENT, [T, U]);
-  const chain = new FallbackProvider([relay, feed], { inventoryOrder: [feed, relay], now: clock.now, timers: clock, honourRetryAfter: true });
-  store = new QuoteStore({ provider: chain, now: clock.now, timers: clock, env, persistence: null, random: () => 0.5 });
-  return { clock, env, relay, feed, store };
+  const r = rig();
+  store = r.store;
+  return r;
 }
 
-const FAR = { startsAt: Date.parse('2026-10-04T16:00:00Z') + 5 * HOUR };
-const NEAR = { startsAt: Date.parse('2026-10-04T16:00:00Z') + HOUR };
 const farList: QuoteContext = { surface: 'list', ...FAR };
 const farContract: QuoteContext = { surface: 'contract', ...FAR };
 
@@ -112,14 +82,16 @@ describe('scope registration', () => {
     expect(rowsOnly() - before).toBeLessThanOrEqual(5);
   });
 
-  it('list-wide background data is asked of the feed first, at slate cadence (90 s)', async () => {
-    const { clock, relay, feed, store } = setup();
+  it('list-wide background data is the production chain\'s inventory: asked of the feed first, at slate cadence (90 s)', async () => {
+    const { clock, relay, feed, prod, store } = setup();
     store.addSlateScope([EVENT]);
     await clock.advance(0);
-    expect(feed.calls.map((c) => c.kind)).toEqual(['events']);
-    expect(relay.calls).toHaveLength(0);
+    expect(prod.feed.calls.map((c) => c.kind)).toEqual(['events']);
+    expect(prod.relay.calls).toHaveLength(0);
+    expect(relay.calls).toHaveLength(0); // the delivery chain never serves inventory
+    expect(feed.calls).toHaveLength(0);
     await clock.advance(CADENCE_MS.slate);
-    expect(feed.calls).toHaveLength(2);
+    expect(prod.feed.calls).toHaveLength(2);
   });
 
   it('a released scope stops being requested', async () => {
@@ -238,7 +210,7 @@ describe('opening an exact contract: refreshContract, relay first then feed, ins
     const r = await store.refreshContract(T, FAR);
     expect(feed.tickerCalls()).toHaveLength(1);
     expect(r.quote).toMatchObject({ source: 'quote-feed' });
-    expect(store.refreshHistory().at(-1)!.fallbackReason).toMatch(/^stale: HTTP 200 but newest observation is 300s old \(limit 60s\)/);
+    expect(store.refreshHistory().at(-1)!.fallbackReason).toMatch(/^stale: HTTP 200 but 1 of 1 requested tickers have no usable observation \(newest returned is 300s old; limit 60s\)/);
   });
 
   it('both sources too old: unusable, nothing is displayed, the outcome is over_limit', async () => {
@@ -297,31 +269,81 @@ describe('opening an exact contract: refreshContract, relay first then feed, ins
   });
 });
 
-describe('legacy scopes (no context) behave exactly as before', () => {
-  it('no usability policy is sent, and an old relay 200 is accepted as the relay answer (packet preflight path)', async () => {
-    const { clock, relay, feed, store } = setup();
-    relay.staleBy = 10 * 60_000;
+describe('legacy scopes and the packet preflight stay on the production chain', () => {
+  it('a scope without a context is served by the production chain: no policy, the delivery chain is never asked', async () => {
+    const { clock, relay, feed, prod, store } = setup();
+    prod.relay.staleBy = 10 * 60_000; // an old relay 200 is still "the relay's answer" on the production chain
     store.addScope({ tickers: [T], cadence: 'detail' });
     await clock.advance(0);
-    expect(relay.seen[0] ?? {}).toEqual({});
-    expect(feed.calls).toHaveLength(0);
+    expect(prod.relay.seen[0] ?? {}).toEqual({});
+    expect(prod.feed.calls).toHaveLength(0);
     expect(store.diagnostics().answeredBy).toBe('kalshi-relay');
+    expect(relay.calls).toHaveLength(0);
+    expect(feed.calls).toHaveLength(0);
   });
 
-  it('refreshNow without a context passes no policy either', async () => {
-    const { relay, store } = setup();
+  it('refreshNow without a context (the packet preflight call) uses the production chain with no policy', async () => {
+    const { relay, prod, store } = setup();
     await store.refreshNow([T]);
-    expect(relay.seen[0] ?? {}).toEqual({});
+    expect(prod.relay.seen[0] ?? {}).toEqual({});
+    expect(prod.relay.tickerCalls()).toHaveLength(1);
+    expect(relay.calls).toHaveLength(0);
+  });
+
+  it('production chain: after a relay 429 the relay is asked again on the next refresh (no Retry-After skipping)', async () => {
+    const { clock, prod, store } = setup();
+    prod.feed.staleBy = 5_000;
+    prod.relay.failWith = new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429, 60_000);
+    await store.refreshNow([T]);
+    await clock.advance(5_000);
+    await store.refreshNow([T]);
+    expect(prod.relay.tickerCalls()).toHaveLength(2);
+    expect(prod.feed.tickerCalls()).toHaveLength(2);
+  });
+
+  it('a ticker on both a legacy and a context scope is served by the delivery chain; the legacy-only ticker is not', async () => {
+    const { clock, relay, prod, store } = setup();
+    store.addScope({ tickers: [T], cadence: 'game' });
+    store.addRowsScope([T], FAR);
+    store.addScope({ tickers: [U], cadence: 'game' });
+    await clock.advance(0);
+    expect(relay.tickerCalls().flatMap((c) => c.ids)).toEqual([T]);
+    expect(prod.relay.tickerCalls().flatMap((c) => c.ids)).toEqual([U]);
+  });
+
+  it('a failing delivery chain does not put the production chain into backoff (and the reverse)', async () => {
+    const { clock, relay, feed, prod, store } = setup();
+    const limited = () => new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429, 60_000);
+    relay.failWith = limited();
+    feed.failWith = limited();
+    store.addRowsScope([T], FAR);
+    await clock.advance(0);
+    expect(store.diagnostics().backoffReason).toBe('rate_limited');
+    const r = await store.refreshNow([U]); // a packet-preflight style call is not held back
+    expect(r.error).toBeNull();
+    expect(prod.relay.tickerCalls()).toHaveLength(1);
+
+    // The reverse, on a fresh rig: the production chain failing leaves the delivery scopes running.
+    store.dispose();
+    const b = setup();
+    b.prod.relay.failWith = limited();
+    b.prod.feed.failWith = limited();
+    const failed = await b.store.refreshNow([T]);
+    expect(failed.failed).toEqual([T]);
+    b.store.addRowsScope([U], FAR);
+    await b.clock.advance(0);
+    expect(b.relay.tickerCalls().flatMap((c) => c.ids)).toEqual([U]);
+    expect(b.store.quote(U)?.source).toBe('kalshi-relay');
   });
 });
 
-describe('policy sent to the provider chain', () => {
-  it('uses the LOOSEST limit among the tickers in the batch', async () => {
+describe('policy sent to the delivery chain', () => {
+  it('carries each ticker\'s own limit and the loosest of them', async () => {
     const { clock, relay, store } = setup();
     store.addRowsScope([T], NEAR); // list_near 90 s
     store.addRowsScope([U], FAR); // list_far 180 s
     await clock.advance(0);
-    expect(relay.seen[0]).toMatchObject({ maxAgeMs: 180_000, primaryTimeoutMs: PRIMARY_TIMEOUT_MS });
+    expect(relay.seen[0]).toMatchObject({ maxAgeMs: 180_000, maxAgeByTicker: { [T]: 90_000, [U]: 180_000 }, primaryTimeoutMs: PRIMARY_TIMEOUT_MS });
   });
 });
 
@@ -342,7 +364,7 @@ describe('refresh-outcome history and diagnostics', () => {
     relay.failWith = new ProviderError('rate_limited', 'rate limited (HTTP 429)', 429, 5_000);
     await clock.advance(CADENCE_MS.game);
     const [ok, fallback] = store.refreshHistory();
-    expect(ok).toEqual({ at: expect.any(Number), kind: 'tickers', tickers: 1, provider: 'kalshi-relay', fallbackReason: null, latencyMs: 0, observationAgeMs: 0, outcome: 'ok' });
+    expect(ok).toEqual({ at: expect.any(Number), kind: 'tickers', tickers: 1, provider: 'kalshi-relay', fallbackReason: null, latencyMs: 0, observationAgeMs: 0, unusableTickers: 0, outcome: 'ok' });
     expect(fallback).toMatchObject({ provider: 'quote-feed', observationAgeMs: 4 * 60_000, outcome: 'over_limit' });
     expect(fallback.fallbackReason).toContain('429');
     expect(store.diagnostics().lastOutcome).toEqual(fallback);
@@ -389,7 +411,15 @@ describe('relay provider: observation time, untimed answers, clock skew', () => 
   const body = JSON.stringify({ markets: [{ ticker: T, event_ticker: EVENT, status: 'active', yes_bid_dollars: '0.4100', yes_ask_dollars: '0.4300' }], cursor: '' });
   const NOW = Date.parse('2026-10-26T18:00:30Z');
   const make = (headers: Record<string, string>) =>
-    new KalshiApiProvider({ baseUrl: 'https://relay.example/kalshi', now: () => NOW, fetchImpl: async () => new Response(body, { headers }) });
+    new KalshiApiProvider({ baseUrl: 'https://relay.example/kalshi', now: () => NOW, strictObservation: true, fetchImpl: async () => new Response(body, { headers }) });
+
+  it('without strictObservation (the production chain) the provider behaves exactly as on main: no marking, no skew', async () => {
+    const plain = new KalshiApiProvider({ baseUrl: 'https://relay.example/kalshi', now: () => NOW, fetchImpl: async () => new Response(body, { headers: { date: 'Mon, 26 Oct 2026 18:10:30 GMT' } }) });
+    const r = await plain.fetchQuotes([T]);
+    expect(r.quotes[0].observedVia).toBeUndefined();
+    expect(r.quotes[0].observedAt).toBe('2026-10-26T18:00:30Z'); // arrival time, as before
+    expect(r.clockSkewMs).toBeUndefined();
+  });
 
   it('X-Sift-Observed-At is the observation time', async () => {
     const r = await make({ 'x-sift-observed-at': '2026-10-26T18:00:12Z' }).fetchQuotes([T]);
@@ -416,11 +446,11 @@ describe('relay provider: observation time, untimed answers, clock skew', () => 
   it('the store applies the skew: a device clock 10 min slow still shows a fresh relay quote', async () => {
     const clock = new FakeClock(NOW);
     const relay = new KalshiApiProvider({
-      baseUrl: 'https://relay.example/kalshi', now: clock.now,
+      baseUrl: 'https://relay.example/kalshi', now: clock.now, strictObservation: true,
       // the relay's clock is 10 minutes ahead of this device's
       fetchImpl: async () => new Response(body, { headers: { 'x-sift-observed-at': new Date(clock.now() + 10 * 60_000 - 3_000).toISOString(), date: new Date(clock.now() + 10 * 60_000).toUTCString() } }),
     });
-    store = new QuoteStore({ provider: relay, now: clock.now, timers: clock, env: new FakeEnv(), persistence: null, random: () => 0.5 });
+    store = new QuoteStore({ provider: relay, deliveryProvider: new DeliveryProvider([relay], { now: clock.now, timers: clock }), now: clock.now, timers: clock, env: new FakeEnv(), persistence: null, random: () => 0.5 });
     const r = await store.refreshContract(T, FAR);
     expect(store.clockSkewMs).toBe(10 * 60_000);
     expect(r.usability).toMatchObject({ usable: true, ageMs: 3_000 });

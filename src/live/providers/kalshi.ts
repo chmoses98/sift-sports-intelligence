@@ -33,6 +33,13 @@ export interface KalshiProviderOptions {
   fetchImpl?: FetchFn;
   now?: () => number;
   minIntervalMs?: number;
+  /**
+   * Opt-in for the quote-delivery chain (src/live/providers/deliveryChain.ts, never the production chain):
+   * an answer without `X-Sift-Observed-At` is marked `observedVia: 'received'` (arrival time is not an
+   * observation time) and the relay's `Date` header is reported as `clockSkewMs`. Off, this provider behaves
+   * exactly as it always has.
+   */
+  strictObservation?: boolean;
 }
 
 export function chunkTickers(tickers: string[], base: string, max = KALSHI_MAX_TICKERS): string[][] {
@@ -62,8 +69,10 @@ export class KalshiApiProvider implements QuoteProvider {
   private base: string;
   private fetchImpl: FetchFn;
   private now: () => number;
+  private strict: boolean;
 
   constructor(o: KalshiProviderOptions) {
+    this.strict = o.strictObservation ?? false;
     this.base = o.baseUrl.replace(/\/+$/, '');
     this.id = o.id ?? 'kalshi-relay';
     this.label = o.label ?? `Kalshi public market data via relay (${safeHost(this.base)})`;
@@ -105,7 +114,7 @@ export class KalshiApiProvider implements QuoteProvider {
     // correct a wrong device clock. The header is only readable cross-origin if the relay exposes it; absent
     // means "trust the device clock". Differences under 2 s are measurement noise (1 s header resolution
     // plus transit) and are ignored.
-    const date = Date.parse(res.headers.get('date') ?? '');
+    const date = this.strict ? Date.parse(res.headers.get('date') ?? '') : NaN;
     const diff = Number.isNaN(date) ? null : date - received;
     const skewMs = diff != null && Math.abs(diff) >= SKEW_NOISE_MS ? diff : null;
     const cursor = (body as { cursor?: unknown }).cursor;
@@ -124,7 +133,7 @@ export class KalshiApiProvider implements QuoteProvider {
       for (const m of p.markets) {
         const q = normalizeKalshiMarket(m, p.observedAt, this.id);
         // No X-Sift-Observed-At: the arrival time is all we have, and it is not an observation time.
-        if (q) quotes.push(p.stamped ? q : { ...q, observedVia: 'received' });
+        if (q) quotes.push(!this.strict || p.stamped ? q : { ...q, observedVia: 'received' });
       }
       skewMs = p.skewMs ?? skewMs;
       cursor = p.cursor;

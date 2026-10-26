@@ -67,6 +67,10 @@ export const CAPABILITIES: Record<string, SportCapabilities> = {
       teamForm: gated('MLB team profiles are a one-off cache that stopped in late August, so they are not shown as current.'),
       teamSchedule: gated('MLB team profiles are a one-off cache that stopped in late August, so they are not shown as current.'),
       teamPlayers: gated('MLB team profiles are a one-off cache that stopped in late August, so they are not shown as current.'),
+      // The league rankings, trends and comparisons are built from the same cache (docs/sift3/redesign/board-sd.html, "MLB is not shown as current").
+      ranking: gated('MLB team statistics are a one-off cache that stopped in late August, so they are not shown as current.'),
+      statTrend: gated('MLB team statistics are a one-off cache that stopped in late August, so they are not shown as current.'),
+      statCompare: gated('MLB team statistics are a one-off cache that stopped in late August, so they are not shown as current.'),
       // Players: prices only, no game log.
       playerResearch: gated('MLB shows prices only; no player game log is published.'),
       gameProps: ready, propPrices: ready,

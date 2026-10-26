@@ -64,10 +64,20 @@ export const statSchema = defineSchema({
     cmpm: f.oneOf(['teams', 'players'] as const, 'teams'),
     a: f.str(),
     b: f.str(),
+    /** Ranking: every team shown (default: the leaders, the selected team and its neighbours, the next opponent). */
     all: f.bool(false),
+    /** Expanded in place: About (full definition, every limit) or the player-comparison "why" note. */
     more: f.bool(false),
     sort: f.str(null, 24),
     scope: f.str(null, 24),
+    /** Ranking: raw and opponent-adjusted shown as two separate cards, side by side (never one list). */
+    sbs: f.bool(false),
+    /** Trend: the cut of the series ("last" = latest games, or a season label such as "2025"). */
+    st: f.str(null, 12),
+    /** Player comparison: the statistic being compared (a game-log key). */
+    cs: f.str(null, 24),
+    /** Player comparison: the "N+" threshold line (observed frequency at or above it). */
+    thr: f.int(null, { min: 0, max: 200 }),
   },
   migrations: {
     0: (q) => {

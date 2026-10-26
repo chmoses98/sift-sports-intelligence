@@ -47,7 +47,7 @@ async function tapAndBack(page: Page, target: Locator, dest: RegExp, o: { sheet?
   expect(tap, 'the target carries data-tap').toBeTruthy();
   expect(to, 'the target carries data-dest').toMatch(dest);
   await target.click();
-  await expect(page).toHaveURL(dest);
+  await expect.poll(() => hash(page)).toMatch(dest);
   if (o.sheet) await expect.poll(() => page.evaluate(() => location.search || location.hash)).toMatch(/sheet=contract&tk=/);
   await page.goBack();
   await expect.poll(() => hash(page)).toBe(before.hash);
@@ -59,9 +59,9 @@ async function tapAndBack(page: Page, target: Locator, dest: RegExp, o: { sheet?
   return { tap, to };
 }
 
-const PLAYER = /#\/v3\/player\/[a-z]+\/[^?]+/;
-const GAME = /#\/v3\/game\/[a-z]+\/[^?]+/;
-const STAT = /#\/v3\/stat\/[a-z]+\/[a-z_0-9]+\?.*sel=[A-Z]+/;
+const PLAYER = /\/v3\/player\/[a-z]+\/[^?]+/;
+const GAME = /\/v3\/game\/[a-z]+\/[^?]+/;
+const STAT = /\/v3\/stat\/[a-z]+\/[a-z_0-9]+\?.*sel=[A-Z]+/;
 const CONTRACT = /sheet=contract&tk=KX[A-Z0-9-]+/;
 
 /** A list address filtered to a sport that carries rows with a player page and an opponent chip. */
@@ -132,7 +132,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await expect.poll(async () => Math.abs((await y(page)) - lanesAt), { timeout: 8000 }).toBeLessThanOrEqual(6);
     // row 7: See all opens the list preset; Back returns to the home.
     const see = page.locator('a.pd-seeall').first();
-    await tapAndBack(page, see, /#\/v3\/props\?.*preset=(model|bottom3)/);
+    await tapAndBack(page, see, /\/v3\/props\?.*preset=(model|bottom3)/);
   });
 
   test('PD2 list: virtualised (few DOM rows), a deep scroll survives a tap on a game and Back, rows are windowed not paged', async ({ page }) => {
@@ -150,7 +150,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const top0 = await row.evaluate((e) => Math.round(e.getBoundingClientRect().top));
     const y0 = await y(page);
     await row.locator('.pd-pn a[data-tap="game"]').click();                                               // [row 10] game text to game
-    await expect(page).toHaveURL(GAME);
+    await expect.poll(() => hash(page)).toMatch(GAME);
     await page.goBack();
     await expect(page).toHaveURL(/view=list/);
     await expect.poll(async () => Math.abs((await y(page)) - y0), { timeout: 8000 }).toBeLessThanOrEqual(6);

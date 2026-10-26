@@ -3,7 +3,7 @@
 // profiles, percentiles from the design system's own formula, and a unit a team has no published rank for is simply not a row.
 //
 // Tilt (docs/sift3/redesign/DESIGN_SYSTEM.md, "Matchup tilt"): gap = offense league percentile - opposing defense league percentile,
-// percentile = (n - rank) / (n - 1) x 100 (100 best). The gap is compared AS DISPLAYED, rounded to a whole percentile point:
+// percentile = (n - rank) / (n - 1) x 100 (100 best). The gap is compared AS DISPLAYED: each percentile rounded to a whole point, then subtracted:
 // |gap| <= 15 is Even (a gap of exactly 15 is Even); only |gap| > 15 has a direction. Summary counts use this same function, so they
 // always add up to the number of units shown. It is a descriptive heuristic over season-long, opponent-adjusted unit strength:
 // not a prediction and not a validated betting edge.
@@ -75,14 +75,15 @@ export interface UnitRow {
   favours: string | null;
 }
 
-/** Round half away from zero, tolerant of float noise (a gap of 14.4999999 is 14, of 15.0000001 is 15). */
+/** Round half away from zero, tolerant of float noise (14.4999999999 is a half and rounds away, 15.0000001 is 15). */
 export const roundGap = (x: number): number => {
   const a = Math.round(Math.abs(x) * 1e6) / 1e6;
   const r = Math.round(a);
   return x < 0 ? -r : r;
 };
 
-export const gapOf = (offPct: number, defPct: number): number => roundGap(offPct - defPct);
+/** The displayed gap: each league percentile as the screen shows it (a whole point), then the difference (so 22nd vs 10th of 28 reads 22 - 67 = -45). */
+export const gapOf = (offPct: number, defPct: number): number => roundGap(offPct) - roundGap(defPct);
 /** The one tilt rule. |gap| <= 15 is Even, including exactly 15. */
 export const tiltOf = (gap: number): Tilt => (Math.abs(gap) > EVEN_BAND ? (gap > 0 ? 'off' : 'def') : 'even');
 

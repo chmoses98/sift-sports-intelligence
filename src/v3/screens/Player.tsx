@@ -172,7 +172,7 @@ export function Player() {
 
   return (
     <div className="v3-player">
-      <header className="v3-ph">
+      <header className={`v3-ph${vm?.photo ? ' v3-ph--photo' : ''}`}>
         {vm?.team && <HeroBg g={{ away: vm.team, home: vm.team, photo: null }} cover />}
         {vm?.photo && <img className="v3-ph__img" src={vm.photo.src} alt="" style={{ objectPosition: vm.photo.focus }} />}
         <div className="v3-gh__bar">
@@ -186,7 +186,7 @@ export function Player() {
         </div>
         {vm && (
           <div className="v3-ph__id">
-            {vm.team && <Link to={teamHref(vm.team)} className="v3-ph__tm" aria-label={`${vm.team.name}, team page`}><TeamLogo team={vm.team} size={56} /></Link>}
+            {vm.team && <Link to={teamHref(vm.team)} className="v3-ph__tm" aria-label={`${vm.team.name}, team page`}><TeamLogo team={vm.team} size={52} /></Link>}
             <h1><small>{vm.name.split(' ').slice(0, -1).join(' ') || ' '}</small><b>{vm.name.split(' ').slice(-1)[0]}</b></h1>
             <p>{[vm.team?.abbr, vm.position].filter(Boolean).join(' · ')}{vm.provenance === 'demo' ? ' · sample' : ''}</p>
           </div>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SIFT 3.0 preview</title>
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#031523" />
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  :root { color-scheme: dark; --bg:#031523; --panel:#072135; --line:#174861; --cyan:#16c9dc; --muted:#8fb0c4; --warn:#f3c969; --ok:#5fe3c1; --bad:#ff7a7a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background: radial-gradient(120% 60% at 50% 0%, #0a3550 0%, var(--bg) 60%); color:#fff; font: 400 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height:100vh;
+    padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  main { max-width: 460px; margin: 0 auto; display: grid; gap: 14px; }
+  h1 { margin: 8px 0 0; font: 800 32px/1.1 -apple-system, "Segoe UI", sans-serif; letter-spacing: -0.02em; }
+  h1 span { color: var(--cyan); }
+  p { margin: 0; color: #cfe0ec; }
+  .tag { display:inline-block; font: 700 12px/1 sans-serif; letter-spacing: .08em; text-transform: uppercase; color:#04202c; background: var(--cyan); padding: 5px 8px; border-radius: 6px; width: fit-content; }
+  a.mode { display:grid; gap:4px; padding: 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); color:#fff; text-decoration:none; min-height:44px; }
+  a.mode b { font-size: 20px; }
+  a.mode small { color: var(--muted); font-size: 14px; line-height: 1.4; }
+  a.mode.real { border-color: rgba(22,201,220,.7); box-shadow: 0 0 0 1px rgba(22,201,220,.25) inset; }
+  a.mode:active { transform: scale(.99); }
+  .box { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: rgba(7,33,53,.6); font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+  .box b { color:#fff; font-weight:600; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); } .wait { color: var(--warn); }
+  code { font: 13px ui-monospace, Menlo, monospace; color:#dcecf7; word-break: break-all; }
+  ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">Design review build</span>
+  <h1>SIFT <span>3.0</span> preview</h1>
+  <p>Not the production app. Nothing here changes SIFT 2.0 / v4, places a bet, or asks for notification permission. Pick a data mode; they never mix.</p>
+
+  <a class="mode" href="app.html#/v3?demo=1"><b>Open with sample data</b><small>Fictional scores, prices and stats so every screen and state can be judged. Always works, even offline. A “Sample data” strip stays on every screen.</small></a>
+  <a class="mode real" href="app.html#/v3?demo=0"><b>Open with real data</b><small>Today’s published SIFT research and Kalshi prices (cents + implied %). If a feed is down a screen says so; it never fills in sample data. Live scores exist only where a free, permitted feed does (NBA); NFL, college football and NHL show “Score unavailable” in play.</small></a>
+
+  <div class="box" id="feeds"><b>Feed check from this address</b><span class="wait" id="f1">Research registry: checking…</span><span class="wait" id="f2">NFL research publication: checking…</span></div>
+  <div class="box"><b>Build</b><span>Commit <code>__SHA__</code>__DIRTY__</span><span>Built __BUILT__ · quotes come from the GitHub quote feed (about every 3 minutes), not the sub-minute relay.</span></div>
+  <p class="box" style="margin:0">Tip: in Safari, Share → Add to Home Screen opens it full screen. Use the in-app back arrows; Safari’s own back also works.</p>
+</main>
+<script>
+  function probe(id, label, url) {
+    var el = document.getElementById(id), c = new AbortController(), t = setTimeout(function () { c.abort(); }, 9000);
+    fetch(url, { cache: 'no-store', signal: c.signal }).then(function (r) { clearTimeout(t);
+      el.className = r.ok ? 'ok' : 'bad'; el.textContent = label + ': ' + (r.ok ? 'reachable' : 'HTTP ' + r.status);
+    }).catch(function () { el.className = 'bad'; el.textContent = label + ': unreachable (real-data mode will show unavailable states)'; });
+  }
+  probe('f1', 'Research registry', 'https://raw.githubusercontent.com/chmoses98/kalshi-bet-router/app-data/app/latest/sports_registry.json');
+  probe('f2', 'NFL research publication', 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json');
+</script>
+</body>
+</html>

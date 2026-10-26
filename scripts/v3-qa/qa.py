@@ -5,7 +5,7 @@ sys.path.insert(0, __import__('os').path.dirname(__import__('os').path.abspath(_
 from wk import driver
 
 HARNESS = 'http://127.0.0.1:8765/frame.html'  # python3 -m http.server 8765 in a folder holding frame.html
-BASE = 'http://localhost:5173/sift-sports-intelligence/'
+BASE = __import__('os').environ.get('QA_BASE', 'http://localhost:5173/sift-sports-intelligence/')
 
 class QA:
     def __init__(self, w=390, h=844):

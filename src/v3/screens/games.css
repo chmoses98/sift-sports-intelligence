@@ -36,8 +36,8 @@
 .v3-gc__live { display: inline-flex; align-items: center; gap: 5px; color: #ff5a5f; font-weight: 600; }
 .v3-gc__net { color: var(--sift-dim); margin-left: auto; margin-right: 38px; }
 .v3-gc__b { display: grid; grid-template-columns: minmax(0, 1fr) auto 44px; gap: 8px; align-items: center; }
-.v3-gc__sides { display: grid; gap: 0; min-width: 0; }
-.v3-gc__side { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; }
+.v3-gc__sides { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; min-width: 0; }
+.v3-gc__side { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; min-width: 0; }
 .v3-gc__team { display: inline-flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; overflow: hidden; min-height: 44px; margin: -6px 0; }
 .v3-gc__nm { font: 600 16px/20px var(--f-ui); letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .v3-gc__nm small { font: 500 12px/1 var(--f-ui); color: var(--sift-dim); margin-right: 5px; vertical-align: 2px; }

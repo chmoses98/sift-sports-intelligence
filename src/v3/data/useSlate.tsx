@@ -2,7 +2,8 @@
 // list (Back is instant). Real mode reads every published board through the app's opportunity layer; demo mode (explicit,
 // labelled everywhere) reads fixtures. Both produce V3Game[] in the same order: live, then upcoming by start, then
 // awaiting-result, then finals.
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { resolveSource } from '../../data/source';
 import { useNow } from '../../live/hooks';
 import { useAllOpportunities } from '../../opportunity/load';
 import { gameRows, slateOrder } from '../../views/broadcast/games';
@@ -20,6 +21,8 @@ export interface Slate {
   unavailable: boolean;
   /** Feeds that failed while others loaded. */
   failed: string[];
+  /** Sports whose live publication could not be read and whose research comes from the saved copy bundled with the app (never silent). */
+  saved: { label: string; builtAt: string | null }[];
   now: number;
   demo: boolean;
 }
@@ -58,8 +61,17 @@ function RealProvider({ children }: { children: ReactNode }) {
     return g;
   }).sort(slateCompare), [rows, feedOn, read]);
   const failed = all.bundles.filter((b) => b.error != null);
+  const [saved, setSaved] = useState<Slate['saved']>([]);
+  useEffect(() => {
+    let live = true;
+    // resolveSource is the app's own cached source decision (live publication, else the bundled saved copy); reading it adds no request.
+    Promise.all(all.bundles.filter((b) => b.error == null).map((b) => resolveSource(b.sport).catch(() => null))).then((srcs) => {
+      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, builtAt: x.snapshot?.explorer_built_at ?? null })));
+    });
+    return () => { live = false; };
+  }, [all.bundles]);
   const unavailable = !!all.error || (!all.loading && all.bundles.length > 0 && failed.length === all.bundles.length);
-  const value = useMemo<Slate>(() => ({ games, loading: all.loading, unavailable, failed: failed.map((b) => b.sport.label), now, demo: false }), [games, all.loading, unavailable, failed, now]);
+  const value = useMemo<Slate>(() => ({ games, loading: all.loading, unavailable, failed: failed.map((b) => b.sport.label), saved, now, demo: false }), [games, all.loading, unavailable, failed, saved, now]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
@@ -68,7 +80,7 @@ function DemoProvider({ children }: { children: ReactNode }) {
   const day = new Date(now).toDateString();
   // Fixture kickoffs are fixed clock times on today's date, so the sample slate is the same every time it is opened.
   const games = useMemo(() => demoGames(new Date(day).getTime()).sort(slateCompare), [day]);
-  const value = useMemo<Slate>(() => ({ games, loading: false, unavailable: false, failed: [], now, demo: true }), [games, now]);
+  const value = useMemo<Slate>(() => ({ games, loading: false, unavailable: false, failed: [], saved: [], now, demo: true }), [games, now]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

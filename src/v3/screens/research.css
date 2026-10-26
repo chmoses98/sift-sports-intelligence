@@ -230,6 +230,14 @@
 .v3-pillrow__f { flex: none; border: 1px solid rgba(26, 82, 110, 0.9); background: rgba(7, 33, 53, 0.82); color: #dcecf7; width: 44px; height: 44px; }
 .v3-pillrow__f.is-on { border-color: var(--sift-cyan); color: var(--sift-cyan); }
 .v3-badge--f { position: absolute; top: -6px; right: -6px; margin: 0; }
-.v3-ph { min-height: 184px; }
+.v3-ph { min-height: 0; padding-bottom: 10px; }
+.v3-ph--photo { min-height: 206px; }
+/* Compact identity (team mark beside the name) keeps the hero short; a verified photograph keeps the taller photo-led hero. */
+.v3-ph:not(.v3-ph--photo) .v3-ph__id { margin-top: 0; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: center; }
+.v3-ph:not(.v3-ph--photo) .v3-ph__tm { grid-row: 1 / span 2; margin: 0; }
+.v3-ph:not(.v3-ph--photo) .v3-ph__id h1 { grid-column: 2; }
+.v3-ph:not(.v3-ph--photo) .v3-ph__id h1 small { font-size: 18px; line-height: 22px; }
+.v3-ph:not(.v3-ph--photo) .v3-ph__id h1 b { font-size: 34px; line-height: 38px; }
+.v3-ph:not(.v3-ph--photo) .v3-ph__id p { grid-column: 2; font-size: 14px; line-height: 18px; }
 /* Player research is chart-first: the first screen must reach the chart, so the stack above it is denser than other detail pages. */
 .v3-tabs--player + .v3-gd__body { padding-top: 10px; gap: 10px; }

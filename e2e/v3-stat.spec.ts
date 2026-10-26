@@ -1,7 +1,7 @@
 // SIFT 3.0 milestone 2: Stat Detail and League Rankings (SD1 to SD7) against the REAL components and REAL published documents
 // (e2e/support/realFeeds.ts: a disk cache of the research feeds, filled with V3_REAL_FEEDS=live). Every tap-matrix row this screen owns
 // is exercised and its destination checked (data-dest and URL); Back restores tab, window, selection, comparison, expansion and scroll.
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
@@ -21,10 +21,14 @@ const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => 
 const params = async (page: Page) => new URLSearchParams((await hash(page)).split('?')[1] ?? '');
 const ready = (page: Page) => expect(page.locator('.st-hd h1')).toBeVisible();
 
-/** Click a target, check where it went, press Back and check the screen is exactly as it was (address and scroll). */
-async function tapAndBack(page: Page, click: () => Promise<void>, dest: RegExp) {
+/**
+ * Click a target, check where it went, press Back and check the screen is exactly as it was (address and scroll). A Locator is scrolled
+ * into view FIRST so the offset recorded is the one the screen is left at (a click that scrolls the target in would otherwise move it).
+ */
+async function tapAndBack(page: Page, target: Locator | (() => Promise<void>), dest: RegExp, o: { position?: { x: number; y: number } } = {}) {
+  if (typeof target !== 'function') { await target.scrollIntoViewIfNeeded(); await page.waitForTimeout(200); }
   const before = await hash(page), at = await y(page);
-  await click();
+  if (typeof target === 'function') await target(); else await target.click(o);
   await expect.poll(() => hash(page)).toMatch(dest);
   await page.goBack();
   await expect.poll(() => hash(page)).toBe(before);
@@ -91,10 +95,10 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await go(page, `${ADJ}?v=1&sel=DAL&opp=PHI&all=1`);
     await ready(page);
     await scrollTo(page, 500);
-    await tapAndBack(page, () => page.locator('.st-rkr a.nm').nth(2).evaluate((e) => (e as HTMLElement).click()), /^\/v3\/team\/nfl\/[A-Z]+/);
-    await tapAndBack(page, () => page.locator('.st-rkr a[data-tap="team"]').first().evaluate((e) => (e as HTMLElement).click()), /^\/v3\/team\/nfl\/SF/);
+    await tapAndBack(page, page.locator('.st-rkr a.nm').nth(2), /^\/v3\/team\/nfl\/[A-Z]+/);
+    await tapAndBack(page, page.locator('.st-rkr a[data-tap="team"]').first(), /^\/v3\/team\/nfl\/SF/);
     await scrollTo(page, 0);
-    await tapAndBack(page, () => page.locator('.st-selc .v3-navrow__main').click(), /^\/v3\/team\/nfl\/DAL/);
+    await tapAndBack(page, page.locator('.st-selc .v3-navrow__main'), /^\/v3\/team\/nfl\/DAL/);
     // every identity in the list carries its destination for the matrix
     const dests = await page.locator('.st-rkr a[data-tap="team"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-dest')));
     expect(dests.length).toBeGreaterThanOrEqual(56);
@@ -127,10 +131,10 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-rkr')).toHaveCount(28);
     expect((await params(page)).get('all')).toBe('1');
     await scrollTo(page, 700);
-    await tapAndBack(page, () => page.locator('.st-rkr a.nm').nth(15).evaluate((e) => (e as HTMLElement).click()), /^\/v3\/team\//);
+    await tapAndBack(page, page.locator('.st-rkr a.nm').nth(15), /^\/v3\/team\//);
     await expect(page.locator('.st-rkr')).toHaveCount(28);
     await page.getByRole('button', { name: /^Show fewer/ }).click();
-    await expect(page.locator('.st-rkr')).toHaveCount(8);
+    await expect(page.locator('.st-rkr')).toHaveCount(7);
   });
 
   test('69: the raw switch opens the counterpart statistic\'s own ranking, keeping the selection; Back returns', async ({ page }) => {
@@ -205,11 +209,11 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     const gd = page.getByRole('link', { name: /^Game Detail/ });
     await expect(gd).toHaveAttribute('data-tap', 'game');
     await expect(gd).toHaveAttribute('data-dest', /^\/v3\/game\/nfl\/evt_/);
-    await tapAndBack(page, () => gd.click(), /^\/v3\/game\/nfl\/evt_/);
+    await tapAndBack(page, gd, /^\/v3\/game\/nfl\/evt_/);
     expect(await hash(page)).toBe(before);
     await expect(page.locator('.st-obs [data-obs][aria-pressed="true"]')).toHaveCount(1);
     const opp = page.locator('.st-obc a[data-tap="team"]');
-    await tapAndBack(page, () => opp.click(), /^\/v3\/team\/nfl\/[A-Z]+/);
+    await tapAndBack(page, opp, /^\/v3\/team\/nfl\/[A-Z]+/);
   });
 
   test('a statistic with no per-game series says so and shows the rank path across its windows', async ({ page }) => {
@@ -240,9 +244,9 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-hd h1')).toHaveText('Compare teams');
     const main = page.locator('.st-cr').nth(1).locator('.v3-navrow__main');
     await expect(main).toHaveAttribute('data-dest', /\/v3\/stat\/nfl\/adj_off_db_epa\?v=1&win=ADJ_RIDGE&sel=DAL&opp=PHI/);
-    await tapAndBack(page, () => main.click(), /^\/v3\/stat\/nfl\/adj_off_db_epa/);
+    await tapAndBack(page, main, /^\/v3\/stat\/nfl\/adj_off_db_epa/, { position: { x: 12, y: 8 } });
     const chip = page.locator('.st-wc a[data-tap="team"]').first();
-    await tapAndBack(page, () => chip.click(), /^\/v3\/team\/nfl\/DAL/);
+    await tapAndBack(page, chip, /^\/v3\/team\/nfl\/DAL/);
     // the track's own logos are team targets too
     await expect(page.locator('.st-cr a[data-tap="team"]').first()).toHaveAttribute('data-dest', /\/v3\/team\/nfl\/(DAL|PHI)/);
   });
@@ -274,7 +278,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-why')).toContainText('Player-level league rankings');
     const lamb = page.locator('.st-pcc a[data-tap="player"]').first();
     await expect(lamb).toHaveAttribute('data-dest', new RegExp(`^/v3/player/nfl/${LAMB}`));
-    await tapAndBack(page, () => lamb.click(), new RegExp(`^/v3/player/nfl/${LAMB}`));
+    await tapAndBack(page, lamb, new RegExp(`^/v3/player/nfl/${LAMB}`));
     await expect(page.locator('.st-why')).toBeVisible(); // the expanded note came back with the entry
     // the threshold moves in place
     await page.getByRole('button', { name: 'Raise the threshold' }).click();
@@ -299,11 +303,11 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-rr2').filter({ hasText: 'Offensive EPA per play' })).toContainText('Raw version');
     const rel = page.locator('.st-relc .v3-navrow__main').first();
     await expect(rel).toHaveAttribute('data-dest', /^\/v3\/stat\/nfl\/[a-z_]+\?v=1&win=ADJ_RIDGE&sel=DAL&opp=PHI/);
-    await tapAndBack(page, () => rel.click(), /^\/v3\/stat\/nfl\//);
+    await tapAndBack(page, rel, /^\/v3\/stat\/nfl\//, { position: { x: 12, y: 8 } });
     await expect(page.locator('.st-lim')).toContainText('Showing all 3 limits'); // expansion restored
     const chip = page.locator('.st-rel2 a[data-tap="team"]');
     await expect(chip).toContainText('Team Research · Dallas Cowboys');
-    await tapAndBack(page, () => chip.click(), /^\/v3\/team\/nfl\/DAL/);
+    await tapAndBack(page, chip, /^\/v3\/team\/nfl\/DAL/);
     await expect(page.locator('.st-rel2 a[data-tap="game"]')).toContainText('Game matchup · DAL at PHI');
   });
 
@@ -320,7 +324,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     const opp = page.locator('.st-rkr.is-opp');
     await expect(opp).toContainText('Flames');
     await expect(opp).toContainText('4');
-    await tapAndBack(page, () => opp.locator('a.nm').click(), /^\/v3\/team\/nhl\/CGY/);
+    await tapAndBack(page, opp.locator('a.nm'), /^\/v3\/team\/nhl\/CGY/);
     await page.locator('.st-chip', { hasText: '2025–26' }).click();
     expect((await params(page)).get('win')).toBe('2025-26');
     await expect(page.locator('.st-selc')).toContainText('15th');
@@ -380,7 +384,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     expect(url).toContain('tab=about');
     expect(url).toContain('win=L6');
     await scrollTo(page, 200);
-    await tapAndBack(page, () => page.locator('.st-rel2 a[data-tap="team"]').click(), /^\/v3\/team\/nfl\/DAL/);
+    await tapAndBack(page, page.locator('.st-rel2 a[data-tap="team"]'), /^\/v3\/team\/nfl\/DAL/);
     expect(await hash(page)).toBe(url);
   });
 

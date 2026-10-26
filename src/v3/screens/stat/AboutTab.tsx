@@ -28,7 +28,7 @@ export function AboutTab({ ctx }: { ctx: StatCtx }) {
         <p>{briefFor(ranking.id, def)}</p>
         <div className="st-kv">
           <div><small>Window</small><b>{ctx.mode === 'demo' ? 'Sample' : windowSentence(ctx.window, def)}</b></div>
-          <div><small>Teams</small><b>{ranking.n} teams{ranking.universe && <small>{ranking.universe}</small>}</b></div>
+          <div><small>Teams</small><b>{/current packet/i.test(ranking.universe) ? `${ranking.n} in the current packet` : `${ranking.n} teams`}{ranking.universe && !/current packet/i.test(ranking.universe) && <small>{ranking.universe}</small>}</b></div>
           {upd && <div><small>Updated</small><b>{upd}</b></div>}
           {open && def?.methodology_version && <div><small>Methodology</small><b>{def.methodology_version}</b></div>}
           {open && def?.source && <div><small>Source</small><b>{def.source}</b></div>}

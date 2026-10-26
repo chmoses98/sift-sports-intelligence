@@ -51,7 +51,7 @@ function CompareTeams({ ctx }: { ctx: StatCtx }) {
   const pick = (which: 'a' | 'b') => sheet.open('Choose a team', <TeamPickerBody slug={slug} team={ctx.team} picked={[a, b]} onPick={(code) => ctx.set({ [which]: code })} />, { tall: true });
   const chip = (which: 'a' | 'b', code: string | null) => code ? (
     <span className="st-wc">
-      <TeamLink team={{ slug, id: code }} label={`${ctx.team(code).name}, team page`}><TeamLogo team={ctx.team(code)} size={30} /><b>{code}</b></TeamLink>
+      <TeamLink team={{ slug, id: code }} label={`${ctx.team(code).name}, team page`}><TeamLogo team={ctx.team(code)} size={28} /><b>{code}</b></TeamLink>
       <button type="button" className="x" aria-label={`Remove ${code}`} onClick={() => ctx.set({ [which]: EMPTY })}><Icon name="close" size={12} /></button>
     </span>
   ) : <button type="button" className="st-wc st-wc--add" onClick={() => pick(which)}><Icon name="plus" size={14} /> Add team</button>;

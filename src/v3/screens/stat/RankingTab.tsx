@@ -35,7 +35,7 @@ export function FamilySwitch({ ctx }: { ctx: StatCtx }) {
         {seg(fam.rawId, 'Raw')}
         <button type="button" aria-pressed={st.sbs} onClick={() => ctx.set({ sbs: true })}>Side by side</button>
       </div>
-      <span className="st-fam2"><Icon name="info" size={13} /> {st.sbs ? 'Separate rankings, never mixed in one list' : 'Two different statistics, ranked separately'}</span>
+      <span className="st-fam2"><Icon name={st.sbs ? 'lock' : 'info'} size={13} /> {st.sbs ? 'Separate rankings, never mixed in one list' : 'Two different statistics, ranked separately'}</span>
     </div>
   );
 }
@@ -106,7 +106,7 @@ function SeasonOverSeason({ ctx, obs }: { ctx: StatCtx; obs: Record<string, Wind
         <svg width="120" height="34" viewBox="0 0 120 34" aria-hidden="true"><line x1="6" y1={y(from.obs)} x2="114" y2={y(to.obs)} stroke="var(--sift-cyan)" strokeWidth="2" /><circle cx="6" cy={y(from.obs)} r="4" fill="#0a0d11" stroke="#a4acb6" strokeWidth="1.6" /><circle cx="114" cy={y(to.obs)} r="4.5" fill="var(--sift-cyan)" /></svg>
         {end(to, 'r')}
       </div>
-      {small && <p className="st-note">A {from.obs.sample}-game rank against a {to.obs.sample}-game rank: the sample is small, so the gap is shown, not explained.</p>}
+      {small && <p className="st-note">A season-long rank against a {to.obs.sample}-game rank: the sample is small, so the gap is shown, not explained.</p>}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from '../../routing';
-import { clearAllLocal, setPrefs, usePrefs } from '../state/prefs';
+import { clearAllLocal, SAMPLE_ONLY, setPrefs, usePrefs } from '../state/prefs';
 import { Icon } from '../ui/Icon';
 import { useSlate } from '../data/useSlate';
 import type { PriceFormat } from '../model/format';
@@ -33,7 +33,7 @@ export function Settings() {
       <section aria-label="Data">
         <h2 className="v3-h2">Data and privacy</h2>
         <div className="v3-state"><Icon name="shield" size={20} /><div><b>{demo ? 'Showing sample data' : 'Showing real published data'}</b>{demo ? 'Scores, prices and stats are fictional so the design can be previewed.' : 'Research comes from the sport publications; prices are Kalshi quotes with their real age. Scores appear only where a licensed feed exists.'}<br />
-          <a href={demo ? '#/v3?demo=0' : '#/v3?demo=1'} style={{ color: 'var(--sift-cyan)' }}>{demo ? 'Switch to real data' : 'Preview with sample data'}</a></div></div>
+          {SAMPLE_ONLY ? <span>This hosted preview has no access to the research feeds, so it only shows sample data. Use the full preview for real data.</span> : <a href={demo ? '#/v3?demo=0' : '#/v3?demo=1'} style={{ color: 'var(--sift-cyan)' }}>{demo ? 'Switch to real data' : 'Preview with sample data'}</a>}</div></div>
         <button type="button" className="v3-btn v3-btn--ghost" onClick={() => { if (confirm('Remove follows, alerts, saved research and recents from this device?')) clearAllLocal(); }}>Clear data on this device</button>
         <p className="v3-note v3-note--dim">Everything you follow, save or choose stays on this device. No account is needed.</p>
         <p className="v3-note v3-note--dim">Build {__SIFT_BUILD__} · {demo ? 'sample data' : 'real data'}</p>

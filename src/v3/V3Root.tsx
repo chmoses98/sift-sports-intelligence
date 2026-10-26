@@ -13,7 +13,7 @@ import './screens/research.css';
 import { Icon, type IconName } from './ui/Icon';
 import { SheetHost } from './ui/Sheet';
 import { SlateProvider, useSlate } from './data/useSlate';
-import { applyDemoParam, demoOn, usePrefs } from './state/prefs';
+import { applyDemoParam, demoOn, SAMPLE_ONLY, usePrefs } from './state/prefs';
 import { useScrollMemory } from './state/scroll';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
@@ -53,7 +53,7 @@ function DemoStrip() {
   return (
     <div className="v3-demo" role="note">
       <b>Sample data</b> <span>fictional scores &amp; prices</span>
-      <a href="#/v3?demo=0" onClick={(e) => { e.preventDefault(); nav('/v3?demo=0', { replace: true }); }}>Use real data</a>
+      {!SAMPLE_ONLY && <a href="#/v3?demo=0" onClick={(e) => { e.preventDefault(); nav('/v3?demo=0', { replace: true }); }}>Use real data</a>}
     </div>
   );
 }

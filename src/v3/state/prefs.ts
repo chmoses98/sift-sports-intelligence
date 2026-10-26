@@ -57,10 +57,15 @@ export const clearRecents = () => recents.set([]);
 
 /** Sample-data mode: `#/v3?demo=1` turns it on for this tab (sessionStorage), `?demo=0` off. Real data is the default. */
 const KEY = 'sift3.demo';
+/** The hosted-page preview (no network access to the research feeds) is built sample-only: real mode cannot work there, so it is not offered. */
+declare const __SIFT_SAMPLE_ONLY__: boolean | undefined;
+export const SAMPLE_ONLY = typeof __SIFT_SAMPLE_ONLY__ !== 'undefined' && __SIFT_SAMPLE_ONLY__ === true;
 export function demoOn(): boolean {
+  if (SAMPLE_ONLY) return true;
   try { return sessionStorage.getItem(KEY) === '1'; } catch { return false; }
 }
 export function applyDemoParam(search: string): void {
+  if (SAMPLE_ONLY) return;
   const q = new URLSearchParams(search).get('demo');
   try {
     if (q === '1') sessionStorage.setItem(KEY, '1');

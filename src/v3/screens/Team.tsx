@@ -1,195 +1,223 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from '../../routing';
-import { useQueryPatch } from '../state/url';
-import { useTeamVM, type MetricGroup, type MetricRow } from '../data/useTeam';
+// Team Research (TR1 to TR6, locked): `/v3/team/:slug/:teamId` where `teamId` is the team code ("DAL"). One published team document
+// (the explorer team profile) answers every statistic, window, rank, universe size, availability, player and game; the league schedule
+// is the authority for the next game's start time. Raw and opponent-adjusted statistics are never mixed. Team pages carry no SIFT
+// model lane. State (tab, Adjusted or Raw, window, expanded rows) is the address, so Back and saved research restore it exactly.
+import './team.css';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from '../../routing';
+import { useMetricDefs, useResearchRepo, useSchedule, useTeamIndex, useTeamProfile } from '../data/research/hooks';
+import { identityFor, useTeamProps } from '../data/research/teamHooks';
+import { useSlate } from '../data/useSlate';
 import { teamPhoto } from '../data/adapt';
-import { ago, clockTime, dayWord } from '../model/format';
-import { demoOn, pushVisit, useFollows } from '../state/prefs';
-import type { V3Game } from '../model/types';
+import { isReady, lockedReason, type Section } from '../model/capabilities';
+import { findSaved } from '../model/saved';
+import { metricLookup, nextGameOf } from '../model/teamResearch';
+import { sampleLookup, sampleProfile, type SampleOpp, type SampleUpcoming } from '../model/teamSample';
+import { teamSport } from '../model/teamSports';
+import { routes } from '../nav/routes';
+import { teamSchema, TEAM_TABS } from '../nav/schemas';
+import { demoOn, pushVisit, removeSaved, saveResearch, useSaved } from '../state/prefs';
+import { useRouteState } from '../state/url';
+import { sampleTeamName } from '../data/useStat';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { HeroBg } from '../ui/HeroBg';
 import { Icon } from '../ui/Icon';
 import { TeamLogo } from '../ui/TeamLogo';
-import { Rank } from '../ui/rank';
-import { gameHref, leagueLabel, teamHref } from '../ui/gamebits';
-import { useSlate } from '../data/useSlate';
+import { LockedRow, Tabs } from '../ui/atoms';
+import { leagueLabel } from '../ui/gamebits';
+import type { V3Team } from '../model/types';
+import { Form } from './team/Form';
+import { Overview } from './team/Overview';
+import { Players } from './team/Players';
+import { Profile } from './team/Profile';
+import { Schedule } from './team/Schedule';
+import type { TeamPageCtx } from './team/parts';
 
-type Tab = 'overview' | 'schedule' | 'roster' | 'stats' | 'injuries';
-const TABS: [Tab, string][] = [['overview', 'Overview'], ['schedule', 'Schedule'], ['roster', 'Roster'], ['stats', 'Stats'], ['injuries', 'Injuries']];
-const GROUP_LABEL: Record<MetricGroup, string> = { offense: 'Offense', defense: 'Defense', adjusted: 'Opponent-adjusted', style: 'Style', results: 'Results', other: 'Other' };
+type Tab = (typeof TEAM_TABS)[number];
+const TAB_LABEL: Record<Tab, string> = { overview: 'Overview', profile: 'Profile', form: 'Form', players: 'Players', schedule: 'Schedule' };
+const SECTION: Record<Tab, Section> = { overview: 'teamOverview', profile: 'teamProfile', form: 'teamForm', players: 'teamPlayers', schedule: 'teamSchedule' };
+const SAMPLE_POOL: Record<string, string[]> = {
+  nfl: 'PHI NYG WAS KC SF BUF DEN CIN ATL CLE'.split(' '),
+  nhl: 'TOR CGY VAN EDM TBL BOS NYR MTL OTT DET'.split(' '),
+};
 
-function StatTile({ m }: { m: MetricRow }) {
-  const inner = (<><b className="num">{m.value}</b><span>{m.name}</span><Rank rank={m.rank} n={m.n} word /></>);
-  return m.route ? <Link to={m.route} className="v3-stile" aria-label={`${m.name}: ${m.value}, ${m.rank ?? 'unranked'}. Open league ranking`}>{inner}</Link> : <div className="v3-stile">{inner}</div>;
+/** The back arrow: the previous entry when there is one, else the explorer (a deep link has nowhere to go back to). */
+function useBack() {
+  const nav = useNavigate();
+  const loc = useLocation();
+  return () => { if (loc.key !== 'default') nav(-1); else nav('/v3/explore', { replace: true }); };
 }
 
-function StatsTab({ metrics, why }: { metrics: MetricRow[]; why?: string }) {
-  const groups = useMemo(() => (['offense', 'defense', 'adjusted', 'style', 'results', 'other'] as MetricGroup[]).filter((g) => metrics.some((m) => m.group === g)), [metrics]);
-  const [g, setG] = useState<MetricGroup | null>(null);
-  const cur = g && groups.includes(g) ? g : groups[0];
-  if (!groups.length) return <div className="v3-state"><Icon name="info" size={20} /><div><b>No team statistics</b>{why ?? 'The publication has none for this team.'}</div></div>;
-  const rows = metrics.filter((m) => m.group === cur);
+const splitName = (full: string) => {
+  const w = full.split(' ');
+  return w.length > 1 ? { first: w.slice(0, -1).join(' '), last: w[w.length - 1] } : { first: '', last: full };
+};
+const glowOf = (t: V3Team) => {
+  const c = t.colors[0].toLowerCase();
+  return c === '#000000' || c === '#ffffff' ? t.colors[1] : t.colors[0];
+};
+
+function SaveButton({ team, tab, c, record }: { team: V3Team; tab: Tab; c: Pick<TeamPageCtx, 'slug' | 'code' | 'state' | 'decl' | 'profile'>; record: string | null }) {
+  const saved = useSaved();
+  const route = routes.team({ slug: c.slug, id: c.code }, { tab: c.state.tab, adj: c.state.adj, win: c.state.win });
+  const item = findSaved(saved, route);
+  const basis = tab === 'profile' || (tab === 'overview' && c.decl.identity.control === 'basis') ? (c.state.adj ? 'Opponent-adjusted' : 'Raw') : null;
+  const win = tab === 'profile' && !c.state.adj ? c.state.win : tab === 'overview' && c.decl.identity.control === 'window' ? c.state.win : null;
+  const winWord = win ? (c.decl.windowWords[win] ?? win) : null;
+  const chips = [TAB_LABEL[tab], basis, winWord].filter((x): x is string => !!x);
   return (
-    <section aria-label="Team statistics">
-      <div className="v3-chips" role="group" aria-label="Statistic group">
-        {groups.map((x) => <button key={x} type="button" className="v3-chip" aria-pressed={cur === x} onClick={() => setG(x)}>{GROUP_LABEL[x]}</button>)}
-      </div>
-      <h2 className="v3-h2">Key Metrics</h2>
-      <table className="v3-tbl v3-tbl--stats">
-        <thead><tr><th scope="col">Stat</th><th scope="col">Value</th><th scope="col">{cur === 'adjusted' ? 'Adj. rank' : 'Rank'}</th></tr></thead>
-        <tbody>
-          {rows.map((m) => (
-            <tr key={m.id}>
-              <th scope="row">{m.route ? <Link to={m.route}>{m.name}</Link> : m.name}</th>
-              <td>{m.value}</td>
-              <td>{m.route ? <Link to={m.route} aria-label={`${m.name} league ranking`}><Rank rank={m.rank} n={m.n} /></Link> : <Rank rank={m.rank} n={m.n} />}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="v3-note v3-note--dim">{cur === 'adjusted' ? 'Opponent-adjusted values are a different statistic from the raw season values; they are never mixed. Each row opens its own ranking.' : 'Raw season values. Each row opens its league ranking; opponent-adjusted versions are on their own tab.'}</p>
-    </section>
+    <button type="button" className={`v3-iconbtn v3-star${item ? ' is-on' : ''}`} aria-pressed={!!item} aria-label={item ? `Remove saved ${team.name} research` : `Save ${team.name} research`}
+      onClick={() => {
+        if (item) { removeSaved(item.id); return; }
+        saveResearch({
+          title: team.name, subtitle: `${leagueLabel({ sport: team.sport })} · ${chips.join(' · ')}`, route, chips, kind: 'team', sport: c.slug,
+          snapshot: record ? [{ label: 'Record', value: record, asOf: c.profile?.asOf ?? null }] : undefined,
+        });
+      }}>
+      <Icon name="bookmark" size={22} fill={!!item} />
+    </button>
   );
 }
 
 export function Team() {
   const { slug = '', teamId = '' } = useParams();
-  const id = decodeURIComponent(teamId);
-  const { vm, loading, upcoming } = useTeamVM(slug, id);
+  const raw = decodeURIComponent(teamId);
+  const back = useBack();
+  const [state, set] = useRouteState(teamSchema);
+  const demo = demoOn();
   const slate = useSlate();
-  const nav = useNavigate();
-  const [sp] = useSearchParams();
-  const setSp = useQueryPatch();
-  const tab = (TABS.some(([k]) => k === sp.get('tab')) ? sp.get('tab') : 'overview') as Tab;
-  const follows = useFollows();
-  const t = vm.team;
-  const key = `${t.slug}:${t.id}`;
-  const photo = useMemo(() => (demoOn() ? null : teamPhoto(t.sport, t.id, t.name, new Date().toISOString())), [t]);
+  const capOk = isReady(slug, 'teamOverview');
+  const decl = teamSport(slug);
+  const [now] = useState(() => Date.now());
+
+  const rr = useResearchRepo(slug);
+  const ti = useTeamIndex(slug);
+  const code = raw.startsWith('prt_') ? ti.byId.get(raw)?.short_name ?? raw : raw;
+  const research = useTeamProfile(slug, capOk && !demo ? code : null);
+  const defs = useMetricDefs(slug);
+  const sch = useSchedule(slug);
+
+  const defsLoading = !demo && capOk && !defs.data && !defs.error && (rr.loading || !!rr.repo);
+  const look = useMemo(() => (demo ? sampleLookup(slug) : metricLookup(defs.data, slug)), [demo, slug, defs.data]);
+  const codeOf = useCallback((id: string | null) => (id == null ? null : demo ? id : ti.byId.get(id)?.short_name ?? null), [demo, ti.byId]);
+  const nameOf = useCallback((id: string | null) => (id == null ? null : demo ? sampleTeamName(slug, id) : ti.byId.get(id)?.display_name ?? null), [demo, slug, ti.byId]);
+  const identity = useCallback((c: string, name: string | null) => identityFor(slug, c, demo ? sampleTeamName(slug, c) : ti.byCode.get(c)?.display_name ?? name, slate.games), [slug, demo, ti.byCode, slate.games]);
+
+  // sample mode: a deterministic labelled profile from the sport's declaration, with the slate's own games for this team
+  const sample = useMemo(() => {
+    if (!demo || !capOk || !decl) return null;
+    const seen = new Map<string, SampleOpp>();
+    for (const g of slate.games) for (const t of [g.away, g.home]) if (t.slug === slug && !seen.has(t.id)) seen.set(t.id, { id: t.id, name: t.name });
+    for (const c of SAMPLE_POOL[slug] ?? []) if (!seen.has(c)) seen.set(c, { id: c, name: sampleTeamName(slug, c) });
+    const pool = [...seen.values()];
+    const mine: SampleUpcoming[] = slate.games
+      .filter((g) => g.slug === slug && (g.phase === 'pregame' || g.phase === 'live') && (g.away.id === code || g.home.id === code))
+      .sort((a, b) => a.startMs - b.startMs)
+      .map((g) => { const home = g.home.id === code; const o = home ? g.away : g.home; return { eventId: g.eventId, startUtc: new Date(g.startMs).toISOString(), oppCode: o.id, oppName: o.name, home }; });
+    const extra: SampleUpcoming[] = [];
+    const teams = pool.filter((p) => p.id !== code);
+    for (let i = mine.length; i < 6 && teams.length; i++) extra.push({ eventId: `sample-${code}-u${i}`, startUtc: new Date(now + (i + 1) * 7 * 86_400_000).toISOString(), oppCode: teams[i % teams.length].id, oppName: teams[i % teams.length].name, home: i % 2 === 0 });
+    return { pool, build: (c: string, n: string | null, up: SampleUpcoming[]) => sampleProfile(slug, c, n ?? sampleTeamName(slug, c), pool, up, now), upcoming: [...mine, ...extra] };
+  }, [demo, capOk, decl, slate.games, slug, code, now]);
+  const sampleMine = useMemo(() => (sample ? sample.build(code, null, sample.upcoming) : null), [sample, code]);
+  const sampleOpp = useMemo(() => (sample ? (c: string, n: string | null) => sample.build(c, n, []) : null), [sample]);
+
+  const profile = demo ? sampleMine : research.profile;
+  const pid = demo ? code : ti.byCode.get(code)?.participant_id ?? null;
+  const team = useMemo(() => identityFor(slug, code, profile?.name ?? (demo ? sampleTeamName(slug, code) : ti.byCode.get(code)?.display_name ?? null), slate.games), [slug, code, profile?.name, demo, ti.byCode, slate.games]);
+
+  const nextEv = pid && !demo ? sch.next(pid, now) : null;
+  const next = useMemo(() => nextGameOf(profile, pid, demo ? [] : sch.schedule, nextEv, codeOf, nameOf, now), [profile, pid, demo, sch.schedule, nextEv, codeOf, nameOf, now]);
+  const nextLoading = !next && (!demo && (ti.loading || sch.loading || (!profile && !research.error)));
+  const total = useMemo(() => (next ? slate.games.find((g) => g.slug === slug && g.eventId === next.eventId)?.lines.find((l) => l.kind === 'total')?.label ?? null : null), [next, slate.games, slug]);
+  const props = useTeamProps(slug, next, useMemo(() => profile?.players.map((p) => p.participantId) ?? [], [profile]));
+
+  const c: TeamPageCtx | null = decl ? { slug, code, team, decl, profile, defsLoading, look, state, set, now, demo, codeOf, nameOf, identity } : null;
+
+  // the hero collapses into the compact bar once it has scrolled away
   const sentinel = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const tab = state.tab as Tab;
   useEffect(() => {
     const el = sentinel.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(([e]) => setCollapsed(!e.isIntersecting && e.boundingClientRect.top < 0), { rootMargin: '-56px 0px 0px 0px', threshold: 0 });
     io.observe(el);
     return () => io.disconnect();
-  }, []);
-  useEffect(() => { if (t.name && t.name !== id) pushVisit({ route: `/v3/team/${slug}/${encodeURIComponent(id)}`, title: t.name, subtitle: `${leagueLabel({ sport: t.sport })} · team`, kind: 'team', slug, logo: t.logo }); }, [t.name, t.logo, id, slug, t.sport]);
-  const [q, setQ] = useState('');
-  const [pos, setPos] = useState<string | null>(null);
-  const [open, setOpen] = useState<string | null>(null);
-  const setTab = (k: Tab) => setSp((p) => { const n = new URLSearchParams(p); if (k === 'overview') n.delete('tab'); else n.set('tab', k); return n; });
-  const back = () => nav(-1);
-  const next: V3Game | undefined = upcoming.find((g) => g.phase === 'live' || g.phase === 'pregame');
-  const bySlate = useMemo(() => new Map(slate.games.map((g) => [g.eventId, g])), [slate.games]);
-  const tiles = useMemo(() => {
-    const ranked = vm.metrics.filter((m) => m.rank != null && (m.group === 'offense' || m.group === 'defense' || m.group === 'results'));
-    return (ranked.length >= 3 ? ranked : vm.metrics.filter((m) => m.rank != null)).slice(0, 3);
-  }, [vm.metrics]);
-  const roster = useMemo(() => vm.roster.filter((r) => (!pos || r.role === pos) && (!q || r.name.toLowerCase().includes(q.toLowerCase()))), [vm.roster, pos, q]);
-  const roles = useMemo(() => [...new Set(vm.roster.map((r) => r.role).filter(Boolean) as string[])].sort(), [vm.roster]);
+  }, [tab, capOk]);
+  useEffect(() => { if (team.name && team.name !== code) pushVisit({ route: `/v3/team/${slug}/${encodeURIComponent(code)}`, title: team.name, subtitle: `${leagueLabel({ sport: team.sport })} · team`, kind: 'team', slug, logo: team.logo }); }, [team.name, team.logo, code, slug, team.sport]);
+
+  const photo = useMemo(() => (demo || !capOk ? null : teamPhoto(team.sport, code, team.name, new Date().toISOString())), [demo, capOk, team.sport, team.name, code]);
+  const tabs = TEAM_TABS.filter((t) => isReady(slug, SECTION[t]));
+  const tabOk = isReady(slug, SECTION[tab]);
+  const key = `${team.slug}:${team.id}`;
+  const record = profile?.record?.text ?? null;
+  const { first, last } = splitName(team.name);
+  const unknownTeam = !demo && capOk && !ti.loading && ti.teams.length > 0 && !ti.byCode.has(code);
+
+  const bar = (
+    <>
+      <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={24} /></button>
+      <TeamLogo team={team} size={30} />
+      <b className="tm-bar__n">{team.name}</b>
+      {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : capOk && !unknownTeam ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
+      <span className="tm-bar__r">
+        <FollowStar kind="teams" id={key} label={team.name} />
+        {c && <SaveButton team={team} tab={tab} c={c} record={record} />}
+      </span>
+    </>
+  );
+
+  if (!capOk || !decl) {
+    const reason = lockedReason(slug, 'teamOverview') ?? 'This sport is not part of the research screens.';
+    return (
+      <div className="tm" data-screen="team">
+        <div className="tm-bar tm-bar--sticky"><button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={24} /></button><TeamLogo team={team} size={30} /><b className="tm-bar__n">{team.name}</b></div>
+        <div className="tm-body"><div className="v3-state v3-state--warn" role="note"><Icon name="info" size={20} /><div><b>Team research is not shown for {leagueLabel({ sport: team.sport })}</b>{reason}</div></div></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="v3-team">
-      <header className="v3-th">
-        <HeroBg g={{ away: t, home: t, photo }} cover />
-        <div className="v3-gh__bar">
-          <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
-          <span className="v3-top__sp" />
-          <AlertBell id={key} label={t.name} />
-          <FollowStar kind="teams" id={key} label={t.name} />
-        </div>
-        <div className="v3-th__id">
-          <TeamLogo team={t} size={92} />
-          <h1>{t.name}</h1>
-          <p>{leagueLabel({ sport: t.sport })}{vm.provenance === 'demo' ? ' · sample data' : ''}</p>
-          {vm.record && <b className="v3-th__rec num">{vm.record.replace(/-/g, ' - ')}</b>}
-          {vm.season && <small>{vm.season} season · completed games in the publication</small>}
-        </div>
-      </header>
-      <div ref={sentinel} className="v3-gd__sentinel" aria-hidden="true" />
-      <div className={`v3-cb${collapsed ? ' is-on' : ''}`} aria-hidden={!collapsed}>
-        <button type="button" className="v3-iconbtn" tabIndex={collapsed ? 0 : -1} aria-label="Back" onClick={back}><Icon name="back" size={24} /></button>
-        <button type="button" className="v3-cb__mid v3-cb__mid--team" tabIndex={collapsed ? 0 : -1} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label={`${t.name}, scroll to top`}><TeamLogo team={t} size={30} /><b>{t.name}</b></button>
-        <FollowStar kind="teams" id={key} label={t.name} />
-      </div>
-      <div className={`v3-tabs v3-tabs--box${collapsed ? ' is-stuck' : ''}`} role="tablist" aria-label="Team sections">
-        {TABS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{label}</button>)}
-      </div>
-      <div className="v3-gd__body">
-        {loading && <div className="v3-skel" style={{ height: 120 }} role="status" aria-label="Loading team" />}
-        {tab === 'overview' && (
-          <>
-            <section className="v3-panel v3-next" aria-label="Next game">
-              <header><h2>Next Game</h2>{next && <span>{dayWord(next.startMs)} · {clockTime(next.startMs)}</span>}</header>
-              {next ? (
-                <Link to={gameHref(next)} className="v3-next__r" aria-label={`Next game: ${next.away.name} at ${next.home.name}. Open`}>
-                  {(() => { const opp = next.home.id === t.id && next.home.slug === t.slug ? next.away : next.home; const away = next.away.id === t.id; return (<><TeamLogo team={opp} size={52} /><span><b>{away ? '@' : 'vs'} {opp.nick}</b><small>{leagueLabel(next)}{next.network ? ` · ${next.network}` : ''}</small></span></>); })()}
-                  <Icon name="chevR" size={20} />
-                </Link>
-              ) : <p className="v3-note">No upcoming game is on the published slate.</p>}
-            </section>
-            {tiles.length > 0 && <div className="v3-stiles">{tiles.map((m) => <StatTile key={m.id} m={m} />)}</div>}
-            <section aria-label="Recent results">
-              <div className="v3-sechead" style={{ margin: '8px 0 4px' }}><h2>Recent Results</h2>{vm.results.length > 5 && <button type="button" onClick={() => setTab('schedule')}>See All<Icon name="chevR" size={16} /></button>}</div>
-              {vm.results.length ? (
-                <ul className="v3-results">{vm.results.slice(0, 5).map((r) => <ResultItem key={r.eventId} r={r} g={bySlate.get(r.eventId)} />)}</ul>
-              ) : <div className="v3-state"><Icon name="info" size={20} /><div><b>No results to show</b>{vm.why.results ?? 'Nothing is published yet.'}</div></div>}
-            </section>
-          </>
-        )}
-        {tab === 'schedule' && (
-          <section aria-label="Schedule">
-            {upcoming.filter((g) => g.phase !== 'final').length > 0 && <><h2 className="v3-h2">Upcoming</h2><ul className="v3-results">{upcoming.filter((g) => g.phase !== 'final').map((g) => {
-              const away = g.away.id === t.id; const opp = away ? g.home : g.away;
-              return <li key={g.key} className="v3-res"><span className="v3-res__b v3-res__b--n">{dayWord(g.startMs).slice(0, 3)}</span><Link to={teamHref(opp)} className="v3-res__lg" aria-label={`${opp.name}, team page`}><TeamLogo team={opp} size={32} /></Link><Link to={gameHref(g)} className="v3-res__m" aria-label={`${away ? 'At' : 'Versus'} ${opp.name}, ${clockTime(g.startMs)}. Open game`}><span className="v3-res__t">{away ? '@' : 'vs'} {opp.nick}</span><span className="v3-res__s">{clockTime(g.startMs)}</span></Link></li>;
-            })}</ul></>}
-            <h2 className="v3-h2">Results</h2>
-            {vm.results.length ? <ul className="v3-results">{vm.results.map((r) => <ResultItem key={r.eventId} r={r} g={bySlate.get(r.eventId)} />)}</ul> : <div className="v3-state"><Icon name="info" size={20} /><div><b>No results to show</b>{vm.why.results ?? 'Nothing is published yet.'}</div></div>}
-          </section>
-        )}
-        {tab === 'roster' && (
-          <section aria-label="Roster">
-            {vm.roster.length ? (
-              <>
-                <label className="v3-pk__search"><Icon name="search" size={18} /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the roster" aria-label="Search the roster" autoComplete="off" /></label>
-                {roles.length > 1 && <div className="v3-chips" role="group" aria-label="Position"><button type="button" className="v3-chip" aria-pressed={!pos} onClick={() => setPos(null)}>All</button>{roles.map((r) => <button key={r} type="button" className="v3-chip" aria-pressed={pos === r} onClick={() => setPos(r)}>{r}</button>)}</div>}
-                <ul className="v3-props">{roster.map((r) => <li key={r.id}><Link to={`/v3/player/${t.slug}/${encodeURIComponent(r.id)}`} className="v3-prop__who"><span><b>{r.name}</b><small>{r.role ?? 'Player'}</small></span></Link><Icon name="chevR" size={20} /></li>)}</ul>
-                {roster.length === 0 && <div className="v3-state"><Icon name="search" size={20} /><div><b>No matching players</b><button type="button" onClick={() => { setQ(''); setPos(null); }}>Clear filters</button></div></div>}
-              </>
-            ) : <div className="v3-state"><Icon name="info" size={20} /><div><b>No roster</b>{vm.why.roster}</div></div>}
-          </section>
-        )}
-        {tab === 'stats' && <StatsTab metrics={vm.metrics} why={vm.why.stats} />}
-        {tab === 'injuries' && (
-          <section aria-label="Injuries">
-            {vm.injuries.length ? (
-              <ul className="v3-props">{vm.injuries.map((i) => (
-                <li key={i.player + i.status} className="v3-inj">
-                  <button type="button" className="v3-prop__who" aria-expanded={open === i.player} onClick={() => setOpen(open === i.player ? null : i.player)}>
-                    <span><b>{i.player}{i.position ? ` · ${i.position}` : ''}</b><small>{i.status.replace(/_/g, ' ').toLowerCase()}{i.asOf ? ` · ${ago(i.asOf)}` : ''}</small>{open === i.player && <small className="v3-inj__n">{i.note || 'No detail published.'}</small>}</span>
-                  </button>
-                  <span className={`v3-chip v3-chip--st v3-chip--${i.status.toLowerCase()}`}>{i.status.replace(/_/g, ' ')}</span>
-                </li>))}
-              </ul>
-            ) : <div className="v3-state"><Icon name="info" size={20} /><div><b>No injuries listed</b>{vm.why.injuries}</div></div>}
-            <p className="v3-note v3-note--dim">Injury designations as published{vm.asOf ? `, ${ago(vm.asOf)}` : ''}. Nothing is inferred.</p>
-          </section>
-        )}
-        {follows.teams.includes(key) && tab === 'overview' && <p className="v3-note v3-note--dim">You follow {t.nick}. Alerts stay off until you turn them on with the bell.</p>}
-      </div>
+    <div className="tm" data-screen="team" data-tab={tab}>
+      {tab === 'overview' ? (
+        <>
+          <header className="tm-hero" style={{ ['--tc' as string]: glowOf(team) }}>
+            {photo ? <HeroBg g={{ away: team, home: team, photo }} cover /> : <i className="tm-hero__glow" aria-hidden="true" />}
+            <i className="tm-hero__shade" aria-hidden="true" />
+            <div className="tm-hero__bar">
+              <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
+              <span className="tm-hero__act"><AlertBell id={key} label={team.name} /><FollowStar kind="teams" id={key} label={team.name} />{c && <SaveButton team={team} tab={tab} c={c} record={record} />}</span>
+            </div>
+            <div className="tm-hero__who">
+              <div className="wl"><TeamLogo team={team} size={54} /><h1 className="wn">{first && <span className="f">{first}</span>}<span className="l">{last}</span></h1></div>
+              <span className="m">{leagueLabel({ sport: team.sport })}{profile?.season ? ` · ${profile.season.replace('-', '–')} season` : ''}{demo ? ' · sample data' : ''}
+                {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : !unknownTeam ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
+              </span>
+            </div>
+          </header>
+          <div ref={sentinel} className="tm-sentinel" aria-hidden="true" />
+          <div className={`tm-bar tm-bar--fixed${collapsed ? ' is-on' : ''}`} aria-hidden={!collapsed}>{bar}</div>
+        </>
+      ) : (
+        <div className="tm-bar tm-bar--sticky">{bar}</div>
+      )}
+      <div className="tm-tabs"><Tabs tabs={tabs.map((t) => ({ key: t, label: TAB_LABEL[t] }))} value={tab} onChange={(k) => set({ tab: k, all: false, exp: [] })} label="Team sections" /></div>
+      {unknownTeam ? (
+        <div className="tm-body"><div className="v3-state" role="note"><Icon name="info" size={20} /><div><b>Team not found</b>The publication has no team with the code {code} for {leagueLabel({ sport: team.sport })}.</div></div></div>
+      ) : !tabOk ? (
+        <div className="tm-body"><LockedRow title={TAB_LABEL[tab]}>{lockedReason(slug, SECTION[tab])}</LockedRow></div>
+      ) : research.error && !profile && !demo ? (
+        <div className="tm-body"><div className="v3-state v3-state--warn" role="note"><Icon name="info" size={20} /><div><b>Team statistics are unavailable</b>The team document could not be read right now. Try again in a moment.</div></div></div>
+      ) : c && tab === 'overview' ? (
+        <Overview c={c} next={next} nextLoading={nextLoading} total={total} propsInfo={props && next ? { props: props.props, players: props.players } : null} />
+      ) : c && tab === 'profile' ? <Profile c={c} />
+      : c && tab === 'form' ? <Form c={c} />
+      : c && tab === 'players' ? <Players c={c} propCounts={props?.byPlayer ?? null} />
+      : c && tab === 'schedule' ? <Schedule c={c} schedule={demo ? [] : sch.schedule} sampleOpp={sampleOpp} />
+      : null}
+      {demo && <p className="tm-note tm-note--pad">Sample data: the statistics, results and ranks on this page are invented to show the design.</p>}
     </div>
   );
 }
 
-function ResultItem({ r, g }: { r: import('../data/useTeam').ResultRow; g: V3Game | undefined }) {
-  const word = r.outcome === 'W' ? 'Win' : r.outcome === 'L' ? 'Loss' : 'Tie';
-  const main = (<><span className="v3-res__t">{r.home ? 'vs' : '@'} {r.opp.nick}</span><span className="v3-res__s num">{r.for} - {r.against}</span></>);
-  return (
-    <li className="v3-res">
-      <span className={`v3-res__b v3-res__b--${r.outcome}`} aria-label={word}>{r.outcome}</span>
-      <Link to={teamHref(r.opp)} className="v3-res__lg" aria-label={`${r.opp.name}, team page`}><TeamLogo team={r.opp} size={32} /></Link>
-      {g ? <Link to={gameHref(g)} className="v3-res__m" aria-label={`${word} ${r.home ? 'versus' : 'at'} ${r.opp.name}, ${r.for} to ${r.against}. Open game`}>{main}</Link> : <div className="v3-res__m">{main}</div>}
-    </li>
-  );
-}

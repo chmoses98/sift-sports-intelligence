@@ -2,6 +2,7 @@
 // starring never subscribes to anything, and nothing here ever asks the platform for notification permission.
 import { createStore, useStore } from './store';
 import type { PriceFormat } from '../model/format';
+import { reviveSaved, reviveSavedList, type SavedInput, type SavedResearch } from '../model/saved';
 
 export interface Follows { teams: string[]; players: string[]; games: string[] }
 const follows = createStore<Follows>('follows', { teams: [], players: [], games: [] });
@@ -34,20 +35,14 @@ const prefs = createStore<Prefs>('prefs', { priceFormat: 'cents', reduceMotion: 
 export const usePrefs = () => useStore(prefs);
 export const setPrefs = (p: Partial<Prefs>) => prefs.set((c) => ({ ...c, ...p }));
 
-/** A saved research setup: the exact route (with every parameter) plus the numbers shown when it was saved. */
-export interface SavedResearch {
-  id: string;
-  title: string;
-  subtitle: string;
-  /** The in-app route including its query string: reopening it restores stat, line, window, filters and tab. */
-  route: string;
-  savedAt: number;
-  /** Frozen at save time and always labelled as such next to the live read. */
-  snapshot?: { label: string; value: string; asOf: string | null }[];
-}
-const saved = createStore<SavedResearch[]>('saved', []);
+/** Saved research: the schema, validation and migration live in model/saved.ts; this is the device store over it. */
+export type { SavedResearch } from '../model/saved';
+const saved = createStore<SavedResearch[]>('saved', [], reviveSavedList);
 export const useSaved = () => useStore(saved);
-export const saveResearch = (s: Omit<SavedResearch, 'id' | 'savedAt'>) => saved.set((l) => [{ ...s, id: `r${Date.now().toString(36)}`, savedAt: Date.now() }, ...l.filter((x) => x.route !== s.route)]);
+export const saveResearch = (s: SavedInput) => {
+  const rec = reviveSaved({ ...s, id: `r${Date.now().toString(36)}`, savedAt: Date.now() });
+  if (rec) saved.set((l) => [rec, ...l.filter((x) => x.route !== rec.route)]);
+};
 export const removeSaved = (id: string) => saved.set((l) => l.filter((x) => x.id !== id));
 
 const recents = createStore<{ q: string; route?: string }[]>('recents', []);

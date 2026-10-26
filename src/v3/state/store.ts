@@ -8,19 +8,21 @@ export interface Store<T> {
   subscribe(cb: () => void): () => void;
 }
 
-export function createStore<T>(key: string, initial: T): Store<T> {
+/** `revive` validates and upgrades whatever storage holds (another tab, an older build) before it is trusted. */
+export function createStore<T>(key: string, initial: T, revive?: (raw: unknown) => T): Store<T> {
   const k = `sift3.${key}`;
   let value: T = initial;
   try {
     const raw = localStorage.getItem(k);
     if (raw != null) value = { ...(typeof initial === 'object' && !Array.isArray(initial) ? initial : {}), ...JSON.parse(raw) } as T;
     if (Array.isArray(initial) && raw != null) value = JSON.parse(raw) as T;
+    if (revive && raw != null) value = revive(JSON.parse(raw));
   } catch { /* memory only */ }
   const subs = new Set<() => void>();
   const persist = () => { try { localStorage.setItem(k, JSON.stringify(value)); } catch { /* memory only */ } };
   const onStorage = (e: StorageEvent) => {
     if (e.key !== k) return;
-    try { value = e.newValue == null ? initial : (JSON.parse(e.newValue) as T); } catch { return; }
+    try { value = e.newValue == null ? initial : revive ? revive(JSON.parse(e.newValue)) : (JSON.parse(e.newValue) as T); } catch { return; }
     subs.forEach((f) => f());
   };
   return {

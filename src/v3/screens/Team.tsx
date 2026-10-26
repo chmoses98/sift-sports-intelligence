@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useTeamVM, type MetricGroup, type MetricRow } from '../data/useTeam';
 import { teamPhoto } from '../data/adapt';
 import { ago, clockTime, dayWord } from '../model/format';
@@ -57,7 +58,8 @@ export function Team() {
   const { vm, loading, upcoming } = useTeamVM(slug, id);
   const slate = useSlate();
   const nav = useNavigate();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const tab = (TABS.some(([k]) => k === sp.get('tab')) ? sp.get('tab') : 'overview') as Tab;
   const follows = useFollows();
   const t = vm.team;
@@ -76,7 +78,7 @@ export function Team() {
   const [q, setQ] = useState('');
   const [pos, setPos] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
-  const setTab = (k: Tab) => setSp((p) => { const n = new URLSearchParams(p); if (k === 'overview') n.delete('tab'); else n.set('tab', k); return n; }, { replace: true });
+  const setTab = (k: Tab) => setSp((p) => { const n = new URLSearchParams(p); if (k === 'overview') n.delete('tab'); else n.set('tab', k); return n; });
   const back = () => nav(-1);
   const next: V3Game | undefined = upcoming.find((g) => g.phase === 'live' || g.phase === 'pregame');
   const bySlate = useMemo(() => new Map(slate.games.map((g) => [g.eventId, g])), [slate.games]);

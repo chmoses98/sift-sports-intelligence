@@ -10,6 +10,7 @@ import './screens/home.css';
 import './screens/games.css';
 import './screens/game.css';
 import './screens/research.css';
+import './ui/atoms.css';
 import { Icon, type IconName } from './ui/Icon';
 import { SheetHost } from './ui/Sheet';
 import { SlateProvider, useSlate } from './data/useSlate';
@@ -108,8 +109,8 @@ export function V3Root() {
     const prev = document.body.style.background;
     const meta = document.querySelector('meta[name="theme-color"]');
     const prevTheme = meta?.getAttribute('content') ?? null;
-    document.body.style.background = '#031523';
-    meta?.setAttribute('content', '#031523');
+    document.body.style.background = '#080b10';
+    meta?.setAttribute('content', '#080b10');
     return () => { document.body.style.background = prev; if (prevTheme) meta?.setAttribute('content', prevTheme); };
   }, []);
   return (

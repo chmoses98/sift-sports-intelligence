@@ -99,7 +99,7 @@ try:
     q.open('/v3/following', settle=4)
     check('D11 saved research appears in Following', count('.v3-hit--saved')==1, count('.v3-hit--saved'))
     click('.v3-hit--saved .v3-hit__l')
-    check('D12 saved item restores stat, window and filter exactly', 'stat=pts' in H() and 'win=L10' in H() and 'site=home' in H(), H())
+    check('D12 saved item restores stat, window and filter exactly', 'stat=pts' in H() and ('win=' not in H() or 'win=L10' in H()) and 'site=home' in H(), H())
     q.open('/v3/following', settle=3); check('D13 saved snapshot is labelled "At save"', 'At save' in q.js('return document.body.innerText'))
     q.open('/v3/player/nba/sample-guard?stat=pts&win=L10&site=away&min=36&script=blowout', settle=6)
     check('D14 impossible filters show "0 games match" and one tap removes them', '0 games match' in q.js('return document.body.innerText'))

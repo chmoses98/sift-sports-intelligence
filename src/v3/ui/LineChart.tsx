@@ -26,7 +26,7 @@ export function LineChart({ pts, fmt, sel, onSel, label }: { pts: Pt[]; fmt: (v:
   const s = sel != null ? pts[sel] : null;
   return (
     <svg className="v3-lc" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} onPointerDown={pick} preserveAspectRatio="xMidYMid meet">
-      <defs><linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#16c9dc" stopOpacity="0.28" /><stop offset="1" stopColor="#16c9dc" stopOpacity="0" /></linearGradient></defs>
+      <defs><linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#19cde0" stopOpacity="0.28" /><stop offset="1" stopColor="#19cde0" stopOpacity="0" /></linearGradient></defs>
       {ticks.map((t) => (<g key={t}><line x1={L} x2={W - R} y1={y(t)} y2={y(t)} className="v3-lc__grid" /><text x={L - 6} y={y(t) + 4} textAnchor="end" className="v3-lc__tick">{fmt(t)}</text></g>))}
       <path d={`${path} L${x(pts.length - 1)},${H - B} L${x(0)},${H - B} Z`} fill={`url(#${id}g)`} />
       <path d={path} className="v3-lc__line" />

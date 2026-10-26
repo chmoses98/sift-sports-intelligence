@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { heroTeam } from '../../lib/hero/input';
 import { useSlate } from '../data/useSlate';
 import { useGameExtras } from '../data/useGameExtras';
@@ -130,7 +131,8 @@ export function Home() {
   const f = useFollows();
   const sheet = useSheet();
   const alerts = useAlerts();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const sport = sp.get('sport') ?? 'foryou';
   const pool = useMemo(() => (sport === 'foryou' ? games : games.filter((g) => g.slug === sport)), [games, sport]);
   const featured = useMemo(() => pickFeatured(pool, f, now), [pool, f, now]);
@@ -140,7 +142,7 @@ export function Home() {
     const cand = pool.filter((g) => g.phase !== 'final' && g.key !== featured?.key && g.slug === 'nfl');
     return [...(featured && featured.slug === 'nfl' ? [featured] : []), ...cand].slice(0, 4);
   }, [pool, featured]);
-  const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; }, { replace: true });
+  const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; });
   const hasAlerts = Object.keys(alerts).length > 0;
   const prefs = usePrefs();
   // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.

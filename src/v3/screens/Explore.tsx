@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useSearchHits, type Hit } from '../data/useSearch';
 import { useSlate } from '../data/useSlate';
 import { clearRecents, pushRecent, useRecents, useVisits } from '../state/prefs';
@@ -36,11 +37,12 @@ function HitRow({ h, q }: { h: Hit; q: string }) {
 }
 
 export function Explore() {
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const q = sp.get('q') ?? '';
   const sport = sp.get('sport') ?? 'all';
   const cat = (CATS.some((c) => c.k === sp.get('cat')) ? sp.get('cat') : 'all') as Cat | 'all';
-  const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; }, { replace: true });
+  const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; });
   const { games } = useSlate();
   const { hits, loading } = useSearchHits(q, sport, cat);
   const recents = useRecents();

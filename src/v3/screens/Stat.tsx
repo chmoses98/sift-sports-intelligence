@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useStatVM, useTeamSeries, type StatEntry, type StatVM } from '../data/useStat';
 import { fmtStat } from '../model/stat';
 import { ago } from '../model/format';
 import { pushVisit, saveResearch, useFollows, useSaved, removeSaved } from '../state/prefs';
+import { findSaved } from '../model/saved';
 import { Icon } from '../ui/Icon';
 import { LineChart } from '../ui/LineChart';
 import { useSheet } from '../ui/Sheet';
@@ -159,12 +161,13 @@ export function Stat() {
   const sheet = useSheet();
   const follows = useFollows();
   const saved = useSaved();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const tab = (TABS.some(([k]) => k === sp.get('tab')) ? sp.get('tab') : 'rankings') as Tab;
   const team = sp.get('team');
   const sort = sp.get('sort') ?? 'rank';
   const scope = sp.get('scope') ?? 'all';
-  const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
+  const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; });
   const entries = useMemo(() => {
     if (!vm) return [];
     let e = vm.entries;
@@ -176,7 +179,7 @@ export function Stat() {
     return byRank;
   }, [vm, sort, scope, follows.teams]);
   const route = `${loc.pathname}${loc.search}`;
-  const savedItem = saved.find((s) => s.route === `/v3/stat/${slug}/${encodeURIComponent(id)}${loc.search}`);
+  const savedItem = findSaved(saved, `/v3/stat/${slug}/${encodeURIComponent(id)}${loc.search}`);
   const back = () => { if (loc.key !== 'default') nav(-1); else nav('/v3/explore', { replace: true }); };
   void route;
   useEffect(() => { if (vm) pushVisit({ route: `/v3/stat/${slug}/${encodeURIComponent(id)}`, title: vm.name, subtitle: `${vm.scope.split(' · ')[0]} · ${windowWord(vm.window)} ranking`, kind: 'stat', slug }); }, [vm?.name, id, slug]); // eslint-disable-line react-hooks/exhaustive-deps

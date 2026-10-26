@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useSearchIndex } from '../data/useSearch';
 import { useSlate } from '../data/useSlate';
 import { heroTeam } from '../../lib/hero/input';
@@ -40,7 +41,8 @@ export function Following() {
   const { games } = useSlate();
   const saved = useSaved();
   const alerts = useAlerts();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const seg = (SEGS.some(([k]) => k === sp.get('seg')) ? sp.get('seg') : 'all') as Seg;
   const demo = demoOn();
   const idx = { nfl: useSearchIndex('nfl', !demo), nba: useSearchIndex('nba', !demo), nhl: useSearchIndex('nhl', !demo), mlb: useSearchIndex('mlb', !demo) };
@@ -61,7 +63,7 @@ export function Following() {
     <div className="v3-page v3-following">
       <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>Following</h1><span className="v3-top__sp" /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
       <div className="v3-seg v3-seg--box" role="tablist" aria-label="Following sections">
-        {SEGS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={seg === k} onClick={() => setSp((p) => { const n = new URLSearchParams(p); if (k === 'all') n.delete('seg'); else n.set('seg', k); return n; }, { replace: true })}>{label}</button>)}
+        {SEGS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={seg === k} onClick={() => setSp((p) => { const n = new URLSearchParams(p); if (k === 'all') n.delete('seg'); else n.set('seg', k); return n; })}>{label}</button>)}
       </div>
 
       {empty && (

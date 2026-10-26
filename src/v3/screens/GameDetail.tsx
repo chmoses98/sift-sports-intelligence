@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useGameByKey } from '../data/useSlate';
 import { useGameExtras, useEventDetail } from '../data/useGameExtras';
 import { useGameResearch } from '../../views/broadcast/parts';
@@ -111,7 +112,8 @@ export function GameDetail() {
   const g = x?.game ?? game;
   const back = useBack();
   const follows = useFollows();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const tab = (TAB_KEYS.includes(sp.get('tab') as TabKey) ? sp.get('tab') : 'main') as TabKey;
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const research = useGameResearch(g && g.provenance === 'publication' ? g.slug : null, g && g.provenance === 'publication' ? g.eventId : null);
@@ -147,7 +149,7 @@ export function GameDetail() {
       </div>
     );
   }
-  const setTab = (t: TabKey) => setSp((p) => { const n = new URLSearchParams(p); if (t === 'main') n.delete('tab'); else n.set('tab', t); return n; }, { replace: true });
+  const setTab = (t: TabKey) => setSp((p) => { const n = new URLSearchParams(p); if (t === 'main') n.delete('tab'); else n.set('tab', t); return n; });
   return (
     <div className="v3-gd">
       <Hero g={g} back={back} />

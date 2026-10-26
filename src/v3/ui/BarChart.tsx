@@ -22,9 +22,9 @@ export function BarChart({ bars, line, sel, onSel, fmt, label }: { bars: Bar[]; 
   return (
     <svg className="v3-bc" viewBox={`0 0 ${W} ${H}`} role="group" aria-label={label} preserveAspectRatio="xMidYMid meet">
       <defs>
-        <linearGradient id={`${id}o`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#28e0c0" /><stop offset="1" stopColor="#12a58f" /></linearGradient>
-        <linearGradient id={`${id}u`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ff7d63" /><stop offset="1" stopColor="#d9503f" /></linearGradient>
-        <linearGradient id={`${id}p`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c3d3df" /><stop offset="1" stopColor="#7d93a5" /></linearGradient>
+        <linearGradient id={`${id}o`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#46e49b" /><stop offset="1" stopColor="#1c9a62" /></linearGradient>
+        <linearGradient id={`${id}u`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ff7468" /><stop offset="1" stopColor="#cf453c" /></linearGradient>
+        <linearGradient id={`${id}p`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c3c8ce" /><stop offset="1" stopColor="#7d8895" /></linearGradient>
       </defs>
       {ticks.map((t) => (<g key={t}><line x1={L} x2={W - R + 6} y1={y(t)} y2={y(t)} className="v3-bc__grid" /><text x={L - 6} y={y(t) + 4} textAnchor="end" className="v3-bc__tick">{t}</text></g>))}
       {bars.map((b, i) => {

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useSlate } from '../data/useSlate';
 import { useFollows } from '../state/prefs';
 import { dayWord } from '../model/format';
@@ -39,12 +40,13 @@ export function Games() {
   const { games, loading, unavailable, failed, saved, now } = useSlate();
   const follows = useFollows();
   const sheet = useSheet();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const today = dateKey(now);
   const day = sp.get('date') ?? today;
   const sport = sp.get('sport') ?? 'all';
   const st = (STATES.includes(sp.get('state') as GameState) ? sp.get('state') : 'today') as GameState;
-  const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
+  const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; });
 
   const sports = useMemo(() => sportsIn(games), [games]);
   const inSport = useMemo(() => (sport === 'all' ? games : games.filter((g) => g.slug === sport)), [games, sport]);

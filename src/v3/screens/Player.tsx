@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { usePlayerVM, type PlayerVM } from '../data/usePlayer';
 import { useSlate } from '../data/useSlate';
 import { applyFilters, filtersActive, NO_FILTERS, referenceLine, resultOf, sliceWindow, smallSample, summarize, WINDOWS, type Filters, type Obs, type Window } from '../model/research';
 import { ago, clockTime, dayWord, quoteState } from '../model/format';
 import { pushVisit, removeSaved, saveResearch, useSaved } from '../state/prefs';
+import { findSaved } from '../model/saved';
 import type { Price } from '../model/types';
 import { BarChart } from '../ui/BarChart';
 import { FollowStar } from '../ui/Controls';
@@ -23,8 +25,9 @@ const shortDate = (d: string) => { const [, m, dd] = d.split('-'); return `${Num
 
 /** Everything the viewer can change, in the address so Back, reload and Saved research restore it exactly. */
 function useResearchState(vm: PlayerVM | null) {
-  const [sp, setSp] = useSearchParams();
-  const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v == null || v === '') n.delete(k); else n.set(k, v); } return n; }, { replace: true });
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
+  const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v == null || v === '') n.delete(k); else n.set(k, v); } return n; });
   const stat = vm && vm.stats.some((s) => s.key === sp.get('stat')) ? sp.get('stat')! : vm ? (vm.stats.find((s) => vm.props.has(s.key)) ?? vm.stats[0])?.key ?? null : null;
   const win = (WINDOWS.includes(sp.get('win') as Window) ? sp.get('win') : 'L10') as Window;
   const filters: Filters = {
@@ -162,7 +165,7 @@ export function Player() {
   const chips = vm && R.stat ? WINDOWS.map((w) => ({ w, s: summarize(sliceWindow(filtered, w, oppCode, vm.season), R.stat!, line) })) : [];
   const bars = win.map((o) => { const v = o.v[R.stat ?? ''] ?? null; return { key: o.key, v, label: shortDate(o.date), sub: o.opp, result: v != null && line != null ? resultOf(v, line) : null }; });
   const route = `/v3/player/${slug}/${encodeURIComponent(pid)}${loc.search}`;
-  const savedItem = saved.find((s) => s.route === route);
+  const savedItem = findSaved(saved, route);
   const openObs = (k: string) => { const o = win.find((x) => x.key === k); if (!o || !vm || !R.stat) return; setSel(k); sheet.open('Game observation', <ObsDetail o={o} vm={vm} stat={R.stat} line={line} />); };
   const price = prop?.price;
   const fAct = filtersActive(R.filters);

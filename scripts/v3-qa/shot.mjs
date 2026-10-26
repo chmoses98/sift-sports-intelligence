@@ -15,6 +15,8 @@ const page = await ctx.newPage();
 if (process.env.REAL === '1') {
   const { useRealFeeds } = await import('../../e2e/support/realFeeds.ts');
   await useRealFeeds(page);
+  // FRESH=1: re-stamp the real quote-feed observation times to now (test transformation) so priced states can be shown.
+  if (process.env.FRESH === '1') await (await import('../../e2e/support/realFeeds.ts')).freshQuotes(page);
 }
 await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 let i = 0;

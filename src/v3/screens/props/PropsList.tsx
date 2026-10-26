@@ -18,7 +18,7 @@ import { Icon } from '../../ui/Icon';
 import { useSheet } from '../../ui/Sheet';
 import { useQueryPatch } from '../../state/url';
 import { FilterSheet } from './FilterSheet';
-import { chipBeside, columnWidth, PEEK_EST, rowHeight } from './layout';
+import { chipBeside, columnWidth, PEEK_EST, resetMeasure, rowHeight } from './layout';
 import { Peek, type PeekBits } from './Peek';
 import { Avatar, lanesFor, LaneLine, Mark, NameLine, OppChip, playerRef, PricePill, statText, type Lanes } from './parts';
 import { VirtualList } from './VirtualList';
@@ -32,10 +32,20 @@ const AUTO_LOGS = 30;
 /** Approximate size of one player's log document, for the one-line cost the viewer is shown before a bulk load (NFL history file, NHL profile). */
 const LOG_KB: Record<string, number> = { nfl: 8, nhl: 28 };
 
-export function useColumnWidth(): number {
+/** The phone column's width and a counter that moves when the web fonts arrive (row layout is decided from measured text). */
+export function useRowMetrics(): { colW: number; fonts: number } {
   const [w, setW] = useState(() => (typeof window === 'undefined' ? 390 : columnWidth(window.innerWidth)));
+  const [fonts, setFonts] = useState(0);
   useEffect(() => { const on = () => setW(columnWidth(window.innerWidth)); window.addEventListener('resize', on); return () => window.removeEventListener('resize', on); }, []);
-  return w;
+  useEffect(() => {
+    let live = true;
+    const ready = (document as Document & { fonts?: { ready: Promise<unknown>; addEventListener?: (t: string, f: () => void) => void } }).fonts;
+    ready?.ready.then(() => { if (live) { resetMeasure(); setFonts((n) => n + 1); } }, () => undefined);
+    const again = () => { resetMeasure(); setFonts((n) => n + 1); };
+    ready?.addEventListener?.('loadingdone', again);
+    return () => { live = false; };
+  }, []);
+  return { colW: w, fonts };
 }
 
 function ActiveChips({ st, set, hiddenN, game }: { st: ListState; set: SetState; hiddenN: number; game: Prop | null }) {
@@ -120,7 +130,7 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   const sheet = useSheet();
   const bank = useHistoryBank();
   const { ctx } = useQueryCtx(universe);
-  const colW = useColumnWidth();
+  const { colW, fonts } = useRowMetrics();
   const inputRef = useRef<HTMLInputElement>(null);
   const sort = sortOf(st);
 
@@ -143,7 +153,7 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   // ---- the list
   const base = useMemo(() => universe.props.filter((p) => passesBase(p, st, ctx)), [universe, st, ctx]);
   const list = useMemo(() => listProps(universe.props, st, ctx), [universe, st, ctx]);
-  const items = useMemo<Item[]>(() => list.map((p) => { const m = ctx.matchup(p); return { p, m, wrap: !chipBeside(`${p.label} ${p.featured}+`, m?.text ?? 'no matchup rows', colW) }; }), [list, ctx, colW]);
+  const items = useMemo<Item[]>(() => list.map((p) => { const m = ctx.matchup(p); return { p, m, wrap: !chipBeside(p.label, `${p.featured}+`, m?.text ?? 'no matchup rows', colW) }; }), [list, ctx, colW, fonts]);
   const expRef = parseRef(st.exp);
   const expProp = expRef ? universe.byId.get(expRef.id) ?? null : null;
 
@@ -184,11 +194,11 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
     const ticked = cmp.some((t) => parseRef(t)?.id === it.p.id);
     return (
       <>
-        <PropRow it={it} k={k} open={open} cmpMode={st.cmpm} ticked={ticked} onToggle={() => toggle(it.p)} onTick={() => tick(it.p, k)} bits={bits} />
+        <PropRow it={open && k !== it.p.featured ? { ...it, wrap: !chipBeside(it.p.label, `${k}+`, it.m?.text ?? 'no matchup rows', colW) } : it} k={k} open={open} cmpMode={st.cmpm} ticked={ticked} onToggle={() => toggle(it.p)} onTick={() => tick(it.p, k)} bits={bits} />
         {open && <Peek p={it.p} k={rungFor(it.p, k).k} m={it.m} bits={bits} onRung={(kk) => onRung(it.p, kk)} />}
       </>
     );
-  }, [expRef?.id, expRef?.k, cmp, st.cmpm, bits.reader, bank.getVersion()]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [expRef?.id, expRef?.k, cmp, st.cmpm, bits.reader, bank.getVersion(), colW, fonts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const heightOf = useCallback((it: Item) => rowHeight(it.wrap) + (expRef?.id === it.p.id ? PEEK_EST : 0), [expRef?.id]);
   const dynamic = useCallback((it: Item) => expRef?.id === it.p.id, [expRef?.id]);

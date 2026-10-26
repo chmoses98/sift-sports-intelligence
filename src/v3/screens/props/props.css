@@ -103,6 +103,7 @@
 .v3 .pd-pb { display: grid; gap: 3px; min-width: 0; align-content: start; pointer-events: none; }
 .v3 .pd-pb a, .v3 .pd-pb button.pd-lanebtn { pointer-events: auto; }
 .v3 .pd-ps { display: flex; gap: 6px; align-items: center; font: 500 13.5px/18px var(--f-ui); color: #dfe4e9; min-width: 0; }
+.v3 .pd-ps > span { white-space: nowrap; flex: none; }
 .v3 .pd-ps b { font: 700 13.5px var(--f-num); }
 .v3 .pd-ps .pd-chip { height: 20px; font-size: 11px; }
 .v3 .pd-row:not(.is-wrap) .pd-ps { flex-wrap: nowrap; overflow: hidden; }

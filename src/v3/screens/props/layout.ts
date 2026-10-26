@@ -10,14 +10,45 @@ export const PEEK_EST = 480;
 /** Width the text column of a row has at this column width: the column less its gutters, the avatar, the gaps and the price pill. */
 export const textColumn = (colW: number) => colW - 32 - 40 - 20 - 58;
 
-const STAT_CHAR = 7.1; // 13.5px Geist, medium
+const STAT_CHAR = 7.1; // 13.5px Geist, medium (used only where the browser cannot measure text)
 const CHIP_CHAR = 5.2; // 11px Geist, medium
 const CHIP_PAD = 18; // 8 + 8 padding, 2 border
 const GAP = 6;
 
-/** True when the statistic and the opponent chip fit on one line at this column width (with a small safety margin). */
-export function chipBeside(statText: string, chipText: string, colW: number): boolean {
-  return statText.length * STAT_CHAR + GAP + chipText.length * CHIP_CHAR + CHIP_PAD <= textColumn(colW) - 4;
+let ctx2d: CanvasRenderingContext2D | null | undefined;
+let fontUi = '';
+let fontNum = '';
+/** The width of `text` in the font the stylesheet gives it, or null where the browser cannot measure (tests, very old engines). */
+function measure(text: string, weight: number, size: number, family: 'ui' | 'num'): number | null {
+  if (typeof document === 'undefined' || (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent))) return null;
+  if (ctx2d === undefined) {
+    try { ctx2d = document.createElement('canvas').getContext('2d'); } catch { ctx2d = null; }
+  }
+  if (!ctx2d) return null;
+  if (!fontUi) {
+    const cs = getComputedStyle(document.querySelector('.v3') ?? document.body);
+    fontUi = cs.getPropertyValue('--f-ui').trim() || 'sans-serif';
+    fontNum = cs.getPropertyValue('--f-num').trim() || fontUi;
+  }
+  ctx2d.font = `${weight} ${size}px ${family === 'ui' ? fontUi : fontNum}`;
+  const w = ctx2d.measureText(text).width;
+  return Number.isFinite(w) && w > 0 ? w : null;
+}
+
+/** Forget the cached fonts (a web font finished loading: widths measured before it are wrong). */
+export const resetMeasure = () => { fontUi = ''; fontNum = ''; ctx2d = undefined; };
+
+/**
+ * True when the statistic ("Receptions 3+") and the opponent chip fit on one line at this column width. Measured in the real fonts where
+ * the browser can; the CSS forces the layout chosen here (nowrap, or wrap), so the prediction can never disagree with what is painted.
+ */
+export function chipBeside(label: string, rung: string, chipText: string, colW: number): boolean {
+  const stat = measure(`${label} `, 500, 13.5, 'ui');
+  const k = measure(rung, 700, 13.5, 'num');
+  const chip = measure(chipText, 500, 11, 'ui');
+  const statW = stat != null && k != null ? stat + k : (label.length + 1 + rung.length) * STAT_CHAR;
+  const chipW = chip != null ? chip : chipText.length * CHIP_CHAR;
+  return statW + GAP + chipW + CHIP_PAD + 6 <= textColumn(colW);
 }
 
 export const rowHeight = (wrap: boolean) => (wrap ? ROW_H_WRAP : ROW_H);

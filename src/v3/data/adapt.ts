@@ -59,7 +59,7 @@ const OPEN = (m: Market) => !m.market_status || /^(OPEN|ACTIVE|UNOPENED)$/i.test
 /** The full-game contract (publications spell the period "FULL", "FULL_GAME", "full_game" or leave it out). */
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
 
-function priceOf(m: Market): Price {
+export function priceOf(m: Market): Price {
   const ask = cents(m.yes_ask);
   const bid = cents(m.yes_bid);
   const mid = ask != null && bid != null ? (ask + bid) / 2 : ask;

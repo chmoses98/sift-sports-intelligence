@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from '../../routing';
 import { ago, breakEvenPct, clockTime, dayWord, fmtCents, quoteState, showAsk, takerFeeCents } from '../model/format';
+import { routes } from '../nav/routes';
+import { GAME_TABS, type GameTab } from '../nav/schemas';
 import { usePrefs } from '../state/prefs';
 import type { MarketLine, Price, V3Game } from '../model/types';
 import { Icon } from './Icon';
 import { useSheet } from './Sheet';
 
-export const gameHref = (g: Pick<V3Game, 'slug' | 'eventId'>, tab?: string) => `/v3/game/${g.slug}/${encodeURIComponent(g.eventId)}${tab ? `?tab=${tab}` : ''}`;
+/** A game's address, built by the one route builder. A tab this vocabulary does not know (or the default one) is left out. */
+export const gameHref = (g: Pick<V3Game, 'slug' | 'eventId'>, tab?: string) => routes.game({ slug: g.slug, eventId: g.eventId }, tab && (GAME_TABS as readonly string[]).includes(tab) ? { tab: tab as GameTab } : {});
 export const teamHref = (t: { slug: string; id: string }) => `/v3/team/${t.slug}/${encodeURIComponent(t.id)}`;
 
 export const leagueLabel = (g: Pick<V3Game, 'sport'>) => (g.sport === 'CFB' ? 'NCAAF' : g.sport === 'CBB' ? 'NCAAB' : g.sport);

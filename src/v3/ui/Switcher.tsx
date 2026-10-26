@@ -42,7 +42,7 @@ export function SwitcherRail({ current, games, tab }: { current: V3Game; games: 
     const el = rail.current?.querySelector<HTMLElement>('[data-current]');
     if (el && rail.current) rail.current.scrollLeft = Math.max(0, el.offsetLeft - 10);
   }, [current.key]);
-  const go = (g: V3Game) => { if (g.key !== current.key) nav(`${gameHref(g)}${tab && tab !== 'main' ? `?tab=${tab}` : ''}`); };
+  const go = (g: V3Game) => { if (g.key !== current.key) nav(gameHref(g, tab)); };
   return (
     <nav className="v3-sw" aria-label="Switch game">
       <div className="v3-sw__rail" ref={rail}>
@@ -90,7 +90,7 @@ export function Picker({ current, games, tab }: { current: V3Game; games: V3Game
   const shown = list.filter((g) => matches(g) && (query ? true : bySeg(g)));
   const favs = shown.filter((g) => isFavorite(g, f));
   const rest = shown.filter((g) => !isFavorite(g, f));
-  const go = (g: V3Game) => nav(`${gameHref(g)}${tab && tab !== 'main' ? `?tab=${tab}` : ''}`);
+  const go = (g: V3Game) => nav(gameHref(g, tab));
   const SEGS: [Seg, string][] = [['live', `Live (${counts.live})`], ['today', 'Today'], ['upcoming', 'Upcoming'], ['final', 'Final']];
   return (
     <div className="v3-pk">

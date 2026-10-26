@@ -20,12 +20,12 @@ try:
     q.open('/v3?demo=1', settle=9)
     click('.v3-feat .v3-btn')
     check('A1 Home Game Center opens Game Detail', '/v3/game/cfb/demo_uga_fla' in H(), H())
-    click('.v3-tabs button', 2)  # Matchup
-    check('A2 tab selects Matchup', 'tab=matchup' in H(), H())
+    click('.v3-tabs button', 1)  # Props (college football has Overview and Props only; the Matchup tab is NFL's)
+    check('A2 tab selects Props', 'tab=props' in H(), H())
     click('.v3-sw__tile:not(.is-cur) .v3-sw__hit')
-    check('A3 rail tile switches game and keeps Matchup tab', '/v3/game/cfb/' in H() and 'demo_uga_fla' not in H() and 'tab=matchup' in H(), H())
+    check('A3 rail tile switches game and keeps the Props tab', '/v3/game/cfb/' in H() and 'demo_uga_fla' not in H() and 'tab=props' in H(), H())
     q.js('history.back()'); q.wait(1.2)
-    check('A4 Back returns to previous game with its tab', 'demo_uga_fla' in H() and 'tab=matchup' in H(), H())
+    check('A4 Back returns to previous game with its tab', 'demo_uga_fla' in H() and 'tab=props' in H(), H())
     # rail star independence
     click('.v3-sw__all'); check('A5 picker opens', sheet())
     n0 = H(); click('.v3-pk__row .v3-star', 1)

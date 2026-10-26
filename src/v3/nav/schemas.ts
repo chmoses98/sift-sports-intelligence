@@ -8,6 +8,7 @@ export const PLAYER_TABS = ['overview', 'props', 'matchup', 'log', 'replay'] as 
 export const TEAM_TABS = ['overview', 'profile', 'form', 'players', 'schedule'] as const;
 export const STAT_TABS = ['ranking', 'trend', 'compare', 'about'] as const;
 export const GAME_TABS = ['overview', 'script', 'matchup', 'props', 'stats'] as const;
+export type GameTab = (typeof GAME_TABS)[number];
 
 export const playerSchema = defineSchema({
   screen: 'player',

@@ -65,3 +65,34 @@ Prices are shown clean and update automatically. The interface never shows stale
 ## Team pages
 
 Same system: ice for offense, amber for defense, cyan for selection only. Opponent-adjusted and raw statistics are never mixed in one list. Ranks are shown with the universe the publication used (for example "of 28" teams in the current packet). A statistic SIFT does not publish is shown as a locked row with the reason. Team pages carry no SIFT model lane.
+
+## Universal semantic navigation (locked 2026-10-26)
+
+Every identity, number and object is a tap target with one meaning, on every screen:
+
+| Tap | Goes to |
+| --- | --- |
+| A team (logo, name, abbreviation, team pill) | Team Research for that team |
+| A statistic, rank, value or percentile | Stat Detail for that statistic, ranking tab, with the selected team or player highlighted |
+| A player (photo, name) | Player Research |
+| A prop, a prop count, "props today" | Prop Discovery, filtered to the team, player or stat in view |
+| A price on a contract | The exact-contract sheet |
+| A game, score, result row or matchup strip | Game Detail |
+
+When one row holds several targets, the row body opens the row's main object and each logo, rank, player and price opens its own. Hit areas are at least 44 points. **Back restores the previous state exactly**: scroll position, selected tab, window, filters, sort, compare selection, and any expanded row; sheets are closed.
+
+## Sports and extensibility
+
+Each sport declares what it publishes (team statistics and windows, rankings, per-game series, availability, players, schedule) and whether that data is current. A section appears only when the sport supplies it **and it is current**; otherwise the section is absent or a locked row says why. NFL and NHL are supported first. MLB team profiles exist but the publication says they are a one-off cache that stops in late August, so MLB Team Research is not shown until its data is current; the late-August cache is never presented as current. A new sport adds a declaration and its documents, not new screens.
+
+## Hockey records
+
+NHL records are always wins, losses and overtime losses, shown separately (for example 7–4–2). Overtime losses are derived from the official points percentage (points = percentage × 2 × games played) because per-game overtime flags are not published.
+
+## Game times
+
+Start times come from the league schedule (the explorer publication), never from Kalshi event metadata. A contract's closing time is separate and not shown as the start.
+
+## Statistic screens
+
+Ranking, Trend, Compare and About share one header. Raw and opponent-adjusted versions of a statistic are separate statistics with their own rankings and windows and are never mixed in one list or subtracted into a derived "effect". A selected team or player is highlighted with a cyan outline; a next opponent with a dashed outline. Player-level league rankings are not published, so player comparisons use game-log values and show the missing rank as a locked row.

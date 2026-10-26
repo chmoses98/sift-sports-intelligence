@@ -63,17 +63,32 @@ Short answer: **yes, but its cadence is not the bottleneck.** Its effective late
 
 Not recommended: authenticated Kalshi access or websockets (needs credentials; SIFT's design is read-only and secret-free), and Cloudflare Workers egress (Kalshi returned 429 to 16 of 17 requests on 2026-10-04). Vercel Hobby is non-commercial; if SIFT becomes commercial, Pro is $20 a month.
 
-## Internal quote-usability rule (engineering configuration, never shown)
+## Decisions (2026-10-26, approved)
 
-One shared function decides whether a quote may be displayed, per context. Defaults proposed for approval:
+- **Missing price.** Lists show "—" in the price pill with no warning text. An exact contract with no reliable quote shows "Price unavailable right now" and Retry, with the price-dependent fee and break-even rows hidden. Nothing else changes visibly.
+- **No visible freshness.** No stale labels, ages, badges or last-updated text anywhere.
+- **The proposed 15-minute maximum for list prices is rejected.**
+- Items 1 to 3 of the improvement plan below are authorized for a **focused, separately reviewed implementation**. Nothing is to be merged or deployed until tests, call volumes, failure behaviour and production isolation have been reviewed. Item 4 (bulk relay endpoint) is to be investigated next and not deployed.
 
-| Context | May display a stored quote if its observation is | The contract sheet |
-| --- | --- | --- |
-| Lists (Prop Discovery rows, team and game lines), event more than 2 h away | 15 min old or less | n/a |
-| Lists, event within 2 h or live | 3 min old or less | n/a |
-| Exact contract, any time | n/a | Refresh on open (relay, then feed). Show the price if the refresh succeeded or the stored quote is within 30 s (event within 2 h or live) or 2 min (otherwise). |
+## Internal quote-usability rule (configuration, never shown)
 
-When a quote does not pass: a list row shows "—" in the price pill with no explanatory copy; the exact contract shows a single plain "Price unavailable right now" state with Retry, and the fee and break-even rows are not shown (they derive from the ask). That failure state is the only visible consequence and is subject to your approval. No timestamps, ages or badges appear in any case. The existing FRESH/AGING/STALE thresholds in `src/live/freshness.ts` (15 and 30 minutes) remain for ChatGPT packets only.
+A quote may be displayed only if its **observation timestamp** is within the maximum age for its context. The timestamp that counts is the time Kalshi's data was observed (`observed_at`: the relay's `X-Sift-Observed-At`, the feed's per-market `observed_at`), not the time a request was made and not whether the request returned HTTP 200. These are the initial values, to be validated against measurement:
+
+| Context | Maximum age of the observation |
+| --- | --- |
+| List, start more than 2 hours away | 180 s |
+| List, start within 2 hours | 90 s |
+| List, live | 60 s |
+| Exact contract, start more than 2 hours away | 60 s |
+| Exact contract, start within 2 hours or live | 30 s |
+
+The exact contract refreshes when it opens (relay first, then feed). A quote older than its limit is not displayed; the screen shows the missing-price state above. Start time comes from the league schedule, never from Kalshi event metadata; a contract's closing time is separate and is not used for these tiers.
+
+Validation rules: reject an observation timestamp that is missing, unparseable, or more than 5 seconds in the future of the device clock after correcting for the relay's own `Date` header; treat a response whose newest observation is older than the limit as a failed refresh even if it was HTTP 200; never let an older observation replace a newer one (already true in `overlay.ts`).
+
+**Measured metric: reliable price availability.** For each screen that shows prices, record every time a price slot is rendered and whether a quote within its maximum age was available. Report availability per context and per provider (relay, feed) as a percentage, plus the median and 95th-percentile observation age at render. Target to be set after the first measured week. The feed alone cannot meet any of the list limits (its measured publish interval is 211 s and its worst case about 8.5 minutes), so the relay must carry every visible price.
+
+The existing FRESH/AGING/STALE thresholds in `src/live/freshness.ts` (15 and 30 minutes) remain for ChatGPT packets only.
 
 ## Monitoring (internal)
 
@@ -84,3 +99,37 @@ When a quote does not pass: a list row shows "—" in the price pill with no exp
 ## Not examined
 
 Vercel dashboard usage and limits; the log contents of individual feed loops; the cause of the 80 to 111 minute intervals; the unrelated "Sprint features" failure in Production check. None of these changed anything.
+
+## Authorized implementation: items 1 to 3 (specification for the separate review)
+
+Branch and PR: separate from PR #147, its own review. Not merged or deployed until the review below is complete.
+
+**Item 1: relay-first refresh on new screens.**
+- Scopes: visible price rows at `game` cadence (45 s) through the relay in batches of at most 100 tickers; the selected contract at `detail` (20 s); list-wide background data from the feed at `slate`. Pause when the tab is hidden; refresh immediately on visible, focus and online (existing).
+- Exact contract: on open, `refreshNow([ticker])` with the existing 8 s bound, relay first, feed second; show the price only if the result passes the usability rule.
+- A shared `quoteUsable(quote, context, now)` function applies the table above; list and contract views use it and nothing else decides display.
+- **Call volumes.** Visible rows are about 30 tickers (one batch) per 45 s per active user: about 80 relay invocations per hour; the contract adds 3 per minute while open. Vercel Hobby allows 1,000,000 invocations a month, so about 12,000 user-hours. The full 902-contract universe is never polled (ten batches per cycle).
+- **Failure behaviour.** Relay failure or 429: back off per `Retry-After`, fall back to the feed; if the feed's observation is over the limit, show the missing-price state. Both fail: missing-price state, Retry on the contract.
+- **Tests.** Unit: `quoteUsable` for every row of the table and boundaries (exactly at the limit, one second over, missing, future timestamp, 200 with old data); store scope registration, pause and resume; contract open refresh with relay success, relay 429, relay timeout, both failing. Component: the missing-price states in lists and the contract sheet, with fee and break-even hidden. Regression: existing live-quote tests and the packet preflight unchanged.
+- **Isolation.** New code under `src/v3` and `src/live` additions only; no change to the packet path or v4 screens; no workflow or relay change in this item.
+
+**Item 2: feed heartbeat.**
+- `publish-live-quotes.mjs` writes `health.json` beside `index.json` on every successful cycle: run id, loop start, sequence number, cycle start and finish, sweep duration, request count, per-sport status, last success.
+- Isolation: file addition only; consumers ignore unknown files; the feed schema (`sift.live_quotes.v1`) and per-game files are unchanged. Tested with the existing `feed-publisher` tests plus a heartbeat shape test. Deployed through the existing `live-quotes` loop only after review.
+
+**Item 3: independent monitor every 15 minutes.**
+- A new small workflow (`quote-monitor.yml`), read-only: fetches `health.json`, one game file and one relay quote batch; fails the run, and so emails through GitHub, when the newest feed `generated_at` is more than 10 minutes old, the heartbeat sequence has not advanced, or the relay returns non-200 or only observations older than 60 s. No secrets; no writes; `permissions: contents: read`; its own concurrency group so it cannot affect `live-quotes`.
+- Failure behaviour of the monitor itself: a skipped scheduled run is possible (the scheduler is unreliable); the daily Production check relay smoke remains as a second line.
+
+Review checklist before any merge or deploy: tests green; call-volume numbers re-measured with the smoke tooling; failure behaviour demonstrated for each row above; confirmation that `live-quotes.yml`, `relay/` and the packet path are untouched by items 1 and 3 and that item 2 only adds a file.
+
+## Bulk relay efficiency (investigation, item 4, not deployed)
+
+Findings from the published feed for 2026-10-26 (no Kalshi calls were made for this):
+
+- Today's whole prop universe is 902 contracts in **14 distinct series**: NFL 5 (`KXNFLPASSYDS`, `KXNFLREC`, `KXNFLRECYDS`, `KXNFLRSHYDS`, `KXNFLTD`), NHL 3 (`KXNHLAST`, `KXNHLGOAL`, `KXNHLPTS`, shared by all three games), MLB 6. Per game: NFL 299 contracts, NHL 137 to 147, MLB 178.
+- Fetching by ticker needs 10 batches of 100 for the full slate. Fetching by series needs **14 requests for the whole slate**, and the three NHL games are covered by 3 requests together because a series spans the day's games. A single game's props need 3 to 6 series requests.
+- Kalshi's per-IP budget is about 14 requests in a burst refilling about 3 a second. A 14-request slate sweep sits exactly at the burst size, so it must be paced (about 300 ms apart) and cached.
+- A relay endpoint returning only `ticker, yes_bid, yes_ask, volume, status, observed_at` would shrink answers from about 2.3 KB to roughly 150 bytes per contract: the whole slate under 150 KB, against about 2 MB passed through today.
+- Recommended shape for review: `GET /slate?sport=NHL&date=…` swept by series with single-flight, cached at the edge for 30 to 45 s (`s-maxage` plus `stale-while-revalidate`), which keeps Kalshi traffic at one sweep per sport per window regardless of how many users are connected, and answers the 60 s list limit with room to spare.
+- Open questions: whether a series request can return more than 1,000 markets (NHL goals: about 300 contracts today, fine); the exact response size per series; how Vercel Hobby limits behave under a slate-wide cache. To be measured with the existing relay-smoke tooling before any build.

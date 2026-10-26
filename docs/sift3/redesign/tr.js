@@ -21,7 +21,7 @@
   /* ---------- team context */
   const DAL = T.DAL, TOR = T.TOR;
   DAL.win = 'SEASON'; TOR.win = '2026-27';
-  const rec = (t) => `${t.record[0]}–${t.record[1]}${t.record[2] ? '–' + t.record[2] : ''}`;
+  const rec = (t) => (t.record3 ? t.record3.join('–') : `${t.record[0]}–${t.record[1]}${t.record[2] ? '–' + t.record[2] : ''}`); // NHL: wins, losses, overtime losses, kept separate
   const games = (t, n) => t.games.filter((g) => g.st === 'FINAL').slice(-n);
   const nextG = (t) => t.upcoming[0];
   const oppAbbr = (g) => g.opp;
@@ -35,7 +35,7 @@
   const trBar = (t) => `<div class="trbar" ${st('ok', 'BUILT')}><span class="ib">${I('back', 24)}</span>${lgx(t.sport, t.abbr, 30)}<b>${t.name}</b><span class="chip rec"><b class="num">${rec(t)}</b></span><span class="tr"><span class="ib">${I('star', 22)}</span></span></div>`;
   const trTabs = (on) => `<div class="tabs">${['Overview', 'Profile', 'Form', 'Players', 'Schedule'].map((x) => `<a class="${x === on ? 'on' : ''}">${x}</a>`).join('')}</div>`;
   const nextCard = (t) => { const g = nextG(t), away = g.ha === 'AWAY', me = lgx(t.sport, t.abbr, 34), op = lgx(t.sport, g.opp, 34);
-    const gk = Object.values((window.PD || { games: {} }).games).find((x) => x[0] === t.sport && [x[1], x[2]].includes(t.abbr) && [x[1], x[2]].includes(g.opp)), when = gk ? gk[3] : `${dayName(g.t)} ${clock(g.t)}`;
+    const when = `${dayName(g.t)} ${clock(g.t)}`; // start time comes from the league schedule (explorer), never from Kalshi event metadata
     const total = t.sport === 'NFL' ? ' · O/U 43.5' : '';
     return `<div class="card gstrip" ${st('ok', 'BUILT')}>${me}<div class="c"><b>${away ? 'at' : 'vs'} ${g.opp} · ${when}</b><span>${away ? 'Away' : 'Home'}${total}</span></div>${op}<span class="go">${I('chevR', 18)}</span></div>`; };
   const propsRow = (t) => { const ps = propsOf(t); const fams = [...new Set(ps.map((p) => p.label || p.fam))]; const names = new Set(ps.map((p) => p.name)).size;
@@ -157,13 +157,13 @@
     const t = DAL, av = t.avail.filter((a) => a.status !== 'ACTIVE').map(parseAv).filter(Boolean);
     const out = av.filter((a) => a.status === 'OUT'), other = av.filter((a) => a.status !== 'OUT');
     const propCount = (name) => PR.filter((p) => p.name === name && p.team === t.abbr).length;
-    const roster = t.players.filter((p) => ['QB', 'RB', 'WR', 'TE'].includes(p.role)).sort((a, b) => propCount(b.display_name) - propCount(a.display_name)).slice(0, 5);
+    const roster = t.players.filter((p) => ['QB', 'RB', 'WR', 'TE'].includes(p.role)).sort((a, b) => propCount(b.display_name) - propCount(a.display_name)).slice(0, 6);
     const avRow = (a) => `<div class="avr"><span class="ps">${a.pos}</span><div class="nm"><b>${a.name}</b><span>${a.why}${a.ret ? ' · return ' + md(a.ret + 'T12:00:00Z') : ''}</span></div><span class="chip ${a.status === 'OUT' ? 'bad' : 'amb'}">${a.status === 'OUT' ? 'Out' : a.status === 'INJURED_RESERVE' ? 'IR' : a.status}</span></div>`;
     const plRow = (p) => { const c = propCount(p.display_name), ph = photoOf(p.display_name), isOut = out.some((a) => a.name === p.display_name);
       return `<div class="plr"><span class="av4" style="--s:38px">${ph ? `<img src="assets/players/${ph}.webp" alt="">` : lgx(t.sport, t.abbr, 26)}</span><div class="nm"><b>${p.display_name}</b><span>${p.role}</span></div>${isOut ? '<span class="chip bad">Out</span>' : c ? `<span class="pcnt">${c} ${c === 1 ? 'prop' : 'props'} <i>›</i></span>` : '<span class="pcnt dim">no props</span>'}</div>`; };
     return `<div class="scr">${trBar(t)}${trTabs('Players')}
       <div class="trbody"><div class="card avc" ${st('ok', 'BUILT')}><div class="exh"><span class="eyebrow">Availability</span><span class="cn"><b>${out.length}</b> out${other.length ? ` · <b>${other.length}</b> on IR` : ''}</span></div>${[...out, ...other].slice(0, 4).map(avRow).join('')}${av.length > 4 ? `<div class="more">${av.length - 4} more ${I('chevR', 14)}</div>` : ''}</div>
-      <div class="card olc" ${st('wire', 'WIRE')}>${I('info', 15, TH.info)}<span>No pass-block or run-block grades are captured, so no offensive-line quality metric is reported. Linemen who are out are listed above.</span></div>
+      <div class="olc" ${st('wire', 'WIRE')}>${I('info', 14, TH.info)}<span>Offensive-line quality is not published</span><i class="why">Why ${I('chevR', 12)}</i></div>
       <div class="exh" style="margin:6px 4px 0"><span class="eyebrow">Skill players</span><span class="seeall">All ${t.players.length} ${I('chevR', 14)}</span></div>
       <div class="card plist2" ${st('wire', 'WIRE')}>${roster.map(plRow).join('')}</div></div></div>${chrome('Games')}`;
   }

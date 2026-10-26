@@ -46,9 +46,9 @@
 
 <main>
 <header class="hero">
-  <span class="eyebrow">Design review · design only · nothing here is built</span>
-  <h1>Team Research, <em>in the locked system</em></h1>
-  <p>One page per team that answers four questions: what kind of team is it, how does it compare and is that changing, what has been happening, and who is out. Ink and graphite palette, ice for offense and amber for defense, cyan only for selection, the same Built / Wire / New status layer, and no freshness clutter.</p>
+  <span class="eyebrow">Locked · design only · nothing here is built</span>
+  <h1>Team Research, <em>locked</em></h1>
+  <p>All six screens are approved with four corrections applied below, and are locked: the palette and layouts are not reopened. One page per team that answers four questions: what kind of team is it, how does it compare and is that changing, what has been happening, and who is out. Ink and graphite palette, ice for offense and amber for defense, cyan only for selection, the same Built / Wire / New status layer, and no freshness clutter.</p>
   <div class="banner"><span><b>Data on screen is real.</b> Dallas Cowboys (NFL) and Toronto Maple Leafs (NHL) from SIFT’s own explorer team profiles, captured 2026-10-26. Tap “Show data status” on any screen.</span></div>
   <div class="banner"><span class="tag built">BUILT</span><span>in v3 with real data</span><span class="tag wire">WIRE</span><span>published, not read by v3 yet</span><span class="tag new">NEW</span><span>needs data SIFT does not publish</span></div>
 </header>
@@ -98,7 +98,7 @@
     <div class="phone"><img src="out/tr5.png" alt="Team Players and availability"><button class="toggle" aria-pressed="false">Show data status</button></div>
     <div class="body"><h3><span class="id">TR5</span>Players: availability and today’s props</h3>
       <dl class="kv"><div><dt>Question</dt><dd>Who is out, and where are the props?</dd></div>
-      <div><dt>Workflow</dt><dd>Out and injured-reserve players with position, reason and return date (Dallas: 3 out, 2 on IR), a plain note that no offensive-line quality metric is captured, then the skill players ordered by how many props they have today, each opening Player Research or Prop Discovery for that player.</dd></div>
+      <div><dt>Workflow</dt><dd>Out and injured-reserve players with position, reason and return date (Dallas: 3 out, 2 on IR), then a one-line note with a “Why” disclosure (offensive-line quality is not published, so no metric is invented), then the skill players, six rows visible, ordered by how many props they have today, each opening Player Research or Prop Discovery for that player.</dd></div>
       <div><dt>Taps</dt><dd>Player row → Player Research. “All 13” → full roster. Availability row → the player.</dd></div>
       <div><dt>Honesty</dt><dd>Players with no props say “no props”. Active players are not listed as injuries.</dd></div>
       <div><dt>Data</dt><dd><span class="tag built">BUILT</span> roster and injuries (already in v3). <span class="tag wire">WIRE</span> per-player prop counts (join to the quote feed).</dd></div></dl></div>
@@ -107,7 +107,7 @@
     <div class="phone"><img src="out/tr6.png" alt="Team Overview, Toronto"><button class="toggle" aria-pressed="false">Show data status</button></div>
     <div class="body"><h3><span class="id">TR6</span>Overview, hockey (Toronto)</h3>
       <dl class="kv"><div><dt>Question</dt><dd>Does the same page work for another sport?</dd></div>
-      <div><dt>Workflow</dt><dd>Same structure, sport-specific content: goals for against goals against, expected goals, special teams (power play and penalty kill), season or last 10, and the last eight results. Toronto is 7–6 and ranks 5th in scoring and 14th in goals against.</dd></div>
+      <div><dt>Workflow</dt><dd>Same structure, sport-specific content: goals for against goals against, expected goals, special teams (power play and penalty kill), season or last 10, and the last eight results. Toronto is <b>7–4–2</b> (wins, losses and overtime losses kept separate, matching the official report) and ranks 5th in scoring and 14th in goals against. Its next game is at Calgary, <b>Mon 8:30 PM ET</b>, from the league schedule.</dd></div>
       <div><dt>Taps</dt><dd>Same as TR1. The window switch is 2026–27 or L10.</dd></div>
       <div><dt>Honesty</dt><dd>The 5v5 opponent-adjusted set is on Profile with its own window label. Model-expected-goals rows exist in the publication but are model output and are not shown.</dd></div>
       <div><dt>Data</dt><dd><span class="tag built">BUILT</span> schedule, results, record, roster and injuries. <span class="tag wire">WIRE</span> season and L10 statistics, special teams, props link.</dd></div></dl></div>
@@ -121,9 +121,9 @@
     <tbody>
       <tr><td>NFL</td><td>53 metrics in three windows (season, last 6, last 34), raw and opponent-adjusted, with rank and percentile</td><td>51 rows, 2024 to 2026, results included</td><td>13 players; 25 availability rows (20 active, 3 out, 2 injured reserve)</td><td>Adjusted offense and defense rankings for 28 teams</td><td>Current (data as of 2026-10-26 19:00Z)</td></tr>
       <tr><td>NHL</td><td>24 metrics: season, previous season, last 10, special teams, 5v5 adjusted (five are model output and are not shown)</td><td>83 rows</td><td>27 players; 10 on injured reserve</td><td>Season rankings, 32 teams</td><td>Current</td></tr>
-      <tr><td>MLB</td><td>49 metrics</td><td>162 rows</td><td>none</td><td>Rankings exist</td><td>Research cache that stops in late August; not refreshed</td></tr>
+      <tr><td>MLB</td><td>49 metrics</td><td>162 rows</td><td>none</td><td>Rankings exist</td><td><b>Not shown</b>: research cache stops in late August and is not refreshed</td></tr>
     </tbody></table></div>
-  <p class="dim sm">MLB is the open question for Team Research: the explorer has team profiles, but the publication says it is a one-off research cache that stops in late August and is not on a refresh cadence. Recommendation: build Team Research for NFL and NHL first and show MLB only when its data is current.</p>
+  <p class="dim sm">MLB Team Research is held until its team data is current; NFL and NHL are built first and the structure stays extensible to other sports.</p>
 </section>
 
 <section style="display:grid;gap:16px">
@@ -146,15 +146,27 @@
     </tbody></table></div>
 </section>
 
-<section style="display:grid;gap:14px">
-  <div><span class="eyebrow">5 · Your call</span><h2>Before anything is built</h2></div>
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">5 · Corrections applied</span><h2>Four fixes, then locked</h2></div>
   <ol class="ask">
-    <li><b>Approve TR1 to TR6,</b> or name the screen to change.</li>
-    <li><b>MLB:</b> build Team Research for NFL and NHL first, and hold MLB until its team data is current (recommended).</li>
-    <li><b>Game times:</b> the NHL explorer says Toronto at Calgary starts 8:30 PM ET while the Kalshi event implies 9:00 PM. These mockups use the quote feed’s time; one schedule source should be chosen before building.</li>
-    <li><b>Next design:</b> Stat Detail and League Rankings, the destination of every tappable rank here.</li>
+    <li><b>NHL record.</b> Toronto reads 7–4–2. Overtime losses are derived from the official points percentage (0.6154 over 13 games is 16 points: 7 wins, 2 overtime losses, 4 losses) and kept separate across every NHL screen. Per-game overtime flags are not published, so individual loss rows stay plain losses.</li>
+    <li><b>Game times.</b> TOR at CGY is 8:30 PM ET on October 26, from the league schedule. Start times never come from Kalshi event metadata, and contract closing times are kept separate. The same correction is applied to the Prop Discovery rows for that game (they had inherited 9:00 PM); I checked the other four games and they already match.</li>
+    <li><b>TR5.</b> The offensive-line explanation is now one line with a “Why” disclosure, and the player list gets six visible rows.</li>
+    <li><b>Navigation.</b> The contract below is locked for every screen.</li>
   </ol>
-  <p class="dim sm">Source of every number: docs/sift3/redesign/teams.js, a frozen snapshot of SIFT’s own NFL and NHL explorer team profiles and two adjusted rankings (captured 2026-10-26). Quote delivery for the prices on these pages: docs/sift3/QUOTE_DELIVERY.md. Mockup chrome is for presentation only.</p>
+  <div class="card scroll"><table>
+    <thead><tr><th>Tap</th><th>Goes to</th></tr></thead>
+    <tbody>
+      <tr><td>A team (logo, name, abbreviation)</td><td>Team Research for that team</td></tr>
+      <tr><td>A statistic, rank, value or percentile</td><td>Stat Detail, ranking tab, with the team or player highlighted</td></tr>
+      <tr><td>A player (photo, name)</td><td>Player Research</td></tr>
+      <tr><td>A prop, “props today”</td><td>Prop Discovery, filtered to the team, player or stat</td></tr>
+      <tr><td>A game, score, result row, matchup strip</td><td>Game Detail</td></tr>
+      <tr><td>A price on a contract</td><td>The exact-contract sheet</td></tr>
+    </tbody></table></div>
+  <p class="dim sm"><b>Back restores the previous state exactly</b> (scroll, tab, window, filters, sort, compare selection, expanded row). When a row holds several targets the row body opens the row’s main object and each logo, rank, player and price opens its own; hit areas are at least 44 points.</p>
+  <div class="card"><h3>Sports and extensibility</h3><p class="sm">Each sport declares what it publishes and whether that data is current; a section appears only when it is both. NFL and NHL are supported first. MLB team profiles are a one-off cache that stops in late August, so MLB Team Research is <b>not shown</b> until its data is current, and the late-August cache is never presented as current. A new sport adds a declaration and its documents, not new screens.</p></div>
+  <p class="dim sm">Source of every number: docs/sift3/redesign/teams.js, a frozen snapshot of SIFT’s own NFL and NHL explorer team profiles and two adjusted rankings (captured 2026-10-26). Prices on these pages follow docs/sift3/QUOTE_DELIVERY.md. Mockup chrome is for presentation only.</p>
 </section>
 </main>
 

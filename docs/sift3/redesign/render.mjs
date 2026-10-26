@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const only = process.argv.slice(2);
-const screens = ['p1', 'p2', 'p3', 'p4', 'g1', 'g2', 'g3', 'g1dal', 'g3open', 'pd1', 'pd2', 'pd3', 'pd4', 'pd5', 'pd6', 'tr1', 'tr2', 'tr3', 'tr4', 'tr5', 'tr6'].filter((s) => !only.length || only.includes(s));
+const screens = ['p1', 'p2', 'p3', 'p4', 'g1', 'g2', 'g3', 'g1dal', 'g3open', 'pd1', 'pd2', 'pd3', 'pd4', 'pd5', 'pd6', 'tr1', 'tr2', 'tr3', 'tr4', 'tr5', 'tr6', 'sd1', 'sd2', 'sd3', 'sd4', 'sd5', 'sd6', 'sd7'].filter((s) => !only.length || only.includes(s));
 const b = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
 const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
 const page = await ctx.newPage();

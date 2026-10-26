@@ -57,3 +57,5 @@
 
 .exr .nm { min-width: 0; } .exr b.num { white-space: nowrap; }
 .exh .cn { display: inline-flex; gap: 4px; align-items: baseline; } .exh .cn b { display: inline; }
+
+.olc { display: flex; align-items: center; gap: 7px; padding: 2px 6px; font: 400 11.5px/15px var(--f-ui); color: var(--dim); } .olc svg { flex: none; } .olc .why { margin-left: auto; font-style: normal; font-weight: 600; color: #5fe0ee; display: inline-flex; align-items: center; }

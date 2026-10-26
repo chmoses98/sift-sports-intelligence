@@ -11,7 +11,7 @@ describe('saved research schema', () => {
     expect(r).toMatchObject({ id: 'rabc', title: legacy.title, subtitle: legacy.subtitle, savedAt: legacy.savedAt, kind: 'player', sport: 'nfl', sv: 0 });
     expect(r.snapshot).toEqual(legacy.snapshot);
     // The route still carries the line, the window and the filter, now in the versioned vocabulary.
-    expect(r.route).toBe('/v3/player/nfl/p1?v=1&stat=rec&line=6&site=away');
+    expect(r.route).toBe('/v3/player/nfl/p1?v=2&stat=rec&line=6&site=away');
   });
   it('migrates legacy statistic routes to the current vocabulary', () => {
     const r = reviveSaved({ ...legacy, route: '/v3/stat/nfl/adj_off_epa?tab=rankings&team=PHI' })!;
@@ -19,8 +19,8 @@ describe('saved research schema', () => {
     expect(r.kind).toBe('stat');
   });
   it('keeps a record saved under the current version as it is', () => {
-    const r = reviveSaved({ ...legacy, route: '/v3/player/nfl/p1?v=1&stat=rec&line=6' })!;
-    expect(r.sv).toBe(1);
+    const r = reviveSaved({ ...legacy, route: '/v3/player/nfl/p1?v=2&stat=rec&line=6' })!;
+    expect(r.sv).toBe(2);
     expect(reviveSaved(r)).toEqual(r);
   });
   it('rejects what cannot be opened and never throws', () => {
@@ -45,14 +45,14 @@ describe('saved research schema', () => {
   });
   it('revives a stored list: drops the unusable, de-duplicates routes, makes ids unique', () => {
     const list = reviveSavedList([legacy, { ...legacy, id: 'rzzz' }, { ...legacy, route: '/v3/team/nfl/DAL', id: 'rabc' }, { nonsense: true }, null]);
-    expect(list.map((x) => x.route)).toEqual(['/v3/player/nfl/p1?v=1&stat=rec&line=6&site=away', '/v3/team/nfl/DAL']);
+    expect(list.map((x) => x.route)).toEqual(['/v3/player/nfl/p1?v=2&stat=rec&line=6&site=away', '/v3/team/nfl/DAL']);
     expect(new Set(list.map((x) => x.id)).size).toBe(list.length);
     expect(reviveSavedList('garbage')).toEqual([]);
   });
   it('finds a saved record however its route is spelled', () => {
     const list = reviveSavedList([legacy]);
     expect(findSaved(list, '/v3/player/nfl/p1?site=away&stat=rec&line=6&win=L10')?.id).toBe('rabc');
-    expect(findSaved(list, '#/v3/player/nfl/p1?v=1&stat=rec&line=6&site=away')?.id).toBe('rabc');
+    expect(findSaved(list, '#/v3/player/nfl/p1?v=2&stat=rec&line=6&site=away')?.id).toBe('rabc');
     expect(findSaved(list, '/v3/player/nfl/p1?stat=rec&line=7')).toBeUndefined();
   });
   it('classifies routes', () => {

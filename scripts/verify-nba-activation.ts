@@ -20,7 +20,7 @@ async function main() {
   const out = { checkedAt: new Date(now).toISOString(), url: i > 0 ? process.argv[i + 1] : projectionsUrl('NBA'), feedAgeHours: ageH, ready: r.ready, checks: r.checks, ifPromoted: r.tally };
   console.log(JSON.stringify(out, null, 1));
   if (!process.argv.includes('--json')) {
-    for (const c of r.checks) console.error(`${c.status.padEnd(7)} ${c.id}  ${c.title}: ${c.detail}`);
+    for (const c of r.checks) console.error(`${c.status.padEnd(7)} ${c.id.padEnd(3)} ${c.title}: ${c.detail}`);
     console.error(r.ready ? 'READY: the published feed behaves as the seven families need.' : 'NOT READY: see PENDING / FAIL above.');
   }
   process.exit(r.ready ? 0 : 1);

@@ -83,5 +83,5 @@
 .thB .sb2 .ra { background: #79828d; } .thB .lgd.ra { background: #79828d; }
 .thB .av3 { background: #1a1f25; border-color: #39414b; }
 .thB .lens { border-color: var(--s-raise-bd); background: linear-gradient(180deg, #1c2127, #16191e); } .thB .lens p { color: var(--t2); } .thB .lens .cc { color: var(--muted); }
-.thB .th em.tilt.off { background: rgba(234, 241, 247, .08); }
+.thB em.tilt.off { background: rgba(234, 241, 247, .08); }
 .thB .ring { background: #0a0d11; }

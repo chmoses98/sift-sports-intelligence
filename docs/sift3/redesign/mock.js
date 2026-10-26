@@ -97,7 +97,7 @@ function decideHtml(k = K0, games = LAST) {
       <div><span class="t m"><span class="sw"></span>Market</span><span class="n m">${mk}%</span><span class="s">Kalshi ask for ${k}+</span></div>
       <div><span class="t h"><span class="sw h"></span>History</span><span class="n h">${pct(h / games.length)}%</span><span class="s">${h} of ${games.length} · observed</span></div>
       <div><span class="t z"><span class="sw z"></span>SIFT model</span><span class="n z">${s != null ? s + '%' : '—'}</span><span class="s">${s != null ? `P(${k}+) · range ${PRJ.p10}–${PRJ.p90}` : 'not published at this rung'}</span></div>
-    </div><div class="foot">Three separate lanes · history is observed frequency</div></div>`;
+    </div><div class="foot">Pre-fee market implied · observed frequency · approved model estimate</div></div>`;
 }
 const winsHtml = (k, on = 1) => { const sets = [['L5', LOG.slice(-5)], ['L10', LAST], ['2026', LOG.filter((g) => g.season === 2026)], ['vs PHI', LOG.filter((g) => g.opp === 'PHI')], ['All 19', LOG]]; return `<div class="wins" ${st('ok', 'BUILT')}>${sets.map(([n, gs], i) => `<div class="${i === on ? 'on' : ''}">${n}<b>${hits(gs, k)}/${gs.length}</b></div>`).join('')}</div>`; };
 const med = (a) => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
@@ -116,11 +116,11 @@ function playerScrub() {
     return `<div class="lr ${r === k ? 'on' : ''}"><span class="rk">${r}+</span><div class="tr">${track(mk, 'm', '')}${track(hi, 'h', '')}${track(sf, 'z', '')}</div><span class="vals"><b class="m">${mk}¢</b><b class="h">${hits(g, r)}/${g.length}</b><b class="z">${sf != null ? sf + '%' : '—'}</b></span></div>`; };
   return `<div class="scr"><div class="mini"><span class="ib">${I('back', 24)}</span><img src="assets/players/dal-ceedee-lamb.webp" class="av" alt=""><div class="mt"><b>CeeDee Lamb</b><span>Receptions · at PHI · Mon 8:15 PM</span></div><span class="ib">${I('bm', 22)}</span></div>
   <div class="card chartc" style="margin-top:6px">
-    <div class="readout" ${st('new', 'NEW UI')}><span class="rk2">${k}+ <small>over ${k - 0.5}</small></span><span class="m"><i class="sw"></i>${askAt(k)}¢ <small>ask</small></span><span class="h"><i class="sw h"></i>${hits(g, k)}/${g.length} <small>hist.</small></span><span class="z"><i class="sw z"></i>${sift(k)}% <small>SIFT</small></span></div>
+    <div class="readout" ${st('new', 'NEW UI')}><span class="rk2">${k}+ <small>over ${k - 0.5}</small></span><span class="m"><b><i class="sw"></i>${askAt(k)}¢</b><small>Market</small></span><span class="h"><b><i class="sw h"></i>${hits(g, k)}/${g.length}</b><small>History</small></span><span class="z"><b><i class="sw z"></i>${sift(k)}%</b><small>SIFT model</small></span></div>
     <div ${st('wire', 'WIRE')}>${barChart({ games: g, k, h: 226, scrub: true })}</div><div class="hint">Drag the line · it snaps to the Kalshi rungs · bars recolour and every number updates</div></div>
-  <div class="card ladder" ${st('wire', 'WIRE')}><div class="lh"><span class="h2" style="font-size:17px">Alt lines</span><span class="legend"><span class="m"><i class="sw"></i>Market</span><span class="h"><i class="sw h"></i>History</span><span class="z"><i class="sw z"></i>SIFT</span></span></div>
+  <div class="card ladder" ${st('wire', 'WIRE')}><div class="lh"><span class="h2" style="font-size:17px">Alt lines</span><span class="legend"><span class="m"><i class="sw"></i>Market</span><span class="h"><i class="sw h"></i>History</span><span class="z"><i class="sw z"></i>SIFT model</span></span></div>
     <div class="axis"><span>0</span><span>50%</span><span>100</span></div>${rungs.map(row).join('')}
-    <div class="foot" style="margin-top:6px">Kalshi ask is pre-fee. SIFT publishes P(≥n) at 3+, 5+ and 7+ only; other rungs stay “—”. Lanes are never subtracted into an “edge”.</div></div></div>${chrome('Games')}`;
+    <div class="foot" style="margin-top:6px">Kalshi ask is pre-fee. The SIFT model publishes P(≥n) at 3+, 5+ and 7+ only; other rungs stay “—”. Lanes are never subtracted into an “edge”.</div></div></div>${chrome('Games')}`;
 }
 
 /* P3: research builder. Facets show what they would do BEFORE they are applied: sample size and hit rate per option. */
@@ -209,13 +209,13 @@ const pctile = (o) => Math.round(100 * (o.n - o.rank) / (o.n - 1)); // 100 = bes
 function unitFor(u, offTeam, defTeam) {
   const o = M[u.off][side[offTeam]], d = M[u.def][side[defTeam]];
   const po = pctile(o), pd = pctile(d), gap = po - pd; // offense percentile minus opposing defense percentile
-  return { u, o, d, po, pd, gap, tag: gap >= 15 ? 'off' : gap <= -15 ? 'def' : 'even' };
+  return { u, o, d, po, pd, gap, tag: gap > 15 ? 'off' : gap < -15 ? 'def' : 'even' }; // |gap| <= 15 (as displayed, whole percentile points) is Even: no direction, no arrow
 }
 const fmtV = (key, v) => (key.includes('explosive') || key.includes('sack') || key.includes('to_rate') ? (v >= 0 ? '+' : '−') + (Math.abs(v) * 100).toFixed(1) + ' pts' : sgn(v, 3));
 
 function tugRow(r, offT, defT, open = false) {
   const { u, o, d, po, pd, gap } = r, lo = Math.min(po, pd), hi = Math.max(po, pd);
-  const even = r.tag === 'even', offWins = gap > 0, win = even ? 'var(--even)' : offWins ? 'var(--off)' : 'var(--def)';
+  const even = r.tag === 'even', offWins = gap > 15, win = even ? 'var(--even)' : offWins ? 'var(--off)' : 'var(--def)';
   const winT = offWins ? offT : defT, role = offWins ? 'off' : 'def';
   // The advantaged unit is always the marker further right (higher league percentile); the gap points at it and its ring is bolder.
   const tilt = even ? `<em class="tilt even">Even ${gap >= 0 ? '+' : '−'}${Math.abs(gap)}</em>` : `<em class="tilt ${role}"><i class="ring ${role}">${lg(winT, 13)}</i>${winT} ${role === 'off' ? 'offense' : 'defense'} +${Math.abs(gap)}</em>`;
@@ -268,6 +268,20 @@ function matchupExpanded() {
     ${[['DAL team total over 21.5', '49¢', 'Market'], ['Lamb receptions 7+', `${askAt(7)}¢`, 'Props · research'], ['Goedert receptions 5+', `${D.players['Dallas Goedert'].rec_ladder.find((r) => r.k === 5).ask}¢`, 'Props · research']].map(([a, b, c]) => `<div class="mr"><span>${a}<small>${c}</small></span><b class="num">${b}</b>${I('chevR', 16, '#7593a8')}</div>`).join('')}</div></div></div>${chrome('Games')}`;
 }
 
+
+/* SIFT Lens: the default view is one observation and one counter-case; the full evidence is one tap away and loses nothing. */
+function lensCard(top, bestDal, dalWin, all, open) {
+  const ev = all.filter((r) => r.tag !== 'even').slice(0, 3);
+  const evid = ev.map((r) => { const offWins = r.gap > 15, t = offWins ? r.off : r.def, role = offWins ? 'off' : 'def';
+    return `<div class="evr"><em class="tilt ${role}"><i class="ring ${role}">${lg(t, 13)}</i>${t} ${role === 'off' ? 'offense' : 'defense'} +${Math.abs(r.gap)}</em><span>${r.u.phr}</span><small>${r.off} ${ord(r.o.rank)} in ${r.u.oL} · ${r.def} ${ord(r.d.rank)} of ${r.d.n} in ${r.u.dL}</small></div>`; }).join('');
+  return `<div class="card lens ${open ? 'open' : ''}" ${st('ok', 'BUILT')}><div class="lh2">${I('lens', 22, '#16c9dc')}<b>SIFT Lens</b><span class="evb">Evidence ${I(open ? 'chevD' : 'chevR', 13)}</span></div>
+    <p><b>Widest gap:</b> ${top.off}’s offense vs ${top.def}’s defense in ${top.u.phr}; ${top.def} is ${ord(top.d.rank)} of ${top.d.n} in ${top.u.dL}.</p>
+    <p class="cc"><b>Counter-case:</b> ${bestDal.off}’s best matchup is ${bestDal.u.phr} (${ord(bestDal.o.rank)} against ${ord(bestDal.d.rank)}).</p>
+    ${open ? `<div class="evid"><div class="evh">Evidence · three widest gaps, both directions</div>${evid}
+      <div class="evm"><b>How to read it.</b> A gap is the offense’s league percentile minus the opposing defense’s. Only gaps larger than 15 points get a direction; 15 or less is Even. It is a descriptive visual heuristic over season-long, opponent-adjusted unit strength: not a prediction, and not a validated betting edge. The market has Dallas at ${dalWin}¢ to win.</div>
+      <div class="evs">Published matchup rows · 02:45Z</div></div>` : `<div class="evs">Published matchup rows · 02:45Z</div>`}</div>`;
+}
+
 function matchupLower() {
   const tp = (t, f) => D.team_proj.teams.find((x) => x.team === t && x.family === f);
   const shape = (t) => { const p = tp(t, 'team_pass_attempts'), r = tp(t, 'team_rush_attempts'), tot = p.mean + r.mean; return `<div class="sr"><span>${lg(t, 18)}${t}</span><div class="sb2"><i class="pa" style="width:${100 * p.mean / tot}%"><b>${f1(p.mean)}</b></i><i class="ra" style="width:${100 * r.mean / tot}%"><b>${f1(r.mean)}</b></i></div></div>`; };
@@ -284,9 +298,7 @@ function matchupLower() {
   const dalWin = D.game.find((g) => /-DAL$/.test(g.t)).ask;
   return `<div class="scr">${headerHtml(true)}${gtabs('Matchup')}
   <div class="pad" style="margin-top:10px">
-   <div class="card lens" ${st('ok', 'BUILT')}><div class="lh2">${I('lens', 22, '#16c9dc')}<b>SIFT Lens</b><span class="note">from published matchup rows · 02:45Z</span></div>
-    <p>The widest gap in this game is <b>${top.off}’s offense against ${top.def}’s defense in ${top.u.phr}</b>: ${top.def} ranks ${ord(top.d.rank)} of ${top.d.n} in ${top.u.dL}, and ${top.off} ranks ${ord(top.o.rank)} in ${top.u.oL}.</p>
-    <p class="cc"><b>Counter-case:</b> ${bestDal.off}’s best matchup is ${bestDal.u.phr} (${ord(bestDal.o.rank)} against ${ord(bestDal.d.rank)}). Rank gaps compare season-long unit strength, not this game; the market has Dallas at ${dalWin}¢ to win.</p></div>
+   ${lensCard(top, bestDal, dalWin, all, Q.get('lens') === 'open')}
    <div class="card sec" ${st('wire', 'WIRE')}><div class="sh2"><span class="h2">Game shape</span><span class="chip cy">research-only</span></div>
     <div class="note" style="margin-bottom:6px"><i class="lgd pa"></i>Pass attempts <i class="lgd ra" style="margin-left:10px"></i>Rush attempts · projected</div>${shape('DAL')}${shape('PHI')}
     <div class="tp"><span>Plays per game</span><b>${lg('DAL', 14)} ${f1(tempo('DAL').v)} <small>${ord(tempo('DAL').r)}</small></b><b>${lg('PHI', 14)} ${f1(tempo('PHI').v)} <small>${ord(tempo('PHI').r)}</small></b></div></div>
@@ -299,6 +311,6 @@ function matchupLower() {
     <svg width="${W}" height="${H}"><polyline fill="none" stroke="#93a9ff" stroke-width="2" points="${mhp.map((p, i) => `${x(i)},${y(p.ask)}`).join(' ')}"/><circle cx="${x(mhp.length - 1)}" cy="${y(ys[ys.length - 1])}" r="4" fill="#93a9ff"/></svg></div></div></div>${chrome('Games')}`;
 }
 
-const SCREENS = { g1dal: matchupMain, p1: playerOverview, p2: playerScrub, p3: playerBuilder, p4: playerMatchup, g1: matchupMain, g2: matchupExpanded, g3: matchupLower };
+const SCREENS = { g3open: matchupLower, g1dal: matchupMain, p1: playerOverview, p2: playerScrub, p3: playerBuilder, p4: playerMatchup, g1: matchupMain, g2: matchupExpanded, g3: matchupLower };
 document.body.innerHTML = `<div class="phone ${ANNOT ? 'annot' : ''} th${THEME}" id="phone" ${LONG ? `style="height:${LONG}px"` : ''}>${(SCREENS[SCREEN] || playerOverview)()}</div>`;
 if (LONG) document.querySelectorAll('.tb,.hi').forEach((e) => e.remove());

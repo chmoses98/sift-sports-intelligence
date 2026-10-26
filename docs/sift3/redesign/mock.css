@@ -251,10 +251,10 @@ svg text { font-family: var(--f-ui); }
 .lh2 { display: flex; align-items: center; gap: 8px; } .lh2 b { font: 700 16px var(--f-ui); } .lh2 .note { margin: 0 0 0 auto; }
 
 /* ---------- attribution: every tilt names its team (logo + abbreviation + role); the advantaged marker is the bolder one and the gap points at it */
-.th em.tilt { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px 0 3px; border-radius: 11px; border: 1px solid transparent; font: 700 11.5px/1 var(--f-ui); font-style: normal; white-space: nowrap; }
-.th em.tilt.off { color: var(--off); border-color: color-mix(in srgb, var(--off) 42%, transparent); background: color-mix(in srgb, var(--off) 9%, transparent); }
-.th em.tilt.def { color: var(--def); border-color: color-mix(in srgb, var(--def) 45%, transparent); background: color-mix(in srgb, var(--def) 10%, transparent); }
-.th em.tilt.even { color: var(--dim); padding-left: 9px; border-color: rgba(120, 140, 160, .25); }
+em.tilt { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px 0 3px; border-radius: 11px; border: 1px solid transparent; font: 700 11.5px/1 var(--f-ui); font-style: normal; white-space: nowrap; }
+em.tilt.off { color: var(--off); border-color: color-mix(in srgb, var(--off) 42%, transparent); background: color-mix(in srgb, var(--off) 9%, transparent); }
+em.tilt.def { color: var(--def); border-color: color-mix(in srgb, var(--def) 45%, transparent); background: color-mix(in srgb, var(--def) 10%, transparent); }
+em.tilt.even { color: var(--dim); padding-left: 9px; border-color: rgba(120, 140, 160, .25); }
 .ring { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--off); background: #05080c; flex: none; }
 .ring.def { border-color: var(--def); }
 .lgn span { display: inline-flex; align-items: center; gap: 4px; } .lgn span::before { content: none; }
@@ -265,4 +265,13 @@ svg text { font-family: var(--f-ui); }
 
 .lgn { white-space: nowrap; } .lgn span { font-weight: 600; } .sg .lgn { gap: 10px; }
 
-.th { flex-wrap: nowrap; min-width: 0; } .th b { white-space: nowrap; } .th span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } .th em.tilt { flex: none; }
+.th { flex-wrap: nowrap; min-width: 0; } .th b { white-space: nowrap; } .th span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } em.tilt { flex: none; }
+
+/* ---------- P2 readout with named lanes; Lens evidence */
+.readout { height: 52px; } .readout > span { display: grid; align-content: center; gap: 1px; } .readout > span > b { font: 700 16px/18px var(--f-num); } .readout > span > small { font: 500 10.5px/12px var(--f-ui); color: var(--muted); }
+.readout .rk2 { font: 700 16px/18px var(--f-num); display: block; }
+.lens .evb { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 14px; border: 1px solid #2f353d; background: #1a1f25; font: 600 12px/1 var(--f-ui); color: #5fe0ee; }
+.lens p { font-size: 14px; line-height: 20px; } .lens .evs { margin-top: 8px; font: 400 11px/14px var(--f-ui); color: var(--dim); }
+.evid { margin-top: 10px; padding-top: 10px; border-top: 1px solid #21252b; display: grid; gap: 9px; } .evh { font: 600 11px/14px var(--f-ui); letter-spacing: .07em; text-transform: uppercase; color: var(--dim); }
+.evr { display: grid; gap: 3px; } .evr span { font: 600 13.5px/17px var(--f-ui); } .evr small { font: 400 11.5px/15px var(--f-ui); color: var(--muted); } .evr .tilt { width: fit-content; }
+.evm { font: 400 12px/17px var(--f-ui); color: var(--muted); } .evm b { color: #e3e8ed; font-weight: 600; }

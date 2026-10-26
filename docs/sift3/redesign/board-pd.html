@@ -109,7 +109,7 @@
     <div class="phone"><img src="out/pd6.png" alt="Exact contract sheet"><button class="toggle" aria-pressed="false">Show data status</button></div>
     <div class="body"><h3><span class="id">PD6</span>The exact contract</h3>
       <dl class="kv"><div><dt>Question</dt><dd>What precisely would this price?</dd></div>
-      <div><dt>Workflow</dt><dd>The contract itself: Kalshi ticker, ask, bid, pre-fee implied probability and volume; the taker fee at that price and the fee-aware break-even; the quote timestamp and source; the neighbouring rungs with each rung’s history. The disclaimer says SIFT shows no bet buttons.</dd></div>
+      <div><dt>Workflow</dt><dd>The contract itself: Kalshi ticker, ask, bid, pre-fee implied probability and volume; the taker fee at that price and the fee-aware break-even; the neighbouring rungs with each rung’s history. The disclaimer says SIFT shows no bet buttons.</dd></div>
       <div><dt>Taps</dt><dd>Research → Player Research. Back → the list at the same scroll position. A neighbouring rung switches the contract shown.</dd></div>
       <div><dt>Honesty</dt><dd>Break-even is shown beside the implied probability so the difference is visible, but SIFT never labels either as good value. NHL skater model estimates are noted as under validation and not shown.</dd></div>
       <div><dt>Data</dt><dd><span class="tag built">BUILT</span> ticker, ask, bid, volume (quote feed), taker fee formula ceil(0.07 · p · (1 − p)). <span class="tag wire">WIRE</span> rung-by-rung history.</dd></div></dl></div>
@@ -158,11 +158,11 @@
   <ol class="ask">
     <li><b>Approve PD1 to PD6,</b> or tell me what to change on a specific screen. Nothing is implemented until you do.</li>
     <li><b>One optional sort I recommend leaving out:</b> a “model vs market gap” sort. It would be the only place two lanes are compared directly, and with 9 approved estimates today it would rank almost nothing. The lane rule (“never subtracted into an edge”) stays intact if you agree.</li>
-    <li><b>Quote time:</b> these mockups use quotes captured at 17:42Z; the earlier P1 to P4 examples use 03:08Z. That is a capture difference only and is disclosed on every screen that shows a price.</li>
+    <li><b>Quote freshness is engineering, not interface.</b> PD1 to PD6 carry no stale warnings, freshness badges or last-updated labels. Prices refresh on their own and on return to the app, the exact contract asks for the freshest price when it opens, and where no reliable quote can be obtained a price is withheld (“—”), never guessed. The read-only assessment and the improvement plan are in docs/sift3/QUOTE_DELIVERY.md.</li>
     <li><b>Scope of the first build, once approved:</b> NFL and NHL fully (history, opponent, model gating), MLB with price and contract only, compare limited to three props.</li>
     <li><b>Next design after this:</b> Team Research, then Stat Detail and Rankings, in the same system and with the same status layer.</li>
   </ol>
-  <p class="dim sm">Source of every row: docs/sift3/redesign/props.js, a frozen snapshot of SIFT’s own quote feeds, history layer and ranking documents (captured 2026-10-26 17:42Z). Mockup chrome (status bar, home indicator) is for presentation only; the app has no device chrome.</p>
+  <p class="dim sm">Source of every row: docs/sift3/redesign/props.js, a frozen snapshot of SIFT’s own quote feeds, history layer and ranking documents captured for these mockups (2026-10-26). Mockup chrome (status bar, home indicator) is for presentation only; the app has no device chrome.</p>
 </section>
 </main>
 

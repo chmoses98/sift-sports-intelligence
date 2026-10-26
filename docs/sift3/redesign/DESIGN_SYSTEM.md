@@ -57,3 +57,11 @@ A screen may promise only what its status layer shows. Anything marked NEW appea
 ## Progressive disclosure
 
 Default views carry the main observation and a concise counter-case. Full evidence is one tap away and never removed (G3 SIFT Lens collapsed by default, evidence on tap). Layout of approved screens is not reflowed to add content.
+
+## Prices and freshness (decided 2026-10-26)
+
+Prices are shown clean and update automatically. The interface never shows stale-quote warnings, freshness badges, ages or last-updated labels (Prop Discovery PD1 to PD6 and Team Research are locked on this). Freshness is handled internally: automatic refresh, a forced refresh when an exact contract opens, internal observation timestamps, reliability checks and monitoring. A price is never invented or estimated: if no reliable quote exists the price pill shows "—", and the exact-contract sheet shows a single plain "Price unavailable right now" state with Retry and hides the fee and break-even rows that derive from the price. See `docs/sift3/QUOTE_DELIVERY.md`.
+
+## Team pages
+
+Same system: ice for offense, amber for defense, cyan for selection only. Opponent-adjusted and raw statistics are never mixed in one list. Ranks are shown with the universe the publication used (for example "of 28" teams in the current packet). A statistic SIFT does not publish is shown as a locked row with the reason. Team pages carry no SIFT model lane.

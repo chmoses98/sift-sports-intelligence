@@ -146,7 +146,7 @@
      <div class="ctitle" ${st('ok', 'BUILT')}>${av(p, 44)}<div><b>${p.name}: ${r.k}+ points</b><span>${gm(p)} · ${p.when} · Kalshi YES</span></div></div>
      <div class="tick-mono" ${st('ok', 'BUILT')}>${r.ticker}</div>
      <div class="pgrid" ${st('ok', 'BUILT')}><div><small>Ask</small><b class="num m">${r.ask}¢</b></div><div><small>Bid</small><b class="num">${r.bid}¢</b></div><div><small>Implied</small><b class="num m">${r.ask}%</b><em>pre-fee</em></div><div><small>Volume</small><b class="num">${r.vol.toLocaleString()}</b></div></div>
-     <div class="fee" ${st('ok', 'BUILT')}><div><span>Taker fee at ${r.ask}¢</span><b>${fee}¢</b></div><div><span>Fee-aware break-even</span><b>${be}¢ · ${be}%</b></div><div><span>Quote</span><b>17:42Z · from the SIFT quote feed</b></div></div>
+     <div class="fee" ${st('ok', 'BUILT')}><div><span>Taker fee at ${r.ask}¢</span><b>${fee}¢</b></div><div><span>Fee-aware break-even</span><b>${be}¢ · ${be}%</b></div></div>
      <div class="nbr" ${st('wire', 'WIRE')}><div class="eyebrow">Neighbouring rungs</div>${p.ladder.map((x) => `<div class="nr ${x.k === r.k ? 'on' : ''}"><b>${x.k}+ points</b><span class="num m">${x.ask}¢</span><small>${hist(p, x.k).h}/${hist(p, x.k).n} history</small></div>`).join('')}</div>
      <div class="foot" style="margin-top:8px">Prices are Kalshi YES asks before fees. SIFT shows no bet buttons. SIFT model for NHL skaters is under validation and is not shown.</div>
      <div class="acts" style="margin-top:12px"><span class="btn pri">Research ${p.name.split(' ')[0]}</span><span class="btn">Back to list</span></div></div>${chrome('Explore').replace(/<nav.*?<\/nav>/s, '')}`;

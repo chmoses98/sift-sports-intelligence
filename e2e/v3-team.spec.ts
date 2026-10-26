@@ -331,6 +331,27 @@ test.describe('Team Research: performance and missing-data states (real document
     await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form']);
   });
 
+  test('availability row to Player Research (61): in today\'s published packets no injured player is also a listed skill player, so the real document is edited in the test to name one', async ({ page }) => {
+    // The explorer lists skill players for a few teams and none of them appears in that team's availability list (checked across the cached
+    // packets), so row 61 cannot fire on an untouched real document. The test renames the first availability entry of the real DAL document
+    // to a listed player; nothing else changes. Rows without a player page stay plain text (asserted in the Players test above).
+    await page.route(/\/explorer\/teams\/prt_[^/]+\.json/, async (route) => {
+      const res = await route.fetch();
+      const doc = await res.json();
+      if (doc.players?.length && doc.availability?.length) {
+        const who = doc.players[0].display_name;
+        doc.availability[0].detail = doc.availability[0].detail.replace(/^.+? \(/, `${who} (`);
+        doc.availability[0].status = 'OUT';
+      }
+      await route.fulfill({ response: res, json: doc });
+    });
+    await go(page, '/v3/team/nfl/DAL?tab=players');
+    await ready(page, '.tm .plr');
+    const linked = page.locator('.tm .avr [data-tap="player"]');
+    await expect(linked).toHaveCount(1);
+    await tapAndBack(page, linked.first(), 'player', /^\/v3\/player\/nfl\/prt_/);
+  });
+
   test('no price UI on the page: nothing but links reaches a price', async ({ page }) => {
     await go(page, '/v3/team/nfl/DAL');
     await ready(page, '.tm-idt .idr');

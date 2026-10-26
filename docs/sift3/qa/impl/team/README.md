@@ -11,3 +11,4 @@ Remaining differences (all intentional or data-driven):
 5. Shell tab highlight: the references highlight Games on team pages; the shared shell (`tabOf`) highlights nothing on `/v3/team/*`. Shell-wide, outside this screen.
 6. At 375 px the compact title truncates ("Dallas Cowb…") and hockey's "Scoring vs preventing" wraps to two lines; the cards themselves do not change.
 7. Profile in Opponent-adjusted shows no "vs last 34" deltas because adjusted statistics have one window (as in the design).
+8. Data coverage today: the explorer lists skill players for only a few teams (checked across 33 cached packets: DAL 13, PHI 9, TOR 27; the rest none), so Players shows "The publication lists no players for this team" with availability still shown; availability rows link to Player Research only when the player is also in that list (none overlap in today's packets, so tap-matrix row 61 is exercised on the real DAL document with one availability entry renamed in the test).

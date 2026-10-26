@@ -11,7 +11,12 @@ mkdirSync(out, { recursive: true });
 const b = await chromium.launch(exe ? { executablePath: exe } : {});
 const ctx = await b.newContext({ viewport: { width: Number(process.env.W ?? 390), height: Number(process.env.H ?? 844) }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
-await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1)/, (r) => r.abort());
+// REAL=1: answer the research and quote feed requests with real published documents (cached; V3_REAL_FEEDS=live fetches missing ones).
+if (process.env.REAL === '1') {
+  const { useRealFeeds } = await import('../../e2e/support/realFeeds.ts');
+  await useRealFeeds(page);
+}
+await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 let i = 0;
 for (const r of routes) {
   await page.goto(`${base}#${r}`);

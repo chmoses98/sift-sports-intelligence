@@ -31,3 +31,20 @@ Branch `claude/sift3-impl`, stacked on `claude/sift3-build` (PR #147, draft). Ev
 
 - The existing screens still use their pre-lock layouts and tab names; they are rebuilt to the locked designs in milestones 2 to 6. Until a screen is rebuilt, its URL still decodes through the migrations.
 - Legacy-vocabulary links keep working. Saved routes are rewritten to the current vocabulary on read.
+
+## Milestone 1: Data layer (done, in `src/v3/data/research/`)
+
+Typed, tested normalizers over the real published documents, and lazy cached hooks. Screens read these; none reads a contract document directly.
+
+| Piece | What it gives |
+| --- | --- |
+| `normalizeTeamProfile` / `useTeamProfile` | One team document answers the whole statistic list: every metric and window with the published rank, universe size (28 NFL teams in the current packet, not 32), percentile, ranking id and higher-is-better flag. Games with results from the team side, availability, players, series refs. |
+| `teamRecord` | NFL: counted from completed regular-season results of the current season. NHL: wins, regulation losses and overtime losses separately; the publication's own stated record is used when it carries one (`7-4-2` for 2026-27 today), else derived from the official points percentage, else none (never an unreconcilable guess). |
+| `buildRankingCatalog` / `useRankingCatalog` | (metric, window) to ranking id, read from the profiles' own ranking lists (authoritative), not from label matching. |
+| `normalizeRanking` / `useRankingDoc` | A ranking fetched only when a statistic is opened, with its universe, summary, limitations and adjusted flag. |
+| `scheduleOf` / `useSchedule` / `nextGame` | The schedule authority: explorer start times; Kalshi event times are never used as a start. |
+| `deriveRelated` (temporary) | Related statistics from stable ids, validated against the sport's registry, raw and adjusted typed apart, never crossing sport or entity type. Replaced by backend backlog item 1. |
+
+Not in this milestone, by design: the cross-game prop index (Prop Discovery, milestone 6, where its consumer is), and quote usability wiring (waits on the separately reviewed quote branch; screens use one seam, `useQuoteGate`, so swapping in `quoteUsable` is a one-file change).
+
+Real-document test tooling: `e2e/support/realFeeds.ts` answers feed requests from a disk cache of real published documents (`V3_REAL_FEEDS=live` fills it with curl through the environment proxy); `scripts/v3-qa/shot.mjs` takes phone screenshots (`REAL=1` for real data). Fixtures in `tests/v3/fixtures` are trimmed real documents captured 2026-10-26.

@@ -27,8 +27,21 @@ import { parseGameProps, sidelinedByName, type GameCtx, type IdentityHints } fro
 import { pickWindow, rankMap } from './rank';
 import type { Prop, Universe, UnitRank } from './types';
 
-/** The games whose props belong in the universe: real slate games still to start, in sports that price props. */
-export const propGames = (games: V3Game[]): V3Game[] => games.filter((g) => g.phase === 'pregame' && g.provenance === 'publication' && isReady(g.slug, 'propPrices'));
+/**
+ * How far ahead of kickoff a game's props are read. Kalshi lists player props close to the start, and one game's contract document is
+ * 0.3 to 1.3 MB, so the universe is the games starting inside this window (not every game of a 300-game college slate). A later game joins
+ * the universe on its own as its start comes inside the window; nothing names a game or a sport.
+ */
+export const PROP_HORIZON_MS = 48 * 3600_000;
+
+/**
+ * The games whose props belong in the universe: real slate games still to start inside the horizon, in sports that price props, whose board
+ * row says at least one market is listed (a game with none cannot carry a player ladder: skipping it costs nothing and is never wrong).
+ */
+export const propGames = (games: V3Game[], now = Date.now()): V3Game[] =>
+  games
+    .filter((g) => g.phase === 'pregame' && g.provenance === 'publication' && isReady(g.slug, 'propPrices') && g.startMs - now <= PROP_HORIZON_MS && (g.item?.markets_available ?? 1) > 0)
+    .sort((a, b) => a.startMs - b.startMs);
 
 const settle = <T,>(p: Promise<T>): Promise<T | null> => p.then((v) => v, () => null);
 

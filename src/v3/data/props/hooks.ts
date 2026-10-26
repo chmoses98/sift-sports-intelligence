@@ -1,6 +1,6 @@
 // React access to the prop universe: the universe itself (one memoised async load, instant on Back), the opponent chips, the lazily
 // loaded History lane for the rows on screen, and the gated prices for them. Prices are read only through data/quoteGate.ts.
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAsync } from '../../../data/hooks';
 import { liveStore, useLiveQuotes, useNow } from '../../../live/hooks';
 import { quoteView } from '../../../live/overlay';
@@ -110,11 +110,26 @@ export function usePropPrices(visible: Prop[], expanded: Prop | null): PriceRead
     if (expanded && expanded.rungs[0]?.source !== 'Sample') for (const r of expanded.rungs) t.add(r.ticker);
     return [...t];
   }, [visible, expanded]);
-  const live = useLiveQuotes(tickers, 'game');
+  // Rows scroll past faster than quotes are worth fetching: the scope follows the rows only once they have stayed put (a flick through
+  // the list registers and fetches nothing). The first set registers at once so the screen's own prices arrive with it.
+  const settled = useSettled(tickers, 450);
+  const live = useLiveQuotes(settled, 'game');
   const store = liveStore();
   // `live.version` changes whenever any quote does: the lookup is stable, so the readers must be re-created for rows to repaint.
   const gateOf = useCallback((p: Prop, r: PropRung): GateResult => gate(rawPrice(p, r, store.quote(r.ticker)), { kind: 'list', startMs: p.startMs, live: false }, now), [store, now, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
   return useMemo(() => ({ gateOf, priceOf: (p, r) => gateOf(p, r).price, now }), [gateOf, now]);
+}
+
+/** A value that follows `v` only after it has stopped changing for `ms` (the first value is taken at once). */
+export function useSettled<T>(v: T, ms: number): T {
+  const [s, setS] = useState(v);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    const t = setTimeout(() => setS(v), ms);
+    return () => clearTimeout(t);
+  }, [v, ms]);
+  return s;
 }
 
 /** A stable callback ref for the latest value (the virtual list reads it inside scroll handlers). */

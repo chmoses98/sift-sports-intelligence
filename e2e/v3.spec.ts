@@ -87,17 +87,16 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/player/nba/sample-guard?demo=1');
     await page.getByRole('button', { name: 'AST' }).click();
     await expect(page).toHaveURL(/stat=ast/);
-    await page.getByRole('button', { name: /^L5/ }).click();
-    await expect(page.locator('.v3-bc__bar')).toHaveCount(5);
-    await page.locator('.v3-bc__bar').nth(2).dispatchEvent('click');
-    await expect(page.getByRole('dialog')).toContainText(/not on the published slate|Open this game/);
-    await page.keyboard.press('Escape');
-    await expect(page.locator('.v3-bc__bar')).toHaveCount(5);
+    await page.locator('[data-win="L5"]').click();
+    await expect(page.locator('.v3p-hb__bar')).toHaveCount(5);
+    // locked design P1: a bar opens its observation card on the page (a game the schedule does not list says so)
+    await page.locator('.v3p-hb__bar').nth(2).dispatchEvent('click');
+    await expect(page.locator('.v3p-obs')).toContainText(/No game page for this game|Game Detail/);
     await page.getByRole('button', { name: /^Research filters/ }).click();
-    await page.getByRole('button', { name: 'Home', exact: true }).click();
-    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await page.getByRole('button', { name: /^Home/ }).click();
+    await page.getByRole('button', { name: /^Show \d+ games?/ }).click();
     await expect(page).toHaveURL(/site=home/);
-    await expect(page.locator('.v3-fchip')).toHaveCount(1);
+    await expect(page.locator('.v3p-fchip')).toHaveCount(1);
     await page.getByRole('button', { name: 'Save this research' }).click();
     await go(page, '/v3/following?demo=1');
     await expect(page.locator('.v3-snap')).toContainText('At save');
@@ -111,7 +110,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/player/nba/sample-guard?demo=1&stat=pts&site=away&min=36&script=blowout');
     await expect(page.getByText('0 games match')).toBeVisible();
     await page.getByRole('button', { name: 'Remove all filters' }).click();
-    await expect(page.locator('.v3-bc__bar').first()).toBeVisible();
+    await expect(page.locator('.v3p-hb__bar').first()).toBeVisible();
   });
 
   test('starring never turns alerts on; no notification permission is requested', async ({ page }) => {

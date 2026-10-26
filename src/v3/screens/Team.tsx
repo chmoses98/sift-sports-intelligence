@@ -9,7 +9,7 @@ import { useMetricDefs, useResearchRepo, useSchedule, useTeamIndex, useTeamProfi
 import { identityFor, useTeamProps } from '../data/research/teamHooks';
 import { useSlate } from '../data/useSlate';
 import { teamPhoto } from '../data/adapt';
-import { isReady, lockedReason, type Section } from '../model/capabilities';
+import { capability, isReady, lockedReason, type Section } from '../model/capabilities';
 import { findSaved } from '../model/saved';
 import { metricLookup, nextGameOf } from '../model/teamResearch';
 import { sampleLookup, sampleProfile, type SampleOpp, type SampleUpcoming } from '../model/teamSample';
@@ -26,6 +26,7 @@ import { TeamLogo } from '../ui/TeamLogo';
 import { LockedRow, Tabs } from '../ui/atoms';
 import { leagueLabel } from '../ui/gamebits';
 import type { V3Team } from '../model/types';
+import { TeamLegacy } from './TeamLegacy';
 import { Form } from './team/Form';
 import { Overview } from './team/Overview';
 import { Players } from './team/Players';
@@ -79,7 +80,13 @@ function SaveButton({ team, tab, c, record }: { team: V3Team; tab: Tab; c: Pick<
   );
 }
 
+/** Football and hockey get the locked Team Research design; MLB is held with its reason; sports the design does not cover yet keep the earlier page. */
 export function Team() {
+  const { slug = '' } = useParams();
+  return capability(slug, 'teamOverview').status === 'none' ? <TeamLegacy /> : <TeamResearch />;
+}
+
+function TeamResearch() {
   const { slug = '', teamId = '' } = useParams();
   const raw = decodeURIComponent(teamId);
   const back = useBack();

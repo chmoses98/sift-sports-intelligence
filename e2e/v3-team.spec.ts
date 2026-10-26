@@ -352,4 +352,13 @@ test.describe('Team Research (sample data) @v3', () => {
     await expect(page).toHaveURL(/tab=form/);
     await noOverflow(page);
   });
+
+  test('?demo=1 hockey: same gated tabs, W–L–OT record, labelled sample data', async ({ page }) => {
+    await go(page, '/v3/team/nhl/TOR?demo=1');
+    await ready(page, '.tm-idt .idr');
+    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form']);
+    await expect(page.locator('.tm-hero')).toContainText('sample data');
+    await expect(page.locator('.tm-hero .tm-rec b')).toHaveText(/^\d+–\d+–\d+$/);
+    await noOverflow(page);
+  });
 });

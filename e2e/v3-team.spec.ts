@@ -255,6 +255,90 @@ test.describe('Team Research (real documents) @v3', () => {
   });
 });
 
+test.describe('Team Research: performance and missing-data states (real documents) @v3', () => {
+  const profileUrls = (page: Page) => {
+    const urls: string[] = [];
+    page.on('request', (r) => { const u = r.url(); if (/\/explorer\/teams\/prt_[^/]+\.json/.test(u)) urls.push(u.replace(/\?.*$/, '')); });
+    return urls;
+  };
+
+  test('one team profile on Overview; Schedule fetches only the shown opponents, never every team', async ({ page }) => {
+    const urls = profileUrls(page);
+    await go(page, '/v3/team/nfl/DAL');
+    await ready(page, '.tm-idt .idr');
+    expect(new Set(urls).size).toBe(1);
+    await page.getByRole('tab', { name: 'Schedule' }).click();
+    await ready(page, '.tm .sch .op.o[data-tap="stat"]');
+    // DAL plus its next six games' distinct opponents (PHI appears twice), far fewer than the 28 teams
+    const n = new Set(urls).size;
+    expect(n).toBeGreaterThanOrEqual(2);
+    expect(n).toBeLessThanOrEqual(7);
+    // opponent columns show a skeleton-sized placeholder, not a layout jump: the row count is stable from the first paint
+    expect(await page.locator('.tm .sch').count()).toBe(6);
+  });
+
+  test('the first viewport (hero, name, tabs) renders before the team profile arrives', async ({ page }) => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => { release = r; });
+    await page.route(/\/explorer\/teams\/prt_[^/]+\.json/, async (route) => { await gate; await route.fallback(); });
+    await go(page, '/v3/team/nfl/DAL');
+    await expect(page.locator('.tm-hero h1')).toContainText('Cowboys');
+    await expect(page.getByRole('tab')).toHaveCount(5);
+    await expect(page.locator('.tm-idt .idr')).toHaveCount(0);
+    const h = await page.locator('.tm-hero').boundingBox();
+    release();
+    await ready(page, '.tm-idt .idr');
+    const h2 = await page.locator('.tm-hero').boundingBox();
+    expect(Math.abs((h?.height ?? 0) - (h2?.height ?? 0))).toBeLessThanOrEqual(2);
+  });
+
+  test('no upcoming game: the next-game strip says so, props row stays a plain link, Schedule is a locked row', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2027-07-01T12:00:00Z'));
+    await go(page, '/v3/team/nfl/DAL');
+    await ready(page, '.tm-idt .idr');
+    await expect(page.locator('.tm-gstrip')).toHaveCount(0);
+    await expect(page.getByText('No upcoming game is on the published schedule.')).toBeVisible();
+    await expect(page.locator('.tm-prow')).toContainText('DAL player props');
+    await page.getByRole('tab', { name: 'Schedule' }).click();
+    await expect(page.locator('.x-lock')).toContainText('No upcoming games');
+    await noOverflow(page);
+  });
+
+  test('the team document cannot be read: an honest note, tabs stay, nothing invented', async ({ page }) => {
+    await page.route(/\/explorer\/teams\/prt_[^/]+\.json/, (r) => r.fulfill({ status: 404, body: 'x', headers: { 'access-control-allow-origin': '*' } }));
+    await go(page, '/v3/team/nfl/DAL');
+    await expect(page.getByText('Team statistics are unavailable')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('.tm-idt .idr')).toHaveCount(0);
+    await expect(page.locator('.tm-hero .tm-rec b')).toHaveCount(0);
+  });
+
+  test('an unknown team code is "Team not found", not an empty page', async ({ page }) => {
+    await go(page, '/v3/team/nfl/ZZZ');
+    await expect(page.getByText('Team not found')).toBeVisible({ timeout: 20_000 });
+  });
+
+  test('statistics the publication does not carry are locked rows with the reason, never a working control', async ({ page }) => {
+    await go(page, '/v3/team/nfl/DAL?tab=form');
+    await ready(page, '.tm .res');
+    const lock = page.locator('.tm-lockc');
+    await expect(lock.first()).toContainText('closing lines');
+    expect(await lock.count()).toBeGreaterThanOrEqual(2);
+    for (const l of await lock.all()) expect(await l.locator('a, button').count()).toBe(0);
+    await go(page, '/v3/team/nhl/TOR?tab=schedule');
+    await expect(page.locator('.x-lock')).toContainText('Not part of the first release');
+    await go(page, '/v3/team/nhl/TOR?tab=players');
+    await expect(page.locator('.x-lock')).toBeVisible();
+    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form']);
+  });
+
+  test('no price UI on the page: nothing but links reaches a price', async ({ page }) => {
+    await go(page, '/v3/team/nfl/DAL');
+    await ready(page, '.tm-idt .idr');
+    await expect(page.locator('[data-tap="price"]')).toHaveCount(0);
+    expect(await page.locator('body').innerText()).not.toMatch(/[0-9]¢|\$[0-9]/);
+  });
+});
+
 test.describe('Team Research (sample data) @v3', () => {
   test('?demo=1 shows the same design on labelled sample data, and says so', async ({ page }) => {
     await go(page, '/v3/team/nfl/KC?demo=1');

@@ -67,14 +67,16 @@ try:
     q.open('/v3?demo=1', settle=7)
     click('.v3-feat__team'); check('C1 featured team logo opens Team', '/v3/team/cfb/UGA' in H(), H())
     click('.v3-stile'); check('C2 stat tile opens its ranking', '/v3/stat/cfb/sample-' in H(), H())
-    n = count('.v3-rkrow'); check('C3 ranking lists many teams', n >= 20, n)
+    # Locked SD1: the list shows the leaders and the selection's neighbours; "Show all" expands it in place.
+    click('.st-more'); n = count('.st-rkr'); check('C3 ranking lists many teams after Show all', n >= 20 and 'all=1' in H(), (n, H()))
     q.js('window.scrollTo(0, 500)'); q.wait(0.6)
     y0 = q.js('return scrollY')
-    q.js('document.querySelectorAll(".v3-rkrow__t")[3].click()'); q.wait(1.0); check('C4 team identity opens that Team page', '/v3/team/cfb/' in H(), H())
+    q.js('document.querySelectorAll(".st-rkr a.nm")[3].click()'); q.wait(1.0); check('C4 team identity opens that Team page', '/v3/team/cfb/' in H(), H())
     q.js('history.back()'); q.wait(1.5)
     check('C5 Back returns to the same ranking', '/v3/stat/cfb/sample-' in H(), H())
     check('C6 Back restores ranking scroll', abs(q.js('return scrollY')-y0) < 40, (y0, q.js('return scrollY')))
-    click('.v3-rkrow__v', 2); check('C7 value tap opens that team history on the same statistic', 'tab=trends' in H() and 'team=' in H(), H())
+    # Locked SD1: a value highlights that team in place (replace history); it does not leave the ranking.
+    click('.st-rkr .vl', 2); check('C7 value tap moves the highlight in place on the same ranking', '/v3/stat/cfb/sample-' in H() and 'sel=' in H(), H())
 
     # ---------- D: player research
     q.open('/v3/player/nba/sample-guard', settle=7)

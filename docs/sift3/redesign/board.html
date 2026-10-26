@@ -2,23 +2,23 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
 <style>
-  :root { color-scheme: dark; --bg:#031523; --bg2:#051d30; --panel:#08243a; --line:#174861; --line2:#1c6683; --cyan:#16c9dc; --text:#f4f9fe; --muted:#a4bdcf; --dim:#7593a8; --mkt:#93a9ff; --built:#25d6ab; --wire:#f5bd5b; --new:#ff6f91;
+  :root { color-scheme: dark; --bg:#080b10; --bg2:#0e1216; --panel:#16191e; --line:#272b32; --line2:#39414b; --cyan:#19cde0; --text:#f3f6f9; --muted:#a4acb6; --dim:#7d8895; --mkt:#93a9ff; --built:#3fd98f; --wire:#f5bd5b; --new:#ff6f91;
     --ui:'Geist',-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif; --num:'Sora','Geist',-apple-system,Arial,sans-serif; }
   * { box-sizing: border-box; }
-  body { background: radial-gradient(120% 40% at 10% -4%, rgba(16,98,132,.34), transparent 60%), linear-gradient(180deg,#04192a,#031523 40%,#021120); color: var(--text); font: 400 16px/1.55 var(--ui); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; -webkit-font-smoothing: antialiased; }
+  body { background: radial-gradient(110% 30% at 8% -4%, rgba(72,88,116,.13), transparent 62%), linear-gradient(180deg,#0c1015,#090c10 40%,#06080b); color: var(--text); font: 400 16px/1.55 var(--ui); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; -webkit-font-smoothing: antialiased; }
   main { max-width: 980px; margin: 0 auto; display: grid; gap: 44px; }
   h1 { font: 700 clamp(30px, 6vw, 46px)/1.08 var(--ui); letter-spacing: -.03em; text-wrap: balance; }
   h1 em { font-style: normal; color: var(--cyan); }
   h2 { font: 700 clamp(22px, 4vw, 28px)/1.2 var(--ui); letter-spacing: -.02em; text-wrap: balance; }
   h3 { font: 600 18px/1.3 var(--ui); letter-spacing: -.01em; }
-  p { color: #cfe0ec; max-width: 66ch; } .dim { color: var(--dim); } .sm { font-size: 14px; }
+  p { color: #c3c8ce; max-width: 66ch; } .dim { color: var(--dim); } .sm { font-size: 14px; }
   .eyebrow { font: 600 12px/1 var(--ui); letter-spacing: .1em; text-transform: uppercase; color: var(--cyan); }
   .tag { display: inline-block; font: 700 12px/1 var(--ui); letter-spacing: .06em; padding: 5px 8px; border-radius: 6px; color: #031523; }
   .tag.built { background: var(--built); } .tag.wire { background: var(--wire); } .tag.new { background: var(--new); }
   .hero { display: grid; gap: 14px; }
-  .banner { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(8,36,58,.6); font-size: 14px; color: var(--muted); }
+  .banner { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: #11141a; font-size: 14px; color: var(--muted); }
   .banner b { color: var(--text); font-weight: 600; }
-  .card { border-radius: 18px; border: 1px solid rgba(23,72,97,.95); background: linear-gradient(180deg, rgba(11,46,72,.7), rgba(6,31,50,.8)); padding: 18px; }
+  .card { border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(180deg, #181c21, #131619); padding: 18px; }
   .grid3 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .grid3 .card { display: grid; gap: 6px; align-content: start; } .grid3 .card p { font-size: 14.5px; }
   .lane { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
@@ -26,30 +26,60 @@
   .cmp { display: grid; gap: 14px; }
   .cmp img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); display: block; }
   .cmp .cap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); text-align: center; }
-  ul.lost { display: grid; gap: 8px; padding-left: 20px; color: #cfe0ec; font-size: 15px; } ul.lost b { color: var(--text); font-weight: 600; }
+  ul.lost { display: grid; gap: 8px; padding-left: 20px; color: #c3c8ce; font-size: 15px; } ul.lost b { color: var(--text); font-weight: 600; }
   .screen { display: grid; gap: 22px; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); align-items: start; }
   @media (max-width: 760px) { .screen { grid-template-columns: 1fr; } }
   .phone { position: relative; width: 100%; max-width: 390px; }
   .phone img { width: 100%; height: auto; display: block; border-radius: 26px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0,0,0,.5); }
-  .toggle { margin-top: 10px; width: 100%; height: 44px; border-radius: 12px; border: 1px solid var(--line2); background: rgba(8,44,70,.8); color: var(--text); font: 600 14px var(--ui); cursor: pointer; }
-  .toggle[aria-pressed='true'] { border-color: var(--cyan); color: var(--cyan); }
+  .toggle { margin-top: 10px; width: 100%; height: 44px; border-radius: 12px; border: 1px solid var(--line2); background: #1b1f25; color: var(--text); font: 600 14px var(--ui); cursor: pointer; }
+  .toggle[aria-pressed='true'] { border-color: var(--cyan); color: var(--text); }
   .body { display: grid; gap: 14px; align-content: start; }
   .body h3 .id { font-family: var(--num); color: var(--cyan); margin-right: 8px; }
-  .kv { display: grid; gap: 8px; } .kv div { display: grid; grid-template-columns: 112px 1fr; gap: 12px; font-size: 14.5px; } .kv dt { color: var(--dim); font-weight: 600; } .kv dd { color: #cfe0ec; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; } th { text-align: left; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 0 10px 10px 0; } td { padding: 10px 10px 10px 0; border-top: 1px solid rgba(23,72,97,.7); vertical-align: top; color: #cfe0ec; } td:first-child { color: var(--text); font-weight: 500; }
+  .kv { display: grid; gap: 8px; } .kv div { display: grid; grid-template-columns: 112px 1fr; gap: 12px; font-size: 14.5px; } .kv dt { color: var(--dim); font-weight: 600; } .kv dd { color: #c3c8ce; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; } th { text-align: left; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 0 10px 10px 0; } td { padding: 10px 10px 10px 0; border-top: 1px solid #21252b; vertical-align: top; color: #cfe0ec; } td:first-child { color: var(--text); font-weight: 500; }
   .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; } .scroll table { min-width: 640px; }
-  .ask { display: grid; gap: 10px; counter-reset: q; } .ask li { list-style: none; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(8,36,58,.55); font-size: 15px; color: #cfe0ec; }
+  .sw { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } .sw div { border-radius: 12px; border: 1px solid rgba(255,255,255,.08); overflow: hidden; display: grid; font-size: 12.5px; } .sw i { display: block; height: 38px; } .sw span { padding: 7px 9px 8px; background: #101317; color: #c3c8ce; line-height: 1.3; } .sw span b { display: block; color: var(--text); font-weight: 600; font-size: 13px; }
+  .cols2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } code { font: 13px ui-monospace, Menlo, monospace; color: #dfe4ea; }
+  .ask { display: grid; gap: 10px; counter-reset: q; } .ask li { list-style: none; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #11141a; font-size: 15px; color: #c3c8ce; }
   .ask li b { color: var(--text); }
 </style>
 
 <main>
 <header class="hero">
-  <span class="eyebrow">Design review · nothing here is built</span>
-  <h1>SIFT research, <em>redesigned</em></h1>
-  <p>Player Research and Game Matchup, first. Same midnight-navy identity, same four tabs, same Home and Games. The research pages change: chart first, three separate evidence lanes, and opponent-adjusted offense paired against defense, with every number tappable.</p>
+  <span class="eyebrow">Design review · palette locked · nothing here is built</span>
+  <h1>SIFT research, <em>final review</em></h1>
+  <p>Player Research and Game Matchup, first. Same four tabs, same Home and Games. The research pages change: chart first, three separate evidence lanes, and opponent-adjusted offense paired against defense, with every number tappable. All seven screens now use the approved ink and graphite palette.</p>
   <div class="banner"><span><b>Data on screen is real.</b> Tonight’s DAL at PHI, CeeDee Lamb receptions, from SIFT’s own publications captured 2026-10-26 (matchup 02:45Z, projection 01:36Z, Kalshi quotes 03:08Z).</span><span><b>Status layer.</b> Tap “Show data status” on any screen to see what is built today, what is published but not wired in, and what needs new data.</span></div>
   <div class="banner"><span class="tag built">BUILT</span><span>already in v3 with real data</span><span class="tag wire">WIRE</span><span>published data exists; v3 does not use it yet (integration work, no new data source)</span><span class="tag new">NEW</span><span>needs data or a feed SIFT does not publish today</span></div>
 </header>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">The set</span><h2>All seven screens, in the locked palette</h2><p class="dim sm" style="margin-top:6px">P1 to P4 are Player Research; G1 to G3 are Game Matchup. Scroll sideways; each is described below with its own status layer.</p></div>
+  <div class="scroll" style="border-radius:16px;border:1px solid var(--line)"><img src="out/seven.jpg" alt="The seven research mockups side by side" style="display:block;height:auto;width:max(100%, 1500px)"></div>
+</section>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">Palette · locked</span><h2>Ink and graphite, with cyan held back</h2></div>
+  <div class="card" style="display:grid;gap:14px">
+    <div class="sw">
+      <div><i style="background:#080b10"></i><span><b>Foundation</b>#080b10</span></div>
+      <div><i style="background:linear-gradient(180deg,#181c21,#131619)"></i><span><b>Surface</b>#181c21 to #131619</span></div>
+      <div><i style="background:#272b32"></i><span><b>Border</b>#272b32</span></div>
+      <div><i style="background:#19cde0"></i><span><b>Cyan</b>selection, primary, SIFT</span></div>
+      <div><i style="background:#46e49b"></i><span><b>Hit</b>green</span></div>
+      <div><i style="background:#ff7468"></i><span><b>Miss</b>coral</span></div>
+      <div><i style="background:#93a9ff"></i><span><b>Market</b>periwinkle</span></div>
+      <div><i style="background:#f0f2f5"></i><span><b>History</b>ivory</span></div>
+      <div><i style="background:#eaf1f7"></i><span><b>Offense</b>ice</span></div>
+      <div><i style="background:#ff9b52"></i><span><b>Defense</b>amber</span></div>
+    </div>
+    <p class="sm">Hero lighting is each team’s own colour over ink; player photography and logos are untouched. No blue-on-blue cards, no glowing borders: a selected item gets a 1px cyan border and a slight surface lift.</p>
+  </div>
+  <div class="cols2">
+    <div class="card"><h3>Refinement 1 · dark text on every cyan fill</h3><p class="sm" style="margin-top:6px">Checked by script on all seven screens: every element with a bright-cyan fill and text (the selected stat pill, the Props badge, the L10 chip, Apply) carries #04202c text at <b style="color:var(--text)">8.7 : 1</b>. The check found one miss, the selected REC pill, where the new theme had turned its label light; it is fixed and the check is saved as <code>check-contrast.mjs</code>.</p></div>
+    <div class="card"><h3>Refinement 2 · every tilt names its team</h3><p class="sm" style="margin-top:6px">With offense no longer cyan, attribution no longer relies on colour alone. Each tilt is a pill with the team’s logo, its abbreviation and its role (“PHI offense +30”), and the legend counts use the same logos. Colour carries the role only: ice is offense, amber is defense. See the key below.</p></div>
+  </div>
+</section>
 
 <section style="display:grid;gap:18px">
   <div><span class="eyebrow">1 · Gap analysis</span><h2>What the build lost against the approved references</h2></div>
@@ -127,10 +157,23 @@
     <div class="body"><h3><span class="id">G1</span>Matchup: offense against defense, both ways</h3>
       <dl class="kv"><div><dt>Question</dt><dd>Where does this game tilt?</dd></div>
       <div><dt>Workflow</dt><dd>The direction control is also the summary: DAL’s offense tilts DAL in 5 of 7 units, PHI in 1; PHI’s offense tilts PHI in all 6 non-even units. Pick a direction and read the rows. Each row is a league-percentile track: the offense marker, the defense marker, and the gap filled between them. Passing, for instance: PHI’s offense (20th) against DAL’s defense (28th of 28, +0.179 EPA per dropback allowed) tilts PHI by 30.</dd></div>
-      <div><dt>Taps</dt><dd>Row → G2. Logo → team. Values → league ranking. Direction, adjusted/raw and window are one-tap controls.</dd></div>
+      <div><dt>Taps</dt><dd>Row → G2. Pill or logo → team. Values → league ranking. Direction, adjusted/raw and window are one-tap controls.</dd></div>
       <div><dt>Data</dt><dd><span class="tag built">BUILT</span> the underlying paired metrics are in every NFL event document (25 rows; NBA about 11; NHL about 28). <span class="tag wire">WIRE</span> pairing, percentiles and the tilt. <span class="tag new">NEW</span> CFB: no matchup rows are published today.</dd></div></dl></div>
   </article>
 
+  <div class="card" style="display:grid;gap:16px">
+    <div><span class="eyebrow">Key · reading a tilt</span><h3 style="margin-top:6px">Which team does the advantage belong to?</h3></div>
+    <div class="screen" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)">
+      <img src="out/attribution.jpg" alt="Matchup tilts in both directions" style="width:100%;height:auto;border-radius:14px;border:1px solid var(--line)">
+      <ul class="lost">
+        <li><b>The pill names the team and the unit.</b> Logo, abbreviation, role: “DAL offense +48”, “PHI defense +45”.</li>
+        <li><b>Ice is offense, amber is defense.</b> The role colour fills the gap between the two markers, and the pill takes the same colour.</li>
+        <li><b>The gap points at the advantaged unit.</b> The arrow ends at the bolder ring, which is always the marker further right (the higher league percentile).</li>
+        <li><b>Even rows say so.</b> Under ±15 there is no arrow, the fill is slate, and the pill reads “Even”.</li>
+        <li><b>The legend uses the same logos:</b> “[DAL] 5 · even 1 · [PHI] 1” means five units tilt to DAL’s offense and one to PHI’s defense.</li>
+      </ul>
+    </div>
+  </div>
   <article class="screen" data-pair="g2">
     <div class="phone"><img src="out/g2.png" alt="Matchup expanded unit with league strips and trend"><button class="toggle" aria-pressed="false">Show data status</button></div>
     <div class="body"><h3><span class="id">G2</span>One unit, in depth</h3>
@@ -169,13 +212,12 @@
 </section>
 
 <section style="display:grid;gap:14px">
-  <div><span class="eyebrow">6 · Your call</span><h2>Approve each screen on its own</h2></div>
+  <div><span class="eyebrow">6 · Your call</span><h2>Final review of the seven</h2></div>
   <ol class="ask">
-    <li><b>P1 to P4 and G1 to G3:</b> approve, or tell me what to change per screen. Nothing is built until you do.</li>
-    <li><b>Lane names.</b> “Market · History · SIFT model”: keep, or rename (for example “SIFT projection”)?</li>
-    <li><b>Tilt band.</b> ±15 percentile points reads as even (about four ranks of 28). Wider, narrower, or hidden behind an info sheet?</li>
-    <li><b>Hero.</b> Photo-led where a verified photo exists (as P1), otherwise the compact logo row. Keep?</li>
-    <li><b>Next screens</b> once these two are approved: Prop Discovery, Team Research, Stat Detail and Rankings, as you listed.</li>
+    <li><b>Approve each of P1 to P4 and G1 to G3,</b> or tell me what to change on a specific screen. Nothing is built until you do.</li>
+    <li><b>Palette:</b> locked as B. Nothing on this board reopens it.</li>
+    <li><b>Still open from before:</b> the lane names (“Market · History · SIFT model”) and the ±15 even band.</li>
+    <li><b>Next, once these are signed off:</b> Prop Discovery, Team Research, then Stat Detail and Rankings, in the same palette and with the same status layer.</li>
   </ol>
   <p class="dim sm">Source of every number: docs/sift3/redesign/data.js, a frozen snapshot of SIFT’s own publications. Mockup chrome (status bar, home indicator) is drawn for presentation only; the app has no device chrome.</p>
 </section>

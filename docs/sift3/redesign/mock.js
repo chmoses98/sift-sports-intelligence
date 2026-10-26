@@ -6,10 +6,10 @@ const Q = new URLSearchParams(location.search);
 const SCREEN = Q.get('s') || 'p1', ANNOT = Q.has('annot'), LONG = Q.get('h');
 /* Colour treatments for the SVG parts (HTML parts are themed in theme-b.css). A = the current approved midnight-navy palette. */
 const THEMES = {
-  A: { grid: 'rgba(120,170,200,.14)', axis: '#7593a8', sub: '#8fa9bb', div: 'rgba(160,200,225,.35)', go0: '#2ee8c6', go1: '#12a58f', gu0: '#ff7e72', gu1: '#d4514a', hit: '#7ff0cf', miss: '#ffa39c', rungOff: 'rgba(160,200,225,.55)', stripDot: 'rgba(150,190,215,.6)', stripLine: 'rgba(120,170,200,.28)', bg: '#031523' },
-  B: { grid: 'rgba(255,255,255,.07)', axis: '#6e7a87', sub: '#8a95a1', div: 'rgba(255,255,255,.22)', go0: '#46e49b', go1: '#1c9a62', gu0: '#ff7468', gu1: '#cf453c', hit: '#8af2bc', miss: '#ff9f97', rungOff: 'rgba(255,255,255,.35)', stripDot: 'rgba(190,200,212,.55)', stripLine: 'rgba(255,255,255,.14)', bg: '#070b11' },
+  A: { grid: 'rgba(120,170,200,.14)', axis: '#7593a8', sub: '#8fa9bb', div: 'rgba(160,200,225,.35)', go0: '#2ee8c6', go1: '#12a58f', gu0: '#ff7e72', gu1: '#d4514a', hit: '#7ff0cf', miss: '#ffa39c', rungOff: 'rgba(160,200,225,.55)', stripDot: 'rgba(150,190,215,.6)', stripLine: 'rgba(120,170,200,.28)', bg: '#031523', off: '#16c9dc', def: '#ff9b52', info: '#7593a8' },
+  B: { grid: 'rgba(255,255,255,.07)', axis: '#6e7a87', sub: '#8a95a1', div: 'rgba(255,255,255,.22)', go0: '#46e49b', go1: '#1c9a62', gu0: '#ff7468', gu1: '#cf453c', hit: '#8af2bc', miss: '#ff9f97', rungOff: 'rgba(255,255,255,.35)', stripDot: 'rgba(190,200,212,.55)', stripLine: 'rgba(255,255,255,.14)', bg: '#080b10', off: '#eaf1f7', def: '#ff9b52', info: '#7d8895' },
 };
-const THEME = Q.get('t') === 'B' ? 'B' : 'A', TH = THEMES[THEME];
+const THEME = Q.get('t') === 'A' ? 'A' : 'B', TH = THEMES[THEME];
 const $ = (s, el = document) => el.querySelector(s);
 const lg = (t, s = 28, cls = '') => `<img class="lg ${cls}" src="assets/teams/${t}.webp" width="${s}" height="${s}" alt="${t}">`;
 const f1 = (n) => (Math.round(n * 10) / 10).toFixed(1);
@@ -66,16 +66,16 @@ function barChart({ games, k, w = 338, h = 190, scrub = false, ymax = null, proj
     const x = cx(games.length), v = PRJ.median;
     s += `<rect x="${x - bw / 2}" y="${y(v)}" width="${bw}" height="${y(0) - y(v)}" rx="4" fill="url(#hatch)" stroke="rgba(22,201,220,.8)" stroke-dasharray="3 2"/>`;
     s += `<line x1="${x}" x2="${x}" y1="${y(PRJ.p90)}" y2="${y(PRJ.p10)}" stroke="#16c9dc" stroke-width="1.6"/><line x1="${x - 5}" x2="${x + 5}" y1="${y(PRJ.p90)}" y2="${y(PRJ.p90)}" stroke="#16c9dc" stroke-width="1.6"/><line x1="${x - 5}" x2="${x + 5}" y1="${y(PRJ.p10)}" y2="${y(PRJ.p10)}" stroke="#16c9dc" stroke-width="1.6"/>`;
-    s += `<rect x="${x - 7}" y="${y(PRJ.mean) - 7}" width="9" height="9" transform="rotate(45 ${x - 2.5} ${y(PRJ.mean) - 2.5})" fill="#16c9dc" stroke="#031523" stroke-width="1.4"/>`;
+    s += `<rect x="${x - 7}" y="${y(PRJ.mean) - 7}" width="9" height="9" transform="rotate(45 ${x - 2.5} ${y(PRJ.mean) - 2.5})" fill="#16c9dc" stroke="${TH.bg}" stroke-width="1.4"/>`;
     s += `<text x="${x}" y="${T - 4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#16c9dc">TONIGHT</text><image href="assets/teams/PHI.webp" x="${x - 8}" y="${h - B + 8}" width="16" height="16"/><text x="${x}" y="${h - B + 33}" text-anchor="middle" font-size="9" fill="#16c9dc">W7</text>`;
   }
   // the line
   const ly = y(k - 0.5);
   s += `<line x1="${L}" x2="${w - R + 2}" y1="${ly}" y2="${ly}" stroke="#fff" stroke-width="1.5" stroke-dasharray="6 4"/>`;
-  s += `<g transform="translate(${w - R + 5},${ly - 11})"><rect width="38" height="22" rx="6" fill="#fff"/><text x="19" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#031523">${k - 0.5}</text></g>`;
+  s += `<g transform="translate(${w - R + 5},${ly - 11})"><rect width="38" height="22" rx="6" fill="#fff"/><text x="19" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="${TH.bg}">${k - 0.5}</text></g>`;
   if (scrub) { // drag handle on the line with the ladder rungs as snap points on the right edge
     for (const r of ladder) { const ry = y(r.k - 0.5); if (r.k < 3 || ry < T - 2) continue; s += `<line x1="${w - R - 2}" x2="${w - R + 4}" y1="${ry}" y2="${ry}" stroke="${r.k === k ? '#fff' : TH.rungOff}" stroke-width="${r.k === k ? 2 : 1.2}"/>`; }
-    s += `<circle cx="${L + 70}" cy="${ly}" r="15" fill="rgba(255,255,255,.14)"/><circle cx="${L + 70}" cy="${ly}" r="8" fill="#fff" stroke="#031523" stroke-width="2"/>`;
+    s += `<circle cx="${L + 70}" cy="${ly}" r="15" fill="rgba(255,255,255,.14)"/><circle cx="${L + 70}" cy="${ly}" r="8" fill="#fff" stroke="${TH.bg}" stroke-width="2"/>`;
   }
   return s + '</svg>';
 }
@@ -157,11 +157,11 @@ function strip({ key, team, label, unitFmt, inv = false, w = 330 }) {
   const x = (v) => { let t = (v - mn) / (mxv - mn || 1); if (!hib) t = 1 - t; return 8 + t * (w - 16); };
   const me = R.entries.find((e) => e.t === team);
   const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  let s = `<svg width="${w}" height="62" viewBox="0 0 ${w} 62"><line x1="8" x2="${w - 8}" y1="30" y2="30" stroke="rgba(120,170,200,.28)" stroke-width="2" stroke-linecap="round"/>`;
-  let lastX = -99, flip = 1; [...R.entries].sort((p, q) => x(p.v) - x(q.v)).forEach((e) => { const px = x(e.v); flip = px - lastX < 7 ? -flip : 1; lastX = px; if (e.t !== team) s += `<circle cx="${px}" cy="${30 + (flip === -1 ? 7 : 0)}" r="3.4" fill="rgba(150,190,215,.6)"/>`; });
+  let s = `<svg width="${w}" height="62" viewBox="0 0 ${w} 62"><line x1="8" x2="${w - 8}" y1="30" y2="30" stroke="${TH.stripLine}" stroke-width="2" stroke-linecap="round"/>`;
+  let lastX = -99, flip = 1; [...R.entries].sort((p, q) => x(p.v) - x(q.v)).forEach((e) => { const px = x(e.v); flip = px - lastX < 7 ? -flip : 1; lastX = px; if (e.t !== team) s += `<circle cx="${px}" cy="${30 + (flip === -1 ? 7 : 0)}" r="3.4" fill="${TH.stripDot}"/>`; });
   s += `<line x1="${x(avg)}" x2="${x(avg)}" y1="20" y2="40" stroke="#f5bd5b" stroke-width="1.5"/><text x="${x(avg)}" y="14" text-anchor="middle" font-size="9.5" fill="#f5bd5b">league avg</text>`;
-  s += `<text x="8" y="58" font-size="10" fill="#7593a8">Worst</text><text x="${w - 8}" y="58" text-anchor="end" font-size="10" fill="#7593a8">Best</text>`;
-  s += `<circle cx="${x(me.v)}" cy="30" r="13" fill="#031523" stroke="${inv ? '#ff9b52' : '#16c9dc'}" stroke-width="2.2"/><image href="assets/teams/${team}.webp" x="${x(me.v) - 9}" y="21" width="18" height="18"/>`;
+  s += `<text x="8" y="58" font-size="10" fill="${TH.axis}">Worst</text><text x="${w - 8}" y="58" text-anchor="end" font-size="10" fill="${TH.axis}">Best</text>`;
+  s += `<circle cx="${x(me.v)}" cy="30" r="13" fill="${TH.bg}" stroke="${inv ? TH.def : TH.off}" stroke-width="2.2"/><image href="assets/teams/${team}.webp" x="${x(me.v) - 9}" y="21" width="18" height="18"/>`;
   return s + '</svg>';
 }
 const rkOf = (key, team) => { const e = D.rankings[key].entries.find((x) => x.t === team); return { r: e.r, n: D.rankings[key].n, v: e.v }; };
@@ -181,7 +181,7 @@ function playerMatchup() {
   ${tabsHtml('Matchup')}
   <div class="card sec" style="margin-top:8px" ${st('wire', 'WIRE')}><div class="sh2"><span class="h2">How the projection builds</span><span class="chip cy">research-only</span></div>
     <div class="chain">${node(f1(tpa.mean), 'DAL pass att', tpa.p10, tpa.p90, tpa.mean, 60)}${op(f1(ts * 100) + '%')}${node(f1(TGT.mean), 'Lamb targets', TGT.p10, TGT.p90, TGT.mean, 16)}${op(Math.round(cr * 100) + '%')}${node(f1(PRJ.mean), 'Receptions', PRJ.p10, PRJ.p90, PRJ.mean, 14)}${op(f1(ypr) + ' yds')}${node(Math.round(YDS.mean), 'Rec yards', YDS.p10, YDS.p90, YDS.mean, 140)}</div>
-    <div class="adj">${PRJ.adjustments.map((a) => `<div>${I('info', 12, '#7593a8')}<span>${a}</span></div>`).join('')}</div>
+    <div class="adj">${PRJ.adjustments.map((a) => `<div>${I('info', 12, TH.info)}<span>${a}</span></div>`).join('')}</div>
     <div class="foot">Published ${D.proj_generated.slice(11, 16)}Z · ${PRJ.participation.status.replace('_', ' ').toLowerCase()} per ${PRJ.participation.source.replace('_', ' ')} · shares and rates are arithmetic on the published rows</div></div>
   <div class="card sec" ${st('wire', 'WIRE')}><div class="sh2"><span class="h2">PHI pass defense</span><span class="note">opponent-adjusted · 2026</span></div>
     <div class="sl"><div class="slh"><span>EPA per dropback allowed</span><b>${sgn(e1.v)} · ${ord(e1.r)} of ${e1.n}</b></div>${strip({ key: 'adj_def_db_epa', team: 'PHI', inv: true })}</div>
@@ -201,7 +201,7 @@ const UNITS = [
   { id: 'pass', title: 'Passing', unit: 'EPA per dropback', off: 'adj_off_db_epa', def: 'adj_def_db_epa', phr: 'the passing game', oL: 'EPA per dropback', dL: 'EPA per dropback allowed' },
   { id: 'rush', title: 'Rushing', unit: 'EPA per rush', off: 'adj_off_rush_epa', def: 'adj_def_rush_epa', phr: 'the running game', oL: 'EPA per rush', dL: 'EPA per rush allowed' },
   { id: 'ed', title: 'Early downs', unit: 'EPA per early-down play', off: 'adj_off_ed_epa', def: 'adj_def_ed_epa', phr: 'early downs', oL: 'early-down EPA', dL: 'early-down EPA allowed' },
-  { id: 'xp', title: 'Explosive plays', unit: 'explosive-play rate', off: 'adj_off_explosive', def: 'adj_def_explosive', phr: 'explosive plays', oL: 'explosive-play rate', dL: 'explosive plays allowed' },
+  { id: 'xp', title: 'Explosive plays', unit: 'play rate', off: 'adj_off_explosive', def: 'adj_def_explosive', phr: 'explosive plays', oL: 'explosive-play rate', dL: 'explosive plays allowed' },
   { id: 'press', title: 'Pass rush', unit: 'sack rate', off: 'adj_off_sack_rate', def: 'adj_def_sack_rate', phr: 'pass protection vs pass rush', oL: 'sack rate allowed', dL: 'sack rate' },
   { id: 'to', title: 'Turnovers', unit: 'turnover rate', off: 'adj_off_to_rate', def: 'adj_def_to_rate', phr: 'ball security vs takeaways', oL: 'turnover rate', dL: 'takeaway rate' },
 ];
@@ -214,15 +214,18 @@ function unitFor(u, offTeam, defTeam) {
 const fmtV = (key, v) => (key.includes('explosive') || key.includes('sack') || key.includes('to_rate') ? (v >= 0 ? '+' : '−') + (Math.abs(v) * 100).toFixed(1) + ' pts' : sgn(v, 3));
 
 function tugRow(r, offT, defT, open = false) {
-  const { u, o, d, po, pd, gap } = r, lo = Math.min(po, pd), hi = Math.max(po, pd), win = gap >= 0 ? 'var(--off)' : 'var(--def)';
-  const edge = r.tag === 'off' ? `Tilts ${offT} +${Math.abs(gap)}` : r.tag === 'def' ? `Tilts ${defT} +${Math.abs(gap)}` : `Even ${gap >= 0 ? '+' : '−'}${Math.abs(gap)}`;
-  return `<div class="tug ${open ? 'open' : ''}"><div class="th">${open ? '<span>Percentile gap · tilt</span>' : `<b>${u.title}</b><span>${u.unit}</span>`}<em style="color:${r.tag === 'off' ? 'var(--off)' : r.tag === 'def' ? 'var(--def)' : 'var(--dim)'}">${edge}</em></div>
-   <div class="trk"><div class="rail"></div><div class="gapf" style="left:${lo}%;width:${hi - lo}%;background:${win}"></div>
-    <span class="mkr o" style="left:${po}%">${lg(offT, 17)}</span><span class="mkr d" style="left:${pd}%">${lg(defT, 17)}</span></div>
+  const { u, o, d, po, pd, gap } = r, lo = Math.min(po, pd), hi = Math.max(po, pd);
+  const even = r.tag === 'even', offWins = gap > 0, win = even ? 'var(--even)' : offWins ? 'var(--off)' : 'var(--def)';
+  const winT = offWins ? offT : defT, role = offWins ? 'off' : 'def';
+  // The advantaged unit is always the marker further right (higher league percentile); the gap points at it and its ring is bolder.
+  const tilt = even ? `<em class="tilt even">Even ${gap >= 0 ? '+' : '−'}${Math.abs(gap)}</em>` : `<em class="tilt ${role}"><i class="ring ${role}">${lg(winT, 13)}</i>${winT} ${role === 'off' ? 'offense' : 'defense'} +${Math.abs(gap)}</em>`;
+  return `<div class="tug ${open ? 'open' : ''}"><div class="th">${open ? '<span>Percentile gap · tilt</span>' : `<b>${u.title}</b><span>${u.unit}</span>`}${tilt}</div>
+   <div class="trk"><div class="rail"></div><div class="gapf ${even ? 'ev' : ''}" style="left:${lo}%;width:${hi - lo}%;background:${win};color:${win}"></div>
+    <span class="mkr o ${!even && offWins ? 'win' : ''} ${!even && !offWins ? 'lose' : ''}" style="left:${po}%">${lg(offT, 17)}</span><span class="mkr d ${!even && !offWins ? 'win' : ''} ${!even && offWins ? 'lose' : ''}" style="left:${pd}%">${lg(defT, 17)}</span></div>
    <div class="tv"><div><span style="color:var(--off)">${offT} offense <em>· ${ord(o.rank)}</em></span><b>${fmtV(u.off, o.value)}</b></div><div style="text-align:right"><span style="color:var(--def)">${defT} defense <em>· ${ord(d.rank)}</em></span><b>${fmtV(u.def, d.value)} allowed</b></div></div></div>`;
 }
 
-const edgeMeter = (offT, defT) => { const rs = UNITS.map((u) => unitFor(u, offT, defT)), c = (t) => rs.filter((r) => r.tag === t).length; return { rs, html: `<div class="gb">${rs.map((r) => `<i class="${r.tag}"></i>`).join('')}</div><div class="lgn"><span style="--c:var(--off)">${c('off')} ${offT}</span><span style="--c:var(--even)">${c('even')} even</span><span style="--c:var(--def)">${c('def')} ${defT}</span></div>` }; };
+const edgeMeter = (offT, defT) => { const rs = UNITS.map((u) => unitFor(u, offT, defT)), c = (t) => rs.filter((r) => r.tag === t).length; return { rs, html: `<div class="gb">${rs.map((r) => `<i class="${r.tag}"></i>`).join('')}</div><div class="lgn"><span><i class="ring off">${lg(offT, 11)}</i>${c('off')}</span><span class="ev"><i class="dotev"></i>${c('even')} even</span><span><i class="ring def">${lg(defT, 11)}</i>${c('def')}</span></div>` }; };
 
 function headerHtml(compact = false) {
   if (compact) return `<div class="cbar"><span class="ib">${I('back', 24)}</span><div class="cm">${lg('DAL', 28)}<b>DAL</b><span>at</span><b>PHI</b>${lg('PHI', 28)}</div><span class="cs">Mon 8:15 PM</span><span class="ib">${I('bell', 21)}</span></div>`;
@@ -234,11 +237,13 @@ const gtabs = (on) => `<div class="tabs gt">${['Overview', 'Game Script', 'Match
 
 function matchupMain() {
   const A = edgeMeter('DAL', 'PHI'), B = edgeMeter('PHI', 'DAL');
-  const rows = UNITS.slice(0, 5).map((u) => tugRow(unitFor(u, 'PHI', 'DAL'), 'PHI', 'DAL')).join('');
+  const dal = Q.get('dir') === 'dal'; // the other direction, used for the attribution key in the review board
+  const rows = dal ? ['rush', 'xp', 'pass', 'press', 'ed'].map((id) => tugRow(unitFor(UNITS.find((u) => u.id === id), 'DAL', 'PHI'), 'DAL', 'PHI')).join('')
+    : UNITS.slice(0, 5).map((u) => tugRow(unitFor(u, 'PHI', 'DAL'), 'PHI', 'DAL')).join('');
   return `<div class="scr">${headerHtml()}${gtabs('Matchup')}
   <div class="pad" style="margin-top:10px"><div class="seg2" ${st('wire', 'WIRE')}>
-    <div class="sg"><span class="s1">${lg('DAL', 17)}DAL offense</span><span class="s2">${lg('PHI', 17)}vs PHI defense</span>${A.html}</div>
-    <div class="sg on"><span class="s1">${lg('PHI', 17)}PHI offense</span><span class="s2">${lg('DAL', 17)}vs DAL defense</span>${B.html}</div></div>
+    <div class="sg ${dal ? 'on' : ''}"><span class="s1">${lg('DAL', 17)}DAL offense</span><span class="s2">${lg('PHI', 17)}vs PHI defense</span>${A.html}</div>
+    <div class="sg ${dal ? '' : 'on'}"><span class="s1">${lg('PHI', 17)}PHI offense</span><span class="s2">${lg('DAL', 17)}vs DAL defense</span>${B.html}</div></div>
    <div class="mode"><span class="chip cy">Opponent-adjusted ${I('chevD', 12)}</span><span class="chip">Season ${I('chevD', 12)}</span><span class="note" style="margin:0 0 0 auto">Right = better</span></div>
    <div class="card tugs" ${st('wire', 'WIRE')}>${rows}</div></div></div>${chrome('Games')}`;
 }
@@ -256,8 +261,8 @@ function matchupExpanded() {
     <div class="sl" ${st('wire', 'WIRE')}><div class="slh"><span>${lg('DAL', 16)} DAL offense · league</span><b>${ord(r1.o.rank)} of ${r1.o.n}</b></div>${strip({ key: 'adj_off_db_epa', team: 'DAL', w: 334 })}</div>
     <div class="sl" ${st('wire', 'WIRE')}><div class="slh"><span>${lg('PHI', 16)} PHI defense · league</span><b>${ord(r1.d.rank)} of ${r1.d.n}</b></div>${strip({ key: 'adj_def_db_epa', team: 'PHI', inv: true, w: 334 })}</div></div>
    <div class="card sec" ${st('wire', 'WIRE')}><div class="sh2"><span class="h2">Weekly trend</span><span class="note">raw, not opponent-adjusted</span></div>
-    <div class="tw"><div><div class="slh"><span>${lg('DAL', 16)} DAL offense</span><b>${sgn(dalO.slice(-1)[0])}</b></div>${spark(dalO, '#16c9dc', 150, 50, 6, 0)}<span class="note">last 6 weeks · EPA / dropback</span></div>
-     <div><div class="slh"><span>${lg('PHI', 16)} PHI defense</span><b>${sgn(phiD.slice(-1)[0])}</b></div>${spark(phiD, '#ff9b52', 150, 50, 6, 0)}<span class="note">last 6 weeks · EPA / dropback</span></div></div></div>
+    <div class="tw"><div><div class="slh"><span>${lg('DAL', 16)} DAL offense</span><b>${sgn(dalO.slice(-1)[0])}</b></div>${spark(dalO, TH.off, 150, 50, 6, 0)}<span class="note">last 6 weeks · EPA / dropback</span></div>
+     <div><div class="slh"><span>${lg('PHI', 16)} PHI defense</span><b>${sgn(phiD.slice(-1)[0])}</b></div>${spark(phiD, TH.def, 150, 50, 6, 0)}<span class="note">last 6 weeks · EPA / dropback</span></div></div></div>
    <div class="rel" ${st('ok', 'BUILT')}><span class="eyebrow">Related</span><div class="chs"><span class="chip">Dropback success rate</span><span class="chip">Pressure rate</span><span class="chip">Explosive pass rate</span><span class="chip">Open full ranking ${I('chevR', 12)}</span></div></div>
    <div class="card sec" ${st('wire', 'WIRE')}><div class="sh2"><span class="h2">Where this shows up</span></div>
     ${[['DAL team total over 21.5', '49¢', 'Market'], ['Lamb receptions 7+', `${askAt(7)}¢`, 'Props · research'], ['Goedert receptions 5+', `${D.players['Dallas Goedert'].rec_ladder.find((r) => r.k === 5).ask}¢`, 'Props · research']].map(([a, b, c]) => `<div class="mr"><span>${a}<small>${c}</small></span><b class="num">${b}</b>${I('chevR', 16, '#7593a8')}</div>`).join('')}</div></div></div>${chrome('Games')}`;
@@ -294,6 +299,6 @@ function matchupLower() {
     <svg width="${W}" height="${H}"><polyline fill="none" stroke="#93a9ff" stroke-width="2" points="${mhp.map((p, i) => `${x(i)},${y(p.ask)}`).join(' ')}"/><circle cx="${x(mhp.length - 1)}" cy="${y(ys[ys.length - 1])}" r="4" fill="#93a9ff"/></svg></div></div></div>${chrome('Games')}`;
 }
 
-const SCREENS = { p1: playerOverview, p2: playerScrub, p3: playerBuilder, p4: playerMatchup, g1: matchupMain, g2: matchupExpanded, g3: matchupLower };
+const SCREENS = { g1dal: matchupMain, p1: playerOverview, p2: playerScrub, p3: playerBuilder, p4: playerMatchup, g1: matchupMain, g2: matchupExpanded, g3: matchupLower };
 document.body.innerHTML = `<div class="phone ${ANNOT ? 'annot' : ''} th${THEME}" id="phone" ${LONG ? `style="height:${LONG}px"` : ''}>${(SCREENS[SCREEN] || playerOverview)()}</div>`;
 if (LONG) document.querySelectorAll('.tb,.hi').forEach((e) => e.remove());

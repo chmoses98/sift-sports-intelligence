@@ -38,7 +38,10 @@ export const teamSchema = defineSchema({
     /** Opponent-adjusted (default) or raw statistics; the two are never mixed in one list. */
     adj: f.bool(true),
     win: f.str('SEASON', 16),
+    /** Show every row of the tab's long list (Profile statistics, Form results). */
     all: f.bool(false),
+    /** Expanded rows and disclosures on the tab ("av" availability list, "roster" all players, "ol" the offensive-line note). */
+    exp: f.list([], 6),
   },
   migrations: {
     0: (q) => {

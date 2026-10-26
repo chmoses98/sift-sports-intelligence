@@ -96,7 +96,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await ready(page);
     await scrollTo(page, 500);
     await tapAndBack(page, page.locator('.st-rkr a.nm').nth(2), /^\/v3\/team\/nfl\/[A-Z]+/);
-    await tapAndBack(page, page.locator('.st-rkr a[data-tap="team"]').first(), /^\/v3\/team\/nfl\/SF/);
+    await tapAndBack(page, page.locator('.st-rkr a[aria-label$="logo, team page"]').first(), /^\/v3\/team\/nfl\/SF/);
     await scrollTo(page, 0);
     await tapAndBack(page, page.locator('.st-selc .v3-navrow__main'), /^\/v3\/team\/nfl\/DAL/);
     // every identity in the list carries its destination for the matrix
@@ -221,6 +221,49 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-state').first()).toContainText('No game-by-game series');
     await expect(page.locator('.st-path')).toContainText('Last 34');
     await expect(page.locator('.st-path')).toContainText('11th');
+  });
+
+  test('missing data: an empty series and an unreadable series each say so, and the rank path or the single window is stated instead', async ({ page }) => {
+    const seriesUrl = /explorer\/series\/ser_e9732c71f3e58a0a095c\.json/;
+    // a series document with no observations (real document, points removed)
+    await page.route(seriesUrl, async (route) => {
+      const res = await route.fetch();
+      const doc = await res.json();
+      await route.fulfill({ status: 200, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }, body: JSON.stringify({ ...doc, points: [] }) });
+    });
+    await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL');
+    await expect(page.locator('.st-state').first()).toContainText('No game-by-game series');
+    await expect(page.locator('.st-obs')).toHaveCount(0);
+    await expect(page.locator('.v3-main')).toContainText(/across windows|One window only/);
+    await page.unroute(seriesUrl);
+    // the document is not in the publication at all
+    await page.route(seriesUrl, (route) => route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }));
+    await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=PHI&obs=3');
+    await expect(page.locator('.st-hd h1')).toBeVisible();
+    await expect(page.locator('.st-obs')).toHaveCount(0);
+    await expect(page.locator('.st-obc')).toHaveCount(0);
+  });
+
+  test('missing data: a ranking whose document is not published says so; a team outside the universe has no rank', async ({ page }) => {
+    await page.route(/explorer\/rankings\/rnk_2d0e261738ef71649dc9\.json/, (route) => route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }));
+    await go(page, `${ADJ}?v=1&sel=DAL`);
+    await expect(page.getByText('This ranking is not in the publication')).toBeVisible();
+    await expect(page.locator('.st-rkr')).toHaveCount(0);
+    await expect(page.locator('.st-selc')).toHaveCount(0);
+  });
+
+  test('missing data: a selected team that is not in the ranking\'s universe has no rank here and nothing is invented', async ({ page }) => {
+    await go(page, `${ADJ}?v=1&sel=ZZZ`);
+    await ready(page);
+    await expect(page.locator('.st-standin')).toContainText('ZZZ is not in this ranking');
+    await expect(page.locator('.st-selc')).toHaveCount(0);
+  });
+
+  test('missing data: a player the publication does not know says so, and the missing league rank is still the locked row', async ({ page }) => {
+    await go(page, `${ADJ}?v=1&tab=compare&sel=DAL&opp=PHI&cmpm=players&a=prt_000000000000000000000&b=${PICKENS}`);
+    await expect(page.getByText('Player not found')).toBeVisible();
+    await expect(page.locator('.st-olc')).toContainText('League rank among players is not published');
+    await expect(page.locator('.st-pbars')).toHaveCount(0);
   });
 
   test('Trend with no team selected asks for one in a sheet; the choice lands in the address', async ({ page }) => {

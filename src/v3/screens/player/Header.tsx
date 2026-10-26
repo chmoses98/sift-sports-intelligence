@@ -64,7 +64,7 @@ export function Hero({ v, saved, onSave, heroRef }: { v: PlayerView; saved: bool
 }
 
 /** The compact header: back, the player's face, name and what is open, save. Overlays the top once the hero has scrolled away; on Matchup it is in flow. */
-export function MiniBar({ v, saved, onSave, shown, inflow }: { v: PlayerView; saved: boolean; onSave: () => void; shown: boolean; inflow: boolean }) {
+export function MiniBar({ v, saved, onSave, shown, inflow, short }: { v: PlayerView; saved: boolean; onSave: () => void; shown: boolean; inflow: boolean; short?: boolean }) {
   const vm = v.vm;
   const back = useBack();
   if (!vm) return null;
@@ -76,10 +76,30 @@ export function MiniBar({ v, saved, onSave, shown, inflow }: { v: PlayerView; sa
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back} tabIndex={shown || inflow ? 0 : -1}><Icon name="back" size={24} /></button>
         {vm.photo ? <img className="v3p-mini__av" src={vm.photo.src} alt="" style={{ objectPosition: vm.photo.focus }} /> : vm.team ? <span className="v3p-mini__av is-logo"><TeamLogo team={vm.team} size={22} /></span> : null}
         <div className="v3p-mini__t"><b>{vm.name}</b><span>{sub}</span></div>
+        {short && vm.team && <TeamLink team={{ slug: vm.team.slug, id: vm.team.id }} label={`${vm.team.name}, team page`} className="v3p-who__logo"><TeamLogo team={vm.team} size={28} /></TeamLink>}
+        {short && <FollowStar kind="players" id={`${v.slug}:${v.pid}`} label={vm.name} />}
         <SaveButton v={v} saved={saved} onToggle={onSave} />
       </div>
     </div>
   );
+}
+
+/**
+ * A short phone (an iPhone SE is 667 points tall): the hero gives way to the compact bar so the chart, the line and the price all fit above
+ * the tab bar (the design's first-screen rule: chart first). Taller phones keep the locked hero.
+ */
+export function useShortScreen(): boolean {
+  const q = '(max-height: 700px)';
+  const [short, setShort] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(q).matches);
+  useEffect(() => {
+    if (typeof matchMedia === 'undefined') return;
+    const m = matchMedia(q);
+    const on = () => setShort(m.matches);
+    on();
+    m.addEventListener?.('change', on);
+    return () => m.removeEventListener?.('change', on);
+  }, []);
+  return short;
 }
 
 /** True while the element is off screen above the viewport (the compact bar then shows). */

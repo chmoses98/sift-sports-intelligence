@@ -14,7 +14,7 @@ import { Icon } from '../ui/Icon';
 import { LockedRow, Tabs } from '../ui/atoms';
 import { useSheet } from '../ui/Sheet';
 import { FiltersSheet } from './player/FiltersSheet';
-import { Hero, GameStrip, MiniBar, useGone, useHeroRef } from './player/Header';
+import { Hero, GameStrip, MiniBar, useGone, useHeroRef, useShortScreen } from './player/Header';
 import { LadderSheet } from './player/LadderSheet';
 import { LogTab } from './player/LogTab';
 import { MatchupTab } from './player/MatchupTab';
@@ -33,8 +33,9 @@ export function Player() {
   const sheet = useSheet();
   const saved = useSaved();
   const heroRef = useHeroRef();
+  const short = useShortScreen();
   const tab = v.state.tab;
-  const gone = useGone(heroRef, tab !== 'matchup');
+  const gone = useGone(heroRef, tab !== 'matchup' && !short);
 
   // Sheets read the live view from here, never a copy taken when they opened.
   useEffect(() => { publishView(v); });
@@ -99,12 +100,12 @@ export function Player() {
     );
   }
 
-  const flow = tab === 'matchup' && v.researchReady;
+  const flow = (tab === 'matchup' || short) && v.researchReady;
   const top = (
     <>
-      <MiniBar v={v} saved={!!savedItem} onSave={toggleSave} shown={gone} inflow={flow} />
+      <MiniBar v={v} saved={!!savedItem} onSave={toggleSave} shown={gone} inflow={flow} short={short} />
       {!flow && <Hero v={v} saved={!!savedItem} onSave={toggleSave} heroRef={heroRef} />}
-      {!flow && <GameStrip v={v} />}
+      {!(tab === 'matchup' && v.researchReady) && <GameStrip v={v} />}
     </>
   );
 
@@ -123,7 +124,7 @@ export function Player() {
 
   const noLog = vm.why != null && vm.obs.length === 0;
   return (
-    <div className="v3p" data-sport={vm.sport} data-tab={tab}>
+    <div className="v3p" data-sport={vm.sport} data-tab={tab} data-short={short || undefined}>
       {top}
       <Tabs tabs={TABS(vm.props.size)} value={tab} onChange={(k) => v.set({ tab: k, obs: null, view: 'main', more: false })} label="Player sections" />
       <div className="v3p-body">

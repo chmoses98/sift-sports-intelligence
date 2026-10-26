@@ -3,6 +3,7 @@
 import { useNavigate } from '../../../routing';
 import { teamLogo } from '../../../lib/teams';
 import { Icon } from '../../ui/Icon';
+import { useShortScreen } from './Header';
 import { Lanes, LaneTrack, LaneMark, type LaneCell } from '../../ui/atoms';
 import { HitBars } from '../../ui/charts/HitBars';
 import { GameLink, PriceTap } from '../../nav/Targets';
@@ -113,6 +114,7 @@ export function ChartCard({ v, onLadder }: { v: PlayerView; onLadder: () => void
   } : null;
   const rungLines = (v.prop?.rungs ?? []).map((r) => r.line);
   const tiersWait = v.filters.tier != null && v.tiers.loading;
+  const short = useShortScreen();
   return (
     <section className="v3p-chartc v3p-card" aria-label={`${v.statDef?.label} history`}>
       <div className="v3p-top">
@@ -138,7 +140,7 @@ export function ChartCard({ v, onLadder }: { v: PlayerView; onLadder: () => void
       ) : (
         <>
           <HitBars
-            games={games} stat={stat} line={v.line} rungs={rungLines} tonight={tonight} selKey={sel} height={160} scrubbing={scrubbing}
+            games={games} stat={stat} line={v.line} rungs={rungLines} tonight={tonight} selKey={sel} height={short ? 130 : 160} scrubbing={scrubbing}
             onSelect={(key) => v.set({ obs: sel === key ? null : key })} onScrub={v.drag.setOn} onLine={v.drag.onLine}
             logoOf={(code) => teamLogo(vm.sport, code)} fmt={(n) => String(n)} label={`${vm.name} ${v.statDef?.label}, ${games.length} games`}
           />

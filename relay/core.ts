@@ -49,7 +49,8 @@ function cors(origin: string | null, allowed: string[]): Record<string, string> 
     h['Access-Control-Allow-Origin'] = origin;
     h['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
     // Retry-After is not CORS-safelisted: without this the browser cannot honour a 429's back-off.
-    h['Access-Control-Expose-Headers'] = 'X-Sift-Observed-At, Retry-After';
+    // Date is not safelisted either: Sift reads it to correct a wrong device clock (see handleRelay).
+    h['Access-Control-Expose-Headers'] = 'X-Sift-Observed-At, Retry-After, Date';
     h['Access-Control-Max-Age'] = '86400';
   }
   return h;
@@ -131,7 +132,17 @@ async function fromUpstream(target: string, o: RelayOptions, now: () => number):
 /** Identical reads already on their way upstream (one process): later callers share that answer. */
 const inflight = new Map<string, Promise<Response>>();
 
+/**
+ * Every answer (200, 429, 4xx, 5xx, preflight, refusal) carries a `Date` from the relay's own clock, set
+ * here so it does not depend on the host adding one. Sift reads it (exposed above) to correct a device clock.
+ */
 export async function handleRelay(request: Request, o: RelayOptions = {}): Promise<Response> {
+  const res = await respond(request, o);
+  if (!res.headers.has('date')) res.headers.set('date', new Date((o.now ?? Date.now)()).toUTCString());
+  return res;
+}
+
+async function respond(request: Request, o: RelayOptions): Promise<Response> {
   const allowed = o.allowedOrigins ?? ALLOWED_ORIGINS;
   const origin = request.headers.get('Origin');
   const h = cors(origin, allowed);

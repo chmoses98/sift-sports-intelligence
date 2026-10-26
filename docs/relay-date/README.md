@@ -101,7 +101,7 @@ The script uses `playwright-core` and `typescript` already in `devDependencies`,
 needs no network beyond localhost. It is not wired into CI or any workflow.
 
 Local results on this branch: `tsc -b --noEmit` clean; eslint clean on the touched files; the two relay test files
-46 of 46 pass; full suite: see the final line of the task report.
+46 of 46 pass; full suite (`npx vitest run`): 140 files passed, 3 skipped; 1655 tests passed, 3 skipped, 0 failed.
 
 ## Rollout notes
 

@@ -45,6 +45,6 @@ Typed, tested normalizers over the real published documents, and lazy cached hoo
 | `scheduleOf` / `useSchedule` / `nextGame` | The schedule authority: explorer start times; Kalshi event times are never used as a start. |
 | `deriveRelated` (temporary) | Related statistics from stable ids, validated against the sport's registry, raw and adjusted typed apart, never crossing sport or entity type. Replaced by backend backlog item 1. |
 
-Not in this milestone, by design: the cross-game prop index (Prop Discovery, milestone 6, where its consumer is), and quote usability wiring (waits on the separately reviewed quote branch; screens use one seam, `useQuoteGate`, so swapping in `quoteUsable` is a one-file change).
+Not in this milestone, by design: the cross-game prop index (Prop Discovery, milestone 6, where its consumer is), and quote usability wiring (waits on the separately reviewed quote branch; screens use one seam, `src/v3/data/quoteGate.ts`, so swapping in `quoteUsable` is a one-file change).
 
 Real-document test tooling: `e2e/support/realFeeds.ts` answers feed requests from a disk cache of real published documents (`V3_REAL_FEEDS=live` fills it with curl through the environment proxy); `scripts/v3-qa/shot.mjs` takes phone screenshots (`REAL=1` for real data). Fixtures in `tests/v3/fixtures` are trimmed real documents captured 2026-10-26.

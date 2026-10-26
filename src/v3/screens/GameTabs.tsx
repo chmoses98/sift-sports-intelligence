@@ -94,6 +94,8 @@ function Unavailable({ icon = 'info', title, children }: { icon?: 'info' | 'cloc
 
 function LiveNote({ g }: { g: V3Game }) {
   if (g.provenance === 'demo' || g.score?.source === 'score-feed') return null;
+  // A completed game whose final score the publication carries is not "unreported": the hero shows the score and there is nothing to apologise for.
+  if (g.phase === 'final' && g.score) return null;
   return (
     <Unavailable icon="clock" title={g.phase === 'live' ? 'Live score and plays are not available' : 'Result not reported yet'}>
       The publication carries no live score, clock or play-by-play, and no licensed live feed covers {g.sport === 'CFB' ? 'college football' : g.sport} here. Nothing is estimated. The pregame research below is frozen at kickoff and is not a graded result.

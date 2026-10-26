@@ -7,7 +7,9 @@ import { test, expect, type Locator, type Page } from '@playwright/test';
 import { useRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
-const CAPTURE = new Date('2026-10-26T18:24:00Z');
+// The newest observation in the real cache is the live-quote feed's (23:05:29Z); the event document's capture is 18:23:01Z. A browser clock
+// 30 s after the live feed makes the live prices current (the gate's own 180 s list window) and the document's older capture withheld.
+const CAPTURE = new Date('2026-10-26T23:06:00Z');
 
 test.beforeEach(async ({ page }) => {
   await useRealFeeds(page);
@@ -24,13 +26,13 @@ async function open(page: Page, query = '') {
   await page.goto(`./#${GAME}${query}`);
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
   const missing = page.getByText('This game is not on the published slate');
-  const ready = page.locator('.v3-gh, [data-testid=tug-rows]').first();
+  const ready = page.locator('.v3-gh, .mx-ubar, [data-testid=tug-rows]').first();
   await Promise.race([ready.waitFor({ timeout: 30_000 }), missing.waitFor({ timeout: 30_000 })]).catch(() => {});
   test.skip(await missing.isVisible().catch(() => false), 'the reference game is no longer on the published slate');
 }
 async function matchup(page: Page, query = '') {
   await open(page, `?v=1&tab=matchup${query}`);
-  await expect(page.getByTestId('tug-rows')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId(/unit=/.test(query) ? 'unit-view' : 'tug-rows')).toBeVisible({ timeout: 30_000 });
 }
 
 /** Tap a target, check where it goes (`data-dest` and the address), then Back and check the screen is exactly as it was left. */
@@ -38,7 +40,8 @@ async function tap(page: Page, target: Locator, dest: RegExp, kind: string) {
   const before = await hash(page);
   const at = await y(page);
   await expect(target).toHaveAttribute('data-tap', kind);
-  await expect(target).toHaveAttribute('data-dest', dest);
+  // `data-dest` is the route (no hash); the address bar carries it after the hash
+  await expect(target).toHaveAttribute('data-dest', new RegExp(dest.source.replace(/^#\??/, '')));
   await target.scrollIntoViewIfNeeded();
   const scrolled = await y(page);
   await target.click();
@@ -166,7 +169,7 @@ test.describe('Key matchups and game shape @v3', () => {
     const price = km.locator('.mx-kp').first();
     await expect(price).toHaveAttribute('data-tap', 'price');
     await expect(price).toHaveAttribute('data-dest', /sheet=contract&tk=KXNFL/);
-    await expect(price).toContainText(/\d+¢/); // current under the fixed clock: the quote gate passes
+    await expect(km.locator('.mx-kp', { hasText: /\d+¢/ }).first()).toBeVisible(); // current under the fixed clock: the quote gate passes where a live price exists
     const url = await hash(page);
     await price.click(); // 36
     await expect(page).toHaveURL(/sheet=contract&tk=KXNFL/);

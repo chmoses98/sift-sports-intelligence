@@ -7,7 +7,18 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router';
 import { V3Root } from '../V3Root';
 import { v3Children } from '../routes';
 
+// Snapshot builds (scripts/build-v3-snapshot.mjs) serve captured REAL documents and open on the captured player, in real-data mode.
+declare const __SIFT_SNAPSHOT__: boolean | undefined;
+const SNAPSHOT = typeof __SIFT_SNAPSHOT__ !== 'undefined' && __SIFT_SNAPSHOT__ === true;
+if (SNAPSHOT) {
+  const { installSnapshot } = await import('./snapshot');
+  installSnapshot();
+  try { sessionStorage.setItem('sift3.demo', '0'); sessionStorage.removeItem('sift3.demo'); } catch { /* real data */ }
+  if (!/^#\/v3\/(player|team|stat|game)/.test(location.hash)) location.hash = '#/v3/player/nfl/prt_4c661ae8b854ff5f66dd';
+}
+
 try {
+  if (SNAPSHOT) throw new Error('real data');
   const explicit = /[?&]demo=/.test(location.hash) || sessionStorage.getItem('sift3.demo') != null;
   if (!explicit) sessionStorage.setItem('sift3.demo', '1');
 } catch { /* storage unavailable: real data */ }

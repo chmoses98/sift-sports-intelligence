@@ -90,7 +90,7 @@ describe('identity (TR1, TR6)', () => {
     expect(l.rows.map((r) => r.label)).toEqual(['Goals', 'Exp. goals']);
     expect(l.omitted).toEqual(['Special teams']);
     expect(l.sentence).toContain('published for the season only');
-    expect(l.options.map((o) => o.label)).toEqual(['2026–27', 'Last 10']);
+    expect(l.options.map((o) => o.label)).toEqual(['2026–27', 'L10']);
   });
   it('returns nothing for a sport with no declaration or a team without the statistics', () => {
     expect(identityOf('mlb', dal, { adj: true, win: 'SEASON' }, nflLook)).toBeNull();
@@ -262,6 +262,13 @@ describe('availability and players (TR5)', () => {
     for (const r of a) expect(r.playerId === null || dal.players.some((p) => p.participantId === r.playerId)).toBe(true);
     const h = availabilityOf(tor);
     expect(h.every((r) => r.kind === 'ir')).toBe(true);
+  });
+  it('an availability row links to Player Research exactly when its name matches a player the publication lists', () => {
+    const lamb = dal.players.find((p) => p.name === 'CeeDee Lamb')!;
+    const withLamb = { ...dal, availability: [...dal.availability, { status: 'QUESTIONABLE', detail: 'CeeDee Lamb (WR, DAL): Ankle; return 2026-11-01', asOf: null, eventId: null, source: null }] };
+    const rows = availabilityOf(withLamb);
+    expect(rows.find((r) => r.name === 'CeeDee Lamb')).toMatchObject({ playerId: lamb.participantId, kind: 'other', label: 'Questionable' });
+    expect(rows.filter((r) => r.name !== 'CeeDee Lamb').every((r) => r.playerId === null)).toBe(true);
   });
   it('skill players are the declared roles, ordered by props when the board is known, never "no props" on a guess', () => {
     const av = availabilityOf(dal);

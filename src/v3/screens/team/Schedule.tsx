@@ -38,7 +38,7 @@ export function Schedule({ c, schedule, sampleOpp }: { c: TeamPageCtx; schedule:
   const ready = c as ReadyCtx;
   if (!up.length) return <div className="tm-body"><LockedRow title="Schedule">No upcoming games are on the published schedule.</LockedRow></div>;
   const adjusted = !!c.decl.identity.adjusted;
-  const basis = adjusted ? 'opponent-adjusted' : 'raw';
+  const basis = adjusted ? 'adjusted' : 'raw';
   return (
     <div className="tm-body">
       <section className="tm-card tm-sum6" aria-label="Opponent strength">
@@ -47,7 +47,7 @@ export function Schedule({ c, schedule, sampleOpp }: { c: TeamPageCtx; schedule:
           <div className="o"><small>Opponent offenses, {basis}</small><b className="num">{sum.off ?? '—'}</b><span>average percentile</span></div>
           <div className="d"><small>Opponent defenses, {basis}</small><b className="num">{sum.def ?? '—'}</b><span>average percentile</span></div>
         </div>
-        <p className="tm-note">Descriptive: season-long {basis} EPA per play, {sum.ranked} of {sum.total} opponents ranked. Higher is stronger; it is not a prediction.</p>
+        <p className="tm-note">Descriptive: season-long {adjusted ? 'opponent-adjusted' : 'raw'} EPA per play, {sum.ranked} of {sum.total} opponents ranked. Higher is stronger; it is not a prediction.</p>
       </section>
       <section className="tm-card tm-schl" aria-label="Schedule">
         <div className="schh"><span /><span /><span /><span className="o">Opp. offense</span><span className="d">Opp. defense</span></div>

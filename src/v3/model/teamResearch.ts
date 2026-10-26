@@ -153,7 +153,7 @@ export function identityOf(slug: string, profile: TeamProfile, state: { adj: boo
       offText: `${fmtValue(first.off.value, first.off.unit)} ${idn.head.offUnit}`.trim(),
       defText: `${fmtValue(first.def.value, first.def.unit)} ${idn.head.defUnit}`.trim(),
     },
-    options: offered.map((k) => ({ key: k, label: windowWord(decl, k === 'SEASON' ? profile.season ?? 'SEASON' : k) })),
+    options: offered.map((k) => ({ key: k, label: k === 'SEASON' ? windowWord(decl, profile.season ?? 'SEASON') : k })),
     sentence, omitted,
   };
 }

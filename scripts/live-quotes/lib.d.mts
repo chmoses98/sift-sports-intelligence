@@ -1,6 +1,7 @@
 // Types for lib.mjs (tests import it from TypeScript).
 export const FEED_SCHEMA: string;
 export const INDEX_SCHEMA: string;
+export const HEALTH_SCHEMA: string;
 export const KALSHI: string;
 export const KEEP: string[];
 export interface Game { key: string; sport?: string; event_id: string; tickers: string[]; series: string[] }
@@ -23,3 +24,12 @@ export function planFeed(publications: Publication[], games: Game[], byKey?: Map
 export function publicationGames(rawBase: string, get: Get, o?: { now?: () => number; horizonDays?: number; lookbackHours?: number }): Promise<Game[]>;
 export function sweep(games: Game[], get: Get, o?: { api?: string; maxPages?: number; log?: (s: string) => void }): Promise<{ byKey: Map<string, Map<string, Record<string, unknown>>>; errors: string[] }>;
 export function buildFiles(games: Game[], byKey: Map<string, Map<string, Record<string, unknown>>>, o: { generatedAt: string; source?: string; sports?: string[]; errors?: string[]; requests?: number; publications?: Publication[] | null; sportStatus?: SportStatus[] | null }): Map<string, Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+export interface LoopState { run_id: string; loop_started_at: string; sequence: number; previous_success_at: string | null }
+export function advanceLoop(prev: unknown, o: { runId: string; nowIso: string }): LoopState;
+export interface Heartbeat {
+  schema: string; generated_at: string; run_id: string; run_attempt: string | null; loop_started_at: string; sequence: number;
+  cycle_started_at: string; cycle_finished_at: string; sweep_duration_ms: number; requests: number; errors: number; status: string | null;
+  excluded_sports: string[]; sports: { sport: string | null | undefined; status: string; published: boolean; games: number; markets: number | null }[];
+  last_success_at: string; previous_success_at: string | null;
+}
+export function buildHeartbeat(o: { loop: LoopState; runAttempt?: string | null; generatedAt: string; cycleStartedAt: string; cycleFinishedAt: string; sweepDurationMs: number; requests: number; errors?: string[]; sportStatus?: SportStatus[]; status?: string | null; excludedSports?: string[] }): Heartbeat;

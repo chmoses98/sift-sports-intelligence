@@ -30,7 +30,7 @@ export function defaultProvider(): QuoteProvider | null {
     // Quote batches: relay first (15-60 s quotes), feed as fallback. Inventory sweeps (~57 Kalshi series
     // per game, more than Kalshi's ~14-request per-IP burst): feed first (published every 3 min, the
     // inventory cadence), relay as fallback. Each answer keeps its own provenance.
-    return new FallbackProvider([relay, feed], { inventoryOrder: [feed, relay] });
+    return new FallbackProvider([relay, feed], { inventoryOrder: [feed, relay], honourRetryAfter: true });
   }
   return relay ?? feed;
 }

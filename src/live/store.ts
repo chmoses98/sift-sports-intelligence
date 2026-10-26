@@ -10,7 +10,14 @@
 //   its freshness keeps aging honestly (src/live/freshness.ts).
 // * It never touches the research fetch cache (src/data/fetcher.ts): research documents may be
 //   memoised for navigation speed; quotes may not.
-import { ProviderError, type FallbackNote, type LiveQuote, type ProviderResult, type QuoteProvider } from './types';
+// * Screens that show prices (list rows, an exact contract) register scopes WITH a QuoteContext
+//   (addRowsScope / addContractScope) and read prices through renderQuote(): the single usability rule in
+//   src/live/quoteUsable.ts decides display, every render is counted by the availability meter, and every
+//   refresh outcome is kept in a bounded in-memory history. All of that is internal diagnostics; none of it
+//   is ever shown as freshness text.
+import { AvailabilityMeter, NO_PROVIDER } from './availability';
+import { assessBatch, maxAgeMs, quoteUsable, type QuoteContext, type Usability } from './quoteUsable';
+import { ProviderError, type FallbackNote, type FetchOptions, type LiveQuote, type ProviderResult, type QuoteProvider } from './types';
 
 export type Cadence = 'detail' | 'game' | 'slate' | 'background';
 
@@ -28,6 +35,15 @@ export const BACKOFF_MAX_MS = 5 * 60_000;
 /** A refresh within this window counts as current when the app returns to the foreground. */
 const RESUME_DEDUPE_MS = 2_000;
 const MAX_PERSISTED = 2_000;
+/** Refresh outcomes kept in memory (diagnostics). */
+export const HISTORY_LIMIT = 200;
+/**
+ * With a QuoteContext, the relay gets this long before the feed is asked, so a hung relay still leaves
+ * time for the feed inside the 8 s bound of a forced refresh.
+ */
+export const PRIMARY_TIMEOUT_MS = 4_000;
+/** Visible-row scopes are capped: two relay batches. The 900-contract universe is never polled. */
+export const MAX_ROW_TICKERS = 200;
 
 export interface Env {
   isVisible(): boolean;
@@ -57,6 +73,12 @@ export interface StoreOptions {
 
 export interface ScopeSpec {
   tickers?: Iterable<string>;
+  /**
+   * What these tickers are shown as (list row / exact contract, with the game's scheduled start). Gives
+   * the refresh a maximum observation age: a relay answer older than that is a failed refresh and the
+   * feed is asked. Absent = legacy scope, refreshed exactly as before.
+   */
+  context?: QuoteContext;
   /** Provider event tickers whose full current listing should be tracked (inventory). */
   events?: Iterable<string>;
   cadence: Cadence;
@@ -65,6 +87,7 @@ export interface ScopeSpec {
 }
 
 interface Scope {
+  context: QuoteContext | null;
   tickers: Set<string>;
   events: Set<string>;
   cadence: Cadence;
@@ -84,6 +107,23 @@ export interface EventState {
   lastSuccessAt: number | null;
   lastError: string | null;
   tickers: Set<string>;
+}
+
+export type RefreshOutcomeKind = 'ok' | 'over_limit' | 'rate_limited' | 'timeout' | 'error';
+
+/** One provider call, for diagnostics (never rendered). */
+export interface RefreshOutcome {
+  at: number;
+  kind: 'tickers' | 'events';
+  tickers: number;
+  /** The provider that answered; null when none did. */
+  provider: string | null;
+  /** Why an earlier provider was skipped ("rate_limited: ... (HTTP 429)"), or the failure when none answered. */
+  fallbackReason: string | null;
+  latencyMs: number | null;
+  /** Age of the newest believable observation in the answer, at receipt. */
+  observationAgeMs: number | null;
+  outcome: RefreshOutcomeKind;
 }
 
 export interface Diagnostics {
@@ -113,6 +153,10 @@ export interface Diagnostics {
   backoffUntil: number | null;
   backoffReason: string | null;
   consecutiveFailures: number;
+  /** The most recent provider call's outcome (see refreshHistory()). */
+  lastOutcome: RefreshOutcome | null;
+  /** Relay clock minus device clock, when the relay's Date header is readable; 0 = trust the device clock. */
+  clockSkewMs: number;
   online: boolean;
   visible: boolean;
   activeScopes: number;
@@ -206,8 +250,11 @@ export class QuoteStore {
   private timers: Timers;
   private persistence: Persistence | null;
   private random: () => number;
+  private history: RefreshOutcome[] = [];
+  private clockSkew = 0;
+  readonly meter = new AvailabilityMeter();
   private backoff = { failures: 0, until: 0, reason: null as string | null, rateLimited: false };
-  private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'inventoryProviderLabel'> = {
+  private diag: Omit<Diagnostics, 'online' | 'visible' | 'activeScopes' | 'trackedTickers' | 'trackedEvents' | 'backoffUntil' | 'backoffReason' | 'consecutiveFailures' | 'provider' | 'providerLabel' | 'inventoryProviderLabel' | 'lastOutcome' | 'clockSkewMs'> = {
     answeredBy: null, fallback: null, inventoryAnsweredBy: null, inventoryFallback: null,
     requests: 0, batches: 0, tickersRequested: 0, tickersRefreshed: 0, tickersFailed: 0, tickersMissing: 0,
     lastRequestAt: null, lastSuccessAt: null, lastErrorAt: null, lastError: null, lastLatencyMs: null,
@@ -281,6 +328,8 @@ export class QuoteStore {
       backoffUntil: this.backoff.until > this.now() ? this.backoff.until : null,
       backoffReason: this.backoff.until > this.now() ? this.backoff.reason : null,
       consecutiveFailures: this.backoff.failures,
+      lastOutcome: this.history[this.history.length - 1] ?? null,
+      clockSkewMs: this.clockSkew,
       online: this.env.isOnline(),
       visible: this.env.isVisible(),
       activeScopes: this.scopes.size,
@@ -289,12 +338,61 @@ export class QuoteStore {
     };
   }
 
+  // ---------------------------------------------------------------- usability and diagnostics
+
+  /** Bounded in-memory history of provider calls, oldest first (diagnostics only). */
+  refreshHistory(limit = HISTORY_LIMIT): RefreshOutcome[] {
+    return this.history.slice(-limit);
+  }
+
+  /** Relay clock minus device clock used to correct observation ages (0 = trust the device clock). */
+  get clockSkewMs(): number {
+    return this.clockSkew;
+  }
+
+  /** May this ticker's current quote be displayed in `ctx`? Pure read: records nothing. */
+  usable(ticker: string, ctx: QuoteContext): Usability {
+    return quoteUsable(this.quotes.get(ticker), ctx, this.now(), { clockSkewMs: this.clockSkew });
+  }
+
+  /**
+   * The quote a price slot may show, or null (the screen shows the missing-price state). Call once per
+   * price-slot render: it is what the availability meter counts.
+   */
+  renderQuote(ticker: string, ctx: QuoteContext): LiveQuote | null {
+    const q = this.quotes.get(ticker);
+    const u = quoteUsable(q, ctx, this.now(), { clockSkewMs: this.clockSkew });
+    this.meter.record({ context: u.context, usable: u.usable, provider: q?.source ?? NO_PROVIDER, ageMs: u.ageMs });
+    return u.usable ? q! : null;
+  }
+
+  /** Availability per context and provider, median and p95 observation age at render (diagnostics only). */
+  availability() {
+    return this.meter.report();
+  }
+
   // ---------------------------------------------------------------- scopes
+
+  /** Visible price rows of a list: game cadence (45 s) through the relay in batches of at most 100. Capped at MAX_ROW_TICKERS. */
+  addRowsScope(tickers: Iterable<string>, ctx: Omit<QuoteContext, 'surface'>): () => void {
+    return this.addScope({ tickers: [...new Set(tickers)].slice(0, MAX_ROW_TICKERS), cadence: 'game', context: { ...ctx, surface: 'list' } });
+  }
+
+  /** The selected exact contract: detail cadence (20 s). Opening it should also call refreshContract(). */
+  addContractScope(ticker: string, ctx: Omit<QuoteContext, 'surface'>): () => void {
+    return this.addScope({ tickers: [ticker], cadence: 'detail', context: { ...ctx, surface: 'contract' } });
+  }
+
+  /** List-wide background data (inventory of these events) at slate cadence, feed first. No prices are shown from it. */
+  addSlateScope(events: Iterable<string>): () => void {
+    return this.addScope({ events, cadence: 'slate', eventCadence: 'slate' });
+  }
 
   /** Track a set of tickers/events while a screen shows them. Returns the release function. */
   addScope(spec: ScopeSpec): () => void {
     const id = this.nextScopeId++;
     this.scopes.set(id, {
+      context: spec.context ?? null,
       tickers: new Set(spec.tickers ?? []),
       events: new Set(spec.events ?? []),
       cadence: spec.cadence,
@@ -414,7 +512,7 @@ export class QuoteStore {
    * latest, with whatever arrived; tickers still pending are reported as failed and keep their
    * last-known-good quote.
    */
-  async refreshNow(tickers: Iterable<string>, opts: { timeoutMs?: number; events?: Iterable<string> } = {}): Promise<RefreshResult> {
+  async refreshNow(tickers: Iterable<string>, opts: { timeoutMs?: number; events?: Iterable<string>; context?: QuoteContext; primaryTimeoutMs?: number } = {}): Promise<RefreshResult> {
     const want = [...new Set(tickers)];
     const events = [...new Set(opts.events ?? [])];
     const startedAt = this.now();
@@ -427,7 +525,7 @@ export class QuoteStore {
     const timeoutMs = opts.timeoutMs ?? REQUEST_TIMEOUT_MS;
     let timedOut = false;
     const ctrl = new AbortController();
-    const work = this.run(want, events, { force: true, signal: ctrl.signal });
+    const work = this.run(want, events, { force: true, signal: ctrl.signal, context: opts.context, primaryTimeoutMs: opts.primaryTimeoutMs });
     let handle: unknown = null;
     const timeout = new Promise<null>((resolve) => {
       handle = this.timers.set(() => {
@@ -447,7 +545,37 @@ export class QuoteStore {
     return { ...r, timedOut, finishedAt };
   }
 
-  private async run(tickers: string[], events: string[], o: { force: boolean; signal?: AbortSignal }): Promise<RefreshResult> {
+  /**
+   * The exact contract opened: ask for its freshest price now, relay first and then the feed, inside the
+   * same 8 s bound as any forced refresh (the relay gets PRIMARY_TIMEOUT_MS of it). The quote is returned
+   * only if it passes the usability rule for `ctx`; otherwise null and the screen shows "Price unavailable
+   * right now" with Retry (which calls this again).
+   */
+  async refreshContract(ticker: string, ctx: Omit<QuoteContext, 'surface'>, opts: { timeoutMs?: number } = {}): Promise<{ result: RefreshResult; usability: Usability; quote: LiveQuote | null }> {
+    const context: QuoteContext = { ...ctx, surface: 'contract' };
+    const result = await this.refreshNow([ticker], { timeoutMs: opts.timeoutMs, context, primaryTimeoutMs: PRIMARY_TIMEOUT_MS });
+    const usability = this.usable(ticker, context);
+    return { result, usability, quote: usability.usable ? this.quotes.get(ticker) ?? null : null };
+  }
+
+  /**
+   * Policy for one quote batch: the loosest maximum age any scope showing these tickers accepts (a relay
+   * answer whose newest observation is older than that is a failed refresh), and the relay's share of the
+   * time. Undefined when any ticker is in a legacy (context-less) scope and nothing was asked for
+   * explicitly: those batches behave exactly as before.
+   */
+  private policyFor(ids: string[], explicit?: QuoteContext, primaryTimeoutMs?: number): FetchOptions | undefined {
+    const t = this.now();
+    let loosest = 0;
+    for (const id of ids) {
+      const ctxs = explicit ? [explicit] : [...this.scopes.values()].filter((s) => s.context && s.tickers.has(id)).map((s) => s.context!);
+      if (!ctxs.length) return primaryTimeoutMs != null ? { primaryTimeoutMs } : undefined;
+      for (const c of ctxs) loosest = Math.max(loosest, maxAgeMs(c, t, this.clockSkew));
+    }
+    return { maxAgeMs: loosest, primaryTimeoutMs: primaryTimeoutMs ?? PRIMARY_TIMEOUT_MS, clockSkewMs: this.clockSkew };
+  }
+
+  private async run(tickers: string[], events: string[], o: { force: boolean; signal?: AbortSignal; context?: QuoteContext; primaryTimeoutMs?: number }): Promise<RefreshResult> {
     const startedAt = this.now();
     const provider = this.provider!;
     const res: RefreshResult = { requested: [...tickers], refreshed: [], missing: [], failed: [], error: null, timedOut: false, startedAt, finishedAt: startedAt };
@@ -487,13 +615,15 @@ export class QuoteStore {
         this.diag.batches++;
         this.diag.lastRequestAt = t0;
         if (b.kind === 'tickers') this.diag.tickersRequested += ids.length;
+        let policy: FetchOptions | undefined;
         try {
-          const r: ProviderResult = b.kind === 'tickers' ? await provider.fetchQuotes(ids, ctrl.signal) : await provider.fetchEventMarkets(ids, ctrl.signal);
-          this.onSuccess(b.kind, ids, r, t0, res);
+          policy = b.kind === 'tickers' ? this.policyFor(ids, o.context, o.primaryTimeoutMs) : undefined;
+          const r: ProviderResult = b.kind === 'tickers' ? await provider.fetchQuotes(ids, ctrl.signal, policy) : await provider.fetchEventMarkets(ids, ctrl.signal);
+          this.onSuccess(b.kind, ids, r, t0, res, policy);
         } catch (e) {
           const err = e instanceof ProviderError ? e : new ProviderError('network', String((e as Error)?.message ?? e));
           const timedOut = err.kind === 'aborted' && !o.signal?.aborted;
-          this.onFailure(b.kind, ids, timedOut ? new ProviderError('timeout', `no answer within ${REQUEST_TIMEOUT_MS / 1000}s`) : err, res);
+          this.onFailure(b.kind, ids, timedOut ? new ProviderError('timeout', `no answer within ${REQUEST_TIMEOUT_MS / 1000}s`) : err, res, t0);
           if (err.kind === 'rate_limited' || err.kind === 'blocked' || err.kind === 'network' || timedOut) break; // don't hammer a failing provider
         } finally {
           this.timers.clear(kill);
@@ -525,8 +655,21 @@ export class QuoteStore {
     this.eventState.set(e, st);
   }
 
-  private onSuccess(kind: 'tickers' | 'events', ids: string[], r: ProviderResult, t0: number, res: RefreshResult) {
+  private record(o: RefreshOutcome) {
+    this.history.push(o);
+    if (this.history.length > HISTORY_LIMIT) this.history.splice(0, this.history.length - HISTORY_LIMIT);
+  }
+
+  private onSuccess(kind: 'tickers' | 'events', ids: string[], r: ProviderResult, t0: number, res: RefreshResult, policy?: FetchOptions) {
     const t = this.now();
+    if (r.clockSkewMs != null && Number.isFinite(r.clockSkewMs)) this.clockSkew = r.clockSkewMs;
+    // A 200 whose newest observation is over the limit is a failed refresh: kept (honest age) but recorded as such.
+    const a = r.quotes.length ? assessBatch(r.quotes, policy?.maxAgeMs ?? Infinity, t, this.clockSkew) : null;
+    this.record({
+      at: t, kind, tickers: ids.length, provider: r.answeredBy ?? this.provider?.id ?? null,
+      fallbackReason: r.fallback ? r.fallback.error : null, latencyMs: r.latencyMs ?? t - t0,
+      observationAgeMs: a?.newestAgeMs ?? null, outcome: a && !a.ok && policy?.maxAgeMs != null ? 'over_limit' : 'ok',
+    });
     this.diag.requests += r.requests;
     this.diag.lastLatencyMs = r.latencyMs ?? t - t0;
     this.diag.lastSuccessAt = t;
@@ -575,8 +718,12 @@ export class QuoteStore {
     this.persistSoon();
   }
 
-  private onFailure(kind: 'tickers' | 'events', ids: string[], err: ProviderError, res: RefreshResult) {
+  private onFailure(kind: 'tickers' | 'events', ids: string[], err: ProviderError, res: RefreshResult, t0: number) {
     const t = this.now();
+    this.record({
+      at: t, kind, tickers: ids.length, provider: null, fallbackReason: `${err.kind}: ${err.message}`, latencyMs: t - t0, observationAgeMs: null,
+      outcome: err.kind === 'rate_limited' ? 'rate_limited' : err.kind === 'timeout' || err.kind === 'aborted' ? 'timeout' : err.kind === 'stale' ? 'over_limit' : 'error',
+    });
     this.diag.lastErrorAt = t;
     this.diag.lastError = `${err.kind}: ${err.message}`;
     res.error = this.diag.lastError;

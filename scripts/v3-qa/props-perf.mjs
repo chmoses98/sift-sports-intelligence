@@ -6,11 +6,13 @@ import { existsSync } from 'node:fs';
 
 const base = process.env.BASE ?? 'http://localhost:5173/sift-sports-intelligence/';
 const exe = process.env.SIFT_CHROMIUM ?? ['/opt/pw-browsers/chromium-1243/chrome-linux64/chrome'].find(existsSync);
-const { useRealFeeds } = await import('../../e2e/support/realFeeds.ts');
+const { useRealFeeds, feedNow, freshQuotes } = await import('../../e2e/support/realFeeds.ts');
 const b = await chromium.launch(exe ? { executablePath: exe } : {});
 const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
+await page.clock.setFixedTime(feedNow());
 await useRealFeeds(page);
+if (process.env.FRESH === '1') await freshQuotes(page);
 await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 const urls = [];
 page.on('request', (r) => { const u = r.url(); if (/\.json(\?|$)/.test(u) && !/\/src\//.test(u)) urls.push({ t: Date.now(), u }); });

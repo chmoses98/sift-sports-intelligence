@@ -13,7 +13,8 @@ const ctx = await b.newContext({ viewport: { width: Number(process.env.W ?? 390)
 const page = await ctx.newPage();
 // REAL=1: answer the research and quote feed requests with real published documents (cached; V3_REAL_FEEDS=live fetches missing ones).
 if (process.env.REAL === '1') {
-  const { useRealFeeds } = await import('../../e2e/support/realFeeds.ts');
+  const { useRealFeeds, feedNow } = await import('../../e2e/support/realFeeds.ts');
+  await page.clock.setFixedTime(feedNow()); // the cached documents describe one instant (see feedNow)
   await useRealFeeds(page);
   // FRESH=1: re-stamp the real quote-feed observation times to now (test transformation) so priced states can be shown.
   if (process.env.FRESH === '1') await (await import('../../e2e/support/realFeeds.ts')).freshQuotes(page);

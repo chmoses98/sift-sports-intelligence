@@ -57,9 +57,23 @@ export async function freshQuotes(page: Page, o: { omit?: (ticker: string) => bo
     }
     if (!body) { await route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }); return; }
     const doc = JSON.parse(body.toString('utf8')) as { generated_at?: string; markets: { observed_at?: string; ticker?: string; kalshi_ticker?: string }[] };
-    const now = new Date().toISOString();
+    const now = feedNow().toISOString();
     doc.generated_at = now;
     doc.markets = doc.markets.filter((m) => !o.omit?.(String(m.ticker ?? m.kalshi_ticker ?? ''))).map((m) => ({ ...m, observed_at: now }));
     await route.fulfill({ status: 200, body: JSON.stringify(doc), headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
   });
+}
+
+/**
+ * The instant the cached real documents describe. A slate captured at 22:50 UTC lists games that start at 00:15 UTC; read at 00:40 UTC the
+ * same documents describe games already played. Browser tests therefore run on a fixed clock: `.v3-feed-cache/captured_at.txt` (an ISO time,
+ * written when the cache is filled) or V3_FEED_NOW; with neither, the real clock (a live fetch is as current as it is). Pass it to
+ * `page.clock.setFixedTime`.
+ */
+export function feedNow(): Date {
+  const env = process.env.V3_FEED_NOW;
+  if (env && Number.isFinite(Date.parse(env))) return new Date(env);
+  const f = join(dir, 'captured_at.txt');
+  if (existsSync(f)) { const t = Date.parse(readFileSync(f, 'utf8').trim()); if (Number.isFinite(t)) return new Date(t); }
+  return new Date();
 }

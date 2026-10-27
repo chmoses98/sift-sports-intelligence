@@ -6,12 +6,13 @@
 // Tap-matrix rows owned (tests/v3/tapmatrix.ts, milestone 6): 1-7 PD home, 8-12 PD list, 13-17 PD list (expanded). Each is exercised
 // below as `[row N]` and, after every tap, Back must restore the address, the scroll offset, the expanded row and close any sheet.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { freshQuotes, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
 test.setTimeout(120_000);
 
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
+  await page.clock.setFixedTime(feedNow());
   await useRealFeeds(page);
   await freshQuotes(page);
 });

@@ -21,7 +21,7 @@ import { useScrollMemory } from './state/scroll';
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v3', label: 'Home', icon: 'home', end: true },
   { to: '/v3/games', label: 'Games', icon: 'games' },
-  { to: '/v3/explore', label: 'Explore', icon: 'explore' },
+  { to: '/v3/props', label: 'Explore', icon: 'explore' },
   { to: '/v3/following', label: 'Following', icon: 'following' },
 ];
 
@@ -30,10 +30,13 @@ let lastTab = '/v3';
 const tabOf = (path: string): string => {
   const p = path.replace(/\/+$/, '') || '/v3';
   if (p === '/v3') return (lastTab = '/v3');
+  // Explore is Prop Discovery (the locked walkthrough roots it there); the older search screen stays at /v3/explore under the same tab.
+  if (p === '/v3/explore' || p.startsWith('/v3/explore/')) return (lastTab = '/v3/props');
   const hit = TABS.find((t) => t.to !== '/v3' && (p === t.to || p.startsWith(`${t.to}/`)));
   if (hit) return (lastTab = hit.to);
-  if (p.startsWith('/v3/game/')) return (lastTab = '/v3/games');
-  if (p.startsWith('/v3/stat/')) return (lastTab = '/v3/explore');
+  // The locked references light Games for the Team, Player and Game screens and Explore for Stat Detail and Prop Discovery.
+  if (p.startsWith('/v3/game/') || p.startsWith('/v3/team/') || p.startsWith('/v3/player/')) return (lastTab = '/v3/games');
+  if (p.startsWith('/v3/stat/')) return (lastTab = '/v3/props');
   return lastTab;
 };
 

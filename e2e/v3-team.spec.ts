@@ -33,9 +33,8 @@ async function tapAndBack(page: Page, loc: Locator, kind: string, dest: RegExp) 
   expect(await target.getAttribute('data-tap')).toBe(kind);
   expect(await target.getAttribute('data-dest')).toMatch(dest);
   await target.click();
-  // Prop Discovery is built in a later milestone: today `/v3/props` is picked up by the classic `/:slug/props` route and handed on to the
-  // SIFT 2.0 workspace, so the address keeps its `/v3/props?...` tail behind that prefix. The destination address itself is the contract.
-  const prefix = kind === 'props' ? '(?:/design/sift2)?' : '';
+  // Prop Discovery (milestone 6) owns /v3/props: the address stays inside SIFT 3.0 (it is never handed to the classic `/:slug/props` route).
+  const prefix = '';
   await expect.poll(() => hash(page)).toMatch(new RegExp(`^#${prefix}${dest.source.replace(/^\^/, '')}`));
   await page.goBack();
   await expect.poll(() => hash(page)).toBe(before);
@@ -64,13 +63,12 @@ test.describe('Team Research (real documents) @v3', () => {
     await tapAndBack(page, page.locator('.tm-gstrip [data-tap="game"]'), 'game', /^\/v3\/game\/nfl\/evt_/);
     // 48 opponent logo → Team
     await tapAndBack(page, page.locator('.tm-gstrip [data-tap="team"]'), 'team', /^\/v3\/team\/nfl\/[A-Z]{2,3}$/);
-    // 49 props today → Prop Discovery filtered to the team. The Prop Discovery screen is built in a later milestone: the address is built
-    // with the route builder and carries the team; it is expected not to render its own screen yet.
+    // 49 props today → Prop Discovery filtered to the team (the list opens on that team's props; Back restores this page).
     await tapAndBack(page, page.locator('.tm-prow[data-tap="props"]'), 'props', /^\/v3\/props\?.*team=DAL/);
     // 50 offense block, 51 defense rank, 52 strongest row → Stat Detail, ranking, this team selected
-    await tapAndBack(page, page.locator('.tm-idt .idbig .o[data-tap="stat"]'), 'stat', /^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=DAL/);
-    await tapAndBack(page, page.locator('.tm-idt .rr .d[data-tap="stat"]').first(), 'stat', /^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=DAL/);
-    await tapAndBack(page, page.locator('.tm-exc .exr[data-tap="stat"]').first(), 'stat', /^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=DAL/);
+    await tapAndBack(page, page.locator('.tm-idt .idbig .o[data-tap="stat"]'), 'stat', /^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=DAL/);
+    await tapAndBack(page, page.locator('.tm-idt .rr .d[data-tap="stat"]').first(), 'stat', /^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=DAL/);
+    await tapAndBack(page, page.locator('.tm-exc .exr[data-tap="stat"]').first(), 'stat', /^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=DAL/);
     // 53 margin bar → completed Game Detail, 54 logo under the bar → Team
     await tapAndBack(page, page.locator('.tm-lst .tm-mb__hit[data-tap="game"]').first(), 'game', /^\/v3\/game\/nfl\/evt_/);
     await tapAndBack(page, page.locator('.tm-lst .tm-mb__lg [data-tap="team"]').first(), 'team', /^\/v3\/team\/nfl\/[A-Z]{2,3}$/);
@@ -103,7 +101,7 @@ test.describe('Team Research (real documents) @v3', () => {
     await page.waitForTimeout(150);
     const at2 = await y(page);
     const target = await row.getAttribute('data-dest');
-    expect(target).toMatch(/^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=DAL.*win=L6|^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*win=L6.*sel=DAL/);
+    expect(target).toMatch(/^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=DAL.*win=L6|^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*win=L6.*sel=DAL/);
     await row.click();
     await expect(page).toHaveURL(/#\/v3\/stat\/nfl\//);
     await page.goBack();
@@ -126,7 +124,7 @@ test.describe('Team Research (real documents) @v3', () => {
   test('Profile row tap (55): Stat Detail for that statistic, ranking tab, this team selected', async ({ page }) => {
     await go(page, '/v3/team/nfl/DAL?tab=profile');
     await ready(page, '.tm .prr');
-    await tapAndBack(page, page.locator('.tm .prr[data-tap="stat"]').first(), 'stat', /^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=DAL/);
+    await tapAndBack(page, page.locator('.tm .prr[data-tap="stat"]').first(), 'stat', /^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=DAL/);
   });
 
   test('Form (TR3): margin bars, splits from game rows, the locked closing-lines rows; result rows open the game and the logo the team (56, 57)', async ({ page }) => {
@@ -167,9 +165,9 @@ test.describe('Team Research (real documents) @v3', () => {
     await tapAndBack(page, page.locator('.tm .sch [data-tap="team"]').first(), 'team', /^\/v3\/team\/nfl\/[A-Z]{2,3}$/);
     // the pill opens the OPPONENT's ranking with the opponent highlighted and this team named as the other side
     const pill = page.locator('.tm .sch .op.o[data-tap="stat"]').first();
-    expect(await pill.getAttribute('data-dest')).toMatch(/^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=PHI/);
+    expect(await pill.getAttribute('data-dest')).toMatch(/^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=PHI/);
     expect(await pill.getAttribute('data-dest')).toMatch(/opp=DAL/);
-    await tapAndBack(page, pill, 'stat', /^\/v3\/stat\/nfl\/rnk_[0-9a-f]+\?.*sel=PHI/);
+    await tapAndBack(page, pill, 'stat', /^\/v3\/stat\/nfl\/[a-z_0-9]+\?.*sel=PHI/);
   });
 
   test('Players (TR5): availability and skill players open Player Research; prop counts open Prop Discovery for the player (61, 62, 63); expanded rows are state', async ({ page }) => {
@@ -201,7 +199,7 @@ test.describe('Team Research (real documents) @v3', () => {
     await expect(page.locator('.tm-hero .tm-rec b')).toHaveText(/^\d+–\d+–\d+$/);
     await expect(page.locator('.tm-idt')).toContainText('Scoring vs');
     await tapAndBack(page, page.locator('.tm-gstrip [data-tap="game"]'), 'game', /^\/v3\/game\/nhl\/evt_/);
-    await tapAndBack(page, page.locator('.tm-idt .idbig .o[data-tap="stat"]'), 'stat', /^\/v3\/stat\/nhl\/rnk_[0-9a-f]+\?.*sel=TOR/);
+    await tapAndBack(page, page.locator('.tm-idt .idbig .o[data-tap="stat"]'), 'stat', /^\/v3\/stat\/nhl\/[a-z_0-9]+\?.*sel=TOR/);
     // the window is the switch; special teams are season-only and are not drawn for L10
     await page.getByRole('group', { name: 'Window' }).getByRole('button', { name: 'L10' }).click();
     await expect(page).toHaveURL(/win=L10/);

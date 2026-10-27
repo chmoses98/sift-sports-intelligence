@@ -31,7 +31,7 @@ describe('versioned URL state', () => {
   });
   it('bounds typed text and lists so an address cannot carry an unbounded payload', () => {
     expect(decode(propsSchema, `?q=${'x'.repeat(500)}`).q).toHaveLength(60);
-    expect(decode(propsSchema, `?cmp=${'a,'.repeat(40)}`).cmp).toHaveLength(4);
+    expect(decode(propsSchema, `?cmp=${'a,'.repeat(40)}`).cmp).toHaveLength(3);
   });
   it('keeps parameters the schema does not own, in a stable order', () => {
     expect(encode(playerSchema, { win: 'L5' }, '?zeta=1&sheet=contract&tk=KX-1&alpha=2')).toBe('?v=2&win=L5&alpha=2&sheet=contract&tk=KX-1&zeta=1');

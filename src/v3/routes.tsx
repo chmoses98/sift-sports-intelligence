@@ -7,6 +7,7 @@ const GameDetail = lazy(() => import('./screens/GameDetail').then((x) => ({ defa
 const Team = lazy(() => import('./screens/Team').then((x) => ({ default: x.Team })));
 const Stat = lazy(() => import('./screens/Stat').then((x) => ({ default: x.Stat })));
 const Player = lazy(() => import('./screens/Player').then((x) => ({ default: x.Player })));
+const Props = lazy(() => import('./screens/props/Props').then((x) => ({ default: x.Props })));
 const Explore = lazy(() => import('./screens/Explore').then((x) => ({ default: x.Explore })));
 const Following = lazy(() => import('./screens/Following').then((x) => ({ default: x.Following })));
 const Settings = lazy(() => import('./screens/Settings').then((x) => ({ default: x.Settings })));
@@ -19,6 +20,7 @@ export const v3Children = [
   { path: 'team/:slug/:teamId', element: <Team /> },
   { path: 'stat/:slug/:statId', element: <Stat /> },
   { path: 'player/:slug/:playerId', element: <Player /> },
+  { path: 'props', element: <Props /> },
   { path: 'explore', element: <Explore /> },
   { path: 'following', element: <Following /> },
   { path: 'settings', element: <Settings /> },

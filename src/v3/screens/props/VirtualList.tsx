@@ -44,7 +44,7 @@ export function VirtualList<T>({ items, keyOf, heightOf, dynamic, render, oversc
       o[i + 1] = o[i] + h;
     }
     return { offsets: o, total: o[items.length] };
-  }, [items, heightOf, dynamic, keyOf, measureV]);
+  }, [items, heightOf, dynamic, keyOf, measureV]); // eslint-disable-line react-hooks/exhaustive-deps -- measureV: a measured row changed its remembered height
 
   const calc = useCallback((): [number, number, number, number] => {
     const el = ref.current;

@@ -154,7 +154,7 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   // ---- the list
   const base = useMemo(() => universe.props.filter((p) => passesBase(p, st, ctx)), [universe, st, ctx]);
   const list = useMemo(() => listProps(universe.props, st, ctx), [universe, st, ctx]);
-  const items = useMemo<Item[]>(() => list.map((p) => { const m = ctx.matchup(p); return { p, m, wrap: !chipBeside(p.label, `${p.featured}+`, m?.text ?? 'no matchup rows', colW) }; }), [list, ctx, colW, fonts]);
+  const items = useMemo<Item[]>(() => list.map((p) => { const m = ctx.matchup(p); return { p, m, wrap: !chipBeside(p.label, `${p.featured}+`, m?.text ?? 'no matchup rows', colW) }; }), [list, ctx, colW, fonts]); // eslint-disable-line react-hooks/exhaustive-deps -- `fonts` re-measures when a web font arrives
   const expRef = parseRef(st.exp);
   const expProp = expRef ? universe.byId.get(expRef.id) ?? null : null;
 

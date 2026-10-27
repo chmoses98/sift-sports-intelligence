@@ -28,7 +28,7 @@ export function FilterSheet({ initial, set }: { initial: ListState; set: (patch:
   const { ctx } = useQueryCtx(universe);
   const [d, setD] = useState<Draft>(draftOf(initial));
   const [allFams, setAllFams] = useState(false);
-  const props = universe?.props ?? [];
+  const props = useMemo(() => universe?.props ?? [], [universe]);
   const draftState = useMemo(() => ({ ...initial, ...d }), [initial, d]);
   const live = useMemo(() => countBySport(props, draftState, ctx), [props, draftState, ctx]);
   const fams = useMemo(() => {

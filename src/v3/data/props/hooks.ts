@@ -29,7 +29,7 @@ export function usePropUniverse(): { universe: Universe | null; loading: boolean
 export function useQueryCtx(universe: Universe | null): { ctx: QueryCtx; version: number } {
   const bank = useHistoryBank();
   const version = bank.getVersion();
-  const matchups = useMemo(() => new Map<string, Matchup | null>(), [universe]);
+  const matchups = useMemo(() => new Map<string, Matchup | null>(), [universe]); // eslint-disable-line react-hooks/exhaustive-deps -- a new universe starts a new cache
   const ctx = useMemo<QueryCtx>(() => ({
     matchup: (p) => {
       if (!universe) return null;

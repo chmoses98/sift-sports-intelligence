@@ -65,7 +65,7 @@
   ""
  ],
  [
-  "B3 lines box opens exact market with ticker",
+  "B3 lines box opens the shared exact-contract sheet with ticker, fee and break-even, no freshness word",
   true,
   ""
  ],
@@ -191,7 +191,7 @@
   "#/v3/player/nba/sample-guard?v=1&stat=pts&site=home"
  ],
  [
-  "D13 saved snapshot is labelled \"At save\"",
+  "D13 saved snapshot is labelled \"Saved values\" and carries no price or age",
   true,
   ""
  ],

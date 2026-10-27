@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import * as availability from '../../src/live/availability';
 import * as deliveryConfig from '../../src/live/deliveryConfig';
-import { MISSING_PRICE } from '../../src/live/missingPrice';
+import { MARKET_CLOSED, MISSING_PRICE } from '../../src/live/missingPrice';
 import * as deliveryChain from '../../src/live/providers/deliveryChain';
 import * as quoteUsable from '../../src/live/quoteUsable';
 import { CONTEXT_KEYS, MAX_AGE_MS, type QuoteContext } from '../../src/live/quoteUsable';
@@ -87,6 +87,8 @@ describe('no freshness wording in anything a user can see', () => {
   it('the missing-price wording is exactly the approved text and passes the scan', () => {
     expect(MISSING_PRICE).toEqual({ list: '—', contract: 'Price unavailable right now', retry: 'Retry' });
     for (const s of Object.values(MISSING_PRICE)) expect(s).not.toMatch(FRESHNESS);
+    expect(MARKET_CLOSED).toEqual({ list: '—', contract: 'Market closed' });
+    for (const s of Object.values(MARKET_CLOSED)) expect(s).not.toMatch(FRESHNESS);
   });
 
   it('the scan itself catches what it should', () => {

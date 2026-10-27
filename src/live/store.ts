@@ -17,6 +17,7 @@
 //   is ever shown as freshness text.
 import { AvailabilityMeter, NO_PROVIDER } from './availability';
 import { assessBatch, assessTickers, maxAgeMs, quoteUsable, type QuoteContext, type Usability } from './quoteUsable';
+import { isTerminalStatus, marketStatusOf, type MarketStatus } from './tradable';
 import { ProviderError, type FallbackNote, type FetchOptions, type LiveQuote, type ProviderResult, type QuoteProvider } from './types';
 
 export type Cadence = 'detail' | 'game' | 'slate' | 'background';
@@ -122,9 +123,10 @@ export interface EventState {
 /**
  * ok: every requested ticker has a usable observation. partial: some do. over_limit: the answer held observations
  * but none inside the limit of any requested ticker. no_quotes: the answer held nothing for the requested tickers
- * (empty 200, delisted). The rest are failures of the call itself.
+ * (empty 200, delisted). closed: every requested ticker was answered and positively reported not tradable (closed,
+ * settled, ...): a healthy answer, not a failure. The rest are failures of the call itself.
  */
-export type RefreshOutcomeKind = 'ok' | 'partial' | 'over_limit' | 'no_quotes' | 'rate_limited' | 'timeout' | 'error';
+export type RefreshOutcomeKind = 'ok' | 'partial' | 'closed' | 'over_limit' | 'no_quotes' | 'rate_limited' | 'timeout' | 'error';
 
 /** One provider call, for diagnostics (never rendered). */
 export interface RefreshOutcome {
@@ -196,11 +198,22 @@ export interface RefreshResult {
    * screen withholds their price. Absent on the production path.
    */
   unusable?: string[];
+  /**
+   * Delivery chain only: requested tickers the sources answered for and positively reported as not tradable (closed,
+   * settled, expired, suspended, ...). Answered, not failed, not missing, not in `unusable`: the screen withholds the ask
+   * and, for a closed market, says so. The quote itself stays available (`QuoteStore.nonActionable`).
+   */
+  nonTradable?: string[];
+  /** Delivery chain only: the market status each answered requested ticker reported (see src/live/tradable.ts). */
+  marketStatus?: Record<string, MarketStatus>;
   error: string | null;
   timedOut: boolean;
   startedAt: number;
   finishedAt: number;
 }
+
+/** Why an exact contract shows (or does not show) a price: see `QuoteStore.refreshContract`. */
+export type ContractState = 'price' | 'market_closed' | 'not_trading' | 'unavailable';
 
 type Chain = 'legacy' | 'delivery';
 interface Backoff { failures: number; until: number; reason: string | null; rateLimited: boolean }
@@ -406,8 +419,28 @@ export class QuoteStore {
   renderQuote(ticker: string, ctx: QuoteContext): LiveQuote | null {
     const q = this.quotes.get(ticker);
     const u = quoteUsable(q, ctx, this.now(), { clockSkewMs: this.clockSkew });
-    this.meter.record({ context: u.context, usable: u.usable, provider: q?.source ?? NO_PROVIDER, ageMs: u.ageMs });
+    this.meter.record({ context: u.context, usable: u.usable, provider: q?.source ?? NO_PROVIDER, ageMs: u.ageMs, nonTradable: u.reason === 'not_tradable' });
     return u.usable ? q! : null;
+  }
+
+  /** What the held quote reports about the market (null = no quote). Pure read. */
+  marketStatus(ticker: string): MarketStatus | null {
+    const q = this.quotes.get(ticker);
+    return q ? marketStatusOf(q) : null;
+  }
+
+  /**
+   * The held quote of a market the provider positively reports as not tradable (closed, settled, expired, suspended, ...),
+   * for callers that show history or a final price: its last price, volume and status are real information, but it has
+   * NO actionable ask and must never be rendered as a price to act on (that is `renderQuote`'s job, and it returns null).
+   * null when there is no quote or the market is tradable. It reports what the held quote SAYS, whatever its age;
+   * whether a suspended report is still current is `usable()`'s decision, and `marketStatus()` names the state.
+   */
+  nonActionable(ticker: string): LiveQuote | null {
+    const q = this.quotes.get(ticker);
+    if (!q) return null;
+    const s = marketStatusOf(q);
+    return s === 'open' || s === 'unreported' ? null : q;
   }
 
   /** Availability per context and provider, median and p95 observation age at render (diagnostics only). */
@@ -608,12 +641,20 @@ export class QuoteStore {
    * same 8 s bound as any forced refresh (the relay gets PRIMARY_TIMEOUT_MS of it). The quote is returned
    * only if it passes the usability rule for `ctx`; otherwise null and the screen shows "Price unavailable
    * right now" with Retry (which calls this again).
+   *
+   * `state` tells the screen WHICH withheld case it is: 'price' (quote returned), 'market_closed' (the provider
+   * positively reports the market closed, settled or expired: say "Market closed", no Retry; `marketStatus` says which),
+   * 'not_trading' (suspended / not yet open / unrecognised while current: the ordinary missing-price sentence and Retry),
+   * or 'unavailable' (no reliable quote: the ordinary missing-price sentence and Retry). Closed is the provider's
+   * answer, so it is never a failed refresh: `result.failed` and `result.error` stay empty for it and nothing backs off.
    */
-  async refreshContract(ticker: string, ctx: Omit<QuoteContext, 'surface'>, opts: { timeoutMs?: number } = {}): Promise<{ result: RefreshResult; usability: Usability; quote: LiveQuote | null }> {
+  async refreshContract(ticker: string, ctx: Omit<QuoteContext, 'surface'>, opts: { timeoutMs?: number } = {}): Promise<{ result: RefreshResult; usability: Usability; quote: LiveQuote | null; state: ContractState; marketStatus: MarketStatus | null }> {
     const context: QuoteContext = { ...ctx, surface: 'contract' };
     const result = await this.refreshNow([ticker], { timeoutMs: opts.timeoutMs, context, primaryTimeoutMs: PRIMARY_TIMEOUT_MS });
     const usability = this.usable(ticker, context);
-    return { result, usability, quote: usability.usable ? this.quotes.get(ticker) ?? null : null };
+    const marketStatus = usability.marketStatus;
+    const state: ContractState = usability.usable ? 'price' : usability.reason === 'not_tradable' ? (marketStatus != null && isTerminalStatus(marketStatus) ? 'market_closed' : 'not_trading') : 'unavailable';
+    return { result, usability, quote: usability.usable ? this.quotes.get(ticker) ?? null : null, state, marketStatus };
   }
 
   /**
@@ -708,6 +749,8 @@ export class QuoteStore {
     res.refreshed = [...new Set(res.refreshed)].filter((x) => tickers.includes(x));
     res.missing = [...new Set(res.missing)].filter((x) => tickers.includes(x));
     if (res.unusable) res.unusable = [...new Set(res.unusable)].filter((x) => tickers.includes(x));
+    if (res.nonTradable) res.nonTradable = [...new Set(res.nonTradable)].filter((x) => tickers.includes(x));
+    if (res.marketStatus) res.marketStatus = Object.fromEntries(Object.entries(res.marketStatus).filter(([x]) => tickers.includes(x)));
     res.finishedAt = this.now();
     this.bump();
     return res;
@@ -743,8 +786,9 @@ export class QuoteStore {
       const a = assessTickers(ids, r.quotes, limitFor, t, this.clockSkew);
       unusableTickers = a.unusable.length;
       observationAgeMs = a.newestAgeMs;
-      outcome = !a.unusable.length ? 'ok' : a.usable.length ? 'partial' : r.quotes.some((q) => ids.includes(q.ticker)) ? 'over_limit' : 'no_quotes';
+      outcome = !a.unusable.length ? (a.nonTradable.length && !a.usable.length ? 'closed' : 'ok') : a.usable.length || a.nonTradable.length ? 'partial' : r.quotes.some((q) => ids.includes(q.ticker)) ? 'over_limit' : 'no_quotes';
       (res.unusable ??= []).push(...a.unusable.map((u) => u.ticker));
+      (res.nonTradable ??= []).push(...a.nonTradable.map((n) => n.ticker));
     } else {
       // Production chain: unchanged accounting (batch-level; nothing here decides display).
       const a = r.quotes.length ? assessBatch(r.quotes, Infinity, t, this.clockSkew) : null;
@@ -781,6 +825,10 @@ export class QuoteStore {
       if (st.lastAttemptAt == null) st.lastAttemptAt = t0;
       this.tickerState.set(q.ticker, st);
       res.refreshed.push(q.ticker);
+    }
+    if (kind === 'tickers' && chain === 'delivery') {
+      const ms = (res.marketStatus ??= {});
+      for (const q of r.quotes) if (ids.includes(q.ticker)) ms[q.ticker] = marketStatusOf(this.quotes.get(q.ticker) ?? q);
     }
     if (kind === 'tickers') this.diag.tickersRefreshed += r.quotes.length;
     for (const x of r.missing) {

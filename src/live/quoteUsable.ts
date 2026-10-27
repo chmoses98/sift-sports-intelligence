@@ -11,6 +11,7 @@
 // Start time context comes from the LEAGUE SCHEDULE the caller passes in. Kalshi event metadata and a
 // contract's close time are never used for the tiers.
 import { quoteTimeMs } from './freshness';
+import { isTerminalStatus, isTradableStatus, marketStatusOf, type MarketStatus } from './tradable';
 import type { LiveQuote } from './types';
 
 export type QuoteSurface = 'list' | 'contract';
@@ -49,11 +50,19 @@ export type UnusableReason =
   /** The provider gave no observation time; the arrival time of the response is not an observation time. */
   | 'untimed_observation'
   | 'future_observed_at'
-  | 'too_old';
+  | 'too_old'
+  /**
+   * The provider positively reported the market as closed, settled, expired, suspended, not yet open or in an
+   * unrecognised state: there is no actionable ask, however fresh the quote (src/live/tradable.ts). Terminal states
+   * (closed, settled, expired) are reported whatever the age; the reversible ones only while inside the age limit.
+   */
+  | 'not_tradable';
 
 export interface Usability {
   usable: boolean;
   reason: UnusableReason | null;
+  /** What the quote reports about the market (null = no quote). Set whether or not the quote is usable. */
+  marketStatus: MarketStatus | null;
   /** Age of the observation on the (skew-corrected) clock; null when it has no believable timestamp. */
   ageMs: number | null;
   /** The limit that applied. */
@@ -101,12 +110,17 @@ export function quoteUsable(quote: LiveQuote | null | undefined, ctx: QuoteConte
   const skew = opts.clockSkewMs ?? 0;
   const key = contextKey(ctx, now, skew);
   const limitMs = MAX_AGE_MS[key];
-  const no = (reason: UnusableReason, ageMs: number | null = null): Usability => ({ usable: false, reason, ageMs, limitMs, context: key });
-  if (!quote) return no('no_quote');
+  if (!quote) return { usable: false, reason: 'no_quote', marketStatus: null, ageMs: null, limitMs, context: key };
+  const marketStatus = marketStatusOf(quote);
+  const no = (reason: UnusableReason, ageMs: number | null = null): Usability => ({ usable: false, reason, marketStatus, ageMs, limitMs, context: key });
   const obs = observationAge(quote, now, skew);
+  // A terminal state (closed, settled, expired) never reverts: it is decisive whatever the quote's age or timestamp.
+  if (isTerminalStatus(marketStatus)) return no('not_tradable', obs.ageMs);
   if (!obs.ok) return no(obs.reason, obs.ageMs);
   if (obs.ageMs > limitMs) return no('too_old', obs.ageMs);
-  return { usable: true, reason: null, ageMs: obs.ageMs, limitMs, context: key };
+  // Suspended / not yet open / unrecognised can change within minutes: they count only for a current observation.
+  if (!isTradableStatus(marketStatus)) return no('not_tradable', obs.ageMs);
+  return { usable: true, reason: null, marketStatus, ageMs: obs.ageMs, limitMs, context: key };
 }
 
 type ObservationReason = 'missing_observed_at' | 'unparseable_observed_at' | 'untimed_observation' | 'future_observed_at';
@@ -152,8 +166,13 @@ export function assessBatch(quotes: readonly LiveQuote[], limitMs: number, now: 
 }
 
 export interface TickerAssessment {
-  /** Requested tickers with an observation inside their own limit. */
+  /** Requested tickers with a tradable observation inside their own limit. */
   usable: string[];
+  /**
+   * Requested tickers the provider positively reported as not tradable (see `usable()` in this file: terminal states at
+   * any age, reversible ones while current). Answered, not failed: nothing to retry, and not in `unusable`.
+   */
+  nonTradable: { ticker: string; status: MarketStatus }[];
   /** Requested tickers without one, with why (absent from the answer, untimed, future-dated, too old). */
   unusable: { ticker: string; reason: 'absent' | ObservationReason | 'too_old'; ageMs: number | null }[];
   /** Age of the newest believable observation among the REQUESTED tickers; null when none has one. */
@@ -176,6 +195,7 @@ export function assessTickers(requested: readonly string[], quotes: readonly Liv
     if (!cur || (age != null && (cur.age == null || age < cur.age))) best.set(q.ticker, { q, age });
   }
   const usable: string[] = [];
+  const nonTradable: TickerAssessment['nonTradable'] = [];
   const unusable: TickerAssessment['unusable'] = [];
   let newest: number | null = null;
   for (const ticker of requested) {
@@ -184,14 +204,21 @@ export function assessTickers(requested: readonly string[], quotes: readonly Liv
       unusable.push({ ticker, reason: 'absent', ageMs: null });
       continue;
     }
+    const status = marketStatusOf(b.q);
     const o = observationAge(b.q, now, clockSkewMs);
+    if (isTerminalStatus(status)) {
+      if (o.ok && (newest == null || o.ageMs < newest)) newest = o.ageMs;
+      nonTradable.push({ ticker, status });
+      continue;
+    }
     if (!o.ok) {
       unusable.push({ ticker, reason: o.reason, ageMs: o.ageMs });
       continue;
     }
     if (newest == null || o.ageMs < newest) newest = o.ageMs;
     if (o.ageMs > limitFor(ticker)) unusable.push({ ticker, reason: 'too_old', ageMs: o.ageMs });
+    else if (!isTradableStatus(status)) nonTradable.push({ ticker, status });
     else usable.push(ticker);
   }
-  return { usable, unusable, newestAgeMs: newest };
+  return { usable, nonTradable, unusable, newestAgeMs: newest };
 }

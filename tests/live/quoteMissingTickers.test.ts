@@ -214,22 +214,27 @@ describe('delisted and closed markets', () => {
     expect(store.renderQuote(T, contract)).toBeNull();
   });
 
-  it('a closed market the relay still lists is a fresh observation: usable by age, with its CLOSED availability kept', async () => {
+  // Owner decision (hardening, 2026-10-27): closed, settled, suspended or otherwise non-tradable markets never show an
+  // actionable ask. Before it, a closed market the relay still listed was "a fresh observation, usable by age". The
+  // full matrix of the new rule is tests/live/quoteNonTradable.test.ts.
+  it('a closed market the relay still lists is a fresh observation but NOT tradable: no price, reported as closed, held as information', async () => {
     const { relay, store } = setup();
     relay.status.set(T, 'CLOSED');
     const r = await store.refreshContract(T, FAR);
-    expect(r.usability.usable).toBe(true);
-    expect(r.quote?.availability).toBe('CLOSED'); // the screen's own availability handling decides what a closed market shows
+    expect(r.usability).toMatchObject({ usable: false, reason: 'not_tradable', marketStatus: 'closed' });
+    expect(r.quote).toBeNull();
+    expect(r.state).toBe('market_closed');
+    expect(store.quote(T)?.availability).toBe('CLOSED'); // held, non-actionable
   });
 
-  it('a closed market the relay no longer lists and the feed holds from minutes ago: unusable', async () => {
+  it('a closed market the relay no longer lists and the feed holds from minutes ago: no price (closed is terminal, whatever the age)', async () => {
     const { relay, feed, store } = setup();
     relay.omit = new Set([T]);
     feed.status.set(T, 'CLOSED');
     feed.staleBy = 3 * 60_000;
     const r = await store.refreshContract(T, FAR);
     expect(r.quote).toBeNull();
-    expect(r.usability).toMatchObject({ usable: false, reason: 'too_old' });
+    expect(r.usability).toMatchObject({ usable: false, reason: 'not_tradable', marketStatus: 'closed' });
     expect(store.quote(T)?.availability).toBe('CLOSED'); // held, with its true age
   });
 });

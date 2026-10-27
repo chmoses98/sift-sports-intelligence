@@ -20,6 +20,11 @@ export interface RenderSample {
   provider: string;
   /** Observation age at render; null when the quote had no believable timestamp. */
   ageMs: number | null;
+  /**
+   * The provider positively reported the market as not tradable (closed, settled, ...): the withheld ask is correct, not
+   * a delivery failure, so the render is counted apart and is NOT part of renders / usable / the availability percentage.
+   */
+  nonTradable?: boolean;
 }
 
 export interface AvailabilityRow {
@@ -29,6 +34,8 @@ export interface AvailabilityRow {
   provider: string | null;
   renders: number;
   usable: number;
+  /** Renders of markets reported not tradable (excluded from renders and usable). */
+  nonTradable: number;
   /** usable / renders * 100, one decimal; null with no renders. */
   availabilityPct: number | null;
   p50AgeMs: number | null;
@@ -38,6 +45,7 @@ export interface AvailabilityRow {
 interface Bucket {
   renders: number;
   usable: number;
+  nonTradable: number;
   ages: number[];
   next: number;
 }
@@ -65,13 +73,17 @@ export class AvailabilityMeter {
       b = this.buckets.get(key);
     }
     if (!b) {
-      b = { renders: 0, usable: 0, ages: [], next: 0 };
+      b = { renders: 0, usable: 0, nonTradable: 0, ages: [], next: 0 };
       this.buckets.set(key, b);
     }
     return b;
   }
 
   private add(b: Bucket, s: RenderSample) {
+    if (s.nonTradable) {
+      b.nonTradable++;
+      return;
+    }
     b.renders++;
     if (s.usable) b.usable++;
     if (s.ageMs != null) {
@@ -84,7 +96,7 @@ export class AvailabilityMeter {
   }
 
   record(s: RenderSample): void {
-    this.total++;
+    if (!s.nonTradable) this.total++;
     this.add(this.bucket(s.context, s.provider), s);
   }
 
@@ -109,14 +121,16 @@ export class AvailabilityMeter {
     const merge = (sel: (e: (typeof entries)[number]) => boolean, context: ContextKey | null, provider: string | null): AvailabilityRow => {
       let renders = 0;
       let usable = 0;
+      let nonTradable = 0;
       const ages: number[] = [];
       for (const e of entries.filter(sel)) {
         renders += e.b.renders;
         usable += e.b.usable;
+        nonTradable += e.b.nonTradable;
         ages.push(...e.b.ages);
       }
       return {
-        context, provider, renders, usable,
+        context, provider, renders, usable, nonTradable,
         availabilityPct: renders ? Math.round((usable / renders) * 1000) / 10 : null,
         p50AgeMs: percentile(ages, 50),
         p95AgeMs: percentile(ages, 95),

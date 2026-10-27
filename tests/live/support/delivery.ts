@@ -19,6 +19,8 @@ export class Aged extends FakeProvider {
   unrelated: string[] = [];
   /** Answers without an observation time (arrival time only), like a relay missing X-Sift-Observed-At. */
   untimed = false;
+  /** Per-ticker fields merged into the quote (rawStatus, result, closeTime, ...) like a provider reporting a market state. */
+  extra = new Map<string, Partial<LiveQuote>>();
   seen: (FetchOptions | undefined)[] = [];
   constructor(private c: FakeClock, id: string) {
     super(c);
@@ -29,7 +31,7 @@ export class Aged extends FakeProvider {
     const r = await super.fetchQuotes(tickers, signal);
     if (this.empty) return { ...r, quotes: [], missing: [...tickers] };
     const stamp = (q: LiveQuote): LiveQuote => ({
-      ...q, source: this.id, observedAt: new Date(this.c.now() - (this.ageBy.get(q.ticker) ?? this.staleBy)).toISOString(),
+      ...q, ...this.extra.get(q.ticker), source: this.id, observedAt: new Date(this.c.now() - (this.ageBy.get(q.ticker) ?? this.staleBy)).toISOString(),
       ...(this.untimed ? { observedVia: 'received' as const } : {}),
     });
     const kept = r.quotes.filter((q) => !this.omit.has(q.ticker)).map(stamp);

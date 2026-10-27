@@ -9,3 +9,13 @@ export const MISSING_PRICE = Object.freeze({
   contract: 'Price unavailable right now',
   retry: 'Retry',
 });
+
+/**
+ * A market the provider positively reports as closed, settled or expired: no price will return, so the exact-contract
+ * sheet says so instead of offering a Retry. A list row still shows the dash. Suspended and not-yet-open markets can
+ * change, so they keep the ordinary missing-price sentence and its Retry (MISSING_PRICE).
+ */
+export const MARKET_CLOSED = Object.freeze({
+  list: '—',
+  contract: 'Market closed',
+});

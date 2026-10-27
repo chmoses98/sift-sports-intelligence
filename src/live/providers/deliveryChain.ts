@@ -13,6 +13,9 @@
 //    never beats a timed one. A ticker no provider can supply a usable observation for is returned as it is (an
 //    old observation keeps its true age, the usability rule withholds it at render) or not at all: this chain
 //    never invents a quote and never re-stamps one.
+//  * A market the provider POSITIVELY reports as not tradable (closed, settled, expired, suspended, ...; src/live/tradable.ts)
+//    is answered, not missing: it is not asked of the next provider, it is returned as it is (closed information stays
+//    available to callers) and `renderQuote` withholds its ask. It is never an error and never a reason to retry.
 //  * A provider that answered 429 is not asked again until its Retry-After has elapsed (30 s when absent),
 //    unless it is the last one left.
 //  * An earlier provider is abandoned after `primaryTimeoutMs` so the next one still has time inside the
@@ -112,9 +115,12 @@ export class DeliveryProvider implements QuoteProvider {
           if (!cur || obsMs(q) > obsMs(cur)) held.set(q.ticker, q);
         }
         const a = assessTickers(requested, [...held.values()], limitFor, this.now(), opts.clockSkewMs ?? skew ?? 0);
-        const stillPending = requested.filter((t) => !a.usable.includes(t));
-        // What this provider supplied: the newest usable observation among the tickers it answered.
-        if (r.quotes.some((q) => asked.has(q.ticker) && a.usable.includes(q.ticker))) supplier = p.id;
+        // A market the provider positively reported as not tradable is ANSWERED: asking the next provider cannot make it
+        // tradable (a terminal state never reverts and the next source can only be older), so it is not pending.
+        const answeredClosed = new Set(a.nonTradable.map((n) => n.ticker));
+        const stillPending = requested.filter((t) => !a.usable.includes(t) && !answeredClosed.has(t));
+        // What this provider supplied: the newest usable (or positively non-tradable) observation among the tickers it answered.
+        if (r.quotes.some((q) => asked.has(q.ticker) && (a.usable.includes(q.ticker) || answeredClosed.has(q.ticker)))) supplier = p.id;
         if (stillPending.length && !last) {
           first ??= new ProviderError('stale', this.describeShortfall(requested, r, a.newestAgeMs, stillPending, limitFor));
         }

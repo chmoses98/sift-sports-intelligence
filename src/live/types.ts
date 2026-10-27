@@ -19,6 +19,11 @@ export interface LiveQuote {
   availability: Availability;
   /** The provider's raw status word, kept for diagnostics. */
   rawStatus: string | null;
+  /**
+   * Kalshi's settlement `result` ("yes" / "no"), present only when the provider reported a non-empty one. The relay
+   * forwards it; the feed does not carry it. A determined market is not tradable (src/live/tradable.ts).
+   */
+  result?: string | null;
   closeTime: string | null;
   /** When this quote was observed (ISO 8601). The ONLY clock market freshness is measured on. */
   observedAt: string;

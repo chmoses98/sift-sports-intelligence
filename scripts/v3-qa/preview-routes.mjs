@@ -190,7 +190,7 @@ for (const r of ROOT_TABS) {
   const shotFile = await shot(page, r.id);
   const h = await harvest(page, r.id);
   if (page.__errors.length) t.check('no uncaught page errors', false, page.__errors.join(' | '));
-  report.roots.push({ id: r.id, title: r.title, path: t.path, pass: t.checks.every((c) => c.ok), checks: t.checks, notes: t.notes, requests: h, screenshot: shotFile, ms: Date.now() - started });
+  report.roots.push({ id: r.id, title: r.title, from: r.from, path: t.path, pass: t.checks.every((c) => c.ok), checks: t.checks, notes: t.notes, requests: h, screenshot: shotFile, ms: Date.now() - started });
   console.log(`${t.checks.every((c) => c.ok) ? 'PASS' : 'FAIL'} ${r.id} ${r.title}`);
   await page.close();
   flushDerived();
@@ -236,7 +236,7 @@ for (const d of STATES) {
   const shotFile = await shot(page, d.id).catch(() => null);
   await harvest(page, d.id);
   const pass = t.checks.length > 0 && t.checks.every((c) => c.ok);
-  report.states.push({ id: d.id, title: d.title, path: t.path, pass, checks: t.checks, notes: t.notes, screenshot: shotFile });
+  report.states.push({ id: d.id, title: d.title, from: d.from, path: t.path, pass, checks: t.checks, notes: t.notes, screenshot: shotFile });
   console.log(`${pass ? 'PASS' : 'FAIL'} ${d.id} ${d.title}${pass ? '' : '  <- ' + t.checks.filter((c) => !c.ok).map((c) => `${c.what}: ${c.detail ?? ''}`).join('; ')}`);
   await page.close();
   flushDerived();

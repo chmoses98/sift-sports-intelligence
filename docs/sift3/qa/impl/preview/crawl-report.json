@@ -1,6 +1,6 @@
 {
  "builtFrom": "dist-v3-snapshot",
- "startedAt": "2026-10-27T20:37:21.982Z",
+ "startedAt": "2026-10-27T20:55:07.802Z",
  "viewport": "390x844",
  "timezone": "America/New_York",
  "welcome": {
@@ -14,6 +14,7 @@
   {
    "id": "ROOT-Home",
    "title": "Home tab shows the captured slate (not sample data)",
+   "from": "Home",
    "path": [
     "About (banner)",
     "Close (About sheet)"
@@ -60,11 +61,12 @@
     ]
    },
    "screenshot": "ROOT-Home.png",
-   "ms": 2113
+   "ms": 1959
   },
   {
    "id": "ROOT-Games",
    "title": "Games tab lists the captured slate with lines through the quote gate",
+   "from": "Games",
    "path": [
     "Games (bottom tab)",
     "Games (bottom tab)",
@@ -99,11 +101,12 @@
     ]
    },
    "screenshot": "ROOT-Games.png",
-   "ms": 3816
+   "ms": 3284
   },
   {
    "id": "ROOT-Explore",
    "title": "Explore tab is Prop Discovery on the captured props",
+   "from": "Explore",
    "path": [
     "Explore (bottom tab)"
    ],
@@ -136,11 +139,12 @@
     ]
    },
    "screenshot": "ROOT-Explore.png",
-   "ms": 4768
+   "ms": 3718
   },
   {
    "id": "ROOT-Following",
    "title": "Following tab: save from Player Research, then open the saved state",
+   "from": "Home",
    "path": [
     "Home (bottom tab)",
     "Game Center (Home)",
@@ -189,7 +193,7 @@
     ]
    },
    "screenshot": "ROOT-Following.png",
-   "ms": 9232
+   "ms": 7017
   }
  ],
  "designs": [
@@ -266,7 +270,7 @@
     ]
    },
    "screenshot": "P1.png",
-   "ms": 5309
+   "ms": 3134
   },
   {
    "id": "P2",
@@ -336,7 +340,7 @@
     ]
    },
    "screenshot": "P2.png",
-   "ms": 10339
+   "ms": 6411
   },
   {
    "id": "P3",
@@ -397,7 +401,7 @@
     ]
    },
    "screenshot": "P3.png",
-   "ms": 10841
+   "ms": 6325
   },
   {
    "id": "P4",
@@ -448,7 +452,7 @@
     ]
    },
    "screenshot": "P4.png",
-   "ms": 6304
+   "ms": 4146
   },
   {
    "id": "G1",
@@ -500,7 +504,7 @@
     ]
    },
    "screenshot": "G1.png",
-   "ms": 6426
+   "ms": 4009
   },
   {
    "id": "G2",
@@ -561,7 +565,7 @@
     ]
    },
    "screenshot": "G2.png",
-   "ms": 7240
+   "ms": 4743
   },
   {
    "id": "G3",
@@ -620,7 +624,7 @@
     ]
    },
    "screenshot": "G3.png",
-   "ms": 6113
+   "ms": 4142
   },
   {
    "id": "PD1",
@@ -685,7 +689,7 @@
     ]
    },
    "screenshot": "PD1.png",
-   "ms": 5277
+   "ms": 3423
   },
   {
    "id": "PD2",
@@ -744,7 +748,7 @@
     ]
    },
    "screenshot": "PD2.png",
-   "ms": 8700
+   "ms": 5467
   },
   {
    "id": "PD3",
@@ -789,7 +793,7 @@
     ]
    },
    "screenshot": "PD3.png",
-   "ms": 9037
+   "ms": 5547
   },
   {
    "id": "PD4",
@@ -849,7 +853,7 @@
     ]
    },
    "screenshot": "PD4.png",
-   "ms": 9203
+   "ms": 6476
   },
   {
    "id": "PD5",
@@ -908,7 +912,7 @@
     ]
    },
    "screenshot": "PD5.png",
-   "ms": 10628
+   "ms": 9336
   },
   {
    "id": "PD6",
@@ -955,7 +959,7 @@
     ]
    },
    "screenshot": "PD6.png",
-   "ms": 6553
+   "ms": 3861
   },
   {
    "id": "TR1",
@@ -1022,7 +1026,7 @@
     ]
    },
    "screenshot": "TR1.png",
-   "ms": 5866
+   "ms": 5408
   },
   {
    "id": "TR2",
@@ -1075,7 +1079,7 @@
     ]
    },
    "screenshot": "TR2.png",
-   "ms": 7912
+   "ms": 7545
   },
   {
    "id": "TR3",
@@ -1133,7 +1137,7 @@
     ]
    },
    "screenshot": "TR3.png",
-   "ms": 6700
+   "ms": 6773
   },
   {
    "id": "TR4",
@@ -1186,7 +1190,7 @@
     ]
    },
    "screenshot": "TR4.png",
-   "ms": 7963
+   "ms": 7012
   },
   {
    "id": "TR5",
@@ -1239,7 +1243,7 @@
     ]
    },
    "screenshot": "TR5.png",
-   "ms": 7857
+   "ms": 7014
   },
   {
    "id": "TR6",
@@ -1288,7 +1292,7 @@
     ]
    },
    "screenshot": "TR6.png",
-   "ms": 5853
+   "ms": 5845
   },
   {
    "id": "SD1",
@@ -1356,7 +1360,7 @@
     ]
    },
    "screenshot": "SD1.png",
-   "ms": 8817
+   "ms": 7409
   },
   {
    "id": "SD2",
@@ -1415,7 +1419,7 @@
     ]
    },
    "screenshot": "SD2.png",
-   "ms": 14928
+   "ms": 10513
   },
   {
    "id": "SD3",
@@ -1474,7 +1478,7 @@
     ]
    },
    "screenshot": "SD3.png",
-   "ms": 8213
+   "ms": 8442
   },
   {
    "id": "SD4",
@@ -1533,7 +1537,7 @@
     ]
    },
    "screenshot": "SD4.png",
-   "ms": 9509
+   "ms": 6570
   },
   {
    "id": "SD5",
@@ -1604,7 +1608,7 @@
     ]
    },
    "screenshot": "SD5.png",
-   "ms": 12798
+   "ms": 11464
   },
   {
    "id": "SD6",
@@ -1668,7 +1672,7 @@
     ]
    },
    "screenshot": "SD6.png",
-   "ms": 7990
+   "ms": 7396
   },
   {
    "id": "SD7",
@@ -1726,7 +1730,7 @@
     ]
    },
    "screenshot": "SD7.png",
-   "ms": 6445
+   "ms": 5539
   }
  ],
  "sweeps": [
@@ -1799,7 +1803,7 @@
   }
  ],
  "network": {
-  "origin": "http://127.0.0.1:37449",
+  "origin": "http://127.0.0.1:33613",
   "localRequests": 215,
   "localByKind": {
    "built": 58,
@@ -1833,6 +1837,7 @@
   {
    "id": "STATE-NoQuote",
    "title": "Demo: no reliable quote (the real withheld-price path)",
+   "from": "Home",
    "path": [
     "About (banner)",
     "tick \"Demo: no reliable quote\" (the page reloads)",
@@ -1907,7 +1912,7 @@
    "ok": true
   }
  ],
- "finishedAt": "2026-10-27T20:52:06.220Z",
+ "finishedAt": "2026-10-27T21:08:22.522Z",
  "summary": {
   "designs": 26,
   "designsPassed": 26,

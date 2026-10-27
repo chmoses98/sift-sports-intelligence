@@ -585,7 +585,7 @@ export const SWEEPS = [
  */
 export const STATES = [
   {
-    id: 'STATE-NoQuote', title: 'Demo: no reliable quote (the real withheld-price path)',
+    id: 'STATE-NoQuote', from: 'Home', title: 'Demo: no reliable quote (the real withheld-price path)',
     async run(t) {
       await t.tap('About (banner)', '[data-capture-about]');
       const box = t.page.locator('[data-capture-noquote]');

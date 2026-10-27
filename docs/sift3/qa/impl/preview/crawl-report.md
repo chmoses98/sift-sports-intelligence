@@ -1,16 +1,16 @@
 # Captured preview: reachability crawl
 
-Built from `dist-v3-snapshot`, 390x844, time zone America/New_York, 2026-10-27T20:37:21.982Z. Every path below is taps only, starting from a root tab; the page was loaded once at its start address.
+Built from `dist-v3-snapshot`, 390x844, time zone America/New_York, 2026-10-27T20:55:07.802Z. Every path below is taps only, starting from a root tab; the page was loaded once at its start address.
 
 Welcome (first visit): {"shownOnFirstVisit":true,"dismissedByTap":true,"shownAgainAfterReload":false,"tabBarVisibleBeforeDismiss":true,"ok":true}
 
 ## Root tabs
 | id | what | start tab | tap path (taps only) | result | checks |
 |---|---|---|---|---|---|
-| ROOT-Home | Home tab shows the captured slate (not sample data) |  | About (banner) > Close (About sheet) | PASS | 6/6 |
-| ROOT-Games | Games tab lists the captured slate with lines through the quote gate |  | Games (bottom tab) > Games (bottom tab) > NFL (sport rail) | PASS | 3/3 |
-| ROOT-Explore | Explore tab is Prop Discovery on the captured props |  | Explore (bottom tab) | PASS | 3/3 |
-| ROOT-Following | Following tab: save from Player Research, then open the saved state |  | Home (bottom tab) > Game Center (Home) > CeeDee Lamb (Players to research) > Save this research (bookmark) > Following (bottom tab) > the saved Lamb item | PASS | 5/5 |
+| ROOT-Home | Home tab shows the captured slate (not sample data) | Home | About (banner) > Close (About sheet) | PASS | 6/6 |
+| ROOT-Games | Games tab lists the captured slate with lines through the quote gate | Games | Games (bottom tab) > Games (bottom tab) > NFL (sport rail) | PASS | 3/3 |
+| ROOT-Explore | Explore tab is Prop Discovery on the captured props | Explore | Explore (bottom tab) | PASS | 3/3 |
+| ROOT-Following | Following tab: save from Player Research, then open the saved state | Home | Home (bottom tab) > Game Center (Home) > CeeDee Lamb (Players to research) > Save this research (bookmark) > Following (bottom tab) > the saved Lamb item | PASS | 5/5 |
 
 ## The 26 locked designs
 | id | design | start tab | tap path (taps only) | result | checks |
@@ -45,7 +45,7 @@ Welcome (first visit): {"shownOnFirstVisit":true,"dismissedByTap":true,"shownAga
 ## States of the preview itself
 | id | what | start tab | tap path (taps only) | result | checks |
 |---|---|---|---|---|---|
-| STATE-NoQuote | Demo: no reliable quote (the real withheld-price path) |  | About (banner) > tick "Demo: no reliable quote" (the page reloads) > Games (bottom tab) > NFL (sport rail) > Explore (bottom tab) > a withheld price pill > About (banner) > untick the demo (the page reloads) | PASS | 8/8 |
+| STATE-NoQuote | Demo: no reliable quote (the real withheld-price path) | Home | About (banner) > tick "Demo: no reliable quote" (the page reloads) > Games (bottom tab) > NFL (sport rail) > Explore (bottom tab) > a withheld price pill > About (banner) > untick the demo (the page reloads) | PASS | 8/8 |
 
 ## Sweeps (render every reachable list once; record what the capture can and cannot open)
 - **SWEEP-GameCoverage** (PASS): Game Detail coverage by sport and state: NFL/Today opens with its game documents; NBA/Today opens with its game documents; NBA/Upcoming opens with its game documents; MLB/Today opens from the slate row only ("MLB Today · 8:00 PM at Brewers Rays MIL TB 8:00 PM Overview "); NHL/Today opens with its game documents; NCAAF/Upcoming opens with its game documents; NCAAB/Upcoming opens from the slate row only ("NCAAB Sun, Nov 1 · 9:30 AM ND at VIL Notre Dame Fighting Iri"); SOCCER/Today opens from the slate row only ("SOCCER LIVE In play EDL — UNI Estudiantes de La Plata Score "); SOCCER/Upcoming opens with its game documents; TENNIS/Today opens from the slate row only ("TENNIS LIVE In play PAP — SIL Despina Papamichail Score unav"); TENNIS/Upcoming opens with its game documents.
@@ -64,7 +64,7 @@ Welcome (first visit): {"shownOnFirstVisit":true,"dismissedByTap":true,"shownAga
 ## Network
 ```json
 {
- "origin": "http://127.0.0.1:37449",
+ "origin": "http://127.0.0.1:33613",
  "localRequests": 215,
  "localByKind": {
   "built": 58,

@@ -61,6 +61,8 @@ for (const [w, h] of [[390, 844], [375, 667]] as const) {
       const obs = await obsOfColumns(page);
       expect(obs).toHaveLength(12);
       const len = await page.evaluate(() => history.length);
+      // the events the chart receives are real touch pointers, not mouse clicks
+      await page.evaluate(() => { (window as unknown as { __pt: string[] }).__pt = []; document.querySelector('.st-obs__plot')!.addEventListener('pointerdown', (e) => (window as unknown as { __pt: string[] }).__pt.push((e as PointerEvent).pointerType), true); });
       let taps = 0;
       for (let i = 0; i < 12; i++) {
         const b = await columnBox(page, i);
@@ -79,6 +81,9 @@ for (const [w, h] of [[390, 844], [375, 667]] as const) {
         }
       }
       expect(taps).toBe(72);
+      const kinds = await page.evaluate(() => (window as unknown as { __pt: string[] }).__pt);
+      expect(kinds).toHaveLength(72);
+      expect(new Set(kinds)).toEqual(new Set(['touch']));
       expect(await page.evaluate(() => history.length)).toBe(len); // selection replaces history
     });
 
@@ -269,3 +274,42 @@ test.describe('Trend observation list @v3', () => {
     await expect(page.locator('.st-obs [data-obs="0"]')).toHaveAttribute('data-on', 'true');
   });
 });
+
+// NHL real series. The sandbox cache for the NFL family holds no NHL per-game series (the published ones belong to some teams only, and
+// documents captured at different instants cannot be mixed), so this test runs when the cache in use has one and says so when it does not:
+//   V3_FEED_CACHE=<dir> V3_REAL_FEEDS=live  fills a consistent NHL set (Anaheim publishes Corsi and xGF share series).
+test.describe('Trend on a real NHL series @v3', () => {
+  for (const [w, h] of [[390, 844], [375, 667]] as const) {
+    test(`Corsi share, ANA, at ${w}x${h}: touch selects every column, the list matches, axe clean`, async ({ page }) => {
+      test.setTimeout(240_000);
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('./#/v3/stat/nhl/corsi_pct?v=1&tab=trend&sel=ANA');
+      await expect(page.locator('[data-v3-shell]')).toBeVisible();
+      await expect(page.locator('.st-obs, .st-state').first()).toBeVisible();
+      test.skip(await page.locator('.st-obs').count() === 0, 'the feed cache in use holds no NHL per-game series for ANA (see the comment above)');
+      await frame(page);
+      const n = await page.locator('.st-obs svg [data-obs]').count();
+      expect(n).toBeGreaterThan(1);
+      await expect(page.locator('[data-obs-row]')).toHaveCount(n);
+      await expect(page.locator('[data-obs-row]').first().locator('.v')).toContainText('%'); // a share is shown with its unit
+      const { misses } = await columnHits(page, '.st-obs');
+      expect(misses).toEqual([]);
+      await expectNoStolenTaps(page, '.st-trc');
+      const s = await cdp(page);
+      const obs = await obsOfColumns(page);
+      for (let i = 0; i < n; i++) {
+        const b = await columnBox(page, i), nb = await columnBox(page, i === n - 1 ? n - 2 : i + 1);
+        await tap(s, nb.left + nb.width / 2, nb.top + nb.height * 0.45);
+        await expect.poll(() => obsParam(page)).toBe(obs[i === n - 1 ? n - 2 : i + 1]);
+        for (const f of [0.15, 0.5, 0.85]) {
+          await tap(s, b.left + b.width * f, b.top + b.height * 0.45);
+          await expect.poll(() => obsParam(page), { message: `NHL column ${i} at ${f}` }).toBe(obs[i]);
+          await tap(s, nb.left + nb.width / 2, nb.top + nb.height * 0.45);
+        }
+      }
+      const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      expect(r.violations.map((v) => v.id)).toEqual([]);
+    });
+  }
+});
+

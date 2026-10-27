@@ -16,6 +16,7 @@ import type { GameLogRow } from '../../history/types';
 import { demoOn } from '../state/prefs';
 import { deriveLines, deriveProps, type PropRow } from './adapt';
 import { useEventDetail } from './useGameExtras';
+import { useGameStart } from './research/gameHooks';
 import { useSlate } from './useSlate';
 import { withRest, type Obs } from '../model/research';
 import type { MarketLine, V3Game, V3Team } from '../model/types';
@@ -135,6 +136,8 @@ export function usePlayerVM(slug: string, pid: string) {
   const teamCode = prof.data?.team?.short_name ?? entry?.context.team ?? null;
   const next = useMemo(() => (teamCode ? slate.games.filter((g) => g.slug === slug && (g.away.id === teamCode || g.home.id === teamCode) && (g.phase === 'pregame' || g.phase === 'live')).sort((a, b) => a.startMs - b.startMs)[0] ?? null : null), [slate.games, slug, teamCode]);
   const detail = useEventDetail(next?.slug ?? '', next?.eventId ?? '', !!next && !demo);
+  // His game's start is the league schedule's (the schedule authority: data/research/scheduleStarts.ts), never the event document's own field or Kalshi's.
+  const nextStart = useGameStart(demo ? null : next);
   // His contracts on the coming game, kept current by the shared live-quote store (the same overlay the game screens use).
   const mine = useMemo(() => (detail.data?.markets ?? []).filter((m) => m.player_id === pid), [detail.data, pid]);
   const liveQ = useLiveQuotes(!demo && mine.length ? mine.map((m) => m.kalshi_ticker) : undefined, 'detail');
@@ -171,13 +174,12 @@ export function usePlayerVM(slug: string, pid: string) {
       if (r.playerId === pid && !props.has(key)) props.set(key, { ...r, stat: key });
     }
     const opp = next ? (next.home.id === teamCode ? next.away : next.home) : null;
-    const scheduled = detail.data?.event?.start_time_utc ? Date.parse(detail.data.event.start_time_utc) : NaN;
     return {
       id: pid, name: p.entity.display_name, position, extId: gsis, team, photo: broadcastPlayerPhoto(pid, p.entity.display_name, teamCode ?? '', 'portrait'), sport: code, stats, obs: sorted, season,
-      props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: Number.isFinite(scheduled) ? scheduled : next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore,
+      props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: nextStart ?? next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore,
     };
     // liveQ.version: the store's quotes change under a stable lookup function
-  }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, sport, entry, teamCode, detail.data, mine, liveQ.version, next, pid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, sport, entry, teamCode, detail.data, mine, liveQ.version, next, nextStart, pid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loading = !demo && (repo.loading || (explorer && (prof.loading || hist.loading)));
   return { vm, loading, notFound: !demo && !loading && !vm, noExplorer: !demo && !repo.loading && !explorer, marketsLoading: !demo && !!next && detail.loading };

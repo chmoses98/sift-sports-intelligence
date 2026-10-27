@@ -9,6 +9,7 @@ import { usePrefs } from '../state/prefs';
 import type { MarketLine, Price, V3Game } from '../model/types';
 import { useSheet } from './Sheet';
 import { publishLine, type GameFacts } from './gameContracts';
+import './delayed.css';
 
 /** A game's address, built by the one route builder. A tab this vocabulary does not know (or the default one) is left out. */
 export const gameHref = (g: Pick<V3Game, 'slug' | 'eventId'>, tab?: string) => routes.game({ slug: g.slug, eventId: g.eventId }, tab && (GAME_TABS as readonly string[]).includes(tab) ? { tab: tab as GameTab } : {});
@@ -32,10 +33,18 @@ export function useSeen<T extends Element>(): [React.RefObject<T | null>, boolea
 
 /** "Q3 6:24" / "Final" / "7:30 PM". The clock is only printed when a source stated it. */
 export function statusWord(g: V3Game): string {
-  if (g.phase === 'live') return g.score?.clock ?? 'In play';
+  if (g.phase === 'live') return `${g.score?.clock ?? 'In play'}${g.score?.delayed ? ', delayed' : ''}`;
   if (g.phase === 'final') return 'Final';
   if (g.phase === 'other') return 'Awaiting result';
   return clockTime(g.startMs);
+}
+
+/**
+ * The subtle status beside a live score that is verified but a little old (data/scoreVerify.ts): one muted word, no age, no timestamp.
+ * It adds a word to the existing status line and changes no layout; nothing renders for a current score.
+ */
+export function DelayedMark({ g }: { g: Pick<V3Game, 'score'> }) {
+  return g.score?.delayed ? <span className="v3-delayed" data-delayed>Delayed</span> : null;
 }
 
 /** A score the app cannot show says so. (A score feed that has gone quiet is withheld upstream, in the slate: no old score is dressed up as current.) */
@@ -96,7 +105,7 @@ export function LinesBox({ g, loading, startMs, gate }: { g: V3Game; loading?: b
 
 /** Time / state label with the live badge. */
 export function StateChip({ g }: { g: V3Game }) {
-  if (g.phase === 'live') return <span className="v3-state-live"><span className="v3-livebadge v3-livebadge--sm">LIVE</span>{g.score?.clock ?? ''}</span>;
+  if (g.phase === 'live') return <span className="v3-state-live"><span className="v3-livebadge v3-livebadge--sm">LIVE</span>{g.score?.clock ?? ''}<DelayedMark g={g} /></span>;
   return <span>{statusWord(g)}</span>;
 }
 

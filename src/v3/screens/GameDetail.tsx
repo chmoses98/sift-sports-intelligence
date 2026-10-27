@@ -21,7 +21,7 @@ import { useSheet } from '../ui/Sheet';
 import { SwitcherRail } from '../ui/Switcher';
 import { usePublishGameContracts } from '../ui/gameContracts';
 import { TeamLogo } from '../ui/TeamLogo';
-import { gameHref, leagueLabel, scoreSourceWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, teamHref } from '../ui/gamebits';
 import { GameTabBody } from './GameTabs';
 import type { GameCtx } from './GameShared';
 import './matchup.css';
@@ -71,7 +71,7 @@ function Hero({ g, back, startMs }: { g: V3Game; back: () => void; startMs: numb
       <div className="v3-gh__meta">
         <span className="v3-gh__lg">{leagueLabel(g)}{weekOf(g.item?.competition) ? ` · ${weekOf(g.item?.competition)}` : ''}</span>
         {live ? (
-          <span className="v3-gh__st"><span className="v3-livebadge">LIVE</span><span className="v3-gh__clk">{g.score?.clock ?? 'In play'}{g.network ? ` · ${g.network}` : ''}</span></span>
+          <span className="v3-gh__st"><span className="v3-livebadge">LIVE</span><span className="v3-gh__clk">{g.score?.clock ?? 'In play'}<DelayedMark g={g} />{g.network ? ` · ${g.network}` : ''}</span></span>
         ) : g.phase === 'final' ? (
           <span className="v3-gh__st"><span className="v3-gh__fin">FINAL</span>{g.network ? <span className="v3-gh__clk"> · {g.network}</span> : null}</span>
         ) : (
@@ -103,7 +103,7 @@ function CompactBar({ g, list, show, tab, startMs }: { g: V3Game; list: V3Game[]
       <button type="button" className="v3-iconbtn" tabIndex={show ? 0 : -1} disabled={!prev} aria-label={prev ? `Previous game: ${prev.away.abbr} at ${prev.home.abbr}` : 'No previous game'} onClick={() => go(prev)}><Icon name="back" size={22} /></button>
       <button type="button" className="v3-cb__mid" tabIndex={show ? 0 : -1} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Scroll to top of game">
         <TeamLogo team={g.away} size={30} />
-        <span className="v3-cb__sc">{g.score ? <b className="num">{g.score.away} – {g.score.home}</b> : <b>{g.away.abbr} at {g.home.abbr}</b>}<small>{g.phase === 'live' ? g.score?.clock ?? 'In play' : g.phase === 'final' ? 'Final' : startMs != null ? clockTime(startMs) : 'TBC'}</small></span>
+        <span className="v3-cb__sc">{g.score ? <b className="num">{g.score.away} – {g.score.home}</b> : <b>{g.away.abbr} at {g.home.abbr}</b>}<small>{g.phase === 'live' ? <>{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></> : g.phase === 'final' ? 'Final' : startMs != null ? clockTime(startMs) : 'TBC'}</small></span>
         <TeamLogo team={g.home} size={30} />
       </button>
       <button type="button" className="v3-iconbtn" tabIndex={show ? 0 : -1} disabled={!next} aria-label={next ? `Next game: ${next.away.abbr} at ${next.home.abbr}` : 'No next game'} onClick={() => go(next)}><Icon name="chevR" size={22} /></button>

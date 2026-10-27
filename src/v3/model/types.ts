@@ -70,6 +70,11 @@ export interface Score {
   source: 'publication' | 'score-feed' | 'demo';
   /** When the source last confirmed the score. */
   asOf: string | null;
+  /**
+   * True when the score is verified but a little old while the game is in play (data/scoreVerify.ts: older than 60 s, no older than 5 min).
+   * The screen prints a subtle "Delayed" word beside the status and nothing else. A score older than that is not a Score at all.
+   */
+  delayed?: boolean;
 }
 
 export interface V3Game {

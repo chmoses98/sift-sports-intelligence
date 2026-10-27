@@ -104,7 +104,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await expect(page.locator('.v3p-fchip')).toHaveCount(1);
     await page.getByRole('button', { name: 'Save this research' }).click();
     await go(page, '/v3/following?demo=1');
-    await expect(page.locator('.v3-snap')).toContainText('At save');
+    await expect(page.locator('.v3-snap')).toContainText('Saved values');
     await page.locator('.v3-hit--saved .v3-hit__l').click();
     await expect(page).toHaveURL(/stat=ast/);
     await expect(page).toHaveURL(/win=L5/);

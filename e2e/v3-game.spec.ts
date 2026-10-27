@@ -4,15 +4,17 @@
 // against the real components, Back is asserted to restore the screen's exact state and scroll, and prices are made current by fixing
 // the browser clock just after the publication's quote capture (the quote gate is the app's own; nothing is stubbed).
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
-// The newest observation in the real cache is the live-quote feed's (23:05:29Z); the event document's capture is 18:23:01Z. A browser clock
-// 30 s after the live feed makes the live prices current (the gate's own 180 s list window) and the document's older capture withheld.
-const CAPTURE = new Date('2026-10-26T23:06:00Z');
+// The real cache describes one instant (feedNow(): .v3-feed-cache/captured_at.txt) and is refreshed from time to time, so nothing here hard-codes an
+// instant. The browser clock is that instant and the live-quote feed's observation times are re-stamped to it (freshQuotes: a test transformation of the
+// timestamps only, every price is the published one), so live prices are current under the quote gate and the event document's older capture is withheld.
+const CAPTURE = feedNow();
 
 test.beforeEach(async ({ page }) => {
   await useRealFeeds(page);
+  await freshQuotes(page);
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.clock.setFixedTime(CAPTURE);
 });

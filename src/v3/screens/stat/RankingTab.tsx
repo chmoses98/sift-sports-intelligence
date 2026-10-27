@@ -28,14 +28,18 @@ export function FamilySwitch({ ctx }: { ctx: StatCtx }) {
   const seg = (id: string, label: string) => id === statId
     ? <button type="button" aria-pressed={!st.sbs} onClick={() => ctx.set({ sbs: false })}>{label}</button>
     : <StatLink stat={{ slug, statId: id }} state={keep} label={`${label}: open its own ranking`}>{label}</StatLink>;
+  // SD1 shows the two statistics as a two-way switch; SD3 (side by side) adds the third segment. From SD1 the side-by-side view is the
+  // link on the note line, so the locked two-way switch is not changed.
   return (
     <div className="st-fam">
       <div className="st-segc st-segc--wide" role="group" aria-label="Statistic version">
         {seg(fam.adjId, 'Opponent-adjusted')}
         {seg(fam.rawId, 'Raw')}
-        <button type="button" aria-pressed={st.sbs} onClick={() => ctx.set({ sbs: true })}>Side by side</button>
+        {st.sbs && <button type="button" aria-pressed onClick={() => ctx.set({ sbs: true })}>Side by side</button>}
       </div>
-      <span className="st-fam2"><Icon name={st.sbs ? 'lock' : 'info'} size={13} /> {st.sbs ? 'Separate rankings, never mixed in one list' : 'Two different statistics, ranked separately'}</span>
+      <span className="st-fam2"><Icon name={st.sbs ? 'lock' : 'info'} size={13} /> {st.sbs ? 'Separate rankings, never mixed in one list' : 'Two different statistics, ranked separately'}
+        {!st.sbs && <button type="button" className="st-sbs" onClick={() => ctx.set({ sbs: true })}>Side by side <Icon name="chevR" size={12} /></button>}
+      </span>
     </div>
   );
 }

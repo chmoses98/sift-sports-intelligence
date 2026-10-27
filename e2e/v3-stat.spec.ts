@@ -238,7 +238,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await page.unroute(seriesUrl);
     // the document is not in the publication at all
     await page.route(seriesUrl, (route) => route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }));
-    await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=PHI&obs=3');
+    await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL&obs=3');
     await expect(page.locator('.st-hd h1')).toBeVisible();
     await expect(page.locator('.st-obs')).toHaveCount(0);
     await expect(page.locator('.st-obc')).toHaveCount(0);

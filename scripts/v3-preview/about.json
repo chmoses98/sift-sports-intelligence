@@ -1,0 +1,16 @@
+{
+  "real": [
+    "Home, Games, Game Detail, Team, Player, Statistic and Prop Discovery all read these documents through the app's own code, unchanged: the same screens, the same quote gate (a price shows only if its observation is recent against the page clock), the same approval ledger for SIFT model numbers.",
+    "Prices are Kalshi prices in cents, before fees, exactly as captured; nothing was estimated, filled in or invented for this preview."
+  ],
+  "transformed": [
+    "The live-score provider is switched off (no score feed is contacted) and quotes the app persisted on an earlier visit are cleared on every load, so nothing carries over from another session or another capture.",
+    "Kick-off times are shown in your phone's time zone; \"Today\" and \"Tomorrow\" follow the fixed page clock."
+  ],
+  "notCaptured": [
+    "Live scores and in-play state: a game the slate lists as in play shows no score (\"Score unavailable\"). Nothing after the capture instant, including games played since.",
+    "Many soccer, tennis, MLB and college games: their slate rows were captured but their game documents were not (the crawl found examples in each of those sports), so Game Detail opens from the slate row alone and says \"No Kalshi lines are listed\".",
+    "Player and team pages for people and teams outside the captured games open that screen's own unavailable state.",
+    "Any sport or screen the capture holds no documents for."
+  ]
+}

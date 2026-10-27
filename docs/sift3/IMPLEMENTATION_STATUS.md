@@ -161,3 +161,78 @@ Branch `claude/sift3-h-fixtures`. The real-document Playwright specs no longer d
 | `v3-hit-targets` (game family) | 26 passed | 26 passed |
 
 For every family, no document served in the cached run answered 404 from the bundle (request logs compared URL by URL). Isolating the network matters: a namespace with no interface at all makes the browser report `navigator.onLine = false`, the quote poller stops and the two priced game tests fail; that was an artefact of the method, not of the fixtures, and the proof uses an interface with a dead route instead.
+
+## Hardening H-D: data correctness (branch `claude/sift3-h-data`)
+
+Scope: non-tradable markets, scores, unavailable data, start times, saved research. Evidence for each item is in the tests named below; anything not verified is listed at the end.
+
+### 1. Non-tradable markets never show an actionable ask
+
+**What the publications carry** (measured on the captured real documents, 2026-10-26). Publication `event_detail` markets: `market_status` OPEN, SETTLED, UNKNOWN. Live-quote feed games (`sift.live_quotes.v1`): `status` active, inactive, determined (the captured DAL at PHI feed holds 76 `inactive` markets published WITH a yes ask, and 5 `determined`). Live store quotes: `rawStatus` (that word) and `availability` (OPEN, UNOPENED, SUSPENDED, CLOSED, SETTLED, UNKNOWN). The `inactive` markets are a real case: the old code printed their ask.
+
+**The rule** (`src/v3/model/marketStatus.ts`, one vocabulary). A market is **not tradable only when its status word positively says so**: closed, determined, disputed, amended, expired, ended (closed); settled, finalized, finalised, resolved (settled); inactive, paused, suspended, halted, frozen, on hold (suspended); initialized, unopened, not open yet (not open); delisted, cancelled, voided, withdrawn (delisted). `open`/`active` are tradable. **A missing or unrecognised status word is not evidence**: it stays tradable and the quote gate still requires a current observation and a real ask. `Price` carries `tradable: boolean` and `marketStatus` (open, unopened, suspended, closed, settled, delisted, unknown); a non-tradable `Price` is built with no ask, bid or implied price.
+
+**Where it is enforced.** (a) `data/quoteGate.ts` `gate()`: a non-tradable price is withheld whatever its age, with reason `not-tradable` (list "—"); an ask outside 1 to 99 cents is "no price" (the real `UNKNOWN` market with yes_ask 0.0 would otherwise print 0¢). (b) Every constructor sets the status from the observation it came from: `adapt.priceOf` (publication, or the live quote through `data/liveMarket.ts`, which keeps the provider's own word because the shared overlay folds words it does not know into UNKNOWN), `model/contract.priceOfQuote` (a quote with no ask but a non-tradable status is still a Price, so the sheet can say why), Prop Discovery `rawPrice` (live status when the live observation is newer, else the publication's). (c) Lists (lines, props, ladders, player props) are built only from markets that are not positively non-tradable. (d) `ui/ContractSheet.tsx`: a distinct state, "Market closed" / "Market settled" / "Trading suspended" (also "Not open for trading yet", "Market no longer listed"), a sentence, **no ask, bid, implied, fee or break-even rows and no Retry** (asking again cannot make it tradable); it keeps refreshing quietly, so a market that reopens shows its price. Research (Player History hit counts, lanes, ladders of other rungs, the screen itself) is not touched.
+
+**Tests.** `tests/v3/marketStatus.test.ts` (66): every status word, the tradable rule, the gate for each non-tradable state with and without an ask and at any age, the real event_detail and the real live-feed `active`/`inactive`/`determined` markets (fixture `tests/v3/fixtures/live-feed-markets-by-status.json`: markets copied unchanged from the captured feed), Prop Discovery rungs, the overlay keeping the raw word. Cases with no real market (a `closed`/`settled` market that still has an ask) **modify one real market's status** and say so in the test name. `e2e/v3-nontradable.spec.ts` (real documents; the feed helper `freshQuotes` gained `status` to change one market's feed status): the real `inactive` market opens "Trading suspended"; `closed`, `determined`, `settled`, `finalized`, `paused` open the matching state; the open control is priced; a Game Detail props row prints "—" and its sheet says "Market closed" with the ladder intact; a game with every market non-tradable prints no price; the Games card carries no price; Prop Discovery row (props cache) prints "—" and opens "Trading suspended".
+
+### 2. Scores
+
+**Verified** = comes from the publication result (`finalScores`), or from the licensed free score feed (SportScore) holding a game the identity layer **matched** to this event by evidence (provider id, or both teams plus start time; never by name similarity), with a phase the feed understood and a plausible pair of whole numbers. **Delayed** = verified, game in play, observation older than 60 s and no older than 5 min (the feed's own live and stale thresholds, measured from the provider's state time, else the fetch time). A delayed score stays visible with one muted **"Delayed"** word beside the status (Games card, Home scoreboard tile and featured card, Game Detail hero and compact bar, Switcher, Following), no age and no timestamp; the accessible name says "delayed". **Unreliable** (older than 5 min while in play, a feed outage, no trustworthy timestamp, no match, unknown phase) is never shown: "Score unavailable". A final from the feed is a fact and does not age. Nothing supplies 0-0 or carries a score across reads. Code: `data/scoreVerify.ts` (pure), `useSlate.tsx`. This is separate from the quote rules (no age appears on a price). Tests: `tests/v3/scoreVerify.test.ts` (18, boundaries at 59/60/300/301 s), `e2e/v3-scores.spec.ts` (5: fresh, delayed on card, tile and hero, older than 5 min, other teams' game never attached, feed down). The SportScore network answer in the e2e is a test fixture shaped like its payload (the app's identity matcher and freshness clock decide). SportScore covers NBA and tennis only: NFL, NHL and MLB games in play show no score unless the publication has a result.
+
+### 3. Hardening: unavailable data
+
+**What was built.** (a) Research documents are read within a bound while SIFT 3.0 is open (`data/fetcher.ts` `setFetchTimeout`, switched on by `V3Root`, 25 s; off for SIFT 2.0 and classic): a request that never answers is a failure, not a skeleton that never goes away (`tests/v3/fetchTimeout.test.ts`, 7). (b) `useAsync` results carry `retry` (forgets the held copy and failure and reads again; `useRepo` also forgets a source that resolved as unavailable). (c) One shared state, `ui/DataState.tsx`, with the words from `data/failure.ts`: "<what> could not be shown: <why>." where why is "the connection to it failed", "it did not answer in time", "what was published could not be read", "it is not published yet" or "it is in a format this version of SIFT cannot read"; Retry only where asking again can help (not for "not published"). (d) Screens use it where they used to show a skeleton for ever, "no data" for a failure, or nothing: Game Detail (Overview market prices, Props, Script, Stats, Matchup), Player (profile, game log, Kalshi prices for his game), Team, Stat (statistics list, ranking), Explore (a sport whose player and statistic search could not be read), Prop Discovery (every game's contract list failed). (e) A sport whose live publication could not be read and whose research comes from the saved copy bundled with the app (NFL) says so on every screen of that sport, not only Home and Games (`V3Root` strip "Saved copy in use"); research is never silently the saved copy. (f) Real mode never substitutes sample data: the harness fails on the word "Sample" in any cell.
+
+**How it was checked.** `e2e/v3-unavailable.spec.ts` serves the real cached documents and makes ONE document class fail per test, in each way: 404, network failure, no answer (the app's bound is set to 2.5 s by a test seam), malformed JSON, empty list. Every cell asserts: no skeleton or "Loading" text left after the screen settles (at least 9 s, up to 45 s), no raw `undefined`/`NaN`/`[object`/`Error:`, no "Sample", the tab bar still works, and for the screen's subject document an honest message. `V3_UNAVAIL_FULL=1` runs every document in every mode (about 220 cells); the default is the lean matrix of 78 cells (the subject in all five modes, secondary documents in the modes that take a different path). The table is the final state of each cell after the fixes; "says why" means a message that names what is unavailable and why (machine-checked by wording, read by hand for the subject cells). **Found and fixed by this audit:** Game Detail showed skeletons for ever when the event document failed; Team showed a record skeleton for ever when the index was 404 or the profile empty; Team, Stat, Player and Game Matchup said "not in the publication" or "no data" for failures and had no Retry; Explore and Prop Discovery were silent; the NFL saved copy was silent on Team, Player, Stat and Props; nothing bounded a hanging request.
+
+| Cell | Meaning |
+| --- | --- |
+| says why + Retry | the screen names the document and the cause and offers Retry |
+| says why | named, no Retry because asking again cannot help (404 "not published", an empty list) |
+| screen carries on | a supporting document: the screen works without it and prints "—" or omits the extra; no skeleton, no sample |
+| SPINNER | none remain |
+
+| Screen | Document | 404 | Network | Never answers | Malformed | Empty |
+| --- | --- | --- | --- | --- | --- | --- |
+| Home | board (subject) | says why + Retry | says why + Retry | says why + Retry | says why + Retry | says why |
+| Home | recommendations | screen carries on | not run | not run | not run | not run |
+| Home | event detail | screen carries on | not run | not run | not run | not run |
+| Home | explorer index | says why | not run | not run | not run | not run |
+| Home | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Games | board (subject) | says why + Retry | says why + Retry | says why + Retry | says why + Retry | says why |
+| Games | event detail | says why | not run | not run | not run | not run |
+| Games | live-quote feed | says why | not run | not run | not run | not run |
+| Game Detail | event detail (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Game Detail | event research | screen carries on | screen carries on | not run | not run | not run |
+| Game Detail | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Game props | event detail (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Game props | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Game stats | event research | says why | says why + Retry | not run | not run | not run |
+| Game matchup | team profile (subject) | says why | says why + Retry | says why + Retry | says why + Retry | screen carries on |
+| Game matchup | projections | says why | not run | not run | not run | not run |
+| Team | team profile (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Team | explorer index | says why | says why + Retry | says why + Retry | not run | not run |
+| Team | event detail | screen carries on | not run | not run | not run | not run |
+| Player | player profile (subject) | says why | says why + Retry | says why + Retry | says why + Retry | screen carries on |
+| Player | game log (history) | says why | says why + Retry | not run | not run | not run |
+| Player | event detail | says why | says why + Retry | not run | not run | not run |
+| Player | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Stat | ranking (subject) | says why | says why + Retry | says why + Retry | says why + Retry | screen carries on |
+| Stat | explorer index | says why | says why + Retry | not run | not run | not run |
+| Stat | metric defs | screen carries on | not run | not run | not run | not run |
+| Prop Discovery | event detail (subject) | says why + Retry | says why + Retry | says why + Retry | says why + Retry | says why + Retry |
+| Prop Discovery | board | screen carries on | not run | not run | not run | not run |
+| Prop Discovery | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Explore | search index (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Explore | explorer index | screen carries on | not run | not run | not run | not run |
+
+Not in the table: the exact-contract sheet (quote feed 404, network, no answer, old observation: "Price unavailable right now" with Retry and no fee rows, `e2e/v3-quotegate.spec.ts`; non-tradable: no Retry), Following and Settings (read only this device's storage). The full 220-cell matrix was not run end to end; cells marked "not run" in the lean matrix share their code path with a cell that was (the same bound, the same `useAsync` failure). Under heavy machine load a hang cell can be judged before the app's 2.5 s bound fires; one such flake (Explore, no answer) passed on its re-run.
+
+### 4. Start times
+
+Every start time v3 shows is the **league schedule's** (the explorer index's events) or the board publication's `start_time_utc`, which is built from that same schedule (`event_detail.event.start_time_source` is `nhl_api_schedule` for NHL). No v3 file reads a Kalshi time (`tests/v3/scheduleStarts.test.ts` scans `src/v3` for `close_time`, `expiration`, `strike_date`: none). When the schedule is read (any screen using `useSchedule`: Games cards, Game Detail, Home featured card, Player, Team), the slate's games take its start (`data/research/scheduleStarts.ts`), so cards, tiles, switcher, props and the lifecycle phase read one time; the board's time stands only until that sport's schedule has been read. Tennis keeps its board time (first-ball status). Player Research no longer takes its game's start from the event document's own field. TOR at CGY: the explorer lists 00:30Z (8:30 PM ET) in the captured index, board and event document, and Kalshi's event implies 9:00 PM; `e2e/v3-starts.spec.ts` re-stamps the board's copy to 01:00Z (a test transformation) and shows the Games card and Game Detail say 8:30 PM and 9:00 PM appears nowhere. No formatting was changed.
+
+### 5. Saved research reopening
+
+Saved records never carry a price: `reviveSaved` drops snapshot items, title/subtitle segments and chips that name a price (¢, ask, odds, bid, implied). Reopening restores the route; the price comes from the live store through the gate. `e2e/v3-saved-reopen.spec.ts` (run with the player cache for the Player group and the props cache for the Props group): the stored JSON and the saved card contain no price; the market is moved +3 cents (a test transformation of the feed) while saved and the reopened Player screen shows the new ask, not the one on screen when it was saved; reopened with only old observations it prints "—"; a saved Prop Discovery view reopens with the changed ask and, with old quotes, dashes.

@@ -43,6 +43,11 @@ export interface QueryCtx {
   matchup: (p: Prop) => Matchup | null;
   /** The last games' values for a prop (oldest first), or undefined when its log is not held. */
   values: (p: Prop) => number[] | undefined;
+  /**
+   * Why a prop has no History: `pending` (its game log is not loaded, is loading or failed: it could still be evaluated) or `none` (no game
+   * log can be read for it: no log source for the statistic, or a log with no games before kickoff). Absent: every unevaluated prop is pending.
+   */
+  histKind?: (p: Prop) => 'pending' | 'none';
 }
 
 /** The captured ask of a prop's featured rung, the stable key for ordering and the price-range filter. */
@@ -87,6 +92,20 @@ export function histHits(p: Prop, ctx: QueryCtx, win: 5 | 10 = 10): { h: number;
 
 export const historyFilterOn = (st: ListState) => st.hmin != null && st.hmin > 0;
 
+/** A prop's standing for a History order or threshold: evaluated (History computed from a loaded log), or not, and why not. */
+export type HistClass = 'evaluated' | 'pending' | 'none';
+export function histClassOf(p: Prop, ctx: QueryCtx): HistClass {
+  if (histHits(p, ctx)) return 'evaluated';
+  return ctx.histKind?.(p) ?? 'pending';
+}
+
+/** How many of these props are evaluated, waiting for a log, or have none: the numbers "Evaluated N of M" prints. */
+export function histSummary(props: Prop[], ctx: QueryCtx): { evaluated: number; pending: number; none: number; total: number } {
+  const o = { evaluated: 0, pending: 0, none: 0, total: props.length };
+  for (const p of props) o[histClassOf(p, ctx)]++;
+  return o;
+}
+
 export function passes(p: Prop, st: ListState, ctx: QueryCtx): boolean {
   if (!passesBase(p, st, ctx)) return false;
   if (historyFilterOn(st)) {
@@ -98,17 +117,33 @@ export function passes(p: Prop, st: ListState, ctx: QueryCtx): boolean {
 
 export function comparator(sort: SortKey, ctx: QueryCtx): (a: Prop, b: Prop) => number {
   const byName = (a: Prop, b: Prop) => a.name.localeCompare(b.name) || a.fam.localeCompare(b.fam);
-  const histShare = (p: Prop) => { const h = histHits(p, ctx); return h ? h.h / h.n : -1; };
-  const histN = (p: Prop) => histHits(p, ctx)?.n ?? 0;
+  // History is computed from a log (not free): once per prop for the whole sort.
+  const hist = new Map<Prop, { c: number; share: number; n: number }>();
+  const histOf = (p: Prop) => {
+    let e = hist.get(p);
+    if (!e) {
+      const h = histHits(p, ctx);
+      e = h ? { c: 0, share: h.h / h.n, n: h.n } : { c: ctx.histKind?.(p) === 'none' ? 2 : 1, share: -1, n: 0 };
+      hist.set(p, e);
+    }
+    return e;
+  };
   const model = (p: Prop) => modelPercent(p.model, rungFor(p, null).k) ?? -1;
   const match = (p: Prop) => { const m = ctx.matchup(p); return m ? m.rank / m.n : -1; };
+  const soonest = (a: Prop, b: Prop) => a.startMs - b.startMs || near(a) - near(b) || byName(a, b);
   switch (sort) {
     case 'price': return (a, b) => (keyAsk(a) ?? 999) - (keyAsk(b) ?? 999) || a.startMs - b.startMs || byName(a, b);
-    case 'hist': return (a, b) => histShare(b) - histShare(a) || histN(b) - histN(a) || near(a) - near(b) || byName(a, b);
+    // Evaluated props are ranked by their History; the rest are NOT ranked at all: they follow in start order, props waiting for a log
+    // first and props that have none last, so the order can never be read as a ranking of rows that were never evaluated.
+    case 'hist': return (a, b) => {
+      const x = histOf(a), y = histOf(b);
+      if (x.c !== y.c) return x.c - y.c;
+      return x.c === 0 ? y.share - x.share || y.n - x.n || near(a) - near(b) || byName(a, b) : soonest(a, b);
+    };
     case 'model': return (a, b) => model(b) - model(a) || near(a) - near(b) || byName(a, b);
     case 'match': return (a, b) => match(b) - match(a) || near(a) - near(b) || byName(a, b);
     case 'vol': return (a, b) => (rungFor(b, null).volume ?? -1) - (rungFor(a, null).volume ?? -1) || byName(a, b);
-    default: return (a, b) => a.startMs - b.startMs || near(a) - near(b) || byName(a, b);
+    default: return soonest;
   }
 }
 

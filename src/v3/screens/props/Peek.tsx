@@ -70,6 +70,12 @@ export function Peek({ p, k, m, bits, onRung }: { p: Prop; k: number; m: Matchup
 
   return (
     <div className="pd-peek" data-peek={p.id}>
+      {(p.availPending || p.out) && (
+        <div className="pd-whyno" role="status" data-avail={p.availPending ? 'pending' : 'out'}>
+          <Icon name="info" size={13} />
+          <span>{p.availPending ? 'Checking availability: the game’s injury report has not been read yet.' : `The publication lists ${p.name} as ${p.out}.`}</span>
+        </div>
+      )}
       <div className="pd-pk1">
         {hs.state === 'ready' && hit ? (
           <>

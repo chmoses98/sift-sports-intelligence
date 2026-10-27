@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useAsync, useRepo } from '../../data/hooks';
 import { useLiveQuotes } from '../../live/hooks';
-import { overlayMarket } from '../../live/overlay';
+import { overlayLive } from './liveMarket';
 import { sportBySlug } from '../../data/sports';
 import { heroTeam } from '../../lib/hero/input';
 import { broadcastPlayerPhoto } from '../../components/sift2/playerArt';
@@ -14,8 +14,10 @@ import { readBoxLog, num, type BoxRow } from '../../history/boxLog';
 import { nbaPlayed } from '../../history/nbaLog';
 import type { GameLogRow } from '../../history/types';
 import { demoOn } from '../state/prefs';
+import { failureKind, whyUnavailable } from './failure';
 import { deriveLines, deriveProps, type PropRow } from './adapt';
 import { useEventDetail } from './useGameExtras';
+import { useGameStart } from './research/gameHooks';
 import { useSlate } from './useSlate';
 import { withRest, type Obs } from '../model/research';
 import { shiftDayKey } from '../model/time';
@@ -112,7 +114,7 @@ function demoVM(slug: string, games: V3Game[]): PlayerVM {
     const pts = 17 + (hash(`${o}${i}`) % 22), ast = 3 + (hash(`a${i}`) % 8), reb = 2 + (hash(`r${i}`) % 6), tp = hash(`t${i}`) % 5;
     return { key: `s${i}`, date: day, opp: o, home: i % 2 === 0, v: { pts, ast, reb, fg3m: tp, pra: pts + ast + reb }, min: 28 + (hash(`m${i}`) % 11), margin: ((hash(`g${i}`) % 31) - 12), season: '2026-27', eventId: null, label: `${i % 2 ? '@' : 'vs'} ${o}` };
   });
-  const mk = (stat: string, line: number, ask: number): [string, PropRow] => [stat, { key: `demo|${stat}`, player: 'Sample Guard', playerId: DEMO_PLAYER_ID, stat, statLabel: stat, line, price: { ask, bid: ask - 1, implied: ask - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${line}`, side: 'YES', description: `SAMPLE: Sample Guard over ${line} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' }, ladder: [line - 2, line, line + 2].map((l, i) => ({ ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const })), rungs: [line - 2, line, line + 2].map((l, i) => ({ line: l, price: { ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const } })), teamAbbr: team.abbr }];
+  const mk = (stat: string, line: number, ask: number): [string, PropRow] => [stat, { key: `demo|${stat}`, player: 'Sample Guard', playerId: DEMO_PLAYER_ID, stat, statLabel: stat, line, price: { ask, bid: ask - 1, implied: ask - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${line}`, side: 'YES', description: `SAMPLE: Sample Guard over ${line} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample', tradable: true, marketStatus: 'open' as const }, ladder: [line - 2, line, line + 2].map((l, i) => ({ ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const, tradable: true, marketStatus: 'open' as const })), rungs: [line - 2, line, line + 2].map((l, i) => ({ line: l, price: { ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const, tradable: true, marketStatus: 'open' as const } })), teamAbbr: team.abbr }];
   return {
     id: DEMO_PLAYER_ID, name: 'Sample Guard', position: 'G', extId: null, team, photo: null, sport: 'NBA', stats: BOX.NBA, obs: withRest(rows), season: '2026-27',
     props: new Map([mk('pts', 27.5, 52), mk('ast', 6.5, 49), mk('reb', 4.5, 51), mk('fg3m', 2.5, 48), mk('pra', 38.5, 50)]),
@@ -136,6 +138,8 @@ export function usePlayerVM(slug: string, pid: string) {
   const teamCode = prof.data?.team?.short_name ?? entry?.context.team ?? null;
   const next = useMemo(() => (teamCode ? slate.games.filter((g) => g.slug === slug && (g.away.id === teamCode || g.home.id === teamCode) && (g.phase === 'pregame' || g.phase === 'live')).sort((a, b) => a.startMs - b.startMs)[0] ?? null : null), [slate.games, slug, teamCode]);
   const detail = useEventDetail(next?.slug ?? '', next?.eventId ?? '', !!next && !demo);
+  // His game's start is the league schedule's (the schedule authority: data/research/scheduleStarts.ts), never the event document's own field or Kalshi's.
+  const nextStart = useGameStart(demo ? null : next);
   // His contracts on the coming game, kept current by the shared live-quote store (the same overlay the game screens use).
   const mine = useMemo(() => (detail.data?.markets ?? []).filter((m) => m.player_id === pid), [detail.data, pid]);
   const liveQ = useLiveQuotes(!demo && mine.length ? mine.map((m) => m.kalshi_ticker) : undefined, 'detail');
@@ -157,7 +161,7 @@ export function usePlayerVM(slug: string, pid: string) {
       if (hist.data) {
         const all = [...(hist.data.prior?.games ?? []).map((g) => ({ ...g, season: g.season ?? hist.data!.prior!.season })), ...hist.data.games.map((g) => ({ ...g, season: g.season ?? hist.data!.season }))];
         rows = nflObs(all, stats, hist.data.season); hasScore = true; season = String(hist.data.season);
-      } else if (!hist.loading) why = 'No game log is published for this player (a rookie, or no offensive snaps yet).';
+      } else if (!hist.loading) why = hist.error ? `The game log could not be shown: ${whyUnavailable(hist.error)}.` : 'No game log is published for this player (a rookie, or no offensive snaps yet).';
     } else {
       const box = readBoxLog((p.extensions as { game_log?: unknown } | null)?.game_log);
       stats = (BOX[code] ?? []).filter((s) => s.key === 'pra' || (box ?? []).some((r) => r[s.key] != null));
@@ -167,19 +171,23 @@ export function usePlayerVM(slug: string, pid: string) {
     const sorted = withRest(rows.sort((a, b) => a.date.localeCompare(b.date)));
     // His contracts on the coming game, by stat key.
     const props = new Map<string, PropRow>();
-    for (const r of deriveProps(mine.map((m) => overlayMarket(m, liveQ.quote(m.kalshi_ticker))))) {
+    for (const r of deriveProps(mine.map((m) => overlayLive(m, liveQ.quote(m.kalshi_ticker))))) {
       const key = propStatKey(code, r.stat);
       if (r.playerId === pid && !props.has(key)) props.set(key, { ...r, stat: key });
     }
     const opp = next ? (next.home.id === teamCode ? next.away : next.home) : null;
-    const scheduled = detail.data?.event?.start_time_utc ? Date.parse(detail.data.event.start_time_utc) : NaN;
     return {
       id: pid, name: p.entity.display_name, position, extId: gsis, team, photo: broadcastPlayerPhoto(pid, p.entity.display_name, teamCode ?? '', 'portrait'), sport: code, stats, obs: sorted, season,
-      props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: Number.isFinite(scheduled) ? scheduled : next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore,
+      props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: nextStart ?? next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore,
     };
     // liveQ.version: the store's quotes change under a stable lookup function
-  }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, sport, entry, teamCode, detail.data, mine, liveQ.version, next, pid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, hist.error, sport, entry, teamCode, detail.data, mine, liveQ.version, next, nextStart, pid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loading = !demo && (repo.loading || (explorer && (prof.loading || hist.loading)));
-  return { vm, loading, notFound: !demo && !loading && !vm, noExplorer: !demo && !repo.loading && !explorer, marketsLoading: !demo && !!next && detail.loading };
+  // Why there is no player when a document failed (so the screen says "could not be read" and offers Retry, not "not in the publication").
+  // (A 404 for the profile is an answer, not a failure: the player is not in the publication.)
+  const hard = (e: unknown) => (e != null && failureKind(e) !== 'not-published' ? e : undefined);
+  const failure = !demo ? hard(prof.error) ?? hard(idx.error) ?? hard(repo.error) : undefined;
+  const retry = () => { repo.retry?.(); prof.retry?.(); idx.retry?.(); };
+  return { vm, loading, notFound: !demo && !loading && !vm && !failure, noExplorer: !demo && !repo.loading && !explorer && !failure, marketsLoading: !demo && !!next && detail.loading, error: !vm ? failure : undefined, retry, marketsError: !demo && next ? detail.error : undefined, marketsRetry: detail.retry, histError: !demo ? hist.error : undefined, histRetry: hist.retry };
 }

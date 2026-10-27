@@ -10,6 +10,7 @@ import { pushVisit, removeSaved, saveResearch, useSaved } from '../state/prefs';
 import { findSaved } from '../model/saved';
 import { gameWhen, rungLabel, savedChips, windowLabel } from '../model/playerResearch';
 import { publishContracts, type ContractInfo } from '../ui/ContractSheet';
+import { DataState } from '../ui/DataState';
 import { Icon } from '../ui/Icon';
 import { LockedRow, Tabs } from '../ui/atoms';
 import { useSheet } from '../ui/Sheet';
@@ -90,6 +91,14 @@ export function Player() {
   const openLadder = () => sheet.open('Alt lines', <LadderSheet />, { tall: true });
 
   if (v.loading) return <div className="v3p"><div className="v3-page"><div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading player" /></div></div>;
+  if (!vm && v.error) {
+    return (
+      <div className="v3p"><div className="v3-page">
+        <DataState title="Player research unavailable" err={v.error} retry={v.retry} alert>The player's research</DataState>
+        <p className="v3-note"><Link to="/v3/explore" style={{ color: 'var(--sift-cyan)' }}>Search players</Link></p>
+      </div></div>
+    );
+  }
   if (!vm) {
     return (
       <div className="v3p"><div className="v3-page"><div className="v3-state"><Icon name="info" size={20} /><div>
@@ -127,9 +136,10 @@ export function Player() {
       {top}
       <Tabs tabs={TABS(vm.props.size)} value={tab} onChange={(k) => v.set({ tab: k, obs: null, view: 'main', more: false })} label="Player sections" />
       <div className="v3p-body">
+        {v.marketsError != null && (tab === 'overview' || tab === 'props') && <DataState title="Kalshi prices unavailable" err={v.marketsError} retry={v.marketsRetry}>The contract list for his next game</DataState>}
         {tab === 'overview' && (
           noLog ? (
-            <><div className="v3-state"><Icon name="info" size={20} /><div><b>No game history to chart</b>{vm.why}</div></div><PropsTab v={v} priceOnly /></>
+            <>{v.histError != null ? <DataState title="Game history unavailable" err={v.histError} retry={v.histRetry}>The game log</DataState> : <div className="v3-state"><Icon name="info" size={20} /><div><b>No game history to chart</b>{vm.why}</div></div>}<PropsTab v={v} priceOnly /></>
           ) : v.stat ? (
             <>
               <StatPills v={v} onFilters={openFilters} />

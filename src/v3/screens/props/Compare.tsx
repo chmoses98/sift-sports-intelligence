@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useLocation, useNavigate } from '../../../routing';
 import { useHistoryBank } from '../../data/props/bank';
 import { hitCount } from '../../data/props/history';
-import { historyStateOf, usePropPrices, useQueryCtx, useVisibleHistory } from '../../data/props/hooks';
+import { historyStateOf, useEnsureAvailability, useEnsureRanks, usePropPrices, useQueryCtx, useVisibleHistory } from '../../data/props/hooks';
 import { modelPercent } from '../../data/props/model';
 import { parseRef, rungFor, type ListState } from '../../data/props/query';
 import { trackPct } from '../../data/props/rank';
@@ -21,9 +21,12 @@ export function PropsCompare({ st, universe }: { st: ListState; universe: Univer
   const loc = useLocation();
   const nav = useNavigate();
   const bank = useHistoryBank();
-  const { ctx } = useQueryCtx(universe);
+  const { ctx, chipOf } = useQueryCtx(universe);
   const cols = useMemo(() => st.cmp.map((t) => { const r = parseRef(t); const p = r ? universe.byId.get(r.id) : undefined; return p ? { p, k: rungFor(p, r!.k).k } : null; }).filter((x): x is { p: Prop; k: number } => !!x), [st.cmp, universe]);
-  useVisibleHistory(useMemo(() => cols.map((c) => c.p), [cols]));
+  const colProps = useMemo(() => cols.map((c) => c.p), [cols]);
+  useVisibleHistory(colProps);
+  useEnsureAvailability(colProps);
+  useEnsureRanks(colProps);
   const reader = usePropPrices(useMemo(() => cols.map((c) => c.p), [cols]), null);
   usePublishContracts(cols.map((c) => c.p), bank.get, bank.getVersion());
   const back = () => { if (loc.key !== 'default') nav(-1); else nav(routes.props({ view: 'list', cmp: st.cmp, cmpm: true }), { replace: true }); };
@@ -72,6 +75,7 @@ export function PropsCompare({ st, universe }: { st: ListState; universe: Univer
           })}
           {row('Opponent', ({ p }) => {
             const m = ctx.matchup(p);
+            if (!m && p.oppUnit && chipOf(p).state === 'loading') return <small role="status">reading the ranking</small>;
             if (!m || !p.oppUnit) return <small>no matchup rows</small>;
             return (
               <StatLink stat={{ slug: p.slug, statId: m.statId }} state={{ win: m.window, sel: m.oppCode, opp: m.selfCode ?? undefined }} className="pd-cellbtn" label={`${m.text}. Open the ranking`}>
@@ -81,7 +85,7 @@ export function PropsCompare({ st, universe }: { st: ListState; universe: Univer
               </StatLink>
             );
           })}
-          {row('Status', ({ p }) => (p.out ? <span className="pd-stat pd-stat--bad">{p.out}</span> : p.availKnown ? <span className="pd-stat pd-stat--ok"><i />Listed</span> : <small>not published</small>))}
+          {row('Status', ({ p }) => (p.availPending ? <small role="status">checking availability</small> : p.out ? <span className="pd-stat pd-stat--bad">{p.out}</span> : p.availKnown ? <span className="pd-stat pd-stat--ok"><i />Listed</span> : <small>not published</small>))}
           <div className="pd-crow pd-crow--acts" style={grid}>
             <div className="pd-cap" />
             {cols.map(({ p, k }) => {

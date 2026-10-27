@@ -5,7 +5,7 @@ import type { V3Game } from '../model/types';
 import { AlertBell, FollowStar } from './Controls';
 import { Icon } from './Icon';
 import { TeamLogo } from './TeamLogo';
-import { LinesBox, PriceText, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useListGate, useOpenContract, useSeen } from './gamebits';
+import { DelayedMark, LinesBox, PriceText, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useListGate, useOpenContract, useSeen } from './gamebits';
 
 function Side({ g, side }: { g: V3Game; side: 'away' | 'home' }) {
   const t = g[side];
@@ -47,7 +47,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
       <Link to={gameHref(g)} className="v3-gc__hit" aria-label={label} />
       <header className="v3-gc__h">
         <span className="v3-gc__lg">{leagueLabel(g)}</span>
-        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? 'In play'}</span> : <span className="v3-gc__time">{statusWord(g)}</span>}
+        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></span> : <span className="v3-gc__time">{statusWord(g)}</span>}
         <span className="v3-gc__net">{g.network ?? ''}</span>
       </header>
       <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} className="v3-gc__star" />

@@ -22,11 +22,50 @@ export class SchemaVersionError extends Error {
 
 type FetchJson = (url: string) => Promise<unknown>;
 
+/**
+ * A bound on how long one research document may take (headers and body). OFF by default: SIFT 2.0 and classic keep their behaviour. SIFT 3.0 turns it
+ * on while it is mounted (`setFetchTimeout`, src/v3/V3Root.tsx), so a request that never answers becomes an ordinary failure (an honest state with a
+ * Retry) instead of a skeleton that never goes away. Quotes have their own clock and bounds (src/live/).
+ */
+let timeoutMs: number | null = null;
+export const RESEARCH_FETCH_TIMEOUT_MS = 25_000;
+export function setFetchTimeout(ms: number | null): void {
+  timeoutMs = ms != null && ms > 0 ? ms : null;
+}
+export class FetchTimeoutError extends Error {
+  constructor(public url: string, public ms: number) {
+    super(`timed out after ${Math.round(ms / 1000)} s: ${url}`);
+    this.name = 'FetchTimeoutError';
+  }
+}
+
+/** Runs one request-and-read under the timeout (if one is set). The request is aborted at the bound, and the caller is released at the bound even if a body read ignores the abort. */
+async function within<T>(url: string, run: (signal: AbortSignal | undefined) => Promise<T>): Promise<T> {
+  if (timeoutMs == null) return run(undefined);
+  const ms = timeoutMs;
+  const ac = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const bound = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => { ac.abort(); reject(new FetchTimeoutError(url, ms)); }, ms);
+  });
+  try {
+    return await Promise.race([run(ac.signal), bound]);
+  } catch (e) {
+    if (e instanceof FetchTimeoutError) throw e;
+    if (ac.signal.aborted) throw new FetchTimeoutError(url, ms);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function defaultFetchJson(url: string): Promise<unknown> {
-  const res = await fetch(url, { cache: 'no-cache' });
-  if (res.status === 404) throw new NotFoundError(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.json();
+  return within(url, async (signal) => {
+    const res = await fetch(url, { cache: 'no-cache', signal });
+    if (res.status === 404) throw new NotFoundError(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return res.json();
+  });
 }
 
 /** The research clock's in-session revalidation period. */
@@ -51,6 +90,16 @@ export function setFetchJson(fn: FetchJson | null, now?: () => number): void {
 export function isStale(url: string): boolean {
   const at = settledAt.get(url);
   return at != null && clock() - at > RESEARCH_REVALIDATE_MS;
+}
+
+/**
+ * Drop a memoised document (its parsed JSON can be megabytes). A reader that took what it needs from a document it will not open again
+ * (Prop Discovery reading games far beyond the initial horizon) lets it go; asking for the url later simply reads it again.
+ */
+export function forgetJson(url: string): void {
+  inflight.delete(url);
+  settled.delete(url);
+  settledAt.delete(url);
 }
 
 export function peekJson<T>(url: string): T | undefined {
@@ -97,10 +146,12 @@ export function getJson<T>(url: string): Promise<T> {
 type FetchText = (url: string) => Promise<string>;
 
 async function defaultFetchText(url: string): Promise<string> {
-  const res = await fetch(url, { cache: 'no-cache' });
-  if (res.status === 404) throw new NotFoundError(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.text();
+  return within(url, async (signal) => {
+    const res = await fetch(url, { cache: 'no-cache', signal });
+    if (res.status === 404) throw new NotFoundError(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return res.text();
+  });
 }
 
 let textImpl: FetchText = defaultFetchText;

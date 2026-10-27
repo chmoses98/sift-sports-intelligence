@@ -5,7 +5,7 @@ import { contractFacts, newerPrice, priceOfQuote } from '../../src/v3/model/cont
 import { breakEvenPct, takerFeeCents } from '../../src/v3/model/format';
 import type { Price } from '../../src/v3/model/types';
 
-const price = (ask: number | null, observedAt: string | null = '2026-10-26T19:00:00Z', bid: number | null = 50): Price => ({ ask, bid, implied: ask, ticker: 'KXNFLREC-26OCT26DALPHI-DALCLAMB88-7', side: 'YES', description: 'Lamb 7+', observedAt, source: 'Kalshi' });
+const price = (ask: number | null, observedAt: string | null = '2026-10-26T19:00:00Z', bid: number | null = 50): Price => ({ ask, bid, implied: ask, ticker: 'KXNFLREC-26OCT26DALPHI-DALCLAMB88-7', side: 'YES', description: 'Lamb 7+', observedAt, source: 'Kalshi', tradable: true, marketStatus: 'open' });
 
 describe('contract facts', () => {
   it('everything derives from the ask through the one fee schedule', () => {

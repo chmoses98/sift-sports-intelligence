@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from '../../routing';
 import { useRouteState } from '../state/url';
 import { useGameByKey } from '../data/useSlate';
-import { useGameExtras, useEventDetail } from '../data/useGameExtras';
-import { useGameResearch } from '../../views/broadcast/parts';
+import { useGameExtras, useEventDetail, useEventResearch } from '../data/useGameExtras';
 import { useGameStart } from '../data/research/gameHooks';
 import { weekOf } from '../data/research/gameMarkets';
 import { unitsFor } from '../data/research/matchup';
@@ -21,7 +20,7 @@ import { useSheet } from '../ui/Sheet';
 import { SwitcherRail } from '../ui/Switcher';
 import { usePublishGameContracts } from '../ui/gameContracts';
 import { TeamLogo } from '../ui/TeamLogo';
-import { gameHref, leagueLabel, scoreSourceWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, teamHref } from '../ui/gamebits';
 import { GameTabBody } from './GameTabs';
 import type { GameCtx } from './GameShared';
 import './matchup.css';
@@ -71,7 +70,7 @@ function Hero({ g, back, startMs }: { g: V3Game; back: () => void; startMs: numb
       <div className="v3-gh__meta">
         <span className="v3-gh__lg">{leagueLabel(g)}{weekOf(g.item?.competition) ? ` · ${weekOf(g.item?.competition)}` : ''}</span>
         {live ? (
-          <span className="v3-gh__st"><span className="v3-livebadge">LIVE</span><span className="v3-gh__clk">{g.score?.clock ?? 'In play'}{g.network ? ` · ${g.network}` : ''}</span></span>
+          <span className="v3-gh__st"><span className="v3-livebadge">LIVE</span><span className="v3-gh__clk">{g.score?.clock ?? 'In play'}<DelayedMark g={g} />{g.network ? ` · ${g.network}` : ''}</span></span>
         ) : g.phase === 'final' ? (
           <span className="v3-gh__st"><span className="v3-gh__fin">FINAL</span>{g.network ? <span className="v3-gh__clk"> · {g.network}</span> : null}</span>
         ) : (
@@ -103,7 +102,7 @@ function CompactBar({ g, list, show, tab, startMs }: { g: V3Game; list: V3Game[]
       <button type="button" className="v3-iconbtn" tabIndex={show ? 0 : -1} disabled={!prev} aria-label={prev ? `Previous game: ${prev.away.abbr} at ${prev.home.abbr}` : 'No previous game'} onClick={() => go(prev)}><Icon name="back" size={22} /></button>
       <button type="button" className="v3-cb__mid" tabIndex={show ? 0 : -1} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Scroll to top of game">
         <TeamLogo team={g.away} size={30} />
-        <span className="v3-cb__sc">{g.score ? <b className="num">{g.score.away} – {g.score.home}</b> : <b>{g.away.abbr} at {g.home.abbr}</b>}<small>{g.phase === 'live' ? g.score?.clock ?? 'In play' : g.phase === 'final' ? 'Final' : clockTime(startMs)}</small></span>
+        <span className="v3-cb__sc">{g.score ? <b className="num">{g.score.away} – {g.score.home}</b> : <b>{g.away.abbr} at {g.home.abbr}</b>}<small>{g.phase === 'live' ? <>{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></> : g.phase === 'final' ? 'Final' : clockTime(startMs)}</small></span>
         <TeamLogo team={g.home} size={30} />
       </button>
       <button type="button" className="v3-iconbtn" tabIndex={show ? 0 : -1} disabled={!next} aria-label={next ? `Next game: ${next.away.abbr} at ${next.home.abbr}` : 'No next game'} onClick={() => go(next)}><Icon name="chevR" size={22} /></button>
@@ -144,7 +143,7 @@ export function GameDetail() {
   const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
   const startMs = useGameStart(g);
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
-  const research = useGameResearch(g && g.provenance === 'publication' ? g.slug : null, g && g.provenance === 'publication' ? g.eventId : null);
+  const research = useEventResearch(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);
   // Every price on this screen opens the one exact-contract sheet; tell it about the game's contracts (start from the schedule authority).
   usePublishGameContracts(g, startMs, detail.data);
@@ -182,7 +181,7 @@ export function GameDetail() {
   const setTab = (t: GameTab) => setSt({ tab: t, unit: null });
   // Back out of an expanded unit: the list entry below is exactly as it was left. A shared link into a unit has none, so it closes the unit.
   const backFromUnit = () => { if (loc.key !== 'default') nav(-1); else setSt({ unit: null }); };
-  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading };
+  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry };
   return (
     <div className="v3-gd">
       {unitOpen ? <UnitBar g={g} back={backFromUnit} startMs={startMs} /> : (

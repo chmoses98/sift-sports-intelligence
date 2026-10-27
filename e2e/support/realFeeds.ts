@@ -44,9 +44,11 @@ export async function useRealFeeds(page: Page, o: { family: FeedFamily; live?: b
  * TEST TRANSFORMATION, not data: re-stamps the observation time of every market in the real quote-feed game files to "now", so the
  * priced states (a price inside the list's maximum age) can be exercised against the real contract list while the real feed, 3.5 minutes
  * plus a 5-minute CDN cache behind, is older than the display rule allows. Only timestamps change; every price is the published one.
- * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer; with `fail`, the feed answers 503 (no reliable quote can be obtained).
+ * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer; with `fail`, the feed answers 503 (no reliable quote can be obtained);
+ * with `status`, a ticker whose function returns a word has its market `status` REPLACED by it (a controlled modification, for the states no captured market is in:
+ * the real feed does carry `inactive` and `determined` markets, but not a `closed` or `settled` one that still has an ask).
  */
-export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean }): Promise<void> {
+export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean; status?: (ticker: string) => string | undefined }): Promise<void> {
   if (!o?.family) throw new Error('freshQuotes needs { family }');
   const src = feedSource(o.family, { live: o.live });
   await page.route(GAME_FEED, async (route) => {
@@ -55,10 +57,13 @@ export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (t
     const got = await src.get(url).catch(() => null);
     recordRequest(url, !!got);
     if (!got) { await route.fulfill({ status: 404, body: 'not found', headers: CORS }); return; }
-    const doc = JSON.parse(got.body.toString('utf8')) as { generated_at?: string; markets: { observed_at?: string; ticker?: string; kalshi_ticker?: string }[] };
+    const doc = JSON.parse(got.body.toString('utf8')) as { generated_at?: string; markets: { observed_at?: string; ticker?: string; kalshi_ticker?: string; status?: string }[] };
     const now = feedNow(o.family, o.live).toISOString();
     doc.generated_at = now;
-    doc.markets = doc.markets.filter((m) => !o.omit?.(String(m.ticker ?? m.kalshi_ticker ?? ''))).map((m) => ({ ...m, observed_at: now }));
+    doc.markets = doc.markets.filter((m) => !o.omit?.(String(m.ticker ?? m.kalshi_ticker ?? ''))).map((m) => {
+      const status = o.status?.(String(m.ticker ?? m.kalshi_ticker ?? ''));
+      return { ...m, observed_at: now, ...(status ? { status } : {}) };
+    });
     await route.fulfill({ status: 200, body: JSON.stringify(doc), headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'no-store' } });
   });
 }
@@ -69,4 +74,7 @@ export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (t
  * browser tests run on this fixed clock (pass it to `page.clock.setFixedTime`). V3_FEED_NOW overrides it; in a scratch cache (live or
  * V3_FEED_CACHE) `captured_at.txt` in the cache does.
  */
+/** The stored bytes of a real document (null when the family does not have it): the successor of the old `readFeedCache(url)`, now per family. */
+export const readFeedCache = (family: FeedFamily, url: string, o: { live?: boolean } = {}): Promise<Buffer | null> => feedDocument(family, url, o);
+
 export const feedNow = (family: FeedFamily, live?: boolean): Date => new Date(feedClock(family, live));

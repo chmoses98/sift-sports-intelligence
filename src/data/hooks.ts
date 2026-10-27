@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RESEARCH_REVALIDATE_MS } from './fetcher';
 import { SportRepo } from './repo';
-import { resolveSource, type SportSource } from './source';
+import { forgetSource, resolveSource, type SportSource } from './source';
 import type { SportConfig } from './sports';
 
 export interface Async<T> {
   data: T | undefined;
   error: Error | undefined;
   loading: boolean;
+  /** Read the document again now (forgets the held copy and any failure for this key). Present on every `useAsync` result. */
+  retry?: () => void;
 }
 
 const memo = new Map<string, unknown>();
@@ -32,6 +34,11 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: 
   const [state, setState] = useState<{key: string | null; result: Async<T>}>({ key, result: {data: initial, error: undefined, loading: key != null && initial === undefined} });
   const loaderRef = useRef(loader);
   loaderRef.current = loader;
+  const [attempt, setAttempt] = useState(0);
+  const retry = useCallback(() => {
+    if (key != null) { memo.delete(key); memoAt.delete(key); }
+    setAttempt((a) => a + 1);
+  }, [key]);
   useEffect(() => {
     if (key == null) {
       setState({ key, result: {data: undefined, error: undefined, loading: false} });
@@ -69,7 +76,7 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: 
     return () => {
       alive = false;
     };
-  }, [key]);
+  }, [key, attempt]);
   const revalidate = !!opts.revalidate;
   useEffect(() => {
     if (key == null || !revalidate) return;
@@ -98,7 +105,10 @@ export function useAsync<T>(key: string | null, loader: () => Promise<T>, opts: 
   }, [key, revalidate]);
   // Stale-while-revalidate applies only to the same research identity. A new game,
   // player or sport must never briefly inherit the previous key's research/errors.
-  return state.key === key ? state.result : {data: initial, error: undefined, loading: key != null && initial === undefined};
+  const fromState = state.key === key;
+  // One object per result, so a consumer that memoises on the whole result is not recomputed on every render.
+  const out = useMemo<Async<T> | null>(() => (fromState ? { ...state.result, retry } : null), [fromState, state.result, retry]);
+  return out ?? { data: initial, error: undefined, loading: key != null && initial === undefined, retry };
 }
 
 export function clearAsyncMemo(): void {
@@ -112,11 +122,14 @@ export function ageAsyncMemo(ms: number): void {
 }
 
 export function useSportSource(sport: SportConfig | undefined): Async<SportSource> {
-  return useAsync(sport ? `source:${sport.code}` : null, () => resolveSource(sport!));
+  const r = useAsync(sport ? `source:${sport.code}` : null, () => resolveSource(sport!));
+  const again = r.retry;
+  const retry = useCallback(() => { if (sport) forgetSource(sport); again?.(); }, [sport, again]);
+  return useMemo(() => ({ ...r, retry }), [r, retry]);
 }
 
 export function useRepo(sport: SportConfig | undefined): Async<SportRepo> {
   const src = useSportSource(sport);
   const repo = useMemo(() => (src.data ? new SportRepo(src.data) : undefined), [src.data]);
-  return { data: repo, error: src.error, loading: src.loading };
+  return { data: repo, error: src.error, loading: src.loading, retry: src.retry };
 }

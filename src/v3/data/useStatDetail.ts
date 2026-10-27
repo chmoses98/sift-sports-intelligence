@@ -10,7 +10,7 @@ import { useResearchRepo, useSchedule, useTeamIndex, useTeamProfile } from './re
 import type { RankingCatalog, ScheduleEvent } from './research/types';
 
 /** Which ranking is which, from the profiles' own lists: the first team's and the selected team's (the same list; the second is free insurance). */
-export function useStatCatalog(slug: string, selCode: string | null): { catalog: RankingCatalog | null; season: string | null; loading: boolean; explorer: boolean } {
+export function useStatCatalog(slug: string, selCode: string | null): { catalog: RankingCatalog | null; season: string | null; loading: boolean; explorer: boolean; failure: unknown; retry: () => void } {
   const { explorer, loading: rl } = useResearchRepo(slug);
   const ti = useTeamIndex(slug);
   const first = useTeamProfile(slug, ti.teams[0]?.short_name ?? null);
@@ -19,7 +19,7 @@ export function useStatCatalog(slug: string, selCode: string | null): { catalog:
     const docs = [first.raw, sel.raw].filter((d): d is NonNullable<typeof d> => !!d);
     return docs.length ? buildRankingCatalog(docs) : null;
   }, [first.raw, sel.raw]);
-  return { catalog, season: first.profile?.season ?? null, loading: rl || ti.loading || first.loading, explorer };
+  return { catalog, season: first.profile?.season ?? null, loading: rl || ti.loading || first.loading, explorer, failure: ti.failure ?? first.failure, retry: () => { ti.retry(); first.retry(); } };
 }
 
 /** One published per-game series, fetched only when asked for. */

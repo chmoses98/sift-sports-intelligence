@@ -25,7 +25,7 @@ function Toggle({ on, onChange, title, sub }: { on: boolean; onChange: (v: boole
 
 export function FilterSheet({ initial, set }: { initial: ListState; set: (patch: Partial<ListState>) => void }) {
   const sheet = useSheet();
-  const { universe } = usePropUniverse();
+  const { universe } = usePropUniverse(initial.hz);
   const { ctx } = useQueryCtx(universe);
   const [d, setD] = useState<Draft>(draftOf(initial));
   const [allFams, setAllFams] = useState(false);
@@ -57,13 +57,14 @@ export function FilterSheet({ initial, set }: { initial: ListState; set: (patch:
     <div className="pd-fs">
       <div className="pd-fs__top"><button type="button" className="pd-fs__reset" onClick={() => setD(RESET)}>Reset</button></div>
       <div className="pd-fs__live" aria-live="polite">
-        <div><b>{live.total} props match</b><small>{live.bySport.map((s) => `${s.label} ${s.n}`).join(' · ') || 'No props today'}</small></div>
+        <div><b>{live.total} props match</b><small>{live.bySport.map((s) => `${s.label} ${s.n}`).join(' · ') || 'No props today'}{hmin > 0 ? ' · evaluated props only' : ''}{universe && !universe.complete ? ' · games still being read' : ''}</small></div>
         <div className="pd-spl" aria-hidden="true">{live.bySport.map((s) => <i key={s.slug} style={{ flex: Math.max(s.n, 1) }} />)}</div>
       </div>
 
       <fieldset className="pd-fg"><legend>Sort by</legend>
         <ChipRail className="pd-fc pd-fc--row pd-fc--sort">{SORT_KEYS.map((k) => <button key={k} type="button" aria-pressed={sortNow === k} onClick={() => setD({ ...d, sort: k === 'soon' ? null : k })}>{SORT_LABEL[k]}</button>)}</ChipRail>
         {sortNow === 'model' && <p className="x-note">Sorts by SIFT’s own published probability only. There is no model-versus-market sort.</p>}
+        {sortNow === 'hist' && <p className="x-note">History ranks evaluated props only: those whose last games are computed from a loaded game log. The others follow in start order, labelled “History not loaded”, and are never ranked. Evaluated now: {loaded} of {nHist} with a game log.</p>}
       </fieldset>
 
       <fieldset className="pd-fg"><legend>Sport and stat</legend>
@@ -88,13 +89,13 @@ export function FilterSheet({ initial, set }: { initial: ListState; set: (patch:
       <fieldset className="pd-fg"><legend>History at that rung</legend>
         <div className="pd-step">
           <button type="button" aria-label="Fewer games" disabled={hmin <= 0} onClick={() => setD({ ...d, hmin: Math.max(0, hmin - 1) || null })}><Icon name="back" size={16} /></button>
-          <span className="pd-step__v">{hmin > 0 ? <><b className="num">{hmin} of {win}</b> or better</> : <b>Any history</b>}</span>
+          <span className="pd-step__v">{hmin > 0 ? <><b className="num">{hmin} of {win}</b> or better, evaluated props only</> : <b>Any history</b>}</span>
           <button type="button" aria-label="More games" disabled={hmin >= win} onClick={() => setD({ ...d, hmin: hmin + 1 })}><Icon name="chevR" size={16} /></button>
           <div className="pd-seg" role="group" aria-label="History window">
             {(['L10', 'L5'] as const).map((w) => <button key={w} type="button" aria-pressed={d.hwin === w} onClick={() => setD({ ...d, hwin: w, hmin: d.hmin == null ? null : Math.min(d.hmin, w === 'L5' ? 5 : 10) })}>{w}</button>)}
           </div>
         </div>
-        {hmin > 0 && <p className="x-note">Counted from each player’s last games, for the {loaded} of {nHist} props whose game log is loaded now. The list loads the rest when this is applied.</p>}
+        {hmin > 0 && <p className="x-note">This threshold applies to evaluated props only: those whose History is computed from a loaded game log ({loaded} of {nHist} props with a game log, now). A prop whose log is not loaded is not counted either way and is not shown; the list says how many, and offers to load their history.</p>}
       </fieldset>
 
       <fieldset className="pd-fg"><legend>Opponent unit rank</legend>

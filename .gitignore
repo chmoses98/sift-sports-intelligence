@@ -19,4 +19,7 @@ __pycache__/
 dist-v3-preview
 dist-v3-artifact
 .v3-feed-cache/
+.v3-feed-cache
+.v3-feed-cache-gaps/
+.v3-feed-cache-families/
 dist-v3-snapshot

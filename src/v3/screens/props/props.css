@@ -268,3 +268,35 @@
    would let one target's grown area cover its neighbour's own text, so a tap on the game text could open the ranking. Inside the row body
    a target grows sideways only (to 44 pt wide) and never above or below its own box; the row's own button stays the large target. */
 .v3 .pd-pb .v3-tap::after, .v3 .pd-card .v3-tap:not(.pd-px):not(.pd-av)::after, .v3 .pd-peek .v3-tap:not(.pd-lane):not(.pd-abtn)::after { top: 0; height: 100%; transform: translateX(-50%); }
+
+/* ---- discovery horizon (home and list) */
+.v3 .pd-hz { padding: 10px 16px 0; }
+.v3 .pd-hz__seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.v3 .pd-hz__seg button { display: grid; justify-items: center; align-content: center; gap: 1px; height: 44px; padding: 0 6px; border-radius: 12px; background: var(--s-chip); border: 1px solid var(--s-chip-bd); color: #d6dadf; min-width: 0; }
+.v3 .pd-hz__seg button b { font: 600 13px/16px var(--f-ui); white-space: nowrap; }
+.v3 .pd-hz__seg button small { font: 500 11px/13px var(--f-num); color: var(--sift-dim); white-space: nowrap; }
+.v3 .pd-hz__seg button[aria-pressed='true'] { background: rgba(25, 205, 224, 0.1); border-color: rgba(25, 205, 224, 0.45); color: #5fe0ee; }
+.v3 .pd-hz__seg button[aria-pressed='true'] small { color: #5fe0ee; opacity: 0.8; }
+.v3 .pd-hz__seg button:focus-visible { outline: 2px solid var(--sift-cyan); outline-offset: 1px; }
+.v3 .pd-hz__st { margin: 6px 0 0; min-height: 30px; font: 400 11.5px/15px var(--f-ui); color: var(--sift-dim); }
+.v3 .pd-hz__bar { height: 3px; margin-top: 6px; border-radius: 2px; background: #1f242b; overflow: hidden; }
+.v3 .pd-hz__bar i { display: block; height: 100%; background: var(--sift-cyan); transition: width 0.25s ease; }
+
+/* ---- availability tag on a row: "Checking availability" until the game's document is read, the status word when he is listed out */
+.v3 .pd-pn.has-tag { grid-template-columns: minmax(0, 1fr) auto; column-gap: 6px; }
+.v3 .pd-pn.has-tag > :first-child { grid-column: 1 / -1; }
+.v3 .pd-pn.has-tag > a:nth-child(2) { grid-column: 1; min-width: 0; }
+.v3 .pd-tag { grid-column: 2; grid-row: 2; align-self: center; display: inline-flex; align-items: center; height: 17px; padding: 0 7px; border-radius: 9px; font: 600 10.5px/1 var(--f-ui); font-style: normal; white-space: nowrap; color: var(--sift-muted); border: 1px solid #39414b; background: #171b20; }
+.v3 .pd-tag.is-out { color: #ffb3ae; border-color: rgba(255, 116, 104, 0.45); background: rgba(60, 20, 22, 0.55); }
+
+/* ---- History order and threshold: evaluated against not evaluated */
+.v3 .pd-hbar { margin: 8px 16px 0; padding: 10px 12px; border-radius: 12px; background: #14181d; border: 1px solid var(--sift-hairline); display: grid; gap: 4px; }
+.v3 .pd-hbar__t { margin: 0; font: 600 15px/19px var(--f-ui); color: var(--lane-history); }
+.v3 .pd-hbar__t b { font: 700 17px/20px var(--f-num); }
+.v3 .pd-hbar__d { margin: 0; font: 400 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3 .pd-hbar button { justify-self: start; min-height: 44px; padding: 0; color: #5fe0ee; font: 600 12.5px/16px var(--f-ui); text-align: left; }
+.v3 .pd-grp { display: grid; gap: 1px; align-content: end; height: 52px; padding: 0 0 6px; border-bottom: 1px solid #1d2127; }
+.v3 .pd-grp h2 { margin: 0; font: 700 13px/16px var(--f-ui); color: var(--lane-history); letter-spacing: 0.01em; }
+.v3 .pd-grp p { margin: 0; font: 400 11.5px/14px var(--f-ui); color: var(--sift-muted); }
+.v3 .pd-grp.is-unranked h2 { color: var(--sift-muted); }
+.v3 .pd-hc.is-none { color: var(--sift-dim); font-weight: 500; }

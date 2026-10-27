@@ -9,10 +9,12 @@ import { useAllOpportunities } from '../../opportunity/load';
 import { gameRows, slateOrder } from '../../views/broadcast/games';
 import { useScores } from '../../live/scores/hooks';
 import { useFeedEnabled } from '../../live/scores/feed';
-import { observedFor, periodClock, shownState } from '../../v4/scoreState';
+import { observedFor } from '../../v4/scoreState';
+import { verifyScore } from './scoreVerify';
 import { demoGames } from '../demo/fixtures';
 import { dayKey } from '../model/time';
 import { toGame } from './adapt';
+import { knownSchedule, useScheduleVersion, withScheduleStarts } from './research/scheduleStarts';
 import type { V3Game } from '../model/types';
 
 export interface Slate {
@@ -23,7 +25,7 @@ export interface Slate {
   /** Feeds that failed while others loaded. */
   failed: string[];
   /** Sports whose live publication could not be read and whose research comes from the saved copy bundled with the app (never silent). */
-  saved: { label: string; builtAt: string | null }[];
+  saved: { label: string; slug: string; builtAt: string | null }[];
   now: number;
   demo: boolean;
 }
@@ -47,19 +49,22 @@ export function useGameByKey(key: string | undefined) {
 function RealProvider({ children }: { children: ReactNode }) {
   const now = useNow(30_000);
   const all = useAllOpportunities(now);
-  const rows = useMemo(() => gameRows(all.bundles, all.opportunities, now).sort(slateOrder), [all.bundles, all.opportunities, now]);
+  // Start times: the league schedule (explorer) where it has been read, else the board's own (the same schedule, as published).
+  const scheduleVersion = useScheduleVersion();
+  const bundles = useMemo(() => withScheduleStarts(all.bundles, knownSchedule), [all.bundles, scheduleVersion]); // eslint-disable-line react-hooks/exhaustive-deps -- the registry changes under a stable lookup
+  const rows = useMemo(() => gameRows(bundles, all.opportunities, now).sort(slateOrder), [bundles, all.opportunities, now]);
   const feedOn = useFeedEnabled();
   const evs = useMemo(() => (feedOn ? observedFor(rows, now) : []), [feedOn, rows, now]);
   const read = useScores(evs);
   const games = useMemo<V3Game[]>(() => rows.map((r) => {
     const g = toGame(r);
     const rd = feedOn ? read(r.item.event_id) : null;
-    const st = shownState(rd);
-    // A score the feed has stopped confirming (delayed or last known) is not shown at all: no old score is dressed up as current.
-    const aged = rd?.view.mode === 'LAST_KNOWN' || rd?.view.mode === 'DELAYED';
-    if (rd?.game?.score && (st === 'live' || st === 'over') && !aged) {
-      g.score = { away: rd.game.score.away, home: rd.game.score.home, clock: st === 'over' ? 'Final' : periodClock(rd) || 'Live', source: 'score-feed', asOf: null };
-      g.phase = st === 'over' ? 'final' : 'live';
+    // Only a VERIFIED score is shown (data/scoreVerify.ts): matched to this event by identity evidence, in play or final, a plausible pair of
+    // whole numbers. A verified score that is a little old keeps showing with `delayed`; an older or unreliable one is not shown at all.
+    const v = rd ? verifyScore(rd) : null;
+    if (v?.show) {
+      g.score = { away: v.away, home: v.home, clock: v.clock, source: 'score-feed', asOf: null, ...(v.delayed ? { delayed: true } : {}) };
+      g.phase = v.over ? 'final' : 'live';
     }
     return g;
   }).sort(slateCompare), [rows, feedOn, read]);
@@ -69,7 +74,7 @@ function RealProvider({ children }: { children: ReactNode }) {
     let live = true;
     // resolveSource is the app's own cached source decision (live publication, else the bundled saved copy); reading it adds no request.
     Promise.all(all.bundles.filter((b) => b.error == null).map((b) => resolveSource(b.sport).catch(() => null))).then((srcs) => {
-      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, builtAt: x.snapshot?.explorer_built_at ?? null })));
+      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, slug: x.sport.slug, builtAt: x.snapshot?.explorer_built_at ?? null })));
     });
     return () => { live = false; };
   }, [all.bundles]);

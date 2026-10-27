@@ -6,6 +6,8 @@
 // Honest by construction: every row is a published league rank from the two team profiles (opponent-adjusted, season-long); a unit
 // without published ranks is not a row; the Lens states observed ranks only; game shape is shown only from the approved projection
 // authority; prices go through the quote gate and open the addressed contract sheet.
+import { canRetry } from '../data/failure';
+import { DataState } from '../ui/DataState';
 import { useMemo } from 'react';
 import { useGameShape, useGatedAsk } from '../data/research/gameHooks';
 import { winContracts } from '../data/research/gameMarkets';
@@ -37,6 +39,8 @@ export function MatchupTab({ ctx }: { ctx: GameCtx }) {
   if (!isReady(g.slug, 'gameMatchup')) return <section aria-label="Team matchup"><LockedRow title="Matchup">{lockedReason(g.slug, 'gameMatchup')}</LockedRow></section>;
   if (M.demo) return <section aria-label="Team matchup"><LockedRow title="No matchup rows.">Sample data mode has no published team rankings. Open this game with real data to see the league-percentile matchup.</LockedRow></section>;
   if (M.loading || (!M.away && !M.home && ctx.researchLoading)) return <div className="v3-skel mx-skel" role="status" aria-label="Loading matchup" />;
+  // A connection failure, a timeout or an unreadable file is "unavailable" with a Retry; profiles that are simply not published keep the locked row below.
+  if (!M.rowsAway.length && !M.rowsHome.length && M.failure != null && canRetry(M.failure)) return <section aria-label="Team matchup"><DataState title="Matchup unavailable" err={M.failure} retry={M.retry} alert>The team profiles for this game</DataState></section>;
   if (!M.rowsAway.length && !M.rowsHome.length) {
     return <section aria-label="Team matchup"><LockedRow title="No matchup rows.">{M.away && M.home ? 'The publication carries no opponent-adjusted unit ranks for these two teams.' : 'The team profiles for this game are not published yet, so there is nothing to compare. Nothing is substituted.'}</LockedRow></section>;
   }

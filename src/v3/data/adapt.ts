@@ -8,6 +8,7 @@ import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFor, heroInputForTeam } from '../../lib/hero/input';
 import type { EventResearchDoc } from '../../contract/types';
 import { cents } from '../model/format';
+import { isTradableWord, statusFacts } from '../model/marketStatus';
 import type { MarketLine, Phase, Price, V3Game, V3Team } from '../model/types';
 
 type Participant = BoardItem['participants'][number];
@@ -55,17 +56,20 @@ export function toGame(g: GameRow): V3Game {
 
 // ---------------------------------------------------------------- Kalshi ladders -> compact lines
 
-const OPEN = (m: Market) => !m.market_status || /^(OPEN|ACTIVE|UNOPENED)$/i.test(m.market_status);
+/** Lists are built from markets that are not POSITIVELY non-tradable (model/marketStatus.ts: closed, settled, suspended, unopened, delisted are out; a missing or unrecognised word is not evidence). */
+const OPEN = (m: Market) => isTradableWord(m.market_status);
 /** The full-game contract (publications spell the period "FULL", "FULL_GAME", "full_game" or leave it out). */
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
 
 export function priceOf(m: Market): Price {
-  const ask = cents(m.yes_ask);
-  const bid = cents(m.yes_bid);
+  const sf = statusFacts(m.market_status);
+  // A market that cannot be traded carries no ask, bid or implied price at all (the gate would withhold it anyway).
+  const ask = sf.tradable ? cents(m.yes_ask) : null;
+  const bid = sf.tradable ? cents(m.yes_bid) : null;
   const mid = ask != null && bid != null ? (ask + bid) / 2 : ask;
   return {
-    ask, bid,
-    implied: m.market_probability != null ? Math.round(m.market_probability * 1000) / 10 : mid,
+    ask, bid, ...sf,
+    implied: !sf.tradable ? null : m.market_probability != null ? Math.round(m.market_probability * 1000) / 10 : mid,
     ticker: m.kalshi_ticker, side: 'YES', description: m.yes_description,
     observedAt: m.captured_at, source: 'Kalshi', volume: m.volume ?? null,
   };

@@ -131,7 +131,7 @@ describe('the ladder and the line', () => {
   });
   it('every rung carries Market from the gate, History counted over the shown games, and SIFT from its own lane; none is derived from another', () => {
     const games = cutGames(all, 'L10', NO_FILTERS, ctx).games;
-    const price = (ask: number) => ({ ask, bid: ask - 1, implied: ask, ticker: `T${ask}`, side: 'YES' as const, description: '', observedAt: null, source: 'Kalshi' as const });
+    const price = (ask: number) => ({ ask, bid: ask - 1, implied: ask, ticker: `T${ask}`, side: 'YES' as const, description: '', observedAt: null, source: 'Kalshi' as const, tradable: true, marketStatus: 'open' as const });
     const views = rungViews([{ line: 5.5, price: price(70) }, { line: 3.5, price: price(90) }, { line: 6.5, price: price(56) }], games, 'receptions', (p) => (p.ask === 56 ? null : p.ask), (k) => (k === 7 ? { p: 0.38, reason: null } : { p: null, reason: 'not approved yet' }));
     expect(views.map((r) => r.label)).toEqual(['4+', '6+', '7+']);
     expect(views.map((r) => r.ask)).toEqual([90, 70, null]);

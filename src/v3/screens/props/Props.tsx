@@ -2,6 +2,7 @@
 // the home (PD1), the list with its in-place peek (PD2, PD3) and the comparison (PD5). The filter sheet (PD4) and the exact-contract sheet
 // (PD6, registered by ui/ContractSheet) open over them. Everything the viewer chose is in the address, so Back restores it exactly.
 import './props.css';
+import { DataState } from '../../ui/DataState';
 import { usePropUniverse } from '../../data/props/hooks';
 import { viewOf } from '../../data/props/query';
 import { propsSchema } from '../../nav/schemas';
@@ -17,7 +18,8 @@ import { usePublishContracts } from './contracts';
 
 export function Props() {
   const [st, set] = useRouteState(propsSchema);
-  const { universe, loading, error } = usePropUniverse();
+  const us = usePropUniverse(st.hz);
+  const { universe, loading, error, retry } = us;
   const slate = useSlate();
   // A shared address (?sheet=contract&tk=…) opened cold: the sheet needs the contract's own prop even before any row is on screen.
   const loc = useLocation();
@@ -37,8 +39,17 @@ export function Props() {
       </div>
     );
   }
+  // Every game's contract list failed: say so at the top, with Retry, instead of a list of zero props and a note at the bottom.
+  if (universe.props.length === 0 && universe.unreadable.length > 0 && !universe.demo) {
+    return (
+      <div className="pd" data-view="unavailable">
+        <header className="pd-h"><div className="pd-h__tt"><h1>Props</h1></div></header>
+        <DataState title="Props unavailable" why={`the contract lists for ${universe.unreadable.slice(0, 4).join(', ')}${universe.unreadable.length > 4 ? ` and ${universe.unreadable.length - 4} more` : ''} could not be read`} retry={retry} alert>The player props</DataState>
+      </div>
+    );
+  }
   const view = viewOf(st);
   if (view === 'compare') return <PropsCompare st={st} universe={universe} />;
-  if (view === 'list') return <PropsList st={st} set={set} universe={universe} />;
-  return <PropsHome universe={universe} />;
+  if (view === 'list') return <PropsList st={st} set={set} us={us} />;
+  return <PropsHome us={us} onHorizon={(hz) => set({ hz })} />;
 }

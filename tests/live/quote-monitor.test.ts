@@ -6,7 +6,10 @@ import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { report, relayTickers, openTickers, runMonitor, summaryMarkdown, advanced, type MonitorResult } from '../../scripts/quote-monitor.mjs';
+import { report, relayTickers, openTickers, runMonitor, summaryMarkdown, advanced, marketState, type MonitorResult } from '../../scripts/quote-monitor.mjs';
+import { availabilityOf } from '../../src/live/normalize';
+import { isTradableStatus, marketStatusOf } from '../../src/live/tradable';
+import { quote } from './fakes';
 
 const FEED = 'https://feed.test/live-quotes';
 const RELAY = 'https://relay.test/kalshi';
@@ -34,6 +37,8 @@ class World {
   relayQueue: RelaySpec[] = [];
   /** Tickers the relay answers nothing for (a delisted or closed contract), for specs with `echo`. */
   relayDelisted = new Set<string>();
+  /** What the relay reports about a market it answers: Kalshi's `status` word and/or a settlement `result` (default: nothing). */
+  relayState = new Map<string, { status?: string; result?: string }>();
   /** More games in the feed: each with its own tickers (all `active` unless `status` says otherwise). */
   extraGames: { key: string; tickers: string[]; status?: string }[] = [];
   gameStatus = 'active';
@@ -87,10 +92,10 @@ class World {
       if (spec.observedAgeMs !== null && spec.observedAgeMs !== undefined) headers['x-sift-observed-at'] = iso(this.t - spec.observedAgeMs);
       if (spec.echo || spec.unrelated) {
         const asked = decodeURIComponent(new URL(url).searchParams.get('tickers') ?? '').split(',').filter(Boolean);
-        const markets = spec.unrelated ? [{ ticker: 'KXNHLGOAL-26OCT26ZZZ-OTHER1' }] : asked.filter((t) => !this.relayDelisted.has(t)).map((ticker) => ({ ticker }));
+        const markets = spec.unrelated ? [{ ticker: 'KXNHLGOAL-26OCT26ZZZ-OTHER1' }] : asked.filter((t) => !this.relayDelisted.has(t)).map((ticker) => ({ ticker, ...this.relayState.get(ticker) }));
         return new Response(JSON.stringify({ markets }), { headers });
       }
-      return new Response(JSON.stringify({ markets: Array.from({ length: spec.markets ?? 0 }, (_, i) => ({ ticker: TICKERS[i % 3] })) }), { headers });
+      return new Response(JSON.stringify({ markets: Array.from({ length: spec.markets ?? 0 }, (_, i) => ({ ticker: TICKERS[i % 3], ...this.relayState.get(TICKERS[i % 3]) })) }), { headers });
     }
     if (url === `${FEED}/index.json`) return this.pick(this.index, this.indexDoc);
     if (url === `${FEED}/health.json`) {
@@ -598,6 +603,180 @@ describe('empty and delisted markets (HTTP 200 with no usable requested ticker)'
     expect(status(r2, 'relay').detail).toMatch(/the feed lists no open contract/);
     expect(r2.ok).toBe(true); // a skip is reported as a skip, never as a pass
     expect(report(r2)).toMatch(/\[SKIP\] Relay quote batch/);
+  });
+
+  describe('a game that is over is not an outage', () => {
+    const EXTRA = ['KXNHLGOAL-26OCT26BOSNYR-BOS1', 'KXNHLGOAL-26OCT26BOSNYR-NYR2'];
+    const allWith = (w: World, state: { status?: string; result?: string }, tickers = TICKERS) => tickers.forEach((t) => w.relayState.set(t, state));
+    const over = () => {
+      const w = healthy();
+      w.relay = { status: 200, observedAgeMs: 2_000, echo: true };
+      return w;
+    };
+    const CLOSED_WORDS = ['closed', 'determined', 'disputed', 'amended', 'settled', 'finalized', 'finalised', 'FINALIZED', 'resolved', 'voided', 'cancelled', 'expired', 'inactive', 'paused', 'suspended', 'halted', 'initialized', 'unopened'];
+
+    it.each(CLOSED_WORDS)('every returned market reports %j: PASS (GAME_OVER), one request, no retry, a notice and no error', async (word) => {
+      const w = over();
+      allWith(w, { status: word });
+      const r = await w.run();
+      expect(r.ok).toBe(true);
+      expect(r.status).toBe('PASS');
+      expect(w.relayCalls).toHaveLength(1);
+      expect(w.sleeps.filter((ms) => ms === 5_000)).toHaveLength(0); // no retry wait
+      const c = status(r, 'relay');
+      expect(c).toMatchObject({ status: 'pass', closed: true });
+      expect(c.recovered).toBeUndefined();
+      expect(c.detail).toMatch(/^GAME_OVER: HTTP 200 with a current observation, and every market the relay returned is closed or settled/);
+      const text = report(r);
+      expect(text).toMatch(/::notice title=Quote monitor: games over::/);
+      expect(text).not.toMatch(/::error/);
+      expect(text).toMatch(/RESULT: PASS$/);
+    });
+
+    it('a settlement result with a stale "active" status is settled; an empty result says nothing', async () => {
+      const a = over();
+      allWith(a, { status: 'active', result: 'yes' });
+      expect(status(await a.run(), 'relay')).toMatchObject({ status: 'pass', closed: true });
+      const b = over();
+      allWith(b, { status: 'active', result: '' });
+      const rb = await b.run();
+      expect(status(rb, 'relay')).toMatchObject({ status: 'pass' });
+      expect(status(rb, 'relay').closed).toBeUndefined();
+      expect(status(rb, 'relay').detail).toMatch(/^HTTP 200, 3 of 3 requested markets/);
+    });
+
+    it('a market with no status and the open words are tradable: an ordinary pass, never "closed"', async () => {
+      for (const st of [{}, { status: 'active' }, { status: 'open' }, { status: 'ACTIVE' }]) {
+        const w = over();
+        allWith(w, st);
+        const c = status(await w.run(), 'relay');
+        expect(c.status).toBe('pass');
+        expect(c.closed).toBeUndefined();
+        expect(c.detail).toMatch(/^HTTP 200, 3 of 3 requested markets from games\/26OCT26TORCGY\.json/);
+      }
+    });
+
+    it('a status word nobody knows is a relay answer, not a closed game: normal pass, the word is named', async () => {
+      const w = over();
+      allWith(w, { status: 'frobnicated' });
+      const c = status(await w.run(), 'relay');
+      expect(c.status).toBe('pass');
+      expect(c.closed).toBeUndefined();
+      expect(c.detail).toMatch(/unrecognised market status "frobnicated" \(not a relay fault\)/);
+    });
+
+    it('a partial batch with a closed market among open ones: pass, the closed one is noted and not asserted', async () => {
+      const w = over();
+      w.relayState.set(TICKERS[1], { status: 'finalized' });
+      const r = await w.run();
+      expect(r.ok).toBe(true);
+      const c = status(r, 'relay');
+      expect(c.closed).toBeUndefined(); // the batch had tradable markets: an ordinary pass
+      expect(c.detail).toMatch(/HTTP 200, 3 of 3 requested markets.*1 of the 3 returned market\(s\) report settled and are not asserted/);
+    });
+
+    it('a partial batch that is partly missing and partly closed still passes', async () => {
+      const w = over();
+      w.relayDelisted.add(TICKERS[0]);
+      w.relayState.set(TICKERS[1], { status: 'closed' });
+      const c = status(await w.run(), 'relay');
+      expect(c.status).toBe('pass');
+      expect(c.detail).toMatch(/HTTP 200, 2 of 3 requested markets.*1 of the 2 returned market\(s\) report closed/);
+    });
+
+    it('the first game is over, the second trades: PASS from the second game, the first is named, no retry', async () => {
+      const w = over();
+      w.extraGames = [{ key: '26OCT26BOSNYR', tickers: EXTRA }];
+      allWith(w, { status: 'finalized' });
+      const r = await w.run();
+      expect(r.ok).toBe(true);
+      expect(w.relayCalls).toHaveLength(2);
+      const c = status(r, 'relay');
+      expect(c.closed).toBeUndefined();
+      expect(c.detail).toMatch(/2 of 2 requested markets from games\/26OCT26BOSNYR\.json.*1 game\(s\) tried first are over \(games\/26OCT26TORCGY\.json: all 3 of 3 requested markets report settled/);
+    });
+
+    it('every game tried is over: PASS (GAME_OVER) after exactly one request per game, never a retry', async () => {
+      const w = over();
+      w.extraGames = [{ key: '26OCT26BOSNYR', tickers: EXTRA }];
+      allWith(w, { status: 'settled' }, [...TICKERS, ...EXTRA]);
+      const r = await w.run();
+      expect(r.ok).toBe(true);
+      expect(w.relayCalls).toHaveLength(2);
+      expect(status(r, 'relay')).toMatchObject({ status: 'pass', closed: true });
+      expect(status(r, 'relay').detail).toMatch(/26OCT26TORCGY\.json: all 3 of 3.*26OCT26BOSNYR\.json: all 2 of 2/);
+    });
+
+    it('one game over and another that the relay no longer lists: still PASS (GAME_OVER), the empty one is named', async () => {
+      const w = over();
+      w.extraGames = [{ key: '26OCT26BOSNYR', tickers: EXTRA }];
+      allWith(w, { status: 'closed' });
+      EXTRA.forEach((t) => w.relayDelisted.add(t));
+      const r = await w.run();
+      expect(r.ok).toBe(true);
+      const c = status(r, 'relay');
+      expect(c).toMatchObject({ status: 'pass', closed: true });
+      expect(c.detail).toMatch(/1 game\(s\) came back empty/);
+    });
+
+    it('a delisted game with nothing closed anywhere is still a failure (the exact rule is unchanged)', async () => {
+      const w = over();
+      TICKERS.forEach((t) => w.relayDelisted.add(t));
+      const r = await w.run();
+      expect(r.ok).toBe(false);
+      expect(w.relayCalls).toHaveLength(2); // one retry, as before
+    });
+
+    it('a closed answer is still held to the relay freshness rule: an old observation fails and is retried', async () => {
+      const w = over();
+      w.relay = { status: 200, observedAgeMs: 300_000, echo: true };
+      allWith(w, { status: 'closed' });
+      const r = await w.run();
+      expect(r.ok).toBe(false);
+      expect(w.relayCalls).toHaveLength(2);
+      expect(status(r, 'relay').detail).toMatch(/is 300s old; limit 60s/);
+    });
+
+    it('a closed answer without X-Sift-Observed-At fails like any other answer without one', async () => {
+      const w = over();
+      w.relay = { status: 200, observedAgeMs: null, echo: true };
+      allWith(w, { status: 'closed' });
+      expect((await w.run()).ok).toBe(false);
+    });
+
+    it('a game that ends between two runs: the run before passes normally, the run after passes as GAME_OVER, neither alarms', async () => {
+      const w = over();
+      const before = await w.run();
+      expect(before.ok).toBe(true);
+      expect(status(before, 'relay').closed).toBeUndefined();
+      allWith(w, { status: 'finalized' });
+      const after = await w.run();
+      expect(after.ok).toBe(true);
+      expect(status(after, 'relay').closed).toBe(true);
+      expect(summaryMarkdown(after)).toMatch(/GAME_OVER/);
+    });
+
+    it('a relay outage while the games are over is still an outage (only a fresh closed ANSWER is excused)', async () => {
+      const w = over();
+      allWith(w, { status: 'closed' });
+      w.relay = { status: 503 };
+      expect((await w.run()).ok).toBe(false);
+      w.relay = { status: 429, retryAfter: '1' };
+      expect((await w.run()).ok).toBe(false);
+    });
+
+    it('the monitor reads trading status exactly as the quote store does (src/live/tradable.ts): same words, same states', () => {
+      const words = [...CLOSED_WORDS, 'active', 'open', 'ACTIVE', 'Open', 'frobnicated'];
+      for (const word of words) {
+        const m = marketState({ status: word });
+        const store = marketStatusOf(quote('X', 0.4, T0, { rawStatus: word, availability: availabilityOf(word) }));
+        if (m === 'tradable') expect(isTradableStatus(store), word).toBe(true);
+        else expect(store, word).toBe(m);
+      }
+      expect(marketState({ ticker: 'X' })).toBe('tradable');
+      expect(marketState({ status: 'active', result: 'no' })).toBe('settled');
+      expect(marketStatusOf(quote('X', 0.4, T0, { result: 'no' }))).toBe('settled');
+    });
   });
 
   it('a partial answer (some requested contracts present) passes and says how many', async () => {

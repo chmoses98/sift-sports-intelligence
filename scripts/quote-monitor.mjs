@@ -29,6 +29,13 @@
 //     returns none of (HTTP 200, no requested ticker) is treated as delisted/closed while another game answers, and
 //     the check PASSes with that noted; it FAILs only when EVERY game tried comes back empty (after the one retry).
 //     If the feed lists no open contract at all the relay part is skipped, not passed.
+//   * A game that is OVER is not an outage. Between a game ending and the feed (published every ~3.5 min, cached up to 5)
+//     catching up, the feed still lists contracts as open that Kalshi already reports closed/settled/finalised. The relay
+//     then answers HTTP 200, with a fresh X-Sift-Observed-At, and those markets carry a closed status (or a settlement
+//     `result`). That is a healthy relay talking about a market that stopped trading: the game is NOT asserted, the next
+//     game is tried for a tradable market, and when every game tried is closed the check PASSes saying so (an
+//     `::notice`, never an error, never a retry). A closed answer still has to be fresh: an old observation fails as ever.
+//     The status words are the ones src/live/tradable.ts reads (a test keeps the two lists equal).
 //
 // Degrading honestly. Until the heartbeat is deployed there is no health.json. That is reported as the distinct state
 // HEARTBEAT_NOT_PUBLISHED: NOT a failure by default (the feed freshness check still runs from index.json, which has
@@ -70,6 +77,28 @@ export const LIMITS = {
   /** An observation stamped further ahead than this is not believable (runner clock is NTP-synced). */
   futureToleranceMs: 5_000,
 };
+
+/**
+ * What a relay market object positively reports about trading (mirror of src/live/tradable.ts, which the quote store
+ * uses; tests/live/quote-monitor.test.ts keeps them equal). 'tradable' = an open status or no status at all; a status
+ * word nobody knows is reported as 'unrecognised' and counts as an answer (the monitor judges the relay, not the market).
+ */
+const SETTLED_WORDS = new Set(['settled', 'finalized', 'finalised', 'resolved', 'voided', 'void', 'cancelled', 'canceled']);
+const CLOSED_WORDS = new Set(['closed', 'determined', 'disputed', 'amended']);
+const SUSPENDED_WORDS = new Set(['inactive', 'paused', 'suspended', 'halted', 'frozen']);
+const UNOPENED_WORDS = new Set(['initialized', 'initialised', 'unopened']);
+export function marketState(m) {
+  if (typeof m?.result === 'string' && m.result.trim() !== '') return 'settled';
+  const w = String(m?.status ?? '').trim().toLowerCase();
+  if (w === '' || w === 'active' || w === 'open') return 'tradable';
+  if (SETTLED_WORDS.has(w)) return 'settled';
+  if (CLOSED_WORDS.has(w)) return 'closed';
+  if (w === 'expired') return 'expired';
+  if (SUSPENDED_WORDS.has(w)) return 'suspended';
+  if (UNOPENED_WORDS.has(w)) return 'unopened';
+  return 'unrecognised';
+}
+const NOT_TRADING = new Set(['settled', 'closed', 'expired', 'suspended', 'unopened']);
 
 /** The one non-https relay URL accepted: this machine, for the local failure-injection drill (scripts/quote-monitor-drill.mjs). */
 const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?(\/|$)/;
@@ -251,13 +280,13 @@ export async function runMonitor({ env = {}, fetchImpl = fetch, now = Date.now, 
     const rc = { ...ctx, relayBase, origin, limits, now, loadMore, games };
     let first = await relayRound(rc);
     if (first.verdict === 'skip') add('relay', 'skip', 'Relay quote batch', first.detail);
-    else if (first.verdict === 'pass') add('relay', 'pass', 'Relay quote batch', first.detail);
+    else if (first.verdict === 'pass') add('relay', 'pass', 'Relay quote batch', first.detail, first.closed ? { closed: true } : {});
     else if (!first.transient) add('relay', 'fail', 'Relay quote batch', first.detail);
     else {
       const wait = first.retryAfterMs != null ? Math.min(limits.retryAfterCapMs, Math.max(limits.retryDelayMs, first.retryAfterMs)) : limits.retryDelayMs;
       await sleep(wait);
       const second = await relayRound(rc);
-      if (second.verdict === 'pass') add('relay', 'pass', 'Relay quote batch', `${second.detail}; recovered on the single retry after ${secs(wait)} (first attempt: ${first.detail})`, { recovered: true });
+      if (second.verdict === 'pass') add('relay', 'pass', 'Relay quote batch', `${second.detail}; recovered on the single retry after ${secs(wait)} (first attempt: ${first.detail})`, { recovered: true, ...(second.closed ? { closed: true } : {}) });
       else if (second.verdict === 'skip') add('relay', 'skip', 'Relay quote batch', second.detail);
       else add('relay', 'fail', 'Relay quote batch', second.detail === first.detail ? `${second.detail}; the same on the single retry after ${secs(wait)}` : `${second.detail}; the single retry after ${secs(wait)} failed too (first attempt: ${first.detail})`);
     }
@@ -277,6 +306,7 @@ export async function runMonitor({ env = {}, fetchImpl = fetch, now = Date.now, 
 async function relayRound(rc) {
   const { relayBase, origin, limits, now } = rc;
   const empties = [];
+  const closedGames = [];
   let asked = 0;
   for (let i = 0; i < rc.games.length || (await rc.loadMore() && i < rc.games.length); i++) {
     const g = rc.games[i];
@@ -308,8 +338,25 @@ async function relayRound(rc) {
     }
     if (at - observed > limits.relayMaxAgeMs) return fail(`relay answered HTTP 200 but its newest observation (${iso(observed)}) is ${secs(at - observed)} old; limit ${secs(limits.relayMaxAgeMs)} (${got.length} markets)`, true);
     if (observed - at > limits.futureToleranceMs) return fail(`relay observation ${iso(observed)} is ${secs(observed - at)} in the future of this runner's clock`, true);
+    // The relay answered, fresh. Does it report the markets as trading? A game that is over is not an outage.
+    const states = got.map((m) => marketState(m));
+    const notTrading = states.filter((x) => NOT_TRADING.has(x));
+    if (notTrading.length === got.length) {
+      const words = [...new Set(notTrading)].join('/');
+      closedGames.push(`${g.file}: all ${got.length} of ${tickers.length} requested markets report ${words} (observation ${secs(Math.max(0, at - observed))} old)`);
+      continue;
+    }
+    const oddWords = [...new Set(got.filter((m, i) => states[i] === 'unrecognised').map((m) => JSON.stringify(m.status)))];
+    const closedNote = notTrading.length ? `; ${notTrading.length} of the ${got.length} returned market(s) report ${[...new Set(notTrading)].join('/')} and are not asserted` : '';
+    const oddNote = oddWords.length ? `; unrecognised market status ${oddWords.join(', ')} (not a relay fault)` : '';
     const note = empties.length ? `; ${empties.length} other game(s) came back empty and are treated as delisted or closed (${empties.join('; ')})` : '';
-    return { verdict: 'pass', detail: `HTTP 200, ${got.length} of ${tickers.length} requested markets from ${g.file}, newest observation ${secs(Math.max(0, at - observed))} old; limit ${secs(limits.relayMaxAgeMs)}${note}` };
+    const over = closedGames.length ? `; ${closedGames.length} game(s) tried first are over (${closedGames.join('; ')})` : '';
+    return { verdict: 'pass', detail: `HTTP 200, ${got.length} of ${tickers.length} requested markets from ${g.file}, newest observation ${secs(Math.max(0, at - observed))} old; limit ${secs(limits.relayMaxAgeMs)}${closedNote}${oddNote}${note}${over}` };
+  }
+  if (closedGames.length) {
+    // Every game that answered is over (closed / settled / finalised ...): a healthy relay reporting finished games.
+    const empt = empties.length ? `; ${empties.length} game(s) came back empty (${empties.join('; ')})` : '';
+    return { verdict: 'pass', closed: true, detail: `GAME_OVER: HTTP 200 with a current observation, and every market the relay returned is closed or settled, so there is no tradable price to assert (${closedGames.join('; ')})${empt}. Not a failure: the relay is answering, the games are finished.` };
   }
   if (!asked) return { verdict: 'skip', detail: `skipped: the feed lists no open contract to ask the relay about (${empties.join('; ') || 'no game'})` };
   return { verdict: 'fail', transient: true, retryAfterMs: null, detail: `relay answered HTTP 200 with no markets for the ${asked} game(s) tried, though the feed lists their contracts as open (${empties.join('; ')})` };
@@ -347,6 +394,7 @@ export function report(result) {
   for (const c of result.checks) {
     if (c.status === 'fail') lines.push(`::error title=Quote monitor: ${c.title}::${c.detail}`);
     if (c.status === 'note') lines.push(`::notice title=Quote monitor: heartbeat not published yet::${c.detail}`);
+    if (c.closed) lines.push(`::notice title=Quote monitor: games over::${c.title}: ${c.detail}`);
     if (c.recovered) lines.push(`::notice title=Quote monitor: transient failure recovered::${c.title}: ${c.detail}`);
   }
   lines.push(`RESULT: ${result.status === 'PASS_HEARTBEAT_NOT_PUBLISHED' ? 'PASS (heartbeat not published yet: not a failure)' : result.status}`);

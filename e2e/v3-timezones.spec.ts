@@ -1,10 +1,12 @@
 // Game times in the viewer's real local time zone. Each context pins a browser `timezoneId` and a fixed clock (the schedule is UTC; the
 // sandbox is UTC; neither may stand in for the viewer). Real-document tests read the captured published slate on its captured instant
-// (`.v3-feed-cache`, `captured_at.txt`); the sample-data tests need no network. Unit coverage of the module is tests/v3/time.test.ts.
+// (the committed `game` fixture family, fixtures/real; its clock pin); the sample-data tests need no network. Unit coverage of the module is tests/v3/time.test.ts.
 //
 // DAL at PHI starts 2026-10-27T00:15:00Z. In a UTC sandbox that reads "Tue 12:15 AM"; for a New York viewer it is Monday 8:15 PM, today.
 import { test, expect, type Page } from '@playwright/test';
 import { feedNow, useRealFeeds as answerWithRealFeeds } from './support/realFeeds';
+
+const FAMILY = 'game' as const; // the committed `game` fixture family (fixtures/real)
 
 test.setTimeout(120_000);
 test.describe.configure({ mode: 'parallel' });
@@ -22,8 +24,8 @@ const ZONES = [
 async function boot(page: Page, o: { now?: Date; demo?: boolean } = {}) {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* */ } });
-  await page.clock.setFixedTime(o.now ?? feedNow());
-  if (!o.demo) await answerWithRealFeeds(page);
+  await page.clock.setFixedTime(o.now ?? feedNow(FAMILY));
+  if (!o.demo) await answerWithRealFeeds(page, { family: FAMILY });
 }
 const go = async (page: Page, path: string, ready: string) => {
   await page.goto(`./#${path}`);
@@ -34,7 +36,7 @@ const dalCard = (page: Page) => page.locator('article.v3-gc', { has: page.locato
 
 test.describe('the captured slate (real documents) in real viewer zones', () => {
   test('the captured instant is the one the cache describes', () => {
-    expect(feedNow().toISOString()).toBe('2026-10-26T23:25:00.000Z');
+    expect(feedNow(FAMILY).toISOString()).toBe('2026-10-26T23:25:00.000Z');
   });
 
   for (const z of ZONES) {

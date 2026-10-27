@@ -3,6 +3,8 @@
 import { test, expect } from '@playwright/test';
 import { feedNow, useRealFeeds } from './support/realFeeds';
 
+const FAMILY = 'game' as const; // the committed `game` fixture family (fixtures/real)
+
 test.setTimeout(120_000);
 test.describe.configure({ mode: 'parallel' });
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
@@ -11,8 +13,8 @@ for (const w of [320, 375, 390, 430]) {
   test(`Welcome at ${w} pt: connected intelligence, honest about today, nothing implied`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: 844 });
     await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
-    await page.clock.setFixedTime(feedNow());
-    await useRealFeeds(page);
+    await page.clock.setFixedTime(feedNow(FAMILY));
+    await useRealFeeds(page, { family: FAMILY });
     await page.goto('./#/v3');
     const sheet = page.locator('.v3-welcome');
     await expect(sheet).toBeVisible({ timeout: 40_000 });
@@ -43,8 +45,8 @@ test('Welcome is shown once: a viewer who has been welcomed goes straight to Hom
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* */ } });
-  await page.clock.setFixedTime(feedNow());
-  await useRealFeeds(page);
+  await page.clock.setFixedTime(feedNow(FAMILY));
+  await useRealFeeds(page, { family: FAMILY });
   await page.goto('./#/v3');
   await expect(page.locator('.v3-feat')).toBeVisible({ timeout: 40_000 });
   await expect(page.locator('.v3-welcome')).toHaveCount(0);

@@ -4,14 +4,16 @@
 import { test, expect, type Page } from '@playwright/test';
 import { feedNow, useRealFeeds } from './support/realFeeds';
 
+const FAMILY = 'game' as const; // the committed `game` fixture family (fixtures/real)
+
 test.setTimeout(120_000);
 test.describe.configure({ mode: 'parallel' });
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* */ } });
-  await page.clock.setFixedTime(feedNow());
-  await useRealFeeds(page);
+  await page.clock.setFixedTime(feedNow(FAMILY));
+  await useRealFeeds(page, { family: FAMILY });
 });
 
 const WIDTHS = [320, 360, 375, 390, 430];

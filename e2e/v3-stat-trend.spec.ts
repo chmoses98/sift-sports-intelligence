@@ -6,13 +6,14 @@
 // docs/sift3/DEVICE_CHECKLIST.md for what must be tried by hand.
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type CDPSession, type Page } from '@playwright/test';
-import { useRealFeeds } from './support/realFeeds';
+import { feedNow, useRealFeeds } from './support/realFeeds';
 import { columnHits, expectNoStolenTaps } from './support/hitTargets';
 
 const TREND = '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL';
 
 test.beforeEach(async ({ page }) => {
-  await useRealFeeds(page);
+  await page.clock.setFixedTime(feedNow('stat')); // the captured documents describe one instant
+  await useRealFeeds(page, { family: 'stat' });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 });
 

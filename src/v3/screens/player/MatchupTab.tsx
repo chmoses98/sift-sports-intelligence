@@ -2,11 +2,11 @@
 // lets SIFT show; the rest are "—" with why), (2) the opponent's unit against the whole league, every statistic a target that opens Stat Detail,
 // (3) the availability that matters. A player with no matchup rows gets the honest "No matchup rows" state, never a filled-in card.
 import { Fragment, useMemo } from 'react';
-import { teamLogo } from '../../../lib/teams';
 import { teamKey } from '../../../lib/projections';
 import { useTeamProfile } from '../../data/research/hooks';
 import { useOppProfile, useUnitRanking, type OppUnitView } from '../../data/useOppUnits';
 import { LeagueStrip } from '../../ui/charts/LeagueStrip';
+import '../matchup.css';   // the league strip's styles (shared with Game Matchup)
 import { LockedRow } from '../../ui/atoms';
 import { Icon } from '../../ui/Icon';
 import { StatLink, PlayerLink } from '../../nav/Targets';
@@ -105,7 +105,7 @@ function UnitRow({ v, u, opp, own }: { v: PlayerView; u: OppUnitView; opp: strin
   return (
     <StatLink stat={{ slug: v.slug, statId: u.id }} state={{ win: u.window, sel: opp, opp: own }} label={`${u.label}: ${opp} ${ord(o.rank!)} of ${o.n}. Open the league ranking`} className="v3p-sl">
       <span className="v3p-slh"><span>{u.label}</span><b>{o.value != null && isEpa ? `${sgn(o.value)} · ` : ''}{ord(o.rank!)} of {o.n}</b></span>
-      {ranking ? <LeagueStrip entries={ranking.entries} team={opp} higherIsBetter={ranking.higherIsBetter ?? false} role="def" logo={teamLogo(vm.sport, opp)} label={`${opp} ${u.label}: ${ord(o.rank!)} of ${o.n}`} />
+      {ranking ? <LeagueStrip entries={ranking.entries} higherIsBetter={ranking.higherIsBetter} mean={ranking.summary.mean} selected={opp} role="def" team={vm.opp!} label={`${opp} ${u.label}: ${ord(o.rank!)} of ${o.n}`} />
         : <span className="v3p-strip v3p-strip--none" aria-hidden="true" />}
     </StatLink>
   );

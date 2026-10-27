@@ -48,3 +48,23 @@ Typed, tested normalizers over the real published documents, and lazy cached hoo
 Not in this milestone, by design: the cross-game prop index (Prop Discovery, milestone 6, where its consumer is), and quote usability wiring (waits on the separately reviewed quote branch; screens use one seam, `src/v3/data/quoteGate.ts`, so swapping in `quoteUsable` is a one-file change).
 
 Real-document test tooling: `e2e/support/realFeeds.ts` answers feed requests from a disk cache of real published documents (`V3_REAL_FEEDS=live` fills it with curl through the environment proxy); `scripts/v3-qa/shot.mjs` takes phone screenshots (`REAL=1` for real data). Fixtures in `tests/v3/fixtures` are trimmed real documents captured 2026-10-26.
+
+## Milestone 5: Game Detail and Matchup (G1 to G3)
+
+Branch `claude/sift3-m5-game`. Route `/v3/game/:slug/:eventId`; NFL has Overview, Game Script, Matchup, Props, Stats; other sports Overview and Props (`gameMatchup` is gated). Matchup: direction control, seven tug-of-war unit rows from the two team profiles' `adj_off_*` / `adj_def_*` ranks (percentile (n-rank)/(n-1), gap compared as displayed, exactly 15 is Even, summary counts use the same rule), expanded unit (`unit=` in the address), SIFT Lens (collapsed, observed ranks only, counter-case), game shape (approved projection authority only, else a locked row with the reason), key matchups (avatars, gated prices). Overview: win price, players to research, teams, props row. Start time from the schedule authority; prices only through `quoteGate`. Profiles load only on the Matchup tab. QA: `e2e/v3-game.spec.ts`, `scripts/v3-qa/game_wk.py`, `scripts/v3-qa/game-shots.mjs`; comparisons in `docs/sift3/qa/impl/game/`.
+
+Known and intentional differences from the mockups: no per-game EPA series is published (Weekly trend is a locked row, Recent form shows the published season and last-6 windows); "Plays per game" is not published (Plays per drive is shown); the mockup's "Published ... 02:45Z" stamp is a freshness label and is not shown; the Opponent-adjusted and Season chips are not dropdowns because no other basis or window is published for the units.
+## Milestone 2: Stat Detail and League Rankings (SD1 to SD7)
+
+Branch `claude/sift3-m2-stat`. `/v3/stat/:slug/:statId?win=&sel=&opp=&tab=...` with the metric's SHORT id; the first build's ranking id (`rnk_...`) resolves through the catalog and the address is rewritten with a REPLACE; `sample-N` renders the labelled sample view model (`?demo=1`).
+
+| Piece | Where |
+| --- | --- |
+| Screen and tabs (Ranking, Trend, Compare, About, side by side) | `src/v3/screens/Stat.tsx`, `src/v3/screens/stat/*`, `src/v3/screens/stat.css` |
+| Pure view models (resolve, windows, visible rows, bars, compare blocks, limits) | `src/v3/model/statDetail.ts`, `src/v3/model/statDecl.ts` (per-sport declarations: NFL, NHL; MLB gated) |
+| Hooks over the research data layer (catalog, series, next opponent) | `src/v3/data/useStatDetail.ts` |
+| Chart atoms | `src/v3/ui/charts/` (dot plot, observation bars, rank and gap tracks, player bars) |
+| Tests | `tests/v3/stat-detail.test.ts`, `e2e/v3-stat.spec.ts` (real documents), `scripts/v3-qa/stat_wk.py` (WebKit) |
+| Visual comparison against `out/sd*.png` | `docs/sift3/qa/impl/stat/` |
+
+Notes: the screen carries no SIFT model lane and no price (statistics are team values and ranks), so the approval ledger has nothing to gate here. Historical ranks and player-level league ranks are not published (backend backlog item 2): the screen shows "rank —" and a locked row naming the reason. Related statistics are still derived in the client (backlog item 1) and are labelled so. `V3Root` now passes `aria-current` through a plain `Link` so the Explore tab is lit on detail screens (react-router's NavLink overwrote it).

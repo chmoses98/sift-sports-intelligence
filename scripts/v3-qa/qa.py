@@ -4,7 +4,7 @@ from PIL import Image
 sys.path.insert(0, __import__('os').path.dirname(__import__('os').path.abspath(__file__)))
 from wk import driver
 
-HARNESS = 'http://127.0.0.1:' + __import__('os').environ.get('WK_HARNESS_PORT', '8765') + '/frame.html'  # python3 -m http.server 8765 in a folder holding frame.html
+HARNESS = 'http://127.0.0.1:%s/frame.html' % __import__('os').environ.get('WK_HARNESS_PORT', '8765')  # python3 -m http.server 8765 in a folder holding frame.html
 BASE = __import__('os').environ.get('QA_BASE', 'http://localhost:5173/sift-sports-intelligence/')
 
 class QA:

@@ -235,3 +235,9 @@
 .v3 .tm .pcnt { font: 600 13px var(--f-ui); color: #5fe0ee; white-space: nowrap; }
 .v3 .tm .pcnt i { font-style: normal; }
 .v3 .tm .pcnt.dim { color: var(--sift-dim); font-weight: 400; }
+
+/* Neighbouring targets must not steal each other's taps (e2e/v3-hit-targets.spec.ts): the 44 pt growth of `.v3-tap::after` is limited to
+   what the gap to the next target allows. The opponent logos under the margin bars sit one bar-slot apart; the offense and defense ranks
+   of an identity row sit 6 pt apart. */
+.v3 .tm-mb__lg a::after { width: calc(100% + 6px); }
+.v3 .tm-idt .idr .rr .v3-tap::after { width: calc(100% + 4px); }

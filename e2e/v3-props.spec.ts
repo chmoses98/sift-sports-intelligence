@@ -6,12 +6,15 @@
 // Tap-matrix rows owned (tests/v3/tapmatrix.ts, milestone 6): 1-7 PD home, 8-12 PD list, 13-17 PD list (expanded). Each is exercised
 // below as `[row N]` and, after every tap, Back must restore the address, the scroll offset, the expanded row and close any sheet.
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { expectNoStolenTaps } from './support/hitTargets';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
 test.setTimeout(120_000);
 
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
+  // A first visit opens the Welcome sheet over Home after the slate loads (it would cover the tab bar); this test device has been welcomed.
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
   await page.clock.setFixedTime(feedNow());
   await useRealFeeds(page);
   await freshQuotes(page);
@@ -86,7 +89,7 @@ async function listWithResearchableRow(page: Page): Promise<{ path: string }> {
 test.describe('Prop Discovery on real published documents @v3', () => {
   test('the Explore tab is Prop Discovery; the older search still lives at /v3/explore', async ({ page }) => {
     await go(page, '/v3');
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click({ force: true });
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click();
     await expect(page).toHaveURL(/#\/v3\/props/);
     await ready(page);
     await expect(page.getByRole('heading', { name: 'Props', exact: true })).toBeVisible();
@@ -123,6 +126,31 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const names = await page.locator('.pd-row .pd-pn').evaluateAll((els) => [...new Set(els.map((e) => (e.firstElementChild as HTMLElement).innerText.trim()))]);
     expect(names).toEqual([name]);
   });
+
+  for (const [w, h] of [[390, 844], [375, 667]] as const) {
+    for (const fonts of ['measured', 'fallback'] as const) {
+      test(`semantic targets never steal each other's taps in rows, cards and the peek (${w}x${h}, ${fonts} fonts)`, async ({ page }) => {
+        if (fonts === 'fallback') await page.route(/\.(woff2?|ttf|otf)(\?.*)?$/, (r) => r.abort());
+        await page.setViewportSize({ width: w, height: h });
+        await open(page, '/v3/props');
+        await expectNoStolenTaps(page, '.pd-card');
+        await open(page, '/v3/props?v=1&view=list&sport=nfl');
+        for (const y0 of [0, 500, 1300]) {
+          await page.evaluate((y) => window.scrollTo(0, y), y0);
+          await page.waitForTimeout(500);
+          await expectNoStolenTaps(page, '.pd-row');
+        }
+        const row = page.locator('.pd-row:has(a.pd-av)').first();
+        await center(row);
+        await tapRow(row);
+        await expect(page.locator('.pd-peek')).toBeVisible();
+        await page.waitForTimeout(400);
+        await expectNoStolenTaps(page, '.pd-row.is-open, .pd-peek');
+        await open(page, '/v3/props?v=1&view=list&sport=nhl');
+        await expectNoStolenTaps(page, '.pd-row');
+      });
+    }
+  }
 
   test('PD1 home: real counts, shelves of prop cards, lanes in order, no overflow at 390 and 375, no freshness words', async ({ page }) => {
     await open(page, '/v3/props');

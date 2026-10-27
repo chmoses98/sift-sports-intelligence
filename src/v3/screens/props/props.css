@@ -263,3 +263,8 @@
 .v3 .pd-spark { display: block; }
 
 @media (prefers-reduced-motion: reduce) { .v3 .pd-tgl::after { transition: none; } }
+
+/* Stacked targets (player, game, statistic line, opponent chip, lanes) sit a few points apart: the shared 44 pt growth of `.v3-tap::after`
+   would let one target's grown area cover its neighbour's own text, so a tap on the game text could open the ranking. Inside the row body
+   a target grows sideways only (to 44 pt wide) and never above or below its own box; the row's own button stays the large target. */
+.v3 .pd-pb .v3-tap::after, .v3 .pd-card .v3-tap:not(.pd-px):not(.pd-av)::after, .v3 .pd-peek .v3-tap:not(.pd-lane):not(.pd-abtn)::after { top: 0; height: 100%; transform: translateX(-50%); }

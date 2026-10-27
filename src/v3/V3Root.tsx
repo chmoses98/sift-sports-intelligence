@@ -34,7 +34,8 @@ const tabOf = (path: string): string => {
   if (p === '/v3/explore' || p.startsWith('/v3/explore/')) return (lastTab = '/v3/props');
   const hit = TABS.find((t) => t.to !== '/v3' && (p === t.to || p.startsWith(`${t.to}/`)));
   if (hit) return (lastTab = hit.to);
-  if (p.startsWith('/v3/game/')) return (lastTab = '/v3/games');
+  // The locked references light Games for the Team, Player and Game screens and Explore for Stat Detail and Prop Discovery.
+  if (p.startsWith('/v3/game/') || p.startsWith('/v3/team/') || p.startsWith('/v3/player/')) return (lastTab = '/v3/games');
   if (p.startsWith('/v3/stat/')) return (lastTab = '/v3/props');
   return lastTab;
 };

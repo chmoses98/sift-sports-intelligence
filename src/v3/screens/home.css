@@ -1,5 +1,5 @@
 /* Home (references 01_home_top, 02_home_lens, 03_home_scrolled) + the hero backdrop shared with Game Detail. */
-.v3-chips--home { margin-bottom: 14px; }
+.v3-chips--home { margin-bottom: 11px; }
 .v3-chips--home .v3-chip { height: 34px; padding: 0 16px; font-size: 14px; }
 
 .v3-strip { scroll-padding-left: var(--pad); display: flex; gap: 8px; margin: 0 calc(var(--pad) * -1) 14px; padding: 2px var(--pad) 4px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; }
@@ -120,6 +120,7 @@
 
 .v3-welcome { display: grid; gap: 12px; }
 .v3-welcome__p { font: 400 17px/25px var(--f-ui); color: #e0e3e6; }
+.v3-welcome__p--sub { font-size: 14px; line-height: 20px; color: var(--sift-muted); }
 .v3-welcome__teams { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .v3-wt { position: relative; display: grid; justify-items: center; gap: 4px; min-height: 84px; padding: 8px 4px; border-radius: 14px; background: rgba(21, 24, 27, 0.82); border: 1px solid rgba(47, 54, 62, 0.9); font: 500 13px/16px var(--f-ui); text-align: center; }
 .v3-wt[aria-pressed='true'] { border-color: var(--sift-cyan); box-shadow: 0 0 0 1px rgba(25, 205, 224, 0.5) inset; background: linear-gradient(180deg, rgba(42, 48, 56, 0.7), rgba(25, 29, 33, 0.8)); }

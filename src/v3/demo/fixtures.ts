@@ -5,6 +5,7 @@
 // demo slate provider (tests/v3/isolation.test.ts enforces that).
 import { heroTeam } from '../../lib/hero/input';
 import { cfbTeam } from '../../lib/cfbTeams';
+import { zonedMs } from '../model/time';
 import type { MarketLine, Phase, Price, V3Game, V3Team } from '../model/types';
 
 const NAMES: Record<string, Record<string, string>> = {
@@ -46,7 +47,7 @@ interface Spec {
   spread?: [string, number, number]; total?: [number, number]; ml?: [string, number]; signals?: number; situation?: V3Game['situation'];
 }
 
-const mk = (base: number, s: Spec): V3Game => {
+const mk = (day: string, s: Spec): V3Game => {
   const away = team(s.sport, s.away, { record: s.awayRec, rank: s.awayRank });
   const home = team(s.sport, s.home, { record: s.homeRec, rank: s.homeRank });
   const pick = (c: string) => (c === away.abbr ? away : home);
@@ -54,7 +55,7 @@ const mk = (base: number, s: Spec): V3Game => {
     key: `${s.sport.toLowerCase()}:demo_${s.away}_${s.home}`.toLowerCase(),
     slug: s.sport.toLowerCase(), sport: s.sport, eventId: `demo_${s.away}_${s.home}`.toLowerCase(),
     league: s.sport === 'CFB' ? 'NCAAF' : s.sport, phase: s.phase,
-    startMs: base + (s.hh * 60 + s.mm) * 60_000, network: s.network ?? null,
+    startMs: zonedMs(day, s.hh, s.mm), network: s.network ?? null,
     away, home,
     score: s.score ? { away: s.score[0], home: s.score[1], clock: s.phase === 'final' ? 'Final' : s.clock ?? null, source: 'demo', asOf: null } : null,
     situation: s.situation ?? null,
@@ -105,7 +106,8 @@ const SPECS: Spec[] = [
   { sport: 'MLB', away: 'LAD', home: 'SD', phase: 'pregame', hh: 20, mm: 0, network: 'FS1', spread: ['LAD', 1.5, 52], total: [7.5, 50] },
 ];
 
-export const demoGames = (base: number): V3Game[] => SPECS.map((s) => mk(base, s));
+/** The sample slate on one LOCAL calendar day (a day key): kick-offs are fixed local clock times, so the slate reads the same every day, including on a daylight-saving change. */
+export const demoGames = (day: string): V3Game[] => SPECS.map((s) => mk(day, s));
 
 /** Fixture-only live detail for the featured football game (drive, last play, Lens): the contract has no live feed for these. */
 export interface DemoLive {

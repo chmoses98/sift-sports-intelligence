@@ -12,6 +12,7 @@ import { useFeedEnabled } from '../../live/scores/feed';
 import { observedFor } from '../../v4/scoreState';
 import { verifyScore } from './scoreVerify';
 import { demoGames } from '../demo/fixtures';
+import { dayKey } from '../model/time';
 import { toGame } from './adapt';
 import { knownSchedule, useScheduleVersion, withScheduleStarts } from './research/scheduleStarts';
 import type { V3Game } from '../model/types';
@@ -84,9 +85,9 @@ function RealProvider({ children }: { children: ReactNode }) {
 
 function DemoProvider({ children }: { children: ReactNode }) {
   const now = useNow(60_000);
-  const day = new Date(now).toDateString();
+  const day = dayKey(now) ?? '';
   // Fixture kickoffs are fixed clock times on today's date, so the sample slate is the same every time it is opened.
-  const games = useMemo(() => demoGames(new Date(day).getTime()).sort(slateCompare), [day]);
+  const games = useMemo(() => demoGames(day).sort(slateCompare), [day]);
   const value = useMemo<Slate>(() => ({ games, loading: false, unavailable: false, failed: [], saved: [], now, demo: true }), [games, now]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

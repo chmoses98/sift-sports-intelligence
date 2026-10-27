@@ -20,6 +20,7 @@ import { useEventDetail } from './useGameExtras';
 import { useGameStart } from './research/gameHooks';
 import { useSlate } from './useSlate';
 import { withRest, type Obs } from '../model/research';
+import { shiftDayKey } from '../model/time';
 import type { MarketLine, V3Game, V3Team } from '../model/types';
 
 export interface PlayerStat { key: string; label: string; short: string }
@@ -109,9 +110,9 @@ function demoVM(slug: string, games: V3Game[]): PlayerVM {
   const opp = g ? (g.home.id === team.id ? g.away : g.home) : mkTeam('NBA', 'nba', 'BOS', 'Boston Celtics');
   const opps = ['CLE', 'BOS', 'DET', 'CHA', 'MIA', 'ORL', 'BKN', 'TOR', 'CLE', 'BOS', 'PHI', 'IND', 'ATL', 'CHI', 'MIL', 'WAS', 'NOP', 'MEM', 'DEN', 'LAL'];
   const rows: Omit<Obs, 'rest'>[] = opps.map((o, i) => {
-    const d = new Date(2026, 9, 28 - (opps.length - i) * 2);
+    const day = shiftDayKey('2026-10-28', -(opps.length - i) * 2); // a calendar date of the sample log, not an instant
     const pts = 17 + (hash(`${o}${i}`) % 22), ast = 3 + (hash(`a${i}`) % 8), reb = 2 + (hash(`r${i}`) % 6), tp = hash(`t${i}`) % 5;
-    return { key: `s${i}`, date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, opp: o, home: i % 2 === 0, v: { pts, ast, reb, fg3m: tp, pra: pts + ast + reb }, min: 28 + (hash(`m${i}`) % 11), margin: ((hash(`g${i}`) % 31) - 12), season: '2026-27', eventId: null, label: `${i % 2 ? '@' : 'vs'} ${o}` };
+    return { key: `s${i}`, date: day, opp: o, home: i % 2 === 0, v: { pts, ast, reb, fg3m: tp, pra: pts + ast + reb }, min: 28 + (hash(`m${i}`) % 11), margin: ((hash(`g${i}`) % 31) - 12), season: '2026-27', eventId: null, label: `${i % 2 ? '@' : 'vs'} ${o}` };
   });
   const mk = (stat: string, line: number, ask: number): [string, PropRow] => [stat, { key: `demo|${stat}`, player: 'Sample Guard', playerId: DEMO_PLAYER_ID, stat, statLabel: stat, line, price: { ask, bid: ask - 1, implied: ask - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${line}`, side: 'YES', description: `SAMPLE: Sample Guard over ${line} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample', tradable: true, marketStatus: 'open' as const }, ladder: [line - 2, line, line + 2].map((l, i) => ({ ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const, tradable: true, marketStatus: 'open' as const })), rungs: [line - 2, line, line + 2].map((l, i) => ({ line: l, price: { ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const, tradable: true, marketStatus: 'open' as const } })), teamAbbr: team.abbr }];
   return {

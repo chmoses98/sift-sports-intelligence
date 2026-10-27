@@ -9,6 +9,7 @@ import type { Resolution } from '../../lib/projectionAuthority';
 import { approvalFor } from '../../lib/projectionApprovals';
 import { familyOf } from '../../lib/projections';
 import { applyFilters, matchesFilters, NO_FILTERS, sliceWindow, summarize, type FilterContext, type Filters, type Obs, type Summary, type Window } from './research';
+import { whenWords } from './time';
 import type { Price } from './types';
 
 // ------------------------------------------------------------------------------------------------ rungs
@@ -346,13 +347,7 @@ export function eventForObs(games: ScheduledGame[], o: Pick<Obs, 'date' | 'opp'>
 // ------------------------------------------------------------------------------------------------ words
 
 /** "Mon 8:15 PM"; with the date when the game is more than a week away. */
-export function gameWhen(ms: number, now: number): string {
-  if (!Number.isFinite(ms)) return 'Time to be announced';
-  const d = new Date(ms);
-  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  const far = Math.abs(ms - now) > 6 * 86_400_000;
-  return `${far ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : d.toLocaleDateString(undefined, { weekday: 'short' })} ${time}`;
-}
+export const gameWhen = (ms: number, now: number): string => whenWords(ms, now);
 
 const UNIT_WORD: Record<string, string> = { rec: 'catches', yds: 'yds', tgt: 'targets', car: 'carries', att: 'attempts', cmp: 'completions', TD: 'TD', INT: 'INT' };
 /** "7+ catches": the statistic's own unit after the rung. */

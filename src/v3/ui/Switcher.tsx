@@ -3,7 +3,7 @@
 // A tile's star toggles the favourite WITHOUT switching games; tapping the tile switches in one tap and the tab is kept.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from '../../routing';
-import { clockTime } from '../model/format';
+import { clockTime } from '../model/time';
 import { isFavorite, switcherGames } from '../model/switcher';
 import { useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';

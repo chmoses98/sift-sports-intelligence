@@ -7,7 +7,7 @@ import type { TeamProfile } from '../../data/research/types';
 import type { CodeOf, MetricLookup, StatObs } from '../../model/teamResearch';
 import type { SportTeamDecl } from '../../model/teamSports';
 import type { V3Team } from '../../model/types';
-import { clockTime } from '../../model/format';
+import { monthDay, weekdayShort, whenWords, ymdShort } from '../../model/time';
 
 export type TeamState = StateOf<typeof teamSchema.fields>;
 
@@ -57,18 +57,13 @@ export function SegC<T extends string | boolean>({ options, value, onChange, lab
   );
 }
 
-const loc = (iso: string, o: Intl.DateTimeFormatOptions) => new Date(iso).toLocaleDateString(undefined, o);
-export const shortDate = (iso: string) => loc(iso, { month: 'short', day: 'numeric' });
-export const weekday = (iso: string) => loc(iso, { weekday: 'short' });
-/** "Mon 8:15 PM" within the coming week, "Nov 15 1:00 PM" beyond it. */
-export function startWords(iso: string, now: number): string {
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return 'Time to be announced';
-  const days = (t - now) / 86_400_000;
-  return `${days > -1 && days < 6 ? weekday(iso) : shortDate(iso)} ${clockTime(t)}`;
-}
+// A game's start (a published UTC instant) in the viewer's local time zone, through model/time.ts. No start: nothing.
+export const shortDate = (iso: string) => monthDay(Date.parse(iso));
+export const weekday = (iso: string) => weekdayShort(Date.parse(iso));
+/** "Mon 8:15 PM" within the coming week, "Nov 15 1:00 PM" beyond it; "" without a start. */
+export const startWords = (iso: string, now: number): string => whenWords(Date.parse(iso), now);
 /** A published YYYY-MM-DD (a return date) without a timezone shift. */
-export const dateOnly = (ymd: string) => new Date(`${ymd}T12:00:00Z`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+export const dateOnly = ymdShort;
 
 export const Skel = ({ h, label }: { h: number; label?: string }) => <div className="tm-sk v3-skel" style={{ height: h }} role={label ? 'status' : undefined} aria-label={label} aria-hidden={label ? undefined : true} />;
 

@@ -10,6 +10,7 @@ import { GameLink, PriceTap } from '../../nav/Targets';
 import { routes } from '../../nav/routes';
 import { ledgerKey, rungWindow, sameLine, unitWord, type RungView } from '../../model/playerResearch';
 import { resultOf } from '../../model/research';
+import { numericDate } from '../../model/time';
 import type { PlayerView } from './view';
 
 export const fmt1 = (v: number | null | undefined) => (v == null ? '—' : String(Math.round(v * 10) / 10));
@@ -109,7 +110,7 @@ export function ChartCard({ v, onLadder }: { v: PlayerView; onLadder: () => void
   const next = vm.next;
   const toGame = next ? routes.game({ slug: next.slug, eventId: next.eventId }) : null;
   const tonight = next && vm.opp ? {
-    label: vm.nextWeek != null ? `W${vm.nextWeek}` : vm.nextStartMs != null ? shortDate(new Date(vm.nextStartMs).toISOString().slice(0, 10)) : '',
+    label: vm.nextWeek != null ? `W${vm.nextWeek}` : vm.nextStartMs != null ? numericDate(vm.nextStartMs) : '',
     logo: teamLogo(vm.sport, vm.opp.abbr), model: v.tonightModel, to: toGame, onOpen: () => { if (toGame) nav(toGame); },
   } : null;
   const rungLines = (v.prop?.rungs ?? []).map((r) => r.line);

@@ -2,7 +2,7 @@
 // (e2e/support/realFeeds.ts: a disk cache of the research feeds, filled with V3_REAL_FEEDS=live). Every tap-matrix row this screen owns
 // is exercised and its destination checked (data-dest and URL); Back restores tab, window, selection, comparison, expansion and scroll.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { useRealFeeds } from './support/realFeeds';
+import { feedNow, useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
 const LAMB = 'prt_4c661ae8b854ff5f66dd', PICKENS = 'prt_74580802ab4833992610';
@@ -10,6 +10,8 @@ const ADJ = '/v3/stat/nfl/adj_off_epa';
 
 let feeds: Awaited<ReturnType<typeof useRealFeeds>>;
 test.beforeEach(async ({ page }) => {
+  // The cached documents describe one instant; read on the real clock their upcoming games drift into the past.
+  await page.clock.setFixedTime(feedNow());
   feeds = await useRealFeeds(page);
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 });
@@ -206,12 +208,13 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL&obs=36');
     await expect(page.locator('.st-obc')).toBeVisible();
     const before = await hash(page);
-    const gd = page.getByRole('link', { name: /^Game Detail/ });
+    const gd = page.locator('.st-obc').getByRole('link', { name: /^Game Detail/ });
     await expect(gd).toHaveAttribute('data-tap', 'game');
     await expect(gd).toHaveAttribute('data-dest', /^\/v3\/game\/nfl\/evt_/);
     await tapAndBack(page, gd, /^\/v3\/game\/nfl\/evt_/);
     expect(await hash(page)).toBe(before);
-    await expect(page.locator('.st-obs [data-obs][aria-pressed="true"]')).toHaveCount(1);
+    await expect(page.locator('.st-obs [data-obs][data-on="true"]')).toHaveCount(1);
+    await expect(page.locator('.st-olr.is-on')).toHaveCount(1);
     const opp = page.locator('.st-obc a[data-tap="team"]');
     await tapAndBack(page, opp, /^\/v3\/team\/nfl\/[A-Z]+/);
   });

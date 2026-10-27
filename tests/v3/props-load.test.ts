@@ -129,6 +129,14 @@ describe('the universe is published in prefixes', () => {
     expect(seen).toEqual([true]);
   });
 
+  it('never publishes a prefix shorter than the one already on screen (Back re-reads the same games)', async () => {
+    const games = [game('g1', 1), game('g2', 2), game('g3', 3), game('g4', 4)];
+    const seen: number[] = [];
+    await loadProgressive(games, { concurrency: 1, throttleMs: 0, minLoaded: 3, read: async (g) => gr(g), onUpdate: (p) => seen.push(p.loaded) });
+    expect(seen.every((n) => n >= 3)).toBe(true);
+    expect(seen.at(-1)).toBe(4);
+  });
+
   it('stops reading when the viewer leaves (abort) and publishes nothing further', async () => {
     const games = [game('g1', 1), game('g2', 2), game('g3', 3)];
     const ctl = new AbortController();

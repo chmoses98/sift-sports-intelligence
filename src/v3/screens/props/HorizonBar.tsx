@@ -11,7 +11,7 @@ export function horizonStatus(s: Pick<UniverseState, 'horizon' | 'counts' | 'uni
   const extraBytes = (x: Horizon) => counts[x].bytes - counts['48h'].bytes;
   const cap = omitted > 0 ? ` Showing the soonest ${MAX_GAMES} of ${MAX_GAMES + omitted} games.` : '';
   if (reading && u) {
-    const cost = h === '48h' ? '' : ` The ${extraGames(h)} games beyond 48 hours are about ${costText(extraBytes(h))}, read soonest first.`;
+    const cost = h === '48h' ? '' : ` Beyond 48 hours: ${extraGames(h)} games, about ${costText(extraBytes(h))}.`;
     return `Reading games: ${u.gamesLoaded} of ${u.gamesTotal}. Counts and order cover the soonest ${u.gamesLoaded} for now.${cost}${cap}`;
   }
   if (reading) return `Reading the games starting within ${HORIZON_LABEL[h].toLowerCase()}…`;
@@ -40,7 +40,8 @@ export function HorizonBar({ state, onChange }: { state: UniverseState; onChange
         })}
       </div>
       <p className="pd-hz__st" role="status" aria-live="polite" aria-busy={reading}>{horizonStatus(state)}</p>
-      {pct != null && <div className="pd-hz__bar" role="progressbar" aria-label="Games read" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: `${pct}%` }} /></div>}
+      {/* always present (hidden when idle) so the list below does not move when the games finish loading */}
+      <div className="pd-hz__bar" style={{ visibility: pct == null ? 'hidden' : 'visible' }} {...(pct == null ? { 'aria-hidden': true } : { role: 'progressbar', 'aria-label': 'Games read', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': pct })}><i style={{ width: `${pct ?? 0}%` }} /></div>
     </section>
   );
 }

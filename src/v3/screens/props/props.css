@@ -278,7 +278,7 @@
 .v3 .pd-hz__seg button[aria-pressed='true'] { background: rgba(25, 205, 224, 0.1); border-color: rgba(25, 205, 224, 0.45); color: #5fe0ee; }
 .v3 .pd-hz__seg button[aria-pressed='true'] small { color: #5fe0ee; opacity: 0.8; }
 .v3 .pd-hz__seg button:focus-visible { outline: 2px solid var(--sift-cyan); outline-offset: 1px; }
-.v3 .pd-hz__st { margin: 6px 0 0; font: 400 11.5px/15px var(--f-ui); color: var(--sift-dim); }
+.v3 .pd-hz__st { margin: 6px 0 0; min-height: 30px; font: 400 11.5px/15px var(--f-ui); color: var(--sift-dim); }
 .v3 .pd-hz__bar { height: 3px; margin-top: 6px; border-radius: 2px; background: #1f242b; overflow: hidden; }
 .v3 .pd-hz__bar i { display: block; height: 100%; background: var(--sift-cyan); transition: width 0.25s ease; }
 

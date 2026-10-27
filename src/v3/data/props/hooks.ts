@@ -57,7 +57,7 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
     if (!key || demo) return;
     if (held?.complete && !anyStale(games)) { setProg({ key, p: held }); return; }
     const ctl = new AbortController();
-    void loadProgressive(games, { signal: ctl.signal, onUpdate: (p) => setProg({ key, p }) });
+    void loadProgressive(games, { signal: ctl.signal, minLoaded: held?.loaded ?? 0, onUpdate: (p) => setProg({ key, p }) });
     return () => ctl.abort();
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   // A universe on screen for longer than the research clock allows is re-read in the background and replaced whole (never by a prefix).

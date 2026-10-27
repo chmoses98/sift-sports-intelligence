@@ -55,10 +55,10 @@ test('the first screen of the list stays inside its document and byte budget', a
   expect(by['game-log'] ?? 0, 'no player game log is read for the first screen').toBe(0);
   // 22 games start inside 48 hours in this capture: one contract document each, never more.
   expect(by.contracts ?? 0).toBeLessThanOrEqual(24);
-  expect(own.length, 'documents Prop Discovery reads itself').toBeLessThanOrEqual(40);
-  expect(wire(own), 'wire bytes of those documents').toBeLessThanOrEqual(1_000_000);
-  expect(docs.length, 'every document, shell included').toBeLessThanOrEqual(75);
-  expect(bytes, 'every document, shell included').toBeLessThanOrEqual(1_900_000);
+  expect(own.length, 'documents Prop Discovery reads itself').toBeLessThanOrEqual(34);
+  expect(wire(own), 'wire bytes of those documents').toBeLessThanOrEqual(800_000);
+  expect(docs.length, 'every document, shell included').toBeLessThanOrEqual(70);
+  expect(bytes, 'every document, shell included').toBeLessThanOrEqual(1_800_000);
   // No document is read twice.
   expect(log.served.length - docs.length).toBeLessThanOrEqual(2);
 });
@@ -74,8 +74,8 @@ test('the first screen of the home stays inside the same budget', async ({ page 
   console.log(JSON.stringify({ documents: docs.length, propsOwn: own.length, propsOwnKB: Math.round(wire(own) / 1024), by }));
   expect(by.availability ?? 0, 'availability for the shelf candidates only').toBeLessThanOrEqual(10);
   expect(by['game-log'] ?? 0).toBeLessThanOrEqual(8);
-  expect(own.length).toBeLessThanOrEqual(46);
-  expect(wire(own)).toBeLessThanOrEqual(1_150_000);
+  expect(own.length).toBeLessThanOrEqual(40);
+  expect(wire(own)).toBeLessThanOrEqual(800_000);
 });
 
 test('a longer horizon reads only the extra games, once each, and says what it costs', async ({ page }) => {

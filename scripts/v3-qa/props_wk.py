@@ -31,7 +31,15 @@ def run(w, h):
         ActionChains(q.d).move_to_element_with_offset(els[i], int(w / 2 - 34), int(h / 2 - 14)).click().perform(); q.wait(wait)
     def wait_for(css, secs=60):
         for _ in range(int(secs * 2)):
-            if count(css): return True
+            if count(css):
+                # Games are read soonest first and the list grows as they arrive (and scroll restoration waits for the page to be tall enough):
+                # a tap before the horizon says it has read every game would land on a list that is still changing.
+                if css in ('.pd-row', '.pd-card'):
+                    for _ in range(int(secs * 2)):
+                        if not q.js('var s = document.querySelector(".pd-hz__st"); return !!s && /^Reading/.test(s.textContent)'): break
+                        q.wait(0.5)
+                    q.wait(0.5)
+                return True
             q.wait(0.5)
         return False
     tag = f'[{w}x{h}] '
@@ -111,6 +119,7 @@ def run(w, h):
         q.js('history.back()'); q.wait(1.5)
         check(tag + 'Back restores the selections', count('.pd-tray') == 1 and 'cmp=' in H(), H())
     except Exception as e:
+        import traceback; traceback.print_exc()
         check(tag + 'no exception', False, repr(e))
     finally:
         q.close()

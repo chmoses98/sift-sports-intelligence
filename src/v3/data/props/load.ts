@@ -154,7 +154,7 @@ async function readDetail(repo: SportRepo, g: V3Game, retain: boolean): Promise<
 export function loadGame(g: V3Game, now = Date.now()): Promise<GameResult> {
   return memoize(gameMemo, g.key, async () => {
     const label = `${g.away.abbr} at ${g.home.abbr}`;
-    const bad = (): GameResult => ({ eventId: g.eventId, key: g.key, startMs: g.startMs, props: [], unreadable: label, gap: false });
+    const bad = (): GameResult => { const r: GameResult = { eventId: g.eventId, key: g.key, startMs: g.startMs, props: [], unreadable: label, gap: false }; gameDone.set(g.key, { ...r, at: Date.now() }); return r; };
     const repo = await sportRepo(g.slug);
     if (!repo) return bad();
     const retain = g.startMs - now <= PROP_HORIZON_MS;
@@ -221,6 +221,8 @@ export interface LoadOptions {
   partial?: boolean;
   /** Minimum spacing between published prefixes (default 600 ms); the first and the last are never delayed. */
   throttleMs?: number;
+  /** Publish nothing smaller than this many games (a screen already drawing a longer prefix must not shrink while the same games are re-read). */
+  minLoaded?: number;
   /** How one game is read (tests inject a fake; the default is `loadGame`). */
   read?: (g: V3Game) => Promise<GameResult>;
 }
@@ -241,7 +243,7 @@ export async function loadProgressive(games: V3Game[], o: LoadOptions = {}): Pro
     if (o.signal?.aborted) return;
     const n = publishablePrefix(starts, read);
     const complete = n === total;
-    if (n === published || (n === 0 && !complete)) return;
+    if (n === published || (n === 0 && !complete) || (n < (o.minLoaded ?? 0) && !complete)) return;
     if (!partial && !complete) return;
     const wait = lastAt + throttle - Date.now();
     if (!force && !complete && published >= 0 && wait > 0) {

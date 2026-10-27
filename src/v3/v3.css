@@ -107,7 +107,8 @@
 .v3-bell.is-on { color: var(--sift-cyan); }
 .v3-bell__dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--sift-cyan); box-shadow: 0 0 0 2px #101215; }
 
-.v3-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 calc(var(--pad) * -1); padding: 2px var(--pad); -webkit-overflow-scrolling: touch; }
+/* Rows of chips are ChipRail (ui/rail.css): one non-wrapping, snapping, scrolling row. The 5px above and below the 34-36px chips keep their 44 pt hit area inside the scroll box. */
+.v3-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: -3px calc(var(--pad) * -1); padding: 5px var(--pad); -webkit-overflow-scrolling: touch; }
 .v3-chips::-webkit-scrollbar { display: none; }
 .v3-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 999px; background: rgba(21, 24, 27, 0.82); border: 1px solid rgba(47, 54, 62, 0.9);
   color: #e7e9ec; font: 500 14px/1 var(--f-ui); white-space: nowrap; }

@@ -7,6 +7,7 @@ import { sportBySlug } from '../../data/sports';
 import { heroTeam } from '../../lib/hero/input';
 import { demoOn } from '../state/prefs';
 import { useSlate } from './useSlate';
+import { weekdayClock } from '../model/time';
 import type { V3Game, V3Team } from '../model/types';
 
 export const EXPLORER_SPORTS = ['nfl', 'nba', 'nhl', 'mlb'] as const;
@@ -70,7 +71,7 @@ export function useSearchHits(query: string, sport: string | 'all', cat: 'all' |
         if (s) out.push({ kind: 'team', key: k, slug: t.slug, title: t.name, subtitle: `${t.sport === 'CFB' ? 'NCAAF' : t.sport} · team`, route: `/v3/team/${t.slug}/${encodeURIComponent(t.id)}`, team: t, rank: s });
       }
       const s = score(q, `${g.away.name} ${g.home.name} ${g.away.abbr} ${g.home.abbr}`, [`${g.away.nick} ${g.home.nick}`]);
-      if (s) out.push({ kind: 'game', key: g.key, slug: g.slug, title: `${g.away.nick} at ${g.home.nick}`, subtitle: `${g.sport === 'CFB' ? 'NCAAF' : g.sport} · ${g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Final' : new Date(g.startMs).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}`, route: `/v3/game/${g.slug}/${encodeURIComponent(g.eventId)}`, game: g, rank: s - (g.phase === 'final' ? 8 : 0) });
+      if (s) out.push({ kind: 'game', key: g.key, slug: g.slug, title: `${g.away.nick} at ${g.home.nick}`, subtitle: `${g.sport === 'CFB' ? 'NCAAF' : g.sport} · ${g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Final' : weekdayClock(g.startMs)}`, route: `/v3/game/${g.slug}/${encodeURIComponent(g.eventId)}`, game: g, rank: s - (g.phase === 'final' ? 8 : 0) });
     }
     const seenMetric = new Set<string>();
     for (const slug of EXPLORER_SPORTS) {

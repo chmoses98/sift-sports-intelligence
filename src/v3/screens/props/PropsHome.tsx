@@ -11,6 +11,8 @@ import type { Price } from '../../model/types';
 import { useNow } from '../../../live/hooks';
 import { routes } from '../../nav/routes';
 import { PropsLink } from '../../nav/Targets';
+import { monthDay, weekdayShort } from '../../model/time';
+import { ChipRail } from '../../ui/ChipRail';
 import { Icon } from '../../ui/Icon';
 import { usePublishContracts } from './contracts';
 import { Avatar, lanesFor, Mark, NameLine, OppChip, PricePill, type Lanes } from './parts';
@@ -24,11 +26,7 @@ export function withOnce(route: string, key: 'focus' | 'filters'): string {
   return `${path}?${q}`;
 }
 
-const dayWord = (ms: number) => {
-  const d = new Date(ms);
-  const wd = d.toLocaleDateString(undefined, { weekday: 'short' }), mo = d.toLocaleDateString(undefined, { month: 'short' });
-  return `${wd} ${mo} ${d.getDate()}`;
-};
+const dayWord = (ms: number) => `${weekdayShort(ms)} ${monthDay(ms)}`;
 
 function Card({ p, lanes, price, m }: { p: Prop; lanes: Lanes; price: Price | null; m: Matchup | null }) {
   const r = rungFor(p, null);
@@ -90,13 +88,13 @@ export function PropsHome({ universe }: { universe: Universe }) {
         <div className="pd-h__sub">{dayWord(now)} · {s.games} game{s.games === 1 ? '' : 's'} · {s.props} props · {s.contracts} contracts</div>
       </header>
       <Link to={withOnce(routes.props({ view: 'list' }), 'focus')} className="pd-field" aria-label="Search player, stat or team" data-tap="props"><Icon name="search" size={20} /><span>Search player, stat or team</span></Link>
-      <nav className="pd-rail" aria-label="Sport">
+      <ChipRail as="nav" className="pd-rail" aria-label="Sport">
         <PropsLink state={{ view: 'list' }} className="is-on" label={`All sports, ${s.props} props`}>All <b>{s.props}</b></PropsLink>
         {rail.sports.map((x) => <PropsLink key={x.slug} state={{ view: 'list', sport: x.slug }} label={`${x.label}, ${x.n} props`}>{x.label} <b>{x.n}</b></PropsLink>)}
-      </nav>
-      <nav className="pd-fams" aria-label="Statistic">
+      </ChipRail>
+      <ChipRail as="nav" className="pd-fams" aria-label="Statistic">
         {rail.fams.map((x) => <PropsLink key={x.fam} state={{ view: 'list', fam: x.fam }} label={`${x.label}, ${x.n} props`}>{x.label} <b>{x.n}</b></PropsLink>)}
-      </nav>
+      </ChipRail>
       <Shelf title="SIFT model published" sub={`${model.total} of ${s.props} props today${model.scope ? ` · ${model.scope}` : ''}`} preset="model" rows={model.rows} cardOf={cardOf}
         empty="No approved SIFT model estimate is published for any prop today. The lane shows “—” and says why." />
       {bottom.total > 0 && <Shelf title="Facing a bottom-3 defense" sub={`${bottom.total} props · near-even prices first`} preset="bottom3" rows={bottom.rows} cardOf={cardOf} empty="No prop is priced near even against a bottom-3 unit right now." />}

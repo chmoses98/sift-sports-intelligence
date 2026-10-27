@@ -7,10 +7,11 @@ import { useGameExtras } from '../data/useGameExtras';
 import { useGameResearch } from '../../views/broadcast/parts';
 import { demoLens, lensFromResearch } from '../data/lens';
 import { pickFeatured, stripGames } from '../model/feature';
-import { clockTime, dayWord } from '../model/format';
+import { clockTime, dayWord } from '../model/time';
 import { setPrefs, toggleFollow, useAlerts, useFollows, usePrefs } from '../state/prefs';
 import type { V3Game, V3Team } from '../model/types';
 import { Brand } from '../ui/Brand';
+import { ChipRail } from '../ui/ChipRail';
 import { HeroBg } from '../ui/HeroBg';
 import { Icon } from '../ui/Icon';
 import { LensSlot } from '../ui/Lens';
@@ -41,6 +42,7 @@ function BellSheet() {
 }
 
 function ScoreTile({ g }: { g: V3Game }) {
+  const { now } = useSlate();
   const live = g.phase === 'live';
   const scored = g.score != null;
   return (
@@ -50,12 +52,13 @@ function ScoreTile({ g }: { g: V3Game }) {
         <span key={t.id} className="v3-tile__r"><TeamLogo team={t} size={20} /><b>{t.abbr}</b>{scored && <em className="num">{i === 0 ? g.score!.away : g.score!.home}</em>}</span>
       ))}
       {live && <span className="v3-tile__f">{g.score?.clock ?? 'In play'}</span>}
-      {!live && g.phase === 'pregame' && <span className="v3-tile__f">{dayWord(g.startMs)}</span>}
+      {!live && g.phase === 'pregame' && <span className="v3-tile__f">{dayWord(g.startMs, now)}</span>}
     </Link>
   );
 }
 
 function Featured({ base }: { base: V3Game }) {
+  const { now } = useSlate();
   const x = useGameExtras(base, 'full');
   const g = x?.game ?? base;
   const research = useGameResearch(g.provenance === 'publication' ? g.slug : null, g.provenance === 'publication' ? g.eventId : null);
@@ -67,7 +70,7 @@ function Featured({ base }: { base: V3Game }) {
       <HeroBg g={g} />
       <Link to={gameHref(g)} className="v3-feat__hit" aria-label={`${g.away.name} ${g.phase === 'pregame' ? 'at' : 'versus'} ${g.home.name}. Open game`} />
       <header className="v3-feat__top">
-        {live ? <span className="v3-livebadge">LIVE</span> : <span className="v3-feat__chip">{g.phase === 'final' ? 'FINAL' : dayWord(g.startMs).toUpperCase()}</span>}
+        {live ? <span className="v3-livebadge">LIVE</span> : <span className="v3-feat__chip">{g.phase === 'final' ? 'FINAL' : dayWord(g.startMs, now).toUpperCase()}</span>}
         <span className="v3-feat__clock">{live ? g.score?.clock ?? 'In play' : g.phase === 'final' ? '' : clockTime(g.startMs)}</span>
         <span className="v3-feat__net">{g.network ?? leagueLabel(g)}</span>
       </header>
@@ -163,10 +166,10 @@ export function Home() {
         </button>
       </header>
 
-      <div className="v3-chips v3-chips--home" role="group" aria-label="Sport">
+      <ChipRail className="v3-chips v3-chips--home" role="group" aria-label="Sport">
         <button type="button" className="v3-chip" aria-pressed={sport === 'foryou'} onClick={() => setSport('foryou')}>For You</button>
         {sports.map((s) => <button key={s.slug} type="button" className="v3-chip" aria-pressed={sport === s.slug} onClick={() => setSport(s.slug)}>{s.label}</button>)}
-      </div>
+      </ChipRail>
 
       {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}

@@ -163,7 +163,9 @@ function TeamResearch() {
   const { first, last } = splitName(team.name);
   const unknownTeam = !demo && capOk && !ti.loading && ti.teams.length > 0 && !ti.byCode.has(code);
   // A document that could not be read is not a missing team or an empty record: the screen says which, and offers Retry.
-  const failed = !demo && capOk && !research.profile && !research.loading && research.failure != null;
+  // No explorer at all for the sport (the publication lists none, or the index could not be read): say so rather than keep a skeleton.
+  const noResearch = !demo && capOk && !rr.loading && !rr.explorer;
+  const failed = !demo && capOk && !research.profile && !research.loading && (research.failure != null || noResearch);
 
   const bar = (
     <>
@@ -214,7 +216,7 @@ function TeamResearch() {
       )}
       <div className="tm-tabs"><Tabs tabs={tabs.map((t) => ({ key: t, label: TAB_LABEL[t] }))} value={tab} onChange={(k) => set({ tab: k, all: false, exp: [] })} label="Team sections" /></div>
       {failed ? (
-        <div className="tm-body"><DataState title="Team statistics unavailable" err={research.failure} retry={research.retry} alert>This team's research</DataState></div>
+        <div className="tm-body"><DataState title="Team statistics unavailable" err={research.failure ?? new Error('not published')} retry={research.retry} alert>This team's research</DataState></div>
       ) : unknownTeam ? (
         <div className="tm-body"><div className="v3-state" role="note"><Icon name="info" size={20} /><div><b>Team not found</b>The publication has no team with the code {code} for {leagueLabel({ sport: team.sport })}.</div></div></div>
       ) : !tabOk ? (

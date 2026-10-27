@@ -28,6 +28,7 @@ export function WinPrices({ ctx }: { ctx: GameCtx }) {
   const wins = useWinContracts(ctx);
   const ask = useGatedAsk(g, ctx.detail, ctx.startMs, wins.map((w) => w.ticker));
   if (g.phase === 'final') return null;
+  if (g.provenance === 'publication' && !ctx.detail && ctx.detailError) return null; // the market-prices state on the Overview says why (screens/GameTabs.tsx)
   if (g.provenance === 'publication' && !ctx.detail) return <div className="x-card mx-sec"><div className="mx-sh"><h2>Win price</h2></div><div className="v3-skel" style={{ height: 58 }} role="status" aria-label="Loading win price" /></div>;
   return (
     <div className="x-card mx-sec" role="region" aria-label="Win price" data-testid="win-price">
@@ -102,6 +103,7 @@ export function PropsRow({ ctx }: { ctx: GameCtx }) {
   const players = useMemo(() => new Set(rows.map((r) => r.playerId ?? r.player)).size, [rows]);
   if (g.phase === 'final') return null;
   if (g.provenance === 'publication' && detail && rows.length === 0) return null;
+  if (g.provenance === 'publication' && !detail && ctx.detailError) return null;
   const sub = g.provenance === 'demo' ? 'Sample props' : detail ? `${rows.length} props across ${players} players` : 'Loading props';
   return (
     <PropsLink state={{ game: g.eventId }} className="x-card mx-prow" label={`Props in this game: ${sub}`}>

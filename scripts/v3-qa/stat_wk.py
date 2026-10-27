@@ -74,13 +74,22 @@ try:
     q.open('/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL', settle=4)
     check('W15 Trend draws 12 bars', until('.st-obs svg [data-obs]') and count('.st-obs svg [data-obs]') == 12, count('.st-obs svg [data-obs]'))
     n0 = q.js('return history.length')
-    click('.st-obs svg [data-obs="8"] rect', 1, wait=0.8)  # SVG elements have no .click(): a real (WebDriver) tap on the bar
+    click('.st-obs svg [data-obs="8"] rect', 1, wait=0.8)  # SVG elements have no .click(): a real (WebDriver) tap on the bar (the hit area sits under it; the page-level handler is the same)
     check('W16 bar tap selects an observation in place', 'obs=' in H() and q.js('return history.length') == n0, (H(), n0))
     h0 = H()
     click('.st-obc a[data-tap="game"]', wait=1.8)
     check('W17 Game Detail opens a completed game', '/v3/game/nfl/evt_' in H(), H())
     q.js('history.back()'); q.wait(2.0)
-    check('W18 Back restores Trend with the selected bar', H() == h0 and count('.st-obs [data-obs][aria-pressed="true"]') == 1, (h0, H()))
+    check('W18 Back restores Trend with the selected bar', H() == h0 and count('.st-obs [data-obs][data-on="true"]') == 1 and count('.st-olr.is-on') == 1, (h0, H()))
+    # the observation list: a labelled list of the same observations, a row selects the same observation in place (history replaced), the result link opens the game
+    check('W18a Trend lists the 12 observations as a labelled list with 44 pt rows', count('[data-obs-list] ul[aria-label] > li') == 12 and q.js('return Array.from(document.querySelectorAll(".st-olr")).every(function(r){return r.getBoundingClientRect().height >= 43.5})'), count('[data-obs-list] li'))
+    n1 = q.js('return history.length')
+    click('[data-obs-row] .st-olr__sel', 4, wait=0.8)
+    check('W18b a list row selects that observation in place (obs= in the address, history replaced)', q.js('return history.length') == n1 and 'obs=' in H() and count('.st-obs [data-obs="7"][data-on="true"]') == 1 and count('.st-olr.is-on') == 1, (H(), q.js('return history.length'), n1))
+    click('[data-obs-row] a[data-tap="game"]', 4, wait=1.8)
+    check('W18c the row\'s result link opens that completed game', '/v3/game/nfl/evt_' in H(), H())
+    q.js('history.back()'); q.wait(2.0)
+    check('W18d Back restores the row-selected observation', 'obs=' in H() and count('.st-olr.is-on') == 1 and count('.st-obs [data-obs="7"][data-on="true"]') == 1, H())
 
     # ---------- 5. Compare: sheet closes on pick, picks in the address
     q.open(f'{ADJ}?v=1&tab=compare&sel=DAL&opp=PHI', settle=4)

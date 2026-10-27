@@ -16,7 +16,8 @@ export function Welcome({ games }: { games: V3Game[] }) {
   }, [games]);
   return (
     <div className="v3-welcome">
-      <p className="v3-welcome__p">Live games, team and player research, and the real market price behind it, one tap apart. No account. No alerts unless you ask. SIFT shows research, never a pick.</p>
+      <p className="v3-welcome__p">SIFT connects sports and market intelligence: schedules, team and player research, Kalshi prices and observed history, one tap apart.</p>
+      <p className="v3-welcome__p v3-welcome__p--sub">We are building toward surfacing validated betting opportunities as the evidence earns them. Today SIFT shows research, prices and history, and model estimates only where they have passed validation. No account. No alerts unless you ask.</p>
       {teams.length > 0 && (
         <>
           <h3 className="v3-lens__k">Follow a few teams (optional)</h3>

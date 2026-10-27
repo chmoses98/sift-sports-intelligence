@@ -43,13 +43,4 @@ export function signed(n: number): string {
   return `${n > 0 ? '+' : '−'}${Math.abs(n)}`;
 }
 
-export const clockTime = (ms: number) => (Number.isFinite(ms) ? new Date(ms).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : 'TBD');
-export const dayWord = (ms: number, now = Date.now()) => {
-  const d = new Date(ms), n = new Date(now);
-  const k = (x: Date) => x.getFullYear() * 400 + x.getMonth() * 32 + x.getDate();
-  const diff = k(d) - k(n);
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Tomorrow';
-  if (diff === -1) return 'Yesterday';
-  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-};
+// Start-time formatting (clock time, day word, dates) lives in ./time.ts: one module, the viewer's local zone.

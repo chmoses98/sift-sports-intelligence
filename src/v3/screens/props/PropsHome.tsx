@@ -13,6 +13,8 @@ import type { Price } from '../../model/types';
 import { useNow } from '../../../live/hooks';
 import { routes } from '../../nav/routes';
 import { PropsLink } from '../../nav/Targets';
+import { monthDay, weekdayShort } from '../../model/time';
+import { ChipRail } from '../../ui/ChipRail';
 import { Icon } from '../../ui/Icon';
 import { usePublishContracts } from './contracts';
 import { HorizonBar } from './HorizonBar';
@@ -27,11 +29,7 @@ export function withOnce(route: string, key: 'focus' | 'filters'): string {
   return `${path}?${q}`;
 }
 
-const dayWord = (ms: number) => {
-  const d = new Date(ms);
-  const wd = d.toLocaleDateString(undefined, { weekday: 'short' }), mo = d.toLocaleDateString(undefined, { month: 'short' });
-  return `${wd} ${mo} ${d.getDate()}`;
-};
+const dayWord = (ms: number) => `${weekdayShort(ms)} ${monthDay(ms)}`;
 
 function Card({ p, lanes, price, chip }: { p: Prop; lanes: Lanes; price: Price | null; chip: ChipState }) {
   const r = rungFor(p, null);
@@ -102,13 +100,13 @@ export function PropsHome({ us, onHorizon }: { us: UniverseState; onHorizon: (h:
       </header>
       <Link to={withOnce(routes.props({ view: 'list' }), 'focus')} className="pd-field" aria-label="Search player, stat or team" data-tap="props"><Icon name="search" size={20} /><span>Search player, stat or team</span></Link>
       <HorizonBar state={us} onChange={onHorizon} />
-      <nav className="pd-rail" aria-label="Sport">
+      <ChipRail as="nav" className="pd-rail" aria-label="Sport">
         <PropsLink state={{ view: 'list' }} className="is-on" label={`All sports, ${s.props} props`}>All <b>{s.props}</b></PropsLink>
         {rail.sports.map((x) => <PropsLink key={x.slug} state={{ view: 'list', sport: x.slug }} label={`${x.label}, ${x.n} props`}>{x.label} <b>{x.n}</b></PropsLink>)}
-      </nav>
-      <nav className="pd-fams" aria-label="Statistic">
+      </ChipRail>
+      <ChipRail as="nav" className="pd-fams" aria-label="Statistic">
         {rail.fams.map((x) => <PropsLink key={x.fam} state={{ view: 'list', fam: x.fam }} label={`${x.label}, ${x.n} props`}>{x.label} <b>{x.n}</b></PropsLink>)}
-      </nav>
+      </ChipRail>
       <Shelf title="SIFT model published" sub={`${model.total} of ${s.props} props today${model.scope ? ` · ${model.scope}` : ''}`} preset="model" rows={model.rows} cardOf={cardOf}
         empty="No approved SIFT model estimate is published for any prop today. The lane shows “—” and says why." />
       {ranksWait ? (

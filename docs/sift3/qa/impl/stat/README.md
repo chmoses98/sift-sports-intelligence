@@ -25,6 +25,13 @@ captures of the implementation alongside. Captured from the dev server on REAL p
    from SD1 the way in is a "Side by side" link on the note line. The mockups do not draw that entry point.
 4. Compare players: the dashed-line stepper buttons are 44 pt wide (hit-area rule) and so a little larger than the mockup's.
 5. 375 pt width: the Compare chips row wraps the Teams/Players switch under the chips (the mockup is drawn at 390 only).
-6. Trend: the 12 bars are 27 pt wide each (338 pt shared by 12 columns); the column is the whole 167 pt tall, so the tap target is
-   27 x 167, not 44 x 44. Bars cannot be wider without scrolling the chart.
+6. Trend (hardening H-C): the chart is unchanged at rest (12 bars about 27 pt wide each, at 390 and 375; the 17-game season cut about 19 pt), so the
+   comparison image above is the locked look. A 44 x 44 pt target per bar is geometrically impossible in 338 pt without changing the chart, so the owner's
+   choice was touch scrubbing instead of a scrolling chart: the chart is one touch surface cut into equal, gap-free columns each as tall as the chart
+   (`touch-action: pan-y`); a press previews the nearest column (lit bar, a readout pill, the details card), a sideways drag follows the finger, lifting
+   keeps the column, and a vertical page scroll cancels without selecting. The guaranteed 44 pt path is the new "Game by game" list at the bottom of the
+   tab (date, week, value, opponent link, result link to Game Detail; rows 44 pt tall; selecting a row selects the same observation as the chart).
+   Two additions the locked mockup does not draw: the transient readout pill (only while a finger or mouse is down, see
+   `sd2-trend-390x844-pressed-readout-impl.png`) and the list (`sd2-trend-390x844-observation-list-impl.png`). The chart is now hidden from assistive
+   technology and has no focusable parts; the list is its keyboard and screen-reader equivalent.
 7. About (SD6): derived related statistics carry a small type tag (Component, Raw version, ...) under the name; the mockup rows have none.

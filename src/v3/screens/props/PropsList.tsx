@@ -16,6 +16,7 @@ import { findSaved } from '../../model/saved';
 import { routes } from '../../nav/routes';
 import { PropsLink } from '../../nav/Targets';
 import { removeSaved, saveResearch, useSaved } from '../../state/prefs';
+import { ChipRail } from '../../ui/ChipRail';
 import { Icon } from '../../ui/Icon';
 import { useSheet } from '../../ui/Sheet';
 import { useQueryPatch } from '../../state/url';
@@ -71,9 +72,9 @@ function ActiveChips({ st, set, hiddenN, game }: { st: ListState; set: SetState;
   if (st.q) chips.push(['q', `“${st.q}”`, () => set({ q: null })]);
   if (!chips.length) return null;
   return (
-    <div className="pd-act" aria-label="Active filters">
+    <ChipRail className="pd-act" role="group" aria-label="Active filters">
       {chips.map(([k, label, clear]) => <button key={k} type="button" onClick={clear} aria-label={`Remove ${label}`}>{label}<Icon name="close" size={12} /></button>)}
-    </div>
+    </ChipRail>
   );
 }
 
@@ -269,11 +270,11 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
         {text && <button type="button" aria-label="Clear search" onClick={() => onText('')}><Icon name="close" size={16} /></button>}
       </label>
       <HorizonBar state={us} onChange={(hz) => set({ hz })} />
-      <div className="pd-ctrl">
+      <ChipRail className="pd-ctrl" role="group" aria-label="Sort, filters and compare">
         <button type="button" className="pd-btn pd-btn--sort" onClick={openFilters} aria-label={`Sort: ${SORT_LABEL[sort]}. Open sort and filters`}><Icon name="sliders" size={13} />Sort: {SORT_LABEL[sort]}<b>▾</b></button>
         <button type="button" className="pd-btn" onClick={openFilters} aria-label={`Filters${nFilters ? `, ${nFilters} applied` : ''}`}>Filters{nFilters > 0 && <i className="pd-badge">{nFilters}</i>}</button>
         <button type="button" className="pd-btn" aria-pressed={st.cmpm} onClick={() => set({ cmpm: !st.cmpm })}>Compare{cmp.length ? ` · ${cmp.length}` : ''}</button>
-      </div>
+      </ChipRail>
       <ActiveChips st={st} set={set} hiddenN={hiddenN} game={gameProp} />
       <div className="pd-leg" aria-label="Lane key"><span>Market <Mark lane="m" /> pre-fee implied</span><span>History <Mark lane="h" /> last 10</span><span>SIFT model <Mark lane="z" /></span></div>
       <div className="pd-note"><Icon name="info" size={13} /><p>SIFT model shows “—” where no approved estimate exists: {published} of {universe.props.length} props today.</p></div>

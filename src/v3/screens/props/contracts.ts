@@ -8,13 +8,12 @@ import type { BankEntry } from '../../data/props/bank';
 import { hitCount } from '../../data/props/history';
 import { historyStateOf, rawPrice } from '../../data/props/hooks';
 import type { Prop } from '../../data/props/types';
-import { clockTime } from '../../model/format';
+import { weekdayClock } from '../../model/time';
 import { routes } from '../../nav/routes';
 import { publishContracts, type ContractInfo } from '../../ui/ContractSheet';
 import { playerRef, playerState } from './parts';
 
-const whens = new Map<number, string>();
-const when = (ms: number) => { let w = whens.get(ms); if (w === undefined) { w = `${new Date(ms).toLocaleDateString(undefined, { weekday: 'short' })} ${clockTime(ms)}`; whens.set(ms, w); } return w; };
+const when = (ms: number) => weekdayClock(ms);
 
 /** The same address with the sheet closed (a link to it replaces the sheet's entry, so Back lands on the screen underneath). */
 export function addressWithoutSheet(pathname: string, search: string): string {
@@ -36,7 +35,7 @@ export function contractsOf(p: Prop, get: (key: string) => BankEntry | undefined
   return p.rungs.map((r) => ({
     ticker: r.ticker,
     title: `${p.name}: ${r.k}+ ${word}`,
-    subtitle: `${p.away.abbr} at ${p.home.abbr} · ${when(p.startMs)} · Kalshi YES`,
+    subtitle: `${p.away.abbr} at ${p.home.abbr}${when(p.startMs) ? ` · ${when(p.startMs)}` : ''} · Kalshi YES`,
     price: rawPrice(p, r, undefined),
     startMs: p.startMs, live: false, neighbours, note,
     actions: [

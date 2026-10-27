@@ -6,6 +6,7 @@ import { useQuotedPrices } from '../data/research/gameHooks';
 import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
 import type { MarketLine, Price, V3Game } from '../model/types';
+import { ChipRail } from '../ui/ChipRail';
 import { Icon } from '../ui/Icon';
 import { GameStories } from '../ui/Stories';
 import { TeamLogo } from '../ui/TeamLogo';
@@ -213,10 +214,10 @@ function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; d
   return (
     <section aria-label="Player props">
       <h2 className="v3-h2">Player Props</h2>
-      <div className="v3-chips" role="group" aria-label="Stat">
+      <ChipRail className="v3-chips" role="group" aria-label="Stat">
         <button type="button" className="v3-chip" aria-pressed={!stat} onClick={() => setStat(null)}>All</button>
         {stats.map((s) => <button key={s} type="button" className="v3-chip" aria-pressed={stat === s} onClick={() => setStat(s)}>{s}</button>)}
-      </div>
+      </ChipRail>
       <ul className="v3-props">
         {shown.map((r) => (
           <li key={r.key}>

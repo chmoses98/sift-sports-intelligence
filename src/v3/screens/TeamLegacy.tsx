@@ -5,9 +5,10 @@ import { Link, useNavigate, useParams, useSearchParams } from '../../routing';
 import { useQueryPatch } from '../state/url';
 import { useTeamVM, type MetricGroup, type MetricRow } from '../data/useTeam';
 import { teamPhoto } from '../data/adapt';
-import { clockTime, dayWord } from '../model/format';
+import { clockTime, dayWord, weekdayShort } from '../model/time';
 import { demoOn, pushVisit, useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
+import { ChipRail } from '../ui/ChipRail';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { HeroBg } from '../ui/HeroBg';
 import { Icon } from '../ui/Icon';
@@ -33,9 +34,9 @@ function StatsTab({ metrics, why }: { metrics: MetricRow[]; why?: string }) {
   const rows = metrics.filter((m) => m.group === cur);
   return (
     <section aria-label="Team statistics">
-      <div className="v3-chips" role="group" aria-label="Statistic group">
+      <ChipRail className="v3-chips" role="group" aria-label="Statistic group">
         {groups.map((x) => <button key={x} type="button" className="v3-chip" aria-pressed={cur === x} onClick={() => setG(x)}>{GROUP_LABEL[x]}</button>)}
-      </div>
+      </ChipRail>
       <h2 className="v3-h2">Key Metrics</h2>
       <table className="v3-tbl v3-tbl--stats">
         <thead><tr><th scope="col">Stat</th><th scope="col">Value</th><th scope="col">{cur === 'adjusted' ? 'Adj. rank' : 'Rank'}</th></tr></thead>
@@ -123,7 +124,7 @@ export function TeamLegacy() {
         {tab === 'overview' && (
           <>
             <section className="v3-panel v3-next" aria-label="Next game">
-              <header><h2>Next Game</h2>{next && <span>{dayWord(next.startMs)} · {clockTime(next.startMs)}</span>}</header>
+              <header><h2>Next Game</h2>{next && dayWord(next.startMs) && <span>{dayWord(next.startMs)} · {clockTime(next.startMs)}</span>}</header>
               {next ? (
                 <Link to={gameHref(next)} className="v3-next__r" aria-label={`Next game: ${next.away.name} at ${next.home.name}. Open`}>
                   {(() => { const opp = next.home.id === t.id && next.home.slug === t.slug ? next.away : next.home; const away = next.away.id === t.id; return (<><TeamLogo team={opp} size={52} /><span><b>{away ? '@' : 'vs'} {opp.nick}</b><small>{leagueLabel(next)}{next.network ? ` · ${next.network}` : ''}</small></span></>); })()}
@@ -144,7 +145,7 @@ export function TeamLegacy() {
           <section aria-label="Schedule">
             {upcoming.filter((g) => g.phase !== 'final').length > 0 && <><h2 className="v3-h2">Upcoming</h2><ul className="v3-results">{upcoming.filter((g) => g.phase !== 'final').map((g) => {
               const away = g.away.id === t.id; const opp = away ? g.home : g.away;
-              return <li key={g.key} className="v3-res"><span className="v3-res__b v3-res__b--n">{dayWord(g.startMs).slice(0, 3)}</span><Link to={teamHref(opp)} className="v3-res__lg" aria-label={`${opp.name}, team page`}><TeamLogo team={opp} size={32} /></Link><Link to={gameHref(g)} className="v3-res__m" aria-label={`${away ? 'At' : 'Versus'} ${opp.name}, ${clockTime(g.startMs)}. Open game`}><span className="v3-res__t">{away ? '@' : 'vs'} {opp.nick}</span><span className="v3-res__s">{clockTime(g.startMs)}</span></Link></li>;
+              return <li key={g.key} className="v3-res"><span className="v3-res__b v3-res__b--n">{weekdayShort(g.startMs)}</span><Link to={teamHref(opp)} className="v3-res__lg" aria-label={`${opp.name}, team page`}><TeamLogo team={opp} size={32} /></Link><Link to={gameHref(g)} className="v3-res__m" aria-label={`${away ? 'At' : 'Versus'} ${opp.name}, ${clockTime(g.startMs)}. Open game`}><span className="v3-res__t">{away ? '@' : 'vs'} {opp.nick}</span><span className="v3-res__s">{clockTime(g.startMs)}</span></Link></li>;
             })}</ul></>}
             <h2 className="v3-h2">Results</h2>
             {vm.results.length ? <ul className="v3-results">{vm.results.map((r) => <ResultItem key={r.eventId} r={r} g={bySlate.get(r.eventId)} />)}</ul> : <div className="v3-state"><Icon name="info" size={20} /><div><b>No results to show</b>{vm.why.results ?? 'Nothing is published yet.'}</div></div>}
@@ -155,7 +156,7 @@ export function TeamLegacy() {
             {vm.roster.length ? (
               <>
                 <label className="v3-pk__search"><Icon name="search" size={18} /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the roster" aria-label="Search the roster" autoComplete="off" /></label>
-                {roles.length > 1 && <div className="v3-chips" role="group" aria-label="Position"><button type="button" className="v3-chip" aria-pressed={!pos} onClick={() => setPos(null)}>All</button>{roles.map((r) => <button key={r} type="button" className="v3-chip" aria-pressed={pos === r} onClick={() => setPos(r)}>{r}</button>)}</div>}
+                {roles.length > 1 && <ChipRail className="v3-chips" role="group" aria-label="Position"><button type="button" className="v3-chip" aria-pressed={!pos} onClick={() => setPos(null)}>All</button>{roles.map((r) => <button key={r} type="button" className="v3-chip" aria-pressed={pos === r} onClick={() => setPos(r)}>{r}</button>)}</ChipRail>}
                 <ul className="v3-props">{roster.map((r) => <li key={r.id}><Link to={`/v3/player/${t.slug}/${encodeURIComponent(r.id)}`} className="v3-prop__who"><span><b>{r.name}</b><small>{r.role ?? 'Player'}</small></span></Link><Icon name="chevR" size={20} /></li>)}</ul>
                 {roster.length === 0 && <div className="v3-state"><Icon name="search" size={20} /><div><b>No matching players</b><button type="button" onClick={() => { setQ(''); setPos(null); }}>Clear filters</button></div></div>}
               </>

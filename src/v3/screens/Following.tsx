@@ -113,7 +113,7 @@ export function Following() {
                 <span className="v3-hit__t">
                   <span className="v3-kind">{KIND_WORD[s.kind]}{s.sport ? ` · ${s.sport.toUpperCase()}` : ''}</span>
                   <b>{s.title}</b><small>{s.subtitle}</small>
-                  {s.chips.length > 0 && <span className="v3-chips" aria-label="Saved setup">{s.chips.map((c) => <i key={c} className="v3-chipx">{c}</i>)}</span>}
+                  {s.chips.length > 0 && <span className="v3-chiplist" aria-label="Saved setup">{s.chips.map((c) => <i key={c} className="v3-chipx">{c}</i>)}</span>}
                   {s.snapshot && <span className="v3-snap">Saved values: {s.snapshot.map((x) => `${x.label} ${x.value}`).join(' · ')}</span>}
                 </span>
                 <Icon name="chevR" size={20} />

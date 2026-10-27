@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react';
 import { usePropUniverse, useQueryCtx } from '../../data/props/hooks';
 import { countBySport, hiddenOut, keyAsk, parseRange, SORT_KEYS, SORT_LABEL, sortOf, type ListState, type SortKey } from '../../data/props/query';
+import { ChipRail } from '../../ui/ChipRail';
 import { Icon } from '../../ui/Icon';
 import { useSheet } from '../../ui/Sheet';
 
@@ -61,7 +62,7 @@ export function FilterSheet({ initial, set }: { initial: ListState; set: (patch:
       </div>
 
       <fieldset className="pd-fg"><legend>Sort by</legend>
-        <div className="pd-fc pd-fc--row pd-fc--sort">{SORT_KEYS.map((k) => <button key={k} type="button" aria-pressed={sortNow === k} onClick={() => setD({ ...d, sort: k === 'soon' ? null : k })}>{SORT_LABEL[k]}</button>)}</div>
+        <ChipRail className="pd-fc pd-fc--row pd-fc--sort">{SORT_KEYS.map((k) => <button key={k} type="button" aria-pressed={sortNow === k} onClick={() => setD({ ...d, sort: k === 'soon' ? null : k })}>{SORT_LABEL[k]}</button>)}</ChipRail>
         {sortNow === 'model' && <p className="x-note">Sorts by SIFT’s own published probability only. There is no model-versus-market sort.</p>}
         {sortNow === 'hist' && <p className="x-note">History ranks evaluated props only: those whose last games are computed from a loaded game log. The others follow in start order, labelled “History not loaded”, and are never ranked. Evaluated now: {loaded} of {nHist} with a game log.</p>}
       </fieldset>

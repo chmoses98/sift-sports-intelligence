@@ -9,6 +9,7 @@ import { LeagueTrack, TrackAxis, type TrackMark } from '../../ui/charts/LeagueTr
 import { MarginBars, type MarginBar } from '../../ui/charts/MarginBars';
 import { completedGames, extremesOf, identityOf, lastN, marginScale, oneDecimal, ordinal, rankText, resolveWindow, scoredAllowed, type NextGameVM, type StatObs } from '../../model/teamResearch';
 import { LockedRow } from '../../ui/atoms';
+import { bucketOf } from '../../model/time';
 import { Eyebrow, SegC, Skel, StatT, startWords, type ReadyCtx, type TeamPageCtx } from './parts';
 
 export interface PropsInfo { props: number; players: number }
@@ -22,9 +23,9 @@ function NextStrip({ c, next, total, loading }: { c: TeamPageCtx; next: NextGame
   const where = `${away ? 'at' : 'vs'} ${next.oppCode ?? next.oppName}`;
   const when = startWords(next.startUtc, c.now);
   return (
-    <NavRow to={routes.game({ slug: c.slug, eventId: next.eventId })} kind="game" label={`Next game: ${where}, ${when}. Open game`} className="tm-card tm-gstrip">
+    <NavRow to={routes.game({ slug: c.slug, eventId: next.eventId })} kind="game" label={`Next game: ${where}${when ? `, ${when}` : ''}. Open game`} className="tm-card tm-gstrip">
       <TeamLogo team={c.team} size={34} />
-      <div className="c"><b>{where} · {when}</b><span>{next.home == null ? 'Home or away not published' : away ? 'Away' : 'Home'}{total ? ` · ${total}` : ''}</span></div>
+      <div className="c"><b>{where}{when ? ` · ${when}` : ''}</b><span>{next.home == null ? 'Home or away not published' : away ? 'Away' : 'Home'}{total ? ` · ${total}` : ''}</span></div>
       {oppRef ? <TeamLink team={{ slug: c.slug, id: oppRef }} label={`${opp.name}, team page`}><TeamLogo team={opp} size={34} /></TeamLink> : <TeamLogo team={opp} size={34} />}
       <span className="go" aria-hidden="true"><Icon name="chevR" size={18} /></span>
     </NavRow>
@@ -32,7 +33,7 @@ function NextStrip({ c, next, total, loading }: { c: TeamPageCtx; next: NextGame
 }
 
 function PropsRow({ c, next, info }: { c: TeamPageCtx; next: NextGameVM | null; info: PropsInfo | null }) {
-  const today = next ? new Date(next.startUtc).toDateString() === new Date(c.now).toDateString() : true;
+  const today = next ? bucketOf(Date.parse(next.startUtc), c.now) === 'today' : true;
   const title = today ? 'Props today' : 'Props';
   const day = next && !today ? ` · ${startWords(next.startUtc, c.now).split(' ')[0]}` : '';
   const sub = info

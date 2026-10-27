@@ -16,18 +16,20 @@ if (process.env.FRESH === '1') await freshQuotes(page);
 await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 const urls = [];
 page.on('request', (r) => { const u = r.url(); if (/\.json(\?|$)/.test(u) && !/\/src\//.test(u)) urls.push({ t: Date.now(), u }); });
-const kind = (u) => (/\/history\/players\//.test(u) ? 'nfl-history-log' : /profiles?\//.test(u) || /entity_profile|\/profiles\//.test(u) ? 'profile' : /ranking/.test(u) ? 'ranking' : /event_detail|events\//.test(u) ? 'event' : /live-quotes/.test(u) ? 'quote-feed' : 'other');
+const kind = (u) => (/\/data\/nfl\/history\/players\//.test(u) ? 'nfl-game-log' : /\/explorer\/players\//.test(u) ? 'nhl-player-profile+log' : /\/explorer\/rankings\//.test(u) ? 'ranking' : /\/explorer\/teams\//.test(u) ? 'team-profile' : /\/explorer\/events\//.test(u) ? 'event-research(injuries)' : /\/explorer\/(index|metrics)/.test(u) ? 'explorer-index' : /\/event_detail\//.test(u) ? 'event-detail(contracts)' : /live-quotes/.test(u) ? 'quote-feed' : /projections\//.test(u) ? 'projection-feed' : /history\/(index|teams)/.test(u) ? 'nfl-history-index' : /\/app\/latest\/[a-z_]+\.json/.test(u) ? 'slate-boards(shell)' : 'other');
 const summarize = (from) => { const o = {}; for (const x of urls.slice(from)) { const k = kind(x.u); o[k] = (o[k] ?? 0) + 1; } return { total: urls.length - from, ...o }; };
 
 const route = process.env.ROUTE ?? '/v3/props?view=list';
 const t0 = Date.now();
 await page.goto(`${base}#${route}`);
 await page.waitForSelector('.pd-row, .pd-card', { timeout: 120000 });
+const isHome = !(await page.locator('.pd-row').count());
 const firstRender = Date.now() - t0;
 await page.waitForTimeout(3000);
 const first = summarize(0);
 const n = await page.evaluate(() => Number(document.querySelector('.pd-list')?.getAttribute('aria-rowcount') ?? 0));
 const dom = await page.evaluate(() => document.querySelectorAll('.pd-row').length);
+if (isHome) { console.log(JSON.stringify({ route, view: 'home', cardsInDom: await page.locator('.pd-card').count(), firstRenderMs: firstRender, documentsFirstPaintPlus3s: first }, null, 2)); if (process.env.URLS_OUT) (await import('node:fs')).writeFileSync(process.env.URLS_OUT, urls.map((x) => `${x.t - t0}\t${x.u}`).join('\n')); await b.close(); process.exit(0); }
 // Expand the first row.
 const before = urls.length;
 await page.locator('.pd-row__hit').first().click();

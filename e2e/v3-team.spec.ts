@@ -3,7 +3,7 @@
 // screen owns is exercised against the real components, Back restores the screen's exact state and scroll, nothing overflows at 390 and
 // 375 px, and no freshness text exists.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { feedNow, useRealFeeds } from './support/realFeeds';
+import { feedDocument, feedNow, useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
 test.beforeEach(async ({ page }) => {
@@ -335,14 +335,15 @@ test.describe('Team Research: performance and missing-data states (real document
     // packets), so row 61 cannot fire on an untouched real document. The test renames the first availability entry of the real DAL document
     // to a listed player; nothing else changes. Rows without a player page stay plain text (asserted in the Players test above).
     await page.route(/\/explorer\/teams\/prt_[^/]+\.json/, async (route) => {
-      const res = await route.fetch();
-      const doc = await res.json();
+      const body = await feedDocument('team', route.request().url()); // not route.fetch(): that would reach the network
+      if (!body) { await route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }); return; }
+      const doc = JSON.parse(body.toString('utf8'));
       if (doc.players?.length && doc.availability?.length) {
         const who = doc.players[0].display_name;
         doc.availability[0].detail = doc.availability[0].detail.replace(/^.+? \(/, `${who} (`);
         doc.availability[0].status = 'OUT';
       }
-      await route.fulfill({ response: res, json: doc });
+      await route.fulfill({ status: 200, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }, body: JSON.stringify(doc) });
     });
     await go(page, '/v3/team/nfl/DAL?tab=players');
     await ready(page, '.tm .plr');

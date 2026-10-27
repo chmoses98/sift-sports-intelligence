@@ -12,6 +12,14 @@ export const feedCacheKey = cacheKey;
 const CORS = { 'access-control-allow-origin': '*' };
 const GAME_FEED = /^https:\/\/raw\.githubusercontent\.com\/chmoses98\/sift-sports-intelligence\/live-quotes\/games\/[^/]+\.json/;
 
+/**
+ * A stored document's body (null when the family does not have it). For tests that edit a real document: `route.fetch()` would go to the NETWORK
+ * (it ignores the other routes), so read the document from the fixture family instead and fulfil the edited copy.
+ */
+export async function feedDocument(family: FeedFamily, url: string, o: { live?: boolean } = {}): Promise<Buffer | null> {
+  return (await feedSource(family, o).get(url))?.body ?? null;
+}
+
 export async function useRealFeeds(page: Page, o: { family: FeedFamily; live?: boolean; hosts?: RegExp }): Promise<{ served: string[]; missed: string[] }> {
   if (!o?.family) throw new Error('useRealFeeds needs { family }: the real-document specs read one captured family each (stat, team, game, player, props)');
   const src = feedSource(o.family, { live: o.live });

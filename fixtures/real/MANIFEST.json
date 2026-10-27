@@ -3,7 +3,7 @@
  "tool": {
   "name": "scripts/v3-fixtures",
   "version": "1.0.0",
-  "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+  "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
  },
  "provenance": "Every document is a byte-exact copy of a file that its publisher serves publicly from raw.githubusercontent.com, in the repositories and branches named under \"sources\" (research and board publications of the Sift data pipeline, plus the live-quote feed branch of this repository). They are kept here only so that the SIFT 3.0 test suite can reproduce real-document behaviour offline on a fixed clock; no document is modified (the only test-time transformations are the documented re-stamps in e2e/support). Prices and probabilities inside them describe the instants named in this manifest and are neither current nor a recommendation. Use of the data stays subject to the publishers' own terms and the terms of the third-party sources they cite; inclusion here implies no endorsement by, or affiliation with, any league, team, player, data provider or exchange named in them.",
  "sources": [
@@ -132,7 +132,12 @@
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 20
+     "documents": 21
+    },
+    {
+     "repo": "chmoses98/sift-sports-intelligence",
+     "branch": "live-quotes",
+     "documents": 3
     },
     {
      "repo": "chmoses98/soccer-edge-finder",
@@ -144,16 +149,16 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
    },
-   "requested_urls": 59,
-   "cache_files_dropped_unrequested": 21,
-   "not_in_cache": 2,
-   "documents": 57,
-   "bytes": 6024952,
+   "requested_urls": 92,
+   "cache_files_dropped_unrequested": 17,
+   "not_in_cache": 31,
+   "documents": 61,
+   "bytes": 7999460,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "provisional"
+    "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
    },
    "entries": [
     {
@@ -421,6 +426,14 @@
      "fetched_at": "2026-10-26T23:21:36Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "f51b440e2a7d74e8e522d97a8f17161e904c9314746332afac2b008720256305",
+     "bytes": 1303522,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
      "status": 200,
      "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
@@ -573,6 +586,30 @@
      "fetched_at": "2026-10-26T23:21:36Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DALPHI.json",
+     "status": 200,
+     "sha256": "cbe6071a900e1a98cd5754e8f201fcf0f3e720d9cba05bb18ec2e2165c4f13b0",
+     "bytes": 405247,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DETEDM.json",
+     "status": 200,
+     "sha256": "e8b5c8006d4029fa75e4a85f7da61700dd3363ce65fa6b80a362f16967d3e695",
+     "bytes": 142558,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26TORCGY.json",
+     "status": 200,
+     "sha256": "b797e73412bcd84d32e1c6ef4ea2b21fa98a7358cab19dfd022e9c4b5358d6fb",
+     "bytes": 123181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
      "status": 200,
      "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
@@ -625,7 +662,7 @@
     {
      "repo": "chmoses98/NHL-edge-finder",
      "branch": "data-archive",
-     "documents": 6
+     "documents": 7
     },
     {
      "repo": "chmoses98/Tennis-Edge-Finder",
@@ -660,7 +697,12 @@
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 18
+     "documents": 20
+    },
+    {
+     "repo": "chmoses98/sift-sports-intelligence",
+     "branch": "live-quotes",
+     "documents": 3
     },
     {
      "repo": "chmoses98/soccer-edge-finder",
@@ -672,16 +714,16 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
    },
-   "requested_urls": 55,
-   "cache_files_dropped_unrequested": 46,
-   "not_in_cache": 3,
-   "documents": 52,
-   "bytes": 6354403,
+   "requested_urls": 104,
+   "cache_files_dropped_unrequested": 40,
+   "not_in_cache": 46,
+   "documents": 58,
+   "bytes": 8707459,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "provisional"
+    "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
    },
    "entries": [
     {
@@ -691,6 +733,14 @@
      "bytes": 5549,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/event_detail/evt_9dcedbe131e7ff4c72d6.json",
+     "status": 200,
+     "sha256": "46e2dd1abc2e28ab694ce25e2035ffe751ea5cda136b5fe50424a7d9fe8e2471",
+     "bytes": 318607,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:45Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/index.json",
@@ -925,6 +975,14 @@
      "fetched_at": "2026-10-26T22:59:39Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "f51b440e2a7d74e8e522d97a8f17161e904c9314746332afac2b008720256305",
+     "bytes": 1303522,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
      "status": 200,
      "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
@@ -939,6 +997,14 @@
      "bytes": 153334,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_8e4a5e41d6c1f6b40188.json",
+     "status": 200,
+     "sha256": "6a2871ab77c3926a8dd5d133ee6d1d36b3c0516f838cb544e74b634261365cc6",
+     "bytes": 59941,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:07:13Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_2d0e261738ef71649dc9.json",
@@ -1061,6 +1127,30 @@
      "fetched_at": "2026-10-26T22:59:39Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DALPHI.json",
+     "status": 200,
+     "sha256": "cbe6071a900e1a98cd5754e8f201fcf0f3e720d9cba05bb18ec2e2165c4f13b0",
+     "bytes": 405247,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:06:45Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DETEDM.json",
+     "status": 200,
+     "sha256": "e8b5c8006d4029fa75e4a85f7da61700dd3363ce65fa6b80a362f16967d3e695",
+     "bytes": 142558,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26TORCGY.json",
+     "status": 200,
+     "sha256": "b797e73412bcd84d32e1c6ef4ea2b21fa98a7358cab19dfd022e9c4b5358d6fb",
+     "bytes": 123181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:37Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
      "status": 200,
      "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
@@ -1172,7 +1262,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
    },
    "requested_urls": 150,
    "cache_files_dropped_unrequested": 16,
@@ -1181,7 +1271,7 @@
    "bytes": 7762630,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "provisional"
+    "basis": "The cache recorded no pin. 2026-10-26T23:25:00Z is the instant e2e/v3-quotegate.spec.ts documents (the reference game DAL at PHI starts 2026-10-27T00:15Z, 50 minutes later) and lies inside the fetch window recorded here; the game, quote-gate and hit-target specs pass on it."
    },
    "entries": [
     {
@@ -1739,7 +1829,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
    },
    "requested_urls": 109,
    "cache_files_dropped_unrequested": 46,
@@ -1748,7 +1838,7 @@
    "bytes": 15204205,
    "clock": {
     "captured_at": "2026-10-26T19:00:00Z",
-    "basis": "provisional"
+    "basis": "A test pin, not a fetch time: the pin that e2e/support/playerFeeds.ts has always used (CAPTURED_AT). Every market's captured_at / observed_at is re-stamped to it and the page clock is set 5 s later, so quotes are current under the quote gate; documents were fetched later (see captured_start / captured_end)."
    },
    "entries": [
     {
@@ -2319,14 +2409,14 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
    },
    "requested_urls": 164,
    "cache_files_dropped_unrequested": 1293,
    "not_in_cache": 46,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "provisional"
+    "basis": "captured_at.txt of the props capture (2026-10-26T23:25:00Z), inside the fetch window recorded here."
    },
    "documents": 118,
    "bytes": 22245926,
@@ -3280,9 +3370,9 @@
  },
  "totals": {
   "families": 5,
-  "urls": 348,
-  "unique_documents": 181,
-  "unique_bytes": 33043491,
-  "pack_compressed_bytes": 3067637
+  "urls": 358,
+  "unique_documents": 182,
+  "unique_bytes": 33362098,
+  "pack_compressed_bytes": 3097492
  }
 }

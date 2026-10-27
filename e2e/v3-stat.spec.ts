@@ -2,7 +2,7 @@
 // (e2e/support/realFeeds.ts: the committed `stat` fixture family, fixtures/real, offline on its pinned clock; V3_REAL_FEEDS=live refills a scratch cache). Every tap-matrix row this screen owns
 // is exercised and its destination checked (data-dest and URL); Back restores tab, window, selection, comparison, expansion and scroll.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { feedNow, useRealFeeds } from './support/realFeeds';
+import { feedDocument, feedNow, useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
 const LAMB = 'prt_4c661ae8b854ff5f66dd', PICKENS = 'prt_74580802ab4833992610';
@@ -228,8 +228,9 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     const seriesUrl = /explorer\/series\/ser_e9732c71f3e58a0a095c\.json/;
     // a series document with no observations (real document, points removed)
     await page.route(seriesUrl, async (route) => {
-      const res = await route.fetch();
-      const doc = await res.json();
+      const body = await feedDocument('stat', route.request().url()); // not route.fetch(): that would reach the network
+      if (!body) { await route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }); return; }
+      const doc = JSON.parse(body.toString('utf8'));
       await route.fulfill({ status: 200, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }, body: JSON.stringify({ ...doc, points: [] }) });
     });
     await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL');

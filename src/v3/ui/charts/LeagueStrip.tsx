@@ -1,40 +1,39 @@
-// One statistic across the whole league on a single line (locked design P4): every team a dot, the league average marked, worst on the
-// left and best on the right whichever way the statistic runs, and one team ringed with its logo. Positions come from the published
-// ranking's own values; nothing is estimated. Defense rings are amber, offense rings ice (the role colours of the design system).
+// A league strip (locked G2): every team in the ranking as a dot on one line, worst on the left and best on the right whatever the
+// statistic's direction, the league average ticked in amber, and the selected team as a logo marker ringed in its role's colour (ice
+// offense, amber defense). Positions come from the published ranking's own values; nothing is estimated.
 import type { RankingEntryVM } from '../../data/research/types';
+import type { V3Team } from '../../model/types';
+import { TeamLogo } from '../TeamLogo';
 
-const W = 330;
-const PAD = 8;
+const x0 = 2.4, span = 95.2; // percent of the strip: keeps the end dots and the marker inside the card
 
-export interface LeagueStripProps {
-  entries: Pick<RankingEntryVM, 'code' | 'value'>[];
-  /** The team to ring. */
-  team: string;
-  /** Higher values are better (so they sit on the right); false flips the line so the best is still on the right. */
-  higherIsBetter: boolean;
-  role: 'off' | 'def';
-  logo: string | null;
-  label: string;
+/** Percent positions (0 worst to 100 best, by the statistic's own direction) for every entry; null values are left out. */
+export function stripPositions(entries: Pick<RankingEntryVM, 'code' | 'value' | 'adjusted'>[], higherIsBetter: boolean | null, mean: number | null) {
+  const val = (e: Pick<RankingEntryVM, 'value' | 'adjusted'>) => e.adjusted ?? e.value;
+  const vs = entries.map(val).filter((v): v is number => v != null);
+  if (vs.length < 2) return null;
+  const mn = Math.min(...vs), mx = Math.max(...vs), rng = mx - mn || 1;
+  const t = (v: number) => { const u = (v - mn) / rng; return x0 + (higherIsBetter === false ? 1 - u : u) * span; };
+  return { at: (e: Pick<RankingEntryVM, 'value' | 'adjusted'>) => { const v = val(e); return v == null ? null : t(v); }, mean: mean == null ? null : t(Math.max(mn, Math.min(mx, mean))) };
 }
 
-export function LeagueStrip({ entries, team, higherIsBetter, role, logo, label }: LeagueStripProps) {
-  const rows = entries.filter((e): e is { code: string; value: number } => e.value != null && Number.isFinite(e.value));
-  const me = rows.find((e) => e.code === team);
-  if (!me || rows.length < 2) return <div className="v3p-strip v3p-strip--none" role="img" aria-label={`${label}: not ranked`} />;
-  const vals = rows.map((e) => e.value);
-  const mn = Math.min(...vals), mx = Math.max(...vals), avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  const x = (v: number) => { let t = (v - mn) / (mx - mn || 1); if (!higherIsBetter) t = 1 - t; return PAD + t * (W - PAD * 2); };
-  let lastX = -99, flip = 1;
-  const dots = [...rows].sort((p, q) => x(p.value) - x(q.value)).map((e) => { const px = x(e.value); flip = px - lastX < 7 ? -flip : 1; lastX = px; return { e, px, dy: flip === -1 ? 7 : 0 }; });
-  const mxp = x(me.value);
+export function LeagueStrip({ entries, higherIsBetter, mean, selected, role, team, label }: {
+  entries: RankingEntryVM[]; higherIsBetter: boolean | null; mean: number | null; selected: string; role: 'off' | 'def'; team: V3Team; label: string;
+}) {
+  const pos = stripPositions(entries, higherIsBetter, mean);
+  if (!pos) return null;
+  const me = entries.find((e) => e.code === selected);
+  const meX = me ? pos.at(me) : null;
+  const others = entries.filter((e) => e.code !== selected).map((e) => ({ e, x: pos.at(e) })).filter((d): d is { e: RankingEntryVM; x: number } => d.x != null).sort((a, b) => a.x - b.x);
+  let last = -99, flip = 1;
+  const dots = others.map(({ e, x }) => { flip = x - last < 2.1 ? -flip : 1; last = x; return { code: e.code, x, down: flip === -1 }; });
   return (
-    <svg className="v3p-strip" viewBox={`0 0 ${W} 62`} role="img" aria-label={label}>
-      <line x1={PAD} x2={W - PAD} y1="30" y2="30" className="v3p-strip__rail" />
-      {dots.filter((d) => d.e.code !== team).map((d) => <circle key={d.e.code} cx={d.px} cy={30 + d.dy} r="3.4" className="v3p-strip__dot" />)}
-      <line x1={x(avg)} x2={x(avg)} y1="20" y2="40" className="v3p-strip__avg" /><text x={x(avg)} y="14" textAnchor="middle" className="v3p-strip__avgt">league avg</text>
-      <text x={PAD} y="58" className="v3p-strip__end">Worst</text><text x={W - PAD} y="58" textAnchor="end" className="v3p-strip__end">Best</text>
-      <circle cx={mxp} cy="30" r="13" className={`v3p-strip__me v3p-strip__me--${role}`} />
-      {logo ? <image href={logo} x={mxp - 9} y="21" width="18" height="18" /> : <text x={mxp} y="34" textAnchor="middle" className="v3p-strip__code">{team}</text>}
-    </svg>
+    <div className="mx-strip" role="img" aria-label={label}>
+      <i className="mx-strip__line" />
+      {dots.map((d) => <i key={d.code} className={`mx-strip__dot${d.down ? ' is-down' : ''}`} style={{ left: `${d.x}%` }} />)}
+      {pos.mean != null && <><i className="mx-strip__avg" style={{ left: `${pos.mean}%` }} /><b className="mx-strip__avgl" style={{ left: `${pos.mean}%` }}>league avg</b></>}
+      {meX != null && <span className={`mx-strip__me mx-strip__me--${role}`} style={{ left: `${meX}%` }}><TeamLogo team={team} size={18} /></span>}
+      <small className="mx-strip__w">Worst</small><small className="mx-strip__b">Best</small>
+    </div>
   );
 }

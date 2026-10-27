@@ -2,18 +2,20 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from '../../routing';
 import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
 import { deriveProps } from '../data/adapt';
-import type { Lens } from '../data/lens';
-import { demoPairs, pairsFromResearch, type StatPair } from '../data/matchup';
+import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
 import { ago, quoteState } from '../model/format';
 import type { MarketLine, V3Game } from '../model/types';
 import { Icon } from '../ui/Icon';
-import { LensSlot } from '../ui/Lens';
 import { GameStories } from '../ui/Stories';
 import { TeamLogo } from '../ui/TeamLogo';
-import { PriceText, gameHref, useOpenLine } from '../ui/gamebits';
+import { PriceText, useOpenLine } from '../ui/gamebits';
 import { ordinal } from '../data/lens';
-import type { TabKey } from './GameDetail';
+import { isReady } from '../model/capabilities';
+import type { GameTab } from '../nav/schemas';
+import { MatchupTab } from './GameMatchup';
+import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
+import type { GameCtx } from './GameShared';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
@@ -74,7 +76,7 @@ function DriveCard({ g }: { g: V3Game }) {
   );
 }
 
-function LastPlay({ g, onTab }: { g: V3Game; onTab: (t: TabKey) => void }) {
+function LastPlay({ g, onTab }: { g: V3Game; onTab: (t: GameTab) => void }) {
   const p = DEMO_LIVE[g.key]?.lastPlay;
   if (!p) return null;
   return (
@@ -92,50 +94,12 @@ function Unavailable({ icon = 'info', title, children }: { icon?: 'info' | 'cloc
 
 function LiveNote({ g }: { g: V3Game }) {
   if (g.provenance === 'demo' || g.score?.source === 'score-feed') return null;
+  // A completed game whose final score the publication carries is not "unreported": the hero shows the score and there is nothing to apologise for.
+  if (g.phase === 'final' && g.score) return null;
   return (
     <Unavailable icon="clock" title={g.phase === 'live' ? 'Live score and plays are not available' : 'Result not reported yet'}>
       The publication carries no live score, clock or play-by-play, and no licensed live feed covers {g.sport === 'CFB' ? 'college football' : g.sport} here. Nothing is estimated. The pregame research below is frozen at kickoff and is not a graded result.
     </Unavailable>
-  );
-}
-
-// ------------------------------------------------------------------ matchup bars
-
-function Bar({ rank, n }: { rank: number | null; n: number | null }) {
-  if (rank == null || !n) return <i className="v3-bar v3-bar--none" />;
-  const w = Math.max(6, Math.round(((n - rank + 1) / n) * 100));
-  return <i className="v3-bar"><i style={{ width: `${w}%` }} /></i>;
-}
-
-function StatRow({ p, g }: { p: StatPair; g: V3Game }) {
-  const inner = (
-    <>
-      <span className="v3-mx__n">{p.name}</span>
-      <span className="v3-mx__r">
-        <span className="v3-mx__s v3-mx__s--a"><b>{p.away.rank != null ? ordinal(p.away.rank) : '—'}</b><small>{p.away.value}</small></span>
-        <span className="v3-mx__bars"><Bar rank={p.away.rank} n={p.away.n} /><Bar rank={p.home.rank} n={p.home.n} /></span>
-        <span className="v3-mx__s v3-mx__s--h"><b>{p.home.rank != null ? ordinal(p.home.rank) : '—'}</b><small>{p.home.value}</small></span>
-      </span>
-    </>
-  );
-  const label = `${p.name}: ${g.away.abbr} ${p.away.rank != null ? ordinal(p.away.rank) : 'unranked'}, ${g.home.abbr} ${p.home.rank != null ? ordinal(p.home.rank) : 'unranked'}`;
-  return <li>{p.route ? <Link to={p.route} className="v3-mx" aria-label={`${label}. Open statistic`}>{inner}</Link> : <div className="v3-mx" aria-label={label}>{inner}</div>}</li>;
-}
-
-function MatchupTab({ g, research, loading }: { g: V3Game; research: EventResearchDoc | null; loading: boolean }) {
-  const pairs = useMemo(() => (g.provenance === 'demo' ? demoPairs(g) : pairsFromResearch(research, g)), [g, research]);
-  const [all, setAll] = useState(false);
-  if (loading && !pairs.length) return <div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading matchup" />;
-  if (!pairs.length) return <Unavailable title="No published matchup statistics">The publication has no paired team statistics for this game yet, so there is nothing to compare. Nothing is substituted.</Unavailable>;
-  const shown = all ? pairs : pairs.slice(0, 8);
-  return (
-    <section aria-label="Team matchup">
-      <h2 className="v3-h2">Team Matchup</h2>
-      <div className="v3-mx__legend"><span><TeamLogo team={g.away} size={20} />{g.away.abbr}</span><small>League rank · raw season value</small><span>{g.home.abbr}<TeamLogo team={g.home} size={20} /></span></div>
-      <ul className="v3-mxs">{shown.map((p) => <StatRow key={p.id} p={p} g={g} />)}</ul>
-      {pairs.length > 8 && !all && <button type="button" className="v3-more" onClick={() => setAll(true)}>Show all {pairs.length} statistics</button>}
-      <p className="v3-note v3-note--dim">{g.provenance === 'demo' ? 'Sample ranks, for the design preview only. ' : ''}Each row opens the statistic's full league ranking.</p>
-    </section>
   );
 }
 
@@ -260,24 +224,28 @@ function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
 
 // ------------------------------------------------------------------ the tab body
 
-export function GameTabBody({ tab, g, lens, detail, research, researchLoading, onTab }: { tab: TabKey; g: V3Game; lens: Lens | null; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: TabKey) => void }) {
-  if (tab === 'matchup') return <MatchupTab g={g} research={research} loading={researchLoading} />;
+export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
+  const g = ctx.g;
+  if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} />;
   if (tab === 'script') return <ScriptTab g={g} detail={detail} />;
   if (tab === 'props') return <PropsTab g={g} detail={detail} />;
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: '2h ago', team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: '3h ago', team: g.home }];
   return (
     <>
+      <WinPrices ctx={ctx} />
       <MarketsRow g={g} loading={g.provenance === 'publication' && !detail} />
-      <LensSlot lens={lens} loading={g.provenance === 'publication' && researchLoading} to={`${gameHref(g)}?tab=matchup`} className="v3-gd__lens" />
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
       {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
+      <PlayersToResearch ctx={ctx} />
+      <TeamsCard ctx={ctx} />
+      <PropsRow ctx={ctx} />
       <section aria-label="Key storylines">
         <h2 className="v3-h2">Key Storylines</h2>
         <ul className="v3-stories">
           {g.provenance === 'demo' ? demoStories.map((s) => <li key={s.t}><Link to={`/v3/team/${s.team.slug}/${s.team.id}`} className="v3-story"><TeamLogo team={s.team} size={44} /><span className="v3-story__t"><b>{s.t}</b><small>{s.s}</small></span><Icon name="chevR" size={20} /></Link></li>)
             : <GameStories g={g} max={3} />}
-          <li><button type="button" className="v3-story v3-story--btn" onClick={() => onTab('matchup')}><span className="v3-story__ic"><Icon name="trend" size={22} /></span><span className="v3-story__t"><b>Compare the two teams</b><small>League ranks on every published statistic</small></span><Icon name="chevR" size={20} /></button></li>
+          {isReady(g.slug, 'gameMatchup') && <li><button type="button" className="v3-story v3-story--btn" onClick={() => onTab('matchup')}><span className="v3-story__ic"><Icon name="trend" size={22} /></span><span className="v3-story__t"><b>Compare the two teams</b><small>League percentile of every offense against the opposing defense</small></span><Icon name="chevR" size={20} /></button></li>}
         </ul>
       </section>
     </>

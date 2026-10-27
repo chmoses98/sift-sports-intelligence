@@ -533,7 +533,7 @@ test.describe('Player Research: the SIFT model lane only where the approval ledg
     await expect(page.locator('.v3p-decide .v3p-foot')).toContainText('no approved model estimate');
     // Matchup tells the same story: the label counts approved stages from the same ledger, and Rec yards is "not approved yet"
     await go(page, `${LAMB}?tab=matchup&stat=receptions`);
-    await expect(page.locator('[data-ledger-chip]')).toContainText(/3 of 4 stages approved/, { timeout: 25_000 });
+    await expect(page.locator('[data-ledger-chip]')).toContainText(/3 of 4 approved/, { timeout: 25_000 });
     await expect(page.locator('.v3p-cn[data-ledger="NFL:receiving_yards:HELD:2026-10-18"]')).toContainText('not approved yet');
     await expect(page.locator('.v3p-cn[data-ledger="NFL:receptions:PROMOTED:2026-10-18"]')).not.toContainText('not approved yet');
     await expect(page.locator('.v3p-chain')).not.toContainText('research-only');

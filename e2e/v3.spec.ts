@@ -27,13 +27,15 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3?demo=1');
     await page.getByRole('link', { name: 'Game Center' }).click();
     await expect(page).toHaveURL(/#\/v3\/game\/cfb\/demo_uga_fla/);
-    await page.getByRole('tab', { name: 'Matchup' }).click();
-    await expect(page).toHaveURL(/tab=matchup/);
+    // College football has Overview and Props (Matchup is the NFL unit matchup, locked design G1 to G3).
+    await expect(page.getByRole('tab')).toHaveText(['Live', 'Props']); // the featured sample game is in play: its first tab reads Live
+    await page.getByRole('tab', { name: 'Props' }).click();
+    await expect(page).toHaveURL(/tab=props/);
     await page.locator('.v3-sw__tile:not(.is-cur) .v3-sw__hit').first().click();
-    await expect(page).toHaveURL(/tab=matchup/);
+    await expect(page).toHaveURL(/tab=props/);
     await expect(page).not.toHaveURL(/demo_uga_fla/);
     await page.goBack();
-    await expect(page).toHaveURL(/demo_uga_fla.*tab=matchup/);
+    await expect(page).toHaveURL(/demo_uga_fla.*tab=props/);
   });
 
   test('picker: searchable, favourites pin without switching, handles 25 games', async ({ page }) => {
@@ -73,10 +75,13 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/team/cfb/UGA?demo=1');
     await page.locator('.v3-stile').first().click();
     await expect(page).toHaveURL(/#\/v3\/stat\/cfb\/sample-/);
-    await expect(page.locator('.v3-rkrow').first()).toBeVisible();
+    await expect(page.locator('.st-rkr').first()).toBeVisible();
+    // The locked Stat Detail lists the leaders and the neighbours of the selection; the whole list is one in-place tap away.
+    await page.getByRole('button', { name: /^Show all/ }).click();
+    await expect(page).toHaveURL(/all=1/);
     await page.evaluate(() => window.scrollTo(0, 420));
     const y = await page.evaluate(() => scrollY);
-    await page.locator('.v3-rkrow__t').nth(4).evaluate((e) => (e as HTMLElement).click());
+    await page.locator('.st-rkr a.nm').nth(4).evaluate((e) => (e as HTMLElement).click());
     await expect(page).toHaveURL(/#\/v3\/team\/cfb\//);
     await page.goBack();
     await expect(page).toHaveURL(/#\/v3\/stat\/cfb\/sample-/);

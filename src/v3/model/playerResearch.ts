@@ -181,14 +181,14 @@ export function facets(pool: Obs[], f: Filters, c: FacetContext): FacetGroup[] {
     id: 'script', label: 'Game script',
     options: [opt('script', 'won', 'Team won', { script: 'won' }, f.script === 'won', margin ? null : 'needs data'), opt('script', 'lost', 'Team lost', { script: 'lost' }, f.script === 'lost', margin ? null : 'needs data'),
       { key: 'fav', label: 'Favorite', n: 0, over: 0, mean: null, selected: false, patch: {}, locked: 'needs data' }],
-    note: margin ? 'By the final score of each past game.' : 'The final score is not in this player’s log.',
+    note: margin ? undefined : 'The final score is not in this player’s log.',
   });
 
   const rest = has((r) => r.rest != null);
   groups.push({
     id: 'rest', label: 'Rest',
     options: [opt('rest', 'short', '≤ 6 days', { rest: 'short' }, f.rest === 'short', rest ? null : 'needs data'), opt('rest', 'week', '7 days', { rest: 'week' }, f.rest === 'week', rest ? null : 'needs data'), opt('rest', 'long', '8+ days', { rest: 'long' }, f.rest === 'long', rest ? null : 'needs data')],
-    note: 'Days since the team’s previous game. The first game after an offseason has no figure.',
+    note: rest ? undefined : 'The days between games are not in this player’s log.',
   });
   return groups;
 }

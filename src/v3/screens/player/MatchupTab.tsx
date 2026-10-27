@@ -2,11 +2,11 @@
 // lets SIFT show; the rest are "—" with why), (2) the opponent's unit against the whole league, every statistic a target that opens Stat Detail,
 // (3) the availability that matters. A player with no matchup rows gets the honest "No matchup rows" state, never a filled-in card.
 import { Fragment, useMemo } from 'react';
-import { teamLogo } from '../../../lib/teams';
 import { teamKey } from '../../../lib/projections';
 import { useTeamProfile } from '../../data/research/hooks';
 import { useOppProfile, useUnitRanking, type OppUnitView } from '../../data/useOppUnits';
 import { LeagueStrip } from '../../ui/charts/LeagueStrip';
+import '../matchup.css';   // the league strip's styles (shared with Game Matchup)
 import { LockedRow } from '../../ui/atoms';
 import { Icon } from '../../ui/Icon';
 import { StatLink, PlayerLink } from '../../nav/Targets';
@@ -73,7 +73,7 @@ function ProjectionCard({ v }: { v: PlayerView }) {
     : [node(v.statDef?.label ?? stat, mine, stat)];
   const approved = nodes.filter((n) => n.mean != null).length;
   const caveats = [...new Set(nodes.filter((n) => n.mean != null).map((n) => n.ledger?.split(':')[1]).map((fam) => (fam ? ledgerProof(vm.sport, fam)?.caveat : null)).filter((c): c is string => !!c))];
-  const chip = nodes.length === 1 ? (approved ? 'approved model' : 'not approved yet') : `${approved} of ${nodes.length} stages approved`;
+  const chip = nodes.length === 1 ? (approved ? 'approved model' : 'not approved yet') : `${approved} of ${nodes.length} approved`;
   const edges = receiving ? [
     teamAtt && tg ? `${f1((tg.mean / teamAtt.mean) * 100)}%` : null,
     tg && rc ? `${Math.round((rc.mean / tg.mean) * 100)}%` : null,
@@ -89,8 +89,7 @@ function ProjectionCard({ v }: { v: PlayerView }) {
       </div>
       {caveats.map((c) => <p key={c} className="v3p-foot">{c}</p>)}
       {notes.length > 0 && <div className="v3p-adj">{notes.slice(0, 3).map((t) => <div key={t}><Icon name="info" size={12} /><span>{t}</span></div>)}</div>}
-      {receiving && !yd && <LockedRow title="Receiving yards:">the SIFT model does not have an approved projection for this statistic yet, so the chain stops at receptions (the approval ledger holds it).</LockedRow>}
-      <p className="v3p-foot">Each stage with a number is promoted in SIFT’s approval ledger (that record is its permission to be shown); a stage that is held shows “—”. Every projection is research context and never a betting recommendation.</p>
+      <p className="v3p-foot">A number shows only for a stage promoted in SIFT’s approval ledger; a held stage shows “—”. Research context, not a betting recommendation.</p>
       <p className="v3p-foot">{src?.words ? `${src.words}${src.source ? ` per ${src.source.replace(/_/g, ' ')}` : ''} · ` : ''}shares and rates are arithmetic on the published rows</p>
     </section>
   );
@@ -106,7 +105,7 @@ function UnitRow({ v, u, opp, own }: { v: PlayerView; u: OppUnitView; opp: strin
   return (
     <StatLink stat={{ slug: v.slug, statId: u.id }} state={{ win: u.window, sel: opp, opp: own }} label={`${u.label}: ${opp} ${ord(o.rank!)} of ${o.n}. Open the league ranking`} className="v3p-sl">
       <span className="v3p-slh"><span>{u.label}</span><b>{o.value != null && isEpa ? `${sgn(o.value)} · ` : ''}{ord(o.rank!)} of {o.n}</b></span>
-      {ranking ? <LeagueStrip entries={ranking.entries} team={opp} higherIsBetter={ranking.higherIsBetter ?? false} role="def" logo={teamLogo(vm.sport, opp)} label={`${opp} ${u.label}: ${ord(o.rank!)} of ${o.n}`} />
+      {ranking ? <LeagueStrip entries={ranking.entries} higherIsBetter={ranking.higherIsBetter} mean={ranking.summary.mean} selected={opp} role="def" team={vm.opp!} label={`${opp} ${u.label}: ${ord(o.rank!)} of ${o.n}`} />
         : <span className="v3p-strip v3p-strip--none" aria-hidden="true" />}
     </StatLink>
   );

@@ -47,6 +47,9 @@ export async function installSnapshot(): Promise<CaptureDebug> {
   } catch { /* the banner says so below */ }
   const capturedAt = index?.capturedAt ?? '1970-01-01T00:00:00Z';
   const noQuote = store.get(NOQUOTE_KEY) === '1';
+  // The app persists the quotes it has seen (src/live/store.ts) so a reload starts with them. A preview must never start from quotes left by an earlier
+  // visit or another capture (or, in the demo, by the same capture with times that were re-stamped): it starts empty every time.
+  store.set('sift.liveQuotes.v1', null);
   const PAGE_NOW = clockOf(capturedAt);
   const clockIso = new Date(PAGE_NOW).toISOString();
   const dbg: CaptureDebug = { index, clockAt: clockIso, noQuoteDemo: noQuote, served: [], missed: [], blocked: [], packsFetched: [] };
@@ -140,9 +143,9 @@ function openAbout(index: CaptureIndex | null, dbg: CaptureDebug, opener: HTMLEl
     card.append(el('p', 'margin:0', `This is SIFT 3.0 running on a snapshot of real published documents captured ${utcLabel(index.capturedAt)}. It is not live: nothing on it updates, and the prices are the prices at the time of capture. The page clock is fixed at ${utcLabel(dbg.clockAt)} (${CLOCK_LEAD_MS / 1000} seconds before the capture instant), so "today", kickoff times and countdowns describe that moment, not now.`));
     h('What is real');
     list([
-      `${index.total.toLocaleString('en-US')} published documents, byte for byte as published: the game slate, boards, event details and research, team, player and statistic profiles, rankings, metric definitions, injury lists, model projections (only where the approval ledger allows them) and the Kalshi quote feed.`,
-      ...(index.about?.real ?? []),
-      ...(index.stamps?.earliest && index.stamps.latest ? [`The documents were generated between ${utcLabel(index.stamps.earliest)} and ${utcLabel(index.stamps.latest)}; they were collected into this one capture and none was edited.`] : []),
+      ...(index.about?.real ?? [`${index.total.toLocaleString('en-US')} published documents.`]),
+      'Every document is exactly as published: none was edited, filled in or estimated. The only change to what a document says is listed under What is transformed.',
+      ...(index.stamps?.earliest && index.stamps.latest ? [`The documents were collected over several hours: their own generation times run from ${utcLabel(index.stamps.earliest)} to ${utcLabel(index.stamps.latest)}, so some are stamped after the page clock. The page clock is the capture instant, not the newest document.`] : []),
     ]);
     h('What is transformed');
     list([
@@ -160,7 +163,7 @@ function openAbout(index: CaptureIndex | null, dbg: CaptureDebug, opener: HTMLEl
     ]);
     card.append(el('p', 'margin:6px 0 0;color:#9aa4b2', `This session: ${dbg.served.length} published documents served from the capture, ${dbg.missed.length} requested but not captured, ${dbg.blocked.length} requests to other hosts refused. Nothing is fetched from the network.`));
     h('Demo: no reliable quote');
-    card.append(el('p', 'margin:0 0 8px', 'Shows the withheld-price state. It uses the app\'s real quote gate: the prices keep their published observation times (minutes before the page clock), so the gate withholds them. Lists show a dash and a contract sheet says the price is unavailable. Switching reloads the page.'));
+    card.append(el('p', 'margin:0 0 8px', 'Shows the withheld-price state through the app\'s real quote gate. The prices keep the observation times they were published with; the gate finds those too old (or too new) for the page clock and withholds the price. Lists then show a dash and a contract sheet says the price is unavailable, with the fee rows hidden. Switching reloads the page.'));
     const label = el('label', 'display:flex;gap:10px;align-items:center;min-height:44px');
     const cb = el('input'); cb.type = 'checkbox'; cb.checked = dbg.noQuoteDemo; cb.style.cssText = 'width:22px;height:22px';
     cb.dataset.captureNoquote = '1';

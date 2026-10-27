@@ -91,7 +91,7 @@ export function planPacks(docs, groups, cap) {
 }
 
 /** Gzip + concatenate: returns the pack buffers and the index entries. */
-export function buildPacks(docs, runs, cap) {
+export function buildPacks(docs, runs, cap, min = 0) {
   const packs = [];
   const entries = {};
   const members = new Map();
@@ -99,7 +99,8 @@ export function buildPacks(docs, runs, cap) {
   let cur = null;
   const open = (name) => { cur = { name, parts: [], size: 0, docs: 0 }; packs.push(cur); };
   for (const r of runs) {
-    open(r.name);
+    // a screen's group starts a new pack only once the current one is worth fetching on its own (`min`); smaller neighbours share a pack
+    if (cur && cur.size > 0 && cur.size < min) cur.name += `+${r.name}`; else open(r.name);
     for (const h of r.hashes) {
       const g = gz(h);
       if (cur.size > 0 && cur.size + g.length > cap) open(r.name);
@@ -115,7 +116,7 @@ export function writePacks(out, { packs, entries }, encoding = 'bin') {
   const meta = packs.map((p, i) => {
     const file = `packs/p${String(i).padStart(2, '0')}.${encoding === 'b64' ? 'txt' : 'bin'}`;
     writeFileSync(join(out, file), encoding === 'b64' ? p.buf.toString('base64') : p.buf);
-    return { file, name: p.name, docs: p.docs, bytes: p.bytes };
+    return { file, name: p.name.slice(0, 80), docs: p.docs, bytes: p.bytes };
   });
   return { meta, entries };
 }

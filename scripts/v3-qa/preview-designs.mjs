@@ -4,6 +4,8 @@
 // A design whose real state needs data the capture lacks is reached in the state the capture supports, and `t.notes` says what the preview shows.
 
 const flat = (s) => s.replace(/\s+/g, ' ');
+/** The open part of a game card (its header), clear of the lines box, the star and the bell: where a thumb opens the game. */
+const CARD_BODY = { click: { position: { x: 40, y: 14 } } };
 const dialog = (t, name) => t.page.getByRole('dialog', name ? { name } : {});
 
 // ---- shared steps ---------------------------------------------------------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ async function gamesCard(t, sport, a, b) {
 async function nflGame(t) {
   const card = await gamesCard(t, 'NFL', 'Cowboys', 'Eagles');
   if (!card) throw new Error('no Cowboys / Eagles card on the Games tab');
-  await t.tap('Cowboys at Eagles card', card.locator('.v3-gc__hit'));
+  await t.tap('Cowboys at Eagles card', card.locator('.v3-gc__hit'), CARD_BODY);
   await t.has('Game Detail is open on its Overview', '.v3-gd', { min: 1 });
 }
 
@@ -70,7 +72,7 @@ async function propsList(t) { await propsHome(t); await t.tap('See all (SIFT mod
 
 export const ROOT_TABS = [
   {
-    id: 'ROOT-Home', title: 'Home tab shows the captured slate (not sample data)',
+    id: 'ROOT-Home', from: 'Home', title: 'Home tab shows the captured slate (not sample data)',
     async run(t) {
       await t.has('captured-data banner says captured, date, not live', '[data-capture-banner]', { text: /CAPTURED DATA.*26 Oct 2026.*prices as captured, not live/ });
       await t.has('no sample-data strip', '.v3-demo', { min: 0, max: 0 });
@@ -83,7 +85,7 @@ export const ROOT_TABS = [
     },
   },
   {
-    id: 'ROOT-Games', title: 'Games tab lists the captured slate with lines through the quote gate',
+    id: 'ROOT-Games', from: 'Games', title: 'Games tab lists the captured slate with lines through the quote gate',
     async run(t) {
       await t.root('Games');
       await t.has('game cards are listed', '.v3-gc', { min: 5 });
@@ -93,7 +95,7 @@ export const ROOT_TABS = [
     },
   },
   {
-    id: 'ROOT-Explore', title: 'Explore tab is Prop Discovery on the captured props',
+    id: 'ROOT-Explore', from: 'Explore', title: 'Explore tab is Prop Discovery on the captured props',
     async run(t) {
       await propsHome(t);
       await t.has('shelf cards are listed', '.pd-card', { min: 1 });
@@ -101,7 +103,7 @@ export const ROOT_TABS = [
     },
   },
   {
-    id: 'ROOT-Following', title: 'Following tab: save from Player Research, then open the saved state',
+    id: 'ROOT-Following', from: 'Home', title: 'Following tab: save from Player Research, then open the saved state',
     async run(t) {
       await t.root('Home');
       await homeGame(t);
@@ -136,6 +138,7 @@ export const DESIGNS = [
   {
     id: 'P2', title: 'Drag the line, compare every rung', from: 'Home',
     async run(t) {
+      t.notes.push('The SIFT lane shows a dash on every rung the model does not publish (it publishes three), as the design locks.');
       await homeGame(t);
       await openPlayer(t, LAMB, 'CeeDee Lamb (Players to research)');
       const grab = t.page.locator('.v3p-hb__grab');
@@ -191,6 +194,7 @@ export const DESIGNS = [
   {
     id: 'G1', title: 'Matchup: offense against defense, both ways', from: 'Home',
     async run(t) {
+      t.notes.push('Shown on Cowboys at Eagles, a game still to be played at the capture instant. A game in play is not captured (the score feed is off), so the live variants of G1 to G3 are not shown.');
       await homeGame(t);
       await t.sub('Matchup');
       await t.has('direction control with the tilt summary', '.mx-sg', { min: 2 });
@@ -232,6 +236,7 @@ export const DESIGNS = [
   {
     id: 'PD1', title: 'Discover: what is interesting today', from: 'Explore',
     async run(t) {
+      t.notes.push("The counts in the title are the captured day's (the whole slate), not the mockup's own day.");
       await propsHome(t);
       await t.has('title with the real universe (props, contracts)', '.pd-h__sub', { text: /\d+ games?.*\d+ props.*\d+ contracts/ });
       await t.has('search field', '.pd-field', { min: 1 });
@@ -368,9 +373,10 @@ function teamDesigns() {
     {
       id: 'TR6', title: 'Overview, hockey (Toronto)', from: 'Games',
       async run(t) {
+      t.notes.push('Hockey is Toronto, from the Maple Leafs at Flames game on the captured slate; the record is wins-losses-overtime losses as the design locks.');
         const card = await gamesCard(t, 'NHL', 'Maple Leafs', 'Flames');
         if (!card) throw new Error('no Maple Leafs / Flames card on the Games tab');
-        await t.tap('Maple Leafs at Flames card', card.locator('.v3-gc__hit'));
+        await t.tap('Maple Leafs at Flames card', card.locator('.v3-gc__hit'), CARD_BODY);
         await openTeam(t, 'nhl', 'TOR', 'Toronto logo (Game Detail header)');
         await t.has('hero with a wins-losses-overtime-losses record', '.tm-hero .tm-rec', { text: /\d+–\d+–\d+/ });
         await t.has('next game strip (the league schedule)', '.tm-gstrip', { min: 1 });
@@ -402,6 +408,7 @@ function statDesigns() {
     {
       id: 'SD2', title: 'Trend: how has it moved, game by game?', from: 'Games',
       async run(t) {
+      t.notes.push("The per-game series is captured for Dallas's points per game, so that is the statistic shown; a statistic with no series opens the rank-path state instead.");
         await nflGame(t);
         await openTeam(t, 'nfl', 'DAL', 'Dallas logo (Game Detail header)');
         await t.sub('Profile');
@@ -437,6 +444,7 @@ function statDesigns() {
     {
       id: 'SD5', title: 'Compare players', from: 'Games',
       async run(t) {
+      t.notes.push('The two players are CeeDee Lamb and George Pickens, whose game logs are in the capture; a player without a captured log would show the locked state.');
         await teamStat(t);
         await t.sub('Compare');
         await t.tap('Players (mode)', t.page.getByRole('button', { name: 'Players', exact: true }).first());
@@ -466,7 +474,7 @@ function statDesigns() {
       async run(t) {
         const card = await gamesCard(t, 'NHL', 'Maple Leafs', 'Flames');
         if (!card) throw new Error('no Maple Leafs / Flames card on the Games tab');
-        await t.tap('Maple Leafs at Flames card', card.locator('.v3-gc__hit'));
+        await t.tap('Maple Leafs at Flames card', card.locator('.v3-gc__hit'), CARD_BODY);
         await openTeam(t, 'nhl', 'TOR', 'Toronto logo (Game Detail header)');
         await t.tap('power-play (special teams) row', t.page.locator('.tm [data-tap="stat"][data-dest*="/v3/stat/nhl/"]', { hasText: /power/i }).first());
         await t.has('Stat Detail opened', '.st-hd h1', { min: 1 });
@@ -483,53 +491,73 @@ function statDesigns() {
 async function teamClosure(t, sport, a, b, code) {
   const card = await gamesCard(t, sport, a, b);
   if (!card) throw new Error(`no ${a} / ${b} card`);
-  await t.tap(`${a} at ${b} card`, card.locator('.v3-gc__hit'));
+  await t.tap(`${a} at ${b} card`, card.locator('.v3-gc__hit'), CARD_BODY);
   await openTeam(t, sport.toLowerCase(), code, `${code} logo (Game Detail header)`);
-  const teamHash = await t.hash();
-  const dests = new Set();
-  const collect = async () => { for (const d of await t.page.locator('.tm [data-tap="stat"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-dest')))) if (d) dests.add(d); };
-  await collect();
-  for (const tab of ['Profile', 'Schedule']) {
-    if (!(await t.page.getByRole('tab', { name: new RegExp(`^${tab}`) }).count())) { t.notes.push(`${code} has no ${tab} tab.`); continue; }
-    await t.sub(tab);
-    await collect();
-    if (tab === 'Profile') {
-      for (const label of ['Raw', 'Opponent-adjusted']) {
-        const b1 = t.page.getByRole('button', { name: label, exact: true }).first();
-        if (await b1.count()) { await t.tap(label, b1); const all = t.page.getByRole('button', { name: /Show all/ }).first(); if (await all.count()) await t.tap('Show all', all); await collect(); }
-      }
+  const hasTab = async (name) => (await t.page.getByRole('tab', { name: new RegExp(`^${name}`) }).count()) > 0;
+  const states = [
+    { name: 'Overview', setup: async () => { await t.sub('Overview'); } },
+    ...(await hasTab('Profile') ? [
+      { name: 'Profile (adjusted)', setup: async () => { await t.sub('Profile'); const adj = t.page.getByRole('button', { name: 'Opponent-adjusted', exact: true }).first(); if (await adj.count()) await t.tap('Opponent-adjusted', adj); const all = t.page.getByRole('button', { name: /Show all/ }).first(); if (await all.count()) await t.tap('Show all', all); } },
+      { name: 'Profile (raw)', setup: async () => { await t.sub('Profile'); const raw = t.page.getByRole('button', { name: 'Raw', exact: true }).first(); if (await raw.count()) await t.tap('Raw', raw); const all = t.page.getByRole('button', { name: /Show all/ }).first(); if (await all.count()) await t.tap('Show all', all); } },
+    ] : []),
+    ...(await hasTab('Schedule') ? [{ name: 'Schedule', setup: async () => { await t.sub('Schedule'); } }] : []),
+  ];
+  let found = 0; let opened = 0; const seen = new Set();
+  for (const st of states) {
+    await st.setup();
+    const stateHash = await t.hash();
+    const dests = await t.page.locator('.tm [data-tap="stat"]').evaluateAll((els) => [...new Set(els.map((e) => e.getAttribute('data-dest')).filter(Boolean))]);
+    found += dests.length;
+    for (const d of dests) {
+      if (seen.has(d)) continue;
+      seen.add(d);
+      try {
+        const link = t.page.locator(`.tm a[data-tap="stat"][data-dest="${d}"]`).first();
+        await link.scrollIntoViewIfNeeded({ timeout: 5000 });
+        await link.click({ timeout: 5000 });
+        await settleQuiet(t);
+        opened++;
+        for (const tb of ['Trend', 'Compare', 'About']) { const tabEl = t.page.getByRole('tab', { name: new RegExp(`^${tb}`) }).first(); if (await tabEl.count()) { await tabEl.click().catch(() => {}); await settleQuiet(t); } }
+      } catch (e) { void e; }
+      for (let i = 0; i < 4 && (await t.hash()) !== stateHash; i++) { await t.page.goBack(); await settleQuiet(t); }
     }
   }
-  t.notes.push(`${dests.size} statistic links on ${code}'s Overview, Profile (adjusted and raw, all rows) and Schedule were opened.`);
-  let opened = 0;
-  for (const d of dests) {
-   try {
-    await t.page.evaluate(() => window.scrollTo(0, 0));
-    // return to the team (by Back, as a person would) when a previous statistic left us elsewhere
-    if ((await t.hash()) !== teamHash && !(await t.hash()).startsWith('#/v3/team/')) { await t.page.goBack(); await settleQuiet(t); }
-    const tab = d.includes('/Profile') ? 'Profile' : null;
-    void tab;
-    const link = t.page.locator(`.tm a[data-tap="stat"][data-dest="${d}"]`).first();
-    if (!(await link.count())) {
-      for (const tb of ['Overview', 'Profile', 'Schedule']) { await t.sub(tb); if (await t.page.locator(`.tm a[data-tap="stat"][data-dest="${d}"]`).count()) break; }
-    }
-    const l2 = t.page.locator(`.tm a[data-tap="stat"][data-dest="${d}"]`).first();
-    if (!(await l2.count())) continue;
-    await l2.scrollIntoViewIfNeeded().catch(() => {});
-    await l2.click().catch(() => {});
-    await settleQuiet(t);
-    opened++;
-    for (const tb of ['Trend', 'Compare', 'About']) { const tabEl = t.page.getByRole('tab', { name: new RegExp(`^${tb}`) }).first(); if (await tabEl.count()) { await tabEl.click().catch(() => {}); await settleQuiet(t); } }
-    await t.page.goBack(); await settleQuiet(t);
-    // back through the in-place tab changes (they replace history, so one Back leaves the statistic)
-    if (!(await t.hash()).startsWith('#/v3/team/')) { await t.page.goBack(); await settleQuiet(t); }
-   } catch (e) { void e; if (!(await t.hash()).startsWith('#/v3/team/')) { await t.page.goBack().catch(() => {}); await settleQuiet(t); } }
-  }
-  t.check(`statistics opened from ${code}`, opened > 0, `${opened} of ${dests.size}`);
+  t.notes.push(`${found} statistic links on ${code}'s ${states.map((x) => x.name).join(', ')} were opened by tapping (${opened} distinct), each with its Trend, Compare and About tabs.`);
+  t.check(`statistics opened from ${code}`, opened > 0, `${opened} of ${seen.size}`);
 }
 const settleQuiet = (t) => t.page.waitForTimeout(450);
 
+/** What Game Detail shows for the first game of each sport: a coverage table for the About sheet and the docs (what the capture can open, and what it cannot). */
+async function gameCoverage(t) {
+  await t.root('Games');
+  const sports = (await t.page.locator('.v3-tabs button, .v3-tabs a, [role=tab]').allInnerTexts()).map((x) => x.trim()).filter((x) => x && x !== 'All');
+  const rows = [];
+  for (const sp of sports) {
+    await t.root('Games');
+    await t.tap(`${sp} (sport rail)`, t.page.locator('.v3-tabs button, .v3-tabs a, [role=tab]', { hasText: new RegExp(`^${sp}$`) }).first());
+    for (const state of ['Today', 'Upcoming', 'Final']) {
+      const chip = t.page.getByRole('button', { name: new RegExp(`^${state}( \\d+)?$`) }).first();
+      if (!(await chip.count())) continue;
+      await t.tap(state, chip);
+      const card = t.page.locator('.v3-gc').first();
+      if (!(await card.count())) continue;
+      const label = flat(await card.innerText()).slice(0, 60);
+      try {
+        await t.tap(`${label}`, card.locator('.v3-gc__hit'), CARD_BODY);
+        await t.page.waitForTimeout(1200);
+        const txt = flat(await t.page.locator('.v3-main').innerText());
+        const hasData = !/No Kalshi lines are listed|No win-price contract|not published/i.test(txt);
+        rows.push({ sport: sp, state, game: label, opens: hasData, text: hasData ? '' : txt.slice(0, 100) });
+        await t.page.goBack(); await settleQuiet(t);
+      } catch (e) { rows.push({ sport: sp, state, game: label, opens: false, text: `tap failed: ${String(e.message).split('\n')[0].slice(0, 60)}` }); await t.root('Games'); }
+    }
+  }
+  t.notes.push(`Game Detail coverage by sport and state: ${rows.map((r) => `${r.sport}/${r.state} ${r.opens ? 'opens with its game documents' : `opens from the slate row only ("${r.text.slice(0, 60)}")`}`).join('; ')}.`);
+  t.check('coverage recorded', rows.length > 0, `${rows.length} games tried`);
+}
+
 export const SWEEPS = [
+  { id: 'SWEEP-GameCoverage', title: 'what Game Detail shows for the first game of each sport and state', run: gameCoverage },
   { id: 'SWEEP-TeamsNFL', title: 'every statistic reachable from Dallas', run: (t) => teamClosure(t, 'NFL', 'Cowboys', 'Eagles', 'DAL') },
   { id: 'SWEEP-TeamsNHL', title: 'every statistic reachable from Toronto', run: (t) => teamClosure(t, 'NHL', 'Maple Leafs', 'Flames', 'TOR') },
   {
@@ -550,3 +578,36 @@ export const SWEEPS = [
     },
   },
 ];
+
+/**
+ * States of the preview itself (not among the 26 designs). "Demo: no reliable quote" skips the observation re-stamp, so the app's own quote gate
+ * withholds every captured price: lists print a dash, the exact-contract sheet says "Price unavailable right now" with Retry. Run last: it restores the switch.
+ */
+export const STATES = [
+  {
+    id: 'STATE-NoQuote', title: 'Demo: no reliable quote (the real withheld-price path)',
+    async run(t) {
+      await t.tap('About (banner)', '[data-capture-about]');
+      const box = t.page.locator('[data-capture-noquote]');
+      path_note(t, 'tick "Demo: no reliable quote" (the page reloads)');
+      await Promise.all([t.page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}), box.click()]);
+      await t.page.waitForSelector('[data-capture-banner]', { timeout: 30_000 });
+      await t.has('the banner says DEMO: no reliable quote', '[data-capture-banner]', { text: /DEMO: no reliable quote/ });
+      const card = await gamesCard(t, 'NFL', 'Cowboys', 'Eagles');
+      t.check('the Cowboys at Eagles card prints no price (dash) while the demo is on', !!card && !/\d+¢/.test(flat(await card.innerText())), card ? flat(await card.innerText()).slice(0, 140) : 'no card');
+      await propsHome(t);
+      await t.has('cards print a dash for the withheld price', '.pd-card a.pd-px[data-tap="price"]', { text: /—/ });
+      await t.tap('a withheld price pill', t.page.locator('.pd-card a.pd-px[data-tap="price"]').first());
+      await t.has('the contract sheet says Price unavailable right now', '[role=dialog] [data-state="unavailable"]', { text: /Price unavailable right now/ });
+      await t.has('with Retry', '[role=dialog] button', { min: 1 });
+      t.check('the fee and break-even rows are hidden', (await t.page.locator('[role=dialog] [data-state="fee"]').count()) === 0);
+      await t.page.goBack(); await t.page.waitForTimeout(500);
+      await t.tap('About (banner)', '[data-capture-about]');
+      path_note(t, 'untick the demo (the page reloads)');
+      await Promise.all([t.page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}), t.page.locator('[data-capture-noquote]').click()]);
+      await t.page.waitForSelector('[data-capture-banner]', { timeout: 30_000 });
+      await t.has('the banner no longer says DEMO', '[data-capture-banner]', { text: /^((?!DEMO).)*$/ });
+    },
+  },
+];
+const path_note = (t, label) => t.path.push(label);

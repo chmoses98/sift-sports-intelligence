@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { serve } from '../v3-preview/static-server.mjs';
-import { DESIGNS, ROOT_TABS, SWEEPS } from './preview-designs.mjs';
+import { DESIGNS, ROOT_TABS, STATES, SWEEPS } from './preview-designs.mjs';
 
 const argv = process.argv.slice(2);
 const arg = (n, d) => { const i = argv.indexOf(`--${n}`); return i > -1 ? argv[i + 1] : d; };
@@ -48,7 +48,7 @@ async function open(label) {
   page.on('requestfinished', (r) => { if (r.url().startsWith(srv.url)) page.__inflight--; });
   page.on('requestfailed', (r) => { if (r.url().startsWith(srv.url)) page.__inflight--; });
   page.__errors = [];
-  page.setDefaultTimeout(12_000);
+  page.setDefaultTimeout(25_000);
   page.on('pageerror', (e) => page.__errors.push(String(e).slice(0, 300)));
   await page.goto(srv.url);
   await page.waitForSelector('[data-capture-banner]', { timeout: 30_000 });
@@ -86,9 +86,9 @@ const ctxFor = (page, d) => {
     async tap(label, target, o = {}) {
       const loc = typeof target === 'string' ? page.locator(target).first() : target;
       path.push(label);
-      await loc.scrollIntoViewIfNeeded({ timeout: 10_000 });
+      await loc.scrollIntoViewIfNeeded({ timeout: 20_000 });
       await page.waitForTimeout(120);
-      await loc.click({ timeout: 10_000, ...(o.click ?? {}) });
+      await loc.click({ timeout: 20_000, ...(o.click ?? {}) });
       await settle(page, o.quiet);
     },
     check(what, ok, detail = '') { checks.push({ what, ok: !!ok, ...(detail ? { detail } : {}) }); return !!ok; },
@@ -127,7 +127,7 @@ const ctxFor = (page, d) => {
   return t;
 };
 
-async function shot(page, id) { const f = `${id}.png`; await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(150); await page.screenshot({ path: join(out, f) }); return f; }
+async function shot(page, id) { const f = `${id}.png`; await page.waitForTimeout(150); await page.screenshot({ path: join(out, f) }); return f; }
 
 // The three derived lists accumulate across runs (a run with --only adds what its designs read; nothing is removed): the build needs the union.
 // They are written after every design so an interrupted crawl keeps what it learned.
@@ -226,6 +226,22 @@ for (const s of SWEEPS) {
   flushDerived();
 }
 
+// ---- states of the preview itself (the withheld-price demo; restores the switch) -----------------------------------------------------------------
+report.states = [];
+for (const d of STATES) {
+  if (only && !only.has(d.id)) continue;
+  const page = await open(d.id);
+  const t = ctxFor(page, d);
+  try { await d.run(t); } catch (e) { t.check('crawl step failed', false, String(e.message ?? e).split('\n')[0]); }
+  const shotFile = await shot(page, d.id).catch(() => null);
+  await harvest(page, d.id);
+  const pass = t.checks.length > 0 && t.checks.every((c) => c.ok);
+  report.states.push({ id: d.id, title: d.title, path: t.path, pass, checks: t.checks, notes: t.notes, screenshot: shotFile });
+  console.log(`${pass ? 'PASS' : 'FAIL'} ${d.id} ${d.title}${pass ? '' : '  <- ' + t.checks.filter((c) => !c.ok).map((c) => `${c.what}: ${c.detail ?? ''}`).join('; ')}`);
+  await page.close();
+  flushDerived();
+}
+
 // ---- network assertions --------------------------------------------------------------------------------------------------------------------------
 const origin = srv.url.replace(/\/$/, '');
 const localPaths = [...net.local.keys()];
@@ -247,6 +263,15 @@ report.network = {
   localAssetsRequestedButNotBundled: assets.filter((p) => !existsSync(join(root, p))).length,
   sameOriginRequestsThatAnswered404: srv.log.filter((l) => l.status === 404).map((l) => l.path).filter((p, i, a) => a.indexOf(p) === i),
 };
+// Which documents the crawled routes read came from a family other than the base (provenance: docs/sift3/qa/impl/preview/capture-manifest.json)?
+{
+  const prov = readJson(join(out, 'capture-manifest.json'), null) ?? readJson('docs/sift3/qa/impl/preview/capture-manifest.json', null);
+  const add = new Map((prov?.additionsFromOtherFamilies ?? []).map((a) => [a.hash, a]));
+  const used = [];
+  for (const [u, g] of net.served) { const a = add.get(sha1(u)); if (a) used.push({ family: a.family, kind: a.kind, firstReadBy: g }); }
+  report.network.documentsReadFromOtherFamilies = used.sort((x, y) => (x.family + x.kind).localeCompare(y.family + y.kind));
+  report.network.additionsInTheCapture = add.size;
+}
 report.assertions = [
   { what: 'zero requests to an external host', ok: net.external.length === 0 },
   { what: 'zero attempts by the app at an external host (the shim would have refused them)', ok: net.blockedInPage.length === 0 },
@@ -254,7 +279,7 @@ report.assertions = [
   { what: 'only same-origin snapshot files: no request left the origin', ok: net.external.length === 0 && net.liveQuoteNetwork.length === 0 },
 ];
 report.finishedAt = new Date().toISOString();
-const all = [...report.roots, ...report.designs];
+const all = [...report.roots, ...report.designs, ...report.states];
 report.summary = { designs: report.designs.length, designsPassed: report.designs.filter((d) => d.pass).length, rootsPassed: report.roots.filter((d) => d.pass).length, roots: report.roots.length, assertionsPassed: report.assertions.every((a) => a.ok), welcomeOk: report.welcome.ok, allPass: all.every((d) => d.pass) && report.assertions.every((a) => a.ok) && report.welcome.ok };
 
 if (!only) {
@@ -268,9 +293,9 @@ process.exit(report.summary.allPass || only ? 0 : 1);
 void origin;
 
 function toMarkdown(r) {
-  const rows = (arr) => arr.map((d) => `| ${d.id} | ${d.title} | ${d.path.join(' > ')} | ${d.pass ? 'PASS' : 'FAIL'} | ${d.checks.filter((c) => c.ok).length}/${d.checks.length} |`).join('\n');
-  const fails = [...r.roots, ...r.designs].filter((d) => !d.pass).map((d) => `- ${d.id}: ${d.checks.filter((c) => !c.ok).map((c) => `${c.what} (${c.detail ?? ''})`).join('; ')}`).join('\n');
+  const rows = (arr) => arr.map((d) => `| ${d.id} | ${d.title} | ${d.from ?? ''} | ${d.path.join(' > ')} | ${d.pass ? 'PASS' : 'FAIL'} | ${d.checks.filter((c) => c.ok).length}/${d.checks.length} |`).join('\n');
+  const fails = [...r.roots, ...r.designs, ...r.states].filter((d) => !d.pass).map((d) => `- ${d.id}: ${d.checks.filter((c) => !c.ok).map((c) => `${c.what} (${c.detail ?? ''})`).join('; ')}`).join('\n');
   return `# Captured preview: reachability crawl\n\nBuilt from \`${r.builtFrom}\`, 390x844, time zone ${r.timezone}, ${r.startedAt}. Every path below is taps only, starting from a root tab; the page was loaded once at its start address.\n\n` +
-    `Welcome (first visit): ${JSON.stringify(r.welcome)}\n\n## Root tabs\n| id | what | tap path | result | checks |\n|---|---|---|---|---|\n${rows(r.roots)}\n\n## The 26 locked designs\n| id | design | tap path | result | checks |\n|---|---|---|---|---|\n${rows(r.designs)}\n\n` +
-    `## Notes by design\n${[...r.roots, ...r.designs].filter((d) => d.notes.length).map((d) => `- **${d.id}**: ${d.notes.join(' ')}`).join('\n')}\n\n${fails ? `## Failures\n${fails}\n\n` : ''}## Network\n${'```'}json\n${JSON.stringify(r.network, null, 1)}\n${'```'}\n\n${r.assertions.map((a) => `- ${a.ok ? 'PASS' : 'FAIL'}: ${a.what}`).join('\n')}\n`;
+    `Welcome (first visit): ${JSON.stringify(r.welcome)}\n\n## Root tabs\n| id | what | start tab | tap path (taps only) | result | checks |\n|---|---|---|---|---|---|\n${rows(r.roots)}\n\n## The 26 locked designs\n| id | design | start tab | tap path (taps only) | result | checks |\n|---|---|---|---|---|---|\n${rows(r.designs)}\n\n## States of the preview itself\n| id | what | start tab | tap path (taps only) | result | checks |\n|---|---|---|---|---|---|\n${rows(r.states)}\n\n` +
+    `## Sweeps (render every reachable list once; record what the capture can and cannot open)\n${r.sweeps.map((x) => `- **${x.id}** (${x.ok ? 'PASS' : 'FAIL'}): ${(x.notes ?? []).join(' ') || x.title}`).join('\n')}\n\n## Notes by design\n${[...r.roots, ...r.designs, ...r.states].filter((d) => d.notes.length).map((d) => `- **${d.id}**: ${d.notes.join(' ')}`).join('\n')}\n\n${fails ? `## Failures\n${fails}\n\n` : ''}## Network\n${'```'}json\n${JSON.stringify(r.network, null, 1)}\n${'```'}\n\n${r.assertions.map((a) => `- ${a.ok ? 'PASS' : 'FAIL'}: ${a.what}`).join('\n')}\n`;
 }

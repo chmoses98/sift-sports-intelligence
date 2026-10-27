@@ -1,7 +1,7 @@
 // Build the captured-data preview of SIFT 3.0 (every root tab and every research route on real published documents captured on disk) into
 // dist-v3-snapshot/, ready to publish as a Claude Artifact. Nothing here enters the production bundle.
 //
-//   node scripts/build-v3-captured-preview.mjs [--base DIR] [--also name=DIR]... [--gaps DIR] [--cap-kb 1500] [--pack-encoding bin|b64]
+//   node scripts/build-v3-captured-preview.mjs [--base DIR] [--also name=DIR]... [--gaps DIR] [--cap-kb 1500] [--min-kb 250] [--pack-encoding bin|b64]
 //                                              [--no-check] [--provenance]
 //   V3_FEED_CACHE (base cache dir, default .v3-feed-cache; it must hold captured_at.txt)
 //   V3_ALSO_CACHES ("player=DIR,team=DIR,stat=DIR,game=DIR": other families; a document is added only where the base lacks that URL;
@@ -46,7 +46,7 @@ for (const f of alsoSpec) if (!existsSync(f.dir)) console.warn(`warning: family 
 
 // 3. Packs, grouped by the screens that read them (first-use order recorded by the crawl; documents no screen read follow, by kind).
 const order = read('scripts/v3-preview/pack-order.json', []);
-const built = buildPacks(merged.docs, planPacks(merged.docs, order, capBytes), capBytes);
+const built = buildPacks(merged.docs, planPacks(merged.docs, order, capBytes), capBytes, Number(arg('min-kb', '250')) * 1024);
 mkdirSync(`${out}/snapshot`, { recursive: true });
 const { meta, entries } = writePacks(out, built, encoding);
 
@@ -64,9 +64,22 @@ const stampRange = (() => {
   return { earliest: iso(lo), latest: iso(hi) };
 })();
 
-const about = read('scripts/v3-preview/about.json', {});
 const families = {};
-for (const d of merged.docs.values()) families[d.family] = (families[d.family] ?? 0) + 1;
+const kinds = {};
+for (const d of merged.docs.values()) { families[d.family] = (families[d.family] ?? 0) + 1; kinds[d.kind] = (kinds[d.kind] ?? 0) + 1; }
+// The About sheet's statements: the static ones (scripts/v3-preview/about.json) plus the counts only this build knows.
+const k = (n) => kinds[n] ?? 0;
+const about = read('scripts/v3-preview/about.json', {});
+about.real = [
+  `The capture is ${merged.docs.size.toLocaleString('en-US')} published documents: ${k('event_detail')} game documents, ${k('event_research')} game research documents, ${k('entity_profile')} team and player profiles, ${k('ranking')} statistic rankings, ${k('explorer_index') + k('search_index') + k('metric_registry')} indexes and metric definitions, ${k('board')} boards, ${k('sift.projections.v1')} model projection files and ${k('sift.live_quotes.v1')} Kalshi quote files.`,
+  ...(about.real ?? []),
+];
+const missedRankings = read('docs/sift3/qa/impl/preview/missed-documents.json', { urls: [] }).urls.filter((u) => /\/explorer\/rankings\//.test(u)).length;
+about.notCaptured = [
+  ...(missedRankings ? [`Statistic rankings: the crawl found ${missedRankings} ranking documents linked from the team pages it opened that no cache holds, so tapping those statistics shows that screen's own "not published" state (${k('ranking')} rankings are captured). They cannot be added now: the publication has been republished since the capture, and a newer ranking would contradict the team page that links to it.`] : []),
+  `Kalshi quote files exist for only ${k('sift.live_quotes.v1')} games. A game without one shows the price from its own game document where that has one, otherwise "No lines listed". No quote was fetched for this preview.`,
+  ...(about.notCaptured ?? []),
+];
 const index = {
   format: FORMAT, capturedAt, clockAt: new Date(Date.parse(capturedAt) - 3000).toISOString(), stamps: stampRange, families, total: merged.docs.size,
   packs: meta, docs: entries, about, build: `build ${sha.slice(0, 7)}${dirty ? '+local' : ''}, ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`,
@@ -122,7 +135,7 @@ if (!flag('no-check')) {
     await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
     await page.goto(srv.url);
     await page.waitForSelector('[data-capture-banner]', { timeout: 30_000 });
-    const hasSlate = await page.waitForSelector('.v3-gc', { timeout: 60_000 }).then(() => true).catch(() => false);
+    const hasSlate = await page.waitForSelector('.v3-main a[data-tap="game"], .v3-main a[href*="/v3/game/"]', { timeout: 60_000 }).then(() => true).catch(() => false);
     const banner = await page.locator('[data-capture-banner]').innerText();
     const sampleStrip = await page.locator('.v3-demo').count();
     selfCheck = { ran: true, ok: hasSlate && sampleStrip === 0 && external.length === 0 && errors.length === 0, slateRendered: hasSlate, sampleStrip, banner, externalRequests: external, pageErrors: errors, requests: srv.log.length };
@@ -136,6 +149,7 @@ if (flag('provenance')) {
     capturedAt, clockAt: index.clockAt, baseFamily: 'props', documents: merged.docs.size, families, stamps: stampRange,
     additionsFromOtherFamilies: merged.additions.filter((a) => a.family !== 'gap-fill'),
     gapFills: merged.additions.filter((a) => a.family === 'gap-fill').map((a) => ({ ...a, url: gaps[a.hash]?.url ?? null, fetchedAt: gaps[a.hash]?.fetchedAt ?? null })),
+    gapFillAttemptsRejected: Object.values(gaps).filter((g) => /^rejected/.test(g.verdict ?? '')).map((g) => ({ url: g.url, run_id: g.run_id, generated_at: g.generated_at, verdict: g.verdict })),
     skippedBecauseBaseHasUrl: merged.skipped,
   }, null, 1) + '\n');
 }

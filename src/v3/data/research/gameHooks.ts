@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 import type { EventDetailDoc, EventResearchDoc, Market } from '../../../contract/types';
 import { useAuthority } from '../../../data/projections';
 import { useLiveQuotes, useNow } from '../../../live/hooks';
-import { overlayMarket } from '../../../live/overlay';
+import { overlayLive } from '../liveMarket';
 import { usablePrice } from '../quoteGate';
 import { priceOf } from '../adapt';
 import type { Price, V3Game } from '../../model/types';
@@ -29,11 +29,11 @@ export function useGameStart(g: V3Game | null): number | null {
 }
 
 /** Both teams' profiles, loaded only when `enabled` (the Matchup tab), cached for Team Research and Stat Detail as well. */
-export function useMatchupProfiles(g: V3Game | null, enabled: boolean): { away: TeamProfile | null; home: TeamProfile | null; loading: boolean; demo: boolean } {
+export function useMatchupProfiles(g: V3Game | null, enabled: boolean): { away: TeamProfile | null; home: TeamProfile | null; loading: boolean; demo: boolean; failure: unknown; retry: () => void } {
   const real = !!g && g.provenance === 'publication' && !demoOn();
   const a = useTeamProfile(g?.slug ?? '', enabled && real ? g!.away.id : null);
   const h = useTeamProfile(g?.slug ?? '', enabled && real ? g!.home.id : null);
-  return { away: a.profile, home: h.profile, loading: enabled && real && (a.loading || h.loading), demo: !real };
+  return { away: a.profile, home: h.profile, loading: enabled && real && (a.loading || h.loading), demo: !real, failure: real && enabled ? (!a.profile && a.failure) || (!h.profile && h.failure) || undefined : undefined, retry: () => { a.retry(); h.retry(); } };
 }
 
 /** The roster the research document names, with each player's team code (by the team id the document states). */
@@ -54,7 +54,7 @@ export function useQuotedPrices(detail: EventDetailDoc | null | undefined, ticke
   const markets = detail?.markets;
   const live = useLiveQuotes(tickers.length ? tickers : undefined, 'detail');
   const byTicker = useMemo(() => new Map<string, Market>((markets ?? []).map((m) => [m.kalshi_ticker, m])), [markets]);
-  return useCallback((ticker: string) => { const m = byTicker.get(ticker); return m ? priceOf(overlayMarket(m, live.quote(ticker))) : null; }, [byTicker, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
+  return useCallback((ticker: string) => { const m = byTicker.get(ticker); return m ? priceOf(overlayLive(m, live.quote(ticker))) : null; }, [byTicker, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /**

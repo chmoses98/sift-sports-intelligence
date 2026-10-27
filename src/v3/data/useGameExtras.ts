@@ -2,9 +2,10 @@
 // finished game's published score and the verified venue photo (event research). Demo games already carry everything.
 import { useMemo } from 'react';
 import { useLiveQuotes } from '../../live/hooks';
-import { overlayMarket } from '../../live/overlay';
+import { overlayLive } from './liveMarket';
 import { useAsync } from '../../data/hooks';
 import { SportRepo } from '../../data/repo';
+import { NotFoundError } from '../../data/fetcher';
 import { resolveSource } from '../../data/source';
 import { sportBySlug } from '../../data/sports';
 import { useGameResearch } from '../../views/broadcast/parts';
@@ -26,6 +27,21 @@ export function useEventDetail(slug: string, eventId: string, enabled: boolean) 
   });
 }
 
+/**
+ * The event's research document, with failures kept (the shared `useGameResearch` turns every failure into "none"). A document that is not
+ * published for this game (404) is `null` data: that is an answer. A connection failure, a timeout or a body that cannot be read is an error
+ * the screen says out loud, with a Retry.
+ */
+export function useEventResearch(slug: string, eventId: string, enabled: boolean) {
+  return useAsync(enabled ? `v3er:${slug}:${eventId}` : null, async () => {
+    const sport = sportBySlug(slug);
+    if (!sport) throw new Error(`unknown sport ${slug}`);
+    const repo = new SportRepo(await resolveSource(sport));
+    if (!repo.hasExplorer) return null;
+    return repo.eventResearch(eventId).catch((e: unknown) => { if (e instanceof NotFoundError) return null; throw e; });
+  });
+}
+
 /** `want`: 'lines' (list rows), 'full' (Game Detail: also the research document and the photo). */
 export function useGameExtras(g: V3Game | null, want: 'lines' | 'full', enabled = true): GameExtras | null {
   const real = !!g && g.provenance === 'publication';
@@ -44,7 +60,7 @@ export function useGameExtras(g: V3Game | null, want: 'lines' | 'full', enabled 
     let out = g;
     const d = detail.data;
     if (d) {
-      const overlaid = d.markets.map((m) => overlayMarket(m, live.quote(m.kalshi_ticker)));
+      const overlaid = d.markets.map((m) => overlayLive(m, live.quote(m.kalshi_ticker)));
       out = { ...out, lines: deriveLines(overlaid, g.away, g.home, { away: d.event.away_participant ?? null, home: d.event.home_participant ?? null }) };
     }
     const r = research.data;

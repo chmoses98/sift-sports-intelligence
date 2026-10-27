@@ -150,6 +150,13 @@ async function readDetail(repo: SportRepo, g: V3Game, retain: boolean): Promise<
   return doc;
 }
 
+/** Forget the games that could not be read, so reading them again asks the network (a game that read stays in memory). */
+export function forgetUnreadable(games: V3Game[]) {
+  for (const g of games) {
+    if (gameDone.get(g.key)?.unreadable) { gameDone.delete(g.key); gameMemo.delete(g.key); }
+  }
+}
+
 /** One game's props. Memoised per game, so a longer horizon reads only the games it adds and Back re-draws without a request. */
 export function loadGame(g: V3Game, now = Date.now()): Promise<GameResult> {
   return memoize(gameMemo, g.key, async () => {

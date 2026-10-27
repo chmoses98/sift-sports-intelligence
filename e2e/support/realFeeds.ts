@@ -45,9 +45,11 @@ export const readFeedCache = (url: string): Buffer | null => { const f = join(di
  * TEST TRANSFORMATION, not data: re-stamps the observation time of every market in the real quote-feed game files to "now", so the
  * priced states (a price inside the list's maximum age) can be exercised against the real contract list while the real feed, 3.5 minutes
  * plus a 5-minute CDN cache behind, is older than the display rule allows. Only timestamps change; every price is the published one.
- * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer; with `fail`, the feed answers 503 (no reliable quote can be obtained).
+ * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer; with `fail`, the feed answers 503 (no reliable quote can be obtained);
+ * with `status`, a ticker whose function returns a word has its market `status` REPLACED by it (a controlled modification, for the states no captured market is in:
+ * the real feed does carry `inactive` and `determined` markets, but not a `closed` or `settled` one that still has an ask).
  */
-export async function freshQuotes(page: Page, o: { omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean } = {}): Promise<void> {
+export async function freshQuotes(page: Page, o: { omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean; status?: (ticker: string) => string | undefined } = {}): Promise<void> {
   const live = o.live ?? process.env.V3_REAL_FEEDS === 'live';
   await page.route(/^https:\/\/raw\.githubusercontent\.com\/chmoses98\/sift-sports-intelligence\/live-quotes\/games\/[^/]+\.json/, async (route) => {
     if (o.fail?.()) { await route.fulfill({ status: 503, body: 'unavailable', headers: { 'access-control-allow-origin': '*' } }); return; }
@@ -57,10 +59,10 @@ export async function freshQuotes(page: Page, o: { omit?: (ticker: string) => bo
       try { await run('curl', ['-sS', '--fail', '-m', '40', '-o', join(dir, feedCacheKey(url)), url]); body = readFeedCache(url); } catch { /* a miss */ }
     }
     if (!body) { await route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } }); return; }
-    const doc = JSON.parse(body.toString('utf8')) as { generated_at?: string; markets: { observed_at?: string; ticker?: string; kalshi_ticker?: string }[] };
+    const doc = JSON.parse(body.toString('utf8')) as { generated_at?: string; markets: { observed_at?: string; ticker?: string; kalshi_ticker?: string; status?: string }[] };
     const now = feedNow().toISOString();
     doc.generated_at = now;
-    doc.markets = doc.markets.filter((m) => !o.omit?.(String(m.ticker ?? m.kalshi_ticker ?? ''))).map((m) => ({ ...m, observed_at: now }));
+    doc.markets = doc.markets.filter((m) => !o.omit?.(String(m.ticker ?? m.kalshi_ticker ?? ''))).map((m) => ({ ...m, observed_at: now, ...(o.status?.(String(m.ticker ?? m.kalshi_ticker ?? '')) ? { status: o.status!(String(m.ticker ?? m.kalshi_ticker ?? '')) } : {}) }));
     await route.fulfill({ status: 200, body: JSON.stringify(doc), headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
   });
 }

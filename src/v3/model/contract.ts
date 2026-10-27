@@ -3,15 +3,22 @@
 // one schedule in model/format.ts. Nothing here knows about freshness words: whether a price may be shown at all is data/quoteGate.ts.
 import type { LiveQuote } from '../../live/types';
 import { breakEvenPct, cents, takerFeeCents } from './format';
+import { statusFacts } from './marketStatus';
 import type { Price } from './types';
 
-/** A live quote (dollars) as the v3 Price (cents). A quote with no executable YES ask has no Price. */
+/**
+ * A live quote (dollars) as the v3 Price (cents). A quote with no executable YES ask has no Price, EXCEPT a quote whose status positively
+ * says the market cannot be traded: that is a Price with no ask whose `tradable` is false, so the exact-contract sheet can say
+ * "Market closed" / "Market settled" / "Trading suspended" instead of offering a Retry that cannot help. The provider's own status word
+ * (`rawStatus`) is read before its normalised `availability`, which folds several words into UNKNOWN.
+ */
 export function priceOfQuote(q: LiveQuote | undefined, fallbackDescription = ''): Price | null {
   if (!q) return null;
-  const ask = cents(q.yesAsk), bid = cents(q.yesBid);
-  if (ask == null) return null;
+  const sf = statusFacts(q.rawStatus ?? q.availability);
+  const ask = sf.tradable ? cents(q.yesAsk) : null, bid = sf.tradable ? cents(q.yesBid) : null;
+  if (ask == null && sf.tradable) return null;
   return {
-    ask, bid, implied: ask, ticker: q.ticker, side: 'YES', description: q.title ?? q.yesSubTitle ?? fallbackDescription,
+    ask, bid, ...sf, implied: ask, ticker: q.ticker, side: 'YES', description: q.title ?? q.yesSubTitle ?? fallbackDescription,
     observedAt: q.observedAt, source: 'Kalshi', volume: q.volume,
   };
 }

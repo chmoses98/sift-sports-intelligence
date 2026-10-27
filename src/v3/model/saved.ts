@@ -67,6 +67,11 @@ function routeVersion(route: string): number {
   return schema ? migrateQuery(schema, search).from : 0;
 }
 
+/** A saved record never carries a price: a frozen price is an old price, and a price is shown only while the quote gate passes it. */
+const PRICEY = /¢|\bask\b|\bodds\b|\bbid\b|\bimplied\b/i;
+/** Segments of a "a · b · c" line that name a price are dropped (nothing the app writes does; a record from elsewhere might). */
+const noPrice = (line: string): string => line.split(' · ').filter((x) => !PRICEY.test(x)).join(' · ');
+
 const cleanSnapshot = (raw: unknown): SnapshotItem[] | undefined => {
   if (!Array.isArray(raw)) return undefined;
   const out = raw
@@ -74,7 +79,7 @@ const cleanSnapshot = (raw: unknown): SnapshotItem[] | undefined => {
     .map((x) => ({ label: str(x.label, 40), value: str(x.value, 40), asOf: typeof x.asOf === 'string' ? x.asOf.slice(0, 40) : null }))
     .filter((x) => x.label && x.value)
     // A saved record never carries a price: a frozen price is an old price, and a price is shown only while the quote gate passes it.
-    .filter((x) => !/¢|\bask\b|\bodds\b/i.test(`${x.label} ${x.value}`))
+    .filter((x) => !PRICEY.test(`${x.label} ${x.value}`))
     .slice(0, 6);
   return out.length ? out : undefined;
 };
@@ -90,7 +95,7 @@ export function reviveSaved(raw: unknown, now = Date.now()): SavedResearch | nul
   if (!route0) return null;
   const sv = routeVersion(route0);
   const route = canonicalRoute(route0);
-  const title = str(r.title, 120).trim();
+  const title = noPrice(str(r.title, 120).trim());
   const kind = (['player', 'team', 'stat', 'game', 'props', 'other'] as const).find((k) => k === r.kind) ?? kindOfRoute(route);
   return {
     v: SAVED_VERSION,
@@ -98,8 +103,8 @@ export function reviveSaved(raw: unknown, now = Date.now()): SavedResearch | nul
     kind,
     sport: typeof r.sport === 'string' ? r.sport.slice(0, 8) : sportOfRoute(route),
     title: title || 'Saved research',
-    subtitle: str(r.subtitle, 160),
-    chips: Array.isArray(r.chips) ? r.chips.filter((c): c is string => typeof c === 'string' && c.length > 0).map((c) => c.slice(0, 24)).slice(0, 6) : [],
+    subtitle: noPrice(str(r.subtitle, 160)),
+    chips: Array.isArray(r.chips) ? r.chips.filter((c): c is string => typeof c === 'string' && c.length > 0 && !PRICEY.test(c)).map((c) => c.slice(0, 24)).slice(0, 6) : [],
     route,
     sv,
     savedAt: typeof r.savedAt === 'number' && Number.isFinite(r.savedAt) ? r.savedAt : now,

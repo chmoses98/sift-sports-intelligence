@@ -15,6 +15,8 @@ export interface PropRung {
   volume: number | null;
   capturedAt: string | null;
   source: 'Kalshi' | 'Sample';
+  /** The publication's market status word at capture (null when it carries none). A newer live status replaces it (hooks.rawPrice). */
+  status?: string | null;
 }
 
 /** What the opponent chip measures and where its ranking lives (declared per statistic family, never per slate). */

@@ -47,6 +47,12 @@ describe('saved research schema', () => {
     const r = reviveSaved({ ...legacy, snapshot: [{ label: 'Hit rate', value: '6/10', asOf: null }, { label: 'Market ask', value: '49¢', asOf: null }, { label: 'Price', value: '54¢', asOf: null }] })!;
     expect(r.snapshot).toEqual([{ label: 'Hit rate', value: '6/10', asOf: null }]);
   });
+  it('a price in a title, subtitle line or chip is dropped too (a saved card carries the setup, never a price)', () => {
+    const r = reviveSaved({ ...legacy, title: 'Lamb 7+ · 56¢', subtitle: 'L10 · ask 56¢ · vs PHI · implied 56%', chips: ['L10', '56¢', 'Away', 'odds -120'] })!;
+    expect(r.title).toBe('Lamb 7+');
+    expect(r.subtitle).toBe('L10 · vs PHI');
+    expect(r.chips).toEqual(['L10', 'Away']);
+  });
   it('revives a stored list: drops the unusable, de-duplicates routes, makes ids unique', () => {
     const list = reviveSavedList([legacy, { ...legacy, id: 'rzzz' }, { ...legacy, route: '/v3/team/nfl/DAL', id: 'rabc' }, { nonsense: true }, null]);
     expect(list.map((x) => x.route)).toEqual(['/v3/player/nfl/p1?v=2&stat=rec&line=6&site=away', '/v3/team/nfl/DAL']);

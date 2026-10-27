@@ -4,6 +4,7 @@ import { useQueryPatch } from '../state/url';
 import { heroTeam } from '../../lib/hero/input';
 import { useSlate } from '../data/useSlate';
 import { useGameExtras } from '../data/useGameExtras';
+import { useGameStart } from '../data/research/gameHooks';
 import { useGameResearch } from '../../views/broadcast/parts';
 import { demoLens, lensFromResearch } from '../data/lens';
 import { pickFeatured, stripGames } from '../model/feature';
@@ -19,7 +20,7 @@ import { GameStories } from '../ui/Stories';
 import { useSheet } from '../ui/Sheet';
 import { TeamLogo } from '../ui/TeamLogo';
 import { Welcome } from '../ui/Welcome';
-import { gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref } from '../ui/gamebits';
 import { sportsIn } from './Games';
 
 function BellSheet() {
@@ -51,7 +52,7 @@ function ScoreTile({ g }: { g: V3Game }) {
       {([g.away, g.home] as V3Team[]).map((t, i) => (
         <span key={t.id} className="v3-tile__r"><TeamLogo team={t} size={20} /><b>{t.abbr}</b>{scored && <em className="num">{i === 0 ? g.score!.away : g.score!.home}</em>}</span>
       ))}
-      {live && <span className="v3-tile__f">{g.score?.clock ?? 'In play'}</span>}
+      {live && <span className="v3-tile__f">{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></span>}
       {!live && g.phase === 'pregame' && <span className="v3-tile__f">{dayWord(g.startMs, now)}</span>}
     </Link>
   );
@@ -60,6 +61,7 @@ function ScoreTile({ g }: { g: V3Game }) {
 function Featured({ base }: { base: V3Game }) {
   const { now } = useSlate();
   const x = useGameExtras(base, 'full');
+  useGameStart(base); // reads the league schedule (the start-time authority): the slate's games take its start (data/research/scheduleStarts.ts)
   const g = x?.game ?? base;
   const research = useGameResearch(g.provenance === 'publication' ? g.slug : null, g.provenance === 'publication' ? g.eventId : null);
   const lens = useMemo(() => (g.provenance === 'demo' ? demoLens(g) : lensFromResearch(research.data, g)), [g, research.data]);
@@ -71,7 +73,7 @@ function Featured({ base }: { base: V3Game }) {
       <Link to={gameHref(g)} className="v3-feat__hit" aria-label={`${g.away.name} ${g.phase === 'pregame' ? 'at' : 'versus'} ${g.home.name}. Open game`} />
       <header className="v3-feat__top">
         {live ? <span className="v3-livebadge">LIVE</span> : <span className="v3-feat__chip">{g.phase === 'final' ? 'FINAL' : dayWord(g.startMs, now).toUpperCase()}</span>}
-        <span className="v3-feat__clock">{live ? g.score?.clock ?? 'In play' : g.phase === 'final' ? '' : clockTime(g.startMs)}</span>
+        <span className="v3-feat__clock">{live ? g.score?.clock ?? 'In play' : g.phase === 'final' ? '' : clockTime(g.startMs)}{live && <DelayedMark g={g} />}</span>
         <span className="v3-feat__net">{g.network ?? leagueLabel(g)}</span>
       </header>
       <div className="v3-feat__mid">

@@ -5,6 +5,7 @@ import { liveStore, useLiveQuotes, useNow } from '../../../live/hooks';
 import { quoteView } from '../../../live/overlay';
 import { nameKey } from '../../../insights/context';
 import { demoOn } from '../../state/prefs';
+import { statusFacts } from '../../model/marketStatus';
 import type { Price } from '../../model/types';
 import { gate, type GateResult } from '../quoteGate';
 import { useSlate } from '../useSlate';
@@ -13,7 +14,7 @@ import { historyBank, logRefOf, useHistoryBank, type BankEntry } from './bank';
 import { capGames, horizonCounts, startsWithin, type Horizon, type HorizonCount } from './horizon';
 import { recentValues } from './history';
 import { useBankVersion } from './lazyBank';
-import { anyStale, eligibleGames, loadProgressive, peekProgress, type Progress } from './load';
+import { anyStale, eligibleGames, forgetUnreadable, loadProgressive, peekProgress, type Progress } from './load';
 import { chipStateOf, rankBank, rankKeysFor, rankLookup, type ChipState } from './ranks';
 import { matchupOf } from './rank';
 import { demoUniverse } from '../../demo/props';
@@ -33,6 +34,8 @@ export interface UniverseState {
   reading: boolean;
   /** Games the horizon would hold beyond the cap (the soonest MAX_GAMES are read). */
   omitted: number;
+  /** Read again the games whose contract list could not be read (the ones that read stay as they are). */
+  retry: () => void;
 }
 
 /**
@@ -53,13 +56,15 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
   const held = useMemo(() => (key && !demo ? peekProgress(games) : null), [key]); // eslint-disable-line react-hooks/exhaustive-deps -- `key` names `games`
   const sample = useMemo(() => (key && demo ? demoUniverse(games) : null), [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const [prog, setProg] = useState<{ key: string; p: Progress } | null>(null);
+  const [again, setAgain] = useState(0);
+  const retry = useCallback(() => { forgetUnreadable(games); setAgain((n) => n + 1); }, [games]);
   useEffect(() => {
     if (!key || demo) return;
     if (held?.complete && !anyStale(games)) { setProg({ key, p: held }); return; }
     const ctl = new AbortController();
     void loadProgressive(games, { signal: ctl.signal, minLoaded: held?.loaded ?? 0, onUpdate: (p) => setProg({ key, p }) });
     return () => ctl.abort();
-  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, again]); // eslint-disable-line react-hooks/exhaustive-deps
   // A universe on screen for longer than the research clock allows is re-read in the background and replaced whole (never by a prefix).
   useEffect(() => {
     if (!key || demo) return;
@@ -74,7 +79,7 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
   const av = useBankVersion(availabilityBank);
   const universe = useMemo(() => (shown ? withAvailability(shown.universe, availabilityBank.get, nameKey) : null), [shown, av]); // eslint-disable-line react-hooks/exhaustive-deps
   const reading = !demo && !!key && !(shown && shown.complete && (prog?.key === key || held));
-  return { universe, loading: slate.loading || !shown, error: false, demo, horizon, counts, reading, omitted: capped.omitted };
+  return { universe, loading: slate.loading || !shown, error: false, demo, horizon, counts, reading, omitted: capped.omitted, retry };
 }
 
 /**
@@ -163,11 +168,13 @@ export function useVisibleHistory(rows: Prop[], enabled = true, delay = 220) {
 
 /** A published rung and its live quote as a Price (not yet gated). */
 export function rawPrice(p: Prop, r: PropRung, quote: Parameters<typeof quoteView>[1]): Price {
-  if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume };
+  if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume, tradable: true, marketStatus: 'open' };
   const v = quoteView({ kalshi_ticker: r.ticker, yes_bid: r.bid == null ? null : r.bid / 100, yes_ask: r.ask == null ? null : r.ask / 100, captured_at: r.capturedAt, volume: r.volume }, quote);
-  const ask = v.yesAsk == null || v.yesAsk <= 0 || v.yesAsk >= 1 ? null : Math.round(v.yesAsk * 100);
-  const bid = v.yesBid == null ? null : Math.round(v.yesBid * 100);
-  return { ask, bid, implied: ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: v.observedAt, source: 'Kalshi', volume: v.volume };
+  // The status travels with the observation it came from: a live quote's own word when the live observation is the newer, else the publication's.
+  const sf = statusFacts(v.live && quote ? quote.rawStatus ?? quote.availability : r.status);
+  const ask = !sf.tradable || v.yesAsk == null || v.yesAsk <= 0 || v.yesAsk >= 1 ? null : Math.round(v.yesAsk * 100);
+  const bid = !sf.tradable || v.yesBid == null ? null : Math.round(v.yesBid * 100);
+  return { ask, bid, ...sf, implied: ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: v.observedAt, source: 'Kalshi', volume: v.volume };
 }
 
 export interface PriceReader {

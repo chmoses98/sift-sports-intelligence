@@ -4,6 +4,7 @@
 import type { Market } from '../../../contract/types';
 import { nameKey } from '../../../insights/context';
 import { teamKey } from '../../../lib/projections';
+import { isTradableWord } from '../../model/marketStatus';
 import type { V3Team } from '../../model/types';
 import { familyFor } from './families';
 import type { Prop, PropRung } from './types';
@@ -48,7 +49,8 @@ const PLAYER_FAMILY = /^(player|hitter|pitcher|goalie)_/;
 /** Player-level families that are not a count ladder (first scorer, unknowns). */
 const NOT_A_LADDER = new Set(['player_unknown', 'player_first_td', 'player_leader']);
 
-const OPEN = (m: Market) => !m.market_status || /^(OPEN|ACTIVE)$/i.test(m.market_status);
+/** Not POSITIVELY non-tradable (model/marketStatus.ts); a missing or unrecognised word is not evidence, and the quote gate still decides what shows. */
+const OPEN = (m: Market) => isTradableWord(m.market_status);
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
 const cents = (d: number | null | undefined) => (d == null || !Number.isFinite(d) || d <= 0 || d >= 1 ? null : Math.round(d * 100));
 const ext = (m: Market) => (m.extensions ?? {}) as Ext;
@@ -139,7 +141,7 @@ export function parseGameProps(g: GameCtx, markets: Market[], hints: IdentityHin
     const name = subjectOf(first)!;
     const gsis = x.gsis_id ?? null;
     const rungs: PropRung[] = ms.map((m) => ({
-      k: rungOf(m)!, ticker: m.kalshi_ticker, ask: cents(m.yes_ask), bid: cents(m.yes_bid), volume: m.volume ?? null, capturedAt: m.captured_at, source: 'Kalshi' as const,
+      k: rungOf(m)!, ticker: m.kalshi_ticker, ask: cents(m.yes_ask), bid: cents(m.yes_bid), volume: m.volume ?? null, capturedAt: m.captured_at, source: 'Kalshi' as const, status: m.market_status ?? null,
     })).sort((a, b) => a.k - b.k).filter((r, i, a) => i === 0 || r.k !== a[i - 1].k);
     const fam = familyFor(g.slug, stat);
     const hist = hints.history?.(gsis, name) ?? null;

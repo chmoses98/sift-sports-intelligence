@@ -7,6 +7,7 @@ import { clearRecents, pushRecent, useRecents, useVisits } from '../state/prefs'
 import { Icon, type IconName } from '../ui/Icon';
 import { ChipRail } from '../ui/ChipRail';
 import { FollowStar } from '../ui/Controls';
+import { DataState } from '../ui/DataState';
 import { TeamLogo } from '../ui/TeamLogo';
 import { sportsIn } from './Games';
 import type { V3Game } from '../model/types';
@@ -45,7 +46,7 @@ export function Explore() {
   const cat = (CATS.some((c) => c.k === sp.get('cat')) ? sp.get('cat') : 'all') as Cat | 'all';
   const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; });
   const { games } = useSlate();
-  const { hits, loading } = useSearchHits(q, sport, cat);
+  const { hits, loading, failed } = useSearchHits(q, sport, cat);
   const recents = useRecents();
   const visits = useVisits();
   const input = useRef<HTMLInputElement>(null);
@@ -81,6 +82,7 @@ export function Explore() {
         {CATS.map((c) => <button key={c.k} type="button" className="v3-cat" aria-pressed={cat === c.k} onClick={() => set({ cat: cat === c.k ? null : c.k })}><Icon name={c.icon} size={26} /><span>{c.label}</span></button>)}
       </div>
 
+      {failed.length > 0 && <DataState title={`${failed.map((f) => f.slug.toUpperCase()).join(', ')} search unavailable`} err={failed[0].failure} retry={() => failed.forEach((f) => f.retry())} className="v3-search-miss">Player and statistic results for {failed.length === 1 ? 'this sport' : 'these sports'}</DataState>}
       {browsing ? (
         <div aria-live="polite">
           {loading && !hits.length && <div className="v3-skel" style={{ height: 180 }} role="status" aria-label="Searching" />}

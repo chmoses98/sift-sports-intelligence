@@ -9,7 +9,7 @@ import type { V3Game, V3Team } from '../model/types';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
 import { TeamLogo } from '../ui/TeamLogo';
-import { gameHref, leagueLabel, statusWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, statusWord, teamHref } from '../ui/gamebits';
 import { followsGame } from './Games';
 
 type Seg = 'all' | 'teams' | 'players' | 'games';
@@ -27,7 +27,7 @@ function GameRow({ g }: { g: V3Game }) {
     <li className="v3-fg">
       <Link to={gameHref(g)} className="v3-fg__l" aria-label={`${g.away.name} at ${g.home.name}, ${statusWord(g)}. Open game`}>
         <span className="v3-av v3-av--pair"><TeamLogo team={g.away} size={30} /><TeamLogo team={g.home} size={30} /></span>
-        <span className="v3-hit__t"><b>{g.away.abbr} @ {g.home.abbr}{g.score ? ` · ${g.score.away}–${g.score.home}` : ''}</b><small>{g.phase === 'live' ? <span className="v3-pk__live">{g.score?.clock ?? 'In play'}</span> : statusWord(g)} · {leagueLabel(g)}</small></span>
+        <span className="v3-hit__t"><b>{g.away.abbr} @ {g.home.abbr}{g.score ? ` · ${g.score.away}–${g.score.home}` : ''}</b><small>{g.phase === 'live' ? <><span className="v3-pk__live">{g.score?.clock ?? 'In play'}</span><DelayedMark g={g} /></> : statusWord(g)} · {leagueLabel(g)}</small></span>
       </Link>
       <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
       <AlertBell id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />

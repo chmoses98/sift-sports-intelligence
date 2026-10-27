@@ -6,6 +6,7 @@ import { hitCount } from '../../data/props/history';
 import type { HistoryState } from '../../data/props/hooks';
 import { modelPercent } from '../../data/props/model';
 import { trackPct } from '../../data/props/rank';
+import type { ChipState } from '../../data/props/ranks';
 import type { Matchup, Prop, PropRung } from '../../data/props/types';
 import { compactWhen, weekdayClock } from '../../model/time';
 import type { Price, V3Team } from '../../model/types';
@@ -45,18 +46,32 @@ export function Avatar({ p, size = 40, link = true, k }: { p: Prop; size?: numbe
   );
 }
 
+/**
+ * What a row says about availability when it matters: "Checking availability" until the game's availability document is read (a player the
+ * publication lists out is never shown as available without that being said), and the status word when he is listed out and "Hide out" is off.
+ */
+export function availTag(p: Prop): ReactNode {
+  if (p.availPending) return <i className="pd-tag" data-avail="pending">Checking availability</i>;
+  if (p.out) return <i className="pd-tag is-out" data-avail="out">{p.out}</i>;
+  return null;
+}
+export const availWord = (p: Prop): string => (p.availPending ? ', checking availability' : p.out ? `, listed ${p.out}` : '');
+
 export function NameLine({ p, k, plain = false }: { p: Prop; k: number; plain?: boolean }) {
   const ref = playerRef(p);
+  const tag = availTag(p);
   return (
-    <div className="pd-pn">
+    <div className={`pd-pn${tag ? ' has-tag' : ''}`}>
       {ref && !plain ? <PlayerLink player={ref} state={playerState(p, k)}>{p.name}</PlayerLink> : <b>{p.name}</b>}
       <GameLink game={{ slug: p.slug, eventId: p.eventId }}>{gameText(p, Date.now())}</GameLink>
+      {tag}
     </div>
   );
 }
 
 /** The opponent unit chip: a team's rank on the unit that bears on the statistic. A tap opens that statistic's ranking, the team highlighted. */
-export function OppChip({ m, p, wrap = false }: { m: Matchup | null; p: Prop; wrap?: boolean }) {
+export function OppChip({ m, p, wrap = false, loading = false }: { m: Matchup | null; p: Prop; wrap?: boolean; loading?: boolean }) {
+  if (!m && loading && p.opp && p.oppUnit) return <em className="pd-chip is-none" role="status" aria-label="Reading the opponent ranking">{chipPlaceholder(p)}</em>;
   if (!m) return <em className="pd-chip is-none">no matchup rows</em>;
   void wrap;
   return (
@@ -65,6 +80,11 @@ export function OppChip({ m, p, wrap = false }: { m: Matchup | null; p: Prop; wr
     </StatLink>
   );
 }
+
+/** What the chip says while its ranking is on its way. */
+export const chipPlaceholder = (p: Prop) => `${p.opp} ${p.oppUnit?.chip ?? 'unit'} · …`;
+/** The chip's text for LAYOUT: the matchup, else (ranking on its way) the widest words it will take so the row does not move when they arrive, else the empty note. */
+export const chipText = (p: Prop, c: ChipState) => (c.state === 'ready' ? c.m.text : c.state === 'loading' ? `${p.opp} ${p.oppUnit?.chip ?? 'unit'} · 28th of 32` : 'no matchup rows');
 
 export function PricePill({ p, r, price }: { p: Prop; r: PropRung; price: Price | null }) {
   return (
@@ -86,11 +106,11 @@ export const histText = (l: Lanes): string => (l.hist ? `${l.hist.h}/${l.hist.n}
 export const Mark = ({ lane }: { lane: 'm' | 'h' | 'z' }) => <i className={`pd-sw${lane === 'h' ? ' pd-sw--h' : lane === 'z' ? ' pd-sw--z' : ''}`} aria-hidden="true" />;
 
 /** The three lanes on one line, in the fixed order and with the fixed marks: Market square, History ring, SIFT model diamond. */
-export function LaneLine({ l }: { l: Lanes }) {
+export function LaneLine({ l, histNotLoaded = false }: { l: Lanes; histNotLoaded?: boolean }) {
   return (
     <div className="pd-ln3" aria-label="Market, History, SIFT model">
       <span className="pd-m"><Mark lane="m" />{l.market != null ? `${l.market}%` : <u className="is-none" style={{ textDecoration: 'none' }}>—</u>}</span>
-      <span className="pd-hc"><Mark lane="h" />{l.hist || l.histState === 'loading' || l.histState === 'idle' ? histText(l) : <u className="is-none" style={{ textDecoration: 'none' }}>—</u>}</span>
+      <span className="pd-hc">{histNotLoaded ? <><Mark lane="h" /><u className="is-none" style={{ textDecoration: 'none' }}>not loaded</u></> : <><Mark lane="h" />{l.hist || l.histState === 'loading' || l.histState === 'idle' ? histText(l) : <u className="is-none" style={{ textDecoration: 'none' }}>—</u>}</>}</span>
       <span className="pd-z"><Mark lane="z" />{l.model != null ? `${l.model}%` : <u className="is-none" style={{ textDecoration: 'none' }}>—</u>}</span>
     </div>
   );

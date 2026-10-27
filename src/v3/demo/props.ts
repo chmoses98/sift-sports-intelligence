@@ -91,7 +91,7 @@ export function demoUniverse(games: V3Game[]): Universe {
             playerId: pid, histId: g.slug === 'mlb' ? null : `${pid}~${s.stat}~${s.mu}`, name, team: team.abbr, opp: opp.abbr, position: pos,
             stat: s.stat, fam: fam.fam, label: fam.label, abbr: fam.abbr, playerStat: fam.playerStat,
             history: g.slug === 'mlb' ? null : { kind: 'nhl', col: s.stat }, oppUnit: fam.oppUnit, rungs, featured,
-            playerPage: g.slug !== 'mlb', out, availKnown: true,
+            playerPage: g.slug !== 'mlb', out, availKnown: true, availPending: false,
             model: published ? { state: 'published', byK } : { state: 'none', reason: `SIFT’s model for ${fam.label.toLowerCase()} is not approved for display` },
             provenance: 'demo',
           });

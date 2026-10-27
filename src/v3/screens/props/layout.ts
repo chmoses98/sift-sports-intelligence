@@ -4,6 +4,8 @@
 // CSS forces that layout, so the prediction can never disagree with what is painted.
 export const ROW_H = 96;
 export const ROW_H_WRAP = 118;
+/** A group label between rows (History order: evaluated rows, then rows that were never evaluated). */
+export const GROUP_H = 52;
 /** An expanded row's peek card before it has been measured. */
 export const PEEK_EST = 480;
 
@@ -19,7 +21,17 @@ let ctx2d: CanvasRenderingContext2D | null | undefined;
 let fontUi = '';
 let fontNum = '';
 /** The width of `text` in the font the stylesheet gives it, or null where the browser cannot measure (tests, very old engines). */
+const widths = new Map<string, number | null>();
 function measure(text: string, weight: number, size: number, family: 'ui' | 'num'): number | null {
+  // 800 rows ask for a few dozen distinct strings: a width is measured once (a canvas measure is not free on a phone).
+  const key = `${weight}|${size}|${family}|${text}`;
+  const hit = widths.get(key);
+  if (hit !== undefined) return hit;
+  const w = measureNow(text, weight, size, family);
+  widths.set(key, w);
+  return w;
+}
+function measureNow(text: string, weight: number, size: number, family: 'ui' | 'num'): number | null {
   if (typeof document === 'undefined' || (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent))) return null;
   if (ctx2d === undefined) {
     try { ctx2d = document.createElement('canvas').getContext('2d'); } catch { ctx2d = null; }
@@ -36,7 +48,7 @@ function measure(text: string, weight: number, size: number, family: 'ui' | 'num
 }
 
 /** Forget the cached fonts (a web font finished loading: widths measured before it are wrong). */
-export const resetMeasure = () => { fontUi = ''; fontNum = ''; ctx2d = undefined; };
+export const resetMeasure = () => { fontUi = ''; fontNum = ''; ctx2d = undefined; widths.clear(); };
 
 /**
  * True when the statistic ("Receptions 3+") and the opponent chip fit on one line at this column width. Measured in the real fonts where

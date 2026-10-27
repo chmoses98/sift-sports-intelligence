@@ -78,6 +78,8 @@ export interface Prop {
   out: string | null;
   /** The game's availability (injury) rows were readable: only then does "Listed" mean anything. */
   availKnown: boolean;
+  /** The game's availability document has not been read yet (it is read for the rows on screen): `out` says nothing until it is. */
+  availPending: boolean;
   model: ModelLane;
   provenance: 'publication' | 'demo';
 }
@@ -102,7 +104,7 @@ export interface UniverseStats { games: number; props: number; contracts: number
 export interface Universe {
   props: Prop[];
   byId: Map<string, Prop>;
-  /** Rankings by `${slug}:${metric}` then team code. */
+  /** Rankings by `${slug}:${metric}` then team code (sample data only; real rankings are read for the rows that need them: bank.ts RankBank). */
   ranks: Map<string, Map<string, UnitRank>>;
   stats: UniverseStats;
   /** Sports with props today, in capability order, with the label their chip prints. */
@@ -113,4 +115,10 @@ export interface Universe {
   availabilityGaps: number;
   demo: boolean;
   loadedAt: number;
+  /** Games whose availability document has not been read yet (their rows say "Checking availability"). */
+  availPendingGames: number;
+  /** Games read so far and games the horizon holds: `complete` once all are read. Until then counts and orders cover the soonest `gamesLoaded`. */
+  gamesLoaded: number;
+  gamesTotal: number;
+  complete: boolean;
 }

@@ -52,7 +52,7 @@ const prop = (id: string, over: Partial<Prop> = {}): Prop => ({
   playerId: 'prt_1', histId: 'g1', name: id, team: 'DAL', opp: 'PHI', position: null, stat: 'receptions', fam: 'receptions', label: 'Receptions', abbr: 'REC',
   playerStat: 'receptions', history: { kind: 'nfl', stat: 'receptions' }, oppUnit: null,
   rungs: [{ k: 3, ticker: `${id}-3`, ask: 52, bid: 50, volume: 1, capturedAt: null, source: 'Kalshi' }, { k: 5, ticker: `${id}-5`, ask: 20, bid: 18, volume: 1, capturedAt: null, source: 'Kalshi' }],
-  featured: 3, playerPage: true, out: null, availKnown: true, model: { state: 'none', reason: 'x' }, provenance: 'publication', ...over,
+  featured: 3, playerPage: true, out: null, availKnown: true, availPending: false, model: { state: 'none', reason: 'x' }, provenance: 'publication', ...over,
 });
 const ctx: QueryCtx = { matchup: () => null, values: () => undefined };
 const st = (q: string): ListState => decode(propsSchema, q);

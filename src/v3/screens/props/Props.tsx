@@ -17,7 +17,8 @@ import { usePublishContracts } from './contracts';
 
 export function Props() {
   const [st, set] = useRouteState(propsSchema);
-  const { universe, loading, error } = usePropUniverse();
+  const us = usePropUniverse(st.hz);
+  const { universe, loading, error } = us;
   const slate = useSlate();
   // A shared address (?sheet=contract&tk=…) opened cold: the sheet needs the contract's own prop even before any row is on screen.
   const loc = useLocation();
@@ -39,6 +40,6 @@ export function Props() {
   }
   const view = viewOf(st);
   if (view === 'compare') return <PropsCompare st={st} universe={universe} />;
-  if (view === 'list') return <PropsList st={st} set={set} universe={universe} />;
-  return <PropsHome universe={universe} />;
+  if (view === 'list') return <PropsList st={st} set={set} us={us} />;
+  return <PropsHome us={us} onHorizon={(hz) => set({ hz })} />;
 }

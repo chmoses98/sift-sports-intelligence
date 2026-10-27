@@ -220,11 +220,11 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     test.skip(n < 2, 'this prop lists a single rung');
     const len = await histLen(page);
     const y0 = await y(page);
-    const second = chips.locator('[aria-pressed="false"]').first();                                    // a rung other than the featured one
+    const second = peek.locator('.pd-rs[aria-pressed="false"]').first();                                    // a rung other than the featured one
     const label = (await second.locator('b').innerText()).trim();
     await second.click();
-    await expect(second).toHaveAttribute('aria-pressed', 'true');
-    await expect(page).toHaveURL(/exp=[^&]+@\d+/);
+    await expect(peek.locator('.pd-rs', { hasText: label })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page).toHaveURL(/exp=[^&]+(@|%40)\d+/);
     await expect(row.locator('.pd-ps b')).toHaveText(label);                                          // the row's own line changed too
     expect(await histLen(page)).toBe(len);
     expect(Math.abs((await y(page)) - y0)).toBeLessThanOrEqual(8);
@@ -497,7 +497,8 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await open(page, `${path}&sort=price&q=a`);
     await page.evaluate(() => window.scrollTo(0, 420));
     await page.waitForTimeout(300);
-    const row = page.locator('.pd-row:has(a.pd-av):has(a.pd-chip[data-tap="stat"])').first();
+    const id = await page.locator('.pd-row:has(a.pd-av):has(a.pd-chip[data-tap="stat"])').first().getAttribute('data-prop');
+    const row = page.locator(`.pd-row[data-prop="${id}"]`);                                             // by identity: in tick mode the avatar is not a link
     await center(row);
     await page.getByRole('button', { name: /^Compare/ }).click();                                       // compare mode on: a tap ticks the row
     await expect(page).toHaveURL(/cmpm=1/);

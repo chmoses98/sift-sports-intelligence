@@ -4,7 +4,7 @@
 // internet: the app's own identity matching and freshness clock decide what is shown. The browser clock is 40 minutes into the game.
 // Separate from quote freshness: no age or timestamp appears anywhere.
 import { test, expect, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nba/evt_2645d372317f1b85690a';
 const START = Date.parse('2026-10-26T23:00:00Z');
@@ -15,7 +15,7 @@ interface Feed { updatedAgeS: number; status?: string; text?: string; hs?: strin
 
 async function setup(page: Page, feed: Feed | 'down') {
   void feedNow();
-  await useRealFeeds(page);
+  await serveRealFeeds(page);
   await freshQuotes(page);
   await page.route(/^https:\/\/sportscore\.com\//, async (route) => {
     const cors = { 'access-control-allow-origin': '*', 'content-type': 'application/json' };

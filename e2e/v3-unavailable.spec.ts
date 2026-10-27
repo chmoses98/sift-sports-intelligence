@@ -10,10 +10,11 @@
 // Run: V3_PROJECTS=v3-phone V3_PORT=5184 V3_UNAVAIL_REPORT=/tmp/x.jsonl npx playwright test -c playwright.v3.config.ts e2e/v3-unavailable.spec.ts
 import { appendFileSync } from 'node:fs';
 import { test, expect, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, readFeedCache, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, readFeedCache, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
 test.setTimeout(180_000);
+test.describe.configure({ mode: 'parallel' });
 
 type Mode = '404' | 'network' | 'hang' | 'malformed' | 'empty';
 const MODES: Mode[] = ['404', 'network', 'hang', 'malformed', 'empty'];
@@ -38,20 +39,26 @@ const KIND: Record<string, RegExp> = {
   feed: /\/live-quotes\/games\/[^/]+\.json/,
 };
 
-/** Screens, and the document kinds each one reads. `primary` kinds are the screen's own subject: an honest state is required when they fail. */
-interface Screen { name: string; path: string; kinds: string[]; primary: string[]; ready?: string }
+/**
+ * Screens, and the document kinds each one reads. `primary` kinds are the screen's own subject: an honest state is required when they fail.
+ * `lean` is the default matrix (the screen's subject in every failure mode, plus the documents whose loss changes what the screen can say, in the
+ * modes that exercise a different path); V3_UNAVAIL_FULL=1 runs every kind in every mode.
+ */
+interface Screen { name: string; path: string; kinds: string[]; primary: string[]; lean: Record<string, Mode[]> }
+const ALL: Mode[] = ['404', 'network', 'hang', 'malformed', 'empty'];
 const NFL_GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const SCREENS: Screen[] = [
-  { name: 'Home', path: '/v3', kinds: ['board', 'health', 'recs', 'detail', 'research', 'index', 'feed'], primary: ['board'] },
-  { name: 'Games', path: '/v3/games?sport=nfl&state=upcoming', kinds: ['board', 'health', 'detail', 'index', 'feed'], primary: ['board'] },
-  { name: 'Game Detail', path: NFL_GAME, kinds: ['board', 'detail', 'research', 'index', 'feed'], primary: ['detail'] },
-  { name: 'Game props', path: `${NFL_GAME}?tab=props`, kinds: ['detail', 'feed'], primary: ['detail'] },
-  { name: 'Game matchup', path: `${NFL_GAME}?tab=matchup`, kinds: ['team', 'metrics', 'proj', 'theses'], primary: ['team'] },
-  { name: 'Team', path: '/v3/team/nfl/DAL', kinds: ['team', 'index', 'metrics', 'detail'], primary: ['team'] },
-  { name: 'Player', path: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd', kinds: ['player', 'index', 'search', 'history', 'detail', 'feed', 'proj'], primary: ['player'] },
-  { name: 'Stat', path: '/v3/stat/nfl/off_epa_play', kinds: ['metrics', 'ranking', 'index', 'team'], primary: ['ranking'] },
-  { name: 'Prop Discovery', path: '/v3/props?view=list', kinds: ['board', 'detail', 'index', 'ranking', 'team', 'feed', 'history'], primary: ['detail'] },
-  { name: 'Explore', path: '/v3/explore', kinds: ['search', 'index', 'board'], primary: ['search'] },
+  { name: 'Home', path: '/v3', kinds: ['board', 'health', 'recs', 'detail', 'research', 'index', 'feed'], primary: ['board'], lean: { board: ALL, recs: ['404'], detail: ['404'], index: ['404'], feed: ['404'] } },
+  { name: 'Games', path: '/v3/games?sport=nfl&state=upcoming', kinds: ['board', 'health', 'detail', 'index', 'feed'], primary: ['board'], lean: { board: ALL, detail: ['404'], feed: ['404'] } },
+  { name: 'Game Detail', path: NFL_GAME, kinds: ['board', 'detail', 'research', 'index', 'feed'], primary: ['detail'], lean: { detail: ALL, research: ['404', 'network'], feed: ['404'] } },
+  { name: 'Game props', path: `${NFL_GAME}?tab=props`, kinds: ['detail', 'feed'], primary: ['detail'], lean: { detail: ALL, feed: ['404'] } },
+  { name: 'Game stats', path: `${NFL_GAME}?tab=stats`, kinds: ['research'], primary: [], lean: { research: ['404', 'network'] } },
+  { name: 'Game matchup', path: `${NFL_GAME}?tab=matchup`, kinds: ['team', 'metrics', 'proj', 'theses'], primary: ['team'], lean: { team: ALL, proj: ['404'] } },
+  { name: 'Team', path: '/v3/team/nfl/DAL', kinds: ['team', 'index', 'metrics', 'detail'], primary: ['team'], lean: { team: ALL, index: ['404', 'network', 'hang'], detail: ['404'] } },
+  { name: 'Player', path: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd', kinds: ['player', 'index', 'search', 'history', 'detail', 'feed', 'proj'], primary: ['player'], lean: { player: ALL, history: ['404', 'network'], detail: ['404', 'network'], feed: ['404'] } },
+  { name: 'Stat', path: '/v3/stat/nfl/off_epa_play', kinds: ['metrics', 'ranking', 'index', 'team'], primary: ['ranking'], lean: { ranking: ALL, index: ['404', 'network'], metrics: ['404'] } },
+  { name: 'Prop Discovery', path: '/v3/props?view=list', kinds: ['board', 'detail', 'index', 'ranking', 'team', 'feed', 'history'], primary: ['detail'], lean: { detail: ALL, board: ['404'], feed: ['404'] } },
+  { name: 'Explore', path: '/v3/explore', kinds: ['search', 'index', 'board'], primary: ['search'], lean: { search: ALL, index: ['404'] } },
 ];
 
 const only = process.env.V3_UNAVAIL_ONLY?.split(',');
@@ -70,7 +77,7 @@ const empty = (doc: unknown): unknown => {
 async function install(page: Page, kind: string, mode: Mode) {
   await page.addInitScript(() => { (window as unknown as { __SIFT_FETCH_TIMEOUT_MS__: number }).__SIFT_FETCH_TIMEOUT_MS__ = 2500; });
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* ignore */ } });
-  await useRealFeeds(page);
+  await serveRealFeeds(page);
   await freshQuotes(page);
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.clock.setFixedTime(feedNow());
@@ -118,10 +125,10 @@ const reportFile = process.env.V3_UNAVAIL_REPORT;
 for (const screen of SCREENS) {
   if (only && !only.includes(screen.name)) continue;
   test.describe(`unavailable data: ${screen.name} @v3`, () => {
-    for (const kind of screen.kinds) {
-      for (const mode of MODES) {
+    const full = process.env.V3_UNAVAIL_FULL === '1';
+    for (const kind of full ? screen.kinds : Object.keys(screen.lean)) {
+      for (const mode of full ? MODES : screen.lean[kind]) {
         if (modesOnly && !modesOnly.includes(mode)) continue;
-        if (mode === 'hang' && !screen.primary.includes(kind)) continue; // the same bound applies to every document; one hang per screen's subject proves it
         test(`${kind} ${mode}`, async ({ page }) => {
           await install(page, kind, mode);
           const r = await measure(page, screen.path);

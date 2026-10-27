@@ -5,7 +5,7 @@
 // What must hold on every surface: no ask, bid, implied price, fee or break-even; the list slot prints "—"; the exact-contract sheet says why
 // ("Market closed" / "Market settled" / "Trading suspended"), offers no Retry, and the screen's research stays on the page.
 import { test, expect, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last updated|updated \d|as of \d|\d+\s?(s|sec|min|mins|minutes|h|hr|hours) old\b/i;
@@ -13,7 +13,7 @@ const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last update
 const REAL_INACTIVE = 'KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-100';
 
 async function setup(page: Page, status?: (t: string) => string | undefined) {
-  await useRealFeeds(page);
+  await serveRealFeeds(page);
   await freshQuotes(page, { status });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.clock.setFixedTime(feedNow());

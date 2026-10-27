@@ -4,7 +4,7 @@
 // The live-quote feed is the only thing changed between saving and reopening (every ask +3 cents, a TEST TRANSFORMATION): if anything had
 // been frozen at save time, the reopened screen would show the old number.
 import { test, expect, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, readFeedCache, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, readFeedCache, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 import { PAGE_NOW, CAPTURED_AT, usePlayerFeeds } from './support/playerFeeds';
 
 test.setTimeout(150_000);
@@ -87,7 +87,7 @@ test.describe('saved Prop Discovery views reopen with current quotes @v3', () =>
     await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
     await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* ignore */ } });
     await page.clock.setFixedTime(feedNow());
-    await useRealFeeds(page);
+    await serveRealFeeds(page);
     await freshQuotes(page);
     await movableFeed(page, () => feedNow().toISOString(), () => bump);
   });

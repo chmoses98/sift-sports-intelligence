@@ -3,7 +3,7 @@
 // made): the board's copy of that game is re-stamped to 01:00Z (9:00 PM ET, the time Kalshi's event implies: docs/sift3/QUOTE_DELIVERY.md). The app
 // must show the schedule's 8:30 PM everywhere once the schedule is read, and must never show 9:00 PM.
 import { test, expect, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, readFeedCache, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, readFeedCache, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
 
@@ -11,14 +11,14 @@ const TOR_CGY = 'evt_9dcedbe131e7ff4c72d6';
 const GAME = `/v3/game/nhl/${TOR_CGY}`;
 
 async function setup(page: Page, o: { shiftBoard: boolean }) {
-  await useRealFeeds(page);
+  await serveRealFeeds(page);
   await freshQuotes(page);
   if (o.shiftBoard) {
     // every board document that lists the game gets the 01:00Z copy of it; nothing else changes
     await page.route(/^https:\/\/raw\.githubusercontent\.com\//, async (route) => {
       const body = readFeedCache(route.request().url());
       if (!body) return route.fallback();
-      let doc: { items?: { event_id: string; start_time_utc: string }[] } | null = null;
+      let doc: { items?: { event_id: string; start_time_utc: string }[] } | null;
       try { doc = JSON.parse(body.toString('utf8')); } catch { return route.fallback(); }
       const it = doc?.items?.find((x) => x.event_id === TOR_CGY);
       if (!doc || !Array.isArray(doc.items) || !it) return route.fallback();

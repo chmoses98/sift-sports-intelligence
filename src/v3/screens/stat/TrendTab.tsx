@@ -2,7 +2,7 @@
 // the league level, opponent logos under each bar, one observation selected with its two exits (that game, that opponent), and the
 // averages by season. Only the selected team's one series is fetched. A statistic with no per-game series shows how its rank moves
 // across the windows the profile publishes, and says so.
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTeamIndex, useTeamProfile } from '../../data/research/hooks';
 import { percentileOf } from '../../data/research/normalize';
 import { useSeries } from '../../data/useStatDetail';
@@ -11,6 +11,7 @@ import { routes } from '../../nav/routes';
 import { capability } from '../../model/capabilities';
 import { cutPoints, fmtBar, fmtValue, gameTag, ordinal, orderWindows, seasonRows, seasonsOf, seriesPoints, siteSplit, spanLabel, windowLabel, LAST_N, MAX_BARS } from '../../model/statDetail';
 import { ObsBars } from '../../ui/charts/ObsBars';
+import { ObsList, type ObsRow } from './ObsList';
 import { RankTrack } from '../../ui/charts/RankTrack';
 import { Icon } from '../../ui/Icon';
 import { useSheet } from '../../ui/Sheet';
@@ -50,6 +51,8 @@ function TeamTrend({ ctx, sel }: { ctx: StatCtx; sel: string }) {
   const ser = useSeries(slug, seriesId);
   const pts = useMemo(() => (ser.series ? seriesPoints(ser.series, slug, ctx.adjusted) : []), [ser.series, slug, ctx.adjusted]);
   const unit = ser.series?.unit ?? ranking.unit;
+  // The column a finger is down on, shown live (bar lit, readout, details card) until it is lifted; the address changes only on lifting.
+  const [preview, setPreview] = useState<number | null>(null);
   const team = ctx.team(sel);
   const metric = prof.profile?.metrics.get(ranking.id);
 
@@ -58,16 +61,22 @@ function TeamTrend({ ctx, sel }: { ctx: StatCtx; sel: string }) {
   if (!seriesId || ser.error || !pts.length) return <WindowPath ctx={ctx} sel={sel} reason={!seriesId ? 'The publication carries no per-game series for this team and statistic.' : 'The per-game series could not be read.'} />;
 
   const { shown, total, cut } = cutPoints(pts, st.st);
-  const selPt = shown.find((p) => p.i === st.obs) ?? shown[shown.length - 1];
-  const selIdx = Math.max(0, shown.indexOf(selPt));
+  const at = shown.findIndex((p) => p.i === st.obs);
+  const committed = at < 0 ? shown.length - 1 : at;
+  const selIdx = preview != null && preview < shown.length ? preview : committed;
+  const selPt = shown[selIdx];
   const gameOf = (eventId: string | null) => (eventId ? prof.profile!.games.find((g) => g.eventId === eventId) : undefined);
   const codeOf = (pid: string | null) => (pid ? ti.byId.get(pid)?.short_name ?? null : null);
   const showLeague = ctx.window === 'SEASON' || /^\d{4}(-\d{2})?$/.test(ctx.window);
   const league = showLeague ? ranking.summary.mean : null;
   const bars = shown.map((p) => {
     const g = gameOf(p.eventId), o = codeOf(p.opponentId);
-    return { key: p.t, value: p.value, rolling: p.rolling, text: fmtBar(p.value, unit), aria: `${md(p.t)}${o ? `, ${g?.home === false ? 'at' : 'vs'} ${o}` : ''}, ${fmtValue(p.value, unit)}` };
+    return { key: p.t, value: p.value, rolling: p.rolling, text: fmtBar(p.value, unit), tip: `${md(p.t)}${o ? ` · ${g?.home === false ? 'at' : 'vs'} ${o}` : ''} · ${fmtValue(p.value, unit)}` };
   });
+  const obsRows: ObsRow[] = shown.map((p) => {
+    const g = gameOf(p.eventId);
+    return { i: p.i, date: md(p.t), tag: gameTag(g?.competition), opp: codeOf(p.opponentId), away: g?.home === false, value: fmtValue(p.value, unit), final: g?.result ? `${g.result.for}–${g.result.against}` : null, eventId: p.eventId };
+  }).reverse();
   const under = shown.map((p) => {
     const o = codeOf(p.opponentId);
     return o ? <TeamLink key={p.t} team={{ slug, id: o }} label={`${o}, team page`}><TeamLogo team={ctx.team(o)} size={17} /></TeamLink> : <span key={p.t} />;
@@ -95,11 +104,11 @@ function TeamTrend({ ctx, sel }: { ctx: StatCtx; sel: string }) {
         })}
       </div>
       <div className="st-card st-trc">
-        <ObsBars bars={bars} league={league} sel={selIdx} onSelect={(i) => ctx.set({ obs: shown[i].i })} under={under} label={`${team.name} ${ranking.name}, ${shown.length} games`} />
+        <ObsBars bars={bars} league={league} sel={selIdx} preview={preview} onPreview={setPreview} onSelect={(i) => ctx.set({ obs: shown[i].i })} under={under} label={`${team.name} ${ranking.name}, ${shown.length} games`} />
         <div className="st-trkl"><span><i className="st-bx" />{noun}</span>{shown.some((p) => p.rolling != null) && <span><i className="ln" />Rolling avg</span>}{league != null && <span><i className="dl" />League {fmtValue(league, unit)}</span>}</div>
       </div>
       {total > MAX_BARS && <p className="st-note st-note--pad">Showing the latest {MAX_BARS} of {total} games.</p>}
-      <div className="st-card st-obc" data-obs-card>
+      <div className={`st-card st-obc${preview != null ? ' is-press' : ''}`} data-obs-card>
         <div className="st-obh"><b>{tag ? `${tag} · ` : ''}{opp ? `${game?.home === false ? 'at' : 'vs'} ${opp}` : 'Game'}</b><span>{md(selPt.t)}</span></div>
         <div className="st-obv">
           {final ? <div><b className="num">{final}</b><small>final</small></div> : <div><b className="num">{fmtValue(selPt.value, unit)}</b><small>this game</small></div>}
@@ -122,6 +131,8 @@ function TeamTrend({ ctx, sel }: { ctx: StatCtx; sel: string }) {
         {site.away && prof.profile.season && <div className="st-ssr"><b>Away, {prof.profile.season.replace('-', '–')}</b><span>{site.away.n} games</span><b className="num">{fmtValue(site.away.avg, unit)}</b><em /></div>}
         {missingRank && <p className="st-note">{onlyCurrent ? 'League ranks are published for the current season only.' : 'League ranks are published only for the seasons that show one.'}</p>}
       </div>
+      <ObsList rows={obsRows} slug={slug} team={team.abbr} noun={unit === 'points' ? 'points' : ranking.name.toLowerCase()} selected={shown[committed].i} onSelect={(i) => ctx.set({ obs: i })} label={`${team.name} ${ranking.name}, ${shown.length} games`} />
+      <p className="st-vh" role="status">{`Showing ${md(shown[committed].t)}${codeOf(shown[committed].opponentId) ? `, ${gameOf(shown[committed].eventId)?.home === false ? 'at' : 'vs'} ${codeOf(shown[committed].opponentId)}` : ''}, ${fmtValue(shown[committed].value, unit)}`}</p>
     </>
   );
 }

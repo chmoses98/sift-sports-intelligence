@@ -139,7 +139,7 @@ export function Player() {
         {v.marketsError != null && (tab === 'overview' || tab === 'props') && <DataState title="Kalshi prices unavailable" err={v.marketsError} retry={v.marketsRetry}>The contract list for his next game</DataState>}
         {tab === 'overview' && (
           noLog ? (
-            <><div className="v3-state"><Icon name="info" size={20} /><div><b>No game history to chart</b>{vm.why}</div></div><PropsTab v={v} priceOnly /></>
+            <>{v.histError != null ? <DataState title="Game history unavailable" err={v.histError} retry={v.histRetry}>The game log</DataState> : <div className="v3-state"><Icon name="info" size={20} /><div><b>No game history to chart</b>{vm.why}</div></div>}<PropsTab v={v} priceOnly /></>
           ) : v.stat ? (
             <>
               <StatPills v={v} onFilters={openFilters} />

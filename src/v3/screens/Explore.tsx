@@ -81,10 +81,10 @@ export function Explore() {
         {CATS.map((c) => <button key={c.k} type="button" className="v3-cat" aria-pressed={cat === c.k} onClick={() => set({ cat: cat === c.k ? null : c.k })}><Icon name={c.icon} size={26} /><span>{c.label}</span></button>)}
       </div>
 
+      {failed.length > 0 && <DataState title={`${failed.map((f) => f.slug.toUpperCase()).join(', ')} search unavailable`} err={failed[0].failure} retry={() => failed.forEach((f) => f.retry())} className="v3-search-miss">Player and statistic results for {failed.length === 1 ? 'this sport' : 'these sports'}</DataState>}
       {browsing ? (
         <div aria-live="polite">
           {loading && !hits.length && <div className="v3-skel" style={{ height: 180 }} role="status" aria-label="Searching" />}
-          {failed.length > 0 && <DataState title={`${failed.map((f) => f.slug.toUpperCase()).join(', ')} search unavailable`} err={failed[0].failure} retry={() => failed.forEach((f) => f.retry())} className="v3-search-miss">Player and statistic results for {failed.length === 1 ? 'this sport' : 'these sports'}</DataState>}
           {groups.map((g) => {
             const all = open[g.k] || cat === g.k;
             const rows = all ? g.rows.slice(0, 80) : g.rows.slice(0, 5);

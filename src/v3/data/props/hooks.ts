@@ -17,13 +17,13 @@ import { demoUniverse } from '../../demo/props';
 import type { Matchup, Prop, PropRung, Universe } from './types';
 import { rungFor, type QueryCtx } from './query';
 
-export function usePropUniverse(): { universe: Universe | null; loading: boolean; error: boolean; demo: boolean } {
+export function usePropUniverse(): { universe: Universe | null; loading: boolean; error: boolean; demo: boolean; retry: () => void } {
   const slate = useSlate();
   const demo = demoOn() || slate.demo;
   const games = useMemo(() => (demo ? slate.games.filter((g) => g.phase !== 'final') : propGames(slate.games)), [slate.games, demo]);
   const key = slate.loading ? null : `v3props:${demo ? 'demo' : 'real'}:${games.map((g) => g.key).join(',')}`;
   const r = useAsync<Universe>(key, () => (demo ? Promise.resolve(demoUniverse(games)) : loadUniverse(games)), { revalidate: true });
-  return { universe: r.data ?? null, loading: slate.loading || r.loading, error: !!r.error && !r.data, demo };
+  return { universe: r.data ?? null, loading: slate.loading || r.loading, error: !!r.error && !r.data, demo, retry: () => r.retry?.() };
 }
 
 /** Matchup and held-log lookups for the query functions. `version` changes when a log arrives, so memos keyed on it recompute. */

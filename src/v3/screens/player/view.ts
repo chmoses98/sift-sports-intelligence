@@ -46,6 +46,9 @@ export interface PlayerView {
   /** The coming game's contract list failed: prices are absent for that reason, not because no market is listed. */
   marketsError?: unknown;
   marketsRetry?: () => void;
+  /** The game log failed (not "none published"): the chart's empty state says so and can Retry. */
+  histError?: unknown;
+  histRetry?: () => void;
   noExplorer: boolean;
   /** The sport's capability for this screen (ready, or why not). */
   researchReady: boolean;
@@ -96,7 +99,7 @@ export interface PlayerView {
 export function usePlayerView(): PlayerView {
   const { slug = '', playerId = '' } = useParams();
   const pid = decodeURIComponent(playerId);
-  const { vm, loading, notFound, noExplorer, error, retry, marketsError, marketsRetry } = usePlayerVM(slug, pid);
+  const { vm, loading, notFound, noExplorer, error, retry, marketsError, marketsRetry, histError, histRetry } = usePlayerVM(slug, pid);
   const [state, set] = useRouteState(playerSchema);
   const sift = useSiftModel(vm);
   const now = useNow(15_000);
@@ -151,7 +154,7 @@ export function usePlayerView(): PlayerView {
 
   const readiness = isReady(slug, 'playerResearch');
   return {
-    slug, pid, vm, loading, notFound, noExplorer, error, retry, marketsError, marketsRetry, researchReady: readiness, researchWhy: lockedReason(slug, 'playerResearch'),
+    slug, pid, vm, loading, notFound, noExplorer, error, retry, marketsError, marketsRetry, histError, histRetry, researchReady: readiness, researchWhy: lockedReason(slug, 'playerResearch'),
     state, set, now, stat, statDef, prop, win, filters, line, committedLine, isRef, k, cut, chips, summary, hit: { over: hc.over, n: hc.n },
     rungs, current, ask: current?.ask ?? null, ticker: current?.ticker ?? null, sift: siftLane, res, modelReady: sift, tonightModel, tiers, cutCtx,
     filterChips: filterChips(filters), filterCount: filterCount(filters), ctx, askOf,

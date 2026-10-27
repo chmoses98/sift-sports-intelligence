@@ -186,5 +186,5 @@ export function usePlayerVM(slug: string, pid: string) {
   // Why there is no player when a document failed (so the screen says "could not be read" and offers Retry, not "not in the publication").
   const failure = !demo ? (prof.error ?? idx.error ?? repo.error) : undefined;
   const retry = () => { repo.retry?.(); prof.retry?.(); idx.retry?.(); };
-  return { vm, loading, notFound: !demo && !loading && !vm && !failure, noExplorer: !demo && !repo.loading && !explorer && !failure, marketsLoading: !demo && !!next && detail.loading, error: !vm ? failure : undefined, retry, marketsError: !demo && next ? detail.error : undefined, marketsRetry: detail.retry };
+  return { vm, loading, notFound: !demo && !loading && !vm && !failure, noExplorer: !demo && !repo.loading && !explorer && !failure, marketsLoading: !demo && !!next && detail.loading, error: !vm ? failure : undefined, retry, marketsError: !demo && next ? detail.error : undefined, marketsRetry: detail.retry, histError: !demo ? hist.error : undefined, histRetry: hist.retry };
 }

@@ -142,6 +142,8 @@ export const gameSchema = defineSchema({
 });
 
 export const PROPS_VIEWS = ['home', 'list', 'compare'] as const;
+/** Prop Discovery horizons: games starting within 48 hours (default), within 7 days, or every upcoming game. */
+export const PROPS_HORIZONS = ['48h', '7d', 'all'] as const;
 export const PROPS_SORTS = ['soon', 'price', 'hist', 'model', 'match', 'vol'] as const;
 
 /**
@@ -194,6 +196,8 @@ export const propsSchema = defineSchema({
     pin: f.bool(false),
     /** Reserved (the list is windowed, not paged). */
     more: f.int(null, { min: 1, max: 50 }),
+    /** Discovery horizon: games starting within 48 hours (default), 7 days, or every upcoming game. Home, list and compare read it. */
+    hz: f.oneOf(PROPS_HORIZONS, '48h'),
   },
 });
 

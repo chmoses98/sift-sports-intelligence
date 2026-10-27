@@ -5,11 +5,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from '../../../routing';
 import { historyBank, logRefOf, useHistoryBank } from '../../data/props/bank';
-import { historyStateOf, useQueryCtx, usePropPrices, useVisibleHistory } from '../../data/props/hooks';
+import { historyStateOf, ranksPending, useEnsureAvailability, useEnsureRanks, useQueryCtx, usePropPrices, useVisibleHistory, type UniverseState } from '../../data/props/hooks';
+import { useBankVersion } from '../../data/props/lazyBank';
 import {
-  historyFilterOn, listProps, listTitle, parseRef, passesBase, PRESET_LABEL, refToken, rungFor, SORT_LABEL, sortOf, type ListState,
+  histClassOf, historyFilterOn, histSummary, listProps, listTitle, parseRef, passesBase, PRESET_LABEL, refToken, rungFor, SORT_LABEL, sortOf, type HistClass, type ListState,
 } from '../../data/props/query';
-import type { Matchup, Prop, Universe } from '../../data/props/types';
+import { rankBank, rankKeysFor, type ChipState } from '../../data/props/ranks';
+import type { Prop, Universe } from '../../data/props/types';
 import { findSaved } from '../../model/saved';
 import { routes } from '../../nav/routes';
 import { PropsLink } from '../../nav/Targets';
@@ -19,14 +21,18 @@ import { useSheet } from '../../ui/Sheet';
 import { useQueryPatch } from '../../state/url';
 import { usePublishContracts } from './contracts';
 import { FilterSheet } from './FilterSheet';
-import { chipBeside, columnWidth, PEEK_EST, resetMeasure, rowHeight } from './layout';
+import { HorizonBar } from './HorizonBar';
+import { chipBeside, columnWidth, GROUP_H, PEEK_EST, resetMeasure, rowHeight } from './layout';
 import { Peek, type PeekBits } from './Peek';
-import { Avatar, lanesFor, LaneLine, Mark, NameLine, OppChip, playerRef, PricePill, statText, type Lanes } from './parts';
+import { availWord, Avatar, chipText, lanesFor, LaneLine, Mark, NameLine, OppChip, playerRef, PricePill, statText, type Lanes } from './parts';
 import { VirtualList } from './VirtualList';
 
 export type SetState = (patch: Partial<ListState>, o?: { push?: boolean }) => void;
 
-interface Item { p: Prop; wrap: boolean; m: Matchup | null }
+interface RowItem { kind: 'row'; p: Prop; wrap: boolean; chip: ChipState }
+/** A label between groups of rows when the order is History: ranked rows, then rows that were never evaluated (kept apart so the order cannot read as a complete ranking). */
+interface HeadItem { kind: 'head'; id: HistClass; title: string; sub: string; ranked: boolean }
+type Item = RowItem | HeadItem;
 
 /** Logs are fetched automatically for a History sort or filter only when this few are missing; more asks first (a download the viewer chose). */
 const AUTO_LOGS = 30;
@@ -71,8 +77,8 @@ function ActiveChips({ st, set, hiddenN, game }: { st: ListState; set: SetState;
   );
 }
 
-function PropRow({ it, k, open, cmpMode, ticked, onToggle, onTick, bits }: { it: Item; k: number; open: boolean; cmpMode: boolean; ticked: boolean; onToggle: () => void; onTick: () => void; bits: PeekBits }) {
-  const { p, wrap, m } = it;
+function PropRow({ it, k, open, cmpMode, ticked, onToggle, onTick, bits, histNotLoaded }: { it: RowItem; k: number; open: boolean; cmpMode: boolean; ticked: boolean; onToggle: () => void; onTick: () => void; bits: PeekBits; histNotLoaded: boolean }) {
+  const { p, wrap, chip } = it;
   const r = rungFor(p, k);
   const price = bits.reader.priceOf(p, r);
   const hs = historyStateOf(p, bits.get);
@@ -80,15 +86,15 @@ function PropRow({ it, k, open, cmpMode, ticked, onToggle, onTick, bits }: { it:
   const ref = playerRef(p);
   return (
     <div className={`pd-row${wrap ? ' is-wrap' : ''}${open ? ' is-open' : ''}`} data-prop={p.id} data-open={open ? '1' : undefined}>
-      <button type="button" className="pd-row__hit" aria-expanded={open} aria-pressed={cmpMode ? ticked : undefined} aria-label={cmpMode ? `${ticked ? 'Remove' : 'Select'} ${p.name} ${statText(p, r.k)} for comparison` : `${open ? 'Collapse' : 'Expand'} ${p.name}, ${statText(p, r.k)}`} onClick={cmpMode ? onTick : onToggle} />
+      <button type="button" className="pd-row__hit" aria-expanded={open} aria-pressed={cmpMode ? ticked : undefined} aria-label={cmpMode ? `${ticked ? 'Remove' : 'Select'} ${p.name} ${statText(p, r.k)} for comparison${availWord(p)}` : `${open ? 'Collapse' : 'Expand'} ${p.name}, ${statText(p, r.k)}${availWord(p)}`} onClick={cmpMode ? onTick : onToggle} />
       <span className="pd-avwrap" style={{ ['--s' as string]: '40px' }}>
         <Avatar p={p} size={40} link={!cmpMode} k={r.k} />
         {cmpMode && <i className={`pd-tick${ticked ? ' is-on' : ''}`} aria-hidden="true">{ticked && <Icon name="check" size={13} strokeWidth={3} />}</i>}
       </span>
       <div className="pd-pb">
         <NameLine p={p} k={r.k} plain={cmpMode || !ref} />
-        <div className="pd-ps"><span>{p.label} <b>{r.k}+</b></span><OppChip m={m} p={p} wrap={wrap} /></div>
-        <LaneLine l={lanes} />
+        <div className="pd-ps"><span>{p.label} <b>{r.k}+</b></span><OppChip m={chip.state === 'ready' ? chip.m : null} loading={chip.state === 'loading'} p={p} wrap={wrap} /></div>
+        <LaneLine l={lanes} histNotLoaded={histNotLoaded && hs.state === 'idle'} />
       </div>
       <PricePill p={p} r={r} price={price} />
     </div>
@@ -100,7 +106,7 @@ function useSavedRoute(route: string) {
   return findSaved(list, route);
 }
 
-function Header({ st, title, count, onBack, onSearch, set, universe }: { st: ListState; title: string; count: number; onBack: () => void; onSearch: () => void; set: SetState; universe: Universe }) {
+function Header({ st, title, count, partial, onBack, onSearch, set, universe }: { st: ListState; title: string; count: number; partial: boolean; onBack: () => void; onSearch: () => void; set: SetState; universe: Universe }) {
   void set;
   const route = routes.props({ ...st, view: 'list' });
   const saved = useSavedRoute(route);
@@ -114,7 +120,7 @@ function Header({ st, title, count, onBack, onSearch, set, universe }: { st: Lis
       <div className="pd-hs__tt">
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={onBack}><Icon name="back" size={24} /></button>
         <h1>{title}</h1>
-        <span className="pd-hs__cnt" aria-label={`${count} props`}>{count}</span>
+        <span className="pd-hs__cnt" aria-label={`${count} props${partial ? ' so far, more games are still being read' : ''}`}>{count}{partial ? '+' : ''}</span>
         <span className="pd-hs__tr">
           <button type="button" className="v3-iconbtn" aria-label="Search props" onClick={onSearch}><Icon name="search" size={22} /></button>
           <button type="button" className="v3-iconbtn" aria-label={saved ? 'Remove this view from saved research' : 'Save this view'} aria-pressed={!!saved} onClick={toggle}><Icon name="bookmark" size={22} fill={!!saved} /></button>
@@ -124,13 +130,15 @@ function Header({ st, title, count, onBack, onSearch, set, universe }: { st: Lis
   );
 }
 
-export function PropsList({ st, set, universe }: { st: ListState; set: SetState; universe: Universe }) {
+export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: UniverseState }) {
+  const universe = us.universe as Universe;
   const loc = useLocation();
   const nav = useNavigate();
   const patch = useQueryPatch();
   const sheet = useSheet();
   const bank = useHistoryBank();
-  const { ctx } = useQueryCtx(universe);
+  const { ctx, chipOf } = useQueryCtx(universe);
+  useBankVersion(rankBank);
   const { colW, fonts } = useRowMetrics();
   const inputRef = useRef<HTMLInputElement>(null);
   const sort = sortOf(st);
@@ -154,13 +162,33 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   // ---- the list
   const base = useMemo(() => universe.props.filter((p) => passesBase(p, st, ctx)), [universe, st, ctx]);
   const list = useMemo(() => listProps(universe.props, st, ctx), [universe, st, ctx]);
-  const items = useMemo<Item[]>(() => list.map((p) => { const m = ctx.matchup(p); return { p, m, wrap: !chipBeside(p.label, `${p.featured}+`, m?.text ?? 'no matchup rows', colW) }; }), [list, ctx, colW, fonts]); // eslint-disable-line react-hooks/exhaustive-deps -- `fonts` re-measures when a web font arrives
+  const sortHist = sort === 'hist' && !historyFilterOn(st);
+  const items = useMemo<Item[]>(() => {
+    const rows = list.map((p): RowItem => { const chip = chipOf(p); return { kind: 'row', p, chip, wrap: !chipBeside(p.label, `${p.featured}+`, chipText(p, chip), colW) }; });
+    if (!sortHist) return rows;
+    // History order: ranked rows first, then the rows that were never evaluated, each group labelled and in start order (see query.ts comparator).
+    const out: Item[] = [];
+    const counts: Record<HistClass, number> = { evaluated: 0, pending: 0, none: 0 };
+    const cls = list.map((p) => { const c = histClassOf(p, ctx); counts[c]++; return c; });
+    const HEAD: Record<HistClass, (n: number) => Omit<HeadItem, 'kind' | 'id'>> = {
+      evaluated: (n) => ({ title: 'Evaluated · ranked by History', sub: `${n} prop${n === 1 ? '' : 's'} with History computed from a loaded game log`, ranked: true }),
+      pending: (n) => ({ title: 'History not loaded', sub: `${n} prop${n === 1 ? '' : 's'} not evaluated · listed by start time, not ranked`, ranked: false }),
+      none: (n) => ({ title: 'No game log published', sub: `${n} prop${n === 1 ? '' : 's'} · listed by start time, not ranked`, ranked: false }),
+    };
+    let last: HistClass | null = null;
+    rows.forEach((r, i) => {
+      if (cls[i] !== last) { last = cls[i]; out.push({ kind: 'head', id: last, ...HEAD[last](counts[last]) }); }
+      out.push(r);
+    });
+    return out;
+  }, [list, ctx, chipOf, colW, fonts, sortHist]); // eslint-disable-line react-hooks/exhaustive-deps -- `fonts` re-measures when a web font arrives
   const expRef = parseRef(st.exp);
   const expProp = expRef ? universe.byId.get(expRef.id) ?? null : null;
 
   // ---- History: ranked or filtered over the whole list only when asked; otherwise lazily for the rows on screen
   const needsHist = sort === 'hist' || historyFilterOn(st);
   const histRefs = useMemo(() => (needsHist ? base.map(logRefOf).filter((r): r is NonNullable<typeof r> => !!r) : []), [needsHist, base]);
+  const histSum = useMemo(() => (needsHist ? histSummary(base, ctx) : null), [needsHist, base, ctx]);
   const missing = bank.missing(histRefs);
   const pending = bank.pending(histRefs);
   const histPlayers = new Set(histRefs.map((r) => r.key)).size;
@@ -170,8 +198,19 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   // ---- what is on screen
   const [vis, setVis] = useState<[number, number]>([0, 10]);
   const onVisible = useCallback((a: number, b: number) => setVis((c) => (c[0] === a && c[1] === b ? c : [a, b])), []);
-  const visible = useMemo(() => list.slice(vis[0], vis[1]), [list, vis]);
-  useVisibleHistory(useMemo(() => (expProp ? [...visible, expProp] : visible), [visible, expProp]));
+  const rowsOf = useCallback((a: number, b: number) => items.slice(a, b).flatMap((it) => (it.kind === 'row' ? [it.p] : [])), [items]);
+  const visible = useMemo(() => rowsOf(vis[0], vis[1]), [rowsOf, vis]);
+  // A few rows ahead of the screen: their availability and opponent rankings are read before they scroll in, so "Checking availability" is rarely seen.
+  const ahead = useMemo(() => rowsOf(vis[1], vis[1] + 24), [rowsOf, vis]);
+  // While History orders or filters the list, rows that scroll into view are NOT loaded behind the viewer's back (a row that gains History would
+  // jump between the groups under his thumb): loading is the explicit control below, plus the expanded row.
+  useVisibleHistory(visible, !needsHist);
+  useVisibleHistory(useMemo(() => (expProp ? [expProp] : []), [expProp]));
+  useEnsureAvailability(useMemo(() => (expProp ? [...visible, ...ahead, expProp] : [...visible, ...ahead]), [visible, ahead, expProp]));
+  const needsRanks = st.preset === 'bottom3' || !!st.orank || sort === 'match';
+  useEnsureRanks(universe.props, needsRanks);
+  useEnsureRanks(useMemo(() => (expProp ? [...visible, ...ahead, expProp] : [...visible, ...ahead]), [visible, ahead, expProp]), !needsRanks);
+  const ranksWait = needsRanks && ranksPending(rankKeysFor(universe.props));
   const reader = usePropPrices(visible, expProp);
   const cmpForSheet = st.cmp.map((t) => universe.byId.get(parseRef(t)?.id ?? '') ?? null);
   usePublishContracts([...visible, expProp, ...cmpForSheet], bank.get, bank.getVersion());
@@ -192,20 +231,22 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   const onRung = (p: Prop, k: number) => set({ exp: refToken(p, k) });
 
   const render = useCallback((it: Item) => {
+    if (it.kind === 'head') return <div className={`pd-grp${it.ranked ? '' : ' is-unranked'}`} data-group={it.id}><h2>{it.title}</h2><p>{it.sub}</p></div>;
     const open = expRef?.id === it.p.id;
     const k = open ? expRef!.k ?? it.p.featured : it.p.featured;
     const ticked = cmp.some((t) => parseRef(t)?.id === it.p.id);
+    const m = it.chip.state === 'ready' ? it.chip.m : null;
     return (
       <>
-        <PropRow it={open && k !== it.p.featured ? { ...it, wrap: !chipBeside(it.p.label, `${k}+`, it.m?.text ?? 'no matchup rows', colW) } : it} k={k} open={open} cmpMode={st.cmpm} ticked={ticked} onToggle={() => toggle(it.p)} onTick={() => tick(it.p, k)} bits={bits} />
-        {open && <Peek p={it.p} k={rungFor(it.p, k).k} m={it.m} bits={bits} onRung={(kk) => onRung(it.p, kk)} />}
+        <PropRow it={open && k !== it.p.featured ? { ...it, wrap: !chipBeside(it.p.label, `${k}+`, chipText(it.p, it.chip), colW) } : it} k={k} open={open} cmpMode={st.cmpm} ticked={ticked} onToggle={() => toggle(it.p)} onTick={() => tick(it.p, k)} bits={bits} histNotLoaded={needsHist} />
+        {open && <Peek p={it.p} k={rungFor(it.p, k).k} m={m} bits={bits} onRung={(kk) => onRung(it.p, kk)} />}
       </>
     );
-  }, [expRef?.id, expRef?.k, cmp, st.cmpm, bits.reader, bank.getVersion(), colW, fonts]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [expRef?.id, expRef?.k, cmp, st.cmpm, bits.reader, bank.getVersion(), colW, fonts, needsHist]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const heightOf = useCallback((it: Item) => rowHeight(it.wrap) + (expRef?.id === it.p.id ? PEEK_EST : 0), [expRef?.id]);
-  const dynamic = useCallback((it: Item) => expRef?.id === it.p.id, [expRef?.id]);
-  const keyOf = useCallback((it: Item) => it.p.id, []);
+  const heightOf = useCallback((it: Item) => (it.kind === 'head' ? GROUP_H : rowHeight(it.wrap) + (expRef?.id === it.p.id ? PEEK_EST : 0)), [expRef?.id]);
+  const dynamic = useCallback((it: Item) => it.kind === 'row' && expRef?.id === it.p.id, [expRef?.id]);
+  const keyOf = useCallback((it: Item) => (it.kind === 'head' ? `~${it.id}` : it.p.id), []);
 
   const back = () => { if (loc.key !== 'default') nav(-1); else nav(routes.props(), { replace: true }); };
   const gameProp = st.game ? universe.props.find((p) => p.eventId === st.game) ?? null : null;
@@ -216,12 +257,13 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
 
   return (
     <div className="pd pd-listpage" data-view="list">
-      <Header st={st} title={title} count={list.length} onBack={back} onSearch={() => inputRef.current?.focus()} set={set} universe={universe} />
+      <Header st={st} title={title} count={list.length} partial={!universe.complete} onBack={back} onSearch={() => inputRef.current?.focus()} set={set} universe={universe} />
       <label className="pd-search">
         <Icon name="search" size={18} />
         <input ref={inputRef} type="search" value={text} onChange={(e) => onText(e.target.value)} placeholder="Search player, stat or team" aria-label="Search player, stat or team" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
         {text && <button type="button" aria-label="Clear search" onClick={() => onText('')}><Icon name="close" size={16} /></button>}
       </label>
+      <HorizonBar state={us} onChange={(hz) => set({ hz })} />
       <div className="pd-ctrl">
         <button type="button" className="pd-btn pd-btn--sort" onClick={openFilters} aria-label={`Sort: ${SORT_LABEL[sort]}. Open sort and filters`}><Icon name="sliders" size={13} />Sort: {SORT_LABEL[sort]}<b>▾</b></button>
         <button type="button" className="pd-btn" onClick={openFilters} aria-label={`Filters${nFilters ? `, ${nFilters} applied` : ''}`}>Filters{nFilters > 0 && <i className="pd-badge">{nFilters}</i>}</button>
@@ -230,16 +272,25 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
       <ActiveChips st={st} set={set} hiddenN={hiddenN} game={gameProp} />
       <div className="pd-leg" aria-label="Lane key"><span>Market <Mark lane="m" /> pre-fee implied</span><span>History <Mark lane="h" /> last 10</span><span>SIFT model <Mark lane="z" /></span></div>
       <div className="pd-note"><Icon name="info" size={13} /><p>SIFT model shows “—” where no approved estimate exists: {published} of {universe.props.length} props today.</p></div>
-      {needsHist && histRefs.length > 0 && (
-        <div className="pd-note" role="status"><Icon name="info" size={13} /><p>
-          {pending > 0 ? `Loading history for ${pending} of ${histPlayers} players…`
-            : missing > 0 ? <>{sort === 'hist' ? 'History ranks' : 'The History filter counts'} only the props whose last games are loaded. <button type="button" onClick={() => historyBank.ensure(histRefs)}>Load history for {missing} more player{missing === 1 ? '' : 's'} (about {costKb >= 1024 ? `${(costKb / 1024).toFixed(1)} MB` : `${costKb} KB`})</button></>
-              : `History is loaded for all ${histPlayers} players in this list. Props with no game log rank last.`}
-        </p></div>
+      {needsHist && histSum && (
+        <div className="pd-hbar" role="status" data-evaluated={histSum.evaluated} data-total={histSum.total}>
+          <p className="pd-hbar__t"><b>Evaluated {histSum.evaluated} of {histSum.total}</b> props</p>
+          <p className="pd-hbar__d">
+            {historyFilterOn(st)
+              ? `The ${st.hmin}+ of ${st.hwin === 'L5' ? 5 : 10} History threshold applies to evaluated props only: those whose last games are computed from a loaded game log. ${histSum.total - histSum.evaluated} not evaluated ${histSum.total - histSum.evaluated === 1 ? 'is' : 'are'} not shown.`
+              : 'History ranks evaluated props only: those whose last games are computed from a loaded game log. The rest follow below in start order, labelled, and are not ranked.'}
+            {histSum.none > 0 ? ` ${histSum.none} ${histSum.none === 1 ? 'has' : 'have'} no published game log.` : ''}
+          </p>
+          {pending > 0 ? <p className="pd-hbar__d">Loading history for {pending} of {histPlayers} players…</p>
+            : missing > 0 ? <button type="button" onClick={() => historyBank.ensure(histRefs)}>Load history for {missing} more player{missing === 1 ? '' : 's'} (about {costKb >= 1024 ? `${(costKb / 1024).toFixed(1)} MB` : `${costKb} KB`})</button>
+              : <p className="pd-hbar__d">{`History is loaded for all ${histPlayers} players in this list.`}</p>}
+        </div>
       )}
       {notice && <div className="pd-note" role="status"><p>{notice}</p></div>}
       {universe.unreadable.length > 0 && <div className="pd-note"><Icon name="info" size={13} /><p>No player props could be read for {universe.unreadable.join(', ')}.</p></div>}
-      {items.length ? (
+      {ranksWait || (items.length === 0 && !universe.complete) ? (
+        <div className="pd-skel" role="status" aria-label={ranksWait ? 'Reading opponent rankings' : 'Reading games'}><div className="v3-skel" style={{ height: 96 }} /><div className="v3-skel" style={{ height: 96 }} /><div className="v3-skel" style={{ height: 96 }} /></div>
+      ) : items.length ? (
         <VirtualList className="pd-list" label="Props" items={items} keyOf={keyOf} heightOf={heightOf} dynamic={dynamic} render={render} onVisible={onVisible} />
       ) : (
         <div className="v3-state pd-empty"><Icon name="info" size={20} /><div><b>No props match</b>Loosen a filter. There are {universe.props.length} props today.<br /><button type="button" onClick={() => set({ sport: 'all', fam: null, q: null, team: null, game: null, player: null, preset: null, range: null, hmin: null, orank: null, model: false, hide: true })}>Clear filters</button></div></div>

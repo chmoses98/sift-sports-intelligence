@@ -4,6 +4,8 @@
 // CSS forces that layout, so the prediction can never disagree with what is painted.
 export const ROW_H = 96;
 export const ROW_H_WRAP = 118;
+/** A group label between rows (History order: evaluated rows, then rows that were never evaluated). */
+export const GROUP_H = 52;
 /** An expanded row's peek card before it has been measured. */
 export const PEEK_EST = 480;
 

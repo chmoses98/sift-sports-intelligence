@@ -24,7 +24,7 @@ export function rankMap(doc: RankingDoc, codeOf: (entityId: string, short: strin
 }
 
 /** The opponent chip for a prop, or null when the statistic has no unit or the ranking does not list the opponent. */
-export function matchupOf(p: Pick<Prop, 'slug' | 'oppUnit' | 'opp' | 'team'>, ranks: Map<string, Map<string, UnitRank>>): Matchup | null {
+export function matchupOf(p: Pick<Prop, 'slug' | 'oppUnit' | 'opp' | 'team'>, ranks: { get: (key: string) => Map<string, UnitRank> | undefined }): Matchup | null {
   if (!p.oppUnit || !p.opp) return null;
   const r = ranks.get(`${p.slug}:${p.oppUnit.metric}`)?.get(p.opp);
   if (!r) return null;

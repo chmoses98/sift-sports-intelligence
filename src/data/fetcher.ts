@@ -53,6 +53,16 @@ export function isStale(url: string): boolean {
   return at != null && clock() - at > RESEARCH_REVALIDATE_MS;
 }
 
+/**
+ * Drop a memoised document (its parsed JSON can be megabytes). A reader that took what it needs from a document it will not open again
+ * (Prop Discovery reading games far beyond the initial horizon) lets it go; asking for the url later simply reads it again.
+ */
+export function forgetJson(url: string): void {
+  inflight.delete(url);
+  settled.delete(url);
+  settledAt.delete(url);
+}
+
 export function peekJson<T>(url: string): T | undefined {
   return settled.get(url) as T | undefined;
 }

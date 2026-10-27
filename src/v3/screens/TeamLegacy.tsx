@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams, useSearchParams } from '../../routing';
 import { useQueryPatch } from '../state/url';
 import { useTeamVM, type MetricGroup, type MetricRow } from '../data/useTeam';
 import { teamPhoto } from '../data/adapt';
-import { ago, clockTime, dayWord } from '../model/format';
+import { clockTime, dayWord } from '../model/format';
 import { demoOn, pushVisit, useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
 import { AlertBell, FollowStar } from '../ui/Controls';
@@ -169,13 +169,13 @@ export function TeamLegacy() {
               <ul className="v3-props">{vm.injuries.map((i) => (
                 <li key={i.player + i.status} className="v3-inj">
                   <button type="button" className="v3-prop__who" aria-expanded={open === i.player} onClick={() => setOpen(open === i.player ? null : i.player)}>
-                    <span><b>{i.player}{i.position ? ` · ${i.position}` : ''}</b><small>{i.status.replace(/_/g, ' ').toLowerCase()}{i.asOf ? ` · ${ago(i.asOf)}` : ''}</small>{open === i.player && <small className="v3-inj__n">{i.note || 'No detail published.'}</small>}</span>
+                    <span><b>{i.player}{i.position ? ` · ${i.position}` : ''}</b><small>{i.status.replace(/_/g, ' ').toLowerCase()}</small>{open === i.player && <small className="v3-inj__n">{i.note || 'No detail published.'}</small>}</span>
                   </button>
                   <span className={`v3-chip v3-chip--st v3-chip--${i.status.toLowerCase()}`}>{i.status.replace(/_/g, ' ')}</span>
                 </li>))}
               </ul>
             ) : <div className="v3-state"><Icon name="info" size={20} /><div><b>No injuries listed</b>{vm.why.injuries}</div></div>}
-            <p className="v3-note v3-note--dim">Injury designations as published{vm.asOf ? `, ${ago(vm.asOf)}` : ''}. Nothing is inferred.</p>
+            <p className="v3-note v3-note--dim">Injury designations as published. Nothing is inferred.</p>
           </section>
         )}
         {follows.teams.includes(key) && tab === 'overview' && <p className="v3-note v3-note--dim">You follow {t.nick}. Alerts stay off until you turn them on with the bell.</p>}

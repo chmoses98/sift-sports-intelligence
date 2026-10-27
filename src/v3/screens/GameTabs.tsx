@@ -4,12 +4,13 @@ import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
 import { deriveProps } from '../data/adapt';
 import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
-import { ago, quoteState } from '../model/format';
-import type { MarketLine, V3Game } from '../model/types';
+import type { MarketLine, Price, V3Game } from '../model/types';
 import { Icon } from '../ui/Icon';
 import { GameStories } from '../ui/Stories';
 import { TeamLogo } from '../ui/TeamLogo';
-import { PriceText, useOpenLine } from '../ui/gamebits';
+import { PriceText, leagueLabel, useListGate, useOpenContract } from '../ui/gamebits';
+import { publishProp } from '../ui/gameContracts';
+import { useSheet } from '../ui/Sheet';
 import { ordinal } from '../data/lens';
 import { isReady } from '../model/capabilities';
 import type { GameTab } from '../nav/schemas';
@@ -19,37 +20,41 @@ import type { GameCtx } from './GameShared';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
-function MarketCard({ g, label, line }: { g: V3Game; label: string; line: MarketLine | undefined }) {
-  const open = useOpenLine();
+type Gate = (p: Price | null | undefined) => Price | null;
+
+function MarketCard({ g, startMs, gate, label, line }: { g: V3Game; startMs: number | null; gate: Gate; label: string; line: MarketLine | undefined }) {
+  const open = useOpenContract();
   if (!line) {
     return <div className="v3-mc v3-mc--none" aria-label={`${label}: no line listed`}><span className="v3-mc__k">{label}</span><div className="v3-mc__v"><b>—</b><small>No line listed</small></div></div>;
   }
   const alt = line.kind === 'moneyline' && line.alternates && line.alternates.length === 2 ? line.alternates : null;
+  const shown = gate(line.price);
   return (
-    <button type="button" className={`v3-mc${quoteState(line.price.observedAt) === 'stale' ? ' is-stale' : ''}`} aria-label={`${label}: ${line.label}, ${line.price.ask ?? 'no'} cents. Open market detail`} onClick={() => open(g, line)}>
+    <button type="button" className="v3-mc" aria-label={`${label}: ${line.label}, ${shown?.ask != null ? `${shown.ask} cents` : 'no price available'}. Open market detail`} onClick={() => open({ g, startMs }, line)}>
       <span className="v3-mc__k">{label}</span>
       {alt ? (
         <span className="v3-mc__v v3-mc__v--ml">
-          {alt.map((p, i) => <span key={p.ticker}><i>{i === 0 ? g.away.abbr : g.home.abbr}</i><b className="num">{p.ask != null ? `${p.ask}¢` : '—'}</b></span>)}
+          {alt.map((p, i) => <span key={p.ticker}><i>{i === 0 ? g.away.abbr : g.home.abbr}</i><b className="num"><PriceText p={gate(p)} /></b></span>)}
         </span>
       ) : (
-        <span className="v3-mc__v"><b>{line.label}</b><small><PriceText p={line.price} compact /> · {Math.round(line.price.implied ?? line.price.ask ?? 0)}%{quoteState(line.price.observedAt) === 'stale' ? ' · last known' : ''}</small></span>
+        <span className="v3-mc__v"><b>{line.label}</b><small><PriceText p={shown} />{shown ? ` · ${Math.round(shown.implied ?? shown.ask ?? 0)}%` : ''}</small></span>
       )}
     </button>
   );
 }
 
-export function MarketsRow({ g, loading = false }: { g: V3Game; loading?: boolean }) {
+export function MarketsRow({ g, startMs, loading = false }: { g: V3Game; startMs: number | null; loading?: boolean }) {
+  const gate = useListGate(g, startMs);
   const by = (k: MarketLine['kind']) => g.lines.find((l) => l.kind === k);
   if (loading) return <section aria-label="Market prices" role="status"><div className="v3-mcs">{[0, 1, 2].map((i) => <div key={i} className="v3-mc v3-mc--skel"><i className="v3-skel" /></div>)}</div><p className="v3-mcs__src">Loading Kalshi prices…</p></section>;
   return (
     <section aria-label="Market prices">
       <div className="v3-mcs">
-        <MarketCard g={g} label="Spread" line={by('spread')} />
-        <MarketCard g={g} label="Total" line={by('total')} />
-        <MarketCard g={g} label="Moneyline" line={by('moneyline')} />
+        <MarketCard g={g} startMs={startMs} gate={gate} label="Spread" line={by('spread')} />
+        <MarketCard g={g} startMs={startMs} gate={gate} label="Total" line={by('total')} />
+        <MarketCard g={g} startMs={startMs} gate={gate} label="Moneyline" line={by('moneyline')} />
       </div>
-      <p className="v3-mcs__src">{g.lines[0]?.price.source === 'Sample' ? 'Sample prices' : g.lines.length ? (quoteState(g.lines[0].price.observedAt) === 'stale' ? `Kalshi prices as last captured ${ago(g.lines[0].price.observedAt)}: last known, not current prices. ` : `Kalshi prediction-market prices · ${ago(g.lines[0].price.observedAt)}. `) + 'Market-implied %, not a SIFT model number.' : 'No Kalshi lines are listed for this game.'}</p>
+      <p className="v3-mcs__src">{g.lines[0]?.price.source === 'Sample' ? 'Sample prices' : g.lines.length ? 'Kalshi prediction-market prices. Market-implied %, not a SIFT model number.' : 'No Kalshi lines are listed for this game.'}</p>
     </section>
   );
 }
@@ -162,15 +167,16 @@ function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) 
           {(t!.primary_game_script || t!.summary) && <div className="v3-panel v3-pad"><h3 className="v3-h3">{t!.primary_game_script ? 'Most likely script' : 'Summary'}</h3><p>{t!.primary_game_script ?? t!.summary}</p></div>}
           {t!.supporting_factors.length > 0 && <div className="v3-panel v3-pad"><h3 className="v3-h3">Supporting factors</h3><ul className="v3-bul">{t!.supporting_factors.map((s) => <li key={s}>{s}</li>)}</ul></div>}
           {t!.opposing_factors.length > 0 && <div className="v3-panel v3-pad"><h3 className="v3-h3">Counter-case</h3><ul className="v3-bul">{t!.opposing_factors.map((s) => <li key={s}>{s}</li>)}</ul></div>}
-          <p className="v3-note v3-note--dim">Published {ago(t!.generated_at)}. Research context, not a bet signal.</p>
+          <p className="v3-note v3-note--dim">Research context, not a bet signal.</p>
         </>
       ) : <Unavailable title="No published game script yet">The publication has not stated a script for this game{g.sport === 'CFB' ? ' (the college football script engine is not connected to this view yet)' : ''}. Nothing is generated here.</Unavailable>}
     </section>
   );
 }
 
-function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
-  const open = useOpenLine();
+function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; detail: EventDetailDoc | null }) {
+  const sheet = useSheet();
+  const gate = useListGate(g, startMs);
   const rows = useMemo(() => (detail ? deriveProps(detail.markets ?? []) : []), [detail]);
   const stats = useMemo(() => [...new Set(rows.map((r) => r.statLabel))], [rows]);
   const [stat, setStat] = useState<string | null>(null);
@@ -211,8 +217,8 @@ function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
         {shown.map((r) => (
           <li key={r.key}>
             {r.playerId ? <Link to={`/v3/player/${g.slug}/${encodeURIComponent(r.playerId)}?stat=${encodeURIComponent(r.stat)}&line=${r.line}`} className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></Link> : <div className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></div>}
-            <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${r.price.ask ?? 'no'} cents. Open exact contract`}
-              onClick={() => open(g, { kind: 'total', label: `${r.player} ${r.statLabel} o${r.line}`, price: r.price, line: r.line, alternates: r.ladder })}>{r.price.ask != null ? `${r.price.ask}¢` : '—'}</button>
+            <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${gate(r.price)?.ask != null ? `${gate(r.price)!.ask} cents` : 'no price available'}. Open exact contract`}
+              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={gate(r.price)} /></button>
           </li>
         ))}
       </ul>
@@ -229,12 +235,12 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} />;
   if (tab === 'script') return <ScriptTab g={g} detail={detail} />;
-  if (tab === 'props') return <PropsTab g={g} detail={detail} />;
-  const demoStories = [{ t: 'Sample: starting running back listed probable', s: '2h ago', team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: '3h ago', team: g.home }];
+  if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} />;
+  const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   return (
     <>
       <WinPrices ctx={ctx} />
-      <MarketsRow g={g} loading={g.provenance === 'publication' && !detail} />
+      <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
       {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
       <PlayersToResearch ctx={ctx} />

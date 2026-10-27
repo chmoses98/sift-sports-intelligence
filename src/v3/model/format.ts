@@ -43,26 +43,6 @@ export function signed(n: number): string {
   return `${n > 0 ? '+' : '−'}${Math.abs(n)}`;
 }
 
-const MIN = 60_000;
-/** "just now" / "4m ago" / "2h ago": the true age of a quote or score. */
-export function ago(iso: string | null | undefined, now = Date.now()): string {
-  const t = iso ? Date.parse(iso) : NaN;
-  if (!Number.isFinite(t)) return 'time unknown';
-  const m = Math.max(0, Math.round((now - t) / MIN));
-  if (m < 1) return 'just now';
-  if (m < 60) return `${m}m ago`;
-  const h = Math.round(m / 60);
-  return h < 48 ? `${h}h ago` : `${Math.round(h / 24)}d ago`;
-}
-
-/** A quote is actionable only while fresh: under 15 minutes (the repo's FRESH bound); anything older is shown but never as a live price. */
-export const quoteState = (iso: string | null | undefined, now = Date.now()): 'fresh' | 'aging' | 'stale' | 'unknown' => {
-  const t = iso ? Date.parse(iso) : NaN;
-  if (!Number.isFinite(t)) return 'unknown';
-  const m = (now - t) / MIN;
-  return m < 15 ? 'fresh' : m <= 30 ? 'aging' : 'stale';
-};
-
 export const clockTime = (ms: number) => (Number.isFinite(ms) ? new Date(ms).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : 'TBD');
 export const dayWord = (ms: number, now = Date.now()) => {
   const d = new Date(ms), n = new Date(now);

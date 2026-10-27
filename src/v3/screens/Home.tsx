@@ -121,9 +121,9 @@ export function MyTeams({ games, limit = 4 }: { games: V3Game[]; limit?: number 
 }
 
 const SAMPLE_STORIES = [
-  { t: 'Sample: Knicks guard listed probable for tonight', s: '2h ago · NBA', team: ['NBA', 'NYK'] as const },
-  { t: 'Sample: Alabama moves up in the latest rankings', s: '3h ago · NCAAF', team: ['CFB', 'ALA'] as const },
-  { t: 'Sample: Dodgers name a Game 3 starter', s: '4h ago · MLB', team: ['MLB', 'LAD'] as const },
+  { t: 'Sample: Knicks guard listed probable for tonight', s: 'Sample · NBA', team: ['NBA', 'NYK'] as const },
+  { t: 'Sample: Alabama moves up in the latest rankings', s: 'Sample · NCAAF', team: ['CFB', 'ALA'] as const },
+  { t: 'Sample: Dodgers name a Game 3 starter', s: 'Sample · MLB', team: ['MLB', 'LAD'] as const },
 ];
 
 export function Home() {
@@ -169,7 +169,7 @@ export function Home() {
       </div>
 
       {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
-      {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app{saved[0].builtAt ? ` (built ${new Date(saved[0].builtAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })})` : ''} because the live publication could not be read. Prices and results may be out of date.</div></div>}
+      {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 
       {loading && !games.length ? (

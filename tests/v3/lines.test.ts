@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Market } from '../../src/contract/types';
 import { deriveLines, deriveProps } from '../../src/v3/data/adapt';
-import { breakEvenPct, quoteState, showAsk, takerFeeCents } from '../../src/v3/model/format';
+import { breakEvenPct, showAsk, takerFeeCents } from '../../src/v3/model/format';
 import type { V3Team } from '../../src/v3/model/types';
 
 const T = (id: string): V3Team => ({ id, slug: 'x', sport: 'NFL', name: id, nick: id, abbr: id, logo: null, colors: ['#000', '#fff'] });
@@ -50,7 +50,7 @@ describe('Kalshi lines (never mistaken for a sportsbook line)', () => {
   });
 });
 
-describe('prices: native cents/percent, fee-aware, honest about age', () => {
+describe('prices: native cents/percent and fee-aware (whether one may be shown is data/quoteGate.ts)', () => {
   it('Kalshi taker fee and break-even', () => {
     expect(takerFeeCents(50)).toBe(2);
     expect(breakEvenPct(54)).toBe(54 + takerFeeCents(54));
@@ -61,12 +61,5 @@ describe('prices: native cents/percent, fee-aware, honest about age', () => {
     expect(showAsk(60, 'american')).toBe('−150');
     expect(showAsk(40, 'american')).toBe('+150');
     expect(showAsk(null, 'cents')).toBe('—');
-  });
-  it('a quote older than 30 minutes is stale, under 15 fresh, unknown without a time', () => {
-    const now = Date.parse('2026-10-25T12:00:00Z');
-    expect(quoteState('2026-10-25T11:50:00Z', now)).toBe('fresh');
-    expect(quoteState('2026-10-25T11:40:00Z', now)).toBe('aging');
-    expect(quoteState('2026-10-25T11:00:00Z', now)).toBe('stale');
-    expect(quoteState(null, now)).toBe('unknown');
   });
 });

@@ -164,29 +164,9 @@
   .v3-col { box-shadow: 0 0 0 1px rgba(41, 48, 55, 0.5), 0 0 80px rgba(0, 0, 0, 0.5); background: transparent; }
 }
 
-/* ------------------------------------------------------------ price + market detail */
-.v3-dim { color: var(--sift-dim); }
-.v3-kvs { margin-top: 10px; border-top: 1px solid rgba(41, 48, 55, 0.6); }
-.v3-kv { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid rgba(41, 48, 55, 0.45); font-size: 14px; color: var(--sift-muted); }
-.v3-kv b { color: var(--sift-text); font-weight: 500; text-align: right; }
-.v3-kv code { font: 500 12px/1.3 ui-monospace, 'SF Mono', Menlo, monospace; word-break: break-all; color: #dfe1e4; }
-.v3-fresh--fresh { color: var(--sift-good); }
-.v3-fresh--aging { color: var(--sift-warning); }
-.v3-fresh--stale, .v3-fresh--unknown { color: var(--sift-bad); }
-.v3-mkt__q { font: 600 17px/24px var(--f-ui); margin-top: 2px; }
-.v3-mkt__big { display: flex; align-items: baseline; gap: 12px; margin: 12px 0 6px; }
-.v3-mkt__big .num { font-size: 44px; line-height: 48px; color: var(--sift-cyan); }
-.v3-mkt__big small { font-size: 14px; color: var(--sift-muted); }
-.v3-mkt__h { font: 600 14px/20px var(--f-ui); color: var(--sift-muted); margin: 20px 0 6px; text-transform: uppercase; letter-spacing: 0.06em; }
-.v3-ladder { display: grid; gap: 6px; }
-.v3-ladder button { width: 100%; display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; padding: 0 14px; border-radius: 12px; background: rgba(23, 27, 31, 0.7); border: 1px solid rgba(41, 48, 55, 0.8); font-size: 14px; }
-.v3-ladder button[aria-pressed='true'] { border-color: var(--sift-cyan); box-shadow: 0 0 0 1px rgba(25, 205, 224, 0.35) inset; }
-.v3-ladder b { font: 600 15px/1 var(--f-num); }
 
 /* icons never take the tap: the control around them is always the event target (WebKit drops the click when press and release land on a bare SVG) */
 .v3 :is(button, a) svg { pointer-events: none; }
-.v3 .is-stale { opacity: 0.62; }
-.v3 .is-stale em, .v3 .is-stale small { text-decoration: none; }
 
 /* tap targets: every control answers a 44px hit area even where its drawn shape is smaller */
 .v3-chip, .v3-fbtn, .v3-fchip, .v3-seg__b, .v3-pill, .v3-win { position: relative; }

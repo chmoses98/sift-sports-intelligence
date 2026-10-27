@@ -45,11 +45,12 @@ export const readFeedCache = (url: string): Buffer | null => { const f = join(di
  * TEST TRANSFORMATION, not data: re-stamps the observation time of every market in the real quote-feed game files to "now", so the
  * priced states (a price inside the list's maximum age) can be exercised against the real contract list while the real feed, 3.5 minutes
  * plus a 5-minute CDN cache behind, is older than the display rule allows. Only timestamps change; every price is the published one.
- * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer (the withheld-price state).
+ * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer; with `fail`, the feed answers 503 (no reliable quote can be obtained).
  */
-export async function freshQuotes(page: Page, o: { omit?: (ticker: string) => boolean; live?: boolean } = {}): Promise<void> {
+export async function freshQuotes(page: Page, o: { omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean } = {}): Promise<void> {
   const live = o.live ?? process.env.V3_REAL_FEEDS === 'live';
   await page.route(/^https:\/\/raw\.githubusercontent\.com\/chmoses98\/sift-sports-intelligence\/live-quotes\/games\/[^/]+\.json/, async (route) => {
+    if (o.fail?.()) { await route.fulfill({ status: 503, body: 'unavailable', headers: { 'access-control-allow-origin': '*' } }); return; }
     const url = route.request().url();
     let body = readFeedCache(url);
     if (!body && live) {

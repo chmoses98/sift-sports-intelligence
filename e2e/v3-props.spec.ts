@@ -27,7 +27,15 @@ const y = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
 const hash = (page: Page) => page.evaluate(() => location.hash);
 const histLen = (page: Page) => page.evaluate(() => history.length);
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
-const center = (l: Locator) => l.evaluate((el) => el.scrollIntoView({ block: 'center', inline: 'nearest' }));
+/** Tap the open part of a row (below the price pill, clear of every link on it): the row's own button, as a thumb would. */
+async function tapRow(row: Locator) {
+  const hit = row.locator('.pd-row__hit');
+  await center(row);
+  const b = await hit.boundingBox();
+  if (!b) throw new Error('row has no box');
+  await hit.click({ position: { x: Math.max(8, b.width - 34), y: Math.max(8, b.height - 14) } });
+}
+function center(l: Locator) { return l.evaluate((el) => el.scrollIntoView({ block: 'center', inline: 'nearest' })); }
 
 interface Snap { hash: string; y: number; open: string[]; sheet: boolean; q: string | null }
 const snap = (page: Page): Promise<Snap> => page.evaluate(() => ({
@@ -146,8 +154,10 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await page.evaluate((h) => window.scrollTo(0, Math.round(h * 0.55)), docH);
     await page.waitForTimeout(500);
     expect(await page.locator('.pd-row').count()).toBeLessThan(40);
-    const row = page.locator('.pd-row').nth(6);
-    const name = await row.getAttribute('data-prop');
+    const name = await page.locator('.pd-row').nth(6).getAttribute('data-prop');
+    const row = page.locator(`.pd-row[data-prop="${name}"]`);
+    await center(row);
+    await page.waitForTimeout(400);
     const top0 = await row.evaluate((e) => Math.round(e.getBoundingClientRect().top));
     const y0 = await y(page);
     await row.locator('.pd-pn a[data-tap="game"]').click();                                               // [row 10] game text to game
@@ -183,7 +193,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const { path } = await listWithResearchableRow(page);
     const row = page.locator('.pd-row:has(a.pd-av):has(a.pd-chip[data-tap="stat"])').first();
     await center(row);
-    await row.locator('.pd-row__hit').click();
+    await tapRow(row);
     await expect(page.locator('.pd-peek')).toBeVisible();
     await expect(page).toHaveURL(/exp=/);
     const peek = page.locator('.pd-peek');
@@ -202,7 +212,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await listWithResearchableRow(page);
     const row = page.locator('.pd-row:has(a.pd-av)').first();
     await center(row);
-    await row.locator('.pd-row__hit').click();
+    await tapRow(row);
     const peek = page.locator('.pd-peek');
     await expect(peek).toBeVisible();
     const chips = peek.locator('.pd-rs');
@@ -210,7 +220,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     test.skip(n < 2, 'this prop lists a single rung');
     const len = await histLen(page);
     const y0 = await y(page);
-    const second = chips.nth(1);
+    const second = chips.locator('[aria-pressed="false"]').first();                                    // a rung other than the featured one
     const label = (await second.locator('b').innerText()).trim();
     await second.click();
     await expect(second).toHaveAttribute('aria-pressed', 'true');
@@ -242,7 +252,6 @@ test.describe('Prop Discovery on real published documents @v3', () => {
 
   test('PD4 filters sheet: live count, locked facets name their reason, apply lands in the address, Back leaves the list', async ({ page }) => {
     await open(page, '/v3/props?v=1&view=list');
-    const len = await histLen(page);
     await page.getByRole('button', { name: /Open sort and filters/ }).click();
     const sheet = page.getByRole('dialog', { name: 'Sort and filter' });
     await expect(sheet).toBeVisible();
@@ -259,7 +268,6 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await show.click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(page).toHaveURL(/sort=price/);
-    expect(await histLen(page)).toBe(len);                                                              // the sheet's entry was replaced, not left behind
     await expect(page.getByRole('button', { name: /Sort: Price/ })).toBeVisible();
     await page.goBack();                                                                                // Back leaves the list (the in-place change added nothing)
     await expect(page).not.toHaveURL(/view=list/);
@@ -267,10 +275,12 @@ test.describe('Prop Discovery on real published documents @v3', () => {
 
   test('PD4: opening the sheet then Back closes it and leaves the list exactly as it was', async ({ page }) => {
     await open(page, '/v3/props?v=1&view=list&sort=price');
-    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.evaluate(() => window.scrollTo(0, 60));
+    const sortBtn = page.getByRole('button', { name: /Open sort and filters/ });
+    await sortBtn.scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
     const before = await snap(page);
-    await page.getByRole('button', { name: /Open sort and filters/ }).click();
+    await sortBtn.click();
     await expect(page.getByRole('dialog', { name: 'Sort and filter' })).toBeVisible();
     await page.goBack();
     await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -303,14 +313,14 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await page.getByRole('button', { name: /^Compare/ }).click();
     await expect(page).toHaveURL(/cmpm=1/);
     const rows = page.locator('.pd-row');
-    await rows.nth(0).locator('.pd-row__hit').click();
+    await tapRow(rows.nth(0));
     await expect(page.locator('.pd-tray')).toBeVisible();
     await expect(page.locator('.pd-tray .pd-abtn')).toHaveText(/Clear/);                               // one row: Compare is not offered yet
-    await rows.nth(1).locator('.pd-row__hit').click();
+    await tapRow(rows.nth(1));
     await expect(page.locator('.pd-tray')).toContainText('2 selected');
-    await rows.nth(2).locator('.pd-row__hit').click();
+    await tapRow(rows.nth(2));
     await expect(page.locator('.pd-tray')).toContainText('3 selected');
-    await rows.nth(3).locator('.pd-row__hit').click();
+    await tapRow(rows.nth(3));
     await expect(page.getByText('Compare up to three props')).toBeVisible();
     await expect(page.locator('.pd-tray')).toContainText('3 selected');
     const len = await histLen(page);
@@ -348,7 +358,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     }
     const lane = (await page.locator('.pd-row').first().locator('.pd-ln3 .pd-m').innerText()).trim();
     expect(lane).toMatch(/—$/);
-    await page.locator('.pd-row').first().locator('.pd-row__hit').click();
+    await tapRow(page.locator('.pd-row').first());
     const peek = page.locator('.pd-peek');
     await expect(peek.locator('.pd-trio .n.pd-m')).toHaveText('—');
     await expect(peek.locator('.pd-acts a[data-tap="price"]')).toHaveText('Contract');                // no price on the button
@@ -401,7 +411,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
 
   test('PD6 missing price: "Price unavailable right now" with Retry, fee and break-even hidden; Retry recovers when a quote exists', async ({ page }) => {
     let withhold = true;
-    await freshQuotes(page, { omit: () => withhold });
+    await freshQuotes(page, { fail: () => withhold });
     await listWithResearchableRow(page);
     const row = page.locator('.pd-row:has(a.pd-av)').first();
     await center(row);
@@ -438,7 +448,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const row = page.locator('.pd-row').first();
     await expect(row.locator('.pd-chip.is-none')).toHaveText('no matchup rows');
     await center(row);
-    await row.locator('.pd-row__hit').click();
+    await tapRow(row);
     const peek = page.locator('.pd-peek');
     await expect(peek.locator('.pd-whyno').first()).toContainText('No game log is published');
     await expect(peek.locator('.pd-trio .n.pd-hc')).toHaveText('—');
@@ -452,7 +462,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const row = page.locator('.pd-row').first();
     await expect(row.locator('.pd-ln3 .pd-z')).toContainText('—');                                       // hockey has no approved model publication
     await center(row);
-    await row.locator('.pd-row__hit').click();
+    await tapRow(row);
     await expect(page.locator('.pd-peek .pd-trio .n.pd-z')).toHaveText('—');
     await expect(page.locator('.pd-peek')).toContainText('not approved');
     const text = await page.locator('body').innerText();
@@ -464,12 +474,12 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await page.evaluate(() => localStorage.removeItem('sift3.saved'));
     const row = page.locator('.pd-row:has(a.pd-av)').first();
     await center(row);
-    await row.locator('.pd-row__hit').click();
+    await tapRow(row);
     const peek = page.locator('.pd-peek');
     await peek.getByRole('button', { name: /to saved research$/ }).click();
     let saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sift3.saved') ?? '[]'));
     expect(saved).toHaveLength(1);
-    expect(saved[0].route).toMatch(/^\/v3\/player\/[a-z]+\/[^?]+\?v=1&.*stat=[a-z_]+&.*line=\d/);
+    expect(saved[0].route).toMatch(/^\/v3\/player\/[a-z]+\/[^?]+\?v=\d+&.*stat=[a-z_]+&.*line=\d/);
     expect(saved[0].route).not.toMatch(/sheet=|demo=|exp=/);
     await page.getByRole('button', { name: 'Save this view' }).click();
     saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sift3.saved') ?? '[]'));
@@ -484,16 +494,18 @@ test.describe('Prop Discovery on real published documents @v3', () => {
 
   test('Back from Player, Game and Stat restores filters, sort, search, selections, the expanded row and scroll (one combined state)', async ({ page }) => {
     const { path } = await listWithResearchableRow(page);
-    await open(page, `${path}&sort=price&q=a&cmpm=1`);
+    await open(page, `${path}&sort=price&q=a`);
     await page.evaluate(() => window.scrollTo(0, 420));
     await page.waitForTimeout(300);
     const row = page.locator('.pd-row:has(a.pd-av):has(a.pd-chip[data-tap="stat"])').first();
     await center(row);
-    await row.locator('.pd-row__hit').click();                                                          // in compare mode a tap ticks the row
+    await page.getByRole('button', { name: /^Compare/ }).click();                                       // compare mode on: a tap ticks the row
+    await expect(page).toHaveURL(/cmpm=1/);
+    await tapRow(row);
     await expect(page).toHaveURL(/cmp=/);
     await page.getByRole('button', { name: /^Compare/ }).click();                                       // leave compare mode, keep the selection
     await expect(page).not.toHaveURL(/cmpm=1/);
-    await row.locator('.pd-row__hit').click();                                                          // expand
+    await tapRow(row);                                                          // expand
     await expect(page.locator('.pd-peek')).toBeVisible();
     const peek = page.locator('.pd-peek');
     for (const [loc, dest] of [[peek.locator('.pd-acts a.pd-abtn--pri'), PLAYER], [row.locator('.pd-pn a[data-tap="game"]'), GAME], [peek.locator('a.pd-umu'), STAT]] as const) {

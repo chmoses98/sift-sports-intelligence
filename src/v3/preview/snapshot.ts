@@ -42,6 +42,6 @@ export function installSnapshot() {
   const bar = document.createElement('div');
   bar.setAttribute('role', 'note');
   bar.style.cssText = 'background:#1b1f25;color:#f5d38e;font:600 11px/15px -apple-system,system-ui,sans-serif;text-align:center;padding:6px 12px;border-bottom:1px solid #39414b';
-  bar.textContent = 'CAPTURED SNAPSHOT · real published data, saved copy · prices are as captured · only the Player Research route is captured';
+  bar.textContent = 'CAPTURED SNAPSHOT · real published data, prices as captured, not live · only the Player, Team, Statistic and Game routes are captured';
   document.body.prepend(bar);
 }

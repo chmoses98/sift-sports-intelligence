@@ -206,12 +206,13 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL&obs=36');
     await expect(page.locator('.st-obc')).toBeVisible();
     const before = await hash(page);
-    const gd = page.getByRole('link', { name: /^Game Detail/ });
+    const gd = page.locator('.st-obc').getByRole('link', { name: /^Game Detail/ });
     await expect(gd).toHaveAttribute('data-tap', 'game');
     await expect(gd).toHaveAttribute('data-dest', /^\/v3\/game\/nfl\/evt_/);
     await tapAndBack(page, gd, /^\/v3\/game\/nfl\/evt_/);
     expect(await hash(page)).toBe(before);
-    await expect(page.locator('.st-obs [data-obs][aria-pressed="true"]')).toHaveCount(1);
+    await expect(page.locator('.st-obs [data-obs][data-on="true"]')).toHaveCount(1);
+    await expect(page.locator('.st-olr.is-on')).toHaveCount(1);
     const opp = page.locator('.st-obc a[data-tap="team"]');
     await tapAndBack(page, opp, /^\/v3\/team\/nfl\/[A-Z]+/);
   });

@@ -14,7 +14,7 @@ import { readBoxLog, num, type BoxRow } from '../../history/boxLog';
 import { nbaPlayed } from '../../history/nbaLog';
 import type { GameLogRow } from '../../history/types';
 import { demoOn } from '../state/prefs';
-import { whyUnavailable } from './failure';
+import { failureKind, whyUnavailable } from './failure';
 import { deriveLines, deriveProps, type PropRow } from './adapt';
 import { useEventDetail } from './useGameExtras';
 import { useGameStart } from './research/gameHooks';
@@ -184,7 +184,9 @@ export function usePlayerVM(slug: string, pid: string) {
 
   const loading = !demo && (repo.loading || (explorer && (prof.loading || hist.loading)));
   // Why there is no player when a document failed (so the screen says "could not be read" and offers Retry, not "not in the publication").
-  const failure = !demo ? (prof.error ?? idx.error ?? repo.error) : undefined;
+  // (A 404 for the profile is an answer, not a failure: the player is not in the publication.)
+  const hard = (e: unknown) => (e != null && failureKind(e) !== 'not-published' ? e : undefined);
+  const failure = !demo ? hard(prof.error) ?? hard(idx.error) ?? hard(repo.error) : undefined;
   const retry = () => { repo.retry?.(); prof.retry?.(); idx.retry?.(); };
   return { vm, loading, notFound: !demo && !loading && !vm && !failure, noExplorer: !demo && !repo.loading && !explorer && !failure, marketsLoading: !demo && !!next && detail.loading, error: !vm ? failure : undefined, retry, marketsError: !demo && next ? detail.error : undefined, marketsRetry: detail.retry, histError: !demo ? hist.error : undefined, histRetry: hist.retry };
 }

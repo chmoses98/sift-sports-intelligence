@@ -216,13 +216,13 @@ function TeamResearch() {
       )}
       <div className="tm-tabs"><Tabs tabs={tabs.map((t) => ({ key: t, label: TAB_LABEL[t] }))} value={tab} onChange={(k) => set({ tab: k, all: false, exp: [] })} label="Team sections" /></div>
       {failed ? (
-        <div className="tm-body"><DataState title="Team statistics unavailable" err={research.failure ?? new Error('not published')} retry={research.retry} alert>This team's research</DataState></div>
+        <div className="tm-body"><DataState title="Team statistics are unavailable" err={research.failure ?? new Error('not published')} retry={research.retry} alert>This team's research</DataState></div>
       ) : unknownTeam ? (
         <div className="tm-body"><div className="v3-state" role="note"><Icon name="info" size={20} /><div><b>Team not found</b>The publication has no team with the code {code} for {leagueLabel({ sport: team.sport })}.</div></div></div>
       ) : !tabOk ? (
         <div className="tm-body"><LockedRow title={TAB_LABEL[tab]}>{lockedReason(slug, SECTION[tab])}</LockedRow></div>
       ) : research.error && !profile && !demo ? (
-        <div className="tm-body"><DataState title="Team statistics unavailable" err={research.failure ?? new Error('not published')} retry={research.retry} alert>This team's research</DataState></div>
+        <div className="tm-body"><DataState title="Team statistics are unavailable" err={research.failure ?? new Error('not published')} retry={research.retry} alert>This team's research</DataState></div>
       ) : c && tab === 'overview' ? (
         <Overview c={c} next={next} nextLoading={nextLoading} total={total} propsInfo={props && next ? { props: props.props, players: props.players } : null} />
       ) : c && tab === 'profile' ? <Profile c={c} />

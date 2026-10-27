@@ -115,13 +115,14 @@ test.describe('saved Prop Discovery views reopen with current quotes @v3', () =>
     await ready(page);
     await page.waitForTimeout(800);
     const again = page.locator(`.pd-row[data-prop="${id}"]`);
-    if (await again.count()) await expect(again.first()).toContainText(new RegExp(`${before + 3}¢`), { timeout: 20_000 });
-    // an old quote: the same saved view, quotes older than the gate allows (no freshening), prints dashes and no cents
-    await page.clock.setFixedTime(feedNow().getTime() + 3 * 3600_000);
+    await expect(again.first()).toContainText(new RegExp(`${before + 3}¢`), { timeout: 20_000 });
+    // an old quote: the same saved view, observations older than the gate allows, prints dashes and no cents
+    await page.clock.setFixedTime(feedNow().getTime() + 600_000); // ten minutes on: the games are still ahead, every observation is older than any list limit
     await page.reload();
     await ready(page);
     await page.waitForTimeout(800);
-    if (await page.locator('.pd-row').count()) expect(await page.locator('.pd-row').first().innerText()).not.toMatch(/\d+¢/);
+    expect(await page.locator('.pd-row').count()).toBeGreaterThan(0);
+    expect(await page.locator('.pd-row').first().innerText()).not.toMatch(/\d+¢/);
     void firstPrice;
   });
 });

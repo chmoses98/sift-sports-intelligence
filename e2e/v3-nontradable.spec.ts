@@ -73,6 +73,9 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
     await expect(page).toHaveURL(/sheet=contract&tk=(KXNFL[A-Z]+-[^&]+)/);
     const tk = /tk=([^&]+)/.exec(page.url())![1];
     await page.keyboard.press('Escape');
+    await expect(dlg(page)).toHaveCount(0);
+    await page.evaluate((h) => { location.hash = h; }, `${GAME}?tab=props`);
+    await expect(page).not.toHaveURL(/sheet=contract/);
     // reload with that one market closed in the feed
     await setup(page, (t) => (t === decodeURIComponent(tk) ? 'closed' : undefined));
     await page.reload();

@@ -30,12 +30,20 @@ await shot(page, 'pd1-home');
 
 await go(page, '/v3/props?v=1&view=list&sport=nhl&fam=points');
 await shot(page, 'pd2-list');
-// PD3: expand the first row that has a player page.
-const row = page.locator('.pd-row:has(a.pd-av)').first();
-await row.evaluate((e) => e.scrollIntoView({ block: 'start' }));
-await row.locator('.pd-row__hit').click({ position: { x: 250, y: 85 } });
+// PD3: the first prop with a published player profile and game log, pinned to the top of the list (the way a shelf opens it).
+const pick = await page.evaluate(() => null);
+void pick;
+const first = await (async () => {
+  for (const q of ['marchenko', '']) {
+    await go(page, `/v3/props?v=1&view=list&sport=nhl&fam=points${q ? `&q=${q}` : ''}`);
+    const id = await page.locator('.pd-row').first().getAttribute('data-prop');
+    if (id) return id;
+  }
+  return null;
+})();
+await go(page, `/v3/props?v=1&view=list&sport=nhl&fam=points&exp=${first}&pin=1`);
 await page.waitForSelector('.pd-peek');
-await page.waitForTimeout(1500);
+await page.waitForTimeout(2500);
 await page.evaluate(() => window.scrollTo(0, Math.max(0, document.querySelector('.pd-row.is-open').getBoundingClientRect().top + scrollY - 70)));
 await page.waitForTimeout(500);
 await shot(page, 'pd3-peek');

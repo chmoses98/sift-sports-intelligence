@@ -5,6 +5,7 @@
 import type { StateOf } from '../../state/url';
 import type { propsSchema } from '../../nav/schemas';
 import { hitCount } from './history';
+import { CAPABILITIES } from '../../model/capabilities';
 import { modelPercent } from './model';
 import { isBottom, isTop } from './rank';
 import type { Matchup, Prop, PropRung } from './types';
@@ -145,7 +146,8 @@ export function railCounts(props: Prop[]): { sports: { slug: string; label: stri
     const s = sports.get(p.slug) ?? { slug: p.slug, label: p.sportLabel, n: 0 }; s.n++; sports.set(p.slug, s);
     const f = fams.get(p.fam) ?? { fam: p.fam, label: p.label, n: 0 }; f.n++; fams.set(p.fam, f);
   }
-  return { sports: [...sports.values()], fams: [...fams.values()].sort((a, b) => b.n - a.n || a.label.localeCompare(b.label)) };
+  const order = Object.keys(CAPABILITIES);
+  return { sports: [...sports.values()].sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug)), fams: [...fams.values()].sort((a, b) => b.n - a.n || a.label.localeCompare(b.label)) };
 }
 
 /** Shelf 1: props with a published SIFT model estimate, nearest a coin flip first. */

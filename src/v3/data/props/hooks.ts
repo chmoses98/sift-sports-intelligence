@@ -114,6 +114,14 @@ export function usePropPrices(visible: Prop[], expanded: Prop | null): PriceRead
   // the list registers and fetches nothing). The first set registers at once so the screen's own prices arrive with it.
   const settled = useSettled(tickers, 450);
   const live = useLiveQuotes(settled, 'game');
+  // Opening a row asks for its whole ladder once, now (the rows' own scope names only the featured rung, and the store does not poll a
+  // game it has just read). SEAM: with the reviewed quote branch this becomes `refreshContract(ticker)` per rung, relay first.
+  const openId = expanded?.id ?? null;
+  const openTickers = useMemo(() => (expanded && expanded.rungs[0]?.source !== 'Sample' ? expanded.rungs.map((r) => r.ticker) : []), [openId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!openTickers.length) return;
+    liveStore().refreshNow(openTickers, { timeoutMs: 6_000 }).catch(() => undefined);
+  }, [openTickers]);
   const store = liveStore();
   // `live.version` changes whenever any quote does: the lookup is stable, so the readers must be re-created for rows to repaint.
   const gateOf = useCallback((p: Prop, r: PropRung): GateResult => gate(rawPrice(p, r, store.quote(r.ticker)), { kind: 'list', startMs: p.startMs, live: false }, now), [store, now, live.version]); // eslint-disable-line react-hooks/exhaustive-deps

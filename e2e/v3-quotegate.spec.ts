@@ -4,7 +4,7 @@
 // moved past the gate's limit for its context (list: 90 s inside two hours of the start, 180 s beyond, 60 s live; exact contract: 30 s / 60 s).
 // DAL at PHI (2026-10-27 00:15Z) is the reference game: 50 minutes after the cache's instant, so list limit 90 s and contract limit 30 s.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const GAMES_NFL = '/v3/games?sport=nfl&state=upcoming';
@@ -14,7 +14,7 @@ const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last update
 type Mode = 'fresh' | 'old';
 /** `fresh`: observations at the cache instant, clock at the instant plus `plusS`. `old`: the real feed as captured, which is older than every limit. */
 async function setup(page: Page, mode: Mode, plusS = 0) {
-  await useRealFeeds(page);
+  await serveRealFeeds(page);
   if (mode === 'fresh') await freshQuotes(page);
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.clock.setFixedTime(new Date(feedNow().getTime() + plusS * 1000));

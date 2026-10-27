@@ -21,6 +21,7 @@ import { useRouteState } from '../state/url';
 import { sampleTeamName } from '../data/useStat';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { HeroBg } from '../ui/HeroBg';
+import { DataState } from '../ui/DataState';
 import { Icon } from '../ui/Icon';
 import { TeamLogo } from '../ui/TeamLogo';
 import { LockedRow, Tabs } from '../ui/atoms';
@@ -161,13 +162,15 @@ function TeamResearch() {
   const record = profile?.record?.text ?? null;
   const { first, last } = splitName(team.name);
   const unknownTeam = !demo && capOk && !ti.loading && ti.teams.length > 0 && !ti.byCode.has(code);
+  // A document that could not be read is not a missing team or an empty record: the screen says which, and offers Retry.
+  const failed = !demo && capOk && !research.profile && !research.loading && research.failure != null;
 
   const bar = (
     <>
       <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={24} /></button>
       <TeamLogo team={team} size={30} />
       <b className="tm-bar__n">{team.name}</b>
-      {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : capOk && !unknownTeam ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
+      {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : capOk && !unknownTeam && !failed ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
       <span className="tm-bar__r">
         <FollowStar kind="teams" id={key} label={team.name} />
         {c && <SaveButton team={team} tab={tab} c={c} record={record} />}
@@ -199,7 +202,7 @@ function TeamResearch() {
             <div className="tm-hero__who">
               <div className="wl"><TeamLogo team={team} size={54} /><h1 className="wn">{first && <span className="f">{first}</span>}<span className="l">{last}</span></h1></div>
               <span className="m">{leagueLabel({ sport: team.sport })}{profile?.season ? ` · ${profile.season.replace('-', '–')} season` : ''}{demo ? ' · sample data' : ''}
-                {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : !unknownTeam ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
+                {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : !unknownTeam && !failed ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
               </span>
             </div>
           </header>
@@ -210,12 +213,14 @@ function TeamResearch() {
         <div className="tm-bar tm-bar--sticky">{bar}</div>
       )}
       <div className="tm-tabs"><Tabs tabs={tabs.map((t) => ({ key: t, label: TAB_LABEL[t] }))} value={tab} onChange={(k) => set({ tab: k, all: false, exp: [] })} label="Team sections" /></div>
-      {unknownTeam ? (
+      {failed ? (
+        <div className="tm-body"><DataState title="Team statistics unavailable" err={research.failure} retry={research.retry} alert>This team's research</DataState></div>
+      ) : unknownTeam ? (
         <div className="tm-body"><div className="v3-state" role="note"><Icon name="info" size={20} /><div><b>Team not found</b>The publication has no team with the code {code} for {leagueLabel({ sport: team.sport })}.</div></div></div>
       ) : !tabOk ? (
         <div className="tm-body"><LockedRow title={TAB_LABEL[tab]}>{lockedReason(slug, SECTION[tab])}</LockedRow></div>
       ) : research.error && !profile && !demo ? (
-        <div className="tm-body"><div className="v3-state v3-state--warn" role="note"><Icon name="info" size={20} /><div><b>Team statistics are unavailable</b>The team document could not be read right now. Try again in a moment.</div></div></div>
+        <div className="tm-body"><DataState title="Team statistics unavailable" err={research.failure ?? new Error('not published')} retry={research.retry} alert>This team's research</DataState></div>
       ) : c && tab === 'overview' ? (
         <Overview c={c} next={next} nextLoading={nextLoading} total={total} propsInfo={props && next ? { props: props.props, players: props.players } : null} />
       ) : c && tab === 'profile' ? <Profile c={c} />

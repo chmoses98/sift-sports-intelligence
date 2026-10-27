@@ -5,6 +5,7 @@ import { useLiveQuotes } from '../../live/hooks';
 import { overlayLive } from './liveMarket';
 import { useAsync } from '../../data/hooks';
 import { SportRepo } from '../../data/repo';
+import { NotFoundError } from '../../data/fetcher';
 import { resolveSource } from '../../data/source';
 import { sportBySlug } from '../../data/sports';
 import { useGameResearch } from '../../views/broadcast/parts';
@@ -23,6 +24,21 @@ export function useEventDetail(slug: string, eventId: string, enabled: boolean) 
     const sport = sportBySlug(slug);
     if (!sport) throw new Error(`unknown sport ${slug}`);
     return new SportRepo(await resolveSource(sport)).eventDetail(eventId);
+  });
+}
+
+/**
+ * The event's research document, with failures kept (the shared `useGameResearch` turns every failure into "none"). A document that is not
+ * published for this game (404) is `null` data: that is an answer. A connection failure, a timeout or a body that cannot be read is an error
+ * the screen says out loud, with a Retry.
+ */
+export function useEventResearch(slug: string, eventId: string, enabled: boolean) {
+  return useAsync(enabled ? `v3er:${slug}:${eventId}` : null, async () => {
+    const sport = sportBySlug(slug);
+    if (!sport) throw new Error(`unknown sport ${slug}`);
+    const repo = new SportRepo(await resolveSource(sport));
+    if (!repo.hasExplorer) return null;
+    return repo.eventResearch(eventId).catch((e: unknown) => { if (e instanceof NotFoundError) return null; throw e; });
   });
 }
 

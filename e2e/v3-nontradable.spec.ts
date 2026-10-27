@@ -112,3 +112,36 @@ test.describe('Games and Home never price a non-tradable game @v3', () => {
     expect(await page.locator('[data-v3-shell]').innerText()).not.toMatch(FRESH);
   });
 });
+
+// Run with V3_FEED_CACHE=<the props cache>: Prop Discovery's rows come from the props documents. Skips when the cache has no props.
+test.describe('Prop Discovery withholds a non-tradable market and keeps the research @v3', () => {
+  test.setTimeout(150_000);
+  const ready = (page: Page) => page.waitForSelector('.pd-card, .pd-row, .pd-empty', { timeout: 90_000 });
+  test('a row whose market is suspended prints "—" in its price pill, the sheet says "Trading suspended" with no Retry, and the research lanes stay', async ({ page }) => {
+    await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* ignore */ } });
+    await setup(page);
+    await go(page, '/v3/props?view=list');
+    await ready(page);
+    await page.waitForTimeout(1200);
+    const pill = page.locator('.pd-row .pd-px:not(.is-none)').first();
+    test.skip((await pill.count()) === 0, 'no listed prop has a current price in this cache');
+    const dest = (await pill.getAttribute('data-dest'))!;
+    const tk = decodeURIComponent(/tk=([^&]+)/.exec(dest)![1]);
+    const row = page.locator('.pd-row', { has: page.locator(`[data-dest*="${encodeURIComponent(tk)}"], [data-dest*="${tk}"]`) }).first();
+    const lanesBefore = await row.locator('.pd-lanes, .pd-lane, .pd-pb').first().innerText();
+    // the same page, one market's feed status now says it is suspended (a real feed word)
+    await setup(page, (t) => (t === tk ? 'inactive' : undefined));
+    await page.reload();
+    await ready(page);
+    await page.waitForTimeout(1200);
+    const same = page.locator(`.pd-row .pd-px[data-dest*="${tk}"]`).first();
+    await expect(same).toHaveText(/—/);
+    await expect(same).toHaveAttribute('aria-label', /price unavailable right now/);
+    expect(await same.innerText()).not.toMatch(/\d+¢/);
+    // the research stays: the row still carries its name and statistic line
+    expect((await page.locator(`.pd-row:has(.pd-px[data-dest*="${tk}"]) .pd-pb`).first().innerText()).length).toBeGreaterThan(10);
+    void lanesBefore;
+    await same.click();
+    await expectNotTradable(page, 'Trading suspended', 'suspended');
+  });
+});

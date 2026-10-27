@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from '../../routing';
 import { useRouteState } from '../state/url';
 import { useGameByKey } from '../data/useSlate';
-import { useGameExtras, useEventDetail } from '../data/useGameExtras';
-import { useGameResearch } from '../../views/broadcast/parts';
+import { useGameExtras, useEventDetail, useEventResearch } from '../data/useGameExtras';
 import { useGameStart } from '../data/research/gameHooks';
 import { weekOf } from '../data/research/gameMarkets';
 import { unitsFor } from '../data/research/matchup';
@@ -144,7 +143,7 @@ export function GameDetail() {
   const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
   const startMs = useGameStart(g);
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
-  const research = useGameResearch(g && g.provenance === 'publication' ? g.slug : null, g && g.provenance === 'publication' ? g.eventId : null);
+  const research = useEventResearch(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);
   // Every price on this screen opens the one exact-contract sheet; tell it about the game's contracts (start from the schedule authority).
   usePublishGameContracts(g, startMs, detail.data);
@@ -182,7 +181,7 @@ export function GameDetail() {
   const setTab = (t: GameTab) => setSt({ tab: t, unit: null });
   // Back out of an expanded unit: the list entry below is exactly as it was left. A shared link into a unit has none, so it closes the unit.
   const backFromUnit = () => { if (loc.key !== 'default') nav(-1); else setSt({ unit: null }); };
-  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading };
+  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry };
   return (
     <div className="v3-gd">
       {unitOpen ? <UnitBar g={g} back={backFromUnit} startMs={startMs} /> : (

@@ -18,6 +18,7 @@ import type { GameTab } from '../nav/schemas';
 import { MatchupTab } from './GameMatchup';
 import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
 import type { GameCtx } from './GameShared';
+import { DataState } from '../ui/DataState';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
@@ -109,13 +110,13 @@ function LiveNote({ g }: { g: V3Game }) {
   );
 }
 
-function StatsTab({ g, research, loading }: { g: V3Game; research: EventResearchDoc | null; loading: boolean }) {
+function StatsTab({ g, research, loading, error, retry }: { g: V3Game; research: EventResearchDoc | null; loading: boolean; error?: unknown; retry?: () => void }) {
   const pairs = useMemo(() => (g.provenance === 'demo' ? demoPairs(g) : pairsFromResearch(research, g)), [g, research]);
   if (loading && !pairs.length) return <div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading statistics" />;
   return (
     <section aria-label="Statistics">
       <h2 className="v3-h2">Team Statistics</h2>
-      {pairs.length ? (
+      {!pairs.length && error ? <DataState title="Team statistics unavailable" err={error} retry={retry} alert>The research for this game</DataState> : pairs.length ? (
         <table className="v3-tbl">
           <thead><tr><th scope="col">Statistic</th><th scope="col">{g.away.abbr}</th><th scope="col">{g.home.abbr}</th></tr></thead>
           <tbody>
@@ -128,7 +129,7 @@ function StatsTab({ g, research, loading }: { g: V3Game; research: EventResearch
             ))}
           </tbody>
         </table>
-      ) : <Unavailable title="No published team statistics">The publication has none for this game.</Unavailable>}
+      ) : error ? null : <Unavailable title="No published team statistics">The publication has none for this game.</Unavailable>}
       <Unavailable icon="clock" title="Box score unavailable">Live and final box scores need a licensed stats feed. None is connected, so no box score is shown or estimated.</Unavailable>
     </section>
   );
@@ -136,7 +137,7 @@ function StatsTab({ g, research, loading }: { g: V3Game; research: EventResearch
 
 // ------------------------------------------------------------------ script, props
 
-function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
+function ScriptTab({ g, detail, error, retry }: { g: V3Game; detail: EventDetailDoc | null; error?: unknown; retry?: () => void }) {
   if (g.provenance === 'demo') {
     return (
       <section aria-label="Play-by-play">
@@ -159,6 +160,7 @@ function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) 
   }
   const t = detail?.theses?.[0];
   const has = !!(t && (t.summary || t.primary_game_script || t.supporting_factors?.length || t.opposing_factors?.length));
+  if (!detail && error) return <section aria-label="Game script"><h2 className="v3-h2">Game Script</h2><DataState title="Game script unavailable" err={error} retry={retry} alert>The game script</DataState></section>;
   if (!detail) return <div className="v3-skel" style={{ height: 160 }} role="status" aria-label="Loading game script" />;
   return (
     <section aria-label="Game script">
@@ -175,7 +177,7 @@ function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) 
   );
 }
 
-function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; detail: EventDetailDoc | null }) {
+function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: number | null; detail: EventDetailDoc | null; error?: unknown; retry?: () => void }) {
   const sheet = useSheet();
   const gate = useListGate(g, startMs);
   const rows = useMemo(() => (detail ? deriveProps(detail.markets ?? []) : []), [detail]);
@@ -208,6 +210,7 @@ function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; d
       </section>
     );
   }
+  if (!detail && error) return <section aria-label="Player props"><h2 className="v3-h2">Player Props</h2><DataState title="Player props unavailable" err={error} retry={retry} alert>The list of Kalshi player contracts for this game</DataState></section>;
   if (!detail) return <div className="v3-skel" style={{ height: 180 }} role="status" aria-label="Loading props" />;
   if (!rows.length) return <Unavailable title="No player props listed">Kalshi lists no player-stat contracts for this game. Team research is on the other tabs.</Unavailable>;
   return (
@@ -237,14 +240,14 @@ function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; d
 export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
   const g = ctx.g;
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
-  if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} />;
-  if (tab === 'script') return <ScriptTab g={g} detail={detail} />;
-  if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} />;
+  if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
+  if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   return (
     <>
       <WinPrices ctx={ctx} />
-      <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />
+      {!detail && !!ctx.detailError ? <DataState title="Market prices unavailable" err={ctx.detailError} retry={ctx.detailRetry} alert>The Kalshi contract list for this game</DataState> : <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />}
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
       {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
       <PlayersToResearch ctx={ctx} />

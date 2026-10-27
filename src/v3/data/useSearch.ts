@@ -14,7 +14,11 @@ export const EXPLORER_SPORTS = ['nfl', 'nba', 'nhl', 'mlb'] as const;
 export function useSearchIndex(slug: string, enabled: boolean) {
   const repo = useRepo(enabled ? sportBySlug(slug) : undefined);
   const ready = enabled && !!repo.data?.hasExplorer;
-  return useAsync(ready ? `v3:si:${slug}` : null, () => repo.data!.searchIndex());
+  const doc = useAsync(ready ? `v3:si:${slug}` : null, () => repo.data!.searchIndex());
+  // Why the search index is missing when the publication could not be READ (not when it simply publishes none).
+  const liveError = repo.data && !repo.data.hasExplorer ? repo.data.source.liveError : null;
+  const failure: unknown = !enabled ? undefined : repo.error ?? doc.error ?? (liveError ? new Error(liveError) : undefined);
+  return { ...doc, failure, retryAll: () => { repo.retry?.(); doc.retry?.(); } };
 }
 
 export interface Hit {
@@ -56,6 +60,8 @@ export function useSearchHits(query: string, sport: string | 'all', cat: 'all' |
     nfl: useSearchIndex('nfl', !demo), nba: useSearchIndex('nba', !demo), nhl: useSearchIndex('nhl', !demo), mlb: useSearchIndex('mlb', !demo),
   };
   const loading = !demo && Object.values(idx).some((x) => x.loading);
+  // Sports whose player search could not be read: said out loud on Explore with a Retry (a missing index is not "no results").
+  const failed = demo ? [] : (Object.entries(idx) as [string, (typeof idx)['nfl']][]).filter(([, x]) => x.failure != null && !x.data).map(([slug, x]) => ({ slug, failure: x.failure, retry: x.retryAll }));
   const hits = useMemo(() => {
     const out: Hit[] = [];
     const inSport = (slug: string) => sport === 'all' || sport === slug;
@@ -109,5 +115,5 @@ export function useSearchHits(query: string, sport: string | 'all', cat: 'all' |
     }
     return out.filter((h) => cat === 'all' || h.kind === cat).sort((a, b) => b.rank - a.rank || a.title.localeCompare(b.title));
   }, [slate.games, q, sport, cat, idx.nfl.data, idx.nba.data, idx.nhl.data, idx.mlb.data]); // eslint-disable-line react-hooks/exhaustive-deps
-  return { hits, loading, q };
+  return { hits, loading, q, failed };
 }

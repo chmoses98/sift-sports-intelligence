@@ -17,6 +17,7 @@ import './ui/ContractSheet'; // registers the addressed `contract` sheet for eve
 import { SlateProvider, useSlate } from './data/useSlate';
 import { applyDemoParam, demoOn, SAMPLE_ONLY, usePrefs } from './state/prefs';
 import { useScrollMemory } from './state/scroll';
+import { RESEARCH_FETCH_TIMEOUT_MS, setFetchTimeout } from '../data/fetcher';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v3', label: 'Home', icon: 'home', end: true },
@@ -63,6 +64,20 @@ function DemoStrip() {
   );
 }
 
+/**
+ * Research read from the copy saved with the app (the live publication could not be read) is never silent: Home and Games say so themselves;
+ * every other screen of that sport gets this strip. It names the sport and says prices appear only with a current Kalshi quote.
+ */
+function SavedCopyStrip() {
+  const { saved } = useSlate();
+  const { pathname } = useLocation();
+  if (!saved.length || pathname === '/v3' || pathname.startsWith('/v3/games')) return null;
+  const slug = /^\/v3\/(?:player|team|stat|game)\/([a-z]+)\//.exec(pathname)?.[1];
+  const mine = slug ? saved.filter((s) => s.slug === slug) : /^\/v3\/props/.test(pathname) ? saved : [];
+  if (!mine.length) return null;
+  return <div className="v3-state v3-state--warn" role="status" data-state="saved-copy" style={{ margin: '8px 16px 0' }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{mine.map((x) => x.label).join(', ')} {mine.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>;
+}
+
 function Shell() {
   const loc = useLocation();
   const active = tabOf(loc.pathname);
@@ -73,6 +88,7 @@ function Shell() {
       <div className="v3-col">
         <DemoStrip />
         <OfflineStrip />
+        <SavedCopyStrip />
         <main className="v3-main" id="v3-main">
           <Suspense fallback={<div className="v3-page"><div className="v3-skel" style={{ height: 160 }} role="status" aria-label="Loading" /></div>}>
             <Outlet />
@@ -108,6 +124,14 @@ export function V3Root() {
     setDemo(demoOn());
     nav({ pathname: loc.pathname, search: q.toString() ? `?${q}` : '' }, { replace: true });
   }, [loc.pathname, loc.search, nav]);
+  // Every research document is read within a bound while SIFT 3.0 is open (a request that never answers becomes an honest state with a Retry, not an
+  // endless skeleton). Layout effects run before any screen's data effect, so the first request is already bounded. `__SIFT_FETCH_TIMEOUT_MS__` is a
+  // test seam for the unavailable-data harness (e2e/v3-unavailable.spec.ts); the app never sets it.
+  useLayoutEffect(() => {
+    const o = (window as unknown as { __SIFT_FETCH_TIMEOUT_MS__?: number }).__SIFT_FETCH_TIMEOUT_MS__;
+    setFetchTimeout(typeof o === 'number' && o > 0 ? o : RESEARCH_FETCH_TIMEOUT_MS);
+    return () => setFetchTimeout(null);
+  }, []);
   // The page behind the column is the app's own colour, never the classic body.
   useLayoutEffect(() => {
     const prev = document.body.style.background;

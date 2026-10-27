@@ -24,7 +24,7 @@ export interface Slate {
   /** Feeds that failed while others loaded. */
   failed: string[];
   /** Sports whose live publication could not be read and whose research comes from the saved copy bundled with the app (never silent). */
-  saved: { label: string; builtAt: string | null }[];
+  saved: { label: string; slug: string; builtAt: string | null }[];
   now: number;
   demo: boolean;
 }
@@ -73,7 +73,7 @@ function RealProvider({ children }: { children: ReactNode }) {
     let live = true;
     // resolveSource is the app's own cached source decision (live publication, else the bundled saved copy); reading it adds no request.
     Promise.all(all.bundles.filter((b) => b.error == null).map((b) => resolveSource(b.sport).catch(() => null))).then((srcs) => {
-      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, builtAt: x.snapshot?.explorer_built_at ?? null })));
+      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, slug: x.sport.slug, builtAt: x.snapshot?.explorer_built_at ?? null })));
     });
     return () => { live = false; };
   }, [all.bundles]);

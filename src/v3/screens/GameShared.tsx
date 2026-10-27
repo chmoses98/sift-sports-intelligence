@@ -16,6 +16,11 @@ export interface GameCtx {
   detail: EventDetailDoc | null;
   research: EventResearchDoc | null;
   researchLoading: boolean;
+  /** Why a document could not be read (null/undefined when it could, or when it is simply not published), and how to ask again. */
+  detailError?: unknown;
+  detailRetry?: () => void;
+  researchError?: unknown;
+  researchRetry?: () => void;
 }
 
 const NO_STAT_UNITS: Record<string, never> = {};

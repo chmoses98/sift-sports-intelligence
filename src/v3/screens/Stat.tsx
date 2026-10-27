@@ -23,6 +23,7 @@ import { encode, useRouteState } from '../state/url';
 import { sportBySlug } from '../../data/sports';
 import type { MetricDef } from '../../contract/types';
 import type { V3Team } from '../model/types';
+import { DataState } from '../ui/DataState';
 import { Icon } from '../ui/Icon';
 import { Tabs, LockedRow } from '../ui/atoms';
 import type { StatCtx } from './stat/ctx';
@@ -143,10 +144,11 @@ function LiveStat({ slug, statId }: { slug: string; statId: string }) {
   }, [res, ranking, slug, sportCode, def, rawName, cat.catalog, cat.season, st, set, next.opp, next.event, teamFor]);
 
   const head: HeaderText = { eyebrow: 'League ranking', title: def?.name ?? slugTitle(statId), sub: sportCode };
+  if (!cat.loading && cat.failure != null && !cat.catalog) return <Frame head={head} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><DataState title="Statistics unavailable" err={cat.failure} retry={cat.retry} alert>The list of statistics for this sport</DataState></Frame>;
   if (!cat.explorer && !cat.loading) return <Frame head={head} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div className="st-state"><b>No statistics yet</b>This sport publishes no statistics yet.</div></Frame>;
   if (cat.loading || !res) return <Frame head={head} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div role="status" aria-label="Loading statistic"><div className="v3-skel" style={{ height: 120, marginTop: 14 }} /><div className="v3-skel" style={{ height: 300, marginTop: 14 }} /></div></Frame>;
   if (!res.ok) return <Frame head={{ ...head, title: 'Statistic not available' }} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div className="st-state"><b>Statistic not available</b>The publication has no ranking with this identity.<br /><a href="#/v3/explore">Search statistics</a></div></Frame>;
-  if (rk.error) return <Frame head={head} tab={st.tab} onTab={(t) => set({ tab: t })} saved={false} onSave={null} onBack={back}><div className="st-state"><b>This ranking is not in the publication</b>The ranking document could not be read.</div></Frame>;
+  if (rk.error) return <Frame head={head} tab={st.tab} onTab={(t) => set({ tab: t })} saved={false} onSave={null} onBack={back}><DataState title="Ranking unavailable" err={rk.failure} retry={rk.retry} alert>The ranking behind this statistic</DataState></Frame>;
   if (!ctx) return <Frame head={head} tab={st.tab} onTab={(t) => set({ tab: t })} saved={false} onSave={null} onBack={back}><div role="status" aria-label="Loading statistic"><div className="v3-skel" style={{ height: 120, marginTop: 14 }} /><div className="v3-skel" style={{ height: 300, marginTop: 14 }} /></div></Frame>;
   const fell = res.fellBack && res.requested ? `No “${windowLabel(res.requested)}” window is published for this statistic; showing ${windowLabel(res.window)}.` : null;
   return <Body ctx={ctx} fell={fell} onBack={back} />;

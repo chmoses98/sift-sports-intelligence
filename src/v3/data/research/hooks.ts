@@ -13,11 +13,14 @@ import { buildRankingCatalog, nextGame, normalizeRanking, normalizeTeamProfile, 
 import type { RankingCatalog, RankingVM, ScheduleEvent, TeamProfile } from './types';
 
 /** The repo for a sport, or nothing in sample mode / when the sport publishes no explorer. */
-export function useResearchRepo(slug: string): { repo: SportRepo | undefined; loading: boolean; demo: boolean; explorer: boolean } {
+export function useResearchRepo(slug: string): { repo: SportRepo | undefined; loading: boolean; demo: boolean; explorer: boolean; failure: Error | undefined; retry: (() => void) | undefined } {
   const demo = demoOn();
   const sport = sportBySlug(slug);
   const r = useRepo(demo ? undefined : sport);
-  return { repo: r.data?.hasExplorer ? r.data : undefined, loading: !demo && r.loading, demo, explorer: !!r.data?.hasExplorer };
+  // Why there is no research when the publication could not be READ (as opposed to "publishes none"): the source resolver records the failure it hit.
+  const liveError = r.data && !r.data.hasExplorer ? r.data.source.liveError : null;
+  const failure = demo ? undefined : r.error ?? (liveError ? new Error(liveError) : undefined);
+  return { repo: r.data?.hasExplorer ? r.data : undefined, loading: !demo && r.loading, demo, explorer: !!r.data?.hasExplorer, failure, retry: r.retry };
 }
 
 export function useMetricDefs(slug: string) {
@@ -36,21 +39,22 @@ export function useSchedule(slug: string): { schedule: ScheduleEvent[]; loading:
 
 /** participant id of a team code ("DAL"), from the explorer index. */
 export function useTeamIndex(slug: string) {
-  const { repo, loading: rl } = useResearchRepo(slug);
+  const rr = useResearchRepo(slug);
+  const { repo, loading: rl } = rr;
   const idx = useAsync(repo ? `v3r:idx:${slug}` : null, () => repo!.index());
   const byCode = useMemo(() => new Map((idx.data?.teams ?? []).map((t) => [t.short_name ?? '', t])), [idx.data]);
   const byId = useMemo(() => new Map((idx.data?.teams ?? []).map((t) => [t.participant_id, t])), [idx.data]);
-  return { byCode, byId, teams: idx.data?.teams ?? [], asOf: idx.data?.as_of ?? null, loading: rl || idx.loading };
+  return { byCode, byId, teams: idx.data?.teams ?? [], asOf: idx.data?.as_of ?? null, loading: rl || idx.loading, failure: rr.failure ?? idx.error, retry: () => { rr.retry?.(); idx.retry?.(); } };
 }
 
 /** A team's normalized profile: one document, every statistic and window. */
-export function useTeamProfile(slug: string, code: string | null): { profile: TeamProfile | null; loading: boolean; error: boolean; raw: EntityProfileDoc | undefined } {
+export function useTeamProfile(slug: string, code: string | null): { profile: TeamProfile | null; loading: boolean; error: boolean; raw: EntityProfileDoc | undefined; failure: unknown; retry: () => void } {
   const { repo } = useResearchRepo(slug);
   const ti = useTeamIndex(slug);
   const pid = code ? ti.byCode.get(code)?.participant_id ?? null : null;
   const doc = useAsync<EntityProfileDoc>(repo && pid ? `v3r:prof:${slug}:${pid}` : null, () => repo!.profile(pid!));
   const profile = useMemo(() => (doc.data ? normalizeTeamProfile(doc.data, slug) : null), [doc.data, slug]);
-  return { profile, loading: ti.loading || doc.loading, error: !!doc.error || (!ti.loading && !!code && !pid && !!repo), raw: doc.data };
+  return { profile, loading: ti.loading || doc.loading, error: !!doc.error || (!ti.loading && !!code && !pid && !!repo), raw: doc.data, failure: doc.error ?? ti.failure, retry: () => { ti.retry(); doc.retry?.(); } };
 }
 
 /** Which ranking is which for a sport, read from one team profile's own list. Cheap: the profile is cached for Team Research. */
@@ -64,7 +68,7 @@ export function useRankingCatalog(slug: string): { catalog: RankingCatalog | nul
 }
 
 /** One ranking, fetched only when asked for. */
-export function useRankingDoc(slug: string, rankingId: string | null): { ranking: RankingVM | null; loading: boolean; error: boolean } {
+export function useRankingDoc(slug: string, rankingId: string | null): { ranking: RankingVM | null; loading: boolean; error: boolean; failure: unknown; retry: () => void } {
   const { repo } = useResearchRepo(slug);
   const defs = useMetricDefs(slug);
   const ti = useTeamIndex(slug);
@@ -74,5 +78,5 @@ export function useRankingDoc(slug: string, rankingId: string | null): { ranking
     const def: MetricDef | undefined = defs.data?.get(doc.data.metric_id);
     return normalizeRanking(doc.data, def, (id, short) => short ?? ti.byId.get(id)?.short_name ?? id);
   }, [doc.data, defs.data, ti.byId]);
-  return { ranking, loading: doc.loading || defs.loading, error: !!doc.error };
+  return { ranking, loading: doc.loading || defs.loading, error: !!doc.error, failure: doc.error, retry: () => doc.retry?.() };
 }

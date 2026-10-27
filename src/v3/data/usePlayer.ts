@@ -14,6 +14,7 @@ import { readBoxLog, num, type BoxRow } from '../../history/boxLog';
 import { nbaPlayed } from '../../history/nbaLog';
 import type { GameLogRow } from '../../history/types';
 import { demoOn } from '../state/prefs';
+import { whyUnavailable } from './failure';
 import { deriveLines, deriveProps, type PropRow } from './adapt';
 import { useEventDetail } from './useGameExtras';
 import { useGameStart } from './research/gameHooks';
@@ -159,7 +160,7 @@ export function usePlayerVM(slug: string, pid: string) {
       if (hist.data) {
         const all = [...(hist.data.prior?.games ?? []).map((g) => ({ ...g, season: g.season ?? hist.data!.prior!.season })), ...hist.data.games.map((g) => ({ ...g, season: g.season ?? hist.data!.season }))];
         rows = nflObs(all, stats, hist.data.season); hasScore = true; season = String(hist.data.season);
-      } else if (!hist.loading) why = 'No game log is published for this player (a rookie, or no offensive snaps yet).';
+      } else if (!hist.loading) why = hist.error ? `The game log could not be shown: ${whyUnavailable(hist.error)}.` : 'No game log is published for this player (a rookie, or no offensive snaps yet).';
     } else {
       const box = readBoxLog((p.extensions as { game_log?: unknown } | null)?.game_log);
       stats = (BOX[code] ?? []).filter((s) => s.key === 'pra' || (box ?? []).some((r) => r[s.key] != null));
@@ -179,8 +180,11 @@ export function usePlayerVM(slug: string, pid: string) {
       props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: nextStart ?? next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore,
     };
     // liveQ.version: the store's quotes change under a stable lookup function
-  }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, sport, entry, teamCode, detail.data, mine, liveQ.version, next, nextStart, pid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, hist.error, sport, entry, teamCode, detail.data, mine, liveQ.version, next, nextStart, pid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loading = !demo && (repo.loading || (explorer && (prof.loading || hist.loading)));
-  return { vm, loading, notFound: !demo && !loading && !vm, noExplorer: !demo && !repo.loading && !explorer, marketsLoading: !demo && !!next && detail.loading };
+  // Why there is no player when a document failed (so the screen says "could not be read" and offers Retry, not "not in the publication").
+  const failure = !demo ? (prof.error ?? idx.error ?? repo.error) : undefined;
+  const retry = () => { repo.retry?.(); prof.retry?.(); idx.retry?.(); };
+  return { vm, loading, notFound: !demo && !loading && !vm && !failure, noExplorer: !demo && !repo.loading && !explorer && !failure, marketsLoading: !demo && !!next && detail.loading, error: !vm ? failure : undefined, retry, marketsError: !demo && next ? detail.error : undefined, marketsRetry: detail.retry };
 }

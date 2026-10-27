@@ -62,6 +62,11 @@ export function setSourcePreference(p: SourcePreference): void {
 
 const cache = new Map<string, Promise<SportSource>>();
 
+/** Forget a sport's resolved source so the next read decides again (a Retry on a source that resolved as unavailable). */
+export function forgetSource(sport: SportConfig): void {
+  for (const k of [...cache.keys()]) if (k.startsWith(`${sport.code}:`)) cache.delete(k);
+}
+
 export function resolveSource(sport: SportConfig, pref: SourcePreference = getSourcePreference()): Promise<SportSource> {
   const key = `${sport.code}:${pref}`;
   let p = cache.get(key);

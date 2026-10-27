@@ -75,6 +75,77 @@ Rules as implemented (every one has a test):
    usable), `partial`, `over_limit` (answers held observations, none inside any limit), `no_quotes` (nothing for the requested
    tickers), or a failure kind; `RefreshResult.unusable` lists the unusable tickers.
 
+## Non-tradable markets (owner decision 2026-10-27)
+
+Rule: "Closed, settled, suspended or otherwise non-tradable markets never show an actionable ask; historical research stays separate
+from executable prices." Implemented in the NEW delivery path only (`src/live/tradable.ts`, `quoteUsable.ts`, `deliveryChain.ts`,
+`store.ts`). The production chain, `config.ts`, `fallback.ts`, `preflight.ts` and the packet path are untouched (characterisation
+tests green, see Verification).
+
+### Evidence the rule is built from
+
+| Source | What it carries | Where verified |
+| --- | --- | --- |
+| Relay | Kalshi's market object verbatim: `status` word and, once determined, `result` (`yes`/`no`; empty before) | `relay/core.ts` returns the upstream body unchanged |
+| Feed | `status` and `close_time`; never `result` (the `KEEP` list drops it) | `scripts/live-quotes/lib.mjs` |
+| `normalizeKalshiMarket` | status word -> `availability` (`OPEN`, `UNOPENED`, `SUSPENDED`, `CLOSED`, `SETTLED`, `UNKNOWN`), raw word kept in `rawStatus`, missing status = `rawStatus: null` | `src/live/normalize.ts`, `tests/live/providers.test.ts` |
+| Real NFL snapshot (33,127 markets, `public/data/nfl`) | `market_status`: `OPEN` 24,060; `SETTLED` 150 (none with an ask); absent 8,917 (8,842 of them carry an ask) | counted with a script on this branch |
+| UI branch | `src/v3/data/adapt.ts`, `props/parse.ts`, `research/gameMarkets.ts` treat `market_status` absent as open and `OPEN/ACTIVE(/UNOPENED)` as listable; the quote gate (`src/v3/data/quoteGate.ts`) has no notion of tradability yet | `git show origin/claude/sift3-impl:src/v3/data/...` |
+| Packet path (main) | `src/opportunity/live.ts`: "Only an OPEN contract has an executable ask: paused (SUSPENDED) or unrecognised (UNKNOWN) is not tradable either" | source |
+
+Consequences: "no status" is the common case for a priced market and must stay tradable; `result` is only ever seen through the relay.
+
+### The rule (`marketStatusOf`, one place)
+
+| Provider reports | Market status | Tradable? |
+| --- | --- | --- |
+| `active`, `open` (any case) or no status at all with a current quote | `open` / `unreported` | yes |
+| `closed`, `determined`, `disputed`, `amended` | `closed` | no, terminal |
+| `settled`, `finalized`, `finalised`, `resolved`, `voided`, `cancelled`, or any non-empty `result` | `settled` | no, terminal |
+| `expired`; or NO status and a `close_time` at or before the moment the provider observed the market (provider clock, so the device clock plays no part) | `expired` | no, terminal |
+| `inactive`, `paused`, `suspended`, `halted`, `frozen` | `suspended` | no, while current |
+| `initialized`, `unopened` | `unopened` | no, while current |
+| any other non-empty word | `unrecognised` | no, while current (a state Sift does not understand is not confirmation that the market trades) |
+
+Where `availability` and the raw word disagree the more restrictive one wins. An explicit `active` is never overridden by a `close_time`
+(the spec forbids reading a contract's close time for the start-time tiers, and Kalshi flips the status itself at close).
+
+Terminal states never revert, so one report is decisive at any age or timestamp. Reversible states (suspended, unopened, unrecognised)
+count only while the observation is inside its age limit; an old one is an old quote and the age table withholds it, so a stale
+"paused" is never turned into a claim about now.
+
+### Behaviour
+
+- `renderQuote()` returns `null`, never a degraded value, for every non-tradable status, in all five rows of the age table. `usable()`
+  reports `reason: 'not_tradable'` and `marketStatus`.
+- `refreshContract()` returns `state`: `'price'`, `'market_closed'` (terminal: the screen says `MARKET_CLOSED.contract` = "Market closed", no Retry),
+  `'not_trading'` (suspended / not yet open / unrecognised while current: the ordinary missing-price sentence with Retry) or
+  `'unavailable'` (no reliable quote), plus `marketStatus`. `result.nonTradable` lists the tickers; `result.marketStatus[ticker]` carries the status
+  of every answered requested ticker (list rows too).
+- A non-tradable market is an ANSWER. The delivery chain does not ask the feed about it, it is not in `unusable`, `missing` or `failed`, the
+  outcome is `ok`/`partial`/`closed` (new, "every requested ticker answered and not tradable"), there is no error, no backoff, no retry beyond
+  the normal cadence, and the availability meter counts the render apart (`nonTradable`) so closed rows do not depress the delivery
+  availability percentage.
+- The data stays available as non-actionable information: `store.quote(ticker)` still returns the quote (last price, volume, status,
+  `result`); `store.nonActionable(ticker)` returns it for non-tradable markets; `store.marketStatus(ticker)` names the state.
+  Newer-wins is unchanged, so an older "open" report never reopens a market already seen closed.
+- A market with no status and a current quote stays tradable (`unreported`).
+
+### Monitor: a finished game is not an outage
+
+Between a game ending and the feed (published every ~3.5 min, cached up to 5) catching up, the feed lists contracts as open that the relay
+already reports closed or finalised. The monitor used to count a closed market as "returned, therefore healthy" only by accident and had no
+rule for a game whose every returned market is closed. Now (`scripts/quote-monitor.mjs`, same status words, a test keeps the two lists equal):
+a fresh HTTP 200 whose returned markets are all closed/settled/expired/suspended/unopened is `GAME_OVER` and a PASS (a `::notice`, one request
+per game, never a retry, never an error); with tradable markets in the batch those that are closed are noted and not asserted; the next game is
+tried for a tradable market first; an old or untimed observation, a non-200, an empty answer for every game and an outage still fail exactly as before.
+
+Tests: `tests/live/quoteNonTradable.test.ts` (190: every status word, all five age-table rows, boundaries, terminal versus reversible, refreshContract on
+closed / suspended / missing, partial batches with a closed market among open ones, no failure / backoff / retry storm over ten minutes, the meter,
+newer-wins, the production-chain result shape unchanged), 32 new monitor tests, the `quoteMissingTickers` and `quoteInvisible` additions. Mutation-checked:
+removing the terminal rule fails 62 tests, removing the "answered, not pending" rule fails 16. Decision recorded: two older assertions in
+`quoteMissingTickers.test.ts` ("a closed market the relay still lists is usable by age") were changed on purpose.
+
 ## Evidence
 
 ### 1. The production chain behaves exactly as on main
@@ -127,9 +198,9 @@ whole-batch rule fails 3 of them). For list rows and for `refreshContract`:
   rule would have accepted it: freshest observation in the batch 0 s old); newest wins between two stale sources and an older
   observation never replaces a held one; stale on both is an answer (no error, no backoff) with every ticker counted unusable.
 - **Delisted / closed**: delisted everywhere -> missing, neighbours unaffected; `refreshContract` on a market delisted after a good
-  quote -> `too_old`, the held quote keeps its original `observedAt`; a closed market the relay still lists is a fresh observation
-  (usable by age, `availability` stays `CLOSED` for the screen's own handling); a closed market only the feed holds from minutes ago
-  is unusable.
+  quote -> `too_old`, the held quote keeps its original `observedAt`. A market the provider reports as closed is no longer "usable by
+  age": since the owner decision of 2026-10-27 it is withheld as non-tradable, see "Non-tradable markets" below (these two tests
+  were changed by that decision and say so).
 - **`refreshContract` sources**: relay success; 429 (+ feed omits it, relay not hammered); timeout (+ feed returns only unrelated
   tickers); both failing (an aged-out earlier quote is not resurrected, `observedAt` unchanged); an untimed relay answer is not an
   observation, the feed is asked.
@@ -304,8 +375,7 @@ Run on this branch after the last code change:
    later `git push` fails, the sequence still advanced (the state is saved before the push). The monitor treats a changed `run_id` as advanced.
 6. **Monitor run length.** A stalled heartbeat makes a run last about 10 minutes (the 9 minute window); a failing relay adds at most
    one retry wait (5 to 30 s) and a second attempt. Inside the 15 minute cadence and the 20 minute job timeout.
-7. **Closed markets.** A closed market the relay still lists is a fresh observation and passes the usability rule by age; its
-   `availability` (`CLOSED`) is for the screen to handle, as today. If you want a closed market's price withheld everywhere, that is a
-   one-line rule in `quoteUsable` and a decision about the spec's table.
+7. **Closed markets. Resolved by the owner's decision of 2026-10-27**, see "Non-tradable markets". (Previously: a closed market the relay still lists was a fresh observation and passed the usability rule by age; its
+   `availability` (`CLOSED`) was for the screen to handle.) The rule is now in `quoteUsable`/`tradable.ts`.
 8. **Enabling the monitor.** Scheduled workflows run only from the default branch, so nothing runs until this merges. After the heartbeat
    is live, set `SIFT_MONITOR_REQUIRE_HEARTBEAT=1`.

@@ -3,9 +3,12 @@
 Branch `claude/quote-track`, based on `origin/main`, draft, separately reviewed from the SIFT 3.0 UI work. The specification is
 `docs/sift3/QUOTE_DELIVERY.md` on the UI branch (`claude/sift3-build`); it is deliberately not copied here.
 
-Nothing in this branch is deployed, merged, dispatched or configured. No workflow was run and no repository variable was changed.
-Merging it changes no production behaviour of the packet path (proved below); the monitor workflow runs only once it is on the
-default branch, and the heartbeat appears only when the next `live-quotes` loop picks up the publisher change.
+Nothing in this branch is deployed, merged or configured, and no repository variable was changed. With the owner's authorisation a
+throwaway branch `claude/quote-drill` (this branch plus one read-only workflow, not part of this PR) was pushed and its drill run on
+GitHub-hosted runners against the real relay and feed: runs 40561848896 (success), 40568156310 (failure, a real feed stall, see
+`CI_DRILL.md` section 2) and 40574799848 (success). Merging this branch changes no production behaviour of the packet path (proved
+below); the monitor workflow runs only once it is on the default branch, and the heartbeat appears only when the next `live-quotes`
+loop picks up the publisher change.
 
 Product rule that governs all of it: users see clean, automatically updating Kalshi prices. There is no freshness text, badge,
 age or "last updated" anywhere. When no reliable quote exists the price is withheld (a dash in a list, "Price unavailable right
@@ -21,7 +24,8 @@ verification, proven versus unproven).
 | 1 | Isolate the new behaviour from the production chain | `src/live/config.ts` and `src/live/providers/fallback.ts` are **identical to `origin/main`** (`git diff origin/main -- <file>` is empty). The relay-first, per-ticker, Retry-After behaviour lives in a separately constructed chain used only by the new UI-facing entry points. Characterisation tests written against main first, run there, then run unchanged here |
 | 2 | Relay `Date` header | Not touched here (`relay/` is unchanged; handled on another branch). The client-side `clockSkewMs` code stays, now opt-in on the delivery chain only |
 | 3 | Each REQUESTED ticker is accounted for | The delivery chain and the store judge every requested ticker on its own observation; partial, empty, stale-next-to-fresh, delisted and closed markets are tested for rows and for `refreshContract` |
-| 4 | Monitor drill | One retry of a transient failure, an exact rule for empty and delisted markets, recovery with no false alarm, a local failure-injection drill, `CI_DRILL.md` |
+| 4 | Monitor drill | One retry of a transient failure, an exact rule for empty and delisted markets, recovery with no false alarm, a local failure-injection drill, `CI_DRILL.md`. Since the owner's review: a finished game is not an outage, a staged CI drill run on a real runner |
+| 6 | Non-tradable markets (owner decision 2026-10-27) | Closed, settled/finalised, suspended, paused, expired or unrecognised markets never yield an actionable ask from the delivery path; reported distinctly; never a failed refresh. See "Non-tradable markets" |
 | 5 | Approved age table, silent missing price, invisible diagnostics | Unchanged table; a test proves `renderQuote` returns the stored quote untouched or `null`, scans the new exports and the missing-price wording for freshness words, and proves nothing outside `src/live` refers to the new diagnostics |
 
 ## Item 1 (`src/live`): two chains, one store
@@ -209,9 +213,10 @@ whole-batch rule fails 3 of them). For list rows and for `refreshContract`:
 
 ### 4. Monitor
 
-See `CI_DRILL.md` for the rules, the drill and the proven/unproven table. Tests: `tests/live/quote-monitor.test.ts` (63),
-`tests/live/quote-monitor-drill.test.ts` (6, real child processes), `tests/live/quote-monitor-workflow.test.ts` (7).
-`scripts/quote-monitor-drill.mjs` runs 15 scenarios against a loopback fake feed and relay: **15 of 15 matched**.
+See `CI_DRILL.md` for the rules, the drill and the proven/unproven table. Tests: `tests/live/quote-monitor.test.ts` (95),
+`tests/live/quote-monitor-drill.test.ts` (7, real child processes), `tests/live/quote-drill-ci.test.ts` (11),
+`tests/live/quote-monitor-workflow.test.ts` (7). `scripts/quote-monitor-drill.mjs` runs 19 scenarios against a loopback fake feed and relay:
+**19 of 19 matched**; `--ci` runs the five-stage drill used on the runner (CI_DRILL.md section 2).
 
 ### 5. Invisible diagnostics
 
@@ -349,12 +354,17 @@ Run on this branch after the last code change:
 
 ## Not proven
 
-- The monitor on a GitHub-hosted runner against the deployed relay and the real feed; `workflow_dispatch` before merge (the workflow
-  must be on the default branch); email on a failed run. See `CI_DRILL.md`.
+- `quote-monitor.yml` itself on a runner: `workflow_dispatch` before merge (the workflow must be on the default branch), its `schedule`,
+  and email on a failed run. (The monitor script against the real relay and the real feed, the forced failures and the recovery ARE
+  proven: runs 40561848896 and 40574799848, `CI_DRILL.md` section 2.) See `CI_DRILL.md` section 4.
 - The heartbeat inside the real `live-quotes` loop (loop-state survival between cycles in `$RUNNER_TEMP`, hand-over run ids).
   Production `health.json` was 404 when last read.
-- The deployed relay's live behaviour for `tickers=` batches under the delivery chain. The relay host could not be resolved from this
-  environment, so no real relay response was ever read here; the relay provider is tested against fakes and `relay/core.ts`.
+- The deployed relay's live behaviour for `tickers=` batches under the delivery chain, beyond what the monitor reads: the drill saw HTTP 200
+  with a usable `X-Sift-Observed-At` and all 25 requested NFL markets (1 s old), but nothing from a closed or finalised market and no
+  response headers or body directly (this environment still cannot resolve the relay host). The relay provider is tested against fakes
+  and `relay/core.ts`.
+- A closed or finalised market as a real relay or feed answer (the status words and the `result` field are taken from the source code,
+  Kalshi's documented payload and the real snapshot's `market_status`; no real closed market was read from the relay).
 - Component tests for the missing-price states (UI branch). Wiring of the v3 screens to `addRowsScope`, `addContractScope`,
   `refreshContract`, `renderQuote` (UI branch).
 - Kalshi's per-IP budget at many concurrent users (below).

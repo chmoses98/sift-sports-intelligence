@@ -302,3 +302,4 @@
 @media (max-width: 380px) {
   .v3 .v3p-dl__l .v small { font-size: 12px; margin-left: 4px; white-space: nowrap; }
 }
+.v3 .v3p-hb__wk.is-date { font-size: 8px; letter-spacing: -0.03em; }

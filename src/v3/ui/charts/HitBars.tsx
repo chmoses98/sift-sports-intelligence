@@ -144,7 +144,7 @@ export function HitBars(p: HitBarsProps) {
               {!compact && v != null && showLabels && <text x={x} y={y(val) - 4} textAnchor="middle" className={`v3p-hb__v${res === 'over' ? ' is-hit' : res === 'under' ? ' is-miss' : ''}`}>{v}</text>}
               {!compact && !dense && logo && <image href={logo} x={x - 8} y={H - B + 8} width="16" height="16" />}
               {!compact && !dense && g.home === false && <text x={x - 11} y={H - B + 20} textAnchor="end" className="v3p-hb__ax" fontSize="8.5">@</text>}
-              {!compact && showLabels && <text x={x} y={H - B + 33} textAnchor="middle" className="v3p-hb__wk">{g.week != null ? `W${g.week}` : shortDate(g.date)}</text>}
+              {!compact && showLabels && <text x={x} y={H - B + 33} textAnchor="middle" className={`v3p-hb__wk${g.week == null ? ' is-date' : ''}`}>{g.week != null ? `W${g.week}` : shortDate(g.date)}</text>}
             </g>
           </g>
         );
@@ -162,7 +162,7 @@ export function HitBars(p: HitBarsProps) {
             </>}
             <text x={x} y={T - 4} textAnchor="middle" className="v3p-hb__tn">TONIGHT</text>
             {!compact && tonight.logo && <image href={tonight.logo} x={x - 8} y={H - B + 8} width="16" height="16" />}
-            {!compact && <text x={x} y={H - B + 33} textAnchor="middle" className="v3p-hb__wk is-tn">{tonight.label}</text>}
+            {!compact && <text x={x} y={H - B + 33} textAnchor="middle" className={`v3p-hb__wk is-tn${/\//.test(tonight.label) ? ' is-date' : ''}`}>{tonight.label}</text>}
           </g>
         );
       })()}

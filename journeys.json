@@ -103,9 +103,12 @@
   "#/v3/stat/cfb/sample-0?team=UGA"
  ],
  [
-  "C3 ranking lists many teams",
+  "C3 ranking lists many teams after Show all",
   true,
-  30
+  [
+   30,
+   "#/v3/stat/cfb/sample-0?v=1&sel=UGA&all=1"
+  ]
  ],
  [
   "C4 team identity opens that Team page",
@@ -115,7 +118,7 @@
  [
   "C5 Back returns to the same ranking",
   true,
-  "#/v3/stat/cfb/sample-0?team=UGA"
+  "#/v3/stat/cfb/sample-0?v=1&sel=UGA&all=1"
  ],
  [
   "C6 Back restores ranking scroll",
@@ -126,14 +129,14 @@
   ]
  ],
  [
-  "C7 value tap opens that team history on the same statistic",
+  "C7 value tap moves the highlight in place on the same ranking",
   true,
-  "#/v3/stat/cfb/sample-0?tab=trends&team=ILL"
+  "#/v3/stat/cfb/sample-0?v=1&sel=ILL&all=1"
  ],
  [
   "D1 changing stat updates the address",
   true,
-  "#/v3/player/nba/sample-guard?stat=ast"
+  "#/v3/player/nba/sample-guard?v=2&stat=ast"
  ],
  [
   "D2 summary strip changes with the stat",
@@ -143,7 +146,7 @@
  [
   "D3 window L5 selected",
   true,
-  "#/v3/player/nba/sample-guard?stat=ast&win=L5"
+  "#/v3/player/nba/sample-guard?v=2&stat=ast&win=L5"
  ],
  [
   "D4 chart shows 5 bars",
@@ -151,12 +154,12 @@
   5
  ],
  [
-  "D5 bar opens its source game observation",
+  "D5 bar opens its observation card (locked design P1: on the page, not a sheet)",
   true,
-  ""
+  "#/v3/player/nba/sample-guard?v=2&stat=ast&win=L5&obs=s17"
  ],
  [
-  "D6 closing the sheet keeps the chart state",
+  "D6 the chart state is kept",
   true,
   ""
  ],
@@ -166,19 +169,19 @@
   ""
  ],
  [
-  "D8 filter applied: chip visible and address updated",
+  "D8 filter applied: chip visible, sheet closed, address updated",
   true,
-  "#/v3/player/nba/sample-guard?stat=ast&win=L5&site=home"
+  "#/v3/player/nba/sample-guard?v=2&stat=ast&win=L5&site=home"
  ],
  [
   "D9 filter changes the games charted",
   true,
-  5
+  2
  ],
  [
   "D10 removing the chip clears the filter",
   true,
-  "#/v3/player/nba/sample-guard?stat=ast&win=L5"
+  "#/v3/player/nba/sample-guard?v=2&stat=ast&win=L5"
  ],
  [
   "D11 saved research appears in Following",
@@ -188,7 +191,7 @@
  [
   "D12 saved item restores stat, window and filter exactly",
   true,
-  "#/v3/player/nba/sample-guard?v=1&stat=pts&site=home"
+  "#/v3/player/nba/sample-guard?v=2&stat=pts&line=27.5&site=home"
  ],
  [
   "D13 saved snapshot is labelled \"At save\"",
@@ -203,7 +206,7 @@
  [
   "D15 removing filters restores the chart",
   true,
-  "#/v3/player/nba/sample-guard?stat=pts&win=L10"
+  "#/v3/player/nba/sample-guard?v=2&stat=pts"
  ],
  [
   "E1 starring a team lists it in Following",

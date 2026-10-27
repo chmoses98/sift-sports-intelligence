@@ -7,7 +7,7 @@ step summary. Sections 2 and 4 say exactly what has been run in GitHub Actions (
 
 ## 0. What the monitor decides (the exact rules)
 
-`scripts/quote-monitor.mjs`; every row is pinned by `tests/live/quote-monitor.test.ts` (63 tests) with an injected fetch,
+`scripts/quote-monitor.mjs`; every row is pinned by `tests/live/quote-monitor.test.ts` (95 tests) with an injected fetch,
 clock and sleep.
 
 | Check | Fails when |
@@ -157,7 +157,41 @@ Run ids are read anonymously with `gh api repos/chmoses98/sift-sports-intelligen
 itself is NOT readable anonymously (the log download answers 403 `Forbidden`), so what follows comes from the run and job `conclusion`,
 the step timings, and the check-run annotations (the per-stage notices above), which are readable.
 
-RESULTS_PLACEHOLDER
+| Run | Commit | Conclusion | What it shows |
+| --- | --- | --- | --- |
+| [40561848896](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/40561848896) | `91a0baf8` | success (step "Run the five stages" 23 s) | First run. All five stages matched (a mismatch exits 1). Per-stage detail was not yet in the annotations (added afterwards), so this run proves only the verdict. It ran 9 minutes after the last feed publish and passed the 10-minute freshness limit by about a minute |
+| [40568156310](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/40568156310) | `57186efb` | **failure** (stages 1, 4, 5; stages 2 and 3 matched) | **A genuine finding, not a workflow bug.** The real feed's `generated_at` was `2026-10-27T19:07:37Z` when read at 19:26 (about 19 minutes old, limit 10): the monitor and the drill correctly refused to call it healthy. Cause: the `live-quotes` loop hands over to a new workflow run at the end of each ~55-minute loop, and that handover run ([40566266791](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/40566266791)) was created at 19:07:40 and sat in the runner queue until about 20:02, behind the CI jobs of the many branches being pushed at the same time. The feed was therefore not updated for about 55 minutes (19:07:37 to 20:03:00). Stage 5 also failed here only because it used to demand an overall PASS; it now judges the heartbeat alone (fixed, not a relay problem) |
+| [40574799848](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/40574799848) | `189a9cbb` | **success** (step 23 s) | Fresh feed (loop restarted at 20:02). All five stages matched; observed results below |
+
+Observed in run 40574799848 (check-run annotations, one notice per stage; the relay path is the `SIFT_QUOTE_RELAY_URL` repository
+variable, which is set: the real relay answered):
+
+- **Stage 1** matched: monitor `PASS_HEARTBEAT_NOT_PUBLISHED`; the real relay answered `HTTP 200, 25 of 25 requested markets from games/26NOV01ARIDAL.json,
+  newest observation 1s old; limit 60s`. The real feed `index.json` read and fresh.
+- **Stage 2** matched, five forced failures against the real feed and relay:
+  unroutable host: `relay unreachable: getaddrinfo ENOTFOUND sift-quote-relay-drill-unroutable.invalid; the same on the single retry after 1s`;
+  black-holed `192.0.2.1`: `relay unreachable: The operation was aborted due to timeout; the same on the single retry after 1s`;
+  wrong path on the real relay host: `relay answered HTTP 404 for 25 tickers: {"error": {"code": "404", "message": "The page could not be found"}}` (the host is a Vercel deployment;
+  no retry, a 4xx is a configuration error);
+  impossible relay limit: `relay answered HTTP 200 but its newest observation (2026-10-27T20:04:57Z) is 22s old; limit 0s (25 markets); the single retry ... failed too`;
+  impossible feed limit: `Feed generated_at is recent: newest generated_at is 2026-10-27T20:03:00Z (index.json), 139s old; limit 1s`.
+- **Stage 3** matched, all 13 loopback scenarios, including `relay-429` (`HTTP 429 (Retry-After 1) ... the same on the single retry after 1s`), `relay-429-once` and
+  `relay-flaky` (`recovered on the single retry`), `relay-empty`, `all-games-delisted`, `relay-delisted-game` (PASS), `no-open-contracts` (SKIP), `relay-partial` (`2 of 3 requested markets`),
+  `relay-game-over` (`GAME_OVER: HTTP 200 with a current observation ...`), `relay-closed-among-open` and `relay-first-game-over`.
+- **Stage 4** matched: loopback outage then the very next run PASS with no trace; real relay and feed again after the five forced failures: `PASS_HEARTBEAT_NOT_PUBLISHED`,
+  `25 of 25 requested markets ... newest observation 0s old`.
+- **Stage 5** matched: on the real feed branch `health.json` is **not published** (`HEARTBEAT_NOT_PUBLISHED`, reported as a note and an overall `PASS_HEARTBEAT_NOT_PUBLISHED`, not a failure);
+  with `SIFT_MONITOR_REQUIRE_HEARTBEAT=1` the same feed fails (`health.json does not exist on the live-quotes branch (HTTP 404) and SIFT_MONITOR_REQUIRE_HEARTBEAT is set`);
+  loopback stall and missing-required detected.
+
+What could not be read: the job log text (403 anonymously), the step summary table (not exposed by the API) and the first run's per-stage detail. The real relay's
+response headers and body for the batch were not seen directly, only the monitor's report of them. Nothing here shows email delivery, the `schedule` trigger,
+or a `workflow_dispatch`.
+
+**Finding for the owner (worth acting on whatever happens to this PR).** The `live-quotes` loop depends on GitHub starting its handover run promptly, and the runner pool
+is shared with the CI jobs of every pushed branch. On 2026-10-27 that handover waited about 55 minutes and the production feed stopped updating for the same time. The monitor
+in this PR is what would have paged for it (feed `generated_at` more than 10 minutes old). Reducing CI fan-out on `claude/*` branches, or a separate concurrency pool or
+self-hosted runner for `live-quotes`, are the levers; none was touched here (`live-quotes.yml` is untouched).
 
 Local proof of the drill logic (no network): `tests/live/quote-drill-ci.test.ts` (11 tests: every stage against a loopback stand-in for the
 real relay and feed, mismatches fail and name the stage, a forced failure that unexpectedly passes is caught, stage 5 independent of feed
@@ -205,12 +239,16 @@ The same check automated: `node scripts/quote-monitor.mjs` (or the Actions run f
 
 | | State |
 | --- | --- |
-| Every monitor rule above: thresholds and boundaries, one retry, 429 with Retry-After (capped), unusable 200s, partial answer, empty and delisted games, closed contracts not asserted, no-open-contract skip, recovery on the next run with no false alarm, heartbeat advance, stall, jump, backwards, new run id, disappearance, window edge | **Proven in tests** (injected fetch, clock, sleep): `tests/live/quote-monitor.test.ts` |
-| The same rules end to end through the real script as a child process against a local fake feed and relay, including an outage followed by recovery | **Proven locally**: `tests/live/quote-monitor-drill.test.ts`, `node scripts/quote-monitor-drill.mjs` |
-| Heartbeat shape, sequence arithmetic, file addition only, a real run of the publisher script on a stubbed network | **Proven in tests**: `tests/live/feed-heartbeat.test.ts` |
-| The workflow file (read-only permissions, schedule, concurrency, no secrets) | **Proven by static tests** only: `tests/live/quote-monitor-workflow.test.ts` |
-| The monitor running on a GitHub-hosted runner, against the deployed relay and the real `raw.githubusercontent.com` feed | **Unproven.** Not run. The relay host was not even resolvable from the development sandbox. Needs section 2 |
-| The deployed relay's behaviour under the monitor (headers, `X-Sift-Observed-At`, CORS irrelevant to a runner, response shape for `tickers=`) | **Unproven** beyond what `relay/` code and the spec's measurements say |
-| `workflow_dispatch` of `quote-monitor.yml` | **Cannot be run before merge** (default-branch rule above) |
-| The heartbeat inside the real `live-quotes` loop: `$RUNNER_TEMP` loop-state survival between cycles, handover run ids, real push cadence | **Unproven.** Production `health.json` was 404 when last read. Needs section 3 after the owner permits and merges |
-| Email delivery on a failed scheduled run | **Unproven** (a GitHub account setting; the drill's wrapper deliberately does not trigger it) |
+| Every monitor rule above: thresholds and boundaries, one retry, 429 with Retry-After (capped), unusable 200s, partial answer, empty and delisted games, closed contracts not asserted, **a finished game is not an outage (GAME_OVER)**, no-open-contract skip, recovery on the next run with no false alarm, heartbeat advance, stall, jump, backwards, new run id, disappearance, window edge | **Proven in tests** (injected fetch, clock, sleep): `tests/live/quote-monitor.test.ts` (95) |
+| The same rules end to end through the real script as a child process against a local fake feed and relay, including an outage followed by recovery | **Proven locally**: `tests/live/quote-monitor-drill.test.ts`, `node scripts/quote-monitor-drill.mjs` (19 scenarios) |
+| The staged drill logic (all five stages, mismatch naming, unexpected pass caught) | **Proven locally** against a loopback stand-in: `tests/live/quote-drill-ci.test.ts` (11) |
+| The monitor on a GitHub-hosted runner reading the real feed (`raw.githubusercontent.com`) and the real deployed relay | **Proven**: runs [40561848896](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/40561848896) and [40574799848](https://github.com/chmoses98/sift-sports-intelligence/actions/runs/40574799848) (stage 1: `25 of 25 requested markets`, observation 1 s old) |
+| Detection of a real outage from a runner: unroutable host, black-holed address, wrong path (the relay's host answers HTTP 404), impossible freshness limits | **Proven** in run 40574799848, each with its own diagnosis |
+| Detection of a real stall of the production feed | **Proven by accident, in production**: run 40568156310 failed on a feed 19 minutes old, caused by the `live-quotes` handover waiting about 55 minutes in the runner queue (section 2) |
+| Recovery with no false alarm | **Proven** (loopback outage then healthy, and the real relay and feed passing again after the forced failures, run 40574799848); and run 40574799848 itself passed on the feed once the loop restarted |
+| Distinct non-failing `HEARTBEAT_NOT_PUBLISHED` on the real feed branch, and the strict switch | **Proven** in run 40574799848 (`health.json` absent on the `live-quotes` branch) |
+| The workflow file (read-only permissions, no secrets, push-to-branch-only, concurrency, timeout) | **Proven by static tests** (`quote-drill-workflow.test.ts` on the drill branch, `quote-monitor-workflow.test.ts` for the real monitor) and by the run itself (`contents: read`, no token) |
+| `quote-monitor.yml` itself, its `schedule`, its `workflow_dispatch`, `vars.SIFT_MONITOR_REQUIRE_HEARTBEAT` wiring | **Unproven; cannot be run before merge** (default-branch rule above). The drill ran the same script with the same relay variable |
+| The deployed relay's response headers and body for `tickers=` batches under the delivery chain | **Partly proven**: HTTP 200 with a usable `X-Sift-Observed-At` and all 25 requested markets, as the monitor reads them; the body and headers were not otherwise inspected, and a closed or finalised market has not been observed from the real relay |
+| The heartbeat inside the real `live-quotes` loop: `$RUNNER_TEMP` loop-state survival between cycles, handover run ids, real push cadence | **Unproven.** `health.json` is absent on the `live-quotes` branch today (run 40574799848). Needs section 3 after the owner merges |
+| Email delivery on a failed scheduled run | **Unproven** (a GitHub account setting). The drill's failing stage 1 in run 40568156310 failed the job; whether an email followed was not observed |

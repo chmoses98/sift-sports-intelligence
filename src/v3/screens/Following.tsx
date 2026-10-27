@@ -4,7 +4,6 @@ import { useQueryPatch } from '../state/url';
 import { useSearchIndex } from '../data/useSearch';
 import { useSlate } from '../data/useSlate';
 import { heroTeam } from '../../lib/hero/input';
-import { ago } from '../model/format';
 import { demoOn, removeSaved, useAlerts, useFollows, useSaved } from '../state/prefs';
 import type { V3Game, V3Team } from '../model/types';
 import { AlertBell, FollowStar } from '../ui/Controls';
@@ -35,6 +34,8 @@ function GameRow({ g }: { g: V3Game }) {
     </li>
   );
 }
+
+const KIND_WORD = { player: 'Player', team: 'Team', stat: 'Statistic', game: 'Game', props: 'Props', other: 'Research' } as const;
 
 export function Following() {
   const f = useFollows();
@@ -109,8 +110,11 @@ export function Following() {
           <ul className="v3-hits">{saved.map((s) => (
             <li key={s.id} className="v3-hit v3-hit--saved">
               <Link to={s.route} className="v3-hit__l" aria-label={`Reopen ${s.title}: ${s.subtitle}`}>
-                <span className="v3-hit__t"><b>{s.title}</b><small>{s.subtitle}</small>
-                  {s.snapshot && <span className="v3-snap">At save ({ago(new Date(s.savedAt).toISOString())}): {s.snapshot.map((x) => `${x.label} ${x.value}`).join(' · ')}</span>}
+                <span className="v3-hit__t">
+                  <span className="v3-kind">{KIND_WORD[s.kind]}{s.sport ? ` · ${s.sport.toUpperCase()}` : ''}</span>
+                  <b>{s.title}</b><small>{s.subtitle}</small>
+                  {s.chips.length > 0 && <span className="v3-chips" aria-label="Saved setup">{s.chips.map((c) => <i key={c} className="v3-chipx">{c}</i>)}</span>}
+                  {s.snapshot && <span className="v3-snap">Saved values: {s.snapshot.map((x) => `${x.label} ${x.value}`).join(' · ')}</span>}
                 </span>
                 <Icon name="chevR" size={20} />
               </Link>

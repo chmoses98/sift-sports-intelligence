@@ -160,8 +160,12 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
   }, [wantFocus, wantFilters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- the list
-  const base = useMemo(() => universe.props.filter((p) => passesBase(p, st, ctx)), [universe, st, ctx]);
-  const list = useMemo(() => listProps(universe.props, st, ctx), [universe, st, ctx]);
+  // The list depends on the filter and sort fields only: opening a row, ticking a comparison or typing the cursor into the field changes `st`
+  // but not the list, so those taps must not filter, sort and measure a thousand rows again.
+  const listSig = [st.sport, st.fam, st.sort, st.q, st.hide, st.team, st.player, st.game, st.preset, st.range, st.hmin, st.hwin, st.orank, st.model, st.pin ? st.exp : ''].join('|');
+  const listSt = useMemo(() => st, [listSig]); // eslint-disable-line react-hooks/exhaustive-deps -- `listSig` names every field the list reads
+  const base = useMemo(() => universe.props.filter((p) => passesBase(p, listSt, ctx)), [universe, listSt, ctx]);
+  const list = useMemo(() => listProps(universe.props, listSt, ctx), [universe, listSt, ctx]);
   const sortHist = sort === 'hist' && !historyFilterOn(st);
   const items = useMemo<Item[]>(() => {
     const rows = list.map((p): RowItem => { const chip = chipOf(p); return { kind: 'row', p, chip, wrap: !chipBeside(p.label, `${p.featured}+`, chipText(p, chip), colW) }; });

@@ -95,7 +95,15 @@ const authorityFor = (slug: string) => memoize(authMemo, slug, async () => {
   return code && sportHasApprovedModel(slug) ? settle(loadAuthority(code)) : null;
 });
 
+/** The identity lookups of a sport (roster to team, which players have a profile, the football history index by name): built once per context, not once per game. */
+const baseHints = new WeakMap<SportCtx, Omit<IdentityHints, 'outOf'>>();
 function hintsFor(c: SportCtx, injuries: Map<string, string>): IdentityHints {
+  let base = baseHints.get(c);
+  if (!base) { base = identityHints(c); baseHints.set(c, base); }
+  return { ...base, outOf: (name) => injuries.get(nameKey(name)) ?? null };
+}
+
+function identityHints(c: SportCtx): Omit<IdentityHints, 'outOf'> {
   const codeById = new Map((c.index?.teams ?? []).map((t) => [t.participant_id, t.short_name ?? '']));
   const teamOf = new Map<string, string>();
   for (const [teamId, players] of Object.entries(c.index?.players_by_team ?? {})) for (const p of players) teamOf.set(p, codeById.get(teamId) ?? '');
@@ -112,7 +120,6 @@ function hintsFor(c: SportCtx, injuries: Map<string, string>): IdentityHints {
       return same.length === 1 ? same[0] : null;
     },
     hasPlayerPage: (pid) => playerResearch && !!pid && profiles.has(pid),
-    outOf: (name) => injuries.get(nameKey(name)) ?? null,
   };
 }
 
@@ -212,8 +219,10 @@ export interface LoadOptions {
   concurrency?: number;
   /** Publish prefixes as they arrive (default). False: publish only the complete universe (a background refresh must not replace a full list with a partial one). */
   partial?: boolean;
-  /** Minimum spacing between published prefixes (default 350 ms); the first and the last are never delayed. */
+  /** Minimum spacing between published prefixes (default 600 ms); the first and the last are never delayed. */
   throttleMs?: number;
+  /** How one game is read (tests inject a fake; the default is `loadGame`). */
+  read?: (g: V3Game) => Promise<GameResult>;
 }
 
 /** Read the games soonest first and publish prefixes. Resolves with the last published state (or the aborted state). */
@@ -224,7 +233,7 @@ export async function loadProgressive(games: V3Game[], o: LoadOptions = {}): Pro
   const starts = games.map((g) => g.startMs);
   const conc = Math.max(1, o.concurrency ?? 3);
   const partial = o.partial !== false;
-  const throttle = o.throttleMs ?? 350;
+  const throttle = o.throttleMs ?? 600;
   let next = 0, published = -1, lastAt = 0, timer: ReturnType<typeof setTimeout> | null = null;
   let last: Progress = { universe: buildUniverse([], total, total === 0), loaded: 0, total, complete: total === 0 };
 
@@ -250,7 +259,7 @@ export async function loadProgressive(games: V3Game[], o: LoadOptions = {}): Pro
       if (o.signal?.aborted) return;
       const i = next++;
       if (i >= total) return;
-      const r = await settle(loadGame(games[i]));
+      const r = await settle((o.read ?? loadGame)(games[i]));
       results[i] = r ?? { eventId: games[i].eventId, key: games[i].key, startMs: games[i].startMs, props: [], unreadable: `${games[i].away.abbr} at ${games[i].home.abbr}`, gap: false };
       read[i] = true;
       publish();

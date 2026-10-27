@@ -13,7 +13,8 @@ import { routes } from '../../nav/routes';
 import { publishContracts, type ContractInfo } from '../../ui/ContractSheet';
 import { playerRef, playerState } from './parts';
 
-const when = (ms: number) => `${new Date(ms).toLocaleDateString(undefined, { weekday: 'short' })} ${clockTime(ms)}`;
+const whens = new Map<number, string>();
+const when = (ms: number) => { let w = whens.get(ms); if (w === undefined) { w = `${new Date(ms).toLocaleDateString(undefined, { weekday: 'short' })} ${clockTime(ms)}`; whens.set(ms, w); } return w; };
 
 /** The same address with the sheet closed (a link to it replaces the sheet's entry, so Back lands on the screen underneath). */
 export function addressWithoutSheet(pathname: string, search: string): string {

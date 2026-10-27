@@ -1,0 +1,108 @@
+// Prop Discovery's first-screen load budget, on the REAL cached documents under the fixed browser clock (e2e/support/realFeeds.ts).
+// Before the hardening the list read 22 contract documents, 19 injury documents, 8 identity/ranking tables and the model feeds before
+// the first row was drawn (89 documents, 2.1 MB on the wire in all, 1.07 MB of it Prop Discovery's own). The budget below is what the first
+// screen may read now; a change that reads more fails here. "Wire bytes" are the gzip size of each served document (what GitHub sends;
+// scripts/v3-qa/props-perf.mjs measures the browser's own bytes under the phone throttle and its numbers are in IMPLEMENTATION_STATUS.md).
+import { test, expect, type Page } from '@playwright/test';
+import { gzipSync } from 'node:zlib';
+import { feedNow, freshQuotes, readFeedCache, useRealFeeds } from './support/realFeeds';
+
+test.setTimeout(180_000);
+
+const kindOf = (u: string): string => {
+  if (/\/event_detail\//.test(u)) return 'contracts';
+  if (/\/explorer\/events\//.test(u)) return 'availability';
+  if (/\/explorer\/rankings\//.test(u)) return 'ranking';
+  if (/\/explorer\/teams\//.test(u)) return 'team-profile';
+  if (/\/explorer\/players\/|\/history\/players\//.test(u)) return 'game-log';
+  if (/projections\//.test(u)) return 'projection';
+  if (/live-quotes\//.test(u)) return 'quotes';
+  return 'shell';
+};
+
+async function setup(page: Page) {
+  await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
+  await page.clock.setFixedTime(feedNow());
+  const log = await useRealFeeds(page);
+  await freshQuotes(page);
+  return log;
+}
+
+const wire = (urls: string[]) => urls.reduce((n, u) => { const b = readFeedCache(u); return n + (b ? gzipSync(b, { level: 6 }).length : 0); }, 0);
+const tally = (urls: string[]) => {
+  const o: Record<string, number> = {};
+  for (const u of urls) { const k = kindOf(u); o[k] = (o[k] ?? 0) + 1; }
+  return o;
+};
+const documents = (served: string[]) => [...new Set(served)];
+
+test('the first screen of the list stays inside its document and byte budget', async ({ page }) => {
+  const log = await setup(page);
+  await page.goto('./#/v3/props?view=list');
+  await page.waitForSelector('.pd-row', { timeout: 90_000 });
+  await page.waitForTimeout(5000); // lazy reads that follow the first paint (availability for rows near the top, rankings) are part of the screen
+  const docs = documents(log.served);
+  const by = tally(docs);
+  const bytes = wire(docs);
+  const own = docs.filter((u) => kindOf(u) !== 'shell');
+  console.log(JSON.stringify({ documents: docs.length, wireKB: Math.round(bytes / 1024), propsOwn: own.length, propsOwnKB: Math.round(wire(own) / 1024), by }));
+  // What was read before: 19 availability documents. Now only the games of the rows near the top (and the few ahead of them).
+  expect(by.availability ?? 0, 'availability documents are read for the games near the top only').toBeLessThanOrEqual(8);
+  expect(by.ranking ?? 0, 'ranking tables are read for the rows that show them').toBeLessThanOrEqual(3);
+  expect(by['team-profile'] ?? 0).toBeLessThanOrEqual(2);
+  expect(by['game-log'] ?? 0, 'no player game log is read for the first screen').toBe(0);
+  // 22 games start inside 48 hours in this capture: one contract document each, never more.
+  expect(by.contracts ?? 0).toBeLessThanOrEqual(24);
+  expect(own.length, 'documents Prop Discovery reads itself').toBeLessThanOrEqual(40);
+  expect(wire(own), 'wire bytes of those documents').toBeLessThanOrEqual(1_000_000);
+  expect(docs.length, 'every document, shell included').toBeLessThanOrEqual(75);
+  expect(bytes, 'every document, shell included').toBeLessThanOrEqual(1_900_000);
+  // No document is read twice.
+  expect(log.served.length - docs.length).toBeLessThanOrEqual(2);
+});
+
+test('the first screen of the home stays inside the same budget', async ({ page }) => {
+  const log = await setup(page);
+  await page.goto('./#/v3/props');
+  await page.waitForSelector('.pd-card', { timeout: 90_000 });
+  await page.waitForTimeout(5000);
+  const docs = documents(log.served);
+  const by = tally(docs);
+  const own = docs.filter((u) => kindOf(u) !== 'shell');
+  console.log(JSON.stringify({ documents: docs.length, propsOwn: own.length, propsOwnKB: Math.round(wire(own) / 1024), by }));
+  expect(by.availability ?? 0, 'availability for the shelf candidates only').toBeLessThanOrEqual(10);
+  expect(by['game-log'] ?? 0).toBeLessThanOrEqual(8);
+  expect(own.length).toBeLessThanOrEqual(46);
+  expect(wire(own)).toBeLessThanOrEqual(1_150_000);
+});
+
+test('a longer horizon reads only the extra games, once each, and says what it costs', async ({ page }) => {
+  const log = await setup(page);
+  await page.goto('./#/v3/props?view=list');
+  await page.waitForSelector('.pd-row', { timeout: 90_000 });
+  await page.waitForTimeout(4000);
+  const before = documents(log.served).filter((u) => kindOf(u) === 'contracts');
+  const bar = page.locator('.pd-hz');
+  await expect(bar.getByRole('button', { name: /^48 hours/ })).toHaveAttribute('aria-pressed', 'true');
+  // The cost is stated before the longer horizon is chosen.
+  await expect(bar.locator('.pd-hz__st')).toContainText(/7 days adds \d+ games \(about [\d.]+ (MB|KB)\)/);
+  const adds = Number(/7 days adds (\d+) games/.exec((await bar.locator('.pd-hz__st').textContent()) ?? '')?.[1]);
+  expect(adds).toBeGreaterThan(0);
+  const histBefore = await page.evaluate(() => history.length);
+  await bar.getByRole('button', { name: /^7 days/ }).click();
+  // In the address, replacing history (Back leaves the list rather than undoing the horizon).
+  await expect.poll(() => page.evaluate(() => location.hash)).toContain('hz=7d');
+  expect(await page.evaluate(() => history.length)).toBe(histBefore);
+  // An explicit loading state with a progress count while the extra games are read.
+  await expect(bar.locator('.pd-hz__st')).toContainText(/Reading games: \d+ of \d+/, { timeout: 15_000 }).catch(() => undefined);
+  await expect(bar.locator('.pd-hz__st')).toContainText(/game(s)? starting within 7 days/, { timeout: 120_000 });
+  const after = documents(log.served).filter((u) => kindOf(u) === 'contracts');
+  const fresh = after.filter((u) => !before.includes(u));
+  expect(fresh.length, 'only the extra games are read').toBe(adds);
+  expect(log.served.filter((u) => before.includes(u) && kindOf(u) === 'contracts').length, 'the first games are not read again').toBe(before.length);
+  // Back from a sheet or a detail keeps the horizon: it is part of the address.
+  await page.reload();
+  await page.waitForSelector('.pd-row', { timeout: 90_000 });
+  await expect(bar.getByRole('button', { name: /^7 days/ })).toHaveAttribute('aria-pressed', 'true');
+});

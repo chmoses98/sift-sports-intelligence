@@ -11,7 +11,7 @@
 //   * App code: with DIST=<a `vite build` output> the app is served gzip-encoded from a static server under the same throttle (what a
 //     phone downloads); without DIST it uses BASE (a dev server: unbundled, so its byte counts for code are not meaningful, documents are).
 //   * Times are in-page `performance.now()` from navigation start: first meaningful content = first prop card/row painted; interactive =
-//     the first 2 s window without a long task after that; tap-to-paint = a tap's `pointerup` to the frame that shows its result; scroll =
+//     the first 1 s window after that without a task over 100 ms; tap-to-paint = a tap's `pointerup` to the frame that shows its result; scroll =
 //     requestAnimationFrame deltas during a real touch scroll gesture.
 //
 //   * `--no-proxy-server` matters: this sandbox sets HTTPS_PROXY, which Chromium honours, and requests would then bypass the local server and
@@ -170,6 +170,7 @@ async function oneRun(browser, appUrl, feedPort, i) {
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   }
   const tNav = Date.now();
+  if (process.env.PROFILE) { await cdp.send('Profiler.enable'); await cdp.send('Profiler.setSamplingInterval', { interval: 500 }); await cdp.send('Profiler.start'); }
   await page.goto(appUrl, { waitUntil: 'commit' });
   // wall time of navigation start in CDP's monotonic clock: the first request's timestamp
   await page.waitForFunction(() => window.__pm?.first != null, null, { timeout: 180000 });
@@ -182,11 +183,36 @@ async function oneRun(browser, appUrl, feedPort, i) {
   let lastCount = -1, still = 0;
   for (let k = 0; k < 50 && still < 4; k++) { await page.waitForTimeout(500); const n = [...reqs.values()].filter((r) => r.done || r.failed).length; if (n === lastCount) still++; else { still = 0; lastCount = n; } }
   await page.waitForTimeout(2200);
+  let profileTop = null;
+  if (process.env.PROFILE) {
+    const { profile } = await cdp.send('Profiler.stop');
+    const self = new Map();
+    const byId = new Map(profile.nodes.map((n) => [n.id, n]));
+    profile.samples.forEach((id, i) => { const n = byId.get(id); const k = `${n.callFrame.functionName || '(anon)'} ${n.callFrame.url.split('/').pop()}:${n.callFrame.lineNumber}`; self.set(k, (self.get(k) ?? 0) + (profile.timeDeltas[i] ?? 0)); });
+    if (process.env.PROFILE_FN) {
+      const parent = new Map();
+      for (const n of profile.nodes) for (const c of n.children ?? []) parent.set(c, n.id);
+      const stacks = new Map();
+      profile.samples.forEach((id, i) => {
+        const n = byId.get(id);
+        if (n.callFrame.functionName !== process.env.PROFILE_FN) return;
+        const chain = []; let cur = id;
+        for (let d = 0; d < 7 && cur != null; d++) { const nn = byId.get(cur); chain.push(`${nn.callFrame.functionName || '(anon)'}:${nn.callFrame.url.split('/').pop()}:${nn.callFrame.lineNumber}`); cur = parent.get(cur); }
+        const k = chain.join(' < ');
+        stacks.set(k, (stacks.get(k) ?? 0) + (profile.timeDeltas[i] ?? 0));
+      });
+      console.error(JSON.stringify([...stacks.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => [round(v / 1000), k]), null, 1));
+    }
+    profileTop = [...self.entries()].sort((a, b) => b[1] - a[1]).slice(0, 40).map(([k, v]) => [k, round(v / 1000)]);
+  }
   const pm = await page.evaluate(() => ({ first: window.__pm.first, lt: window.__pm.lt }));
   const lt = pm.lt.map(([s, d]) => [s, s + d]).sort((a, b) => a[0] - b[0]);
+  // Interactive: the first moment after first content from which 1 s passes with no task longer than 100 ms (so a 70 ms housekeeping tick does
+  // not count, a 300 ms render does). Blocking: time over 50 ms per long task from navigation to that moment, and in the 5 s after first content.
   let tti = pm.first;
-  for (const [s, e] of lt) { if (e <= pm.first) continue; if (s - tti >= 2000) break; tti = Math.max(tti, e); }
-  const tbt = lt.filter(([s]) => s < tti).reduce((a, [s, e]) => a + Math.max(0, e - s - 50), 0);
+  for (const [s0, e0] of lt) { if (e0 <= pm.first || e0 - s0 < 100) continue; if (s0 - tti >= 1000) break; tti = Math.max(tti, e0); }
+  const tbt = lt.filter(([s0]) => s0 < tti).reduce((a, [s0, e0]) => a + Math.max(0, e0 - s0 - 50), 0);
+  const tbtAfter = lt.filter(([s0]) => s0 >= pm.first && s0 < pm.first + 5000).reduce((a, [s0, e0]) => a + Math.max(0, e0 - s0 - 50), 0);
 
   const all = [...reqs.values()];
   const docs = all.filter((r) => kind(r.url));
@@ -194,8 +220,8 @@ async function oneRun(browser, appUrl, feedPort, i) {
   for (const r of docs) { const k = kind(r.url); byKind[k] ??= { n: 0, bytes: 0, missing: 0 }; byKind[k].n++; byKind[k].bytes += r.bytes; if (r.status === 404) byKind[k].missing++; }
   const code = all.filter((r) => !kind(r.url) && /Script|Stylesheet|Font|Document/.test(r.type ?? ''));
   const res = {
-    run: i,
-    firstContentMs: round(pm.first), interactiveMs: round(tti), totalBlockingMs: round(tbt), longTasks: lt.length,
+    run: i, profileTop,
+    firstContentMs: round(pm.first), interactiveMs: round(tti), totalBlockingMs: round(tbt), blockingFirst5sMs: round(tbtAfter), longTasks: lt.length, longTaskList: lt.map(([a, b]) => [round(a), round(b - a)]),
     atFirstContent: atFirst,
     documents: { count: docs.length, bytes: docs.reduce((a, r) => a + r.bytes, 0), missing404: docs.filter((r) => r.status === 404).length, byKind },
     appCode: { requests: code.length, bytes: code.reduce((a, r) => a + r.bytes, 0) },
@@ -260,7 +286,7 @@ const m = (f) => median(results.map(f));
 const first = results[0];
 const summary = {
   route, runs, served: app ? 'production build (gzip)' : `dev server ${origin}`, throttle: throttle ? 'Fast 4G (9 Mbit/s, 170 ms) + 4x CPU' : 'none',
-  firstContentMs: m((r) => r.firstContentMs), interactiveMs: m((r) => r.interactiveMs), totalBlockingMs: m((r) => r.totalBlockingMs),
+  firstContentMs: m((r) => r.firstContentMs), interactiveMs: m((r) => r.interactiveMs), totalBlockingMs: m((r) => r.totalBlockingMs), blockingFirst5sMs: m((r) => r.blockingFirst5sMs),
   atFirstContent: { requests: m((r) => r.atFirstContent.requests), bytes: m((r) => r.atFirstContent.bytes), documents: m((r) => r.atFirstContent.documents), documentBytes: m((r) => r.atFirstContent.documentBytes) },
   documents: { count: m((r) => r.documents.count), bytes: m((r) => r.documents.bytes), missing404: m((r) => r.documents.missing404), byKind: first.documents.byKind },
   appCode: { requests: m((r) => r.appCode.requests), bytes: m((r) => r.appCode.bytes) },
@@ -268,6 +294,8 @@ const summary = {
   tapMs: { expand: m((r) => r.tapExpandMs), collapse: m((r) => r.tapCollapseMs), sortOpen: m((r) => r.tapSortOpenMs), sortApply: m((r) => r.tapSortApplyMs), filterOpen: m((r) => r.tapFilterOpenMs), filterApply: m((r) => r.tapFilterApplyMs) },
   documentsAfterInteractions: m((r) => r.documentsAfterInteractions),
   scroll: { p50: m((r) => r.scroll?.p50), p95: m((r) => r.scroll?.p95), max: m((r) => r.scroll?.max), over33ms: m((r) => r.scroll?.over33ms), over50ms: m((r) => r.scroll?.over50ms), frames: m((r) => r.scroll?.frames) },
+  longTasksRun1: first.longTaskList,
+  profileTop: first.profileTop,
   pageNow: first.pageNow, rowsInList: first.rowsInList, rowsInDomAtRest: first.rowsInDomAtRest, cardsInDom: first.cardsInDom,
   perRun: results.map((r) => ({ firstContentMs: r.firstContentMs, interactiveMs: r.interactiveMs, docs: r.documents.count, docBytes: r.documents.bytes })),
 };

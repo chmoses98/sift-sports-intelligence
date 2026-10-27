@@ -15,7 +15,10 @@ import { Icon } from '../../ui/Icon';
 import { TeamLogo } from '../../ui/TeamLogo';
 
 export const teamOf = (p: Prop): V3Team | null => (p.team ? (p.team === p.away.abbr ? p.away : p.team === p.home.abbr ? p.home : null) : null);
-export const gameText = (p: Prop) => `${p.away.abbr} at ${p.home.abbr} · ${clockTime(p.startMs)}`;
+// `clockTime` builds an Intl formatter on every call: a row re-renders often, so each kickoff is formatted once.
+const clocks = new Map<number, string>();
+export const clockOf = (ms: number) => { let c = clocks.get(ms); if (c === undefined) { c = clockTime(ms); clocks.set(ms, c); } return c; };
+export const gameText = (p: Prop) => `${p.away.abbr} at ${p.home.abbr} · ${clockOf(p.startMs)}`;
 export const statText = (p: Prop, k: number) => `${p.label} ${k}+`;
 /** Player Research's line for a count rung: "3+" settles over 2.5. */
 export const lineOf = (k: number) => k - 0.5;

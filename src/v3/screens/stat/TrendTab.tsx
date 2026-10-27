@@ -9,6 +9,7 @@ import { useSeries } from '../../data/useStatDetail';
 import { GameLink, NavRow, StatLink, TeamLink } from '../../nav/Targets';
 import { routes } from '../../nav/routes';
 import { capability } from '../../model/capabilities';
+import { monthDay } from '../../model/time';
 import { cutPoints, fmtBar, fmtValue, gameTag, ordinal, orderWindows, seasonRows, seasonsOf, seriesPoints, siteSplit, spanLabel, windowLabel, LAST_N, MAX_BARS } from '../../model/statDetail';
 import { ObsBars } from '../../ui/charts/ObsBars';
 import { RankTrack } from '../../ui/charts/RankTrack';
@@ -19,7 +20,7 @@ import { LockedRow } from '../../ui/atoms';
 import type { StatCtx } from './ctx';
 import { TeamPickerBody } from './pickers';
 
-const md = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+const md = (iso: string) => monthDay(Date.parse(iso));
 
 export function ChooseTeam({ ctx, title, body }: { ctx: StatCtx; title: string; body: string }) {
   const sheet = useSheet();

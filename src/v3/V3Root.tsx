@@ -13,6 +13,7 @@ import './screens/research.css';
 import './ui/atoms.css';
 import { Icon, type IconName } from './ui/Icon';
 import { SheetHost } from './ui/Sheet';
+import './ui/ContractSheet'; // registers the addressed `contract` sheet for every screen
 import { SlateProvider, useSlate } from './data/useSlate';
 import { applyDemoParam, demoOn, SAMPLE_ONLY, usePrefs } from './state/prefs';
 import { useScrollMemory } from './state/scroll';

@@ -139,6 +139,8 @@ export interface PropRow {
   line: number;
   price: Price;
   ladder: Price[];
+  /** The same ladder with each contract's own numeric line ("receptions over 6.5" is the 7+ rung), lowest first. */
+  rungs: { line: number; price: Price }[];
   teamAbbr: string | null;
 }
 
@@ -181,7 +183,7 @@ export function deriveProps(markets: Market[]): PropRow[] {
     const x = (ms[0].extensions ?? {}) as MktExt;
     const sorted = [...ms].sort((a, b) => propLine(a)! - propLine(b)!);
     const main = [...ms].sort((a, b) => nearHalf(a) - nearHalf(b))[0];
-    rows.push({ key, player: propSubject(ms[0])!, playerId: ms[0].player_id, stat: x.stat!, statLabel: statWord(x.stat!), line: propLine(main)!, price: priceOf(main), ladder: sorted.map(priceOf), teamAbbr: null });
+    rows.push({ key, player: propSubject(ms[0])!, playerId: ms[0].player_id, stat: x.stat!, statLabel: statWord(x.stat!), line: propLine(main)!, price: priceOf(main), ladder: sorted.map(priceOf), rungs: sorted.map((m) => ({ line: propLine(m)!, price: priceOf(m) })), teamAbbr: null });
   }
   return rows.sort((a, b) => Math.abs((a.price.ask ?? 0) - 50) - Math.abs((b.price.ask ?? 0) - 50) || a.player.localeCompare(b.player));
 }

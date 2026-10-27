@@ -6,17 +6,17 @@ describe('route builders: one destination per object', () => {
   it('builds the canonical address for each semantic target', () => {
     expect(routes.team({ slug: 'nfl', id: 'DAL' })).toBe('/v3/team/nfl/DAL');
     expect(routes.team({ slug: 'nfl', id: 'DAL' }, { tab: 'schedule' })).toBe('/v3/team/nfl/DAL?v=1&tab=schedule');
-    expect(routes.player({ slug: 'nfl', id: 'a b' }, { stat: 'rec', line: 6 })).toBe('/v3/player/nfl/a%20b?v=1&stat=rec&line=6');
+    expect(routes.player({ slug: 'nfl', id: 'a b' }, { stat: 'rec', line: 6 })).toBe('/v3/player/nfl/a%20b?v=2&stat=rec&line=6');
     expect(routes.stat({ slug: 'nfl', statId: 'adj_off_epa' }, { sel: 'DAL', opp: 'PHI', win: 'ADJ_RIDGE' })).toBe('/v3/stat/nfl/adj_off_epa?v=1&win=ADJ_RIDGE&sel=DAL&opp=PHI');
     expect(routes.game({ slug: 'nfl', eventId: 'KXNFLGAME-26OCT26DALPHI' }, { tab: 'matchup' })).toBe('/v3/game/nfl/KXNFLGAME-26OCT26DALPHI?v=1&tab=matchup');
     expect(routes.props({ team: 'DAL' })).toBe('/v3/props?v=1&team=DAL');
     expect(routes.props()).toBe('/v3/props');
   });
   it('opens and closes a sheet on top of an address without disturbing the screen state', () => {
-    const s = withSheet('?v=1&win=L5', { kind: 'contract', tk: 'KX-1' });
-    expect(s).toBe('?v=1&win=L5&sheet=contract&tk=KX-1');
+    const s = withSheet('?v=2&win=L5', { kind: 'contract', tk: 'KX-1' });
+    expect(s).toBe('?v=2&win=L5&sheet=contract&tk=KX-1');
     expect(sheetOf(s)).toEqual({ kind: 'contract', tk: 'KX-1' });
-    expect(withSheet(s, null)).toBe('?v=1&win=L5');
+    expect(withSheet(s, null)).toBe('?v=2&win=L5');
     expect(sheetOf('?v=1')).toBeNull();
   });
 });

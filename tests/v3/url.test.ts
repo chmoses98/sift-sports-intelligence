@@ -11,16 +11,16 @@ describe('versioned URL state', () => {
     const a = encode(playerSchema, { win: 'L5', line: 6.5, site: 'away', stat: 'rec' });
     const b = encode(playerSchema, { stat: 'rec', site: 'away', line: 6.5, win: 'L5' });
     expect(a).toBe(b);
-    expect(a).toBe('?v=1&stat=rec&line=6.5&win=L5&site=away');
+    expect(a).toBe('?v=2&stat=rec&line=6.5&win=L5&site=away');
   });
   it('round-trips every field type', () => {
-    const s = { tab: 'matchup', stat: 'rec', line: 6, win: 'H2H', site: 'away', opp: 'PHI', rest: 'short', script: 'close', min: 28, res: 'over', obs: 'g12' } as const;
-    expect(decode(playerSchema, encode(playerSchema, s))).toEqual(s);
+    const s = { tab: 'matchup', stat: 'rec', line: 6, win: 'H2H', site: 'away', opp: 'PHI', tier: 'top', rest: 'short', script: 'close', role: 'snaps', min: 28, res: 'over', obs: 'g12', view: 'replay', rmode: 'h2h' } as const;
+    expect(decode(playerSchema, encode(playerSchema, s))).toMatchObject(s);
     const p = { sport: 'nhl', fam: 'goals', cmp: ['a', 'b'], hide: false, more: 3, model: true };
     expect(decode(propsSchema, encode(propsSchema, p))).toMatchObject({ ...p, cmp: ['a', 'b'] });
   });
   it('never throws on a hostile address and falls back to defaults field by field', () => {
-    const d = decode(playerSchema, '?v=1&win=NOPE&line=abc&min=9999&site=away&tab=%00&obs=');
+    const d = decode(playerSchema, '?v=2&win=NOPE&line=abc&min=9999&site=away&tab=%00&obs=');
     expect(d.win).toBe('L10');
     expect(d.line).toBeNull();
     expect(d.min).toBeNull();
@@ -34,7 +34,7 @@ describe('versioned URL state', () => {
     expect(decode(propsSchema, `?cmp=${'a,'.repeat(40)}`).cmp).toHaveLength(3);
   });
   it('keeps parameters the schema does not own, in a stable order', () => {
-    expect(encode(playerSchema, { win: 'L5' }, '?zeta=1&sheet=contract&tk=KX-1&alpha=2')).toBe('?v=1&win=L5&alpha=2&sheet=contract&tk=KX-1&zeta=1');
+    expect(encode(playerSchema, { win: 'L5' }, '?zeta=1&sheet=contract&tk=KX-1&alpha=2')).toBe('?v=2&win=L5&alpha=2&sheet=contract&tk=KX-1&zeta=1');
     expect(encode(playerSchema, {}, '?sheet=contract&tk=KX-1')).toBe('?sheet=contract&tk=KX-1');
   });
   it('treats parameters without a version as the pre-versioning vocabulary and migrates them', () => {
@@ -62,7 +62,7 @@ describe('versioned URL state', () => {
   });
   it('canonicalises a whole route (legacy vocabulary in, current vocabulary out) and leaves unknown screens alone', () => {
     expect(canonicalRoute('/v3/stat/nfl/adj_off_epa?tab=rankings&team=DAL')).toBe('/v3/stat/nfl/adj_off_epa?v=1&sel=DAL');
-    expect(canonicalRoute('/v3/player/nfl/p1?stat=rec&win=L5')).toBe('/v3/player/nfl/p1?v=1&stat=rec&win=L5');
+    expect(canonicalRoute('/v3/player/nfl/p1?stat=rec&win=L5')).toBe('/v3/player/nfl/p1?v=2&stat=rec&win=L5');
     expect(canonicalRoute('/v3/player/nfl/p1?win=L10')).toBe('/v3/player/nfl/p1');
     expect(canonicalRoute('/v3/explore?q=x')).toBe('/v3/explore?q=x');
     expect(canonicalRoute('/v3/stat/nfl/x?v=1&sel=DAL')).toBe('/v3/stat/nfl/x?v=1&sel=DAL');

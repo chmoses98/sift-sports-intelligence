@@ -75,10 +75,13 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/team/cfb/UGA?demo=1');
     await page.locator('.v3-stile').first().click();
     await expect(page).toHaveURL(/#\/v3\/stat\/cfb\/sample-/);
-    await expect(page.locator('.v3-rkrow').first()).toBeVisible();
+    await expect(page.locator('.st-rkr').first()).toBeVisible();
+    // The locked Stat Detail lists the leaders and the neighbours of the selection; the whole list is one in-place tap away.
+    await page.getByRole('button', { name: /^Show all/ }).click();
+    await expect(page).toHaveURL(/all=1/);
     await page.evaluate(() => window.scrollTo(0, 420));
     const y = await page.evaluate(() => scrollY);
-    await page.locator('.v3-rkrow__t').nth(4).evaluate((e) => (e as HTMLElement).click());
+    await page.locator('.st-rkr a.nm').nth(4).evaluate((e) => (e as HTMLElement).click());
     await expect(page).toHaveURL(/#\/v3\/team\/cfb\//);
     await page.goBack();
     await expect(page).toHaveURL(/#\/v3\/stat\/cfb\/sample-/);

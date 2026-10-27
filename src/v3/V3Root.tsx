@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useLayoutEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from '../routing';
+import { Link, Outlet, useLocation, useNavigate } from '../routing';
 import '@fontsource/geist-sans/400.css';
 import '@fontsource/geist-sans/500.css';
 import '@fontsource/geist-sans/600.css';
@@ -78,10 +78,10 @@ function Shell() {
       <nav className="v3-nav" aria-label="Primary">
         <div className="v3-nav__in">
           {TABS.map((t) => (
-            <NavLink key={t.to} to={t.to} end={t.end} aria-current={active === t.to ? 'page' : undefined} className={() => ''}>
+            <Link key={t.to} to={t.to} aria-current={active === t.to ? 'page' : undefined}>
               <Icon name={t.icon} size={24} fill={t.icon === 'following' && active === t.to} />
               <span>{t.label}</span>
-            </NavLink>
+            </Link>
           ))}
         </div>
       </nav>

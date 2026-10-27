@@ -52,10 +52,21 @@ describe('quote monitor drill (local, loopback only)', () => {
     expect(r.out).toMatch(/\[SKIP\] Relay quote batch: skipped: the feed lists no open contract/);
   }, 60_000);
 
+  it('a finished game is not an outage: GAME_OVER passes with a notice, a partial batch passes, a closed market among open ones is noted', async () => {
+    const r = await drill(['relay-game-over', 'relay-partial', 'relay-closed-among-open', 'relay-first-game-over']);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/\[PASS\] Relay quote batch: GAME_OVER: HTTP 200 with a current observation/);
+    expect(r.out).toMatch(/::notice title=Quote monitor: games over::/);
+    expect(r.out).toMatch(/HTTP 200, 2 of 3 requested markets/);
+    expect(r.out).toMatch(/1 of the 3 returned market\(s\) report settled and are not asserted/);
+    expect(r.out).toMatch(/1 game\(s\) tried first are over/);
+    expect(r.out).not.toMatch(/::error|\[FAIL\]/);
+  }, 60_000);
+
   it('every scenario matches, and nothing outside 127.0.0.1 is contacted', async () => {
     const r = await drill([]);
     expect(r.code).toBe(0);
-    expect(r.out).toMatch(/DRILL PASSED: 15 of 15 scenarios matched/);
+    expect(r.out).toMatch(/DRILL PASSED: 19 of 19 scenarios matched/);
     expect(r.out).not.toMatch(/https:\/\//);
     expect(r.out).not.toMatch(/MISMATCH/);
   }, 120_000);

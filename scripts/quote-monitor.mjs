@@ -52,6 +52,7 @@
 //   SIFT_MONITOR_FEED_MAX_AGE_S      default 600
 //   SIFT_MONITOR_RELAY_MAX_AGE_S     default 60
 //   SIFT_MONITOR_RETRY_DELAY_S       wait before the single retry of a transient failure (default 5)
+//   SIFT_MONITOR_FETCH_TIMEOUT_S     per-request timeout (default 20; the CI drill shortens it for its unroutable-host stage)
 //   SIFT_MONITOR_RELAY_GAMES         how many games to try before an empty relay answer is a failure (default 3)
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -155,6 +156,7 @@ export async function runMonitor({ env = {}, fetchImpl = fetch, now = Date.now, 
     sequenceWindowMs: num(env.SIFT_MONITOR_SEQUENCE_WINDOW_S, LIMITS.sequenceWindowMs / 1000) * 1000,
     pollMs: num(env.SIFT_MONITOR_POLL_S, LIMITS.pollMs / 1000) * 1000,
     retryDelayMs: num(env.SIFT_MONITOR_RETRY_DELAY_S, LIMITS.retryDelayMs / 1000) * 1000,
+    fetchTimeoutMs: Math.max(100, num(env.SIFT_MONITOR_FETCH_TIMEOUT_S, LIMITS.fetchTimeoutMs / 1000) * 1000),
     relayGames: Math.max(1, Math.floor(num(env.SIFT_MONITOR_RELAY_GAMES, LIMITS.relayGames))),
   };
   const requireHeartbeat = flag(env.SIFT_MONITOR_REQUIRE_HEARTBEAT);

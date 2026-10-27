@@ -2,7 +2,7 @@
 // finished game's published score and the verified venue photo (event research). Demo games already carry everything.
 import { useMemo } from 'react';
 import { useLiveQuotes } from '../../live/hooks';
-import { overlayMarket } from '../../live/overlay';
+import { overlayLive } from './liveMarket';
 import { useAsync } from '../../data/hooks';
 import { SportRepo } from '../../data/repo';
 import { resolveSource } from '../../data/source';
@@ -44,7 +44,7 @@ export function useGameExtras(g: V3Game | null, want: 'lines' | 'full', enabled 
     let out = g;
     const d = detail.data;
     if (d) {
-      const overlaid = d.markets.map((m) => overlayMarket(m, live.quote(m.kalshi_ticker)));
+      const overlaid = d.markets.map((m) => overlayLive(m, live.quote(m.kalshi_ticker)));
       out = { ...out, lines: deriveLines(overlaid, g.away, g.home, { away: d.event.away_participant ?? null, home: d.event.home_participant ?? null }) };
     }
     const r = research.data;

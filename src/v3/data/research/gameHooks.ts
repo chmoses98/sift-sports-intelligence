@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 import type { EventDetailDoc, EventResearchDoc, Market } from '../../../contract/types';
 import { useAuthority } from '../../../data/projections';
 import { useLiveQuotes, useNow } from '../../../live/hooks';
-import { overlayMarket } from '../../../live/overlay';
+import { overlayLive } from '../liveMarket';
 import { usablePrice } from '../quoteGate';
 import { priceOf } from '../adapt';
 import type { Price, V3Game } from '../../model/types';
@@ -54,7 +54,7 @@ export function useQuotedPrices(detail: EventDetailDoc | null | undefined, ticke
   const markets = detail?.markets;
   const live = useLiveQuotes(tickers.length ? tickers : undefined, 'detail');
   const byTicker = useMemo(() => new Map<string, Market>((markets ?? []).map((m) => [m.kalshi_ticker, m])), [markets]);
-  return useCallback((ticker: string) => { const m = byTicker.get(ticker); return m ? priceOf(overlayMarket(m, live.quote(ticker))) : null; }, [byTicker, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
+  return useCallback((ticker: string) => { const m = byTicker.get(ticker); return m ? priceOf(overlayLive(m, live.quote(ticker))) : null; }, [byTicker, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /**

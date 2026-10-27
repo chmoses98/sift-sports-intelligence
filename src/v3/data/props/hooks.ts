@@ -5,6 +5,7 @@ import { useAsync } from '../../../data/hooks';
 import { liveStore, useLiveQuotes, useNow } from '../../../live/hooks';
 import { quoteView } from '../../../live/overlay';
 import { demoOn } from '../../state/prefs';
+import { statusFacts } from '../../model/marketStatus';
 import type { Price } from '../../model/types';
 import { gate, type GateResult } from '../quoteGate';
 import { useSlate } from '../useSlate';
@@ -82,11 +83,13 @@ export function useVisibleHistory(rows: Prop[], enabled = true, delay = 220) {
 
 /** A published rung and its live quote as a Price (not yet gated). */
 export function rawPrice(p: Prop, r: PropRung, quote: Parameters<typeof quoteView>[1]): Price {
-  if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume };
+  if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume, tradable: true, marketStatus: 'open' };
   const v = quoteView({ kalshi_ticker: r.ticker, yes_bid: r.bid == null ? null : r.bid / 100, yes_ask: r.ask == null ? null : r.ask / 100, captured_at: r.capturedAt, volume: r.volume }, quote);
-  const ask = v.yesAsk == null || v.yesAsk <= 0 || v.yesAsk >= 1 ? null : Math.round(v.yesAsk * 100);
-  const bid = v.yesBid == null ? null : Math.round(v.yesBid * 100);
-  return { ask, bid, implied: ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: v.observedAt, source: 'Kalshi', volume: v.volume };
+  // The status travels with the observation it came from: a live quote's own word when the live observation is the newer, else the publication's.
+  const sf = statusFacts(v.live && quote ? quote.rawStatus ?? quote.availability : r.status);
+  const ask = !sf.tradable || v.yesAsk == null || v.yesAsk <= 0 || v.yesAsk >= 1 ? null : Math.round(v.yesAsk * 100);
+  const bid = !sf.tradable || v.yesBid == null ? null : Math.round(v.yesBid * 100);
+  return { ask, bid, ...sf, implied: ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: v.observedAt, source: 'Kalshi', volume: v.volume };
 }
 
 export interface PriceReader {

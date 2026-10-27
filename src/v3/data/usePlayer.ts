@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useAsync, useRepo } from '../../data/hooks';
 import { useLiveQuotes } from '../../live/hooks';
-import { overlayMarket } from '../../live/overlay';
+import { overlayLive } from './liveMarket';
 import { sportBySlug } from '../../data/sports';
 import { heroTeam } from '../../lib/hero/input';
 import { broadcastPlayerPhoto } from '../../components/sift2/playerArt';
@@ -111,7 +111,7 @@ function demoVM(slug: string, games: V3Game[]): PlayerVM {
     const pts = 17 + (hash(`${o}${i}`) % 22), ast = 3 + (hash(`a${i}`) % 8), reb = 2 + (hash(`r${i}`) % 6), tp = hash(`t${i}`) % 5;
     return { key: `s${i}`, date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, opp: o, home: i % 2 === 0, v: { pts, ast, reb, fg3m: tp, pra: pts + ast + reb }, min: 28 + (hash(`m${i}`) % 11), margin: ((hash(`g${i}`) % 31) - 12), season: '2026-27', eventId: null, label: `${i % 2 ? '@' : 'vs'} ${o}` };
   });
-  const mk = (stat: string, line: number, ask: number): [string, PropRow] => [stat, { key: `demo|${stat}`, player: 'Sample Guard', playerId: DEMO_PLAYER_ID, stat, statLabel: stat, line, price: { ask, bid: ask - 1, implied: ask - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${line}`, side: 'YES', description: `SAMPLE: Sample Guard over ${line} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' }, ladder: [line - 2, line, line + 2].map((l, i) => ({ ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const })), rungs: [line - 2, line, line + 2].map((l, i) => ({ line: l, price: { ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const } })), teamAbbr: team.abbr }];
+  const mk = (stat: string, line: number, ask: number): [string, PropRow] => [stat, { key: `demo|${stat}`, player: 'Sample Guard', playerId: DEMO_PLAYER_ID, stat, statLabel: stat, line, price: { ask, bid: ask - 1, implied: ask - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${line}`, side: 'YES', description: `SAMPLE: Sample Guard over ${line} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample', tradable: true, marketStatus: 'open' as const }, ladder: [line - 2, line, line + 2].map((l, i) => ({ ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const, tradable: true, marketStatus: 'open' as const })), rungs: [line - 2, line, line + 2].map((l, i) => ({ line: l, price: { ask: ask + (1 - i) * 7, bid: ask + (1 - i) * 7 - 1, implied: ask + (1 - i) * 7 - 0.5, ticker: `SAMPLE-${stat.toUpperCase()}-${l}`, side: 'YES' as const, description: `SAMPLE: Sample Guard over ${l} ${stat}`, observedAt: new Date().toISOString(), source: 'Sample' as const, tradable: true, marketStatus: 'open' as const } })), teamAbbr: team.abbr }];
   return {
     id: DEMO_PLAYER_ID, name: 'Sample Guard', position: 'G', extId: null, team, photo: null, sport: 'NBA', stats: BOX.NBA, obs: withRest(rows), season: '2026-27',
     props: new Map([mk('pts', 27.5, 52), mk('ast', 6.5, 49), mk('reb', 4.5, 51), mk('fg3m', 2.5, 48), mk('pra', 38.5, 50)]),
@@ -166,7 +166,7 @@ export function usePlayerVM(slug: string, pid: string) {
     const sorted = withRest(rows.sort((a, b) => a.date.localeCompare(b.date)));
     // His contracts on the coming game, by stat key.
     const props = new Map<string, PropRow>();
-    for (const r of deriveProps(mine.map((m) => overlayMarket(m, liveQ.quote(m.kalshi_ticker))))) {
+    for (const r of deriveProps(mine.map((m) => overlayLive(m, liveQ.quote(m.kalshi_ticker))))) {
       const key = propStatKey(code, r.stat);
       if (r.playerId === pid && !props.has(key)) props.set(key, { ...r, stat: key });
     }

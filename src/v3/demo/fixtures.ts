@@ -22,7 +22,7 @@ function team(sport: string, code: string, extra: Partial<V3Team> = {}): V3Team 
 }
 
 const price = (ticker: string, ask: number, description: string): Price => ({
-  ask, bid: ask - 1, implied: ask - 0.5, ticker, side: 'YES', description, observedAt: new Date().toISOString(), source: 'Sample',
+  ask, bid: ask - 1, implied: ask - 0.5, ticker, side: 'YES', description, observedAt: new Date().toISOString(), source: 'Sample', tradable: true, marketStatus: 'open',
 });
 function lines(sport: string, away: V3Team, home: V3Team, o: { spread?: [V3Team, number, number]; total?: [number, number]; ml?: [V3Team, number] }): MarketLine[] {
   const out: MarketLine[] = [];

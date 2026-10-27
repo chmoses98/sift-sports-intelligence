@@ -3,7 +3,7 @@ import { gate, maxAgeMs, type QuoteContext } from '../../src/v3/data/quoteGate';
 import type { Price } from '../../src/v3/model/types';
 
 const NOW = Date.parse('2026-10-26T20:00:00Z');
-const at = (ageS: number): Price => ({ ask: 54, bid: 52, implied: 53, ticker: 'KX-1', side: 'YES', description: 'x', observedAt: new Date(NOW - ageS * 1000).toISOString(), source: 'Kalshi' });
+const at = (ageS: number): Price => ({ ask: 54, bid: 52, implied: 53, ticker: 'KX-1', side: 'YES', description: 'x', observedAt: new Date(NOW - ageS * 1000).toISOString(), source: 'Kalshi', tradable: true, marketStatus: 'open' });
 const list = (hoursAway: number | null, live = false): QuoteContext => ({ kind: 'list', startMs: hoursAway == null ? null : NOW + hoursAway * 3600_000, live });
 const contract = (hoursAway: number | null, live = false): QuoteContext => ({ kind: 'contract', startMs: hoursAway == null ? null : NOW + hoursAway * 3600_000, live });
 

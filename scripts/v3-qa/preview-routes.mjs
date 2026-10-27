@@ -10,7 +10,7 @@
 // --write-assets rewrites docs/sift3/qa/impl/preview/local-assets.json (same-origin images and data the crawled routes requested; the build bundles them)
 import { chromium } from '@playwright/test';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { serve } from '../v3-preview/static-server.mjs';
 import { DESIGNS, ROOT_TABS, SWEEPS } from './preview-designs.mjs';
@@ -48,6 +48,7 @@ async function open(label) {
   page.on('requestfinished', (r) => { if (r.url().startsWith(srv.url)) page.__inflight--; });
   page.on('requestfailed', (r) => { if (r.url().startsWith(srv.url)) page.__inflight--; });
   page.__errors = [];
+  page.setDefaultTimeout(12_000);
   page.on('pageerror', (e) => page.__errors.push(String(e).slice(0, 300)));
   await page.goto(srv.url);
   await page.waitForSelector('[data-capture-banner]', { timeout: 30_000 });
@@ -91,17 +92,30 @@ const ctxFor = (page, d) => {
       await settle(page, o.quiet);
     },
     check(what, ok, detail = '') { checks.push({ what, ok: !!ok, ...(detail ? { detail } : {}) }); return !!ok; },
-    /** Structure: selector count (min) and optional text. */
+    /** Structure: selector count (min/max) and optional text; polls for up to `wait` ms (a lazy screen chunk may still be arriving). */
     async has(what, selector, o = {}) {
       const loc = page.locator(selector);
-      const n = await loc.count();
-      let ok = n >= (o.min ?? 1) && (o.max == null || n <= o.max);
-      let detail = `${n} found`;
-      if (ok && o.text) { const txt = (await loc.first().innerText()).replace(/\s+/g, ' '); ok = o.text.test(txt); detail = `${n} found; text "${txt.slice(0, 80)}"`; }
+      const end = Date.now() + (o.wait ?? 8000);
+      let ok = false; let detail = '';
+      for (;;) {
+        const n = await loc.count();
+        ok = n >= (o.min ?? 1) && (o.max == null || n <= o.max);
+        detail = `${n} found`;
+        if (ok && o.text) { const txt = (await loc.first().innerText()).replace(/\s+/g, ' '); ok = o.text.test(txt); detail = `${n} found; text "${txt.slice(0, 90)}"`; }
+        if (ok || Date.now() > end) break;
+        await page.waitForTimeout(250);
+      }
       return t.check(what, ok, detail);
     },
     async text(what, re, selector = '.v3-main') {
-      const txt = (await page.locator(selector).first().innerText()).replace(/\s+/g, ' ');
+      const loc = page.locator(selector).first();
+      const end = Date.now() + 8000;
+      let txt = '';
+      for (;;) {
+        txt = (await loc.innerText().catch(() => '')).replace(/\s+/g, ' ');
+        if (re.test(txt) || Date.now() > end) break;
+        await page.waitForTimeout(250);
+      }
       return t.check(what, re.test(txt), re.test(txt) ? '' : `text was "${txt.slice(0, 120)}"`);
     },
     async hash() { return page.evaluate(() => location.hash); },
@@ -114,6 +128,35 @@ const ctxFor = (page, d) => {
 };
 
 async function shot(page, id) { const f = `${id}.png`; await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(150); await page.screenshot({ path: join(out, f) }); return f; }
+
+// The three derived lists accumulate across runs (a run with --only adds what its designs read; nothing is removed): the build needs the union.
+// They are written after every design so an interrupted crawl keeps what it learned.
+const readJson = (f, d) => (existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : d);
+const union = (a, b) => [...new Set([...(a ?? []), ...b])].sort();
+const isBuilt = (p) => p === '/' || /^\/(assets|snapshot|packs)\//.test(p);
+function derived() {
+  const assets = [...net.local.keys()].filter((p) => !isBuilt(p) && p !== '/favicon.ico').map((p) => p.replace(/^\//, ''));
+  return { assets, assetsOk: assets.filter((p) => existsSync(join('public', p))) };
+}
+function flushDerived() {
+  const { assets, assetsOk } = derived();
+  if (flag('write-missed')) {
+    const f = join(out, 'missed-documents.json');
+    writeFileSync(f, JSON.stringify({ note: 'Published-document URLs the crawled routes requested that the capture does not hold (answered 404).', urls: union(readJson(f, {}).urls, [...net.missed]) }, null, 1) + '\n');
+  }
+  if (flag('write-assets')) {
+    const f = join(out, 'local-assets.json');
+    const old = readJson(f, {});
+    writeFileSync(f, JSON.stringify({ note: 'Same-origin images and data requested by the crawled routes (derived by scripts/v3-qa/preview-routes.mjs --write-assets); the build copies each from public/.', paths: union(old.paths, assetsOk), notInPublic: union(old.notInPublic, assets.filter((p) => !existsSync(join('public', p)))) }, null, 1) + '\n');
+  }
+  if (flag('write-order')) {
+    const f = 'scripts/v3-preview/pack-order.json';
+    const groups = new Map();
+    for (const [u, g] of net.served) (groups.get(g) ?? groups.set(g, []).get(g)).push(sha1(u));
+    const prev = readJson(f, []).filter((g) => !groups.has(g.group));
+    writeFileSync(f, JSON.stringify([...prev, ...[...groups].map(([group, hashes]) => ({ group, hashes }))]) + '\n');
+  }
+}
 
 // ---- first-run Welcome (once) ------------------------------------------------------------------------------------------------------------------
 {
@@ -150,6 +193,7 @@ for (const r of ROOT_TABS) {
   report.roots.push({ id: r.id, title: r.title, path: t.path, pass: t.checks.every((c) => c.ok), checks: t.checks, notes: t.notes, requests: h, screenshot: shotFile, ms: Date.now() - started });
   console.log(`${t.checks.every((c) => c.ok) ? 'PASS' : 'FAIL'} ${r.id} ${r.title}`);
   await page.close();
+  flushDerived();
 }
 
 // ---- the 26 designs ----------------------------------------------------------------------------------------------------------------------------
@@ -166,6 +210,7 @@ for (const d of DESIGNS) {
   report.designs.push({ id: d.id, title: d.title, from: d.from, path: t.path, pass, checks: t.checks, notes: t.notes, requests: h, screenshot: shotFile, ms: Date.now() - started });
   console.log(`${pass ? 'PASS' : 'FAIL'} ${d.id} ${d.title}${pass ? '' : '  <- ' + t.checks.filter((c) => !c.ok).map((c) => `${c.what}: ${c.detail ?? ''}`).join('; ')}`);
   await page.close();
+  flushDerived();
 }
 
 // ---- sweeps: render every list the preview offers once so the assets they show are known (logos, photos) --------------------------------------------
@@ -175,18 +220,18 @@ for (const s of SWEEPS) {
   const t = ctxFor(page, s);
   try { await s.run(t); } catch (e) { t.check('sweep step failed', false, String(e.message ?? e).split('\n')[0]); }
   await harvest(page, s.id);
-  report.sweeps.push({ id: s.id, title: s.title, ok: t.checks.every((c) => c.ok), checks: t.checks });
+  report.sweeps.push({ id: s.id, title: s.title, ok: t.checks.every((c) => c.ok), checks: t.checks, notes: t.notes });
+  console.log(`${t.checks.every((c) => c.ok) ? 'PASS' : 'FAIL'} ${s.id} ${s.title} ${t.notes.join(' ')} ${t.checks.map((c) => `${c.what}: ${c.detail ?? ''}`).join('; ')}`);
   await page.close();
+  flushDerived();
 }
 
 // ---- network assertions --------------------------------------------------------------------------------------------------------------------------
 const origin = srv.url.replace(/\/$/, '');
 const localPaths = [...net.local.keys()];
-const isBuilt = (p) => p === '/' || /^\/(assets|snapshot|packs)\//.test(p);
 const quoteDocs = [...net.served.keys()].filter((u) => /live-quotes\/games\//.test(u));
 const quoteMissed = [...net.missed].filter((u) => /live-quotes\/games\//.test(u));
-const assets = localPaths.filter((p) => !isBuilt(p) && p !== '/favicon.ico').map((p) => p.replace(/^\//, ''));
-const assetsOk = assets.filter((p) => existsSync(join('public', p)));
+const { assets } = derived();
 report.network = {
   origin,
   localRequests: localPaths.length,
@@ -215,13 +260,6 @@ report.summary = { designs: report.designs.length, designsPassed: report.designs
 if (!only) {
   writeFileSync(join(out, 'crawl-report.json'), JSON.stringify(report, null, 1) + '\n');
   writeFileSync(join(out, 'crawl-report.md'), toMarkdown(report));
-}
-if (flag('write-assets')) writeFileSync(join(out, 'local-assets.json'), JSON.stringify({ note: 'Same-origin images and data requested by the crawled routes (derived by scripts/v3-qa/preview-routes.mjs --write-assets); the build copies each from public/.', paths: assetsOk.sort(), notInPublic: assets.filter((p) => !existsSync(join('public', p))).sort() }, null, 1) + '\n');
-if (flag('write-order')) {
-  const groups = new Map();
-  for (const [u, g] of net.served) (groups.get(g) ?? groups.set(g, []).get(g)).push(sha1(u));
-  const ordered = [...groups].map(([group, hashes]) => ({ group, hashes }));
-  writeFileSync('scripts/v3-preview/pack-order.json', JSON.stringify(ordered) + '\n');
 }
 await browser.close(); await srv.close();
 console.log(JSON.stringify(report.summary));

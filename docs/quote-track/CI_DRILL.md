@@ -123,97 +123,49 @@ Locally: `SIFT_QUOTE_RELAY_URL=<relay base> SIFT_MONITOR_FEED_MAX_AGE_S=1 node s
 and exits 1. From a machine with network access this is a read-only check of the real relay and feed from your network. It does
 not show that a GitHub-hosted runner can reach them; section 2 does.
 
-## 2. Running the monitor against the deployed relay in GitHub Actions
+## 2. The staged CI drill on a GitHub-hosted runner (run, with the owner's authorisation)
 
-**Plainly: `workflow_dispatch` only starts a workflow whose file exists on the default branch (`main`).** Until this PR merges,
-`quote-monitor.yml` is not on `main`, so neither the "Run workflow" button nor `gh workflow run quote-monitor.yml` can start it.
-Its `schedule` trigger also only fires from the default branch.
+**Plainly: `workflow_dispatch` only starts a workflow whose file exists on the default branch.** The real `quote-monitor.yml` therefore
+cannot be dispatched, and its `schedule` cannot fire, before this PR merges. What was run instead is a throwaway branch
+`claude/quote-drill` (based on `claude/quote-track`) whose only addition is `.github/workflows/quote-drill.yml`, triggered by a `push` to
+that one branch (and by `workflow_dispatch`, which will not work from a non-default branch). It is not part of this PR and was not
+merged anywhere; the branch is kept for the owner to read and delete.
 
-The least invasive way to get a real Actions run before merging, **which needs your approval and which I have not done**, is a
-throwaway branch with a workflow triggered by `push` to that one branch (a `push` trigger runs the workflow file from the pushed
-branch; no default-branch file is needed). It reads only public URLs, has no secrets and `contents: read`, and reads the relay
-URL from the file itself, so no repository variable is touched.
+| Property | Value |
+| --- | --- |
+| Trigger | `push` to `claude/quote-drill` only (plus `workflow_dispatch`); no schedule, no other branch |
+| Permissions | `contents: read` only; no secret, no token; the only `${{ }}` reference is `vars.SIFT_QUOTE_RELAY_URL` |
+| Concurrency / limit | own group `quote-drill`; `timeout-minutes: 45` |
+| What it touches | GET only: the public feed (`live-quotes` branch on raw.githubusercontent.com), the deployed relay (`SIFT_QUOTE_RELAY_URL`), deliberately wrong hosts and paths, and a fake relay on 127.0.0.1 inside the runner |
+| Command | `node scripts/quote-monitor-drill.mjs --ci` (the local drill script, extended; `--stages=2,3` runs only those) |
+| Verdict | exit 0 only when EVERY stage matched its expectation; otherwise exit 1, an `::error title=Quote drill: stage N did not match (...)` per failed stage, and the step summary table names the item |
+| Output | job log in `::group::` blocks per stage; a markdown table in the step summary; one `::notice` per stage with the observed result of every item (readable from the check-run annotations even where the log cannot be fetched). The monitor's own `::error` lines are neutralised so a forced failure never becomes an annotation on a green run |
 
-1. Create the branch from the track (it already contains `scripts/quote-monitor.mjs`):
+The stages and what each asserts (the script asserts them, not the reader):
 
-   ```
-   git switch -c drill/quote-monitor claude/quote-track
-   ```
+| # | Stage | Expectation, asserted by the script |
+| --- | --- | --- |
+| 1 | healthy, real relay and real feed | monitor PASS (or PASS with `HEARTBEAT_NOT_PUBLISHED`), feed index and freshness pass, and the relay check actually PASSED (a skipped relay check is a mismatch, an unset `SIFT_QUOTE_RELAY_URL` is a named mismatch) |
+| 2 | forced outage against the real relay URL | five forced failures, each must FAIL with its own diagnosis: unroutable host (`relay unreachable: ... ENOTFOUND`, retried once), a black-holed address (`relay unreachable`, timeout, retried once), a wrong path on the real relay host (`relay answered HTTP 4xx`), an impossible relay freshness limit (`newest observation ... old; limit 0s`), an impossible feed limit (`Feed generated_at is recent ... limit 1s`) |
+| 3 | forced 429, empty, delisted, closed, partial (loopback fake relay) | 13 scenarios inside the runner, each with its specified verdict: 429 every time (FAIL, Retry-After reported), 429 once and 503 once (PASS on the single retry), outage, stale, empty, delisted game with another answering (PASS), all games delisted (FAIL), no open contract (SKIP), partial (PASS `2 of 3`), game over (PASS `GAME_OVER`), a closed market among open (PASS, noted), first game over (PASS from the second) |
+| 4 | recovery | loopback: outage then healthy, the healthy run mentions no failure, retry, notice or error; real: relay and feed again after the forced failures, PASS, relay check pass, no `[FAIL]` and no `::error` |
+| 5 | heartbeat on the real feed branch | `health.json` absent: the heartbeat check is the distinct non-failing note `HEARTBEAT_NOT_PUBLISHED`, and only with `SIFT_MONITOR_REQUIRE_HEARTBEAT=1` does the same feed fail on it; `health.json` present: it is readable and its sequence advances. Plus, deterministic on the loopback: heartbeat missing (PASS), stalled (FAIL), missing and required (FAIL). Judged on the heartbeat alone, not on feed freshness |
 
-2. Add `.github/workflows/quote-monitor-drill.yml`. Replace `<RELAY URL>` with the value of the `SIFT_QUOTE_RELAY_URL` variable
-   (`gh variable get SIFT_QUOTE_RELAY_URL`; it is a public URL):
+### What was observed
 
-   ```yaml
-   name: Quote monitor drill (throwaway)
-   on:
-     push:
-       branches: [drill/quote-monitor]
-   permissions:
-     contents: read
-   concurrency:
-     group: quote-monitor-drill
-     cancel-in-progress: true
-   jobs:
-     drill:
-       runs-on: ubuntu-latest
-       timeout-minutes: 20
-       steps:
-         - uses: actions/checkout@v4
-           with:
-             sparse-checkout: scripts
-         - uses: actions/setup-node@v4
-           with:
-             node-version: 22
-         - name: Healthy run against the deployed relay and feed (GET only)
-           run: node scripts/quote-monitor.mjs
-           env:
-             SIFT_QUOTE_RELAY_URL: <RELAY URL>
-         - name: Forced failure (must exit 1 for the drill to count)
-           run: |
-             if node scripts/quote-monitor.mjs; then echo "::error::the forced-failure step passed, so the monitor cannot fail"; exit 1; fi
-             echo "the monitor failed on purpose, as required"
-           env:
-             SIFT_QUOTE_RELAY_URL: <RELAY URL>
-             SIFT_MONITOR_FEED_MAX_AGE_S: '1'
-             SIFT_MONITOR_SEQUENCE_WINDOW_S: '0'
-   ```
+Run ids are read anonymously with `gh api repos/chmoses98/sift-sports-intelligence/actions/runs?branch=claude/quote-drill`. The job log
+itself is NOT readable anonymously (the log download answers 403 `Forbidden`), so what follows comes from the run and job `conclusion`,
+the step timings, and the check-run annotations (the per-stage notices above), which are readable.
 
-   While `health.json` is 404 the first step does not wait. Once the heartbeat is live it also exercises the sequence check
-   and lasts up to 9 minutes (typically 4). Do not set `SIFT_MONITOR_SEQUENCE_WINDOW_S=0` in a healthy step: with a published
-   heartbeat a window of 0 means "do not wait", so the sequence cannot be seen to advance and the check fails.
+RESULTS_PLACEHOLDER
 
-3. Push and watch:
+Local proof of the drill logic (no network): `tests/live/quote-drill-ci.test.ts` (11 tests: every stage against a loopback stand-in for the
+real relay and feed, mismatches fail and name the stage, a forced failure that unexpectedly passes is caught, stage 5 independent of feed
+freshness, the markdown summary, the `--ci` command line and exit codes) and `tests/live/quote-drill-workflow.test.ts` (5, on the drill
+branch only: the workflow text is read-only, secret-free, push-to-branch-only, own concurrency group, timeout).
 
-   ```
-   git add .github/workflows/quote-monitor-drill.yml
-   git commit -m "Throwaway quote monitor drill"
-   git push origin drill/quote-monitor
-   gh run list --branch drill/quote-monitor
-   gh run watch <run-id>
-   gh run view <run-id> --log
-   ```
-
-   Pushing any non-`main` branch also starts `ci.yml` and `visual-baselines.yml` (their `branches-ignore` is `[main, live-quotes]`);
-   that already happens for `claude/quote-track` and is unrelated.
-
-4. Expected, step 1: `RESULT: PASS` or `RESULT: PASS (heartbeat not published yet: not a failure)` while `health.json` is 404;
-   `[PASS] Relay quote batch: HTTP 200, N of N requested markets from games/<KEY>.json, newest observation Ns old; limit 60s`
-   (or `[SKIP]` on a day with no open contracts, which is also correct). Step 2: `[FAIL] Feed generated_at is recent: ... limit 1s`,
-   the `::error` annotation, exit 1, then "the monitor failed on purpose, as required". The failed monitor step inside the
-   wrapper does not fail the job, so no failure email is sent for the drill.
-
-5. Clean up (the owner, after reading the run):
-
-   ```
-   git push origin --delete drill/quote-monitor
-   git switch claude/quote-track && git branch -D drill/quote-monitor
-   ```
-
-   The throwaway workflow never existed on `main`, so nothing remains.
-
-The other way, available only after the owner merges this PR: `gh workflow run quote-monitor.yml -f sequence_window_seconds=0`,
-then `gh run watch`. That also exercises the real `workflow_dispatch` path and the real `vars.SIFT_QUOTE_RELAY_URL` wiring,
-which the throwaway branch deliberately avoids.
+Clean-up (owner): `git push origin --delete claude/quote-drill`. The branch also triggers `ci.yml` (its `branches-ignore` is `[main,
+live-quotes]`), as every non-main branch does.
 
 ## 3. Heartbeat verification in the real publishing loop
 

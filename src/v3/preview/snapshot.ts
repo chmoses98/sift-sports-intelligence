@@ -143,7 +143,7 @@ function openAbout(index: CaptureIndex | null, dbg: CaptureDebug, opener: HTMLEl
     card.append(el('p', 'margin:0', `This is SIFT 3.0 running on a snapshot of real published documents captured ${utcLabel(index.capturedAt)}. It is not live: nothing on it updates, and the prices are the prices at the time of capture. The page clock is fixed at ${utcLabel(dbg.clockAt)} (${CLOCK_LEAD_MS / 1000} seconds before the capture instant), so "today", kickoff times and countdowns describe that moment, not now.`));
     h('What is real');
     list([
-      ...(index.about?.real ?? [`${index.total.toLocaleString('en-US')} published documents.`]),
+      ...(index.about?.real ?? [`${String(index.total).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} published documents.`]),
       'Every document is exactly as published: none was edited, filled in or estimated. The only change to what a document says is listed under What is transformed.',
       ...(index.stamps?.earliest && index.stamps.latest ? [`The documents were collected over several hours: their own generation times run from ${utcLabel(index.stamps.earliest)} to ${utcLabel(index.stamps.latest)}, so some are stamped after the page clock. The page clock is the capture instant, not the newest document.`] : []),
     ]);

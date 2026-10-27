@@ -20,7 +20,7 @@ function Player() {
       <p data-testid="state">{s.win}|{s.line ?? '-'}|{s.site}</p>
       <button onClick={() => set({ win: 'L5' })}>L5</button>
       <button onClick={() => set({ site: 'away' })}>away</button>
-      <button onClick={() => { set({ win: 'L20' }); set({ line: 7 }); }}>two</button>
+      <button onClick={() => { set({ win: 'ALL' }); set({ line: 7 }); }}>two</button>
       <button onClick={() => sheet.open('Filters', <button onClick={() => set({ site: 'home' })}>apply-home</button>)}>filters</button>
       <button onClick={() => sheet.open('Go', <Link to="/team">to-team</Link>)}>link-sheet</button>
       <PriceTap ticker="KX-1">54¢</PriceTap>
@@ -49,7 +49,7 @@ describe('in-place state does not pile up history', () => {
     const u = userEvent.setup();
     await u.click(screen.getByText('L5'));
     await u.click(screen.getByText('away'));
-    expect(loc(r)).toBe('/player?v=1&win=L5&site=away');
+    expect(loc(r)).toBe('/player?v=2&win=L5&site=away');
     expect(screen.getByTestId('state').textContent).toBe('L5|-|away');
     await act(async () => { await r.navigate(-1); });
     expect(loc(r)).toBe('/team');
@@ -57,7 +57,7 @@ describe('in-place state does not pile up history', () => {
   it('several updates in one handler compose', async () => {
     const r = setup();
     await userEvent.setup().click(screen.getByText('two'));
-    expect(loc(r)).toBe('/player?v=1&line=7&win=L20');
+    expect(loc(r)).toBe('/player?v=2&line=7&win=ALL');
   });
   it('navigating forward and Back returns the screen with its exact state', async () => {
     const r = setup();
@@ -66,7 +66,7 @@ describe('in-place state does not pile up history', () => {
     await u.click(screen.getByText('team', { selector: 'a' }));
     expect(loc(r)).toBe('/team');
     await act(async () => { await r.navigate(-1); });
-    expect(loc(r)).toBe('/player?v=1&win=L5');
+    expect(loc(r)).toBe('/player?v=2&win=L5');
     expect(screen.getByTestId('state').textContent).toBe('L5|-|any');
   });
 });
@@ -80,7 +80,7 @@ describe('sheets are part of history', () => {
     await waitFor(() => expect(screen.getByRole('dialog', { name: 'Filters' })).toBeTruthy());
     await act(async () => { await r.navigate(-1); });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(loc(r)).toBe('/player?v=1&win=L5');
+    expect(loc(r)).toBe('/player?v=2&win=L5');
   });
   it('closing with the X steps back, leaving no extra entry', async () => {
     const r = setup(['/team', '/player']);
@@ -97,7 +97,7 @@ describe('sheets are part of history', () => {
     await u.click(screen.getByText('filters'));
     await u.click(await screen.findByText('apply-home'));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(loc(r)).toBe('/player?v=1&site=home');
+    expect(loc(r)).toBe('/player?v=2&site=home');
     expect(screen.getByTestId('state').textContent).toBe('any|-|home'.replace('any', 'L10'));
     await act(async () => { await r.navigate(-1); });
     expect(loc(r)).toBe('/team');
@@ -110,7 +110,7 @@ describe('sheets are part of history', () => {
     await u.click(await screen.findByText('to-team'));
     expect(loc(r)).toBe('/team');
     await act(async () => { await r.navigate(-1); });
-    await waitFor(() => expect(loc(r)).toBe('/player?v=1&win=L5'));
+    await waitFor(() => expect(loc(r)).toBe('/player?v=2&win=L5'));
     expect(screen.queryByRole('dialog')).toBeNull();
     // One more Back leaves the screen: the sheet left no ghost entry behind.
     await act(async () => { await r.navigate(-1); });
@@ -121,18 +121,18 @@ describe('sheets are part of history', () => {
     const u = userEvent.setup();
     await u.click(screen.getByText('L5'));
     await u.click(screen.getByText('54¢'));
-    expect(loc(r)).toBe('/player?v=1&win=L5&sheet=contract&tk=KX-1');
+    expect(loc(r)).toBe('/player?v=2&win=L5&sheet=contract&tk=KX-1');
     expect(await screen.findByRole('dialog', { name: 'Contract KX-1' })).toBeTruthy();
     await act(async () => { await r.navigate(-1); });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(loc(r)).toBe('/player?v=1&win=L5');
+    expect(loc(r)).toBe('/player?v=2&win=L5');
   });
   it('a deep-linked contract sheet opens from the address and closes in place', async () => {
-    const r = setup(['/player?v=1&win=L5&sheet=contract&tk=KX-9']);
+    const r = setup(['/player?v=2&win=L5&sheet=contract&tk=KX-9']);
     expect(await screen.findByRole('dialog', { name: 'Contract KX-9' })).toBeTruthy();
     await userEvent.setup().keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(loc(r)).toBe('/player?v=1&win=L5');
+    expect(loc(r)).toBe('/player?v=2&win=L5');
   });
 });
 
@@ -160,7 +160,7 @@ describe('closing is idempotent', () => {
     await u.click(await screen.findByText('apply-home'));
     await u.click(document.querySelector('.v3-sheet__x') ?? document.body).catch(() => {});
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(loc(r)).toBe('/player?v=1&site=home');
+    expect(loc(r)).toBe('/player?v=2&site=home');
     await act(async () => { await r.navigate(-1); });
     expect(loc(r)).toBe('/team');
   });

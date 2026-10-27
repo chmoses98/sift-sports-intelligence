@@ -78,26 +78,27 @@ try:
     # Locked SD1: a value highlights that team in place (replace history); it does not leave the ranking.
     click('.st-rkr .vl', 2); check('C7 value tap moves the highlight in place on the same ranking', '/v3/stat/cfb/sample-' in H() and 'sel=' in H(), H())
 
-    # ---------- D: player research
+    # ---------- D: player research (locked designs P1 to P3; selectors updated from the pre-lock screen, the behaviour is the same)
     q.open('/v3/player/nba/sample-guard', settle=7)
-    s0 = q.js('return document.querySelector(".v3-sumstrip").innerText')
-    click('.v3-pill', 1); check('D1 changing stat updates the address', 'stat=ast' in H(), H())
-    s1 = q.js('return document.querySelector(".v3-sumstrip").innerText')
+    s0 = q.js('return document.querySelector(".v3p-sum").innerText')
+    click('.v3p-pill', 1); check('D1 changing stat updates the address', 'stat=ast' in H(), H())
+    s1 = q.js('return document.querySelector(".v3p-sum").innerText')
     check('D2 summary strip changes with the stat', s0 != s1)
-    click('.v3-win', 0); check('D3 window L5 selected', 'win=L5' in H(), H())
-    check('D4 chart shows 5 bars', count('.v3-bc__bar')==5, count('.v3-bc__bar'))
-    q.js('document.querySelectorAll(".v3-bc__bar")[2].dispatchEvent(new MouseEvent("click",{bubbles:true}))'); q.wait(0.8); check('D5 bar opens its source game observation', sheet() and q.js('return document.querySelector(".v3-sheet").innerText.includes("Open this game") || document.querySelector(".v3-sheet").innerText.includes("not on the published slate")')); close_sheet()
-    check('D6 closing the sheet keeps the chart state', 'win=L5' in H() and count('.v3-bc__bar')==5)
-    click('.v3-fbtn, .v3-pillrow__f'); check('D7 filters sheet opens', sheet())
-    click('.v3-fs .v3-seg__b', 1)  # Home
-    click('.v3-filters__bar .v3-btn--cyan'); q.wait(0.8)
-    check('D8 filter applied: chip visible and address updated', count('.v3-fchip')==1 and 'site=home' in H(), H())
-    n_home = count('.v3-bc__bar'); check('D9 filter changes the games charted', n_home < 5 or n_home == 5, n_home)
-    click('.v3-fchip'); check('D10 removing the chip clears the filter', count('.v3-fchip')==0 and 'site=' not in H(), H())
+    click('[data-win]', 0); check('D3 window L5 selected', 'win=L5' in H(), H())
+    check('D4 chart shows 5 bars', count('.v3p-hb__bar')==5, count('.v3p-hb__bar'))
+    q.js('document.querySelectorAll(".v3p-hb__bar")[2].dispatchEvent(new MouseEvent("click",{bubbles:true}))'); q.wait(0.8)
+    check('D5 bar opens its observation card (locked design P1: on the page, not a sheet)', count('.v3p-obs')==1 and 'obs=' in H(), H())
+    check('D6 the chart state is kept', 'win=L5' in H() and count('.v3p-hb__bar')==5)
+    click('.v3p-pill--f'); check('D7 filters sheet opens', sheet())
+    click('.v3p-fg[aria-label="Site"] .v3p-fc', 1)  # Home
+    click('.v3p-apply .v3p-btn'); q.wait(0.8)
+    check('D8 filter applied: chip visible, sheet closed, address updated', count('.v3p-fchip')==1 and 'site=home' in H() and not sheet(), H())
+    n_home = count('.v3p-hb__bar'); check('D9 filter changes the games charted', n_home <= 5, n_home)
+    click('.v3p-fchip'); check('D10 removing the chip clears the filter', count('.v3p-fchip')==0 and 'site=' not in H(), H())
     # save research
     close_sheet()
     q.open('/v3/player/nba/sample-guard?stat=pts&win=L10&site=home', settle=6)
-    click('.v3-ph button[aria-label="Save this research"]')
+    click('.v3p-hero__bar button[aria-label="Save this research"]')
     q.open('/v3/following', settle=4)
     check('D11 saved research appears in Following', count('.v3-hit--saved')==1, count('.v3-hit--saved'))
     click('.v3-hit--saved .v3-hit__l')
@@ -105,7 +106,7 @@ try:
     q.open('/v3/following', settle=3); check('D13 saved snapshot is labelled "At save"', 'At save' in q.js('return document.body.innerText'))
     q.open('/v3/player/nba/sample-guard?stat=pts&win=L10&site=away&min=36&script=blowout', settle=6)
     check('D14 impossible filters show "0 games match" and one tap removes them', '0 games match' in q.js('return document.body.innerText'))
-    click('.v3-state button'); check('D15 removing filters restores the chart', count('.v3-bc__bar')>0 and 'site=' not in H(), H())
+    click('.v3p-empty .v3p-link'); check('D15 removing filters restores the chart', count('.v3p-hb__bar')>0 and 'site=' not in H(), H())
 
     # ---------- E: follow vs alerts
     q.open('/v3/team/cfb/UGA', settle=6)

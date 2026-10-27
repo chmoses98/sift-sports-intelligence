@@ -19,44 +19,79 @@ export interface Obs {
   /** The slate event id when the game is a published event. */
   eventId: string | null;
   label: string;
+  /** League week (NFL), when the log carries one. */
+  week?: number | null;
+  /** Share of the team's offensive snaps (0 to 1) and of the team's targets (0 to 1), when the log carries them (NFL history). */
+  snap?: number | null;
+  tgtShare?: number | null;
 }
 
-export type Window = 'L5' | 'L10' | 'L20' | 'SEASON' | 'H2H';
-export const WINDOWS: Window[] = ['L5', 'L10', 'L20', 'SEASON', 'H2H'];
-export const WINDOW_N: Partial<Record<Window, number>> = { L5: 5, L10: 10, L20: 20 };
+/** The locked windows: last 5, last 10, this season, games against the coming opponent, every logged game. */
+export type Window = 'L5' | 'L10' | 'SEASON' | 'H2H' | 'ALL';
+export const WINDOWS: Window[] = ['L5', 'L10', 'SEASON', 'H2H', 'ALL'];
+export const WINDOW_N: Partial<Record<Window, number>> = { L5: 5, L10: 10 };
 
 export interface Filters {
   /** 'home' | 'away' | null */
   site: 'home' | 'away' | null;
   /** Only games against this opponent code (the H2H window sets it implicitly). */
   opp: string | null;
-  /** Days of rest: 'short' (<=6), 'normal' (>=7) */
-  rest: 'short' | 'normal' | null;
-  /** 'close' (margin within 8) | 'blowout' (margin beyond 14) */
-  script: 'close' | 'blowout' | null;
+  /** Days of rest: 'short' (6 or fewer), 'week' (exactly 7), 'long' (8 or more); 'normal' (7 or more) is the pre-lock value. */
+  rest: 'short' | 'week' | 'long' | 'normal' | null;
+  /** 'won' / 'lost' by the final margin; 'close' (margin within 8) | 'blowout' (margin beyond 14) are the pre-lock values. */
+  script: 'won' | 'lost' | 'close' | 'blowout' | null;
   /** Actual minutes played at least this many. */
   minMin: number | null;
+  /** Opponent tier by the opponent's current season rank for the opposing unit (needs `ctx.tierOf`). */
+  tier: 'top' | 'bottom' | null;
+  /** Role: 85% or more of the team's snaps, or 25% or more of its targets. */
+  role: 'snaps' | 'share' | null;
 }
-export const NO_FILTERS: Filters = { site: null, opp: null, rest: null, script: null, minMin: null };
+export const NO_FILTERS: Filters = { site: null, opp: null, rest: null, script: null, minMin: null, tier: null, role: null };
+export const SNAP_ROLE = 0.85;
+export const SHARE_ROLE = 0.25;
+
+export interface FilterContext {
+  /** 'top' (rank 10 or better) / 'bottom' (the worst 10) for an opponent code, or null when its rank is not published. */
+  tierOf?: (opp: string) => 'top' | 'bottom' | null;
+}
 
 export const filtersActive = (f: Filters) => Object.values(f).filter((x) => x != null).length;
 
-export function applyFilters(rows: Obs[], f: Filters): Obs[] {
-  return rows.filter((r) => {
-    if (f.site && (r.home == null || (f.site === 'home') !== r.home)) return false;
-    if (f.opp && r.opp !== f.opp) return false;
-    if (f.rest && (r.rest == null || (f.rest === 'short' ? r.rest > 6 : r.rest < 7))) return false;
-    if (f.script && (r.margin == null || (f.script === 'close' ? Math.abs(r.margin) > 8 : Math.abs(r.margin) <= 14))) return false;
-    if (f.minMin != null && (r.min == null || r.min < f.minMin)) return false;
-    return true;
-  });
+/** A game that is missing the field a filter needs never matches that filter (it is not guessed). */
+export function matchesFilters(r: Obs, f: Filters, ctx: FilterContext = {}): boolean {
+  if (f.site && (r.home == null || (f.site === 'home') !== r.home)) return false;
+  if (f.opp && r.opp !== f.opp) return false;
+  if (f.tier) { const t = ctx.tierOf?.(r.opp) ?? null; if (t !== f.tier) return false; }
+  if (f.rest) {
+    if (r.rest == null) return false;
+    const ok = f.rest === 'short' ? r.rest <= 6 : f.rest === 'week' ? r.rest === 7 : f.rest === 'long' ? r.rest >= 8 : r.rest >= 7;
+    if (!ok) return false;
+  }
+  if (f.script) {
+    if (r.margin == null) return false;
+    const ok = f.script === 'won' ? r.margin > 0 : f.script === 'lost' ? r.margin < 0 : f.script === 'close' ? Math.abs(r.margin) <= 8 : Math.abs(r.margin) > 14;
+    if (!ok) return false;
+  }
+  if (f.role === 'snaps' && (r.snap == null || r.snap < SNAP_ROLE)) return false;
+  if (f.role === 'share' && (r.tgtShare == null || r.tgtShare < SHARE_ROLE)) return false;
+  if (f.minMin != null && (r.min == null || r.min < f.minMin)) return false;
+  return true;
 }
 
-/** The games a window shows, oldest first: the last N of the (filtered) games, this season's, or only those against `opp`. */
+export function applyFilters(rows: Obs[], f: Filters, ctx: FilterContext = {}): Obs[] {
+  return rows.filter((r) => matchesFilters(r, f, ctx));
+}
+
+/**
+ * The pool a window defines, oldest first: the last N games, this season's, those against `opp`, or every logged game.
+ * Filters then narrow WITHIN the window (the locked design: "L10 + Away" is the away games among the last ten).
+ */
 export function sliceWindow(rows: Obs[], w: Window, opp: string | null, season: string | null): Obs[] {
   const sorted = [...rows].sort((a, b) => a.date.localeCompare(b.date));
   if (w === 'H2H') return sorted.filter((r) => opp != null && r.opp === opp);
   if (w === 'SEASON') return sorted.filter((r) => season == null || r.season === season);
+  if (w === 'ALL') return sorted;
   return sorted.slice(-(WINDOW_N[w] ?? 10));
 }
 
@@ -86,13 +121,16 @@ export const referenceLine = (rows: Obs[], stat: string): number | null => {
 /** A small sample is warned about, never hidden. */
 export const smallSample = (n: number) => n < 8;
 
+/** A gap longer than this is an offseason (or a missed season), not days of rest: such a game has no rest figure. */
+export const MAX_REST_DAYS = 21;
+
 /** Fill each row's rest days from the previous row's date. Rows must be sorted oldest first. */
 export function withRest(rows: Omit<Obs, 'rest'>[]): Obs[] {
   const out: Obs[] = [];
   rows.forEach((r, i) => {
     const prev = i ? Date.parse(rows[i - 1].date) : NaN;
     const days = Number.isFinite(prev) ? Math.round((Date.parse(r.date) - prev) / 864e5) : null;
-    out.push({ ...r, rest: days });
+    out.push({ ...r, rest: days != null && days <= MAX_REST_DAYS ? days : null });
   });
   return out;
 }

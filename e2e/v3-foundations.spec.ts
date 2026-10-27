@@ -30,11 +30,11 @@ test.describe('SIFT 3.0 foundations @v3', () => {
 
   test('changing the window in place keeps the page where it is and adds no history entry', async ({ page }) => {
     await go(page, '/v3/player/nba/sample-guard?demo=1');
-    await expect(page.locator('.v3-win').first()).toBeVisible();
+    await expect(page.locator('[data-win]').first()).toBeVisible();
     await scrollTo(page, 180);
     const before = await y(page);
     const len = await histLen(page);
-    await page.locator('.v3-win', { hasText: 'L5' }).click();
+    await page.locator('[data-win="L5"]').click();
     await expect(page).toHaveURL(/win=L5/);
     expect(Math.abs((await y(page)) - before)).toBeLessThanOrEqual(4);
     expect(await histLen(page)).toBe(len);
@@ -42,7 +42,7 @@ test.describe('SIFT 3.0 foundations @v3', () => {
 
   test('a sheet is one history entry: Back closes it and the screen is exactly as it was', async ({ page }) => {
     await go(page, '/v3/player/nba/sample-guard?demo=1');
-    await page.locator('.v3-win', { hasText: 'L5' }).click();
+    await page.locator('[data-win="L5"]').click();
     const url = await hash(page);
     await scrollTo(page, 120);
     const before = await y(page);
@@ -70,10 +70,10 @@ test.describe('SIFT 3.0 foundations @v3', () => {
   test('applying filters from a sheet lands on the screen underneath and Back leaves the screen', async ({ page }) => {
     await go(page, '/v3/explore?demo=1');
     await page.evaluate(() => { location.hash = '#/v3/player/nba/sample-guard?demo=1'; });
-    await expect(page.locator('.v3-win').first()).toBeVisible();
+    await expect(page.locator('[data-win]').first()).toBeVisible();
     await page.getByRole('button', { name: /Research filters/ }).click();
-    await page.getByRole('button', { name: 'Home', exact: true }).click();
-    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await page.getByRole('button', { name: /^Home/ }).click();
+    await page.getByRole('button', { name: /^Show \d+ games?/ }).click();   // locked design P3: the sheet's apply button
     await expect(page).toHaveURL(/site=home/);
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.goBack();
@@ -82,13 +82,13 @@ test.describe('SIFT 3.0 foundations @v3', () => {
 
   test('the shell parameters never become part of a saved or scrolled address', async ({ page }) => {
     await go(page, '/v3/player/nba/sample-guard?demo=1');
-    await page.locator('.v3-win', { hasText: 'L20' }).click();
+    await page.locator('[data-win="ALL"]').click();
     await page.getByRole('button', { name: 'Save this research' }).click();
     await go(page, '/v3/following?demo=1');
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sift3.saved') ?? '[]'));
     expect(saved).toHaveLength(1);
     expect(saved[0]).toMatchObject({ v: 2, kind: 'player', sport: 'nba' });
-    expect(saved[0].route).toMatch(/^\/v3\/player\/nba\/sample-guard\?v=1&/);
+    expect(saved[0].route).toMatch(/^\/v3\/player\/nba\/sample-guard\?v=2&/);
     expect(saved[0].route).not.toMatch(/sheet=|demo=/);
   });
 });

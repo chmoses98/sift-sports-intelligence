@@ -12,9 +12,17 @@ export interface TimeEnv { zone?: string; locale?: string }
 /** A finite epoch-millisecond start (anything else is "no start time"). */
 export const hasStart = (ms: number | null | undefined): ms is number => typeof ms === 'number' && Number.isFinite(ms);
 
-/** The device's IANA time zone ("America/New_York"), or "UTC" when the runtime cannot say. */
+let zoneSeen: { zone: string; at: number } | null = null;
+const clock = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+/** The device's IANA time zone ("America/New_York"), or "UTC" when the runtime cannot say. Asking the runtime costs ~100 microseconds and lists call
+ *  this hundreds of times a render, so the answer is kept for two seconds (the device zone can still change under a running page: travel, settings). */
 export function viewerZone(): string {
-  try { return new Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; }
+  const t = clock();
+  if (zoneSeen && t - zoneSeen.at < 2000) return zoneSeen.zone;
+  let zone = 'UTC';
+  try { zone = new Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { /* UTC */ }
+  zoneSeen = { zone, at: t };
+  return zone;
 }
 
 const cache = new Map<string, Intl.DateTimeFormat>();
@@ -27,18 +35,26 @@ function fmt(zone: string | undefined, locale: string | undefined, key: string, 
   }
   return f;
 }
-// The device zone can change under a running page (travel, settings), so the default zone is resolved on every call, never cached with a formatter.
+// The default zone is resolved by viewerZone() (briefly cached) and is part of every formatter's cache key, so a zone change is picked up.
 const zoneOf = (e?: TimeEnv) => e?.zone ?? viewerZone();
 
 export interface Parts { y: number; m: number; d: number; hh: number; mm: number; ss: number; /** 0 = Sunday */ dow: number }
 
 /** The wall-clock fields of an instant in a zone. */
+const partsCache = new Map<string, Parts>();
 export function parts(ms: number, e?: TimeEnv): Parts {
-  const f = fmt(zoneOf(e), 'en-US', 'parts', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23', weekday: 'short' });
+  const zone = zoneOf(e);
+  const key = `${zone}|${ms}`;
+  const hit = partsCache.get(key);
+  if (hit) return hit;
+  const f = fmt(zone, 'en-US', 'parts', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23', weekday: 'short' });
   const o: Record<string, string> = {};
   for (const p of f.formatToParts(new Date(ms))) o[p.type] = p.value;
   const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(o.weekday);
-  return { y: Number(o.year), m: Number(o.month), d: Number(o.day), hh: Number(o.hour) % 24, mm: Number(o.minute), ss: Number(o.second), dow };
+  const out = { y: Number(o.year), m: Number(o.month), d: Number(o.day), hh: Number(o.hour) % 24, mm: Number(o.minute), ss: Number(o.second), dow };
+  if (partsCache.size > 5000) partsCache.clear(); // a slate has a few hundred distinct starts; the cache only has to outlive one render
+  partsCache.set(key, out);
+  return out;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');

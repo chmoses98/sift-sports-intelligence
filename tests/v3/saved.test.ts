@@ -43,6 +43,10 @@ describe('saved research schema', () => {
     expect(r.snapshot).toEqual([{ label: 'ok', value: '1', asOf: null }]);
     expect(reviveSaved({ ...legacy, snapshot: 'nope' })!.snapshot).toBeUndefined();
   });
+  it('never keeps a frozen price: a saved ask is an old price, shown only through the quote gate, so it is dropped on read', () => {
+    const r = reviveSaved({ ...legacy, snapshot: [{ label: 'Hit rate', value: '6/10', asOf: null }, { label: 'Market ask', value: '49¢', asOf: null }, { label: 'Price', value: '54¢', asOf: null }] })!;
+    expect(r.snapshot).toEqual([{ label: 'Hit rate', value: '6/10', asOf: null }]);
+  });
   it('revives a stored list: drops the unusable, de-duplicates routes, makes ids unique', () => {
     const list = reviveSavedList([legacy, { ...legacy, id: 'rzzz' }, { ...legacy, route: '/v3/team/nfl/DAL', id: 'rabc' }, { nonsense: true }, null]);
     expect(list.map((x) => x.route)).toEqual(['/v3/player/nfl/p1?v=2&stat=rec&line=6&site=away', '/v3/team/nfl/DAL']);

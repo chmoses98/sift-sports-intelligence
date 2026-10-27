@@ -82,7 +82,6 @@ export function Player() {
       chips: savedChips(win, v.filters, v.k),
       snapshot: [
         ...(v.hit.n ? [{ label: 'Hit rate', value: `${v.hit.over}/${v.hit.n}`, asOf: vm.asOf }] : []),
-        ...(v.ask != null ? [{ label: 'Market ask', value: `${v.ask}¢`, asOf: null }] : []),
       ],
     });
   };

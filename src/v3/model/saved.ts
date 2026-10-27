@@ -73,6 +73,8 @@ const cleanSnapshot = (raw: unknown): SnapshotItem[] | undefined => {
     .filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
     .map((x) => ({ label: str(x.label, 40), value: str(x.value, 40), asOf: typeof x.asOf === 'string' ? x.asOf.slice(0, 40) : null }))
     .filter((x) => x.label && x.value)
+    // A saved record never carries a price: a frozen price is an old price, and a price is shown only while the quote gate passes it.
+    .filter((x) => !/¢|\bask\b|\bodds\b/i.test(`${x.label} ${x.value}`))
     .slice(0, 6);
   return out.length ? out : undefined;
 };

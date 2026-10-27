@@ -355,6 +355,82 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     expect(await page.locator('body').innerText()).not.toMatch(/\b(ago|stale|last known|last updated|updated)\b/i);
   });
 
+  test('PD6 exact contract: Over price, implied pre-fee, taker fee and break-even; neighbouring rungs switch in place; Research and Back to list', async ({ page }) => {
+    const { path } = await listWithResearchableRow(page);
+    const row = page.locator('.pd-row:has(a.pd-av):has(a.pd-chip[data-tap="stat"])').first();
+    await center(row);
+    const rowBefore = await snap(page);
+    await row.locator('a.pd-px').click();
+    const sheet = page.getByRole('dialog', { name: 'Exact contract' });
+    await expect(sheet).toBeVisible();
+    await expect(sheet.locator('[data-state="price"]')).toContainText('Ask');
+    await expect(sheet.locator('[data-state="price"]')).toContainText('pre-fee');
+    await expect(sheet.locator('[data-state="fee"]')).toContainText('Taker fee at');
+    await expect(sheet.locator('[data-state="fee"]')).toContainText('Fee-aware break-even');
+    await expect(sheet.locator('code')).toContainText(/^KX/);
+    await expect(sheet.locator('.v3c-head')).toContainText(/ at .* · Kalshi YES/);
+    expect(await sheet.innerText()).not.toMatch(/\b(ago|stale|last known|last updated|updated|fresh)\b/i);
+    expect(await sheet.innerText()).not.toMatch(/\b(edge|value bet)\b/i);
+    // Neighbouring rungs: tapping one swaps the contract in place (no new history entry).
+    const nb = sheet.locator('.v3c-nr');
+    if (await nb.count() > 1) {
+      const len = await histLen(page);
+      const tk0 = await sheet.locator('code').innerText();
+      await nb.filter({ hasNot: page.locator('[aria-pressed="true"]') }).first().click();
+      await expect.poll(async () => (await sheet.locator('code').innerText()) !== tk0).toBe(true);
+      expect(await histLen(page)).toBe(len);
+    }
+    // Back to list closes the sheet and leaves the list as it was.
+    await sheet.getByRole('link', { name: 'Back to list' }).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    expect(await hash(page)).not.toMatch(/sheet=/);
+    expect(path).toBeTruthy();
+    expect((await snap(page)).hash.replace(/&?tk=[^&]*/, '')).toContain('view=list');
+    expect(rowBefore.hash).toContain('view=list');
+    // Research from the sheet: the destination, then Back lands on the list with every sheet closed.
+    await center(row);
+    await row.locator('a.pd-px').click();
+    await expect(sheet).toBeVisible();
+    await sheet.getByRole('link', { name: /^Research / }).click();
+    await expect.poll(() => hash(page)).toMatch(PLAYER);
+    await page.goBack();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.locator('.pd-row').first()).toBeVisible();
+  });
+
+  test('PD6 missing price: "Price unavailable right now" with Retry, fee and break-even hidden; Retry recovers when a quote exists', async ({ page }) => {
+    let withhold = true;
+    await freshQuotes(page, { omit: () => withhold });
+    await listWithResearchableRow(page);
+    const row = page.locator('.pd-row:has(a.pd-av)').first();
+    await center(row);
+    await expect(row.locator('a.pd-px')).toHaveClass(/is-none/);
+    await row.locator('a.pd-px').click();
+    const sheet = page.getByRole('dialog', { name: 'Exact contract' });
+    await expect(sheet).toBeVisible();
+    await expect(sheet.locator('[data-state="unavailable"]')).toContainText('Price unavailable right now');
+    await expect(sheet.getByRole('button', { name: 'Retry' })).toBeVisible();
+    const txt = await sheet.innerText();
+    expect(txt).not.toMatch(/Taker fee|break-even|Implied|\d+¢/);
+    await expect(sheet.locator('[data-state="fee"]')).toHaveCount(0);
+    expect(txt).not.toMatch(/\b(ago|stale|last known|last updated|updated)\b/i);
+    withhold = false;
+    await sheet.getByRole('button', { name: 'Retry' }).click();
+    await expect(sheet.locator('[data-state="price"]')).toBeVisible({ timeout: 20_000 });
+    await expect(sheet.locator('[data-state="fee"]')).toContainText('Fee-aware break-even');
+  });
+
+  test('PD6 deep link: a shared contract address opens the sheet over the list with the contract resolved', async ({ page }) => {
+    await listWithResearchableRow(page);
+    const dest = await page.locator('.pd-row a.pd-px').first().getAttribute('data-dest');
+    expect(dest).toMatch(CONTRACT);
+    await go(page, dest!);
+    const sheet = page.getByRole('dialog', { name: 'Exact contract' });
+    await expect(sheet).toBeVisible({ timeout: 60_000 });
+    await expect(sheet.locator('.v3c-head b')).toContainText(/: \d+\+ /);
+    await page.goBack().catch(() => undefined);
+  });
+
   test('missing data is honest: History "—" where no game log exists, SIFT model "—" with its reason, no matchup chip where no ranking', async ({ page }) => {
     await open(page, '/v3/props?v=1&view=list&sport=mlb');
     test.skip((await page.locator('.pd-row').count()) === 0, 'no MLB props on this slate');

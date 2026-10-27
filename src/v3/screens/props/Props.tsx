@@ -11,11 +11,20 @@ import { PropsCompare } from './Compare';
 import { PropsHome } from './PropsHome';
 import { PropsList } from './PropsList';
 import { useSlate } from '../../data/useSlate';
+import { useLocation } from '../../../routing';
+import { useHistoryBank } from '../../data/props/bank';
+import { usePublishContracts } from './contracts';
 
 export function Props() {
   const [st, set] = useRouteState(propsSchema);
   const { universe, loading, error } = usePropUniverse();
   const slate = useSlate();
+  // A shared address (?sheet=contract&tk=…) opened cold: the sheet needs the contract's own prop even before any row is on screen.
+  const loc = useLocation();
+  const bank = useHistoryBank();
+  const tk = new URLSearchParams(loc.search).get('tk');
+  const owner = universe && tk ? universe.byId.get(tk.split('-').slice(0, -1).join('-')) ?? null : null;
+  usePublishContracts([owner], bank.get, bank.getVersion());
   if (!universe) {
     return (
       <div className="pd" data-view="loading">

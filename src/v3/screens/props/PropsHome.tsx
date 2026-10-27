@@ -12,6 +12,7 @@ import { useNow } from '../../../live/hooks';
 import { routes } from '../../nav/routes';
 import { PropsLink } from '../../nav/Targets';
 import { Icon } from '../../ui/Icon';
+import { usePublishContracts } from './contracts';
 import { Avatar, lanesFor, Mark, NameLine, OppChip, PricePill, type Lanes } from './parts';
 import { rungFor } from '../../data/props/query';
 
@@ -72,6 +73,7 @@ export function PropsHome({ universe }: { universe: Universe }) {
   const cards = useMemo(() => [...model.rows, ...bottom.rows], [model, bottom]);
   useVisibleHistory(cards);
   const reader = usePropPrices(cards, null);
+  usePublishContracts(cards, bank.get, bank.getVersion());
   const cardOf = (p: Prop) => {
     const r = rungFor(p, null);
     const price = reader.priceOf(p, r);

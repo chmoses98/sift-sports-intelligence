@@ -17,6 +17,7 @@ import { removeSaved, saveResearch, useSaved } from '../../state/prefs';
 import { Icon } from '../../ui/Icon';
 import { useSheet } from '../../ui/Sheet';
 import { useQueryPatch } from '../../state/url';
+import { usePublishContracts } from './contracts';
 import { FilterSheet } from './FilterSheet';
 import { chipBeside, columnWidth, PEEK_EST, resetMeasure, rowHeight } from './layout';
 import { Peek, type PeekBits } from './Peek';
@@ -172,6 +173,8 @@ export function PropsList({ st, set, universe }: { st: ListState; set: SetState;
   const visible = useMemo(() => list.slice(vis[0], vis[1]), [list, vis]);
   useVisibleHistory(useMemo(() => (expProp ? [...visible, expProp] : visible), [visible, expProp]));
   const reader = usePropPrices(visible, expProp);
+  const cmpForSheet = st.cmp.map((t) => universe.byId.get(parseRef(t)?.id ?? '') ?? null);
+  usePublishContracts([...visible, expProp, ...cmpForSheet], bank.get, bank.getVersion());
   const bits: PeekBits = { reader, get: bank.get };
 
   // ---- selections (compare): at most three, in the address

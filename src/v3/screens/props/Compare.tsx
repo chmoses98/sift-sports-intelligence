@@ -13,6 +13,7 @@ import type { Prop, Universe } from '../../data/props/types';
 import { routes } from '../../nav/routes';
 import { GameLink, PlayerLink, PriceTap, StatLink } from '../../nav/Targets';
 import { Icon } from '../../ui/Icon';
+import { usePublishContracts } from './contracts';
 import { Avatar, lastName, playerRef, playerState, Spark } from './parts';
 import { ordinal as ord } from '../../../lib/format';
 
@@ -24,6 +25,7 @@ export function PropsCompare({ st, universe }: { st: ListState; universe: Univer
   const cols = useMemo(() => st.cmp.map((t) => { const r = parseRef(t); const p = r ? universe.byId.get(r.id) : undefined; return p ? { p, k: rungFor(p, r!.k).k } : null; }).filter((x): x is { p: Prop; k: number } => !!x), [st.cmp, universe]);
   useVisibleHistory(useMemo(() => cols.map((c) => c.p), [cols]));
   const reader = usePropPrices(useMemo(() => cols.map((c) => c.p), [cols]), null);
+  usePublishContracts(cols.map((c) => c.p), bank.get, bank.getVersion());
   const back = () => { if (loc.key !== 'default') nav(-1); else nav(routes.props({ view: 'list', cmp: st.cmp, cmpm: true }), { replace: true }); };
   const grid = { gridTemplateColumns: `58px repeat(${Math.max(cols.length, 1)}, minmax(0, 1fr))` };
   const row = (cap: React.ReactNode, f: (c: { p: Prop; k: number }) => React.ReactNode, cls = '') => (

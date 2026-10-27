@@ -20,10 +20,11 @@ const kindOf = (u: string): string => {
   return 'shell';
 };
 
-async function setup(page: Page) {
+async function useSetup(page: Page) {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
   await page.clock.setFixedTime(feedNow());
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- a Playwright helper, not a React hook
   const log = await useRealFeeds(page);
   await freshQuotes(page);
   return log;
@@ -38,7 +39,7 @@ const tally = (urls: string[]) => {
 const documents = (served: string[]) => [...new Set(served)];
 
 test('the first screen of the list stays inside its document and byte budget', async ({ page }) => {
-  const log = await setup(page);
+  const log = await useSetup(page);
   await page.goto('./#/v3/props?view=list');
   await page.waitForSelector('.pd-row', { timeout: 90_000 });
   await page.waitForTimeout(5000); // lazy reads that follow the first paint (availability for rows near the top, rankings) are part of the screen
@@ -63,7 +64,7 @@ test('the first screen of the list stays inside its document and byte budget', a
 });
 
 test('the first screen of the home stays inside the same budget', async ({ page }) => {
-  const log = await setup(page);
+  const log = await useSetup(page);
   await page.goto('./#/v3/props');
   await page.waitForSelector('.pd-card', { timeout: 90_000 });
   await page.waitForTimeout(5000);
@@ -78,7 +79,7 @@ test('the first screen of the home stays inside the same budget', async ({ page 
 });
 
 test('a longer horizon reads only the extra games, once each, and says what it costs', async ({ page }) => {
-  const log = await setup(page);
+  const log = await useSetup(page);
   await page.goto('./#/v3/props?view=list');
   await page.waitForSelector('.pd-row', { timeout: 90_000 });
   await page.waitForTimeout(4000);
@@ -87,6 +88,7 @@ test('a longer horizon reads only the extra games, once each, and says what it c
   await expect(bar.getByRole('button', { name: /^48 hours/ })).toHaveAttribute('aria-pressed', 'true');
   // The cost is stated before the longer horizon is chosen.
   await expect(bar.locator('.pd-hz__st')).toContainText(/7 days adds \d+ games \(about [\d.]+ (MB|KB)\)/);
+  const statedText = await bar.locator('.pd-hz__st').textContent();
   const adds = Number(/7 days adds (\d+) games/.exec((await bar.locator('.pd-hz__st').textContent()) ?? '')?.[1]);
   expect(adds).toBeGreaterThan(0);
   const histBefore = await page.evaluate(() => history.length);
@@ -100,6 +102,12 @@ test('a longer horizon reads only the extra games, once each, and says what it c
   const after = documents(log.served).filter((u) => kindOf(u) === 'contracts');
   const fresh = after.filter((u) => !before.includes(u));
   expect(fresh.length, 'only the extra games are read').toBe(adds);
+  // The stated cost is an estimate from the board rows: it must be of the right size (within 40% of what was really read).
+  const stated = /7 days adds \d+ games \(about ([\d.]+) (MB|KB)\)/.exec(statedText ?? '');
+  const statedBytes = Number(stated?.[1]) * (stated?.[2] === 'MB' ? 1_000_000 : 1000);
+  const actual = wire(fresh);
+  console.log(JSON.stringify({ stated: statedBytes, actual }));
+  expect(Math.abs(statedBytes - actual) / actual, 'the stated cost is close to the cost').toBeLessThan(0.4);
   expect(log.served.filter((u) => before.includes(u) && kindOf(u) === 'contracts').length, 'the first games are not read again').toBe(before.length);
   // Back from a sheet or a detail keeps the horizon: it is part of the address.
   await page.reload();

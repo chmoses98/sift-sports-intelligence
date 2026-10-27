@@ -196,7 +196,8 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
   const missing = bank.missing(histRefs);
   const pending = bank.pending(histRefs);
   const histPlayers = new Set(histRefs.map((r) => r.key)).size;
-  useEffect(() => { if (needsHist && missing > 0 && missing <= AUTO_LOGS) historyBank.ensure(histRefs); }, [needsHist, missing, histRefs]);
+  // Only once every game is read: on a partial universe the count of missing logs grows, and a few at a time would add up past the stated limit.
+  useEffect(() => { if (needsHist && universe.complete && missing > 0 && missing <= AUTO_LOGS) historyBank.ensure(histRefs); }, [needsHist, universe.complete, missing, histRefs]);
   const costKb = useMemo(() => { const seen = new Map<string, number>(); for (const r of histRefs) if (!bank.get(r.key)) seen.set(r.key, LOG_KB[r.slug] ?? 20); return [...seen.values()].reduce((a, b) => a + b, 0); }, [histRefs, bank.getVersion()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- what is on screen
@@ -276,7 +277,7 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
       <ActiveChips st={st} set={set} hiddenN={hiddenN} game={gameProp} />
       <div className="pd-leg" aria-label="Lane key"><span>Market <Mark lane="m" /> pre-fee implied</span><span>History <Mark lane="h" /> last 10</span><span>SIFT model <Mark lane="z" /></span></div>
       <div className="pd-note"><Icon name="info" size={13} /><p>SIFT model shows “—” where no approved estimate exists: {published} of {universe.props.length} props today.</p></div>
-      {needsHist && histSum && (
+      {needsHist && histSum && (histSum.total > 0 || universe.complete) && (
         <div className="pd-hbar" role="status" data-evaluated={histSum.evaluated} data-total={histSum.total}>
           <p className="pd-hbar__t"><b>Evaluated {histSum.evaluated} of {histSum.total}</b> props</p>
           <p className="pd-hbar__d">

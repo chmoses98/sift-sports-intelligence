@@ -67,12 +67,12 @@ test.describe('the captured slate (real documents) in real viewer zones', () => 
         expect(plain(await page.locator('.v3-gh__when').textContent())).toContain(`${z.word} · ${z.clock}`);
       });
 
-      test(`Prop Discovery: DAL at PHI rows read ${z.word === 'Today' ? z.clock : `Tomorrow ${z.clock}`}`, async ({ page }) => {
+      test(`Prop Discovery: DAL at PHI rows read ${z.word === 'Today' ? z.clock : `Tue ${z.clock}`}`, async ({ page }) => {
         await boot(page);
         await go(page, '/v3/props?v=1&view=list&sport=nfl', '.pd-row');
         const row = page.locator('.pd-row', { hasText: /DAL at PHI|PHI at DAL/ }).first();
         await expect(row).toBeVisible({ timeout: 30_000 });
-        const want = z.word === 'Today' ? z.clock : `Tomorrow ${z.clock}`;
+        const want = z.word === 'Today' ? z.clock : `Tue ${z.clock}`; // tomorrow is named by its weekday in a row
         expect(plain(await row.textContent())).toMatch(new RegExp(`DAL at PHI · ${want.replace(/\s/g, '\\s')}`));
       });
     });

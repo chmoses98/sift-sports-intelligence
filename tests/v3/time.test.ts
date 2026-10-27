@@ -146,9 +146,9 @@ describe('day words and groupings', () => {
     expect(plain(whenWords(t('2026-10-30T23:00:00Z'), now, NY))).toBe('Fri 7:00 PM');
     expect(plain(whenWords(t('2026-11-15T18:00:00Z'), now, NY))).toBe('Nov 15 1:00 PM');
   });
-  it('compactWhen is just the clock tonight, then Tomorrow / weekday / date', () => {
+  it('compactWhen is just the clock tonight, then weekday / date', () => {
     expect(plain(compactWhen(t('2026-10-28T00:15:00Z'), now, NY))).toBe('8:15 PM');
-    expect(plain(compactWhen(t('2026-10-29T00:15:00Z'), now, NY))).toBe('Tomorrow 8:15 PM');
+    expect(plain(compactWhen(t('2026-10-29T00:15:00Z'), now, NY))).toBe('Wed 8:15 PM'); // tomorrow, named by its weekday: the week is unambiguous and the row is narrow
     expect(plain(compactWhen(t('2026-10-31T00:15:00Z'), now, NY))).toBe('Fri 8:15 PM');
     expect(plain(compactWhen(t('2026-11-15T18:00:00Z'), now, NY))).toBe('Nov 15 1:00 PM');
   });

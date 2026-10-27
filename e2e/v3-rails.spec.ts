@@ -31,15 +31,18 @@ const facts = (page: Page, sel: string, hitSel?: string): Promise<RailFacts> => 
   const tops = kids.map((k) => Math.round(k.getBoundingClientRect().top));
   const lefts = kids.map((k) => k.getBoundingClientRect().left);
   const targets = h ? [...rail.querySelectorAll<HTMLElement>(h)] : kids;
-  // A 44 pt target: the point 21 pt above and below the target's centre still answers to the target.
+  // A 44 pt target: the control itself, or the ::after that grows it, is 44 pt tall AND the rail's own box is tall enough not to clip that area
+  // (a neighbouring row's own grown target may overlap it; that is the design, so a hit-test would say nothing about clipping).
   const hit = targets.map((k) => {
     const r = k.getBoundingClientRect();
     const railR = rail.getBoundingClientRect();
-    const vl = Math.max(r.left, railR.left, 0), vr = Math.min(r.right, railR.right, innerWidth); // the part of the chip that is on screen
-    if (vr - vl < 12) return 44; // scrolled out of the rail: not hit-testable here
-    const cx = (vl + vr) / 2;
-    const up = document.elementFromPoint(cx, r.top + r.height / 2 - 21), dn = document.elementFromPoint(cx, r.top + r.height / 2 + 21);
-    return (up && k.contains(up) ? 1 : 0) + (dn && k.contains(dn) ? 1 : 0) === 2 ? 44 : 0;
+    const vl = Math.max(r.left, railR.left, 0), vr = Math.min(r.right, railR.right, innerWidth);
+    if (vr - vl < 12) return 44; // scrolled out of the rail: nothing to measure here
+    const after = parseFloat(getComputedStyle(k, '::after').height);
+    const area = Math.max(r.height, Number.isFinite(after) && getComputedStyle(k, '::after').content !== 'none' ? after : 0);
+    const mid = r.top + r.height / 2;
+    const clipped = railR.top > mid - 22 + 0.5 || railR.bottom < mid + 22 - 0.5;
+    return area >= 43.5 && !clipped ? 44 : 0;
   });
   return {
     count: kids.length, rows: new Set(tops).size, overflowX: cs.overflowX, snap: cs.scrollSnapType, scrollbar: cs.scrollbarWidth, scrollW: rail.scrollWidth, clientW: rail.clientWidth,
@@ -85,6 +88,13 @@ for (const w of WIDTHS) {
       await go(page, '/v3/props', '.pd-rail a');
       expectRail(await facts(page, '.pd-rail', 'a'), w, 'Props sport rail');
       expectRail(await facts(page, '.pd-fams', 'a'), w, 'Props statistic rail');
+    });
+
+    test('Prop Discovery list: the sort, filter and compare controls and the applied-filter chips are single rows', async ({ page }) => {
+      await go(page, '/v3/props?v=1&view=list&sport=nfl', '.pd-ctrl .pd-btn');
+      expectRail(await facts(page, '.pd-ctrl', '.pd-btn'), w, 'Props controls');
+      await page.waitForSelector('.pd-act button');
+      expectRail(await facts(page, '.pd-act', 'button'), w, 'Props applied-filter chips');
     });
 
     test('Game props tab: statistic chips are a single scrolling rail', async ({ page }) => {

@@ -74,14 +74,14 @@
 .v3 .pd-m { color: var(--lane-market); } .v3 .pd-hc { color: var(--lane-history); } .v3 .pd-z { color: var(--lane-sift); }
 
 /* ---- list controls */
-.v3 .pd-ctrl { display: flex; gap: 6px; padding: 4px 16px 0; align-items: center; flex-wrap: wrap; }
+.v3 .pd-ctrl { display: flex; gap: 6px; padding: 6px 16px; margin: -2px 0 -6px; align-items: center; } /* rail: 6px above and below the 32px buttons keep their 44 pt hit area inside the scroll box */
 .v3 .pd-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; font: 500 12px/1 var(--f-ui); color: var(--t2); background: var(--s-chip); border: 1px solid var(--s-chip-bd); white-space: nowrap; position: relative; }
 .v3 .pd-btn::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 44px; transform: translateY(-50%); }
 .v3 .pd-btn--sort { color: #e9edf1; font-size: 12.5px; }
 .v3 .pd-btn b { color: var(--sift-dim); font-weight: 500; }
 .v3 .pd-btn i.pd-badge { background: var(--sift-cyan); color: var(--on-cyan); border-radius: 9px; min-width: 18px; height: 18px; display: grid; place-items: center; font: 700 11px var(--f-ui); font-style: normal; padding: 0 4px; }
 .v3 .pd-btn[aria-pressed='true'] { color: #5fe0ee; border-color: rgba(25, 205, 224, 0.26); background: rgba(25, 205, 224, 0.06); }
-.v3 .pd-act { display: flex; gap: 6px; padding: 8px 16px 0; flex-wrap: wrap; }
+.v3 .pd-act { display: flex; gap: 6px; padding: 8px 16px; margin-bottom: -8px; } /* rail: 8px above and below the 28px chips keep their 44 pt hit area inside the scroll box */
 .v3 .pd-act button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 14px; font: 500 12px/1 var(--f-ui); color: #5fe0ee; border: 1px solid rgba(25, 205, 224, 0.26); background: rgba(25, 205, 224, 0.06); position: relative; max-width: 100%; }
 .v3 .pd-act button::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 44px; transform: translateY(-50%); }
 .v3 .pd-leg { display: flex; gap: 14px; padding: 10px 16px 0; font: 600 11px/14px var(--f-ui); color: var(--sift-muted); flex-wrap: wrap; }

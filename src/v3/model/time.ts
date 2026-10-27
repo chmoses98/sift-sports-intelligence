@@ -162,13 +162,14 @@ export function whenWords(ms: number | null | undefined, now: number = Date.now(
   return `${n > -1 && n < 6 ? weekdayShort(ms, e) : monthDay(ms, e)} ${clockTime(ms, e)}`;
 }
 
-/** A row's start: just the clock tonight ("8:15 PM"), then "Tomorrow 8:15 PM", a weekday within the week ("Thu 8:15 PM"), a date beyond ("Nov 3 8:15 PM"). "" without a start. */
+/** A row's start, short enough for a phone row: just the clock tonight ("8:15 PM"), a weekday within the coming week ("Tue 8:15 PM"), a date beyond ("Nov 3 8:15 PM").
+ *  (The week is unambiguous, so no "Tomorrow": it does not fit a 320 pt row.) "" without a start. */
 export function compactWhen(ms: number | null | undefined, now: number = Date.now(), e?: TimeEnv): string {
   const n = dayOffset(ms, now, e);
   if (n == null) return '';
   const at = clockTime(ms, e);
   if (n === 0) return at;
-  const day = n === 1 ? 'Tomorrow' : n === -1 ? 'Yesterday' : n > 1 && n < 6 ? weekdayShort(ms, e) : monthDay(ms, e);
+  const day = n > 0 && n < 6 ? weekdayShort(ms, e) : monthDay(ms, e);
   return `${day} ${at}`;
 }
 

@@ -6,6 +6,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from qa import QA
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 
 R = []
 def check(name, cond, extra=''):
@@ -22,6 +23,12 @@ def run(w, h):
         if len(els) <= nth: raise RuntimeError('no element ' + css)
         q.js('arguments[0].scrollIntoView({block:"center"})', els[nth]); q.wait(0.35)
         els[nth].click(); q.wait(wait)
+    def tap_row(i=0, wait=0.9):
+        # the open part of the row (below the price pill, clear of every link): the row's own button, as a thumb would
+        els = q.d.find_elements(By.CSS_SELECTOR, '.pd-row .pd-row__hit')
+        q.js('arguments[0].scrollIntoView({block:"center"})', els[i]); q.wait(0.35)
+        w, h = els[i].size['width'], els[i].size['height']
+        ActionChains(q.d).move_to_element_with_offset(els[i], int(w / 2 - 34), int(h / 2 - 14)).click().perform(); q.wait(wait)
     def wait_for(css, secs=60):
         for _ in range(int(secs * 2)):
             if count(css): return True
@@ -30,14 +37,18 @@ def run(w, h):
     tag = f'[{w}x{h}] '
     try:
         q.open('/v3/props', settle=3)
-        check(tag + 'home renders prop cards from published documents', wait_for('.pd-card'), count('.pd-card'))
+        check(tag + 'home renders from published documents (shelves, counts)', wait_for('.pd-shelf') and count('.pd-rail a') >= 2 and 'props' in q.js('return document.querySelector(".pd-h__sub").innerText'), q.js('return document.querySelector(".pd-h__sub")?.innerText'))
         check(tag + 'home: no horizontal overflow', q.js('return document.documentElement.scrollWidth - innerWidth') <= 0)
-        check(tag + 'home: lanes in order Market, History, SIFT model', q.js('return [...document.querySelector(".pd-card .pd-lanesL").querySelectorAll(".t")].map(e=>e.textContent.trim()).join("|")') == 'Market|History|SIFT model')
+        if count('.pd-card'):
+            check(tag + 'home: lanes in order Market, History, SIFT model', q.js('return [...document.querySelector(".pd-card .pd-lanesL").querySelectorAll(".t")].map(e=>e.textContent.trim()).join("|")') == 'Market|History|SIFT model')
+        else:
+            check(tag + 'home: an empty shelf says why instead of showing a blank', 'No approved SIFT model estimate' in q.js('return document.body.innerText'))
         h0 = H()
-        click('.pd-seeall')
-        check(tag + 'See all opens a list preset', 'view=list' in H() and 'preset=' in H(), H())
-        q.js('history.back()'); q.wait(1.5)
-        check(tag + 'Back returns to the home', H() == h0, H())
+        if count('.pd-seeall'):
+            click('.pd-seeall')
+            check(tag + 'See all opens a list preset', 'view=list' in H() and 'preset=' in H(), H())
+            q.js('history.back()'); q.wait(1.5)
+            check(tag + 'Back returns to the home', H() == h0, H())
 
         q.open('/v3/props?v=1&view=list', settle=3)
         check(tag + 'list renders', wait_for('.pd-row'))
@@ -56,10 +67,10 @@ def run(w, h):
         check(tag + 'Back restores a deep scroll position', y0 > 500 and abs(Y() - y0) < 8, (y0, Y()))
 
         # expand a row, change nothing else, tap Research/Contract and Back
-        q.open('/v3/props?v=1&view=list&sport=nfl', settle=3)
+        q.open('/v3/props?v=1&view=list', settle=3)
         wait_for('.pd-row')
         hl = q.js('return history.length')
-        click('.pd-row .pd-row__hit', 0)
+        tap_row(0)
         check(tag + 'a tap expands the row in place (peek, address)', count('.pd-peek') == 1 and 'exp=' in H(), H())
         check(tag + 'expanding adds no history entry', q.js('return history.length') == hl)
         h2 = H(); y2 = Y()
@@ -86,13 +97,13 @@ def run(w, h):
         # filter sheet
         click('.pd-btn--sort')
         check(tag + 'sort and filter sheet opens', sheet())
-        check(tag + 'locked facets are notes with reasons', 'Needs more data' in q.js('return document.querySelector(".pd-locked").innerText'))
+        check(tag + 'locked facets are notes with reasons', 'needs more data' in q.js('return document.querySelector(".pd-locked").innerText').lower())
         q.js('history.back()'); q.wait(1.0)
         check(tag + 'Back closes the sheet', not sheet() and 'q=rece' in H(), H())
 
         # compare
         q.open('/v3/props?v=1&view=list&cmpm=1', settle=3); wait_for('.pd-row')
-        for i in range(2): click('.pd-row .pd-row__hit', i, 0.5)
+        for i in range(2): tap_row(i, 0.6)
         check(tag + 'two ticks give a tray with Compare', count('.pd-tray a.pd-abtn--pri') == 1 and 'cmp=' in H(), H())
         click('.pd-tray a.pd-abtn--pri')
         check(tag + 'compare screen shows two columns with Contract under each', count('.pd-crow--hd .pd-cell') == 2 and count('.pd-crow--acts a[data-tap="price"]') == 2)

@@ -1,7 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from '../../routing';
 import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
-import { deriveProps } from '../data/adapt';
+import { deriveProps, type PropRow } from '../data/adapt';
+import { useQuotedPrices } from '../data/research/gameHooks';
 import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
 import type { MarketLine, Price, V3Game } from '../model/types';
@@ -181,6 +182,11 @@ function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; d
   const stats = useMemo(() => [...new Set(rows.map((r) => r.statLabel))], [rows]);
   const [stat, setStat] = useState<string | null>(null);
   const [all, setAll] = useState(false);
+  const filtered = useMemo(() => rows.filter((r) => !stat || r.statLabel === stat), [rows, stat]);
+  const shown = useMemo(() => (all ? filtered : filtered.slice(0, 12)), [filtered, all]);
+  // The rows on screen follow the live quote store (a newer observation replaces the publication's capture); the gate then decides what prints.
+  const quoted = useQuotedPrices(detail, useMemo(() => shown.map((r) => r.price.ticker), [shown]));
+  const priceOf = (r: PropRow): Price | null => gate(quoted(r.price.ticker) ?? r.price);
   if (g.provenance === 'demo') {
     const nba = g.sport === 'NBA';
     const rows = nba
@@ -203,8 +209,6 @@ function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; d
     );
   }
   if (!detail) return <div className="v3-skel" style={{ height: 180 }} role="status" aria-label="Loading props" />;
-  const filtered = rows.filter((r) => !stat || r.statLabel === stat);
-  const shown = all ? filtered : filtered.slice(0, 12);
   if (!rows.length) return <Unavailable title="No player props listed">Kalshi lists no player-stat contracts for this game. Team research is on the other tabs.</Unavailable>;
   return (
     <section aria-label="Player props">
@@ -217,8 +221,8 @@ function PropsTab({ g, startMs, detail }: { g: V3Game; startMs: number | null; d
         {shown.map((r) => (
           <li key={r.key}>
             {r.playerId ? <Link to={`/v3/player/${g.slug}/${encodeURIComponent(r.playerId)}?stat=${encodeURIComponent(r.stat)}&line=${r.line}`} className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></Link> : <div className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></div>}
-            <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${gate(r.price)?.ask != null ? `${gate(r.price)!.ask} cents` : 'no price available'}. Open exact contract`}
-              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={gate(r.price)} /></button>
+            <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${priceOf(r)?.ask != null ? `${priceOf(r)!.ask} cents` : 'no price available'}. Open exact contract`}
+              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} /></button>
           </li>
         ))}
       </ul>

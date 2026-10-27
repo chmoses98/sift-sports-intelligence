@@ -80,6 +80,9 @@ function ContractBody({ tk }: { tk: string | null }) {
   const fmt = usePrefs().priceFormat;
   const live = useLiveQuotes(tk ? [tk] : undefined, 'detail');
   const { busy, retry } = useForcedRefresh(tk);
+  // The rungs listed under the numbers follow the live store too (bounded), so a neighbour's price is current or "—", never a capture.
+  const nbTickers = useMemo(() => (info?.neighbours ?? []).map((n) => n.ticker).filter((t) => t !== tk).slice(0, 40), [info, tk]);
+  useLiveQuotes(nbTickers.length ? nbTickers : undefined, 'game');
   const now = useNow(5_000);
   if (!tk) return <p className="v3c-note">No contract is named in this address.</p>;
 

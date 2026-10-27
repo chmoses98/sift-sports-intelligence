@@ -1,10 +1,9 @@
 # Quote monitor: CI drill, failure injection and heartbeat verification
 
-For the owner. Nothing here has been run in GitHub Actions: no workflow was dispatched, no branch other than
-`claude/quote-track` was created or pushed, no repository variable was read or changed, and nothing touched the deployed relay
-or the `live-quotes` branch. Everything below that says "expected output" is either (a) produced by the local drill
-(`scripts/quote-monitor-drill.mjs`, tests in `tests/live/quote-monitor-drill.test.ts`) or (b) derived from the monitor's source
-and marked as such.
+For the owner. The monitor and the drill are READ-ONLY (GET requests only), use no secret and write nothing but the runner's
+step summary. Sections 2 and 4 say exactly what has been run in GitHub Actions (with run ids) and what has not. Anything marked
+"expected" is either produced by the local drill (`scripts/quote-monitor-drill.mjs`, tests in `tests/live/quote-monitor-drill.test.ts` and
+`tests/live/quote-drill-ci.test.ts`) or derived from the monitor's source.
 
 ## 0. What the monitor decides (the exact rules)
 
@@ -36,7 +35,13 @@ clock and sleep.
    than 30 s). A pass on the retry is a PASS whose detail says `recovered on the single retry after Ns (first attempt: ...)` and
    which also prints a `::notice` (never an error). A failure on the retry is the failure, with both attempts stated. There is
    never a third attempt. Other 4xx (403, 404) are configuration errors and fail at once.
-5. **No memory between runs.** The monitor writes nothing and reads no earlier result. A system that has recovered passes on
+5. **A finished game is not an outage (GAME_OVER).** The feed (published every ~3.5 min, cached up to 5) can list contracts as open that
+   Kalshi already reports closed. A fresh HTTP 200 whose returned markets all report a non-trading status (`closed`, `determined`, `settled`,
+   `finalized`/`finalised`, `expired`, `paused`, ... or a non-empty `result`) is a PASS saying `GAME_OVER` (a `::notice`, one request per game,
+   no retry, never an error). If the batch also holds tradable markets, the closed ones are noted and not asserted; a game whose markets are all
+   closed makes the monitor try the next game for a tradable one. The answer must still be fresh: an old or untimed observation, a non-200 or an
+   outage fails as ever, and an empty answer for every game still fails. (Same status words as `src/live/tradable.ts`; a test keeps them equal.)
+6. **No memory between runs.** The monitor writes nothing and reads no earlier result. A system that has recovered passes on
    its very next run and the output carries no trace of the earlier outage. (A 15-minute schedule therefore alerts at most once
    per bad run, and a single bad run does not repeat itself.)
 
@@ -46,7 +51,7 @@ clock and sleep.
 
 ```
 node scripts/quote-monitor-drill.mjs --list
-node scripts/quote-monitor-drill.mjs                    # all 15 scenarios
+node scripts/quote-monitor-drill.mjs                    # all 19 scenarios
 node scripts/quote-monitor-drill.mjs outage healthy     # an outage, then the very next run after recovery
 ```
 
@@ -73,6 +78,10 @@ outage is a drill pass.
 | `relay-delisted-game` | first game's contracts gone, second game answers | PASS, empty game named |
 | `all-games-delisted` | both games empty | FAIL, 4 relay requests (2 games, twice) |
 | `no-open-contracts` | every contract closed | PASS with the relay check `SKIP` |
+| `relay-partial` | relay omits one requested market | PASS, `2 of 3 requested markets` |
+| `relay-game-over` | feed says open, relay says every market `finalized` | PASS, `GAME_OVER`, a notice, no retry |
+| `relay-closed-among-open` | one market `finalized`, two `active` | PASS, the closed one noted, not asserted |
+| `relay-first-game-over` | game A finalized, game B open | PASS from game B, game A named as over |
 
 Expected output shape (this is real drill output; times differ):
 

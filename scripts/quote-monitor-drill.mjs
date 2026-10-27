@@ -307,6 +307,10 @@ export async function runCiDrill({ env = process.env, stages = null, log = conso
       log('::endgroup::');
       const ok = items.every((i) => i.ok);
       log(`${ok ? 'STAGE MATCHED' : 'STAGE MISMATCH'}: stage ${n} (${STAGE_NAMES[n]}): ${items.filter((i) => i.ok).length} of ${items.length} item(s) matched`);
+      // One notice annotation per stage: the observed result of every item, readable from the run's check annotations even
+      // where the job log itself cannot be fetched (an informational notice, never an error; mismatches add an error below).
+      const line = items.map((i) => `[${i.ok ? 'MATCH' : 'MISMATCH'}] ${i.name} => ${i.observed}`).join(' || ').replace(/[\r\n%]+/g, ' ');
+      log(`::notice title=Quote drill stage ${n} ${ok ? 'matched' : 'MISMATCH'} (${STAGE_NAMES[n]})::${clip(line, 3500)}`);
       results.push({ stage: n, name: STAGE_NAMES[n], ok, items });
     }
   } finally {

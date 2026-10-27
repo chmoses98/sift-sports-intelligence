@@ -24,7 +24,8 @@ const collect = () => {
   const lines: string[] = [];
   return { lines, log: (l: string) => lines.push(...String(l).split('\n')), text: () => lines.join('\n') };
 };
-const annotations = (lines: string[]) => lines.filter((l) => /^::(error|warning|notice)/.test(l));
+const annotations = (lines: string[]) => lines.filter((l) => /^::(error|warning)/.test(l));
+const notices = (lines: string[]) => lines.filter((l) => /^::notice title=Quote drill stage/.test(l));
 
 describe('the staged CI drill (loopback stand-in for the real relay and feed)', () => {
   it('lists five stages, in the order the brief gives', () => {
@@ -61,8 +62,10 @@ describe('the staged CI drill (loopback stand-in for the real relay and feed)', 
     expect(text).toMatch(/heartbeat state on the real feed branch: HEARTBEAT_NOT_PUBLISHED/);
     expect(text).toMatch(/RESULT: PASS \(heartbeat not published yet: not a failure\)/);
     expect(text).toMatch(/SIFT_MONITOR_REQUIRE_HEARTBEAT is set/);
-    // a matching drill emits no annotation at all: forced failures are neutralised, so the run stays clean
+    // a matching drill emits no error or warning: forced failures are neutralised; one informational notice per stage
     expect(annotations(out.lines)).toEqual([]);
+    expect(notices(out.lines)).toHaveLength(5);
+    expect(notices(out.lines).every((l) => /matched \(/.test(l) && !l.includes('\n'))).toBe(true);
     expect(text).toMatch(/\[annotation, not emitted by the drill: error\]/);
   }, 240_000);
 

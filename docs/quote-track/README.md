@@ -345,8 +345,8 @@ Run on this branch after the last code change (the development machine was under
   files alone with one worker: 3 files, 53 tests passed. Two earlier all-at-once runs under the same load failed 3 and 4 (then 10) of those
   screen tests with "Unable to find role=heading"; each passed when re-run alone, and the NHL file passes on the pre-change commit `db3cf548` too.
   **Independent of this machine:** GitHub's `CI` workflow for commit `045c0bcc` (full unit and integration tests, lint, typecheck, production build)
-  passed those steps on a runner (run 40568142558, job steps 4 to 9 success); its acceptance (Chromium/WebKit) steps were still running when this
-  was written.
+  passed on a runner, whole workflow `success` including the Chromium/WebKit acceptance suite (push run 40568142558). Commits after `045c0bcc`
+  changed only the drill script, tests and docs and were pushed with `[skip ci]` to keep the shared runner queue free (see CI_DRILL.md section 2); the owner may re-run CI on the head.
 - Before this round the track had 149 files and 1847 tests; this round added `quoteNonTradable` (190), `quote-drill-ci` (11), 32 monitor tests, 1 drill-script test and the
   `quoteMissingTickers`/`quoteInvisible` edits.
 - `node scripts/quote-monitor-drill.mjs`: **19 of 19 scenarios matched**. `node scripts/quote-monitor-drill.mjs --ci --stages=3`: stage 3 matched.

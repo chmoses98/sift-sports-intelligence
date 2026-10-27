@@ -13,6 +13,8 @@ test.setTimeout(120_000);
 
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
+  // A first visit opens the Welcome sheet over Home after the slate loads (it would cover the tab bar); this test device has been welcomed.
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
   await page.clock.setFixedTime(feedNow());
   await useRealFeeds(page);
   await freshQuotes(page);
@@ -87,7 +89,7 @@ async function listWithResearchableRow(page: Page): Promise<{ path: string }> {
 test.describe('Prop Discovery on real published documents @v3', () => {
   test('the Explore tab is Prop Discovery; the older search still lives at /v3/explore', async ({ page }) => {
     await go(page, '/v3');
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click({ force: true });
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click();
     await expect(page).toHaveURL(/#\/v3\/props/);
     await ready(page);
     await expect(page.getByRole('heading', { name: 'Props', exact: true })).toBeVisible();

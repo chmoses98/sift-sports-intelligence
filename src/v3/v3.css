@@ -120,7 +120,7 @@
 .v3-sechead { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 10px; }
 .v3-sechead h2 { font: 700 20px/26px var(--f-ui); letter-spacing: -0.01em; }
 .v3-sechead a, .v3-sechead button { color: var(--sift-cyan); font: 500 14px/20px var(--f-ui); display: inline-flex; align-items: center; gap: 2px; min-height: 32px; }
-.v3-livebadge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 5px; background: var(--sift-live); color: #ffffff; font: 800 11px/1 var(--f-ui); letter-spacing: 0.07em; }
+.v3-livebadge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 5px; background: #d2252f; color: #ffffff; font: 800 11px/1 var(--f-ui); letter-spacing: 0.07em; }
 .v3-livebadge--sm { height: 16px; padding: 0 5px; font-size: 9px; border-radius: 4px; }
 .v3-note { color: var(--sift-muted); font: 400 13px/19px var(--f-ui); }
 .v3-note--dim { color: var(--sift-dim); font-size: 12px; margin-top: 12px; }

@@ -182,7 +182,7 @@ export function Home() {
           {strip.length > 0 && (
             <div className="v3-strip" role="list" aria-label="Scoreboard">
               {strip.map((g) => <div role="listitem" key={g.key}><ScoreTile g={g} /></div>)}
-              <Link to="/v3/games" className="v3-tile v3-tile--more" aria-label="All games"><Icon name="chevR" size={22} /></Link>
+              <div role="listitem"><Link to="/v3/games" className="v3-tile v3-tile--more" aria-label="All games"><Icon name="chevR" size={22} /></Link></div>
             </div>
           )}
           {featured ? <Featured key={featured.key} base={featured} /> : !unavailable && <div className="v3-state" style={{ marginTop: 16 }}><Icon name="calendar" size={20} /><div><b>No games to feature</b>Nothing is published for {sport === 'foryou' ? 'today' : 'this sport'} yet. <Link to="/v3/games" style={{ color: 'var(--sift-cyan)' }}>Browse all games</Link></div></div>}

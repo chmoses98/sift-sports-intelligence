@@ -71,7 +71,7 @@ export function MiniBar({ v, saved, onSave, shown, inflow, short }: { v: PlayerV
   const when = vm.next && vm.nextStartMs != null ? `${AT(v)} ${vm.opp?.abbr ?? ''} · ${gameWhen(vm.nextStartMs, v.now)}` : null;
   const sub = v.state.tab === 'matchup' ? [vm.position, vm.team?.abbr].filter(Boolean).join(' · ') + (when ? ` ${when}` : '') : [v.statDef?.label, when].filter(Boolean).join(' · ');
   return (
-    <div className={`v3p-mini${inflow ? ' is-flow' : ''}${shown || inflow ? ' is-on' : ''}`} aria-hidden={!(shown || inflow)}>
+    <div className={`v3p-mini${inflow ? ' is-flow' : ''}${shown || inflow ? ' is-on' : ''}`} aria-hidden={!(shown || inflow)} inert={!(shown || inflow)}>
       <div className="v3p-mini__in">
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back} tabIndex={shown || inflow ? 0 : -1}><Icon name="back" size={24} /></button>
         {vm.photo ? <img className="v3p-mini__av" src={vm.photo.src} alt="" style={{ objectPosition: vm.photo.focus }} /> : vm.team ? <span className="v3p-mini__av is-logo"><TeamLogo team={vm.team} size={22} /></span> : null}

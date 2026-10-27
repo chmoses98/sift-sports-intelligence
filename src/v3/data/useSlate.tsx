@@ -54,8 +54,10 @@ function RealProvider({ children }: { children: ReactNode }) {
     const g = toGame(r);
     const rd = feedOn ? read(r.item.event_id) : null;
     const st = shownState(rd);
-    if (rd?.game?.score && (st === 'live' || st === 'over')) {
-      g.score = { away: rd.game.score.away, home: rd.game.score.home, clock: st === 'over' ? 'Final' : periodClock(rd) || 'Live', source: 'score-feed', asOf: null, stale: rd.view.mode === 'LAST_KNOWN' || rd.view.mode === 'DELAYED' };
+    // A score the feed has stopped confirming (delayed or last known) is not shown at all: no old score is dressed up as current.
+    const aged = rd?.view.mode === 'LAST_KNOWN' || rd?.view.mode === 'DELAYED';
+    if (rd?.game?.score && (st === 'live' || st === 'over') && !aged) {
+      g.score = { away: rd.game.score.away, home: rd.game.score.home, clock: st === 'over' ? 'Final' : periodClock(rd) || 'Live', source: 'score-feed', asOf: null };
       g.phase = st === 'over' ? 'final' : 'live';
     }
     return g;

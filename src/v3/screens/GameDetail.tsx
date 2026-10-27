@@ -19,6 +19,7 @@ import { HeroBg } from '../ui/HeroBg';
 import { Icon } from '../ui/Icon';
 import { useSheet } from '../ui/Sheet';
 import { SwitcherRail } from '../ui/Switcher';
+import { usePublishGameContracts } from '../ui/gameContracts';
 import { TeamLogo } from '../ui/TeamLogo';
 import { gameHref, leagueLabel, scoreSourceWord, teamHref } from '../ui/gamebits';
 import { GameTabBody } from './GameTabs';
@@ -145,6 +146,8 @@ export function GameDetail() {
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const research = useGameResearch(g && g.provenance === 'publication' ? g.slug : null, g && g.provenance === 'publication' ? g.eventId : null);
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);
+  // Every price on this screen opens the one exact-contract sheet; tell it about the game's contracts (start from the schedule authority).
+  usePublishGameContracts(g, startMs, detail.data);
 
   useEffect(() => { if (g) pushVisit({ route: gameHref(g), title: `${g.away.nick} at ${g.home.nick}`, subtitle: `${leagueLabel(g)} · ${g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Final' : dayWord(startMs ?? g.startMs)}`, kind: 'game', slug: g.slug, logo: g.home.logo }); }, [g?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   // collapse: the compact scoreboard appears once the hero and the rail have scrolled away

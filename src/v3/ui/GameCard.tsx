@@ -1,10 +1,11 @@
 import { Link } from '../../routing';
+import { useGameStart } from '../data/research/gameHooks';
 import { useGameExtras } from '../data/useGameExtras';
 import type { V3Game } from '../model/types';
 import { AlertBell, FollowStar } from './Controls';
 import { Icon } from './Icon';
 import { TeamLogo } from './TeamLogo';
-import { LinesBox, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useOpenLine, useSeen } from './gamebits';
+import { LinesBox, PriceText, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useListGate, useOpenContract, useSeen } from './gamebits';
 
 function Side({ g, side }: { g: V3Game; side: 'away' | 'home' }) {
   const t = g[side];
@@ -30,7 +31,10 @@ export function GameCard({ g: base }: { g: V3Game }) {
   const [ref, seen] = useSeen<HTMLElement>();
   const x = useGameExtras(base, 'lines', seen);
   const g = x?.game ?? base;
-  const open = useOpenLine();
+  const open = useOpenContract();
+  // The schedule authority's start picks the quote tier; every price on the card goes through the list-context gate.
+  const startMs = useGameStart(base);
+  const gate = useListGate(g, startMs);
   const live = g.phase === 'live';
   const scored = g.score != null;
   const src = scoreSourceWord(g);
@@ -55,16 +59,16 @@ export function GameCard({ g: base }: { g: V3Game }) {
         {hasSituation ? (
           <div className="v3-gc__sit"><span>{g.situation!.text}</span></div>
         ) : (
-          <LinesBox g={g} loading={g.provenance === 'publication' && g.phase !== 'final' && x?.detailLoading} />
+          <LinesBox g={g} startMs={startMs} gate={gate} loading={g.provenance === 'publication' && g.phase !== 'final' && x?.detailLoading} />
         )}
         <div className="v3-gc__act">
           <AlertBell id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
         </div>
       </div>
       {(hasSituation && (spread || total)) && (
-        <button type="button" className="v3-gc__foot" onClick={() => open(g, (spread ?? total)!)} aria-label="Open market detail">
-          {spread && <span>{spread.label} <b>{spread.price.ask}¢</b></span>}
-          {total && <span>{total.label} <b>{total.price.ask}¢</b></span>}
+        <button type="button" className="v3-gc__foot" onClick={() => open({ g, startMs, detailHref: gameHref(g) }, (spread ?? total)!)} aria-label="Open market detail">
+          {spread && <span>{spread.label} <b><PriceText p={gate(spread.price)} /></b></span>}
+          {total && <span>{total.label} <b><PriceText p={gate(total.price)} /></b></span>}
           <small>{(spread ?? total)!.price.source}</small>
         </button>
       )}

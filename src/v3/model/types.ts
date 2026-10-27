@@ -61,7 +61,6 @@ export interface Score {
   source: 'publication' | 'score-feed' | 'demo';
   /** When the source last confirmed the score. */
   asOf: string | null;
-  stale?: boolean;
 }
 
 export interface V3Game {

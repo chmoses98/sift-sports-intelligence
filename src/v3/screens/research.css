@@ -174,8 +174,6 @@
 .v3-link { color: var(--sift-cyan); font-weight: 600; min-height: 44px; padding: 0 8px; }
 .v3-ctx { display: grid; gap: 8px; font-size: 15px; }
 .v3-ctx li::before { content: '•'; color: var(--sift-cyan); margin-right: 10px; }
-.v3-ladder li { display: flex; gap: 8px; align-items: center; }
-.v3-ladder li > button:first-child { flex: 1; }
 
 /* ---- Explore / Following / Settings (19 / 20 / 21 / 23) */
 .v3-pgtitle { font: 700 34px/40px var(--f-ui); letter-spacing: -0.025em; margin: 10px 0 14px; }

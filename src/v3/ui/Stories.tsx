@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { Link } from '../../routing';
 import { injuryNews } from '../../insights/news';
 import { useGameResearch } from '../../views/broadcast/parts';
-import { ago } from '../model/format';
 import type { V3Game } from '../model/types';
 import { Icon } from './Icon';
 import { TeamLogo } from './TeamLogo';
@@ -23,7 +22,7 @@ export function GameStories({ g, max = 1 }: { g: V3Game; max?: number }) {
           <li key={n.id}>
             <Link to={`${gameHref(g)}?tab=matchup`} className="v3-story" aria-label={`${n.headline}. Open ${g.away.nick} at ${g.home.nick}`}>
               <TeamLogo team={team} size={44} />
-              <span className="v3-story__t"><b>{n.headline}</b><small>{n.asOf ? ago(n.asOf) : 'Publication'} · {leagueLabel(g)}</small></span>
+              <span className="v3-story__t"><b>{n.headline}</b><small>Publication · {leagueLabel(g)}</small></span>
               <Icon name="chevR" size={20} />
             </Link>
           </li>

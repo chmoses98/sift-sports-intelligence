@@ -1,11 +1,12 @@
 // Milestone 8a: EVERY price goes through the one quote gate, and no freshness text exists anywhere. Real published documents (the disk cache)
-// under a pinned browser clock. The cache describes one instant (feedNow()). A price is "fresh" when the live-quote feed's observation times are
+// under a pinned browser clock. The `game` fixture family (fixtures/real) describes one instant (feedNow('game')). A price is "fresh" when the live-quote feed's observation times are
 // re-stamped to that instant (freshQuotes: a test transformation of timestamps only; every price is the published one) and "old" when the clock is
 // moved past the gate's limit for its context (list: 90 s inside two hours of the start, 180 s beyond, 60 s live; exact contract: 30 s / 60 s).
 // DAL at PHI (2026-10-27 00:15Z) is the reference game: 50 minutes after the cache's instant, so list limit 90 s and contract limit 30 s.
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
+const FAMILY = 'game' as const;
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const GAMES_NFL = '/v3/games?sport=nfl&state=upcoming';
 /** Every kind of freshness text the owner ruled out. */
@@ -14,10 +15,10 @@ const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last update
 type Mode = 'fresh' | 'old';
 /** `fresh`: observations at the cache instant, clock at the instant plus `plusS`. `old`: the real feed as captured, which is older than every limit. */
 async function setup(page: Page, mode: Mode, plusS = 0) {
-  await serveRealFeeds(page);
-  if (mode === 'fresh') await freshQuotes(page);
+  await serveRealFeeds(page, { family: FAMILY });
+  if (mode === 'fresh') await freshQuotes(page, { family: FAMILY });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
-  await page.clock.setFixedTime(new Date(feedNow().getTime() + plusS * 1000));
+  await page.clock.setFixedTime(new Date(feedNow(FAMILY).getTime() + plusS * 1000));
 }
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); };
 const bodyText = (page: Page) => page.locator('[data-v3-shell]').innerText();
@@ -93,7 +94,7 @@ test.describe('Games: the lines box goes through the list gate @v3', () => {
     await expectUnavailable(page);
     await page.goBack();
     await expect(dialogOf(page)).toHaveCount(0);
-    await page.clock.setFixedTime(new Date(feedNow().getTime() + 100_000)); // 100 s old: outside the list limit
+    await page.clock.setFixedTime(new Date(feedNow(FAMILY).getTime() + 100_000)); // 100 s old: outside the list limit
     await expect(lines.locator('em').first()).toHaveText('—', { timeout: 15_000 });
     await expect(lines.locator('em').nth(1)).toHaveText('—');
     const withheld = await box(lines);

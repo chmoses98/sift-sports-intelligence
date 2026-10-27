@@ -1,0 +1,3288 @@
+{
+ "schema": "sift.v3.fixtures.manifest.v1",
+ "tool": {
+  "name": "scripts/v3-fixtures",
+  "version": "1.0.0",
+  "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+ },
+ "provenance": "Every document is a byte-exact copy of a file that its publisher serves publicly from raw.githubusercontent.com, in the repositories and branches named under \"sources\" (research and board publications of the Sift data pipeline, plus the live-quote feed branch of this repository). They are kept here only so that the SIFT 3.0 test suite can reproduce real-document behaviour offline on a fixed clock; no document is modified (the only test-time transformations are the documented re-stamps in e2e/support). Prices and probabilities inside them describe the instants named in this manifest and are neither current nor a recommendation. Use of the data stays subject to the publishers' own terms and the terms of the third-party sources they cite; inclusion here implies no endorsement by, or affiliation with, any league, team, player, data provider or exchange named in them.",
+ "sources": [
+  {
+   "sport": "nfl",
+   "repo": "chmoses98/nfl-edge-finder",
+   "branch": "handicap-reports",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "mlb",
+   "repo": "chmoses98/edge-finder-api",
+   "branch": "main",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "cfb",
+   "repo": "chmoses98/cfb-edge-finder",
+   "branch": "main",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "nba",
+   "repo": "chmoses98/nba-edge-finder",
+   "branch": "data-archive",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "nhl",
+   "repo": "chmoses98/NHL-edge-finder",
+   "branch": "data-archive",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "soccer",
+   "repo": "chmoses98/soccer-edge-finder",
+   "branch": "data-archive",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "cbb",
+   "repo": "chmoses98/cbb-edge-finder",
+   "branch": "app-data",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "sport": "tennis",
+   "repo": "chmoses98/Tennis-Edge-Finder",
+   "branch": "tennis-data",
+   "raw_base": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest",
+   "declared_in": "src/data/sports.ts"
+  },
+  {
+   "name": "live-quotes",
+   "repo": "chmoses98/sift-sports-intelligence",
+   "branch": "live-quotes",
+   "path": "games/<game key>.json",
+   "note": "the live-quote feed (src/live), published by this repository's own job; per-game files and an index"
+  },
+  {
+   "name": "router registry",
+   "repo": "chmoses98/kalshi-bet-router",
+   "branch": "app-data",
+   "path": "app/latest/sports_registry.json",
+   "declared_in": "src/data/sports.ts (REGISTRY_URL)"
+  },
+  {
+   "name": "CFB research signals",
+   "repo": "chmoses98/cfb-edge-finder",
+   "branch": "research-signals",
+   "path": "signals/cfb_research_signals.json",
+   "declared_in": "src/data/sports.ts (CFB_RESEARCH_SIGNALS_URL)"
+  }
+ ],
+ "families": {
+  "stat": {
+   "captured_start": "2026-10-26T23:21:35Z",
+   "captured_end": "2026-10-26T23:25:46Z",
+   "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
+   "specs": [
+    "e2e/v3-stat.spec.ts"
+   ],
+   "sources": [
+    {
+     "repo": "chmoses98/NHL-edge-finder",
+     "branch": "data-archive",
+     "documents": 10
+    },
+    {
+     "repo": "chmoses98/Tennis-Edge-Finder",
+     "branch": "tennis-data",
+     "documents": 5
+    },
+    {
+     "repo": "chmoses98/cbb-edge-finder",
+     "branch": "app-data",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "main",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "research-signals",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/edge-finder-api",
+     "branch": "main",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/nba-edge-finder",
+     "branch": "data-archive",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "handicap-reports",
+     "documents": 20
+    },
+    {
+     "repo": "chmoses98/soccer-edge-finder",
+     "branch": "data-archive",
+     "documents": 5
+    }
+   ],
+   "capture_tool": null,
+   "pack_tool": {
+    "name": "scripts/v3-fixtures pack",
+    "version": "1.0.0",
+    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+   },
+   "requested_urls": 59,
+   "cache_files_dropped_unrequested": 21,
+   "not_in_cache": 2,
+   "documents": 57,
+   "bytes": 6024952,
+   "clock": {
+    "captured_at": "2026-10-26T23:25:00Z",
+    "basis": "provisional"
+   },
+   "entries": [
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "e1f2b008b93209992937363a78e6cb7715add40ec9f6104d0877f77c24b54159",
+     "bytes": 5542,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "732e2fb37dde676a215c52b8a5c70df054dfd6bbf3f42ec5ed7f22f30b837b3f",
+     "bytes": 80454,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "1b1b8b03c540c78b21907fef7b85a099240c6674a12a8b0ff24182e69102979e",
+     "bytes": 122496,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/rankings/rnk_79c6fff2d676534ea1d7.json",
+     "status": 200,
+     "sha256": "70ba69868f3516c8db93344139c1b0f47ae6ad752685060f20dbbc63e6feac33",
+     "bytes": 8635,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:25:40Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/rankings/rnk_a6ee305b17b08dd13098.json",
+     "status": 200,
+     "sha256": "d1af602598f12d63cbbc35e0c3c16732ee8118bb4cfbf9cf0bc53c5cea172294",
+     "bytes": 8632,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/teams/prt_227ffc695558a61da21f.json",
+     "status": 200,
+     "sha256": "cdaaca05e4f837def3cf277365a4f29d37e22b4b4b4227752d139b91059cb587",
+     "bytes": 118456,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:25:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/teams/prt_3ce50da866d0a92fa2dc.json",
+     "status": 200,
+     "sha256": "31d9302e04c41d09c7af1cb3c865ecf00e972c8e5f5c5b386586ba5aef0c3d79",
+     "bytes": 120282,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/teams/prt_6074ed9db3e77a72be6a.json",
+     "status": 200,
+     "sha256": "d23e5068afba5ad3861958e3cf36305ea66b2b3f0dda6f4b1cbb6ceca06eccad",
+     "bytes": 100120,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "db6be8fc2b19adad48a2040905d1d4930037c5c8a4e39a53cc061fb1bdb378bb",
+     "bytes": 2367,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c20e44eb950b42ba587604f4d2e426aa761a9a4b659ae43d4f464e16228eab1e",
+     "bytes": 23660,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/board.json",
+     "status": 200,
+     "sha256": "4b11a36e864843bb7a25b4a0978e58938ae3f45ad629ea0ccd334453fd40e6a6",
+     "bytes": 306647,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "a32f10a7811d775ca01f03ed1fd16454838b483ee2596d60de026a224b8c3fbf",
+     "bytes": 466591,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "c103b42e9016bf79a32ccc5d4b0fbac32ee585fa13d1caf26498aa6919eaf9e4",
+     "bytes": 59403,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/health.json",
+     "status": 200,
+     "sha256": "95b324e6874034f4b28780e24ab4f63f53b46a86ba44dacdfb4e57d1627e400d",
+     "bytes": 2966,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "802f16747658c111e5acbf0793c2fd5e0c2982bc1d76dcc1abd97760ab27a32c",
+     "bytes": 177813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/board.json",
+     "status": 200,
+     "sha256": "bfc04ff978075f77ba3f3994b7bab601ebd6ffd6c514e34be6e33eb96ff0192c",
+     "bytes": 253967,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5609d0cce959f75fa467ed856bb90f8ca19eca8626c4b163362767da10ec28a4",
+     "bytes": 285399,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/health.json",
+     "status": 200,
+     "sha256": "ba75b87a5d7cfe170e6790f04d5a91335c49861525e10afd91cab6ab6f7f1350",
+     "bytes": 21256,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c1a424be892cf9c49727e148f7973c343ac6d01b51ced231134f911ff41169b4",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "ca1a307becd756d652f37a458ccbbd9d443e6969e490d5fe5e8fb6a62ccbe16e",
+     "bytes": 182038,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "9e1ce209eb8e4e705055fbd1ec060636d287a41ac7713e414c59bf555ed35f0d",
+     "bytes": 256821,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "b1287dacc5bbfc30d339b7b565977661478e9fb1301423603474f3d1ca86aca1",
+     "bytes": 2275,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "682867ae25cb20a1c4f5b18a19ce3492a4d1aa18561397c01d633b2e8ecd3f5b",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json",
+     "status": 200,
+     "sha256": "daab95bd8159d659dcb0867c3a6abe93010a5deabe0ae09d0fe9a1387054e271",
+     "bytes": 226300,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "c9d58f1a6ca8a82157b7626347682d0d834979ee7ef7374fd2d0372ac31420a2",
+     "bytes": 1008,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b43813a61c247eba709d3840962399ee6e5cd98f79d00f25f82662ec6a7f5c10",
+     "bytes": 54211,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "6527f836b323f89dee4d75332fa75336cbaee0a74eed20bc705ccc89f69b3a51",
+     "bytes": 2363,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "10e15bd4375e7db34242e8e9d7f5eb5899925a3e3a5a8c08e42ed96cc04d3fcc",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "a4c539701c418e56312a56e10ba3564d02a542e8a1a79f4c5332a8f488d149a9",
+     "bytes": 73716,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b0fb992f8bbb309868386f499381fa69e56fb420d85bd790170025bc05cb489d",
+     "bytes": 1524789,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "3837daf83503e9eb119b6cac3f9180b8b767779b24f86e999fc06e6c7933ba43",
+     "bytes": 2194,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "e877432e0dac197f575dc14e8327147770da5a354f982d605183ea79dcdb0660",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json",
+     "status": 200,
+     "sha256": "db07ddae44370e1988fcbdf24ad43f661d32036c49f42569ba2a753aba8bf795",
+     "bytes": 71041,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
+     "bytes": 105465,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "d22b8627b64bcfb58d39440edf7911297deadbe37d58e19a265a5a0316cbef8d",
+     "bytes": 153334,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_4c661ae8b854ff5f66dd.json",
+     "status": 200,
+     "sha256": "83a421b761a362b938e96f2918d4b8dd32f521b4bf9a415a9dc2405679384c17",
+     "bytes": 35365,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_74580802ab4833992610.json",
+     "status": 200,
+     "sha256": "39b7030cffc8beb6ac595fffb6eebd2691b742bb0b5fa1644f7cbdff996c7be5",
+     "bytes": 32613,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_2d0e261738ef71649dc9.json",
+     "status": 200,
+     "sha256": "c540e93d9ea560301a88074e96e0638bab5105bc0ad0ffe3bb899f80b10094dc",
+     "bytes": 8155,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_5aded4cb6f498d6b4071.json",
+     "status": 200,
+     "sha256": "dcdccb3046a0c087c3859c11715bd8ce5599113b5e2c6a47da6ad11cdca8d830",
+     "bytes": 8128,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_a80e756db12f980e366e.json",
+     "status": 200,
+     "sha256": "e9bdb3768552ac6acc057f7ff4eb7bc0ec40cf84ff657d493bb580fa001a5e08",
+     "bytes": 8774,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_d6edaa6f06f8a8183ae1.json",
+     "status": 200,
+     "sha256": "69ca67b66d36ff8952921595adaf5ca41bcc271441c351c62789a6c8a068bb75",
+     "bytes": 8161,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:25:20Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_eaddf1bcf94f465dbf95.json",
+     "status": 200,
+     "sha256": "7cdb3043c06bed80ce4fc93c487dc789e9d051b5c062b35a8974b5d286786cc5",
+     "bytes": 8121,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_fdad79f48650a2511f7c.json",
+     "status": 200,
+     "sha256": "412141f66cb89b42d7dfedabfde1392a4fc9ab83e47c58209cd259ea91575498",
+     "bytes": 8154,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "c7c42f618f14e3ceb8726f45024971e9057e69c5f0005997b4d7b47923218384",
+     "bytes": 123981,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/series/ser_e9732c71f3e58a0a095c.json",
+     "status": 200,
+     "sha256": "a1527eba7c407173da9b7abd8e120764c2660ea2b37125a69a8d1dad4dc431cd",
+     "bytes": 12740,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_241522e4e98595467389.json",
+     "status": 200,
+     "sha256": "1564892236398be3a3835a8a1b10913880c45277f3c26fd7c8339121a459313d",
+     "bytes": 148548,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e24e99004a071b113fba.json",
+     "status": 200,
+     "sha256": "248fa1ad0a0740f0d929f620464c5cec0ae8e44f332045434675e360c07be86a",
+     "bytes": 147744,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e3686e0c346ddad2ca74.json",
+     "status": 200,
+     "sha256": "a10debbdc5e5355e84a7c5db500b87a4fe3d7d7a2f30fde98bd0ef10efd929fb",
+     "bytes": 148036,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e5c79c0dc7745a0640ee.json",
+     "status": 200,
+     "sha256": "ea311fcd07f12bdcd2e745b2cdf89ba66fcd091e24a8ce5f842a462ebc1f0a7c",
+     "bytes": 150357,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_f4da2dc52fd222291bd6.json",
+     "status": 200,
+     "sha256": "f1f5491b4ced7d8adf46e90910926161715247c2834e8799315b4e33412adfe9",
+     "bytes": 150287,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/health.json",
+     "status": 200,
+     "sha256": "8488e58d4beed1cdb26a2d49572ebff1f3964dafb73c4538d47e7baaca54be72",
+     "bytes": 2181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "7b621221b74c308cc8c0c29e17bd974b6ac1b8cef3b4dc1333efd5b4a3d5dee3",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
+     "bytes": 10049,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5be17e8a0c36d7078fbce31bbb7bd1edb86786c55b7ae47e0c614593f7ec79fd",
+     "bytes": 179865,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "d90c06e6454a582e8a93c6911f6639335f0f6890dc4008777bfb4517a50b0ee1",
+     "bytes": 2804,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "2eadacb3e645c1ab0372745db13850598763a1756c8c17a445417227068226a9",
+     "bytes": 1869,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/theses.json",
+     "status": 200,
+     "sha256": "f1b2954248415857ff1c9961d583fe66531703c2bc5a44231a3a43f6d2693202",
+     "bytes": 7909,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:36Z"
+    }
+   ]
+  },
+  "team": {
+   "captured_start": "2026-10-26T22:59:38Z",
+   "captured_end": "2026-10-26T23:53:22Z",
+   "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
+   "specs": [
+    "e2e/v3-team.spec.ts"
+   ],
+   "sources": [
+    {
+     "repo": "chmoses98/NHL-edge-finder",
+     "branch": "data-archive",
+     "documents": 6
+    },
+    {
+     "repo": "chmoses98/Tennis-Edge-Finder",
+     "branch": "tennis-data",
+     "documents": 5
+    },
+    {
+     "repo": "chmoses98/cbb-edge-finder",
+     "branch": "app-data",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "main",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "research-signals",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/edge-finder-api",
+     "branch": "main",
+     "documents": 5
+    },
+    {
+     "repo": "chmoses98/nba-edge-finder",
+     "branch": "data-archive",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "handicap-reports",
+     "documents": 18
+    },
+    {
+     "repo": "chmoses98/soccer-edge-finder",
+     "branch": "data-archive",
+     "documents": 5
+    }
+   ],
+   "capture_tool": null,
+   "pack_tool": {
+    "name": "scripts/v3-fixtures pack",
+    "version": "1.0.0",
+    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+   },
+   "requested_urls": 55,
+   "cache_files_dropped_unrequested": 46,
+   "not_in_cache": 3,
+   "documents": 52,
+   "bytes": 6354403,
+   "clock": {
+    "captured_at": "2026-10-26T23:25:00Z",
+    "basis": "provisional"
+   },
+   "entries": [
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "d65329934bddfd71ae1e8fc8aacdfea3a993a0eaa19c27b35cef512864fe8b76",
+     "bytes": 5549,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "4d988e8ccc4e1a215c1b72a819860f546b5d97d3445f5ceee58ac898a0d4d9f4",
+     "bytes": 80454,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "abbff69ba0a2fc5c31d1a23b6447594c6774e492cfe5b7c03c92337bc10c6b92",
+     "bytes": 122496,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/teams/prt_3ce50da866d0a92fa2dc.json",
+     "status": 200,
+     "sha256": "31d9302e04c41d09c7af1cb3c865ecf00e972c8e5f5c5b386586ba5aef0c3d79",
+     "bytes": 120282,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:44Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "a61139615f5bd74ae9396ad66214bdf1c777cf83a36eb92548c5c57e5e612811",
+     "bytes": 2367,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "b2db6fbc292ff7456197f5b0668a7fcc1e446174b71c0169a7efd29bfcd748e8",
+     "bytes": 23644,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/board.json",
+     "status": 200,
+     "sha256": "4b11a36e864843bb7a25b4a0978e58938ae3f45ad629ea0ccd334453fd40e6a6",
+     "bytes": 306647,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "a32f10a7811d775ca01f03ed1fd16454838b483ee2596d60de026a224b8c3fbf",
+     "bytes": 466591,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "c103b42e9016bf79a32ccc5d4b0fbac32ee585fa13d1caf26498aa6919eaf9e4",
+     "bytes": 59403,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/health.json",
+     "status": 200,
+     "sha256": "95b324e6874034f4b28780e24ab4f63f53b46a86ba44dacdfb4e57d1627e400d",
+     "bytes": 2966,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "802f16747658c111e5acbf0793c2fd5e0c2982bc1d76dcc1abd97760ab27a32c",
+     "bytes": 177813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/board.json",
+     "status": 200,
+     "sha256": "bfc04ff978075f77ba3f3994b7bab601ebd6ffd6c514e34be6e33eb96ff0192c",
+     "bytes": 253967,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5609d0cce959f75fa467ed856bb90f8ca19eca8626c4b163362767da10ec28a4",
+     "bytes": 285399,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/health.json",
+     "status": 200,
+     "sha256": "ba75b87a5d7cfe170e6790f04d5a91335c49861525e10afd91cab6ab6f7f1350",
+     "bytes": 21256,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c1a424be892cf9c49727e148f7973c343ac6d01b51ced231134f911ff41169b4",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "ca1a307becd756d652f37a458ccbbd9d443e6969e490d5fe5e8fb6a62ccbe16e",
+     "bytes": 182038,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "9e1ce209eb8e4e705055fbd1ec060636d287a41ac7713e414c59bf555ed35f0d",
+     "bytes": 256821,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "b1287dacc5bbfc30d339b7b565977661478e9fb1301423603474f3d1ca86aca1",
+     "bytes": 2275,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "682867ae25cb20a1c4f5b18a19ce3492a4d1aa18561397c01d633b2e8ecd3f5b",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json",
+     "status": 200,
+     "sha256": "1f2f760481ee837a9b2517bd1678a0363d5bff7e009aeb3ab96e2686c7f53dd2",
+     "bytes": 226301,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "701d32d3375c1f0cca5efe0617f36efd09b839aa3f01bdc152b9e98ee9140e54",
+     "bytes": 1008,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b43813a61c247eba709d3840962399ee6e5cd98f79d00f25f82662ec6a7f5c10",
+     "bytes": 54211,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "432392ee78d010698d01df5731fe1f037b00db5290c20d97d86a13f217f0c240",
+     "bytes": 77391,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:02:29Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "aedb535c9ecab2fae690db420cd5c86450c2d3c2853c309f03f745c4a2dd60e1",
+     "bytes": 2363,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "fe8eb487822e2e70a3828e540f473a811a50f2894bfc0bc406fa0148c6fd92e1",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "915c171c398d29690e63d6d2bef035447931201873937e8005583caba03c9012",
+     "bytes": 73716,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b0fb992f8bbb309868386f499381fa69e56fb420d85bd790170025bc05cb489d",
+     "bytes": 1524789,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "0f0dfe6b449d8708fe542305a8c600757589b84f7ad6a6e7a67782d3c8f6befd",
+     "bytes": 2192,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "94317dd27603cdcd8f8a7b6be82522dc61cef141053d54070ff65663bdc2b298",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json",
+     "status": 200,
+     "sha256": "db07ddae44370e1988fcbdf24ad43f661d32036c49f42569ba2a753aba8bf795",
+     "bytes": 71041,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
+     "bytes": 105465,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "d22b8627b64bcfb58d39440edf7911297deadbe37d58e19a265a5a0316cbef8d",
+     "bytes": 153334,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_2d0e261738ef71649dc9.json",
+     "status": 200,
+     "sha256": "c540e93d9ea560301a88074e96e0638bab5105bc0ad0ffe3bb899f80b10094dc",
+     "bytes": 8155,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:43Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_b35c204716f68dc0b28c.json",
+     "status": 200,
+     "sha256": "1baeee0d2b7637faad02911d0ec56b1da7ae7a53b650dfbd4130c8db0958f7d9",
+     "bytes": 8133,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:02:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_d87c73db64d8544c5902.json",
+     "status": 200,
+     "sha256": "c6b6c4cb6217629b200af4c2c96df24a4e9d584783b4f9805069b6bd167e3b03",
+     "bytes": 8149,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:02:30Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "c7c42f618f14e3ceb8726f45024971e9057e69c5f0005997b4d7b47923218384",
+     "bytes": 123981,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:02:29Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_0354321f68a25a8fcb11.json",
+     "status": 200,
+     "sha256": "4b5b28bf8041278988990ca831a722b66c344d9752a3ce133fdc1fb3e0d810be",
+     "bytes": 148619,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:53:22Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_547c98b3a781b88ef8fe.json",
+     "status": 200,
+     "sha256": "6b6616494f4e5f110dd501155c57a5dfe8560340f4cd0582e64087b4d01cde77",
+     "bytes": 148730,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:02:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_756569fb0a01e033d604.json",
+     "status": 200,
+     "sha256": "ae6d0e5f4dbfddf3b98823377a07aa0a26d6e529eac5526c32451799c2059f36",
+     "bytes": 148273,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:02:42Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_9b2b85217f8398f54add.json",
+     "status": 200,
+     "sha256": "399fd06d6aaebfe171004503c4f47106197b5b62fec01a916ca099c6fb56fdcc",
+     "bytes": 148449,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_d7d503f314f0d08c031d.json",
+     "status": 200,
+     "sha256": "6da70f9aad8a0db25dc0245197f779e1f632cd5558ecb9add2d191173e1fb847",
+     "bytes": 148164,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e24e99004a071b113fba.json",
+     "status": 200,
+     "sha256": "248fa1ad0a0740f0d929f620464c5cec0ae8e44f332045434675e360c07be86a",
+     "bytes": 147744,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e3686e0c346ddad2ca74.json",
+     "status": 200,
+     "sha256": "a10debbdc5e5355e84a7c5db500b87a4fe3d7d7a2f30fde98bd0ef10efd929fb",
+     "bytes": 148036,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e5c79c0dc7745a0640ee.json",
+     "status": 200,
+     "sha256": "ea311fcd07f12bdcd2e745b2cdf89ba66fcd091e24a8ce5f842a462ebc1f0a7c",
+     "bytes": 150357,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_f4da2dc52fd222291bd6.json",
+     "status": 200,
+     "sha256": "f1f5491b4ced7d8adf46e90910926161715247c2834e8799315b4e33412adfe9",
+     "bytes": 150287,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:00:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/health.json",
+     "status": 200,
+     "sha256": "8488e58d4beed1cdb26a2d49572ebff1f3964dafb73c4538d47e7baaca54be72",
+     "bytes": 2181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "7b621221b74c308cc8c0c29e17bd974b6ac1b8cef3b4dc1333efd5b4a3d5dee3",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
+     "bytes": 10049,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5be17e8a0c36d7078fbce31bbb7bd1edb86786c55b7ae47e0c614593f7ec79fd",
+     "bytes": 179865,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "d90c06e6454a582e8a93c6911f6639335f0f6890dc4008777bfb4517a50b0ee1",
+     "bytes": 2804,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "2eadacb3e645c1ab0372745db13850598763a1756c8c17a445417227068226a9",
+     "bytes": 1869,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/theses.json",
+     "status": 200,
+     "sha256": "f1b2954248415857ff1c9961d583fe66531703c2bc5a44231a3a43f6d2693202",
+     "bytes": 7909,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T22:59:39Z"
+    }
+   ]
+  },
+  "game": {
+   "captured_start": "2026-10-26T23:22:24Z",
+   "captured_end": "2026-10-26T23:30:02Z",
+   "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
+   "specs": [
+    "e2e/v3-game.spec.ts",
+    "e2e/v3-quotegate.spec.ts",
+    "e2e/v3-hit-targets.spec.ts"
+   ],
+   "sources": [
+    {
+     "repo": "chmoses98/NHL-edge-finder",
+     "branch": "data-archive",
+     "documents": 5
+    },
+    {
+     "repo": "chmoses98/Tennis-Edge-Finder",
+     "branch": "tennis-data",
+     "documents": 8
+    },
+    {
+     "repo": "chmoses98/cbb-edge-finder",
+     "branch": "app-data",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "main",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "research-signals",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/edge-finder-api",
+     "branch": "main",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/nba-edge-finder",
+     "branch": "data-archive",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "handicap-reports",
+     "documents": 20
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "projection-data",
+     "documents": 2
+    },
+    {
+     "repo": "chmoses98/sift-sports-intelligence",
+     "branch": "live-quotes",
+     "documents": 3
+    },
+    {
+     "repo": "chmoses98/soccer-edge-finder",
+     "branch": "data-archive",
+     "documents": 5
+    }
+   ],
+   "capture_tool": null,
+   "pack_tool": {
+    "name": "scripts/v3-fixtures pack",
+    "version": "1.0.0",
+    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+   },
+   "requested_urls": 150,
+   "cache_files_dropped_unrequested": 16,
+   "not_in_cache": 90,
+   "documents": 60,
+   "bytes": 7762630,
+   "clock": {
+    "captured_at": "2026-10-26T23:25:00Z",
+    "basis": "provisional"
+   },
+   "entries": [
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "e1f2b008b93209992937363a78e6cb7715add40ec9f6104d0877f77c24b54159",
+     "bytes": 5542,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "732e2fb37dde676a215c52b8a5c70df054dfd6bbf3f42ec5ed7f22f30b837b3f",
+     "bytes": 80454,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "1b1b8b03c540c78b21907fef7b85a099240c6674a12a8b0ff24182e69102979e",
+     "bytes": 122496,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "db6be8fc2b19adad48a2040905d1d4930037c5c8a4e39a53cc061fb1bdb378bb",
+     "bytes": 2367,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c20e44eb950b42ba587604f4d2e426aa761a9a4b659ae43d4f464e16228eab1e",
+     "bytes": 23660,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/board.json",
+     "status": 200,
+     "sha256": "4b11a36e864843bb7a25b4a0978e58938ae3f45ad629ea0ccd334453fd40e6a6",
+     "bytes": 306647,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/event_detail/evt_8cdc3c663d76f61139e5.json",
+     "status": 200,
+     "sha256": "c3efd6b6c73b3f6b8d71cf0e8e0b95cbce9054ebb331f348c1e9e0dc8d554f6c",
+     "bytes": 11384,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/event_detail/evt_9e34779d5fc81e89627a.json",
+     "status": 200,
+     "sha256": "c1078ccdc1c61052fa472a1498292d5ca5bb587e5fd6d7a5681af46ebcbec510",
+     "bytes": 11337,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/event_detail/evt_b8bbd51d119a371b638b.json",
+     "status": 200,
+     "sha256": "32f1c5a5d79afe2d93f1fce9a0b5089964bd1be5c96e3921f77162beeffaf553",
+     "bytes": 11299,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "a32f10a7811d775ca01f03ed1fd16454838b483ee2596d60de026a224b8c3fbf",
+     "bytes": 466591,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "c103b42e9016bf79a32ccc5d4b0fbac32ee585fa13d1caf26498aa6919eaf9e4",
+     "bytes": 59403,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/health.json",
+     "status": 200,
+     "sha256": "95b324e6874034f4b28780e24ab4f63f53b46a86ba44dacdfb4e57d1627e400d",
+     "bytes": 2966,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "802f16747658c111e5acbf0793c2fd5e0c2982bc1d76dcc1abd97760ab27a32c",
+     "bytes": 177813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/board.json",
+     "status": 200,
+     "sha256": "bfc04ff978075f77ba3f3994b7bab601ebd6ffd6c514e34be6e33eb96ff0192c",
+     "bytes": 253967,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5609d0cce959f75fa467ed856bb90f8ca19eca8626c4b163362767da10ec28a4",
+     "bytes": 285399,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/health.json",
+     "status": 200,
+     "sha256": "ba75b87a5d7cfe170e6790f04d5a91335c49861525e10afd91cab6ab6f7f1350",
+     "bytes": 21256,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c1a424be892cf9c49727e148f7973c343ac6d01b51ced231134f911ff41169b4",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "ca1a307becd756d652f37a458ccbbd9d443e6969e490d5fe5e8fb6a62ccbe16e",
+     "bytes": 182038,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "9e1ce209eb8e4e705055fbd1ec060636d287a41ac7713e414c59bf555ed35f0d",
+     "bytes": 256821,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "b1287dacc5bbfc30d339b7b565977661478e9fb1301423603474f3d1ca86aca1",
+     "bytes": 2275,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "682867ae25cb20a1c4f5b18a19ce3492a4d1aa18561397c01d633b2e8ecd3f5b",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json",
+     "status": 200,
+     "sha256": "daab95bd8159d659dcb0867c3a6abe93010a5deabe0ae09d0fe9a1387054e271",
+     "bytes": 226300,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "c9d58f1a6ca8a82157b7626347682d0d834979ee7ef7374fd2d0372ac31420a2",
+     "bytes": 1008,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b43813a61c247eba709d3840962399ee6e5cd98f79d00f25f82662ec6a7f5c10",
+     "bytes": 54211,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "6527f836b323f89dee4d75332fa75336cbaee0a74eed20bc705ccc89f69b3a51",
+     "bytes": 2363,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "10e15bd4375e7db34242e8e9d7f5eb5899925a3e3a5a8c08e42ed96cc04d3fcc",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "a4c539701c418e56312a56e10ba3564d02a542e8a1a79f4c5332a8f488d149a9",
+     "bytes": 73716,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b0fb992f8bbb309868386f499381fa69e56fb420d85bd790170025bc05cb489d",
+     "bytes": 1524789,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "3837daf83503e9eb119b6cac3f9180b8b767779b24f86e999fc06e6c7933ba43",
+     "bytes": 2194,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "e877432e0dac197f575dc14e8327147770da5a354f982d605183ea79dcdb0660",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json",
+     "status": 200,
+     "sha256": "db07ddae44370e1988fcbdf24ad43f661d32036c49f42569ba2a753aba8bf795",
+     "bytes": 71041,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_0e858f7285b411adf630.json",
+     "status": 200,
+     "sha256": "e96f123a2b9333d54aafd43d4723896ff9571dd024c5b3f3de54fae571a78165",
+     "bytes": 12569,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:30:02Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "f51b440e2a7d74e8e522d97a8f17161e904c9314746332afac2b008720256305",
+     "bytes": 1303522,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_0e858f7285b411adf630.json",
+     "status": 200,
+     "sha256": "a9c4c03b9d32658f684b541e3d936f4ea6eecbce38f7756ed6ccb3c68081bf22",
+     "bytes": 5663,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:30:02Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "9ff3f8fa16bb9068a8a0280417d62d58d3e96df25652045c4334f219181a3b22",
+     "bytes": 144563,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:50Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
+     "bytes": 105465,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "d22b8627b64bcfb58d39440edf7911297deadbe37d58e19a265a5a0316cbef8d",
+     "bytes": 153334,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_4c661ae8b854ff5f66dd.json",
+     "status": 200,
+     "sha256": "83a421b761a362b938e96f2918d4b8dd32f521b4bf9a415a9dc2405679384c17",
+     "bytes": 35365,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_2d0e261738ef71649dc9.json",
+     "status": 200,
+     "sha256": "c540e93d9ea560301a88074e96e0638bab5105bc0ad0ffe3bb899f80b10094dc",
+     "bytes": 8155,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_be267fe105d950eb5af0.json",
+     "status": 200,
+     "sha256": "5a158486abb27918c9edeacba3f96bb03362f7e673e3ccc2410cf294460205e2",
+     "bytes": 8163,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:27:16Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_d6edaa6f06f8a8183ae1.json",
+     "status": 200,
+     "sha256": "69ca67b66d36ff8952921595adaf5ca41bcc271441c351c62789a6c8a068bb75",
+     "bytes": 8161,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:24:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_e3485aaecabb0ec363a8.json",
+     "status": 200,
+     "sha256": "148750a744d98b9841d0b451f80c7fd082e3385edfc3b1924f19e53f718d0843",
+     "bytes": 8157,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_e415c1b99976e5672d84.json",
+     "status": 200,
+     "sha256": "a8303215707e3a6eb6aea7978575cf6228840e575fd277373f47a8fda40dc2de",
+     "bytes": 8160,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:27:16Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "c7c42f618f14e3ceb8726f45024971e9057e69c5f0005997b4d7b47923218384",
+     "bytes": 123981,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e24e99004a071b113fba.json",
+     "status": 200,
+     "sha256": "248fa1ad0a0740f0d929f620464c5cec0ae8e44f332045434675e360c07be86a",
+     "bytes": 147744,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e3686e0c346ddad2ca74.json",
+     "status": 200,
+     "sha256": "a10debbdc5e5355e84a7c5db500b87a4fe3d7d7a2f30fde98bd0ef10efd929fb",
+     "bytes": 148036,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e5c79c0dc7745a0640ee.json",
+     "status": 200,
+     "sha256": "ea311fcd07f12bdcd2e745b2cdf89ba66fcd091e24a8ce5f842a462ebc1f0a7c",
+     "bytes": 150357,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_f4da2dc52fd222291bd6.json",
+     "status": 200,
+     "sha256": "f1f5491b4ced7d8adf46e90910926161715247c2834e8799315b4e33412adfe9",
+     "bytes": 150287,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/health.json",
+     "status": 200,
+     "sha256": "8488e58d4beed1cdb26a2d49572ebff1f3964dafb73c4538d47e7baaca54be72",
+     "bytes": 2181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "7b621221b74c308cc8c0c29e17bd974b6ac1b8cef3b4dc1333efd5b4a3d5dee3",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/projection-data/projections/nfl/distributions/latest.json",
+     "status": 200,
+     "sha256": "a6033f011e8fd49ac5c160fb8608e6b91858d7ece949794d00fb0223b23b2e0e",
+     "bytes": 37910,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/projection-data/projections/nfl/latest.json",
+     "status": 200,
+     "sha256": "12ce6a432377c2f9f2e5e3fbdd973a74ed3a229bdc68926205d246504ffc3d2e",
+     "bytes": 87168,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DALPHI.json",
+     "status": 200,
+     "sha256": "cbe6071a900e1a98cd5754e8f201fcf0f3e720d9cba05bb18ec2e2165c4f13b0",
+     "bytes": 405247,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DETEDM.json",
+     "status": 200,
+     "sha256": "e8b5c8006d4029fa75e4a85f7da61700dd3363ce65fa6b80a362f16967d3e695",
+     "bytes": 142558,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26TORCGY.json",
+     "status": 200,
+     "sha256": "b797e73412bcd84d32e1c6ef4ea2b21fa98a7358cab19dfd022e9c4b5358d6fb",
+     "bytes": 123181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
+     "bytes": 10049,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5be17e8a0c36d7078fbce31bbb7bd1edb86786c55b7ae47e0c614593f7ec79fd",
+     "bytes": 179865,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "d90c06e6454a582e8a93c6911f6639335f0f6890dc4008777bfb4517a50b0ee1",
+     "bytes": 2804,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "2eadacb3e645c1ab0372745db13850598763a1756c8c17a445417227068226a9",
+     "bytes": 1869,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/theses.json",
+     "status": 200,
+     "sha256": "f1b2954248415857ff1c9961d583fe66531703c2bc5a44231a3a43f6d2693202",
+     "bytes": 7909,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    }
+   ]
+  },
+  "player": {
+   "captured_start": "2026-10-26T23:22:11Z",
+   "captured_end": "2026-10-27T00:20:42Z",
+   "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
+   "specs": [
+    "e2e/v3-player.spec.ts"
+   ],
+   "sources": [
+    {
+     "repo": "chmoses98/NHL-edge-finder",
+     "branch": "data-archive",
+     "documents": 6
+    },
+    {
+     "repo": "chmoses98/Tennis-Edge-Finder",
+     "branch": "tennis-data",
+     "documents": 6
+    },
+    {
+     "repo": "chmoses98/cbb-edge-finder",
+     "branch": "app-data",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "main",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "research-signals",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/edge-finder-api",
+     "branch": "main",
+     "documents": 5
+    },
+    {
+     "repo": "chmoses98/nba-edge-finder",
+     "branch": "data-archive",
+     "documents": 7
+    },
+    {
+     "repo": "chmoses98/nba-edge-finder",
+     "branch": "projection-data",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "handicap-reports",
+     "documents": 16
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "projection-data",
+     "documents": 2
+    },
+    {
+     "repo": "chmoses98/sift-sports-intelligence",
+     "branch": "live-quotes",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/soccer-edge-finder",
+     "branch": "data-archive",
+     "documents": 5
+    }
+   ],
+   "capture_tool": null,
+   "pack_tool": {
+    "name": "scripts/v3-fixtures pack",
+    "version": "1.0.0",
+    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+   },
+   "requested_urls": 109,
+   "cache_files_dropped_unrequested": 46,
+   "not_in_cache": 48,
+   "documents": 61,
+   "bytes": 15204205,
+   "clock": {
+    "captured_at": "2026-10-26T19:00:00Z",
+    "basis": "provisional"
+   },
+   "entries": [
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "e1f2b008b93209992937363a78e6cb7715add40ec9f6104d0877f77c24b54159",
+     "bytes": 5542,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "732e2fb37dde676a215c52b8a5c70df054dfd6bbf3f42ec5ed7f22f30b837b3f",
+     "bytes": 80454,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "1b1b8b03c540c78b21907fef7b85a099240c6674a12a8b0ff24182e69102979e",
+     "bytes": 122496,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "850138311e3fb85ca23b914a629c49c760d5aab85fb970181fde9f09b6e97c2f",
+     "bytes": 100906,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:49:28Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "db6be8fc2b19adad48a2040905d1d4930037c5c8a4e39a53cc061fb1bdb378bb",
+     "bytes": 2367,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c20e44eb950b42ba587604f4d2e426aa761a9a4b659ae43d4f464e16228eab1e",
+     "bytes": 23660,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/board.json",
+     "status": 200,
+     "sha256": "4b11a36e864843bb7a25b4a0978e58938ae3f45ad629ea0ccd334453fd40e6a6",
+     "bytes": 306647,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "a32f10a7811d775ca01f03ed1fd16454838b483ee2596d60de026a224b8c3fbf",
+     "bytes": 466591,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "c103b42e9016bf79a32ccc5d4b0fbac32ee585fa13d1caf26498aa6919eaf9e4",
+     "bytes": 59403,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "ea955582e41de80dffbf52245bad0309c841b0752e97af57d47d70a5b95c5181",
+     "bytes": 491062,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:20:42Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/health.json",
+     "status": 200,
+     "sha256": "95b324e6874034f4b28780e24ab4f63f53b46a86ba44dacdfb4e57d1627e400d",
+     "bytes": 2966,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "802f16747658c111e5acbf0793c2fd5e0c2982bc1d76dcc1abd97760ab27a32c",
+     "bytes": 177813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/board.json",
+     "status": 200,
+     "sha256": "bfc04ff978075f77ba3f3994b7bab601ebd6ffd6c514e34be6e33eb96ff0192c",
+     "bytes": 253967,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5609d0cce959f75fa467ed856bb90f8ca19eca8626c4b163362767da10ec28a4",
+     "bytes": 285399,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/health.json",
+     "status": 200,
+     "sha256": "ba75b87a5d7cfe170e6790f04d5a91335c49861525e10afd91cab6ab6f7f1350",
+     "bytes": 21256,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c1a424be892cf9c49727e148f7973c343ac6d01b51ced231134f911ff41169b4",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "ca1a307becd756d652f37a458ccbbd9d443e6969e490d5fe5e8fb6a62ccbe16e",
+     "bytes": 182038,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "9e1ce209eb8e4e705055fbd1ec060636d287a41ac7713e414c59bf555ed35f0d",
+     "bytes": 256821,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "b1287dacc5bbfc30d339b7b565977661478e9fb1301423603474f3d1ca86aca1",
+     "bytes": 2275,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "682867ae25cb20a1c4f5b18a19ce3492a4d1aa18561397c01d633b2e8ecd3f5b",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json",
+     "status": 200,
+     "sha256": "daab95bd8159d659dcb0867c3a6abe93010a5deabe0ae09d0fe9a1387054e271",
+     "bytes": 226300,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "c9d58f1a6ca8a82157b7626347682d0d834979ee7ef7374fd2d0372ac31420a2",
+     "bytes": 1008,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b43813a61c247eba709d3840962399ee6e5cd98f79d00f25f82662ec6a7f5c10",
+     "bytes": 54211,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "935c4c9634d604c4580d21930ec4f5b4cf19ebb3a793a8e975224458a293954f",
+     "bytes": 53200,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:49:28Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "6527f836b323f89dee4d75332fa75336cbaee0a74eed20bc705ccc89f69b3a51",
+     "bytes": 2363,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "10e15bd4375e7db34242e8e9d7f5eb5899925a3e3a5a8c08e42ed96cc04d3fcc",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "a4c539701c418e56312a56e10ba3564d02a542e8a1a79f4c5332a8f488d149a9",
+     "bytes": 73716,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_2645d372317f1b85690a.json",
+     "status": 200,
+     "sha256": "bac2b1479c910817fdc6fda9a92c1025efab565304a15064024491f020437db4",
+     "bytes": 858695,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:00:00Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b0fb992f8bbb309868386f499381fa69e56fb420d85bd790170025bc05cb489d",
+     "bytes": 1524789,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/players/prt_3b16b9a418e9e8e833f9.json",
+     "status": 200,
+     "sha256": "32d1bad3ba501af1f9bbb10d46515903048e7076dcffc99a39d9f9690264812f",
+     "bytes": 72792,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:00:28Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "4046cb4f0fcca597f43a6aaebe651ac76e3356febd322182b6287361c0959d22",
+     "bytes": 142787,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:49:28Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "3837daf83503e9eb119b6cac3f9180b8b767779b24f86e999fc06e6c7933ba43",
+     "bytes": 2194,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "e877432e0dac197f575dc14e8327147770da5a354f982d605183ea79dcdb0660",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/projection-data/projections/nba/latest.json",
+     "status": 200,
+     "sha256": "7de598dde935479be829053d4225fd38bb80b2c99d7796596850a3e09616c11c",
+     "bytes": 5814874,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:00:29Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json",
+     "status": 200,
+     "sha256": "db07ddae44370e1988fcbdf24ad43f661d32036c49f42569ba2a753aba8bf795",
+     "bytes": 71041,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "f51b440e2a7d74e8e522d97a8f17161e904c9314746332afac2b008720256305",
+     "bytes": 1303522,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_e124f9c325722883d07f.json",
+     "status": 200,
+     "sha256": "b2189933f35a41f3488e24d470214ae149f4cae60623c440adb8da395199d78e",
+     "bytes": 6863,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:50:21Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "9ff3f8fa16bb9068a8a0280417d62d58d3e96df25652045c4334f219181a3b22",
+     "bytes": 144563,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:49:51Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_e124f9c325722883d07f.json",
+     "status": 200,
+     "sha256": "913a7ca6dabb084d671ed39659cfb07878d32bfdca429a63daaa47dfa2cde61a",
+     "bytes": 4349,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:50:20Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
+     "bytes": 105465,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "d22b8627b64bcfb58d39440edf7911297deadbe37d58e19a265a5a0316cbef8d",
+     "bytes": 153334,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_4c661ae8b854ff5f66dd.json",
+     "status": 200,
+     "sha256": "83a421b761a362b938e96f2918d4b8dd32f521b4bf9a415a9dc2405679384c17",
+     "bytes": 35365,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_e3485aaecabb0ec363a8.json",
+     "status": 200,
+     "sha256": "148750a744d98b9841d0b451f80c7fd082e3385edfc3b1924f19e53f718d0843",
+     "bytes": 8157,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_ff2b3f222a6eb59fb793.json",
+     "status": 200,
+     "sha256": "91ba35bce900bb61acb86a1b54a0d604b2432c4680edc36c05ada4390efe1efd",
+     "bytes": 8166,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "c7c42f618f14e3ceb8726f45024971e9057e69c5f0005997b4d7b47923218384",
+     "bytes": 123981,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e3686e0c346ddad2ca74.json",
+     "status": 200,
+     "sha256": "a10debbdc5e5355e84a7c5db500b87a4fe3d7d7a2f30fde98bd0ef10efd929fb",
+     "bytes": 148036,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e5c79c0dc7745a0640ee.json",
+     "status": 200,
+     "sha256": "ea311fcd07f12bdcd2e745b2cdf89ba66fcd091e24a8ce5f842a462ebc1f0a7c",
+     "bytes": 150357,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_f4da2dc52fd222291bd6.json",
+     "status": 200,
+     "sha256": "f1f5491b4ced7d8adf46e90910926161715247c2834e8799315b4e33412adfe9",
+     "bytes": 150287,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/health.json",
+     "status": 200,
+     "sha256": "8488e58d4beed1cdb26a2d49572ebff1f3964dafb73c4538d47e7baaca54be72",
+     "bytes": 2181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "7b621221b74c308cc8c0c29e17bd974b6ac1b8cef3b4dc1333efd5b4a3d5dee3",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/projection-data/projections/nfl/distributions/latest.json",
+     "status": 200,
+     "sha256": "a6033f011e8fd49ac5c160fb8608e6b91858d7ece949794d00fb0223b23b2e0e",
+     "bytes": 37910,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/projection-data/projections/nfl/latest.json",
+     "status": 200,
+     "sha256": "12ce6a432377c2f9f2e5e3fbdd973a74ed3a229bdc68926205d246504ffc3d2e",
+     "bytes": 87168,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DALPHI.json",
+     "status": 200,
+     "sha256": "cbe6071a900e1a98cd5754e8f201fcf0f3e720d9cba05bb18ec2e2165c4f13b0",
+     "bytes": 405247,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DETEDM.json",
+     "status": 200,
+     "sha256": "e8b5c8006d4029fa75e4a85f7da61700dd3363ce65fa6b80a362f16967d3e695",
+     "bytes": 142558,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26LANYR.json",
+     "status": 200,
+     "sha256": "c2cf4b5171d7ec57625fbc8c81ecaf0487ce3b7bf7e8e21f29e8fa82794f22bd",
+     "bytes": 120516,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26TORCGY.json",
+     "status": 200,
+     "sha256": "b797e73412bcd84d32e1c6ef4ea2b21fa98a7358cab19dfd022e9c4b5358d6fb",
+     "bytes": 123181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
+     "bytes": 10049,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5be17e8a0c36d7078fbce31bbb7bd1edb86786c55b7ae47e0c614593f7ec79fd",
+     "bytes": 179865,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "d90c06e6454a582e8a93c6911f6639335f0f6890dc4008777bfb4517a50b0ee1",
+     "bytes": 2804,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "2eadacb3e645c1ab0372745db13850598763a1756c8c17a445417227068226a9",
+     "bytes": 1869,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/theses.json",
+     "status": 200,
+     "sha256": "f1b2954248415857ff1c9961d583fe66531703c2bc5a44231a3a43f6d2693202",
+     "bytes": 7909,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:11Z"
+    }
+   ]
+  },
+  "props": {
+   "captured_start": "2026-10-26T23:14:08Z",
+   "captured_end": "2026-10-27T01:40:51Z",
+   "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
+   "specs": [
+    "e2e/v3-props.spec.ts"
+   ],
+   "sources": [
+    {
+     "repo": "chmoses98/NHL-edge-finder",
+     "branch": "data-archive",
+     "documents": 25
+    },
+    {
+     "repo": "chmoses98/Tennis-Edge-Finder",
+     "branch": "tennis-data",
+     "documents": 5
+    },
+    {
+     "repo": "chmoses98/cbb-edge-finder",
+     "branch": "app-data",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "main",
+     "documents": 10
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "projection-data",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/cfb-edge-finder",
+     "branch": "research-signals",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/edge-finder-api",
+     "branch": "main",
+     "documents": 6
+    },
+    {
+     "repo": "chmoses98/edge-finder-api",
+     "branch": "projection-data",
+     "documents": 1
+    },
+    {
+     "repo": "chmoses98/nba-edge-finder",
+     "branch": "data-archive",
+     "documents": 35
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "handicap-reports",
+     "documents": 19
+    },
+    {
+     "repo": "chmoses98/nfl-edge-finder",
+     "branch": "projection-data",
+     "documents": 2
+    },
+    {
+     "repo": "chmoses98/sift-sports-intelligence",
+     "branch": "live-quotes",
+     "documents": 4
+    },
+    {
+     "repo": "chmoses98/soccer-edge-finder",
+     "branch": "data-archive",
+     "documents": 5
+    }
+   ],
+   "capture_tool": null,
+   "pack_tool": {
+    "name": "scripts/v3-fixtures pack",
+    "version": "1.0.0",
+    "git_sha": "1e315dcd2d83688f8faf715baefa424c9caaf704"
+   },
+   "requested_urls": 164,
+   "cache_files_dropped_unrequested": 1293,
+   "not_in_cache": 46,
+   "clock": {
+    "captured_at": "2026-10-26T23:25:00Z",
+    "basis": "provisional"
+   },
+   "documents": 118,
+   "bytes": 22245926,
+   "entries": [
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "0daf67b394d061c60575bcca11d3f45a583f11a2658325ab64a28a0a1867edb5",
+     "bytes": 4585,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/event_detail/evt_9dcedbe131e7ff4c72d6.json",
+     "status": 200,
+     "sha256": "6a0d50f82634a1763ad4973bc857d09e54cc8881160002a99623f31a349a08e1",
+     "bytes": 336515,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/event_detail/evt_b18de26592142b883a1c.json",
+     "status": 200,
+     "sha256": "e2d9e90f95bb4125f9e5baef4ea8b5c929260734f4a3f19dfc62bcbf9753e53a",
+     "bytes": 360293,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "4d988e8ccc4e1a215c1b72a819860f546b5d97d3445f5ceee58ac898a0d4d9f4",
+     "bytes": 80454,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "abbff69ba0a2fc5c31d1a23b6447594c6774e492cfe5b7c03c92337bc10c6b92",
+     "bytes": 122496,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_02eff1d2bc7ce5423cd4.json",
+     "status": 200,
+     "sha256": "d910679758ab5072982ab0b90440d0c7d6903777c9d476a66e4938a02dffab70",
+     "bytes": 28526,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:25:23Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_2ad983eaf511321ad35d.json",
+     "status": 200,
+     "sha256": "0f4b88c1027732a309641fc1a3b8c38fbef94f7b52efc44e4487bbe0099ed265",
+     "bytes": 28358,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:29:20Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_3d07954820bdad628cf3.json",
+     "status": 200,
+     "sha256": "0baf1887b2bef1d79c74af9a08938d91d105ef2fa7b33dc50a883d4ed6d66d29",
+     "bytes": 28491,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T01:40:51Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_420a56bac86ea89ecb51.json",
+     "status": 200,
+     "sha256": "3d970f53d0b1a516f31defb28e0d8aced50e273befb6336ae3848f3ecfd7dbf2",
+     "bytes": 28462,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:46:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_4f951fe74c6e3577efd1.json",
+     "status": 200,
+     "sha256": "a6730a081a722ed90accd47b3bb843f419b9cb9ba1e9515773f61b8c2299262e",
+     "bytes": 28504,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:46:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_5c3e80615240fc99db37.json",
+     "status": 200,
+     "sha256": "5e701f3dfe26950c4b9b1197f270195067b0ddd19c6ae6cac98a6019ee4a816c",
+     "bytes": 17161,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:25:23Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_616b72c6ae2e6a86bfff.json",
+     "status": 200,
+     "sha256": "c5219617718ee1875f1401cffd395451c0d208660c203801be3a61f176f13d52",
+     "bytes": 28107,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:29:20Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_703d4ab8b8451089e334.json",
+     "status": 200,
+     "sha256": "2e542d6035427dfebb0c63f4b6142aad5f634d102ec693cb5a0817f7b0a742cf",
+     "bytes": 28307,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:29:20Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_7364ac1d5db3631d7aec.json",
+     "status": 200,
+     "sha256": "2041eb3d02ec5143fb3c069cfb5adf4ccba775994aec89b72606744d049d04df",
+     "bytes": 17243,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:46:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_8ebf6be20c01e1339a0b.json",
+     "status": 200,
+     "sha256": "eb33c29dd96af2681f81d9d629a4e7a8cb6a23e04d9bd97a93ddf14f31c51019",
+     "bytes": 25152,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:43:02Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_9d53367e7e72568bf835.json",
+     "status": 200,
+     "sha256": "cc1b10dc406d8543a80396da0ec1ae9bf0ca1385e8acbd7d0d2edc0c81f3332a",
+     "bytes": 14180,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:28:42Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_a0a1253b293334d20d78.json",
+     "status": 200,
+     "sha256": "3dfd1a24a13e8b116ebd4e95b8b0485393c71036ec064086692fe08ed1fe1be4",
+     "bytes": 25803,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:29:21Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_a8313c968f409d22c039.json",
+     "status": 200,
+     "sha256": "5fa4eab71d531f34150ea1f431ad49ac99d23fe092999df8ea577db944327c9a",
+     "bytes": 28297,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:36:04Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_d685f1c14e2020578bfa.json",
+     "status": 200,
+     "sha256": "c1e985174c3a7ccc58f67cf424ce2a51ff11e61a2ae52c5e134f7a16adee8841",
+     "bytes": 17243,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:43:02Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_e307544b22011e6da391.json",
+     "status": 200,
+     "sha256": "ff0865eac698d14e82615f0aef1cfa0bdc6c4e08c516c92558cf91800ee9a587",
+     "bytes": 25895,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:36:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/rankings/rnk_9c8ba69b0a7dc5fec50f.json",
+     "status": 200,
+     "sha256": "0b66f44bef60f675f5b44e413414415fab8224c7ddc63922a7ddad954f315707",
+     "bytes": 8631,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:50Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "850138311e3fb85ca23b914a629c49c760d5aab85fb970181fde9f09b6e97c2f",
+     "bytes": 100906,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:48:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/teams/prt_6074ed9db3e77a72be6a.json",
+     "status": 200,
+     "sha256": "d23e5068afba5ad3861958e3cf36305ea66b2b3f0dda6f4b1cbb6ceca06eccad",
+     "bytes": 100120,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:49Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "409b79870321a5b7634013b7599c82db8eecac5b2b74624a65ab02cc753c0120",
+     "bytes": 2364,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "b68d550ac960c460946e1f64e949ebb5b8753b88d23e60d0856db83e3ae23b76",
+     "bytes": 15860,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/board.json",
+     "status": 200,
+     "sha256": "4b11a36e864843bb7a25b4a0978e58938ae3f45ad629ea0ccd334453fd40e6a6",
+     "bytes": 306647,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "a32f10a7811d775ca01f03ed1fd16454838b483ee2596d60de026a224b8c3fbf",
+     "bytes": 466591,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "c103b42e9016bf79a32ccc5d4b0fbac32ee585fa13d1caf26498aa6919eaf9e4",
+     "bytes": 59403,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/health.json",
+     "status": 200,
+     "sha256": "95b324e6874034f4b28780e24ab4f63f53b46a86ba44dacdfb4e57d1627e400d",
+     "bytes": 2966,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:08Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/Tennis-Edge-Finder/tennis-data/tennis-edge-finder/data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "802f16747658c111e5acbf0793c2fd5e0c2982bc1d76dcc1abd97760ab27a32c",
+     "bytes": 177813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/board.json",
+     "status": 200,
+     "sha256": "bfc04ff978075f77ba3f3994b7bab601ebd6ffd6c514e34be6e33eb96ff0192c",
+     "bytes": 253967,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5609d0cce959f75fa467ed856bb90f8ca19eca8626c4b163362767da10ec28a4",
+     "bytes": 285399,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/health.json",
+     "status": 200,
+     "sha256": "ba75b87a5d7cfe170e6790f04d5a91335c49861525e10afd91cab6ab6f7f1350",
+     "bytes": 21256,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:08Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cbb-edge-finder/app-data/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "c1a424be892cf9c49727e148f7973c343ac6d01b51ced231134f911ff41169b4",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "ca1a307becd756d652f37a458ccbbd9d443e6969e490d5fe5e8fb6a62ccbe16e",
+     "bytes": 182038,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_360ea158f4e58cf55bb7.json",
+     "status": 200,
+     "sha256": "a16eb9fd35eea97005450caa5081dd05428cc33b6c3c5679b14c9eb1c329ea27",
+     "bytes": 113435,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_791f6864dd3516291ec5.json",
+     "status": 200,
+     "sha256": "bcdeac92ffabecf24f1c688783ad40236a8324cfd7a4eca7ba6188a88e93bd59",
+     "bytes": 113544,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a23a0a5d0a9dc27a210f.json",
+     "status": 200,
+     "sha256": "f270fbc0a3acdc09a8f9301a93c59a08068c7bd21830b9ee6cf8551a77c98824",
+     "bytes": 121013,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/events/evt_360ea158f4e58cf55bb7.json",
+     "status": 200,
+     "sha256": "01201ef5beb845f2369677543770d086d99996e500ddd10ec78293d8b588a1e4",
+     "bytes": 140818,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:55Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/events/evt_791f6864dd3516291ec5.json",
+     "status": 200,
+     "sha256": "59eb24c7925f16aec80bfc61e3b0e41b9be8ba62e6fdbaa0e8c6eba3166dbc9b",
+     "bytes": 136835,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:55Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/events/evt_a23a0a5d0a9dc27a210f.json",
+     "status": 200,
+     "sha256": "3b36810cc247cb0e76ed5386c36d9ac7c8b17619b25a775e5e2809f744f577ef",
+     "bytes": 124201,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:55Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "9e1ce209eb8e4e705055fbd1ec060636d287a41ac7713e414c59bf555ed35f0d",
+     "bytes": 256821,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "b1287dacc5bbfc30d339b7b565977661478e9fb1301423603474f3d1ca86aca1",
+     "bytes": 2275,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:08Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "682867ae25cb20a1c4f5b18a19ce3492a4d1aa18561397c01d633b2e8ecd3f5b",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/projection-data/projections/cfb/latest.json",
+     "status": 200,
+     "sha256": "ff06065e23c5a2dc419d7b58f5ad0e905043f77ec45f3d17a10353dce4c10e56",
+     "bytes": 7299,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:11Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/research-signals/signals/cfb_research_signals.json",
+     "status": 200,
+     "sha256": "188da907787569219a795f731060e983e27390e7e19d862f4c5f315f1d2ce821",
+     "bytes": 226302,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/board.json",
+     "status": 200,
+     "sha256": "df1aa0883e595328cdffe6c37f2ed32cea7b807f326026889eac9be589daec8b",
+     "bytes": 1008,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/event_detail/evt_bf07b132e693af2fa8a1.json",
+     "status": 200,
+     "sha256": "8df09126189283bdcd35d66d03347c5449834a3bafcd46ec627cca9a6d304f0b",
+     "bytes": 611807,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b43813a61c247eba709d3840962399ee6e5cd98f79d00f25f82662ec6a7f5c10",
+     "bytes": 54211,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "935c4c9634d604c4580d21930ec4f5b4cf19ebb3a793a8e975224458a293954f",
+     "bytes": 53200,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:48:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/health.json",
+     "status": 200,
+     "sha256": "bcd7a6f86c45b9b376ae92b5f38d639dce6cf1e0aea3765e38359fe4e7b84e71",
+     "bytes": 2363,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:08Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/main/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "cb11512b33b6dede0cb77d340f0e5953fa9589556e8f11d3dadd04ef949f7f1f",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/edge-finder-api/projection-data/projections/mlb/latest.json",
+     "status": 200,
+     "sha256": "58469aa04b4b6e5d88ece1b2dbd3f80e5c6aac0bcecca9c52d35e7b9040f53c5",
+     "bytes": 176849,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:12Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "f68f354c8b068e9e9ed766c3195b1e61978da853d29c1cd39957d78fe37779c7",
+     "bytes": 73716,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_17172b8cff65651d8156.json",
+     "status": 200,
+     "sha256": "16da82dbdc84e4d5847ee7e5e8263fd8b5bc5c8e39a8d35a4d832faf4f20cade",
+     "bytes": 840999,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_218fc6544812b86338e7.json",
+     "status": 200,
+     "sha256": "e38c9cea2da90ec01edbe6cc17cfb0e512c77e4ae8b1c30cb31ee7a27ba26bcc",
+     "bytes": 3992,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_2ced7e40cd2cdd85edb5.json",
+     "status": 200,
+     "sha256": "70e159fe253bf6846c83c9c5ce07320437a856d1b169dae5b85d0038858fedb1",
+     "bytes": 31647,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_2ee19cb8e6472751f1cf.json",
+     "status": 200,
+     "sha256": "54fdc3ab98690c15b4618194a57b4af02e1304644c078d77017910e34fb214fa",
+     "bytes": 3986,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_2ef7dd9512c3123bb5a5.json",
+     "status": 200,
+     "sha256": "62c50721627cb0e7240ef599db9da95299e1e78d32cee3b7334725fcfe093e04",
+     "bytes": 74813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_35ed1062cfeba9ce5e2c.json",
+     "status": 200,
+     "sha256": "45f3d77c330edf6ed8e6c528dd34bf9ba8fdfe53fe1763dcf05a73da0c209610",
+     "bytes": 975369,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_5bf3bb7d035319cc96d5.json",
+     "status": 200,
+     "sha256": "8e92c6935f68e91bed794c3a1b50eea49897b5fe3da7f7a02eb88b7d048b6177",
+     "bytes": 31639,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_5d92d9b92734137a4998.json",
+     "status": 200,
+     "sha256": "8074fe58aba2e6051575d00d054e652ec9a209336a257612ddcb32695a398729",
+     "bytes": 3964,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_70322d47cb7dbde94d89.json",
+     "status": 200,
+     "sha256": "29f1ce7347fd3df82cc39c336f4a18aeff2a0cd9322833793f01cb4a5017969c",
+     "bytes": 945859,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_79e0a1ffdf1eaf4ab201.json",
+     "status": 200,
+     "sha256": "3716a32cdcebb9fb6d2d28ceaec0c3425215bb34181dca4f9d5e780d072d3fad",
+     "bytes": 31472,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_d593ffe8d31d992214c9.json",
+     "status": 200,
+     "sha256": "3f53c0713ba9f3927a8db7176605e1e35b2375014892f547941649d1bb13bca3",
+     "bytes": 899084,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_e21445b36c97c5750139.json",
+     "status": 200,
+     "sha256": "b3150001c5d02e72ce62d62ba7ddb7fbf2a53228ed17923ce55c101e308b3912",
+     "bytes": 31412,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_edf8ea244aa6c9da97f0.json",
+     "status": 200,
+     "sha256": "13440bd9952aa3c973c4170342f725654d69f00a2428e253b1bb1f577478ec45",
+     "bytes": 938948,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_f631300c02d9a1233de6.json",
+     "status": 200,
+     "sha256": "26a9a275dc92801360f73e5eeb67202cde1f3d6ac6d662383562f11f5808ecdf",
+     "bytes": 924921,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_f9e1404be709cdf4c139.json",
+     "status": 200,
+     "sha256": "062b945ec741931a7557c32de4ff7625e56b40fadf9193582372095da4136889",
+     "bytes": 967928,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_17172b8cff65651d8156.json",
+     "status": 200,
+     "sha256": "a708051edca1f4336f13d370fb06084dac7c6af0234259645b37e6caaba2e51c",
+     "bytes": 543935,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:47Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_218fc6544812b86338e7.json",
+     "status": 200,
+     "sha256": "f2d8cbd39e88e434c76e2d0b2ae57b93bd72094f090ed39f066055bea46f81a3",
+     "bytes": 31230,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2ced7e40cd2cdd85edb5.json",
+     "status": 200,
+     "sha256": "67985d52b2fd306acb70979c5e4ab71482998faf9560e20887d56f531afbab34",
+     "bytes": 40116,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2ee19cb8e6472751f1cf.json",
+     "status": 200,
+     "sha256": "c063e873a916c52bebc29dc004b2ae9906f0be9b2fec48f57435aec0f7cdcf0c",
+     "bytes": 32467,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2ef7dd9512c3123bb5a5.json",
+     "status": 200,
+     "sha256": "16f8d72a41150b3006aabb7a45a069981fe29a751a8f73a02f3b49e83dd89905",
+     "bytes": 59205,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_35ed1062cfeba9ce5e2c.json",
+     "status": 200,
+     "sha256": "dbf962c990ad223c8370b7eda83183d4925abcd217af3c69b14925d4ecd6baa2",
+     "bytes": 615624,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:48Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_5bf3bb7d035319cc96d5.json",
+     "status": 200,
+     "sha256": "68a56fc3a5584c570061dc88173783097eb325ad334aa909db367d09c2b5aba2",
+     "bytes": 40819,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_5d92d9b92734137a4998.json",
+     "status": 200,
+     "sha256": "d2488bc6d626966d1a8be35e5a00c23ee0772630bf94cbb964f807c8be19720c",
+     "bytes": 30805,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_70322d47cb7dbde94d89.json",
+     "status": 200,
+     "sha256": "1e591baadffa2cb6bf2a196cc71cb045098e05d4235acf1d067578eb665dfd06",
+     "bytes": 599940,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:47Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_79e0a1ffdf1eaf4ab201.json",
+     "status": 200,
+     "sha256": "ca9c7b9ed56a977692e5f039f94c2553534111265cf135bf7f0a24e8fb253b0c",
+     "bytes": 41618,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:46Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_d593ffe8d31d992214c9.json",
+     "status": 200,
+     "sha256": "71f6aebca70589b39be0dbd3a3b74823d91f4734dac9115477f8dc35e42a3360",
+     "bytes": 574819,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:47Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_e21445b36c97c5750139.json",
+     "status": 200,
+     "sha256": "df3d178107e962860e7c0dfb49406a476da23b929f794554909dfcb78ec5f2a6",
+     "bytes": 40797,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:50Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_edf8ea244aa6c9da97f0.json",
+     "status": 200,
+     "sha256": "475a795964628839895958adba891c1357ff8f64ccb82de436a6b8e840194877",
+     "bytes": 567535,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:48Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_f631300c02d9a1233de6.json",
+     "status": 200,
+     "sha256": "3f20c6c835525adefa2c83e6cfdc8936a1d20750c4e44f90d1317897aa918db3",
+     "bytes": 589456,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:48Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_f9e1404be709cdf4c139.json",
+     "status": 200,
+     "sha256": "308f93d0bc6031b206e1e72d2c7c85d32fcb184bfb4e4271c7626062608c93e5",
+     "bytes": 607714,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:47Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "b0fb992f8bbb309868386f499381fa69e56fb420d85bd790170025bc05cb489d",
+     "bytes": 1524789,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "4046cb4f0fcca597f43a6aaebe651ac76e3356febd322182b6287361c0959d22",
+     "bytes": 142787,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:48:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "e73290ac3d78d590c1242871d84191dca3b7b24b11aacc9f12d873f4e7f2355b",
+     "bytes": 2192,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "ebb8fccbece34acc8432ffc4f803525dc36ec53b46e5e86b907562e6aa9a9a1e",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json",
+     "status": 200,
+     "sha256": "db07ddae44370e1988fcbdf24ad43f661d32036c49f42569ba2a753aba8bf795",
+     "bytes": 71041,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/event_detail/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "f51b440e2a7d74e8e522d97a8f17161e904c9314746332afac2b008720256305",
+     "bytes": 1303522,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_1ca1955ea641a90948ee.json",
+     "status": 200,
+     "sha256": "ffeccdd48c50a7fd57eae4a1e10c9aac1ae41962fbd6c043ba81de7eeab45765",
+     "bytes": 144627,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:33:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_4463b289379ca18d60c9.json",
+     "status": 200,
+     "sha256": "12613691097fc1aa46bed286c45c713eec6867a97d5e9d5efb64ac722722b687",
+     "bytes": 144985,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:33:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_cd335cc6d5f5b8d8f7b3.json",
+     "status": 200,
+     "sha256": "9ff3f8fa16bb9068a8a0280417d62d58d3e96df25652045c4334f219181a3b22",
+     "bytes": 144563,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:47Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_fd5eacb45d9efe8ef348.json",
+     "status": 200,
+     "sha256": "4a2e2f24c4ce5d594f46a5c57f9df9749cba3a2f0fe1a7102a0a341fe875825d",
+     "bytes": 144995,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:33:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "32c91b02a8ec76f933c159068dc7784414ed550e4cd6cc38b5db7cd4d85e94a6",
+     "bytes": 105465,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/metrics.json",
+     "status": 200,
+     "sha256": "d22b8627b64bcfb58d39440edf7911297deadbe37d58e19a265a5a0316cbef8d",
+     "bytes": 153334,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:56:57Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_5b9c03a72c93acfab443.json",
+     "status": 200,
+     "sha256": "4860eef04211b2bafd0e35c50678367287987e65d7018112536c5f73b69d601b",
+     "bytes": 25192,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:57:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_8e4a5e41d6c1f6b40188.json",
+     "status": 200,
+     "sha256": "6a2871ab77c3926a8dd5d133ee6d1d36b3c0516f838cb544e74b634261365cc6",
+     "bytes": 59941,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:56:06Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_ef8b89d80176e41554ee.json",
+     "status": 200,
+     "sha256": "837949cdfa7ab0fef17de12313c6146163013088beff1f0b7adfbc94f90b1945",
+     "bytes": 19266,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:59:24Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_d87c73db64d8544c5902.json",
+     "status": 200,
+     "sha256": "c6b6c4cb6217629b200af4c2c96df24a4e9d584783b4f9805069b6bd167e3b03",
+     "bytes": 8149,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:50Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_e3485aaecabb0ec363a8.json",
+     "status": 200,
+     "sha256": "148750a744d98b9841d0b451f80c7fd082e3385edfc3b1924f19e53f718d0843",
+     "bytes": 8157,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:50Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_e415c1b99976e5672d84.json",
+     "status": 200,
+     "sha256": "a8303215707e3a6eb6aea7978575cf6228840e575fd277373f47a8fda40dc2de",
+     "bytes": 8160,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:50Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/search_index.json",
+     "status": 200,
+     "sha256": "c7c42f618f14e3ceb8726f45024971e9057e69c5f0005997b4d7b47923218384",
+     "bytes": 123981,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:48:39Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e3686e0c346ddad2ca74.json",
+     "status": 200,
+     "sha256": "a10debbdc5e5355e84a7c5db500b87a4fe3d7d7a2f30fde98bd0ef10efd929fb",
+     "bytes": 148036,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:21:49Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e5c79c0dc7745a0640ee.json",
+     "status": 200,
+     "sha256": "73d79b3c2bca940c2b38b2336b53a1709e577ded52506c459b68b7a0eb5e1a6f",
+     "bytes": 150338,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T01:34:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/health.json",
+     "status": 200,
+     "sha256": "8488e58d4beed1cdb26a2d49572ebff1f3964dafb73c4538d47e7baaca54be72",
+     "bytes": 2181,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:08Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "7b621221b74c308cc8c0c29e17bd974b6ac1b8cef3b4dc1333efd5b4a3d5dee3",
+     "bytes": 174,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/projection-data/projections/nfl/distributions/latest.json",
+     "status": 200,
+     "sha256": "a6033f011e8fd49ac5c160fb8608e6b91858d7ece949794d00fb0223b23b2e0e",
+     "bytes": 37910,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:12Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/projection-data/projections/nfl/latest.json",
+     "status": 200,
+     "sha256": "12ce6a432377c2f9f2e5e3fbdd973a74ed3a229bdc68926205d246504ffc3d2e",
+     "bytes": 87168,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:12Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT262000MILTB.json",
+     "status": 200,
+     "sha256": "0b4d25881de5f52021ddef54302e8736f18eff1d7571dfa2113294488ee5e680",
+     "bytes": 176828,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:23:20Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DALPHI.json",
+     "status": 200,
+     "sha256": "9ca908b6fb767df501bd8dcaec9325a598ec5292355f74e84e283809b62872a1",
+     "bytes": 435021,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:23:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DETEDM.json",
+     "status": 200,
+     "sha256": "b7821d2e7f338a3f18d50250f90bd6adf979a7aca074899eb2055ec79af837b1",
+     "bytes": 142573,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:24:05Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26TORCGY.json",
+     "status": 200,
+     "sha256": "adef085140908d9cb8239975b22c664be8765175ff48cbff02d2bc95aaaba0d5",
+     "bytes": 131516,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:23:45Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/board.json",
+     "status": 200,
+     "sha256": "3de00c46ac02778396212f43745958d6d0406c859cde2fc72bb73cc2e190c601",
+     "bytes": 10049,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/explorer/index.json",
+     "status": 200,
+     "sha256": "5be17e8a0c36d7078fbce31bbb7bd1edb86786c55b7ae47e0c614593f7ec79fd",
+     "bytes": 179865,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/health.json",
+     "status": 200,
+     "sha256": "d90c06e6454a582e8a93c6911f6639335f0f6890dc4008777bfb4517a50b0ee1",
+     "bytes": 2804,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:08Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/recommendations.json",
+     "status": 200,
+     "sha256": "2eadacb3e645c1ab0372745db13850598763a1756c8c17a445417227068226a9",
+     "bytes": 1869,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/soccer-edge-finder/data-archive/app/latest/theses.json",
+     "status": 200,
+     "sha256": "f1b2954248415857ff1c9961d583fe66531703c2bc5a44231a3a43f6d2693202",
+     "bytes": 7909,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:10Z"
+    }
+   ]
+  }
+ },
+ "totals": {
+  "families": 5,
+  "urls": 348,
+  "unique_documents": 181,
+  "unique_bytes": 33043491,
+  "pack_compressed_bytes": 3067637
+ }
+}

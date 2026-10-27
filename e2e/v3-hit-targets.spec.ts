@@ -4,11 +4,13 @@ import { test, expect, type Page } from '@playwright/test';
 import { stolenTaps } from './support/hitTargets';
 import { feedNow, useRealFeeds } from './support/realFeeds';
 
+const FAMILY = 'game' as const; // every screen is swept on the `game` fixture family (one capture instant)
+
 test.setTimeout(120_000);
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
-  await page.clock.setFixedTime(feedNow());
-  await useRealFeeds(page);
+  await page.clock.setFixedTime(feedNow(FAMILY));
+  await useRealFeeds(page, { family: FAMILY });
 });
 
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); await page.waitForTimeout(5000); };

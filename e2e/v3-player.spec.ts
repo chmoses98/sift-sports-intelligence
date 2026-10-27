@@ -1,4 +1,4 @@
-// Player Research (locked designs P1 to P4) against REAL published documents: the cached (or, with V3_REAL_FEEDS=live, freshly curled) feeds of
+// Player Research (locked designs P1 to P4) against REAL published documents: the committed `player` fixture family (fixtures/real, offline; with V3_REAL_FEEDS=live, freshly curled feeds) of
 // the 2026-10-26 slate, CeeDee Lamb at PHI. Prices are the real quotes; the page clock is pinned a few seconds after their capture (see
 // e2e/support/playerFeeds.ts), which is the only thing pinned. Each tap-matrix row owned by this milestone is exercised against the real
 // components; each ends with Back and a check that the exact state returned.

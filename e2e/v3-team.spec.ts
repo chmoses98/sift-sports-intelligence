@@ -1,14 +1,15 @@
-// SIFT 3.0 Milestone 4: Team Research (TR1 to TR6) against REAL published documents (e2e/support/realFeeds.ts: a disk cache of the
-// explorer and board documents; V3_REAL_FEEDS=live fills it through the proxy) plus a sample-data block. Every tap-matrix row the
+// SIFT 3.0 Milestone 4: Team Research (TR1 to TR6) against REAL published documents (e2e/support/realFeeds.ts: the committed `team`
+// fixture family of explorer and board documents, offline on its pinned clock; V3_REAL_FEEDS=live refills a scratch cache) plus a sample-data block. Every tap-matrix row the
 // screen owns is exercised against the real components, Back restores the screen's exact state and scroll, nothing overflows at 390 and
 // 375 px, and no freshness text exists.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { useRealFeeds } from './support/realFeeds';
+import { feedNow, useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
-  await useRealFeeds(page);
+  await page.clock.setFixedTime(feedNow('team'));
+  await useRealFeeds(page, { family: 'team' });
 });
 
 const go = async (page: Page, path: string) => {

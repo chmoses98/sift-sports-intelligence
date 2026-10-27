@@ -1,5 +1,5 @@
-// SIFT 3.0 Game Detail and Matchup (locked designs G1 to G3) against REAL published documents (V3_REAL_FEEDS=live fills the cache; the
-// default cache is .v3-feed-cache or V3_FEED_CACHE). DAL at PHI, week 7 (2026-10-26) is the reference game; when it has left the
+// SIFT 3.0 Game Detail and Matchup (locked designs G1 to G3) against REAL published documents (the committed `game` fixture family in fixtures/real, offline;
+// V3_REAL_FEEDS=live refills a scratch cache). DAL at PHI, week 7 (2026-10-26) is the reference game; when it has left the
 // publication the research specs skip rather than assert on a different game. Every tap-matrix row owned by milestone 5 is exercised
 // against the real components, Back is asserted to restore the screen's exact state and scroll, and prices are made current by fixing
 // the browser clock just after the publication's quote capture (the quote gate is the app's own; nothing is stubbed).
@@ -7,14 +7,15 @@ import { test, expect, type Locator, type Page } from '@playwright/test';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
-// The real cache describes one instant (feedNow(): .v3-feed-cache/captured_at.txt) and is refreshed from time to time, so nothing here hard-codes an
+// The fixture family describes one instant (feedNow('game'): its clock pin in fixtures/real/MANIFEST.json) and is refreshed from time to time, so nothing here hard-codes an
 // instant. The browser clock is that instant and the live-quote feed's observation times are re-stamped to it (freshQuotes: a test transformation of the
 // timestamps only, every price is the published one), so live prices are current under the quote gate and the event document's older capture is withheld.
-const CAPTURE = feedNow();
+const FAMILY = 'game' as const;
+const CAPTURE = feedNow(FAMILY);
 
 test.beforeEach(async ({ page }) => {
-  await useRealFeeds(page);
-  await freshQuotes(page);
+  await useRealFeeds(page, { family: FAMILY });
+  await freshQuotes(page, { family: FAMILY });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   await page.clock.setFixedTime(CAPTURE);
 });

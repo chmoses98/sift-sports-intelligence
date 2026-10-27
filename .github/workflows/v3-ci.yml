@@ -1,0 +1,147 @@
+name: SIFT 3 CI
+
+# The SIFT 3.0 (src/v3) acceptance loop on pull requests: typecheck, lint, unit tests and fixture integrity, then every v3 browser spec on three projects:
+#   v3-phone       Chromium, Pixel 7 (390 x 844)
+#   v3-iphone      WebKit, iPhone 15 Pro
+#   v3-iphone-se   WebKit, iPhone SE (3rd gen, 375 x 667)
+# The real-document specs run OFFLINE: the published documents they read come from the committed bundle in fixtures/real (see fixtures/real/README.md),
+# on each family's pinned clock, so a run needs no network access to raw.githubusercontent.com and gives the same answers on any day.
+# This workflow is separate from ci.yml (which stays the deploy gate for the classic site and SIFT 2.0).
+
+on:
+  pull_request:
+    paths:
+      - 'src/v3/**'
+      - 'e2e/**'
+      - 'tests/**'
+      - 'fixtures/**'
+      - 'scripts/v3-fixtures/**'
+      - 'playwright.v3.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/v3-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v3-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Typecheck, lint, unit tests, fixture integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Typecheck
+        run: npx tsc -b
+      - name: Lint
+        run: npx eslint src/v3 tests/v3 e2e scripts
+      - name: Unit tests
+        run: npx vitest run
+      - name: Fixture bundle integrity (hashes, schemas, sanitization scan, size budget)
+        run: node scripts/v3-fixtures/verify.mjs --max-total-mb 20
+
+  # The browser specs run against the PRODUCTION build served at the GitHub Pages base path (vite preview, the same server the release gate uses): that is
+  # the code and the service-worker/base-path behaviour that ships, so it is the higher-fidelity choice. The dev server (the local loop) transforms modules on
+  # demand, so it is slower to start and its first requests race the tests. The build is made once and shared, so the three projects test identical bytes.
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Build (relay pointed at the e2e stand-in https://relay.sift.invalid)
+        run: npm run build:e2e
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v3-dist
+          path: dist/
+          retention-days: 3
+          if-no-files-found: error
+
+  e2e:
+    name: ${{ matrix.project }} (offline real documents)
+    needs: build
+    runs-on: ubuntu-latest
+    # The three projects run in parallel. Browser installation has taken up to 47 minutes on a throttled mirror (see ci.yml), so the limit leaves room for a
+    # 45 minute install plus the suite. Every test still has to pass; this only keeps a slow runner from killing a passing job.
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { project: v3-phone, browser: chromium }
+          - { project: v3-iphone, browser: webkit }
+          - { project: v3-iphone-se, browser: webkit }
+    env:
+      CI: 'true'
+      V3_PROJECTS: ${{ matrix.project }}
+      V3_PORT: 4173
+      V3_SERVER: preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: v3-dist
+          path: dist
+      - id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-${{ matrix.browser }}
+      # The same patient install as ci.yml: a slow mirror finishes in about 45 minutes, so the first attempt is allowed that long but is bounded, because a genuine
+      # hang must not take the whole job. After a stalled attempt the root-owned apt-get (which `timeout` cannot stop) is cleared so it does not hold the dpkg lock.
+      # Only the engine this project needs is installed (chromium for v3-phone, webkit for the two iPhone projects).
+      - name: Install ${{ matrix.browser }} (patient first attempt, then one retry)
+        timeout-minutes: 65
+        run: |
+          clear_apt() {
+            sudo pkill -x apt-get || true; sudo pkill -x apt || true
+            for _ in $(seq 1 60); do pgrep -x dpkg >/dev/null || break; sleep 5; done
+            sudo dpkg --configure -a || true
+          }
+          if timeout 2700 npx playwright install --with-deps ${{ matrix.browser }}; then exit 0; fi
+          echo "install attempt 1 failed or stalled (45 min limit); clearing apt and retrying once"; clear_apt; sleep 10
+          if timeout 900 npx playwright install --with-deps ${{ matrix.browser }}; then exit 0; fi
+          echo "Playwright could not be installed"; exit 1
+      - name: v3 specs on ${{ matrix.project }} (production build, committed fixtures, no network to the publications)
+        run: npx playwright test -c playwright.v3.config.ts
+      - name: Failure context (each failed test's page snapshot, readable from this log; the traces are artifacts)
+        if: failure()
+        run: |
+          for f in $(find test-results -name error-context.md 2>/dev/null | sort | head -20); do
+            echo "::group::$f"; head -120 "$f"; echo "::endgroup::"
+          done
+      - name: Traces and screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-results-${{ matrix.project }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore

@@ -1,8 +1,8 @@
 // SIFT 3.0 milestone 2: Stat Detail and League Rankings (SD1 to SD7) against the REAL components and REAL published documents
-// (e2e/support/realFeeds.ts: a disk cache of the research feeds, filled with V3_REAL_FEEDS=live). Every tap-matrix row this screen owns
+// (e2e/support/realFeeds.ts: the committed `stat` fixture family, fixtures/real, offline on its pinned clock; V3_REAL_FEEDS=live refills a scratch cache). Every tap-matrix row this screen owns
 // is exercised and its destination checked (data-dest and URL); Back restores tab, window, selection, comparison, expansion and scroll.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { useRealFeeds } from './support/realFeeds';
+import { feedNow, useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
 const LAMB = 'prt_4c661ae8b854ff5f66dd', PICKENS = 'prt_74580802ab4833992610';
@@ -10,7 +10,8 @@ const ADJ = '/v3/stat/nfl/adj_off_epa';
 
 let feeds: Awaited<ReturnType<typeof useRealFeeds>>;
 test.beforeEach(async ({ page }) => {
-  feeds = await useRealFeeds(page);
+  await page.clock.setFixedTime(feedNow('stat'));
+  feeds = await useRealFeeds(page, { family: 'stat' });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
 });
 

@@ -20,7 +20,10 @@
     "e2e:default": "playwright test -c playwright.default.config.ts",
     "e2e:chromium": "playwright test --project=phone --project=desktop",
     "e2e:update-snapshots": "playwright test --grep @visual --update-snapshots",
-    "build:v3-preview": "node scripts/build-v3-preview.mjs"
+    "build:v3-preview": "node scripts/build-v3-preview.mjs",
+    "v3:e2e": "playwright test -c playwright.v3.config.ts",
+    "v3:e2e:preview": "V3_SERVER=preview V3_PORT=4173 playwright test -c playwright.v3.config.ts",
+    "v3:fixtures:verify": "node scripts/v3-fixtures/verify.mjs --max-total-mb 20"
   },
   "engines": {
     "node": ">=20"

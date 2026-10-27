@@ -1,4 +1,4 @@
-// SIFT 3.0 Prop Discovery (milestone 6), against REAL published documents (e2e/support/realFeeds.ts; V3_REAL_FEEDS=live fills the cache).
+// SIFT 3.0 Prop Discovery (milestone 6), against REAL published documents (e2e/support/realFeeds.ts: the committed `props` fixture family, offline; V3_REAL_FEEDS=live refills a scratch cache).
 // The quote feed's own observation times are re-stamped to "now" (freshQuotes: a test transformation, prices untouched) because the real
 // feed is, by design, older than the display rule allows; the missing-price tests remove quotes instead. Nothing here names a player: rows
 // are found by what they carry (a player page, an opponent chip), so the file keeps working when the slate changes.
@@ -10,14 +10,15 @@ import { expectNoStolenTaps } from './support/hitTargets';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
 test.setTimeout(120_000);
+const FAMILY = 'props' as const;
 
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
   // A first visit opens the Welcome sheet over Home after the slate loads (it would cover the tab bar); this test device has been welcomed.
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
-  await page.clock.setFixedTime(feedNow());
-  await useRealFeeds(page);
-  await freshQuotes(page);
+  await page.clock.setFixedTime(feedNow(FAMILY));
+  await useRealFeeds(page, { family: FAMILY });
+  await freshQuotes(page, { family: FAMILY });
 });
 
 const go = async (page: Page, path: string) => {
@@ -403,7 +404,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
   });
 
   test('prices: a withheld price is "—" in the list and the peek, never a number, and the tap still opens the contract', async ({ page }) => {
-    await freshQuotes(page, { omit: () => true });                                                         // every quote answered without the contract
+    await freshQuotes(page, { family: FAMILY, omit: () => true });                                                         // every quote answered without the contract
     await open(page, '/v3/props?v=1&view=list&sport=nfl');
     const px = page.locator('.pd-row a.pd-px');
     expect(await px.count()).toBeGreaterThan(0);
@@ -467,7 +468,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
 
   test('PD6 missing price: "Price unavailable right now" with Retry, fee and break-even hidden; Retry recovers when a quote exists', async ({ page }) => {
     let withhold = true;
-    await freshQuotes(page, { fail: () => withhold });
+    await freshQuotes(page, { family: FAMILY, fail: () => withhold });
     await listWithResearchableRow(page);
     const row = page.locator('.pd-row:has(a.pd-av)').first();
     await center(row);

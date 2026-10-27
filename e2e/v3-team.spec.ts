@@ -83,7 +83,7 @@ test.describe('Team Research (real documents) @v3', () => {
     const len = await histLen(page);
     await page.getByRole('group', { name: 'Statistic basis' }).getByRole('button', { name: 'Raw' }).click();
     await expect(page).toHaveURL(/adj=0/);
-    expect(await page.locator('.tm-idt .idr .lab').first().getAttribute('aria-label')).not.toMatch(/Adjusted/);
+    await expect(page.locator('.tm-idt .idr .lab').first()).not.toHaveAttribute('aria-label', /Adjusted/);
     expect(await histLen(page)).toBe(len);
     await expect(page.locator('.tm-idt .tm-note')).toContainText('what happened, not how good the team is');
   });

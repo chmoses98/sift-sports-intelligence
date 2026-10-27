@@ -7,7 +7,7 @@ import type { TeamProfile } from '../../data/research/types';
 import type { CodeOf, MetricLookup, StatObs } from '../../model/teamResearch';
 import type { SportTeamDecl } from '../../model/teamSports';
 import type { V3Team } from '../../model/types';
-import { monthDay, weekdayShort, whenWords } from '../../model/time';
+import { monthDay, weekdayShort, whenWords, ymdShort } from '../../model/time';
 
 export type TeamState = StateOf<typeof teamSchema.fields>;
 
@@ -63,7 +63,7 @@ export const weekday = (iso: string) => weekdayShort(Date.parse(iso));
 /** "Mon 8:15 PM" within the coming week, "Nov 15 1:00 PM" beyond it; "" without a start. */
 export const startWords = (iso: string, now: number): string => whenWords(Date.parse(iso), now);
 /** A published YYYY-MM-DD (a return date) without a timezone shift. */
-export const dateOnly = (ymd: string) => new Date(`${ymd}T12:00:00Z`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+export const dateOnly = ymdShort;
 
 export const Skel = ({ h, label }: { h: number; label?: string }) => <div className="tm-sk v3-skel" style={{ height: h }} role={label ? 'status' : undefined} aria-label={label} aria-hidden={label ? undefined : true} />;
 

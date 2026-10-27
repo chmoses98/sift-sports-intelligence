@@ -123,6 +123,12 @@ export function numericDate(ms: number | null | undefined, e?: TimeEnv): string 
   return `${p.m}/${p.d}`;
 }
 
+/** "Nov 15" for a published calendar date ("2026-11-15", e.g. a return date): the date itself, never shifted by a zone. */
+export function ymdShort(ymd: string, e?: TimeEnv): string {
+  const [y, m, d] = unkey(ymd);
+  return Number.isFinite(y + m + d) ? fmt('UTC', e?.locale, 'ymdshort', { month: 'short', day: 'numeric' }).format(new Date(Date.UTC(y, m - 1, d, 12))) : '';
+}
+
 /** "Mon 8:15 PM": weekday and clock (compact rows and strips); "" without a start. */
 export function weekdayClock(ms: number | null | undefined, e?: TimeEnv): string {
   return hasStart(ms) ? `${weekdayShort(ms, e)} ${clockTime(ms, e)}` : '';

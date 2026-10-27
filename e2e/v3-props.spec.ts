@@ -86,7 +86,7 @@ async function listWithResearchableRow(page: Page): Promise<{ path: string }> {
 test.describe('Prop Discovery on real published documents @v3', () => {
   test('the Explore tab is Prop Discovery; the older search still lives at /v3/explore', async ({ page }) => {
     await go(page, '/v3');
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click({ force: true });
     await expect(page).toHaveURL(/#\/v3\/props/);
     await ready(page);
     await expect(page.getByRole('heading', { name: 'Props', exact: true })).toBeVisible();
@@ -94,6 +94,34 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await go(page, '/v3/explore?q=lamb');
     await expect(page.locator('.v3-explore input[type="search"], .v3-explore input').first()).toBeVisible();
     await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('/v3/props stays in SIFT 3.0: never handed to the classic /:slug/props route (team filter from Team Research opens the list)', async ({ page }) => {
+    await open(page, '/v3/props?v=1&team=DAL');
+    expect(await hash(page)).toMatch(/^#\/v3\/props\?.*team=DAL/);
+    await expect(page.locator('[data-v3-shell]')).toBeVisible();
+    await expect(page.locator('.pd-listpage')).toBeVisible();
+    await expect(page.locator('.pd-hs h1')).toHaveText('DAL props');
+    for (const r of await page.locator('.pd-row').all()) await expect(r.locator('.pd-ps')).toBeAttached();
+    // every row is the team's own (the player's team, not just the game)
+    const wrong = await page.locator('.pd-row .pd-pn a[data-tap="game"]').evaluateAll((els) => els.filter((e) => !/DAL/.test(e.textContent ?? '')).length);
+    expect(wrong).toBe(0);
+  });
+
+  test('addresses from Game Detail and Player Research filter the list (game=, player=): title, rows and Back', async ({ page }) => {
+    await open(page, '/v3/props?v=1&view=list&sport=nfl');
+    const dest = await page.locator('.pd-row .pd-pn a[data-tap="game"]').first().getAttribute('data-dest');
+    const evt = dest!.split('/').pop()!.split('?')[0];
+    const name = (await page.locator('.pd-row .pd-pn a[data-tap="player"], .pd-row .pd-pn b').first().innerText()).trim();
+    await open(page, `/v3/props?v=1&game=${evt}`);
+    await expect(page.locator('.pd-hs h1')).toHaveText(/ at .* props$/);
+    const games = await page.locator('.pd-row .pd-pn a[data-tap="game"]').evaluateAll((els) => [...new Set(els.map((e) => e.getAttribute('data-dest')))]);
+    expect(games).toHaveLength(1);
+    expect(games[0]).toContain(evt);
+    await open(page, `/v3/props?v=1&player=${encodeURIComponent(name)}`);
+    await expect(page.locator('.pd-hs h1')).toHaveText(name);
+    const names = await page.locator('.pd-row .pd-pn').evaluateAll((els) => [...new Set(els.map((e) => (e.firstElementChild as HTMLElement).innerText.trim()))]);
+    expect(names).toEqual([name]);
   });
 
   test('PD1 home: real counts, shelves of prop cards, lanes in order, no overflow at 390 and 375, no freshness words', async ({ page }) => {

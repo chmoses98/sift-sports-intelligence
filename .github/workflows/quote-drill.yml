@@ -1,0 +1,42 @@
+name: Quote drill (throwaway)
+
+# A one-off, READ-ONLY drill of the quote monitor from a GitHub-hosted runner, authorised by the owner. It runs ONLY on a
+# push to the throwaway branch `claude/quote-drill` (or by hand). It never exists on `main`.
+#
+# What it touches, all with plain GET requests: the public feed (the `live-quotes` branch on raw.githubusercontent.com),
+# the deployed relay named by the SIFT_QUOTE_RELAY_URL repository VARIABLE, a few deliberately wrong hosts and paths, and a
+# fake relay on 127.0.0.1 inside the runner. No secret, no token (`contents: read` only), nothing is written (the only
+# output is the step summary), it never dispatches or pushes anything and never touches the live-quotes workflow.
+#
+# The job is green ONLY when every stage's expectation is met; a mismatch fails the job and the log/annotation names the
+# stage. Stages: 1 healthy run on the real relay and feed; 2 forced outage against the real relay URL; 3 forced 429, empty,
+# delisted, closed and partial answers on the loopback relay; 4 recovery with no false alarm; 5 heartbeat on the real feed
+# branch (HEARTBEAT_NOT_PUBLISHED is the distinct, non-failing state while health.json is absent).
+on:
+  push:
+    branches: [claude/quote-drill]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quote-drill
+  cancel-in-progress: true
+
+jobs:
+  drill:
+    name: Staged drill (read-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run the five stages
+        run: node scripts/quote-monitor-drill.mjs --ci
+        env:
+          SIFT_QUOTE_RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}

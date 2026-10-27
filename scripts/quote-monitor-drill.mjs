@@ -129,7 +129,7 @@ const check = (result, id) => result.checks.find((c) => c.id === id);
 /** Does the monitor's result match what the scenario says it must be? Returns the list of mismatches. */
 export function mismatches(result, ex) {
   const bad = [];
-  if (result.ok !== ex.ok) bad.push(`expected ok=${ex.ok}, got ok=${result.ok}`);
+  if (ex.ok !== undefined && result.ok !== ex.ok) bad.push(`expected ok=${ex.ok}, got ok=${result.ok}`);
   if (ex.status && result.status !== ex.status) bad.push(`expected status ${ex.status}, got ${result.status}`);
   if (ex.statusIn && !ex.statusIn.includes(result.status)) bad.push(`expected status ${ex.statusIn.join(' or ')}, got ${result.status}`);
   for (const [id, st] of ex.checkStatus ?? []) {
@@ -203,7 +203,8 @@ export async function runCiDrill({ env = process.env, stages = null, log = conso
       if (extraJudge) problems.push(...extraJudge(result));
       const relay = check(result, 'relay');
       const hb = check(result, 'heartbeat');
-      observed = `${result.ok ? 'PASS' : 'FAIL'} (${result.status})${relay ? `; relay ${relay.status}: ${clip(relay.detail, 220)}` : ''}${hb && hb.status === 'note' ? '; heartbeat: HEARTBEAT_NOT_PUBLISHED' : ''}`;
+      const failing = result.checks.filter((c) => c.status === 'fail' && c.id !== 'relay').map((c) => `${c.title}: ${clip(c.detail, 260)}`);
+      observed = `${result.ok ? 'PASS' : 'FAIL'} (${result.status})${relay ? `; relay ${relay.status}: ${clip(relay.detail, 220)}` : ''}${failing.length ? `; failing checks: ${failing.join(' / ')}` : ''}${hb && hb.status === 'note' ? '; heartbeat: HEARTBEAT_NOT_PUBLISHED' : ''}${hb && hb.status === 'pass' ? '; heartbeat: published' : ''}`;
     } catch (err) {
       problems = [`the monitor threw: ${err?.stack ?? err}`];
       observed = `threw: ${err?.message ?? err}`;
@@ -269,10 +270,11 @@ export async function runCiDrill({ env = process.env, stages = null, log = conso
     5: async () => {
       const out = [];
       const base = { ...real };
-      const a = await item('heartbeat on the real feed branch (relay part not under test)', 'PASS; health.json missing = the distinct non-failing state HEARTBEAT_NOT_PUBLISHED, health.json present = sequence advances', base, { ok: true, statusIn: ['PASS', 'PASS_HEARTBEAT_NOT_PUBLISHED'] }, (r) => {
+      // Judged on the heartbeat checks alone: whether the feed is fresh is stage 1's question, not this one's.
+      const a = await item('heartbeat on the real feed branch (relay part not under test)', 'health.json missing = the distinct non-failing state HEARTBEAT_NOT_PUBLISHED (a note, not a failure); health.json present = readable and its sequence advances', base, {}, (r) => {
         const hb = check(r, 'heartbeat');
         if (!hb) return ['no heartbeat check in the result'];
-        if (hb.status === 'note') return /^HEARTBEAT_NOT_PUBLISHED/.test(hb.detail) && r.status === 'PASS_HEARTBEAT_NOT_PUBLISHED' ? [] : ['an unpublished heartbeat must be reported as the distinct HEARTBEAT_NOT_PUBLISHED state'];
+        if (hb.status === 'note') return /^HEARTBEAT_NOT_PUBLISHED/.test(hb.detail) ? [] : ['an unpublished heartbeat must be reported as the distinct HEARTBEAT_NOT_PUBLISHED state'];
         const adv = check(r, 'heartbeat_advance');
         return hb.status === 'pass' && adv?.status === 'pass' ? [] : [`health.json is published but the heartbeat did not pass (heartbeat ${hb.status}, advance ${adv?.status ?? 'absent'})`];
       });

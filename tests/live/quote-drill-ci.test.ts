@@ -81,6 +81,15 @@ describe('the staged CI drill (loopback stand-in for the real relay and feed)', 
     expect(text).toMatch(/loopback: heartbeat-missing-required/);
   }, 60_000);
 
+  it('a genuinely stale real feed fails stage 1 (and the real half of stage 4) with the feed named, but not the heartbeat stage', async () => {
+    const env = await fakeReal({ ...SCENARIOS['feed-stale'], heartbeat: 'missing' });
+    const out = collect();
+    const r = await runCiDrill({ env, stages: [1, 5], log: out.log, tune: fastHeartbeat, summaryFile: undefined });
+    expect(r.failedStages).toEqual([1]);
+    expect(out.text()).toMatch(/\[MISMATCH\] healthy run, real relay and feed => FAIL \(FAIL\);.*failing checks: Feed generated_at is recent: newest generated_at .* \d+s old; limit 600s/);
+    expect(out.text()).toMatch(/\[MATCH\] heartbeat on the real feed branch.*HEARTBEAT_NOT_PUBLISHED/);
+  }, 120_000);
+
   it('a mismatch fails the drill and NAMES the stage (real error annotation, exit-worthy result)', async () => {
     const env = await fakeReal('always503' as never);
     // the "real" relay is down: stage 1 expects healthy and must fail by name

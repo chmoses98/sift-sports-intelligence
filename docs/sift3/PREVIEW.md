@@ -73,8 +73,8 @@ Kick-off times follow the phone's time zone; "Today" and "Tomorrow" follow the f
 ### 0.8 Device checklist
 `docs/sift3/DEVICE_CHECKLIST.md`: one line per root tab and per design saying what to tap on an iPhone, then the touch interactions only a device can verify (P2 line drag, Stat Trend scrub, Props list scroll and Back, sheet drag, keyboard in the Props search, safe areas, rotation).
 
-### 0.9 Gates
-`npx tsc -b` clean; `npx eslint src/v3 scripts tests e2e` clean; unit tests `tests/v3/preview-capture.test.ts` 8 of 8 (the full `npx vitest run` is in the report of the worker); the crawl and the WebKit smoke above; the build's own self-check (production-built bundle served statically, Home renders the captured slate, no external request, no sample strip) passes.
+### 0.9 Gates (final run)
+`npx tsc -b` exit 0; `npx eslint src/v3 scripts tests e2e` exit 0; `npx vitest run` 162 files / 1,925 tests pass (3 skipped), including `tests/v3/preview-capture.test.ts` (8); Chromium sample suites (`e2e/v3.spec.ts v3-foundations v3-saved v3-a11y v3-quotegate v3-hit-targets`, phone project, dev port 5187) 93 passed; the 26-design crawl 26/26 and the WebKitGTK smoke 16/16 above; the build's own self-check passes (production-built bundle served statically, Home renders the captured slate, no external request, no sample strip). A first full vitest run under heavy machine load (load average about 26) had 3 timeouts in `tests/screens.test.tsx`; they pass alone and in the final full run. The crawl ran on the build before its last rebuild, which differs only in the build-time stamp shown at the foot of the About sheet. Also crawled under `Asia/Tokyo` (8 designs/roots: pass).
 
 ---
 

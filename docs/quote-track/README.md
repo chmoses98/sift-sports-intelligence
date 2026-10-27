@@ -335,22 +335,29 @@ What remains shared with the production path, and why it is safe:
 
 ## Verification
 
-Run on this branch after the last code change:
+Run on this branch after the last code change (the development machine was under heavy load, load average 25 to 40, from other workers):
 
-- `npx tsc -b`: clean (exit 0).
-- `npx eslint .`: clean (exit 0). (A first full run found one `no-useless-assignment` in `store.ts`; fixed, re-run clean.)
-- `npx vitest run`: **149 files passed, 3 skipped; 1847 tests passed, 3 skipped, 0 failed** (194 s). After the one-line lint fix the
-  `tests/live` directory was re-run: 27 files passed, 415 tests passed, 3 skipped. Before these corrections the track had 145
-  files and 1760 tests.
-- New tests in the track: 211 (quoteUsable 42, quoteStore 34, quoteMissingTickers 27, productionChainCharacterisation 10,
-  feed-heartbeat 10, quoteInvisible 9, quote-monitor 63, quote-monitor-drill 6, quote-monitor-workflow 7, quoteNewerWins 3).
-  87 of them are new in this correction round.
-- `node scripts/quote-monitor-drill.mjs`: **15 of 15 scenarios matched** (loopback fake feed and relay).
-- Characterisation: 10 passed on `origin/main` (scratch worktree), 2 failed on this branch before the isolation, 10 passed after.
-- Read-only check of production, made once before these corrections: `health.json` on the `live-quotes` branch answered 404;
-  `index.json` was 111 s old; the monitor run against the live feed passed its feed checks. The relay could not be reached from this
-  environment (DNS `ENOTFOUND`), so the relay half of the monitor has only run against fakes.
-- Not run: any GitHub Actions workflow, component tests for the missing-price states (UI branch), the heartbeat inside the real loop.
+- `npx tsc -b`: clean (exit 0). `npx eslint .`: clean (exit 0).
+- `npx vitest run`: **154 files (151 passed + 3 skipped), 2081 tests passed, 3 skipped, 0 failed.** Run in two parts because the screen tests
+  (`tests/nhl.test.tsx`, `tests/screens.test.tsx`, `tests/mlb.test.tsx`) time out on `findByRole` (1 s default) when the machine is
+  that loaded: part 1, everything else: 148 files passed, 2028 tests passed, 3 skipped (plus one unhandled `window is not defined` from React's
+  scheduler after `tests/nba.test.tsx` finished, a teardown race under load, which makes the exit code 1; no assertion failed); part 2, those three
+  files alone with one worker: 3 files, 53 tests passed. Two earlier all-at-once runs under the same load failed 3 and 4 (then 10) of those
+  screen tests with "Unable to find role=heading"; each passed when re-run alone, and the NHL file passes on the pre-change commit `db3cf548` too.
+  **Independent of this machine:** GitHub's `CI` workflow for commit `045c0bcc` (full unit and integration tests, lint, typecheck, production build)
+  passed those steps on a runner (run 40568142558, job steps 4 to 9 success); its acceptance (Chromium/WebKit) steps were still running when this
+  was written.
+- Before this round the track had 149 files and 1847 tests; this round added `quoteNonTradable` (190), `quote-drill-ci` (11), 32 monitor tests, 1 drill-script test and the
+  `quoteMissingTickers`/`quoteInvisible` edits.
+- `node scripts/quote-monitor-drill.mjs`: **19 of 19 scenarios matched**. `node scripts/quote-monitor-drill.mjs --ci --stages=3`: stage 3 matched.
+- Characterisation of the production chain (`tests/live/productionChainCharacterisation.test.ts`): **10 passed, unchanged and not edited**
+  (10 passed on `origin/main`, 2 failed on this branch before the isolation, 10 passed after; passed again after the non-tradable change).
+  `git diff origin/main` is empty for `src/live/config.ts`, `src/live/providers/fallback.ts`, `src/live/preflight.ts`, `src/live/freshness.ts`, `relay/` and
+  `.github/workflows/live-quotes.yml`.
+- Mutation checks: removing the terminal-status rule fails 62 `quoteNonTradable` tests, removing the "answered, not pending" rule fails 16.
+- Read-only check of production on 2026-10-27: `health.json` on the `live-quotes` branch answers 404 (not published); `index.json` was fresh
+  except for the 55-minute stall described in `CI_DRILL.md` section 2; the drill runs read the real relay (HTTP 200, 25 of 25 requested NFL markets, observation 1 s old).
+- Not run: component tests for the missing-price and "Market closed" states (UI branch), the heartbeat inside the real loop, the real `quote-monitor.yml`.
 
 ## Not proven
 

@@ -154,6 +154,55 @@ Scope: non-tradable markets, scores, unavailable data, start times, saved resear
 
 **Verified** = comes from the publication result (`finalScores`), or from the licensed free score feed (SportScore) holding a game the identity layer **matched** to this event by evidence (provider id, or both teams plus start time; never by name similarity), with a phase the feed understood and a plausible pair of whole numbers. **Delayed** = verified, game in play, observation older than 60 s and no older than 5 min (the feed's own live and stale thresholds, measured from the provider's state time, else the fetch time). A delayed score stays visible with one muted **"Delayed"** word beside the status (Games card, Home scoreboard tile and featured card, Game Detail hero and compact bar, Switcher, Following), no age and no timestamp; the accessible name says "delayed". **Unreliable** (older than 5 min while in play, a feed outage, no trustworthy timestamp, no match, unknown phase) is never shown: "Score unavailable". A final from the feed is a fact and does not age. Nothing supplies 0-0 or carries a score across reads. Code: `data/scoreVerify.ts` (pure), `useSlate.tsx`. This is separate from the quote rules (no age appears on a price). Tests: `tests/v3/scoreVerify.test.ts` (18, boundaries at 59/60/300/301 s), `e2e/v3-scores.spec.ts` (5: fresh, delayed on card, tile and hero, older than 5 min, other teams' game never attached, feed down). The SportScore network answer in the e2e is a test fixture shaped like its payload (the app's identity matcher and freshness clock decide). SportScore covers NBA and tennis only: NFL, NHL and MLB games in play show no score unless the publication has a result.
 
+### 3. Hardening: unavailable data
+
+**What was built.** (a) Research documents are read within a bound while SIFT 3.0 is open (`data/fetcher.ts` `setFetchTimeout`, switched on by `V3Root`, 25 s; off for SIFT 2.0 and classic): a request that never answers is a failure, not a skeleton that never goes away (`tests/v3/fetchTimeout.test.ts`, 7). (b) `useAsync` results carry `retry` (forgets the held copy and failure and reads again; `useRepo` also forgets a source that resolved as unavailable). (c) One shared state, `ui/DataState.tsx`, with the words from `data/failure.ts`: "<what> could not be shown: <why>." where why is "the connection to it failed", "it did not answer in time", "what was published could not be read", "it is not published yet" or "it is in a format this version of SIFT cannot read"; Retry only where asking again can help (not for "not published"). (d) Screens use it where they used to show a skeleton for ever, "no data" for a failure, or nothing: Game Detail (Overview market prices, Props, Script, Stats, Matchup), Player (profile, game log, Kalshi prices for his game), Team, Stat (statistics list, ranking), Explore (a sport whose player and statistic search could not be read), Prop Discovery (every game's contract list failed). (e) A sport whose live publication could not be read and whose research comes from the saved copy bundled with the app (NFL) says so on every screen of that sport, not only Home and Games (`V3Root` strip "Saved copy in use"); research is never silently the saved copy. (f) Real mode never substitutes sample data: the harness fails on the word "Sample" in any cell.
+
+**How it was checked.** `e2e/v3-unavailable.spec.ts` serves the real cached documents and makes ONE document class fail per test, in each way: 404, network failure, no answer (the app's bound is set to 2.5 s by a test seam), malformed JSON, empty list. Every cell asserts: no skeleton or "Loading" text left after the screen settles (at least 9 s, up to 45 s), no raw `undefined`/`NaN`/`[object`/`Error:`, no "Sample", the tab bar still works, and for the screen's subject document an honest message. `V3_UNAVAIL_FULL=1` runs every document in every mode (about 220 cells); the default is the lean matrix of 78 cells (the subject in all five modes, secondary documents in the modes that take a different path). The table is the final state of each cell after the fixes; "says why" means a message that names what is unavailable and why (machine-checked by wording, read by hand for the subject cells). **Found and fixed by this audit:** Game Detail showed skeletons for ever when the event document failed; Team showed a record skeleton for ever when the index was 404 or the profile empty; Team, Stat, Player and Game Matchup said "not in the publication" or "no data" for failures and had no Retry; Explore and Prop Discovery were silent; the NFL saved copy was silent on Team, Player, Stat and Props; nothing bounded a hanging request.
+
+| Cell | Meaning |
+| --- | --- |
+| says why + Retry | the screen names the document and the cause and offers Retry |
+| says why | named, no Retry because asking again cannot help (404 "not published", an empty list) |
+| screen carries on | a supporting document: the screen works without it and prints "—" or omits the extra; no skeleton, no sample |
+| SPINNER | none remain |
+
+| Screen | Document | 404 | Network | Never answers | Malformed | Empty |
+| --- | --- | --- | --- | --- | --- | --- |
+| Home | board (subject) | says why + Retry | says why + Retry | says why + Retry | says why + Retry | says why |
+| Home | recommendations | screen carries on | not run | not run | not run | not run |
+| Home | event detail | screen carries on | not run | not run | not run | not run |
+| Home | explorer index | says why | not run | not run | not run | not run |
+| Home | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Games | board (subject) | says why + Retry | says why + Retry | says why + Retry | says why + Retry | says why |
+| Games | event detail | says why | not run | not run | not run | not run |
+| Games | live-quote feed | says why | not run | not run | not run | not run |
+| Game Detail | event detail (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Game Detail | event research | screen carries on | screen carries on | not run | not run | not run |
+| Game Detail | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Game props | event detail (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Game props | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Game stats | event research | says why | says why + Retry | not run | not run | not run |
+| Game matchup | team profile (subject) | says why | says why + Retry | says why + Retry | says why + Retry | screen carries on |
+| Game matchup | projections | says why | not run | not run | not run | not run |
+| Team | team profile (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Team | explorer index | says why | says why + Retry | says why + Retry | not run | not run |
+| Team | event detail | screen carries on | not run | not run | not run | not run |
+| Player | player profile (subject) | says why | says why + Retry | says why + Retry | says why + Retry | screen carries on |
+| Player | game log (history) | says why | says why + Retry | not run | not run | not run |
+| Player | event detail | says why | says why + Retry | not run | not run | not run |
+| Player | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Stat | ranking (subject) | says why | says why + Retry | says why + Retry | says why + Retry | screen carries on |
+| Stat | explorer index | says why | says why + Retry | not run | not run | not run |
+| Stat | metric defs | screen carries on | not run | not run | not run | not run |
+| Prop Discovery | event detail (subject) | says why + Retry | says why + Retry | says why + Retry | says why + Retry | says why + Retry |
+| Prop Discovery | board | screen carries on | not run | not run | not run | not run |
+| Prop Discovery | live-quote feed | screen carries on | not run | not run | not run | not run |
+| Explore | search index (subject) | says why | says why + Retry | says why + Retry | says why + Retry | says why |
+| Explore | explorer index | screen carries on | not run | not run | not run | not run |
+
+Not in the table: the exact-contract sheet (quote feed 404, network, no answer, old observation: "Price unavailable right now" with Retry and no fee rows, `e2e/v3-quotegate.spec.ts`; non-tradable: no Retry), Following and Settings (read only this device's storage). The full 220-cell matrix was not run end to end; cells marked "not run" in the lean matrix share their code path with a cell that was (the same bound, the same `useAsync` failure). Under heavy machine load a hang cell can be judged before the app's 2.5 s bound fires; one such flake (Explore, no answer) passed on its re-run.
+
 ### 4. Start times
 
 Every start time v3 shows is the **league schedule's** (the explorer index's events) or the board publication's `start_time_utc`, which is built from that same schedule (`event_detail.event.start_time_source` is `nhl_api_schedule` for NHL). No v3 file reads a Kalshi time (`tests/v3/scheduleStarts.test.ts` scans `src/v3` for `close_time`, `expiration`, `strike_date`: none). When the schedule is read (any screen using `useSchedule`: Games cards, Game Detail, Home featured card, Player, Team), the slate's games take its start (`data/research/scheduleStarts.ts`), so cards, tiles, switcher, props and the lifecycle phase read one time; the board's time stands only until that sport's schedule has been read. Tennis keeps its board time (first-ball status). Player Research no longer takes its game's start from the event document's own field. TOR at CGY: the explorer lists 00:30Z (8:30 PM ET) in the captured index, board and event document, and Kalshi's event implies 9:00 PM; `e2e/v3-starts.spec.ts` re-stamps the board's copy to 01:00Z (a test transformation) and shows the Games card and Game Detail say 8:30 PM and 9:00 PM appears nowhere. No formatting was changed.

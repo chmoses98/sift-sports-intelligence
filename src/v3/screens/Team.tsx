@@ -172,7 +172,7 @@ function TeamResearch() {
       <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={24} /></button>
       <TeamLogo team={team} size={30} />
       <b className="tm-bar__n">{team.name}</b>
-      {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : capOk && !unknownTeam && !failed ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
+      {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : capOk && !unknownTeam && !failed && (research.loading || ti.loading) ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
       <span className="tm-bar__r">
         <FollowStar kind="teams" id={key} label={team.name} />
         {c && <SaveButton team={team} tab={tab} c={c} record={record} />}
@@ -204,7 +204,7 @@ function TeamResearch() {
             <div className="tm-hero__who">
               <div className="wl"><TeamLogo team={team} size={54} /><h1 className="wn">{first && <span className="f">{first}</span>}<span className="l">{last}</span></h1></div>
               <span className="m">{leagueLabel({ sport: team.sport })}{profile?.season ? ` · ${profile.season.replace('-', '–')} season` : ''}{demo ? ' · sample data' : ''}
-                {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : !unknownTeam && !failed ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
+                {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : !unknownTeam && !failed && (research.loading || ti.loading) ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
               </span>
             </div>
           </header>

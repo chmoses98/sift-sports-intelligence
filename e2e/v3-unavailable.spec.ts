@@ -133,7 +133,7 @@ for (const screen of SCREENS) {
           await install(page, kind, mode);
           const r = await measure(page, screen.path);
           const primary = screen.primary.includes(kind);
-          const cell = { screen: screen.name, kind, mode, primary, settledMs: r.settledMs, stillLoading: r.stillLoading, honest: r.honest, retry: r.retry, broken: BROKEN.exec(r.text)?.[0] ?? null, sample: /\bSample\b/.test(r.text), len: r.text.length, snippet: r.snippet };
+          const cell = { screen: screen.name, kind, mode, primary, settledMs: r.settledMs, stillLoading: r.stillLoading, honest: r.honest, retry: r.retry, broken: BROKEN.exec(r.text)?.[0] ?? null, sample: /\bSample\b/.test(r.text), len: r.text.length, snippet: r.snippet, tail: r.text.replace(/\s+/g, ' ').slice(-260) };
           if (reportFile) appendFileSync(reportFile, `${JSON.stringify(cell)}\n`);
           // 1. no endless spinner
           expect(r.stillLoading, `a skeleton is still on screen after ${r.settledMs} ms`).toBe(0);

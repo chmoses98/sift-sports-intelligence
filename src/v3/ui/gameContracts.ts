@@ -7,7 +7,7 @@ import { useEffect, useMemo } from 'react';
 import type { EventDetailDoc } from '../../contract/types';
 import { deriveProps, type PropRow } from '../data/adapt';
 import { teamTotalFor, winContracts } from '../data/research/gameMarkets';
-import { clockTime, dayWord } from '../model/format';
+import { dayClock } from '../model/time';
 import type { MarketLine, Price, V3Game } from '../model/types';
 import { publishContracts, type ContractInfo, type ContractNeighbour } from './ContractSheet';
 
@@ -27,7 +27,7 @@ export interface GameFacts {
 
 const subtitleOf = ({ g, startMs }: GameFacts) => {
   const ms = startMs ?? (Number.isFinite(g.startMs) ? g.startMs : null);
-  return `${g.away.abbr} at ${g.home.abbr}${ms != null ? ` · ${dayWord(ms)} ${clockTime(ms)}` : ''} · Kalshi YES`;
+  return `${g.away.abbr} at ${g.home.abbr}${ms != null && dayClock(ms) ? ` · ${dayClock(ms)}` : ''} · Kalshi YES`;
 };
 const actionsOf = (f: GameFacts, extra: ContractInfo['actions'] = []): ContractInfo['actions'] => [
   ...extra,

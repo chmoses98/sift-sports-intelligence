@@ -195,6 +195,6 @@ describe('Trends, Log and Replay', () => {
     const w = gameWhen(t, Date.parse('2026-10-26T19:00:00Z'));
     expect(w).toMatch(/\d{1,2}:\d{2}/);
     expect(w).not.toMatch(/ago|stale/i);
-    expect(gameWhen(NaN, 0)).toBe('Time to be announced');
+    expect(gameWhen(NaN, 0)).toBe(''); // no start time: nothing is shown, never a guess
   });
 });

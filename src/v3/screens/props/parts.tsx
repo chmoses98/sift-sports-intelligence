@@ -7,14 +7,19 @@ import type { HistoryState } from '../../data/props/hooks';
 import { modelPercent } from '../../data/props/model';
 import { trackPct } from '../../data/props/rank';
 import type { Matchup, Prop, PropRung } from '../../data/props/types';
-import { clockTime } from '../../model/format';
+import { compactWhen, weekdayClock } from '../../model/time';
 import type { Price, V3Team } from '../../model/types';
 import { GameLink, PlayerLink, PriceTap, StatLink } from '../../nav/Targets';
 import { Icon } from '../../ui/Icon';
 import { TeamLogo } from '../../ui/TeamLogo';
 
 export const teamOf = (p: Prop): V3Team | null => (p.team ? (p.team === p.away.abbr ? p.away : p.team === p.home.abbr ? p.home : null) : null);
-export const gameText = (p: Prop) => `${p.away.abbr} at ${p.home.abbr} · ${clockTime(p.startMs)}`;
+/** "DAL at PHI · 8:15 PM" in a list; a game not on the viewer's local tonight names its day ("· Tomorrow 8:15 PM", "· Thu 8:15 PM"), since the horizon runs
+ *  past tonight. Without `now` (a saved card, which outlives today) the day is the weekday: "· Mon 8:15 PM". No start time: just the matchup. */
+export const gameText = (p: Prop, now?: number) => {
+  const when = now == null ? weekdayClock(p.startMs) : compactWhen(p.startMs, now);
+  return `${p.away.abbr} at ${p.home.abbr}${when ? ` · ${when}` : ''}`;
+};
 export const statText = (p: Prop, k: number) => `${p.label} ${k}+`;
 /** Player Research's line for a count rung: "3+" settles over 2.5. */
 export const lineOf = (k: number) => k - 0.5;
@@ -45,7 +50,7 @@ export function NameLine({ p, k, plain = false }: { p: Prop; k: number; plain?: 
   return (
     <div className="pd-pn">
       {ref && !plain ? <PlayerLink player={ref} state={playerState(p, k)}>{p.name}</PlayerLink> : <b>{p.name}</b>}
-      <GameLink game={{ slug: p.slug, eventId: p.eventId }}>{gameText(p)}</GameLink>
+      <GameLink game={{ slug: p.slug, eventId: p.eventId }}>{gameText(p, Date.now())}</GameLink>
     </div>
   );
 }

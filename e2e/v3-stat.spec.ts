@@ -10,6 +10,7 @@ const ADJ = '/v3/stat/nfl/adj_off_epa';
 
 let feeds: Awaited<ReturnType<typeof useRealFeeds>>;
 test.beforeEach(async ({ page }) => {
+  // The captured documents describe one instant; read on the real clock their upcoming games drift into the past.
   await page.clock.setFixedTime(feedNow('stat'));
   feeds = await useRealFeeds(page, { family: 'stat' });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
@@ -207,12 +208,13 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await go(page, '/v3/stat/nfl/points_for?v=1&tab=trend&sel=DAL&obs=36');
     await expect(page.locator('.st-obc')).toBeVisible();
     const before = await hash(page);
-    const gd = page.getByRole('link', { name: /^Game Detail/ });
+    const gd = page.locator('.st-obc').getByRole('link', { name: /^Game Detail/ });
     await expect(gd).toHaveAttribute('data-tap', 'game');
     await expect(gd).toHaveAttribute('data-dest', /^\/v3\/game\/nfl\/evt_/);
     await tapAndBack(page, gd, /^\/v3\/game\/nfl\/evt_/);
     expect(await hash(page)).toBe(before);
-    await expect(page.locator('.st-obs [data-obs][aria-pressed="true"]')).toHaveCount(1);
+    await expect(page.locator('.st-obs [data-obs][data-on="true"]')).toHaveCount(1);
+    await expect(page.locator('.st-olr.is-on')).toHaveCount(1);
     const opp = page.locator('.st-obc a[data-tap="team"]');
     await tapAndBack(page, opp, /^\/v3\/team\/nfl\/[A-Z]+/);
   });

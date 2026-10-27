@@ -42,3 +42,32 @@ export async function expectNoStolenTaps(page: Page, scope: string): Promise<voi
   const s = await stolenTaps(page, scope);
   if (s.length) throw new Error(`taps stolen by a neighbouring target:\n${s.map((x) => `  ${x.target} at ${x.at} -> ${x.stolenBy}`).join('\n')}`);
 }
+
+export interface ColumnMiss { column: string; at: [number, number]; answeredBy: string }
+
+/**
+ * Columns of a selection chart (one touch surface cut into equal gap-free columns) must each answer for their own area. Each column is a
+ * group marked `[group]="<index>"` containing a hit area marked `[area]`; points near the left edge, the centre and the right edge of every
+ * hit area, at two heights, must resolve (elementFromPoint, then the nearest group) to the same column and never to its neighbour. Also
+ * returns each hit area's width so a test can state the real hit width.
+ */
+export async function columnHits(page: Page, scope: string, area = 'data-obs-hit', group = 'data-obs'): Promise<{ misses: ColumnMiss[]; widths: number[] }> {
+  return page.evaluate(({ sc, ar, gr }) => {
+    const misses: { column: string; at: [number, number]; answeredBy: string }[] = [];
+    const widths: number[] = [];
+    for (const root of document.querySelectorAll(sc)) {
+      for (const c of root.querySelectorAll<HTMLElement | SVGElement>(`[${ar}]`)) {
+        const own = c.closest(`[${gr}]`)?.getAttribute(gr);
+        const r = c.getBoundingClientRect();
+        widths.push(Math.round(r.width * 10) / 10);
+        for (const fx of [0.1, 0.5, 0.9]) for (const fy of [0.25, 0.75]) {
+          const x = r.left + r.width * fx, y = r.top + r.height * fy;
+          if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) continue;
+          const got = document.elementFromPoint(x, y)?.closest(`[${gr}]`)?.getAttribute(gr) ?? null;
+          if (got !== own) misses.push({ column: `${gr}=${own}`, at: [Math.round(x), Math.round(y)], answeredBy: got == null ? 'something else' : `${gr}=${got}` });
+        }
+      }
+    }
+    return { misses, widths };
+  }, { sc: scope, ar: area, gr: group });
+}

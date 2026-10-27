@@ -125,7 +125,7 @@ export function GameStrip({ v }: { v: PlayerView }) {
     <div className="v3p-strip-g v3p-card">
       <TeamLink team={{ slug: vm.team.slug, id: vm.team.id }} label={`${vm.team.name}, team page`}><TeamLogo team={vm.team} size={34} /></TeamLink>
       <GameLink game={{ slug: vm.next.slug, eventId: vm.next.eventId }} label={`${vm.team.nick} ${vm.nextHome ? 'versus' : 'at'} ${vm.opp.nick}. Open game`} className="v3p-strip-g__c">
-        <b>{AT(v)} {vm.opp.abbr} · {vm.nextStartMs != null ? gameWhen(vm.nextStartMs, v.now) : 'Time to be announced'}</b>
+        <b>{AT(v)} {vm.opp.abbr}{vm.nextStartMs != null && gameWhen(vm.nextStartMs, v.now) ? ` · ${gameWhen(vm.nextStartMs, v.now)}` : ''}</b>
         {second && <span>{second}</span>}
       </GameLink>
       <TeamLink team={{ slug: vm.opp.slug, id: vm.opp.id }} label={`${vm.opp.name}, team page`}><TeamLogo team={vm.opp} size={34} /></TeamLink>

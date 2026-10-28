@@ -1,0 +1,36 @@
+head: 2b74fa2dda1cea95674b0f5ef8e529833433f2a7
+run: 40756237030
+os: Ubuntu 24.04.5 LTS 7.0.0-1017-azure
+playwright: 1.56.1
+chromium: chromium-1194 chromium_headless_shell-1194 ffmpeg-1011 webkit-2215 
+node: v22.23.4
+249b3b787523e3bcd0788d785428d9e5b3de9d6dd81fa1bc19fbc65730f2f158  G1-v3-phone-ci-linux.png
+97aaddf934b5d5603afcb4b9bad6161f62a7c864bc31c732ab9034a7b8fe1e2c  G2-v3-phone-ci-linux.png
+062b66c6bfc61cffedcccb9a69feddc252d2bc73cb648bd62eff17d3f64cdaf7  G3-v3-phone-ci-linux.png
+6cfad775ff1e67823c2ba8a560f418441bb238cc8dc79b6458acbae55b36f46e  P1-v3-phone-ci-linux.png
+652403795a34c678f96f5972d0326afa876b80b8427f5120418cf1d964441313  P2-v3-phone-ci-linux.png
+ed378635a924139ff753e2b69e0a3b5a2aafd2fa28aa9cbff0fd467d31655f5d  P3-v3-phone-ci-linux.png
+e7b58046180903020594882001535e73f43785ed9adbc7241ff8a403306d2b73  P4-v3-phone-ci-linux.png
+752be4ee199f8f2a52baff48c3857122c00eef39439cc3946dee1684c6990603  PD1-v3-phone-ci-linux.png
+f49455fc1770bdae85f4b59d8283789578522fd2b99013b02e6ac8fee2365d72  PD2-v3-phone-ci-linux.png
+95cdd1aedac83b8e781dd223c1d62c2a7c0abc07f78beefa465197935225d872  PD3-v3-phone-ci-linux.png
+bc7468131a0426e7160278a1f8d586fe5b56108b9dfa09065b6de86f8c5829b1  PD4-v3-phone-ci-linux.png
+24205d287e3faa8ca3521f7459ae72be312560fcc2dc24740477374f9d476f64  PD5-v3-phone-ci-linux.png
+7b29d90a6a82c1f8d473cff24fcd8dbc68f9cfe4094e123e3d6c372fb643cb2c  PD6-v3-phone-ci-linux.png
+0d3d4528c1ed86633fe70353608e7e2b924f324a1492a309115535af6c379bbe  ROOT-Explore-v3-phone-ci-linux.png
+11e03fed16951a1a7cb61dad4c16a49e0f5892b0f1a32c5d3a97d0802e102f79  ROOT-Following-v3-phone-ci-linux.png
+959538e27427de1d9ef7d3fd182288aaca71c43770e8cf4a521f3791c6d1c466  ROOT-Games-v3-phone-ci-linux.png
+0d91f0835d6f7f02adff5c23aab7888fb8a48eebae1b4cd42026ef5c0530c3bb  ROOT-Home-v3-phone-ci-linux.png
+bf83cb3dbddb89523981c470758993a185abb20c39eea8eb3c1995be20ae14c9  SD1-v3-phone-ci-linux.png
+43190005fb638b6e066a1ae19af30f41f1d423103d70384724f76f8fddab0ba8  SD2-v3-phone-ci-linux.png
+d86c320d0fa56c1403c52d59e41df1a5af9f16135c5b4e9c7cc493977f98e4cb  SD3-v3-phone-ci-linux.png
+2d09a40e312fdde4372fb285278250f99c914b3bf5d0ce90d0948c98c9830f98  SD4-v3-phone-ci-linux.png
+e79b1fcea813d8933504560899b5dcd54598f5bef37261c36fa02680d96d3e7d  SD5-v3-phone-ci-linux.png
+f6cda5a4d6a31a544d0f17a753b5f16c2ec5545a5d03d4c431c453f695944bd9  SD6-v3-phone-ci-linux.png
+a63fa7cf095aa1ae5001193726305ead4d017c4084480b264f84b0f181e21712  SD7-v3-phone-ci-linux.png
+74b591a0e23c5c0371886c9b268e9a5efe52af72bf69f1ea8bed5bea7ff55258  TR1-v3-phone-ci-linux.png
+52cbfe2070cf07fe37eced080978b1c9a5749d53899930ffaa0926c39eff5e67  TR2-v3-phone-ci-linux.png
+a66aae9285a300be68b5d6ce79836ca3173bf960aa39af3f0967511be5152896  TR3-v3-phone-ci-linux.png
+5b5da3f73efcae8c6649ca42d61de32c6322504feeb78fc709696e7d1b71e5eb  TR4-v3-phone-ci-linux.png
+134ef821237ae2495fafb685846eeabfcc9c26c7f65838a2f7c393c2edab6e61  TR5-v3-phone-ci-linux.png
+15b455d68a23731e006e2e4105b4b9e701e534b3f33cfff71747a05cc5309223  TR6-v3-phone-ci-linux.png

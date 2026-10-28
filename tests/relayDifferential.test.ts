@@ -13,7 +13,14 @@ import * as current from '../relay/core';
 import type { RelayCache, RelayOptions } from '../relay/core';
 import * as baseline from './fixtures/relay/coreBaseline';
 
-type Core = Pick<typeof current, 'handleRelay' | 'MemoryRelayCache'>;
+// The two cores each declare their own MemoryRelayCache class with a private member, so the classes are nominally
+// distinct types. The comparison only needs what both expose, so describe that structurally: the same handleRelay
+// signature and a constructor that yields something satisfying the public RelayCache interface. Both modules are
+// still driven through exactly the same calls; nothing about the behaviour comparison is loosened.
+interface Core {
+  handleRelay(request: Request, o?: RelayOptions): Promise<Response>;
+  MemoryRelayCache: new (ttlMs?: number, now?: () => number, max?: number) => RelayCache;
+}
 const CORES: [string, Core][] = [['baseline', baseline], ['branch', current]];
 
 const SIFT = 'https://chmoses98.github.io';

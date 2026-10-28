@@ -60,7 +60,13 @@ export function ChipRail({ as: Tag = 'div', className, children, ...rest }: Prop
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const fade = () => { el.dataset.fade = railFade(el.scrollLeft, el.clientWidth, el.scrollWidth); };
+    // One measurement per frame however many observers fire (a commit that changes many nodes fires the mutation observer once per batch, and each
+    // measurement forces a layout): the browser lays out for the frame anyway, so the read costs nothing extra there.
+    let raf = 0;
+    const fade = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; el.dataset.fade = railFade(el.scrollLeft, el.clientWidth, el.scrollWidth); });
+    };
     el.addEventListener('scroll', fade, { passive: true });
     window.addEventListener('resize', fade);
     const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(fade) : null;
@@ -70,7 +76,7 @@ export function ChipRail({ as: Tag = 'div', className, children, ...rest }: Prop
     // Chips arrive after the slate loads: their size changes what can scroll.
     const mo = typeof MutationObserver === 'function' ? new MutationObserver(fade) : null;
     mo?.observe(el, { childList: true, subtree: true, characterData: true });
-    return () => { alive = false; el.removeEventListener('scroll', fade); window.removeEventListener('resize', fade); ro?.disconnect(); mo?.disconnect(); };
+    return () => { alive = false; if (raf) cancelAnimationFrame(raf); el.removeEventListener('scroll', fade); window.removeEventListener('resize', fade); ro?.disconnect(); mo?.disconnect(); };
   }, [Tag]);
 
   const T = Tag as 'div';

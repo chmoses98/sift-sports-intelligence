@@ -7,8 +7,8 @@ clock, with the same answers on any day** (locally and in `.github/workflows/v3-
 | | |
 |---|---|
 | Families | `stat`, `team`, `game`, `player`, `props` (never merged: they were captured at different instants) |
-| URLs / unique documents | 464 URLs, 291 unique documents (67.1 MB if each family kept its own copy, 39.2 MB deduplicated) |
-| Committed size | 3,381,080 bytes of gzip packs + 322 KB of index and manifest = 3.7 MB for the directory (largest file: `packs/props-1.bin.gz`, 1.4 MB; the limit is 16 MB per file) |
+| URLs / unique documents | 799 URLs, 656 unique documents (95.5 MB if each family kept its own copy, 74.0 MB deduplicated) |
+| Committed size | 7,602,573 bytes of gzip packs + 544 KB of index and manifest = 7.9 MB for the directory (largest file: `packs/props-1.bin.gz`, 5.0 MB; the limit is 16 MB per file, the CI budget 20 MB in all) |
 | Verified by | `node scripts/v3-fixtures/verify.mjs --max-total-mb 20` (CI "static" job and `tests/v3/fixtures-bundle.test.ts`) |
 
 ## Layout
@@ -69,9 +69,29 @@ name, and slice `[offset, offset + length)`. The `.gz` files are served as plain
 | `team` | `v3-team` | 2026-10-26T23:25:00Z | 55 | 55 |
 | `game` | `v3-game`, `v3-quotegate`, `v3-hit-targets`, `v3-rails`, `v3-welcome`, `v3-timezones`, `v3-unavailable`, `v3-nontradable`, `v3-saved-reopen` (Prop Discovery group) | 2026-10-26T23:25:00Z | 61 | 61 |
 | `player` | `v3-player`, `v3-saved-reopen` (Player group) | 2026-10-26T19:00:00Z (a test pin, see its `basis`) | 60 | 60 |
-| `props` | `v3-props`, `v3-props-avail`, `v3-props-budget`, `v3-scores`, `v3-starts` | 2026-10-26T23:25:00Z | 226 | 226 |
+| `props` | `v3-props`, `v3-props-avail`, `v3-props-budget`, `v3-scores`, `v3-starts`, `v3-nontradable` (Prop Discovery group), `v3-saved-reopen` (Prop Discovery group) | 2026-10-28T14:58:10Z | 561 (8 answer 404) | 553 |
 
-(All under `e2e/`, `.spec.ts`.) The specs that need priced Prop Discovery rows (`v3-nontradable`, `v3-saved-reopen`) read the `game` family: the `props` family's soonest rows have no current price, so those tests would skip there.
+(All under `e2e/`, `.spec.ts`.) The `v3-nontradable` and `v3-saved-reopen` Prop Discovery groups read the `props` family: its 48-hour horizon holds games the live-quote
+feed has files for (priced rows) and games it has none for (rows that print "—"), see below. The other groups of those two specs still read `game` and `player`.
+
+### The `props` family (captured 2026-10-28 14:58:10 UTC, window to 15:13:05)
+
+One capture, one scratch cache, one instant: `node scripts/v3-fixtures/sweep.mjs --dir D` (the horizon part), then the props specs with `V3_REAL_FEEDS=live V3_FEED_CACHE=D V3_FEED_RECORD=...`,
+then `pack`. The clock pin is the capture start (`captured_at.txt`), the window and tool are in `MANIFEST.json` (`captured_start`, `captured_end`, `capture_tool`). It was never merged with
+documents of another instant; the other four families, their pins and their documents are byte-for-byte what they were.
+
+| | 48 hours | 7 days | All upcoming |
+|---|---|---|---|
+| Games Prop Discovery reads (the board lists a market, not started at the pin) | 26 (NBA 15, CFB 5, NHL 4, MLB 1, NFL 1) | 165 | 289 (CFB 238, NBA 32, NFL 14, NHL 4, MLB 1) |
+| Priced: the feed has a live-quote file with asks (NFL, NHL, MLB) | 6 | 19 | 19 |
+| Not priced: no live-quote file (NBA, college football; the app asks, gets a 404 and prints "—") | 20 | 146 | 270 |
+
+Every game of every horizon has its contract document (`event_detail`), and every game within 7 days of the pin its research document (availability) where the publication has one;
+the specs read the rest (identity tables, rankings, profiles, logs, projections) as they run. The live feed in this capture lists only `active` markets with an ask, so a quote that is
+`inactive`, `determined` or missing an ask is made by the specs (`freshQuotes` `status` / `omit`, controlled modifications named as such in their test titles), as before.
+`tests/v3/propsCapture.test.ts` states what a props capture must hold (priced and unpriced games in every horizon, every game readable, the facts the specs derive from), so a refresh
+that lacks one fails there instead of making a spec skip. The specs name no player, club, event or count of one capture: they derive them from the family's own documents
+(`e2e/support/propsFixture.ts`), so the family can be refreshed without editing a spec.
 
 The exact capture window (`captured_start` / `captured_end`), the reason for each pin, the source repositories and branches, the capture tool version
 and git sha are in `MANIFEST.json`. The first import of the five pre-existing worker caches had no capture journal, so their per-document fetch time is the
@@ -102,6 +122,8 @@ rm -rf /tmp/game-cache && V3_REAL_FEEDS=live V3_FEED_CACHE=/tmp/game-cache V3_FE
   npx playwright test -c playwright.v3.config.ts e2e/v3-game.spec.ts e2e/v3-quotegate.spec.ts e2e/v3-hit-targets.spec.ts
 #    (or refetch exactly what is committed: node scripts/v3-fixtures/capture.mjs --family game --dir /tmp/game-cache --from-bundle)
 #    /tmp/game-cache now holds the documents, journal.jsonl (url, status, content type, sha256, fetch time) and captured_at.txt (the clock pin)
+#    a Prop Discovery (props) capture starts with the sweep, in the SAME cache and at the same instant, so that which games are priced or unpriced is a property of the instant and not of what a spec
+#    happened to scroll to:  node scripts/v3-fixtures/sweep.mjs --dir /tmp/props-cache   (then run the props specs live into it; pack with --requests <spec log>,/tmp/props-cache/sweep-urls.txt)
 # 2. pack it: sanitization scan (fails on any hit), dedup, packs, index, manifest
 node scripts/v3-fixtures/pack.mjs --family game --cache /tmp/game-cache --requests /tmp/game-req.txt \
   --specs e2e/v3-game.spec.ts,e2e/v3-quotegate.spec.ts,e2e/v3-hit-targets.spec.ts --clock-basis "why this instant"
@@ -117,6 +139,7 @@ Never copy documents between families. Clock pin: `captured_at.txt` of the scrat
 | Tool | Does |
 |---|---|
 | `capture.mjs --family F --dir D (--urls file \| --from-bundle)` | live fetch through curl into scratch cache `D` (files named by SHA-1 of the URL) + `journal.jsonl` + `capture.json` + `captured_at.txt` |
+| `sweep.mjs --dir D [--family props]` | the horizon part of a Prop Discovery capture: every board, and for every game Prop Discovery would read its contract document (all horizons), its research document (within 7 days) and the live-quote file the feed has for it; writes `capture.json` and `sweep-urls.txt` (pass to `pack --requests`) |
 | `pack.mjs --family F --cache D (--requests logs \| --urls file) [--clock ISO --clock-basis text --specs a,b]` | cache -> one family of the bundle; scans, dedups, drops documents no spec requested; other families are kept |
 | `verify.mjs [--dir fixtures/real] [--max-total-mb N]` | file sizes (< 16 MB), pack hashes, every document's sha256/length, index = manifest, URL hygiene, JSON shapes, clocks, orphan/missing documents, sanitization re-scan |
 | `unpack.mjs --family F --out D` / `--family F --url U` | write a family back as a scratch cache (`V3_FEED_CACHE=D` serves it) / print one document |

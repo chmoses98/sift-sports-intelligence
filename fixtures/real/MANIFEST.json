@@ -3,7 +3,7 @@
  "tool": {
   "name": "scripts/v3-fixtures",
   "version": "1.0.0",
-  "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
+  "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
  },
  "provenance": "Every document is a byte-exact copy of a file that its publisher serves publicly from raw.githubusercontent.com, in the repositories and branches named under \"sources\" (research and board publications of the Sift data pipeline, plus the live-quote feed branch of this repository). They are kept here only so that the SIFT 3.0 test suite can reproduce real-document behaviour offline on a fixed clock; no document is modified (the only test-time transformations are the documented re-stamps in e2e/support). Prices and probabilities inside them describe the instants named in this manifest and are neither current nor a recommendation. Use of the data stays subject to the publishers' own terms and the terms of the third-party sources they cite; inclusion here implies no endorsement by, or affiliation with, any league, team, player, data provider or exchange named in them.",
  "sources": [
@@ -88,10 +88,11 @@
  "families": {
   "stat": {
    "captured_start": "2026-10-26T23:21:35Z",
-   "captured_end": "2026-10-26T23:25:46Z",
+   "captured_end": "2026-10-26T23:36:37Z",
    "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
    "specs": [
-    "e2e/v3-stat.spec.ts"
+    "e2e/v3-stat.spec.ts",
+    "e2e/v3-stat-trend.spec.ts"
    ],
    "sources": [
     {
@@ -132,7 +133,7 @@
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 21
+     "documents": 22
     },
     {
      "repo": "chmoses98/sift-sports-intelligence",
@@ -149,13 +150,13 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
+    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
    },
-   "requested_urls": 92,
-   "cache_files_dropped_unrequested": 17,
-   "not_in_cache": 31,
-   "documents": 61,
-   "bytes": 7999460,
+   "requested_urls": 94,
+   "cache_files_dropped_unrequested": 16,
+   "not_in_cache": 32,
+   "documents": 62,
+   "bytes": 8148070,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
     "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
@@ -538,6 +539,14 @@
      "fetched_at": "2026-10-26T23:21:35Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_38f80e30c7c786aaf5b4.json",
+     "status": 200,
+     "sha256": "a7fb927021ddd2c44e0acb7aca4f038e8a11c7f35d1c6bda04ace211d9847454",
+     "bytes": 148610,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:36:37Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e24e99004a071b113fba.json",
      "status": 200,
      "sha256": "248fa1ad0a0740f0d929f620464c5cec0ae8e44f332045434675e360c07be86a",
@@ -653,7 +662,7 @@
   },
   "team": {
    "captured_start": "2026-10-26T22:59:38Z",
-   "captured_end": "2026-10-26T23:53:22Z",
+   "captured_end": "2026-10-26T23:07:13Z",
    "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
    "specs": [
     "e2e/v3-team.spec.ts"
@@ -697,12 +706,12 @@
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 20
+     "documents": 18
     },
     {
      "repo": "chmoses98/sift-sports-intelligence",
      "branch": "live-quotes",
-     "documents": 3
+     "documents": 2
     },
     {
      "repo": "chmoses98/soccer-edge-finder",
@@ -714,13 +723,13 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
+    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
    },
-   "requested_urls": 104,
-   "cache_files_dropped_unrequested": 40,
-   "not_in_cache": 46,
-   "documents": 58,
-   "bytes": 8707459,
+   "requested_urls": 98,
+   "cache_files_dropped_unrequested": 43,
+   "not_in_cache": 43,
+   "documents": 55,
+   "bytes": 8145438,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
     "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
@@ -1007,14 +1016,6 @@
      "fetched_at": "2026-10-26T23:07:13Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_2d0e261738ef71649dc9.json",
-     "status": 200,
-     "sha256": "c540e93d9ea560301a88074e96e0638bab5105bc0ad0ffe3bb899f80b10094dc",
-     "bytes": 8155,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:21:43Z"
-    },
-    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_b35c204716f68dc0b28c.json",
      "status": 200,
      "sha256": "1baeee0d2b7637faad02911d0ec56b1da7ae7a53b650dfbd4130c8db0958f7d9",
@@ -1037,14 +1038,6 @@
      "bytes": 123981,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:02:29Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_0354321f68a25a8fcb11.json",
-     "status": 200,
-     "sha256": "4b5b28bf8041278988990ca831a722b66c344d9752a3ce133fdc1fb3e0d810be",
-     "bytes": 148619,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:53:22Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_547c98b3a781b88ef8fe.json",
@@ -1127,14 +1120,6 @@
      "fetched_at": "2026-10-26T22:59:39Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DALPHI.json",
-     "status": 200,
-     "sha256": "cbe6071a900e1a98cd5754e8f201fcf0f3e720d9cba05bb18ec2e2165c4f13b0",
-     "bytes": 405247,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:06:45Z"
-    },
-    {
      "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26DETEDM.json",
      "status": 200,
      "sha256": "e8b5c8006d4029fa75e4a85f7da61700dd3363ce65fa6b80a362f16967d3e695",
@@ -1199,7 +1184,13 @@
    "specs": [
     "e2e/v3-game.spec.ts",
     "e2e/v3-quotegate.spec.ts",
-    "e2e/v3-hit-targets.spec.ts"
+    "e2e/v3-hit-targets.spec.ts",
+    "e2e/v3-rails.spec.ts",
+    "e2e/v3-welcome.spec.ts",
+    "e2e/v3-timezones.spec.ts",
+    "e2e/v3-unavailable.spec.ts",
+    "e2e/v3-nontradable.spec.ts",
+    "e2e/v3-saved-reopen.spec.ts"
    ],
    "sources": [
     {
@@ -1240,7 +1231,7 @@
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 20
+     "documents": 21
     },
     {
      "repo": "chmoses98/nfl-edge-finder",
@@ -1262,16 +1253,16 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
+    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
    },
-   "requested_urls": 150,
-   "cache_files_dropped_unrequested": 16,
-   "not_in_cache": 90,
-   "documents": 60,
-   "bytes": 7762630,
+   "requested_urls": 155,
+   "cache_files_dropped_unrequested": 15,
+   "not_in_cache": 94,
+   "documents": 61,
+   "bytes": 7770758,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "The cache recorded no pin. 2026-10-26T23:25:00Z is the instant e2e/v3-quotegate.spec.ts documents (the reference game DAL at PHI starts 2026-10-27T00:15Z, 50 minutes later) and lies inside the fetch window recorded here; the game, quote-gate and hit-target specs pass on it."
+    "basis": "The cache recorded no pin. 2026-10-26T23:25:00Z is the instant e2e/v3-quotegate.spec.ts and e2e/v3-timezones.spec.ts document (the reference game DAL at PHI starts 2026-10-27T00:15Z, 50 minutes later) and lies inside the fetch window recorded here; the specs pass on it."
    },
    "entries": [
     {
@@ -1587,6 +1578,14 @@
      "fetched_at": "2026-10-26T23:22:24Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_5aded4cb6f498d6b4071.json",
+     "status": 200,
+     "sha256": "dcdccb3046a0c087c3859c11715bd8ce5599113b5e2c6a47da6ad11cdca8d830",
+     "bytes": 8128,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:22:24Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/rankings/rnk_be267fe105d950eb5af0.json",
      "status": 200,
      "sha256": "5a158486abb27918c9edeacba3f96bb03362f7e673e3ccc2410cf294460205e2",
@@ -1761,7 +1760,8 @@
    "captured_end": "2026-10-27T00:20:42Z",
    "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
    "specs": [
-    "e2e/v3-player.spec.ts"
+    "e2e/v3-player.spec.ts",
+    "e2e/v3-saved-reopen.spec.ts"
    ],
    "sources": [
     {
@@ -1807,7 +1807,7 @@
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 16
+     "documents": 15
     },
     {
      "repo": "chmoses98/nfl-edge-finder",
@@ -1829,13 +1829,13 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
+    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
    },
-   "requested_urls": 109,
-   "cache_files_dropped_unrequested": 46,
+   "requested_urls": 108,
+   "cache_files_dropped_unrequested": 47,
    "not_in_cache": 48,
-   "documents": 61,
-   "bytes": 15204205,
+   "documents": 60,
+   "bytes": 15059642,
    "clock": {
     "captured_at": "2026-10-26T19:00:00Z",
     "basis": "A test pin, not a fetch time: the pin that e2e/support/playerFeeds.ts has always used (CAPTURED_AT). Every market's captured_at / observed_at is re-stamped to it and the page clock is set 5 s later, so quotes are current under the quote gate; documents were fetched later (see captured_start / captured_end)."
@@ -2138,14 +2138,6 @@
      "fetched_at": "2026-10-26T23:50:21Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_cd335cc6d5f5b8d8f7b3.json",
-     "status": 200,
-     "sha256": "9ff3f8fa16bb9068a8a0280417d62d58d3e96df25652045c4334f219181a3b22",
-     "bytes": 144563,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:49:51Z"
-    },
-    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/events/evt_e124f9c325722883d07f.json",
      "status": 200,
      "sha256": "913a7ca6dabb084d671ed39659cfb07878d32bfdca429a63daaa47dfa2cde61a",
@@ -2333,16 +2325,20 @@
   },
   "props": {
    "captured_start": "2026-10-26T23:14:08Z",
-   "captured_end": "2026-10-27T01:40:51Z",
+   "captured_end": "2026-10-27T00:57:32Z",
    "capture_method": "a scratch cache filled by the e2e helpers' live mode (curl) before the journal existed; per-document fetch time is the cached file's modification time and status 200 / application/json are those the helpers answered with",
    "specs": [
-    "e2e/v3-props.spec.ts"
+    "e2e/v3-props.spec.ts",
+    "e2e/v3-props-avail.spec.ts",
+    "e2e/v3-props-budget.spec.ts",
+    "e2e/v3-scores.spec.ts",
+    "e2e/v3-starts.spec.ts"
    ],
    "sources": [
     {
      "repo": "chmoses98/NHL-edge-finder",
      "branch": "data-archive",
-     "documents": 25
+     "documents": 23
     },
     {
      "repo": "chmoses98/Tennis-Edge-Finder",
@@ -2357,7 +2353,7 @@
     {
      "repo": "chmoses98/cfb-edge-finder",
      "branch": "main",
-     "documents": 10
+     "documents": 118
     },
     {
      "repo": "chmoses98/cfb-edge-finder",
@@ -2382,12 +2378,12 @@
     {
      "repo": "chmoses98/nba-edge-finder",
      "branch": "data-archive",
-     "documents": 35
+     "documents": 38
     },
     {
      "repo": "chmoses98/nfl-edge-finder",
      "branch": "handicap-reports",
-     "documents": 19
+     "documents": 17
     },
     {
      "repo": "chmoses98/nfl-edge-finder",
@@ -2397,7 +2393,7 @@
     {
      "repo": "chmoses98/sift-sports-intelligence",
      "branch": "live-quotes",
-     "documents": 4
+     "documents": 5
     },
     {
      "repo": "chmoses98/soccer-edge-finder",
@@ -2409,17 +2405,17 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "70d74452515935c7040d0860e58b9c43e478a08f"
+    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
    },
-   "requested_urls": 164,
-   "cache_files_dropped_unrequested": 1293,
-   "not_in_cache": 46,
+   "requested_urls": 277,
+   "cache_files_dropped_unrequested": 1185,
+   "not_in_cache": 51,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
     "basis": "captured_at.txt of the props capture (2026-10-26T23:25:00Z), inside the fetch window recorded here."
    },
-   "documents": 118,
-   "bytes": 22245926,
+   "documents": 226,
+   "bytes": 27929842,
    "entries": [
     {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/board.json",
@@ -2428,6 +2424,14 @@
      "bytes": 4585,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:14:09Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/event_detail/evt_202e861fae7ca0222bf5.json",
+     "status": 200,
+     "sha256": "87d32304ead1460918716ae52bffbff00390d46d82a5ea047c16c69b72d8dd90",
+     "bytes": 219099,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:39:44Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/event_detail/evt_9dcedbe131e7ff4c72d6.json",
@@ -2462,28 +2466,12 @@
      "fetched_at": "2026-10-26T23:14:10Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_02eff1d2bc7ce5423cd4.json",
-     "status": 200,
-     "sha256": "d910679758ab5072982ab0b90440d0c7d6903777c9d476a66e4938a02dffab70",
-     "bytes": 28526,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:25:23Z"
-    },
-    {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_2ad983eaf511321ad35d.json",
      "status": 200,
      "sha256": "0f4b88c1027732a309641fc1a3b8c38fbef94f7b52efc44e4487bbe0099ed265",
      "bytes": 28358,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:29:20Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_3d07954820bdad628cf3.json",
-     "status": 200,
-     "sha256": "0baf1887b2bef1d79c74af9a08938d91d105ef2fa7b33dc50a883d4ed6d66d29",
-     "bytes": 28491,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-27T01:40:51Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_420a56bac86ea89ecb51.json",
@@ -2502,12 +2490,12 @@
      "fetched_at": "2026-10-26T23:46:32Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_5c3e80615240fc99db37.json",
+     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_56147ebae51c14937cae.json",
      "status": 200,
-     "sha256": "5e701f3dfe26950c4b9b1197f270195067b0ddd19c6ae6cac98a6019ee4a816c",
-     "bytes": 17161,
+     "sha256": "3195b6eb6973be7e841d7dbdb64a3263f5548dbd8ed01d84b14f1d677e86ea3d",
+     "bytes": 28404,
      "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:25:23Z"
+     "fetched_at": "2026-10-26T23:23:47Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_616b72c6ae2e6a86bfff.json",
@@ -2572,14 +2560,6 @@
      "bytes": 17243,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:43:02Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/players/prt_e307544b22011e6da391.json",
-     "status": 200,
-     "sha256": "ff0865eac698d14e82615f0aef1cfa0bdc6c4e08c516c92558cf91800ee9a587",
-     "bytes": 25895,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:36:10Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/NHL-edge-finder/data-archive/app/latest/explorer/rankings/rnk_9c8ba69b0a7dc5fec50f.json",
@@ -2702,12 +2682,436 @@
      "fetched_at": "2026-10-26T23:14:09Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_04ccbbb9ca9b17ba68e4.json",
+     "status": 200,
+     "sha256": "ffdd16ed65d33d138f5305f08cec798950afc375360a8cabb29504b632b72ef9",
+     "bytes": 8813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_05cef7a06cbe059b0758.json",
+     "status": 200,
+     "sha256": "b91db0cb596bc485b53c996250a3637c03aab6dd0a016995dee06a50e05157ad",
+     "bytes": 132745,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_0605b54b1e562147ef1e.json",
+     "status": 200,
+     "sha256": "84c18afa18441b6b4b45d15c94145e49ffde9642877c70f8bb8568da47192095",
+     "bytes": 86008,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_0f8933907378d58f1062.json",
+     "status": 200,
+     "sha256": "926be6addca3845323744d3479ff800891b9d1517ffafcc9669c64e2378a09ee",
+     "bytes": 8886,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_11190317c5d94190d2c7.json",
+     "status": 200,
+     "sha256": "32da1b127e02553097b81e051f4ff589c0ff936bb472cddec48860bf3ac500b3",
+     "bytes": 8921,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1296afcb1f36c635e867.json",
+     "status": 200,
+     "sha256": "89b3d13594e126ad9c87996de0da77157b84a42ba02c8eb9ceba4be06fe8b292",
+     "bytes": 84300,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_14f6aa3cc75a4764fda7.json",
+     "status": 200,
+     "sha256": "bb9eda2fcb46a543257aefe0a36659c49c09ff23ba75456d31e91448fc2c25ee",
+     "bytes": 8734,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1809aa8975ef04fa47a5.json",
+     "status": 200,
+     "sha256": "2f9da61d4a3fca321765fb22c22a2acf2f843cfaebcf065f7eee89f3caa62630",
+     "bytes": 8734,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1897b6bfafd2ab46ef72.json",
+     "status": 200,
+     "sha256": "92dae8557d81d096447f0372e8a3c0ba7d50182a038ee1f72b6d95416d89508a",
+     "bytes": 78680,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_18d7dc486790b446e6c6.json",
+     "status": 200,
+     "sha256": "1f4a646255d0f25053a98793cf7258e0c371275bcf931ec99bf27d3c47f931bc",
+     "bytes": 117042,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1d92fd286154e5fcc159.json",
+     "status": 200,
+     "sha256": "3dcdfc666cbd0d9f55b62ccf7721940fb7252e934415d669fa79f9cae344d9dd",
+     "bytes": 80077,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1de8ddb6e30c3aeb3969.json",
+     "status": 200,
+     "sha256": "8d3e5c4620267b75ff0b95c0eb450b9a4622ca2917ed06081601157c42ccb477",
+     "bytes": 111796,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1e9052715347c2a503f1.json",
+     "status": 200,
+     "sha256": "3117b4c5bc1464792f2281c0482204daba6c737c8b4ab0bbcbcae11762eea12b",
+     "bytes": 8857,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1f1e72cf9d116db93614.json",
+     "status": 200,
+     "sha256": "430e4953eb55260b7f1a5321630007f899dacd3fd8b783223e0d47d43b843058",
+     "bytes": 8814,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_1fecaff8d99cbe76f980.json",
+     "status": 200,
+     "sha256": "6dab847c28879dcde7863fd7d06b8a983e03b595535c6bb2917a081034cd16d2",
+     "bytes": 8711,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_217f91e8eb4a20fabb27.json",
+     "status": 200,
+     "sha256": "1c6dd8be06f8428d09c34fe39320bc9b12692508102fe1e2bb87fa67e35c3d48",
+     "bytes": 74982,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_23ef19e8492ba429aea0.json",
+     "status": 200,
+     "sha256": "50e3aa3ab5cf0becc915ca4e025faef278ff4064948c90409423879079474a36",
+     "bytes": 8790,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_26f72dde774f14872296.json",
+     "status": 200,
+     "sha256": "82e2aa9205d546c1020dc0a41aafbf5f7a12bb7d91f9dd9f24ea219b0982d3d8",
+     "bytes": 8825,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_275fa8ceb263e412eb38.json",
+     "status": 200,
+     "sha256": "6d7c031af712de937a631123c7b5366e80e5cad3ab386a72071310f8020e0e62",
+     "bytes": 8726,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_2cf3d366d01cbfebdfda.json",
+     "status": 200,
+     "sha256": "3a69a2d15b20c721935e02334d67e163a31f3ed217172547426045e6550f71f0",
+     "bytes": 8721,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_2ed6e27161043f2d0759.json",
+     "status": 200,
+     "sha256": "ad1e35521a0f1a4375e7f961b0ac7dab8cb7fd379767700489d06d30f68a14da",
+     "bytes": 84266,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_359bd1ab018cbd0a01a7.json",
+     "status": 200,
+     "sha256": "ddb717a6007e153d798231c462c4346d3923d003cba7cb076d914a750e3f53a3",
+     "bytes": 8845,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_360ea158f4e58cf55bb7.json",
      "status": 200,
      "sha256": "a16eb9fd35eea97005450caa5081dd05428cc33b6c3c5679b14c9eb1c329ea27",
      "bytes": 113435,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_36b5817f25d8859aa592.json",
+     "status": 200,
+     "sha256": "8899756c3d959977de22f882b78d1d882686b29299264746b9359c5b827a4dd5",
+     "bytes": 142264,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_3980405b9ccfbacefc94.json",
+     "status": 200,
+     "sha256": "1b3d6cd2043bfc1a3b88ba17136d9ef25323a7322274219ec84ec9ae24dda56c",
+     "bytes": 83389,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_3a88c1a86e7635c9f0d0.json",
+     "status": 200,
+     "sha256": "5e3a9f29a732ced1d344d13c3c4bba504ab6f5f96e2c43cdcdda48967340a6cc",
+     "bytes": 82876,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_3c16dddb545be7dd9883.json",
+     "status": 200,
+     "sha256": "f33635d850ee9adae10625847ad347bf594abd9b8ec213af253499dedbbc3598",
+     "bytes": 79876,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_3d5fad48d40ec4446884.json",
+     "status": 200,
+     "sha256": "aedcd2bcb44c84e286d117d416ab5a59c841001b50026bbe93ad91c39e024b0f",
+     "bytes": 8703,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_417fe9a5e971e58a17df.json",
+     "status": 200,
+     "sha256": "3c3829edec106803084596865cc5f3e1617447c28e8c5d1f2462a94d8487ccbf",
+     "bytes": 121054,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_45c2418c4b1ca068a4fd.json",
+     "status": 200,
+     "sha256": "dc0a165448d0f0e9f945d23f42207202741700df9d0a9e7a23047ce2c963d9f5",
+     "bytes": 8730,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_4835fd0a052bce991c99.json",
+     "status": 200,
+     "sha256": "9e3066eaa7fba592af476fd607c7010e67a4993007e21bd37b2dd88d42e9760d",
+     "bytes": 8796,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_4afed75113353482f1ec.json",
+     "status": 200,
+     "sha256": "a4b4a5ffbbaaa645612af4683a5618946af4de3f78c7e16540b54511cc96072c",
+     "bytes": 118112,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_4ea593112afdda7e8cb4.json",
+     "status": 200,
+     "sha256": "7f7d04fd17bed2669d709f6dd81a88cdeae3b46536db0214e3c6754e4cf845a3",
+     "bytes": 84971,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:38Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_4f71015de76ce6fe6142.json",
+     "status": 200,
+     "sha256": "874cc46789672ca4b4f828b682cd18e8d607ff61fad232e2d91af00bbbf369c8",
+     "bytes": 84247,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_50678a6ae01d48fbaf58.json",
+     "status": 200,
+     "sha256": "b431d21ae033872fbe1e92fae60fe4abfec9de8b6020bd961c6e20fdf68bf0a9",
+     "bytes": 8789,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_537015302041fdf299cc.json",
+     "status": 200,
+     "sha256": "c44b06c95ce4dfe9b19b961807b8ce9d38f71ae2b8dda082b5190025fc482543",
+     "bytes": 79197,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_5411ebd32e31841ace16.json",
+     "status": 200,
+     "sha256": "99ee5a6803019ccab53d35ee6332e814e0fc934d3ac1327bfb8460dccf022d55",
+     "bytes": 8777,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_566ba2acc57a52c4a262.json",
+     "status": 200,
+     "sha256": "9005e6389aa8782c2d8c8fc29d6daf846b9606b7c62ebcecef4aac8a5d684e83",
+     "bytes": 8827,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_57deac61ff18bfaa9a20.json",
+     "status": 200,
+     "sha256": "3bb6399f8b08e3f90e7200380891f830b3d660f4d1ae6364d60c1920302fb2f4",
+     "bytes": 119259,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_5accd6d8aba4eb1ef78f.json",
+     "status": 200,
+     "sha256": "892cba7aefab86469a42d2aa52866991e59c53ca5a9fb3c1cc2988d88e3e21ef",
+     "bytes": 8853,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_5ba8f17c7d3443628d74.json",
+     "status": 200,
+     "sha256": "a309264c5c5f7b462b51c4a18dd8e7dca697d1403f39754317ad9c11ea1d6169",
+     "bytes": 8790,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_5bb0c1bb831e5a6b0f99.json",
+     "status": 200,
+     "sha256": "519e1b1ac53e8e5cf74d172052baf24b501e13e9867048b23a48c6e4e2f49b88",
+     "bytes": 84419,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_5cb96ae9316876a61f55.json",
+     "status": 200,
+     "sha256": "ed74bce0506c031a924ff745aaeecd4d33ab912ab05e2581a5296f8887ffde16",
+     "bytes": 8822,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_600f7896cd2da6bd767e.json",
+     "status": 200,
+     "sha256": "6669d96d7529b6e6e5391f5ef9d699229091b744022e12133887b1b938aad52e",
+     "bytes": 84395,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_62cf1d2c015fe5dd7a30.json",
+     "status": 200,
+     "sha256": "cd4fc81f4ad09f952a8874601971c6787a2b886149c8294e7b7a93324610bf82",
+     "bytes": 8732,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_67c84286cd3397eb2104.json",
+     "status": 200,
+     "sha256": "4a4b189f5424d3faf006a697c54ce64a9472dca1dde69d78fdb43cc6247421e1",
+     "bytes": 8757,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_68d029f3e8760eaa8c5b.json",
+     "status": 200,
+     "sha256": "3963949174d48e78aff7fb1532f98a9e306a876fc934a5bfefe8e16f7b3428d5",
+     "bytes": 8889,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_6c0e0a4af168b110d5d1.json",
+     "status": 200,
+     "sha256": "988aef8d4cf4410746ff948f3dfa91a8a8ce51b1d901530daf23dbad949a7e95",
+     "bytes": 8932,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_6c17acc0a81f3565a5a1.json",
+     "status": 200,
+     "sha256": "c0a7d68cf0689a63ab895410b454fca956031743c26e491043f35d448e7559bc",
+     "bytes": 8755,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_6c278a879db813387d7b.json",
+     "status": 200,
+     "sha256": "333a0c464e85867ae434886c64196fec9cbe6c09a111d5376d89f35e4df08771",
+     "bytes": 8912,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_6f5ea0a264881e5e9176.json",
+     "status": 200,
+     "sha256": "25608c7c4ab6c924f129e3016010082f050647b0287a46ed1853aa8a09cebc0c",
+     "bytes": 8820,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_74253387f0eb6309db7e.json",
+     "status": 200,
+     "sha256": "3e60ee991cd071519a77f1905eed93c8db4981223182d6306e2c07448292b694",
+     "bytes": 8876,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_781ff39c85f8d9917239.json",
+     "status": 200,
+     "sha256": "08b54f07d4a0171d19f22b213d07430a3dbebe2c9d78dbe02348eff4f9c4f6c6",
+     "bytes": 8903,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_78bf855b56612182959b.json",
+     "status": 200,
+     "sha256": "9f332f48b83301e51a6a705cd5de28ce6ab8b673fe4e2f0ddd2b41ef3998b513",
+     "bytes": 79019,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_791f6864dd3516291ec5.json",
@@ -2718,6 +3122,126 @@
      "fetched_at": "2026-10-26T23:14:31Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_7d357cfa29186ee507e9.json",
+     "status": 200,
+     "sha256": "432d7f6907296a764c802cb451355d0856044be71b0a3e64ceeea71822651f3c",
+     "bytes": 130924,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_7f0e1edad3a598dfb209.json",
+     "status": 200,
+     "sha256": "6c5c6bc524faad5799bee5cfd920589e2a7749b7aad2ad77d53ab569de68133f",
+     "bytes": 84956,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_80e489a0bfe586095689.json",
+     "status": 200,
+     "sha256": "8bb3a916184259dc55f01959bcdd035aff7e6ff727bea370ec6a3027feba611a",
+     "bytes": 84531,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_828528969ecbd81d2013.json",
+     "status": 200,
+     "sha256": "49c3bd0d33aff195f1f40314ea551ec4f93a7ae4a6be41de960bfb855c814048",
+     "bytes": 8720,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_870797bcd381ddf4430b.json",
+     "status": 200,
+     "sha256": "600c121c22f00e68eae10fdf99bb7be8c90938e41e95a824714c97d8e746b7cd",
+     "bytes": 8824,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_899ac3559386aecd24dc.json",
+     "status": 200,
+     "sha256": "bb7562c296405deec000ffba249aa4b42b2c027d71be03df865cec73a16242a1",
+     "bytes": 8738,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_8c9b89a312226fe2eece.json",
+     "status": 200,
+     "sha256": "792582db3b675b957c7c7acf6268360e9594445fa6e912d04b37755c3c22155a",
+     "bytes": 8832,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_8fc9af1fb7225243683d.json",
+     "status": 200,
+     "sha256": "e0b5f6740f32529313845ea69f9f13ec4354f2b74503b73fa4e88fca1f46bde1",
+     "bytes": 115378,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_9296e130bd537cc2e38d.json",
+     "status": 200,
+     "sha256": "da6e9cca0c14b150c8cea3a7529cfb0ffba8e195cbaf47e081f25466d4deedc4",
+     "bytes": 8791,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_942a120198c1d336cb24.json",
+     "status": 200,
+     "sha256": "3fba5c1dc394c87667147dc6b01c92fd8f466dbb3c1af8b9a79ef6ecf7ae9211",
+     "bytes": 116756,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_94d01d9b57e6ce4619dd.json",
+     "status": 200,
+     "sha256": "1d3d7fb9714c773552502cf7847a15730d52282bed25eae45b30477fedf27a23",
+     "bytes": 8720,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_96bada7484edbf72159f.json",
+     "status": 200,
+     "sha256": "a1155d386f4732e9b61e49e34442468396f2bcb59015d97b77d9f103b0eb8cf9",
+     "bytes": 108804,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_99b9bca55c943f0a84b1.json",
+     "status": 200,
+     "sha256": "73c46b0dbd65bbb4e751b559b5f0aafdbde29ef3e896480ba2630d2fc128bcce",
+     "bytes": 8760,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_9d3dfe50fe8087f6fe15.json",
+     "status": 200,
+     "sha256": "5ca272b49f05087a687ea03e05a2cae5d9d4825dfcac5764ed053e0ffcf825e9",
+     "bytes": 8750,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_9ff1048e7d679ee31764.json",
+     "status": 200,
+     "sha256": "3b492763457e566443fba25ca26521673532c897d2c6e32af37e1df43fe7ab3c",
+     "bytes": 81354,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a23a0a5d0a9dc27a210f.json",
      "status": 200,
      "sha256": "f270fbc0a3acdc09a8f9301a93c59a08068c7bd21830b9ee6cf8551a77c98824",
@@ -2726,28 +3250,348 @@
      "fetched_at": "2026-10-26T23:14:31Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/events/evt_360ea158f4e58cf55bb7.json",
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a367a81704d45405bdf9.json",
      "status": 200,
-     "sha256": "01201ef5beb845f2369677543770d086d99996e500ddd10ec78293d8b588a1e4",
-     "bytes": 140818,
+     "sha256": "471925f6ce9546a5932c365017236fa8b77f14c469c0e4d23bf32bd1bdb411d2",
+     "bytes": 122874,
      "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:55Z"
+     "fetched_at": "2026-10-26T23:14:33Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/events/evt_791f6864dd3516291ec5.json",
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a49fce8cfbc22826210e.json",
      "status": 200,
-     "sha256": "59eb24c7925f16aec80bfc61e3b0e41b9be8ba62e6fdbaa0e8c6eba3166dbc9b",
-     "bytes": 136835,
+     "sha256": "0c820994b3b886d683e91026a3fc43bec4aa17652af9a7c0bf2bba0eacf7fc40",
+     "bytes": 78349,
      "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:55Z"
+     "fetched_at": "2026-10-26T23:14:37Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/events/evt_a23a0a5d0a9dc27a210f.json",
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a4e07a7bd5b8d85e2902.json",
      "status": 200,
-     "sha256": "3b36810cc247cb0e76ed5386c36d9ac7c8b17619b25a775e5e2809f744f577ef",
-     "bytes": 124201,
+     "sha256": "4fcb2406803da804b723df54e2b044e1602b1461b92e44f8c0f873b1e50049ea",
+     "bytes": 8785,
      "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:55Z"
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a53326f44593fa88adde.json",
+     "status": 200,
+     "sha256": "e16f3935dc8d060b1cfee00d2945e22bc4cc0be113e94f096bc738627adbf550",
+     "bytes": 8746,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_a671f0c815dbe2524c60.json",
+     "status": 200,
+     "sha256": "9efb9a7435f94145c10963c1a4f694f8f64d3c5627cbc030f3e6264f5d2fb248",
+     "bytes": 140165,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_aad8e89fe2a55b37735f.json",
+     "status": 200,
+     "sha256": "b65e3b7bde46cbf06d31471af5ebd467e78248f231b623ad5a6edd58aa7a7e51",
+     "bytes": 123226,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_ae3b283895156fff6216.json",
+     "status": 200,
+     "sha256": "c768e8056c5f385ad2ea4d42a3ebbe0b05f3592a34fe485bb6a68a37a107a2c6",
+     "bytes": 117011,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_b207d2f6e2717c74cd03.json",
+     "status": 200,
+     "sha256": "1555ef182d7e98f90839713c10e8b1bc87574c264a639cd5edf687eab598163b",
+     "bytes": 115439,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_b505f1984efb3afa643c.json",
+     "status": 200,
+     "sha256": "1b3c6211e669d7e2da0d80b247c53abf3cc696ac9328ec33d4ab4fb8b31a2a02",
+     "bytes": 122426,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_b9f5ef8ca4ea24b6b52b.json",
+     "status": 200,
+     "sha256": "30a180ac6e566761f0d61543a0467d04defa2a5247f585c769390cdbdf93f871",
+     "bytes": 8869,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_bb18901b5b0bcfded074.json",
+     "status": 200,
+     "sha256": "7d8ba308be801a7c9cbfd7257f8c8b07cf524192a3cd0c3ce013ea09667bec3e",
+     "bytes": 8732,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:32Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_bb2dad152252f7f01c45.json",
+     "status": 200,
+     "sha256": "498041f148bc5c561ea89c44239eaaa884b215323d66cb9dc21140ea554fee44",
+     "bytes": 74674,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_bf14eda88e2daca35c2c.json",
+     "status": 200,
+     "sha256": "57dea71b98271004580cdd47789e355bba7e80c494c18d18b5f6e7cc822f3fec",
+     "bytes": 117684,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_bf4b641019d75a157684.json",
+     "status": 200,
+     "sha256": "17e59b58f8b19f42b3798ace9808c2b8f21de2feb04d1bbb5ea590b31a3af34d",
+     "bytes": 83036,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_bff0f666fd3dcd126af5.json",
+     "status": 200,
+     "sha256": "dc301caf8793828c5f38b0a2349e8479e8274ba2abc5c15b94a6ea47d90943d5",
+     "bytes": 114025,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_c0b9fa5179ef842d886a.json",
+     "status": 200,
+     "sha256": "9dc810d1e7e7243841a8681f88cbaf8ec513d648882e36ebb5d4054b0be7f858",
+     "bytes": 131926,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_c57f73f6f8bdc3a90ea0.json",
+     "status": 200,
+     "sha256": "4f06279c50b1ac5477bbb0251f601ec73d69e87bec0c2ed0445bf576f446cd80",
+     "bytes": 8893,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_c5ecf332ba9ab5c7ca91.json",
+     "status": 200,
+     "sha256": "7a35b2139f59142e09f4583cf645c1b9625989c01a94779ed532196dbd2927e1",
+     "bytes": 8706,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_c7dc809ee03f12287607.json",
+     "status": 200,
+     "sha256": "072d8dd9229ee9fb3312bde5888f746178007bb2da7ab6bb86fce1d027f653c6",
+     "bytes": 8761,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_cc78a2a4e6e9c80d6a90.json",
+     "status": 200,
+     "sha256": "660e7a41bf6951ca888cce3e20853f54a1bbdc3e9fe0fbe5ab3298fd6e97dbc8",
+     "bytes": 78212,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_cdbbdc4b405ef7954969.json",
+     "status": 200,
+     "sha256": "4bbcab38499ba2b29c4e017a62f2ee22d6a436fb1deffe6d17be511568fb656c",
+     "bytes": 84523,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_cdd0938556d8c7c4d46c.json",
+     "status": 200,
+     "sha256": "3c2763d11aaf1f626734837211df1e9cb43770ba3ca000507fa83c61f4b2d9b8",
+     "bytes": 8777,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_ce81d2a230f3fa90cc6d.json",
+     "status": 200,
+     "sha256": "75433e9bf89cbd7e90c80e31b94880b8a3a287a9be7665fd93c9e81cc759646a",
+     "bytes": 119723,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_d070ad2c661102c52d8b.json",
+     "status": 200,
+     "sha256": "d18d987a43de48d8e5b31f1b7ebdbb3de3144da3bd3824464c291d88736ccc65",
+     "bytes": 8860,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_d125ca38c2ce2717d8f7.json",
+     "status": 200,
+     "sha256": "b9bd2cfd50fdb0a7dcb4030fc75c2d5e2e754045561f326bf8fb44028326d318",
+     "bytes": 8733,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_d3f29df66591ad8d811a.json",
+     "status": 200,
+     "sha256": "ab42e3661d8d0f68a0d47dc85b7e654f69ee7e15ad307139a34b084bef2443f4",
+     "bytes": 115303,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:31Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_d80a12cd535746fa6836.json",
+     "status": 200,
+     "sha256": "889516d3c1bdd6060aad52a7b2f886c1f21a033183f220ec50b7b495a7bdc42b",
+     "bytes": 8813,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_d8fbe3bec9fb6e05ebcd.json",
+     "status": 200,
+     "sha256": "5dfb0546c2f7baef8e1b84af0d2b9e87e0bd73535e2a93ba88bcebb58b6dd30b",
+     "bytes": 124582,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_d9d5e3aa481e6776e384.json",
+     "status": 200,
+     "sha256": "09146c937abb8d316475ecc86d4aa3046cbc592190d42a1b507de7965bb39fe3",
+     "bytes": 8720,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:34Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_dbec9030fb02cffb0576.json",
+     "status": 200,
+     "sha256": "5e17b008fad1a65987411a2155c319bbf9837e847ebfeaca9fa6945343c1c88a",
+     "bytes": 76993,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_def9c8d86ea8d9f5e3b2.json",
+     "status": 200,
+     "sha256": "6f7015c6f9b7f7a3ec404b1c17f66207611e2849d24e3f0711923f5b4f5a07b2",
+     "bytes": 84660,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_e860c99d02d62ffe0a0a.json",
+     "status": 200,
+     "sha256": "1918b2faa042fa71bb656abcd7a24756700e317d64f187445d7967b0b560513d",
+     "bytes": 8866,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_ebe821526b5e823c205e.json",
+     "status": 200,
+     "sha256": "007756d3cadb11e4b42557c9f7ecd04eabc0e38505cbe35cd31aeecc4a1b3b3b",
+     "bytes": 113047,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_ece4b85686ee2c4a7c91.json",
+     "status": 200,
+     "sha256": "2e21842aab00f53db51a52a4f59fefee072456e5caa5ad914e5725bea4426574",
+     "bytes": 73986,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_eddd03f6dcb3b78ac0f7.json",
+     "status": 200,
+     "sha256": "3be92eb9b654647fece836a0c25031e6f9f2e15a981e497644fa81eea348d935",
+     "bytes": 8810,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_f09197bcf277885cc800.json",
+     "status": 200,
+     "sha256": "49f807e6b1726c66b21d58bd62bc255c44c08f0128d3dfcb2fa89dd69240fc13",
+     "bytes": 8822,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_f697d4120570a972fae0.json",
+     "status": 200,
+     "sha256": "df7357718aa20077d30a675d6a9a476629b1fb53b7cb816ea01fc2830d9e98b4",
+     "bytes": 77705,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_f7f73808ac1d39c10b93.json",
+     "status": 200,
+     "sha256": "3964e2a643c5aa1e6a33ee937d3a5c148a6ea724670419c2d3e453a629b2aed2",
+     "bytes": 8686,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:36Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_f8696b3bdf4e1aff1606.json",
+     "status": 200,
+     "sha256": "4745089fb493edbcb4c7cf0d8cdf13a478a4cd1eaa100f77e4e98758f274ce0e",
+     "bytes": 8838,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_f9e5eb63e225cf7c5fa6.json",
+     "status": 200,
+     "sha256": "a04616b3e9fe7b8a79de8aecd580a6bdaf2940d5bfb0af57f2ff8f7c2f3ce94e",
+     "bytes": 85042,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_fb99ec8529fe0961bee7.json",
+     "status": 200,
+     "sha256": "d8323c9bca847b140dd73d2848999bec255652f7830a78892a5125ea5d638a45",
+     "bytes": 8668,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:33Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_fec84e7d35a526885db7.json",
+     "status": 200,
+     "sha256": "7cf6dab86cb980a4ab16e8027962199efe8fe6adb28d4f2ae9ee489b0568a031",
+     "bytes": 84164,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:37Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/event_detail/evt_ff79b80b5c6ddea1b368.json",
+     "status": 200,
+     "sha256": "bc03ef7c299030de69811a35f6c05fa26981239e82ef239a0b4a948363f94bb3",
+     "bytes": 8740,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:35Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/cfb-edge-finder/main/app/latest/explorer/index.json",
@@ -2870,6 +3714,14 @@
      "fetched_at": "2026-10-26T23:14:13Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_2645d372317f1b85690a.json",
+     "status": 200,
+     "sha256": "3cab21b329e956f429631ec60004cb9f50747d2237e570733a76c3c1700151f7",
+     "bytes": 840965,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:39:44Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_2ced7e40cd2cdd85edb5.json",
      "status": 200,
      "sha256": "70e159fe253bf6846c83c9c5ce07320437a856d1b169dae5b85d0038858fedb1",
@@ -2894,12 +3746,36 @@
      "fetched_at": "2026-10-26T23:14:13Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_3425e2a8f4a3ef733f3f.json",
+     "status": 200,
+     "sha256": "29cebfb7499b9805b0b72c6367e53e7398b87bd09c2b9ac9594cd9e8abdc10d9",
+     "bytes": 4006,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_35ed1062cfeba9ce5e2c.json",
      "status": 200,
      "sha256": "45f3d77c330edf6ed8e6c528dd34bf9ba8fdfe53fe1763dcf05a73da0c209610",
      "bytes": 975369,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_46c8b3eb848e62ed8f50.json",
+     "status": 200,
+     "sha256": "a11ba65efe1a99b4c09ce59d3cd6f1ff5f15d294e293ba939c78d53ac7757ede",
+     "bytes": 3978,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_4cf82369c14293457654.json",
+     "status": 200,
+     "sha256": "750de02f632f1d7d7bfb8954565931416c3e755824f3a18945db22df4b5bd43a",
+     "bytes": 3971,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_5bf3bb7d035319cc96d5.json",
@@ -2910,6 +3786,14 @@
      "fetched_at": "2026-10-26T23:14:13Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_5c4682ab331e1017109c.json",
+     "status": 200,
+     "sha256": "1471d89abfedf6baf40a9d514c7691dabf64533f2260335399da89fe44ec974a",
+     "bytes": 3971,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_5d92d9b92734137a4998.json",
      "status": 200,
      "sha256": "8074fe58aba2e6051575d00d054e652ec9a209336a257612ddcb32695a398729",
@@ -2918,12 +3802,60 @@
      "fetched_at": "2026-10-26T23:14:14Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_5e64d38433108a1e134d.json",
+     "status": 200,
+     "sha256": "76ea1299a4ef67266ab4e7ea660a56e3cec3c0a94f28bb7e9c5f5f5d51081cbb",
+     "bytes": 4007,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_6579c9c471bb703204de.json",
+     "status": 200,
+     "sha256": "b85728317546a9392e2ce7368f7f7726176757cba9170ac55530bd8b818e4a79",
+     "bytes": 3977,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_6618bb1b6b02d785775d.json",
+     "status": 200,
+     "sha256": "052b2abb888e3f44c1092267be39caa3beb0cb9d868ffa393515d2b4f1d18147",
+     "bytes": 3976,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_678f53cb035ddd33e2b0.json",
+     "status": 200,
+     "sha256": "2440c254409156e48d0cb51d57550643fe3e295bc01dd5c1a4622be79382eb37",
+     "bytes": 3995,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_67b0f42bb22ccf2d03ba.json",
+     "status": 200,
+     "sha256": "426bd32b7226e09174387582939ceed94e62c1fe8146c1d8e2059e72187c71ae",
+     "bytes": 3991,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_70322d47cb7dbde94d89.json",
      "status": 200,
      "sha256": "29f1ce7347fd3df82cc39c336f4a18aeff2a0cd9322833793f01cb4a5017969c",
      "bytes": 945859,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_76ba8d5bdae3e0b98cac.json",
+     "status": 200,
+     "sha256": "f036b91a855a43193e66588da26e93fb56934dee93a653fd6faf0675442936f9",
+     "bytes": 4001,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_79e0a1ffdf1eaf4ab201.json",
@@ -2942,6 +3874,14 @@
      "fetched_at": "2026-10-26T23:14:13Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_e1043ec2e4001716a77f.json",
+     "status": 200,
+     "sha256": "7a100ca016a85c304d245dfbd6c2f1dfe802d5c7c2a4dd7e35e14e014fdc998d",
+     "bytes": 3971,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-26T23:14:14Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_e21445b36c97c5750139.json",
      "status": 200,
      "sha256": "b3150001c5d02e72ce62d62ba7ddb7fbf2a53228ed17923ce55c101e308b3912",
@@ -2956,6 +3896,14 @@
      "bytes": 938948,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:14:13Z"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_f630d849fcec700804af.json",
+     "status": 200,
+     "sha256": "c05f68814079beaee44a272ffd697fb8c4fbdb6f6144ecec17ae4f6ce65fc779",
+     "bytes": 932859,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:39:44Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/event_detail/evt_f631300c02d9a1233de6.json",
@@ -2974,44 +3922,12 @@
      "fetched_at": "2026-10-26T23:14:13Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_17172b8cff65651d8156.json",
+     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2645d372317f1b85690a.json",
      "status": 200,
-     "sha256": "a708051edca1f4336f13d370fb06084dac7c6af0234259645b37e6caaba2e51c",
-     "bytes": 543935,
+     "sha256": "5b933a3aaac0a8ddcc792f4fd7f2c6a77d2eef0396e379685331e9a39ea37422",
+     "bytes": 570388,
      "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:47Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_218fc6544812b86338e7.json",
-     "status": 200,
-     "sha256": "f2d8cbd39e88e434c76e2d0b2ae57b93bd72094f090ed39f066055bea46f81a3",
-     "bytes": 31230,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2ced7e40cd2cdd85edb5.json",
-     "status": 200,
-     "sha256": "67985d52b2fd306acb70979c5e4ab71482998faf9560e20887d56f531afbab34",
-     "bytes": 40116,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2ee19cb8e6472751f1cf.json",
-     "status": 200,
-     "sha256": "c063e873a916c52bebc29dc004b2ae9906f0be9b2fec48f57435aec0f7cdcf0c",
-     "bytes": 32467,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_2ef7dd9512c3123bb5a5.json",
-     "status": 200,
-     "sha256": "16f8d72a41150b3006aabb7a45a069981fe29a751a8f73a02f3b49e83dd89905",
-     "bytes": 59205,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
+     "fetched_at": "2026-10-27T00:39:45Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_35ed1062cfeba9ce5e2c.json",
@@ -3020,54 +3936,6 @@
      "bytes": 615624,
      "content_type": "application/json",
      "fetched_at": "2026-10-26T23:14:48Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_5bf3bb7d035319cc96d5.json",
-     "status": 200,
-     "sha256": "68a56fc3a5584c570061dc88173783097eb325ad334aa909db367d09c2b5aba2",
-     "bytes": 40819,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_5d92d9b92734137a4998.json",
-     "status": 200,
-     "sha256": "d2488bc6d626966d1a8be35e5a00c23ee0772630bf94cbb964f807c8be19720c",
-     "bytes": 30805,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_70322d47cb7dbde94d89.json",
-     "status": 200,
-     "sha256": "1e591baadffa2cb6bf2a196cc71cb045098e05d4235acf1d067578eb665dfd06",
-     "bytes": 599940,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:47Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_79e0a1ffdf1eaf4ab201.json",
-     "status": 200,
-     "sha256": "ca9c7b9ed56a977692e5f039f94c2553534111265cf135bf7f0a24e8fb253b0c",
-     "bytes": 41618,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:46Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_d593ffe8d31d992214c9.json",
-     "status": 200,
-     "sha256": "71f6aebca70589b39be0dbd3a3b74823d91f4734dac9115477f8dc35e42a3360",
-     "bytes": 574819,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:47Z"
-    },
-    {
-     "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_e21445b36c97c5750139.json",
-     "status": 200,
-     "sha256": "df3d178107e962860e7c0dfb49406a476da23b929f794554909dfcb78ec5f2a6",
-     "bytes": 40797,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:14:50Z"
     },
     {
      "url": "https://raw.githubusercontent.com/chmoses98/nba-edge-finder/data-archive/app/latest/explorer/events/evt_edf8ea244aa6c9da97f0.json",
@@ -3182,14 +4050,6 @@
      "fetched_at": "2026-10-26T23:14:09Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/metrics.json",
-     "status": 200,
-     "sha256": "d22b8627b64bcfb58d39440edf7911297deadbe37d58e19a265a5a0316cbef8d",
-     "bytes": 153334,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-26T23:56:57Z"
-    },
-    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/players/prt_5b9c03a72c93acfab443.json",
      "status": 200,
      "sha256": "4860eef04211b2bafd0e35c50678367287987e65d7018112536c5f73b69d601b",
@@ -3254,14 +4114,6 @@
      "fetched_at": "2026-10-26T23:21:49Z"
     },
     {
-     "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/explorer/teams/prt_e5c79c0dc7745a0640ee.json",
-     "status": 200,
-     "sha256": "73d79b3c2bca940c2b38b2336b53a1709e577ded52506c459b68b7a0eb5e1a6f",
-     "bytes": 150338,
-     "content_type": "application/json",
-     "fetched_at": "2026-10-27T01:34:33Z"
-    },
-    {
      "url": "https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/health.json",
      "status": 200,
      "sha256": "8488e58d4beed1cdb26a2d49572ebff1f3964dafb73c4538d47e7baaca54be72",
@@ -3318,6 +4170,14 @@
      "fetched_at": "2026-10-26T23:24:05Z"
     },
     {
+     "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26LANYR.json",
+     "status": 200,
+     "sha256": "b9681ee3e47371c4b748b0341ab68d16820c0cde893ab599dd2d951f4235ceea",
+     "bytes": 105255,
+     "content_type": "application/json",
+     "fetched_at": "2026-10-27T00:45:00Z"
+    },
+    {
      "url": "https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes/games/26OCT26TORCGY.json",
      "status": 200,
      "sha256": "adef085140908d9cb8239975b22c664be8765175ff48cbff02d2bc95aaaba0d5",
@@ -3370,9 +4230,9 @@
  },
  "totals": {
   "families": 5,
-  "urls": 358,
-  "unique_documents": 182,
-  "unique_bytes": 33362098,
-  "pack_compressed_bytes": 3097492
+  "urls": 464,
+  "unique_documents": 291,
+  "unique_bytes": 39199339,
+  "pack_compressed_bytes": 3381080
  }
 }

@@ -12,8 +12,9 @@ const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last update
 /** Real `inactive` markets in the captured DAL at PHI feed (they carry a yes ask in the published file). */
 const REAL_INACTIVE = 'KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-100';
 
-/** Families: the game screens read the `game` fixture family, Prop Discovery the `props` family (fixtures/real; different capture sets, never merged). */
-async function setup(page: Page, status?: (t: string) => string | undefined, family: 'game' | 'props' = 'game') {
+/** Every surface here reads the `game` fixture family (fixtures/real): its Prop Discovery list has priced rows, the `props` family's soonest rows have none. */
+async function setup(page: Page, status?: (t: string) => string | undefined) {
+  const family = 'game' as const;
   await serveRealFeeds(page, { family });
   await freshQuotes(page, { family, status });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
@@ -117,13 +118,13 @@ test.describe('Games and Home never price a non-tradable game @v3', () => {
   });
 });
 
-// Prop Discovery's rows come from the `props` fixture family.
+// Prop Discovery's rows come from the `game` fixture family (priced rows exist there; skips when a family has no current price).
 test.describe('Prop Discovery withholds a non-tradable market and keeps the research @v3', () => {
   test.setTimeout(150_000);
   const ready = (page: Page) => page.waitForSelector('.pd-card, .pd-row, .pd-empty', { timeout: 90_000 });
   test('a row whose market is suspended prints "—" in its price pill, the sheet says "Trading suspended" with no Retry, and the research lanes stay', async ({ page }) => {
     await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* ignore */ } });
-    await setup(page, undefined, 'props');
+    await setup(page);
     await go(page, '/v3/props?view=list');
     await ready(page);
     await page.waitForTimeout(1200);
@@ -134,7 +135,7 @@ test.describe('Prop Discovery withholds a non-tradable market and keeps the rese
     const row = page.locator('.pd-row', { has: page.locator(`[data-dest*="${encodeURIComponent(tk)}"], [data-dest*="${tk}"]`) }).first();
     const lanesBefore = await row.locator('.pd-lanes, .pd-lane, .pd-pb').first().innerText();
     // the same page, one market's feed status now says it is suspended (a real feed word)
-    await setup(page, (t) => (t === tk ? 'inactive' : undefined), 'props');
+    await setup(page, (t) => (t === tk ? 'inactive' : undefined));
     await page.reload();
     await ready(page);
     await page.waitForTimeout(1200);

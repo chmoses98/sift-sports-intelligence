@@ -286,7 +286,7 @@ test.describe('Trend on a real NHL series @v3', () => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('./#/v3/stat/nhl/corsi_pct?v=1&tab=trend&sel=ANA');
       await expect(page.locator('[data-v3-shell]')).toBeVisible();
-      await expect(page.locator('.st-obs, .st-state').first()).toBeVisible();
+      await expect(page.locator('.st-obs, .st-state, [role="alert"]').first()).toBeVisible(); // an unpublished ranking is now an honest alert (H-D), not a chart state
       test.skip(await page.locator('.st-obs').count() === 0, 'the feed cache in use holds no NHL per-game series for ANA (see the comment above)');
       await frame(page);
       const n = await page.locator('.st-obs svg [data-obs]').count();

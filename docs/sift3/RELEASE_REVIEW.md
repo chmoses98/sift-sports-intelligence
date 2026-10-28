@@ -38,3 +38,15 @@ Prices show only when a current Kalshi quote exists (approved age table); today 
 
 ## Isolation
 No change to `main`, v4, SIFT 2.0, classic, workflows, ledgers, model activation, `src/live` or `relay/` on this branch. Quote engineering is PR #148, the relay header is PR #150, each isolated and unmerged.
+
+
+## Wave 1 decisions (28 Oct 2026)
+
+1. Short-screen layout: `useShortScreen` is `max-height: 700px`, so Safari on an iPhone 15 Pro (about 659 px visible) gets the compact Player header, not the locked hero. Lower the threshold (around 600 px) or keep, to be settled on the device.
+2. Source decision no longer validates the explorer index's `schema_version` (existence probe instead, H-P). A publisher schema change surfaces as the screen's own unavailable state with Retry, not the saved copy. Recommendation: accept.
+3. Service worker first-visit precache (267 files, 1.6 MB) now starts 6 s after load on `#/v3` addresses. Narrower or on demand?
+4. Publisher backlog that would remove the remaining 450 KB-class reads: a per-sport search manifest, a per-league schedule document, a per-game lines document.
+5. Unrecognised market status words are withheld (H-Q), the alternative is to treat them as open. Recommendation: withhold.
+6. The `props` fixture family has no priced rows among its soonest games, so priced Prop Discovery specs run on the `game` family. Recapture `props` with priced rows?
+7. Fidelity: keep the Signature Game Switcher where the locked G1/G3 show text chips; keep the SD5 threshold stepper and SD1 "Side by side" link; sheet header with Reset on the title row (not done); PD6 avatar slot (not done). See `docs/sift3/qa/impl/fidelity/REPORT.md`.
+8. Live-quotes production job starved by CI queueing on `claude/*` branches on 27 Oct (about 55 minutes stale): fewer CI runs on those branches or a separate runner pool. No workflow was changed.

@@ -361,3 +361,13 @@ Before, every SIFT 3.0 screen, whatever it showed, loaded the same shell: the sl
 * Merge check: `git merge origin/claude/sift3-impl` (7babbdd2, with H-F merged) conflicts in `src/v3/V3Root.tsx` only (the import block: keep both `import { addressIs } from './state/url'` and this branch's `setExistenceProbe, setFetchTimeout` and `applyV3FetchBounds` imports; drop the now unused `RESEARCH_FETCH_TIMEOUT_MS`). Not merged here; the gates above ran on this branch's own tree.
 * Not verified: a real iPhone (everything here is Chromium under emulated throttling, or WebKitGTK); the service-worker first-visit install under throttle; the live quote feed's real file sizes (the fixtures hold only the games a spec needs).
 
+
+## Hardening wave 1: integration record (28 Oct 2026)
+
+Merged into `claude/sift3-impl`, one branch at a time, gates after each: Stat Trend touch scrubbing and observation list (H-C), Home/Games rail, local-time formatting and onboarding copy (H-A), captured-data preview (H-H), Prop Discovery horizon, History transparency and load (H-B), data correctness: non-tradable markets, verified/delayed scores, unavailable-data states, schedule-authority start times, saved-research reopen (H-D), committed real-document fixtures with offline CI and the WebKit/iPhone projects (H-E), screenshot fidelity and 30 visual baselines (H-F), first-CI-run triage (H-T), mobile performance (H-P).
+
+Verified on the merged tree (Linux Chromium, production build, committed fixtures only, `CI=true --workers=2`): 462 passed, 2 skipped (the NHL Corsi trend tests, which skip when the captured stat family has no NHL series). `tsc -b` and eslint clean; `vitest run` 173 files, 2110 tests (3 skipped); WebKitGTK `journeys.py` 48/48; preview crawl 26/26 designs and 4/4 roots, 0 external requests.
+
+Not verified: Playwright WebKit (`v3-iphone`, `v3-iphone-se`) has only run in CI, on the commit before the H-T fixes; real iOS Safari touch (line dragging, chart scrubbing, Safari edge back-swipe against the first and last Stat Trend column); the quote-store integration (waits for PR #148 to merge); the production relay's `Date` header (PR #150, not deployed).
+
+Open owner decisions are listed in `docs/sift3/RELEASE_REVIEW.md` under "Wave 1 decisions".

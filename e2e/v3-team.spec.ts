@@ -150,7 +150,7 @@ test.describe('Team Research (real documents) @v3', () => {
     await page.getByRole('button', { name: /Show all \d+ results/ }).click();
     await expect(page).toHaveURL(/all=1/);
     expect(await histLen(page)).toBe(len);
-    expect(await page.locator('.tm .res').count()).toBeGreaterThan(six);
+    await expect.poll(() => page.locator('.tm .res').count(), { message: 'the address changes first; the rows follow' }).toBeGreaterThan(six);
     const url = await hash(page);
     const n = await page.locator('.tm .res').count();
     await tapAndBack(page, page.locator('.tm .res > a[data-tap="game"]').nth(8), 'game', /^\/v3\/game\/nhl\/evt_/);

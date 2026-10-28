@@ -125,7 +125,7 @@ test.describe('the active chip is scrolled into view', () => {
   test('opening Games on the last state chip shows it', async ({ page }) => {
     await go(page, '/v3/games?state=final', '.v3-chips--states .v3-chip[aria-pressed="true"]');
     await page.waitForTimeout(300);
-    expect(await within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]')).toBe(true);
+    await expect.poll(() => within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
     expect(await page.locator('.v3-chips--states').getAttribute('data-fade')).toBe('start'); // scrolled to the end: the fade is on the start edge
   });
 
@@ -139,12 +139,12 @@ test.describe('the active chip is scrolled into view', () => {
     await page.locator('.v3-chips--states .v3-chip', { hasText: 'Final' }).click();
     await expect(page).toHaveURL(/state=final/);
     await page.waitForTimeout(400);
-    expect(await within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]')).toBe(true);
+    await expect.poll(() => within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
     await rail.evaluate((el) => { el.scrollLeft = 0; });
     await page.waitForTimeout(150);
     await page.locator('.v3-chips--states .v3-chip', { hasText: 'Following' }).click();
     await page.waitForTimeout(500);
-    expect(await within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]')).toBe(true);
+    await expect.poll(() => within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
   });
 
   test('a rail the viewer scrolled by hand is not yanked back by a re-render', async ({ page }) => {
@@ -161,7 +161,7 @@ test.describe('the active chip is scrolled into view', () => {
   test('opening Home on a sport past the edge shows its chip', async ({ page }) => {
     await go(page, '/v3?sport=tennis', '.v3-feat, .v3-state');
     await page.waitForTimeout(300);
-    expect(await within(page, '.v3-chips--home', '.v3-chips--home .v3-chip[aria-pressed="true"]')).toBe(true);
+    await expect.poll(() => within(page, '.v3-chips--home', '.v3-chips--home .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
   });
 
   test('keyboard focus order follows the visual order and the focused chip is reachable', async ({ page }) => {

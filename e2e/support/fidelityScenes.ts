@@ -6,8 +6,8 @@
 // Nothing is invented: each family is served by e2e/support/realFeeds.ts / playerFeeds.ts on its pinned clock; quote prices are the published
 // ones with only their observation time re-stamped (freshQuotes), exactly as the family specs do.
 import { expect, type Page } from '@playwright/test';
-import { feedNow, freshQuotes, useRealFeeds, type FeedFamily } from './realFeeds';
-import { usePlayerFeeds } from './playerFeeds';
+import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds, type FeedFamily } from './realFeeds';
+import { usePlayerFeeds as servePlayerFeeds } from './playerFeeds';
 
 export const LAMB = 'prt_4c661ae8b854ff5f66dd';
 export const PICKENS = 'prt_74580802ab4833992610';
@@ -104,7 +104,7 @@ export const SCENES: Scene[] = [
   },
   // ---- Team Research ---------------------------------------------------------------------------------------------------------------------------
   { id: 'TR1', ref: 'tr1', title: 'Overview', family: 'team', route: '/v3/team/nfl/DAL', ready: '.tm-idt .idr', dense: true },
-  { id: 'TR2', ref: 'tr2', title: 'Profile', family: 'team', route: '/v3/team/nfl/DAL?tab=profile', ready: '.tm .prr', dense: true },
+  { id: 'TR2', ref: 'tr2', title: 'Profile', family: 'team', route: '/v3/team/nfl/DAL?tab=profile&adj=0', ready: '.tm .prr', dense: true },
   { id: 'TR3', ref: 'tr3', title: 'Form', family: 'team', route: '/v3/team/nfl/DAL?tab=form', ready: '.tm .res', dense: true },
   { id: 'TR4', ref: 'tr4', title: 'Schedule', family: 'team', route: '/v3/team/nfl/DAL?tab=schedule', ready: '.tm .sch', dense: true },
   { id: 'TR5', ref: 'tr5', title: 'Players', family: 'team', route: '/v3/team/nfl/DAL?tab=players', ready: '.tm .plr', dense: true },
@@ -136,9 +136,9 @@ export const SCENES: Scene[] = [
 export async function serveScene(page: Page, family: FeedFamily): Promise<void> {
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
-  if (family === 'player') { await usePlayerFeeds(page); return; }
+  if (family === 'player') { await servePlayerFeeds(page); return; }
   await page.clock.setFixedTime(feedNow(family));
-  await useRealFeeds(page, { family });
+  await serveRealFeeds(page, { family });
   if (family === 'game' || family === 'props') await freshQuotes(page, { family });
 }
 

@@ -36,7 +36,7 @@ export function Player() {
   const heroRef = useHeroRef();
   const short = useShortScreen();
   const tab = v.state.tab;
-  const gone = useGone(heroRef, tab !== 'matchup' && !short);
+  const gone = useGone(heroRef, tab !== 'matchup' && !short, !v.loading && !!vm);
 
   // Sheets read the live view from here, never a copy taken when they opened.
   useEffect(() => { publishView(v); });

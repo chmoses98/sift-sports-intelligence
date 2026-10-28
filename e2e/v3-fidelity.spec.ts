@@ -32,7 +32,7 @@ const THRESHOLD = { maxDiffPixelRatio: 0.002, threshold: 0.2 };
 // every functional spec passed, so a CI run needs a set of its own: `<scene>-v3-phone-ci-linux.png`, written by a CI run with --update-snapshots (see the report in
 // docs/sift3/qa/impl/fidelity/REPORT.md) and reviewed like any other. V3_BASELINES=<name> picks a set explicitly; the default is `ci` when CI is set, else the sandbox set.
 const SET = process.env.V3_BASELINES ?? (process.env.CI ? 'ci' : 'sandbox');
-test.beforeEach(({}, testInfo) => { if (SET !== 'sandbox') testInfo.snapshotSuffix = `${SET}-linux`; });
+test.beforeEach(() => { if (SET !== 'sandbox') test.info().snapshotSuffix = `${SET}-linux`; });
 
 test.describe('Visual fidelity: locked designs and root tabs @v3-visual', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'baselines are Chromium (Linux) only');

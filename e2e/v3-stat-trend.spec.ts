@@ -58,27 +58,40 @@ for (const [w, h] of [[390, 844], [375, 667]] as const) {
       const obs = await obsOfColumns(page);
       expect(obs).toHaveLength(12);
       const len = await page.evaluate(() => history.length);
-      // the events the chart receives are real touch pointers, not mouse clicks
-      await page.evaluate(() => { (window as unknown as { __pt: string[] }).__pt = []; document.querySelector('.st-obs__plot')!.addEventListener('pointerdown', (e) => (window as unknown as { __pt: string[] }).__pt.push((e as PointerEvent).pointerType), true); });
+      // the events the chart receives are real touch pointers, not mouse clicks; every event is also logged, so a tap that does nothing says what the chart was sent
+      type Win = { __pt: string[]; __pl: string[] };
+      await page.evaluate(() => {
+        const w = window as unknown as Win;
+        w.__pt = []; w.__pl = [];
+        const plot = document.querySelector('.st-obs__plot')!;
+        plot.addEventListener('pointerdown', (e) => w.__pt.push((e as PointerEvent).pointerType), true);
+        for (const t of ['pointerdown', 'pointerup', 'pointercancel', 'click']) plot.addEventListener(t, (e) => { const m = e as PointerEvent; w.__pl.push(`${t}:${m.pointerType ?? ''}@${Math.round(m.clientX)},${Math.round(m.clientY)}`); }, true);
+      });
+      const expectSelected = async (column: number, at: string) => {
+        try { await expect.poll(() => obsParam(page), { message: at }).toBe(obs[column]); } catch (e) {
+          const log = await page.evaluate(() => (window as unknown as Win).__pl.slice(-8));
+          throw new Error(`${(e as Error).message}\nscrollY ${await scrollY(page)}; chart events, newest last: ${JSON.stringify(log)}`, { cause: e });
+        }
+      };
       let taps = 0;
       for (let i = 0; i < 12; i++) {
-        const b = await columnBox(page, i);
-        const y = b.top + b.height * 0.45;
         const neighbour = i === 11 ? 10 : i + 1;
         for (const f of [0.12, 0.5, 0.88]) {
-          // select the neighbour first, so a tap that did nothing cannot pass for one that worked
+          // select the neighbour first, so a tap that did nothing cannot pass for one that worked. Boxes are read at the moment of each tap.
           const nb = await columnBox(page, neighbour);
-          await s.tap(nb.left + nb.width * 0.5, y);
-          await expect.poll(() => obsParam(page)).toBe(obs[neighbour]);
+          await s.tap(nb.left + nb.width * 0.5, nb.top + nb.height * 0.45);
+          await expectSelected(neighbour, `neighbour column ${neighbour}`);
+          const b = await columnBox(page, i);
+          const y = b.top + b.height * 0.45;
           await s.tap(b.left + b.width * f, y);
-          await expect.poll(() => obsParam(page), { message: `column ${i} at ${f} of its width (${Math.round(b.left + b.width * f)}, ${Math.round(y)})` }).toBe(obs[i]);
+          await expectSelected(i, `column ${i} at ${f} of its width (${Math.round(b.left + b.width * f)}, ${Math.round(y)})`);
           await expect(page.locator(`.st-obs [data-obs="${i}"]`)).toHaveAttribute('data-on', 'true');
           await expect(page.locator('.st-obs [data-obs][data-on="true"]')).toHaveCount(1);
           taps += 2;
         }
       }
       expect(taps).toBe(72);
-      const kinds = await page.evaluate(() => (window as unknown as { __pt: string[] }).__pt);
+      const kinds = await page.evaluate(() => (window as unknown as Win).__pt);
       expect(kinds).toHaveLength(72);
       expect(new Set(kinds)).toEqual(new Set(['touch']));
       expect(await page.evaluate(() => history.length)).toBe(len); // selection replaces history

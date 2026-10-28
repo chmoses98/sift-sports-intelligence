@@ -46,10 +46,11 @@ export function useScrollMemory(ready: boolean) {
   useEffect(() => {
     try { history.scrollRestoration = 'manual'; } catch { /* the browser decides */ }
     cur.h = document.documentElement.scrollHeight;
-    // A scroll event that only reflects the page shrinking underneath the viewer (a screen unmounting, a sheet locking the body) is ignored.
+    // A scroll event that only reflects the page shrinking underneath the viewer (a screen unmounting, a sheet locking the body) is ignored: the browser has clamped
+    // the offset to the new bottom. A shorter page alone is not enough (a virtualised list resizes its spacer while the viewer is somewhere else in it).
     const on = () => {
       const nh = document.documentElement.scrollHeight;
-      if (nh < cur.h - 40 && scrollTop() < cur.y) { cur.h = nh; return; }
+      if (nh < cur.h - 40 && scrollTop() < cur.y && scrollTop() >= nh - window.innerHeight - 2) { cur.h = nh; return; }
       cur.y = scrollTop(); cur.h = nh;
     };
     window.addEventListener('scroll', on, { passive: true });

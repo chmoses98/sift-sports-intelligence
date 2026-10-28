@@ -3,7 +3,7 @@
  "tool": {
   "name": "scripts/v3-fixtures",
   "version": "1.0.0",
-  "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
+  "git_sha": "261b4d18e0063b2bfe9a547802d1ce2d98bfe06b"
  },
  "provenance": "Every document is a byte-exact copy of a file that its publisher serves publicly from raw.githubusercontent.com, in the repositories and branches named under \"sources\" (research and board publications of the Sift data pipeline, plus the live-quote feed branch of this repository). They are kept here only so that the SIFT 3.0 test suite can reproduce real-document behaviour offline on a fixed clock; no document is modified (the only test-time transformations are the documented re-stamps in e2e/support). Prices and probabilities inside them describe the instants named in this manifest and are neither current nor a recommendation. Use of the data stays subject to the publishers' own terms and the terms of the third-party sources they cite; inclusion here implies no endorsement by, or affiliation with, any league, team, player, data provider or exchange named in them.",
  "sources": [
@@ -150,7 +150,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
+    "git_sha": "261b4d18e0063b2bfe9a547802d1ce2d98bfe06b"
    },
    "requested_urls": 94,
    "cache_files_dropped_unrequested": 16,
@@ -159,7 +159,7 @@
    "bytes": 8148070,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
+    "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z; the stat window contains it); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
    },
    "entries": [
     {
@@ -723,7 +723,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
+    "git_sha": "261b4d18e0063b2bfe9a547802d1ce2d98bfe06b"
    },
    "requested_urls": 98,
    "cache_files_dropped_unrequested": 43,
@@ -732,7 +732,7 @@
    "bytes": 8145438,
    "clock": {
     "captured_at": "2026-10-26T23:25:00Z",
-    "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played."
+    "basis": "No capture instant was recorded with this cache (the original specs ran on the wall clock while the data was fresh). Pinned to 2026-10-26T23:25:00Z, the instant of the game and props families (all five caches were filled between 2026-10-26 22:59Z and 2026-10-27 02:51Z; the stat window contains it); verified by running the family's specs on it (every test passes), whereas on the wall clock of 2026-10-27 18:00Z tests about the DAL at PHI game (kickoff 2026-10-27T00:15Z) fail because the game has been played. The team documents were fetched 2026-10-26 22:59Z to 23:07Z, so this pin is 18 minutes after the last fetch, not inside the window."
    },
    "entries": [
     {
@@ -1253,7 +1253,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
+    "git_sha": "261b4d18e0063b2bfe9a547802d1ce2d98bfe06b"
    },
    "requested_urls": 155,
    "cache_files_dropped_unrequested": 15,
@@ -1829,7 +1829,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
+    "git_sha": "261b4d18e0063b2bfe9a547802d1ce2d98bfe06b"
    },
    "requested_urls": 108,
    "cache_files_dropped_unrequested": 47,
@@ -2405,7 +2405,7 @@
    "pack_tool": {
     "name": "scripts/v3-fixtures pack",
     "version": "1.0.0",
-    "git_sha": "74400e24516daf59209ab7cd030d88689a1c8f1d"
+    "git_sha": "261b4d18e0063b2bfe9a547802d1ce2d98bfe06b"
    },
    "requested_urls": 277,
    "cache_files_dropped_unrequested": 1185,

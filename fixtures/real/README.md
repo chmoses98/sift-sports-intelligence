@@ -7,8 +7,8 @@ clock, with the same answers on any day** (locally and in `.github/workflows/v3-
 | | |
 |---|---|
 | Families | `stat`, `team`, `game`, `player`, `props` (never merged: they were captured at different instants) |
-| URLs / unique documents | 358 URLs, 182 unique documents (61.9 MB if each family kept its own copy, 33.4 MB deduplicated) |
-| Committed size | 3,097,492 bytes of gzip packs + 239 KB of index and manifest = 3.35 MB for the directory (largest file: `packs/stat-1.bin.gz`, 1.3 MB; the limit is 16 MB per file) |
+| URLs / unique documents | 464 URLs, 291 unique documents (67.1 MB if each family kept its own copy, 39.2 MB deduplicated) |
+| Committed size | 3,381,080 bytes of gzip packs + 322 KB of index and manifest = 3.7 MB for the directory (largest file: `packs/props-1.bin.gz`, 1.4 MB; the limit is 16 MB per file) |
 | Verified by | `node scripts/v3-fixtures/verify.mjs --max-total-mb 20` (CI "static" job and `tests/v3/fixtures-bundle.test.ts`) |
 
 ## Layout
@@ -65,11 +65,13 @@ name, and slice `[offset, offset + length)`. The `.gz` files are served as plain
 
 | Family | Specs | Clock pin (`clock.captured_at`) | URLs | Docs |
 |---|---|---|---|---|
-| `stat` | `e2e/v3-stat.spec.ts` | 2026-10-26T23:25:00Z | 61 | 61 |
-| `team` | `e2e/v3-team.spec.ts` | 2026-10-26T23:25:00Z | 58 | 58 |
-| `game` | `e2e/v3-game.spec.ts`, `v3-quotegate.spec.ts`, `v3-hit-targets.spec.ts` | 2026-10-26T23:25:00Z | 60 | 60 |
-| `player` | `e2e/v3-player.spec.ts` | 2026-10-26T19:00:00Z (a test pin, see its `basis`) | 61 | 61 |
-| `props` | `e2e/v3-props.spec.ts` | 2026-10-26T23:25:00Z | 118 | 118 |
+| `stat` | `v3-stat`, `v3-stat-trend` | 2026-10-26T23:25:00Z | 62 | 62 |
+| `team` | `v3-team` | 2026-10-26T23:25:00Z | 55 | 55 |
+| `game` | `v3-game`, `v3-quotegate`, `v3-hit-targets`, `v3-rails`, `v3-welcome`, `v3-timezones`, `v3-unavailable`, `v3-nontradable`, `v3-saved-reopen` (Prop Discovery group) | 2026-10-26T23:25:00Z | 61 | 61 |
+| `player` | `v3-player`, `v3-saved-reopen` (Player group) | 2026-10-26T19:00:00Z (a test pin, see its `basis`) | 60 | 60 |
+| `props` | `v3-props`, `v3-props-avail`, `v3-props-budget`, `v3-scores`, `v3-starts` | 2026-10-26T23:25:00Z | 226 | 226 |
+
+(All under `e2e/`, `.spec.ts`.) The specs that need priced Prop Discovery rows (`v3-nontradable`, `v3-saved-reopen`) read the `game` family: the `props` family's soonest rows have no current price, so those tests would skip there.
 
 The exact capture window (`captured_start` / `captured_end`), the reason for each pin, the source repositories and branches, the capture tool version
 and git sha are in `MANIFEST.json`. The first import of the five pre-existing worker caches had no capture journal, so their per-document fetch time is the

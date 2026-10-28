@@ -11,8 +11,9 @@
 //   first     the first meaningful content of the route (Home: the featured game with both teams), bytes and requests the server sent before it,
 //             when the worker became active (precache finished), what the worker downloaded (requests with Sec-Fetch-Dest: empty, plus sw.js and workbox)
 //   repeat    a second visit in the same context: first content time, bytes the server sent
-//   offline   the network cut: does the same route come up; does a screen not visited before (Prop Discovery, a lazy chunk) open; does the classic Home
-// IMMEDIATE=1 registers the worker at load instead of 6 s later (the behaviour before PR #149; the page's setTimeout(register, 6000) becomes 0).
+//   offline   the network cut: does the same route come up; does a screen not visited before (Prop Discovery, a lazy chunk) open; does the classic Home;
+//             does a classic route nobody opened (#/cbb, a lazy chunk in no first screen)
+// OFFLINE=0 skips the offline step. IMMEDIATE=1 registers the worker at load instead of 6 s later (the behaviour before PR #149; the page's setTimeout(register, 6000) becomes 0).
 // SW=block runs the same flow with workers blocked (repeat then relies on the HTTP cache, max-age=300) as the control. ROUTE=/v3 (Home) is the default; ROUTE=/v3/props?view=list
 // measures Prop Discovery with its own family and first-content selector. CONTENT=<selector> sets the first-content selector of another route (ROUTE=/ the classic Home
 // with CONTENT='#root h1'); ASSETS_OUT=<prefix> writes the app files the server sent in the first visit (the shell list the variants are made from).
@@ -41,6 +42,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---------------------------------------------------------------- one shared link
 const link = { free: 0 };
+// OFFLINE step: the servers drop every connection (BrowserContext.setOffline does not reach a service worker's own fetches, so a runtime-cache miss would otherwise still succeed)
+let cut = false;
 let T0 = Date.now();
 const log = [];
 const HEADER_BYTES = 250;
@@ -68,6 +71,7 @@ const fam = feedSource(SCR.family);
 const gz = new Map();
 function startFeed() {
   const server = http2.createSecureServer(tls, async (req, res) => {
+    if (cut) { req.socket.destroy(); return; }
     if (req.method === 'OPTIONS') { res.writeHead(204, { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' }); res.end(); return; }
     const url = `https://raw.githubusercontent.com${req.url}`;
     const d = await fam.get(url).catch(() => null);
@@ -90,6 +94,7 @@ function startFeed() {
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
 function startApp(dist) {
   const server = http2.createSecureServer(tls, async (req, res) => {
+    if (cut) { req.socket.destroy(); return; }
     let p = decodeURIComponent((req.url ?? '/').split('?')[0]);
     if (p.startsWith(BASE_PATH)) p = p.slice(BASE_PATH.length - 1);
     if (p.endsWith('/')) p += 'index.html';
@@ -167,25 +172,36 @@ async function oneRun(browser, app, label, i) {
     out.repeat = { firstContentMs: round(await p2.evaluate(() => window.__pm.first)), requests: log.length, appBytes: sum(log.filter((e) => e.kind === 'app').map((e) => e.bytes)), docBytes: sum(log.filter((e) => e.kind === 'doc').map((e) => e.bytes)) };
     await p2.close();
 
-    // ---- offline
+    // ---- offline (OFFLINE=0 skips it)
+    if (process.env.OFFLINE !== '0') {
+    cut = true;
     await ctx.setOffline(true);
     const off = {};
     const p3 = await newPage(ctx, immediate, nowMs);
+    off.failed = [];
+    p3.on('requestfailed', (r) => off.failed.push(r.url().replace(/^https:\/\/localhost:\d+\/sift-sports-intelligence\//, '')));
+    p3.on('console', (m) => { if (m.type() === 'error') off.failed.push(`console: ${m.text().slice(0, 160)}`); });
     const t3 = Date.now();
     await p3.goto(`${origin}${BASE_PATH}#${route}`, { waitUntil: 'commit' }).catch((e) => { off.gotoError = String(e).split('\n')[0]; });
     off.sameRoute = await p3.waitForFunction(() => window.__pm?.first != null, null, { timeout: 25000 }).then(() => true, () => false);
     off.sameRouteMs = off.sameRoute ? Date.now() - t3 : null;
     // a screen not visited before: a lazy chunk the precache may or may not hold
     await p3.evaluate((h) => { location.hash = h; }, SCR.unvisited).catch(() => undefined);
-    off.unvisitedV3 = await p3.waitForFunction(() => !!document.querySelector('.pd-row, .pd-card, .pd-empty, .pd-listpage, .v3-feat__mid'), null, { timeout: 15000 }).then(() => true, () => false);
+    // (Prop Discovery's container `.pd` exists in every state of that screen, so it is only there once its chunk has loaded; Home's `.v3-feat__mid` for the other direction)
+    off.unvisitedV3 = await p3.waitForFunction((sel) => !!document.querySelector(sel), SCR.unvisited.startsWith('/v3/props') ? '.pd' : '.v3-feat__mid', { timeout: 15000 }).then(() => true, () => false);
     await p3.close();
     // the classic Home: a full navigation offline
     const p4 = await ctx.newPage();
     await p4.goto(`${origin}${BASE_PATH}#/`, { waitUntil: 'commit' }).catch(() => undefined);
     off.classicHome = await p4.waitForFunction(() => (document.querySelector('#root')?.innerText ?? '').trim().length > 150, null, { timeout: 20000 }).then(() => true, () => false);
+    // a classic route nobody has opened (its chunk is in no first screen): precached in the shipped build, a runtime-cache miss in a narrower one
+    await p4.evaluate((h) => { location.hash = h; }, '/cbb').catch(() => undefined);
+    off.classicUnvisited = await p4.waitForFunction(() => /college basketball|\bcbb\b/i.test(document.querySelector('#root')?.innerText ?? ''), null, { timeout: 15000 }).then(() => true, () => false);
     await p4.close();
     out.offline = off;
+    cut = false;
     await ctx.setOffline(false);
+    }
   } catch (e) { out.error = String(e).split('\n')[0]; }
   await ctx.close();
   return out;
@@ -211,7 +227,7 @@ for (const [label, rs] of results) {
     worker: { activeMs: m((r) => r.workerActiveMs), requests: m((r) => r.worker?.requests), bytes: m((r) => r.worker?.bytes), controlled: rs.filter((r) => r.controlled).length },
     firstVisitTotal: { requests: m((r) => r.firstVisit?.requests), bytes: m((r) => r.firstVisit?.bytes), appBytes: m((r) => r.firstVisit?.appBytes) },
     repeat: { contentMs: m((r) => r.repeat?.firstContentMs), requests: m((r) => r.repeat?.requests), appBytes: m((r) => r.repeat?.appBytes), docBytes: m((r) => r.repeat?.docBytes) },
-    offline: { sameRoute: rs.filter((r) => r.offline?.sameRoute).length, sameRouteMs: m((r) => r.offline?.sameRouteMs), unvisitedV3: rs.filter((r) => r.offline?.unvisitedV3).length, classicHome: rs.filter((r) => r.offline?.classicHome).length },
+    offline: { sameRoute: rs.filter((r) => r.offline?.sameRoute).length, sameRouteMs: m((r) => r.offline?.sameRouteMs), unvisitedV3: rs.filter((r) => r.offline?.unvisitedV3).length, classicHome: rs.filter((r) => r.offline?.classicHome).length, classicUnvisited: rs.filter((r) => r.offline?.classicUnvisited).length },
   };
 }
 if (process.env.OUT) writeFileSync(process.env.OUT, JSON.stringify({ route, mbit: MBIT, rtt: RTT, immediate: process.env.IMMEDIATE === '1', sw: process.env.SW ?? 'allow', report, results: Object.fromEntries(results) }, null, 2));

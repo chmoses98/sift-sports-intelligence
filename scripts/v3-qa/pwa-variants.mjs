@@ -35,7 +35,25 @@ const v3stems = new Set([...v3].map(stem));
 let keep;
 if (variant === 'none') keep = () => false;
 else if (variant === 'shell') keep = (u) => always(u) || shell.has(u);
-else if (variant === 'v3') keep = (u) => always(u) || shell.has(u) || v3stems.has(stem(u));
+else if (variant === 'v3') {
+  // every chunk a SIFT 3.0 chunk imports, statically or dynamically, transitively (a chunk with mostly classic sources that a v3 screen needs must be there too)
+  const closure = new Set();
+  const css = new Set(); // the stylesheets those chunks name (a lazy chunk's CSS has its own hash, so it cannot be matched by name)
+  const visit = (u) => {
+    // the entry chunk is in the shell, and following it would reach every route chunk of the app
+    if (closure.has(u) || /^assets\/index-[\w-]+\.js$/.test(u) || shell.has(u) || !existsSync(join(dist, u))) return;
+    closure.add(u);
+    const src = readFileSync(join(dist, u), 'utf8');
+    for (const m of src.matchAll(/["'`]\.\/([\w.-]+\.js)["'`]/g)) visit(`assets/${m[1]}`);
+    for (const m of src.matchAll(/assets\/([\w.-]+\.css)/g)) css.add(`assets/${m[1]}`);
+  };
+  for (const e of entries) if (e.url.endsWith('.js') && v3stems.has(stem(e.url))) visit(e.url);
+  const closureStems = new Set([...closure].map(stem));
+  // a lazy chunk's stylesheet has its own hash and is named by the chunk that imports it, so it is matched by name (Props-<hash>.js with Props-<hash>.css)
+  const base = (u) => stem(u).replace(/-[\w-]{8}$/, '');
+  const v3bases = new Set([...v3stems, ...closureStems].map((x) => base(`${x}.js`)));
+  keep = (u) => always(u) || shell.has(u) || v3stems.has(stem(u)) || closureStems.has(stem(u)) || css.has(u) || (u.endsWith('.css') && v3bases.has(base(u)));
+}
 else throw new Error(`unknown variant ${variant}`);
 
 const kept = entries.filter((e) => keep(e.url));

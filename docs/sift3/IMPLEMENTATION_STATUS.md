@@ -371,3 +371,19 @@ Verified on the merged tree (Linux Chromium, production build, committed fixture
 Not verified: Playwright WebKit (`v3-iphone`, `v3-iphone-se`) has only run in CI, on the commit before the H-T fixes; real iOS Safari touch (line dragging, chart scrubbing, Safari edge back-swipe against the first and last Stat Trend column); the quote-store integration (waits for PR #148 to merge); the production relay's `Date` header (PR #150, not deployed).
 
 Open owner decisions are listed in `docs/sift3/RELEASE_REVIEW.md` under "Wave 1 decisions".
+
+## Hardening wave 1: first CI results and fixes (28 Oct 2026)
+
+First real runs of `.github/workflows/v3-ci.yml` (Chromium phone, WebKit iPhone 15 Pro, WebKit iPhone SE) and the classic `ci.yml` on `claude/sift3-impl`:
+
+| Finding | Class | Resolution |
+|---|---|---|
+| Production dist check failed: performance pass had made the Barlow preload conditional, removing the static link `scripts/check-dist.mjs` requires | regression from the performance merge | `vite.config.ts` restored to the shared version (about 45 KB back on SIFT 3.0 first visit) |
+| Classic `ci.yml` acceptance ran every `e2e/v3-*.spec.ts` under the classic config (wrong viewport, snapshot path, fixtures); no non-v3 spec failed | CI configuration | `playwright.config.ts` ignores `e2e/v3-*.spec.ts` (they run in `v3-ci.yml`); `e2e/v3.spec.ts` stays |
+| `src/v3/state/scroll.ts` dropped real scroll events when a virtualised list resized, so Back could restore a stale offset | app bug | fixed; regression covered by v3-props deep-scroll and `v3.spec` |
+| `V3Root` removed `?demo=` with a replace that could overwrite a newer navigation; sheets lost an Escape pressed at the instant they opened | app bugs | `addressIs` guard; Escape waits for focus in the dialog |
+| WebKit real-touch tap on a Stat Trend column: `pointerdown, pointercancel, pointerup, click` at one point left the neighbour selected | WebKit event pattern | `columnSelect.ts` commits the column under a click when the pointer sequence did not (scrolls still select nothing) |
+| Playwright iPhone 15 Pro is 393x659, under the 700 px short-screen threshold, so it renders the compact Player header | design question | see RELEASE_REVIEW decision 1 |
+| 30 `v3-fidelity` scenes fail on CI Chromium 141: baselines were rendered in the sandbox (Chrome for Testing 153) | environment | needs CI-rendered baselines (`<ID>-v3-phone-ci-linux.png`); owner decision, see `docs/sift3/qa/impl/fidelity/REPORT.md` |
+
+Everything else in the Chromium phone job passed on the last runs read.

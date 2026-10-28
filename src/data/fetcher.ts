@@ -20,6 +20,14 @@ export class SchemaVersionError extends Error {
   }
 }
 
+/** A document that is published and parses, but is not what its kind of document must be (SIFT 3.0 validates what it consumes: src/v3/data/validate.ts). */
+export class DocumentInvalidError extends Error {
+  constructor(public url: string, public docKind: string, public reason: string) {
+    super(`unreadable ${docKind} at ${url}: ${reason}`);
+    this.name = 'DocumentInvalidError';
+  }
+}
+
 type FetchJson = (url: string) => Promise<unknown>;
 
 /**
@@ -101,6 +109,18 @@ export async function documentExists(url: string): Promise<void> {
   if (!headOnly) await getJson(url);
 }
 
+/**
+ * SIFT 3.0 validates every document it consumes at the point it is read (src/v3/data/validate.ts): the existence probe above no longer reads the
+ * explorer index, so "published" proves nothing about content. OFF by default: SIFT 2.0 and classic accept what they always accepted. Turned on by
+ * `applyV3FetchBounds` (src/v3/data/early.ts) while SIFT 3.0 is mounted. The validator throws (SchemaVersionError / DocumentInvalidError) to reject a
+ * document; a rejected document is never memoised, so the next read asks again.
+ */
+export type DocumentValidator = (url: string, doc: unknown) => void;
+let validator: DocumentValidator | null = null;
+export function setDocumentValidator(fn: DocumentValidator | null): void {
+  validator = fn;
+}
+
 /** The research clock's in-session revalidation period. */
 export const RESEARCH_REVALIDATE_MS = 10 * 60 * 1000;
 
@@ -148,6 +168,7 @@ export function getJson<T>(url: string): Promise<T> {
       const v = (doc as { schema_version?: unknown } | null)?.schema_version;
       // A consumer rejects any other version rather than rendering it (app contract §2).
       if (v !== undefined && v !== 'edge_finder.app.v1') throw new SchemaVersionError(url, v);
+      validator?.(url, doc);
       settled.set(url, doc);
       settledAt.set(url, clock());
       return doc;

@@ -18,7 +18,7 @@ import { SlateProvider, useSlate } from './data/useSlate';
 import { applyDemoParam, demoOn, SAMPLE_ONLY, usePrefs } from './state/prefs';
 import { useScrollMemory } from './state/scroll';
 import { addressIs } from './state/url';
-import { setExistenceProbe, setFetchTimeout } from '../data/fetcher';
+import { setDocumentValidator, setExistenceProbe, setFetchTimeout } from '../data/fetcher';
 import { applyV3FetchBounds } from './data/early';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
@@ -134,7 +134,7 @@ export function V3Root() {
     // The same bounds the early start (data/early.ts) applies; a sport's explorer is then checked for with a HEAD request, not by reading its
     // (up to 450 KB) index: the screens that need the index read it.
     applyV3FetchBounds();
-    return () => { setFetchTimeout(null); setExistenceProbe(false); };
+    return () => { setFetchTimeout(null); setExistenceProbe(false); setDocumentValidator(null); };
   }, []);
   // The page behind the column is the app's own colour, never the classic body.
   useLayoutEffect(() => {

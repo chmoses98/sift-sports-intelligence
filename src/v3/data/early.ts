@@ -8,11 +8,12 @@
 // in flight or in hand; a failed early read is not remembered (the readers never cache a failure), so the hook simply asks again.
 //
 // Nothing here is rendered, stored or shown. Sample-data mode (`demo`) skips everything; the screens that never read the slate (Statistic Detail, Settings) skip the slate.
-import { getJson, joinUrl, RESEARCH_FETCH_TIMEOUT_MS, setExistenceProbe, setFetchTimeout } from '../../data/fetcher';
+import { getJson, joinUrl, RESEARCH_FETCH_TIMEOUT_MS, setDocumentValidator, setExistenceProbe, setFetchTimeout } from '../../data/fetcher';
 import { SportRepo } from '../../data/repo';
 import { resolveSource } from '../../data/source';
 import { explorable, SPORTS, sportBySlug } from '../../data/sports';
 import { prefetchLeanSlate } from '../../opportunity/load';
+import { validateDocument } from './validate';
 
 declare const __SIFT_SAMPLE_ONLY__: boolean | undefined;
 
@@ -23,6 +24,7 @@ export function applyV3FetchBounds(): void {
   const o = typeof window === 'undefined' ? undefined : (window as unknown as { __SIFT_FETCH_TIMEOUT_MS__?: number }).__SIFT_FETCH_TIMEOUT_MS__;
   setFetchTimeout(typeof o === 'number' && o > 0 ? o : RESEARCH_FETCH_TIMEOUT_MS);
   setExistenceProbe(true);
+  setDocumentValidator(validateDocument); // every document SIFT 3.0 consumes is checked before anything uses it (data/validate.ts)
 }
 
 /** The v3 path of an address hash ("#/v3/games?x=1" -> "/v3/games"), or null when the address is not SIFT 3.0's. */

@@ -41,9 +41,11 @@ async function setup(page: Page, family: FeedFamily, o: { player?: boolean; foll
     } catch { /* storage may be blocked */ }
   }, o.follows ?? null);
   if (o.player) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- a Playwright helper, not a React hook
     await usePlayerFeeds(page);
   } else {
     await page.clock.setFixedTime(feedNow(family));
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- a Playwright helper, not a React hook
     await useRealFeeds(page, { family });
     await freshQuotes(page, { family });
   }

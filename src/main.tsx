@@ -42,5 +42,11 @@ createRoot(document.getElementById('root')!).render(
 
 // Installable PWA: the service worker precaches the app shell and caches research data you open.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {});
+  const register = () => import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {});
+  if (/^#\/v3(?:[/?]|$)/.test(location.hash)) {
+    // SIFT 3.0 opened directly: a first visit installs the worker, which downloads the whole app (about 1.6 MB on the wire) in the background.
+    // It starts once the page has loaded and the first screen has had time to draw, so it never shares the phone's connection with the first screen.
+    const later = () => { setTimeout(register, 6000); };
+    if (document.readyState === 'complete') later(); else addEventListener('load', later, { once: true });
+  } else register();
 }

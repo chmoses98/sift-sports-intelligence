@@ -78,6 +78,14 @@ export function evaluate(b: SportBundle, now: number): { opportunities: Opportun
   return { opportunities: opps, verdict: verdict(code, b.sport.slug, b.sport.label, b.board, opps, b.recommendations != null || code === 'CFB' || code === 'NBA' || code === 'CBB', b.modelState, !b.error, b.error, now, b.marketCaptureAt) };
 }
 
+/**
+ * Start reading every sport's slate documents (source decision, board, recommendations, signals) without waiting for a screen to ask: the readers are
+ * memoised, so a later `useLeanOpportunities` finds them in flight or in hand. Used by SIFT 3.0's early start (src/v3/data/early.ts).
+ */
+export function prefetchLeanSlate(): void {
+  for (const s of SPORTS.filter(explorable)) void loadSport(s, { records: false });
+}
+
 /** The live tickers worth a quote: every opportunity that is not already a PASS. */
 const liveTickers = (opps: Opportunity[]) => [...new Set(opps.filter((o) => o.status !== 'PASS' && o.ticker).map((o) => o.ticker!))];
 
@@ -98,14 +106,10 @@ export function useSportOpportunities(repo: SportRepo, now: number) {
   }, [evaluated, bundle.loading, bundle.error, live, now]);
 }
 
-export function useAllOpportunities(now: number, o: { lean?: boolean } = {}) {
-  const lean = o.lean === true;
-  const bundles = useAsync(lean ? 'opportunities:all:lean' : 'opportunities:all', () => Promise.all(SPORTS.filter(explorable).map((s) => loadSport(s, { records: !lean }))));
+export function useAllOpportunities(now: number) {
+  const bundles = useAsync('opportunities:all', () => Promise.all(SPORTS.filter(explorable).map((s) => loadSport(s))));
   const evaluated = useMemo(() => (bundles.data ?? []).map((b) => evaluate(b, now)), [bundles.data, now]);
-  // `lean` (SIFT 3.0's slate: it prints no opportunity, only counts them) registers no quote with the store and reads no settled-record document:
-  // the screen that prints a price asks for exactly the contracts it prints. Default (every other caller): every candidate's contract is kept
-  // current at slate cadence and the record documents are read.
-  const live = useLiveQuotes(useMemo(() => (lean ? [] : liveTickers(evaluated.flatMap((e) => e.opportunities))), [evaluated, lean]), 'slate');
+  const live = useLiveQuotes(useMemo(() => liveTickers(evaluated.flatMap((e) => e.opportunities)), [evaluated]), 'slate');
   return useMemo(() => {
     const opportunities = repriceAll(evaluated.flatMap((e) => e.opportunities), live.quote, now);
     return {
@@ -116,4 +120,21 @@ export function useAllOpportunities(now: number, o: { lean?: boolean } = {}) {
       verdicts: evaluated.map((e) => recount(e.verdict, opportunities)),
     };
   }, [evaluated, bundles.data, bundles.loading, bundles.error, live, now]);
+}
+
+/**
+ * SIFT 3.0's slate: every sport's board and recommendations evaluated at `now`, as published. Unlike `useAllOpportunities` it registers no quote with
+ * the live store, does not re-price from it (so it is not re-computed whenever any quote changes) and does not read the settled-record documents (NHL
+ * learning scorecard, tennis record): the slate prints no opportunity, only counts them, and neither changes whether one is a candidate.
+ */
+export function useLeanOpportunities(now: number) {
+  const bundles = useAsync('opportunities:all:lean', () => Promise.all(SPORTS.filter(explorable).map((s) => loadSport(s, { records: false }))));
+  const evaluated = useMemo(() => (bundles.data ?? []).map((b) => evaluate(b, now)), [bundles.data, now]);
+  return useMemo(() => ({
+    loading: bundles.loading,
+    error: bundles.error,
+    bundles: bundles.data ?? [],
+    opportunities: evaluated.flatMap((e) => e.opportunities),
+    verdicts: evaluated.map((e) => e.verdict),
+  }), [evaluated, bundles.data, bundles.loading, bundles.error]);
 }

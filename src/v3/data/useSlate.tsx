@@ -5,12 +5,11 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { resolveSource } from '../../data/source';
 import { useNow } from '../../live/hooks';
-import { useAllOpportunities } from '../../opportunity/load';
+import { useLeanOpportunities } from '../../opportunity/load';
 import { gameRows, slateOrder } from '../../views/broadcast/games';
-import { useScores } from '../../live/scores/hooks';
 import { useFeedEnabled } from '../../live/scores/feed';
 import { observedFor } from '../../v4/scoreState';
-import { verifyScore } from './scoreVerify';
+import { useVerifiedScores } from './scoreReads';
 import { demoGames } from '../demo/fixtures';
 import { dayKey } from '../model/time';
 import { toGame } from './adapt';
@@ -51,20 +50,19 @@ function RealProvider({ children }: { children: ReactNode }) {
   // Lean: no quote is registered for the slate (nothing in it prints a price; the screens that do - Games cards, Game Detail, Player, Props -
   // register the contracts they print, so registering every candidate polled ~45 game files on every screen) and the NHL/tennis settled-record
   // documents are not read (they only feed record text of an opportunity, which the slate never prints; the candidate count does not depend on them).
-  const all = useAllOpportunities(now, { lean: true });
+  const all = useLeanOpportunities(now);
   // Start times: the league schedule (explorer) where it has been read, else the board's own (the same schedule, as published).
   const scheduleVersion = useScheduleVersion();
   const bundles = useMemo(() => withScheduleStarts(all.bundles, knownSchedule), [all.bundles, scheduleVersion]); // eslint-disable-line react-hooks/exhaustive-deps -- the registry changes under a stable lookup
   const rows = useMemo(() => gameRows(bundles, all.opportunities, now).sort(slateOrder), [bundles, all.opportunities, now]);
   const feedOn = useFeedEnabled();
   const evs = useMemo(() => (feedOn ? observedFor(rows, now) : []), [feedOn, rows, now]);
-  const read = useScores(evs);
+  const read = useVerifiedScores(evs); // re-renders the slate when a printed score changes, not every second the score store recomputes
   const games = useMemo<V3Game[]>(() => rows.map((r) => {
     const g = toGame(r);
-    const rd = feedOn ? read(r.item.event_id) : null;
     // Only a VERIFIED score is shown (data/scoreVerify.ts): matched to this event by identity evidence, in play or final, a plausible pair of
     // whole numbers. A verified score that is a little old keeps showing with `delayed`; an older or unreliable one is not shown at all.
-    const v = rd ? verifyScore(rd) : null;
+    const v = feedOn ? read(r.item.event_id) : null;
     if (v?.show) {
       g.score = { away: v.away, home: v.home, clock: v.clock, source: 'score-feed', asOf: null, ...(v.delayed ? { delayed: true } : {}) };
       g.phase = v.over ? 'final' : 'live';

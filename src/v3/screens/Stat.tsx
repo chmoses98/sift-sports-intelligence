@@ -19,7 +19,7 @@ import { saveResearch, pushVisit, removeSaved, useSaved, demoOn } from '../state
 import { findSaved } from '../model/saved';
 import { STAT_TABS, statSchema } from '../nav/schemas';
 import { routes } from '../nav/routes';
-import { encode, useRouteState } from '../state/url';
+import { addressIs, encode, useRouteState } from '../state/url';
 import { sportBySlug } from '../../data/sports';
 import type { MetricDef } from '../../contract/types';
 import type { V3Team } from '../model/types';
@@ -127,12 +127,12 @@ function LiveStat({ slug, statId }: { slug: string; statId: string }) {
   // The first build's address used a ranking id: say the statistic and window in the locked vocabulary, replacing the entry (no ghost entry).
   useEffect(() => {
     if (!res?.ok || !res.legacy) return;
-    // The catalog answers asynchronously. If the viewer already pressed Back, the entry now on top is the screen they returned to (its key differs
-    // from this screen's): replacing it would overwrite that screen's address with this statistic's.
-    if ((window.history.state?.key || 'default') !== loc.key) return;
+    // The catalog answers asynchronously. If the viewer already pressed Back, the entry now current is the screen they returned to: replacing it would
+    // overwrite that screen's address with this statistic's.
+    if (!addressIs(loc)) return;
     const search = encode(statSchema, { win: res.window }, loc.search);
     nav({ pathname: `/v3/stat/${slug}/${encodeURIComponent(res.id)}`, search }, { replace: true, state: loc.state });
-  }, [res, slug, loc.key, loc.search, loc.state, nav]);
+  }, [res, slug, loc, nav]);
 
   const def = res?.ok ? defs.data?.get(res.metricId) : undefined;
   const ranking = rk.ranking;

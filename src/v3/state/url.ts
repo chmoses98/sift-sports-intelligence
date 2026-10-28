@@ -143,6 +143,18 @@ export function canonicalRoute(route: string): string {
 
 // --------------------------------------------------------------------------- React
 
+/**
+ * True while the address bar still shows `loc` (the location a render saw). An effect that rewrites the address after an asynchronous step (a catalog that answers, a
+ * parameter dropped once the shell has mounted) must check this first: a `replace` always lands on whichever entry is current when it runs, so one issued after the
+ * viewer has moved on (Back, a link) would overwrite the screen they moved to with the address of the screen they left.
+ */
+export function addressIs(loc: { pathname: string; search: string }): boolean {
+  try {
+    const shown = decodeURI(window.location.hash.replace(/^#/, '').split('#')[0]);
+    return shown === decodeURI(`${loc.pathname}${loc.search}`);
+  } catch { return true; }   // an address that cannot be decoded is compared as it is by nobody: do not block the rewrite
+}
+
 export interface UpdateOptions {
   /** Add a history entry (a durable step the viewer would expect Back to undo). Default: replace, so Back leaves the screen. */
   push?: boolean;

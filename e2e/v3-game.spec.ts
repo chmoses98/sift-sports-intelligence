@@ -185,6 +185,7 @@ test.describe('Key matchups and game shape @v3', () => {
     await matchup(page);
     const shape = page.getByTestId('game-shape');
     await expect(shape).toContainText('research-only');
+    await expect(shape.locator('.mx-sr, .x-lock').first()).toBeVisible();   // the projection can answer after the card is drawn: branch on what it answered, not on the first look
     const bars = shape.locator('.mx-sr');
     if (await bars.count()) {
       await tap(page, bars.first().locator('.mx-sr__t'), /#\/v3\/team\/nfl\/(DAL|PHI)$/, 'team'); // 38

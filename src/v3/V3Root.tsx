@@ -17,6 +17,7 @@ import './ui/ContractSheet'; // registers the addressed `contract` sheet for eve
 import { SlateProvider, useSlate } from './data/useSlate';
 import { applyDemoParam, demoOn, SAMPLE_ONLY, usePrefs } from './state/prefs';
 import { useScrollMemory } from './state/scroll';
+import { addressIs } from './state/url';
 import { RESEARCH_FETCH_TIMEOUT_MS, setFetchTimeout } from '../data/fetcher';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
@@ -120,6 +121,7 @@ export function V3Root() {
   useEffect(() => {
     const q = new URLSearchParams(loc.search);
     if (!q.has('demo')) return;
+    if (!addressIs({ pathname: loc.pathname, search: loc.search })) return;   // the viewer has already moved on: that entry is not ours to rewrite (it carries its own parameter, handled when it renders)
     q.delete('demo');
     setDemo(demoOn());
     nav({ pathname: loc.pathname, search: q.toString() ? `?${q}` : '' }, { replace: true });

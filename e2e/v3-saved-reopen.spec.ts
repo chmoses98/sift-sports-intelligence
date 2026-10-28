@@ -29,6 +29,8 @@ async function movableFeed(page: Page, family: 'player' | 'game', at: () => stri
 }
 const savedJson = (page: Page) => page.evaluate(() => localStorage.getItem('sift3.saved') ?? '[]');
 const hold = (page: Page) => page.waitForTimeout(600);
+/** The reference player's Over price, once the live-quote document has answered (it can arrive after the chart is drawn); false only when it never carries one. */
+const hasOverPrice = (page: Page) => expect(page.locator('.v3p-dl__r .p').first()).toHaveText(/Over \d+¢/, { timeout: 20_000 }).then(() => true, () => false);
 
 test.describe('saved Player research reopens with the current quote @v3', () => {
   const LAMB = '/v3/player/nfl/prt_4c661ae8b854ff5f66dd';
@@ -44,7 +46,7 @@ test.describe('saved Player research reopens with the current quote @v3', () => 
   test('the saved record and its card carry no price; reopening shows the NEW ask from the store, not the one on screen when it was saved', async ({ page }) => {
     await page.goto(`./#${LAMB}?win=L5`);
     await expect(page.locator('.v3p-hb').first()).toBeVisible({ timeout: 40_000 });
-    test.skip(!(await page.locator('.v3p-dl__r .p').first().innerText()).match(/Over \d+¢/), 'the reference player has no current price in this cache');
+    test.skip(!(await hasOverPrice(page)), 'the reference player has no current price in this cache');
     const before = Number(/Over (\d+)¢/.exec(await page.locator('.v3p-dl__r .p').first().innerText())![1]);
     await page.getByRole('button', { name: 'Save this research' }).first().click();
     const raw = await savedJson(page);
@@ -66,7 +68,7 @@ test.describe('saved Player research reopens with the current quote @v3', () => 
   test('reopened when no current quote can be had, the price is withheld ("—"), never the saved or an old one', async ({ page }) => {
     await page.goto(`./#${LAMB}?win=L5`);
     await expect(page.locator('.v3p-hb').first()).toBeVisible({ timeout: 40_000 });
-    test.skip(!(await page.locator('.v3p-dl__r .p').first().innerText()).match(/Over \d+¢/), 'the reference player has no current price in this cache');
+    test.skip(!(await hasOverPrice(page)), 'the reference player has no current price in this cache');
     await page.getByRole('button', { name: 'Save this research' }).first().click();
     // three hours later: every observation in the documents is older than the gate allows
     await page.clock.setFixedTime(PAGE_NOW + 3 * 3600_000);

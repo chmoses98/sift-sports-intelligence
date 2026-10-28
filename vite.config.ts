@@ -16,11 +16,15 @@ function preloadBarlow(): Plugin {
       order: 'post',
       handler(_html, ctx) {
         const files = Object.keys(ctx.bundle ?? {}).filter((f) => /barlow-latin-(400|600)-normal-[\w-]+\.woff2$/.test(f)).sort();
-        return files.map((f) => ({
-          tag: 'link',
-          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', href: `${ctx.server ? '/' : base}${f}`, crossorigin: '' },
+        // SIFT 3.0 (#/v3...) sets its own type (Geist, Sora) and never draws Barlow: its first visit does not pay for these two files (45 KB).
+        // Every other address preloads them exactly as before; the script runs in the head, where the static link tags were.
+        const hrefs = files.map((f) => `${ctx.server ? '/' : base}${f}`);
+        if (!hrefs.length) return [];
+        return [{
+          tag: 'script',
+          children: `(function(){try{if(/^#\\/v3(?:[\\/?]|$)/.test(location.hash))return;${JSON.stringify(hrefs)}.forEach(function(h){var l=document.createElement('link');l.rel='preload';l.as='font';l.type='font/woff2';l.href=h;l.crossOrigin='';document.head.appendChild(l);});}catch(e){}})();`,
           injectTo: 'head' as const,
-        }));
+        }];
       },
     },
   };

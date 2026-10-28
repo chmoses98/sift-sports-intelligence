@@ -21,7 +21,16 @@ function codeFromName(name: string, individual: boolean): string {
   return (words.length === 1 ? words[0].slice(0, 3) : words.map((w) => w[0]).join('').slice(0, 3)).toUpperCase();
 }
 
+const teams = new Map<string, V3Team>();
+/** One V3Team per identity (a slate repeats each club in many games; the identity tables are consulted once). Never mutated by a caller. */
 export function toTeam(sport: string, slug: string, p: Participant | undefined, fallback: string): V3Team {
+  const k = `${sport}|${slug}|${p?.short_name ?? ''}|${p?.participant_id ?? ''}|${p?.display_name ?? ''}|${fallback}`;
+  let t = teams.get(k);
+  if (!t) { t = buildTeam(sport, slug, p, fallback); teams.set(k, t); }
+  return t;
+}
+
+function buildTeam(sport: string, slug: string, p: Participant | undefined, fallback: string): V3Team {
   const named = p?.short_name ?? null;
   const code = named ?? p?.participant_id ?? fallback;
   const h = named ? heroTeam(sport, named, p?.display_name ?? named) : null;
@@ -42,16 +51,25 @@ function phaseOf(g: GameRow): Phase {
   return 'other';
 }
 
-/** A slate row as the view-model, before its per-game documents are read (no lines, no score yet). */
+const games = new WeakMap<GameRow, V3Game>();
+/**
+ * A slate row as the view-model, before its per-game documents are read (no lines, no score yet). The same row gives the same object (the slate
+ * is re-derived when a score, a schedule or the clock changes, and most rows have not changed): callers copy before they add anything.
+ */
 export function toGame(g: GameRow): V3Game {
-  const away = toTeam(g.sport, g.slug, g.away, 'AWAY');
-  const home = toTeam(g.sport, g.slug, g.home, 'HOME');
-  return {
-    key: `${g.slug}:${g.item.event_id}`,
-    slug: g.slug, sport: g.sport, eventId: g.item.event_id, league: g.item.competition ?? g.item.league ?? g.sport,
-    phase: phaseOf(g), startMs: g.startMs, network: null,
-    away, home, score: null, lines: [], signals: g.candidates, provenance: 'publication', item: g.item,
-  };
+  let v = games.get(g);
+  if (!v) {
+    const away = toTeam(g.sport, g.slug, g.away, 'AWAY');
+    const home = toTeam(g.sport, g.slug, g.home, 'HOME');
+    v = {
+      key: `${g.slug}:${g.item.event_id}`,
+      slug: g.slug, sport: g.sport, eventId: g.item.event_id, league: g.item.competition ?? g.item.league ?? g.sport,
+      phase: phaseOf(g), startMs: g.startMs, network: null,
+      away, home, score: null, lines: [], signals: g.candidates, provenance: 'publication', item: g.item,
+    };
+    games.set(g, v);
+  }
+  return v;
 }
 
 // ---------------------------------------------------------------- Kalshi ladders -> compact lines

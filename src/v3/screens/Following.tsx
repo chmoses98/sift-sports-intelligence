@@ -46,7 +46,9 @@ export function Following() {
   const setSp = useQueryPatch();
   const seg = (SEGS.some(([k]) => k === sp.get('seg')) ? sp.get('seg') : 'all') as Seg;
   const demo = demoOn();
-  const idx = { nfl: useSearchIndex('nfl', !demo), nba: useSearchIndex('nba', !demo), nhl: useSearchIndex('nhl', !demo), mlb: useSearchIndex('mlb', !demo) };
+  // A sport's search index (up to 450 KB with the explorer index it is found through) is read only to name a player this device follows in it.
+  const playerSports = new Set(f.players.map((k) => k.split(':')[0]));
+  const idx = { nfl: useSearchIndex('nfl', !demo && playerSports.has('nfl')), nba: useSearchIndex('nba', !demo && playerSports.has('nba')), nhl: useSearchIndex('nhl', !demo && playerSports.has('nhl')), mlb: useSearchIndex('mlb', !demo && playerSports.has('mlb')) };
   const teams = f.teams.map((k) => ({ k, t: teamOf(k, games) }));
   const players = f.players.map((k) => {
     const [slug, ...r] = k.split(':'); const id = r.join(':');

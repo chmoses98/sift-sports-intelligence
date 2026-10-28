@@ -68,6 +68,39 @@ async function defaultFetchJson(url: string): Promise<unknown> {
   });
 }
 
+/**
+ * SIFT 3.0 asks "is this document published?" with a HEAD request (a few hundred bytes) instead of reading it (`documentExists`). OFF by default:
+ * SIFT 2.0 and classic keep reading the document. Turned on by src/v3/V3Root.tsx while SIFT 3.0 is mounted, like the fetch bound above.
+ */
+let lightProbe = false;
+export function setExistenceProbe(on: boolean): void {
+  lightProbe = on;
+}
+/** True when `documentExists` is a HEAD request (SIFT 3.0, the browser's own fetch). */
+export const existenceProbeIsLight = (): boolean => lightProbe && impl === defaultFetchJson;
+
+/**
+ * Resolves when the document is published, rejects with NotFoundError when it is not (any other failure rejects with an ordinary error).
+ * Where a probe is allowed (SIFT 3.0, the browser's own fetch) this is a HEAD request: the source decision (src/data/source.ts) only needs to know
+ * that a sport's explorer index exists, and the index of one league is 450 KB on the wire. Anywhere else (SIFT 2.0, tests that swap the reader) it
+ * reads the document through `getJson`, validating its schema version as before. The document itself is still read, once, by the screen that needs it.
+ */
+export async function documentExists(url: string): Promise<void> {
+  if (!existenceProbeIsLight()) {
+    await getJson(url);
+    return;
+  }
+  const headOnly = await within(url, async (signal) => {
+    const res = await fetch(url, { method: 'HEAD', cache: 'no-cache', signal });
+    if (res.status === 404) throw new NotFoundError(url);
+    // A host or proxy that does not answer HEAD says so (405/501): then the document is read, as everywhere else.
+    if (res.status === 405 || res.status === 501) return false;
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return true;
+  });
+  if (!headOnly) await getJson(url);
+}
+
 /** The research clock's in-session revalidation period. */
 export const RESEARCH_REVALIDATE_MS = 10 * 60 * 1000;
 

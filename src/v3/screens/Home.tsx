@@ -20,7 +20,7 @@ import { GameStories } from '../ui/Stories';
 import { useSheet } from '../ui/Sheet';
 import { TeamLogo } from '../ui/TeamLogo';
 import { Welcome } from '../ui/Welcome';
-import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useSeen } from '../ui/gamebits';
 import { sportsIn } from './Games';
 
 function BellSheet() {
@@ -60,7 +60,7 @@ function ScoreTile({ g }: { g: V3Game }) {
 
 function Featured({ base }: { base: V3Game }) {
   const { now } = useSlate();
-  const x = useGameExtras(base, 'full');
+  const x = useGameExtras(base, 'photo'); // the featured card prints no price: no contract document, no quote
   useGameStart(base); // reads the league schedule (the start-time authority): the slate's games take its start (data/research/scheduleStarts.ts)
   const g = x?.game ?? base;
   const research = useGameResearch(g.provenance === 'publication' ? g.slug : null, g.provenance === 'publication' ? g.eventId : null);
@@ -149,6 +149,8 @@ export function Home() {
   }, [pool, featured]);
   const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; });
   const hasAlerts = Object.keys(alerts).length > 0;
+  // The stories' research documents (injury items, one per game) are read when the section is near the screen, not before the first card is drawn.
+  const [storiesRef, storiesSeen] = useSeen<HTMLElement>();
   const prefs = usePrefs();
   // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.
   useEffect(() => {
@@ -196,13 +198,13 @@ export function Home() {
 
       <MyTeams games={games} />
 
-      <section aria-label="What's happening">
+      <section aria-label="What's happening" ref={storiesRef}>
         <div className="v3-sechead"><h2>What's happening</h2><Link to="/v3/games">See all<Icon name="chevR" size={16} /></Link></div>
         <ul className="v3-stories">
           {demo ? SAMPLE_STORIES.map((s) => {
             const t = games.flatMap((g) => [g.away, g.home]).find((x) => x.sport === s.team[0] && x.id === s.team[1]);
             return <li key={s.t}><Link to={t ? teamHref(t) : '/v3/games'} className="v3-story">{t && <TeamLogo team={t} size={44} />}<span className="v3-story__t"><b>{s.t}</b><small>{s.s}</small></span><Icon name="chevR" size={20} /></Link></li>;
-          }) : storyGames.map((g) => <GameStories key={g.key} g={g} />)}
+          }) : storyGames.map((g) => <GameStories key={g.key} g={g} enabled={storiesSeen} />)}
           <li>
             <Link to="/v3/games" className="v3-story">
               <span className="v3-story__ic"><Icon name="calendar" size={22} /></span>

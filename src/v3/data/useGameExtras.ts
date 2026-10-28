@@ -42,11 +42,14 @@ export function useEventResearch(slug: string, eventId: string, enabled: boolean
   });
 }
 
-/** `want`: 'lines' (list rows), 'full' (Game Detail: also the research document and the photo). */
-export function useGameExtras(g: V3Game | null, want: 'lines' | 'full', enabled = true): GameExtras | null {
+/**
+ * `want`: 'lines' (list rows), 'full' (Game Detail: also the research document and the photo), 'photo' (Home's featured card: the research document and the
+ * photo, no contract document and no quote: that card prints no price).
+ */
+export function useGameExtras(g: V3Game | null, want: 'lines' | 'full' | 'photo', enabled = true): GameExtras | null {
   const real = !!g && g.provenance === 'publication';
-  const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', real && enabled);
-  const needResearch = real && enabled && (want === 'full' || g!.phase === 'final');
+  const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', real && enabled && want !== 'photo');
+  const needResearch = real && enabled && (want !== 'lines' || g!.phase === 'final');
   const research = useGameResearch(needResearch ? g!.slug : null, needResearch ? g!.eventId : null);
   // Lines: derived from the publication's capture, then re-derived with any NEWER live quote (the app's own overlay: a quote is only
   // ever replaced by a newer observation, so a failed refresh can never make a price look newer than it is).
@@ -68,7 +71,7 @@ export function useGameExtras(g: V3Game | null, want: 'lines' | 'full', enabled 
       const fs = finalScores((r?.extensions as { result?: unknown } | null)?.result) ?? finalScores(r?.event?.extensions);
       if (fs) out = { ...out, score: { away: fs.away, home: fs.home, clock: 'Final', source: 'publication', asOf: r?.generated_at ?? null } };
     }
-    if (want === 'full' && g.item) out = { ...out, photo: photoFor(g.item, g.sport, r ?? null) };
+    if (want !== 'lines' && g.item) out = { ...out, photo: photoFor(g.item, g.sport, r ?? null) };
     return { game: out, detailLoading: detail.loading };
     // live.version: the store's quotes change under a stable lookup function
   }, [g, real, detail.data, detail.loading, research.data, want, live.version]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -34,14 +34,17 @@ export function ChipRail({ as: Tag = 'div', className, children, ...rest }: Prop
   const ref = useRef<HTMLElement>(null);
   const seen = useRef<string | null>(null);
 
+  // Runs after every render but measures only when the active chip CHANGED (or on first show): reading layout (scroll and client sizes, bounding
+  // boxes) after every commit forced a synchronous layout of the whole page each time a screen re-rendered. The edges' fade is kept current by the
+  // observers below (resize, children, scroll) and once more when the fonts arrive (they change the chips' widths without changing the rail's box).
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const fade = () => { el.dataset.fade = railFade(el.scrollLeft, el.clientWidth, el.scrollWidth); };
     const active = el.querySelector<HTMLElement>(RAIL_ACTIVE);
     // Move only when the active chip CHANGED (or on first show): a viewer who scrolled the rail by hand is never yanked back by a re-render.
     const sig = active ? `${[...el.children].indexOf(active)}:${active.textContent}` : '';
-    if (active && sig !== seen.current) {
+    if (seen.current !== null && sig === seen.current) return;
+    if (active) {
       const first = seen.current === null;
       const er = el.getBoundingClientRect(), ir = active.getBoundingClientRect();
       const to = scrollTarget({ left: ir.left - er.left + el.scrollLeft, width: ir.width }, el);
@@ -51,21 +54,29 @@ export function ChipRail({ as: Tag = 'div', className, children, ...rest }: Prop
       }
     }
     seen.current = sig;
-    fade();
+    el.dataset.fade = railFade(el.scrollLeft, el.clientWidth, el.scrollWidth);
   });
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const fade = () => { el.dataset.fade = railFade(el.scrollLeft, el.clientWidth, el.scrollWidth); };
+    // One measurement per frame however many observers fire (a commit that changes many nodes fires the mutation observer once per batch, and each
+    // measurement forces a layout): the browser lays out for the frame anyway, so the read costs nothing extra there.
+    let raf = 0;
+    const fade = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; el.dataset.fade = railFade(el.scrollLeft, el.clientWidth, el.scrollWidth); });
+    };
     el.addEventListener('scroll', fade, { passive: true });
     window.addEventListener('resize', fade);
     const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(fade) : null;
     ro?.observe(el);
+    let alive = true;
+    void document.fonts?.ready.then(() => { if (alive) fade(); });
     // Chips arrive after the slate loads: their size changes what can scroll.
     const mo = typeof MutationObserver === 'function' ? new MutationObserver(fade) : null;
     mo?.observe(el, { childList: true, subtree: true, characterData: true });
-    return () => { el.removeEventListener('scroll', fade); window.removeEventListener('resize', fade); ro?.disconnect(); mo?.disconnect(); };
+    return () => { alive = false; if (raf) cancelAnimationFrame(raf); el.removeEventListener('scroll', fade); window.removeEventListener('resize', fade); ro?.disconnect(); mo?.disconnect(); };
   }, [Tag]);
 
   const T = Tag as 'div';

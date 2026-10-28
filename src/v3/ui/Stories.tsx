@@ -8,8 +8,8 @@ import { TeamLogo } from './TeamLogo';
 import { gameHref, leagueLabel } from './gamebits';
 
 /** The publication's own most important injury items for one game (real research only; sports without a research document render nothing). */
-export function GameStories({ g, max = 1 }: { g: V3Game; max?: number }) {
-  const r = useGameResearch(g.slug, g.eventId);
+export function GameStories({ g, max = 1, enabled = true }: { g: V3Game; max?: number; enabled?: boolean }) {
+  const r = useGameResearch(enabled ? g.slug : null, enabled ? g.eventId : null);
   const items = useMemo(() => {
     if (!r.data) return [];
     try { return injuryNews(r.data).filter((n) => n.level === 'critical' || n.level === 'high').sort((a, b) => b.score - a.score).slice(0, max); } catch { return []; }

@@ -33,7 +33,8 @@ export function GameCard({ g: base }: { g: V3Game }) {
   const g = x?.game ?? base;
   const open = useOpenContract();
   // The schedule authority's start picks the quote tier; every price on the card goes through the list-context gate.
-  const startMs = useGameStart(base);
+  // Read only for a card that has been near the screen: a league's schedule is one document per league (up to 450 KB), so a list does not read the leagues of cards nobody scrolled to.
+  const startMs = useGameStart(seen ? base : null);
   const gate = useListGate(g, startMs);
   const live = g.phase === 'live';
   const scored = g.score != null;

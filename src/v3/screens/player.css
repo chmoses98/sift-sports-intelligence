@@ -304,16 +304,11 @@
 }
 .v3 .v3p-hb__wk.is-date { font-size: 8px; letter-spacing: -0.03em; }
 
-/* ---- the research-filters sheet is nearly full height and tight, so the locked group and the apply button show without scrolling (P3) */
-.v3 .v3-sheet:has(.v3p-fs) { height: min(93dvh, 800px); }
-.v3 .v3-sheet:has(.v3p-fs) .v3-sheet__head { padding-top: 0; padding-bottom: 2px; }
-.v3 .v3-sheet:has(.v3p-fs) .v3-sheet__head h2 { font-size: 22px; line-height: 26px; }
-.v3 .v3-sheet:has(.v3p-fs) .v3-sheet__x { width: 40px; height: 40px; }
+/* ---- the research-filters sheet is nearly full height (ui/Sheet locked header) and tight, so the locked group and the apply button show without scrolling (P3) */
 .v3 .v3-sheet:has(.v3p-fs) .v3-sheet__body { padding-top: 0; padding-bottom: 0; }
 .v3 .v3p-fs .v3p-fl { margin: 8px 0 4px; }
 .v3 .v3p-fs .v3p-fc { min-height: 44px; }
 .v3 .v3p-fs .v3p-fnote { margin-top: 3px; }
 .v3 .v3p-fs .v3p-apply { padding-top: 8px; margin-top: 6px; }
-@media (max-height: 700px) { .v3 .v3-sheet:has(.v3p-fs) { height: 96dvh; } }
 .v3 .v3p-fs .x-seg button { min-height: 44px; }
 .v3 .v3p-live { padding: 8px 12px; }

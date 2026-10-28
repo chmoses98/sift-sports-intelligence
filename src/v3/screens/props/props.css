@@ -178,9 +178,6 @@
 
 /* ---- filter sheet (PD4) */
 .v3 .pd-fs { display: grid; gap: 0; padding-bottom: 8px; }
-.v3 .pd-fs__top { display: flex; justify-content: flex-end; margin-top: -6px; }
-/* The shared sheet header owns the title row (title and close), so Reset sits on the line under it, at the right. */
-.v3 .pd-fs__reset { color: var(--sift-cyan); font: 500 15px var(--f-ui); min-height: 36px; padding: 0 4px; }
 .v3 .pd-fs__live { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 14px; background: var(--s-raise); border: 1px solid #2b3038; margin-bottom: 2px; }
 .v3 .pd-fs__live b { font: 700 19px/24px var(--f-num); display: block; }
 .v3 .pd-fs__live small { font: 400 12px/15px var(--f-ui); color: var(--sift-muted); }

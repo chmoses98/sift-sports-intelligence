@@ -58,7 +58,7 @@ export function Player() {
       const neighbours = p.rungs.map((r) => ({ ticker: r.price.ticker, label: `${rungLabel(r.line)} ${word}`, price: r.price }));
       for (const r of p.rungs) {
         list.push({
-          ticker: r.price.ticker, title: `${vm.name}: ${rungLabel(r.line)} ${word}`, subtitle: `${g.away.abbr} at ${g.home.abbr}${when ? ` · ${when}` : ''} · Kalshi YES`,
+          ticker: r.price.ticker, title: `${vm.name}: ${rungLabel(r.line)} ${word}`, avatar: vm.team, subtitle: `${g.away.abbr} at ${g.home.abbr}${when ? ` · ${when}` : ''} · Kalshi YES`,
           price: r.price, startMs: vm.nextStartMs, live: g.phase === 'live', neighbours,
           actions: [{ label: 'Game Detail', to: routes.game({ slug: g.slug, eventId: g.eventId }), primary: true }],
         });
@@ -87,7 +87,7 @@ export function Player() {
     });
   };
 
-  const openFilters = () => sheet.open('Research filters', <FiltersSheet />, { tall: true });
+  const openFilters = () => sheet.open('Research filters', <FiltersSheet />, { tall: true, locked: true });
   const openLadder = () => sheet.open('Alt lines', <LadderSheet />, { tall: true });
 
   if (v.loading) return <div className="v3p"><div className="v3-page"><div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading player" /></div></div>;

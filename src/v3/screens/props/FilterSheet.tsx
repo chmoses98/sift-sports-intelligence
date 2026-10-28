@@ -6,7 +6,7 @@ import { usePropUniverse, useQueryCtx } from '../../data/props/hooks';
 import { countBySport, hiddenOut, keyAsk, parseRange, SORT_KEYS, SORT_LABEL, sortOf, type ListState, type SortKey } from '../../data/props/query';
 import { ChipRail } from '../../ui/ChipRail';
 import { Icon } from '../../ui/Icon';
-import { useSheet } from '../../ui/Sheet';
+import { useSheet, useSheetHeaderAction } from '../../ui/Sheet';
 
 export type Draft = Pick<ListState, 'sort' | 'sport' | 'fam' | 'range' | 'hmin' | 'hwin' | 'orank' | 'model' | 'hide'>;
 
@@ -51,11 +51,12 @@ export function FilterSheet({ initial, set }: { initial: ListState; set: (patch:
   const nHist = props.filter((p) => p.history && p.histId).length;
   const loaded = props.filter((p) => ctx.values(p)).length;
   const publishedN = props.filter((p) => p.model.state === 'published').length;
+  const dirty = (Object.keys(RESET) as (keyof Draft)[]).some((k) => d[k] !== RESET[k]);
+  useSheetHeaderAction({ label: 'Reset', onClick: () => setD(RESET), disabled: !dirty });
   const apply = () => { set({ ...d, hmin: hmin > 0 ? hmin : null, view: 'list', more: null }); sheet.close(); };
 
   return (
     <div className="pd-fs">
-      <div className="pd-fs__top"><button type="button" className="pd-fs__reset" onClick={() => setD(RESET)}>Reset</button></div>
       <div className="pd-fs__live" aria-live="polite">
         <div><b>{live.total} props match</b><small>{live.bySport.map((s) => `${s.label} ${s.n}`).join(' · ') || 'No props today'}{hmin > 0 ? ' · evaluated props only' : ''}{universe && !universe.complete ? ' · games still being read' : ''}</small></div>
         <div className="pd-spl" aria-hidden="true">{live.bySport.map((s) => <i key={s.slug} style={{ flex: Math.max(s.n, 1) }} />)}</div>

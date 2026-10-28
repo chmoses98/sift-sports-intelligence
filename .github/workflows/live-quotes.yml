@@ -1,4 +1,5 @@
 name: Live-quote feed
+run-name: ${{ github.event_name == 'schedule' && 'Live quotes watchdog' || format('Live quotes loop {0}', inputs.slot || 'a') }}
 
 # The market clock without a server: a runner reads Kalshi's PUBLIC market data (read-only, no
 # credential; browsers cannot, Kalshi refuses their Origin) for the games the NFL, NHL and MLB publications list and
@@ -6,27 +7,44 @@ name: Live-quote feed
 # raw.githubusercontent.com; the app is never rebuilt or redeployed for a price move.
 #
 # GitHub's scheduler is not dependable for this repository (measured 2026-10-04: the 15:17 deploy cron
-# never fired, and a new */5 cron did not start for 40+ minutes), so each run publishes for ~55 minutes
-# and then dispatches its successor (workflow_dispatch from GITHUB_TOKEN is allowed to start a run). The
-# cron only restarts the chain if it ever breaks; the concurrency group keeps exactly one loop alive.
+# never fired, and a new */5 cron did not start for 40+ minutes), so the loop dispatches its own successor
+# (workflow_dispatch from GITHUB_TOKEN is allowed to start a run).
+#
+# HAND-OVER (docs/ci/QUEUE_ANALYSIS.md, docs/ci/LIVE_QUOTES_RESILIENCE.md). A job used to publish for ~55 minutes and only
+# then dispatch its successor, which then had to win a hosted runner. 2026-10-04 to 10-28: 50 of 599 hand-overs waited more
+# than 10 minutes and the longest 69, and the feed stood still for exactly that long. Now a job dispatches its successor
+# 45 minutes in, into the OTHER concurrency slot (a/b), and keeps publishing until the successor is running AND has published,
+# up to a 150 minute cap. A long queue wait therefore costs only the predecessor's runner time, not feed freshness. Because the two
+# overlap for a few minutes, the push to `live-quotes` is freshest-wins (a feed is never replaced by an older one) and an overlapping
+# publisher waits until the branch is 150 s old, so the Kalshi request rate stays one sweep per cycle. The scheduled run is a
+# watchdog: it exits at once unless the feed is more than 10 minutes old, and then restarts the loop. The logic lives in
+# scripts/live-quotes/ (handover.mjs, guard.mjs, loop.mjs) and is tested in tests/live/quote-handover.test.ts.
 on:
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Concurrency slot. The loop alternates a and b so a job and its successor can overlap; leave as a.'
+        type: choice
+        options: [a, b]
+        default: a
 
 permissions:
   contents: write
   actions: write
 
+# One running job per slot; the watchdog has its own group. Never cancel a running loop.
 concurrency:
-  group: live-quotes
+  group: ${{ github.event_name == 'schedule' && 'live-quotes-watchdog' || format('live-quotes-{0}', inputs.slot || 'a') }}
   cancel-in-progress: false
 
 jobs:
   publish:
-    name: Publish live quotes (~55 min loop)
+    name: Publish live quotes (overlapping hand-over loop)
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    # The loop's own cap is 150 minutes (HANDOVER.capMin); the limit sits above it. Keep them in step (tests/live/quote-handover.test.ts).
+    timeout-minutes: 160
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,30 +55,11 @@ jobs:
       - name: Read Kalshi public market data (GET only) and publish every 3 minutes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          publish() {
-            rm -rf "$RUNNER_TEMP/feed"
-            node scripts/publish-live-quotes.mjs "$RUNNER_TEMP/feed" || return 1
-            ( cd "$RUNNER_TEMP/feed" \
-              && git init -q -b live-quotes \
-              && git config user.name "github-actions[bot]" \
-              && git config user.email "41898282+github-actions[bot]@users.noreply.github.com" \
-              && git add -A \
-              && git commit -qm "live quotes $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-              && git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" live-quotes )
-          }
-          end=$(( $(date +%s) + 55 * 60 ))
-          ok=0; fail=0
-          while [ "$(date +%s)" -lt "$end" ]; do
-            start=$(date +%s)
-            if publish; then ok=$((ok + 1)); else fail=$((fail + 1)); echo "::warning::publish failed"; fi
-            wait=$(( 180 - ($(date +%s) - start) ))
-            [ "$wait" -gt 0 ] && [ $(( $(date +%s) + wait )) -lt "$end" ] && sleep "$wait" || break
-          done
-          echo "published $ok times, $fail failures"
-          [ "$ok" -gt 0 ]
-      - name: Dispatch the next loop
-        if: always() && github.ref == 'refs/heads/main'
+          SIFT_LOOP_SLOT: ${{ github.event_name == 'schedule' && 'w' || inputs.slot || 'a' }}
+        run: node scripts/live-quotes/loop.mjs
+      - name: Make sure a successor exists
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run live-quotes.yml --ref main --repo "$GITHUB_REPOSITORY"
+          SIFT_LOOP_SLOT: ${{ github.event_name == 'schedule' && 'w' || inputs.slot || 'a' }}
+        run: node scripts/live-quotes/loop.mjs ensure

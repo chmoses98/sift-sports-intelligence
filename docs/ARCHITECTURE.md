@@ -107,8 +107,9 @@ can leak. Two read-only paths remain, and Sift uses both behind one provider abs
    `Date` minus `Age`. Near-live only: publication every 3 minutes plus raw.githubusercontent.com's cache of
    up to 5 minutes (a query string does not bypass it — measured), so quotes are typically 3–8 minutes old.
    GitHub's scheduler proved undependable here (the 15:17 deploy cron never fired; a new cron did not
-   start for 40+ minutes), so each feed run loops for ~55 minutes and dispatches its successor; the cron
-   only restarts a broken chain. First real run: 15 games, 79
+   start for 40+ minutes), so each feed run loops (about 45 minutes, then until its successor is publishing)
+   and dispatches its successor early; the cron is a watchdog that only restarts a broken chain
+   (`docs/ci/LIVE_QUOTES_RESILIENCE.md`). First real run: 15 games, 79
    requests, 0 errors, 28 contracts listed after the research run.
    **Source health** (`scripts/live-quotes/slate.mjs`, shared with the Production check): a current game is
    SCHEDULED / IN_PROGRESS / LIVE (or UNKNOWN) with kickoff inside (now − 8 h, now + 10 d). `index.json`
@@ -356,8 +357,9 @@ Pages origin. The live-quote feed workflow is itself a real read every 5 minutes
 * `.github/workflows/ci.yml` — on every PR/branch push: install, lint, typecheck, unit/integration tests,
   production build (`build:e2e`), Pages build check (`scripts/check-dist.mjs`), the Playwright suite in
   Chromium and WebKit.
-* `.github/workflows/live-quotes.yml` — the market clock's quote feed: a ~55-minute loop publishing every
-  3 minutes that dispatches its successor (cron every 10 minutes restarts a broken chain). No deploy.
+* `.github/workflows/live-quotes.yml` — the market clock's quote feed: a loop publishing every
+  3 minutes that dispatches its successor 45 minutes in and hands over only when the successor is publishing (a
+  cron every 10 minutes is a watchdog that restarts a broken chain). No deploy.
 * `.github/workflows/live-provider-smoke.yml` — every 6 hours: non-blocking real-provider probe.
 * `.github/workflows/visual-baselines.yml` — on demand: render visual baselines on CI runners.
 * `.github/workflows/production-check.yml` — after every deploy (and on demand): the **live** site in real

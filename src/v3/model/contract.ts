@@ -4,24 +4,24 @@
 import type { LiveQuote } from '../../live/types';
 import { guardLiveQuote } from '../data/validate';
 import { breakEvenPct, cents, takerFeeCents } from './format';
-import { isTerminalState, liveStatusWord, statusFacts } from './marketStatus';
+import { isTerminalState, liveStatusFacts } from './marketStatus';
 import type { Price } from './types';
 
 /**
  * A live quote (dollars) as the v3 Price (cents). A quote with no executable YES ask has no Price, EXCEPT a quote whose status
- * is not positively open (any word but open/active/trading: closed, settled, suspended, or one SIFT does not recognise): that is a Price with no ask
+ * is not positively open (any word but open/active: closed, settled, suspended, or one SIFT does not recognise): that is a Price with no ask
  * whose `tradable` is false, so the exact-contract sheet can say "Market closed" / "Market settled" / "Trading suspended" instead of offering a Retry
  * that cannot help (an unrecognised word says "Price unavailable right now" with Retry). The provider's own status word (`rawStatus`) is read before its
  * normalised `availability`, which folds several words into UNKNOWN; an UNKNOWN availability with no raw word means the provider sent no status.
  */
 export function priceOfQuote(q: LiveQuote | undefined, fallbackDescription = ''): Price | null {
   if (!q || !guardLiveQuote(q).ok) return null; // a quote whose numbers are not a price's is no price (data/validate.ts guardLiveQuote)
-  const sf = statusFacts(liveStatusWord(q));
+  const sf = liveStatusFacts(q); // the shared rule (src/live/tradable.ts) on the whole quote: status word, `result`, close time
   const ask = sf.tradable ? cents(q.yesAsk) : null, bid = sf.tradable ? cents(q.yesBid) : null;
   if (ask == null && sf.tradable) return null;
   return {
     ask, bid, ...sf, implied: ask, ticker: q.ticker, side: 'YES', description: q.title ?? q.yesSubTitle ?? fallbackDescription,
-    observedAt: q.observedAt, source: 'Kalshi', volume: q.volume,
+    observedAt: q.observedAt, ...(q.observedVia ? { observedVia: q.observedVia } : {}), source: 'Kalshi', volume: q.volume,
   };
 }
 
@@ -32,6 +32,9 @@ export function priceOfQuote(q: LiveQuote | undefined, fallbackDescription = '')
 export function newerPrice(a: Price | null | undefined, b: Price | null | undefined): Price | null {
   if (!a) return b ?? null;
   if (!b) return a;
+  // An answer the provider did not time is not an observation (its `observedAt` is only when this device received it): it never replaces a timed one.
+  if (b.observedVia === 'received' && a.observedVia !== 'received') return a;
+  if (a.observedVia === 'received' && b.observedVia !== 'received') return b;
   const ta = a.observedAt ? Date.parse(a.observedAt) : NaN, tb = b.observedAt ? Date.parse(b.observedAt) : NaN;
   if (!Number.isFinite(tb)) return a;
   if (!Number.isFinite(ta)) return b;

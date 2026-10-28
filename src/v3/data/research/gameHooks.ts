@@ -4,7 +4,8 @@
 import { useCallback, useMemo } from 'react';
 import type { EventDetailDoc, EventResearchDoc, Market } from '../../../contract/types';
 import { useAuthority } from '../../../data/projections';
-import { useLiveQuotes, useNow } from '../../../live/hooks';
+import { useNow } from '../../../live/hooks';
+import { useRowQuotes, type RowsContext } from '../liveQuotes';
 import { overlayLive } from '../liveMarket';
 import { usablePrice } from '../quoteGate';
 import { priceOf } from '../adapt';
@@ -49,10 +50,11 @@ export function useRoster(g: V3Game | null, research: EventResearchDoc | null | 
 /**
  * The newest observation of a game's contracts: the publication's capture, replaced by a live quote only when the live observation is
  * at least as new (the app's own overlay). Returns a lookup by ticker; the screen passes the result through the quote gate.
+ * `ctx`: the game's schedule start and whether it is in play. These tickers are the rows the screen prints: they are registered as list rows (game cadence).
  */
-export function useQuotedPrices(detail: EventDetailDoc | null | undefined, tickers: string[]): (ticker: string) => Price | null {
+export function useQuotedPrices(detail: EventDetailDoc | null | undefined, tickers: string[], ctx: RowsContext): (ticker: string) => Price | null {
   const markets = detail?.markets;
-  const live = useLiveQuotes(tickers.length ? tickers : undefined, 'detail');
+  const live = useRowQuotes(tickers.length ? tickers : undefined, ctx);
   const byTicker = useMemo(() => new Map<string, Market>((markets ?? []).map((m) => [m.kalshi_ticker, m])), [markets]);
   return useCallback((ticker: string) => { const m = byTicker.get(ticker); return m ? priceOf(overlayLive(m, live.quote(ticker))) : null; }, [byTicker, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
 }
@@ -63,7 +65,7 @@ export function useQuotedPrices(detail: EventDetailDoc | null | undefined, ticke
  * price the caller already holds (a sample game's), used only when the document has no row for the ticker.
  */
 export function useGatedAsk(g: V3Game | null, detail: EventDetailDoc | null | undefined, startMs: number | null, tickers: string[]): (ticker: string, fallback?: Price | null) => number | null {
-  const quoted = useQuotedPrices(detail, tickers);
+  const quoted = useQuotedPrices(detail, tickers, { startMs, live: g?.phase === 'live' });
   const now = useNow(15_000);
   return useCallback((ticker, fallback) => {
     if (!g) return null;

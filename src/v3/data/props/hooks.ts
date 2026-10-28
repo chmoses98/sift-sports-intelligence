@@ -1,14 +1,15 @@
 // React access to the prop universe: the universe itself (one memoised async load, instant on Back), the opponent chips, the lazily
 // loaded History lane for the rows on screen, and the gated prices for them. Prices are read only through data/quoteGate.ts.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { liveStore, useLiveQuotes, useNow } from '../../../live/hooks';
+import { liveStore, useNow } from '../../../live/hooks';
 import { quoteView } from '../../../live/overlay';
 import { nameKey } from '../../../insights/context';
 import { demoOn } from '../../state/prefs';
-import { liveStatusWord, statusFacts } from '../../model/marketStatus';
+import { liveStatusFacts, statusFacts } from '../../model/marketStatus';
 import { guardLiveQuote } from '../validate';
 import type { Price } from '../../model/types';
 import { gate, type GateResult } from '../quoteGate';
+import { refreshRowsNow, useRowGroups, type RowGroup } from '../liveQuotes';
 import { useSlate } from '../useSlate';
 import { availabilityBank, pendingKeys, withAvailability } from './availability';
 import { historyBank, logRefOf, useHistoryBank, type BankEntry } from './bank';
@@ -173,7 +174,8 @@ export function rawPrice(p: Prop, r: PropRung, liveQuote: Parameters<typeof quot
   if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume, tradable: true, marketStatus: 'open' };
   const v = quoteView({ kalshi_ticker: r.ticker, yes_bid: r.bid == null ? null : r.bid / 100, yes_ask: r.ask == null ? null : r.ask / 100, captured_at: r.capturedAt, volume: r.volume }, quote);
   // The status travels with the observation it came from: a live quote's own word when the live observation is the newer, else the publication's.
-  const sf = statusFacts((v.live && quote ? liveStatusWord(quote) : null) ?? r.status);
+  const liveFacts = v.live && quote ? liveStatusFacts(quote) : null;
+  const sf = liveFacts && liveFacts.marketStatus !== 'unreported' ? liveFacts : statusFacts(r.status);
   const ask = !sf.tradable || v.yesAsk == null || v.yesAsk <= 0 || v.yesAsk >= 1 ? null : Math.round(v.yesAsk * 100);
   const bid = !sf.tradable || v.yesBid == null ? null : Math.round(v.yesBid * 100);
   return { ask, bid, ...sf, implied: ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: v.observedAt, source: 'Kalshi', volume: v.volume };
@@ -187,31 +189,32 @@ export interface PriceReader {
 }
 
 /**
- * Prices for the rows on screen. SEAM (claude/quote-track, not merged): the visible rows' tickers are registered with the live store
- * through its current scope API at the `game` cadence (45 s), and nothing else is polled: not the other rows, not other rungs of rows
- * that are collapsed. When the reviewed branch lands, this call becomes `addRowsScope(tickers)` and the contract sheet's open becomes
- * `refreshContract(ticker)`; the gate below is already the single decision point (`gate` delegates to `quoteUsable` there).
+ * Prices for the rows on screen. The visible rows' tickers are registered with the live store as list ROWS (`addRowsScope`, the delivery chain, `game`
+ * cadence, 45 s), one scope per game start because the start tiers the maximum age of a quote, and nothing else is polled: not the other rows, not other
+ * rungs of rows that are collapsed. The gate below is the single decision point (`gate` is the shared `quoteUsable`).
  */
 export function usePropPrices(visible: Prop[], expanded: Prop | null): PriceReader {
   const now = useNow(15_000);
-  const tickers = useMemo(() => {
-    const t = new Set<string>();
-    for (const p of visible) { const r = rungFor(p, null); if (r.source !== 'Sample') t.add(r.ticker); }
-    if (expanded && expanded.rungs[0]?.source !== 'Sample') for (const r of expanded.rungs) t.add(r.ticker);
-    return [...t];
+  const groups = useMemo<RowGroup[]>(() => {
+    const byStart = new Map<number, Set<string>>();
+    const add = (startMs: number, ticker: string) => { const s = byStart.get(startMs) ?? new Set<string>(); s.add(ticker); byStart.set(startMs, s); };
+    for (const p of visible) { const r = rungFor(p, null); if (r.source !== 'Sample') add(p.startMs, r.ticker); }
+    if (expanded && expanded.rungs[0]?.source !== 'Sample') for (const r of expanded.rungs) add(expanded.startMs, r.ticker);
+    return [...byStart].map(([startMs, t]) => ({ startMs, live: false, tickers: [...t] }));
   }, [visible, expanded]);
   // Rows scroll past faster than quotes are worth fetching: the scope follows the rows only once they have stayed put (a flick through
   // the list registers and fetches nothing). The first set registers at once so the screen's own prices arrive with it.
-  const settled = useSettled(tickers, 450);
-  const live = useLiveQuotes(settled, 'game');
-  // Opening a row asks for its whole ladder once, now (the rows' own scope names only the featured rung, and the store does not poll a
-  // game it has just read). SEAM: with the reviewed quote branch this becomes `refreshContract(ticker)` per rung, relay first.
+  const settled = useSettled(groups, 450);
+  const live = useRowGroups(settled);
+  // Opening a row asks for its whole ladder once, now, as one batch through the delivery chain judged by the list limits (the rows' own scope names only
+  // the featured rung, and the store does not poll a game it has just read).
   const openId = expanded?.id ?? null;
   const openTickers = useMemo(() => (expanded && expanded.rungs[0]?.source !== 'Sample' ? expanded.rungs.map((r) => r.ticker) : []), [openId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const openStart = expanded?.startMs ?? null;
   useEffect(() => {
     if (!openTickers.length) return;
-    liveStore().refreshNow(openTickers, { timeoutMs: 6_000 }).catch(() => undefined);
-  }, [openTickers]);
+    void refreshRowsNow(openTickers, { startMs: openStart, live: false });
+  }, [openTickers]); // eslint-disable-line react-hooks/exhaustive-deps
   const store = liveStore();
   // `live.version` changes whenever any quote does: the lookup is stable, so the readers must be re-created for rows to repaint.
   const gateOf = useCallback((p: Prop, r: PropRung): GateResult => gate(rawPrice(p, r, store.quote(r.ticker)), { kind: 'list', startMs: p.startMs, live: false }, now), [store, now, live.version]); // eslint-disable-line react-hooks/exhaustive-deps

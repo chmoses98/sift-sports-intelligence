@@ -2,7 +2,7 @@
 // the player's own Kalshi contracts on the coming game; or a labelled deterministic sample. One view-model for both.
 import { useMemo } from 'react';
 import { useAsync, useRepo } from '../../data/hooks';
-import { useLiveQuotes } from '../../live/hooks';
+import { useRowQuotes } from './liveQuotes';
 import { overlayLive } from './liveMarket';
 import { sportBySlug } from '../../data/sports';
 import { heroTeam } from '../../lib/hero/input';
@@ -142,7 +142,7 @@ export function usePlayerVM(slug: string, pid: string) {
   const nextStart = useGameStart(demo ? null : next);
   // His contracts on the coming game, kept current by the shared live-quote store (the same overlay the game screens use).
   const mine = useMemo(() => (detail.data?.markets ?? []).filter((m) => m.player_id === pid), [detail.data, pid]);
-  const liveQ = useLiveQuotes(!demo && mine.length ? mine.map((m) => m.kalshi_ticker) : undefined, 'detail');
+  const liveQ = useRowQuotes(!demo && mine.length ? mine.map((m) => m.kalshi_ticker) : undefined, { startMs: nextStart, live: next?.phase === 'live' });
 
   const vm = useMemo<PlayerVM | null>(() => {
     if (demo) return demoVM(slug, slate.games);

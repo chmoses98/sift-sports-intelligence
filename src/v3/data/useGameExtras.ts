@@ -1,7 +1,7 @@
 // Per-game documents, read lazily and merged onto the slate's V3Game: the Kalshi lines (event_detail, every sport), a
 // finished game's published score and the verified venue photo (event research). Demo games already carry everything.
 import { useMemo } from 'react';
-import { useLiveQuotes } from '../../live/hooks';
+import { useRowQuotes } from './liveQuotes';
 import { overlayLive } from './liveMarket';
 import { useAsync } from '../../data/hooks';
 import { SportRepo } from '../../data/repo';
@@ -43,10 +43,13 @@ export function useEventResearch(slug: string, eventId: string, enabled: boolean
 }
 
 /**
+ * `startMs`: the schedule authority's start for this game (data/research/gameHooks.ts `useGameStart`), which tiers the maximum age of the rows' quotes; the board's own
+ * start stands in until it is known.
+ *
  * `want`: 'lines' (list rows), 'full' (Game Detail: also the research document and the photo), 'photo' (Home's featured card: the research document and the
  * photo, no contract document and no quote: that card prints no price).
  */
-export function useGameExtras(g: V3Game | null, want: 'lines' | 'full' | 'photo', enabled = true): GameExtras | null {
+export function useGameExtras(g: V3Game | null, want: 'lines' | 'full' | 'photo', enabled = true, startMs?: number | null): GameExtras | null {
   const real = !!g && g.provenance === 'publication';
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', real && enabled && want !== 'photo');
   const needResearch = real && enabled && (want !== 'lines' || g!.phase === 'final');
@@ -56,7 +59,8 @@ export function useGameExtras(g: V3Game | null, want: 'lines' | 'full' | 'photo'
   const markets = detail.data?.markets;
   const first = useMemo(() => (g && markets ? deriveLines(markets, g.away, g.home, { away: detail.data?.event.away_participant ?? null, home: detail.data?.event.home_participant ?? null }) : []), [g, markets, detail.data]);
   const tickers = useMemo(() => first.flatMap((l) => (want === 'full' ? (l.alternates ?? [l.price]) : [l.price]).map((p) => p.ticker)), [first, want]);
-  const live = useLiveQuotes(real && enabled ? tickers : undefined, want === 'full' ? 'detail' : 'slate');
+  // The contracts this screen prints, as list rows (game cadence, delivery chain, tiered by this game's start): one scope per game on screen.
+  const live = useRowQuotes(real && enabled ? tickers : undefined, { startMs: startMs ?? (g && Number.isFinite(g.startMs) ? g.startMs : null), live: g?.phase === 'live' });
   return useMemo(() => {
     if (!g) return null;
     if (!real) return { game: g, detailLoading: false };

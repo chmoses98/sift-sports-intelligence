@@ -16,8 +16,28 @@ test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
 test.setTimeout(180_000);
 test.describe.configure({ mode: 'parallel' });
 
-type Mode = '404' | 'network' | 'hang' | 'malformed' | 'empty';
-const MODES: Mode[] = ['404', 'network', 'hang', 'malformed', 'empty'];
+// 'version' and 'invalid' are documents that ARE published and DO parse, but fail the validation SIFT 3.0 applies to every document it consumes
+// (src/v3/data/validate.ts): 'version' is a real document with its schema_version bumped (the "format this version of SIFT cannot read" wording, no Retry);
+// 'invalid' is a real document with one field the screen reads made the wrong type / empty (the "could not be read" wording WITH Retry). Nothing partial is drawn.
+type Mode = '404' | 'network' | 'hang' | 'malformed' | 'empty' | 'version' | 'invalid';
+const MODES: Mode[] = ['404', 'network', 'hang', 'malformed', 'empty', 'version', 'invalid'];
+
+/** One field a screen reads, made wrong, per kind of document (a real document otherwise). */
+const BREAK: Record<string, (d: any) => void> = { // eslint-disable-line @typescript-eslint/no-explicit-any
+  board: (d) => { d.items[0].start_time_utc = 12; },
+  health: (d) => { d.components = []; },
+  recs: (d) => { d.items = 'none'; },
+  theses: (d) => { d.items = 'none'; },
+  index: (d) => { d.files = {}; },
+  metrics: (d) => { d.items = 'none'; },
+  search: (d) => { d.items = 'none'; },
+  team: (d) => { d.games = 'none'; },
+  player: (d) => { d.games = 'none'; },
+  research: (d) => { d.event = null; },
+  detail: (d) => { d.markets = 'none'; },
+  ranking: (d) => { d.entries = []; },
+  series: (d) => { d.points = []; },
+};
 
 /** Document kinds, by path. Most are under a sport's `app/latest/`; the history kind is the app's own same-origin static data. */
 const KIND: Record<string, RegExp> = {
@@ -46,19 +66,21 @@ const KIND: Record<string, RegExp> = {
  */
 interface Screen { name: string; path: string; kinds: string[]; primary: string[]; lean: Record<string, Mode[]> }
 const ALL: Mode[] = ['404', 'network', 'hang', 'malformed', 'empty'];
+/** The screen's own subject, made unreadable by validation. */
+const V: Mode[] = ['version', 'invalid'];
 const NFL_GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const SCREENS: Screen[] = [
-  { name: 'Home', path: '/v3', kinds: ['board', 'health', 'recs', 'detail', 'research', 'index', 'feed'], primary: ['board'], lean: { board: ALL, recs: ['404'], detail: ['404'], index: ['404'], feed: ['404'] } },
-  { name: 'Games', path: '/v3/games?sport=nfl&state=upcoming', kinds: ['board', 'health', 'detail', 'index', 'feed'], primary: ['board'], lean: { board: ALL, detail: ['404'], feed: ['404'] } },
-  { name: 'Game Detail', path: NFL_GAME, kinds: ['board', 'detail', 'research', 'index', 'feed'], primary: ['detail'], lean: { detail: ALL, research: ['404', 'network'], feed: ['404'] } },
-  { name: 'Game props', path: `${NFL_GAME}?tab=props`, kinds: ['detail', 'feed'], primary: ['detail'], lean: { detail: ALL, feed: ['404'] } },
+  { name: 'Home', path: '/v3', kinds: ['board', 'health', 'recs', 'detail', 'research', 'index', 'feed'], primary: ['board'], lean: { board: [...ALL, ...V], recs: ['404'], detail: ['404'], index: ['404'], feed: ['404'] } },
+  { name: 'Games', path: '/v3/games?sport=nfl&state=upcoming', kinds: ['board', 'health', 'detail', 'index', 'feed'], primary: ['board'], lean: { board: [...ALL, ...V], detail: ['404'], feed: ['404'] } },
+  { name: 'Game Detail', path: NFL_GAME, kinds: ['board', 'detail', 'research', 'index', 'feed'], primary: ['detail'], lean: { detail: [...ALL, ...V], research: ['404', 'network', 'invalid'], feed: ['404'] } },
+  { name: 'Game props', path: `${NFL_GAME}?tab=props`, kinds: ['detail', 'feed'], primary: ['detail'], lean: { detail: [...ALL, ...V], feed: ['404'] } },
   { name: 'Game stats', path: `${NFL_GAME}?tab=stats`, kinds: ['research'], primary: [], lean: { research: ['404', 'network'] } },
-  { name: 'Game matchup', path: `${NFL_GAME}?tab=matchup`, kinds: ['team', 'metrics', 'proj', 'theses'], primary: ['team'], lean: { team: ALL, proj: ['404'] } },
-  { name: 'Team', path: '/v3/team/nfl/DAL', kinds: ['team', 'index', 'metrics', 'detail'], primary: ['team'], lean: { team: ALL, index: ['404', 'network', 'hang'], detail: ['404'] } },
-  { name: 'Player', path: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd', kinds: ['player', 'index', 'search', 'history', 'detail', 'feed', 'proj'], primary: ['player'], lean: { player: ALL, history: ['404', 'network'], detail: ['404', 'network'], feed: ['404'] } },
-  { name: 'Stat', path: '/v3/stat/nfl/off_epa_play', kinds: ['metrics', 'ranking', 'index', 'team'], primary: ['ranking'], lean: { ranking: ALL, index: ['404', 'network'], metrics: ['404'] } },
-  { name: 'Prop Discovery', path: '/v3/props?view=list', kinds: ['board', 'detail', 'index', 'ranking', 'team', 'feed', 'history'], primary: ['detail'], lean: { detail: ALL, board: ['404'], feed: ['404'] } },
-  { name: 'Explore', path: '/v3/explore', kinds: ['search', 'index', 'board'], primary: ['search'], lean: { search: ALL, index: ['404'] } },
+  { name: 'Game matchup', path: `${NFL_GAME}?tab=matchup`, kinds: ['team', 'metrics', 'proj', 'theses'], primary: ['team'], lean: { team: [...ALL, ...V], proj: ['404'] } },
+  { name: 'Team', path: '/v3/team/nfl/DAL', kinds: ['team', 'index', 'metrics', 'detail'], primary: ['team'], lean: { team: [...ALL, ...V], index: ['404', 'network', 'hang', ...V], detail: ['404'] } },
+  { name: 'Player', path: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd', kinds: ['player', 'index', 'search', 'history', 'detail', 'feed', 'proj'], primary: ['player'], lean: { player: [...ALL, ...V], history: ['404', 'network'], detail: ['404', 'network'], feed: ['404'] } },
+  { name: 'Stat', path: '/v3/stat/nfl/off_epa_play', kinds: ['metrics', 'ranking', 'index', 'team'], primary: ['ranking'], lean: { ranking: [...ALL, ...V], index: ['404', 'network', ...V], metrics: ['404', 'invalid'] } },
+  { name: 'Prop Discovery', path: '/v3/props?view=list', kinds: ['board', 'detail', 'index', 'ranking', 'team', 'feed', 'history'], primary: ['detail'], lean: { detail: [...ALL, ...V], board: ['404'], feed: ['404'] } },
+  { name: 'Explore', path: '/v3/explore', kinds: ['search', 'index', 'board'], primary: ['search'], lean: { search: [...ALL, ...V], index: ['404'] } },
 ];
 
 const only = process.env.V3_UNAVAIL_ONLY?.split(',');
@@ -90,6 +112,16 @@ async function install(page: Page, kind: string, mode: Mode) {
       case 'network': return route.abort('failed');
       case 'hang': return new Promise<void>(() => undefined); // never answers
       case 'malformed': return route.fulfill({ status: 200, body: '{"items": [{"event_id": "evt_', headers: { ...cors, 'content-type': 'application/json' } });
+      case 'version':
+      case 'invalid': {
+        const body = await readFeedCache('game', url);
+        if (!body || !BREAK[kind]) return route.fallback();
+        try {
+          const doc = JSON.parse(body.toString('utf8'));
+          if (mode === 'version') doc.schema_version = 'edge_finder.app.v2'; else BREAK[kind](doc);
+          return route.fulfill({ status: 200, body: JSON.stringify(doc), headers: { ...cors, 'content-type': 'application/json' } });
+        } catch { return route.fallback(); }
+      }
       case 'empty': {
         const body = await readFeedCache('game', url);
         if (!body) return route.fallback();
@@ -146,6 +178,9 @@ for (const screen of SCREENS) {
           await expect(page).toHaveURL(/#\/v3\/following/);
           // 5. a failing PRIMARY document is said out loud
           if (primary && mode !== 'empty') expect(r.honest, `no honest unavailable state for the failed ${kind}`).toBe(true);
+          // 6. a document that fails validation says so and offers Retry (a file can be caught mid-update); an unsupported version does not pretend asking again helps
+          if (primary && mode === 'invalid') expect(r.retry, `no Retry for the unreadable ${kind}`).toBeGreaterThan(0);
+          if (primary && mode === 'version') expect(r.text, `no "cannot read" wording for the unsupported ${kind}`).toMatch(/format this version of SIFT cannot read|contract lists for .* could not be read/i);
         });
       }
     }

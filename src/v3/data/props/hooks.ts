@@ -6,6 +6,7 @@ import { quoteView } from '../../../live/overlay';
 import { nameKey } from '../../../insights/context';
 import { demoOn } from '../../state/prefs';
 import { liveStatusWord, statusFacts } from '../../model/marketStatus';
+import { guardLiveQuote } from '../validate';
 import type { Price } from '../../model/types';
 import { gate, type GateResult } from '../quoteGate';
 import { useSlate } from '../useSlate';
@@ -167,7 +168,8 @@ export function useVisibleHistory(rows: Prop[], enabled = true, delay = 220) {
 // ---------------------------------------------------------------- prices
 
 /** A published rung and its live quote as a Price (not yet gated). */
-export function rawPrice(p: Prop, r: PropRung, quote: Parameters<typeof quoteView>[1]): Price {
+export function rawPrice(p: Prop, r: PropRung, liveQuote: Parameters<typeof quoteView>[1]): Price {
+  const quote = liveQuote && guardLiveQuote(liveQuote).ok ? liveQuote : undefined; // a quote that is not a price (data/validate.ts) is no quote
   if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume, tradable: true, marketStatus: 'open' };
   const v = quoteView({ kalshi_ticker: r.ticker, yes_bid: r.bid == null ? null : r.bid / 100, yes_ask: r.ask == null ? null : r.ask / 100, captured_at: r.capturedAt, volume: r.volume }, quote);
   // The status travels with the observation it came from: a live quote's own word when the live observation is the newer, else the publication's.

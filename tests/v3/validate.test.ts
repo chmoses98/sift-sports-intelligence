@@ -1,4 +1,3 @@
-// @vitest-environment node
 /* eslint-disable @typescript-eslint/no-explicit-any -- real published documents are walked and edited untyped */
 // Every document SIFT 3.0 consumes is validated before anything uses it (src/v3/data/validate.ts). Evidence:
 //   1. every REAL captured document (fixtures/real, all five families) passes its guard, and nothing the guards own is left unclassified;
@@ -13,6 +12,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { openBundle } from '../../scripts/v3-fixtures/lib.mjs';
 import { DocumentInvalidError, getJson, NotFoundError, SchemaVersionError, setDocumentValidator, setFetchJson } from '../../src/data/fetcher';
 import { normalizeKalshiMarket } from '../../src/live/normalize';
+import { overlayLive } from '../../src/v3/data/liveMarket';
+import { rawPrice } from '../../src/v3/data/props/hooks';
+import type { Prop, PropRung } from '../../src/v3/data/props/types';
+import { priceOfQuote } from '../../src/v3/model/contract';
 import { decodeDistributions, decodeProjections } from '../../src/lib/projections';
 import { canRetry, failureKind, whyUnavailable } from '../../src/v3/data/failure';
 import { GUARDS, guardLiveQuote, kindOfUrl, validateByUrl, validateDocument, type DocKind } from '../../src/v3/data/validate';
@@ -524,6 +527,29 @@ describe('documents with their own strict decoders, and the live quote', () => {
     expect(bad({ ticker: '' })).toMatchObject({ ok: false });
     expect(guardLiveQuote(undefined)).toMatchObject({ ok: false });
     expect(bad({ yesAsk: null, yesBid: null })).toMatchObject({ ok: true });
+  });
+});
+
+describe('a quote that is not a price changes nothing on any v3 surface', () => {
+  const f = REAL.find((x) => /live-quotes\/games\/26OCT26DALPHI/.test(x.url))!;
+  const m = f.json.markets.find((x: any) => x.status === 'active' && x.yes_ask_dollars != null);
+  const q = normalizeKalshiMarket(m, m.observed_at, 'quote-feed')!;
+  const garbled = { ...q, yesAsk: 54 }; // cents where dollars belong
+  it('priceOfQuote: no Price at all (the sheet says "Price unavailable right now" with Retry)', () => {
+    expect(priceOfQuote(q)).not.toBeNull();
+    expect(priceOfQuote(garbled)).toBeNull();
+    expect(priceOfQuote({ ...q, observedAt: 'later' as never })).toBeNull();
+  });
+  it('overlayLive: the published market stands', () => {
+    const pub = { kalshi_ticker: q.ticker, yes_ask: 0.4, yes_bid: 0.38, captured_at: '2000-01-01T00:00:00Z', market_status: 'OPEN' } as never;
+    expect(overlayLive(pub, garbled)).toBe(pub);
+    expect((overlayLive(pub, q) as { yes_ask: number }).yes_ask).toBe(q.yesAsk);
+  });
+  it('rawPrice: the rung keeps its published price and status', () => {
+    const rung: PropRung = { k: 7, ticker: q.ticker, ask: 56, bid: 54, volume: 10, capturedAt: '2000-01-01T00:00:00Z', source: 'Kalshi', status: 'OPEN' };
+    const prop = { name: 'X', label: 'Receptions' } as Prop;
+    expect(rawPrice(prop, rung, garbled)).toMatchObject({ ask: 56, observedAt: '2000-01-01T00:00:00Z' });
+    expect(rawPrice(prop, rung, q).observedAt).toBe(q.observedAt);
   });
 });
 

@@ -38,7 +38,7 @@ function DateSheet({ day, today, onPick }: { day: string; today: string; onPick:
 }
 
 export function Games() {
-  const { games, loading, unavailable, failed, saved, now } = useSlate();
+  const { games, loading, unavailable, unsupported, failed, saved, now } = useSlate();
   const follows = useFollows();
   const sheet = useSheet();
   const [sp] = useSearchParams();
@@ -112,7 +112,7 @@ export function Games() {
       </div>
 
       {shown.length > 0 && st !== 'final' && <p className="v3-note v3-linesnote">Lines: Kalshi prediction-market prices in ¢, not sportsbook odds.</p>}
-      {unavailable && <div className="v3-state v3-state--warn" role="alert"><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>A failed publication does not mean there are no games. Try again in a moment.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
+      {unavailable && <div className="v3-state v3-state--warn" role="alert"><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>{unsupported ? 'The publication is in a format this version of SIFT cannot read.' : <>A failed publication does not mean there are no games. Try again in a moment.<br /><button type="button" onClick={() => location.reload()}>Retry</button></>}</div></div>}
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginBottom: 10 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginBottom: 10 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
       {loading && !games.length && <div role="status" aria-label="Loading games" className="v3-gclist">{[0, 1, 2, 3].map((i) => <div key={i} className="v3-skel v3-gc-skel" />)}</div>}

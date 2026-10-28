@@ -132,7 +132,7 @@ const SAMPLE_STORIES = [
 ];
 
 export function Home() {
-  const { games, loading, unavailable, failed, saved, now, demo } = useSlate();
+  const { games, loading, unavailable, unsupported, failed, saved, now, demo } = useSlate();
   const f = useFollows();
   const sheet = useSheet();
   const alerts = useAlerts();
@@ -175,7 +175,7 @@ export function Home() {
         {sports.map((s) => <button key={s.slug} type="button" className="v3-chip" aria-pressed={sport === s.slug} onClick={() => setSport(s.slug)}>{s.label}</button>)}
       </ChipRail>
 
-      {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
+      {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>{unsupported ? 'The publication is in a format this version of SIFT cannot read.' : <>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></>}</div></div>}
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 

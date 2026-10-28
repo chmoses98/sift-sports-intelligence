@@ -2,6 +2,7 @@
 // is the newer, and the rows a usable price gives (ask, bid, implied pre-fee, taker fee, fee-aware break-even). The fee and break-even use the
 // one schedule in model/format.ts. Nothing here knows about freshness words: whether a price may be shown at all is data/quoteGate.ts.
 import type { LiveQuote } from '../../live/types';
+import { guardLiveQuote } from '../data/validate';
 import { breakEvenPct, cents, takerFeeCents } from './format';
 import { isTerminalState, liveStatusWord, statusFacts } from './marketStatus';
 import type { Price } from './types';
@@ -14,7 +15,7 @@ import type { Price } from './types';
  * normalised `availability`, which folds several words into UNKNOWN; an UNKNOWN availability with no raw word means the provider sent no status.
  */
 export function priceOfQuote(q: LiveQuote | undefined, fallbackDescription = ''): Price | null {
-  if (!q) return null;
+  if (!q || !guardLiveQuote(q).ok) return null; // a quote whose numbers are not a price's is no price (data/validate.ts guardLiveQuote)
   const sf = statusFacts(liveStatusWord(q));
   const ask = sf.tradable ? cents(q.yesAsk) : null, bid = sf.tradable ? cents(q.yesBid) : null;
   if (ask == null && sf.tradable) return null;

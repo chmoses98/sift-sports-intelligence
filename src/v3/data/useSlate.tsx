@@ -21,6 +21,8 @@ export interface Slate {
   loading: boolean;
   /** Every feed failed: say so rather than show an empty list. */
   unavailable: boolean;
+  /** Every feed that failed failed because its publication is in a format this version cannot read (a schema_version it does not support): asking again cannot help. */
+  unsupported?: boolean;
   /** Feeds that failed while others loaded. */
   failed: string[];
   /** Sports whose live publication could not be read and whose research comes from the saved copy bundled with the app (never silent). */
@@ -78,7 +80,8 @@ function RealProvider({ children }: { children: ReactNode }) {
     return () => { live = false; };
   }, [all.bundles]);
   const unavailable = !!all.error || (!all.loading && all.bundles.length > 0 && failed.length === all.bundles.length);
-  const value = useMemo<Slate>(() => ({ games, loading: all.loading, unavailable, failed: failed.map((b) => b.sport.label), saved, now, demo: false }), [games, all.loading, unavailable, failed, saved, now]);
+  const unsupported = unavailable && failed.length > 0 && failed.every((b) => /unsupported schema_version/.test(b.error ?? ''));
+  const value = useMemo<Slate>(() => ({ games, loading: all.loading, unavailable, unsupported, failed: failed.map((b) => b.sport.label), saved, now, demo: false }), [games, all.loading, unavailable, unsupported, failed, saved, now]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

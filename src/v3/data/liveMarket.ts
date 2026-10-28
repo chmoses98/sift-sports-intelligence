@@ -6,8 +6,10 @@ import type { Market } from '../../contract/types';
 import { liveWins, overlayMarket } from '../../live/overlay';
 import type { LiveQuote } from '../../live/types';
 import { liveStatusWord } from '../model/marketStatus';
+import { guardLiveQuote } from './validate';
 
 export function overlayLive<M extends Parameters<typeof overlayMarket>[0]>(m: M, q: LiveQuote | undefined): M {
+  if (q && !guardLiveQuote(q).ok) return m; // a quote that is not a price (data/validate.ts) changes nothing
   const o = overlayMarket(m, q);
   if (!q || !liveWins(m, q)) return o;
   return { ...o, market_status: liveStatusWord(q) ?? m.market_status } as M & Pick<Market, 'market_status'>;

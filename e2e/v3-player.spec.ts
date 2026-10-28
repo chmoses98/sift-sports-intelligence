@@ -5,6 +5,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { usePlayerFeeds, PAGE_NOW } from './support/playerFeeds';
 import { frames, offsetBeforeClick } from './support/scroll';
+import { finger } from './support/touch';
 
 const LAMB = '/v3/player/nfl/prt_4c661ae8b854ff5f66dd';
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
@@ -231,12 +232,12 @@ test.describe('Player Research tap matrix (milestone 3) @v3', () => {
 
 const DAVIS = '/v3/player/nba/prt_3b16b9a418e9e8e833f9';
 
-/** A real touch drag (Chromium's touch events through CDP), as a finger on the line's label: the page must not scroll while it moves. */
+/** A touch drag as a finger on the line's label (support/touch.ts: real touch input on Chromium, touch pointer events on WebKit): the page must not scroll while it moves. */
 async function touchDrag(page: Page, from: { x: number; y: number }, dy: number, steps = 8) {
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [from] });
-  for (let i = 1; i <= steps; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: from.x, y: from.y + (dy * i) / steps }] });
-  return { end: () => cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }) };
+  const f = await finger(page);
+  await f.down(from.x, from.y);
+  for (let i = 1; i <= steps; i++) await f.move(from.x, from.y + (dy * i) / steps);
+  return { end: () => f.up() };
 }
 
 test.describe('Player Research P2: dragging the line @v3', () => {

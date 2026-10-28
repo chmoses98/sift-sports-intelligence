@@ -4,6 +4,7 @@
 // moved past the gate's limit for its context (list: 90 s inside two hours of the start, 180 s beyond, 60 s live; exact contract: 30 s / 60 s).
 // DAL at PHI (2026-10-27 00:15Z) is the reference game: 50 minutes after the cache's instant, so list limit 90 s and contract limit 30 s.
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { escapeSheet } from './support/sheet';
 import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 const FAMILY = 'game' as const;
@@ -60,7 +61,7 @@ test.describe('Games: the lines box goes through the list gate @v3', () => {
     await expect(page).toHaveURL(/sheet=contract&tk=KXNFL/);
     await expectPriced(page);
     await expect(dialogOf(page)).toContainText(/DAL at PHI/); // the subtitle names the game: the sheet knows the contract
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await expect(dialogOf(page)).toHaveCount(0);
     await page.waitForTimeout(300);
     expect(page.url()).toBe(url);

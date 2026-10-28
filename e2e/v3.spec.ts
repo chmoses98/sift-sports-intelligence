@@ -2,6 +2,7 @@
 // "Sample data" strip, which the first test asserts. These tests prove interaction semantics (nested taps, state restoration, Back),
 // not data truth: real-data behaviour is covered by tests/v3 (contract shapes) and the WebKit journey run recorded in VISUAL_QA.md.
 import { test, expect, type Page } from '@playwright/test';
+import { escapeSheet } from './support/sheet';
 
 test.beforeEach(async ({ page }) => {
   // No network: the sample slate needs none, and a stray request must never reach a real host from a test.
@@ -66,10 +67,10 @@ test.describe('SIFT 3.0 @v3', () => {
     expect(page.url()).toBe(url);
     await card.getByRole('button', { name: /^Alerts for/ }).click();
     await expect(page.getByRole('dialog')).toContainText('Alerts for');
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await card.getByRole('button', { name: /Kalshi market prices/ }).click();
     await expect(page.getByRole('dialog')).toContainText('SAMPLE-');
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await card.getByRole('link', { name: /team page/ }).first().click();
     await expect(page).toHaveURL(/#\/v3\/team\//);
   });

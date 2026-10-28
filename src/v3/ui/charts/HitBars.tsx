@@ -88,7 +88,7 @@ export function HitBars(p: HitBarsProps) {
   };
   const down = (e: PointerEvent<HTMLDivElement>) => {
     if (!canDrag || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* the pointer is already gone, or is not a browser pointer (a dispatched one): the drag still follows the events it gets */ }
     dragging.current = true; last.current = line; p.onScrub(true);
     e.preventDefault();
   };

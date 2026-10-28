@@ -4,6 +4,7 @@
 // and no moderate/minor one without a listed reason. Exceptions are explicit.
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/test';
+import { escapeSheet } from './support/sheet';
 
 const EXCEPTIONS: Record<string, string> = {};
 
@@ -71,7 +72,7 @@ test.describe('SIFT 3.0 accessibility @v3', () => {
     await expect(dlg).toBeVisible();
     await expect(dlg).toHaveAttribute('aria-modal', 'true');
     await expect(dlg).toHaveAccessibleName(/.+/);
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await expect(dlg).toHaveCount(0);
     await expect(opener).toBeFocused();
   });

@@ -5,6 +5,7 @@
 // What must hold on every surface: no ask, bid, implied price, fee or break-even; the list slot prints "—"; the exact-contract sheet says why
 // ("Market closed" / "Market settled" / "Trading suspended"), offers no Retry, and the screen's research stays on the page.
 import { test, expect, type Page } from '@playwright/test';
+import { escapeSheet } from './support/sheet';
 import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
@@ -74,9 +75,7 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
     await px.first().click();
     await expect(page).toHaveURL(/sheet=contract&tk=(KXNFL[A-Z]+-[^&]+)/);
     const tk = /tk=([^&]+)/.exec(page.url())![1];
-    // The address changes before the sheet has mounted and taken focus (its Escape handler is attached in that same step): press Escape once it has.
-    await expect(page.locator('[role="dialog"]:focus-within')).toHaveCount(1);
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await expect(dlg(page)).toHaveCount(0);
     await page.evaluate((h) => { location.hash = h; }, `${GAME}?tab=props`);
     await expect(page).not.toHaveURL(/sheet=contract/);

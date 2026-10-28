@@ -387,3 +387,49 @@ First real runs of `.github/workflows/v3-ci.yml` (Chromium phone, WebKit iPhone 
 | 30 `v3-fidelity` scenes fail on CI Chromium 141: baselines were rendered in the sandbox (Chrome for Testing 153) | environment | needs CI-rendered baselines (`<ID>-v3-phone-ci-linux.png`); owner decision, see `docs/sift3/qa/impl/fidelity/REPORT.md` |
 
 Everything else in the Chromium phone job passed on the last runs read.
+
+## Hardening wave 2: W-D2 data correctness (branch `claude/sift3-w-data`, 28 Oct 2026)
+
+Two owner tasks. No change to `main`, `.github/workflows`, the approval ledger, model activation, v4, SIFT 2.0 and classic behaviour, `src/live` or `relay/`. The only shared file touched is `src/data/fetcher.ts` (an error class and a default-off validator seam, below).
+
+### A. Unknown, suspended, closed, settled and expired market prices are not actionable offers
+
+Supersedes "A missing or unrecognised status word is not evidence" in H-D section 1. Rule (`src/v3/model/marketStatus.ts`, still the one vocabulary; the delivery chain's table, `claude/quote-track:src/live/tradable.ts`, is checked word for word in `tests/v3/marketStatus.test.ts`; v3 imports nothing from `src/live`):
+
+| Status word | State | Actionable? | Contract sheet |
+|---|---|---|---|
+| open, active, trading | open | yes (the quote gate still needs a current observation and a 1 to 99 cent ask) | prices |
+| (no status at all; a live quote with `rawStatus` null and availability UNKNOWN) | unreported | yes (same gate) | prices |
+| closed, determined, disputed, amended, ended | closed (terminal) | no, at any age | Market closed |
+| settled, finalized, finalised, resolved, voided, void, cancelled, canceled; any non-empty `result` | settled (terminal) | no, at any age | Market settled |
+| expired, expiry | expired (terminal) | no, at any age | Market closed |
+| delisted, removed, withdrawn, archived | delisted (terminal; v3's own word) | no, at any age | Market no longer listed |
+| inactive, paused, suspended, halted, trading_halted, frozen, on hold | suspended | no | Trading suspended while the observation is current; an old report reads "Price unavailable right now" with Retry |
+| initialized, initialised, unopened, not open, not yet open | unopened | no | Not open for trading yet (same age rule) |
+| any other non-empty word, the app's own UNKNOWN included | unrecognised | no | Price unavailable right now, Retry, no ask, bid, implied, fee or break-even rows |
+
+Enforcement is unchanged in shape: `Price.tradable`/`marketStatus` is set where a Price is made (`adapt.priceOf`, `model/contract.priceOfQuote`, Prop Discovery `rawPrice`, all through `liveStatusWord`/`statusFacts`), lists are built only from markets whose word is open or absent (`adapt`, `props/parse`, and `research/gameMarkets`, which had its own copy of the rule that let UNOPENED through), and `data/quoteGate.ts` withholds a non-tradable Price at any age. A live observation that sent no status leaves the publication's word standing (`overlayLive`, `rawPrice`), and `newerPrice` does not let a status-less newer observation reopen a terminal one. Lists print "—"; Games, Home, Game Detail, Prop Discovery rows, compare and peek, Player ladder and decision card, and the sheet all read the same gate. Historical research (History lanes, hit counts, the screen itself) is not touched.
+
+Tests: `tests/v3/marketStatus.test.ts` (111), `e2e/v3-nontradable.spec.ts` (26: every word through the sheet, unrecognised words with Retry, an absent feed status staying priced, Games/Home/Game Detail/props with every market unrecognised, Prop Discovery, and the Player ladder for closed, unrecognised and suspended). `freshQuotes` and `usePlayerFeeds` gained a `status` option (a word replaces a feed market's status; `null` removes it).
+
+### B. Every consumed document is validated at the point of consumption
+
+`src/v3/data/validate.ts`: dependency-free, typed guards per kind of document returning `{ ok, doc }` or `{ ok: false, reason, unsupported? }`. `getJson` calls them through `setDocumentValidator` (default off; installed by `applyV3FetchBounds`, removed when V3Root unmounts), so SIFT 2.0 and classic accept what they always accepted. A rejected document is never memoised and never partly drawn. A `schema_version` other than `edge_finder.app.v1` (or none) throws `SchemaVersionError` ("it is in a format this version of SIFT cannot read", no Retry); anything else throws `DocumentInvalidError` ("what was published could not be read", Retry). Home and Games say the unsupported wording (and offer no Retry) when every feed failed that way; Game Matchup shows its DataState for it.
+
+| Document | Guard | Where consumed |
+|---|---|---|
+| health, board, recommendations, theses | `guardHealth`, `guardBoard`, `guardRecommendations`, `guardTheses` | slate, Home, Games, Props (opportunity layer) |
+| event_detail | `guardEventDetail` (every market row: ticker, family, bid/ask/probability as probabilities, volume, status, times; the game's injury rows) | Game Detail, Props, Player |
+| explorer index (start times, file table, teams, players by team) | `guardExplorerIndex` | schedule authority, every entity lookup |
+| team and player profiles (games, availability, observations, rankings list, game log) | `guardEntityProfile` | Team, Player, Stat, Props |
+| ranking, time series | `guardRanking`, `guardSeries` | Stat |
+| metric registry, search index | `guardMetricRegistry`, `guardSearchIndex` | Team, Stat, Explore, Player |
+| event research (matchup, injuries) | `guardEventResearch` | Game Detail, availability |
+| saved-copy notice, NFL player history, history index, league schedule, team history | `guardSnapshotInfo`, `guardPlayerHistory`, `guardHistoryIndex`, `guardLeagueSchedule`, `guardTeamHistory` | slate notice, Player, Props |
+| live quote (after normalisation) | `guardLiveQuote`, applied in `priceOfQuote`, `overlayLive`, `rawPrice` | every price |
+| projections, distributions, summary, scorecard | existing strict decoders in `src/lib/projections.ts` (null is "no projection published") | SIFT model lane |
+| live-quote feed file; score feed | `FeedQuoteProvider` schema check plus `normalizeKalshiMarket`; `SportScore` schema check plus `verifyScore` (whole numbers 0 to 500) | prices, scores |
+
+Tests: `tests/v3/validate.test.ts` (277): every real document in `fixtures/real` (all five families) and every committed document of a guarded kind passes; malformed variants (missing field, wrong type, empty list, bad number, schema_version bump) for every kind; the seam through `getJson`; the failure wording; the largest documents' cost (guard 0.0 to 5.3 ms on 1.5 MB, against 57 ms to parse it). `e2e/v3-unavailable.spec.ts` gained the `version` and `invalid` modes for each screen's own document.
+
+Findings: no real captured document failed. Nine hand-trimmed unit-test inputs under `tests/v3/fixtures` (slimmed indexes, props fixtures with `schema_version` or `built_at` cut out) do not pass and are named in the test; none is read by a screen under the validator.

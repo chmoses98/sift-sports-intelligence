@@ -238,6 +238,20 @@ machine at load average ~30 from other workers, had 9 failures, all timeouts or 
 (52 of 53 with `mlb`) and `mlb` passed 19 of 19 with `--testTimeout=100000`. So: 1768 passed, 3 skipped on the full
 run, and the 9 load-induced timeouts pass in isolation; no failure involves the relay.
 
+Correction, 2026-10-28 (head `c52ac29a` plus this docs commit): the "`npx tsc -b` clean" above was wrong for the head
+that CI ran (`f1df81dd`). `npx tsc -b` failed with `tests/relayDifferential.test.ts(17,47) TS2322`: the branch core and
+the frozen baseline (`tests/fixtures/relay/coreBaseline.ts`) each declare their own `MemoryRelayCache` class with a
+private member, so the two classes are nominally different types and `Pick<typeof current, ...>` rejected the baseline
+module. Fix (`c52ac29a`, test typing only): `Core` is now a small structural interface (the same `handleRelay`
+signature and a constructor that yields the public `RelayCache`). No assertion, input, fixture or relay code changed.
+The comparison was re-checked: with `relay/core.ts` temporarily changed to send `Cache-Control: no-cache` instead of
+`no-store`, 75 of the 105 differential tests fail (reverted). Results on `c52ac29a`: `npx tsc -b` exit 0; `npx eslint .`
+exit 0; the four relay test files 168 of 168 (105 in the differential); `node scripts/relay-browser-date.mjs` (Chromium,
+BEFORE = `origin/main`) BEFORE `Date` null on every row, AFTER `Date` readable on every row (200, cached, 429, 500, two
+502s, 400; 0.4 to 0.6 s from the page clock), PASS; the clock-skew proposal copied into `origin/claude/quote-track`
+`763dd970`: 46 of 46 pass; full `npx vitest run`: 145 files, 1773 passed, 3 skipped, 4 failed (`tests/mlb.test.tsx` 1,
+`tests/screens.test.tsx` 3, timeouts and late renders under load); those two files re-run alone: 28 of 28 pass.
+
 ## Rollout notes
 
 * Vercel deploys the relay from this repo with **Root Directory `relay`**, redeploying whenever `relay/` changes on

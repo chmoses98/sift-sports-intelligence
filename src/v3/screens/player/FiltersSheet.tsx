@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useTierRanks } from '../../data/useOppUnits';
 import { Icon } from '../../ui/Icon';
 import { Seg } from '../../ui/atoms';
+import { useSheetHeaderAction } from '../../ui/Sheet';
 import { facets, LOCKED_FILTERS, matchSummary, type FacetGroup, type FacetOption } from '../../model/playerResearch';
 import { NO_FILTERS, sliceWindow, type Filters, type Window } from '../../model/research';
 import { filterPatch, type PlayerView } from './view';
@@ -44,6 +45,9 @@ function Body({ v }: { v: PlayerView }) {
   });
   const apply = () => v.set({ win, ...filterPatch(f), obs: null });
   const reset = () => { setWin('L10'); setF(NO_FILTERS); };
+  // "Reset" lives on the sheet's title row (P3); it is inert (aria-disabled) while the draft is already the default.
+  const dirty = win !== 'L10' || (Object.keys(NO_FILTERS) as (keyof Filters)[]).some((k) => f[k] !== NO_FILTERS[k]);
+  useSheetHeaderAction({ label: 'Reset', onClick: reset, disabled: !dirty });
   const timeOpts: [Window, string][] = [...TIME, ['SEASON', vm.season ?? 'Season'], ['ALL', `All ${vm.obs.length}`]];
   return (
     <div className="v3p-fs">
@@ -51,7 +55,7 @@ function Body({ v }: { v: PlayerView }) {
         <div><b className="num">{m.matched} {m.matched === 1 ? 'game matches' : 'games match'}</b><span>{m.hit.n ? `Hit ${m.hit.over}/${m.hit.n} at ${v.k}+` : `No games at ${v.k}+`}{m.mean != null ? ` · avg ${Math.round(m.mean * 10) / 10}` : ''}</span></div>
         <div className="sq" style={{ gridTemplateColumns: `repeat(${Math.min(10, Math.max(1, m.squares.length))}, 1fr)` }} aria-hidden="true">{m.squares.map((s, i) => <i key={i} className={s.hit == null ? 'x' : s.hit ? 'h' : 'u'} />)}</div>
       </div>
-      <div className="v3p-fl"><span>Time range</span><button type="button" className="v3p-link" onClick={reset}>Reset</button></div>
+      <div className="v3p-fl"><span>Time range</span></div>
       <Seg options={timeOpts} value={win} onChange={(w) => setWin(w)} label="Time range" hit />
       {groups.map((g) => (
         <section key={g.id} className="v3p-fg" aria-label={g.label}>

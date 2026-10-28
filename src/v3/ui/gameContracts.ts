@@ -29,6 +29,8 @@ const subtitleOf = ({ g, startMs }: GameFacts) => {
   const ms = startMs ?? (Number.isFinite(g.startMs) ? g.startMs : null);
   return `${g.away.abbr} at ${g.home.abbr}${ms != null && dayClock(ms) ? ` · ${dayClock(ms)}` : ''} · Kalshi YES`;
 };
+/** The game's team a prop's player is on (its code), or null when the publication does not say. */
+const teamByAbbr = (g: V3Game, abbr: string | null) => (abbr ? (abbr === g.away.abbr ? g.away : abbr === g.home.abbr ? g.home : null) : null);
 const actionsOf = (f: GameFacts, extra: ContractInfo['actions'] = []): ContractInfo['actions'] => [
   ...extra,
   ...(f.detailHref ? [{ label: 'Game Detail', to: f.detailHref, primary: !extra.length }] : []),
@@ -47,6 +49,7 @@ export function contractsOfLine(f: GameFacts, line: MarketLine): ContractInfo[] 
     ticker: p.ticker,
     title: p.ticker === line.price.ticker ? `${KIND_WORD[line.kind]} · ${line.label}` : side(i) ?? cleanDescription(p.description),
     price: p, neighbours, ...base(f), actions: actionsOf(f),
+    ...(line.kind === 'moneyline' && ladder.length === 2 ? { avatar: i === 0 ? f.g.away : f.g.home } : {}),
   }));
 }
 
@@ -61,7 +64,7 @@ export function contractsOfProp(f: GameFacts, row: PropRow): ContractInfo[] {
     : [];
   return rungs.map((r) => ({
     ticker: r.price.ticker, title: `${row.player}: ${row.statLabel} over ${r.line}`, price: r.price, neighbours,
-    ...base(f), actions: actionsOf(f, research),
+    avatar: teamByAbbr(f.g, row.teamAbbr), ...base(f), actions: actionsOf(f, research),
   }));
 }
 
@@ -75,11 +78,11 @@ export function contractsOfGame(f: GameFacts, detail: EventDetailDoc | null | un
     const away = detail.event.away_participant ?? null, home = detail.event.home_participant ?? null;
     for (const w of winContracts(markets, away, home)) {
       const t = w.team === 'away' ? g.away : g.home;
-      out.push({ ticker: w.ticker, title: `${t.name} to win`, price: w.price, ...base(f), actions: actionsOf(f) });
+      out.push({ ticker: w.ticker, title: `${t.name} to win`, avatar: t, price: w.price, ...base(f), actions: actionsOf(f) });
     }
     for (const [pid, t] of [[away, g.away], [home, g.home]] as const) {
       const tt = teamTotalFor(markets, pid);
-      if (tt) out.push({ ticker: tt.ticker, title: `${t.abbr} team total over ${tt.line}`, price: tt.price, ...base(f), actions: actionsOf(f) });
+      if (tt) out.push({ ticker: tt.ticker, title: `${t.abbr} team total over ${tt.line}`, avatar: t, price: tt.price, ...base(f), actions: actionsOf(f) });
     }
     for (const row of deriveProps(markets)) out.push(...contractsOfProp(f, row));
   }

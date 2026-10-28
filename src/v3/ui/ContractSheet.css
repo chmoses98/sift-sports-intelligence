@@ -1,6 +1,9 @@
 /* The exact-contract sheet (locked design: Prop Discovery PD6 and the Player contract tap). Scoped under .v3. */
 .v3 .v3c { display: grid; gap: 10px; padding-bottom: 6px; }
 .v3 .v3c-head { display: grid; gap: 2px; }
+.v3 .v3c-head.has-av { grid-template-columns: 44px minmax(0, 1fr); column-gap: 12px; align-items: center; }
+.v3 .v3c-av { grid-row: 1 / span 2; width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--s-raise); border: 1px solid var(--s-chip-bd); overflow: hidden; }
+.v3 .v3c-head.has-av > b, .v3 .v3c-head.has-av > span { grid-column: 2; min-width: 0; }
 .v3 .v3c-head b { font: 700 17px/22px var(--f-ui); letter-spacing: -0.01em; }
 .v3 .v3c-head span { font: 400 12.5px/17px var(--f-ui); color: var(--sift-muted); }
 .v3 .v3c-tick code { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 9px 12px; border-radius: 12px; background: var(--s-chip); border: 1px solid var(--s-chip-bd); color: var(--t2); font: 500 12.5px/16px ui-monospace, SFMono-Regular, Menlo, monospace; }

@@ -146,6 +146,15 @@
 .v3-sheet__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px 10px 20px; flex: none; }
 .v3-sheet__head h2 { font: 700 24px/30px var(--f-ui); letter-spacing: -0.015em; }
 .v3-sheet__x { width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(41, 47, 54, 0.55); color: #e8f4fb; }
+/* The locked sheet header (P3, PD4, PD6): the title and the sheet's action ("Reset") on one 44pt row, the close glyph plain, and a tall sheet nearly full height. */
+.v3-sheet--locked .v3-sheet__head { gap: 0; padding: 0 8px 0 16px; min-height: 44px; }
+.v3-sheet--locked .v3-sheet__head h2 { flex: 1; min-width: 0; font-size: 22px; line-height: 26px; }
+.v3-sheet--locked .v3-sheet__x { width: 44px; height: 44px; background: none; margin-right: 2px; }
+.v3-sheet__act { flex: none; min-width: 44px; min-height: 44px; padding: 0 8px; background: none; color: var(--sift-cyan); font: 500 17px/1 var(--f-ui); }
+.v3-sheet__act[aria-disabled='true'] { color: var(--sift-dim); cursor: default; }
+.v3-sheet--locked .v3-sheet__body { padding-top: 2px; }
+.v3-sheet--locked.v3-sheet--tall { height: min(93dvh, 800px); max-height: min(93dvh, 800px); }
+@media (max-height: 700px) { .v3-sheet--locked.v3-sheet--tall { height: 96dvh; max-height: 96dvh; } }
 .v3-sheet__body { overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 20px; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; }
 @keyframes v3up { from { transform: translateY(40px); opacity: 0.4; } to { transform: none; opacity: 1; } }
 @keyframes v3fade { from { opacity: 0; } to { opacity: 1; } }

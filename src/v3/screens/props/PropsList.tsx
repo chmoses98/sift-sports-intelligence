@@ -154,7 +154,7 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
   // `focus=1` (from the home's search field) puts the cursor in the field; `filters=1` (the home's sliders) opens the sheet. Both are consumed.
   const qp = new URLSearchParams(loc.search);
   const wantFocus = qp.get('focus') === '1', wantFilters = qp.get('filters') === '1';
-  const openFilters = useCallback(() => sheet.open('Sort and filter', <FilterSheet initial={st} set={set} />, { tall: true }), [sheet, st, set]);
+  const openFilters = useCallback(() => sheet.open('Sort and filter', <FilterSheet initial={st} set={set} />, { tall: true, locked: true }), [sheet, st, set]);
   useEffect(() => {
     if (wantFocus) { inputRef.current?.focus({ preventScroll: true }); patch({ focus: null }); }
     if (wantFilters) { patch({ filters: null }); openFilters(); }

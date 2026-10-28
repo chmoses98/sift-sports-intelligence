@@ -164,7 +164,9 @@ Branch `claude/sift3-h-fixtures`. The real-document Playwright specs no longer d
 
 Before the merge the same counts held per family against the original caches (stat 32, team 23, game 20, player 31, props 27, quote gate 11, hit targets 26), and the whole pre-merge v3 suite (226 tests) also passed against the production build served by `vite preview` (the CI configuration), offline. Request logs were compared URL by URL for every family: no document served in a cached run answered 404 from the bundle. Isolating the network matters: a namespace with no interface at all makes the browser report `navigator.onLine = false`, the quote poller stops and the priced game tests fail; that was an artefact of the method, not of the fixtures, so the proof uses an interface with a dead route instead.
 
-Not verified: WebKit (`v3-iphone`, `v3-iphone-se`; Playwright WebKit cannot be downloaded here), and the production-build run of the merged suite.
+The same full suite against the production build (`npm run build:e2e`, `vite preview` at the Pages base path, `CI=true`, same empty-network namespace): 418 passed, 2 skipped, 1 failed in 21.1 min; again the `v3-team` Profile (TR2) test failed in the 2-worker full run (this time on the Back step after opening Stat Detail) and passed alone with `--workers=1 --timeout=240000` (23 of 23). It passes alone and fails only in the parallel full run (both full runs), so it is a timing sensitivity of that test under load, not a fixture gap; it was not changed.
+
+Not verified: WebKit (`v3-iphone`, `v3-iphone-se`; Playwright WebKit cannot be downloaded here).
 
 ## Hardening H-D: data correctness (branch `claude/sift3-h-data`)
 

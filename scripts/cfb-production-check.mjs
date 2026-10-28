@@ -17,7 +17,8 @@
 //    Read and keep every older panel in a closed Deep Dive.
 // 5. CFB Slate Priorities (docs/CFB_SLATE_PRIORITIES.md) on Chromium desktop, Chromium phone and WebKit iPhone:
 //    the rail is there (the right column beside Top CFB Signals on desktop — no blank right side — and first on
-//    phones), its Top Value Signal is a Value Watch game or says plainly why not, a football read is never marked
+//    phones), its Top Value Signal is a Value Watch game or says plainly why not (or, when the board has no upcoming
+//    game, the rail says "No upcoming games" and prioritizes nothing: scripts/cfb/priorities.mjs), a football read is never marked
 //    value, every item opens its game and Back returns; every school name on the page is whole (never "St." or
 //    "Iowa St."); the page is set in Barlow at installed weights (400–700) with no italic.
 // 6. One canonical name per school (docs/CFB_SLATE_PRIORITIES.md "School names"): no raw publication spelling
@@ -31,6 +32,7 @@
 //    ("first_half", "full_game") on any picked game.
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
+import { judgeRailState, noUpcomingChecks } from './cfb/priorities.mjs';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
 // The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
 // default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
@@ -215,26 +217,36 @@ async function priorityCheck(page, name, device) {
   const rail = page.getByRole('region', { name: 'Where to look first' });
   await rail.waitFor({ timeout: 60_000 });
   await page.waitForTimeout(2500);
+  const upBefore = upcoming(board, Date.now()).length;
   const text = (await rail.innerText()).replace(/\s+/g, ' ');
+  const upAfter = upcoming(board, Date.now()).length;
   console.log(`  CFB rail: ${text.slice(0, 700)}`);
-  check(/top value signal/i.test(text), `${name}: CFB Slate Priorities: the Top Value Signal section is present (a Value Watch game, or plainly none)`);
-  const value = rail.locator('[data-priority="value"]');
-  const valueText = (await value.innerText()).replace(/\s+/g, ' ');
-  check(/value signal/i.test(valueText) || /No strong value signal yet|Waiting for updated prices/.test(valueText), `${name}: the value slot is a value signal or says why not ("${valueText.slice(0, 120)}")`);
-  if (await value.locator('a.prio__a').count()) {
-    const href = await value.locator('a.prio__a').getAttribute('href');
-    const id = /evt_[0-9a-f]+/.exec(href ?? '')?.[0];
-    const g = signals?.games.find((x) => x.event_id === id);
-    check(!!g && g.claims?.control?.strength === 'MODERATE' && signals.signals.moderate_control.status === 'VALUE_WATCH', `${name}: the Top Value Signal (${id}) is a Value Watch game in the live contract`);
-  }
-  const reads = rail.locator('[data-priority="read"], [data-priority="disagreement"]');
-  check((await reads.locator('.prio__kind--value').count()) === 0, `${name}: no football read or market disagreement is marked as value`);
+  const verdict = judgeRailState(text, upBefore, upAfter);
+  check(verdict.ok, `${name}: CFB Slate Priorities: ${verdict.msg}`);
   const items = await rail.locator('a.prio__a').count();
-  check(items >= 1 && items <= 5, `${name}: CFB Slate Priorities: ${items} linked items (1–5)`);
-  const hrefs = await rail.locator('a.prio__a').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''));
-  check(hrefs.every((h) => /\/cfb\/game\/evt_[0-9a-f]+$/.test(h)) && new Set(hrefs).size === hrefs.length, `${name}: every priority opens a different CFB game (${hrefs.length})`);
-  const upcomingIds = new Set(board.items.filter((i) => i.status === 'SCHEDULED' && Date.parse(i.start_time_utc) > Date.now()).map((i) => i.event_id));
-  check(hrefs.every((h) => upcomingIds.has(/evt_[0-9a-f]+/.exec(h)?.[0])), `${name}: no priority points at a game that has kicked off`);
+  if (verdict.state === 'none') {
+    // No upcoming game: the honest empty state replaces the value slot and every item.
+    const valueSlots = await rail.locator('[data-priority="value"]').count();
+    for (const [ok, msg] of noUpcomingChecks(name, { text, links: items, valueSlots })) check(ok, msg);
+  } else {
+    check(/top value signal/i.test(text), `${name}: CFB Slate Priorities: the Top Value Signal section is present (a Value Watch game, or plainly none)`);
+    const value = rail.locator('[data-priority="value"]');
+    const valueText = (await value.innerText()).replace(/\s+/g, ' ');
+    check(/value signal/i.test(valueText) || /No strong value signal yet|Waiting for updated prices/.test(valueText), `${name}: the value slot is a value signal or says why not ("${valueText.slice(0, 120)}")`);
+    if (await value.locator('a.prio__a').count()) {
+      const href = await value.locator('a.prio__a').getAttribute('href');
+      const id = /evt_[0-9a-f]+/.exec(href ?? '')?.[0];
+      const g = signals?.games.find((x) => x.event_id === id);
+      check(!!g && g.claims?.control?.strength === 'MODERATE' && signals.signals.moderate_control.status === 'VALUE_WATCH', `${name}: the Top Value Signal (${id}) is a Value Watch game in the live contract`);
+    }
+    const reads = rail.locator('[data-priority="read"], [data-priority="disagreement"]');
+    check((await reads.locator('.prio__kind--value').count()) === 0, `${name}: no football read or market disagreement is marked as value`);
+    check(items >= 1 && items <= 5, `${name}: CFB Slate Priorities: ${items} linked items (1–5)`);
+    const hrefs = await rail.locator('a.prio__a').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''));
+    check(hrefs.every((h) => /\/cfb\/game\/evt_[0-9a-f]+$/.test(h)) && new Set(hrefs).size === hrefs.length, `${name}: every priority opens a different CFB game (${hrefs.length})`);
+    const upcomingIds = new Set(board.items.filter((i) => i.status === 'SCHEDULED' && Date.parse(i.start_time_utc) > Date.now()).map((i) => i.event_id));
+    check(hrefs.every((h) => upcomingIds.has(/evt_[0-9a-f]+/.exec(h)?.[0])), `${name}: no priority points at a game that has kicked off`);
+  }
 
   // Composition: desktop rail beside Top CFB Signals and reaching the right edge; phones put it first.
   const r = await rail.boundingBox();

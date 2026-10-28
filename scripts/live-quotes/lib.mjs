@@ -10,6 +10,7 @@ import { HORIZON_DAYS, LOOKBACK_HOURS, isEligibleEvent, publicationStatus, publi
 
 export const FEED_SCHEMA = 'sift.live_quotes.v1';
 export const INDEX_SCHEMA = 'sift.live_quotes.index.v1';
+export const HEALTH_SCHEMA = 'sift.live_quotes.health.v1';
 export const KALSHI = 'https://api.elections.kalshi.com/trade-api/v2';
 
 /** Kalshi fields Sift reads (prices in dollars, sizes fixed-point); everything else is dropped. */
@@ -226,4 +227,45 @@ export function buildFiles(games, byKey, { generatedAt, source = 'kalshi-public 
   index.games.sort((a, b) => a.key.localeCompare(b.key));
   files.set('index.json', index);
   return files;
+}
+
+/**
+ * Which loop and which cycle this is, from the previous cycle's state (kept by the publisher OUTSIDE the feed tree,
+ * so the workflow does not change). A new run id means a new loop: sequence restarts at 1. Unreadable or malformed
+ * state is a new loop too: a heartbeat never claims continuity it cannot show.
+ */
+export function advanceLoop(prev, { runId, nowIso }) {
+  const ok = prev && typeof prev === 'object' && prev.run_id === runId && Number.isInteger(prev.sequence) && prev.sequence >= 1 && typeof prev.loop_started_at === 'string';
+  return {
+    run_id: runId,
+    loop_started_at: ok ? prev.loop_started_at : nowIso,
+    sequence: ok ? prev.sequence + 1 : 1,
+    previous_success_at: ok && typeof prev.last_success_at === 'string' ? prev.last_success_at : null,
+  };
+}
+
+/**
+ * health.json: written beside index.json by every SUCCESSFUL cycle (a failed cycle writes nothing, so a stall shows as
+ * a stale file). Purely additive: schema sift.live_quotes.v1, index.json and the per-game files are unchanged, and
+ * readers ignore files they do not know. `generated_at` is the feed's own, so the two can be correlated.
+ */
+export function buildHeartbeat({ loop, runAttempt = null, generatedAt, cycleStartedAt, cycleFinishedAt, sweepDurationMs, requests, errors = [], sportStatus = [], status = null, excludedSports = [] }) {
+  return {
+    schema: HEALTH_SCHEMA,
+    generated_at: generatedAt,
+    run_id: loop.run_id,
+    run_attempt: runAttempt,
+    loop_started_at: loop.loop_started_at,
+    sequence: loop.sequence,
+    cycle_started_at: cycleStartedAt,
+    cycle_finished_at: cycleFinishedAt,
+    sweep_duration_ms: sweepDurationMs,
+    requests,
+    errors: errors.length,
+    status,
+    excluded_sports: excludedSports,
+    sports: sportStatus.map((s) => ({ sport: s.sport, status: s.status, published: s.published, games: s.games, markets: s.markets })),
+    last_success_at: cycleFinishedAt,
+    previous_success_at: loop.previous_success_at,
+  };
 }

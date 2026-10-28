@@ -22,6 +22,7 @@ export const KALSHI_MAX_TICKERS = 100;
 /** Kept under typical proxy/CDN URL limits; 100 NFL tickers measured ~4.4 KB. */
 const MAX_URL = 7000;
 const MAX_PAGES = 5;
+const SKEW_NOISE_MS = 2_000;
 
 type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -32,6 +33,13 @@ export interface KalshiProviderOptions {
   fetchImpl?: FetchFn;
   now?: () => number;
   minIntervalMs?: number;
+  /**
+   * Opt-in for the quote-delivery chain (src/live/providers/deliveryChain.ts, never the production chain):
+   * an answer without `X-Sift-Observed-At` is marked `observedVia: 'received'` (arrival time is not an
+   * observation time) and the relay's `Date` header is reported as `clockSkewMs`. Off, this provider behaves
+   * exactly as it always has.
+   */
+  strictObservation?: boolean;
 }
 
 export function chunkTickers(tickers: string[], base: string, max = KALSHI_MAX_TICKERS): string[][] {
@@ -61,8 +69,10 @@ export class KalshiApiProvider implements QuoteProvider {
   private base: string;
   private fetchImpl: FetchFn;
   private now: () => number;
+  private strict: boolean;
 
   constructor(o: KalshiProviderOptions) {
+    this.strict = o.strictObservation ?? false;
     this.base = o.baseUrl.replace(/\/+$/, '');
     this.id = o.id ?? 'kalshi-relay';
     this.label = o.label ?? `Kalshi public market data via relay (${safeHost(this.base)})`;
@@ -71,7 +81,7 @@ export class KalshiApiProvider implements QuoteProvider {
     this.minIntervalMs = o.minIntervalMs ?? 10_000;
   }
 
-  private async page(url: string, signal?: AbortSignal): Promise<{ markets: Record<string, unknown>[]; cursor: string | null; observedAt: string }> {
+  private async page(url: string, signal?: AbortSignal): Promise<{ markets: Record<string, unknown>[]; cursor: string | null; observedAt: string; stamped: boolean; skewMs: number | null }> {
     let res: Response;
     try {
       // A simple GET (no custom headers) so no CORS preflight; never from the HTTP cache.
@@ -96,27 +106,39 @@ export class KalshiApiProvider implements QuoteProvider {
     if (!Array.isArray(markets)) throw new ProviderError('schema', 'response has no markets[]');
     // The relay stamps Kalshi's own response time (Date minus Age) and exposes it; otherwise the
     // moment this device received the answer is the observation time.
+    const received = this.now();
     const stamped = res.headers.get('x-sift-observed-at');
-    const observedAt = isoSeconds(stamped && !Number.isNaN(Date.parse(stamped)) ? Date.parse(stamped) : this.now());
+    const hasStamp = !!stamped && !Number.isNaN(Date.parse(stamped));
+    const observedAt = isoSeconds(hasStamp ? Date.parse(stamped!) : received);
+    // The relay's own clock (Date header, 1 s resolution) against this device's: lets the usability rule
+    // correct a wrong device clock. The header is only readable cross-origin if the relay exposes it; absent
+    // means "trust the device clock". Differences under 2 s are measurement noise (1 s header resolution
+    // plus transit) and are ignored.
+    const date = this.strict ? Date.parse(res.headers.get('date') ?? '') : NaN;
+    const diff = Number.isNaN(date) ? null : date - received;
+    const skewMs = diff != null && Math.abs(diff) >= SKEW_NOISE_MS ? diff : null;
     const cursor = (body as { cursor?: unknown }).cursor;
-    return { markets: markets as Record<string, unknown>[], cursor: typeof cursor === 'string' && cursor ? cursor : null, observedAt };
+    return { markets: markets as Record<string, unknown>[], cursor: typeof cursor === 'string' && cursor ? cursor : null, observedAt, stamped: hasStamp, skewMs };
   }
 
-  private async list(query: string, signal?: AbortSignal): Promise<{ quotes: LiveQuote[]; requests: number }> {
+  private async list(query: string, signal?: AbortSignal): Promise<{ quotes: LiveQuote[]; requests: number; skewMs: number | null }> {
     const quotes: LiveQuote[] = [];
     let cursor: string | null = null;
     let requests = 0;
+    let skewMs: number | null = null;
     do {
       const url = `${this.base}/markets?${query}&limit=1000${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
       const p = await this.page(url, signal);
       requests++;
       for (const m of p.markets) {
         const q = normalizeKalshiMarket(m, p.observedAt, this.id);
-        if (q) quotes.push(q);
+        // No X-Sift-Observed-At: the arrival time is all we have, and it is not an observation time.
+        if (q) quotes.push(!this.strict || p.stamped ? q : { ...q, observedVia: 'received' });
       }
+      skewMs = p.skewMs ?? skewMs;
       cursor = p.cursor;
     } while (cursor && requests < MAX_PAGES);
-    return { quotes, requests };
+    return { quotes, requests, skewMs };
   }
 
   async fetchQuotes(tickers: string[], signal?: AbortSignal): Promise<ProviderResult> {
@@ -124,13 +146,15 @@ export class KalshiApiProvider implements QuoteProvider {
     const want = [...new Set(tickers)];
     const quotes: LiveQuote[] = [];
     let requests = 0;
+    let skewMs: number | null = null;
     for (const chunk of chunkTickers(want, this.base, this.maxBatch)) {
       const r = await this.list(`tickers=${chunk.map(encodeURIComponent).join(',')}`, signal);
       quotes.push(...r.quotes);
       requests += r.requests;
+      skewMs = r.skewMs ?? skewMs;
     }
     const got = new Set(quotes.map((q) => q.ticker));
-    return { quotes, missing: want.filter((t) => !got.has(t)), requests, latencyMs: this.now() - t0 };
+    return { quotes, missing: want.filter((t) => !got.has(t)), requests, latencyMs: this.now() - t0, ...(skewMs != null ? { clockSkewMs: skewMs } : {}) };
   }
 
   async fetchEventMarkets(eventTickers: string[], signal?: AbortSignal): Promise<ProviderResult> {

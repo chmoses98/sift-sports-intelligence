@@ -5,15 +5,15 @@
 //   addressed   ?sheet=contract&tk=…      durable and shareable; rendered from the registry below
 // Links inside a sheet leave the sheet's entry clean (no sheet) before navigating, so Back from the destination lands on the
 // screen underneath with every sheet closed. Page scroll is locked without moving the page, and focus returns to the opener.
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from '../../routing';
 import { sheetBridge } from '../nav/sheetBridge';
 import { sheetOf, withSheet } from '../nav/routes';
 import { Icon } from './Icon';
 
-interface SheetSpec { title: string; node: ReactNode; tall?: boolean; id: string }
+interface SheetSpec { title: string; node: ReactNode; tall?: boolean; /** The locked-design header (plain close glyph, drawn title row). */ locked?: boolean; id: string }
 interface Ctx {
-  open: (title: string, node: ReactNode, o?: { tall?: boolean }) => void;
+  open: (title: string, node: ReactNode, o?: { tall?: boolean; locked?: boolean }) => void;
   /** Open an addressed sheet (registered with `registerSheet`) over the current screen. */
   openAddressed: (kind: string, tk?: string) => void;
   close: () => void;
@@ -22,8 +22,27 @@ interface Ctx {
 const SheetCtx = createContext<Ctx>({ open: () => {}, openAddressed: () => {}, close: () => {}, isOpen: false });
 export const useSheet = () => useContext(SheetCtx);
 
+/**
+ * The action on the title row, right of the title ("Reset" in Research filters and Sort and filter). The sheet body owns its state
+ * and publishes it with `useSheetHeaderAction`; the host draws it. `disabled` is announced with aria-disabled and keeps focus
+ * (a Reset that has just reset nothing left to reset must not drop the keyboard user's place).
+ */
+export interface SheetHeaderAction { label: string; onClick: () => void; disabled?: boolean }
+interface ActionState { label: string; disabled: boolean; run: () => void }
+const HeaderCtx = createContext<(a: ActionState | null) => void>(() => {});
+
+export function useSheetHeaderAction(action: SheetHeaderAction | null): void {
+  const set = useContext(HeaderCtx);
+  const run = useRef<() => void>(() => {});
+  run.current = action?.onClick ?? (() => {});
+  const present = !!action, label = action?.label ?? '', disabled = !!action?.disabled;
+  // Before paint: the action is on the title row in the first frame the sheet is visible, so nothing moves.
+  useLayoutEffect(() => { set(present ? { label, disabled, run: () => run.current() } : null); }, [set, present, label, disabled]);
+  useLayoutEffect(() => () => set(null), [set]);
+}
+
 /** Addressed sheets by kind. A screen module registers the kinds it owns (the exact-contract sheet, for one). */
-export interface AddressedSheet { title: (tk: string | null) => string; tall?: boolean; render: (tk: string | null) => ReactNode }
+export interface AddressedSheet { title: (tk: string | null) => string; tall?: boolean; locked?: boolean; render: (tk: string | null) => ReactNode }
 const registry = new Map<string, AddressedSheet>();
 export const registerSheet = (kind: string, s: AddressedSheet) => { registry.set(kind, s); };
 
@@ -34,6 +53,8 @@ export function SheetHost({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const nav = useNavigate();
   const [imp, setImp] = useState<SheetSpec | null>(null);
+  const [act, setAct] = useState<ActionState | null>(null);
+  const titleId = useId();
   const pending = useRef<SheetSpec | null>(null);
   // `close` may be asked twice for one sheet (a change made inside it, then its own close); it steps back once.
   const closing = useRef(false);
@@ -56,9 +77,9 @@ export function SheetHost({ children }: { children: ReactNode }) {
     else { setImp(null); sheetBridge.flush(); }
   }, [nav]);
 
-  const open = useCallback((title: string, node: ReactNode, o?: { tall?: boolean }) => {
+  const open = useCallback((title: string, node: ReactNode, o?: { tall?: boolean; locked?: boolean }) => {
     opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const spec: SheetSpec = { title, node, tall: o?.tall, id: `${Date.now()}${Math.random().toString(36).slice(2, 6)}` };
+    const spec: SheetSpec = { title, node, tall: o?.tall, locked: o?.locked, id: `${Date.now()}${Math.random().toString(36).slice(2, 6)}` };
     pending.current = spec;
     const h = here.current;
     nav({ pathname: h.pathname, search: h.search }, { state: { ...((h.state as object) ?? {}), [FLAG]: spec.id }, preventScrollReset: true });
@@ -85,7 +106,8 @@ export function SheetHost({ children }: { children: ReactNode }) {
   useEffect(() => { sheetBridge.register(isOpen && (flagged || addr) ? close : null); return () => sheetBridge.register(null); }, [isOpen, flagged, addr, close]);
 
   // Scroll lock that keeps the page exactly where it was.
-  useEffect(() => {
+  // A layout effect: focus and the Escape handler are in place before the sheet's first paint, never a frame after it.
+  useLayoutEffect(() => {
     if (!isOpen) return;
     const y = window.scrollY;
     const b = document.body;
@@ -121,20 +143,24 @@ export function SheetHost({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo(() => ({ open, openAddressed, close, isOpen }), [open, openAddressed, close, isOpen]);
-  const spec: (SheetSpec & { node: ReactNode }) | null = imp ?? (addr && reg ? { id: addr.kind, title: reg.title(addr.tk), node: reg.render(addr.tk), tall: reg.tall } : null);
+  const spec: (SheetSpec & { node: ReactNode }) | null = imp ?? (addr && reg ? { id: addr.kind, title: reg.title(addr.tk), node: reg.render(addr.tk), tall: reg.tall, locked: reg.locked } : null);
+  const locked = !!spec && (!!spec.locked || !!act);
   return (
     <SheetCtx.Provider value={value}>
       {children}
       {spec && (
         <div className="v3-sheet-root" role="presentation">
           <button type="button" className="v3-sheet-backdrop" aria-label="Close" tabIndex={-1} onClick={close} />
-          <div ref={panel} className={`v3-sheet${spec.tall ? ' v3-sheet--tall' : ''}`} role="dialog" aria-modal="true" aria-label={spec.title} tabIndex={-1} onClickCapture={onPanelClick}>
+          <div ref={panel} className={`v3-sheet${spec.tall ? ' v3-sheet--tall' : ''}${locked ? ' v3-sheet--locked' : ''}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} onClickCapture={onPanelClick}>
             <div className="v3-sheet__grip" aria-hidden="true" />
             <header className="v3-sheet__head">
-              <h2>{spec.title}</h2>
+              <h2 id={titleId}>{spec.title}</h2>
+              {act && (
+                <button type="button" className="v3-sheet__act" aria-disabled={act.disabled || undefined} onClick={() => { if (!act.disabled) act.run(); }}>{act.label}</button>
+              )}
               <button type="button" className="v3-sheet__x" aria-label="Close" onClick={close}><Icon name="close" size={20} /></button>
             </header>
-            <div className="v3-sheet__body">{spec.node}</div>
+            <div className="v3-sheet__body"><HeaderCtx.Provider value={setAct}>{spec.node}</HeaderCtx.Provider></div>
           </div>
         </div>
       )}

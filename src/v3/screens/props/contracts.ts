@@ -11,7 +11,7 @@ import type { Prop } from '../../data/props/types';
 import { weekdayClock } from '../../model/time';
 import { routes } from '../../nav/routes';
 import { publishContracts, type ContractInfo } from '../../ui/ContractSheet';
-import { playerRef, playerState } from './parts';
+import { playerRef, playerState, teamOf } from './parts';
 
 const when = (ms: number) => weekdayClock(ms);
 
@@ -31,10 +31,12 @@ export function contractsOf(p: Prop, get: (key: string) => BankEntry | undefined
     return { ticker: x.ticker, label: `${x.k}+ ${word}`, price: rawPrice(p, x, undefined), note: h ? `${h.h}/${h.n} history` : null };
   });
   const ref = playerRef(p);
+  const avatar = teamOf(p);
   const note = p.model.state === 'none' ? `${p.model.reason}. SIFT shows no bet buttons.` : null;
   return p.rungs.map((r) => ({
     ticker: r.ticker,
     title: `${p.name}: ${r.k}+ ${word}`,
+    avatar,
     subtitle: `${p.away.abbr} at ${p.home.abbr}${when(p.startMs) ? ` · ${when(p.startMs)}` : ''} · Kalshi YES`,
     price: rawPrice(p, r, undefined),
     startMs: p.startMs, live: false, neighbours, note,

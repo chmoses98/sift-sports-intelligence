@@ -20,15 +20,22 @@ import type { Price } from '../model/types';
 import { withSheet } from '../nav/routes';
 import { usePrefs } from '../state/prefs';
 import { registerSheet } from './Sheet';
+import { TeamLogo } from './TeamLogo';
 import './ContractSheet.css';
 
 export interface ContractNeighbour { ticker: string; label: string; price: Price | null; note?: string | null }
+/** The team (or the player's team) a contract is about: its committed logo, else its code on its colours. Decorative: the title already names it. */
+export interface ContractAvatar { logo?: string | null; abbr: string; colors?: [string, string] }
+const AV_COLORS: [string, string] = ['#39424d', '#232a32'];
+
 export interface ContractInfo {
   ticker: string;
   /** "CeeDee Lamb: 7+ receptions". */
   title: string;
   /** "DAL at PHI · Mon 8:15 PM · Kalshi YES". */
   subtitle: string;
+  /** Left of the title (PD6): the team or player's team when the screen knows it. Optional and never waited for. */
+  avatar?: ContractAvatar | null;
   /** The latest price the screen holds for this contract (the sheet uses a newer live observation when the store has one). */
   price: Price | null;
   /** The game's start (gate tier) and whether it is in play. */
@@ -77,6 +84,15 @@ function useForcedRefresh(tk: string | null) {
 
 const KV = ({ k, v, strong }: { k: string; v: ReactNode; strong?: boolean }) => <div className={`v3c-kv${strong ? ' is-strong' : ''}`}><span>{k}</span><b>{v}</b></div>;
 
+/** A fixed 44px circle, so the head does not move when the image arrives or fails; the image is the team logo SIFT already ships (no new request). */
+export function Avatar({ a }: { a: ContractAvatar }) {
+  return (
+    <span className="v3c-av" data-testid="contract-avatar" aria-hidden="true">
+      <TeamLogo team={{ logo: a.logo ?? null, abbr: a.abbr, colors: a.colors ?? AV_COLORS, name: a.abbr }} size={30} />
+    </span>
+  );
+}
+
 function ContractBody({ tk }: { tk: string | null }) {
   useSyncExternalStore(subscribe, () => version, () => version);
   const info = tk ? contractInfo(tk) : undefined;
@@ -101,7 +117,8 @@ function ContractBody({ tk }: { tk: string | null }) {
 
   return (
     <div className="v3c" data-contract={tk}>
-      <header className="v3c-head">
+      <header className={`v3c-head${info?.avatar ? ' has-av' : ''}`}>
+        {info?.avatar && <Avatar a={info.avatar} />}
         <b>{info?.title ?? live.quote(tk)?.title ?? 'Contract'}</b>
         {info?.subtitle && <span>{info.subtitle}</span>}
       </header>
@@ -160,4 +177,4 @@ function ContractBody({ tk }: { tk: string | null }) {
   );
 }
 
-registerSheet('contract', { title: () => 'Exact contract', tall: false, render: (tk) => <ContractBody tk={tk} key={tk ?? 'none'} /> });
+registerSheet('contract', { title: () => 'Exact contract', tall: false, locked: true, render: (tk) => <ContractBody tk={tk} key={tk ?? 'none'} /> });

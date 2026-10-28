@@ -312,8 +312,26 @@ test.describe('Player Research P3: research filters @v3', () => {
     const before = await live.innerText();
     const away = dlg.getByRole('button', { name: /^Away/ });
     await expect(away).toContainText(/n \d+ · \d+\/\d+/);                           // sample size and hit count BEFORE applying
+    // P3's header: Reset on the title row (not in the body), inert while the draft is the default, the close button still a 44pt target, the sheet near full height.
+    const head = dlg.locator('header');
+    const reset = head.getByRole('button', { name: 'Reset' });
+    await expect(reset).toBeVisible();
+    await expect(dlg.locator('.v3-sheet__body').getByRole('button', { name: 'Reset' })).toHaveCount(0);
+    await expect(reset).toHaveAttribute('aria-disabled', 'true');
+    const rb = (await reset.boundingBox())!, tb = (await head.locator('h2').boundingBox())!, xb = (await head.getByRole('button', { name: 'Close' }).boundingBox())!;
+    expect(rb.height).toBeGreaterThanOrEqual(44); expect(xb.width).toBeGreaterThanOrEqual(44); expect(xb.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs((rb.y + rb.height / 2) - (tb.y + tb.height / 2))).toBeLessThan(6);   // the same row as the title
+    expect(rb.x).toBeGreaterThan(tb.x + 100);                                       // at the right of it
+    const top = (await dlg.boundingBox())!.y, vh = page.viewportSize()!.height;
+    expect(top / vh).toBeLessThan(0.12);                                            // locked P3 starts near the top (was ~14%)
     await away.click();
     await expect(live).not.toHaveText(before);                                      // the live card follows the draft
+    await expect(reset).not.toHaveAttribute('aria-disabled', 'true');
+    await reset.click();                                                            // Reset restores the default draft ...
+    await expect.poll(() => live.innerText()).toBe(before);
+    await expect(reset).toHaveAttribute('aria-disabled', 'true');                   // ... and is inert again, still focused
+    await expect(reset).toBeFocused();
+    await away.click();
     // locked rows: visible with the reason, never working controls
     for (const name of ['Teammate out', 'Weather', 'Pace', 'Favorite']) {
       await expect(dlg.getByRole('note', { name: new RegExp(`^${name}`) })).toBeVisible();

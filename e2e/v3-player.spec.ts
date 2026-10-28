@@ -6,6 +6,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { usePlayerFeeds, PAGE_NOW } from './support/playerFeeds';
 import { frames, offsetBeforeClick } from './support/scroll';
 import { finger } from './support/touch';
+import { PT44 } from './support/hitTargets';
 
 const LAMB = '/v3/player/nfl/prt_4c661ae8b854ff5f66dd';
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
@@ -319,7 +320,7 @@ test.describe('Player Research P3: research filters @v3', () => {
     await expect(dlg.locator('.v3-sheet__body').getByRole('button', { name: 'Reset' })).toHaveCount(0);
     await expect(reset).toHaveAttribute('aria-disabled', 'true');
     const rb = (await reset.boundingBox())!, tb = (await head.locator('h2').boundingBox())!, xb = (await head.getByRole('button', { name: 'Close' }).boundingBox())!;
-    expect(rb.height).toBeGreaterThanOrEqual(44); expect(xb.width).toBeGreaterThanOrEqual(44); expect(xb.height).toBeGreaterThanOrEqual(44);
+    expect(rb.height).toBeGreaterThanOrEqual(PT44); expect(xb.width).toBeGreaterThanOrEqual(PT44); expect(xb.height).toBeGreaterThanOrEqual(PT44);
     expect(Math.abs((rb.y + rb.height / 2) - (tb.y + tb.height / 2))).toBeLessThan(6);   // the same row as the title
     expect(rb.x).toBeGreaterThan(tb.x + 100);                                       // at the right of it
     const top = (await dlg.boundingBox())!.y, vh = page.viewportSize()!.height;

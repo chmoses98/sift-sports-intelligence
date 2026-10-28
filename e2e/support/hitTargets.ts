@@ -4,6 +4,9 @@
 // semantic target (`[data-tap]`, or a row's own button). Use it on any screen: `await expectNoStolenTaps(page, '.pd-row')`.
 import type { Page } from '@playwright/test';
 
+/** 44 pt as a layout engine reports it: WebKit lays a 44px box out as 43.999996, which is 44 to the pixel. */
+export const PT44 = 44 - 0.01;
+
 export interface Steal { target: string; at: [number, number]; stolenBy: string }
 
 export async function stolenTaps(page: Page, scope: string): Promise<Steal[]> {

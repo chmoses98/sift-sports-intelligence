@@ -155,7 +155,7 @@
 .v3-sheet--locked .v3-sheet__body { padding-top: 2px; }
 .v3-sheet--locked.v3-sheet--tall { height: min(93dvh, 800px); max-height: min(93dvh, 800px); }
 @media (max-height: 700px) { .v3-sheet--locked.v3-sheet--tall { height: 96dvh; max-height: 96dvh; } }
-.v3-sheet__body { overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 20px; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; }
+.v3-sheet__body { overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 20px; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; scroll-padding-bottom: 88px; /* a sticky apply bar sits over the last 70-odd px: scrolling a row or a focused control into view must clear it */ }
 @keyframes v3up { from { transform: translateY(40px); opacity: 0.4; } to { transform: none; opacity: 1; } }
 @keyframes v3fade { from { opacity: 0; } to { opacity: 1; } }
 

@@ -7,7 +7,7 @@
 // below as `[row N]` and, after every tap, Back must restore the address, the scroll offset, the expanded row and close any sheet.
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { offsetBeforeClick } from './support/scroll';
-import { expectNoStolenTaps } from './support/hitTargets';
+import { expectNoStolenTaps, PT44 } from './support/hitTargets';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 import { fixtureGames, within } from './support/propsFixture';
 
@@ -327,7 +327,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await expect(sheet.locator('.v3-sheet__body').getByRole('button', { name: 'Reset' })).toHaveCount(0);
     await expect(reset).toHaveAttribute('aria-disabled', 'true');
     const rb = (await reset.boundingBox())!, tb = (await head.locator('h2').boundingBox())!, xb = (await head.getByRole('button', { name: 'Close' }).boundingBox())!;
-    expect(rb.height).toBeGreaterThanOrEqual(44); expect(xb.width).toBeGreaterThanOrEqual(44); expect(xb.height).toBeGreaterThanOrEqual(44);
+    expect(rb.height).toBeGreaterThanOrEqual(PT44); expect(xb.width).toBeGreaterThanOrEqual(PT44); expect(xb.height).toBeGreaterThanOrEqual(PT44);
     expect(Math.abs((rb.y + rb.height / 2) - (tb.y + tb.height / 2))).toBeLessThan(6);
     expect((await sheet.boundingBox())!.y / page.viewportSize()!.height).toBeLessThan(0.12);
     const locked = sheet.locator('.pd-locked');
@@ -468,7 +468,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     expect(ab.x + ab.width).toBeLessThan(hb.x);
     for (const img of await av.locator('img').all()) await expect(img).toHaveAttribute('alt', '');
     const cb = (await sheet.locator('header').getByRole('button', { name: 'Close' }).boundingBox())!;
-    expect(cb.width).toBeGreaterThanOrEqual(44); expect(cb.height).toBeGreaterThanOrEqual(44);
+    expect(cb.width).toBeGreaterThanOrEqual(PT44); expect(cb.height).toBeGreaterThanOrEqual(PT44);
     expect(await sheet.innerText()).not.toMatch(/\b(ago|stale|last known|last updated|updated|fresh)\b/i);
     expect(await sheet.innerText()).not.toMatch(/\b(edge|value bet)\b/i);
     // Neighbouring rungs: tapping one swaps the contract in place (no new history entry).

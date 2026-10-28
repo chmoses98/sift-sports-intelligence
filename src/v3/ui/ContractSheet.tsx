@@ -7,15 +7,19 @@
 // suspended" with no price rows and NO Retry (asking again cannot make it tradable); a suspended or not-yet-open report that is no longer current,
 // and a status word SIFT does not recognise, say "Price unavailable right now" WITH Retry (they may clear on the next read), still with no price
 // rows (model/marketStatus.ts `sheetNamesStatus`). The screen's research stays outside the sheet. Nothing here prints an age, a time of
-// observation, "stale", "last known" or any other freshness word. Opening the sheet asks the shared live-quote store for a forced refresh of
-// this one ticker (QuoteStore.refreshNow), and Retry asks again.
-import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
+// observation, "stale", "last known" or any other freshness word. Opening the sheet asks the shared live-quote store for the freshest price of this one
+// ticker through the quote-delivery chain (QuoteStore.refreshContract: relay first, then the feed, each requested ticker judged on its own observation),
+// the contract stays current on a contract scope (20 s), and Retry asks again the same way (data/liveQuotes.ts). A market the provider positively reports
+// as closed, settled or expired says so with no Retry, whichever of the sheet's price and the refresh learned it first.
+import { useMemo, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from '../../routing';
-import { liveStore, useLiveQuotes, useNow } from '../../live/hooks';
+import { useNow } from '../../live/hooks';
+import { MISSING_PRICE } from '../../live/missingPrice';
 import { gate, observationCurrent } from '../data/quoteGate';
+import { useContractRefresh, useQuoteReader, useRowQuotes } from '../data/liveQuotes';
 import { contractFacts, newerPrice, priceOfQuote } from '../model/contract';
 import { fmtCents, showAsk } from '../model/format';
-import { nonTradableNote, nonTradableTitle, sheetNamesStatus } from '../model/marketStatus';
+import { nonTradableNote, nonTradableTitle, sheetNamesStatus, type MarketState } from '../model/marketStatus';
 import type { Price } from '../model/types';
 import { withSheet } from '../nav/routes';
 import { usePrefs } from '../state/prefs';
@@ -67,21 +71,6 @@ export const clearContracts = (): void => { registry.clear(); version++; listene
 
 // ---------------------------------------------------------------- the sheet
 
-const REFRESH_MS = 6_000;
-
-function useForcedRefresh(tk: string | null) {
-  const [busy, setBusy] = useState(false);
-  const run = useMemo(() => async () => {
-    if (!tk) return;
-    setBusy(true);
-    try { await liveStore().refreshNow([tk], { timeoutMs: REFRESH_MS }); } catch { /* the gate decides what is shown */ } finally { setBusy(false); }
-  }, [tk]);
-  // The seam for the separately reviewed quote branch (claude/quote-track): when it lands, a contract-context forced refresh
-  // (its own freshest-quote request) replaces `refreshNow` here and nothing else in this file changes.
-  useEffect(() => { void run(); }, [run]);
-  return { busy, retry: run };
-}
-
 const KV = ({ k, v, strong }: { k: string; v: ReactNode; strong?: boolean }) => <div className={`v3c-kv${strong ? ' is-strong' : ''}`}><span>{k}</span><b>{v}</b></div>;
 
 /** A fixed 44px circle, so the head does not move when the image arrives or fails; the image is the team logo SIFT already ships (no new request). */
@@ -99,11 +88,13 @@ function ContractBody({ tk }: { tk: string | null }) {
   const loc = useLocation();
   const nav = useNavigate();
   const fmt = usePrefs().priceFormat;
-  const live = useLiveQuotes(tk ? [tk] : undefined, 'detail');
-  const { busy, retry } = useForcedRefresh(tk);
+  const schedule = { startMs: info?.startMs ?? null, live: info?.live ?? false };
+  // The exact contract: its own scope (detail cadence), one forced refresh on open, and the same again on Retry (QuoteStore.refreshContract).
+  const { busy, retry, state: refreshState, marketStatus: refreshStatus } = useContractRefresh(tk, schedule);
+  const live = useQuoteReader(); // reads only: the contract's own scope above keeps it current (a rows scope here would loosen its age limit to a list's)
   // The rungs listed under the numbers follow the live store too (bounded), so a neighbour's price is current or "—", never a capture.
   const nbTickers = useMemo(() => (info?.neighbours ?? []).map((n) => n.ticker).filter((t) => t !== tk).slice(0, 40), [info, tk]);
-  useLiveQuotes(nbTickers.length ? nbTickers : undefined, 'game');
+  useRowQuotes(nbTickers.length ? nbTickers : undefined, schedule);
   const now = useNow(5_000);
   if (!tk) return <p className="v3c-note">No contract is named in this address.</p>;
 
@@ -113,6 +104,9 @@ function ContractBody({ tk }: { tk: string | null }) {
   const g = gate(price, ctx, now);
   const f = g.price ? contractFacts(g.price) : null;
   const named = g.reason === 'not-tradable' && !!g.marketStatus && !!price && sheetNamesStatus(g.marketStatus, observationCurrent(price, ctx, now));
+  // The state the sheet NAMES (no Retry): what its own price says, else what the forced refresh learned (the provider positively reports the market closed,
+  // settled or expired: asking again cannot change that). A suspended, not-yet-open or unrecognised report keeps the ordinary sentence and Retry unless current.
+  const closedStatus: MarketState | null = named && g.marketStatus ? g.marketStatus : !g.price && refreshState === 'market_closed' ? refreshStatus : null;
   const open = (to: string) => nav({ pathname: loc.pathname, search: withSheet(loc.search, { kind: 'contract', tk: to }) }, { replace: true, state: loc.state, preventScrollReset: true });
 
   return (
@@ -139,16 +133,16 @@ function ContractBody({ tk }: { tk: string | null }) {
           </div>
           <p className="v3c-foot">Prices are Kalshi YES asks before fees. SIFT shows no bet buttons.</p>
         </>
-      ) : named && g.marketStatus ? (
-        <div className="v3c-none" role="status" data-state="not-tradable" data-market-status={g.marketStatus}>
-          <b>{nonTradableTitle(g.marketStatus)}</b>
-          <span>{nonTradableNote(g.marketStatus)}</span>
+      ) : closedStatus && nonTradableTitle(closedStatus) ? (
+        <div className="v3c-none" role="status" data-state="not-tradable" data-market-status={closedStatus}>
+          <b>{nonTradableTitle(closedStatus)}</b>
+          <span>{nonTradableNote(closedStatus)}</span>
         </div>
       ) : (
         <div className="v3c-none" role="status" data-state="unavailable" data-market-status={g.reason === 'not-tradable' ? g.marketStatus ?? undefined : undefined}>
-          <b>Price unavailable right now</b>
+          <b>{MISSING_PRICE.contract}</b>
           <span>No reliable quote could be obtained. Nothing is estimated.</span>
-          <button type="button" className="v3c-btn is-pri" onClick={() => void retry()} disabled={busy}>{busy ? 'Retrying' : 'Retry'}</button>
+          <button type="button" className="v3c-btn is-pri" onClick={() => void retry()} disabled={busy}>{busy ? 'Retrying' : MISSING_PRICE.retry}</button>
         </div>
       )}
 

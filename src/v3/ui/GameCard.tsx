@@ -29,12 +29,13 @@ function Side({ g, side }: { g: V3Game; side: 'away' | 'home' }) {
  */
 export function GameCard({ g: base }: { g: V3Game }) {
   const [ref, seen] = useSeen<HTMLElement>();
-  const x = useGameExtras(base, 'lines', seen);
-  const g = x?.game ?? base;
-  const open = useOpenContract();
   // The schedule authority's start picks the quote tier; every price on the card goes through the list-context gate.
   // Read only for a card that has been near the screen: a league's schedule is one document per league (up to 450 KB), so a list does not read the leagues of cards nobody scrolled to.
   const startMs = useGameStart(seen ? base : null);
+  // The card's lines are its rows: one rows scope per card that has been near the screen (nothing for a card nobody scrolled to), tiered by that start.
+  const x = useGameExtras(base, 'lines', seen, startMs);
+  const g = x?.game ?? base;
+  const open = useOpenContract();
   const gate = useListGate(g, startMs);
   const live = g.phase === 'live';
   const scored = g.score != null;

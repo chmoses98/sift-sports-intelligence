@@ -188,7 +188,7 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
   const filtered = useMemo(() => rows.filter((r) => !stat || r.statLabel === stat), [rows, stat]);
   const shown = useMemo(() => (all ? filtered : filtered.slice(0, 12)), [filtered, all]);
   // The rows on screen follow the live quote store (a newer observation replaces the publication's capture); the gate then decides what prints.
-  const quoted = useQuotedPrices(detail, useMemo(() => shown.map((r) => r.price.ticker), [shown]));
+  const quoted = useQuotedPrices(detail, useMemo(() => shown.map((r) => r.price.ticker), [shown]), { startMs, live: g.phase === 'live' });
   const priceOf = (r: PropRow): Price | null => gate(quoted(r.price.ticker) ?? r.price);
   if (g.provenance === 'demo') {
     const nba = g.sport === 'NBA';

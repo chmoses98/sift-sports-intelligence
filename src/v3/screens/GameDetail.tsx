@@ -130,7 +130,8 @@ export function GameDetail() {
   const { slug = '', eventId = '' } = useParams();
   const key = `${slug}:${decodeURIComponent(eventId)}`;
   const { game, games, loading } = useGameByKey(key);
-  const x = useGameExtras(game, 'full');
+  const startMs = useGameStart(game);
+  const x = useGameExtras(game, 'full', true, startMs);
   const g = x?.game ?? game;
   const back = useBack();
   const nav = useNavigate();
@@ -141,7 +142,6 @@ export function GameDetail() {
   // A tab this sport does not have (a shared link, a saved route, a game switched to) falls back to Overview.
   const tab: GameTab = tabs.includes(st.tab) ? st.tab : 'overview';
   const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
-  const startMs = useGameStart(g);
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const research = useEventResearch(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);

@@ -69,7 +69,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-selc')).toBeVisible();
     // DAL has an upcoming game in the published schedule: its opponent is dashed, and no `opp` was written into the address
     await expect(page.locator('.st-rkr.is-opp')).toHaveCount(1);
-    expect((await params(page)).get('opp')).toBeNull();
+    await expect.poll(async () => (await params(page)).get('opp')).toBeNull();
   });
 
   test('legacy ranking id and sample id keep working; a missing window falls back honestly', async ({ page }) => {
@@ -113,15 +113,15 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await ready(page);
     const len = await page.evaluate(() => history.length);
     await page.getByRole('button', { name: /^Detroit Lions bar/ }).click();
-    expect((await params(page)).get('sel')).toBe('DET');
+    await expect.poll(async () => (await params(page)).get('sel')).toBe('DET');
     await expect(page.locator('.st-selc')).toContainText('2nd');
     await expect(page.locator('.st-rkr.is-sel')).toContainText('Lions');
     await page.getByRole('button', { name: /^San Francisco 49ers .*highlight/ }).first().click();
-    expect((await params(page)).get('sel')).toBe('SF');
+    await expect.poll(async () => (await params(page)).get('sel')).toBe('SF');
     // a dot in the plot selects its team too
     const dot = page.locator('[data-dotplot] circle[data-dot="DET"]');
     await dot.click({ force: true });
-    expect((await params(page)).get('sel')).toBe('DET');
+    await expect.poll(async () => (await params(page)).get('sel')).toBe('DET');
     expect(await page.evaluate(() => history.length)).toBe(len);
     await page.goBack();
     await expect(page).not.toHaveURL(/#\/v3\/stat\/nfl\/adj_off_epa/);
@@ -132,7 +132,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await ready(page);
     await page.getByRole('button', { name: /^Show all 28 teams/ }).click();
     await expect(page.locator('.st-rkr')).toHaveCount(28);
-    expect((await params(page)).get('all')).toBe('1');
+    await expect.poll(async () => (await params(page)).get('all')).toBe('1');
     await scrollTo(page, 700);
     await tapAndBack(page, page.locator('.st-rkr a.nm').nth(15), /^\/v3\/team\//);
     await expect(page.locator('.st-rkr')).toHaveCount(28);
@@ -160,7 +160,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await go(page, `${ADJ}?v=1&sel=DAL&opp=PHI`);
     await ready(page);
     await page.getByRole('button', { name: 'Side by side' }).click();
-    expect((await params(page)).get('sbs')).toBe('1');
+    await expect.poll(async () => (await params(page)).get('sbs')).toBe('1');
     await expect(page.locator('.st-rvc')).toHaveCount(2);
     await expect(page.locator('.st-rvc.raw')).toContainText('6th');
     await expect(page.locator('.st-rvc.raw')).toContainText('+0.086');
@@ -172,7 +172,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     const open = page.locator('.st-rvc.raw .st-opn');
     await expect(open).toHaveAttribute('data-dest', /\/v3\/stat\/nfl\/off_epa_play\?v=1&win=SEASON&sel=DAL&opp=PHI/);
     await page.getByRole('button', { name: 'Opponent-adjusted' }).click();
-    expect((await params(page)).get('sbs')).toBeNull();
+    await expect.poll(async () => (await params(page)).get('sbs')).toBeNull();
   });
 
   test('windows: the chips re-cut the ranking in place and the window is in the address', async ({ page }) => {
@@ -180,7 +180,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await ready(page);
     await expect(page.locator('.st-chip[aria-pressed="true"]')).toContainText('Season');
     await page.locator('.st-chip', { hasText: 'Last 34' }).click();
-    expect((await params(page)).get('win')).toBe('L34');
+    await expect.poll(async () => (await params(page)).get('win')).toBe('L34');
     await expect(page.locator('.st-selc')).toContainText('11th');
     await expect(page.locator('.st-selc')).toContainText('+0.022');
   });
@@ -201,7 +201,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-obc')).not.toContainText('Week 6 · at GB');
     expect(await page.evaluate(() => history.length)).toBe(len);
     await page.locator('.st-chip', { hasText: '2025' }).last().click();
-    expect((await params(page)).get('st')).toBe('2025');
+    await expect.poll(async () => (await params(page)).get('st')).toBe('2025');
     await expect(page.locator('.st-obs svg [data-obs]')).toHaveCount(17);
   });
 
@@ -277,7 +277,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.getByRole('dialog', { name: 'Choose a team' })).toBeVisible();
     await page.getByRole('option', { name: /Dallas Cowboys/ }).click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    expect((await params(page)).get('sel')).toBe('DAL');
+    await expect.poll(async () => (await params(page)).get('sel')).toBe('DAL');
     await expect(page.locator('.st-obs svg [data-obs]')).toHaveCount(12);
   });
 
@@ -303,12 +303,12 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await go(page, `${ADJ}?v=1&tab=compare&sel=DAL&opp=PHI`);
     await expect(page.locator('.st-cr')).toHaveCount(8);
     await page.getByRole('button', { name: 'Remove PHI' }).click();
-    expect((await params(page)).get('b')).toBe('-');
+    await expect.poll(async () => (await params(page)).get('b')).toBe('-');
     await expect(page.getByText('Choose two teams')).toBeVisible();
     await page.getByRole('button', { name: /Add team/ }).click();
     await page.getByRole('option', { name: /Detroit Lions/ }).click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    expect((await params(page)).get('b')).toBe('DET');
+    await expect.poll(async () => (await params(page)).get('b')).toBe('DET');
     await expect(page.locator('.st-cr')).toHaveCount(8);
     await expect(page.locator('.st-cr').first().locator('.cnk')).toHaveText('52');
   });
@@ -322,7 +322,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-olc')).toContainText('League rank among players is not published');
     await expect(page.locator('.st-olc')).not.toContainText(/percentile \d/);
     await page.getByRole('button', { name: /^Why/ }).click();
-    expect((await params(page)).get('more')).toBe('1');
+    await expect.poll(async () => (await params(page)).get('more')).toBe('1');
     await expect(page.locator('.st-why')).toContainText('Player-level league rankings');
     const lamb = page.locator('.st-pcc a[data-tap="player"]').first();
     await expect(lamb).toHaveAttribute('data-dest', new RegExp(`^/v3/player/nfl/${LAMB}`));
@@ -330,7 +330,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-why')).toBeVisible(); // the expanded note came back with the entry
     // the threshold moves in place
     await page.getByRole('button', { name: 'Raise the threshold' }).click();
-    expect((await params(page)).get('thr')).toBe('6');
+    await expect.poll(async () => (await params(page)).get('thr')).toBe('6');
     await expect(page.locator('.st-sdcm')).toContainText('6+ games');
   });
 
@@ -342,7 +342,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.locator('.st-lim')).toContainText('All 3 limits in full, methodology and source');
     await expect(page.locator('.st-li .clamp').last()).toBeVisible();
     await page.locator('.st-lim .st-more').click();
-    expect((await params(page)).get('more')).toBe('1');
+    await expect.poll(async () => (await params(page)).get('more')).toBe('1');
     await expect(page.locator('.st-li .clamp')).toHaveCount(0);
     await expect(page.locator('.st-lim')).toContainText('Showing all 3 limits');
     await expect(page.locator('.st-abt')).toContainText('Methodology');
@@ -374,7 +374,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(opp).toContainText('4');
     await tapAndBack(page, opp.locator('a.nm'), /^\/v3\/team\/nhl\/CGY/);
     await page.locator('.st-chip', { hasText: '2025–26' }).click();
-    expect((await params(page)).get('win')).toBe('2025-26');
+    await expect.poll(async () => (await params(page)).get('win')).toBe('2025-26');
     await expect(page.locator('.st-selc')).toContainText('15th');
   });
 

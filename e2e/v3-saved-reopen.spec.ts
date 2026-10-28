@@ -29,6 +29,18 @@ async function movableFeed(page: Page, family: 'player' | 'game', at: () => stri
 }
 const savedJson = (page: Page) => page.evaluate(() => localStorage.getItem('sift3.saved') ?? '[]');
 const hold = (page: Page) => page.waitForTimeout(600);
+/** The Over price once it has stopped changing: the card can show one document's ask first and the live-quote document's a moment later, and "the price on screen" is the later one. */
+async function settledOverPrice(page: Page): Promise<number> {
+  const read = async () => Number(/Over (\d+)¢/.exec(await page.locator('.v3p-dl__r .p').first().innerText())?.[1]);
+  let last = await read();
+  for (let i = 0; i < 20; i++) {
+    await page.waitForTimeout(700);
+    const now = await read();
+    if (now === last && Number.isFinite(now)) return now;
+    last = now;
+  }
+  throw new Error(`the Over price never settled (last read ${last})`);
+}
 /** The reference player's Over price, once the live-quote document has answered (it can arrive after the chart is drawn); false only when it never carries one. */
 const hasOverPrice = (page: Page) => expect(page.locator('.v3p-dl__r .p').first()).toHaveText(/Over \d+¢/, { timeout: 20_000 }).then(() => true, () => false);
 
@@ -47,7 +59,7 @@ test.describe('saved Player research reopens with the current quote @v3', () => 
     await page.goto(`./#${LAMB}?win=L5`);
     await expect(page.locator('.v3p-hb').first()).toBeVisible({ timeout: 40_000 });
     test.skip(!(await hasOverPrice(page)), 'the reference player has no current price in this cache');
-    const before = Number(/Over (\d+)¢/.exec(await page.locator('.v3p-dl__r .p').first().innerText())![1]);
+    const before = await settledOverPrice(page);
     await page.getByRole('button', { name: 'Save this research' }).first().click();
     const raw = await savedJson(page);
     expect(JSON.parse(raw)).toHaveLength(1);

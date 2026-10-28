@@ -14,7 +14,9 @@
 //     1 s window after that without a task over 100 ms. TAP-TO-PAINT = pointerup of a tap to the frame that shows its result.
 //
 // Usage:  DIST=dist SCREEN=games RUNS=5 node --experimental-strip-types scripts/v3-qa/screens-perf.mjs
-//         SCREEN=all runs every screen. Env: OUT (JSON report), URLS_OUT (documents of run 1), NOTHROTTLE=1, INTERACT=0, PROBE=1 (print what is on screen).
+//         SCREEN=all runs every screen. DIST="before=/old/dist,after=/new/dist" alternates the builds run by run (a shared machine hits both alike).
+//         Env: OUT (JSON report), URLS_OUT (documents of run 1), NOTHROTTLE=1, INTERACT=0, PROBE=1 (print what is on screen), APP_H1=1 (serve the app over
+//         HTTP/1.1), SW=1 (allow service workers), PROFILE=1 + PROFILE_OUT=<prefix> (CPU profile), TRACE_OUT=<prefix> (Chrome trace), CONSOLE=1 (page console).
 import { chromium } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';

@@ -3,18 +3,19 @@
 // one schedule in model/format.ts. Nothing here knows about freshness words: whether a price may be shown at all is data/quoteGate.ts.
 import type { LiveQuote } from '../../live/types';
 import { breakEvenPct, cents, takerFeeCents } from './format';
-import { statusFacts } from './marketStatus';
+import { isTerminalState, liveStatusWord, statusFacts } from './marketStatus';
 import type { Price } from './types';
 
 /**
- * A live quote (dollars) as the v3 Price (cents). A quote with no executable YES ask has no Price, EXCEPT a quote whose status positively
- * says the market cannot be traded: that is a Price with no ask whose `tradable` is false, so the exact-contract sheet can say
- * "Market closed" / "Market settled" / "Trading suspended" instead of offering a Retry that cannot help. The provider's own status word
- * (`rawStatus`) is read before its normalised `availability`, which folds several words into UNKNOWN.
+ * A live quote (dollars) as the v3 Price (cents). A quote with no executable YES ask has no Price, EXCEPT a quote whose status
+ * is not positively open (any word but open/active/trading: closed, settled, suspended, or one SIFT does not recognise): that is a Price with no ask
+ * whose `tradable` is false, so the exact-contract sheet can say "Market closed" / "Market settled" / "Trading suspended" instead of offering a Retry
+ * that cannot help (an unrecognised word says "Price unavailable right now" with Retry). The provider's own status word (`rawStatus`) is read before its
+ * normalised `availability`, which folds several words into UNKNOWN; an UNKNOWN availability with no raw word means the provider sent no status.
  */
 export function priceOfQuote(q: LiveQuote | undefined, fallbackDescription = ''): Price | null {
   if (!q) return null;
-  const sf = statusFacts(q.rawStatus ?? q.availability);
+  const sf = statusFacts(liveStatusWord(q));
   const ask = sf.tradable ? cents(q.yesAsk) : null, bid = sf.tradable ? cents(q.yesBid) : null;
   if (ask == null && sf.tradable) return null;
   return {
@@ -23,14 +24,18 @@ export function priceOfQuote(q: LiveQuote | undefined, fallbackDescription = '')
   };
 }
 
-/** The more recently OBSERVED of two prices (an observation is only ever replaced by a newer one). */
+/**
+ * The more recently OBSERVED of two prices (an observation is only ever replaced by a newer one). A terminal report (closed, settled, expired,
+ * delisted) is not undone by a newer observation that carries no status at all: it says nothing about the status, and a finished market never reopens.
+ */
 export function newerPrice(a: Price | null | undefined, b: Price | null | undefined): Price | null {
   if (!a) return b ?? null;
   if (!b) return a;
   const ta = a.observedAt ? Date.parse(a.observedAt) : NaN, tb = b.observedAt ? Date.parse(b.observedAt) : NaN;
   if (!Number.isFinite(tb)) return a;
   if (!Number.isFinite(ta)) return b;
-  return tb > ta ? b : a;
+  if (tb <= ta) return a;
+  return b.marketStatus === 'unreported' && isTerminalState(a.marketStatus) ? a : b;
 }
 
 export interface ContractFacts {

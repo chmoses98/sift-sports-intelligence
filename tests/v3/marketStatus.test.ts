@@ -9,12 +9,12 @@ import type { EventDetailDoc, Market } from '../../src/contract/types';
 import { normalizeKalshiMarket } from '../../src/live/normalize';
 import { deriveLines, deriveProps, priceOf } from '../../src/v3/data/adapt';
 import { overlayLive } from '../../src/v3/data/liveMarket';
-import { gate, isExecutableAsk, usablePrice, type QuoteContext } from '../../src/v3/data/quoteGate';
+import { gate, isExecutableAsk, observationCurrent, usablePrice, type QuoteContext } from '../../src/v3/data/quoteGate';
 import { parseGameProps, type GameCtx } from '../../src/v3/data/props/parse';
 import { rawPrice } from '../../src/v3/data/props/hooks';
 import type { Prop, PropRung } from '../../src/v3/data/props/types';
 import { contractFacts, newerPrice, priceOfQuote } from '../../src/v3/model/contract';
-import { isTradableWord, marketStateOf, nonTradableNote, nonTradableTitle, statusFacts, type MarketState } from '../../src/v3/model/marketStatus';
+import { isTerminalState, isTradableWord, liveStatusWord, marketStateOf, nonTradableNote, nonTradableTitle, sheetNamesStatus, statusFacts, type MarketState } from '../../src/v3/model/marketStatus';
 import type { Price, V3Team } from '../../src/v3/model/types';
 
 const NOW = Date.parse('2026-10-26T20:00:00Z');
@@ -35,27 +35,71 @@ const STATES: [string, MarketState][] = [
   ['closed', 'closed'], ['determined', 'closed'], ['disputed', 'closed'], ['amended', 'closed'],
   ['settled', 'settled'], ['finalized', 'settled'],
   // the app's normalised words (event_detail `market_status`, live `availability`)
-  ['OPEN', 'open'], ['UNOPENED', 'unopened'], ['SUSPENDED', 'suspended'], ['CLOSED', 'closed'], ['SETTLED', 'settled'], ['UNKNOWN', 'unknown'],
-  // further spellings a publication might use
-  ['expired', 'closed'], ['ended', 'closed'], ['halted', 'suspended'], ['trading_halted', 'suspended'], ['Trading Halted', 'suspended'], ['on-hold', 'suspended'],
-  ['finalised', 'settled'], ['resolved', 'settled'], ['delisted', 'delisted'], ['cancelled', 'delisted'], ['canceled', 'delisted'], ['voided', 'delisted'],
-  ['  Active ', 'open'],
+  ['OPEN', 'open'], ['UNOPENED', 'unopened'], ['SUSPENDED', 'suspended'], ['CLOSED', 'closed'], ['SETTLED', 'settled'],
+  // the app's own UNKNOWN is a non-empty word that is not open: withheld like any word SIFT does not recognise (a live quote that sent NO status is `liveStatusWord` null, below)
+  ['UNKNOWN', 'unrecognised'],
+  // further spellings a publication might use (the delivery chain's table, quote-track src/live/tradable.ts, is checked word for word below)
+  ['trading', 'open'], ['expired', 'expired'], ['expiry', 'expired'], ['ended', 'closed'], ['halted', 'suspended'], ['frozen', 'suspended'], ['trading_halted', 'suspended'], ['Trading Halted', 'suspended'], ['on-hold', 'suspended'],
+  ['finalised', 'settled'], ['resolved', 'settled'], ['voided', 'settled'], ['void', 'settled'], ['cancelled', 'settled'], ['canceled', 'settled'],
+  ['delisted', 'delisted'], ['removed', 'delisted'], ['withdrawn', 'delisted'], ['archived', 'delisted'],
+  ['  Active ', 'open'], ['Not Yet Open', 'unopened'],
+  // anything else that is a word: withheld
+  ['something_new', 'unrecognised'], ['N/A', 'unrecognised'], ['pending', 'unrecognised'], ['live', 'unrecognised'], ['ACTIVE_SOON', 'unrecognised'], ['0', 'unrecognised'],
 ];
 
 describe('the status vocabulary', () => {
   it.each(STATES)('%j is %s', (word, state) => {
     expect(marketStateOf(word)).toBe(state);
-    expect(statusFacts(word)).toEqual({ tradable: state === 'open' || state === 'unknown', marketStatus: state });
+    expect(statusFacts(word)).toEqual({ tradable: state === 'open', marketStatus: state });
   });
-  it('only a status that POSITIVELY says so is not tradable; missing and unrecognised words are no evidence', () => {
-    for (const w of [null, undefined, '', '   ', 'UNKNOWN', 'something_new', 'N/A']) {
-      expect(marketStateOf(w)).toBe('unknown');
+  it('actionable only when the word is positively open, or when NO status was sent; every other non-empty word is withheld', () => {
+    for (const w of [null, undefined, '', '   ', '\t\n']) {
+      expect(marketStateOf(w)).toBe('unreported');
       expect(isTradableWord(w)).toBe(true);
+      expect(statusFacts(w)).toEqual({ tradable: true, marketStatus: 'unreported' });
     }
-    for (const w of ['closed', 'determined', 'settled', 'finalized', 'inactive', 'paused', 'suspended', 'initialized', 'delisted', 'expired']) expect(isTradableWord(w)).toBe(false);
+    for (const w of ['open', 'OPEN', 'active', 'Active', 'trading']) expect(isTradableWord(w)).toBe(true);
+    for (const w of ['closed', 'determined', 'settled', 'finalized', 'inactive', 'paused', 'suspended', 'initialized', 'delisted', 'expired', 'UNKNOWN', 'something_new', 'N/A', 'voided', 'cancelled']) expect(isTradableWord(w)).toBe(false);
+  });
+  it('a non-empty `result` means the market is determined, whatever its status word says (terminal)', () => {
+    expect(marketStateOf('active', 'yes')).toBe('settled');
+    expect(marketStateOf(null, 'no')).toBe('settled');
+    expect(statusFacts('open', 'yes')).toEqual({ tradable: false, marketStatus: 'settled' });
+    expect(marketStateOf('active', '')).toBe('open');
+    expect(marketStateOf('active', '  ')).toBe('open');
+    expect(marketStateOf('active', null)).toBe('open');
+  });
+  // The delivery chain's table (quote-track src/live/tradable.ts, PR #148), word for word. v3 keeps its own copy (it imports nothing from
+  // src/live); this is the check that the two vocabularies agree. 'expired' and the terminal/non-terminal split are the same as there.
+  it.each([
+    ['closed', 'closed'], ['determined', 'closed'], ['disputed', 'closed'], ['amended', 'closed'],
+    ['settled', 'settled'], ['finalized', 'settled'], ['finalised', 'settled'], ['resolved', 'settled'], ['voided', 'settled'], ['cancelled', 'settled'],
+    ['expired', 'expired'], ['inactive', 'suspended'], ['paused', 'suspended'], ['suspended', 'suspended'], ['halted', 'suspended'], ['frozen', 'suspended'],
+    ['initialized', 'unopened'], ['unopened', 'unopened'], ['active', 'open'], ['open', 'open'], ['whatever', 'unrecognised'],
+  ])('agrees with the delivery chain (PR #148): %s -> %s', (word, state) => {
+    expect(marketStateOf(word)).toBe(state);
+  });
+  it('terminal states are closed, settled, expired and delisted; suspended, not yet open and unrecognised can reverse', () => {
+    for (const s of ['closed', 'settled', 'expired', 'delisted'] as MarketState[]) expect(isTerminalState(s)).toBe(true);
+    for (const s of ['open', 'unreported', 'suspended', 'unopened', 'unrecognised'] as MarketState[]) expect(isTerminalState(s)).toBe(false);
+  });
+  it('liveStatusWord: the provider\'s raw word, else the availability, except UNKNOWN (the provider sent no status)', () => {
+    expect(liveStatusWord({ rawStatus: 'halted', availability: 'UNKNOWN' })).toBe('halted');
+    expect(liveStatusWord({ rawStatus: ' Active ', availability: 'OPEN' })).toBe('Active');
+    expect(liveStatusWord({ rawStatus: null, availability: 'CLOSED' })).toBe('CLOSED');
+    expect(liveStatusWord({ rawStatus: null, availability: 'UNKNOWN' })).toBeNull();
+    expect(liveStatusWord({ rawStatus: '', availability: 'unknown' })).toBeNull();
+    expect(liveStatusWord(undefined)).toBeNull();
+    // a quote with no status at all is actionable (the gate still needs a current ask); one with a word SIFT does not know is not
+    const base = { ticker: 'T', yes_ask_dollars: '0.5000', yes_bid_dollars: '0.4900' };
+    const none = normalizeKalshiMarket(base, '2026-10-26T20:00:00Z', 'x')!;
+    expect(none.rawStatus).toBeNull();
+    expect(priceOfQuote(none)).toMatchObject({ tradable: true, marketStatus: 'unreported', ask: 50 });
+    const odd = normalizeKalshiMarket({ ...base, status: 'quarantined' }, '2026-10-26T20:00:00Z', 'x')!;
+    expect(priceOfQuote(odd)).toMatchObject({ tradable: false, marketStatus: 'unrecognised', ask: null, bid: null, implied: null });
   });
   it('agrees with the live layer on every word it knows (src/live/normalize.ts availabilityOf)', () => {
-    const fold = (s: MarketState) => (s === 'unknown' ? 'UNKNOWN' : s === 'delisted' ? 'UNKNOWN' : s.toUpperCase());
+    const fold = (s: MarketState) => (s === 'unrecognised' || s === 'unreported' || s === 'delisted' || s === 'expired' ? 'UNKNOWN' : s.toUpperCase());
     for (const w of ['active', 'open', 'initialized', 'unopened', 'inactive', 'paused', 'closed', 'determined', 'disputed', 'amended', 'settled', 'finalized']) {
       const q = normalizeKalshiMarket({ ticker: 'T', status: w }, '2026-10-26T20:00:00Z', 'x')!;
       expect(fold(marketStateOf(w))).toBe(q.availability);
@@ -65,9 +109,17 @@ describe('the status vocabulary', () => {
     expect(nonTradableTitle('closed')).toBe('Market closed');
     expect(nonTradableTitle('settled')).toBe('Market settled');
     expect(nonTradableTitle('suspended')).toBe('Trading suspended');
+    expect(nonTradableTitle('expired')).toBe('Market closed');
     expect(nonTradableTitle('open')).toBeNull();
-    expect(nonTradableTitle('unknown')).toBeNull();
-    for (const s of ['closed', 'settled', 'suspended', 'unopened', 'delisted'] as MarketState[]) expect(nonTradableNote(s)).toMatch(/no price to buy at/);
+    expect(nonTradableTitle('unreported')).toBeNull();
+    // an unrecognised word has no headline of its own: the sheet says "Price unavailable right now" with Retry
+    expect(nonTradableTitle('unrecognised')).toBeNull();
+    for (const s of ['closed', 'settled', 'suspended', 'unopened', 'delisted', 'expired'] as MarketState[]) expect(nonTradableNote(s)).toMatch(/no price to buy at/);
+  });
+  it('the sheet names a status (no Retry) for terminal states at any age and for suspended / not yet open while the observation is current; never for an unrecognised word', () => {
+    for (const s of ['closed', 'settled', 'expired', 'delisted'] as MarketState[]) { expect(sheetNamesStatus(s, true)).toBe(true); expect(sheetNamesStatus(s, false)).toBe(true); }
+    for (const s of ['suspended', 'unopened'] as MarketState[]) { expect(sheetNamesStatus(s, true)).toBe(true); expect(sheetNamesStatus(s, false)).toBe(false); }
+    for (const s of ['unrecognised', 'open', 'unreported'] as MarketState[]) { expect(sheetNamesStatus(s, true)).toBe(false); expect(sheetNamesStatus(s, false)).toBe(false); }
   });
 });
 
@@ -77,9 +129,9 @@ describe('the quote gate withholds a non-tradable market however fresh its quote
   it('a current ask on a tradable market passes in both contexts', () => {
     expect(gate(price(), list, NOW).price).not.toBeNull();
     expect(gate(price(), sheet, NOW).price).not.toBeNull();
-    expect(usablePrice(price({ marketStatus: 'unknown' }), list, NOW)).not.toBeNull();
+    expect(usablePrice(price({ marketStatus: 'unreported' }), list, NOW)).not.toBeNull();
   });
-  it.each(['closed', 'settled', 'suspended', 'unopened', 'delisted'] as MarketState[])('%s: withheld with reason not-tradable and its status, fresh or not, ask or not', (s) => {
+  it.each(['closed', 'settled', 'suspended', 'unopened', 'delisted', 'expired', 'unrecognised'] as MarketState[])('%s: withheld with reason not-tradable and its status, fresh or not, ask or not', (s) => {
     for (const ctx of [list, sheet]) {
       for (const p of [price({ tradable: false, marketStatus: s }), price({ tradable: false, marketStatus: s, ask: null, bid: null }), price({ tradable: false, marketStatus: s, observedAt: iso(9999) }), price({ tradable: false, marketStatus: s, source: 'Sample' })]) {
         expect(gate(p, ctx, NOW)).toEqual({ price: null, reason: 'not-tradable', marketStatus: s });
@@ -102,7 +154,7 @@ describe('real event_detail markets', () => {
     expect(priceOf(live[0]).ask).not.toBeNull();
   });
   it('CONTROLLED MODIFICATION: the same real market with market_status changed to each non-tradable word has no ask, bid or implied price', () => {
-    for (const [word, state] of [['CLOSED', 'closed'], ['SETTLED', 'settled'], ['SUSPENDED', 'suspended'], ['determined', 'closed'], ['inactive', 'suspended'], ['expired', 'closed']] as const) {
+    for (const [word, state] of [['CLOSED', 'closed'], ['SETTLED', 'settled'], ['SUSPENDED', 'suspended'], ['determined', 'closed'], ['inactive', 'suspended'], ['expired', 'expired'], ['voided', 'settled'], ['quarantined', 'unrecognised'], ['UNKNOWN', 'unrecognised']] as const) {
       const p = priceOf({ ...live[0], market_status: word });
       expect(p).toMatchObject({ ask: null, bid: null, implied: null, tradable: false, marketStatus: state, ticker: live[0].kalshi_ticker });
       expect(gate(p, list, NOW).reason).toBe('not-tradable');
@@ -110,7 +162,7 @@ describe('real event_detail markets', () => {
   });
   it('CONTROLLED MODIFICATION: a market with no status at all stays tradable (and is still subject to the age rule)', () => {
     const m: Market = { ...live[0], market_status: undefined, captured_at: iso(10) };
-    expect(priceOf(m)).toMatchObject({ tradable: true, marketStatus: 'unknown' });
+    expect(priceOf(m)).toMatchObject({ tradable: true, marketStatus: 'unreported' });
     expect(gate(priceOf(m), list, NOW).price).not.toBeNull();
     expect(gate(priceOf({ ...m, captured_at: iso(500) }), list, NOW).reason).toBe('too-old');
   });
@@ -204,7 +256,10 @@ describe('Prop Discovery rungs', () => {
   });
   it('a missing status is tradable in the parse (CONTROLLED MODIFICATION of the real markets), and an ask of 0 is never a rung', () => {
     expect(parseGameProps(game, detail.markets.map((m) => ({ ...m, market_status: undefined }))).length).toBe(parseGameProps(game, detail.markets).length);
-    expect(parseGameProps(game, detail.markets.map((m) => ({ ...m, market_status: 'UNKNOWN', yes_ask: 0 })))).toEqual([]);
+    expect(parseGameProps(game, detail.markets.map((m) => ({ ...m, market_status: undefined, yes_ask: 0 })))).toEqual([]);
+    // a word SIFT does not recognise withholds the market from the parse, just as closed does
+    expect(parseGameProps(game, detail.markets.map((m) => ({ ...m, market_status: 'UNKNOWN' })))).toEqual([]);
+    expect(parseGameProps(game, detail.markets.map((m) => ({ ...m, market_status: 'quarantined' })))).toEqual([]);
   });
   it('no live quote: the publication status decides (open passes the gate only while current)', () => {
     expect(rawPrice(prop, rung(), undefined)).toMatchObject({ ask: 56, tradable: true, marketStatus: 'open' });
@@ -223,5 +278,51 @@ describe('Prop Discovery rungs', () => {
   it('an OLDER live quote does not override the publication\'s status', () => {
     const p = rawPrice(prop, rung({ capturedAt: iso(5) }), liveQuote('closed', 600));
     expect(p).toMatchObject({ tradable: true, ask: 56 });
+  });
+});
+
+describe('terminal states stay terminal; an observation that sent no status changes nothing about the status', () => {
+  const live = detail.markets.filter((m) => m.market_status === 'OPEN' && m.yes_ask != null);
+  it('a newer observation with NO status does not reopen a market the older one reported closed, settled, expired or delisted; an explicit open word does', () => {
+    for (const s of ['closed', 'settled', 'expired', 'delisted'] as MarketState[]) {
+      const old = price({ tradable: false, marketStatus: s, ask: null, bid: null, implied: null, observedAt: iso(60) });
+      const silent = price({ marketStatus: 'unreported', observedAt: iso(2) });
+      expect(newerPrice(old, silent)).toBe(old);
+      expect(gate(newerPrice(old, silent), sheet, NOW).reason).toBe('not-tradable');
+      const said = price({ marketStatus: 'open', observedAt: iso(2) });
+      expect(newerPrice(old, said)).toBe(said);
+    }
+    // a suspended report (can reverse) IS replaced by a newer silent observation
+    const susp = price({ tradable: false, marketStatus: 'suspended', ask: null, bid: null, observedAt: iso(60) });
+    const silent = price({ marketStatus: 'unreported', observedAt: iso(2) });
+    expect(newerPrice(susp, silent)).toBe(silent);
+  });
+  it('overlayLive: a newer live quote that sent no status leaves the publication\'s status word standing; one that sent a word replaces it', () => {
+    const m = { ...live[0], market_status: 'SETTLED' };
+    const silent = normalizeKalshiMarket({ ticker: m.kalshi_ticker, yes_ask_dollars: '0.5000', yes_bid_dollars: '0.4900' }, new Date(Date.parse(m.captured_at!) + 60_000).toISOString(), 'x')!;
+    expect(silent.rawStatus).toBeNull();
+    expect(overlayLive(m, silent).market_status).toBe('SETTLED');
+    expect(priceOf(overlayLive(m, silent))).toMatchObject({ tradable: false, marketStatus: 'settled', ask: null });
+    // and with an open publication, no status from the quote keeps it open (and the live ask shows)
+    const o = overlayLive(live[0], silent);
+    expect(o.market_status).toBe('OPEN');
+    expect(priceOf(o)).toMatchObject({ tradable: true, ask: 50 });
+    const said = normalizeKalshiMarket({ ticker: m.kalshi_ticker, status: 'active', yes_ask_dollars: '0.5000' }, new Date(Date.parse(m.captured_at!) + 60_000).toISOString(), 'x')!;
+    expect(overlayLive(m, said).market_status).toBe('active');
+  });
+  it('rawPrice: a live quote that sent no status keeps the rung\'s published status; a live word replaces it', () => {
+    const rung: PropRung = { k: 7, ticker: 'KXNFLREC-26OCT26DALPHI-DALCLAMB88-7', ask: 56, bid: 54, volume: 10, capturedAt: iso(300), source: 'Kalshi', status: 'SETTLED' };
+    const prop = { name: 'CeeDee Lamb', label: 'Receptions' } as Prop;
+    const silent = normalizeKalshiMarket({ ticker: rung.ticker, yes_ask_dollars: '0.5800', yes_bid_dollars: '0.5600' }, iso(5), 'relay')!;
+    expect(rawPrice(prop, rung, silent)).toMatchObject({ tradable: false, marketStatus: 'settled', ask: null });
+    expect(rawPrice(prop, { ...rung, status: null }, silent)).toMatchObject({ tradable: true, marketStatus: 'unreported', ask: 58 });
+    const odd = normalizeKalshiMarket({ ticker: rung.ticker, status: 'quarantined', yes_ask_dollars: '0.5800' }, iso(5), 'relay')!;
+    expect(rawPrice(prop, { ...rung, status: 'OPEN' }, odd)).toMatchObject({ tradable: false, marketStatus: 'unrecognised', ask: null });
+  });
+  it('observationCurrent: a real, not-future observation inside the context\'s maximum age', () => {
+    expect(observationCurrent(price({ observedAt: iso(5) }), sheet, NOW)).toBe(true);
+    expect(observationCurrent(price({ observedAt: iso(600) }), sheet, NOW)).toBe(false);
+    expect(observationCurrent(price({ observedAt: null }), sheet, NOW)).toBe(false);
+    expect(observationCurrent(price({ observedAt: iso(-60) }), sheet, NOW)).toBe(false);
   });
 });

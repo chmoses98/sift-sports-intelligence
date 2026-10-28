@@ -2,10 +2,12 @@
 // for a game. Prices come out as `Price` rows; whether one may be SHOWN is decided by the quote gate (data/quoteGate.ts), not here.
 import type { Market } from '../../../contract/types';
 import type { Price } from '../../model/types';
+import { isTradableWord } from '../../model/marketStatus';
 import { priceOf } from '../adapt';
 import type { ScheduleEvent } from './types';
 
-const OPEN = (m: Market) => !m.market_status || /^(OPEN|ACTIVE|UNOPENED)$/i.test(m.market_status);
+/** The one status rule (model/marketStatus.ts): open or no status; any other word, an unrecognised one included, is withheld. */
+const OPEN = (m: Market) => isTradableWord(m.market_status);
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
 
 export interface WinContract { team: 'away' | 'home'; ticker: string; price: Price }

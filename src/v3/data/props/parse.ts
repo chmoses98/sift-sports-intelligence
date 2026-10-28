@@ -49,7 +49,7 @@ const PLAYER_FAMILY = /^(player|hitter|pitcher|goalie)_/;
 /** Player-level families that are not a count ladder (first scorer, unknowns). */
 const NOT_A_LADDER = new Set(['player_unknown', 'player_first_td', 'player_leader']);
 
-/** Not POSITIVELY non-tradable (model/marketStatus.ts); a missing or unrecognised word is not evidence, and the quote gate still decides what shows. */
+/** Open or no status (model/marketStatus.ts); any other word, an unrecognised one included, is withheld. The quote gate still decides what shows. */
 const OPEN = (m: Market) => isTradableWord(m.market_status);
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
 const cents = (d: number | null | undefined) => (d == null || !Number.isFinite(d) || d <= 0 || d >= 1 ? null : Math.round(d * 100));

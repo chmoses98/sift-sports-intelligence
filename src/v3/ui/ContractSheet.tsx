@@ -2,18 +2,20 @@
 // and Prop Discovery later): a screen publishes what it knows about its contracts (`publishContracts`) and the sheet resolves the ticker.
 //
 // Prices go ONLY through data/quoteGate.ts. A price that may not be shown makes the sheet say exactly "Price unavailable right now" with a
-// Retry control and hides every row derived from the price (ask, bid, implied, fee, break-even). A market that is POSITIVELY not tradable
-// (closed, settled, suspended, not open yet, delisted) gets its own state instead: "Market closed" / "Market settled" / "Trading suspended"
-// with no price rows and NO Retry (asking again cannot make it tradable); the screen's research stays outside the sheet. Nothing here prints an age, a time of
+// Retry control and hides every row derived from the price (ask, bid, implied, fee, break-even). A market whose status word says it cannot be
+// traded (closed, settled, expired, suspended, not open yet, delisted) gets its own state instead: "Market closed" / "Market settled" / "Trading
+// suspended" with no price rows and NO Retry (asking again cannot make it tradable); a suspended or not-yet-open report that is no longer current,
+// and a status word SIFT does not recognise, say "Price unavailable right now" WITH Retry (they may clear on the next read), still with no price
+// rows (model/marketStatus.ts `sheetNamesStatus`). The screen's research stays outside the sheet. Nothing here prints an age, a time of
 // observation, "stale", "last known" or any other freshness word. Opening the sheet asks the shared live-quote store for a forced refresh of
 // this one ticker (QuoteStore.refreshNow), and Retry asks again.
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from '../../routing';
 import { liveStore, useLiveQuotes, useNow } from '../../live/hooks';
-import { gate } from '../data/quoteGate';
+import { gate, observationCurrent } from '../data/quoteGate';
 import { contractFacts, newerPrice, priceOfQuote } from '../model/contract';
 import { fmtCents, showAsk } from '../model/format';
-import { nonTradableNote, nonTradableTitle } from '../model/marketStatus';
+import { nonTradableNote, nonTradableTitle, sheetNamesStatus } from '../model/marketStatus';
 import type { Price } from '../model/types';
 import { withSheet } from '../nav/routes';
 import { usePrefs } from '../state/prefs';
@@ -94,6 +96,7 @@ function ContractBody({ tk }: { tk: string | null }) {
   const ctx = { kind: 'contract' as const, startMs: info?.startMs ?? null, live: info?.live ?? false };
   const g = gate(price, ctx, now);
   const f = g.price ? contractFacts(g.price) : null;
+  const named = g.reason === 'not-tradable' && !!g.marketStatus && !!price && sheetNamesStatus(g.marketStatus, observationCurrent(price, ctx, now));
   const open = (to: string) => nav({ pathname: loc.pathname, search: withSheet(loc.search, { kind: 'contract', tk: to }) }, { replace: true, state: loc.state, preventScrollReset: true });
 
   return (
@@ -119,13 +122,13 @@ function ContractBody({ tk }: { tk: string | null }) {
           </div>
           <p className="v3c-foot">Prices are Kalshi YES asks before fees. SIFT shows no bet buttons.</p>
         </>
-      ) : g.reason === 'not-tradable' ? (
-        <div className="v3c-none" role="status" data-state="not-tradable" data-market-status={g.marketStatus ?? undefined}>
-          <b>{nonTradableTitle(g.marketStatus ?? 'unknown') ?? 'Not tradable'}</b>
-          <span>{nonTradableNote(g.marketStatus ?? 'unknown')}</span>
+      ) : named && g.marketStatus ? (
+        <div className="v3c-none" role="status" data-state="not-tradable" data-market-status={g.marketStatus}>
+          <b>{nonTradableTitle(g.marketStatus)}</b>
+          <span>{nonTradableNote(g.marketStatus)}</span>
         </div>
       ) : (
-        <div className="v3c-none" role="status" data-state="unavailable">
+        <div className="v3c-none" role="status" data-state="unavailable" data-market-status={g.reason === 'not-tradable' ? g.marketStatus ?? undefined : undefined}>
           <b>Price unavailable right now</b>
           <span>No reliable quote could be obtained. Nothing is estimated.</span>
           <button type="button" className="v3c-btn is-pri" onClick={() => void retry()} disabled={busy}>{busy ? 'Retrying' : 'Retry'}</button>

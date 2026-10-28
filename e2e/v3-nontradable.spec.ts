@@ -2,7 +2,9 @@
 // current by re-stamping observation times (freshQuotes: timestamps only). The real live-quote feed DOES carry non-tradable markets: DAL at PHI
 // has `inactive` markets (DeVonta Smith receiving-yards ladder and first touchdown, published WITH a yes ask) and `determined` ones. Where a state
 // has no real market (closed, settled with an ask) the test says so and CONTROLLED-MODIFIES one real market's feed `status`.
-// What must hold on every surface: no ask, bid, implied price, fee or break-even; the list slot prints "—"; the exact-contract sheet says why
+// The rule (src/v3/model/marketStatus.ts): a status word that is not positively open/active/trading withholds the price, an UNRECOGNISED word included (it
+// reads "Price unavailable right now" with Retry, because it may clear on the next read; closed, settled, suspended name themselves and offer no Retry);
+// a market that reports NO status at all stays priced (the real publications carry priced markets with no status). What must hold on every surface: no ask, bid, implied price, fee or break-even; the list slot prints "—"; the exact-contract sheet says why
 // ("Market closed" / "Market settled" / "Trading suspended"), offers no Retry, and the screen's research stays on the page.
 import { test, expect, type Page } from '@playwright/test';
 import { escapeSheet } from './support/sheet';
@@ -14,7 +16,7 @@ const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last update
 const REAL_INACTIVE = 'KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-100';
 
 /** Every surface here reads the `game` fixture family (fixtures/real): its Prop Discovery list has priced rows, the `props` family's soonest rows have none. */
-async function setup(page: Page, status?: (t: string) => string | undefined) {
+async function setup(page: Page, status?: (t: string) => string | null | undefined) {
   const family = 'game' as const;
   await serveRealFeeds(page, { family });
   await freshQuotes(page, { family, status });
@@ -46,7 +48,8 @@ test.describe('the exact-contract sheet for a market that cannot be traded @v3',
     await expect(dlg(page)).not.toContainText('¢');
   });
 
-  for (const [word, headline, status] of [['closed', 'Market closed', 'closed'], ['determined', 'Market closed', 'closed'], ['settled', 'Market settled', 'settled'], ['finalized', 'Market settled', 'settled'], ['paused', 'Trading suspended', 'suspended']] as const) {
+  for (const [word, headline, status] of [['closed', 'Market closed', 'closed'], ['determined', 'Market closed', 'closed'], ['settled', 'Market settled', 'settled'], ['finalized', 'Market settled', 'settled'], ['paused', 'Trading suspended', 'suspended'],
+    ['expired', 'Market closed', 'expired'], ['voided', 'Market settled', 'settled'], ['cancelled', 'Market settled', 'settled'], ['halted', 'Trading suspended', 'suspended'], ['frozen', 'Trading suspended', 'suspended'], ['initialized', 'Not open for trading yet', 'unopened']] as const) {
     test(`CONTROLLED MODIFICATION: a real open market whose feed status is "${word}" says "${headline}"`, async ({ page }) => {
       const tk = 'KXNFLGAME-26OCT26DALPHI-DAL';
       await setup(page, (t) => (t === tk ? word : undefined));
@@ -54,6 +57,35 @@ test.describe('the exact-contract sheet for a market that cannot be traded @v3',
       await expectNotTradable(page, headline, status);
     });
   }
+
+  // A word SIFT does not know is not confirmation that the market trades: withheld, but it may clear, so the sheet offers Retry and no price rows.
+  for (const word of ['quarantined', 'UNKNOWN', 'pending_review']) {
+    test(`CONTROLLED MODIFICATION: a real open market whose feed status is the unrecognised word "${word}" says "Price unavailable right now" with Retry and no fee or break-even`, async ({ page }) => {
+      const tk = 'KXNFLGAME-26OCT26DALPHI-DAL';
+      await setup(page, (t) => (t === tk ? word : undefined));
+      await go(page, `${GAME}?sheet=contract&tk=${tk}`);
+      const d = dlg(page);
+      await expect(d).toBeVisible();
+      const box = d.locator('[data-state="unavailable"]');
+      await expect(box).toContainText('Price unavailable right now');
+      await expect(box).toHaveAttribute('data-market-status', 'unrecognised');
+      await expect(d.getByRole('button', { name: 'Retry' })).toHaveCount(1);
+      await expect(d.locator('[data-state="price"], [data-state="fee"], [data-state="not-tradable"]')).toHaveCount(0);
+      const text = await d.innerText();
+      expect(text).not.toMatch(/taker fee|break-even|Market closed|Market settled|Trading suspended/i);
+      expect(text).not.toMatch(FRESH);
+      await expect(d).not.toContainText(/\d+¢/);
+    });
+  }
+
+  test('CONTROLLED MODIFICATION: a market whose feed carries NO status at all stays priced (absent status is not a word); the status is the publication\'s', async ({ page }) => {
+    const tk = 'KXNFLGAME-26OCT26DALPHI-DAL';
+    await setup(page, (t) => (t === tk ? null : undefined));
+    await go(page, `${GAME}?sheet=contract&tk=${tk}`);
+    const d = dlg(page);
+    await expect(d.locator('[data-state="price"]')).toContainText(/\d+¢/);
+    await expect(d.locator('[data-state="not-tradable"], [data-state="unavailable"]')).toHaveCount(0);
+  });
 
   test('the same market with an open status is priced (the control)', async ({ page }) => {
     await setup(page);
@@ -108,6 +140,27 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
 });
 
 test.describe('Games and Home never price a non-tradable game @v3', () => {
+  // The rule holds for a word SIFT does not recognise just as for closed: every market of the game unrecognised, no price anywhere.
+  test('every market of the game carries an unrecognised status: Games card, Home, Game Detail and its props print no price', async ({ page }) => {
+    await setup(page, () => 'quarantined');
+    await go(page, '/v3/games?sport=nfl&state=upcoming');
+    const card = page.locator('.v3-gc', { hasText: 'Cowboys' }).first();
+    await expect(card).toBeVisible();
+    await page.waitForTimeout(2500);
+    await expect(card).not.toContainText('¢');
+    await go(page, '/v3');
+    await page.waitForTimeout(1500);
+    expect(await page.locator('[data-v3-shell]').innerText()).not.toMatch(/\d+¢/);
+    await go(page, GAME);
+    await page.waitForTimeout(2500);
+    expect(await page.locator('[data-v3-shell]').innerText()).not.toMatch(/\d+¢/);
+    await expect(page.getByTestId('win-price').locator('.mx-win__t').first()).toContainText('—');
+    await go(page, `${GAME}?tab=props`);
+    await page.waitForTimeout(1500);
+    const px = page.locator('.v3-prop__p');
+    for (let i = 0; i < Math.min(await px.count(), 6); i++) await expect(px.nth(i)).toHaveText('—');
+  });
+
   test('Games: the lines box of a game whose markets are all closed carries no price', async ({ page }) => {
     await setup(page, () => 'closed');
     await go(page, '/v3/games?sport=nfl&state=upcoming');

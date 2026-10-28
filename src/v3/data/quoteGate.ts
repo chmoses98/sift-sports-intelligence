@@ -35,10 +35,16 @@ const out = (reason: GateResult['reason'], marketStatus: MarketState | null = nu
  */
 export const isExecutableAsk = (ask: number | null | undefined): ask is number => ask != null && Number.isFinite(ask) && ask >= 1 && ask <= 99;
 
+/** Is this price's OBSERVATION current for the context (a real observation time, not in the future, inside the maximum age)? Says nothing about the market's status or the ask. */
+export function observationCurrent(p: Price, c: QuoteContext, now = Date.now(), skewMs = 0): boolean {
+  const t = p.observedAt ? Date.parse(p.observedAt) : NaN;
+  return Number.isFinite(t) && t - (now + skewMs) <= 5_000 && now + skewMs - t <= maxAgeMs(c, now);
+}
+
 /**
- * THE rule, in order. (1) No Price: nothing. (2) A market that POSITIVELY is not tradable (closed, settled, suspended, not open yet,
- * delisted): withheld whatever its age, and whatever ask it carries. (3) No executable ask: nothing. (4) Sample data passes (labelled).
- * (5) Real data needs a current OBSERVATION for the context. A missing or unrecognised market status is not (2): see model/marketStatus.ts.
+ * THE rule, in order. (1) No Price: nothing. (2) A market whose status word is not positively open (closed, settled, expired, suspended, not open yet,
+ * delisted, or any word SIFT does not recognise): withheld whatever its age, and whatever ask it carries. (3) No executable ask: nothing. (4) Sample data passes (labelled).
+ * (5) Real data needs a current OBSERVATION for the context. A MISSING market status is not (2) (no word, nothing to distrust); an unrecognised one is: see model/marketStatus.ts.
  */
 export function gate(p: Price | null | undefined, c: QuoteContext, now = Date.now(), skewMs = 0): GateResult {
   if (!p) return out('no-price');

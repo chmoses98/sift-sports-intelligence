@@ -50,10 +50,10 @@ export async function useRealFeeds(page: Page, o: { family: FeedFamily; live?: b
  * priced states (a price inside the list's maximum age) can be exercised against the real contract list while the real feed, 3.5 minutes
  * plus a 5-minute CDN cache behind, is older than the display rule allows. Only timestamps change; every price is the published one.
  * Call after `useRealFeeds` (the later route wins). With `omit`, those tickers are removed from the answer; with `fail`, the feed answers 503 (no reliable quote can be obtained);
- * with `status`, a ticker whose function returns a word has its market `status` REPLACED by it (a controlled modification, for the states no captured market is in:
+ * with `status`, a ticker whose function returns a word has its market `status` REPLACED by it, and one that returns null has the field REMOVED (a controlled modification, for the states no captured market is in:
  * the real feed does carry `inactive` and `determined` markets, but not a `closed` or `settled` one that still has an ask).
  */
-export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean; status?: (ticker: string) => string | undefined }): Promise<void> {
+export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (ticker: string) => boolean; fail?: () => boolean; live?: boolean; status?: (ticker: string) => string | null | undefined }): Promise<void> {
   if (!o?.family) throw new Error('freshQuotes needs { family }');
   const src = feedSource(o.family, { live: o.live });
   await page.route(GAME_FEED, async (route) => {
@@ -67,6 +67,7 @@ export async function freshQuotes(page: Page, o: { family: FeedFamily; omit?: (t
     doc.generated_at = now;
     doc.markets = doc.markets.filter((m) => !o.omit?.(String(m.ticker ?? m.kalshi_ticker ?? ''))).map((m) => {
       const status = o.status?.(String(m.ticker ?? m.kalshi_ticker ?? ''));
+      if (status === null) { const rest = { ...m }; delete rest.status; return { ...rest, observed_at: now }; }
       return { ...m, observed_at: now, ...(status ? { status } : {}) };
     });
     await route.fulfill({ status: 200, body: JSON.stringify(doc), headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'no-store' } });

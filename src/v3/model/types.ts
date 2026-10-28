@@ -40,12 +40,12 @@ export interface Price {
   source: 'Kalshi' | 'Sample';
   volume?: number | null;
   /**
-   * False only when the publication or live quote POSITIVELY says the market cannot be traded (closed, settled, suspended, not yet open,
-   * delisted). A non-tradable Price carries no ask, bid or implied price, and the quote gate withholds it whatever its age.
-   * A missing or unrecognised status is tradable here (the gate still needs a current observation): see model/marketStatus.ts.
+   * True only when the status word is positively open (open, active, trading) or the source carries no status at all. Any other word (closed,
+   * settled, expired, suspended, not yet open, delisted, or one SIFT does not recognise) is false. A non-tradable Price carries no ask, bid or
+   * implied price, and the quote gate withholds it whatever its age. A tradable one still needs a current observation: see model/marketStatus.ts.
    */
   tradable: boolean;
-  /** The status word as a state; 'unknown' when the source carries none or a word nothing recognises. */
+  /** The status word as a state: 'unreported' when the source carries none, 'unrecognised' for a word nothing recognises. */
   marketStatus: MarketState;
 }
 

@@ -74,7 +74,7 @@ export function toGame(g: GameRow): V3Game {
 
 // ---------------------------------------------------------------- Kalshi ladders -> compact lines
 
-/** Lists are built from markets that are not POSITIVELY non-tradable (model/marketStatus.ts: closed, settled, suspended, unopened, delisted are out; a missing or unrecognised word is not evidence). */
+/** Lists are built from markets that are not POSITIVELY non-tradable (model/marketStatus.ts: a word that is not open/active/trading is out, an unrecognised one included; a MISSING status is not a word). */
 const OPEN = (m: Market) => isTradableWord(m.market_status);
 /** The full-game contract (publications spell the period "FULL", "FULL_GAME", "full_game" or leave it out). */
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);

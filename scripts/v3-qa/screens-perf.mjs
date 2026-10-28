@@ -82,6 +82,7 @@ const SCREENS = {
     { name: 'search lamb', tap: async (p) => { await p.locator('.v3-explore input').tap(); await p.keyboard.type('lamb'); }, done: `[...document.querySelectorAll('.v3-explore .v3-hit')].some((e) => /lamb/i.test(e.textContent))` },
   ] },
   props: { family: 'props', route: '/v3/props?view=list', content: '.pd-row, .pd-card', taps: [] },
+  'props-home': { family: 'props', route: '/v3/props', content: '.pd-card', taps: [] },
 };
 const names = process.env.SCREEN === 'all' || !process.env.SCREEN ? Object.keys(SCREENS) : process.env.SCREEN.split(',');
 
@@ -251,7 +252,7 @@ async function oneRun(browser, name, scr, appUrl, i) {
     profileTop = [...self.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30).map(([k, v]) => [k, round(v / 1000)]);
   }
   if (process.env.TRACE_OUT) writeFileSync(`${process.env.TRACE_OUT}.${name}.json`, await browser.stopTracing());
-  const pm = await page.evaluate(() => ({ first: window.__pm.first, lt: window.__pm.lt }));
+  const pm = await page.evaluate(() => ({ first: window.__pm.first, lt: window.__pm.lt, marks: performance.getEntriesByType('mark').map((m) => [m.name, m.startTime]) }));
   const lt = pm.lt.map(([s, d]) => [s, s + d]).sort((a, b) => a[0] - b[0]);
   const first = pm.first ?? NaN;
   let tti = first;
@@ -264,7 +265,7 @@ async function oneRun(browser, name, scr, appUrl, i) {
   for (const r of docs) { const k = kind(r.url); byKind[k] ??= { n: 0, bytes: 0, missing: 0 }; byKind[k].n++; byKind[k].bytes += r.bytes; if (r.status === 404) byKind[k].missing++; }
   const code = all.filter((r) => !kind(r.url) && /Script|Stylesheet|Font|Document/.test(r.type ?? ''));
   const res = {
-    run: i, profileTop,
+    run: i, profileTop, marks: pm.marks.map(([n, t]) => [n, round(t)]),
     firstContentMs: pm.first == null ? null : round(pm.first), interactiveMs: pm.first == null ? null : round(tti), totalBlockingMs: round(tbt), longTasks: lt.length, longTaskList: lt.map(([a, b]) => [round(a), round(b - a)]),
     atFirstContent: atFirst,
     documents: { count: docs.length, bytes: docs.reduce((a, r) => a + r.bytes, 0), missing404: docs.filter((r) => r.status === 404).length, byKind },
@@ -337,6 +338,9 @@ try {
         codeRun1: first.codeList,
         timelineRun1: first.timeline,
         longTasksRun1: first.longTaskList, profileTop: first.profileTop,
+        // performance.mark entries the app (or a temporary probe) made: the median start per name over the runs, and how many runs had it
+        marksRun1: first.marks,
+        marksMedianMs: Object.fromEntries([...new Set(results.flatMap((r) => r.marks.map(([n]) => n)))].map((n) => [n, [median(results.map((r) => r.marks.find(([x]) => x === n)?.[1])), results.filter((r) => r.marks.some(([x]) => x === n)).length]])),
         perRun: results.map((r) => ({ firstContentMs: r.firstContentMs, interactiveMs: r.interactiveMs, docs: r.documents.count, docBytes: r.documents.bytes })),
       };
       if (process.env.URLS_OUT) writeFileSync(`${process.env.URLS_OUT}.${name}${apps.length > 1 ? `@${t.label}` : ''}.tsv`, first.urls.map((x) => `${x.t}\t${x.status}\t${x.bytes}\t${x.url}`).join('\n'));

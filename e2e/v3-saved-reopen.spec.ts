@@ -1,11 +1,13 @@
 // Saved research never keeps a frozen price: a saved card carries the address and the research setup, never a price, and reopening it reads
 // the CURRENT qualifying quote from the live store through the quote gate (a price that is not current is withheld as "—"). Real documents:
-// the Player group reads the `player` fixture family and the Props group the `game` family (its list has priced rows) (fixtures/real; never merged).
+// the Player group reads the `player` fixture family and the Props group the `props` family (fixtures/real; never merged). The Props group opens the list on a
+// sport whose games the family holds live-quote files for, found from the family's own documents (e2e/support/propsFixture.ts), so it follows a refreshed capture.
 // The live-quote feed is the only thing changed between saving and reopening (every ask +3 cents, a TEST TRANSFORMATION): if anything had
 // been frozen at save time, the reopened screen would show the old number.
 import { test, expect, type Page } from '@playwright/test';
 import { feedNow, freshQuotes, readFeedCache, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 import { PAGE_NOW, CAPTURED_AT, usePlayerFeeds } from './support/playerFeeds';
+import { fixtureGames, pricedSports } from './support/propsFixture';
 
 test.setTimeout(150_000);
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
@@ -14,7 +16,7 @@ const FEED = /^https:\/\/raw\.githubusercontent\.com\/chmoses98\/sift-sports-int
 const PRICE_IN_STORAGE = /¢|\bask\b|\bodds\b|\bbid\b|implied/i;
 
 /** Every ask in the live-quote feed moved by `bump` cents and stamped `at` (re-registered routes win). */
-async function movableFeed(page: Page, family: 'player' | 'game', at: () => string, bump: () => number) {
+async function movableFeed(page: Page, family: 'player' | 'props', at: () => string, bump: () => number) {
   await page.route(FEED, async (route) => {
     const body = await readFeedCache(family, route.request().url());
     if (!body) return route.fallback();
@@ -95,26 +97,29 @@ test.describe('saved Player research reopens with the current quote @v3', () => 
 });
 
 test.describe('saved Prop Discovery views reopen with current quotes @v3', () => {
+  const FAMILY = 'props' as const;
   let bump = 0;
   test.beforeEach(async ({ page }) => {
     bump = 0;
     await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
     await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* ignore */ } });
-    await page.clock.setFixedTime(feedNow('game'));
-    await serveRealFeeds(page, { family: 'game' });
-    await freshQuotes(page, { family: 'game' });
-    await movableFeed(page, 'game', () => feedNow('game').toISOString(), () => bump);
+    await page.clock.setFixedTime(feedNow(FAMILY));
+    await serveRealFeeds(page, { family: FAMILY });
+    await freshQuotes(page, { family: FAMILY });
+    await movableFeed(page, FAMILY, () => feedNow(FAMILY).toISOString(), () => bump);
   });
   const ready = (page: Page) => page.waitForSelector('.pd-card, .pd-row, .pd-empty', { timeout: 90_000 });
   const firstPrice = (page: Page) => page.locator('.pd-row .pd-pp, .pd-row [data-tap="price"]').first();
 
   test('a saved list view stores the address only; reopened, its prices are read from the store now (+3 cents shows), and an old quote prints "—"', async ({ page }) => {
-    await page.goto('./#/v3/props?view=list');
+    const sport = pricedSports(await fixtureGames(FAMILY), FAMILY, '48h')[0];
+    if (!sport) throw new Error('the props family holds no priced game inside 48 hours of its clock (a capture must include one: tests/v3/propsCapture.test.ts)');
+    await page.goto(`./#/v3/props?view=list&sport=${sport}`);
     await ready(page);
-    test.skip((await page.locator('.pd-row').count()) === 0, 'no props in this cache');
     await page.waitForTimeout(800);
+    expect(await page.locator('.pd-row').count(), 'props are listed').toBeGreaterThan(0);
     const priced = page.locator('.pd-row', { has: page.locator('text=/\\d+¢/') }).first();
-    test.skip((await priced.count()) === 0, 'no current price on a listed prop in this cache');
+    await expect(priced, 'a listed prop has a current price in a sport with priced games').toBeVisible({ timeout: 20_000 });
     const id = await priced.getAttribute('data-prop');
     const text0 = await priced.innerText();
     const before = Number(/(\d+)¢/.exec(text0)![1]);
@@ -131,7 +136,7 @@ test.describe('saved Prop Discovery views reopen with current quotes @v3', () =>
     const again = page.locator(`.pd-row[data-prop="${id}"]`);
     await expect(again.first()).toContainText(new RegExp(`${before + 3}¢`), { timeout: 20_000 });
     // an old quote: the same saved view, observations older than the gate allows, prints dashes and no cents
-    await page.clock.setFixedTime(feedNow('game').getTime() + 600_000); // ten minutes on: the games are still ahead, every observation is older than any list limit
+    await page.clock.setFixedTime(feedNow(FAMILY).getTime() + 600_000); // ten minutes on: the games are still ahead, every observation is older than any list limit
     await page.reload();
     await ready(page);
     await page.waitForTimeout(800);

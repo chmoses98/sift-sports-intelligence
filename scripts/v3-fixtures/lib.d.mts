@@ -3,6 +3,7 @@ export const TOOL_VERSION: string;
 export const INDEX_SCHEMA: string;
 export const MANIFEST_SCHEMA: string;
 export const FAMILIES: string[];
+export const PROP_SPORTS: Record<string, string>;
 export const ALLOWED_HOSTS: string[];
 export const PACK_RAW_MAX: number;
 export const FILE_MAX: number;

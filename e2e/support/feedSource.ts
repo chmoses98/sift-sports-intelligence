@@ -22,6 +22,8 @@ export interface FeedSource {
   mode: FeedMode;
   /** The stored/fetched document for a URL, or null when the source does not have it (answer 404). */
   get(url: string): Promise<FeedDoc | null>;
+  /** The URLs the source holds a document for: the bundle family's, or (scratch cache) the ones its journal answered 200 to so far. For tests that derive their expectations from the fixture (which games are quoted). */
+  urls(): string[];
   /** The instant the family's documents describe (the browser clock is pinned to it, or to a fixed offset from it). */
   clock(): Date;
 }
@@ -63,12 +65,22 @@ export function feedSource(family: FeedFamily, o: { live?: boolean } = {}): Feed
   const clock = () => new Date(feedClock(family, o.live));
   if (mode === 'bundle') {
     const fam = openBundle().family(family);
-    return { family, mode, clock, get: async (url) => { const d = fam.get(url); return d && d.status === 200 ? { status: 200, body: Buffer.from(d.body), contentType: d.contentType } : null; } };
+    return {
+      family, mode, clock, urls: () => fam.urls.filter((u) => fam.get(u)?.status === 200),
+      get: async (url) => { const d = fam.get(url); return d && d.status === 200 ? { status: 200, body: Buffer.from(d.body), contentType: d.contentType } : null; },
+    };
   }
   const dir = scratchDir();
   mkdirSync(dir, { recursive: true });
   return {
     family, mode, clock,
+    urls() {
+      const j = join(dir, 'journal.jsonl');
+      if (!existsSync(j)) return [];
+      const out = new Set<string>();
+      for (const l of readFileSync(j, 'utf8').split('\n')) { if (!l) continue; try { const r = JSON.parse(l) as { url: string; status: number }; if (r.status === 200 && existsSync(join(dir, cacheKey(r.url)))) out.add(r.url); } catch { /* a partial line */ } }
+      return [...out];
+    },
     async get(url) {
       const f = join(dir, cacheKey(url));
       if (!existsSync(f) && mode === 'live') {

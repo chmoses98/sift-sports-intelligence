@@ -14,6 +14,7 @@ import { resolveSource } from '../../data/source';
 import { explorable, SPORTS, sportBySlug } from '../../data/sports';
 import { prefetchLeanSlate } from '../../opportunity/load';
 import { validateDocument } from './validate';
+import { warmProps } from './props/early';
 
 declare const __SIFT_SAMPLE_ONLY__: boolean | undefined;
 
@@ -84,5 +85,6 @@ export function startEarly(loadShell: () => Promise<unknown>, screens: [RegExp, 
     if (/^\/v3\/stat(?:\/|$)/.test(path)) return; // Statistic Detail never reads the slate
     for (const s of SPORTS.filter(explorable)) warmSport(s);
     prefetchLeanSlate();
+    if (/^\/v3\/props(?:\/|$)/.test(path)) void warmProps().catch(none);
   } catch { /* an early start is only ever an optimisation */ }
 }

@@ -9,6 +9,7 @@ import { test, expect, type Locator, type Page } from '@playwright/test';
 import { offsetBeforeClick } from './support/scroll';
 import { expectNoStolenTaps } from './support/hitTargets';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
+import { fixtureGames, within } from './support/propsFixture';
 
 test.setTimeout(120_000);
 const FAMILY = 'props' as const;
@@ -102,14 +103,19 @@ test.describe('Prop Discovery on real published documents @v3', () => {
   });
 
   test('/v3/props stays in SIFT 3.0: never handed to the classic /:slug/props route (team filter from Team Research opens the list)', async ({ page }) => {
-    await open(page, '/v3/props?v=1&team=DAL');
-    expect(await hash(page)).toMatch(/^#\/v3\/props\?.*team=DAL/);
+    // A club that plays inside the 48-hour horizon in a sport with player research: derived from the capture's board (the soonest such game's home club).
+    const game = within(await fixtureGames(FAMILY), FAMILY, '48h').find((g) => g.slug === 'nfl' || g.slug === 'nhl');
+    if (!game) throw new Error('the props family holds no NFL or NHL game inside 48 hours of its clock');
+    const team = game.home.code;
+    await open(page, `/v3/props?v=1&team=${team}`);
+    expect(await hash(page)).toMatch(new RegExp(`^#/v3/props\\?.*team=${team}`));
     await expect(page.locator('[data-v3-shell]')).toBeVisible();
     await expect(page.locator('.pd-listpage')).toBeVisible();
-    await expect(page.locator('.pd-hs h1')).toHaveText('DAL props');
+    await expect(page.locator('.pd-hs h1')).toHaveText(`${team} props`);
+    expect(await page.locator('.pd-row').count(), `${team} has props rows`).toBeGreaterThan(0);
     for (const r of await page.locator('.pd-row').all()) await expect(r.locator('.pd-ps')).toBeAttached();
     // every row is the team's own (the player's team, not just the game)
-    const wrong = await page.locator('.pd-row .pd-pn a[data-tap="game"]').evaluateAll((els) => els.filter((e) => !/DAL/.test(e.textContent ?? '')).length);
+    const wrong = await page.locator('.pd-row .pd-pn a[data-tap="game"]').evaluateAll((els, code) => els.filter((e) => !(e.textContent ?? '').includes(code)).length, team);
     expect(wrong).toBe(0);
   });
 

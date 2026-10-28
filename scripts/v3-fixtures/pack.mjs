@@ -69,7 +69,7 @@ function main() {
   bundle.families[family] = {
     meta: {
       captured_start: capture?.started ?? (times.length ? isoZ(Math.min(...times)) : null),
-      captured_end: capture?.finished ?? (times.length ? isoZ(Math.max(...times)) : null),
+      captured_end: capture?.finished || times.length ? isoZ(Math.max(...times, capture?.finished ? Date.parse(capture.finished) : 0)) : null,
       capture_method: fromJournal
         ? 'scripts/v3-fixtures capture (curl; per-document fetch time, status and content type from journal.jsonl)'
         : 'a scratch cache filled by the e2e helpers\' live mode (curl) before the journal existed; per-document fetch time is the cached file\'s modification time and status 200 / application/json are those the helpers answered with',

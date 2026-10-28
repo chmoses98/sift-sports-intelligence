@@ -71,7 +71,9 @@ describe('every real captured document passes its guard (fixtures/real, all fami
   });
   it('what the bundle holds, by kind (the inventory the guards were measured on)', () => {
     const counts = Object.fromEntries(KINDS.map((k) => [k, ofKind(k).length]));
-    expect(counts).toMatchObject({ health: 10, board: 10, recommendations: 10, theses: 1, event_detail: 154, explorer_index: 8, metric_registry: 4, search_index: 5, entity_profile: 31, ranking: 15, time_series: 1, event_research: 11 });
+    // A floor, not an exact count: the committed bundle is recaptured from time to time (the props family was on 28 Oct 2026) and must only ever hold at least the kinds the guards were first measured on.
+    const floor: Record<string, number> = { health: 10, board: 10, recommendations: 10, theses: 1, event_detail: 154, explorer_index: 8, metric_registry: 4, search_index: 5, entity_profile: 31, ranking: 15, time_series: 1, event_research: 11 };
+    for (const [k, n] of Object.entries(floor)) expect(counts[k] ?? 0, k).toBeGreaterThanOrEqual(n);
     expect(REAL.length).toBe(Object.values(counts).reduce((a, b) => a + b, 0) + REAL.filter((d) => kindOfUrl(d.url) == null).length);
   });
   it('the documents no guard here owns are exactly the ones with their own decoders: projections, distributions, research signals and the live-quote feed', () => {

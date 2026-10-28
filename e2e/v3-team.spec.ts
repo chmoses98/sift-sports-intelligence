@@ -118,8 +118,7 @@ test.describe('Team Research (real documents) @v3', () => {
     await expect(page).toHaveURL(/adj=1|v=1(?!.*adj=0)/);
     expect(await histLen(page)).toBe(len);
     // adjusted statistics never appear in the raw list and vice versa
-    const names = await page.locator('.tm .prr .pn b').allInnerTexts();
-    expect(names.every((n) => /^Adjusted/.test(n))).toBe(true);
+    await expect.poll(async () => (await page.locator('.tm .prr .pn b').allInnerTexts()).every((n) => /^Adjusted/.test(n))).toBe(true);
   });
 
   test('Profile row tap (55): Stat Detail for that statistic, ranking tab, this team selected', async ({ page }) => {

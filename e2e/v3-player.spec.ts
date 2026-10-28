@@ -352,7 +352,7 @@ test.describe('Player Research: saved research @v3', () => {
     await page.locator('.v3p-lr').nth(1).click();
     const want = await hash(page);
     const line = /line=([\d.]+)/.exec(want)![1];
-    await page.getByRole('button', { name: 'Save this research' }).first().click();
+    await page.getByRole('button', { name: 'Save this research' }).last().click();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sift3.saved') ?? '[]'));
     expect(saved).toHaveLength(1);
     expect(saved[0]).toMatchObject({ kind: 'player', sport: 'nfl' });

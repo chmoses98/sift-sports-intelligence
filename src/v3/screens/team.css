@@ -5,13 +5,13 @@
 .v3 .tm .num { font-family: var(--f-num); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 
 /* ---- bar (compact: back, logo, name, record, actions) and hero */
-.v3 .tm-bar { display: flex; align-items: center; gap: 8px; height: var(--tm-bar); padding: var(--sat) 8px 0 4px; background: rgba(8, 11, 16, 0.96); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.v3 .tm-bar { display: flex; align-items: center; gap: 6px; height: var(--tm-bar); padding: var(--sat) 8px 0 4px; background: rgba(8, 11, 16, 0.96); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
 .v3 .tm-bar--sticky { position: sticky; top: 0; z-index: 30; }
 .v3 .tm-bar--fixed { position: fixed; z-index: 36; top: 0; left: 50%; width: min(100%, var(--col)); transform: translate(-50%, -115%); visibility: hidden; border-bottom: 1px solid var(--s-hair); transition: transform 0.22s cubic-bezier(0.22, 0.8, 0.24, 1); }
 .v3 .tm-bar--fixed.is-on { transform: translate(-50%, 0); visibility: visible; }
-.v3 .tm-bar__n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 18px/22px var(--f-ui); letter-spacing: -0.02em; }
+.v3 .tm-bar__n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 17px/22px var(--f-ui); letter-spacing: -0.02em; }
 .v3 .tm-bar__r { margin-left: auto; display: flex; align-items: center; flex: none; }
-.v3 .tm-rec { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.22); color: #fff; flex: none; }
+.v3 .tm-rec { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.22); color: #fff; flex: none; }
 .v3 .tm-rec b { font-size: 13px; }
 .v3 .tm-rec--skel { width: 52px; border-color: transparent; background: rgba(255, 255, 255, 0.06); }
 
@@ -51,7 +51,8 @@
 .v3 .tm .exh .cn b { color: #fff; }
 .v3 .tm .seeall { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; font: 600 13px var(--f-ui); color: #5fe0ee; }
 .v3 .tm .chip { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 13px; font: 500 12px/1 var(--f-ui); color: var(--t2); background: var(--s-chip); border: 1px solid var(--s-chip-bd); white-space: nowrap; }
-.v3 .tm .chip.bad { color: #ffb3ae; border-color: rgba(255, 116, 104, 0.45); background: rgba(60, 20, 22, 0.55); }
+/* TR5: "Out" is a neutral outlined chip in the locked design (only IR is tinted) */
+.v3 .tm .chip.bad { color: var(--sift-text); }
 .v3 .tm .chip.amb { color: #ffd78a; border-color: rgba(245, 189, 91, 0.45); background: rgba(58, 42, 12, 0.55); }
 .v3 .tm .showall, .v3 .tm .more { display: flex; align-items: center; justify-content: center; gap: 2px; width: 100%; min-height: 44px; font: 600 13px var(--f-ui); color: #5fe0ee; }
 .v3 .tm .more { border-top: 1px solid #1d2127; }

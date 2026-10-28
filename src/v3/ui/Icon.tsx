@@ -31,7 +31,7 @@ const P: Record<string, string> = {
   arrowUp: 'M12 19V5M6 11l6-6 6 6',
   arrowDown: 'M12 5v14M6 13l6 6 6-6',
   refresh: 'M19.6 12a7.6 7.6 0 1 1-2.2-5.4M19.6 4.4v4.4h-4.4',
-  ball: 'M12 3.4a8.6 8.6 0 1 0 0 17.2 8.6 8.6 0 0 0 0-17.2zM3.6 12h16.8M12 3.4v17.2M6.4 6.2c3.4 3 3.4 8.6 0 11.6M17.6 6.2c-3.4 3-3.4 8.6 0 11.6',
+  ball: 'M12 3.4a8.6 8.6 0 1 0 0 17.2 8.6 8.6 0 0 0 0-17.2zM3.6 12h16.8M12 3.4v17.2M12 3.4c-5 4-5 13.2 0 17.2M12 3.4c5 4 5 13.2 0 17.2',
 };
 
 export type IconName = keyof typeof P | 'games' | 'following' | 'more' | 'lens';

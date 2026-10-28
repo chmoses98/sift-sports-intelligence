@@ -102,8 +102,11 @@ export function useShortScreen(): boolean {
   return short;
 }
 
-/** True while the element is off screen above the viewport (the compact bar then shows). */
-export function useGone(ref: React.RefObject<HTMLElement | null>, on: boolean): boolean {
+/**
+ * True while the element is off screen above the viewport (the compact bar then shows). `present` is true once the element is in the DOM: the hero
+ * only renders after the research has loaded, so an observer attached on the first render (loading skeleton) would never see it.
+ */
+export function useGone(ref: React.RefObject<HTMLElement | null>, on: boolean, present = true): boolean {
   const [gone, setGone] = useState(false);
   useEffect(() => {
     const el = ref.current;
@@ -111,7 +114,7 @@ export function useGone(ref: React.RefObject<HTMLElement | null>, on: boolean): 
     const io = new IntersectionObserver(([e]) => setGone(!e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 });
     io.observe(el);
     return () => io.disconnect();
-  }, [ref, on]);
+  }, [ref, on, present]);
   return gone;
 }
 

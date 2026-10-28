@@ -78,12 +78,12 @@ function Hero({ g, back, startMs }: { g: V3Game; back: () => void; startMs: numb
         )}
       </div>
       <div className="v3-gh__grid">
-        <TeamLink team={{ slug: g.slug, id: g.away.id }} className="v3-gh__logo" label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={66} /></TeamLink>
+        <TeamLink team={{ slug: g.slug, id: g.away.id }} className="v3-gh__logo" label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={56} /></TeamLink>
         <div className="v3-gh__sc">
           {g.score ? <span className="num">{g.score.away}<i>–</i>{g.score.home}</span> : <span className="v3-gh__at">{g.phase === 'pregame' ? 'at' : '—'}</span>}
           {g.score?.source === 'demo' && <small className="v3-gh__tag">Sample score</small>}
         </div>
-        <TeamLink team={{ slug: g.slug, id: g.home.id }} className="v3-gh__logo v3-gh__logo--h" label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={66} /></TeamLink>
+        <TeamLink team={{ slug: g.slug, id: g.home.id }} className="v3-gh__logo v3-gh__logo--h" label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={56} /></TeamLink>
         <TeamLink team={{ slug: g.slug, id: g.away.id }} className="v3-gh__nm" label={`${g.away.name}, team page`}>{rankName(g.away)}{g.away.record && <em>({g.away.record})</em>}</TeamLink>
         <div className="v3-gh__sit">{live ? (g.situation ? <>{g.situation.possession && <i className={`v3-gh__ball v3-gh__ball--${g.situation.possession}`} />}<span>{g.situation.text}</span></> : <span>{src ?? ''}</span>) : g.phase === 'final' ? <span>{src ?? ''}</span> : null}</div>
         <TeamLink team={{ slug: g.slug, id: g.home.id }} className="v3-gh__nm v3-gh__nm--h" label={`${g.home.name}, team page`}>{rankName(g.home)}{g.home.record && <em>({g.home.record})</em>}</TeamLink>

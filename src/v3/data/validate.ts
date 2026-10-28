@@ -193,7 +193,8 @@ export const guardEventDetail = document<EventDetailDoc>('event_detail', {
   model_prices: list,
   recommendations: list,
   theses: list,
-  context: opt(any),
+  // a game's own injury list (hockey) is read by Prop Discovery's availability lane: when present it is a list of rows with a status
+  context: opt(obj({ injuries: opt(arr(obj({ status: str, detail: opt(text), player_name: opt(text) }))) })),
 });
 
 export const guardExplorerIndex = document<ExplorerIndexDoc>('explorer_index', {

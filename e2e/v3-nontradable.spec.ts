@@ -8,6 +8,7 @@
 // ("Market closed" / "Market settled" / "Trading suspended"), offers no Retry, and the screen's research stays on the page.
 import { test, expect, type Page } from '@playwright/test';
 import { escapeSheet } from './support/sheet';
+import { usePlayerFeeds } from './support/playerFeeds';
 import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
@@ -202,5 +203,34 @@ test.describe('Prop Discovery withholds a non-tradable market and keeps the rese
     void lanesBefore;
     await same.click();
     await expectNotTradable(page, 'Trading suspended', 'suspended');
+  });
+});
+
+// Player Research (the `player` family: CeeDee Lamb at PHI). The decision card, the ladder rungs and the market lane read the same gate.
+test.describe('Player Research withholds a market whose status is not open and keeps the research @v3', () => {
+  test.setTimeout(150_000);
+  const LAMB = '/v3/player/nfl/prt_4c661ae8b854ff5f66dd';
+  test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
+  for (const [word, label] of [['closed', 'closed'], ['quarantined', 'an unrecognised word'], ['inactive', 'suspended']] as const) {
+    test(`every market of the feed is ${label} ("${word}"): no rung and no market price on the decision card; the History lane and the page stay`, async ({ page }) => {
+      await usePlayerFeeds(page, { status: () => word });
+      await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
+      await go(page, LAMB);
+      const lanes = page.getByRole('group', { name: 'Evidence lanes' });
+      await expect(lanes).toBeVisible({ timeout: 25_000 });
+      await page.waitForTimeout(2500);
+      // no market is offered: the line is a reference line, the Market lane prints "—", and no price or implied probability is printed anywhere on the screen
+      await expect(lanes).toContainText('no market for this line');
+      expect(await page.locator('.v3p').innerText()).not.toMatch(/\d+¢|\d+% implied|Kalshi ask for/);
+      // the research stays: the History lane still has its observed frequency
+      await expect(lanes.getByRole('button', { name: /Observed history/ })).toContainText(/\d+%/);
+    });
+  }
+  test('the control: the same page with the feed as captured prices its rungs', async ({ page }) => {
+    await usePlayerFeeds(page);
+    await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
+    await go(page, LAMB);
+    await expect(page.locator('.v3p-hb').first()).toBeVisible({ timeout: 25_000 });
+    await expect(page.locator('.v3p-ladder .v3p-lr b.m').filter({ hasText: /\d+¢/ }).first()).toBeVisible({ timeout: 25_000 });
   });
 });

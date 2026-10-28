@@ -188,6 +188,9 @@ const TABLE: Record<Exclude<DocKind, 'snapshot' | 'player_history' | 'history_in
     { name: 'a market captured_at not a time', edit: set('0', 'markets', 3, 'captured_at'), reason: /captured_at/ },
     { name: 'a market line as text', edit: set('45.5', 'markets', 6, 'line'), reason: /line/ },
     { name: 'a market volume negative', edit: set(-5, 'markets', 1, 'volume'), reason: /volume/ },
+    { name: 'context a text', edit: set('none', 'context'), reason: /context/ },
+    { name: 'a game injury list that is a text', edit: set({ injuries: 'none' }, 'context'), reason: /context\.injuries/ },
+    { name: 'a game injury row without a status', edit: set({ injuries: [{ player_name: 'x' }] }, 'context'), reason: /injuries\[0\]\.status/ },
     { name: 'the LAST market malformed (every row is walked)', edit: (d) => { d.markets[d.markets.length - 1].yes_ask = {}; }, reason: /yes_ask/ },
   ] },
   explorer_index: { pick: (d) => d.json.teams.length > 0, variants: [

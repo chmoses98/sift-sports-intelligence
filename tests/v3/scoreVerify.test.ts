@@ -58,7 +58,7 @@ describe('verified score', () => {
     expect(verifyScore(read(game({ score: null }, 10)))).toEqual({ show: false, reason: 'no-score' });
   });
   it('implausible numbers are not verified', () => {
-    for (const score of [{ home: -1, away: 3 }, { home: 2.5, away: 3 }, { home: NaN, away: 3 }]) expect(verifyScore(read(game({ score }, 10))).show).toBe(false);
+    for (const score of [{ home: -1, away: 3 }, { home: 2.5, away: 3 }, { home: NaN, away: 3 }, { home: 9999, away: 3 }, { home: 3, away: 501 }]) expect(verifyScore(read(game({ score }, 10))).show).toBe(false);
   });
 });
 

@@ -28,7 +28,8 @@ export type ScoreVerdict =
   | { show: true; away: number; home: number; clock: string; over: boolean; delayed: boolean }
   | { show: false; reason: 'no-read' | 'unmatched' | 'not-started' | 'no-score' | 'unknown-phase' | 'implausible' | 'unreliable' };
 
-const whole = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0;
+/** A score is a whole number from 0 to 500 (no sport in the app comes near it; anything beyond is a garbled field, not a result). */
+const whole = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= 500;
 
 export function verifyScore(rd: ScoreRead | null | undefined): ScoreVerdict {
   if (!rd) return { show: false, reason: 'no-read' };

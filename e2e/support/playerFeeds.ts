@@ -12,18 +12,19 @@ export const CAPTURED_AT = feedClock('player');
 /** The (fixed) time the page believes it is, a few seconds after the stamp. */
 export const PAGE_NOW = Date.parse(CAPTURED_AT) + 5_000;
 
-function stamp(body: Buffer): Buffer {
-  let j: { kind?: string; schema?: string; generated_at?: string; markets?: { captured_at?: string | null; observed_at?: string | null }[] };
+function stamp(body: Buffer, status?: (ticker: string) => string | null | undefined): Buffer {
+  let j: { kind?: string; schema?: string; generated_at?: string; markets?: { captured_at?: string | null; observed_at?: string | null; ticker?: string; status?: string }[] };
   try { j = JSON.parse(body.toString('utf8')); } catch { return body; }
   if (!Array.isArray(j?.markets)) return body;
   // the publication's event document, and the live-quote feed's per-game file (the same market observed by a later job)
   if (j.kind === 'event_detail') for (const m of j.markets) { if (m.captured_at) m.captured_at = CAPTURED_AT; }
-  else if (j.schema === 'sift.live_quotes.v1') { j.generated_at = CAPTURED_AT; for (const m of j.markets) { if (m.observed_at) m.observed_at = CAPTURED_AT; } }
+  else if (j.schema === 'sift.live_quotes.v1') { j.generated_at = CAPTURED_AT; for (const m of j.markets) { if (m.observed_at) m.observed_at = CAPTURED_AT; const w = status?.(String(m.ticker ?? '')); if (w === null) delete m.status; else if (w) m.status = w; } }
   else return body;
   return Buffer.from(JSON.stringify(j));
 }
 
-export async function usePlayerFeeds(page: Page, o: { live?: boolean; pinClock?: boolean; hosts?: RegExp } = {}): Promise<{ served: string[]; missed: string[]; probed: string[] }> {
+/** `status`: a controlled modification for the states no captured market is in: a live-feed market whose function returns a word has its `status` REPLACED by it (null removes it). */
+export async function usePlayerFeeds(page: Page, o: { live?: boolean; pinClock?: boolean; hosts?: RegExp; status?: (ticker: string) => string | null | undefined } = {}): Promise<{ served: string[]; missed: string[]; probed: string[] }> {
   const src = feedSource('player', { live: o.live });
   const hosts = o.hosts ?? /^https:\/\/raw\.githubusercontent\.com\//;
   const log = { served: [] as string[], missed: [] as string[], probed: [] as string[] };
@@ -35,7 +36,7 @@ export async function usePlayerFeeds(page: Page, o: { live?: boolean; pinClock?:
     recordRequest(url, !!doc);
     if (doc) {
       (head ? log.probed : log.served).push(url);
-      await route.fulfill({ status: 200, body: stamp(doc.body), headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
+      await route.fulfill({ status: 200, body: stamp(doc.body, o.status), headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
     } else {
       if (!head) log.missed.push(url);
       await route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } });

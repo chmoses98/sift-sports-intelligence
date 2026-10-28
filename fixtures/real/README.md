@@ -69,7 +69,7 @@ name, and slice `[offset, offset + length)`. The `.gz` files are served as plain
 | `team` | `v3-team` | 2026-10-26T23:25:00Z | 55 | 55 |
 | `game` | `v3-game`, `v3-quotegate`, `v3-hit-targets`, `v3-rails`, `v3-welcome`, `v3-timezones`, `v3-unavailable`, `v3-nontradable`, `v3-saved-reopen` (Prop Discovery group) | 2026-10-26T23:25:00Z | 61 | 61 |
 | `player` | `v3-player`, `v3-saved-reopen` (Player group) | 2026-10-26T19:00:00Z (a test pin, see its `basis`) | 60 | 60 |
-| `props` | `v3-props`, `v3-props-avail`, `v3-props-budget`, `v3-scores`, `v3-starts`, `v3-nontradable` (Prop Discovery group), `v3-saved-reopen` (Prop Discovery group) | 2026-10-28T14:58:10Z | 561 (8 answer 404) | 553 |
+| `props` | `v3-props`, `v3-props-avail`, `v3-props-budget`, `v3-scores`, `v3-starts`, `v3-nontradable` (Prop Discovery group), `v3-saved-reopen` (Prop Discovery group), `v3-fidelity` (PD1 to PD6, ROOT-Home, ROOT-Games, ROOT-Explore) | 2026-10-28T14:58:10Z | 561 (8 answer 404) | 553 |
 
 (All under `e2e/`, `.spec.ts`.) The `v3-nontradable` and `v3-saved-reopen` Prop Discovery groups read the `props` family: its 48-hour horizon holds games the live-quote
 feed has files for (priced rows) and games it has none for (rows that print "—"), see below. The other groups of those two specs still read `game` and `player`.

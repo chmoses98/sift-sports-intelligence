@@ -209,6 +209,7 @@ async function oneRun(browser, name, scr, appUrl, i) {
   const page = await ctx.newPage();
   await page.addInitScript(initScript(scr, active.now.getTime()));
   await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* storage may be blocked */ } });
+  if (process.env.CONSOLE) page.on('console', (m) => { if (/EARLY|MARK/.test(m.text())) console.error(name, m.text()); });
   const cdp = await ctx.newCDPSession(page);
   await cdp.send('Network.enable');
   const reqs = new Map();

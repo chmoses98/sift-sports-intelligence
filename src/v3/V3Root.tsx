@@ -17,7 +17,7 @@ import './ui/ContractSheet'; // registers the addressed `contract` sheet for eve
 import { SlateProvider, useSlate } from './data/useSlate';
 import { applyDemoParam, demoOn, SAMPLE_ONLY, usePrefs } from './state/prefs';
 import { useScrollMemory } from './state/scroll';
-import { RESEARCH_FETCH_TIMEOUT_MS, setFetchTimeout } from '../data/fetcher';
+import { RESEARCH_FETCH_TIMEOUT_MS, setExistenceProbe, setFetchTimeout } from '../data/fetcher';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v3', label: 'Home', icon: 'home', end: true },
@@ -130,7 +130,9 @@ export function V3Root() {
   useLayoutEffect(() => {
     const o = (window as unknown as { __SIFT_FETCH_TIMEOUT_MS__?: number }).__SIFT_FETCH_TIMEOUT_MS__;
     setFetchTimeout(typeof o === 'number' && o > 0 ? o : RESEARCH_FETCH_TIMEOUT_MS);
-    return () => setFetchTimeout(null);
+    // A sport's explorer is checked for with a HEAD request, not by reading its (up to 450 KB) index: the screens that need the index read it.
+    setExistenceProbe(true);
+    return () => { setFetchTimeout(null); setExistenceProbe(false); };
   }, []);
   // The page behind the column is the app's own colour, never the classic body.
   useLayoutEffect(() => {

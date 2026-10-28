@@ -32,7 +32,7 @@ export interface SportBundle {
 }
 
 /** A sport's bundle through an already-resolved repo (a sport page's own source, or a test fixture). */
-export async function loadBundle(repo: SportRepo): Promise<SportBundle> {
+export async function loadBundle(repo: SportRepo, o: { records?: boolean } = {}): Promise<SportBundle> {
   const sport = repo.sport;
   try {
     const src = repo.source;
@@ -42,8 +42,9 @@ export async function loadBundle(repo: SportRepo): Promise<SportBundle> {
       repo.recommendations().then((d) => d.items as Recommendation[]).catch(() => null),
       sport.code === 'SOCCER' ? repo.theses().then((d) => d.items).catch(() => null) : Promise.resolve(null),
       sport.researchSignalsUrl ? loadSignals(sport.researchSignalsUrl).catch(() => null) : Promise.resolve(null),
-      sport.code === 'NHL' ? repo.metricMap().then(readLearning).catch(() => null) : Promise.resolve(null),
-      sport.code === 'TENNIS' ? repo.metricMap().then(tennisRecord).catch(() => null) : Promise.resolve(null),
+      // The settled-record documents (NHL learning scorecard, tennis record) only feed an opportunity's record text; a caller that prints none skips them.
+      sport.code === 'NHL' && o.records !== false ? repo.metricMap().then(readLearning).catch(() => null) : Promise.resolve(null),
+      sport.code === 'TENNIS' && o.records !== false ? repo.metricMap().then(tennisRecord).catch(() => null) : Promise.resolve(null),
     ]);
     return { sport, board: board.items, recommendations: recs, theses, signals, learning, tennisRecord: tennisRec, modelState: src.liveHealth?.overall_status ?? null, marketCaptureAt: src.liveHealth?.last_market_capture ?? board.generated_at ?? null, error: null };
   } catch (e) {
@@ -51,9 +52,9 @@ export async function loadBundle(repo: SportRepo): Promise<SportBundle> {
   }
 }
 
-async function loadSport(sport: SportConfig): Promise<SportBundle> {
+async function loadSport(sport: SportConfig, o: { records?: boolean } = {}): Promise<SportBundle> {
   try {
-    return await loadBundle(new SportRepo(await resolveSource(sport)));
+    return await loadBundle(new SportRepo(await resolveSource(sport)), o);
   } catch (e) {
     return { sport, board: [], recommendations: null, theses: null, signals: null, modelState: null, marketCaptureAt: null, error: e instanceof Error ? e.message : String(e) };
   }
@@ -97,10 +98,14 @@ export function useSportOpportunities(repo: SportRepo, now: number) {
   }, [evaluated, bundle.loading, bundle.error, live, now]);
 }
 
-export function useAllOpportunities(now: number) {
-  const bundles = useAsync('opportunities:all', () => Promise.all(SPORTS.filter(explorable).map(loadSport)));
+export function useAllOpportunities(now: number, o: { lean?: boolean } = {}) {
+  const lean = o.lean === true;
+  const bundles = useAsync(lean ? 'opportunities:all:lean' : 'opportunities:all', () => Promise.all(SPORTS.filter(explorable).map((s) => loadSport(s, { records: !lean }))));
   const evaluated = useMemo(() => (bundles.data ?? []).map((b) => evaluate(b, now)), [bundles.data, now]);
-  const live = useLiveQuotes(useMemo(() => liveTickers(evaluated.flatMap((e) => e.opportunities)), [evaluated]), 'slate');
+  // `lean` (SIFT 3.0's slate: it prints no opportunity, only counts them) registers no quote with the store and reads no settled-record document:
+  // the screen that prints a price asks for exactly the contracts it prints. Default (every other caller): every candidate's contract is kept
+  // current at slate cadence and the record documents are read.
+  const live = useLiveQuotes(useMemo(() => (lean ? [] : liveTickers(evaluated.flatMap((e) => e.opportunities))), [evaluated, lean]), 'slate');
   return useMemo(() => {
     const opportunities = repriceAll(evaluated.flatMap((e) => e.opportunities), live.quote, now);
     return {

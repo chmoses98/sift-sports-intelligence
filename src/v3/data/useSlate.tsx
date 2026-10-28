@@ -48,7 +48,10 @@ export function useGameByKey(key: string | undefined) {
 
 function RealProvider({ children }: { children: ReactNode }) {
   const now = useNow(30_000);
-  const all = useAllOpportunities(now);
+  // Lean: no quote is registered for the slate (nothing in it prints a price; the screens that do - Games cards, Game Detail, Player, Props -
+  // register the contracts they print, so registering every candidate polled ~45 game files on every screen) and the NHL/tennis settled-record
+  // documents are not read (they only feed record text of an opportunity, which the slate never prints; the candidate count does not depend on them).
+  const all = useAllOpportunities(now, { lean: true });
   // Start times: the league schedule (explorer) where it has been read, else the board's own (the same schedule, as published).
   const scheduleVersion = useScheduleVersion();
   const bundles = useMemo(() => withScheduleStarts(all.bundles, knownSchedule), [all.bundles, scheduleVersion]); // eslint-disable-line react-hooks/exhaustive-deps -- the registry changes under a stable lookup

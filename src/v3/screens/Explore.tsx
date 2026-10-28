@@ -46,7 +46,9 @@ export function Explore() {
   const cat = (CATS.some((c) => c.k === sp.get('cat')) ? sp.get('cat') : 'all') as Cat | 'all';
   const set = (patch: Record<string, string | null>) => setSp((p) => { const n = new URLSearchParams(p); for (const [k, v] of Object.entries(patch)) { if (v) n.set(k, v); else n.delete(k); } return n; });
   const { games } = useSlate();
-  const { hits, loading, failed } = useSearchHits(q, sport, cat);
+  // The search indexes are read once the viewer starts a search: a query, a type, or the field taking focus (so they are on their way before the first key).
+  const [focused, setFocused] = useState(false);
+  const { hits, loading, failed } = useSearchHits(q, sport, cat, focused || q.trim() !== '' || cat !== 'all');
   const recents = useRecents();
   const visits = useVisits();
   const input = useRef<HTMLInputElement>(null);
@@ -72,7 +74,7 @@ export function Explore() {
       <h1 className="v3-pgtitle">Explore</h1>
       <label className="v3-search">
         <Icon name="search" size={22} />
-        <input ref={input} type="search" value={text} onChange={(e) => { typed.current.add(e.target.value); setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
+        <input ref={input} type="search" value={text} onFocus={() => setFocused(true)} onChange={(e) => { typed.current.add(e.target.value); setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
         {text && <button type="button" aria-label="Clear search" onClick={() => { typed.current.add(''); setText(''); set({ q: null }); }}><Icon name="close" size={18} /></button>}
       </label>
       <div className="v3-rail v3-rail--box" role="tablist" aria-label="Sport">

@@ -130,9 +130,17 @@ describe('the new diagnostics are not rendered anywhere', () => {
   };
   walk(SRC);
 
-  it('nothing outside src/live refers to the history, the meter, the outcome, the skew or the per-ticker counters', () => {
-    const NEW_DIAGNOSTICS = /refreshHistory|lastOutcome|\.availability\(\)|\.meter\b|clockSkewMs|unusableTickers|observationAgeMs|RefreshOutcome|AvailabilityMeter|\.renderQuote\(|refreshContract|addRowsScope|addContractScope/;
+  it('nothing outside src/live refers to the history, the meter, the outcome or the per-ticker counters', () => {
+    const NEW_DIAGNOSTICS = /refreshHistory|lastOutcome|\.availability\(\)|\.meter\b|unusableTickers|observationAgeMs|RefreshOutcome|AvailabilityMeter/;
     const offenders = files.filter((f) => !f.includes(`${join('src', 'live')}`) && NEW_DIAGNOSTICS.test(readFileSync(f, 'utf-8')));
+    expect(offenders).toEqual([]);
+  });
+
+  // The entry points the SIFT 3.0 screens are built on (this branch wires them, claude/sift3-w-quote): they decide display, they print nothing. They stay out of
+  // SIFT 2.0, classic and v4: nothing outside src/live and src/v3 registers a delivery-chain scope, forces a contract refresh, renders a gated quote or reads the skew.
+  it('the delivery entry points (addRowsScope, addContractScope, refreshContract, renderQuote, the skew) are used by src/v3 and nowhere else outside src/live', () => {
+    const ENTRY_POINTS = /\.renderQuote\(|refreshContract|addRowsScope|addContractScope|clockSkewMs/;
+    const offenders = files.filter((f) => !f.includes(`${join('src', 'live')}`) && !f.includes(`${join('src', 'v3')}`) && ENTRY_POINTS.test(readFileSync(f, 'utf-8')));
     expect(offenders).toEqual([]);
   });
 

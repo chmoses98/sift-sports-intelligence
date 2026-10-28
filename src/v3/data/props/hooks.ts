@@ -5,7 +5,7 @@ import { liveStore, useLiveQuotes, useNow } from '../../../live/hooks';
 import { quoteView } from '../../../live/overlay';
 import { nameKey } from '../../../insights/context';
 import { demoOn } from '../../state/prefs';
-import { liveStatusWord, statusFacts } from '../../model/marketStatus';
+import { liveStatusFacts, statusFacts } from '../../model/marketStatus';
 import { guardLiveQuote } from '../validate';
 import type { Price } from '../../model/types';
 import { gate, type GateResult } from '../quoteGate';
@@ -173,7 +173,8 @@ export function rawPrice(p: Prop, r: PropRung, liveQuote: Parameters<typeof quot
   if (r.source === 'Sample') return { ask: r.ask, bid: r.bid, implied: r.ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: r.capturedAt, source: 'Sample', volume: r.volume, tradable: true, marketStatus: 'open' };
   const v = quoteView({ kalshi_ticker: r.ticker, yes_bid: r.bid == null ? null : r.bid / 100, yes_ask: r.ask == null ? null : r.ask / 100, captured_at: r.capturedAt, volume: r.volume }, quote);
   // The status travels with the observation it came from: a live quote's own word when the live observation is the newer, else the publication's.
-  const sf = statusFacts((v.live && quote ? liveStatusWord(quote) : null) ?? r.status);
+  const liveFacts = v.live && quote ? liveStatusFacts(quote) : null;
+  const sf = liveFacts && liveFacts.marketStatus !== 'unreported' ? liveFacts : statusFacts(r.status);
   const ask = !sf.tradable || v.yesAsk == null || v.yesAsk <= 0 || v.yesAsk >= 1 ? null : Math.round(v.yesAsk * 100);
   const bid = !sf.tradable || v.yesBid == null ? null : Math.round(v.yesBid * 100);
   return { ask, bid, ...sf, implied: ask, ticker: r.ticker, side: 'YES', description: `${p.name}: ${r.k}+ ${p.label.toLowerCase()}`, observedAt: v.observedAt, source: 'Kalshi', volume: v.volume };

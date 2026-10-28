@@ -37,6 +37,11 @@ export interface Price {
   /** What YES means, in the contract's own words. */
   description: string;
   observedAt: string | null;
+  /**
+   * 'received' = the provider gave no observation time and `observedAt` is only when this device got the answer: not an observation, never
+   * usable (src/live/quoteUsable.ts). Absent = the observation time is the provider's own (every publication price, every timed live quote).
+   */
+  observedVia?: 'provider' | 'received';
   source: 'Kalshi' | 'Sample';
   volume?: number | null;
   /**

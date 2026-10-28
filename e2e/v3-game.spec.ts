@@ -4,6 +4,7 @@
 // against the real components, Back is asserted to restore the screen's exact state and scroll, and prices are made current by fixing
 // the browser clock just after the publication's quote capture (the quote gate is the app's own; nothing is stubbed).
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { frames } from './support/scroll';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
@@ -23,7 +24,7 @@ test.beforeEach(async ({ page }) => {
 const y = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
 const hash = (page: Page) => page.evaluate(() => location.hash);
 const histLen = (page: Page) => page.evaluate(() => history.length);
-const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(250); };
+const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(250); await frames(page); };
 
 async function open(page: Page, query = '') {
   await page.goto(`./#${GAME}${query}`);

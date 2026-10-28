@@ -24,6 +24,7 @@ export interface Finger {
 const engine = (page: Page) => (process.env.V3_FINGER === 'pointer' ? 'webkit' : page.context().browser()?.browserType().name() ?? 'chromium');
 
 type Op = 'down' | 'move' | 'up';
+const DOUBLE_TAP_GAP_MS = 350;
 
 /** Pointer events of one touch finger, dispatched in the page; the element under the press stays the target until the lift. */
 function dispatchFinger({ op, x, y }: { op: Op; x: number; y: number }) {
@@ -58,6 +59,8 @@ export async function finger(page: Page): Promise<Finger> {
     down: (x, y) => send('down', x, y),
     move: (x, y) => send('move', x, y),
     up: () => send('up'),
-    tap: (x, y) => page.touchscreen.tap(x, y),
+    // A finger does not tap twice within a few dozen milliseconds: two taps that close and that near one another are one double tap to the engine (CI saw the second
+    // of a neighbour-then-target pair lost), so a tap leaves the gap a person would, past the double-tap window.
+    tap: async (x, y) => { await page.waitForTimeout(DOUBLE_TAP_GAP_MS); await page.touchscreen.tap(x, y); },
   };
 }

@@ -53,6 +53,7 @@ for (const [w, h] of [[390, 844], [375, 667]] as const) {
     });
 
     test('a real touch tap at the left, centre and right of every column selects exactly that observation', async ({ page }) => {
+      test.setTimeout(150_000);   // 72 taps, each spaced like a person's (support/touch.ts)
       const s = await finger(page);
       const obs = await obsOfColumns(page);
       expect(obs).toHaveLength(12);

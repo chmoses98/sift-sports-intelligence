@@ -2,6 +2,7 @@
 // (e2e/support/realFeeds.ts: the committed `stat` fixture family, fixtures/real, offline on its pinned clock; V3_REAL_FEEDS=live refills a scratch cache). Every tap-matrix row this screen owns
 // is exercised and its destination checked (data-dest and URL); Back restores tab, window, selection, comparison, expansion and scroll.
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { frames } from './support/scroll';
 import { feedDocument, feedNow, useRealFeeds } from './support/realFeeds';
 import { TAP_MATRIX } from '../tests/v3/tapmatrix';
 
@@ -19,7 +20,7 @@ test.beforeEach(async ({ page }) => {
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); };
 const hash = (page: Page) => page.evaluate(() => location.hash.replace(/^#/, ''));
 const y = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
-const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(150); };
+const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(150); await frames(page); };
 const params = async (page: Page) => new URLSearchParams((await hash(page)).split('?')[1] ?? '');
 const ready = (page: Page) => expect(page.locator('.st-hd h1')).toBeVisible();
 

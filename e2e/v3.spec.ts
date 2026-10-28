@@ -2,6 +2,7 @@
 // "Sample data" strip, which the first test asserts. These tests prove interaction semantics (nested taps, state restoration, Back),
 // not data truth: real-data behaviour is covered by tests/v3 (contract shapes) and the WebKit journey run recorded in VISUAL_QA.md.
 import { test, expect, type Page } from '@playwright/test';
+import { frames } from './support/scroll';
 import { escapeSheet } from './support/sheet';
 
 test.beforeEach(async ({ page }) => {
@@ -84,6 +85,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await page.getByRole('button', { name: /^Show all/ }).click();
     await expect(page).toHaveURL(/all=1/);
     await page.evaluate(() => window.scrollTo(0, 420));
+    await frames(page);   // the app remembers the offset from scroll events, which a browser dispatches with the next frame: let them run before leaving
     const y = await page.evaluate(() => scrollY);
     await page.locator('.st-rkr a.nm').nth(4).evaluate((e) => (e as HTMLElement).click());
     await expect(page).toHaveURL(/#\/v3\/team\/cfb\//);

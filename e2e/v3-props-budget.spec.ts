@@ -3,9 +3,14 @@
 // the first row was drawn (89 documents, 2.1 MB on the wire in all, 1.07 MB of it Prop Discovery's own). The budget below is what the first
 // screen may read now; a change that reads more fails here. "Wire bytes" are the gzip size of each served document (what GitHub sends;
 // scripts/v3-qa/props-perf.mjs measures the browser's own bytes under the phone throttle and its numbers are in IMPLEMENTATION_STATUS.md).
+// The limits are stated relative to what the capture holds (the games inside 48 hours of the family's clock and the wire size of their contract documents,
+// read from the family's own boards: e2e/support/propsFixture.ts), so they follow a refreshed capture instead of being numbers of one slate. What is added
+// to that base is the fixed overhead measured on the 2026-10-28 capture (26 games, 677 KB of contract documents): list 8 other own documents and 365 KB,
+// home 13 and 266 KB, shell 31 documents (1,182 KB beyond the contracts in all); the limits keep the margins the previous capture's limits had over its measurement.
 import { test, expect, type Page } from '@playwright/test';
 import { gzipSync } from 'node:zlib';
 import { feedNow, freshQuotes, readFeedCache, useRealFeeds } from './support/realFeeds';
+import { fixtureGames, within } from './support/propsFixture';
 
 const FAMILY = 'props' as const; // the committed `props` fixture family (fixtures/real)
 
@@ -39,9 +44,15 @@ const tally = (urls: string[]) => {
   return o;
 };
 const documents = (served: string[]) => [...new Set(served)];
+/** The games the 48-hour list reads, and what their contract documents weigh on the wire (gzip), from the family's own documents. */
+async function horizon48() {
+  const games = within(await fixtureGames(FAMILY), FAMILY, '48h');
+  return { n: games.length, wire: await wire(games.map((g) => `${g.base}event_detail/${g.eventId}.json`)) };
+}
 
 test('the first screen of the list stays inside its document and byte budget', async ({ page }) => {
   const log = await useSetup(page);
+  const h = await horizon48();
   await page.goto('./#/v3/props?view=list');
   await page.waitForSelector('.pd-row', { timeout: 90_000 });
   await page.waitForTimeout(5000); // lazy reads that follow the first paint (availability for rows near the top, rankings) are part of the screen
@@ -55,18 +66,19 @@ test('the first screen of the list stays inside its document and byte budget', a
   expect(by.ranking ?? 0, 'ranking tables are read for the rows that show them').toBeLessThanOrEqual(3);
   expect(by['team-profile'] ?? 0).toBeLessThanOrEqual(2);
   expect(by['game-log'] ?? 0, 'no player game log is read for the first screen').toBe(0);
-  // 22 games start inside 48 hours in this capture: one contract document each, never more.
-  expect(by.contracts ?? 0).toBeLessThanOrEqual(24);
-  expect(own.length, 'documents Prop Discovery reads itself').toBeLessThanOrEqual(34);
-  expect(await wire(own), 'wire bytes of those documents').toBeLessThanOrEqual(800_000);
-  expect(docs.length, 'every document, shell included').toBeLessThanOrEqual(70);
-  expect(bytes, 'every document, shell included').toBeLessThanOrEqual(1_800_000);
+  // One contract document per game that starts inside 48 hours, never more.
+  expect(by.contracts ?? 0).toBeLessThanOrEqual(h.n);
+  expect(own.length, 'documents Prop Discovery reads itself').toBeLessThanOrEqual(h.n + 12);
+  expect(await wire(own), 'wire bytes of those documents').toBeLessThanOrEqual(h.wire + 450_000);
+  expect(docs.length, 'every document, shell included').toBeLessThanOrEqual(h.n + 48);
+  expect(bytes, 'every document, shell included').toBeLessThanOrEqual(h.wire + 1_450_000);
   // No document is read twice.
   expect(log.served.length - docs.length).toBeLessThanOrEqual(2);
 });
 
 test('the first screen of the home stays inside the same budget', async ({ page }) => {
   const log = await useSetup(page);
+  const h = await horizon48();
   await page.goto('./#/v3/props');
   await page.waitForSelector('.pd-card', { timeout: 90_000 });
   await page.waitForTimeout(5000);
@@ -76,8 +88,8 @@ test('the first screen of the home stays inside the same budget', async ({ page 
   console.log(JSON.stringify({ documents: docs.length, propsOwn: own.length, propsOwnKB: Math.round((await wire(own)) / 1024), by }));
   expect(by.availability ?? 0, 'availability for the shelf candidates only').toBeLessThanOrEqual(10);
   expect(by['game-log'] ?? 0).toBeLessThanOrEqual(8);
-  expect(own.length).toBeLessThanOrEqual(40);
-  expect(await wire(own)).toBeLessThanOrEqual(800_000);
+  expect(own.length).toBeLessThanOrEqual(h.n + 18);
+  expect(await wire(own)).toBeLessThanOrEqual(h.wire + 450_000);
 });
 
 test('a longer horizon reads only the extra games, once each, and says what it costs', async ({ page }) => {

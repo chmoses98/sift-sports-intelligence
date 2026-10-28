@@ -13,6 +13,9 @@ export const INDEX_SCHEMA = 'sift.v3.fixtures.index.v1';
 export const MANIFEST_SCHEMA = 'sift.v3.fixtures.manifest.v1';
 /** Families are never merged (their capture instants differ). This order also decides which pack stores a document two families share. */
 export const FAMILIES = ['stat', 'team', 'game', 'player', 'props'];
+
+/** Publication repositories whose sport has prop prices (src/v3/model/capabilities.ts `propPrices: ready`) and the route slug of each; the other repositories publish boards but no player ladders. */
+export const PROP_SPORTS = { 'NHL-edge-finder': 'nhl', 'nba-edge-finder': 'nba', 'nfl-edge-finder': 'nfl', 'edge-finder-api': 'mlb', 'cfb-edge-finder': 'cfb', 'cbb-edge-finder': 'cbb' };
 /** The only hosts a fixture URL may name. */
 export const ALLOWED_HOSTS = ['raw.githubusercontent.com'];
 /** A pack is closed when its uncompressed size would pass this; every committed file must stay far below 16 MB. */

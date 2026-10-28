@@ -1,15 +1,23 @@
 // Prop Discovery: availability is read for the rows that need it (a row says "Checking availability" and never shows a player the publication
 // lists out as plainly available), and History's order and thresholds tell evaluated rows from unevaluated ones. Real cached documents,
-// fixed clock (e2e/support/realFeeds.ts). Nothing here is a fixture: the player below is listed OUT in the captured NBA research document.
+// fixed clock (e2e/support/realFeeds.ts). Nothing here is a fixture: the player below is the first one the captured NBA research document lists OUT who also has
+// prop contracts in that game's contract document (e2e/support/propsFixture.ts `outPlayerWithContracts`), so the spec follows a refreshed capture.
 import { test, expect, type Page } from '@playwright/test';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
+import { outPlayerWithContracts } from './support/propsFixture';
 
 const FAMILY = 'props' as const; // the committed `props` fixture family (fixtures/real)
 
 test.setTimeout(150_000);
 
-/** A player the captured NBA research document lists OUT and who has prop contracts (Chet Holmgren, OKC). */
-const OUT_PLAYER = 'Holmgren';
+/** A player the captured NBA research document lists OUT and who has prop contracts, in a game inside the 48-hour horizon (read from the family's documents). */
+let OUT_PLAYER = '';
+test.beforeAll(async () => {
+  const o = await outPlayerWithContracts(FAMILY, 'nba');
+  if (!o) throw new Error('the props family holds no NBA player listed OUT with prop contracts inside 48 hours of its clock (a capture must include one: tests/v3/propsCapture.test.ts)');
+  OUT_PLAYER = o.name;
+});
+const q = () => encodeURIComponent(OUT_PLAYER);
 
 async function useSetup(page: Page, o: { holdAvailability?: boolean } = {}) {
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
@@ -29,7 +37,7 @@ async function useSetup(page: Page, o: { holdAvailability?: boolean } = {}) {
 test.describe('availability', () => {
   test('while the injury report is not read the row says so; when it arrives the listed-out player leaves "Hide out"', async ({ page }) => {
     const gate = await useSetup(page, { holdAvailability: true });
-    await page.goto(`./#/v3/props?view=list&q=${OUT_PLAYER}`);
+    await page.goto(`./#/v3/props?view=list&q=${q()}`);
     const row = page.locator('.pd-row').first();
     await expect(row).toBeVisible({ timeout: 90_000 });
     await expect(row.locator('.pd-tag[data-avail="pending"]')).toHaveText('Checking availability');
@@ -41,7 +49,7 @@ test.describe('availability', () => {
 
   test('with Hide out off the listed-out player is shown, labelled with the publication\'s word', async ({ page }) => {
     await useSetup(page);
-    await page.goto(`./#/v3/props?view=list&hide=0&q=${OUT_PLAYER}`);
+    await page.goto(`./#/v3/props?view=list&hide=0&q=${q()}`);
     const row = page.locator('.pd-row').first();
     await expect(row.locator('.pd-tag.is-out')).toHaveText('OUT', { timeout: 90_000 });
     await expect(row.locator('.pd-row__hit')).toHaveAttribute('aria-label', /listed OUT/);

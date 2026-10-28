@@ -108,6 +108,8 @@
 .v3 .pd-ps .pd-chip { height: 20px; font-size: 11px; }
 .v3 .pd-row:not(.is-wrap) .pd-ps { flex-wrap: nowrap; overflow: hidden; }
 .v3 .pd-row.is-wrap .pd-ps { flex-wrap: wrap; row-gap: 4px; }
+/* The prediction (layout.ts chipBeside) is deliberately a little conservative; a row it sends to two lines must PAINT two lines even when the chip would just fit beside the statistic (found with the 2026-10-28 capture: 92 + 6 + 142 = 240 px in a 240 px column). */
+.v3 .pd-row.is-wrap .pd-ps > span { flex: 0 0 100%; }
 .v3 .pd-ln3 { display: flex; gap: 14px; font: 700 13px/16px var(--f-num); }
 .v3 .pd-ln3 span { display: inline-flex; align-items: center; gap: 5px; }
 .v3 .pd-ln3 .is-none { color: var(--sift-dim); font-weight: 500; }

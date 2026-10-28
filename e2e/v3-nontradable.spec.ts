@@ -6,16 +6,16 @@
 // ("Market closed" / "Market settled" / "Trading suspended"), offers no Retry, and the screen's research stays on the page.
 import { test, expect, type Page } from '@playwright/test';
 import { escapeSheet } from './support/sheet';
-import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/realFeeds';
+import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds, type FeedFamily } from './support/realFeeds';
+import { fixtureGames, pricedSports } from './support/propsFixture';
 
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last updated|updated \d|as of \d|\d+\s?(s|sec|min|mins|minutes|h|hr|hours) old\b/i;
 /** Real `inactive` markets in the captured DAL at PHI feed (they carry a yes ask in the published file). */
 const REAL_INACTIVE = 'KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-100';
 
-/** Every surface here reads the `game` fixture family (fixtures/real): its Prop Discovery list has priced rows, the `props` family's soonest rows have none. */
-async function setup(page: Page, status?: (t: string) => string | undefined) {
-  const family = 'game' as const;
+/** The Game Detail, Games and contract-sheet surfaces read the `game` fixture family (fixtures/real); Prop Discovery reads the `props` family (below). */
+async function setup(page: Page, status?: (t: string) => string | undefined, family: FeedFamily = 'game') {
   await serveRealFeeds(page, { family });
   await freshQuotes(page, { family, status });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
@@ -119,24 +119,29 @@ test.describe('Games and Home never price a non-tradable game @v3', () => {
   });
 });
 
-// Prop Discovery's rows come from the `game` fixture family (priced rows exist there; skips when a family has no current price).
+// Prop Discovery's rows come from the `props` family: its 48-hour horizon holds games the live-quote feed has files for (priced rows) and games it has none for
+// (rows that print "—"); the list is opened on a sport that has priced games, found from the family's own documents (e2e/support/propsFixture.ts).
 test.describe('Prop Discovery withholds a non-tradable market and keeps the research @v3', () => {
   test.setTimeout(150_000);
+  const FAMILY = 'props' as const;
   const ready = (page: Page) => page.waitForSelector('.pd-card, .pd-row, .pd-empty', { timeout: 90_000 });
   test('a row whose market is suspended prints "—" in its price pill, the sheet says "Trading suspended" with no Retry, and the research lanes stay', async ({ page }) => {
+    const sport = pricedSports(await fixtureGames(FAMILY), FAMILY, '48h')[0];
+    if (!sport) throw new Error('the props family holds no priced game inside 48 hours of its clock (a capture must include one: tests/v3/propsCapture.test.ts)');
+    const list = `/v3/props?view=list&sport=${sport}`;
     await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: true })); } catch { /* ignore */ } });
-    await setup(page);
-    await go(page, '/v3/props?view=list');
+    await setup(page, undefined, FAMILY);
+    await go(page, list);
     await ready(page);
     await page.waitForTimeout(1200);
     const pill = page.locator('.pd-row .pd-px:not(.is-none)').first();
-    test.skip((await pill.count()) === 0, 'no listed prop has a current price in this cache');
+    await expect(pill, 'a listed prop has a current price in a sport with priced games').toBeVisible({ timeout: 20_000 });
     const dest = (await pill.getAttribute('data-dest'))!;
     const tk = decodeURIComponent(/tk=([^&]+)/.exec(dest)![1]);
     const row = page.locator('.pd-row', { has: page.locator(`[data-dest*="${encodeURIComponent(tk)}"], [data-dest*="${tk}"]`) }).first();
     const lanesBefore = await row.locator('.pd-lanes, .pd-lane, .pd-pb').first().innerText();
     // the same page, one market's feed status now says it is suspended (a real feed word)
-    await setup(page, (t) => (t === tk ? 'inactive' : undefined));
+    await setup(page, (t) => (t === tk ? 'inactive' : undefined), FAMILY);
     await page.reload();
     await ready(page);
     await page.waitForTimeout(1200);

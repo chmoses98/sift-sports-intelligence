@@ -6,7 +6,10 @@
 // Touch: the element these handlers go on must set `touch-action: pan-y`. The browser then keeps vertical panning (the page still scrolls
 // when a finger starts on the chart and moves up or down) and hands every horizontal movement to the page as pointer events, never
 // scrolling the page for it. The pointer is captured so a drag keeps selecting after the finger leaves the chart's box.
-import { useCallback, useRef, type PointerEvent } from 'react';
+//
+// A tap the browser cancels but still delivers as a click (WebKit sent pointerdown, pointercancel, pointerup, click for taps beside a column edge, in CI on
+// Playwright's iPhone profiles) selects the column the click landed on: a click only follows a finger that did not pan, so it is never a scroll in disguise.
+import { useCallback, useRef, type MouseEvent, type PointerEvent } from 'react';
 
 /** Which of `n` equal columns the horizontal position `x` falls in; `inset` is the unused margin at each end of the plot (same unit as x). */
 export function columnAt(x: number, left: number, width: number, n: number, inset = 0): number {
@@ -29,6 +32,8 @@ export function useColumnSelect(o: ColumnSelectOptions) {
   const opts = useRef(o);
   opts.current = o;
   const active = useRef<{ id: number; col: number } | null>(null);
+  /** Whether the pointer sequence that ends in the next click already committed a column (the click then has nothing to add). */
+  const committed = useRef(false);
 
   const colOf = useCallback((clientX: number): number | null => {
     const g = opts.current.geometry();
@@ -43,7 +48,7 @@ export function useColumnSelect(o: ColumnSelectOptions) {
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
     const col = commit ? colOf(e.clientX) ?? a.col : null;
     opts.current.onPreview(null);
-    if (col != null) opts.current.onCommit(col);
+    if (col != null) { committed.current = true; opts.current.onCommit(col); }
   }, [colOf]);
 
   return {
@@ -51,6 +56,7 @@ export function useColumnSelect(o: ColumnSelectOptions) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       const col = colOf(e.clientX);
       if (col == null) return;
+      committed.current = false;
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* a synthetic pointer cannot be captured */ }
       active.current = { id: e.pointerId, col };
       opts.current.onPreview(col);
@@ -64,5 +70,10 @@ export function useColumnSelect(o: ColumnSelectOptions) {
     onPointerUp: (e: PointerEvent<HTMLElement>) => end(e, true),
     // The browser took the gesture (a vertical scroll began): nothing is selected.
     onPointerCancel: (e: PointerEvent<HTMLElement>) => end(e, false),
+    onClick: (e: MouseEvent<HTMLElement>) => {
+      if (committed.current) { committed.current = false; return; }
+      const col = colOf(e.clientX);
+      if (col != null) { opts.current.onPreview(null); opts.current.onCommit(col); }
+    },
   };
 }

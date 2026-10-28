@@ -1,6 +1,7 @@
 // The Trend chart's touch geometry: N equal columns tile the plot, so a horizontal position belongs to exactly one column.
-import { describe, expect, it } from 'vitest';
-import { columnAt } from '../../src/v3/ui/charts/columnSelect';
+import { describe, expect, it, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { columnAt, useColumnSelect } from '../../src/v3/ui/charts/columnSelect';
 
 describe('columnAt', () => {
   it('cuts the plot into n equal columns with no gap and no overlap, at any chart width', () => {
@@ -29,4 +30,39 @@ describe('columnAt', () => {
   });
 
   it('no columns: nothing to select', () => { expect(columnAt(50, 0, 100, 0)).toBe(-1); });
+});
+
+describe('useColumnSelect: pointer sequences and the click that follows', () => {
+  const make = () => {
+    const commits: number[] = [], previews: Array<number | null> = [];
+    const { result } = renderHook(() => useColumnSelect({ n: 10, geometry: () => ({ left: 0, width: 100, inset: 0 }), onPreview: (i) => previews.push(i), onCommit: (i) => commits.push(i) }));
+    const target = { setPointerCapture: vi.fn(), releasePointerCapture: vi.fn() };
+    const ptr = (x: number) => ({ clientX: x, pointerId: 1, pointerType: 'touch', button: 0, currentTarget: target }) as never;
+    return { h: result.current, commits, previews, ptr, click: (x: number) => ({ clientX: x }) as never };
+  };
+
+  it('a clean tap commits once, on pointerup; the click that follows adds nothing', () => {
+    const { h, commits, ptr, click } = make();
+    h.onPointerDown(ptr(25)); h.onPointerUp(ptr(25)); h.onClick(click(25));
+    expect(commits).toEqual([2]);
+  });
+
+  it('a tap the browser cancels but still clicks (WebKit: pointerdown, pointercancel, pointerup, click) selects the column it landed on', () => {
+    const { h, commits, previews, ptr, click } = make();
+    h.onPointerDown(ptr(85)); h.onPointerCancel(ptr(85)); h.onPointerUp(ptr(85)); h.onClick(click(85));
+    expect(commits).toEqual([8]);
+    expect(previews.at(-1)).toBeNull();
+  });
+
+  it('a gesture the browser takes for a scroll (cancel, no click) selects nothing', () => {
+    const { h, commits, ptr } = make();
+    h.onPointerDown(ptr(85)); h.onPointerCancel(ptr(85));
+    expect(commits).toEqual([]);
+  });
+
+  it('a drag commits the column it ends on once, and its click adds nothing', () => {
+    const { h, commits, ptr, click } = make();
+    h.onPointerDown(ptr(15)); h.onPointerMove(ptr(45)); h.onPointerUp(ptr(75)); h.onClick(click(75));
+    expect(commits).toEqual([7]);
+  });
 });

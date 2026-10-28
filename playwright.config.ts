@@ -10,10 +10,17 @@ import { defineConfig, devices } from '@playwright/test';
 //   iphone     WebKit, iPhone 15 Pro (393x852, touch, Safari)   full journey, live market core, visual, smoke
 //   iphone-se  WebKit, iPhone SE 3rd gen (375x667, smallest current iPhone)  smoke (layout, overflow, fixed controls)
 const iphoneOnly = /@(smoke|journey|live|visual)/;
+// SIFT 3.0's real-document specs (e2e/v3-*.spec.ts: fixtures bundle, per-family pinned clocks, 390 px viewport, V3_* environment, the fidelity
+// baselines under e2e/v3-fidelity.spec.ts-snapshots) belong to playwright.v3.config.ts and are run by .github/workflows/v3-ci.yml on its own
+// projects (v3-phone, v3-iphone, v3-iphone-se). Under THIS config they get the wrong viewport (the 1280 px desktop project), the wrong snapshot
+// template and no committed baselines, so they fail here for reasons that say nothing about the product. e2e/v3.spec.ts (sample data, ?demo=1,
+// viewport independent) is not matched by the pattern and stays part of this suite, as it was when SIFT 3.0 first landed.
+const v3Specs = /[\\/]v3-[^\\/]+\.spec\.ts$/;
 // SIFT_E2E_PORT lets parallel worktrees each serve their own build (CI leaves it unset: 4173).
 const port = Number(process.env.SIFT_E2E_PORT || 4173);
 export default defineConfig({
   testDir: './e2e',
+  testIgnore: v3Specs,
   timeout: 120_000,
   expect: {
     timeout: 20_000,

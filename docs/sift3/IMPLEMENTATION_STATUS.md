@@ -242,3 +242,122 @@ Every start time v3 shows is the **league schedule's** (the explorer index's eve
 ### 5. Saved research reopening
 
 Saved records never carry a price: `reviveSaved` drops snapshot items, title/subtitle segments and chips that name a price (¢, ask, odds, bid, implied). Reopening restores the route; the price comes from the live store through the gate. `e2e/v3-saved-reopen.spec.ts` (run with the player cache for the Player group and the props cache for the Props group): the stored JSON and the saved card contain no price; the market is moved +3 cents (a test transformation of the feed) while saved and the reopened Player screen shows the new ask, not the one on screen when it was saved; reopened with only old observations it prints "—"; a saved Prop Discovery view reopens with the changed ask and, with old quotes, dashes.
+
+## Hardening: mobile performance
+
+Branch `claude/sift3-h-perf`. Scope: everything except Prop Discovery's own load (H-B). Goal: real transferred bytes, first meaningful content and interaction responsiveness on a phone. Every change keeps the quote policy (`data/quoteGate.ts` stays the one display seam, no visible freshness, a withheld price is "—"), URL state, Back/scroll restoration and the 78 tap targets.
+
+### Method (`scripts/v3-qa/screens-perf.mjs`)
+
+The method of `props-perf.mjs`, generalised to every screen and fed from the committed fixture bundle instead of a scratch cache:
+
+* **Documents** are answered by a local HTTP/2 + TLS server standing in for `raw.githubusercontent.com` (Chromium `--host-resolver-rules`; `--no-proxy-server` is required in this sandbox), from the fixture family the screen's spec uses (`e2e/support/feedSource`): Home, Games, Game Detail, Following, Explore from `game`; Player from `player`; Team from `team`; Stat from `stat`; Prop Discovery from `props`. Every body is gzip-encoded (level 6) with `cache-control: max-age=300` like GitHub; a document the family does not have answers 404; the quote-feed files are re-stamped to the family's pinned instant exactly as `freshQuotes`/`playerFeeds` do (timestamps only). Every other host is unresolvable.
+* **App code**: a production build (`VITE_SIFT_UI=classic ... vite build`, the e2e build) served gzip-encoded over HTTP/2 (GitHub Pages is HTTP/2; the earlier HTTP/1.1 static server of `props-perf.mjs` over-states a 90-request module graph; `APP_H1=1` restores it).
+* **Throttle** 9 Mbit/s down, 1.5 Mbit/s up, 170 ms latency, CPU 4x, 390x844 at DPR 2, touch, service workers blocked, `Date` pinned to the family's instant.
+* **Bytes** are the browser's own (`Network.loadingFinished.encodedDataLength`, headers included). **Documents** are the requests to `raw.githubusercontent.com` (a HEAD existence probe is a request with no body; shown as "+ n"). **Time** is `performance.now()` from navigation start, median of 5 runs, the two builds alternating run by run (this machine is shared: its load average was 5 to 9 during the runs, so lead with bytes and document counts; times are relative to the other build measured in the same minute).
+* **First meaningful content** (written down per screen): Home = the featured game card with both teams painted; Games (NFL, Upcoming) = the first card with its Kalshi lines box showing a price in cents; Game Detail = the "Win price" card showing a price; Player (Lamb) = the evidence lanes painted with a price; Team (DAL) = the first Overview card painted from the team profile ("5th of 28" on screen); Stat (adj_off_epa) = the first rank row; Following (DAL and Lamb followed) = the tracked-game row; Explore = the "What's Trending" list; Props = the first prop row or card (H-B's definition). **Interactive** = the first 1 s window after that without a task over 100 ms. **Tap to paint** = `pointerup` to the frame in which the result is on screen and no skeleton is left (a tab selected with its content; a chip pressed with its list; Game Center / a card opened to the game header).
+
+### Before and after
+
+"Before" is `origin/claude/sift3-impl` at 3c1453e6 (the base of this branch), "after" is this branch, both built the same way and measured by the same script, alternating run by run, median of 5. Bytes and documents are exact for these fixtures and do not depend on the machine; **times do** (the machine was shared, load average 5 to 10): treat differences under about 0.3 s as noise. Game, Player, Team and Statistic were measured twice (the second time after the entity early start was added); the first run gave first content 6.2 to 4.7 s (Game), 5.1 to 3.8 s (Player), 3.5 to 3.6 s (Team), 3.5 to 3.4 s (Statistic); the table below is the second run.
+
+| Screen | Documents (GET + HEAD probes) | Document KB (wire) | All KB (wire) incl. app code | First meaningful content | Interactive | Documents at first content |
+| --- | --- | --- | --- | --- | --- | --- |
+| home | 75 → 31 + 8 | 1,139 → 197 | 2,075 → 1,089 | 4.6 s → 3.1 s | 5.9 s → 3.3 s | 36 (993 KB) → 26 (153 KB) |
+| games | 71 → 29 + 8 | 1,121 → 288 | 1,902 → 1,027 | 5.5 s → 3.7 s | 5.5 s → 3.7 s | 41 (1,101 KB) → 29 (288 KB) |
+| game | 72 → 31 + 8 | 1,138 → 337 | 2,368 → 1,524 | 7.7 s → 5.5 s | 16.0 s → 6.0 s | 42 (1,118 KB) → 30 (305 KB) |
+| player | 84 → 33 + 8 | 1,160 → 318 | 2,128 → 1,244 | 5.2 s → 3.9 s | 5.6 s → 3.9 s | 41 (1,100 KB) → 32 (287 KB) |
+| team | 81 → 30 + 8 | 1,115 → 281 | 2,187 → 1,311 | 4.6 s → 4.2 s | 5.9 s → 4.2 s | 33 (1,043 KB) → 30 (281 KB) |
+| stat | 72 → 30 + 8 | 1,039 → 206 | 1,868 → 991 | 4.0 s → 3.2 s | 4.6 s → 3.5 s | 35 (996 KB) → 30 (206 KB) |
+| following | 73 → 28 + 8 | 1,026 → 193 | 1,779 → 900 | 4.2 s → 2.8 s | 4.2 s → 2.8 s | 40 (1,006 KB) → 27 (180 KB) |
+| explore | 73 → 34 + 8 | 1,026 → 678 | 1,837 → 1,443 | 4.6 s → 2.9 s | 5.1 s → 3.3 s | 40 (1,006 KB) → 29 (222 KB) |
+| props | 101 → 61 + 8 | 1,673 → 1,386 | 2,496 → 2,166 | 5.5 s → 4.7 s | 5.7 s → 4.8 s | 46 (1,312 KB) → 38 (958 KB) |
+
+Where "after" has "+ 8", the 8 are the HEAD existence probes (no body). The "before" counts include 30 to 40 documents that answer 404 in these fixtures (quote-feed files of games that were not captured; each costs a request and a round trip, not bytes); "after" has none to three. "All KB" is every request: documents, scripts, stylesheets, fonts, team logos. Documents at first content is what had finished by the first meaningful frame. On Home, the periodic main-thread work is gone too: long tasks (over 50 ms) after the first 4.5 s: 18 before, 0 after (one 55 to 110 ms task every second under the throttle; Games 8 to 0).
+
+By kind of document (count / KB on the wire):
+
+| Screen | by kind before | by kind after |
+| --- | --- | --- |
+| home | slate/other 26/153, explorer_index 8/811, explorer_metrics 2/28, event_detail 1/77, event_research(injuries) 4/17, quote_feed 34/51 | slate/other 26/153, explorer_index 9/27, event_research(injuries) 4/17 |
+| games | slate/other 26/153, explorer_index 8/811, explorer_metrics 2/28, quote_feed 34/51, event_detail 1/77 | slate/other 26/153, explorer_index 9/27, event_detail 1/77, quote_feed 1/31 |
+| game | slate/other 26/153, explorer_index 8/811, explorer_metrics 2/28, event_detail 1/77, event_research(injuries) 1/17, quote_feed 34/51 | explorer_index 9/27, slate/other 26/153, event_detail 1/77, event_research(injuries) 1/17, quote_feed 2/63 |
+| player | slate/other 27/167, explorer_index 8/811, player_profile 1/4, projection 2/12, explorer_metrics 2/28, event_detail 1/77, quote_feed 43/61 | explorer_index 9/27, slate/other 27/167, player_profile 1/4, projection 2/12, event_detail 1/77, quote_feed 1/31 |
+| team | slate/other 26/153, explorer_index 8/811, explorer_metrics 3/36, team_profile 1/17, event_detail 1/77, quote_feed 42/20 | explorer_index 9/27, slate/other 26/153, explorer_metrics 1/7, team_profile 1/17, event_detail 1/77 |
+| stat | slate/other 26/153, explorer_index 8/811, explorer_metrics 3/36, team_profile 1/17, ranking 1/2, quote_feed 33/20 | explorer_index 9/27, slate/other 26/153, explorer_metrics 1/7, team_profile 1/17, ranking 1/2 |
+| following | slate/other 30/167, explorer_index 8/811, explorer_metrics 2/28, quote_feed 33/20 | slate/other 27/167, explorer_index 9/27 |
+| explore | slate/other 30/167, explorer_index 8/811, explorer_metrics 2/28, quote_feed 33/20 | slate/other 30/167, explorer_index 12/511 |
+| props | slate/other 26/152, explorer_index 8/811, explorer_metrics 2/28, projection 4/21, event_detail 22/544, quote_feed 37/21, event_research(injuries) 2/95 | slate/other 26/152, explorer_index 13/573, projection 4/21, event_detail 22/544, event_research(injuries) 2/96, quote_feed 2/0 |
+
+Tap to paint (median of 5; differences under about 100 ms are noise on this machine):
+
+| Screen | Tap | Tap to paint |
+| --- | --- | --- |
+| home | sport chip NFL | 237 ms → 214 ms |
+| home | open game | 1191 ms → 875 ms |
+| games | sport chip NBA | 977 ms → 739 ms |
+| games | state chip Final | 158 ms → 123 ms |
+| games | state chip Upcoming | 595 ms → 444 ms |
+| games | sport chip NFL | 149 ms → 106 ms |
+| games | open game | 1307 ms → 1156 ms |
+| game | tab Matchup | 1526 ms → 1167 ms |
+| game | tab Props | 323 ms → 302 ms |
+| game | tab Overview | 430 ms → 342 ms |
+| player | tab Props | 274 ms → 302 ms |
+| player | tab Matchup | 539 ms → 508 ms |
+| player | tab Trends | 246 ms → 226 ms |
+| player | tab Log | 307 ms → 266 ms |
+| team | tab Players | 577 ms → 262 ms |
+| team | tab Schedule | 642 ms → 707 ms |
+| team | tab Form | 250 ms → 347 ms |
+| stat | tab Trend | 180 ms → 161 ms |
+| stat | tab Compare | 112 ms → 131 ms |
+| stat | tab About | 225 ms → 176 ms |
+| explore | search lamb | 507 ms → 558 ms |
+
+### What was found, and what changed
+
+Before, every SIFT 3.0 screen, whatever it showed, loaded the same shell: the slate of all eight sports (26 to 30 documents) **plus the explorer index of every sport (8 documents, 811 KB on the wire; NBA's alone is 453 KB)** **plus one live-quote file per candidate game of every sport (33 to 43 files, polled again every 90 s; Prop Discovery 37)**. The explorer indexes were read only to decide, per sport, whether the live publication has an explorer (`data/source.ts` `doResolve`); the quote files were registered by the slate (`opportunity/load.ts` `useAllOpportunities`) so that opportunities could be re-priced, which SIFT 3.0 never prints. In the fixtures most of the 33 to 51 quote files do not exist (only the games a spec needs were captured: they answer 404 and count as documents, not bytes), so the byte saving of this item is understated here; on the live feed each existing file is 10 to 35 KB.
+
+1. **Existence, not content, for the source decision** (`documentExists` in `data/fetcher.ts`, `data/source.ts`). While SIFT 3.0 is mounted, "does this sport's explorer exist?" is a HEAD request (a few hundred bytes) asked in parallel with the health document, instead of a read of the index after it. The reader keeps reading the index, once, for the screens that need it (Team, Player, Stat, Game for that sport). The probe is OFF for SIFT 2.0, classic and v4 (they read the document as before), falls back to a read when the host answers 405/501, and is a read through the swapped reader in every unit test. **Cost of the change (owner decision 1):** the source decision no longer validates the index's `schema_version`; a publisher that moved an index to an unsupported schema would now fail on the screen that reads it (with its honest state and Retry) instead of falling back to the saved copy at the source decision. -811 KB and -8 documents on every screen.
+2. **The slate registers no quote and reads no settled-record document** (`useLeanOpportunities`, `v3/data/useSlate.tsx`). It prints no price; the screens that do (Games cards, Game Detail, Player, Props, the contract sheet) register exactly the contracts they print, as they already did, and the quote gate is untouched. The slate no longer re-computes whenever any quote changes. The NHL learning scorecard and the tennis record (29 KB of metrics plus the NHL and tennis indexes they needed, 156 KB) only feed an opportunity's record text; neither changes whether it is a candidate. Home's featured card prints no price either, so it no longer reads the game's contract document nor registers a detail-cadence quote scope (`useGameExtras(..., 'photo')`).
+3. **Games reads a league's schedule only for a card that has been near the screen** (`GameCard`). One league's schedule is its explorer index (NBA 453 KB, tennis 130 KB).
+4. **Following reads a sport's search index only to name a player followed in that sport** (it read all four: NBA's is 453 KB with the explorer index it is found through).
+5. **The slate no longer re-renders every second.** The score store recomputes every second while games are observed and notified on every recompute; the slate subscribed to that and rebuilt ~600 games and re-rendered every screen reading it, once a second, for as long as the app was open (40 to 60 ms of main-thread time per second under the 4x throttle; visible in the trace as a timer task every second). `v3/data/scoreReads.ts` subscribes to a signature of what would be printed (verified score, clock, final, delayed) instead. Scores, the Delayed word and the verification rules are unchanged (`e2e/v3-scores.spec.ts`).
+6. **Early start** (`v3/data/early.ts`, called from `v3/routes.tsx` when the entry script runs): for a `#/v3...` address the shell chunk, the screen's chunk, the slate's documents (health, board, recommendations of every sport in parallel instead of health, then board, then recommendations) and the entity a team, player, statistic or game address names (index, profile, metrics, contract document) are requested when the entry script runs, not after three lazy layers have mounted. The readers are the app's own memoised ones, so nothing is read twice; sample-data mode and Settings do nothing here; Statistic Detail does not start the slate early (the shell still reads it once mounted).
+7. **CPU on the first screen**: one-pass featured-game pick (each game's tier computed once instead of inside a 600-game sort comparator; identical answers on 300 random slates, `tests/v3/perf.test.ts`), one `V3Team` per club and one view-model per slate row (so a re-derivation after a score or a schedule reuses them), chip rails measure once per frame instead of forcing a layout after every render (`ChipRail`: the measurement ran in a layout effect on every commit).
+8. **Home's "What's happening"** reads its injury documents when the section is within 300 px of the screen (on a 390x844 phone it is: the list is at the fold, so the numbers below include them; on a shorter screen they wait).
+9. **Fonts and the worker**: the two Barlow files that the classic page preloads are no longer preloaded for a `#/v3` address (45 KB v3 never draws; `vite.config.ts`), and on a `#/v3` address the service worker registers 6 s after load instead of at start-up (`main.tsx`): a first visit installs the worker, which downloads the whole app in the background (267 files, 1.6 MB on the wire); that no longer shares the connection with the first screen. Not measured by the harness (service workers are blocked there, as in `props-perf.mjs`).
+
+### Budgets that fail on a regression
+
+* `e2e/v3-screens-budget.spec.ts` (9 tests, committed fixtures, one per screen): unique documents by kind, repeated reads, existence probes and wire bytes of the first screen, each with the measured value and the previous value beside the limit. Examples: Home 34 documents / 225 KB with no quote file, no contract document, no game log and at most one schedule; Games at most one quote file per card shown; Stat no quote and at most one index; Following only the league of a followed player; every sport probed with HEAD and no index read for a league no card shows. A change that goes back to reading the eight indexes or polling the candidate games fails every one of them.
+* `tests/v3/perf.test.ts` (9): the probe (HEAD when allowed, a read when not, 404 and other failures, the 405 fallback, off by default), the address test of the early start, and the equality of the single-pass featured pick and strip with the sorted ones they replaced.
+* The test helpers (`e2e/support/realFeeds.ts`, `playerFeeds.ts`) now log a HEAD under `probed`, not `served`: "no document is read twice" in `v3-props-budget` is about reads.
+
+### What did not improve, and why
+
+* **Team and Statistic first content is only slightly faster.** Their first screen is gated by their own chain (health, explorer index, profile, one more document) and by a main thread that is busy computing the slate for the shell (the CPU is the limit: under the 4x throttle the first screen runs ~1.1 s of module evaluation and ~0.6 s of React and slate work). The early start of the entity (index and profile requested at entry time) took the tail of that chain off but cannot take the shared CPU work off.
+* **Interaction responsiveness is mostly render time, not bytes.** Tab and chip taps paint in 100 to 550 ms under the 4x throttle (a few tens of ms of real CPU); the two slow ones are Game Detail's Matchup tab (1.0 s: both team profiles, the ranking documents they point to, then the largest render in the app) and opening a game from a card (about 1 s: the game chunk, its contract document, the render). Those documents are read when the tab or the screen asks for them, which is the point of lazy reading; reading them ahead would cost bytes on every visit to save a round trip on some.
+* **Explore (search) still reads 678 KB.** The search covers four sports and each needs its explorer index (the file table; NBA's is 453 KB) only to find its search index (14 KB). I made the read wait for the first focus or keystroke and reverted it: the search icon opens Explore with the field focused (so the saving never applied to the real path), and `e2e/v3-unavailable.spec.ts` rightly asserts that a failed search index is said out loud when Explore opens. Needs the publisher: a small search manifest.
+* **Games still pays one league schedule per league shown and one contract document per card shown.** The start-time authority (H-D) is the league's explorer index (NBA 453 KB, tennis 130 KB) and a card's lines come from the game's `event_detail` (0.3 to 1.3 MB raw). Opening Games on NBA (76 upcoming games) reads 99 documents as the list scrolls. Needs the publisher: a per-league schedule document and a per-game lines document.
+* **The app code is still 725 to 750 KB on the wire in ~90 requests for the first screen** (it was 770 to 795 KB). The entry chunk carries ~250 KB of classic views (CBB 67 KB, broadcast, game, home, markets, board) that SIFT 3.0 never draws, and 23 classic stylesheets (97 KB gzip, render-blocking) are imported by `main.tsx` for every address; the fonts are 173 KB (Geist 400/500/600/700 at 35 KB each, Sora 34 KB). A v3-only entry would remove roughly 170 KB; it touches the entry that classic and v4 share, so it is not done here. Merging small chunks was tried (Rolldown `codeSplitting` group over the shared libraries: 91 to 55 requests, +27 KB, first content within noise) and not kept.
+* **Prop Discovery** gains only what the cheaper shell gives it (documents 101 to 61, 1,673 to 1,386 KB, first content 5.5 to 4.7 s); its own load is H-B's.
+
+### Owner decisions
+
+1. **Source decision without the index's schema check** (item 1 above): accept, or keep the full read for sports whose HEAD succeeded (costs the 811 KB back).
+2. **Publisher backlog** for the three costs left above: a small per-sport search manifest, a per-league schedule document, a per-game lines document (`BACKEND_BACKLOG.md`).
+3. **First-visit worker install** (267 files, 1.6 MB): it now starts 6 s after load on a `#/v3` address. Say if the precache should be narrower (SIFT 3.0's shell only) or on demand.
+4. **A v3-only entry** (about 170 KB less code and the classic stylesheets off the first screen) and **a variable Geist** (one file instead of four, about -80 KB, a new dependency): both are possible; both change shared build inputs.
+5. Home lists up to four games' injury items; on a phone that list is at the fold, so four 17 KB documents (about 70 KB) are read with the first screen. Two games would halve it.
+
+### Gates (final code, this branch)
+
+* `npx tsc -b` and `npx eslint src/v3 tests/v3 e2e scripts` (plus `src/data src/opportunity src/main.tsx tests/live`): clean.
+* `npx vitest run`: 173 files passed, 3 skipped; 2110 tests passed, 3 skipped (`tests/v3` alone: 35 files, 479 tests, including the new `perf.test.ts`).
+* Chromium `v3-phone`, offline from the committed fixtures, `--workers=1`, dev server, on a loaded machine: `v3` 18, `v3-foundations` 6, `v3-saved` 5, `v3-a11y` 27, `v3-hit-targets` 26 (the 78 tap targets), `v3-quotegate` 11, `v3-game` 20, `v3-player` 31, `v3-team` 23, `v3-stat` 32, `v3-props` 27, `v3-nontradable` 11, `v3-scores` 5, `v3-unavailable` 78, `v3-screens-budget` 9 (new), `v3-props-budget` 3, `v3-props-avail` 5, `v3-rails` 35, `v3-timezones` 26, `v3-welcome` 5, `v3-starts` 2, `v3-saved-reopen` 3, `v3-stat-trend` 20 (+2 skipped by their own condition): **428 passed, 2 skipped**. Two flakes under load, each green on rerun and neither in code this change touches: `v3-team` "Form results beyond the first six" (a count read right after the address changed; 22/23 in one run, 23/23 in the next) and `v3-nontradable` "a props row whose market is closed" (Escape closing the contract sheet did not finish within 10 s while the machine's load average was 10; 11/11 alone). Two existing expectations were adapted because the behaviour they describe was changed on purpose: the test helpers log a HEAD as `probed`, not `served` (a probe is not a read: `v3-props-budget` "no document is read twice"), and the score-isolation allowlist (`tests/live/scores-isolation.test.ts`) names `v3/data/scoreReads.ts` beside `useSlate.tsx` (the same display-only bridge, now in its own file).
+* WebKitGTK (real WebKit engine, not iOS Safari): `python3 scripts/v3-qa/journeys.py` against this branch's dev server: **48/48**.
+* Merge check: `git merge origin/claude/sift3-impl` (7babbdd2, with H-F merged) conflicts in `src/v3/V3Root.tsx` only (the import block: keep both `import { addressIs } from './state/url'` and this branch's `setExistenceProbe, setFetchTimeout` and `applyV3FetchBounds` imports; drop the now unused `RESEARCH_FETCH_TIMEOUT_MS`). Not merged here; the gates above ran on this branch's own tree.
+* Not verified: a real iPhone (everything here is Chromium under emulated throttling, or WebKitGTK); the service-worker first-visit install under throttle; the live quote feed's real file sizes (the fixtures hold only the games a spec needs).
+

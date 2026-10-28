@@ -83,3 +83,10 @@ Deterministic: fixtures only, family clocks, `freshQuotes`, Welcome dismissed in
 4. **SD5 threshold stepper and SD1 "Side by side" link** are additions to the locked images: keep or remove?
 5. NHL team page has two tabs (data); locked TR6 draws five.
 6. No iOS status bar, home indicator or iOS Safari rendering (Chromium on Linux). The on-device pass in `DEVICE_CHECKLIST.md` is still required.
+
+## Baseline sets (CI)
+
+The first CI run of the spec (run 40655956066, v3-phone, GitHub ubuntu-latest, Playwright's pinned Chromium 141) differed from the sandbox set (Chrome for Testing 153) by
+2 to 7% of the pixels in all 30 scenes while all 432 other tests passed: the committed set is the sandbox's and does not describe CI's rasteriser. The spec now keys the set by environment:
+`<ID>-v3-phone-linux.png` (sandbox, default) and `<ID>-v3-phone-ci-linux.png` (used when `CI` is set, or `V3_BASELINES=ci`). To adopt the CI set, take the `<ID>-actual.png` files from the
+`v3-results-v3-phone` artifact of a CI run (test-results/v3-fidelity-*/), review them against the references, and commit them as `<ID>-v3-phone-ci-linux.png`.

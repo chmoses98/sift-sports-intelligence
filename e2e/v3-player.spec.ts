@@ -328,7 +328,7 @@ test.describe('Player Research P3: research filters @v3', () => {
     await expect(live).not.toHaveText(before);                                      // the live card follows the draft
     await expect(reset).not.toHaveAttribute('aria-disabled', 'true');
     await reset.click();                                                            // Reset restores the default draft ...
-    await expect(live).toHaveText(before);
+    await expect.poll(() => live.innerText()).toBe(before);
     await expect(reset).toHaveAttribute('aria-disabled', 'true');                   // ... and is inert again, still focused
     await expect(reset).toBeFocused();
     await away.click();

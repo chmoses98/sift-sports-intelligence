@@ -57,6 +57,22 @@ test.describe('SIFT 3.0 foundations @v3', () => {
     expect(Math.abs((await y(page)) - before)).toBeLessThanOrEqual(4);
   });
 
+  // The shell drops `?demo=` from the address in an effect after it mounts, and Stat Detail rewrites a first-build ranking id once its catalog has answered. Both are
+  // `replace`s, which land on whichever entry is current when they run: one that runs after the viewer has moved on must not put the old screen's address on the new one.
+  for (const gap of [0, 10, 30, 60]) {
+    test(`an address rewritten after the fact never overwrites the entry the viewer has moved to (second navigation ${gap} ms later)`, async ({ page }) => {
+      await go(page, '/v3/games?demo=1');
+      await expect(page).not.toHaveURL(/demo=/);
+      await page.evaluate((ms) => new Promise<void>((done) => {
+        location.hash = '#/v3/explore?demo=1';
+        setTimeout(() => { location.hash = '#/v3/following?demo=1'; done(); }, ms);
+      }), gap);
+      await expect(page).toHaveURL(/#\/v3\/following/);
+      await page.waitForTimeout(600);
+      expect(await hash(page)).toMatch(/^#\/v3\/following/);
+    });
+  }
+
   test('closing a sheet with its X leaves no extra entry behind', async ({ page }) => {
     await go(page, '/v3/explore?demo=1');
     await go(page, '/v3/player/nba/sample-guard?demo=1');

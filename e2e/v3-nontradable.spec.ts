@@ -74,6 +74,8 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
     await px.first().click();
     await expect(page).toHaveURL(/sheet=contract&tk=(KXNFL[A-Z]+-[^&]+)/);
     const tk = /tk=([^&]+)/.exec(page.url())![1];
+    // The address changes before the sheet has mounted and taken focus (its Escape handler is attached in that same step): press Escape once it has.
+    await expect(page.locator('[role="dialog"]:focus-within')).toHaveCount(1);
     await page.keyboard.press('Escape');
     await expect(dlg(page)).toHaveCount(0);
     await page.evaluate((h) => { location.hash = h; }, `${GAME}?tab=props`);

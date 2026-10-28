@@ -6,6 +6,7 @@
 // Tap-matrix rows owned (tests/v3/tapmatrix.ts, milestone 6): 1-7 PD home, 8-12 PD list, 13-17 PD list (expanded). Each is exercised
 // below as `[row N]` and, after every tap, Back must restore the address, the scroll offset, the expanded row and close any sheet.
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { offsetBeforeClick } from './support/scroll';
 import { expectNoStolenTaps } from './support/hitTargets';
 import { feedNow, freshQuotes, useRealFeeds } from './support/realFeeds';
 
@@ -276,9 +277,9 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const n = await chips.count();
     test.skip(n < 2, 'this prop lists a single rung');
     const len = await histLen(page);
-    const y0 = await y(page);
     const second = peek.locator('.pd-rs[aria-pressed="false"]').first();                                    // a rung other than the featured one
     const label = (await second.locator('b').innerText()).trim();
+    const y0 = await offsetBeforeClick(page, second);                                                       // a short phone's tab bar can cover the chip: the click would scroll first
     await second.click();
     await expect(peek.locator('.pd-rs', { hasText: label })).toHaveAttribute('aria-pressed', 'true');
     await expect(page).toHaveURL(/exp=[^&]+(@|%40)\d+/);

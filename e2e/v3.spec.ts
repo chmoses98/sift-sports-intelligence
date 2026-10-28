@@ -11,6 +11,9 @@ test.beforeEach(async ({ page }) => {
 const go = async (page: Page, path: string) => {
   await page.goto(`./#${path}`);
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
+  // `?demo=` is dropped from the address by an effect once the shell has mounted (replace, no history entry). Wait for that, so an address read
+  // afterwards is the settled one: on a slower engine a read taken straight after the shell appears can still hold the parameter.
+  if (/[?&]demo=/.test(path)) await expect(page).not.toHaveURL(/[?&]demo=/);
 };
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 

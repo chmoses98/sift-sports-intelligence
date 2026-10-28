@@ -3,7 +3,7 @@
 // (the committed `game` fixture family, fixtures/real; its clock pin); the sample-data tests need no network. Unit coverage of the module is tests/v3/time.test.ts.
 //
 // DAL at PHI starts 2026-10-27T00:15:00Z. In a UTC sandbox that reads "Tue 12:15 AM"; for a New York viewer it is Monday 8:15 PM, today.
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { feedNow, useRealFeeds as answerWithRealFeeds } from './support/realFeeds';
 
 const FAMILY = 'game' as const; // the committed `game` fixture family (fixtures/real)
@@ -32,6 +32,24 @@ const go = async (page: Page, path: string, ready: string) => {
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
   await page.waitForSelector(ready, { timeout: 30_000 });
 };
+/**
+ * Tap the card's body: the stretched link behind the card's other targets (team, lines, star, bell). Its centre can sit under the lines box on a narrow phone (an iPhone SE is
+ * 375 wide), where a centre click would be received by that button, so tap a point the link itself receives.
+ */
+async function tapCardBody(card: Locator) {
+  const hit = card.locator('.v3-gc__hit');
+  await hit.scrollIntoViewIfNeeded();
+  const at = await hit.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    for (const fy of [0.5, 0.3, 0.7, 0.15, 0.85, 0.08, 0.92]) for (const fx of [0.5, 0.3, 0.7, 0.12, 0.88, 0.04, 0.96]) {
+      const x = r.left + r.width * fx, y = r.top + r.height * fy;
+      if (document.elementFromPoint(x, y) === el) return { x: r.width * fx, y: r.height * fy };
+    }
+    return null;
+  });
+  expect(at, 'a point of the card body that its own link receives').not.toBeNull();
+  await hit.click({ position: at! });
+}
 const dalCard = (page: Page) => page.locator('article.v3-gc', { has: page.locator('.v3-gc__hit') }).filter({ has: page.locator(`.v3-gc__hit[aria-label^="Dallas Cowboys at Philadelphia Eagles"]`) });
 
 test.describe('the captured slate (real documents) in real viewer zones', () => {
@@ -64,7 +82,7 @@ test.describe('the captured slate (real documents) in real viewer zones', () => 
       test(`Game Detail: DAL at PHI reads "${z.word} · ${z.clock}"`, async ({ page }) => {
         await boot(page);
         await go(page, `/v3/games?sport=nfl${z.todayList ? '' : '&date=2026-10-27'}`, '.v3-gclist .v3-gc');
-        await dalCard(page).locator('.v3-gc__hit').click();
+        await tapCardBody(dalCard(page));
         await expect(page.locator('.v3-gh__when')).toContainText(z.clock, { timeout: 20_000 });
         expect(plain(await page.locator('.v3-gh__when').textContent())).toContain(`${z.word} · ${z.clock}`);
       });

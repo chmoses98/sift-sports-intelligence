@@ -2,12 +2,14 @@
 // the entry it returns to; an in-place change (window, tab, filter) never moves the page and never adds a history entry; a sheet is one
 // history entry that Back closes; links inside a sheet leave no ghost entry.
 import { test, expect, type Page } from '@playwright/test';
+import { frames, offsetBeforeClick } from './support/scroll';
 
 test.beforeEach(async ({ page }) => { await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1)/, (r) => r.abort()); });
 
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); await page.waitForTimeout(300); };
 const y = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
-const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(200); };
+// The app remembers the offset from scroll events, which a browser dispatches with the next frame: let them run before anything leaves the page.
+const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(200); await frames(page); };
 const hash = (page: Page) => page.evaluate(() => location.hash);
 const histLen = (page: Page) => page.evaluate(() => history.length);
 
@@ -45,8 +47,9 @@ test.describe('SIFT 3.0 foundations @v3', () => {
     await page.locator('[data-win="L5"]').click();
     const url = await hash(page);
     await scrollTo(page, 120);
-    const before = await y(page);
-    await page.getByRole('button', { name: /Research filters/ }).click();
+    const opener = page.getByRole('button', { name: /Research filters/ });
+    const before = await offsetBeforeClick(page, opener);   // on a short phone the sticky bar covers the button at 120 and the click scrolls it clear first
+    await opener.click();
     await expect(page.getByRole('dialog', { name: 'Research filters' })).toBeVisible();
     await page.goBack();
     await expect(page.getByRole('dialog')).toHaveCount(0);

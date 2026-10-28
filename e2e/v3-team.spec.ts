@@ -37,6 +37,9 @@ async function tapAndBack(page: Page, loc: Locator, kind: string, dest: RegExp) 
   // Prop Discovery (milestone 6) owns /v3/props: the address stays inside SIFT 3.0 (it is never handed to the classic `/:slug/props` route).
   const prefix = '';
   await expect.poll(() => hash(page)).toMatch(new RegExp(`^#${prefix}${dest.source.replace(/^\^/, '')}`));
+  // A team page links a statistic by its first-build ranking id ("rnk_…"); Stat Detail rewrites the address in place (replace) once its catalog has answered. Let that
+  // finish before leaving, so Back is judged on the settled entry (the screen itself ignores a rewrite that arrives after the viewer has already gone Back).
+  if (kind === 'stat') await expect.poll(() => hash(page), { message: 'the statistic address settles on its short id' }).not.toMatch(/^#\/v3\/stat\/[a-z]+\/rnk_/);
   await page.goBack();
   await expect.poll(() => hash(page)).toBe(before);
   await expect.poll(async () => Math.abs((await y(page)) - at), { timeout: 5_000 }).toBeLessThanOrEqual(8);

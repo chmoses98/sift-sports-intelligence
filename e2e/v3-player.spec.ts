@@ -4,6 +4,7 @@
 // components; each ends with Back and a check that the exact state returned.
 import { test, expect, type Page } from '@playwright/test';
 import { usePlayerFeeds, PAGE_NOW } from './support/playerFeeds';
+import { frames, offsetBeforeClick } from './support/scroll';
 
 const LAMB = '/v3/player/nfl/prt_4c661ae8b854ff5f66dd';
 test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
@@ -21,7 +22,7 @@ const ready = async (page: Page, route = LAMB, on = '.v3p-hb') => { await go(pag
 const hash = (page: Page) => page.evaluate(() => location.hash);
 const y = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
 const histLen = (page: Page) => page.evaluate(() => history.length);
-const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(250); };
+const scrollTo = async (page: Page, to: number) => { await page.evaluate((t) => window.scrollTo(0, t), to); await page.waitForTimeout(250); await frames(page); };
 /** What must come back after Back: the address (tab, stat, line, window, filters), the scroll offset, and the visible line and window. */
 const snap = async (page: Page) => ({ hash: await hash(page), y: await y(page), win: await page.evaluate(() => document.querySelector('[data-win][aria-pressed="true"]')?.getAttribute('data-win') ?? null), sheet: await page.getByRole('dialog').count() });
 const backTo = async (page: Page, before: Awaited<ReturnType<typeof snap>>) => {
@@ -37,12 +38,26 @@ const noFreshnessText = async (page: Page) => {
   expect(text).not.toMatch(/\bago\b|\bstale\b|last updated|last known|updated \d|\d+\s?(s|sec|min|mins|minutes|h|hr|hours)\s+old\b|as of \d/i);
 };
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+/**
+ * Who the screen says this is. A tall phone shows the hero (photo, name, position and team, availability); a short one (max-height 700px: an iPhone 15 Pro in Safari is
+ * 659 high, an iPhone SE 667) swaps it for the compact bar in flow so the chart, the line and the price fit above the tab bar (see useShortScreen). Both carry the name and
+ * the team page link; only the hero carries the position.
+ */
+async function expectIdentity(page: Page, lastName: string, o: { position?: string; team: string | RegExp }) {
+  if ((await page.locator('.v3p').getAttribute('data-short')) === null) {
+    await expect(page.locator('.v3p-hero h1')).toContainText(lastName);
+    if (o.position) await expect(page.locator('.v3p-hero')).toContainText(o.position);
+  } else {
+    await expect(page.locator('.v3p-hero')).toHaveCount(0);
+    await expect(page.locator('.v3p-mini.is-on b')).toContainText(lastName);
+    await expect(page.locator('.v3p-mini.is-on [data-tap="team"]')).toHaveAttribute('aria-label', o.team);
+  }
+}
 
 test.describe('Player Research P1: overview on real documents @v3', () => {
   test('hero, game strip, five tabs, statistic pills, the decision card with its three lanes, windows and the chart', async ({ page }) => {
     await ready(page);
-    await expect(page.locator('.v3p-hero h1')).toContainText('Lamb');
-    await expect(page.locator('.v3p-hero')).toContainText('WR · DAL');
+    await expectIdentity(page, 'Lamb', { position: 'WR · DAL', team: 'Dallas Cowboys, team page' });
     await expect(page.locator('.v3p-strip-g')).toContainText(/at PHI/);
     await expect(page.getByRole('tab')).toHaveText([/^Overview/, /^Props\d+/, /^Matchup/, /^Trends/, /^Log/]);
     await expect(page.locator('.v3p-pill[data-stat="receptions"]')).toHaveAttribute('aria-pressed', 'true');
@@ -257,7 +272,8 @@ test.describe('Player Research P2: dragging the line @v3', () => {
   test('the alt-line ladder lists every rung with its three lanes; a rung sets the line, and the sheet lists them all', async ({ page }) => {
     await ready(page);
     const rows = page.locator('.v3p-ladder .v3p-lr');
-    expect(await rows.count()).toBeGreaterThan(2);
+    // the rungs come from the live-quote document, which can answer after the chart is already drawn: wait for them rather than count once
+    await expect.poll(() => rows.count(), { message: 'the alt-line ladder lists the Kalshi rungs' }).toBeGreaterThan(2);
     await expect(rows.first()).toHaveAttribute('aria-label', /Market .*History .*SIFT model/);
     const target = rows.nth(1);
     const k = await target.getAttribute('data-rung');
@@ -323,9 +339,11 @@ test.describe('Player Research P3: research filters @v3', () => {
     await ready(page, `${LAMB}?win=L5&site=away`);
     await page.locator('.v3p-lr').nth(1).click();
     await scrollTo(page, 120);
+    const opener = page.getByRole('button', { name: /^Research filters/ });
+    await offsetBeforeClick(page, opener);                                          // a short phone's sticky bar covers the button at 120: the click would scroll first
     const before = await snap(page);
     expect(before.hash).toMatch(/line=/);
-    await page.getByRole('button', { name: /^Research filters/ }).click();
+    await opener.click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.goBack();                                                            // Back closes the sheet and leaves the state alone
     await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -503,7 +521,7 @@ test.describe('Player Research: missing data and missing quotes @v3', () => {
 
   test('basketball (published box logs): the chart works, the SIFT lane says why it is empty, Matchup says "No matchup rows"', async ({ page }) => {
     await ready(page, DAVIS);
-    await expect(page.locator('.v3p-hero h1')).toContainText('Davis');
+    await expectIdentity(page, 'Davis', { team: /, team page$/ });
     await expect(page.locator('.x-trio > *').nth(2)).toContainText('—');
     await expect(page.locator('.x-trio > *').nth(2)).toContainText(/awaiting live inputs|not approved yet/);
     await go(page, `${DAVIS}?tab=matchup`);

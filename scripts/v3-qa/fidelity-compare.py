@@ -27,13 +27,13 @@ def main():
             continue
         impl = Image.open(os.path.join(impl_dir, f)).convert('RGB')
         ref_path = os.path.join(REF_DIR, sid.lower() + '.png')
-        out = os.path.join(out_dir, f'{sid}-{size}.png')
+        out = os.path.join(out_dir, f'{sid}-{size}.jpg')
         if not os.path.exists(ref_path):
-            impl.save(out)
+            impl.save(out, quality=78, optimize=True)
             print(out, 'impl only', impl.size)
             continue
         ref = Image.open(ref_path).convert('RGB')
-        H = 1200
+        H = 960
         a = ref.resize((int(ref.width * H / ref.height), H), Image.LANCZOS)
         b = impl.resize((int(impl.width * H / impl.height), H), Image.LANCZOS)
         bar = 34
@@ -42,7 +42,7 @@ def main():
         d = ImageDraw.Draw(c)
         d.text((8, 10), f'{sid} locked reference', fill=(220, 220, 220))
         d.text((a.width + 32, 10), f'{sid} implementation {size} (fixtures/real)', fill=(220, 220, 220))
-        c.save(out, optimize=True)
+        c.save(out, quality=78, optimize=True)
         print(out, c.size)
 
 

@@ -31,6 +31,8 @@ export interface Scene {
 }
 
 const scrollTo = async (page: Page, y: number) => { await page.evaluate((t) => window.scrollTo(0, t), y); await page.waitForTimeout(250); };
+/** A tap inside a sheet can scroll the sheet's own body a few points (it scrolls the target into view); the scene is the sheet at its top. */
+const sheetToTop = async (page: Page) => { await page.evaluate(() => { const b = document.querySelector('.v3-sheet__body'); if (b) b.scrollTop = 0; }); await page.waitForTimeout(250); };
 const scrollIntoTop = async (page: Page, sel: string, pad = 70) => {
   await page.evaluate(({ s, p }) => { const el = document.querySelector(s); if (el) window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - p)); }, { s: sel, p: pad });
   await page.waitForTimeout(300);
@@ -51,6 +53,7 @@ export const SCENES: Scene[] = [
       const away = page.getByRole('button', { name: /^Away/ });
       if (await away.count()) await away.first().click();
       await page.waitForTimeout(500);
+      await sheetToTop(page);
     },
   },
   { id: 'P4', ref: 'p4', title: 'Matchup tab', family: 'player', route: `${PLAYER}?tab=matchup`, ready: '.v3p-sl', dense: true },
@@ -77,7 +80,7 @@ export const SCENES: Scene[] = [
   },
   {
     id: 'PD4', ref: 'pd4', title: 'Sort and filter', family: 'props', route: '/v3/props?v=1&view=list&sport=nhl&fam=points&sort=price', ready: '.pd-row', dense: true,
-    prep: async (page) => { await page.getByRole('button', { name: /Open sort and filters/ }).click(); await page.waitForSelector('.pd-fs'); await page.waitForTimeout(600); },
+    prep: async (page) => { await page.getByRole('button', { name: /Open sort and filters/ }).click(); await page.waitForSelector('.pd-fs'); await page.waitForTimeout(600); await sheetToTop(page); },
   },
   {
     id: 'PD5', ref: 'pd5', title: 'Compare', family: 'props', route: '/v3/props?v=1&view=list&sport=nfl&fam=receptions', ready: '.pd-row', dense: true,

@@ -1,5 +1,7 @@
 // Visual regression for the 26 locked research designs and the four root tabs (e2e/support/fidelityScenes.ts), from the COMMITTED real-document fixtures only
 // (offline, each family on its pinned clock, quote prices from freshQuotes, animations off, web fonts loaded). Chromium phone project only (390x844).
+// The baselines were generated against the PRODUCTION build served by `vite preview` (V3_SERVER=preview after `npm run build:e2e`, the server CI uses): the dev
+// server transforms CSS differently and, from a symlinked node_modules, cannot serve the web fonts, so it is not expected to match.
 //
 // Baselines: e2e/v3-fidelity.spec.ts-snapshots/<scene>-v3-phone-linux.png, generated in the Linux Chromium sandbox
 // (SIFT_CHROMIUM=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome; CI Linux is the same family). Regenerate after an intended visual change with
@@ -20,8 +22,10 @@ const ONLY = process.env.V3_FIDELITY_ONLY?.split(',');
 test.use({ timezoneId: 'America/New_York', locale: 'en-US', viewport: { width: W, height: H }, deviceScaleFactor: OUT ? 2 : 1 });
 test.setTimeout(150_000);
 
-// A regression this small is a real change (one text line is about 0.6% of the frame); anti-aliasing noise between runs is far below it.
-const THRESHOLD = { maxDiffPixelRatio: 0.004, threshold: 0.2 };
+// Reviewed thresholds. Three consecutive runs on this machine gave 0 differing pixels for all 30 scenes, so the budget is for cross-machine rasterisation only:
+// 0.2% of the 390x844 frame (about 660 pixels: less than one line of text set in a different weight) with a per-pixel colour tolerance of 0.2 (YIQ).
+// A moved card, a missing element, a wrapped or truncated label or a changed colour token exceeds it.
+const THRESHOLD = { maxDiffPixelRatio: 0.002, threshold: 0.2 };
 
 test.describe('Visual fidelity: locked designs and root tabs @v3-visual', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'baselines are Chromium (Linux) only');

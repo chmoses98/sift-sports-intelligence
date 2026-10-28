@@ -347,6 +347,7 @@ Run on this branch after the last code change (the development machine was under
   **Independent of this machine:** GitHub's `CI` workflow for commit `045c0bcc` (full unit and integration tests, lint, typecheck, production build)
   passed on a runner, whole workflow `success` including the Chromium/WebKit acceptance suite (push run 40568142558). Commits after `045c0bcc`
   changed only the drill script, tests and docs and were pushed with `[skip ci]` to keep the shared runner queue free (see CI_DRILL.md section 2); the owner may re-run CI on the head.
+- 2026-10-28, head `763dd970` (no code change since `045c0bcc`): `npx tsc -b` and `npx eslint .` exit 0; `npx vitest run` in one pass: 154 files (151 passed, 3 skipped), 2081 tests passed, 3 skipped, 0 failed. Against `origin/main`, `src/live/config.ts`, `providers/fallback.ts`, `preflight.ts`, `freshness.ts`, `overlay.ts`, `src/v3`, `relay/` and `.github/workflows/live-quotes.yml` are byte-identical. CI drill re-run on this head: run 40707077740, all five stages matched (`CI_DRILL.md` section 2).
 - Before this round the track had 149 files and 1847 tests; this round added `quoteNonTradable` (190), `quote-drill-ci` (11), 32 monitor tests, 1 drill-script test and the
   `quoteMissingTickers`/`quoteInvisible` edits.
 - `node scripts/quote-monitor-drill.mjs`: **19 of 19 scenarios matched**. `node scripts/quote-monitor-drill.mjs --ci --stages=3`: stage 3 matched.

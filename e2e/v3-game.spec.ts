@@ -64,6 +64,7 @@ test.describe('Game Detail: tabs by sport @v3', () => {
     await page.goto('./#/v3/game/nhl/demo_van_tbl?demo=1');
     await expect(page.getByRole('tab').first()).toBeVisible();
     await expect(page.getByRole('tab')).toHaveCount(2);
+    await expect(page).not.toHaveURL(/[?&]demo=/);   // the shell's own `replace` has run: a navigation issued before it can be lost
     await page.goto('./#/v3/game/nhl/demo_van_tbl?demo=1&v=1&tab=matchup');
     await expect(page.getByRole('tab', { selected: true })).toHaveText(/Live|Overview/);
   });

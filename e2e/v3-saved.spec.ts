@@ -15,11 +15,13 @@ const seed = [
 ];
 
 async function open(page: Page) {
-  await page.goto('./#/v3/following?demo=1');
+  // `?demo=` is dropped from the address by a `replace` once the shell has mounted; a navigation issued while that is still pending can be lost, so each step waits for it.
+  const demo = async (path: string) => { await page.goto(`./#${path}?demo=1`); await expect(page).not.toHaveURL(/[?&]demo=/); await expect(page).toHaveURL(new RegExp(`#${path}$`)); };
+  await demo('/v3/following');
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
   await page.evaluate((s) => { localStorage.setItem('sift3.saved', JSON.stringify(s)); }, seed);
-  await page.goto('./#/v3/explore?demo=1');
-  await page.goto('./#/v3/following?demo=1');
+  await demo('/v3/explore');
+  await demo('/v3/following');
   await page.reload();
   await expect(page.getByRole('region', { name: 'Saved research' })).toBeVisible();
 }

@@ -78,12 +78,16 @@ export function evaluate(b: SportBundle, now: number): { opportunities: Opportun
   return { opportunities: opps, verdict: verdict(code, b.sport.slug, b.sport.label, b.board, opps, b.recommendations != null || code === 'CFB' || code === 'NBA' || code === 'CBB', b.modelState, !b.error, b.error, now, b.marketCaptureAt) };
 }
 
+let early: { at: number; taken: number | null; read: Promise<SportBundle[]> } | null = null;
+const loadLean = () => Promise.all(SPORTS.filter(explorable).map((s) => loadSport(s, { records: false })));
+
 /**
- * Start reading every sport's slate documents (source decision, board, recommendations, signals) without waiting for a screen to ask: the readers are
- * memoised, so a later `useLeanOpportunities` finds them in flight or in hand. Used by SIFT 3.0's early start (src/v3/data/early.ts).
+ * Start reading every sport's slate documents (source decision, board, recommendations, signals) without waiting for a screen to ask. The first
+ * `useLeanOpportunities` load takes this read over (only if it is under a minute old, and for the two seconds in which an effect may run twice), so nothing is read twice; any later load (a Retry,
+ * a revalidation) reads afresh. Used by SIFT 3.0's early start (src/v3/data/early.ts).
  */
 export function prefetchLeanSlate(): void {
-  for (const s of SPORTS.filter(explorable)) void loadSport(s, { records: false });
+  if (!early) early = { at: Date.now(), taken: null, read: loadLean() };
 }
 
 /** The live tickers worth a quote: every opportunity that is not already a PASS. */
@@ -128,7 +132,14 @@ export function useAllOpportunities(now: number) {
  * learning scorecard, tennis record): the slate prints no opportunity, only counts them, and neither changes whether one is a candidate.
  */
 export function useLeanOpportunities(now: number) {
-  const bundles = useAsync('opportunities:all:lean', () => Promise.all(SPORTS.filter(explorable).map((s) => loadSport(s, { records: false }))));
+  const bundles = useAsync('opportunities:all:lean', () => {
+    const e = early;
+    const now = Date.now();
+    // Taken over once (a development build runs an effect twice in a row, and that second run must not read again); later loads read afresh.
+    if (e && now - e.at < 60_000 && (e.taken == null || now - e.taken < 2_000)) { e.taken ??= now; return e.read; }
+    early = null;
+    return loadLean();
+  });
   const evaluated = useMemo(() => (bundles.data ?? []).map((b) => evaluate(b, now)), [bundles.data, now]);
   return useMemo(() => ({
     loading: bundles.loading,

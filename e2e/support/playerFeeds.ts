@@ -23,20 +23,21 @@ function stamp(body: Buffer): Buffer {
   return Buffer.from(JSON.stringify(j));
 }
 
-export async function usePlayerFeeds(page: Page, o: { live?: boolean; pinClock?: boolean; hosts?: RegExp } = {}): Promise<{ served: string[]; missed: string[] }> {
+export async function usePlayerFeeds(page: Page, o: { live?: boolean; pinClock?: boolean; hosts?: RegExp } = {}): Promise<{ served: string[]; missed: string[]; probed: string[] }> {
   const src = feedSource('player', { live: o.live });
   const hosts = o.hosts ?? /^https:\/\/raw\.githubusercontent\.com\//;
-  const log = { served: [] as string[], missed: [] as string[] };
+  const log = { served: [] as string[], missed: [] as string[], probed: [] as string[] };
   if (o.pinClock !== false) await page.clock.setFixedTime(PAGE_NOW);
   await page.route(hosts, async (route) => {
     const url = route.request().url();
+    const head = route.request().method() === 'HEAD';
     const doc = await src.get(url).catch(() => null);
     recordRequest(url, !!doc);
     if (doc) {
-      log.served.push(url);
+      (head ? log.probed : log.served).push(url);
       await route.fulfill({ status: 200, body: stamp(doc.body), headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
     } else {
-      log.missed.push(url);
+      if (!head) log.missed.push(url);
       await route.fulfill({ status: 404, body: 'not found', headers: { 'access-control-allow-origin': '*' } });
     }
   });

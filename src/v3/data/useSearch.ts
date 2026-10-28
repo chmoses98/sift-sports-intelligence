@@ -53,13 +53,12 @@ export function score(q: string, text: string, aliases: string[] = []): number {
   return best;
 }
 
-/** `enabled`: false until the viewer starts a search (the four sports' search indexes, up to 450 KB each with the explorer index they are found through, are not read before). */
-export function useSearchHits(query: string, sport: string | 'all', cat: 'all' | Hit['kind'], enabled = true) {
+export function useSearchHits(query: string, sport: string | 'all', cat: 'all' | Hit['kind']) {
   const slate = useSlate();
   const demo = demoOn();
   const q = norm(query);
   const idx = {
-    nfl: useSearchIndex('nfl', !demo && enabled), nba: useSearchIndex('nba', !demo && enabled), nhl: useSearchIndex('nhl', !demo && enabled), mlb: useSearchIndex('mlb', !demo && enabled),
+    nfl: useSearchIndex('nfl', !demo), nba: useSearchIndex('nba', !demo), nhl: useSearchIndex('nhl', !demo), mlb: useSearchIndex('mlb', !demo),
   };
   const loading = !demo && Object.values(idx).some((x) => x.loading);
   // Sports whose player search could not be read: said out loud on Explore with a Retry (a missing index is not "no results").

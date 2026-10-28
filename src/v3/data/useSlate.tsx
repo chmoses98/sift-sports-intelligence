@@ -59,15 +59,13 @@ function RealProvider({ children }: { children: ReactNode }) {
   const evs = useMemo(() => (feedOn ? observedFor(rows, now) : []), [feedOn, rows, now]);
   const read = useVerifiedScores(evs); // re-renders the slate when a printed score changes, not every second the score store recomputes
   const games = useMemo<V3Game[]>(() => rows.map((r) => {
-    const g = toGame(r);
+    const base = toGame(r); // shared per row: copied below when a score changes it
     // Only a VERIFIED score is shown (data/scoreVerify.ts): matched to this event by identity evidence, in play or final, a plausible pair of
     // whole numbers. A verified score that is a little old keeps showing with `delayed`; an older or unreliable one is not shown at all.
     const v = feedOn ? read(r.item.event_id) : null;
-    if (v?.show) {
-      g.score = { away: v.away, home: v.home, clock: v.clock, source: 'score-feed', asOf: null, ...(v.delayed ? { delayed: true } : {}) };
-      g.phase = v.over ? 'final' : 'live';
-    }
-    return g;
+    if (!v?.show) return base;
+    const scored: V3Game = { ...base, score: { away: v.away, home: v.home, clock: v.clock, source: 'score-feed', asOf: null, ...(v.delayed ? { delayed: true } : {}) }, phase: v.over ? 'final' : 'live' };
+    return scored;
   }).sort(slateCompare), [rows, feedOn, read]);
   const failed = all.bundles.filter((b) => b.error != null);
   const [saved, setSaved] = useState<Slate['saved']>([]);

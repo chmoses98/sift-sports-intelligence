@@ -20,20 +20,25 @@ export async function feedDocument(family: FeedFamily, url: string, o: { live?: 
   return (await feedSource(family, o).get(url))?.body ?? null;
 }
 
-export async function useRealFeeds(page: Page, o: { family: FeedFamily; live?: boolean; hosts?: RegExp }): Promise<{ served: string[]; missed: string[] }> {
+/**
+ * `served` / `missed` are documents READ (a GET); `probed` are existence checks (a HEAD: SIFT 3.0 asks whether a sport's explorer is published without reading
+ * its index). A HEAD is answered like the GET it stands for, so the answer is the same, but it is not a read and never counts as one.
+ */
+export async function useRealFeeds(page: Page, o: { family: FeedFamily; live?: boolean; hosts?: RegExp }): Promise<{ served: string[]; missed: string[]; probed: string[] }> {
   if (!o?.family) throw new Error('useRealFeeds needs { family }: the real-document specs read one captured family each (stat, team, game, player, props)');
   const src = feedSource(o.family, { live: o.live });
   const hosts = o.hosts ?? /^https:\/\/raw\.githubusercontent\.com\//;
-  const log = { served: [] as string[], missed: [] as string[] };
+  const log = { served: [] as string[], missed: [] as string[], probed: [] as string[] };
   await page.route(hosts, async (route) => {
     const url = route.request().url();
+    const head = route.request().method() === 'HEAD';
     const doc = await src.get(url).catch(() => null);
     recordRequest(url, !!doc);
     if (doc) {
-      log.served.push(url);
+      (head ? log.probed : log.served).push(url);
       await route.fulfill({ status: 200, body: doc.body, headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'no-store' } });
     } else {
-      log.missed.push(url);
+      if (!head) log.missed.push(url);
       await route.fulfill({ status: 404, body: 'not found', headers: CORS });
     }
   });

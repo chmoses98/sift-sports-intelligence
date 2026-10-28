@@ -90,11 +90,15 @@ export async function documentExists(url: string): Promise<void> {
     await getJson(url);
     return;
   }
-  await within(url, async (signal) => {
+  const headOnly = await within(url, async (signal) => {
     const res = await fetch(url, { method: 'HEAD', cache: 'no-cache', signal });
     if (res.status === 404) throw new NotFoundError(url);
+    // A host or proxy that does not answer HEAD says so (405/501): then the document is read, as everywhere else.
+    if (res.status === 405 || res.status === 501) return false;
     if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return true;
   });
+  if (!headOnly) await getJson(url);
 }
 
 /** The research clock's in-session revalidation period. */

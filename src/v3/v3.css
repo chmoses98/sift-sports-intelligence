@@ -148,9 +148,9 @@
 .v3-sheet__x { width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(41, 47, 54, 0.55); color: #e8f4fb; }
 /* The locked sheet header (P3, PD4, PD6): the title and the sheet's action ("Reset") on one 44pt row, the close glyph plain, and a tall sheet nearly full height. */
 .v3-sheet--locked .v3-sheet__head { gap: 0; padding: 0 8px 0 16px; min-height: 44px; }
-.v3-sheet--locked .v3-sheet__head h2 { flex: 1; min-width: 0; font-size: 22px; line-height: 26px; }
+.v3-sheet--locked .v3-sheet__head h2 { flex: 1; min-width: 0; font-size: 20px; line-height: 26px; }
 .v3-sheet--locked .v3-sheet__x { width: 44px; height: 44px; background: none; margin-right: 2px; }
-.v3-sheet__act { flex: none; min-width: 44px; min-height: 44px; padding: 0 8px; background: none; color: var(--sift-cyan); font: 500 17px/1 var(--f-ui); }
+.v3-sheet__act { flex: none; min-width: 44px; min-height: 44px; padding: 0 8px; background: none; color: var(--sift-cyan); font: 500 16px/1 var(--f-ui); }
 .v3-sheet__act[aria-disabled='true'] { color: var(--sift-dim); cursor: default; }
 .v3-sheet--locked .v3-sheet__body { padding-top: 2px; }
 .v3-sheet--locked.v3-sheet--tall { height: min(93dvh, 800px); max-height: min(93dvh, 800px); }

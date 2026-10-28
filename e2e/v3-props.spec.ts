@@ -314,6 +314,16 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const sheet = page.getByRole('dialog', { name: 'Sort and filter' });
     await expect(sheet).toBeVisible();
     await expect(sheet.locator('.pd-fs__live b')).toContainText(/\d+ props match/);
+    // PD4's header: Reset on the title row beside the title, inert at the default draft, a 44pt close, the sheet near full height.
+    const head = sheet.locator('header');
+    const reset = head.getByRole('button', { name: 'Reset' });
+    await expect(reset).toBeVisible();
+    await expect(sheet.locator('.v3-sheet__body').getByRole('button', { name: 'Reset' })).toHaveCount(0);
+    await expect(reset).toHaveAttribute('aria-disabled', 'true');
+    const rb = (await reset.boundingBox())!, tb = (await head.locator('h2').boundingBox())!, xb = (await head.getByRole('button', { name: 'Close' }).boundingBox())!;
+    expect(rb.height).toBeGreaterThanOrEqual(44); expect(xb.width).toBeGreaterThanOrEqual(44); expect(xb.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs((rb.y + rb.height / 2) - (tb.y + tb.height / 2))).toBeLessThan(6);
+    expect((await sheet.boundingBox())!.y / page.viewportSize()!.height).toBeLessThan(0.12);
     const locked = sheet.locator('.pd-locked');
     await expect(locked).toContainText('Needs more data');
     await expect(locked).toContainText('no prop price history');
@@ -321,6 +331,11 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await expect(locked).toContainText('Position-level defense');
     // Locked facets are notes, never controls.
     expect(await locked.getByRole('button').count()).toBe(0);
+    await sheet.getByRole('button', { name: 'Price', exact: true }).click();
+    await expect(reset).not.toHaveAttribute('aria-disabled', 'true');
+    await reset.click();
+    await expect(sheet.getByRole('button', { name: 'Price', exact: true })).toHaveAttribute('aria-pressed', 'false');
+    await expect(reset).toHaveAttribute('aria-disabled', 'true');
     await sheet.getByRole('button', { name: 'Price', exact: true }).click();
     const show = sheet.getByRole('button', { name: /^Show \d+ props$/ });
     await show.click();
@@ -438,6 +453,16 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await expect(sheet.locator('[data-state="fee"]')).toContainText('Fee-aware break-even');
     await expect(sheet.locator('code')).toContainText(/^KX/);
     await expect(sheet.locator('.v3c-head')).toContainText(/ at .* · Kalshi YES/);
+    // PD6's head: the team's logo circle (decorative, a fixed 44pt box) left of the title, which still names the player; the close glyph is a 44pt target.
+    const av = sheet.locator('.v3c-head .v3c-av');
+    await expect(av).toHaveCount(1);
+    await expect(av).toHaveAttribute('aria-hidden', 'true');
+    const ab = (await av.boundingBox())!, hb = (await sheet.locator('.v3c-head > b').boundingBox())!;
+    expect(ab.width).toBe(44); expect(ab.height).toBe(44);
+    expect(ab.x + ab.width).toBeLessThan(hb.x);
+    for (const img of await av.locator('img').all()) await expect(img).toHaveAttribute('alt', '');
+    const cb = (await sheet.locator('header').getByRole('button', { name: 'Close' }).boundingBox())!;
+    expect(cb.width).toBeGreaterThanOrEqual(44); expect(cb.height).toBeGreaterThanOrEqual(44);
     expect(await sheet.innerText()).not.toMatch(/\b(ago|stale|last known|last updated|updated|fresh)\b/i);
     expect(await sheet.innerText()).not.toMatch(/\b(edge|value bet)\b/i);
     // Neighbouring rungs: tapping one swaps the contract in place (no new history entry).

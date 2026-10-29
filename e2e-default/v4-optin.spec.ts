@@ -102,6 +102,31 @@ test.describe('v4 early access', () => {
     expect(await pref(page)).toBeNull();
   });
 
+  test('the distinct /v4/ Home Screen entry always launches v4 even with no URL fragment', async ({ page }) => {
+    // Safari/iOS can ignore manifest start_url or drop #/v4 during installation.
+    // The physical pathname must independently restore the v4 route before React runs.
+    await page.goto('v4/', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/sift-sports-intelligence\/v4\/#\/v4$/);
+    await expect(page.locator('[data-v4-shell]')).toBeVisible();
+    expect(await manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
+    expect(await appTitle(page)).toBe('SIFT v4');
+    const manifest = await (await page.request.get(new URL((await manifestHref(page))!, page.url()).toString())).json();
+    expect(manifest.start_url).toMatch(/\/sift-sports-intelligence\/v4\/$/);
+    await page.goto('v4/#/');
+    await expect(page).toHaveURL(/\/sift-sports-intelligence\/v4\/#\/v4$/);
+    await page.reload();
+    await expect(page.locator('[data-v4-shell]')).toBeVisible();
+  });
+
+  test('the /v4/ page exposes the correct iPhone install identity before React loads', async ({ page }) => {
+    await page.route(/\/assets\/index-[^/]+\.js$/, (r) => r.fulfill({ contentType: 'text/javascript', body: '' }));
+    await page.goto('v4/', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/sift-sports-intelligence\/v4\/#\/v4$/);
+    expect(await manifestHref(page)).toMatch(/\/manifest-v4\.webmanifest$/);
+    expect(await appTitle(page)).toBe('SIFT v4');
+    await expect(page).toHaveTitle(/SIFT v4/);
+  });
+
   test('a v4 address installs as "SIFT v4" before any script runs; any other address installs SIFT as before', async ({ page }) => {
     // the app's own script never runs: only index.html's own selection can have chosen this
     await page.route(/\/assets\/index-[^/]+\.js$/, (r) => r.fulfill({ contentType: 'text/javascript', body: '' }));
@@ -111,7 +136,7 @@ test.describe('v4 early access', () => {
     await expect(page).toHaveTitle(/SIFT v4/);
     const v4 = await (await page.request.get(new URL((await manifestHref(page))!, page.url()).toString())).json();
     expect(v4).toMatchObject({ short_name: 'SIFT v4', display: 'standalone' });
-    expect(v4.start_url).toMatch(/\/sift-sports-intelligence\/#\/v4$/);
+    expect(v4.start_url).toMatch(/\/sift-sports-intelligence\/v4\/$/);
     await page.goto('#/', { waitUntil: 'domcontentloaded' });
     await page.reload({ waitUntil: 'domcontentloaded' });
     expect(await manifestHref(page)).toMatch(/\/manifest\.webmanifest$/);

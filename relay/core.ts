@@ -49,7 +49,8 @@ function cors(origin: string | null, allowed: string[]): Record<string, string> 
     h['Access-Control-Allow-Origin'] = origin;
     h['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
     // Retry-After is not CORS-safelisted: without this the browser cannot honour a 429's back-off.
-    h['Access-Control-Expose-Headers'] = 'X-Sift-Observed-At, Retry-After';
+    // Date is not safelisted either: Sift reads it to correct a wrong device clock (see handleRelay).
+    h['Access-Control-Expose-Headers'] = 'X-Sift-Observed-At, Retry-After, Date';
     h['Access-Control-Max-Age'] = '86400';
   }
   return h;
@@ -131,7 +132,50 @@ async function fromUpstream(target: string, o: RelayOptions, now: () => number):
 /** Identical reads already on their way upstream (one process): later callers share that answer. */
 const inflight = new Map<string, Promise<Response>>();
 
+/**
+ * Stamp `res` with a `Date` from the relay's own clock, at the moment of serving. It replaces any Date already
+ * on the response, so a replayed or cached one can never reach a client as if it were current. It only adds that
+ * one header: status, statusText, body and every other header are untouched.
+ *
+ * Never throws and never hands back a half-changed response. A Response whose headers are immutable (one that
+ * came from fetch(), Response.error(), Response.redirect(); `Headers.set` throws TypeError there, and some
+ * runtimes ignore it silently) is copied into a new Response instead; if even that is impossible (status 0,
+ * a body that was already read) the response goes out as it is, without a Date, and the host adds its own.
+ */
+export function withRelayDate(res: Response, clock: () => number = Date.now): Response {
+  let ms: number;
+  try {
+    ms = clock();
+  } catch {
+    return res;
+  }
+  if (!Number.isFinite(ms)) ms = Date.now();
+  const date = new Date(ms).toUTCString();
+  try {
+    res.headers.set('date', date);
+    if (res.headers.get('date') === date) return res;
+  } catch {
+    // immutable headers: fall through to a copy
+  }
+  try {
+    const headers = new Headers(res.headers);
+    headers.set('date', date);
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  } catch {
+    return res;
+  }
+}
+
+/**
+ * Every answer (200, 429, 4xx, 5xx, preflight, refusal) carries a `Date` from the relay's own clock, set
+ * here so it does not depend on the host adding one. Sift reads it (exposed above) to correct a device clock.
+ * Everything else about the answer is decided in respond() and is not touched here.
+ */
 export async function handleRelay(request: Request, o: RelayOptions = {}): Promise<Response> {
+  return withRelayDate(await respond(request, o), o.now);
+}
+
+async function respond(request: Request, o: RelayOptions): Promise<Response> {
   const allowed = o.allowedOrigins ?? ALLOWED_ORIGINS;
   const origin = request.headers.get('Origin');
   const h = cors(origin, allowed);

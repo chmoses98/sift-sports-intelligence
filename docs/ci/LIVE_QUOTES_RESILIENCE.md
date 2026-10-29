@@ -167,3 +167,11 @@ Revert the pull request (the workflow, the three scripts, the test, the two doc 
 - The Kalshi behaviour of two sweeps close in time from different runner IPs (not expected; sweeps are separated by the cadence gate).
 - The effect on the quote monitor's heartbeat check (the monitor is not on main).
 - This pull request's own commits carry `[skip ci]`, so no CI run of this branch exists.
+
+## 2026-10-29 follow-up: the predecessor never yielded (b to a)
+
+Evidence: run 40857949639 (loop b, started 10:48 UTC) dispatched loop a at 11:33; loop a (40866298052) was running from 11:39 and swept every cycle (its sequence was 34 when it first appeared in `health.json`), but `health.json` stayed b's. b logged "successor started but has not published yet" every cycle, "0 superseded", and ended at the 150 minute cap (13:18:30), only then did a's first feed land. The earlier a to b hand-over (40845357023 ended 11:02) only succeeded by phase luck.
+
+Cause: `realDeps().push` in `loop.mjs` destructured `{ dir, remote, message }`, so `yieldAfter` (the predecessor's "do not replace a feed written after my last one") never reached `guardedPush`. The tests' fake push honoured it, the real wiring did not. With it dropped, the predecessor's newer-swept feed replaced the successor's every cycle and the successor was never seen to publish.
+
+Fix: `makePush()` forwards every option; the two-loop test now goes through it, for both slots (a to b and b to a), every phase in 5 s steps and four sweep-duration pairs (all end within about 63 minutes, never at the cap). `SIFT_MONITOR_REQUIRE_HEARTBEAT` stays off until hand-overs are demonstrated live.

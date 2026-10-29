@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { guardedPush, readRemote, type RemoteTip } from '../../scripts/live-quotes/guard.mjs';
 import { HANDOVER, cadenceWaitMs, decide, newestWins, nextSlot, successorOf, type RunInfo } from '../../scripts/live-quotes/handover.mjs';
-import { makeDispatch, runLoop } from '../../scripts/live-quotes/loop.mjs';
+import { makeDispatch, makePush, runLoop } from '../../scripts/live-quotes/loop.mjs';
 
 const MIN = 60_000;
 const iso = (ms: number) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -377,13 +377,14 @@ describe('dispatching the successor', () => {
 describe('the hand-over between two live loops, whatever their phase', () => {
   const FETCH = 2_000;
   const PUSH = 4_000;
-  async function overlap(successorOffsetSec: number) {
+  async function overlap(successorOffsetSec: number, predSweepMs = 10_000, succSweepMs = 12_000, predSlot = 'a') {
     const t0 = Date.parse('2026-10-29T00:49:39Z');
     let clock = t0;
     const timers: { at: number; wake: () => void }[] = [];
     const sleep = (ms: number) => new Promise<void>((wake) => timers.push({ at: clock + ms, wake }));
     let branch = null as (RemoteTip & { by: string }) | null;
     let dispatched = false;
+    let dispatchedSlot = '';
     const successorStart = t0 + (45 + 11) * MIN + successorOffsetSec * 1000;
     const read = async () => {
       await sleep(FETCH);
@@ -400,7 +401,7 @@ describe('the hand-over between two live loops, whatever their phase', () => {
           writeFileSync(join(d, 'index.json'), JSON.stringify({ generated_at: iso(clock) }));
           return true;
         },
-        push: async ({ dir: d, remote: hint, yieldAfter }: { dir: string; remote?: RemoteTip | null; yieldAfter?: string }) => {
+        push: makePush({ url: 'unused', probeDir: 'unused', guard: (async ({ dir: d, remote: hint, yieldAfter }: { dir: string; remote?: RemoteTip | null; yieldAfter?: string }) => {
           const g = JSON.parse(readFileSync(join(d, 'index.json'), 'utf8')).generated_at as string;
           await sleep(PUSH);
           let remote = hint === undefined ? await read() : hint;
@@ -414,23 +415,24 @@ describe('the hand-over between two live loops, whatever their phase', () => {
             }
           }
           throw new Error('lease');
-        },
+        }) as never }),
         listRuns: async (): Promise<RunInfo[]> => [
           { id: 100, event: 'workflow_dispatch', status: 'in_progress', display_title: 'Live quotes loop a' },
           ...(dispatched ? [{ id: 101, event: 'workflow_dispatch', status: clock >= successorStart ? 'in_progress' : 'queued', display_title: 'Live quotes loop b' }] : []),
         ],
-        dispatch: async () => {
+        dispatch: async (slot: string) => {
           dispatched = true;
+          dispatchedSlot = slot;
         },
       });
     };
     let endedAt: number | null = null;
-    const a = loop('a', 100, 'a', 10_000).then(() => {
+    const a = loop('pred', 100, predSlot, predSweepMs).then(() => {
       endedAt = clock;
     });
     let b: Promise<unknown> | null = null;
     while (endedAt === null && clock < t0 + 150 * MIN) {
-      if (!b && clock >= successorStart) b = loop('b', 101, 'b', 12_000);
+      if (!b && clock >= successorStart) b = loop('succ', 101, nextSlot(predSlot), succSweepMs);
       for (let i = 0; i < 5; i++) await new Promise((r) => setImmediate(r));
       if (!timers.length) continue;
       timers.sort((x, y) => x.at - y.at);
@@ -440,13 +442,31 @@ describe('the hand-over between two live loops, whatever their phase', () => {
       for (const t of timers.splice(0, timers.length, ...timers.filter((x) => x.at > clock))) t.wake();
     }
     void a;
-    return { endedAfterMin: endedAt === null ? null : (endedAt - t0) / MIN, lastBy: (branch as (RemoteTip & { by: string }) | null)?.by ?? null };
+    return { endedAfterMin: endedAt === null ? null : (endedAt - t0) / MIN, lastBy: (branch as (RemoteTip & { by: string }) | null)?.by ?? null, dispatchedSlot };
   }
 
   it.each([0, 20, 45, 70, 100, 140])('hands over within about two cycles when the successor starts %i s into a cycle', async (offset) => {
     const r = await overlap(offset);
     expect(r.endedAfterMin).not.toBeNull(); // 45 s used to publish to the 150-minute cap
     expect(r.endedAfterMin!).toBeLessThan(45 + 11 + 7);
-    expect(r.lastBy).toBe('b');
+    expect(r.lastBy).toBe('succ');
+  });
+
+  // Every phase in 5 s steps, with the successor's sweep shorter than, equal to and longer than the predecessor's (measured 2026-10-29: 8 s).
+  const sweeps: [number, number][] = [[8_000, 8_000], [8_000, 12_000], [12_000, 8_000], [10_000, 10_000]];
+  it.each(sweeps.flatMap(([p, s]) => (['a', 'b'] as const).map((slot) => [slot, p, s] as const)))('hands over at every phase, slot %s to its successor (predecessor sweep %i ms, successor sweep %i ms)', async (slot, pred, succ) => {
+    const slow: string[] = [];
+    for (let offset = 0; offset < 180; offset += 5) {
+      const r = await overlap(offset, pred, succ, slot);
+      if (r.endedAfterMin === null || r.endedAfterMin >= 45 + 11 + 7 || r.lastBy !== 'succ' || r.dispatchedSlot !== nextSlot(slot)) slow.push(`${offset}s -> ${r.endedAfterMin}`);
+    }
+    expect(slow).toEqual([]);
+  }, 120_000);
+
+  it('the real push wiring hands the predecessor its successor\'s feed (yieldAfter reaches the guard)', async () => {
+    const seen: Record<string, unknown>[] = [];
+    const push = makePush({ url: 'u', probeDir: 'p', guard: async (o) => (seen.push(o), { pushed: false }) });
+    await push({ dir: 'd', remote: null, message: 'm', yieldAfter: '2026-10-29T13:00:00Z' });
+    expect(seen).toEqual([{ dir: 'd', url: 'u', probeDir: 'p', message: 'm', remote: null, yieldAfter: '2026-10-29T13:00:00Z' }]);
   });
 });

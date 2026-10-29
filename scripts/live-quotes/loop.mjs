@@ -118,6 +118,13 @@ export async function runLoop(deps) {
 }
 
 /**
+ * The loop's push dependency over the publish guard. Every option runLoop passes (remote hint, message, yieldAfter) must reach the guard:
+ * 2026-10-29 the real wiring dropped yieldAfter, so a predecessor never yielded to its running successor and replaced the successor's feed
+ * with its own newer-swept one every cycle until its 150 minute cap (the tests' fake push honoured yieldAfter, the real one did not).
+ */
+export const makePush = ({ url, probeDir, guard = guardedPush }) => ({ dir, remote, message, yieldAfter }) => guard({ dir, url, probeDir, message, remote, yieldAfter });
+
+/**
  * Dispatch the workflow on main with the slot input. If the workflow on main does not declare `slot` (the change was rolled
  * back while this job was running) GitHub answers 422 "Unexpected inputs"; dispatch again without inputs so the chain survives.
  */
@@ -152,7 +159,7 @@ function realDeps(env) {
     slot: env.SIFT_LOOP_SLOT || 'a',
     cfg: HANDOVER,
     readRemote: () => readRemote({ probeDir, url }),
-    push: ({ dir, remote, message }) => guardedPush({ dir, url, probeDir, message, remote }),
+    push: makePush({ url, probeDir }),
     publish: (dir) => {
       rmSync(dir, { recursive: true, force: true });
       return new Promise((resolve) => {

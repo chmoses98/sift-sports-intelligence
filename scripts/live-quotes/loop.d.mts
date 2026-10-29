@@ -7,7 +7,7 @@ export interface LoopDeps {
   log: (s: string) => void;
   publish: (dir: string) => Promise<boolean>;
   readRemote: () => Promise<RemoteTip | null>;
-  push: (o: { dir: string; remote?: RemoteTip | null; message: string }) => Promise<{ pushed: true } | { pushed: false; remote: RemoteTip }>;
+  push: (o: { dir: string; remote?: RemoteTip | null; message: string; yieldAfter?: string }) => Promise<{ pushed: true } | { pushed: false; yielded?: boolean; remote: RemoteTip }>;
   listRuns: () => Promise<RunInfo[]>;
   dispatch: (slot: string) => Promise<void>;
   workDir: string;
@@ -17,3 +17,4 @@ export interface LoopDeps {
 }
 export function runLoop(deps: LoopDeps): Promise<{ ok: number; failed: number; superseded: number; dispatched: boolean; reason: string }>;
 export function makeDispatch(o: { url: string; headers: Record<string, string>; fetchImpl?: typeof fetch }): (slot: string) => Promise<void>;
+export function makePush(o: { url: string; probeDir: string; guard?: (o: Record<string, unknown>) => Promise<unknown> }): LoopDeps['push'];

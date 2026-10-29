@@ -1,0 +1,61 @@
+name: Quote monitor
+
+# An independent, READ-ONLY check of the quote pipeline, every 15 minutes. It reads the public feed
+# (the `live-quotes` branch via raw.githubusercontent.com) and one relay quote batch, and FAILS THE RUN, which makes
+# GitHub email the owner, when:
+#   * the newest feed `generated_at` is more than 10 minutes old (the live-quotes loop stalled), or
+#   * the feed heartbeat (health.json) sequence has not advanced, or
+#   * the relay answers anything but HTTP 200, or only with observations older than 60 s, or answers 200 without any
+#     of the open contracts it was asked about for every game tried.
+#
+# One transient failure inside a run (no answer, 429, 5xx, an unusable 200) is retried once, 5 s later (a 429's
+# Retry-After, at most 30 s), before it counts: a pass on the retry is a PASS with a ::notice. The monitor keeps no state
+# between runs, so a recovered system passes on its next run. Rules and drill: docs/quote-track/CI_DRILL.md.
+#
+# Isolation: no secrets, no writes (`contents: read` only), its own concurrency group, never touches the
+# live-quotes workflow or the `live-quotes` branch. The relay part is skipped when the SIFT_QUOTE_RELAY_URL
+# repository variable is unset. Until the heartbeat is deployed there is no health.json: that is reported as
+# HEARTBEAT_NOT_PUBLISHED (not a failure). Set the SIFT_MONITOR_REQUIRE_HEARTBEAT repository variable to 1 once it
+# is live, and a missing heartbeat fails too.
+#
+# GitHub's scheduler can skip or delay runs (measured 40+ minute gaps on this repository), so this is a second line
+# beside the daily Production check's relay smoke, not a replacement for it.
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+    inputs:
+      sequence_window_seconds:
+        description: 'How long to wait for the heartbeat sequence to advance (empty = 540; 0 = do not wait)'
+        required: false
+        default: ''
+      require_heartbeat:
+        description: 'A missing health.json is a failure (otherwise the SIFT_MONITOR_REQUIRE_HEARTBEAT repository variable decides)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quote-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    name: Check the feed and the relay
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check feed freshness, the heartbeat and one relay quote batch (GET only)
+        run: node scripts/quote-monitor.mjs
+        env:
+          SIFT_QUOTE_RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
+          SIFT_MONITOR_REQUIRE_HEARTBEAT: ${{ inputs.require_heartbeat && '1' || vars.SIFT_MONITOR_REQUIRE_HEARTBEAT }}
+          SIFT_MONITOR_SEQUENCE_WINDOW_S: ${{ inputs.sequence_window_seconds }}

@@ -80,6 +80,7 @@ export function normalizeKalshiMarket(m: Raw, observedAt: string, source: string
     openInterest: size(m, 'open_interest'),
     availability: availabilityOf(m.status),
     rawStatus: m.status == null ? null : String(m.status),
+    ...(typeof m.result === 'string' && m.result.trim() !== '' ? { result: m.result } : {}),
     closeTime: typeof m.close_time === 'string' ? m.close_time : null,
     observedAt,
     source,

@@ -16,3 +16,5 @@ dist-lan
 __pycache__/
 *.pyc
 .pytest_cache/
+dist-v3-preview
+dist-v3-artifact

@@ -37,11 +37,15 @@ describe('live scores stay out of models, betting and the market clock', () => {
   // The strongest form of the rule: an allowlist. Only the screens that DISPLAY a score (and the score module itself) may import score
   // code. Everything else in the app (betting and opportunity code, packets, projections, signals, research, the Board, what is frozen
   // or saved, the Kalshi quote store) is outside it, so a score cannot reach them.
+  const V3_DISPLAY = new Set(['v3/data/useSlate.tsx']);
   it('only the v4 screens that display a score import score code', () => {
     const DISPLAY = new Set(['EarlyAccess.tsx', 'Feature.tsx', 'Game.tsx', 'Games.tsx', 'Home.tsx', 'LiveScoreCard.tsx', 'LiveScoresControl.tsx', 'Scoreboard.tsx', 'V4Root.tsx', 'model.ts', 'parts.tsx', 'scoreState.ts', 'slate.tsx']);
     const bad = walk(SRC)
       .filter((f) => !relative(SRC, f).startsWith(join('live', 'scores')))
       .filter((f) => !(relative(SRC, f).startsWith('v4') && DISPLAY.has(relative(join(SRC, 'v4'), f))))
+      // SIFT 3.0 (src/v3, opt-in at #/v3): exactly ONE file bridges scores to its screens, the same display-only role as the v4 slate hook.
+      // Everything else in v3 (the market, research, Lens, props, saved research) stays outside the allowlist like the rest of the app.
+      .filter((f) => !V3_DISPLAY.has(relative(SRC, f).split('\\').join('/')))
       .filter((f) => importsOf(f).some((i) => /live\/scores|scoreState|LiveScoreCard|LiveScoresControl/.test(i)))
       .map((f) => relative(SRC, f));
     expect(bad).toEqual([]);

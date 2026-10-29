@@ -1,0 +1,63 @@
+/* Top bar, sport rail, state chips and the game card (references 04_games_today / 05_games_live). */
+.v3-top { display: flex; align-items: center; gap: 4px; height: 52px; margin: 0 -6px 4px 0; }
+.v3-top__sp { flex: 1; }
+.v3-brand { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.v3-brand__w { font: 800 30px/1 var(--f-num); letter-spacing: -0.03em; color: #e9f3fa; }
+
+.v3-rail { display: flex; gap: 2px; margin: 4px calc(var(--pad) * -1) 14px; padding: 0 var(--pad); overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid rgba(23, 72, 97, 0.7); }
+.v3-rail::-webkit-scrollbar { display: none; }
+.v3-rail__t { flex: none; min-width: 52px; height: 42px; padding: 0 13px; display: inline-flex; align-items: center; justify-content: center; color: #a9c4d6; font: 500 15px/1 var(--f-ui); border-radius: 10px 10px 0 0; position: relative; }
+.v3-rail__t[aria-selected='true'] { color: #fff; font-weight: 600; background: linear-gradient(180deg, rgba(14, 62, 92, 0.5), rgba(14, 62, 92, 0)); }
+.v3-rail__t[aria-selected='true']::after { content: ''; position: absolute; left: 6px; right: 6px; bottom: -1px; height: 3px; border-radius: 2px; background: var(--sift-cyan); box-shadow: 0 0 12px rgba(22, 201, 220, 0.7); }
+.v3-chips--states { margin-bottom: 14px; }
+.v3-chips--states .v3-chip { height: 36px; padding: 0 14px; font-size: 14px; }
+.v3-linesnote { margin: -4px 0 10px; font-size: 12px; color: var(--sift-dim); }
+
+.v3-gamehead { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
+.v3-gamehead h1 { font: 700 21px/28px var(--f-ui); letter-spacing: -0.015em; }
+.v3-gamehead button { color: var(--sift-cyan); font-weight: 500; min-height: 36px; }
+.v3-gclist { display: grid; gap: 10px; }
+.v3-gc-skel { height: 118px; }
+.v3-more { display: block; width: 100%; margin: 12px 0 0; min-height: 48px; border-radius: 14px; text-align: center; color: var(--sift-cyan); font-weight: 600; background: rgba(8, 36, 58, 0.6); border: 1px solid var(--sift-hairline); }
+.v3-foot { margin-top: 16px; text-align: center; }
+.v3-days { display: grid; gap: 4px; }
+.v3-days button { width: 100%; min-height: 48px; padding: 0 16px; border-radius: 12px; font-size: 16px; display: flex; align-items: center; background: rgba(8, 38, 60, 0.6); border: 1px solid transparent; }
+.v3-days button[aria-pressed='true'] { border-color: var(--sift-cyan); color: var(--sift-cyan); font-weight: 600; }
+
+/* ---- game card */
+.v3-gc { position: relative; padding: 9px 6px 9px 14px; border-radius: 16px; background: var(--panel); border: 1px solid rgba(23, 72, 97, 0.95); box-shadow: var(--lit); }
+.v3-gc.is-live { border-color: rgba(28, 102, 131, 0.95); }
+.v3-gc__hit { position: absolute; inset: 0; border-radius: inherit; z-index: 0; }
+.v3-gc > :not(.v3-gc__hit) { position: relative; z-index: 1; pointer-events: none; }
+.v3-gc a, .v3-gc button, .v3-gc > button { pointer-events: auto !important; }
+.v3-gc__h { display: flex; align-items: center; gap: 14px; height: 22px; margin: 0 8px 2px 0; font: 500 14px/1 var(--f-ui); color: var(--sift-muted); }
+.v3-gc__lg { font-weight: 600; letter-spacing: 0.01em; }
+.v3-gc__time { color: #bcd2e0; }
+.v3-gc__live { display: inline-flex; align-items: center; gap: 5px; color: #ff5a5f; font-weight: 600; }
+.v3-gc__net { color: var(--sift-dim); margin-left: auto; margin-right: 38px; }
+.v3-gc__b { display: grid; grid-template-columns: minmax(0, 1fr) auto 44px; gap: 8px; align-items: center; }
+.v3-gc__sides { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; min-width: 0; }
+.v3-gc__side { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; min-width: 0; }
+.v3-gc__team { display: inline-flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; overflow: hidden; min-height: 44px; margin: -6px 0; }
+.v3-gc__nm { font: 600 16px/20px var(--f-ui); letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.v3-gc__nm small { font: 500 12px/1 var(--f-ui); color: var(--sift-dim); margin-right: 5px; vertical-align: 2px; }
+.v3-gc__sc { flex: none; font-size: 20px; line-height: 26px; font-weight: 600; min-width: 28px; text-align: right; color: #e3eff8; }
+.v3-gc__sc.is-lead { color: #fff; font-weight: 700; }
+.v3-gc.is-live .v3-gc__sc { color: #fff; }
+
+.v3-lines { display: flex; flex-direction: column; gap: 2px; min-width: 118px; padding: 7px 10px; border-radius: 12px; background: rgba(5, 29, 48, 0.8); border: 1px solid rgba(26, 82, 110, 0.75); box-shadow: var(--lit); text-align: left; }
+.v3-lines__r { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.v3-lines__r b { font: 500 14px/20px var(--f-ui); color: #eaf5fc; white-space: nowrap; }
+.v3-lines__r em { font: 600 12px/20px var(--f-num); font-style: normal; color: var(--sift-muted); }
+.v3-lines small { font: 500 10px/12px var(--f-ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sift-dim); }
+.v3-lines--empty { align-items: center; justify-content: center; min-height: 56px; font: 400 12px/16px var(--f-ui); color: var(--sift-dim); text-align: center; pointer-events: none; }
+.v3-lines--empty .v3-skel { width: 100%; height: 40px; }
+.v3-gc__sit { display: flex; align-items: center; justify-content: center; min-width: 118px; min-height: 60px; padding: 8px 10px; border-radius: 12px; background: rgba(5, 29, 48, 0.8); border: 1px solid rgba(26, 82, 110, 0.75); text-align: center; font: 500 15px/20px var(--f-ui); color: #e3eff8; }
+.v3-gc__act { display: grid; align-content: center; justify-items: center; min-height: 64px; margin-top: 14px; border-left: 1px solid rgba(23, 72, 97, 0.7); }
+.v3-gc__act .v3-iconbtn { width: 44px; height: 44px; }
+.v3-gc__star { position: absolute !important; top: 0; right: 2px; z-index: 2; width: 44px; height: 44px; }
+.v3-gc__star svg { width: 20px; height: 20px; }
+.v3-gc__foot { display: flex; align-items: baseline; gap: 14px; margin: 8px 8px 0 0; min-height: 36px; padding: 0 10px; border-radius: 10px; background: rgba(5, 29, 48, 0.55); font: 500 13px/36px var(--f-ui); color: var(--sift-muted); width: calc(100% - 8px); }
+.v3-gc__foot b { font-family: var(--f-num); color: #eaf5fc; font-weight: 600; }
+.v3-gc__foot small { margin-left: auto; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sift-dim); }
+.v3-gc__src { margin: 6px 8px 0 0; font: 400 11px/14px var(--f-ui); color: var(--sift-dim); }

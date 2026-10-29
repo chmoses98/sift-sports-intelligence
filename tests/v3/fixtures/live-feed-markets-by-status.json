@@ -1,0 +1,211 @@
+{
+ "_provenance": "Trimmed real documents: markets copied unchanged from captured live-quote feed game files (sift.live_quotes.v1, branch live-quotes), captured 2026-10-26 ~23:05Z to 23:21Z. Nothing invented.",
+ "markets": [
+  {
+   "ticker": "KXNHL2P-26OCT26LANYR-LA",
+   "event_ticker": "KXNHL2P-26OCT26LANYR",
+   "status": "active",
+   "yes_bid_dollars": "0.7600",
+   "yes_ask_dollars": "0.9800",
+   "no_bid_dollars": "0.0200",
+   "no_ask_dollars": "0.2400",
+   "last_price_dollars": "0.9400",
+   "volume_fp": "3286.71",
+   "open_interest_fp": "2448.35",
+   "close_time": "2026-10-28T23:00:00Z",
+   "title": "Los Angeles wins the 2nd period",
+   "yes_sub_title": "Los Angeles",
+   "strike_type": "structured",
+   "observed_at": "2026-10-27T00:43:50Z"
+  },
+  {
+   "ticker": "KXNHL2P-26OCT26LANYR-NYR",
+   "event_ticker": "KXNHL2P-26OCT26LANYR",
+   "status": "active",
+   "yes_bid_dollars": "0.0000",
+   "yes_ask_dollars": "0.1400",
+   "no_bid_dollars": "0.8600",
+   "no_ask_dollars": "1.0000",
+   "last_price_dollars": "0.0100",
+   "volume_fp": "1263.81",
+   "open_interest_fp": "1100.81",
+   "close_time": "2026-10-28T23:00:00Z",
+   "title": "New York R wins the 2nd period",
+   "yes_sub_title": "New York R",
+   "strike_type": "structured",
+   "observed_at": "2026-10-27T00:43:50Z"
+  },
+  {
+   "ticker": "KXNHL2P-26OCT26LANYR-TIE",
+   "event_ticker": "KXNHL2P-26OCT26LANYR",
+   "status": "active",
+   "yes_bid_dollars": "0.0100",
+   "yes_ask_dollars": "0.2700",
+   "no_bid_dollars": "0.7300",
+   "no_ask_dollars": "0.9900",
+   "last_price_dollars": "0.1100",
+   "volume_fp": "203.94",
+   "open_interest_fp": "203.94",
+   "close_time": "2026-10-28T23:00:00Z",
+   "title": "2nd period tie",
+   "yes_sub_title": "Tie",
+   "strike_type": "structured",
+   "observed_at": "2026-10-27T00:43:50Z"
+  },
+  {
+   "ticker": "KXMLBHIT-26OCT262000MILTB-TBJARANDA8-1",
+   "event_ticker": "KXMLBHIT-26OCT262000MILTB",
+   "status": "inactive",
+   "yes_bid_dollars": "0.6000",
+   "yes_ask_dollars": "0.6200",
+   "no_bid_dollars": "0.3800",
+   "no_ask_dollars": "0.4000",
+   "last_price_dollars": "0.6200",
+   "volume_fp": "593.37",
+   "open_interest_fp": "593.17",
+   "close_time": "2026-10-30T00:00:00Z",
+   "title": "Jonathan Aranda: 1+ hits?",
+   "yes_sub_title": "Jonathan Aranda: 1+",
+   "floor_strike": 0.5,
+   "strike_type": "greater",
+   "observed_at": "2026-10-26T23:20:59Z"
+  },
+  {
+   "ticker": "KXMLBHIT-26OCT262000MILTB-TBJARANDA8-2",
+   "event_ticker": "KXMLBHIT-26OCT262000MILTB",
+   "status": "inactive",
+   "yes_bid_dollars": "0.1000",
+   "yes_ask_dollars": "0.2300",
+   "no_bid_dollars": "0.7700",
+   "no_ask_dollars": "0.9000",
+   "last_price_dollars": "0.1000",
+   "volume_fp": "2122.70",
+   "open_interest_fp": "1454.50",
+   "close_time": "2026-10-30T00:00:00Z",
+   "title": "Jonathan Aranda: 2+ hits?",
+   "yes_sub_title": "Jonathan Aranda: 2+",
+   "floor_strike": 1.5,
+   "strike_type": "greater",
+   "observed_at": "2026-10-26T23:20:59Z"
+  },
+  {
+   "ticker": "KXMLBHIT-26OCT262000MILTB-TBJARANDA8-3",
+   "event_ticker": "KXMLBHIT-26OCT262000MILTB",
+   "status": "inactive",
+   "yes_bid_dollars": "0.0200",
+   "yes_ask_dollars": "0.0600",
+   "no_bid_dollars": "0.9400",
+   "no_ask_dollars": "0.9800",
+   "last_price_dollars": "0.0400",
+   "volume_fp": "608.97",
+   "open_interest_fp": "608.97",
+   "close_time": "2026-10-30T00:00:00Z",
+   "title": "Jonathan Aranda: 3+ hits?",
+   "yes_sub_title": "Jonathan Aranda: 3+",
+   "floor_strike": 2.5,
+   "strike_type": "greater",
+   "observed_at": "2026-10-26T23:20:59Z"
+  },
+  {
+   "ticker": "KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-110",
+   "event_ticker": "KXNFLRECYDS-26OCT26DALPHI",
+   "status": "determined",
+   "yes_bid_dollars": "0.0000",
+   "yes_ask_dollars": "1.0000",
+   "no_bid_dollars": "0.0000",
+   "no_ask_dollars": "1.0000",
+   "last_price_dollars": "0.0000",
+   "volume_fp": "0.00",
+   "open_interest_fp": "0.00",
+   "close_time": "2026-10-26T23:19:55Z",
+   "title": "DeVonta Smith: 110+ receiving yards",
+   "yes_sub_title": "DeVonta Smith: 110+",
+   "floor_strike": 109.5,
+   "strike_type": "greater",
+   "observed_at": "2026-10-26T23:20:59Z"
+  },
+  {
+   "ticker": "KXNFLTD-26OCT26DALPHI-DALEDEMERCADO31-1",
+   "event_ticker": "KXNFLTD-26OCT26DALPHI",
+   "status": "determined",
+   "yes_bid_dollars": "0.0000",
+   "yes_ask_dollars": "1.0000",
+   "no_bid_dollars": "0.0000",
+   "no_ask_dollars": "1.0000",
+   "last_price_dollars": "0.0600",
+   "volume_fp": "857.25",
+   "open_interest_fp": "857.25",
+   "close_time": "2026-10-26T23:19:48Z",
+   "title": "Emari Demercado: 1+ touchdowns",
+   "yes_sub_title": "Emari Demercado: 1+",
+   "floor_strike": 0.5,
+   "strike_type": "greater",
+   "observed_at": "2026-10-26T23:20:59Z"
+  },
+  {
+   "ticker": "KXNFLTD-26OCT26DALPHI-PHIDSMITH6-1",
+   "event_ticker": "KXNFLTD-26OCT26DALPHI",
+   "status": "determined",
+   "yes_bid_dollars": "0.0000",
+   "yes_ask_dollars": "1.0000",
+   "no_bid_dollars": "0.0000",
+   "no_ask_dollars": "1.0000",
+   "last_price_dollars": "0.3300",
+   "volume_fp": "370.96",
+   "open_interest_fp": "344.63",
+   "close_time": "2026-10-26T23:19:49Z",
+   "title": "DeVonta Smith: 1+ touchdowns",
+   "yes_sub_title": "DeVonta Smith: 1+",
+   "floor_strike": 0.5,
+   "strike_type": "greater",
+   "observed_at": "2026-10-26T23:20:59Z"
+  }
+ ],
+ "meta": {
+  "KXNHL2P-26OCT26LANYR-LA": {
+   "game_key": "26OCT26LANYR",
+   "generated_at": "2026-10-27T00:43:52Z",
+   "cache_file": "3ab78d3e"
+  },
+  "KXNHL2P-26OCT26LANYR-NYR": {
+   "game_key": "26OCT26LANYR",
+   "generated_at": "2026-10-27T00:43:52Z",
+   "cache_file": "3ab78d3e"
+  },
+  "KXNHL2P-26OCT26LANYR-TIE": {
+   "game_key": "26OCT26LANYR",
+   "generated_at": "2026-10-27T00:43:52Z",
+   "cache_file": "3ab78d3e"
+  },
+  "KXMLBHIT-26OCT262000MILTB-TBJARANDA8-1": {
+   "game_key": "26OCT262000MILTB",
+   "generated_at": "2026-10-26T23:20:59Z",
+   "cache_file": "4c5f8bb5"
+  },
+  "KXMLBHIT-26OCT262000MILTB-TBJARANDA8-2": {
+   "game_key": "26OCT262000MILTB",
+   "generated_at": "2026-10-26T23:20:59Z",
+   "cache_file": "4c5f8bb5"
+  },
+  "KXMLBHIT-26OCT262000MILTB-TBJARANDA8-3": {
+   "game_key": "26OCT262000MILTB",
+   "generated_at": "2026-10-26T23:20:59Z",
+   "cache_file": "4c5f8bb5"
+  },
+  "KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-110": {
+   "game_key": "26OCT26DALPHI",
+   "generated_at": "2026-10-26T23:20:59Z",
+   "cache_file": "7cd8521f"
+  },
+  "KXNFLTD-26OCT26DALPHI-DALEDEMERCADO31-1": {
+   "game_key": "26OCT26DALPHI",
+   "generated_at": "2026-10-26T23:20:59Z",
+   "cache_file": "7cd8521f"
+  },
+  "KXNFLTD-26OCT26DALPHI-PHIDSMITH6-1": {
+   "game_key": "26OCT26DALPHI",
+   "generated_at": "2026-10-26T23:20:59Z",
+   "cache_file": "7cd8521f"
+  }
+ }
+}

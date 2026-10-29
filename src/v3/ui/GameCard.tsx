@@ -1,10 +1,11 @@
 import { Link } from '../../routing';
+import { useGameStart } from '../data/research/gameHooks';
 import { useGameExtras } from '../data/useGameExtras';
 import type { V3Game } from '../model/types';
 import { AlertBell, FollowStar } from './Controls';
 import { Icon } from './Icon';
 import { TeamLogo } from './TeamLogo';
-import { LinesBox, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useOpenLine, useSeen } from './gamebits';
+import { DelayedMark, LinesBox, PriceText, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useListGate, useOpenContract, useSeen } from './gamebits';
 
 function Side({ g, side }: { g: V3Game; side: 'away' | 'home' }) {
   const t = g[side];
@@ -28,9 +29,14 @@ function Side({ g, side }: { g: V3Game; side: 'away' | 'home' }) {
  */
 export function GameCard({ g: base }: { g: V3Game }) {
   const [ref, seen] = useSeen<HTMLElement>();
-  const x = useGameExtras(base, 'lines', seen);
+  // The schedule authority's start picks the quote tier; every price on the card goes through the list-context gate.
+  // Read only for a card that has been near the screen: a league's schedule is one document per league (up to 450 KB), so a list does not read the leagues of cards nobody scrolled to.
+  const startMs = useGameStart(seen ? base : null);
+  // The card's lines are its rows: one rows scope per card that has been near the screen (nothing for a card nobody scrolled to), tiered by that start.
+  const x = useGameExtras(base, 'lines', seen, startMs);
   const g = x?.game ?? base;
-  const open = useOpenLine();
+  const open = useOpenContract();
+  const gate = useListGate(g, startMs);
   const live = g.phase === 'live';
   const scored = g.score != null;
   const src = scoreSourceWord(g);
@@ -43,7 +49,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
       <Link to={gameHref(g)} className="v3-gc__hit" aria-label={label} />
       <header className="v3-gc__h">
         <span className="v3-gc__lg">{leagueLabel(g)}</span>
-        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? 'In play'}</span> : <span className="v3-gc__time">{statusWord(g)}</span>}
+        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></span> : <span className="v3-gc__time">{statusWord(g)}</span>}
         <span className="v3-gc__net">{g.network ?? ''}</span>
       </header>
       <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} className="v3-gc__star" />
@@ -55,16 +61,16 @@ export function GameCard({ g: base }: { g: V3Game }) {
         {hasSituation ? (
           <div className="v3-gc__sit"><span>{g.situation!.text}</span></div>
         ) : (
-          <LinesBox g={g} loading={g.provenance === 'publication' && g.phase !== 'final' && x?.detailLoading} />
+          <LinesBox g={g} startMs={startMs} gate={gate} loading={g.provenance === 'publication' && g.phase !== 'final' && x?.detailLoading} />
         )}
         <div className="v3-gc__act">
           <AlertBell id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
         </div>
       </div>
       {(hasSituation && (spread || total)) && (
-        <button type="button" className="v3-gc__foot" onClick={() => open(g, (spread ?? total)!)} aria-label="Open market detail">
-          {spread && <span>{spread.label} <b>{spread.price.ask}¢</b></span>}
-          {total && <span>{total.label} <b>{total.price.ask}¢</b></span>}
+        <button type="button" className="v3-gc__foot" onClick={() => open({ g, startMs, detailHref: gameHref(g) }, (spread ?? total)!)} aria-label="Open market detail">
+          {spread && <span>{spread.label} <b><PriceText p={gate(spread.price)} /></b></span>}
+          {total && <span>{total.label} <b><PriceText p={gate(total.price)} /></b></span>}
           <small>{(spread ?? total)!.price.source}</small>
         </button>
       )}

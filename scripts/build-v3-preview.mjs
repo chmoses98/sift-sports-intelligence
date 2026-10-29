@@ -24,7 +24,7 @@ if (!sampleOnly) for (const d of ['heroes', 'players', 'leagues', 'data/league',
 if (sampleOnly) {
   const html = readFileSync(`${out}/v3-preview.html`, 'utf8');
   const tags = [...html.matchAll(/<(?:script|link)\b[^>]*>(?:<\/script>)?/g)].map((m) => m[0].replace(/ crossorigin/g, '').replace(/\.\/assets/, 'assets')).join('\n');
-  writeFileSync(`${out}/artifact-page.html`, `<title>SIFT 3.0 Preview</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n<meta name="theme-color" content="#031523" />\n<style>html,body{background:#031523;margin:0}</style>\n${tags}\n<div id="root"></div>\n`);
+  writeFileSync(`${out}/artifact-page.html`, `<title>SIFT 3.0 Preview</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n<meta name="theme-color" content="#080b10" />\n<style>html,body{background:#080b10;margin:0}</style>\n${tags}\n<div id="root"></div>\n`);
   writeFileSync(`${out}/BUILD.txt`, `SIFT 3.0 preview (sample data only)\ncommit ${sha}${dirty ? ' (+uncommitted local changes)' : ''}\nbuilt ${new Date().toISOString()}\n`);
   console.log(`v3 sample-only preview ready in ${out}/ (commit ${sha}); publish artifact-page.html with its assets/ and teams/ files`);
   process.exit(0);

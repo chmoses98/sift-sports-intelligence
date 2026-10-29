@@ -1,223 +1,211 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from '../../routing';
-import { useStatVM, useTeamSeries, type StatEntry, type StatVM } from '../data/useStat';
-import { fmtStat } from '../model/stat';
-import { ago } from '../model/format';
-import { pushVisit, saveResearch, useFollows, useSaved, removeSaved } from '../state/prefs';
+// Stat Detail and League Rankings (locked designs SD1 to SD7). Every rank, value and percentile in the app opens this screen.
+//   /v3/stat/:slug/:statId?win=&sel=&opp=&tab=...   statId is the metric's SHORT id ("adj_off_epa"); the first build's ranking id
+//   ("rnk_…") still resolves (through the catalog) and the address is rewritten in place; "sample-N" is the labelled sample view model.
+// The address is the state: tab, window, selection, next opponent, observation, comparison picks, expanded About and the "all" list
+// all live in it, in-place changes replace the history entry, and Back restores the entry exactly (scroll included, by the shell).
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from '../../routing';
+import './stat.css';
+import { useMetricDefs, useRankingDoc, useTeamIndex } from '../data/research/hooks';
+import { percentileOf, shortMetricId } from '../data/research/normalize';
+import { familyOf } from './stat/family';
+import type { RankingVM } from '../data/research/types';
+import { useNextOpponent, useStatCatalog } from '../data/useStatDetail';
+import { toStatTeam, useStatVM } from '../data/useStat';
+import { capability } from '../model/capabilities';
+import { roleOf, statDecl } from '../model/statDecl';
+import { fmtValue, ordinal, rankedTeams, resolveStat, universeNote, windowLabel } from '../model/statDetail';
+import { saveResearch, pushVisit, removeSaved, useSaved, demoOn } from '../state/prefs';
+import { findSaved } from '../model/saved';
+import { STAT_TABS, statSchema } from '../nav/schemas';
+import { routes } from '../nav/routes';
+import { addressIs, encode, useRouteState } from '../state/url';
+import { sportBySlug } from '../../data/sports';
+import type { MetricDef } from '../../contract/types';
+import type { V3Team } from '../model/types';
+import { failureKind } from '../data/failure';
+import { DataState } from '../ui/DataState';
 import { Icon } from '../ui/Icon';
-import { LineChart } from '../ui/LineChart';
-import { useSheet } from '../ui/Sheet';
-import { TeamLogo } from '../ui/TeamLogo';
-import { teamHref } from '../ui/gamebits';
-import { useSlate } from '../data/useSlate';
+import { Tabs, LockedRow } from '../ui/atoms';
+import type { StatCtx } from './stat/ctx';
+import { RankingTab } from './stat/RankingTab';
+import { TrendTab } from './stat/TrendTab';
+import { CompareTab } from './stat/CompareTab';
+import { AboutTab } from './stat/AboutTab';
 
-type Tab = 'rankings' | 'trends' | 'splits' | 'matchups';
-const TABS: [Tab, string][] = [['rankings', 'Rankings'], ['trends', 'Trends'], ['splits', 'Splits'], ['matchups', 'Matchups']];
-const WINDOW_WORD: Record<string, string> = { SEASON: 'Season', ADJ_RIDGE: 'Opponent-adjusted', L6: 'Last 6 games', L34: 'Last 34 games', L10: 'Last 10 games', L20: 'Last 20 games' };
-const windowWord = (w: string) => WINDOW_WORD[w] ?? w;
+type Tab = (typeof STAT_TABS)[number];
+const TAB_LABEL: Record<Tab, string> = { ranking: 'Ranking', trend: 'Trend', compare: 'Compare', about: 'About' };
+const TABS = STAT_TABS.map((k) => ({ key: k, label: TAB_LABEL[k] }));
 
-function Definition({ vm }: { vm: StatVM }) {
+interface HeaderText { eyebrow: string; title: string; sub: string }
+
+function Frame({ head, tab, onTab, saved, onSave, onBack, children }: { head: HeaderText; tab: Tab | null; onTab: (t: Tab) => void; saved: boolean; onSave: (() => void) | null; onBack: () => void; children: React.ReactNode }) {
   return (
-    <div className="v3-def">
-      <h3 className="v3-lens__k" style={{ marginTop: 4 }}>What is {vm.name}?</h3>
-      <p className="v3-lens__p">{vm.description}</p>
-      <dl className="v3-lens__rows" style={{ marginTop: 14 }}>
-        <div><dt>Direction</dt><dd>{vm.higherIsBetter == null ? 'Descriptive (no better or worse)' : vm.higherIsBetter ? 'Higher is better' : 'Lower is better'}</dd></div>
-        <div><dt>Unit</dt><dd>{vm.unit ?? '—'}</dd></div>
-        <div><dt>Basis</dt><dd>{vm.adjusted ? 'Opponent-adjusted' : 'Raw'} · {windowWord(vm.window)}</dd></div>
-        <div><dt>Universe</dt><dd>{vm.universe || '—'}</dd></div>
-        {vm.source && <div><dt>Source</dt><dd>{vm.source}</dd></div>}
-        {vm.methodology && <div><dt>Methodology</dt><dd>{vm.methodology}</dd></div>}
-      </dl>
-      {vm.limitations.length > 0 && <><h3 className="v3-lens__k">Known limitations</h3><ul className="v3-bul">{vm.limitations.map((l) => <li key={l}>{l}</li>)}</ul></>}
-      {vm.related.length > 0 && (
-        <>
-          <h3 className="v3-lens__k">Related statistics</h3>
-          <ul className="v3-props">{vm.related.map((r) => <li key={r.id}><Link to={r.route} className="v3-prop__who"><span><b>{r.name}</b></span></Link><Icon name="chevR" size={20} /></li>)}</ul>
-        </>
-      )}
-      <p className="v3-note v3-note--dim">Raw and opponent-adjusted statistics are separate rankings. Counts, rates and per-game values are never mixed.</p>
+    <div className="v3-page st">
+      <header className="st-hd">
+        <button type="button" className="v3-iconbtn" aria-label="Back" onClick={onBack}><Icon name="back" size={26} /></button>
+        <div className="tt"><span className="st-eyebrow">{head.eyebrow}</span><h1>{head.title}</h1><small>{head.sub}</small></div>
+        {onSave && <button type="button" className={`v3-iconbtn st-bm${saved ? ' is-on' : ''}`} aria-pressed={saved} aria-label={saved ? 'Remove saved statistic' : 'Save this statistic'} onClick={onSave}><Icon name="bookmark" size={22} fill={saved} /></button>}
+      </header>
+      {tab && <div className="st-tabs"><Tabs tabs={TABS} value={tab} onChange={onTab} label="Statistic views" /></div>}
+      {children}
     </div>
   );
 }
 
-function Rankings({ vm, selected, scope, sort, setSort, entries }: { vm: StatVM; selected: string | null; scope: string; sort: string; setSort: (s: string) => void; entries: StatEntry[] }) {
-  const selRef = useRef<HTMLLIElement>(null);
-  const [didScroll, setDidScroll] = useState(false);
+function useBack() {
+  const nav = useNavigate();
   const loc = useLocation();
+  return () => { if (loc.key !== 'default') nav(-1); else nav('/v3/explore', { replace: true }); };
+}
+
+const slugTitle = (id: string) => id.replace(/^[a-z]+_/, '').replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+
+function headerOf(ctx: StatCtx, tab: Tab, cmpSub: string | null): HeaderText {
+  const { ranking, sportCode, st } = ctx;
+  if (tab === 'trend') return { eyebrow: 'Trend', title: ranking.name, sub: `${sportCode} · ${ranking.n} teams${ctx.sel ? ` · ${ctx.team(ctx.sel).name}` : ''}` };
+  if (tab === 'compare') {
+    const players = st.cmpm === 'players';
+    return { eyebrow: 'Compare', title: players ? 'Compare players' : 'Compare teams', sub: players ? cmpSub ?? 'Game-log values · last 10 games' : `${sportCode} · ${statDecl(ctx.slug)?.compareSub ?? 'team statistics'}` };
+  }
+  if (tab === 'about') return { eyebrow: 'About this statistic', title: ranking.name, sub: `${sportCode} · ${ctx.adjusted ? 'opponent-adjusted' : 'raw'}` };
+  if (st.sbs && ctx.mode === 'real') return { eyebrow: 'League ranking', title: ctx.rawName ?? ranking.name, sub: 'Raw and opponent-adjusted are separate statistics' };
+  return { eyebrow: 'League ranking', title: ranking.name, sub: `${sportCode} · ${universeNote(ranking.universe, ranking.n)}` };
+}
+
+/** Everything the screen shows once a ranking is in hand. Real and sample statistics take the same path. */
+function Body({ ctx, fell, onBack }: { ctx: StatCtx; fell: string | null; onBack: () => void }) {
+  const { st, slug, ranking } = ctx;
+  const saved = useSaved();
+  const [cmpSub, setCmpSub] = useState<string | null>(null);
+  const tab = st.tab;
+  const route = routes.stat({ slug, statId: ctx.statId }, { ...st, win: ctx.mode === 'real' ? ctx.window : st.win });
+  const savedItem = findSaved(saved, route);
+  const selT = useMemo(() => (ctx.sel ? rankedTeams(ranking).find((t) => t.code === ctx.sel) ?? null : null), [ctx.sel, ranking]);
+  const subtitle = `${ctx.sportCode} · ${windowLabel(ctx.window)} ranking`;
   useEffect(() => {
-    // Opening with a team selected lands on that team once; Back restores the scroll the viewer left at instead.
-    if (!didScroll && selected && selRef.current && !sessionStorage.getItem(`sift3.scroll`)?.includes(loc.pathname)) {
-      const r = selRef.current.getBoundingClientRect();
-      if (r.top > window.innerHeight - 160) window.scrollTo({ top: window.scrollY + r.top - window.innerHeight / 2 });
-    }
-    setDidScroll(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, entries.length]);
-  const valueHead = vm.unit === 'share' ? 'Rate' : vm.higherIsBetter === false ? 'Allowed' : 'Value';
+    pushVisit({ route: `/v3/stat/${slug}/${ctx.statId}`, title: ranking.name, subtitle, kind: 'stat', slug });
+  }, [slug, ctx.statId, ranking.name, subtitle]);
+  const onSave = () => {
+    if (savedItem) { removeSaved(savedItem.id); return; }
+    saveResearch({
+      title: ranking.name,
+      subtitle: `${subtitle}${ctx.sel ? ` · ${ctx.sel}` : ''}`,
+      route,
+      chips: [TAB_LABEL[tab], windowLabel(ctx.window), ...(ctx.sel ? [ctx.sel] : [])].slice(0, 4),
+      snapshot: selT ? [{ label: `${selT.code} rank`, value: `${ordinal(selT.rank)} of ${ranking.n}`, asOf: ranking.asOf || null }, { label: ranking.name, value: ctx.fmt(selT.value), asOf: ranking.asOf || null }] : undefined,
+    });
+  };
   return (
-    <>
-      <div className="v3-rkhead" role="row">
-        <button type="button" className="v3-rkhead__b" aria-label={`Sort by rank ${sort === 'rank' ? '(current)' : ''}`} onClick={() => setSort(sort === 'rank' ? 'rank-desc' : 'rank')}>Rank {sort === 'rank' ? '↑' : sort === 'rank-desc' ? '↓' : ''}</button>
-        <span>Team</span>
-        <button type="button" className="v3-rkhead__b v3-rkhead__v" onClick={() => setSort(sort === 'value' ? 'value-desc' : 'value')}>{valueHead} {sort === 'value' ? '↑' : sort === 'value-desc' ? '↓' : ''}</button>
-      </div>
-      <ol className="v3-rkrows">
-        {entries.map((e) => {
-          const sel = selected === e.team.id;
-          return (
-            <li key={e.entityId} ref={sel ? selRef : undefined} className={`v3-rkrow${sel ? ' is-sel' : ''}`} aria-current={sel || undefined}>
-              <span className="v3-rkrow__n num">{e.rank}</span>
-              <Link to={teamHref(e.team)} className="v3-rkrow__t" aria-label={`${e.team.name}, rank ${e.rank}. Open team`}><TeamLogo team={e.team} size={34} /><span>{e.team.nick}</span></Link>
-              <Link to={`?tab=trends&team=${encodeURIComponent(e.team.id)}`} className="v3-rkrow__v num" aria-label={`${e.team.name} ${fmtStat(e.value, vm.unit)}. Open ${e.team.nick} history for ${vm.name}`}>{fmtStat(e.value, vm.unit)}</Link>
-            </li>
-          );
-        })}
-      </ol>
-      {scope === 'mine' && entries.length === 0 && <div className="v3-state"><Icon name="star" size={20} /><div><b>You follow no teams in this ranking</b>Star a team and it appears here. Switch to All teams to see the full ranking.</div></div>}
-      {vm.summary && <p className="v3-note v3-note--dim">League mean {fmtStat(vm.summary.mean, vm.unit)} · median {fmtStat(vm.summary.median, vm.unit)} · {vm.entries.length} teams{vm.asOf ? ` · as of ${ago(vm.asOf)}` : ''}.</p>}
-    </>
+    <Frame head={headerOf(ctx, tab, cmpSub)} tab={tab} onTab={(t) => ctx.set({ tab: t })} saved={!!savedItem} onSave={onSave} onBack={onBack}>
+      {ctx.mode === 'demo' && <span className="st-sample" role="note">Sample ranking</span>}
+      {fell && <p className="st-fell" role="note">{fell}</p>}
+      {tab === 'ranking' && <RankingTab ctx={ctx} />}
+      {tab === 'trend' && <TrendTab ctx={ctx} />}
+      {tab === 'compare' && <CompareTab ctx={ctx} setSub={setCmpSub} />}
+      {tab === 'about' && <AboutTab ctx={ctx} />}
+    </Frame>
   );
 }
 
-function TeamHistory({ vm, tab, teamId, slug }: { vm: StatVM; tab: 'trends' | 'splits' | 'matchups'; teamId: string; slug: string }) {
-  const { series, loading, profile, available } = useTeamSeries(slug, vm.metricId, teamId, vm.provenance === 'publication');
-  const slate = useSlate();
+// ------------------------------------------------------------------ real statistics
+
+function LiveStat({ slug, statId }: { slug: string; statId: string }) {
+  const loc = useLocation();
   const nav = useNavigate();
-  const [win, setWin] = useState<'L10' | 'L20' | 'SEASON'>('SEASON');
-  const [sel, setSel] = useState<number | null>(null);
-  const team = vm.entries.find((e) => e.team.id === teamId)?.team;
-  const pts = useMemo(() => {
-    const all = (series?.points ?? []).filter((p) => p.value != null);
-    return win === 'SEASON' ? all : all.slice(-(win === 'L10' ? 10 : 20));
-  }, [series, win]);
-  const byEvent = useMemo(() => new Map(slate.games.map((g) => [g.eventId, g])), [slate.games]);
-  const oppOf = (id: string | null) => vm.entries.find((e) => e.entityId === id)?.team ?? null;
-  if (vm.provenance === 'demo') return <div className="v3-state"><Icon name="info" size={20} /><div><b>Sample data has no history</b>Switch to real data to see a team's game-by-game values.</div></div>;
-  if (!team) return <div className="v3-state"><Icon name="info" size={20} /><div><b>Choose a team</b>Tap a team's value in Rankings to see its history here.</div></div>;
-  const head = (
-    <header className="v3-sthead">
-      <Link to={teamHref(team)} aria-label={`${team.name}, team page`}><TeamLogo team={team} size={56} /></Link>
-      <span><b>{team.name}</b><small>{vm.name}</small></span>
-    </header>
-  );
-  if (tab === 'splits') {
-    const rows = (profile?.metrics ?? []).filter((m) => m.metric_id === vm.metricId);
-    return (
-      <>{head}
-        {rows.length ? (
-          <table className="v3-tbl v3-tbl--stats"><thead><tr><th scope="col">Window</th><th scope="col">Value</th><th scope="col">Rank</th></tr></thead>
-            <tbody>{rows.map((m) => <tr key={m.window?.label}><th scope="row">{windowWord(m.window?.label ?? 'SEASON')}</th><td>{fmtStat(m.adjusted_value ?? m.value, vm.unit)}</td><td>{m.context?.rank ? `${m.context.rank} of ${m.context.universe_size}` : '—'}</td></tr>)}</tbody></table>
-        ) : <div className="v3-state"><Icon name="info" size={20} /><div><b>No windows published</b>The publication has no other windows for this team.</div></div>}
-        <div className="v3-state"><Icon name="info" size={20} /><div><b>Situational splits</b>Home/away and opponent-quality splits are not published for this statistic{Object.keys(profile?.splits ?? {}).length ? '' : ', so none are shown'}.</div></div>
-      </>
-    );
-  }
-  if (loading) return <>{head}<div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading history" /></>;
-  if (!available || !pts.length) return <>{head}<div className="v3-state"><Icon name="info" size={20} /><div><b>No game-by-game history</b>The publication has no time series for this team and statistic.</div></div></>;
-  const u = series?.unit ?? vm.unit;
-  if (tab === 'matchups') {
-    return (
-      <>{head}
-        <ul className="v3-results">
-          {[...pts].reverse().map((p) => { const o = oppOf(p.opponent_id); const g = p.event_id ? byEvent.get(p.event_id) : undefined; return (
-            <li key={p.t + p.x} className="v3-res v3-res--o">
-              <span className="v3-res__b v3-res__b--n">{p.x.length > 4 ? p.x.slice(0, 4) : p.x}</span>
-              {o ? <Link to={teamHref(o)} className="v3-res__lg" aria-label={`${o.name}, team page`}><TeamLogo team={o} size={32} /></Link> : <span />}
-              {g ? <Link to={`/v3/game/${g.slug}/${g.eventId}`} className="v3-res__m"><span className="v3-res__t">vs {o?.nick ?? 'opponent'}</span><span className="v3-res__s num">{fmtStat(p.adjusted_value ?? p.value, u)}</span></Link> : <div className="v3-res__m"><span className="v3-res__t">vs {o?.nick ?? 'opponent'}</span><span className="v3-res__s num">{fmtStat(p.adjusted_value ?? p.value, u)}</span></div>}
-            </li>); })}
-        </ul>
-      </>
-    );
-  }
-  const cur = sel != null ? pts[sel] : null;
-  const curGame = cur?.event_id ? byEvent.get(cur.event_id) : undefined;
+  const back = useBack();
+  const [st, set] = useRouteState(statSchema);
+  const cat = useStatCatalog(slug, st.sel);
+  const ti = useTeamIndex(slug);
+  const res = useMemo(() => (cat.catalog ? resolveStat(cat.catalog, statId, st.win, cat.season ? [cat.season] : []) : null), [cat.catalog, cat.season, statId, st.win]);
+  const rk = useRankingDoc(slug, res?.ok ? res.rankingId : null);
+  const defs = useMetricDefs(slug);
+  const next = useNextOpponent(slug, st.sel, st.opp);
+  const sport = sportBySlug(slug);
+  const sportCode = sport?.code ?? slug.toUpperCase();
+
+  // The first build's address used a ranking id: say the statistic and window in the locked vocabulary, replacing the entry (no ghost entry).
+  useEffect(() => {
+    if (!res?.ok || !res.legacy) return;
+    // The catalog answers asynchronously. If the viewer already pressed Back, the entry now current is the screen they returned to: replacing it would
+    // overwrite that screen's address with this statistic's.
+    if (!addressIs(loc)) return;
+    const search = encode(statSchema, { win: res.window }, loc.search);
+    nav({ pathname: `/v3/stat/${slug}/${encodeURIComponent(res.id)}`, search }, { replace: true, state: loc.state });
+  }, [res, slug, loc, nav]);
+
+  const def = res?.ok ? defs.data?.get(res.metricId) : undefined;
+  const ranking = rk.ranking;
+  const teamFor = useCallback((code: string, name?: string): V3Team => toStatTeam(sportCode, slug, code, name ?? ranking?.entries.find((e) => e.code === code)?.name ?? ti.byCode.get(code)?.display_name ?? code), [sportCode, slug, ranking, ti.byCode]);
+  const fam = res?.ok ? familyOf(slug, res.id) : null;
+  const rawName = fam && defs.data ? [...defs.data.values()].find((d) => shortMetricId(d.metric_id) === fam.rawId)?.name ?? null : null;
+  const ctx = useMemo<StatCtx | null>(() => {
+    if (!res?.ok || !ranking) return null;
+    return {
+      mode: 'real', slug, sportCode, statId: res.id, window: res.window, windows: res.windows, def, catalog: cat.catalog, ranking, adjusted: ranking.adjusted, rawName,
+      role: roleOf(slug, res.id), season: cat.season, st, set, sel: st.sel, opp: next.opp, event: next.event, team: teamFor, fmt: (v) => fmtValue(v, ranking.unit),
+    };
+  }, [res, ranking, slug, sportCode, def, rawName, cat.catalog, cat.season, st, set, next.opp, next.event, teamFor]);
+
+  const head: HeaderText = { eyebrow: 'League ranking', title: def?.name ?? slugTitle(statId), sub: sportCode };
+  if (!cat.loading && cat.failure != null && !cat.catalog) return <Frame head={head} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><DataState title="Statistics unavailable" err={cat.failure} retry={cat.retry} alert>The list of statistics for this sport</DataState></Frame>;
+  if (!cat.explorer && !cat.loading) return <Frame head={head} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div className="st-state"><b>No statistics yet</b>This sport publishes no statistics yet.</div></Frame>;
+  if (cat.loading || !res) return <Frame head={head} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div role="status" aria-label="Loading statistic"><div className="v3-skel" style={{ height: 120, marginTop: 14 }} /><div className="v3-skel" style={{ height: 300, marginTop: 14 }} /></div></Frame>;
+  if (!res.ok) return <Frame head={{ ...head, title: 'Statistic not available' }} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div className="st-state"><b>Statistic not available</b>The publication has no ranking with this identity.<br /><a href="#/v3/explore">Search statistics</a></div></Frame>;
+  if (rk.error) return <Frame head={head} tab={st.tab} onTab={(t) => set({ tab: t })} saved={false} onSave={null} onBack={back}><DataState title={failureKind(rk.failure) === 'not-published' ? 'This ranking is not in the publication' : 'Ranking unavailable'} err={rk.failure} retry={rk.retry} alert>The ranking behind this statistic</DataState></Frame>;
+  if (!ctx) return <Frame head={head} tab={st.tab} onTab={(t) => set({ tab: t })} saved={false} onSave={null} onBack={back}><div role="status" aria-label="Loading statistic"><div className="v3-skel" style={{ height: 120, marginTop: 14 }} /><div className="v3-skel" style={{ height: 300, marginTop: 14 }} /></div></Frame>;
+  const fell = res.fellBack && res.requested ? `No “${windowLabel(res.requested)}” window is published for this statistic; showing ${windowLabel(res.window)}.` : null;
+  return <Body ctx={ctx} fell={fell} onBack={back} />;
+}
+
+// ------------------------------------------------------------------ the labelled sample
+
+function SampleStat({ slug, statId }: { slug: string; statId: string }) {
+  const back = useBack();
+  const [st, set] = useRouteState(statSchema);
+  const { vm } = useStatVM(slug, statId);
+  const sportCode = sportBySlug(slug)?.code ?? slug.toUpperCase();
+  const ranking = useMemo<RankingVM | null>(() => {
+    if (!vm) return null;
+    const vals = vm.entries.map((e) => e.value).filter((v): v is number => v != null).sort((a, b) => a - b);
+    const mean = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    const median = vals.length ? (vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2) : null;
+    const n = vm.entries.length;
+    return {
+      rankingId: vm.id, metricId: vm.id, id: vm.id, name: vm.name, unit: vm.unit, window: 'SEASON', higherIsBetter: vm.higherIsBetter, universe: vm.universe, n, season: null, asOf: '',
+      entries: vm.entries.map((e) => ({ rank: e.rank, entityId: e.entityId, code: e.team.id, name: e.team.name, value: e.value, adjusted: null, percentile: percentileOf(e.rank, n), sample: null })),
+      summary: { mean, median, min: vals[0] ?? null, max: vals[vals.length - 1] ?? null, stdev: null }, limitations: vm.limitations, adjusted: vm.adjusted,
+    };
+  }, [vm]);
+  const teamFor = useCallback((code: string, name?: string): V3Team => vm?.entries.find((e) => e.team.id === code)?.team ?? toStatTeam(sportCode, slug, code, name ?? code), [vm, sportCode, slug]);
+  const ctx = useMemo<StatCtx | null>(() => {
+    if (!vm || !ranking) return null;
+    const def = { metric_id: vm.id, name: vm.name, short_name: null, description: vm.description, methodology_version: vm.methodology, source: vm.source, known_limitations: vm.limitations, update_frequency: null } as unknown as MetricDef;
+    return {
+      mode: 'demo', slug, sportCode, statId, window: 'SEASON', windows: ['SEASON'], def, catalog: null, ranking, adjusted: vm.adjusted, rawName: null, role: statId === 'sample-3' || statId === 'sample-4' ? 'd' : 'o', season: null,
+      st, set, sel: st.sel, opp: st.opp, event: null, team: teamFor, fmt: (v) => fmtValue(v, ranking.unit), sampleRelated: vm.related.map((r) => ({ id: r.id, name: r.name })),
+    };
+  }, [vm, ranking, slug, sportCode, statId, st, set, teamFor]);
+  if (!ctx) return <Frame head={{ eyebrow: 'League ranking', title: 'Sample statistic', sub: sportCode }} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}><div className="v3-skel" style={{ height: 300, marginTop: 14 }} role="status" aria-label="Loading statistic" /></Frame>;
+  return <Body ctx={ctx} fell={null} onBack={back} />;
+}
+
+// ------------------------------------------------------------------ route
+
+function GatedStat({ slug, reason }: { slug: string; reason: string }) {
+  const back = useBack();
+  const label = sportBySlug(slug)?.label ?? slug.toUpperCase();
   return (
-    <>{head}
-      <div className="v3-chips" role="group" aria-label="Window">{(['L10', 'L20', 'SEASON'] as const).map((w) => <button key={w} type="button" className="v3-chip" aria-pressed={win === w} onClick={() => { setWin(w); setSel(null); }}>{windowWord(w)}</button>)}</div>
-      <div className="v3-panel v3-chartbox">
-        <LineChart pts={pts.map((p) => ({ key: p.t + p.x, label: p.x.length > 5 ? p.x.slice(5) : p.x, y: (p.adjusted_value ?? p.value) as number }))} fmt={(v) => fmtStat(v, u)} sel={sel} onSel={setSel} label={`${team.name} ${vm.name}, ${pts.length} observations`} />
-      </div>
-      {cur ? (
-        <div className="v3-panel v3-pad v3-pointcard">
-          <b className="num">{fmtStat((cur.adjusted_value ?? cur.value) as number, u)}</b>
-          <span>{cur.x}{oppOf(cur.opponent_id) ? ` · vs ${oppOf(cur.opponent_id)!.nick}` : ''}</span>
-          {curGame ? <button type="button" className="v3-btn" onClick={() => nav(`/v3/game/${curGame.slug}/${curGame.eventId}`)}>Open that game<Icon name="chevR" size={18} /></button> : <small>This game is not on the published slate, so there is no game page to open.</small>}
-        </div>
-      ) : <p className="v3-note">Tap a point to see the game behind it.</p>}
-      <p className="v3-note v3-note--dim">{pts.length} observations · {series?.rolling_window ? `rolling ${series.rolling_window} games · ` : ''}as of {ago(series?.as_of)}.</p>
-    </>
+    <Frame head={{ eyebrow: 'League ranking', title: 'Statistic', sub: label }} tab={null} onTab={() => {}} saved={false} onSave={null} onBack={back}>
+      <LockedRow title={`${label} statistics are not shown.`}>{reason}</LockedRow>
+    </Frame>
   );
 }
 
 export function Stat() {
   const { slug = '', statId = '' } = useParams();
-  const id = decodeURIComponent(statId);
-  const { vm, loading, error } = useStatVM(slug, id);
-  const nav = useNavigate();
-  const loc = useLocation();
-  const sheet = useSheet();
-  const follows = useFollows();
-  const saved = useSaved();
-  const [sp, setSp] = useSearchParams();
-  const tab = (TABS.some(([k]) => k === sp.get('tab')) ? sp.get('tab') : 'rankings') as Tab;
-  const team = sp.get('team');
-  const sort = sp.get('sort') ?? 'rank';
-  const scope = sp.get('scope') ?? 'all';
-  const set = (k: string, v: string | null) => setSp((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
-  const entries = useMemo(() => {
-    if (!vm) return [];
-    let e = vm.entries;
-    if (scope === 'mine') e = e.filter((x) => follows.teams.includes(`${x.team.slug}:${x.team.id}`));
-    const byRank = [...e].sort((a, b) => a.rank - b.rank);
-    if (sort === 'rank-desc') return byRank.reverse();
-    if (sort === 'value') return [...e].sort((a, b) => (a.value ?? 1e9) - (b.value ?? 1e9));
-    if (sort === 'value-desc') return [...e].sort((a, b) => (b.value ?? -1e9) - (a.value ?? -1e9));
-    return byRank;
-  }, [vm, sort, scope, follows.teams]);
-  const route = `${loc.pathname}${loc.search}`;
-  const savedItem = saved.find((s) => s.route === `/v3/stat/${slug}/${encodeURIComponent(id)}${loc.search}`);
-  const back = () => { if (loc.key !== 'default') nav(-1); else nav('/v3/explore', { replace: true }); };
-  void route;
-  useEffect(() => { if (vm) pushVisit({ route: `/v3/stat/${slug}/${encodeURIComponent(id)}`, title: vm.name, subtitle: `${vm.scope.split(' · ')[0]} · ${windowWord(vm.window)} ranking`, kind: 'stat', slug }); }, [vm?.name, id, slug]); // eslint-disable-line react-hooks/exhaustive-deps
-  const histTeam = team ?? vm?.entries[0]?.team.id ?? '';
-
-  return (
-    <div className="v3-page v3-stat">
-      <header className="v3-pgbar">
-        <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
-        <h1>Stat Detail</h1>
-        <button type="button" className={`v3-iconbtn v3-star${savedItem ? ' is-on' : ''}`} aria-pressed={!!savedItem} aria-label={savedItem ? 'Remove saved statistic' : 'Save this statistic'}
-          onClick={() => { if (!vm) return; if (savedItem) removeSaved(savedItem.id); else saveResearch({ title: vm.name, subtitle: `${vm.scope.split(' · ')[0]} · ${windowWord(vm.window)}${team ? ` · ${team}` : ''}`, route: `/v3/stat/${slug}/${encodeURIComponent(id)}${loc.search}`, snapshot: vm.entries.slice(0, 1).map((e) => ({ label: `${e.team.abbr} (rank 1)`, value: fmtStat(e.value, vm.unit), asOf: vm.asOf })) }); }}>
-          <Icon name="star" size={24} fill={!!savedItem} />
-        </button>
-      </header>
-      {loading && <div role="status" aria-label="Loading statistic"><div className="v3-skel" style={{ height: 120 }} /><div className="v3-skel" style={{ height: 300, marginTop: 14 }} /></div>}
-      {!loading && !vm && <div className="v3-state"><Icon name="info" size={20} /><div><b>Statistic not available</b>{error ?? 'The publication has no ranking with this identity.'}<br /><Link to="/v3/explore" style={{ color: 'var(--sift-cyan)' }}>Search statistics</Link></div></div>}
-      {vm && (
-        <>
-          {vm.provenance === 'demo' && <p className="v3-tag" style={{ display: 'inline-block', marginBottom: 8 }}>Sample ranking</p>}
-          <p className="v3-over">{vm.scope}</p>
-          <h2 className="v3-stat__t">{vm.name} <button type="button" className="v3-iconbtn v3-info" aria-label={`Definition of ${vm.name}`} onClick={() => sheet.open('Stat definition', <Definition vm={vm} />, { tall: true })}><Icon name="info" size={22} /></button></h2>
-          <p className="v3-stat__d">{vm.description}</p>
-          <div className="v3-seg v3-seg--box" role="tablist" aria-label="Statistic views">
-            {TABS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => set('tab', k === 'rankings' ? null : k)}>{label}</button>)}
-          </div>
-          {tab === 'rankings' && (
-            <div className="v3-sels">
-              <label className="v3-sel v3-sel--full"><span className="sr">Season</span><select aria-label="Season" disabled value="s"><option value="s">{vm.season ? `${vm.season} season` : 'Current season'}</option></select><Icon name="chevD" size={18} /></label>
-              <label className="v3-sel"><span className="sr">Window</span>
-                <select aria-label="Window" value={id} onChange={(e) => nav(`/v3/stat/${slug}/${encodeURIComponent(e.target.value)}${loc.search}`, { replace: true })}>
-                  {(vm.siblings.length ? vm.siblings : [{ id, window: vm.window }]).map((s) => <option key={s.id} value={s.id}>{windowWord(s.window)}</option>)}
-                </select><Icon name="chevD" size={18} /></label>
-              <label className="v3-sel"><span className="sr">Teams</span>
-                <select aria-label="Teams" value={scope} onChange={(e) => set('scope', e.target.value === 'all' ? null : e.target.value)}><option value="all">All teams</option><option value="mine">My teams</option></select><Icon name="chevD" size={18} /></label>
-            </div>
-          )}
-          {tab === 'rankings' ? <Rankings vm={vm} selected={team} scope={scope} sort={sort} setSort={(s) => set('sort', s === 'rank' ? null : s)} entries={entries} />
-            : <TeamHistory vm={vm} tab={tab} teamId={histTeam} slug={slug} />}
-        </>
-      )}
-    </div>
-  );
+  if (demoOn()) return <SampleStat slug={slug} statId={statId} />;
+  const cap = capability(slug, 'ranking');
+  if (cap.status !== 'ready') return <GatedStat slug={slug} reason={cap.reason} />;
+  return <LiveStat slug={slug} statId={statId} />;
 }

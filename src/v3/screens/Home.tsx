@@ -1,15 +1,18 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { heroTeam } from '../../lib/hero/input';
 import { useSlate } from '../data/useSlate';
 import { useGameExtras } from '../data/useGameExtras';
+import { useGameStart } from '../data/research/gameHooks';
 import { useGameResearch } from '../../views/broadcast/parts';
 import { demoLens, lensFromResearch } from '../data/lens';
 import { pickFeatured, stripGames } from '../model/feature';
-import { clockTime, dayWord } from '../model/format';
+import { clockTime, dayWord } from '../model/time';
 import { setPrefs, toggleFollow, useAlerts, useFollows, usePrefs } from '../state/prefs';
 import type { V3Game, V3Team } from '../model/types';
 import { Brand } from '../ui/Brand';
+import { ChipRail } from '../ui/ChipRail';
 import { HeroBg } from '../ui/HeroBg';
 import { Icon } from '../ui/Icon';
 import { LensSlot } from '../ui/Lens';
@@ -17,7 +20,7 @@ import { GameStories } from '../ui/Stories';
 import { useSheet } from '../ui/Sheet';
 import { TeamLogo } from '../ui/TeamLogo';
 import { Welcome } from '../ui/Welcome';
-import { gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useSeen } from '../ui/gamebits';
 import { sportsIn } from './Games';
 
 function BellSheet() {
@@ -40,6 +43,7 @@ function BellSheet() {
 }
 
 function ScoreTile({ g }: { g: V3Game }) {
+  const { now } = useSlate();
   const live = g.phase === 'live';
   const scored = g.score != null;
   return (
@@ -48,14 +52,16 @@ function ScoreTile({ g }: { g: V3Game }) {
       {([g.away, g.home] as V3Team[]).map((t, i) => (
         <span key={t.id} className="v3-tile__r"><TeamLogo team={t} size={20} /><b>{t.abbr}</b>{scored && <em className="num">{i === 0 ? g.score!.away : g.score!.home}</em>}</span>
       ))}
-      {live && <span className="v3-tile__f">{g.score?.clock ?? 'In play'}</span>}
-      {!live && g.phase === 'pregame' && <span className="v3-tile__f">{dayWord(g.startMs)}</span>}
+      {live && <span className="v3-tile__f">{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></span>}
+      {!live && g.phase === 'pregame' && <span className="v3-tile__f">{dayWord(g.startMs, now)}</span>}
     </Link>
   );
 }
 
 function Featured({ base }: { base: V3Game }) {
-  const x = useGameExtras(base, 'full');
+  const { now } = useSlate();
+  const x = useGameExtras(base, 'photo'); // the featured card prints no price: no contract document, no quote
+  useGameStart(base); // reads the league schedule (the start-time authority): the slate's games take its start (data/research/scheduleStarts.ts)
   const g = x?.game ?? base;
   const research = useGameResearch(g.provenance === 'publication' ? g.slug : null, g.provenance === 'publication' ? g.eventId : null);
   const lens = useMemo(() => (g.provenance === 'demo' ? demoLens(g) : lensFromResearch(research.data, g)), [g, research.data]);
@@ -66,8 +72,8 @@ function Featured({ base }: { base: V3Game }) {
       <HeroBg g={g} />
       <Link to={gameHref(g)} className="v3-feat__hit" aria-label={`${g.away.name} ${g.phase === 'pregame' ? 'at' : 'versus'} ${g.home.name}. Open game`} />
       <header className="v3-feat__top">
-        {live ? <span className="v3-livebadge">LIVE</span> : <span className="v3-feat__chip">{g.phase === 'final' ? 'FINAL' : dayWord(g.startMs).toUpperCase()}</span>}
-        <span className="v3-feat__clock">{live ? g.score?.clock ?? 'In play' : g.phase === 'final' ? '' : clockTime(g.startMs)}</span>
+        {live ? <span className="v3-livebadge">LIVE</span> : <span className="v3-feat__chip">{g.phase === 'final' ? 'FINAL' : dayWord(g.startMs, now).toUpperCase()}</span>}
+        <span className="v3-feat__clock">{live ? g.score?.clock ?? 'In play' : g.phase === 'final' ? '' : clockTime(g.startMs)}{live && <DelayedMark g={g} />}</span>
         <span className="v3-feat__net">{g.network ?? leagueLabel(g)}</span>
       </header>
       <div className="v3-feat__mid">
@@ -120,17 +126,18 @@ export function MyTeams({ games, limit = 4 }: { games: V3Game[]; limit?: number 
 }
 
 const SAMPLE_STORIES = [
-  { t: 'Sample: Knicks guard listed probable for tonight', s: '2h ago · NBA', team: ['NBA', 'NYK'] as const },
-  { t: 'Sample: Alabama moves up in the latest rankings', s: '3h ago · NCAAF', team: ['CFB', 'ALA'] as const },
-  { t: 'Sample: Dodgers name a Game 3 starter', s: '4h ago · MLB', team: ['MLB', 'LAD'] as const },
+  { t: 'Sample: Knicks guard listed probable for tonight', s: 'Sample · NBA', team: ['NBA', 'NYK'] as const },
+  { t: 'Sample: Alabama moves up in the latest rankings', s: 'Sample · NCAAF', team: ['CFB', 'ALA'] as const },
+  { t: 'Sample: Dodgers name a Game 3 starter', s: 'Sample · MLB', team: ['MLB', 'LAD'] as const },
 ];
 
 export function Home() {
-  const { games, loading, unavailable, failed, saved, now, demo } = useSlate();
+  const { games, loading, unavailable, unsupported, failed, saved, now, demo } = useSlate();
   const f = useFollows();
   const sheet = useSheet();
   const alerts = useAlerts();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const sport = sp.get('sport') ?? 'foryou';
   const pool = useMemo(() => (sport === 'foryou' ? games : games.filter((g) => g.slug === sport)), [games, sport]);
   const featured = useMemo(() => pickFeatured(pool, f, now), [pool, f, now]);
@@ -140,8 +147,10 @@ export function Home() {
     const cand = pool.filter((g) => g.phase !== 'final' && g.key !== featured?.key && g.slug === 'nfl');
     return [...(featured && featured.slug === 'nfl' ? [featured] : []), ...cand].slice(0, 4);
   }, [pool, featured]);
-  const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; }, { replace: true });
+  const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; });
   const hasAlerts = Object.keys(alerts).length > 0;
+  // The stories' research documents (injury items, one per game) are read when the section is near the screen, not before the first card is drawn.
+  const [storiesRef, storiesSeen] = useSeen<HTMLElement>();
   const prefs = usePrefs();
   // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.
   useEffect(() => {
@@ -161,13 +170,13 @@ export function Home() {
         </button>
       </header>
 
-      <div className="v3-chips v3-chips--home" role="group" aria-label="Sport">
+      <ChipRail className="v3-chips v3-chips--home" role="group" aria-label="Sport">
         <button type="button" className="v3-chip" aria-pressed={sport === 'foryou'} onClick={() => setSport('foryou')}>For You</button>
         {sports.map((s) => <button key={s.slug} type="button" className="v3-chip" aria-pressed={sport === s.slug} onClick={() => setSport(s.slug)}>{s.label}</button>)}
-      </div>
+      </ChipRail>
 
-      {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
-      {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app{saved[0].builtAt ? ` (built ${new Date(saved[0].builtAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })})` : ''} because the live publication could not be read. Prices and results may be out of date.</div></div>}
+      {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>{unsupported ? 'The publication is in a format this version of SIFT cannot read.' : <>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></>}</div></div>}
+      {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 
       {loading && !games.length ? (
@@ -180,7 +189,7 @@ export function Home() {
           {strip.length > 0 && (
             <div className="v3-strip" role="list" aria-label="Scoreboard">
               {strip.map((g) => <div role="listitem" key={g.key}><ScoreTile g={g} /></div>)}
-              <Link to="/v3/games" className="v3-tile v3-tile--more" aria-label="All games"><Icon name="chevR" size={22} /></Link>
+              <div role="listitem"><Link to="/v3/games" className="v3-tile v3-tile--more" aria-label="All games"><Icon name="chevR" size={22} /></Link></div>
             </div>
           )}
           {featured ? <Featured key={featured.key} base={featured} /> : !unavailable && <div className="v3-state" style={{ marginTop: 16 }}><Icon name="calendar" size={20} /><div><b>No games to feature</b>Nothing is published for {sport === 'foryou' ? 'today' : 'this sport'} yet. <Link to="/v3/games" style={{ color: 'var(--sift-cyan)' }}>Browse all games</Link></div></div>}
@@ -189,13 +198,13 @@ export function Home() {
 
       <MyTeams games={games} />
 
-      <section aria-label="What's happening">
+      <section aria-label="What's happening" ref={storiesRef}>
         <div className="v3-sechead"><h2>What's happening</h2><Link to="/v3/games">See all<Icon name="chevR" size={16} /></Link></div>
         <ul className="v3-stories">
           {demo ? SAMPLE_STORIES.map((s) => {
             const t = games.flatMap((g) => [g.away, g.home]).find((x) => x.sport === s.team[0] && x.id === s.team[1]);
             return <li key={s.t}><Link to={t ? teamHref(t) : '/v3/games'} className="v3-story">{t && <TeamLogo team={t} size={44} />}<span className="v3-story__t"><b>{s.t}</b><small>{s.s}</small></span><Icon name="chevR" size={20} /></Link></li>;
-          }) : storyGames.map((g) => <GameStories key={g.key} g={g} />)}
+          }) : storyGames.map((g) => <GameStories key={g.key} g={g} enabled={storiesSeen} />)}
           <li>
             <Link to="/v3/games" className="v3-story">
               <span className="v3-story__ic"><Icon name="calendar" size={22} /></span>

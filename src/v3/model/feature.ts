@@ -32,14 +32,22 @@ function tier(g: V3Game, f: Pick<Follows, 'teams' | 'games'>, now: number): numb
  * Pure and stable so the featured game does not change under a finger while the slate refreshes.
  */
 export function pickFeatured(games: V3Game[], f: Pick<Follows, 'teams' | 'games'>, now: number): V3Game | null {
-  const playable = games.filter((g) => g.away && g.home);
-  if (!playable.length) return null;
-  return [...playable].sort((a, b) => tier(a, f, now) - tier(b, f, now) || pref(a) - pref(b) || b.signals - a.signals
-    || (a.phase === 'final' ? b.startMs - a.startMs : a.startMs - b.startMs) || a.key.localeCompare(b.key))[0];
+  // The first game under the ordering below, found in one pass with each game's tier computed once (the ordering is total: the key breaks every tie).
+  let top: V3Game | null = null;
+  let topTier = 0;
+  const before = (a: V3Game, ta: number, b: V3Game, tb: number) => (ta - tb || pref(a) - pref(b) || b.signals - a.signals
+    || (a.phase === 'final' ? b.startMs - a.startMs : a.startMs - b.startMs) || a.key.localeCompare(b.key)) < 0;
+  for (const g of games) {
+    if (!g.away || !g.home) continue;
+    const t = tier(g, f, now);
+    if (!top || before(g, t, top, topTier)) { top = g; topTier = t; }
+  }
+  return top;
 }
 
 /** The quick-glance strip: followed first, then live, then upcoming by start, then finals; never the featured game. */
 export function stripGames(games: V3Game[], f: Pick<Follows, 'teams' | 'games'>, featured: V3Game | null, limit = 10): V3Game[] {
   const rank = (g: V3Game) => (followsTeamOf(g, f) ? 0 : 8) + (hasIdentity(g) ? 0 : 20) + (g.phase === 'live' ? (scored(g) ? 0 : 2) : g.phase === 'pregame' ? 1 : 3);
-  return games.filter((g) => g.key !== featured?.key && g.phase !== 'other').sort((a, b) => rank(a) - rank(b) || a.startMs - b.startMs).slice(0, limit);
+  const ranked = games.filter((g) => g.key !== featured?.key && g.phase !== 'other').map((g) => ({ g, r: rank(g) }));
+  return ranked.sort((a, b) => a.r - b.r || a.g.startMs - b.g.startMs).slice(0, limit).map((x) => x.g);
 }

@@ -3,7 +3,7 @@
 // A tile's star toggles the favourite WITHOUT switching games; tapping the tile switches in one tap and the tab is kept.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from '../../routing';
-import { clockTime } from '../model/format';
+import { clockTime } from '../model/time';
 import { isFavorite, switcherGames } from '../model/switcher';
 import { useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
@@ -11,7 +11,7 @@ import { AlertBell, FollowStar } from './Controls';
 import { Icon } from './Icon';
 import { useSheet } from './Sheet';
 import { TeamLogo } from './TeamLogo';
-import { gameHref, statusWord } from './gamebits';
+import { DelayedMark, gameHref, statusWord } from './gamebits';
 
 const tileLine = (g: V3Game) => (g.phase === 'live' ? g.score?.clock ?? 'In play' : g.phase === 'final' ? 'Final' : clockTime(g.startMs));
 
@@ -24,7 +24,7 @@ function Tile({ g, current, fav, onPick }: { g: V3Game; current: boolean; fav: b
         {([g.away, g.home] as const).map((t, i) => (
           <span key={t.id} className="v3-sw__r"><TeamLogo team={t} size={20} /><b>{t.abbr}</b>{scored && <em className="num">{i === 0 ? g.score!.away : g.score!.home}</em>}</span>
         ))}
-        <small>{tileLine(g)}</small>
+        <small>{tileLine(g)}<DelayedMark g={g} /></small>
       </button>
       {fav && <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} className="v3-sw__star" />}
     </div>
@@ -42,7 +42,7 @@ export function SwitcherRail({ current, games, tab }: { current: V3Game; games: 
     const el = rail.current?.querySelector<HTMLElement>('[data-current]');
     if (el && rail.current) rail.current.scrollLeft = Math.max(0, el.offsetLeft - 10);
   }, [current.key]);
-  const go = (g: V3Game) => { if (g.key !== current.key) nav(`${gameHref(g)}${tab && tab !== 'main' ? `?tab=${tab}` : ''}`); };
+  const go = (g: V3Game) => { if (g.key !== current.key) nav(gameHref(g, tab)); };
   return (
     <nav className="v3-sw" aria-label="Switch game">
       <div className="v3-sw__rail" ref={rail}>
@@ -64,7 +64,7 @@ function PickRow({ g, current, onPick }: { g: V3Game; current: boolean; onPick: 
       <button type="button" className="v3-pk__main" onClick={onPick} aria-current={current ? 'true' : undefined}
         aria-label={`${g.away.name} at ${g.home.name}, ${scored ? `${g.score!.away} to ${g.score!.home}, ` : ''}${statusWord(g)}${current ? ', current game' : ''}`}>
         <TeamLogo team={g.away} size={36} />
-        <span className="v3-pk__t"><b>{g.away.abbr} <span>at</span> {g.home.abbr}</b><small>{g.phase === 'live' ? <><span className="v3-pk__live">{g.score?.clock ?? 'In play'}</span>{g.network ? ` · ${g.network}` : ''}</> : `${tileLine(g)}${g.network ? ` · ${g.network}` : ''}`}</small></span>
+        <span className="v3-pk__t"><b>{g.away.abbr} <span>at</span> {g.home.abbr}</b><small>{g.phase === 'live' ? <><span className="v3-pk__live">{g.score?.clock ?? 'In play'}</span><DelayedMark g={g} />{g.network ? ` · ${g.network}` : ''}</> : `${tileLine(g)}${g.network ? ` · ${g.network}` : ''}`}</small></span>
         {scored ? <span className="v3-pk__sc num">{g.score!.away} <i>–</i> {g.score!.home}</span> : <span className="v3-pk__sc v3-pk__sc--at">at</span>}
         <TeamLogo team={g.home} size={36} />
       </button>
@@ -90,7 +90,7 @@ export function Picker({ current, games, tab }: { current: V3Game; games: V3Game
   const shown = list.filter((g) => matches(g) && (query ? true : bySeg(g)));
   const favs = shown.filter((g) => isFavorite(g, f));
   const rest = shown.filter((g) => !isFavorite(g, f));
-  const go = (g: V3Game) => nav(`${gameHref(g)}${tab && tab !== 'main' ? `?tab=${tab}` : ''}`);
+  const go = (g: V3Game) => nav(gameHref(g, tab));
   const SEGS: [Seg, string][] = [['live', `Live (${counts.live})`], ['today', 'Today'], ['upcoming', 'Upcoming'], ['final', 'Final']];
   return (
     <div className="v3-pk">

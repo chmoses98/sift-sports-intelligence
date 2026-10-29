@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 import { Link, useSearchParams } from '../../routing';
+import { useQueryPatch } from '../state/url';
 import { useSearchIndex } from '../data/useSearch';
 import { useSlate } from '../data/useSlate';
 import { heroTeam } from '../../lib/hero/input';
-import { ago } from '../model/format';
 import { demoOn, removeSaved, useAlerts, useFollows, useSaved } from '../state/prefs';
 import type { V3Game, V3Team } from '../model/types';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
 import { TeamLogo } from '../ui/TeamLogo';
-import { gameHref, leagueLabel, statusWord, teamHref } from '../ui/gamebits';
+import { DelayedMark, gameHref, leagueLabel, statusWord, teamHref } from '../ui/gamebits';
 import { followsGame } from './Games';
 
 type Seg = 'all' | 'teams' | 'players' | 'games';
@@ -27,7 +27,7 @@ function GameRow({ g }: { g: V3Game }) {
     <li className="v3-fg">
       <Link to={gameHref(g)} className="v3-fg__l" aria-label={`${g.away.name} at ${g.home.name}, ${statusWord(g)}. Open game`}>
         <span className="v3-av v3-av--pair"><TeamLogo team={g.away} size={30} /><TeamLogo team={g.home} size={30} /></span>
-        <span className="v3-hit__t"><b>{g.away.abbr} @ {g.home.abbr}{g.score ? ` · ${g.score.away}–${g.score.home}` : ''}</b><small>{g.phase === 'live' ? <span className="v3-pk__live">{g.score?.clock ?? 'In play'}</span> : statusWord(g)} · {leagueLabel(g)}</small></span>
+        <span className="v3-hit__t"><b>{g.away.abbr} @ {g.home.abbr}{g.score ? ` · ${g.score.away}–${g.score.home}` : ''}</b><small>{g.phase === 'live' ? <><span className="v3-pk__live">{g.score?.clock ?? 'In play'}</span><DelayedMark g={g} /></> : statusWord(g)} · {leagueLabel(g)}</small></span>
       </Link>
       <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
       <AlertBell id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
@@ -35,15 +35,20 @@ function GameRow({ g }: { g: V3Game }) {
   );
 }
 
+const KIND_WORD = { player: 'Player', team: 'Team', stat: 'Statistic', game: 'Game', props: 'Props', other: 'Research' } as const;
+
 export function Following() {
   const f = useFollows();
   const { games } = useSlate();
   const saved = useSaved();
   const alerts = useAlerts();
-  const [sp, setSp] = useSearchParams();
+  const [sp] = useSearchParams();
+  const setSp = useQueryPatch();
   const seg = (SEGS.some(([k]) => k === sp.get('seg')) ? sp.get('seg') : 'all') as Seg;
   const demo = demoOn();
-  const idx = { nfl: useSearchIndex('nfl', !demo), nba: useSearchIndex('nba', !demo), nhl: useSearchIndex('nhl', !demo), mlb: useSearchIndex('mlb', !demo) };
+  // A sport's search index (up to 450 KB with the explorer index it is found through) is read only to name a player this device follows in it.
+  const playerSports = new Set(f.players.map((k) => k.split(':')[0]));
+  const idx = { nfl: useSearchIndex('nfl', !demo && playerSports.has('nfl')), nba: useSearchIndex('nba', !demo && playerSports.has('nba')), nhl: useSearchIndex('nhl', !demo && playerSports.has('nhl')), mlb: useSearchIndex('mlb', !demo && playerSports.has('mlb')) };
   const teams = f.teams.map((k) => ({ k, t: teamOf(k, games) }));
   const players = f.players.map((k) => {
     const [slug, ...r] = k.split(':'); const id = r.join(':');
@@ -61,7 +66,7 @@ export function Following() {
     <div className="v3-page v3-following">
       <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>Following</h1><span className="v3-top__sp" /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
       <div className="v3-seg v3-seg--box" role="tablist" aria-label="Following sections">
-        {SEGS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={seg === k} onClick={() => setSp((p) => { const n = new URLSearchParams(p); if (k === 'all') n.delete('seg'); else n.set('seg', k); return n; }, { replace: true })}>{label}</button>)}
+        {SEGS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={seg === k} onClick={() => setSp((p) => { const n = new URLSearchParams(p); if (k === 'all') n.delete('seg'); else n.set('seg', k); return n; })}>{label}</button>)}
       </div>
 
       {empty && (
@@ -107,8 +112,11 @@ export function Following() {
           <ul className="v3-hits">{saved.map((s) => (
             <li key={s.id} className="v3-hit v3-hit--saved">
               <Link to={s.route} className="v3-hit__l" aria-label={`Reopen ${s.title}: ${s.subtitle}`}>
-                <span className="v3-hit__t"><b>{s.title}</b><small>{s.subtitle}</small>
-                  {s.snapshot && <span className="v3-snap">At save ({ago(new Date(s.savedAt).toISOString())}): {s.snapshot.map((x) => `${x.label} ${x.value}`).join(' · ')}</span>}
+                <span className="v3-hit__t">
+                  <span className="v3-kind">{KIND_WORD[s.kind]}{s.sport ? ` · ${s.sport.toUpperCase()}` : ''}</span>
+                  <b>{s.title}</b><small>{s.subtitle}</small>
+                  {s.chips.length > 0 && <span className="v3-chiplist" aria-label="Saved setup">{s.chips.map((c) => <i key={c} className="v3-chipx">{c}</i>)}</span>}
+                  {s.snapshot && <span className="v3-snap">Saved values: {s.snapshot.map((x) => `${x.label} ${x.value}`).join(' · ')}</span>}
                 </span>
                 <Icon name="chevR" size={20} />
               </Link>

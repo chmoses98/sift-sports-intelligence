@@ -8,6 +8,7 @@ import { resolveHero } from '../../lib/hero/resolve';
 import { heroInputFor, heroInputForTeam } from '../../lib/hero/input';
 import type { EventResearchDoc } from '../../contract/types';
 import { cents } from '../model/format';
+import { isTradableWord, statusFacts } from '../model/marketStatus';
 import type { MarketLine, Phase, Price, V3Game, V3Team } from '../model/types';
 
 type Participant = BoardItem['participants'][number];
@@ -20,7 +21,16 @@ function codeFromName(name: string, individual: boolean): string {
   return (words.length === 1 ? words[0].slice(0, 3) : words.map((w) => w[0]).join('').slice(0, 3)).toUpperCase();
 }
 
+const teams = new Map<string, V3Team>();
+/** One V3Team per identity (a slate repeats each club in many games; the identity tables are consulted once). Never mutated by a caller. */
 export function toTeam(sport: string, slug: string, p: Participant | undefined, fallback: string): V3Team {
+  const k = `${sport}|${slug}|${p?.short_name ?? ''}|${p?.participant_id ?? ''}|${p?.display_name ?? ''}|${fallback}`;
+  let t = teams.get(k);
+  if (!t) { t = buildTeam(sport, slug, p, fallback); teams.set(k, t); }
+  return t;
+}
+
+function buildTeam(sport: string, slug: string, p: Participant | undefined, fallback: string): V3Team {
   const named = p?.short_name ?? null;
   const code = named ?? p?.participant_id ?? fallback;
   const h = named ? heroTeam(sport, named, p?.display_name ?? named) : null;
@@ -41,31 +51,43 @@ function phaseOf(g: GameRow): Phase {
   return 'other';
 }
 
-/** A slate row as the view-model, before its per-game documents are read (no lines, no score yet). */
+const games = new WeakMap<GameRow, V3Game>();
+/**
+ * A slate row as the view-model, before its per-game documents are read (no lines, no score yet). The same row gives the same object (the slate
+ * is re-derived when a score, a schedule or the clock changes, and most rows have not changed): callers copy before they add anything.
+ */
 export function toGame(g: GameRow): V3Game {
-  const away = toTeam(g.sport, g.slug, g.away, 'AWAY');
-  const home = toTeam(g.sport, g.slug, g.home, 'HOME');
-  return {
-    key: `${g.slug}:${g.item.event_id}`,
-    slug: g.slug, sport: g.sport, eventId: g.item.event_id, league: g.item.competition ?? g.item.league ?? g.sport,
-    phase: phaseOf(g), startMs: g.startMs, network: null,
-    away, home, score: null, lines: [], signals: g.candidates, provenance: 'publication', item: g.item,
-  };
+  let v = games.get(g);
+  if (!v) {
+    const away = toTeam(g.sport, g.slug, g.away, 'AWAY');
+    const home = toTeam(g.sport, g.slug, g.home, 'HOME');
+    v = {
+      key: `${g.slug}:${g.item.event_id}`,
+      slug: g.slug, sport: g.sport, eventId: g.item.event_id, league: g.item.competition ?? g.item.league ?? g.sport,
+      phase: phaseOf(g), startMs: g.startMs, network: null,
+      away, home, score: null, lines: [], signals: g.candidates, provenance: 'publication', item: g.item,
+    };
+    games.set(g, v);
+  }
+  return v;
 }
 
 // ---------------------------------------------------------------- Kalshi ladders -> compact lines
 
-const OPEN = (m: Market) => !m.market_status || /^(OPEN|ACTIVE|UNOPENED)$/i.test(m.market_status);
+/** Lists are built from markets that are not POSITIVELY non-tradable (model/marketStatus.ts: a word that is not open/active/trading is out, an unrecognised one included; a MISSING status is not a word). */
+const OPEN = (m: Market) => isTradableWord(m.market_status);
 /** The full-game contract (publications spell the period "FULL", "FULL_GAME", "full_game" or leave it out). */
 const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
 
-function priceOf(m: Market): Price {
-  const ask = cents(m.yes_ask);
-  const bid = cents(m.yes_bid);
+export function priceOf(m: Market): Price {
+  const sf = statusFacts(m.market_status);
+  // A market that cannot be traded carries no ask, bid or implied price at all (the gate would withhold it anyway).
+  const ask = sf.tradable ? cents(m.yes_ask) : null;
+  const bid = sf.tradable ? cents(m.yes_bid) : null;
   const mid = ask != null && bid != null ? (ask + bid) / 2 : ask;
   return {
-    ask, bid,
-    implied: m.market_probability != null ? Math.round(m.market_probability * 1000) / 10 : mid,
+    ask, bid, ...sf,
+    implied: !sf.tradable ? null : m.market_probability != null ? Math.round(m.market_probability * 1000) / 10 : mid,
     ticker: m.kalshi_ticker, side: 'YES', description: m.yes_description,
     observedAt: m.captured_at, source: 'Kalshi', volume: m.volume ?? null,
   };
@@ -139,6 +161,8 @@ export interface PropRow {
   line: number;
   price: Price;
   ladder: Price[];
+  /** The same ladder with each contract's own numeric line ("receptions over 6.5" is the 7+ rung), lowest first. */
+  rungs: { line: number; price: Price }[];
   teamAbbr: string | null;
 }
 
@@ -181,7 +205,7 @@ export function deriveProps(markets: Market[]): PropRow[] {
     const x = (ms[0].extensions ?? {}) as MktExt;
     const sorted = [...ms].sort((a, b) => propLine(a)! - propLine(b)!);
     const main = [...ms].sort((a, b) => nearHalf(a) - nearHalf(b))[0];
-    rows.push({ key, player: propSubject(ms[0])!, playerId: ms[0].player_id, stat: x.stat!, statLabel: statWord(x.stat!), line: propLine(main)!, price: priceOf(main), ladder: sorted.map(priceOf), teamAbbr: null });
+    rows.push({ key, player: propSubject(ms[0])!, playerId: ms[0].player_id, stat: x.stat!, statLabel: statWord(x.stat!), line: propLine(main)!, price: priceOf(main), ladder: sorted.map(priceOf), rungs: sorted.map((m) => ({ line: propLine(m)!, price: priceOf(m) })), teamAbbr: null });
   }
   return rows.sort((a, b) => Math.abs((a.price.ask ?? 0) - 50) - Math.abs((b.price.ask ?? 0) - 50) || a.player.localeCompare(b.player));
 }

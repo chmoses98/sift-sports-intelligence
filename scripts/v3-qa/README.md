@@ -16,3 +16,22 @@ python3 scripts/v3-qa/compare.py REF.png SHOT.png OUT.png   # reference | implem
 ```
 
 The harness hides the iframe scrollbar (WebKitGTK's overlay gutter swallows clicks at the right edge; iOS has none).
+
+## Mobile performance of every screen
+
+`scripts/v3-qa/screens-perf.mjs` measures documents, wire bytes, first meaningful content, interactive time and tap-to-paint for Home, Games, Game Detail,
+Player, Team, Stat, Following, Explore and Prop Discovery, from the committed fixture bundle (`fixtures/real`) under the iPhone-class throttle of
+`props-perf.mjs`; the method and the per-screen definitions are in `docs/sift3/IMPLEMENTATION_STATUS.md` ("Hardening: mobile performance").
+
+```bash
+npm run build:e2e                                   # a production build in dist/
+DIST=dist RUNS=5 SCREEN=home,games node --experimental-strip-types scripts/v3-qa/screens-perf.mjs
+DIST="before=/path/old-dist,after=dist" RUNS=5 SCREEN=all OUT=perf.json node --experimental-strip-types scripts/v3-qa/screens-perf.mjs   # alternates the builds run by run
+```
+
+`--no-proxy-server` is built in (this sandbox's `HTTPS_PROXY` would otherwise send the documents to the live network). Other knobs: `INTERACT=0` (no taps),
+`NOTHROTTLE=1`, `APP_H1=1` (serve the app over HTTP/1.1), `PROFILE=1 PROFILE_OUT=<prefix>` (CPU profile), `TRACE_OUT=<prefix>` (Chrome trace), `URLS_OUT=<prefix>` (the documents of run 1).
+
+## Temporary files
+
+Write test output, browser logs and scratch captures under `$TMPDIR` (or the session scratchpad), never at the filesystem root. An early worker run left a stray `/chromium.out` at the root of the sandbox filesystem; the sandbox refuses to delete it and nothing reads it. It is harmless and ignored: all current tooling writes elsewhere (`$TMPDIR`, `test-results/`, `docs/sift3/qa/impl/...`). If a launcher redirects Chromium output with `> /chromium.out`, change it to `"${TMPDIR:-/tmp}/chromium.out"`.

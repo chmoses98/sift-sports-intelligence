@@ -7,7 +7,7 @@
 //   unavailable  nothing could be read.
 import type { ExplorerIndexDoc, HealthDoc } from '../contract/types';
 import { normalizeCfbNames } from '../lib/cfbTeams';
-import { getJson, joinUrl, NotFoundError } from './fetcher';
+import { documentExists, existenceProbeIsLight, getJson, joinUrl, NotFoundError } from './fetcher';
 import type { SportConfig } from './sports';
 
 export type SourceMode = 'live' | 'snapshot' | 'live-v1' | 'unavailable';
@@ -62,6 +62,11 @@ export function setSourcePreference(p: SourcePreference): void {
 
 const cache = new Map<string, Promise<SportSource>>();
 
+/** Forget a sport's resolved source so the next read decides again (a Retry on a source that resolved as unavailable). */
+export function forgetSource(sport: SportConfig): void {
+  for (const k of [...cache.keys()]) if (k.startsWith(`${sport.code}:`)) cache.delete(k);
+}
+
 export function resolveSource(sport: SportConfig, pref: SourcePreference = getSourcePreference()): Promise<SportSource> {
   const key = `${sport.code}:${pref}`;
   let p = cache.get(key);
@@ -76,6 +81,10 @@ export function resolveSource(sport: SportConfig, pref: SourcePreference = getSo
 async function doResolve(sport: SportConfig, pref: SourcePreference): Promise<SportSource> {
   let liveHealth: HealthDoc | null = null;
   let liveError: string | null = null;
+  // SIFT 3.0 only asks whether the explorer exists (a HEAD), so it asks at the same time as it reads the health document; the answer is
+  // used only when health was read. Everywhere else the index is read after health, exactly as before.
+  const indexUrl = joinUrl(sport.rawBase, 'explorer/index.json');
+  const early: Promise<unknown> | null = existenceProbeIsLight() && pref !== 'snapshot' ? documentExists(indexUrl).then(() => null, (e: unknown) => e ?? new Error('explorer index')) : null;
   try {
     liveHealth = await getJson<HealthDoc>(joinUrl(sport.rawBase, 'health.json'));
     if (sport.code === 'CFB') normalizeCfbNames(liveHealth);
@@ -86,7 +95,12 @@ async function doResolve(sport: SportConfig, pref: SourcePreference): Promise<Sp
   let liveExplorer = false;
   if (liveHealth && pref !== 'snapshot') {
     try {
-      await getJson<ExplorerIndexDoc>(joinUrl(sport.rawBase, 'explorer/index.json'));
+      if (early) {
+        const failed = await early;
+        if (failed) throw failed;
+      } else {
+        await getJson<ExplorerIndexDoc>(indexUrl);
+      }
       liveExplorer = true;
     } catch (e) {
       if (!(e instanceof NotFoundError)) liveError = e instanceof Error ? e.message : String(e);

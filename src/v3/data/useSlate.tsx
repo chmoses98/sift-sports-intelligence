@@ -5,13 +5,15 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { resolveSource } from '../../data/source';
 import { useNow } from '../../live/hooks';
-import { useAllOpportunities } from '../../opportunity/load';
+import { useLeanOpportunities } from '../../opportunity/load';
 import { gameRows, slateOrder } from '../../views/broadcast/games';
-import { useScores } from '../../live/scores/hooks';
 import { useFeedEnabled } from '../../live/scores/feed';
-import { observedFor, periodClock, shownState } from '../../v4/scoreState';
+import { observedFor } from '../../v4/scoreState';
+import { useVerifiedScores } from './scoreReads';
 import { demoGames } from '../demo/fixtures';
+import { dayKey } from '../model/time';
 import { toGame } from './adapt';
+import { knownSchedule, useScheduleVersion, withScheduleStarts } from './research/scheduleStarts';
 import type { V3Game } from '../model/types';
 
 export interface Slate {
@@ -19,10 +21,12 @@ export interface Slate {
   loading: boolean;
   /** Every feed failed: say so rather than show an empty list. */
   unavailable: boolean;
+  /** Every feed that failed failed because its publication is in a format this version cannot read (a schema_version it does not support): asking again cannot help. */
+  unsupported?: boolean;
   /** Feeds that failed while others loaded. */
   failed: string[];
   /** Sports whose live publication could not be read and whose research comes from the saved copy bundled with the app (never silent). */
-  saved: { label: string; builtAt: string | null }[];
+  saved: { label: string; slug: string; builtAt: string | null }[];
   now: number;
   demo: boolean;
 }
@@ -45,20 +49,25 @@ export function useGameByKey(key: string | undefined) {
 
 function RealProvider({ children }: { children: ReactNode }) {
   const now = useNow(30_000);
-  const all = useAllOpportunities(now);
-  const rows = useMemo(() => gameRows(all.bundles, all.opportunities, now).sort(slateOrder), [all.bundles, all.opportunities, now]);
+  // Lean: no quote is registered for the slate (nothing in it prints a price; the screens that do - Games cards, Game Detail, Player, Props -
+  // register the contracts they print, so registering every candidate polled ~45 game files on every screen) and the NHL/tennis settled-record
+  // documents are not read (they only feed record text of an opportunity, which the slate never prints; the candidate count does not depend on them).
+  const all = useLeanOpportunities(now);
+  // Start times: the league schedule (explorer) where it has been read, else the board's own (the same schedule, as published).
+  const scheduleVersion = useScheduleVersion();
+  const bundles = useMemo(() => withScheduleStarts(all.bundles, knownSchedule), [all.bundles, scheduleVersion]); // eslint-disable-line react-hooks/exhaustive-deps -- the registry changes under a stable lookup
+  const rows = useMemo(() => gameRows(bundles, all.opportunities, now).sort(slateOrder), [bundles, all.opportunities, now]);
   const feedOn = useFeedEnabled();
   const evs = useMemo(() => (feedOn ? observedFor(rows, now) : []), [feedOn, rows, now]);
-  const read = useScores(evs);
+  const read = useVerifiedScores(evs); // re-renders the slate when a printed score changes, not every second the score store recomputes
   const games = useMemo<V3Game[]>(() => rows.map((r) => {
-    const g = toGame(r);
-    const rd = feedOn ? read(r.item.event_id) : null;
-    const st = shownState(rd);
-    if (rd?.game?.score && (st === 'live' || st === 'over')) {
-      g.score = { away: rd.game.score.away, home: rd.game.score.home, clock: st === 'over' ? 'Final' : periodClock(rd) || 'Live', source: 'score-feed', asOf: null, stale: rd.view.mode === 'LAST_KNOWN' || rd.view.mode === 'DELAYED' };
-      g.phase = st === 'over' ? 'final' : 'live';
-    }
-    return g;
+    const base = toGame(r); // shared per row: copied below when a score changes it
+    // Only a VERIFIED score is shown (data/scoreVerify.ts): matched to this event by identity evidence, in play or final, a plausible pair of
+    // whole numbers. A verified score that is a little old keeps showing with `delayed`; an older or unreliable one is not shown at all.
+    const v = feedOn ? read(r.item.event_id) : null;
+    if (!v?.show) return base;
+    const scored: V3Game = { ...base, score: { away: v.away, home: v.home, clock: v.clock, source: 'score-feed', asOf: null, ...(v.delayed ? { delayed: true } : {}) }, phase: v.over ? 'final' : 'live' };
+    return scored;
   }).sort(slateCompare), [rows, feedOn, read]);
   const failed = all.bundles.filter((b) => b.error != null);
   const [saved, setSaved] = useState<Slate['saved']>([]);
@@ -66,20 +75,21 @@ function RealProvider({ children }: { children: ReactNode }) {
     let live = true;
     // resolveSource is the app's own cached source decision (live publication, else the bundled saved copy); reading it adds no request.
     Promise.all(all.bundles.filter((b) => b.error == null).map((b) => resolveSource(b.sport).catch(() => null))).then((srcs) => {
-      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, builtAt: x.snapshot?.explorer_built_at ?? null })));
+      if (live) setSaved(srcs.filter((x): x is NonNullable<typeof x> => x != null && x.mode === 'snapshot').map((x) => ({ label: x.sport.label, slug: x.sport.slug, builtAt: x.snapshot?.explorer_built_at ?? null })));
     });
     return () => { live = false; };
   }, [all.bundles]);
   const unavailable = !!all.error || (!all.loading && all.bundles.length > 0 && failed.length === all.bundles.length);
-  const value = useMemo<Slate>(() => ({ games, loading: all.loading, unavailable, failed: failed.map((b) => b.sport.label), saved, now, demo: false }), [games, all.loading, unavailable, failed, saved, now]);
+  const unsupported = unavailable && failed.length > 0 && failed.every((b) => /unsupported schema_version/.test(b.error ?? ''));
+  const value = useMemo<Slate>(() => ({ games, loading: all.loading, unavailable, unsupported, failed: failed.map((b) => b.sport.label), saved, now, demo: false }), [games, all.loading, unavailable, unsupported, failed, saved, now]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 function DemoProvider({ children }: { children: ReactNode }) {
   const now = useNow(60_000);
-  const day = new Date(now).toDateString();
+  const day = dayKey(now) ?? '';
   // Fixture kickoffs are fixed clock times on today's date, so the sample slate is the same every time it is opened.
-  const games = useMemo(() => demoGames(new Date(day).getTime()).sort(slateCompare), [day]);
+  const games = useMemo(() => demoGames(day).sort(slateCompare), [day]);
   const value = useMemo<Slate>(() => ({ games, loading: false, unavailable: false, failed: [], saved: [], now, demo: true }), [games, now]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

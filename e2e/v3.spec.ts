@@ -2,6 +2,8 @@
 // "Sample data" strip, which the first test asserts. These tests prove interaction semantics (nested taps, state restoration, Back),
 // not data truth: real-data behaviour is covered by tests/v3 (contract shapes) and the WebKit journey run recorded in VISUAL_QA.md.
 import { test, expect, type Page } from '@playwright/test';
+import { frames } from './support/scroll';
+import { escapeSheet } from './support/sheet';
 
 test.beforeEach(async ({ page }) => {
   // No network: the sample slate needs none, and a stray request must never reach a real host from a test.
@@ -11,6 +13,9 @@ test.beforeEach(async ({ page }) => {
 const go = async (page: Page, path: string) => {
   await page.goto(`./#${path}`);
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
+  // `?demo=` is dropped from the address by an effect once the shell has mounted (replace, no history entry). Wait for that, so an address read
+  // afterwards is the settled one: on a slower engine a read taken straight after the shell appears can still hold the parameter.
+  if (/[?&]demo=/.test(path)) await expect(page).not.toHaveURL(/[?&]demo=/);
 };
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 
@@ -27,13 +32,15 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3?demo=1');
     await page.getByRole('link', { name: 'Game Center' }).click();
     await expect(page).toHaveURL(/#\/v3\/game\/cfb\/demo_uga_fla/);
-    await page.getByRole('tab', { name: 'Matchup' }).click();
-    await expect(page).toHaveURL(/tab=matchup/);
+    // College football has Overview and Props (Matchup is the NFL unit matchup, locked design G1 to G3).
+    await expect(page.getByRole('tab')).toHaveText(['Live', 'Props']); // the featured sample game is in play: its first tab reads Live
+    await page.getByRole('tab', { name: 'Props' }).click();
+    await expect(page).toHaveURL(/tab=props/);
     await page.locator('.v3-sw__tile:not(.is-cur) .v3-sw__hit').first().click();
-    await expect(page).toHaveURL(/tab=matchup/);
+    await expect(page).toHaveURL(/tab=props/);
     await expect(page).not.toHaveURL(/demo_uga_fla/);
     await page.goBack();
-    await expect(page).toHaveURL(/demo_uga_fla.*tab=matchup/);
+    await expect(page).toHaveURL(/demo_uga_fla.*tab=props/);
   });
 
   test('picker: searchable, favourites pin without switching, handles 25 games', async ({ page }) => {
@@ -61,10 +68,10 @@ test.describe('SIFT 3.0 @v3', () => {
     expect(page.url()).toBe(url);
     await card.getByRole('button', { name: /^Alerts for/ }).click();
     await expect(page.getByRole('dialog')).toContainText('Alerts for');
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await card.getByRole('button', { name: /Kalshi market prices/ }).click();
     await expect(page.getByRole('dialog')).toContainText('SAMPLE-');
-    await page.keyboard.press('Escape');
+    await escapeSheet(page);
     await card.getByRole('link', { name: /team page/ }).first().click();
     await expect(page).toHaveURL(/#\/v3\/team\//);
   });
@@ -73,10 +80,14 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/team/cfb/UGA?demo=1');
     await page.locator('.v3-stile').first().click();
     await expect(page).toHaveURL(/#\/v3\/stat\/cfb\/sample-/);
-    await expect(page.locator('.v3-rkrow').first()).toBeVisible();
+    await expect(page.locator('.st-rkr').first()).toBeVisible();
+    // The locked Stat Detail lists the leaders and the neighbours of the selection; the whole list is one in-place tap away.
+    await page.getByRole('button', { name: /^Show all/ }).click();
+    await expect(page).toHaveURL(/all=1/);
     await page.evaluate(() => window.scrollTo(0, 420));
+    await frames(page);   // the app remembers the offset from scroll events, which a browser dispatches with the next frame: let them run before leaving
     const y = await page.evaluate(() => scrollY);
-    await page.locator('.v3-rkrow__t').nth(4).evaluate((e) => (e as HTMLElement).click());
+    await page.locator('.st-rkr a.nm').nth(4).evaluate((e) => (e as HTMLElement).click());
     await expect(page).toHaveURL(/#\/v3\/team\/cfb\//);
     await page.goBack();
     await expect(page).toHaveURL(/#\/v3\/stat\/cfb\/sample-/);
@@ -87,20 +98,19 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/player/nba/sample-guard?demo=1');
     await page.getByRole('button', { name: 'AST' }).click();
     await expect(page).toHaveURL(/stat=ast/);
-    await page.getByRole('button', { name: /^L5/ }).click();
-    await expect(page.locator('.v3-bc__bar')).toHaveCount(5);
-    await page.locator('.v3-bc__bar').nth(2).dispatchEvent('click');
-    await expect(page.getByRole('dialog')).toContainText(/not on the published slate|Open this game/);
-    await page.keyboard.press('Escape');
-    await expect(page.locator('.v3-bc__bar')).toHaveCount(5);
+    await page.locator('[data-win="L5"]').click();
+    await expect(page.locator('.v3p-hb__bar')).toHaveCount(5);
+    // locked design P1: a bar opens its observation card on the page (a game the schedule does not list says so)
+    await page.locator('.v3p-hb__bar').nth(2).dispatchEvent('click');
+    await expect(page.locator('.v3p-obs')).toContainText(/No game page for this game|Game Detail/);
     await page.getByRole('button', { name: /^Research filters/ }).click();
-    await page.getByRole('button', { name: 'Home', exact: true }).click();
-    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await page.getByRole('button', { name: /^Home/ }).click();
+    await page.getByRole('button', { name: /^Show \d+ games?/ }).click();
     await expect(page).toHaveURL(/site=home/);
-    await expect(page.locator('.v3-fchip')).toHaveCount(1);
+    await expect(page.locator('.v3p-fchip')).toHaveCount(1);
     await page.getByRole('button', { name: 'Save this research' }).click();
     await go(page, '/v3/following?demo=1');
-    await expect(page.locator('.v3-snap')).toContainText('At save');
+    await expect(page.locator('.v3-snap')).toContainText('Saved values');
     await page.locator('.v3-hit--saved .v3-hit__l').click();
     await expect(page).toHaveURL(/stat=ast/);
     await expect(page).toHaveURL(/win=L5/);
@@ -111,7 +121,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/player/nba/sample-guard?demo=1&stat=pts&site=away&min=36&script=blowout');
     await expect(page.getByText('0 games match')).toBeVisible();
     await page.getByRole('button', { name: 'Remove all filters' }).click();
-    await expect(page.locator('.v3-bc__bar').first()).toBeVisible();
+    await expect(page.locator('.v3p-hb__bar').first()).toBeVisible();
   });
 
   test('starring never turns alerts on; no notification permission is requested', async ({ page }) => {

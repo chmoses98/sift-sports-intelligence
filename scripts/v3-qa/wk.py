@@ -7,7 +7,7 @@ def driver(w=390, h=844):
     o = ArgOptions()
     o.set_capability('browserName', 'MiniBrowser')
     o.set_capability('webkitgtk:browserOptions', {'binary': '/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/MiniBrowser', 'args': ['--automation']})
-    d = webdriver.Remote(command_executor='http://127.0.0.1:4444', options=o)
+    d = webdriver.Remote(command_executor='http://127.0.0.1:%s' % __import__('os').environ.get('WK_PORT', '4444'), options=o)
     d.set_window_size(w, h)
     for _ in range(3):
         iw, ih = d.execute_script('return [innerWidth, innerHeight]')

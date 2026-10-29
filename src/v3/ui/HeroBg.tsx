@@ -3,7 +3,7 @@ import type { V3Game } from '../model/types';
 
 /**
  * The hero backdrop. A verified venue photograph (src/lib/hero, with its credit) when one exists for this game; otherwise the
- * photo-free layout: both teams' own colours lit from either side over the midnight ground. Never a stock or generated image.
+ * photo-free layout: both teams' own colours lit from either side over the ink ground. Never a stock or generated image.
  */
 export function HeroBg({ g, cover = false }: { g: Pick<V3Game, 'away' | 'home' | 'photo'>; cover?: boolean }) {
   const [a, h] = [g.away.colors, g.home.colors];

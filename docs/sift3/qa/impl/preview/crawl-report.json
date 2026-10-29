@@ -1,0 +1,1925 @@
+{
+ "builtFrom": "dist-v3-snapshot",
+ "startedAt": "2026-10-27T20:55:07.802Z",
+ "viewport": "390x844",
+ "timezone": "America/New_York",
+ "welcome": {
+  "shownOnFirstVisit": true,
+  "dismissedByTap": true,
+  "shownAgainAfterReload": false,
+  "tabBarVisibleBeforeDismiss": true,
+  "ok": true
+ },
+ "roots": [
+  {
+   "id": "ROOT-Home",
+   "title": "Home tab shows the captured slate (not sample data)",
+   "from": "Home",
+   "path": [
+    "About (banner)",
+    "Close (About sheet)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "captured-data banner says captured, date, not live",
+     "ok": true,
+     "detail": "1 found; text \"CAPTURED DATA · 26 Oct 2026, 23:25 UTC · prices as captured, not live About\""
+    },
+    {
+     "what": "no sample-data strip",
+     "ok": true,
+     "detail": "0 found"
+    },
+    {
+     "what": "Home has captured games to open",
+     "ok": true,
+     "detail": "14 found"
+    },
+    {
+     "what": "Home names the captured NFL game (Cowboys at Eagles)",
+     "ok": true
+    },
+    {
+     "what": "About sheet opens from the banner",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "About this capture sheet is open",
+     "ok": true,
+     "detail": "1 found; text \"About this capture Close This is SIFT 3.0 running on a snapshot of real published document\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 44,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin"
+    ]
+   },
+   "screenshot": "ROOT-Home.png",
+   "ms": 1959
+  },
+  {
+   "id": "ROOT-Games",
+   "title": "Games tab lists the captured slate with lines through the quote gate",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "Games (bottom tab)",
+    "NFL (sport rail)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "game cards are listed",
+     "ok": true,
+     "detail": "30 found"
+    },
+    {
+     "what": "no sample-data strip",
+     "ok": true,
+     "detail": "0 found"
+    },
+    {
+     "what": "the Cowboys at Eagles card shows its Kalshi lines (cents, through the gate with the pinned clock)",
+     "ok": true,
+     "detail": "NFL 8:15 PM Cowboys Eagles DAL −4.5 49¢ O/U 44.5 48¢"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 50,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "ROOT-Games.png",
+   "ms": 3284
+  },
+  {
+   "id": "ROOT-Explore",
+   "title": "Explore tab is Prop Discovery on the captured props",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "shelf cards are listed",
+     "ok": true,
+     "detail": "8 found"
+    },
+    {
+     "what": "prices appear on cards (cents)",
+     "ok": true,
+     "detail": "8 found; text \"50¢ ask\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 97,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "ROOT-Explore.png",
+   "ms": 3718
+  },
+  {
+   "id": "ROOT-Following",
+   "title": "Following tab: save from Player Research, then open the saved state",
+   "from": "Home",
+   "path": [
+    "Home (bottom tab)",
+    "Game Center (Home)",
+    "CeeDee Lamb (Players to research)",
+    "Save this research (bookmark)",
+    "Following (bottom tab)",
+    "the saved Lamb item"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Player Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Following heading",
+     "ok": true,
+     "detail": "3 found; text \"Following\""
+    },
+    {
+     "what": "the saved research is listed",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "it reopens Player Research",
+     "ok": true,
+     "detail": "1 found; text \"CeeDee Lamb\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "ROOT-Following.png",
+   "ms": 7017
+  }
+ ],
+ "designs": [
+  {
+   "id": "P1",
+   "title": "Player overview, chart first",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "CeeDee Lamb (Players to research)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Player Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "hero: name and team",
+     "ok": true,
+     "detail": "1 found; text \"CeeDee Lamb\""
+    },
+    {
+     "what": "game strip: at PHI",
+     "ok": true,
+     "detail": "1 found; text \"at PHI · Mon 8:15 PM DAL −4.5 · O/U 44.5\""
+    },
+    {
+     "what": "five tabs (Overview, Props, Matchup, Trends, Log)",
+     "ok": true,
+     "detail": "5 found"
+    },
+    {
+     "what": "decision card: line and the Over price",
+     "ok": true,
+     "detail": "1 found; text \"Over 54¢\""
+    },
+    {
+     "what": "three evidence lanes: Market, History, SIFT model",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "five window chips",
+     "ok": true,
+     "detail": "5 found"
+    },
+    {
+     "what": "chart with ten bars",
+     "ok": true,
+     "detail": "10 found"
+    },
+    {
+     "what": "summary strip with the hit rate",
+     "ok": true,
+     "detail": "1 found; text \"4/10 Hit rate 6.8 Average 6 Median +0.3 vs line\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 50,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "P1.png",
+   "ms": 3134
+  },
+  {
+   "id": "P2",
+   "title": "Drag the line, compare every rung",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "CeeDee Lamb (Players to research)",
+    "touch-drag the dashed line",
+    "a ladder rung",
+    "Alt lines (chevron on the decision card)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Player Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the readout replaces the window chips while dragging (Market, History, SIFT model)",
+     "ok": true,
+     "detail": "1 found; text \"4+ over 3.5 90¢ Market 9/10 History 80% SIFT model\""
+    },
+    {
+     "what": "the line moved to another listed rung",
+     "ok": true,
+     "detail": "6.5 -> 3.5"
+    },
+    {
+     "what": "release commits the line (window chips return)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the ladder lists every rung with its three lanes",
+     "ok": true,
+     "detail": "7 found"
+    },
+    {
+     "what": "exactly one rung is marked",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the alt-lines sheet lists every rung",
+     "ok": true,
+     "detail": "11 found"
+    }
+   ],
+   "notes": [
+    "The SIFT lane shows a dash on every rung the model does not publish (it publishes three), as the design locks."
+   ],
+   "requests": {
+    "served": 50,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "P2.png",
+   "ms": 6411
+  },
+  {
+   "id": "P3",
+   "title": "Research builder: cut the sample before you trust it",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "CeeDee Lamb (Players to research)",
+    "Research filters",
+    "Away (draft filter)",
+    "Show N games (apply)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Player Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the filters sheet is open",
+     "ok": true
+    },
+    {
+     "what": "live card: how many games match",
+     "ok": true,
+     "detail": "1 found; text \"10 games match Hit 4/10 at 7+ · avg 6.8\""
+    },
+    {
+     "what": "Away option shows n and hits (n 5 · 2/5 style)",
+     "ok": true,
+     "detail": "Away n 5 · 1/5"
+    },
+    {
+     "what": "locked rows are notes, not controls (Teammate out, Weather, Pace, Favorite)",
+     "ok": true
+    },
+    {
+     "what": "the screen lands with a removable filter chip",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "P3.png",
+   "ms": 6325
+  },
+  {
+   "id": "P4",
+   "title": "Matchup tab: why the projection says what it says",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "CeeDee Lamb (Players to research)",
+    "Matchup"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Player Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "opportunity chain (how the projection builds)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the opposing unit on a league strip (28 dots)",
+     "ok": true,
+     "detail": "54 found"
+    },
+    {
+     "what": "the locked row for position-level defense",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 55,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "P4.png",
+   "ms": 4146
+  },
+  {
+   "id": "G1",
+   "title": "Matchup: offense against defense, both ways",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "Matchup"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "direction control with the tilt summary",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "unit rows: league-percentile tracks with offense and defense markers",
+     "ok": true,
+     "detail": "7 found"
+    },
+    {
+     "what": "each row has a tilt pill",
+     "ok": true,
+     "detail": "7 found"
+    },
+    {
+     "what": "SIFT Lens is on the screen",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [
+    "Shown on Cowboys at Eagles, a game still to be played at the capture instant. A game in play is not captured (the score feed is off), so the live variants of G1 to G3 are not shown."
+   ],
+   "requests": {
+    "served": 49,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "G1.png",
+   "ms": 4009
+  },
+  {
+   "id": "G2",
+   "title": "One unit, in depth",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "Matchup",
+    "Passing unit row"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "expanded unit",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "both teams on the full-league strip (28 dots)",
+     "ok": true,
+     "detail": "54 found"
+    },
+    {
+     "what": "both teams' strips: offense and defense",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "recent form",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "where this shows up (markets and props)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the weekly-trend lock is stated",
+     "ok": true,
+     "detail": "1 found; text \"Weekly trend is locked. No per-game series is published for this statistic, so only the se\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "G2.png",
+   "ms": 4743
+  },
+  {
+   "id": "G3",
+   "title": "Lens, game shape, key matchups, context",
+   "from": "Home",
+   "path": [
+    "Game Center (Home)",
+    "Matchup",
+    "SIFT Lens header (expand)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Lens opens collapsed with the widest gap and the counter-case",
+     "ok": true
+    },
+    {
+     "what": "Lens expanded: three evidence rows",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "the +-15 heuristic is described as descriptive",
+     "ok": true
+    },
+    {
+     "what": "game shape (approved projection or the reason it is absent)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "key matchups link a player to the unit it faces, with its own price",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "key matchup price (cents)",
+     "ok": true,
+     "detail": "3 found; text \"56¢ Rush yds 60+\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 49,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p02.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "G3.png",
+   "ms": 4142
+  },
+  {
+   "id": "PD1",
+   "title": "Discover: what is interesting today",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "title with the real universe (props, contracts)",
+     "ok": true,
+     "detail": "1 found; text \"Mon Oct 26 · 11 games · 826 props · 2599 contracts\""
+    },
+    {
+     "what": "search field",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "sport rail with counts",
+     "ok": true,
+     "detail": "5 found"
+    },
+    {
+     "what": "statistic chips across families",
+     "ok": true,
+     "detail": "31 found"
+    },
+    {
+     "what": "shelves curated by rule: SIFT model published; Facing a bottom-3 defense",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "cards carry three lanes, opponent chip and the ask",
+     "ok": true,
+     "detail": "8 found"
+    },
+    {
+     "what": "card ask in cents",
+     "ok": true,
+     "detail": "8 found; text \"50¢ ask\""
+    }
+   ],
+   "notes": [
+    "The counts in the title are the captured day's (the whole slate), not the mockup's own day."
+   ],
+   "requests": {
+    "served": 97,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "PD1.png",
+   "ms": 3423
+  },
+  {
+   "id": "PD2",
+   "title": "All props: sort and browse the whole universe",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)",
+    "See all (SIFT model published shelf)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the list opened",
+     "ok": true,
+     "detail": "13 found"
+    },
+    {
+     "what": "sort and filter controls",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "active filter chips are removable",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "lane legend",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "rows carry player, the three lanes and the ask",
+     "ok": true,
+     "detail": "13 found"
+    },
+    {
+     "what": "default sort is Soonest",
+     "ok": true,
+     "detail": "1 found; text \"Sort: Soonest ▾\""
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 99,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "PD2.png",
+   "ms": 5467
+  },
+  {
+   "id": "PD3",
+   "title": "Peek: depth without leaving the list",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)",
+    "See all (SIFT model published shelf)",
+    "a prop row (expand in place)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the list opened",
+     "ok": true,
+     "detail": "13 found"
+    },
+    {
+     "what": "the row expands in place (peek)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "actions: Research, Contract, bookmark",
+     "ok": true,
+     "detail": "2 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 99,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "PD3.png",
+   "ms": 5547
+  },
+  {
+   "id": "PD4",
+   "title": "Sort and filter the entire universe",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)",
+    "See all (SIFT model published shelf)",
+    "Sort and filters",
+    "Apply"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the list opened",
+     "ok": true,
+     "detail": "13 found"
+    },
+    {
+     "what": "the Sort and filter sheet is open",
+     "ok": true
+    },
+    {
+     "what": "live count of matching props",
+     "ok": true,
+     "detail": "1 found; text \"Sort and filter Reset 14 props match NBA 0 · MLB 4 · NFL 10 · NHL 0 SORT BY Soonest Price \""
+    },
+    {
+     "what": "sort options (Soonest, Price, History, SIFT model, Matchup, Volume)",
+     "ok": true,
+     "detail": "28 found"
+    },
+    {
+     "what": "facets SIFT cannot support are visible but locked",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "back on the list",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 99,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "PD4.png",
+   "ms": 6476
+  },
+  {
+   "id": "PD5",
+   "title": "Compare props side by side",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)",
+    "See all (SIFT model published shelf)",
+    "Compare (tick mode)",
+    "tick the first row",
+    "tick the second row",
+    "tick the third row",
+    "Compare in the tray"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the list opened",
+     "ok": true,
+     "detail": "13 found"
+    },
+    {
+     "what": "compare tray says 3 selected",
+     "ok": true,
+     "detail": "1 found; text \"3 selected Gasser OUTS 13+ · Peralta K 5+ · Gasser K 4+ Compare\""
+    },
+    {
+     "what": "three columns",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "rows in lane order (Market, History, SIFT model, Opponent, Status)",
+     "ok": true,
+     "detail": "7 found"
+    },
+    {
+     "what": "Contract under every column",
+     "ok": true,
+     "detail": "3 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 99,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "PD5.png",
+   "ms": 9336
+  },
+  {
+   "id": "PD6",
+   "title": "The exact contract",
+   "from": "Explore",
+   "path": [
+    "Explore (bottom tab)",
+    "a card price pill"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the Exact contract sheet is open",
+     "ok": true
+    },
+    {
+     "what": "ticker, ask and bid",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "taker fee and break-even rows",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "no bet buttons: the disclaimer says SIFT shows none",
+     "ok": true
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 97,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin"
+    ]
+   },
+   "screenshot": "PD6.png",
+   "ms": 3861
+  },
+  {
+   "id": "TR1",
+   "title": "Overview: what kind of team is this?",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "hero with the record from completed games",
+     "ok": true,
+     "detail": "1 found; text \"2–4\""
+    },
+    {
+     "what": "next game strip",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "props today link",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Identity card: offense against defense on league tracks",
+     "ok": true,
+     "detail": "4 found"
+    },
+    {
+     "what": "highest and lowest ranked statistics",
+     "ok": true,
+     "detail": "6 found"
+    },
+    {
+     "what": "last six margins",
+     "ok": true,
+     "detail": "6 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "TR1.png",
+   "ms": 5408
+  },
+  {
+   "id": "TR2",
+   "title": "Profile: how it compares, and what changed",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "Profile"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Raw / opponent-adjusted switch",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "statistic rows with value, rank and the 34-game ghost marker",
+     "ok": true,
+     "detail": "8 found"
+    },
+    {
+     "what": "Show all offense and defense stats",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "TR2.png",
+   "ms": 7545
+  },
+  {
+   "id": "TR3",
+   "title": "Form: results, margins, splits",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "Form"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "margin chart",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "results list",
+     "ok": true,
+     "detail": "6 found"
+    },
+    {
+     "what": "splits",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "locked row: against the spread / over-under needs closing lines",
+     "ok": true,
+     "detail": "2 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "TR3.png",
+   "ms": 6773
+  },
+  {
+   "id": "TR4",
+   "title": "Schedule: who is next, and how strong are they",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "Schedule"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "upcoming opponents with rest days and their unit ranks",
+     "ok": true,
+     "detail": "6 found"
+    },
+    {
+     "what": "opponent unit chips open the statistic",
+     "ok": true,
+     "detail": "6 found"
+    },
+    {
+     "what": "summary of the opponents (descriptive, not a prediction)",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 58,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "TR4.png",
+   "ms": 7012
+  },
+  {
+   "id": "TR5",
+   "title": "Players: availability and today's props",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "Players"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "availability (out and injured reserve)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "skill players with their prop counts",
+     "ok": true,
+     "detail": "6 found"
+    },
+    {
+     "what": "a skill player opens Player Research",
+     "ok": true,
+     "detail": "6 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 53,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "TR5.png",
+   "ms": 7014
+  },
+  {
+   "id": "TR6",
+   "title": "Overview, hockey (Toronto)",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NHL (sport rail)",
+    "Maple Leafs at Flames card",
+    "Toronto logo (Game Detail header)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "hero with a wins-losses-overtime-losses record",
+     "ok": true,
+     "detail": "1 found; text \"7–4–2\""
+    },
+    {
+     "what": "next game strip (the league schedule)",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Identity card with hockey units (goals for, goals against...)",
+     "ok": true,
+     "detail": "3 found"
+    }
+   ],
+   "notes": [
+    "Hockey is Toronto, from the Maple Leafs at Flames game on the captured slate; the record is wins-losses-overtime losses as the design locks."
+   ],
+   "requests": {
+    "served": 58,
+    "missed": 44,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "TR6.png",
+   "ms": 5845
+  },
+  {
+   "id": "SD1",
+   "title": "Ranking: where does the team stand, and who is around it?",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "offense block (Identity card)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Stat Detail opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "statistic name and the universe of 28 teams",
+     "ok": true,
+     "detail": "1 found; text \"NFL · 28 teams in the current packet\""
+    },
+    {
+     "what": "the selected team's card (rank, value, teams ahead of)",
+     "ok": true,
+     "detail": "1 found; text \"DAL offense 5th of 28 teams +0.048 EPA per play Ahead of 23 teams\""
+    },
+    {
+     "what": "dot plot with the selected team and next opponent",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "ranked list with the selected row highlighted",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the next opponent is pinned",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 55,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD1.png",
+   "ms": 7409
+  },
+  {
+   "id": "SD2",
+   "title": "Trend: how has it moved, game by game?",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "Profile",
+    "Raw (statistic basis)",
+    "Show all offense and defense stats",
+    "Points scored per game (row)",
+    "Trend"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "one bar per game",
+     "ok": true,
+     "detail": "12 found"
+    },
+    {
+     "what": "a selected observation card with a Game Detail exit and an opponent exit",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "points per game by season",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [
+    "The per-game series is captured for Dallas's points per game, so that is the statistic shown; a statistic with no series opens the rank-path state instead."
+   ],
+   "requests": {
+    "served": 56,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD2.png",
+   "ms": 10513
+  },
+  {
+   "id": "SD3",
+   "title": "Raw versus opponent-adjusted, kept apart",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "offense block (Identity card)",
+    "Side by side"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Stat Detail opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "a raw card and an adjusted card, each its own statistic",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "the raw card",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the adjusted card",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 56,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD3.png",
+   "ms": 8442
+  },
+  {
+   "id": "SD4",
+   "title": "Compare teams",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "offense block (Identity card)",
+    "Compare"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Stat Detail opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "heading",
+     "ok": true,
+     "detail": "1 found; text \"Compare teams\""
+    },
+    {
+     "what": "eight unit rows (four offense, four defense)",
+     "ok": true,
+     "detail": "8 found"
+    },
+    {
+     "what": "two team chips",
+     "ok": true,
+     "detail": "2 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 56,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD4.png",
+   "ms": 6570
+  },
+  {
+   "id": "SD5",
+   "title": "Compare players",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "offense block (Identity card)",
+    "Compare",
+    "Players (mode)",
+    "Add player 1",
+    "pick CeeDee Lamb",
+    "Add player 2",
+    "pick George Pickens"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Stat Detail opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "heading",
+     "ok": true,
+     "detail": "1 found; text \"Compare players\""
+    },
+    {
+     "what": "last ten games as bars for both players",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "the table: average, median, best, games at the threshold",
+     "ok": true,
+     "detail": "1 found; text \"6.8 Last-10 average 4.4 6 Median 4.5 17 Best game 7 7 of 10 6+ games 4 of 10\""
+    },
+    {
+     "what": "the locked row: player league rank is not published",
+     "ok": true,
+     "detail": "1 found; text \"League rank among players is not published Why\""
+    }
+   ],
+   "notes": [
+    "The two players are CeeDee Lamb and George Pickens, whose game logs are in the capture; a player without a captured log would show the locked state."
+   ],
+   "requests": {
+    "served": 61,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD5.png",
+   "ms": 11464
+  },
+  {
+   "id": "SD6",
+   "title": "About: definition, limits and related statistics",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Cowboys at Eagles card",
+    "Dallas logo (Game Detail header)",
+    "offense block (Identity card)",
+    "About"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Game Detail is open on its Overview",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Stat Detail opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the published limits",
+     "ok": true,
+     "detail": "3 found"
+    },
+    {
+     "what": "limits disclosure",
+     "ok": true,
+     "detail": "1 found; text \"LIMITS THE PUBLICATION STATES current snapshot only; no committed history the ridge rating\""
+    },
+    {
+     "what": "related statistics with the selected team's rank",
+     "ok": true,
+     "detail": "5 found"
+    },
+    {
+     "what": "Team Research chip",
+     "ok": true,
+     "detail": "1 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 55,
+    "missed": 43,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD6.png",
+   "ms": 7396
+  },
+  {
+   "id": "SD7",
+   "title": "Hockey ranking: power play",
+   "from": "Games",
+   "path": [
+    "Games (bottom tab)",
+    "NHL (sport rail)",
+    "Maple Leafs at Flames card",
+    "Toronto logo (Game Detail header)",
+    "power-play (special teams) row"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "Stat Detail opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "the window switch (2026–27 / 2025–26)",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "selected team card in a 32-team universe",
+     "ok": true,
+     "detail": "1 found; text \"TOR power play 5th of 32 teams 30.2% of power plays Ahead of 27 teams\""
+    },
+    {
+     "what": "dot plot",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "ranked list with the next opponent",
+     "ok": true,
+     "detail": "6 found"
+    }
+   ],
+   "notes": [],
+   "requests": {
+    "served": 60,
+    "missed": 44,
+    "blocked": 0,
+    "packs": [
+     "packs/p00.bin",
+     "packs/p01.bin",
+     "packs/p02.bin"
+    ]
+   },
+   "screenshot": "SD7.png",
+   "ms": 5539
+  }
+ ],
+ "sweeps": [
+  {
+   "id": "SWEEP-GameCoverage",
+   "title": "what Game Detail shows for the first game of each sport and state",
+   "ok": true,
+   "checks": [
+    {
+     "what": "coverage recorded",
+     "ok": true,
+     "detail": "11 games tried"
+    }
+   ],
+   "notes": [
+    "Game Detail coverage by sport and state: NFL/Today opens with its game documents; NBA/Today opens with its game documents; NBA/Upcoming opens with its game documents; MLB/Today opens from the slate row only (\"MLB Today · 8:00 PM at Brewers Rays MIL TB 8:00 PM Overview \"); NHL/Today opens with its game documents; NCAAF/Upcoming opens with its game documents; NCAAB/Upcoming opens from the slate row only (\"NCAAB Sun, Nov 1 · 9:30 AM ND at VIL Notre Dame Fighting Iri\"); SOCCER/Today opens from the slate row only (\"SOCCER LIVE In play EDL — UNI Estudiantes de La Plata Score \"); SOCCER/Upcoming opens with its game documents; TENNIS/Today opens from the slate row only (\"TENNIS LIVE In play PAP — SIL Despina Papamichail Score unav\"); TENNIS/Upcoming opens with its game documents."
+   ]
+  },
+  {
+   "id": "SWEEP-TeamsNFL",
+   "title": "every statistic reachable from Dallas",
+   "ok": true,
+   "checks": [
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "statistics opened from DAL",
+     "ok": true,
+     "detail": "63 of 63"
+    }
+   ],
+   "notes": [
+    "77 statistic links on DAL's Overview, Profile (adjusted), Profile (raw), Schedule were opened by tapping (63 distinct), each with its Trend, Compare and About tabs."
+   ]
+  },
+  {
+   "id": "SWEEP-TeamsNHL",
+   "title": "every statistic reachable from Toronto",
+   "ok": true,
+   "checks": [
+    {
+     "what": "Team Research opened",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "statistics opened from TOR",
+     "ok": true,
+     "detail": "6 of 7"
+    }
+   ],
+   "notes": [
+    "7 statistic links on TOR's Overview were opened by tapping (6 distinct), each with its Trend, Compare and About tabs."
+   ]
+  },
+  {
+   "id": "SWEEP-Games",
+   "title": "every sport and state on Games (assets the lists show)",
+   "ok": true,
+   "checks": [
+    {
+     "what": "swept",
+     "ok": true
+    }
+   ],
+   "notes": []
+  }
+ ],
+ "network": {
+  "origin": "http://127.0.0.1:33613",
+  "localRequests": 215,
+  "localByKind": {
+   "built": 58,
+   "images_and_data": 157
+  },
+  "externalHostRequestsAttempted": 0,
+  "externalHosts": [],
+  "attemptsRefusedInsideThePage": 0,
+  "liveQuoteNetworkFetches": 0,
+  "documentsServedFromTheCapture": 233,
+  "quoteFeedDocumentsServedFromTheCapture": 5,
+  "quoteFeedDocumentsNotCaptured": 104,
+  "documentsRequestedButNotCaptured": 199,
+  "localAssetsRequestedButNotBundled": 0,
+  "sameOriginRequestsThatAnswered404": [],
+  "documentsReadFromOtherFamilies": [
+   {
+    "family": "team",
+    "kind": "ranking",
+    "firstReadBy": "SWEEP-TeamsNFL"
+   },
+   {
+    "family": "team",
+    "kind": "ranking",
+    "firstReadBy": "SWEEP-TeamsNHL"
+   }
+  ],
+  "additionsInTheCapture": 39
+ },
+ "states": [
+  {
+   "id": "STATE-NoQuote",
+   "title": "Demo: no reliable quote (the real withheld-price path)",
+   "from": "Home",
+   "path": [
+    "About (banner)",
+    "tick \"Demo: no reliable quote\" (the page reloads)",
+    "Games (bottom tab)",
+    "NFL (sport rail)",
+    "Explore (bottom tab)",
+    "a withheld price pill",
+    "About (banner)",
+    "untick the demo (the page reloads)"
+   ],
+   "pass": true,
+   "checks": [
+    {
+     "what": "the banner says DEMO: no reliable quote",
+     "ok": true,
+     "detail": "1 found; text \"CAPTURED DATA · 26 Oct 2026, 23:25 UTC · prices as captured, not live · DEMO: no reliable \""
+    },
+    {
+     "what": "the Cowboys at Eagles card prints no price (dash) while the demo is on",
+     "ok": true,
+     "detail": "NFL 8:15 PM Cowboys Eagles DAL −4.5 — O/U 44.5 —"
+    },
+    {
+     "what": "Prop Discovery home",
+     "ok": true,
+     "detail": "1 found"
+    },
+    {
+     "what": "cards print a dash for the withheld price",
+     "ok": true,
+     "detail": "8 found; text \"— ask\""
+    },
+    {
+     "what": "the contract sheet says Price unavailable right now",
+     "ok": true,
+     "detail": "1 found; text \"Price unavailable right now No reliable quote could be obtained. Nothing is estimated. Ret\""
+    },
+    {
+     "what": "with Retry",
+     "ok": true,
+     "detail": "2 found"
+    },
+    {
+     "what": "the fee and break-even rows are hidden",
+     "ok": true
+    },
+    {
+     "what": "the banner no longer says DEMO",
+     "ok": true,
+     "detail": "1 found; text \"CAPTURED DATA · 26 Oct 2026, 23:25 UTC · prices as captured, not live About\""
+    }
+   ],
+   "notes": [],
+   "screenshot": "STATE-NoQuote.png"
+  }
+ ],
+ "assertions": [
+  {
+   "what": "zero requests to an external host",
+   "ok": true
+  },
+  {
+   "what": "zero attempts by the app at an external host (the shim would have refused them)",
+   "ok": true
+  },
+  {
+   "what": "zero live-quote network fetches (quote documents come only from snapshot packs)",
+   "ok": true
+  },
+  {
+   "what": "only same-origin snapshot files: no request left the origin",
+   "ok": true
+  }
+ ],
+ "finishedAt": "2026-10-27T21:08:22.522Z",
+ "summary": {
+  "designs": 26,
+  "designsPassed": 26,
+  "rootsPassed": 4,
+  "roots": 4,
+  "assertionsPassed": true,
+  "welcomeOk": true,
+  "allPass": true
+ }
+}

@@ -3,6 +3,7 @@
 // from sample and cannot invent a field the adapters did not provide. `provenance` says which it is.
 
 import type { BoardItem } from '../../contract/types';
+import type { MarketState } from './marketStatus';
 
 export type Phase = 'pregame' | 'live' | 'final' | 'other';
 export type Provenance = 'publication' | 'demo';
@@ -36,8 +37,21 @@ export interface Price {
   /** What YES means, in the contract's own words. */
   description: string;
   observedAt: string | null;
+  /**
+   * 'received' = the provider gave no observation time and `observedAt` is only when this device got the answer: not an observation, never
+   * usable (src/live/quoteUsable.ts). Absent = the observation time is the provider's own (every publication price, every timed live quote).
+   */
+  observedVia?: 'provider' | 'received';
   source: 'Kalshi' | 'Sample';
   volume?: number | null;
+  /**
+   * True only when the status word is positively open (open, active, trading) or the source carries no status at all. Any other word (closed,
+   * settled, expired, suspended, not yet open, delisted, or one SIFT does not recognise) is false. A non-tradable Price carries no ask, bid or
+   * implied price, and the quote gate withholds it whatever its age. A tradable one still needs a current observation: see model/marketStatus.ts.
+   */
+  tradable: boolean;
+  /** The status word as a state: 'unreported' when the source carries none, 'unrecognised' for a word nothing recognises. */
+  marketStatus: MarketState;
 }
 
 export interface MarketLine {
@@ -61,7 +75,11 @@ export interface Score {
   source: 'publication' | 'score-feed' | 'demo';
   /** When the source last confirmed the score. */
   asOf: string | null;
-  stale?: boolean;
+  /**
+   * True when the score is verified but a little old while the game is in play (data/scoreVerify.ts: older than 60 s, no older than 5 min).
+   * The screen prints a subtle "Delayed" word beside the status and nothing else. A score older than that is not a Score at all.
+   */
+  delayed?: boolean;
 }
 
 export interface V3Game {

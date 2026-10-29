@@ -1,0 +1,128 @@
+name: SIFT 3 CI-native screenshot baselines
+
+# Regenerates the 30 SIFT 3.0 fidelity baselines (`e2e/v3-fidelity.spec.ts`) with the EXACT browser and OS that v3-ci.yml uses, so the committed
+# `<scene>-v3-phone-ci-linux.png` set matches what CI renders. It is deliberately narrow:
+#   * It only does work when the head commit message of the pull request contains `[ci-baselines]`; any other push exits in a few seconds.
+#   * It is read-only for the repository except for one scratch branch `ci-baselines/run-<run id>` (an orphan commit holding only the 30 PNGs and a
+#     manifest). Nothing is committed to the pull request branch and nothing is merged. A person reviews the images against the locked designs and then
+#     commits them (see docs/sift3/qa/impl/fidelity/REPORT.md).
+#   * Pushes made with GITHUB_TOKEN do not start other workflows, so the scratch branch does not queue any CI.
+# Same-repository pull requests only.
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/v3-baselines.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: v3-baselines-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baselines:
+    name: Generate CI-native baselines
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CI: 'true'
+      V3_PROJECTS: v3-phone
+      V3_PORT: 4173
+      V3_SERVER: preview
+      V3_BASELINES: ci
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - id: gate
+        name: Is this a baseline request?
+        run: |
+          msg="$(git log -1 --format=%B)"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || printf '%s' "$msg" | grep -qF '[ci-baselines]'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"; echo "No [ci-baselines] token in the head commit message: nothing to do."
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        if: steps.gate.outputs.run == 'true'
+        run: npm ci
+      - name: Build (the same production build v3-ci.yml tests)
+        if: steps.gate.outputs.run == 'true'
+        run: npm run build:e2e
+      - id: pw
+        if: steps.gate.outputs.run == 'true'
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium
+      - name: Install chromium (patient first attempt, then one retry; same as v3-ci.yml)
+        if: steps.gate.outputs.run == 'true'
+        timeout-minutes: 65
+        run: |
+          clear_apt() {
+            sudo pkill -x apt-get || true; sudo pkill -x apt || true
+            for _ in $(seq 1 60); do pgrep -x dpkg >/dev/null || break; sleep 5; done
+            sudo dpkg --configure -a || true
+          }
+          if timeout 2700 npx playwright install --with-deps chromium; then exit 0; fi
+          echo "install attempt 1 failed or stalled (45 min limit); clearing apt and retrying once"; clear_apt; sleep 10
+          if timeout 900 npx playwright install --with-deps chromium; then exit 0; fi
+          echo "Playwright could not be installed"; exit 1
+      - name: Write the CI-native baselines
+        if: steps.gate.outputs.run == 'true'
+        run: npx playwright test -c playwright.v3.config.ts e2e/v3-fidelity.spec.ts --update-snapshots --workers=1
+      - name: Prove they are stable (second run without --update-snapshots must pass 30 of 30)
+        if: steps.gate.outputs.run == 'true'
+        run: npx playwright test -c playwright.v3.config.ts e2e/v3-fidelity.spec.ts --workers=1
+      - name: Publish the images to a scratch branch and as an artifact
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          set -e
+          out="$RUNNER_TEMP/baselines"; mkdir -p "$out"
+          cp e2e/v3-fidelity.spec.ts-snapshots/*-v3-phone-ci-linux.png "$out/"
+          ls "$out" | wc -l
+          {
+            echo "head: $(git rev-parse HEAD)"
+            echo "run: ${{ github.run_id }}"
+            echo "os: $(. /etc/os-release && echo "$PRETTY_NAME") $(uname -r)"
+            echo "playwright: ${{ steps.pw.outputs.version }}"
+            echo "chromium: $(ls ~/.cache/ms-playwright | tr '\n' ' ')"
+            echo "node: $(node -v)"
+            (cd "$out" && sha256sum *.png)
+          } > "$out/MANIFEST.txt"
+          cd "$out"
+          git init -q -b scratch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "CI-native fidelity baselines for ${GITHUB_SHA}"
+          git push -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "HEAD:refs/heads/ci-baselines/run-${{ github.run_id }}"
+          echo "Pushed ci-baselines/run-${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          name: ci-native-baselines
+          path: e2e/v3-fidelity.spec.ts-snapshots/*-v3-phone-ci-linux.png
+          retention-days: 14
+          if-no-files-found: error
+      - name: Failure context
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: baselines-failure
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

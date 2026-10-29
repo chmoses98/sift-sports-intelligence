@@ -1,53 +1,63 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from '../../routing';
 import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
-import { deriveProps } from '../data/adapt';
-import type { Lens } from '../data/lens';
-import { demoPairs, pairsFromResearch, type StatPair } from '../data/matchup';
+import { deriveProps, type PropRow } from '../data/adapt';
+import { useQuotedPrices } from '../data/research/gameHooks';
+import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
-import { ago, quoteState } from '../model/format';
-import type { MarketLine, V3Game } from '../model/types';
+import type { MarketLine, Price, V3Game } from '../model/types';
+import { ChipRail } from '../ui/ChipRail';
 import { Icon } from '../ui/Icon';
-import { LensSlot } from '../ui/Lens';
 import { GameStories } from '../ui/Stories';
 import { TeamLogo } from '../ui/TeamLogo';
-import { PriceText, gameHref, useOpenLine } from '../ui/gamebits';
+import { PriceText, leagueLabel, useListGate, useOpenContract } from '../ui/gamebits';
+import { publishProp } from '../ui/gameContracts';
+import { useSheet } from '../ui/Sheet';
 import { ordinal } from '../data/lens';
-import type { TabKey } from './GameDetail';
+import { isReady } from '../model/capabilities';
+import type { GameTab } from '../nav/schemas';
+import { MatchupTab } from './GameMatchup';
+import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
+import type { GameCtx } from './GameShared';
+import { DataState } from '../ui/DataState';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
-function MarketCard({ g, label, line }: { g: V3Game; label: string; line: MarketLine | undefined }) {
-  const open = useOpenLine();
+type Gate = (p: Price | null | undefined) => Price | null;
+
+function MarketCard({ g, startMs, gate, label, line }: { g: V3Game; startMs: number | null; gate: Gate; label: string; line: MarketLine | undefined }) {
+  const open = useOpenContract();
   if (!line) {
     return <div className="v3-mc v3-mc--none" aria-label={`${label}: no line listed`}><span className="v3-mc__k">{label}</span><div className="v3-mc__v"><b>—</b><small>No line listed</small></div></div>;
   }
   const alt = line.kind === 'moneyline' && line.alternates && line.alternates.length === 2 ? line.alternates : null;
+  const shown = gate(line.price);
   return (
-    <button type="button" className={`v3-mc${quoteState(line.price.observedAt) === 'stale' ? ' is-stale' : ''}`} aria-label={`${label}: ${line.label}, ${line.price.ask ?? 'no'} cents. Open market detail`} onClick={() => open(g, line)}>
+    <button type="button" className="v3-mc" aria-label={`${label}: ${line.label}, ${shown?.ask != null ? `${shown.ask} cents` : 'no price available'}. Open market detail`} onClick={() => open({ g, startMs }, line)}>
       <span className="v3-mc__k">{label}</span>
       {alt ? (
         <span className="v3-mc__v v3-mc__v--ml">
-          {alt.map((p, i) => <span key={p.ticker}><i>{i === 0 ? g.away.abbr : g.home.abbr}</i><b className="num">{p.ask != null ? `${p.ask}¢` : '—'}</b></span>)}
+          {alt.map((p, i) => <span key={p.ticker}><i>{i === 0 ? g.away.abbr : g.home.abbr}</i><b className="num"><PriceText p={gate(p)} /></b></span>)}
         </span>
       ) : (
-        <span className="v3-mc__v"><b>{line.label}</b><small><PriceText p={line.price} compact /> · {Math.round(line.price.implied ?? line.price.ask ?? 0)}%{quoteState(line.price.observedAt) === 'stale' ? ' · last known' : ''}</small></span>
+        <span className="v3-mc__v"><b>{line.label}</b><small><PriceText p={shown} />{shown ? ` · ${Math.round(shown.implied ?? shown.ask ?? 0)}%` : ''}</small></span>
       )}
     </button>
   );
 }
 
-export function MarketsRow({ g, loading = false }: { g: V3Game; loading?: boolean }) {
+export function MarketsRow({ g, startMs, loading = false }: { g: V3Game; startMs: number | null; loading?: boolean }) {
+  const gate = useListGate(g, startMs);
   const by = (k: MarketLine['kind']) => g.lines.find((l) => l.kind === k);
   if (loading) return <section aria-label="Market prices" role="status"><div className="v3-mcs">{[0, 1, 2].map((i) => <div key={i} className="v3-mc v3-mc--skel"><i className="v3-skel" /></div>)}</div><p className="v3-mcs__src">Loading Kalshi prices…</p></section>;
   return (
     <section aria-label="Market prices">
       <div className="v3-mcs">
-        <MarketCard g={g} label="Spread" line={by('spread')} />
-        <MarketCard g={g} label="Total" line={by('total')} />
-        <MarketCard g={g} label="Moneyline" line={by('moneyline')} />
+        <MarketCard g={g} startMs={startMs} gate={gate} label="Spread" line={by('spread')} />
+        <MarketCard g={g} startMs={startMs} gate={gate} label="Total" line={by('total')} />
+        <MarketCard g={g} startMs={startMs} gate={gate} label="Moneyline" line={by('moneyline')} />
       </div>
-      <p className="v3-mcs__src">{g.lines[0]?.price.source === 'Sample' ? 'Sample prices' : g.lines.length ? (quoteState(g.lines[0].price.observedAt) === 'stale' ? `Kalshi prices as last captured ${ago(g.lines[0].price.observedAt)}: last known, not current prices. ` : `Kalshi prediction-market prices · ${ago(g.lines[0].price.observedAt)}. `) + 'Market-implied %, not a SIFT model number.' : 'No Kalshi lines are listed for this game.'}</p>
+      <p className="v3-mcs__src">{g.lines[0]?.price.source === 'Sample' ? 'Sample prices' : g.lines.length ? 'Kalshi prediction-market prices. Market-implied %, not a SIFT model number.' : 'No Kalshi lines are listed for this game.'}</p>
     </section>
   );
 }
@@ -74,7 +84,7 @@ function DriveCard({ g }: { g: V3Game }) {
   );
 }
 
-function LastPlay({ g, onTab }: { g: V3Game; onTab: (t: TabKey) => void }) {
+function LastPlay({ g, onTab }: { g: V3Game; onTab: (t: GameTab) => void }) {
   const p = DEMO_LIVE[g.key]?.lastPlay;
   if (!p) return null;
   return (
@@ -92,6 +102,8 @@ function Unavailable({ icon = 'info', title, children }: { icon?: 'info' | 'cloc
 
 function LiveNote({ g }: { g: V3Game }) {
   if (g.provenance === 'demo' || g.score?.source === 'score-feed') return null;
+  // A completed game whose final score the publication carries is not "unreported": the hero shows the score and there is nothing to apologise for.
+  if (g.phase === 'final' && g.score) return null;
   return (
     <Unavailable icon="clock" title={g.phase === 'live' ? 'Live score and plays are not available' : 'Result not reported yet'}>
       The publication carries no live score, clock or play-by-play, and no licensed live feed covers {g.sport === 'CFB' ? 'college football' : g.sport} here. Nothing is estimated. The pregame research below is frozen at kickoff and is not a graded result.
@@ -99,53 +111,13 @@ function LiveNote({ g }: { g: V3Game }) {
   );
 }
 
-// ------------------------------------------------------------------ matchup bars
-
-function Bar({ rank, n }: { rank: number | null; n: number | null }) {
-  if (rank == null || !n) return <i className="v3-bar v3-bar--none" />;
-  const w = Math.max(6, Math.round(((n - rank + 1) / n) * 100));
-  return <i className="v3-bar"><i style={{ width: `${w}%` }} /></i>;
-}
-
-function StatRow({ p, g }: { p: StatPair; g: V3Game }) {
-  const inner = (
-    <>
-      <span className="v3-mx__n">{p.name}</span>
-      <span className="v3-mx__r">
-        <span className="v3-mx__s v3-mx__s--a"><b>{p.away.rank != null ? ordinal(p.away.rank) : '—'}</b><small>{p.away.value}</small></span>
-        <span className="v3-mx__bars"><Bar rank={p.away.rank} n={p.away.n} /><Bar rank={p.home.rank} n={p.home.n} /></span>
-        <span className="v3-mx__s v3-mx__s--h"><b>{p.home.rank != null ? ordinal(p.home.rank) : '—'}</b><small>{p.home.value}</small></span>
-      </span>
-    </>
-  );
-  const label = `${p.name}: ${g.away.abbr} ${p.away.rank != null ? ordinal(p.away.rank) : 'unranked'}, ${g.home.abbr} ${p.home.rank != null ? ordinal(p.home.rank) : 'unranked'}`;
-  return <li>{p.route ? <Link to={p.route} className="v3-mx" aria-label={`${label}. Open statistic`}>{inner}</Link> : <div className="v3-mx" aria-label={label}>{inner}</div>}</li>;
-}
-
-function MatchupTab({ g, research, loading }: { g: V3Game; research: EventResearchDoc | null; loading: boolean }) {
-  const pairs = useMemo(() => (g.provenance === 'demo' ? demoPairs(g) : pairsFromResearch(research, g)), [g, research]);
-  const [all, setAll] = useState(false);
-  if (loading && !pairs.length) return <div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading matchup" />;
-  if (!pairs.length) return <Unavailable title="No published matchup statistics">The publication has no paired team statistics for this game yet, so there is nothing to compare. Nothing is substituted.</Unavailable>;
-  const shown = all ? pairs : pairs.slice(0, 8);
-  return (
-    <section aria-label="Team matchup">
-      <h2 className="v3-h2">Team Matchup</h2>
-      <div className="v3-mx__legend"><span><TeamLogo team={g.away} size={20} />{g.away.abbr}</span><small>League rank · raw season value</small><span>{g.home.abbr}<TeamLogo team={g.home} size={20} /></span></div>
-      <ul className="v3-mxs">{shown.map((p) => <StatRow key={p.id} p={p} g={g} />)}</ul>
-      {pairs.length > 8 && !all && <button type="button" className="v3-more" onClick={() => setAll(true)}>Show all {pairs.length} statistics</button>}
-      <p className="v3-note v3-note--dim">{g.provenance === 'demo' ? 'Sample ranks, for the design preview only. ' : ''}Each row opens the statistic's full league ranking.</p>
-    </section>
-  );
-}
-
-function StatsTab({ g, research, loading }: { g: V3Game; research: EventResearchDoc | null; loading: boolean }) {
+function StatsTab({ g, research, loading, error, retry }: { g: V3Game; research: EventResearchDoc | null; loading: boolean; error?: unknown; retry?: () => void }) {
   const pairs = useMemo(() => (g.provenance === 'demo' ? demoPairs(g) : pairsFromResearch(research, g)), [g, research]);
   if (loading && !pairs.length) return <div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading statistics" />;
   return (
     <section aria-label="Statistics">
       <h2 className="v3-h2">Team Statistics</h2>
-      {pairs.length ? (
+      {!pairs.length && error ? <DataState title="Team statistics unavailable" err={error} retry={retry} alert>The research for this game</DataState> : pairs.length ? (
         <table className="v3-tbl">
           <thead><tr><th scope="col">Statistic</th><th scope="col">{g.away.abbr}</th><th scope="col">{g.home.abbr}</th></tr></thead>
           <tbody>
@@ -158,7 +130,7 @@ function StatsTab({ g, research, loading }: { g: V3Game; research: EventResearch
             ))}
           </tbody>
         </table>
-      ) : <Unavailable title="No published team statistics">The publication has none for this game.</Unavailable>}
+      ) : error ? null : <Unavailable title="No published team statistics">The publication has none for this game.</Unavailable>}
       <Unavailable icon="clock" title="Box score unavailable">Live and final box scores need a licensed stats feed. None is connected, so no box score is shown or estimated.</Unavailable>
     </section>
   );
@@ -166,7 +138,7 @@ function StatsTab({ g, research, loading }: { g: V3Game; research: EventResearch
 
 // ------------------------------------------------------------------ script, props
 
-function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
+function ScriptTab({ g, detail, error, retry }: { g: V3Game; detail: EventDetailDoc | null; error?: unknown; retry?: () => void }) {
   if (g.provenance === 'demo') {
     return (
       <section aria-label="Play-by-play">
@@ -189,6 +161,7 @@ function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) 
   }
   const t = detail?.theses?.[0];
   const has = !!(t && (t.summary || t.primary_game_script || t.supporting_factors?.length || t.opposing_factors?.length));
+  if (!detail && error) return <section aria-label="Game script"><h2 className="v3-h2">Game Script</h2><DataState title="Game script unavailable" err={error} retry={retry} alert>The game script</DataState></section>;
   if (!detail) return <div className="v3-skel" style={{ height: 160 }} role="status" aria-label="Loading game script" />;
   return (
     <section aria-label="Game script">
@@ -198,19 +171,25 @@ function ScriptTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) 
           {(t!.primary_game_script || t!.summary) && <div className="v3-panel v3-pad"><h3 className="v3-h3">{t!.primary_game_script ? 'Most likely script' : 'Summary'}</h3><p>{t!.primary_game_script ?? t!.summary}</p></div>}
           {t!.supporting_factors.length > 0 && <div className="v3-panel v3-pad"><h3 className="v3-h3">Supporting factors</h3><ul className="v3-bul">{t!.supporting_factors.map((s) => <li key={s}>{s}</li>)}</ul></div>}
           {t!.opposing_factors.length > 0 && <div className="v3-panel v3-pad"><h3 className="v3-h3">Counter-case</h3><ul className="v3-bul">{t!.opposing_factors.map((s) => <li key={s}>{s}</li>)}</ul></div>}
-          <p className="v3-note v3-note--dim">Published {ago(t!.generated_at)}. Research context, not a bet signal.</p>
+          <p className="v3-note v3-note--dim">Research context, not a bet signal.</p>
         </>
       ) : <Unavailable title="No published game script yet">The publication has not stated a script for this game{g.sport === 'CFB' ? ' (the college football script engine is not connected to this view yet)' : ''}. Nothing is generated here.</Unavailable>}
     </section>
   );
 }
 
-function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
-  const open = useOpenLine();
+function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: number | null; detail: EventDetailDoc | null; error?: unknown; retry?: () => void }) {
+  const sheet = useSheet();
+  const gate = useListGate(g, startMs);
   const rows = useMemo(() => (detail ? deriveProps(detail.markets ?? []) : []), [detail]);
   const stats = useMemo(() => [...new Set(rows.map((r) => r.statLabel))], [rows]);
   const [stat, setStat] = useState<string | null>(null);
   const [all, setAll] = useState(false);
+  const filtered = useMemo(() => rows.filter((r) => !stat || r.statLabel === stat), [rows, stat]);
+  const shown = useMemo(() => (all ? filtered : filtered.slice(0, 12)), [filtered, all]);
+  // The rows on screen follow the live quote store (a newer observation replaces the publication's capture); the gate then decides what prints.
+  const quoted = useQuotedPrices(detail, useMemo(() => shown.map((r) => r.price.ticker), [shown]), { startMs, live: g.phase === 'live' });
+  const priceOf = (r: PropRow): Price | null => gate(quoted(r.price.ticker) ?? r.price);
   if (g.provenance === 'demo') {
     const nba = g.sport === 'NBA';
     const rows = nba
@@ -232,23 +211,22 @@ function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
       </section>
     );
   }
+  if (!detail && error) return <section aria-label="Player props"><h2 className="v3-h2">Player Props</h2><DataState title="Player props unavailable" err={error} retry={retry} alert>The list of Kalshi player contracts for this game</DataState></section>;
   if (!detail) return <div className="v3-skel" style={{ height: 180 }} role="status" aria-label="Loading props" />;
-  const filtered = rows.filter((r) => !stat || r.statLabel === stat);
-  const shown = all ? filtered : filtered.slice(0, 12);
   if (!rows.length) return <Unavailable title="No player props listed">Kalshi lists no player-stat contracts for this game. Team research is on the other tabs.</Unavailable>;
   return (
     <section aria-label="Player props">
       <h2 className="v3-h2">Player Props</h2>
-      <div className="v3-chips" role="group" aria-label="Stat">
+      <ChipRail className="v3-chips" role="group" aria-label="Stat">
         <button type="button" className="v3-chip" aria-pressed={!stat} onClick={() => setStat(null)}>All</button>
         {stats.map((s) => <button key={s} type="button" className="v3-chip" aria-pressed={stat === s} onClick={() => setStat(s)}>{s}</button>)}
-      </div>
+      </ChipRail>
       <ul className="v3-props">
         {shown.map((r) => (
           <li key={r.key}>
             {r.playerId ? <Link to={`/v3/player/${g.slug}/${encodeURIComponent(r.playerId)}?stat=${encodeURIComponent(r.stat)}&line=${r.line}`} className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></Link> : <div className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></div>}
-            <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${r.price.ask ?? 'no'} cents. Open exact contract`}
-              onClick={() => open(g, { kind: 'total', label: `${r.player} ${r.statLabel} o${r.line}`, price: r.price, line: r.line, alternates: r.ladder })}>{r.price.ask != null ? `${r.price.ask}¢` : '—'}</button>
+            <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${priceOf(r)?.ask != null ? `${priceOf(r)!.ask} cents` : 'no price available'}. Open exact contract`}
+              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} /></button>
           </li>
         ))}
       </ul>
@@ -260,24 +238,28 @@ function PropsTab({ g, detail }: { g: V3Game; detail: EventDetailDoc | null }) {
 
 // ------------------------------------------------------------------ the tab body
 
-export function GameTabBody({ tab, g, lens, detail, research, researchLoading, onTab }: { tab: TabKey; g: V3Game; lens: Lens | null; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: TabKey) => void }) {
-  if (tab === 'matchup') return <MatchupTab g={g} research={research} loading={researchLoading} />;
-  if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} />;
-  if (tab === 'script') return <ScriptTab g={g} detail={detail} />;
-  if (tab === 'props') return <PropsTab g={g} detail={detail} />;
-  const demoStories = [{ t: 'Sample: starting running back listed probable', s: '2h ago', team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: '3h ago', team: g.home }];
+export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
+  const g = ctx.g;
+  if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
+  if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
+  if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   return (
     <>
-      <MarketsRow g={g} loading={g.provenance === 'publication' && !detail} />
-      <LensSlot lens={lens} loading={g.provenance === 'publication' && researchLoading} to={`${gameHref(g)}?tab=matchup`} className="v3-gd__lens" />
+      <WinPrices ctx={ctx} />
+      {!detail && !!ctx.detailError ? <DataState title="Market prices unavailable" err={ctx.detailError} retry={ctx.detailRetry} alert>The Kalshi contract list for this game</DataState> : <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />}
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
       {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
+      <PlayersToResearch ctx={ctx} />
+      <TeamsCard ctx={ctx} />
+      <PropsRow ctx={ctx} />
       <section aria-label="Key storylines">
         <h2 className="v3-h2">Key Storylines</h2>
         <ul className="v3-stories">
           {g.provenance === 'demo' ? demoStories.map((s) => <li key={s.t}><Link to={`/v3/team/${s.team.slug}/${s.team.id}`} className="v3-story"><TeamLogo team={s.team} size={44} /><span className="v3-story__t"><b>{s.t}</b><small>{s.s}</small></span><Icon name="chevR" size={20} /></Link></li>)
             : <GameStories g={g} max={3} />}
-          <li><button type="button" className="v3-story v3-story--btn" onClick={() => onTab('matchup')}><span className="v3-story__ic"><Icon name="trend" size={22} /></span><span className="v3-story__t"><b>Compare the two teams</b><small>League ranks on every published statistic</small></span><Icon name="chevR" size={20} /></button></li>
+          {isReady(g.slug, 'gameMatchup') && <li><button type="button" className="v3-story v3-story--btn" onClick={() => onTab('matchup')}><span className="v3-story__ic"><Icon name="trend" size={22} /></span><span className="v3-story__t"><b>Compare the two teams</b><small>League percentile of every offense against the opposing defense</small></span><Icon name="chevR" size={20} /></button></li>}
         </ul>
       </section>
     </>

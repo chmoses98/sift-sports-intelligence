@@ -115,7 +115,7 @@ describe('the publish guard against a real git remote', () => {
   }
   const tip = () => git(remoteDir, 'rev-parse', 'refs/heads/live-quotes');
   const tipGeneratedAt = () => JSON.parse(git(remoteDir, 'show', 'refs/heads/live-quotes:index.json')).generated_at as string;
-  const push = (generatedAt: string, o: { remote?: RemoteTip | null } = {}) => guardedPush({ dir: feed(generatedAt), url: remoteDir, probeDir, message: `live quotes ${generatedAt}`, ...o });
+  const push = (generatedAt: string, o: { remote?: RemoteTip | null; yieldAfter?: string } = {}) => guardedPush({ dir: feed(generatedAt), url: remoteDir, probeDir, message: `live quotes ${generatedAt}`, ...o });
 
   beforeAll(() => {
     root = mkdtempSync(join(tmpdir(), 'live-quotes-guard-'));
@@ -154,6 +154,18 @@ describe('the publish guard against a real git remote', () => {
     expect(res).toMatchObject({ pushed: false, reason: 'superseded' });
     expect(tip()).toBe(newer);
     expect(tipGeneratedAt()).toBe('2026-10-27T19:10:00Z');
+  });
+
+  it('yields to a feed written after its own last push, even when its own feed is newer still', async () => {
+    fresh();
+    await push('2026-10-27T19:00:00Z'); // this publisher's last push
+    await push('2026-10-27T19:02:40Z'); // the successor's
+    const successors = tip();
+    const res = await push('2026-10-27T19:03:00Z', { yieldAfter: '2026-10-27T19:00:00Z' }); // swept a few seconds later than the successor
+    expect(res).toMatchObject({ pushed: false, reason: 'yielded', yielded: true });
+    expect(tip()).toBe(successors);
+    // with nobody else having published since, the same call pushes as before
+    expect(await push('2026-10-27T19:06:00Z', { yieldAfter: '2026-10-27T19:02:40Z' })).toMatchObject({ pushed: true });
   });
 
   it('an equal generated_at leaves the branch alone', async () => {
@@ -355,5 +367,86 @@ describe('dispatching the successor', () => {
   });
   it('reports any other failure', async () => {
     await expect(call([500]).dispatch('a')).rejects.toThrow(/HTTP 500/);
+  });
+});
+
+// A predecessor and its successor, both real runLoop()s on one virtual clock with real-sized fetch, sweep and push times. The successor waits until
+// the branch is 150 s old, so its feed lands just before the predecessor's next cycle starts; when it landed a few seconds AFTER the predecessor
+// had read the branch, the predecessor's (newer-swept) feed replaced it every cycle, the predecessor never saw a hand-over and published to its cap
+// (2026-10-29: loop a at sequence 45+ beside a running loop b). It must now yield, whatever the phase between the two.
+describe('the hand-over between two live loops, whatever their phase', () => {
+  const FETCH = 2_000;
+  const PUSH = 4_000;
+  async function overlap(successorOffsetSec: number) {
+    const t0 = Date.parse('2026-10-29T00:49:39Z');
+    let clock = t0;
+    const timers: { at: number; wake: () => void }[] = [];
+    const sleep = (ms: number) => new Promise<void>((wake) => timers.push({ at: clock + ms, wake }));
+    let branch = null as (RemoteTip & { by: string }) | null;
+    let dispatched = false;
+    const successorStart = t0 + (45 + 11) * MIN + successorOffsetSec * 1000;
+    const read = async () => {
+      await sleep(FETCH);
+      return branch && { ...branch };
+    };
+    const loop = (name: string, id: number, slot: string, sweepMs: number) => {
+      const dir = join(mkdtempSync(join(tmpdir(), 'live-quotes-overlap-')), 'feed');
+      return runLoop({
+        now: () => clock, sleep, log: () => undefined, workDir: dir, runId: id, slot,
+        readRemote: read,
+        publish: async (d: string) => {
+          await sleep(sweepMs);
+          mkdirSync(d, { recursive: true });
+          writeFileSync(join(d, 'index.json'), JSON.stringify({ generated_at: iso(clock) }));
+          return true;
+        },
+        push: async ({ dir: d, remote: hint, yieldAfter }: { dir: string; remote?: RemoteTip | null; yieldAfter?: string }) => {
+          const g = JSON.parse(readFileSync(join(d, 'index.json'), 'utf8')).generated_at as string;
+          await sleep(PUSH);
+          let remote = hint === undefined ? await read() : hint;
+          for (let attempt = 1; attempt <= 4; attempt++) {
+            if (attempt > 1) remote = await read();
+            if (yieldAfter && remote && Date.parse(remote.generatedAt ?? '') > Date.parse(yieldAfter)) return { pushed: false as const, yielded: true, remote };
+            if (remote && !newestWins(g, remote.generatedAt)) return { pushed: false as const, remote };
+            if ((remote?.sha ?? '') === (branch?.sha ?? '')) {
+              branch = { sha: g, generatedAt: g, by: name };
+              return { pushed: true as const };
+            }
+          }
+          throw new Error('lease');
+        },
+        listRuns: async (): Promise<RunInfo[]> => [
+          { id: 100, event: 'workflow_dispatch', status: 'in_progress', display_title: 'Live quotes loop a' },
+          ...(dispatched ? [{ id: 101, event: 'workflow_dispatch', status: clock >= successorStart ? 'in_progress' : 'queued', display_title: 'Live quotes loop b' }] : []),
+        ],
+        dispatch: async () => {
+          dispatched = true;
+        },
+      });
+    };
+    let endedAt: number | null = null;
+    const a = loop('a', 100, 'a', 10_000).then(() => {
+      endedAt = clock;
+    });
+    let b: Promise<unknown> | null = null;
+    while (endedAt === null && clock < t0 + 150 * MIN) {
+      if (!b && clock >= successorStart) b = loop('b', 101, 'b', 12_000);
+      for (let i = 0; i < 5; i++) await new Promise((r) => setImmediate(r));
+      if (!timers.length) continue;
+      timers.sort((x, y) => x.at - y.at);
+      let next = timers[0].at;
+      if (!b && successorStart > clock && successorStart < next) next = successorStart;
+      clock = Math.max(clock, next);
+      for (const t of timers.splice(0, timers.length, ...timers.filter((x) => x.at > clock))) t.wake();
+    }
+    void a;
+    return { endedAfterMin: endedAt === null ? null : (endedAt - t0) / MIN, lastBy: (branch as (RemoteTip & { by: string }) | null)?.by ?? null };
+  }
+
+  it.each([0, 20, 45, 70, 100, 140])('hands over within about two cycles when the successor starts %i s into a cycle', async (offset) => {
+    const r = await overlap(offset);
+    expect(r.endedAfterMin).not.toBeNull(); // 45 s used to publish to the 150-minute cap
+    expect(r.endedAfterMin!).toBeLessThan(45 + 11 + 7);
+    expect(r.lastBy).toBe('b');
   });
 });

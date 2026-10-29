@@ -49,9 +49,11 @@ export async function readRemote({ probeDir, url, branch = 'live-quotes' }) {
  * Commit `dir` (the feed tree the publisher wrote) as a single orphan commit and push it over the branch, unless the
  * branch already holds a feed that is as new or newer.
  *   remote   optional tip already read by the caller (saves one fetch); a stale hint is harmless: the lease rejects it
- * Returns { pushed: true, attempts } or { pushed: false, reason: 'superseded', remote, attempts }. Throws when it cannot decide.
+ *   yieldAfter  optional `generated_at` of this publisher's own last push: when the branch holds a feed newer than that, somebody
+ *            else published since (a successor taking over), and this publisher leaves it alone even if its own feed is newer still
+ * Returns { pushed: true, attempts } or { pushed: false, reason: 'superseded' | 'yielded', remote, attempts }. Throws when it cannot decide.
  */
-export async function guardedPush({ dir, url, branch = 'live-quotes', probeDir, message, remote: hint, attempts = 4, identity = { name: 'github-actions[bot]', email: '41898282+github-actions[bot]@users.noreply.github.com' } }) {
+export async function guardedPush({ dir, url, branch = 'live-quotes', probeDir, message, remote: hint, yieldAfter, attempts = 4, identity = { name: 'github-actions[bot]', email: '41898282+github-actions[bot]@users.noreply.github.com' } }) {
   const local = JSON.parse(readFileSync(join(dir, 'index.json'), 'utf8')).generated_at;
   if (!existsSync(join(dir, '.git'))) await git(dir, ['init', '-q', '-b', branch]);
   await git(dir, ['config', 'user.name', identity.name]);
@@ -61,6 +63,7 @@ export async function guardedPush({ dir, url, branch = 'live-quotes', probeDir, 
   let remote = hint;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     if (remote === undefined || attempt > 1) remote = await readRemote({ probeDir, url, branch });
+    if (remote && yieldAfter && Date.parse(remote.generatedAt ?? '') > Date.parse(yieldAfter)) return { pushed: false, reason: 'yielded', yielded: true, remote, attempts: attempt };
     if (remote && !newestWins(local, remote.generatedAt)) return { pushed: false, reason: 'superseded', remote, attempts: attempt };
     try {
       await git(dir, ['push', '-q', `--force-with-lease=refs/heads/${branch}:${remote ? remote.sha : ''}`, url, `HEAD:refs/heads/${branch}`]);

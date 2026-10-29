@@ -31,6 +31,7 @@ export async function runLoop(deps) {
   let superseded = 0;
   let dispatched = false;
   let lastOwn = null; // generated_at of this job's last feed (pushed or superseded)
+  let yielded = false; // a successor's feed landed on the branch while this job was about to replace it
   let reason = '';
   for (;;) {
     const cycleStart = now();
@@ -51,7 +52,7 @@ export async function runLoop(deps) {
         log(`::warning::could not list the loop runs: ${e.message ?? e}`);
       }
     }
-    const handedOver = Boolean(remote && lastOwn && Date.parse(remote.generatedAt ?? '') > Date.parse(lastOwn));
+    const handedOver = yielded || Boolean(remote && lastOwn && Date.parse(remote.generatedAt ?? '') > Date.parse(lastOwn));
     const d = decide({ elapsedMin, successor, dispatched, handedOver }, cfg);
     if (d.action === 'finish') {
       reason = d.reason;
@@ -85,12 +86,20 @@ export async function runLoop(deps) {
     if (published) {
       try {
         const doc = JSON.parse(readFileSync(join(deps.workDir, 'index.json'), 'utf8'));
-        const res = await deps.push({ dir: deps.workDir, remote: wait > 0 ? undefined : remote, message: `live quotes ${iso(now())}` });
-        lastOwn = doc.generated_at;
-        if (res.pushed) ok++;
-        else {
+        // With a running successor, never replace a feed it wrote after this job's last one: this job's sweep is newer only because it
+        // started later, and replacing it every cycle would keep the successor from ever being seen to publish (starvation).
+        const res = await deps.push({ dir: deps.workDir, remote: wait > 0 ? undefined : remote, message: `live quotes ${iso(now())}`, yieldAfter: successor?.started ? (lastOwn ?? undefined) : undefined });
+        if (res.yielded) {
+          yielded = true;
           superseded++;
-          log(`not pushed: the branch already holds ${res.remote.generatedAt}, newer than ${doc.generated_at}`);
+          log(`hand-over: not pushed: the successor's feed ${res.remote.generatedAt} is on the branch; leaving it`);
+        } else {
+          lastOwn = doc.generated_at;
+          if (res.pushed) ok++;
+          else {
+            superseded++;
+            log(`not pushed: the branch already holds ${res.remote.generatedAt}, newer than ${doc.generated_at}`);
+          }
         }
       } catch (e) {
         failed++;

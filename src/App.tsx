@@ -12,6 +12,7 @@ import { TrayProvider } from './state/tray';
 import { HomeView } from './views/Home';
 import { NotFound } from './views/NotFound';
 import { SportHomeView } from './views/SportHome';
+import { v3Children } from './v3/routes';
 
 const CompareView = lazy(() => import('./views/Compare').then((x) => ({ default: x.CompareView })));
 const DesignView = lazy(() => import('./views/Design').then((x) => ({ default: x.DesignView })));
@@ -38,6 +39,7 @@ const ScorecardView = lazy(() => import('./views/Scorecard').then((x) => ({ defa
 const ParlaysView = lazy(() => import('./views/Parlays').then((x) => ({ default: x.ParlaysView })));
 const NewsView = lazy(() => import('./views/News').then((x) => ({ default: x.NewsView })));
 const SettingsView = lazy(() => import('./views/Settings').then((x) => ({ default: x.SettingsView })));
+const V3Root = lazy(() => import('./v3/V3Root').then((x) => ({ default: x.V3Root })));
 const V4Root = lazy(() => import('./v4/V4Root').then((x) => ({ default: x.V4Root })));
 const V4Home = lazy(() => import('./v4/Home').then((x) => ({ default: x.V4Home })));
 const V4Games = lazy(() => import('./v4/Games').then((x) => ({ default: x.V4Games })));
@@ -102,6 +104,8 @@ export function UiGate() {
 }
 
 export const routeTree = [
+  // SIFT 3.0 (src/v3): its own shell, reached with #/v3 only. Opt-in; never the build's default and no classic address redirects into it.
+  { path: '/v3', element: <Suspense fallback={null}><V3Root /></Suspense>, children: v3Children },
   // The v4 phone experience: its own shell (no classic chrome), one lazy chunk, reached with #/v4 or ?ui=v4.
   ...(!V4_ENABLED ? [{ path: '/v4/*', element: <V4Paused /> }] : [{
     path: '/v4',

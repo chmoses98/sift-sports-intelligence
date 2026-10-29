@@ -1,0 +1,174 @@
+// The exact-contract sheet: `?sheet=contract&tk=TICKER`, opened by a <PriceTap>. Shared by every screen that shows a price (Player Research,
+// and Prop Discovery later): a screen publishes what it knows about its contracts (`publishContracts`) and the sheet resolves the ticker.
+//
+// Prices go ONLY through data/quoteGate.ts. A price that may not be shown makes the sheet say exactly "Price unavailable right now" with a
+// Retry control and hides every row derived from the price (ask, bid, implied, fee, break-even). A market whose status word says it cannot be
+// traded (closed, settled, expired, suspended, not open yet, delisted) gets its own state instead: "Market closed" / "Market settled" / "Trading
+// suspended" with no price rows and NO Retry (asking again cannot make it tradable); a suspended or not-yet-open report that is no longer current,
+// and a status word SIFT does not recognise, say "Price unavailable right now" WITH Retry (they may clear on the next read), still with no price
+// rows (model/marketStatus.ts `sheetNamesStatus`). The screen's research stays outside the sheet. Nothing here prints an age, a time of
+// observation, "stale", "last known" or any other freshness word. Opening the sheet asks the shared live-quote store for the freshest price of this one
+// ticker through the quote-delivery chain (QuoteStore.refreshContract: relay first, then the feed, each requested ticker judged on its own observation),
+// the contract stays current on a contract scope (20 s), and Retry asks again the same way (data/liveQuotes.ts). A market the provider positively reports
+// as closed, settled or expired says so with no Retry, whichever of the sheet's price and the refresh learned it first.
+import { useMemo, useSyncExternalStore, type ReactNode } from 'react';
+import { Link, useLocation, useNavigate } from '../../routing';
+import { useNow } from '../../live/hooks';
+import { MISSING_PRICE } from '../../live/missingPrice';
+import { gate, observationCurrent } from '../data/quoteGate';
+import { useContractRefresh, useQuoteReader, useRowQuotes } from '../data/liveQuotes';
+import { contractFacts, newerPrice, priceOfQuote } from '../model/contract';
+import { fmtCents, showAsk } from '../model/format';
+import { nonTradableNote, nonTradableTitle, sheetNamesStatus, type MarketState } from '../model/marketStatus';
+import type { Price } from '../model/types';
+import { withSheet } from '../nav/routes';
+import { usePrefs } from '../state/prefs';
+import { registerSheet } from './Sheet';
+import { TeamLogo } from './TeamLogo';
+import './ContractSheet.css';
+
+export interface ContractNeighbour { ticker: string; label: string; price: Price | null; note?: string | null }
+/** The team (or the player's team) a contract is about: its committed logo, else its code on its colours. Decorative: the title already names it. */
+export interface ContractAvatar { logo?: string | null; abbr: string; colors?: [string, string] }
+const AV_COLORS: [string, string] = ['#39424d', '#232a32'];
+
+export interface ContractInfo {
+  ticker: string;
+  /** "CeeDee Lamb: 7+ receptions". */
+  title: string;
+  /** "DAL at PHI · Mon 8:15 PM · Kalshi YES". */
+  subtitle: string;
+  /** Left of the title (PD6): the team or player's team when the screen knows it. Optional and never waited for. */
+  avatar?: ContractAvatar | null;
+  /** The latest price the screen holds for this contract (the sheet uses a newer live observation when the store has one). */
+  price: Price | null;
+  /** The game's start (gate tier) and whether it is in play. */
+  startMs: number | null;
+  live: boolean;
+  /** The other rungs of the same ladder. */
+  neighbours?: ContractNeighbour[];
+  /** Links under the numbers (Game Detail, Research). */
+  actions?: { label: string; to: string; primary?: boolean }[];
+  /** A line under the numbers, e.g. why the SIFT lane is empty. */
+  note?: ReactNode;
+}
+
+// ---------------------------------------------------------------- what screens know about their contracts
+
+const registry = new Map<string, ContractInfo>();
+let version = 0;
+const listeners = new Set<() => void>();
+const subscribe = (fn: () => void) => { listeners.add(fn); return () => { listeners.delete(fn); }; };
+
+/** A screen tells the sheet about the contracts it shows (replaces earlier entries for the same tickers). */
+export function publishContracts(list: ContractInfo[]): void {
+  for (const c of list) registry.set(c.ticker, c);
+  version++;
+  listeners.forEach((l) => l());
+}
+export const contractInfo = (ticker: string): ContractInfo | undefined => registry.get(ticker);
+export const clearContracts = (): void => { registry.clear(); version++; listeners.forEach((l) => l()); };
+
+// ---------------------------------------------------------------- the sheet
+
+const KV = ({ k, v, strong }: { k: string; v: ReactNode; strong?: boolean }) => <div className={`v3c-kv${strong ? ' is-strong' : ''}`}><span>{k}</span><b>{v}</b></div>;
+
+/** A fixed 44px circle, so the head does not move when the image arrives or fails; the image is the team logo SIFT already ships (no new request). */
+export function Avatar({ a }: { a: ContractAvatar }) {
+  return (
+    <span className="v3c-av" data-testid="contract-avatar" aria-hidden="true">
+      <TeamLogo team={{ logo: a.logo ?? null, abbr: a.abbr, colors: a.colors ?? AV_COLORS, name: a.abbr }} size={30} />
+    </span>
+  );
+}
+
+function ContractBody({ tk }: { tk: string | null }) {
+  useSyncExternalStore(subscribe, () => version, () => version);
+  const info = tk ? contractInfo(tk) : undefined;
+  const loc = useLocation();
+  const nav = useNavigate();
+  const fmt = usePrefs().priceFormat;
+  const schedule = { startMs: info?.startMs ?? null, live: info?.live ?? false };
+  // The exact contract: its own scope (detail cadence), one forced refresh on open, and the same again on Retry (QuoteStore.refreshContract).
+  const { busy, retry, state: refreshState, marketStatus: refreshStatus } = useContractRefresh(tk, schedule);
+  const live = useQuoteReader(); // reads only: the contract's own scope above keeps it current (a rows scope here would loosen its age limit to a list's)
+  // The rungs listed under the numbers follow the live store too (bounded), so a neighbour's price is current or "—", never a capture.
+  const nbTickers = useMemo(() => (info?.neighbours ?? []).map((n) => n.ticker).filter((t) => t !== tk).slice(0, 40), [info, tk]);
+  useRowQuotes(nbTickers.length ? nbTickers : undefined, schedule);
+  const now = useNow(5_000);
+  if (!tk) return <p className="v3c-note">No contract is named in this address.</p>;
+
+  // The newest observation wins: the live store's quote when it has one newer than the screen's own price.
+  const price = newerPrice(info?.price, priceOfQuote(live.quote(tk), info?.title ?? ''));
+  const ctx = { kind: 'contract' as const, startMs: info?.startMs ?? null, live: info?.live ?? false };
+  const g = gate(price, ctx, now);
+  const f = g.price ? contractFacts(g.price) : null;
+  const named = g.reason === 'not-tradable' && !!g.marketStatus && !!price && sheetNamesStatus(g.marketStatus, observationCurrent(price, ctx, now));
+  // The state the sheet NAMES (no Retry): what its own price says, else what the forced refresh learned (the provider positively reports the market closed,
+  // settled or expired: asking again cannot change that). A suspended, not-yet-open or unrecognised report keeps the ordinary sentence and Retry unless current.
+  const closedStatus: MarketState | null = named && g.marketStatus ? g.marketStatus : !g.price && refreshState === 'market_closed' ? refreshStatus : null;
+  const open = (to: string) => nav({ pathname: loc.pathname, search: withSheet(loc.search, { kind: 'contract', tk: to }) }, { replace: true, state: loc.state, preventScrollReset: true });
+
+  return (
+    <div className="v3c" data-contract={tk}>
+      <header className={`v3c-head${info?.avatar ? ' has-av' : ''}`}>
+        {info?.avatar && <Avatar a={info.avatar} />}
+        <b>{info?.title ?? live.quote(tk)?.title ?? 'Contract'}</b>
+        {info?.subtitle && <span>{info.subtitle}</span>}
+      </header>
+      <div className="v3c-tick" aria-label="Contract ticker"><code>{tk}</code></div>
+
+      {f ? (
+        <>
+          <div className="v3c-grid" data-state="price">
+            <div><small>Ask</small><b className="num v3c-m">{fmtCents(f.ask)}</b></div>
+            <div><small>Bid</small><b className="num">{fmtCents(f.bid)}</b></div>
+            <div><small>Implied</small><b className="num v3c-m">{f.implied}%</b><em>pre-fee</em></div>
+            {f.volume != null && <div><small>Volume</small><b className="num">{Math.round(f.volume).toLocaleString()}</b></div>}
+          </div>
+          <div className="v3c-fee" data-state="fee">
+            {fmt !== 'cents' && <KV k={fmt === 'american' ? 'American odds' : 'Decimal odds'} v={showAsk(f.ask, fmt)} />}
+            <KV k={`Taker fee at ${f.ask}¢`} v={`${f.fee}¢`} />
+            <KV k="Fee-aware break-even" v={`${f.breakEven}¢ · ${f.breakEven}%`} strong />
+          </div>
+          <p className="v3c-foot">Prices are Kalshi YES asks before fees. SIFT shows no bet buttons.</p>
+        </>
+      ) : closedStatus && nonTradableTitle(closedStatus) ? (
+        <div className="v3c-none" role="status" data-state="not-tradable" data-market-status={closedStatus}>
+          <b>{nonTradableTitle(closedStatus)}</b>
+          <span>{nonTradableNote(closedStatus)}</span>
+        </div>
+      ) : (
+        <div className="v3c-none" role="status" data-state="unavailable" data-market-status={g.reason === 'not-tradable' ? g.marketStatus ?? undefined : undefined}>
+          <b>{MISSING_PRICE.contract}</b>
+          <span>No reliable quote could be obtained. Nothing is estimated.</span>
+          <button type="button" className="v3c-btn is-pri" onClick={() => void retry()} disabled={busy}>{busy ? 'Retrying' : MISSING_PRICE.retry}</button>
+        </div>
+      )}
+
+      {info?.note && <p className="v3c-foot">{info.note}</p>}
+
+      {info?.neighbours && info.neighbours.length > 1 && (
+        <section className="v3c-nb" aria-label="Neighbouring rungs">
+          <div className="v3c-eyebrow">Neighbouring rungs</div>
+          {info.neighbours.map((n) => {
+            const np = gate(newerPrice(n.price, priceOfQuote(live.quote(n.ticker))), { kind: 'list', startMs: ctx.startMs, live: ctx.live }, now).price;
+            return (
+              <button key={n.ticker} type="button" className="v3c-nr" aria-pressed={n.ticker === tk} onClick={() => open(n.ticker)}>
+                <b>{n.label}</b><span className="num v3c-m">{np?.ask != null ? fmtCents(np.ask) : '—'}</span>{n.note && <small>{n.note}</small>}
+              </button>
+            );
+          })}
+        </section>
+      )}
+
+      {info?.actions && info.actions.length > 0 && (
+        <div className="v3c-acts">
+          {info.actions.map((a) => <Link key={a.to} to={a.to} className={`v3c-btn${a.primary ? ' is-pri' : ''}`}>{a.label}</Link>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+registerSheet('contract', { title: () => 'Exact contract', tall: false, locked: true, render: (tk) => <ContractBody tk={tk} key={tk ?? 'none'} /> });

@@ -1,0 +1,240 @@
+<title>SIFT Research Redesign</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+  :root { color-scheme: dark; --bg:#080b10; --bg2:#0e1216; --panel:#16191e; --line:#272b32; --line2:#39414b; --cyan:#19cde0; --text:#f3f6f9; --muted:#a4acb6; --dim:#7d8895; --mkt:#93a9ff; --built:#3fd98f; --wire:#f5bd5b; --new:#ff6f91;
+    --ui:'Geist',-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif; --num:'Sora','Geist',-apple-system,Arial,sans-serif; }
+  * { box-sizing: border-box; }
+  body { background: radial-gradient(110% 30% at 8% -4%, rgba(72,88,116,.13), transparent 62%), linear-gradient(180deg,#0c1015,#090c10 40%,#06080b); color: var(--text); font: 400 16px/1.55 var(--ui); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 980px; margin: 0 auto; display: grid; gap: 44px; }
+  h1 { font: 700 clamp(30px, 6vw, 46px)/1.08 var(--ui); letter-spacing: -.03em; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--cyan); }
+  h2 { font: 700 clamp(22px, 4vw, 28px)/1.2 var(--ui); letter-spacing: -.02em; text-wrap: balance; }
+  h3 { font: 600 18px/1.3 var(--ui); letter-spacing: -.01em; }
+  p { color: #c3c8ce; max-width: 66ch; } .dim { color: var(--dim); } .sm { font-size: 14px; }
+  .eyebrow { font: 600 12px/1 var(--ui); letter-spacing: .1em; text-transform: uppercase; color: var(--cyan); }
+  .tag { display: inline-block; font: 700 12px/1 var(--ui); letter-spacing: .06em; padding: 5px 8px; border-radius: 6px; color: #031523; }
+  .tag.built { background: var(--built); } .tag.wire { background: var(--wire); } .tag.new { background: var(--new); }
+  .hero { display: grid; gap: 14px; }
+  .banner { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: #11141a; font-size: 14px; color: var(--muted); }
+  .banner b { color: var(--text); font-weight: 600; }
+  .card { border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(180deg, #181c21, #131619); padding: 18px; }
+  .grid3 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .grid3 .card { display: grid; gap: 6px; align-content: start; } .grid3 .card p { font-size: 14.5px; }
+  .lane { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .lane i { width: 10px; height: 10px; display: inline-block; background: currentColor; border-radius: 3px; } .lane.h i { border-radius: 50%; background: transparent; border: 2.5px solid currentColor; } .lane.z i { transform: rotate(45deg); width: 9px; height: 9px; }
+  .cmp { display: grid; gap: 14px; }
+  .cmp img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); display: block; }
+  .cmp .cap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); text-align: center; }
+  ul.lost { display: grid; gap: 8px; padding-left: 20px; color: #c3c8ce; font-size: 15px; } ul.lost b { color: var(--text); font-weight: 600; }
+  .screen { display: grid; gap: 22px; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 760px) { .screen { grid-template-columns: 1fr; } }
+  .phone { position: relative; width: 100%; max-width: 390px; }
+  .phone img { width: 100%; height: auto; display: block; border-radius: 26px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0,0,0,.5); }
+  .toggle { margin-top: 10px; width: 100%; height: 44px; border-radius: 12px; border: 1px solid var(--line2); background: #1b1f25; color: var(--text); font: 600 14px var(--ui); cursor: pointer; }
+  .toggle[aria-pressed='true'] { border-color: var(--cyan); color: var(--text); }
+  .body { display: grid; gap: 14px; align-content: start; }
+  .body h3 .id { font-family: var(--num); color: var(--cyan); margin-right: 8px; }
+  .kv { display: grid; gap: 8px; } .kv div { display: grid; grid-template-columns: 112px 1fr; gap: 12px; font-size: 14.5px; } .kv dt { color: var(--dim); font-weight: 600; } .kv dd { color: #c3c8ce; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; } th { text-align: left; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 0 10px 10px 0; } td { padding: 10px 10px 10px 0; border-top: 1px solid #21252b; vertical-align: top; color: #cfe0ec; } td:first-child { color: var(--text); font-weight: 500; }
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; } .scroll table { min-width: 640px; }
+  .sw { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } .sw div { border-radius: 12px; border: 1px solid rgba(255,255,255,.08); overflow: hidden; display: grid; font-size: 12.5px; } .sw i { display: block; height: 38px; } .sw span { padding: 7px 9px 8px; background: #101317; color: #c3c8ce; line-height: 1.3; } .sw span b { display: block; color: var(--text); font-weight: 600; font-size: 13px; }
+  .cols2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } code { font: 13px ui-monospace, Menlo, monospace; color: #dfe4ea; }
+  .ask { display: grid; gap: 10px; counter-reset: q; } .ask li { list-style: none; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #11141a; font-size: 15px; color: #c3c8ce; }
+  .ask li b { color: var(--text); }
+</style>
+
+<main>
+<header class="hero">
+  <span class="eyebrow">Design review · set locked · nothing here is built</span>
+  <h1>SIFT research, <em>locked</em></h1>
+  <p>Player Research and Game Matchup, first. Same four tabs, same Home and Games. The research pages change: chart first, three separate evidence lanes, and opponent-adjusted offense paired against defense, with every number tappable. All seven screens are approved with three refinements, applied below; this set and the ink and graphite design system are now locked and need no further visual redesign.</p>
+  <div class="banner"><span><b>Data on screen is real.</b> Tonight’s DAL at PHI, CeeDee Lamb receptions, from SIFT’s own publications captured 2026-10-26 (matchup 02:45Z, projection 01:36Z, Kalshi quotes 03:08Z).</span><span><b>Status layer.</b> Tap “Show data status” on any screen to see what is built today, what is published but not wired in, and what needs new data.</span></div>
+  <div class="banner"><span class="tag built">BUILT</span><span>already in v3 with real data</span><span class="tag wire">WIRE</span><span>published data exists; v3 does not use it yet (integration work, no new data source)</span><span class="tag new">NEW</span><span>needs data or a feed SIFT does not publish today</span></div>
+</header>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">The set</span><h2>All seven screens, in the locked palette</h2><p class="dim sm" style="margin-top:6px">P1 to P4 are Player Research; G1 to G3 are Game Matchup. Scroll sideways; each is described below with its own status layer.</p></div>
+  <div class="scroll" style="border-radius:16px;border:1px solid var(--line)"><img src="out/seven.jpg" alt="The seven research mockups side by side" style="display:block;height:auto;width:max(100%, 1500px)"></div>
+</section>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">Palette · locked</span><h2>Ink and graphite, with cyan held back</h2></div>
+  <div class="card" style="display:grid;gap:14px">
+    <div class="sw">
+      <div><i style="background:#080b10"></i><span><b>Foundation</b>#080b10</span></div>
+      <div><i style="background:linear-gradient(180deg,#181c21,#131619)"></i><span><b>Surface</b>#181c21 to #131619</span></div>
+      <div><i style="background:#272b32"></i><span><b>Border</b>#272b32</span></div>
+      <div><i style="background:#19cde0"></i><span><b>Cyan</b>selection, primary, SIFT</span></div>
+      <div><i style="background:#46e49b"></i><span><b>Hit</b>green</span></div>
+      <div><i style="background:#ff7468"></i><span><b>Miss</b>coral</span></div>
+      <div><i style="background:#93a9ff"></i><span><b>Market</b>periwinkle</span></div>
+      <div><i style="background:#f0f2f5"></i><span><b>History</b>ivory</span></div>
+      <div><i style="background:#eaf1f7"></i><span><b>Offense</b>ice</span></div>
+      <div><i style="background:#ff9b52"></i><span><b>Defense</b>amber</span></div>
+    </div>
+    <p class="sm">Hero lighting is each team’s own colour over ink; player photography and logos are untouched. No blue-on-blue cards, no glowing borders: a selected item gets a 1px cyan border and a slight surface lift.</p>
+  </div>
+  <div class="cols2">
+    <div class="card"><h3>Refinement 1 · dark text on every cyan fill</h3><p class="sm" style="margin-top:6px">Checked by script on all seven screens: every element with a bright-cyan fill and text (the selected stat pill, the Props badge, the L10 chip, Apply) carries #04202c text at <b style="color:var(--text)">8.7 : 1</b>. The check found one miss, the selected REC pill, where the new theme had turned its label light; it is fixed and the check is saved as <code>check-contrast.mjs</code>.</p></div>
+    <div class="card"><h3>Refinement 2 · every tilt names its team</h3><p class="sm" style="margin-top:6px">With offense no longer cyan, attribution no longer relies on colour alone. Each tilt is a pill with the team’s logo, its abbreviation and its role (“PHI offense +30”), and the legend counts use the same logos. Colour carries the role only: ice is offense, amber is defense. See the key below.</p></div>
+  </div>
+</section>
+
+<section style="display:grid;gap:18px">
+  <div><span class="eyebrow">1 · Gap analysis</span><h2>What the build lost against the approved references</h2></div>
+  <div class="cmp"><div class="cap"><span>Approved reference</span><span>Current build, real data</span><span>Proposed</span></div><img src="out/cmp_player.jpg" alt="Player Research: approved reference, current build, proposed redesign"></div>
+  <ul class="lost">
+    <li><b>The chart fell below the fold.</b> With a verified photo hero, four stacked cards sit above it; the reference puts the chart at about 60% of the screen. Proposed: the chart card starts at 58% and the whole chart, with its summary strip, ends above the tab bar.</li>
+    <li><b>No opponent, trend or model context.</b> The reference has Overview · Props · Stats · Matchup · Trends. The build kept Overview · Props · Game log · Replay, so there is nowhere to ask “who is he facing?”.</li>
+    <li><b>The model lane is missing.</b> SIFT publishes projections (median, 10–90 range, P(≥n), the adjustments applied) for NFL, NBA and NHL; v3 ignores them, and a quote over 30 minutes old greys out the whole line card.</li>
+    <li><b>Filters are applied blind.</b> The reference sheet promised teammate availability, blowout and pace. We dropped what is unsupported without saying so, and no option shows its sample size before you tap it.</li>
+  </ul>
+  <div class="cmp"><div class="cap"><span>Approved reference</span><span>Current build, real data</span><span>Proposed</span></div><img src="out/cmp_matchup.jpg" alt="Game Matchup: approved reference, current build, proposed redesign"></div>
+  <ul class="lost">
+    <li><b>Offense is no longer paired with defense.</b> The reference sets “Georgia Offense” against “Florida Defense”. The build lists 25 team-versus-team rank cards, so DAL’s defense (28th) and PHI’s defense (10th) share one card and the bars say nothing about who holds the advantage.</li>
+    <li><b>No league context.</b> Every published value carries the league average, median, best, worst and percentile. The build shows only an ordinal.</li>
+    <li><b>No Key Matchups, script or context.</b> The reference links a player to the unit that player faces, with a stat. The build has no path from a matchup to a prop, and “Show all 25 statistics” is a table in disguise.</li>
+  </ul>
+</section>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">2 · Principles</span><h2>Five rules every research screen follows</h2></div>
+  <div class="grid3">
+    <div class="card"><h3>Chart first</h3><p>The first screen reaches the chart, the line and the price. Everything else supports it or sits one tap away.</p></div>
+    <div class="card"><h3>Three lanes, never blended</h3><p><span class="lane" style="color:var(--mkt)"><i></i>Market</span> is the Kalshi price. <span class="lane h" style="color:#eef6fb"><i></i>History</span> is how often it happened. <span class="lane z" style="color:var(--cyan)"><i></i>SIFT model</span> is the approved model-estimated outcome probability, shown only where the approval ledger allows. Names are locked: <b>Market · History · SIFT model</b>. Market is the pre-fee market-implied probability, History is the observed frequency, and a missing SIFT model estimate stays “—”, never filled. They are shown side by side and never subtracted into an “edge” or “value”.</p></div>
+    <div class="card"><h3>Paired and adjusted</h3><p>Offense is always set against the opposing defense, opponent-adjusted, with the league distribution behind every value.</p></div>
+    <div class="card"><h3>Everything taps</h3><p>Logos open teams, values open the league ranking, rungs open the contract, rows open the player or prop, bars open that game.</p></div>
+    <div class="card"><h3>Honest locks</h3><p>A feature SIFT cannot support yet is shown disabled with the reason. It is never faked, estimated or quietly dropped.</p></div>
+  </div>
+</section>
+
+<section style="display:grid;gap:30px">
+  <div><span class="eyebrow">3 · Player Research</span><h2>Four screens, one research loop</h2><p class="dim sm" style="margin-top:6px">Loop: read the line, see who agrees, find the rung, cut the sample, understand the matchup.</p></div>
+
+  <article class="screen" data-pair="p1">
+    <div class="phone"><img src="out/p1.png" alt="Player Research overview"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">P1</span>Overview, chart first</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>Is tonight’s line high or low for this player, and who agrees?</dd></div>
+      <div><dt>Workflow</dt><dd>Open from a Key Matchup, a prop or search. The line (6.5, 7+ at 56¢) and the three lanes sit above the chart: market 56%, history 4 of 10, SIFT 38%. One 17-catch game lifts the average to 6.6; the median of 6 and the 4-of-10 hit rate tell the truer story. The hatched bar is tonight’s published range (3–10), with the diamond at the mean.</dd></div>
+      <div><dt>Taps</dt><dd>Bar → that game’s log. Window chip → re-cut (L5, L10, 2026, vs PHI, all 19). Price or ⌄ → P2. Sliders → P3. Diamond or SIFT lane → P4. Opponent logo → team. Hero photo is verified and credited; without one it is the logo-led hero.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag built">BUILT</span> log, windows, ladder price, summary. <span class="tag wire">WIRE</span> SIFT lane and range (projection feed), availability chip, weather and spread strip.</dd></div></dl></div>
+  </article>
+
+  <article class="screen" data-pair="p2">
+    <div class="phone"><img src="out/p2.png" alt="Player Research line scrubber and alt lines"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">P2</span>Drag the line, compare every rung</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>Which rung should I be looking at?</dd></div>
+      <div><dt>Workflow</dt><dd>Drag the dashed line; it snaps to the real Kalshi rungs, bars recolour, and the readout updates (5+: 82¢, 8 of 10, SIFT 67%). Below, each rung is one row with the three lanes on a shared 0–100 track, so agreement and disagreement are visible at a glance (7+: market 56%, history 4/10, SIFT 38%).</dd></div>
+      <div><dt>Honesty</dt><dd>SIFT publishes P(≥n) at only three rungs (3+, 5+, 7+); other rungs show “—”, never an estimate. No row is scored, ranked or coloured good or bad.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag built">BUILT</span> ladder prices and history. <span class="tag wire">WIRE</span> SIFT thresholds. <span class="tag new">NEW UI</span> the scrubber and the dumbbell rows, over the same data.</dd></div></dl></div>
+  </article>
+
+  <article class="screen" data-pair="p3">
+    <div class="phone"><img src="out/p3.png" alt="Research filters with sample sizes"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">P3</span>Research builder: cut the sample before you trust it</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>Does it hold up in the situations that matter tonight?</dd></div>
+      <div><dt>Workflow</dt><dd>Every option shows its sample size and hit rate before you apply it, so a thin split is obvious (vs PHI: 2 games). The live card shows which of the last ten games remain and what they did (Away: 5 games, 2 of 5 at 7+). Apply returns to the chart with the chips set.</dd></div>
+      <div><dt>Locked</dt><dd>Teammate out, weather and pace are visible but disabled, with “needs data”. The opponent tier uses each team’s current rank, and says so.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag built">BUILT</span> time, site, role (snaps, target share), game script (won/lost), rest. <span class="tag wire">WIRE</span> opponent tiers, favorite/underdog (closing lines are in the league layer). <span class="tag new">NEW</span> teammate availability history, weather history, pace.</dd></div></dl></div>
+  </article>
+
+  <article class="screen" data-pair="p4">
+    <div class="phone"><img src="out/p4.png" alt="Player Research matchup tab"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">P4</span>Matchup tab: why the projection says 5.9</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>What is the projection built from, and who is the player facing?</dd></div>
+      <div><dt>Workflow</dt><dd>The opportunity chain shows the published rows end to end: DAL 37.6 pass attempts (28–48) → 9.6 targets (25.5%, implied) → 5.9 receptions (62% catch rate, implied) → 70 yards. The model’s own adjustment notes are quoted verbatim. Then the opponent: PHI’s pass defense is 10th of 28 in EPA per dropback allowed, drawn against all 28 teams with the league average marked.</dd></div>
+      <div><dt>Locked</dt><dd>Defense against wide receivers specifically needs position-level splits. Not published; shown as a locked row.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag wire">WIRE</span> projection rows, adjustments, availability, ranking documents. <span class="tag new">NEW</span> position-level defense.</dd></div></dl></div>
+  </article>
+</section>
+
+<section style="display:grid;gap:30px">
+  <div><span class="eyebrow">4 · Game Matchup</span><h2>Three screens: where it tilts, why, and what to research</h2><p class="dim sm" style="margin-top:6px">“Tilt” is the offense’s league percentile minus the opposing defense’s. Positive tilts toward the offense. A gap of 15 percentile points or less (in magnitude, as displayed) reads <b>Even</b> with no arrow; only gaps above 15 get a directional tilt. This band is a descriptive visual heuristic, not a validated betting edge. It compares season-long unit strength and is not a prediction.</p></div>
+
+  <article class="screen" data-pair="g1">
+    <div class="phone"><img src="out/g1.png" alt="Game Matchup tab"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">G1</span>Matchup: offense against defense, both ways</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>Where does this game tilt?</dd></div>
+      <div><dt>Workflow</dt><dd>The direction control is also the summary: DAL offense: 5 tilt DAL, 1 even, 1 tilts PHI. PHI offense: 5 tilt PHI, 2 even, 0 tilt DAL. Summary counts are computed with the same rule as each row. Pick a direction and read the rows. Each row is a league-percentile track: the offense marker, the defense marker, and the gap filled between them. Passing, for instance: PHI’s offense (20th) against DAL’s defense (28th of 28, +0.179 EPA per dropback allowed) tilts PHI by 30.</dd></div>
+      <div><dt>Taps</dt><dd>Row → G2. Pill or logo → team. Values → league ranking. Direction, adjusted/raw and window are one-tap controls.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag built">BUILT</span> the underlying paired metrics are in every NFL event document (25 rows; NBA about 11; NHL about 28). <span class="tag wire">WIRE</span> pairing, percentiles and the tilt. <span class="tag new">NEW</span> CFB: no matchup rows are published today.</dd></div></dl></div>
+  </article>
+
+  <div class="card" style="display:grid;gap:16px">
+    <div><span class="eyebrow">Key · reading a tilt</span><h3 style="margin-top:6px">Which team does the advantage belong to?</h3></div>
+    <div class="screen" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)">
+      <img src="out/attribution.jpg" alt="Matchup tilts in both directions" style="width:100%;height:auto;border-radius:14px;border:1px solid var(--line)">
+      <ul class="lost">
+        <li><b>The pill names the team and the unit.</b> Logo, abbreviation, role: “DAL offense +48”, “PHI defense +45”.</li>
+        <li><b>Ice is offense, amber is defense.</b> The role colour fills the gap between the two markers, and the pill takes the same colour.</li>
+        <li><b>The gap points at the advantaged unit.</b> The arrow ends at the bolder ring, which is always the marker further right (the higher league percentile).</li>
+        <li><b>Even rows say so.</b> At 15 points or less there is no arrow, the fill is slate, and the pill reads “Even” (a gap of exactly 15 is Even).</li>
+        <li><b>The legend uses the same logos:</b> “[DAL] 5 · even 1 · [PHI] 1” means five units tilt to DAL’s offense, one is even and one tilts to PHI’s defense.</li>
+      </ul>
+    </div>
+  </div>
+  <article class="screen" data-pair="g2">
+    <div class="phone"><img src="out/g2.png" alt="Matchup expanded unit with league strips and trend"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">G2</span>One unit, in depth</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>How big is the gap against the whole league, and is it recent?</dd></div>
+      <div><dt>Workflow</dt><dd>Tap a unit. Both teams are placed on the full-league strip (28 dots, right is better, league average marked), then the last six weeks of each side, then related statistics and where the matchup shows up in markets and props. Every dot is a team; every chip opens a ranking.</dd></div>
+      <div><dt>Honesty</dt><dd>The weekly trend is raw, not opponent-adjusted, and says so. It comes from the NFL history layer; there is no per-week trend for other sports yet.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag wire">WIRE</span> ranking documents (league strips), weekly team splits, markets. <span class="tag new">NEW</span> adjusted weekly trends and non-NFL trends.</dd></div></dl></div>
+  </article>
+
+  <article class="screen" data-pair="g3">
+    <div class="phone"><img src="out/g3.png" alt="Matchup lens, game shape, key matchups and context"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">G3</span>Lens, game shape, key matchups, context</h3>
+      <dl class="kv"><div><dt>Question</dt><dd>What should I research next?</dd></div>
+      <div><dt>Workflow</dt><dd>The Lens opens collapsed: the widest gap and a one-line counter-case, both written from the published rows. Tapping it reveals the full evidence (the three widest non-even gaps with team pills, how to read the tilt, and the market price) below, with nothing dropped and the layout unchanged. Game shape shows each team’s projected pass and rush attempts. Key Matchups links a player to the unit that player faces with its own price (Goedert, PHI TE, against the league’s 28th-ranked pass defense) and opens Player Research. Context lists what is out, the weather, and how the Dallas price has moved since the open.</dd></div>
+      <div><dt>Honesty</dt><dd>Team points are held in SIFT’s approval ledger, so they are not shown; attempts are promoted and are labelled research-only.</dd></div>
+      <div><dt>Data</dt><dd><span class="tag built">BUILT</span> Lens wording from matchup rows. <span class="tag wire">WIRE</span> projections, injuries, weather, price history, derived player-to-unit mapping. <span class="tag new">NEW</span> a cross-game prop index (the feed holds 701 markets for this one game).</dd></div></dl></div>
+  </article>
+  <article class="screen" data-pair="g3open">
+    <div class="phone"><img src="out/g3open.png" alt="SIFT Lens expanded with full evidence"><button class="toggle" aria-pressed="false">Show data status</button></div>
+    <div class="body"><h3><span class="id">G3</span>Lens expanded</h3>
+      <dl class="kv"><div><dt>Tap</dt><dd>The collapsed Lens opens in place to the full evidence. Same wording, same rows; the page below does not move away from the approved layout.</dd></div>
+      <div><dt>Honesty</dt><dd>The evidence is the published matchup rows. “How to read it” states the ±15 heuristic is descriptive, not a validated betting edge.</dd></div></dl></div>
+  </article>
+</section>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">5 · Data status</span><h2>What exists, what is published, what is missing</h2></div>
+  <div class="card scroll"><table>
+    <thead><tr><th>Capability</th><th>Status</th><th>Source and coverage today (2026-10-26)</th></tr></thead>
+    <tbody>
+      <tr><td>Game log, hit windows, summary, alt-line prices</td><td><span class="tag built">BUILT</span></td><td>NFL history layer; NBA and NHL profile logs; Kalshi quote feed.</td></tr>
+      <tr><td>Filters from the log (site, role, script, rest, opponent)</td><td><span class="tag built">BUILT</span></td><td>Computed from the log; opponent tiers need the ranking documents.</td></tr>
+      <tr><td>SIFT projection lane: median, range, P(≥n), adjustments, availability</td><td><span class="tag wire">WIRE</span></td><td>Projection feed: NFL 59 rows, NBA 2,170, NHL 146, CFB and MLB empty. Display is gated by the existing approval ledger (NFL receptions, targets and completions are promoted; yardage families are held). Where the ledger says withhold, the lane reads “not published”.</td></tr>
+      <tr><td>League strips, percentiles, paired offense vs defense</td><td><span class="tag wire">WIRE</span></td><td>Matchup rows and ranking documents: NFL, NBA, NHL. CFB publishes none.</td></tr>
+      <tr><td>Weekly team trends, plays per game</td><td><span class="tag wire">WIRE</span></td><td>NFL history layer only; raw, not opponent-adjusted.</td></tr>
+      <tr><td>Injuries, weather, game price movement</td><td><span class="tag wire">WIRE</span></td><td>Event documents and market history (game-level markets).</td></tr>
+      <tr><td>Defense vs position (WR, TE, RB)</td><td><span class="tag new">NEW</span></td><td>Not published.</td></tr>
+      <tr><td>Teammate with/without, weather history, pace and tempo (seconds per play)</td><td><span class="tag new">NEW</span></td><td>Not published.</td></tr>
+      <tr><td>Player-prop price history</td><td><span class="tag new">NEW</span></td><td>Market history covers game-level markets only.</td></tr>
+      <tr><td>Edge or value signals</td><td>Not designed</td><td>Never derived from raw statistics. A model-published edge would appear only if the projection ledger allows it; none is published today.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section style="display:grid;gap:14px">
+  <div><span class="eyebrow">6 · Locked</span><h2>Status of the seven</h2></div>
+  <ol class="ask">
+    <li><b>Locked:</b> P1 to P4 and G1 to G3, the ink and graphite design system, the lane names and the ±15 Even band. Nothing on this board reopens them.</li>
+    <li><b>Next:</b> Prop Discovery is designed in its own review; Team Research, then Stat Detail and Rankings, follow in the same system.</li>
+  </ol>
+  <p class="dim sm">Source of every number: docs/sift3/redesign/data.js, a frozen snapshot of SIFT’s own publications. Mockup chrome (status bar, home indicator) is drawn for presentation only; the app has no device chrome.</p>
+</section>
+</main>
+
+<script>
+  document.querySelectorAll('.screen').forEach(function (s) {
+    var id = s.getAttribute('data-pair'), img = s.querySelector('.phone img'), btn = s.querySelector('.toggle');
+    btn.addEventListener('click', function () {
+      var on = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Hide data status' : 'Show data status';
+      img.src = 'out/' + id + (on ? '-annot' : '') + '.png';
+    });
+  });
+</script>

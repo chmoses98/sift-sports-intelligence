@@ -1,0 +1,52 @@
+/* Walkthrough prototype shell. The phone is the locked design system; everything here is the page around it and the demo markers. */
+html, body { background: #06080b; margin: 0; color-scheme: dark; }
+.wt { box-sizing: border-box; min-height: 100vh; display: flex; flex-direction: column; font-family: var(--f-ui); color: #f3f6f9; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wth { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 10px 0 6px; }
+.wtt { display: grid; } .wtt b { font: 700 16px/20px var(--f-ui); letter-spacing: -.01em; } .wtt span { font: 400 12px/15px var(--f-ui); color: #a4acb6; }
+.wtb { display: flex; flex-wrap: wrap; gap: 6px; }
+.wbtn { font: 600 13px/1 var(--f-ui); color: #e3e7eb; background: #1b1f25; border: 1px solid #2b3038; border-radius: 10px; padding: 9px 12px; cursor: pointer; } .wbtn.pri { background: #19cde0; border-color: transparent; color: #04202c; } .wbtn[aria-pressed="true"] { border-color: #19cde0; color: #5fe0ee; }
+.coach { margin: 4px 0 2px; padding: 10px 12px; border-radius: 14px; background: #14181d; border: 1px solid #19cde0; display: grid; gap: 4px; }
+.coach .ch { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .coach .ch b { font: 700 13px var(--f-ui); color: #5fe0ee; } .coach .dots { display: flex; gap: 5px; } .coach .dots i { width: 22px; height: 4px; border-radius: 2px; background: #2b3038; } .coach .dots i.on { background: #19cde0; } .coach .dots i.done { background: #5fe0ee; opacity: .6; }
+.coach p { font: 500 14px/19px var(--f-ui); color: #f3f6f9; } .coach .cb { display: flex; gap: 8px; } .coach .cb button { font: 600 12px var(--f-ui); background: transparent; border: 0; color: #a4acb6; cursor: pointer; padding: 2px 0; }
+.jlist { margin: 4px 0 2px; display: grid; gap: 6px; } .jlist button { text-align: left; font: 500 14px/19px var(--f-ui); color: #f3f6f9; background: #14181d; border: 1px solid #272b32; border-radius: 12px; padding: 10px 12px; cursor: pointer; } .jlist button b { display: block; color: #5fe0ee; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+.wtm { flex: 1; display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-start; padding: 6px 0 24px; }
+.stage { position: relative; flex: none; }
+.stage .phone { transform-origin: top left; border-radius: 34px; box-shadow: 0 0 0 1px #2b3038, 0 24px 60px rgba(0, 0, 0, .6); }
+.wlegend { flex: 1 1 240px; max-width: 320px; display: grid; gap: 8px; align-content: start; padding: 12px; border-radius: 14px; background: #101318; border: 1px solid #23282f; font: 400 12.5px/17px var(--f-ui); color: #a4acb6; } .wlegend b { color: #f3f6f9; font-size: 13px; } .wlegend span { display: flex; gap: 8px; } .wlegend em { font-style: normal; color: #f3f6f9; } .wlegend .k { flex: none; width: 10px; height: 10px; margin-top: 4px; border-radius: 3px; } .k.real { background: #46e49b; } .k.demo { background: #ffb27a; } .k.int { background: #93a9ff; }
+/* inside the phone */
+.phone .scr { overflow-y: auto; overflow-x: hidden; padding-bottom: 130px; scrollbar-width: none; -webkit-overflow-scrolling: touch; } .phone .scr::-webkit-scrollbar { display: none; }
+.phone [data-go], .phone [data-act] { cursor: pointer; -webkit-tap-highlight-color: transparent; } .phone [data-go]:active, .phone [data-act]:active { filter: brightness(1.25); }
+.phone .sheet { overflow-y: auto; padding-bottom: 96px; } .phone .scrim { z-index: 20; } .phone .sheet { z-index: 21; }
+.phone .sb { z-index: 40; } .phone .tb { z-index: 35; } .phone .hi { z-index: 36; }
+.toast { position: absolute; z-index: 50; left: 20px; right: 20px; bottom: 92px; padding: 10px 14px; border-radius: 12px; background: #1f242b; border: 1px solid #39414b; font: 500 13px/18px var(--f-ui); color: #f3f6f9; box-shadow: 0 10px 28px rgba(0, 0, 0, .55); }
+.standin { margin: 10px 16px 0; padding: 10px 12px; border-radius: 12px; border: 1px dashed #ffb27a; background: rgba(255, 178, 122, .06); font: 400 12px/16px var(--f-ui); color: #ffd2b0; } .standin b { color: #ffb27a; }
+.demo-chip { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 5px; border: 1px solid #ffb27a; color: #ffb27a; font: 700 9px var(--f-ui); letter-spacing: .06em; }
+.phone .tray { bottom: 92px; } .phone .cmpbox { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; border: 1.5px solid #5b6470; background: #0f1215; } .phone .cmpbox.on { background: var(--cyan); border-color: transparent; }
+.phone .nq { padding: 22px 16px; display: grid; gap: 10px; justify-items: center; text-align: center; } .phone .nq b { font: 700 18px var(--f-ui); } .phone .nq span { font: 400 13px/18px var(--f-ui); color: var(--muted); } .phone .nq .btn { flex: none; padding: 0 22px; }
+.phone .px.nop b { color: var(--dim); } .phone .px.nop { border-color: #2b3038; background: transparent; }
+.phone .barcard { margin: 8px 16px 0; padding: 10px 12px; border-color: var(--cyan); } .phone .barcard .bh { display: flex; justify-content: space-between; } .phone .barcard .bh b { font: 600 14px var(--f-ui); } .phone .barcard .bh span { font: 400 12px var(--f-ui); color: var(--muted); }
+.phone .savedc { margin: 10px 16px 0; padding: 12px 14px; display: grid; gap: 6px; } .phone .savedc b { font: 700 15px/19px var(--f-ui); } .phone .savedc .chs { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; } .phone .savedc small { font: 400 11.5px var(--f-ui); color: var(--dim); }
+.phone .gl { display: grid; grid-template-columns: 34px 1fr 34px; align-items: center; gap: 10px; margin: 10px 16px 0; padding: 12px 14px; }
+.phone .gl .c { text-align: center; display: grid; gap: 1px; } .phone .gl .c b { font: 700 15px var(--f-ui); } .phone .gl .c span { font: 400 12px var(--f-ui); color: var(--muted); }
+.phone .ladr { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; height: 46px; padding: 0 10px; border-radius: 10px; border: 1px solid transparent; } .phone .ladr.on { background: #1f242b; border-color: var(--cyan); } .phone .ladr b.num { font-size: 15px; } .phone .ladr .l3 { display: flex; gap: 12px; font: 700 12.5px var(--f-num); }
+.phone .shh { display: flex; justify-content: space-between; align-items: center; margin: 6px 0 6px; } .phone .shh .h2 { font: 700 20px var(--f-ui); } .phone .shh .x { color: var(--cyan); font: 500 15px var(--f-ui); }
+.phone .fchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; } .phone .fchips .fc2 { cursor: pointer; }
+.phone .flab { font: 600 11px/14px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-top: 10px; }
+.phone .live2 { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--s-raise); border: 1px solid var(--s-raise-bd); } .phone .live2 b { font: 700 19px var(--f-num); } .phone .live2 small { font: 400 12px var(--f-ui); color: var(--muted); }
+.phone .applyb { position: absolute; left: 16px; right: 16px; bottom: 28px; height: 50px; border-radius: 14px; display: grid; place-items: center; background: var(--cyan); color: #04202c; font: 700 16px var(--f-ui); }
+.phone .pdsearch { display: flex; align-items: center; gap: 10px; margin: 10px 16px 0; height: 44px; padding: 0 14px; border-radius: 13px; background: #14181d; border: 1px solid #272b32; } .phone .pdsearch input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: #f3f6f9; font: 400 15px var(--f-ui); }
+.phone .mode2 { display: flex; gap: 6px; padding: 8px 16px 0; }
+.phone .unk { margin: 14px 16px 0; padding: 14px; text-align: center; border-radius: 14px; border: 1px dashed #5b6470; color: #a4acb6; font: 400 13px/18px var(--f-ui); } .phone .unk b { display: block; color: #f3f6f9; font-size: 15px; margin-bottom: 4px; }
+.phone .sdh .back, .phone .trbar .ib, .phone .pdh .ib { cursor: pointer; }
+@media (max-width: 520px) { .wlegend { display: none; } .wtm { padding-top: 2px; } .wtt span { display: none; } }
+
+.phone .swapb { margin-left: auto; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #1b1f25; border: 1px solid #2b3038; cursor: pointer; color: #d6dadf; } .phone .who2 .segc { margin-left: 0; }
+.phone .sdph { display: flex; gap: 8px; align-items: center; } .phone .sdph b { font: 700 14px/16px var(--f-ui); display: block; } .phone .sdph small { font: 400 11px var(--f-ui); color: var(--muted); }
+.phone .fulldef { margin-top: 8px; padding-top: 8px; border-top: 1px solid #1d2127; } .phone .fulldef p { font: 400 12.5px/18px var(--f-ui); color: #cfd5db; }
+.phone .nq { padding: 18px 12px; margin-top: 10px; border-radius: 14px; border: 1px dashed #5b6470; }
+.phone .live2 br { display: none; } .phone .live2 > div { display: grid; }
+.phone .ladr .l3 span { min-width: 44px; }
+
+.phone .gl2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; } .phone .glp { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 12px; background: #11151a; border: 1px solid #23282f; font: 500 13px var(--f-ui); } .phone .glp b { font-size: 18px; color: var(--mkt); }
+.coach[hidden], .jlist[hidden] { display: none !important; }
+@media (max-width: 520px) { .wth { padding: 6px 0 2px; } .wtt b { font-size: 14px; } .wbtn { padding: 7px 9px; font-size: 12px; } .coach { padding: 8px 10px; } .coach p { font-size: 13px; line-height: 17px; } .wtb { gap: 5px; } }

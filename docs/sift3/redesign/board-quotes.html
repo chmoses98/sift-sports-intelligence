@@ -1,0 +1,112 @@
+<title>SIFT Quote Delivery</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+  :root { color-scheme: dark; --bg:#080b10; --bg2:#0e1216; --panel:#16191e; --line:#272b32; --line2:#39414b; --cyan:#19cde0; --text:#f3f6f9; --muted:#a4acb6; --dim:#7d8895; --mkt:#93a9ff; --built:#3fd98f; --wire:#f5bd5b; --new:#ff6f91;
+    --ui:'Geist',-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif; --num:'Sora','Geist',-apple-system,Arial,sans-serif; }
+  * { box-sizing: border-box; }
+  body { background: radial-gradient(110% 30% at 8% -4%, rgba(72,88,116,.13), transparent 62%), linear-gradient(180deg,#0c1015,#090c10 40%,#06080b); color: var(--text); font: 400 16px/1.55 var(--ui); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 980px; margin: 0 auto; display: grid; gap: 44px; }
+  h1 { font: 700 clamp(30px, 6vw, 46px)/1.08 var(--ui); letter-spacing: -.03em; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--cyan); }
+  h2 { font: 700 clamp(22px, 4vw, 28px)/1.2 var(--ui); letter-spacing: -.02em; text-wrap: balance; }
+  h3 { font: 600 18px/1.3 var(--ui); letter-spacing: -.01em; }
+  p { color: #c3c8ce; max-width: 66ch; } .dim { color: var(--dim); } .sm { font-size: 14px; }
+  .eyebrow { font: 600 12px/1 var(--ui); letter-spacing: .1em; text-transform: uppercase; color: var(--cyan); }
+  .tag { display: inline-block; font: 700 12px/1 var(--ui); letter-spacing: .06em; padding: 5px 8px; border-radius: 6px; color: #031523; }
+  .tag.built { background: var(--built); } .tag.wire { background: var(--wire); } .tag.new { background: var(--new); }
+  .hero { display: grid; gap: 14px; }
+  .banner { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: #11141a; font-size: 14px; color: var(--muted); }
+  .banner b { color: var(--text); font-weight: 600; }
+  .card { border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(180deg, #181c21, #131619); padding: 18px; }
+  .grid3 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .grid3 .card { display: grid; gap: 6px; align-content: start; } .grid3 .card p { font-size: 14.5px; }
+  .lane { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .lane i { width: 10px; height: 10px; display: inline-block; background: currentColor; border-radius: 3px; } .lane.h i { border-radius: 50%; background: transparent; border: 2.5px solid currentColor; } .lane.z i { transform: rotate(45deg); width: 9px; height: 9px; }
+  .cmp { display: grid; gap: 14px; }
+  .cmp img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); display: block; }
+  .cmp .cap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); text-align: center; }
+  ul.lost { display: grid; gap: 8px; padding-left: 20px; color: #c3c8ce; font-size: 15px; } ul.lost b { color: var(--text); font-weight: 600; }
+  .screen { display: grid; gap: 22px; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 760px) { .screen { grid-template-columns: 1fr; } }
+  .phone { position: relative; width: 100%; max-width: 390px; }
+  .phone img { width: 100%; height: auto; display: block; border-radius: 26px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0,0,0,.5); }
+  .toggle { margin-top: 10px; width: 100%; height: 44px; border-radius: 12px; border: 1px solid var(--line2); background: #1b1f25; color: var(--text); font: 600 14px var(--ui); cursor: pointer; }
+  .toggle[aria-pressed='true'] { border-color: var(--cyan); color: var(--text); }
+  .body { display: grid; gap: 14px; align-content: start; }
+  .body h3 .id { font-family: var(--num); color: var(--cyan); margin-right: 8px; }
+  .kv { display: grid; gap: 8px; } .kv div { display: grid; grid-template-columns: 112px 1fr; gap: 12px; font-size: 14.5px; } .kv dt { color: var(--dim); font-weight: 600; } .kv dd { color: #c3c8ce; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; } th { text-align: left; font: 600 12px/1.2 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 0 10px 10px 0; } td { padding: 10px 10px 10px 0; border-top: 1px solid #21252b; vertical-align: top; color: #cfe0ec; } td:first-child { color: var(--text); font-weight: 500; }
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; } .scroll table { min-width: 640px; }
+  .sw { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } .sw div { border-radius: 12px; border: 1px solid rgba(255,255,255,.08); overflow: hidden; display: grid; font-size: 12.5px; } .sw i { display: block; height: 38px; } .sw span { padding: 7px 9px 8px; background: #101317; color: #c3c8ce; line-height: 1.3; } .sw span b { display: block; color: var(--text); font-weight: 600; font-size: 13px; }
+  .cols2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } code { font: 13px ui-monospace, Menlo, monospace; color: #dfe4ea; }
+  .ask { display: grid; gap: 10px; counter-reset: q; } .ask li { list-style: none; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #11141a; font-size: 15px; color: #c3c8ce; }
+  .ask li b { color: var(--text); }
+</style>
+
+<main>
+<header class="hero">
+  <span class="eyebrow">Read-only assessment · nothing was changed</span>
+  <h1>Quote delivery, <em>measured</em></h1>
+  <p>Users see clean, automatically updating Kalshi prices: no stale warnings, freshness badges or last-updated labels. Freshness is an engineering responsibility. This page records how prices reach the app today, how reliable that path measured on 2026-10-26, and what to improve. No production pipeline, relay or app code was modified.</p>
+</header>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">1 · Findings</span><h2>The relay is healthy; the GitHub feed is the slow path</h2></div>
+  <div class="grid3">
+    <div class="card"><h3>Relay (Vercel)</h3><p>53 of 53 requests answered 200 in the 14:46Z smoke test. Median 138 ms, max 745 ms. Quote age median <b>0.7 s</b>, max 14.7 s. Straight to Kalshi, the same runner got 7 rate-limit refusals in its burst; the relay got none.</p></div>
+    <div class="card"><h3>GitHub feed</h3><p>Publishes every <b>211 s</b> in the two intervals sampled (not 180 s), then <code>raw.githubusercontent.com</code> holds each file up to <b>5 minutes</b>. A new publication reached a reader 1 m 21 s to 2 m 6 s later. Oldest quote seen: <b>4 m 52 s</b>; worst case about 8.5 minutes.</p></div>
+    <div class="card"><h3>Loop continuity</h3><p>The 55-minute loop chain is unbroken across the last 30 runs, with 0 to 1 minute hand-offs. Five runs between 18:56Z and 02:57Z show 80 to 111 minutes, above the 70-minute timeout, so they include waiting. Whether publishing paused is <b>unknown</b>.</p></div>
+  </div>
+</section>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">2 · Against your requirements</span><h2>What exists, what is missing</h2></div>
+  <div class="card scroll"><table>
+    <thead><tr><th>Requirement</th><th>State</th><th>Gap</th></tr></thead>
+    <tbody>
+      <tr><td>Refresh automatically and on return to the app</td><td><span class="tag built">BUILT</span></td><td>Quote store refreshes on a cadence (20 s detail, 45 s game, 90 s slate), on tab visible, focus and online. v3 uses it for game lines only; Prop Discovery and Team Research need scopes.</td></tr>
+      <tr><td>Freshest price when an exact contract opens</td><td><span class="tag wire">WIRE</span></td><td>A bounded forced refresh exists (used by packets); not wired to a contract sheet.</td></tr>
+      <tr><td>Internal timestamps, checks, failure monitoring</td><td><span class="tag wire">WIRE</span></td><td>Per-quote observation time and diagnostics exist. No feed heartbeat and no alert when the loop stalls.</td></tr>
+      <tr><td>Never invent a price</td><td><span class="tag built">BUILT</span></td><td>A quote is only replaced by a newer one; a stale sport is excluded rather than published. Needs one shared usability rule and a defined all-sources-fail behaviour.</td></tr>
+      <tr><td>No freshness UI in PD1 to PD6</td><td><span class="tag built">BUILT</span></td><td>The only trace (a “Quote … from the SIFT quote feed” row in the contract sheet) is removed; fees and break-even are preserved.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section style="display:grid;gap:16px">
+  <div><span class="eyebrow">3 · Improvements</span><h2>Ordered by value, none implemented</h2></div>
+  <div class="card scroll"><table>
+    <thead><tr><th>#</th><th>Change</th><th>Gain</th><th>Cost and limits</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Wire quote scopes for new screens: visible rows 45 s via the relay, exact contract 20 s plus a forced single-ticker refresh on open (relay, then feed).</td><td>Prices move on their own; contract opens at relay freshness.</td><td>About 80 relay calls per active hour; Vercel Hobby allows 1,000,000 a month (about 12,000 user-hours). Never poll all 902 contracts.</td></tr>
+      <tr><td>2</td><td>Feed heartbeat file (run, sequence, last success, per-sport status).</td><td>Makes stalls diagnosable.</td><td>A few lines in the publish script.</td></tr>
+      <tr><td>3</td><td>Independent 15-minute monitor that fails and emails through GitHub when the feed is over 10 minutes old or the relay errors.</td><td>Alerts instead of discovery.</td><td>Free for a public repo; the scheduler can skip runs, so pair with the daily check.</td></tr>
+      <tr><td>4</td><td>Bulk per-game endpoint on the relay, edge-cached 30 to 45 s with single-flight, sweeping only prop series.</td><td>Takes GitHub and its 5-minute cache out of the path for list screens.</td><td>Free tier; must respect Kalshi’s per-IP budget (about 14 burst, 3 a second). Needs a short investigation of the fewest Kalshi calls per game.</td></tr>
+      <tr><td>5</td><td>Feed every 60 to 90 s around game time.</td><td>Fresher fallback.</td><td>Little benefit until item 4 removes the CDN cache.</td></tr>
+      <tr><td>6</td><td>Second relay host as tertiary fallback.</td><td>Survives a Vercel pause or egress throttle.</td><td>Core code is portable; free tiers exist.</td></tr>
+    </tbody></table></div>
+  <p class="dim sm">Not recommended: authenticated Kalshi access or websockets (needs credentials), and Cloudflare Workers egress (Kalshi refused it on 2026-10-04). Vercel Hobby is non-commercial; Pro is $20 a month if that changes.</p>
+</section>
+
+<section style="display:grid;gap:14px">
+  <div><span class="eyebrow">4 · Your call</span><h2>Internal rules to approve</h2></div>
+  <ol class="ask">
+    <li><b>Display rule (never shown to users):</b> lists show a stored quote up to 15 minutes old, or 3 minutes when the event is within 2 hours or live; the exact contract shows a price only after a successful refresh or a quote within 30 seconds (2 minutes if the event is more than 2 hours away).</li>
+    <li><b>When no reliable quote exists:</b> a list row shows “—” in the price pill with no copy; the contract sheet shows one plain “Price unavailable right now” state with Retry, and hides the fee and break-even rows because they derive from the price. This is the only visible consequence; it contains no timestamp, age or badge.</li>
+    <li><b>Approve items 1 to 3 first</b>; item 4 after a short investigation of Kalshi call counts.</li>
+  </ol>
+  <p class="dim sm">Full write-up with sources: docs/sift3/QUOTE_DELIVERY.md. Evidence: GitHub Actions run history (read), the Production check relay-smoke logs (run 230), and a 12-sample public read of one feed file. Not examined: Vercel dashboard usage, individual feed-loop logs, the unrelated “Sprint features” failure in Production check.</p>
+</section>
+</main>
+
+<script>
+  document.querySelectorAll('.screen').forEach(function (s) {
+    var id = s.getAttribute('data-pair'), img = s.querySelector('.phone img'), btn = s.querySelector('.toggle');
+    btn.addEventListener('click', function () {
+      var on = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Hide data status' : 'Show data status';
+      img.src = 'out/' + id + (on ? '-annot' : '') + '.png';
+    });
+  });
+</script>

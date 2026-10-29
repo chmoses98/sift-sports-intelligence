@@ -88,8 +88,14 @@ test('phone: Research Lab, Settings and Sources are reachable from the header Sp
   // goes with it (the dialog never appeared on a slow WebKit runner, 2026-10-22). Wait for the redirect, then use the topbar.
   await expect(page).toHaveURL(/#\/design\/sift2\/home/);
   await expect(page.locator('.topbar__sport')).toBeVisible();
-  await page.locator('.topbar__sport').click();
   const sheet = page.getByRole('dialog', { name: 'Sports and sections' });
+  // The shell closes the sheet whenever its router location changes. On a slow runner (WebKit, 2026-10-29: the dialog stayed in the DOM but never
+  // became visible for two minutes) the router can still be applying the redirect when the first tap lands, which opens the sheet and then closes it.
+  // Open it again until it is up; the assertion below is the same one the test always made.
+  await expect(async () => {
+    if ((await page.locator('.topbar__sport').getAttribute('aria-expanded')) !== 'true') await page.locator('.topbar__sport').click();
+    await expect(sheet.getByRole('link', { name: 'Research Lab' })).toBeVisible({ timeout: 4_000 });
+  }).toPass({ timeout: 60_000 });
   await sheet.getByRole('link', { name: 'Research Lab' }).click();
   await expect(page).toHaveURL(/#\/design\/sift2\/lab$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Research Lab', exact: true })).toBeVisible();

@@ -1,0 +1,201 @@
+/* SIFT 3.0 — the locked ink and graphite interface (docs/sift3/redesign/DESIGN_SYSTEM.md). Everything is scoped under .v3 so nothing here can reach the classic,
+   SIFT 2.0 or v4 interfaces. Tokens start from VISUAL_IMPLEMENTATION_CONTRACT.md §2 and are tuned against the approved
+   reference screenshots (see VISUAL_QA.md). Geist for interface text, Sora for prominent numerals. No fake device chrome:
+   the app is edge-to-edge and respects the real safe areas. */
+
+.v3 {
+  /* Ink and graphite (locked): near-black navy foundation, neutral graphite surfaces, slate hairlines (never cyan). */
+  --sift-bg: #080b10;
+  --sift-bg-raised: #0f1215;
+  --sift-panel: #181c21;
+  --sift-panel-elevated: #1f242b;
+  --sift-hairline: #272b32;
+  --sift-hairline-strong: #39414b;
+  --sift-cyan: #19cde0;
+  --sift-cyan-soft: #0f7d89;
+  --sift-text: #f3f6f9;
+  --sift-muted: #a4acb6;
+  --sift-dim: #7d8895;
+  --sift-good: #46e49b;
+  --sift-bad: #ff7468;
+  --sift-warning: #f5bd5b;
+  --sift-live: #e5333d;
+  /* Chip and raised surfaces, and the evidence lanes. */
+  --s-chip: #1b1f25; --s-chip-bd: #2b3038; --s-hair: #21252b; --s-hair2: #1b1f24; --s-raise: #1f242b; --s-raise-bd: #39414b;
+  --t2: #d6dadf; --t3: #c3c8ce;
+  --on-cyan: #04202c;
+  --off: #eaf1f7; --def: #ff9b52; --even: #3a424d;
+  --lane-market: #93a9ff; --lane-history: #f0f2f5; --lane-sift: #19cde0;
+  --hit: #46e49b; --hit2: #1c9a62; --miss: #ff7468; --miss2: #cf453c;
+  --tap: 44px;
+
+  --f-ui: 'Geist Sans', -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  --f-num: 'Sora Variable', 'Geist Sans', -apple-system, 'SF Pro Display', Arial, sans-serif;
+
+  --r-s: 10px;
+  --r-m: 14px;
+  --r-l: 18px;
+  --r-xl: 22px;
+  --pad: 16px;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --navh: 64px;
+  --col: 430px;
+
+  --panel: linear-gradient(180deg, rgba(29, 33, 38, 0.72) 0%, rgba(19, 22, 26, 0.80) 100%);
+  --panel-flat: rgba(23, 26, 30, 0.72);
+  --glass: rgba(18, 21, 24, 0.78);
+  --lit: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--sift-text);
+  background:
+    radial-gradient(110% 38% at 8% -6%, rgba(72, 88, 116, 0.13), transparent 62%),
+    linear-gradient(180deg, #0c1015 0%, #090c10 40%, #06080b 100%);
+  font: 400 15px/1.4 var(--f-ui);
+  font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  letter-spacing: 0;
+}
+.v3[data-text='large'] { font-size: 17px; }
+.v3 *, .v3 *::before, .v3 *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:where(.v3) a { color: inherit; text-decoration: none; }
+:where(.v3) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+:where(.v3) :is(h1, h2, h3, h4, p, ul, ol, figure) { margin: 0; padding: 0; font-weight: inherit; }
+:where(.v3) :is(ul, ol) { list-style: none; }
+:where(.v3) :is(h1, h2, h3, h4) { color: inherit; }
+.v3 :is(a, button, input, [tabindex]):focus-visible { outline: 2px solid var(--sift-cyan); outline-offset: 2px; border-radius: 8px; }
+.v3 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.v3 .num { font-family: var(--f-num); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+@media (prefers-reduced-motion: reduce) {
+  .v3 *, .v3 *::before, .v3 *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+.v3[data-motion='reduce'] *, .v3[data-motion='reduce'] *::before, .v3[data-motion='reduce'] *::after { transition: none !important; animation: none !important; }
+
+/* ------------------------------------------------------------ column + shell */
+.v3-col { width: 100%; max-width: var(--col); margin: 0 auto; position: relative; }
+.v3-main { padding-bottom: calc(var(--navh) + var(--sab) + 30px); min-height: 100vh; min-height: 100dvh; overflow-x: clip; }
+.v3-page { padding: calc(var(--sat) + 10px) var(--pad) 0; }
+
+/* the unmistakable demo strip: shown whenever sample data is in use */
+.v3-demo { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 24px; white-space: nowrap; overflow: hidden; padding: calc(var(--sat) + 2px) 12px 2px;
+  background: rgba(245, 189, 91, 0.14); border-bottom: 1px solid rgba(245, 189, 91, 0.35); color: #f5d38e; font: 600 11px/14px var(--f-ui); letter-spacing: 0.02em; text-align: center; }
+.v3-demo b { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.v3-demo a { text-decoration: underline; text-underline-offset: 2px; }
+.v3-demo + .v3-page, .v3-demo + .v3-hero { padding-top: 10px; }
+
+/* bottom navigation: exactly four destinations, floating glass bar, stable positions */
+.v3-nav { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 0 10px calc(8px + var(--sab)); pointer-events: none; }
+.v3-nav__in { pointer-events: auto; width: 100%; max-width: calc(var(--col) - 20px); height: var(--navh); display: grid; grid-template-columns: repeat(4, 1fr);
+  background: rgba(15, 17, 20, 0.88); -webkit-backdrop-filter: blur(20px) saturate(1.25); backdrop-filter: blur(20px) saturate(1.25);
+  border: 1px solid rgba(56, 65, 75, 0.55); border-radius: 24px; box-shadow: 0 10px 30px rgba(0, 6, 14, 0.5), var(--lit); }
+.v3-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #c4c9cf; font: 500 12px/14px var(--f-ui); min-height: 44px; border-radius: 20px; position: relative; }
+.v3-nav a[aria-current='page'] { color: var(--sift-cyan); }
+.v3-nav a[aria-current='page'] svg { filter: drop-shadow(0 0 7px rgba(25, 205, 224, 0.55)); }
+.v3-nav svg { display: block; }
+
+/* ------------------------------------------------------------ shared primitives */
+.v3-logo { display: inline-block; flex: none; object-fit: contain; }
+.v3-logo--mono { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #ffffff; font-family: var(--f-num); font-weight: 700; letter-spacing: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.18); }
+
+.v3-iconbtn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #dde0e4; border-radius: 12px; flex: none; }
+.v3-iconbtn:active { background: rgba(25, 205, 224, 0.12); }
+.v3-star.is-on { color: #f4c64d; }
+.v3-bell.is-on { color: var(--sift-cyan); }
+.v3-bell__dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--sift-cyan); box-shadow: 0 0 0 2px #101215; }
+
+/* Rows of chips are ChipRail (ui/rail.css): one non-wrapping, snapping, scrolling row. The 5px above and below the 34-36px chips keep their 44 pt hit area inside the scroll box. */
+.v3-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: -3px calc(var(--pad) * -1); padding: 5px var(--pad); -webkit-overflow-scrolling: touch; }
+.v3-chips::-webkit-scrollbar { display: none; }
+.v3-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 999px; background: rgba(21, 24, 27, 0.82); border: 1px solid rgba(47, 54, 62, 0.9);
+  color: #e7e9ec; font: 500 14px/1 var(--f-ui); white-space: nowrap; }
+.v3-chip[aria-pressed='true'], .v3-chip[aria-current='true'] { background: linear-gradient(180deg, #3fd9ea 0%, #19cde0 100%); border-color: transparent; color: #111316; font-weight: 600; box-shadow: 0 0 18px rgba(25, 205, 224, 0.28); }
+.v3-chip i { font-style: normal; display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); font: 600 12px/1 var(--f-ui); }
+.v3-chip i.is-live { background: var(--sift-live); color: #ffffff; }
+
+.v3-panel { position: relative; background: var(--panel); border: 1px solid rgba(41, 48, 55, 0.95); border-radius: var(--r-l); box-shadow: var(--lit); }
+.v3-hair { border: 0; height: 1px; background: rgba(41, 48, 55, 0.7); margin: 0; }
+.v3-sechead { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 10px; }
+.v3-sechead h2 { font: 700 20px/26px var(--f-ui); letter-spacing: -0.01em; }
+.v3-sechead a, .v3-sechead button { color: var(--sift-cyan); font: 500 14px/20px var(--f-ui); display: inline-flex; align-items: center; gap: 2px; min-height: 32px; }
+.v3-livebadge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 5px; background: #d2252f; color: #ffffff; font: 800 11px/1 var(--f-ui); letter-spacing: 0.07em; }
+.v3-livebadge--sm { height: 16px; padding: 0 5px; font-size: 9px; border-radius: 4px; }
+.v3-note { color: var(--sift-muted); font: 400 13px/19px var(--f-ui); }
+.v3-note--dim { color: var(--sift-dim); font-size: 12px; margin-top: 12px; }
+.v3-state { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: var(--r-m); background: var(--panel-flat); border: 1px solid var(--sift-hairline); color: var(--sift-muted); font-size: 14px; line-height: 20px; }
+.v3-state b { display: block; color: var(--sift-text); font-weight: 600; margin-bottom: 2px; }
+.v3-state svg { flex: none; color: var(--sift-cyan); margin-top: 1px; }
+.v3-state--warn svg { color: var(--sift-warning); }
+.v3-state button { margin-top: 8px; color: var(--sift-cyan); font-weight: 600; min-height: 32px; }
+
+/* skeletons reserve their final height so nothing moves under a finger */
+.v3-skel { border-radius: var(--r-m); background: linear-gradient(90deg, rgba(33, 38, 44, 0.55), rgba(44, 51, 58, 0.45), rgba(33, 38, 44, 0.55)); background-size: 200% 100%; animation: v3shim 1.4s linear infinite; }
+@keyframes v3shim { to { background-position: -200% 0; } }
+
+/* ------------------------------------------------------------ bottom sheets */
+.v3-sheet-root { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; }
+.v3-sheet-backdrop { position: absolute; inset: 0; background: rgba(1, 8, 16, 0.62); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: v3fade 0.2s ease-out both; }
+.v3-sheet { position: relative; width: 100%; max-width: var(--col); max-height: min(86dvh, 760px); display: flex; flex-direction: column; border-radius: 22px 22px 0 0;
+  background: linear-gradient(180deg, #181c20 0%, #111417 100%); border: 1px solid rgba(56, 65, 75, 0.7); border-bottom: 0; box-shadow: 0 -18px 50px rgba(0, 6, 14, 0.6), var(--lit);
+  padding-bottom: var(--sab); animation: v3up 0.26s cubic-bezier(0.22, 0.8, 0.24, 1) both; outline: none; }
+.v3-sheet--tall { height: min(82dvh, 740px); }
+.v3-sheet__grip { width: 44px; height: 5px; border-radius: 3px; background: rgba(150, 159, 170, 0.4); margin: 8px auto 2px; flex: none; }
+.v3-sheet__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px 10px 20px; flex: none; }
+.v3-sheet__head h2 { font: 700 24px/30px var(--f-ui); letter-spacing: -0.015em; }
+.v3-sheet__x { width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(41, 47, 54, 0.55); color: #e8f4fb; }
+/* The locked sheet header (P3, PD4, PD6): the title and the sheet's action ("Reset") on one 44pt row, the close glyph plain, and a tall sheet nearly full height. */
+.v3-sheet--locked .v3-sheet__head { gap: 0; padding: 0 8px 0 16px; min-height: 44px; }
+.v3-sheet--locked .v3-sheet__head h2 { flex: 1; min-width: 0; font-size: 20px; line-height: 26px; }
+.v3-sheet--locked .v3-sheet__x { width: 44px; height: 44px; background: none; margin-right: 2px; }
+.v3-sheet__act { flex: none; min-width: 44px; min-height: 44px; padding: 0 8px; background: none; color: var(--sift-cyan); font: 500 16px/1 var(--f-ui); }
+.v3-sheet__act[aria-disabled='true'] { color: var(--sift-dim); cursor: default; }
+.v3-sheet--locked .v3-sheet__body { padding-top: 2px; }
+.v3-sheet--locked.v3-sheet--tall { height: min(93dvh, 800px); max-height: min(93dvh, 800px); }
+@media (max-height: 700px) { .v3-sheet--locked.v3-sheet--tall { height: 96dvh; max-height: 96dvh; } }
+.v3-sheet__body { overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 20px; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; scroll-padding-bottom: 88px; /* a sticky apply bar sits over the last 70-odd px: scrolling a row or a focused control into view must clear it */ }
+@keyframes v3up { from { transform: translateY(40px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes v3fade { from { opacity: 0; } to { opacity: 1; } }
+
+.v3-list > li + li { border-top: 1px solid rgba(41, 48, 55, 0.55); }
+.v3-switchrow { display: flex; align-items: center; justify-content: space-between; min-height: 52px; font-size: 16px; position: relative; cursor: pointer; }
+.v3-switchrow input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.v3-switchrow i { flex: none; width: 46px; height: 28px; border-radius: 14px; background: rgba(64, 74, 85, 0.55); position: relative; transition: background 0.18s; }
+.v3-switchrow i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #ffffff; transition: transform 0.18s; }
+.v3-switchrow input:checked + i { background: var(--sift-cyan); }
+.v3-switchrow input:checked + i::after { transform: translateX(18px); }
+.v3-switchrow input:focus-visible + i { outline: 2px solid var(--sift-cyan); outline-offset: 2px; }
+
+/* desktop adaptation: the same single phone-width column, centred on a quiet field */
+@media (min-width: 560px) {
+  body:has(.v3) { background: #021019; }
+  .v3-col { box-shadow: 0 0 0 1px rgba(41, 48, 55, 0.5), 0 0 80px rgba(0, 0, 0, 0.5); background: transparent; }
+}
+
+
+/* icons never take the tap: the control around them is always the event target (WebKit drops the click when press and release land on a bare SVG) */
+.v3 :is(button, a) svg { pointer-events: none; }
+
+/* tap targets: every control answers a 44px hit area even where its drawn shape is smaller */
+.v3-chip, .v3-fbtn, .v3-fchip, .v3-seg__b, .v3-pill, .v3-win { position: relative; }
+.v3-chip::after, .v3-fbtn::after, .v3-fchip::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 44px; transform: translateY(-50%); }
+.v3-demo a { position: relative; }
+.v3-demo a::after { content: ''; position: absolute; left: -8px; right: -8px; top: 50%; height: 44px; transform: translateY(-50%); }
+.v3-sechead a, .v3-sechead button { min-height: 44px; }
+.v3-link, .v3 .v3-note a, .v3-state a, .v3-state button { min-height: 44px; display: inline-flex; align-items: center; }
+
+.v3-offline { display: flex; align-items: center; gap: 10px; padding: calc(var(--sat) + 8px) 14px 8px; background: rgba(250, 108, 101, 0.14); border-bottom: 1px solid rgba(250, 108, 101, 0.4); color: #ffb4ae; font: 500 13px/18px var(--f-ui); }
+.v3-offline svg { flex: none; }
+.v3-offline button { margin-left: auto; min-height: 44px; padding: 0 8px; color: #ffffff; font-weight: 600; }
+
+/* ---- navigation targets (nav/Targets.tsx): every semantic target keeps a 44-point hit area without changing layout ---- */
+.v3 .v3-tap { position: relative; z-index: 1; color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.v3 .v3-tap::after { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, var(--tap)); height: max(100%, var(--tap)); transform: translate(-50%, -50%); }
+.v3 .v3-tap:active { opacity: 0.72; }
+.v3 .v3-tap--price { font-variant-numeric: tabular-nums; }
+/* a row with one main destination (the stretched link) and independent targets raised above it */
+.v3 .v3-navrow { position: relative; }
+.v3 .v3-navrow__main { position: absolute; inset: 0; z-index: 0; border-radius: inherit; }
+.v3 .v3-navrow__main:focus-visible, .v3 .v3-tap:focus-visible { outline: 2px solid var(--sift-cyan); outline-offset: 2px; }

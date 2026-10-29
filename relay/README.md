@@ -16,6 +16,12 @@ The relay:
   portfolio, balance or account endpoint; every other path or parameter gets 400, every write 405;
 * stamps `X-Sift-Observed-At` = Kalshi's `Date` minus `Age`, the time Sift measures freshness from; a
   shared answer keeps its original stamp, so a quote is never presented as younger than it is;
+* exposes `X-Sift-Observed-At`, `Retry-After` and **`Date`** to the browser (`Access-Control-Expose-Headers`)
+  and puts a `Date` from its own clock on every answer, including 429, 4xx, 5xx and the preflight. Why `Date`:
+  Sift checks a quote's age against the device clock, and a phone with a wrong clock would hide good quotes or
+  show old ones. It corrects for that with the relay's `Date`, but a page on another origin can only read a
+  header the relay lists as exposed, so without it the correction silently did nothing in production. See
+  `docs/relay-date/`;
 * passes Kalshi's **429** through with `Retry-After` (readable by the browser), so Sift backs off and
   the feed answers; it never retries into a rate limit and never invents data;
 * answers 502 (malformed or unreachable upstream) or 504 (Kalshi slower than 8 s), with CORS, so Sift
@@ -24,7 +30,8 @@ The relay:
 
 Files: `core.ts` (all behaviour), `api/markets.ts` + `vercel.json` + `package.json` + `public/`
 (Vercel host), `kalshi-quote-relay.ts` + `wrangler.toml` (legacy Cloudflare host). Tests:
-`tests/relay.test.ts`.
+`tests/relay.test.ts`, `tests/relayDate.test.ts`; browser-level check of the exposed headers:
+`node scripts/relay-browser-date.mjs`.
 
 ## Host: Vercel (Hobby, free)
 

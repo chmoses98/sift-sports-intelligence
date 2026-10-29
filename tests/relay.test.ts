@@ -34,7 +34,7 @@ describe('quote relay', () => {
     expect(calls[0].url).toBe(`${UPSTREAM}/markets?tickers=KXNFLGAME-26OCT04NEBUF-BUF%2CKXNFLGAME-26OCT04NEBUF-NE&limit=1000`);
     expect(calls[0].headers.get('origin')).toBeNull();
     expect(res.headers.get('access-control-allow-origin')).toBe(SIFT);
-    expect(res.headers.get('access-control-expose-headers')).toBe('X-Sift-Observed-At, Retry-After');
+    expect(res.headers.get('access-control-expose-headers')).toBe('X-Sift-Observed-At, Retry-After, Date');
     expect(res.headers.get('x-sift-observed-at')).toBe('2026-10-04T15:00:07.000Z');
     expect(res.headers.get('cache-control')).toBe('no-store');
   });

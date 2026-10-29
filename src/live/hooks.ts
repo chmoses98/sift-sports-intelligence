@@ -1,13 +1,14 @@
 // React access to the shared live-quote store.
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { defaultProvider } from './config';
+import { deliveryProvider } from './deliveryConfig';
 import { localPersistence, QuoteStore, type Cadence } from './store';
 import type { LiveQuote } from './types';
 
 let singleton: QuoteStore | null = null;
 
 export function liveStore(): QuoteStore {
-  if (!singleton) singleton = new QuoteStore({ provider: defaultProvider(), persistence: localPersistence() });
+  if (!singleton) singleton = new QuoteStore({ provider: defaultProvider(), deliveryProvider: deliveryProvider(), persistence: localPersistence() });
   return singleton;
 }
 

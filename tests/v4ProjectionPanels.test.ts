@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { cfbPlayerRows, eligibleNbaRows, rangeNote, rangeNotes } from '../src/v4/ProjectionPanels';
+import { cfbPlayerRows, rangeNote, rangeNotes } from '../src/v4/ProjectionPanels';
 import { coherenceProblems, findTeamProjections, type PlayerProjection, type ProjectionDoc } from '../src/lib/projections';
 
-const NOW = Date.parse('2026-10-22T14:00:00Z');
 function player(changes: Partial<PlayerProjection> = {}): PlayerProjection {
   return {
     playerId: 'espn:1', name: 'Test Player', team: 'CLE', opponent: 'PHI',
@@ -15,31 +14,7 @@ function player(changes: Partial<PlayerProjection> = {}): PlayerProjection {
     segments: null, role: 'shadow', ...changes,
   };
 }
-const doc = (rows: PlayerProjection[]) => ({
-  players: rows, families: { points: { readiness: 'READY' }, rebounds: { readiness: 'READY' } },
-});
-
-describe('NBA preview: only valid current research rows reach the UI', () => {
-  it('shows a ready, current projection without a Kalshi market', () => {
-    expect(eligibleNbaRows(doc([player()]), 'espn:401909093', NOW)).toHaveLength(1);
-  });
-  it('blocks ruled-out players, blocked outputs, and another game', () => {
-    const out = player({ participation: { status: 'CONFIRMED_OUT', certainty: 'REPORTED', source: 'nba_official_injury_report', capturedUtc: null, reasons: [] } });
-    const blocked = player({ gate: { status: 'BLOCK', findings: [] } });
-    const other = player({ gameId: 'espn:wrong' });
-    expect(eligibleNbaRows(doc([out, blocked, other]), 'espn:401909093', NOW)).toHaveLength(0);
-  });
-  it('never fills from stale, incoherent, or unapproved families', () => {
-    const stale = player({ dataAsOf: '2026-10-18T00:00:00Z' });
-    const inverted = player({ p10: 40, p90: 20 });
-    const noApproval = player({ family: 'assists' });
-    expect(eligibleNbaRows(doc([stale, inverted, noApproval]), 'espn:401909093', NOW)).toHaveLength(0);
-  });
-  it('shows current REVIEW output with the status preserved for honest labelling', () => {
-    const review = player({ gate: { status: 'REVIEW', findings: [] } });
-    expect(eligibleNbaRows(doc([review]), 'espn:401909093', NOW)[0].gate.status).toBe('REVIEW');
-  });
-});
+// The NBA player rows are resolved through SIFT's approved authority (tests/nbaProjection.test.ts, tests/v4NbaPlayers.test.tsx).
 
 describe('game identity join', () => {
   const source = {

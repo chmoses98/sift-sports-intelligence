@@ -1,8 +1,8 @@
-// The NBA families approved on history and held for live availability (minutes, points, rebounds, assists, threes, PRA, FGA).
-// What this proves: the hold is intact today; what SIFT WOULD show if they were promoted behaves as required on the real first live
-// feed (uncertain / unverified = Low reliability with its reason); and the verification refuses to call a feed ready while the
-// evidence is missing. Real rows: tests/fixtures/nba-activation/first_live_run_rows.json (nba-edge-finder, 2026-10-19T18:52Z).
-// Synthetic variants are marked as such and exist only to exercise the decision logic.
+// The seven NBA player families promoted on 2026-10-23 (minutes, points, rebounds, assists, threes, PRA, FGA) after three independent joint READY verdicts.
+// What this proves: the promotion is in force and narrow (approvals, engines, fallback triggers; team points still held); what SIFT shows for the real first
+// live feed behaves as required (uncertain / unverified = Low reliability with its reason; ruled-out and blocked rows withheld); and the verification still
+// refuses to call a feed ready while the evidence is missing. Real rows: tests/fixtures/nba-activation/first_live_run_rows.json (nba-edge-finder,
+// 2026-10-19T18:52Z). Synthetic variants are marked as such and exist only to exercise the decision logic.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -17,27 +17,35 @@ const clone = () => JSON.parse(JSON.stringify(real)) as typeof real;
 const decode = (raw: unknown) => decodeProjections(raw);
 const status = (v: ReturnType<typeof verifyNbaFeed>, id: string) => v.checks.find((c) => c.id === id)!.status;
 
-describe('the hold', () => {
-  it('keeps all seven families on the established engine, approved but waiting on live availability', () => {
+describe('the promotion', () => {
+  it('has all seven families promoted to the Foundation engine with the narrow fallback, and team points held', () => {
     for (const f of NBA_FAMILIES) {
-      expect(engineFor('NBA', f, [])).toBe('legacy');
-      expect(approvalFor('NBA', f)!.decision).toBe('APPROVED_PENDING_LIVE_INPUTS');
+      expect(engineFor('NBA', f, [])).toBe('foundation');
+      expect(approvalFor('NBA', f)!.decision).toBe('PROMOTED');
+      expect(approvalFor('NBA', f)!.fallback!.triggers).toEqual(['FEED_UNAVAILABLE', 'STALE', 'NOT_PUBLISHED']);
     }
-    expect(APPROVALS.filter((a) => a.sport === 'NBA' && a.decision === 'PROMOTED')).toEqual([]);
+    expect(APPROVALS.filter((a) => a.sport === 'NBA' && a.decision === 'PROMOTED').map((a) => a.family).sort()).toEqual([...NBA_FAMILIES].sort());
     expect(approvalFor('NBA', 'team_points')!.decision).toBe('HELD');
+    expect(engineFor('NBA', 'team_points', [])).toBe('legacy');
   });
-  it('resolves every row of the real first feed to the established engine, even with a perfect projection beside it', () => {
+  it('resolves every row of the real first feed through the approved projection authority: a projection or a withheld reason, never the established engine and never a fallback', () => {
     const doc = decode(real)!;
     const a = makeAuthority('NBA', doc, NOW);
-    for (const p of doc.players) expect(a.resolve({ stat: p.family, playerId: p.playerId, name: p.name, team: p.team, opponent: p.opponent }).kind).toBe('legacy');
+    for (const p of doc.players) {
+      const r = a.resolve({ stat: p.family, playerId: p.playerId, name: p.name, team: p.team, opponent: p.opponent });
+      expect(['authoritative', 'withheld']).toContain(r.kind);
+      if (r.kind === 'withheld') expect(r.fallbackEligible).toBeUndefined();   // fresh feed, row present: the fallback situations do not arise
+    }
   });
-  it('a preview (never used by the app) shows what promotion would do, and still changes no approval', () => {
-    const doc = decode(real)!;
-    const a = makeAuthority('NBA', doc, NOW, [], { previewPending: true });
-    const p = doc.players.find((x) => x.family === 'points')!;
-    expect(a.resolve({ stat: 'points', playerId: p.playerId, name: p.name, team: p.team, opponent: p.opponent }).kind).toBe('authoritative');
-    expect(engineFor('NBA', 'points', [])).toBe('legacy');
-    expect(engineFor('NBA', 'team_points', [], true)).toBe('legacy');   // only the seven approved families move in a preview
+  it('the rollback switch moves one family back to the established engine without touching the others', () => {
+    expect(engineFor('NBA', 'points', [{ sport: 'NBA', family: 'points' }])).toBe('legacy');
+    expect(engineFor('NBA', 'rebounds', [{ sport: 'NBA', family: 'points' }])).toBe('foundation');
+    expect(engineFor('NBA', 'team_points', [], true)).toBe('legacy');         // a preview flag cannot promote the held family either
+  });
+  it('S1 (the promotion in force and narrow) and S10 (the fallback stays closed) pass on the real first feed', () => {
+    const v = verifyNbaFeed(decode(real), NOW);
+    expect(status(v, 'S1')).toBe('PASS');
+    expect(status(v, 'S10')).toBe('PASS');
   });
 });
 
@@ -49,7 +57,7 @@ describe('the real first live feed', () => {
     expect(status(v, 'S7')).toBe('PENDING');
     expect(status(v, 'S5')).toBe('PENDING');
   });
-  it('shows every unverified player at Low reliability (conditional on playing), and keeps the hold, readability, readiness and identity PASS', () => {
+  it('shows every unverified player at Low reliability (conditional on playing), and keeps the promotion, readability, readiness and identity PASS', () => {
     expect(['S1', 'S2', 'S3', 'S6', 'S8'].map((id) => status(v, id))).toEqual(['PASS', 'PASS', 'PASS', 'PASS', 'PASS']);
     for (const fam of ['points', 'minutes']) expect(Object.keys(v.tally[fam])).toEqual(['authoritative:LOW']);
   });

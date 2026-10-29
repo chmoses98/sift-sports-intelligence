@@ -1,10 +1,12 @@
 // Projection-first v4 surfaces. The feed exists separately from Kalshi listings: no priced
-// contract is required to show a forecast. CFB team points use SIFT's promoted authority.
-// NBA's seven challenger families are labelled research previews until the audited activation
-// gate promotes them; preview values never claim betting authority or replace the incumbent.
+// contract is required to show a forecast. CFB team points and the seven NBA player families (promoted 2026-10-23)
+// use SIFT's approved projection authority: one projection per player and stat, or the approved established-model
+// fallback (labelled as such), or a withheld reason. CFB player rows remain labelled research previews.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '../routing';
 import { useAuthority, useProjections } from '../data/projections';
+import { ageWords, ESTABLISHED_LABEL, ESTABLISHED_TEXT, NBA_ESTABLISHED_ROWS, NBA_STAT_LABEL, NBA_STATS, nbaGameProjections, withheldSentence, type EstablishedNbaRow, type NbaPlayer } from '../lib/nbaProjection';
+import { RELIABILITY_WORDS } from '../lib/projectionAuthority';
 import { cfbTeam } from '../lib/cfbTeams';
 import { coherenceProblems, findTeamProjections, fmtWhen, MAX_AGE_H, type PlayerProjection, type ProjSport } from '../lib/projections';
 import type { GameRow } from '../views/broadcast/games';
@@ -60,71 +62,76 @@ export function CfbTeamProjections({ g }: { g: GameRow }) {
   );
 }
 
-const NBA_FAMILIES = ['points', 'rebounds', 'assists', 'threes', 'minutes', 'pra', 'fga'] as const;
-const NBA_LABEL: Record<string, string> = { points: 'PTS', rebounds: 'REB', assists: 'AST', threes: '3PM', minutes: 'MIN', pra: 'PRA', fga: 'FGA' };
-const NBA_STATS = new Set<string>(NBA_FAMILIES);
-
-/** One game's point-in-time research forecasts, never a production-promotion switch. */
-export function eligibleNbaRows(doc: { players: PlayerProjection[]; families: Record<string, { readiness: string }> } | null, gameId: string, nowMs: number): PlayerProjection[] {
-  if (!doc) return [];
-  return doc.players.filter((p) => p.gameId === gameId && NBA_STATS.has(p.family)
-    && p.readiness === 'READY' && doc.families[p.family]?.readiness === 'READY'
-    && p.gate.status !== 'BLOCK'
-    && p.participation?.status !== 'CONFIRMED_OUT' && p.participation?.status !== 'LIKELY_OUT'
-    && coherenceProblems(p).length === 0
-    && p.dataAsOf != null && Number.isFinite(Date.parse(p.dataAsOf))
-    && nowMs - Date.parse(p.dataAsOf) >= -5 * 60_000
-    && nowMs - Date.parse(p.dataAsOf) <= MAX_AGE_H.NBA * 3600_000);
+/** The most cautious reliability among a player's shown projections (HIGH only when every shown stat is HIGH), with the reasons that lower it. */
+function playerReliability(p: NbaPlayer): { word: string; why: string[]; level: 'HIGH' | 'MODERATE' | 'LOW' } | null {
+  const vals = p.shown.flatMap((x) => (x.kind === 'projection' ? [x.value] : []));
+  if (!vals.length) return null;
+  const rank = { HIGH: 0, MODERATE: 1, LOW: 2 } as const;
+  const worst = vals.reduce((m, v) => (rank[v.reliability] > rank[m.reliability] ? v : m));
+  return { word: RELIABILITY_WORDS[worst.reliability], why: [...new Set(vals.flatMap((v) => v.reliabilityWhy))], level: worst.reliability };
 }
 
-export function NbaPlayerProjections({ g }: { g: GameRow }) {
+/**
+ * One game's NBA player projections, through SIFT's approved authority: the approved projection, or the approved established-model fallback (labelled), or
+ * nothing with the reason. Raw feed rows never reach the screen. `established` is the established model's rows for this game; none are published today.
+ */
+export function NbaPlayerProjections({ g, established = NBA_ESTABLISHED_ROWS }: { g: GameRow; established?: readonly EstablishedNbaRow[] }) {
   const { doc, loading } = useProjections('NBA');
+  const { authority, ready } = useAuthority('NBA');
   const [limit, setLimit] = useState(12);
   const match = useMemo(() => findTeamProjections(doc, teamsOf(g)), [doc, g]);
   const gameId = match?.[0]?.gameId ?? '';
-  const rows = useMemo(() => eligibleNbaRows(doc, gameId, Date.now()), [doc, gameId]);
-  const players = useMemo(() => {
-    const grouped = new Map<string, PlayerProjection[]>();
-    for (const p of rows) grouped.set(p.playerId, [...(grouped.get(p.playerId) ?? []), p]);
-    return [...grouped.values()].sort((a, b) =>
-      (b.find((p) => p.family === 'minutes')?.mean ?? 0) - (a.find((p) => p.family === 'minutes')?.mean ?? 0));
-  }, [rows]);
-  const shown = players.slice(0, limit);
+  const nowMs = Date.now();
+  const game = useMemo(() => nbaGameProjections(authority, doc, gameId, established), [authority, doc, gameId, established]);
+  const shown = game.listed.slice(0, limit);
+  const sentence = withheldSentence(game);
+  const anyEstablished = game.listed.some((p) => p.shown.some((x) => x.kind === 'established'));
   return (
     <section aria-label="NBA player projections">
-      <header className="v4-sechead"><h2>NBA player forecasts</h2><span className="v4-spacer" /><span className="meta">{players.length} players</span></header>
-      <div className="v4-note" style={{ marginBottom: 12 }}><Icon name="info" /><div><b>Research preview · pending production approval</b>Published Projection Foundation model, not yet SIFT's approved production projection or a betting signal. Availability and consistency are still being validated. No Kalshi listing is needed.</div></div>
-      {loading ? <div className="v4-card"><div className="v4-skel" style={{ height: 80 }} role="status" aria-label="Loading NBA forecasts" /></div>
-        : !gameId ? <div className="v4-note"><Icon name="info" /><div><b>No forecast for this matchup</b>The feed may not have reached this game yet, or its team identity and start time do not match.</div></div>
-        : !players.length ? <div className="v4-note"><Icon name="info" /><div><b>No usable NBA player forecasts</b>All published rows were missing, blocked, not ready, or outside the {MAX_AGE_H.NBA}-hour freshness limit.</div></div>
+      <header className="v4-sechead"><h2>NBA player projections</h2><span className="v4-spacer" /><span className="meta">{game.listed.length} players</span></header>
+      <div className="v4-note" style={{ marginBottom: 12 }}><Icon name="info" /><div><b>SIFT projection · approved for production</b>One projection for each player and stat, from SIFT's approved NBA model. How close projections come to results is not betting value: a projection is not a bet recommendation, and a gap to a market price is not an edge. Availability is checked before the game; a player who is ruled out has no projection.</div></div>
+      {anyEstablished && <div className="v4-note" style={{ marginBottom: 12 }} data-testid="nba-established-note"><Icon name="info" /><div><b>{ESTABLISHED_LABEL}</b>{ESTABLISHED_TEXT}</div></div>}
+      {loading || !ready ? <div className="v4-card"><div className="v4-skel" style={{ height: 80 }} role="status" aria-label="Loading NBA projections" /></div>
+        : !game.players.length ? <div className="v4-note"><Icon name="info" /><div><b>{doc ? 'No forecast for this matchup' : 'NBA projections unavailable'}</b>{doc ? 'The feed may not have reached this game yet, or its team identity and start time do not match.' : 'The current SIFT forecast is unavailable right now, and no established projection is published for NBA players.'}</div></div>
+        : !game.listed.length ? <div className="v4-note"><Icon name="info" /><div><b>No usable NBA player projections</b>{sentence ?? 'Every published row was withheld.'}</div></div>
         : <>
-          <ul className="v4-grp" aria-label="Published NBA research projections">
-            {shown.map((stats) => {
-              const p = stats.find((x) => x.family === 'points') ?? stats[0];
-              const by = new Map(stats.map((x) => [x.family, x]));
-              const review = stats.some((x) => x.gate.status === 'REVIEW');
-              const uncertain = stats.some((x) => !['LIKELY_ACTIVE', 'CONFIRMED_ACTIVE'].includes(x.participation?.status ?? 'UNVERIFIED'));
+          <ul className="v4-grp" aria-label="NBA player projections">
+            {shown.map((p) => {
+              const by = new Map(p.shown.map((x) => [x.family, x]));
+              const lead = by.get('points') ?? p.shown[0];
+              const rel = playerReliability(p);
+              const avail = p.shown.flatMap((x) => (x.kind === 'projection' && x.value.availability ? [x.value.availability] : []))[0];
+              const est = p.shown.some((x) => x.kind === 'established');
+              const leadMean = lead.kind === 'projection' ? lead.value.mean : lead.kind === 'established' ? lead.mean : null;
               return <li key={p.playerId}>
                 <details style={{ padding: '12px 16px' }}>
                   <summary style={{ cursor: 'pointer', listStyle: 'revert' }}>
                     <span style={{ display: 'inline-flex', justifyContent: 'space-between', gap: 8, width: 'calc(100% - 20px)', verticalAlign: 'middle', alignItems: 'center' }}>
-                      <span style={{ minWidth: 0 }}><b style={{ display: 'block' }}>{p.name}</b><span className="meta">{p.team} · {review || uncertain ? 'Verify role / availability' : 'Expected active'}</span></span>
-                      <span className="num" style={{ whiteSpace: 'nowrap', textAlign: 'right' }}><b>{by.get('points') ? decimal(by.get('points')!.mean) : '—'}</b><span className="meta" style={{ display: 'block' }}>PTS</span></span>
+                      <span style={{ minWidth: 0 }}><b style={{ display: 'block' }}>{p.name}</b><span className="meta">{p.team} · {est ? ESTABLISHED_LABEL : rel?.level === 'HIGH' ? 'SIFT projection' : rel ? `SIFT projection · ${rel.word}` : 'SIFT projection'}</span></span>
+                      <span className="num" style={{ whiteSpace: 'nowrap', textAlign: 'right' }}><b>{leadMean != null ? decimal(leadMean) : '—'}</b><span className="meta" style={{ display: 'block' }}>{NBA_STAT_LABEL[lead.family]}</span></span>
                     </span>
                   </summary>
                   <div style={{ marginTop: 12 }}>
-                    {NBA_FAMILIES.map((f) => {
+                    {NBA_STATS.map((f) => {
                       const x = by.get(f);
-                      return x ? <div className="v4-kv" key={f}><span className="v4-kv__k">{NBA_LABEL[f]}</span><span className="v4-kv__v num">{decimal(x.mean)}<em>80% range {range(x.p10, x.p90)}{x.gate.status === 'REVIEW' ? ' · model review' : ''}</em></span></div> : null;
+                      if (!x || x.kind === 'withheld') return null;
+                      const lo = x.kind === 'projection' ? x.value.p10 : x.p10;
+                      const hi = x.kind === 'projection' ? x.value.p90 : x.p90;
+                      return <div className="v4-kv" key={f}><span className="v4-kv__k">{NBA_STAT_LABEL[f]}</span><span className="v4-kv__v num">{decimal(x.kind === 'projection' ? x.value.mean : x.mean)}<em>80% range {range(lo, hi)}{x.kind === 'established' ? ` · ${ESTABLISHED_LABEL.toLowerCase()}` : ''}</em></span></div>;
                     })}
-                    {rangeNotes(stats).map((n) => <p key={n} className="meta" style={{ marginTop: 9 }}>{n}</p>)}
-                    <p className="meta" style={{ marginTop: 9 }}>Research only · participation {p.participation?.status?.toLowerCase().replace(/_/g, ' ') ?? 'unverified'} · updated {fmtWhen(p.dataAsOf) ?? 'unknown'}.</p>
+                    {est && <p className="meta" style={{ marginTop: 9 }}><b>{ESTABLISHED_LABEL}</b> — {ESTABLISHED_TEXT}</p>}
+                    {rel && rel.level !== 'HIGH' && rel.why.map((w) => <p key={w} className="meta" style={{ marginTop: 9 }}>{rel.word}: {w}.</p>)}
+                    <p className="meta" style={{ marginTop: 9 }}>
+                      {avail ? `${avail.words}${avail.source ? ` (${avail.source.replace(/_/g, ' ')})` : ''}` : 'Availability not shown for the established model'} · updated {(() => { const u = lead.kind === 'projection' ? lead.value.updatedAt : lead.kind === 'established' ? lead.updatedAt : null; return fmtWhen(u) ?? 'unknown'; })()}
+                      {(() => { const u = lead.kind === 'projection' ? lead.value.updatedAt : lead.kind === 'established' ? lead.updatedAt : null; const a = ageWords(u, nowMs); return a ? ` (${a})` : ''; })()}.
+                    </p>
                   </div>
                 </details>
               </li>;
             })}
           </ul>
-          {players.length > limit && <button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%', marginTop: 12 }} onClick={() => setLimit((n) => n + 12)}>Show more players ({players.length - limit} remaining)</button>}
+          {game.listed.length > limit && <button type="button" className="v4-btn v4-btn--sec" style={{ width: '100%', marginTop: 12 }} onClick={() => setLimit((n) => n + 12)}>Show more players ({game.listed.length - limit} remaining)</button>}
+          {sentence && <p className="meta" style={{ marginTop: 12 }} data-testid="nba-withheld">{sentence}</p>}
         </>}
     </section>
   );
@@ -227,7 +234,7 @@ export function ProjectionBrowser({ sport }: { sport: 'cfb' | 'nba' }) {
     && findTeamProjections(doc, teamsOf(g)) != null).sort((a, b) => a.startMs - b.startMs), [doc, slate.rows, slate.now, sport]);
   const selected = games.find((g) => g.item.event_id === chosen) ?? games[0];
   return <div className="v4-body">
-    <div className="v4-note"><Icon name="info" /><div><b>{sport === 'cfb' ? 'CFB team projections' : 'NBA player projections'}</b>{sport === 'cfb' ? 'Opponent-adjusted, approved team projected points. College player props are still held because participation is unverified.' : 'Seven player-stat families published as research previews. Production activation remains gated by live injury and model checks.'} No Kalshi market is required to browse.</div></div>
+    <div className="v4-note"><Icon name="info" /><div><b>{sport === 'cfb' ? 'CFB team projections' : 'NBA player projections'}</b>{sport === 'cfb' ? 'Opponent-adjusted, approved team projected points. College player props are still held because participation is unverified.' : 'Seven player-stat families (points, rebounds, assists, threes, minutes, PRA, FGA), approved for production: one projection per player and stat, or none with the reason. A projection is not a bet recommendation.'} No Kalshi market is required to browse.</div></div>
     {loading || slate.loading ? <div className="v4-card" style={{ marginTop: 12 }}><div className="v4-skel" style={{ height: 80 }} role="status" aria-label="Loading projection games" /></div>
       : games.length === 0 ? <div className="v4-note" style={{ marginTop: 12 }}><Icon name="calendar-dots" /><div><b>No matched upcoming forecasts</b>The feed is missing, outside the publication window, or could not be safely matched to SIFT's game list. No estimates are substituted.</div></div>
       : <>

@@ -317,9 +317,14 @@ describe('Research Lab card', () => {
     expect(screen.getByTestId('pfs-not-changed')).toHaveTextContent(/Receiving yards — Not yet validated for live use/);
     expect(card.textContent).not.toMatch(/shadow|incumbent|production model|versus|challenger/i);
   });
-  it('lists NBA stats as validated and waiting on live availability data', async () => {
+  it('lists the seven NBA player stats as live in SIFT with their accuracy (not betting value), and team points as not yet validated', async () => {
     setFetchJson(async (url) => { if (url === summaryUrl('NBA')) return { ...summary, sport: 'NBA', families: [{ family: 'points', readiness: 'READY', readiness_reason: 'r', best_model: 'E', holdout: { n_obs: 5, mae: 4.5, cover_80: 0.79 } }] }; throw new NotFoundError(url); });
     render(<ProjectionScorecard sport="NBA" />);
-    expect(await screen.findByTestId('pfs-not-changed')).toHaveTextContent(/Points — Validated; waiting on live availability data/);
+    const card = await screen.findByTestId('projection-scorecard');
+    await waitFor(() => expect(screen.getByTestId('pfs-live-in-sift')).toHaveTextContent(/Points\s*4\.50\s*79%/));
+    expect(card).toHaveTextContent(/7 of 8 stats on the new projection model/);
+    expect(screen.getByTestId('pfs-not-changed')).toHaveTextContent(/Team points — Not yet validated for live use/);
+    expect(card.textContent).toMatch(/Accuracy is not betting value/);
+    expect(card.textContent).not.toMatch(/waiting on live availability|incumbent|challenger/i);
   });
 });

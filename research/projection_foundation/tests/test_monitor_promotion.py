@@ -14,7 +14,7 @@ def test_approvals_table_parses_every_decision_form():
     d = monitor.decisions()
     assert d["NFL"]["receptions"] == "PROMOTED" and d["NFL"]["passing_yards"] == "HELD" and d["NFL"]["passing_tds"] == "RETAINED"
     assert d["MLB"]["pitcher_strikeouts"] == "PROMOTED" and d["MLB"]["hits"] == "HELD"       # mapped-list and spread forms
-    assert d["NBA"]["minutes"] == "APPROVED_PENDING_LIVE_INPUTS"
+    assert d["NBA"]["minutes"] == "PROMOTED" and d["NBA"]["fga"] == "PROMOTED" and d["NBA"]["team_points"] == "HELD"   # promoted 2026-10-23
     assert d["CFB"]["passing_yards"] == "HELD" and d["NHL"]["shots"] == "RETAINED"
 
 
@@ -31,11 +31,22 @@ def test_a_promoted_family_that_stops_being_ready_fails_the_monitor():
     assert status == "FAIL" and any("promoted receptions is NEEDS IMPROVEMENT" in x for x in problems)
 
 
-def test_pending_family_reports_availability_verification_without_failing():
-    nba = {"schema": "sift.projections.v1", "generated_utc": "2026-10-18T09:00:00Z", "model": {"authority": "research_only"},
-           "families": {"minutes": {"readiness": "READY"}},
-           "players": [{"family": "minutes", "gate": {"status": "REVIEW"}, "participation": {"status": "UNVERIFIED", "source": ""}},
-                       {"family": "minutes", "gate": {"status": "PASS"}, "participation": {"status": "CONFIRMED_ACTIVE", "source": "nba_official_injury_report"}}]}
-    status, problems, stats = monitor.check("NBA", nba, NOW)
+def _nba(readiness="READY"):
+    return {"schema": "sift.projections.v1", "generated_utc": "2026-10-18T09:00:00Z", "model": {"authority": "research_only"},
+            "families": {"minutes": {"readiness": readiness}},
+            "players": [{"family": "minutes", "gate": {"status": "REVIEW"}, "participation": {"status": "UNVERIFIED", "source": ""}},
+                        {"family": "minutes", "gate": {"status": "PASS"}, "participation": {"status": "CONFIRMED_ACTIVE", "source": "nba_official_injury_report"}}]}
+
+
+def test_a_promoted_nba_family_that_stops_being_ready_fails_the_monitor():
+    status, problems, _ = monitor.check("NBA", _nba(), NOW)
     assert status == "OK" and problems == []
-    assert any("availability verified for 1/2 rows, 1 from an official report" in n for n in stats["notes"])
+    status, problems, _ = monitor.check("NBA", _nba("SHADOW VALIDATION"), NOW)
+    assert status == "FAIL" and any("promoted minutes is SHADOW VALIDATION" in x for x in problems)
+
+
+def test_pending_family_reports_availability_verification_without_failing():
+    # no family is pending in the live table any more (NBA was promoted 2026-10-23); the pending path still serves the next one
+    problems, notes = monitor.promotion_findings("NBA", _nba(), {"NBA": {"minutes": "APPROVED_PENDING_LIVE_INPUTS"}})
+    assert problems == []
+    assert any("availability verified for 1/2 rows, 1 from an official report" in n for n in notes)

@@ -7,11 +7,11 @@ const of = (sport: string) => APPROVALS.filter((a) => a.sport === sport);
 const names = (sport: string, decision: string) => of(sport).filter((a) => a.decision === decision).map((a) => a.family).sort();
 
 describe('the v4 projection coverage audit matches the approvals table', () => {
-  it('NBA: seven player families approved on history and waiting on live inputs, team points held; the established engine is still the number', () => {
-    expect(names('NBA', 'APPROVED_PENDING_LIVE_INPUTS')).toEqual(['assists', 'fga', 'minutes', 'points', 'pra', 'rebounds', 'threes']);
+  it('NBA: seven player families promoted (2026-10-23) with the narrow fallback, team points held; only the seven resolve to the Foundation engine', () => {
+    expect(names('NBA', 'PROMOTED')).toEqual(['assists', 'fga', 'minutes', 'points', 'pra', 'rebounds', 'threes']);
+    expect(names('NBA', 'APPROVED_PENDING_LIVE_INPUTS')).toEqual([]);
     expect(names('NBA', 'HELD')).toEqual(['team_points']);
-    expect(names('NBA', 'PROMOTED')).toEqual([]);
-    for (const a of of('NBA')) expect(engineFor('NBA', a.family, [])).toBe('legacy');
+    for (const a of of('NBA')) expect(engineFor('NBA', a.family, [])).toBe(a.decision === 'PROMOTED' ? 'foundation' : 'legacy');
   });
 
   it('MLB: only the three pitcher families are promoted, each requiring a verified starter; every hitter family is held', () => {
@@ -27,7 +27,9 @@ describe('the v4 projection coverage audit matches the approvals table', () => {
   });
 
   it('a promotion is never created by configuration: the rollback switch only moves a family back to legacy', () => {
-    expect(engineFor('NBA', 'points', [])).toBe('legacy');
+    expect(engineFor('NBA', 'points', [])).toBe('foundation');
+    expect(engineFor('NBA', 'points', [{ sport: 'NBA', family: 'points' }])).toBe('legacy');      // the rollback switch moves one NBA family back without a code revert
     expect(engineFor('MLB', 'outs', [{ sport: 'MLB', family: 'outs' }])).toBe('legacy');
+    expect(engineFor('NBA', 'team_points', [], true)).toBe('legacy');                               // no configuration promotes a held family
   });
 });

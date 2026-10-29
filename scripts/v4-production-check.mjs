@@ -99,7 +99,10 @@ async function priceAgeMatchesFeed(page, eventId, where, tag, read) {
   if (!g) return na(tag(`${where}: the quote feed has no entry for this game to compare the price age with`));
   const feedAge = (Date.now() - Date.parse(g.observed_to)) / 60_000;
   const readText = () => page.evaluate(read, null);
-  await page.waitForFunction((src) => new Function(`return (${src})()`)().current, read.toString(), { timeout: 30_000 }).catch(() => {});
+  // "Current" alone is not the live answer: the publication's own snapshot is labelled aging (not stale) for its first 30 minutes,
+  // so a screen still showing it would pass that wait and then be compared too early. Wait for the age the feed itself implies
+  // (same tolerance as the assertion below), so a live answer that never arrives still fails the unchanged comparison.
+  await page.waitForFunction(([src, to]) => { const r = new Function(`return (${src})()`)(); return r.current && r.minutes != null && Math.abs(r.minutes - (Date.now() - to) / 60_000) <= 6; }, [read.toString(), Date.parse(g.observed_to)], { timeout: 30_000 }).catch(() => {});
   const r = await readText();
   if (feedAge > 12) return na(tag(`${where}: the quote feed is itself ${feedAge.toFixed(0)} min old; the screen cannot be fresher`));
   check(r.current && r.minutes != null && Math.abs(r.minutes - feedAge) <= 6, tag(`${where}: the price age shown (${r.text || 'none'}) matches the quote feed's own observation time (${feedAge.toFixed(1)} min ago, within 6)`));

@@ -1,17 +1,22 @@
 name: CI
 
+# One run of the gate per commit. This workflow used to trigger on BOTH `push` (every branch except main and live-quotes) and
+# `pull_request`, so every commit pushed to a branch with an open pull request ran the whole gate twice (the heavy `verify` job is
+# 34 to 90 minutes), on two different concurrency groups (refs/heads/<branch> and refs/pull/<n>/merge), so neither run cancelled the
+# other. That load competed for the same hosted runners as the live-quote loop (live-quotes.yml) and delayed its hand-over by up to
+# 69 minutes (docs/ci/QUEUE_ANALYSIS.md). Pull requests are now the only branch trigger; main is gated by deploy.yml, which calls this
+# workflow (workflow_call) on every push to main and on its schedule. Job names, steps and timeouts are unchanged.
 on:
   pull_request:
-  push:
-    branches-ignore: [main, live-quotes]
   workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  # A newer commit on the same pull request replaces its superseded run. Never cancel on main (deploy.yml's gate) or on any other branch ref.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:

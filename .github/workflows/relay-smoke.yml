@@ -36,6 +36,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Raw response headers with the production Origin (diagnostic)
+        if: ${{ !inputs.probe }}
+        run: |
+          U="${{ inputs.url != '' && inputs.url || vars.SIFT_QUOTE_RELAY_URL }}"
+          echo "relay: $U"
+          Q="markets?series_ticker=KXNFLGAME&status=open&limit=1"
+          echo "== GET /markets with Origin"; curl -sS -D - -o /dev/null -H "Origin: https://chmoses98.github.io" "${U%/}/$Q" | grep -i -E '^(HTTP|date|age|access-control|x-sift|x-vercel|server|cache-control|vary|x-matched|content-type)' || true
+          echo "== OPTIONS preflight"; curl -sS -D - -o /dev/null -X OPTIONS -H "Origin: https://chmoses98.github.io" -H "Access-Control-Request-Method: GET" "${U%/}/$Q" | grep -i -E '^(HTTP|date|access-control|x-vercel)' || true
+          echo "== GET /api/markets with Origin"; curl -sS -D - -o /dev/null -H "Origin: https://chmoses98.github.io" "${U%/}/api/$Q" | grep -i -E '^(HTTP|date|access-control|x-vercel)' || true
       - name: Measure Kalshi's per-IP rate limit
         if: inputs.probe
         run: node scripts/kalshi-rate-probe.mjs

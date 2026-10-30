@@ -16,9 +16,12 @@ export function filterStudies(studies, query = "", sport = "All sports", state =
 export function createDraft(question, sport, id) {
   const title = String(question || "").trim().replace(/\s+/g, " ");
   if (title.length < 8 || title.length > 180) throw new Error("Use a research question between 8 and 180 characters.");
-  if (!SPORTS.slice(1).includes(sport) && !isCustomSport(sport)) throw new Error("Select a sport or enter a valid new sport.");
+  const normalizedSport = { Soccer: "SOCCER", Tennis: "TENNIS" }[sport] || sport;
+  if (!SPORTS.slice(1).includes(normalizedSport) && !isCustomSport(normalizedSport)) {
+    throw new Error("Select a sport or enter a valid new sport.");
+  }
   return {
-    id, sport, title, status: "Draft", date: new Date().toISOString().slice(0, 10),
+    id, sport: normalizedSport, title, status: "Draft", date: new Date().toISOString().slice(0, 10),
     question: title, finding: "Not tested — no conclusion.",
     caveat: "Personal local draft. No historical study, strategy validation, or trading authority is implied.",
     next: "State the hypothesis, failure condition, point-in-time inputs, decision cutoff, benchmark and cost assumptions before testing.",

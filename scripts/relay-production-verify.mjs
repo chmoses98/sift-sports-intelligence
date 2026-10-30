@@ -145,17 +145,14 @@ for (const [label, handler] of [
   try {
     const page = await (await browser.newContext({ viewport: { width: 390, height: 800 } })).newPage();
     await page.route(`${RELAY}/**`, handler);
-    await page.goto(`${BASE}#/v4/games`);
-    await page.waitForTimeout(6000);
-    const links = await page.$$eval('a[href*="/v4/game/nfl/"], a[href*="/v4/game/nhl/"], a[href*="/v4/game/mlb/"]', (a) => a.map((x) => x.getAttribute('href')));
-    if (!links.length) {
-      info(`fallback (${label}): no NFL/NHL/MLB game is listed right now`);
-      continue;
-    }
-    await page.goto(`${BASE}${links[0]}`);
+    // a game the quote feed covers (a listed game the feed does not cover would, correctly, show the publication's old snapshot)
+    const idx = await feedJson('index.json');
+    const g = idx.games.find((x) => x.sport === 'NFL') ?? idx.games[0];
+    const href = `#/v4/game/${g.sport.toLowerCase()}/${g.event_ids[0]}`;
+    await page.goto(`${BASE}${href}`);
     await page.waitForFunction(() => /Prices (live|aging)/.test(document.querySelector('.v4-gstat')?.innerText ?? ''), null, { timeout: 40_000 }).catch(() => {});
     const shown = await page.evaluate(readPrices);
-    const feedAge = (Date.now() - Date.parse((await feedJson('index.json')).games.find((g) => g.event_ids.some((id) => links[0].includes(id)))?.observed_to ?? 0)) / 60_000;
+    const feedAge = (Date.now() - Date.parse(g.observed_to)) / 60_000;
     ok(/^(live|aging) · /.test(shown), `fallback (${label}): the game page shows "${shown}" from the GitHub feed (feed ${Number.isFinite(feedAge) ? feedAge.toFixed(1) : '?'} min old)`);
   } catch (e) {
     ok(false, `fallback (${label}): ${String(e).split('\n')[0]}`);

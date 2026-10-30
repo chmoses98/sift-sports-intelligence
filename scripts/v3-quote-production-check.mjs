@@ -26,9 +26,12 @@ for (const [label, engine, ctxOpts] of runs) {
     await page.waitForTimeout(6000);
     const links = await page.$$eval('a[href*="/v3/game/"]', (a) => [...new Set(a.map((x) => x.getAttribute('href')))]);
     ok(links.length > 0, `${label}: Games lists ${links.length} games`);
+    // games the live-quote feed covers first (a listed game it does not cover, or one already started, correctly prints no price)
+    const feed = await (await fetch(`${process.env.SIFT_FEED_URL ?? 'https://raw.githubusercontent.com/chmoses98/sift-sports-intelligence/live-quotes'}/index.json`)).json();
+    const covered = feed.games.flatMap((g) => g.event_ids.map((id) => `#/v3/game/${g.sport.toLowerCase()}/${id}`));
     // the first game whose win-price block is present and tradable; report how many were looked at
     let priced = null;
-    for (const href of links.filter((h) => /\/v3\/game\/(nfl|nhl|mlb)\//.test(h)).slice(0, 8)) {
+    for (const href of covered.slice(0, 8)) {
       await page.goto(`${BASE}${href}`);
       await page.waitForSelector('[data-testid="win-price"]', { timeout: 30_000 }).catch(() => {});
       await page.waitForTimeout(2500);

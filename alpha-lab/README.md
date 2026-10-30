@@ -5,9 +5,9 @@
 ## The one-minute journey
 1. Open the Research Desk. The left side answers **what work exists**, not what numbers are most impressive.
 2. Tap a question. The right side answers: **what did we test, what did we learn, what can't we claim, what is the next useful action?**
-3. Follow the original evidence link, or add a working note.
+3. Follow the original evidence link, check off the next steps, add a working note, or tap **Copy research brief** to hand the context to an AI coding/research session.
 4. Start a question with **+ New question** (only a question and sport required), then fill in hypotheses and a testing plan later.
-5. Export a JSON backup for another device or restore one with Import.
+5. Export a JSON backup (notes, drafts and checklist progress) for another device or restore one with Import.
 
 On phones, the library is followed by the details, and tapping a record scrolls directly to it. No graphs, animations, fake live signals, or betting nudges.
 

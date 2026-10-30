@@ -48,6 +48,7 @@ function App() {
   const [message, setMessage] = useState("");
   const importRef = useRef(null);
   const detailRef = useRef(null);
+  const formRef = useRef(null);
   const searchRef = useRef(null);
   const all = useMemo(() => [...drafts, ...STUDIES], [drafts]);
   const customSports = useMemo(() => [...new Set(drafts.map((x) => x.sport).filter(isCustomSport))].sort(), [drafts]);
@@ -118,7 +119,7 @@ function App() {
     } else {
       setMessage("Showing existing " + sportLabel(sportId) + " research.");
     }
-    requestAnimationFrame(() => searchRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    requestAnimationFrame(() => (exists ? searchRef.current : formRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
   function toggleTask(id, index) {
     setTasks((current) => {
@@ -188,7 +189,7 @@ function App() {
         </div>
       </section>}
       {message && <div className="message" role="status">{message}<button type="button" aria-label="Dismiss message" onClick={() => setMessage("")}>×</button></div>}
-      {creating && <form className="create-form" onSubmit={saveDraft}>
+      {creating && <form ref={formRef} className="create-form" onSubmit={saveDraft}>
         <div><div className="eyebrow">NEW RESEARCH QUESTION</div><h2>Start with what you want to learn.</h2><p>No need to define an entire experiment yet.</p></div>
         <label>What is the question?<input autoFocus required minLength={8} maxLength={180} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Example: Do lineup changes create a short pricing delay?" /></label>
         <label>Sport<select value={newSport} onChange={(e) => setNewSport(e.target.value)}><SportOptions customSports={customSports} /></select></label>

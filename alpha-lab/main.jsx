@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { STUDIES } from "./studies.mjs";
-import { STORAGE_KEY, SPORTS, STATES, createDraft, filterStudies, makeSnapshot, readSnapshot, validSource } from "./domain.mjs";
+import { STORAGE_KEY, STATES, createDraft, filterStudies, makeSnapshot, readSnapshot, validSource } from "./domain.mjs";
+import { SPORT_REGISTRY, SPORT_GROUPS, sportLabel, isCustomSport, registryStatus } from "./sport-registry.mjs";
 import "./styles.css";
 
 function loadLocal() {
@@ -18,6 +19,18 @@ function newLocalId() {
 function ActionButton({ children, onClick, secondary = false, disabled = false }) {
   return <button className={secondary ? "button secondary" : "button"} type="button" onClick={onClick} disabled={disabled}>{children}</button>;
 }
+function SportOptions({ includeAll = false, customSports = [] }) {
+  return <>
+    {includeAll && <option value="All sports">All sports</option>}
+    {SPORT_GROUPS.map((group) => <optgroup key={group} label={group}>
+      {SPORT_REGISTRY.filter((item) => item.group === group).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+    </optgroup>)}
+    {customSports.length > 0 && <optgroup label="Your added sports">
+      {customSports.map((id) => <option value={id} key={id}>{sportLabel(id)}</option>)}
+    </optgroup>}
+    {!includeAll && <option value="__new__">+ Add a new sport…</option>}
+  </>;
+}
 function App() {
   const [local] = useState(loadLocal);
   const [drafts, setDrafts] = useState(local.drafts);
@@ -28,6 +41,8 @@ function App() {
   const [sport, setSport] = useState("All sports");
   const [state, setState] = useState("All states");
   const [creating, setCreating] = useState(false);
+  const [coverageOpen, setCoverageOpen] = useState(false);
+  const [customName, setCustomName] = useState("");
   const [question, setQuestion] = useState("");
   const [newSport, setNewSport] = useState("NBA");
   const [message, setMessage] = useState("");
@@ -35,9 +50,10 @@ function App() {
   const detailRef = useRef(null);
   const searchRef = useRef(null);
   const all = useMemo(() => [...drafts, ...STUDIES], [drafts]);
+  const customSports = useMemo(() => [...new Set(drafts.map((x) => x.sport).filter(isCustomSport))].sort(), [drafts]);
   const visible = useMemo(() => filterStudies(all, query, sport, state), [all, query, sport, state]);
   const selected = visible.find((item) => item.id === selectedId) || visible[0];
-  const pending = STUDIES.filter((item) => item.status === "Investigate" || item.status === "Verify fix").length;
+  const pending = STUDIES.filter((item) => ["Investigate", "Verify fix", "Discovery needed"].includes(item.status)).length;
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(makeSnapshot(drafts, notes, tasks))); }
@@ -63,9 +79,10 @@ function App() {
   function saveDraft(event) {
     event.preventDefault();
     try {
-      const draft = createDraft(question, newSport, newLocalId());
+      const draftSport = newSport === "__new__" ? "Custom: " + customName.trim().replace(/\s+/g, " ") : newSport;
+      const draft = createDraft(question, draftSport, newLocalId());
       setDrafts((value) => [draft, ...value]);
-      setCreating(false); setQuestion(""); setSport("All sports"); setState("All states"); setQuery("");
+      setCreating(false); setQuestion(""); setCustomName(""); setSport("All sports"); setState("All states"); setQuery("");
       setSelectedId(draft.id);
       setMessage("Research question saved locally.");
     } catch (error) { setMessage(error.message); }
@@ -91,6 +108,18 @@ function App() {
       setMessage("Local research restored from export.");
     } catch (error) { setMessage(error.message); }
   }
+  function inspectSport(sportId) {
+    setSport(sportId); setState("All states"); setQuery(""); setCoverageOpen(false);
+    const exists = all.some((item) => item.sport === sportId);
+    if (!exists) {
+      setNewSport(sportId);
+      setCreating(true);
+      setMessage("Research is not yet built for " + sportLabel(sportId) + ". Start with one question.");
+    } else {
+      setMessage("Showing existing " + sportLabel(sportId) + " research.");
+    }
+    requestAnimationFrame(() => searchRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
   function toggleTask(id, index) {
     setTasks((current) => {
       const previous = current[id] || [];
@@ -101,6 +130,7 @@ function App() {
   async function copyBrief(study) {
     const brief = [
       "SIFT ALPHA RESEARCH BRIEF — RESEARCH ONLY",
+      "Sport: " + sportLabel(study.sport),
       "Question: " + study.question,
       "Evidence state: " + study.status + " (as of " + study.date + ")",
       "Finding: " + study.finding,
@@ -128,22 +158,41 @@ function App() {
         </div>
         <div className="toolbar">
           <ActionButton onClick={() => { setCreating((v) => !v); setMessage(""); }}>{creating ? "Close" : "+ New question"}</ActionButton>
+          <ActionButton secondary onClick={() => setCoverageOpen((v) => !v)}>{coverageOpen ? "Close sports" : "Browse sports"}</ActionButton>
           <ActionButton secondary onClick={exportWork}>Export</ActionButton>
           <ActionButton secondary onClick={() => importRef.current?.click()}>Import</ActionButton>
           <input ref={importRef} className="visually-hidden" type="file" accept=".json,application/json" onChange={importWork} aria-label="Import research backup" />
         </div>
       </section>
       <div className="context-row">
-        <span><strong>{STUDIES.length}</strong> source-linked studies</span>
+        <span><strong>{SPORT_REGISTRY.length}</strong> sports in registry</span>
+        <span><strong>{STUDIES.length}</strong> research records</span>
         <span><strong>{pending}</strong> require follow-up</span>
         <span><strong>{drafts.length}</strong> personal drafts</span>
         <span className="safety-note">Research only · No trading or live orders</span>
       </div>
+      {coverageOpen && <section className="sport-coverage" aria-label="Sport coverage and research readiness">
+        <div className="coverage-intro">
+          <div><div className="eyebrow">ALL-SPORT RESEARCH INTAKE</div><h2>Any sport can start with a question.</h2>
+          <p>A research repository means infrastructure exists, not a profitable strategy. Sports without one remain on the roadmap until data, markets and models are verified.</p></div>
+          <span className="coverage-count">{SPORT_REGISTRY.length} research tracks</span>
+        </div>
+        <div className="coverage-groups">
+          {SPORT_GROUPS.map((group) => <div className="coverage-group" key={group}>
+            <h3>{group}</h3>
+            {SPORT_REGISTRY.filter((entry) => entry.group === group).map((entry) => <button className="coverage-sport" type="button" key={entry.id} onClick={() => inspectSport(entry.id)}>
+              <span><strong>{entry.label}</strong><small>{entry.note || "A separate model and market-evidence review is required."}</small></span>
+              <span className="coverage-status">{registryStatus(entry)} <span aria-hidden="true">›</span></span>
+            </button>)}
+          </div>)}
+        </div>
+      </section>}
       {message && <div className="message" role="status">{message}<button type="button" aria-label="Dismiss message" onClick={() => setMessage("")}>×</button></div>}
       {creating && <form className="create-form" onSubmit={saveDraft}>
         <div><div className="eyebrow">NEW RESEARCH QUESTION</div><h2>Start with what you want to learn.</h2><p>No need to define an entire experiment yet.</p></div>
         <label>What is the question?<input autoFocus required minLength={8} maxLength={180} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Example: Do lineup changes create a short pricing delay?" /></label>
-        <label>Sport<select value={newSport} onChange={(e) => setNewSport(e.target.value)}>{SPORTS.slice(1).map((item) => <option key={item}>{item}</option>)}</select></label>
+        <label>Sport<select value={newSport} onChange={(e) => setNewSport(e.target.value)}><SportOptions customSports={customSports} /></select></label>
+        {newSport === "__new__" && <label>New sport name<input value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="e.g. Cycling" required maxLength={59} /></label>}
         <button className="button" type="submit">Save research question</button>
       </form>}
       <section className="workspace" aria-label="Research workbench">
@@ -152,13 +201,13 @@ function App() {
           <label className="search-label" htmlFor="search">Find a question or finding</label>
           <input id="search" ref={searchRef} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search the research…" />
           <div className="filters">
-            <label>Sport<select value={sport} onChange={(event) => setSport(event.target.value)}>{SPORTS.map((item) => <option key={item}>{item}</option>)}</select></label>
+            <label>Sport<select value={sport} onChange={(event) => setSport(event.target.value)}><SportOptions includeAll customSports={customSports} /></select></label>
             <label>Evidence state<select value={state} onChange={(event) => setState(event.target.value)}>{STATES.map((item) => <option key={item}>{item}</option>)}</select></label>
           </div>
           <div className="library-list">
             {visible.length === 0 ? <div className="empty"><strong>No matching research.</strong><p>Try another sport or clear the search.</p><ActionButton secondary onClick={() => { setQuery(""); setSport("All sports"); setState("All states"); }}>Clear filters</ActionButton></div> :
               visible.map((study) => <button type="button" key={study.id} className={"study-row " + (selected?.id === study.id ? "active" : "")} aria-current={selected?.id === study.id ? "true" : undefined} onClick={() => openStudy(study.id)}>
-                <span className="study-meta"><span>{study.sport}</span><span className={"status " + (study.status === "Draft" ? "draft" : "")}>{study.status}</span></span>
+                <span className="study-meta"><span>{sportLabel(study.sport)}</span><span className={"status " + (study.status === "Draft" ? "draft" : "")}>{study.status}</span></span>
                 <strong>{study.title}</strong>
                 <span className="study-sub">{study.next}</span>
                 <span className="date">As of {study.date}</span>
@@ -169,7 +218,7 @@ function App() {
           {!selected ? <div className="empty"><strong>Select a research question.</strong><p>Results will appear here.</p></div> :
           <>
             <div className="detail-head">
-              <div className="eyebrow">{selected.sport} / RESEARCH RECORD</div>
+              <div className="eyebrow">{sportLabel(selected.sport)} / RESEARCH RECORD</div>
               <span className="detail-state">{selected.status}</span>
               <h2>{selected.title}</h2>
               <p className="question">{selected.question}</p>

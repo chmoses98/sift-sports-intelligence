@@ -29,10 +29,11 @@ test("new drafts never imply a validated strategy", () => {
 });
 test("notes and drafts can be exported and restored without changing cited records", () => {
   const draft = createDraft("Does pricing respond late to injury news?", "NBA", "local-123");
-  const snapshot = makeSnapshot([draft], { [draft.id]: "Test a genuine pregame cutoff." });
+  const snapshot = makeSnapshot([draft], { [draft.id]: "Test a genuine pregame cutoff." }, { [draft.id]: [0, 2] });
   const restored = readSnapshot(JSON.stringify(snapshot));
   assert.equal(restored.drafts[0].status, "Draft");
   assert.equal(restored.notes[draft.id], "Test a genuine pregame cutoff.");
+  assert.deepEqual(restored.tasks[draft.id], [0, 2]);
   assert.equal(STUDIES.find((s) => s.id === "nba-selector-tail").status, "Investigate");
   assert.throws(() => readSnapshot('{"version":1,"drafts":[{"id":"not-local","question":"This looks like a question","sport":"NBA"}],"notes":{}}'));
   assert.throws(() => readSnapshot("not json"));

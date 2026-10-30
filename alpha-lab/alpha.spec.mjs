@@ -40,3 +40,29 @@ test("mobile and desktop never require sideways scrolling", async ({ page }) => 
   expect(sizes.scroll).toBeLessThanOrEqual(sizes.view);
   await expect(page.getByRole("button", { name: "Export" })).toBeVisible();
 });
+
+test("browse CFB, CBB and NCAA baseball without pretending unsupported models exist", async ({ page }) => {
+  await page.getByRole("button", { name: "Browse sports" }).click();
+  await expect(page.getByRole("heading", { name: "Any sport can start with a question." })).toBeVisible();
+  await expect(page.getByRole("button", { name: /College Football \(FBS\)/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /College Basketball \(Men\)/ })).toBeVisible();
+  await page.getByRole("button", { name: /NCAA Baseball/ }).click();
+  await expect(page.getByRole("heading", { name: /Build the NCAA baseball research foundation/ })).toBeVisible();
+  await expect(page.getByText("Discovery needed", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/No dedicated NCAA baseball research repo/)).toBeVisible();
+  await expect(page.getByRole("link", { name: /Kalshi 2026 NCAA baseball game contract/ })).toHaveAttribute("href", /kalshi.com/);
+});
+
+test("unmodeled and entirely new sports can enter the lab without new code", async ({ page }) => {
+  await page.getByRole("button", { name: "Browse sports" }).click();
+  await page.getByRole("button", { name: /Golf \(PGA \/ LPGA\)/ }).click();
+  await expect(page.getByRole("heading", { name: /Start with what you want to learn/ })).toBeVisible();
+  await expect(page.locator(".create-form select")).toHaveValue("GOLF");
+  await page.locator(".create-form select").selectOption("__new__");
+  await page.getByPlaceholder("e.g. Cycling").fill("Cycling");
+  await page.getByPlaceholder("Example: Do lineup changes create a short pricing delay?").fill("Do weather and course profiles change cycling upset probabilities?");
+  await page.getByRole("button", { name: "Save research question" }).click();
+  await expect(page.getByRole("heading", { name: /Do weather and course profiles/ })).toBeVisible();
+  await page.reload();
+  await expect(page.locator(".filters select").first()).toContainText("Cycling");
+});

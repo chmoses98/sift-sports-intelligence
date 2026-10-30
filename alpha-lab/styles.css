@@ -128,3 +128,24 @@ p { line-height: 1.56; }
   .metrics { gap: 12px; }
   .metrics > div + div { padding-left: 12px; }
 }
+/* Sport coverage is a working inventory, not a marketing dashboard. */
+.sport-coverage { background: #fff; border: 1px solid #e0e5ec; border-radius: 10px; padding: 21px 22px; margin-bottom: 18px; }
+.coverage-intro { display: flex; align-items: start; justify-content: space-between; gap: 22px; margin-bottom: 19px; }
+.coverage-intro p { color: #687788; font-size: .88rem; line-height: 1.5; margin: 0; max-width: 750px; }
+.coverage-count { white-space: nowrap; font-size: .77rem; color: #647486; border: 1px solid #e1e6ed; border-radius: 5px; padding: 7px 9px; }
+.coverage-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; column-gap: 24px; row-gap: 22px; }
+.coverage-group h3 { font-size: .84rem; color: #41586e; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px solid #e5eaf0; }
+.coverage-sport { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; background: transparent; color: #2d3e52; padding: 11px 5px; gap: 10px; border: none; border-bottom: 1px solid #edf0f4; min-height: 48px; }
+.coverage-sport:last-child { border-bottom: 0; }
+.coverage-sport:hover, .coverage-sport:focus-visible { background: #f5f8fb; }
+.coverage-sport > span:first-child { display: grid; gap: 5px; flex: 1; min-width: 0; }
+.coverage-sport strong { font-size: .88rem; font-weight: 650; }
+.coverage-sport small { color: #697788; line-height: 1.36; font-size: .74rem; }
+.coverage-status { flex: 0 0 114px; text-align: right; font-size: .7rem; color: #65788b; line-height: 1.35; }
+.coverage-status span { padding-left: 5px; font-size: 1.15rem; color: #3f607e; }
+@media (max-width: 800px) {
+  .sport-coverage { padding: 19px 16px; }
+  .coverage-groups { grid-template-columns: 1fr; row-gap: 21px; }
+  .coverage-intro { flex-direction: column; gap: 9px; }
+  .coverage-status { flex-basis: 97px; }
+}

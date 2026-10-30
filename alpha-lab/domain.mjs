@@ -1,13 +1,14 @@
+import { SPORTS as REGISTERED_SPORTS, isCustomSport, sportLabel } from "./sport-registry.mjs";
 export const STORAGE_KEY = "sift-alpha-research-desk-v1";
-export const SPORTS = ["All sports", "NBA", "NFL", "CFB", "MLB", "NHL", "Tennis", "Soccer", "CBB"];
-export const STATES = ["All states", "Investigate", "Evidence against", "No qualified signal", "Verify fix", "Draft"];
+export const SPORTS = REGISTERED_SPORTS;
+export const STATES = ["All states", "Investigate", "Evidence against", "No qualified signal", "Verify fix", "Discovery needed", "Draft"];
 
 export function filterStudies(studies, query = "", sport = "All sports", state = "All states") {
   const needle = query.trim().toLocaleLowerCase();
   return studies.filter((study) =>
     (sport === "All sports" || study.sport === sport) &&
     (state === "All states" || study.status === state) &&
-    (!needle || [study.title, study.question, study.finding, study.sport, study.next]
+    (!needle || [study.title, study.question, study.finding, study.sport, sportLabel(study.sport), study.next]
       .join(" ").toLocaleLowerCase().includes(needle))
   );
 }
@@ -15,7 +16,7 @@ export function filterStudies(studies, query = "", sport = "All sports", state =
 export function createDraft(question, sport, id) {
   const title = String(question || "").trim().replace(/\s+/g, " ");
   if (title.length < 8 || title.length > 180) throw new Error("Use a research question between 8 and 180 characters.");
-  if (!SPORTS.slice(1).includes(sport)) throw new Error("Select a sport.");
+  if (!SPORTS.slice(1).includes(sport) && !isCustomSport(sport)) throw new Error("Select a sport or enter a valid new sport.");
   return {
     id, sport, title, status: "Draft", date: new Date().toISOString().slice(0, 10),
     question: title, finding: "Not tested — no conclusion.",

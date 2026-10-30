@@ -55,6 +55,13 @@ jobs:
           SIFT_EXPECT_RELAY: ${{ vars.SIFT_QUOTE_RELAY_URL != '' && '1' || '0' }}
           # Probed directly too, so a relay failure is reported with its HTTP status and CORS headers.
           SIFT_QUOTE_RELAY_URL: ${{ vars.SIFT_QUOTE_RELAY_URL }}
+      # Vercel's own verdict on the deployed commit. A failed or rate-limited relay deployment leaves the relay on an old build without failing the app.
+      - name: Vercel did not fail to deploy this commit (relay)
+        if: always() && github.event_name == 'workflow_run'
+        run: node scripts/vercel-status-check.mjs
+        env:
+          SIFT_EXPECT_SHA: ${{ github.event.workflow_run.head_sha }}
+          GITHUB_TOKEN: ${{ github.token }}
       # The relay's Date header (the devices' clock correction) must be readable by a page on the production origin, cross-origin, in each browser.
       - name: Relay Date header read cross-origin from the live site (Chromium + WebKit)
         if: always() && vars.SIFT_QUOTE_RELAY_URL != ''

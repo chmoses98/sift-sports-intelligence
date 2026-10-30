@@ -139,3 +139,12 @@ configured and verified, the worker is unused; it can be deleted from the Cloudf
 
 Both hosts read `ALLOWED_ORIGINS` (comma-separated). On Vercel: *Project → Settings → Environment
 Variables*, then redeploy. Unset means Sift's Pages origin plus local development.
+
+## Deployments (read this if the relay looks old)
+
+The Vercel project `sift-quote-relay` (Root Directory `relay`) deploys from **main** only. It is connected to the whole repository, so it also sees
+every push to the `live-quotes` data branch (one every 3 minutes). That branch carries `relay/vercel.json` with Git deployments off
+(`scripts/publish-live-quotes.mjs`); without it each push was a failed deployment, the Hobby plan's 100 deployments a day ran out, and Vercel refused
+main's too ("Deployment rate limited", October 2026: #150's `Date` exposure never reached production).
+The production check shows it: the `Vercel` status of the deployed commit (`scripts/vercel-status-check.mjs`) and the cross-origin `Date` read in
+Chromium and WebKit (`scripts/relay-live-date-check.mjs`).

@@ -21,9 +21,10 @@ npx vite --config vite.alpha.config.mjs --port 5181
 # Open the localhost URL shown by Vite.
 node --test alpha-lab/domain.test.mjs
 npx vite build --config vite.alpha.config.mjs
+npx playwright test -c playwright.alpha.config.mjs   # desktop + iPhone WebKit journeys
 ```
 
-The dedicated config builds to `dist-alpha/`. **It does not replace, alter, or deploy SIFT 2, v4, v3, public Pages, production quote infrastructure, or any projection model.** No new scheduled GitHub runner is introduced.
+The dedicated config builds to `dist-alpha/`. **It does not replace, alter, or deploy SIFT 2, v4, v3, public Pages, production quote infrastructure, or any projection model.** No new scheduled GitHub runner is introduced. UI acceptance tests are opt-in, so this prototype does not add another recurring job to the already busy Actions queue.
 
 ## Evidence integrity
 

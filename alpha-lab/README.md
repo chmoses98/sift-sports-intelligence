@@ -1,10 +1,10 @@
 # SIFT Alpha — Research Desk v0
 
-**Status: isolated prototype, not shipped.** Alpha is a *lab for doing research*, not an automatic betting recommendations page or trading interface. This is the first interaction slice and contains **only existing public, source-linked research findings** and browser-local drafts.
+**Status: isolated prototype, not shipped; multi-sport discovery and projections are not live.** Alpha is a *lab for doing research*, not an automatic betting recommendations page or trading interface. This is the first interaction slice and contains **only existing public, source-linked research findings** and browser-local drafts.
 
 ## The one-minute journey
 1. Open the Research Desk. The left side answers **what work exists**, not what numbers are most impressive.
-2. Tap a question. The right side answers: **what did we test, what did we learn, what can't we claim, what is the next useful action?**
+2. Use **Browse sports** to locate CFB, CBB, NCAA Baseball and expansion disciplines; a sport without a study opens an honest new-question form. Tap a question. The right side answers: **what did we test, what did we learn, what can't we claim, what is the next useful action?**
 3. Follow the original evidence link, check off the next steps, add a working note, or tap **Copy research brief** to hand the context to an AI coding/research session.
 4. Start a question with **+ New question** (only a question and sport required), then fill in hypotheses and a testing plan later.
 5. Export a JSON backup (notes, drafts and checklist progress) for another device or restore one with Import.
@@ -26,9 +26,9 @@ npx playwright test -c playwright.alpha.config.mjs   # desktop + iPhone WebKit j
 
 The dedicated config builds to `dist-alpha/`. **It does not replace, alter, or deploy SIFT 2, v4, v3, public Pages, production quote infrastructure, or any projection model.** No new scheduled GitHub runner is introduced. UI acceptance tests are opt-in, so this prototype does not add another recurring job to the already busy Actions queue.
 
-## Evidence integrity
+## Comprehensive sport coverage\n\nThe sport registry now covers 28 core, expansion and exploratory tracks, including college football (FBS/FCS), men's and women's college basketball, NCAA baseball, NCAA softball, WNBA, golf, MMA, Formula 1, esports and others. Grouped drop-downs keep the workflow small. A new sport can be added as a local draft without a code change.\n\n**Coverage is not model support.** Only eight sport tracks have existing research repos; NCAA Baseball is a market-verified **discovery** task, not a completed model. See [SPORT_COVERAGE.md](SPORT_COVERAGE.md) for scope, pipeline requirements and evidence gates.\n\n## Evidence integrity
 
-- Every seeded research finding is dated and linked to its actual originating GitHub issue or PR.
+- Every seeded research finding (or clearly labeled discovery hypothesis) is dated and linked to its actual originating GitHub issue or PR.
 - The seed records are **point-in-time summaries**, not auto-refreshing evaluations. The PRs' draft status is shown where applicable.
 - No paper ROI is represented as personal account profit. No prospective significance is invented.
 - Drafts have no conclusion, market edge, trade authority or source until evidence is supplied.

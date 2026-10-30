@@ -29,7 +29,7 @@ export function createDraft(question, sport, id) {
 export function validSource(url) {
   try {
     const value = new URL(url);
-    return value.protocol === "https:" && value.hostname === "github.com";
+    return value.protocol === "https:" && ["github.com", "kalshi.com"].includes(value.hostname);
   } catch { return false; }
 }
 export function readSnapshot(value) {

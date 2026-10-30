@@ -67,4 +67,48 @@ export const STUDIES = [
     sources: [{ label: "NFL point-in-time capture fix — PR #212", url: "https://github.com/chmoses98/nfl-edge-finder/pull/212" }],
     checklist: ["Measure slots after deployment", "Report missing/late vintages explicitly", "Refuse retroactively reconstructed inputs"]
   }
+,
+  {
+    id: "cfb-catalog-research",
+    sport: "CFB",
+    title: "Can college football market research outperform the retired projection path?",
+    status: "Investigate",
+    date: "2026-10-30",
+    question: "Which CFB contract families and game scripts have reliable point-in-time market coverage and incremental predictive value?",
+    finding: "The CFB repository actively captures a broad Kalshi contract catalogue and conducts prospective script/control research. Its former predictive model was retired from the live betting path because it did not establish a useful edge.",
+    caveat: "An existing market catalogue and game-script engine are not proof of profitable CFB trading or validated win-probability forecasts.",
+    next: "Audit available time-stamped contract families, reconcile existing CFB CONTROL findings, and select one specific mechanism for a frozen comparison.",
+    metrics: [{ label: "Research status", value: "Existing CFB repo" }],
+    sources: [{ label: "CFB market research and prospective-control repository", url: "https://github.com/chmoses98/cfb-edge-finder" }],
+    checklist: ["Verify point-in-time quote and settlement coverage", "Inventory settled prospective CONTROL evidence", "Write one testable CFB selection hypothesis"]
+  },
+  {
+    id: "cbb-model-readiness",
+    sport: "CBB",
+    title: "Establish the college basketball research baseline",
+    status: "Investigate",
+    date: "2026-10-30",
+    question: "Do CBB's walk-forward team projections contribute information beyond available prices, particularly in early-season games?",
+    finding: "The existing CBB repository contains Division I men's opponent-adjusted team research, point-in-time walk-forward design, and a market-capture framework. It is a research system, not a validated trading program.",
+    caveat: "A documented pipeline does not prove full schedule coverage, calibrated contract probabilities, or after-fee ROI. Women's college basketball requires separate development.",
+    next: "Read the frozen CBB baseline and leakage audits, then create a price-matched prospective selection report without treating research forecasts as bets.",
+    metrics: [{ label: "Research status", value: "Existing CBB repo" }],
+    sources: [{ label: "CBB research repository and methods", url: "https://github.com/chmoses98/cbb-edge-finder" }],
+    checklist: ["Review out-of-sample model reports", "Check market contract and roster coverage", "Define CBB calibration and selection baselines"]
+  },
+  {
+    id: "ncaa-baseball-feasibility",
+    sport: "NCAA-BASEBALL",
+    title: "Build the NCAA baseball research foundation",
+    status: "Discovery needed",
+    date: "2026-10-30",
+    question: "Can we reliably identify, price, and settle college baseball games and series with pregame data that actually existed at the time?",
+    finding: "Kalshi listed individual 2026 NCAA baseball game contracts, including Arizona State versus Ole Miss. No dedicated NCAA baseball research repo or validated SIFT projection engine was identified among the connected repositories.",
+    caveat: "Past Kalshi contracts demonstrate that a market family existed; they do not establish current liquidity, broad regular-season coverage, access to quality historical data, or a profitable strategy.",
+    next: "Create a college-baseball data and market availability audit before attempting a model: confirm schedule/team identity, starting pitchers, lineup data, game results, settlement semantics, and executable quotes.",
+    metrics: [{ label: "Kalshi evidence", value: "2026 game contracts" }, { label: "SIFT model", value: "Not built" }],
+    sources: [{ label: "Kalshi 2026 NCAA baseball game contract", url: "https://kalshi.com/markets/kxncaabbgame/college-baseball-game/kxncaabbgame-26may292100arsole" }],
+    checklist: ["Check data rights and historical game/lineup coverage", "Map contract rules and actual market depth", "Define an initial leak-free NCAA baseball baseline"]
+  }
+
 ];

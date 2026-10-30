@@ -13,7 +13,7 @@ export function filterStudies(studies, query = "", sport = "All sports", state =
 }
 
 export function createDraft(question, sport, id) {
-  const title = String(question || "").trim().replace(/\\s+/g, " ");
+  const title = String(question || "").trim().replace(/\s+/g, " ");
   if (title.length < 8 || title.length > 180) throw new Error("Use a research question between 8 and 180 characters.");
   if (!SPORTS.slice(1).includes(sport)) throw new Error("Select a sport.");
   return {
@@ -41,7 +41,7 @@ export function readSnapshot(value) {
   const drafts = parsed.drafts.map((entry) => {
     if (!entry || typeof entry.id !== "string" || !/^local-[a-zA-Z0-9-]{1,90}$/.test(entry.id)) throw new Error("Invalid draft identifier.");
     const safe = createDraft(entry.question, entry.sport, entry.id);
-    safe.date = /^\\d{4}-\\d{2}-\\d{2}$/.test(entry.date || "") ? entry.date : safe.date;
+    safe.date = /^\d{4}-\d{2}-\d{2}$/.test(entry.date || "") ? entry.date : safe.date;
     return safe;
   });
   if (new Set(drafts.map((x) => x.id)).size !== drafts.length) throw new Error("Duplicate draft identifiers.");

@@ -2,7 +2,7 @@
 // favourites pinned first, and a searchable full-height picker sheet (favourites section, then Live / Today / Upcoming / Final).
 // A tile's star toggles the favourite WITHOUT switching games; tapping the tile switches in one tap and the tab is kept.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from '../../routing';
+import { useSwitchGame } from '../nav/useGameNav';
 import { clockTime } from '../model/time';
 import { isFavorite, switcherGames } from '../model/switcher';
 import { useFollows } from '../state/prefs';
@@ -11,7 +11,7 @@ import { AlertBell, FollowStar } from './Controls';
 import { Icon } from './Icon';
 import { useSheet } from './Sheet';
 import { TeamLogo } from './TeamLogo';
-import { DelayedMark, gameHref, statusWord } from './gamebits';
+import { DelayedMark, statusWord } from './gamebits';
 
 const tileLine = (g: V3Game) => (g.phase === 'live' ? g.score?.clock ?? 'In play' : g.phase === 'final' ? 'Final' : clockTime(g.startMs));
 
@@ -33,7 +33,7 @@ function Tile({ g, current, fav, onPick }: { g: V3Game; current: boolean; fav: b
 
 export function SwitcherRail({ current, games, tab }: { current: V3Game; games: V3Game[]; tab: string }) {
   const f = useFollows();
-  const nav = useNavigate();
+  const switchTo = useSwitchGame();
   const sheet = useSheet();
   const list = useMemo(() => switcherGames(games, current, f), [games, current, f]);
   const rail = useRef<HTMLDivElement>(null);
@@ -42,7 +42,7 @@ export function SwitcherRail({ current, games, tab }: { current: V3Game; games: 
     const el = rail.current?.querySelector<HTMLElement>('[data-current]');
     if (el && rail.current) rail.current.scrollLeft = Math.max(0, el.offsetLeft - 10);
   }, [current.key]);
-  const go = (g: V3Game) => { if (g.key !== current.key) nav(gameHref(g, tab)); };
+  const go = (g: V3Game) => { if (g.key !== current.key) switchTo(g, tab); };
   return (
     <nav className="v3-sw" aria-label="Switch game">
       <div className="v3-sw__rail" ref={rail}>
@@ -79,7 +79,8 @@ function PickRow({ g, current, onPick }: { g: V3Game; current: boolean; onPick: 
 /** The full picker: searchable, favourites first, segmented by Live / Today / Upcoming / Final. Handles 25+ simultaneous games as one scrolling list. */
 export function Picker({ current, games, tab }: { current: V3Game; games: V3Game[]; tab: string }) {
   const f = useFollows();
-  const nav = useNavigate();
+  const switchTo = useSwitchGame();
+  const sheet = useSheet();
   const list = useMemo(() => switcherGames(games, current, f), [games, current, f]);
   const counts = { live: list.filter((g) => g.phase === 'live').length, upcoming: list.filter((g) => g.phase === 'pregame').length, final: list.filter((g) => g.phase === 'final').length };
   const [seg, setSeg] = useState<Seg>(counts.live ? 'live' : 'today');
@@ -90,7 +91,7 @@ export function Picker({ current, games, tab }: { current: V3Game; games: V3Game
   const shown = list.filter((g) => matches(g) && (query ? true : bySeg(g)));
   const favs = shown.filter((g) => isFavorite(g, f));
   const rest = shown.filter((g) => !isFavorite(g, f));
-  const go = (g: V3Game) => nav(gameHref(g, tab));
+  const go = (g: V3Game) => (g.key === current.key ? sheet.close() : switchTo(g, tab));
   const SEGS: [Seg, string][] = [['live', `Live (${counts.live})`], ['today', 'Today'], ['upcoming', 'Upcoming'], ['final', 'Final']];
   return (
     <div className="v3-pk">

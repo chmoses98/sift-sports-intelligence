@@ -77,7 +77,11 @@ p { line-height: 1.56; }
 .caution p { color: #606d7d; }
 .next-copy { font-weight: 650; }
 .next ol { margin: 13px 0 0; padding-left: 21px; color: #536273; font-size: .88rem; line-height: 1.5; }
-.next li + li { margin-top: 5px; }
+.task-list { display: grid; gap: 5px; margin-top: 13px; }
+.task { display: flex; align-items: flex-start; gap: 11px; padding: 9px 7px; border-radius: 5px; font-size: .88rem; color: #526373; line-height: 1.45; cursor: pointer; }
+.task:hover { background: #f5f7fa; }
+.task input { flex: none; width: 19px; height: 19px; accent-color: #27577d; margin-top: 1px; }
+.task input:checked + span { color: #87939f; text-decoration: line-through; }
 .source-list { list-style: none; margin: 0; padding: 0; }
 .source-list li + li { margin-top: 11px; }
 .source-list a { display: inline-block; font-size: .89rem; font-weight: 600; padding: 4px 0; }

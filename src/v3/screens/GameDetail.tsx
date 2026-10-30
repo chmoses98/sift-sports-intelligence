@@ -4,9 +4,11 @@ import { useRouteState } from '../state/url';
 import { useGameByKey } from '../data/useSlate';
 import { useGameExtras, useEventDetail, useEventResearch } from '../data/useGameExtras';
 import { useGameStart } from '../data/research/gameHooks';
+import { useScriptState, type ScriptState } from '../data/research/scriptEngine';
+import { usePublishScriptContracts } from '../data/research/scriptPrices';
 import { weekOf } from '../data/research/gameMarkets';
 import { unitsFor } from '../data/research/matchup';
-import { isReady } from '../model/capabilities';
+import { gameCapability, isReady } from '../model/capabilities';
 import { switcherGames } from '../model/switcher';
 import { clockTime, dayClock, dayWord, weekdayClock } from '../model/time';
 import { TeamLink } from '../nav/Targets';
@@ -28,8 +30,15 @@ import { Brand } from '../ui/Brand';
 
 const TAB_LABEL: Record<Exclude<GameTab, 'overview'>, string> = { script: 'Game Script', matchup: 'Matchup', props: 'Props', stats: 'Stats' };
 const mainLabel = (g: V3Game) => (g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Recap' : 'Overview');
-/** NFL (a sport whose unit matchup is ready) has all five tabs; every other sport has Overview and Props. */
-export const tabsFor = (slug: string): GameTab[] => (isReady(slug, 'gameMatchup') ? ['overview', 'script', 'matchup', 'props', 'stats'] : ['overview', 'props']);
+/**
+ * NFL (a sport whose unit matchup is ready) has all five tabs. A game whose own research carries a Script Engine payload (CFB) has Overview, Game Script, Matchup and Props:
+ * availability is decided per game from the data (`gameCapability`). Every other game has Overview and Props.
+ */
+export const tabsFor = (slug: string, evidence: { scriptEngine?: boolean } = {}): GameTab[] => (isReady(slug, 'gameMatchup') ? ['overview', 'script', 'matchup', 'props', 'stats']
+  : gameCapability(slug, 'gameScript', evidence).status === 'ready' ? ['overview', 'script', 'matchup', 'props'] : ['overview', 'props']);
+
+/** Whether the script tabs are on offer: the payload is there, or it is still being read and the address asked for one of them. */
+export const scriptTabsOffered = (script: ScriptState, requested: GameTab): boolean => script.kind === 'ready' || (script.kind === 'loading' && (requested === 'script' || requested === 'matchup'));
 
 /** Back goes to the screen this game was opened from; with no in-app history (a deep link) it goes to Games. */
 function useBack() {
@@ -138,15 +147,17 @@ export function GameDetail() {
   const loc = useLocation();
   const follows = useFollows();
   const [st, setSt] = useRouteState(gameSchema);
-  const tabs = useMemo(() => tabsFor(g?.slug ?? slug), [g?.slug, slug]);
-  // A tab this sport does not have (a shared link, a saved route, a game switched to) falls back to Overview.
-  const tab: GameTab = tabs.includes(st.tab) ? st.tab : 'overview';
-  const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const research = useEventResearch(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
+  const script = useScriptState(g ?? null, research.data, research.loading, research.error);
+  const tabs = useMemo(() => tabsFor(g?.slug ?? slug, { scriptEngine: scriptTabsOffered(script, st.tab) }), [g?.slug, slug, script, st.tab]);
+  // A tab this game does not have (a shared link, a saved route, a game switched to) falls back to Overview.
+  const tab: GameTab = tabs.includes(st.tab) ? st.tab : 'overview';
+  const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);
   // Every price on this screen opens the one exact-contract sheet; tell it about the game's contracts (start from the schedule authority).
   usePublishGameContracts(g, startMs, detail.data);
+  usePublishScriptContracts(g, startMs, detail.data, script.kind === 'ready' ? script.engine : null);
 
   useEffect(() => { if (g) pushVisit({ route: gameHref(g), title: `${g.away.nick} at ${g.home.nick}`, subtitle: `${leagueLabel(g)} · ${g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Final' : dayWord(startMs ?? g.startMs)}`, kind: 'game', slug: g.slug, logo: g.home.logo }); }, [g?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   // collapse: the compact scoreboard appears once the hero and the rail have scrolled away
@@ -181,7 +192,7 @@ export function GameDetail() {
   const setTab = (t: GameTab) => setSt({ tab: t, unit: null });
   // Back out of an expanded unit: the list entry below is exactly as it was left. A shared link into a unit has none, so it closes the unit.
   const backFromUnit = () => { if (loc.key !== 'default') nav(-1); else setSt({ unit: null }); };
-  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry };
+  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry, script };
   return (
     <div className="v3-gd">
       {unitOpen ? <UnitBar g={g} back={backFromUnit} startMs={startMs} /> : (

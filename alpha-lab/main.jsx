@@ -7,9 +7,9 @@ import "./styles.css";
 function loadLocal() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? readSnapshot(raw) : { drafts: [], notes: {} };
+    return raw ? readSnapshot(raw) : { drafts: [], notes: {}, tasks: {} };
   } catch {
-    return { drafts: [], notes: {} };
+    return { drafts: [], notes: {}, tasks: {} };
   }
 }
 function newLocalId() {
@@ -22,6 +22,7 @@ function App() {
   const [local] = useState(loadLocal);
   const [drafts, setDrafts] = useState(local.drafts);
   const [notes, setNotes] = useState(local.notes);
+  const [tasks, setTasks] = useState(local.tasks || {});
   const [selectedId, setSelectedId] = useState("nba-selector-tail");
   const [query, setQuery] = useState("");
   const [sport, setSport] = useState("All sports");
@@ -39,9 +40,9 @@ function App() {
   const pending = STUDIES.filter((item) => item.status === "Investigate" || item.status === "Verify fix").length;
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(makeSnapshot(drafts, notes))); }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(makeSnapshot(drafts, notes, tasks))); }
     catch { setMessage("Browser storage unavailable. Export your work to keep a copy."); }
-  }, [drafts, notes]);
+  }, [drafts, notes, tasks]);
 
   useEffect(() => {
     function onKey(event) {
@@ -70,7 +71,7 @@ function App() {
     } catch (error) { setMessage(error.message); }
   }
   function exportWork() {
-    const data = JSON.stringify(makeSnapshot(drafts, notes), null, 2);
+    const data = JSON.stringify(makeSnapshot(drafts, notes, tasks), null, 2);
     const url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
     const link = document.createElement("a");
     link.href = url; link.download = "sift-alpha-research-export.json"; link.click();
@@ -85,10 +86,33 @@ function App() {
     try {
       const imported = readSnapshot(await file.text());
       if (!window.confirm("Replace local drafts and notes with this export?")) return;
-      setDrafts(imported.drafts); setNotes(imported.notes);
+      setDrafts(imported.drafts); setNotes(imported.notes); setTasks(imported.tasks || {});
       setSelectedId("nba-selector-tail"); setSport("All sports"); setState("All states"); setQuery("");
       setMessage("Local research restored from export.");
     } catch (error) { setMessage(error.message); }
+  }
+  function toggleTask(id, index) {
+    setTasks((current) => {
+      const previous = current[id] || [];
+      const updated = previous.includes(index) ? previous.filter((n) => n !== index) : [...previous, index];
+      return { ...current, [id]: updated };
+    });
+  }
+  async function copyBrief(study) {
+    const brief = [
+      "SIFT ALPHA RESEARCH BRIEF — RESEARCH ONLY",
+      "Question: " + study.question,
+      "Evidence state: " + study.status + " (as of " + study.date + ")",
+      "Finding: " + study.finding,
+      "Limitations: " + study.caveat,
+      "Next action: " + study.next,
+      "Checklist:\n" + study.checklist.map((item, index) => ((tasks[study.id] || []).includes(index) ? "[x] " : "[ ] ") + item).join("\n"),
+      "Sources:\n" + (study.sources.length ? study.sources.map((item) => item.url).join("\n") : "Not yet attached"),
+      "Working notes:\n" + (notes[study.id] || "(none)"),
+      "Research instruction: Verify the sources and point-in-time inputs. Do not assert profitability without independent, executable after-fee evidence."
+    ].join("\n\n");
+    try { await navigator.clipboard.writeText(brief); setMessage("Research brief copied. You can paste it into Claude or ChatGPT."); }
+    catch { setMessage("Clipboard access unavailable. Export your research instead."); }
   }
   return <div className="page">
     <header className="topbar">
@@ -149,11 +173,12 @@ function App() {
               <span className="detail-state">{selected.status}</span>
               <h2>{selected.title}</h2>
               <p className="question">{selected.question}</p>
+              <ActionButton secondary onClick={() => copyBrief(selected)}>Copy research brief</ActionButton>
             </div>
             {selected.metrics.length > 0 && <div className="metrics">{selected.metrics.map((metric) => <div key={metric.label}><div className="metric-value">{metric.value}</div><div className="metric-label">{metric.label}</div></div>)}</div>}
             <section className="detail-section"><div className="eyebrow">WHAT THE EVIDENCE SAYS</div><p className="finding">{selected.finding}</p></section>
             <section className="detail-section caution"><div className="eyebrow">WHAT WE CANNOT CLAIM</div><p>{selected.caveat}</p></section>
-            <section className="detail-section next"><div className="eyebrow">NEXT USEFUL ACTION</div><p className="next-copy">{selected.next}</p><ol>{selected.checklist.map((item) => <li key={item}>{item}</li>)}</ol></section>
+            <section className="detail-section next"><div className="eyebrow">NEXT USEFUL ACTION</div><p className="next-copy">{selected.next}</p><div className="task-list">{selected.checklist.map((item, index) => <label key={item} className="task"><input type="checkbox" checked={(tasks[selected.id] || []).includes(index)} onChange={() => toggleTask(selected.id, index)} /><span>{item}</span></label>)}</div></section>
             <section className="detail-section"><div className="eyebrow">SOURCE EVIDENCE</div>
               {selected.sources.length ? <ul className="source-list">{selected.sources.filter((item) => validSource(item.url)).map((item) => <li key={item.url}><a href={item.url} target="_blank" rel="noreferrer">{item.label} <span aria-hidden="true">↗</span></a></li>)}</ul> :
               <p className="muted">No source linked. This is a personal draft, not a validated study.</p>}

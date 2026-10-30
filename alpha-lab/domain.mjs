@@ -50,8 +50,19 @@ export function readSnapshot(value) {
     if (typeof key !== "string" || typeof note !== "string" || note.length > 10000) throw new Error("Invalid research note.");
     notes[key] = note;
   }
-  return { drafts, notes };
+  const tasks = {};
+  if (parsed.tasks !== undefined && (!parsed.tasks || typeof parsed.tasks !== "object" || Array.isArray(parsed.tasks))) {
+    throw new Error("Invalid research checklist data.");
+  }
+  if (Object.keys(parsed.tasks || {}).length > 1000) throw new Error("Too many research checklists.");
+  for (const [key, values] of Object.entries(parsed.tasks || {})) {
+    if (!Array.isArray(values) || values.length > 30 || !values.every((v) => Number.isInteger(v) && v >= 0 && v < 30)) {
+      throw new Error("Invalid research checklist.");
+    }
+    tasks[key] = [...new Set(values)];
+  }
+  return { drafts, notes, tasks };
 }
-export function makeSnapshot(drafts, notes) {
-  return { version: 1, exportedAt: new Date().toISOString(), drafts, notes };
+export function makeSnapshot(drafts, notes, tasks = {}) {
+  return { version: 1, exportedAt: new Date().toISOString(), drafts, notes, tasks };
 }

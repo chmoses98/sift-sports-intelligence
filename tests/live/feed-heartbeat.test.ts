@@ -138,8 +138,11 @@ describe('the real publisher script, end to end (stubbed network and clock)', ()
     const files = (function walk(d: string, base = ''): string[] {
       return readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name), `${base}${e.name}/`) : [`${base}${e.name}`]));
     })(out).sort();
-    expect(files.filter((f) => f !== 'health.json' && !f.startsWith('games/'))).toEqual(['README.md', 'index.json']);
+    expect(files.filter((f) => f !== 'health.json' && !f.startsWith('games/'))).toEqual(['README.md', 'index.json', 'relay/vercel.json']);
     expect(files).toContain('health.json');
+    // The Vercel project sift-quote-relay is connected to this repository: without relay/vercel.json (Git deployments off) every push to the data
+    // branch is a failed Vercel deployment, and one push every 3 minutes exhausts the plan's daily deployment limit, which blocks main's too.
+    expect(read(out, 'relay/vercel.json')).toMatchObject({ git: { deploymentEnabled: false } });
     expect(files).toContain('games/26OCT04NEBUF.json');
     // every game file listed by index.json exists, and nothing else is under games/
     expect(files.filter((f) => f.startsWith('games/')).sort()).toEqual(read(out, 'index.json').games.map((g: { file: string }) => g.file).sort());

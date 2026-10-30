@@ -1,3 +1,4 @@
+import { SPORT_REGISTRY, sportLabel, sportById, isCustomSport, SPORT_GROUPS } from "./sport-registry.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { STUDIES } from "./studies.mjs";
@@ -42,4 +43,38 @@ test("user-supplied URLs cannot cause unsafe source navigation", () => {
   assert.ok(validSource("https://github.com/chmoses98/nba-edge-finder/issues/39"));
   assert.equal(validSource("javascript:alert(1)"), false);
   assert.equal(validSource("https://github.com.evil.example/path"), false);
+});
+
+test("all sport groups are distinct, and CFB CBB NCAA baseball are first-class research tracks", () => {
+  assert.equal(new Set(SPORT_REGISTRY.map((x) => x.id)).size, SPORT_REGISTRY.length);
+  for (const id of ["CFB", "CBB", "NCAA-BASEBALL", "NBA", "NFL", "MLB", "NHL", "SOCCER", "TENNIS"]) {
+    assert.ok(sportById(id), id + " must exist");
+  }
+  assert.equal(sportById("NCAA-BASEBALL").research, "Needs research pipeline");
+  assert.equal(sportById("CBB").research, "Existing repository");
+  assert.ok(SPORT_GROUPS.includes("Baseball / Softball"));
+  assert.equal(sportLabel("NCAA-BASEBALL"), "NCAA Baseball");
+  assert.ok(SPORTS.includes("OTHER"), "new/unclassified sports remain researchable");
+  for (const row of SPORT_REGISTRY) {
+    assert.ok(row.id && row.label && row.group && row.priority && row.research);
+    assert.ok(["Existing repository", "Needs research pipeline"].includes(row.research));
+    if (row.repository) assert.ok(validSource(row.repository));
+    if (row.marketEvidence) assert.ok(validSource(row.marketEvidence));
+  }
+});
+test("future sport can start an honest local draft without a model", () => {
+  const sport = "Custom: Cycling";
+  assert.equal(isCustomSport(sport), true);
+  const draft = createDraft("Do weather changes affect road race outcomes?", sport, "local-cycling");
+  assert.equal(draft.sport, sport);
+  assert.equal(draft.status, "Draft");
+  const restored = readSnapshot(JSON.stringify(makeSnapshot([draft], {}, {})));
+  assert.equal(restored.drafts[0].sport, sport);
+  assert.equal(createDraft("Do match odds show late information?", "Soccer", "local-legacy").sport, "SOCCER");
+  assert.throws(() => createDraft("Research question can run now?", "Custom: <script>", "local-invalid"));
+});
+test("source URLs accept only GitHub and Kalshi HTTPS hosts", () => {
+  assert.ok(validSource("https://kalshi.com/markets/kxncaabbgame/college-baseball-game"));
+  assert.equal(validSource("https://kalshi.com.evil.invalid/markets"), false);
+  assert.equal(validSource("http://kalshi.com/markets"), false);
 });

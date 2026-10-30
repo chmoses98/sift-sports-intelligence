@@ -128,7 +128,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/team/cfb/UGA?demo=1');
     await page.getByRole('button', { name: /^Follow Georgia/ }).click();
     await go(page, '/v3/following?demo=1');
-    await expect(page.locator('.v3-tm').first()).toContainText('Georgia');
+    await expect(page.locator('.v3-hit--team').first()).toContainText('Georgia');
     expect(await page.evaluate(() => localStorage.getItem('sift3.alerts'))).toBeNull();
     expect(await page.evaluate(() => typeof Notification === 'undefined' || Notification.permission !== 'granted')).toBe(true);
   });

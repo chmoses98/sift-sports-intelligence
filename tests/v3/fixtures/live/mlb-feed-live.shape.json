@@ -1,0 +1,291 @@
+{
+ "copyright": "TEST FIXTURE shaped like the MLB StatsAPI live feed (/api/v1.1/game/{gamePk}/feed/live); hand-written, not a recording",
+ "gamePk": 900001,
+ "metaData": {
+  "timeStamp": "20261031_020301"
+ },
+ "gameData": {
+  "status": {
+   "abstractGameState": "Live",
+   "detailedState": "In Progress"
+  },
+  "teams": {
+   "away": {
+    "name": "New York Yankees"
+   },
+   "home": {
+    "name": "Los Angeles Dodgers"
+   }
+  }
+ },
+ "liveData": {
+  "plays": {
+   "allPlays": [
+    {
+     "result": {
+      "type": "atBat",
+      "event": "Play",
+      "description": "Test Batter One strikes out swinging.",
+      "awayScore": 0,
+      "homeScore": 0
+     },
+     "about": {
+      "atBatIndex": 0,
+      "halfInning": "top",
+      "inning": 1,
+      "isScoringPlay": false,
+      "isComplete": true
+     }
+    },
+    {
+     "result": {
+      "type": "atBat",
+      "event": "Play",
+      "description": "Test Batter Two singles on a line drive to left field.",
+      "awayScore": 0,
+      "homeScore": 0
+     },
+     "about": {
+      "atBatIndex": 1,
+      "halfInning": "top",
+      "inning": 1,
+      "isScoringPlay": false,
+      "isComplete": true
+     }
+    },
+    {
+     "result": {
+      "type": "atBat",
+      "event": "Play",
+      "description": "Test Hitter Nine homers (1) on a fly ball to right field.",
+      "awayScore": 0,
+      "homeScore": 1
+     },
+     "about": {
+      "atBatIndex": 2,
+      "halfInning": "bottom",
+      "inning": 2,
+      "isScoringPlay": true,
+      "isComplete": true
+     }
+    },
+    {
+     "result": {
+      "type": "atBat",
+      "event": "Play",
+      "description": "Test Batter Three doubles to deep center field. Test Runner scores.",
+      "awayScore": 1,
+      "homeScore": 1
+     },
+     "about": {
+      "atBatIndex": 3,
+      "halfInning": "top",
+      "inning": 5,
+      "isScoringPlay": true,
+      "isComplete": true
+     }
+    },
+    {
+     "result": {
+      "type": "atBat",
+      "event": "Play",
+      "description": "Test Batter Four singles; Test Runner Two scores, Test Runner Three to third.",
+      "awayScore": 3,
+      "homeScore": 2
+     },
+     "about": {
+      "atBatIndex": 4,
+      "halfInning": "top",
+      "inning": 7,
+      "isScoringPlay": true,
+      "isComplete": true
+     }
+    },
+    {
+     "result": {
+      "type": "atBat",
+      "event": "Play",
+      "description": "Test Batter Five is at the plate.",
+      "awayScore": 3,
+      "homeScore": 2
+     },
+     "about": {
+      "atBatIndex": 5,
+      "halfInning": "top",
+      "inning": 7,
+      "isScoringPlay": false,
+      "isComplete": false
+     }
+    }
+   ]
+  },
+  "linescore": {
+   "currentInning": 7,
+   "currentInningOrdinal": "7th",
+   "inningState": "Top",
+   "inningHalf": "Top",
+   "outs": 1,
+   "balls": 2,
+   "strikes": 1,
+   "offense": {
+    "first": {
+     "id": 1,
+     "fullName": "Test Runner Two"
+    },
+    "third": {
+     "id": 2,
+     "fullName": "Test Runner Three"
+    }
+   },
+   "teams": {
+    "away": {
+     "runs": 3
+    },
+    "home": {
+     "runs": 2
+    }
+   }
+  },
+  "boxscore": {
+   "teams": {
+    "away": {
+     "players": {
+      "ID1": {
+       "person": {
+        "id": 1,
+        "fullName": "Test Batter One"
+       },
+       "stats": {
+        "batting": {
+         "atBats": 4,
+         "hits": 0,
+         "homeRuns": 0,
+         "rbi": 0,
+         "baseOnBalls": 0
+        }
+       }
+      },
+      "ID2": {
+       "person": {
+        "id": 2,
+        "fullName": "Test Batter Two"
+       },
+       "stats": {
+        "batting": {
+         "atBats": 3,
+         "hits": 2,
+         "homeRuns": 0,
+         "rbi": 1,
+         "baseOnBalls": 1
+        }
+       }
+      },
+      "ID3": {
+       "person": {
+        "id": 3,
+        "fullName": "Test Batter Three"
+       },
+       "stats": {
+        "batting": {
+         "atBats": 3,
+         "hits": 1,
+         "homeRuns": 0,
+         "rbi": 1,
+         "baseOnBalls": 0
+        }
+       }
+      },
+      "ID4": {
+       "person": {
+        "id": 4,
+        "fullName": "Test Batter Four"
+       },
+       "stats": {
+        "batting": {
+         "atBats": 3,
+         "hits": 1,
+         "homeRuns": 0,
+         "rbi": 1,
+         "baseOnBalls": 0
+        }
+       }
+      },
+      "ID5": {
+       "person": {
+        "id": 5,
+        "fullName": "Test Starter Away"
+       },
+       "stats": {
+        "pitching": {
+         "inningsPitched": "6.0",
+         "strikeOuts": 7,
+         "earnedRuns": 2
+        }
+       }
+      },
+      "ID6": {
+       "person": {
+        "id": 6,
+        "fullName": "Test Reliever Away"
+       },
+       "stats": {
+        "pitching": {
+         "inningsPitched": "0.1",
+         "strikeOuts": 0,
+         "earnedRuns": 0
+        }
+       }
+      }
+     }
+    },
+    "home": {
+     "players": {
+      "ID9": {
+       "person": {
+        "id": 9,
+        "fullName": "Test Hitter Nine"
+       },
+       "stats": {
+        "batting": {
+         "atBats": 3,
+         "hits": 2,
+         "homeRuns": 1,
+         "rbi": 2,
+         "baseOnBalls": 0
+        }
+       }
+      },
+      "ID10": {
+       "person": {
+        "id": 10,
+        "fullName": "Test Hitter Ten"
+       },
+       "stats": {
+        "batting": {
+         "atBats": 3,
+         "hits": 0,
+         "homeRuns": 0,
+         "rbi": 0,
+         "baseOnBalls": 1
+        }
+       }
+      },
+      "ID11": {
+       "person": {
+        "id": 11,
+        "fullName": "Test Starter Home"
+       },
+       "stats": {
+        "pitching": {
+         "inningsPitched": "5.2",
+         "strikeOuts": 6,
+         "earnedRuns": 3
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

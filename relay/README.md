@@ -28,6 +28,11 @@ The relay:
   falls back instead of hanging;
 * shares identical reads for 5 seconds (and merges identical reads already in flight).
 
+**Build config guard.** Vercel compiles `api/markets.ts` with `relay/tsconfig.json`. That file must keep `module`/`moduleResolution`
+at `Node16` (CommonJS output, since `package.json` has no `"type": "module"`): with `ESNext` + `Bundler` the function was emitted as ESM
+with an extensionless `../core` import, Node 22 refused to load it, and every request answered 500 `FUNCTION_INVOCATION_FAILED` while the
+deployment still showed *Ready* (2026-10-30 to 2026-10-31). `tests/relayBuild.test.ts` fails if that returns.
+
 Files: `core.ts` (all behaviour), `api/markets.ts` + `vercel.json` + `package.json` + `public/`
 (Vercel host), `kalshi-quote-relay.ts` + `wrangler.toml` (legacy Cloudflare host). Tests:
 `tests/relay.test.ts`, `tests/relayDate.test.ts`; browser-level check of the exposed headers:

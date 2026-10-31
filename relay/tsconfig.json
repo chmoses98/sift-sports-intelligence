@@ -6,8 +6,8 @@
       "DOM",
       "DOM.Iterable"
     ],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "Node16",
+    "moduleResolution": "Node16",
     "types": [
       "node"
     ],

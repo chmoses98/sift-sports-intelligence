@@ -2,7 +2,7 @@
 // feed. Read-only against SIFT's sources (a "save" only writes the fresh browser profile's own device storage). Chromium phone and WebKit
 // iPhone each walk the journey:
 //
-//   SIFT 2.0 is still the default -> #/v4 chooses nothing and installs as "SIFT v4" -> Home -> Games -> Game -> Props -> player ->
+//   SIFT 3.0 is the default (the root address opens #/v3) -> #/v4 chooses nothing and installs as "SIFT v4" -> Home -> Games -> Game -> Props -> player ->
 //   Research -> Save (YES and NO are different items) -> Board (note, remove, Undo, revisit the research on the saved side) ->
 //   the SAME saved research on the SIFT 2.0 Board, with a pre-v4 save (no side, with a note) untouched throughout.
 //
@@ -148,10 +148,10 @@ async function journey(browser, device, name) {
   const { ctx: c0, page: p0, errs: e0 } = await newPage(browser, device);
   let game = null; let live = null; const home = { games: 0 };
   try {
-    // --- SIFT 2.0 stays the default; #/v4 chooses nothing and installs as "SIFT v4"
+    // --- SIFT 3.0 is the default (SIFT 2.0 and v4 are opt-in); #/v4 chooses nothing and installs as "SIFT v4"
     await p0.goto(BASE, { waitUntil: 'domcontentloaded' });
-    await p0.waitForURL(/#\/design\/sift2\/home/, { timeout: 60_000 });
-    check((await p0.locator('[data-v4-shell]').count()) === 0, tag('the root address is SIFT 2.0, not v4'));
+    await p0.waitForURL(/#\/v3(\/|\?|$)/, { timeout: 60_000 });
+    check((await p0.locator('[data-v4-shell]').count()) === 0, tag('the root address is SIFT 3.0, not v4'));
     check(/\/manifest\.webmanifest$/.test((await p0.locator('link[rel="manifest"]').getAttribute('href')) ?? ''), tag('the root installs as SIFT (own manifest)'));
     await p0.goto(`${BASE}#/v4`, { waitUntil: 'domcontentloaded' });
     await settled(p0);
@@ -435,8 +435,8 @@ if (process.env.SIFT_V4_PAUSED === '1') {
     await page.getByRole('heading', { name: 'SIFT v4 early access is paused' }).waitFor({ timeout: 60_000 });
     check(await page.getByRole('link', { name: 'Open SIFT 2.0' }).isVisible(), 'v4 says it is paused and offers SIFT 2.0');
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(/#\/design\/sift2\/home/, { timeout: 60_000 });
-    check((await page.locator('[data-v4-shell]').count()) === 0, 'the root address is SIFT 2.0');
+    await page.waitForURL(/#\/v3(\/|\?|$)/, { timeout: 60_000 });
+    check((await page.locator('[data-v4-shell]').count()) === 0, 'the root address is SIFT 3.0, not v4');
     check(errs.length === 0, `no page errors${errs.length ? ` (${errs[0]})` : ''}`);
     await ctx.close();
   } finally { await browser.close(); }

@@ -166,3 +166,48 @@ markets with a notice saying so.
   completed week (a pregame view uses the weeks before its game) and one for last season. Rate stats (yards per
   carry, catch rate) are not ranked: their direction and sample rules need owner review.
 * **Routes run / route participation** remain blocked (no 2026 public source).
+
+## 10. Sport coverage audit (2026-10-31, SIFT 3.0 Workstream 4)
+
+Every publication was re-read against the live `raw.githubusercontent.com` documents on 2026-10-31 and the committed real fixtures. What is connected is in
+`docs/SIFT3.md` ("Sport coverage"); this section is what is **not**, with the precise reason. Nothing below was estimated or filled in.
+
+* **MLB team profiles are stale; the slate is current.** The explorer index says `generated_at 2026-10-31`, but the newest *team* observation is
+  `2026-08-27` (13 of 37 team metrics; the rest are completed seasons 2022 to 2025). The regular season ended 162 games in, so the team cache stopped
+  about a month before it did. Team Overview, Profile, Form, Schedule, Players and the league rankings stay `gated` (capabilities.ts), re-checked by
+  freshness: 65 days at the audit, outside the 21-day rule (`isCurrent`). The *event research* document (the daily slate: projected runs, win
+  probability, probable pitchers, park, lineup status, form) is current (`quality.data_as_of 2026-10-28`, projections `as_of 2026-10-29`) and is
+  connected, with its own freshness check (3 days). **Upstream fix:** the team-profile export in `edge-finder-api` must refresh its snapshot metrics
+  (xwOBA, bullpen, opponent quality) daily again. Also not published for baseball: league ranks (observation `context` is null), injuries, weather
+  values, umpires, batting orders.
+* **NBA team statistics run through last season.** Every team observation is `as_of 2026-06-14` (an exponentially weighted rating "to 2026-06-14" and the
+  82-game 2025-26 season); the 2026-27 games already played are not in them. The game Overview now says so under the table, and the Team and Stat
+  screens stay `gated`. Also gaps NBA itself states: the official NBA injury report was never captured; the ESPN injury rows carry **no team**, so they
+  are listed only for players the game's projected roster places on a team (the rest are counted); no lineups or starters; the export carries 0 model
+  prices (defect §5.14); the publication's own out-of-sample verdict is that the Kalshi price beat the model in 8 of 8 families (the verdict travels with
+  the number).
+* **NHL.** Overview research is complete (simulation, season ranks, goalie status, designations, scripts, findings) and the Team Schedule and Players tabs
+  are now connected to the current team document (82 games, season and last-10 statistics, a roster by position, designations). The Team Profile tab
+  stays `gated`: its opponent-adjusted switch is football's (`ADJ_RIDGE` window) while NHL publishes its `oa_*` ratings under a `5v5 recency-weighted`
+  custom window. That is a screen declaration, not missing data. Power play and penalty kill are season-only. Designations carry no team in the game
+  feed (matched by name to the game's roster; unmatched ones are counted). The simulation says `sim_frozen: false` until its pregame freeze.
+* **CBB.** Real research documents exist for 303 games (live 2026-10-30), but each carries 0 `matchup` rows, projection state `PENDING_WINDOW`, and only
+  `matchup_pairs` (statistic names with no values). Tempo (possessions), points per possession, and the total and margin ranges exist **only** for a game
+  inside the 30-hour prospective capture window; rosters, continuity and the expected rotation are published now and are connected. No injuries are
+  published. The Team screens have no CBB declaration (the team document carries `ratings` and the roster). The offline tests for CBB use the publisher's
+  synthetic fixture (labelled so): no real projected game is committed.
+* **Soccer.** Connected: model board (1X2, mean goals, BTTS, over 2.5), six scripts with simulation shares, attack against defence ratings, rest and
+  congestion, head to head, the publication's own data gaps, and the Kalshi match-result contracts as the win price. Not published: lineups, injuries or
+  any player layer (so no player props: Kalshi lists match markets only), shot-based xG (mean goals are Dixon-Coles rates), standings or qualification
+  context, club logos. The script engine abstains for some fixtures (`UNAVAILABLE` with its own reason, shown as such). Not built on the v3 side: a Team
+  Research declaration for clubs (the club document publishes goals, points, BTTS and over-2.5 rates for the season and last 5; 7 of 14 are ranked), a
+  Game Script tab (the scripts are on the Overview), and the draw contract and the handicap and exact-score ladders as Overview cards. The survivability
+  rows (priced expressions) are deliberately not read: they are bet-shaped.
+* **Tennis.** Connected: match-win probability (fair_v1, with its envelope and the Gen-1 and Gen-2 values), Elo, surface Elo, serve and return ability,
+  serve-point sample, surface sensitivity, recency inputs, start status and warnings, the sharp references beside the Kalshi mid and the model, and the
+  match-winner and total-games contracts. Not published: a model for doubles (the publication says so), win-loss form (recency and experience inputs only),
+  league ranks for the ratings, court speed or altitude, injuries, draws or rankings. The publication's own settled record has the Kalshi mid out-scoring
+  the model, and the model lane says so. The publication's bet selector labels are never read.
+* **No real soccer or tennis event document is committed** in `fixtures/real` (the `props` family holds those sports' boards only: their games fall
+  outside its research horizon). The v3 browser tests for them serve the trimmed real publications in `tests/fixtures`. **Follow-up:** capture a soccer
+  and a tennis family when a slate with research documents is available.

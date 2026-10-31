@@ -26,7 +26,7 @@ export interface ScriptCard {
   /** The case against it (what would break it, or the published opposing factors). */
   counter: string[];
   /** Where this card's content comes from, for the footnote. */
-  source: 'thesis' | 'simulation' | 'nhl';
+  source: 'thesis' | 'simulation' | 'nhl' | 'soccer';
 }
 
 export interface ScriptIntel {

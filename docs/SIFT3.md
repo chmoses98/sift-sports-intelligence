@@ -115,6 +115,27 @@ and `e2e/v3-intel.spec.ts`. A live or final game keeps the same research in an o
   publication's gate says SHOW), and NHL's `nhl_scripts_v1`. Expected / Alternate / Danger, each with evidence and a counterargument.
 * **Matchup tab**: default is readable sentences with side-by-side rank bars; the tug-of-war chart is one tap away (`chart=1` in the address).
 
+## Sport coverage (Workstream 4)
+
+Each sport's own publication reaches the Overview through a per-sport reader (`src/v3/data/intel/sports/`: `nhl`, `nba`, `mlb`, `cbb`, `soccer`, `tennis`; tests
+`tests/v3/sport-coverage.test.ts`, `e2e/v3-coverage.spec.ts`). A reader returns a piece only when the game's own document states it, and `readSport` runs a layer
+only if `model/capabilities.ts` does not declare it `none` for the sport. The three Overview layers (`gameModel`, `gameEnvironment`, `gameAvailability`) are
+`gated` per game for NHL, NBA, MLB, CBB, soccer and tennis: `buildGameIntel` fills `layers` with `gameCapability(slug, layer, { sections })`, so a layer opens for a game
+because its document filled it, and a `none` layer (tennis environment, CFB's, which the Script Engine view owns) never does.
+
+| Sport | Connected on the Overview | Labelled as | Not connected (see DATA_GAPS §10) |
+|---|---|---|---|
+| NHL | simulation (expected goals, win and overtime), season ranks of goals, expected goals, shot share, power play and penalty kill, rest, goalie status, designations placed on a team, findings, scripts | research simulation with the settled Brier next to the market's | Team Profile tab (its adjusted switch is football's; hockey publishes `oa_*` under another window). Team Schedule and Players are connected |
+| NBA | raw simulation (points, pace, per-100 efficiency, rest, overtime), season ranks of ratings, pace and scoring | research; the publication's verdict that the market beat it travels with it; statistics "run through Jun 14" when they do | team and stat screens (statistics are last season's); injuries (no team named); lineups |
+| MLB | slate projection (runs, win), park, runs per game (season, last 15, last 7), wRC+, bullpen, probable starters, lineup status, record and form | research, confidence as published; a values table with no invented ranks; the slate document must be within 3 days (`isCurrent`) or nothing is shown as current | team screens and league rankings (team cache stops 2026-08-27, 65 days) |
+| CBB | rosters, continuity, expected rotation, site and conference game; tempo, points per possession and totals once the game is projected | the frozen pre-tip projection; the publisher's message when there is none | tempo and efficiency before the capture window; matchup statistics; team screens |
+| Soccer | model board with the draw, six scripts (shares), attack against defence, rest and congestion, head to head, the publication's data gaps; Kalshi result contracts as the win price | research model board, "not xG", shares "not calibrated probabilities" | lineups and injuries (none published), Team Research, a Game Script tab |
+| Tennis | match-win probability (Gen-1, Gen-2 and range), Elo, surface Elo, serve and return, surface and sample, the sharp references; match-winner and total-games contracts | research, with the publication's settled record that the Kalshi mid beat the model; references marked market data | doubles (no model, said so), win-loss form, ranks |
+
+Kalshi markets: `data/research/matchMarkets.ts` names the game's own contracts by family (`match_result_3way` with period "regulation" and `match_winner` are the win,
+`total_goals` and `total_games` the total) and gives an event that names no home and away (tennis) the board's own sides, so the win price, the moneyline chip and the
+contract sheet agree. American-sport families are unchanged. Soccer and tennis have no player props on Kalshi, so their props and player sections are `none`.
+
 ## Not built (prioritised next steps)
 
 1. The offline/degraded full-state set (the degraded wording and an offline strip exist inline; there is no dedicated screen). The first-run welcome sheet is built.

@@ -8,7 +8,7 @@ import type { GameIntel, IntelSection } from '../../data/intel/build';
 import type { GameCtx } from '../GameShared';
 import './intel.css';
 import { ProjectionCard } from './ProjectionCard';
-import { AdvantagesSection, ComparisonSection, EnvironmentSection, MismatchSection, NotesSection, ScriptSection } from './sections';
+import { AdvantagesSection, ComparisonSection, EnvironmentSection, MismatchSection, NotesSection, ScriptSection, SportBlockCard } from './sections';
 
 function Sections({ ctx, intel, priced }: { ctx: GameCtx; intel: GameIntel; priced: boolean }) {
   const has = (s: IntelSection) => intel.present.includes(s);
@@ -20,6 +20,7 @@ function Sections({ ctx, intel, priced }: { ctx: GameCtx; intel: GameIntel; pric
       {has('mismatches') && <MismatchSection ctx={ctx} items={intel.mismatches} />}
       {has('notes') && intel.notes && <NotesSection ctx={ctx} notes={intel.notes} />}
       {has('environment') && intel.environment && <EnvironmentSection env={intel.environment} />}
+      {has('sport') && intel.blocks.map((b) => <SportBlockCard key={b.id} block={b} />)}
       {has('script') && intel.script && <ScriptSection script={intel.script} />}
       {intel.gaps.length > 0 && (
         <details className="mi-gaps x-card" data-testid="intel-gaps">

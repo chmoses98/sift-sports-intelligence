@@ -4,17 +4,18 @@ import type { Market } from '../../../contract/types';
 import type { Price } from '../../model/types';
 import { isTradableWord } from '../../model/marketStatus';
 import { priceOf } from '../adapt';
+import { isFullGame, WIN_FAMILY } from './matchMarkets';
 import type { ScheduleEvent } from './types';
 
 /** The one status rule (model/marketStatus.ts): open or no status; any other word, an unrecognised one included, is withheld. */
 const OPEN = (m: Market) => isTradableWord(m.market_status);
-const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
+const FULL = isFullGame;
 
 export interface WinContract { team: 'away' | 'home'; ticker: string; price: Price }
 
 /** The full-game win contracts, away then home. A side with no open contract is absent (never filled). */
 export function winContracts(markets: Market[] | undefined, awayId: string | null, homeId: string | null): WinContract[] {
-  const ml = (markets ?? []).filter((m) => OPEN(m) && FULL(m) && m.yes_ask != null && /^(game_)?(moneyline|winner)$/.test(m.market_family) && m.participant_id);
+  const ml = (markets ?? []).filter((m) => OPEN(m) && FULL(m) && m.yes_ask != null && WIN_FAMILY.test(m.market_family) && m.participant_id);
   const out: WinContract[] = [];
   for (const [team, pid] of [['away', awayId], ['home', homeId]] as const) {
     const m = pid ? ml.find((x) => x.participant_id === pid) : undefined;

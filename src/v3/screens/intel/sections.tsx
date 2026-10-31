@@ -5,6 +5,7 @@ import type { Comparison, GameIntel, IntelNotes } from '../../data/intel/build';
 import { nicknames } from '../../data/intel/build';
 import type { Environment } from '../../data/intel/environment';
 import type { ScriptCard, ScriptIntel } from '../../data/intel/scriptIntel';
+import type { SportBlock, SportRow } from '../../data/intel/sports';
 import type { KeyMatchup } from '../../data/research/keyMatchups';
 import { ordinal, type UnitRow } from '../../data/research/matchup';
 import { ADVANTAGE_NOTE, UNIT_COPY, type Advantage } from '../../model/intel/advantages';
@@ -97,7 +98,24 @@ export function ComparisonSection({ ctx, comparison }: { ctx: GameCtx; compariso
             })}
           </tbody>
         </table>
-        <p className="x-note mi-foot">Opponent-adjusted, season-long. Shaded: that side leads its matchup by more than 15 percentile points. Full charts are on the Matchup tab.</p>
+        <p className="x-note mi-foot">Opponent-adjusted, season-long. Shaded: that side leads its matchup by more than 15 percentile points. Full charts are on the Matchup tab.{comparison.note ? ` ${comparison.note}` : ''}</p>
+      </div>
+    );
+  }
+  if (comparison.kind === 'values') {
+    return (
+      <div className="x-card mx-sec" role="region" aria-label="Team comparison" data-testid="intel-comparison">
+        <Head title="Team comparison" note="published values" />
+        <table className="mi-tbl mi-tbl--g">
+          <caption className="sr">Published values for each side, with no league rank</caption>
+          <thead><tr><th scope="col">Statistic</th><th scope="col">{g.away.abbr}</th><th scope="col">{g.home.abbr}</th></tr></thead>
+          <tbody>
+            {comparison.rows.map((r) => (
+              <tr key={r.id}><th scope="row">{r.name}</th><td><b className="num">{r.away}</b></td><td><b className="num">{r.home}</b></td></tr>
+            ))}
+          </tbody>
+        </table>
+        {comparison.note && <p className="x-note mi-foot">{comparison.note}</p>}
       </div>
     );
   }
@@ -117,7 +135,7 @@ export function ComparisonSection({ ctx, comparison }: { ctx: GameCtx; compariso
           ))}
         </tbody>
       </table>
-      <p className="x-note mi-foot">The largest rank gaps the publication states. Ranks are as published; every statistic is on the Stats tab.</p>
+      <p className="x-note mi-foot">The largest rank gaps the publication states. Ranks are as published; every statistic is on the Stats tab.{comparison.note ? ` ${comparison.note}` : ''}</p>
     </div>
   );
 }
@@ -187,16 +205,39 @@ export function NotesSection({ ctx, notes }: { ctx: GameCtx; notes: IntelNotes }
 export function EnvironmentSection({ env }: { env: Environment }) {
   return (
     <div className="x-card mx-sec" role="region" aria-label="Pace and scoring environment" data-testid="intel-environment">
-      <Head title="Pace and scoring" note="simulation and season" />
+      <Head title="Pace and scoring" note="model and season" />
       <dl className="mi-env">
         {env.lines.map((l) => (
           <div key={l.id}>
-            <dt>{l.label}<i className={`mi-src mi-src--${l.source}`}>{l.source === 'simulation' ? 'Simulation' : 'Season'}</i></dt>
+            <dt>{l.label}<i className={`mi-src mi-src--${l.source}`}>{l.source === 'simulation' ? 'Simulation' : l.source === 'model' ? 'Model' : 'Season'}</i></dt>
             <dd>{l.text}</dd>
           </div>
         ))}
       </dl>
       {env.notSimulated.length > 0 && <p className="x-note mi-foot">Not simulated: {env.notSimulated.join('; ')}.</p>}
+      {env.foot && <p className="x-note mi-foot">{env.foot}</p>}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------------------------ the sport's own research cards
+
+const SRC_WORD: Record<SportRow['source'], string> = { simulation: 'Simulation', season: 'Season', status: 'Published status', model: 'Model' };
+
+/** One card of a sport's own research (starters and lineups, rotations, surface and form, attack against defence): published statements with their kind and source line. */
+export function SportBlockCard({ block }: { block: SportBlock }) {
+  return (
+    <div className="x-card mx-sec" role="region" aria-label={block.title} data-testid={`intel-block-${block.id}`}>
+      <Head title={block.title} note={block.note} />
+      <dl className="mi-env">
+        {block.rows.map((r) => (
+          <div key={r.id}>
+            <dt>{r.label}<i className={`mi-src mi-src--${r.source}`}>{SRC_WORD[r.source]}</i></dt>
+            <dd>{r.text}</dd>
+          </div>
+        ))}
+      </dl>
+      {block.foot && <p className="x-note mi-foot">{block.foot}</p>}
     </div>
   );
 }

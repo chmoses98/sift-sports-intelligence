@@ -29,7 +29,7 @@ async function openVisibleGame(page: Page) {
   const link = await page.evaluateHandle(() => [...document.querySelectorAll<HTMLAnchorElement>('a[href*="/v3/game/"]')].find((x) => { const r = x.getBoundingClientRect(); return r.width > 0 && r.top > 140 && r.bottom < innerHeight - 100; }) ?? null);
   const el = link.asElement();
   expect(el, 'a game link on screen').not.toBeNull();
-  await el!.click();
+  await el!.click({ position: { x: 24, y: 24 } });   // the card body, not the centre of its link: on a 375 pt screen the centre is the market-lines button
   await expect(page).toHaveURL(gamePath);
   await expect(page.locator('.v3-gh')).toBeVisible({ timeout: 30_000 });
 }

@@ -4,6 +4,7 @@ import { useRouteState } from '../state/url';
 import { useGameByKey } from '../data/useSlate';
 import { useGameExtras, useEventDetail, useEventResearch } from '../data/useGameExtras';
 import { useGameStart } from '../data/research/gameHooks';
+import { useLiveDetail, withLiveDetail } from '../data/live/useLiveDetail';
 import { useScriptState, type ScriptState } from '../data/research/scriptEngine';
 import { usePublishScriptContracts } from '../data/research/scriptPrices';
 import { weekOf } from '../data/research/gameMarkets';
@@ -135,7 +136,10 @@ export function GameDetail() {
   const { game, games, loading } = useGameByKey(key);
   const startMs = useGameStart(game);
   const x = useGameExtras(game, 'full', true, startMs);
-  const g = x?.game ?? game;
+  const g0 = x?.game ?? game;
+  // The live feed for a game in play (data/live): only a source this build is cleared to read; its score fills the hero only where the slate has none.
+  const live = useLiveDetail(g0, startMs);
+  const g = useMemo(() => (g0 ? withLiveDetail(g0, live) : g0), [g0, live]);
   useGameOriginMark();
   const back = useGameBack();
   const nav = useNavigate();
@@ -187,7 +191,7 @@ export function GameDetail() {
   const setTab = (t: GameTab) => setSt({ tab: t, unit: null });
   // Back out of an expanded unit: the list entry below is exactly as it was left. A shared link into a unit has none, so it closes the unit.
   const backFromUnit = () => { if (loc.key !== 'default') nav(-1); else setSt({ unit: null }); };
-  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry, script };
+  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry, script, live };
   return (
     <div className="v3-gd">
       {unitOpen ? <UnitBar g={g} back={backFromUnit} startMs={startMs} /> : (

@@ -37,7 +37,9 @@ describe('live scores stay out of models, betting and the market clock', () => {
   // The strongest form of the rule: an allowlist. Only the screens that DISPLAY a score (and the score module itself) may import score
   // code. Everything else in the app (betting and opportunity code, packets, projections, signals, research, the Board, what is frozen
   // or saved, the Kalshi quote store) is outside it, so a score cannot reach them.
-  const V3_DISPLAY = new Set(['v3/data/useSlate.tsx', 'v3/data/scoreVerify.ts', 'v3/data/scoreReads.ts']);
+  // The live game detail (src/v3/data/live, Release 3) imports only the freshness constants (the same clock as the score store), the team-identity helper, the request deadline
+// and the on/off switch; it never reads a score or a game from the store, and nothing in it reaches research, markets, projections, signals or saved state.
+const V3_DISPLAY = new Set(['v3/data/useSlate.tsx', 'v3/data/scoreVerify.ts', 'v3/data/scoreReads.ts', 'v3/data/live/freshness.ts', 'v3/data/live/mlb.ts', 'v3/data/live/useLiveDetail.ts']);
   it('only the v4 screens that display a score import score code', () => {
     const DISPLAY = new Set(['EarlyAccess.tsx', 'Feature.tsx', 'Game.tsx', 'Games.tsx', 'Home.tsx', 'LiveScoreCard.tsx', 'LiveScoresControl.tsx', 'Scoreboard.tsx', 'V4Root.tsx', 'model.ts', 'parts.tsx', 'scoreState.ts', 'slate.tsx']);
     const bad = walk(SRC)

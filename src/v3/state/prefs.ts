@@ -30,8 +30,13 @@ export function setAlertTopics(id: string, topics: string[]) {
   alerts.set((a) => { const n = { ...a }; if (topics.length) n[id] = topics; else delete n[id]; return n; });
 }
 
-export interface Prefs { priceFormat: PriceFormat; reduceMotion: boolean; textScale: 'default' | 'large'; onboarded: boolean }
-const prefs = createStore<Prefs>('prefs', { priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: false });
+export interface Prefs {
+  priceFormat: PriceFormat; reduceMotion: boolean; textScale: 'default' | 'large'; onboarded: boolean;
+  /** Home's last chosen sport ("nfl") and, per sport, the last college conference filter ("sec", "top25", "all"): this device only; the address wins when it names them. */
+  homeSport: string | null;
+  homeConf: Record<string, string>;
+}
+const prefs = createStore<Prefs>('prefs', { priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: false, homeSport: null, homeConf: {} });
 export const usePrefs = () => useStore(prefs);
 export const setPrefs = (p: Partial<Prefs>) => prefs.set((c) => ({ ...c, ...p }));
 

@@ -28,7 +28,7 @@ async function sweep(page: Page, path: string) {
 }
 
 const SCREENS: [string, string][] = [
-  ['Home', '/v3'], ['Games', '/v3/games'], ['Following', '/v3/following'],
+  ['Home', '/v3'], ['Home NFL', '/v3?sport=nfl'], ['Search', '/v3/search'], ['Following', '/v3/following'],
   ['Team overview', '/v3/team/nfl/DAL'], ['Team profile', '/v3/team/nfl/DAL?tab=profile'], ['Team form', '/v3/team/nfl/DAL?tab=form'],
   ['Team players', '/v3/team/nfl/DAL?tab=players'], ['Team schedule', '/v3/team/nfl/DAL?tab=schedule'],
   ['Stat ranking', '/v3/stat/nfl/adj_off_epa'],

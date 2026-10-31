@@ -201,11 +201,27 @@ export const propsSchema = defineSchema({
   },
 });
 
+/**
+ * Home, the games feed. The address holds what the viewer picked so Back (and a shared link) reopens the same slate: the sport, the college conference
+ * filter ("top25", "all" or a conference token such as "big-ten") and the day ("YYYY-MM-DD"). Absent: the device's last sport (else the first sport in
+ * play), All, and today. Selecting always writes the field, even to its usual value, so a choice is never lost to a default.
+ */
+export const homeSchema = defineSchema({
+  screen: 'home',
+  version: 1,
+  fields: {
+    sport: f.str(null, 8),
+    conf: f.str(null, 24),
+    date: f.str(null, 10),
+  },
+});
+
 registerSchema(/^\/v3\/player\//, playerSchema);
 registerSchema(/^\/v3\/team\//, teamSchema);
 registerSchema(/^\/v3\/stat\//, statSchema);
 registerSchema(/^\/v3\/game\//, gameSchema);
 registerSchema(/^\/v3\/props(\/|$)/, propsSchema);
+registerSchema(/^\/v3\/?$/, homeSchema);
 
 /** Parameters owned by the shell, not by a screen: an open sheet and the contract it shows. Kept out of scroll keys and saved research. */
 export const SHELL_PARAMS = ['sheet', 'tk', 'demo'] as const;

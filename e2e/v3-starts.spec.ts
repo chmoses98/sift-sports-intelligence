@@ -22,6 +22,7 @@ async function agreeingGame(): Promise<FxGame> {
 }
 
 async function setup(page: Page, g: FxGame, o: { shiftBoard: boolean }) {
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* ignore */ } }); // Home is the landing screen: the first-run welcome sheet would cover it
   await serveRealFeeds(page, { family: FAMILY });
   await freshQuotes(page, { family: FAMILY });
   if (o.shiftBoard) {
@@ -42,7 +43,7 @@ async function setup(page: Page, g: FxGame, o: { shiftBoard: boolean }) {
   await page.clock.setFixedTime(feedNow(FAMILY));
 }
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); };
-const gamesPath = (g: FxGame) => `/v3/games?sport=${g.slug}&state=today&date=${dayKey(g.startMs)}`;
+const gamesPath = (g: FxGame) => `/v3?sport=${g.slug}&date=${dayKey(g.startMs)}`;
 
 test.describe('start time authority @v3', () => {
   test('control: the real board and schedule agree, and the game card says the scheduled time', async ({ page }) => {
@@ -53,7 +54,7 @@ test.describe('start time authority @v3', () => {
     await expect(card.locator('.v3-gc__time')).toContainText(clock12(g.startMs), { timeout: 30_000 });
   });
 
-  test('a board that says 30 minutes later (Kalshi-implied) is overruled by the league schedule: Games card and Game Detail say the scheduled time, the shifted one nowhere', async ({ page }) => {
+  test('a board that says 30 minutes later (Kalshi-implied) is overruled by the league schedule: the Home card and Game Detail say the scheduled time, the shifted one nowhere', async ({ page }) => {
     const g = await agreeingGame();
     const sched = clock12(g.startMs);
     const later = clock12(g.startMs + 30 * 60_000);

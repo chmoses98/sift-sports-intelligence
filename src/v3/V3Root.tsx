@@ -23,22 +23,20 @@ import { applyV3FetchBounds } from './data/early';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v3', label: 'Home', icon: 'home', end: true },
-  { to: '/v3/games', label: 'Games', icon: 'games' },
-  { to: '/v3/props', label: 'Explore', icon: 'explore' },
+  { to: '/v3/props', label: 'Props', icon: 'trend' },
   { to: '/v3/following', label: 'Following', icon: 'following' },
 ];
 
-/** Which of the four tabs a route belongs to. Detail screens keep the tab they were opened from (the last primary tab visited). */
+/** Which of the three tabs a route belongs to. Detail screens keep the tab they were opened from (the last primary tab visited). */
 let lastTab = '/v3';
 const tabOf = (path: string): string => {
   const p = path.replace(/\/+$/, '') || '/v3';
   if (p === '/v3') return (lastTab = '/v3');
-  // Explore is Prop Discovery (the locked walkthrough roots it there); the older search screen stays at /v3/explore under the same tab.
-  if (p === '/v3/explore' || p.startsWith('/v3/explore/')) return (lastTab = '/v3/props');
   const hit = TABS.find((t) => t.to !== '/v3' && (p === t.to || p.startsWith(`${t.to}/`)));
   if (hit) return (lastTab = hit.to);
-  // The locked references light Games for the Team, Player and Game screens and Explore for Stat Detail and Prop Discovery.
-  if (p.startsWith('/v3/game/') || p.startsWith('/v3/team/') || p.startsWith('/v3/player/')) return (lastTab = '/v3/games');
+  // Home is the games feed, so a game, a team or a player opened from anywhere lights Home; Stat Detail belongs to Props. Search is reachable from every
+  // primary screen and lights nothing of its own: it keeps the tab it was opened from.
+  if (p.startsWith('/v3/game/') || p.startsWith('/v3/team/') || p.startsWith('/v3/player/')) return (lastTab = '/v3');
   if (p.startsWith('/v3/stat/')) return (lastTab = '/v3/props');
   return lastTab;
 };
@@ -67,13 +65,13 @@ function DemoStrip() {
 }
 
 /**
- * Research read from the copy saved with the app (the live publication could not be read) is never silent: Home and Games say so themselves;
+ * Research read from the copy saved with the app (the live publication could not be read) is never silent: Home says so itself;
  * every other screen of that sport gets this strip. It names the sport and says prices appear only with a current Kalshi quote.
  */
 function SavedCopyStrip() {
   const { saved } = useSlate();
   const { pathname } = useLocation();
-  if (!saved.length || pathname === '/v3' || pathname.startsWith('/v3/games')) return null;
+  if (!saved.length || pathname === '/v3') return null;
   const slug = /^\/v3\/(?:player|team|stat|game)\/([a-z]+)\//.exec(pathname)?.[1];
   const mine = slug ? saved.filter((s) => s.slug === slug) : /^\/v3\/props/.test(pathname) ? saved : [];
   if (!mine.length) return null;
@@ -111,7 +109,7 @@ function Shell() {
   );
 }
 
-/** The v3 shell: one phone-width column, four tabs, safe areas, one sheet host. The classic chrome never renders here. */
+/** The v3 shell: one phone-width column, three tabs, safe areas, one sheet host. The classic chrome never renders here. */
 export function V3Root() {
   const loc = useLocation();
   const nav = useNavigate();

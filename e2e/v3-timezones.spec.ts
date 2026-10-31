@@ -61,9 +61,9 @@ test.describe('the captured slate (real documents) in real viewer zones', () => 
     test.describe(z.zone, () => {
       test.use({ timezoneId: z.zone, locale: 'en-US' });
 
-      test(`Games: DAL at PHI reads ${z.clock} and is ${z.todayList ? 'listed under Today' : 'not listed under Today'}`, async ({ page }) => {
+      test(`Home: DAL at PHI reads ${z.clock} and is ${z.todayList ? 'listed under Today' : 'not listed under Today'}`, async ({ page }) => {
         await boot(page);
-        await go(page, '/v3/games?sport=nfl', '.v3-gclist .v3-gc');
+        await go(page, '/v3?sport=nfl', '.v3-gclist .v3-gc');
         const here = dalCard(page);
         if (z.todayList) {
           await expect(here).toHaveCount(1);
@@ -73,7 +73,7 @@ test.describe('the captured slate (real documents) in real viewer zones', () => 
           await expect(here).toHaveCount(0); // it is tomorrow's game for this viewer
           // The date picker names the day the viewer is looking at, and the next day lists the game with its local clock time.
           await expect(page.getByRole('button', { name: /Choose a date\. Showing Today/ })).toBeVisible();
-          await go(page, '/v3/games?sport=nfl&date=2026-10-27', '.v3-gclist .v3-gc');
+          await go(page, '/v3?sport=nfl&date=2026-10-27', '.v3-gclist .v3-gc');
           await expect(dalCard(page)).toHaveCount(1);
           expect(plain(await dalCard(page).locator('.v3-gc__time, .v3-gc__live').first().textContent())).toContain(z.clock);
         }
@@ -81,7 +81,7 @@ test.describe('the captured slate (real documents) in real viewer zones', () => 
 
       test(`Game Detail: DAL at PHI reads "${z.word} · ${z.clock}"`, async ({ page }) => {
         await boot(page);
-        await go(page, `/v3/games?sport=nfl${z.todayList ? '' : '&date=2026-10-27'}`, '.v3-gclist .v3-gc');
+        await go(page, `/v3?sport=nfl${z.todayList ? '' : '&date=2026-10-27'}`, '.v3-gclist .v3-gc');
         await tapCardBody(dalCard(page));
         await expect(page.locator('.v3-gh__when')).toContainText(z.clock, { timeout: 20_000 });
         expect(plain(await page.locator('.v3-gh__when').textContent())).toContain(`${z.word} · ${z.clock}`);
@@ -113,11 +113,11 @@ test.describe('local midnight is the day boundary (real documents)', () => {
       test.use({ timezoneId: m.zone, locale: 'en-US' });
       test(`it is ${m.local} locally: the game is ${m.onToday ? 'still on Today' : 'on Yesterday, not Today'}`, async ({ page }) => {
         await boot(page, { now: new Date(m.now) });
-        await go(page, '/v3/games?sport=nfl', '.v3-gclist .v3-gc, .v3-state:has-text("Nothing here")'); // after midnight there is no NFL game "today"
+        await go(page, '/v3?sport=nfl', '.v3-gclist .v3-gc, .v3-state:has-text("Nothing here")'); // after midnight there is no NFL game "today"
         expect(plain(await page.evaluate(() => new Date().toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }))).replace(',', '')).toBe(m.local);
         await expect(dalCard(page)).toHaveCount(m.onToday ? 1 : 0);
         if (!m.onToday) {
-          await go(page, `/v3/games?sport=nfl&date=2026-10-26`, '.v3-gclist .v3-gc');
+          await go(page, `/v3?sport=nfl&date=2026-10-26`, '.v3-gclist .v3-gc');
           await expect(dalCard(page)).toHaveCount(1);
           await expect(page.getByRole('button', { name: /Choose a date\. Showing Yesterday/ })).toBeVisible(); // the picker names the day it is showing
         }
@@ -130,11 +130,11 @@ test.describe('sample data across the US daylight-saving change (2026-11-01, a 2
   test.use({ timezoneId: 'America/New_York', locale: 'en-US' });
   test('sample kick-offs keep their wall-clock times on the long day, and the day list steps over it', async ({ page }) => {
     await boot(page, { now: new Date('2026-11-01T17:00:00Z'), demo: true }); // noon EST, after the clocks went back
-    await go(page, '/v3/games?demo=1', '.v3-gclist .v3-gc');
+    await go(page, '/v3?demo=1&sport=nfl', '.v3-gclist .v3-gc');
     // The sample slate is built from local wall-clock times (BUF at NYJ 1:00 PM, ORE at WASH 7:00 PM), not from "midnight plus N hours".
-    const times = (await page.locator('.v3-gc__time').allTextContents()).map(plain);
-    expect(times).toContain('1:00 PM');
-    expect(times).toContain('7:00 PM');
+    expect((await page.locator('.v3-gc__time').allTextContents()).map(plain)).toContain('1:00 PM');
+    await go(page, '/v3?sport=cfb', '.v3-gclist .v3-gc');
+    expect((await page.locator('.v3-gc__time').allTextContents()).map(plain)).toContain('7:00 PM');
     await page.getByRole('button', { name: /Choose a date/ }).click();
     await expect(page.locator('.v3-days button').first()).toBeVisible();
     const days = (await page.locator('.v3-days button').allTextContents()).map(plain);
@@ -151,7 +151,7 @@ test.describe('sample data is bucketed by the viewer\'s own day in every zone', 
       test.use({ timezoneId: zone, locale: 'en-US' });
       test(`${zone}: the sample slate is "Today" and the date button says so`, async ({ page }) => {
         await boot(page, { now: new Date('2026-10-27T03:30:00Z'), demo: true }); // a different calendar day in different zones
-        await go(page, '/v3/games?demo=1', '.v3-gclist .v3-gc');
+        await go(page, '/v3?demo=1&sport=nfl', '.v3-gclist .v3-gc');
         await expect(page.getByRole('button', { name: /Choose a date\. Showing Today/ })).toBeVisible();
         expect((await page.locator('.v3-gc__time').allTextContents()).map(plain)).toContain('1:00 PM');
         // The picker's "Today" is the viewer's local date for that instant.

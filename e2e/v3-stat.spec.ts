@@ -398,7 +398,7 @@ test.describe('Stat Detail and League Rankings (milestone 2) @v3', () => {
     await expect(page.getByRole('button', { name: 'Remove saved statistic' })).toBeVisible();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sift3.saved') ?? '[]') as { route: string; title: string }[]);
     expect(saved[0].route).toBe(`${ADJ}?v=1&tab=compare&win=ADJ_RIDGE&sel=DAL&opp=PHI&cmpm=players&a=${LAMB}&b=${PICKENS}&more=1&cs=receptions&thr=5`);
-    await go(page, '/v3/explore');
+    await go(page, '/v3/search');
     await go(page, saved[0].route);
     await expect(page.locator('.st-hd h1')).toHaveText('Compare players');
     await expect(page.locator('.st-olc')).toBeVisible();

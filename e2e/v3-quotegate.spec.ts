@@ -9,13 +9,14 @@ import { feedNow, freshQuotes, useRealFeeds as serveRealFeeds } from './support/
 
 const FAMILY = 'game' as const;
 const GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
-const GAMES_NFL = '/v3/games?sport=nfl&state=upcoming';
+const GAMES_NFL = '/v3?sport=nfl&date=2026-10-27'; // DAL at PHI kicks off on the 27th (UTC) of the cache's clock
 /** Every kind of freshness text the owner ruled out. */
 const FRESH = /\bago\b|just now|last known|stale|\baging\b|\bfresh\b|last updated|updated \d|as of \d|published .* ago|\d+\s?(s|sec|min|mins|minutes|h|hr|hours) old\b|\b\d+m\b ago/i;
 
 type Mode = 'fresh' | 'old';
 /** `fresh`: observations at the cache instant, clock at the instant plus `plusS`. `old`: the real feed as captured, which is older than every limit. */
 async function setup(page: Page, mode: Mode, plusS = 0) {
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* ignore */ } }); // Home is the landing screen: the first-run welcome sheet would cover it
   await serveRealFeeds(page, { family: FAMILY });
   if (mode === 'fresh') await freshQuotes(page, { family: FAMILY });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
@@ -48,7 +49,7 @@ async function expectPriced(page: Page) {
   expect(await dlg.innerText()).not.toMatch(FRESH);
 }
 
-test.describe('Games: the lines box goes through the list gate @v3', () => {
+test.describe('Home: the lines box goes through the list gate @v3', () => {
   test('a current price is shown, tappable, and opens the shared exact-contract sheet with its fee rows', async ({ page }) => {
     await setup(page, 'fresh');
     await go(page, GAMES_NFL);
@@ -110,7 +111,7 @@ test.describe('Games: the lines box goes through the list gate @v3', () => {
 
   test('sample data keeps its labelled prices (sample prices have no observation clock) and the sheet still opens', async ({ page }) => {
     await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1)/, (r) => r.abort());
-    await go(page, '/v3/games?demo=1');
+    await go(page, '/v3?demo=1&sport=nfl');
     const lines = page.locator('.v3-gc .v3-lines').first();
     await expect(lines).toContainText(/\d+¢/);
     await noFreshness(page);
@@ -123,19 +124,19 @@ test.describe('Games: the lines box goes through the list gate @v3', () => {
 
 test.describe('Home: no price, no freshness text, in either state @v3', () => {
   for (const mode of ['fresh', 'old'] as const) {
-    test(`Home with ${mode} quotes carries no freshness text and the featured game has no stale price`, async ({ page }) => {
+    test(`Home with ${mode} quotes carries no freshness text, and an old quote is a dash rather than a stale price`, async ({ page }) => {
       await setup(page, mode);
-      await go(page, '/v3');
-      await expect(page.locator('.v3-feat, .v3-state').first()).toBeVisible();
+      await go(page, GAMES_NFL);
+      await expect(dalCard(page)).toBeVisible();
       await page.waitForTimeout(1500);
       await noFreshness(page);
-      await expect(page.locator('.v3-feat')).not.toContainText(/\d+¢/);
+      if (mode === 'old') await expect(dalCard(page)).not.toContainText(/\d+¢/);
     });
   }
-  test('Home on sample data prints no age on a story line', async ({ page }) => {
+  test('Home on sample data prints no freshness text on a card', async ({ page }) => {
     await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1)/, (r) => r.abort());
     await go(page, '/v3?demo=1');
-    await expect(page.getByText("What's happening")).toBeVisible();
+    await expect(page.locator('.v3-gc').first()).toBeVisible();
     await noFreshness(page);
   });
 });

@@ -75,26 +75,27 @@ async function settle(page: Page, ready: string) {
 }
 
 // ---- budgets (documents are unique GETs; each is the measured count plus a little room)
-test('Home: the slate, the featured game and nothing else', async ({ page }) => {
+test('Home (default sport): the slate plus the cards in view', async ({ page }) => {
   const seen = await setup(page, 'game');
   await page.goto('./#/v3');
-  await settle(page, '.v3-feat__mid');
+  await settle(page, '.v3-gc__h');
   const r = await report('game', seen, 'home');
-  expect(r.by.quotes ?? 0, 'Home prints no price: no live-quote file is read').toBe(0);
-  expect(r.by.contracts ?? 0, 'the featured card prints no price: no contract document').toBe(0);
+  const cards = await page.locator('.v3-gc').count();
+  expect(r.by.quotes ?? 0, 'at most one live-quote file per game card shown (not one per candidate game of every sport)').toBeLessThanOrEqual(cards);
+  expect(r.by.contracts ?? 0).toBeLessThanOrEqual(cards);
   expect(r.by['game-log'] ?? 0).toBe(0);
-  expect(r.by.index ?? 0, 'one league schedule (the featured game start), not every sport').toBeLessThanOrEqual(1);
+  expect(r.by.index ?? 0, 'one league schedule per league shown').toBeLessThanOrEqual(1);
   expect(r.by['search-index'] ?? 0).toBe(0);
   expect(r.by.metrics ?? 0, 'no settled-record documents: the slate prints no opportunity').toBe(0);
   expect(r.probes, 'one existence probe per sport, no more').toBeLessThanOrEqual(8);
   expect(r.repeats).toBe(0);
-  expect(r.documents).toBeLessThanOrEqual(34); // measured 31 (26 slate, 1 schedule, 4 stories); before: 75
-  expect(r.bytes).toBeLessThanOrEqual(225_000); // measured 196 KB; before: 1,166 KB
+  expect(r.documents).toBeLessThanOrEqual(40);
+  expect(r.bytes).toBeLessThanOrEqual(700_000); // measured 609 KB: the default sport that day is a college sport, whose schedule document dates its games
 });
 
-test('Games (NFL, upcoming): the slate plus the cards in view', async ({ page }) => {
+test('Home (NFL day): the slate plus the cards in view', async ({ page }) => {
   const seen = await setup(page, 'game');
-  await page.goto('./#/v3/games?sport=nfl&state=upcoming');
+  await page.goto('./#/v3?sport=nfl&date=2026-10-27');
   await settle(page, '.v3-gc__h');
   const r = await report('game', seen, 'games');
   const cards = await page.locator('.v3-gc').count();
@@ -180,9 +181,9 @@ test('Following (a team and a player followed): the slate and the one league the
   expect(r.bytes).toBeLessThanOrEqual(215_000); // measured 192 KB; before: 1,051 KB
 });
 
-test('Explore: the slate plus the four search indexes the search needs (and no quote)', async ({ page }) => {
+test('Search: the slate plus the four search indexes the search needs (and no quote)', async ({ page }) => {
   const seen = await setup(page, 'game');
-  await page.goto('./#/v3/explore');
+  await page.goto('./#/v3/search');
   await settle(page, '.v3-explore .v3-hit');
   const r = await report('game', seen, 'explore');
   expect(r.by.quotes ?? 0).toBe(0);
@@ -198,7 +199,7 @@ test('Explore: the slate plus the four search indexes the search needs (and no q
 
 test('a sport\'s explorer is asked about with HEAD, never read for the source decision', async ({ page }) => {
   const seen = await setup(page, 'game');
-  await page.goto('./#/v3/games');
+  await page.goto('./#/v3');
   await settle(page, '.v3-gc__h');
   const r = await report('game', seen, 'probe');
   expect(r.probes, 'every sport is probed').toBeGreaterThanOrEqual(7);

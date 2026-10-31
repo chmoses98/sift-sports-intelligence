@@ -93,7 +93,7 @@ test.describe('Player Research P1: overview on real documents @v3', () => {
   });
 
   test('in-place changes (statistic, window, bar) replace history; Back leaves the screen and the entry below keeps its own state', async ({ page }) => {
-    await go(page, '/v3/explore');
+    await go(page, '/v3/search');
     await go(page, `${LAMB}`);
     await expect(page.locator('.v3p-hb')).toBeVisible({ timeout: 25_000 });
     const len = await histLen(page);
@@ -105,7 +105,7 @@ test.describe('Player Research P1: overview on real documents @v3', () => {
     await expect(page).toHaveURL(/obs=/);
     expect(await histLen(page)).toBe(len);
     await page.goBack();
-    await expect(page).toHaveURL(/#\/v3\/explore/);
+    await expect(page).toHaveURL(/#\/v3\/search/);
   });
 });
 
@@ -355,7 +355,7 @@ test.describe('Player Research P3: research filters @v3', () => {
   });
 
   test('Back restores line, window and filters exactly, after a team page and after a sheet; scroll too; sheets closed', async ({ page }) => {
-    await go(page, '/v3/explore');
+    await go(page, '/v3/search');
     await ready(page, `${LAMB}?win=L5&site=away`);
     await page.locator('.v3p-lr').nth(1).click();
     await scrollTo(page, 120);

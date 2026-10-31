@@ -8,9 +8,10 @@ import { demoOn, removeSaved, useAlerts, useFollows, useSaved } from '../state/p
 import type { V3Game, V3Team } from '../model/types';
 import { AlertBell, FollowStar } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
+import { SearchButton } from '../ui/SearchButton';
 import { TeamLogo } from '../ui/TeamLogo';
 import { DelayedMark, gameHref, leagueLabel, statusWord, teamHref } from '../ui/gamebits';
-import { followsGame } from './Games';
+import { followsGame } from '../model/priority';
 
 type Seg = 'all' | 'teams' | 'players' | 'games';
 const SEGS: [Seg, string][] = [['all', 'All'], ['teams', 'Teams'], ['players', 'Players'], ['games', 'Games']];
@@ -64,7 +65,7 @@ export function Following() {
 
   return (
     <div className="v3-page v3-following">
-      <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>Following</h1><span className="v3-top__sp" /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
+      <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>Following</h1><span className="v3-top__sp" /><SearchButton /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
       <div className="v3-seg v3-seg--box" role="tablist" aria-label="Following sections">
         {SEGS.map(([k, label]) => <button key={k} type="button" role="tab" aria-selected={seg === k} onClick={() => setSp((p) => { const n = new URLSearchParams(p); if (k === 'all') n.delete('seg'); else n.set('seg', k); return n; })}>{label}</button>)}
       </div>
@@ -99,7 +100,7 @@ export function Following() {
       )}
       {show('games') && (upcoming.length > 0 || (seg === 'games' && f.games.length > 0)) && (
         <section aria-label="Tracked games">
-          <div className="v3-sechead"><h2>Tracked Games</h2><Link to="/v3/games?state=following">Open in Games</Link></div>
+          <div className="v3-sechead"><h2>Tracked Games</h2><Link to="/v3">Open in Home</Link></div>
           <ul className="v3-fgs">{upcoming.map((g) => <GameRow key={g.key} g={g} />)}</ul>
           {upcoming.length === 0 && <p className="v3-note">No followed game is still to come on the published slate.</p>}
         </section>

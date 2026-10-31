@@ -88,7 +88,10 @@ describe('capability declarations: what each sport publishes, as data', () => {
       const c = capability(slug, s);
       expect(c.status, `${slug} ${s}`).toBe('gated');
     }
-    expect(capability('nhl', 'teamOverview').status).toBe('ready');
+    // hockey's team document is current (season, last 10, roster, designations): Schedule and Players are connected; its Profile has no declaration yet
+    for (const s of ['teamOverview', 'teamForm', 'teamSchedule', 'teamPlayers'] as const) expect(capability('nhl', s).status, s).toBe('ready');
+    expect(capability('nhl', 'teamProfile').status).toBe('gated');
+    expect(isCurrent('2026-10-31T00:00:00Z', 21, Date.parse('2026-10-31T12:00:00Z'))).toBe(true); // NHL team observations are stamped 2026-10-31
   });
 });
 
@@ -304,7 +307,7 @@ describe('tennis: the match-win probability beside the references, ratings, surf
     const mertens = g.away.name === 'Elise Mertens' ? m.awayWin : m.homeWin;
     expect(mertens).toBeCloseTo(0.2558, 4);
     expect(m.awayWin! + m.homeWin!).toBeCloseTo(1, 6);
-    expect(m.kind).toBe('match-win probability');
+    expect(m.kind).toBe('research match-win probability');
     expect(m.caveat).toMatch(/Kalshi mid out-scoring the model/);
     expect(m.caveat).toMatch(/never as a pick/);
     expect(i.layers.gameEnvironment.status).toBe('none');

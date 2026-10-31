@@ -38,7 +38,7 @@ function model(t: TennisMatch, s: { away: 'a' | 'b'; home: 'a' | 'b' } | null): 
     view: {
       origin: 'research', version: 'fair_v1', asOf: t.model.predictedAt, asOfKind: 'published', awayScore: null, homeScore: null, awayWin, homeWin, total: null,
       caveat: `Research only: ${tennisRecordText(null)}. It is shown beside the market and never as a pick.${gens ? ` Other model generations: ${gens}.` : ''}${range}`,
-      kind: 'match-win probability', range: null,
+      kind: 'research match-win probability', range: null,
     },
     absent: null,
   };

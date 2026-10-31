@@ -46,6 +46,7 @@ const none = (reason: string): Availability => ({ status: 'none', reason });
 const gated = (reason: string): Availability => ({ status: 'gated', reason });
 
 const NOT_YET = 'Not part of the first release of this screen.';
+const NHL_PROFILE = 'The statistic list has no hockey declaration yet: its opponent-adjusted switch is football’s, and hockey publishes its opponent-adjusted ratings under a different window.';
 const NBA_STALE = 'NBA team profiles carry last season’s final statistics (through 14 June) and do not yet include 2026-27 games, so they are not shown as current.';
 const CFB_OWNED = 'A college football game presents its projection and research through the Script Engine view.';
 const NO_PLAYER_PROPS = 'Kalshi lists match markets for this sport, not player props, and the publication has no player layer.';
@@ -74,8 +75,9 @@ export const CAPABILITIES: Record<string, SportCapabilities> = {
   nhl: {
     slug: 'nhl', label: 'NHL', record: 'wlo',
     sections: {
-      // Hockey ships Overview and Form first; the other team tabs repeat the NFL patterns with hockey statistics and come later.
-      teamOverview: ready, teamProfile: gated(NOT_YET), teamForm: ready, teamSchedule: gated(NOT_YET), teamPlayers: gated(NOT_YET),
+      // Overview, Form, Schedule and Players read the team document (season and last-10 goals and expected goals, 82 games, the roster and its designations; all current).
+      // Profile stays gated: its opponent-adjusted switch is football's (the ADJ_RIDGE window) and hockey publishes its `oa_*` ratings under a different window.
+      teamOverview: ready, teamProfile: gated(NHL_PROFILE), teamForm: ready, teamSchedule: ready, teamPlayers: ready,
       ranking: ready, statTrend: ready, statCompare: ready,
       playerResearch: ready, playerMatchup: none('No published opposing-unit rankings for hockey players yet.'), gameMatchup: gated(NOT_YET), gameScript: gated(NOT_YET), gameProps: ready, propPrices: ready,
       ...OVERVIEW_PER_GAME,

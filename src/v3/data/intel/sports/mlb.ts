@@ -31,7 +31,7 @@ function slateModel(i: SportInput): ModelView | null {
     origin: 'research', version: null, asOf: str(i.research.quality?.data_as_of) ?? str(i.research.generated_at), asOfKind: 'inputs',
     awayScore: ar, homeScore: hr, awayWin: aw / 100, homeWin: hw / 100, total: num(m.totalProj),
     caveat: `Research only.${conf ? ` The publication rates its confidence ${conf.toLowerCase()}.` : ''} ${note ?? 'Projections are research evidence, not bets.'}`.trim(),
-    kind: 'slate research projection', range: null, unit: 'runs',
+    kind: 'slate research model', range: null, unit: 'runs',
   };
 }
 

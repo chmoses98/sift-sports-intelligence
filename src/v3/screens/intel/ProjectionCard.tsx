@@ -28,7 +28,7 @@ function ModelLane({ ctx, m }: { ctx: GameCtx; m: ModelView }) {
   return (
     <div className="mi-lane mi-lane--sift" data-testid="sift-model" role="group" aria-label="SIFT model projection">
       <div className="mi-lane__h"><LaneMark lane="sift" /><b>SIFT model</b></div>
-      <div className="mi-lane__sub">{ORIGIN_NOTE[m.origin]}</div>
+      <div className="mi-lane__sub">{m.origin === 'research' ? `${m.kind.replace(/^./, (c) => c.toUpperCase())}, not an approved projection` : ORIGIN_NOTE[m.origin]}</div>
       {([['away', g.away], ['home', g.home]] as const).map(([side, t]) => {
         const sc = side === 'away' ? m.awayScore : m.homeScore, win = pct(side === 'away' ? m.awayWin : m.homeWin);
         return (

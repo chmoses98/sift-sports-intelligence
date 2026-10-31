@@ -26,7 +26,9 @@ describe('sport capabilities', () => {
     expect(capability('nfl', 'teamPlayers').status).toBe('ready');
     expect(capability('nhl', 'teamOverview').status).toBe('ready');
     expect(capability('nhl', 'teamForm').status).toBe('ready');
-    expect(capability('nhl', 'teamSchedule').status).toBe('gated');
+    expect(capability('nhl', 'teamSchedule').status).toBe('ready');
+    expect(capability('nhl', 'teamPlayers').status).toBe('ready');
+    expect(capability('nhl', 'teamProfile').status).toBe('gated'); // hockey's statistic list has no declaration yet (its adjusted window is not football's)
     expect(capability('mlb', 'teamOverview').status).toBe('gated');
     expect(lockedReason('mlb', 'teamForm')).toMatch(/late August/);
     expect(lockedReason('nfl', 'ranking')).toBeNull();

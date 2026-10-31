@@ -35,10 +35,10 @@ deterministic fixture set the screenshot and Playwright tests use. **Real mode i
 
 ```
 src/v3/
-  V3Root.tsx        shell: four-tab bottom nav, sheet host, slate provider, sample-data strip, scroll memory
+  V3Root.tsx        shell: three-tab bottom nav (Home, Props, Following), sheet host, slate provider, sample-data strip, scroll memory
   routes.tsx        children of /v3 (each screen is its own lazy chunk)
   v3.css            tokens (contract §2), shell, shared primitives, sheets   — everything scoped under .v3
-  model/            pure view-model + logic: types, price/fee formatting, research engine, featured-game and switcher rules
+  model/            pure view-model + logic: types, price/fee formatting, research engine, game priority (priority.ts), Home feed grouping (homeFeed.ts), conferences, switcher rules
   data/             adapters from the existing publications/contracts to the view-model; hooks; sample-data-free
     adapt.ts          board rows -> V3Game; Kalshi ladders -> compact lines; player props
     useSlate.tsx      one cached slate for every screen (real via the opportunity layer, or sample)
@@ -48,7 +48,7 @@ src/v3/
   demo/fixtures.ts  SAMPLE DATA ONLY (real team identities/logos, fictional scores, prices, stats)
   state/            device-local stores: follows, alerts (separate), saved research, recents, preferences, scroll memory
   ui/               Icon, TeamLogo, Sheet, Controls (star/bell), Switcher (rail + picker), GameCard, BarChart, LineChart, …
-  screens/          Home, Games, GameDetail (+GameTabs), Team, Stat, Player, Explore, Following, Settings
+  screens/          Home (the games feed), GameDetail (+GameTabs), Team, Stat, Player, Props, Search, Following, Settings
 ```
 
 Key rules the code enforces:
@@ -71,13 +71,12 @@ Key rules the code enforces:
 
 | Screen | Real data | Sample (`?demo=1`) | Honest gaps |
 |---|---|---|---|
-| Home | slate, Kalshi lines, featured game (+ verified venue photo when one exists), real injury news (NFL), My Teams | full | no news feed for sports without a research document; strip tiles show a score only where a licensed feed exists |
-| Games | every published sport, Kalshi spread/total/moneyline chips (cents), state tabs, date sheet | 33 games incl. 25-game CFB card | **NFL/CFB/NHL have no licensed live score feed**: in-play games show "Score unavailable", never an estimate. NBA scores use the existing SportScore adapter |
+| Home (games feed) | every published sport's games for a day: sport rail, NCAAF/NCAAB conference chips (CFB conference from `src/lib/cfb-conferences.json`, CBB from its team identity), day strip + calendar sheet, time-grouped sections ordered by `model/priority.ts`, Kalshi spread/total/moneyline chips (cents) | full (25-game CFB card with ranks) | **no AP/CFP rank exists in any publication today** (CFBD licence unresolved): the Top 25 chip and rank boosts appear only when a source states a rank. **NFL/CFB/NHL have no licensed live score feed**: in-play games show "Score unavailable" |
 | Game Detail + Switcher | hero (photo or logo-led), phase-aware tabs, switcher rail + picker (favourites pinned), markets with live overlay, Lens from matchup rows, matchup/stats from published ranks, props from Kalshi contracts, script from published theses | adds drive card, play-by-play, 6 matchup rows | live drive/play-by-play need a play feed that does not exist; CFB script engine and box scores are not wired into this view |
 | Team | explorer profile: record from completed games, metric ranks (raw and opponent-adjusted kept apart), results, roster, injuries, schedule | sample record/ranks | CFB has no explorer metrics yet (empty-state wording says so) |
 | Stat Detail | real ranking documents (sortable, windows, definition sheet, related stats, team history chart, per-opponent list) | 6 sample rankings | splits beyond windows are not published; compare mode not built |
 | Player research | NFL (history layer) and NBA/NHL (profile box log) game logs; his Kalshi ladder for the coming game; filters computed from the logs | sample NBA guard | teammate with/without, pace and "projected minutes" filters are **not** offered (no data); adjusted what-if in Replay is explicitly "not available" |
-| Explore | search index of NFL/NBA/NHL/MLB + slate teams/games; statistics without a market open Stat Detail | sample stats/player | no props category tile (no cross-game props index) |
+| Search (`/v3/search`, header icon on every primary screen) | search index of NFL/NBA/NHL/MLB + slate teams/games; statistics without a market open Stat Detail | sample stats/player | no props category tile (no cross-game props index) |
 | Following | device-local follows, tracked/live games, saved research with frozen snapshot | same | notifications are choices only |
 | Settings | price format, text size, reduce motion, clear data | same | no accounts / sync |
 
@@ -88,4 +87,4 @@ Key rules the code enforces:
 3. CFB script engine and box scores inside Game Detail.
 4. A licensed live-score source for NFL/CFB/NHL (blocked on data rights, not on UI).
 5. Photographic hero art beyond the verified venue photos already pinned in `src/lib/hero` (the mockup photography is not usable).
-6. Virtualised long lists if a day ever exceeds a few hundred cards (Games paginates by 30 today).
+6. Virtualised long lists if a day ever exceeds a few hundred cards (Home renders every game of the selected sport and day; each card reads its extras only once near the screen).

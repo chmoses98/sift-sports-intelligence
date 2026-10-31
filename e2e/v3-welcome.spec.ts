@@ -48,6 +48,6 @@ test('Welcome is shown once: a viewer who has been welcomed goes straight to Hom
   await page.clock.setFixedTime(feedNow(FAMILY));
   await useRealFeeds(page, { family: FAMILY });
   await page.goto('./#/v3');
-  await expect(page.locator('.v3-feat')).toBeVisible({ timeout: 40_000 });
+  await expect(page.locator('.v3-gclist .v3-gc').first()).toBeVisible({ timeout: 40_000 });
   await expect(page.locator('.v3-welcome')).toHaveCount(0);
 });

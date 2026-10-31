@@ -234,7 +234,7 @@ test.describe('Team Research (real documents) @v3', () => {
     expect(rec.route).toMatch(/adj=0/);
     expect(rec.route).toMatch(/win=L34/);
     expect(rec.chips).toEqual(['Profile', 'Raw', 'Last 34']);
-    await go(page, '/v3/explore');
+    await go(page, '/v3/search');
     await go(page, rec.route);
     await ready(page, '.tm .prr');
     await expect(page.getByRole('group', { name: 'Statistic basis' }).getByRole('button', { pressed: true })).toHaveText('Raw');

@@ -90,16 +90,22 @@ async function listWithResearchableRow(page: Page): Promise<{ path: string }> {
 }
 
 test.describe('Prop Discovery on real published documents @v3', () => {
-  test('the Explore tab is Prop Discovery; the older search still lives at /v3/explore', async ({ page }) => {
+  test('the Props tab is Prop Discovery; search opens from the header at /v3/search and the old Explore address redirects to it', async ({ page }) => {
     await go(page, '/v3');
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' }).click();
+    const nav = page.getByRole('navigation', { name: 'Primary' });
+    await expect(nav.getByRole('link')).toHaveText(['Home', 'Props', 'Following']);
+    await nav.getByRole('link', { name: 'Props' }).click();
     await expect(page).toHaveURL(/#\/v3\/props/);
     await ready(page);
     await expect(page.getByRole('heading', { name: 'Props', exact: true })).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' })).toHaveAttribute('aria-current', 'page');
+    await expect(nav.getByRole('link', { name: 'Props' })).toHaveAttribute('aria-current', 'page');
+    // Global search is in the header of Props too, and keeps the Props tab lit.
+    await page.getByRole('link', { name: 'Search', exact: true }).first().click();
+    await expect(page).toHaveURL(/#\/v3\/search/);
+    await expect(nav.getByRole('link', { name: 'Props' })).toHaveAttribute('aria-current', 'page');
     await go(page, '/v3/explore?q=lamb');
+    await expect(page).toHaveURL(/#\/v3\/search\?q=lamb/);
     await expect(page.locator('.v3-explore input[type="search"], .v3-explore input').first()).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Explore' })).toHaveAttribute('aria-current', 'page');
   });
 
   test('/v3/props stays in SIFT 3.0: never handed to the classic /:slug/props route (team filter from Team Research opens the list)', async ({ page }) => {

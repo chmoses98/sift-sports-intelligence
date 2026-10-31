@@ -24,6 +24,8 @@ export interface V3Team {
   record?: string | null;
   /** AP/CFP style rank, only when the source states one. */
   rank?: number | null;
+  /** The team's conference as a short label ("SEC", "Big Ten"), only when SIFT's committed identity data states one (src/lib/cfb-conferences.json, src/lib/cbb-teams.json). Never guessed. */
+  conference?: string | null;
 }
 
 export interface Price {
@@ -105,6 +107,8 @@ export interface V3Game {
   photo?: { src: string; srcset?: string; /** CSS object-position for a phone-width crop. */ focus?: string; credit?: string | null } | null;
   venue?: string | null;
   neutral?: boolean;
+  /** Game significance, only when a source states it (no adapter does yet): the priority model counts these and nothing else. */
+  significance?: { rivalry?: boolean; postseason?: boolean } | null;
   /** The publication's board row (real games only), kept so per-game documents can be resolved lazily. */
   item?: BoardItem;
 }

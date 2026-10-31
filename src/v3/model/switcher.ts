@@ -1,6 +1,6 @@
 import type { V3Game } from '../model/types';
 import type { Follows } from '../state/prefs';
-import { followsTeamOf } from './feature';
+import { followsGame as followsTeamOf } from './priority';
 import { dayKey } from './time';
 
 const phaseRank = (g: V3Game) => (g.phase === 'live' ? 0 : g.phase === 'pregame' ? 1 : g.phase === 'other' ? 2 : 3);

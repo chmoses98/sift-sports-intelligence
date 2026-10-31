@@ -9,7 +9,7 @@ import { ChipRail } from '../ui/ChipRail';
 import { FollowStar } from '../ui/Controls';
 import { DataState } from '../ui/DataState';
 import { TeamLogo } from '../ui/TeamLogo';
-import { sportsIn } from './Games';
+import { sportChips } from '../model/homeFeed';
 import type { V3Game } from '../model/types';
 import { gameHref } from '../ui/gamebits';
 
@@ -38,7 +38,8 @@ function HitRow({ h, q }: { h: Hit; q: string }) {
   );
 }
 
-export function Explore() {
+/** Global search: players, teams, games and statistics. Opened from every primary screen's header. */
+export function Search() {
   const [sp] = useSearchParams();
   const setSp = useQueryPatch();
   const q = sp.get('q') ?? '';
@@ -57,7 +58,7 @@ export function Explore() {
   useEffect(() => { if (!typed.current.has(q)) { typed.current = new Set([q]); setText(q); } }, [q]);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   useEffect(() => { if (sp.get('focus') === '1') { input.current?.focus(); set({ focus: null }); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const sports = useMemo(() => sportsIn(games), [games]);
+  const sports = useMemo(() => sportChips(games), [games]);
   const browsing = q.trim() !== '' || cat !== 'all';
   const groups = useMemo(() => (['player', 'team', 'game', 'stat'] as Cat[]).map((k) => ({ k, rows: hits.filter((h) => h.kind === k) })).filter((g) => g.rows.length), [hits]);
   // Worth a look: the publication's own busiest games (research signals, then priced contracts), never a duplicate of Recent research.
@@ -69,7 +70,7 @@ export function Explore() {
 
   return (
     <div className="v3-page v3-explore">
-      <h1 className="v3-pgtitle">Explore</h1>
+      <h1 className="v3-pgtitle">Search</h1>
       <label className="v3-search">
         <Icon name="search" size={22} />
         <input ref={input} type="search" value={text} onChange={(e) => { typed.current.add(e.target.value); setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
@@ -116,7 +117,7 @@ export function Explore() {
           )}
           {trending.length > 0 && (
             <section aria-label="What's trending">
-              <div className="v3-sechead"><h2>What's Trending</h2><Link to="/v3/games">See games<Icon name="chevR" size={16} /></Link></div>
+              <div className="v3-sechead"><h2>What's Trending</h2><Link to="/v3">See games<Icon name="chevR" size={16} /></Link></div>
               <ul className="v3-hits">{trending.map((g: V3Game) => (
                 <li key={g.key} className="v3-hit"><Link to={gameHref(g)} className="v3-hit__l"><span className="v3-av v3-av--pair"><TeamLogo team={g.away} size={30} /><TeamLogo team={g.home} size={30} /></span><span className="v3-hit__t"><b>{g.away.nick} at {g.home.nick}</b><small>{g.signals > 0 ? `${g.signals} published research signal${g.signals === 1 ? '' : 's'}` : `${g.item?.markets_priced ?? g.lines.length} priced contracts`}</small></span><Icon name="chevR" size={20} /></Link></li>
               ))}</ul>

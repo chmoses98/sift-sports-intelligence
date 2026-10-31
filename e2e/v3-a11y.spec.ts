@@ -10,7 +10,7 @@ const EXCEPTIONS: Record<string, string> = {};
 
 const SCREENS: [string, string][] = [
   ['home', '/v3?demo=1'],
-  ['games', '/v3/games?demo=1'],
+  ['home-college', '/v3?demo=1&sport=cfb'],
   ['game-overview', '/v3/game/cfb/demo_uga_fla?demo=1'],
   ['game-matchup', '/v3/game/cfb/demo_uga_fla?demo=1&tab=matchup'],
   ['team', '/v3/team/cfb/UGA?demo=1'],
@@ -19,7 +19,7 @@ const SCREENS: [string, string][] = [
   ['player', '/v3/player/nba/sample-guard?demo=1'],
   ['player-props', '/v3/player/nba/sample-guard?demo=1&v=2&tab=props'],
   ['props', '/v3/props?demo=1'],
-  ['explore', '/v3/explore?demo=1'],
+  ['search', '/v3/search?demo=1'],
   ['following', '/v3/following?demo=1'],
   ['settings', '/v3/settings?demo=1'],
 ];

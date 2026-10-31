@@ -74,11 +74,18 @@ jobs:
         env:
           # After a deploy, the site must be serving exactly the commit that was deployed (version.json).
           SIFT_EXPECT_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+      # SIFT 3.0 is the default interface: the deployed commit, the root address, Home / Props / Following, a game and Back, and the CFB Script Engine
+      # tab, on the live site in Chromium phone + WebKit iPhone. (The v4 and SIFT 2.0 steps below reach their interface on purpose.)
+      - name: SIFT 3.0 default interface (Chromium phone + WebKit iPhone)
+        if: always()
+        run: node scripts/v3-production-check.mjs
+        env:
+          SIFT_EXPECT_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
       - name: NFL — the published projection distribution in the live Explorer (Chromium desktop + WebKit iPhone)
         if: always()
         run: node scripts/nfl-distribution-production-check.mjs
       # SIFT v4 early access (opt-in at #/v4): the journey Home, Games, Game, Props, Research, Save, Board, revisit on the live site with real
-      # data, the price ages against the quote feed's own times, SIFT 2.0 still the default, and a returning visit. When the pause switch
+      # data, the price ages against the quote feed's own times, SIFT 3.0 the default (SIFT 2.0 and v4 opt-in), and a returning visit. When the pause switch
       # (repository variable SIFT_V4=off) is set it checks only that v4 says so and SIFT 2.0 is untouched. Screenshots: production-v4-*.png.
       - name: SIFT v4 early access (Chromium phone + WebKit iPhone)
         if: always()

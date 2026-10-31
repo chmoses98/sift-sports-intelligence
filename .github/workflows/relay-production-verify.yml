@@ -9,6 +9,7 @@ on:
     paths:
       - scripts/relay-production-verify.mjs
       - scripts/v3-quote-production-check.mjs
+      - scripts/v3-production-check.mjs
       - .github/workflows/relay-production-verify.yml
 
 permissions:
@@ -36,3 +37,6 @@ jobs:
       - name: SIFT 3.0 quotes and priced contracts (desktop and iPhone size)
         if: always()
         run: node scripts/v3-quote-production-check.mjs
+      - name: SIFT 3.0 is the default; Home / Props / Following, game and Back, CFB Script Engine (Chromium phone + WebKit iPhone)
+        if: always()
+        run: node scripts/v3-production-check.mjs

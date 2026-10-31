@@ -104,8 +104,11 @@ export function boxObs(rows: BoxRow[], stats: PlayerStat[]): Omit<Obs, 'rest'>[]
 const hash = (s: string) => { let h = 3; for (const c of s) h = (h * 37 + c.charCodeAt(0)) >>> 0; return h; };
 
 export const DEMO_PLAYER_ID = 'sample-guard';
+const demoGame = (slug: string, games: V3Game[]) => games.find((x) => x.slug === 'nba' && x.phase !== 'final') ?? games.find((x) => x.slug === slug) ?? games[0];
+/** The team key ("nba:NYK") the sample player is on in the sample slate (Following uses it to find his games). */
+export const demoPlayerTeamKey = (games: V3Game[]): string => { const g = demoGame('nba', games); return g ? `${g.slug}:${g.home.id}` : 'nba:NYK'; };
 function demoVM(slug: string, games: V3Game[]): PlayerVM {
-  const g = games.find((x) => x.slug === 'nba' && x.phase !== 'final') ?? games.find((x) => x.slug === slug) ?? games[0];
+  const g = demoGame(slug, games);
   const team = g?.home ?? mkTeam('NBA', 'nba', 'NYK', 'New York Knicks');
   const opp = g ? (g.home.id === team.id ? g.away : g.home) : mkTeam('NBA', 'nba', 'BOS', 'Boston Celtics');
   const opps = ['CLE', 'BOS', 'DET', 'CHA', 'MIA', 'ORL', 'BKN', 'TOR', 'CLE', 'BOS', 'PHI', 'IND', 'ATL', 'CHI', 'MIL', 'WAS', 'NOP', 'MEM', 'DEN', 'LAL'];
@@ -124,7 +127,8 @@ function demoVM(slug: string, games: V3Game[]): PlayerVM {
 
 // ---------------------------------------------------------------- real
 
-export function usePlayerVM(slug: string, pid: string) {
+/** `quotes: false` reads the player's contracts for their lines only (no live-quote registration): for a list that prints no price. */
+export function usePlayerVM(slug: string, pid: string, o: { quotes?: boolean } = {}) {
   const slate = useSlate();
   const demo = demoOn();
   const sport = sportBySlug(slug);
@@ -142,7 +146,7 @@ export function usePlayerVM(slug: string, pid: string) {
   const nextStart = useGameStart(demo ? null : next);
   // His contracts on the coming game, kept current by the shared live-quote store (the same overlay the game screens use).
   const mine = useMemo(() => (detail.data?.markets ?? []).filter((m) => m.player_id === pid), [detail.data, pid]);
-  const liveQ = useRowQuotes(!demo && mine.length ? mine.map((m) => m.kalshi_ticker) : undefined, { startMs: nextStart, live: next?.phase === 'live' });
+  const liveQ = useRowQuotes(!demo && mine.length && o.quotes !== false ? mine.map((m) => m.kalshi_ticker) : undefined, { startMs: nextStart, live: next?.phase === 'live' });
 
   const vm = useMemo<PlayerVM | null>(() => {
     if (demo) return demoVM(slug, slate.games);

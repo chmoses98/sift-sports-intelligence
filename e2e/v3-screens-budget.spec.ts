@@ -178,7 +178,7 @@ test('Following (a team and a player followed): the slate and the one league the
   expect(r.by['search-index'] ?? 0).toBeLessThanOrEqual(1);
   expect(r.repeats).toBe(0);
   expect(r.documents).toBeLessThanOrEqual(31); // measured 28; before: 73 (nobody followed)
-  expect(r.bytes).toBeLessThanOrEqual(215_000); // measured 192 KB; before: 1,051 KB
+  expect(r.bytes).toBeLessThanOrEqual(300_000); // measured 280 KB (192 KB + the followed player's profile, game log and coming-game document, read for his card; no quote); before: 1,051 KB
 });
 
 test('Search: the slate plus the four search indexes the search needs (and no quote)', async ({ page }) => {

@@ -106,13 +106,12 @@ for (const w of WIDTHS) {
       expectRail(await facts(page, '[aria-label="Stat"]', '.v3-chip'), w, 'Game stat chips');
     });
 
-    test('Following: the section segments stay on one row, fully readable', async ({ page }) => {
-      await go(page, '/v3/following', '.v3-seg--box');
-      const f = await facts(page, '.v3-seg--box');
-      expect(f.rows, 'one row').toBe(1);
-      expect(f.clippedLabels, 'no segment label is clipped').toBe(0);
-      expect(f.pageOverflow).toBeLessThanOrEqual(0);
-      expect(f.inOrder).toBe(true);
+    test('Following: the sport filter chips (only followed sports) are a single scrolling rail', async ({ page }) => {
+      await page.addInitScript(() => { try { localStorage.setItem('sift3.follows', JSON.stringify({ teams: ['nfl:DAL', 'nba:BOS', 'mlb:LAD', 'nhl:BOS', 'cfb:UGA', 'cbb:DUKE'], players: [], games: [] })); } catch { /* */ } });
+      await go(page, '/v3/following', '.v3-chips--sports .v3-chip');
+      const f = await facts(page, '.v3-chips--sports', '.v3-chip');
+      expectRail(f, w, 'Following sport chips');
+      expect(f.count).toBe(7); // All + the six followed sports
     });
   });
 }

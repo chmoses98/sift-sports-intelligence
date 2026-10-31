@@ -3,9 +3,11 @@
 import { createStore, useStore } from './store';
 import type { PriceFormat } from '../model/format';
 import { reviveSaved, reviveSavedList, type SavedInput, type SavedResearch } from '../model/saved';
+import { reviveFollows, type FollowSet } from '../model/following';
 
-export interface Follows { teams: string[]; players: string[]; games: string[] }
-const follows = createStore<Follows>('follows', { teams: [], players: [], games: [] });
+export type Follows = FollowSet;
+// Revived on every read from storage: a record from an older build (no `players`, a non-list, duplicates) becomes the current shape.
+const follows = createStore<Follows>('follows', { teams: [], players: [], games: [] }, reviveFollows);
 
 export type FollowKind = keyof Follows;
 export const useFollows = () => useStore(follows);

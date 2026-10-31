@@ -77,7 +77,7 @@ Key rules the code enforces:
 | Stat Detail | real ranking documents (sortable, windows, definition sheet, related stats, team history chart, per-opponent list) | 6 sample rankings | splits beyond windows are not published; compare mode not built |
 | Player research | NFL (history layer) and NBA/NHL (profile box log) game logs; his Kalshi ladder for the coming game; filters computed from the logs | sample NBA guard | teammate with/without, pace and "projected minutes" filters are **not** offered (no data); adjusted what-if in Replay is explicitly "not available" |
 | Search (`/v3/search`, header icon on every primary screen) | search index of NFL/NBA/NHL/MLB + slate teams/games; statistics without a market open Stat Detail | sample stats/player | no props category tile (no cross-game props index) |
-| Following | device-local follows, tracked/live games, saved research with frozen snapshot | same | notifications are choices only |
+| Following | every followed sport together (optional sport chips filter only, kept in the address): live games (starred game, followed teams, followed players' teams) as the app's game card; player updates from the published game log (NFL history layer, NBA/NHL profile box log) with the coming game's Kalshi lines (lines only, no price); upcoming by day; recent finals from the published slate; unfollow and per-item alerts (separate stores); saved research with frozen snapshot | same | notifications are choices only. **No live player-stat feed exists**, so a player in a live game shows his last games and says so. Results come only from the published slate (no per-team results archive) |
 | Settings | price format, text size, reduce motion, clear data | same | no accounts / sync |
 
 ## Not built (prioritised next steps)

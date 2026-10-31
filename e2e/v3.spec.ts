@@ -28,7 +28,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await noOverflow(page);
   });
 
-  test('a Home game card opens Game Detail; switcher keeps the tab; Back restores the previous game', async ({ page }) => {
+  test('a Home game card opens Game Detail; switcher keeps the tab; Back returns to Home, not the previous game', async ({ page }) => {
     await go(page, '/v3?demo=1&sport=cfb');
     await page.locator('.v3-gc__hit[href*="demo_uga_fla"]').click();
     await expect(page).toHaveURL(/#\/v3\/game\/cfb\/demo_uga_fla/);
@@ -39,8 +39,10 @@ test.describe('SIFT 3.0 @v3', () => {
     await page.locator('.v3-sw__tile:not(.is-cur) .v3-sw__hit').first().click();
     await expect(page).toHaveURL(/tab=props/);
     await expect(page).not.toHaveURL(/demo_uga_fla/);
+    // Switching games replaces the history entry: Back goes straight to the screen the game was opened from, with its sport filter, never through the games in between.
     await page.goBack();
-    await expect(page).toHaveURL(/demo_uga_fla.*tab=props/);
+    await expect(page).toHaveURL(/#\/v3\?.*sport=cfb/);
+    await expect(page).not.toHaveURL(/\/game\//);
   });
 
   test('picker: searchable, favourites pin without switching, handles 25 games', async ({ page }) => {

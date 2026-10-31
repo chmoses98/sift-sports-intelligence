@@ -1,7 +1,7 @@
 // Route builders: the only place a v3 research address is assembled. Every team, player, statistic, game, prop and price tap in the app
 // resolves through one of these, so a given object has one destination everywhere (the locked navigation contract).
 import { encode, type StateOf } from '../state/url';
-import { gameSchema, playerSchema, propsSchema, statSchema, teamSchema } from './schemas';
+import { gameSchema, homeSchema, playerSchema, propsSchema, statSchema, teamSchema } from './schemas';
 
 export interface TeamRef { slug: string; id: string }
 export interface PlayerRef { slug: string; id: string }
@@ -11,9 +11,10 @@ export interface GameRef { slug: string; eventId: string }
 const seg = (s: string) => encodeURIComponent(s);
 
 export const routes = {
-  home: () => '/v3',
-  games: () => '/v3/games',
-  explore: () => '/v3/explore',
+  /** Home: the games feed, optionally at a sport, college conference filter and day. */
+  home: (s: Partial<StateOf<typeof homeSchema.fields>> = {}) => `/v3${encode(homeSchema, s)}`,
+  /** Global search (every primary screen's header opens it; `focus` puts the cursor in the field). */
+  search: (focus = false) => `/v3/search${focus ? '?focus=1' : ''}`,
   following: () => '/v3/following',
   /** A team: Team Research. */
   team: (t: TeamRef, s: Partial<StateOf<typeof teamSchema.fields>> = {}) => `/v3/team/${t.slug}/${seg(t.id)}${encode(teamSchema, s)}`,

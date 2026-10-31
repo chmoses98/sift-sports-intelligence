@@ -1,0 +1,54 @@
+{
+ "copyright": "TEST FIXTURE shaped like the MLB StatsAPI schedule answer; hand-written, not a recording",
+ "dates": [
+  {
+   "date": "2026-10-31",
+   "games": [
+    {
+     "gamePk": 900001,
+     "gameDate": "2026-10-31T00:08:00Z",
+     "status": {
+      "abstractGameState": "Live",
+      "detailedState": "In Progress"
+     },
+     "teams": {
+      "away": {
+       "team": {
+        "id": 147,
+        "name": "New York Yankees"
+       }
+      },
+      "home": {
+       "team": {
+        "id": 119,
+        "name": "Los Angeles Dodgers"
+       }
+      }
+     }
+    },
+    {
+     "gamePk": 900002,
+     "gameDate": "2026-10-31T23:05:00Z",
+     "status": {
+      "abstractGameState": "Preview",
+      "detailedState": "Scheduled"
+     },
+     "teams": {
+      "away": {
+       "team": {
+        "id": 111,
+        "name": "Boston Red Sox"
+       }
+      },
+      "home": {
+       "team": {
+        "id": 110,
+        "name": "Baltimore Orioles"
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

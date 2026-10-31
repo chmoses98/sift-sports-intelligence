@@ -80,6 +80,7 @@ describe('UiGate with v4', () => {
   afterEach(cleanup);
   const tree = [{ path: '/', element: <Outlet />, children: [
     { path: 'v4', element: <div>v4 shell</div> },
+    { path: 'v3', element: <div>V3 home</div> },
     { path: 'design/sift2/home', element: <div>S2 home</div> },
     { element: <UiGate />, children: [{ index: true, element: <div>classic home</div> }, { path: 'games', element: <div>classic games</div> }] },
     { path: '*', element: <Navigate to="/" /> },
@@ -88,12 +89,12 @@ describe('UiGate with v4', () => {
   beforeEach(() => localStorage.clear());
   it('?ui=v4 on a classic address opens the v4 shell', async () => { open('/?ui=v4'); expect(await screen.findByText('v4 shell')).toBeTruthy(); });
   it('a remembered v4 choice sends later classic addresses to v4', async () => { localStorage.setItem('sift.ui', 'v4'); open('/games'); expect(await screen.findByText('v4 shell')).toBeTruthy(); });
-  it('without the flag the default interface is unchanged', async () => { open('/'); expect(await screen.findByText('S2 home')).toBeTruthy(); });
-  it('after exitV4 a classic address answers with SIFT 2.0 again, not v4', async () => {
+  it('without the flag the default interface is SIFT 3.0', async () => { open('/'); expect(await screen.findByText('V3 home')).toBeTruthy(); });
+  it('after exitV4 a classic address answers with the default (SIFT 3.0) again, not v4', async () => {
     localStorage.setItem('sift.ui', 'v4');
     exitV4();
     open('/games');
-    expect(await screen.findByText('S2 home')).toBeTruthy();
+    expect(await screen.findByText('V3 home')).toBeTruthy();
   });
   it('after exitV4 a remembered classic choice still holds', async () => {
     localStorage.setItem('sift.ui', 'classic');

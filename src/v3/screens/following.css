@@ -1,0 +1,48 @@
+/* Following: all followed sports together (screens/Following.tsx). Reuses the shared card, row and chip classes; only what is new is here. */
+.v3-chips--sports { margin-bottom: 4px; }
+.v3-fcount { color: var(--sift-muted); font-weight: 500; }
+.v3-fnone { margin: 2px 0 0; }
+.v3-fsub { margin: 14px 0 8px; font: 600 13px/18px var(--f-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--sift-muted); }
+.v3-fsub span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.v3-sechead + .v3-fsub { margin-top: 0; }
+.v3-fday .v3-fsub { margin-top: 10px; }
+.v3-fw { font-weight: 800; color: var(--sift-text); }
+.v3-fat { color: var(--sift-muted); font-weight: 500; }
+
+/* live: the app's own card under a one-line reason */
+.v3-fl { display: grid; gap: 14px; }
+.v3-fl__why { display: flex; align-items: center; gap: 6px; margin: 0 2px 6px; font: 500 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3-fl__why svg { color: var(--sift-cyan); flex: none; }
+
+/* player updates */
+.v3-fps { display: grid; gap: 10px; }
+.v3-fp { border-radius: var(--r-l); background: var(--panel); border: 1px solid rgba(41, 48, 55, 0.95); overflow: hidden; }
+.v3-fp__h { display: flex; align-items: center; padding-right: 2px; }
+.v3-fp__l { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 8px 4px 8px 12px; min-height: 56px; }
+.v3-fp__body { padding: 0 12px 12px; display: grid; gap: 10px; min-height: 96px; align-content: start; }
+.v3-fp__body--wait { min-height: 150px; }
+.v3-fp__next { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 10px; border-radius: 12px; background: rgba(39, 45, 52, 0.45); font: 500 14px/20px var(--f-ui); }
+.v3-fp__next b { font-weight: 700; }
+.v3-fp__next span:nth-child(2) { flex: 1; min-width: 0; color: var(--sift-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v3-fp__next svg { color: #a4abb4; flex: none; }
+.v3-fp__src { margin: -4px 0 0; }
+.v3-fp__empty, .v3-fp__nonext { margin: 0; }
+.v3-fp__lines { display: grid; gap: 6px; }
+.v3-fp__lines small { font: 600 12px/16px var(--f-ui); color: var(--sift-muted); letter-spacing: 0.03em; text-transform: uppercase; }
+.v3-fp__lines small span { text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 4px; }
+.v3-fp__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.v3-fp__chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px; background: rgba(21, 24, 27, 0.82); border: 1px solid rgba(47, 54, 62, 0.9); font: 500 13px/1 var(--f-ui); color: var(--sift-muted); }
+.v3-fp__chip b { font: 700 16px/1 var(--f-ui); color: var(--sift-text); }
+.v3-fp__log { width: 100%; border-collapse: collapse; font: 400 14px/20px var(--f-ui); }
+.v3-fp__cap { text-align: left; font: 600 12px/16px var(--f-ui); color: var(--sift-muted); letter-spacing: 0.03em; text-transform: uppercase; padding-bottom: 4px; caption-side: top; }
+.v3-fp__log th, .v3-fp__log td { padding: 6px 0; text-align: right; border-top: 1px solid rgba(41, 48, 55, 0.55); }
+.v3-fp__log thead th { border-top: 0; font: 600 11px/14px var(--f-ui); color: var(--sift-muted); }
+.v3-fp__log th:first-child { text-align: left; font-weight: 500; }
+.v3-fp__log tbody th:first-child span { color: var(--sift-muted); font-weight: 400; margin-left: 4px; }
+.v3-fp__avg th, .v3-fp__avg td { font-weight: 700; color: var(--sift-text); }
+
+/* empty state */
+.v3-fempty { display: grid; gap: 12px; padding: 18px 0 8px; }
+.v3-fempty h2 { font: 700 22px/28px var(--f-ui); }
+.v3-fempty .v3-btn { margin-top: 4px; }
+.v3-fempty .v3-tm__l small { font-size: 11px; }

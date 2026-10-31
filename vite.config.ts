@@ -90,8 +90,9 @@ export default defineConfig({
         scope: base,
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#05070d',
-        theme_color: '#05070d',
+        // SIFT 3.0's own page colour (V3Root sets the same theme-color at runtime), so a Home Screen launch has no flash of another colour.
+        background_color: '#080b10',
+        theme_color: '#080b10',
         categories: ['sports', 'news', 'productivity'],
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },

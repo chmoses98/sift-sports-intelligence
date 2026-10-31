@@ -36,7 +36,8 @@ export function Settings() {
           {SAMPLE_ONLY ? <span>This hosted preview has no access to the research feeds, so it only shows sample data. Use the full preview for real data.</span> : <a href={demo ? '#/v3?demo=0' : '#/v3?demo=1'} style={{ color: 'var(--sift-cyan)' }}>{demo ? 'Switch to real data' : 'Preview with sample data'}</a>}</div></div>
         <button type="button" className="v3-btn v3-btn--ghost" onClick={() => { if (confirm('Remove follows, alerts, saved research and recents from this device?')) clearAllLocal(); }}>Clear data on this device</button>
         <p className="v3-note v3-note--dim">Everything you follow, save or choose stays on this device. No account is needed.</p>
-        <p className="v3-note v3-note--dim">Build {__SIFT_BUILD__} · {demo ? 'sample data' : 'real data'}</p>
+        <p className="v3-note v3-note--dim">Prefer the previous interface? <a href="#/?ui=sift2" style={{ color: 'var(--sift-cyan)' }}>Open SIFT 2.0</a>. It stays on this device until you choose SIFT 3.0 again.</p>
+        <p className="v3-note v3-note--dim" data-testid="build-id">Build {__SIFT_BUILD__} · {demo ? 'sample data' : 'real data'}</p>
       </section>
     </div>
   );

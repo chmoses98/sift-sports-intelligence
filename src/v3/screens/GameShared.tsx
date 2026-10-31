@@ -4,6 +4,8 @@ import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
 import { playerPhoto } from '../../lib/players';
 import { deriveProps } from '../data/adapt';
 import { useMatchupProfiles, useRoster } from '../data/research/gameHooks';
+import type { LiveDetailState } from '../data/live/useLiveDetail';
+import type { ScriptState } from '../data/research/scriptEngine';
 import { keyMatchups, NFL_PROP_UNITS } from '../data/research/keyMatchups';
 import { sideOf, unitRows, unitsFor } from '../data/research/matchup';
 import type { V3Game, V3Team } from '../model/types';
@@ -21,6 +23,10 @@ export interface GameCtx {
   detailRetry?: () => void;
   researchError?: unknown;
   researchRetry?: () => void;
+  /** The Script Engine payload of this game's research (data/research/scriptEngine.ts): ready only when the research carries one. */
+  script?: ScriptState;
+  /** The live feed state of a game in play (data/live/useLiveDetail.ts); absent for a game that is not live. */
+  live?: LiveDetailState;
 }
 
 const NO_STAT_UNITS: Record<string, never> = {};

@@ -29,6 +29,7 @@ const AGE = /\bago\b|\d+\s?(s|sec|min|mins|minutes)\b old|updated \d|as of \d|la
 interface Feed { updatedAgeS: number; status?: string; text?: string; hs?: string; as?: string; teams?: { home: string; away: string } }
 
 async function setup(page: Page, feed: Feed | 'down') {
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* ignore */ } }); // Home is the landing screen: the first-run welcome sheet would cover it
   void feedNow('props');
   await serveRealFeeds(page, { family: 'props' });
   await freshQuotes(page, { family: 'props' });
@@ -49,19 +50,19 @@ async function setup(page: Page, feed: Feed | 'down') {
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); };
 const card = (page: Page) => page.locator('.v3-gc', { hasText: nickname(G.home) }).first();
 
-test.describe('scores on Games, Home and Game Detail @v3', () => {
+test.describe('scores on Home and Game Detail @v3', () => {
   test('a fresh verified score is shown with no extra status word', async ({ page }) => {
     await setup(page, { updatedAgeS: 10 });
-    await go(page, '/v3/games?sport=nba&state=live');
+    await go(page, '/v3?sport=nba');
     await expect(card(page).locator('.v3-gc__sc').first()).toHaveText('61', { timeout: 20_000 });
     await expect(card(page).locator('.v3-gc__sc').nth(1)).toHaveText('58');
     await expect(card(page).locator('[data-delayed]')).toHaveCount(0);
     expect(await card(page).innerText()).not.toMatch(/Score unavailable|Delayed/);
   });
 
-  test('a delayed verified score stays visible with one muted "Delayed" word on the Games card, the scoreboard tile and the Game Detail hero, with no age', async ({ page }) => {
+  test('a delayed verified score stays visible with one muted "Delayed" word on the Home card and the Game Detail hero, with no age', async ({ page }) => {
     await setup(page, { updatedAgeS: 150 });
-    await go(page, '/v3/games?sport=nba&state=live');
+    await go(page, '/v3?sport=nba');
     const c = card(page);
     await expect(c.locator('.v3-gc__sc').first()).toHaveText('61', { timeout: 20_000 });
     await expect(c.locator('.v3-gc__sc').nth(1)).toHaveText('58');
@@ -73,13 +74,6 @@ test.describe('scores on Games, Home and Game Detail @v3', () => {
     const box = await c.boundingBox();
     expect(box!.width).toBeLessThanOrEqual(390);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    // Home: the scoreboard tile
-    await go(page, '/v3');
-    const tile = page.locator('.v3-tile', { hasText: G.home.code }).first();
-    if (await tile.count()) {
-      await expect(tile.locator('.v3-tile__r em').first()).toHaveText('61', { timeout: 20_000 });
-      await expect(tile.locator('[data-delayed]')).toHaveText('Delayed');
-    }
     expect(await page.locator('[data-v3-shell]').innerText()).not.toMatch(AGE);
     // Game Detail hero
     await go(page, GAME);
@@ -92,7 +86,7 @@ test.describe('scores on Games, Home and Game Detail @v3', () => {
 
   test('a score older than five minutes is unreliable: no score on any surface, "Score unavailable", and no Delayed word', async ({ page }) => {
     await setup(page, { updatedAgeS: 600 });
-    await go(page, '/v3/games?sport=nba&state=live');
+    await go(page, '/v3?sport=nba');
     const c = card(page);
     await expect(c).toBeVisible({ timeout: 20_000 });
     await expect(c.locator('.v3-gc__src')).toHaveText('Score unavailable', { timeout: 20_000 });
@@ -107,7 +101,7 @@ test.describe('scores on Games, Home and Game Detail @v3', () => {
 
   test('a score from a different pair of teams is never attached to this game (no fabricated or borrowed score)', async ({ page }) => {
     await setup(page, { updatedAgeS: 10, teams: OTHER });
-    await go(page, '/v3/games?sport=nba&state=live');
+    await go(page, '/v3?sport=nba');
     const c = card(page);
     await expect(c).toBeVisible({ timeout: 20_000 });
     await page.waitForTimeout(2500);
@@ -117,7 +111,7 @@ test.describe('scores on Games, Home and Game Detail @v3', () => {
 
   test('the feed being down shows no score and no error text on the card', async ({ page }) => {
     await setup(page, 'down');
-    await go(page, '/v3/games?sport=nba&state=live');
+    await go(page, '/v3?sport=nba');
     const c = card(page);
     await expect(c).toBeVisible({ timeout: 20_000 });
     await page.waitForTimeout(2500);

@@ -35,10 +35,10 @@ deterministic fixture set the screenshot and Playwright tests use. **Real mode i
 
 ```
 src/v3/
-  V3Root.tsx        shell: four-tab bottom nav, sheet host, slate provider, sample-data strip, scroll memory
+  V3Root.tsx        shell: three-tab bottom nav (Home, Props, Following), sheet host, slate provider, sample-data strip, scroll memory
   routes.tsx        children of /v3 (each screen is its own lazy chunk)
   v3.css            tokens (contract §2), shell, shared primitives, sheets   — everything scoped under .v3
-  model/            pure view-model + logic: types, price/fee formatting, research engine, featured-game and switcher rules
+  model/            pure view-model + logic: types, price/fee formatting, research engine, game priority (priority.ts), Home feed grouping (homeFeed.ts), conferences, switcher rules
   data/             adapters from the existing publications/contracts to the view-model; hooks; sample-data-free
     adapt.ts          board rows -> V3Game; Kalshi ladders -> compact lines; player props
     useSlate.tsx      one cached slate for every screen (real via the opportunity layer, or sample)
@@ -48,7 +48,7 @@ src/v3/
   demo/fixtures.ts  SAMPLE DATA ONLY (real team identities/logos, fictional scores, prices, stats)
   state/            device-local stores: follows, alerts (separate), saved research, recents, preferences, scroll memory
   ui/               Icon, TeamLogo, Sheet, Controls (star/bell), Switcher (rail + picker), GameCard, BarChart, LineChart, …
-  screens/          Home, Games, GameDetail (+GameTabs), Team, Stat, Player, Explore, Following, Settings
+  screens/          Home (the games feed), GameDetail (+GameTabs), Team, Stat, Player, Props, Search, Following, Settings
 ```
 
 Key rules the code enforces:
@@ -62,6 +62,7 @@ Key rules the code enforces:
   Kalshi threshold ladders are reduced to the rung nearest 50¢ and labelled Kalshi, never sportsbook odds.
 * Tap regions are independent (card body / team / lines / star / bell). Icons never take the tap (a WebKit quirk).
 * Back restores tab, filters, search query, chart state (all in the address) and **scroll offset** (`state/scroll.ts`).
+* A game remembers where it was opened from (`nav/origin.ts`, `nav/useGameNav.ts`): switching games (rail, prev/next bar, picker) *replaces* the entry, and Back from a game returns straight to the screen that opened it (Home, Props, Following, search, a team), however many games were switched through. A deep link has no origin: Back goes Home (`/v3`) with replace.
 * Skeletons reserve their final height; nothing is inserted above a tappable control after first paint (Lens and market
   rows are reserved slots).
 
@@ -71,21 +72,88 @@ Key rules the code enforces:
 
 | Screen | Real data | Sample (`?demo=1`) | Honest gaps |
 |---|---|---|---|
-| Home | slate, Kalshi lines, featured game (+ verified venue photo when one exists), real injury news (NFL), My Teams | full | no news feed for sports without a research document; strip tiles show a score only where a licensed feed exists |
-| Games | every published sport, Kalshi spread/total/moneyline chips (cents), state tabs, date sheet | 33 games incl. 25-game CFB card | **NFL/CFB/NHL have no licensed live score feed**: in-play games show "Score unavailable", never an estimate. NBA scores use the existing SportScore adapter |
-| Game Detail + Switcher | hero (photo or logo-led), phase-aware tabs, switcher rail + picker (favourites pinned), markets with live overlay, Lens from matchup rows, matchup/stats from published ranks, props from Kalshi contracts, script from published theses | adds drive card, play-by-play, 6 matchup rows | live drive/play-by-play need a play feed that does not exist; CFB script engine and box scores are not wired into this view |
+| Home (games feed) | every published sport's games for a day: sport rail, NCAAF/NCAAB conference chips (CFB conference from `src/lib/cfb-conferences.json`, CBB from its team identity), day strip + calendar sheet, time-grouped sections ordered by `model/priority.ts`, Kalshi spread/total/moneyline chips (cents) | full (25-game CFB card with ranks) | **no AP/CFP rank exists in any publication today** (CFBD licence unresolved): the Top 25 chip and rank boosts appear only when a source states a rank. **NFL/CFB/NHL have no licensed live score feed**: in-play games show "Score unavailable" |
+| Game Detail + Switcher | hero (photo or logo-led), phase-aware tabs, switcher rail + picker (favourites pinned), markets with live overlay, Lens from matchup rows, matchup/stats from published ranks, props from Kalshi contracts, script from published theses; **Matchup Intelligence on the Overview** (below). **CFB (and any game whose research carries a Script Engine payload): the Overview shows the SIFT Read, the top three opponent-adjusted matchup advantages, the Primary / Secondary / Alternate / Danger scripts (causal chain citing findings), Bets That Survive Multiple Scripts with each side's own Kalshi price, Why this bet (findings for and against) and data confidence; Game Script and Matchup tabs hold the detail** | adds drive card, play-by-play, 6 matchup rows | **a game in play leads with the live game (state, plays, performances; below)**; no cleared play feed exists today (NBA's licensed feed is score + period only; MLB's has plays and a box score but is BLOCKED-ON-RIGHTS), so those sections say why they are empty; the demo drive card is sample-only; box scores are not wired into the Stats tab; a CFB game whose research carries no payload keeps the generic Overview and Props and shows the engine's own status and reason |
 | Team | explorer profile: record from completed games, metric ranks (raw and opponent-adjusted kept apart), results, roster, injuries, schedule | sample record/ranks | CFB has no explorer metrics yet (empty-state wording says so) |
 | Stat Detail | real ranking documents (sortable, windows, definition sheet, related stats, team history chart, per-opponent list) | 6 sample rankings | splits beyond windows are not published; compare mode not built |
 | Player research | NFL (history layer) and NBA/NHL (profile box log) game logs; his Kalshi ladder for the coming game; filters computed from the logs | sample NBA guard | teammate with/without, pace and "projected minutes" filters are **not** offered (no data); adjusted what-if in Replay is explicitly "not available" |
-| Explore | search index of NFL/NBA/NHL/MLB + slate teams/games; statistics without a market open Stat Detail | sample stats/player | no props category tile (no cross-game props index) |
-| Following | device-local follows, tracked/live games, saved research with frozen snapshot | same | notifications are choices only |
+| Search (`/v3/search`, header icon on every primary screen) | search index of NFL/NBA/NHL/MLB + slate teams/games; statistics without a market open Stat Detail | sample stats/player | no props category tile (no cross-game props index) |
+| Following | every followed sport together (optional sport chips filter only, kept in the address): live games (starred game, followed teams, followed players' teams) as the app's game card; player updates from the published game log (NFL history layer, NBA/NHL profile box log) with the coming game's Kalshi lines (lines only, no price); upcoming by day; recent finals from the published slate; unfollow and per-item alerts (separate stores); saved research with frozen snapshot | same | notifications are choices only. **No live player-stat feed exists**, so a player in a live game shows his last games and says so. Results come only from the published slate (no per-team results archive) |
 | Settings | price format, text size, reduce motion, clear data | same | no accounts / sync |
+
+## Live game (Game Detail Overview, Release 3)
+
+A game in play reads: **live state** (score, period, game clock, football possession and down and distance, baseball bases/outs/count, hockey power play, only where
+the source states them), **play-by-play** (the provider's own sentences, newest first), **player performances** (box-score lines), then the Kalshi win price and
+markets, then the research, with the **Pregame analysis** section still on the page (a "Pregame analysis" jump sits in the state block). Code: `src/v3/screens/live/`
+(UI), `src/v3/data/live/` (types, rights registry, MLB adapter, poller, freshness, view); tests `tests/v3/liveDetail.test.ts`, `liveGame.test.tsx`, `e2e/v3-live.spec.ts`.
+
+* **Rights decide what is read** (`data/live/rights.ts`, the code form of `docs/LIVE_SCORES_REAL.md`). Cleared: SportScore (NBA, score + period, no game clock, no plays, no box
+  score; its score arrives through the existing score store and carries the "Powered by SportScore" credit). **BLOCKED-ON-RIGHTS: MLB StatsAPI** (state, plays, box score):
+  adapter and UI are built and tested, but the build reads it only if `VITE_SIFT_LIVE_DETAIL_SOURCES` names `mlb` (never in a shipped build; Playwright's dev server does).
+  NFL, CFB and NHL have no source whose terms permit this use: honest "not available". The isolation test (no ESPN, no `api-web.nhle`, no notification permission) is unchanged.
+* **Polling** is visibility-aware (nothing is asked while the tab is hidden; returning refreshes at once if the answer is older than the interval), backs off on errors, and
+  keeps the last answer with its real age. Freshness uses the score store's clock: under 60 s as is, up to 5 min with the muted "Delayed" word, beyond that **withheld**.
+* The existing live-scores switch (`?livescores=0`, "Turn off") also stops this feed.
+
+## Matchup Intelligence (Game Detail Overview, Release 2)
+
+A pregame Overview reads, in order: **projection, top advantages, offense-vs-defense comparison, player matchups, lineup and injury notes, pace and
+scoring, game script**, then the existing Kalshi win price, markets, players to research and props. Code: `src/v3/screens/intel/` (UI),
+`src/v3/data/intel/` (pure readers + `buildGameIntel`), `src/v3/model/intel/advantages.ts` (the plain-English copy), tests in `tests/v3/intel.test.ts`
+and `e2e/v3-intel.spec.ts`. A live or final game keeps the same research in an open "Pregame analysis" section lower down.
+
+* **A section exists only when its data does.** `buildGameIntel` decides per game (not by a flag); what is absent is listed under "Not published for
+  this game" with the reason. The projection card is always present for a real game and, with no model view, says why instead of showing a number.
+* **SIFT model and Market are separate lanes.** The model lane is a published model view for this game (`extensions.model_view`: NFL's research
+  simulation, labelled "Research simulation, not an approved projection", with model version, inputs as-of and the publication's own caveat; the
+  approved `team_points` projection from the projection authority where a sport has one; CBB's frozen pre-tip projection). The Market lane is the
+  quote gate's Kalshi ask (opens the contract sheet), or the publication's labelled midpoint view when no usable quote exists.
+* **Opponent-adjusted ranks come from the event research document** (`matchup` rows), so the Overview fetches no team profile. Advantage copy is
+  fixed per unit; every number in a sentence is a published rank. Explosive-play and turnover units lead only when too few steadier units have a direction.
+* **Scripts**: the published thesis (when it states a script), the simulation's final-margin scripts (`lib/scripts.ts`, close-win split only when the
+  publication's gate says SHOW), and NHL's `nhl_scripts_v1`. Expected / Alternate / Danger, each with evidence and a counterargument.
+* **Matchup tab**: default is readable sentences with side-by-side rank bars; the tug-of-war chart is one tap away (`chart=1` in the address).
+
+## Sport coverage (Workstream 4)
+
+Each sport's own publication reaches the Overview through a per-sport reader (`src/v3/data/intel/sports/`: `nhl`, `nba`, `mlb`, `cbb`, `soccer`, `tennis`; tests
+`tests/v3/sport-coverage.test.ts`, `e2e/v3-coverage.spec.ts`). A reader returns a piece only when the game's own document states it, and `readSport` runs a layer
+only if `model/capabilities.ts` does not declare it `none` for the sport. The three Overview layers (`gameModel`, `gameEnvironment`, `gameAvailability`) are
+`gated` per game for NHL, NBA, MLB, CBB, soccer and tennis: `buildGameIntel` fills `layers` with `gameCapability(slug, layer, { sections })`, so a layer opens for a game
+because its document filled it, and a `none` layer (tennis environment, CFB's, which the Script Engine view owns) never does.
+
+| Sport | Connected on the Overview | Labelled as | Not connected (see DATA_GAPS §10) |
+|---|---|---|---|
+| NHL | simulation (expected goals, win and overtime), season ranks of goals, expected goals, shot share, power play and penalty kill, rest, goalie status, designations placed on a team, findings, scripts | research simulation with the settled Brier next to the market's | Team Profile tab (its adjusted switch is football's; hockey publishes `oa_*` under another window). Team Schedule and Players are connected |
+| NBA | raw simulation (points, pace, per-100 efficiency, rest, overtime), season ranks of ratings, pace and scoring | research; the publication's verdict that the market beat it travels with it; statistics "run through Jun 14" when they do | team and stat screens (statistics are last season's); injuries (no team named); lineups |
+| MLB | slate projection (runs, win), park, runs per game (season, last 15, last 7), wRC+, bullpen, probable starters, lineup status, record and form | research, confidence as published; a values table with no invented ranks; the slate document must be within 3 days (`isCurrent`) or nothing is shown as current | team screens and league rankings (team cache stops 2026-08-27, 65 days) |
+| CBB | rosters, continuity, expected rotation, site and conference game; tempo, points per possession and totals once the game is projected | the frozen pre-tip projection; the publisher's message when there is none | tempo and efficiency before the capture window; matchup statistics; team screens |
+| Soccer | model board with the draw, six scripts (shares), attack against defence, rest and congestion, head to head, the publication's data gaps; Kalshi result contracts as the win price | research model board, "not xG", shares "not calibrated probabilities" | lineups and injuries (none published), Team Research, a Game Script tab |
+| Tennis | match-win probability (Gen-1, Gen-2 and range), Elo, surface Elo, serve and return, surface and sample, the sharp references; match-winner and total-games contracts | research, with the publication's settled record that the Kalshi mid beat the model; references marked market data | doubles (no model, said so), win-loss form, ranks |
+
+Kalshi markets: `data/research/matchMarkets.ts` names the game's own contracts by family (`match_result_3way` with period "regulation" and `match_winner` are the win,
+`total_goals` and `total_games` the total) and gives an event that names no home and away (tennis) the board's own sides, so the win price, the moneyline chip and the
+contract sheet agree. American-sport families are unchanged. Soccer and tennis have no player props on Kalshi, so their props and player sections are `none`.
 
 ## Not built (prioritised next steps)
 
 1. The offline/degraded full-state set (the degraded wording and an offline strip exist inline; there is no dedicated screen). The first-run welcome sheet is built.
 2. Stat comparison mode (`27_stat_comparison.png`).
-3. CFB script engine and box scores inside Game Detail.
+3. Box scores inside Game Detail (the CFB Script Engine is restored there, see below). Still missing for CFB: the research-signals rail (Value Watch, Market Disagreement) and the two-script Compare mode of the Game Script tab.
 4. A licensed live-score source for NFL/CFB/NHL (blocked on data rights, not on UI).
 5. Photographic hero art beyond the verified venue photos already pinned in `src/lib/hero` (the mockup photography is not usable).
-6. Virtualised long lists if a day ever exceeds a few hundred cards (Games paginates by 30 today).
+6. Virtualised long lists if a day ever exceeds a few hundred cards (Home renders every game of the selected sport and day; each card reads its extras only once near the screen).
+
+## CFB Script Engine in Game Detail
+
+The SIFT 2.0 engine ([CFB_SCRIPT_ENGINE.md](./CFB_SCRIPT_ENGINE.md)) is reused, not rewritten: `src/lib/scriptEngine.ts` decodes `event_research.extensions.script_engine` (and the verified research sidecar of a trimmed event, `src/data/scriptResearch.ts`), `src/lib/scriptMarkets.ts` builds the per-script market cards. v3 adds only presentation and gating:
+
+* `src/v3/data/research/scriptEngine.ts` states the payload per game: `ready` (carries `script_generation`), `unavailable` (the engine's own status and reason), `none`, `loading`.
+* `src/v3/model/capabilities.ts`: CFB's `gameScript` and `gameMatchup` are declared `gated`; `gameCapability(slug, section, { scriptEngine })` opens them for **a game** only when its research carries the payload, for any sport. `tabsFor` (GameDetail.tsx) follows: Overview, Game Script, Matchup, Props for a Script Engine game; Overview and Props otherwise (NFL keeps its five).
+* `src/v3/model/scriptRead.ts`: matchup advantages (the engine's MATCHUP findings, strongest first; an even matchup, which states none, shows its largest published adjusted gaps labelled "no finding"), script cards with causal chains citing findings, surviving bets (scoring contracts excluded), why-this-bet evidence for and against.
+* `src/v3/data/research/scriptPrices.ts`: a script row is a contract **side**. YES is priced by the YES ask, NO by the NO ask (never 1 minus the other), both through the quote gate and the live-quote overlay; a price that fails the gate prints a dash. A tap opens the addressed contract sheet; for a NO row the sheet says its numbers are the contract's YES side.
+* `src/v3/screens/cfb/`: Overview block, Game Script tab, Matchup tab, `cfb.css`.
+
+Language rules hold (tests/v3/scriptOverview.test.tsx, e2e/v3-cfb.spec.ts): scripts are ranked, never given a probability; no +EV, lock or fair price; total and team-total contracts read "Scoring: research only" and are never listed as surviving; every block says "Research only".
+

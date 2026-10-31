@@ -26,6 +26,8 @@ export interface IdentityDecl {
   note: { adjusted: string; raw: string };
   /** The pair whose row is a special-teams pair: published for the season only, so it is left out of other windows. */
   seasonOnly?: string[];
+  /** What the Schedule tab's opponent strength is measured in, as a phrase after "season-long raw" (football: "EPA per play"). */
+  scheduleBasis?: string;
 }
 
 export interface ProfileGroupDecl { key: string; label: string; role: Role | null; categories: string[]; idPattern?: RegExp }
@@ -45,7 +47,7 @@ export interface SportTeamDecl {
     adjustedWindowWord: string;
   };
   form: { overview: number; form: number; oneScore: { margin: number; label: string }; otNote: boolean };
-  players?: { skillRoles: string[]; lineNote: string | null };
+  players?: { skillRoles: string[]; lineNote: string | null; /** The roster card's name; "Skill players" where the sport has them. */ label?: string };
   /** Names for the sample-data (demo) statistics: [id, name, category, unit, higherIsBetter]. */
   sample: { n: number; metrics: [string, string, string, string, boolean | null][]; adjustedWindow: string | null; windows: string[] };
 }
@@ -142,10 +144,13 @@ const NHL: SportTeamDecl = {
     },
     windows: ['SEASON', 'L10'],
     seasonOnly: ['pp_pct'],
+    scheduleBasis: 'goals scored and allowed per game',
     note: { adjusted: '', raw: 'Special teams: P is the power play, K the penalty kill. Power play and penalty kill are published for the season only.' },
   },
   extremes: { categories: ['advanced', 'official'], skip: /^(off_adot|off_no_huddle|off_plays_per|off_proe|off_shotgun|corsi|fenwick|model|rating|sva|hd_xgf)/ },
   form: { overview: 8, form: 8, oneScore: { margin: 1, label: 'One goal' }, otNote: true },
+  // Skaters and goalies by position (the roster document's own role codes); no line-quality note: hockey has no counterpart to the offensive-line gap.
+  players: { skillRoles: ['C', 'L', 'R', 'D', 'G'], lineNote: null, label: 'Players' },
   sample: {
     n: 32,
     adjustedWindow: null,

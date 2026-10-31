@@ -20,7 +20,7 @@ async function open(page: Page) {
   await demo('/v3/following');
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
   await page.evaluate((s) => { localStorage.setItem('sift3.saved', JSON.stringify(s)); }, seed);
-  await demo('/v3/explore');
+  await demo('/v3/search');
   await demo('/v3/following');
   await page.reload();
   await expect(page.getByRole('region', { name: 'Saved research' })).toBeVisible();

@@ -1,0 +1,138 @@
+/* Matchup Intelligence (Game Detail Overview) and the readable Matchup tab. Scoped under .v3 and prefixed mi-. Reuses the matchup tokens:
+   ice (--off) is the offense, amber (--def) the defense, cyan the SIFT model lane, periwinkle the Market lane. Nothing depends on colour alone:
+   every bar has its label and rank printed beside it. */
+
+.v3 .mi-skel { height: 260px; border-radius: 16px; }
+.v3 .mi-after { display: grid; gap: 10px; }
+.v3 .mi-after > .v3-note { margin: -4px 0 0; }
+.v3 .mi-foot { margin: 8px 0 0; }
+
+/* ---- projection lanes */
+.v3 .mi-lanes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.v3 .mi-lanes--one { grid-template-columns: minmax(0, 1fr); }
+.v3 .mi-lane { padding: 10px; border-radius: 12px; border: 1px solid var(--sift-hairline); background: rgba(255, 255, 255, 0.02); display: grid; gap: 6px; align-content: start; min-width: 0; }
+.v3 .mi-lane--sift { border-color: rgba(25, 205, 224, 0.3); }
+.v3 .mi-lane--mkt { border-color: rgba(147, 169, 255, 0.28); }
+.v3 .mi-lane__h { display: flex; align-items: center; gap: 7px; font: 700 14px/18px var(--f-ui); }
+.v3 .mi-lane--sift .mi-lane__h { color: var(--lane-sift); }
+.v3 .mi-lane--mkt .mi-lane__h { color: var(--lane-market); }
+.v3 .mi-lane__sub { font: 500 11px/14px var(--f-ui); color: var(--sift-dim); margin-top: -3px; }
+.v3 .mi-lane__m { font: 400 11px/15px var(--f-ui); color: var(--sift-dim); }
+.v3 .mi-lane__r { font: 500 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-lane__c { margin: 0; font: 400 12px/17px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-lane--none .mi-lane__c { font-size: 13px; line-height: 19px; }
+.v3 .mi-team { display: grid; grid-template-columns: 22px auto 1fr; grid-template-areas: 'logo n v' '. . w'; align-items: center; column-gap: 7px; row-gap: 0; min-height: 30px; }
+.v3 .mi-team > :nth-child(1) { grid-area: logo; }
+.v3 .mi-team__n { grid-area: n; font: 600 13px/18px var(--f-ui); }
+.v3 .mi-team__v { grid-area: v; justify-self: end; font: 700 18px/22px var(--f-num); }
+.v3 .mi-team__v small, .v3 .mi-team__w small { font: 500 11px/14px var(--f-ui); color: var(--sift-dim); }
+.v3 .mi-team__w { grid-area: w; justify-self: end; font: 700 13px/16px var(--f-num); color: var(--sift-muted); margin-top: -2px; }
+.v3 .mi-team.is-lead .mi-team__v { color: var(--sift-text); }
+.v3 .mi-px { display: inline-flex; align-items: center; min-height: 28px; padding: 0 2px; font: 700 18px/22px var(--f-num); color: var(--lane-market); }
+@media (max-width: 359px) { .v3 .mi-lanes { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- rank bars */
+.v3 .mi-bars { display: grid; gap: 6px; }
+.v3 .mi-bar { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(40px, 1fr) auto; align-items: center; gap: 8px; font: 500 12.5px/16px var(--f-ui); }
+.v3 .mi-bar__l { color: var(--t2); min-width: 0; overflow-wrap: anywhere; }
+.v3 .mi-bar__t { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); overflow: hidden; display: block; }
+.v3 .mi-bar__t i { display: block; height: 100%; border-radius: 4px; background: var(--off); }
+.v3 .mi-bar__t i.def { background: var(--def); }
+.v3 .mi-bar__r { font: 700 12.5px/16px var(--f-num); text-align: right; white-space: nowrap; min-width: 64px; }
+
+/* ---- advantages */
+.v3 .mi-advs { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+.v3 .mi-adv { padding: 11px 0; border-top: 1px solid var(--s-hair2); display: grid; gap: 7px; }
+.v3 .mi-adv:first-child { border-top: 0; padding-top: 2px; }
+.v3 .mi-adv p { margin: 0; }
+.v3 .mi-adv__h { font: 700 15.5px/21px var(--f-ui); }
+.v3 .mi-adv__d { font: 400 14px/20px var(--f-ui); color: var(--t2); }
+.v3 .mi-adv__i { font: 400 13.5px/19px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-adv__i b { color: var(--t2); font-weight: 600; }
+.v3 .mi-more { font: 400 13px/19px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-more summary { cursor: pointer; display: flex; align-items: center; min-height: var(--tap); color: var(--sift-cyan); font: 600 13px/18px var(--f-ui); list-style: none; }
+.v3 .mi-more summary::-webkit-details-marker { display: none; }
+.v3 .mi-more summary::after { content: '▾'; margin-left: 6px; font-size: 11px; }
+.v3 .mi-more[open] summary::after { content: '▴'; }
+.v3 .mi-more p { margin: 0 0 6px; }
+.v3 .mi-more p b { color: var(--t2); font-weight: 600; }
+.v3 .mi-finds { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.v3 .mi-finds li { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--s-hair2); }
+.v3 .mi-finds li:first-child { border-top: 0; padding-top: 0; }
+.v3 .mi-finds b { font: 600 14.5px/20px var(--f-ui); }
+.v3 .mi-finds span { font: 400 14px/20px var(--f-ui); color: var(--t2); }
+.v3 .mi-finds small { font: 500 11.5px/15px var(--f-ui); color: var(--sift-dim); }
+
+/* ---- comparison tables */
+.v3 .mi-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font: 500 13px/17px var(--f-ui); }
+.v3 .mi-tbl th, .v3 .mi-tbl td { padding: 7px 3px; text-align: center; border-top: 1px solid var(--s-hair2); vertical-align: middle; }
+.v3 .mi-tbl thead th { border-top: 0; font: 600 10.5px/13px var(--f-ui); color: var(--sift-dim); padding-bottom: 5px; overflow-wrap: anywhere; }
+.v3 .mi-tbl tbody th { text-align: left; font: 600 13px/16px var(--f-ui); color: var(--t2); width: 24%; padding-left: 0; }
+.v3 .mi-tbl td { display: table-cell; }
+.v3 .mi-tbl td b { display: block; font: 700 13px/16px var(--f-num); }
+.v3 .mi-tbl td.is-win { background: rgba(25, 205, 224, 0.1); border-radius: 6px; }
+.v3 .mi-ct { display: block; height: 4px; border-radius: 2px; margin: 4px 6px 0; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+.v3 .mi-ct i { display: block; height: 100%; background: var(--off); }
+.v3 .mi-tbl td:nth-child(3) .mi-ct i, .v3 .mi-tbl td:nth-child(5) .mi-ct i { background: var(--def); }
+.v3 .mi-tbl--g td { text-align: right; }
+.v3 .mi-tbl--g thead th:not(:first-child) { text-align: right; }
+.v3 .mi-tbl--g tbody th { width: 46%; }
+.v3 .mi-tbl--g td small { display: block; font: 400 11px/14px var(--f-ui); color: var(--sift-dim); }
+.v3 .mi-tbl a { color: inherit; text-decoration: underline; text-decoration-color: var(--sift-hairline-strong); text-underline-offset: 3px; }
+
+/* ---- lists (player matchups, notes) */
+.v3 .mi-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+.v3 .mi-pl, .v3 .mi-nt { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-top: 1px solid var(--s-hair2); align-items: start; }
+.v3 .mi-pl:first-child, .v3 .mi-nt:first-child { border-top: 0; padding-top: 2px; }
+.v3 .mi-pl__t p { margin: 0 0 2px; font: 400 14px/20px var(--f-ui); color: var(--t2); }
+.v3 .mi-link { display: inline-flex; align-items: center; min-height: 32px; font: 600 12.5px/16px var(--f-ui); color: var(--sift-cyan); }
+.v3 .mi-nt__t { display: grid; gap: 1px; min-width: 0; }
+.v3 .mi-nt__t b { font: 600 14px/19px var(--f-ui); }
+.v3 .mi-nt__t span { font: 400 13px/18px var(--f-ui); color: var(--sift-muted); }
+
+/* ---- environment */
+.v3 .mi-env { margin: 0; display: grid; gap: 0; }
+.v3 .mi-env > div { padding: 8px 0; border-top: 1px solid var(--s-hair2); }
+.v3 .mi-env > div:first-child { border-top: 0; padding-top: 0; }
+.v3 .mi-env dt { display: flex; align-items: center; gap: 8px; font: 600 12px/16px var(--f-ui); color: var(--sift-dim); text-transform: none; }
+.v3 .mi-env dd { margin: 2px 0 0; font: 400 14px/20px var(--f-ui); color: var(--t2); }
+.v3 .mi-src { font-style: normal; font: 600 10px/14px var(--f-ui); padding: 0 6px; border-radius: 7px; border: 1px solid var(--s-chip-bd); color: var(--sift-muted); }
+.v3 .mi-src--simulation, .v3 .mi-src--model { color: var(--lane-sift); border-color: rgba(25, 205, 224, 0.3); }
+
+/* ---- scripts */
+.v3 .mi-scs { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.v3 .mi-thesis { margin: 0 0 10px; font: 400 14.5px/21px var(--f-ui); color: var(--t2); }
+.v3 .mi-sc { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--sift-hairline); background: rgba(255, 255, 255, 0.02); display: grid; gap: 3px; }
+.v3 .mi-sc--expected { border-color: rgba(25, 205, 224, 0.32); }
+.v3 .mi-sc--danger { border-color: rgba(255, 155, 82, 0.4); }
+.v3 .mi-sc__h { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font: 500 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-sc__tag { font-style: normal; font: 700 11px/16px var(--f-ui); letter-spacing: 0.02em; text-transform: uppercase; padding: 1px 8px; border-radius: 9px; border: 1px solid var(--s-chip-bd); color: var(--t2); }
+.v3 .mi-sc--expected .mi-sc__tag { color: var(--lane-sift); border-color: rgba(25, 205, 224, 0.4); }
+.v3 .mi-sc--danger .mi-sc__tag { color: var(--def); border-color: rgba(255, 155, 82, 0.5); }
+.v3 .mi-sc p { margin: 0; }
+.v3 .mi-sc__help { font: 400 11.5px/15px var(--f-ui); color: var(--sift-dim); }
+.v3 .mi-sc__t { font: 700 15.5px/21px var(--f-ui); margin-top: 2px; }
+.v3 .mi-sc__l { font: 400 14px/20px var(--f-ui); color: var(--t2); }
+.v3 .mi-sc__k { font: 700 11px/15px var(--f-ui); text-transform: uppercase; letter-spacing: 0.03em; color: var(--sift-dim); margin-top: 6px; }
+.v3 .mi-bul { list-style: disc; padding-left: 18px; margin: 2px 0 0; display: grid; gap: 3px; font: 400 13.5px/19px var(--f-ui); color: var(--sift-muted); }
+
+/* ---- not published */
+.v3 .mi-gaps { padding: 0 12px; }
+.v3 .mi-gaps summary { cursor: pointer; display: flex; align-items: center; min-height: var(--tap); font: 600 13px/18px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-gaps ul { margin: 0 0 12px; padding-left: 18px; display: grid; gap: 4px; font: 400 13px/19px var(--f-ui); color: var(--sift-dim); }
+
+/* ---- readable Matchup tab */
+.v3 .mi-rows { padding: 2px 12px; }
+.v3 .mi-row { border-bottom: 1px solid var(--s-hair2); }
+.v3 .mi-row:last-child { border-bottom: 0; }
+.v3 .mi-row__in { display: grid; gap: 7px; padding: 12px 0; }
+.v3 .mi-row__top { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }
+.v3 .mi-row__top b { font: 700 11.5px/16px var(--f-ui); text-transform: uppercase; letter-spacing: 0.03em; color: var(--sift-dim); }
+.v3 .mi-row__top em { font: 700 11px/16px var(--f-ui); font-style: normal; padding: 0 8px; border-radius: 9px; border: 1px solid var(--s-chip-bd); color: var(--sift-muted); white-space: nowrap; }
+.v3 .mi-row__top em.off { color: var(--off); border-color: color-mix(in srgb, var(--off) 42%, transparent); }
+.v3 .mi-row__top em.def { color: var(--def); border-color: color-mix(in srgb, var(--def) 45%, transparent); }
+.v3 .mi-row p { margin: 0; }
+.v3 .mi-row__h { font: 600 15px/21px var(--f-ui); }
+.v3 .mi-row__go { display: flex; justify-content: flex-end; align-items: center; gap: 2px; font: 600 12px/16px var(--f-ui); color: var(--sift-cyan); }
+.v3 .mi-chartbtn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); border-radius: 12px; border: 1px solid var(--s-raise-bd); background: var(--s-chip); color: var(--t2); font: 600 14px/18px var(--f-ui); width: 100%; }
+.v3 .mi-legend { margin: 0; padding: 0 2px; }

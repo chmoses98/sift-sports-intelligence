@@ -10,6 +10,9 @@
 import { percentileOf } from './normalize';
 import type { TeamProfile } from './types';
 
+/** What the unit rows read of a team: its metric windows. A full team profile, or the same ranks read off the event's own research document (data/intel/units.ts). */
+export type RankSource = Pick<TeamProfile, 'metrics'>;
+
 /** The Even band, in whole percentile points. */
 export const EVEN_BAND = 15;
 /** The window of the opponent-adjusted statistics (a season-long ridge rating). */
@@ -87,7 +90,7 @@ export const gapOf = (offPct: number, defPct: number): number => roundGap(offPct
 /** The one tilt rule. |gap| <= 15 is Even, including exactly 15. */
 export const tiltOf = (gap: number): Tilt => (Math.abs(gap) > EVEN_BAND ? (gap > 0 ? 'off' : 'def') : 'even');
 
-export function sideOf(profile: TeamProfile | null | undefined, statId: string): UnitSide | null {
+export function sideOf(profile: RankSource | null | undefined, statId: string): UnitSide | null {
   const w = profile?.metrics.get(statId)?.windows[MATCHUP_WINDOW];
   if (!w || w.rank == null || w.n == null || w.n < 2) return null;
   const pct = percentileOf(w.rank, w.n);
@@ -96,7 +99,7 @@ export function sideOf(profile: TeamProfile | null | undefined, statId: string):
 }
 
 /** One unit for one direction, or null when either team has no published rank for it. */
-export function unitRow(unit: UnitDef, offTeam: string, defTeam: string, offProfile: TeamProfile | null | undefined, defProfile: TeamProfile | null | undefined): UnitRow | null {
+export function unitRow(unit: UnitDef, offTeam: string, defTeam: string, offProfile: RankSource | null | undefined, defProfile: RankSource | null | undefined): UnitRow | null {
   const o = sideOf(offProfile, unit.off), d = sideOf(defProfile, unit.def);
   if (!o || !d) return null;
   const gap = gapOf(o.pct, d.pct);
@@ -105,7 +108,7 @@ export function unitRow(unit: UnitDef, offTeam: string, defTeam: string, offProf
 }
 
 /** Every unit with published ranks for both teams, in the sport's declared order. */
-export const unitRows = (units: UnitDef[], offTeam: string, defTeam: string, offProfile: TeamProfile | null | undefined, defProfile: TeamProfile | null | undefined): UnitRow[] =>
+export const unitRows = (units: UnitDef[], offTeam: string, defTeam: string, offProfile: RankSource | null | undefined, defProfile: RankSource | null | undefined): UnitRow[] =>
   units.map((u) => unitRow(u, offTeam, defTeam, offProfile, defProfile)).filter((r): r is UnitRow => r != null);
 
 export interface TiltCounts { off: number; even: number; def: number; total: number }

@@ -1,157 +1,103 @@
-import { useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from '../../routing';
-import { useQueryPatch } from '../state/url';
-import { heroTeam } from '../../lib/hero/input';
+// Home is the games feed: a slim header, a day strip, the sport rail (only sports with games), college conference chips for NCAAF and NCAAB, and the
+// day's games grouped by time (Live, each kickoff window, Final). What the viewer picked lives in the address (`sport`, `conf`, `date`), so Back and a
+// shared link reopen the same slate, and the sport and conference are also remembered on this device. The order inside every section is
+// model/priority.ts; the grouping is model/homeFeed.ts.
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useConferenceGames } from '../data/conference';
 import { useSlate } from '../data/useSlate';
-import { useGameExtras } from '../data/useGameExtras';
-import { useGameStart } from '../data/research/gameHooks';
-import { useGameResearch } from '../../views/broadcast/parts';
-import { demoLens, lensFromResearch } from '../data/lens';
-import { pickFeatured, stripGames } from '../model/feature';
-import { clockTime, dayWord } from '../model/time';
-import { setPrefs, toggleFollow, useAlerts, useFollows, usePrefs } from '../state/prefs';
-import type { V3Game, V3Team } from '../model/types';
+import { conferencesIn, confToken, isCollege, matchesConference, resolveFilter } from '../model/conference';
+import { buildSchedule, dayParts, dayStrip, DAY_KEY, gamesOnDay, jumpTargets, pickSport, sportChips, sportLabel, type Section, type SportChip } from '../model/homeFeed';
+import { anyRanked, emptyMemory, type Memory } from '../model/priority';
+import { dayKey, keyLabel, keyWord, shiftDayKey } from '../model/time';
+import { homeSchema } from '../nav/schemas';
+import { setPrefs, useAlerts, useFollows, usePrefs } from '../state/prefs';
+import { useRouteState } from '../state/url';
+import { BellSheet } from '../ui/BellSheet';
 import { Brand } from '../ui/Brand';
 import { ChipRail } from '../ui/ChipRail';
-import { HeroBg } from '../ui/HeroBg';
+import { GameCard } from '../ui/GameCard';
 import { Icon } from '../ui/Icon';
-import { LensSlot } from '../ui/Lens';
-import { GameStories } from '../ui/Stories';
+import { SearchButton } from '../ui/SearchButton';
 import { useSheet } from '../ui/Sheet';
-import { TeamLogo } from '../ui/TeamLogo';
 import { Welcome } from '../ui/Welcome';
-import { DelayedMark, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useSeen } from '../ui/gamebits';
-import { sportsIn } from './Games';
 
-function BellSheet() {
-  const a = useAlerts();
-  const { games } = useSlate();
-  const ids = Object.keys(a);
-  const rows = ids.map((id) => ({ id, g: games.find((x) => x.key === id) }));
+/** The calendar sheet: the strip's fortnight is the quick path; the sheet reaches a month ahead (and the selected day when it is further out). */
+function DateSheet({ day, today, onPick }: { day: string; today: string; onPick: (k: string) => void }) {
+  const days = useMemo(() => {
+    const l = Array.from({ length: 34 }, (_, i) => shiftDayKey(today, i - 3));
+    return l.includes(day) ? l : [...l, day].sort();
+  }, [day, today]);
   return (
-    <div>
-      {ids.length === 0 ? <p className="v3-note">No alerts are on. Alerts are off by default; tap the bell on a game or team to opt in, one at a time. Following something does not turn alerts on.</p> : (
-        <ul className="v3-list">
-          {rows.map(({ id, g }) => (
-            <li key={id}>{g ? <Link to={gameHref(g)} className="v3-story"><TeamLogo team={g.home} size={36} /><span className="v3-story__t"><b>{g.away.nick} at {g.home.nick}</b><small>{(a[id] ?? []).join(', ')}</small></span><Icon name="chevR" size={20} /></Link> : <span className="v3-note">{id}</span>}</li>
-          ))}
-        </ul>
-      )}
-      <p className="v3-note v3-note--dim">This build records alert choices on this device only. It does not request notification permission or send anything.</p>
-    </div>
-  );
-}
-
-function ScoreTile({ g }: { g: V3Game }) {
-  const { now } = useSlate();
-  const live = g.phase === 'live';
-  const scored = g.score != null;
-  return (
-    <Link to={gameHref(g)} className={`v3-tile${live ? ' is-live' : ''}`} aria-label={`${g.away.name} at ${g.home.name}, ${scored ? `${g.score!.away} to ${g.score!.home}, ` : ''}${statusWord(g)}. Open game`}>
-      <span className="v3-tile__h">{leagueLabel(g)}<i /> {live ? <b className="v3-tile__live">LIVE</b> : <span>{g.phase === 'final' ? 'FINAL' : clockTime(g.startMs)}</span>}</span>
-      {([g.away, g.home] as V3Team[]).map((t, i) => (
-        <span key={t.id} className="v3-tile__r"><TeamLogo team={t} size={20} /><b>{t.abbr}</b>{scored && <em className="num">{i === 0 ? g.score!.away : g.score!.home}</em>}</span>
+    <ul className="v3-days" role="list">
+      {days.map((k) => (
+        <li key={k}><button type="button" aria-pressed={k === day} onClick={() => onPick(k)}>{k === today ? `Today · ${keyLabel(k)}` : keyLabel(k)}</button></li>
       ))}
-      {live && <span className="v3-tile__f">{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></span>}
-      {!live && g.phase === 'pregame' && <span className="v3-tile__f">{dayWord(g.startMs, now)}</span>}
-    </Link>
+    </ul>
   );
 }
 
-function Featured({ base }: { base: V3Game }) {
-  const { now } = useSlate();
-  const x = useGameExtras(base, 'photo'); // the featured card prints no price: no contract document, no quote
-  useGameStart(base); // reads the league schedule (the start-time authority): the slate's games take its start (data/research/scheduleStarts.ts)
-  const g = x?.game ?? base;
-  const research = useGameResearch(g.provenance === 'publication' ? g.slug : null, g.provenance === 'publication' ? g.eventId : null);
-  const lens = useMemo(() => (g.provenance === 'demo' ? demoLens(g) : lensFromResearch(research.data, g)), [g, research.data]);
-  const live = g.phase === 'live';
-  const src = scoreSourceWord(g);
-  return (
-    <article className={`v3-feat${live ? ' is-live' : ''}`}>
-      <HeroBg g={g} />
-      <Link to={gameHref(g)} className="v3-feat__hit" aria-label={`${g.away.name} ${g.phase === 'pregame' ? 'at' : 'versus'} ${g.home.name}. Open game`} />
-      <header className="v3-feat__top">
-        {live ? <span className="v3-livebadge">LIVE</span> : <span className="v3-feat__chip">{g.phase === 'final' ? 'FINAL' : dayWord(g.startMs, now).toUpperCase()}</span>}
-        <span className="v3-feat__clock">{live ? g.score?.clock ?? 'In play' : g.phase === 'final' ? '' : clockTime(g.startMs)}{live && <DelayedMark g={g} />}</span>
-        <span className="v3-feat__net">{g.network ?? leagueLabel(g)}</span>
-      </header>
-      <div className="v3-feat__mid">
-        <Link to={teamHref(g.away)} className="v3-feat__team" aria-label={`${g.away.name}, team page`}><TeamLogo team={g.away} size={54} /><b>{g.away.nick}</b>{g.away.record && <small>{g.away.record}</small>}</Link>
-        <div className="v3-feat__sc">
-          {g.score ? <span className="num">{g.score.away}<i>–</i>{g.score.home}</span> : <span className="v3-feat__at">{g.phase === 'pregame' ? 'at' : 'vs'}</span>}
-        </div>
-        <Link to={teamHref(g.home)} className="v3-feat__team" aria-label={`${g.home.name}, team page`}><TeamLogo team={g.home} size={54} /><b>{g.home.nick}</b>{g.home.record && <small>{g.home.record}</small>}</Link>
-      </div>
-      <p className="v3-feat__status">{g.phase === 'live' ? (g.situation?.text ?? src ?? 'In play') : g.phase === 'final' ? (src ?? 'Final') : `${leagueLabel(g)}${g.network ? ` · ${g.network}` : ''}`}</p>
-      <div className="v3-feat__lens"><LensSlot lens={lens} loading={g.provenance === 'publication' && research.loading} to={`${gameHref(g)}?tab=matchup`} /></div>
-      <Link to={gameHref(g)} className="v3-btn v3-btn--glass">Game Center<Icon name="chevR" size={18} /></Link>
-    </article>
-  );
+function SectionHead({ s, open, onToggle }: { s: Section; open: boolean; onToggle: () => void }) {
+  const n = s.games.length;
+  const label = `${s.title} · ${n}`;
+  if (s.kind === 'final') {
+    return (
+      <h2 className="v3-sec__h">
+        <button type="button" className="v3-sec__t" aria-expanded={open} aria-controls={`sec-${s.id}-list`} onClick={onToggle} aria-label={`${s.title}, ${n} ${n === 1 ? 'game' : 'games'}. ${open ? 'Collapse' : 'Expand'}`}>
+          <span>{label}</span><Icon name={open ? 'chevU' : 'chevD'} size={18} />
+        </button>
+      </h2>
+    );
+  }
+  return <h2 className="v3-sec__h"><span className={`v3-sec__t${s.kind === 'live' ? ' is-live' : ''}`}>{s.kind === 'live' && <i aria-hidden="true" />}<span>{label}</span></span></h2>;
 }
-
-function teamOfKey(key: string, games: V3Game[]): V3Team {
-  const [slug, ...rest] = key.split(':');
-  const id = rest.join(':');
-  for (const g of games) for (const t of [g.away, g.home]) if (t.slug === slug && t.id === id) return t;
-  const sport = slug.toUpperCase();
-  const h = heroTeam(sport, id, id);
-  return { id, slug, sport, name: h?.name ?? id, nick: h?.short ?? id, abbr: id, logo: h?.logo ?? null, colors: h?.colors ?? ['#1d2d52', '#3f5079'] };
-}
-
-export function MyTeams({ games, limit = 4 }: { games: V3Game[]; limit?: number }) {
-  const f = useFollows();
-  const teams = f.teams.map((k) => teamOfKey(k, games));
-  const suggest = useMemo(() => {
-    if (teams.length) return [] as V3Team[];
-    const seen = new Set<string>(); const out: V3Team[] = [];
-    for (const g of games) for (const t of [g.home, g.away]) { if (!t.logo) continue; const k = `${t.slug}:${t.id}`; if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(t); } }
-    return out;
-  }, [games, teams.length, limit]);
-  return (
-    <section aria-label="My Teams">
-      <div className="v3-sechead"><h2>My Teams</h2><Link to="/v3/following">{teams.length ? 'Edit' : 'See all'}<Icon name="chevR" size={16} /></Link></div>
-      {teams.length === 0 && <p className="v3-note" style={{ margin: '-4px 0 10px' }}>Follow teams to pin their games first. Starring a team never turns on alerts.</p>}
-      <div className="v3-teams">
-        {(teams.length ? teams.slice(0, limit) : suggest).map((t) => (
-          <div key={`${t.slug}:${t.id}`} className="v3-tm">
-            <Link to={teamHref(t)} className="v3-tm__l" aria-label={`${t.name}, team page`}><TeamLogo team={t} size={46} /><b>{t.nick}</b><small>{leagueLabel({ sport: t.sport })}</small></Link>
-            {!teams.length && <button type="button" className="v3-tm__f" aria-label={`Follow ${t.name}`} onClick={() => toggleFollow('teams', `${t.slug}:${t.id}`)}><Icon name="plus" size={16} /></button>}
-          </div>
-        ))}
-        <Link to="/v3/following" className="v3-tm v3-tm--more" aria-label="All followed teams and players"><Icon name="chevR" size={26} /></Link>
-      </div>
-    </section>
-  );
-}
-
-const SAMPLE_STORIES = [
-  { t: 'Sample: Knicks guard listed probable for tonight', s: 'Sample · NBA', team: ['NBA', 'NYK'] as const },
-  { t: 'Sample: Alabama moves up in the latest rankings', s: 'Sample · NCAAF', team: ['CFB', 'ALA'] as const },
-  { t: 'Sample: Dodgers name a Game 3 starter', s: 'Sample · MLB', team: ['MLB', 'LAD'] as const },
-];
 
 export function Home() {
   const { games, loading, unavailable, unsupported, failed, saved, now, demo } = useSlate();
-  const f = useFollows();
+  const follows = useFollows();
   const sheet = useSheet();
   const alerts = useAlerts();
-  const [sp] = useSearchParams();
-  const setSp = useQueryPatch();
-  const sport = sp.get('sport') ?? 'foryou';
-  const pool = useMemo(() => (sport === 'foryou' ? games : games.filter((g) => g.slug === sport)), [games, sport]);
-  const featured = useMemo(() => pickFeatured(pool, f, now), [pool, f, now]);
-  const strip = useMemo(() => stripGames(pool, f, featured), [pool, f, featured]);
-  const sports = useMemo(() => sportsIn(games), [games]);
-  const storyGames = useMemo(() => {
-    const cand = pool.filter((g) => g.phase !== 'final' && g.key !== featured?.key && g.slug === 'nfl');
-    return [...(featured && featured.slug === 'nfl' ? [featured] : []), ...cand].slice(0, 4);
-  }, [pool, featured]);
-  const setSport = (v: string) => setSp((p) => { const n = new URLSearchParams(p); if (v === 'foryou') n.delete('sport'); else n.set('sport', v); return n; });
-  const hasAlerts = Object.keys(alerts).length > 0;
-  // The stories' research documents (injury items, one per game) are read when the section is near the screen, not before the first card is drawn.
-  const [storiesRef, storiesSeen] = useSeen<HTMLElement>();
   const prefs = usePrefs();
+  const [st, update] = useRouteState(homeSchema);
+  const today = dayKey(now) ?? '';
+  const day = st.date && DAY_KEY.test(st.date) ? st.date : today;
+
+  // The day's games, the sports that have any, and the sport shown: the address, else this device's last choice, else the first sport in play.
+  const dayGames = useMemo(() => gamesOnDay(games, day, today), [games, day, today]);
+  const chips = useMemo(() => sportChips(dayGames), [dayGames]);
+  const sport = pickSport(st.sport, prefs.homeSport, chips);
+  const rail: SportChip[] = useMemo(() => (sport && !chips.some((c) => c.slug === sport) ? [...chips, { slug: sport, label: sportLabel(sport.toUpperCase()), live: 0, count: 0 }] : chips), [chips, sport]);
+  const inSport = useMemo(() => dayGames.filter((g) => g.slug === sport), [dayGames, sport]);
+
+  // College sports: conference identity loads when one is selected; the filter applies the moment it has.
+  const college = !!sport && isCollege(sport);
+  const { games: confGames, ready } = useConferenceGames(inSport, college);
+  const asked = college ? st.conf ?? prefs.homeConf[sport!] ?? null : null;
+  const conf = !college ? 'all' : ready ? resolveFilter(asked, confGames) : asked ?? 'all';
+  const confs = useMemo(() => (college ? conferencesIn(confGames) : []), [college, confGames]);
+  const hasTop25 = useMemo(() => college && confGames.some(anyRanked), [college, confGames]);
+  const shown = useMemo(() => (college && ready ? confGames.filter((g) => matchesConference(g, conf)) : confGames), [college, ready, confGames, conf]);
+
+  // The order the viewer has seen, kept between refreshes so a score change moves a card only when its tier changes (model/priority.ts).
+  const memory = useRef<{ key: string; mem: Memory }>({ key: '', mem: emptyMemory() });
+  const sections = useMemo(() => {
+    const key = `${sport}|${day}|${conf}`;
+    const r = buildSchedule(shown, follows, memory.current.key === key ? memory.current.mem : undefined);
+    memory.current = { key, mem: r.memory };
+    return r.sections;
+  }, [shown, follows, sport, day, conf]);
+  const jumps = useMemo(() => jumpTargets(sections), [sections]);
+
+  const [closed, setClosed] = useState<Record<string, boolean>>({});
+  const jump = useCallback((id: string) => {
+    setClosed((c) => (c[id] ? { ...c, [id]: false } : c));
+    requestAnimationFrame(() => document.getElementById(`sec-${id}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+  }, []);
+
+  const pickSportChip = (slug: string) => { setPrefs({ homeSport: slug }); update({ sport: slug, conf: null }); };
+  const pickConf = (token: string) => { if (sport) setPrefs({ homeConf: { ...prefs.homeConf, [sport]: token } }); update({ conf: token }); };
+  const pickDay = (k: string) => update({ date: k === today ? null : k });
+  const hasAlerts = Object.keys(alerts).length > 0;
+
   // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.
   useEffect(() => {
     if (demo || prefs.onboarded || loading || games.length === 0) return;
@@ -159,61 +105,92 @@ export function Home() {
     sheet.open('Welcome to SIFT', <Welcome games={games} />, { tall: true });
   }, [demo, prefs.onboarded, loading, games.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const days = useMemo(() => dayStrip(today, day), [today, day]);
+  const nextDay = useMemo(() => {
+    const later = games.filter((g) => g.slug === sport && (dayKey(g.startMs) ?? '') > day).map((g) => dayKey(g.startMs) ?? '').sort();
+    return later[0] ?? null;
+  }, [games, sport, day]);
+  const waiting = loading && !games.length;
+  const confPending = college && !ready;
+  const anyOpen = sections.some((s) => s.kind !== 'final');
+
   return (
     <div className="v3-page v3-home">
       <header className="v3-top">
         <Brand />
         <span className="v3-top__sp" />
-        <Link to="/v3/explore?focus=1" className="v3-iconbtn" aria-label="Search"><Icon name="search" size={24} /></Link>
+        <SearchButton />
+        <button type="button" className="v3-datebtn" aria-label={`Choose a date. Showing ${keyWord(day, today)}`}
+          onClick={() => sheet.open('Choose a day', <DateSheet day={day} today={today} onPick={(k) => { pickDay(k); sheet.close(); }} />)}>
+          <Icon name="calendar" size={22} /><span>{keyWord(day, today)}</span>
+        </button>
         <button type="button" className="v3-iconbtn" aria-label={`Alerts${hasAlerts ? ', some on' : ', none on'}`} onClick={() => sheet.open('Alerts', <BellSheet />)}>
           <Icon name="bell" size={24} />{hasAlerts && <i className="v3-bell__dot" aria-hidden="true" />}
         </button>
       </header>
 
-      <ChipRail className="v3-chips v3-chips--home" role="group" aria-label="Sport">
-        <button type="button" className="v3-chip" aria-pressed={sport === 'foryou'} onClick={() => setSport('foryou')}>For You</button>
-        {sports.map((s) => <button key={s.slug} type="button" className="v3-chip" aria-pressed={sport === s.slug} onClick={() => setSport(s.slug)}>{s.label}</button>)}
+      <ChipRail className="v3-daystrip" role="tablist" aria-label="Day">
+        {days.map((k) => {
+          const p = dayParts(k);
+          return (
+            <button key={k} type="button" role="tab" aria-selected={k === day} className="v3-day" aria-label={`${keyWord(k, today)}, ${keyLabel(k)}`} onClick={() => pickDay(k)}>
+              <small>{k === today ? 'Today' : p.weekday}</small><b className="num">{p.date}</b>
+            </button>
+          );
+        })}
       </ChipRail>
 
-      {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>{unsupported ? 'The publication is in a format this version of SIFT cannot read.' : <>A failed publication does not mean there are no games.<br /><button type="button" onClick={() => location.reload()}>Retry</button></>}</div></div>}
+      {unavailable && <div className="v3-state v3-state--warn" role="alert" style={{ marginTop: 12 }}><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>{unsupported ? 'The publication is in a format this version of SIFT cannot read.' : <>A failed publication does not mean there are no games. Try again in a moment.<br /><button type="button" onClick={() => location.reload()}>Retry</button></>}</div></div>}
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 
-      {loading && !games.length ? (
-        <div role="status" aria-label="Loading games">
-          <div className="v3-skel" style={{ height: 92, marginTop: 14 }} />
-          <div className="v3-skel" style={{ height: 262, marginTop: 14 }} />
-        </div>
-      ) : (
-        <>
-          {strip.length > 0 && (
-            <div className="v3-strip" role="list" aria-label="Scoreboard">
-              {strip.map((g) => <div role="listitem" key={g.key}><ScoreTile g={g} /></div>)}
-              <div role="listitem"><Link to="/v3/games" className="v3-tile v3-tile--more" aria-label="All games"><Icon name="chevR" size={22} /></Link></div>
-            </div>
-          )}
-          {featured ? <Featured key={featured.key} base={featured} /> : !unavailable && <div className="v3-state" style={{ marginTop: 16 }}><Icon name="calendar" size={20} /><div><b>No games to feature</b>Nothing is published for {sport === 'foryou' ? 'today' : 'this sport'} yet. <Link to="/v3/games" style={{ color: 'var(--sift-cyan)' }}>Browse all games</Link></div></div>}
-        </>
+      {rail.length > 0 && (
+        <ChipRail className="v3-rail" role="tablist" aria-label="Sport">
+          {rail.map((c) => (
+            <button key={c.slug} type="button" role="tab" aria-selected={sport === c.slug} className="v3-rail__t" onClick={() => pickSportChip(c.slug)}>
+              {c.label}{c.live > 0 && <i className="v3-rail__live" role="img" aria-label={`${c.live} live`} />}
+            </button>
+          ))}
+        </ChipRail>
       )}
 
-      <MyTeams games={games} />
+      {college && (confs.length > 0 || hasTop25) && (
+        <ChipRail className="v3-chips v3-chips--conf" role="group" aria-label="Conference">
+          {hasTop25 && <button type="button" className="v3-chip" aria-pressed={conf === 'top25'} onClick={() => pickConf('top25')}>Top 25</button>}
+          <button type="button" className="v3-chip" aria-pressed={conf === 'all'} onClick={() => pickConf('all')}>All</button>
+          {confs.map((c) => <button key={c} type="button" className="v3-chip" aria-pressed={conf === confToken(c)} onClick={() => pickConf(confToken(c))}>{c}</button>)}
+        </ChipRail>
+      )}
 
-      <section aria-label="What's happening" ref={storiesRef}>
-        <div className="v3-sechead"><h2>What's happening</h2><Link to="/v3/games">See all<Icon name="chevR" size={16} /></Link></div>
-        <ul className="v3-stories">
-          {demo ? SAMPLE_STORIES.map((s) => {
-            const t = games.flatMap((g) => [g.away, g.home]).find((x) => x.sport === s.team[0] && x.id === s.team[1]);
-            return <li key={s.t}><Link to={t ? teamHref(t) : '/v3/games'} className="v3-story">{t && <TeamLogo team={t} size={44} />}<span className="v3-story__t"><b>{s.t}</b><small>{s.s}</small></span><Icon name="chevR" size={20} /></Link></li>;
-          }) : storyGames.map((g) => <GameStories key={g.key} g={g} enabled={storiesSeen} />)}
-          <li>
-            <Link to="/v3/games" className="v3-story">
-              <span className="v3-story__ic"><Icon name="calendar" size={22} /></span>
-              <span className="v3-story__t"><b>{games.filter((g) => g.phase === 'pregame' || g.phase === 'live').length} games on the published slate</b><small>{games.filter((g) => g.signals > 0).length} with published research signals</small></span>
-              <Icon name="chevR" size={20} />
-            </Link>
-          </li>
-        </ul>
-      </section>
+      {(waiting || confPending) && <div role="status" aria-label="Loading games" className="v3-gclist" style={{ marginTop: 12 }}>{[0, 1, 2, 3].map((i) => <div key={i} className="v3-skel v3-gc-skel" />)}</div>}
+
+      {!waiting && !confPending && jumps.length > 1 && (
+        <nav className="v3-jump" aria-label="Jump to">
+          {jumps.map((j) => <button key={j.id} type="button" onClick={() => jump(j.id)}>{j.label}<i>{j.count}</i></button>)}
+        </nav>
+      )}
+
+      {!waiting && !confPending && !unavailable && sections.length === 0 && (
+        <div className="v3-state" style={{ marginTop: 12 }}><Icon name="calendar" size={20} /><div>
+          <b>Nothing here</b>
+          {sport ? `No published ${sportLabel(sport.toUpperCase())} games ${day === today ? 'today' : `on ${keyLabel(day)}`}${conf === 'all' ? '' : ' for this filter'}.` : `No published games ${day === today ? 'today' : `on ${keyLabel(day)}`}.`}
+          {conf !== 'all' && <><br /><button type="button" onClick={() => pickConf('all')}>Show all {sport ? sportLabel(sport.toUpperCase()) : ''} games</button></>}
+          {nextDay && <><br /><button type="button" onClick={() => pickDay(nextDay)}>Next games: {keyWord(nextDay, today)}</button></>}
+          {day !== today && <><br /><button type="button" onClick={() => pickDay(today)}>Back to today</button></>}
+        </div></div>
+      )}
+
+      {!confPending && sections.map((s) => {
+        const open = !closed[s.id];
+        return (
+          <section key={s.id} id={`sec-${s.id}`} className="v3-sec" aria-label={`${s.title}, ${s.games.length} ${s.games.length === 1 ? 'game' : 'games'}`}>
+            <SectionHead s={s} open={open} onToggle={() => setClosed((c) => ({ ...c, [s.id]: !c[s.id] }))} />
+            {open && <div className="v3-gclist" id={`sec-${s.id}-list`}>{s.games.map((g) => <GameCard key={g.key} g={g} />)}</div>}
+            {s.kind === 'live' && open && <p className="v3-note v3-foot">Scores come from a licensed score feed only where one exists. Games in play without one show “Score unavailable”.</p>}
+          </section>
+        );
+      })}
+      {anyOpen && <p className="v3-note v3-linesnote">Lines: Kalshi prediction-market prices in ¢, not sportsbook odds.</p>}
     </div>
   );
 }

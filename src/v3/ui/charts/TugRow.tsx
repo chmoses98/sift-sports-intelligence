@@ -19,7 +19,9 @@ export function TugRow({ row, team, slug, open = false, unitTo }: { row: UnitRow
   const body = (
     <>
       <div className="mx-th">{open ? <span>Percentile gap · tilt</span> : <><b>{unit.title}</b><span>{unit.unit}</span></>}<TiltPill row={row} team={team} /></div>
-      <div className="mx-trk" role="img" aria-label={`${unit.title}: ${row.offTeam} offense ${ordinal(o.rank)}, ${row.defTeam} defense ${ordinal(d.rank)}, ${even ? 'even' : `${row.favours} ${offWins ? 'offense' : 'defense'} +${Math.abs(row.gap)}`}`}>
+      {/* The track holds the team links, so it cannot be role="img" (an image has no interactive children): its words are read beside it. */}
+      <span className="sr">{`${unit.title}: ${row.offTeam} offense ${ordinal(o.rank)}, ${row.defTeam} defense ${ordinal(d.rank)}, ${even ? 'even' : `${row.favours} ${offWins ? 'offense' : 'defense'} +${Math.abs(row.gap)}`}`}</span>
+      <div className="mx-trk">
         <div className="mx-rail" />
         <div className={`mx-gapf${even ? ' ev' : ''}`} style={{ left: `${lo}%`, width: `${hi - lo}%`, background: win, color: win }} />
         <span className={`mx-mkr mx-mkr--o${!even && offWins ? ' win' : ''}${!even && !offWins ? ' lose' : ''}`} style={{ left: `${clamp(o.pct)}%` }}>

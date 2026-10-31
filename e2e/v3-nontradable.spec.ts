@@ -19,6 +19,7 @@ const REAL_INACTIVE = 'KXNFLRECYDS-26OCT26DALPHI-PHIDSMITH6-100';
 
 /** The Game Detail, Games and contract-sheet surfaces read the `game` fixture family (fixtures/real); Prop Discovery reads the `props` family (below). */
 async function setup(page: Page, status?: (t: string) => string | null | undefined, family: FeedFamily = 'game') {
+  await page.addInitScript(() => { try { localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* ignore */ } }); // Home is the landing screen: the first-run welcome sheet would cover it
   await serveRealFeeds(page, { family });
   await freshQuotes(page, { family, status });
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1|raw\.githubusercontent\.com)/, (r) => r.abort());
@@ -140,11 +141,11 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
   });
 });
 
-test.describe('Games and Home never price a non-tradable game @v3', () => {
+test.describe('Home never prices a non-tradable game @v3', () => {
   // The rule holds for a word SIFT does not recognise just as for closed: every market of the game unrecognised, no price anywhere.
-  test('every market of the game carries an unrecognised status: Games card, Home, Game Detail and its props print no price', async ({ page }) => {
+  test('every market of the game carries an unrecognised status: the Home card, Game Detail and its props print no price', async ({ page }) => {
     await setup(page, () => 'quarantined');
-    await go(page, '/v3/games?sport=nfl&state=upcoming');
+    await go(page, '/v3?sport=nfl&date=2026-10-27');
     const card = page.locator('.v3-gc', { hasText: 'Cowboys' }).first();
     await expect(card).toBeVisible();
     await page.waitForTimeout(2500);
@@ -162,9 +163,9 @@ test.describe('Games and Home never price a non-tradable game @v3', () => {
     for (let i = 0; i < Math.min(await px.count(), 6); i++) await expect(px.nth(i)).toHaveText('—');
   });
 
-  test('Games: the lines box of a game whose markets are all closed carries no price', async ({ page }) => {
+  test('Home: the lines box of a game whose markets are all closed carries no price', async ({ page }) => {
     await setup(page, () => 'closed');
-    await go(page, '/v3/games?sport=nfl&state=upcoming');
+    await go(page, '/v3?sport=nfl&date=2026-10-27');
     const card = page.locator('.v3-gc', { hasText: 'Cowboys' }).first();
     await expect(card).toBeVisible();
     await page.waitForTimeout(2500);

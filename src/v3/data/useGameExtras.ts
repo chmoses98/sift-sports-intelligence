@@ -12,6 +12,7 @@ import { useGameResearch } from '../../views/broadcast/parts';
 import { finalScores } from '../../views/broadcast/lifecycle';
 import type { V3Game } from '../model/types';
 import { deriveLines, photoFor } from './adapt';
+import { withSides } from './research/matchMarkets';
 
 export interface GameExtras {
   game: V3Game;
@@ -23,7 +24,7 @@ export function useEventDetail(slug: string, eventId: string, enabled: boolean) 
   return useAsync(enabled ? `v3detail:${slug}:${eventId}` : null, async () => {
     const sport = sportBySlug(slug);
     if (!sport) throw new Error(`unknown sport ${slug}`);
-    return new SportRepo(await resolveSource(sport)).eventDetail(eventId);
+    return withSides(await new SportRepo(await resolveSource(sport)).eventDetail(eventId));
   });
 }
 

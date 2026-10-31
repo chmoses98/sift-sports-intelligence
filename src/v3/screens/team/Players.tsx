@@ -49,6 +49,7 @@ export function Players({ c, propCounts }: { c: TeamPageCtx; propCounts: Map<str
   const allSk = c.state.exp.includes('roster');
   const ol = c.state.exp.includes('ol');
   const lineNote = c.decl.players?.lineNote ?? null;
+  const label = c.decl.players?.label ?? 'Skill players';
   const rows = allAv ? av : av.slice(0, AV_SHOWN);
   const skillRows = allSk ? skill : skill.slice(0, SKILL_SHOWN);
   return (
@@ -75,10 +76,10 @@ export function Players({ c, propCounts }: { c: TeamPageCtx; propCounts: Map<str
           {ol && <LockedRow title="Offensive line">The publication captures no pass-block or run-block grades and no snap-level continuity, so no offensive-line metric exists to show. Linemen who are out are listed above.</LockedRow>}
         </>
       )}
-      <div className="exh exh--pad"><Eyebrow>Skill players</Eyebrow>
+      <div className="exh exh--pad"><Eyebrow>{label}</Eyebrow>
         {skill.length > SKILL_SHOWN && <button type="button" className="seeall" aria-expanded={allSk} onClick={() => toggleExp(c, 'roster')}>{allSk ? 'Show fewer' : `All ${skill.length}`} <Icon name={allSk ? 'chevU' : 'chevR'} size={14} /></button>}
       </div>
-      <section className="tm-card tm-plist2" aria-label="Skill players">
+      <section className="tm-card tm-plist2" aria-label={label}>
         {skillRows.map((p) => <SkillRow key={p.id} c={c} p={p} />)}
         {!skill.length && <p className="tm-note tm-note--pad">The publication lists no players for this team.</p>}
       </section>

@@ -20,17 +20,17 @@ const go = async (page: Page, path: string) => {
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 
 test.describe('SIFT 3.0 @v3', () => {
-  test('sample data is unmistakable and the shell has exactly four tabs', async ({ page }) => {
+  test('sample data is unmistakable and the shell has exactly three tabs', async ({ page }) => {
     await go(page, '/v3?demo=1');
     await expect(page.getByRole('note')).toContainText('Sample data');
     const tabs = page.getByRole('navigation', { name: 'Primary' }).getByRole('link');
-    await expect(tabs).toHaveText(['Home', 'Games', 'Explore', 'Following']);
+    await expect(tabs).toHaveText(['Home', 'Props', 'Following']);
     await noOverflow(page);
   });
 
-  test('Home featured game opens Game Detail; switcher keeps the tab; Back restores the previous game', async ({ page }) => {
-    await go(page, '/v3?demo=1');
-    await page.getByRole('link', { name: 'Game Center' }).click();
+  test('a Home game card opens Game Detail; switcher keeps the tab; Back returns to Home, not the previous game', async ({ page }) => {
+    await go(page, '/v3?demo=1&sport=cfb');
+    await page.locator('.v3-gc__hit[href*="demo_uga_fla"]').click();
     await expect(page).toHaveURL(/#\/v3\/game\/cfb\/demo_uga_fla/);
     // College football has Overview and Props (Matchup is the NFL unit matchup, locked design G1 to G3).
     await expect(page.getByRole('tab')).toHaveText(['Live', 'Props']); // the featured sample game is in play: its first tab reads Live
@@ -39,8 +39,10 @@ test.describe('SIFT 3.0 @v3', () => {
     await page.locator('.v3-sw__tile:not(.is-cur) .v3-sw__hit').first().click();
     await expect(page).toHaveURL(/tab=props/);
     await expect(page).not.toHaveURL(/demo_uga_fla/);
+    // Switching games replaces the history entry: Back goes straight to the screen the game was opened from, with its sport filter, never through the games in between.
     await page.goBack();
-    await expect(page).toHaveURL(/demo_uga_fla.*tab=props/);
+    await expect(page).toHaveURL(/#\/v3\?.*sport=cfb/);
+    await expect(page).not.toHaveURL(/\/game\//);
   });
 
   test('picker: searchable, favourites pin without switching, handles 25 games', async ({ page }) => {
@@ -60,8 +62,8 @@ test.describe('SIFT 3.0 @v3', () => {
     await expect(page.locator('.v3-sheet')).toHaveCount(0);
   });
 
-  test('Games card: team, lines, star, bell and body are independent targets', async ({ page }) => {
-    await go(page, '/v3/games?demo=1');
+  test('Home card: team, lines, star, bell and body are independent targets', async ({ page }) => {
+    await go(page, '/v3?demo=1');
     const url = page.url();
     const card = page.locator('.v3-gc').first();
     await card.getByRole('button', { name: /^Follow/ }).click();
@@ -128,13 +130,13 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3/team/cfb/UGA?demo=1');
     await page.getByRole('button', { name: /^Follow Georgia/ }).click();
     await go(page, '/v3/following?demo=1');
-    await expect(page.locator('.v3-tm').first()).toContainText('Georgia');
+    await expect(page.locator('.v3-hit--team').first()).toContainText('Georgia');
     expect(await page.evaluate(() => localStorage.getItem('sift3.alerts'))).toBeNull();
     expect(await page.evaluate(() => typeof Notification === 'undefined' || Notification.permission !== 'granted')).toBe(true);
   });
 
   test('a statistic with no market is found by search and opens a real Stat Detail; Back keeps the query', async ({ page }) => {
-    await go(page, '/v3/explore?demo=1');
+    await go(page, '/v3/search?demo=1');
     await page.getByLabel(/Search players/).fill('points per');
     await expect(page.getByRole('heading', { name: 'Statistics' })).toBeVisible();
     await page.locator('.v3-hit__l').first().click();
@@ -143,7 +145,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await expect(page).toHaveURL(/q=points/);
   });
 
-  for (const route of ['/v3?demo=1', '/v3/games?demo=1', '/v3/game/cfb/demo_uga_fla?demo=1', '/v3/team/cfb/UGA?demo=1', '/v3/stat/nfl/sample-0?demo=1', '/v3/player/nba/sample-guard?demo=1', '/v3/explore?demo=1', '/v3/following?demo=1', '/v3/settings?demo=1']) {
+  for (const route of ['/v3?demo=1', '/v3?demo=1&sport=cfb', '/v3/game/cfb/demo_uga_fla?demo=1', '/v3/team/cfb/UGA?demo=1', '/v3/stat/nfl/sample-0?demo=1', '/v3/player/nba/sample-guard?demo=1', '/v3/search?demo=1', '/v3/following?demo=1', '/v3/settings?demo=1']) {
     test(`no horizontal scroll: ${route}`, async ({ page }) => {
       await go(page, route);
       await page.waitForTimeout(400);

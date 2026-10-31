@@ -89,7 +89,7 @@
 
 /* bottom navigation: exactly four destinations, floating glass bar, stable positions */
 .v3-nav { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 0 10px calc(8px + var(--sab)); pointer-events: none; }
-.v3-nav__in { pointer-events: auto; width: 100%; max-width: calc(var(--col) - 20px); height: var(--navh); display: grid; grid-template-columns: repeat(4, 1fr);
+.v3-nav__in { pointer-events: auto; width: 100%; max-width: calc(var(--col) - 20px); height: var(--navh); display: grid; grid-template-columns: repeat(3, 1fr);
   background: rgba(15, 17, 20, 0.88); -webkit-backdrop-filter: blur(20px) saturate(1.25); backdrop-filter: blur(20px) saturate(1.25);
   border: 1px solid rgba(56, 65, 75, 0.55); border-radius: 24px; box-shadow: 0 10px 30px rgba(0, 6, 14, 0.5), var(--lit); }
 .v3-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #c4c9cf; font: 500 12px/14px var(--f-ui); min-height: 44px; border-radius: 20px; position: relative; }

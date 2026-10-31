@@ -71,19 +71,21 @@ for (const w of WIDTHS) {
   test.describe(`rails at ${w} pt`, () => {
     test.beforeEach(async ({ page }) => { await page.setViewportSize({ width: w, height: 844 }); });
 
-    test('Games: state chips and sport tabs are single scrolling rails', async ({ page }) => {
-      await go(page, '/v3/games', '.v3-gclist .v3-gc');
-      const states = await facts(page, '.v3-chips--states', '.v3-chip');
-      expectRail(states, w, 'Game state chips');
-      expect(states.count).toBe(5);
-      expectRail(await facts(page, '.v3-rail'), w, 'Game sport tabs');
+    test('Home: the day strip and the sport tabs are single scrolling rails', async ({ page }) => {
+      await go(page, '/v3', '.v3-gclist .v3-gc');
+      const days = await facts(page, '.v3-daystrip', '.v3-day');
+      expectRail(days, w, 'Home day strip');
+      expect(days.count).toBe(14);
+      const sports = await facts(page, '.v3-rail');
+      expectRail(sports, w, 'Home sport tabs');
+      expect(sports.count).toBeGreaterThan(2);
     });
 
-    test('Home: sport chips are a single scrolling rail', async ({ page }) => {
-      await go(page, '/v3', '.v3-feat');
-      const f = await facts(page, '.v3-chips--home', '.v3-chip');
-      expectRail(f, w, 'Home sport chips');
-      expect(f.count).toBeGreaterThan(4);
+    test('Home: the college conference chips are a single scrolling rail', async ({ page }) => {
+      await go(page, '/v3?sport=cfb&date=2026-10-31', '.v3-chips--conf .v3-chip');
+      const f = await facts(page, '.v3-chips--conf', '.v3-chip');
+      expectRail(f, w, 'Home conference chips');
+      expect(f.count).toBeGreaterThan(5);
     });
 
     test('Prop Discovery: sport and statistic rails are single scrolling rails', async ({ page }) => {
@@ -104,13 +106,12 @@ for (const w of WIDTHS) {
       expectRail(await facts(page, '[aria-label="Stat"]', '.v3-chip'), w, 'Game stat chips');
     });
 
-    test('Following: the section segments stay on one row, fully readable', async ({ page }) => {
-      await go(page, '/v3/following', '.v3-seg--box');
-      const f = await facts(page, '.v3-seg--box');
-      expect(f.rows, 'one row').toBe(1);
-      expect(f.clippedLabels, 'no segment label is clipped').toBe(0);
-      expect(f.pageOverflow).toBeLessThanOrEqual(0);
-      expect(f.inOrder).toBe(true);
+    test('Following: the sport filter chips (only followed sports) are a single scrolling rail', async ({ page }) => {
+      await page.addInitScript(() => { try { localStorage.setItem('sift3.follows', JSON.stringify({ teams: ['nfl:DAL', 'nba:BOS', 'mlb:LAD', 'nhl:BOS', 'cfb:UGA', 'cbb:DUKE'], players: [], games: [] })); } catch { /* */ } });
+      await go(page, '/v3/following', '.v3-chips--sports .v3-chip');
+      const f = await facts(page, '.v3-chips--sports', '.v3-chip');
+      expectRail(f, w, 'Following sport chips');
+      expect(f.count).toBe(7); // All + the six followed sports
     });
   });
 }
@@ -122,34 +123,33 @@ test.describe('the active chip is scrolled into view', () => {
     return cr.left >= rr.left - 0.5 && cr.right <= rr.right + 0.5;
   }, [rail, chip]);
 
-  test('opening Games on the last state chip shows it', async ({ page }) => {
-    await go(page, '/v3/games?state=final', '.v3-chips--states .v3-chip[aria-pressed="true"]');
+  test('opening Home on the last day of the strip shows it', async ({ page }) => {
+    await go(page, '/v3?date=2026-11-05', '.v3-day[aria-selected="true"]');
     await page.waitForTimeout(300);
-    await expect.poll(() => within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
-    expect(await page.locator('.v3-chips--states').getAttribute('data-fade')).toBe('start'); // scrolled to the end: the fade is on the start edge
+    await expect.poll(() => within(page, '.v3-daystrip', '.v3-day[aria-selected="true"]'), { message: 'the active day is scrolled fully into its rail' }).toBe(true);
+    expect(await page.locator('.v3-daystrip').getAttribute('data-fade')).toBe('start'); // scrolled to the end: the fade is on the start edge
   });
 
-  test('choosing a chip that sits past the edge scrolls it in; choosing one back scrolls back', async ({ page }) => {
-    await go(page, '/v3/games', '.v3-gclist .v3-gc');
-    const rail = page.locator('.v3-chips--states');
-    expect(await rail.getAttribute('data-fade')).toBe('end');
-    // "Upcoming" is a chip whose right half starts beyond the 320 pt edge: scrolling the rail by hand then tapping it keeps it visible.
+  test('choosing a day that sits past the edge scrolls it in; choosing one back scrolls back', async ({ page }) => {
+    await go(page, '/v3', '.v3-day[aria-selected="true"]');
+    const rail = page.locator('.v3-daystrip');
     await rail.evaluate((el) => { el.scrollLeft = el.scrollWidth; });
     await page.waitForTimeout(150);
-    await page.locator('.v3-chips--states .v3-chip', { hasText: 'Final' }).click();
-    await expect(page).toHaveURL(/state=final/);
+    await page.locator('.v3-day').last().click();
+    await expect(page).toHaveURL(/date=2026-11-05/);
     await page.waitForTimeout(400);
-    await expect.poll(() => within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
+    await expect.poll(() => within(page, '.v3-daystrip', '.v3-day[aria-selected="true"]'), { message: 'the active day is scrolled fully into its rail' }).toBe(true);
     await rail.evaluate((el) => { el.scrollLeft = 0; });
     await page.waitForTimeout(150);
-    await page.locator('.v3-chips--states .v3-chip', { hasText: 'Following' }).click();
+    await page.locator('.v3-day').first().click();
+    await expect(page).toHaveURL(/date=2026-10-23/);
     await page.waitForTimeout(500);
-    await expect.poll(() => within(page, '.v3-chips--states', '.v3-chips--states .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
+    await expect.poll(() => within(page, '.v3-daystrip', '.v3-day[aria-selected="true"]'), { message: 'the active day is scrolled fully into its rail' }).toBe(true);
   });
 
   test('a rail the viewer scrolled by hand is not yanked back by a re-render', async ({ page }) => {
-    await go(page, '/v3/games', '.v3-gclist .v3-gc');
-    const rail = page.locator('.v3-chips--states');
+    await go(page, '/v3', '.v3-gclist .v3-gc');
+    const rail = page.locator('.v3-daystrip');
     await rail.evaluate((el) => { el.scrollLeft = el.scrollWidth; });
     await page.waitForTimeout(150);
     const at = await rail.evaluate((el) => el.scrollLeft);
@@ -158,17 +158,18 @@ test.describe('the active chip is scrolled into view', () => {
     expect(await rail.evaluate((el) => el.scrollLeft)).toBe(at);
   });
 
-  test('opening Home on a sport past the edge shows its chip', async ({ page }) => {
-    await go(page, '/v3?sport=tennis', '.v3-feat, .v3-state');
+  test('opening Home on a sport past the edge shows its tab', async ({ page }) => {
+    await go(page, '/v3?sport=tennis', '.v3-rail__t[aria-selected="true"]');
     await page.waitForTimeout(300);
-    await expect.poll(() => within(page, '.v3-chips--home', '.v3-chips--home .v3-chip[aria-pressed="true"]'), { message: 'the active chip is scrolled fully into its rail' }).toBe(true);
+    await expect.poll(() => within(page, '.v3-rail', '.v3-rail__t[aria-selected="true"]'), { message: 'the active sport is scrolled fully into its rail' }).toBe(true);
   });
 
-  test('keyboard focus order follows the visual order and the focused chip is reachable', async ({ page }) => {
-    await go(page, '/v3/games', '.v3-gclist .v3-gc');
-    await page.locator('.v3-chips--states .v3-chip').first().focus();
+  test('keyboard focus order follows the visual order and the focused day is reachable', async ({ page }) => {
+    await go(page, '/v3', '.v3-gclist .v3-gc');
+    const labels = (await page.locator('.v3-day').allTextContents()).slice(0, 5);
+    await page.locator('.v3-day').first().focus();
     const seen: string[] = [];
-    for (let i = 0; i < 5; i++) { seen.push((await page.evaluate(() => document.activeElement?.textContent ?? '')).replace(/\d+$/, '').trim()); await page.keyboard.press('Tab'); }
-    expect(seen).toEqual(['Following', 'Live', 'Today', 'Upcoming', 'Final']);
+    for (let i = 0; i < 5; i++) { seen.push((await page.evaluate(() => document.activeElement?.textContent ?? '')).trim()); await page.keyboard.press('Tab'); }
+    expect(seen).toEqual(labels);
   });
 });

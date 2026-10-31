@@ -71,7 +71,7 @@ const V: Mode[] = ['version', 'invalid'];
 const NFL_GAME = '/v3/game/nfl/evt_cd335cc6d5f5b8d8f7b3';
 const SCREENS: Screen[] = [
   { name: 'Home', path: '/v3', kinds: ['board', 'health', 'recs', 'detail', 'research', 'index', 'feed'], primary: ['board'], lean: { board: [...ALL, ...V], recs: ['404'], detail: ['404'], index: ['404'], feed: ['404'] } },
-  { name: 'Games', path: '/v3/games?sport=nfl&state=upcoming', kinds: ['board', 'health', 'detail', 'index', 'feed'], primary: ['board'], lean: { board: [...ALL, ...V], detail: ['404'], feed: ['404'] } },
+  { name: 'Home NFL day', path: '/v3?sport=nfl&date=2026-10-27', kinds: ['board', 'health', 'detail', 'index', 'feed'], primary: ['board'], lean: { board: [...ALL, ...V], detail: ['404'], feed: ['404'] } },
   { name: 'Game Detail', path: NFL_GAME, kinds: ['board', 'detail', 'research', 'index', 'feed'], primary: ['detail'], lean: { detail: [...ALL, ...V], research: ['404', 'network', 'invalid'], feed: ['404'] } },
   { name: 'Game props', path: `${NFL_GAME}?tab=props`, kinds: ['detail', 'feed'], primary: ['detail'], lean: { detail: [...ALL, ...V], feed: ['404'] } },
   { name: 'Game stats', path: `${NFL_GAME}?tab=stats`, kinds: ['research'], primary: [], lean: { research: ['404', 'network'] } },
@@ -80,7 +80,7 @@ const SCREENS: Screen[] = [
   { name: 'Player', path: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd', kinds: ['player', 'index', 'search', 'history', 'detail', 'feed', 'proj'], primary: ['player'], lean: { player: [...ALL, ...V], history: ['404', 'network'], detail: ['404', 'network'], feed: ['404'] } },
   { name: 'Stat', path: '/v3/stat/nfl/off_epa_play', kinds: ['metrics', 'ranking', 'index', 'team'], primary: ['ranking'], lean: { ranking: [...ALL, ...V], index: ['404', 'network', ...V], metrics: ['404', 'invalid'] } },
   { name: 'Prop Discovery', path: '/v3/props?view=list', kinds: ['board', 'detail', 'index', 'ranking', 'team', 'feed', 'history'], primary: ['detail'], lean: { detail: [...ALL, ...V], board: ['404'], feed: ['404'] } },
-  { name: 'Explore', path: '/v3/explore', kinds: ['search', 'index', 'board'], primary: ['search'], lean: { search: [...ALL, ...V], index: ['404'] } },
+  { name: 'Search', path: '/v3/search', kinds: ['search', 'index', 'board'], primary: ['search'], lean: { search: [...ALL, ...V], index: ['404'] } },
 ];
 
 const only = process.env.V3_UNAVAIL_ONLY?.split(',');

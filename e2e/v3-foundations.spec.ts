@@ -15,7 +15,7 @@ const histLen = (page: Page) => page.evaluate(() => history.length);
 
 test.describe('SIFT 3.0 foundations @v3', () => {
   test('Back restores the scroll position of the list the viewer left', async ({ page }) => {
-    await go(page, '/v3/games?demo=1');
+    await go(page, '/v3?demo=1&sport=cfb');
     await expect(page.locator('.v3-gc').first()).toBeVisible();
     await scrollTo(page, 420);
     const before = await y(page);
@@ -25,7 +25,7 @@ test.describe('SIFT 3.0 foundations @v3', () => {
     await expect(page).toHaveURL(/#\/v3\/game\//);
     await expect.poll(() => y(page)).toBeLessThan(40);
     await page.goBack();
-    await expect(page).toHaveURL(/#\/v3\/games/);
+    await expect(page).toHaveURL(/#\/v3\?.*sport=cfb/);
     await expect.poll(() => y(page)).toBeGreaterThan(before - 6);
     expect(Math.abs((await y(page)) - before)).toBeLessThanOrEqual(6);
   });
@@ -61,10 +61,10 @@ test.describe('SIFT 3.0 foundations @v3', () => {
   // `replace`s, which land on whichever entry is current when they run: one that runs after the viewer has moved on must not put the old screen's address on the new one.
   for (const gap of [0, 10, 30, 60]) {
     test(`an address rewritten after the fact never overwrites the entry the viewer has moved to (second navigation ${gap} ms later)`, async ({ page }) => {
-      await go(page, '/v3/games?demo=1');
+      await go(page, '/v3?demo=1');
       await expect(page).not.toHaveURL(/demo=/);
       await page.evaluate((ms) => new Promise<void>((done) => {
-        location.hash = '#/v3/explore?demo=1';
+        location.hash = '#/v3/search?demo=1';
         setTimeout(() => { location.hash = '#/v3/following?demo=1'; done(); }, ms);
       }), gap);
       await expect(page).toHaveURL(/#\/v3\/following/);
@@ -74,7 +74,7 @@ test.describe('SIFT 3.0 foundations @v3', () => {
   }
 
   test('closing a sheet with its X leaves no extra entry behind', async ({ page }) => {
-    await go(page, '/v3/explore?demo=1');
+    await go(page, '/v3/search?demo=1');
     await go(page, '/v3/player/nba/sample-guard?demo=1');
     const len = await histLen(page);
     await page.getByRole('button', { name: /Research filters/ }).click();
@@ -82,12 +82,12 @@ test.describe('SIFT 3.0 foundations @v3', () => {
     await page.getByRole('button', { name: 'Close' }).last().click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.goBack();
-    await expect(page).toHaveURL(/#\/v3\/explore/);
+    await expect(page).toHaveURL(/#\/v3\/search/);
     expect(len).toBeGreaterThan(0);
   });
 
   test('applying filters from a sheet lands on the screen underneath and Back leaves the screen', async ({ page }) => {
-    await go(page, '/v3/explore?demo=1');
+    await go(page, '/v3/search?demo=1');
     await page.evaluate(() => { location.hash = '#/v3/player/nba/sample-guard?demo=1'; });
     await expect(page.locator('[data-win]').first()).toBeVisible();
     await page.getByRole('button', { name: /Research filters/ }).click();
@@ -96,7 +96,7 @@ test.describe('SIFT 3.0 foundations @v3', () => {
     await expect(page).toHaveURL(/site=home/);
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.goBack();
-    await expect(page).toHaveURL(/#\/v3\/explore/);
+    await expect(page).toHaveURL(/#\/v3\/search/);
   });
 
   test('the shell parameters never become part of a saved or scrolled address', async ({ page }) => {

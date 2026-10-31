@@ -1,4 +1,4 @@
-// The release build (SIFT 2.0 is the default interface) with v4 present: v4 stays opt-in, leaving it is a real exit, and the
+// The release build (SIFT 3.0 is the default interface) with v4 present: v4 stays opt-in, leaving it is a real exit, and the
 // remembered SIFT 2.0 / classic choices are not disturbed. (The classic-build twin is in e2e/v4.spec.ts.)
 import { expect, NOW, test } from '../e2e/fixtures';
 import { installSlates } from '../e2e/slates';
@@ -10,14 +10,14 @@ test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: NOW });
 });
 
-test('without a flag the root is SIFT 2.0 and v4 is not shown', async ({ page }) => {
+test('without a flag the root is SIFT 3.0 and v4 is not shown', async ({ page }) => {
   await page.goto('#/');
-  await expect(page).toHaveURL(/#\/design\/sift2\/home/);
+  await expect(page).toHaveURL(/#\/v3/);
   await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
   expect(await pref(page)).toBeNull();
 });
 
-test('?ui=v4 opens v4; Open in SIFT 2.0 exits cleanly, and the root answers with SIFT 2.0 again; #/v4 re-enters', async ({ page }) => {
+test('?ui=v4 opens v4; Open in SIFT 2.0 exits cleanly, and the root answers with SIFT 3.0 again; #/v4 re-enters', async ({ page }) => {
   await page.goto('#/?ui=v4');
   await expect(page.locator('[data-v4-shell]')).toBeVisible();
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Board' }).click();
@@ -25,7 +25,7 @@ test('?ui=v4 opens v4; Open in SIFT 2.0 exits cleanly, and the root answers with
   await expect(page).toHaveURL(/#\/design\/sift2\/board/);
   expect(await pref(page)).toBeNull();
   await page.goto('#/');
-  await expect(page).toHaveURL(/#\/design\/sift2\/home/);
+  await expect(page).toHaveURL(/#\/v3/);
   await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
   await page.goto('#/v4');
   await expect(page.locator('[data-v4-shell]')).toBeVisible();
@@ -49,7 +49,7 @@ const manifestHref = (page: import('@playwright/test').Page) => page.evaluate(()
 const appTitle = (page: import('@playwright/test').Page) => page.evaluate(() => document.querySelector('meta[name="apple-mobile-web-app-title"]')?.getAttribute('content') ?? null);
 
 test.describe('v4 early access', () => {
-  test('reaching #/v4 chooses nothing: the card offers to keep v4, and the device still opens SIFT 2.0 afterwards', async ({ page }) => {
+  test('reaching #/v4 chooses nothing: the card offers to keep v4, and the device still opens the default (SIFT 3.0) afterwards', async ({ page }) => {
     await page.goto('#/v4');
     await expect(page.locator('[data-v4-shell]')).toBeVisible();
     await expect(page.getByRole('region', { name: 'SIFT v4 early access' })).toContainText('SIFT 2.0 is still the default for everyone');
@@ -57,7 +57,7 @@ test.describe('v4 early access', () => {
     await page.getByRole('button', { name: 'Not now' }).click();
     expect(await pref(page)).toBeNull();
     await page.goto('#/');
-    await expect(page).toHaveURL(/#\/design\/sift2\/home/);
+    await expect(page).toHaveURL(/#\/v3/);
     await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
   });
 
@@ -79,7 +79,7 @@ test.describe('v4 early access', () => {
     await expect(page).toHaveURL(/#\/design\/sift2\/home/);
     expect(await pref(page)).toBeNull();
     await page.goto('#/');
-    await expect(page).toHaveURL(/#\/design\/sift2\/home/);
+    await expect(page).toHaveURL(/#\/v3/);
     await expect(page.locator('[data-v4-shell]')).toHaveCount(0);
     await page.goto('#/v4');
     await expect(page.locator('[data-v4-shell]')).toBeVisible();

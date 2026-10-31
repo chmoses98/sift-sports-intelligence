@@ -4,12 +4,16 @@ import { useRouteState } from '../state/url';
 import { useGameByKey } from '../data/useSlate';
 import { useGameExtras, useEventDetail, useEventResearch } from '../data/useGameExtras';
 import { useGameStart } from '../data/research/gameHooks';
+import { useLiveDetail, withLiveDetail } from '../data/live/useLiveDetail';
+import { useScriptState, type ScriptState } from '../data/research/scriptEngine';
+import { usePublishScriptContracts } from '../data/research/scriptPrices';
 import { weekOf } from '../data/research/gameMarkets';
 import { unitsFor } from '../data/research/matchup';
-import { isReady } from '../model/capabilities';
+import { gameCapability, isReady } from '../model/capabilities';
 import { switcherGames } from '../model/switcher';
 import { clockTime, dayClock, dayWord, weekdayClock } from '../model/time';
 import { TeamLink } from '../nav/Targets';
+import { useGameBack, useGameOriginMark, useSwitchGame } from '../nav/useGameNav';
 import { gameSchema, type GameTab } from '../nav/schemas';
 import { pushVisit, useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
@@ -28,15 +32,15 @@ import { Brand } from '../ui/Brand';
 
 const TAB_LABEL: Record<Exclude<GameTab, 'overview'>, string> = { script: 'Game Script', matchup: 'Matchup', props: 'Props', stats: 'Stats' };
 const mainLabel = (g: V3Game) => (g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Recap' : 'Overview');
-/** NFL (a sport whose unit matchup is ready) has all five tabs; every other sport has Overview and Props. */
-export const tabsFor = (slug: string): GameTab[] => (isReady(slug, 'gameMatchup') ? ['overview', 'script', 'matchup', 'props', 'stats'] : ['overview', 'props']);
+/**
+ * NFL (a sport whose unit matchup is ready) has all five tabs. A game whose own research carries a Script Engine payload (CFB) has Overview, Game Script, Matchup and Props:
+ * availability is decided per game from the data (`gameCapability`). Every other game has Overview and Props.
+ */
+export const tabsFor = (slug: string, evidence: { scriptEngine?: boolean } = {}): GameTab[] => (isReady(slug, 'gameMatchup') ? ['overview', 'script', 'matchup', 'props', 'stats']
+  : gameCapability(slug, 'gameScript', evidence).status === 'ready' ? ['overview', 'script', 'matchup', 'props'] : ['overview', 'props']);
 
-/** Back goes to the screen this game was opened from; with no in-app history (a deep link) it goes to Games. */
-function useBack() {
-  const nav = useNavigate();
-  const loc = useLocation();
-  return () => { if (loc.key !== 'default') nav(-1); else nav('/v3/games', { replace: true }); };
-}
+/** Whether the script tabs are on offer: the payload is there, or it is still being read and the address asked for one of them. */
+export const scriptTabsOffered = (script: ScriptState, requested: GameTab): boolean => script.kind === 'ready' || (script.kind === 'loading' && (requested === 'script' || requested === 'matchup'));
 
 function MoreSheet({ g }: { g: V3Game }) {
   const [done, setDone] = useState('');
@@ -93,9 +97,9 @@ function Hero({ g, back, startMs }: { g: V3Game; back: () => void; startMs: numb
 }
 
 function CompactBar({ g, list, show, tab, startMs }: { g: V3Game; list: V3Game[]; show: boolean; tab: GameTab; startMs: number | null }) {
-  const nav = useNavigate();
+  const switchTo = useSwitchGame();
   const i = list.findIndex((x) => x.key === g.key);
-  const go = (o: V3Game | undefined) => { if (o) nav(gameHref(o, tab)); };
+  const go = (o: V3Game | undefined) => { if (o) switchTo(o, tab); };
   const prev = list[i - 1], next = list[i + 1];
   return (
     <div className={`v3-cb${show ? ' is-on' : ''}`} aria-hidden={!show}>
@@ -132,21 +136,27 @@ export function GameDetail() {
   const { game, games, loading } = useGameByKey(key);
   const startMs = useGameStart(game);
   const x = useGameExtras(game, 'full', true, startMs);
-  const g = x?.game ?? game;
-  const back = useBack();
+  const g0 = x?.game ?? game;
+  // The live feed for a game in play (data/live): only a source this build is cleared to read; its score fills the hero only where the slate has none.
+  const live = useLiveDetail(g0, startMs);
+  const g = useMemo(() => (g0 ? withLiveDetail(g0, live) : g0), [g0, live]);
+  useGameOriginMark();
+  const back = useGameBack();
   const nav = useNavigate();
   const loc = useLocation();
   const follows = useFollows();
   const [st, setSt] = useRouteState(gameSchema);
-  const tabs = useMemo(() => tabsFor(g?.slug ?? slug), [g?.slug, slug]);
-  // A tab this sport does not have (a shared link, a saved route, a game switched to) falls back to Overview.
-  const tab: GameTab = tabs.includes(st.tab) ? st.tab : 'overview';
-  const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
   const detail = useEventDetail(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
   const research = useEventResearch(g?.slug ?? '', g?.eventId ?? '', !!g && g.provenance === 'publication');
+  const script = useScriptState(g ?? null, research.data, research.loading, research.error);
+  const tabs = useMemo(() => tabsFor(g?.slug ?? slug, { scriptEngine: scriptTabsOffered(script, st.tab) }), [g?.slug, slug, script, st.tab]);
+  // A tab this game does not have (a shared link, a saved route, a game switched to) falls back to Overview.
+  const tab: GameTab = tabs.includes(st.tab) ? st.tab : 'overview';
+  const unitOpen = !!g && tab === 'matchup' && !!st.unit && unitsFor(g.slug).some((u) => u.id === st.unit);
   const list = useMemo(() => (g ? switcherGames(games, g, follows) : []), [g, games, follows]);
   // Every price on this screen opens the one exact-contract sheet; tell it about the game's contracts (start from the schedule authority).
   usePublishGameContracts(g, startMs, detail.data);
+  usePublishScriptContracts(g, startMs, detail.data, script.kind === 'ready' ? script.engine : null);
 
   useEffect(() => { if (g) pushVisit({ route: gameHref(g), title: `${g.away.nick} at ${g.home.nick}`, subtitle: `${leagueLabel(g)} · ${g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Final' : dayWord(startMs ?? g.startMs)}`, kind: 'game', slug: g.slug, logo: g.home.logo }); }, [g?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   // collapse: the compact scoreboard appears once the hero and the rail have scrolled away
@@ -172,7 +182,7 @@ export function GameDetail() {
       <div className="v3-page">
         <header className="v3-top"><button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button><Brand /></header>
         {loading ? <div className="v3-skel" style={{ height: 240 }} role="status" aria-label="Loading game" /> : (
-          <div className="v3-state"><Icon name="info" size={20} /><div><b>This game is not on the published slate</b>It may have been removed, or the publication has not listed it yet.<br /><Link to="/v3/games" style={{ color: 'var(--sift-cyan)' }}>Browse games</Link></div></div>
+          <div className="v3-state"><Icon name="info" size={20} /><div><b>This game is not on the published slate</b>It may have been removed, or the publication has not listed it yet.<br /><Link to="/v3" replace style={{ color: 'var(--sift-cyan)' }}>Browse games</Link></div></div>
         )}
       </div>
     );
@@ -181,7 +191,7 @@ export function GameDetail() {
   const setTab = (t: GameTab) => setSt({ tab: t, unit: null });
   // Back out of an expanded unit: the list entry below is exactly as it was left. A shared link into a unit has none, so it closes the unit.
   const backFromUnit = () => { if (loc.key !== 'default') nav(-1); else setSt({ unit: null }); };
-  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry };
+  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry, script, live };
   return (
     <div className="v3-gd">
       {unitOpen ? <UnitBar g={g} back={backFromUnit} startMs={startMs} /> : (

@@ -4,14 +4,15 @@
 // and is reachable with `?ui=classic` (remembered in this browser), which is also the instant in-browser comparison and
 // the post-deploy monitor's way to keep proving the shared data layer. `?ui=default` forgets the choice.
 // `?ui=v4` opens the v4 phone preview (src/v4, under /v4): opt-in only, never the build's default.
-export type UiMode = 'sift2' | 'classic' | 'v4';
+export type UiMode = 'sift2' | 'classic' | 'v4' | 'v3';
 const KEY = 'sift.ui';
-export const BUILD_UI: UiMode = import.meta.env.VITE_SIFT_UI === 'classic' ? 'classic' : 'sift2';
+// SIFT 3.0 is the default interface of a build. VITE_SIFT_UI=classic (the legacy acceptance suite, a rollback build) or =sift2 keeps the older ones as the default.
+export const BUILD_UI: UiMode = import.meta.env.VITE_SIFT_UI === 'classic' ? 'classic' : import.meta.env.VITE_SIFT_UI === 'sift2' ? 'sift2' : 'v3';
 
 const read = (): UiMode | null => {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'sift2' || v === 'classic' || v === 'v4' ? v : null;
+    return v === 'sift2' || v === 'classic' || v === 'v4' || v === 'v3' ? v : null;
   } catch {
     return null;
   }
@@ -54,7 +55,7 @@ export function resolveUi(search: string): UiMode {
   try {
     if (q === 'v4') {
       storeV4();
-    } else if (q === 'classic' || q === 'sift2') {
+    } else if (q === 'classic' || q === 'sift2' || q === 'v3') {
       localStorage.setItem(KEY, q);
       localStorage.removeItem(BEFORE_V4);
     } else if (q === 'default') {
@@ -64,7 +65,7 @@ export function resolveUi(search: string): UiMode {
   } catch {
     /* storage unavailable: the query still applies to this load */
   }
-  if (q === 'classic' || q === 'sift2' || q === 'v4') return q;
+  if (q === 'classic' || q === 'sift2' || q === 'v4' || q === 'v3') return q;
   if (q === 'default') return BUILD_UI;
   return read() ?? BUILD_UI;
 }

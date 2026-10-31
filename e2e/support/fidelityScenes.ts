@@ -58,10 +58,10 @@ export const SCENES: Scene[] = [
   },
   { id: 'P4', ref: 'p4', title: 'Matchup tab', family: 'player', route: `${PLAYER}?tab=matchup`, ready: '.v3p-sl', dense: true },
   // ---- Game Detail / Matchup -------------------------------------------------------------------------------------------------------------------
-  { id: 'G1', ref: 'g1', title: 'Matchup: offense against defense', family: 'game', route: `${GAME}?v=1&tab=matchup`, ready: '.mx-tug', dense: true },
+  { id: 'G1', ref: 'g1', title: 'Matchup: offense against defense', family: 'game', route: `${GAME}?v=1&tab=matchup&chart=1`, ready: '.mx-tug', dense: true },
   { id: 'G2', ref: 'g2', title: 'One unit, in depth', family: 'game', route: `${GAME}?v=1&tab=matchup&dir=DAL&unit=pass`, ready: '[data-testid=unit-view]', dense: true },
   {
-    id: 'G3', ref: 'g3', title: 'Lens, game shape, key matchups', family: 'game', route: `${GAME}?v=1&tab=matchup`, ready: '.mx-tug', dense: true,
+    id: 'G3', ref: 'g3', title: 'Lens, game shape, key matchups', family: 'game', route: `${GAME}?v=1&tab=matchup&chart=1`, ready: '.mx-tug', dense: true,
     prep: async (page) => { await scrollIntoTop(page, '[data-testid=sift-lens]'); },
   },
   // ---- Prop Discovery --------------------------------------------------------------------------------------------------------------------------

@@ -20,6 +20,11 @@ import { MatchupTab } from './GameMatchup';
 import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
 import type { GameCtx } from './GameShared';
 import { DataState } from '../ui/DataState';
+import { CfbMatchupTab } from './cfb/MatchupTab';
+import { CfbScriptTab } from './cfb/ScriptTab';
+import { ScriptOverview } from './cfb/ScriptOverview';
+import { MatchupIntel } from './intel/MatchupIntel';
+import { LiveGame } from './live/LiveGame';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
@@ -65,6 +70,7 @@ export function MarketsRow({ g, startMs, loading = false }: { g: V3Game; startMs
 // ------------------------------------------------------------------ live blocks
 
 function DriveCard({ g }: { g: V3Game }) {
+  if (g.provenance !== 'demo') return null; // sample data only: a real game's drive comes from a feed or is not shown
   const d = DEMO_LIVE[g.key]?.drive;
   if (!d) return null;
   const pos = (y: number) => `${Math.max(2, Math.min(98, y))}%`;
@@ -85,6 +91,7 @@ function DriveCard({ g }: { g: V3Game }) {
 }
 
 function LastPlay({ g, onTab }: { g: V3Game; onTab: (t: GameTab) => void }) {
+  if (g.provenance !== 'demo') return null;
   const p = DEMO_LIVE[g.key]?.lastPlay;
   if (!p) return null;
   return (
@@ -240,17 +247,35 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
 
 export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
   const g = ctx.g;
+  // A Script Engine game (research carries the payload) has its own Game Script and Matchup views; a sport with the unit matchup (NFL) keeps its own.
+  const engine = ctx.script?.kind === 'ready' && !isReady(g.slug, 'gameMatchup') ? ctx.script.engine : null;
+  if (!isReady(g.slug, 'gameMatchup') && ctx.script?.kind === 'loading' && (tab === 'script' || tab === 'matchup')) return <div className="v3-skel cs-skel" role="status" aria-label="Loading script research" />;
+  if (engine && tab === 'script') return <CfbScriptTab ctx={ctx} engine={engine} />;
+  if (engine && tab === 'matchup') return <CfbMatchupTab ctx={ctx} engine={engine} />;
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
   if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
   if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
-  return (
+  // A game in play leads with the live game (state, plays, performances: screens/live), then markets, then the research; the pregame analysis stays on the page
+  // (MatchupIntel 'after'). Any other phase keeps the pregame order: research first, then markets.
+  const inPlay = g.phase === 'live' && g.provenance === 'publication';
+  const markets = (
     <>
       <WinPrices ctx={ctx} />
       {!detail && !!ctx.detailError ? <DataState title="Market prices unavailable" err={ctx.detailError} retry={ctx.detailRetry} alert>The Kalshi contract list for this game</DataState> : <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />}
-      {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
-      {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
+    </>
+  );
+  return (
+    <>
+      {inPlay && <LiveGame ctx={ctx} />}
+      {inPlay && markets}
+      <ScriptOverview ctx={ctx} onTab={onTab} />
+      <MatchupIntel ctx={ctx} slot="pregame" />
+      {!inPlay && markets}
+      {g.phase === 'live' && g.provenance === 'demo' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
+      {(g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
+      <MatchupIntel ctx={ctx} slot="after" />
       <PlayersToResearch ctx={ctx} />
       <TeamsCard ctx={ctx} />
       <PropsRow ctx={ctx} />

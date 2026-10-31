@@ -35,13 +35,14 @@ function ModelLane({ ctx, m }: { ctx: GameCtx; m: ModelView }) {
           <div key={side} className={`mi-team${lean === side ? ' is-lead' : ''}`}>
             <TeamLogo team={t} size={22} />
             <span className="mi-team__n">{t.abbr}</span>
-            <span className="mi-team__v num">{m.awayScore != null && m.homeScore != null ? <>{score(sc)}<small> pts</small></> : null}</span>
+            <span className="mi-team__v num">{m.awayScore != null && m.homeScore != null ? <>{score(sc)}<small> {m.unit ?? 'pts'}</small></> : null}</span>
             <span className="mi-team__w num">{win ? <>{win}<small> to win</small></> : null}</span>
           </div>
         );
       })}
+      {m.draw != null && <div className="mi-lane__r" data-testid="model-draw">Draw {pct(m.draw)}</div>}
       {m.range && <div className="mi-lane__r">80% range of points: {([['away', g.away], ['home', g.home]] as const).map(([s, t]) => { const r = m.range![s]; return r ? `${t.abbr} ${Math.round(r[0])}–${Math.round(r[1])}` : null; }).filter(Boolean).join(', ')}</div>}
-      <div className="mi-lane__m">{m.version ? `Model ${m.version}` : 'Model version not published'}{when ? ` · inputs cut off ${when}` : ' · as-of time not published'}</div>
+      <div className="mi-lane__m">{m.version ? `Model ${m.version}` : 'Model version not published'}{when ? ` · ${m.asOfKind === 'published' ? 'published' : 'inputs cut off'} ${when}` : ' · as-of time not published'}</div>
       {m.caveat && <p className="mi-lane__c">{m.caveat}</p>}
     </div>
   );

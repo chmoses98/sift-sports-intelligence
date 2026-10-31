@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { useGameShape, useGatedAsk } from '../data/research/gameHooks';
 import { winContracts } from '../data/research/gameMarkets';
 import type { KeyMatchup } from '../data/research/keyMatchups';
-import { buildLens, HOW_TO_READ, MATCHUP_WINDOW, ordinal, tiltCounts, type MatchupLens } from '../data/research/matchup';
+import { buildLens, HOW_TO_READ, MATCHUP_WINDOW, ordinal, tiltCounts, type MatchupLens, type UnitRow } from '../data/research/matchup';
 import { lockedReason, isReady } from '../model/capabilities';
 import type { V3Team } from '../model/types';
 import { NavRow, PlayerLink, PriceTap, StatLink, TeamLink } from '../nav/Targets';
@@ -28,6 +28,9 @@ import { TugRow } from '../ui/charts/TugRow';
 import { meterLabel, UnitMeter } from '../ui/charts/UnitMeter';
 import { Avatar, dirParamOf, teamLookup, useMatchupModel, type GameCtx } from './GameShared';
 import { UnitView } from './GameUnit';
+import { nicknames } from '../data/intel/build';
+import { readRow } from '../model/intel/advantages';
+import { RankBars } from './intel/RankBars';
 
 // ------------------------------------------------------------------------------------------------------------------ the tab
 
@@ -67,15 +70,59 @@ export function MatchupTab({ ctx }: { ctx: GameCtx }) {
           );
         })}
       </div>
-      <div className="mx-mode"><span className="x-chip x-chip--cy">Opponent-adjusted</span><span className="x-chip">Season</span><span className="x-note mx-mode__n">Right = better</span></div>
-      <div className="x-card mx-tugs" data-testid="tug-rows">
-        {rows.map((r) => <TugRow key={r.unit.id} row={r} team={team} slug={g.slug} unitTo={unitTo(r.unit.id)} />)}
-      </div>
+      <div className="mx-mode"><span className="x-chip x-chip--cy">Opponent-adjusted</span><span className="x-chip">Season</span><span className="x-note mx-mode__n">{st.chart ? 'Right = better' : 'Longer bar = better rank'}</span></div>
+      {st.chart ? (
+        <div className="x-card mx-tugs" data-testid="tug-rows">
+          {rows.map((r) => <TugRow key={r.unit.id} row={r} team={team} slug={g.slug} unitTo={unitTo(r.unit.id)} />)}
+        </div>
+      ) : (
+        <>
+          <ReadableRows ctx={ctx} rows={rows} unitTo={unitTo} />
+          <ChartToggle chart={false} onToggle={() => set({ chart: true })} />
+        </>
+      )}
       <LensCard ctx={ctx} lens={lens} open={st.lens} onToggle={() => set({ lens: !st.lens })} team={team} />
       <GameShapeCard ctx={ctx} model={M} />
       <KeyMatchupsCard ctx={ctx} items={M.key} />
       {rows.length < M.units.length && <p className="x-foot mx-foot">{M.units.length - rows.length} of {M.units.length} units have no published rank for both teams and are not shown.</p>}
+      {st.chart && <ChartToggle chart onToggle={() => set({ chart: false })} />}
     </section>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------------------------ plain-language rows (the default)
+
+/** The switch between the plain-language rows (default) and the tug-of-war chart. The chart's toggle sits after the cards so the locked chart layout above is unchanged. */
+function ChartToggle({ chart, onToggle }: { chart: boolean; onToggle: () => void }) {
+  return (
+    <>
+      {chart && <p className="x-note mi-legend">The number on a gap pill is the difference in league-percentile points between the offense and the defense it faces. The plain-language view shows the same ranks as sentences.</p>}
+      <button type="button" className="mi-chartbtn" data-testid="chart-toggle" onClick={onToggle}>{chart ? 'Back to plain language' : 'Show the detailed chart'}</button>
+    </>
+  );
+}
+
+/** Every unit of the chosen direction as a sentence and two rank bars (data/model/intel/advantages.ts); the unit's own page and the detailed chart stay one tap away. */
+function ReadableRows({ ctx, rows, unitTo }: { ctx: GameCtx; rows: UnitRow[]; unitTo: (id: string) => string }) {
+  const names = nicknames(ctx.g);
+  return (
+    <div className="x-card mi-rows" data-testid="readable-rows">
+      {rows.map((r) => {
+        const rr = readRow(r, names);
+        if (!rr) return null;
+        return (
+          <NavRow key={r.unit.id} to={unitTo(r.unit.id)} kind="game" label={`${r.unit.title}: ${rr.headline} Open the unit`} className="mi-row">
+            <div className="mi-row__in" data-unit={r.unit.id} data-tilt={rr.tilt}>
+              <div className="mi-row__top"><b>{r.unit.title}</b><em className={rr.tilt}>{rr.tilt === 'even' ? 'About even' : `${r.favours} ${rr.tilt === 'off' ? 'offense' : 'defense'} leads`}</em></div>
+              <p className="mi-row__h">{rr.headline}</p>
+              <RankBars bars={rr.bars} />
+              <p className="x-note">{rr.detail}</p>
+              <span className="mi-row__go">Unit detail <Icon name="chevR" size={14} /></span>
+            </div>
+          </NavRow>
+        );
+      })}
+    </div>
   );
 }
 

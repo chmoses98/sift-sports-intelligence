@@ -20,6 +20,7 @@ import { MatchupTab } from './GameMatchup';
 import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
 import type { GameCtx } from './GameShared';
 import { DataState } from '../ui/DataState';
+import { MatchupIntel } from './intel/MatchupIntel';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
@@ -247,10 +248,12 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   return (
     <>
+      <MatchupIntel ctx={ctx} slot="pregame" />
       <WinPrices ctx={ctx} />
       {!detail && !!ctx.detailError ? <DataState title="Market prices unavailable" err={ctx.detailError} retry={ctx.detailRetry} alert>The Kalshi contract list for this game</DataState> : <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />}
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}
       {(g.phase === 'live' || g.phase === 'final' || g.phase === 'other') && <LiveNote g={g} />}
+      <MatchupIntel ctx={ctx} slot="after" />
       <PlayersToResearch ctx={ctx} />
       <TeamsCard ctx={ctx} />
       <PropsRow ctx={ctx} />

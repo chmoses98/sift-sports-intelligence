@@ -132,6 +132,8 @@ export const gameSchema = defineSchema({
     dir: f.str(null, 8),
     lens: f.bool(false),
     unit: f.str(null, 24),
+    /** Matchup tab: the detailed tug-of-war chart instead of the readable sentences (the default). */
+    chart: f.bool(false),
   },
   migrations: {
     0: (q) => {

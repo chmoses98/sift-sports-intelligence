@@ -34,8 +34,9 @@ async function open(page: Page, query = '') {
   await Promise.race([ready.waitFor({ timeout: 30_000 }), missing.waitFor({ timeout: 30_000 })]).catch(() => {});
   test.skip(await missing.isVisible().catch(() => false), 'the reference game is no longer on the published slate');
 }
+// The tab's default is the readable sentences (e2e/v3-intel.spec.ts); these specs exercise the detailed tug-of-war chart, which is `chart=1` in the address.
 async function matchup(page: Page, query = '') {
-  await open(page, `?v=1&tab=matchup${query}`);
+  await open(page, `?v=1&tab=matchup${/unit=/.test(query) ? '' : '&chart=1'}${query}`);
   await expect(page.getByTestId(/unit=/.test(query) ? 'unit-view' : 'tug-rows')).toBeVisible({ timeout: 30_000 });
 }
 
@@ -292,7 +293,7 @@ test.describe('missing data and laziness @v3', () => {
     await page.waitForTimeout(1500);
     expect(profiles).toHaveLength(0);
     await page.getByRole('tab', { name: 'Matchup' }).click();
-    await expect(page.getByTestId('tug-rows')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('readable-rows')).toBeVisible({ timeout: 30_000 });
     expect(new Set(profiles).size).toBe(2);
   });
 });

@@ -32,6 +32,12 @@ export interface ModelView {
   kind: string;
   /** 80% range of each team's points, only for the approved projection (which publishes one). */
   range: { away: [number, number] | null; home: [number, number] | null } | null;
+  /** What the scores count when it is not points ("goals", "runs"); absent means points. */
+  unit?: string;
+  /** Probability 0..1 of a draw, for a sport with a three-way result (soccer). */
+  draw?: number | null;
+  /** What `asOf` is: the instant the inputs were cut (default) or when the publication wrote the view (a sport that states no feature cutoff). */
+  asOfKind?: 'inputs' | 'published';
 }
 
 export interface MarketView {

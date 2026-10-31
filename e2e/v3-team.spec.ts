@@ -195,10 +195,10 @@ test.describe('Team Research (real documents) @v3', () => {
     await expect(page.locator('.x-lock')).toBeVisible();
   });
 
-  test('Hockey (TR6): record is W–L–OT, the tabs are Overview and Form only, goals-for opens the ranking (64, 65); gated tabs are honest', async ({ page }) => {
+  test('Hockey (TR6): record is W–L–OT, the tabs are Overview, Form, Players and Schedule, goals-for opens the ranking (64, 65); the gated Profile tab is honest', async ({ page }) => {
     await go(page, '/v3/team/nhl/TOR');
     await ready(page, '.tm-idt .idr');
-    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form']);
+    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form', 'Players', 'Schedule']);
     await expect(page.locator('.tm-hero .tm-rec b')).toHaveText(/^\d+–\d+–\d+$/);
     await expect(page.locator('.tm-idt')).toContainText('Scoring vs');
     await tapAndBack(page, page.locator('.tm-gstrip [data-tap="game"]'), 'game', /^\/v3\/game\/nhl\/evt_/);
@@ -209,7 +209,7 @@ test.describe('Team Research (real documents) @v3', () => {
     await expect(page.locator('.tm-idt .idr')).toHaveCount(2);
     // a gated tab named by an address is a locked row with the reason, never a working tab
     await go(page, '/v3/team/nhl/TOR?tab=profile');
-    await expect(page.locator('.x-lock')).toContainText('Not part of the first release');
+    await expect(page.locator('.x-lock')).toContainText('no hockey declaration yet');
     await expect(page.getByRole('tab', { selected: true })).toHaveCount(0);
     await go(page, '/v3/team/nhl/TOR?tab=form');
     await ready(page, '.tm .res');
@@ -325,11 +325,21 @@ test.describe('Team Research: performance and missing-data states (real document
     await expect(lock.first()).toContainText('closing lines');
     expect(await lock.count()).toBeGreaterThanOrEqual(2);
     for (const l of await lock.all()) expect(await l.locator('a, button').count()).toBe(0);
+    await go(page, '/v3/team/nhl/TOR?tab=profile');
+    await expect(page.locator('.x-lock')).toContainText('no hockey declaration yet');
+    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form', 'Players', 'Schedule']);
+  });
+
+  test('Hockey schedule and players read the real team document in hockey words (no EPA, no offensive-line note)', async ({ page }) => {
     await go(page, '/v3/team/nhl/TOR?tab=schedule');
-    await expect(page.locator('.x-lock')).toContainText('Not part of the first release');
+    await expect(page.locator('.tm-sum6')).toContainText('goals scored and allowed per game');
+    await expect(page.locator('.tm-sum6')).not.toContainText('EPA');
+    await expect(page.locator('.tm .sch').first()).toBeVisible({ timeout: 20_000 });
     await go(page, '/v3/team/nhl/TOR?tab=players');
-    await expect(page.locator('.x-lock')).toBeVisible();
-    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form']);
+    await expect(page.getByRole('region', { name: 'Players' })).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('.tm .plr').first()).toBeVisible();
+    await expect(page.locator('.olc')).toHaveCount(0);
+    await noOverflow(page);
   });
 
   test('availability row to Player Research (61): in today\'s published packets no injured player is also a listed skill player, so the real document is edited in the test to name one', async ({ page }) => {
@@ -376,10 +386,10 @@ test.describe('Team Research (sample data) @v3', () => {
     await noOverflow(page);
   });
 
-  test('?demo=1 hockey: same gated tabs, W–L–OT record, labelled sample data', async ({ page }) => {
+  test('?demo=1 hockey: the same tabs, W–L–OT record, labelled sample data', async ({ page }) => {
     await go(page, '/v3/team/nhl/TOR?demo=1');
     await ready(page, '.tm-idt .idr');
-    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form']);
+    await expect(page.getByRole('tab')).toHaveText(['Overview', 'Form', 'Players', 'Schedule']);
     await expect(page.locator('.tm-hero')).toContainText('sample data');
     await expect(page.locator('.tm-hero .tm-rec b')).toHaveText(/^\d+–\d+–\d+$/);
     await noOverflow(page);

@@ -28,20 +28,21 @@ function ModelLane({ ctx, m }: { ctx: GameCtx; m: ModelView }) {
   return (
     <div className="mi-lane mi-lane--sift" data-testid="sift-model" role="group" aria-label="SIFT model projection">
       <div className="mi-lane__h"><LaneMark lane="sift" /><b>SIFT model</b></div>
-      <div className="mi-lane__sub">{ORIGIN_NOTE[m.origin]}</div>
+      <div className="mi-lane__sub">{m.origin === 'research' ? `${m.kind.replace(/^./, (c) => c.toUpperCase())}, not an approved projection` : ORIGIN_NOTE[m.origin]}</div>
       {([['away', g.away], ['home', g.home]] as const).map(([side, t]) => {
         const sc = side === 'away' ? m.awayScore : m.homeScore, win = pct(side === 'away' ? m.awayWin : m.homeWin);
         return (
           <div key={side} className={`mi-team${lean === side ? ' is-lead' : ''}`}>
             <TeamLogo team={t} size={22} />
             <span className="mi-team__n">{t.abbr}</span>
-            <span className="mi-team__v num">{m.awayScore != null && m.homeScore != null ? <>{score(sc)}<small> pts</small></> : null}</span>
+            <span className="mi-team__v num">{m.awayScore != null && m.homeScore != null ? <>{score(sc)}<small> {m.unit ?? 'pts'}</small></> : null}</span>
             <span className="mi-team__w num">{win ? <>{win}<small> to win</small></> : null}</span>
           </div>
         );
       })}
+      {m.draw != null && <div className="mi-lane__r" data-testid="model-draw">Draw {pct(m.draw)}</div>}
       {m.range && <div className="mi-lane__r">80% range of points: {([['away', g.away], ['home', g.home]] as const).map(([s, t]) => { const r = m.range![s]; return r ? `${t.abbr} ${Math.round(r[0])}–${Math.round(r[1])}` : null; }).filter(Boolean).join(', ')}</div>}
-      <div className="mi-lane__m">{m.version ? `Model ${m.version}` : 'Model version not published'}{when ? ` · inputs cut off ${when}` : ' · as-of time not published'}</div>
+      <div className="mi-lane__m">{m.version ? `Model ${m.version}` : 'Model version not published'}{when ? ` · ${m.asOfKind === 'published' ? 'published' : 'inputs cut off'} ${when}` : ' · as-of time not published'}</div>
       {m.caveat && <p className="mi-lane__c">{m.caveat}</p>}
     </div>
   );

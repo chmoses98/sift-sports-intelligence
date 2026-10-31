@@ -14,18 +14,24 @@ import { deriveProps } from '../adapt';
 import { keyMatchups, NFL_PROP_UNITS, type KeyMatchup, type RosterPlayer } from '../research/keyMatchups';
 import { sideOf, unitsFor, type UnitRow } from '../research/matchup';
 import { pairsFromResearch, type StatPair } from '../matchup';
+import { gameCapability, type Availability, type Section } from '../../model/capabilities';
 import { readEnvironment, type Environment } from './environment';
 import { readProjection, type ApprovedTeams, type ProjectionRead } from './projection';
 import { readScriptIntel, type ScriptIntel } from './scriptIntel';
 import { ranksFromResearch, unitsFromResearch } from './units';
+import { readSport, type SportBlock } from './sports';
+import { statsAge } from './sports/shared';
 
-export type IntelSection = 'projection' | 'advantages' | 'comparison' | 'mismatches' | 'notes' | 'environment' | 'script';
-/** The order sections appear in on a pregame Overview. */
-export const SECTION_ORDER: readonly IntelSection[] = ['projection', 'advantages', 'comparison', 'mismatches', 'notes', 'environment', 'script'];
+export type IntelSection = 'projection' | 'advantages' | 'comparison' | 'mismatches' | 'notes' | 'environment' | 'sport' | 'script';
+/** The order sections appear in on a pregame Overview. `sport` is the sport's own research cards (starters and lineups, rotations, surface and form, attack against defence). */
+export const SECTION_ORDER: readonly IntelSection[] = ['projection', 'advantages', 'comparison', 'mismatches', 'notes', 'environment', 'sport', 'script'];
 
+/** `note`: a sentence under the table (how old the statistics are, what the publication does not state). */
 export type Comparison =
-  | { kind: 'units'; rowsAway: UnitRow[]; rowsHome: UnitRow[] }
-  | { kind: 'ranks'; pairs: StatPair[]; adjusted: boolean };
+  | { kind: 'units'; rowsAway: UnitRow[]; rowsHome: UnitRow[]; note?: string | null }
+  | { kind: 'ranks'; pairs: StatPair[]; adjusted: boolean; note?: string | null }
+  /** Published values for the two sides with no league rank (baseball, tennis ratings). */
+  | { kind: 'values'; rows: { id: string; name: string; away: string; home: string; unit: string | null }[]; note?: string | null };
 
 export interface IntelNotes {
   items: NewsItem[];
@@ -45,6 +51,13 @@ export interface GameIntel {
   notes: IntelNotes | null;
   environment: Environment | null;
   script: ScriptIntel | null;
+  /** The sport's own research cards for this game (data/intel/sports). */
+  blocks: SportBlock[];
+  /**
+   * The Overview layers a sport publishes game by game, decided for THIS game: the sport's declaration (model/capabilities.ts) opened by what this game's own
+   * document filled. Nothing is unlocked by a flag; a sport that declares a layer `none` stays `none` whatever the document holds.
+   */
+  layers: Record<'gameModel' | 'gameEnvironment' | 'gameAvailability', Availability>;
   /** Sections that have no data for this game, with the reason in words (the screen's absent notes). */
   gaps: { section: IntelSection; reason: string }[];
 }
@@ -81,14 +94,19 @@ export function buildGameIntel(i: IntelInput): GameIntel {
   const names = nicknames(g);
   const owned = hasScriptEngine(research);
 
-  const projection = readProjection(research, g, i.approved);
+  let projection = readProjection(research, g, i.approved);
+  // The sport's own readers (NHL, NBA, MLB, CBB, soccer, tennis): a published model view where the generic readers found none, never over an approved one.
+  const sport = research ? readSport({ g, research, detail, now: i.now }) : null;
+  if (!projection.model && sport?.model) projection = { ...projection, model: sport.model, absent: null };
+  else if (!projection.model && sport?.modelAbsent) projection = { ...projection, absent: sport.modelAbsent };
 
   // Advantages and comparison: unit ranks for a sport that declares units (NFL), else the publication's own matchup rows or findings.
   const units = unitsFromResearch(g, research);
   const advantages = units ? topAdvantages(units.rowsAway, units.rowsHome, names, 3) : [];
   const findings = !units ? readFindings(research).whatMatters.slice(0, 3) : [];
   let comparison: Comparison | null = null;
-  if (units) comparison = { kind: 'units', rowsAway: units.rowsAway, rowsHome: units.rowsHome };
+  if (sport?.comparison) comparison = sport.comparison;
+  else if (units) comparison = { kind: 'units', rowsAway: units.rowsAway, rowsHome: units.rowsHome };
   else if (research && !unitsFor(g.slug).length) {
     const pairs = pairsFromResearch(research, g).filter((p) => p.away.rank != null && p.home.rank != null && p.away.n && p.home.n).slice(0, 6);
     if (pairs.length >= 2) comparison = { kind: 'ranks', pairs, adjusted: research.matchup.some((m) => GENERIC_ADJUSTED.test(m.metric_id) || GENERIC_ADJUSTED.test(m.name)) };
@@ -105,7 +123,8 @@ export function buildGameIntel(i: IntelInput): GameIntel {
 
   // Lineup, injury and roster notes: the publication's own injury news (the source the Home stories use), with its source and age.
   let notes: IntelNotes | null = null;
-  if (research?.context?.injuries?.length) {
+  if (sport && sport.notes !== undefined) notes = sport.notes;
+  else if (research?.context?.injuries?.length) {
     let all: NewsItem[];
     try { all = injuryNews(research).sort((a, b) => b.score - a.score || (b.asOf ?? '').localeCompare(a.asOf ?? '')); } catch { all = []; }
     const lead = all.filter((n) => n.level === 'critical' || n.level === 'high');
@@ -113,12 +132,19 @@ export function buildGameIntel(i: IntelInput): GameIntel {
     if (shown.length) notes = { items: shown, more: Math.max(0, all.length - shown.length), source: injurySource(research.context.injuries, i.now, g.sport) };
   }
 
-  const environment = readEnvironment(research, g);
-  const script = owned ? null : readScriptIntel(research, detail);
+  let environment = readEnvironment(research, g) ?? sport?.environment ?? null;
+  const script = owned ? null : readScriptIntel(research, detail) ?? sport?.script ?? null;
+  const blocks = sport?.blocks ?? [];
+  // Season statistics that are old are said to be old: a preseason game's rows are last season's, and a table of ranks must not read as current form.
+  const age = statsAge(research, i.now);
+  if (age && !age.current) {
+    if (comparison && !comparison.note) comparison = { ...comparison, note: age.label };
+    if (environment?.lines.some((l) => l.source === 'season')) environment = { ...environment, foot: [environment.foot, age.label].filter(Boolean).join(' ') };
+  }
 
   const has: Record<IntelSection, boolean> = {
     projection: !owned, advantages: advantages.length > 0 || findings.length > 0, comparison: comparison != null, mismatches: mismatches.length > 0,
-    notes: notes != null, environment: environment != null, script: script != null,
+    notes: notes != null, environment: environment != null, sport: blocks.length > 0, script: script != null,
   };
   const reason = (s: IntelSection): string => {
     switch (s) {
@@ -127,11 +153,14 @@ export function buildGameIntel(i: IntelInput): GameIntel {
       case 'mismatches': return unitsFor(g.slug).length ? 'No listed player prop maps to a unit with published ranks.' : 'No player-to-opposing-unit mapping is published for this sport.';
       case 'notes': return 'The publication lists no injuries or lineup changes for this game.';
       case 'environment': return 'The publication carries no scoring or pace simulation for this game.';
+      case 'sport': return '';
       case 'script': return 'The publication states no game script for this game.';
       default: return '';
     }
   };
   // With no research document there is one reason for everything (the projection card already says it), not six copies of it.
-  if (research) for (const s of SECTION_ORDER) if (s !== 'projection' && !has[s] && !(owned && s === 'script')) gaps.push({ section: s, reason: reason(s) });
-  return { present: SECTION_ORDER.filter((s) => has[s]), projection, advantages, findings, comparison, mismatches, notes, environment, script, gaps };
+  if (research) for (const s of SECTION_ORDER) if (s !== 'projection' && s !== 'sport' && !has[s] && !(owned && s === 'script')) gaps.push({ section: s, reason: sport?.reasons?.[s] ?? reason(s) });
+  const filled: Section[] = [...(projection.model ? ['gameModel' as const] : []), ...(environment ? ['gameEnvironment' as const] : []), ...(notes || blocks.length ? ['gameAvailability' as const] : [])];
+  const layers = { gameModel: gameCapability(g.slug, 'gameModel', { sections: filled }), gameEnvironment: gameCapability(g.slug, 'gameEnvironment', { sections: filled }), gameAvailability: gameCapability(g.slug, 'gameAvailability', { sections: filled }) };
+  return { present: SECTION_ORDER.filter((s) => has[s]), projection, advantages, findings, comparison, mismatches, notes, environment, script, blocks, layers, gaps };
 }

@@ -10,6 +10,7 @@ import type { EventResearchDoc } from '../../contract/types';
 import { cents } from '../model/format';
 import { isTradableWord, statusFacts } from '../model/marketStatus';
 import type { MarketLine, Phase, Price, V3Game, V3Team } from '../model/types';
+import { isFullGame, TOTAL_FAMILY, WIN_FAMILY } from './research/matchMarkets';
 
 type Participant = BoardItem['participants'][number];
 
@@ -77,7 +78,7 @@ export function toGame(g: GameRow): V3Game {
 /** Lists are built from markets that are not POSITIVELY non-tradable (model/marketStatus.ts: a word that is not open/active/trading is out, an unrecognised one included; a MISSING status is not a word). */
 const OPEN = (m: Market) => isTradableWord(m.market_status);
 /** The full-game contract (publications spell the period "FULL", "FULL_GAME", "full_game" or leave it out). */
-const FULL = (m: Market) => m.period == null || /^full(_game)?$/i.test(m.period);
+const FULL = isFullGame;
 
 export function priceOf(m: Market): Price {
   const sf = statusFacts(m.market_status);
@@ -119,13 +120,13 @@ export function deriveLines(markets: Market[], away: V3Team, home: V3Team, partI
       out.push({ kind: 'spread', label: `${team.abbr} −${fmtLine(spreadLine(best)!)}`, price: priceOf(best), line: spreadLine(best), teamId: team.id, alternates: [...spreads].sort((a, b) => (a.participant_id ?? '').localeCompare(b.participant_id ?? '') || spreadLine(a)! - spreadLine(b)!).map(priceOf) });
     }
   }
-  const totals = open.filter((m) => /^(game_)?total$/.test(m.market_family) && totalLine(m) != null);
+  const totals = open.filter((m) => TOTAL_FAMILY.test(m.market_family) && totalLine(m) != null);
   if (totals.length) {
     const best = [...totals].sort((a, b) => nearHalf(a) - nearHalf(b))[0];
     const ln = totalLine(best)!;
     out.push({ kind: 'total', label: `O/U ${fmtLine(ln)}`, price: priceOf(best), line: ln, alternates: [...totals].sort((a, b) => totalLine(a)! - totalLine(b)!).map(priceOf) });
   }
-  const ml = open.filter((m) => /^(game_)?(moneyline|winner)$/.test(m.market_family) && m.participant_id);
+  const ml = open.filter((m) => WIN_FAMILY.test(m.market_family) && m.participant_id);
   if (ml.length) {
     const a = ml.find((m) => m.participant_id === partIds.away);
     const h = ml.find((m) => m.participant_id === partIds.home);

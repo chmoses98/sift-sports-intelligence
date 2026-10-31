@@ -12,14 +12,16 @@ export interface EnvLine {
   label: string;
   /** Plain-English value ("about 45.6 total points; half of simulated games land between 36 and 54"). */
   text: string;
-  /** What kind of number this is: the simulation, or a season statistic. */
-  source: 'simulation' | 'season';
+  /** What kind of number this is: the simulation, a season statistic, or a published model projection that is not a simulation (baseball runs, college tempo). */
+  source: 'simulation' | 'season' | 'model';
 }
 
 export interface Environment {
   lines: EnvLine[];
   /** What the simulation does not model, from the publication. */
   notSimulated: string[];
+  /** A closing sentence that belongs to this sport's section (what the publication does not state, where a projection comes from). */
+  foot?: string | null;
 }
 
 const rec = (x: unknown): Record<string, unknown> | null => (x && typeof x === 'object' && !Array.isArray(x) ? (x as Record<string, unknown>) : null);

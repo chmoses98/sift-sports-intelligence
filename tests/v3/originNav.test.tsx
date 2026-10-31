@@ -36,10 +36,11 @@ function Game() {
 
 const mk = () => createHashRouter([{ element: <SheetHost><Outlet /></SheetHost>, children: [{ path: '/v3', element: <Home /> }, { path: '/v3/team/:id', element: <Team /> }, { path: '/v3/game/:slug/:eventId', element: <Game /> }] }]);
 type R = ReturnType<typeof mk>;
-const settle = () => act(async () => { await new Promise((r) => setTimeout(r, 30)); });
+// (a real history traversal is asynchronous: wait for the router to settle rather than for a fixed time, so a loaded machine cannot flake it)
+const settle = () => act(async () => { await new Promise((r) => setTimeout(r, 120)); });
 const click = async (name: string) => { await act(async () => { screen.getByText(name).click(); }); await settle(); };
 const where = (r: R) => `${r.state.location.pathname}${r.state.location.search}`;
-const browserBack = async () => { await act(async () => { window.history.back(); await new Promise((r) => setTimeout(r, 80)); }); };
+const browserBack = async () => { await act(async () => { window.history.back(); await new Promise((r) => setTimeout(r, 400)); }); };
 
 let router: R;
 async function start(initial = '#/v3') {

@@ -14,6 +14,9 @@ export function useGameOriginMark(): void {
   const nav = useNavigate();
   useLayoutEffect(() => {
     if (readOrigin(loc.state) !== undefined) return;
+    // A replace lands on whichever entry is current when it runs: if the viewer has already moved on (Back right after opening), this entry is not ours to mark.
+    const shown = (window.history.state as { key?: string } | null)?.key ?? 'default';
+    if (shown !== loc.key) return;
     nav({ pathname: loc.pathname, search: loc.search, hash: loc.hash }, { replace: true, state: withOrigin(loc.state, originFor(here())), preventScrollReset: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loc.key]);

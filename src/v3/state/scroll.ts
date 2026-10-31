@@ -28,9 +28,30 @@ const slot = (key: string, page: string) => (key === 'default' ? `a:${page}` : `
 const cur = { slot: '', page: '', y: 0, h: 0 };
 const remember = () => { if (!cur.slot) return; mem.set(cur.slot, cur.y); mem.set(`a:${cur.page}`, cur.y); flush(); };
 
+/**
+ * Put the page back at `to`. The screen being returned to may not be tall enough yet (a lazy route chunk still loading after a reload, a list still
+ * fetching), and scrolling a short page only clamps, so nothing is scrolled until the document can reach `to`; the wait is bounded and ends the moment
+ * the viewer takes over (wheel, touch, key) or another restore begins.
+ */
+let restoring = 0;
+const RESTORE_MS = 5000;
+const TAKEOVER = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const;
 const restore = (to: number) => {
-  let tries = 0;
-  const attempt = () => { window.scrollTo(0, to); if (Math.abs(scrollTop() - to) > 2 && tries++ < 20) requestAnimationFrame(attempt); };
+  const token = ++restoring;
+  const t0 = performance.now();
+  const done = () => { TAKEOVER.forEach((e) => window.removeEventListener(e, stop)); };
+  const stop = () => { if (restoring === token) restoring++; done(); };
+  TAKEOVER.forEach((e) => window.addEventListener(e, stop, { passive: true }));
+  const attempt = () => {
+    if (restoring !== token) { done(); return; }
+    const reach = document.documentElement.scrollHeight - window.innerHeight;
+    const late = performance.now() - t0 > RESTORE_MS;
+    if (reach >= to - 2 || late) {
+      window.scrollTo(0, to);
+      if (Math.abs(scrollTop() - to) <= 2 || late) { done(); return; }
+    }
+    requestAnimationFrame(attempt);
+  };
   attempt();
 };
 
@@ -65,7 +86,7 @@ export function useScrollMemory(ready: boolean) {
     const first = settled.current !== here;
     settled.current = here;
     if (first) {
-     
+      restoring++;   // a restore still waiting for the screen the viewer has now left is over
       if (cur.slot && cur.slot !== here) remember();
       cur.slot = here; cur.page = page;
       if (nav === 'POP') {

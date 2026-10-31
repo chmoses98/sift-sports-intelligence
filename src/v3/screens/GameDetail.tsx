@@ -10,6 +10,7 @@ import { isReady } from '../model/capabilities';
 import { switcherGames } from '../model/switcher';
 import { clockTime, dayClock, dayWord, weekdayClock } from '../model/time';
 import { TeamLink } from '../nav/Targets';
+import { useGameBack, useGameOriginMark, useSwitchGame } from '../nav/useGameNav';
 import { gameSchema, type GameTab } from '../nav/schemas';
 import { pushVisit, useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
@@ -30,13 +31,6 @@ const TAB_LABEL: Record<Exclude<GameTab, 'overview'>, string> = { script: 'Game 
 const mainLabel = (g: V3Game) => (g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Recap' : 'Overview');
 /** NFL (a sport whose unit matchup is ready) has all five tabs; every other sport has Overview and Props. */
 export const tabsFor = (slug: string): GameTab[] => (isReady(slug, 'gameMatchup') ? ['overview', 'script', 'matchup', 'props', 'stats'] : ['overview', 'props']);
-
-/** Back goes to the screen this game was opened from; with no in-app history (a deep link) it goes to Games. */
-function useBack() {
-  const nav = useNavigate();
-  const loc = useLocation();
-  return () => { if (loc.key !== 'default') nav(-1); else nav('/v3/games', { replace: true }); };
-}
 
 function MoreSheet({ g }: { g: V3Game }) {
   const [done, setDone] = useState('');
@@ -93,9 +87,9 @@ function Hero({ g, back, startMs }: { g: V3Game; back: () => void; startMs: numb
 }
 
 function CompactBar({ g, list, show, tab, startMs }: { g: V3Game; list: V3Game[]; show: boolean; tab: GameTab; startMs: number | null }) {
-  const nav = useNavigate();
+  const switchTo = useSwitchGame();
   const i = list.findIndex((x) => x.key === g.key);
-  const go = (o: V3Game | undefined) => { if (o) nav(gameHref(o, tab)); };
+  const go = (o: V3Game | undefined) => { if (o) switchTo(o, tab); };
   const prev = list[i - 1], next = list[i + 1];
   return (
     <div className={`v3-cb${show ? ' is-on' : ''}`} aria-hidden={!show}>
@@ -133,7 +127,8 @@ export function GameDetail() {
   const startMs = useGameStart(game);
   const x = useGameExtras(game, 'full', true, startMs);
   const g = x?.game ?? game;
-  const back = useBack();
+  useGameOriginMark();
+  const back = useGameBack();
   const nav = useNavigate();
   const loc = useLocation();
   const follows = useFollows();
@@ -172,7 +167,7 @@ export function GameDetail() {
       <div className="v3-page">
         <header className="v3-top"><button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button><Brand /></header>
         {loading ? <div className="v3-skel" style={{ height: 240 }} role="status" aria-label="Loading game" /> : (
-          <div className="v3-state"><Icon name="info" size={20} /><div><b>This game is not on the published slate</b>It may have been removed, or the publication has not listed it yet.<br /><Link to="/v3/games" style={{ color: 'var(--sift-cyan)' }}>Browse games</Link></div></div>
+          <div className="v3-state"><Icon name="info" size={20} /><div><b>This game is not on the published slate</b>It may have been removed, or the publication has not listed it yet.<br /><Link to="/v3" replace style={{ color: 'var(--sift-cyan)' }}>Browse games</Link></div></div>
         )}
       </div>
     );

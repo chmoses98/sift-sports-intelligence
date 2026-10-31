@@ -62,6 +62,7 @@ Key rules the code enforces:
   Kalshi threshold ladders are reduced to the rung nearest 50¢ and labelled Kalshi, never sportsbook odds.
 * Tap regions are independent (card body / team / lines / star / bell). Icons never take the tap (a WebKit quirk).
 * Back restores tab, filters, search query, chart state (all in the address) and **scroll offset** (`state/scroll.ts`).
+* A game remembers where it was opened from (`nav/origin.ts`, `nav/useGameNav.ts`): switching games (rail, prev/next bar, picker) *replaces* the entry, and Back from a game returns straight to the screen that opened it (Home, Props, Following, search, a team), however many games were switched through. A deep link has no origin: Back goes Home (`/v3`) with replace.
 * Skeletons reserve their final height; nothing is inserted above a tappable control after first paint (Lens and market
   rows are reserved slots).
 

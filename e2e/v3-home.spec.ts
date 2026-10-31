@@ -96,7 +96,8 @@ test.describe('Home is the games feed @v3', () => {
     await conf(page, 'SEC').click();
     await expect(page).toHaveURL(/conf=sec/);
     const url = page.url();
-    await cards(page).first().locator('.v3-gc__hit').click();
+    // Tap the card body near its top-left corner: on a 375 pt screen the centre of the card's full-card link is the market-lines button (a separate tap region).
+    await cards(page).first().locator('.v3-gc__hit').click({ position: { x: 24, y: 24 } });
     await expect(page).toHaveURL(/#\/v3\/game\/cfb\//);
     await page.goBack();
     await expect(page).toHaveURL(url);

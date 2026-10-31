@@ -73,7 +73,7 @@ Key rules the code enforces:
 | Screen | Real data | Sample (`?demo=1`) | Honest gaps |
 |---|---|---|---|
 | Home (games feed) | every published sport's games for a day: sport rail, NCAAF/NCAAB conference chips (CFB conference from `src/lib/cfb-conferences.json`, CBB from its team identity), day strip + calendar sheet, time-grouped sections ordered by `model/priority.ts`, Kalshi spread/total/moneyline chips (cents) | full (25-game CFB card with ranks) | **no AP/CFP rank exists in any publication today** (CFBD licence unresolved): the Top 25 chip and rank boosts appear only when a source states a rank. **NFL/CFB/NHL have no licensed live score feed**: in-play games show "Score unavailable" |
-| Game Detail + Switcher | hero (photo or logo-led), phase-aware tabs, switcher rail + picker (favourites pinned), markets with live overlay, Lens from matchup rows, matchup/stats from published ranks, props from Kalshi contracts, script from published theses | adds drive card, play-by-play, 6 matchup rows | live drive/play-by-play need a play feed that does not exist; CFB script engine and box scores are not wired into this view |
+| Game Detail + Switcher | hero (photo or logo-led), phase-aware tabs, switcher rail + picker (favourites pinned), markets with live overlay, Lens from matchup rows, matchup/stats from published ranks, props from Kalshi contracts, script from published theses. **CFB (and any game whose research carries a Script Engine payload): the Overview shows the SIFT Read, the top three opponent-adjusted matchup advantages, the Primary / Secondary / Alternate / Danger scripts (causal chain citing findings), Bets That Survive Multiple Scripts with each side's own Kalshi price, Why this bet (findings for and against) and data confidence; Game Script and Matchup tabs hold the detail** | adds drive card, play-by-play, 6 matchup rows | live drive/play-by-play need a play feed that does not exist; box scores are not wired into this view; a CFB game whose research carries no payload keeps the generic Overview and Props and shows the engine's own status and reason |
 | Team | explorer profile: record from completed games, metric ranks (raw and opponent-adjusted kept apart), results, roster, injuries, schedule | sample record/ranks | CFB has no explorer metrics yet (empty-state wording says so) |
 | Stat Detail | real ranking documents (sortable, windows, definition sheet, related stats, team history chart, per-opponent list) | 6 sample rankings | splits beyond windows are not published; compare mode not built |
 | Player research | NFL (history layer) and NBA/NHL (profile box log) game logs; his Kalshi ladder for the coming game; filters computed from the logs | sample NBA guard | teammate with/without, pace and "projected minutes" filters are **not** offered (no data); adjusted what-if in Replay is explicitly "not available" |
@@ -85,7 +85,20 @@ Key rules the code enforces:
 
 1. The offline/degraded full-state set (the degraded wording and an offline strip exist inline; there is no dedicated screen). The first-run welcome sheet is built.
 2. Stat comparison mode (`27_stat_comparison.png`).
-3. CFB script engine and box scores inside Game Detail.
+3. Box scores inside Game Detail (the CFB Script Engine is restored there, see below). Still missing for CFB: the research-signals rail (Value Watch, Market Disagreement) and the two-script Compare mode of the Game Script tab.
 4. A licensed live-score source for NFL/CFB/NHL (blocked on data rights, not on UI).
 5. Photographic hero art beyond the verified venue photos already pinned in `src/lib/hero` (the mockup photography is not usable).
 6. Virtualised long lists if a day ever exceeds a few hundred cards (Home renders every game of the selected sport and day; each card reads its extras only once near the screen).
+
+## CFB Script Engine in Game Detail
+
+The SIFT 2.0 engine ([CFB_SCRIPT_ENGINE.md](./CFB_SCRIPT_ENGINE.md)) is reused, not rewritten: `src/lib/scriptEngine.ts` decodes `event_research.extensions.script_engine` (and the verified research sidecar of a trimmed event, `src/data/scriptResearch.ts`), `src/lib/scriptMarkets.ts` builds the per-script market cards. v3 adds only presentation and gating:
+
+* `src/v3/data/research/scriptEngine.ts` states the payload per game: `ready` (carries `script_generation`), `unavailable` (the engine's own status and reason), `none`, `loading`.
+* `src/v3/model/capabilities.ts`: CFB's `gameScript` and `gameMatchup` are declared `gated`; `gameCapability(slug, section, { scriptEngine })` opens them for **a game** only when its research carries the payload, for any sport. `tabsFor` (GameDetail.tsx) follows: Overview, Game Script, Matchup, Props for a Script Engine game; Overview and Props otherwise (NFL keeps its five).
+* `src/v3/model/scriptRead.ts`: matchup advantages (the engine's MATCHUP findings, strongest first; an even matchup, which states none, shows its largest published adjusted gaps labelled "no finding"), script cards with causal chains citing findings, surviving bets (scoring contracts excluded), why-this-bet evidence for and against.
+* `src/v3/data/research/scriptPrices.ts`: a script row is a contract **side**. YES is priced by the YES ask, NO by the NO ask (never 1 minus the other), both through the quote gate and the live-quote overlay; a price that fails the gate prints a dash. A tap opens the addressed contract sheet; for a NO row the sheet says its numbers are the contract's YES side.
+* `src/v3/screens/cfb/`: Overview block, Game Script tab, Matchup tab, `cfb.css`.
+
+Language rules hold (tests/v3/scriptOverview.test.tsx, e2e/v3-cfb.spec.ts): scripts are ranked, never given a probability; no +EV, lock or fair price; total and team-total contracts read "Scoring: research only" and are never listed as surviving; every block says "Research only".
+

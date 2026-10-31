@@ -20,6 +20,9 @@ import { MatchupTab } from './GameMatchup';
 import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
 import type { GameCtx } from './GameShared';
 import { DataState } from '../ui/DataState';
+import { CfbMatchupTab } from './cfb/MatchupTab';
+import { CfbScriptTab } from './cfb/ScriptTab';
+import { ScriptOverview } from './cfb/ScriptOverview';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
 
@@ -240,6 +243,11 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
 
 export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
   const g = ctx.g;
+  // A Script Engine game (research carries the payload) has its own Game Script and Matchup views; a sport with the unit matchup (NFL) keeps its own.
+  const engine = ctx.script?.kind === 'ready' && !isReady(g.slug, 'gameMatchup') ? ctx.script.engine : null;
+  if (!isReady(g.slug, 'gameMatchup') && ctx.script?.kind === 'loading' && (tab === 'script' || tab === 'matchup')) return <div className="v3-skel cs-skel" role="status" aria-label="Loading script research" />;
+  if (engine && tab === 'script') return <CfbScriptTab ctx={ctx} engine={engine} />;
+  if (engine && tab === 'matchup') return <CfbMatchupTab ctx={ctx} engine={engine} />;
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
   if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
@@ -247,6 +255,7 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   return (
     <>
+      <ScriptOverview ctx={ctx} onTab={onTab} />
       <WinPrices ctx={ctx} />
       {!detail && !!ctx.detailError ? <DataState title="Market prices unavailable" err={ctx.detailError} retry={ctx.detailRetry} alert>The Kalshi contract list for this game</DataState> : <MarketsRow g={g} startMs={ctx.startMs} loading={g.provenance === 'publication' && !detail} />}
       {g.phase === 'live' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}

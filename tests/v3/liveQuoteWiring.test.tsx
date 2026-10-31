@@ -295,7 +295,7 @@ describe('isolation: SIFT 3.0 reaches the store only through src/v3/data/liveQuo
   it('the scope hooks are used by the screens that print prices, and by no others (Home registers none)', () => {
     const users = v3.filter((p) => p !== THE_ONE && /\b(useRowQuotes|useRowGroups|useContractRefresh|refreshRowsNow)\b/.test(code(p))).map((p) => p.replace(/\\/g, '/')).sort();
     expect(users).toEqual([
-      'src/v3/data/props/hooks.ts', 'src/v3/data/research/gameHooks.ts', 'src/v3/data/useGameExtras.ts', 'src/v3/data/usePlayer.ts', 'src/v3/ui/ContractSheet.tsx',
+      'src/v3/data/props/hooks.ts', 'src/v3/data/research/gameHooks.ts', 'src/v3/data/research/scriptPrices.ts', 'src/v3/data/useGameExtras.ts', 'src/v3/data/usePlayer.ts', 'src/v3/ui/ContractSheet.tsx',
     ]);
     expect(readFileSync(join('src', 'v3', 'screens', 'Home.tsx'), 'utf8')).not.toMatch(/liveQuotes|useLiveQuotes|useRowQuotes/);
     // Home's featured card prints no price: `useGameExtras(…, 'photo')` registers nothing (it asks for no quote)

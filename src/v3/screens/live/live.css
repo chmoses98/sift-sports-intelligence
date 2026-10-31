@@ -1,0 +1,22 @@
+/* Live game block on the Overview (screens/live/LiveGame.tsx). Tokens and panels are the existing v3 ones. */
+.lg-state { padding: 14px; display: grid; gap: 10px; }
+.lg-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.lg-head .v3-h3 { display: flex; align-items: center; gap: 10px; }
+.lg-facts { display: grid; gap: 0; }
+.lg-fact { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: center; min-height: 40px; padding: 6px 0; border-top: 1px solid rgba(41, 48, 55, 0.55); }
+.lg-fact:first-child { border-top: 0; }
+.lg-fact dt { font: 500 13px/18px var(--f-ui); color: var(--sift-muted); }
+.lg-fact dd { font: 600 17px/24px var(--f-ui); color: var(--sift-text); min-width: 0; overflow-wrap: anywhere; }
+.lg-score { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 20px; }
+.lg-score i { font-style: normal; color: var(--sift-muted); margin: 0 -2px; }
+.lg-na { font: 400 14px/20px var(--f-ui); color: var(--sift-muted); }
+.lg-sit { display: inline-flex; align-items: center; gap: 10px; }
+.lg-warn { color: var(--sift-warning); }
+.lg-retry .v3-btn { min-height: 44px; }
+.lg-jump { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; justify-self: start; color: var(--sift-cyan); font: 500 14px/20px var(--f-ui); background: none; }
+.lg-plays li.is-scoring .v3-pbp__d { color: #ffffff; font-weight: 600; }
+.lg-plays .v3-pbp li, .lg-plays li { grid-template-columns: 64px 1fr auto; }
+.lg-leaders { padding: 4px 14px 10px; display: grid; gap: 8px; }
+.lg-lgrp h3 { display: flex; align-items: center; gap: 8px; font: 600 16px/22px var(--f-ui); padding: 8px 0 4px; }
+.lg-lgrp li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid rgba(41, 48, 55, 0.55); font-size: 15px; line-height: 21px; }
+.lg-lgrp li span { color: var(--sift-muted); text-align: right; }

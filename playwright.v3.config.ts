@@ -23,6 +23,11 @@ const ci = !!process.env.CI;
 const chromium = process.env.SIFT_CHROMIUM ?? ['/opt/pw-browsers/chromium-1243/chrome-linux64/chrome'].find(existsSync);
 const port = Number(process.env.V3_PORT || 5173);
 const base = process.env.V3_BASE ?? `http://localhost:${port}/sift-sports-intelligence/`;
+// Live game detail: MLB StatsAPI is BLOCKED-ON-RIGHTS (src/v3/data/live/rights.ts), so a shipped build never reads it. The local dev server the specs start names it
+// (VITE_SIFT_LIVE_DETAIL_SOURCES) so e2e/v3-live.spec.ts can exercise the adapter and screens against stubbed, test-fixture answers; a production build (V3_SERVER=preview,
+// CI) and any other server (V3_BASE) do not, and the same spec then asserts the blocked state and that no request leaves for statsapi.mlb.com.
+const ownDevServer = !process.env.V3_BASE && process.env.V3_SERVER !== 'preview';
+process.env.V3_LIVE_DETAIL_MLB = ownDevServer ? '1' : '';
 const wantWebkit = process.env.V3_WEBKIT === '1' || ci;
 
 const all = [
@@ -47,6 +52,7 @@ export default defineConfig({
     : {
         command: process.env.V3_SERVER === 'preview' ? `node scripts/e2e-preview.mjs --port ${port}` : `npx vite --port ${port} --strictPort`,
         url: base,
+        env: ownDevServer ? { VITE_SIFT_LIVE_DETAIL_SOURCES: 'mlb' } : {},
         reuseExistingServer: !ci,
         timeout: 90_000,
       },

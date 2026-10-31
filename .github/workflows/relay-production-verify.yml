@@ -5,6 +5,11 @@ name: Relay production verification
 # On demand, and on a pull request that changes these two scripts. It does not publish, deploy or write anything.
 on:
   workflow_dispatch:
+    inputs:
+      expect_sha:
+        description: 'Commit the live site must be serving (empty = any)'
+        required: false
+        default: ''
   pull_request:
     paths:
       - scripts/relay-production-verify.mjs
@@ -40,3 +45,5 @@ jobs:
       - name: SIFT 3.0 is the default; Home / Props / Following, game and Back, CFB Script Engine (Chromium phone + WebKit iPhone)
         if: always()
         run: node scripts/v3-production-check.mjs
+        env:
+          SIFT_EXPECT_SHA: ${{ inputs.expect_sha }}

@@ -1,8 +1,13 @@
 import { test, expect, NOW, NEBUF } from '../e2e/fixtures';
 
-// SIFT 2.0 as the default interface. Fixtures and the fixed clock are the shared acceptance ones (external feeds are
+// SIFT 3.0 is the default interface (see e2e-default/v3-default.spec.ts). This file proves the SIFT 2.0 compatibility for a device that CHOSE it (the
+// remembered `sift.ui` choice is seeded once per tab below): classic addresses answer with SIFT 2.0 for that device. Fixtures and the fixed clock are the shared acceptance ones (external feeds are
 // stand-ins), so this proves routing and compatibility, not live data.
-test.beforeEach(async ({ page }) => page.clock.install({ time: NOW }));
+test.beforeEach(async ({ page }) => {
+  // A device that chose SIFT 2.0: seeded once per tab, so `?ui=default` (which forgets the choice) is not undone by a later navigation.
+  await page.addInitScript(() => { try { if (!sessionStorage.getItem('seeded-ui')) { localStorage.setItem('sift.ui', 'sift2'); sessionStorage.setItem('seeded-ui', '1'); } } catch { /* storage blocked */ } });
+  await page.clock.install({ time: NOW });
+});
 
 // WebKit reports a same-origin static fetch (bundled data, hero photographs, logos) that is still in flight when the page
 // navigates or reloads as a pageerror. Playwright splits its text at the first colon, so the error's name is "Fetch API
@@ -49,14 +54,14 @@ test('query strings survive the redirect', async ({ page }) => {
   await expect(page).toHaveURL(/#\/design\/sift2\/props\?sport=mlb$/);
 });
 
-test('?ui=classic keeps the classic interface reachable, remembered in this browser, and ?ui=default restores SIFT 2.0', async ({ page }) => {
+test('?ui=classic keeps the classic interface reachable, remembered in this browser, and ?ui=default restores the default (SIFT 3.0)', async ({ page }) => {
   await page.goto('#/?ui=classic');
   await expect(page.getByRole('heading', { level: 1, name: 'Today on SIFT' })).toBeVisible();
   expect(page.url()).not.toContain('design/sift2');
   await page.goto('#/games');
   await expect(page).toHaveURL(/#\/games$/);
   await page.goto('#/?ui=default');
-  await expect(page).toHaveURL(/#\/design\/sift2\/home$/);
+  await expect(page).toHaveURL(/#\/v3$/);
 });
 
 test('an unknown address renders a page, never a crash or a blank screen', async ({ page, errors }) => {

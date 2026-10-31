@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { createHashRouter, Navigate, Outlet, RouterProvider, useLocation } from './routing';
 import { workspaceTarget } from './lib/workspaceRoutes';
+import { v3Target } from './lib/v3Target';
 import { exitV4, resolveUi } from './lib/uiMode';
 import { V4_ENABLED } from './lib/v4Switch';
 import { Skeleton } from './components/ui';
@@ -91,11 +92,12 @@ export function V4Paused() {
   );
 }
 
-/** Classic addresses answer with SIFT 2.0 when it is the chosen interface (see lib/uiMode.ts); design routes never pass here. */
+/** Classic addresses answer with the interface in force (see lib/uiMode.ts): SIFT 3.0 by default, SIFT 2.0 when it was chosen; design routes never pass here. */
 export function UiGate() {
   const loc = useLocation();
   const mode = resolveUi(loc.search);
   if (mode === 'v4') return <Navigate replace to="/v4" />;
+  if (mode === 'v3') { const q = new URLSearchParams(loc.search); q.delete('ui'); const qs = q.toString(); return <Navigate replace to={v3Target(loc.pathname, qs ? `?${qs}` : '')} />; }
   if (mode !== 'sift2') return <Outlet />;
   const q = new URLSearchParams(loc.search);
   q.delete('ui');

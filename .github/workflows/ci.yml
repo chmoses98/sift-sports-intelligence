@@ -71,7 +71,7 @@ jobs:
         run: npx playwright test
         env:
           CI: 'true'
-      - name: Release configuration — SIFT 2.0 as the default interface (classic addresses redirect, refresh, escape hatch)
+      - name: Release configuration — SIFT 3.0 as the default interface (classic addresses redirect, refresh, escape hatch)
         run: |
           npm run build:e2e:default
           npx playwright test -c playwright.default.config.ts

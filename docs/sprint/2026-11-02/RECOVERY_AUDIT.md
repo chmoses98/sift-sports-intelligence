@@ -36,6 +36,11 @@ The integrated research experience exists: Discover → prop → game-log chart 
 1. **Home All games | Following** filter (`?view=following`): followed teams/games from *all* sports in one time-grouped feed, no sport rail, empty states that explain what to do, Back preserves the filter. Card star is filled when a game is followed through a team.
 2. **Navigation Home | Discover | My SIFT** (was Home | Props | Following); "Props" screen renamed Discover; Following screen retitled My SIFT.
 3. **Discover horizon hints** for sports whose props start after the window.
+4. **Game → Props → research in context**: a prop row on Game Detail opens the Discover research view (history chart with the line drawn, rungs, opponent unit, exact contract) scoped to that game and rung. Verified on real data: AJ Barner receiving yds 30+ (4 of 10 cleared, CHI pass D 13th of 28).
+
+## 5b. Price freshness (observed, important for the demo)
+
+The NFL publication's Kalshi capture for CHI @ SEA is `2026-11-02T01:53:14Z`. About 4.5 h later the quote gate (`src/v3/data/quoteGate.ts`) stopped printing those asks — Discover cards that showed `48¢ ask` at 06:12Z showed `—` at 06:37Z, by design ("never present a stale price as current"). In production the quote relay refreshes the contract; a preview without the relay shows `—` for market price while history and SIFT-model values still render. Screenshots `01`–`04` were taken with fresh captures; `05` shows the gated state. Follow-up: make the "price withheld — capture is N h old" reason visible on the card instead of a bare dash.
 
 ## 6. Not done / punch list
 

@@ -27,6 +27,9 @@ export interface GameCtx {
   script?: ScriptState;
   /** The live feed state of a game in play (data/live/useLiveDetail.ts); absent for a game that is not live. */
   live?: LiveDetailState;
+  /** The Script Engine scenario the Game Script tab shows (the address's `sc`), and how to change it in place. */
+  scenario?: string | null;
+  setScenario?: (id: string | null) => void;
 }
 
 const NO_STAT_UNITS: Record<string, never> = {};

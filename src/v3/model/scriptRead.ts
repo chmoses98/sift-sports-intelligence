@@ -10,6 +10,7 @@ import {
 } from '../../lib/scriptEngine';
 import { splitSentence } from '../../lib/scriptNames';
 import { formatUnitValue, sportUnit, unitText } from '../../insights/sportUnits';
+import { isHavoc, usableFinding, usableMetric } from './havoc';
 
 export { ARCHETYPE_WORD, DIMENSION_WORD, ROLE_INDEX, ROLE_WORD, scriptTitle, findingLabel };
 
@@ -99,7 +100,8 @@ function advantageOf(engine: Engine, dimension: string, side: 'home' | 'away', f
   const other = side === 'home' ? 'away' : 'home';
   const fwd = dirOf(engine, dimension, side);
   const rev = dirOf(engine, dimension, other);
-  const core = fwd?.components?.find((c) => c.tier === 'CORE') ?? fwd?.components?.[0];
+  const usable = (fwd?.components ?? []).filter((c) => !isHavoc(c.metric_id));
+  const core = usable.find((c) => c.tier === 'CORE') ?? usable[0];
   const reg = core ? engine.registry[core.metric_id] : undefined;
   return {
     code: f?.code ?? `gap:${dimension}:${side}`, kind: f ? 'finding' : 'gap', dimension, dimensionWord: DIMENSION_WORD[dimension] ?? dimension.replace(/_/g, ' '),
@@ -120,7 +122,7 @@ function advantageOf(engine: Engine, dimension: string, side: 'home' | 'away', f
 export function topAdvantages(engine: Engine, limit = 3): Advantage[] {
   const seen = new Set<string>();
   const ranked = engine.findings
-    .filter((f): f is Finding & { side: 'home' | 'away' } => f.category === 'MATCHUP' && (f.side === 'home' || f.side === 'away'))
+    .filter((f): f is Finding & { side: 'home' | 'away' } => f.category === 'MATCHUP' && (f.side === 'home' || f.side === 'away') && usableFinding(f))
     .sort((a, b) => (a.strength === b.strength ? 0 : a.strength === 'STRONG' ? -1 : 1) || Math.abs(b.value ?? 0) - Math.abs(a.value ?? 0));
   const out: Advantage[] = [];
   for (const f of ranked) {
@@ -130,7 +132,7 @@ export function topAdvantages(engine: Engine, limit = 3): Advantage[] {
     out.push(advantageOf(engine, f.dimension, f.side, f));
     if (out.length >= limit) return out;
   }
-  const gaps = EDGE_DIMENSIONS.flatMap((d) => (['home', 'away'] as const).map((side) => ({ d, side, edge: dirOf(engine, d, side)?.edge ?? null })))
+  const gaps = EDGE_DIMENSIONS.filter((d) => !(engine.dimensions[d]?.home_offense_vs_away_defense?.components ?? []).some((c) => isHavoc(c.metric_id)) && !(engine.dimensions[d]?.away_offense_vs_home_defense?.components ?? []).some((c) => isHavoc(c.metric_id))).flatMap((d) => (['home', 'away'] as const).map((side) => ({ d, side, edge: dirOf(engine, d, side)?.edge ?? null })))
     .filter((x): x is { d: string; side: 'home' | 'away'; edge: number } => x.edge != null && x.edge > 0 && !seen.has(`${x.d}|${x.side}`))
     .sort((a, b) => b.edge - a.edge);
   for (const x of gaps) {
@@ -164,7 +166,7 @@ const stepOf = (engine: Engine, c: EngineScript['causal_chain'][number]): ChainS
   step: c.step,
   findings: c.findings.flatMap((code) => {
     const f = findingByCode(engine, code);
-    return f ? [{ code, label: findingLabel(engine, code), statement: f.statement, strength: f.strength }] : [];
+    return f && usableFinding(f) ? [{ code, label: findingLabel(engine, code), statement: f.statement, strength: f.strength }] : [];
   }),
 });
 
@@ -176,7 +178,7 @@ export function scriptCards(engine: Engine): ScriptCard[] {
       script: s, role: ROLE_WORD[s.role], title: scriptTitle(s), tone: ROLE_INDEX[s.role], lead: sp.lead, rest: sp.rest,
       archetype: ARCHETYPE_WORD[s.archetype] ?? s.archetype,
       steps: s.causal_chain.map((c) => stepOf(engine, c)),
-      against: s.contradicting_findings.flatMap((code) => { const f = findingByCode(engine, code); return f ? [{ code, label: findingLabel(engine, code), statement: f.statement }] : []; }),
+      against: s.contradicting_findings.flatMap((code) => { const f = findingByCode(engine, code); return f && usableFinding(f) ? [{ code, label: findingLabel(engine, code), statement: f.statement }] : []; }),
     };
   });
 }
@@ -231,7 +233,7 @@ export interface WhyBet {
   correlation: { label: string; relation: string; bothLoseWhen: string | null }[];
 }
 
-const asFinding = (engine: Engine, code: string) => { const f = findingByCode(engine, code); return f ? { code, label: findingLabel(engine, code), statement: f.statement } : null; };
+const asFinding = (engine: Engine, code: string) => { const f = findingByCode(engine, code); return f && usableFinding(f) ? { code, label: findingLabel(engine, code), statement: f.statement } : null; };
 const nn = <T,>(x: T | null | undefined): x is T => x != null;
 
 /** The evidence behind one row: findings for and against, the scripts that contradict it, and the metrics those findings cite. */
@@ -249,7 +251,7 @@ export function whyBet(engine: Engine, e: Expression, labelOf: (id: string) => s
     paysWhen: winsWhenText(e, engine),
     metrics: refs.flatMap((ref) => {
       const row = metricAt(engine, ref);
-      if (!row) return [];
+      if (!row || !usableMetric(row)) return [];
       const reg = engine.registry[row.metric_id];
       const u = sportUnit(row.metric_id, reg, 'CFB');
       const v = row.adjusted_available ? `${formatUnitValue(row.adjusted, u)} adjusted` : `${formatUnitValue(row.raw, u)} raw, not adjusted`;

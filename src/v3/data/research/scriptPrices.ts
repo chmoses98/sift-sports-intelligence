@@ -14,7 +14,8 @@ import { cleanDescription } from '../../ui/gameContracts';
 import { priceOf } from '../adapt';
 import { overlayLive } from '../liveMarket';
 import { useRowQuotes } from '../liveQuotes';
-import { usablePrice } from '../quoteGate';
+import { explainGate, gate, usablePrice, type PriceWhy } from '../quoteGate';
+import { clockTime } from '../../model/time';
 
 export type Side = 'YES' | 'NO';
 
@@ -41,6 +42,27 @@ export function useSideAsks(g: V3Game | null, detail: EventDetailDoc | null | un
     const m = byTicker.get(ticker);
     if (!g || !m) return null;
     return usablePrice(sidePriceOf(overlayLive(m, live.quote(ticker)), side), { kind: 'list', startMs, live: g.phase === 'live' }, now)?.ask ?? null;
+  }, [g, byTicker, live.version, startMs, now]); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
+/** What a side's price tap shows: the ask the gate allows, or why it is withheld ("Price 4 h old", "No ask listed", "Market closed"), in the gate's own words. */
+export interface SideQuote { ask: number | null; why: PriceWhy | null }
+
+/**
+ * `quote(ticker, side)`: like `useSideAsks`, but a withheld price carries the reason the quote gate gave (explainGate), so a dash on screen always says why.
+ * Same rows scope, same gate, same overlay: nothing is relaxed or derived.
+ */
+export function useSideQuotes(g: V3Game | null, detail: EventDetailDoc | null | undefined, startMs: number | null, tickers: string[]): (ticker: string, side: Side) => SideQuote {
+  const live = useRowQuotes(tickers.length ? tickers : undefined, { startMs, live: g?.phase === 'live' });
+  const byTicker = useMemo(() => new Map<string, Market>((detail?.markets ?? []).map((m) => [m.kalshi_ticker, m])), [detail]);
+  const now = useNow(15_000);
+  return useCallback((ticker, side) => {
+    const m = byTicker.get(ticker);
+    if (!g) return { ask: null, why: null };
+    if (!m) return { ask: null, why: { short: 'Not listed', detail: 'Kalshi does not list this contract in the published market list for this game.', observedAt: null, retry: false } };
+    const ctx = { kind: 'list' as const, startMs, live: g.phase === 'live' };
+    const r = gate(sidePriceOf(overlayLive(m, live.quote(ticker)), side), ctx, now);
+    return { ask: r.price?.ask ?? null, why: r.price ? null : explainGate(r, ctx, now, (ms) => clockTime(ms)) };
   }, [g, byTicker, live.version, startMs, now]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 

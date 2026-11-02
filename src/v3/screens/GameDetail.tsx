@@ -188,10 +188,10 @@ export function GameDetail() {
     );
   }
   // Switching tab is an in-place change (history replaced). Leaving the unit view is part of it; direction and Lens state are kept.
-  const setTab = (t: GameTab) => setSt({ tab: t, unit: null });
+  const setTab = (t: GameTab, scenario?: string) => setSt({ tab: t, unit: null, sc: scenario ?? null });
   // Back out of an expanded unit: the list entry below is exactly as it was left. A shared link into a unit has none, so it closes the unit.
   const backFromUnit = () => { if (loc.key !== 'default') nav(-1); else setSt({ unit: null }); };
-  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry, script, live };
+  const ctx: GameCtx = { g, startMs, detail: detail.data ?? null, research: research.data ?? null, researchLoading: research.loading, detailError: detail.error, detailRetry: detail.retry, researchError: research.error, researchRetry: research.retry, script, live, scenario: st.sc, setScenario: (id) => setSt({ sc: id }) };
   return (
     <div className="v3-gd">
       {unitOpen ? <UnitBar g={g} back={backFromUnit} startMs={startMs} /> : (

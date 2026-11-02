@@ -53,9 +53,16 @@ test.describe('CFB Script Engine in Game Detail @v3', () => {
     await expect(readCard).toBeVisible();
     await expect(readCard).toContainText(se.sift_read.headline);
     await expect(readCard).toContainText('Research only');
+    // the hero is the primary script: ranked (no probability), three reasons at most, and the engine's best expression with its own price
+    await expect(page.getByTestId('cfb-hero-script')).toContainText('Primary');
+    await expect(page.getByTestId('cfb-hero-script')).toContainText(/Ranked 1 of \d+ by matchup evidence/);
+    expect(await page.getByTestId('cfb-hero-script').locator('.cs-why3 li').count()).toBeLessThanOrEqual(3);
+    await expect(page.getByTestId('cfb-hero-expr').locator('a.cs-px')).toHaveText(/(YES|NO)\s*\d+¢/);
+    await readCard.getByText('The full read and caveats').click();
     await expect(readCard).toContainText(se.sift_read.points[0].text);
 
     await expect(page.getByTestId('cfb-advantage')).toHaveCount(3);
+    await page.getByTestId('cfb-advantage').first().getByText('What it measures and why it matters').click();
     await expect(page.getByTestId('cfb-advantages')).toContainText('What it measures');
     await expect(page.getByTestId('cfb-advantages')).toContainText('Why it matters');
     await expect(page.getByTestId('cfb-advantages')).toContainText(/#\d+ of \d+/);
@@ -63,17 +70,20 @@ test.describe('CFB Script Engine in Game Detail @v3', () => {
     const scripts = page.getByTestId('cfb-script');
     await expect(scripts).toHaveCount(se.game_scripts.length);
     await expect(scripts.first()).toContainText('Primary');
-    await expect(scripts.first().locator('.cs-chain li').first()).toBeVisible();
-    await scripts.first().getByText(/Full causal chain/).click();
-    await expect(scripts.first().locator('.cs-fn').first()).toBeVisible();
+    // scenarios are one-line tiles; each opens the Game Script tab on it
+    await expect(scripts.first().locator('.cs-rolechip')).toHaveText('Primary');
+    await expect(page.getByTestId('cfb-pace')).toContainText('Pace & efficiency');
+    await expect(page.getByTestId('cfb-markets')).toContainText('Research only');
 
     const surv = page.getByTestId('cfb-survivors');
     await expect(surv).toContainText('Bets That Survive Multiple Scripts');
     await expect(surv).toContainText('Scoring: research only');
     await expect(surv.getByTestId('cfb-survivor').first()).toContainText(/Supported by/);
+    await surv.getByText('Why this bet').first().click();
     await expect(surv.getByRole('region', { name: 'Why this bet' }).first()).toContainText('Supporting evidence');
     await expect(surv.getByRole('region', { name: 'Why this bet' }).first()).toContainText('Counterarguments');
     await expect(page.getByTestId('cfb-confidence')).toContainText(/data confidence/i);
+    await page.getByTestId('cfb-confidence').getByText('What was checked').click();
     await expect(page.getByTestId('cfb-confidence')).toContainText('Opponent-adjusted inputs exist');
 
     const text = await page.locator('[data-v3-shell]').innerText();
@@ -121,11 +131,13 @@ test.describe('CFB Script Engine in Game Detail @v3', () => {
     await page.getByRole('tab', { name: 'Game Script' }).click();
     const tab = page.getByTestId('cfb-script-tab');
     await expect(tab).toBeVisible();
-    await expect(tab).toContainText('Causal chain');
+    await expect(tab).toContainText('Why it happens');
+    await expect(tab).toContainText('What breaks it');
+    await expect(tab).toContainText('Ways to play this scenario');
+    await expect(tab).toContainText('Full causal chain');
     await expect(tab).toContainText('Outcome shape');
-    await expect(tab).toContainText('Markets this script settles');
-    await expect(tab).toContainText('No probability is published');
-    const pick = page.getByRole('group', { name: 'Script' }).getByRole('button');
+    await expect(tab).toContainText('publishes no probability');
+    const pick = page.getByRole('group', { name: 'Scenario' }).getByRole('button');
     expect(await pick.count()).toBeGreaterThanOrEqual(2);
     await pick.nth(1).click();
     await expect(pick.nth(1)).toHaveAttribute('aria-pressed', 'true');
@@ -161,6 +173,7 @@ test.describe('CFB Script Engine in Game Detail @v3', () => {
     // this publication trimmed only correlations and metric descriptions: the matchup tables are whole, so no "unavailable" notice, and the advantages still say what each metric measures
     await expect(page.getByTestId('cs-detail-unavailable')).toHaveCount(0);
     await expect(page.getByTestId('cfb-advantage')).toHaveCount(3);
+    await page.getByTestId('cfb-advantage').first().getByText('What it measures and why it matters').click();
     await expect(page.getByTestId('cfb-advantages')).toContainText('What it measures');
     await noSideways(page);
   });

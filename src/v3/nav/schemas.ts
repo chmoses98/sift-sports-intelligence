@@ -134,6 +134,8 @@ export const gameSchema = defineSchema({
     unit: f.str(null, 24),
     /** Matchup tab: the detailed tug-of-war chart instead of the readable sentences (the default). */
     chart: f.bool(false),
+    /** Game Script tab (Script Engine games): the selected scenario's id. */
+    sc: f.str(null, 40),
   },
   migrations: {
     0: (q) => {

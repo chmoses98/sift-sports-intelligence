@@ -80,12 +80,15 @@ describe('matchup advantages', () => {
     const e = engineOf(LSU_UK);
     const top = topAdvantages(e, 3);
     expect(top).toHaveLength(3);
-    expect(top.every((a) => a.kind === 'finding')).toBe(true);
+    // this game's strongest finding rests on havoc: it is never an advantage, so two findings lead and the next largest published gap fills the third
+    expect(e.findings.some((f) => f.category === 'MATCHUP' && f.metric_refs.some((r) => /havoc/.test(r)))).toBe(true);
+    expect(top.map((a) => a.kind)).toEqual(['finding', 'finding', 'gap']);
+    expect(top.some((a) => a.dimension === 'disruption')).toBe(false);
     const keys = top.map((a) => `${a.dimension}|${a.side}`);
     expect(new Set(keys).size).toBe(keys.length);
     const order = top.map((a) => (a.strength === 'STRONG' ? 0 : 1));
     expect(order).toEqual([...order].sort());
-    for (const a of top) {
+    for (const a of top.filter((x) => x.kind === 'finding')) {
       const f = e.findings.find((x) => x.code === a.code)!;
       expect(f.category).toBe('MATCHUP');
       expect(a.statement).toBe(f.statement);

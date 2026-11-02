@@ -41,7 +41,7 @@ export function nbaCurrency(p: EntityProfileDoc | null | undefined, now: number)
   if (blend && games <= 0) reasons.push('No games of this season are in the ratings.');
   const t = asOf ? Date.parse(asOf) : NaN;
   if (!Number.isFinite(t)) reasons.push('The publication gives no as-of time.');
-  else if (now - t > MAX_AGE_DAYS * 86_400_000) reasons.push(`The newest game in the publication is from ${asOf!.slice(0, 10)}, over ${MAX_AGE_DAYS} days ago.`);
+  else if (now - t > MAX_AGE_DAYS * 86_400_000) reasons.push(`The newest game in the publication is from ${asOf!.slice(0, 10)}, more than ${MAX_AGE_DAYS} days before now.`);
   return { ok: reasons.length === 0, reasons, season: p.season, asOf, games };
 }
 

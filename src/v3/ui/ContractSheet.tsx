@@ -24,6 +24,7 @@ import { nonTradableNote, nonTradableTitle, sheetNamesStatus, type MarketState }
 import type { Price } from '../model/types';
 import { withSheet } from '../nav/routes';
 import { usePrefs } from '../state/prefs';
+import { WatchButton } from './WatchButton';
 import { registerSheet } from './Sheet';
 import { TeamLogo } from './TeamLogo';
 import './ContractSheet.css';
@@ -119,7 +120,7 @@ function ContractBody({ tk }: { tk: string | null }) {
         <b>{info?.title ?? live.quote(tk)?.title ?? 'Contract'}</b>
         {info?.subtitle && <span>{info.subtitle}</span>}
       </header>
-      <div className="v3c-tick" aria-label="Contract ticker"><code>{tk}</code></div>
+      <div className="v3c-tick" aria-label="Contract ticker"><code>{tk}</code><WatchButton ticker={tk} title={info?.title ?? live.quote(tk)?.title ?? 'Contract'} subtitle={info?.subtitle ?? ''} startMs={info?.startMs ?? null} pathname={loc.pathname} search={loc.search} className="v3c-watch" /></div>
 
       {f ? (
         <>

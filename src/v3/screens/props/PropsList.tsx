@@ -16,6 +16,7 @@ import { findSaved } from '../../model/saved';
 import { routes } from '../../nav/routes';
 import { PropsLink } from '../../nav/Targets';
 import { removeSaved, saveResearch, useSaved } from '../../state/prefs';
+import { useRecordView } from '../../state/useRecordView';
 import { ChipRail } from '../../ui/ChipRail';
 import { Icon } from '../../ui/Icon';
 import { useSheet } from '../../ui/Sheet';
@@ -24,8 +25,8 @@ import { usePublishContracts } from './contracts';
 import { FilterSheet } from './FilterSheet';
 import { HorizonBar } from './HorizonBar';
 import { chipBeside, columnWidth, GROUP_H, PEEK_EST, resetMeasure, rowHeight } from './layout';
-import { Peek, type PeekBits } from './Peek';
-import { availWord, Avatar, chipText, lanesFor, LaneLine, Mark, NameLine, OppChip, playerRef, PricePill, statText, type Lanes } from './parts';
+import { Peek, propResearchRoute, type PeekBits } from './Peek';
+import { availWord, Avatar, gameText, chipText, lanesFor, LaneLine, Mark, NameLine, OppChip, playerRef, PricePill, statText, type Lanes } from './parts';
 import { VirtualList } from './VirtualList';
 
 export type SetState = (patch: Partial<ListState>, o?: { push?: boolean }) => void;
@@ -189,6 +190,9 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
   }, [list, ctx, chipOf, colW, fonts, sortHist]); // eslint-disable-line react-hooks/exhaustive-deps -- `fonts` re-measures when a web font arrives
   const expRef = parseRef(st.exp);
   const expProp = expRef ? universe.byId.get(expRef.id) ?? null : null;
+  // An expanded prop is research the viewer opened: it goes to My SIFT's Recent with the selected line (`exp=<id>@<rung>`).
+  const expK = expProp ? expRef?.k ?? expProp.featured : 0;
+  useRecordView(expProp ? { route: propResearchRoute(expProp, expK), title: `${expProp.name} · ${expProp.abbr} ${expK}+`, subtitle: gameText(expProp), kind: 'research', slug: expProp.slug } : null);
 
   // ---- History: ranked or filtered over the whole list only when asked; otherwise lazily for the rows on screen
   const needsHist = sort === 'hist' || historyFilterOn(st);

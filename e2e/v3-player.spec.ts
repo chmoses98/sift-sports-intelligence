@@ -36,7 +36,14 @@ const backTo = async (page: Page, before: Awaited<ReturnType<typeof snap>>) => {
 };
 /** Freshness is never shown: no age, no "ago", no "last updated", no stale badge, anywhere on the screen. */
 const noFreshnessText = async (page: Page) => {
-  const text = await page.locator('[data-v3-shell]').innerText();
+  // A withheld quote may show its last observation time in the explicitly labelled reason.
+  // Shown prices and the rest of the page must still have no freshness badge or age.
+  const text = await page.locator('[data-v3-shell]').evaluate((el) => {
+    const notes = Array.from(el.querySelectorAll('.v3c-why')).map((n) => n.textContent ?? '');
+    let visible = (el as HTMLElement).innerText;
+    for (const note of notes) visible = visible.replace(note, '');
+    return visible;
+  });
   expect(text).not.toMatch(/\bago\b|\bstale\b|last updated|last known|updated \d|\d+\s?(s|sec|min|mins|minutes|h|hr|hours)\s+old\b|as of \d/i);
 };
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);

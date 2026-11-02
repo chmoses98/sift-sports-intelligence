@@ -215,6 +215,8 @@ export const homeSchema = defineSchema({
     sport: f.str(null, 8),
     conf: f.str(null, 24),
     date: f.str(null, 10),
+    /** 'following' filters Home to followed teams and games across every sport; null is All games. */
+    view: f.str(null, 9),
   },
 });
 

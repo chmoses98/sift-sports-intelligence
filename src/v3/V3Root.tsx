@@ -23,8 +23,8 @@ import { applyV3FetchBounds } from './data/early';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/v3', label: 'Home', icon: 'home', end: true },
-  { to: '/v3/props', label: 'Props', icon: 'trend' },
-  { to: '/v3/following', label: 'Following', icon: 'following' },
+  { to: '/v3/props', label: 'Discover', icon: 'trend' },
+  { to: '/v3/following', label: 'My SIFT', icon: 'following' },
 ];
 
 /** Which of the three tabs a route belongs to. Detail screens keep the tab they were opened from (the last primary tab visited). */

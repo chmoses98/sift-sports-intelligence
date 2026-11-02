@@ -7,7 +7,7 @@ import { useConferenceGames } from '../data/conference';
 import { useSlate } from '../data/useSlate';
 import { conferencesIn, confToken, isCollege, matchesConference, resolveFilter } from '../model/conference';
 import { buildSchedule, dayParts, dayStrip, DAY_KEY, gamesOnDay, jumpTargets, pickSport, sportChips, sportLabel, type Section, type SportChip } from '../model/homeFeed';
-import { anyRanked, emptyMemory, type Memory } from '../model/priority';
+import { anyRanked, emptyMemory, followsGame, type Memory } from '../model/priority';
 import { dayKey, keyLabel, keyWord, shiftDayKey } from '../model/time';
 import { homeSchema } from '../nav/schemas';
 import { setPrefs, useAlerts, useFollows, usePrefs } from '../state/prefs';
@@ -64,9 +64,12 @@ export function Home() {
   // The day's games, the sports that have any, and the sport shown: the address, else this device's last choice, else the first sport in play.
   const dayGames = useMemo(() => gamesOnDay(games, day, today), [games, day, today]);
   const chips = useMemo(() => sportChips(dayGames), [dayGames]);
-  const sport = pickSport(st.sport, prefs.homeSport, chips);
+  // All games | Following: Following shows only followed teams and games, across every sport at once (no sport rail), and lives in the address.
+  const following = st.view === 'following';
+  const followedDay = useMemo(() => dayGames.filter((g) => followsGame(g, follows)), [dayGames, follows]);
+  const sport = following ? null : pickSport(st.sport, prefs.homeSport, chips);
   const rail: SportChip[] = useMemo(() => (sport && !chips.some((c) => c.slug === sport) ? [...chips, { slug: sport, label: sportLabel(sport.toUpperCase()), live: 0, count: 0 }] : chips), [chips, sport]);
-  const inSport = useMemo(() => dayGames.filter((g) => g.slug === sport), [dayGames, sport]);
+  const inSport = useMemo(() => (following ? followedDay : dayGames.filter((g) => g.slug === sport)), [following, followedDay, dayGames, sport]);
 
   // College sports: conference identity loads when one is selected; the filter applies the moment it has.
   const college = !!sport && isCollege(sport);
@@ -80,11 +83,11 @@ export function Home() {
   // The order the viewer has seen, kept between refreshes so a score change moves a card only when its tier changes (model/priority.ts).
   const memory = useRef<{ key: string; mem: Memory }>({ key: '', mem: emptyMemory() });
   const sections = useMemo(() => {
-    const key = `${sport}|${day}|${conf}`;
+    const key = `${following ? 'following' : sport}|${day}|${conf}`;
     const r = buildSchedule(shown, follows, memory.current.key === key ? memory.current.mem : undefined);
     memory.current = { key, mem: r.memory };
     return r.sections;
-  }, [shown, follows, sport, day, conf]);
+  }, [shown, follows, sport, day, conf, following]);
   const jumps = useMemo(() => jumpTargets(sections), [sections]);
 
   const [closed, setClosed] = useState<Record<string, boolean>>({});
@@ -107,9 +110,11 @@ export function Home() {
 
   const days = useMemo(() => dayStrip(today, day), [today, day]);
   const nextDay = useMemo(() => {
-    const later = games.filter((g) => g.slug === sport && (dayKey(g.startMs) ?? '') > day).map((g) => dayKey(g.startMs) ?? '').sort();
+    const later = games.filter((g) => (following ? followsGame(g, follows) : g.slug === sport) && (dayKey(g.startMs) ?? '') > day).map((g) => dayKey(g.startMs) ?? '').sort();
     return later[0] ?? null;
-  }, [games, sport, day]);
+  }, [games, sport, day, following, follows]);
+  const noFollows = !follows.teams.length && !follows.games.length;
+  const setView = (v: 'all' | 'following') => update({ view: v === 'following' ? 'following' : null });
   const waiting = loading && !games.length;
   const confPending = college && !ready;
   const anyOpen = sections.some((s) => s.kind !== 'final');
@@ -144,7 +149,19 @@ export function Home() {
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 
-      {rail.length > 0 && (
+      <div className="v3-seg" role="tablist" aria-label="Games shown">
+        <button type="button" role="tab" aria-selected={!following} onClick={() => setView('all')}>All games</button>
+        <button type="button" role="tab" aria-selected={following} onClick={() => setView('following')}>Following{!noFollows && <i>{follows.teams.length + follows.games.length}</i>}</button>
+      </div>
+
+      {following && !waiting && noFollows && (
+        <div className="v3-state" style={{ marginTop: 12 }}><Icon name="following" size={20} /><div>
+          <b>Follow teams to build your feed</b>Tap the star on any game card to follow a team or game. Followed teams from every sport appear together here.
+          <br /><button type="button" onClick={() => setView('all')}>Browse all games</button>
+        </div></div>
+      )}
+
+      {!following && rail.length > 0 && (
         <ChipRail className="v3-rail" role="tablist" aria-label="Sport">
           {rail.map((c) => (
             <button key={c.slug} type="button" role="tab" aria-selected={sport === c.slug} className="v3-rail__t" onClick={() => pickSportChip(c.slug)}>
@@ -170,7 +187,16 @@ export function Home() {
         </nav>
       )}
 
-      {!waiting && !confPending && !unavailable && sections.length === 0 && (
+      {!waiting && !confPending && !unavailable && sections.length === 0 && following && !noFollows && (
+        <div className="v3-state" style={{ marginTop: 12 }}><Icon name="calendar" size={20} /><div>
+          <b>None of your teams play {day === today ? 'today' : `on ${keyLabel(day)}`}</b>
+          {nextDay && <><br /><button type="button" onClick={() => pickDay(nextDay)}>Next followed game: {keyWord(nextDay, today)}</button></>}
+          {day !== today && <><br /><button type="button" onClick={() => pickDay(today)}>Back to today</button></>}
+          <br /><button type="button" onClick={() => setView('all')}>Browse all games</button>
+        </div></div>
+      )}
+
+      {!waiting && !confPending && !unavailable && sections.length === 0 && !following && (
         <div className="v3-state" style={{ marginTop: 12 }}><Icon name="calendar" size={20} /><div>
           <b>Nothing here</b>
           {sport ? `No published ${sportLabel(sport.toUpperCase())} games ${day === today ? 'today' : `on ${keyLabel(day)}`}${conf === 'all' ? '' : ' for this filter'}.` : `No published games ${day === today ? 'today' : `on ${keyLabel(day)}`}.`}

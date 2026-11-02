@@ -299,3 +299,9 @@
 .v3 .pd-grp p { margin: 0; font: 400 11.5px/14px var(--f-ui); color: var(--sift-muted); }
 .v3 .pd-grp.is-unranked h2 { color: var(--sift-muted); }
 .v3 .pd-hc.is-none { color: var(--sift-dim); font-weight: 500; }
+
+/* Sports whose props start after the chosen window: one tap reaches them. */
+.v3 .pd-hz__next { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.v3 .pd-hz__next button { width: 100%; min-height: 44px; padding: 8px 12px; text-align: left; border-radius: 12px; border: 1px solid rgba(41, 48, 55, 0.9); background: rgba(22, 27, 33, 0.9); color: #d4d9de; font: 400 13px/18px var(--f-ui); }
+.v3 .pd-hz__next b { color: #fff; font-weight: 600; margin-right: 4px; }
+.v3 .pd-hz__next u { display: block; text-decoration: none; color: var(--sift-cyan); font-weight: 600; }

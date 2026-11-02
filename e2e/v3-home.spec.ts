@@ -27,7 +27,7 @@ test.describe('Home is the games feed @v3', () => {
     expect(text).not.toMatch(/for you|spotlight/i);
     await expect(page.getByRole('link', { name: 'Search', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /Choose a date\. Showing Today/ })).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link')).toHaveText(['Home', 'Props', 'Following']);
+    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link')).toHaveText(['Home', 'Discover', 'My SIFT']);
     await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
   });
 
@@ -89,6 +89,32 @@ test.describe('Home is the games feed @v3', () => {
     // Other sports have no conference chips.
     await tabs(page).filter({ hasText: 'NFL' }).click();
     await expect(page.locator('.v3-chips--conf')).toHaveCount(0);
+  });
+
+  test('All games | Following is a filter on Home: followed games from every sport appear together, it lives in the address, and unfollowing empties it', async ({ page }) => {
+    await go(page, '/v3?demo=1');
+    await expect(cards(page).first()).toBeVisible();
+    const seg = page.getByRole('tablist', { name: 'Games shown' });
+    await expect(seg.getByRole('tab', { name: 'All games' })).toHaveAttribute('aria-selected', 'true');
+    // Follow a game in NBA, then one in NCAAF.
+    await page.getByRole('button', { name: /^Follow / }).first().click();
+    await tabs(page).filter({ hasText: 'NCAAF' }).click();
+    await expect(cards(page).first()).toBeVisible();
+    await page.getByRole('button', { name: /^Follow / }).first().click();
+    await seg.getByRole('tab', { name: /Following/ }).click();
+    await expect(page).toHaveURL(/view=following/);
+    await expect(tabs(page)).toHaveCount(0); // no sport rail in the Following filter
+    const leagues = await cards(page).locator('.v3-gc__lg').allTextContents();
+    expect(new Set(leagues)).toEqual(new Set(['NBA', 'NCAAF']));
+    // Back out of a game returns to the filter.
+    await cards(page).first().locator('.v3-gc__hit').click({ position: { x: 24, y: 24 } });
+    await page.goBack();
+    await expect(page).toHaveURL(/view=following/);
+    // Unfollow everything: the filter says what to do instead of showing an empty page.
+    while (await page.getByRole('button', { name: /^Unfollow / }).count()) await page.getByRole('button', { name: /^Unfollow / }).first().click();
+    await expect(page.getByText('Follow teams to build your feed')).toBeVisible();
+    await seg.getByRole('tab', { name: 'All games' }).click();
+    await expect(tabs(page).first()).toBeVisible();
   });
 
   test('opening a game and coming Back restores the sport, conference and day', async ({ page }) => {

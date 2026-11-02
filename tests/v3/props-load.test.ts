@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { BoardItem } from '../../src/contract/types';
 import { nameKey } from '../../src/insights/context';
 import { availabilityBank, availKey, pendingKeys, withAvailability, type Sidelined } from '../../src/v3/data/props/availability';
-import { capGames, costText, gameCostBytes, GZ_BYTES_PER_MARKET, HORIZON_MS, horizonCounts, MAX_GAMES } from '../../src/v3/data/props/horizon';
+import { capGames, costText, gameCostBytes, GZ_BYTES_PER_MARKET, HORIZON_MS, horizonCounts, MAX_GAMES, sportsBeyond } from '../../src/v3/data/props/horizon';
 import { LazyBank } from '../../src/v3/data/props/lazyBank';
 import { buildUniverse, loadProgressive, propGames, publishablePrefix, summarize, type GameResult } from '../../src/v3/data/props/load';
 import { comparator, histClassOf, histSummary, listProps, type ListState, type QueryCtx } from '../../src/v3/data/props/query';
@@ -279,4 +279,15 @@ describe('History: evaluated against not evaluated', () => {
     const sorted = [...props].sort(comparator('hist', ctx));
     expect(new Set(sorted.map((p) => p.id)).size).toBe(props.length);
   });
+  it('names a sport whose props start only after the window, with its next game and the horizon that reaches it', () => {
+    const mk = (slug: string, sport: string, hours: number) => ({ key: `${slug}:${hours}`, slug, sport, phase: 'pregame', startMs: NOW + hours * 3600_000 }) as unknown as V3Game;
+    const eligible = [mk('nba', 'NBA', 5), mk('nfl', 'NFL', 60), mk('nfl', 'NFL', 63), mk('nhl', 'NHL', 24 * 9)];
+    const b = sportsBeyond(eligible, NOW, '48h');
+    expect(b.map((x) => [x.slug, x.needs, x.games])).toEqual([['nfl', '7d', 2], ['nhl', 'all', 1]]);
+    expect(sportsBeyond(eligible, NOW, '7d').map((x) => x.slug)).toEqual(['nhl']);
+    expect(sportsBeyond(eligible, NOW, 'all')).toEqual([]);
+    // A sport that already has props inside the window is never listed.
+    expect(sportsBeyond([...eligible, mk('nfl', 'NFL', 3)], NOW, '48h').map((x) => x.slug)).toEqual(['nhl']);
+  });
+
 });

@@ -94,7 +94,7 @@ export function PropsHome({ us, onHorizon }: { us: UniverseState; onHorizon: (h:
     <div className="pd pd-home" data-view="home">
       <header className="pd-h">
         <div className="pd-h__tt">
-          <h1>Props</h1>
+          <h1>Discover</h1>
           <span className="pd-h__tr"><SearchButton /><Link to={withOnce(routes.props({ view: 'list' }), 'filters')} className="v3-iconbtn" aria-label="Sort and filter" data-tap="props"><Icon name="sliders" size={22} /></Link></span>
         </div>
         <div className="pd-h__sub">{dayWord(now)} · {s.games} game{s.games === 1 ? '' : 's'}{universe.complete ? '' : ' so far'} · {s.props} props · {s.contracts} contracts</div>

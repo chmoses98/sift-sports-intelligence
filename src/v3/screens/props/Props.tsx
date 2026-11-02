@@ -30,7 +30,7 @@ export function Props() {
   if (!universe) {
     return (
       <div className="pd" data-view="loading">
-        <header className="pd-h"><div className="pd-h__tt"><h1>Props</h1></div><div className="pd-h__sub">{loading ? 'Reading today’s contracts…' : ''}</div></header>
+        <header className="pd-h"><div className="pd-h__tt"><h1>Discover</h1></div><div className="pd-h__sub">{loading ? 'Reading today’s contracts…' : ''}</div></header>
         {loading ? (
           <div className="pd-skel" role="status" aria-label="Loading props"><div className="v3-skel" style={{ height: 44 }} /><div className="v3-skel" style={{ height: 36 }} /><div className="v3-skel" style={{ height: 150 }} /><div className="v3-skel" style={{ height: 150 }} /></div>
         ) : (
@@ -43,7 +43,7 @@ export function Props() {
   if (universe.props.length === 0 && universe.unreadable.length > 0 && !universe.demo) {
     return (
       <div className="pd" data-view="unavailable">
-        <header className="pd-h"><div className="pd-h__tt"><h1>Props</h1></div></header>
+        <header className="pd-h"><div className="pd-h__tt"><h1>Discover</h1></div></header>
         <DataState title="Props unavailable" why={`the contract lists for ${universe.unreadable.slice(0, 4).join(', ')}${universe.unreadable.length > 4 ? ` and ${universe.unreadable.length - 4} more` : ''} could not be read`} retry={retry} alert>The player props</DataState>
       </div>
     );

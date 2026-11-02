@@ -43,3 +43,23 @@ export function horizonCounts(eligible: V3Game[], now: number): Record<Horizon, 
 export function capGames<T>(games: T[], max = MAX_GAMES): { games: T[]; omitted: number } {
   return games.length <= max ? { games, omitted: 0 } : { games: games.slice(0, max), omitted: games.length - max };
 }
+
+export interface BeyondSport { slug: string; label: string; sport: string; startMs: number; games: number; /** The shortest horizon that reaches this sport's next game. */ needs: Horizon }
+
+/**
+ * Sports that list player props for games starting AFTER the chosen horizon but have none inside it: the discovery screen would otherwise show no
+ * trace of them (NFL on a Tuesday: the next slate is more than 48 hours away). Each names its next game and the horizon that reaches it, so the
+ * viewer can go there in one tap. Pure: the eligible list and the clock are passed in.
+ */
+export function sportsBeyond(eligible: V3Game[], now: number, horizon: Horizon): BeyondSport[] {
+  if (horizon === 'all') return [];
+  const within = new Set(eligible.filter((g) => startsWithin(g, now, horizon)).map((g) => g.slug));
+  const out = new Map<string, BeyondSport>();
+  for (const g of [...eligible].sort((a, b) => a.startMs - b.startMs)) {
+    if (within.has(g.slug) || startsWithin(g, now, horizon)) continue;
+    const cur = out.get(g.slug);
+    if (cur) { cur.games++; continue; }
+    out.set(g.slug, { slug: g.slug, label: g.sport, sport: g.sport, startMs: g.startMs, games: 1, needs: startsWithin(g, now, '7d') ? '7d' : 'all' });
+  }
+  return [...out.values()].sort((a, b) => a.startMs - b.startMs);
+}

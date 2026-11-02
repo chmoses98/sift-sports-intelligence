@@ -174,7 +174,7 @@ for (const screen of SCREENS) {
           // 3. real mode never shows sample data
           expect(cell.sample, 'sample data in real mode').toBe(false);
           // 4. the rest of the app is alive
-          await page.getByRole('link', { name: 'Following' }).first().click();
+          await page.getByRole('link', { name: 'My SIFT' }).first().click();
           await expect(page).toHaveURL(/#\/v3\/following/);
           // 5. a failing PRIMARY document is said out loud
           if (primary && mode !== 'empty') expect(r.honest, `no honest unavailable state for the failed ${kind}`).toBe(true);

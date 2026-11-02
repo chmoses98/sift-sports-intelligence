@@ -13,7 +13,7 @@ import { refreshRowsNow, useRowGroups, type RowGroup } from '../liveQuotes';
 import { useSlate } from '../useSlate';
 import { availabilityBank, pendingKeys, withAvailability } from './availability';
 import { historyBank, logRefOf, useHistoryBank, type BankEntry } from './bank';
-import { capGames, horizonCounts, startsWithin, type Horizon, type HorizonCount } from './horizon';
+import { capGames, horizonCounts, sportsBeyond, startsWithin, type BeyondSport, type Horizon, type HorizonCount } from './horizon';
 import { recentValues } from './history';
 import { useBankVersion } from './lazyBank';
 import { anyStale, eligibleGames, forgetUnreadable, loadProgressive, peekProgress, type Progress } from './load';
@@ -34,6 +34,8 @@ export interface UniverseState {
   counts: Record<Horizon, HorizonCount>;
   /** True while the games of the requested horizon are still being read (the universe is then a prefix). */
   reading: boolean;
+  /** Sports with props only after this horizon (their next game and the horizon that reaches it). */
+  beyond: BeyondSport[];
   /** Games the horizon would hold beyond the cap (the soonest MAX_GAMES are read). */
   omitted: number;
   /** Read again the games whose contract list could not be read (the ones that read stay as they are). */
@@ -50,6 +52,7 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
   const demo = demoOn() || slate.demo;
   const eligible = useMemo(() => (demo ? [] : eligibleGames(slate.games)), [slate.games, demo]);
   const counts = useMemo(() => horizonCounts(demo ? slate.games.filter((g) => g.phase !== 'final') : eligible, slate.now), [demo, slate.games, eligible, slate.now]);
+  const beyond = useMemo(() => sportsBeyond(eligible, slate.now, horizon), [eligible, slate.now, horizon]);
   const capped = useMemo(() => capGames(eligible.filter((g) => startsWithin(g, slate.now, horizon))), [eligible, slate.now, horizon]);
   const games = useMemo(() => (demo ? slate.games.filter((g) => g.phase !== 'final') : capped.games), [demo, slate.games, capped]);
   const key = slate.loading ? null : `v3props:${demo ? 'demo' : 'real'}:${games.map((g) => g.key).join(',')}`;
@@ -81,7 +84,7 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
   const av = useBankVersion(availabilityBank);
   const universe = useMemo(() => (shown ? withAvailability(shown.universe, availabilityBank.get, nameKey) : null), [shown, av]); // eslint-disable-line react-hooks/exhaustive-deps
   const reading = !demo && !!key && !(shown && shown.complete && (prog?.key === key || held));
-  return { universe, loading: slate.loading || !shown, error: false, demo, horizon, counts, reading, omitted: capped.omitted, retry };
+  return { universe, loading: slate.loading || !shown, error: false, demo, horizon, counts, reading, omitted: capped.omitted, beyond, retry };
 }
 
 /**

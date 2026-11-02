@@ -94,15 +94,15 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await go(page, '/v3');
     const nav = page.getByRole('navigation', { name: 'Primary' });
     await expect(nav.getByRole('link')).toHaveText(['Home', 'Props', 'Following']);
-    await nav.getByRole('link', { name: 'Props' }).click();
+    await nav.getByRole('link', { name: 'Discover' }).click();
     await expect(page).toHaveURL(/#\/v3\/props/);
     await ready(page);
-    await expect(page.getByRole('heading', { name: 'Props', exact: true })).toBeVisible();
-    await expect(nav.getByRole('link', { name: 'Props' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('heading', { name: 'Discover', exact: true })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('aria-current', 'page');
     // Global search is in the header of Props too, and keeps the Props tab lit.
     await page.getByRole('link', { name: 'Search', exact: true }).first().click();
     await expect(page).toHaveURL(/#\/v3\/search/);
-    await expect(nav.getByRole('link', { name: 'Props' })).toHaveAttribute('aria-current', 'page');
+    await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('aria-current', 'page');
     await go(page, '/v3/explore?q=lamb');
     await expect(page).toHaveURL(/#\/v3\/search\?q=lamb/);
     await expect(page.locator('.v3-explore input[type="search"], .v3-explore input').first()).toBeVisible();

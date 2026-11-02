@@ -4,6 +4,7 @@
 // the progress while it is read. Nothing is dropped silently: past the cap the line says how many games are left out.
 import { costText, HORIZONS, HORIZON_LABEL, MAX_GAMES, type Horizon } from '../../data/props/horizon';
 import type { UniverseState } from '../../data/props/hooks';
+import { clockTime, dayWord } from '../../model/time';
 
 export function horizonStatus(s: Pick<UniverseState, 'horizon' | 'counts' | 'universe' | 'reading' | 'omitted'>): string {
   const { horizon: h, counts, universe: u, reading, omitted } = s;
@@ -40,6 +41,17 @@ export function HorizonBar({ state, onChange }: { state: UniverseState; onChange
         })}
       </div>
       <p className="pd-hz__st" role="status" aria-live="polite" aria-busy={reading}>{horizonStatus(state)}</p>
+      {state.beyond.length > 0 && !reading && (
+        <ul className="pd-hz__next" aria-label="Sports with props after this window">
+          {state.beyond.map((b) => (
+            <li key={b.slug}>
+              <button type="button" onClick={() => onChange(b.needs)} data-next={b.slug}>
+                <b>{b.label}</b> no props in {HORIZON_LABEL[horizon].toLowerCase()} · next game {dayWord(b.startMs)} {clockTime(b.startMs)} <u>Show {HORIZON_LABEL[b.needs].toLowerCase()}</u>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {/* always present (hidden when idle) so the list below does not move when the games finish loading */}
       <div className="pd-hz__bar" style={{ visibility: pct == null ? 'hidden' : 'visible' }} {...(pct == null ? { 'aria-hidden': true } : { role: 'progressbar', 'aria-label': 'Games read', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': pct })}><i style={{ width: `${pct ?? 0}%` }} /></div>
     </section>

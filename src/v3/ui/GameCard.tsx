@@ -3,7 +3,7 @@ import { useGameStart } from '../data/research/gameHooks';
 import { useGameExtras } from '../data/useGameExtras';
 import { closenessOf, lateness, progressOf } from '../model/priority';
 import type { V3Game } from '../model/types';
-import { AlertBell, FollowStar } from './Controls';
+import { AlertBell, GameStar } from './Controls';
 import { Icon } from './Icon';
 import { TeamLogo } from './TeamLogo';
 import { DelayedMark, LinesBox, PriceText, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useListGate, useOpenContract, useSeen } from './gamebits';
@@ -66,7 +66,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
         {closeAndLate(g) && <span className="v3-gc__hot">Close · late</span>}
         <span className="v3-gc__net">{g.network ?? ''}</span>
       </header>
-      <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} className="v3-gc__star" />
+      <GameStar g={g} className="v3-gc__star" />
       <div className="v3-gc__b">
         <div className="v3-gc__sides">
           <Side g={g} side="away" />

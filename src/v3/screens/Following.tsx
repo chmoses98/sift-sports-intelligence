@@ -200,7 +200,7 @@ export function Following() {
 
   return (
     <div className="v3-page v3-following">
-      <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>Following</h1><span className="v3-top__sp" /><SearchButton /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
+      <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>My SIFT</h1><span className="v3-top__sp" /><SearchButton /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
 
       {sports.length > 1 && (
         <ChipRail className="v3-chips v3-chips--sports" role="group" aria-label="Filter by sport">

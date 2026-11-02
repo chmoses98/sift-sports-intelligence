@@ -24,7 +24,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3?demo=1');
     await expect(page.getByRole('note')).toContainText('Sample data');
     const tabs = page.getByRole('navigation', { name: 'Primary' }).getByRole('link');
-    await expect(tabs).toHaveText(['Home', 'Props', 'Following']);
+    await expect(tabs).toHaveText(['Home', 'Discover', 'My SIFT']);
     await noOverflow(page);
   });
 

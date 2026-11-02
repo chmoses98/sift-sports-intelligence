@@ -3,6 +3,8 @@
 // apart, with rank, sample and quality. A description of the two units, not a forecast. A trimmed event restores its tables from the verified sidecar; until then,
 // or if that fails, the notice says which and the rest stays usable.
 import { DIMENSION_WORD, EDGE_DIMENSIONS, metricAt, type Engine, type MetricRow } from '../../../lib/scriptEngine';
+import { isHavoc, usableFinding, usableMetric } from '../../model/havoc';
+import { tugDims } from '../../model/scriptStory';
 import { formatUnitValue, sportUnit, unitText } from '../../../insights/sportUnits';
 import { DIMENSION_WHY, findingLabel, gapText } from '../../model/scriptRead';
 import { Icon } from '../../ui/Icon';
@@ -16,29 +18,38 @@ function Bar({ v }: { v: number | null | undefined }) {
   return <span className="cs-bar" aria-hidden="true"><i /><b className={v != null && v < 0 ? 'neg' : 'pos'} style={v == null ? undefined : v >= 0 ? { left: '50%', width: `${w}%` } : { right: '50%', width: `${w}%` }} /></span>;
 }
 
+const maxAbs = (...v: (number | null | undefined)[]) => Math.max(0, ...v.map((x) => (x == null ? 0 : Math.abs(x))));
+
+/** "Nebraska has the edge" when one direction clearly leads, else "Too close to call": from the engine's two published directional gaps. */
+function verdict(engine: Engine, away: number | null, home: number | null, noise: boolean): string {
+  if (away == null && home == null) return 'No gap published';
+  if (noise) return 'Within its own uncertainty';
+  const a = away ?? -Infinity, h = home ?? -Infinity;
+  if (Math.abs(a - h) < 0.25) return 'Too close to call';
+  return `${engine.teams[a > h ? 'away' : 'home'].name} has the edge`;
+}
+
+function DirRows({ engine, away, home, noise }: { engine: Engine; away: number | null; home: number | null; noise: boolean }) {
+  const a = engine.teams.away.name, h = engine.teams.home.name;
+  const rows = [[`${a} offense vs ${h} defense`, away], [`${h} offense vs ${a} defense`, home]] as const;
+  return <>{rows.map(([label, x]) => <div key={label} className={`cs-dim__r${noise ? ' is-noise' : ''}`}><span>{label}</span><Bar v={x} /><b className="num">{gapText(x)}</b></div>)}</>;
+}
+
 function Edges({ engine }: { engine: Engine }) {
-  const home = engine.teams.home.name, away = engine.teams.away.name;
   if (!EDGE_DIMENSIONS.some((d) => engine.dimensions[d])) {
     return <p className="cs-empty">{engine.detail.state === 'loading' ? 'Loading the unit-by-unit matchup.' : engine.detail.state === 'unavailable' ? `The unit-by-unit matchup is not available for this game: ${engine.detail.reason ?? 'not published'}.` : 'No unit-by-unit matchup is published for this game.'}</p>;
   }
+  // The biggest gap first, so the advantages that matter are the top of the list.
+  const dims = tugDims(engine, EDGE_DIMENSIONS).sort((x, y) => maxAbs(y.away, y.home, ...(y.components ?? []).flatMap((c) => [c.away, c.home])) - maxAbs(x.away, x.home, ...(x.components ?? []).flatMap((c) => [c.away, c.home])));
   return (
     <ul className="cs-dims">
-      {EDGE_DIMENSIONS.map((d) => {
-        const dim = engine.dimensions[d];
-        if (!dim) return null;
-        const rows = [[`${home} offense vs ${away} defense`, dim.home_offense_vs_away_defense], [`${away} offense vs ${home} defense`, dim.away_offense_vs_home_defense]] as const;
-        return (
-          <li key={d} className="cs-dim">
-            <h3>{DIMENSION_WORD[d] ?? d}</h3>
-            {rows.map(([label, x]) => (
-              <div key={label} className={`cs-dim__r${x?.edge != null && x.uncertainty != null && Math.abs(x.edge) < x.uncertainty ? ' is-noise' : ''}`}>
-                <span>{label}</span><Bar v={x?.edge} /><b className="num">{gapText(x?.edge)}</b>
-              </div>
-            ))}
-            {DIMENSION_WHY[d] && <p className="cs-plain">{DIMENSION_WHY[d]}</p>}
-          </li>
-        );
-      })}
+      {dims.map((d) => (
+        <li key={d.dimension} className="cs-dim" data-testid="cfb-dim">
+          <div className="cs-dim__h"><h3>{DIMENSION_WORD[d.dimension] ?? d.dimension}</h3>{!d.components && <span className="cs-verd">{verdict(engine, d.away, d.home, d.noise)}</span>}</div>
+          {d.components ? d.components.map((c) => <div key={c.name} className="cs-dim__c"><small>{c.name}</small><DirRows engine={engine} away={c.away} home={c.home} noise={false} /></div>) : <DirRows engine={engine} away={d.away} home={d.home} noise={d.noise} />}
+          {DIMENSION_WHY[d.dimension] && <p className="cs-plain">{DIMENSION_WHY[d.dimension]}</p>}
+        </li>
+      ))}
     </ul>
   );
 }
@@ -48,7 +59,7 @@ function Mini({ engine, refs }: { engine: Engine; refs: string[] }) {
     <ul className="cs-mini">
       {[...new Set(refs)].slice(0, 6).map((ref) => {
         const row = metricAt(engine, ref);
-        if (!row) return null;
+        if (!row || !usableMetric(row)) return null;
         const reg = engine.registry[row.metric_id];
         const u = unitOf(engine, row.metric_id);
         return <li key={ref}><span>{row.team} {row.unit}, {reg?.name ?? row.metric_id} <em>({unitText(u)})</em></span><b className="num">{formatUnitValue(row.raw, u)} raw{row.adjusted_available ? `, ${formatUnitValue(row.adjusted, u)} adjusted` : ', no adjusted value'}</b><small>{row.rank ? `#${row.rank} of ${row.universe_size}` : 'unranked'} · {row.games} games{row.quality !== 'OK' ? ` · ${row.quality.toLowerCase().replace(/_/g, ' ')}` : ''}</small></li>;
@@ -58,7 +69,7 @@ function Mini({ engine, refs }: { engine: Engine; refs: string[] }) {
 }
 
 function MetricList({ engine, dimension }: { engine: Engine; dimension: string }) {
-  const ids = Object.values(engine.registry).filter((r) => r.dimension === dimension).map((r) => r.metric_id);
+  const ids = Object.values(engine.registry).filter((r) => r.dimension === dimension && !isHavoc(r.metric_id)).map((r) => r.metric_id);
   if (!ids.length) return null;
   const pairs: ['home' | 'away', 'offense' | 'defense'][] = [['home', 'offense'], ['away', 'defense'], ['away', 'offense'], ['home', 'defense']];
   return (
@@ -101,7 +112,7 @@ export function CfbMatchupTab({ engine }: { ctx: GameCtx; engine: Engine }) {
       <div className="x-card cs-sec">
         <div className="cs-sh"><h2>Matchup findings</h2></div>
         <p className="cs-sub">Deterministic findings from the opponent-adjusted profile. Each names the metrics that produced it.</p>
-        {engine.findings.length ? engine.findings.map((f) => (
+        {engine.findings.filter(usableFinding).length ? engine.findings.filter(usableFinding).map((f) => (
           <div key={f.code}>
             <FindingNote label={findingLabel(engine, f.code)} statement={f.statement} strength={f.strength} />
             {f.metric_refs.length > 0 && hasTables && <details className="cs-more cs-more--in"><summary>Metrics behind it<Icon name="chevD" size={16} /></summary><Mini engine={engine} refs={f.metric_refs} /></details>}

@@ -95,6 +95,8 @@ const TRIMMED_TEST_INPUTS: Record<string, string> = {
   'tests/v3/fixtures/nfl-index-slim.json': 'slimmed index: metrics_path and search_index_path removed',
   'tests/v3/fixtures/nhl-index-slim.json': 'slimmed index: metrics_path and search_index_path removed',
   'tests/v3/fixtures/nfl-index.json': 'index with its `files` table cut out',
+  'tests/v3/fixtures/cfb-neb-ill-research.json': 'real Nebraska at Illinois event_research with every section the Script Engine tests do not read (markets, players, wagers, links) cut out',
+  'tests/v3/fixtures/cfb-neb-ill-detail.json': 'real Nebraska at Illinois event_detail cut to the event and its market list',
   'tests/v3/fixtures/props/mlb-detail.json': 'trimmed event_detail: schema_version removed',
   'tests/v3/fixtures/props/nfl-detail.json': 'trimmed event_detail: schema_version removed',
   'tests/v3/fixtures/props/nhl-detail.json': 'trimmed event_detail: schema_version removed',

@@ -274,7 +274,7 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
 
 // ------------------------------------------------------------------ the tab body
 
-export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
+export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab, scenario?: string) => void }) {
   const g = ctx.g;
   // A Script Engine game (research carries the payload) has its own Game Script and Matchup views; a sport with the unit matchup (NFL) keeps its own.
   const engine = ctx.script?.kind === 'ready' && !isReady(g.slug, 'gameMatchup') ? ctx.script.engine : null;

@@ -1,17 +1,18 @@
-// Game Detail, Game Script tab for a Script Engine game: the detailed view of the four ranked scripts. One script at a time (a chip per script), its outcome
-// shape, the full causal chain with the findings behind every step, what cuts against it, and the contracts it settles (each side priced through the quote gate).
-// Scripts are ranked, never given a likelihood; scoring bands marked descriptive are research only and support no total or team-total contract.
+// Game Detail, Game Script tab for a Script Engine game: one scenario at a time (a chip per scenario, the address remembers it), told in the order a reader asks:
+// what is it and how does the engine rank it, why does it happen, what is the evidence, what breaks it, and which contracts express it (each a tap on the exact-contract sheet,
+// priced through the quote gate). Deeper material (the full causal chain, the outcome shape, rungs of the same thesis, contracts the scenario contradicts) is one tap down.
+// The engine publishes no probability for a scenario; scoring lines are research only.
 import { useMemo, useState } from 'react';
 import type { Market } from '../../../contract/types';
 import { LABEL_WORD, SCORING_RESEARCH_NOTE, bandText, isDescriptiveBand, marginBandText, type Engine, type EngineScript } from '../../../lib/scriptEngine';
-import { relationWord, scriptBreaks, scriptMarketCards, type ScriptMarketCard } from '../../../lib/scriptMarkets';
-import { sideLabel, useSideAsks } from '../../data/research/scriptPrices';
-import { breakEvenPct } from '../../model/format';
-import { marketMap, scriptCards, fitSentence, STATUS_WORD, type ScriptCard } from '../../model/scriptRead';
+import { relationWord, scriptBreaks } from '../../../lib/scriptMarkets';
+import { sideLabel, useSideQuotes } from '../../data/research/scriptPrices';
+import { marketMap, fitSentence, STATUS_WORD } from '../../model/scriptRead';
+import { scenarioMarkets, scenarios, type Scenario } from '../../model/scriptStory';
 import { Icon } from '../../ui/Icon';
 import type { GameCtx } from '../GameShared';
-import { DetailNotice, FindingNote, LabelChips, ResearchOnly } from './parts';
-import { SidePriceTap } from './ScriptOverview';
+import { DetailNotice, EvidenceList, FindingNote, PriceWhy, ResearchOnly, RoleChip, SidePriceTap } from './parts';
+import { ScenarioMarketsBlock, scenarioTickers } from './ScenarioParts';
 
 const ENV_WORD: Record<string, string> = { ELEVATED: 'Elevated', SUPPRESSED: 'Suppressed' };
 
@@ -31,121 +32,122 @@ function Shape({ s, home, away }: { s: EngineScript; home: string; away: string 
       <dl className="cs-tiles">
         {shown.map(([k, v, d]) => <div key={k} className={d ? 'is-desc' : undefined}><dt>{k}{d && <em> · descriptive</em>}</dt><dd className="num">{v}</dd></div>)}
       </dl>
-      {shown.some(([, , d]) => d) && <p className="cs-foot">Point ranges marked descriptive are drawn around an uncalibrated scoring baseline. They describe the script; they are not a projection and support no total or team-total contract.</p>}
+      {shown.some(([, , d]) => d) && <p className="cs-foot">Point ranges marked descriptive are drawn around an uncalibrated scoring baseline. They describe the scenario; they are not a projection and support no total or team-total contract.</p>}
     </>
   );
 }
 
-function MarketCard({ c, ask, askOf }: { c: ScriptMarketCard; ask: number | null; askOf: (ticker: string, side: 'YES' | 'NO') => number | null }) {
-  const e = c.e;
-  return (
-    <article className={`cs-mc${c.researchOnly ? ' is-research' : ''}`} data-testid="cfb-script-market">
-      <div className="cs-bet__top">
-        <div className="cs-bet__m"><b>{c.label}</b><small>{c.compat === 'SUPPORTED' ? 'Pays across this script' : 'Pays in part of this script’s range'}</small></div>
-        <SidePriceTap e={e} ask={ask} label={c.label} hasMarket={!!c.market} />
-      </div>
-      <LabelChips labels={c.labels.filter((l) => l !== 'CONTRADICTED')} />
-      {ask != null && <p className="cs-plain"><b>Fee-aware break-even</b> {breakEvenPct(ask)}¢ (the ask plus Kalshi’s taker fee).</p>}
-      {c.paysWhen && <p className="cs-plain"><b>Pays when</b> {c.paysWhen}.</p>}
-      <p className="cs-plain">{c.survival.charAt(0).toUpperCase()}{c.survival.slice(1)}.</p>
-      {c.losesIn.length > 0 ? <p className="cs-plain"><b>Loses in</b> {c.losesIn.map((x) => `the ${x.role.toLowerCase()} script (${x.title})`).join(' and ')}.</p> : <p className="cs-plain">No script the engine built contradicts this side{c.silentIn.length ? `; ${c.silentIn.length} make${c.silentIn.length === 1 ? 's' : ''} no settlement claim about it` : ''}.</p>}
-      {c.researchOnly && <p className="cs-plain">{LABEL_WORD.SCORING_BAND_UNCALIBRATED}: the engine does not calibrate scoring bands, so this contract’s script fit is descriptive.</p>}
-      {c.conditions.length > 0 && <details className="cs-more"><summary>Football it needs<Icon name="chevD" size={16} /></summary><ul className="cs-pts">{c.conditions.map((x) => <li key={x}>{x}</li>)}</ul></details>}
-      {c.alternatives.length > 0 && (
-        <details className="cs-more">
-          <summary>Other rungs of the same thesis ({c.alternatives.length})<Icon name="chevD" size={16} /></summary>
-          <ul className="cs-alts">
-            {c.alternatives.map((a) => (
-              <li key={a.e.id}><span>{a.label}<small>{relationWord(a.relation)}{a.extraPoints != null ? ` · ${a.extraPoints > 0 ? '+' : ''}${a.extraPoints} pts` : ''}</small></span><SidePriceTap e={a.e} ask={askOf(a.e.ticker, a.e.side)} label={a.label} hasMarket={!!a.market} /></li>
-            ))}
-          </ul>
-        </details>
-      )}
-    </article>
-  );
-}
-
-function ScriptMarkets({ engine, script, ctx }: { engine: Engine; script: EngineScript; ctx: GameCtx }) {
+function Markets({ engine, s, ctx }: { engine: Engine; s: Scenario; ctx: GameCtx }) {
   const markets = useMemo(() => marketMap(ctx.detail?.markets), [ctx.detail]);
-  const cards = useMemo(() => scriptMarketCards(engine, script.script_id, markets as Map<string, Market>), [engine, script, markets]);
-  const breaks = useMemo(() => scriptBreaks(engine, script.script_id), [engine, script]);
-  const tickers = useMemo(() => [...new Set([...cards.flatMap((c) => [c.e.ticker, ...c.alternatives.map((a) => a.e.ticker)]), ...breaks.map((e) => e.ticker)])], [cards, breaks]);
-  const ask = useSideAsks(ctx.g, ctx.detail, ctx.startMs, tickers);
-  if (!cards.length && !engine.expressions.length && engine.detail.state !== 'inline') {
+  const m = useMemo(() => scenarioMarkets(engine, s.card.script, markets as Map<string, Market>), [engine, s, markets]);
+  const breaks = useMemo(() => scriptBreaks(engine, s.card.script.script_id), [engine, s]);
+  const tickers = useMemo(() => [...new Set([...scenarioTickers(m), ...breaks.map((e) => e.ticker)])], [m, breaks]);
+  const quote = useSideQuotes(ctx.g, ctx.detail, ctx.startMs, tickers);
+  if (!m.core.length && !m.scoring.length && !engine.expressions.length && engine.detail.state !== 'inline') {
     return <p className="cs-empty">{engine.detail.state === 'loading' ? 'Loading the script-to-market map.' : `The script-to-market map is not available for this game: ${engine.detail.reason ?? 'not published'}.`}</p>;
   }
+  const rungs = (c: (typeof m.core)[number]) => c.alternatives.length > 0 && (
+    <details className="cs-more cs-more--in0">
+      <summary>Other rungs of this line ({c.alternatives.length})<Icon name="chevD" size={16} /></summary>
+      <ul className="cs-alts">
+        {c.alternatives.map((a) => (
+          <li key={a.e.id}><span>{a.label}<small>{relationWord(a.relation)}{a.extraPoints != null ? ` · ${a.extraPoints > 0 ? '+' : ''}${a.extraPoints} pts` : ''}</small></span><SidePriceTap ticker={a.e.ticker} side={a.e.side} q={quote(a.e.ticker, a.e.side)} label={a.label} hasMarket={!!a.market} /></li>
+        ))}
+      </ul>
+    </details>
+  );
   return (
     <>
-      {cards.length ? <div className="cs-list">{cards.map((c) => <MarketCard key={c.e.id} c={c} ask={ask(c.e.ticker, c.e.side)} askOf={ask} />)}</div> : <p className="cs-empty">No contract is supported by this script.</p>}
+      <ScenarioMarketsBlock engine={engine} s={s} m={m} quote={quote} markets={markets as Map<string, Market>} rungs={rungs} />
       {breaks.length > 0 && (
-        <>
-          <h3 className="cs-h3">Contradicted by this script</h3>
+        <details className="cs-more">
+          <summary>Contracts this scenario contradicts ({breaks.length})<Icon name="chevD" size={16} /></summary>
           <ul className="cs-alts">
-            {breaks.map((e) => { const m = markets.get(e.ticker); const label = sideLabel(e, m); return <li key={e.id}><span>{label}<small>{fitSentence(engine, e)}</small></span><SidePriceTap e={e} ask={ask(e.ticker, e.side)} label={label} hasMarket={!!m} /></li>; })}
+            {breaks.map((e) => { const mk = markets.get(e.ticker); const label = sideLabel(e, mk); const q = quote(e.ticker, e.side); return <li key={e.id}><span>{label}<small>{fitSentence(engine, e)}</small><PriceWhy q={q} /></span><SidePriceTap ticker={e.ticker} side={e.side} q={q} label={label} hasMarket={!!mk} /></li>; })}
           </ul>
-        </>
+        </details>
       )}
       {engine.scoringResearchOnly && <p className="cs-notice" role="note"><span className="cs-lbl cs-lbl--scoring_band_uncalibrated">{LABEL_WORD.SCORING_BAND_UNCALIBRATED}</span> {SCORING_RESEARCH_NOTE}</p>}
     </>
   );
 }
 
-function ScriptDetail({ c, engine, ctx }: { c: ScriptCard; engine: Engine; ctx: GameCtx }) {
-  const s = c.script;
+function ScriptDetail({ s, engine, ctx }: { s: Scenario; engine: Engine; ctx: GameCtx }) {
+  const c = s.card, sc = c.script;
   const home = engine.teams.home.name, away = engine.teams.away.name;
-  const evidence = s.outcome_shape.margin_authority_evidence ?? [];
-  const danger = engine.scripts.find((x) => x.role === 'DANGER' && x.script_id !== s.script_id);
+  const evidence = sc.outcome_shape.margin_authority_evidence ?? [];
   return (
-    <div className="cs-detail" data-testid="cfb-script-detail" data-script={s.script_id}>
-      <section className={`x-card cs-sec cs-scr cs-scr--s${c.tone}`} aria-label={`${c.role} script`}>
-        <header><span className="cs-role">{c.role} · rank {s.rank} of {engine.scripts.length}</span><span className="cs-arch">{c.archetype}</span></header>
-        <h2>{c.title}</h2>
-        <p className="cs-sub">Ranked by matchup evidence. No probability is published for any script.</p>
-        <p className="cs-scr__lead">{c.lead}</p>
-        {c.rest && <p className="cs-plain">{c.rest}</p>}
-        <p className="cs-plain"><b>How this script fails</b> {c.against.length ? `${c.against.length} finding${c.against.length === 1 ? ' cuts' : 's cut'} against it` : 'No published finding cuts against it'}{danger ? `; the danger path is ${danger.title}.` : '.'}</p>
+    <div className="cs-detail" data-testid="cfb-script-detail" data-script={sc.script_id}>
+      <section className={`x-card cs-sec cs-scn cs-scn--s${c.tone}`} aria-label={`${c.role} scenario`}>
+        <header className="cs-scn__h"><RoleChip role={c.role} tone={c.tone} /><span className="cs-arch">{c.archetype}</span></header>
+        <h2 className="cs-scn__t">{c.title}</h2>
+        <p className="cs-scr__lead">{c.lead}{c.rest ? ` ${c.rest}` : ''}</p>
+        <div className="cs-lkbox" data-testid="cfb-likelihood">
+          <p className="cs-lk"><b>{s.likelihood.rank}.</b> {s.likelihood.statement}</p>
+          {s.likelihood.historical && <p className="cs-lk cs-lk--hist">{s.likelihood.historical.text} {s.likelihood.historical.range ? `${s.likelihood.historical.range}. ` : ''}<em>{s.likelihood.historical.caveat}</em></p>}
+        </div>
+        <h3 className="cs-h4">Why it happens</h3>
+        <ol className="cs-why3">{s.why.map((x) => <li key={x}>{x}</li>)}</ol>
+        {s.support.length > 0 && (
+          <>
+            <h3 className="cs-h4">The matchup numbers behind it</h3>
+            <EvidenceList lines={s.support} />
+          </>
+        )}
+        <h3 className="cs-h4">What breaks it</h3>
+        <ul className="cs-brk" data-testid="cfb-breaks">{s.breaks.map((x) => <li key={x}>{x}</li>)}</ul>
       </section>
-      <section className="x-card cs-sec" aria-labelledby="cs-chain-h">
-        <div className="cs-sh"><h2 id="cs-chain-h">Causal chain</h2></div>
-        <ol className="cs-chain cs-chain--full">
-          {c.steps.map((st) => <li key={st.step}><span>{st.step}</span>{st.findings.map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} strength={f.strength} />)}</li>)}
-        </ol>
+      <section className="x-card cs-sec" aria-labelledby="cs-mk-h" data-testid="cfb-scenario-markets">
+        <div className="cs-sh"><h2 id="cs-mk-h">Ways to play this scenario</h2></div>
+        <p className="cs-sub">Tap a price to open the exact contract. Each row names the matchup statistic that supports it; the price is that side’s own Kalshi ask.</p>
+        <Markets engine={engine} s={s} ctx={ctx} />
       </section>
-      <section className="x-card cs-sec" aria-labelledby="cs-shape-h">
-        <div className="cs-sh"><h2 id="cs-shape-h">Outcome shape</h2><ResearchOnly /></div>
-        <Shape s={s} home={home} away={away} />
-        {s.outcome_shape.bands.home_margin && evidence.length > 0 && <div className="cs-cited"><h4>Margin authority</h4>{evidence.map((code) => { const f = c.steps.flatMap((st) => st.findings).find((x) => x.code === code); const g = engine.findings.find((x) => x.code === code); return g ? <FindingNote key={code} label={f?.label ?? code} statement={g.statement} strength={g.strength} /> : null; })}</div>}
-        {!s.outcome_shape.bands.home_margin && s.outcome_shape.total_environment !== 'NOT_STATED' && <p className="cs-plain">No margin stated: the scoring environment says nothing about how close the game is, and no resolved matchup finding does either.</p>}
-        {c.against.length > 0 && <div className="cs-cited"><h4>Evidence against</h4>{c.against.map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} />)}</div>}
-      </section>
-      <section className="x-card cs-sec" aria-labelledby="cs-mk-h">
-        <div className="cs-sh"><h2 id="cs-mk-h">Markets this script settles</h2></div>
-        <p className="cs-sub">Settlement-exact: a contract is supported only if every outcome in the script’s range pays it. The price is that side’s own Kalshi ask.</p>
-        <ScriptMarkets engine={engine} script={s} ctx={ctx} />
+      <section className="x-card cs-sec" aria-labelledby="cs-more-h">
+        <div className="cs-sh"><h2 id="cs-more-h">Deeper detail</h2></div>
+        <details className="cs-more cs-more--dim">
+          <summary>Full causal chain ({c.steps.length} steps)<Icon name="chevD" size={16} /></summary>
+          <ol className="cs-chain cs-chain--full">
+            {c.steps.map((st) => <li key={st.step}><span>{st.step}</span>{st.findings.map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} strength={f.strength} />)}</li>)}
+          </ol>
+        </details>
+        <details className="cs-more cs-more--dim">
+          <summary>Outcome shape<Icon name="chevD" size={16} /></summary>
+          <Shape s={sc} home={home} away={away} />
+          {sc.outcome_shape.bands.home_margin && evidence.length > 0 && <div className="cs-cited"><h4>Margin authority</h4>{evidence.map((code) => { const f = c.steps.flatMap((st) => st.findings).find((x) => x.code === code); const g = engine.findings.find((x) => x.code === code); return g && f ? <FindingNote key={code} label={f.label} statement={g.statement} strength={g.strength} /> : null; })}</div>}
+          {!sc.outcome_shape.bands.home_margin && sc.outcome_shape.total_environment !== 'NOT_STATED' && <p className="cs-plain">No margin stated: the scoring environment says nothing about how close the game is, and no resolved matchup finding does either.</p>}
+        </details>
+        {c.against.length > 0 && (
+          <details className="cs-more cs-more--dim">
+            <summary>Findings against it ({c.against.length})<Icon name="chevD" size={16} /></summary>
+            <div className="cs-cited">{c.against.map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} />)}</div>
+          </details>
+        )}
       </section>
     </div>
   );
 }
 
 export function CfbScriptTab({ ctx, engine }: { ctx: GameCtx; engine: Engine }) {
-  const cards = useMemo(() => scriptCards(engine), [engine]);
-  const [sel, setSel] = useState<string | null>(null);
-  const cur = cards.find((c) => c.script.script_id === sel) ?? cards[0];
+  const list = useMemo(() => scenarios(engine), [engine]);
+  const [local, setLocal] = useState<string | null>(null);
+  const sel = ctx.scenario ?? local;
+  const cur = list.find((x) => x.card.script.script_id === sel) ?? list[0];
+  const pick = (id: string) => { setLocal(id); ctx.setScenario?.(id); };
   if (!cur) {
     return (
       <section className="cs" aria-label="Game script" data-testid="cfb-script-tab">
-        <div className="x-card cs-sec"><div className="cs-sh"><h2>Game Script</h2><ResearchOnly /></div><p className="cs-plain"><b>{STATUS_WORD[engine.status] ?? 'No script cleared its evidence requirement.'}</b> The matchup evidence for this game does not support any script yet, so none is shown rather than invented.</p></div>
+        <div className="x-card cs-sec"><div className="cs-sh"><h2>Game Script</h2><ResearchOnly /></div><p className="cs-plain"><b>{STATUS_WORD[engine.status] ?? 'No script cleared its evidence requirement.'}</b> The matchup evidence for this game does not support any scenario yet, so none is shown rather than invented.</p></div>
       </section>
     );
   }
   return (
     <section className="cs" aria-label="Game script" data-testid="cfb-script-tab">
       <DetailNotice engine={engine} />
-      <div className="cs-pick" role="group" aria-label="Script">
-        {cards.map((c) => <button key={c.script.script_id} type="button" className={`cs-chip cs-chip--s${c.tone}`} aria-pressed={c.script.script_id === cur.script.script_id} onClick={() => setSel(c.script.script_id)}><b>{c.role}</b><span>{c.title}</span></button>)}
+      <div className="cs-pick" role="group" aria-label="Scenario">
+        {list.map((x) => <button key={x.card.script.script_id} type="button" className={`cs-chip cs-chip--s${x.card.tone}`} aria-pressed={x.card.script.script_id === cur.card.script.script_id} onClick={() => pick(x.card.script.script_id)}><b>{x.card.role}</b><span>{x.card.title}</span></button>)}
       </div>
-      <ScriptDetail c={cur} engine={engine} ctx={ctx} />
-      <p className="cs-foot"><ResearchOnly /> Scripts are ranked by evidence and never priced.</p>
+      <ScriptDetail s={cur} engine={engine} ctx={ctx} />
+      <p className="cs-foot"><ResearchOnly /> Scenarios are ranked by evidence; the engine publishes no probability and no price for any of them.</p>
     </section>
   );
 }

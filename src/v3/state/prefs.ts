@@ -2,7 +2,8 @@
 // starring never subscribes to anything, and nothing here ever asks the platform for notification permission.
 import { createStore, useStore } from './store';
 import type { PriceFormat } from '../model/format';
-import { reviveSaved, reviveSavedList, type SavedInput, type SavedResearch } from '../model/saved';
+import { reviveSaved, reviveSavedList, SAVED_CAP, type SavedInput, type SavedResearch } from '../model/saved';
+import { addVisit, addWatch, removeVisit, removeWatch, reviveVisits, reviveWatchlist, type Visit, type WatchItem } from '../model/workspace';
 import { reviveFollows, type FollowSet } from '../model/following';
 
 export type Follows = FollowSet;
@@ -48,7 +49,7 @@ const saved = createStore<SavedResearch[]>('saved', [], reviveSavedList);
 export const useSaved = () => useStore(saved);
 export const saveResearch = (s: SavedInput) => {
   const rec = reviveSaved({ ...s, id: `r${Date.now().toString(36)}`, savedAt: Date.now() });
-  if (rec) saved.set((l) => [rec, ...l.filter((x) => x.route !== rec.route)]);
+  if (rec) saved.set((l) => [rec, ...l.filter((x) => x.route !== rec.route)].slice(0, SAVED_CAP));
 };
 export const removeSaved = (id: string) => saved.set((l) => l.filter((x) => x.id !== id));
 
@@ -75,14 +76,25 @@ export function applyDemoParam(search: string): void {
   } catch { /* unavailable: demo cannot be switched on */ }
 }
 
-/** Recently opened entities (the Explore "Recent research" list): the route, a title and one line of context. */
-export interface Visit { route: string; title: string; subtitle: string; kind: 'player' | 'team' | 'game' | 'stat'; slug: string; logo?: string | null; abbr?: string }
-const visits = createStore<Visit[]>('visits', []);
+/** Recently opened pages (My SIFT "Recent", Explore "Recent research"): games, teams, players, statistics and Discover props. Newest first, de-duplicated, capped (model/workspace.ts). */
+export type { Visit } from '../model/workspace';
+const visits = createStore<Visit[]>('visits', [], reviveVisits);
 export const useVisits = () => useStore(visits);
-export const pushVisit = (v: Visit) => visits.set((l) => (l[0]?.route === v.route && l[0].title === v.title ? l : [v, ...l.filter((x) => x.route.split('?')[0] !== v.route.split('?')[0])].slice(0, 12)));
+export const pushVisit = (v: Visit) => visits.set((l) => addVisit(l, v));
+export const dropVisit = (key: string) => visits.set((l) => removeVisit(l, key));
 export const clearVisits = () => visits.set([]);
+export const restoreVisits = (l: readonly Visit[]) => visits.set(reviveVisits(l));
+
+/** Contracts the viewer watches. A list to look at: SIFT has no alert delivery, and nothing here notifies anyone. */
+const watch = createStore<WatchItem[]>('watch', [], reviveWatchlist);
+export const useWatchlist = () => useStore(watch);
+export const watchContract = (w: Omit<WatchItem, 'addedAt'>) => watch.set((l) => addWatch(l, w));
+export const unwatchContract = (ticker: string) => watch.set((l) => removeWatch(l, ticker));
+export const clearWatchlist = () => watch.set([]);
+/** Put a removed watched contract back (Undo): at the top, as a fresh add. */
+export const rewatch = (w: WatchItem) => watch.set((l) => addWatch(l, w));
 
 /** Wipe everything this device keeps (follows, alerts, saved research, recents, preferences). */
 export function clearAllLocal() {
-  follows.set({ teams: [], players: [], games: [] }); alerts.set({}); saved.set([]); recents.set([]); visits.set([]);
+  follows.set({ teams: [], players: [], games: [] }); alerts.set({}); saved.set([]); recents.set([]); visits.set([]); watch.set([]);
 }

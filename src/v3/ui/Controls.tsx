@@ -67,7 +67,7 @@ function AlertPanel({ id, label }: { id: string; label: string }) {
           </li>
         ))}
       </ul>
-      <p className="v3-note v3-note--dim">This build records your choice on this device. It does not ask the phone for notification permission or send anything.</p>
+      <p className="v3-note v3-note--dim">Alerts are not delivered yet: no notification, email or message will be sent. This only records your choice on this device, and it does not ask the phone for notification permission.</p>
     </div>
   );
 }

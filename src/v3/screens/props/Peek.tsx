@@ -16,6 +16,8 @@ import { ordinal } from '../../../lib/format';
 import { clockTime } from '../../model/time';
 import { Icon } from '../../ui/Icon';
 import { TeamLogo } from '../../ui/TeamLogo';
+import { WatchButton } from '../../ui/WatchButton';
+import { useLocation } from '../../../routing';
 import { firstName, gameText, HitBars, Mark, oppTeam, playerRef, playerState, statText, UnitTrack } from './parts';
 
 export interface PeekBits { reader: PriceReader; get: (key: string) => BankEntry | undefined }
@@ -24,6 +26,11 @@ export interface PeekBits { reader: PriceReader; get: (key: string) => BankEntry
 export function propSaveRoute(p: Prop, k: number): string {
   const ref = playerRef(p);
   return ref ? routes.player(ref, playerState(p, k) ?? {}) : routes.props({ view: 'list', ...(p.playerId ? { player: p.playerId } : { q: p.name }), exp: refToken(p, k) });
+}
+
+/** The research a Discover prop opens to, for Recent: the list with the prop expanded at its selected line (`exp=<id>@<rung>`). */
+export function propResearchRoute(p: Prop, k: number): string {
+  return routes.props({ view: 'list', ...(p.playerId ? { player: p.playerId } : { q: p.name }), exp: refToken(p, k) });
 }
 
 export function SaveProp({ p, k, className }: { p: Prop; k: number; className?: string }) {
@@ -85,6 +92,7 @@ export function Peek({ p, k, m, bits, onRung }: { p: Prop; k: number; m: Matchup
   const published = p.model.state === 'published';
   const sub = model != null ? `P(${r.k}+) published` : published ? 'not published at this rung' : 'not approved yet';
 
+  const loc = useLocation();
   return (
     <div className="pd-peek" data-peek={p.id}>
       {(p.availPending || p.out) && (
@@ -97,6 +105,7 @@ export function Peek({ p, k, m, bits, onRung }: { p: Prop; k: number; m: Matchup
         <span><b>{statText(p, r.k)}</b><small>YES if {p.name} reaches {r.k} or more · Kalshi {r.ticker.split('-').slice(0, 2).join(' ')}</small></span>
         <PriceTap ticker={r.ticker} className="pd-sel__px" label={`Exact contract, ${statText(p, r.k)}${price?.ask != null ? `, ${price.ask} cents` : ', no price'}`}><b className="num">{price?.ask != null ? `${price.ask}¢` : '—'}</b><small>{price?.ask != null ? 'ask · open contract' : 'open contract'}</small></PriceTap>
       </div>
+      <WatchButton ticker={r.ticker} title={`${p.name}: ${statText(p, r.k)}`} subtitle={`${gameText(p)} · Kalshi YES`} startMs={p.startMs} pathname={loc.pathname} search={loc.search} className="pd-watch" />
       <PriceNote p={p} rung={r} reader={bits.reader} />
       <div className="pd-pk1">
         {hs.state === 'ready' && hit ? (

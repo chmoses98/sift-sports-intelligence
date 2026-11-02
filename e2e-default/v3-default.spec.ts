@@ -16,8 +16,8 @@ test('the root address (the Home Screen launch address) opens SIFT 3.0 Home with
   await expect(page.locator('[data-v3-shell]')).toBeVisible();
   const nav = page.getByRole('navigation', { name: 'Primary' });
   await expect(nav.getByRole('link', { name: 'Home' })).toBeVisible();
-  await expect(nav.getByRole('link', { name: 'Props' })).toBeVisible();
-  await expect(nav.getByRole('link', { name: 'Following' })).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Discover' })).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'My SIFT' })).toBeVisible();
   await expect(nav.getByRole('link')).toHaveCount(3);
   await page.waitForLoadState('networkidle');
   await page.reload();

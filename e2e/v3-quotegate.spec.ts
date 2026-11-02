@@ -23,10 +23,11 @@ async function setup(page: Page, mode: Mode, plusS = 0) {
   await page.clock.setFixedTime(new Date(feedNow(FAMILY).getTime() + plusS * 1000));
 }
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); };
-// The product allows observation-age detail ONLY in the explanation for a withheld price.
-// Keep the no-freshness assertion on every other visible element, including shown prices.
+// Observation-age explanations are permitted only for withheld quotes: the contract sheet,
+// game-level withheld-prices notice, and individual withheld prop rows. Do not exempt
+// ordinary price text: an executable quote must never be presented as an old price.
 const bodyText = (page: Page) => page.locator('[data-v3-shell]').evaluate((el) => {
-  const notes = Array.from(el.querySelectorAll('.v3c-why')).map((n) => n.textContent ?? '');
+  const notes = Array.from(el.querySelectorAll('.v3c-why, [data-state="prices-withheld"], .v3-prop__why')).map((n) => n.textContent ?? '');
   let text = (el as HTMLElement).innerText;
   for (const note of notes) text = text.replace(note, '');
   return text;

@@ -27,7 +27,10 @@ const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); 
 // game-level withheld-prices notice, and individual withheld prop rows. Do not exempt
 // ordinary price text: an executable quote must never be presented as an old price.
 const bodyText = (page: Page) => page.locator('[data-v3-shell]').evaluate((el) => {
-  const notes = Array.from(el.querySelectorAll('.v3c-why, [data-state="prices-withheld"], .v3-prop__why')).map((n) => n.textContent ?? '');
+  // Compare rendered text with rendered text. textContent omits the line breaks
+  // introduced by block elements, so replacing it in innerText leaves the
+  // withheld-prices explanation behind (and falsely fails the quote gate).
+  const notes = Array.from(el.querySelectorAll('.v3c-why, [data-state="prices-withheld"], .v3-prop__why')).map((n) => (n as HTMLElement).innerText);
   let text = (el as HTMLElement).innerText;
   for (const note of notes) text = text.replace(note, '');
   return text;

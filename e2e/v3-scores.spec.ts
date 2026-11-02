@@ -89,7 +89,7 @@ test.describe('scores on Home and Game Detail @v3', () => {
     await go(page, '/v3?sport=nba');
     const c = card(page);
     await expect(c).toBeVisible({ timeout: 20_000 });
-    await expect(c.locator('.v3-gc__src')).toHaveText('Score unavailable', { timeout: 20_000 });
+    await expect(c.locator('.v3-gc__noscore')).toHaveText('No score', { timeout: 20_000 });
     await expect(c.locator('.v3-gc__sc')).toHaveCount(0);
     await expect(c.locator('[data-delayed]')).toHaveCount(0);
     await go(page, GAME);
@@ -106,7 +106,7 @@ test.describe('scores on Home and Game Detail @v3', () => {
     await expect(c).toBeVisible({ timeout: 20_000 });
     await page.waitForTimeout(2500);
     await expect(c.locator('.v3-gc__sc')).toHaveCount(0);
-    await expect(c.locator('.v3-gc__src')).toHaveText('Score unavailable');
+    await expect(c.locator('.v3-gc__noscore')).toHaveText('No score');
   });
 
   test('the feed being down shows no score and no error text on the card', async ({ page }) => {
@@ -116,6 +116,6 @@ test.describe('scores on Home and Game Detail @v3', () => {
     await expect(c).toBeVisible({ timeout: 20_000 });
     await page.waitForTimeout(2500);
     await expect(c.locator('.v3-gc__sc')).toHaveCount(0);
-    await expect(c.locator('.v3-gc__src')).toHaveText('Score unavailable');
+    await expect(c.locator('.v3-gc__noscore')).toHaveText('No score');
   });
 });

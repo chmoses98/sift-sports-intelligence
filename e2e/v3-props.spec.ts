@@ -93,7 +93,7 @@ test.describe('Prop Discovery on real published documents @v3', () => {
   test('the Props tab is Prop Discovery; search opens from the header at /v3/search and the old Explore address redirects to it', async ({ page }) => {
     await go(page, '/v3');
     const nav = page.getByRole('navigation', { name: 'Primary' });
-    await expect(nav.getByRole('link')).toHaveText(['Home', 'Props', 'Following']);
+    await expect(nav.getByRole('link')).toHaveText(['Home', 'Discover', 'My SIFT']);
     await nav.getByRole('link', { name: 'Discover' }).click();
     await expect(page).toHaveURL(/#\/v3\/props/);
     await ready(page);

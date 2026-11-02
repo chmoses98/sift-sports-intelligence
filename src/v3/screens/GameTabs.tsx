@@ -1,5 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from '../../routing';
+import { routes } from '../nav/routes';
+import { propIdOf } from '../data/props/parse';
 import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
 import { deriveProps, type PropRow } from '../data/adapt';
 import { useQuotedPrices } from '../data/research/gameHooks';
@@ -185,6 +187,13 @@ function ScriptTab({ g, detail, error, retry }: { g: V3Game; detail: EventDetail
   );
 }
 
+/** A prop row opens the SAME research Discover shows (history chart with the line drawn, hit rates, opponent unit, exact contract), scoped to this game. */
+function researchHref(g: V3Game, r: PropRow): string {
+  const k = Number.isInteger(r.line) ? r.line : Math.floor(r.line) + 1;
+  const id = propIdOf([r.price.ticker], `${g.eventId}:${r.key}`);
+  return routes.props({ view: 'list', sport: g.slug, game: g.eventId, exp: `${id}@${k}`, pin: true });
+}
+
 function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: number | null; detail: EventDetailDoc | null; error?: unknown; retry?: () => void }) {
   const sheet = useSheet();
   const gate = useListGate(g, startMs);
@@ -231,14 +240,14 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
       <ul className="v3-props">
         {shown.map((r) => (
           <li key={r.key}>
-            {r.playerId ? <Link to={`/v3/player/${g.slug}/${encodeURIComponent(r.playerId)}?stat=${encodeURIComponent(r.stat)}&line=${r.line}`} className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></Link> : <div className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></div>}
+            <Link to={researchHref(g, r)} className="v3-prop__who" aria-label={`${r.player} ${r.statLabel} over ${r.line}: open research with history chart`}><span><b>{r.player}</b><small>{r.statLabel} · over {r.line} · research<Icon name="chevR" size={12} /></small></span></Link>
             <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${priceOf(r)?.ask != null ? `${priceOf(r)!.ask} cents` : 'no price available'}. Open exact contract`}
               onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} /></button>
           </li>
         ))}
       </ul>
       {filtered.length > shown.length && <button type="button" className="v3-more" onClick={() => setAll(true)}>Show all {filtered.length} props</button>}
-      <p className="v3-note v3-note--dim">Kalshi prices, nearest-to-even line per player and stat. Tap a name for the player's history.</p>
+      <p className="v3-note v3-note--dim">Kalshi prices, nearest-to-even line per player and stat. Tap a player for the history chart, hit rates and opponent context; tap a price for the exact contract.</p>
     </section>
   );
 }

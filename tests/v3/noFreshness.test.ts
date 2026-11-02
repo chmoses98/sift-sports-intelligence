@@ -19,7 +19,11 @@ const FRESHNESS = [
 ];
 
 /** File (relative to src/v3) + exact literal text that may match, with the reason. Keep this list empty unless a real exception appears. */
-const ALLOWED: { file: string; text: string; why: string }[] = [];
+const ALLOWED: { file: string; text: string; why: string }[] = [
+  // Owner directive, PR #172 review (2 Nov 2026): a withheld price must say exactly why, with the last observation time. The rule that decides is unchanged
+  // (data/quoteGate.ts `gate`); only the explanation of a REFUSAL (`explainGate`) names an age, and only where a price is not shown. A shown price never carries one.
+  { file: 'data/quoteGate.ts', text: ' ago', why: 'explainGate: the age of the last quote, printed only beside a withheld price (PR #172 review)' },
+];
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const n of readdirSync(dir)) {

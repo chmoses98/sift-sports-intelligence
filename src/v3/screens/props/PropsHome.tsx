@@ -98,6 +98,7 @@ export function PropsHome({ us, onHorizon }: { us: UniverseState; onHorizon: (h:
           <span className="pd-h__tr"><SearchButton /><Link to={withOnce(routes.props({ view: 'list' }), 'filters')} className="v3-iconbtn" aria-label="Sort and filter" data-tap="props"><Icon name="sliders" size={22} /></Link></span>
         </div>
         <div className="pd-h__sub">{dayWord(now)} · {s.games} game{s.games === 1 ? '' : 's'}{universe.complete ? '' : ' so far'} · {s.props} props · {s.contracts} contracts</div>
+        <p className="pd-scope" data-scope="player-props">Player props today. Game totals, team totals, moneylines and period markets are on each game’s page; they join Discover next.</p>
       </header>
       <Link to={withOnce(routes.props({ view: 'list' }), 'focus')} className="pd-field" aria-label="Search player, stat or team" data-tap="props"><Icon name="search" size={20} /><span>Search player, stat or team</span></Link>
       <HorizonBar state={us} onChange={onHorizon} />

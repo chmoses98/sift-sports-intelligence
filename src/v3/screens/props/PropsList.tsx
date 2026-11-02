@@ -260,10 +260,17 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
   const nFilters = [st.range, st.hmin, st.orank, st.model || null, st.preset].filter(Boolean).length;
   const published = universe.props.filter((p) => p.model.state === 'published').length;
   const hiddenN = universe.props.filter((p) => p.out).length;
+  // Arrived from a game or a shelf (the address pins the selected prop): the selected market and its evidence lead; search, window, sort and filters fold into one line.
+  const focused = !!(st.pin && st.exp && expProp);
+  const [refineOpen, setRefineOpen] = useState(false);
 
   return (
     <div className="pd pd-listpage" data-view="list">
       <Header st={st} title={title} count={list.length} partial={!universe.complete} onBack={back} onSearch={() => inputRef.current?.focus()} set={set} universe={universe} />
+      {focused ? (
+        <details className="pd-refine" open={refineOpen} onToggle={(e) => setRefineOpen((e.currentTarget as HTMLDetailsElement).open)}>
+          <summary><Icon name="sliders" size={14} /><span>Refine this list</span><small>search · time window · sort · filters{nFilters ? ` · ${nFilters} applied` : ''}</small></summary>
+          <div className="pd-refine__body">
       <label className="pd-search">
         <Icon name="search" size={18} />
         <input ref={inputRef} type="search" value={text} onChange={(e) => onText(e.target.value)} placeholder="Search player, stat or team" aria-label="Search player, stat or team" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
@@ -278,6 +285,26 @@ export function PropsList({ st, set, us }: { st: ListState; set: SetState; us: U
       <ActiveChips st={st} set={set} hiddenN={hiddenN} game={gameProp} />
       <div className="pd-leg" aria-label="Lane key"><span>Market <Mark lane="m" /> pre-fee implied</span><span>History <Mark lane="h" /> last 10</span><span>SIFT model <Mark lane="z" /></span></div>
       <div className="pd-note"><Icon name="info" size={13} /><p>SIFT model shows “—” where no approved estimate exists: {published} of {universe.props.length} props today.</p></div>
+          </div>
+        </details>
+      ) : (
+        <>
+      <label className="pd-search">
+        <Icon name="search" size={18} />
+        <input ref={inputRef} type="search" value={text} onChange={(e) => onText(e.target.value)} placeholder="Search player, stat or team" aria-label="Search player, stat or team" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />
+        {text && <button type="button" aria-label="Clear search" onClick={() => onText('')}><Icon name="close" size={16} /></button>}
+      </label>
+      <HorizonBar state={us} onChange={(hz) => set({ hz })} />
+      <ChipRail className="pd-ctrl" role="group" aria-label="Sort, filters and compare">
+        <button type="button" className="pd-btn pd-btn--sort" onClick={openFilters} aria-label={`Sort: ${SORT_LABEL[sort]}. Open sort and filters`}><Icon name="sliders" size={13} />Sort: {SORT_LABEL[sort]}<b>▾</b></button>
+        <button type="button" className="pd-btn" onClick={openFilters} aria-label={`Filters${nFilters ? `, ${nFilters} applied` : ''}`}>Filters{nFilters > 0 && <i className="pd-badge">{nFilters}</i>}</button>
+        <button type="button" className="pd-btn" aria-pressed={st.cmpm} onClick={() => set({ cmpm: !st.cmpm })}>Compare{cmp.length ? ` · ${cmp.length}` : ''}</button>
+      </ChipRail>
+      <ActiveChips st={st} set={set} hiddenN={hiddenN} game={gameProp} />
+      <div className="pd-leg" aria-label="Lane key"><span>Market <Mark lane="m" /> pre-fee implied</span><span>History <Mark lane="h" /> last 10</span><span>SIFT model <Mark lane="z" /></span></div>
+      <div className="pd-note"><Icon name="info" size={13} /><p>SIFT model shows “—” where no approved estimate exists: {published} of {universe.props.length} props today.</p></div>
+        </>
+      )}
       {needsHist && histSum && (histSum.total > 0 || universe.complete) && (
         <div className="pd-hbar" role="status" data-evaluated={histSum.evaluated} data-total={histSum.total}>
           <p className="pd-hbar__t"><b>Evaluated {histSum.evaluated} of {histSum.total}</b> props</p>

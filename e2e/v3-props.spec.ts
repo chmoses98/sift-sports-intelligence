@@ -89,6 +89,18 @@ async function listWithResearchableRow(page: Page): Promise<{ path: string }> {
   throw new Error('no sport on today\'s slate carries a researchable prop');
 }
 
+/** Open the exact contract from the selected-contract strip, read its ticker, and come Back to the same research. */
+async function openContractTicker(page: Page, peek: Locator): Promise<string> {
+  await peek.locator('.pd-sel__px').click();
+  const code = page.locator('.v3c-tick code');
+  await expect(code).toBeVisible();
+  const tk = (await code.innerText()).trim();
+  await page.goBack();
+  await expect(page.locator('.v3c-tick code')).toHaveCount(0);
+  await expect(peek).toBeVisible();
+  return tk;
+}
+
 test.describe('Prop Discovery on real published documents @v3', () => {
   test('the Props tab is Prop Discovery; search opens from the header at /v3/search and the old Explore address redirects to it', async ({ page }) => {
     await go(page, '/v3');
@@ -278,6 +290,37 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     expect(path).toBeTruthy();
   });
 
+  test('research-first: a pinned prop leads with its contract and evidence; filters fold away; a rung switch moves the line, the contract strip and the exact contract together', async ({ page }) => {
+    await listWithResearchableRow(page);
+    const row = page.locator('.pd-row:has(a.pd-av)').first();
+    await center(row);
+    await tapRow(row);
+    const exp = decodeURIComponent(/exp=([^&]+)/.exec(await hash(page))![1]);
+    await go(page, `/v3/props?v=1&view=list&exp=${encodeURIComponent(exp)}&pin=1`);
+    await ready(page);
+    const peek = page.locator('.pd-peek');
+    await expect(peek).toBeVisible();
+    // The selected contract is in the first viewport; search, window, sort and filters are one folded line.
+    const box = (await peek.boundingBox())!;
+    expect(box.y + 200).toBeLessThan(page.viewportSize()!.height);
+    const refine = page.locator('details.pd-refine');
+    await expect(refine).toBeVisible();
+    expect(await refine.getAttribute('open')).toBeNull();
+    await expect(page.locator('.pd-hz')).toBeHidden();
+    const strip = peek.locator('.pd-sel');
+    const chips = peek.locator('.pd-rs');
+    test.skip((await chips.count()) < 2, 'this prop lists a single rung');
+    const before = (await strip.innerText()).split('\n')[0];
+    const tkBefore = await openContractTicker(page, peek);
+    const other = peek.locator('.pd-rs[aria-pressed="false"]').first();
+    const label = (await other.locator('b').innerText()).trim();
+    await other.click();
+    await expect(peek.locator('.pd-rs', { hasText: label })).toHaveAttribute('aria-pressed', 'true');
+    expect((await strip.innerText()).split('\n')[0]).not.toBe(before);
+    expect(await strip.innerText()).toContain(label.replace('+', ''));
+    expect(await openContractTicker(page, peek)).not.toBe(tkBefore);
+  });
+
   test('PD3: a rung chip changes the line in place (address replaced, no history entry, same row stays open)', async ({ page }) => {
     await listWithResearchableRow(page);
     const row = page.locator('.pd-row:has(a.pd-av)').first();
@@ -448,7 +491,11 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     await expect(peek.locator('.pd-trio .n.pd-m')).toHaveText('—');
     await expect(peek.locator('.pd-acts a[data-tap="price"]')).toHaveText('Contract');                // no price on the button
     for (const t of await peek.locator('.pd-rs small').allTextContents()) expect(t).toBe('—');
-    expect(await page.locator('body').innerText()).not.toMatch(/\b(ago|stale|last known|last updated|updated)\b/i);
+    // PR #172 review: a withheld price is never silent. The peek names the reason, and offers Retry when asking again can help.
+    const note = peek.locator('.pd-pnote');
+    await expect(note).toBeVisible();
+    await expect(note).toHaveAttribute('data-price-why', /.+/);
+    await expect(note.getByRole('button', { name: 'Retry' })).toBeVisible();
   });
 
   test('PD6 exact contract: Over price, implied pre-fee, taker fee and break-even; neighbouring rungs switch in place; Research and Back to list', async ({ page }) => {
@@ -519,7 +566,8 @@ test.describe('Prop Discovery on real published documents @v3', () => {
     const txt = await sheet.innerText();
     expect(txt).not.toMatch(/Taker fee|break-even|Implied|\d+¢/);
     await expect(sheet.locator('[data-state="fee"]')).toHaveCount(0);
-    expect(txt).not.toMatch(/\b(ago|stale|last known|last updated|updated)\b/i);
+    // The sheet says WHY (reason + the contract's last observation time when one exists), still with no price rows.
+    await expect(sheet.locator('.v3c-why')).toHaveAttribute('data-why', /.+/);
     withhold = false;
     await sheet.getByRole('button', { name: 'Retry' }).click();
     await expect(sheet.locator('[data-state="price"]')).toBeVisible({ timeout: 20_000 });

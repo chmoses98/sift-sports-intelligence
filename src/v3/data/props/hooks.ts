@@ -8,7 +8,8 @@ import { demoOn } from '../../state/prefs';
 import { liveStatusFacts, statusFacts } from '../../model/marketStatus';
 import { guardLiveQuote } from '../validate';
 import type { Price } from '../../model/types';
-import { gate, type GateResult } from '../quoteGate';
+import { explainGate, gate, type GateResult, type PriceWhy } from '../quoteGate';
+import { clockTime } from '../../model/time';
 import { refreshRowsNow, useRowGroups, type RowGroup } from '../liveQuotes';
 import { useSlate } from '../useSlate';
 import { availabilityBank, pendingKeys, withAvailability } from './availability';
@@ -188,6 +189,10 @@ export interface PriceReader {
   /** The gated price of a rung: the price to print, or null (print "—"). */
   priceOf: (p: Prop, r: PropRung) => Price | null;
   gateOf: (p: Prop, r: PropRung) => GateResult;
+  /** Why this rung's price is not shown (sentence, last observation, retry), or null when it is shown. */
+  whyOf: (p: Prop, r: PropRung) => PriceWhy | null;
+  /** Ask the delivery chain (relay, then the live feed) for these rungs' newest quotes now. Resolves when it has answered. */
+  refresh: (p: Prop, rungs: PropRung[]) => Promise<void>;
   now: number;
 }
 
@@ -221,7 +226,9 @@ export function usePropPrices(visible: Prop[], expanded: Prop | null): PriceRead
   const store = liveStore();
   // `live.version` changes whenever any quote does: the lookup is stable, so the readers must be re-created for rows to repaint.
   const gateOf = useCallback((p: Prop, r: PropRung): GateResult => gate(rawPrice(p, r, store.quote(r.ticker)), { kind: 'list', startMs: p.startMs, live: false }, now), [store, now, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
-  return useMemo(() => ({ gateOf, priceOf: (p, r) => gateOf(p, r).price, now }), [gateOf, now]);
+  const whyOf = useCallback((p: Prop, r: PropRung): PriceWhy | null => explainGate(gateOf(p, r), { kind: 'list', startMs: p.startMs, live: false }, now, (ms) => clockTime(ms)), [gateOf, now]);
+  const refresh = useCallback(async (p: Prop, rungs: PropRung[]) => { await refreshRowsNow(rungs.filter((r) => r.source !== 'Sample').map((r) => r.ticker), { startMs: p.startMs, live: false }); }, []);
+  return useMemo(() => ({ gateOf, whyOf, refresh, priceOf: (p, r) => gateOf(p, r).price, now }), [gateOf, whyOf, refresh, now]);
 }
 
 /** A value that follows `v` only after it has stopped changing for `ms` (the first value is taken at once). */

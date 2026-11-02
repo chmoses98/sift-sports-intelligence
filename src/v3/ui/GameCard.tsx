@@ -4,6 +4,7 @@ import { useGameExtras } from '../data/useGameExtras';
 import { closenessOf, lateness, progressOf } from '../model/priority';
 import type { V3Game } from '../model/types';
 import { AlertBell, GameStar } from './Controls';
+import { clockTime, hasStart } from '../model/time';
 import { Icon } from './Icon';
 import { TeamLogo } from './TeamLogo';
 import { DelayedMark, LinesBox, PriceText, gameHref, leagueLabel, scoreSourceWord, statusWord, teamHref, useListGate, useOpenContract, useSeen } from './gamebits';
@@ -53,6 +54,9 @@ export function GameCard({ g: base }: { g: V3Game }) {
   const scored = g.score != null;
   const src = scoreSourceWord(g);
   const hasSituation = live && !!g.situation?.text;
+  const noScore = live && !scored && g.provenance === 'publication';
+  // A game in play with neither a licensed score nor a listed line has nothing for the box to say: the card keeps one header pill instead of two empty-state boxes.
+  const bare = noScore && !g.lines.length && !x?.detailLoading;
   const label = `${g.away.name} at ${g.home.name}, ${scored ? `${g.score!.away} to ${g.score!.home}, ` : ''}${statusWord(g)}. Open game`;
   const spread = g.lines.find((l) => l.kind === 'spread');
   const total = g.lines.find((l) => l.kind === 'total');
@@ -62,7 +66,8 @@ export function GameCard({ g: base }: { g: V3Game }) {
       <header className="v3-gc__h">
         <span className="v3-gc__lg" data-sport={g.slug}>{leagueLabel(g)}</span>
         {g.away.conference && g.away.conference === g.home.conference && <span className="v3-gc__cf">{g.away.conference}</span>}
-        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? 'In play'}<DelayedMark g={g} /></span> : <span className="v3-gc__time">{statusWord(g)}</span>}
+        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? (hasStart(g.startMs) ? `Live · ${clockTime(g.startMs)}` : 'Live')}<DelayedMark g={g} /></span> : <span className="v3-gc__time">{statusWord(g)}</span>}
+        {noScore && <span className="v3-gc__noscore" role="note" aria-label="No score shown: this league has no licensed score feed in SIFT, so no score is estimated">No score</span>}
         {closeAndLate(g) && <span className="v3-gc__hot">Close · late</span>}
         <span className="v3-gc__net">{g.network ?? ''}</span>
       </header>
@@ -74,7 +79,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
         </div>
         {hasSituation ? (
           <div className="v3-gc__sit"><span>{g.situation!.text}</span></div>
-        ) : (
+        ) : bare ? null : (
           <LinesBox g={g} startMs={startMs} gate={gate} loading={g.provenance === 'publication' && g.phase !== 'final' && x?.detailLoading} />
         )}
         <div className="v3-gc__act">
@@ -88,7 +93,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
           <small>{(spread ?? total)!.price.source}</small>
         </button>
       )}
-      {src && <p className="v3-gc__src">{src}</p>}
+      {src && !noScore && <p className="v3-gc__src">{src}</p>}
     </article>
   );
 }

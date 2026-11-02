@@ -11,11 +11,12 @@
 // ticker through the quote-delivery chain (QuoteStore.refreshContract: relay first, then the feed, each requested ticker judged on its own observation),
 // the contract stays current on a contract scope (20 s), and Retry asks again the same way (data/liveQuotes.ts). A market the provider positively reports
 // as closed, settled or expired says so with no Retry, whichever of the sheet's price and the refresh learned it first.
-import { useMemo, useSyncExternalStore, type ReactNode } from 'react';
+import { useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from '../../routing';
 import { useNow } from '../../live/hooks';
 import { MISSING_PRICE } from '../../live/missingPrice';
-import { gate, observationCurrent } from '../data/quoteGate';
+import { explainGate, gate, observationCurrent } from '../data/quoteGate';
+import { clockTime } from '../model/time';
 import { useContractRefresh, useQuoteReader, useRowQuotes } from '../data/liveQuotes';
 import { contractFacts, newerPrice, priceOfQuote } from '../model/contract';
 import { fmtCents, showAsk } from '../model/format';
@@ -91,6 +92,7 @@ function ContractBody({ tk }: { tk: string | null }) {
   const schedule = { startMs: info?.startMs ?? null, live: info?.live ?? false };
   // The exact contract: its own scope (detail cadence), one forced refresh on open, and the same again on Retry (QuoteStore.refreshContract).
   const { busy, retry, state: refreshState, marketStatus: refreshStatus } = useContractRefresh(tk, schedule);
+  const [lastTry, setLastTry] = useState<number | null>(null);
   const live = useQuoteReader(); // reads only: the contract's own scope above keeps it current (a rows scope here would loosen its age limit to a list's)
   // The rungs listed under the numbers follow the live store too (bounded), so a neighbour's price is current or "—", never a capture.
   const nbTickers = useMemo(() => (info?.neighbours ?? []).map((n) => n.ticker).filter((t) => t !== tk).slice(0, 40), [info, tk]);
@@ -107,6 +109,7 @@ function ContractBody({ tk }: { tk: string | null }) {
   // The state the sheet NAMES (no Retry): what its own price says, else what the forced refresh learned (the provider positively reports the market closed,
   // settled or expired: asking again cannot change that). A suspended, not-yet-open or unrecognised report keeps the ordinary sentence and Retry unless current.
   const closedStatus: MarketState | null = named && g.marketStatus ? g.marketStatus : !g.price && refreshState === 'market_closed' ? refreshStatus : null;
+  const why = explainGate(g, ctx, now, (ms) => clockTime(ms));
   const open = (to: string) => nav({ pathname: loc.pathname, search: withSheet(loc.search, { kind: 'contract', tk: to }) }, { replace: true, state: loc.state, preventScrollReset: true });
 
   return (
@@ -142,7 +145,8 @@ function ContractBody({ tk }: { tk: string | null }) {
         <div className="v3c-none" role="status" data-state="unavailable" data-market-status={g.reason === 'not-tradable' ? g.marketStatus ?? undefined : undefined}>
           <b>{MISSING_PRICE.contract}</b>
           <span>No reliable quote could be obtained. Nothing is estimated.</span>
-          <button type="button" className="v3c-btn is-pri" onClick={() => void retry()} disabled={busy}>{busy ? 'Retrying' : MISSING_PRICE.retry}</button>
+          {why && <span className="v3c-why" data-why={why.short}><b>{why.short}.</b> {why.detail}{lastTry ? ` Asked again at ${clockTime(lastTry)}: no newer usable quote.` : ''}</span>}
+          <button type="button" className="v3c-btn is-pri" onClick={() => void retry().then(() => setLastTry(Date.now()))} disabled={busy}>{busy ? 'Retrying' : MISSING_PRICE.retry}</button>
         </div>
       )}
 

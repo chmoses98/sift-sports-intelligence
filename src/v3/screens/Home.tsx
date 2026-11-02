@@ -36,7 +36,7 @@ function DateSheet({ day, today, onPick }: { day: string; today: string; onPick:
   );
 }
 
-function SectionHead({ s, open, onToggle }: { s: Section; open: boolean; onToggle: () => void }) {
+function SectionHead({ s, open, onToggle, onInfo }: { s: Section; open: boolean; onToggle: () => void; onInfo?: () => void }) {
   const n = s.games.length;
   const label = `${s.title} · ${n}`;
   if (s.kind === 'final') {
@@ -48,7 +48,18 @@ function SectionHead({ s, open, onToggle }: { s: Section; open: boolean; onToggl
       </h2>
     );
   }
-  return <h2 className="v3-sec__h"><span className={`v3-sec__t${s.kind === 'live' ? ' is-live' : ''}`}>{s.kind === 'live' && <i aria-hidden="true" />}<span>{label}</span></span></h2>;
+  return <h2 className="v3-sec__h"><span className={`v3-sec__t${s.kind === 'live' ? ' is-live' : ''}`}>{s.kind === 'live' && <i aria-hidden="true" />}<span>{label}</span></span>{s.kind === 'live' && onInfo && <button type="button" className="v3-sec__info" onClick={onInfo} aria-label="About live scores and what is not shown"><Icon name="info" size={18} /></button>}</h2>;
+}
+
+/** What the live section does and does not show, once, instead of under every list. */
+function LiveRightsNote() {
+  return (
+    <div className="v3-livenote">
+      <p><b>What “Live” means here.</b> A game is Live when the publication reports it started and not finished. The score and clock appear only for leagues where SIFT has a licensed score feed (currently NBA score and period).</p>
+      <p><b>No score feed</b> means SIFT shows no score for that game. It never estimates one, and it shows no plays, box scores or clocks it is not licensed to show.</p>
+      <p>Open a live game for its pregame research and Kalshi markets, which stay available while it is in play.</p>
+    </div>
+  );
 }
 
 export function Home() {
@@ -210,9 +221,8 @@ export function Home() {
         const open = !closed[s.id];
         return (
           <section key={s.id} id={`sec-${s.id}`} className="v3-sec" aria-label={`${s.title}, ${s.games.length} ${s.games.length === 1 ? 'game' : 'games'}`}>
-            <SectionHead s={s} open={open} onToggle={() => setClosed((c) => ({ ...c, [s.id]: !c[s.id] }))} />
+            <SectionHead s={s} open={open} onToggle={() => setClosed((c) => ({ ...c, [s.id]: !c[s.id] }))} onInfo={() => sheet.open('About live scores', <LiveRightsNote />)} />
             {open && <div className="v3-gclist" id={`sec-${s.id}-list`}>{s.games.map((g) => <GameCard key={g.key} g={g} />)}</div>}
-            {s.kind === 'live' && open && <p className="v3-note v3-foot">Scores come from a licensed score feed only where one exists. Games in play without one show “Score unavailable”.</p>}
           </section>
         );
       })}

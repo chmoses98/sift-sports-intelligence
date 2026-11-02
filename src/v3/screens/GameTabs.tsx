@@ -5,6 +5,10 @@ import { propIdOf } from '../data/props/parse';
 import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
 import { deriveProps, type PropRow } from '../data/adapt';
 import { useQuotedPrices } from '../data/research/gameHooks';
+import { refreshRowsNow } from '../data/liveQuotes';
+import { explainGate, gate as gateFull, type GateResult } from '../data/quoteGate';
+import { clockTime } from '../model/time';
+import { useNow } from '../../live/hooks';
 import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
 import type { MarketLine, Price, V3Game } from '../model/types';
@@ -205,7 +209,15 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
   const shown = useMemo(() => (all ? filtered : filtered.slice(0, 12)), [filtered, all]);
   // The rows on screen follow the live quote store (a newer observation replaces the publication's capture); the gate then decides what prints.
   const quoted = useQuotedPrices(detail, useMemo(() => shown.map((r) => r.price.ticker), [shown]), { startMs, live: g.phase === 'live' });
+  const now = useNow(5_000);
+  const gres = (r: PropRow): GateResult => gateFull(quoted(r.price.ticker) ?? r.price, { kind: 'list', startMs, live: g.phase === 'live' }, now);
   const priceOf = (r: PropRow): Price | null => gate(quoted(r.price.ticker) ?? r.price);
+  const whyOf = (r: PropRow) => explainGate(gres(r), { kind: 'list', startMs, live: g.phase === 'live' }, now, (ms) => clockTime(ms));
+  const withheld = shown.filter((r) => !priceOf(r));
+  const newest = shown.reduce<number>((m, r) => Math.max(m, Date.parse(gres(r).observedAt ?? '') || 0), 0);
+  const [checking, setChecking] = useState(false);
+  const [checkedAt, setCheckedAt] = useState<number | null>(null);
+  const recheck = async () => { setChecking(true); try { await refreshRowsNow(shown.map((r) => r.price.ticker), { startMs, live: g.phase === 'live' }); } finally { setChecking(false); setCheckedAt(Date.now()); } };
   if (g.provenance === 'demo') {
     const nba = g.sport === 'NBA';
     const rows = nba
@@ -237,12 +249,19 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
         <button type="button" className="v3-chip" aria-pressed={!stat} onClick={() => setStat(null)}>All</button>
         {stats.map((s) => <button key={s} type="button" className="v3-chip" aria-pressed={stat === s} onClick={() => setStat(s)}>{s}</button>)}
       </ChipRail>
+      {withheld.length > 0 && (
+        <div className="pd-pnote" role="status" data-state="prices-withheld">
+          <Icon name="info" size={14} />
+          <p><b>{withheld.length === shown.length ? 'No current prices.' : `${withheld.length} of ${shown.length} prices withheld.`}</b> {whyOf(withheld[0])?.detail}{checkedAt ? ` Checked again at ${clockTime(checkedAt)}; prices that stayed — had no newer usable quote.` : ''}{newest ? ` Newest quote on this list: ${clockTime(newest)}.` : ''}</p>
+          <button type="button" className="pd-abtn" onClick={() => void recheck()} disabled={checking}>{checking ? 'Checking' : 'Retry'}</button>
+        </div>
+      )}
       <ul className="v3-props">
         {shown.map((r) => (
           <li key={r.key}>
             <Link to={researchHref(g, r)} className="v3-prop__who" aria-label={`${r.player} ${r.statLabel} over ${r.line}: open research with history chart`}><span><b>{r.player}</b><small>{r.statLabel} · over {r.line} · research<Icon name="chevR" size={12} /></small></span></Link>
             <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${priceOf(r)?.ask != null ? `${priceOf(r)!.ask} cents` : 'no price available'}. Open exact contract`}
-              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} /></button>
+              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} />{!priceOf(r) && <small className="v3-prop__why">{whyOf(r)?.short}</small>}</button>
           </li>
         ))}
       </ul>

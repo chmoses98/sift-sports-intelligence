@@ -39,9 +39,11 @@ export interface GateResult {
   reason: 'ok' | 'no-price' | 'not-tradable' | 'no-observation-time' | 'future' | 'too-old';
   /** Why the market cannot be traded, for the exact-contract sheet ('not-tradable' only; otherwise null). */
   marketStatus: MarketState | null;
+  /** The observation time of the quote that was judged (null when none): kept so a screen can say WHEN it was last seen, never to relax the rule. */
+  observedAt?: string | null;
 }
 
-const out = (reason: GateResult['reason'], marketStatus: MarketState | null = null): GateResult => ({ price: null, reason, marketStatus });
+const out = (reason: GateResult['reason'], marketStatus: MarketState | null = null, observedAt: string | null = null): GateResult => ({ price: null, reason, marketStatus, observedAt });
 
 /** The shared rule's reasons as v3's. */
 const REASON: Record<Exclude<UnusableReason, 'no_quote' | 'not_tradable'>, GateResult['reason']> = {
@@ -70,14 +72,58 @@ export function observationCurrent(p: Price, c: QuoteContext, now = Date.now(), 
  */
 export function gate(p: Price | null | undefined, c: QuoteContext, now = Date.now(), skewMs = 0): GateResult {
   if (!p) return out('no-price');
-  if (p.tradable === false) return out('not-tradable', p.marketStatus);
-  if (!isExecutableAsk(p.ask)) return out('no-price');
+  if (p.tradable === false) return out('not-tradable', p.marketStatus, p.observedAt);
+  if (!isExecutableAsk(p.ask)) return out('no-price', null, p.observedAt);
   if (p.source === 'Sample') return { price: p, reason: 'ok', marketStatus: null };
   const u = quoteUsable(asQuote(p), liveContext(c), now, { clockSkewMs: skewMs });
-  if (u.usable) return { price: p, reason: 'ok', marketStatus: null };
+  if (u.usable) return { price: p, reason: 'ok', marketStatus: null, observedAt: p.observedAt };
   // `not_tradable` cannot occur: the neutral status above is "none sent". `no_quote` cannot occur: a quote is always passed.
-  return out(u.reason === 'no_quote' || u.reason === 'not_tradable' || u.reason == null ? 'no-observation-time' : REASON[u.reason]);
+  return out(u.reason === 'no_quote' || u.reason === 'not_tradable' || u.reason == null ? 'no-observation-time' : REASON[u.reason], null, p.observedAt);
 }
 
 /** The price to show, or null to show the missing-price state. */
 export const usablePrice = (p: Price | null | undefined, c: QuoteContext, now = Date.now(), skewMs = 0): Price | null => gate(p, c, now, skewMs).price;
+
+
+export interface PriceWhy {
+  /** One short line for a row or a bar: "Price 4 h old". */
+  short: string;
+  /** The full sentence for the research panel and the contract sheet. */
+  detail: string;
+  /** When the withheld quote was last observed (ISO), or null when nothing was observed. */
+  observedAt: string | null;
+  /** Asking again can change the answer (a closed, settled or expired market cannot be retried into a price). */
+  retry: boolean;
+}
+
+const elapsed = (ms: number): string => {
+  const m = Math.round(ms / 60_000);
+  if (m < 1) return `${Math.max(1, Math.round(ms / 1000))} s`;
+  if (m < 90) return `${m} min`;
+  const h = ms / 3_600_000;
+  return h < 48 ? `${h < 10 ? h.toFixed(1).replace(/\.0$/, '') : Math.round(h)} h` : `${Math.round(h / 24)} days`;
+};
+
+/** Why a price is not shown, in words. Pure: the gate's refusal, the context and the clock are passed in. Null when the price is shown. */
+export function explainGate(g: GateResult, c: QuoteContext, now: number, clock: (ms: number) => string = (ms) => new Date(ms).toISOString().slice(11, 16) + ' UTC'): PriceWhy | null {
+  if (g.reason === 'ok') return null;
+  const at = g.observedAt ?? null;
+  const seenMs = at ? Date.parse(at) : NaN;
+  const seen = Number.isFinite(seenMs) ? seenMs : null;
+  const limit = elapsed(maxAgeMs(c, now));
+  switch (g.reason) {
+    case 'too-old': {
+      const age = seen != null ? elapsed(Math.max(0, now - seen)) : null;
+      return { short: age ? `Price ${age} old` : 'Price too old', detail: `Last Kalshi quote: ${seen != null ? `${clock(seen)}, ${age} ago` : 'time unknown'}. SIFT shows an ask only when it is under ${limit} old. Retry asks the live feed for a newer one.`, observedAt: at, retry: true };
+    }
+    case 'no-observation-time':
+      return { short: 'Price not timed', detail: 'The source gave this price no observation time, so SIFT cannot show it as current. Retry asks the live feed again.', observedAt: null, retry: true };
+    case 'future':
+      return { short: 'Clock mismatch', detail: 'The quote is stamped later than this device’s clock, so it is withheld until the clocks agree. Retry asks again.', observedAt: at, retry: true };
+    case 'not-tradable':
+      return { short: g.marketStatus ? `Market ${g.marketStatus.replace(/_/g, ' ')}` : 'Not tradable', detail: `Kalshi reports this market as ${g.marketStatus ? g.marketStatus.replace(/_/g, ' ') : 'not tradable'}${seen != null ? ` (seen ${clock(seen)})` : ''}, so there is no price to buy.`, observedAt: at, retry: g.marketStatus !== 'closed' && g.marketStatus !== 'settled' && g.marketStatus !== 'expired' };
+    case 'no-price':
+    default:
+      return { short: 'No ask listed', detail: `Kalshi lists no buyable ask on this contract right now${seen != null ? ` (checked ${clock(seen)})` : ''}. That is a gap in the market, not a missing page.`, observedAt: at, retry: true };
+  }
+}

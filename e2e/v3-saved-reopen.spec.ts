@@ -67,7 +67,7 @@ test.describe('saved Player research reopens with the current quote @v3', () => 
     expect(JSON.parse(raw)).toHaveLength(1);
     expect(raw).not.toMatch(PRICE_IN_STORAGE);
     // the saved card on Following shows the setup and no price
-    await page.goto('./#/v3/following');
+    await page.goto('./#/v3/following?tab=saved');
     const card = page.locator('.v3-hit--saved').first();
     await expect(card).toBeVisible();
     expect(await card.innerText()).not.toMatch(PRICE_IN_STORAGE);
@@ -86,7 +86,7 @@ test.describe('saved Player research reopens with the current quote @v3', () => 
     await page.getByRole('button', { name: 'Save this research' }).first().click();
     // three hours later: every observation in the documents is older than the gate allows
     await page.clock.setFixedTime(PAGE_NOW + 3 * 3600_000);
-    await page.goto('./#/v3/following');
+    await page.goto('./#/v3/following?tab=saved');
     await page.reload();
     await page.locator('.v3-hit--saved .v3-hit__l').first().click();
     await expect(page.locator('.v3p-hb').first()).toBeVisible({ timeout: 40_000 });
@@ -128,7 +128,7 @@ test.describe('saved Prop Discovery views reopen with current quotes @v3', () =>
     expect(raw).not.toMatch(PRICE_IN_STORAGE);
     expect(JSON.parse(raw)[0].route).toMatch(/^\/v3\/props/);
     bump = 3;
-    await page.goto('./#/v3/following');
+    await page.goto('./#/v3/following?tab=saved');
     await page.reload();
     await page.locator('.v3-hit--saved .v3-hit__l').first().click();
     await ready(page);

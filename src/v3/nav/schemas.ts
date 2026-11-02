@@ -160,6 +160,10 @@ export const propsSchema = defineSchema({
   fields: {
     /** home (PD1), list (PD2 and PD3), compare (PD5). Absent with no other field: the home. */
     view: f.oneOf(PROPS_VIEWS, 'home'),
+    /** What Discover lists: player props (default) or game and team markets (moneyline, spread, totals, periods). */
+    scope: f.oneOf(['players', 'games'] as const, 'players'),
+    /** Game & team scope: the expanded game's key. */
+    gk: f.str(null, 48),
     /** A sport slug ("nfl"), or "all". */
     sport: f.str('all', 8),
     /** A statistic family ("receptions", "goals"). */

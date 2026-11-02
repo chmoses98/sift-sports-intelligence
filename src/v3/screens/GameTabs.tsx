@@ -23,6 +23,7 @@ import { ordinal } from '../data/lens';
 import { isReady } from '../model/capabilities';
 import type { GameTab } from '../nav/schemas';
 import { MatchupTab } from './GameMatchup';
+import { GameMarkets } from './markets/GameMarkets';
 import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
 import type { GameCtx } from './GameShared';
 import { DataState } from '../ui/DataState';
@@ -283,7 +284,14 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
   if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
-  if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  if (tab === 'props') {
+    return (
+      <>
+        {g.provenance === 'publication' && !!detail && <><h2 className="v3-h2">Game &amp; team markets</h2><GameMarkets g={g} startMs={ctx.startMs} detail={detail} /></>}
+        <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />
+      </>
+    );
+  }
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   // A game in play leads with the live game (state, plays, performances: screens/live), then markets, then the research; the pregame analysis stays on the page
   // (MatchupIntel 'after'). Any other phase keeps the pregame order: research first, then markets.

@@ -11,6 +11,7 @@ import { Icon } from '../../ui/Icon';
 import { PropsCompare } from './Compare';
 import { PropsHome } from './PropsHome';
 import { PropsList } from './PropsList';
+import { GamesScope } from './GamesScope';
 import { useSlate } from '../../data/useSlate';
 import { useLocation } from '../../../routing';
 import { useHistoryBank } from '../../data/props/bank';
@@ -27,6 +28,7 @@ export function Props() {
   const tk = new URLSearchParams(loc.search).get('tk');
   const owner = universe && tk ? universe.byId.get(tk.split('-').slice(0, -1).join('-')) ?? null : null;
   usePublishContracts([owner], bank.get, bank.getVersion());
+  if (st.scope === 'games') return <GamesScope />;
   if (!universe) {
     return (
       <div className="pd" data-view="loading">

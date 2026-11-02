@@ -90,6 +90,8 @@ describe('every real captured document passes its guard (fixtures/real, all fami
  * stays small), not publications; none is read by a screen under the validator. Listed so a new failure cannot hide among them.
  */
 const TRIMMED_TEST_INPUTS: Record<string, string> = {
+  'tests/v3/fixtures/nba/team-CHI.json': 'trimmed REAL NBA team profile (links, rankings, series, markets removed) plus a `_fixture` provenance field',
+  'tests/v3/fixtures/nba/team-PHI.json': 'trimmed REAL NBA team profile (links, rankings, series, markets removed) plus a `_fixture` provenance field',
   'tests/v3/fixtures/nfl-index-slim.json': 'slimmed index: metrics_path and search_index_path removed',
   'tests/v3/fixtures/nhl-index-slim.json': 'slimmed index: metrics_path and search_index_path removed',
   'tests/v3/fixtures/nfl-index.json': 'index with its `files` table cut out',

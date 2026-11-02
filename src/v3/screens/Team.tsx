@@ -28,6 +28,7 @@ import { LockedRow, Tabs } from '../ui/atoms';
 import { leagueLabel } from '../ui/gamebits';
 import type { V3Team } from '../model/types';
 import { TeamLegacy } from './TeamLegacy';
+import { NbaTeam } from './team/NbaTeam';
 import { Form } from './team/Form';
 import { Overview } from './team/Overview';
 import { Players } from './team/Players';
@@ -84,6 +85,8 @@ function SaveButton({ team, tab, c, record }: { team: V3Team; tab: Tab; c: Pick<
 /** Football and hockey get the locked Team Research design; MLB is held with its reason; sports the design does not cover yet keep the earlier page. */
 export function Team() {
   const { slug = '' } = useParams();
+  // NBA: its own screen, opened by the data (nbaCurrency), never by a declaration flag.
+  if (slug === 'nba') return <NbaTeam />;
   return capability(slug, 'teamOverview').status === 'none' ? <TeamLegacy /> : <TeamResearch />;
 }
 

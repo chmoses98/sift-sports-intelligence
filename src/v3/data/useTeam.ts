@@ -151,7 +151,7 @@ export function useTeamVM(slug: string, teamId: string) {
 
   const loading = !demo && (repo.loading || (explorer && (idx.loading || (!!pid && prof.loading))));
   const upcoming = useMemo(() => slate.games.filter((g) => g.slug === slug && (g.away.id === team.id || g.home.id === team.id)).sort((a, b) => a.startMs - b.startMs), [slate.games, slug, team.id]);
-  return { vm, loading, upcoming, slateNow: slate.now, notFound: !demo && explorer && !idx.loading && !pid && !teamId.startsWith('prt_') && !upcoming.length };
+  return { vm, loading, upcoming, slateNow: slate.now, profile: prof.data ?? null, index: idx.data ?? null, repo: repo.data ?? null, notFound: !demo && explorer && !idx.loading && !pid && !teamId.startsWith('prt_') && !upcoming.length };
 }
 
 export type { RankingDoc };

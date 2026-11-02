@@ -402,7 +402,7 @@ test.describe('Player Research: saved research @v3', () => {
     expect(saved[0].route).toMatch(/site=away/);
     expect(saved[0].route).not.toMatch(/sheet=|demo=/);
     for (let i = 0; i < 2; i++) {
-      await go(page, '/v3/following');
+      await go(page, '/v3/following?tab=saved');
       await page.locator('.v3-hit--saved .v3-hit__l').first().click();
       await expect(page.locator('.v3p-hb')).toBeVisible({ timeout: 25_000 });
       await expect(page).toHaveURL(new RegExp(`line=${line}`));
@@ -495,7 +495,7 @@ test.describe('Player Research: tabs, Trends, Log and SIFT Replay @v3', () => {
     // a saved record of the old vocabulary is revived into the new one and opens
     await page.evaluate(() => localStorage.setItem('sift3.saved', JSON.stringify([{ id: 'rold', title: 'Lamb', subtitle: 'Replay', route: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd?v=1&tab=replay&stat=receptions', savedAt: 1 }])));
     await page.reload();
-    await go(page, '/v3/following');
+    await go(page, '/v3/following?tab=saved');
     await page.locator('.v3-hit--saved .v3-hit__l').first().click();
     await expect(page.locator('[aria-label="SIFT Replay"]')).toBeVisible({ timeout: 25_000 });
   });

@@ -134,6 +134,8 @@ export const gameSchema = defineSchema({
     unit: f.str(null, 24),
     /** Matchup tab: the detailed tug-of-war chart instead of the readable sentences (the default). */
     chart: f.bool(false),
+    /** Game Script tab (Script Engine games): the selected scenario's id. */
+    sc: f.str(null, 40),
   },
   migrations: {
     0: (q) => {
@@ -160,6 +162,10 @@ export const propsSchema = defineSchema({
   fields: {
     /** home (PD1), list (PD2 and PD3), compare (PD5). Absent with no other field: the home. */
     view: f.oneOf(PROPS_VIEWS, 'home'),
+    /** What Discover lists: player props (default) or game and team markets (moneyline, spread, totals, periods). */
+    scope: f.oneOf(['players', 'games'] as const, 'players'),
+    /** Game & team scope: the expanded game's key. */
+    gk: f.str(null, 48),
     /** A sport slug ("nfl"), or "all". */
     sport: f.str('all', 8),
     /** A statistic family ("receptions", "goals"). */
@@ -215,6 +221,8 @@ export const homeSchema = defineSchema({
     sport: f.str(null, 8),
     conf: f.str(null, 24),
     date: f.str(null, 10),
+    /** 'following' filters Home to followed teams and games across every sport; null is All games. */
+    view: f.str(null, 9),
   },
 });
 

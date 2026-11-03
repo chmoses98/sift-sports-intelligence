@@ -64,3 +64,11 @@
 .v3 .x-pct > i.off { background: var(--off); opacity: 1; } .v3 .x-pct > i.def { background: var(--def); opacity: 1; }
 .v3 .x-pct > b { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #0a0d11; border: 2.5px solid var(--t3); }
 .v3 .x-pct > b.off { border-color: var(--off); } .v3 .x-pct > b.def { border-color: var(--def); }
+
+/* The reason a price is withheld (Discover research panel and Game Props): shared, so it never depends on a lazily loaded screen sheet. */
+.v3 .pd-pnote { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: start; margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255, 183, 77, 0.45); background: rgba(255, 183, 77, 0.08); }
+.v3 .pd-pnote p { margin: 0; font: 400 12.5px/17px var(--f-ui); color: #e7dcc8; }
+.v3 .pd-pnote b { color: #ffd08a; }
+
+.v3 .pd-pnote .pd-abtn { min-height: 44px; min-width: 76px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 183, 77, 0.6); background: rgba(255, 183, 77, 0.14); color: #ffd08a; font: 600 14px/1 var(--f-ui); }
+.v3 .pd-pnote svg { margin-top: 2px; color: #ffd08a; }

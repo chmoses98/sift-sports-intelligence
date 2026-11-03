@@ -36,7 +36,14 @@ const backTo = async (page: Page, before: Awaited<ReturnType<typeof snap>>) => {
 };
 /** Freshness is never shown: no age, no "ago", no "last updated", no stale badge, anywhere on the screen. */
 const noFreshnessText = async (page: Page) => {
-  const text = await page.locator('[data-v3-shell]').innerText();
+  // A withheld quote may show its last observation time in the explicitly labelled reason.
+  // Shown prices and the rest of the page must still have no freshness badge or age.
+  const text = await page.locator('[data-v3-shell]').evaluate((el) => {
+    const notes = Array.from(el.querySelectorAll('.v3c-why')).map((n) => n.textContent ?? '');
+    let visible = (el as HTMLElement).innerText;
+    for (const note of notes) visible = visible.replace(note, '');
+    return visible;
+  });
   expect(text).not.toMatch(/\bago\b|\bstale\b|last updated|last known|updated \d|\d+\s?(s|sec|min|mins|minutes|h|hr|hours)\s+old\b|as of \d/i);
 };
 const noOverflow = async (page: Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
@@ -402,7 +409,7 @@ test.describe('Player Research: saved research @v3', () => {
     expect(saved[0].route).toMatch(/site=away/);
     expect(saved[0].route).not.toMatch(/sheet=|demo=/);
     for (let i = 0; i < 2; i++) {
-      await go(page, '/v3/following');
+      await go(page, '/v3/following?tab=saved');
       await page.locator('.v3-hit--saved .v3-hit__l').first().click();
       await expect(page.locator('.v3p-hb')).toBeVisible({ timeout: 25_000 });
       await expect(page).toHaveURL(new RegExp(`line=${line}`));
@@ -495,7 +502,7 @@ test.describe('Player Research: tabs, Trends, Log and SIFT Replay @v3', () => {
     // a saved record of the old vocabulary is revived into the new one and opens
     await page.evaluate(() => localStorage.setItem('sift3.saved', JSON.stringify([{ id: 'rold', title: 'Lamb', subtitle: 'Replay', route: '/v3/player/nfl/prt_4c661ae8b854ff5f66dd?v=1&tab=replay&stat=receptions', savedAt: 1 }])));
     await page.reload();
-    await go(page, '/v3/following');
+    await go(page, '/v3/following?tab=saved');
     await page.locator('.v3-hit--saved .v3-hit__l').first().click();
     await expect(page.locator('[aria-label="SIFT Replay"]')).toBeVisible({ timeout: 25_000 });
   });

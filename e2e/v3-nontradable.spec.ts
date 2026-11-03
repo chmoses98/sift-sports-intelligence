@@ -118,7 +118,8 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
     await page.reload();
     await expect(page.locator('[data-v3-shell]')).toBeVisible();
     await expect(px.nth(1)).toContainText(/\d+¢/); // another row is still priced
-    await expect(px.first()).toHaveText('—');
+    await expect(px.first()).toContainText('—');
+    await expect(px.first()).not.toContainText(/\d+¢/);
     expect(await px.count()).toBe(rowsBefore);
     await expect(px.first()).toHaveAttribute('aria-label', /no price available/);
     await px.first().click();
@@ -137,7 +138,10 @@ test.describe('Game Detail lists withhold a non-tradable market and keep the res
     await go(page, `${GAME}?tab=props`);
     await page.waitForTimeout(1500);
     const px = page.locator('.v3-prop__p');
-    for (let i = 0; i < Math.min(await px.count(), 6); i++) await expect(px.nth(i)).toHaveText('—');
+    for (let i = 0; i < Math.min(await px.count(), 6); i++) {
+      await expect(px.nth(i)).toContainText('—');
+      await expect(px.nth(i)).not.toContainText(/\d+¢/);
+    }
   });
 });
 
@@ -160,7 +164,10 @@ test.describe('Home never prices a non-tradable game @v3', () => {
     await go(page, `${GAME}?tab=props`);
     await page.waitForTimeout(1500);
     const px = page.locator('.v3-prop__p');
-    for (let i = 0; i < Math.min(await px.count(), 6); i++) await expect(px.nth(i)).toHaveText('—');
+    for (let i = 0; i < Math.min(await px.count(), 6); i++) {
+      await expect(px.nth(i)).toContainText('—');
+      await expect(px.nth(i)).not.toContainText(/\d+¢/);
+    }
   });
 
   test('Home: the lines box of a game whose markets are all closed carries no price', async ({ page }) => {

@@ -8,12 +8,13 @@ import { demoOn } from '../../state/prefs';
 import { liveStatusFacts, statusFacts } from '../../model/marketStatus';
 import { guardLiveQuote } from '../validate';
 import type { Price } from '../../model/types';
-import { gate, type GateResult } from '../quoteGate';
+import { explainGate, gate, type GateResult, type PriceWhy } from '../quoteGate';
+import { clockTime } from '../../model/time';
 import { refreshRowsNow, useRowGroups, type RowGroup } from '../liveQuotes';
 import { useSlate } from '../useSlate';
 import { availabilityBank, pendingKeys, withAvailability } from './availability';
 import { historyBank, logRefOf, useHistoryBank, type BankEntry } from './bank';
-import { capGames, horizonCounts, startsWithin, type Horizon, type HorizonCount } from './horizon';
+import { capGames, horizonCounts, sportsBeyond, startsWithin, type BeyondSport, type Horizon, type HorizonCount } from './horizon';
 import { recentValues } from './history';
 import { useBankVersion } from './lazyBank';
 import { anyStale, eligibleGames, forgetUnreadable, loadProgressive, peekProgress, type Progress } from './load';
@@ -34,6 +35,8 @@ export interface UniverseState {
   counts: Record<Horizon, HorizonCount>;
   /** True while the games of the requested horizon are still being read (the universe is then a prefix). */
   reading: boolean;
+  /** Sports with props only after this horizon (their next game and the horizon that reaches it). */
+  beyond: BeyondSport[];
   /** Games the horizon would hold beyond the cap (the soonest MAX_GAMES are read). */
   omitted: number;
   /** Read again the games whose contract list could not be read (the ones that read stay as they are). */
@@ -50,6 +53,7 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
   const demo = demoOn() || slate.demo;
   const eligible = useMemo(() => (demo ? [] : eligibleGames(slate.games)), [slate.games, demo]);
   const counts = useMemo(() => horizonCounts(demo ? slate.games.filter((g) => g.phase !== 'final') : eligible, slate.now), [demo, slate.games, eligible, slate.now]);
+  const beyond = useMemo(() => sportsBeyond(eligible, slate.now, horizon), [eligible, slate.now, horizon]);
   const capped = useMemo(() => capGames(eligible.filter((g) => startsWithin(g, slate.now, horizon))), [eligible, slate.now, horizon]);
   const games = useMemo(() => (demo ? slate.games.filter((g) => g.phase !== 'final') : capped.games), [demo, slate.games, capped]);
   const key = slate.loading ? null : `v3props:${demo ? 'demo' : 'real'}:${games.map((g) => g.key).join(',')}`;
@@ -81,7 +85,7 @@ export function usePropUniverse(horizon: Horizon = '48h'): UniverseState {
   const av = useBankVersion(availabilityBank);
   const universe = useMemo(() => (shown ? withAvailability(shown.universe, availabilityBank.get, nameKey) : null), [shown, av]); // eslint-disable-line react-hooks/exhaustive-deps
   const reading = !demo && !!key && !(shown && shown.complete && (prog?.key === key || held));
-  return { universe, loading: slate.loading || !shown, error: false, demo, horizon, counts, reading, omitted: capped.omitted, retry };
+  return { universe, loading: slate.loading || !shown, error: false, demo, horizon, counts, reading, omitted: capped.omitted, beyond, retry };
 }
 
 /**
@@ -185,6 +189,10 @@ export interface PriceReader {
   /** The gated price of a rung: the price to print, or null (print "—"). */
   priceOf: (p: Prop, r: PropRung) => Price | null;
   gateOf: (p: Prop, r: PropRung) => GateResult;
+  /** Why this rung's price is not shown (sentence, last observation, retry), or null when it is shown. */
+  whyOf: (p: Prop, r: PropRung) => PriceWhy | null;
+  /** Ask the delivery chain (relay, then the live feed) for these rungs' newest quotes now. Resolves when it has answered. */
+  refresh: (p: Prop, rungs: PropRung[]) => Promise<void>;
   now: number;
 }
 
@@ -218,7 +226,9 @@ export function usePropPrices(visible: Prop[], expanded: Prop | null): PriceRead
   const store = liveStore();
   // `live.version` changes whenever any quote does: the lookup is stable, so the readers must be re-created for rows to repaint.
   const gateOf = useCallback((p: Prop, r: PropRung): GateResult => gate(rawPrice(p, r, store.quote(r.ticker)), { kind: 'list', startMs: p.startMs, live: false }, now), [store, now, live.version]); // eslint-disable-line react-hooks/exhaustive-deps
-  return useMemo(() => ({ gateOf, priceOf: (p, r) => gateOf(p, r).price, now }), [gateOf, now]);
+  const whyOf = useCallback((p: Prop, r: PropRung): PriceWhy | null => explainGate(gateOf(p, r), { kind: 'list', startMs: p.startMs, live: false }, now, (ms) => clockTime(ms)), [gateOf, now]);
+  const refresh = useCallback(async (p: Prop, rungs: PropRung[]) => { await refreshRowsNow(rungs.filter((r) => r.source !== 'Sample').map((r) => r.ticker), { startMs: p.startMs, live: false }); }, []);
+  return useMemo(() => ({ gateOf, whyOf, refresh, priceOf: (p, r) => gateOf(p, r).price, now }), [gateOf, whyOf, refresh, now]);
 }
 
 /** A value that follows `v` only after it has stopped changing for `ms` (the first value is taken at once). */

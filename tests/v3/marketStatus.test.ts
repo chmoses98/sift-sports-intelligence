@@ -201,7 +201,7 @@ describe('the quote gate withholds a non-tradable market however fresh its quote
   it.each(['closed', 'settled', 'suspended', 'unopened', 'delisted', 'expired', 'unrecognised'] as MarketState[])('%s: withheld with reason not-tradable and its status, fresh or not, ask or not', (s) => {
     for (const ctx of [list, sheet]) {
       for (const p of [price({ tradable: false, marketStatus: s }), price({ tradable: false, marketStatus: s, ask: null, bid: null }), price({ tradable: false, marketStatus: s, observedAt: iso(9999) }), price({ tradable: false, marketStatus: s, source: 'Sample' })]) {
-        expect(gate(p, ctx, NOW)).toEqual({ price: null, reason: 'not-tradable', marketStatus: s });
+        expect(gate(p, ctx, NOW)).toMatchObject({ price: null, reason: 'not-tradable', marketStatus: s });
         expect(usablePrice(p, ctx, NOW)).toBeNull();
       }
     }

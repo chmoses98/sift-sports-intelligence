@@ -1,8 +1,14 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from '../../routing';
+import { routes } from '../nav/routes';
+import { propIdOf } from '../data/props/parse';
 import type { EventDetailDoc, EventResearchDoc } from '../../contract/types';
 import { deriveProps, type PropRow } from '../data/adapt';
 import { useQuotedPrices } from '../data/research/gameHooks';
+import { refreshRowsNow } from '../data/liveQuotes';
+import { explainGate, gate as gateFull, type GateResult } from '../data/quoteGate';
+import { clockTime } from '../model/time';
+import { useNow } from '../../live/hooks';
 import { demoPairs, pairsFromResearch } from '../data/matchup';
 import { DEMO_LIVE, DEMO_PBP, DEMO_PROPS } from '../demo/fixtures';
 import type { MarketLine, Price, V3Game } from '../model/types';
@@ -17,6 +23,7 @@ import { ordinal } from '../data/lens';
 import { isReady } from '../model/capabilities';
 import type { GameTab } from '../nav/schemas';
 import { MatchupTab } from './GameMatchup';
+import { GameMarkets } from './markets/GameMarkets';
 import { PlayersToResearch, PropsRow, TeamsCard, WinPrices } from './GameOverview';
 import type { GameCtx } from './GameShared';
 import { DataState } from '../ui/DataState';
@@ -185,6 +192,13 @@ function ScriptTab({ g, detail, error, retry }: { g: V3Game; detail: EventDetail
   );
 }
 
+/** A prop row opens the SAME research Discover shows (history chart with the line drawn, hit rates, opponent unit, exact contract), scoped to this game. */
+function researchHref(g: V3Game, r: PropRow): string {
+  const k = Number.isInteger(r.line) ? r.line : Math.floor(r.line) + 1;
+  const id = propIdOf([r.price.ticker], `${g.eventId}:${r.key}`);
+  return routes.props({ view: 'list', sport: g.slug, game: g.eventId, exp: `${id}@${k}`, pin: true });
+}
+
 function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: number | null; detail: EventDetailDoc | null; error?: unknown; retry?: () => void }) {
   const sheet = useSheet();
   const gate = useListGate(g, startMs);
@@ -196,7 +210,15 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
   const shown = useMemo(() => (all ? filtered : filtered.slice(0, 12)), [filtered, all]);
   // The rows on screen follow the live quote store (a newer observation replaces the publication's capture); the gate then decides what prints.
   const quoted = useQuotedPrices(detail, useMemo(() => shown.map((r) => r.price.ticker), [shown]), { startMs, live: g.phase === 'live' });
+  const now = useNow(5_000);
+  const gres = (r: PropRow): GateResult => gateFull(quoted(r.price.ticker) ?? r.price, { kind: 'list', startMs, live: g.phase === 'live' }, now);
   const priceOf = (r: PropRow): Price | null => gate(quoted(r.price.ticker) ?? r.price);
+  const whyOf = (r: PropRow) => explainGate(gres(r), { kind: 'list', startMs, live: g.phase === 'live' }, now, (ms) => clockTime(ms));
+  const withheld = shown.filter((r) => !priceOf(r));
+  const newest = shown.reduce<number>((m, r) => Math.max(m, Date.parse(gres(r).observedAt ?? '') || 0), 0);
+  const [checking, setChecking] = useState(false);
+  const [checkedAt, setCheckedAt] = useState<number | null>(null);
+  const recheck = async () => { setChecking(true); try { await refreshRowsNow(shown.map((r) => r.price.ticker), { startMs, live: g.phase === 'live' }); } finally { setChecking(false); setCheckedAt(Date.now()); } };
   if (g.provenance === 'demo') {
     const nba = g.sport === 'NBA';
     const rows = nba
@@ -228,24 +250,31 @@ function PropsTab({ g, startMs, detail, error, retry }: { g: V3Game; startMs: nu
         <button type="button" className="v3-chip" aria-pressed={!stat} onClick={() => setStat(null)}>All</button>
         {stats.map((s) => <button key={s} type="button" className="v3-chip" aria-pressed={stat === s} onClick={() => setStat(s)}>{s}</button>)}
       </ChipRail>
+      {withheld.length > 0 && (
+        <div className="pd-pnote" role="status" data-state="prices-withheld">
+          <Icon name="info" size={14} />
+          <p><b>{withheld.length === shown.length ? 'No current prices.' : `${withheld.length} of ${shown.length} prices withheld.`}</b> {whyOf(withheld[0])?.detail}{checkedAt ? ` Checked again at ${clockTime(checkedAt)}; prices that stayed — had no newer usable quote.` : ''}{newest ? ` Newest quote on this list: ${clockTime(newest)}.` : ''}</p>
+          <button type="button" className="pd-abtn" onClick={() => void recheck()} disabled={checking}>{checking ? 'Checking' : 'Retry'}</button>
+        </div>
+      )}
       <ul className="v3-props">
         {shown.map((r) => (
           <li key={r.key}>
-            {r.playerId ? <Link to={`/v3/player/${g.slug}/${encodeURIComponent(r.playerId)}?stat=${encodeURIComponent(r.stat)}&line=${r.line}`} className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></Link> : <div className="v3-prop__who"><span><b>{r.player}</b><small>{r.statLabel} · over {r.line}</small></span></div>}
+            <Link to={researchHref(g, r)} className="v3-prop__who" aria-label={`${r.player} ${r.statLabel} over ${r.line}: open research with history chart`}><span><b>{r.player}</b><small>{r.statLabel} · over {r.line} · research<Icon name="chevR" size={12} /></small></span></Link>
             <button type="button" className="v3-prop__p num" aria-label={`${r.player} ${r.statLabel} over ${r.line}, ${priceOf(r)?.ask != null ? `${priceOf(r)!.ask} cents` : 'no price available'}. Open exact contract`}
-              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} /></button>
+              onClick={() => sheet.openAddressed('contract', publishProp({ g, startMs }, r))}><PriceText p={priceOf(r)} />{!priceOf(r) && <small className="v3-prop__why">{whyOf(r)?.short}</small>}</button>
           </li>
         ))}
       </ul>
       {filtered.length > shown.length && <button type="button" className="v3-more" onClick={() => setAll(true)}>Show all {filtered.length} props</button>}
-      <p className="v3-note v3-note--dim">Kalshi prices, nearest-to-even line per player and stat. Tap a name for the player's history.</p>
+      <p className="v3-note v3-note--dim">Kalshi prices, nearest-to-even line per player and stat. Tap a player for the history chart, hit rates and opponent context; tap a price for the exact contract.</p>
     </section>
   );
 }
 
 // ------------------------------------------------------------------ the tab body
 
-export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab) => void }) {
+export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab }: { tab: GameTab; ctx: GameCtx; detail: EventDetailDoc | null; research: EventResearchDoc | null; researchLoading: boolean; onTab: (t: GameTab, scenario?: string) => void }) {
   const g = ctx.g;
   // A Script Engine game (research carries the payload) has its own Game Script and Matchup views; a sport with the unit matchup (NFL) keeps its own.
   const engine = ctx.script?.kind === 'ready' && !isReady(g.slug, 'gameMatchup') ? ctx.script.engine : null;
@@ -255,7 +284,14 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
   if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
-  if (tab === 'props') return <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  if (tab === 'props') {
+    return (
+      <>
+        {g.provenance === 'publication' && !!detail && <><h2 className="v3-h2">Game &amp; team markets</h2><GameMarkets g={g} startMs={ctx.startMs} detail={detail} /></>}
+        <PropsTab g={g} startMs={ctx.startMs} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />
+      </>
+    );
+  }
   const demoStories = [{ t: 'Sample: starting running back listed probable', s: `Sample · ${leagueLabel(g)}`, team: g.away }, { t: 'Sample: starting cornerback doubtful (shoulder)', s: `Sample · ${leagueLabel(g)}`, team: g.home }];
   // A game in play leads with the live game (state, plays, performances: screens/live), then markets, then the research; the pregame analysis stays on the page
   // (MatchupIntel 'after'). Any other phase keeps the pregame order: research first, then markets.

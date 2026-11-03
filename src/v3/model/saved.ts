@@ -6,6 +6,8 @@ import { canonicalRoute, migrateQuery, schemaForPath } from '../state/url';
 import '../nav/schemas';
 
 export const SAVED_VERSION = 2;
+/** The most research a device keeps (the oldest fall off). */
+export const SAVED_CAP = 100;
 
 export type SavedKind = 'player' | 'team' | 'stat' | 'game' | 'props' | 'other';
 
@@ -124,6 +126,7 @@ export function reviveSavedList(raw: unknown): SavedResearch[] {
     if (seenId.has(s.id)) s = { ...s, id: `${s.id}-${out.length}` };
     seenId.add(s.id); seenRoute.add(s.route);
     out.push(s);
+    if (out.length >= SAVED_CAP) break;
   }
   return out;
 }

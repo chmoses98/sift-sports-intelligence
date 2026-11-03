@@ -1,8 +1,37 @@
 // The independent follow (star) and alert (bell) controls. Neither navigates; the star never subscribes to anything;
 // the bell opens an explicit per-item opt-in sheet (no OS permission request is made by this build).
 import { useAlerts, alertTopics, setAlertTopics, toggleFollow, useFollows, type FollowKind } from '../state/prefs';
+import type { V3Game } from '../model/types';
 import { Icon } from './Icon';
 import { useSheet } from './Sheet';
+
+/**
+ * The star on a game card. Filled when the game is followed directly OR because one of its teams is (so the Following filter never shows a hollow
+ * star on a card it lists). Tapping a filled star unfollows what made it filled: the game, and the followed team(s) of it.
+ */
+export function GameStar({ g, className }: { g: V3Game; className?: string }) {
+  const f = useFollows();
+  const direct = f.games.includes(g.key);
+  const teams = [g.away, g.home].filter((t) => f.teams.includes(`${g.slug}:${t.id}`));
+  const on = direct || teams.length > 0;
+  const label = `${g.away.nick} at ${g.home.nick}`;
+  return (
+    <button
+      type="button"
+      className={`v3-iconbtn v3-star${on ? ' is-on' : ''}${className ? ` ${className}` : ''}`}
+      aria-pressed={on}
+      aria-label={on ? `Unfollow ${label}${teams.length ? ` (following ${teams.map((t) => t.nick).join(' and ')})` : ''}` : `Follow ${label}`}
+      onClick={(e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (!on) { toggleFollow('games', g.key); return; }
+        if (direct) toggleFollow('games', g.key);
+        for (const t of teams) toggleFollow('teams', `${g.slug}:${t.id}`);
+      }}
+    >
+      <Icon name="star" size={22} fill={on} />
+    </button>
+  );
+}
 
 export function FollowStar({ kind, id, label, className }: { kind: FollowKind; id: string; label: string; className?: string }) {
   const f = useFollows();
@@ -38,7 +67,7 @@ function AlertPanel({ id, label }: { id: string; label: string }) {
           </li>
         ))}
       </ul>
-      <p className="v3-note v3-note--dim">This build records your choice on this device. It does not ask the phone for notification permission or send anything.</p>
+      <p className="v3-note v3-note--dim">Alerts are not delivered yet: no notification, email or message will be sent. This only records your choice on this device, and it does not ask the phone for notification permission.</p>
     </div>
   );
 }

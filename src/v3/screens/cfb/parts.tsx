@@ -1,6 +1,8 @@
 // Small shared pieces of the Script Engine views (Overview, Game Script, Matchup). Presentational: every value arrives already derived from the payload.
 import type { ReactNode } from 'react';
 import { LABEL_HELP, LABEL_WORD, orderedLabels, type Engine } from '../../../lib/scriptEngine';
+import type { SideQuote } from '../../data/research/scriptPrices';
+import { PriceTap } from '../../nav/Targets';
 import { CONFIDENCE_WORD, type ScriptFit } from '../../model/scriptRead';
 import { Icon } from '../../ui/Icon';
 import './cfb.css';
@@ -58,5 +60,43 @@ export function DetailNotice({ engine }: { engine: Engine }) {
     <p className="cs-notice cs-notice--warn" role="status" data-testid="cs-detail-unavailable">
       <b>{matchup ? 'Detailed matchup metrics unavailable.' : 'The full script-to-market map is unavailable.'}</b> {d.reason ? `${d.reason.charAt(0).toUpperCase()}${d.reason.slice(1)}. ` : ''}The SIFT Read, the scripts, the {engine.findings.length} matchup findings and the contracts shown are the publication’s own and unaffected.
     </p>
+  );
+}
+
+/** The script's role as a colour-coded chip; the role's name is always in the text, colour is never the only signal. */
+export function RoleChip({ role, tone }: { role: string; tone: 1 | 2 | 3 | 4 }) {
+  return <span className={`cs-rolechip cs-rolechip--s${tone}`}><i aria-hidden="true" />{role}</span>;
+}
+
+/**
+ * A contract side's price as a tap on the exact-contract sheet: "YES 57¢" / "NO 43¢". When no current quote passes the gate it prints a dash and the gate's own
+ * reason ("Price 6 h old", "No ask listed", "Market closed") goes in the label and in `PriceWhy` beside it, so a withheld price always says why.
+ */
+export function SidePriceTap({ ticker, side, q, label, hasMarket }: { ticker: string; side: 'YES' | 'NO'; q: SideQuote; label: string; hasMarket: boolean }) {
+  const body = <><small>{side}</small><b className="num">{q.ask != null ? `${q.ask}¢` : '—'}</b></>;
+  if (!hasMarket) return <span className="cs-px is-none" aria-label={`${label}: no contract listed`}>{body}</span>;
+  return <PriceTap ticker={ticker} className={`cs-px${q.ask == null ? ' is-none' : ''}`} label={`${label}: ${side} ask ${q.ask != null ? `${q.ask} cents` : `unavailable${q.why ? `, ${q.why.short}` : ''}`}. Open exact contract`}>{body}</PriceTap>;
+}
+
+/** Says why a price is withheld, in the quote gate's words. Renders nothing when the price is shown. */
+export function PriceWhy({ q, full = false }: { q: SideQuote; full?: boolean }) {
+  if (q.ask != null || !q.why) return null;
+  if (!full) return <p className="cs-pxwhy cs-pxwhy--s" data-testid="cfb-price-why"><Icon name="info" size={14} /><span>{q.why.short}: no price shown</span></p>;
+  return <p className="cs-pxwhy" role="note" data-testid="cfb-price-why-full"><Icon name="info" size={14} /><span><b>{q.why.short}.</b> {q.why.detail}</span></p>;
+}
+
+/** Matchup statistics as lines: team and unit, the metric, its value labelled adjusted or raw, the rank among FBS. */
+export function EvidenceList({ lines }: { lines: { ref: string; team: string; unit: string; name: string; value: string; basis: 'adjusted' | 'raw'; rank: string | null; games: number; caution: string | null }[] }) {
+  if (!lines.length) return null;
+  return (
+    <ul className="cs-ev">
+      {lines.map((l) => (
+        <li key={l.ref}>
+          <span>{l.team} {l.unit} · {l.name}</span>
+          <b className="num">{l.value}</b>
+          <small><i className={`cs-basis cs-basis--${l.basis}`}>{l.basis === 'adjusted' ? 'adjusted' : 'raw'}</i>{l.rank ? ` ${l.rank}` : ' unranked'} · {l.games} games{l.caution ? ` · ${l.caution}` : ''}</small>
+        </li>
+      ))}
+    </ul>
   );
 }

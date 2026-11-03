@@ -22,6 +22,7 @@ async function open(page: Page) {
   await page.evaluate((s) => { localStorage.setItem('sift3.saved', JSON.stringify(s)); }, seed);
   await demo('/v3/search');
   await demo('/v3/following');
+  await page.goto('./#/v3/following?tab=saved'); // Saved research is a section of My SIFT
   await page.reload();
   await expect(page.getByRole('region', { name: 'Saved research' })).toBeVisible();
 }
@@ -72,7 +73,7 @@ test.describe('Saved research @v3', () => {
   });
 
   test('records the app cannot open are dropped, never shown as broken links', async ({ page }) => {
-    await page.goto('./#/v3/following?demo=1');
+    await page.goto('./#/v3/following?tab=saved&demo=1');
     await page.evaluate(() => localStorage.setItem('sift3.saved', JSON.stringify([{ route: 'https://evil.example/v3/x', title: 'x' }, { title: 'no route' }, 7, null, { route: '/v3/team/cfb/UGA', title: 'Georgia', subtitle: '', savedAt: 1 }])));
     await page.reload();
     const items = page.getByRole('region', { name: 'Saved research' }).locator('.v3-hit--saved');

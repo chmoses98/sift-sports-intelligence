@@ -1,7 +1,7 @@
 // PD3: the peek. One tap on a row expands it in place: the last games against the rung, the three lanes (Market, History, SIFT model, in
 // that order and never blended), a plain reason when the model is withheld, the neighbouring rungs, the opponent unit on its
 // worst-to-best track, and the actions. A rung chip changes the line in place; nothing here leaves the list until a target is tapped.
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { historyStateOf, type PriceReader } from '../../data/props/hooks';
 import { hitCount } from '../../data/props/history';
 import { modelPercent } from '../../data/props/model';
@@ -13,8 +13,11 @@ import { routes } from '../../nav/routes';
 import { PlayerLink, PriceTap, StatLink } from '../../nav/Targets';
 import { removeSaved, saveResearch, useSaved } from '../../state/prefs';
 import { ordinal } from '../../../lib/format';
+import { clockTime } from '../../model/time';
 import { Icon } from '../../ui/Icon';
 import { TeamLogo } from '../../ui/TeamLogo';
+import { WatchButton } from '../../ui/WatchButton';
+import { useLocation } from '../../../routing';
 import { firstName, gameText, HitBars, Mark, oppTeam, playerRef, playerState, statText, UnitTrack } from './parts';
 
 export interface PeekBits { reader: PriceReader; get: (key: string) => BankEntry | undefined }
@@ -23,6 +26,11 @@ export interface PeekBits { reader: PriceReader; get: (key: string) => BankEntry
 export function propSaveRoute(p: Prop, k: number): string {
   const ref = playerRef(p);
   return ref ? routes.player(ref, playerState(p, k) ?? {}) : routes.props({ view: 'list', ...(p.playerId ? { player: p.playerId } : { q: p.name }), exp: refToken(p, k) });
+}
+
+/** The research a Discover prop opens to, for Recent: the list with the prop expanded at its selected line (`exp=<id>@<rung>`). */
+export function propResearchRoute(p: Prop, k: number): string {
+  return routes.props({ view: 'list', ...(p.playerId ? { player: p.playerId } : { q: p.name }), exp: refToken(p, k) });
 }
 
 export function SaveProp({ p, k, className }: { p: Prop; k: number; className?: string }) {
@@ -34,6 +42,22 @@ export function SaveProp({ p, k, className }: { p: Prop; k: number; className?: 
     saveResearch({ title: `${p.name} · ${p.abbr} ${k}+`, subtitle: gameText(p), route, chips: [`${p.abbr} ${k}+`, p.sportLabel], kind: playerRef(p) ? 'player' : 'props', sport: p.slug });
   };
   return <button type="button" className={className ?? 'pd-abtn pd-abtn--sq'} aria-pressed={!!rec} aria-label={rec ? `Remove ${p.name} ${statText(p, k)} from saved research` : `Save ${p.name} ${statText(p, k)} to saved research`} onClick={toggle}><Icon name="bookmark" size={18} fill={!!rec} /></button>;
+}
+
+/** Why a price is missing, when it was last seen, and a Retry that asks the delivery chain again. Never shown when the price is. */
+export function PriceNote({ p, rung, reader }: { p: Prop; rung: Prop['rungs'][number]; reader: PriceReader }) {
+  const why = reader.whyOf(p, rung);
+  const [busy, setBusy] = useState(false);
+  const [checked, setChecked] = useState<number | null>(null);
+  if (!why) return null;
+  const retry = async () => { setBusy(true); try { await reader.refresh(p, p.rungs); } finally { setBusy(false); setChecked(Date.now()); } };
+  return (
+    <div className="pd-pnote" role="status" data-price-why={why.short}>
+      <Icon name="info" size={14} />
+      <p><b>{why.short}.</b> {why.detail}{checked ? ` Checked again at ${clockTime(checked)}${reader.whyOf(p, rung) ? ': no newer usable quote yet.' : '.'}` : ''}</p>
+      {why.retry && <button type="button" className="pd-abtn" onClick={() => void retry()} disabled={busy}>{busy ? 'Checking' : 'Retry'}</button>}
+    </div>
+  );
 }
 
 export function Peek({ p, k, m, bits, onRung }: { p: Prop; k: number; m: Matchup | null; bits: PeekBits; onRung: (k: number) => void }) {
@@ -68,6 +92,7 @@ export function Peek({ p, k, m, bits, onRung }: { p: Prop; k: number; m: Matchup
   const published = p.model.state === 'published';
   const sub = model != null ? `P(${r.k}+) published` : published ? 'not published at this rung' : 'not approved yet';
 
+  const loc = useLocation();
   return (
     <div className="pd-peek" data-peek={p.id}>
       {(p.availPending || p.out) && (
@@ -76,6 +101,12 @@ export function Peek({ p, k, m, bits, onRung }: { p: Prop; k: number; m: Matchup
           <span>{p.availPending ? 'Checking availability: the game’s injury report has not been read yet.' : `The publication lists ${p.name} as ${p.out}.`}</span>
         </div>
       )}
+      <div className="pd-sel" aria-label="Selected contract">
+        <span><b>{statText(p, r.k)}</b><small>YES if {p.name} reaches {r.k} or more · Kalshi {r.ticker.split('-').slice(0, 2).join(' ')}</small></span>
+        <PriceTap ticker={r.ticker} className="pd-sel__px" label={`Exact contract, ${statText(p, r.k)}${price?.ask != null ? `, ${price.ask} cents` : ', no price'}`}><b className="num">{price?.ask != null ? `${price.ask}¢` : '—'}</b><small>{price?.ask != null ? 'ask · open contract' : 'open contract'}</small></PriceTap>
+      </div>
+      <WatchButton ticker={r.ticker} title={`${p.name}: ${statText(p, r.k)}`} subtitle={`${gameText(p)} · Kalshi YES`} startMs={p.startMs} pathname={loc.pathname} search={loc.search} className="pd-watch" />
+      <PriceNote p={p} rung={r} reader={bits.reader} />
       <div className="pd-pk1">
         {hs.state === 'ready' && hit ? (
           <>

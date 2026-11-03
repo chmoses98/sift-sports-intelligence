@@ -24,7 +24,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await go(page, '/v3?demo=1');
     await expect(page.getByRole('note')).toContainText('Sample data');
     const tabs = page.getByRole('navigation', { name: 'Primary' }).getByRole('link');
-    await expect(tabs).toHaveText(['Home', 'Props', 'Following']);
+    await expect(tabs).toHaveText(['Home', 'Discover', 'My SIFT']);
     await noOverflow(page);
   });
 
@@ -111,7 +111,7 @@ test.describe('SIFT 3.0 @v3', () => {
     await expect(page).toHaveURL(/site=home/);
     await expect(page.locator('.v3p-fchip')).toHaveCount(1);
     await page.getByRole('button', { name: 'Save this research' }).click();
-    await go(page, '/v3/following?demo=1');
+    await go(page, '/v3/following?demo=1&tab=saved');
     await expect(page.locator('.v3-snap')).toContainText('Saved values');
     await page.locator('.v3-hit--saved .v3-hit__l').click();
     await expect(page).toHaveURL(/stat=ast/);

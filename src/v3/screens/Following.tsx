@@ -1,16 +1,18 @@
-// Following: everything the viewer follows, across every sport, in one place. Nothing needs picking: teams, players and games of every sport
+// My SIFT (route /v3/following): the viewer's own workspace in four sections, kept in the address (?tab=): Following (this file), Saved research,
+// Recent and the contract Watchlist (screens/MySiftPanels.tsx). Following: everything the viewer follows, across every sport, in one place. Nothing needs picking: teams, players and games of every sport
 // are read together, and the optional sport chips (only sports followed) merely filter, kept in the address (?sport=nba).
-// Order: live now, player updates, upcoming (by day), recent finals, then what is followed (unfollow, alerts) and saved research.
+// Order: live now, player updates, upcoming (by day), recent finals, then what is followed (unfollow, alerts).
 // Follow (star) and alerts (bell) stay separate stores. Every number shown comes from the slate, the player's published game log or a
 // published Kalshi line: where there is none the card says so.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import { useQueryPatch } from '../state/url';
 import { useSearchIndex } from '../data/useSearch';
 import { useSlate } from '../data/useSlate';
 import { demoPlayerTeamKey, DEMO_PLAYER_ID, usePlayerVM, type PlayerVM } from '../data/usePlayer';
 import { heroTeam } from '../../lib/hero/input';
-import { demoOn, removeSaved, useAlerts, useFollows, useSaved } from '../state/prefs';
+import { demoOn, useAlerts, useFollows, useSaved, useVisits, useWatchlist } from '../state/prefs';
+import { RecentPanel, SavedPanel, WatchlistPanel } from './MySiftPanels';
 import { filterFollows, followedSports, isEmptyFollows, keyId, keySlug, meanOf, recentRows, selectFollowing, suggestTeams, validSport, type FollowedGame, type Why } from '../model/following';
 import { dayWord, keyLabel } from '../model/time';
 import type { V3Game, V3Team } from '../model/types';
@@ -153,18 +155,25 @@ function PlayerCard({ p, now }: { p: PlayerInfo; now: number }) {
 
 // ---------------------------------------------------------------- the screen
 
-const KIND_WORD = { player: 'Player', team: 'Team', stat: 'Statistic', game: 'Game', props: 'Props', other: 'Research' } as const;
+const TABS = [{ k: 'following', label: 'Following' }, { k: 'saved', label: 'Saved' }, { k: 'recent', label: 'Recent' }, { k: 'watchlist', label: 'Watchlist' }] as const;
+type Tab = (typeof TABS)[number]['k'];
+const tabOf = (raw: string | null): Tab => TABS.find((t) => t.k === raw)?.k ?? 'following';
 const PLAYER_CAP = 6;
 
 export function Following() {
   const f = useFollows();
   const { games, loading, unavailable, now } = useSlate();
   const saved = useSaved();
+  const visits = useVisits();
+  const watch = useWatchlist();
   const alerts = useAlerts();
   const [sp] = useSearchParams();
   const setSp = useQueryPatch();
   const demo = demoOn();
   const [allPlayers, setAllPlayers] = useState(false);
+  const tab = tabOf(sp.get('tab'));
+  const setTab = (t: Tab) => setSp((p) => { const n = new URLSearchParams(p); if (t === 'following') n.delete('tab'); else n.set('tab', t); return n; });
+  useEffect(() => { const prev = document.title; document.title = 'My SIFT · Sift'; return () => { document.title = prev; }; }, []);
 
   const sports = useMemo(() => followedSports(f), [f]);
   const sport = validSport(sp.get('sport'), f);
@@ -196,19 +205,36 @@ export function Following() {
   const teamList = fs.teams.map((k) => ({ k, t: teamOf(k, games) }));
   const gameList = fs.games.map((k) => games.find((g) => g.key === k)).filter((g): g is V3Game => !!g);
   const savedShown = sport ? saved.filter((s) => s.sport === sport) : saved;
+  const visitsShown = sport ? visits.filter((v) => v.slug === sport) : visits;
+  const counts: Record<Tab, number> = { following: f.teams.length + f.players.length + f.games.length, saved: saved.length, recent: visits.length, watchlist: watch.length };
   const suggested = useMemo(() => (empty ? suggestTeams(games) : []), [empty, games]);
 
   return (
     <div className="v3-page v3-following">
-      <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>Following</h1><span className="v3-top__sp" /><SearchButton /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
+      <header className="v3-top"><h1 className="v3-pgtitle" style={{ margin: 0 }}>My SIFT</h1><span className="v3-top__sp" /><SearchButton /><Link to="/v3/settings" className="v3-iconbtn" aria-label="Settings"><Icon name="sliders" size={24} /></Link></header>
 
-      {sports.length > 1 && (
+      <div className="v3-mtabs" role="tablist" aria-label="My SIFT sections">
+        {TABS.map((t) => (
+          <button key={t.k} type="button" role="tab" id={`mysift-tab-${t.k}`} aria-selected={tab === t.k} aria-controls="mysift-panel" className="v3-mtab" onClick={() => setTab(t.k)}>
+            {t.label}<span className="v3-mtab__n num" aria-label={`${counts[t.k]} items`}>{counts[t.k]}</span>
+          </button>
+        ))}
+      </div>
+
+      <div id="mysift-panel" role="tabpanel" aria-labelledby={`mysift-tab-${tab}`}>
+      {sports.length > 1 && tab !== 'watchlist' && (
         <ChipRail className="v3-chips v3-chips--sports" role="group" aria-label="Filter by sport">
           <button type="button" className="v3-chip" aria-pressed={sport == null} onClick={() => setSport(null)}>All</button>
           {sports.map((s) => <button key={s} type="button" className="v3-chip" aria-pressed={sport === s} onClick={() => setSport(s)}>{sportWord(s)}</button>)}
         </ChipRail>
       )}
 
+      {tab === 'saved' && <SavedPanel saved={savedShown} all={saved.length} sport={sport} />}
+      {tab === 'recent' && <RecentPanel visits={visitsShown} all={visits} sport={sport} />}
+      {tab === 'watchlist' && <WatchlistPanel items={watch} />}
+
+      {tab === 'following' && (
+      <>
       {empty && (
         <section className="v3-fempty" aria-label="Start following">
           <h2>Follow what you care about</h2>
@@ -310,29 +336,12 @@ export function Following() {
             </>
           )}
           {teamList.length + playerList.length + gameList.length + view.missingGames.length === 0 && <p className="v3-note">Nothing followed in {sport ? sportWord(sport) : 'this sport'}.</p>}
-          {Object.keys(alerts).length === 0 && <p className="v3-note v3-note--dim">Alerts are off. Tap a bell to opt in, one at a time; following does not turn them on.</p>}
+          <p className="v3-note v3-note--dim">Tap a star to unfollow. Alerts are not delivered yet: a bell only records a choice on this device{Object.keys(alerts).length === 0 ? ' (all are off)' : ''}, and following never turns one on.</p>
         </section>
       )}
-
-      <section aria-label="Saved research">
-        <div className="v3-sechead"><h2>Saved Research</h2></div>
-        {savedShown.length ? (
-          <ul className="v3-hits">{savedShown.map((s) => (
-            <li key={s.id} className="v3-hit v3-hit--saved">
-              <Link to={s.route} className="v3-hit__l" aria-label={`Reopen ${s.title}: ${s.subtitle}`}>
-                <span className="v3-hit__t">
-                  <span className="v3-kind">{KIND_WORD[s.kind]}{s.sport ? ` · ${s.sport.toUpperCase()}` : ''}</span>
-                  <b>{s.title}</b><small>{s.subtitle}</small>
-                  {s.chips.length > 0 && <span className="v3-chiplist" aria-label="Saved setup">{s.chips.map((c) => <i key={c} className="v3-chipx">{c}</i>)}</span>}
-                  {s.snapshot && <span className="v3-snap">Saved values: {s.snapshot.map((x) => `${x.label} ${x.value}`).join(' · ')}</span>}
-                </span>
-                <Icon name="chevR" size={20} />
-              </Link>
-              <button type="button" className="v3-iconbtn v3-star is-on" aria-label={`Remove saved ${s.title}`} onClick={() => removeSaved(s.id)}><Icon name="bookmark" size={22} fill /></button>
-            </li>
-          ))}</ul>
-        ) : <p className="v3-note">{sport && saved.length ? `No saved research in ${sportWord(sport)}.` : 'Tap the bookmark on a player or statistic to save the exact setup: stat, line, window and filters come back as you left them. The numbers shown on a saved item are the frozen snapshot; open it to see the current ones.'}</p>}
-      </section>
+      </>
+      )}
+      </div>
     </div>
   );
 }

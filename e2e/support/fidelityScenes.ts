@@ -128,7 +128,7 @@ export const SCENES: Scene[] = [
     id: 'ROOT-Following', ref: null, title: 'Following', family: 'player', route: PLAYER, ready: '.v3p-hb', dense: true,
     prep: async (page) => {
       await page.getByRole('button', { name: 'Save this research' }).first().click();
-      await page.locator('.v3-nav a', { hasText: /^Following$/ }).first().click();
+      await page.locator('.v3-nav a', { hasText: /^My SIFT$/ }).first().click();
       await expect(page).toHaveURL(/#\/v3\/following/);
       await page.waitForTimeout(800);
     },

@@ -62,7 +62,16 @@ describe('Overview of a Script Engine game', () => {
     const read = screen.getByRole('region', { name: 'SIFT Read' });
     expect(read.textContent).toContain(e.read.headline);
     expect(read.textContent).toContain('Research only');
-    expect(within(screen.getByTestId('cfb-advantages')).getAllByTestId('cfb-advantage')).toHaveLength(3);
+    // advantages are three; a finding that rests on havoc is never shown, so the strong disruption finding of this game gives way to the next gap
+    const adv = within(screen.getByTestId('cfb-advantages')).getAllByTestId('cfb-advantage');
+    expect(adv).toHaveLength(3);
+    expect(adv.map((a) => a.textContent).join(' ')).not.toMatch(/havoc/i);
+    // the hero is the primary script: its title, the way the engine ranks it (no probability), three reasons and the best expression
+    const hero = within(screen.getByTestId('cfb-hero-script'));
+    expect(hero.getByText(/Ranked 1 of \d+ by matchup evidence/)).toBeTruthy();
+    expect(hero.getByText(/publishes no probability/)).toBeTruthy();
+    expect(hero.getAllByRole('listitem').length).toBeGreaterThanOrEqual(1);
+    expect(hero.getAllByRole('listitem').length).toBeLessThanOrEqual(3);
     const scripts = screen.getAllByTestId('cfb-script');
     expect(scripts).toHaveLength(e.scripts.length);
     expect(scripts[0].textContent).toMatch(/^Primary/);
@@ -71,10 +80,19 @@ describe('Overview of a Script Engine game', () => {
     expect(surv.getAllByTestId('cfb-survivor').length).toBeGreaterThan(0);
     expect(surv.getAllByRole('region', { name: 'Why this bet' }).length).toBeGreaterThan(0);
     expect(screen.getByTestId('cfb-confidence').textContent).toMatch(/data confidence/i);
-    // the first two causal-chain steps cite the findings behind them, the rest is one tap away
-    const first = scripts[0];
-    expect(within(first).getAllByRole('listitem').length).toBeGreaterThanOrEqual(2);
-    expect(within(first).getByText(/Full causal chain \(\d+ steps\)/)).toBeTruthy();
+    // each scenario is a one-line tile that opens the Game Script tab on it
+    expect(scripts[0].tagName).toBe('BUTTON');
+    expect(screen.getByTestId('cfb-pace').textContent).toMatch(/opponent-adjusted/);
+    expect(screen.getByTestId('cfb-markets').textContent).toMatch(/Research only/);
+  });
+
+  it('a scenario tile opens the Game Script tab on that scenario', () => {
+    const picked: unknown[][] = [];
+    mount(<ScriptOverview ctx={ctxOf(LSU_UK)} onTab={(...a) => picked.push(a)} />);
+    const tiles = screen.getAllByTestId('cfb-script');
+    tiles[1].click();
+    expect(picked[0][0]).toBe('script');
+    expect(typeof picked[0][1]).toBe('string');
   });
 
   it('prices each side by its own ask: YES by the YES ask, NO by the NO ask, each a tap on the addressed contract sheet', () => {
@@ -105,7 +123,12 @@ describe('Overview of a Script Engine game', () => {
   it('withholds a price the quote gate does not allow, printing a dash and never an estimate', () => {
     vi.setSystemTime(Date.parse(readCfb<EventDetailDoc>(`event_detail/${LSU_UK}.json`).markets[0].captured_at!) + 6 * 3600_000);
     mount(<ScriptOverview ctx={ctxOf(LSU_UK)} onTab={() => {}} />);
-    for (const row of screen.getAllByTestId('cfb-survivor')) expect(row.querySelector('a.cs-px')!.textContent).toMatch(/^(YES|NO)—$/);
+    for (const row of screen.getAllByTestId('cfb-survivor')) {
+      expect(row.querySelector('a.cs-px')!.textContent).toMatch(/^(YES|NO)—$/);
+      // and the quote gate's own reason is on the row
+      expect(row.querySelector('[data-testid="cfb-price-why"]')!.textContent).toMatch(/old|No ask|closed|not listed/i);
+    }
+    expect(screen.getByTestId('cfb-hero-expr').textContent).toMatch(/Price .* old/);
   });
 
   it('keeps the language rules: ranked not percentages, no +EV / edge / value / lock / fair price, scoring research only and never listed', () => {
@@ -157,7 +180,7 @@ describe('a trimmed event whose detail cannot be restored', () => {
     mount(<ScriptOverview ctx={{ ...base, research: r, script: state }} onTab={() => {}} />);
     expect(screen.getByTestId('cs-detail-unavailable').textContent).toMatch(/not published yet/);
     const adv = screen.getAllByTestId('cfb-advantage');
-    expect(adv).toHaveLength(3);
+    expect(adv).toHaveLength(2); // the third finding of this game rests on havoc, which is never shown as evidence
     for (const a of adv) { expect(a.textContent).toContain('The engine’s finding'); expect(a.querySelector('.cs-ranks')).toBeNull(); }
     expect(screen.getAllByTestId('cfb-script').length).toBeGreaterThan(0);
     expect(screen.getAllByTestId('cfb-survivor').length).toBeGreaterThan(0);
@@ -169,15 +192,18 @@ describe('Game Script and Matchup tabs', () => {
     const ctx = ctxOf(LSU_UK);
     const e = engineIn(ctx);
     mount(<CfbScriptTab ctx={ctx} engine={e} />);
-    const pick = screen.getByRole('group', { name: 'Script' });
+    const pick = screen.getByRole('group', { name: 'Scenario' });
     expect(within(pick).getAllByRole('button')).toHaveLength(e.scripts.length);
     expect(within(pick).getAllByRole('button')[0].getAttribute('aria-pressed')).toBe('true');
     const d = screen.getByTestId('cfb-script-detail');
     expect(d.getAttribute('data-script')).toBe(e.scripts[0].script_id);
-    expect(d.textContent).toContain('No probability is published');
-    expect(within(d).getByText('Causal chain')).toBeTruthy();
+    expect(d.textContent).toContain('publishes no probability');
+    expect(within(d).getByText('Why it happens')).toBeTruthy();
+    expect(within(d).getByText('What breaks it')).toBeTruthy();
+    expect(within(d).getByText('Ways to play this scenario')).toBeTruthy();
+    expect(within(d).getByText(/Full causal chain \(\d+ steps\)/)).toBeTruthy();
     expect(within(d).getByText('Outcome shape')).toBeTruthy();
-    expect(within(d).getByText('Markets this script settles')).toBeTruthy();
+    expect(d.textContent).not.toMatch(/havoc/i);
     for (const tap of d.querySelectorAll('a.cs-px')) expect(tap.getAttribute('data-dest')).toContain('sheet=contract&tk=');
   });
 

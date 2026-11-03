@@ -184,3 +184,7 @@
 .v3-tabs--box.is-stuck { top: calc(var(--sat) + 58px); }
 .v3-drive h3 { display: inline-flex; align-items: center; gap: 10px; font-size: 18px; }
 .v3-field__yds { display: grid; grid-template-columns: repeat(9, 1fr); margin: 0 8%; text-align: center; font: 500 12px/14px var(--f-ui); color: var(--sift-muted); margin-top: -4px; }
+
+/* A withheld price says why, in the cell. */
+.v3-prop__p { height: auto; min-height: 44px; padding-top: 4px; padding-bottom: 4px; display: grid; align-content: center; }
+.v3-prop__why { display: block; max-width: 96px; font: 500 10px/12px var(--f-ui); color: #e0b66a; }

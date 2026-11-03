@@ -35,3 +35,6 @@
 .v3 .v3c-nr b { font-weight: 600; } .v3 .v3c-nr span { font-size: 15px; margin-left: 12px; } .v3 .v3c-nr small { grid-column: 3; grid-row: 1; justify-self: end; margin-left: 12px; font: 400 12.5px/16px var(--f-ui); color: var(--sift-muted); }
 .v3 .v3c-nr .v3c-m { color: var(--sift-text); font-weight: 700; }
 .v3 .v3c-acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 4px; }
+
+.v3c-why { display: block; margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(255, 183, 77, 0.08); border: 1px solid rgba(255, 183, 77, 0.35); font: 400 12.5px/17px var(--f-ui); color: #e7dcc8; }
+.v3c-why b { color: #ffd08a; }

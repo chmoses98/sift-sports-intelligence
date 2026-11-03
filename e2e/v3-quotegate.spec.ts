@@ -23,7 +23,18 @@ async function setup(page: Page, mode: Mode, plusS = 0) {
   await page.clock.setFixedTime(new Date(feedNow(FAMILY).getTime() + plusS * 1000));
 }
 const go = async (page: Page, path: string) => { await page.goto(`./#${path}`); await expect(page.locator('[data-v3-shell]')).toBeVisible(); };
-const bodyText = (page: Page) => page.locator('[data-v3-shell]').innerText();
+// Observation-age explanations are permitted only for withheld quotes: the contract sheet,
+// game-level withheld-prices notice, and individual withheld prop rows. Do not exempt
+// ordinary price text: an executable quote must never be presented as an old price.
+const bodyText = (page: Page) => page.locator('[data-v3-shell]').evaluate((el) => {
+  // Compare rendered text with rendered text. textContent omits the line breaks
+  // introduced by block elements, so replacing it in innerText leaves the
+  // withheld-prices explanation behind (and falsely fails the quote gate).
+  const notes = Array.from(el.querySelectorAll('.v3c-why, [data-state="prices-withheld"], .v3-prop__why')).map((n) => (n as HTMLElement).innerText);
+  let text = (el as HTMLElement).innerText;
+  for (const note of notes) text = text.replace(note, '');
+  return text;
+});
 const noFreshness = async (page: Page) => expect(await bodyText(page)).not.toMatch(FRESH);
 const box = async (l: Locator) => { const b = await l.boundingBox(); expect(b).not.toBeNull(); return b!; };
 
@@ -36,7 +47,9 @@ async function expectUnavailable(page: Page) {
   await expect(dlg.locator('[data-state="unavailable"]')).toContainText('Price unavailable right now');
   await expect(dlg.getByRole('button', { name: 'Retry' })).toBeVisible();
   await expect(dlg.locator('[data-state="price"], [data-state="fee"]')).toHaveCount(0);
-  const text = await dlg.innerText();
+  const explanation = dlg.locator('.v3c-why');
+  await expect(explanation).toBeVisible(); // a withheld price explains why and when, without inventing a quote
+  const text = (await dlg.innerText()).replace(await explanation.innerText(), '');
   expect(text).not.toMatch(/taker fee|break-even|\bask\b|\bbid\b|implied/i);
   expect(text).not.toMatch(FRESH);
 }
@@ -191,7 +204,8 @@ test.describe('Game Detail: win prices, market cards, props and the sheet @v3', 
     await page.goBack();
     await go(page, `${GAME}?tab=props`);
     const px = page.locator('.v3-prop__p').first();
-    await expect(px).toHaveText('—');
+    await expect(px).toContainText('—');
+    await expect(px).not.toContainText(/\d+¢/);
     await noFreshness(page);
     await px.click();
     await expectUnavailable(page);

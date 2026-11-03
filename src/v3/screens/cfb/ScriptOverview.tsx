@@ -1,45 +1,103 @@
-// Game Detail, Overview for a game whose research carries a Script Engine payload (CFB, and any sport that publishes one). It shows DIRECTLY, in this order:
-//   1. SIFT Read                 the sentences the engine generated from structured findings, before any price was read
-//   2. Matchup advantages        the top three opponent-adjusted advantages, in plain words (what the metric is, the ranks, why it matters)
-//   3. Game scripts              Primary, Secondary, Alternate, Danger as compact cards; each step of the causal chain cites the findings behind it
-//   4. Bets That Survive Multiple Scripts   the contract sides that more than one script supports, with the scripts that support and contradict them and the side's own Kalshi price
-//   5. Why this bet              findings for and against, per row
-//   6. Data confidence
-// Language rules (docs/CFB_SCRIPT_ENGINE.md, enforced by tests/v3/scriptOverview.test.tsx): scripts are ranked, never given a likelihood; "3 of 4 scripts" is
-// never a percentage; no row is called +EV, a lock or a fair price; total and team-total contracts are "Scoring: research only" and never listed as surviving;
-// every page says "Research only". A game without a payload keeps the generic view and shows the engine's own status and reason, never a blank.
+// Game Detail, Overview for a game whose research carries a Script Engine payload (CFB, and any sport that publishes one). Progressive disclosure, top to bottom:
+//   1. SIFT Read hero          the payload's headline, the PRIMARY script, how the engine ranks it (it publishes no probability), the historical frequency its V2 claim states
+//                              when one applies, three reasons, and the one expression the engine calls best for it, tap-through to the exact contract
+//   2. Game scenarios          Primary, Secondary, Alternate, Danger as one-line tiles; each opens the Game Script tab on that scenario
+//   3. Pace & efficiency       the strip: both teams, adjusted vs raw labelled, personnel context
+//   4. Matchup advantages      the top three opponent-adjusted advantages, in plain words
+//   5. Bets That Survive Multiple Scripts, and why this bet
+//   6. Totals & halves         Kalshi's game total, team totals, first-half winner and quarter markets, research only, each priced through the quote gate
+//   7. Data confidence         collapsed
+// Language rules (docs/CFB_SCRIPT_ENGINE.md, enforced by tests/v3/scriptOverview.test.tsx): scripts are ranked, never given a likelihood the payload did not state; "3 of 4
+// scripts" is never a percentage; no row is called +EV, a lock or a fair price; total and team-total contracts are "Scoring: research only" and never listed as surviving;
+// "havoc" is never displayed as evidence; every page says "Research only". A game without a payload keeps the generic view and shows the engine's own status and reason.
 import { useMemo } from 'react';
+import type { Market } from '../../../contract/types';
 import { LABEL_WORD, SCORING_RESEARCH_NOTE, type Engine, type Expression } from '../../../lib/scriptEngine';
-import { sideLabel, useSideAsks } from '../../data/research/scriptPrices';
+import { sideLabel, useSideQuotes } from '../../data/research/scriptPrices';
 import type { ScriptState } from '../../data/research/scriptEngine';
-import { marketMap, scoringHidden, scriptCards, STATUS_WORD, survivorRows, topAdvantages, fitSentence, gapText, survivalWords, whyBet, scriptFits, GATE_WORD, type Advantage, type ScriptCard } from '../../model/scriptRead';
+import { marketMap, scoringHidden, STATUS_WORD, survivorRows, topAdvantages, fitSentence, gapText, survivalWords, whyBet, scriptFits, GATE_WORD, type Advantage } from '../../model/scriptRead';
+import { heroExpression, heroOf, marketGroups, scenarios, isHavoc, type Scenario } from '../../model/scriptStory';
 import type { GameTab } from '../../nav/schemas';
-import { PriceTap } from '../../nav/Targets';
 import { Icon } from '../../ui/Icon';
 import type { GameCtx } from '../GameShared';
-import { ConfChip, DetailNotice, FindingNote, FitCells, LabelChips, ResearchOnly, Section } from './parts';
+import { ConfChip, DetailNotice, FindingNote, FitCells, LabelChips, PriceWhy, ResearchOnly, RoleChip, Section, SidePriceTap } from './parts';
+import { PaceStrip } from './PaceStrip';
+import { CoreRow, type Quote } from './ScenarioParts';
 
-// ------------------------------------------------------------------ 1. SIFT Read
+type OnTab = (t: GameTab, scenario?: string) => void;
 
-function ReadCard({ engine, frozen }: { engine: Engine; frozen: boolean }) {
-  const r = engine.read;
+// ------------------------------------------------------------------ 1. the hero
+
+function Hero({ engine, quote, markets, onTab, frozen }: { engine: Engine; quote: Quote; markets: Map<string, Market>; onTab: OnTab; frozen: boolean }) {
+  const hero = useMemo(() => heroOf(engine), [engine]);
+  const expr = useMemo(() => heroExpression(engine, markets), [engine, markets]);
   const g = engine.generation;
+  const r = engine.read;
+  const sc = hero.script;
+  const points = r.points.filter((p) => !isHavoc(p.text));
+  const rest = [...(sc ? points : []), ...r.caveats.map((c) => ({ text: c }))];
   return (
-    <Section id="cs-read-h" title="SIFT Read" right={<ConfChip level={engine.confidence.level} />} testid="cfb-read">
+    <section className="x-card cs-hero" aria-labelledby="cs-read-h" data-testid="cfb-read">
+      <div className="cs-hero__top"><h2 id="cs-read-h" className="cs-eyebrow">SIFT Read</h2><ConfChip level={engine.confidence.level} /></div>
       <p className="cs-read">{r.headline}</p>
-      {r.points.length > 0 && <ul className="cs-pts">{r.points.map((p) => <li key={p.text}>{p.text}</li>)}</ul>}
-      {r.caveats.length > 0 && (
+      {sc ? (
+        <div className="cs-hero__sc" data-testid="cfb-hero-script">
+          <div className="cs-hero__id"><RoleChip role={sc.card.role} tone={sc.card.tone} /><b>{sc.card.title}</b></div>
+          <p className="cs-lk"><b>{sc.likelihood.rank}.</b> {sc.likelihood.statement}</p>
+          {sc.likelihood.historical && <p className="cs-lk cs-lk--hist" data-testid="cfb-hero-history">{sc.likelihood.historical.text} <em>{sc.likelihood.historical.caveat}</em></p>}
+          <h3 className="cs-h4">Why it happens</h3>
+          <ol className="cs-why3">{hero.reasons.map((x) => <li key={x}>{x}</li>)}</ol>
+        </div>
+      ) : points.length > 0 ? <ul className="cs-pts">{points.map((p) => <li key={p.text}>{p.text}</li>)}</ul> : null}
+      {sc && expr && (
+        <div className="cs-best">
+          <h3 className="cs-h4">Best expression of this script</h3>
+          <ul className="cs-exl"><CoreRow engine={engine} c={expr} q={quote(expr.e.ticker, expr.e.side)} stat={sc.head} testid="cfb-hero-expr" full /></ul>
+        </div>
+      )}
+      {sc && !expr && <p className="cs-foot">No winner or margin contract that fits this script is listed on Kalshi.</p>}
+      {sc && (
+        <div className="cs-go2">
+          <button type="button" className="v3-btn" onClick={() => onTab('script', sc.card.script.script_id)}>See why and what breaks it<Icon name="chevR" size={18} /></button>
+        </div>
+      )}
+      {rest.length > 0 && (
         <details className="cs-more">
-          <summary>Caveats ({r.caveats.length})<Icon name="chevD" size={16} /></summary>
-          <ul className="cs-pts">{r.caveats.map((c) => <li key={c}>{c}</li>)}</ul>
+          <summary>{sc ? 'The full read and caveats' : `Caveats (${r.caveats.length})`}<Icon name="chevD" size={16} /></summary>
+          <ul className="cs-pts">{rest.map((p) => <li key={p.text}>{p.text}</li>)}</ul>
         </details>
       )}
       <p className="cs-foot"><ResearchOnly /> Market-blind football read. Scripts are ranked, never given a probability. Football data through {g.football_data_cutoff.slice(0, 10)}.{frozen ? ' Pregame research, frozen before kickoff and not a graded result.' : ''}</p>
+    </section>
+  );
+}
+
+// ------------------------------------------------------------------ 2. scenarios
+
+/** One scenario as a one-line tile; a tap opens it on the Game Script tab. */
+export function ScenarioTile({ s, onOpen }: { s: Scenario; onOpen: () => void }) {
+  const c = s.card;
+  return (
+    <button type="button" className={`cs-tile cs-tile--s${c.tone}`} data-testid="cfb-script" aria-label={`${c.role} scenario: ${c.title}. ${s.likelihood.rank}. Open`} onClick={onOpen}>
+      <span className="cs-tile__top"><RoleChip role={c.role} tone={c.tone} /><span className="cs-tile__rank">{s.likelihood.rank.replace(' by matchup evidence', '')}</span></span>
+      <b className="cs-tile__t">{c.title}</b>
+      <span className="cs-tile__l">{c.lead}</span>
+      <Icon name="chevR" size={18} />
+    </button>
+  );
+}
+
+function Scenarios({ engine, onTab }: { engine: Engine; onTab: OnTab }) {
+  const list = useMemo(() => scenarios(engine), [engine]);
+  return (
+    <Section id="cs-scripts-h" title="Game scenarios" sub="Ranked by matchup evidence: Primary is the best-supported path, Danger the plausible path that breaks it. The engine publishes no probability for any of them." testid="cfb-scripts">
+      {list.length ? <div className="cs-list">{list.map((s) => <ScenarioTile key={s.card.script.script_id} s={s} onOpen={() => onTab('script', s.card.script.script_id)} />)}</div>
+        : <p className="cs-empty">{STATUS_WORD[engine.status] ?? 'No script cleared its evidence requirement.'} Nothing is invented.</p>}
     </Section>
   );
 }
 
-// ------------------------------------------------------------------ 2. matchup advantages
+// ------------------------------------------------------------------ 3. matchup advantages
 
 const rankText = (r: { rank: number | null; of: number | null }) => (r.rank != null ? `#${r.rank} of ${r.of}` : 'unranked');
 
@@ -53,14 +111,19 @@ export function AdvantageCard({ a }: { a: Advantage }) {
       <p className="cs-adv__who">{a.team} against {a.opponent}{a.metric ? <> <span>· {a.metric.name}</span></> : null}</p>
       {(a.offense || a.defense) && (
         <dl className="cs-ranks">
-          {a.offense && <div><dt>{a.offense.team} offense</dt><dd><b className="num">{rankText(a.offense)}</b>{a.offense.value && <small>{a.offense.value}</small>}</dd></div>}
-          {a.defense && <div><dt>{a.defense.team} defense</dt><dd><b className="num">{rankText(a.defense)}</b>{a.defense.value && <small>{a.defense.value}</small>}</dd></div>}
+          {a.offense && <div><dt>{a.offense.team} offense</dt><dd><b className="num">{rankText(a.offense)}</b>{a.offense.value && <small>{a.offense.value} {a.offense.adjusted ? 'adjusted' : 'raw'}</small>}</dd></div>}
+          {a.defense && <div><dt>{a.defense.team} defense</dt><dd><b className="num">{rankText(a.defense)}</b>{a.defense.value && <small>{a.defense.value} {a.defense.adjusted ? 'adjusted' : 'raw'}</small>}</dd></div>}
         </dl>
       )}
       {a.edge.forward != null && <p className="cs-gap">Opponent-adjusted gap <b className="num">{gapText(a.edge.forward)}</b> for {a.team}’s offense{a.edge.reverse != null && <>, <b className="num">{gapText(a.edge.reverse)}</b> for {a.opponent}’s</>}.</p>}
-      {a.metric?.what && <p className="cs-plain"><b>What it measures</b> {a.metric.what}</p>}
-      {a.why && <p className="cs-plain"><b>Why it matters</b> {a.why}</p>}
-      {a.statement && <FindingNote label="The engine’s finding" statement={a.statement} />}
+      {(a.metric?.what || a.why || a.statement) && (
+        <details className="cs-more">
+          <summary>What it measures and why it matters<Icon name="chevD" size={16} /></summary>
+          {a.metric?.what && <p className="cs-plain"><b>What it measures</b> {a.metric.what}</p>}
+          {a.why && <p className="cs-plain"><b>Why it matters</b> {a.why}</p>}
+          {a.statement && <FindingNote label="The engine’s finding" statement={a.statement} />}
+        </details>
+      )}
     </article>
   );
 }
@@ -76,65 +139,7 @@ function Advantages({ engine }: { engine: Engine }) {
   );
 }
 
-// ------------------------------------------------------------------ 3. scripts
-
-export function ScriptCardView({ c, steps = 2 }: { c: ScriptCard; steps?: number }) {
-  const shown = c.steps.slice(0, steps);
-  const more = c.steps.length - shown.length;
-  return (
-    <article className={`cs-scr cs-scr--s${c.tone}`} data-testid="cfb-script" aria-label={`${c.role} script: ${c.title}`}>
-      <header>
-        <span className="cs-role">{c.role}</span>
-        <span className="cs-arch">{c.archetype}</span>
-      </header>
-      <h3>{c.title}</h3>
-      <p className="cs-scr__lead">{c.lead}</p>
-      {c.steps.length > 0 && (
-        <ol className="cs-chain">
-          {shown.map((s) => (
-            <li key={s.step}><span>{s.step}</span>{s.findings.length > 0 && <small>{s.findings.map((f) => f.label).join(' · ')}</small>}</li>
-          ))}
-        </ol>
-      )}
-      {(more > 0 || c.rest || c.against.length > 0) && (
-        <details className="cs-more">
-          <summary>{more > 0 ? `Full causal chain (${c.steps.length} steps)` : 'More detail'}<Icon name="chevD" size={16} /></summary>
-          {c.rest && <p className="cs-plain">{c.rest}</p>}
-          {more > 0 && (
-            <ol className="cs-chain cs-chain--full" start={shown.length + 1}>
-              {c.steps.slice(shown.length).map((s) => (
-                <li key={s.step}><span>{s.step}</span>{s.findings.map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} strength={f.strength} />)}</li>
-              ))}
-            </ol>
-          )}
-          {shown.some((s) => s.findings.length > 0) && (
-            <div className="cs-cited"><h4>Findings behind the first {shown.length} steps</h4>{shown.flatMap((s) => s.findings).filter((f, i, all) => all.findIndex((x) => x.code === f.code) === i).map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} strength={f.strength} />)}</div>
-          )}
-          {c.against.length > 0 && <div className="cs-cited"><h4>Findings against this script</h4>{c.against.map((f) => <FindingNote key={f.code} label={f.label} statement={f.statement} />)}</div>}
-        </details>
-      )}
-    </article>
-  );
-}
-
-function Scripts({ engine }: { engine: Engine }) {
-  const cards = useMemo(() => scriptCards(engine), [engine]);
-  return (
-    <Section id="cs-scripts-h" title="Game scripts" sub="Ranked by matchup evidence: Primary is the best-supported path, Danger the plausible path that breaks it. The engine publishes no likelihoods." testid="cfb-scripts">
-      {cards.length ? <div className="cs-list">{cards.map((c) => <ScriptCardView key={c.script.script_id} c={c} />)}</div>
-        : <p className="cs-empty">{STATUS_WORD[engine.status] ?? 'No script cleared its evidence requirement.'} Nothing is invented.</p>}
-    </Section>
-  );
-}
-
-// ------------------------------------------------------------------ 4 + 5. bets that survive multiple scripts, and why
-
-/** A contract side's price as a tap on the exact-contract sheet: "YES 57¢" / "NO 43¢", or "—" when no current quote passes the gate. */
-export function SidePriceTap({ e, ask, label, hasMarket }: { e: Expression; ask: number | null; label: string; hasMarket: boolean }) {
-  const body = <><small>{e.side}</small><b className="num">{ask != null ? `${ask}¢` : '—'}</b></>;
-  if (!hasMarket) return <span className="cs-px is-none" aria-label={`${label}: no contract listed`}>{body}</span>;
-  return <PriceTap ticker={e.ticker} className="cs-px" label={`${label}: ${e.side} ask ${ask != null ? `${ask} cents` : 'unavailable'}. Open exact contract`}>{body}</PriceTap>;
-}
+// ------------------------------------------------------------------ 4. bets that survive multiple scripts, and why
 
 function WhyThisBet({ engine, e, labelOf }: { engine: Engine; e: Expression; labelOf: (id: string) => string }) {
   const w = useMemo(() => whyBet(engine, e, labelOf), [engine, e, labelOf]);
@@ -163,10 +168,8 @@ function WhyThisBet({ engine, e, labelOf }: { engine: Engine; e: Expression; lab
   );
 }
 
-function Survivors({ engine, ctx }: { engine: Engine; ctx: GameCtx }) {
+function Survivors({ engine, ctx, quote, markets }: { engine: Engine; ctx: GameCtx; quote: Quote; markets: Map<string, Market> }) {
   const rows = useMemo(() => survivorRows(engine, 6), [engine]);
-  const markets = useMemo(() => marketMap(ctx.detail?.markets), [ctx.detail]);
-  const ask = useSideAsks(ctx.g, ctx.detail, ctx.startMs, useMemo(() => rows.map((e) => e.ticker), [rows]));
   const hidden = scoringHidden(engine);
   const byId = useMemo(() => new Map(engine.expressions.map((e) => [e.id, e])), [engine]);
   const labelOf = useMemo(() => (id: string) => { const o = byId.get(id); return o ? sideLabel(o, markets.get(o.ticker)) : id; }, [byId, markets]);
@@ -178,10 +181,11 @@ function Survivors({ engine, ctx }: { engine: Engine; ctx: GameCtx }) {
       {ctx.detailError != null && !ctx.detail && <p className="cs-notice cs-notice--warn" role="status">The Kalshi contract list for this game could not be read, so the rows below carry no price.</p>}
       {rows.length ? (
         <ul className="cs-bets">
-          {rows.map((e, i) => {
+          {rows.map((e) => {
             const m = markets.get(e.ticker);
             const label = sideLabel(e, m);
             const fits = scriptFits(engine, e);
+            const q = quote(e.ticker, e.side);
             return (
               <li key={e.id} className="cs-bet" data-testid="cfb-survivor" data-side={e.side} data-ticker={e.ticker}>
                 <div className="cs-bet__top">
@@ -189,15 +193,16 @@ function Survivors({ engine, ctx }: { engine: Engine; ctx: GameCtx }) {
                     <b>{label}</b>
                     {e.similar > 0 && <small>+{e.similar} similar {e.similar === 1 ? 'line' : 'lines'} with the same script support</small>}
                   </div>
-                  <SidePriceTap e={e} ask={ask(e.ticker, e.side)} label={label} hasMarket={!!m} />
+                  <SidePriceTap ticker={e.ticker} side={e.side} q={q} label={label} hasMarket={!!m} />
                 </div>
+                <PriceWhy q={q} />
                 <div className="cs-bet__fit">
                   <FitCells fits={fits} label={fitSentence(engine, e)} />
                   <span>{survivalWords(e)}</span>
                   <LabelChips labels={e.labels} />
                 </div>
                 <p className="cs-bet__s">{fitSentence(engine, e)}</p>
-                <details className="cs-more" open={i === 0}>
+                <details className="cs-more">
                   <summary>Why this bet<Icon name="chevD" size={16} /></summary>
                   <WhyThisBet engine={engine} e={e} labelOf={labelOf} />
                 </details>
@@ -215,6 +220,38 @@ function Survivors({ engine, ctx }: { engine: Engine; ctx: GameCtx }) {
   );
 }
 
+// ------------------------------------------------------------------ 5. totals and halves
+
+/** Kalshi's total, team-total, first-half and quarter prices for the game, at the market's own central line. Research only: the engine maps none of them with calibrated authority. */
+function OtherMarkets({ ctx, quote }: { ctx: GameCtx; quote: Quote }) {
+  const groups = useMemo(() => marketGroups(ctx.detail?.markets), [ctx.detail]);
+  const hasQuarter = (ctx.detail?.markets ?? []).some((m) => /quarter/i.test(`${m.market_family} ${m.period ?? ''}`));
+  if (!ctx.detail) return null;
+  return (
+    <Section id="cs-mk-h" title="Totals, team totals and halves" sub="Kalshi’s own central line for each. Over is the YES side, Under the NO side of the same contract. The engine’s scoring ranges are descriptive, so these are research links, not scenario fits." testid="cfb-markets">
+      {groups.length ? (
+        <ul className="cs-mgs">
+          {groups.map((g) => (
+            <li key={g.key} className="cs-mg" data-testid="cfb-market-group">
+              <b>{g.title}</b>
+              <small>{g.note}</small>
+              <div className="cs-opts">
+                {g.options.map((o) => {
+                  const q = quote(o.ticker, o.side);
+                  return <div key={`${o.ticker}${o.side}`} className="cs-opt"><span>{o.label}</span><SidePriceTap ticker={o.ticker} side={o.side} q={q} label={`${g.title}, ${o.label}`} hasMarket /></div>;
+                })}
+              </div>
+              {g.options.map((o) => <PriceWhy key={`w${o.ticker}${o.side}`} q={quote(o.ticker, o.side)} />).slice(0, 1)}
+            </li>
+          ))}
+        </ul>
+      ) : <p className="cs-empty">Kalshi lists no total, team-total or half contract for this game.</p>}
+      {!hasQuarter && groups.length > 0 && <p className="cs-foot">Kalshi lists no quarter markets for this game.</p>}
+      <p className="cs-foot"><ResearchOnly /> {LABEL_WORD.SCORING_BAND_UNCALIBRATED}: a price here is only what Kalshi asks.</p>
+    </Section>
+  );
+}
+
 // ------------------------------------------------------------------ 6. data confidence
 
 export function Confidence({ engine }: { engine: Engine }) {
@@ -222,6 +259,8 @@ export function Confidence({ engine }: { engine: Engine }) {
   const g = engine.generation;
   return (
     <Section id="cs-conf-h" title="Data confidence" right={<ConfChip level={c.level} />} sub={c.describes} testid="cfb-confidence">
+      <details className="cs-more">
+        <summary>What was checked, known and not known<Icon name="chevD" size={16} /></summary>
       <ul className="cs-gates">
         {Object.entries(c.gates).map(([k, ok]) => <li key={k} className={ok ? 'is-ok' : 'is-bad'}><Icon name={ok ? 'check' : 'close'} size={16} /><span>{GATE_WORD[k] ?? k.replace(/_/g, ' ')}</span><span className="cs-sr">{ok ? ' passed' : ' not passed'}</span></li>)}
       </ul>
@@ -229,6 +268,7 @@ export function Confidence({ engine }: { engine: Engine }) {
         <div><h4>Known</h4><ul className="cs-pts">{c.known.map((k) => <li key={k}>{k}</li>)}</ul></div>
         <div><h4>Not known</h4><ul className="cs-pts">{[...c.unknown, ...c.reasons].map((k) => <li key={k}>{k}</li>)}</ul></div>
       </div>
+      </details>
       <p className="cs-foot">Football artifact {g.artifact_hash.slice(0, 12)} · generated {g.generated_at} · data through {g.football_data_cutoff} · {g.methodology_version}</p>
     </Section>
   );
@@ -236,16 +276,27 @@ export function Confidence({ engine }: { engine: Engine }) {
 
 // ------------------------------------------------------------------ the Overview block
 
-function Ready({ engine, ctx, onTab }: { engine: Engine; ctx: GameCtx; onTab: (t: GameTab) => void }) {
+function Ready({ engine, ctx, onTab }: { engine: Engine; ctx: GameCtx; onTab: OnTab }) {
+  const markets = useMemo(() => marketMap(ctx.detail?.markets), [ctx.detail]);
+  const groups = useMemo(() => marketGroups(ctx.detail?.markets), [ctx.detail]);
+  // Every price on the page is registered with the quote store once, and judged by the quote gate: a withheld price says why.
+  const tickers = useMemo(() => {
+    const primary = engine.scripts[0];
+    const hero = primary ? heroExpression(engine, markets) : null;
+    return [...new Set([...(hero ? [hero.e.ticker] : []), ...survivorRows(engine, 6).map((e) => e.ticker), ...groups.flatMap((g) => g.options.map((o) => o.ticker))])];
+  }, [engine, markets, groups]);
+  const quote = useSideQuotes(ctx.g, ctx.detail, ctx.startMs, tickers);
   return (
     <div className="cs" data-testid="cfb-script-overview">
-      <ReadCard engine={engine} frozen={ctx.g.phase !== 'pregame'} />
+      <Hero engine={engine} quote={quote} markets={markets} onTab={onTab} frozen={ctx.g.phase !== 'pregame'} />
+      <Scenarios engine={engine} onTab={onTab} />
+      <PaceStrip engine={engine} />
       <Advantages engine={engine} />
-      <Scripts engine={engine} />
-      <Survivors engine={engine} ctx={ctx} />
+      <Survivors engine={engine} ctx={ctx} quote={quote} markets={markets} />
+      <OtherMarkets ctx={ctx} quote={quote} />
       <Confidence engine={engine} />
       <div className="cs-go">
-        <button type="button" className="v3-btn v3-btn--ghost" onClick={() => onTab('script')}>Game Script, every step<Icon name="chevR" size={18} /></button>
+        <button type="button" className="v3-btn v3-btn--ghost" onClick={() => onTab('script')}>Game Script, every scenario<Icon name="chevR" size={18} /></button>
         <button type="button" className="v3-btn v3-btn--ghost" onClick={() => onTab('matchup')}>Matchup, every metric<Icon name="chevR" size={18} /></button>
       </div>
     </div>
@@ -263,7 +314,7 @@ export function NoScript({ status, reason }: { status: string | null; reason: st
 }
 
 /** The Overview block for a Script Engine game; renders nothing for a sport whose research carries no engine and that is not expected to. */
-export function ScriptOverview({ ctx, onTab }: { ctx: GameCtx; onTab: (t: GameTab) => void }) {
+export function ScriptOverview({ ctx, onTab }: { ctx: GameCtx; onTab: OnTab }) {
   const s: ScriptState | undefined = ctx.script;
   const { g } = ctx;
   if (!s || g.provenance !== 'publication') return null;

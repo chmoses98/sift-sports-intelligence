@@ -1,6 +1,7 @@
 /* Watch toggle: a 44px pill, used in the contract sheet and the Discover peek. */
 .v3 .v3-watch { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: var(--s-chip, rgba(21, 24, 27, 0.82)); border: 1px solid var(--s-chip-bd, rgba(47, 54, 62, 0.9)); color: var(--sift-muted); font: 600 14px/1 var(--f-ui); }
 .v3 .v3-watch.is-on { color: var(--sift-cyan); border-color: var(--sift-cyan); background: rgba(34, 211, 238, 0.1); }
-.v3 .v3c-tick { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.v3 .v3c-tick { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; max-width: 100%; }
 .v3 .pd-watch { margin: 0 0 8px; }
-.v3 .v3c-tick code { flex: 1; min-width: 0; }
+.v3 .v3c-tick code { flex: 1 0 auto; min-width: 0; max-width: 100%; }
+.v3 .v3c-tick .v3c-watch { flex: 0 0 auto; }

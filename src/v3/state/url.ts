@@ -173,6 +173,12 @@ export function useQueryPatch(): (patch: QueryPatch | ((cur: URLSearchParams) =>
   const apply = useRef<(patch: QueryPatch | ((cur: URLSearchParams) => URLSearchParams), o?: UpdateOptions) => void>(() => {});
   apply.current = (patch, o) => {
     const { loc: l, nav: go } = live.current;
+    // A patch from a screen that is no longer the one shown (a deferred effect, a late callback) must not rewrite the address that replaced it:
+    // it would carry the old screen's path and query over the new address (e.g. Search's `focus` cleanup erasing the `q` of a redirect to it).
+    try {
+      const shown = decodeURI(window.location.hash.replace(/^#/, '').split('#')[0]).split('?')[0];
+      if (shown && shown !== decodeURI(l.pathname)) return;
+    } catch { /* an address that cannot be decoded is not evidence of a different screen */ }
     let q = new URLSearchParams(live.current.search);
     if (typeof patch === 'function') q = patch(q);
     else for (const [k, v] of Object.entries(patch)) { if (v == null || v === '') q.delete(k); else q.set(k, v); }

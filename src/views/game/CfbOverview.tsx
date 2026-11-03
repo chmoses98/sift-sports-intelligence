@@ -29,6 +29,7 @@ import {
   type SignalGame,
 } from '../../lib/cfbSignals';
 import { ago } from '../../lib/format';
+import { cfbDisplayText } from '../../lib/cfbTeams';
 import { signedPoints, type Engine } from '../../lib/scriptEngine';
 import { CfbGlyph, Chip, supportChips } from '../cfb/kit';
 import { Info } from './panels';
@@ -111,10 +112,11 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
   const pricedHigh = isPricedHigh(judged, doc, price);
   const s = doc?.signals ?? null;
 
-  const read = sg?.read ?? v2.story.headline;
+  // The published sentences name schools by the football schedule ("Massachusetts"); said here by the canonical name ("UMass"), like every other CFB surface.
+  const read = cfbDisplayText(sg?.read ?? v2.story.headline);
   const noClaimShort = s?.no_claim.short ?? 'No supported matchup claim cleared the evidence requirements.';
   const chips = supportChips(claims, { disruption: true });
-  const edges = (sg?.edges.length ? sg.edges : edgesFromClaims(claims)).slice(0, 4);
+  const edges = (sg?.edges.length ? sg.edges : edgesFromClaims(claims)).slice(0, 4).map((e) => cfbDisplayText(e));
   const range = engine.claimsV2?.claims.control?.historical_range ?? null;
   const hist = range
     ? { median: range.median, c50: range.central_50, c80: range.central_80, wins: range.win_rate.hits, n: range.win_rate.n, not: range.not }
@@ -132,7 +134,7 @@ export function CfbOverview({ engine, eventId, markets, participants, signalsUrl
   const statements = [
     ...v2.story.clauses.map((c) => c.text),
     ...[v2.claims.control?.statement, v2.claims.closeness?.statement, v2.claims.pace?.statement, v2.claims.scoring_environment?.statement, v2.claims.defensive_suppression?.statement, ...v2.claims.disruption.map((d) => d.statement)].filter((x): x is string => !!x),
-  ];
+  ].map((t) => cfbDisplayText(t));
 
   const hasBest = Boolean((control && hist) || edges.length > 0);
   return (

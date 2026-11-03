@@ -3,7 +3,7 @@
 //   node scripts/v3-production-check.mjs      (SIFT_URL overrides the Pages address; SIFT_EXPECT_SHA names the commit that must be live)
 //
 // Proves: the site serves the expected commit (version.json); the root address opens SIFT 3.0 (not SIFT 2.0 / v4) and keeps it after a reload; the
-// primary navigation is exactly Home / Props / Following and each opens; a game opens from the Home feed and Back returns to Home; the CFB Script
+// primary navigation is exactly Home / Discover / My SIFT and each opens; a game opens from the Home feed and Back returns to Home; the CFB Script
 // Engine tab renders published scripts (or, with none published, its honest empty state); no page errors, no NaN / undefined. Quote prices are
 // proven separately (v3-quote-production-check.mjs, relay-production-verify.mjs).
 import { chromium, webkit, devices } from '@playwright/test';
@@ -67,22 +67,22 @@ for (const [name, engine, ctxOpts] of runs) {
     await settle(page, 500);
     check(/#\/v3$/.test(page.url()), tag('a refresh stays on SIFT 3.0'));
 
-    // --- primary navigation: Home / Props / Following
+    // --- primary navigation: Home / Discover / My SIFT (routes are still /v3, /v3/props, /v3/following)
     const nav = page.getByRole('navigation', { name: 'Primary' });
     const labels = (await nav.getByRole('link').allInnerTexts()).map((t) => t.trim());
-    check(labels.join('|') === 'Home|Props|Following', tag(`the primary navigation is Home / Props / Following (${labels.join(' · ')})`));
+    check(labels.join('|') === 'Home|Discover|My SIFT', tag(`the primary navigation is Home / Discover / My SIFT (${labels.join(' · ')})`));
     const links = await gameLinks(page);
     check(links.length > 0, tag(`Home lists ${links.length} game(s) from the published slate`));
     check(!MISSING.test(await body(page)), tag('Home shows no NaN / undefined'));
 
-    await nav.getByRole('link', { name: 'Props' }).click();
+    await nav.getByRole('link', { name: 'Discover' }).click();
     await page.waitForURL(/#\/v3\/props/, { timeout: 30_000 });
     await settle(page);
-    check(!MISSING.test(await body(page)) && (await body(page)).trim().length > 40, tag('Props opens, has content and shows no NaN / undefined'));
-    await nav.getByRole('link', { name: 'Following' }).click();
+    check(!MISSING.test(await body(page)) && (await body(page)).trim().length > 40, tag('Discover opens, has content and shows no NaN / undefined'));
+    await nav.getByRole('link', { name: 'My SIFT' }).click();
     await page.waitForURL(/#\/v3\/following/, { timeout: 30_000 });
     await settle(page, 1000);
-    check(!MISSING.test(await body(page)) && (await body(page)).trim().length > 40, tag('Following opens (a list or its empty state) and shows no NaN / undefined'));
+    check(!MISSING.test(await body(page)) && (await body(page)).trim().length > 40, tag('My SIFT opens (a list or its empty state) and shows no NaN / undefined'));
     await nav.getByRole('link', { name: 'Home' }).click();
     await page.waitForURL(/#\/v3$/, { timeout: 30_000 });
     await settle(page, 1500);

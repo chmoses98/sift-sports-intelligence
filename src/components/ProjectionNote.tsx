@@ -9,7 +9,7 @@
 //     their own (Player Snapshot).
 // Reliability is the projection's data quality, never betting value.
 import { useAuthority } from '../data/projections';
-import { cfbTeam } from '../lib/cfbTeams';
+import { cfbDisplayText, cfbTeam } from '../lib/cfbTeams';
 import { fmtAge, fmtWhen } from '../lib/projections';
 import { RELIABILITY_WORDS, type AuthoritativeValue, type Resolution } from '../lib/projectionAuthority';
 import '../styles/intelligence.css';
@@ -111,13 +111,13 @@ export function TeamProjections({ sport, home, away, startUtc, now }: { sport: s
     <div className="intel intel--line intel--ok pf" role="note" data-testid="team-projections">
       {lead?.kind === 'authoritative' && (
         <p className="pf__row"><span className="intel__tag">Projected score</span>{' '}
-          {lead.teams.map((t, i) => <span key={t.team}>{i ? ' · ' : ''}{t.team} <strong className="fx-num">{fmt(t.value.mean)}</strong>{t.value.p10 != null && t.value.p90 != null ? ` (${fmt(t.value.p10, t.value.mean)}–${fmt(t.value.p90, t.value.mean)})` : ''}</span>)}
+          {lead.teams.map((t, i) => <span key={t.team}>{i ? ' · ' : ''}{cfbDisplayText(t.team)} <strong className="fx-num">{fmt(t.value.mean)}</strong>{t.value.p10 != null && t.value.p90 != null ? ` (${fmt(t.value.p10, t.value.mean)}–${fmt(t.value.p90, t.value.mean)})` : ''}</span>)}
         </p>
       )}
       {lead?.kind === 'withheld' && <p className="pf__row" data-testid="team-projections-withheld"><span className="intel__tag">Projected score withheld</span> {lead.reason}.</p>}
       {/* a secondary family that is withheld says nothing: the lead line already states why projections are missing */}
       {rest.map(({ family, r }) => r.kind === 'authoritative'
-        ? <p key={family} className="pf__row pf__muted" data-testid={`team-${family}`}>{TEAM_LABEL[family]}: {r.teams.map((t) => `${t.team} ${teamFmt(family, t.value.mean)}`).join(' · ')}</p>
+        ? <p key={family} className="pf__row pf__muted" data-testid={`team-${family}`}>{TEAM_LABEL[family]}: {r.teams.map((t) => `${cfbDisplayText(t.team)} ${teamFmt(family, t.value.mean)}`).join(' · ')}</p>
         : null)}
       {lead?.kind === 'authoritative' && <p className="pf__row pf__muted" data-testid="team-projections-updated">Updated {when ?? 'at an unknown time'} · {RELIABILITY_WORDS[lead.teams[0].value.reliability]}. A projection, not a betting signal.</p>}
     </div>

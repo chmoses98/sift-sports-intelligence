@@ -364,7 +364,7 @@ export function readEngine(r: EventResearchDoc | null | undefined, research?: Sc
     // "Massachusetts controls" -> "UMass controls"). The published payload itself is never modified — it stays in
     // r.extensions.script_engine — and each script keeps its published title as `title` (scriptTitle() is the display).
     read: p.sift_read ? { ...p.sift_read, headline: cfbDisplayText(p.sift_read.headline), points: (p.sift_read.points ?? []).map((x: any) => ({ ...x, text: cfbDisplayText(x.text) })) } : p.sift_read,
-    confidence: p.data_confidence,
+    confidence: p.data_confidence ? { ...p.data_confidence, known: (p.data_confidence.known ?? []).map((k: string) => cfbDisplayText(k)), unknown: (p.data_confidence.unknown ?? []).map((k: string) => cfbDisplayText(k)), reasons: (p.data_confidence.reasons ?? []).map((k: string) => cfbDisplayText(k)) } : p.data_confidence,
     teams: { home: decodeTeam(mp.teams?.home, columns, legend), away: decodeTeam(mp.teams?.away, columns, legend) },
     dimensions: mp.dimensions ?? {},
     baseline: mp.scoring_baseline ?? {},

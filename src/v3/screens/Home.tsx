@@ -165,10 +165,12 @@ export function Home() {
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 
+      <div className="v3-segrow">
       <div className="v3-seg" role="tablist" aria-label="Games shown">
         <button type="button" role="tab" aria-selected={!following} onClick={() => setView('all')}>All games</button>
         <button type="button" role="tab" aria-selected={following} onClick={() => setView('following')}>Following{!noFollows && <i>{followCount(follows)}</i>}</button>
-        <button type="button" className="v3-density" aria-pressed={compact} aria-label={compact ? 'Compact view on. Switch to full cards' : 'Switch to compact view: more games per screen'} onClick={() => setPrefs({ homeDensity: compact ? 'full' : 'compact' })}><Icon name="list" size={18} />{compact ? 'Compact' : 'Full'}</button>
+      </div>
+      <button type="button" className="v3-density" aria-pressed={compact} aria-label={compact ? 'Compact view on. Switch to full cards' : 'Switch to compact view: more games per screen'} onClick={() => setPrefs({ homeDensity: compact ? 'full' : 'compact' })}><Icon name="list" size={18} />{compact ? 'Compact' : 'Full'}</button>
       </div>
 
       {following && !waiting && noFollows && (

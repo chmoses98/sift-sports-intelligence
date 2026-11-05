@@ -101,9 +101,10 @@
 .v3-seg button[aria-pressed='true'] { color: #ffffff; background: rgba(25, 205, 224, 0.16); box-shadow: inset 0 0 0 1px rgba(25, 205, 224, 0.55); }
 
 /* Home density: the toggle sits at the end of the All games | Following control; compact rows show about twice as many games per screen. */
-.v3-seg:has(.v3-density) { grid-template-columns: 1fr 1fr auto; }
-.v3-seg .v3-density { padding: 0 12px; font-size: 14px; color: #c4c9cf; }
-.v3-seg .v3-density[aria-pressed='true'] { color: #fff; background: rgba(25, 205, 224, 0.16); box-shadow: inset 0 0 0 1px rgba(25, 205, 224, 0.55); }
+.v3-segrow { display: flex; gap: 8px; align-items: stretch; margin: 6px 0 10px; }
+.v3-segrow .v3-seg { flex: 1; margin: 0; }
+.v3-density { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; min-height: 44px; border-radius: 14px; background: rgba(22, 27, 33, 0.9); border: 1px solid rgba(41, 48, 55, 0.9); font: 600 14px/1 var(--f-ui); color: #c4c9cf; }
+.v3-density[aria-pressed='true'] { color: #fff; background: rgba(25, 205, 224, 0.16); box-shadow: inset 0 0 0 1px rgba(25, 205, 224, 0.55); }
 .v3-gclist--compact { gap: 6px; }
 .v3-gcc { position: relative; display: grid; grid-template-columns: minmax(112px, 1.1fr) minmax(0, 0.9fr) auto 40px; align-items: center; column-gap: 8px; padding: 4px 4px 4px 12px; min-height: 60px; border-radius: 14px; background: var(--panel); border: 1px solid rgba(41, 48, 55, 0.95); box-shadow: var(--lit); }
 .v3-gcc.is-live { border-color: rgba(255, 90, 95, 0.45); }

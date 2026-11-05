@@ -6,6 +6,8 @@ import type { MarketView, ModelView, ProjectionRead } from '../../data/intel/pro
 import { modelLean } from '../../data/intel/projection';
 import { dayClock } from '../../model/time';
 import { PriceTap } from '../../nav/Targets';
+import { modelSpread } from '../../model/spread';
+import { PriceText, gameHref, useListGate, useOpenContract } from '../../ui/gamebits';
 import { LaneMark } from '../../ui/atoms';
 import { TeamLogo } from '../../ui/TeamLogo';
 import { useWinContracts } from '../GameOverview';
@@ -25,6 +27,7 @@ function ModelLane({ ctx, m }: { ctx: GameCtx; m: ModelView }) {
   const { g } = ctx;
   const lean = modelLean(m);
   const when = asOf(m.asOf);
+  const spread = modelSpread(m.awayScore, m.homeScore, g.away.abbr, g.home.abbr);
   return (
     <div className="mi-lane mi-lane--sift" data-testid="sift-model" role="group" aria-label="SIFT model projection">
       <div className="mi-lane__h"><LaneMark lane="sift" /><b>SIFT model</b></div>
@@ -40,10 +43,11 @@ function ModelLane({ ctx, m }: { ctx: GameCtx; m: ModelView }) {
           </div>
         );
       })}
+      {spread && <div className="mi-lane__r mi-spread" data-testid="model-spread"><span>Model spread</span><b className="num">{spread.label}</b></div>}
       {m.draw != null && <div className="mi-lane__r" data-testid="model-draw">Draw {pct(m.draw)}</div>}
       {m.range && <div className="mi-lane__r">80% range of points: {([['away', g.away], ['home', g.home]] as const).map(([s, t]) => { const r = m.range![s]; return r ? `${t.abbr} ${Math.round(r[0])}–${Math.round(r[1])}` : null; }).filter(Boolean).join(', ')}</div>}
       <div className="mi-lane__m">{m.version ? `Model ${m.version}` : 'Model version not published'}{when ? ` · ${m.asOfKind === 'published' ? 'published' : 'inputs cut off'} ${when}` : ' · as-of time not published'}</div>
-      {m.caveat && <p className="mi-lane__c">{m.caveat}</p>}
+      {m.caveat && <details className="mi-more mi-fn"><summary>Model caveat</summary><p className="mi-lane__c">{m.caveat}</p></details>}
     </div>
   );
 }
@@ -55,6 +59,9 @@ function MarketLane({ ctx, market, priced }: { ctx: GameCtx; market: MarketView 
   const by = (team: 'away' | 'home') => { const w = wins.find((x) => x.team === team); return w ? { w, a: ask(w.ticker, w.price) } : null; };
   const live = priced ? [by('away'), by('home')] : [null, null];
   const usable = live[0]?.a != null && live[1]?.a != null;
+  const gate = useListGate(g, ctx.startMs);
+  const open = useOpenContract();
+  const spreadLine = priced ? g.lines.find((l) => l.kind === 'spread') : undefined;
   return (
     <div className="mi-lane mi-lane--mkt" data-testid="market-lane" role="group" aria-label="Market win prices">
       <div className="mi-lane__h"><LaneMark lane="market" /><b>Market</b></div>
@@ -72,6 +79,11 @@ function MarketLane({ ctx, market, priced }: { ctx: GameCtx; market: MarketView 
           </div>
         );
       })}
+      {spreadLine && (
+        <button type="button" className="mi-lane__r mi-spread mi-spread--btn" data-testid="market-spread" aria-label={`Market spread ${spreadLine.label}. Open market detail`} onClick={() => open({ g, startMs: ctx.startMs, detailHref: gameHref(g) }, spreadLine)}>
+          <span>Market spread</span><b className="num">{spreadLine.label} · <PriceText p={gate(spreadLine.price)} /></b>
+        </button>
+      )}
       <div className="mi-lane__m">
         {usable ? 'Prices are the market’s, not SIFT’s.' : market ? `${market.label ?? 'Inferred from Kalshi midpoints'}. Not a current price.` : priced ? 'No current Kalshi win price is available for this game.' : 'Prices are not shown for a game that has started.'}
       </div>

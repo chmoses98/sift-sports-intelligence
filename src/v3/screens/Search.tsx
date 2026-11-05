@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from '../../routing';
+import { Link, useNavigate, useSearchParams } from '../../routing';
 import { useQueryPatch } from '../state/url';
 import { useSearchHits, type Hit } from '../data/useSearch';
 import { useSlate } from '../data/useSlate';
@@ -12,6 +12,7 @@ import { TeamLogo } from '../ui/TeamLogo';
 import { sportChips } from '../model/homeFeed';
 import type { V3Game } from '../model/types';
 import { gameHref } from '../ui/gamebits';
+import { positionOf } from '../nav/origin';
 
 type Cat = 'player' | 'team' | 'game' | 'stat';
 const CATS: { k: Cat; label: string; icon: IconName }[] = [{ k: 'player', label: 'Players', icon: 'user' }, { k: 'team', label: 'Teams', icon: 'shield' }, { k: 'game', label: 'Games', icon: 'ball' }, { k: 'stat', label: 'Stats', icon: 'trend' }];
@@ -38,8 +39,18 @@ function HitRow({ h, q }: { h: Hit; q: string }) {
   );
 }
 
+/**
+ * Leave search the way the viewer expects: back to the screen it was opened from. Typing only replaces the search entry, so one step back is always that
+ * screen. A search opened directly (a shared link, a reload: nothing below it in this tab) goes Home instead of leaving the app.
+ */
+function useSearchExit(): () => void {
+  const nav = useNavigate();
+  return () => { if ((positionOf(window.history.state) ?? 0) > 0) nav(-1); else nav('/v3', { replace: true }); };
+}
+
 /** Global search: players, teams, games and statistics. Opened from every primary screen's header. */
 export function Search() {
+  const exit = useSearchExit();
   const [sp] = useSearchParams();
   const setSp = useQueryPatch();
   const q = sp.get('q') ?? '';
@@ -70,7 +81,12 @@ export function Search() {
 
   return (
     <div className="v3-page v3-explore">
-      <h1 className="v3-pgtitle">Search</h1>
+      <header className="v3-top v3-top--search">
+        <button type="button" className="v3-iconbtn" aria-label="Back" onClick={exit}><Icon name="back" size={26} /></button>
+        <h1 className="v3-pgtitle">Search</h1>
+        <span className="v3-top__sp" />
+        <button type="button" className="v3-searchclose" onClick={exit}>Close</button>
+      </header>
       <label className="v3-search">
         <Icon name="search" size={22} />
         <input ref={input} type="search" value={text} onChange={(e) => { typed.current.add(e.target.value); setText(e.target.value); set({ q: e.target.value || null }); }} placeholder="Search players, teams, games, stats…" aria-label="Search players, teams, games and statistics" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} />

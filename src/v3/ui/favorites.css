@@ -1,0 +1,29 @@
+/* Favorites picker (ui/FavoritesPicker.tsx): one sheet to follow all college sports, a whole league, a conference or single teams. */
+.v3-fav { display: grid; gap: 12px; align-content: start; }
+.v3-fav__search { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 12px; border-radius: 14px; background: rgba(18, 21, 24, 0.85); border: 1px solid rgba(47, 54, 62, 0.9); color: var(--sift-muted); }
+.v3-fav__search:focus-within { border-color: var(--sift-cyan); }
+.v3-fav__search input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: 0; color: var(--sift-text); font: 400 16px/1 var(--f-ui); -webkit-appearance: none; appearance: none; }
+.v3-fav__search input::placeholder { color: var(--sift-dim); }
+.v3-fav__search input::-webkit-search-cancel-button { display: none; }
+.v3-fav__search button { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; color: var(--sift-muted); }
+.v3-fav__h { margin: 6px 2px 0; font: 600 12px/16px var(--f-ui); letter-spacing: 0.07em; text-transform: uppercase; color: var(--sift-muted); }
+.v3-fav__list { display: grid; gap: 8px; }
+.v3-fav__row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 12px; border-radius: 14px; text-align: left; background: rgba(21, 24, 27, 0.82); border: 1px solid rgba(47, 54, 62, 0.9); color: var(--sift-text); }
+.v3-fav__row[aria-pressed='true'] { border-color: var(--sift-cyan); box-shadow: 0 0 0 1px rgba(25, 205, 224, 0.45) inset; background: linear-gradient(180deg, rgba(42, 48, 56, 0.7), rgba(25, 29, 33, 0.8)); }
+.v3-fav__row[aria-disabled='true'] { cursor: default; }
+.v3-fav__row:focus-visible, .v3-fav__donebtn:focus-visible, .v3-fav__more:focus-visible { outline: 2px solid var(--sift-cyan); outline-offset: 2px; }
+.v3-fav__ic { flex: none; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; color: var(--sift-cyan); }
+.v3-fav__t { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.v3-fav__t b { font: 600 15px/20px var(--f-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v3-fav__t small { font: 400 12px/16px var(--f-ui); color: var(--sift-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v3-fav__state { flex: none; display: inline-flex; align-items: center; gap: 4px; min-width: 76px; justify-content: flex-end; font: 600 13px/1 var(--f-ui); color: var(--sift-muted); }
+.v3-fav__row[aria-pressed='true'] .v3-fav__state { color: var(--sift-cyan); }
+.v3-fav__confs { margin-top: 0; }
+.v3-fav__confs .v3-chip[aria-pressed='true'] svg { flex: none; }
+.v3-fav__sum { margin: 0 2px; font: 500 13px/18px var(--f-ui); color: var(--sift-muted); }
+.v3-fav__more { justify-self: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: rgba(39, 45, 52, 0.7); font: 600 14px/1 var(--f-ui); color: var(--sift-text); }
+.v3-fav__done { position: sticky; bottom: -20px; margin: 4px -16px -20px; padding: 14px 16px calc(12px + var(--sab, 0px)); background: linear-gradient(180deg, rgba(12, 15, 18, 0), #0c0f12 34%); z-index: 2; }
+.v3-fav__donebtn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; border-radius: 14px; background: linear-gradient(180deg, #3fd9ea, #19cde0); color: #111316; font: 600 16px/1 var(--f-ui); }
+.v3-favbtn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; background: rgba(39, 45, 52, 0.7); font: 600 14px/1 var(--f-ui); color: var(--sift-text); }
+.v3-favbtn svg { color: var(--sift-cyan); }
+.v3-fgroups { display: flex; flex-wrap: wrap; gap: 8px; }

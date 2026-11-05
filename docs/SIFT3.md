@@ -56,6 +56,7 @@ Key rules the code enforces:
 * A screen reads only the **view-model**. The adapters decide what a field is and leave it `null` when the publication
   does not state it; screens then print an honest "unavailable" state. No screen invents a number.
 * **Follow (star) and alerts (bell) are separate stores.** Starring never subscribes to anything.
+* **Follows can be a group**: a whole league (`league:nfl`), a college conference (`conf:cfb:SEC`) or all college sports (`college:all`), stored in `follows.groups` beside teams, players and games (`model/groups.ts`; a record saved before groups existed loads with none). A game is followed when its league or either team's stated conference is. A group ranks below a star, is not a Switcher favourite, counts once in the Home badge and is capped in My SIFT lists so it cannot bury the viewer's own teams. The one place to choose all of it is the favorites picker sheet (`ui/FavoritesPicker.tsx`), opened from My SIFT and from Home's empty Following state.
 * Every price is a Kalshi YES ask in **cents with the venue's implied %** ("52¢ · 52% implied", pre-fee). The market
   detail sheet shows exact ticker, side, line, bid/ask, taker fee, fee-aware break-even and the quote's true age. Quotes
   older than 30 minutes are dimmed, labelled "last known", and never shown as a current price. SIFT shows no bet buttons.

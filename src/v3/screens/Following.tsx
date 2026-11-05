@@ -13,10 +13,12 @@ import { demoPlayerTeamKey, DEMO_PLAYER_ID, usePlayerVM, type PlayerVM } from '.
 import { heroTeam } from '../../lib/hero/input';
 import { demoOn, useAlerts, useFollows, useSaved, useVisits, useWatchlist } from '../state/prefs';
 import { RecentPanel, SavedPanel, WatchlistPanel } from './MySiftPanels';
-import { filterFollows, followedSports, isEmptyFollows, keyId, keySlug, meanOf, recentRows, selectFollowing, suggestTeams, validSport, type FollowedGame, type Why } from '../model/following';
+import { filterFollows, followCount, followedSports, isEmptyFollows, keyId, keySlug, meanOf, recentRows, selectFollowing, suggestTeams, validSport, type FollowedGame, type Why } from '../model/following';
 import { dayWord, keyLabel } from '../model/time';
 import type { V3Game, V3Team } from '../model/types';
-import { AlertBell, FollowStar } from '../ui/Controls';
+import { groupLabel } from '../model/groups';
+import { AlertBell, FollowStar, GroupStar } from '../ui/Controls';
+import { useFavoritesPicker } from '../ui/FavoritesPicker';
 import { ChipRail } from '../ui/ChipRail';
 import { GameCard } from '../ui/GameCard';
 import { Icon } from '../ui/Icon';
@@ -63,6 +65,7 @@ function GameRow({ g }: { g: V3Game }) {
 
 function whyText(w: Why, games: readonly V3Game[], players: Map<string, PlayerInfo>): string {
   if (w.kind === 'game') return 'Starred game';
+  if (w.kind === 'group') return groupLabel(w.groupKey);
   if (w.kind === 'team') return teamOf(w.teamKey, games).nick;
   return `${players.get(w.playerKey)?.name ?? 'Your player'}'s team`;
 }
@@ -171,6 +174,7 @@ export function Following() {
   const setSp = useQueryPatch();
   const demo = demoOn();
   const [allPlayers, setAllPlayers] = useState(false);
+  const openPicker = useFavoritesPicker();
   const tab = tabOf(sp.get('tab'));
   const setTab = (t: Tab) => setSp((p) => { const n = new URLSearchParams(p); if (t === 'following') n.delete('tab'); else n.set('tab', t); return n; });
   useEffect(() => { const prev = document.title; document.title = 'My SIFT · Sift'; return () => { document.title = prev; }; }, []);
@@ -206,7 +210,7 @@ export function Following() {
   const gameList = fs.games.map((k) => games.find((g) => g.key === k)).filter((g): g is V3Game => !!g);
   const savedShown = sport ? saved.filter((s) => s.sport === sport) : saved;
   const visitsShown = sport ? visits.filter((v) => v.slug === sport) : visits;
-  const counts: Record<Tab, number> = { following: f.teams.length + f.players.length + f.games.length, saved: saved.length, recent: visits.length, watchlist: watch.length };
+  const counts: Record<Tab, number> = { following: followCount(f) + f.players.length, saved: saved.length, recent: visits.length, watchlist: watch.length };
   const suggested = useMemo(() => (empty ? suggestTeams(games) : []), [empty, games]);
 
   return (
@@ -246,9 +250,12 @@ export function Following() {
               ))}
             </div>
           )}
+          <button type="button" className="v3-btn" onClick={openPicker}><Icon name="star" size={18} /> Choose favorites</button>
           <Link to="/v3/explore?focus=1" className="v3-btn"><Icon name="search" size={18} /> Search teams, players and games</Link>
         </section>
       )}
+
+      {!empty && <div className="v3-fgroups"><button type="button" className="v3-favbtn" onClick={openPicker}><Icon name="star" size={16} />Choose favorites</button></div>}
 
       {unavailable && <div className="v3-state v3-state--warn" role="alert"><Icon name="wifiOff" size={20} /><div><b>Published games are unavailable</b>Followed games cannot be shown until they load. Your follows are kept.<br /><button type="button" onClick={() => location.reload()}>Retry</button></div></div>}
 
@@ -258,6 +265,7 @@ export function Following() {
           {loading && !games.length ? <div role="status" aria-label="Loading games" className="v3-gclist"><div className="v3-skel v3-gc-skel" /></div>
             : view.live.length > 0 ? <ul className="v3-fl">{view.live.map((x) => <LiveItem key={x.g.key} x={x} games={games} players={players} />)}</ul>
             : <p className="v3-note v3-fnone">{unavailable ? 'Live games are unavailable right now.' : 'None of your games are in play right now.'}</p>}
+          {view.groupLiveHidden > 0 && <p className="v3-note v3-note--dim">{view.groupLiveHidden} more {view.groupLiveHidden === 1 ? 'game' : 'games'} in play from the leagues and conferences you follow. <Link to="/v3?view=following">All in Home</Link></p>}
           {view.pending.length > 0 && (
             <>
               <h3 className="v3-fsub">Awaiting result</h3>
@@ -299,7 +307,18 @@ export function Following() {
 
       {!empty && (
         <section aria-label="What you follow">
-          <div className="v3-sechead"><h2>What you follow</h2><Link to="/v3/explore">Add</Link></div>
+          <div className="v3-sechead"><h2>What you follow</h2><button type="button" onClick={openPicker}>Add</button></div>
+          {fs.groups.length > 0 && (
+            <>
+              <h3 className="v3-fsub">Leagues and conferences</h3>
+              <ul className="v3-hits">{fs.groups.map((k) => (
+                <li key={k} className="v3-hit v3-hit--group">
+                  <span className="v3-hit__l"><span className="v3-av"><Icon name="star" size={20} fill /></span><span className="v3-hit__t"><b>{groupLabel(k)}</b><small>Every game{k === 'college:all' ? '' : ' of it'} on the slate</small></span></span>
+                  <GroupStar groupKey={k} label={groupLabel(k)} />
+                </li>
+              ))}</ul>
+            </>
+          )}
           {teamList.length > 0 && (
             <>
               <h3 className="v3-fsub">Teams</h3>
@@ -335,7 +354,7 @@ export function Following() {
               </ul>
             </>
           )}
-          {teamList.length + playerList.length + gameList.length + view.missingGames.length === 0 && <p className="v3-note">Nothing followed in {sport ? sportWord(sport) : 'this sport'}.</p>}
+          {teamList.length + playerList.length + gameList.length + fs.groups.length + view.missingGames.length === 0 && <p className="v3-note">Nothing followed in {sport ? sportWord(sport) : 'this sport'}.</p>}
           <p className="v3-note v3-note--dim">Tap a star to unfollow. Alerts are not delivered yet: a bell only records a choice on this device{Object.keys(alerts).length === 0 ? ' (all are off)' : ''}, and following never turns one on.</p>
         </section>
       )}

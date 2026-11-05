@@ -7,6 +7,7 @@ import { useConferenceGames } from '../data/conference';
 import { useSlate } from '../data/useSlate';
 import { conferencesIn, confToken, isCollege, matchesConference, resolveFilter } from '../model/conference';
 import { buildSchedule, dayParts, dayStrip, DAY_KEY, gamesOnDay, jumpTargets, pickSport, sportChips, sportLabel, type Section, type SportChip } from '../model/homeFeed';
+import { followCount } from '../model/following';
 import { anyRanked, emptyMemory, followsGame, type Memory } from '../model/priority';
 import { dayKey, keyLabel, keyWord, shiftDayKey } from '../model/time';
 import { homeSchema } from '../nav/schemas';
@@ -15,7 +16,8 @@ import { useRouteState } from '../state/url';
 import { BellSheet } from '../ui/BellSheet';
 import { Brand } from '../ui/Brand';
 import { ChipRail } from '../ui/ChipRail';
-import { GameCard } from '../ui/GameCard';
+import { useFavoritesPicker } from '../ui/FavoritesPicker';
+import { CompactGameCard, GameCard } from '../ui/GameCard';
 import { Icon } from '../ui/Icon';
 import { SearchButton } from '../ui/SearchButton';
 import { useSheet } from '../ui/Sheet';
@@ -63,7 +65,7 @@ function LiveRightsNote() {
 }
 
 export function Home() {
-  const { games, loading, unavailable, unsupported, failed, saved, now, demo } = useSlate();
+  const { games, loading, unavailable, unsupported, failed, saved, now, demo, confReady } = useSlate();
   const follows = useFollows();
   const sheet = useSheet();
   const alerts = useAlerts();
@@ -111,6 +113,7 @@ export function Home() {
   const pickConf = (token: string) => { if (sport) setPrefs({ homeConf: { ...prefs.homeConf, [sport]: token } }); update({ conf: token }); };
   const pickDay = (k: string) => update({ date: k === today ? null : k });
   const hasAlerts = Object.keys(alerts).length > 0;
+  const compact = prefs.homeDensity === 'compact';
 
   // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.
   useEffect(() => {
@@ -124,10 +127,12 @@ export function Home() {
     const later = games.filter((g) => (following ? followsGame(g, follows) : g.slug === sport) && (dayKey(g.startMs) ?? '') > day).map((g) => dayKey(g.startMs) ?? '').sort();
     return later[0] ?? null;
   }, [games, sport, day, following, follows]);
-  const noFollows = !follows.teams.length && !follows.games.length;
+  const noFollows = followCount(follows) === 0;
+  const openPicker = useFavoritesPicker();
   const setView = (v: 'all' | 'following') => update({ view: v === 'following' ? 'following' : null });
   const waiting = loading && !games.length;
-  const confPending = college && !ready;
+  // A followed conference matches only once the college identity has loaded: no unfiltered Following list that then narrows.
+  const confPending = (college && !ready) || (following && confReady === false);
   const anyOpen = sections.some((s) => s.kind !== 'final');
 
   return (
@@ -160,14 +165,18 @@ export function Home() {
       {saved.length > 0 && <div className="v3-state v3-state--warn" role="status" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>Saved copy in use</b>{saved.map((x) => x.label).join(', ')} {saved.length === 1 ? 'is' : 'are'} showing the research saved with this app because the live publication could not be read. Prices appear only when a current Kalshi quote is available.</div></div>}
       {!unavailable && failed.length > 0 && <div className="v3-state" style={{ marginTop: 12 }}><Icon name="info" size={20} /><div><b>{failed.length} feed{failed.length === 1 ? '' : 's'} unavailable</b>{failed.join(', ')} could not be read; showing everything else.</div></div>}
 
+      <div className="v3-segrow">
       <div className="v3-seg" role="tablist" aria-label="Games shown">
         <button type="button" role="tab" aria-selected={!following} onClick={() => setView('all')}>All games</button>
-        <button type="button" role="tab" aria-selected={following} onClick={() => setView('following')}>Following{!noFollows && <i>{follows.teams.length + follows.games.length}</i>}</button>
+        <button type="button" role="tab" aria-selected={following} onClick={() => setView('following')}>Following{!noFollows && <i>{followCount(follows)}</i>}</button>
+      </div>
+      <button type="button" className="v3-density" aria-pressed={compact} aria-label={compact ? 'Compact view on. Switch to full cards' : 'Switch to compact view: more games per screen'} onClick={() => setPrefs({ homeDensity: compact ? 'full' : 'compact' })}><Icon name="list" size={18} />{compact ? 'Compact' : 'Full'}</button>
       </div>
 
       {following && !waiting && noFollows && (
         <div className="v3-state" style={{ marginTop: 12 }}><Icon name="following" size={20} /><div>
-          <b>Follow teams to build your feed</b>Tap the star on any game card to follow a team or game. Followed teams from every sport appear together here.
+          <b>Follow teams to build your feed</b>Choose favorite teams, a league or a conference, or tap the star on any game card. Followed teams from every sport appear together here.
+          <br /><button type="button" onClick={openPicker}>Choose favorites</button>
           <br /><button type="button" onClick={() => setView('all')}>Browse all games</button>
         </div></div>
       )}
@@ -222,7 +231,7 @@ export function Home() {
         return (
           <section key={s.id} id={`sec-${s.id}`} className="v3-sec" aria-label={`${s.title}, ${s.games.length} ${s.games.length === 1 ? 'game' : 'games'}`}>
             <SectionHead s={s} open={open} onToggle={() => setClosed((c) => ({ ...c, [s.id]: !c[s.id] }))} onInfo={() => sheet.open('About live scores', <LiveRightsNote />)} />
-            {open && <div className="v3-gclist" id={`sec-${s.id}-list`}>{s.games.map((g) => <GameCard key={g.key} g={g} />)}</div>}
+            {open && <div className={`v3-gclist${compact ? ' v3-gclist--compact' : ''}`} id={`sec-${s.id}-list`}>{s.games.map((g) => (compact ? <CompactGameCard key={g.key} g={g} /> : <GameCard key={g.key} g={g} />))}</div>}
           </section>
         );
       })}

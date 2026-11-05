@@ -37,10 +37,16 @@ export function SwitcherRail({ current, games, tab }: { current: V3Game; games: 
   const sheet = useSheet();
   const list = useMemo(() => switcherGames(games, current, f), [games, current, f]);
   const rail = useRef<HTMLDivElement>(null);
-  // Keep the selected tile in view when the game changes; scrolls the rail only, never the page.
+  // The rail never moves because a tile was chosen: the selected tile stays where it is and only the highlight moves. The rail scrolls
+  // (by the least amount, never to the front) only when the selected tile is not fully in view, e.g. a deep link or a pick from the full list.
   useEffect(() => {
-    const el = rail.current?.querySelector<HTMLElement>('[data-current]');
-    if (el && rail.current) rail.current.scrollLeft = Math.max(0, el.offsetLeft - 10);
+    const box = rail.current;
+    const el = box?.querySelector<HTMLElement>('[data-current]');
+    if (!box || !el) return;
+    const pad = 10;
+    const b = box.getBoundingClientRect(), t = el.getBoundingClientRect();
+    if (t.left < b.left + pad) box.scrollLeft += t.left - b.left - pad;
+    else if (t.right > b.right - pad) box.scrollLeft += t.right - b.right + pad;
   }, [current.key]);
   const go = (g: V3Game) => { if (g.key !== current.key) switchTo(g, tab); };
   return (

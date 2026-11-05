@@ -1,0 +1,105 @@
+/* Game Detail, Game Script tab for an NFL game (simulation shares), prefixed ns-. Mobile first (390 px), v3 tokens only. Reuses the cs- atoms of the Script Engine views
+   (price tap, disclosure, notes). The five script identities use their own hues; the script's name is always in text, so colour is never the only signal. */
+.v3 { --ns-1: #19cde0; --ns-2: #46e49b; --ns-3: #f5bd5b; --ns-4: #ff7468; --ns-5: #b79cff; }
+.v3 .ns-t1 { --tc: var(--ns-1); }
+.v3 .ns-t2 { --tc: var(--ns-2); }
+.v3 .ns-t3 { --tc: var(--ns-3); }
+.v3 .ns-t4 { --tc: var(--ns-4); }
+.v3 .ns-t5 { --tc: var(--ns-5); }
+
+.v3 .ns { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.v3 .ns > * { min-width: 0; }
+.v3 .ns-skel { height: 140px; border-radius: 16px; }
+.v3 .ns-skel--tall { height: 360px; }
+.v3 .ns-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.v3 .ns-head .v3-h2 { margin: 0; }
+.v3 .ns-tag { font: 600 12px/1 var(--f-ui); letter-spacing: 0.07em; text-transform: uppercase; padding: 4px 7px; border-radius: 6px; background: rgba(25, 205, 224, 0.12); color: var(--sift-cyan); }
+.v3 .ns .cs-sub, .v3 .ns .cs-foot { margin: 0; }
+.v3 .ns-sec { padding: 12px; display: grid; gap: 8px; align-content: start; min-width: 0; overflow-wrap: anywhere; }
+.v3 .ns-sec h2 { font: 700 17px/24px var(--f-ui); letter-spacing: -0.01em; margin: 0; }
+.v3 .ns-p { font: 400 13.5px/20px var(--f-ui); color: var(--t2); margin: 0; }
+.v3 .ns-p--dim { color: var(--sift-dim); font-size: 12px; line-height: 17px; }
+.v3 .ns .cs-more > summary { min-height: 40px; }
+
+/* the share bar */
+.v3 .ns-bar { display: block; height: 5px; border-radius: 3px; background: rgba(120, 140, 160, 0.18); overflow: hidden; }
+.v3 .ns-bar i { display: block; height: 100%; border-radius: 3px; background: var(--tc, var(--sift-cyan)); }
+.v3 .ns-bar--w { display: inline-block; vertical-align: middle; width: 110px; margin-left: 10px; }
+
+/* 1. the script cards: a compact vertical selector, one row each */
+.v3 .ns-pick { display: grid; gap: 6px; }
+.v3 .ns-card { display: grid; gap: 5px; text-align: left; padding: 9px 12px 10px; border-radius: 12px; background: var(--s-chip); border: 1px solid var(--s-chip-bd); border-left: 4px solid var(--tc); color: var(--sift-text); min-height: var(--tap); width: 100%; }
+.v3 .ns-card.is-on { background: var(--s-raise); border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc) inset; }
+.v3 .ns-card__top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.v3 .ns-card__top b { font: 600 15px/20px var(--f-ui); min-width: 0; flex: 0 1 auto; overflow-wrap: anywhere; }
+.v3 .ns-card__pct { margin-left: auto; font: 700 16px/20px var(--f-num); }
+.v3 .ns-badge { flex: none; font: 600 11px/1 var(--f-ui); font-style: normal; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 6px; border-radius: 6px; background: rgba(25, 205, 224, 0.14); color: var(--sift-cyan); }
+.v3 .ns-card small { font: 400 12.5px/17px var(--f-ui); color: var(--sift-muted); }
+
+/* 2. the selected script */
+.v3 .ns-sel { padding: 12px; display: grid; gap: 8px; border-top: 3px solid var(--tc); }
+.v3 .ns-sel header { display: grid; gap: 2px; }
+.v3 .ns-sel__tag { font: 600 11px/14px var(--f-ui); letter-spacing: 0.07em; text-transform: uppercase; color: var(--sift-muted); }
+.v3 .ns-sel h2 { font: 700 20px/26px var(--f-ui); letter-spacing: -0.01em; margin: 0; }
+.v3 .ns-sel__pct { margin: 0; font: 400 14px/20px var(--f-ui); color: var(--sift-muted); display: flex; align-items: center; flex-wrap: wrap; }
+.v3 .ns-sel__pct b { font: 700 18px/20px var(--f-num); color: var(--sift-text); margin-right: 5px; }
+.v3 .ns-sel__story { margin: 0; font: 400 14.5px/21px var(--f-ui); color: var(--t2); }
+.v3 .ns-vol { width: 100%; border-collapse: collapse; margin: 6px 0 2px; font: 400 13px/18px var(--f-ui); }
+.v3 .ns-vol th, .v3 .ns-vol td { padding: 6px 4px; border-bottom: 1px solid var(--s-hair); text-align: right; vertical-align: top; }
+.v3 .ns-vol thead th { font: 600 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3 .ns-vol th[scope='row'], .v3 .ns-vol thead th:first-child { text-align: left; font-weight: 500; color: var(--t2); }
+.v3 .ns-vol td b { display: block; font: 700 14px/18px var(--f-num); }
+.v3 .ns-d { display: block; font: 600 12px/16px var(--f-ui); white-space: nowrap; }
+.v3 .ns-d--up { color: var(--sift-good); }
+.v3 .ns-d--down { color: var(--sift-bad); }
+.v3 .ns-d--flat { color: var(--sift-dim); }
+
+/* 3. bets */
+.v3 .ns-bets { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.v3 .ns-bet { display: grid; gap: 5px; padding: 10px; border-radius: 12px; background: var(--s-raise); border: 1px solid var(--sift-hairline); min-width: 0; }
+.v3 .ns-bet__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+.v3 .ns-bet__m { min-width: 0; display: grid; gap: 1px; }
+.v3 .ns-bet__m b { font: 600 15px/20px var(--f-ui); overflow-wrap: anywhere; }
+.v3 .ns-bet__m small { font: 400 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3 .ns-bet__fit { display: flex; align-items: center; gap: 8px; font: 400 12.5px/17px var(--f-ui); color: var(--sift-muted); }
+.v3 .ns-bet .cs-pxwhy--s { margin: 0; }
+.v3 .ns-fit { display: inline-flex; gap: 3px; flex: none; }
+.v3 .ns-fc { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--tc); background: transparent; display: block; }
+.v3 .ns-fc--yes { background: var(--tc); }
+.v3 .ns-fc--part { background: linear-gradient(135deg, var(--tc) 50%, transparent 50%); }
+.v3 .ns-fc--no { opacity: 0.4; }
+.v3 .ns-miss { margin: 0; padding: 0 0 4px 18px; display: grid; gap: 4px; font: 400 13px/18px var(--f-ui); color: var(--sift-muted); }
+
+/* 4. key players */
+.v3 .ns-pls { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.v3 .ns-pl { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--s-raise); border: 1px solid var(--sift-hairline); min-height: var(--tap); color: var(--sift-text); }
+.v3 .ns-pl__id { min-width: 0; display: grid; }
+.v3 .ns-pl__id b { font: 600 14px/19px var(--f-ui); overflow-wrap: anywhere; }
+.v3 .ns-pl small { font: 400 11.5px/15px var(--f-ui); color: var(--sift-muted); }
+.v3 .ns-pl__v, .v3 .ns-pl__d { display: grid; justify-items: end; text-align: right; }
+.v3 .ns-pl__v b { font: 700 15px/19px var(--f-num); }
+.v3 .ns-pl__d .ns-d { display: block; }
+
+/* 5. where it ends */
+.v3 .ns-mm { margin: 0; display: grid; gap: 6px; }
+.v3 .ns-mm__band { position: relative; height: 12px; border-radius: 6px; background: rgba(120, 140, 160, 0.1); }
+.v3 .ns-mm__band i { position: absolute; top: 0; height: 100%; border-radius: 6px; }
+.v3 .ns-mm__r90 { background: rgba(25, 205, 224, 0.2); }
+.v3 .ns-mm__r50 { background: rgba(25, 205, 224, 0.55); }
+.v3 .ns-mm__mean { top: -2px !important; height: 16px !important; width: 3px; border-radius: 2px !important; background: var(--sift-text); transform: translateX(-1px); }
+.v3 .ns-mm__rows { position: relative; display: grid; gap: 6px; }
+.v3 .ns-mm__zero { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--sift-hairline-strong); }
+.v3 .ns-mm__row { position: relative; height: 22px; }
+.v3 .ns-mm__seg { position: absolute; top: 0; height: 100%; border-radius: 6px; background: var(--tc); opacity: 0.32; }
+.v3 .ns-mm__row.is-on .ns-mm__seg { opacity: 1; }
+.v3 .ns-mm__lb { position: absolute; top: 0; line-height: 22px; font: 500 12px/22px var(--f-ui); color: var(--sift-muted); white-space: nowrap; }
+.v3 .ns-mm__row.is-on .ns-mm__lb { color: var(--sift-text); font-weight: 700; }
+.v3 .ns-mm__ax { display: flex; justify-content: space-between; font: 500 11.5px/15px var(--f-ui); color: var(--sift-dim); }
+
+/* the Overview row */
+.v3 .ns-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; min-height: var(--tap); padding: 8px 12px; border-radius: 12px; background: var(--s-chip); border: 1px solid var(--s-chip-bd); border-left: 4px solid var(--tc); color: var(--sift-text); margin: 0 0 10px; }
+.v3 .ns-row__k { flex: none; font: 600 11px/14px var(--f-ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sift-muted); max-width: 64px; }
+.v3 .ns-row b { flex: 1 1 auto; min-width: 0; font: 600 14.5px/19px var(--f-ui); overflow-wrap: anywhere; }
+.v3 .ns-row__p { flex: none; display: grid; justify-items: end; font: 700 16px/18px var(--f-num); }
+.v3 .ns-row__p small { font: 400 11px/14px var(--f-ui); color: var(--sift-muted); }
+.v3 .ns-row svg { flex: none; color: var(--sift-dim); }

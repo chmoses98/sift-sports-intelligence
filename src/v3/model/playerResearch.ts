@@ -363,3 +363,32 @@ export function savedChips(win: string, f: Filters, k: number | null): string[] 
 }
 
 export { NO_FILTERS };
+
+// ------------------------------------------------------------------------------------------------ coverage of the game log
+
+export interface LogCoverage {
+  /** The date (YYYY-MM-DD) of the newest game in the log. */
+  through: string;
+  /** The season label that game belongs to, when the log states one. */
+  season: string | null;
+  /** Whole days between that game and `now`. */
+  days: number;
+}
+
+/** A log whose newest game is older than this does not describe the player's recent form. Basketball and hockey play every few days. */
+export const LOG_GAP_DAYS = 21;
+/** Football plays weekly, has byes and its history layer trails the schedule by a game or two: five weeks. */
+export const LOG_GAP_DAYS_FOOTBALL = 35;
+
+/**
+ * Does the log reach the present? Returns the log's end when it stops more than `maxDays` before `nowMs`, else null. A player page opened in
+ * November whose box log ends in April (the publication has not taken in this season's games) must say so: its "last 10" are last season's
+ * games, and nothing else on the page tells the viewer. `obs` carry calendar dates (the league's Eastern dates), so a day is compared as a day.
+ */
+export function logGap(obs: readonly Pick<Obs, 'date' | 'season'>[], nowMs: number, maxDays: number = LOG_GAP_DAYS): LogCoverage | null {
+  let last: Pick<Obs, 'date' | 'season'> | null = null;
+  for (const o of obs) if (/^\d{4}-\d{2}-\d{2}$/.test(o.date) && (!last || o.date > last.date)) last = o;
+  if (!last) return null;
+  const days = Math.floor((nowMs - Date.parse(`${last.date}T12:00:00Z`)) / 86_400_000);
+  return days > maxDays ? { through: last.date, season: last.season, days } : null;
+}

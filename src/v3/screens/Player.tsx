@@ -8,7 +8,8 @@ import { Link } from '../../routing';
 import { routes } from '../nav/routes';
 import { pushVisit, removeSaved, saveResearch, useSaved } from '../state/prefs';
 import { findSaved } from '../model/saved';
-import { gameWhen, rungLabel, savedChips, windowLabel } from '../model/playerResearch';
+import { gameWhen, logGap, LOG_GAP_DAYS, LOG_GAP_DAYS_FOOTBALL, rungLabel, savedChips, windowLabel } from '../model/playerResearch';
+import { ymdShort } from '../model/time';
 import { publishContracts, type ContractInfo } from '../ui/ContractSheet';
 import { DataState } from '../ui/DataState';
 import { Icon } from '../ui/Icon';
@@ -27,6 +28,19 @@ import { filterPatch, usePlayerView } from './player/view';
 import './player.css';
 
 const TABS = (n: number) => [{ key: 'overview', label: 'Overview' }, { key: 'props', label: 'Props', badge: n || null }, { key: 'matchup', label: 'Matchup' }, { key: 'trends', label: 'Trends' }, { key: 'log', label: 'Log' }] as const;
+
+/** The log's end, said plainly when it stops well before today: every window, hit rate and chart below is computed from those older games. */
+function LogGap({ v }: { v: ReturnType<typeof usePlayerView> }) {
+  const vm = v.vm;
+  const gap = vm && vm.provenance === 'publication' ? logGap(vm.obs, v.now, vm.sport === 'NFL' ? LOG_GAP_DAYS_FOOTBALL : LOG_GAP_DAYS) : null;
+  if (!vm || !gap) return null;
+  return (
+    <div className="v3-state v3-state--warn" role="note" data-testid="log-gap">
+      <Icon name="info" size={20} />
+      <div><b>The game log ends {ymdShort(gap.through)}{gap.season ? `, ${gap.season}` : ''}</b>The publication has no later game for {vm.name}. The averages, hit rates and charts below describe those earlier games, not this season’s form.</div>
+    </div>
+  );
+}
 
 export function Player() {
   const v = usePlayerView();
@@ -136,6 +150,7 @@ export function Player() {
       {top}
       <Tabs tabs={TABS(vm.props.size)} value={tab} onChange={(k) => v.set({ tab: k, obs: null, view: 'main', more: false })} label="Player sections" />
       <div className="v3p-body">
+        {!noLog && <LogGap v={v} />}
         {v.marketsError != null && (tab === 'overview' || tab === 'props') && <DataState title="Kalshi prices unavailable" err={v.marketsError} retry={v.marketsRetry}>The contract list for his next game</DataState>}
         {tab === 'overview' && (
           noLog ? (

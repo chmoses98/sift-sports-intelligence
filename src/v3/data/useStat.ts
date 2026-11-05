@@ -5,6 +5,7 @@ import { useAsync, useRepo } from '../../data/hooks';
 import { sportBySlug } from '../../data/sports';
 import { heroTeam } from '../../lib/hero/input';
 import { cfbTeam } from '../../lib/cfbTeams';
+import { NFL_TEAM_NAMES } from '../../lib/nfl';
 import { mlbClub } from '../../lib/mlb';
 import { nbaTeam } from '../../lib/nba';
 import { nhlTeam } from '../../lib/nhlTeams';
@@ -44,10 +45,9 @@ const TEAMS: Record<string, string[]> = {
 };
 const hash = (s: string) => { let h = 5; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
 
-const NFL_NAMES: Record<string, string> = { ARI: 'Arizona Cardinals', ATL: 'Atlanta Falcons', BAL: 'Baltimore Ravens', BUF: 'Buffalo Bills', CAR: 'Carolina Panthers', CHI: 'Chicago Bears', CIN: 'Cincinnati Bengals', CLE: 'Cleveland Browns', DAL: 'Dallas Cowboys', DEN: 'Denver Broncos', DET: 'Detroit Lions', GB: 'Green Bay Packers', HOU: 'Houston Texans', IND: 'Indianapolis Colts', JAX: 'Jacksonville Jaguars', KC: 'Kansas City Chiefs', LV: 'Las Vegas Raiders', LAC: 'Los Angeles Chargers', LAR: 'Los Angeles Rams', MIA: 'Miami Dolphins', MIN: 'Minnesota Vikings', NE: 'New England Patriots', NO: 'New Orleans Saints', NYG: 'New York Giants', NYJ: 'New York Jets', PHI: 'Philadelphia Eagles', PIT: 'Pittsburgh Steelers', SEA: 'Seattle Seahawks', SF: 'San Francisco 49ers', TB: 'Tampa Bay Buccaneers', TEN: 'Tennessee Titans', WAS: 'Washington Commanders' };
 /** Full names for the sample rankings, from the repository's own identity tables. */
 export function sampleTeamName(slug: string, code: string): string {
-  if (slug === 'nfl') return NFL_NAMES[code] ?? code;
+  if (slug === 'nfl') return NFL_TEAM_NAMES[code] ?? code;
   if (slug === 'nba') return nbaTeam(code) ? `${nbaTeam(code)!.city} ${nbaTeam(code)!.name}` : code;
   if (slug === 'nhl') return nhlTeam(code) ? `${nhlTeam(code)!.city} ${nhlTeam(code)!.name}` : code;
   if (slug === 'mlb') return mlbClub(code)?.nick ?? code;

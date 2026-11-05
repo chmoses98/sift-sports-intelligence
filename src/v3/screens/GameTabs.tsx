@@ -19,7 +19,6 @@ import { TeamLogo } from '../ui/TeamLogo';
 import { PriceText, leagueLabel, useListGate, useOpenContract } from '../ui/gamebits';
 import { publishProp } from '../ui/gameContracts';
 import { useSheet } from '../ui/Sheet';
-import { ordinal } from '../data/lens';
 import { isReady } from '../model/capabilities';
 import type { GameTab } from '../nav/schemas';
 import { MatchupTab } from './GameMatchup';
@@ -30,7 +29,9 @@ import { DataState } from '../ui/DataState';
 import { CfbMatchupTab } from './cfb/MatchupTab';
 import { CfbScriptTab } from './cfb/ScriptTab';
 import { ScriptOverview } from './cfb/ScriptOverview';
+import { NflScriptRow, NflScriptTab } from './nfl/NflScriptTab';
 import { MatchupIntel } from './intel/MatchupIntel';
+import { StatsCompare } from './StatsCompare';
 import { LiveGame } from './live/LiveGame';
 
 // ------------------------------------------------------------------ markets row (Spread / Total / Moneyline)
@@ -129,24 +130,11 @@ function StatsTab({ g, research, loading, error, retry }: { g: V3Game; research:
   const pairs = useMemo(() => (g.provenance === 'demo' ? demoPairs(g) : pairsFromResearch(research, g)), [g, research]);
   if (loading && !pairs.length) return <div className="v3-skel" style={{ height: 220 }} role="status" aria-label="Loading statistics" />;
   return (
-    <section aria-label="Statistics">
-      <h2 className="v3-h2">Team Statistics</h2>
-      {!pairs.length && error ? <DataState title="Team statistics unavailable" err={error} retry={retry} alert>The research for this game</DataState> : pairs.length ? (
-        <table className="v3-tbl">
-          <thead><tr><th scope="col">Statistic</th><th scope="col">{g.away.abbr}</th><th scope="col">{g.home.abbr}</th></tr></thead>
-          <tbody>
-            {pairs.map((p) => (
-              <tr key={p.id}>
-                <th scope="row">{p.route ? <Link to={p.route}>{p.name}</Link> : p.name}</th>
-                <td><b>{p.away.value}</b><small>{p.away.rank != null ? ordinal(p.away.rank) : ''}</small></td>
-                <td><b>{p.home.value}</b><small>{p.home.rank != null ? ordinal(p.home.rank) : ''}</small></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : error ? null : <Unavailable title="No published team statistics">The publication has none for this game.</Unavailable>}
-      <Unavailable icon="clock" title="Box score unavailable">Live and final box scores need a licensed stats feed. None is connected, so no box score is shown or estimated.</Unavailable>
-    </section>
+    <>
+      {!pairs.length && error ? <section aria-label="Statistics"><h2 className="v3-h2">Team Statistics</h2><DataState title="Team statistics unavailable" err={error} retry={retry} alert>The research for this game</DataState></section>
+        : pairs.length ? <StatsCompare g={g} pairs={pairs} />
+          : error ? null : <Unavailable title="No published team statistics">The publication has none for this game.</Unavailable>}
+    </>
   );
 }
 
@@ -283,7 +271,11 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   if (engine && tab === 'matchup') return <CfbMatchupTab ctx={ctx} engine={engine} />;
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
-  if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  if (tab === 'script') {
+    const thesis = <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+    // NFL: the publication's simulation as scripts (src/lib/scripts.ts); a game without one keeps the published thesis.
+    return isReady(g.slug, 'gameMatchup') && g.provenance === 'publication' ? <NflScriptTab ctx={ctx} fallback={thesis} /> : thesis;
+  }
   if (tab === 'props') {
     return (
       <>
@@ -307,6 +299,7 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
       {inPlay && <LiveGame ctx={ctx} />}
       {inPlay && markets}
       <ScriptOverview ctx={ctx} onTab={onTab} />
+      {isReady(g.slug, 'gameMatchup') && <NflScriptRow ctx={ctx} onOpen={(id) => onTab('script', id)} />}
       <MatchupIntel ctx={ctx} slot="pregame" />
       {!inPlay && markets}
       {g.phase === 'live' && g.provenance === 'demo' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}

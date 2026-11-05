@@ -179,3 +179,29 @@
 /* five game tabs fit a 390-point phone without clipping the last one (the strip still scrolls on narrower screens) */
 .v3 .v3-tabs--five { padding: 0 6px; }
 .v3 .v3-tabs--five button { font-size: 14.5px; padding: 0 7px; }
+
+/* Stats tab: mirrored rank bars */
+.v3 .sc-hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.v3 .sc-hd .v3-h2 { margin: 0; }
+.v3 .sc-key { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/16px var(--f-ui); color: var(--sift-muted); }
+.v3 .sc-key em { font-style: normal; font-weight: 400; color: var(--sift-dim); margin-left: 4px; }
+.v3 .sc-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.v3 .sc-dot--a, .v3 .sc-b--a i { background: #8ea2b8; }
+.v3 .sc-dot--h, .v3 .sc-b--h i { background: #d6b46a; }
+.v3 .sc-dot--h { margin-left: 4px; }
+.v3 .sc-f { margin: 10px 0 4px; }
+.v3 .sc-list { list-style: none; margin: 0; padding: 0; }
+.v3 .sc-r { padding: 10px 0; border-top: 1px solid var(--s-hair2); display: grid; gap: 6px; }
+.v3 .sc-r:first-child { border-top: 0; }
+.v3 .sc-n { font: 500 14px/18px var(--f-ui); color: #e8ebee; min-height: 0; }
+.v3 .sc-line { display: grid; grid-template-columns: 62px minmax(0, 1fr) 62px; gap: 10px; align-items: center; }
+.v3 .sc-v { display: grid; line-height: 1.1; }
+.v3 .sc-v b { font: 700 16px/18px var(--f-num); }
+.v3 .sc-v small { font: 500 11px/13px var(--f-ui); color: var(--sift-dim); }
+.v3 .sc-v--home { text-align: right; }
+.v3 .sc-bars { display: grid; gap: 4px; }
+.v3 .sc-b { display: block; height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.v3 .sc-b i { display: block; height: 100%; border-radius: 4px; opacity: 0.55; }
+.v3 .sc-b.is-edge i { opacity: 1; }
+.v3 .sc-foot { display: flex; gap: 6px; align-items: flex-start; margin: 10px 0 0; font: 400 12px/16px var(--f-ui); color: var(--sift-dim); }
+.v3 .sc-foot svg { flex: none; margin-top: 1px; }

@@ -17,6 +17,9 @@ import { MATCHUP_WINDOW } from '../../data/research/matchup';
 import { Avatar, type GameCtx } from '../GameShared';
 import { RankBars } from './RankBars';
 
+/** A research footnote kept out of the way: one "About this" line that opens the text (the words stay in the page for readers and tests). */
+const FootNote = ({ children, label = 'About this' }: { children: React.ReactNode; label?: string }) => <details className="mi-more mi-fn"><summary>{label}</summary><p>{children}</p></details>;
+
 const Head = ({ title, note }: { title: string; note?: string }) => <div className="mx-sh"><h2>{title}</h2>{note && <span className="x-note">{note}</span>}</div>;
 
 // ------------------------------------------------------------------------------------------------------------------ top advantages
@@ -25,11 +28,11 @@ export function AdvantageCard({ a }: { a: Advantage }) {
   return (
     <li className="mi-adv" data-testid="intel-advantage" data-strength={a.strength}>
       <p className="mi-adv__h">{a.headline}</p>
-      <p className="mi-adv__d">{a.detail}</p>
       <RankBars bars={a.bars} ariaLabel={`${a.headline} League ranks`} />
-      <p className="mi-adv__i"><b>What it implies.</b> {a.implies}</p>
       <details className="mi-more">
-        <summary>About this statistic</summary>
+        <summary>Why it matters</summary>
+        <p>{a.detail}</p>
+        <p><b>What it implies.</b> {a.implies}</p>
         <p><b>What it measures.</b> {a.meaning}</p>
         <p><b>Why it matters.</b> {a.why}</p>
       </details>
@@ -46,7 +49,7 @@ export function AdvantagesSection({ ctx, intel }: { ctx: GameCtx; intel: GameInt
       {intel.advantages.length > 0 ? (
         <>
           <ol className="mi-advs">{intel.advantages.map((a) => <AdvantageCard key={a.id} a={a} />)}</ol>
-          <p className="x-note mi-foot">{ADVANTAGE_NOTE}</p>
+          <FootNote>{ADVANTAGE_NOTE}</FootNote>
         </>
       ) : (
         <ul className="mi-finds">
@@ -98,7 +101,7 @@ export function ComparisonSection({ ctx, comparison }: { ctx: GameCtx; compariso
             })}
           </tbody>
         </table>
-        <p className="x-note mi-foot">Opponent-adjusted, season-long. Shaded: that side leads its matchup by more than 15 percentile points. Full charts are on the Matchup tab.{comparison.note ? ` ${comparison.note}` : ''}</p>
+        <FootNote>Opponent-adjusted, season-long. Shaded: that side leads its matchup by more than 15 percentile points. Full charts are on the Matchup tab.{comparison.note ? ` ${comparison.note}` : ''}</FootNote>
       </div>
     );
   }
@@ -115,7 +118,7 @@ export function ComparisonSection({ ctx, comparison }: { ctx: GameCtx; compariso
             ))}
           </tbody>
         </table>
-        {comparison.note && <p className="x-note mi-foot">{comparison.note}</p>}
+        {comparison.note && <FootNote>{comparison.note}</FootNote>}
       </div>
     );
   }
@@ -135,7 +138,7 @@ export function ComparisonSection({ ctx, comparison }: { ctx: GameCtx; compariso
           ))}
         </tbody>
       </table>
-      <p className="x-note mi-foot">The largest rank gaps the publication states. Ranks are as published; every statistic is on the Stats tab.{comparison.note ? ` ${comparison.note}` : ''}</p>
+      <FootNote>The largest rank gaps the publication states. Ranks are as published; every statistic is on the Stats tab.{comparison.note ? ` ${comparison.note}` : ''}</FootNote>
     </div>
   );
 }
@@ -165,7 +168,7 @@ export function MismatchSection({ ctx, items }: { ctx: GameCtx; items: KeyMatchu
           </li>
         ))}
       </ul>
-      <p className="x-note mi-foot">Players are the ones Kalshi lists the most props for in a statistic that meets this unit. Descriptive, not a projection of his result.</p>
+      <FootNote>Players are the ones Kalshi lists the most props for in a statistic that meets this unit. Descriptive, not a projection of his result.</FootNote>
     </div>
   );
 }
@@ -193,9 +196,9 @@ export function NotesSection({ ctx, notes }: { ctx: GameCtx; notes: IntelNotes }
           );
         })}
       </ul>
-      <p className="x-note mi-foot">
+      <FootNote label="Source">
         {notes.source ? `${notes.source.name}${captured ? `, captured ${captured}` : ''}.` : ''}{notes.source?.caveat ? ` ${notes.source.caveat}` : ''}{timing ? ` ${timing}` : ''}{notes.more > 0 ? ` ${notes.more} more designation${notes.more === 1 ? '' : 's'} are on the team pages.` : ''}
-      </p>
+      </FootNote>
     </div>
   );
 }
@@ -214,8 +217,7 @@ export function EnvironmentSection({ env }: { env: Environment }) {
           </div>
         ))}
       </dl>
-      {env.notSimulated.length > 0 && <p className="x-note mi-foot">Not simulated: {env.notSimulated.join('; ')}.</p>}
-      {env.foot && <p className="x-note mi-foot">{env.foot}</p>}
+      {(env.notSimulated.length > 0 || env.foot) && <FootNote>{env.notSimulated.length > 0 ? `Not simulated: ${env.notSimulated.join('; ')}.` : ''}{env.foot ? ` ${env.foot}` : ''}</FootNote>}
     </div>
   );
 }
@@ -237,7 +239,7 @@ export function SportBlockCard({ block }: { block: SportBlock }) {
           </div>
         ))}
       </dl>
-      {block.foot && <p className="x-note mi-foot">{block.foot}</p>}
+      {block.foot && <FootNote>{block.foot}</FootNote>}
     </div>
   );
 }
@@ -249,11 +251,15 @@ function ScriptCardView({ c }: { c: ScriptCard }) {
   return (
     <li className={`mi-sc mi-sc--${c.role}`} data-testid={`intel-script-${c.role}`}>
       <div className="mi-sc__h"><i className="mi-sc__tag">{ROLE[c.role]}</i>{c.share != null && <span className="num">{Math.round(c.share * 100)}% of simulated games</span>}</div>
-      <p className="mi-sc__help">{c.help}.</p>
       <p className="mi-sc__t">{c.title}</p>
       <p className="mi-sc__l">{c.line}</p>
-      {c.evidence.length > 0 && <><p className="mi-sc__k">Evidence</p><ul className="mi-bul">{c.evidence.map((e) => <li key={e}>{e}</li>)}</ul></>}
-      {c.counter.length > 0 && <><p className="mi-sc__k">Counterargument</p><ul className="mi-bul">{c.counter.map((e) => <li key={e}>{e}</li>)}</ul></>}
+      {(c.evidence.length > 0 || c.counter.length > 0) && (
+        <details className="mi-more">
+          <summary>Evidence and counterargument</summary>
+          {c.evidence.length > 0 && <><p className="mi-sc__k">Evidence</p><ul className="mi-bul">{c.evidence.map((e) => <li key={e}>{e}</li>)}</ul></>}
+          {c.counter.length > 0 && <><p className="mi-sc__k">Counterargument</p><ul className="mi-bul">{c.counter.map((e) => <li key={e}>{e}</li>)}</ul></>}
+        </details>
+      )}
     </li>
   );
 }
@@ -264,9 +270,9 @@ export function ScriptSection({ script }: { script: ScriptIntel }) {
       <Head title="Game script" note="what the publication states" />
       {script.thesisSummary && <p className="mi-thesis">{script.thesisSummary}</p>}
       <ul className="mi-scs">{script.cards.map((c) => <ScriptCardView key={`${c.role}-${c.title}`} c={c} />)}</ul>
-      <p className="x-note mi-foot">
+      <FootNote>
         {script.basis}{script.notSimulated.length ? ` Not simulated: ${script.notSimulated.join('; ')}.` : ''} Research context, not a bet signal.
-      </p>
+      </FootNote>
     </div>
   );
 }

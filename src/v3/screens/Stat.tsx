@@ -32,6 +32,7 @@ import { RankingTab } from './stat/RankingTab';
 import { TrendTab } from './stat/TrendTab';
 import { CompareTab } from './stat/CompareTab';
 import { AboutTab } from './stat/AboutTab';
+import { SearchButton } from '../ui/SearchButton';
 
 type Tab = (typeof STAT_TABS)[number];
 const TAB_LABEL: Record<Tab, string> = { ranking: 'Ranking', trend: 'Trend', compare: 'Compare', about: 'About' };
@@ -45,6 +46,7 @@ function Frame({ head, tab, onTab, saved, onSave, onBack, children }: { head: He
       <header className="st-hd">
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={onBack}><Icon name="back" size={26} /></button>
         <div className="tt"><span className="st-eyebrow">{head.eyebrow}</span><h1>{head.title}</h1><small>{head.sub}</small></div>
+        <SearchButton />
         {onSave && <button type="button" className={`v3-iconbtn st-bm${saved ? ' is-on' : ''}`} aria-pressed={saved} aria-label={saved ? 'Remove saved statistic' : 'Save this statistic'} onClick={onSave}><Icon name="bookmark" size={22} fill={saved} /></button>}
       </header>
       {tab && <div className="st-tabs"><Tabs tabs={TABS} value={tab} onChange={onTab} label="Statistic views" /></div>}

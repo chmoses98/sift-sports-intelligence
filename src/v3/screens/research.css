@@ -244,3 +244,8 @@
 .v3 .v3-kind { display: block; font: 600 10.5px/14px var(--f-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--sift-dim); }
 .v3 .v3-chiplist { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .v3 .v3-chipx { font: 500 11px/1 var(--f-ui); font-style: normal; color: var(--t2); background: var(--s-chip); border: 1px solid var(--s-chip-bd); border-radius: 10px; padding: 3px 7px; }
+
+/* Search header: Back on the left, Close on the right; both leave to the screen search was opened from. */
+.v3-top--search { margin: 0 0 6px -8px; }
+.v3-top--search .v3-pgtitle { margin: 0; font-size: 26px; line-height: 32px; }
+.v3-searchclose { min-height: 44px; padding: 0 14px; border-radius: 22px; color: var(--sift-cyan); font: 600 16px/20px var(--f-ui); }

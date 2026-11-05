@@ -12,7 +12,7 @@ import { NFL_STATS, statsForPosition } from '../../history/stats';
 import { skipReason } from '../../history/hitRate';
 import { readBoxLog, num, type BoxRow } from '../../history/boxLog';
 import { nbaPlayed } from '../../history/nbaLog';
-import type { GameLogRow } from '../../history/types';
+import type { GameLogRow, PlayerHistoryDoc } from '../../history/types';
 import { demoOn } from '../state/prefs';
 import { failureKind, whyUnavailable } from './failure';
 import { deriveLines, deriveProps, type PropRow } from './adapt';
@@ -52,6 +52,8 @@ export interface PlayerVM {
   why: string | null;
   hasMinutes: boolean;
   hasScore: boolean;
+  /** The history document's season and per-game position rankings (football), for the player's rank among his peers; null when none is published. */
+  rankDoc: Pick<PlayerHistoryDoc, 'season' | 'ranks'> | null;
 }
 
 const NFL_SHORT: Record<string, string> = { passing_yards: 'PASS YDS', attempts: 'ATT', completions: 'CMP', passing_tds: 'PASS TD', interceptions: 'INT', rushing_yards: 'RUSH YDS', carries: 'CAR', longest_rush: 'LNG RUSH', receiving_yards: 'REC YDS', receptions: 'REC', targets: 'TGT', longest_reception: 'LNG REC', rush_rec_yards: 'RUSH+REC', touchdowns: 'TD' };
@@ -121,7 +123,7 @@ function demoVM(slug: string, games: V3Game[]): PlayerVM {
   return {
     id: DEMO_PLAYER_ID, name: 'Sample Guard', position: 'G', extId: null, team, photo: null, sport: 'NBA', stats: BOX.NBA, obs: withRest(rows), season: '2026-27',
     props: new Map([mk('pts', 27.5, 52), mk('ast', 6.5, 49), mk('reb', 4.5, 51), mk('fg3m', 2.5, 48), mk('pra', 38.5, 50)]),
-    next: g ?? null, gameLines: [], nextWeek: null, nextStartMs: g?.startMs ?? null, opp, nextHome: g ? g.home.id === team.id : null, provenance: 'demo', asOf: null, why: null, hasMinutes: true, hasScore: true,
+    next: g ?? null, gameLines: [], nextWeek: null, nextStartMs: g?.startMs ?? null, opp, nextHome: g ? g.home.id === team.id : null, provenance: 'demo', asOf: null, why: null, hasMinutes: true, hasScore: true, rankDoc: null,
   };
 }
 
@@ -182,7 +184,7 @@ export function usePlayerVM(slug: string, pid: string, o: { quotes?: boolean } =
     const opp = next ? (next.home.id === teamCode ? next.away : next.home) : null;
     return {
       id: pid, name: p.entity.display_name, position, extId: gsis, team, photo: broadcastPlayerPhoto(pid, p.entity.display_name, teamCode ?? '', 'portrait'), sport: code, stats, obs: sorted, season,
-      props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: nextStart ?? next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore,
+      props, next, gameLines: next && detail.data ? deriveLines(detail.data.markets, next.away, next.home, { away: detail.data.event.away_participant ?? null, home: detail.data.event.home_participant ?? null }) : [], nextWeek: (() => { const w = /\bweek\s+(\d+)/i.exec(detail.data?.event?.competition ?? ''); return w ? Number(w[1]) : null; })(), nextStartMs: nextStart ?? next?.startMs ?? null, opp, nextHome: next ? next.home.id === teamCode : null, provenance: 'publication', asOf: p.generated_at ?? null, why, hasMinutes, hasScore, rankDoc: code === 'NFL' && hist.data?.ranks?.length ? { season: hist.data.season, ranks: hist.data.ranks } : null,
     };
     // liveQ.version: the store's quotes change under a stable lookup function
   }, [demo, slug, slate.games, prof.data, hist.data, hist.loading, hist.error, sport, entry, teamCode, detail.data, mine, liveQ.version, next, nextStart, pid]); // eslint-disable-line react-hooks/exhaustive-deps

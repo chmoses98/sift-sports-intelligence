@@ -7,6 +7,7 @@ import { heroTeam } from '../../lib/hero/input';
 import { completedGames, recordOf } from '../../lib/gamedata';
 import { demoOn } from '../state/prefs';
 import { useSlate } from './useSlate';
+import { scheduledGames, seasonStartIso, type ScheduledGame } from '../model/teamSeason';
 import type { V3Game, V3Team } from '../model/types';
 
 export type MetricGroup = 'offense' | 'defense' | 'adjusted' | 'style' | 'results' | 'other';
@@ -24,6 +25,8 @@ export interface MetricRow {
   route?: string;
 }
 export interface ResultRow { eventId: string; date: string; oppId: string; oppName: string; home: boolean; for: number; against: number; outcome: 'W' | 'L' | 'T'; opp: V3Team }
+/** A game the publication lists that has not been played, with the opponent's identity. */
+export interface ScheduledRow extends ScheduledGame { opp: V3Team }
 export interface InjuryItem { player: string; position: string | null; status: string; note: string | null; asOf: string | null }
 export interface RosterItem { id: string; name: string; role: string | null }
 export interface TeamVM {
@@ -33,6 +36,8 @@ export interface TeamVM {
   season: string | null;
   metrics: MetricRow[];
   results: ResultRow[];
+  /** The profile's own schedule of games not yet played (the whole league calendar for this team, not only the slate's window). */
+  scheduled: ScheduledRow[];
   roster: RosterItem[];
   injuries: InjuryItem[];
   asOf: string | null;
@@ -87,7 +92,7 @@ function demoVM(team: V3Team, games: V3Game[]): TeamVM {
     team, league: team.sport === 'CFB' ? 'NCAAF' : team.sport, record: `${(h % 5) + 3}-${(h % 3) + 1}`, season: null,
     metrics: names.map(([name, group, value], i) => ({ id: `sample-${i}`, name, value, rank: ((h >> i) % n) + 1, n, higherIsBetter: true, group, window: 'SEASON', unit: null, route: `/v3/stat/${team.slug}/sample-${i}?team=${team.id}` })),
     results: pool.slice(0, 5).map((o, i) => { const f = 14 + ((h >> i) % 24), a = 10 + ((h >> (i + 3)) % 20); return { eventId: `sample-${i}`, date: new Date(Date.now() - (i + 1) * 7 * 864e5).toISOString(), oppId: o.id, oppName: o.name, home: i % 2 === 0, for: f, against: a, outcome: f > a ? 'W' : 'L', opp: o }; }),
-    roster: [], injuries: [], asOf: null, provenance: 'demo',
+    scheduled: [], roster: [], injuries: [], asOf: null, provenance: 'demo',
     why: { roster: 'The sample data has no roster.', injuries: 'The sample data has no injury report.' },
   };
 }
@@ -117,11 +122,11 @@ export function useTeamVM(slug: string, teamId: string) {
     if (demo) return demoVM(team, slate.games);
     const p = prof.data;
     if (!p) {
-      return { team, league: sport?.label ?? slug.toUpperCase(), record: null, season: null, metrics: [], results: [], roster: [], injuries: [], asOf: null, provenance: 'none',
+      return { team, league: sport?.label ?? slug.toUpperCase(), record: null, season: null, metrics: [], results: [], scheduled: [], roster: [], injuries: [], asOf: null, provenance: 'none',
         why: { stats: explorer ? 'Team statistics are loading.' : 'This sport publishes no team statistics yet.', roster: explorer ? 'The roster is loading.' : 'This sport publishes no roster yet.', injuries: explorer ? 'The injury report is loading.' : 'This sport publishes no injury report yet.', results: 'Results come from the publication.' } };
     }
     const season = p.season;
-    const seasonStart = season ? `${season}-06-01` : '';
+    const seasonStart = seasonStartIso(season);
     const oppTeam = (id: string, name: string): V3Team => {
       const code = idx.data?.teams.find((t) => t.participant_id === id)?.short_name ?? id;
       const h = heroTeam(sport?.code ?? slug.toUpperCase(), code, name);
@@ -129,6 +134,7 @@ export function useTeamVM(slug: string, teamId: string) {
       return fromSlate ?? { id: code, slug, sport: sport?.code ?? slug.toUpperCase(), name: h?.name ?? name, nick: h?.short ?? name, abbr: code, logo: h?.logo ?? null, colors: h?.colors ?? ['#1d2d52', '#3f5079'] };
     };
     const results = completedGames(p, undefined).filter((g) => g.date >= seasonStart).map((g): ResultRow => ({ ...g, oppId: g.opponentId, oppName: g.opponentName, opp: oppTeam(g.opponentId, g.opponentName) }));
+    const scheduled = scheduledGames(p, slate.now).map((g): ScheduledRow => ({ ...g, opp: oppTeam(g.oppId, g.oppName) }));
     const rec = recordOf(p);
     const wl = results.length ? `${results.filter((r) => r.outcome === 'W').length}-${results.filter((r) => r.outcome === 'L').length}${results.some((r) => r.outcome === 'T') ? `-${results.filter((r) => r.outcome === 'T').length}` : ''}` : null;
     const inj = (p.availability ?? []).filter((a) => a.status && a.status !== 'ACTIVE').map((a): InjuryItem => {
@@ -137,7 +143,7 @@ export function useTeamVM(slug: string, teamId: string) {
     });
     const metrics = metricRows(p, defs.data, slug);
     return {
-      team, league: p.league ?? sport?.label ?? slug.toUpperCase(), record: rec?.text ?? wl, season, metrics, results,
+      team, league: p.league ?? sport?.label ?? slug.toUpperCase(), record: rec?.text ?? wl, season, metrics, results, scheduled,
       roster: (p.players ?? []).map((x) => ({ id: x.participant_id, name: x.display_name, role: x.role ?? null })),
       injuries: inj, asOf: p.generated_at ?? null, provenance: 'publication',
       why: {
@@ -147,7 +153,7 @@ export function useTeamVM(slug: string, teamId: string) {
         results: results.length ? undefined : 'No completed games this season in the publication.',
       },
     };
-  }, [demo, team, prof.data, defs.data, idx.data, slate.games, sport, slug, explorer]);
+  }, [demo, team, prof.data, defs.data, idx.data, slate.games, slate.now, sport, slug, explorer]);
 
   const loading = !demo && (repo.loading || (explorer && (idx.loading || (!!pid && prof.loading))));
   const upcoming = useMemo(() => slate.games.filter((g) => g.slug === slug && (g.away.id === team.id || g.home.id === team.id)).sort((a, b) => a.startMs - b.startMs), [slate.games, slug, team.id]);

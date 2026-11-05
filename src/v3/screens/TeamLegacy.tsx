@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams, useSearchParams } from '../../routing';
 import { useQueryPatch } from '../state/url';
 import { useTeamVM, type MetricGroup, type MetricRow } from '../data/useTeam';
 import { teamPhoto } from '../data/adapt';
-import { clockTime, dayWord, weekdayShort } from '../model/time';
+import { clockTime, dayWord, monthDay, weekdayShort } from '../model/time';
 import { demoOn, pushVisit, useFollows } from '../state/prefs';
 import type { V3Game } from '../model/types';
 import { ChipRail } from '../ui/ChipRail';
@@ -16,6 +16,7 @@ import { TeamLogo } from '../ui/TeamLogo';
 import { Rank } from '../ui/rank';
 import { gameHref, leagueLabel, teamHref } from '../ui/gamebits';
 import { useSlate } from '../data/useSlate';
+import { SearchButton } from '../ui/SearchButton';
 
 type Tab = 'overview' | 'schedule' | 'roster' | 'stats' | 'injuries';
 const TABS: [Tab, string][] = [['overview', 'Overview'], ['schedule', 'Schedule'], ['roster', 'Roster'], ['stats', 'Stats'], ['injuries', 'Injuries']];
@@ -84,6 +85,8 @@ export function TeamLegacy() {
   const setTab = (k: Tab) => setSp((p) => { const n = new URLSearchParams(p); if (k === 'overview') n.delete('tab'); else n.set('tab', k); return n; });
   const back = () => nav(-1);
   const next: V3Game | undefined = upcoming.find((g) => g.phase === 'live' || g.phase === 'pregame');
+  // Games the publication schedules beyond (or outside) the slate window: the team's whole calendar, each game once.
+  const later = useMemo(() => vm.scheduled.filter((g) => !upcoming.some((u) => u.eventId === g.eventId)), [vm.scheduled, upcoming]);
   const bySlate = useMemo(() => new Map(slate.games.map((g) => [g.eventId, g])), [slate.games]);
   const tiles = useMemo(() => {
     const ranked = vm.metrics.filter((m) => m.rank != null && (m.group === 'offense' || m.group === 'defense' || m.group === 'results'));
@@ -99,6 +102,7 @@ export function TeamLegacy() {
         <div className="v3-gh__bar">
           <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
           <span className="v3-top__sp" />
+          <SearchButton />
           <AlertBell id={key} label={t.name} />
           <FollowStar kind="teams" id={key} label={t.name} />
         </div>
@@ -147,6 +151,9 @@ export function TeamLegacy() {
               const away = g.away.id === t.id; const opp = away ? g.home : g.away;
               return <li key={g.key} className="v3-res"><span className="v3-res__b v3-res__b--n">{weekdayShort(g.startMs)}</span><Link to={teamHref(opp)} className="v3-res__lg" aria-label={`${opp.name}, team page`}><TeamLogo team={opp} size={32} /></Link><Link to={gameHref(g)} className="v3-res__m" aria-label={`${away ? 'At' : 'Versus'} ${opp.name}, ${clockTime(g.startMs)}. Open game`}><span className="v3-res__t">{away ? '@' : 'vs'} {opp.nick}</span><span className="v3-res__s">{clockTime(g.startMs)}</span></Link></li>;
             })}</ul></>}
+            {later.length > 0 && <><h2 className="v3-h2">Later this season</h2><ul className="v3-results" data-testid="team-later">{later.map((g) => (
+              <li key={g.eventId} className="v3-res"><span className="v3-res__b v3-res__b--n">{monthDay(Date.parse(g.startUtc))}</span><Link to={teamHref(g.opp)} className="v3-res__lg" aria-label={`${g.opp.name}, team page`}><TeamLogo team={g.opp} size={32} /></Link><div className="v3-res__m"><span className="v3-res__t">{g.home ? 'vs' : '@'} {g.opp.nick}</span><span className="v3-res__s">{clockTime(Date.parse(g.startUtc))}</span></div></li>
+            ))}</ul><p className="v3-note v3-note--dim">The publication’s own schedule for {vm.season ?? 'this season'}. Start times can still move.</p></>}
             <h2 className="v3-h2">Results</h2>
             {vm.results.length ? <ul className="v3-results">{vm.results.map((r) => <ResultItem key={r.eventId} r={r} g={bySlate.get(r.eventId)} />)}</ul> : <div className="v3-state"><Icon name="info" size={20} /><div><b>No results to show</b>{vm.why.results ?? 'Nothing is published yet.'}</div></div>}
           </section>

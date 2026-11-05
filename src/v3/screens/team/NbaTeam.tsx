@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate, useParams } from '../../../routing';
 import { useAsync } from '../../../data/hooks';
 import { useTeamVM } from '../../data/useTeam';
 import { compareTeams, factorLine, nbaCurrency, nbaTeamView, signed, type Factor, type NbaTeamView } from '../../model/nbaTeam';
-import { clockTime, dayWord } from '../../model/time';
+import { clockTime, dayWord, ymdShort } from '../../model/time';
 import { demoOn, pushVisit } from '../../state/prefs';
 import { AlertBell, FollowStar } from '../../ui/Controls';
 import { DataState } from '../../ui/DataState';
@@ -17,6 +17,7 @@ import { TeamLogo } from '../../ui/TeamLogo';
 import { Rank } from '../../ui/rank';
 import { teamHref } from '../../ui/gamebits';
 import type { EntityProfileDoc } from '../../../contract/types';
+import { SearchButton } from '../../ui/SearchButton';
 
 const when = (iso: string | null) => (iso ? `${dayWord(Date.parse(iso))} ${clockTime(Date.parse(iso))}` : 'unknown');
 
@@ -36,6 +37,35 @@ function Lock({ team, reasons, season, asOf }: { team: { name: string }; reasons
         <p>The last statistics in the publication are for {season ?? 'an unknown season'}{asOf ? `, as of ${asOf.slice(0, 10)}` : ''}. SIFT does not show last season’s numbers as this season’s. This screen opens by itself when the publication carries 2026-27 games.</p>
       </div>
     </div>
+  );
+}
+
+/** What the publication DOES carry for this team today while its statistics wait: the 2026-27 schedule and prices, the player list, the dated injury report. */
+function LockedCurrent({ t, slug }: { t: ReturnType<typeof useTeamVM>; slug: string }) {
+  const games = t.upcoming.filter((g) => g.phase !== 'final').slice(0, 5);
+  const { roster, injuries } = t.vm;
+  const reported = injuries.map((i) => i.asOf?.slice(0, 10)).filter((d): d is string => !!d).sort().at(-1) ?? null;
+  return (
+    <>
+      <section aria-label="Upcoming games" data-testid="nba-locked-games">
+        <h2 className="v3-h2">Upcoming games</h2>
+        {games.length ? <div className="v3-gclist">{games.map((g) => <GameCard key={g.key} g={g} />)}</div> : <p className="nba-note">No upcoming game for this team is on the published slate.</p>}
+        <p className="nba-note">The schedule and Kalshi prices are current. Only the team ratings wait on 2026-27 statistics.</p>
+      </section>
+      {injuries.length > 0 && (
+        <section aria-label="Injury report">
+          <h2 className="v3-h2">Injury report{reported ? <small> dated {ymdShort(reported)}</small> : null}</h2>
+          <ul className="nba-av">{injuries.map((i) => <li key={`${i.player}${i.status}${i.note}`}><b>{i.status.replace(/_/g, ' ')}</b> {i.player}{i.note ? ` · ${i.note}` : ''}</li>)}</ul>
+        </section>
+      )}
+      {roster.length > 0 && (
+        <section aria-label="Players">
+          <h2 className="v3-h2">Players <small>{roster.length} with published research</small></h2>
+          <ul className="nba-roster">{roster.map((r) => <li key={r.id}><Link to={`/v3/player/${slug}/${encodeURIComponent(r.id)}`}>{r.name}{r.role ? <small>{r.role}</small> : null}</Link></li>)}</ul>
+          <p className="nba-note">Only players with a published box log are listed, not the full roster. A player page says where its game log ends.</p>
+        </section>
+      )}
+    </>
   );
 }
 
@@ -148,13 +178,13 @@ export function NbaTeam() {
       <Back />
       <TeamLogo team={team} size={34} />
       <div className="nba-bar__t"><h1>{team.name}</h1><small>NBA{view ? ` · ${view.season}${view.record ? ` · ${view.record}` : ''}` : ''}</small></div>
-      <span className="nba-bar__r"><FollowStar kind="teams" id={`${team.slug}:${team.id}`} label={team.name} /><AlertBell id={`${team.slug}:${team.id}`} label={team.name} /></span>
+      <span className="nba-bar__r"><SearchButton /><FollowStar kind="teams" id={`${team.slug}:${team.id}`} label={team.name} /><AlertBell id={`${team.slug}:${team.id}`} label={team.name} /></span>
     </div>
   );
 
   if (t.loading) return <div className="nba" data-screen="nba-team">{header}<div className="v3-skel" style={{ height: 180, margin: '12px 16px' }} role="status" aria-label="Loading team research" /></div>;
   if (!p) return <div className="nba" data-screen="nba-team">{header}<DataState title="Team research unavailable" err={new Error('no team profile')} alert>The NBA team document could not be read.</DataState></div>;
-  if (!cur.ok || !view) return <div className="nba" data-screen="nba-team" data-state="locked">{header}<Lock team={team} reasons={cur.reasons} season={cur.season} asOf={cur.asOf} /></div>;
+  if (!cur.ok || !view) return <div className="nba" data-screen="nba-team" data-state="locked">{header}<Lock team={team} reasons={cur.reasons} season={cur.season} asOf={cur.asOf} /><LockedCurrent t={t} slug={slug} /></div>;
 
   return (
     <div className="nba" data-screen="nba-team" data-state="current">

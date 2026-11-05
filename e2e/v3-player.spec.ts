@@ -218,13 +218,39 @@ test.describe('Player Research tap matrix (milestone 3) @v3', () => {
     await expect(row).toBeVisible({ timeout: 25_000 });
     await expect(row).toHaveAttribute('data-dest', /\/v3\/stat\/nfl\/adj_def_/);
     await expect(row).toHaveAttribute('data-dest', /sel=PHI/);
-    await scrollTo(page, 160);
+    // The strip sits below the Matchup quality card: on a short phone it is off screen at a fixed offset, and the click would scroll it into view first
+    // (changing the offset Back must return to). Bring it into view first, then record the offset.
+    await row.scrollIntoViewIfNeeded();
+    await scrollTo(page, Math.max(160, (await y(page)) + 1));
     const before = await snap(page);
     await row.click();
     await expect(page).toHaveURL(/#\/v3\/stat\/nfl\/adj_def_/);
     await page.waitForTimeout(600);
     await backTo(page, before);
     await expect(page.getByRole('tab', { name: /Matchup/ })).toHaveAttribute('aria-selected', 'true');
+  });
+  test('Matchup quality: a headline, four mini bars, and the detail behind one tap; a missing input says "Not enough data"', async ({ page }) => {
+    await ready(page, `${LAMB}?tab=matchup`, '.v3p-mq');
+    const card = page.locator('.v3p-mq');
+    await expect(card.locator('.v3p-mq__row')).toHaveCount(4);
+    await expect(card).toHaveAttribute('data-mq-score', /^\d+$|^none$/);
+    const btn = card.locator('.v3p-mq__btn');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+    expect((await btn.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await expect(card.locator('[data-mq-detail]')).toHaveCount(0);
+    await btn.click();
+    await expect(btn).toHaveAttribute('aria-expanded', 'true');
+    await expect(card.locator('[data-mq-detail]')).toHaveCount(4);
+    // every bar is either a published number or the plain words for why it is not
+    for (const id of ['talent', 'recent', 'usage', 'matchup']) {
+      const row = card.locator(`.v3p-mq__row[data-mq="${id}"]`);
+      const score = await row.getAttribute('data-score');
+      const detail = card.locator(`[data-mq-detail="${id}"]`);
+      if (score === 'none') await expect(detail).toContainText('Not enough data'); else await expect(detail).toContainText(/sample \d+/);
+    }
+    await noOverflow(page);
+    await btn.click();
+    await expect(card.locator('[data-mq-detail]')).toHaveCount(0);
   });
   test('row 27: a Props tab price opens the exact-contract sheet', async ({ page }) => {
     await ready(page, `${LAMB}?tab=props`, '.v3p-px');
@@ -554,6 +580,21 @@ test.describe('Player Research: missing data and missing quotes @v3', () => {
     await go(page, `${DAVIS}?tab=matchup`);
     await expect(page.getByText('No matchup rows')).toBeVisible({ timeout: 25_000 });
     await expect(page.getByRole('button', { name: /Teammate out/ })).toHaveCount(0);
+  });
+
+  test('basketball: a log that ends before this season says where it ends, once, above the research (never read as current form)', async ({ page }) => {
+    await ready(page, DAVIS);
+    const note = page.getByTestId('log-gap');
+    await expect(note).toBeVisible();
+    await expect(note).toContainText(/The game log ends [A-Z][a-z]{2} \d{1,2}, 20\d\d-\d\d/);
+    await expect(note).toContainText(/not this season’s form/);
+    await expect(page.getByTestId('log-gap')).toHaveCount(1);
+    await noOverflow(page);
+  });
+
+  test('football: a log that reaches the present carries no end-of-log note', async ({ page }) => {
+    await ready(page, LAMB);
+    await expect(page.getByTestId('log-gap')).toHaveCount(0);
   });
 
   test('a sport with no published player research says so and offers search', async ({ page }) => {

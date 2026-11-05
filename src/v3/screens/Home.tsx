@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConferenceGames } from '../data/conference';
 import { useSlate } from '../data/useSlate';
+import { matchesSoccerLeague, resolveSoccerLeague, soccerLeaguesIn } from '../model/soccerLeague';
 import { conferencesIn, confToken, isCollege, matchesConference, resolveFilter } from '../model/conference';
 import { buildSchedule, dayParts, dayStrip, DAY_KEY, gamesOnDay, jumpTargets, pickSport, sportChips, sportLabel, type Section, type SportChip } from '../model/homeFeed';
 import { followCount } from '../model/following';
@@ -91,16 +92,23 @@ export function Home() {
   const conf = !college ? 'all' : ready ? resolveFilter(asked, confGames) : asked ?? 'all';
   const confs = useMemo(() => (college ? conferencesIn(confGames) : []), [college, confGames]);
   const hasTop25 = useMemo(() => college && confGames.some(anyRanked), [college, confGames]);
-  const shown = useMemo(() => (college && ready ? confGames.filter((g) => matchesConference(g, conf)) : confGames), [college, ready, confGames, conf]);
+  // Soccer: a league filter over the day's fixtures (the publication's own league codes), kept in the same `conf` address and device preference.
+  const soccer = sport === 'soccer';
+  const soccerLeagues = useMemo(() => (soccer ? soccerLeaguesIn(inSport) : []), [soccer, inSport]);
+  const league = soccer ? resolveSoccerLeague(st.conf ?? prefs.homeConf[sport!] ?? null, inSport) : 'all';
+  const shown = useMemo(
+    () => (college && ready ? confGames.filter((g) => matchesConference(g, conf)) : soccer ? inSport.filter((g) => matchesSoccerLeague(g, league)) : confGames),
+    [college, ready, confGames, conf, soccer, inSport, league],
+  );
 
   // The order the viewer has seen, kept between refreshes so a score change moves a card only when its tier changes (model/priority.ts).
   const memory = useRef<{ key: string; mem: Memory }>({ key: '', mem: emptyMemory() });
   const sections = useMemo(() => {
-    const key = `${following ? 'following' : sport}|${day}|${conf}`;
+    const key = `${following ? 'following' : sport}|${day}|${conf}|${league}`;
     const r = buildSchedule(shown, follows, memory.current.key === key ? memory.current.mem : undefined);
     memory.current = { key, mem: r.memory };
     return r.sections;
-  }, [shown, follows, sport, day, conf, following]);
+  }, [shown, follows, sport, day, conf, league, following]);
   const jumps = useMemo(() => jumpTargets(sections), [sections]);
 
   const [closed, setClosed] = useState<Record<string, boolean>>({});
@@ -196,6 +204,13 @@ export function Home() {
           {hasTop25 && <button type="button" className="v3-chip" aria-pressed={conf === 'top25'} onClick={() => pickConf('top25')}>Top 25</button>}
           <button type="button" className="v3-chip" aria-pressed={conf === 'all'} onClick={() => pickConf('all')}>All</button>
           {confs.map((c) => <button key={c} type="button" className="v3-chip" aria-pressed={conf === confToken(c)} onClick={() => pickConf(confToken(c))}>{c}</button>)}
+        </ChipRail>
+      )}
+
+      {soccer && soccerLeagues.length > 1 && (
+        <ChipRail className="v3-chips v3-chips--conf" role="group" aria-label="League">
+          <button type="button" className="v3-chip" aria-pressed={league === 'all'} onClick={() => pickConf('all')}>All</button>
+          {soccerLeagues.map((l) => <button key={l.code} type="button" className="v3-chip" aria-pressed={league === l.code} onClick={() => pickConf(l.code)}>{l.name}</button>)}
         </ChipRail>
       )}
 

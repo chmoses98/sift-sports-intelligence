@@ -22,6 +22,8 @@ export interface OppProfile {
   loading: boolean;
   /** Why there is nothing to draw, when there is nothing. */
   why: string | null;
+  /** Games the opponent has completed this season, counted from the results on its published schedule; null when the profile has none. The opponent-adjusted ranks publish no sample size of their own. */
+  oppGames?: number | null;
 }
 
 export function useOppProfile(slug: string, sport: string, stat: string | null, oppCode: string | null, enabled: boolean): OppProfile {
@@ -40,7 +42,9 @@ export function useOppProfile(slug: string, sport: string, stat: string | null, 
       const obs = m && w ? m.windows[w] : undefined;
       if (obs && obs.rank != null && obs.n != null) shown.push({ ...c, window: w!, obs }); else missing.push(c);
     }
-    return { unit: spec.unit, shown, missing, loading: false, why: shown.length ? null : `${oppCode}'s ${spec.unit} rankings are not published yet.` };
+    const season = profile.season;
+    const done = profile.games.filter((g) => g.result != null && (!season || (g.competition ?? '').startsWith(season))).length;
+    return { unit: spec.unit, shown, missing, loading: false, oppGames: done > 0 ? done : null, why: shown.length ? null : `${oppCode}'s ${spec.unit} rankings are not published yet.` };
   }, [spec, sport, oppCode, loading, profile, error]);
 }
 

@@ -12,6 +12,7 @@ import { Icon } from '../../ui/Icon';
 import { StatLink, PlayerLink } from '../../nav/Targets';
 import { ledgerKey, ledgerProof, ledgerWords, siftLaneFor } from '../../model/playerResearch';
 import type { PlayerView } from './view';
+import { MatchupQualityCard, useMatchupQuality } from './MatchupQuality';
 
 const ord = (n: number) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`; };
 const sgn = (n: number, d = 3) => `${n >= 0 ? '+' : '−'}${Math.abs(n).toFixed(d)}`;
@@ -172,6 +173,7 @@ export function MatchupTab({ v }: { v: PlayerView }) {
   const vm = v.vm!;
   const oppCode = vm.opp?.abbr ?? null;
   const profile = useOppProfile(v.slug, vm.sport, v.stat, oppCode, true);
+  const quality = useMatchupQuality(v, profile);
   const hasUnit = v.vm!.sport === 'NFL';
   if (!v.stat) return null;
   if (!hasUnit) {
@@ -183,6 +185,7 @@ export function MatchupTab({ v }: { v: PlayerView }) {
     <div className="v3p-mt">
       {vm.next && vm.opp ? (
         <>
+          {quality && <MatchupQualityCard q={quality} />}
           <ProjectionCard v={v} />
           <OppCard v={v} profile={profile} />
           <AvailabilityCard v={v} />

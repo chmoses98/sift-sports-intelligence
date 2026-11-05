@@ -149,7 +149,7 @@ const POST_ROUND: Record<number, string> = { 19: 'WC', 20: 'DIV', 21: 'CONF', 22
  * The player's rank for a stat that a pregame view may use: this season's ranking through the last week
  * before the game (never the game's own week), else last season's full ranking. Null when unranked.
  */
-export function rankFor(doc: PlayerHistoryDoc, stat: string, beforeWeek: number | null, season?: 'current' | 'prior'): (PlayerRankEntry['stats'][string] & { season: number; through_week: number | null; position: string; min_games: number }) | null {
+export function rankFor(doc: Pick<PlayerHistoryDoc, 'season' | 'ranks'>, stat: string, beforeWeek: number | null, season?: 'current' | 'prior'): (PlayerRankEntry['stats'][string] & { season: number; through_week: number | null; position: string; min_games: number }) | null {
   const ranks = doc.ranks ?? [];
   if (season === 'prior') {
     const prior = ranks.find((r) => r.season !== doc.season && r.stats[stat]);

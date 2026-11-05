@@ -61,8 +61,10 @@ test.describe('Overview carries the real NFL research @v3', () => {
       const a = adv.nth(i);
       await expect(a).toContainText(/^The \w+ have an? (modest|strong|major) [\w-]+ advantage\./);
       await expect(a).toContainText(/ranks \d+(st|nd|rd|th) of 28 in/);
-      await expect(a).toContainText('What it implies.');
       await expect(a.locator('.mi-bar')).toHaveCount(2);
+      // the implication is behind "Why it matters", not a paragraph on the default screen
+      await expect(a.locator('details')).toContainText('What it implies.');
+      await expect(a.locator('details[open]')).toHaveCount(0);
     }
     // the statistic's meaning and why it matters are one tap away and say what EPA is
     const first = adv.first();

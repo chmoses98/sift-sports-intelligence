@@ -136,3 +136,9 @@
 .v3 .mi-row__go { display: flex; justify-content: flex-end; align-items: center; gap: 2px; font: 600 12px/16px var(--f-ui); color: var(--sift-cyan); }
 .v3 .mi-chartbtn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); border-radius: 12px; border: 1px solid var(--s-raise-bd); background: var(--s-chip); color: var(--t2); font: 600 14px/18px var(--f-ui); width: 100%; }
 .v3 .mi-legend { margin: 0; padding: 0 2px; }
+
+/* Compact research: footnotes and long explanations sit behind one "About this" line; spreads are one row in each lane. */
+.v3 .mi-fn { margin-top: 2px; }
+.v3 .mi-spread { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; width: 100%; margin-top: 4px; padding: 0; text-align: left; font: 500 13px/18px var(--f-ui); color: var(--sift-muted); }
+.v3 .mi-spread b { color: #fff; font: 600 14px/18px var(--f-num); }
+.v3 .mi-spread--btn { min-height: 44px; align-items: center; }

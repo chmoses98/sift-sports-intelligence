@@ -218,7 +218,10 @@ test.describe('Player Research tap matrix (milestone 3) @v3', () => {
     await expect(row).toBeVisible({ timeout: 25_000 });
     await expect(row).toHaveAttribute('data-dest', /\/v3\/stat\/nfl\/adj_def_/);
     await expect(row).toHaveAttribute('data-dest', /sel=PHI/);
-    await scrollTo(page, 160);
+    // The strip sits below the Matchup quality card: on a short phone it is off screen at a fixed offset, and the click would scroll it into view first
+    // (changing the offset Back must return to). Bring it into view first, then record the offset.
+    await row.scrollIntoViewIfNeeded();
+    await scrollTo(page, Math.max(160, (await y(page)) + 1));
     const before = await snap(page);
     await row.click();
     await expect(page).toHaveURL(/#\/v3\/stat\/nfl\/adj_def_/);

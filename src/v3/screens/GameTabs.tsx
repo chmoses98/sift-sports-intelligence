@@ -29,6 +29,7 @@ import { DataState } from '../ui/DataState';
 import { CfbMatchupTab } from './cfb/MatchupTab';
 import { CfbScriptTab } from './cfb/ScriptTab';
 import { ScriptOverview } from './cfb/ScriptOverview';
+import { NflScriptRow, NflScriptTab } from './nfl/NflScriptTab';
 import { MatchupIntel } from './intel/MatchupIntel';
 import { StatsCompare } from './StatsCompare';
 import { LiveGame } from './live/LiveGame';
@@ -270,7 +271,11 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
   if (engine && tab === 'matchup') return <CfbMatchupTab ctx={ctx} engine={engine} />;
   if (tab === 'matchup') return <MatchupTab ctx={ctx} />;
   if (tab === 'stats') return <StatsTab g={g} research={research} loading={researchLoading} error={ctx.researchError} retry={ctx.researchRetry} />;
-  if (tab === 'script') return <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+  if (tab === 'script') {
+    const thesis = <ScriptTab g={g} detail={detail} error={ctx.detailError} retry={ctx.detailRetry} />;
+    // NFL: the publication's simulation as scripts (src/lib/scripts.ts); a game without one keeps the published thesis.
+    return isReady(g.slug, 'gameMatchup') && g.provenance === 'publication' ? <NflScriptTab ctx={ctx} fallback={thesis} /> : thesis;
+  }
   if (tab === 'props') {
     return (
       <>
@@ -294,6 +299,7 @@ export function GameTabBody({ tab, ctx, detail, research, researchLoading, onTab
       {inPlay && <LiveGame ctx={ctx} />}
       {inPlay && markets}
       <ScriptOverview ctx={ctx} onTab={onTab} />
+      {isReady(g.slug, 'gameMatchup') && <NflScriptRow ctx={ctx} onOpen={(id) => onTab('script', id)} />}
       <MatchupIntel ctx={ctx} slot="pregame" />
       {!inPlay && markets}
       {g.phase === 'live' && g.provenance === 'demo' && <><DriveCard g={g} /><LastPlay g={g} onTab={onTab} /></>}

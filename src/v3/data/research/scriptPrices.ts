@@ -66,7 +66,7 @@ export function useSideQuotes(g: V3Game | null, detail: EventDetailDoc | null | 
   }, [g, byTicker, live.version, startMs, now]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-const NO_SIDE_NOTE = 'A script row can be either side of a contract. The numbers above are the YES side of this contract; a NO row prints its own NO ask on the row.';
+export const NO_SIDE_NOTE ='A script row can be either side of a contract. The numbers above are the YES side of this contract; a NO row prints its own NO ask on the row.';
 
 /**
  * Tell the exact-contract sheet about the contracts the script rows name (the contract opens by ticker). Contracts the game's own list already published

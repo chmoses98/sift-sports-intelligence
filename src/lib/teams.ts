@@ -4,6 +4,7 @@ import mlbLogos from './mlb-team-logos.json';
 import { cfbTeam } from './cfbTeams';
 import { nhlCode, nhlLogo } from './nhlTeams';
 import { nbaLogo, nbaTeam } from './nba';
+import { cbbColors, cbbLogo } from './cbbTeams';
 
 // Team identity colors: brand presentation only (never data). Sift uses them as a thin accent —
 // a stripe, a monogram tile — so Sift's own palette stays in charge.
@@ -39,6 +40,7 @@ export function teamColors(sport: string, abbr: string | null | undefined): [str
     const t = cfbTeam(abbr);
     if (t?.c) return [t.c, t.c2 ?? t.c];
   }
+  if (sport === 'CBB') return cbbColors(abbr) ?? ['#1d2d52', '#3f5079'];
   return ['#1d2d52', '#3f5079'];
 }
 
@@ -71,6 +73,8 @@ export function teamLogo(sport: string, abbr: string | null | undefined): string
   }
   // NHL tricode (or any alias) -> the club's committed logo (src/lib/nhlTeams.ts).
   if (sport === 'NHL') return nhlLogo(abbr);
+  // CBB contract code (the publication's short_name) -> the school's committed logo (src/lib/cbbTeams.ts; public/teams/cbb/<espn id>.webp).
+  if (sport === 'CBB') return cbbLogo(abbr);
   // NBA tricode -> the club's committed logo (scripts/teams/fetch-nba-logos.mjs); none committed yet reads as the tricode.
   if (sport === 'NBA') return nbaLogo(abbr);
   // MLB club code (or alias) -> the club's committed logo (scripts/teams/fetch-mlb-logos.mjs).

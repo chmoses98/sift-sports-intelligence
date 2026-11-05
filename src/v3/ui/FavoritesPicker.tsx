@@ -86,7 +86,7 @@ export function FavoritesPicker() {
   const view = useMemo(() => pickerView(leagues, filter, q, shown), [leagues, filter, q, shown]);
   const several = view.leagues.length > 1;
   const pickFilter = (slug: string) => { setFilter(slug); setShown(TEAM_PAGE); };
-  const waiting = !collegeReady && (filter === 'cfb' || (!!q.trim() && filter !== 'nfl'));
+  const waiting = !collegeReady && (filter === 'cfb' || filter === 'cbb' || (!!q.trim() && filter !== 'nfl'));
   const n = followCount(f);
 
   return (
@@ -118,7 +118,6 @@ export function FavoritesPicker() {
           {l.teams.length > 0 && <h3 className="v3-fav__h">{several ? `${l.league.label} teams` : 'Teams'}</h3>}
           {l.teams.length > 0 && <ul className="v3-fav__list" aria-label={`${l.league.label} teams`}>{l.teams.map((t) => <TeamRow key={t.key} t={t} />)}</ul>}
           {l.moreTeams > 0 && <button type="button" className="v3-fav__more" onClick={() => setShown((s) => s + TEAM_PAGE)}>Show {Math.min(l.moreTeams, TEAM_PAGE)} more {l.league.label} teams</button>}
-          {l.league.slug === 'cbb' && !q.trim() && <p className="v3-note v3-note--dim">NCAAB teams are listed once they have a published game. Follow the whole league or a conference to cover the rest.</p>}
         </section>
       ))}
 

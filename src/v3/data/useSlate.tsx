@@ -11,6 +11,8 @@ import { useFeedEnabled } from '../../live/scores/feed';
 import { observedFor } from '../../v4/scoreState';
 import { useVerifiedScores } from './scoreReads';
 import { demoGames } from '../demo/fixtures';
+import { useFollows } from '../state/prefs';
+import { useConferenceGames } from './conference';
 import { dayKey } from '../model/time';
 import { toGame } from './adapt';
 import { knownSchedule, useScheduleVersion, withScheduleStarts } from './research/scheduleStarts';
@@ -29,6 +31,8 @@ export interface Slate {
   saved: { label: string; slug: string; builtAt: string | null }[];
   now: number;
   demo: boolean;
+  /** False while a followed college conference is waiting for the college identity to load (a followed conference cannot match a game before its teams' conferences are known); true otherwise. */
+  confReady?: boolean;
 }
 
 const phaseRank = (g: V3Game) => (g.phase === 'live' ? 0 : g.phase === 'pregame' ? 1 : g.phase === 'other' ? 2 : 3);
@@ -94,6 +98,20 @@ function DemoProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+/**
+ * A followed conference matches a game by its teams' conferences, which come from the committed college identity (data/conference.ts). That identity is
+ * read only when the viewer follows a conference: the slate every screen shares then carries each college team's conference, so Home, My SIFT and the
+ * Game Switcher agree on which games a followed conference includes.
+ */
+function ConferenceLayer({ children }: { children: ReactNode }) {
+  const base = useSlate();
+  const { groups } = useFollows();
+  const need = useMemo(() => groups.some((k) => k.startsWith('conf:')), [groups]);
+  const { games, ready } = useConferenceGames(base.games, need);
+  const value = useMemo<Slate>(() => (games === base.games && ready ? base : { ...base, games, confReady: ready }), [base, games, ready]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
 export function SlateProvider({ demo, children }: { demo: boolean; children: ReactNode }) {
-  return demo ? <DemoProvider>{children}</DemoProvider> : <RealProvider>{children}</RealProvider>;
+  return demo ? <DemoProvider><ConferenceLayer>{children}</ConferenceLayer></DemoProvider> : <RealProvider><ConferenceLayer>{children}</ConferenceLayer></RealProvider>;
 }

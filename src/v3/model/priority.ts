@@ -11,7 +11,10 @@
 //             (`Memory`), new games slotting in by score then key. Only a tier change reorders.
 import type { V3Game, V3Team } from './types';
 
-export interface FollowsLike { teams: string[]; games: string[] }
+import { followsViaGroup } from './groups';
+
+/** What the ordering reads of the follows. `groups` (a followed league, conference or all college sports; model/groups.ts) is optional: absent means none. */
+export interface FollowsLike { teams: string[]; games: string[]; groups?: string[] }
 
 /** The ordering memory a screen keeps in a ref between refreshes. */
 export interface Memory { order: string[]; tier: Record<string, number> }
@@ -19,8 +22,11 @@ export const emptyMemory = (): Memory => ({ order: [], tier: {} });
 
 // ---------------------------------------------------------------------------------------------------- following / rank
 
-export const followsGame = (g: V3Game, f: FollowsLike): boolean =>
+/** Followed on purpose: the game itself is starred, or one of its teams is. */
+export const followsDirect = (g: V3Game, f: FollowsLike): boolean =>
   f.games.includes(g.key) || f.teams.includes(`${g.slug}:${g.away.id}`) || f.teams.includes(`${g.slug}:${g.home.id}`);
+/** Followed at all: directly, or because its league or conference (or all college sports) is. */
+export const followsGame = (g: V3Game, f: FollowsLike): boolean => followsDirect(g, f) || followsViaGroup(g, f.groups);
 
 const ranked = (t: V3Team): number | null => (typeof t.rank === 'number' && t.rank >= 1 && t.rank <= 25 ? t.rank : null);
 /** Ranked-vs-ranked: both teams carry a top-25 rank the source stated. */
@@ -116,6 +122,8 @@ export const lateness = (progress: number | null): number => (progress == null ?
 export const WEIGHTS = {
   /** A followed team or game: ahead of every unfollowed game, whatever the score. */
   follow: 1000,
+  /** A game that is followed only through its league or conference: ahead of every unfollowed game (more than the best unfollowed score can reach), behind every star. */
+  followGroup: 400,
   close: 60,
   late: 40,
   /** Close AND late: the strongest single reason, larger than close and late alone combined. */
@@ -134,7 +142,8 @@ export interface Scored { score: number; reasons: Reason[] }
 export function liveScore(g: V3Game, f: FollowsLike): Scored {
   const reasons: Reason[] = [];
   const add = (why: string, points: number) => { if (points > 0) reasons.push({ why, points: Math.round(points * 100) / 100 }); };
-  if (followsGame(g, f)) add('followed', WEIGHTS.follow);
+  if (followsDirect(g, f)) add('followed', WEIGHTS.follow);
+  else if (followsViaGroup(g, f.groups)) add('followed league or conference', WEIGHTS.followGroup);
   const c = closenessOf(g.sport, g.score);
   const l = lateness(progressOf(g.sport, g.score?.clock));
   if (c != null) {
@@ -200,11 +209,13 @@ export function orderLive(games: readonly V3Game[], f: FollowsLike, prev?: Memor
 // ---------------------------------------------------------------------------------------------------- upcoming / final
 
 /**
- * Lower is more important: 0 followed, 1 ranked vs ranked, 2 any ranked team, 3 a conference matchup, 4 the rest. Used inside one
- * kickoff window (the schedule is time-ordered first), so it never moves a late game ahead of an early one.
+ * Lower is more important: 0 followed (a star), 0.5 followed only through a league or conference, 1 ranked vs ranked, 2 any ranked team,
+ * 3 a conference matchup, 4 the rest. Used inside one kickoff window (the schedule is time-ordered first), so it never moves a late game
+ * ahead of an early one.
  */
 export function upcomingTier(g: V3Game, f: FollowsLike): number {
-  if (followsGame(g, f)) return 0;
+  if (followsDirect(g, f)) return 0;
+  if (followsViaGroup(g, f.groups)) return 0.5;
   if (bothRanked(g)) return 1;
   if (anyRanked(g)) return 2;
   if (conferenceMatchup(g)) return 3;
@@ -217,7 +228,7 @@ const bestRank = (g: V3Game) => Math.min(ranked(g.away) ?? 99, ranked(g.home) ??
 export function orderUpcoming(games: readonly V3Game[], f: FollowsLike): V3Game[] {
   return games
     .map((g) => ({ g, t: upcomingTier(g, f) }))
-    .sort((a, b) => a.t - b.t || (a.t >= 1 && a.t <= 2 ? bestRank(a.g) - bestRank(b.g) : 0) || a.g.startMs - b.g.startMs || a.g.key.localeCompare(b.g.key))
+    .sort((a, b) => a.t - b.t || ((a.t >= 1 && a.t <= 2) || a.t === 0.5 ? bestRank(a.g) - bestRank(b.g) : 0) || a.g.startMs - b.g.startMs || a.g.key.localeCompare(b.g.key))
     .map((x) => x.g);
 }
 

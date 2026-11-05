@@ -10,23 +10,23 @@ const game = (slug: string, a: string, h: string, o: Partial<V3Game> = {}): V3Ga
   key: `${slug}:${a}_${h}`, slug, sport: slug.toUpperCase(), eventId: `${a}_${h}`, league: slug, phase: 'pregame', startMs: NOW + 2 * H,
   away: team(slug, a), home: team(slug, h), score: null, lines: [], signals: 0, provenance: 'publication', ...o,
 });
-const none: FollowSet = { teams: [], players: [], games: [] };
+const none: FollowSet = { teams: [], players: [], games: [], groups: [] };
 
 describe('reviveFollows (migration of stored follows)', () => {
   it('fills a missing players list, drops junk and duplicates, keeps order', () => {
-    expect(reviveFollows({ teams: ['nfl:DAL', 'nfl:DAL', 7, '', ' nba:BOS '], games: ['nfl:evt_1'] })).toEqual({ teams: ['nfl:DAL', 'nba:BOS'], players: [], games: ['nfl:evt_1'] });
+    expect(reviveFollows({ teams: ['nfl:DAL', 'nfl:DAL', 7, '', ' nba:BOS '], games: ['nfl:evt_1'] })).toEqual({ teams: ['nfl:DAL', 'nba:BOS'], players: [], games: ['nfl:evt_1'], groups: [] });
   });
   it('survives anything storage might hold', () => {
     for (const raw of [null, undefined, 3, 'x', [], { teams: 'nfl:DAL', players: {}, games: null }]) expect(reviveFollows(raw)).toEqual(none);
   });
   it('keeps the current shape unchanged', () => {
-    const f = { teams: ['cfb:UGA'], players: ['nba:prt_1'], games: ['cfb:g1'] };
+    const f = { teams: ['cfb:UGA'], players: ['nba:prt_1'], games: ['cfb:g1'], groups: [] };
     expect(reviveFollows(f)).toEqual(f);
   });
 });
 
 describe('sports and the filter', () => {
-  const f: FollowSet = { teams: ['nba:BOS', 'cfb:UGA'], players: ['nfl:prt_1'], games: ['tennis:m1'] };
+  const f: FollowSet = { teams: ['nba:BOS', 'cfb:UGA'], players: ['nfl:prt_1'], games: ['tennis:m1'], groups: [] };
   it('lists only followed sports, in product order', () => {
     expect(followedSports(f)).toEqual(['nfl', 'cfb', 'nba', 'tennis']);
     expect(followedSports(none)).toEqual([]);
@@ -38,7 +38,7 @@ describe('sports and the filter', () => {
     expect(validSport('nba', none)).toBeNull();
   });
   it('filtering narrows the follows and never adds one', () => {
-    expect(filterFollows(f, 'nba')).toEqual({ teams: ['nba:BOS'], players: [], games: [] });
+    expect(filterFollows(f, 'nba')).toEqual({ teams: ['nba:BOS'], players: [], games: [], groups: [] });
     expect(filterFollows(f, null)).toBe(f);
   });
   it('keys split into sport and id (ids may contain colons)', () => {
@@ -71,7 +71,7 @@ describe('selectFollowing', () => {
   const fin2 = game('nfl', 'DAL', 'WAS', { phase: 'final', startMs: NOW - 70 * H });
   const pend = game('nba', 'BOS', 'DEN', { phase: 'other', startMs: NOW - 4 * H });
   const slate = [fin2, tomorrow, liveOther, live1, later, soon, fin1, live2, pend];
-  const f: FollowSet = { teams: ['nba:BOS', 'nfl:DAL'], players: [], games: [later.key] };
+  const f: FollowSet = { teams: ['nba:BOS', 'nfl:DAL'], players: [], games: [later.key], groups: [] };
 
   it('reads every followed sport together by default', () => {
     const v = selectFollowing(slate, f, { now: NOW });

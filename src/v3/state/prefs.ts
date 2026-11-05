@@ -5,15 +5,24 @@ import type { PriceFormat } from '../model/format';
 import { reviveSaved, reviveSavedList, SAVED_CAP, type SavedInput, type SavedResearch } from '../model/saved';
 import { addVisit, addWatch, removeVisit, removeWatch, reviveVisits, reviveWatchlist, type Visit, type WatchItem } from '../model/workspace';
 import { reviveFollows, type FollowSet } from '../model/following';
+import { hasGroup, toggleGroupIn } from '../model/groups';
 
 export type Follows = FollowSet;
 // Revived on every read from storage: a record from an older build (no `players`, a non-list, duplicates) becomes the current shape.
-const follows = createStore<Follows>('follows', { teams: [], players: [], games: [] }, reviveFollows);
+const follows = createStore<Follows>('follows', { teams: [], players: [], games: [], groups: [] }, reviveFollows);
 
-export type FollowKind = keyof Follows;
+/** The follows toggled one key at a time. Groups have their own toggle (`toggleGroup`), which keeps their keys canonical. */
+export type FollowKind = Exclude<keyof Follows, 'groups'>;
 export const useFollows = () => useStore(follows);
 export const followsNow = () => follows.get();
 export const isFollowing = (f: Follows, kind: FollowKind, key: string) => f[kind].includes(key);
+
+/** Follow or unfollow a whole league, a college conference or all college sports (model/groups.ts keys). Returns whether it is now followed. */
+export function toggleGroup(key: string): boolean {
+  let on = false;
+  follows.set((f) => { const groups = toggleGroupIn(f.groups, key); on = hasGroup(groups, key); return { ...f, groups }; });
+  return on;
+}
 
 /** Toggle a follow. Order is recency (most recently followed first) so Home and the picker pin it first. Returns the new state. */
 export function toggleFollow(kind: FollowKind, key: string): boolean {
@@ -98,5 +107,5 @@ export const rewatch = (w: WatchItem) => watch.set((l) => addWatch(l, w));
 
 /** Wipe everything this device keeps (follows, alerts, saved research, recents, preferences). */
 export function clearAllLocal() {
-  follows.set({ teams: [], players: [], games: [] }); alerts.set({}); saved.set([]); recents.set([]); visits.set([]); watch.set([]);
+  follows.set({ teams: [], players: [], games: [], groups: [] }); alerts.set({}); saved.set([]); recents.set([]); visits.set([]); watch.set([]);
 }

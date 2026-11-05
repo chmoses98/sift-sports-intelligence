@@ -2,6 +2,7 @@
 // (data/conference.ts); a team with no stated conference matches no conference chip (it still shows under All).
 import type { V3Game } from './types';
 import { anyRanked } from './priority';
+import { confToken, COLLEGE_SLUGS, isCollege } from './groups';
 
 /** CFB: the publication's own conference labels ("BIG-TEN") as a reader writes them. */
 const CFB_LABEL: Record<string, string> = {
@@ -21,11 +22,8 @@ export const unifyLabel = (label: string): string => (label === 'American' ? 'AA
 /** The big conferences first, in the order a fan expects; every other conference follows alphabetically. */
 export const CONFERENCE_ORDER = ['SEC', 'Big Ten', 'ACC', 'Big 12', 'Pac-12', 'AAC', 'Mountain West', 'Sun Belt', 'MAC', 'C-USA', 'Big East'] as const;
 
-/** The address token of a conference label: "Big Ten" -> "big-ten". */
-export const confToken = (label: string): string => label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-export const COLLEGE_SLUGS = ['cfb', 'cbb'] as const;
-export const isCollege = (slug: string): boolean => (COLLEGE_SLUGS as readonly string[]).includes(slug);
+// The conference token and the college-sport test live in groups.ts (a followed conference matches by the same token) and are re-exported here.
+export { confToken, COLLEGE_SLUGS, isCollege };
 
 const rankIndex = (label: string) => { const i = (CONFERENCE_ORDER as readonly string[]).indexOf(label); return i < 0 ? 99 : i; };
 

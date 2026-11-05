@@ -1,11 +1,11 @@
 import type { V3Game } from '../model/types';
 import type { Follows } from '../state/prefs';
-import { followsGame as followsTeamOf } from './priority';
+import { followsDirect as followsTeamOf } from './priority';
 import { dayKey } from './time';
 
 const phaseRank = (g: V3Game) => (g.phase === 'live' ? 0 : g.phase === 'pregame' ? 1 : g.phase === 'other' ? 2 : 3);
 
-/** A favourite game: starred itself, or involving a followed team. Favourites are pinned first and never change the selected game. */
+/** A favourite game: starred itself, or involving a followed team. A followed league or conference is not a favourite here (it would pin a whole slate). Favourites are pinned first and never change the selected game. */
 export const isFavorite = (g: V3Game, f: Pick<Follows, 'teams' | 'games'>) => followsTeamOf(g, f);
 
 /**

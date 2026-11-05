@@ -22,6 +22,9 @@ export function cfbTeam(code: string | null | undefined): CfbTeam | null {
   return code ? TEAMS[code] ?? null : null;
 }
 
+/** Every contract code in the identity map. */
+export const cfbCodes = (): string[] => Object.keys(TEAMS);
+
 let byEspn: Map<string, string> | null = null;
 
 /** The contract code of an ESPN team id ("66" → "ISU"), from the same identity map. */

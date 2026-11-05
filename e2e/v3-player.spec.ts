@@ -579,6 +579,21 @@ test.describe('Player Research: missing data and missing quotes @v3', () => {
     await expect(page.getByRole('button', { name: /Teammate out/ })).toHaveCount(0);
   });
 
+  test('basketball: a log that ends before this season says where it ends, once, above the research (never read as current form)', async ({ page }) => {
+    await ready(page, DAVIS);
+    const note = page.getByTestId('log-gap');
+    await expect(note).toBeVisible();
+    await expect(note).toContainText(/The game log ends [A-Z][a-z]{2} \d{1,2}, 20\d\d-\d\d/);
+    await expect(note).toContainText(/not this season’s form/);
+    await expect(page.getByTestId('log-gap')).toHaveCount(1);
+    await noOverflow(page);
+  });
+
+  test('football: a log that reaches the present carries no end-of-log note', async ({ page }) => {
+    await ready(page, LAMB);
+    await expect(page.getByTestId('log-gap')).toHaveCount(0);
+  });
+
   test('a sport with no published player research says so and offers search', async ({ page }) => {
     await go(page, '/v3/player/tennis/prt_nobody');
     await expect(page.getByText(/not available|no player profiles/i).first()).toBeVisible({ timeout: 25_000 });

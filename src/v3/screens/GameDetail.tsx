@@ -29,6 +29,7 @@ import { GameTabBody } from './GameTabs';
 import type { GameCtx } from './GameShared';
 import './matchup.css';
 import { Brand } from '../ui/Brand';
+import { SearchButton } from '../ui/SearchButton';
 
 const TAB_LABEL: Record<Exclude<GameTab, 'overview'>, string> = { script: 'Game Script', matchup: 'Matchup', props: 'Props', stats: 'Stats' };
 const mainLabel = (g: V3Game) => (g.phase === 'live' ? 'Live' : g.phase === 'final' ? 'Recap' : 'Overview');
@@ -67,6 +68,7 @@ function Hero({ g, back, startMs }: { g: V3Game; back: () => void; startMs: numb
       <div className="v3-gh__bar">
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
         <span className="v3-top__sp" />
+        <SearchButton />
         <FollowStar kind="games" id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
         <AlertBell id={g.key} label={`${g.away.nick} at ${g.home.nick}`} />
         <button type="button" className="v3-iconbtn" aria-label="More" onClick={() => sheet.open('Game', <MoreSheet g={g} />)}><Icon name="more" size={24} /></button>

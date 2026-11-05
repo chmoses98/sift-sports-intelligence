@@ -97,3 +97,49 @@ export function GameCard({ g: base }: { g: V3Game }) {
     </article>
   );
 }
+
+/**
+ * The compact row: the same tap regions as the card at about half the height (two team rows, the status, the main Kalshi line, the star). The whole row opens
+ * the game; a team opens its page; the line opens the exact market; the star follows. Nothing here is estimated: no score when none is licensed.
+ */
+export function CompactGameCard({ g: base }: { g: V3Game }) {
+  const [ref, seen] = useSeen<HTMLElement>();
+  const startMs = useGameStart(seen ? base : null);
+  const x = useGameExtras(base, 'lines', seen, startMs);
+  const g = x?.game ?? base;
+  const open = useOpenContract();
+  const gate = useListGate(g, startMs);
+  const live = g.phase === 'live';
+  const scored = g.score != null;
+  const line = g.lines.find((l) => l.kind === 'spread') ?? g.lines.find((l) => l.kind === 'total') ?? g.lines.find((l) => l.kind === 'moneyline');
+  const p = line ? gate(line.price) : null;
+  const label = `${g.away.name} at ${g.home.name}, ${scored ? `${g.score!.away} to ${g.score!.home}, ` : ''}${statusWord(g)}. Open game`;
+  const row = (side: 'away' | 'home') => {
+    const t = g[side];
+    const sc = g.score?.[side];
+    return (
+      <Link key={side} to={teamHref(t)} className="v3-gcc__team" aria-label={`${t.name}, team page`}>
+        <TeamLogo team={t} size={22} />
+        <span className="v3-gcc__nm">{t.rank ? <small>#{t.rank}</small> : null}{t.abbr}</span>
+        {sc != null && <span className="v3-gcc__sc num">{sc}</span>}
+      </Link>
+    );
+  };
+  return (
+    <article ref={ref} className={`v3-gcc${live ? ' is-live' : ''}`} data-density="compact">
+      <Link to={gameHref(g)} className="v3-gc__hit" aria-label={label} />
+      <div className="v3-gcc__teams">{row('away')}{row('home')}</div>
+      <div className="v3-gcc__st">
+        <span className={live ? 'v3-gcc__live' : undefined}>{live ? (g.score?.clock ?? 'Live') : statusWord(g)}<DelayedMark g={g} /></span>
+        <small>{leagueLabel(g)}{g.network ? ` · ${g.network}` : ''}</small>
+        {live && !scored && g.provenance === 'publication' && <small className="v3-gcc__ns">No score</small>}
+      </div>
+      {line ? (
+        <button type="button" className="v3-gcc__line" aria-label={`${line.label} at ${p?.ask != null ? `${p.ask} cents` : 'no price available'}. Kalshi market price. Open market detail`} onClick={() => open({ g, startMs, detailHref: gameHref(g) }, line)}>
+          <b>{line.label}</b><em><PriceText p={p} /></em>
+        </button>
+      ) : <span className="v3-gcc__line v3-gcc__line--none" aria-hidden="true">{x?.detailLoading ? '…' : '—'}</span>}
+      <GameStar g={g} className="v3-gcc__star" />
+    </article>
+  );
+}

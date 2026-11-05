@@ -16,6 +16,7 @@ import { TeamLogo } from '../ui/TeamLogo';
 import { Rank } from '../ui/rank';
 import { gameHref, leagueLabel, teamHref } from '../ui/gamebits';
 import { useSlate } from '../data/useSlate';
+import { SearchButton } from '../ui/SearchButton';
 
 type Tab = 'overview' | 'schedule' | 'roster' | 'stats' | 'injuries';
 const TABS: [Tab, string][] = [['overview', 'Overview'], ['schedule', 'Schedule'], ['roster', 'Roster'], ['stats', 'Stats'], ['injuries', 'Injuries']];
@@ -99,6 +100,7 @@ export function TeamLegacy() {
         <div className="v3-gh__bar">
           <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
           <span className="v3-top__sp" />
+          <SearchButton />
           <AlertBell id={key} label={t.name} />
           <FollowStar kind="teams" id={key} label={t.name} />
         </div>

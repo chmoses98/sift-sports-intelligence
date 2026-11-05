@@ -38,6 +38,8 @@ export interface Prefs {
   /** Home's last chosen sport ("nfl") and, per sport, the last college conference filter ("sec", "top25", "all"): this device only; the address wins when it names them. */
   homeSport: string | null;
   homeConf: Record<string, string>;
+  /** Home game cards: the full card, or the compact row (about twice as many games per screen). */
+  homeDensity?: 'full' | 'compact';
 }
 const prefs = createStore<Prefs>('prefs', { priceFormat: 'cents', reduceMotion: false, textScale: 'default', onboarded: false, homeSport: null, homeConf: {} });
 export const usePrefs = () => useStore(prefs);

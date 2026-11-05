@@ -17,6 +17,7 @@ import { TeamLogo } from '../../ui/TeamLogo';
 import { Rank } from '../../ui/rank';
 import { teamHref } from '../../ui/gamebits';
 import type { EntityProfileDoc } from '../../../contract/types';
+import { SearchButton } from '../../ui/SearchButton';
 
 const when = (iso: string | null) => (iso ? `${dayWord(Date.parse(iso))} ${clockTime(Date.parse(iso))}` : 'unknown');
 
@@ -148,7 +149,7 @@ export function NbaTeam() {
       <Back />
       <TeamLogo team={team} size={34} />
       <div className="nba-bar__t"><h1>{team.name}</h1><small>NBA{view ? ` · ${view.season}${view.record ? ` · ${view.record}` : ''}` : ''}</small></div>
-      <span className="nba-bar__r"><FollowStar kind="teams" id={`${team.slug}:${team.id}`} label={team.name} /><AlertBell id={`${team.slug}:${team.id}`} label={team.name} /></span>
+      <span className="nba-bar__r"><SearchButton /><FollowStar kind="teams" id={`${team.slug}:${team.id}`} label={team.name} /><AlertBell id={`${team.slug}:${team.id}`} label={team.name} /></span>
     </div>
   );
 

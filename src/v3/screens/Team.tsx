@@ -35,6 +35,7 @@ import { Players } from './team/Players';
 import { Profile } from './team/Profile';
 import { Schedule } from './team/Schedule';
 import type { TeamPageCtx } from './team/parts';
+import { SearchButton } from '../ui/SearchButton';
 
 type Tab = (typeof TEAM_TABS)[number];
 const TAB_LABEL: Record<Tab, string> = { overview: 'Overview', profile: 'Profile', form: 'Form', players: 'Players', schedule: 'Schedule' };
@@ -177,6 +178,7 @@ function TeamResearch() {
       <b className="tm-bar__n">{team.name}</b>
       {record ? <span className="tm-rec" aria-label={`Record ${record}`}><b className="num">{record}</b></span> : capOk && !unknownTeam && !failed && (research.loading || ti.loading) ? <span className="tm-rec tm-rec--skel" aria-hidden="true" /> : null}
       <span className="tm-bar__r">
+        <SearchButton />
         <FollowStar kind="teams" id={key} label={team.name} />
         {c && <SaveButton team={team} tab={tab} c={c} record={record} />}
       </span>
@@ -202,7 +204,7 @@ function TeamResearch() {
             <i className="tm-hero__shade" aria-hidden="true" />
             <div className="tm-hero__bar">
               <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
-              <span className="tm-hero__act"><AlertBell id={key} label={team.name} /><FollowStar kind="teams" id={key} label={team.name} />{c && <SaveButton team={team} tab={tab} c={c} record={record} />}</span>
+              <span className="tm-hero__act"><SearchButton /><AlertBell id={key} label={team.name} /><FollowStar kind="teams" id={key} label={team.name} />{c && <SaveButton team={team} tab={tab} c={c} record={record} />}</span>
             </div>
             <div className="tm-hero__who">
               <div className="wl"><TeamLogo team={team} size={54} /><h1 className="wn">{first && <span className="f">{first}</span>}<span className="l">{last}</span></h1></div>

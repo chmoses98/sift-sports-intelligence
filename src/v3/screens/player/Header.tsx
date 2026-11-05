@@ -9,6 +9,7 @@ import { TeamLogo } from '../../ui/TeamLogo';
 import { GameLink, TeamLink } from '../../nav/Targets';
 import { gameWhen } from '../../model/playerResearch';
 import type { PlayerView } from './view';
+import { SearchButton } from '../../ui/SearchButton';
 
 const AT = (v: PlayerView) => (v.vm?.nextHome === false ? 'at' : 'vs');
 
@@ -43,6 +44,7 @@ export function Hero({ v, saved, onSave, heroRef }: { v: PlayerView; saved: bool
       <div className="v3p-hero__bar">
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back}><Icon name="back" size={26} /></button>
         <span className="v3p-sp" />
+        <SearchButton />
         {vm && <FollowStar kind="players" id={`${v.slug}:${v.pid}`} label={vm.name} />}
         <SaveButton v={v} saved={saved} onToggle={onSave} />
       </div>

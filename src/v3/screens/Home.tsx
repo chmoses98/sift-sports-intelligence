@@ -15,7 +15,7 @@ import { useRouteState } from '../state/url';
 import { BellSheet } from '../ui/BellSheet';
 import { Brand } from '../ui/Brand';
 import { ChipRail } from '../ui/ChipRail';
-import { GameCard } from '../ui/GameCard';
+import { CompactGameCard, GameCard } from '../ui/GameCard';
 import { Icon } from '../ui/Icon';
 import { SearchButton } from '../ui/SearchButton';
 import { useSheet } from '../ui/Sheet';
@@ -111,6 +111,7 @@ export function Home() {
   const pickConf = (token: string) => { if (sport) setPrefs({ homeConf: { ...prefs.homeConf, [sport]: token } }); update({ conf: token }); };
   const pickDay = (k: string) => update({ date: k === today ? null : k });
   const hasAlerts = Object.keys(alerts).length > 0;
+  const compact = prefs.homeDensity === 'compact';
 
   // First run on real data only: a skippable welcome, shown once. It never appears over sample data (QA) or blocks Home.
   useEffect(() => {
@@ -163,6 +164,7 @@ export function Home() {
       <div className="v3-seg" role="tablist" aria-label="Games shown">
         <button type="button" role="tab" aria-selected={!following} onClick={() => setView('all')}>All games</button>
         <button type="button" role="tab" aria-selected={following} onClick={() => setView('following')}>Following{!noFollows && <i>{follows.teams.length + follows.games.length}</i>}</button>
+        <button type="button" className="v3-density" aria-pressed={compact} aria-label={compact ? 'Compact view on. Switch to full cards' : 'Switch to compact view: more games per screen'} onClick={() => setPrefs({ homeDensity: compact ? 'full' : 'compact' })}><Icon name="list" size={18} />{compact ? 'Compact' : 'Full'}</button>
       </div>
 
       {following && !waiting && noFollows && (
@@ -222,7 +224,7 @@ export function Home() {
         return (
           <section key={s.id} id={`sec-${s.id}`} className="v3-sec" aria-label={`${s.title}, ${s.games.length} ${s.games.length === 1 ? 'game' : 'games'}`}>
             <SectionHead s={s} open={open} onToggle={() => setClosed((c) => ({ ...c, [s.id]: !c[s.id] }))} onInfo={() => sheet.open('About live scores', <LiveRightsNote />)} />
-            {open && <div className="v3-gclist" id={`sec-${s.id}-list`}>{s.games.map((g) => <GameCard key={g.key} g={g} />)}</div>}
+            {open && <div className={`v3-gclist${compact ? ' v3-gclist--compact' : ''}`} id={`sec-${s.id}-list`}>{s.games.map((g) => (compact ? <CompactGameCard key={g.key} g={g} /> : <GameCard key={g.key} g={g} />))}</div>}
           </section>
         );
       })}

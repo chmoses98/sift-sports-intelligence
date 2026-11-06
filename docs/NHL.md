@@ -93,6 +93,21 @@ exclusive scripts. The words are fixed templates:
   the line combinations (Line n / Pair n · PP1), model probability beside the market midpoint, and the script where
   the point chance is highest and lowest. Goal props are marked high variance. No shots-on-goal prop is published.
 
+### Player prop audit (2026-11-05, live board: 11 games, 4,195 markets)
+
+Run against the published `event_detail` documents with SIFT's own parser. Kalshi lists four player ladders for NHL: goals (`KXNHLGOAL`), assists
+(`KXNHLAST`), points (`KXNHLPTS`) and goalie saves (`KXNHLSAVE`); first goal scorer (`KXNHLFIRSTGOAL`) is a one-of-many contract, not a ladder. There is
+no shots-on-goal, blocked-shots or power-play contract on Kalshi, so none can be shown. Every open goals, assists, points and saves contract on the board
+parsed (684 / 322 / 444 / 17 contracts; none dropped for status, period, price, rung or subject).
+
+* **Fixed:** two games (CHI/TBL, STL/NJD) listed 33 and 36 props with no team, because the fallback that reads the team from the ticker compared Kalshi's `TB`/`NJ` with
+  the publication's `TBL`/`NJD`. `teamFromTicker` now accepts the aliases in `src/lib/nhlTeams.ts` (`nhlSpellings`).
+* **Genuine upstream gap, not a SIFT defect:** the model lane for these props is "not approved for display". `projection-data` for NHL does publish goals, assists, points,
+  shots and saves for 392 skaters and 22 goalies (97 to 99 % of the priced players; the rest are scratches and call-ups), but every family is `SHADOW VALIDATION`
+  and goalie saves is `NEEDS IMPROVEMENT`, and `projectionApprovals.ts` retains the established engine for all of them (no foundation approval). Under
+  `PROJECTION_PROMOTION.md` SIFT shows a number only for a READY, approved family, so none is shown and the reason is stated on the prop. Unblocking needs the
+  NHL repository to record a live shadow record and the owner to approve the family in the ledger; SIFT reads the feed the moment a row is approved.
+
 ## Freshness and game state
 
 * **Model**: CURRENT ≤ 1 h, AGING ≤ 6 h, STALE beyond (the publisher's own health thresholds); a STALE slate shows a

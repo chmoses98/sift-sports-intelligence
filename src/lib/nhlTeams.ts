@@ -67,6 +67,12 @@ export function nhlCode(abbr: string | null | undefined): string | null {
   return ALIASES[k] ?? null;
 }
 
+/** Every spelling a feed uses for a club (its tricode and the aliases that resolve to it): Kalshi writes TB, NJ, LA and SJ where the publication writes TBL, NJD, LAK and SJS. */
+export function nhlSpellings(abbr: string | null | undefined): string[] {
+  const c = nhlCode(abbr);
+  return c ? [c, ...Object.entries(ALIASES).filter(([, v]) => v === c).map(([k]) => k)] : [];
+}
+
 export function nhlTeam(abbr: string | null | undefined): NhlTeam | null {
   const c = nhlCode(abbr);
   return c ? BY_CODE.get(c) ?? null : null;

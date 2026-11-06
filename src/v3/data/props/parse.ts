@@ -3,6 +3,7 @@
 // roster and history hints the caller supplies, falling back to the contract's own words only where the publication names nothing.
 import type { Market } from '../../../contract/types';
 import { nameKey } from '../../../insights/context';
+import { nhlSpellings } from '../../../lib/nhlTeams';
 import { teamKey } from '../../../lib/projections';
 import { isTradableWord } from '../../model/marketStatus';
 import type { V3Team } from '../../model/types';
@@ -94,10 +95,11 @@ export function isTeamSubject(who: string, g: Pick<GameCtx, 'away' | 'home'>): b
 }
 
 /** "KXNHLPTS-26OCT26TORCGY-TORKMARCHENKO86-1" has team TOR in its player segment; used only when nothing published names the team. */
-export function teamFromTicker(ticker: string, codes: string[]): string | null {
-  const seg = ticker.split('-')[2] ?? '';
-  const hits = codes.filter((c) => c && seg.toUpperCase().startsWith(c.toUpperCase()));
-  return hits.sort((a, b) => b.length - a.length)[0] ?? null;
+export function teamFromTicker(ticker: string, codes: string[], spellings: (code: string) => string[] = () => []): string | null {
+  const seg = (ticker.split('-')[2] ?? '').toUpperCase();
+  // A club's code and the other spellings its feed uses ("TB" for TBL), each answering with the game's own code. The longest spelling wins.
+  const hits = codes.filter((c) => c).flatMap((c) => [c, ...spellings(c)].map((w) => ({ w: w.toUpperCase(), c }))).filter(({ w }) => seg.startsWith(w));
+  return hits.sort((a, b) => b.w.length - a.w.length)[0]?.c ?? null;
 }
 
 /** The prop id: the ticker without its rung segment ("KXNFLREC-26OCT26DALPHI-DALCLAMB88"). */
@@ -148,7 +150,7 @@ export function parseGameProps(g: GameCtx, markets: Market[], hints: IdentityHin
     // Team: the contract's own participant, then a published roster, then the history layer, then the ticker's own words.
     const inGame = (c: string | null | undefined) => (sameTeam(c, g.away.abbr) ? g.away.abbr : sameTeam(c, g.home.abbr) ? g.home.abbr : null);
     const byParticipant = first.participant_id && first.participant_id === g.awayId ? g.away.abbr : first.participant_id && first.participant_id === g.homeId ? g.home.abbr : null;
-    const team = byParticipant ?? inGame(first.player_id ? hints.teamOfPlayer?.(first.player_id) : null) ?? inGame(hist?.team) ?? teamFromTicker(first.kalshi_ticker, codes);
+    const team = byParticipant ?? inGame(first.player_id ? hints.teamOfPlayer?.(first.player_id) : null) ?? inGame(hist?.team) ?? teamFromTicker(first.kalshi_ticker, codes, g.slug === 'nhl' ? nhlSpellings : undefined);
     const opp = team ? (sameTeam(team, g.away.abbr) ? g.home.abbr : g.away.abbr) : null;
     const histId = fam.history?.kind === 'nfl' ? gsis : fam.history?.kind === 'nhl' ? first.player_id : null;
     const featured = featuredRung(rungs);

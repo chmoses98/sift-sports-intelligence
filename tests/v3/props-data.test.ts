@@ -233,3 +233,18 @@ describe('contracts carry an open status and a price', () => {
     expect(parseGameProps(NFL_GAME, [closed, noAsk], {})).toEqual([]);
   });
 });
+
+describe('NHL: Kalshi writes some clubs under a different tricode than the publication', () => {
+  // Measured on the live 2026-11-05 board: CHI/TBL and STL/NJD rows had no team (33 and 36 props) because tickers say TB and NJ.
+  it('attributes TB / NJ / LA / SJ tickers to the game’s own TBL / NJD / LAK / SJS', async () => {
+    const { teamFromTicker } = await import('../../src/v3/data/props/parse');
+    const { nhlSpellings } = await import('../../src/lib/nhlTeams');
+    expect(teamFromTicker('KXNHLGOAL-26NOV05CHITB-TBBHAGEL-1', ['CHI', 'TBL'], nhlSpellings)).toBe('TBL');
+    expect(teamFromTicker('KXNHLGOAL-26NOV05STLNJ-NJAGRITSYUK81-1', ['STL', 'NJD'], nhlSpellings)).toBe('NJD');
+    expect(teamFromTicker('KXNHLPTS-26NOV05LAKSJ-SJMCELEBRINI-1', ['LAK', 'SJS'], nhlSpellings)).toBe('SJS');
+    expect(teamFromTicker('KXNHLPTS-26NOV05LAKSJ-LAAKOPITAR-1', ['LAK', 'SJS'], nhlSpellings)).toBe('LAK');
+    // unchanged for tricodes that already agree, and with no spellings supplied
+    expect(teamFromTicker('KXNHLPTS-26NOV05NYRBOS-BOSDPASTRNAK88-1', ['NYR', 'BOS'], nhlSpellings)).toBe('BOS');
+    expect(teamFromTicker('KXNHLGOAL-26NOV05STLNJ-NJAGRITSYUK81-1', ['STL', 'NJD'])).toBeNull();
+  });
+});

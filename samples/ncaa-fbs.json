@@ -1,0 +1,119 @@
+{
+ "inputMD5Sum": "cda9c25ae94269167d97ee0e710965e5",
+ "instanceId": "d41d8cd98f00b204e9800998ecf8427e",
+ "updated_at": "2026-11-06 22:31:18",
+ "games": [
+  {
+   "game": {
+    "gameID": "6640609",
+    "away": {
+     "score": "28",
+     "names": {
+      "char6": "OHIO",
+      "short": "Ohio",
+      "seo": "ohio",
+      "full": ""
+     },
+     "winner": true,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "mac"
+      }
+     ]
+    },
+    "finalMessage": "FINAL",
+    "title": "Ohio Akron",
+    "url": "/game/6640609",
+    "network": "",
+    "home": {
+     "score": "20",
+     "names": {
+      "char6": "AKRON",
+      "short": "Akron",
+      "seo": "akron",
+      "full": ""
+     },
+     "winner": false,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "mac"
+      }
+     ]
+    },
+    "liveVideoEnabled": false,
+    "startTime": "7:00 PM ET",
+    "startTimeEpoch": "1793750400",
+    "gameState": "final",
+    "startDate": "11/03/2026",
+    "currentPeriod": "FINAL",
+    "contestClock": "0:00",
+    "bracketId": "",
+    "bracketRound": ""
+   }
+  },
+  {
+   "game": {
+    "gameID": "6603990",
+    "away": {
+     "score": "34",
+     "names": {
+      "char6": "BUFF",
+      "short": "Buffalo",
+      "seo": "buffalo",
+      "full": ""
+     },
+     "winner": true,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "mac"
+      }
+     ]
+    },
+    "finalMessage": "FINAL",
+    "title": "Buffalo Miami (OH)",
+    "url": "/game/6603990",
+    "network": "",
+    "home": {
+     "score": "31",
+     "names": {
+      "char6": "MIA OH",
+      "short": "Miami (OH)",
+      "seo": "miami-oh",
+      "full": ""
+     },
+     "winner": false,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "mac"
+      }
+     ]
+    },
+    "liveVideoEnabled": false,
+    "startTime": "8:00 PM ET",
+    "startTimeEpoch": "1793754000",
+    "gameState": "final",
+    "startDate": "11/03/2026",
+    "currentPeriod": "FINAL",
+    "contestClock": "0:00",
+    "bracketId": "",
+    "bracketRound": ""
+   }
+  }
+ ]
+}

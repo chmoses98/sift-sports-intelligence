@@ -1,0 +1,35 @@
+{
+ "sport": "basketball",
+ "count": 50,
+ "matches": [
+  {
+   "home": "Syracuse",
+   "away": "Central Connecticut State",
+   "home_logo": "https://img.thesports.com/basketball/team/78857ccf19521a0a048a597e179f3291.png",
+   "away_logo": "https://img.thesports.com/basketball/team/b5c9b0ea307b4e7db8d6ecff8438a626.png",
+   "home_score": "102",
+   "away_score": "49",
+   "status": "finished",
+   "status_text": "Finished",
+   "time": "2026-11-06T00:00:00+00:00",
+   "competition": "National Collegiate Athletic Association",
+   "competition_logo": "https://img.thesports.com/basketball/competition/b60c026d0c03af082035714ac096d1b0.png",
+   "url": "/basketball/match/syracuse-vs-central-connecticut-state/"
+  },
+  {
+   "home": "Manhattan",
+   "away": "Albany",
+   "home_logo": "https://img.thesports.com/basketball/team/1d5d2ea3eb38ecf0822ef8e5f3851d1c.png",
+   "away_logo": "https://img.thesports.com/basketball/team/1867271405ac58b803ef8300101e6a76.png",
+   "home_score": "68",
+   "away_score": "72",
+   "status": "finished",
+   "status_text": "Finished",
+   "time": "2026-11-06T00:00:00+00:00",
+   "competition": "National Collegiate Athletic Association",
+   "competition_logo": "https://img.thesports.com/basketball/competition/b60c026d0c03af082035714ac096d1b0.png",
+   "url": "/basketball/match/manhattan-vs-albany/"
+  }
+ ],
+ "updated": "2026-11-06T22:32:19.645048+00:00"
+}

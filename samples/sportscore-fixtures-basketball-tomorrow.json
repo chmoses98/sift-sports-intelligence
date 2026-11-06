@@ -1,0 +1,35 @@
+{
+ "sport": "basketball",
+ "date": "2026-11-07",
+ "count": 161,
+ "matches": [
+  {
+   "home": "Atlanta Hawks",
+   "away": "Washington Wizards",
+   "home_logo": "https://img.thesports.com/basketball/team/4e67b14905a05af9e1bd04406bf8690f.png",
+   "away_logo": "https://img.thesports.com/basketball/team/ac18ecfecac3af349477383866cf8ef5.png",
+   "home_score": null,
+   "away_score": null,
+   "status": "upcoming",
+   "status_text": "Not started",
+   "time": "2026-11-07T00:00:00+00:00",
+   "competition": "National Basketball Association",
+   "competition_logo": "https://img.thesports.com/basketball/competition/061f5ab5b1a975fc1004529ec3f11fca.png",
+   "url": "/basketball/match/atlanta-hawks-vs-washington-wizards/"
+  },
+  {
+   "home": "Charlotte Hornets",
+   "away": "Boston Celtics",
+   "home_logo": "https://img.thesports.com/basketball/team/e52f6ac53681289c91703501a960cb3c.png",
+   "away_logo": "https://img.thesports.com/basketball/team/884c1c1f5db46c170df3c34a8e213ec9.png",
+   "home_score": null,
+   "away_score": null,
+   "status": "upcoming",
+   "status_text": "Not started",
+   "time": "2026-11-07T00:00:00+00:00",
+   "competition": "National Basketball Association",
+   "competition_logo": "https://img.thesports.com/basketball/competition/061f5ab5b1a975fc1004529ec3f11fca.png",
+   "url": "/basketball/match/boston-celtics-vs-charlotte-hornets/"
+  }
+ ]
+}

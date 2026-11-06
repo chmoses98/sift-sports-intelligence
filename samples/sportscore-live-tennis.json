@@ -1,0 +1,35 @@
+{
+ "sport": "tennis",
+ "date": "2026-11-06",
+ "count": 2,
+ "matches": [
+  {
+   "home": "Casper Ruud",
+   "away": "Nuno Borges",
+   "home_logo": "https://img.thesports.com/v2/team/df41996f06e95e6eebb1fe5565911a0c.png",
+   "away_logo": "https://img.thesports.com/v2/team/61dab2da71f3e97f6d56c17e630105e7.png",
+   "home_score": "0",
+   "away_score": "0",
+   "status": "live",
+   "status_text": "1st set",
+   "time": "2026-11-06T21:55:00+00:00",
+   "competition": "ATP Paris, France Men Singles",
+   "competition_logo": "https://img.thesports.com/v2/unique-tournament/86380790cd21d186c1e9a790c67de043.png",
+   "url": "/tennis/match/nuno-borges-vs-casper-ruud/"
+  },
+  {
+   "home": "Thiago Seyboth Wild",
+   "away": "Joao Lucas Reis Da Silva",
+   "home_logo": "https://img.thesports.com/v2/team/16d511b3b6cacea24d1ee2f85d07b0ae.png",
+   "away_logo": "https://img.thesports.com/v2/team/237944febba7605604dfbbe1a07ca071.png",
+   "home_score": "0",
+   "away_score": "0",
+   "status": "live",
+   "status_text": "1st set",
+   "time": "2026-11-06T22:00:00+00:00",
+   "competition": "ATP Challenger Costa do Sauipe, Brazil Men Singles",
+   "competition_logo": "https://img.thesports.com/v2/unique-tournament/21ca6b4978cdf6db6186bff173fab563.png",
+   "url": "/tennis/match/thiago-seyboth-wild-vs-joao-lucas-reis-da-silva/"
+  }
+ ]
+}

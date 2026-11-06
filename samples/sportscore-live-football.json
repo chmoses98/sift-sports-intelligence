@@ -1,0 +1,35 @@
+{
+ "sport": "football",
+ "date": "2026-11-06",
+ "count": 9,
+ "matches": [
+  {
+   "home": "FC Famalicao",
+   "away": "FC Arouca",
+   "home_logo": "https://img.thesports.com/football/team/abd59f62f69ef9f59a8121c3baadd882.png",
+   "away_logo": "https://img.thesports.com/football/team/04de5924a46acce3fb629534c4e039be.png",
+   "home_score": "0",
+   "away_score": "0",
+   "status": "live",
+   "status_text": "2nd half",
+   "time": "2026-11-06T20:45:00+00:00",
+   "competition": "Portuguese Primera Liga",
+   "competition_logo": "https://img.thesports.com/football/competition/944fcefc160f78322ddcc68ec995040e.png",
+   "url": "/football/match/fc-arouca-vs-fc-famalicao/318q66hxy4nvqo9/"
+  },
+  {
+   "home": "Boca Juniors De Cali",
+   "away": "Envigado FC",
+   "home_logo": "https://img.thesports.com/football/team/2c435db3d52e1d54601b0724f4e46860.png",
+   "away_logo": "https://img.thesports.com/football/team/d53d8c2e307894416c0b1989482fd022.png",
+   "home_score": "1",
+   "away_score": "0",
+   "status": "live",
+   "status_text": "2nd half",
+   "time": "2026-11-06T21:00:00+00:00",
+   "competition": "Colombian Torneo BetPlay Dimayor",
+   "competition_logo": "https://img.thesports.com/football/competition/674ddb9d58a38edc0d15095dcec7fa1c.png",
+   "url": "/football/match/envigado-fc-vs-boca-juniors-de-cali/3glrw7h4w3v4qdy/"
+  }
+ ]
+}

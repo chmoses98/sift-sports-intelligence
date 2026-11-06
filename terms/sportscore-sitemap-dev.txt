@@ -1,0 +1,169 @@
+# SportScore robots.txt
+# https://www.robotstxt.org/
+
+# =================================================================
+# AI SEARCH CRAWLERS — ALLOW (appear in AI search results)
+# These bots build indexes for ChatGPT Search, Claude Search,
+# Perplexity, and other AI answer engines. Blocking them removes
+# us from AI search results entirely.
+# =================================================================
+
+# OpenAI Search (ChatGPT search results)
+User-agent: OAI-SearchBot
+Allow: /
+
+# OpenAI user-initiated browsing
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic Search (Claude search results)
+User-agent: Claude-SearchBot
+Allow: /
+
+# Anthropic user browsing
+User-agent: Claude-User
+Allow: /
+
+# Perplexity Search
+User-agent: PerplexityBot
+Allow: /
+
+# DuckDuckGo AI
+User-agent: DuckAssistBot
+Allow: /
+
+# Amazon Alexa/AI
+User-agent: Amazonbot
+Allow: /
+
+# =================================================================
+# AI TRAINING CRAWLERS — ALLOW (brand recognition in model weights)
+# Being in training data improves the chance AI systems recognize
+# SportScore as an authoritative sports source.
+# =================================================================
+
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Google-Extended
+Allow: /
+Crawl-delay: 5
+
+User-agent: ClaudeBot
+Allow: /
+Crawl-delay: 5
+
+User-agent: anthropic-ai
+Allow: /
+Crawl-delay: 5
+
+User-agent: Applebot-Extended
+Allow: /
+Crawl-delay: 5
+
+# =================================================================
+# BLOCK HIGH-VOLUME, LOW-VALUE TRAINING CRAWLERS
+# These offer zero referral traffic with extreme crawl ratios.
+# =================================================================
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+# =================================================================
+# TRADITIONAL SEARCH ENGINES
+# =================================================================
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Crawl-delay: 2
+
+User-agent: Yandex
+Crawl-delay: 10
+
+User-agent: YandexBot
+Crawl-delay: 10
+
+# =================================================================
+# LOW-VALUE SEO SCRAPERS — BLOCK
+# =================================================================
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# =================================================================
+# DEFAULT POLICY
+# =================================================================
+
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cdn-cgi/
+Disallow: /auth/
+Disallow: /voting/
+Disallow: /favourites/
+Disallow: /other/settings/
+
+# Paginated and faceted URLs (eat crawl budget, produce thin pages)
+Disallow: /*?page=
+Disallow: /*&page=
+Disallow: /*?season_id=
+Disallow: /*&season_id=
+Disallow: /*?round=
+Disallow: /*&round=
+Disallow: /*?group=
+Disallow: /*&group=
+Disallow: /*?stat_name=
+Disallow: /*&stat_name=
+Disallow: /*?display_type=
+Disallow: /*&display_type=
+Disallow: /*?scope=
+Disallow: /*&scope=
+Disallow: /*?match_type=
+Disallow: /*&match_type=
+Disallow: /*?date=
+Disallow: /*&date=
+Disallow: /*?filter=
+Disallow: /*&filter=
+
+# Static and media assets — MUST stay allowed for rendering
+Allow: /static/
+Allow: /media/
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /fonts/
+
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.webp$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.css$
+Allow: /*.js$
+
+Sitemap: https://sportscore.com/sitemap.xml
+Sitemap: https://sportscore.com/news-sitemap.xml
+Sitemap: https://sportscore.com/football/image-sitemap.xml
+Sitemap: https://sportscore.com/basketball/image-sitemap.xml
+Sitemap: https://sportscore.com/tennis/image-sitemap.xml
+Sitemap: https://sportscore.com/cricket/image-sitemap.xml
+Sitemap: https://sportscore.com/football/rss.xml
+Sitemap: https://sportscore.com/basketball/rss.xml
+Sitemap: https://sportscore.com/tennis/rss.xml
+Sitemap: https://sportscore.com/cricket/rss.xml

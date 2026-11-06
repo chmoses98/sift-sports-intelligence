@@ -1,0 +1,1780 @@
+{
+ "generatedAt": "2026-11-06T22:32:19.920Z",
+ "node": "v22.23.4",
+ "origin": "https://chmoses98.github.io",
+ "feeds": [
+  {
+   "id": "sportscore-basketball",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/widget/matches/?sport=basketball&limit=50&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/widget/matches/?sport=basketball&limit=50&src=sift-personal-probe",
+   "ms": 302,
+   "startedAt": "2026-11-06T22:32:19.920Z",
+   "endedAt": "2026-11-06T22:32:20.222Z",
+   "bytes": 30191,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "public, max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:20 GMT",
+    "expires": "Fri, 06 Nov 2026 22:33:19 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-basketball.json",
+   "summary": {
+    "sport": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(50)"
+    ],
+    "updated": "string"
+   }
+  },
+  {
+   "id": "sportscore-football",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/widget/matches/?sport=football&limit=50&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/widget/matches/?sport=football&limit=50&src=sift-personal-probe",
+   "ms": 152,
+   "startedAt": "2026-11-06T22:32:20.623Z",
+   "endedAt": "2026-11-06T22:32:20.775Z",
+   "bytes": 30278,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "public, max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:20 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:53 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-football.json",
+   "summary": {
+    "sport": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(50)"
+    ],
+    "updated": "string"
+   }
+  },
+  {
+   "id": "sportscore-tennis",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/widget/matches/?sport=tennis&limit=50&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/widget/matches/?sport=tennis&limit=50&src=sift-personal-probe",
+   "ms": 150,
+   "startedAt": "2026-11-06T22:32:21.176Z",
+   "endedAt": "2026-11-06T22:32:21.326Z",
+   "bytes": 27885,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "public, max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:21 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:37 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-tennis.json",
+   "summary": {
+    "sport": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(50)"
+    ],
+    "updated": "string"
+   }
+  },
+  {
+   "id": "sportscore-fixtures-basketball",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=basketball&date=2026-11-06&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=basketball&date=2026-11-06&limit=200&src=sift-personal-probe",
+   "ms": 281,
+   "startedAt": "2026-11-06T22:32:21.727Z",
+   "endedAt": "2026-11-06T22:32:22.008Z",
+   "bytes": 119175,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:22 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:55 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-fixtures-basketball.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(200)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-live-basketball",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=basketball&status=live&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=basketball&status=live&limit=200&src=sift-personal-probe",
+   "ms": 152,
+   "startedAt": "2026-11-06T22:32:22.408Z",
+   "endedAt": "2026-11-06T22:32:22.560Z",
+   "bytes": 7823,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:22 GMT",
+    "expires": "Fri, 06 Nov 2026 22:30:31 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-live-basketball.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(13)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-fixtures-football",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=football&date=2026-11-06&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=football&date=2026-11-06&limit=200&src=sift-personal-probe",
+   "ms": 296,
+   "startedAt": "2026-11-06T22:32:22.961Z",
+   "endedAt": "2026-11-06T22:32:23.257Z",
+   "bytes": 118101,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:23 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:54 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-fixtures-football.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(200)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-live-football",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=football&status=live&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=football&status=live&limit=200&src=sift-personal-probe",
+   "ms": 148,
+   "startedAt": "2026-11-06T22:32:23.657Z",
+   "endedAt": "2026-11-06T22:32:23.805Z",
+   "bytes": 5392,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:23 GMT",
+    "expires": "Fri, 06 Nov 2026 22:33:14 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-live-football.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(9)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-fixtures-tennis",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=tennis&date=2026-11-06&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=tennis&date=2026-11-06&limit=200&src=sift-personal-probe",
+   "ms": 147,
+   "startedAt": "2026-11-06T22:32:24.206Z",
+   "endedAt": "2026-11-06T22:32:24.353Z",
+   "bytes": 27860,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:24 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:55 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-fixtures-tennis.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(50)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-live-tennis",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=tennis&status=live&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=tennis&status=live&limit=200&src=sift-personal-probe",
+   "ms": 154,
+   "startedAt": "2026-11-06T22:32:24.754Z",
+   "endedAt": "2026-11-06T22:32:24.908Z",
+   "bytes": 1225,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:24 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:33 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-live-tennis.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "string",
+      "away_score": "string",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(2)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-fixtures-basketball-tomorrow",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/v1/fixtures/?sport=basketball&date=2026-11-07&limit=200&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/v1/fixtures/?sport=basketball&date=2026-11-07&limit=200&src=sift-personal-probe",
+   "ms": 278,
+   "startedAt": "2026-11-06T22:32:25.309Z",
+   "endedAt": "2026-11-06T22:32:25.587Z",
+   "bytes": 95886,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:25 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:19 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-fixtures-basketball-tomorrow.json",
+   "summary": {
+    "sport": "string",
+    "date": "string",
+    "count": "number",
+    "matches": [
+     {
+      "home": "string",
+      "away": "string",
+      "home_logo": "string",
+      "away_logo": "string",
+      "home_score": "object",
+      "away_score": "object",
+      "status": "string",
+      "status_text": "string",
+      "time": "string",
+      "competition": "string",
+      "competition_logo": "string",
+      "url": "string"
+     },
+     "(161)"
+    ]
+   }
+  },
+  {
+   "id": "sportscore-match-nba",
+   "group": "sportscore",
+   "url": "https://sportscore.com/api/widget/match/?sport=basketball&slug=memphis-grizzlies-vs-utah-jazz&src=sift-personal-probe",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/api/widget/match/?sport=basketball&slug=memphis-grizzlies-vs-utah-jazz&src=sift-personal-probe",
+   "ms": 197,
+   "startedAt": "2026-11-06T22:32:25.989Z",
+   "endedAt": "2026-11-06T22:32:26.186Z",
+   "bytes": 827,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "public, max-age=30",
+    "date": "Fri, 06 Nov 2026 22:32:26 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:56 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/sportscore-match-nba.json",
+   "summary": {
+    "sport": "string",
+    "match": {
+     "home": "string",
+     "away": "string",
+     "home_logo": "string",
+     "away_logo": "string",
+     "home_score": "string",
+     "away_score": "string",
+     "status": "string",
+     "status_text": "string",
+     "time": "string",
+     "competition": "string",
+     "competition_logo": "string",
+     "url": "string",
+     "live_minute": "object",
+     "incidents": [
+      "empty",
+      "(0)"
+     ],
+     "stats": [
+      "empty",
+      "(0)"
+     ],
+     "lineups": "object",
+     "tracker": {
+      "id": "string",
+      "profile": "string",
+      "sport": "string"
+     }
+    },
+    "updated": "string"
+   }
+  },
+  {
+   "id": "nhl-score-now",
+   "group": "nhl",
+   "url": "https://api-web.nhle.com/v1/score/now",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://api-web.nhle.com/v1/score/2026-11-06",
+   "ms": 410,
+   "startedAt": "2026-11-06T22:32:26.586Z",
+   "endedAt": "2026-11-06T22:32:26.996Z",
+   "bytes": 12520,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "no-transform, max-age=13, s-maxage=13",
+    "date": "Fri, 06 Nov 2026 22:32:26 GMT",
+    "etag": "W/\"6aee5588--gzip\"",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "file": "payloads/nhl-score-now.json",
+   "summary": {
+    "prevDate": "string",
+    "currentDate": "string",
+    "nextDate": "string",
+    "gameWeek": [
+     {
+      "date": "string",
+      "dayAbbrev": "string",
+      "numberOfGames": "number"
+     },
+     "(7)"
+    ],
+    "oddsPartners": [
+     {
+      "partnerId": "number",
+      "country": "string",
+      "name": "string",
+      "imageUrl": "string",
+      "siteUrl": "string",
+      "bgColor": "string",
+      "textColor": "string",
+      "accentColor": "string"
+     },
+     "(7)"
+    ],
+    "games": [
+     {
+      "id": "number",
+      "season": "number",
+      "gameType": "number",
+      "gameDate": "string",
+      "venue": {
+       "default": "string"
+      },
+      "startTimeUTC": "string",
+      "easternUTCOffset": "string",
+      "venueUTCOffset": "string",
+      "tvBroadcasts": [
+       "{…}",
+       "(5)"
+      ],
+      "gameState": "string",
+      "gameScheduleState": "string",
+      "awayTeam": {
+       "id": "number",
+       "name": "{…}",
+       "abbrev": "string",
+       "record": "string",
+       "logo": "string",
+       "odds": "[…]"
+      },
+      "homeTeam": {
+       "id": "number",
+       "name": "{…}",
+       "abbrev": "string",
+       "record": "string",
+       "logo": "string",
+       "odds": "[…]"
+      },
+      "gameCenterLink": "string",
+      "neutralSite": "boolean",
+      "venueTimezone": "string",
+      "ticketsLink": "string",
+      "ticketsLinkFr": "string",
+      "teamLeaders": [
+       "{…}",
+       "(6)"
+      ]
+     },
+     "(3)"
+    ]
+   }
+  },
+  {
+   "id": "nhl-scoreboard-now",
+   "group": "nhl",
+   "url": "https://api-web.nhle.com/v1/scoreboard/now",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://api-web.nhle.com/v1/scoreboard/now",
+   "ms": 188,
+   "startedAt": "2026-11-06T22:32:27.397Z",
+   "endedAt": "2026-11-06T22:32:27.585Z",
+   "bytes": 125612,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "no-transform, max-age=12, s-maxage=12",
+    "date": "Fri, 06 Nov 2026 22:32:27 GMT",
+    "etag": "W/\"6aee5588--gzip\"",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "file": "payloads/nhl-scoreboard-now.json",
+   "summary": {
+    "focusedDate": "string",
+    "focusedDateCount": "number",
+    "gamesByDate": [
+     {
+      "date": "string",
+      "games": [
+       "{…}",
+       "(11)"
+      ]
+     },
+     "(11)"
+    ]
+   }
+  },
+  {
+   "id": "nhl-schedule-now",
+   "group": "nhl",
+   "url": "https://api-web.nhle.com/v1/schedule/now",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://api-web.nhle.com/v1/schedule/2026-11-06",
+   "ms": 279,
+   "startedAt": "2026-11-06T22:32:27.986Z",
+   "endedAt": "2026-11-06T22:32:28.265Z",
+   "bytes": 94854,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "no-transform, max-age=1, s-maxage=1",
+    "date": "Fri, 06 Nov 2026 22:32:28 GMT",
+    "etag": "W/\"6aee557e--gzip\"",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "file": "payloads/nhl-schedule-now.json",
+   "summary": {
+    "nextStartDate": "string",
+    "previousStartDate": "string",
+    "gameWeek": [
+     {
+      "date": "string",
+      "dayAbbrev": "string",
+      "numberOfGames": "number",
+      "datePromo": [
+       "empty",
+       "(0)"
+      ],
+      "games": [
+       "{…}",
+       "(3)"
+      ]
+     },
+     "(7)"
+    ],
+    "oddsPartners": [
+     {
+      "partnerId": "number",
+      "country": "string",
+      "name": "string",
+      "imageUrl": "string",
+      "siteUrl": "string",
+      "bgColor": "string",
+      "textColor": "string",
+      "accentColor": "string"
+     },
+     "(7)"
+    ],
+    "preSeasonStartDate": "string",
+    "regularSeasonStartDate": "string",
+    "regularSeasonEndDate": "string",
+    "playoffEndDate": "string",
+    "numberOfGames": "number"
+   }
+  },
+  {
+   "id": "nba-today",
+   "group": "nba",
+   "url": "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json",
+   "ms": 198,
+   "startedAt": "2026-11-06T22:32:28.667Z",
+   "endedAt": "2026-11-06T22:32:28.865Z",
+   "bytes": 445,
+   "headers": {
+    "content-type": "text/html",
+    "date": "Fri, 06 Nov 2026 22:32:28 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:28 GMT"
+   },
+   "file": "payloads/nba-today.json",
+   "summary": null
+  },
+  {
+   "id": "nba-today-browserua",
+   "group": "nba",
+   "url": "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json",
+   "ms": 63,
+   "startedAt": "2026-11-06T22:32:29.265Z",
+   "endedAt": "2026-11-06T22:32:29.328Z",
+   "bytes": 445,
+   "headers": {
+    "content-type": "text/html",
+    "date": "Fri, 06 Nov 2026 22:32:29 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:29 GMT"
+   },
+   "file": "payloads/nba-today-browserua.json",
+   "summary": null
+  },
+  {
+   "id": "mlb-schedule-d1",
+   "group": "mlb",
+   "url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-05&hydrate=linescore,team",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-05&hydrate=linescore,team",
+   "ms": 167,
+   "startedAt": "2026-11-06T22:32:29.728Z",
+   "endedAt": "2026-11-06T22:32:29.895Z",
+   "bytes": 262,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "cache-control": "max-age=20, public, stale-while-revalidate=30, stale-if-error=86400",
+    "age": "14",
+    "date": "Fri, 06 Nov 2026 22:32:29 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-credentials": "true",
+    "access-control-expose-headers": "Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization",
+    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "vary": "accept-encoding, Accept-Encoding",
+    "x-cache": "HIT, MISS",
+    "via": "1.1 google, 1.1 varnish, 1.1 varnish",
+    "x-served-by": "cache-chi-kigq8000132-CHI, cache-phx1710116-PHX"
+   },
+   "file": "payloads/mlb-schedule-d1.json",
+   "summary": {
+    "copyright": "string",
+    "totalItems": "number",
+    "totalEvents": "number",
+    "totalGames": "number",
+    "totalGamesInProgress": "number",
+    "dates": [
+     "empty",
+     "(0)"
+    ]
+   }
+  },
+  {
+   "id": "mlb-schedule-d2",
+   "group": "mlb",
+   "url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-04&hydrate=linescore,team",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-04&hydrate=linescore,team",
+   "ms": 90,
+   "startedAt": "2026-11-06T22:32:30.296Z",
+   "endedAt": "2026-11-06T22:32:30.386Z",
+   "bytes": 262,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "cache-control": "max-age=20, public, stale-while-revalidate=30, stale-if-error=86400",
+    "age": "0",
+    "date": "Fri, 06 Nov 2026 22:32:30 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-credentials": "true",
+    "access-control-expose-headers": "Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization",
+    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "vary": "accept-encoding, Accept-Encoding",
+    "x-cache": "MISS, MISS",
+    "via": "1.1 google, 1.1 varnish, 1.1 varnish",
+    "x-served-by": "cache-chi-kmdw8640024-CHI, cache-phx1710116-PHX"
+   },
+   "file": "payloads/mlb-schedule-d2.json",
+   "summary": {
+    "copyright": "string",
+    "totalItems": "number",
+    "totalEvents": "number",
+    "totalGames": "number",
+    "totalGamesInProgress": "number",
+    "dates": [
+     "empty",
+     "(0)"
+    ]
+   }
+  },
+  {
+   "id": "mlb-schedule-d3",
+   "group": "mlb",
+   "url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-03&hydrate=linescore,team",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-03&hydrate=linescore,team",
+   "ms": 128,
+   "startedAt": "2026-11-06T22:32:30.787Z",
+   "endedAt": "2026-11-06T22:32:30.915Z",
+   "bytes": 262,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "cache-control": "max-age=20, public, stale-while-revalidate=30, stale-if-error=86400",
+    "age": "0",
+    "date": "Fri, 06 Nov 2026 22:32:30 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-credentials": "true",
+    "access-control-expose-headers": "Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization",
+    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "vary": "accept-encoding, Accept-Encoding",
+    "x-cache": "MISS, MISS",
+    "via": "1.1 google, 1.1 varnish, 1.1 varnish",
+    "x-served-by": "cache-chi-kmdw8640046-CHI, cache-phx1710116-PHX"
+   },
+   "file": "payloads/mlb-schedule-d3.json",
+   "summary": {
+    "copyright": "string",
+    "totalItems": "number",
+    "totalEvents": "number",
+    "totalGames": "number",
+    "totalGamesInProgress": "number",
+    "dates": [
+     "empty",
+     "(0)"
+    ]
+   }
+  },
+  {
+   "id": "mlb-schedule-d4",
+   "group": "mlb",
+   "url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-02&hydrate=linescore,team",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-02&hydrate=linescore,team",
+   "ms": 130,
+   "startedAt": "2026-11-06T22:32:31.315Z",
+   "endedAt": "2026-11-06T22:32:31.445Z",
+   "bytes": 262,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "cache-control": "max-age=20, public, stale-while-revalidate=30, stale-if-error=86400",
+    "age": "0",
+    "date": "Fri, 06 Nov 2026 22:32:31 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-credentials": "true",
+    "access-control-expose-headers": "Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization",
+    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "vary": "accept-encoding, Accept-Encoding",
+    "x-cache": "MISS, MISS",
+    "via": "1.1 google, 1.1 varnish, 1.1 varnish",
+    "x-served-by": "cache-chi-kmdw8640038-CHI, cache-phx1710116-PHX"
+   },
+   "file": "payloads/mlb-schedule-d4.json",
+   "summary": {
+    "copyright": "string",
+    "totalItems": "number",
+    "totalEvents": "number",
+    "totalGames": "number",
+    "totalGamesInProgress": "number",
+    "dates": [
+     "empty",
+     "(0)"
+    ]
+   }
+  },
+  {
+   "id": "mlb-schedule",
+   "group": "mlb",
+   "url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-06&hydrate=linescore,team",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-11-06&hydrate=linescore,team",
+   "ms": 4,
+   "startedAt": "2026-11-06T22:32:31.846Z",
+   "endedAt": "2026-11-06T22:32:31.850Z",
+   "bytes": 262,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "cache-control": "max-age=20, public, stale-while-revalidate=30, stale-if-error=86400",
+    "age": "22",
+    "date": "Fri, 06 Nov 2026 22:32:31 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-credentials": "true",
+    "access-control-expose-headers": "Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization",
+    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "vary": "accept-encoding, Accept-Encoding",
+    "x-cache": "HIT, HIT",
+    "via": "1.1 google, 1.1 varnish, 1.1 varnish",
+    "x-served-by": "cache-chi-klot8100072-CHI, cache-phx1710116-PHX"
+   },
+   "file": "payloads/mlb-schedule.json",
+   "summary": {
+    "copyright": "string",
+    "totalItems": "number",
+    "totalEvents": "number",
+    "totalGames": "number",
+    "totalGamesInProgress": "number",
+    "dates": [
+     "empty",
+     "(0)"
+    ]
+   }
+  },
+  {
+   "id": "nfl-scorestrip",
+   "group": "nfl",
+   "url": "https://static.nfl.com/liveupdate/scorestrip/ss.xml",
+   "ok": false,
+   "status": 0,
+   "error": "ENOTFOUND",
+   "ms": 47,
+   "startedAt": "2026-11-06T22:32:32.251Z",
+   "bytes": 0,
+   "headers": {},
+   "file": "payloads/nfl-scorestrip.txt",
+   "summary": null
+  },
+  {
+   "id": "tsdb-eventsday-nfl",
+   "group": "tsdb",
+   "url": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4391",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4391",
+   "ms": 122,
+   "startedAt": "2026-11-06T22:32:32.699Z",
+   "endedAt": "2026-11-06T22:32:32.821Z",
+   "bytes": 153,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+    "date": "Fri, 06 Nov 2026 22:32:32 GMT",
+    "expires": "Thu, 01 Jan 1970 00:00:01 GMT",
+    "server": "cloudflare"
+   },
+   "file": "payloads/tsdb-eventsday-nfl.json",
+   "summary": null
+  },
+  {
+   "id": "tsdb-eventsday-nhl",
+   "group": "tsdb",
+   "url": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4380",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4380",
+   "ms": 20,
+   "startedAt": "2026-11-06T22:32:33.221Z",
+   "endedAt": "2026-11-06T22:32:33.241Z",
+   "bytes": 153,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+    "date": "Fri, 06 Nov 2026 22:32:33 GMT",
+    "expires": "Thu, 01 Jan 1970 00:00:01 GMT",
+    "server": "cloudflare"
+   },
+   "file": "payloads/tsdb-eventsday-nhl.json",
+   "summary": null
+  },
+  {
+   "id": "tsdb-eventsday-nba",
+   "group": "tsdb",
+   "url": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4387",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4387",
+   "ms": 16,
+   "startedAt": "2026-11-06T22:32:33.641Z",
+   "endedAt": "2026-11-06T22:32:33.657Z",
+   "bytes": 153,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+    "date": "Fri, 06 Nov 2026 22:32:33 GMT",
+    "expires": "Thu, 01 Jan 1970 00:00:01 GMT",
+    "server": "cloudflare"
+   },
+   "file": "payloads/tsdb-eventsday-nba.json",
+   "summary": null
+  },
+  {
+   "id": "tsdb-eventsday-nhl-browserua",
+   "group": "tsdb",
+   "url": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4380",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=2026-11-06&l=4380",
+   "ms": 35,
+   "startedAt": "2026-11-06T22:32:34.058Z",
+   "endedAt": "2026-11-06T22:32:34.093Z",
+   "bytes": 153,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+    "date": "Fri, 06 Nov 2026 22:32:34 GMT",
+    "expires": "Thu, 01 Jan 1970 00:00:01 GMT",
+    "server": "cloudflare"
+   },
+   "file": "payloads/tsdb-eventsday-nhl-browserua.json",
+   "summary": null
+  },
+  {
+   "id": "tsdb-livescore-v1",
+   "group": "tsdb",
+   "url": "https://www.thesportsdb.com/api/v1/json/3/latestsoccer.php",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.thesportsdb.com/api/v1/json/3/latestsoccer.php",
+   "ms": 16,
+   "startedAt": "2026-11-06T22:32:34.493Z",
+   "endedAt": "2026-11-06T22:32:34.509Z",
+   "bytes": 153,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+    "date": "Fri, 06 Nov 2026 22:32:34 GMT",
+    "expires": "Thu, 01 Jan 1970 00:00:01 GMT",
+    "server": "cloudflare"
+   },
+   "file": "payloads/tsdb-livescore-v1.json",
+   "summary": null
+  },
+  {
+   "id": "ncaa-fbs",
+   "group": "ncaa",
+   "url": "https://ncaa-api.henrygd.me/scoreboard/football/fbs",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://ncaa-api.henrygd.me/scoreboard/football/fbs",
+   "ms": 73,
+   "startedAt": "2026-11-06T22:32:34.909Z",
+   "endedAt": "2026-11-06T22:32:34.982Z",
+   "bytes": 46012,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "public, max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:34 GMT",
+    "vary": "Accept-Encoding",
+    "server": "BunnyCDN-LA1-907",
+    "via": "1.1 Caddy",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/ncaa-fbs.json",
+   "summary": {
+    "inputMD5Sum": "string",
+    "instanceId": "string",
+    "updated_at": "string",
+    "games": [
+     {
+      "game": {
+       "gameID": "string",
+       "away": "{…}",
+       "finalMessage": "string",
+       "title": "string",
+       "url": "string",
+       "network": "string",
+       "home": "{…}",
+       "liveVideoEnabled": "boolean",
+       "startTime": "string",
+       "startTimeEpoch": "string",
+       "gameState": "string",
+       "startDate": "string",
+       "currentPeriod": "string",
+       "contestClock": "string",
+       "bracketId": "string",
+       "bracketRound": "string"
+      }
+     },
+     "(63)"
+    ]
+   }
+  },
+  {
+   "id": "ncaa-mbb",
+   "group": "ncaa",
+   "url": "https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1",
+   "ms": 12,
+   "startedAt": "2026-11-06T22:32:35.382Z",
+   "endedAt": "2026-11-06T22:32:35.394Z",
+   "bytes": 52187,
+   "headers": {
+    "content-type": "application/json",
+    "cache-control": "public, max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:35 GMT",
+    "vary": "Accept-Encoding",
+    "server": "BunnyCDN-LA1-907",
+    "via": "1.1 Caddy",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "file": "payloads/ncaa-mbb.json",
+   "summary": {
+    "inputMD5Sum": "string",
+    "instanceId": "string",
+    "updated_at": "string",
+    "games": [
+     {
+      "game": {
+       "gameID": "string",
+       "away": "{…}",
+       "finalMessage": "string",
+       "title": "string",
+       "url": "string",
+       "network": "string",
+       "home": "{…}",
+       "liveVideoEnabled": "boolean",
+       "startTime": "string",
+       "startTimeEpoch": "string",
+       "gameState": "string",
+       "startDate": "string",
+       "currentPeriod": "string",
+       "contestClock": "string",
+       "bracketId": "string",
+       "bracketRound": "string"
+      }
+     },
+     "(71)"
+    ]
+   }
+  }
+ ],
+ "terms": [
+  {
+   "id": "espn-disney-terms",
+   "url": "https://disneytermsofuse.com/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://disneytermsofuse.com/",
+   "ms": 365,
+   "startedAt": "2026-11-06T22:32:35.796Z",
+   "endedAt": "2026-11-06T22:32:36.161Z",
+   "bytes": 56409,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "max-age=0",
+    "date": "Fri, 06 Nov 2026 22:32:36 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:35 GMT",
+    "vary": "Accept-Encoding",
+    "x-cache": "Miss from cloudfront",
+    "server": "Apache",
+    "via": "1.1 6b42b38180062ef7a284ff86c4ee3d80.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "PHX52-P1"
+   },
+   "textChars": 882
+  },
+  {
+   "id": "espn-disney-terms-full",
+   "url": "https://disneytermsofuse.com/english/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://disneytermsofuse.com/english/",
+   "ms": 328,
+   "startedAt": "2026-11-06T22:32:36.562Z",
+   "endedAt": "2026-11-06T22:32:36.890Z",
+   "bytes": 110693,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "max-age=0",
+    "date": "Fri, 06 Nov 2026 22:32:36 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:36 GMT",
+    "vary": "Accept-Encoding",
+    "x-cache": "Miss from cloudfront",
+    "server": "Apache",
+    "via": "1.1 6b42b38180062ef7a284ff86c4ee3d80.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "PHX52-P1"
+   },
+   "textChars": 49226
+  },
+  {
+   "id": "espn-disney-terms-full2",
+   "url": "https://disneytermsofuse.com/terms-of-use/",
+   "ok": false,
+   "status": 404,
+   "finalUrl": "https://disneytermsofuse.com/terms-of-use/",
+   "ms": 232,
+   "startedAt": "2026-11-06T22:32:37.290Z",
+   "endedAt": "2026-11-06T22:32:37.522Z",
+   "bytes": 52606,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "no-cache, must-revalidate, max-age=0",
+    "date": "Fri, 06 Nov 2026 22:32:37 GMT",
+    "expires": "Wed, 11 Jan 1984 05:00:00 GMT",
+    "x-cache": "Error from cloudfront",
+    "server": "Apache",
+    "via": "1.1 6b42b38180062ef7a284ff86c4ee3d80.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "PHX52-P1"
+   },
+   "textChars": 332
+  },
+  {
+   "id": "sportscore-openapi-1",
+   "url": "https://sportscore.com/developers/openapi.yaml",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/developers/openapi.yaml",
+   "ms": 220,
+   "startedAt": "2026-11-06T22:32:37.923Z",
+   "endedAt": "2026-11-06T22:32:38.143Z",
+   "bytes": 9112,
+   "headers": {
+    "content-type": "application/yaml; charset=utf-8",
+    "cache-control": "public, max-age=14400",
+    "date": "Fri, 06 Nov 2026 22:32:38 GMT",
+    "expires": "Fri, 06 Nov 2026 23:28:39 GMT",
+    "last-modified": "Fri, 06 Nov 2026 22:32:38 GMT",
+    "access-control-allow-origin": "*",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "textChars": 9110
+  },
+  {
+   "id": "sportscore-openapi-2",
+   "url": "https://sportscore.com/api/openapi.yaml",
+   "ok": false,
+   "status": 404,
+   "finalUrl": "https://sportscore.com/api/openapi.yaml",
+   "ms": 304,
+   "startedAt": "2026-11-06T22:32:38.543Z",
+   "endedAt": "2026-11-06T22:32:38.847Z",
+   "bytes": 117086,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "date": "Fri, 06 Nov 2026 22:32:38 GMT",
+    "last-modified": "Fri, 06 Nov 2026 09:31:46 GMT",
+    "vary": "Cookie, Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "textChars": 2869
+  },
+  {
+   "id": "sportscore-openapi-3",
+   "url": "https://sportscore.com/static/openapi.yaml",
+   "ok": false,
+   "status": 404,
+   "finalUrl": "https://sportscore.com/static/openapi.yaml",
+   "ms": 185,
+   "startedAt": "2026-11-06T22:32:39.246Z",
+   "endedAt": "2026-11-06T22:32:39.431Z",
+   "bytes": 1643,
+   "headers": {
+    "content-type": "text/html",
+    "cache-control": "max-age=14400",
+    "date": "Fri, 06 Nov 2026 22:32:39 GMT",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "textChars": 49
+  },
+  {
+   "id": "nba-terms-browserua",
+   "url": "https://www.nba.com/termsofuse",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.nba.com/termsofuse",
+   "ms": 643,
+   "startedAt": "2026-11-06T22:32:39.832Z",
+   "endedAt": "2026-11-06T22:32:40.475Z",
+   "bytes": 459427,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "max-age=0, no-cache, no-store",
+    "date": "Fri, 06 Nov 2026 22:32:40 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:40 GMT",
+    "etag": "\"ctq5a6hnxw9vc1\"",
+    "vary": "Accept-Encoding"
+   },
+   "textChars": 73280
+  },
+  {
+   "id": "espn-terms-legacy",
+   "url": "https://www.espn.com/espn/news/story?page=termsofuse",
+   "ok": true,
+   "status": 202,
+   "finalUrl": "https://www.espn.com/espn/news/story?page=termsofuse",
+   "ms": 70,
+   "startedAt": "2026-11-06T22:32:40.880Z",
+   "endedAt": "2026-11-06T22:32:40.950Z",
+   "bytes": 2015,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "no-store, max-age=0",
+    "date": "Fri, 06 Nov 2026 22:32:40 GMT",
+    "vary": "Origin",
+    "x-cache": "Error from cloudfront",
+    "server": "CloudFront",
+    "via": "1.1 4c45a43d7c57bda840ca340644eb34d2.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "PHX50-P2"
+   },
+   "textChars": 157
+  },
+  {
+   "id": "espn-robots",
+   "url": "https://www.espn.com/robots.txt",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.espn.com/robots.txt",
+   "ms": 51,
+   "startedAt": "2026-11-06T22:32:41.349Z",
+   "endedAt": "2026-11-06T22:32:41.400Z",
+   "bytes": 3223,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "max-age=3600",
+    "date": "Fri, 06 Nov 2026 22:32:41 GMT",
+    "last-modified": "Mon, 26 Oct 2026 16:48:38 GMT",
+    "etag": "\"20163eef21e4edcf7927170c559038b7\"",
+    "access-control-allow-origin": "*",
+    "x-cache": "Miss from cloudfront",
+    "server": "AmazonS3",
+    "via": "1.1 2573a1084c0c (Varnish/7.5), 1.1 ceef41f478dc (Varnish/7.5), 1.1 4c45a43d7c57bda840ca340644eb34d2.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "PHX50-P2"
+   },
+   "textChars": 3223
+  },
+  {
+   "id": "nhl-terms",
+   "url": "https://www.nhl.com/info/terms-of-service",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.nhl.com/info/terms-of-service",
+   "ms": 314,
+   "startedAt": "2026-11-06T22:32:41.801Z",
+   "endedAt": "2026-11-06T22:32:42.115Z",
+   "bytes": 190725,
+   "headers": {
+    "content-type": "text/html",
+    "cache-control": "private, max-age=60, must-revalidate",
+    "date": "Fri, 06 Nov 2026 22:32:42 GMT",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "HIT"
+   },
+   "textChars": 74737
+  },
+  {
+   "id": "nhl-api-robots",
+   "url": "https://api-web.nhle.com/robots.txt",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://api-web.nhle.com/robots.txt",
+   "ms": 133,
+   "startedAt": "2026-11-06T22:32:42.518Z",
+   "endedAt": "2026-11-06T22:32:42.651Z",
+   "bytes": 2676,
+   "headers": {
+    "content-type": "text/plain; charset=utf-8",
+    "cache-control": "must-revalidate,no-cache,no-store",
+    "date": "Fri, 06 Nov 2026 22:32:42 GMT",
+    "vary": "accept-encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "BYPASS"
+   },
+   "textChars": 2676
+  },
+  {
+   "id": "nba-terms",
+   "url": "https://www.nba.com/termsofuse",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.nba.com/termsofuse",
+   "ms": 42,
+   "startedAt": "2026-11-06T22:32:43.051Z",
+   "endedAt": "2026-11-06T22:32:43.093Z",
+   "bytes": 375,
+   "headers": {
+    "content-type": "text/html",
+    "date": "Fri, 06 Nov 2026 22:32:43 GMT",
+    "expires": "Fri, 06 Nov 2026 22:32:43 GMT"
+   },
+   "textChars": 295
+  },
+  {
+   "id": "nba-cdn-robots",
+   "url": "https://cdn.nba.com/robots.txt",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://cdn.nba.com/robots.txt",
+   "ms": 154,
+   "startedAt": "2026-11-06T22:32:43.493Z",
+   "endedAt": "2026-11-06T22:32:43.647Z",
+   "bytes": 263,
+   "headers": {
+    "content-type": "application/xml",
+    "date": "Fri, 06 Nov 2026 22:32:43 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "ETag, Access-Control-Allow-Origin, Content-Length, Accept-Ranges",
+    "access-control-allow-methods": "DELETE, GET, HEAD, POST, PUT",
+    "vary": "Origin, Access-Control-Request-Headers, Access-Control-Request-Method"
+   },
+   "textChars": 140
+  },
+  {
+   "id": "mlb-copyright",
+   "url": "https://gdx.mlb.com/components/copyright.txt",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://gdx.mlb.com/components/copyright.txt",
+   "ms": 123,
+   "startedAt": "2026-11-06T22:32:44.048Z",
+   "endedAt": "2026-11-06T22:32:44.171Z",
+   "bytes": 473,
+   "headers": {
+    "content-type": "text/plain",
+    "age": "27878",
+    "date": "Fri, 06 Nov 2026 22:32:44 GMT",
+    "last-modified": "Wed, 19 Feb 2020 02:00:41 GMT",
+    "etag": "\"f8177e3a135c4831a0dd563ede18fa56\"",
+    "x-cache": "Hit from cloudfront",
+    "server": "AmazonS3",
+    "via": "1.1 f0487f46939851f4eebfaa1b340ff300.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "PHX52-P3"
+   },
+   "textChars": 473
+  },
+  {
+   "id": "mlb-terms",
+   "url": "https://www.mlb.com/official-information/terms-of-use",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.mlb.com/official-information/terms-of-use",
+   "ms": 215,
+   "startedAt": "2026-11-06T22:32:44.572Z",
+   "endedAt": "2026-11-06T22:32:44.787Z",
+   "bytes": 996477,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "public, max-age=180",
+    "age": "62",
+    "date": "Fri, 06 Nov 2026 22:32:44 GMT",
+    "etag": "\"10lw6kcsao4lcsc\"",
+    "vary": "Accept-Encoding",
+    "x-cache": "HIT, MISS",
+    "via": "1.1 google, 1.1 varnish, 1.1 varnish",
+    "x-served-by": "cache-chi-kigq8000047-CHI, cache-hhr-khhr2060023-HHR"
+   },
+   "textChars": 71213
+  },
+  {
+   "id": "mlb-statsapi-docs",
+   "url": "https://statsapi.mlb.com/docs/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://docs.statsapi.mlb.com/",
+   "ms": 283,
+   "startedAt": "2026-11-06T22:32:45.194Z",
+   "endedAt": "2026-11-06T22:32:45.477Z",
+   "bytes": 1647,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "date": "Fri, 06 Nov 2026 22:32:45 GMT",
+    "last-modified": "Thu, 05 Nov 2026 20:19:46 GMT",
+    "via": "1.1 google"
+   },
+   "textChars": 0
+  },
+  {
+   "id": "tsdb-terms",
+   "url": "https://www.thesportsdb.com/terms",
+   "ok": false,
+   "status": 404,
+   "finalUrl": "https://www.thesportsdb.com/terms",
+   "ms": 196,
+   "startedAt": "2026-11-06T22:32:45.877Z",
+   "endedAt": "2026-11-06T22:32:46.073Z",
+   "bytes": 1606,
+   "headers": {
+    "content-type": "text/html",
+    "date": "Fri, 06 Nov 2026 22:32:46 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, PUT, POST, DELETE, OPTIONS",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "textChars": 193
+  },
+  {
+   "id": "tsdb-api",
+   "url": "https://www.thesportsdb.com/api.php",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.thesportsdb.com/api.php",
+   "ms": 195,
+   "startedAt": "2026-11-06T22:32:46.474Z",
+   "endedAt": "2026-11-06T22:32:46.669Z",
+   "bytes": 17276,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "no-store, no-cache, must-revalidate",
+    "date": "Fri, 06 Nov 2026 22:32:46 GMT",
+    "expires": "Thu, 19 Nov 1981 08:52:00 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, PUT, POST, DELETE, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "textChars": 1356
+  },
+  {
+   "id": "tsdb-docs",
+   "url": "https://www.thesportsdb.com/documentation",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.thesportsdb.com/documentation",
+   "ms": 195,
+   "startedAt": "2026-11-06T22:32:47.070Z",
+   "endedAt": "2026-11-06T22:32:47.265Z",
+   "bytes": 129764,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "private, no-store",
+    "date": "Fri, 06 Nov 2026 22:32:47 GMT",
+    "expires": "Thu, 19 Nov 1981 08:52:00 GMT",
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, PUT, POST, DELETE, OPTIONS",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "textChars": 29339
+  },
+  {
+   "id": "sportscore-developers",
+   "url": "https://sportscore.com/developers/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/developers/",
+   "ms": 213,
+   "startedAt": "2026-11-06T22:32:47.666Z",
+   "endedAt": "2026-11-06T22:32:47.879Z",
+   "bytes": 131573,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "max-age=14400",
+    "date": "Fri, 06 Nov 2026 22:32:47 GMT",
+    "expires": "Fri, 06 Nov 2026 22:27:21 GMT",
+    "last-modified": "Fri, 06 Nov 2026 21:27:21 GMT",
+    "vary": "Cookie, Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "textChars": 10523
+  },
+  {
+   "id": "sportscore-api",
+   "url": "https://sportscore.com/developers/api/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/developers/api/",
+   "ms": 210,
+   "startedAt": "2026-11-06T22:32:48.280Z",
+   "endedAt": "2026-11-06T22:32:48.490Z",
+   "bytes": 119384,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "max-age=14400",
+    "date": "Fri, 06 Nov 2026 22:32:48 GMT",
+    "expires": "Fri, 06 Nov 2026 22:46:19 GMT",
+    "last-modified": "Fri, 06 Nov 2026 22:23:34 GMT",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "textChars": 2543
+  },
+  {
+   "id": "sportscore-terms",
+   "url": "https://sportscore.com/developers/terms/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/developers/terms/",
+   "ms": 465,
+   "startedAt": "2026-11-06T22:32:48.891Z",
+   "endedAt": "2026-11-06T22:32:49.357Z",
+   "bytes": 118244,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "max-age=14400",
+    "date": "Fri, 06 Nov 2026 22:32:49 GMT",
+    "expires": "Fri, 06 Nov 2026 22:28:06 GMT",
+    "last-modified": "Fri, 06 Nov 2026 21:28:06 GMT",
+    "vary": "Cookie, Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "textChars": 8017
+  },
+  {
+   "id": "sportscore-sitemap-dev",
+   "url": "https://sportscore.com/robots.txt",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://sportscore.com/robots.txt",
+   "ms": 170,
+   "startedAt": "2026-11-06T22:32:49.758Z",
+   "endedAt": "2026-11-06T22:32:49.928Z",
+   "bytes": 3995,
+   "headers": {
+    "content-type": "text/plain",
+    "cache-control": "public, max-age=14400",
+    "date": "Fri, 06 Nov 2026 22:32:49 GMT",
+    "last-modified": "Sat, 31 Oct 2026 13:13:47 GMT",
+    "etag": "W/\"6ae5e98b-f9b\"",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "MISS"
+   },
+   "textChars": 3987
+  },
+  {
+   "id": "rtsapi-terms",
+   "url": "https://www.realtimesportsapi.com/terms",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.realtimesportsapi.com/terms",
+   "ms": 263,
+   "startedAt": "2026-11-06T22:32:50.328Z",
+   "endedAt": "2026-11-06T22:32:50.591Z",
+   "bytes": 44478,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "public, max-age=0, must-revalidate",
+    "age": "4351",
+    "date": "Fri, 06 Nov 2026 22:32:50 GMT",
+    "etag": "W/\"bb8603f18c14f9b5f42b48a0bcb0c833\"",
+    "access-control-allow-origin": "*",
+    "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch",
+    "server": "Vercel"
+   },
+   "textChars": 7908
+  },
+  {
+   "id": "rtsapi-docs",
+   "url": "https://www.realtimesportsapi.com/docs",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.realtimesportsapi.com/docs",
+   "ms": 40,
+   "startedAt": "2026-11-06T22:32:50.991Z",
+   "endedAt": "2026-11-06T22:32:51.031Z",
+   "bytes": 152833,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "public, max-age=0, must-revalidate",
+    "age": "4504",
+    "date": "Fri, 06 Nov 2026 22:32:51 GMT",
+    "etag": "W/\"e8030303cf575682a1870c6feb77c41d\"",
+    "access-control-allow-origin": "*",
+    "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch",
+    "server": "Vercel"
+   },
+   "textChars": 60110
+  },
+  {
+   "id": "sportbusy-terms",
+   "url": "https://www.sportbusy.com/terms/",
+   "ok": false,
+   "status": 403,
+   "finalUrl": "https://www.sportbusy.com/terms/",
+   "ms": 128,
+   "startedAt": "2026-11-06T22:32:51.433Z",
+   "endedAt": "2026-11-06T22:32:51.561Z",
+   "bytes": 5606,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "date": "Fri, 06 Nov 2026 22:32:51 GMT",
+    "server": "cloudflare"
+   },
+   "textChars": 58
+  },
+  {
+   "id": "sportbusy-widget",
+   "url": "https://www.sportbusy.com/widget/",
+   "ok": true,
+   "status": 200,
+   "finalUrl": "https://www.sportbusy.com/widget/",
+   "ms": 134,
+   "startedAt": "2026-11-06T22:32:51.962Z",
+   "endedAt": "2026-11-06T22:32:52.096Z",
+   "bytes": 206856,
+   "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "public, max-age=0, must-revalidate",
+    "age": "81007",
+    "date": "Fri, 06 Nov 2026 22:32:52 GMT",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, accept-encoding",
+    "server": "cloudflare",
+    "cf-cache-status": "DYNAMIC"
+   },
+   "textChars": 13742
+  },
+  {
+   "id": "ncaa-terms",
+   "url": "https://www.ncaa.com/terms-use",
+   "ok": false,
+   "status": 404,
+   "finalUrl": "https://www.ncaa.com/terms-use",
+   "ms": 513,
+   "startedAt": "2026-11-06T22:32:52.498Z",
+   "endedAt": "2026-11-06T22:32:53.011Z",
+   "bytes": 62061,
+   "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "cache-control": "public, max-age=60",
+    "date": "Fri, 06 Nov 2026 22:32:53 GMT",
+    "expires": "Fri, 06 Nov 2026 22:33:53 GMT",
+    "last-modified": "Fri, 06 Nov 2026 22:32:52 GMT",
+    "etag": "W/\"1794004372\"",
+    "vary": "Accept-Encoding",
+    "server": "openresty"
+   },
+   "textChars": 3397
+  },
+  {
+   "id": "henrygd-readme",
+   "url": "https://raw.githubusercontent.com/henrygd/ncaa-api/main/README.md",
+   "ok": false,
+   "status": 404,
+   "finalUrl": "https://raw.githubusercontent.com/henrygd/ncaa-api/main/README.md",
+   "ms": 123,
+   "startedAt": "2026-11-06T22:32:53.411Z",
+   "endedAt": "2026-11-06T22:32:53.534Z",
+   "bytes": 14,
+   "headers": {
+    "content-type": "text/plain; charset=utf-8",
+    "date": "Fri, 06 Nov 2026 22:32:53 GMT",
+    "expires": "Fri, 06 Nov 2026 22:37:53 GMT",
+    "access-control-allow-origin": "*",
+    "vary": "Authorization,Accept-Encoding",
+    "x-cache": "MISS",
+    "via": "1.1 varnish",
+    "x-served-by": "cache-phx1710145-PHX"
+   },
+   "textChars": 14
+  }
+ ]
+}

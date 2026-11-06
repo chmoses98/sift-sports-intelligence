@@ -1,0 +1,35 @@
+{
+ "sport": "basketball",
+ "date": "2026-11-06",
+ "count": 13,
+ "matches": [
+  {
+   "home": "Boston College",
+   "away": "Massachusetts",
+   "home_logo": "https://img.thesports.com/basketball/team/213163cfeddc8328eec120c8daba6022.png",
+   "away_logo": "https://img.thesports.com/basketball/team/2a3ab5ee1c94e3fcc2d6092a457705c2.png",
+   "home_score": "51",
+   "away_score": "42",
+   "status": "live",
+   "status_text": "2nd quarter",
+   "time": "2026-11-06T21:00:00+00:00",
+   "competition": "National Collegiate Athletic Association",
+   "competition_logo": "https://img.thesports.com/basketball/competition/b60c026d0c03af082035714ac096d1b0.png",
+   "url": "/basketball/match/massachusetts-vs-boston-college/"
+  },
+  {
+   "home": "Loyola Marymount (W)",
+   "away": "Utah State Women",
+   "home_logo": "https://img.thesports.com/basketball/team/4f204193b65af72447336d8da819e553.png",
+   "away_logo": "https://img.thesports.com/basketball/team/n60617864bcb82ac2547fcc1413bd6da2.png",
+   "home_score": "56",
+   "away_score": "37",
+   "status": "live",
+   "status_text": "4th quarter",
+   "time": "2026-11-06T21:00:00+00:00",
+   "competition": "Women's National Collegiate Athletic Association",
+   "competition_logo": "https://img.thesports.com/basketball/competition/9230d94d03d941c0ce813e0a600bf99b.png",
+   "url": "/basketball/match/utah-state-women-vs-loyola-marymount-w/"
+  }
+ ]
+}

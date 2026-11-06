@@ -1,0 +1,35 @@
+{
+ "sport": "tennis",
+ "date": "2026-11-06",
+ "count": 50,
+ "matches": [
+  {
+   "home": "Shimizu Yuta",
+   "away": "Omar Jasika",
+   "home_logo": "https://img.thesports.com/v2/team/3e143468d24b2b235b792fc03a7e492c.png",
+   "away_logo": "https://img.thesports.com/v2/team/eee1825a0061dcf7d2685e66ba35d742.png",
+   "home_score": "2",
+   "away_score": "0",
+   "status": "finished",
+   "status_text": "Ended",
+   "time": "2026-11-06T02:00:00+00:00",
+   "competition": "ATP Challenger Taipei, Chinese Taipei Men Singles",
+   "competition_logo": "https://img.thesports.com/v2/unique-tournament/159687a3954a6a41aa103f085ab027ac.png",
+   "url": "/tennis/match/omar-jasika-vs-shimizu-yuta/"
+  },
+  {
+   "home": "Zoe Olmos",
+   "away": "Yulia Zhytelna",
+   "home_logo": "https://img.thesports.com/v2/team/734027e4d70149d966749df8fb6a4354.png",
+   "away_logo": "",
+   "home_score": "2",
+   "away_score": "1",
+   "status": "finished",
+   "status_text": "Ended",
+   "time": "2026-11-06T02:30:00+00:00",
+   "competition": "UTR Pro Match Series Women",
+   "competition_logo": "https://img.thesports.com/v2/unique-tournament/ea345fc9fb6e7535c952c9b43ccb9269.png",
+   "url": "/tennis/match/yulia-zhytelna-vs-zoe-olmos/"
+  }
+ ]
+}

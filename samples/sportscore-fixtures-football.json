@@ -1,0 +1,35 @@
+{
+ "sport": "football",
+ "date": "2026-11-06",
+ "count": 200,
+ "matches": [
+  {
+   "home": "Independiente del Valle",
+   "away": "Delfin SC",
+   "home_logo": "https://img.thesports.com/football/team/cb9797fa8614b9664231a4861ed71875.png",
+   "away_logo": "https://img.thesports.com/football/team/e6e7908a2efe1a1688bfb86106e98c30.png",
+   "home_score": "2",
+   "away_score": "0",
+   "status": "finished",
+   "status_text": "Finished",
+   "time": "2026-11-06T00:00:00+00:00",
+   "competition": "Copa Ecuador",
+   "competition_logo": "https://img.thesports.com/football/competition/8f5b606578bea6891ef9b76cd2891d41.png",
+   "url": "/football/match/delfin-sc-vs-independiente-del-valle/jw2r09h54v4lrz8/"
+  },
+  {
+   "home": "Arnett Gardens",
+   "away": "Mount Pleasant FA",
+   "home_logo": "https://img.thesports.com/football/team/04d998a10ab2fd063aff16bfaa7aeb50.png",
+   "away_logo": "https://img.thesports.com/football/team/bd204b38f3037dcd4478b7782e08519c.png",
+   "home_score": "1",
+   "away_score": "1",
+   "status": "finished",
+   "status_text": "Finished",
+   "time": "2026-11-06T00:00:00+00:00",
+   "competition": "Jamaica Premier League",
+   "competition_logo": "https://img.thesports.com/football/competition/d606c7e2cd106ab4a57b64d48a323f67.png",
+   "url": "/football/match/mount-pleasant-fa-vs-arnett-gardens/dn1m1gh9vz2lmoe/"
+  }
+ ]
+}

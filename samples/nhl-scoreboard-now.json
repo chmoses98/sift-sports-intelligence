@@ -1,0 +1,321 @@
+{
+ "focusedDate": "2026-11-06",
+ "focusedDateCount": 11,
+ "gamesByDate": [
+  {
+   "date": "2026-11-03",
+   "games": [
+    {
+     "id": 2026020236,
+     "season": 20262027,
+     "gameType": 2,
+     "gameDate": "2026-11-03",
+     "gameCenterLink": "/gamecenter/uta-vs-tor/2026/11/03/2026020236",
+     "venue": {
+      "default": "Scotiabank Arena"
+     },
+     "startTimeUTC": "2026-11-04T00:00:00Z",
+     "easternUTCOffset": "-05:00",
+     "venueUTCOffset": "-05:00",
+     "tvBroadcasts": [
+      {
+       "id": 293,
+       "market": "H",
+       "countryCode": "CA",
+       "network": "TSN4",
+       "sequenceNumber": 137
+      },
+      {
+       "id": 783,
+       "market": "A",
+       "countryCode": "US",
+       "network": "Mammoth+",
+       "sequenceNumber": 210
+      }
+     ],
+     "gameState": "OFF",
+     "gameScheduleState": "OK",
+     "awayTeam": {
+      "id": 68,
+      "name": {
+       "default": "Utah Mammoth",
+       "fr": "Mammoth de l'Utah"
+      },
+      "commonName": {
+       "default": "Mammoth"
+      },
+      "placeNameWithPreposition": {
+       "default": "Utah",
+       "fr": "de l'Utah"
+      },
+      "abbrev": "UTA",
+      "score": 3,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/UTA_light.svg"
+     },
+     "homeTeam": {
+      "id": 10,
+      "name": {
+       "default": "Toronto Maple Leafs",
+       "fr": "Maple Leafs de Toronto"
+      },
+      "commonName": {
+       "default": "Maple Leafs"
+      },
+      "placeNameWithPreposition": {
+       "default": "Toronto",
+       "fr": "de Toronto"
+      },
+      "abbrev": "TOR",
+      "score": 2,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/TOR_light.svg"
+     },
+     "period": 3,
+     "periodDescriptor": {
+      "number": 3,
+      "periodType": "REG",
+      "maxRegulationPeriods": 3
+     },
+     "threeMinRecap": "/video/uta-at-tor-recap-6407880367112",
+     "threeMinRecapFr": "/fr/video/uta-vs-tor-03-11-2026-resume-6407879997112"
+    },
+    {
+     "id": 2026020237,
+     "season": 20262027,
+     "gameType": 2,
+     "gameDate": "2026-11-03",
+     "gameCenterLink": "/gamecenter/wpg-vs-mtl/2026/11/03/2026020237",
+     "venue": {
+      "default": "Centre Bell"
+     },
+     "startTimeUTC": "2026-11-04T00:00:00Z",
+     "easternUTCOffset": "-05:00",
+     "venueUTCOffset": "-05:00",
+     "tvBroadcasts": [
+      {
+       "id": 131,
+       "market": "H",
+       "countryCode": "CA",
+       "network": "TSN2",
+       "sequenceNumber": 112
+      },
+      {
+       "id": 292,
+       "market": "A",
+       "countryCode": "CA",
+       "network": "TSN3",
+       "sequenceNumber": 134
+      }
+     ],
+     "gameState": "OFF",
+     "gameScheduleState": "OK",
+     "awayTeam": {
+      "id": 52,
+      "name": {
+       "default": "Winnipeg Jets",
+       "fr": "Jets de Winnipeg"
+      },
+      "commonName": {
+       "default": "Jets"
+      },
+      "placeNameWithPreposition": {
+       "default": "Winnipeg",
+       "fr": "de Winnipeg"
+      },
+      "abbrev": "WPG",
+      "score": 5,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/WPG_light.svg"
+     },
+     "homeTeam": {
+      "id": 8,
+      "name": {
+       "default": "Montréal Canadiens",
+       "fr": "Canadiens de Montréal"
+      },
+      "commonName": {
+       "default": "Canadiens"
+      },
+      "placeNameWithPreposition": {
+       "default": "Montréal",
+       "fr": "de Montréal"
+      },
+      "abbrev": "MTL",
+      "score": 4,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/MTL_light.svg"
+     },
+     "period": 4,
+     "periodDescriptor": {
+      "number": 4,
+      "periodType": "OT",
+      "maxRegulationPeriods": 3
+     },
+     "threeMinRecap": "/video/wpg-at-mtl-recap-6407879954112",
+     "threeMinRecapFr": "/fr/video/wpg-vs-mtl-03-11-2026-resume-6407879847112"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-04",
+   "games": [
+    {
+     "id": 2026020247,
+     "season": 20262027,
+     "gameType": 2,
+     "gameDate": "2026-11-04",
+     "gameCenterLink": "/gamecenter/ott-vs-buf/2026/11/04/2026020247",
+     "venue": {
+      "default": "KeyBank Center"
+     },
+     "startTimeUTC": "2026-11-05T00:30:00Z",
+     "easternUTCOffset": "-05:00",
+     "venueUTCOffset": "-05:00",
+     "tvBroadcasts": [
+      {
+       "id": 548,
+       "market": "N",
+       "countryCode": "CA",
+       "network": "Prime",
+       "sequenceNumber": 116,
+       "logoUrls": {
+        "light": "https://assets.nhle.com/logos/broadcast/548-light.svg",
+        "dark": "https://assets.nhle.com/logos/broadcast/548-dark.svg"
+       }
+      },
+      {
+       "id": 28,
+       "market": "H",
+       "countryCode": "US",
+       "network": "MSG-B",
+       "sequenceNumber": 405
+      }
+     ],
+     "gameState": "OFF",
+     "gameScheduleState": "OK",
+     "awayTeam": {
+      "id": 9,
+      "name": {
+       "default": "Ottawa Senators",
+       "fr": "Sénateurs d'Ottawa"
+      },
+      "commonName": {
+       "default": "Senators",
+       "fr": "Sénateurs"
+      },
+      "placeNameWithPreposition": {
+       "default": "Ottawa",
+       "fr": "d'Ottawa"
+      },
+      "abbrev": "OTT",
+      "score": 2,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/OTT_light.svg"
+     },
+     "homeTeam": {
+      "id": 7,
+      "name": {
+       "default": "Buffalo Sabres",
+       "fr": "Sabres de Buffalo"
+      },
+      "commonName": {
+       "default": "Sabres"
+      },
+      "placeNameWithPreposition": {
+       "default": "Buffalo",
+       "fr": "de Buffalo"
+      },
+      "abbrev": "BUF",
+      "score": 1,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/BUF_light.svg"
+     },
+     "period": 3,
+     "periodDescriptor": {
+      "number": 3,
+      "periodType": "REG",
+      "maxRegulationPeriods": 3
+     },
+     "threeMinRecap": "/video/ott-at-buf-recap-6407936357112",
+     "threeMinRecapFr": "/fr/video/ott-vs-buf-04-11-2026-resume-6407935462112"
+    },
+    {
+     "id": 2026020248,
+     "season": 20262027,
+     "gameType": 2,
+     "gameDate": "2026-11-04",
+     "gameCenterLink": "/gamecenter/chi-vs-fla/2026/11/04/2026020248",
+     "venue": {
+      "default": "Amerant Bank Arena"
+     },
+     "startTimeUTC": "2026-11-05T00:30:00Z",
+     "easternUTCOffset": "-05:00",
+     "venueUTCOffset": "-05:00",
+     "tvBroadcasts": [
+      {
+       "id": 385,
+       "market": "N",
+       "countryCode": "US",
+       "network": "TNT",
+       "sequenceNumber": 11,
+       "logoUrls": {
+        "light": "https://assets.nhle.com/logos/broadcast/385-light.svg",
+        "dark": "https://assets.nhle.com/logos/broadcast/385-dark.svg"
+       }
+      },
+      {
+       "id": 501,
+       "market": "N",
+       "countryCode": "US",
+       "network": "truTV",
+       "sequenceNumber": 14,
+       "logoUrls": {
+        "light": "https://assets.nhle.com/logos/broadcast/501-light.svg",
+        "dark": "https://assets.nhle.com/logos/broadcast/501-dark.svg"
+       }
+      }
+     ],
+     "gameState": "OFF",
+     "gameScheduleState": "OK",
+     "awayTeam": {
+      "id": 16,
+      "name": {
+       "default": "Chicago Blackhawks",
+       "fr": "Blackhawks de Chicago"
+      },
+      "commonName": {
+       "default": "Blackhawks"
+      },
+      "placeNameWithPreposition": {
+       "default": "Chicago",
+       "fr": "de Chicago"
+      },
+      "abbrev": "CHI",
+      "score": 3,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/CHI_light.svg"
+     },
+     "homeTeam": {
+      "id": 13,
+      "name": {
+       "default": "Florida Panthers",
+       "fr": "Panthers de la Floride"
+      },
+      "commonName": {
+       "default": "Panthers"
+      },
+      "placeNameWithPreposition": {
+       "default": "Florida",
+       "fr": "de la Floride"
+      },
+      "abbrev": "FLA",
+      "score": 5,
+      "logo": "https://assets.nhle.com/logos/nhl/svg/FLA_light.svg"
+     },
+     "period": 3,
+     "periodDescriptor": {
+      "number": 3,
+      "periodType": "REG",
+      "maxRegulationPeriods": 3
+     },
+     "threeMinRecap": "/video/chi-at-fla-recap-6407937129112",
+     "threeMinRecapFr": "/fr/video/chi-vs-fla-04-11-2026-resume-6407936733112"
+    }
+   ]
+  }
+ ]
+}

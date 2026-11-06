@@ -1,0 +1,27 @@
+{
+ "sport": "basketball",
+ "match": {
+  "home": "Utah Jazz",
+  "away": "Memphis Grizzlies",
+  "home_logo": "https://img.thesports.com/basketball/team/8c88df221129169246c5b8a82955fa34.png",
+  "away_logo": "https://img.thesports.com/basketball/team/5150102b33043405b63b2e7c72759fa8.png",
+  "home_score": "105",
+  "away_score": "110",
+  "status": "finished",
+  "status_text": "Finished",
+  "time": "2026-10-27T01:00:00+00:00",
+  "competition": "National Basketball Association",
+  "competition_logo": "https://img.thesports.com/basketball/competition/061f5ab5b1a975fc1004529ec3f11fca.png",
+  "url": "/basketball/match/memphis-grizzlies-vs-utah-jazz/",
+  "live_minute": null,
+  "incidents": [],
+  "stats": [],
+  "lineups": null,
+  "tracker": {
+   "id": "l7oqd4t8p2xdq51",
+   "profile": "9emo4h1e9hluyqd",
+   "sport": "basketball"
+  }
+ },
+ "updated": "2026-11-06T22:32:26.102990+00:00"
+}

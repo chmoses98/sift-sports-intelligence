@@ -1,0 +1,119 @@
+{
+ "inputMD5Sum": "78e009c44f87efc82aeb3253fc279160",
+ "instanceId": "d41d8cd98f00b204e9800998ecf8427e",
+ "updated_at": "2026-11-06 22:32:22",
+ "games": [
+  {
+   "game": {
+    "gameID": "6652444",
+    "away": {
+     "score": "42",
+     "names": {
+      "char6": "UMASS",
+      "short": "Massachusetts",
+      "seo": "massachusetts",
+      "full": ""
+     },
+     "winner": false,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "mac"
+      }
+     ]
+    },
+    "finalMessage": "2ND HALF",
+    "title": "Massachusetts Boston College",
+    "url": "/game/6652444",
+    "network": "",
+    "home": {
+     "score": "51",
+     "names": {
+      "char6": "BC",
+      "short": "Boston College",
+      "seo": "boston-college",
+      "full": ""
+     },
+     "winner": false,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "acc"
+      }
+     ]
+    },
+    "liveVideoEnabled": false,
+    "startTime": "4:00 PM ET",
+    "startTimeEpoch": "1793998800",
+    "gameState": "live",
+    "startDate": "11/06/2026",
+    "currentPeriod": "2nd",
+    "contestClock": "11:20",
+    "bracketId": "",
+    "bracketRound": ""
+   }
+  },
+  {
+   "game": {
+    "gameID": "6649320",
+    "away": {
+     "score": "18",
+     "names": {
+      "char6": "W FLA",
+      "short": "West Florida",
+      "seo": "west-florida",
+      "full": ""
+     },
+     "winner": false,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "asun"
+      }
+     ]
+    },
+    "finalMessage": "1ST HALF",
+    "title": "West Florida FIU",
+    "url": "/game/6649320",
+    "network": "",
+    "home": {
+     "score": "24",
+     "names": {
+      "char6": "FIU",
+      "short": "FIU",
+      "seo": "fiu",
+      "full": ""
+     },
+     "winner": false,
+     "seed": "",
+     "description": "",
+     "rank": "",
+     "conferences": [
+      {
+       "conferenceName": "",
+       "conferenceSeo": "cusa"
+      }
+     ]
+    },
+    "liveVideoEnabled": false,
+    "startTime": "5:00 PM ET",
+    "startTimeEpoch": "1794002400",
+    "gameState": "live",
+    "startDate": "11/06/2026",
+    "currentPeriod": "1st",
+    "contestClock": "07:47",
+    "bracketId": "",
+    "bracketRound": ""
+   }
+  }
+ ]
+}

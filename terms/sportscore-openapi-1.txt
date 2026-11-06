@@ -1,0 +1,290 @@
+openapi: 3.0.3
+info:
+  title: SportScore Public API
+  version: "1.0.0"
+  description: |
+    Free REST API for live scores, match details, standings and player
+    statistics across football, basketball, cricket and tennis.
+
+    Free tier: ~10,000 requests / 24h / IP, CORS-open, no API key. Requires a
+    visible "Powered by SportScore" dofollow backlink on pages that use the
+    data — see https://sportscore.com/developers/terms/ for the full terms.
+
+    Commercial / high-volume use: api@sportscore.com
+  contact:
+    name: SportScore API
+    email: api@sportscore.com
+    url: https://sportscore.com/developers/
+  license:
+    name: SportScore API Terms of Use (attribution required)
+    url: https://sportscore.com/developers/terms/
+servers:
+  - url: https://sportscore.com
+    description: Production
+tags:
+  - name: REST v1
+    description: >-
+      Documented public REST API. Anonymous ~15 req/s; registered key 6,000 req/min (free at /developers/api/key/).
+  - name: matches
+    description: Live and recent match data
+  - name: team
+    description: Team-scoped endpoints
+  - name: competition
+    description: Competition-scoped endpoints
+  - name: player
+    description: Player-scoped endpoints
+components:
+  parameters:
+    Sport:
+      name: sport
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [football, basketball, cricket, tennis]
+      description: Sport to query.
+    Slug:
+      name: slug
+      in: query
+      required: true
+      schema:
+        type: string
+      description: URL-friendly slug of the target entity.
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
+      description: Maximum number of items to return.
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    MatchSummary:
+      type: object
+      properties:
+        home:
+          type: string
+        away:
+          type: string
+        home_logo:
+          type: string
+          format: uri
+        away_logo:
+          type: string
+          format: uri
+        home_score:
+          type: integer
+        away_score:
+          type: integer
+        status:
+          type: string
+          example: finished
+        status_text:
+          type: string
+        time:
+          type: string
+          format: date-time
+        slug:
+          type: string
+    MatchesEnvelope:
+      type: object
+      properties:
+        sport:
+          type: string
+        count:
+          type: integer
+        matches:
+          type: array
+          items:
+            $ref: "#/components/schemas/MatchSummary"
+        updated:
+          type: string
+          format: date-time
+paths:
+
+  /api/v1/fixtures/:
+    get:
+      tags: [REST v1]
+      summary: Fixtures & results for one calendar day
+      description: >-
+        All matches for a UTC calendar day, filterable by competition,
+        team and status. Anonymous use allowed; with a registered key
+        (X-Api-Key header) the limit rises to 6,000 requests/minute.
+      parameters:
+        - {name: sport, in: query, schema: {type: string, enum: [football, basketball, cricket, tennis], default: football}}
+        - {name: date, in: query, schema: {type: string, format: date}, description: "YYYY-MM-DD (default: today, UTC)"}
+        - {name: status, in: query, schema: {type: string, enum: [live, finished, upcoming]}}
+        - {name: competition, in: query, schema: {type: string}, description: competition slug}
+        - {name: team, in: query, schema: {type: string}, description: team slug}
+        - {name: limit, in: query, schema: {type: integer, maximum: 200, default: 100}}
+      responses:
+        "200": {description: Day fixture list with serialized matches}
+  /api/v1/h2h/:
+    get:
+      tags: [REST v1]
+      summary: Head-to-head between two teams
+      description: Recent finished meetings plus a wins/draws summary.
+      parameters:
+        - {name: sport, in: query, schema: {type: string, default: football}}
+        - {name: team1, in: query, required: true, schema: {type: string}, description: team slug}
+        - {name: team2, in: query, required: true, schema: {type: string}, description: team slug}
+        - {name: limit, in: query, schema: {type: integer, maximum: 50, default: 20}}
+      responses:
+        "200": {description: Meetings list + summary}
+  /api/v1/search/:
+    get:
+      tags: [REST v1]
+      summary: Search teams, competitions and players
+      parameters:
+        - {name: q, in: query, required: true, schema: {type: string, minLength: 2}}
+        - {name: sport, in: query, schema: {type: string, default: football}}
+        - {name: limit, in: query, schema: {type: integer, maximum: 20, default: 8}}
+      responses:
+        "200": {description: Grouped search results with site URLs}
+  /api/v1/matches/:
+    get:
+      tags: [REST v1]
+      summary: "Today's matches (alias of /api/widget/matches/)"
+      responses:
+        "200": {description: Same contract as the widget endpoint}
+  /api/v1/match/:
+    get:
+      tags: [REST v1]
+      summary: Single match detail (alias of /api/widget/match/)
+      responses:
+        "200": {description: Same contract as the widget endpoint}
+  /api/v1/team/:
+    get:
+      tags: [REST v1]
+      summary: Team schedule (alias of /api/widget/team/)
+      responses:
+        "200": {description: Same contract as the widget endpoint}
+  /api/v1/standings/:
+    get:
+      tags: [REST v1]
+      summary: League table (alias of /api/widget/standings/)
+      responses:
+        "200": {description: Same contract as the widget endpoint}
+  /api/v1/topscorers/:
+    get:
+      tags: [REST v1]
+      summary: Top scorers & assists (alias of /api/widget/topscorers/)
+      responses:
+        "200": {description: Same contract as the widget endpoint}
+  /api/widget/matches/:
+    get:
+      tags: [matches]
+      summary: Live and recent matches for a sport
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Match list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchesEnvelope"
+        "400":
+          description: Unknown sport
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/widget/match/:
+    get:
+      tags: [matches]
+      summary: Single match detail
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: Match detail envelope
+        "404":
+          description: Match not found
+  /api/widget/team/:
+    get:
+      tags: [team]
+      summary: Team's past and upcoming fixtures
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Slug"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Team schedule envelope
+        "404":
+          description: Team not found
+  /api/widget/standings/:
+    get:
+      tags: [competition]
+      summary: League / competition standings
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: Standings envelope
+        "404":
+          description: Competition not found
+  /api/widget/topscorers/:
+    get:
+      tags: [competition]
+      summary: Top scorers / assists for a competition
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Slug"
+        - $ref: "#/components/parameters/Limit"
+        - name: stat
+          in: query
+          schema:
+            type: string
+            enum: [goals, assists]
+            default: goals
+      responses:
+        "200":
+          description: Top scorers envelope
+  /api/widget/player/:
+    get:
+      tags: [player]
+      summary: Player statistics + metadata
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: Player envelope
+        "404":
+          description: Player not found
+  /api/widget/bracket/:
+    get:
+      tags: [competition]
+      summary: Knockout tournament bracket
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: Bracket envelope
+  /api/widget/tracker/:
+    get:
+      tags: [matches]
+      summary: Live match tracker proxy (position / animation data)
+      parameters:
+        - $ref: "#/components/parameters/Sport"
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Numeric match id from the upstream data provider.
+      responses:
+        "200":
+          description: Tracker data envelope

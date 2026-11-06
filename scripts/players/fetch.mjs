@@ -13,7 +13,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..');
-const OUT = join(ROOT, 'public', 'players', 'nfl');
+const OUT_ROOT = join(ROOT, 'public', 'players');
+// One output directory per sport (`sport` on a players.json entry; NFL when absent): public/players/<sport>/<id>.webp.
+const outFor = (pl) => { const d = join(OUT_ROOT, pl.sport ?? 'nfl'); mkdirSync(d, { recursive: true }); return d; };
 const CUR = join(ROOT, 'curation', 'players');
 const TMP = join(ROOT, '.curation-tmp');
 const MANIFEST = join(ROOT, 'src', 'lib', 'player-images.json');
@@ -29,7 +31,7 @@ const NEEDS_PIN = new Set(BLOCKLIST.map((f) => f.id));
 const NON_GAME_FILE = /press[ _-]?conference|interview|podium|draft|announcement|signing|poll|party|softball|charity|training[ _-]?camp|minicamp|\bcamp\b|practice|offseason|gala|ceremony|award|visit|meets/i;
 const allowed = (file) => !BLOCKED.has(file) && !NON_GAME_FILE.test(file);
 const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf-8')) : { players: {} };
-for (const d of [OUT, CUR, TMP]) mkdirSync(d, { recursive: true });
+for (const d of [OUT_ROOT, CUR, TMP]) mkdirSync(d, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const strip = (h) => (h ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -63,13 +65,13 @@ for (const pl of players) {
   // game-day frame in the current uniform. Any file it left behind is removed.
   const pinOk = pl.commons_file && allowed(pl.commons_file) && !BLOCKED.has(pl.commons_file);
   if ((pl.commons_file && !pinOk) || (NEEDS_PIN.has(pl.id) && !pinOk) || (manifest.players[pl.id] && !allowed(manifest.players[pl.id].file))) {
-    rmSync(join(OUT, `${pl.id}.webp`), { force: true });
+    rmSync(join(outFor(pl), `${pl.id}.webp`), { force: true });
     delete manifest.players[pl.id];
     console.log(`BLOCKED ${pl.name}: ${pl.commons_file ?? 'auto pick'} is not a game-day frame in the current uniform; pin another`);
     continue;
   }
   if (pl.commons_file) {
-    const dest = join(OUT, `${pl.id}.webp`);
+    const dest = join(outFor(pl), `${pl.id}.webp`);
     if (existsSync(dest) && manifest.players[pl.id]?.file === pl.commons_file) continue;
     const [c] = await info([pl.commons_file], 1400);
     if (!c || !FREE.test(c.license)) { console.log(`FAIL ${pl.name}: not found or not free (${c?.license})`); continue; }
@@ -77,7 +79,7 @@ for (const pl of players) {
     writeFileSync(tmp, Buffer.from(await (await fetch(c.thumb, { headers: { 'user-agent': UA } })).arrayBuffer()));
     execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '600x>', '-quality', '64', dest]);
     rmSync(tmp, { force: true });
-    manifest.players[pl.id] = { name: pl.name, team: pl.team, slot: pl.slot, participant_id: pl.participant_id, focus: pl.focus ?? 'center 22%', file: pl.commons_file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Cropped, resized and darkened by Sift', review_asset: true };
+    manifest.players[pl.id] = { sport: pl.sport ?? 'nfl', name: pl.name, team: pl.team, slot: pl.slot, participant_id: pl.participant_id, focus: pl.focus ?? 'center 22%', file: pl.commons_file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Cropped, resized and darkened by Sift', review_asset: true };
     console.log(`ok   ${pl.name}  ${pl.commons_file} (${c.license}, ${c.artist})`);
     continue;
   }
@@ -86,7 +88,7 @@ for (const pl of players) {
     // from his own Commons category or a name search; recent seasons and his current team preferred.
     // Every auto pick is listed in the manifest with auto_selected: true for human review, and a person can
     // pin a different frame with `commons_file` at any time.
-    const dest = join(OUT, `${pl.id}.webp`);
+    const dest = join(outFor(pl), `${pl.id}.webp`);
     if (existsSync(dest) && manifest.players[pl.id]) continue;
     const seen = new Set(); const titles = [];
     for (const q of [`incategory:"${pl.category ?? pl.name}" filetype:bitmap`, `deepcat:"${pl.category ?? pl.name}" filetype:bitmap`, `intitle:"${pl.name}" filetype:bitmap`]) {
@@ -116,7 +118,7 @@ for (const pl of players) {
     writeFileSync(tmp, Buffer.from(await (await fetch(c.thumb, { headers: { 'user-agent': UA } })).arrayBuffer()));
     execFileSync('convert', [tmp, '-auto-orient', '-strip', '-resize', '600x>', '-quality', '64', dest]);
     rmSync(tmp, { force: true });
-    manifest.players[pl.id] = { name: pl.name, team: pl.team, slot: pl.slot ?? 'portrait', participant_id: pl.participant_id, focus: pl.focus ?? 'center 22%', file: c.file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Resized and cropped by Sift', review_asset: true, auto_selected: true };
+    manifest.players[pl.id] = { sport: pl.sport ?? 'nfl', name: pl.name, team: pl.team, slot: pl.slot ?? 'portrait', participant_id: pl.participant_id, focus: pl.focus ?? 'center 22%', file: c.file, source: c.source, artist: c.artist, license: c.license, license_url: c.license_url, modifications: 'Resized and cropped by Sift', review_asset: true, auto_selected: true };
     console.log(`auto ${pl.name}  ${c.file} (${c.license}, ${c.artist})`);
     await sleep(200);
     continue;

@@ -119,7 +119,14 @@ test.describe('Favorites picker @v3', () => {
 
     await leagueChip(page, 'NCAAB').click();
     await expect(picker(page).getByRole('group', { name: 'NCAAB conferences to follow' })).toBeVisible();
-    await expect(picker(page).getByText(/NCAAB teams are listed once they have a published game/)).toBeVisible();
+    // every supported NCAAB team is listed, with or without a published game, and a single team can be followed
+    await box.fill('duke');
+    const duke = picker(page).getByRole('button', { name: /^Duke, NCAAB/ });
+    await expect(duke).toBeVisible();
+    await duke.click();
+    await expect(duke).toHaveAttribute('aria-pressed', 'true');
+    expect((await follows(page))?.teams).toContain('cbb:DUKE');
+    await expect(picker(page).getByText(/NCAAB teams are listed once they have a published game/)).toHaveCount(0);
   });
 
   test('Home: the empty Following state opens the picker; a followed conference fills the feed with its games only, and the badge counts it once', async ({ page }) => {

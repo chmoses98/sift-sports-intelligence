@@ -188,6 +188,34 @@ test.describe('Soccer: the trimmed real publication (Arsenal v Leeds, 2026-10-10
   });
 });
 
+test.describe('Soccer: league names and the league filter on Home @v3', () => {
+  const NOW = new Date('2026-10-09T08:00:00Z');
+
+  test('cards carry the league name, League chips filter the fixtures, the choice is in the address and remembered', async ({ page }) => {
+    await setup(page, ['soccer'], NOW);
+    await page.addInitScript(() => { try { if (!localStorage.getItem('sift3.prefs')) localStorage.setItem('sift3.prefs', JSON.stringify({ onboarded: true })); } catch { /* */ } });
+    await page.goto('./#/v3?sport=soccer&date=2026-10-10');
+    await expect(page.locator('[data-v3-shell]')).toBeVisible();
+    const cards = page.locator('.v3-gc');
+    await expect(cards.first()).toBeVisible();
+    for (const t of await cards.locator('.v3-gc__lg').allTextContents()) expect(t).not.toMatch(/^SOCCER$/i);
+    const chips = page.locator('.v3-chips--conf').getByRole('group', { name: 'League' }).or(page.getByRole('group', { name: 'League' }));
+    await expect(chips).toBeVisible();
+    const all = await cards.count();
+    const pl = chips.getByRole('button', { name: 'Premier League', exact: true });
+    await expect(pl).toBeVisible();
+    await pl.click();
+    await expect(page).toHaveURL(/conf=eng\.premier_league/);
+    await expect(pl).toHaveAttribute('aria-pressed', 'true');
+    expect(await cards.count()).toBeLessThan(all);
+    for (const t of await cards.locator('.v3-gc__lg').allTextContents()) expect(t).toBe('Premier League');
+    await page.reload();
+    await expect(chips.getByRole('button', { name: 'Premier League', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await chips.getByRole('button', { name: 'All', exact: true }).click();
+    expect(await cards.count()).toBe(all);
+  });
+});
+
 test.describe('Tennis: the trimmed real publication (Mertens v Swiatek, WTA Beijing; and a doubles match) @v3', () => {
   const NOW = new Date('2026-10-08T08:00:00Z');
   const MATCH = '/v3/game/tennis/evt_581f889e1dfb4de11420';

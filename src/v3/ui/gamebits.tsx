@@ -3,6 +3,7 @@ import { Link } from '../../routing';
 import { useNow } from '../../live/hooks';
 import { usablePrice } from '../data/quoteGate';
 import { showAsk } from '../model/format';
+import { soccerLeagueName } from '../model/soccerLeague';
 import { clockTime } from '../model/time';
 import { routes } from '../nav/routes';
 import { GAME_TABS, type GameTab } from '../nav/schemas';
@@ -16,7 +17,8 @@ import './delayed.css';
 export const gameHref = (g: Pick<V3Game, 'slug' | 'eventId'>, tab?: string) => routes.game({ slug: g.slug, eventId: g.eventId }, tab && (GAME_TABS as readonly string[]).includes(tab) ? { tab: tab as GameTab } : {});
 export const teamHref = (t: { slug: string; id: string }) => `/v3/team/${t.slug}/${encodeURIComponent(t.id)}`;
 
-export const leagueLabel = (g: Pick<V3Game, 'sport'>) => (g.sport === 'CFB' ? 'NCAAF' : g.sport === 'CBB' ? 'NCAAB' : g.sport);
+/** The league line on a card or header: NCAAF / NCAAB for college, the league's own name for soccer (never the bare word "SOCCER"), the sport otherwise. */
+export const leagueLabel = (g: Pick<V3Game, 'sport'> & Partial<Pick<V3Game, 'league' | 'item'>>) => (g.sport === 'CFB' ? 'NCAAF' : g.sport === 'CBB' ? 'NCAAB' : g.sport === 'SOCCER' && (g.item || g.league) ? soccerLeagueName(g) : g.sport);
 
 /** True once the element has been on screen (stays true): rows fetch their extras only when actually seen. */
 export function useSeen<T extends Element>(): [React.RefObject<T | null>, boolean] {

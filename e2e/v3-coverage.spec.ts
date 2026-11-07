@@ -207,12 +207,12 @@ test.describe('Soccer: league names and the league filter on Home @v3', () => {
     await pl.click();
     await expect(page).toHaveURL(/conf=eng\.premier_league/);
     await expect(pl).toHaveAttribute('aria-pressed', 'true');
-    expect(await cards.count()).toBeLessThan(all);
+    await expect.poll(() => cards.count()).toBeLessThan(all);
     for (const t of await cards.locator('.v3-gc__lg').allTextContents()) expect(t).toBe('Premier League');
     await page.reload();
     await expect(chips.getByRole('button', { name: 'Premier League', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await chips.getByRole('button', { name: 'All', exact: true }).click();
-    expect(await cards.count()).toBe(all);
+    await expect(cards).toHaveCount(all);
   });
 });
 

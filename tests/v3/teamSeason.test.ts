@@ -114,3 +114,15 @@ describe('the NBA player log says where it ends', () => {
     expect(logGap([{ date: '', season: null }], Date.now())).toBeNull();
   });
 });
+
+describe('preseason games stay out of the player windows', () => {
+  const st = [{ key: 'pts', label: 'Points', short: 'PTS' }];
+  const row = (date: string, season_type: string | null, pts: number) => ({ date_et: date, event_id: `e${date}`, season: '2026-27', season_type, opp: 'BOS', home: true, played: true, min: 30, pts });
+  it('drops preseason, keeps regular season, playoffs and rows with no type', () => {
+    const o = boxObs([row('2026-10-10', 'preseason', 40), row('2026-10-22', 'regular', 20), row('2026-10-24', null, 18), row('2026-04-20', 'playoffs', 25)], st);
+    expect(o.map((r) => r.v.pts).sort()).toEqual([18, 20, 25]);
+  });
+  it('a player with only preseason rows has no windows rather than exhibition ones', () => {
+    expect(boxObs([row('2026-10-10', 'preseason', 40)], st)).toEqual([]);
+  });
+});

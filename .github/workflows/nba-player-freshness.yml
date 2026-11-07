@@ -1,0 +1,26 @@
+name: NBA player freshness
+
+# Read-only daily check of the nba-edge-finder explorer's player game logs (scripts/nba-player-audit.mjs).
+# A red run means the publication is stale or incomplete; the app already says so on the page (logGap), this tells a person.
+on:
+  schedule:
+    - cron: '17 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nba-player-freshness
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/nba-player-audit.mjs --max-days 3

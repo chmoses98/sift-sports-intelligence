@@ -11,7 +11,7 @@
 import manifest from './player-images.json';
 import blocklist from './player-image-blocklist.json';
 
-interface PlayerImage { name: string; team: string; slot: string; participant_id?: string; focus?: string; file: string; source: string; artist: string; license: string; license_url: string | null; modifications?: string; review_asset?: boolean }
+interface PlayerImage { sport?: string; name: string; team: string; slot: string; participant_id?: string; focus?: string; file: string; source: string; artist: string; license: string; license_url: string | null; modifications?: string; review_asset?: boolean }
 
 /** File-name words that mark a frame that is not game action (shared with scripts/players/fetch.mjs). */
 export const NON_GAME_FILE = /press[ _-]?conference|interview|podium|draft|announcement|signing|poll|party|softball|charity|training[ _-]?camp|minicamp|\bcamp\b|practice|offseason|gala|ceremony|award|visit|meets/i;
@@ -44,7 +44,7 @@ export function playerPhoto(pid: string | null | undefined, name?: string | null
   if (!mine.length) return null;
   const order = [...prefer, ...SLOT_ORDER];
   const [id, p] = [...mine].sort((a, b) => (order.indexOf(a[1].slot) + 99) % 99 - (order.indexOf(b[1].slot) + 99) % 99)[0];
-  return { src: `${import.meta.env.BASE_URL}players/nfl/${id}.webp`, focus: p.focus ?? 'center 20%', name: p.name, credit: `${p.artist} · ${p.license}` };
+  return { src: `${import.meta.env.BASE_URL}players/${p.sport ?? 'nfl'}/${id}.webp`, focus: p.focus ?? 'center 20%', name: p.name, credit: `${p.artist} · ${p.license}` };
 }
 
 /** Every player image with its credit, for Data & provenance. */

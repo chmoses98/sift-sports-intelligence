@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from '../../../routing';
 import { HeroBg } from '../../ui/HeroBg';
 import { Icon } from '../../ui/Icon';
 import { FollowStar } from '../../ui/Controls';
+import { PlayerAvatar } from '../../ui/PlayerAvatar';
 import { TeamLogo } from '../../ui/TeamLogo';
 import { GameLink, TeamLink } from '../../nav/Targets';
 import { gameWhen } from '../../model/playerResearch';
@@ -76,7 +77,7 @@ export function MiniBar({ v, saved, onSave, shown, inflow, short }: { v: PlayerV
     <div className={`v3p-mini${inflow ? ' is-flow' : ''}${shown || inflow ? ' is-on' : ''}`} aria-hidden={!(shown || inflow)} inert={!(shown || inflow)}>
       <div className="v3p-mini__in">
         <button type="button" className="v3-iconbtn" aria-label="Back" onClick={back} tabIndex={shown || inflow ? 0 : -1}><Icon name="back" size={24} /></button>
-        {vm.photo ? <img className="v3p-mini__av" src={vm.photo.src} alt="" style={{ objectPosition: vm.photo.focus }} /> : vm.team ? <span className="v3p-mini__av is-logo"><TeamLogo team={vm.team} size={22} /></span> : null}
+        <PlayerAvatar className="v3p-mini__av" photo={vm.photo} team={vm.team} name={vm.name} size={32} />
         <div className="v3p-mini__t"><b>{vm.name}</b><span>{sub}</span></div>
         {short && vm.team && <TeamLink team={{ slug: vm.team.slug, id: vm.team.id }} label={`${vm.team.name}, team page`} className="v3p-who__logo"><TeamLogo team={vm.team} size={28} /></TeamLink>}
         {short && <FollowStar kind="players" id={`${v.slug}:${v.pid}`} label={vm.name} />}

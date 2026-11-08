@@ -965,6 +965,114 @@
       "category": "Chris Olave",
       "auto": true,
       "focus": "center 22%"
+    },
+    {
+      "id": "nba-bos-jayson-tatum",
+      "sport": "nba",
+      "name": "Jayson Tatum",
+      "team": "BOS",
+      "slot": "portrait",
+      "participant_id": "prt_245ee2ca9e728f989d38",
+      "category": "Jayson Tatum"
+    },
+    {
+      "id": "nba-sas-victor-wembanyama",
+      "sport": "nba",
+      "name": "Victor Wembanyama",
+      "team": "SAS",
+      "slot": "portrait",
+      "participant_id": "prt_8d0aca28cf27b671c812",
+      "category": "Victor Wembanyama"
+    },
+    {
+      "id": "nba-okc-shai-gilgeous-alexander",
+      "sport": "nba",
+      "name": "Shai Gilgeous-Alexander",
+      "team": "OKC",
+      "slot": "portrait",
+      "participant_id": "prt_9a64cfe911b69f694ade",
+      "category": "Shai Gilgeous-Alexander"
+    },
+    {
+      "id": "nba-phi-lebron-james",
+      "sport": "nba",
+      "name": "LeBron James",
+      "team": "PHI",
+      "slot": "portrait",
+      "participant_id": "prt_6d1e34a61c9ca3c8aa42",
+      "category": "LeBron James"
+    },
+    {
+      "id": "nba-den-nikola-jokic",
+      "sport": "nba",
+      "name": "Nikola Jokic",
+      "team": "DEN",
+      "slot": "portrait",
+      "participant_id": "prt_7519c1c23fcc7405359d",
+      "category": "Nikola Jokic"
+    },
+    {
+      "id": "nba-mia-giannis-antetokounmpo",
+      "sport": "nba",
+      "name": "Giannis Antetokounmpo",
+      "team": "MIA",
+      "slot": "portrait",
+      "participant_id": "prt_3c933cac7a0a2c776b84",
+      "category": "Giannis Antetokounmpo"
+    },
+    {
+      "id": "nba-lal-luka-doncic",
+      "sport": "nba",
+      "name": "Luka Doncic",
+      "team": "LAL",
+      "slot": "portrait",
+      "participant_id": "prt_9c7f46f8586f6d376cd8",
+      "category": "Luka Doncic"
+    },
+    {
+      "id": "nba-min-anthony-edwards",
+      "sport": "nba",
+      "name": "Anthony Edwards",
+      "team": "MIN",
+      "slot": "portrait",
+      "participant_id": "prt_3141209f55bcdae2c3d1",
+      "category": "Anthony Edwards"
+    },
+    {
+      "id": "nba-nyk-jalen-brunson",
+      "sport": "nba",
+      "name": "Jalen Brunson",
+      "team": "NYK",
+      "slot": "portrait",
+      "participant_id": "prt_959d2d167ad6961ce509",
+      "category": "Jalen Brunson"
+    },
+    {
+      "id": "nba-phx-devin-booker",
+      "sport": "nba",
+      "name": "Devin Booker",
+      "team": "PHX",
+      "slot": "portrait",
+      "participant_id": "prt_4e86ba038d4256cf8196",
+      "category": "Devin Booker"
+    },
+    {
+      "id": "nba-gsw-stephen-curry",
+      "sport": "nba",
+      "name": "Stephen Curry",
+      "team": "GSW",
+      "slot": "portrait",
+      "participant_id": "prt_97e9167264d77f6e8191",
+      "category": "Stephen Curry"
+    },
+    {
+      "id": "nba-hou-kevin-durant",
+      "sport": "nba",
+      "name": "Kevin Durant",
+      "team": "HOU",
+      "slot": "portrait",
+      "participant_id": "prt_63476de9845045ea5f46",
+      "category": "Kevin Durant"
     }
   ]
 }

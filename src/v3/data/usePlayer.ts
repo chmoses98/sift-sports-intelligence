@@ -92,8 +92,14 @@ export function nflObs(rows: GameLogRow[], stats: PlayerStat[], defaultSeason: n
   });
 }
 
+/**
+ * Preseason games are not part of any window: minutes, usage and opponents are exhibition-grade, and the prop lines a hit rate is compared with
+ * are priced for the regular season (the classic log's averages leave them out too, history/nbaLog.ts). Rows with no season_type are kept.
+ */
+export const countsAsResearch = (r: BoxRow) => r.season_type !== 'preseason';
+
 export function boxObs(rows: BoxRow[], stats: PlayerStat[]): Omit<Obs, 'rest'>[] {
-  return nbaPlayed(rows).map((r) => {
+  return nbaPlayed(rows.filter(countsAsResearch)).map((r) => {
     const v: Record<string, number | null> = {};
     for (const s of stats) v[s.key] = s.key === 'pra' ? ((num(r.pts) ?? 0) + (num(r.reb) ?? 0) + (num(r.ast) ?? 0)) : num(r[s.key]);
     const date = String(r.date_et ?? r.date ?? '');

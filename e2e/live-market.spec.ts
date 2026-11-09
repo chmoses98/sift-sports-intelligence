@@ -21,6 +21,9 @@ test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 
 
   // 2-3. the provider moves to 51¢; the next game-cadence poll shows it — same page, same build
   market.set(ML, 0.51, 0.53);
+  // fastForward jumps the clock: a poll still in flight when it lands has its 8 s request timer fire at once and is cancelled,
+  // and its tickers then wait out a whole game cadence. Let the page finish the poll it is on, as test 10 does.
+  await settle(market);
   await page.clock.fastForward(46_000);
   await expect(boardPrice(page)).toHaveText('51¢ / 53¢');
 
@@ -40,6 +43,9 @@ test('1-4: 46¢ becomes 51¢ without a redeploy; away and back never resurrects 
   // ...and the moved market (53¢) as soon as the provider answers.
   market.release();
   market.fail = null;
+  // The released requests fail and the run that held them carries on through its remaining batches; jump the clock only once
+  // it has finished (CI 2026-11-08, iPhone WebKit: the jump cancelled the second ticker batch and the price stayed at 51¢).
+  await settle(market);
   await page.clock.fastForward(60_000);
   await expect(boardPrice(page)).toHaveText('53¢ / 55¢');
 });

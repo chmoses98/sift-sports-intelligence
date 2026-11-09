@@ -13,6 +13,7 @@
 // Env: SIFT_URL (default production), SIFT_NFL_BOARD_URL, SIFT_PROJECTIONS_BASE.
 import { chromium, webkit } from '@playwright/test';
 import { distributionPlan } from './nfl-distribution-plan.mjs';
+import { shownMean, showsMean } from './nfl-distribution-display.mjs';
 
 const BASE = process.env.SIFT_URL ?? 'https://chmoses98.github.io/sift-sports-intelligence/';
 const BOARD = process.env.SIFT_NFL_BOARD_URL ?? 'https://raw.githubusercontent.com/chmoses98/nfl-edge-finder/handicap-reports/app/latest/board.json';
@@ -86,13 +87,13 @@ async function explorerCheck(browser, device, deviceName, eventId, pub, t, plan)
     await legend('Expected value').waitFor({ timeout: 60_000 });
     const q = dist.quantiles;
     const text = async (label) => (await legend(label).innerText()).replace(/\s+/g, ' ');
-    check((await text('Expected value')).includes(pubRow.mean.toFixed(1)), `${tag}: expected value ${pubRow.mean.toFixed(1)} is the published mean`);
+    check(showsMean(await text('Expected value'), pubRow.mean), `${tag}: expected value ${shownMean(pubRow.mean)} is the published mean`);
     check((await text('Median')).includes(String(q.p50)), `${tag}: median ${q.p50}`);
     check((await text('Middle 50%')).includes(`${q.p25}–${q.p75}`), `${tag}: middle 50% ${q.p25}–${q.p75}`);
     check((await text('Prediction range (80%)')).includes(`${q.p10}–${q.p90}`), `${tag}: prediction range (80%) ${q.p10}–${q.p90}`);
     check((await text('90% range')).includes(`${q.p05}–${q.p95}`), `${tag}: 90% range ${q.p05}–${q.p95}`);
     const tile = page.locator('.fr-tile', { has: page.getByText(`Projected ${t.family.replace('_', ' ')}`, { exact: true }) });
-    check((await tile.count()) === 1 && (await tile.first().innerText()).includes(pubRow.mean.toFixed(1)), `${tag}: one "Projected ${t.family}" value, ${pubRow.mean.toFixed(1)}`);
+    check((await tile.count()) === 1 && showsMean(await tile.first().innerText(), pubRow.mean), `${tag}: one "Projected ${t.family}" value, ${shownMean(pubRow.mean)}`);
     check((await page.locator('.frd').count()) > 0 && (await page.locator('.frd--none').count()) === 0, `${tag}: the distribution chart is drawn`);
     check(/7 published quantiles/.test(await page.locator('.frd__cap').first().innerText()), `${tag}: the chart is of the 7 published quantiles`);
     const lineTxt = (await legend('Market line').locator('dd').innerText().catch(() => '')).trim();

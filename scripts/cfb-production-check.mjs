@@ -33,6 +33,7 @@
 import { readFileSync } from 'node:fs';
 import { chromium, webkit } from '@playwright/test';
 import { judgeRailState, noUpcomingChecks } from './cfb/priorities.mjs';
+import { makeCanonicalText } from './cfb/names.mjs';
 import { NEGATIVE, selectGames, upcoming } from './cfb/select.mjs';
 // The monitor proves the shared data/quote layer through the classic screens it was written against; SIFT 2.0 is the
 // default interface, and `sift.ui=classic` (lib/uiMode.ts) selects the classic one in this browser only.
@@ -53,6 +54,8 @@ const canonicalName = (code) => CFB_PUBLIC[code] ?? CFB_TEAMS[code]?.n ?? null;
 /** What the app shows for a school whose participant row carries no contract code: the publication's own name with "St." spelled out (src/lib/cfbTeams.ts expandState / cfbName). */
 const expandState = (name) => name?.replace(/\s+St\.?$/, ' State').replace(/\s+St\.?\s+\(/, ' State (') ?? name;
 const shownName = (code, published) => canonicalName(code) ?? expandState(published);
+/** A published sentence as the app says it (src/lib/cfbTeams.ts cfbDisplayText: "Massachusetts hangs around" -> "UMass hangs around"); the same rules as the app, held equal by tests/cfbProductionCheckNames.test.ts. */
+const canonicalText = makeCanonicalText(CFB_TEAMS, CFB_PUBLIC);
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`  ok   ${msg}`) : (failures.push(msg), console.log(`  FAIL ${msg}`)));
 
@@ -302,7 +305,8 @@ async function priorityCheck(page, name, device) {
 const served = new Set();
 
 function judge(label, kind, g, seen) {
-  const titles = g.scripts.map((s) => s.title);
+  // data-canonical is the title after the app's own name normalization, so the published title is compared in that form.
+  const titles = g.scripts.map((s) => canonicalText(s.title));
   console.log(`  ${label}: engine=${seen.engine} cards=[${seen.cards.join(' | ')}] empty=${seen.empty} logos=${seen.logos.map((l) => `${l.src.split('/').slice(-2).join('/')}${l.ok ? '' : '(not loaded)'}`).join(',') || '—'} text-marks=[${seen.textMarks.join(',')}]`);
   check(seen.engine, `${label}: renders the CFB Script Engine page`);
   if (seen.quickRead) check(seen.deep.length >= 5 && seen.deep.every((o) => !o), `${label}: V2 Quick Read first, ${seen.deep.length} Deep Dive sections all closed`);

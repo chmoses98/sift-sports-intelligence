@@ -100,6 +100,13 @@ test('the prop explorer groups markets by player and replaces every panel when a
   await second.click();
   await expect(page.locator('#pexa-t')).toContainText(name);
   await expect(second).toHaveAttribute('aria-pressed', 'true');
+  // The last player can be deep inside the desktop rail: click through real scrolling, not a force-click.
+  const last = players.last();
+  const lastName = (await last.locator('.pex__rb b').innerText()).trim();
+  await last.scrollIntoViewIfNeeded();
+  await last.click();
+  await expect(page.locator('#pexa-t')).toContainText(lastName);
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
   // His markets sit together in one carousel; picking another market replaces the analysis.
   const tiles = page.locator('.pexa__mk .pmk');
   if ((await tiles.count()) > 1) {
@@ -114,6 +121,42 @@ test('the prop explorer groups markets by player and replaces every panel when a
     await expect(page.locator('.pexa__mk .pmk').first()).toBeFocused();
   }
   await noHorizontalOverflow(page, 'props');
+});
+
+// Production check run 302 (2026-11-10): on a live slate the carousel opened with the selected market at its far end, the "More markets" arrow was
+// (correctly) disabled, and a check that always clicked it waited out its 30 s. These hold the product behaviour that check must not assume away.
+test('the market carousel opens on the selected market: at its end only "Previous" is enabled, and it pages back @journey', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'the arrow buttons are drawn for a fine pointer only; phones swipe');
+  await page.clock.install({ time: NOW });
+  await page.goto('./#/nfl/props');
+  await expect(page.locator('#pexa-t')).toBeVisible();
+  const track = page.locator('.pexa__mk .pcar__track');
+  const tiles = page.locator('.pexa__mk .pmk');
+  const prev = page.locator('.pexa__mk .pcar__nav--prev');
+  const next = page.locator('.pexa__mk .pcar__nav--next');
+  const geometry = () => track.evaluate((t) => ({ left: t.scrollLeft, atEnd: t.scrollLeft + t.clientWidth >= t.scrollWidth - 4, overflows: t.scrollWidth > t.clientWidth + 4 }));
+  expect((await geometry()).overflows, 'the first player has more markets than fit, so the carousel can scroll').toBe(true);
+  await expect(prev).toBeDisabled();
+  await expect(next).toBeEnabled();
+  // Pick the last market, then reload: the address carries the selection, so the carousel mounts already scrolled to it, as on the live slate.
+  await tiles.last().click();
+  await expect(tiles.last()).toHaveAttribute('aria-pressed', 'true');
+  await page.reload();
+  await expect(page.locator('#pexa-t')).toBeVisible();
+  await expect(tiles.last()).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(async () => (await geometry()).atEnd).toBe(true);
+  await expect(next, 'nothing is left to the right').toBeDisabled();
+  await expect(prev, 'the markets before it are one click away').toBeEnabled();
+  const inView = await tiles.last().evaluate((tile) => {
+    const t = tile.closest('.pcar__track')!.getBoundingClientRect();
+    const r = tile.getBoundingClientRect();
+    return r.left >= t.left - 1 && r.right <= t.right + 1;
+  });
+  expect(inView, 'the selected market is fully in view').toBe(true);
+  const before = (await geometry()).left;
+  await prev.click();
+  await expect.poll(async () => (await geometry()).left).toBeLessThan(before);
+  await expect(next, 'paging back re-enables "More markets"').toBeEnabled();
 });
 
 test('hit rates read history against today\'s line, with the n of games played @journey', async ({ page }) => {

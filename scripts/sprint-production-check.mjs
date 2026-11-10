@@ -33,7 +33,10 @@ async function step(page, label, fn) {
   try {
     await fn();
   } catch (e) {
-    check(false, `${label}: ${String(e?.message ?? e).split('\n')[0]}`);
+    const full = String(e?.message ?? e);
+    check(false, `${label}: ${full.split('\n')[0]}`);
+    // Playwright's call log names the real blocker ("intercepts pointer events", "not visible", "not stable"): keep it.
+    for (const l of full.split('\n').slice(1, 40)) console.log(`       ${l}`);
     await page.screenshot({ path: `production-sprint-${dev}-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 40)}-failure.png` }).catch(() => {});
   }
 }
@@ -605,20 +608,37 @@ async function propExplorerCheck(page, ctx) {
   const nOf = (c) => Number(c.match(/(\d+) markets?/)?.[1] ?? 0);
   const best = counts.map(nOf).reduce((bi, v, i, a) => (v > a[bi] ? i : bi), 0);
   await page.locator('.pex__ph').nth(best).click();
-  await page.locator('#pexa-t').waitFor({ timeout: 30_000 });
   const track = page.locator('.pexa__mk .pcar__track').first();
-  await track.waitFor({ state: 'visible', timeout: 30_000 });
-  await page.waitForFunction(() => (document.querySelector('.pexa__mk .pcar__track')?.clientWidth ?? 0) > 0, null, { timeout: 15_000 }).catch(() => {});
-  await page.waitForTimeout(500);
-  const geo = await track.evaluate((t) => ({ sw: t.scrollWidth, cw: t.clientWidth }));
+  // The analysis is keyed by selected prop and remounts after clicking a player. A visible old carousel can briefly
+  // have zero width during that transition; wait for the chosen player AND a laid-out carousel in one DOM read.
+  // Do not swallow a timeout: a player that cannot render a usable carousel is a real failure.
+  const measured = await page.waitForFunction((name) => {
+    const title = document.querySelector('#pexa-t')?.textContent ?? '';
+    const selected = [...document.querySelectorAll('.pex__ph')].find((b) => b.querySelector('.pex__rb b')?.textContent?.trim() === name);
+    const t = document.querySelector('.pexa__mk .pcar__track');
+    if (!title.includes(name) || selected?.getAttribute('aria-pressed') !== 'true' || !t || t.clientWidth <= 0) return false;
+    return { sw: t.scrollWidth, cw: t.clientWidth, left: t.scrollLeft };
+  }, players[best], { timeout: 30_000 });
+  const geo = await measured.jsonValue();
   if (!geo.cw) check(false, '#22 market carousel is laid out (track has no width)');
   else if (geo.sw > geo.cw + 4) {
-    const next = page.locator('.pexa__mk .pcar__nav--next');
-    if (await next.isVisible().catch(() => false)) await next.click();
-    else await track.evaluate((t) => t.scrollBy({ left: 240 }));
-    await page.waitForTimeout(700);
+    // Selecting a market can bring its tile into view at the RIGHT edge. In that case the "More markets" arrow
+    // is correctly disabled; page left instead. Visibility alone does not imply a button is enabled.
+    const dir = geo.left + geo.cw < geo.sw - 4 ? 1 : -1;
+    const arrow = page.locator(`.pexa__mk .pcar__nav--${dir === 1 ? 'next' : 'prev'}`);
+    if (await arrow.isVisible()) {
+      // A disabled arrow when the track has room in this direction is a real UI failure, not a test skip.
+      await arrow.click({ timeout: 5_000 });
+    } else {
+      // Phone: arrows are intentionally hidden; the same carousel is swipeable.
+      await track.evaluate((t, direction) => t.scrollBy({ left: direction * 240 }), dir);
+    }
+    await page.waitForFunction(({ before, direction }) => {
+      const t = document.querySelector('.pexa__mk .pcar__track');
+      return !!t && (t.scrollLeft - before) * direction > 4;
+    }, { before: geo.left, direction: dir }, { timeout: 5_000 });
     const left = await track.evaluate((t) => t.scrollLeft);
-    check(left > 0, `#22 market carousel scrolls (${await page.locator('.pexa__mk .pmk').count()} markets, scrollLeft ${Math.round(left)})`);
+    check(Math.abs(left - geo.left) > 4, `#22 market carousel scrolls (${await page.locator('.pexa__mk .pmk').count()} markets, ${Math.round(geo.left)} → ${Math.round(left)})`);
   } else na('#22 market carousel scrolls', `the busiest player's ${await page.locator('.pexa__mk .pmk').count()} markets fit the width (${geo.sw}px in ${geo.cw}px)`);
   const perf = page.locator('.pexa__perf');
   await perf.locator('.hsum2, .pchart, .fr-note, [class*=cap]').first().waitFor({ timeout: 60_000 }).catch(() => {});

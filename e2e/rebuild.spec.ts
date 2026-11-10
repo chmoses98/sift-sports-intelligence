@@ -100,6 +100,13 @@ test('the prop explorer groups markets by player and replaces every panel when a
   await second.click();
   await expect(page.locator('#pexa-t')).toContainText(name);
   await expect(second).toHaveAttribute('aria-pressed', 'true');
+  // The last player can be deep inside the desktop rail: click through real scrolling, not a force-click.
+  const last = players.last();
+  const lastName = (await last.locator('.pex__rb b').innerText()).trim();
+  await last.scrollIntoViewIfNeeded();
+  await last.click();
+  await expect(page.locator('#pexa-t')).toContainText(lastName);
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
   // His markets sit together in one carousel; picking another market replaces the analysis.
   const tiles = page.locator('.pexa__mk .pmk');
   if ((await tiles.count()) > 1) {

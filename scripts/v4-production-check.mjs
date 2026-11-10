@@ -96,7 +96,7 @@ function legacySave(game) {
 async function priceAgeMatchesFeed(page, eventId, where, tag, read) {
   const idx = await getJson(`${FEED}/index.json`).catch(() => null);
   const g = idx?.games?.find((x) => x.event_ids.includes(eventId));
-  if (!g) { na(tag(`${where}: the quote feed has no entry for this game to compare the price age with`)); return idx ? 'missing' : 'unavailable'; }
+  if (!g) { na(tag(`${where}: the quote feed has no entry for this game to compare the price age with`)); return Array.isArray(idx?.games) ? 'missing' : 'unavailable'; }
   const feedAge = (Date.now() - Date.parse(g.observed_to)) / 60_000;
   const readText = () => page.evaluate(read, null);
   // "Current" alone is not the live answer: the publication's own snapshot is labelled aging (not stale) for its first 30 minutes,

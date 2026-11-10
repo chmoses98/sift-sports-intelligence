@@ -608,11 +608,18 @@ async function propExplorerCheck(page, ctx) {
   const nOf = (c) => Number(c.match(/(\d+) markets?/)?.[1] ?? 0);
   const best = counts.map(nOf).reduce((bi, v, i, a) => (v > a[bi] ? i : bi), 0);
   await page.locator('.pex__ph').nth(best).click();
-  await page.locator('#pexa-t').waitFor({ timeout: 30_000 });
   const track = page.locator('.pexa__mk .pcar__track').first();
-  await track.waitFor({ state: 'visible', timeout: 30_000 });
-  await page.waitForFunction(() => (document.querySelector('.pexa__mk .pcar__track')?.clientWidth ?? 0) > 0, null, { timeout: 15_000 }).catch(() => {});
-  const geo = await track.evaluate((t) => ({ sw: t.scrollWidth, cw: t.clientWidth, left: t.scrollLeft }));
+  // The analysis is keyed by selected prop and remounts after clicking a player. A visible old carousel can briefly
+  // have zero width during that transition; wait for the chosen player AND a laid-out carousel in one DOM read.
+  // Do not swallow a timeout: a player that cannot render a usable carousel is a real failure.
+  const measured = await page.waitForFunction((name) => {
+    const title = document.querySelector('#pexa-t')?.textContent ?? '';
+    const selected = [...document.querySelectorAll('.pex__ph')].find((b) => b.querySelector('.pex__rb b')?.textContent?.trim() === name);
+    const t = document.querySelector('.pexa__mk .pcar__track');
+    if (!title.includes(name) || selected?.getAttribute('aria-pressed') !== 'true' || !t || t.clientWidth <= 0) return false;
+    return { sw: t.scrollWidth, cw: t.clientWidth, left: t.scrollLeft };
+  }, players[best], { timeout: 30_000 });
+  const geo = await measured.jsonValue();
   if (!geo.cw) check(false, '#22 market carousel is laid out (track has no width)');
   else if (geo.sw > geo.cw + 4) {
     // Selecting a market can bring its tile into view at the RIGHT edge. In that case the "More markets" arrow

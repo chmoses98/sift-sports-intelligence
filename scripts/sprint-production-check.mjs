@@ -33,7 +33,10 @@ async function step(page, label, fn) {
   try {
     await fn();
   } catch (e) {
-    check(false, `${label}: ${String(e?.message ?? e).split('\n')[0]}`);
+    const full = String(e?.message ?? e);
+    check(false, `${label}: ${full.split('\n')[0]}`);
+    // Playwright's call log names the real blocker ("intercepts pointer events", "not visible", "not stable"): keep it.
+    for (const l of full.split('\n').slice(1, 40)) console.log(`       ${l}`);
     await page.screenshot({ path: `production-sprint-${dev}-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 40)}-failure.png` }).catch(() => {});
   }
 }

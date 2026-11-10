@@ -96,7 +96,7 @@ function legacySave(game) {
 async function priceAgeMatchesFeed(page, eventId, where, tag, read) {
   const idx = await getJson(`${FEED}/index.json`).catch(() => null);
   const g = idx?.games?.find((x) => x.event_ids.includes(eventId));
-  if (!g) return na(tag(`${where}: the quote feed has no entry for this game to compare the price age with`));
+  if (!g) { na(tag(`${where}: the quote feed has no entry for this game to compare the price age with`)); return idx ? 'missing' : 'unavailable'; }
   const feedAge = (Date.now() - Date.parse(g.observed_to)) / 60_000;
   const readText = () => page.evaluate(read, null);
   // "Current" alone is not the live answer: the publication's own snapshot is labelled aging (not stale) for its first 30 minutes,
@@ -106,6 +106,7 @@ async function priceAgeMatchesFeed(page, eventId, where, tag, read) {
   const r = await readText();
   if (feedAge > 12) return na(tag(`${where}: the quote feed is itself ${feedAge.toFixed(0)} min old; the screen cannot be fresher`));
   check(r.current && r.minutes != null && Math.abs(r.minutes - feedAge) <= 6, tag(`${where}: the price age shown (${r.text || 'none'}) matches the quote feed's own observation time (${feedAge.toFixed(1)} min ago, within 6)`));
+  return 'covered';
 }
 const gameAgeReader = () => {
   const t = document.querySelector('.v4-gstat')?.innerText ?? '';
@@ -225,9 +226,13 @@ async function journey(browser, device, name) {
       await settled(p0);
       const eventId = decodeURIComponent(pick.split('/').pop().split('?')[0]);
       game = { href: pick, id: eventId, slug: pick.split('/')[3], title: `Game saved from SIFT 2.0 before v4 (${pick.split('/')[3].toUpperCase()})` };
-      await priceAgeMatchesFeed(p0, eventId, 'Game', tag, gameAgeReader);
+      const coverage = await priceAgeMatchesFeed(p0, eventId, 'Game', tag, gameAgeReader);
       const gtxt = await p0.locator('.v4-gstat').first().innerText();
-      check(/Prices (live|aging|stale) · |No prices published/.test(gtxt), tag(`the game page states its price source and age ("${gtxt.replace(/\s+/g, ' ').slice(0, 50)}")`));
+      // With no feed entry, the product honestly says no capture time rather than inventing an age.
+      // Do NOT accept that label when the feed covers this game or when the feed index failed to load.
+      const labelled = /Prices (live|aging|stale) · |No prices published/.test(gtxt)
+        || (coverage === 'missing' && /Prices · no capture time/.test(gtxt));
+      check(labelled, tag(`the game page states its price source and age ("${gtxt.replace(/\s+/g, ' ').slice(0, 50)}")`));
       check((await overflow(p0)) <= 1, tag('Game: no horizontal overflow'));
       check(!MISSING.test(await p0.locator('main').innerText()), tag('Game shows no NaN/undefined'));
       await p0.screenshot({ path: `production-v4-${name}-game.png` });

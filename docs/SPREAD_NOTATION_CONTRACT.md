@@ -23,14 +23,47 @@ All new output fields must explicitly document whether they represent
 string. A plain signed field named `spread` with unknown orientation must **not**
 be converted by sign guessing. Withhold its display until provenance is established.
 
+## Glyph, rounding and ties
+
+- Every UI label uses U+2212 MINUS SIGN (`PHI −6.5`), exported as `MINUS`; screen readers announce it as "minus".
+  Python/Markdown producer reports may use ASCII `PHI -6.5`; both read identically.
+- Ties and lines that round to zero render `PICKEM` ("Pick’em"). Final ties render Pick’em, never a team.
+- Model/market handicaps snap to the half point where the surface did so before; final margins are integers.
+
 ## Implementation
 
 - `src/lib/spreadNotation.ts` is the sole SIFT public display converter.
 - `spreadFromScores` and `spreadFromHomeMargin` translate raw model and actual
   home-minus-away margins **without changing model maths, simulations or grading**.
 - `spreadFromHomeHandicap` translates verified home-side market handicaps.
-- `src/v3/model/spread.ts`, `src/views/cbb/data.ts`, and
-  `src/views/game/lines.tsx` use this boundary.
+- `teamFavouriteLine` labels a contract that is already named for its team
+  ("PHI wins by more than 6.5" => `PHI −6.5`).
+- `homeMarginFromHomeHandicap` converts a home handicap into margin units for
+  evaluation (error, cover); it is never a display path.
+
+### Surfaces routed through the boundary
+
+| Surface | File | Native input |
+| --- | --- | --- |
+| v3 projection card / model spread | `src/v3/model/spread.ts` | projected scores |
+| v3 game cards (final margin) | `src/v3/ui/GameCard.tsx` | final scores |
+| v3 Kalshi spread line + alternates | `src/v3/data/adapt.ts` | team-named contract |
+| v4 game result / live score card | `src/v4/Game.tsx`, `src/v4/LiveScoreCard.tsx` | final scores |
+| Game page model-vs-market table | `src/views/Game.tsx` | home handicap |
+| Game overview Model Read tiles | `src/views/game/panels.tsx` | home handicap (model and market each name their own favourite) |
+| Lines panel | `src/views/game/lines.tsx` | home handicap |
+| Market intel rows | `src/views/game/MarketIntel.tsx` | home handicap |
+| Slate hooks | `src/views/Slate.tsx` | home handicap |
+| Prop explorer game context | `src/views/explore/PropExplorerView.tsx` | home handicap |
+| Home model line, top-gap labels | `src/views/home/cards.tsx` | home handicap / contract |
+| Broadcast hero + card facts | `src/views/broadcast/numbers.ts`, `cardFacts.ts` | home handicap |
+| Historical ATS (season week, hub, historical game) | `src/history/league.ts` | nflverse `spread_line` (positive = home favoured) |
+| CBB slate / game / team / viz / intel | `src/views/cbb/*`, `src/v3/data/intel/sports/cbb.ts` | home-minus-away margin |
+| NBA / NHL / MLB / soccer / generic market labels | `src/lib/{nba,marketLabel,mlb,soccer,gamedata}.ts` | team-named contract |
+
+Not spreads (deliberately unchanged): script margin *bands* (`PHI by 1–7`), a team's own
+recent-results bars (`+5`/`−3` from that team's view), and season point-differential stats.
+
 - Display ties as `Pick'em`; never turn a missing/infinite score into an
   invented favourite. Show the team *name* as well as the negative line.
 - For matchup reviews report **predicted favourite / final winner / absolute

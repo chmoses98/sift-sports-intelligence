@@ -16,7 +16,7 @@ import { useNow } from '../../live/hooks';
 import { useSport } from '../../state/sport';
 import { useVisit } from '../../state/trail';
 import { MetricRow } from '../Team';
-import { etDate, fmt1, marginWords, pct0, teamExt, teamShort, tipLabel } from './data';
+import { etDate, fmt1, marginWords, pct0, signed1, teamExt, teamShort, tipLabel } from './data';
 import { Rotation, RosterCounts } from './Game';
 import { accent, confShort, identity } from './identity';
 import { AsOf, CbbMark, ConfidenceChip, StateLine } from './ui';
@@ -197,7 +197,7 @@ export function CbbTeamView({ teamId }: { teamId: string }) {
         <p className="small muted"><QualityBadge quality={p.quality} /> {p.quality.source} · generated {p.quality.generated_at} · {p.quality.limitations.join(' · ')}</p>
         <p className="small muted">Team {c.team_id} · ESPN {c.espn_team_id}. Roster snapshot {ro.snapshot ?? '—'}{ro.continuity?.audit_snapshot ? ` · continuity audit ${ro.continuity.audit_snapshot}` : ''}.</p>
         {c.ratings && <p className="small muted">Ratings from {c.ratings.event} ({c.ratings.version}, games seen {c.ratings.games_seen ?? '—'}).</p>}
-        {upcoming[0]?.primary && <p className="small muted">Next projection: {marginWords(upcoming[0].primary.margin, 'home', 'away')} (home − away), archived {upcoming[0].primary.as_of}.</p>}
+        {upcoming[0]?.primary && <p className="small muted">Next projection: {upcoming[0].home_away === 'HOME' ? marginWords(upcoming[0].primary.margin, name, identity(oppOf.get(upcoming[0].event_id))?.name ?? upcoming[0].opponent) : upcoming[0].home_away === 'AWAY' ? marginWords(upcoming[0].primary.margin, identity(oppOf.get(upcoming[0].event_id))?.name ?? upcoming[0].opponent, name) : `${signed1(upcoming[0].primary.margin)} (listed home − away, neutral site)`}, archived {upcoming[0].primary.as_of}.</p>}
         <p className="small muted">Logo: the school’s mark as published by ESPN, committed to Sift once. Presentation only.</p>
       </details>
     </div>

@@ -2,6 +2,7 @@
 // as participants[].short_name) and decoders over the nba-edge-finder publication. The NBA model is RESEARCH authority
 // in every family and, by the publication's own out-of-sample study, the raw Kalshi price beats it in 8 of 8 families:
 // Sift shows that study and never turns an NBA model number into a recommendation.
+import { teamFavouriteLine } from './spreadNotation';
 import type { EventResearchDoc, Market, ResearchMarket } from '../contract/types';
 import { cleanDescription } from './marketLabel';
 import logos from './nba-team-logos.json';
@@ -139,7 +140,7 @@ export function nbaMarketTitle(m: MarketLike, abbrOf?: (pid: string | null) => s
   const per = PERIOD_NOUN[m.period ?? ''] ?? null;
   if (fam === 'game_winner' && who) return `${who} to win`;
   if (fam === 'period_winner') return /^Tie/i.test(d) ? `Tie in the ${per ?? 'period'}` : `${who ?? 'Team'} wins the ${per ?? 'period'}`;
-  if (fam === 'game_spread' && who && t != null) return `${who} −${t}`;
+  if (fam === 'game_spread' && who && t != null) return teamFavouriteLine(who, t, { decimals: 2 }) ?? `${who} spread`;
   if (fam === 'game_total' && t != null) return `${per ? `${per[0].toUpperCase()}${per.slice(1)} total` : 'Game total'} over ${t}`;
   if (fam === 'team_total' && who && t != null) return `${who} team total over ${t}`;
   return d || m.kalshi_ticker;

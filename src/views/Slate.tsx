@@ -1,3 +1,4 @@
+import { spreadFromHomeHandicap } from '../lib/spreadNotation';
 import { matchupInsights } from '../insights/matchups';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '../routing';
@@ -44,6 +45,11 @@ export interface Hook {
   value: string;
 }
 
+const shortOf = (r: EventResearchDoc, side: 'HOME' | 'AWAY'): string | null => {
+  const pid = r.participants.find((p) => p.home_away === side)?.participant_id;
+  return r.event.participants.find((p) => p.participant_id === pid)?.short_name ?? null;
+};
+
 /** What makes this game worth opening, from its own research document. */
 export function researchHooks(r: EventResearchDoc): { implied: string | null; gap: Hook | null; result: string | null } {
   const ext = (r.extensions ?? {}) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -51,7 +57,10 @@ export function researchHooks(r: EventResearchDoc): { implied: string | null; ga
   let implied: string | null = null;
   if (mi?.win_probability) {
     const fav = Object.entries(mi.win_probability as Record<string, number>).sort((a, b) => b[1] - a[1])[0];
-    implied = `${fav[0]} ${pct(fav[1], 0)} · spread ${mi.implied_spread != null ? signed(mi.implied_spread, 1) : '—'} · total ${mi.implied_total_median ?? '—'}`;
+    // implied_spread is a HOME handicap (negative = home favoured): name the favourite, never print the bare sign.
+    const hAbbr = shortOf(r, 'HOME'), aAbbr = shortOf(r, 'AWAY');
+    const spreadLabel = mi.implied_spread != null && hAbbr && aAbbr ? spreadFromHomeHandicap(Number(mi.implied_spread), hAbbr, aAbbr)?.label ?? '—' : '—';
+    implied = `${fav[0]} ${pct(fav[1], 0)} · spread ${spreadLabel} · total ${mi.implied_total_median ?? '—'}`;
   }
   let gap: Hook | null = null;
   const pairs = (ext.matchup_pairs ?? []) as { matchup: string; offense: string; defense: string; advantage_to_offense: number }[];

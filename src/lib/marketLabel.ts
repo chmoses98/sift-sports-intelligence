@@ -11,6 +11,7 @@
 //   player stat >= 80          → "Bijan Robinson over 79.5 rushing yards"
 // The label is built from the market's structured fields (family, period, subject, threshold); when only
 // a ticker is known (price history rows, moves, newly listed contracts) the ticker grammar is parsed.
+import { teamFavouriteLine } from './spreadNotation';
 import type { Market } from '../contract/types';
 import { describeMlbMarket, isMlbTicker, mlbNick } from './mlb';
 import { isFullGame } from './period';
@@ -356,7 +357,8 @@ export function describeNhlMarket(m: MarketLike): MarketLabel | null {
   const ret = (title: string, short = title, subject: string | null = null): MarketLabel => ({ title, short, subject });
   if (fam === 'game_winner' && (mm = /^(.+?) wins$/.exec(d))) return ret(`${mm[1]} to win`, `${mm[1]} ML`, mm[1]);
   if ((fam === 'game_spread' || fam === 'period_spread') && (mm = /^(.+?) wins(?: the \S+ period)? by over ([\d.]+) goals?/.exec(d))) {
-    return ret(`${mm[1]} −${mm[2]}${per ? ` (${per})` : ''}`, `${mm[1]} −${mm[2]}`, mm[1]);
+    const ln = teamFavouriteLine(mm[1], Number(mm[2]), { decimals: 2 }) ?? `${mm[1]} −${mm[2]}`;
+    return ret(`${ln}${per ? ` (${per})` : ''}`, ln, mm[1]);
   }
   if ((fam === 'game_total' || fam === 'period_total') && (mm = /Over ([\d.]+) goals/i.exec(d))) {
     return ret(`${per ? `${per[0].toUpperCase()}${per.slice(1)}` : 'Game'} total over ${mm[1]} goals`, `${per ? per.slice(0, 3) : 'Total'} O ${mm[1]}`);

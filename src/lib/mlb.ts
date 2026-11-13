@@ -4,6 +4,7 @@
 // Nothing here creates a number. A player prop's MODEL probability is read only from model_probability_yes, and
 // only when projection_status is a *_PROJECTION; every other status is shown as a status with its reason, never as
 // a model number and never with the market price standing in for one. No "edge" is ever derived for a prop.
+import { teamFavouriteLine } from './spreadNotation';
 import type { Market } from '../contract/types';
 import { inningWords, isFullGame } from './period';
 
@@ -197,7 +198,7 @@ export function describeMlbMarket(m: M, ctx: { abbrOf?: (pid: string | null) => 
       if (nick) return { title: `${nick} lead after ${words ? words.replace(/^First /, '').replace(/^1st inning$/, '1 inning') : 'the period'}`, short: `${ps}${team}`, subject: nick };
       break;
     case 'run_line':
-      if (nick && t != null) return { title: `${nick} −${fmtN(t)}${perSuffix}`, short: `${ps}${team} −${fmtN(t)}`, subject: nick };
+      if (nick && t != null) return { title: `${teamFavouriteLine(nick, t, { decimals: 2 })}${perSuffix}`, short: `${ps}${teamFavouriteLine(team, t, { decimals: 2 })}`, subject: nick };
       break;
     case 'total':
       if (t != null) return { title: words ? `${words}: over ${over(t)} runs` : `Total runs over ${over(t)}`, short: `${ps}O ${over(t)}`, subject: null };

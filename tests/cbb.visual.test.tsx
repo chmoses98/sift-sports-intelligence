@@ -76,7 +76,7 @@ describe('CBB visual components', () => {
 
   it('draws the model range with words on both ends and never calls it a guarantee', () => {
     render(<><MarginAxis margin={1.8} r50={[-6, 9.6]} r80={[-13, 16.7]} away="Duke" home="Kansas" /><AxisKey /></>);
-    expect(screen.getByLabelText(/Projected margin Kansas by 1\.8; 80% model range Duke by 13\.0 to Kansas by 16\.7/)).toBeTruthy();
+    expect(screen.getByLabelText(/Projected margin Kansas −1\.8; 80% model range Duke −13 to Kansas −16\.7/)).toBeTruthy();
     expect(screen.getByText('80% model range')).toBeTruthy();
     expect(screen.getByText('Model uncertainty — not guaranteed')).toBeTruthy();
     expect(screen.getByText('Even')).toBeTruthy();

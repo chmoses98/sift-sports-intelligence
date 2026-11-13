@@ -15,7 +15,7 @@ export interface TeamSpreadNotation {
   team: string | null;
   /** Absolute winning margin, always nonnegative. */
   points: number;
-  /** Example: "PHI -6.5", "PHI -3", or "Pick'em". */
+  /** Example: "PHI -6.5", "PHI -3", or "Pick’em". */
   label: string;
 }
 
@@ -26,9 +26,13 @@ export interface SpreadDisplayOptions {
   decimals?: number;
 }
 
+/** U+2212 MINUS SIGN: the glyph every SIFT spread uses (screen readers say "minus"; never a hyphen or en dash). */
+export const MINUS = '\u2212';
+/** The one tie/zero-margin label used everywhere. */
+export const PICKEM = 'Pick’em';
 const shown = (n: number, decimals: number) => Number(n.toFixed(decimals)).toString();
 function display(team: string | null, points: number, decimals: number): TeamSpreadNotation {
-  return { team, points, label: team ? `${team} -${shown(points, decimals)}` : "Pick'em" };
+  return { team, points, label: team ? `${team} ${MINUS}${shown(points, decimals)}` : PICKEM };
 }
 function validNames(home: string, away: string): boolean {
   return home.trim().length > 0 && away.trim().length > 0 && home !== away;
@@ -88,4 +92,25 @@ export function spreadFromHomeHandicap(
   options: SpreadDisplayOptions = {},
 ): TeamSpreadNotation | null {
   return homeHandicap == null ? null : spreadFromHomeMargin(-homeHandicap, home, away, options);
+}
+
+/**
+ * A team-specific contract/handicap line that is already named for its team, e.g. a Kalshi
+ * "PHI wins by more than 6.5" contract => "PHI -6.5". The sign is the favourite-side convention;
+ * pass the absolute strike. Returns null for a missing/invalid line rather than inventing one.
+ */
+export function teamFavouriteLine(team: string | null | undefined, points: number | null | undefined, options: SpreadDisplayOptions = {}): string | null {
+  if (!team || !team.trim() || points == null || !Number.isFinite(points)) return null;
+  const decimals = options.decimals ?? 1;
+  const p = magnitude(points, options.roundTo);
+  return Number(p.toFixed(decimals)) === 0 ? PICKEM : `${team} ${MINUS}${shown(p, decimals)}`;
+}
+
+/**
+ * Evaluation helper: a sportsbook HOME handicap expressed in home-minus-away margin units
+ * (HOME -6.5 => +6.5 expected home margin). Use when comparing a market line with a model
+ * margin or a final margin; never feed the result back into spreadFromHomeHandicap.
+ */
+export function homeMarginFromHomeHandicap(homeHandicap: number | null | undefined): number | null {
+  return homeHandicap == null || !Number.isFinite(homeHandicap) ? null : -homeHandicap;
 }

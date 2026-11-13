@@ -8,7 +8,7 @@ export interface ModelSpread {
   leader: string | null;
   /** Points by which the leader is projected to win, rounded to the nearest half point (0 when level). */
   margin: number;
-  /** "DAL −4.5", or "Pick'em" when level. */
+  /** "DAL -4.5", or "Pick’em" when level. */
   label: string;
 }
 

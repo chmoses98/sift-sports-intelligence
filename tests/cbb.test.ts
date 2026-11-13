@@ -62,7 +62,7 @@ describe('CBB extensions', () => {
     const e = byGid('season', 'G900000002');
     expect(eventExt(e)!.tbd).toBe(true);
     expect(tipLabel(e.start_time_utc, eventExt(e))).toMatch(/time TBD$/);
-    expect(marginWords(2.24, 'Kansas', 'Duke')).toBe('Kansas by 2.2');
-    expect(marginWords(-3, 'Kansas', 'Duke')).toBe('Duke by 3.0');
+    expect(marginWords(2.24, 'Kansas', 'Duke')).toBe('Kansas −2.2');
+    expect(marginWords(-3, 'Kansas', 'Duke')).toBe('Duke −3');
   });
 });

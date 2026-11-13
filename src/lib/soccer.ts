@@ -7,6 +7,7 @@
 //   event_research.extensions.calibration          settled calibration per market family (Brier, log loss vs market)
 //   event_research.extensions.rest_congestion / head_to_head
 // Sift computes no probability of its own here: the only arithmetic is formatting.
+import { teamFavouriteLine } from './spreadNotation';
 import type { EventResearchDoc, Market, ResearchMarket } from '../contract/types';
 import { cleanDescription } from './marketLabel';
 import { soccerScriptDefinition, soccerScriptTitle } from './scriptNames';
@@ -382,7 +383,7 @@ export function soccerMarketTitle(m: MarketLike, names: SoccerNames): string {
   if ((fam === 'handicap' || fam === 'first_half_handicap') && who) {
     // "home wins by more than 1.5" is the home side giving 1.5 goals: sportsbook language says "−1.5".
     const line = m.line ?? m.threshold;
-    return line != null ? `${pre}${who} −${Math.abs(line)}` : `${pre}${who} handicap`;
+    return line != null ? `${pre}${teamFavouriteLine(who, line, { decimals: 2 })}` : `${pre}${who} handicap`;
   }
   if (fam === 'btts' || fam === 'first_half_btts') return `${pre}Both teams score`;
   if ((fam === 'exact_score' || fam === 'first_half_exact_score') && (mm = /(\d+)\s*[-–:]\s*(\d+)/.exec(d))) return `${pre}Exact score ${names.home} ${mm[1]}–${mm[2]} ${names.away}`;

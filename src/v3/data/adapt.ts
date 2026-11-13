@@ -1,6 +1,7 @@
 // Real-publication adapters: board rows and event documents -> the v3 view-model. Nothing is invented here: a field the
 // publication does not state stays null and the screen says so. Lines are Kalshi contract ladders (never sportsbook
 // consensus), reduced to the one nearest 50¢ for the compact chip and kept whole for the market sheet.
+import { teamFavouriteLine } from '../../lib/spreadNotation';
 import type { BoardItem, Market } from '../../contract/types';
 import type { GameRow } from '../../views/broadcast/games';
 import { heroTeam } from '../../lib/hero/input';
@@ -117,7 +118,7 @@ export function deriveLines(markets: Market[], away: V3Team, home: V3Team, partI
     const best = [...spreads].sort((a, b) => nearHalf(a) - nearHalf(b))[0];
     const team = best.participant_id === partIds.home ? home : best.participant_id === partIds.away ? away : null;
     if (team) {
-      out.push({ kind: 'spread', label: `${team.abbr} −${fmtLine(spreadLine(best)!)}`, price: priceOf(best), line: spreadLine(best), teamId: team.id, alternates: [...spreads].sort((a, b) => (a.participant_id ?? '').localeCompare(b.participant_id ?? '') || spreadLine(a)! - spreadLine(b)!).map(priceOf) });
+      out.push({ kind: 'spread', label: teamFavouriteLine(team.abbr, spreadLine(best)!) ?? `${team.abbr} spread`, price: priceOf(best), line: spreadLine(best), teamId: team.id, alternates: [...spreads].sort((a, b) => (a.participant_id ?? '').localeCompare(b.participant_id ?? '') || spreadLine(a)! - spreadLine(b)!).map(priceOf) });
     }
   }
   const totals = open.filter((m) => TOTAL_FAMILY.test(m.market_family) && totalLine(m) != null);

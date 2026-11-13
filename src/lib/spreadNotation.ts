@@ -26,7 +26,7 @@ export interface SpreadDisplayOptions {
   decimals?: number;
 }
 
-const shown = (n: number, decimals: number) => n.toFixed(decimals).replace(/\\.?0+$/, '');
+const shown = (n: number, decimals: number) => Number(n.toFixed(decimals)).toString();
 function display(team: string | null, points: number, decimals: number): TeamSpreadNotation {
   return { team, points, label: team ? `${team} -${shown(points, decimals)}` : "Pick'em" };
 }

@@ -2,6 +2,7 @@
 // number where it differs — context near the bottom of the game, not the argument the page opens with.
 // Plus the scheme table (charted tendencies for both teams, rank first).
 import { Link } from '../../routing';
+import { spreadFromHomeHandicap } from '../../lib/spreadNotation';
 import type { EventResearchDoc } from '../../contract/types';
 import { QuoteSummaryChip } from '../../components/LiveQuote';
 import { Icon } from '../../components/Icon';
@@ -33,9 +34,11 @@ export function LinesPanel({ r, homeAbbr, awayAbbr, to, views, now, chip = true 
   if (!mi && !mv) return null;
   const mSpread = mi?.implied_spread != null ? Number(mi.implied_spread) : null;
   const sSpread = mv?.model_spread != null ? Number(mv.model_spread) : null;
-  const fav = (v: number | null) => (v == null ? null : v <= 0 ? homeAbbr : awayAbbr);
-  const line = (v: number | null) => (v == null ? '—' : Math.abs(v) < 0.5 ? 'Pick’em' : `${fav(v)} −${half(v)}`);
-  const mFav = fav(mSpread) ?? homeAbbr;
+  // These publication fields are HOME handicaps, NOT home-minus-away score margins.
+  // Convert at the display boundary only; never invert a model/result margin here.
+  const displayLine = (v: number | null) => spreadFromHomeHandicap(v, homeAbbr, awayAbbr, { roundTo: 0.5, decimals: 1 });
+  const line = (v: number | null) => displayLine(v)?.label ?? '—';
+  const mFav = displayLine(mSpread)?.team ?? homeAbbr;
   const tiles = [
     { k: 'Spread', m: line(mSpread), s: line(sSpread), same: mSpread != null && sSpread != null && Math.abs(mSpread - sSpread) < 1 },
     { k: 'Total', m: mi?.implied_total_median != null ? half(mi.implied_total_median) : '—', s: mv?.model_total != null ? half(mv.model_total) : '—', same: mi?.implied_total_median != null && mv?.model_total != null && Math.abs(mi.implied_total_median - mv.model_total) < 1 },

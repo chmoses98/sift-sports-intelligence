@@ -1,4 +1,5 @@
 import { Link } from '../../routing';
+import { spreadFromFinalScores } from '../../lib/spreadNotation';
 import { useGameStart } from '../data/research/gameHooks';
 import { useGameExtras } from '../data/useGameExtras';
 import { closenessOf, lateness, progressOf } from '../model/priority';
@@ -52,6 +53,9 @@ export function GameCard({ g: base }: { g: V3Game }) {
   const gate = useListGate(g, startMs);
   const live = g.phase === 'live';
   const scored = g.score != null;
+  const finalMargin = g.phase === 'final' && g.score
+    ? spreadFromFinalScores(g.score.home, g.score.away, g.home.abbr, g.away.abbr)?.label ?? null
+    : null;
   const src = scoreSourceWord(g);
   const hasSituation = live && !!g.situation?.text;
   const noScore = live && !scored && g.provenance === 'publication';
@@ -66,7 +70,7 @@ export function GameCard({ g: base }: { g: V3Game }) {
       <header className="v3-gc__h">
         <span className="v3-gc__lg" data-sport={g.slug}>{leagueLabel(g)}</span>
         {g.away.conference && g.away.conference === g.home.conference && <span className="v3-gc__cf">{g.away.conference}</span>}
-        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? (hasStart(g.startMs) ? `Live · ${clockTime(g.startMs)}` : 'Live')}<DelayedMark g={g} /></span> : <span className="v3-gc__time">{statusWord(g)}</span>}
+        {live ? <span className="v3-gc__live"><Icon name="clock" size={14} />{g.score?.clock ?? (hasStart(g.startMs) ? `Live · ${clockTime(g.startMs)}` : 'Live')}<DelayedMark g={g} /></span> : <span className="v3-gc__time">{statusWord(g)}{finalMargin && finalMargin !== "Pick'em" ? ` · ${finalMargin}` : ''}</span>}
         {noScore && <span className="v3-gc__noscore" role="note" aria-label="No score shown: this league has no licensed score feed in SIFT, so no score is estimated">No score</span>}
         {closeAndLate(g) && <span className="v3-gc__hot">Close · late</span>}
         <span className="v3-gc__net">{g.network ?? ''}</span>
@@ -111,6 +115,9 @@ export function CompactGameCard({ g: base }: { g: V3Game }) {
   const gate = useListGate(g, startMs);
   const live = g.phase === 'live';
   const scored = g.score != null;
+  const finalMargin = g.phase === 'final' && g.score
+    ? spreadFromFinalScores(g.score.home, g.score.away, g.home.abbr, g.away.abbr)?.label ?? null
+    : null;
   const line = g.lines.find((l) => l.kind === 'spread') ?? g.lines.find((l) => l.kind === 'total') ?? g.lines.find((l) => l.kind === 'moneyline');
   const p = line ? gate(line.price) : null;
   const label = `${g.away.name} at ${g.home.name}, ${scored ? `${g.score!.away} to ${g.score!.home}, ` : ''}${statusWord(g)}. Open game`;
@@ -130,7 +137,7 @@ export function CompactGameCard({ g: base }: { g: V3Game }) {
       <Link to={gameHref(g)} className="v3-gc__hit" aria-label={label} />
       <div className="v3-gcc__teams">{row('away')}{row('home')}</div>
       <div className="v3-gcc__st">
-        <span className={live ? 'v3-gcc__live' : undefined}>{live ? (g.score?.clock ?? 'Live') : statusWord(g)}<DelayedMark g={g} /></span>
+        <span className={live ? 'v3-gcc__live' : undefined}>{live ? (g.score?.clock ?? 'Live') : statusWord(g)}{finalMargin && finalMargin !== "Pick'em" ? ` · ${finalMargin}` : ''}<DelayedMark g={g} /></span>
         <small>{leagueLabel(g)}{g.network ? ` · ${g.network}` : ''}</small>
         {live && !scored && g.provenance === 'publication' && <small className="v3-gcc__ns">No score</small>}
       </div>

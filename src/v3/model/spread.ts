@@ -1,3 +1,5 @@
+import { spreadFromScores } from '../../lib/spreadNotation';
+
 // The model's spread, derived only from the model's own two projected scores (never invented, never rounded into a price):
 // the projected margin of the team ahead, to the half point as sportsbooks and Kalshi spread contracts are written. No projection, no spread.
 
@@ -11,10 +13,6 @@ export interface ModelSpread {
 }
 
 export function modelSpread(awayScore: number | null | undefined, homeScore: number | null | undefined, awayAbbr: string, homeAbbr: string): ModelSpread | null {
-  if (awayScore == null || homeScore == null || !Number.isFinite(awayScore) || !Number.isFinite(homeScore)) return null;
-  const diff = homeScore - awayScore;
-  const margin = Math.round(Math.abs(diff) * 2) / 2;
-  if (margin === 0) return { leader: null, margin: 0, label: "Pick'em" };
-  const leader = diff > 0 ? homeAbbr : awayAbbr;
-  return { leader, margin, label: `${leader} −${margin.toFixed(1)}` };
+  const result = spreadFromScores(homeScore, awayScore, homeAbbr, awayAbbr, { roundTo: 0.5, decimals: 1 });
+  return result ? { leader: result.team, margin: result.points, label: result.label } : null;
 }

@@ -1,3 +1,4 @@
+import { spreadFromHomeMargin } from '../../lib/spreadNotation';
 // Typed views over the CBB publication's documented extensions (cbb-edge-finder docs/SIFT_APP.md).
 // Sift never reads a CBB archive: every field here was translated by the CBB app publisher from the
 // immutable pre-tip projection archive, roster truth and the prospective scoreboard. Presentation only —
@@ -293,11 +294,9 @@ export const fmt1 = (v: number | null | undefined) => (v == null ? '—' : v.toF
 export const signed1 = (v: number | null | undefined) => (v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`);
 export const pct0 = (v: number | null | undefined) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 
-/** "Kansas by 1.8" from a home-minus-away margin. */
+/** All CBB model margins are HOME minus AWAY. Render as team-favoured notation (e.g. "Kansas -1.8"). */
 export function marginWords(margin: number | null | undefined, home: string, away: string): string {
-  if (margin == null) return '—';
-  if (Math.abs(margin) < 0.05) return 'Even';
-  return `${margin > 0 ? home : away} by ${Math.abs(margin).toFixed(1)}`;
+  return spreadFromHomeMargin(margin, home, away, { decimals: 1 })?.label ?? '—';
 }
 
 export function shortSha(s: unknown): string {

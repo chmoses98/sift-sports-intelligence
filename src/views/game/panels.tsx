@@ -1,4 +1,5 @@
 // The game overview's panels. Each answers one question and links to the deep view that owns it.
+import { spreadFromHomeHandicap } from '../../lib/spreadNotation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { statusWord } from '../../lib/nfl';
 import { Link } from '../../routing';
@@ -106,7 +107,9 @@ export function ModelReadPanel({ r, read, homeAbbr, awayAbbr, to }: { r: EventRe
   const wp = mv?.model_win_probability?.[fav];
   const mwp = mi?.win_probability?.[fav];
   const mSpread = mi?.implied_spread != null ? Number(mi.implied_spread) : null;
-  const line = (v: number | null) => (v == null ? '—' : `${fav} −${(Math.round(Math.abs(v) * 2) / 2).toFixed(1).replace(/\.0$/, '')}`);
+  // model_spread / implied_spread are HOME handicaps (negative = home favoured). Each line names ITS OWN favourite:
+  // the market's favourite can differ from the model's, so never reuse the model favourite for the market line.
+  const line = (v: number | null) => spreadFromHomeHandicap(v, homeAbbr, awayAbbr, { roundTo: 0.5, decimals: 1 })?.label ?? '—';
   return (
     <section className="panel ov-model" aria-labelledby="ov-model-h">
       <div className="phead">

@@ -2,6 +2,7 @@
 // publishes. Model figures come from `extensions.model_view` (NFL's shadow model, with its caveat); market figures
 // from `extensions.market_implied` (midpoint-inferred, labelled research) or, failing that, the game-winner
 // contracts' own market probability. Anything not published stays null and is simply not drawn.
+import { spreadFromHomeHandicap } from '../../lib/spreadNotation';
 import { modelVersionShort } from '../../lib/plainLabels';
 import type { EventResearchDoc } from '../../contract/types';
 
@@ -65,10 +66,7 @@ export function heroNumbers(r: EventResearchDoc | null | undefined): HeroNumbers
 
 /** "LA −3" from a home line: the favourite and the half-rounded points. */
 export function spreadText(homeLine: number | null, n: HeroNumbers): string | null {
-  if (homeLine == null) return null;
-  const pts = Math.round(Math.abs(homeLine) * 2) / 2;
-  if (pts < 0.5) return 'Pick’em';
-  return `${homeLine <= 0 ? n.home.abbr : n.away.abbr} −${pts}`;
+  return spreadFromHomeHandicap(homeLine, n.home.abbr, n.away.abbr, { roundTo: 0.5 })?.label ?? null;
 }
 
 export const halfRound = (v: number) => Math.round(v * 2) / 2;

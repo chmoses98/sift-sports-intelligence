@@ -9,6 +9,7 @@
 //   edge         ONLY a validated indicator: an ACTIONABLE row, or the publication's top research candidate (tiers 2–3)
 //                with its tier word; a judged game with neither reads "No edge"; a game nobody judged says nothing
 // Each piece is null when its source is not published: a card never fills a gap.
+import { spreadFromHomeHandicap } from '../../lib/spreadNotation';
 import type { EventResearchDoc } from '../../contract/types';
 import { gameSides, matchupObs } from '../../insights/game';
 import { matchupInsights } from '../../insights/matchups';
@@ -77,9 +78,7 @@ export function sideRanks(r: EventResearchDoc | null | undefined, abbr: string |
 
 /** Home line → "DET −5.5" (half-point rounded, as books quote it); "Pick’em" inside half a point. */
 export function lineText(homeLine: number, away: string, home: string): string {
-  const pts = half(Math.abs(homeLine));
-  if (pts < 0.5) return 'Pick’em';
-  return `${homeLine < 0 ? home : away} −${fmtPts(pts)}`;
+  return spreadFromHomeHandicap(homeLine, home, away, { roundTo: 0.5 })?.label ?? '—';
 }
 
 /** The research model's read in a few characters, or null. NFL: projected score; NHL: expected goals. */

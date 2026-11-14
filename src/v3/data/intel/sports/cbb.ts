@@ -5,6 +5,7 @@
 //   site, conference game      context the publisher states
 // A game outside the prospective capture window carries no projection: tempo and efficiency are then absent with the publisher's own message, and
 // nothing is estimated in their place. (The frozen projection itself is read by data/intel/projection.ts.)
+import { spreadFromHomeMargin } from '../../../../lib/spreadNotation';
 import type { EventResearchDoc } from '../../../../contract/types';
 import { researchExt, type ModelRow, type TeamRoster } from '../../../../views/cbb/data';
 import type { Environment, EnvLine } from '../environment';
@@ -29,7 +30,7 @@ function environment(i: SportInput): Environment | null {
   if (poss != null) lines.push({ id: 'pace', label: 'Tempo', text: `${one(poss)} possessions projected.`, source: 'model' });
   if (hp != null && ap != null) lines.push({ id: 'eff', label: 'Efficiency', text: `Projected points per possession: ${g.away.nick} ${two(ap)}, ${g.home.nick} ${two(hp)}.`, source: 'model' });
   const mg = num(m.margin);
-  if (mg != null) lines.push({ id: 'close', label: 'Margin', text: `${g.home.nick} by ${one(mg)} (home minus away)${m.margin_range_80 ? `, 80% range ${Math.round(m.margin_range_80[0])} to ${Math.round(m.margin_range_80[1])}` : ''}.`, source: 'model' });
+  if (mg != null) lines.push({ id: 'close', label: 'Margin', text: `Projected ${spreadFromHomeMargin(mg, g.home.nick, g.away.nick)?.label ?? '—'}${m.margin_range_80 ? `; 80% range ${spreadFromHomeMargin(m.margin_range_80[0], g.home.nick, g.away.nick, { decimals: 0 })?.label ?? '—'} to ${spreadFromHomeMargin(m.margin_range_80[1], g.home.nick, g.away.nick, { decimals: 0 })?.label ?? '—'}` : ''}.`, source: 'model' });
   return lines.length ? { lines, notSimulated: [], foot: `Frozen pre-tip projection ${m.version}${asOf ? `, recorded ${dayClock(asOf, i.now, undefined, ', ')}` : ''}. Research, not a recommendation.` } : null;
 }
 

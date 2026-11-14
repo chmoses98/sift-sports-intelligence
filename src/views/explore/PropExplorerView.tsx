@@ -14,6 +14,7 @@
 // Selection lives in the address, so changing the prop replaces every panel at once (nothing from the previous prop
 // stays on screen). Built on the game prop board (src/insights/propBoard.ts): no probability is derived from a mean;
 // the probability of the over appears only where the selected projection prices the line, labelled research.
+import { spreadFromHomeHandicap } from '../../lib/spreadNotation';
 import { ReliabilityLine } from '../../components/IntelligenceNote';
 import { ProjectionNote } from '../../components/ProjectionNote';
 import { loadAuthority } from '../../data/projections';
@@ -276,7 +277,7 @@ function PropAnalysis({ histLoading, row, playerRows, hits, hist, win, onWin, on
             </div>
             <dl className="fr-gamectx__dl">
               <div><dt>Total</dt><dd className="fx-num">{mi.implied_total_median != null ? mi.implied_total_median.toFixed(1) : '—'}</dd></div>
-              <div><dt>Spread</dt><dd className="fx-num">{mi.implied_spread != null ? `${row.team.home ? row.team.abbr : row.opp.abbr} ${mi.implied_spread > 0 ? '+' : ''}${mi.implied_spread.toFixed(1)}` : '—'}</dd></div>
+              <div><dt>Spread</dt><dd className="fx-num">{mi.implied_spread != null ? (row.team.home ? spreadFromHomeHandicap(mi.implied_spread, row.team.abbr, row.opp.abbr) : spreadFromHomeHandicap(mi.implied_spread, row.opp.abbr, row.team.abbr))?.label ?? '—' : '—'}</dd></div>
             </dl>
             <p className="fr-note">Market-implied from contract midpoints: research context, not executable prices.</p>
           </section>

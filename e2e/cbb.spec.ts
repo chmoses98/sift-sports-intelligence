@@ -79,7 +79,7 @@ test.describe('CBB in season', () => {
   test('a post-tip record is never the projection; UNSCORABLE stays visible @smoke', async ({ page }) => {
     await page.goto(`./#/cbb/game/${ROME_FINAL.event_id}`);
     await expect(page.getByText('Prospective evidence · valid').first()).toBeVisible();
-    await expect(page.locator('.cproj__grid').first()).toContainText(/Villanova by 0\.\d/); // the +25 post-tip record is excluded
+    await expect(page.locator('.cproj__grid').first()).toContainText(/Villanova −0\.\d/); // the +25 post-tip record is excluded
     await expect(page.getByText(/made at or after tip are excluded/)).toBeVisible();
     await page.goto(`./#/cbb/game/${SWAPPED.event_id}`);
     await expect(page.getByText('Unscorable').first()).toBeVisible();

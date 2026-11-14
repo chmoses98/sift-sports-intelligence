@@ -1,6 +1,7 @@
 // Building blocks shared by the global Home and a sport's home: the featured game (a cinematic band
 // over its stadium), game tiles, slate rows, the script bar and the model–market gaps. Everything shown
 // comes from the board and each game's own event research; nothing is ranked as a pick.
+import { spreadFromHomeHandicap, teamFavouriteLine } from '../../lib/spreadNotation';
 import { useMemo } from 'react';
 import { Link } from '../../routing';
 import type { BoardItem, EventResearchDoc } from '../../contract/types';
@@ -51,11 +52,12 @@ export function modelLine(r: EventResearchDoc | null | undefined): string | null
   const home = r!.participants.find((p) => p.home_away === 'HOME');
   const away = r!.participants.find((p) => p.home_away === 'AWAY');
   const short = (pid?: string) => r!.event.participants.find((p) => p.participant_id === pid)?.short_name ?? '?';
-  const favHome = Number(mv.model_spread) <= 0;
-  const fav = short((favHome ? home : away)?.participant_id);
-  const pts = Math.round(Math.abs(Number(mv.model_spread)) * 2) / 2;
-  const wp = mv.model_win_probability?.[fav];
-  return `${fav} −${pts}${wp != null ? ` · ${Math.round(wp * 100)}%` : ''}${mv.model_total != null ? ` · O/U ${Math.round(mv.model_total * 2) / 2}` : ''}`;
+  // model_spread is a HOME handicap (negative = home favoured).
+  const s = spreadFromHomeHandicap(Number(mv.model_spread), short(home?.participant_id), short(away?.participant_id), { roundTo: 0.5 });
+  if (!s) return null;
+  const fav = s.team ?? short(home?.participant_id);
+  const wp = s.team ? mv.model_win_probability?.[fav] : null;
+  return `${s.label}${wp != null ? ` · ${Math.round(wp * 100)}%` : ''}${mv.model_total != null ? ` · O/U ${Math.round(mv.model_total * 2) / 2}` : ''}`;
 }
 
 /**
@@ -172,7 +174,7 @@ export function Disagreements({ items, research, slug, title = 'Model vs Market'
         if (!['game_winner', 'spread', 'total'].includes(m.market_family)) continue;
         if (p.market_probability < 0.1 || p.market_probability > 0.9) continue;
         const t = m.threshold;
-        const label = m.market_family === 'game_winner' ? `${short(m.participant_id)} to win` : m.market_family === 'spread' ? `${short(m.participant_id)} −${t}` : `Over ${t != null && Number.isInteger(t) ? t - 0.5 : t}`;
+        const label = m.market_family === 'game_winner' ? `${short(m.participant_id)} to win` : m.market_family === 'spread' ? (teamFavouriteLine(short(m.participant_id), t) ?? `${short(m.participant_id)} spread`) : `Over ${t != null && Number.isInteger(t) ? t - 0.5 : t}`;
         out.push({ label, game: `${away?.short_name} at ${home?.short_name}`, eventId: i.event_id, marketId: m.market_id, model: p.fair_probability, mkt: p.market_probability, gap: p.fair_probability - p.market_probability, m, short });
       }
     }

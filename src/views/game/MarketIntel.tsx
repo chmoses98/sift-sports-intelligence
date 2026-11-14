@@ -10,6 +10,7 @@
 // CFB: the engine's BEST_EXPRESSION / multi-script survivors with their published thesis, script survival, risks and
 // correlations, and a studio over up to three of them. No CFB price is a fair price: the engine publishes none.
 // Nothing here changes an opportunity's status, a price rule, contract identity, fees or settlement.
+import { spreadFromHomeHandicap } from '../../lib/spreadNotation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from '../../routing';
 import type { EventResearchDoc, Market } from '../../contract/types';
@@ -129,8 +130,8 @@ export function MarketIntel({ r, rows, set, slug, eventId, now, homeAbbr, awayAb
           <h2 className="fx-card__t" id="mi-th-h"><Icon name="research" size={17} /> Game thesis</h2>
           <p className="fr-note fr-thesis__src">The NFL publication writes no prose thesis for this game; these are its published numbers, side by side.</p>
           <ul className="fr-thesis__l">
-            {mi?.implied_spread != null && <li><span className="fr-rows__ic fr-rows__ic--cyan"><Icon name="chart" size={15} /></span><div><b>Market</b><p>{homeAbbr} {mi.implied_spread > 0 ? '+' : ''}{Number(mi.implied_spread).toFixed(1)} · total {Number(mi.implied_total_median).toFixed(1)} <small>(midpoints)</small></p></div></li>}
-            {mv?.model_spread != null && <li><span className="fr-rows__ic fr-rows__ic--gold"><Icon name="bolt" size={15} /></span><div><b>Model view</b><p>{homeAbbr} {mv.model_spread > 0 ? '+' : ''}{Number(mv.model_spread).toFixed(1)} · total {Number(mv.model_total).toFixed(1)} <small>(research)</small></p></div></li>}
+            {mi?.implied_spread != null && <li><span className="fr-rows__ic fr-rows__ic--cyan"><Icon name="chart" size={15} /></span><div><b>Market</b><p>{spreadFromHomeHandicap(Number(mi.implied_spread), homeAbbr, awayAbbr)?.label ?? '—'} · total {Number(mi.implied_total_median).toFixed(1)} <small>(midpoints)</small></p></div></li>}
+            {mv?.model_spread != null && <li><span className="fr-rows__ic fr-rows__ic--gold"><Icon name="bolt" size={15} /></span><div><b>Model view</b><p>{spreadFromHomeHandicap(Number(mv.model_spread), homeAbbr, awayAbbr)?.label ?? '—'} · total {Number(mv.model_total).toFixed(1)} <small>(research)</small></p></div></li>}
             {top[0] && <li><span className={`fr-rows__ic fr-rows__ic--s${top[0].index}`}><Icon name="layers" size={15} /></span><div><b>Most common script</b><p>{top[0].name} · {sharePct(top[0].share)} of simulated games</p></div></li>}
             {top[1] && <li><span className="fr-rows__ic fr-rows__ic--red"><Icon name="shield" size={15} /></span><div><b>Primary risk</b><p>{top[1].name} ({sharePct(top[1].share)} of simulated games end this way instead)</p></div></li>}
           </ul>

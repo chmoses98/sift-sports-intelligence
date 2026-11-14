@@ -1,6 +1,7 @@
 // Presentation helpers for a game: plain-language market labels, team form and head-to-head from the
 // team profiles, injury rows, the one-sentence model read and the kickoff weather. Pure functions over
 // published documents — they choose words and order, never create a number.
+import { teamFavouriteLine } from './spreadNotation';
 import type { EntityProfileDoc, EventResearchDoc, Market, ModelPrice } from '../contract/types';
 import { STAT_LABEL } from './nfl';
 import { describeNhlMarket } from './marketLabel';
@@ -45,7 +46,7 @@ export function marketLabel(m: Market, abbrOf: (pid: string | null) => string | 
     case 'game_winner':
       return `${per}${who ?? '?'} to win`;
     case 'spread':
-      return t != null ? `${per}${who ?? '?'} −${t}` : m.yes_description;
+      return t != null ? `${per}${teamFavouriteLine(who ?? '?', t, { decimals: 2 })}` : m.yes_description;
     case 'total':
       return t != null ? `${per}Over ${half(t)}` : m.yes_description;
     case 'team_total':

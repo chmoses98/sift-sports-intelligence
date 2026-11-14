@@ -3,6 +3,7 @@
 // Pure helpers turn one row into a result line ("DET won 31–25 · DET −5.5 covered") and the whole schedule into
 // season records. Nothing is modelled: a record is a count of published finals, a cover is the published final
 // margin against the published closing spread. A game without a final score has no result and no line here.
+import { teamFavouriteLine } from '../lib/spreadNotation';
 import { getJson, joinUrl } from '../data/fetcher';
 import { useAsync } from '../data/hooks';
 
@@ -90,7 +91,6 @@ export interface AtsResult {
   atsWinner: string | null;
 }
 
-const fmtLine = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
 /**
  * Against the spread, from the published final and the published closing spread only. Null when either is missing:
@@ -110,7 +110,7 @@ export function atsOf(g: LeagueGame): AtsResult | null {
   const favMargin = homeFav ? f.home - f.away : f.away - f.home;
   const line = Math.abs(s);
   const cover: Cover = favMargin > line ? 'covered' : favMargin === line ? 'push' : 'not_covered';
-  const text = `${favourite} −${fmtLine(line)} · ${cover === 'covered' ? 'covered' : cover === 'push' ? 'push' : 'did not cover'}`;
+  const text = `${teamFavouriteLine(favourite, line, { decimals: 1 })} · ${cover === 'covered' ? 'covered' : cover === 'push' ? 'push' : 'did not cover'}`;
   return { favourite, underdog, line, cover, text, atsWinner: cover === 'covered' ? favourite : cover === 'not_covered' ? underdog : null };
 }
 

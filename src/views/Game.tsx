@@ -1,3 +1,4 @@
+import { spreadFromHomeHandicap } from '../lib/spreadNotation';
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { ResearchDetails } from '../components/sift2/ResearchDetails';
 import { Link, useParams, useSearchParams } from '../routing';
@@ -134,7 +135,7 @@ function MarketModel({ ext, homeAbbr, awayAbbr }: { ext: any; homeAbbr: string; 
         <tbody>
           {row(`${homeAbbr} win`, wp(mi?.win_probability, homeAbbr), wp(mv?.model_win_probability, homeAbbr))}
           {row(`${awayAbbr} win`, wp(mi?.win_probability, awayAbbr), wp(mv?.model_win_probability, awayAbbr))}
-          {row(`${homeAbbr} spread`, mi?.implied_spread != null ? signed(mi.implied_spread, 2) : '—', mv?.model_spread != null ? signed(mv.model_spread, 2) : '—')}
+          {row('Spread (favourite)', spreadFromHomeHandicap(mi?.implied_spread != null ? Number(mi.implied_spread) : null, homeAbbr, awayAbbr, { decimals: 2 })?.label ?? '—', spreadFromHomeHandicap(mv?.model_spread != null ? Number(mv.model_spread) : null, homeAbbr, awayAbbr, { decimals: 2 })?.label ?? '—')}
           {row('Total', mi?.implied_total_median != null ? Number(mi.implied_total_median).toFixed(2) : '—', mv?.model_total != null ? Number(mv.model_total).toFixed(2) : '—')}
           {row('Score', mi?.implied_score ? `${awayAbbr} ${mi.implied_score[awayAbbr]} – ${homeAbbr} ${mi.implied_score[homeAbbr]}` : '—', mv?.model_score ? `${awayAbbr} ${mv.model_score[awayAbbr]} – ${homeAbbr} ${mv.model_score[homeAbbr]}` : '—')}
         </tbody>

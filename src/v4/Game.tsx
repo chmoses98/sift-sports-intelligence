@@ -33,6 +33,7 @@ import { groupPlayers, propsExplorerHref } from './propsModel';
 import { signalsHref } from './signalsModel';
 import { agoWord, authorityWord, priceLine } from './words';
 import { Scoreboard } from './Scoreboard';
+import { spreadFromFinalScores } from '../lib/spreadNotation';
 import { SportscoreBadge } from './LiveScoresControl';
 import { useFinal } from './parts';
 import { contractWords, useResearch } from './ResearchSheet';
@@ -232,6 +233,7 @@ function LiveTab({ g, final, spec, research, awayN, homeN, read, feedOn }: { g: 
           {spec?.venue && <div className="v4-kv"><span className="v4-kv__k">Venue</span><span className="v4-kv__v">{spec.venue.name}{spec.venue.city && <em>{spec.venue.city}{spec.venue.roof ? ` · ${spec.venue.roof}` : ''}</em>}</span></div>}
           {wx && <div className="v4-kv"><span className="v4-kv__k">Conditions</span><span className="v4-kv__v">{wx}</span></div>}
           {final && <div className="v4-kv"><span className="v4-kv__k">Result</span><span className="v4-kv__v">{final.winner === 'home' ? `${homeN} won ${final.home}–${final.away}` : final.winner === 'away' ? `${awayN} won ${final.away}–${final.home}` : `Tied ${final.home}–${final.away}`}<em>{awayN} {final.away} · {homeN} {final.home}</em></span></div>}
+          {final && <div className="v4-kv"><span className="v4-kv__k">Final margin</span><span className="v4-kv__v num">{spreadFromFinalScores(final.home, final.away, homeN, awayN)?.label ?? '—'}</span></div>}
           {g.phase === 'FINAL' && !final && <div className="v4-kv"><span className="v4-kv__k">Final score</span><span className="v4-kv__v">Not published</span></div>}
         </div>
       </div>

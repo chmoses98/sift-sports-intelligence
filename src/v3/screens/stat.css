@@ -122,7 +122,8 @@
 .v3 .st-obb { display: flex; gap: 6px; justify-content: flex-end; min-width: 0; }
 .v3 .st-btn { display: inline-flex; align-items: center; justify-content: center; gap: 2px; height: 36px; padding: 0 12px; border-radius: 12px; background: #1b1f25; border: 1px solid #323943; color: #e9edf1; font: 600 13.5px var(--f-ui); white-space: nowrap; position: relative; }
 .v3 .st-btn::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%); }
-.v3 .st-btn--pri { background: var(--sift-cyan); border-color: transparent; color: var(--on-cyan); font-weight: 700; }
+/* `.st-btn.st-btn--pri` outranks `.v3 .v3-tap { color: inherit }` (v3.css) whichever stylesheet loads last: the shell and screen chunks load in parallel. */
+.v3 .st-btn.st-btn--pri { background: var(--sift-cyan); border-color: transparent; color: var(--on-cyan); font-weight: 700; }
 .v3 .st-seas { margin: 10px 0 0; padding: 10px 12px 6px; }
 .v3 .st-ssr { position: relative; display: grid; grid-template-columns: 1fr auto 56px 92px; align-items: center; gap: 8px; min-height: 44px; border-top: 1px solid #1d2127; font: 400 12.5px var(--f-ui); color: var(--sift-muted); text-align: left; width: 100%; }
 .v3 .st-seas .st-eyebrow + .st-ssr { border-top: 1px solid #1d2127; }
